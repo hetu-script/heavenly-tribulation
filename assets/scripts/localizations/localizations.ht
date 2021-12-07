@@ -1,0 +1,17 @@
+fun getLocalizations {
+  final localizations = {
+    zhHans: {
+      'age.year': '岁',
+      'age.month': '个月',
+      'age.day': '天',
+      'date.year': '年',
+      'date.month': '月',
+      'date.day': '日',
+      'time.year': '年',
+      'time.month': '个月',
+      'time.day': '天',
+    }
+  }
+
+  return localizations.toJson()
+}

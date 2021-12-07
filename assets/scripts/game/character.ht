@@ -1,0 +1,18 @@
+
+fun createCharacter() {
+  
+}
+
+fun addCharacter(char) {
+  game.characters[char.id] = char
+}
+
+fun addCharacters(charList) {
+  for (var char in charList) {
+    game.characters[char.id] = char
+  }
+}
+
+fun getCharacterById(id: str) {
+  return game.characters[id]
+}

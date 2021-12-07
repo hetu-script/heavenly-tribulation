@@ -1,0 +1,15 @@
+var flutterContext
+
+fun build(context) {
+  flutterContext = context
+}
+
+external class RogueMap {
+  static fun fromJson
+
+  fun removeEntity(left: int, top: int) -> bool
+
+  fun lightUpAroundTerrain(left: int, top: int)
+
+  fun moveToTerrain(left: int, top: int)
+} 

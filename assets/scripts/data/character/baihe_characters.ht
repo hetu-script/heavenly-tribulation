@@ -1,0 +1,7 @@
+final baiheCharacters = [
+  {
+    id: 'xuanqingzi',
+    displayName: 'character.xuanqingzi',
+    
+  },
+]

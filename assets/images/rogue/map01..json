@@ -1,0 +1,44 @@
+{ "compressionlevel":-1,
+ "height":5,
+ "infinite":false,
+ "layers":[
+        {
+         "data":[5, 1, 0, 1, 2, 1, 3, 0, 0, 3, 0, 3, 1, 2, 1, 8, 0, 3, 0, 0, 3, 0, 0, 3, 0, 0, 1, 0, 0, 1],
+         "height":5,
+         "id":1,
+         "name":"terrain",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":6,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "data":[0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+         "height":5,
+         "id":2,
+         "name":"room",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":6,
+         "x":0,
+         "y":0
+        }],
+ "nextlayerid":3,
+ "nextobjectid":1,
+ "orientation":"orthogonal",
+ "renderorder":"right-down",
+ "tiledversion":"1.4.2",
+ "tileheight":32,
+ "tilesets":[
+        {
+         "firstgid":1,
+         "source":"rogue_tile2.tsx"
+        }],
+ "tilewidth":32,
+ "type":"map",
+ "version":1.4,
+ "width":6
+}

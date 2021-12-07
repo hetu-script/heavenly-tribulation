@@ -1,0 +1,16 @@
+fun addDialog(dlg) {
+  game.dialogs[dlg.id] = dlg
+}
+
+external fun _showGameDialog(context, data: Map)
+
+fun showGameDialogById(id: str) -> Future {
+  final dlg = game.dialogs[id]
+  return _showGameDialog(flutterContext, dlg.toJson())
+}
+
+external fun _showSelectionDialog(context, data: Map)
+
+fun showSelectionDialog(data: Map) -> Future {
+  return _showSelectionDialog(flutterContext, data)
+}
