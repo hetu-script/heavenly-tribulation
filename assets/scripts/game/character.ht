@@ -16,3 +16,7 @@ fun addCharacters(charList) {
 fun getCharacterById(id: str) {
   return game.characters[id]
 }
+
+fun getCharacters() {
+  return game.characters
+}

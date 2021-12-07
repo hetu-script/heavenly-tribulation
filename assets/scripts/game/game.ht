@@ -1,4 +1,13 @@
 import 'flutter.ht'
 import 'duel.ht'
 
-final game = {}
+final game = {
+    entities: {},
+    characters: {},
+    locations: {},
+    dialogs: {},
+  }
+
+fun getGame() {
+  return game.toJson()
+}

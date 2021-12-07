@@ -1,0 +1,14 @@
+import 'beifenglin_scenes/baiheguan_scenes.ht'
+
+final beifenglinLocations = [
+  {
+    id: 'baiheguan',
+    displayName: 'locations.baiheguan',
+    leader: 'xuanqingzi',
+    leaderShipDisplayName: 'daoguan.zhuchi',
+    organization: 'ziyangpai',
+    isPrivate: true,
+    owner: 'xuanqingzi',
+    backgroundImage: 'baihe.png',
+  },
+]

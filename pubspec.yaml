@@ -22,9 +22,9 @@ dependencies:
   #   path: ../packages/flame_ecs
 
   hetu_script:
-    path: ../../../hetu-script/packages/hetu_script
+    path: ../hetu-script/packages/hetu_script
   hetu_script_flutter:
-    path: ../../../hetu-script/packages/hetu_script_flutter
+    path: ../hetu-script/packages/hetu_script_flutter
 
 dev_dependencies:
   flutter_test:
@@ -42,8 +42,12 @@ flutter:
     - assets/images/
     - assets/images/icon/
     - assets/images/rogue/
+    - assets/images/location/
+    - assets/images/location/beifenglin_scenes/
 
-    - assets/scripts/main.ht
+    - assets/scripts/
     - assets/scripts/localizations/
     - assets/scripts/game/
-    - assets/scripts/game/dialog/
+    - assets/scripts/data/character/
+    - assets/scripts/data/city/
+    - assets/scripts/data/dialog/

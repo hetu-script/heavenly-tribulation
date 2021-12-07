@@ -1,8 +1,0 @@
-final beifenglinCities = [
-  {
-    id: 'baiheguan',
-    displayName: 'city.baiheguan',
-    isPrivate: true,
-    
-  },
-]

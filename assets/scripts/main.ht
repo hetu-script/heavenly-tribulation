@@ -5,19 +5,11 @@ import 'game/rogue.ht'
 import 'game/dialog.ht'
 import 'game/character.ht'
 import 'data/dialog/rogue_dialogs.ht'
-import 'data/character/baihe_characters.ht'
-import 'data/city/beifenglin_cities.ht'
+import 'data/character/characters.ht'
+import 'data/location/locations.ht'
 import 'localizations/localizations.ht'
 
 fun init {
-  game = {
-    entities: {},
-    characters: {},
-    cities: {},
-
-    dialogs: {},
-  }
-
   game.hero = {
     id: 'hero',
     name: '玲',
@@ -41,4 +33,6 @@ fun init {
   for (final dlg in rogueDialogs) {
     addDialog(dlg)
   }
+
+  for (final )
 }

@@ -1,0 +1,18 @@
+
+fun addLocation(loc) {
+  game.locations[loc.id] = char
+}
+
+fun addLocations(locList) {
+  for (var loc in locList) {
+    game.locations[loc.id] = loc
+  }
+}
+
+fun getLocationById(id: str) {
+  return game.locations[id]
+}
+
+fun getLocations() {
+  return game.locations
+}
