@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
-import 'package:sing2/ui/city/city_view.dart';
 
 import 'engine/scene/scene.dart';
 import 'engine/scene/rogue/rogue_game.dart';
 import 'ui/loading_screen.dart';
 import 'ui/map/map_view.dart';
 import 'engine/game.dart';
+import 'ui/location/location_view.dart';
 
 class GameApp extends StatefulWidget {
   final SamsaraGame game;
@@ -41,27 +41,30 @@ class _GameAppState extends State<GameApp>
 
   void init() async {
     await game.init();
+    final data =
+        game.hetu.invoke('getLocationDataById', positionalArgs: ['baiheguan']);
     setState(() {
       isAppLoading = false;
+
+      _pages = [
+        LocationView(game: game, data: data),
+        const MapView(),
+        const Align(
+          alignment: Alignment.center,
+          child: Text('关注'),
+        ),
+        const Align(
+          alignment: Alignment.center,
+          child: Text('我的'),
+        ),
+      ];
     });
   }
 
   @override
   void initState() {
     super.initState();
-
-    _pages = [
-      CityView(game: game),
-      const MapView(),
-      const Align(
-        alignment: Alignment.center,
-        child: Text('关注'),
-      ),
-      const Align(
-        alignment: Alignment.center,
-        child: Text('我的'),
-      ),
-    ];
+    isAppLoading = true;
 
     game.registerSceneConstructor('RogueGame', () {
       return RogueGame(game: game);
@@ -75,7 +78,6 @@ class _GameAppState extends State<GameApp>
       });
     });
 
-    isAppLoading = true;
     init();
   }
 
@@ -100,48 +102,48 @@ class _GameAppState extends State<GameApp>
 
     if (game.currentScene == null) {
       if (isAppLoading) {
-        return const LoadingScreen();
+        return const MaterialApp(home: LoadingScreen());
       } else {
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('aleph03r2'),
-          ),
-          body: PageView(
-            onPageChanged: _onPageChanged,
-            controller: _pageController,
-            children: _pages,
-            physics: const NeverScrollableScrollPhysics(),
-          ),
-          bottomNavigationBar: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            items: <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Image.asset('assets/images/icon/home.png'),
-                label: '场景',
-              ),
-              BottomNavigationBarItem(
-                icon: Image.asset('assets/images/icon/adventure.png'),
-                label: '世界',
-              ),
-              BottomNavigationBarItem(
-                icon: Image.asset('assets/images/icon/inventory.png'),
-                label: '关注',
-              ),
-              BottomNavigationBarItem(
-                icon: Image.asset('assets/images/icon/character.png'),
-                label: '角色',
-              ),
-            ],
-            currentIndex: _currentPage,
-            showSelectedLabels: false,
-            showUnselectedLabels: false,
-            elevation: 0.0,
-            onTap: _onItemTapped,
+        return MaterialApp(
+          themeMode: ThemeMode.dark,
+          home: Scaffold(
+            body: PageView(
+              onPageChanged: _onPageChanged,
+              controller: _pageController,
+              children: _pages,
+              physics: const NeverScrollableScrollPhysics(),
+            ),
+            bottomNavigationBar: BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              items: <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: Image.asset('assets/images/icon/home.png'),
+                  label: '场景',
+                ),
+                BottomNavigationBarItem(
+                  icon: Image.asset('assets/images/icon/adventure.png'),
+                  label: '世界',
+                ),
+                BottomNavigationBarItem(
+                  icon: Image.asset('assets/images/icon/inventory.png'),
+                  label: '关注',
+                ),
+                BottomNavigationBarItem(
+                  icon: Image.asset('assets/images/icon/character.png'),
+                  label: '角色',
+                ),
+              ],
+              currentIndex: _currentPage,
+              showSelectedLabels: false,
+              showUnselectedLabels: false,
+              elevation: 0.0,
+              onTap: _onItemTapped,
+            ),
           ),
         );
       }
     } else {
-      return game.currentScene!.widget;
+      return MaterialApp(home: game.currentScene!.widget);
     }
   }
 }

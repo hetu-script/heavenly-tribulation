@@ -1,0 +1,10 @@
+final beifenglinOrganizations = [
+  {
+    id: 'ziyangpai',
+    name: 'organization.ziyangpai',
+  }
+  {
+    id: 'caobang',
+    name: 'organization.caobang',
+  }
+]

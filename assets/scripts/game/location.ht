@@ -1,10 +1,11 @@
+import 'game.ht'
 
 fun addLocation(loc) {
-  game.locations[loc.id] = char
+  game.locations[loc.id] = loc
 }
 
-fun addLocations(locList) {
-  for (var loc in locList) {
+fun addLocations(locs: List) {
+  for (var loc in locs) {
     game.locations[loc.id] = loc
   }
 }
@@ -13,6 +14,14 @@ fun getLocationById(id: str) {
   return game.locations[id]
 }
 
+fun getLocationDataById(id: str) {
+  return game.locations[id].toJson()
+}
+
 fun getLocations() {
   return game.locations
+}
+
+fun getLocationsData() {
+  return game.locations.toJson()
 }

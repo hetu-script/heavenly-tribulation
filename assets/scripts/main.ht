@@ -1,17 +1,24 @@
-import 'flutter.ht'
+import 'localizations/localizations.ht'
 import 'game/game.ht'
 import 'game/duel.ht'
 import 'game/rogue.ht'
 import 'game/dialog.ht'
 import 'game/character.ht'
-import 'data/dialog/rogue_dialogs.ht'
+import 'game/location.ht'
+import 'game/flutter.ht'
+import 'data/dialog/dialogs.ht'
 import 'data/character/characters.ht'
 import 'data/location/locations.ht'
-import 'localizations/localizations.ht'
 
 fun init {
-  game.hero = {
-    id: 'hero',
+
+  addDialogs(dialogs)
+  addCharacters(characters)
+  addLocations(locations)
+  
+  game.timestamp = 288000
+  final playerCharacter001 = {
+    id: 'playerCharacter001',
     name: '玲',
     health: 100,
     life: 100,
@@ -29,10 +36,5 @@ fun init {
     ultSpeed: 25,
     initiative: 10,
   }
-
-  for (final dlg in rogueDialogs) {
-    addDialog(dlg)
-  }
-
-  for (final )
+  addCharacter(playerCharacter001);
 }

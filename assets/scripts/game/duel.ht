@@ -1,3 +1,5 @@
+import 'game.ht'
+
 /// 战斗模块
 /// 输入战斗相关角色的对象
 /// 生成战斗过程的文字描述，以及最终结果
@@ -14,8 +16,6 @@
 ///   skillName: '绝尘剑',
 ///   offGuard: false,
 /// }
-
-import 'game.ht'
 
 external fun _showDuel(context, data: Map)
 

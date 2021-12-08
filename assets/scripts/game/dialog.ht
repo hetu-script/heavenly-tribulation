@@ -1,5 +1,13 @@
+import 'game.ht'
+
 fun addDialog(dlg) {
   game.dialogs[dlg.id] = dlg
+}
+
+fun addDialogs(dlgs: List) {
+  for (final dlg in dlgs) {
+    game.dialogs[dlg.id] = dlg
+  }
 }
 
 external fun _showGameDialog(context, data: Map)

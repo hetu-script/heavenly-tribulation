@@ -1,6 +1,8 @@
 fun getLocalizations {
   final localizations = {
     zhHans: {
+      'organization': '组织',
+
       'age.year': '岁',
       'age.month': '个月',
       'age.day': '天',
@@ -10,6 +12,29 @@ fun getLocalizations {
       'time.year': '年',
       'time.month': '个月',
       'time.day': '天',
+      
+      'character.lizhiqing': '李志清',
+      'character.heping': '贺平',
+      'character.guhuaien': '顾怀恩',
+      'character.wanchongshan': '万重山',
+      'character.bichun': '毕春',
+      'character.xiangtian': '向天',
+      'artName.taoist.xuanqingzi': '玄清子',
+      'artName.taoist.yuanzhen': '元真',
+      'artName.taoist.yuanqu': '元曲',
+      'artName.ganghood.wuyunshou': '五云手',
+      'artName.ganghood.jinhu': '金虎',
+      'artName.ganghood.heie': '黑鳄',
+      'bio.xuanqingzi': '李志清，法号玄清子。紫阳派道士。白鹤观掌教。',
+      'bio.yuanzhen': '贺平，法号元真。紫阳派道士。玄清子座下首席弟子。',
+      'bio.guhuaien': '顾怀恩，法号元曲。紫阳派道士。玄清子座下二弟子。',
+      'bio.wanchongshan': '万重山，绰号五云手。漕帮好汉。利鑫商号堂主。',
+      'bio.bichun': '毕春，绰号金虎。漕帮好汉。利鑫商号内香主。',
+      'bio.xiangtian': '向天奕，绰号黑鳄。漕帮好汉。利鑫商号外香主。',
+      'locations.baiheguan': '白鹤观',
+      'locations.lixinhao': '利鑫商号',
+      'organization.ziyangpai': '紫阳派',
+      'organization.caobang': '漕帮',
     }
   }
 

@@ -1,2 +1,5 @@
-import 'baihe_characters.ht'
+import 'beifenglin_characters.ht'
 
+final characters = [
+  ...beifenglinCharacters,
+]

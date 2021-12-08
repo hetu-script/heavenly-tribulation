@@ -1,5 +1,5 @@
-name: sing2
-description: A new Flutter project.
+name: tian_dao_qi_jie
+description: A Xianxia genre RPG game, mixed with Roguelike/Tycoon elements. Game logic is written in Hetu Script.
 publish_to: 'none'
 
 version: 0.0.1
@@ -43,11 +43,12 @@ flutter:
     - assets/images/icon/
     - assets/images/rogue/
     - assets/images/location/
-    - assets/images/location/beifenglin_scenes/
 
     - assets/scripts/
     - assets/scripts/localizations/
     - assets/scripts/game/
-    - assets/scripts/data/character/
-    - assets/scripts/data/city/
     - assets/scripts/data/dialog/
+    - assets/scripts/data/character/
+    - assets/scripts/data/location/
+    - assets/scripts/data/location/scenes/
+    - assets/scripts/data/organization/

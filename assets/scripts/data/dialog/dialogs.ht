@@ -1,0 +1,5 @@
+import 'rogue_dialogs.ht'
+
+final dialogs = [
+  ...rogueDialogs,
+]

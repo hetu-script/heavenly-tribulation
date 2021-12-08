@@ -144,8 +144,7 @@ class _MapViewState extends State<MapView>
             onInteractionStart: _onInteractionStart,
             minScale: 0.1,
             maxScale: 1.0,
-            child:
-                const Image(image: AssetImage("assets/images/aleph_world.png")),
+            child: const Image(image: AssetImage("assets/images/hediguo.png")),
             constrained: false,
           ),
           Positioned(

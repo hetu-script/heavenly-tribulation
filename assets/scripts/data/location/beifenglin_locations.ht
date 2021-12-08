@@ -1,14 +1,24 @@
-import 'beifenglin_scenes/baiheguan_scenes.ht'
+import 'scenes/baiheguan_scenes.ht'
 
 final beifenglinLocations = [
   {
     id: 'baiheguan',
-    displayName: 'locations.baiheguan',
+    name: 'locations.baiheguan',
     leader: 'xuanqingzi',
-    leaderShipDisplayName: 'daoguan.zhuchi',
+    leadershipName: 'daoguan.zhangjiao',
     organization: 'ziyangpai',
-    isPrivate: true,
     owner: 'xuanqingzi',
-    backgroundImage: 'baihe.png',
+    isPrivate: true,
+    backgroundImage: 'location/baiheguan.png',
+  },
+  {
+    id: 'lixinhao',
+    name: 'locations.lixinhao',
+    leader: 'wanchongshan',
+    leadershipName: 'gang.tangzhu',
+    organization: 'caobang',
+    owner: 'wanchongshan',
+    isPrivate: true,
+    backgroundImage: 'location/lixinhao.png',
   },
 ]

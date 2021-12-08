@@ -6,5 +6,5 @@ import 'game_app.dart';
 import 'engine/game.dart';
 
 void main() {
-  runApp(MaterialApp(home: GameApp(game: SamsaraGame())));
+  runApp(GameApp(game: SamsaraGame()));
 }

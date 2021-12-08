@@ -1,0 +1,53 @@
+final beifenglinCharacters = [
+  {
+    id: 'xuanqingzi',
+    name: 'character.lizhiqing',
+    artName: 'artName.taoist.xuanqingzi',
+    useArtName: true,
+    bio: 'bio.xuanqingzi',
+    birthdate: 115200,
+    
+  },
+  {
+    id: 'yuanzhen',
+    name: 'character.heping',
+    artName: 'artName.taoist.yuanzhen',
+    useArtName: true,
+    bio: 'bio.yuanzhen',
+    birthdate: 115200,
+    
+  },
+  {
+    id: 'yuanqu',
+    name: 'character.guhuaien',
+    artName: 'artName.taoist.yuanqu',
+    useArtName: true,
+    bio: 'bio.yuanqu',
+    birthdate: 115200,
+    
+  },
+  {
+    id: 'wanchongshan',
+    name: 'character.wanchongshan',
+    artName: 'artName.ganghood.wuyunshou',
+    useArtName: false,
+    bio: 'bio.wanchongshan',
+    birthdate: 243360,
+  },
+  {
+    id: 'bichun',
+    name: 'character.bichun',
+    artName: 'artName.ganghood.jinhu',
+    useArtName: false,
+    bio: 'bio.bichun',
+    birthdate: 243360,
+  },
+  {
+    id: 'xiangtian',
+    name: 'character.xiangtian',
+    artName: 'artName.ganghood.heie',
+    useArtName: false,
+    bio: 'bio.xiangtian',
+    birthdate: 243360,
+  },
+]

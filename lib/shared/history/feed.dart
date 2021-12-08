@@ -1,8 +1,6 @@
-import 'time.dart';
-
 class HistoryFeed {
   final String entityId;
-  final GameDateTime timestamp;
+  final int timestamp;
   final String text;
 
   final List<String>? mentioned;
