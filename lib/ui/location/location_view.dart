@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../engine/game.dart';
-import '../colored_widget.dart';
+// import '../colored_widget.dart';
 
 class LocationView extends StatefulWidget {
   final SamsaraGame game;
@@ -25,70 +25,69 @@ class _LocationViewState extends State<LocationView>
   SamsaraGame get game => widget.game;
   Map<String, dynamic> get data => widget.data;
 
-  late final List<Widget> _pages;
+  // late final List<Widget> _pages;
 
-  static const _tabs = <Tab>[
-    Tab(text: '动态'),
-    Tab(text: '场地'),
-    Tab(text: '人物'),
-  ];
+  // static const _tabs = <Tab>[
+  //   Tab(text: '动态'),
+  //   Tab(text: '场景'),
+  // ];
 
-  late TabController _tabController;
+  // late TabController _tabController;
   late String _title,
       // _leadershipName,
       // _organization,
       // _organizationName,
-      _backgroundImage;
+      _image;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(vsync: this, length: _tabs.length);
+    // _tabController = TabController(vsync: this, length: _tabs.length);
 
     final String titleId = data['name'];
     _title = game.texts[titleId];
     // _leadershipName = widget.locationData['leadershipName'];
-    _backgroundImage = data['backgroundImage'];
+    _image = data['image'];
 
-    _pages = <Widget>[
-      Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                primary: Colors.white,
-                backgroundColor: Colors.lightBlue,
-                textStyle: const TextStyle(fontSize: 12),
-              ),
-              child: const Text(
-                'Roguelike Game Test',
-              ),
-              onPressed: () {
-                widget.game.createScene('RogueGame');
-                // GameDialog.show(context, [
-                //   const Saying('Hello, world!'),
-                //   const Saying('Alef out...'),
-                // ]);
-              },
-            ),
-          ],
-        ),
-      ),
-      const Align(
-        alignment: Alignment.center,
-        child: Text('场景'),
-      ),
-      const Align(
-        alignment: Alignment.center,
-        child: Text('人物'),
-      ),
-    ];
+    // _pages = <Widget>[
+    //   Center(
+    //     child: Column(
+    //       mainAxisAlignment: MainAxisAlignment.center,
+    //       children: <Widget>[
+    //         TextButton(
+    //           style: TextButton.styleFrom(
+    //             primary: Colors.white,
+    //             backgroundColor: Colors.lightBlue,
+    //             textStyle: const TextStyle(fontSize: 12),
+    //           ),
+    //           child: const Text(
+    //             'Roguelike Game Test',
+    //           ),
+    //           onPressed: () {
+    //             widget.game.createScene('RogueGame');
+    //             // GameDialog.show(context, [
+    //             //   const Saying('Hello, world!'),
+    //             //   const Saying('Alef out...'),
+    //             // ]);
+    //           },
+    //         ),
+    //       ],
+    //     ),
+    //   ),
+    //   const Align(
+    //     alignment: Alignment.center,
+    //     child: Text('场景'),
+    //   ),
+    //   const Align(
+    //     alignment: Alignment.center,
+    //     child: Text('人物'),
+    //   ),
+    // ];
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
+    // _tabController.dispose();
     super.dispose();
   }
 
@@ -102,7 +101,7 @@ class _LocationViewState extends State<LocationView>
           flexibleSpace: Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/$_backgroundImage'),
+                image: AssetImage('assets/images/$_image'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -112,19 +111,128 @@ class _LocationViewState extends State<LocationView>
               ],
             ),
           ),
-          bottom: ColoredPreferredSizeWidget(
-            backgroundColor: Colors.transparent.withOpacity(0.5),
-            child: TabBar(
-              controller: _tabController,
-              tabs: _tabs,
-            ),
+          // bottom: ColoredPreferredSizeWidget(
+          //   backgroundColor: Colors.transparent.withOpacity(0.5),
+          //   child: TabBar(
+          //     controller: _tabController,
+          //     tabs: _tabs,
+          //     unselectedLabelStyle: const TextStyle(fontSize: 16.0),
+          //     labelStyle: const TextStyle(fontSize: 20.0),
+          //   ),
+          // ),
+        ),
+      ),
+      body: Align(
+        alignment: Alignment.topCenter,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Wrap(
+            spacing: 8.0, // gap between adjacent chips
+            runSpacing: 4.0, // gap between lines
+            children: <Widget>[
+              SizedBox(
+                width: 200,
+                height: 180,
+                child: Card(
+                  shadowColor: Colors.black26,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(5.0),
+                    splashColor: Colors.blue.withAlpha(30),
+                    onTap: () {
+                      print('Card tapped.');
+                    },
+                    child: const SizedBox(
+                      width: 300,
+                      height: 100,
+                      child: Text('Card 0'),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 200,
+                height: 180,
+                child: Card(
+                  shadowColor: Colors.black26,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(5.0),
+                    splashColor: Colors.blue.withAlpha(30),
+                    onTap: () {
+                      print('Card 1 tapped.');
+                    },
+                    child: const SizedBox(
+                      width: 300,
+                      height: 100,
+                      child: Text('Card 1'),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 200,
+                height: 180,
+                child: Card(
+                  shadowColor: Colors.black26,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(5.0),
+                    splashColor: Colors.blue.withAlpha(30),
+                    onTap: () {
+                      print('Card 2 tapped.');
+                    },
+                    child: const SizedBox(
+                      width: 300,
+                      height: 100,
+                      child: Text('Card 2'),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 200,
+                height: 180,
+                child: Card(
+                  shadowColor: Colors.black26,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(5.0),
+                    splashColor: Colors.blue.withAlpha(30),
+                    onTap: () {
+                      print('Card 3 tapped.');
+                    },
+                    child: const SizedBox(
+                      width: 300,
+                      height: 100,
+                      child: Text('Card 3'),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 200,
+                height: 180,
+                child: Card(
+                  shadowColor: Colors.black26,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(5.0),
+                    splashColor: Colors.blue.withAlpha(30),
+                    onTap: () {
+                      print('Card 4 tapped.');
+                    },
+                    child: const SizedBox(
+                      width: 300,
+                      height: 100,
+                      child: Text('Card 4'),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: _pages,
-      ),
+      // TabBarView(
+      //   controller: _tabController,
+      //   children: _pages,
+      // )
     );
   }
 }

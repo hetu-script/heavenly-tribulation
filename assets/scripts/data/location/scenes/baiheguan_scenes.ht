@@ -1,12 +1,17 @@
 final baiheguanScenes = [
   {
     id: 'baiheguan.houshan',
-    displayName: 'city.baiheguan.houshan',
-    leader: 'xuanqingzi',
-    leaderShipDisplayName: 'daoguan.zhuchi',
-    organization: 'ziyangpai',
-    isPrivate: true,
-    owner: 'xuanqingzi',
-    backgroundImage: 'baihe.png',
+    name: 'scenes.baiheguan.houshan',
+    image: 'location/scene/baiheguan.houshan.png',
+  },
+  {
+    id: 'baiheguan.dadian',
+    name: 'scenes.baiheguan.dadian',
+    image: 'location/scene/baiheguan.dadian.png',
+  },
+  {
+    id: 'baiheguan.shuyuan',
+    name: 'scenes.baiheguan.shuyuan',
+    image: 'location/scene/baiheguan.shuyuan.png',
   },
 ]

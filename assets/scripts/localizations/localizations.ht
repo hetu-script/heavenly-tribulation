@@ -13,6 +13,9 @@ fun getLocalizations {
       'time.month': '个月',
       'time.day': '天',
       
+      'organization.ziyangpai': '紫阳派',
+      'organization.caobang': '漕帮',
+      
       'character.lizhiqing': '李志清',
       'character.heping': '贺平',
       'character.guhuaien': '顾怀恩',
@@ -31,10 +34,13 @@ fun getLocalizations {
       'bio.wanchongshan': '万重山，绰号五云手。漕帮好汉。利鑫商号堂主。',
       'bio.bichun': '毕春，绰号金虎。漕帮好汉。利鑫商号内香主。',
       'bio.xiangtian': '向天奕，绰号黑鳄。漕帮好汉。利鑫商号外香主。',
+
       'locations.baiheguan': '白鹤观',
       'locations.lixinhao': '利鑫商号',
-      'organization.ziyangpai': '紫阳派',
-      'organization.caobang': '漕帮',
+
+      'scenes.baiheguan.houshan': '后山',
+      'scenes.baiheguan.dadian': '正阳殿',
+      'scenes.baiheguan.shuyuan': '藏书阁',
     }
   }
 

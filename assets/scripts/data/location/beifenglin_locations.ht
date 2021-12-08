@@ -1,4 +1,5 @@
 import 'scenes/baiheguan_scenes.ht'
+import 'scenes/lixinhao_scenes.ht'
 
 final beifenglinLocations = [
   {
@@ -9,7 +10,8 @@ final beifenglinLocations = [
     organization: 'ziyangpai',
     owner: 'xuanqingzi',
     isPrivate: true,
-    backgroundImage: 'location/baiheguan.png',
+    image: 'location/baiheguan.png',
+    scenes: baiheguanScenes,
   },
   {
     id: 'lixinhao',
@@ -19,6 +21,7 @@ final beifenglinLocations = [
     organization: 'caobang',
     owner: 'wanchongshan',
     isPrivate: true,
-    backgroundImage: 'location/lixinhao.png',
+    image: 'location/lixinhao.png',
+    scenes: lixinhaoScenes,
   },
 ]

@@ -1,0 +1,17 @@
+final lixinhaoScenes = [
+  {
+    id: 'lixinhao.zhengting',
+    name: 'scenes.lixinhao.zhengting',
+    image: 'location/scene/lixinhao.zhengting.png',
+  },
+  {
+    id: 'lixinhao.cangku',
+    name: 'scenes.lixinhao.cangku',
+    image: 'location/scene/lixinhao.cangku.png',
+  },
+  {
+    id: 'lixinhao.yanwuchang',
+    name: 'scenes.lixinhao.yanwuchang',
+    image: 'location/scene/lixinhao.yanwuchang.png',
+  },
+]
