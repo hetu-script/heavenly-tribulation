@@ -221,7 +221,7 @@ class RogueMap extends GameComponent with HandlesGesture {
     final tile = getTerrain(tilePos.left, tilePos.top);
     if (tile != null && tile.isRoom && tile.isVisible) {
       gameRef.game.hetu
-          .invoke('handleInteraction', positionalArgs: [tile.left, tile.top]);
+          .invoke('onTouchedTile', positionalArgs: [tile.left, tile.top]);
     }
   }
 

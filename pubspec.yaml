@@ -16,7 +16,7 @@ dependencies:
   # hive: ^2.0.4
   # hive_flutter: ^1.1.0
   flame:
-    ^1.0.0-releasecandidate.17
+    ^1.0.0
     # path: ../../../flame/packages/flame
   # flame_ecs:
   #   path: ../packages/flame_ecs
@@ -43,12 +43,13 @@ flutter:
     - assets/images/icon/
     - assets/images/rogue/
     - assets/images/location/
+    - assets/images/location/scene/
 
     - assets/scripts/
-    - assets/scripts/localizations/
     - assets/scripts/game/
+    - assets/scripts/data/localizations/
     - assets/scripts/data/dialog/
     - assets/scripts/data/character/
     - assets/scripts/data/location/
-    - assets/scripts/data/location/scenes/
+    - assets/scripts/data/location/scene/
     - assets/scripts/data/organization/

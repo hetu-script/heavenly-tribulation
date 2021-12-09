@@ -4,6 +4,18 @@ fun createCharacter() {
   
 }
 
+fun setCurrentCharacter(id: str) {
+  game.characters.current = game.characters[id];
+}
+
+fun getCurrentCharacter() {
+  return game.characters.current;
+}
+
+fun getCurrentCharacterData() {
+  return game.characters.current.toJson();
+}
+
 fun addCharacter(char) {
   game.characters[char.id] = char
 }

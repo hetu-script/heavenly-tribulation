@@ -2,6 +2,7 @@ import 'flutter.ht'
 import 'duel.ht'
 
 final game = {
+  localizations: {},
   entities: {},
   characters: {},
   locations: {},

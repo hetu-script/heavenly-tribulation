@@ -1,5 +1,5 @@
-import 'scenes/baiheguan_scenes.ht'
-import 'scenes/lixinhao_scenes.ht'
+import 'scene/baiheguan_scenes.ht'
+import 'scene/lixinhao_scenes.ht'
 
 final beifenglinLocations = [
   {

@@ -31,12 +31,27 @@ fun createRogueGame {
         sprite: 'rogue/question_mark01.png',
         x: 3,
         y: 3,
+        onTouched: (){
+          if (!this.isVisited) {
+            this.isVisited = true
+            final future = showGameDialogById('event01')
+            future.then((value) {
+              rogueMapFlameComponent.removeEntity(x, y)
+              rogueMapFlameComponent.lightUpAroundTerrain(x, y)
+            })
+          }
+        },
       },
       '1,3': {
         id: 'event02',
         sprite: 'rogue/question_mark01.png',
         x: 1,
         y: 3,
+        onTouched: () {
+          if (!this.isUnlocked) {
+            showGameDialogById('event02a')
+          }
+        }
       },
       '4,1': {
         id: 'minion01',
@@ -44,6 +59,13 @@ fun createRogueGame {
         animationFrameCount: 4,
         x: 4,
         y: 1,
+        onTouched: () {
+          final selections = {
+            option1: '这是……',
+            option2: '什么呀？',
+          }
+          showSelectionDialog(selections.toJson())
+        }
         name: '青狼',
         health: 120,
         life: 120,
@@ -93,7 +115,13 @@ fun createRogueGame {
             count: 1,
             description: '一种黄色果实，食用后可以暂时增强毒素抵抗力。',
           },
-        ]
+        ],
+        onTouched: () {
+          if (!this.isVisited) {
+            this.isVisited = true
+            showGameDialogById('chest01')
+          }
+        }
       },
       '2,1': {
         id: 'exitMap01',
@@ -117,7 +145,7 @@ fun createRogueGame {
   return future
 }
 
-fun handleInteraction(x: int, y: int) {
+fun onTouchedTile(x: int, y: int) {
   final mapWidth = rogueMapData.width
   // print('mapWidth: ${mapWidth}')
   // print('x: ${x}')
@@ -133,62 +161,9 @@ fun handleInteraction(x: int, y: int) {
     if (entity == null) {
       rogueMapFlameComponent.lightUpAroundTerrain(x, y)
     } else {
-      when (entity.id) {
-        'event01' -> {
-          if (!entity.isVisited) {
-            entity.isVisited = true
-            final future = showGameDialogById('event01')
-            future.then((value) {
-              rogueMapFlameComponent.removeEntity(x, y)
-              rogueMapFlameComponent.lightUpAroundTerrain(x, y)
-            })
-          }
-        }
-        'event02' -> {
-          if (!entity.isUnlocked) {
-            showGameDialogById('event02a')
-          }
-        }
-        'minion01' -> {
-          final selections = {
-            option1: '这是……',
-            option2: '什么呀？',
-          }
-          showSelectionDialog(selections.toJson())
-          // if (!entity.isVisited) {
-          //   entity.isVisited = true
-          //   final battleResult = createBattle(entity)
-          //   final future = showBattleDialog(battleResult.log)
-          //   future.then((value) {
-          //     if (battleResult.result) {
-          //       rogueMapFlameComponent.removeEntity(x, y)
-          //       rogueMapFlameComponent.lightUpAroundTerrain(x, y)
-          //     }
-          //   })
-          // }
-        }
-        'boss01' -> {
-          // if (!entity.isVisited) {
-          //   entity.isVisited = true
-          //   final battleResult = createBattle(entity)
-          //   final future = showBattleDialog(battleResult.log)
-          //   future.then((value) {
-          //     if (battleResult.result) {
-          //       rogueMapFlameComponent.removeEntity(x, y)
-          //       rogueMapFlameComponent.lightUpAroundTerrain(x, y)
-          //     }
-          //   })
-          // }
-        }
-        'chest01' -> {
-          if (!entity.isVisited) {
-            entity.isVisited = true
-            showGameDialogById('chest01')
-          }
-        }
-        'exitMap01' -> {
-
-        }
+      final handler = entity.onTouched
+      if (handler is function) {
+        handler()
       }
     }
   }

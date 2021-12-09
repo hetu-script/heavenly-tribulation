@@ -1,5 +1,17 @@
 import 'game.ht'
 
+fun setCurrentLocation(id: str) {
+  game.locations.current = game.locations[id];
+}
+
+fun getCurrentLocation() {
+  return game.locations.current;
+}
+
+fun getCurrentLocationData() {
+  return game.locations.current.toJson();
+}
+
 fun addLocation(loc) {
   game.locations[loc.id] = loc
 }
@@ -24,4 +36,30 @@ fun getLocations() {
 
 fun getLocationsData() {
   return game.locations.toJson()
+}
+
+fun getCurrentLocationScenesData() {
+  return game.locations.current.scenes.toJson();
+}
+
+fun getSceneById(id: str) {
+  return game.locations.current.scenes[id]
+}
+
+fun onEnteredLocation(id: str) {
+  final loc = getLocationById(id)
+  final handler = loc.onEntered
+  if (handler is function) {
+    handler()
+  }
+}
+
+fun onEnteredScene(id: str) {
+  final scn = getSceneById(id)
+  if (scn != null) {
+    final handler = scn.onEntered
+    if (handler is function) {
+      handler()
+    }
+  }
 }

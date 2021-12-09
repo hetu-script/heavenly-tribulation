@@ -2,6 +2,7 @@ import 'dart:async' show Timer;
 
 import 'package:flutter/gestures.dart';
 import 'package:flame/game.dart';
+import 'package:flame/components.dart' show PositionType;
 
 import '../extensions.dart';
 import '../../ui/pointer_detector.dart' show TouchDetails;
@@ -50,8 +51,9 @@ mixin HandlesGesture on GameComponent {
   void handleTapDown(int pointer, TapDownDetails details) {
     if (!enableGesture || (tapPointer != null)) return;
     final pointerPosition = details.localPosition.toVector2();
-    final convertedPointerPosition =
-        isHud ? pointerPosition : gameRef.camera.screenToWorld(pointerPosition);
+    final convertedPointerPosition = positionType != PositionType.game
+        ? pointerPosition
+        : gameRef.camera.screenToWorld(pointerPosition);
     if (containsPoint(convertedPointerPosition)) {
       tapPointer = pointer;
       onTapDown(pointer, details);
@@ -64,8 +66,9 @@ mixin HandlesGesture on GameComponent {
       return;
     }
     final pointerPosition = details.localPosition.toVector2();
-    final convertedPointerPosition =
-        isHud ? pointerPosition : gameRef.camera.screenToWorld(pointerPosition);
+    final convertedPointerPosition = positionType != PositionType.game
+        ? pointerPosition
+        : gameRef.camera.screenToWorld(pointerPosition);
     if (containsPoint(convertedPointerPosition)) {
       if (doubleTapTimer == null) {
         doubleTapTimer =
@@ -94,8 +97,9 @@ mixin HandlesGesture on GameComponent {
   void handleDragStart(int pointer, DragStartDetails details) {
     if (!enableGesture) return;
     final pointerPosition = details.localPosition.toVector2();
-    final convertedPointerPosition =
-        isHud ? pointerPosition : gameRef.camera.screenToWorld(pointerPosition);
+    final convertedPointerPosition = positionType != PositionType.game
+        ? pointerPosition
+        : gameRef.camera.screenToWorld(pointerPosition);
     if (containsPoint(convertedPointerPosition)) {
       isDragging = true;
       onDragStart(pointer, details);
@@ -105,8 +109,9 @@ mixin HandlesGesture on GameComponent {
   void handleDragUpdate(int pointer, DragUpdateDetails details) {
     if (!enableGesture || !isDragging) return;
     final pointerPosition = details.localPosition.toVector2();
-    final convertedPointerPosition =
-        isHud ? pointerPosition : gameRef.camera.screenToWorld(pointerPosition);
+    final convertedPointerPosition = positionType != PositionType.game
+        ? pointerPosition
+        : gameRef.camera.screenToWorld(pointerPosition);
     if (containsPoint(convertedPointerPosition)) {
       onDragUpdate(pointer, details);
     } else {
@@ -131,11 +136,11 @@ mixin HandlesGesture on GameComponent {
     if (!enableGesture) return;
     assert(touches.length == 2);
     final pointerPosition1 = touches[0].currentLocalPosition.toVector2();
-    final convertedPointerPosition1 = isHud
+    final convertedPointerPosition1 = positionType != PositionType.game
         ? pointerPosition1
         : gameRef.camera.screenToWorld(pointerPosition1);
     final pointerPosition2 = touches[1].currentLocalPosition.toVector2();
-    final convertedPointerPosition2 = isHud
+    final convertedPointerPosition2 = positionType != PositionType.game
         ? pointerPosition2
         : gameRef.camera.screenToWorld(pointerPosition2);
     if (containsPoint(convertedPointerPosition1) &&
@@ -152,11 +157,11 @@ mixin HandlesGesture on GameComponent {
     if (!enableGesture || !isScalling) return;
     assert(touches.length == 2);
     final pointerPosition1 = touches[0].currentLocalPosition.toVector2();
-    final convertedPointerPosition1 = isHud
+    final convertedPointerPosition1 = positionType != PositionType.game
         ? pointerPosition1
         : gameRef.camera.screenToWorld(pointerPosition1);
     final pointerPosition2 = touches[1].currentLocalPosition.toVector2();
-    final convertedPointerPosition2 = isHud
+    final convertedPointerPosition2 = positionType != PositionType.game
         ? pointerPosition2
         : gameRef.camera.screenToWorld(pointerPosition2);
     if (containsPoint(convertedPointerPosition1) &&
@@ -179,8 +184,9 @@ mixin HandlesGesture on GameComponent {
   void handleLongPress(int pointer, LongPressStartDetails details) {
     if (!enableGesture || tapPointer != pointer) return;
     final pointerPosition = details.localPosition.toVector2();
-    final convertedPointerPosition =
-        isHud ? pointerPosition : gameRef.camera.screenToWorld(pointerPosition);
+    final convertedPointerPosition = positionType != PositionType.game
+        ? pointerPosition
+        : gameRef.camera.screenToWorld(pointerPosition);
     if (containsPoint(convertedPointerPosition)) {
       onLongPress(details);
     }

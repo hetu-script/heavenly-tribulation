@@ -8,7 +8,7 @@ import 'event/event.dart';
 import '../shared/localizations.dart';
 
 class SamsaraGame with SceneController, EventAggregator {
-  final texts = GameLocalizations();
+  late final GameLocalization texts;
   final hetu = Hetu();
   bool _isLoaded = false;
   bool get isLoaded => _isLoaded;
@@ -19,8 +19,9 @@ class SamsaraGame with SceneController, EventAggregator {
       externalClasses: [RogueMapClassBinding()],
     );
     hetu.evalFile('main.ht', invokeFunc: 'init');
-    final localizationData = hetu.invoke('getLocalizations');
-    texts.loadFromJson(localizationData);
+    final Map<String, dynamic> localizationData =
+        hetu.invoke('getCurrentLocalizationData');
+    texts = GameLocalization(localizationData);
     _isLoaded = true;
   }
 

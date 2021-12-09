@@ -1,0 +1,15 @@
+import 'game.ht'
+
+fun addLocalizations(langs: List) {
+  for (final lang in langs) {
+    game.localizations[lang.id] = lang
+  }
+}
+
+fun setCurrentLocalization(id: str) {
+  game.localizations.current = game.localizations[id]
+}
+
+fun getCurrentLocalizationData {
+  return game.localizations.current.toJson()
+}

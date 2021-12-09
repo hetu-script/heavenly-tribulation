@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class LoadingScreen extends StatelessWidget {
-  const LoadingScreen({Key? key, required this.text}) : super(key: key);
+class EmptyPlaceholder extends StatelessWidget {
+  const EmptyPlaceholder({Key? key, required this.text}) : super(key: key);
 
   final String text;
 

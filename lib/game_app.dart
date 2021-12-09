@@ -27,7 +27,7 @@ class _GameAppState extends State<GameApp>
   final _pageController = PageController();
   var _currentPage = 0;
 
-  late final List<Widget> _pages;
+  late List<Widget> _pages;
 
   bool isAppLoading = false;
 
@@ -41,13 +41,17 @@ class _GameAppState extends State<GameApp>
 
   void init() async {
     await game.init();
-    final data =
-        game.hetu.invoke('getLocationDataById', positionalArgs: ['baiheguan']);
+    updateLocation();
+  }
+
+  void updateLocation() {
     setState(() {
       isAppLoading = false;
-
       _pages = [
-        LocationView(game: game, data: data),
+        LocationView(
+          game: game,
+          locationId: 'current',
+        ),
         const MapView(),
         const Align(
           alignment: Alignment.center,
@@ -102,10 +106,12 @@ class _GameAppState extends State<GameApp>
 
     if (game.currentScene == null) {
       if (isAppLoading) {
-        return const MaterialApp(home: LoadingScreen());
+        return const MaterialApp(home: LoadingScreen(text: 'Loading...'));
       } else {
         return MaterialApp(
-          themeMode: ThemeMode.dark,
+          theme: ThemeData(
+            brightness: Brightness.light,
+          ),
           home: Scaffold(
             body: PageView(
               onPageChanged: _onPageChanged,
@@ -136,7 +142,7 @@ class _GameAppState extends State<GameApp>
               currentIndex: _currentPage,
               showSelectedLabels: false,
               showUnselectedLabels: false,
-              elevation: 0.0,
+              elevation: 8.0,
               onTap: _onItemTapped,
             ),
           ),

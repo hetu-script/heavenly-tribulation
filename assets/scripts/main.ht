@@ -1,17 +1,18 @@
-import 'localizations/localizations.ht'
 import 'game/game.ht'
-import 'game/duel.ht'
-import 'game/rogue.ht'
+import 'game/flutter.ht'
+import 'game/localization.ht'
 import 'game/dialog.ht'
 import 'game/character.ht'
 import 'game/location.ht'
-import 'game/flutter.ht'
+import 'game/duel.ht'
+import 'game/rogue.ht'
 import 'data/dialog/dialogs.ht'
 import 'data/character/characters.ht'
 import 'data/location/locations.ht'
+import 'data/localizations/localizations.ht'
 
 fun init {
-
+  addLocalizations(localizations)
   addDialogs(dialogs)
   addCharacters(characters)
   addLocations(locations)
@@ -37,4 +38,9 @@ fun init {
     initiative: 10,
   }
   addCharacter(playerCharacter001);
+
+  setCurrentLocalization('chs')
+  setCurrentCharacter('playerCharacter001')
+  setCurrentLocation('baiheguan')
+
 }
