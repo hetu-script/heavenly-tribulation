@@ -1,9 +1,9 @@
 import 'package:hetu_script/hetu_script.dart';
 import 'package:hetu_script/binding.dart';
 
-import '../../../../../engine/scene/rogue/component/rogue_map.dart';
+import '../../../../../engine/scene/maze/component/rogue_map.dart';
 
-extension RogueMapBinding on RogueMap {
+extension MazeBinding on Maze {
   dynamic htFetch(String varName) {
     switch (varName) {
       case r'removeEntity':
@@ -33,18 +33,18 @@ extension RogueMapBinding on RogueMap {
   }
 }
 
-class RogueMapClassBinding extends HTExternalClass {
-  RogueMapClassBinding() : super(r'RogueMap');
+class MazeClassBinding extends HTExternalClass {
+  MazeClassBinding() : super(r'Maze');
 
   @override
   dynamic memberGet(String varName) {
     switch (varName) {
-      case r'RogueMap.fromJson':
+      case r'Maze.fromJson':
         return (HTEntity object,
             {List<dynamic> positionalArgs = const [],
             Map<String, dynamic> namedArgs = const {},
             List<HTType> typeArgs = const []}) {
-          return RogueMap.fromJson(positionalArgs.first);
+          return Maze.fromJson(positionalArgs.first);
         };
       default:
         throw HTError.undefined(varName);
@@ -53,7 +53,7 @@ class RogueMapClassBinding extends HTExternalClass {
 
   @override
   dynamic instanceMemberGet(dynamic object, String varName) {
-    var i = object as RogueMap;
+    var i = object as Maze;
     return i.htFetch(varName);
   }
 }

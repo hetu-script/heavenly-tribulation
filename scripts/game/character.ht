@@ -4,6 +4,16 @@ fun createCharacter() {
   
 }
 
+fun createCharacterFromJson() {
+  
+}
+
+fun addCharacters(chars: List) {
+  for (final char in chars) {
+    game.characters[char.id] = char
+  }
+}
+
 fun setCurrentCharacter(id: str) {
   game.characters.current = game.characters[id];
 }
@@ -20,12 +30,6 @@ fun addCharacter(char) {
   game.characters[char.id] = char
 }
 
-fun addCharacters(chars: List) {
-  for (var char in chars) {
-    game.characters[char.id] = char
-  }
-}
-
 fun getCharacterById(id: str) {
   return game.characters[id]
 }
@@ -34,10 +38,10 @@ fun getCharacterDataById(id: str) {
   return game.characters[id].toJson()
 }
 
-fun getCharacters() {
+fun getAllCharacters() {
   return game.characters
 }
 
-fun getCharactersData() {
+fun getAllCharactersData() {
   return game.characters.toJson()
 }

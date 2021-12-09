@@ -1,0 +1,44 @@
+import '../../game/game.ht'
+import 'localizations/localizations.ht'
+import 'dialog/dialogs.ht'
+import 'organization/organizations.ht'
+import 'character/characters.ht'
+import 'location/locations.ht'
+import 'maze/mazes.ht'
+
+final core = {
+  init: () {
+    addLocalizations(localizations)
+    addDialogs(dialogs)
+    addCharacters(characters)
+    addLocations(locations)
+    addMazes(mazes)
+    
+    game.timestamp = 288000
+    final playerCharacter001 = {
+      id: 'playerCharacter001',
+      name: '玲',
+      health: 100,
+      life: 100,
+      defense: 5,
+      weapon: {
+        name: '钢剑',
+        attack: 25,
+        speed: 15,
+      },
+      skill: {
+        name: '绝尘剑气',
+        attack: 100,
+        speed: 25,
+      },
+      ultSpeed: 25,
+      initiative: 10,
+    }
+    addCharacter(playerCharacter001);
+
+    setCurrentLocalization('chs')
+    setCurrentCharacter('playerCharacter001')
+    setCurrentLocation('baiheguan')
+
+  }
+}

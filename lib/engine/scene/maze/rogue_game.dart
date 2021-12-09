@@ -12,7 +12,7 @@ class RogueGame extends Scene {
   Future<void> onLoad() async {
     await super.onLoad();
 
-    final RogueMap map = await game.hetu.invoke('createRogueGame');
+    final Maze map = await game.hetu.invoke('createRogueGame');
     add(map);
     _loaded = true;
   }

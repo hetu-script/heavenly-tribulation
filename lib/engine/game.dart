@@ -2,7 +2,7 @@ import 'package:hetu_script/hetu_script.dart';
 import 'package:hetu_script_flutter/hetu_script_flutter.dart';
 
 import '../binding/external_game_functions.dart';
-import '../binding/game/scene/rogue/component/rogue_map_binding.dart';
+import '../binding/game/scene/maze/component/maze_binding.dart';
 import 'scene/scene.dart';
 import 'event/event.dart';
 import '../shared/localizations.dart';
@@ -16,7 +16,7 @@ class SamsaraGame with SceneController, EventAggregator {
   Future<void> init() async {
     await hetu.initFlutter(
       externalFunctions: externalGameFunctions,
-      externalClasses: [RogueMapClassBinding()],
+      externalClasses: [MazeClassBinding()],
     );
     hetu.evalFile('main.ht', invokeFunc: 'init');
     final Map<String, dynamic> localizationData =

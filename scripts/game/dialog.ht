@@ -19,6 +19,6 @@ fun showGameDialogById(id: str) -> Future {
 
 external fun _showSelectionDialog(context, data: Map)
 
-fun showSelectionDialog(data: Map) -> Future {
-  return _showSelectionDialog(flutterContext, data)
+fun showSelectionDialog(data) -> Future {
+  return _showSelectionDialog(flutterContext, data.toJson())
 }

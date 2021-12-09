@@ -1,0 +1,24 @@
+export 'component.ht'
+export 'localization.ht'
+export 'dialog.ht'
+export 'organization.ht'
+export 'character.ht'
+export 'location.ht'
+export 'maze.ht'
+export 'duel.ht'
+
+final game = {
+  localizations: {
+    chs: {
+      languageName: '简体中文',
+    },
+    eng: {
+      languageName: 'English',
+    }
+  },
+  entities: {},
+  characters: {},
+  locations: {},
+  dialogs: {},
+  mazes: {},
+}

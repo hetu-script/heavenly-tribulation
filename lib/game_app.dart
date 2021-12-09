@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 
 import 'engine/scene/scene.dart';
-import 'engine/scene/rogue/rogue_game.dart';
+import 'engine/scene/maze/rogue_game.dart';
 import 'ui/loading_screen.dart';
 import 'ui/map/map_view.dart';
 import 'engine/game.dart';

@@ -2,7 +2,11 @@ import 'game.ht'
 
 fun addLocalizations(langs: List) {
   for (final lang in langs) {
-    game.localizations[lang.id] = lang
+    final langId = lang.id
+    final langData = game.localizations[langId]
+    for (final key in lang.keys) {
+      langData[key] = lang[key]
+    }
   }
 }
 

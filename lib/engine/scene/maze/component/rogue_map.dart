@@ -16,7 +16,7 @@ class TilePosition {
   String toString() => '[$left,$top]';
 }
 
-class RogueMap extends GameComponent with HandlesGesture {
+class Maze extends GameComponent with HandlesGesture {
   @override
   Camera get camera => gameRef.camera;
 
@@ -34,7 +34,7 @@ class RogueMap extends GameComponent with HandlesGesture {
 
   bool updateTile = true;
 
-  RogueMap({
+  Maze({
     required this.entryX,
     required this.entryY,
     double srcTileWidth = Tile.defaultSrcTileWidth,
@@ -48,7 +48,7 @@ class RogueMap extends GameComponent with HandlesGesture {
     scale = Vector2(Tile.defaultScale, Tile.defaultScale);
   }
 
-  static Future<RogueMap> fromJson(Map<String, dynamic> data) async {
+  static Future<Maze> fromJson(Map<String, dynamic> data) async {
     final srcTileWidth = data['srcTileWidth'];
     final srcTileHeight = data['srcTileHeight'];
 
@@ -107,7 +107,7 @@ class RogueMap extends GameComponent with HandlesGesture {
       entities[key] = entity;
     }
 
-    return RogueMap(
+    return Maze(
       entryX: entryX,
       entryY: entryY,
       srcTileWidth: srcTileWidth,

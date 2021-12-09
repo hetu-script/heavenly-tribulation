@@ -1,0 +1,84 @@
+import 'game.ht'
+import 'flutter.ht'
+
+external class Maze {
+  static fun fromJson
+
+  fun removeEntity(left: int, top: int) -> bool
+
+  fun lightUpAroundTerrain(left: int, top: int)
+
+  fun moveToTerrain(left: int, top: int)
+}
+
+fun createMaze(data) {
+  game.mazes.current = data
+  final future = Maze.fromJson(data.toJson())
+  future.then((value) {
+    game.mazes.current.component = value
+  })
+  return future
+}
+
+fun addMazes(mazes) {
+  for (final maze in mazes) {
+    game.mazes[maze.id] = maze
+  }
+}
+
+fun getCurrentMaze() {
+  return game.mazes.current;
+}
+
+fun getCurrentMazeComponent() {
+  return game.mazes.current.component
+}
+
+fun getCurrentMazeData() {
+  return game.mazes.current.toJson();
+}
+
+fun getMazeById(id: str) {
+  return game.mazes[id]
+}
+
+fun getMazeDataById(id: str) {
+  return game.mazes[id].toJson()
+}
+
+fun onEnteredMaze(id: str) {
+  final maze = getMazeById(id)
+  if (maze != null) {
+    final handler = maze.onEntered
+    if (handler is function) {
+      handler()
+    }
+  }
+}
+
+fun onTouchedTile(x: int, y: int) {
+  final maze = getCurrentMaze()
+  final component = getCurrentMazeComponent()
+
+  final mapWidth = maze.width
+  // print('mapWidth: ${mapWidth}')
+  // print('x: ${x}')
+  // print('y: ${y}')
+  final tileIndex = x - 1 + (y - 1) * mapWidth
+  // print('tileIndex: ${tileIndex}')
+  // print('maze.terrains.length: ${maze.terrains.length}')
+  final terrain = maze.terrains[tileIndex]
+  final room = maze.rooms[tileIndex]
+  final entity = maze.entities['${x},${y}']
+  if (room > 0) {
+    component.moveToTerrain(x, y)
+    if (entity == null) {
+      component.lightUpAroundTerrain(x, y)
+    } else {
+      final handler = entity.onTouched
+      if (handler is function) {
+        handler()
+      }
+    }
+  }
+}

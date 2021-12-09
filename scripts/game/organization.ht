@@ -1,0 +1,47 @@
+import 'game.ht'
+
+fun createOrganization() {
+  
+}
+
+fun createOrganizationFromJson() {
+  
+}
+
+fun addOrganizations(orgs: List) {
+  for (final org in orgs) {
+    game.Organizations[org.id] = org
+  }
+}
+
+fun setCurrentOrganization(id: str) {
+  game.hero.organizationId = id;
+}
+
+fun getCurrentOrganization() {
+  return getOrganizationById(game.hero.organizationId)
+}
+
+fun getCurrentOrganizationData() {
+  return getOrganizationDataById(game.hero.organizationId)
+}
+
+fun addOrganization(char) {
+  game.organizations[char.id] = char
+}
+
+fun getOrganizationById(id: str) {
+  return game.organizations[id]
+}
+
+fun getOrganizationDataById(id: str) {
+  return game.organizations[id].toJson()
+}
+
+fun getAllOrganizations() {
+  return game.organizations
+}
+
+fun getAllOrganizationsData() {
+  return game.organizations.toJson()
+}

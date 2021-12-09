@@ -1,5 +1,15 @@
 import 'game.ht'
 
+fun addLocation(loc) {
+  game.locations[loc.id] = loc
+}
+
+fun addLocations(locs: List) {
+  for (final loc in locs) {
+    game.locations[loc.id] = loc
+  }
+}
+
 fun setCurrentLocation(id: str) {
   game.locations.current = game.locations[id];
 }
@@ -12,16 +22,6 @@ fun getCurrentLocationData() {
   return game.locations.current.toJson();
 }
 
-fun addLocation(loc) {
-  game.locations[loc.id] = loc
-}
-
-fun addLocations(locs: List) {
-  for (var loc in locs) {
-    game.locations[loc.id] = loc
-  }
-}
-
 fun getLocationById(id: str) {
   return game.locations[id]
 }
@@ -30,11 +30,11 @@ fun getLocationDataById(id: str) {
   return game.locations[id].toJson()
 }
 
-fun getLocations() {
+fun getAllLocations() {
   return game.locations
 }
 
-fun getLocationsData() {
+fun getAllLocationsData() {
   return game.locations.toJson()
 }
 
