@@ -1,5 +1,0 @@
-var flutterContext
-
-fun build(context) {
-  flutterContext = context
-}

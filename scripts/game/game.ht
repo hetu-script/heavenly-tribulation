@@ -1,11 +1,8 @@
-export 'component.ht'
-export 'localization.ht'
-export 'dialog.ht'
-export 'organization.ht'
-export 'character.ht'
-export 'location.ht'
-export 'maze.ht'
-export 'duel.ht'
+external class SamsaraGame {
+  fun updateLocalizationsData(data)
+}
+
+var dart: SamsaraGame
 
 final game = {
   localizations: {
@@ -21,4 +18,15 @@ final game = {
   locations: {},
   dialogs: {},
   mazes: {},
+  mods: [],
+}
+
+fun init(dartGame) {
+  dart = dartGame
+}
+
+var context
+
+fun build(ctx) {
+  context = ctx
 }

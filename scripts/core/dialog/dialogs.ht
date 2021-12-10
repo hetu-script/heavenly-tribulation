@@ -1,0 +1,5 @@
+import 'baiheguan_houshan_dialogs.ht'
+
+final dialogs = [
+  ...baiheguanHoushanDialogs,
+]

@@ -1,9 +1,11 @@
 class GameLocalization {
   static const missingText = 'missing_text_';
 
-  final Map<String, dynamic> data;
+  final data = <String, dynamic>{};
 
-  GameLocalization(this.data);
+  void loadData(Map<String, dynamic> data) {
+    this.data.addAll(data);
+  }
 
   String operator [](String key) {
     final text = data[key];

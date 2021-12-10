@@ -41,6 +41,7 @@ class _GameAppState extends State<GameApp>
 
   void init() async {
     await game.init();
+    game.hetu.evalFile('core/main.ht', invokeFunc: 'main');
     updateLocation();
   }
 

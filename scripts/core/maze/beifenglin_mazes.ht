@@ -57,7 +57,7 @@ final beifenglinMazes = [
             option1: '这是……',
             option2: '什么呀？',
           })
-        }
+        },
         name: '青狼',
         health: 120,
         life: 120,

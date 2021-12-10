@@ -1,0 +1,5 @@
+import 'main.ht'
+
+fun addModInfo(data) {
+  game.mods.add(data)
+}

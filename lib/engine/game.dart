@@ -2,26 +2,34 @@ import 'package:hetu_script/hetu_script.dart';
 import 'package:hetu_script_flutter/hetu_script_flutter.dart';
 
 import '../binding/external_game_functions.dart';
-import '../binding/game/scene/maze/component/maze_binding.dart';
+import '../binding/engine/scene/maze/component/maze_binding.dart';
+import '../binding/engine/game_binding.dart';
 import 'scene/scene.dart';
 import 'event/event.dart';
 import '../shared/localizations.dart';
 
 class SamsaraGame with SceneController, EventAggregator {
-  late final GameLocalization texts;
-  final hetu = Hetu();
+  final texts = GameLocalization();
+
+  void updateLocalizationsData(Map<String, dynamic> data) {
+    texts.data.clear();
+    texts.data.addAll(data);
+  }
+
+  final Hetu hetu = Hetu();
   bool _isLoaded = false;
   bool get isLoaded => _isLoaded;
 
   Future<void> init() async {
     await hetu.initFlutter(
       externalFunctions: externalGameFunctions,
-      externalClasses: [MazeClassBinding()],
+      externalClasses: [
+        MazeClassBinding(),
+        SamsaraGameClassBinding(),
+      ],
     );
-    hetu.evalFile('main.ht', invokeFunc: 'init');
-    final Map<String, dynamic> localizationData =
-        hetu.invoke('getCurrentLocalizationData');
-    texts = GameLocalization(localizationData);
+    hetu.evalFile('game/main.ht',
+        globallyImport: true, invokeFunc: 'init', positionalArgs: [this]);
     _isLoaded = true;
   }
 

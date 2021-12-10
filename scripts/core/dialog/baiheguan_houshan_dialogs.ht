@@ -1,4 +1,4 @@
-final rogueDialogs = [
+final baiheguanHoushanDialogs = [
   {
     id: 'event01',
     content: [

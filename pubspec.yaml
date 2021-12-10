@@ -47,10 +47,11 @@ flutter:
 
     - scripts/
     - scripts/game/
-    - scripts/mod/core/localizations/
-    - scripts/mod/core/dialog/
-    - scripts/mod/core/character/
-    - scripts/mod/core/location/
-    - scripts/mod/core/location/scene/
-    - scripts/mod/core/maze/
-    - scripts/mod/core/organization/
+    - scripts/core/
+    - scripts/core/localizations/
+    - scripts/core/dialog/
+    - scripts/core/character/
+    - scripts/core/location/
+    - scripts/core/location/scene/
+    - scripts/core/maze/
+    - scripts/core/organization/

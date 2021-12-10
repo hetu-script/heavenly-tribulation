@@ -1,5 +1,4 @@
 import 'game.ht'
-import 'flutter.ht'
 
 external class Maze {
   static fun fromJson

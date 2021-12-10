@@ -1,0 +1,47 @@
+export 'localizations/localizations.ht'
+export 'dialog/dialogs.ht'
+export 'organization/organizations.ht'
+export 'character/characters.ht'
+export 'location/locations.ht'
+export 'maze/mazes.ht'
+
+final meta = {
+  id: 'samsara_core',
+  version: '0.0.1',
+}
+
+fun main {
+  addModInfo(meta)
+  addLocalizations(localizations)
+  addDialogs(dialogs)
+  addCharacters(characters)
+  addLocations(locations)
+  addMazes(mazes)
+
+  game.timestamp = 288000
+  final playerCharacter001 = {
+    id: 'playerCharacter001',
+    name: '玲',
+    health: 100,
+    life: 100,
+    defense: 5,
+    weapon: {
+      name: '钢剑',
+      attack: 25,
+      speed: 15,
+    },
+    skill: {
+      name: '绝尘剑气',
+      attack: 100,
+      speed: 25,
+    },
+    ultSpeed: 25,
+    initiative: 10,
+  }
+  addCharacter(playerCharacter001);
+
+  setCurrentLocalization('chs')
+  dart.updateLocalizationsData(game.localizations.current.toJson())
+  setCurrentCharacter('playerCharacter001')
+  setCurrentLocation('baiheguan')
+}

@@ -1,5 +1,0 @@
-import 'mod/core/main.ht'
-
-fun init {
-  core.init()
-}
