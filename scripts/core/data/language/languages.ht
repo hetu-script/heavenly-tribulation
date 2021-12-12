@@ -1,0 +1,7 @@
+import 'chs.ht'
+import 'eng.ht'
+
+final languages = [
+  chs,
+  eng,
+]

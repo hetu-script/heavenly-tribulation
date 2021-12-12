@@ -1,0 +1,7 @@
+import 'meta.ht'
+import 'baiheguan_houshan_entities.ht'
+
+final entities = [
+  meta,
+  ...baiheguanHoushanEntities,
+]

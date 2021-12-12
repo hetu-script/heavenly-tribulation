@@ -1,0 +1,42 @@
+final baiheguanHoushanEntities = [
+  {
+    id: 'baiheguan.houshan.event01',
+    onInteraction: () {
+      if (!this.isVisited) {
+        this.isVisited = true
+        final future = showGameDialogById('event01')
+        future.then((value) {
+          final component = game.mazes.current.component
+          component.removeEntity(x, y)
+          component.lightUpAroundTerrain(x, y)
+        })
+      }
+    },
+  },
+  {
+    id: 'baiheguan.houshan.event02a',
+    onInteraction: () {
+      if (!this.isUnlocked) {
+        showGameDialogById('event02a')
+      }
+    }
+  },
+  {
+    id: 'baiheguan.houshan.minion01',
+    onInteraction: () {
+      showSelectionDialog({
+        option1: '这是……',
+        option2: '什么呀？',
+      })
+    },
+  },
+  {
+    id: 'baiheguan.houshan.chest01',
+    onInteraction: () {
+      if (!this.isVisited) {
+        this.isVisited = true
+        showGameDialogById('chest01')
+      }
+    },
+  },
+]

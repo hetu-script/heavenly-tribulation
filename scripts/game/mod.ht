@@ -1,5 +1,5 @@
 import 'main.ht'
 
-fun addModInfo(data) {
-  game.mods.add(data)
+fun loadMod(data) {
+  game.mods[data.id] = data
 }

@@ -42,6 +42,7 @@ class _GameAppState extends State<GameApp>
   void init() async {
     await game.init();
     game.hetu.evalFile('core/main.ht', invokeFunc: 'main');
+    game.hetu.switchLibrary('game:main');
     updateLocation();
   }
 
@@ -107,50 +108,45 @@ class _GameAppState extends State<GameApp>
 
     if (game.currentScene == null) {
       if (isAppLoading) {
-        return const MaterialApp(home: LoadingScreen(text: 'Loading...'));
+        return const LoadingScreen(text: 'Loading...');
       } else {
-        return MaterialApp(
-          theme: ThemeData(
-            brightness: Brightness.light,
+        return Scaffold(
+          body: PageView(
+            onPageChanged: _onPageChanged,
+            controller: _pageController,
+            children: _pages,
+            physics: const NeverScrollableScrollPhysics(),
           ),
-          home: Scaffold(
-            body: PageView(
-              onPageChanged: _onPageChanged,
-              controller: _pageController,
-              children: _pages,
-              physics: const NeverScrollableScrollPhysics(),
-            ),
-            bottomNavigationBar: BottomNavigationBar(
-              type: BottomNavigationBarType.fixed,
-              items: <BottomNavigationBarItem>[
-                BottomNavigationBarItem(
-                  icon: Image.asset('assets/images/icon/home.png'),
-                  label: '场景',
-                ),
-                BottomNavigationBarItem(
-                  icon: Image.asset('assets/images/icon/adventure.png'),
-                  label: '世界',
-                ),
-                BottomNavigationBarItem(
-                  icon: Image.asset('assets/images/icon/inventory.png'),
-                  label: '关注',
-                ),
-                BottomNavigationBarItem(
-                  icon: Image.asset('assets/images/icon/character.png'),
-                  label: '角色',
-                ),
-              ],
-              currentIndex: _currentPage,
-              showSelectedLabels: false,
-              showUnselectedLabels: false,
-              elevation: 8.0,
-              onTap: _onItemTapped,
-            ),
+          bottomNavigationBar: BottomNavigationBar(
+            type: BottomNavigationBarType.fixed,
+            items: <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Image.asset('assets/images/icon/home.png'),
+                label: '城市',
+              ),
+              BottomNavigationBarItem(
+                icon: Image.asset('assets/images/icon/adventure.png'),
+                label: '世界',
+              ),
+              BottomNavigationBarItem(
+                icon: Image.asset('assets/images/icon/inventory.png'),
+                label: '关注',
+              ),
+              BottomNavigationBarItem(
+                icon: Image.asset('assets/images/icon/character.png'),
+                label: '角色',
+              ),
+            ],
+            currentIndex: _currentPage,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+            elevation: 8.0,
+            onTap: _onItemTapped,
           ),
         );
       }
     } else {
-      return MaterialApp(home: game.currentScene!.widget);
+      return game.currentScene!.widget;
     }
   }
 }

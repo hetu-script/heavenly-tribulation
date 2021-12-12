@@ -15,18 +15,16 @@ class GameDialog extends StatefulWidget {
       builder: (BuildContext context) {
         return GameDialog(data: dlgData);
       },
+      barrierColor: Colors.transparent,
       barrierDismissible: false,
     );
   }
 
   final GameDialogData data;
 
-  // final Function? onFinished;
-
   const GameDialog({
     Key? key,
     required this.data,
-    // this.onFinished,
   }) : super(key: key);
 
   @override
@@ -36,6 +34,7 @@ class GameDialog extends StatefulWidget {
 class _GameDialogState extends State<GameDialog> {
   GameDialogData get _data => widget.data;
   Timer? _timer;
+  String? _currentAvatar;
   String _currentSay = '';
   int _currentContentIndex = 0;
   int _currentSayIndex = 0;
@@ -61,6 +60,18 @@ class _GameDialogState extends State<GameDialog> {
 
   @override
   Widget build(BuildContext context) {
+    BoxDecoration? avatarImage;
+    if (_currentAvatar != null) {
+      avatarImage = BoxDecoration(
+        image: DecorationImage(
+          fit: BoxFit.fill,
+          image: AssetImage('assets/images/$_currentAvatar'),
+        ),
+        borderRadius: const BorderRadius.all(Radius.circular(6)),
+        border: Border.all(color: Colors.white.withOpacity(0.5)),
+      );
+    }
+
     return GestureDetector(
       onTap: () {
         if (_finished) {
@@ -69,47 +80,60 @@ class _GameDialogState extends State<GameDialog> {
           _finishLine();
         }
       },
-      child: Container(
+      child: Material(
         color: Colors.transparent,
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        padding: const EdgeInsets.all(20.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: <Widget>[
-            Expanded(
-              child: Container(
-                height: 200,
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              Expanded(child: Container()),
+              Container(
+                height: 240,
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(10.0),
                   border: Border.all(color: Colors.white.withOpacity(0.5)),
                 ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: StreamBuilder(
-                      stream: _textShowController.stream,
-                      builder: (context, AsyncSnapshot<String> snapshot) {
-                        return SingleChildScrollView(
-                          scrollDirection: Axis.vertical,
-                          physics: const BouncingScrollPhysics(),
-                          child: Text(
-                            snapshot.hasData ? snapshot.data.toString() : '',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                            ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Row(
+                    children: <Widget>[
+                      Container(
+                        margin: const EdgeInsets.only(right: 10.0),
+                        width: 200.0,
+                        height: 200.0,
+                        decoration: avatarImage,
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          StreamBuilder(
+                            stream: _textShowController.stream,
+                            builder: (context, AsyncSnapshot<String> snapshot) {
+                              return SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                physics: const BouncingScrollPhysics(),
+                                child: Text(
+                                  snapshot.data ?? '',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -119,8 +143,9 @@ class _GameDialogState extends State<GameDialog> {
     setState(() {
       _finished = false;
       _letterCount = 0;
-      _currentSay =
-          _data.contents[_currentContentIndex].saying[_currentSayIndex];
+      final currentContent = _data.contents[_currentContentIndex];
+      _currentAvatar = currentContent.avatar;
+      _currentSay = currentContent.saying[_currentSayIndex];
       _timer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
         _letterCount++;
         if (_letterCount > _currentSay.length) {
@@ -145,7 +170,6 @@ class _GameDialogState extends State<GameDialog> {
   void _finishLine() {
     _timer?.cancel();
     _textShowController.add(_currentSay);
-    // _letterCount = 0;
     _finished = true;
   }
 
@@ -160,9 +184,6 @@ class _GameDialogState extends State<GameDialog> {
   }
 
   void _finishDialog() {
-    // if (widget.onFinished != null) {
-    //   widget.onFinished!();
-    // }
     Navigator.pop(context);
   }
 }

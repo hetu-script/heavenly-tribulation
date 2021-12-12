@@ -1,0 +1,27 @@
+final chs = {
+  id: 'chs',
+  languageName: '简体中文',
+
+  'generic.missing': '□□□□',
+  'generic.loading': '载入中...',
+  'generic.empty': '空无一物',
+  
+  'generic.organization': '组织',
+  'generic.leader': '领袖',
+  'generic.residents': '居民',
+  'generic.cultivators': '修士',
+
+  'generic.resource.gold': '金钱',
+  'generic.resource.spiritStone': '灵石',
+  'generic.resource.grain': '谷物',
+  'generic.resource.ore': '矿产',
+  'generic.resource.timber': '木材',
+  'generic.resource.jade': '原玉',
+  'generic.resource.food': '食物',
+  'generic.resource.medicine': '药品',
+  'generic.resource.buldingMaterial': '建材',
+  'generic.resource.talismanMaterial': '器胚',
+  'generic.resource.kosher': '清食',
+
+  'character.concierge': '门卫',
+}

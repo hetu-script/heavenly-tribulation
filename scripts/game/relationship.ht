@@ -1,0 +1,17 @@
+import 'character.ht'
+
+struct CharacterRelation {
+  var otherId: str
+  var relation: int
+
+  construct(otherId: str, {relation: int}) {
+    this.otherId = otherId
+    if (relation != null) {
+      this.relation = relation
+    } else {
+      final other = getCharacterById(otherId)
+
+
+    }
+  }
+}

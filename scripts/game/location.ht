@@ -47,19 +47,115 @@ fun getSceneById(id: str) {
 }
 
 fun onEnteredLocation(id: str) {
-  final loc = getLocationById(id)
-  final handler = loc.onEntered
-  if (handler is function) {
-    handler()
-  }
-}
-
-fun onEnteredScene(id: str) {
-  final scn = getSceneById(id)
-  if (scn != null) {
-    final handler = scn.onEntered
+  final entity = getEntityById(id)
+  if (entity != null) {
+    final handler = entity.onEntered
     if (handler is function) {
       handler()
     }
   }
+}
+
+fun onEnteredScene(id: str, [extra: str]) {
+  final entity = getEntityById(id)
+  if (entity != null) {
+    final handler = entity.onEntered
+    if (handler is function) {
+      handler()
+    }
+  }
+}
+
+fun handleSceneInteraction(id: str) {
+  final scn = getSceneById(id)
+  if (scn != null) {
+    when (scn.type) {
+      'cityhall' -> _handlecityhallInteraction(scn)
+      'residency' -> _handleResidencyInteraction(scn)
+      'library' -> _handleLibraryInteraction(scn)
+      'farmland' -> _handleFarmlandInteraction(scn)
+      'mine' -> _handleMineInteraction(scn)
+      'market' -> _handleMarketInteraction(scn)
+      'shop' -> _handleShopInteraction(scn)
+      'restaurant' -> _handleRestaurantInteraction(scn)
+      'arena' -> _handleArenaInteraction(scn)
+      'nursery' -> _handleNurseryInteraction(scn)
+      'workshop' -> _handleWorkshopInteraction(scn)
+      'alchemylab' -> _handleAlchemylabInteraction(scn)
+      'smithshop' -> _handleSmithshopInteraction(scn)
+      'zenroom' -> _handleZenroomInteraction(scn)
+      'zoo' -> _handleZooInteraction(scn)
+      'maze' -> _handleMazeInteraction(scn)
+      else -> {
+        print('错误: 未知的地区类型')
+      }
+    }
+  }
+}
+
+fun _handlecityhallInteraction(scn) {
+  if (scn.characters is List && scn.characters.isNotEmpty) {
+    final char = getCharacterById(scn.characters.first)
+    handleCharacterInteraction(char)
+  }
+}
+
+fun _handleResidencyInteraction(scn) {
+
+}
+
+fun _handleLibraryInteraction(scn) {
+
+}
+
+fun _handleFarmlandInteraction(scn) {
+
+}
+
+fun _handleMineInteraction(scn) {
+
+}
+
+fun _handleMarketInteraction(scn) {
+
+}
+
+fun _handleShopInteraction(scn) {
+
+}
+
+fun _handleRestaurantInteraction(scn) {
+
+}
+
+fun _handleArenaInteraction(scn) {
+
+}
+
+fun _handleNurseryInteraction(scn) {
+
+}
+
+fun _handleWorkshopInteraction(scn) {
+
+}
+
+fun _handleAlchemylabInteraction(scn) {
+
+}
+
+fun _handleSmithshopInteraction(scn) {
+
+}
+
+fun _handleZenroomInteraction(scn) {
+
+}
+
+fun _handleZooInteraction(scn) {
+
+}
+
+fun _handleMazeInteraction(scn) {
+
 }

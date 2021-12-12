@@ -57,13 +57,21 @@ class _LocationViewState extends State<LocationView>
       _locationImage = data['image'];
       // _leadershipName = widget.locationData['leadershipName'];
 
-      final List? scenesData = data['scenes'];
+      final Map<String, dynamic>? scenesData = data['scenes'];
 
-      _sceneCards = scenesData?.map((value) {
+      _sceneCards = scenesData?.values.map((value) {
         final sceneData = value as Map<String, dynamic>;
-        final sceneTitleId = sceneData['name'];
-        final sceneTitle = game.texts[sceneTitleId];
-        final sceneImage = sceneData['image'];
+        final String id = sceneData['id'];
+        final String type = sceneData['type'];
+        final titleId = sceneData['name'];
+        String title;
+        if (titleId == null) {
+          title = _getDefaultTitle(type);
+        } else {
+          title = game.texts[titleId];
+        }
+        String? image = sceneData['image'];
+        image ??= _getDefaultImagePath(type);
 
         return SizedBox(
           width: 210,
@@ -75,14 +83,15 @@ class _LocationViewState extends State<LocationView>
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0),
                 image: DecorationImage(
-                  image: AssetImage('assets/images/$sceneImage'),
+                  image: AssetImage('assets/images/$image'),
                   fit: BoxFit.cover,
                 ),
               ),
               child: InkWell(
                 splashColor: Colors.blue.withAlpha(30),
                 onTap: () {
-                  print('Card tapped.');
+                  game.hetu
+                      .invoke('handleSceneInteraction', positionalArgs: [id]);
                 },
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -91,7 +100,7 @@ class _LocationViewState extends State<LocationView>
                     children: <Widget>[
                       Container(
                         color: Colors.white.withOpacity(0.5),
-                        child: Text(sceneTitle),
+                        child: Text(title),
                       ),
                     ],
                   ),
@@ -207,4 +216,124 @@ class _LocationViewState extends State<LocationView>
       ),
     );
   }
+}
+
+String _getDefaultTitle(String type) {
+  String title;
+  switch (type) {
+    case 'cityhall':
+      title = 'scenes.cityhall';
+      break;
+    case 'residency':
+      title = 'scenes.residency';
+      break;
+    case 'library':
+      title = 'scenes.library';
+      break;
+    case 'farmland':
+      title = 'scenes.farmland';
+      break;
+    case 'mine':
+      title = 'scenes.mine';
+      break;
+    case 'timberland':
+      title = 'scenes.timberland';
+      break;
+    case 'market':
+      title = 'scenes.market';
+      break;
+    case 'shop':
+      title = 'scenes.shop';
+      break;
+    case 'restaurant':
+      title = 'scenes.restaurant';
+      break;
+    case 'arena':
+      title = 'scenes.arena';
+      break;
+    case 'nursery':
+      title = 'scenes.nursery';
+      break;
+    case 'workshop':
+      title = 'scenes.workshop';
+      break;
+    case 'alchemylab':
+      title = 'scenes.alchemylab';
+      break;
+    case 'smithshop':
+      title = 'scenes.smithshop';
+      break;
+    case 'zenroom':
+      title = 'scenes.zenroom';
+      break;
+    case 'zoo':
+      title = 'scenes.zoo';
+      break;
+    case 'maze':
+      title = 'scenes.maze';
+      break;
+    default:
+      title = 'generic.missing';
+  }
+  return title;
+}
+
+String _getDefaultImagePath(String type) {
+  String imagePath;
+  switch (type) {
+    case 'cityhall':
+      imagePath = 'location/scene/scene.cityhall.png';
+      break;
+    case 'residency':
+      imagePath = 'location/scene/scene.residency.png';
+      break;
+    case 'library':
+      imagePath = 'location/scene/scene.library.png';
+      break;
+    case 'farmland':
+      imagePath = 'location/scene/scene.farmland.png';
+      break;
+    case 'mine':
+      imagePath = 'location/scene/scene.mine.png';
+      break;
+    case 'timberland':
+      imagePath = 'location/scene/scene.timberland.png';
+      break;
+    case 'market':
+      imagePath = '/location/scene/scene.market.png';
+      break;
+    case 'shop':
+      imagePath = 'location/scene/scene.shop.png';
+      break;
+    case 'restaurant':
+      imagePath = 'location/scene/scene.restaurant.png';
+      break;
+    case 'arena':
+      imagePath = 'location/scene/scene.arena.png';
+      break;
+    case 'nursery':
+      imagePath = 'location/scene/scene.nursery.png';
+      break;
+    case 'workshop':
+      imagePath = 'location/scene/scene.workshop.png';
+      break;
+    case 'alchemylab':
+      imagePath = 'location/scene/scene.alchemylab.png';
+      break;
+    case 'smithshop':
+      imagePath = 'location/scene/scene.smithshop.png';
+      break;
+    case 'zenroom':
+      imagePath = 'location/scene/scene.zenroom.png';
+      break;
+    case 'zoo':
+      imagePath = 'location/scene/scene.zoo.png';
+      break;
+    case 'maze':
+      imagePath = 'location/scene/scene.maze.png';
+      break;
+    default:
+      imagePath = 'location/scene/asset_missing.png';
+  }
+  return imagePath;
 }

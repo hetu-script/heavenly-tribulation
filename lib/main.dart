@@ -6,5 +6,9 @@ import 'game_app.dart';
 import 'engine/game.dart';
 
 void main() {
-  runApp(GameApp(game: SamsaraGame()));
+  runApp(MaterialApp(
+      theme: ThemeData(
+        brightness: Brightness.light,
+      ),
+      home: GameApp(game: SamsaraGame())));
 }

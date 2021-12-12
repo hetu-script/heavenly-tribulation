@@ -1,0 +1,64 @@
+final beifenglinLocations = [
+  {
+    id: 'baiheguan',
+    name: 'locations.baiheguan',
+    leader: 'xuanqingzi',
+    leadershipName: 'daoguan.zhangjiao',
+    organization: 'ziyangpai',
+    owner: 'xuanqingzi',
+    isPrivate: true,
+    image: 'location/baiheguan.png',
+    scenes: {
+      'baiheguan.dadian': {
+        id: 'baiheguan.dadian',
+        name: 'scenes.baiheguan.dadian',
+        type: 'cityhall',
+        image: 'location/scene/baiheguan.dadian.png',
+        characters: [
+          'xuanqingzi',
+        ]
+      },
+      'baiheguan.zhaiyuan': {
+        id: 'baiheguan.zhaiyuan',
+        name: 'scenes.residency',
+        type: 'residency',
+      },
+      'baiheguan.nongtian': {
+        id: 'baiheguan.nongtian',
+        name: 'scenes.farmland',
+        type: 'farmland',
+      },
+      'baiheguan.houshan': {
+        id: 'baiheguan.houshan',
+        name: 'scenes.baiheguan.houshan',
+        type: 'maze',
+        mazeId: 'baiheguan.houshan',
+        image: 'location/scene/baiheguan.houshan.png',
+      },
+    }
+  },
+  {
+    id: 'mocheng',
+    name: 'locations.mocheng',
+    leader: 'wanchongshan',
+    leadershipName: 'gang.tangzhu',
+    organization: 'caobang',
+    owner: 'wanchongshan',
+    isPrivate: true,
+    image: 'location/mocheng.png',
+    scenes: {
+      'mocheng.zhengting': {
+        id: 'mocheng.zhengting',
+        type: 'cityhall',
+      },
+      'mocheng.market': {
+        id: 'mocheng.market',
+        type: 'market',
+      },
+      'mocheng.yanwuchang': {
+        id: 'mocheng.yanwuchang',
+        type: 'arena',
+      },
+    }
+  },
+]

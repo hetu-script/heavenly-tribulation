@@ -1,0 +1,10 @@
+final meta = {
+  id: 'samsara_core',
+  version: '0.0.1',
+  onNewGameStarted: () {
+
+  },
+  onUpdate: (dt: int) {
+    
+  }
+}

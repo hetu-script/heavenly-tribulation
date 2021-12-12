@@ -6,12 +6,12 @@ import '../../engine/game.dart';
 extension SamsaraGameBinding on SamsaraGame {
   dynamic htFetch(String varName) {
     switch (varName) {
-      case r'updateLocalizationsData':
+      case r'updateLanguagesData':
         return (HTEntity object,
             {List<dynamic> positionalArgs = const [],
             Map<String, dynamic> namedArgs = const {},
             List<HTType> typeArgs = const []}) {
-          updateLocalizationsData(positionalArgs[0]);
+          updateLanguagesData(positionalArgs[0]);
         };
       default:
         throw HTError.undefined(varName);

@@ -1,14 +1,12 @@
 class GameDialogContent {
-  final String characterId;
-
   final List<String> saying;
+  final String? avatar;
 
-  GameDialogContent(this.characterId, this.saying);
+  GameDialogContent({required this.saying, this.avatar});
 }
 
 class GameDialogOption {
   final String id;
-
   final String text;
 
   GameDialogOption(this.id, this.text);
@@ -16,9 +14,7 @@ class GameDialogOption {
 
 class GameDialogData {
   final String id;
-
   final List<GameDialogContent> contents;
-
   final List<GameDialogOption>? options;
 
   GameDialogData({
@@ -30,19 +26,19 @@ class GameDialogData {
   static GameDialogData fromJson(Map<String, dynamic> data) {
     final id = data['id'];
     final contents = <GameDialogContent>[];
-    final contentData = data['content'];
+    final contentData = data['contents'];
     for (final content in contentData) {
-      final characterId = content['characterId'];
+      final avatar = content['avatar'];
       final saying = <String>[];
       final sayingData = content['saying'];
       for (final text in sayingData) {
         saying.add(text);
       }
-      final dlgContent = GameDialogContent(characterId, saying);
+      final dlgContent = GameDialogContent(saying: saying, avatar: avatar);
       contents.add(dlgContent);
     }
     List<GameDialogOption>? options;
-    final optionData = data['option'];
+    final optionData = data['options'];
     if (optionData != null) {
       options = [];
       for (final option in optionData) {

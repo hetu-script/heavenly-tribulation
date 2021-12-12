@@ -1,0 +1,17 @@
+import 'game.ht'
+
+external fun updateGameLanguagesData
+
+fun addLanguages(langs: List) {
+  for (final lang in langs) {
+    final langId = lang.id
+    final langData = game.languages[langId]
+    for (final key in lang.keys) {
+      langData[key] = lang[key]
+    }
+  }
+}
+
+fun setCurrentLocalization(id: str) {
+  game.languages.current = game.languages[id]
+}

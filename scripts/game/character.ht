@@ -8,12 +8,6 @@ fun createCharacterFromJson() {
   
 }
 
-fun addCharacters(chars: List) {
-  for (final char in chars) {
-    game.characters[char.id] = char
-  }
-}
-
 fun setCurrentCharacter(id: str) {
   game.characters.current = game.characters[id];
 }
@@ -30,6 +24,12 @@ fun addCharacter(char) {
   game.characters[char.id] = char
 }
 
+fun addCharacters(chars: List) {
+  for (final char in chars) {
+    game.characters[char.id] = char
+  }
+}
+
 fun getCharacterById(id: str) {
   return game.characters[id]
 }
@@ -44,4 +44,39 @@ fun getAllCharacters() {
 
 fun getAllCharactersData() {
   return game.characters.toJson()
+}
+
+fun handleCharacterInteraction(char, {isAtHome: bool}) {
+  final entity = getEntityById(char.id)
+  showGameDialogById('event01')
+}
+
+/// 容貌最大值: 100.0
+final beautyMax = 100.0
+
+/// 获得随机偏好
+/// 大多数人的偏好都会接近于标准的100
+/// 取值离100越远，随机出的可能性越低
+/// 公式: y=\frac{6x-6}{5x-6}
+fun createRandomFavoredLooks() {
+  final x = Math.random()
+  return ((x * 6 - 6) / (5 * x - 6)) * 100
+}
+
+/// 容貌评价的计算公式
+/// 每个角色自身有一个容貌值，这个数值代表大众眼中的评价
+/// 每个角色都会有一个对特定容貌值的偏好
+/// 本公式会利用这两个数值，计算某个角色对另一个角色的容貌的评价
+/// looks 是对方的容貌，0 <= looks <= 100
+/// favors 是该角色的偏好，0 <= favors <= 100
+fun getLooksScore(looks: float, {favors: float}) -> float {
+  assert 0.0 <= looks && looks <= beautyMax
+  if (favors != null) {
+    assert 0.0 <= favors && favors <= beautyMax
+  }
+  if (looks < ((favors + beautyMax) / 2)) {
+    return (-(looks - favors) * (looks - favors)) / 20 + beautyMax
+  } else {
+    return (-(looks - beautyMax) * (looks - beautyMax)) / 20 + beautyMax
+  }
 }

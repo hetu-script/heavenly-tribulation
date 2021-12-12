@@ -20,7 +20,7 @@ import 'game.ht'
 external fun _showDuel(context, data: Map)
 
 fun showDuel(battleLog) -> Future {
-  return _showDuel(flutterContext, data)
+  return _showDuel(buildContext, data)
 }
 
 var battleLog = []

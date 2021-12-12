@@ -55,7 +55,7 @@ fun onEnteredMaze(id: str) {
   }
 }
 
-fun onTouchedTile(x: int, y: int) {
+fun handleTileInteraction(x: int, y: int) {
   final maze = getCurrentMaze()
   final component = getCurrentMazeComponent()
 

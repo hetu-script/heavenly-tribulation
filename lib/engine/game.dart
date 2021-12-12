@@ -6,12 +6,12 @@ import '../binding/engine/scene/maze/component/maze_binding.dart';
 import '../binding/engine/game_binding.dart';
 import 'scene/scene.dart';
 import 'event/event.dart';
-import '../shared/localizations.dart';
+import '../shared/languages.dart';
 
 class SamsaraGame with SceneController, EventAggregator {
-  final texts = GameLocalization();
+  final texts = GameLanguage();
 
-  void updateLocalizationsData(Map<String, dynamic> data) {
+  void updateLanguagesData(Map<String, dynamic> data) {
     texts.data.clear();
     texts.data.addAll(data);
   }
@@ -29,7 +29,10 @@ class SamsaraGame with SceneController, EventAggregator {
       ],
     );
     hetu.evalFile('game/main.ht',
-        globallyImport: true, invokeFunc: 'init', positionalArgs: [this]);
+        libraryName: 'game:main',
+        globallyImport: true,
+        invokeFunc: 'init',
+        positionalArgs: [this]);
     _isLoaded = true;
   }
 
