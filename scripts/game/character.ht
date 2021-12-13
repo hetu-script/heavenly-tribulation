@@ -52,7 +52,7 @@ fun handleCharacterInteraction(char, {isAtHome: bool}) {
 }
 
 /// 容貌最大值: 100.0
-final beautyMax = 100.0
+final characterLooksMax = 100.0
 
 /// 获得随机偏好
 /// 大多数人的偏好都会接近于标准的100
@@ -70,13 +70,13 @@ fun createRandomFavoredLooks() {
 /// looks 是对方的容貌，0 <= looks <= 100
 /// favors 是该角色的偏好，0 <= favors <= 100
 fun getLooksScore(looks: float, {favors: float}) -> float {
-  assert 0.0 <= looks && looks <= beautyMax
+  assert 0.0 <= looks && looks <= characterLooksMax
   if (favors != null) {
-    assert 0.0 <= favors && favors <= beautyMax
+    assert 0.0 <= favors && favors <= characterLooksMax
   }
-  if (looks < ((favors + beautyMax) / 2)) {
-    return (-(looks - favors) * (looks - favors)) / 20 + beautyMax
+  if (looks < ((favors + characterLooksMax) / 2)) {
+    return (-(looks - favors) * (looks - favors)) / 20 + characterLooksMax
   } else {
-    return (-(looks - beautyMax) * (looks - beautyMax)) / 20 + beautyMax
+    return (-(looks - characterLooksMax) * (looks - characterLooksMax)) / 20 + characterLooksMax
   }
 }

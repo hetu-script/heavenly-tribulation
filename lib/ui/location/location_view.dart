@@ -46,7 +46,7 @@ class _LocationViewState extends State<LocationView>
       _locationImage;
 
   Future<void> updateData() async {
-    // TODO: game.next()
+    game.hetu.invoke('nextTick');
 
     final data = game.hetu
         .invoke('getLocationDataById', positionalArgs: [widget.locationId]);

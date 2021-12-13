@@ -50,10 +50,9 @@ flutter:
     - scripts/
     - scripts/game/
     - scripts/core/
-    - scripts/core/language/
-    - scripts/core/dialog/
-    - scripts/core/character/
-    - scripts/core/location/
-    - scripts/core/location/scene/
-    - scripts/core/maze/
-    - scripts/core/organization/
+    - scripts/core/data/language/
+    - scripts/core/data/dialog/
+    - scripts/core/data/character/
+    - scripts/core/data/location/
+    - scripts/core/data/maze/
+    - scripts/core/data/organization/

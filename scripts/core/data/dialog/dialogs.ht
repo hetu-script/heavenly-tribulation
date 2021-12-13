@@ -1,5 +1,7 @@
+import 'generic_dialogs.ht'
 import 'baiheguan_houshan_dialogs.ht'
 
 final dialogs = [
+  ...genericDialogs,
   ...baiheguanHoushanDialogs,
 ]

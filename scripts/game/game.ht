@@ -1,7 +1,3 @@
-import 'language/predefined_languages.ht'
-import 'dialog/predefined_dialogs.ht'
-import 'character/predefined_characters.ht'
-
 external class SamsaraGame {
   fun updateLanguagesData(data)
 }
@@ -15,6 +11,7 @@ fun build(ctx) {
 var dart: SamsaraGame
 
 final game = {
+  timestamp: 288000,
   languages: {
     chs: {},
     eng: {}
@@ -27,50 +24,13 @@ final game = {
   entities: {},
 }
 
-fun init({lang = 'chs', game: dartGame}) {
-  dart = dartGame
+fun nextTick() {
+  ++game.timestamp
 
-  game.timestamp = 288000
-
-  setCurrentLocalization(lang)
-  addLanguages(predefinedLanguages)
-  dart.updateLanguagesData(game.languages.current.toJson())
-
-  addCharacters(predefinedCharacters)
-  final playerCharacter001 = {
-    id: 'playerCharacter001',
-    name: '玲', // 用户创建的人物，名字是固定的而不是来自语言包
-    avatar: 'avatar/female/29.jpg',
-    fame: 0,
-    infamy: 0,
-    looks: 75,
-
-    health: 100,
-    life: 100,
-
-    waterSpirit: 10,
-    woodSpirit: 5,
-    earthSpirit: 5,
-    metalSpirit: 5,
-    fireSpirit: 5,
-
-    talisman: {
-      id: 'talisman.steelSword',
-      name: 'talisman.tier0.steelSword',
-      attack: 25,
-      speed: 15,
-
-      skill: {
-        id: 'talisman.steelSword.skill',
-        name: 'talisman.steelSword.skill',
-        attack: 100,
-        speed: 25,
-      },
-    },
+  for (final entity in game.entities) {
+    final update = entity.onUpdate;
+    if (update is function) {
+      update()
+    }
   }
-  addCharacter(playerCharacter001);
-  setCurrentCharacter('playerCharacter001')
-
-  addDialogs(predefinedDialogs) // must be after added characters
-
 }
