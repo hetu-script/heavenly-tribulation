@@ -13,6 +13,11 @@ dependencies:
 
   meta: ^1.7.0
 
+  hetu_script:
+    path: ../hetu-script/packages/hetu_script
+  hetu_script_flutter:
+    path: ../hetu-script/packages/hetu_script_flutter
+
   # hive: ^2.0.4
   # hive_flutter: ^1.1.0
   flame:
@@ -21,10 +26,7 @@ dependencies:
   # flame_ecs:
   #   path: ../packages/flame_ecs
 
-  hetu_script:
-    path: ../hetu-script/packages/hetu_script
-  hetu_script_flutter:
-    path: ../hetu-script/packages/hetu_script_flutter
+  after_layout: ^1.1.0
 
 dev_dependencies:
   flutter_test:

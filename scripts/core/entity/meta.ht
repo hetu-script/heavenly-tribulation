@@ -2,10 +2,10 @@
 final meta = {
   id: 'samsara_core',
   version: '0.0.1',
-  onNewGameStarted: () {
+  onNewGameStarted: (arg) {
     showGameDialogById('intro01')
   },
-  onUpdate: () {
+  onUpdate: (arg) {
     print('updated!')
   }
 }

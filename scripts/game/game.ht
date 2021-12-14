@@ -25,8 +25,8 @@ final game = {
 }
 
 fun onGameEvent(id: str, [arg]) {
-
-  for (final entity in game.entities) {
+  // 这里要用 for...of
+  for (final entity of game.entities) {
     final handler = entity[id];
     if (handler is function) {
       handler(arg)

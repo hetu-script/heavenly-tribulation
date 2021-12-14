@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import 'game_dialog_data.dart';
 
@@ -157,7 +158,7 @@ class _GameDialogState extends State<GameDialog> {
     });
   }
 
-  String? _nextSay() {
+  void _nextSay() {
     ++_currentSayIndex;
     if (_currentSayIndex >= _data.contents[_currentContentIndex].lines.length) {
       _nextContent();
@@ -178,11 +179,14 @@ class _GameDialogState extends State<GameDialog> {
     if (_currentContentIndex < _data.contents.length) {
       _startTalk();
     } else {
+      _currentContentIndex = 0;
       _finishDialog();
     }
   }
 
   void _finishDialog() {
-    Navigator.pop(context);
+    SchedulerBinding.instance!.addPostFrameCallback((_) {
+      Navigator.pop(context);
+    });
   }
 }

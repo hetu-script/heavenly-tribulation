@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:after_layout/after_layout.dart';
 
 import 'engine/scene/scene.dart';
 import 'engine/scene/maze/rogue_game.dart';
@@ -17,7 +18,10 @@ class GameApp extends StatefulWidget {
 }
 
 class _GameAppState extends State<GameApp>
-    with SingleTickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+    with
+        SingleTickerProviderStateMixin,
+        AutomaticKeepAliveClientMixin,
+        AfterLayoutMixin<GameApp> {
   @override
   bool get wantKeepAlive => true;
 
@@ -36,16 +40,6 @@ class _GameAppState extends State<GameApp>
   void dispose() {
     _pageController.dispose();
     super.dispose();
-  }
-
-  void init() async {
-    await game.init();
-    game.hetu.evalFile('core/main.ht', invokeFunc: 'init');
-    game.hetu.switchModule('game:main');
-    updateLocation();
-
-    // if this is a new game
-    game.hetu.invoke('onGameEvent', positionalArgs: ['onNewGameStarted']);
   }
 
   void updateLocation() {
@@ -67,6 +61,18 @@ class _GameAppState extends State<GameApp>
         ),
       ];
     });
+  }
+
+  void init() async {
+    await game.init();
+    game.hetu.evalFile('core/main.ht', invokeFunc: 'init');
+    game.hetu.switchModule('game:main');
+    updateLocation();
+
+    // pass the build context to script
+    game.hetu.invoke('build', positionalArgs: [context]);
+    // if this is a new game
+    game.hetu.invoke('onGameEvent', positionalArgs: ['onNewGameStarted']);
   }
 
   @override
@@ -101,12 +107,11 @@ class _GameAppState extends State<GameApp>
   }
 
   @override
+  void afterFirstLayout(BuildContext context) {}
+
+  @override
   Widget build(BuildContext context) {
     super.build(context);
-    if (game.isLoaded) {
-      // pass the build context to script
-      game.hetu.invoke('build', positionalArgs: [context]);
-    }
 
     if (game.currentScene == null) {
       if (isAppLoading) {

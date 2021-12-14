@@ -8,7 +8,7 @@ export 'entity/entities.ht'
 export 'entity/meta.ht'
 
 final meta = {
-  id: 'samsara_core',
+  id: '天道奇劫',
   version: '0.0.1',
 }
 

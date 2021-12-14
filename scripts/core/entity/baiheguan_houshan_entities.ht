@@ -3,7 +3,7 @@
 final baiheguanHoushanEntities = [
   {
     id: 'baiheguan.houshan.event01',
-    onInteraction: () {
+    onInteraction: (arg) {
       if (!this.isVisited) {
         this.isVisited = true
         final future = showGameDialogById('event01')
@@ -17,7 +17,7 @@ final baiheguanHoushanEntities = [
   },
   {
     id: 'baiheguan.houshan.event02a',
-    onInteraction: () {
+    onInteraction: (arg) {
       if (!this.isUnlocked) {
         showGameDialogById('event02a')
       }
@@ -25,7 +25,7 @@ final baiheguanHoushanEntities = [
   },
   {
     id: 'baiheguan.houshan.minion01',
-    onInteraction: () {
+    onInteraction: (arg) {
       showSelectionDialog({
         option1: '这是……',
         option2: '什么呀？',
@@ -34,7 +34,7 @@ final baiheguanHoushanEntities = [
   },
   {
     id: 'baiheguan.houshan.chest01',
-    onInteraction: () {
+    onInteraction: (arg) {
       if (!this.isVisited) {
         this.isVisited = true
         showGameDialogById('chest01')
