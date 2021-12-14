@@ -7,9 +7,11 @@ fun addDialog(dlg) {
 
 fun addDialogs(dlgs: List) {
   for (final dlg in dlgs) {
-    for (final content in dlg.content) {
-      final char = getCharacterById(content.characterId)
-      content.avatar = char.avatar
+    for (final content in dlg.contents) {
+      if (content.characterId) {
+        final char = getCharacterById(content.characterId)
+        content.avatar = char.avatar
+      }
     }
     game.dialogs[dlg.id] = dlg
   }

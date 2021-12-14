@@ -24,13 +24,18 @@ final game = {
   entities: {},
 }
 
+fun onGameEvent(id: str, [arg]) {
+
+  for (final entity in game.entities) {
+    final handler = entity[id];
+    if (handler is function) {
+      handler(arg)
+    }
+  }
+}
+
 fun nextTick() {
   ++game.timestamp
 
-  for (final entity in game.entities) {
-    final update = entity.onUpdate;
-    if (update is function) {
-      update()
-    }
-  }
+  onGameEvent('onUpdate')
 }

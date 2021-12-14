@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 
 import 'engine/scene/scene.dart';
 import 'engine/scene/maze/rogue_game.dart';
@@ -41,9 +40,12 @@ class _GameAppState extends State<GameApp>
 
   void init() async {
     await game.init();
-    game.hetu.evalFile('core/main.ht', invokeFunc: 'main');
-    game.hetu.switchLibrary('game:main');
+    game.hetu.evalFile('core/main.ht', invokeFunc: 'init');
+    game.hetu.switchModule('game:main');
     updateLocation();
+
+    // if this is a new game
+    game.hetu.invoke('onGameEvent', positionalArgs: ['onNewGameStarted']);
   }
 
   void updateLocation() {

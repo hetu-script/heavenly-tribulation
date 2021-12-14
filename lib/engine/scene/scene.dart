@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:flutter/widgets.dart';
-import 'package:meta/meta.dart';
 import 'package:flame/game.dart';
 
 import '../game.dart';

@@ -3,7 +3,7 @@ final genericDialogs = [
     id: 'intro01',
     contents: [
       {
-        saying: [
+        lines: [
           '这是一个游戏demo，目前所使用的资源为暂时性展示所用，均未获得授权。',
           '其中女性人物头像下载自: https://www.sohu.com/a/374856063_183065',
           '物品图标借用自 Starbound 游戏内的物品图标。',

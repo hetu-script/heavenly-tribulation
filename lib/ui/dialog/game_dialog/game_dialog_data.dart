@@ -1,8 +1,8 @@
 class GameDialogContent {
-  final List<String> saying;
+  final List<String> lines;
   final String? avatar;
 
-  GameDialogContent({required this.saying, this.avatar});
+  GameDialogContent({required this.lines, this.avatar});
 }
 
 class GameDialogOption {
@@ -29,12 +29,12 @@ class GameDialogData {
     final contentData = data['contents'];
     for (final content in contentData) {
       final avatar = content['avatar'];
-      final saying = <String>[];
-      final sayingData = content['saying'];
-      for (final text in sayingData) {
-        saying.add(text);
+      final lines = <String>[];
+      final linesData = content['lines'];
+      for (final line in linesData) {
+        lines.add(line);
       }
-      final dlgContent = GameDialogContent(saying: saying, avatar: avatar);
+      final dlgContent = GameDialogContent(lines: lines, avatar: avatar);
       contents.add(dlgContent);
     }
     List<GameDialogOption>? options;

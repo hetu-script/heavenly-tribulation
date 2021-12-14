@@ -6,7 +6,7 @@ final predefinedDialogs = [
     contents: [
       {
         characterId: 'generic.concierge',
-        saying: [
+        lines: [
         ],
       },
     ],

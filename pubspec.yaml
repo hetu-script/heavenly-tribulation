@@ -49,10 +49,14 @@ flutter:
 
     - scripts/
     - scripts/game/
+    - scripts/game/language/
+    - scripts/game/character/
+    - scripts/game/dialog/
     - scripts/core/
+    - scripts/core/entity/
     - scripts/core/data/language/
-    - scripts/core/data/dialog/
     - scripts/core/data/character/
+    - scripts/core/data/dialog/
     - scripts/core/data/location/
     - scripts/core/data/maze/
     - scripts/core/data/organization/

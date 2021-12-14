@@ -16,10 +16,10 @@ import 'language/predefined_languages.ht'
 import 'dialog/predefined_dialogs.ht'
 import 'character/predefined_characters.ht'
 
-fun init({lang = 'chs', game: dartGame}) {
+fun init({lang = 'chs', dartGame: SamsaraGame}) {
   dart = dartGame
 
-  setCurrentLocalization(lang)
+  setCurrentLanguage(lang)
   addLanguages(predefinedLanguages)
   dart.updateLanguagesData(game.languages.current.toJson())
 

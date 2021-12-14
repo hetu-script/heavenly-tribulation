@@ -3,52 +3,52 @@ final resources = [
     id: 'gold',
     name: 'generic.resource.gold',
     image: 'item/gold.png',
-  }
+  },
   {
     id: 'spiritStone',
     name: 'generic.resource.spiritStone',
     image: 'item/spirit_stone.png',
-  }
+  },
   {
     id: 'grain',
     name: 'generic.resource.grain',
     image: 'item/grain.png',
-  }
+  },
   {
     id: 'ore',
     name: 'generic.resource.ore',
     image: 'item/ore.png',
-  }
+  },
   {
     id: 'timber',
     name: 'generic.resource.timber',
     image: 'item/timber.png',
-  }
+  },
   {
     id: 'jade',
     name: 'generic.resource.jade',
     image: 'item/jade.png',
-  }
+  },
   {
     id: 'food',
     name: 'generic.resource.food',
     image: 'item/food.png',
-  }
+  },
   {
     id: 'medicine',
     name: 'generic.resource.medicine',
     image: 'item/medicine.png',
-  }
+  },
   {
     id: 'buldingMaterial',
     name: 'generic.resource.buldingMaterial',
     image: 'item/bulding_aterial.png',
-  }
+  },
   {
     id: 'talismanMaterial',
     name: 'generic.resource.talismanMaterial',
     image: 'item/talisman_material.png',
-  }
+  },
   {
     id: 'kosher',
     name: 'generic.resource.kosher',

@@ -29,10 +29,10 @@ class SamsaraGame with SceneController, EventAggregator {
       ],
     );
     hetu.evalFile('game/main.ht',
-        libraryName: 'game:main',
+        moduleName: 'game:main',
         globallyImport: true,
         invokeFunc: 'init',
-        positionalArgs: [this]);
+        namedArgs: {'lang': 'chs', 'dartGame': this});
     _isLoaded = true;
   }
 

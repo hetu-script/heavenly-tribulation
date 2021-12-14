@@ -46,7 +46,7 @@ class _GameDialogState extends State<GameDialog> {
   @override
   void initState() {
     assert(_data.contents.isNotEmpty);
-    assert(_data.contents.first.saying.isNotEmpty);
+    assert(_data.contents.first.lines.isNotEmpty);
     _startTalk();
     super.initState();
   }
@@ -145,7 +145,7 @@ class _GameDialogState extends State<GameDialog> {
       _letterCount = 0;
       final currentContent = _data.contents[_currentContentIndex];
       _currentAvatar = currentContent.avatar;
-      _currentSay = currentContent.saying[_currentSayIndex];
+      _currentSay = currentContent.lines[_currentSayIndex];
       _timer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
         _letterCount++;
         if (_letterCount > _currentSay.length) {
@@ -159,8 +159,7 @@ class _GameDialogState extends State<GameDialog> {
 
   String? _nextSay() {
     ++_currentSayIndex;
-    if (_currentSayIndex >=
-        _data.contents[_currentContentIndex].saying.length) {
+    if (_currentSayIndex >= _data.contents[_currentContentIndex].lines.length) {
       _nextContent();
     } else {
       _startTalk();

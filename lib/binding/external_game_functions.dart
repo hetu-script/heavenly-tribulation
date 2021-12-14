@@ -1,5 +1,4 @@
 import 'package:hetu_script/hetu_script.dart';
-import 'package:hetu_script/value/entity.dart';
 
 import '../ui/dialog/game_dialog/game_dialog.dart';
 import '../ui/dialog/selection_dialog.dart';
