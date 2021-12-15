@@ -10,7 +10,7 @@ fun createOrganizationFromJson() {
 
 fun addOrganizations(orgs: List) {
   for (final org in orgs) {
-    game.Organizations[org.id] = org
+    game.organizations[org.id] = org
   }
 }
 

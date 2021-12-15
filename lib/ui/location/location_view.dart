@@ -220,8 +220,8 @@ class _LocationViewState extends State<LocationView>
 String _getDefaultTitle(String type) {
   String title;
   switch (type) {
-    case 'cityhall':
-      title = 'scenes.cityhall';
+    case 'headquarters':
+      title = 'scenes.headquarters';
       break;
     case 'residency':
       title = 'scenes.residency';
@@ -280,8 +280,8 @@ String _getDefaultTitle(String type) {
 String _getDefaultImagePath(String type) {
   String imagePath;
   switch (type) {
-    case 'cityhall':
-      imagePath = 'location/scene/scene.cityhall.png';
+    case 'headquarters':
+      imagePath = 'location/scene/scene.headquarters.png';
       break;
     case 'residency':
       imagePath = 'location/scene/scene.residency.png';

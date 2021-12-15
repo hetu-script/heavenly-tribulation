@@ -2,11 +2,12 @@ final predefinedDialogs = [
   // 不是该组织的人，也不认识首领
   // 根据声望判断
   {
-    id: 'cityhall01',
+    id: 'headquarters01',
     contents: [
       {
         characterId: 'generic.concierge',
         lines: [
+
         ],
       },
     ],

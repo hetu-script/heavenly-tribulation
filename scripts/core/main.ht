@@ -7,25 +7,27 @@ export 'data/maze/mazes.ht'
 export 'entity/entities.ht'
 export 'entity/meta.ht'
 
-final meta = {
-  id: '天道奇劫',
-  version: '0.0.1',
-}
-
 fun load {
+  print('河图: 正在载入 [${meta.id}] ...')
   loadEntities(entities)
 }
 
 fun init {
+  print('河图: 正在初始化 [${meta.id}] ...')
+
   loadMod(meta)
 
   addLanguages(languages)
   dart.updateLanguagesData(game.languages.current.toJson())
 
+  addCharacters(characters)
+
   addDialogs(dialogs) // must be after added characters
 
   addLocations(locations)
   setCurrentLocation('baiheguan')
+
+  addOrganizations(organizations)
 
   addMazes(mazes)
 

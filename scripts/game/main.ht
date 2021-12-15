@@ -17,6 +17,8 @@ import 'dialog/predefined_dialogs.ht'
 import 'character/predefined_characters.ht'
 
 fun init({lang = 'chs', dartGame: SamsaraGame}) {
+  print('河图: 正在初始化游戏 ...')
+
   dart = dartGame
 
   setCurrentLanguage(lang)
@@ -28,18 +30,37 @@ fun init({lang = 'chs', dartGame: SamsaraGame}) {
     id: 'playerCharacter001',
     name: '玲', // 用户创建的人物，名字是固定的而不是来自语言包
     avatar: 'avatar/female/29.jpg',
+
+    organization: 'ziyangpai', // 组织id
+    organizationRank: 0, // 在组织中所处的等级数字越小，等级越低
+    leader: 'xuanqingzi', // 在组织中的上级领导
+    privateLeader: 'xuanqingzi', // 是否是亲信，亲信会跟随上级，而不是跟随组织
+    followers: [],
     fame: 0,
     infamy: 0,
     looks: 75,
 
-    health: 100,
+    currentLife: 100, // 生命
     life: 100,
+    currentSpirit: 100, // 精血
+    spirit: 100,
+    currentsStamina: 100, // 元气
+    stamina: 100,
 
-    waterSpirit: 10,
-    woodSpirit: 5,
-    earthSpirit: 5,
-    metalSpirit: 5,
-    fireSpirit: 5,
+    strength: 65, // 力量
+    dexterity: 78, // 灵巧
+    perception: 46, // 感知
+    intelligence: 89, // 悟性
+    memory: 66, // 记忆
+
+    // 五行灵根
+    roots: {
+      water: 10,
+      wood: 5,
+      earth: 5,
+      metal: 5,
+      fire: 5,
+    }
 
     talisman: {
       id: 'talisman.steelSword',

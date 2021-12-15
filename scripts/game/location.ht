@@ -70,7 +70,7 @@ fun handleSceneInteraction(id: str) {
   final scn = getSceneById(id)
   if (scn != null) {
     when (scn.type) {
-      'cityhall' -> _handlecityhallInteraction(scn)
+      'headquarters' -> _handleHeadquartersInteraction(scn)
       'residency' -> _handleResidencyInteraction(scn)
       'library' -> _handleLibraryInteraction(scn)
       'farmland' -> _handleFarmlandInteraction(scn)
@@ -87,17 +87,26 @@ fun handleSceneInteraction(id: str) {
       'zoo' -> _handleZooInteraction(scn)
       'maze' -> _handleMazeInteraction(scn)
       else -> {
-        print('错误: 未知的地区类型')
+        print('河图: 错误: 未知的地区类型。')
       }
     }
   }
 }
 
-fun _handlecityhallInteraction(scn) {
-  if (scn.characters is List && scn.characters.isNotEmpty) {
-    final char = getCharacterById(scn.characters.first)
-    handleCharacterInteraction(char)
+fun searchCharactersAtScene(scnId: str) {
+  final result = []
+  for (final char in game.characters) {
+    if (char.currentScene == scnId) {
+      result.add(char)
+    }
   }
+  return result
+}
+
+fun _handleHeadquartersInteraction(scn) {
+  final characters = searchCharactersAtScene(scn.id)
+  if (characters.is)
+  handleCharacterInteraction(characters)
 }
 
 fun _handleResidencyInteraction(scn) {

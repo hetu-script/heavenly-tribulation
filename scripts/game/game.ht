@@ -18,6 +18,7 @@ final game = {
   },
   characters: {},
   locations: {},
+  organizations: {},
   dialogs: {},
   mazes: {},
   mods: {},

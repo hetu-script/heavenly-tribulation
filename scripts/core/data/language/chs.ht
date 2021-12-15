@@ -40,9 +40,9 @@ final chs = {
   'bio.xiangtian': '向天奕，绰号黑鳄。漕帮好汉。利鑫商号外香主。',
 
   'locations.baiheguan': '白鹤观',
-  'locations.lixinhao': '利鑫商号',
+  'locations.mocheng': '墨城',
 
-  'scenes.cityhall': '总堂',
+  'scenes.headquarters': '总堂',
   'scenes.residency': '宅院',
   'scenes.library': '藏书阁',
   'scenes.farmland': '农田',
