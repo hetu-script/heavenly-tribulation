@@ -1,0 +1,12 @@
+final beifenglinOrganizations = [
+  {
+    id: 'ziyangpai',
+    name: 'organizationZiyangpai',
+    population: 20, // 普通成员，数量由各个建筑所需的普通工人的人数相加得到
+
+  },
+  {
+    id: 'caobang',
+    name: 'organizationCaobang',
+  }
+]

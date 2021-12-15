@@ -1,0 +1,10 @@
+{
+  "folders": [
+    {
+      "path": "packages/game/"
+    },
+    {
+      "path": "packages/editor/"
+    }
+  ]
+}
