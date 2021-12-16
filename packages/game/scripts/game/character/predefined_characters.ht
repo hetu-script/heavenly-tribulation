@@ -1,6 +1,6 @@
 final predefinedCharacters = [
   {
-    id: 'generic.concierge',
+    id: 'characterConcierge',
     nameId: 'characterConcierge',
     avatar: 'avatar/male/24.jpg',
   },

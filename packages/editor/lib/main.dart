@@ -5,11 +5,10 @@ import 'src/editor.dart';
 
 void main() {
   runApp(MaterialApp(
-    title: 'Tian Dao Qi Jie Module Editor',
-    localizationsDelegates: const [
-      AppLocalizations.delegate,
-    ],
+    title: 'The Banished Immortal: Game Module Editor',
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
+    debugShowCheckedModeBanner: false,
     theme: ThemeData(
       brightness: Brightness.light,
     ),

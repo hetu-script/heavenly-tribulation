@@ -1,15 +1,5 @@
 final chs = {
   id: 'chs',
-
-  'ageYear': '岁',
-  'ageMonth': '个月',
-  'ageDay': '天',
-  'dateYear': '年',
-  'dateMonth': '月',
-  'dateDay': '日',
-  'timeYear': '年',
-  'timeMonth': '个月',
-  'timeDay': '天',
   
   'organizationZiyangpai': '紫阳派',
   'organizationCaobang': '漕帮',
@@ -35,24 +25,6 @@ final chs = {
 
   'locationBaiheguan': '白鹤观',
   'locationMocheng': '墨城',
-
-  'sceneHeadquarters': '总堂',
-  'sceneResidency': '宅院',
-  'sceneLibrary': '藏书阁',
-  'sceneFarmland': '农田',
-  'sceneMine': '矿山',
-  'sceneTimberland': '林场',
-  'sceneMarket': '坊市',
-  'sceneShop': '商行',
-  'sceneRestaurant': '迎宾楼',
-  'sceneArena': '斗技场',
-  'sceneNursery': '苗圃',
-  'sceneWorkshop': '工坊',
-  'sceneAlchemylab': '丹房',
-  'sceneSmithshop': '锻冶间',
-  'sceneZenroom': '禅房',
-  'sceneZoo': '兽园',
-  'sceneMaze': '荒野',
 
   'sceneBaiheguanDadian': '正阳殿',
   'sceneBaiheguanHoushan': '后山',

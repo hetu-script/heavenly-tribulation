@@ -37,7 +37,7 @@ class MazeClassBinding extends HTExternalClass {
   MazeClassBinding() : super(r'Maze');
 
   @override
-  dynamic memberGet(String varName) {
+  dynamic memberGet(String varName, {String? from}) {
     switch (varName) {
       case r'Maze.fromJson':
         return (HTEntity object,

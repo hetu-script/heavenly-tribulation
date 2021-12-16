@@ -201,7 +201,7 @@ class _LocationViewState extends State<LocationView>
                             spacing: 8.0, // gap between adjacent chips
                             runSpacing: 4.0, // gap between lines
                             children: _sceneCards!)
-                        : EmptyPlaceholder(text: game.texts['generic.empty']),
+                        : EmptyPlaceholder(text: game.texts['empty']),
                   ),
                 ),
               ],
@@ -221,55 +221,55 @@ String _getDefaultTitle(String type) {
   String title;
   switch (type) {
     case 'headquarters':
-      title = 'sceneHeadquarters';
+      title = 'headquarters';
       break;
     case 'residency':
-      title = 'sceneResidency';
+      title = 'residency';
       break;
     case 'library':
-      title = 'sceneLibrary';
+      title = 'library';
       break;
     case 'farmland':
-      title = 'sceneFarmland';
+      title = 'farmland';
       break;
     case 'mine':
-      title = 'sceneMine';
+      title = 'mine';
       break;
     case 'timberland':
-      title = 'sceneTimberland';
+      title = 'timberland';
       break;
     case 'market':
-      title = 'sceneMarket';
+      title = 'market';
       break;
     case 'shop':
-      title = 'sceneShop';
+      title = 'shop';
       break;
     case 'restaurant':
-      title = 'sceneRestaurant';
+      title = 'restaurant';
       break;
     case 'arena':
-      title = 'sceneArena';
+      title = 'arena';
       break;
     case 'nursery':
-      title = 'sceneNursery';
+      title = 'nursery';
       break;
     case 'workshop':
-      title = 'sceneWorkshop';
+      title = 'workshop';
       break;
     case 'alchemylab':
-      title = 'sceneAlchemylab';
+      title = 'alchemylab';
       break;
     case 'smithshop':
-      title = 'sceneSmithshop';
+      title = 'smithshop';
       break;
     case 'zenroom':
-      title = 'sceneZenroom';
+      title = 'zenroom';
       break;
     case 'zoo':
-      title = 'sceneZoo';
+      title = 'zoo';
       break;
-    case 'maze':
-      title = 'sceneMaze';
+    case 'wilderness':
+      title = 'wilderness';
       break;
     default:
       title = 'genericMissing';
@@ -281,55 +281,55 @@ String _getDefaultImagePath(String type) {
   String imagePath;
   switch (type) {
     case 'headquarters':
-      imagePath = 'location/scene/scene_headquarters.png';
+      imagePath = 'location/scene/basic_headquarters.png';
       break;
     case 'residency':
-      imagePath = 'location/scene/scene_residency.png';
+      imagePath = 'location/scene/basic_residency.png';
       break;
     case 'library':
-      imagePath = 'location/scene/scene_library.png';
+      imagePath = 'location/scene/basic_library.png';
       break;
     case 'farmland':
-      imagePath = 'location/scene/scene_farmland.png';
+      imagePath = 'location/scene/basic_farmland.png';
       break;
     case 'mine':
-      imagePath = 'location/scene/scene_mine.png';
+      imagePath = 'location/scene/basic_mine.png';
       break;
     case 'timberland':
-      imagePath = 'location/scene/scene_timberland.png';
+      imagePath = 'location/scene/basic_timberland.png';
       break;
     case 'market':
-      imagePath = '/location/scene/scene_market.png';
+      imagePath = '/location/scene/basic_market.png';
       break;
     case 'shop':
-      imagePath = 'location/scene/scene_shop.png';
+      imagePath = 'location/scene/basic_shop.png';
       break;
     case 'restaurant':
-      imagePath = 'location/scene/scene_restaurant.png';
+      imagePath = 'location/scene/basic_restaurant.png';
       break;
     case 'arena':
-      imagePath = 'location/scene/scene_arena.png';
+      imagePath = 'location/scene/basic_arena.png';
       break;
     case 'nursery':
-      imagePath = 'location/scene/scene_nursery.png';
+      imagePath = 'location/scene/basic_nursery.png';
       break;
     case 'workshop':
-      imagePath = 'location/scene/scene_workshop.png';
+      imagePath = 'location/scene/basic_workshop.png';
       break;
     case 'alchemylab':
-      imagePath = 'location/scene/scene_alchemylab.png';
+      imagePath = 'location/scene/basic_alchemylab.png';
       break;
     case 'smithshop':
-      imagePath = 'location/scene/scene_smithshop.png';
+      imagePath = 'location/scene/basic_smithshop.png';
       break;
     case 'zenroom':
-      imagePath = 'location/scene/scene_zenroom.png';
+      imagePath = 'location/scene/basic_zenroom.png';
       break;
     case 'zoo':
-      imagePath = 'location/scene/scene_zoo.png';
+      imagePath = 'location/scene/basic_zoo.png';
       break;
     case 'maze':
-      imagePath = 'location/scene/scene_maze.png';
+      imagePath = 'location/scene/basic_maze.png';
       break;
     default:
       imagePath = 'location/scene/asset_missing.png';
