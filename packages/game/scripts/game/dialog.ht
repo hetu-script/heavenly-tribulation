@@ -12,6 +12,11 @@ fun addDialogs(dlgs: List) {
         final char = getCharacterById(content.characterId)
         content.avatar = char.avatar
       }
+      if (content.lineIds) {
+        content.lines = content.lineIds.map((id) {
+          return getLocalization(id)
+        })
+      }
     }
     game.dialogs[dlg.id] = dlg
   }

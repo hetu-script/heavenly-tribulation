@@ -15,25 +15,28 @@ class GameEditor extends StatefulWidget {
 }
 
 class _GameEditorState extends State<GameEditor> {
-  static const moduleEntryFile = 'main.ht';
+  static const moduleEntryFileName = 'main.ht';
 
   bool _isEditing = false;
   String? _currentProjectName;
-  String? _currentSaveDirectory;
-
+  String? _currentSavePath;
   final _textFieldController = TextEditingController();
+
+  @override
+  void dispose() {
+    super.dispose();
+    _textFieldController.dispose();
+  }
 
   Future<void> _newProject() async {
     String? projectName;
+    _textFieldController.text = AppLocalizations.of(context)!.unnamedProject;
     await showDialog<String>(
       context: context,
       builder: (context) {
         return AlertDialog(
           content: TextField(
             controller: _textFieldController,
-            decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!
-                    .dialogNewProjectTextFieldPlaceholder),
           ),
           actions: <Widget>[
             ElevatedButton(
@@ -45,7 +48,7 @@ class _GameEditorState extends State<GameEditor> {
               },
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(primary: Colors.greenAccent),
+              style: ElevatedButton.styleFrom(onPrimary: Colors.green),
               child: Text(AppLocalizations.of(context)!.ok),
               onPressed: () {
                 setState(() {
@@ -66,21 +69,17 @@ class _GameEditorState extends State<GameEditor> {
     }
   }
 
-  Future<void> _save() async {
-    _currentSaveDirectory ??= await FilePicker.platform.getDirectoryPath();
-
-    if (_currentSaveDirectory == null) {
+  Future<void> _saveAs() async {
+    _currentSavePath ??=
+        await FilePicker.platform.saveFile(fileName: moduleEntryFileName);
+    if (_currentSavePath == null) {
       return;
     }
-    _currentSaveDirectory =
-        path.join(_currentSaveDirectory!, _currentProjectName);
-    final directory = Directory(_currentSaveDirectory!);
-    final moduleEntryPath = path.join(_currentSaveDirectory!, moduleEntryFile);
-    final file = File(moduleEntryPath);
-    file.writeAsStringSync('test content of module saving.');
-    final info =
-        '${AppLocalizations.of(context)!.saveSuccessed}${directory.path}';
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(info)));
+    final moduleEntryFile = File(_currentSavePath!);
+    moduleEntryFile.writeAsStringSync(_generateMain());
+
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.saveSuccessed)));
   }
 
   @override
@@ -100,7 +99,7 @@ class _GameEditorState extends State<GameEditor> {
                     icon: const Icon(Icons.save),
                     tooltip: AppLocalizations.of(context)!.save,
                     onPressed: () {
-                      _save();
+                      _saveAs();
                     },
                   ),
                 ),
@@ -113,25 +112,25 @@ class _GameEditorState extends State<GameEditor> {
             ),
             bottom: TabBar(
               tabs: [
-                Tab(text: AppLocalizations.of(context)!.meta),
                 Tab(text: AppLocalizations.of(context)!.character),
                 Tab(text: AppLocalizations.of(context)!.location),
                 Tab(text: AppLocalizations.of(context)!.organization),
                 Tab(text: AppLocalizations.of(context)!.maze),
                 Tab(text: AppLocalizations.of(context)!.dialog),
                 Tab(text: AppLocalizations.of(context)!.language),
+                Tab(text: AppLocalizations.of(context)!.meta),
               ],
             ),
           ),
           body: TabBarView(
             children: [
-              Center(child: Text(_currentProjectName ?? '')),
               Center(child: Text(AppLocalizations.of(context)!.character)),
               Center(child: Text(AppLocalizations.of(context)!.location)),
               Center(child: Text(AppLocalizations.of(context)!.organization)),
               Center(child: Text(AppLocalizations.of(context)!.maze)),
               Center(child: Text(AppLocalizations.of(context)!.dialog)),
               Center(child: Text(AppLocalizations.of(context)!.language)),
+              Center(child: Text(_currentProjectName ?? '')),
             ],
           ),
         ),
@@ -162,5 +161,20 @@ class _GameEditorState extends State<GameEditor> {
         ),
       );
     }
+  }
+
+  String _generateMain() {
+    const output = r'''
+          
+      fun load {
+
+      }
+
+      fun init {
+
+      }
+    ''';
+
+    return output;
   }
 }

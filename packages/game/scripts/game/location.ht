@@ -6,6 +6,9 @@ fun addLocation(loc) {
 
 fun addLocations(locs: List) {
   for (final loc in locs) {
+    if (loc.nameId) {
+      loc.name = getLocalization(loc.nameId)
+    }
     game.locations[loc.id] = loc
   }
 }

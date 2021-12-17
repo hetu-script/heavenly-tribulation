@@ -15,3 +15,7 @@ fun addLanguages(langs: List) {
 fun setCurrentLanguage(id: str) {
   game.languages.current = game.languages[id]
 }
+
+fun getLocalization(id: str) {
+  return game.languages.current[id]
+}

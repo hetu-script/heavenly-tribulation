@@ -1,6 +1,7 @@
 
 final meta = {
-  id: '天道奇劫核心模组',
+  id: '',
+  name: '天道奇劫核心模组',
   version: '0.0.1',
   onNewGameStarted: (arg) {
     showGameDialogById('intro01')

@@ -21,12 +21,18 @@ fun getCurrentCharacterData() {
 }
 
 fun addCharacter(char) {
+  if (char.nameId) {
+    char.name = getLocalization(char.nameId)
+  }
+  if (char.artNameId) {
+    char.artName = getLocalization(char.artNameId)
+  }
   game.characters[char.id] = char
 }
 
 fun addCharacters(chars: List) {
   for (final char in chars) {
-    game.characters[char.id] = char
+    addCharacter(char)
   }
 }
 
