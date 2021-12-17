@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 // import 'package:flutter/foundation.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import 'package:path/path.dart' as path;
+// import 'package:path/path.dart' as path;
 import 'package:file_picker/file_picker.dart';
+
+import 'pages/character_listview.dart';
 
 class GameEditor extends StatefulWidget {
   const GameEditor({Key? key}) : super(key: key);
@@ -16,6 +18,8 @@ class GameEditor extends StatefulWidget {
 
 class _GameEditorState extends State<GameEditor> {
   static const moduleEntryFileName = 'main.ht';
+
+  final _characterData = <Map<String, dynamic>>[];
 
   bool _isEditing = false;
   String? _currentProjectName;
@@ -48,7 +52,7 @@ class _GameEditorState extends State<GameEditor> {
               },
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(onPrimary: Colors.green),
+              style: ElevatedButton.styleFrom(primary: Colors.green[800]),
               child: Text(AppLocalizations.of(context)!.ok),
               onPressed: () {
                 setState(() {
@@ -124,7 +128,7 @@ class _GameEditorState extends State<GameEditor> {
           ),
           body: TabBarView(
             children: [
-              Center(child: Text(AppLocalizations.of(context)!.character)),
+              Center(child: CharacterListView(data: _characterData)),
               Center(child: Text(AppLocalizations.of(context)!.location)),
               Center(child: Text(AppLocalizations.of(context)!.organization)),
               Center(child: Text(AppLocalizations.of(context)!.maze)),

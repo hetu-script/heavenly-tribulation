@@ -31,11 +31,20 @@ fun init({lang = 'chs', dartGame: SamsaraGame}) {
     name: '玲', // 用户创建的人物，名字是固定的而不是来自语言包
     avatar: 'avatar/female/29.jpg',
 
-    organization: 'ziyangpai', // 组织id
-    organizationRank: 0, // 在组织中所处的等级数字越小，等级越低
-    leader: 'xuanqingzi', // 在组织中的上级领导
-    privateLeader: 'xuanqingzi', // 是否是亲信，亲信会跟随上级，而不是跟随组织
-    followers: [],
+    // 组织
+    organization: {
+      id: 'ziyangpai', // 组织id
+      rank: 0, // 在组织中所处的等级数字越小，等级越低
+      superior: 'xuanqingzi', // 在组织中的上级领导
+      loyalty: 100,
+    }
+
+    // 效忠
+    allegiance: {
+      id: 'xuanqingzi',
+      loyalty: 100,
+    }
+    
     fame: 0,
     infamy: 0,
     looks: 75,
@@ -54,7 +63,7 @@ fun init({lang = 'chs', dartGame: SamsaraGame}) {
     memory: 66, // 记忆
 
     // 五行灵根
-    roots: {
+    spiritRoots: {
       water: 10,
       wood: 5,
       earth: 5,
