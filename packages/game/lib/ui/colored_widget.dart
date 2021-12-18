@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 class ColoredPreferredSizeWidget extends StatelessWidget
     implements PreferredSizeWidget {
   const ColoredPreferredSizeWidget({
+    Key? key,
     required this.backgroundColor,
     required this.child,
-    Key? key,
   }) : super(key: key);
 
   final Color backgroundColor;

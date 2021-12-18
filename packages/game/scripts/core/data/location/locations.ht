@@ -1,5 +1,0 @@
-import 'beifenglin_locations.ht'
-
-final locations = [
-  ...beifenglinLocations,
-]

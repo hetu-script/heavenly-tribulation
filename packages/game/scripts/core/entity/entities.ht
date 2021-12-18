@@ -1,7 +1,42 @@
-import 'meta.ht'
-import 'baiheguan_houshan_entities.ht'
-
 final entities = [
-  meta,
-  ...baiheguanHoushanEntities,
+  {
+    id: 'baiheguanHoushanEvent01',
+    onInteraction: (arg) {
+      if (!this.isVisited) {
+        this.isVisited = true
+        final future = showGameDialogById('event01')
+        future.then((value) {
+          final component = game.mazes.current.component
+          component.removeEntity(x, y)
+          component.lightUpAroundTerrain(x, y)
+        })
+      }
+    },
+  },
+  {
+    id: 'baiheguanHoushanEvent02a',
+    onInteraction: (arg) {
+      if (!this.isUnlocked) {
+        showGameDialogById('event02a')
+      }
+    }
+  },
+  {
+    id: 'baiheguanHoushanMinion01',
+    onInteraction: (arg) {
+      showSelectionDialog({
+        option1: '这是……',
+        option2: '什么呀？',
+      })
+    },
+  },
+  {
+    id: 'baiheguan.houshan.chest01',
+    onInteraction: (arg) {
+      if (!this.isVisited) {
+        this.isVisited = true
+        showGameDialogById('chest01')
+      }
+    },
+  },
 ]

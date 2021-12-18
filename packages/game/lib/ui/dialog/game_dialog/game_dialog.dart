@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import 'game_dialog_data.dart';
+import '../../shared/avatar.dart';
 
 class GameDialog extends StatefulWidget {
   static Future<void> show(
@@ -61,18 +62,6 @@ class _GameDialogState extends State<GameDialog> {
 
   @override
   Widget build(BuildContext context) {
-    BoxDecoration? avatarImage;
-    if (_currentAvatar != null) {
-      avatarImage = BoxDecoration(
-        image: DecorationImage(
-          fit: BoxFit.fill,
-          image: AssetImage('assets/images/$_currentAvatar'),
-        ),
-        borderRadius: const BorderRadius.all(Radius.circular(6)),
-        border: Border.all(color: Colors.white.withOpacity(0.5)),
-      );
-    }
-
     return GestureDetector(
       onTap: () {
         if (_finished) {
@@ -102,32 +91,34 @@ class _GameDialogState extends State<GameDialog> {
                   padding: const EdgeInsets.all(20.0),
                   child: Row(
                     children: <Widget>[
-                      Container(
-                        margin: const EdgeInsets.only(right: 10.0),
-                        width: 200.0,
-                        height: 200.0,
-                        decoration: avatarImage,
+                      Avatar(
+                        avatarAssetKey: 'assets/images/$_currentAvatar',
+                        size: 200.0,
                       ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          StreamBuilder(
-                            stream: _textShowController.stream,
-                            builder: (context, AsyncSnapshot<String> snapshot) {
-                              return SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                                physics: const BouncingScrollPhysics(),
-                                child: Text(
-                                  snapshot.data ?? '',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            StreamBuilder(
+                              stream: _textShowController.stream,
+                              builder:
+                                  (context, AsyncSnapshot<String> snapshot) {
+                                return SingleChildScrollView(
+                                  scrollDirection: Axis.vertical,
+                                  physics: const BouncingScrollPhysics(),
+                                  child: Text(
+                                    snapshot.data ?? '',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                    ),
                                   ),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),

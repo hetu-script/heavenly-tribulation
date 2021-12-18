@@ -1,7 +1,7 @@
 export 'game.ht'
 export 'mod.ht'
 export 'datetime.ht'
-export 'language.ht'
+export 'l10n.ht'
 export 'dialog.ht'
 export 'organization.ht'
 export 'character.ht'
@@ -12,17 +12,19 @@ export 'relationship.ht'
 export 'resource.ht'
 export 'entity.ht'
 
-import 'language/predefined_languages.ht'
-import 'dialog/predefined_dialogs.ht'
-import 'character/predefined_characters.ht'
+import 'l10n/predefined_localizations.ht'
+import 'data/predefined_dialogs.ht'
+import 'data/predefined_characters.ht'
 
-fun init({lang = 'chs', dartGame: SamsaraGame}) {
-  print('河图: 正在初始化游戏 ...')
-
+fun init({lang = 'zh', dartGame: SamsaraGame}) {
+  if (game.debug) {
+    print('河图: 正在初始化游戏 ...')
+  }
+  
   dart = dartGame
 
   setCurrentLanguage(lang)
-  addLanguages(predefinedLanguages)
+  addLocalizations(predefinedLocalizations)
   dart.updateLanguagesData(game.languages.current.toJson())
 
   addCharacters(predefinedCharacters)
@@ -70,6 +72,9 @@ fun init({lang = 'chs', dartGame: SamsaraGame}) {
       metal: 5,
       fire: 5,
     },
+    
+    currentLocation: 'baiheguan',
+    currentScene: null,
 
     talisman: {
       id: 'talisman.steelSword',

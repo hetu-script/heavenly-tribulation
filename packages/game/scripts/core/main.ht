@@ -1,23 +1,44 @@
-export 'data/language/languages.ht'
-export 'data/dialog/dialogs.ht'
-export 'data/organization/organizations.ht'
-export 'data/character/characters.ht'
-export 'data/location/locations.ht'
-export 'data/maze/mazes.ht'
+import 'meta.json' as modInfo
+
+export 'l10n/localizations.ht'
+export 'data/dialogs.ht'
+export 'data/organizations.ht'
+export 'data/characters.ht'
+export 'data/locations.ht'
+export 'data/mazes.ht'
 export 'entity/entities.ht'
-export 'entity/meta.ht'
+
+final modEntity = {
+  id: 'tdqj_core',
+  type: 'module',
+  onNewGameStarted: (arg) {
+    if (game.debug) {
+      print('河图: 触发新游戏事件 [${this.name}]')
+    }
+  },
+  onUpdate: (arg) {
+    if (game.debug) {
+      print('河图：触发时间更新事件 [${this.name}]')
+    }
+  }
+}
 
 fun load {
-  print('河图: 正在载入 [${meta.id}] ...')
+  if (game.debug) {
+    print('河图: 正在载入 [${modInfo.name}] ...')
+  }
+  loadEntity(modEntity)
   loadEntities(entities)
 }
 
 fun init {
-  print('河图: 正在初始化 [${meta.id}] ...')
+  if (game.debug) {
+    print('河图: 正在初始化 [${modInfo.name}] ...')
+  }
+  
+  addModInfo(modInfo)
 
-  loadMod(meta)
-
-  addLanguages(languages)
+  addLocalizations(localizations)
   dart.updateLanguagesData(game.languages.current.toJson())
 
   addCharacters(characters)

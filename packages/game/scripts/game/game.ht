@@ -11,10 +11,11 @@ fun build(ctx) {
 var dart: SamsaraGame
 
 final game = {
+  debug: true,
   timestamp: 288000,
   languages: {
-    chs: {},
-    eng: {}
+    zh: {},
+    en: {}
   },
   characters: {},
   locations: {},
@@ -26,11 +27,16 @@ final game = {
 }
 
 fun onGameEvent(id: str, [arg]) {
-  // 这里要用 for...of
   for (final entity of game.entities) {
     final handler = entity[id];
     if (handler is function) {
-      handler(arg)
+      if (entity.type == 'module') {
+        final mod = getModInfo(entity.id)
+        final func = handler.bind(mod)
+        func(arg)
+      } else {
+        handler(arg)
+      }
     }
   }
 }

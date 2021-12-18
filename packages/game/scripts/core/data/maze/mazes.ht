@@ -1,5 +1,0 @@
-import 'beifenglin_mazes.ht'
-
-final mazes = [
-  ...beifenglinMazes,
-]

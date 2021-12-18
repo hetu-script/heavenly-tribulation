@@ -1,0 +1,7 @@
+import 'zh.ht'
+import 'en.ht'
+
+final localizations = [
+  zh,
+  en,
+]

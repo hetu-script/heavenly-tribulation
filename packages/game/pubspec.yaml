@@ -10,6 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   meta: ^1.7.0
 
@@ -26,7 +28,9 @@ dependencies:
   # flame_ecs:
   #   path: ../packages/flame_ecs
 
-  after_layout: ^1.1.0
+  code_text_field: ^1.0.2
+  highlight: ^0.7.0
+  flutter_highlight: ^0.7.0
 
 dev_dependencies:
   flutter_test:
@@ -35,15 +39,13 @@ dev_dependencies:
   flutter_lints: ^1.0.0
 
 flutter:
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
 
   assets:
     - assets/images/
     - assets/images/icon/
     - assets/images/maze/
+    - assets/images/interior/
     - assets/images/location/
     - assets/images/location/scene/
     - assets/images/avatar/male/
@@ -51,14 +53,18 @@ flutter:
 
     - scripts/
     - scripts/game/
-    - scripts/game/language/
-    - scripts/game/character/
-    - scripts/game/dialog/
+    - scripts/game/l10n/
+    - scripts/game/l10n/zh_name/
+    - scripts/game/data/
     - scripts/core/
+    - scripts/core/l10n/
+    - scripts/core/data/
     - scripts/core/entity/
-    - scripts/core/data/language/
-    - scripts/core/data/character/
-    - scripts/core/data/dialog/
-    - scripts/core/data/location/
-    - scripts/core/data/maze/
-    - scripts/core/data/organization/
+
+  fonts:
+    - family: NotoSansMono
+      fonts:
+        - asset: assets/fonts/NotoSansMonoCJKsc-Regular.otf
+    - family: UbuntuMono
+      fonts:
+        - asset: assets/fonts/UbuntuMonoDerivativePowerline.ttf

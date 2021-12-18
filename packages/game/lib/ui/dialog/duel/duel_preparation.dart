@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class DuelPraparation extends StatefulWidget {
   const DuelPraparation({
+    Key? key,
     required this.data,
     required this.onFinished,
-    Key? key,
   }) : super(key: key);
 
   final Map<String, dynamic> data;

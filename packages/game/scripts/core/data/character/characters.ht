@@ -1,5 +1,0 @@
-import 'beifenglin_characters.ht'
-
-final characters = [
-  ...beifenglinCharacters,
-]

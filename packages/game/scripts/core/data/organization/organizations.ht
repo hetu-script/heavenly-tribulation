@@ -1,5 +1,0 @@
-import 'beifenglin_organizations.ht'
-
-final organizations = [
-  ...beifenglinOrganizations,
-]

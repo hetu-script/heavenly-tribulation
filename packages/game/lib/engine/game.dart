@@ -6,33 +6,44 @@ import '../binding/engine/scene/maze/component/maze_binding.dart';
 import '../binding/engine/game_binding.dart';
 import 'scene/scene.dart';
 import 'event/event.dart';
-import '../shared/languages.dart';
+import '../shared/localization.dart';
 
 class SamsaraGame with SceneController, EventAggregator {
-  final texts = GameLanguage();
+  final locale = GameLocalization();
 
   void updateLanguagesData(Map<String, dynamic> data) {
-    texts.data.clear();
-    texts.data.addAll(data);
+    locale.data.clear();
+    locale.data.addAll(data);
   }
 
-  final Hetu hetu = Hetu();
+  late final Hetu hetu;
   bool _isLoaded = false;
   bool get isLoaded => _isLoaded;
 
   Future<void> init() async {
+    const root = 'scripts/';
+    final filterConfig = HTFilterConfig(root, extension: [
+      HTResource.hetuModule,
+      HTResource.hetuScript,
+      HTResource.json,
+    ]);
+    final sourceContext = HTAssetResourceContext(
+        root: root,
+        includedFilter: [filterConfig],
+        expressionModuleExtensions: [HTResource.json]);
+    hetu = Hetu(sourceContext: sourceContext);
     await hetu.initFlutter(
       externalFunctions: externalGameFunctions,
       externalClasses: [
-        MazeClassBinding(),
         SamsaraGameClassBinding(),
+        MazeClassBinding(),
       ],
     );
     hetu.evalFile('game/main.ht',
         moduleName: 'game:main',
         globallyImport: true,
         invokeFunc: 'init',
-        namedArgs: {'lang': 'chs', 'dartGame': this});
+        namedArgs: {'lang': 'zh', 'dartGame': this});
     _isLoaded = true;
   }
 
@@ -68,7 +79,7 @@ class SamsaraGame with SceneController, EventAggregator {
 
     final type = format?.split('.').first ?? 'date';
     if (type == 'age') {
-      return ' $yearN ${texts['date.year']}';
+      return ' $yearN ${locale['date.year']}';
     }
 
     if (type == 'date') {
@@ -77,9 +88,9 @@ class SamsaraGame with SceneController, EventAggregator {
       ++dayN;
     }
 
-    final year = ' $yearN ${texts['$type.year']}';
-    final month = ' $monthN ${texts['$type.month']}';
-    final day = ' $dayN ${texts['$type.day']}';
+    final year = ' $yearN ${locale['$type.year']}';
+    final month = ' $monthN ${locale['$type.month']}';
+    final day = ' $dayN ${locale['$type.day']}';
 
     final fmt = format?.split('.').last;
     switch (fmt) {

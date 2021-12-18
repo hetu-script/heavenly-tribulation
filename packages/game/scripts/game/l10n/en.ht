@@ -1,0 +1,5 @@
+final en = {
+  languageId: 'en',
+  languageName: 'English',
+  
+}

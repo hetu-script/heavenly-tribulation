@@ -1,0 +1,55 @@
+final characters = [
+  {
+    id: 'xuanqingzi',
+    nameId: 'characterLizhiqing',
+    avatar: 'avatar/male/24.jpg',
+    artNameId: 'artNameTaoistXuanqingzi',
+    useArtName: true,
+    bio: 'bio.xuanqingzi',
+    birthdate: 115200,
+    currentLocation: 'baiheguan',
+    currentScene: 'baiheguan.dadian',
+  },
+  {
+    id: 'yuanping',
+    nameId: 'characterHeping',
+    avatar: 'avatar/male/6.jpg',
+    artNameId: 'artNameTaoistYuanping',
+    useArtName: true,
+    bio: 'bio.yuanping',
+    birthdate: 115200,
+    
+  },
+  {
+    id: 'yuanzhen',
+    nameId: 'characterGuhuaizhen',
+    avatar: 'avatar/male/8.jpg',
+    artNameId: 'artNameTaoistYuanzhen',
+    useArtName: true,
+    bio: 'bio.yuanzhen',
+    birthdate: 115200,
+    
+  },
+  {
+    id: 'wanchongshan',
+    nameId: 'characterWanchongshan',
+    avatar: 'avatar/male/30.jpg',
+    artNameId: 'artNameGanghoodWuyunshou',
+    bio: 'bio.wanchongshan',
+    birthdate: 243360,
+  },
+  {
+    id: 'bichun',
+    nameId: 'character.bichun',
+    avatar: 'avatar/male/14.jpg',
+    bio: 'bio.bichun',
+    birthdate: 243360,
+  },
+  {
+    id: 'xiangtian',
+    nameId: 'character.xiangtian',
+    avatar: 'avatar/male/21.jpg',
+    bio: 'bio.xiangtian',
+    birthdate: 243360,
+  },
+]

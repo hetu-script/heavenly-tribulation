@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
-// import 'widget/view/main_frame.dart';
-
-import 'game_app.dart';
+import 'ui/game_app.dart';
 import 'engine/game.dart';
 
 void main() {
   runApp(MaterialApp(
-      theme: ThemeData(
-        brightness: Brightness.light,
-      ),
+      title: 'Tian Dao Qi Jie',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.light().copyWith(
+          scrollbarTheme: const ScrollbarThemeData().copyWith(
+        thumbColor: MaterialStateProperty.all(Colors.grey),
+      )),
       home: GameApp(game: SamsaraGame())));
 }
