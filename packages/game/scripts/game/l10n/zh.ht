@@ -50,9 +50,10 @@ final zh = {
   'untitled': '未命名',
 
   'characterEditor': '角色编辑',
+  'characterAvatar': '头像',
   'characterId': 'ID',
   'characterName': '名字',
-  'characterAvatar': '头像',
+  'characterIsFemale': '性别',
   'characterOrganization': '所在组织（ID）',
   'characterRankInOrganization': '在组织中的等级',
   'characterSuperiorInOrganization': '在组织中的上级',
@@ -78,6 +79,9 @@ final zh = {
   'characterEarthSpiritRoot': '土灵根',
   'characterMetalSpiritRoot': '金灵根',
   'characterFireSpiritRoot': '火灵根',
+
+  'male': '男',
+  'female': '女',
 
   'ageYear': '岁',
   'ageMonth': '个月',

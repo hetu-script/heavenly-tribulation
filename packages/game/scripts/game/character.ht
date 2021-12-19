@@ -93,12 +93,13 @@ fun getRandomNames({nameStyle, isFemale = false, number = 1}) {
   final male = game.languages.current.names.male
   final middle = game.languages.current.names.middle
 
-  final familyIndex = Math.randomInt(family.length + 1) % family.length
-  final familyName = family[familyIndex]
   var name = ''
   final names = []
   for (var i = 0; i < number; ++i) {
+    final familyIndex = Math.randomInt(family.length + 1) % family.length
+    final familyName = family[familyIndex]
     final style = Math.random()
+    final sex = isFemale ?? Math.randomInt(10) % 2 == 0
     if (nameStyle == 'single' || style < 0.33333333) {
       if (!isFemale) {
         final nameIndex = Math.randomInt(female.length + 1) % female.length

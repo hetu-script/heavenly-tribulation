@@ -24,7 +24,7 @@ class Avatar extends StatelessWidget {
           image: AssetImage(avatarAssetKey!),
         ),
         borderRadius: BorderRadius.all(Radius.circular(radius)),
-        border: Border.all(color: Colors.grey.withOpacity(0.5)),
+        border: Border.all(color: Colors.black54),
       );
     }
 
