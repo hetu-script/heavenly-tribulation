@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../engine/game.dart';
 import '../../../shared/localization.dart';
 import '../../shared/avatar.dart';
+import '../../shared/bordered_icon_button.dart';
 
 class CharacterEditor extends StatefulWidget {
   const CharacterEditor(
@@ -20,7 +21,7 @@ class CharacterEditor extends StatefulWidget {
 
   final Map<String, dynamic> data;
 
-  final void Function(Map<String, dynamic>? data) onClosed;
+  final void Function(bool saved) onClosed;
 
   final int maleAvatarCount;
 
@@ -30,19 +31,26 @@ class CharacterEditor extends StatefulWidget {
   _CharacterEditorState createState() => _CharacterEditorState();
 }
 
-class _CharacterEditorState extends State<CharacterEditor> {
+class _CharacterEditorState extends State<CharacterEditor>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  static const avatarSize = 100.0;
+  static const avatarEditButtonSize = 16.0;
+
   SamsaraGame get game => widget.game;
 
   GameLocalization get locale => widget.game.locale;
 
   Map<String, dynamic> get data => widget.data;
 
-  static const _characterFields = [
+  static const _characterFields = {
     'characterId',
     'characterName',
     'characterOrganization',
-    'characterRankInOrganization',
     'characterSuperiorInOrganization',
+    'characterRankInOrganization',
     'characterLoyaltyInOrganization',
     'characterAllegianceTo',
     'characterAllegiance',
@@ -65,9 +73,34 @@ class _CharacterEditorState extends State<CharacterEditor> {
     'characterEarthSpiritRoot',
     'characterMetalSpiritRoot',
     'characterFireSpiritRoot',
-  ];
+  };
 
-  final _fields = <Widget>[];
+  static const _numFields = {
+    'characterRankInOrganization',
+    'characterLoyaltyInOrganization',
+    'characterAllegiance',
+    'characterFame',
+    'characterInfamy',
+    'characterLooks',
+    'characterLife',
+    'characterCurrentLife',
+    'characterSpirit',
+    'characterCurrentSpirit',
+    'characterStamina',
+    'characterCurrentStamina',
+    'characterStrength',
+    'characterDexterity',
+    'characterPerception',
+    'characterIntelligence',
+    'characterMemory',
+    'characterWaterSpiritRoot',
+    'characterWoodSpiritRoot',
+    'characterEarthSpiritRoot',
+    'characterMetalSpiritRoot',
+    'characterFireSpiritRoot',
+  };
+
+  final _fieldTextFields = <Widget>[];
 
   final _fieldControllers = <String, TextEditingController>{};
 
@@ -97,22 +130,22 @@ class _CharacterEditorState extends State<CharacterEditor> {
   void initState() {
     super.initState();
 
-    if (data['characterIsFemale'] is! bool) {
-      data['characterIsFemale'] = false;
-    }
+    data['characterIsFemale'] ??= false;
 
     _fieldControllers.addAll(
       Map.fromEntries(
-        _characterFields.map(
-          (field) => MapEntry(
+        _characterFields.map((field) {
+          final fieldData = data[field];
+          final fieldString = fieldData == null ? '' : fieldData.toString();
+          return MapEntry(
             field,
-            TextEditingController(text: data[field]),
-          ),
-        ),
+            TextEditingController(text: fieldString),
+          );
+        }),
       ),
     );
 
-    _fields.addAll(
+    _fieldTextFields.addAll(
       _characterFields.map(
         (field) {
           switch (field) {
@@ -144,6 +177,7 @@ class _CharacterEditorState extends State<CharacterEditor> {
   void _randomizeName() {
     final List<dynamic> name = game.hetu.invoke('getRandomNames',
         namedArgs: {'isFemale': data['characterIsFemale']});
+    data['characterName'] = name.first;
     _fieldControllers['characterName']!.text = name.first;
   }
 
@@ -152,20 +186,37 @@ class _CharacterEditorState extends State<CharacterEditor> {
   }
 
   void _randomize() {
-    _randomizeAvatar();
     _randomizeSex();
+    _randomizeAvatar();
     _randomizeName();
+  }
+
+  void _save() {
+    for (final field in _characterFields) {
+      final controller = _fieldControllers[field]!;
+      if (field == 'characterIsFemale') {
+        data[field] = controller.text == locale['female'] ? true : false;
+      } else if (_numFields.contains(field)) {
+        data[field] = num.tryParse(controller.text) ?? 0;
+      } else {
+        data[field] = controller.text.isEmpty ? null : controller.text;
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(locale['characterEditor']),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            widget.onClosed(null);
+            setState(() {
+              widget.onClosed(false);
+            });
           },
           tooltip: locale['goBack'],
         ),
@@ -175,16 +226,17 @@ class _CharacterEditorState extends State<CharacterEditor> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              IconButton(
+              BorderedIconButton(
                 onPressed: () {
                   setState(() {
-                    widget.onClosed(data);
+                    _save();
+                    widget.onClosed(true);
                   });
                 },
                 icon: const Icon(Icons.save),
                 tooltip: locale['save'],
               ),
-              IconButton(
+              BorderedIconButton(
                 onPressed: () {
                   setState(() {
                     _randomize();
@@ -193,7 +245,7 @@ class _CharacterEditorState extends State<CharacterEditor> {
                 icon: const Icon(Icons.shuffle),
                 tooltip: locale['random'],
               ),
-              IconButton(
+              BorderedIconButton(
                 onPressed: () {
                   setState(() {});
                 },
@@ -209,23 +261,26 @@ class _CharacterEditorState extends State<CharacterEditor> {
                     parent: BouncingScrollPhysics()),
                 shrinkWrap: true,
                 children: <Widget>[
-                  Container(
-                    color: Colors.amber,
+                  SizedBox(
+                    height: 150.0,
                     child: Stack(
                       alignment: Alignment.topCenter,
                       children: [
                         Avatar(
                           avatarAssetKey: data['characterAvatar'] != null
-                              ? 'assets/images${data['characterAvatar']}'
+                              ? 'assets/images/${data['characterAvatar']}'
                               : null,
-                          size: 100,
-                          radius: 50,
+                          size: avatarSize,
                         ),
                         Positioned(
-                          top: 95.0,
-                          left: MediaQuery.of(context).size.width / 2 + 55,
-                          child: IconButton(
-                            icon: const Icon(Icons.shuffle),
+                          top: avatarSize - avatarEditButtonSize,
+                          left: MediaQuery.of(context).size.width / 2 +
+                              avatarSize / 2 -
+                              avatarEditButtonSize,
+                          child: BorderedIconButton(
+                            iconSize: avatarEditButtonSize,
+                            icon: const Icon(Icons.shuffle_rounded),
+                            tooltip: locale['random'],
                             onPressed: () {
                               setState(() {
                                 _randomizeAvatar();
@@ -234,15 +289,20 @@ class _CharacterEditorState extends State<CharacterEditor> {
                           ),
                         ),
                         Positioned(
-                          top: 95.0,
-                          left: MediaQuery.of(context).size.width / 2 - 55,
-                          child: IconButton(
+                          top: avatarSize - avatarEditButtonSize,
+                          left: MediaQuery.of(context).size.width / 2 -
+                              avatarSize / 2 -
+                              avatarEditButtonSize,
+                          child: BorderedIconButton(
+                            iconSize: avatarEditButtonSize,
                             icon: data['characterIsFemale']
-                                ? const Icon(Icons.female)
-                                : const Icon(Icons.male),
+                                ? const Icon(Icons.female_rounded)
+                                : const Icon(Icons.male_rounded),
+                            tooltip: locale['characterIsFemale'],
                             onPressed: () {
                               setState(() {
-                                _randomizeSex();
+                                data['characterIsFemale'] =
+                                    !data['characterIsFemale'];
                               });
                             },
                           ),
@@ -257,7 +317,7 @@ class _CharacterEditorState extends State<CharacterEditor> {
                       child: Wrap(
                         spacing: 10.0, // gap between adjacent chips
                         runSpacing: 5.0, // gap between lines
-                        children: _fields,
+                        children: _fieldTextFields,
                       ),
                     ),
                   ),

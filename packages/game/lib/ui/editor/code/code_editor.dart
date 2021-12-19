@@ -26,12 +26,8 @@ class CodeEditor extends StatefulWidget {
   _CodeEditorState createState() => _CodeEditorState();
 }
 
-class _CodeEditorState extends State<CodeEditor>
-    with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin {
-  @override
-  bool get wantKeepAlive => true;
-
-  var _untitledIndex = 0;
+class _CodeEditorState extends State<CodeEditor> with TickerProviderStateMixin {
+  final _fileListViewWidth = 200.0;
   List<String> get names => widget.names;
   List<String> get contents => widget.contents;
   final _codeControllers = <CodeController>[];
@@ -39,18 +35,31 @@ class _CodeEditorState extends State<CodeEditor>
   TabController? _tabController;
   final _tabs = <BorderedTab>[];
   final _textFields = <Widget>[];
-  final _openedIndex = <int>{};
+  final _openedNames = <String>[];
   int _selectedIndex = 0;
   final _fileListItem = <Widget>[];
 
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+
+    _updateData();
+  }
+
   void _updateData() {
-    if (names.isEmpty) {
-      names.add('${widget.untitledName}${++_untitledIndex}');
-      contents.add('');
-      _openedIndex.add(0);
+    _openedNames.removeWhere((name) => !names.contains(name));
+    if (_openedNames.isEmpty && names.isNotEmpty) {
+      _openedNames.add(names.first);
     }
 
+    _codeControllers.clear();
+    _textFieldFocusNodes.clear();
+    _fileListItem.clear();
+    _textFields.clear();
+    _tabs.clear();
+    _tabController?.dispose();
     for (var index = 0; index < names.length; ++index) {
+      final name = names[index];
       final content = contents[index];
       _codeControllers.add(
         CodeController(
@@ -59,10 +68,7 @@ class _CodeEditorState extends State<CodeEditor>
           theme: monokaiSublimeTheme,
         ),
       );
-
       _textFieldFocusNodes.add(FocusNode());
-
-      final name = names[index];
       _fileListItem.add(InkWell(
         focusNode: _textFieldFocusNodes[index],
         child: Padding(
@@ -75,12 +81,13 @@ class _CodeEditorState extends State<CodeEditor>
         ),
         onTap: () {
           setState(() {
-            _openedIndex.add(index);
-            _selectedIndex = index;
+            if (!_openedNames.contains(name)) {
+              _openedNames.add(name);
+              _selectedIndex = _openedNames.indexOf(name);
+            }
           });
         },
       ));
-
       _textFields.add(
         CodeField(
           controller: _codeControllers[index],
@@ -89,16 +96,19 @@ class _CodeEditorState extends State<CodeEditor>
         ),
       );
     }
-
-    for (final index in _openedIndex) {
-      _tabs.add(BorderedTab(text: names[index]));
+    for (final name in _openedNames) {
+      _tabs.add(BorderedTab(text: name));
     }
     _tabController = TabController(vsync: this, length: _tabs.length);
+    if (_textFieldFocusNodes.isNotEmpty) {
+      _textFieldFocusNodes.first.requestFocus();
+    }
   }
 
   @override
   void initState() {
     super.initState();
+
     _updateData();
   }
 
@@ -116,77 +126,79 @@ class _CodeEditorState extends State<CodeEditor>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     _tabController?.index = _selectedIndex;
     _textFieldFocusNodes[_selectedIndex].requestFocus();
-    return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      child: Stack(
-        children: <Widget>[
-          Positioned(
-            child: GestureDetector(
-              onTap: () {
-                _textFieldFocusNodes[_selectedIndex].requestFocus();
-              },
-              child: Container(
-                width: 200.0,
-                height: MediaQuery.of(context).size.height,
-                alignment: Alignment.topLeft,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.grey[200]!,
+    return LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+      return SizedBox(
+        width: constraints.maxWidth,
+        child: Stack(
+          children: <Widget>[
+            Positioned(
+              child: GestureDetector(
+                onTap: () {
+                  _textFieldFocusNodes[_selectedIndex].requestFocus();
+                },
+                child: Container(
+                  width: _fileListViewWidth,
+                  height: MediaQuery.of(context).size.height,
+                  alignment: Alignment.topLeft,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey[200]!,
+                    ),
                   ),
-                ),
-                child: SingleChildScrollView(
-                  child: ListView(
-                    children: _fileListItem,
-                    shrinkWrap: true,
+                  child: SingleChildScrollView(
+                    child: ListView(
+                      children: _fileListItem,
+                      shrinkWrap: true,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          Positioned(
-            left: 200,
-            width: MediaQuery.of(context).size.width - 200,
-            height: MediaQuery.of(context).size.height,
-            child: GestureDetector(
-              onTap: () {
-                _textFieldFocusNodes[_selectedIndex].requestFocus();
-              },
-              child: Column(
-                children: [
-                  PreferredSize(
-                    preferredSize: const Size.fromHeight(kToolbarHeight),
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: TabBar(
-                        labelColor: Colors.black87,
-                        unselectedLabelColor: Colors.black38,
-                        controller: _tabController,
-                        tabs: _tabs,
-                        isScrollable: true,
-                        onTap: (index) {
-                          _textFieldFocusNodes[index].requestFocus();
-                        },
+            Positioned(
+              left: 200,
+              width: constraints.maxWidth - _fileListViewWidth,
+              height: constraints.maxHeight,
+              child: GestureDetector(
+                onTap: () {
+                  _textFieldFocusNodes[_selectedIndex].requestFocus();
+                },
+                child: Column(
+                  children: [
+                    PreferredSize(
+                      preferredSize: const Size.fromHeight(kToolbarHeight),
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: TabBar(
+                          labelColor: Colors.black87,
+                          unselectedLabelColor: Colors.black38,
+                          controller: _tabController,
+                          tabs: _tabs,
+                          isScrollable: true,
+                          onTap: (index) {
+                            _textFieldFocusNodes[index].requestFocus();
+                          },
+                        ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: Container(
-                      color: const Color(0xff23241f),
-                      child: SingleChildScrollView(
-                        controller: ScrollController(),
-                        child: _textFields[_selectedIndex],
+                    Expanded(
+                      child: Container(
+                        color: const Color(0xff23241f),
+                        child: SingleChildScrollView(
+                          controller: ScrollController(),
+                          child: _textFields[_selectedIndex],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 }

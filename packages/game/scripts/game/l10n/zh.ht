@@ -50,10 +50,10 @@ final zh = {
   'untitled': '未命名',
 
   'characterEditor': '角色编辑',
-  'characterAvatar': '头像',
   'characterId': 'ID',
-  'characterName': '名字',
   'characterIsFemale': '性别',
+  'characterAvatar': '头像',
+  'characterName': '名字',
   'characterOrganization': '所在组织（ID）',
   'characterRankInOrganization': '在组织中的等级',
   'characterSuperiorInOrganization': '在组织中的上级',

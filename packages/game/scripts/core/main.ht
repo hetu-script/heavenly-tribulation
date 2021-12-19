@@ -25,7 +25,7 @@ final modEntity = {
 
 fun load {
   if (game.debug) {
-    print('河图: 正在载入 [${modInfo.name}] ...')
+    print('河图: 载入 [${modInfo.name}] ...')
   }
   loadEntity(modEntity)
   loadEntities(entities)
@@ -33,7 +33,7 @@ fun load {
 
 fun init {
   if (game.debug) {
-    print('河图: 正在初始化 [${modInfo.name}] ...')
+    print('河图: 初始化 [${modInfo.name}] ...')
   }
   
   addModInfo(modInfo)

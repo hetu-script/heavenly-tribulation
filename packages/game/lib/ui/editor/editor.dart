@@ -20,8 +20,14 @@ class GameEditor extends StatefulWidget {
   State<GameEditor> createState() => _GameEditorState();
 }
 
-class _GameEditorState extends State<GameEditor> {
+class _GameEditorState extends State<GameEditor>
+    with AutomaticKeepAliveClientMixin {
   // static const moduleEntryFileName = 'main.ht';
+  static const charactersFileName = 'data/characters.ht';
+
+  @override
+  bool get wantKeepAlive => true;
+
   SamsaraGame get game => widget.game;
 
   GameLocalization get locale => widget.game.locale;
@@ -40,6 +46,16 @@ class _GameEditorState extends State<GameEditor> {
   void dispose() {
     super.dispose();
     _textFieldController.dispose();
+  }
+
+  void _onCharacterSaved(String content) {
+    final index = _codeFileNames.indexOf(charactersFileName);
+    if (index == -1) {
+      _codeFileNames.add(charactersFileName);
+      _codeFileContents.add(content);
+    } else {
+      _codeFileContents[index] = content;
+    }
   }
 
   Future<void> _newProject() async {
@@ -94,6 +110,8 @@ class _GameEditorState extends State<GameEditor> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     if (_isEditing) {
       return DefaultTabController(
         length: 8,
@@ -144,7 +162,16 @@ class _GameEditorState extends State<GameEditor> {
           body: TabBarView(
             children: [
               Center(
-                  child: CharacterListView(game: game, data: _characterData)),
+                child: CharacterListView(
+                  game: game,
+                  data: _characterData,
+                  onSaved: (content) {
+                    setState(() {
+                      _onCharacterSaved(content);
+                    });
+                  },
+                ),
+              ),
               Center(child: Text(locale['location'])),
               Center(child: Text(locale['organization'])),
               Center(child: Text(locale['maze'])),

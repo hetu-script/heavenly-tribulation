@@ -18,7 +18,7 @@ import 'data/predefined_characters.ht'
 
 fun init({lang = 'zh', dartGame: SamsaraGame}) {
   if (game.debug) {
-    print('河图: 正在初始化游戏 ...')
+    print('河图: 初始化游戏 ...')
   }
   
   dart = dartGame

@@ -7,20 +7,32 @@ import '../../../shared/localization.dart';
 import '../../empty_placeholder.dart';
 import 'character_editor.dart';
 import '../../../shared/crc32b.dart';
+import '../../../shared/json.dart';
+import '../../shared/avatar.dart';
 
 class CharacterListView extends StatefulWidget {
-  const CharacterListView({Key? key, required this.game, required this.data})
-      : super(key: key);
+  const CharacterListView({
+    Key? key,
+    required this.game,
+    required this.data,
+    required this.onSaved,
+  }) : super(key: key);
 
   final SamsaraGame game;
 
   final List<Map<String, dynamic>> data;
 
+  final void Function(String content) onSaved;
+
   @override
   _CharacterListViewState createState() => _CharacterListViewState();
 }
 
-class _CharacterListViewState extends State<CharacterListView> {
+class _CharacterListViewState extends State<CharacterListView>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   SamsaraGame get game => widget.game;
   GameLocalization get locale => widget.game.locale;
 
@@ -28,75 +40,58 @@ class _CharacterListViewState extends State<CharacterListView> {
 
   Map<String, dynamic>? _currentEditingCharacterData;
 
-  final _characterCards = <Widget>[];
+  List<Widget>? _characterCards;
 
   bool _isEditing = false;
 
-  void _onEditorClosed(Map<String, dynamic>? data) {
+  void _onEditorClosed(bool saved) {
     setState(() {
       _isEditing = false;
-      if (data == null) {}
+      if (saved) {
+        _updateData();
+        final encode = jsonEncodeWithIndent(data);
+        widget.onSaved(encode);
+      }
     });
   }
 
   Future<void> _updateData() async {
-    _characterCards.clear();
-
-    // _sceneCards = scenesData?.values.map((value) {
-    //   final sceneData = value as Map<String, dynamic>;
-    //   final String id = sceneData['id'];
-    //   final String type = sceneData['type'];
-    //   final titleId = sceneData['name'];
-    //   String title;
-    //   if (titleId == null) {
-    //     title = _getDefaultTitle(type);
-    //   } else {
-    //     title = game.texts[titleId];
-    //   }
-    //   String? image = sceneData['image'];
-    //   image ??= _getDefaultImagePath(type);
-
-    //   return SizedBox(
-    //     width: 210,
-    //     height: 150,
-    //     child: Card(
-    //       elevation: 8.0,
-    //       shadowColor: Colors.black26,
-    //       child: Ink(
-    //         decoration: BoxDecoration(
-    //           borderRadius: BorderRadius.circular(8.0),
-    //           image: DecorationImage(
-    //             image: AssetImage('assets/images/$image'),
-    //             fit: BoxFit.cover,
-    //           ),
-    //         ),
-    //         child: InkWell(
-    //           splashColor: Colors.blue.withAlpha(30),
-    //           onTap: () {
-    //             game.hetu
-    //                 .invoke('handleSceneInteraction', positionalArgs: [id]);
-    //           },
-    //           child: Padding(
-    //             padding: const EdgeInsets.all(8.0),
-    //             child: Column(
-    //               crossAxisAlignment: CrossAxisAlignment.start,
-    //               children: <Widget>[
-    //                 Container(
-    //                   color: Colors.white.withOpacity(0.5),
-    //                   child: Text(title),
-    //                 ),
-    //               ],
-    //             ),
-    //           ),
-    //         ),
-    //       ),
-    //     ),
-    //   );
-    // }).toList(growable: false);
+    _characterCards = data.map((Map<String, dynamic> charData) {
+      final String name = charData['characterName'];
+      final String avatar = charData['characterAvatar'];
+      return
+          // Ink(
+          //   width: 100.0,
+          //   height: 100.0,
+          //   decoration: BoxDecoration(
+          //     borderRadius: BorderRadius.circular(8.0),
+          //     image: DecorationImage(
+          //       image: AssetImage('assets/images/$avatar'),
+          //       fit: BoxFit.cover,
+          //     ),
+          //   ),
+          //   child:
+          InkWell(
+        splashColor: Colors.blue.withAlpha(30),
+        onTap: () {
+          setState(() {
+            _currentEditingCharacterData = charData;
+            _isEditing = true;
+          });
+        },
+        child: Avatar(
+          avatarAssetKey: 'assets/images/$avatar',
+          name: name,
+        ),
+        // ),
+      );
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     if (_isEditing) {
       return CharacterEditor(
         game: game,
@@ -142,11 +137,12 @@ class _CharacterListViewState extends State<CharacterListView> {
                       alignment: Alignment.topCenter,
                       child: Padding(
                         padding: const EdgeInsets.only(top: 8.0),
-                        child: (_characterCards.isNotEmpty
+                        child: (_characterCards != null &&
+                                _characterCards!.isNotEmpty
                             ? Wrap(
                                 spacing: 8.0, // gap between adjacent chips
                                 runSpacing: 4.0, // gap between lines
-                                children: _characterCards)
+                                children: _characterCards!)
                             : EmptyPlaceholder(text: locale['empty'])),
                       ),
                     ),

@@ -36,5 +36,5 @@ void jsonUpdate(Map data, Map from) {
   });
 }
 
-String jsonEncodeWithIndent(Map source) =>
+String jsonEncodeWithIndent(Object? source) =>
     _jsonEncoderWithIndent.convert(source);
