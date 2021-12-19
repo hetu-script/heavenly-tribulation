@@ -2,13 +2,19 @@ import 'zh_name/family.json' as family
 import 'zh_name/female.json' as female
 import 'zh_name/male.json' as male
 import 'zh_name/middle.json' as middle
+import 'zh_name/dao.json' as dao
+import 'zh_name/dao_title_male.json' as daoTitleFemale
+import 'zh_name/dao_title_female.json' as daoTitleMale
 
 final zh = {
   names: {
-    family: family,
-    female: female,
-    male: male,
-    middle: middle,
+    family,
+    female,
+    male,
+    middle,
+    dao,
+    daoTitleFemale,
+    daoTitleMale,
   },
 
   'languageId': 'zh',

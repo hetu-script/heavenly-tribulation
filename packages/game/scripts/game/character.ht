@@ -134,3 +134,32 @@ fun getRandomNames({nameStyle, isFemale = false, number = 1}) {
 
   return names
 }
+
+fun getRandomArtNames({nameStyle, isFemale = false, number = 1}) {
+  final dao = game.languages.current.names.art
+  final daoTitleFemale = game.languages.current.names.female
+  final daoTitleMale = game.languages.current.names.male
+
+  final names = []
+  for (var i = 0; i < number; ++i) {
+    final nameIndex1 = Math.randomInt(dao.length + 1) % dao.length
+    final nameIndex2 = Math.randomInt(dao.length + 1) % dao.length
+    final name = '${dao[nameIndex1]}${dao[nameIndex2]}'
+    final style = Math.random()
+    final sex = isFemale ?? Math.randomInt(10) % 2 == 0
+    var title = ''
+    if (nameStyle == 'senior' || style < 0.6) {
+
+      if (isFemale) {
+        final titleIndex = Math.randomInt(daoTitleFemale.length + 1) % daoTitleFemale.length
+        title = daoTitleFemale[titleIndex]
+      } else {
+        final titleIndex = Math.randomInt(daoTitleMale.length + 1) % daoTitleMale.length
+        title = daoTitleMale[titleIndex]
+      }
+    }
+    names.add('${name}${title}')
+  }
+
+  return names
+}
