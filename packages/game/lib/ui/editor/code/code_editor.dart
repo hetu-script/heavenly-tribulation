@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:code_text_field/code_text_field.dart';
-// Import the language & theme
 import 'package:flutter_highlight/themes/monokai-sublime.dart';
 
 import 'hetu_mode.dart';
@@ -36,7 +35,7 @@ class _CodeEditorState extends State<CodeEditor> with TickerProviderStateMixin {
   final _tabs = <BorderedTab>[];
   final _textFields = <Widget>[];
   final _openedNames = <String>[];
-  int _selectedIndex = 0;
+  int _selectedIndex = -1;
   final _fileListItem = <Widget>[];
 
   @override
@@ -50,6 +49,7 @@ class _CodeEditorState extends State<CodeEditor> with TickerProviderStateMixin {
     _openedNames.removeWhere((name) => !names.contains(name));
     if (_openedNames.isEmpty && names.isNotEmpty) {
       _openedNames.add(names.first);
+      _selectedIndex = 0;
     }
 
     _codeControllers.clear();
@@ -99,7 +99,9 @@ class _CodeEditorState extends State<CodeEditor> with TickerProviderStateMixin {
     for (final name in _openedNames) {
       _tabs.add(BorderedTab(text: name));
     }
-    _tabController = TabController(vsync: this, length: _tabs.length);
+    if (_tabs.isNotEmpty) {
+      _tabController = TabController(vsync: this, length: _tabs.length);
+    }
     if (_textFieldFocusNodes.isNotEmpty) {
       _textFieldFocusNodes.first.requestFocus();
     }
@@ -126,8 +128,10 @@ class _CodeEditorState extends State<CodeEditor> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    _tabController?.index = _selectedIndex;
-    _textFieldFocusNodes[_selectedIndex].requestFocus();
+    if (_selectedIndex >= 0) {
+      _tabController?.index = _selectedIndex;
+      _textFieldFocusNodes[_selectedIndex].requestFocus();
+    }
     return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       return SizedBox(
@@ -137,7 +141,9 @@ class _CodeEditorState extends State<CodeEditor> with TickerProviderStateMixin {
             Positioned(
               child: GestureDetector(
                 onTap: () {
-                  _textFieldFocusNodes[_selectedIndex].requestFocus();
+                  if (_selectedIndex >= 0) {
+                    _textFieldFocusNodes[_selectedIndex].requestFocus();
+                  }
                 },
                 child: Container(
                   width: _fileListViewWidth,
@@ -158,41 +164,44 @@ class _CodeEditorState extends State<CodeEditor> with TickerProviderStateMixin {
               ),
             ),
             Positioned(
-              left: 200,
+              left: _fileListViewWidth,
+              height: kToolbarHeight,
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: _tabs.isNotEmpty
+                    ? TabBar(
+                        labelColor: Colors.black87,
+                        unselectedLabelColor: Colors.black38,
+                        controller: _tabController,
+                        tabs: _tabs,
+                        isScrollable: true,
+                        onTap: (index) {
+                          _textFieldFocusNodes[index].requestFocus();
+                        },
+                      )
+                    : null,
+              ),
+            ),
+            Positioned(
+              left: _fileListViewWidth,
+              top: kToolbarHeight,
               width: constraints.maxWidth - _fileListViewWidth,
-              height: constraints.maxHeight,
+              height: constraints.maxHeight - kToolbarHeight,
               child: GestureDetector(
                 onTap: () {
-                  _textFieldFocusNodes[_selectedIndex].requestFocus();
+                  if (_selectedIndex >= 0) {
+                    _textFieldFocusNodes[_selectedIndex].requestFocus();
+                  }
                 },
-                child: Column(
-                  children: [
-                    PreferredSize(
-                      preferredSize: const Size.fromHeight(kToolbarHeight),
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: TabBar(
-                          labelColor: Colors.black87,
-                          unselectedLabelColor: Colors.black38,
-                          controller: _tabController,
-                          tabs: _tabs,
-                          isScrollable: true,
-                          onTap: (index) {
-                            _textFieldFocusNodes[index].requestFocus();
-                          },
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        color: const Color(0xff23241f),
-                        child: SingleChildScrollView(
-                          controller: ScrollController(),
-                          child: _textFields[_selectedIndex],
-                        ),
-                      ),
-                    ),
-                  ],
+                child: Container(
+                  color: Colors.white,
+                  // color: const Color(0xff23241f),
+                  child: SingleChildScrollView(
+                    controller: ScrollController(),
+                    child: _textFields.isNotEmpty
+                        ? _textFields[_selectedIndex]
+                        : null,
+                  ),
                 ),
               ),
             ),

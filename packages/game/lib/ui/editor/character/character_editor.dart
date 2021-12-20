@@ -131,6 +131,7 @@ class _CharacterEditorState extends State<CharacterEditor>
     super.initState();
 
     data['characterIsFemale'] ??= false;
+    data['characterAvatar'] ??= 'avatar/male/1.jpg';
 
     _fieldControllers.addAll(
       Map.fromEntries(
@@ -229,12 +230,32 @@ class _CharacterEditorState extends State<CharacterEditor>
               BorderedIconButton(
                 onPressed: () {
                   setState(() {
+                    final id = _fieldControllers['characterId']!;
+                    if (id.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(locale['characterEditingMustEnterId']),
+                        ),
+                      );
+                      return;
+                    }
+                    final name = _fieldControllers['characterName']!;
+                    if (name.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content:
+                              Text(locale['characterEditingMustEnterName']),
+                        ),
+                      );
+                      return;
+                    }
                     _save();
                     widget.onClosed(true);
                   });
                 },
                 icon: const Icon(Icons.save),
                 tooltip: locale['save'],
+                margin: const EdgeInsets.all(5.0),
               ),
               BorderedIconButton(
                 onPressed: () {
@@ -244,6 +265,7 @@ class _CharacterEditorState extends State<CharacterEditor>
                 },
                 icon: const Icon(Icons.shuffle),
                 tooltip: locale['random'],
+                margin: const EdgeInsets.all(5.0),
               ),
               BorderedIconButton(
                 onPressed: () {
@@ -251,6 +273,7 @@ class _CharacterEditorState extends State<CharacterEditor>
                 },
                 icon: const Icon(Icons.undo),
                 tooltip: locale['reload'],
+                margin: const EdgeInsets.all(5.0),
               ),
             ],
           ),

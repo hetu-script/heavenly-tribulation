@@ -6,6 +6,7 @@ class BorderedIconButton extends StatelessWidget {
     this.iconSize = 24.0,
     required this.icon,
     this.tooltip,
+    this.margin,
     this.onPressed,
   }) : super(key: key);
 
@@ -15,11 +16,14 @@ class BorderedIconButton extends StatelessWidget {
 
   final String? tooltip;
 
+  final EdgeInsetsGeometry? margin;
+
   final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: margin,
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,

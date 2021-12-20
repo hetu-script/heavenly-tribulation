@@ -86,6 +86,9 @@ final zh = {
   'characterMetalSpiritRoot': '金灵根',
   'characterFireSpiritRoot': '火灵根',
 
+  'characterEditingMustEnterId': '必须填写角色ID！',
+  'characterEditingMustEnterName': '必须填写角色姓名！',
+
   'male': '男',
   'female': '女',
 
