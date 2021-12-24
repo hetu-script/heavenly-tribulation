@@ -6,7 +6,7 @@ import '../../../engine/game.dart';
 import '../../../shared/localization.dart';
 import '../../empty_placeholder.dart';
 import 'character_editor.dart';
-import '../../../shared/crc32b.dart';
+import '../../../shared/util.dart' as util;
 import '../../../shared/json.dart';
 import '../../shared/avatar.dart';
 
@@ -105,8 +105,7 @@ class _CharacterListViewState extends State<CharacterListView>
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
             setState(() {
-              data.add(
-                  {'characterId': 'custom_character_${Crc32b.timestamp()}'});
+              data.add({'characterId': 'custom_character_${util.uid()}'});
               _currentEditingCharacterData = data.last;
               _isEditing = true;
             });
