@@ -1,6 +1,9 @@
 import 'main.ht'
 
 fun addModInfo(data) {
+  if (game.debug) {
+    print('河图: 载入模组 [${data.id}] ...')
+  }
   game.mods[data.id] = data
 }
 

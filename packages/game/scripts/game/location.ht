@@ -5,6 +5,9 @@ fun addLocation(loc) {
 }
 
 fun addLocations(locs: List) {
+  if (game.debug) {
+    print('河图: 载入地点数据 ...')
+  }
   for (final loc in locs) {
     if (loc.nameId) {
       loc.name = getLocalization(loc.nameId)
@@ -14,6 +17,9 @@ fun addLocations(locs: List) {
 }
 
 fun setCurrentLocation(id: str) {
+  if (game.debug) {
+    print('河图: 设置玩家当前地点为 [${id}] ...')
+  }
   game.locations.current = game.locations[id];
 }
 
@@ -103,9 +109,10 @@ fun searchCharactersAtScene(scnId: str) {
 }
 
 fun _handleHeadquartersInteraction(scn) {
-  final characters = searchCharactersAtScene(scn.id)
-  if (characters.is)
-  handleCharacterInteraction(characters)
+  // final characters = searchCharactersAtScene(scn.id)
+  // if (characters.isNotEmpty) {
+  //   handleCharacterInteraction(characters.first)
+  // }
 }
 
 fun _handleResidencyInteraction(scn) {

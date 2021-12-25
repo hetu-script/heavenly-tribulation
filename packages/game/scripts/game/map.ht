@@ -1,6 +1,6 @@
 import 'game.ht'
 
-external class Maze {
+external class MapComponent {
   static fun fromJson
 
   fun removeEntity(left: int, top: int) -> bool
@@ -10,9 +10,52 @@ external class Maze {
   fun moveToTerrain(left: int, top: int)
 }
 
+const defaultWorldWidth = 12
+const defaultWorldHeight = 12
+
+fun createWorld({data, width, height}) {
+  if (data != null) {
+    print('河图: 载入世界地图数据 ...')
+  } else {
+    print('河图: 生成随机化世界地图 ...')
+    data = {
+      id: getUid(),
+      tileShape: 'hexagonalVertical',
+    };
+    data = {
+      width: width ?? 16,
+      height: height ?? 16,
+      entry: {
+        x: 1,
+        y: 1,
+      },
+      gridWidth: 32.0,
+      gridHeight: 28.0,
+      tileSpriteSrcWidth: 32.0,
+      tileSpriteSrcHeight: 48.0,
+      tileOffsetX: 0.0,
+      tileOffsetY: 2.0,
+      terrainSpriteSheet: 'fantasyhextiles_v3_borderless.png',
+    }
+
+    final terrains = []
+    for (var j = 0; j < data.height; ++j) {
+      final row = []
+      for (var i = 0; i < data.width; ++i) {
+        row.add(0)
+      }
+      terrains.add(row)
+    }
+
+    
+  }
+  final future = MapComponent.fromJson(data.toJson())
+  return future
+}
+
 fun createMaze(data) {
   game.mazes.current = data
-  final future = Maze.fromJson(data.toJson())
+  final future = MapComponent.fromJson(data.toJson())
   future.then((value) {
     game.mazes.current.component = value
   })
@@ -20,6 +63,9 @@ fun createMaze(data) {
 }
 
 fun addMazes(mazes) {
+  if (game.debug) {
+    print('河图: 载入副本数据 ...')
+  }
   for (final maze in mazes) {
     game.mazes[maze.id] = maze
   }

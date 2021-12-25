@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class MapView extends StatefulWidget {
-  const MapView({Key? key}) : super(key: key);
+class InteractiveView extends StatefulWidget {
+  const InteractiveView({Key? key}) : super(key: key);
 
   @override
-  _MapViewState createState() => _MapViewState();
+  _InteractiveViewState createState() => _InteractiveViewState();
 }
 
-class _MapViewState extends State<MapView>
+class _InteractiveViewState extends State<InteractiveView>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;

@@ -3,6 +3,9 @@ import 'game.ht'
 external fun updateGameLanguagesData
 
 fun addLocalizations(langs: List) {
+  if (game.debug) {
+    print('河图: 载入本地化字符串 ...')
+  }
   for (final lang in langs) {
     final langId = lang.languageId
     final langData = game.languages[langId]
@@ -13,6 +16,9 @@ fun addLocalizations(langs: List) {
 }
 
 fun setCurrentLanguage(id: str) {
+  if (game.debug) {
+    print('河图: 设置当前语言为 [${id}] ...')
+  }
   game.languages.current = game.languages[id]
 }
 

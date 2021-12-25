@@ -10,6 +10,9 @@ fun createCharacterFromJson() {
 }
 
 fun setCurrentCharacter(id: str) {
+  if (game.debug) {
+    print('河图: 设置当前玩家人物为 [${id}] ...')
+  }
   game.characters.current = game.characters[id];
 }
 
@@ -32,6 +35,9 @@ fun addCharacter(char) {
 }
 
 fun addCharacters(chars: List) {
+  if (game.debug) {
+    print('河图: 载入人物数据 ...')
+  }
   for (final char in chars) {
     addCharacter(char)
   }
@@ -77,9 +83,9 @@ fun createRandomFavoredLooks() {
 /// looks 是对方的容貌，0 <= looks <= 100
 /// favors 是该角色的偏好，0 <= favors <= 100
 fun getLooksScore(looks: float, {favors: float}) -> float {
-  assert 0.0 <= looks && looks <= characterLooksMax
+  assert(0.0 <= looks && looks <= characterLooksMax)
   if (favors != null) {
-    assert 0.0 <= favors && favors <= characterLooksMax
+    assert(0.0 <= favors && favors <= characterLooksMax)
   }
   if (looks < ((favors + characterLooksMax) / 2)) {
     return (-(looks - favors) * (looks - favors)) / 20 + characterLooksMax

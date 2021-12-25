@@ -6,6 +6,9 @@ fun addDialog(dlg) {
 }
 
 fun addDialogs(dlgs: List) {
+  if (game.debug) {
+    print('河图: 载入对话数据 ...')
+  }
   for (final dlg in dlgs) {
     for (final content in dlg.contents) {
       if (content.characterId) {

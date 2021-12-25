@@ -46,3 +46,11 @@ fun nextTick() {
 
   onGameEvent('onUpdate')
 }
+
+fun getUid([n = 3]) {
+  var result = ''
+  for (var i = 0; i < n; ++i) {
+    result += ((Math.random() + 1) * 0x10000).truncate().toRadixString(16).substring(1)
+  }
+  return result
+}

@@ -3,20 +3,11 @@ import 'package:flame/game.dart';
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
 
-import '../../../gestures/gesture_mixin.dart';
-import '../../../extensions.dart';
+import '../../gestures/gesture_mixin.dart';
+import '../../extensions.dart';
 import 'tile.dart';
 
-class TilePosition {
-  final int left, top;
-
-  TilePosition(this.left, this.top);
-
-  @override
-  String toString() => '[$left,$top]';
-}
-
-class Maze extends GameComponent with HandlesGesture {
+class MapComponent extends GameComponent with HandlesGesture {
   @override
   Camera get camera => gameRef.camera;
 
@@ -32,30 +23,44 @@ class Maze extends GameComponent with HandlesGesture {
   Vector2 mapScreenSize = Vector2.zero();
   Vector2 mapStartPosition = Vector2.zero();
 
-  bool updateTile = true;
+  final TileShape tileShape;
 
-  Maze({
+  MapComponent({
+    required this.tileShape,
     required this.entryX,
     required this.entryY,
-    double srcTileWidth = Tile.defaultSrcTileWidth,
-    double srcTileHeight = Tile.defaultSrcTileHeight,
+    required double screenTileWidth,
+    required double screenTileHeight,
     required this.terrains,
     this.entities = const {},
   })  : mapTileHeight = terrains.length,
         mapTileWidth = terrains.first.length,
-        tileSize = Vector2(srcTileWidth, srcTileHeight) {
+        tileSize = Vector2(screenTileWidth, screenTileHeight) {
     assert(terrains.isNotEmpty);
-    scale = Vector2(Tile.defaultScale, Tile.defaultScale);
+    scale = Vector2(MapTile.defaultScale, MapTile.defaultScale);
   }
 
-  static Future<Maze> fromJson(Map<String, dynamic> data) async {
-    final srcTileWidth = data['srcTileWidth'];
-    final srcTileHeight = data['srcTileHeight'];
+  static Future<MapComponent> fromJson(Map<String, dynamic> data) async {
+    final tileShapeData = data['tileShape'];
+    var tileShape = TileShape.orthogonal;
+    if (tileShapeData == 'isometric') {
+      tileShape = TileShape.isometric;
+    } else if (tileShapeData == 'hexagonalHorizontal') {
+      tileShape = TileShape.hexagonalHorizontal;
+    } else if (tileShapeData == 'hexagonalVertical') {
+      tileShape = TileShape.hexagonalVertical;
+    }
+    final gridWidth = data['gridWidth'];
+    final gridHeight = data['gridHeight'];
+    final tileSpriteSrcWidth = data['tileSpriteSrcWidth'];
+    final tileSpriteSrcHeight = data['tileSpriteSrcHeight'];
+    final tileOffsetX = data['tileOffsetX'];
+    final tileOffsetY = data['tileOffsetY'];
 
     final terrainSpritePath = data['terrainSpriteSheet'];
     final terrainSpriteSheet = SpriteSheet(
       image: await Flame.images.load(terrainSpritePath),
-      srcSize: Vector2(srcTileWidth, srcTileHeight),
+      srcSize: Vector2(tileSpriteSrcWidth, tileSpriteSrcHeight),
     );
 
     final mapTileWidth = data['width'] as int;
@@ -77,7 +82,7 @@ class Maze extends GameComponent with HandlesGesture {
           sprite = terrainSpriteSheet.getSpriteById(spriteId - 1);
         }
         var isRoom = false;
-        if (roomData[blockId] > 0) {
+        if (roomData != null && roomData[blockId] > 0) {
           isRoom = true;
         }
         var isEntry = false;
@@ -85,13 +90,19 @@ class Maze extends GameComponent with HandlesGesture {
           isEntry = true;
         }
         final tile = Terrain(
+          shape: tileShape,
           left: i + 1,
           top: j + 1,
-          width: srcTileWidth,
-          height: srcTileHeight,
+          srcWidth: tileSpriteSrcWidth,
+          srcHeight: tileSpriteSrcHeight,
+          gridWidth: gridWidth,
+          gridHeight: gridHeight,
+          isVisible: true,
           isRoom: isRoom,
           isVisited: isEntry,
           sprite: sprite,
+          offsetX: tileOffsetX,
+          offsetY: tileOffsetY,
         );
         if (isEntry) {
           tile.isVisible = true;
@@ -101,17 +112,27 @@ class Maze extends GameComponent with HandlesGesture {
     }
 
     final Map<String, Entity> entities = {};
-    for (final key in entitiyData.keys) {
-      final entityData = entitiyData[key];
-      final entity = await Entity.fromJson(entityData);
-      entities[key] = entity;
+    if (entitiyData != null) {
+      for (final key in entitiyData.keys) {
+        final entityData = entitiyData[key];
+        final entity = await Entity.fromJson(
+            type: tileShape,
+            gridWidth: gridWidth,
+            gridHeight: gridHeight,
+            spriteSrcWidth: tileSpriteSrcWidth,
+            spriteSrcHeight: tileSpriteSrcHeight,
+            isVisible: true,
+            jsonData: entityData);
+        entities[key] = entity;
+      }
     }
 
-    return Maze(
+    return MapComponent(
+      tileShape: tileShape,
       entryX: entryX,
       entryY: entryY,
-      srcTileWidth: srcTileWidth,
-      srcTileHeight: srcTileHeight,
+      screenTileWidth: gridWidth,
+      screenTileHeight: gridHeight,
       terrains: terrains,
       entities: entities,
     );
@@ -220,8 +241,8 @@ class Maze extends GameComponent with HandlesGesture {
     final tilePos = screenPositionToTile(screenPosition);
     final tile = getTerrain(tilePos.left, tilePos.top);
     if (tile != null && tile.isRoom && tile.isVisible) {
-      gameRef.game.hetu
-          .invoke('handleTileInteraction', positionalArgs: [tile.left, tile.top]);
+      gameRef.game.hetu.invoke('handleTileInteraction',
+          positionalArgs: [tile.left, tile.top]);
     }
   }
 
@@ -241,9 +262,20 @@ class Maze extends GameComponent with HandlesGesture {
   @override
   Future<void> onLoad() async {
     super.onLoad();
-    for (final column in terrains) {
-      for (final tile in column) {
-        add(tile);
+    for (final row in terrains) {
+      if (tileShape == TileShape.hexagonalVertical) {
+        for (var i = 0; i < row.length; i = i + 2) {
+          final tile = row[i];
+          add(tile);
+        }
+        for (var i = 1; i < row.length; i = i + 2) {
+          final tile = row[i];
+          add(tile);
+        }
+      } else {
+        for (final tile in row) {
+          add(tile);
+        }
       }
     }
     for (final tile in entities.values) {

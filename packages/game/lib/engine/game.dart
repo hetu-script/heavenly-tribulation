@@ -2,7 +2,7 @@ import 'package:hetu_script/hetu_script.dart';
 import 'package:hetu_script_flutter/hetu_script_flutter.dart';
 
 import '../binding/external_game_functions.dart';
-import '../binding/engine/scene/maze/component/maze_binding.dart';
+import '../binding/engine/scene/component/game_map_binding.dart';
 import '../binding/engine/game_binding.dart';
 import 'scene/scene.dart';
 import 'event/event.dart';
@@ -36,7 +36,7 @@ class SamsaraGame with SceneController, EventAggregator {
       externalFunctions: externalGameFunctions,
       externalClasses: [
         SamsaraGameClassBinding(),
-        MazeClassBinding(),
+        MapComponentClassBinding(),
       ],
     );
     hetu.evalFile('game/main.ht',

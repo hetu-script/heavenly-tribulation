@@ -23,9 +23,9 @@ final locations = [
     // 城市的预算，每个月从资源储备中扣除
     budget: {
       // 普通人的工资，以金币结算，关系到组织内各人员的行贿判定
-      salary: 10
+      salary: 10,
       // 安保费用，关系到组织内各种建筑的突破判定和潜入判定
-      security: 10
+      security: 10,
     },
     scenes: {
       'baiheguanDadian': {

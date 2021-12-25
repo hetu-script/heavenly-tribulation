@@ -6,7 +6,7 @@ export 'dialog.ht'
 export 'organization.ht'
 export 'character.ht'
 export 'location.ht'
-export 'maze.ht'
+export 'map.ht'
 export 'duel.ht'
 export 'relationship.ht'
 export 'resource.ht'
@@ -39,13 +39,13 @@ fun init({lang = 'zh', dartGame: SamsaraGame}) {
       rank: 0, // 在组织中所处的等级数字越小，等级越低
       superior: 'xuanqingzi', // 在组织中的上级领导
       loyalty: 100,
-    }
+    },
 
     // 效忠
     allegiance: {
       id: 'xuanqingzi',
       loyalty: 100,
-    }
+    },
     
     fame: 0,
     infamy: 0,
@@ -94,5 +94,8 @@ fun init({lang = 'zh', dartGame: SamsaraGame}) {
   setCurrentCharacter('playerCharacter001')
 
   addDialogs(predefinedDialogs) // must be after added characters
-
+  
+  if (game.debug) {
+    print('河图: 初始化函数执行完毕 ...')
+  }
 }

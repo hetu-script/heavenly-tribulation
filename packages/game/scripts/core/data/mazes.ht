@@ -1,10 +1,13 @@
 final mazes = [
   {
     id: 'baiheguanHoushan',
+    type: 'orthogonal',
     width: 6,
     height: 5,
-    srcTileWidth: 32.0,
-    srcTileHeight: 32.0,
+    screenTileWidth: 32.0,
+    screenTileHeight: 32.0,
+    tileWidth: 32.0,
+    tileHeight: 32.0,
     terrainSpriteSheet: 'maze/rogue_tile2.png',
     // 入口，注意入口处不能有任何entity
     entry: {

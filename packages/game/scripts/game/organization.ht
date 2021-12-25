@@ -9,6 +9,9 @@ fun createOrganizationFromJson() {
 }
 
 fun addOrganizations(orgs: List) {
+  if (game.debug) {
+    print('河图: 载入组织数据 ...')
+  }
   for (final org in orgs) {
     game.organizations[org.id] = org
   }

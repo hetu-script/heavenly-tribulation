@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-import 'package:tian_dao_qi_jie/shared/localization.dart';
+import '../shared/localization.dart';
 
 import '../engine/scene/scene.dart';
-import '../engine/scene/maze/rogue_game.dart';
+import '../engine/scene/maze.dart';
 import 'loading_screen.dart';
-import 'game/map_view.dart';
 import '../engine/game.dart';
 import 'game/location_view.dart';
 import 'editor/editor.dart';
 import 'game/protagnist_view.dart';
+import '../engine/scene/worldmap.dart';
 
-enum GameMode {
+enum MenuMode {
   menu,
   game,
   editor,
@@ -35,7 +35,7 @@ class _GameAppState extends State<GameApp>
 
   GameLocalization get locale => widget.game.locale;
 
-  var _mode = GameMode.menu;
+  var _menuMode = MenuMode.menu;
 
   final _pageController = PageController();
   var _currentPage = 0;
@@ -60,7 +60,10 @@ class _GameAppState extends State<GameApp>
           game: game,
           locationId: 'current',
         ),
-        const MapView(),
+        const Align(
+          alignment: Alignment.center,
+          child: Text('世界'),
+        ),
         const Align(
           alignment: Alignment.center,
           child: Text('关注'),
@@ -69,7 +72,7 @@ class _GameAppState extends State<GameApp>
           game: game,
           onQuit: () {
             setState(() {
-              _mode = GameMode.menu;
+              _menuMode = MenuMode.menu;
             });
           },
         ),
@@ -92,8 +95,11 @@ class _GameAppState extends State<GameApp>
     super.initState();
     isAppLoading = true;
 
-    game.registerSceneConstructor('RogueGame', () {
-      return RogueGame(game: game);
+    game.registerSceneConstructor('WorldMap', () {
+      return WorldMapScene(game: game);
+    });
+    game.registerSceneConstructor('Maze', () {
+      return MazeScene(game: game);
     });
     game.registerListener(SceneEvents.started, (event) {
       setState(() {});
@@ -126,8 +132,8 @@ class _GameAppState extends State<GameApp>
       if (isAppLoading) {
         return const LoadingScreen(text: 'Loading...');
       } else {
-        switch (_mode) {
-          case GameMode.menu:
+        switch (_menuMode) {
+          case MenuMode.menu:
             return Scaffold(
               body: Center(
                 child: Column(
@@ -138,7 +144,7 @@ class _GameAppState extends State<GameApp>
                       child: ElevatedButton(
                         onPressed: () {
                           setState(() {
-                            _mode = GameMode.game;
+                            _menuMode = MenuMode.game;
                             // if this is a new game
                             game.hetu.invoke('onGameEvent',
                                 positionalArgs: ['onNewGameStarted']);
@@ -152,17 +158,28 @@ class _GameAppState extends State<GameApp>
                       child: ElevatedButton(
                         onPressed: () {
                           setState(() {
-                            _mode = GameMode.editor;
+                            _menuMode = MenuMode.editor;
                           });
                         },
                         child: Text(locale['gameEditor']),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            game.createScene('WorldMap');
+                          });
+                        },
+                        child: const Text('世界测试'),
                       ),
                     ),
                   ],
                 ),
               ),
             );
-          case GameMode.game:
+          case MenuMode.game:
             return Scaffold(
               body: PageView(
                 onPageChanged: _onPageChanged,
@@ -197,11 +214,11 @@ class _GameAppState extends State<GameApp>
                 onTap: _onItemTapped,
               ),
             );
-          case GameMode.editor:
+          case MenuMode.editor:
             return GameEditor(
                 onQuit: () {
                   setState(() {
-                    _mode = GameMode.menu;
+                    _menuMode = MenuMode.menu;
                   });
                 },
                 game: game);

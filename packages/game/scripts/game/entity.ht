@@ -9,6 +9,9 @@ fun loadEntity(ent) {
 }
 
 fun loadEntities(ents: List) {
+  if (game.debug) {
+    print('河图: 载入脚本对象 ...')
+  }
   for (final ent in ents) {
     game.entities[ent.id] = ent
   }

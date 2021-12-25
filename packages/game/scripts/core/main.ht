@@ -2,13 +2,11 @@ import 'meta.json' as modInfo
 
 export 'l10n/localizations.ht'
 export 'data/dialogs.ht'
-export 'data/organizations.ht'
-export 'data/characters.ht'
 export 'data/locations.ht'
 export 'data/mazes.ht'
 export 'entity/entities.ht'
 
-final modEntity = {
+final meta = {
   id: 'tdqj_core',
   type: 'module',
   onNewGameStarted: (arg) {
@@ -25,30 +23,30 @@ final modEntity = {
 
 fun load {
   if (game.debug) {
-    print('河图: 载入 [${modInfo.name}] ...')
+    print('河图: 载入 [${meta.id}] ...')
   }
-  loadEntity(modEntity)
+  loadEntity(meta)
   loadEntities(entities)
 }
 
 fun init {
   if (game.debug) {
-    print('河图: 初始化 [${modInfo.name}] ...')
+    print('河图: 初始化模组 ${meta.id} ...')
   }
-  
-  addModInfo(modInfo)
+
+  addModInfo(meta)
 
   addLocalizations(localizations)
   dart.updateLanguagesData(game.languages.current.toJson())
 
-  addCharacters(characters)
+  // addCharacters(characters)
 
   addDialogs(dialogs) // must be after added characters
 
   addLocations(locations)
   setCurrentLocation('baiheguan')
 
-  addOrganizations(organizations)
+  // addOrganizations(organizations)
 
   addMazes(mazes)
 
