@@ -112,10 +112,12 @@ fun createWorldMap({
   var currentLandSize = 1
   while (currentLandSize < landArea) {
     final neibhborIndexes = neighbors.keys;
+    // print(neibhborIndexes)
     final randomIndex = neibhborIndexes[Math.randomInt(neibhborIndexes.length)]
+    delete neighbors[randomIndex]
     final index = int.parse(randomIndex)
-    final left = index % width
-    final top = index ~/ width
+    final left = index % width + 1
+    final top = index ~/ width + 1
     setTerrain(index, _kLand)
     updateNeighbors(left, top)
     ++currentLandSize
