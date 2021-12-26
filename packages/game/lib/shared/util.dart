@@ -1,9 +1,3 @@
-/// CRC32
-/// Copyright (C) 2012, Kai Sellgren
-/// Licensed under the MIT License.
-/// http://www.opensource.org/licenses/mit-license.php
-///
-/// Converted to dart code by chengfubeiming@live.com
 import 'dart:convert';
 import 'dart:math';
 
@@ -14,15 +8,17 @@ String uid() {
       .toRadixString(16)
       .substring(1));
   sb.write('-');
-  sb.write(timestamp());
+  sb.write(crc32b(DateTime.now().toIso8601String()));
   return sb.toString();
 }
 
-/// Computes Cyclic Redundancy Check values.
-String timestamp() {
-  return crc32b(DateTime.now().toIso8601String());
-}
-
+/// CRC32
+/// Copyright (C) 2012, Kai Sellgren
+/// Licensed under the MIT License.
+/// http://www.opensource.org/licenses/mit-license.php
+///
+/// Converted to dart code by chengfubeiming@live.com
+///
 /// Computes a CRC32 value for the given input.
 ///
 /// The return value is an unsigned integer.

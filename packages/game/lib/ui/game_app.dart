@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flame/game.dart';
 
 import '../shared/localization.dart';
 
@@ -10,6 +11,8 @@ import 'game/location_view.dart';
 import 'editor/editor.dart';
 import 'game/protagnist_view.dart';
 import '../engine/scene/worldmap.dart';
+import 'pointer_detector.dart';
+import '../shared/constants.dart';
 
 enum MenuMode {
   menu,
@@ -96,10 +99,22 @@ class _GameAppState extends State<GameApp>
     isAppLoading = true;
 
     game.registerSceneConstructor('WorldMap', () {
-      return WorldMapScene(game: game);
+      return WorldMapScene(
+          game: game,
+          onQuit: () {
+            setState(() {
+              game.leaveScene();
+            });
+          });
     });
     game.registerSceneConstructor('Maze', () {
-      return MazeScene(game: game);
+      return MazeScene(
+          game: game,
+          onQuit: () {
+            setState(() {
+              game.leaveScene();
+            });
+          });
     });
     game.registerListener(SceneEvents.started, (event) {
       setState(() {});
@@ -127,7 +142,6 @@ class _GameAppState extends State<GameApp>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
     if (game.currentScene == null) {
       if (isAppLoading) {
         return const LoadingScreen(text: 'Loading...');
@@ -225,7 +239,12 @@ class _GameAppState extends State<GameApp>
         }
       }
     } else {
+      shouSceneUI();
       return game.currentScene!.widget;
     }
+  }
+
+  Future<void> shouSceneUI() async {
+    game.currentScene!.showUI();
   }
 }

@@ -6,7 +6,10 @@ class MazeScene extends Scene {
   bool _loaded = false;
   bool get loaded => _loaded;
 
-  MazeScene({required SamsaraGame game}) : super(key: 'Maze', game: game);
+  MazeScene({
+    required SamsaraGame game,
+    required void Function() onQuit,
+  }) : super(key: 'Maze', game: game, onQuit: onQuit);
 
   @override
   Future<void> onLoad() async {

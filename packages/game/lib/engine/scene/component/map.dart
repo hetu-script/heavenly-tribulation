@@ -7,6 +7,12 @@ import '../../gestures/gesture_mixin.dart';
 import '../../extensions.dart';
 import 'tile.dart';
 
+enum WorldStyle {
+  innerland,
+  island,
+  beach,
+}
+
 class MapComponent extends GameComponent with HandlesGesture {
   @override
   Camera get camera => gameRef.camera;
@@ -138,8 +144,44 @@ class MapComponent extends GameComponent with HandlesGesture {
     );
   }
 
+  bool isPositionWithinMap(int left, int top) {
+    return (left > 0 &&
+        top > 0 &&
+        left <= mapTileWidth &&
+        top <= mapTileHeight);
+  }
+
+  List<TilePosition> getNeighborTilePositions(int left, int top) {
+    final positions = <TilePosition>[];
+    switch (tileShape) {
+      case TileShape.orthogonal:
+        positions.add(TilePosition(left - 1, top));
+        positions.add(TilePosition(left, top - 1));
+        positions.add(TilePosition(left + 1, top));
+        positions.add(TilePosition(left, top + 1));
+        break;
+      case TileShape.hexagonalVertical:
+        positions.add(TilePosition(left - 1, top));
+        positions.add(TilePosition(left, top - 1));
+        positions.add(TilePosition(left + 1, top));
+        positions.add(TilePosition(left, top + 1));
+        positions.add(TilePosition(left - 1, top + 1));
+        positions.add(TilePosition(left + 1, top + 1));
+        break;
+      case TileShape.isometric:
+        throw 'Isometric map tile is not supported yet!';
+      case TileShape.hexagonalHorizontal:
+        throw 'Vertical hexagonal map tile is not supported yet!';
+    }
+    return positions;
+  }
+
+  Terrain? getTerrainByPosition(TilePosition position) {
+    return getTerrain(position.left, position.top);
+  }
+
   Terrain? getTerrain(int left, int top) {
-    if (left > 0 && top > 0 && left <= mapTileWidth && top <= mapTileHeight) {
+    if (isPositionWithinMap(left, top)) {
       return terrains[top - 1][left - 1];
     } else {
       return null;
@@ -162,21 +204,18 @@ class MapComponent extends GameComponent with HandlesGesture {
   }
 
   void _lightUpAroundTerrain(Terrain tile) {
-    final around = <Terrain?>[];
-    around.add(getTerrain(tile.left - 1, tile.top)); // the tile on the left
-    around.add(getTerrain(tile.left + 1, tile.top)); // the tile on the right
-    around.add(getTerrain(tile.left, tile.top - 1)); // the tile on the top
-    around.add(getTerrain(tile.left, tile.top + 1)); // the tile on the bottom
-    for (final neighbour in around) {
-      if (neighbour != null && !neighbour.isVoid) {
-        if (neighbour.isVisible) {
+    final neighbors = getNeighborTilePositions(tile.left, tile.top);
+    for (final pos in neighbors) {
+      final neighbor = getTerrainByPosition(pos);
+      if (neighbor != null && !neighbor.isVoid) {
+        if (neighbor.isVisible) {
           continue;
         } else {
-          neighbour.isVisible = true;
-          final entity = getEntity(neighbour.left, neighbour.top);
+          neighbor.isVisible = true;
+          final entity = getEntity(neighbor.left, neighbor.top);
           entity?.isVisible = true;
-          if (!neighbour.isRoom) {
-            _lightUpAroundTerrain(neighbour);
+          if (!neighbor.isRoom) {
+            _lightUpAroundTerrain(neighbor);
           }
         }
       }

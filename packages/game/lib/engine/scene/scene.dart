@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 
 import '../game.dart';
@@ -29,14 +29,23 @@ class SceneEvent extends Event {
 }
 
 class Scene extends FlameGame {
+  static const gameOverlayUIs = 'gameOverlayUIs';
+
   final String key;
 
   final SamsaraGame game;
 
+  final void Function() onQuit;
+
   Scene({
     required this.key,
     required this.game,
+    required this.onQuit,
   });
+
+  void showUI() {
+    overlays.add(gameOverlayUIs);
+  }
 
   void end() {
     game.broadcast(SceneEvent.ended(sceneKey: key));
@@ -105,11 +114,22 @@ class Scene extends FlameGame {
     return PointerDetector(
       child: GameWidget(
         game: this,
-        // overlayBuilderMap: {
-        //   'BattleGameTeamBuilder': (BuildContext ctx, Scene scene) {
-        //     return const Text('A pause menu');
-        //   }
-        // },
+        overlayBuilderMap: {
+          gameOverlayUIs: (BuildContext ctx, Scene scene) {
+            return Material(
+              child: Stack(
+                children: <Widget>[
+                  Positioned(
+                    child: IconButton(
+                      onPressed: onQuit,
+                      icon: const Icon(Icons.menu_open),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+        },
       ),
       onTapDown: onTapDown,
       onTapUp: onTapUp,

@@ -27,6 +27,9 @@ fun load {
   }
   loadEntity(meta)
   loadEntities(entities)
+  if (game.debug) {
+    print('河图: [${meta.id}] 载入完毕...')
+  }
 }
 
 fun init {
@@ -51,4 +54,8 @@ fun init {
   addMazes(mazes)
 
   load()
+
+  if (game.debug) {
+    print('河图: [${meta.id}] 初始化完毕...')
+  }
 }

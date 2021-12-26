@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:quiver/core.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
@@ -10,10 +12,23 @@ import '../../extensions.dart';
 class TilePosition {
   final int left, top;
 
-  TilePosition(this.left, this.top);
+  const TilePosition(this.left, this.top);
 
   @override
   String toString() => '[$left,$top]';
+
+  @override
+  int get hashCode {
+    return hashObjects([left, top]);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (other is TilePosition) {
+      return hashCode == other.hashCode;
+    }
+    return false;
+  }
 }
 
 enum TileShape {
@@ -59,14 +74,14 @@ class MapTile extends GameComponent {
         l = ((left - 1) * gridWidth);
         t = ((top - 1) * gridHeight);
         break;
-      case TileShape.isometric:
-        throw 'Isometric map tile is not supported yet!';
       case TileShape.hexagonalVertical:
         l = (left - 1) * gridWidth * (3 / 4);
         t = left.isOdd
             ? (top - 1) * gridHeight
             : (top - 1) * gridHeight + gridHeight / 2;
         break;
+      case TileShape.isometric:
+        throw 'Isometric map tile is not supported yet!';
       case TileShape.hexagonalHorizontal:
         throw 'Vertical hexagonal map tile is not supported yet!';
     }
