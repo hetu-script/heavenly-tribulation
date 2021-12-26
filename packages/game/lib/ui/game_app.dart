@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flame/game.dart';
 
 import '../shared/localization.dart';
 
@@ -11,8 +10,6 @@ import 'game/location_view.dart';
 import 'editor/editor.dart';
 import 'game/protagnist_view.dart';
 import '../engine/scene/worldmap.dart';
-import 'pointer_detector.dart';
-import '../shared/constants.dart';
 
 enum MenuMode {
   menu,

@@ -64,9 +64,13 @@ fun createWorldMap({
     return (left > 0 && top > 0 && left <= width && top <= height);
   }
 
-  fun setTerrain(left, top, value) {
-    if (isPositionWithinMap(left, top)) {
-      terrains[left - 1 + (top - 1) * width] = value;
+  fun tilePos2Index(left, top) {
+    return left - 1 + (top - 1) * width
+  }
+
+  fun setTerrain(index, value) {
+    if (0 < index && index < terrains.length) {
+      terrains[index] = value;
     }
   }
   
@@ -74,40 +78,22 @@ fun createWorldMap({
 
   fun updateNeighbors(left, top) {
     if (isPositionWithinMap(left - 1, top)) {
-      if (!neighbors[left - 1]) {
-        neighbors[left - 1] = {}
-      }
-      neighbors[left - 1][top] = true
+      neighbors[tilePos2Index(left - 1, top)] = true
     }
     if (isPositionWithinMap(left, top - 1)) {
-      if (!neighbors[left]) {
-        neighbors[left] = {}
-      }
-      neighbors[left][top - 1] = true
+      neighbors[tilePos2Index(left, top - 1)] = true
     }
     if (isPositionWithinMap(left + 1, top)) {
-      if (!neighbors[left + 1]) {
-        neighbors[left + 1] = {}
-      }
-      neighbors[left + 1][top] = true
+      neighbors[tilePos2Index(left + 1, top)] = true
     }
     if (isPositionWithinMap(left, top + 1)) {
-      if (!neighbors[left]) {
-        neighbors[left] = {}
-      }
-      neighbors[left][top + 1] = true
+      neighbors[tilePos2Index(left, top + 1)] = true
     }
     if (isPositionWithinMap(left - 1, top + 1)) {
-      if (!neighbors[left - 1]) {
-        neighbors[left - 1] = {}
-      }
-      neighbors[left - 1][top + 1] = true
+      neighbors[tilePos2Index(left - 1, top + 1)] = true
     }
     if (isPositionWithinMap(left + 1, top + 1)) {
-      if (!neighbors[left + 1]) {
-        neighbors[left + 1] = {}
-      }
-      neighbors[left + 1][top + 1] = true
+      neighbors[tilePos2Index(left + 1, top + 1)] = true
     }
   }
 
@@ -120,18 +106,17 @@ fun createWorldMap({
 
   final startLeft = Math.randomInt(maxLeft - minLeft) + minLeft
   final startTop = Math.randomInt(maxTop - minTop) + minTop
+  setTerrain(tilePos2Index(startLeft, startTop), _kLand)
   updateNeighbors(startLeft, startTop)
-  setTerrain(startLeft, startTop, _kLand)
 
   var currentLandSize = 1
   while (currentLandSize < landArea) {
-    final keys = neighbors.keys;
-    final leftStr = keys[Math.randomInt(keys.length)]
-    final keys2 = neighbors[leftStr].keys
-    final topStr = keys2[Math.randomInt(keys2.length)]
-    final left = int.parse(leftStr)
-    final top = int.parse(topStr)
-    setTerrain(left, top, _kLand)
+    final neibhborIndexes = neighbors.keys;
+    final randomIndex = neibhborIndexes[Math.randomInt(neibhborIndexes.length)]
+    final index = int.parse(randomIndex)
+    final left = index % width
+    final top = index ~/ width
+    setTerrain(index, _kLand)
     updateNeighbors(left, top)
     ++currentLandSize
   }
@@ -152,6 +137,9 @@ fun createWorldMap({
     tileOffsetX: 0.0,
     tileOffsetY: 2.0,
     terrains,
+    zones: {
+
+    },
   }
   
   final future = MapComponent.fromJson(data.toJson())
