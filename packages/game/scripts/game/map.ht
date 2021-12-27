@@ -1,4 +1,5 @@
 import 'game.ht'
+import 'random_names/random_names.ht' as random
 
 external class MapComponent {
   static fun fromJson
