@@ -53,7 +53,7 @@ class MapTile extends GameComponent {
   final SpriteAnimation? animation;
   final double offsetX, offsetY;
   final path = Path();
-  late Rect rect, border;
+  late Rect rect;
   final int left,
       top; // the tile position (compare to screen position or world position)
   final double gridWidth, gridHeight;
@@ -64,50 +64,59 @@ class MapTile extends GameComponent {
   void generateRect() {
     double sizeMax = max(width, height);
     double bleendingPixel = sizeMax * 0.04;
-    if (bleendingPixel > 3) {
-      bleendingPixel = 3;
+    if (bleendingPixel > 2) {
+      bleendingPixel = 2;
     }
 
-    late final double l, t;
+    late final double l, t, bl, bt;
     switch (shape) {
       case TileShape.orthogonal:
-        l = ((left - 1) * gridWidth);
-        t = ((top - 1) * gridHeight);
+        bl = ((left - 1) * gridWidth);
+        bt = ((top - 1) * gridHeight);
+        final border = Rect.fromLTWH(bl, bt, gridWidth, gridHeight);
+        path.addRect(border);
         break;
       case TileShape.hexagonalVertical:
-        l = (left - 1) * gridWidth * (3 / 4);
-        t = left.isOdd
-            ? (top - 1) * gridHeight
+        bl = (left - 1) * gridWidth * (3 / 4);
+        bt = left.isOdd
+            ? (top - 1) * gridHeight + offsetY
             : (top - 1) * gridHeight + gridHeight / 2;
+        path.moveTo(bl, bt + gridHeight / 2);
+        path.relativeLineTo(gridWidth / 4, -gridHeight / 2);
+        path.relativeLineTo(gridWidth / 2, 0);
+        path.relativeLineTo(gridWidth / 4, gridHeight / 2);
+        path.relativeLineTo(-gridWidth / 4, gridHeight / 2);
+        path.relativeLineTo(-gridWidth / 2, 0);
+        path.relativeLineTo(-gridWidth / 4, -gridHeight / 2);
         break;
       case TileShape.isometric:
         throw 'Isometric map tile is not supported yet!';
       case TileShape.hexagonalHorizontal:
         throw 'Vertical hexagonal map tile is not supported yet!';
     }
-    rect = Rect.fromLTWH(
-        l - (left % 2 == 0 ? (bleendingPixel / 2) : 0) + offsetX,
-        t - (top % 2 == 0 ? (bleendingPixel / 2) : 0) + offsetY,
-        width + (left % 2 == 0 ? bleendingPixel : 0),
-        height + (top % 2 == 0 ? bleendingPixel : 0));
-
     switch (renderDirection) {
       case TileRenderDirection.rightBottom:
-        border = Rect.fromLTWH(l - (width - gridWidth),
-            t - (height - gridHeight), gridWidth, gridHeight);
+        l = bl - (width - gridWidth);
+        t = bt - (height - gridHeight);
         break;
       case TileRenderDirection.leftBottom:
-        border =
-            Rect.fromLTWH(l, t - (height - gridHeight), gridWidth, gridHeight);
+        l = bl;
+        t = bt - (height - gridHeight);
         break;
       case TileRenderDirection.rightTop:
-        border =
-            Rect.fromLTWH(l - (width - gridWidth), t, gridWidth, gridHeight);
+        l = bl - (width - gridWidth);
+        t = bt;
         break;
       case TileRenderDirection.leftTop:
-        border = Rect.fromLTWH(l, t, gridWidth, gridHeight);
+        l = bl;
+        t = bt;
         break;
     }
+    rect = Rect.fromLTWH(
+        l - bleendingPixel / 2 + offsetX,
+        t - bleendingPixel / 2 + offsetY,
+        width + bleendingPixel,
+        height + bleendingPixel);
   }
 
   MapTile({
@@ -128,7 +137,6 @@ class MapTile extends GameComponent {
     width = srcWidth;
     height = srcHeight;
     generateRect();
-    path.addRect(rect);
     this.isVisible = isVisible;
   }
 
@@ -148,14 +156,14 @@ class MapTile extends GameComponent {
     //   ..style = PaintingStyle.stroke
     //   ..color = Colors.red;
 
-    // final tileBorderPaint = Paint()
-    //   ..strokeWidth = 0.1
-    //   ..style = PaintingStyle.stroke
-    //   ..color = Colors.blue;
+    final borderPaint = Paint()
+      ..strokeWidth = 0.5
+      ..style = PaintingStyle.stroke
+      ..color = Colors.blue;
     // switch (tileType) {
     //   case TileType.orthogonal:
-    // canvas.drawRect(rect, spriteBorderPaint);
-    // canvas.drawRect(border, tileBorderPaint);
+    // canvas.drawRect(rect, borderPaint);
+    canvas.drawPath(path, borderPaint);
     //     break;
     //   case TileType.isometric:
     //     throw 'Isometric map tile is not supported yet!';

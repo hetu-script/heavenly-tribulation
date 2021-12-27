@@ -10,8 +10,8 @@ external class MapComponent {
   fun moveToTerrain(left: int, top: int)
 }
 
-const _defaultWorldWidth = 24
-const _defaultWorldHeight = 24
+const _defaultWorldWidth = 16
+const _defaultWorldHeight = 16
 const _kSea = 1;
 const _kShelf = 2;
 const _kLand = 3;
@@ -50,7 +50,7 @@ fun createWorldMap({
       width = _defaultWorldWidth,
       height = _defaultWorldHeight,
       style = 'island',
-      landProportion = 0.8}) {
+      landProportion = 0.35}) {
 
   final terrains = [];
 
@@ -64,36 +64,68 @@ fun createWorldMap({
     return (left > 0 && top > 0 && left <= width && top <= height);
   }
 
+  fun isIndexWithinMap(index) {
+    return 0 <= index && index < terrains.length
+  }
+
   fun tilePos2Index(left, top) {
     return left - 1 + (top - 1) * width
   }
 
+  fun index2TilePos(index: str) {
+    final i = int.parse(index)
+    final left = i % width + 1
+    final top = i ~/ width + 1
+    return { left, top }
+  }
+
   fun setTerrain(index, value) {
-    if (0 < index && index < terrains.length) {
+    if (isIndexWithinMap(index)) {
       terrains[index] = value;
     }
   }
   
-  final neighbors = {};
-
-  fun updateNeighbors(left, top) {
+  final landShelf = {};
+  
+  fun getNeighbors(left, top) {
+    final neighbors = []
     if (isPositionWithinMap(left - 1, top)) {
-      neighbors[tilePos2Index(left - 1, top)] = true
+      neighbors.add({left: left - 1, top})
     }
     if (isPositionWithinMap(left, top - 1)) {
-      neighbors[tilePos2Index(left, top - 1)] = true
+      neighbors.add({left, top: top - 1})
     }
     if (isPositionWithinMap(left + 1, top)) {
-      neighbors[tilePos2Index(left + 1, top)] = true
+      neighbors.add({left: left + 1, top})
     }
     if (isPositionWithinMap(left, top + 1)) {
-      neighbors[tilePos2Index(left, top + 1)] = true
+      neighbors.add({left, top: top + 1})
     }
-    if (isPositionWithinMap(left - 1, top + 1)) {
-      neighbors[tilePos2Index(left - 1, top + 1)] = true
+    if (left % 2 == 0) {
+      if (isPositionWithinMap(left + 1, top + 1)) {
+        neighbors.add({left: left + 1, top: top + 1})
+      }
+      if (isPositionWithinMap(left - 1, top + 1)) {
+        neighbors.add({left: left - 1, top: top + 1})
+      }
+    } else {
+      if (isPositionWithinMap(left - 1, top - 1)) {
+        neighbors.add({left: left - 1, top: top - 1})
+      }
+      if (isPositionWithinMap(left + 1, top - 1)) {
+        neighbors.add({left: left + 1, top: top - 1})
+      }
     }
-    if (isPositionWithinMap(left + 1, top + 1)) {
-      neighbors[tilePos2Index(left + 1, top + 1)] = true
+    return neighbors
+  }
+
+  fun updateNeighbors(left, top) {
+    final neighbors = getNeighbors(left, top)
+    for (final pos in neighbors) {
+      final index = tilePos2Index(pos.left, pos.top)
+      if (terrains[index] == 1) {
+        landShelf[index] = true
+      }
     }
   }
 
@@ -111,16 +143,39 @@ fun createWorldMap({
 
   var currentLandSize = 1
   while (currentLandSize < landArea) {
-    final neibhborIndexes = neighbors.keys;
-    // print(neibhborIndexes)
-    final randomIndex = neibhborIndexes[Math.randomInt(neibhborIndexes.length)]
-    delete neighbors[randomIndex]
+    final shelfIndexes = landShelf.keys;
+    final randomIndex = shelfIndexes[Math.randomInt(shelfIndexes.length)]
+    delete landShelf[randomIndex]
+    final pos = index2TilePos(randomIndex)
     final index = int.parse(randomIndex)
-    final left = index % width + 1
-    final top = index ~/ width + 1
     setTerrain(index, _kLand)
-    updateNeighbors(left, top)
+    updateNeighbors(pos.left, pos.top)
     ++currentLandSize
+  }
+
+  for (final index in landShelf.keys) {
+    final i = int.parse(index)
+    setTerrain(i, _kShelf)
+  }
+
+  final zones = []
+
+  fun newZone() {
+    final id = zones.length
+    final zone = {}
+    zones.add(zone)
+    return id
+  }
+
+  fun checkZone(left, top) {
+    final neighbors = getNeighbors(left, top)
+    for (final pos in neighbors) {
+      
+    }
+  }
+
+  for (var i = 0; i < terrains.length; ++i) {
+    
   }
 
   final data = {
@@ -139,9 +194,7 @@ fun createWorldMap({
     tileOffsetX: 0.0,
     tileOffsetY: 2.0,
     terrains,
-    zones: {
-
-    },
+    zones,
   }
   
   final future = MapComponent.fromJson(data.toJson())
