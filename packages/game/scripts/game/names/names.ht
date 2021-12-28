@@ -251,13 +251,13 @@ fun getSkill(number, {length, kind, prefix, numfix}) {
   return names
 }
 
-fun getBook(number, {length, prefix, kind, postfix}) {
+fun getBook(number, {length, prefix, mainkind, postkind, postfix}) {
   final names = []
   for (var i = 0; i < number; ++i) {
-    final skillname = _getSkillName(length)
+    final skillname = _getSkillName(length, mainkind)
     var rarity = skillname.rarity
     var pre = prefix ?? ''
-    var k = kind ?? ''
+    var pk = postkind || '';
     var post = postfix ?? ''
     if (!prefix) {
       if (skillname.rarity == 'exotic') {
@@ -280,36 +280,28 @@ fun getBook(number, {length, prefix, kind, postfix}) {
           bookPrefix.epic[Math.randomInt(bookPrefix.epic.length)]
       }
     }
-    if (pre && !kind) {
-      k = book[Math.randomInt(book.length)]
+    if (pre && !postkind) {
+      pk = book[Math.randomInt(book.length)]
     }
-    if (!prefix && !kind) {
-      if (!postfix) {
-        final r1 = Math.random()
-        final r2 = Math.random()
-        if (r1 < kRarity.rare.probability && r2 < kRarity.rare.probability) {
-          rarity = 'handmade'
-          post =
-            _kParenthesisLeft +
-            bookPostfix.rare[
-              Math.randomInt(bookPostfix.rare.length)
-            ] +
-            _kParenthesisRight
-        } else if (r1 < kRarity.uncommon.probability && r2 < kRarity.uncommon.probability) {
-          rarity = 'broken'
-          post =
-            _kParenthesisLeft +
-            bookPostfix.uncommon[
-              Math.randomInt(bookPostfix.uncommon.length)
-            ] +
-            _kParenthesisRight
-        }
-      }
-    } else {
-      rarity = 'rare'
+    final r1 = Math.random()
+    final r2 = Math.random()
+    if (r1 < kRarity.rare.probability && r2 < kRarity.rare.probability) {
+      post =
+        _kParenthesisLeft +
+        bookPostfix.rare[
+          Math.randomInt(bookPostfix.rare.length)
+        ] +
+        _kParenthesisRight
+    } else if (r1 < kRarity.uncommon.probability && r2 < kRarity.uncommon.probability) {
+      post =
+        _kParenthesisLeft +
+        bookPostfix.uncommon[
+          Math.randomInt(bookPostfix.uncommon.length)
+        ] +
+        _kParenthesisRight
     }
     names.add({
-      name: '《' + skillname.name + pre + k + post + '》',
+      name: '《' + skillname.name + pre + pk + post + '》',
       rarity: rarity,
     })
   }
@@ -667,8 +659,6 @@ fun getLocation(number, {kind}) {
 }
 
 const _kContinent = '洲'
-
-const 
 
 fun getContinent(number, {kind}) {
   final names = []
