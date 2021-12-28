@@ -16,9 +16,9 @@ import 'l10n/predefined_localizations.ht'
 import 'data/predefined_dialogs.ht'
 import 'data/predefined_characters.ht'
 
-import 'random_names/random_names.ht' as random
+import 'names/names.ht' as names
 
-export { random }
+export { names }
 
 fun init({lang = 'zh', dartGame: SamsaraGame}) {
   if (game.debug) {

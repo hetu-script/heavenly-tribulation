@@ -73,7 +73,7 @@ class MapComponent extends GameComponent with HandlesGesture {
     final mapTileHeight = data['height'] as int;
     final entryX = data['entry']['x'] as int;
     final entryY = data['entry']['y'] as int;
-    final terrainData = data['terrains'];
+    final terrainsData = data['terrains'];
     final roomData = data['rooms'];
     final entitiyData = data['entities'];
 
@@ -82,11 +82,15 @@ class MapComponent extends GameComponent with HandlesGesture {
       terrains.add([]);
       for (var i = 0; i < mapTileWidth; ++i) {
         final blockId = j * mapTileWidth + i;
-        final spriteId = terrainData[blockId];
+        final terrain = terrainsData[blockId];
+        final spriteId = terrain['spriteIndex'];
         Sprite? sprite;
         if (spriteId > 0) {
           sprite = terrainSpriteSheet.getSpriteById(spriteId - 1);
         }
+
+        final zoneIndex = terrain['zoneIndex'];
+
         var isRoom = false;
         if (roomData != null && roomData[blockId] > 0) {
           isRoom = true;
@@ -104,6 +108,7 @@ class MapComponent extends GameComponent with HandlesGesture {
           gridWidth: gridWidth,
           gridHeight: gridHeight,
           isVisible: true,
+          zoneIndex: zoneIndex,
           isRoom: isRoom,
           isVisited: isEntry,
           sprite: sprite,

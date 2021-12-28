@@ -61,6 +61,30 @@ class MapTile extends GameComponent {
   final TileShape shape;
   final TileRenderDirection renderDirection;
 
+  final int zoneIndex;
+
+  MapTile({
+    required this.shape,
+    this.renderDirection = TileRenderDirection.rightBottom,
+    required this.left,
+    required this.top,
+    required double srcWidth,
+    required double srcHeight,
+    required this.gridWidth,
+    required this.gridHeight,
+    required bool isVisible,
+    this.zoneIndex = -1,
+    this.sprite,
+    this.animation,
+    this.offsetX = 0.0,
+    this.offsetY = 0.0,
+  }) {
+    width = srcWidth;
+    height = srcHeight;
+    generateRect();
+    this.isVisible = isVisible;
+  }
+
   void generateRect() {
     double sizeMax = max(width, height);
     double bleendingPixel = sizeMax * 0.04;
@@ -117,27 +141,6 @@ class MapTile extends GameComponent {
         t - bleendingPixel / 2 + offsetY,
         width + bleendingPixel,
         height + bleendingPixel);
-  }
-
-  MapTile({
-    required this.shape,
-    this.renderDirection = TileRenderDirection.rightBottom,
-    required this.left,
-    required this.top,
-    required double srcWidth,
-    required double srcHeight,
-    required this.gridWidth,
-    required this.gridHeight,
-    required bool isVisible,
-    this.sprite,
-    this.animation,
-    this.offsetX = 0.0,
-    this.offsetY = 0.0,
-  }) {
-    width = srcWidth;
-    height = srcHeight;
-    generateRect();
-    this.isVisible = isVisible;
   }
 
   @override
@@ -199,6 +202,7 @@ class Terrain extends MapTile {
     required double gridWidth,
     required double gridHeight,
     required bool isVisible,
+    required int zoneIndex,
     this.isRoom = false,
     this.isVisited = false,
     Sprite? sprite,
@@ -215,6 +219,7 @@ class Terrain extends MapTile {
           gridWidth: gridWidth,
           gridHeight: gridHeight,
           isVisible: isVisible,
+          zoneIndex: zoneIndex,
           sprite: sprite,
           animation: animation,
           offsetX: offsetX,

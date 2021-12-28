@@ -57,6 +57,19 @@ flutter:
     - scripts/game/l10n/
     - scripts/game/l10n/zh_name/
     - scripts/game/data/
+    - scripts/game/names/
+    - scripts/game/names/data/
+    - scripts/game/names/data/alchemy/
+    - scripts/game/names/data/book/
+    - scripts/game/names/data/creature/
+    - scripts/game/names/data/dao/
+    - scripts/game/names/data/material/
+    - scripts/game/names/data/name/
+    - scripts/game/names/data/organization/
+    - scripts/game/names/data/place/
+    - scripts/game/names/data/shared/
+    - scripts/game/names/data/skill/
+    - scripts/game/names/data/talisman/
     - scripts/core/
     - scripts/core/l10n/
     - scripts/core/data/

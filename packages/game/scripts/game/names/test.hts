@@ -1,5 +1,4 @@
-import 'name.ht'
-
+import 'names.ht'
 
 print(getName(10))
 print(getDao(10))

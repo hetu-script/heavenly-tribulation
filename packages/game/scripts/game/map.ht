@@ -1,5 +1,5 @@
 import 'game.ht'
-import 'random_names/random_names.ht' as random
+import 'names/names.ht' as names
 
 external class MapComponent {
   static fun fromJson
@@ -11,13 +11,6 @@ external class MapComponent {
   fun moveToTerrain(left: int, top: int)
 }
 
-const _defaultWorldWidth = 16
-const _defaultWorldHeight = 16
-const _kSea = 1;
-const _kShelf = 2;
-const _kLand = 3;
-
-
 fun loadWorldMap(jsonData) {
   print('河图: 载入世界地图数据 ...')
   final data = prototype.fromJson(jsonData)
@@ -25,7 +18,6 @@ fun loadWorldMap(jsonData) {
 }
 
 /// 生成世界地图的算法
-///
 ///
 /// spritesheet上不同地形对应的编号：
 /// 0：虚空
@@ -37,13 +29,19 @@ fun loadWorldMap(jsonData) {
 ///
 /// 先用海面填满整个地图空间
 ///
-/// 根据地图大小，计算出陆地和水面的比例，得到应该生成多少块陆地
+/// 根据地图大小以及陆地和水面的比例，得到应该生成多少块陆地
 ///
 /// 找到一个出发点，通常在地图中间部分
 ///
 /// 找到出发点周围的方块，将其加入一个数组，作为当前陆地的边界
 ///
-/// 将当前方块变成陆地。
+/// 将当前方块变成陆地，检查陆地比例，如果不够，就从当前陆地边界中随机挑选一个方块，将其变成陆地，同时重新计算边界。
+
+const _defaultWorldWidth = 16
+const _defaultWorldHeight = 16
+const _kSea = 1;
+const _kShelf = 2;
+const _kLand = 3;
 
 fun createWorldMap({
       terrainSpriteSheet: str,
@@ -57,22 +55,30 @@ fun createWorldMap({
 
   for (var j = 0; j < height; ++j) {
     for (var i = 0; i < width; ++i) {
-      terrains.add(1)
+      terrains.add({
+        left: i + 1,
+        top: j + 1,
+        spriteIndex: _kSea,
+      })
     }
   }
 
+  // 坐标是否在地图范围内
   fun isPositionWithinMap(left, top) {
     return (left > 0 && top > 0 && left <= width && top <= height);
   }
 
+  // 索引是否在地图范围内
   fun isIndexWithinMap(index) {
     return 0 <= index && index < terrains.length
   }
 
+  // 从坐标得到索引
   fun tilePos2Index(left, top) {
     return left - 1 + (top - 1) * width
   }
 
+  // 从索引得到坐标
   fun index2TilePos(index: str) {
     final i = int.parse(index)
     final left = i % width + 1
@@ -80,52 +86,52 @@ fun createWorldMap({
     return { left, top }
   }
 
-  fun setTerrain(index, value) {
+  // 设置当前地块图像索引
+  fun setSpriteIndex(index, value) {
     if (isIndexWithinMap(index)) {
-      terrains[index] = value;
+      terrains[index]['spriteIndex'] = value;
     }
   }
   
-  final landShelf = {};
+  final shelf = {};
   
   fun getNeighbors(left, top) {
     final neighbors = []
     if (isPositionWithinMap(left - 1, top)) {
-      neighbors.add({left: left - 1, top})
+      neighbors.add({left: left - 1, top, index: tilePos2Index(left - 1, top)})
     }
     if (isPositionWithinMap(left, top - 1)) {
-      neighbors.add({left, top: top - 1})
+      neighbors.add({left, top: top - 1, index: tilePos2Index(left, top - 1)})
     }
     if (isPositionWithinMap(left + 1, top)) {
-      neighbors.add({left: left + 1, top})
+      neighbors.add({left: left + 1, top, index: tilePos2Index(left + 1, top)})
     }
     if (isPositionWithinMap(left, top + 1)) {
-      neighbors.add({left, top: top + 1})
+      neighbors.add({left, top: top + 1, index: tilePos2Index(left, top + 1)})
     }
     if (left % 2 == 0) {
       if (isPositionWithinMap(left + 1, top + 1)) {
-        neighbors.add({left: left + 1, top: top + 1})
+        neighbors.add({left: left + 1, top: top + 1, index: tilePos2Index(left + 1, top + 1)})
       }
       if (isPositionWithinMap(left - 1, top + 1)) {
-        neighbors.add({left: left - 1, top: top + 1})
+        neighbors.add({left: left - 1, top: top + 1, index: tilePos2Index(left - 1, top + 1)})
       }
     } else {
       if (isPositionWithinMap(left - 1, top - 1)) {
-        neighbors.add({left: left - 1, top: top - 1})
+        neighbors.add({left: left - 1, top: top - 1, index: tilePos2Index(left - 1, top - 1)})
       }
       if (isPositionWithinMap(left + 1, top - 1)) {
-        neighbors.add({left: left + 1, top: top - 1})
+        neighbors.add({left: left + 1, top: top - 1, index: tilePos2Index(left + 1, top - 1)})
       }
     }
     return neighbors
   }
 
-  fun updateNeighbors(left, top) {
+  fun updateShelf(left, top) {
     final neighbors = getNeighbors(left, top)
     for (final pos in neighbors) {
-      final index = tilePos2Index(pos.left, pos.top)
-      if (terrains[index] == 1) {
-        landShelf[index] = true
+      if (terrains[pos.index]['spriteIndex'] == 1) {
+        shelf[pos.index] = true
       }
     }
   }
@@ -139,45 +145,55 @@ fun createWorldMap({
 
   final startLeft = Math.randomInt(maxLeft - minLeft) + minLeft
   final startTop = Math.randomInt(maxTop - minTop) + minTop
-  setTerrain(tilePos2Index(startLeft, startTop), _kLand)
-  updateNeighbors(startLeft, startTop)
+  setSpriteIndex(tilePos2Index(startLeft, startTop), _kLand)
+  updateShelf(startLeft, startTop)
 
   var currentLandSize = 1
   while (currentLandSize < landArea) {
-    final shelfIndexes = landShelf.keys;
+    final shelfIndexes = shelf.keys;
     final randomIndex = shelfIndexes[Math.randomInt(shelfIndexes.length)]
-    delete landShelf[randomIndex]
+    delete shelf[randomIndex]
     final pos = index2TilePos(randomIndex)
     final index = int.parse(randomIndex)
-    setTerrain(index, _kLand)
-    updateNeighbors(pos.left, pos.top)
+    setSpriteIndex(index, _kLand)
+    updateShelf(pos.left, pos.top)
     ++currentLandSize
-  }
-
-  for (final index in landShelf.keys) {
-    final i = int.parse(index)
-    setTerrain(i, _kShelf)
   }
 
   final zones = []
 
-  fun newZone() {
-    final id = zones.length
-    final zone = {}
+  // 新建一个区域，返回区域index，区域保存为一个列表
+  fun newZone(kind) {
+    final index = zones.length
+    final zone = { index, kind, count: 1 }
     zones.add(zone)
-    return id
+    return zone
   }
 
-  fun checkZone(left, top) {
+  // 计算地图上的区域
+  fun calculateZone(left, top) {
+    final self = terrians[tilePos2Index(left, top)]
     final neighbors = getNeighbors(left, top)
+    var isAdjacent = false
     for (final pos in neighbors) {
-      
+      final neighbor = terrains[pos.index]
+      if (self.spriteIndex == tile.spriteIndex && tile.zoneIndex) {
+        self.zoneIndex = tile.zoneIndex
+        ++zones[tile.zoneIndex]['count']
+        isAdjacent = true
+        break;
+      }
+    }
+    if (!isAdjacent) {
+      final zone = newZone()
+      self['zoneIndex'] = zone.index
     }
   }
 
-  for (var i = 0; i < terrains.length; ++i) {
-    
-  }
+  // for (final index in shelf.keys) {
+  //   final i = int.parse(index)
+  //   setTerrain(i, _kShelf)
+  // }
 
   final data = {
     terrainSpriteSheet,

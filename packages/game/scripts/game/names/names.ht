@@ -26,6 +26,7 @@ import 'data/place/prefix.json' as placePrefix
 import 'data/place/postfix.json' as placePostfix
 import 'data/place/location.json' as location
 import 'data/place/continent.json' as continent
+import 'data/place/zone.json' as zone
 import 'data/material/material.json' as material
 import 'data/material/postfix.json' as materialPostfix
 import 'data/creature/creature.json' as creature
@@ -38,6 +39,10 @@ export {
   kRarity,
   kCreature,
 } from 'constants.ht'
+
+export {
+  zone,
+}
 
 export {
   getName,
@@ -662,6 +667,8 @@ fun getLocation(number, {kind}) {
 }
 
 const _kContinent = '洲'
+
+const 
 
 fun getContinent(number, {kind}) {
   final names = []
