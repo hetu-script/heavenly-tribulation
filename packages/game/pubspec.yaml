@@ -1,11 +1,11 @@
 name: tian_dao_qi_jie
 description: A Xianxia genre RPG game, mixed with Roguelike/Tycoon elements. Game logic is written in Hetu Script.
-publish_to: 'none'
+publish_to: "none"
 
 version: 0.0.1
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -57,19 +57,19 @@ flutter:
     - scripts/game/l10n/
     - scripts/game/l10n/zh_name/
     - scripts/game/data/
-    - scripts/game/names/
-    - scripts/game/names/data/
-    - scripts/game/names/data/alchemy/
-    - scripts/game/names/data/book/
-    - scripts/game/names/data/creature/
-    - scripts/game/names/data/dao/
-    - scripts/game/names/data/material/
-    - scripts/game/names/data/name/
-    - scripts/game/names/data/organization/
-    - scripts/game/names/data/place/
-    - scripts/game/names/data/shared/
-    - scripts/game/names/data/skill/
-    - scripts/game/names/data/talisman/
+    - scripts/game/random_names/
+    - scripts/game/random_names/data/
+    - scripts/game/random_names/data/alchemy/
+    - scripts/game/random_names/data/book/
+    - scripts/game/random_names/data/creature/
+    - scripts/game/random_names/data/dao/
+    - scripts/game/random_names/data/material/
+    - scripts/game/random_names/data/name/
+    - scripts/game/random_names/data/organization/
+    - scripts/game/random_names/data/place/
+    - scripts/game/random_names/data/shared/
+    - scripts/game/random_names/data/skill/
+    - scripts/game/random_names/data/talisman/
     - scripts/core/
     - scripts/core/l10n/
     - scripts/core/data/

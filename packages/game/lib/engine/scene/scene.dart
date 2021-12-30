@@ -56,33 +56,33 @@ class Scene extends FlameGame {
   Iterable<HandlesGesture> get _gestureComponents =>
       children.whereType<HandlesGesture>().cast<HandlesGesture>();
 
-  void onTapDown(int pointer, TapDownDetails details) {
+  void onTapDown(int pointer, int buttons, TapDownDetails details) {
     for (var c in _gestureComponents) {
-      c.handleTapDown(pointer, details);
+      c.handleTapDown(pointer, buttons, details);
     }
   }
 
-  void onTapUp(int pointer, TapUpDetails details) {
+  void onTapUp(int pointer, int buttons, TapUpDetails details) {
     for (var c in _gestureComponents) {
-      c.handleTapUp(pointer, details);
+      c.handleTapUp(pointer, buttons, details);
     }
   }
 
-  void onDragStart(int pointer, DragStartDetails details) {
+  void onDragStart(int pointer, int buttons, DragStartDetails details) {
     for (var c in _gestureComponents) {
-      c.handleDragStart(pointer, details);
+      c.handleDragStart(pointer, buttons, details);
     }
   }
 
-  void onDragUpdate(int pointer, DragUpdateDetails details) {
+  void onDragUpdate(int pointer, int buttons, DragUpdateDetails details) {
     for (var c in _gestureComponents) {
-      c.handleDragUpdate(pointer, details);
+      c.handleDragUpdate(pointer, buttons, details);
     }
   }
 
-  void onDragEnd(int pointer) {
+  void onDragEnd(int pointer, int buttons) {
     for (var c in _gestureComponents) {
-      c.handleDragEnd(pointer);
+      c.handleDragEnd(pointer, buttons);
     }
   }
 
@@ -104,9 +104,15 @@ class Scene extends FlameGame {
     }
   }
 
-  void onLongPress(int pointer, LongPressStartDetails details) {
+  void onLongPress(int pointer, int buttons, LongPressStartDetails details) {
     for (var c in _gestureComponents) {
-      c.handleLongPress(pointer, details);
+      c.handleLongPress(pointer, buttons, details);
+    }
+  }
+
+  void onMouseMove(MouseMoveUpdateDetails details) {
+    for (var c in _gestureComponents) {
+      c.handleMouseMove(details);
     }
   }
 
@@ -140,6 +146,7 @@ class Scene extends FlameGame {
       onScaleUpdate: onScaleUpdate,
       onScaleEnd: onScaleEnd,
       onLongPress: onLongPress,
+      onMouseMove: onMouseMove,
     );
   }
 }

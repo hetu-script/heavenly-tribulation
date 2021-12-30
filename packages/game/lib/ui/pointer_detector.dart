@@ -1,6 +1,79 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:ui';
+
 import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart';
+
+class TouchDetails {
+  int pointer;
+  Offset startLocalPosition;
+  Offset startGlobalPosition;
+  Offset currentLocalPosition;
+  Offset currentGlobalPosition;
+
+  TouchDetails(this.pointer, this.startGlobalPosition, this.startLocalPosition)
+      : currentLocalPosition = startLocalPosition,
+        currentGlobalPosition = startGlobalPosition;
+}
+
+class MouseMoveUpdateDetails {
+  /// Creates details for a [MouseMoveUpdateDetails].
+  ///
+  /// The [delta] argument must not be null.
+  ///
+  /// If [primaryDelta] is non-null, then its value must match one of the
+  /// coordinates of [delta] and the other coordinate must be zero.
+  ///
+  /// The [globalPosition] argument must be provided and must not be null.
+  MouseMoveUpdateDetails({
+    this.sourceTimeStamp,
+    this.delta = Offset.zero,
+    this.primaryDelta,
+    required this.globalPosition,
+    Offset? localPosition,
+  })  : assert(
+          primaryDelta == null ||
+              (primaryDelta == delta.dx && delta.dy == 0.0) ||
+              (primaryDelta == delta.dy && delta.dx == 0.0),
+        ),
+        localPosition = localPosition ?? globalPosition;
+
+  /// Recorded timestamp of the source pointer event that triggered the drag
+  /// event.
+  ///
+  /// Could be null if triggered from proxied events such as accessibility.
+  final Duration? sourceTimeStamp;
+
+  /// The amount the pointer has moved in the coordinate space of the event
+  /// receiver since the previous update.
+  ///
+  /// Defaults to zero if not specified in the constructor.
+  final Offset delta;
+
+  /// The amount the pointer has moved along the primary axis in the coordinate
+  /// space of the event receiver since the previous
+  /// update.
+  final double? primaryDelta;
+
+  /// The pointer's global position when it triggered this update.
+  ///
+  /// See also:
+  ///
+  ///  * [localPosition], which is the [globalPosition] transformed to the
+  ///    coordinate space of the event receiver.
+  final Offset globalPosition;
+
+  /// The local position in the coordinate system of the event receiver at
+  /// which the pointer contacted the screen.
+  ///
+  /// Defaults to [globalPosition] if not specified in the constructor.
+  final Offset localPosition;
+
+  @override
+  String toString() =>
+      '${objectRuntimeType(this, 'DragUpdateDetails')}($delta)';
+}
 
 ///  A widget that detects gestures.
 /// * Supports Tap, Drag(start, update, end), Scale(start, update, end) and Long Press
@@ -22,6 +95,7 @@ class PointerDetector extends StatefulWidget {
     this.onScaleEnd,
     this.onLongPress,
     this.longPressTickTimeConsider = 400,
+    this.onMouseMove,
   }) : super(key: key);
 
   /// The widget below this widget in the tree.
@@ -29,19 +103,22 @@ class PointerDetector extends StatefulWidget {
   /// {@macro flutter.widgets.child}
   final Widget child;
 
-  final void Function(int pointer, TapDownDetails details)? onTapDown;
-  final void Function(int pointer, TapUpDetails details)? onTapUp;
+  final void Function(int pointer, int buttons, TapDownDetails details)?
+      onTapDown;
+  final void Function(int pointer, int buttons, TapUpDetails details)? onTapUp;
 
   /// A pointer has contacted the screen with a primary button and has begun to move.
-  final void Function(int pointer, DragStartDetails details)? onDragStart;
+  final void Function(int pointer, int buttons, DragStartDetails details)?
+      onDragStart;
 
   /// A pointer that is in contact with the screen with a primary button and moving has moved again.
-  final void Function(int pointer, DragUpdateDetails details)? onDragUpdate;
+  final void Function(int pointer, int buttons, DragUpdateDetails details)?
+      onDragUpdate;
 
   /// A pointer that was previously in contact with the screen with a primary
   /// button and moving is no longer in contact with the screen and was moving
   /// at a specific velocity when it stopped contacting the screen.
-  final void Function(int pointer)? onDragEnd;
+  final void Function(int pointer, int buttons)? onDragEnd;
 
   /// The pointers in contact with the screen have established a focal point and
   /// initial scale of 1.0.
@@ -67,10 +144,13 @@ class PointerDetector extends StatefulWidget {
   /// A pointer has remained in contact with the screen at the same location for a long period of time
   ///
   /// @param
-  final void Function(int pointer, LongPressStartDetails details)? onLongPress;
+  final void Function(int pointer, int buttons, LongPressStartDetails details)?
+      onLongPress;
 
   /// A specific duration to detect long press
   final int longPressTickTimeConsider;
+
+  final void Function(MouseMoveUpdateDetails details)? onMouseMove;
 
   @override
   _PointerDetectorState createState() => _PointerDetectorState();
@@ -82,13 +162,13 @@ enum _GestureState {
   scaleStart,
   scalling,
   longPress,
-  unknown
+  none,
 }
 
 class _PointerDetectorState extends State<PointerDetector> {
   final _touchDetails = <TouchDetails>[];
   double _initialScaleDistance = 0;
-  _GestureState _gestureState = _GestureState.unknown;
+  _GestureState _gestureState = _GestureState.none;
   Timer? _longPressTimer;
   // var _lastTouchUpPos = const Offset(0, 0);
 
@@ -112,6 +192,7 @@ class _PointerDetectorState extends State<PointerDetector> {
       if (widget.onTapDown != null) {
         widget.onTapDown!(
             event.pointer,
+            event.buttons,
             TapDownDetails(
                 globalPosition: event.position,
                 localPosition: event.localPosition,
@@ -119,13 +200,14 @@ class _PointerDetectorState extends State<PointerDetector> {
       }
       startLongPressTimer(
           event.pointer,
+          event.buttons,
           LongPressStartDetails(
               globalPosition: event.position,
               localPosition: event.localPosition));
     } else if (touchCount == 2) {
       _gestureState = _GestureState.scaleStart;
     } else {
-      _gestureState = _GestureState.unknown;
+      _gestureState = _GestureState.none;
     }
   }
 
@@ -149,6 +231,17 @@ class _PointerDetectorState extends State<PointerDetector> {
     cleanupTimer();
 
     switch (_gestureState) {
+      case _GestureState.none:
+        if (event.kind == PointerDeviceKind.mouse) {
+          if (widget.onMouseMove != null) {
+            widget.onMouseMove!(MouseMoveUpdateDetails(
+                delta: event.delta,
+                sourceTimeStamp: event.timeStamp,
+                globalPosition: event.position,
+                localPosition: event.localPosition));
+          }
+        }
+        break;
       case _GestureState.pointerDown:
         //print('move distance: ' + distance.toString());
         if (distance > 1) {
@@ -158,6 +251,7 @@ class _PointerDetectorState extends State<PointerDetector> {
           if (widget.onDragStart != null) {
             widget.onDragStart!(
                 event.pointer,
+                event.buttons,
                 DragStartDetails(
                     sourceTimeStamp: event.timeStamp,
                     globalPosition: event.position,
@@ -169,6 +263,7 @@ class _PointerDetectorState extends State<PointerDetector> {
         if (widget.onDragUpdate != null) {
           widget.onDragUpdate!(
               event.pointer,
+              event.buttons,
               DragUpdateDetails(
                   sourceTimeStamp: event.timeStamp,
                   delta: event.delta,
@@ -197,7 +292,7 @@ class _PointerDetectorState extends State<PointerDetector> {
       case _GestureState.scalling:
         if (widget.onScaleUpdate != null) {
           final rotation =
-              angleBetweenLines(_touchDetails[0], _touchDetails[1]);
+              _angleBetweenLines(_touchDetails[0], _touchDetails[1]);
           final newDistance = (_touchDetails[0].currentLocalPosition -
                   _touchDetails[1].currentLocalPosition)
               .distance;
@@ -223,7 +318,7 @@ class _PointerDetectorState extends State<PointerDetector> {
     }
   }
 
-  double angleBetweenLines(TouchDetails f, TouchDetails s) {
+  double _angleBetweenLines(TouchDetails f, TouchDetails s) {
     double angle1 = math.atan2(
         f.currentLocalPosition.dy - s.currentLocalPosition.dy,
         f.currentLocalPosition.dx - s.currentLocalPosition.dx);
@@ -243,27 +338,29 @@ class _PointerDetectorState extends State<PointerDetector> {
     if (_gestureState == _GestureState.pointerDown) {
       widget.onTapUp?.call(
           event.pointer,
+          event.buttons,
           TapUpDetails(
               globalPosition: event.position,
               localPosition: event.localPosition,
               kind: event.kind));
     } else if (_gestureState == _GestureState.scaleStart ||
         _gestureState == _GestureState.scalling) {
-      _gestureState = _GestureState.unknown;
+      _gestureState = _GestureState.none;
       widget.onScaleEnd?.call();
     } else if (_gestureState == _GestureState.dragStart) {
-      _gestureState = _GestureState.unknown;
-      widget.onDragEnd?.call(event.pointer);
-    } else if (_gestureState == _GestureState.unknown && touchCount == 2) {
+      _gestureState = _GestureState.none;
+      widget.onDragEnd?.call(event.pointer, event.buttons);
+    } else if (_gestureState == _GestureState.none && touchCount == 2) {
       _gestureState = _GestureState.scaleStart;
     } else {
-      _gestureState = _GestureState.unknown;
+      _gestureState = _GestureState.none;
     }
 
     // _lastTouchUpPos = event.localPosition;
   }
 
-  void startLongPressTimer(int pointer, LongPressStartDetails details) {
+  void startLongPressTimer(
+      int pointer, int buttons, LongPressStartDetails details) {
     if (widget.onLongPress != null) {
       if (_longPressTimer != null) {
         _longPressTimer!.cancel();
@@ -272,7 +369,7 @@ class _PointerDetectorState extends State<PointerDetector> {
           Timer(Duration(milliseconds: widget.longPressTickTimeConsider), () {
         if (touchCount == 1 && _touchDetails[0].pointer == pointer) {
           _gestureState = _GestureState.longPress;
-          widget.onLongPress!(pointer, details);
+          widget.onLongPress!(pointer, buttons, details);
         }
       });
     }
@@ -296,16 +393,4 @@ class _PointerDetectorState extends State<PointerDetector> {
 
   /// Convert [degrees] to radians.
   double radians(double degrees) => degrees * degrees2Radians;
-}
-
-class TouchDetails {
-  int pointer;
-  Offset startLocalPosition;
-  Offset startGlobalPosition;
-  Offset currentLocalPosition;
-  Offset currentGlobalPosition;
-
-  TouchDetails(this.pointer, this.startGlobalPosition, this.startLocalPosition)
-      : currentLocalPosition = startLocalPosition,
-        currentGlobalPosition = startGlobalPosition;
 }

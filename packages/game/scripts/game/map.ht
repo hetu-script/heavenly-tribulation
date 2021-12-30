@@ -1,5 +1,5 @@
 import 'game.ht'
-import 'names/names.ht' as names
+import 'random_names/random_names.ht' as randomNames
 
 external class MapComponent {
   static fun fromJson
@@ -55,11 +55,13 @@ fun createWorldMap({
 
   for (var j = 0; j < height; ++j) {
     for (var i = 0; i < width; ++i) {
-      terrains.add({
-        left: i + 1,
-        top: j + 1,
-        spriteIndex: _kSea,
-      })
+      terrains.add(
+        {
+          left: i + 1,
+          top: j + 1,
+          spriteIndex: _kSea,
+        }
+      )
     }
   }
 
@@ -136,7 +138,7 @@ fun createWorldMap({
     }
   }
 
-  final landArea = (width * height * landProportion).truncate()
+  final landArea = (width * height * landProportion).floor()
 
   final minLeft = width ~/ 3
   final minTop = height ~/ 3
@@ -172,21 +174,27 @@ fun createWorldMap({
 
   // 计算地图上的区域
   fun calculateZone(left, top) {
-    final self = terrians[tilePos2Index(left, top)]
+    final self = terrains[tilePos2Index(left, top)]
     final neighbors = getNeighbors(left, top)
     var isAdjacent = false
     for (final pos in neighbors) {
       final neighbor = terrains[pos.index]
-      if (self.spriteIndex == tile.spriteIndex && tile.zoneIndex) {
-        self.zoneIndex = tile.zoneIndex
-        ++zones[tile.zoneIndex]['count']
+      if (self.spriteIndex == neighbor.spriteIndex && neighbor.zoneIndex) {
+        self.zoneIndex = neighbor.zoneIndex
+        ++zones[neighbor.zoneIndex]['count']
         isAdjacent = true
-        break;
+        break
       }
     }
     if (!isAdjacent) {
       final zone = newZone()
       self['zoneIndex'] = zone.index
+    }
+  }
+  
+  for (var j = 0; j < height; ++j) {
+    for (var i = 0; i < width; ++i) {
+      calculateZone(i + 1, j + 1)
     }
   }
 
@@ -212,6 +220,7 @@ fun createWorldMap({
     tileOffsetY: 2.0,
     terrains,
     zones,
+    tapSelect: true,
   }
   
   final future = MapComponent.fromJson(data.toJson())

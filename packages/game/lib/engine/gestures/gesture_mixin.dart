@@ -5,7 +5,8 @@ import 'package:flame/game.dart';
 import 'package:flame/components.dart' show PositionType;
 
 import '../extensions.dart';
-import '../../ui/pointer_detector.dart' show TouchDetails;
+import '../../ui/pointer_detector.dart'
+    show TouchDetails, MouseMoveUpdateDetails;
 
 export 'package:flutter/gestures.dart'
     show
@@ -35,20 +36,21 @@ mixin HandlesGesture on GameComponent {
     }
   }
 
-  void onTap(int pointer) {}
-  void onTapDown(int pointer, TapDownDetails details) {}
-  void onTapUp(int pointer, TapUpDetails details) {}
-  void onDoubleTap(int pointer, TapUpDetails details) {}
+  void onTap(int pointer, int buttons) {}
+  void onTapDown(int pointer, int buttons, TapDownDetails details) {}
+  void onTapUp(int pointer, int buttons, TapUpDetails details) {}
+  void onDoubleTap(int pointer, int buttons, TapUpDetails details) {}
   void onTapCancel() {}
-  void onDragStart(int pointer, DragStartDetails details) {}
-  void onDragUpdate(int pointer, DragUpdateDetails details) {}
-  void onDragEnd(int pointer) {}
+  void onDragStart(int pointer, int buttons, DragStartDetails details) {}
+  void onDragUpdate(int pointer, int buttons, DragUpdateDetails details) {}
+  void onDragEnd(int pointer, int buttons) {}
   void onScaleStart(List<TouchDetails> touches, ScaleStartDetails details) {}
   void onScaleUpdate(List<TouchDetails> touches, ScaleUpdateDetails details) {}
   void onScaleEnd() {}
-  void onLongPress(LongPressStartDetails details) {}
+  void onLongPress(int buttons, LongPressStartDetails details) {}
+  void onMouseMove(MouseMoveUpdateDetails details) {}
 
-  void handleTapDown(int pointer, TapDownDetails details) {
+  void handleTapDown(int pointer, int buttons, TapDownDetails details) {
     if (!enableGesture || (tapPointer != null)) return;
     final pointerPosition = details.localPosition.toVector2();
     final convertedPointerPosition = positionType != PositionType.game
@@ -56,11 +58,11 @@ mixin HandlesGesture on GameComponent {
         : gameRef.camera.screenToWorld(pointerPosition);
     if (containsPoint(convertedPointerPosition)) {
       tapPointer = pointer;
-      onTapDown(pointer, details);
+      onTapDown(pointer, buttons, details);
     }
   }
 
-  void handleTapUp(int pointer, TapUpDetails details) {
+  void handleTapUp(int pointer, int buttons, TapUpDetails details) {
     if (!enableGesture || (tapPointer != pointer)) {
       tapPointer = null;
       return;
@@ -78,7 +80,7 @@ mixin HandlesGesture on GameComponent {
       } else {
         _cleanupTimer();
         if (tapPointer == pointer) {
-          onDoubleTap(pointer, details);
+          onDoubleTap(pointer, buttons, details);
         } else {
           doubleTapTimer =
               Timer(Duration(milliseconds: doubleTapTimeConsider), () {
@@ -86,15 +88,15 @@ mixin HandlesGesture on GameComponent {
           });
         }
       }
-      onTapUp(pointer, details);
-      onTap(pointer);
+      onTapUp(pointer, buttons, details);
+      onTap(pointer, buttons);
     } else {
       onTapCancel();
     }
     tapPointer = null;
   }
 
-  void handleDragStart(int pointer, DragStartDetails details) {
+  void handleDragStart(int pointer, int buttons, DragStartDetails details) {
     if (!enableGesture) return;
     final pointerPosition = details.localPosition.toVector2();
     final convertedPointerPosition = positionType != PositionType.game
@@ -102,20 +104,20 @@ mixin HandlesGesture on GameComponent {
         : gameRef.camera.screenToWorld(pointerPosition);
     if (containsPoint(convertedPointerPosition)) {
       isDragging = true;
-      onDragStart(pointer, details);
+      onDragStart(pointer, buttons, details);
     }
   }
 
-  void handleDragUpdate(int pointer, DragUpdateDetails details) {
+  void handleDragUpdate(int pointer, int buttons, DragUpdateDetails details) {
     if (!enableGesture || !isDragging) return;
     final pointerPosition = details.localPosition.toVector2();
     final convertedPointerPosition = positionType != PositionType.game
         ? pointerPosition
         : gameRef.camera.screenToWorld(pointerPosition);
     if (containsPoint(convertedPointerPosition)) {
-      onDragUpdate(pointer, details);
+      onDragUpdate(pointer, buttons, details);
     } else {
-      handleDragEnd(pointer);
+      handleDragEnd(pointer, buttons);
       if ((tapPointer != null) && (tapPointer == pointer)) {
         onTapCancel();
         tapPointer = null;
@@ -123,11 +125,11 @@ mixin HandlesGesture on GameComponent {
     }
   }
 
-  void handleDragEnd(int pointer) {
+  void handleDragEnd(int pointer, int buttons) {
     if (!enableGesture) return;
     if (isDragging && (tapPointer == pointer)) {
       isDragging = false;
-      onDragEnd(pointer);
+      onDragEnd(pointer, buttons);
     }
     tapPointer = null;
   }
@@ -181,14 +183,26 @@ mixin HandlesGesture on GameComponent {
     tapPointer = null;
   }
 
-  void handleLongPress(int pointer, LongPressStartDetails details) {
+  void handleLongPress(
+      int pointer, int buttons, LongPressStartDetails details) {
     if (!enableGesture || tapPointer != pointer) return;
     final pointerPosition = details.localPosition.toVector2();
     final convertedPointerPosition = positionType != PositionType.game
         ? pointerPosition
         : gameRef.camera.screenToWorld(pointerPosition);
     if (containsPoint(convertedPointerPosition)) {
-      onLongPress(details);
+      onLongPress(buttons, details);
+    }
+  }
+
+  void handleMouseMove(MouseMoveUpdateDetails details) {
+    if (!enableGesture) return;
+    final pointerPosition = details.localPosition.toVector2();
+    final convertedPointerPosition = positionType != PositionType.game
+        ? pointerPosition
+        : gameRef.camera.screenToWorld(pointerPosition);
+    if (containsPoint(convertedPointerPosition)) {
+      onMouseMove(details);
     }
   }
 }

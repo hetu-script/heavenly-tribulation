@@ -49,6 +49,11 @@ class MapTile extends GameComponent {
   static const defaultAnimationStepTime = 0.4;
   static const defaultScale = 2.0;
 
+  static final borderPaint = Paint()
+    ..strokeWidth = 0.5
+    ..style = PaintingStyle.stroke
+    ..color = Colors.blue;
+
   final Sprite? sprite;
   final SpriteAnimation? animation;
   final double offsetX, offsetY;
@@ -103,7 +108,7 @@ class MapTile extends GameComponent {
       case TileShape.hexagonalVertical:
         bl = (left - 1) * gridWidth * (3 / 4);
         bt = left.isOdd
-            ? (top - 1) * gridHeight + offsetY
+            ? (top - 1) * gridHeight
             : (top - 1) * gridHeight + gridHeight / 2;
         path.moveTo(bl, bt + gridHeight / 2);
         path.relativeLineTo(gridWidth / 4, -gridHeight / 2);
@@ -158,11 +163,6 @@ class MapTile extends GameComponent {
     //   ..strokeWidth = 0.1
     //   ..style = PaintingStyle.stroke
     //   ..color = Colors.red;
-
-    final borderPaint = Paint()
-      ..strokeWidth = 0.5
-      ..style = PaintingStyle.stroke
-      ..color = Colors.blue;
     // switch (tileType) {
     //   case TileType.orthogonal:
     // canvas.drawRect(rect, borderPaint);

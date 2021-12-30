@@ -1,7 +1,10 @@
+import 'package:flutter/material.dart';
+
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
+import 'package:tian_dao_qi_jie/ui/pointer_detector.dart';
 
 import '../../gestures/gesture_mixin.dart';
 import '../../extensions.dart';
@@ -14,9 +17,15 @@ enum WorldStyle {
 }
 
 class MapComponent extends GameComponent with HandlesGesture {
+  static final selectedPaint = Paint()
+    ..strokeWidth = 1
+    ..style = PaintingStyle.stroke
+    ..color = Colors.yellow;
+
   @override
   Camera get camera => gameRef.camera;
 
+  final TileShape tileShape;
   int entryX, entryY;
   final Vector2 tileSize;
 
@@ -29,19 +38,21 @@ class MapComponent extends GameComponent with HandlesGesture {
   Vector2 mapScreenSize = Vector2.zero();
   Vector2 mapStartPosition = Vector2.zero();
 
-  final TileShape tileShape;
+  final bool tapSelect;
+  Terrain? selectedTerrain;
 
   MapComponent({
     required this.tileShape,
     required this.entryX,
     required this.entryY,
-    required double screenTileWidth,
-    required double screenTileHeight,
+    required double gridWidth,
+    required double gridHeight,
     required this.terrains,
     this.entities = const {},
+    this.tapSelect = false,
   })  : mapTileHeight = terrains.length,
         mapTileWidth = terrains.first.length,
-        tileSize = Vector2(screenTileWidth, screenTileHeight) {
+        tileSize = Vector2(gridWidth, gridHeight) {
     assert(terrains.isNotEmpty);
     scale = Vector2(MapTile.defaultScale, MapTile.defaultScale);
   }
@@ -76,6 +87,8 @@ class MapComponent extends GameComponent with HandlesGesture {
     final terrainsData = data['terrains'];
     final roomData = data['rooms'];
     final entitiyData = data['entities'];
+
+    final tapSelect = data['tapSelect'] ?? false;
 
     final List<List<Terrain>> terrains = [];
     for (var j = 0; j < mapTileHeight; ++j) {
@@ -142,10 +155,11 @@ class MapComponent extends GameComponent with HandlesGesture {
       tileShape: tileShape,
       entryX: entryX,
       entryY: entryY,
-      screenTileWidth: gridWidth,
-      screenTileHeight: gridHeight,
+      gridWidth: gridWidth,
+      gridHeight: gridHeight,
       terrains: terrains,
       entities: entities,
+      tapSelect: tapSelect,
     );
   }
 
@@ -170,13 +184,18 @@ class MapComponent extends GameComponent with HandlesGesture {
         positions.add(TilePosition(left, top - 1));
         positions.add(TilePosition(left + 1, top));
         positions.add(TilePosition(left, top + 1));
-        positions.add(TilePosition(left - 1, top + 1));
-        positions.add(TilePosition(left + 1, top + 1));
+        if (left % 2 == 0) {
+          positions.add(TilePosition(left + 1, top + 1));
+          positions.add(TilePosition(left - 1, top + 1));
+        } else {
+          positions.add(TilePosition(left - 1, top - 1));
+          positions.add(TilePosition(left + 1, top - 1));
+        }
         break;
       case TileShape.isometric:
-        throw 'Isometric map tile is not supported yet!';
+        throw 'Get neighbors of Isometric map tile is not supported yet!';
       case TileShape.hexagonalHorizontal:
-        throw 'Vertical hexagonal map tile is not supported yet!';
+        throw 'Get neighbors of Vertical hexagonal map tile is not supported yet!';
     }
     return positions;
   }
@@ -244,51 +263,125 @@ class MapComponent extends GameComponent with HandlesGesture {
 
   void moveToTerrain(int left, int top) {
     final tile = getTerrain(left, top);
-    if (tile == null) {
-      return;
+    if (tile != null) {
+      _moveToTerrain(tile);
     }
-
-    _moveToTerrain(tile);
   }
 
-  Vector2 worldPositionToScreen(Vector2 position) {
+  Vector2 worldPosition2Screen(Vector2 position) {
     return position - camera.position;
   }
 
-  Vector2 screenPositionToWorld(Vector2 position) {
+  Vector2 screenPosition2World(Vector2 position) {
     return position + camera.position;
   }
 
-  TilePosition screenPositionToTile(Vector2 position) {
-    final worldPos = screenPositionToWorld(position);
-    final left = (worldPos.x / tileSize.x / scale.x).truncate();
-    final top = (worldPos.y / tileSize.y / scale.x).truncate();
+  TilePosition screenPosition2Tile(Vector2 position) {
+    final worldPos = screenPosition2World(position);
+    late final int left, top;
 
+    switch (tileShape) {
+      case TileShape.orthogonal:
+        left = (worldPos.x / scale.x / tileSize.x).floor();
+        top = (worldPos.y / scale.x / tileSize.y).floor();
+        break;
+      case TileShape.hexagonalVertical:
+        int l = (worldPos.x / (tileSize.x * 3 / 4) / scale.x).floor() + 1;
+        final inTilePosX =
+            worldPos.x / scale.x - (l - 1) * (tileSize.x * 3 / 4);
+        late final double inTilePosY;
+        int t;
+        if (l % 2 == 0) {
+          t = ((worldPos.y / scale.y - tileSize.y / 2) / tileSize.y).floor() +
+              1;
+          inTilePosY = tileSize.y / 2 -
+              (worldPos.y / scale.y - tileSize.y / 2) % tileSize.y;
+        } else {
+          t = (worldPos.y / scale.y / tileSize.y).floor() + 1;
+          inTilePosY = tileSize.y / 2 - (worldPos.y / scale.y) % tileSize.y;
+        }
+        if (inTilePosX < tileSize.x / 4) {
+          if (l % 2 == 0) {
+            if (inTilePosY >= 0) {
+              if (inTilePosY / inTilePosX > tileSize.y / tileSize.x * 2) {
+                left = l - 1;
+                top = t;
+              } else {
+                left = l;
+                top = t;
+              }
+            } else {
+              if (-inTilePosY / inTilePosX > tileSize.y / tileSize.x * 2) {
+                left = l - 1;
+                top = t + 1;
+              } else {
+                left = l;
+                top = t;
+              }
+            }
+          } else {
+            if (inTilePosY >= 0) {
+              if (inTilePosY / inTilePosX > tileSize.y / tileSize.x * 2) {
+                left = l - 1;
+                top = t - 1;
+              } else {
+                left = l;
+                top = t;
+              }
+            } else {
+              if (-inTilePosY / inTilePosX > tileSize.y / tileSize.x * 2) {
+                left = l - 1;
+                top = t;
+              } else {
+                left = l;
+                top = t;
+              }
+            }
+          }
+        } else {
+          left = l;
+          top = t;
+        }
+        break;
+      case TileShape.isometric:
+        throw 'Get Isometric map tile position from screen position is not supported yet!';
+      case TileShape.hexagonalHorizontal:
+        throw 'Get Horizontal hexagonal map tile position from screen position is not supported yet!';
+    }
     return TilePosition(left, top);
   }
 
   @override
-  void onDragUpdate(int pointer, DragUpdateDetails details) {
+  void onDragUpdate(int pointer, int buttons, DragUpdateDetails details) {
     camera.snapTo(camera.position - details.delta.toVector2());
   }
 
   @override
-  void onTapUp(int pointer, TapUpDetails details) {
+  void onTapUp(int pointer, int buttons, TapUpDetails details) {
     final screenPosition = details.globalPosition.toVector2();
 
     // print('clicked!');
-    // print('world position: $position');
+    // print('world position: ${screenPosition2World(screenPosition)}');
     // print('camera position: ${camera.position}');
     // print('screen position: $screenPosition');
-    // print('tile position: $tilePosition');
+    // print('tile position: ${screenPosition2Tile(screenPosition)}');
 
-    final tilePos = screenPositionToTile(screenPosition);
+    final tilePos = screenPosition2Tile(screenPosition);
     final tile = getTerrain(tilePos.left, tilePos.top);
-    if (tile != null && tile.isRoom && tile.isVisible) {
-      gameRef.game.hetu.invoke('handleTileInteraction',
-          positionalArgs: [tile.left, tile.top]);
+    if (tile != null) {
+      if (tile.isRoom && tile.isVisible) {
+        gameRef.game.hetu.invoke('handleTileInteraction',
+            positionalArgs: [tile.left, tile.top]);
+      }
+
+      if (tapSelect) {
+        selectedTerrain = tile;
+      }
     }
   }
+
+  @override
+  void onMouseMove(MouseMoveUpdateDetails details) {}
 
   @override
   void update(double dt) {
@@ -301,6 +394,17 @@ class MapComponent extends GameComponent with HandlesGesture {
     for (final entity in entities.values) {
       entity.update(dt);
     }
+  }
+
+  @override
+  void renderTree(Canvas canvas) {
+    super.renderTree(canvas);
+    canvas.save();
+    canvas.transform(transformMatrix.storage);
+    if (selectedTerrain != null) {
+      canvas.drawPath(selectedTerrain!.path, selectedPaint);
+    }
+    canvas.restore();
   }
 
   @override

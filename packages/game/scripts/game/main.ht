@@ -16,10 +16,6 @@ import 'l10n/predefined_localizations.ht'
 import 'data/predefined_dialogs.ht'
 import 'data/predefined_characters.ht'
 
-import 'names/names.ht' as names
-
-export { names }
-
 fun init({lang = 'zh', dartGame: SamsaraGame}) {
   if (game.debug) {
     print('河图: 初始化游戏 ...')
