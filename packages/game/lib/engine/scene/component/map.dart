@@ -9,6 +9,7 @@ import 'package:tian_dao_qi_jie/ui/pointer_detector.dart';
 import '../../gestures/gesture_mixin.dart';
 import '../../extensions.dart';
 import 'tile.dart';
+import '../../game.dart';
 
 enum WorldStyle {
   innerland,
@@ -26,7 +27,7 @@ class MapComponent extends GameComponent with HandlesGesture {
   Camera get camera => gameRef.camera;
 
   final TileShape tileShape;
-  int entryX, entryY;
+  final int entryX, entryY;
   final Vector2 tileSize;
 
   List<List<Terrain>> terrains;
@@ -42,6 +43,7 @@ class MapComponent extends GameComponent with HandlesGesture {
   Terrain? selectedTerrain;
 
   MapComponent({
+    required SamsaraGame game,
     required this.tileShape,
     required this.entryX,
     required this.entryY,
@@ -52,12 +54,14 @@ class MapComponent extends GameComponent with HandlesGesture {
     this.tapSelect = false,
   })  : mapTileHeight = terrains.length,
         mapTileWidth = terrains.first.length,
-        tileSize = Vector2(gridWidth, gridHeight) {
+        tileSize = Vector2(gridWidth, gridHeight),
+        super(game: game) {
     assert(terrains.isNotEmpty);
     scale = Vector2(MapTile.defaultScale, MapTile.defaultScale);
   }
 
-  static Future<MapComponent> fromJson(Map<String, dynamic> data) async {
+  static Future<MapComponent> fromJson(
+      SamsaraGame game, Map<String, dynamic> data) async {
     final tileShapeData = data['tileShape'];
     var tileShape = TileShape.orthogonal;
     if (tileShapeData == 'isometric') {
@@ -113,6 +117,7 @@ class MapComponent extends GameComponent with HandlesGesture {
           isEntry = true;
         }
         final tile = Terrain(
+          game: game,
           shape: tileShape,
           left: i + 1,
           top: j + 1,
@@ -140,6 +145,7 @@ class MapComponent extends GameComponent with HandlesGesture {
       for (final key in entitiyData.keys) {
         final entityData = entitiyData[key];
         final entity = await Entity.fromJson(
+            game: game,
             type: tileShape,
             gridWidth: gridWidth,
             gridHeight: gridHeight,
@@ -152,6 +158,7 @@ class MapComponent extends GameComponent with HandlesGesture {
     }
 
     return MapComponent(
+      game: game,
       tileShape: tileShape,
       entryX: entryX,
       entryY: entryY,

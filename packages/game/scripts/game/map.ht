@@ -223,7 +223,7 @@ fun createWorldMap({
     tapSelect: true,
   }
   
-  final future = MapComponent.fromJson(data.toJson())
+  final future = MapComponent.fromJson(dart, data.toJson())
   future.then((value) {
     game.world = value
   })

@@ -236,12 +236,8 @@ class _GameAppState extends State<GameApp>
         }
       }
     } else {
-      shouSceneUI();
+      game.currentScene!.init();
       return game.currentScene!.widget;
     }
-  }
-
-  Future<void> shouSceneUI() async {
-    game.currentScene!.showUI();
   }
 }

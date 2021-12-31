@@ -44,7 +44,7 @@ class MapComponentClassBinding extends HTExternalClass {
             {List<dynamic> positionalArgs = const [],
             Map<String, dynamic> namedArgs = const {},
             List<HTType> typeArgs = const []}) {
-          return MapComponent.fromJson(positionalArgs.first);
+          return MapComponent.fromJson(positionalArgs[0], positionalArgs[1]);
         };
       default:
         throw HTError.undefined(varName);

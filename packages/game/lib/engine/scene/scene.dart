@@ -28,23 +28,24 @@ class SceneEvent extends Event {
       : this(eventName: SceneEvents.ended, sceneKey: sceneKey);
 }
 
-class Scene extends FlameGame {
-  static const gameOverlayUIs = 'gameOverlayUIs';
-
+abstract class Scene extends FlameGame {
   final String key;
 
   final SamsaraGame game;
 
-  final void Function() onQuit;
-
   Scene({
     required this.key,
     required this.game,
-    required this.onQuit,
   });
 
-  void showUI() {
-    overlays.add(gameOverlayUIs);
+  Map<String, Widget Function(BuildContext, Scene)>? get overlayBuilderMap;
+
+  void init() async {
+    if (overlayBuilderMap != null) {
+      for (final key in overlayBuilderMap!.keys) {
+        overlays.add(key);
+      }
+    }
   }
 
   void end() {
@@ -120,22 +121,7 @@ class Scene extends FlameGame {
     return PointerDetector(
       child: GameWidget(
         game: this,
-        overlayBuilderMap: {
-          gameOverlayUIs: (BuildContext ctx, Scene scene) {
-            return Material(
-              child: Stack(
-                children: <Widget>[
-                  Positioned(
-                    child: IconButton(
-                      onPressed: onQuit,
-                      icon: const Icon(Icons.menu_open),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-        },
+        overlayBuilderMap: overlayBuilderMap,
       ),
       onTapDown: onTapDown,
       onTapUp: onTapUp,

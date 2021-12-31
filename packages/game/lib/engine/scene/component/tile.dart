@@ -8,6 +8,7 @@ import 'package:flame/sprite.dart';
 import 'package:flame/extensions.dart';
 
 import '../../extensions.dart';
+import '../../game.dart';
 
 class TilePosition {
   final int left, top;
@@ -59,8 +60,9 @@ class MapTile extends GameComponent {
   final double offsetX, offsetY;
   final path = Path();
   late Rect rect;
-  final int left,
-      top; // the tile position (compare to screen position or world position)
+
+  /// the tile position (compare to screen position or world position)
+  final int left, top;
   final double gridWidth, gridHeight;
 
   final TileShape shape;
@@ -69,6 +71,7 @@ class MapTile extends GameComponent {
   final int zoneIndex;
 
   MapTile({
+    required SamsaraGame game,
     required this.shape,
     this.renderDirection = TileRenderDirection.rightBottom,
     required this.left,
@@ -83,7 +86,7 @@ class MapTile extends GameComponent {
     this.animation,
     this.offsetX = 0.0,
     this.offsetY = 0.0,
-  }) {
+  }) : super(game: game) {
     width = srcWidth;
     height = srcHeight;
     generateRect();
@@ -193,6 +196,7 @@ class Terrain extends MapTile {
   bool isCleared = false;
 
   Terrain({
+    required SamsaraGame game,
     required TileShape shape,
     TileRenderDirection renderDirection = TileRenderDirection.rightBottom,
     required int left,
@@ -210,6 +214,7 @@ class Terrain extends MapTile {
     double offsetX = 0.0,
     double offsetY = 0.0,
   }) : super(
+          game: game,
           shape: shape,
           renderDirection: renderDirection,
           left: left,
@@ -231,6 +236,7 @@ class Entity extends MapTile {
   final String id;
 
   Entity({
+    required SamsaraGame game,
     required TileShape shape,
     TileRenderDirection renderDirection = TileRenderDirection.rightBottom,
     required this.id,
@@ -246,6 +252,7 @@ class Entity extends MapTile {
     double offsetX = 0.0,
     double offsetY = 0.0,
   }) : super(
+          game: game,
           shape: shape,
           renderDirection: renderDirection,
           left: left,
@@ -262,7 +269,8 @@ class Entity extends MapTile {
         );
 
   static Future<Entity> fromJson(
-      {required TileShape type,
+      {required SamsaraGame game,
+      required TileShape type,
       required double gridWidth,
       required double gridHeight,
       required double spriteSrcWidth,
@@ -302,6 +310,7 @@ class Entity extends MapTile {
     }
 
     return Entity(
+      game: game,
       shape: type,
       id: id,
       left: left,
