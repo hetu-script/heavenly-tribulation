@@ -10,6 +10,10 @@ class WorldMapScene extends Scene {
 
   MapComponent? map;
 
+  @override
+  late final Map<String, Widget Function(BuildContext, Scene)>
+      overlayBuilderMap;
+
   WorldMapScene({
     required SamsaraGame game,
     required void Function() onQuit,
@@ -31,17 +35,12 @@ class WorldMapScene extends Scene {
       },
       'tileInfo': tileInfoBuilder,
     };
+
+    game.registerListener(MapEvents.tileTapped, (event) {
+      overlays.remove('tileInfo');
+      overlays.add('tileInfo');
+    });
   }
-
-  // @override
-  // void render(Canvas canvas) {
-  //   super.render(canvas);
-
-  //   if (map.selectedTerrain != null) {
-  //     camera.apply(canvas);
-  //     canvas.drawPath(map.selectedTerrain!.path, MapComponent.selectedPaint);
-  //   }
-  // }
 
   @override
   Future<void> onLoad() async {
@@ -54,25 +53,38 @@ class WorldMapScene extends Scene {
     _loaded = true;
   }
 
-  @override
-  late final Map<String, Widget Function(BuildContext, Scene)>
-      overlayBuilderMap;
-
-  Widget tileInfoBuilder(BuildContext ctx, Scene scene) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: <Widget>[
-        SizedBox(
-          width: 200,
-          child: Column(
-            children: <Widget>[
-              Text(
-                  'X: ${map?.selectedTerrain?.left}, Y: ${map?.selectedTerrain?.top}'),
-              Text('ZondeIndex: ${map?.selectedTerrain?.zoneIndex}'),
-            ],
-          ),
+  Widget tileInfoBuilder(BuildContext context, Scene scene) {
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.all(5.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            const Spacer(),
+            SizedBox(
+              height: 200,
+              width: 240,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10.0),
+                  border: Border.all(color: Colors.lightBlue.withOpacity(0.5)),
+                ),
+                child: Column(
+                  children: <Widget>[
+                    Text(
+                        'X: ${map?.selectedTerrain?.left}, Y: ${map?.selectedTerrain?.top}'),
+                    Text('ZondeIndex: ${map?.selectedTerrain?.zoneIndex}'),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

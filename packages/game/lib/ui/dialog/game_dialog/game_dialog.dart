@@ -79,7 +79,7 @@ class _GameDialogState extends State<GameDialog> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
-              Expanded(child: Container()),
+              const Spacer(),
               Container(
                 height: 240,
                 decoration: BoxDecoration(

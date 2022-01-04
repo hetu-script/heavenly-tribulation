@@ -10,6 +10,25 @@ import '../../gestures/gesture_mixin.dart';
 import '../../extensions.dart';
 import 'tile.dart';
 import '../../game.dart';
+import '../../event/event.dart';
+
+abstract class MapEvents {
+  static const tileTapped = 'tile_tapped';
+}
+
+class MapEvent extends Event {
+  final Terrain? terrain;
+  final Entity? entity;
+
+  const MapEvent({
+    required String eventName,
+    this.terrain,
+    this.entity,
+  }) : super(eventName);
+
+  const MapEvent.tileTapped({required Terrain terrain, Entity? entity})
+      : this(eventName: MapEvents.tileTapped, terrain: terrain, entity: entity);
+}
 
 enum WorldStyle {
   innerland,
@@ -383,6 +402,8 @@ class MapComponent extends GameComponent with HandlesGesture {
 
       if (tapSelect) {
         selectedTerrain = tile;
+
+        game.broadcast(MapEvent.tileTapped(terrain: tile));
       }
     }
   }

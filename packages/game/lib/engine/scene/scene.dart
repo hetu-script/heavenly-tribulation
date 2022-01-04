@@ -29,6 +29,8 @@ class SceneEvent extends Event {
 }
 
 abstract class Scene extends FlameGame {
+  static const menuUIBuilderMapKey = 'menu';
+
   final String key;
 
   final SamsaraGame game;
@@ -41,10 +43,9 @@ abstract class Scene extends FlameGame {
   Map<String, Widget Function(BuildContext, Scene)>? get overlayBuilderMap;
 
   void init() async {
-    if (overlayBuilderMap != null) {
-      for (final key in overlayBuilderMap!.keys) {
-        overlays.add(key);
-      }
+    if (overlayBuilderMap != null &&
+        overlayBuilderMap!.containsKey(menuUIBuilderMapKey)) {
+      overlays.add(menuUIBuilderMapKey);
     }
   }
 
