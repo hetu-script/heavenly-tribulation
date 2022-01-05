@@ -29,7 +29,7 @@ class SceneEvent extends Event {
 }
 
 abstract class Scene extends FlameGame {
-  static const menuUIBuilderMapKey = 'menu';
+  static const overlayUIBuilderMapKey = 'overlayUI';
 
   final String key;
 
@@ -44,8 +44,8 @@ abstract class Scene extends FlameGame {
 
   void init() async {
     if (overlayBuilderMap != null &&
-        overlayBuilderMap!.containsKey(menuUIBuilderMapKey)) {
-      overlays.add(menuUIBuilderMapKey);
+        overlayBuilderMap!.containsKey(overlayUIBuilderMapKey)) {
+      overlays.add(overlayUIBuilderMapKey);
     }
   }
 

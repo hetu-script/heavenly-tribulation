@@ -14,7 +14,7 @@ class MazeScene extends Scene {
     required SamsaraGame game,
     required void Function() onQuit,
   })  : overlayBuilderMap = {
-          'menu': (BuildContext ctx, Scene scene) {
+          'overlayUI': (BuildContext context, Scene scene) {
             return Material(
               child: Stack(
                 children: <Widget>[
