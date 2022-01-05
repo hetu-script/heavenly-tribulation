@@ -11,6 +11,7 @@ import '../../extensions.dart';
 import 'tile.dart';
 import '../../game.dart';
 import '../../event/event.dart';
+import 'zone.dart';
 
 abstract class MapEvents {
   static const tileTapped = 'tile_tapped';
@@ -51,6 +52,7 @@ class MapComponent extends GameComponent with HandlesGesture {
 
   List<List<Terrain>> terrains;
   Map<String, Entity> entities;
+  List<Zone> zones;
 
   final int mapTileWidth;
   final int mapTileHeight;
@@ -70,6 +72,7 @@ class MapComponent extends GameComponent with HandlesGesture {
     required double gridHeight,
     required this.terrains,
     this.entities = const {},
+    this.zones = const [],
     this.tapSelect = false,
   })  : mapTileHeight = terrains.length,
         mapTileWidth = terrains.first.length,
@@ -110,6 +113,14 @@ class MapComponent extends GameComponent with HandlesGesture {
     final terrainsData = data['terrains'];
     final roomData = data['rooms'];
     final entitiyData = data['entities'];
+    final zonesData = data['zones'];
+
+    final zones = <Zone>[];
+    for (final zoneData in zonesData) {
+      final index = zoneData['index'];
+      final name = zoneData['name'];
+      zones.add(Zone(index: index, name: name));
+    }
 
     final tapSelect = data['tapSelect'] ?? false;
 
@@ -184,6 +195,7 @@ class MapComponent extends GameComponent with HandlesGesture {
       gridWidth: gridWidth,
       gridHeight: gridHeight,
       terrains: terrains,
+      zones: zones,
       entities: entities,
       tapSelect: tapSelect,
     );

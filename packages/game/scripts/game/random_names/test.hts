@@ -1,14 +1,3 @@
-import 'names.ht'
+import 'random_names.ht'
 
-print(getName(10))
-print(getDao(10))
-print(getSkill(10))
-print(getBook(10))
-print(getCreature(10))
-print(getMaterial(10))
-print(getAlchemy(10))
-print(getTalisman(10))
-print(getClan(10))
-print(getNation(10))
-print(getLocation(10))
-print(getContinent(10))
+print(getZone(10))

@@ -71,3 +71,9 @@ final kCreature = {
     text: '甲虫',
   }
 };
+
+final kZoneCategory = [
+  'land',
+  'water',
+  'void',
+]

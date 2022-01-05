@@ -37,11 +37,13 @@ fun loadWorldMap(jsonData) {
 ///
 /// 将当前方块变成陆地，检查陆地比例，如果不够，就从当前陆地边界中随机挑选一个方块，将其变成陆地，同时重新计算边界。
 
-const _defaultWorldWidth = 4
-const _defaultWorldHeight = 4
-const _kSea = 1;
-const _kShelf = 2;
-const _kLand = 3;
+const _defaultWorldWidth = 12
+const _defaultWorldHeight = 12
+const _kWater = 1
+const _kShelf = 2
+const _kLand = 3
+const _kLandCategory = 'land'
+const _kWaterCategory = 'water'
 
 fun createWorldMap({
       terrainSpriteSheet: str,
@@ -82,7 +84,7 @@ fun createWorldMap({
         {
           left: i + 1,
           top: j + 1,
-          spriteIndex: _kSea,
+          spriteIndex: _kWater,
           index: tilePos2Index(i + 1, j + 1),
         }
       )
@@ -92,15 +94,16 @@ fun createWorldMap({
   final zones = []
 
   // 新建一个区域，返回区域index，区域保存为一个列表
-  fun newZone(kind) {
+  fun newZone({name: str, category: str, count: int}) {
+    assert(category != null)
     final index = zones.length
-    final zone = { index, kind, }
+    final zone = { index, name, category, count: count ?? 1 }
     zones.add(zone)
     return zone
   }
 
-  // 没有区域，也是一个区域，默认 zoneIndex = 0
-  newZone()
+  // 没有区域，也是一个区域
+  newZone(name: '虚空之境', category: 'void', count: 0)
   
   fun getNeighbors(left, top) {
     final neighbors = []
@@ -140,14 +143,14 @@ fun createWorldMap({
     delete shelf[tilePos2Index(left, top)]
     final neighbors = getNeighbors(left, top)
     for (final tile in neighbors) {
-      if (tile.spriteIndex == _kSea) {
+      if (tile.spriteIndex == _kWater) {
         shelf[tile.index] = true
       }
     }
   }
 
+  // 生成大陆区块
   final landArea = (width * height * landProportion).floor()
-  // final landArea = 4
 
   final minLeft = width ~/ 3
   final minTop = height ~/ 3
@@ -159,7 +162,7 @@ fun createWorldMap({
   // print('start: ${startLeft},${startTop}')
   final startIndex = tilePos2Index(startLeft, startTop)
   terrains[startIndex]['spriteIndex'] = _kLand;
-  final landZone = newZone()
+  final landZone = newZone(category: 'land')
   terrains[startIndex]['zoneIndex'] = landZone.index;
   updateShelf(startLeft, startTop)
 
@@ -174,95 +177,80 @@ fun createWorldMap({
     tile.zoneIndex = landZone.index;
   }
 
+  landZone.count = landArea
+
+  // 计算地图上的区域
+  final perimeter = {}
+
   final needReCalculate = []
-  fun findNeighborZone(tile) {
+
+  fun updateZone(tile) {
+    // skip tiles that has zoned or tiles being processed
     if (tile.zoneIndex != null) {
       return
     }
+    // print('processing: ${tile.left},${tile.top}, spriteIndex: ${tile.spriteIndex}')
+    tile.zoneIndex = -1 // mark this tile is being processed, will skip it when process others
     final neighbors = getNeighbors(tile.left, tile.top)
     var foundAdjacentZone = false
     for (final neighbor in neighbors) {
-      if (neighbor.zoneIndex != null && tile.spriteIndex == neighbor.spriteIndex) {
-        tile.zoneIndex = neighbor.zoneIndex
-        // ++zones[neighbor.zoneIndex]['count']
-        foundAdjacentZone = true
-        // print('Found neighbor at left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, neighborLeft: ${neighbor.left}, neighborTop: ${neighbor.top}, zoneIndex: ${neighbor.zoneIndex}')
-        break
+    // skip tiles that has diffrent spriteIndex and those still being processed
+      if (tile.spriteIndex != neighbor.spriteIndex || neighbor.zoneIndex == -1) {
+        continue
       }
+      if (neighbor.zoneIndex == null) {
+        updateZone(neighbor)
+      }
+      assert(neighbor.zoneIndex > 0)
+      tile.zoneIndex = neighbor.zoneIndex
+      ++zones[neighbor.zoneIndex]['count']
+      foundAdjacentZone = true
+      // print('Found neighbor at left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, neighborLeft: ${neighbor.left}, neighborTop: ${neighbor.top}, zoneIndex: ${neighbor.zoneIndex}')
+      break
     }
     if (!foundAdjacentZone) {
-      final zone = newZone()
+      final zone = newZone(category: tile.spriteIndex == _kLand ? _kLandCategory : _kWaterCategory)
       tile.zoneIndex = zone.index
       // print('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneIndex: ${zone.index}')
     }
-    tile.hasZone = true
+    updatePerimeter(tile.left, tile.top)
   }
-  
-  fun getRightBottomNeighbors(left, top) {
-    final neighbors = []
-    if (isPositionWithinMap(left + 1, top)) {
-      neighbors.add(terrains[tilePos2Index(left + 1, top)])
-    }
-    if (isPositionWithinMap(left, top + 1)) {
-      neighbors.add(terrains[tilePos2Index(left, top + 1)])
-    }
-    if (left % 2 == 0) {
-      if (isPositionWithinMap(left + 1, top + 1)) {
-        neighbors.add(terrains[tilePos2Index(left + 1, top + 1)])
-      }
-      if (isPositionWithinMap(left - 1, top + 1)) {
-        neighbors.add(terrains[tilePos2Index(left - 1, top + 1)])
-      }
-    } else {
-      if (isPositionWithinMap(left - 1, top)) {
-        neighbors.add(terrains[tilePos2Index(left - 1, top)])
-      }
-      if (isPositionWithinMap(left + 1, top - 1)) {
-        neighbors.add(terrains[tilePos2Index(left + 1, top - 1)])
-      }
-    }
-    return neighbors
-  }
-
-  // 计算地图上的区域
-  final perimeter = {};
 
   fun updatePerimeter(left, top) {
-    final neighbors = getRightBottomNeighbors(left, top)
+    perimeter[tilePos2Index(left, top)] = false
+    final neighbors = getNeighbors(left, top)
     for (final tile in neighbors) {
-      if (!tile.hasZone) {
+      if (!perimeter[tile.index]) {
         perimeter[tile.index] = true
       }
     }
   }
 
-  findNeighborZone(terrains.first)
-  updatePerimeter(1, 1)
-
-  var currentIndex = 0
-  while (currentIndex < terrains.length) {
-    final indexes = perimeter.keys
-    for (final index in indexes) {
-      final tile = terrains[int.parse(index)]
-      // print('processing: ${tile.left},${tile.top}')
-      ++currentIndex
-      findNeighborZone(tile)
-      updatePerimeter(tile.left, tile.top)
-    }
-    for (final index in indexes) {
-      delete perimeter[index]
-    }
-    // print('current perimeter:')
-    // for (final index in perimeter.keys) {
-    //   print(index2TilePos(index))
-    // }
-    // print('---')
+  fun getUnzonedTile() {
+    return terrains.firstWhere((tile) {
+        tile.zoneIndex == null || tile.zoneIndex == -1
+      }, orElse: () {})
   }
 
-  // for (final index in shelf.keys) {
-  //   final i = int.parse(index)
-  //   setTerrain(i, _kShelf)
-  // }
+  var unzonedTile
+
+  while (unzonedTile = getUnzonedTile()) {
+    updateZone(unzonedTile)
+  }
+
+  for (final zone in zones) {
+    if (zone.name) {
+      continue
+    }
+    final names = getZone(1, category: zone.category)
+    zone.name = names.first.name
+  }
+
+  // 因为区域算法要检查 spriteIndex，所以最后再填充大陆架
+  for (final index in shelf.keys) {
+    final tile = terrains[int.parse(index)]
+    tile.spriteIndex = _kShelf;
+  }
 
   final data = {
     terrainSpriteSheet,

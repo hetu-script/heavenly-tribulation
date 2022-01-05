@@ -24,6 +24,8 @@ class WorldMapScene extends Scene {
       'overlayUI': (BuildContext context, Scene scene) {
         final widgets = <Widget>[
           Positioned(
+            left: 5,
+            top: 5,
             child: Container(
               color: Colors.white,
               child: IconButton(
@@ -35,35 +37,29 @@ class WorldMapScene extends Scene {
         ];
         if (showTileInfo) {
           widgets.add(
-            Container(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              padding: const EdgeInsets.all(5.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  const Spacer(),
-                  SizedBox(
-                    height: 200,
-                    width: 240,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10.0),
-                        border: Border.all(
-                            color: Colors.lightBlue.withOpacity(0.5)),
-                      ),
-                      child: Column(
-                        children: <Widget>[
-                          Text(
-                              'X: ${map?.selectedTerrain?.left}, Y: ${map?.selectedTerrain?.top}'),
-                          Text(
-                              'ZondeIndex: ${map?.selectedTerrain?.zoneIndex}'),
-                        ],
-                      ),
-                    ),
+            Positioned(
+              left: 5,
+              bottom: 5,
+              child: SizedBox(
+                height: 200,
+                width: 240,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10.0),
+                    border:
+                        Border.all(color: Colors.lightBlue.withOpacity(0.5)),
                   ),
-                ],
+                  child: Column(
+                    children: <Widget>[
+                      Text(
+                          'X: ${map!.selectedTerrain!.left}, Y: ${map!.selectedTerrain!.top}'),
+                      Text('ZoneIndex: ${map!.selectedTerrain!.zoneIndex}'),
+                      Text(
+                          'ZoneName: ${map!.zones[map!.selectedTerrain!.zoneIndex].name}'),
+                    ],
+                  ),
+                ),
               ),
             ),
           );

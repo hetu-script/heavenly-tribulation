@@ -11,6 +11,7 @@ export 'duel.ht'
 export 'relationship.ht'
 export 'resource.ht'
 export 'entity.ht'
+export 'random_names/random_names.ht'
 
 import 'l10n/predefined_localizations.ht'
 import 'data/predefined_dialogs.ht'
@@ -20,7 +21,7 @@ fun init({lang = 'zh', dartGame: SamsaraGame}) {
   if (game.debug) {
     print('河图: 初始化游戏 ...')
   }
-  
+
   dart = dartGame
 
   setCurrentLanguage(lang)
