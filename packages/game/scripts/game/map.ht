@@ -37,8 +37,8 @@ fun loadWorldMap(jsonData) {
 ///
 /// 将当前方块变成陆地，检查陆地比例，如果不够，就从当前陆地边界中随机挑选一个方块，将其变成陆地，同时重新计算边界。
 
-const _defaultWorldWidth = 16
-const _defaultWorldHeight = 16
+const _defaultWorldWidth = 4
+const _defaultWorldHeight = 4
 const _kSea = 1;
 const _kShelf = 2;
 const _kLand = 3;
@@ -82,7 +82,6 @@ fun createWorldMap({
         {
           left: i + 1,
           top: j + 1,
-          // zoneIndex: 0,
           spriteIndex: _kSea,
           index: tilePos2Index(i + 1, j + 1),
         }
@@ -100,6 +99,7 @@ fun createWorldMap({
     return zone
   }
 
+  // 没有区域，也是一个区域，默认 zoneIndex = 0
   newZone()
   
   fun getNeighbors(left, top) {
@@ -156,6 +156,7 @@ fun createWorldMap({
 
   final startLeft = Math.randomInt(maxLeft - minLeft) + minLeft
   final startTop = Math.randomInt(maxTop - minTop) + minTop
+  // print('start: ${startLeft},${startTop}')
   final startIndex = tilePos2Index(startLeft, startTop)
   terrains[startIndex]['spriteIndex'] = _kLand;
   final landZone = newZone()
@@ -180,49 +181,82 @@ fun createWorldMap({
     }
     final neighbors = getNeighbors(tile.left, tile.top)
     var foundAdjacentZone = false
-    var noNeighborHaveZoneInfo = true
     for (final neighbor in neighbors) {
-      if (neighbor.zoneIndex != null) {
-        noNeighborHaveZoneInfo = false
-        if (tile.spriteIndex == neighbor.spriteIndex) {
-          tile.zoneIndex = neighbor.zoneIndex
-          // ++zones[neighbor.zoneIndex]['count']
-          foundAdjacentZone = true
-          print('Found neighbor at left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, neighborLeft: ${neighbor.left}, neighborTop: ${neighbor.top}, zoneIndex: ${neighbor.zoneIndex}')
-          break
-        }
+      if (neighbor.zoneIndex != null && tile.spriteIndex == neighbor.spriteIndex) {
+        tile.zoneIndex = neighbor.zoneIndex
+        // ++zones[neighbor.zoneIndex]['count']
+        foundAdjacentZone = true
+        // print('Found neighbor at left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, neighborLeft: ${neighbor.left}, neighborTop: ${neighbor.top}, zoneIndex: ${neighbor.zoneIndex}')
+        break
       }
     }
     if (!foundAdjacentZone) {
       final zone = newZone()
       tile.zoneIndex = zone.index
-      print('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneIndex: ${zone.index}')
+      // print('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneIndex: ${zone.index}')
     }
+    tile.hasZone = true
+  }
+  
+  fun getRightBottomNeighbors(left, top) {
+    final neighbors = []
+    if (isPositionWithinMap(left + 1, top)) {
+      neighbors.add(terrains[tilePos2Index(left + 1, top)])
+    }
+    if (isPositionWithinMap(left, top + 1)) {
+      neighbors.add(terrains[tilePos2Index(left, top + 1)])
+    }
+    if (left % 2 == 0) {
+      if (isPositionWithinMap(left + 1, top + 1)) {
+        neighbors.add(terrains[tilePos2Index(left + 1, top + 1)])
+      }
+      if (isPositionWithinMap(left - 1, top + 1)) {
+        neighbors.add(terrains[tilePos2Index(left - 1, top + 1)])
+      }
+    } else {
+      if (isPositionWithinMap(left - 1, top)) {
+        neighbors.add(terrains[tilePos2Index(left - 1, top)])
+      }
+      if (isPositionWithinMap(left + 1, top - 1)) {
+        neighbors.add(terrains[tilePos2Index(left + 1, top - 1)])
+      }
+    }
+    return neighbors
   }
 
   // 计算地图上的区域
   final perimeter = {};
 
   fun updatePerimeter(left, top) {
-    final neighbors = getNeighbors(left, top)
+    final neighbors = getRightBottomNeighbors(left, top)
     for (final tile in neighbors) {
-      perimeter[tile.index] = true
+      if (!tile.hasZone) {
+        perimeter[tile.index] = true
+      }
     }
   }
 
-  updatePerimeter(startLeft, startTop)
-  var calculatedNum = 1
-  while (calculatedNum < terrains.length) {
+  findNeighborZone(terrains.first)
+  updatePerimeter(1, 1)
+
+  var currentIndex = 0
+  while (currentIndex < terrains.length) {
     final indexes = perimeter.keys
     for (final index in indexes) {
       final tile = terrains[int.parse(index)]
-      ++calculatedNum
+      // print('processing: ${tile.left},${tile.top}')
+      ++currentIndex
       findNeighborZone(tile)
       updatePerimeter(tile.left, tile.top)
     }
     for (final index in indexes) {
       delete perimeter[index]
     }
+    // print('current perimeter:')
+    // for (final index in perimeter.keys) {
+    //   print(index2TilePos(index))
+    // }
+    // print('---')
   }
 
   // for (final index in shelf.keys) {
