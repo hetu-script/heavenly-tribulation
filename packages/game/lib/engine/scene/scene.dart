@@ -50,7 +50,7 @@ abstract class Scene extends FlameGame {
   }
 
   void end() {
-    game.broadcast(SceneEvent.ended(sceneKey: key));
+    game.leaveScene(key);
   }
 
   Vector2 get screenCenter => size / 2;
@@ -139,10 +139,8 @@ abstract class Scene extends FlameGame {
 }
 
 class SceneController {
-  static var _instanceIndex = 0;
-
-  Scene? get currentScene =>
-      _cachedScenes.isNotEmpty ? _cachedScenes.values.last : null;
+  Scene? _currentScene;
+  Scene? get currentScene => _currentScene;
 
   String? get currentSceneName {
     if (_cachedScenes.isNotEmpty) {
@@ -163,24 +161,25 @@ class SceneController {
   }
 
   @mustCallSuper
-  Future<Scene> createScene(String name) async {
-    final constructor = _sceneConstructors[name]!;
-    final Scene scene = await constructor();
-    _cachedScenes['$name${_instanceIndex++}'] = scene;
-    return scene;
-  }
-
-  Future<void> switchScene(String name) async {
-    final _cached = _cachedScenes[name];
+  Future<Scene> enterScene(String key) async {
+    final _cached = _cachedScenes[key];
     if (_cached != null) {
-      _cachedScenes.remove(name);
-      _cachedScenes.addAll({name: _cached});
+      _currentScene = _cached;
+      return _cached;
+    } else {
+      final constructor = _sceneConstructors[key]!;
+      final Scene scene = await constructor();
+      _cachedScenes[key] = scene;
+      return scene;
     }
   }
 
-  void leaveScene() {
-    if (_cachedScenes.isNotEmpty) {
-      _cachedScenes.remove(_cachedScenes.keys.last);
+  void leaveScene(String key) {
+    assert(_cachedScenes.containsKey(key));
+    final scene = _cachedScenes[key]!;
+    _cachedScenes.remove(key);
+    if (_currentScene?.key == scene.key) {
+      _currentScene = null;
     }
   }
 }

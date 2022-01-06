@@ -48,10 +48,16 @@ class SamsaraGame with SceneController, EventAggregator {
   }
 
   @override
-  Future<Scene> createScene(String name) async {
-    final Scene scene = await super.createScene(name);
+  Future<Scene> enterScene(String key) async {
+    final scene = await super.enterScene(key);
     broadcast(SceneEvent.started(sceneKey: scene.key));
     return scene;
+  }
+
+  @override
+  void leaveScene(String key) {
+    super.leaveScene(key);
+    broadcast(SceneEvent.ended(sceneKey: key));
   }
 
   static int _getYear(int timestamp) => timestamp ~/ _ticksPerYear;

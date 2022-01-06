@@ -12,7 +12,6 @@ class MazeScene extends Scene {
 
   MazeScene({
     required SamsaraGame game,
-    required void Function() onQuit,
   })  : overlayBuilderMap = {
           'overlayUI': (BuildContext context, Scene scene) {
             return Material(
@@ -20,7 +19,9 @@ class MazeScene extends Scene {
                 children: <Widget>[
                   Positioned(
                     child: IconButton(
-                      onPressed: onQuit,
+                      onPressed: () {
+                        game.leaveScene('Maze');
+                      },
                       icon: const Icon(Icons.menu_open),
                     ),
                   ),

@@ -18,7 +18,6 @@ class WorldMapScene extends Scene {
 
   WorldMapScene({
     required SamsaraGame game,
-    required void Function() onQuit,
   }) : super(key: 'WorldMap', game: game) {
     overlayBuilderMap = {
       'overlayUI': (BuildContext context, Scene scene) {
@@ -29,7 +28,9 @@ class WorldMapScene extends Scene {
             child: Container(
               color: Colors.white,
               child: IconButton(
-                onPressed: onQuit,
+                onPressed: () {
+                  game.leaveScene('WorldMap');
+                },
                 icon: const Icon(Icons.menu_open),
               ),
             ),
