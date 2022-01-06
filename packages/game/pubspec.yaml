@@ -1,11 +1,11 @@
 name: tian_dao_qi_jie
 description: A Xianxia genre RPG game, mixed with Roguelike/Tycoon elements. Game logic is written in Hetu Script.
-publish_to: "none"
+publish_to: 'none'
 
 version: 0.0.1
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:
@@ -57,6 +57,7 @@ flutter:
     - scripts/game/l10n/
     - scripts/game/l10n/zh_name/
     - scripts/game/data/
+    - scripts/game/generator/
     - scripts/game/random_names/
     - scripts/game/random_names/data/
     - scripts/game/random_names/data/alchemy/

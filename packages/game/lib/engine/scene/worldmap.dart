@@ -84,7 +84,7 @@ class WorldMapScene extends Scene {
   Future<void> onLoad() async {
     await super.onLoad();
 
-    map = await game.hetu.invoke('createWorldMap', namedArgs: {
+    map = await game.hetu.invoke('createWorld', namedArgs: {
       'terrainSpriteSheet': 'fantasyhextiles_v3_borderless.png',
     });
     add(map!);

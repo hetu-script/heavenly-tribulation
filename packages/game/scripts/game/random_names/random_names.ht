@@ -60,6 +60,25 @@ export {
   getZone,
 }
 
+final common = [
+  ...commonNames.dao,
+  ...commonNames.element,
+  ...commonNames.creature,
+  ...commonNames.thing,
+  ...commonNames.color,
+  ...commonNames.place,
+  ...commonNames.adj,
+  ...commonNames.number,
+  ...commonNames.gesture,
+  ...commonNames.action,
+];
+
+final locations = [
+  ...location.water,
+  ...location.shore,
+  ...location.land,
+]
+
 fun getRarity(max) {
   var rarity
   final value = Math.random() * (max || 1.0)
@@ -88,19 +107,6 @@ const _kBookLeft = "《";
 const _kBookRight = "》";
 
 const _kLinkWord = '之'
-
-final common = [
-  ...commonNames.dao,
-  ...commonNames.element,
-  ...commonNames.creature,
-  ...commonNames.thing,
-  ...commonNames.color,
-  ...commonNames.place,
-  ...commonNames.adj,
-  ...commonNames.number,
-  ...commonNames.gesture,
-  ...commonNames.action,
-];
 
 fun getName(number: int, {isFemale, style, familyName, middleCharacter}) {
   final names = []
@@ -657,7 +663,7 @@ fun getLocation(number: int, {kind}) {
       name = place[placeIndex] + postfix
     }
     if (!kind) {
-      k = location[Math.randomInt(location.length)]
+      k = locations[Math.randomInt(locations.length)]
     }
     names.add({ name: name + k, rarity })
   }

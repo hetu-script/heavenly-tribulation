@@ -1,0 +1,10 @@
+import 'component.ht'
+
+fun createMaze(data) {
+  game.mazes.current = data
+  final future = MapComponent.fromJson(data.toJson())
+  future.then((value) {
+    game.mazes.current.component = value
+  })
+  return future
+}

@@ -408,7 +408,7 @@ class MapComponent extends GameComponent with HandlesGesture {
     final tile = getTerrain(tilePos.left, tilePos.top);
     if (tile != null) {
       if (tile.isRoom && tile.isVisible) {
-        gameRef.game.hetu.invoke('handleTileInteraction',
+        gameRef.game.hetu.invoke('handleMazeTileInteraction',
             positionalArgs: [tile.left, tile.top]);
       }
 
