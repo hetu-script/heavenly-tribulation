@@ -58,19 +58,19 @@ flutter:
     - scripts/game/l10n/zh_name/
     - scripts/game/data/
     - scripts/game/generator/
-    - scripts/game/random_names/
-    - scripts/game/random_names/data/
-    - scripts/game/random_names/data/alchemy/
-    - scripts/game/random_names/data/book/
-    - scripts/game/random_names/data/creature/
-    - scripts/game/random_names/data/dao/
-    - scripts/game/random_names/data/material/
-    - scripts/game/random_names/data/name/
-    - scripts/game/random_names/data/organization/
-    - scripts/game/random_names/data/place/
-    - scripts/game/random_names/data/shared/
-    - scripts/game/random_names/data/skill/
-    - scripts/game/random_names/data/talisman/
+    - scripts/game/generator/random_names/
+    - scripts/game/generator/random_names/data/
+    - scripts/game/generator/random_names/data/alchemy/
+    - scripts/game/generator/random_names/data/book/
+    - scripts/game/generator/random_names/data/creature/
+    - scripts/game/generator/random_names/data/dao/
+    - scripts/game/generator/random_names/data/material/
+    - scripts/game/generator/random_names/data/name/
+    - scripts/game/generator/random_names/data/organization/
+    - scripts/game/generator/random_names/data/place/
+    - scripts/game/generator/random_names/data/shared/
+    - scripts/game/generator/random_names/data/skill/
+    - scripts/game/generator/random_names/data/talisman/
     - scripts/core/
     - scripts/core/l10n/
     - scripts/core/data/

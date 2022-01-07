@@ -11,7 +11,7 @@ export 'duel.ht'
 export 'relationship.ht'
 export 'resource.ht'
 export 'entity.ht'
-export 'random_names/random_names.ht'
+export 'generator/random_names/random_names.ht'
 
 import 'l10n/predefined_localizations.ht'
 import 'data/predefined_dialogs.ht'

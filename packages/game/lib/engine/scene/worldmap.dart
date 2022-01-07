@@ -26,7 +26,14 @@ class WorldMapScene extends Scene {
             left: 5,
             top: 5,
             child: Container(
-              color: Colors.white,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(
+                  width: 2,
+                  color: Colors.lightBlue.withOpacity(0.5),
+                ),
+              ),
               child: IconButton(
                 onPressed: () {
                   game.leaveScene('WorldMap');
@@ -37,29 +44,44 @@ class WorldMapScene extends Scene {
           ),
         ];
         if (showTileInfo) {
+          final tileInfoContent = <Widget>[
+            Text(
+                'X: ${map!.selectedTerrain!.left}, Y: ${map!.selectedTerrain!.top}'),
+            Text('地域: ${map!.zones[map!.selectedTerrain!.zoneIndex].name}'),
+          ];
+          if (map!.selectedEntity != null) {
+            tileInfoContent.add(
+              Row(
+                children: <Widget>[
+                  Text('据点: ${map!.selectedEntity!.name}'),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: () {},
+                    child: const Text('查看详情'),
+                  )
+                ],
+              ),
+            );
+          }
           widgets.add(
             Positioned(
               left: 5,
               bottom: 5,
-              child: SizedBox(
+              child: Container(
                 height: 200,
                 width: 240,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10.0),
-                    border:
-                        Border.all(color: Colors.lightBlue.withOpacity(0.5)),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(5.0),
+                  border: Border.all(
+                    width: 2,
+                    color: Colors.lightBlue.withOpacity(0.5),
                   ),
-                  child: Column(
-                    children: <Widget>[
-                      Text(
-                          'X: ${map!.selectedTerrain!.left}, Y: ${map!.selectedTerrain!.top}'),
-                      Text('ZoneIndex: ${map!.selectedTerrain!.zoneIndex}'),
-                      Text(
-                          'ZoneName: ${map!.zones[map!.selectedTerrain!.zoneIndex].name}'),
-                    ],
-                  ),
+                ),
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: tileInfoContent,
                 ),
               ),
             ),

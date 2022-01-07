@@ -62,6 +62,7 @@ class MapComponent extends GameComponent with HandlesGesture {
 
   final bool tapSelect;
   Terrain? selectedTerrain;
+  Entity? selectedEntity;
 
   // 从坐标得到索引
   int tilePos2Index(int left, int top) {
@@ -123,7 +124,6 @@ class MapComponent extends GameComponent with HandlesGesture {
     final entryX = data['entry']['x'] as int;
     final entryY = data['entry']['y'] as int;
     final terrainsData = data['terrains'];
-    final roomData = data['rooms'];
 
     final zonesData = data['zones'];
     final zones = <Zone>[];
@@ -139,20 +139,35 @@ class MapComponent extends GameComponent with HandlesGesture {
     for (var j = 0; j < mapTileHeight; ++j) {
       terrains.add([]);
       for (var i = 0; i < mapTileWidth; ++i) {
-        final blockId = j * mapTileWidth + i;
-        final terrain = terrainsData[blockId];
-        final spriteId = terrain['spriteIndex'];
+        final terrain = terrainsData[i + j * mapTileWidth];
+        final spritePath = terrain['sprite'];
+        final spriteIndex = terrain['spriteIndex'];
+        final animationPath = terrain['animation'];
+        int animationFrameCount = terrain['animationFrameCount'] ?? 1;
         Sprite? sprite;
-        if (spriteId > 0) {
-          sprite = terrainSpriteSheet.getSpriteById(spriteId - 1);
+        if (spritePath != null) {
+          sprite = await Sprite.load(
+            spritePath,
+            srcSize: Vector2(tileSpriteSrcWidth, tileSpriteSrcHeight),
+          );
+        } else if (spriteIndex != null) {
+          sprite = terrainSpriteSheet.getSpriteById(spriteIndex - 1);
         }
-
+        SpriteAnimation? animation;
+        if (animationPath != null) {
+          final sheet = SpriteSheet(
+              image: await Flame.images.load(animationPath),
+              srcSize: Vector2(
+                tileSpriteSrcWidth,
+                tileSpriteSrcHeight,
+              ));
+          animation = sheet.createAnimation(
+              row: 0,
+              stepTime: MapTile.defaultAnimationStepTime,
+              from: 0,
+              to: animationFrameCount);
+        }
         final zoneIndex = terrain['zoneIndex'];
-
-        var isRoom = false;
-        if (roomData != null && roomData[blockId] > 0) {
-          isRoom = true;
-        }
         var isEntry = false;
         if (i + 1 == entryX && j + 1 == entryY) {
           isEntry = true;
@@ -168,9 +183,8 @@ class MapComponent extends GameComponent with HandlesGesture {
           gridHeight: gridHeight,
           isVisible: true,
           zoneIndex: zoneIndex,
-          isRoom: isRoom,
-          isVisited: isEntry,
           sprite: sprite,
+          animation: animation,
           offsetX: tileOffsetX,
           offsetY: tileOffsetY,
         );
@@ -186,15 +200,58 @@ class MapComponent extends GameComponent with HandlesGesture {
     if (entitiyData != null) {
       for (final key in entitiyData.keys) {
         final entityData = entitiyData[key];
-        final entity = await Entity.fromJson(
-            game: game,
-            type: tileShape,
-            gridWidth: gridWidth,
-            gridHeight: gridHeight,
-            spriteSrcWidth: tileSpriteSrcWidth,
-            spriteSrcHeight: tileSpriteSrcHeight,
-            isVisible: true,
-            jsonData: entityData);
+        final String id = entityData['id'];
+        final String name = entityData['name'];
+        final int left = entityData['left'];
+        final int top = entityData['top'];
+        final double srcWidth = entityData['srcWidth'];
+        final double srcHeight = entityData['srcHeight'];
+        final double offsetX = entityData['offsetX'] ?? 0.0;
+        final double offsetY = entityData['offsetY'] ?? 0.0;
+        final String? spritePath = entityData['sprite'];
+        final int? spriteIndex = entityData['spriteIndex'];
+        final String? animationPath = entityData['animation'];
+        final int? animationFrameCount = entityData['animationFrameCount'] ?? 1;
+        Sprite? sprite;
+        if (spritePath != null) {
+          sprite = await Sprite.load(
+            spritePath,
+            srcSize: Vector2(tileSpriteSrcWidth, tileSpriteSrcHeight),
+          );
+        } else if (spriteIndex != null) {
+          sprite = terrainSpriteSheet.getSpriteById(spriteIndex - 1);
+        }
+        SpriteAnimation? animation;
+        if (animationPath != null) {
+          final sheet = SpriteSheet(
+              image: await Flame.images.load(animationPath),
+              srcSize: Vector2(
+                srcWidth,
+                srcHeight,
+              ));
+          animation = sheet.createAnimation(
+              row: 0,
+              stepTime: MapTile.defaultAnimationStepTime,
+              from: 0,
+              to: animationFrameCount);
+        }
+        final entity = Entity(
+          id: id,
+          name: name,
+          game: game,
+          shape: tileShape,
+          left: left,
+          top: top,
+          srcWidth: srcWidth,
+          srcHeight: srcHeight,
+          gridWidth: gridWidth,
+          gridHeight: gridHeight,
+          isVisible: true,
+          sprite: sprite,
+          animation: animation,
+          offsetX: offsetX,
+          offsetY: offsetY,
+        );
         entities[key] = entity;
       }
     }
@@ -278,22 +335,22 @@ class MapComponent extends GameComponent with HandlesGesture {
   }
 
   void _lightUpAroundTerrain(Terrain tile) {
-    final neighbors = getNeighborTilePositions(tile.left, tile.top);
-    for (final pos in neighbors) {
-      final neighbor = getTerrainByPosition(pos);
-      if (neighbor != null && !neighbor.isVoid) {
-        if (neighbor.isVisible) {
-          continue;
-        } else {
-          neighbor.isVisible = true;
-          final entity = getEntity(neighbor.left, neighbor.top);
-          entity?.isVisible = true;
-          if (!neighbor.isRoom) {
-            _lightUpAroundTerrain(neighbor);
-          }
-        }
-      }
-    }
+    // final neighbors = getNeighborTilePositions(tile.left, tile.top);
+    // for (final pos in neighbors) {
+    //   final neighbor = getTerrainByPosition(pos);
+    //   if (neighbor != null && !neighbor.isVoid) {
+    //     if (neighbor.isVisible) {
+    //       continue;
+    //     } else {
+    //       neighbor.isVisible = true;
+    //       final entity = getEntity(neighbor.left, neighbor.top);
+    //       entity?.isVisible = true;
+    //       if (!neighbor.isRoom) {
+    //         _lightUpAroundTerrain(neighbor);
+    //       }
+    //     }
+    //   }
+    // }
   }
 
   void lightUpAroundTerrain(int left, int top) {
@@ -417,18 +474,18 @@ class MapComponent extends GameComponent with HandlesGesture {
     // print('tile position: ${screenPosition2Tile(screenPosition)}');
 
     final tilePos = screenPosition2Tile(screenPosition);
-    final tile = getTerrain(tilePos.left, tilePos.top);
-    if (tile != null) {
-      if (tile.isRoom && tile.isVisible) {
-        gameRef.game.hetu.invoke('handleMazeTileInteraction',
-            positionalArgs: [tile.left, tile.top]);
-      }
-
+    final terrain = getTerrain(tilePos.left, tilePos.top);
+    final entity = entities['${tilePos.left},${tilePos.top}'];
+    if (terrain != null) {
+      // if (tile.isRoom && tile.isVisible) {
+      //   gameRef.game.hetu.invoke('handleMazeTileInteraction',
+      //       positionalArgs: [tile.left, tile.top]);
+      // }
       if (tapSelect) {
-        selectedTerrain = tile;
-
-        game.broadcast(MapEvent.tileTapped(terrain: tile));
+        selectedTerrain = terrain;
+        selectedEntity = entity;
       }
+      game.broadcast(MapEvent.tileTapped(terrain: terrain, entity: entity));
     }
   }
 

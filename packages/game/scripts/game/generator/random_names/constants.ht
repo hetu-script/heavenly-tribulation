@@ -48,32 +48,29 @@ final kRarity = {
   },
 }
 
-final kCreature = {
-  plant: {
-    text: '草木',
-  },
-  worm: {
-    text: '赢虫',
-  },
-  fish: {
-    text: '鱼',
-  },
-  beast: {
-    text: '兽',
-  },
-  bird: {
-    text: '鸟',
-  },
-  reptile: {
-    text: '爬虫',
-  },
-  insect: {
-    text: '甲虫',
-  }
+final kCreatureCategory = {
+  plant: '草木',
+  worm: '赢虫',
+  fish: '鱼',
+  beast: '兽',
+  bird: '鸟',
+  reptile: '爬虫',
+  insect: '甲虫',
 };
 
-final kZoneCategory = [
-  'land',
-  'water',
-  'void',
-]
+final kLocationCategory = {
+  shore: '滨岸',
+  mountain: '山地',
+  island: '岛屿',
+  city: '城市',
+}
+
+final kZoneCategory = {
+  void: '虚空',
+  water: '水域',
+  continent: '大洲',
+  land: '陆地',
+  lake: '湖泊',
+  mountain: '山脉',
+  forest: '树林',
+}

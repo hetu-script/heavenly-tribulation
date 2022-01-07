@@ -3,9 +3,9 @@ import 'dart:math';
 import 'package:quiver/core.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flame/flame.dart';
+// import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
-import 'package:flame/extensions.dart';
+// import 'package:flame/extensions.dart';
 
 import '../../extensions.dart';
 import '../../game.dart';
@@ -191,9 +191,6 @@ class MapTile extends GameComponent {
 
 class Terrain extends MapTile {
   bool get isVoid => sprite == null;
-  bool isRoom;
-  bool isVisited;
-  bool isCleared = false;
 
   Terrain({
     required SamsaraGame game,
@@ -207,8 +204,6 @@ class Terrain extends MapTile {
     required double gridHeight,
     required bool isVisible,
     required int zoneIndex,
-    this.isRoom = false,
-    this.isVisited = false,
     Sprite? sprite,
     SpriteAnimation? animation,
     double offsetX = 0.0,
@@ -234,12 +229,14 @@ class Terrain extends MapTile {
 
 class Entity extends MapTile {
   final String id;
+  final String name;
 
   Entity({
+    required this.id,
+    required this.name,
     required SamsaraGame game,
     required TileShape shape,
     TileRenderDirection renderDirection = TileRenderDirection.rightBottom,
-    required this.id,
     required int left,
     required int top,
     required double srcWidth,
@@ -267,65 +264,4 @@ class Entity extends MapTile {
           offsetX: offsetX,
           offsetY: offsetY,
         );
-
-  static Future<Entity> fromJson(
-      {required SamsaraGame game,
-      required TileShape type,
-      required double gridWidth,
-      required double gridHeight,
-      required double spriteSrcWidth,
-      required double spriteSrcHeight,
-      required bool isVisible,
-      required Map<String, dynamic> jsonData}) async {
-    String id = jsonData['id'];
-    int left = jsonData['x'];
-    int top = jsonData['y'];
-    double srcWidth = jsonData['srcWidth'];
-    double srcHeight = jsonData['srcHeight'];
-    double offsetX = jsonData['offsetX'] ?? 0.0;
-    double offsetY = jsonData['offsetY'] ?? 0.0;
-    String? spritePath = jsonData['sprite'];
-    String? spriteSheet = jsonData['spriteSheet'];
-    int? spriteSheetPosition = jsonData['spriteSheetPosition'];
-    String? animationPath = jsonData['animation'];
-    int animationFrameCount = jsonData['animationFrameCount'] ?? 1;
-    Sprite? sprite;
-    SpriteAnimation? animation;
-    if (spritePath != null) {
-      sprite = await Sprite.load(
-        spritePath,
-        srcSize: Vector2(srcWidth, srcHeight),
-      );
-    }
-    if (animationPath != null) {
-      final sheet = SpriteSheet(
-          image: await Flame.images.load(animationPath),
-          srcSize: Vector2(
-            srcWidth,
-            srcHeight,
-          ));
-      animation = sheet.createAnimation(
-          row: 0,
-          stepTime: MapTile.defaultAnimationStepTime,
-          from: 0,
-          to: animationFrameCount);
-    }
-
-    return Entity(
-      game: game,
-      shape: type,
-      id: id,
-      left: left,
-      top: top,
-      srcWidth: srcWidth,
-      srcHeight: srcHeight,
-      gridWidth: gridWidth,
-      gridHeight: gridHeight,
-      isVisible: isVisible,
-      sprite: sprite,
-      animation: animation,
-      offsetX: offsetX,
-      offsetY: offsetY,
-    );
-  }
 }

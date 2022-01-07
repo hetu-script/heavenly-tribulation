@@ -36,7 +36,8 @@ import 'data/alchemy/alchemy.json' as alchemy
 export {
   kSex,
   kRarity,
-  kCreature,
+  kCreatureCategory,
+  kLocationCategory,
   kZoneCategory,
 } from 'constants.ht'
 
@@ -55,6 +56,7 @@ export {
   getTalisman,
   getClan,
   getNation,
+  getLocationKind,
   getLocation,
   getZoneKind,
   getZone,
@@ -64,7 +66,7 @@ final common = [
   ...commonNames.dao,
   ...commonNames.element,
   ...commonNames.creature,
-  ...commonNames.thing,
+  ...commonNames.object,
   ...commonNames.color,
   ...commonNames.place,
   ...commonNames.adj,
@@ -78,6 +80,10 @@ final locations = [
   ...location.shore,
   ...location.land,
 ]
+
+final kLocationCategories = kLocationCategory.keys
+
+final kZoneCategories = kZoneCategory.keys
 
 fun getRarity(max) {
   var rarity
@@ -341,7 +347,7 @@ fun getCreature(number: int, {category, rarity}) {
     final s = creaturePrefix[Math.randomInt(creaturePrefix.length)]
     var cat = category
     if (!category) {
-      final creatureList = kCreature.keys
+      final creatureList = kCreatureCategory.keys
       cat =
         creatureList[Math.randomInt(creatureList.length)]
     }
@@ -640,11 +646,21 @@ fun getNation(number: int, {kind}) {
   return names
 }
 
-fun getLocation(number: int, {kind}) {
+fun getLocationKind(category: str) {
+  if (category != null) {
+    assert(kLocationCategories.contains(category))
+  } else {
+    category = kLocationCategories[Math.randomInt(kLocationCategories.length)];
+  }
+  final group = location[category]
+  return group[Math.randomInt(group.length)]
+}
+
+fun getLocation(number: int, {kind: str, category: str}) {
   final names = []
   for (var i = 0; i < number; ++i) {
     var name = ''
-    var k = kind ?? ''
+    var k = kind ?? getLocationKind(category);
     var rarity = 'common'
     final r = Math.random()
     if (r < kRarity.rare.probability) {
@@ -662,9 +678,6 @@ fun getLocation(number: int, {kind}) {
       }
       name = place[placeIndex] + postfix
     }
-    if (!kind) {
-      k = locations[Math.randomInt(locations.length)]
-    }
     names.add({ name: name + k, rarity })
   }
   return names
@@ -672,9 +685,9 @@ fun getLocation(number: int, {kind}) {
 
 fun getZoneKind(category: str) {
   if (category != null) {
-    assert(kZoneCategory.contains(category))
+    assert(kZoneCategories.contains(category))
   } else {
-    category = kZoneCategory[Math.randomInt(kZoneCategory.length)];
+    category = kZoneCategories[Math.randomInt(kZoneCategories.length)];
   }
   final group = zone[category]
   return group[Math.randomInt(group.length)]

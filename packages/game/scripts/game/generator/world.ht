@@ -1,4 +1,5 @@
 import 'component.ht'
+import 'random_names/random_names.ht'
 
 /// 生成世界地图的算法
 ///
@@ -36,7 +37,14 @@ fun createWorld({
       width = _defaultWorldWidth,
       height = _defaultWorldHeight,
       style = 'island',
-      landProportion = 0.55}) {
+      landProportion = 0.55,
+      gridWidth = 32.0,
+      gridHeight = 28.0,
+      tileSpriteSrcWidth = 32.0,
+      tileSpriteSrcHeight = 48.0,
+      tileOffsetX = 0.0,
+      tileOffsetY = 2.0,
+      }) {
 
   final terrains = []
 
@@ -56,9 +64,9 @@ fun createWorld({
   }
 
   // 从索引得到坐标
-  fun index2TilePos(index: str) {
-    final left = i % width + 1
-    final top = i ~/ width + 1
+  fun index2TilePos(index: int) {
+    final left = index % width + 1
+    final top = index ~/ width + 1
     return { left, top }
   }
 
@@ -66,10 +74,10 @@ fun createWorld({
     for (var i = 0; i < width; ++i) {
       terrains.add(
         {
+          index: tilePos2Index(i + 1, j + 1),
           left: i + 1,
           top: j + 1,
           spriteIndex: _kWater,
-          index: tilePos2Index(i + 1, j + 1),
         }
       )
     }
@@ -168,10 +176,9 @@ fun createWorld({
   // 生成地图上的不同地域
   final perimeter = {}
 
-  final needReCalculate = []
-
   // 根据相邻的格子的地域，分配区块
-  fun updateZone(tile) {
+  fun updateZone(tile, [spriteIndex]) {
+    spriteIndex ??= tile.spriteIndex
     // skip tiles that has zoned or tiles being processed
     if (tile.zoneIndex != null) {
       return
@@ -181,12 +188,12 @@ fun createWorld({
     final neighbors = getNeighbors(tile.left, tile.top)
     var foundAdjacentZone = false
     for (final neighbor in neighbors) {
-    // skip tiles that has diffrent spriteIndex and those still being processed
-      if (tile.spriteIndex != neighbor.spriteIndex || neighbor.zoneIndex == -1) {
+      // skip tiles that has diffrent spriteIndex and those still being processed
+      if (spriteIndex != neighbor.spriteIndex || neighbor.zoneIndex == -1) {
         continue
       }
       if (neighbor.zoneIndex == null) {
-        updateZone(neighbor)
+        updateZone(neighbor, tile.spriteIndex)
       }
       assert(neighbor.zoneIndex > 0)
       tile.zoneIndex = neighbor.zoneIndex
@@ -235,10 +242,19 @@ fun createWorld({
     zone.name = names.first.name
   }
 
-  // 因为区域算法要检查 spriteIndex，所以最后再填充大陆架
-  for (final index in shelf.keys) {
-    final tile = terrains[int.parse(index)]
-    tile.spriteIndex = _kShelf
+  fun getLocationCategory(tile) {
+    if (tile.spriteIndex == _kLand) {
+      final neighbors = getNeighbors(tile.left, tile.top)
+      for (final neighbor in neighbors) {
+        if (neighbor.spriteIndex == _kWater) {
+          return 'shore'
+        }
+      }
+      return 'city'
+    }
+    else {
+      return 'island'
+    }
   }
 
   // 生成据点
@@ -247,20 +263,37 @@ fun createWorld({
   var generatedIndexes = 0
   while (generatedIndexes++ < locationNumber) {
     final index = Math.randomInt(terrains.length)
+    final tile = terrains[index]
+    final category = getLocationCategory(tile)
     final pos = index2TilePos(index)
-    final names = getLocation(1)
+    final names = getLocation(1, category: category)
+    final name = names.first.name
     locations.add({
-      x: pos.left,
-      y: pos.top,
-      name: names.first.name
+      id: 'location_entity_${name}',
+      name,
+      shape: tileShape,
+      left: pos.left,
+      top: pos.top,
+      srcWidth: tileSpriteSrcWidth,
+      srcHeight: tileSpriteSrcHeight,
+      gridWidth,
+      gridHeight,
       spriteIndex: _kCity,
+      offsetX: tileOffsetX,
+      offsetY: tileOffsetY,
     })
   }
 
   final entities = {}
 
   for (final loc in locations) {
-    entities['${loc.x},${loc.y}'] = loc
+    entities['${loc.left},${loc.top}'] = loc
+  }
+
+  // 因为前面的算法要检查 spriteIndex，所以最后再填充大陆架
+  for (final index in shelf.keys) {
+    final tile = terrains[int.parse(index)]
+    tile.spriteIndex = _kShelf
   }
 
   final data = {
@@ -273,12 +306,12 @@ fun createWorld({
       x: startLeft,
       y: startTop,
     },
-    gridWidth: 32.0,
-    gridHeight: 28.0,
-    tileSpriteSrcWidth: 32.0,
-    tileSpriteSrcHeight: 48.0,
-    tileOffsetX: 0.0,
-    tileOffsetY: 2.0,
+    gridWidth,
+    gridHeight,
+    tileSpriteSrcWidth,
+    tileSpriteSrcHeight,
+    tileOffsetX,
+    tileOffsetY,
     terrains,
     zones,
     entities,
