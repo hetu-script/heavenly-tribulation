@@ -63,6 +63,18 @@ class MapComponent extends GameComponent with HandlesGesture {
   final bool tapSelect;
   Terrain? selectedTerrain;
 
+  // 从坐标得到索引
+  int tilePos2Index(int left, int top) {
+    return left - 1 + (top - 1) * mapTileWidth;
+  }
+
+  // 从索引得到坐标
+  TilePosition index2TilePos(int index) {
+    final left = index % mapTileWidth + 1;
+    final top = index ~/ mapTileHeight + 1;
+    return TilePosition(left, top);
+  }
+
   MapComponent({
     required SamsaraGame game,
     required this.tileShape,
@@ -112,9 +124,8 @@ class MapComponent extends GameComponent with HandlesGesture {
     final entryY = data['entry']['y'] as int;
     final terrainsData = data['terrains'];
     final roomData = data['rooms'];
-    final entitiyData = data['entities'];
-    final zonesData = data['zones'];
 
+    final zonesData = data['zones'];
     final zones = <Zone>[];
     for (final zoneData in zonesData) {
       final index = zoneData['index'];
@@ -170,6 +181,7 @@ class MapComponent extends GameComponent with HandlesGesture {
       }
     }
 
+    final entitiyData = data['entities'];
     final Map<String, Entity> entities = {};
     if (entitiyData != null) {
       for (final key in entitiyData.keys) {

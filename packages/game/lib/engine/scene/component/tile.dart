@@ -285,6 +285,8 @@ class Entity extends MapTile {
     double offsetX = jsonData['offsetX'] ?? 0.0;
     double offsetY = jsonData['offsetY'] ?? 0.0;
     String? spritePath = jsonData['sprite'];
+    String? spriteSheet = jsonData['spriteSheet'];
+    int? spriteSheetPosition = jsonData['spriteSheetPosition'];
     String? animationPath = jsonData['animation'];
     int animationFrameCount = jsonData['animationFrameCount'] ?? 1;
     Sprite? sprite;

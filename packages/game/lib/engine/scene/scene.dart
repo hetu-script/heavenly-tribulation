@@ -170,6 +170,7 @@ class SceneController {
       final constructor = _sceneConstructors[key]!;
       final Scene scene = await constructor();
       _cachedScenes[key] = scene;
+      _currentScene = scene;
       return scene;
     }
   }

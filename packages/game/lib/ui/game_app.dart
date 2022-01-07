@@ -64,6 +64,10 @@ class _GameAppState extends State<GameApp> with AutomaticKeepAliveClientMixin {
 
       // pass the build context to script
       game.hetu.invoke('build', positionalArgs: [context]);
+
+      setState(() {
+        isLoading = false;
+      });
     }();
   }
 

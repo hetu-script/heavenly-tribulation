@@ -57,7 +57,6 @@ fun createWorld({
 
   // 从索引得到坐标
   fun index2TilePos(index: str) {
-    final i = int.parse(index)
     final left = i % width + 1
     final top = i ~/ width + 1
     return { left, top }
@@ -244,13 +243,24 @@ fun createWorld({
 
   // 生成据点
   final locationNumber = terrains.length ~/ _kLocationDensity
-  final locationIndexes = []
+  final locations = []
   var generatedIndexes = 0
   while (generatedIndexes++ < locationNumber) {
     final index = Math.randomInt(terrains.length)
-    locationIndexes.add(index)
-    final tile = terrains[index]
-    tile.spriteIndex = _kCity
+    final pos = index2TilePos(index)
+    final names = getLocation(1)
+    locations.add({
+      x: pos.left,
+      y: pos.top,
+      name: names.first.name
+      spriteIndex: _kCity,
+    })
+  }
+
+  final entities = {}
+
+  for (final loc in locations) {
+    entities['${loc.x},${loc.y}'] = loc
   }
 
   final data = {
@@ -271,6 +281,7 @@ fun createWorld({
     tileOffsetY: 2.0,
     terrains,
     zones,
+    entities,
   }
   
   game.world = data
