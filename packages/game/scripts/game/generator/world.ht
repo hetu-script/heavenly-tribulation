@@ -47,17 +47,6 @@ struct Zone {
   }
 }
 
-struct HexDirections {
-  construct (initValue: bool) {
-    this.north = initValue
-    this.northWest = initValue
-    this.northEast = initValue
-    this.south = initValue
-    this.southWest = initValue
-    this.southEast = initValue
-  }
-}
-
 fun createWorld({
     terrainSpriteSheet: str,
     tileShape = 'hexagonalVertical',
@@ -104,7 +93,7 @@ fun createWorld({
           ...Tile(i + 1, j + 1),
           index: tilePos2Index(i + 1, j + 1),
           spriteIndex: _kWater,
-          links: HexDirections(false),
+          links: [],
         }
       )
     }
@@ -242,7 +231,7 @@ fun createWorld({
 
   // 计算两个格子之间的通路
   // 一次只计算一格
-  fun calculateNextRouteTile(tile1: {}, tile2: {}, {restrict2Zone: bool = true}) {
+  fun getNextRouteTile(tile1: {}, tile2: {}, {restrict2Zone: bool = true}) {
     final direction = getDirection(tile1, tile2)
     final neighbors = getNeighbors(tile1.left, tile1.top, restrict2Zone: restrict2Zone)
     when(direction) {
@@ -325,7 +314,7 @@ fun createWorld({
     // 两个据点在相同地域
     if (zone1.index == zone2.index) {
       do {
-        final nextRoutTile = calculateNextRouteTile(tile1, tile2, restrict2Zone: true)
+        final nextRoutTile = getNextRouteTile(tile1, tile2, restrict2Zone: true)
         route.add(nextRoutTile)
       } while (nextRoutTile.index != tile2.index)
     }
@@ -336,6 +325,10 @@ fun createWorld({
     // 据点 1 所在地域相比据点 2 所在的地域较小
     else {
 
+    }
+
+    for (final tile in route) {
+      
     }
   }
 
@@ -471,6 +464,7 @@ fun createWorld({
       } else {
         final distance = getTileDistance(origin, location)
         if (nearestDistance == null || distance < nearestDistance) {
+          if (!restrict2Zone || tile.zoneIndex == origin.zoneIndex) 
           nearestDistance = distance
           tile = location
         }
@@ -513,11 +507,16 @@ fun createWorld({
     }
   }
 
-
   final entities = {}
 
-  for (final loc in locations) {
+  for (final location in locations) {
     entities['${loc.left},${loc.top}'] = loc
+    if (!location.links) {
+      final neighbor = findNearestLocation(location, restrict2Zone: true)
+      if (neighbor) {
+        calculateRoute(location, neighbor)
+      }
+    }
   }
 
   // 因为前面的算法要检查 spriteIndex，所以最后再填充大陆架
