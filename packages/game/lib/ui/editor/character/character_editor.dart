@@ -183,7 +183,7 @@ class _CharacterEditorState extends State<CharacterEditor>
   }
 
   void _randomizeSex() {
-    data['characterIsFemale'] = Random().nextInt(10) % 2 == 0;
+    data['characterIsFemale'] = Random().nextInt(10).isEven;
   }
 
   void _randomize() {

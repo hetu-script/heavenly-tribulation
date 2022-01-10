@@ -1,4 +1,5 @@
 import 'component.ht'
+import 'hexagonal_tile.ht'
 import 'random_names/random_names.ht'
 
 /// 生成世界地图的算法
@@ -29,24 +30,62 @@ const _kLand = 3
 const _kCity = 4
 const _kLandCategory = 'land'
 const _kWaterCategory = 'water'
-const _kLocationDensity = 32 // 据点密度，32 意味着每有 32 个格子，就会有一个据点
+const _kLocationDensity = 24 // 据点密度，每有 24 个格子，就会有一个据点
+const _kMinZoneSizeForLocation = 8 // 产生据点的最小 Zone 大小
+
+struct Zone {
+  var index: int
+  var name: str
+  var category: str
+  var count = 0
+  var tiles = []
+
+  construct ({index, name, category}) {
+    this.index = index
+    this.name = name
+    this.category = category
+  }
+}
+
+struct HexDirections {
+  construct (initValue: bool) {
+    this.north = initValue
+    this.northWest = initValue
+    this.northEast = initValue
+    this.south = initValue
+    this.southWest = initValue
+    this.southEast = initValue
+  }
+}
 
 fun createWorld({
-      terrainSpriteSheet: str,
-      tileShape = 'hexagonalVertical',
-      width = _defaultWorldWidth,
-      height = _defaultWorldHeight,
-      style = 'island',
-      landProportion = 0.55,
-      gridWidth = 32.0,
-      gridHeight = 28.0,
-      tileSpriteSrcWidth = 32.0,
-      tileSpriteSrcHeight = 48.0,
-      tileOffsetX = 0.0,
-      tileOffsetY = 2.0,
-      }) {
+    terrainSpriteSheet: str,
+    tileShape = 'hexagonalVertical',
+    width = _defaultWorldWidth,
+    height = _defaultWorldHeight,
+    style = 'island',
+    landProportion = 0.55,
+    gridWidth = 32.0,
+    gridHeight = 28.0,
+    tileSpriteSrcWidth = 32.0,
+    tileSpriteSrcHeight = 48.0,
+    tileOffsetX = 0.0,
+    tileOffsetY = 2.0,
+  }) {
 
   final terrains = []
+
+  // 从 hexagonal 坐标得到索引
+  fun tilePos2Index(left, top) {
+    return left - 1 + (top - 1) * width
+  }
+
+  // 从索引得到 hexagonal 坐标
+  fun index2TilePos(index: int) {
+    final left = index % width + 1
+    final top = index ~/ width + 1
+    return { left, top }
+  }
 
   // 坐标是否在地图范围内
   fun isPositionWithinMap(left, top) {
@@ -58,26 +97,14 @@ fun createWorld({
     return 0 <= index && index < terrains.length
   }
 
-  // 从坐标得到索引
-  fun tilePos2Index(left, top) {
-    return left - 1 + (top - 1) * width
-  }
-
-  // 从索引得到坐标
-  fun index2TilePos(index: int) {
-    final left = index % width + 1
-    final top = index ~/ width + 1
-    return { left, top }
-  }
-
   for (var j = 0; j < height; ++j) {
     for (var i = 0; i < width; ++i) {
       terrains.add(
         {
+          ...Tile(i + 1, j + 1),
           index: tilePos2Index(i + 1, j + 1),
-          left: i + 1,
-          top: j + 1,
           spriteIndex: _kWater,
+          links: HexDirections(false),
         }
       )
     }
@@ -86,64 +113,247 @@ fun createWorld({
   final zones = []
 
   // 新建一个区域，返回区域index，区域保存为一个列表
-  fun newZone({name: str, category: str, count: int}) {
+  fun newZone({name: str, category: str}) {
     assert(category != null)
     final index = zones.length
-    final zone = { index, name, category, count: count ?? 1 }
+    final zone = Zone(index: index, name: name, category: category)
     zones.add(zone)
     return zone
   }
 
   // 没有区域，也是一个区域
-  newZone(name: '无', category: 'void', count: 0)
+  newZone(name: '无', category: 'void')
+
+  fun addTile2Zone(zoneIndex, tile) {
+    assert(0 <= zoneIndex && zoneIndex < zones.length)
+    tile.zoneIndex = zoneIndex
+    final zone = zones[zoneIndex]
+    ++zone.count
+    zone.tiles.add(tile.index)
+  }
+
+  // 获取尚未被分配地域的区块，可能为 null
+  fun getUnzonedTile() {
+    return terrains.firstWhere((tile) {
+        tile.zoneIndex == null || tile.zoneIndex == -1
+      }, orElse: () {})
+  }
   
-  // 获取相邻的格子
-  fun getNeighbors(left, top) {
-    final neighbors = []
-    if (isPositionWithinMap(left - 1, top)) {
-      neighbors.add(terrains[tilePos2Index(left - 1, top)])
-    }
-    if (isPositionWithinMap(left, top - 1)) {
-      neighbors.add(terrains[tilePos2Index(left, top - 1)])
-    }
-    if (isPositionWithinMap(left + 1, top)) {
-      neighbors.add(terrains[tilePos2Index(left + 1, top)])
-    }
-    if (isPositionWithinMap(left, top + 1)) {
-      neighbors.add(terrains[tilePos2Index(left, top + 1)])
-    }
-    if (left % 2 == 0) {
-      if (isPositionWithinMap(left + 1, top + 1)) {
-        neighbors.add(terrains[tilePos2Index(left + 1, top + 1)])
+  // 获取相邻并且在地图范围内的格子
+  // 如果 [restrict2Zone] 为 true，则只会返回和起点所在 tile 具有相同 zoneIndex 的格子
+  // 如果指定了方向
+  fun getNeighbors(left: int, top: int, {
+      restrict2Zone: bool = false}) {
+    assert(isPositionWithinMap(left, top))
+    final origin = terrains[tilePos2Index(left, top)]
+    final neighbors = {}
+    // 奇数列
+    if (left % 2 != 0) {
+      // 上面
+      if (isPositionWithinMap(left, top - 1)) {
+        final tile = terrains[tilePos2Index(left, top - 1)]
+        if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+          neighbors.north = tile
+        }
       }
-      if (isPositionWithinMap(left - 1, top + 1)) {
-        neighbors.add(terrains[tilePos2Index(left - 1, top + 1)])
+      // 下面
+      if (isPositionWithinMap(left, top + 1)) {
+        final tile = terrains[tilePos2Index(left, top + 1)]
+        if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+          neighbors.south = tile
+        }
       }
-    } else {
+      // 左上
       if (isPositionWithinMap(left - 1, top - 1)) {
-        neighbors.add(terrains[tilePos2Index(left - 1, top - 1)])
+        final tile = terrains[tilePos2Index(left - 1, top - 1)]
+        if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+          neighbors.northWest = tile
+        }
       }
+      // 左下
+      if (isPositionWithinMap(left - 1, top)) {
+        final tile = terrains[tilePos2Index(left - 1, top)]
+        if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+          neighbors.southWest = tile
+        }
+      }
+      // 右上
       if (isPositionWithinMap(left + 1, top - 1)) {
-        neighbors.add(terrains[tilePos2Index(left + 1, top - 1)])
+        final tile = terrains[tilePos2Index(left + 1, top - 1)]
+        if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+          neighbors.northEast = tile
+        }
+      }
+      // 右下
+      if (isPositionWithinMap(left + 1, top)) {
+        final tile = terrains[tilePos2Index(left + 1, top)]
+        if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+          neighbors.southEast = tile
+        }
+      }
+    }
+    // 欧数列
+    else {
+      // 上面
+      if (isPositionWithinMap(left, top - 1)) {
+        final tile = terrains[tilePos2Index(left, top - 1)]
+        if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+          neighbors.north = tile
+        }
+      }
+      // 下面
+      if (isPositionWithinMap(left, top + 1)) {
+        final tile = terrains[tilePos2Index(left, top + 1)]
+        if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+          neighbors.south = tile
+        }
+      }
+      // 左上
+      if (isPositionWithinMap(left - 1, top)) {
+        final tile = terrains[tilePos2Index(left - 1, top)]
+        if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+          neighbors.northWest = tile
+        }
+      }
+      // 左下
+      if (isPositionWithinMap(left - 1, top + 1)) {
+        final tile = terrains[tilePos2Index(left - 1, top + 1)]
+        if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+          neighbors.southWest = tile
+        }
+      }
+      // 右上
+      if (isPositionWithinMap(left + 1, top)) {
+        final tile = terrains[tilePos2Index(left + 1, top)]
+        if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+          neighbors.northEast = tile
+        }
+      }
+      // 右下
+      if (isPositionWithinMap(left + 1, top + 1)) {
+        final tile = terrains[tilePos2Index(left + 1, top + 1)]
+        if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+          neighbors.southEast = tile
+        }
       }
     }
     return neighbors
   }
-  
+
+  // 计算两个格子之间的通路
+  // 一次只计算一格
+  fun calculateNextRouteTile(tile1: {}, tile2: {}, {restrict2Zone: bool = true}) {
+    final direction = getDirection(tile1, tile2)
+    final neighbors = getNeighbors(tile1.left, tile1.top, restrict2Zone: restrict2Zone)
+    when(direction) {
+      'north' -> {
+        if (neighbors.north) {
+          return neighbors.north
+        } else if (neighbor.northWest) {
+          return neighbors.northWest
+        } else if (neighbor.northEast) {
+          return neighbors.northEast
+        } else {
+          return neighbor.values.random
+        }
+      }
+      'northEast' -> {
+        if (neighbors.northEast) {
+          return neighbors.northEast
+        } else if (neighbor.north) {
+          return neighbors.north
+        } else if (neighbor.east) {
+          return neighbors.east
+        } else {
+          return neighbor.values.random
+        }
+      }
+      'southEast' -> {
+        if (neighbors.southEast) {
+          return neighbors.southEast
+        } else if (neighbor.south) {
+          return neighbors.south
+        } else if (neighbor.northEast) {
+          return neighbors.northEast
+        } else {
+          return neighbor.values.random
+        }
+      }
+      'south' -> {
+        if (neighbors.south) {
+          return neighbors.south
+        } else if (neighbor.southEast) {
+          return neighbors.southEast
+        } else if (neighbor.southWest) {
+          return neighbors.southWest
+        } else {
+          return neighbor.values.random
+        }
+      }
+      'southWest' -> {
+        if (neighbors.southWest) {
+          return neighbors.southWest
+        } else if (neighbor.south) {
+          return neighbors.south
+        } else if (neighbor.northWest) {
+          return neighbors.northWest
+        } else {
+          return neighbor.values.random
+        }
+      }
+      'northWest' -> {
+        if (neighbors.northWest) {
+          return neighbors.northWest
+        } else if (neighbor.southWest) {
+          return neighbors.southWest
+        } else if (neighbor.north) {
+          return neighbors.north
+        } else {
+          return neighbor.values.random
+        }
+      }
+    }
+  }
+
+  // 循环调用计算一格的函数，直到来到终点
+  fun calculateRoute(tile1, tile2) {
+    assert(tile1.zoneIndex > 0)
+    assert(tile2.zoneIndex > 0)
+    final zone1 = zones[tile1.zoneIndex]
+    final zone2 = zones[tile2.zoneIndex]
+    final route = []
+    // 两个据点在相同地域
+    if (zone1.index == zone2.index) {
+      do {
+        final nextRoutTile = calculateNextRouteTile(tile1, tile2, restrict2Zone: true)
+        route.add(nextRoutTile)
+      } while (nextRoutTile.index != tile2.index)
+    }
+    // 据点 1 所在地域相比据点 2 所在的地域较大
+    else if (zone1.count > zone2.count) {
+
+    }
+    // 据点 1 所在地域相比据点 2 所在的地域较小
+    else {
+
+    }
+  }
+
+  // 当前地域的边缘格子坐标
   final shelf = {}
 
-  // 刷新当前大区块的边缘格子坐标
+  // 刷新当前地域的边缘格子坐标
   fun updateShelf(left, top) {
     delete shelf[tilePos2Index(left, top)]
     final neighbors = getNeighbors(left, top)
-    for (final tile in neighbors) {
+    for (final tile in neighbors.values) {
       if (tile.spriteIndex == _kWater) {
         shelf[tile.index] = true
       }
     }
   }
 
-  // 生成大区块
+  // 生成地域
   final landArea = (width * height * landProportion).floor()
 
   final minLeft = width ~/ 3
@@ -155,28 +365,28 @@ fun createWorld({
   final startTop = Math.randomInt(maxTop - minTop) + minTop
   // print('start: ${startLeft},${startTop}')
   final startIndex = tilePos2Index(startLeft, startTop)
-  terrains[startIndex]['spriteIndex'] = _kLand
+  final firstTile = terrains[startIndex]
+  firstTile.spriteIndex = _kLand
   final landZone = newZone(category: 'land')
-  terrains[startIndex]['zoneIndex'] = landZone.index
+  addTile2Zone(landZone.index, firstTile)
   updateShelf(startLeft, startTop)
 
   var currentLandSize = 1
   while (currentLandSize < landArea) {
     ++currentLandSize
     final perimeterIndexes = shelf.keys
-    final randomIndex = perimeterIndexes[Math.randomInt(perimeterIndexes.length)]
-    final tile = terrains[int.parse(randomIndex)]
+    final tile = terrains[int.parse(perimeterIndexes.random)]
     updateShelf(tile.left, tile.top)
     tile.spriteIndex = _kLand
-    tile.zoneIndex = landZone.index
+    addTile2Zone(landZone.index, tile)
   }
 
-  landZone.count = landArea
-
   // 生成地图上的不同地域
+
+  // 已经分配了地域的全部方块的边缘
   final perimeter = {}
 
-  // 根据相邻的格子的地域，分配区块
+  // 根据相邻的格子的地域，分配地域索引
   fun updateZone(tile, [spriteIndex]) {
     spriteIndex ??= tile.spriteIndex
     // skip tiles that has zoned or tiles being processed
@@ -187,7 +397,7 @@ fun createWorld({
     tile.zoneIndex = -1 // mark this tile is being processed, will skip it when process others
     final neighbors = getNeighbors(tile.left, tile.top)
     var foundAdjacentZone = false
-    for (final neighbor in neighbors) {
+    for (final neighbor in neighbors.values) {
       // skip tiles that has diffrent spriteIndex and those still being processed
       if (spriteIndex != neighbor.spriteIndex || neighbor.zoneIndex == -1) {
         continue
@@ -195,37 +405,28 @@ fun createWorld({
       if (neighbor.zoneIndex == null) {
         updateZone(neighbor, tile.spriteIndex)
       }
-      assert(neighbor.zoneIndex > 0)
-      tile.zoneIndex = neighbor.zoneIndex
-      ++zones[neighbor.zoneIndex]['count']
+      addTile2Zone(neighbor.zoneIndex, tile)
       foundAdjacentZone = true
       // print('Found neighbor at left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, neighborLeft: ${neighbor.left}, neighborTop: ${neighbor.top}, zoneIndex: ${neighbor.zoneIndex}')
       break
     }
     if (!foundAdjacentZone) {
       final zone = newZone(category: tile.spriteIndex == _kLand ? _kLandCategory : _kWaterCategory)
-      tile.zoneIndex = zone.index
+      addTile2Zone(zone.index, tile)
       // print('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneIndex: ${zone.index}')
     }
     updatePerimeter(tile.left, tile.top)
   }
 
-  // 刷新当前已经分配了地域的大区块的边缘
+  // 刷新当前已经分配了地域的全部方块的边缘
   fun updatePerimeter(left, top) {
     perimeter[tilePos2Index(left, top)] = false
     final neighbors = getNeighbors(left, top)
-    for (final tile in neighbors) {
+    for (final tile in neighbors.values) {
       if (!perimeter[tile.index]) {
         perimeter[tile.index] = true
       }
     }
-  }
-
-  // 获取尚未被分配地域的区块，可能为 null
-  fun getUnzonedTile() {
-    return terrains.firstWhere((tile) {
-        tile.zoneIndex == null || tile.zoneIndex == -1
-      }, orElse: () {})
   }
 
   var unzonedTile
@@ -242,10 +443,11 @@ fun createWorld({
     zone.name = names.first.name
   }
 
+  // 根据 tile 的所在位置的类型，获取据点类型
   fun getLocationCategory(tile) {
     if (tile.spriteIndex == _kLand) {
       final neighbors = getNeighbors(tile.left, tile.top)
-      for (final neighbor in neighbors) {
+      for (final neighbor in neighbors.values) {
         if (neighbor.spriteIndex == _kWater) {
           return 'shore'
         }
@@ -257,32 +459,60 @@ fun createWorld({
     }
   }
 
-  // 生成据点
-  final locationNumber = terrains.length ~/ _kLocationDensity
   final locations = []
-  var generatedIndexes = 0
-  while (generatedIndexes++ < locationNumber) {
-    final index = Math.randomInt(terrains.length)
-    final tile = terrains[index]
-    final category = getLocationCategory(tile)
-    final pos = index2TilePos(index)
-    final names = getLocation(1, category: category)
-    final name = names.first.name
-    locations.add({
-      id: 'location_entity_${name}',
-      name,
-      shape: tileShape,
-      left: pos.left,
-      top: pos.top,
-      srcWidth: tileSpriteSrcWidth,
-      srcHeight: tileSpriteSrcHeight,
-      gridWidth,
-      gridHeight,
-      spriteIndex: _kCity,
-      offsetX: tileOffsetX,
-      offsetY: tileOffsetY,
-    })
+
+  fun findNearestLocation(origin, {restrict2Zone: bool = true}) {
+    assert(locations.length > 0)
+    var nearestDistance
+    var tile
+    for (final location in locations) {
+      if (location.index == origin.index) {
+        continue
+      } else {
+        final distance = getTileDistance(origin, location)
+        if (nearestDistance == null || distance < nearestDistance) {
+          nearestDistance = distance
+          tile = location
+        }
+      }
+    }
+    return tile
   }
+
+  // 生成据点
+  for (final zone in zones) {
+    if (zone.count < _kMinZoneSizeForLocation) {
+      continue
+    }
+    final locationNumber = zone.count < _kLocationDensity ? 1 : zone.count ~/ _kLocationDensity
+    var generatedIndexes = []
+    while (generatedIndexes.length < locationNumber) {
+      var index
+      do {
+        index = zone.tiles.random
+      } while (generatedIndexes.contains(index))
+      generatedIndexes.add(index)
+      final tile = terrains[index]
+      final category = getLocationCategory(tile)
+      final names = getLocation(1, category: category)
+      final name = names.first.name
+      locations.add({
+        ...Tile(tile.left, tile.top),
+        index: tilePos2Index(tile.left, tile.top),
+        id: 'location_entity_${name}',
+        name,
+        shape: tileShape,
+        srcWidth: tileSpriteSrcWidth,
+        srcHeight: tileSpriteSrcHeight,
+        gridWidth,
+        gridHeight,
+        spriteIndex: _kCity,
+        offsetX: tileOffsetX,
+        offsetY: tileOffsetY,
+      })
+    }
+  }
+
 
   final entities = {}
 

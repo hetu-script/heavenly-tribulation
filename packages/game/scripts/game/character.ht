@@ -106,7 +106,7 @@ fun getRandomNames({nameStyle, isFemale, number = 1}) {
     final familyIndex = Math.randomInt(family.length + 1) % family.length
     final familyName = family[familyIndex]
     final style = Math.random()
-    final isF = isFemale ?? Math.randomInt(10) % 2 == 0
+    final isF = isFemale ?? Math.randomInt(10).isEven
     if (nameStyle == 'single' || style < 0.33333333) {
       if (isF) {
         final nameIndex = Math.randomInt(female.length + 1) % female.length
@@ -152,7 +152,7 @@ fun getRandomArtNames({nameStyle, isFemale, number = 1}) {
     final nameIndex1 = Math.randomInt(dao.length + 1) % dao.length
     final nameIndex2 = Math.randomInt(dao.length + 1) % dao.length
     final name = '${dao[nameIndex1]}${dao[nameIndex2]}'
-    final isF = isFemale ?? Math.randomInt(10) % 2 == 0
+    final isF = isFemale ?? Math.randomInt(10).isEven
     var title = ''
 
     var titleIndex = -1

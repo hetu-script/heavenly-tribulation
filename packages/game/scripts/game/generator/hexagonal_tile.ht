@@ -1,0 +1,107 @@
+struct Tile {
+  construct (left, top) {
+    this.left = left
+    this.top = top
+    // 以 (1, 1) 为原点，该格子在右斜线上的投影坐标
+    this.slashDownRow = ((left.isOdd ? (left + 1) / 2 : left / 2) - top).truncate()
+    // 以 (1, 1) 为原点，该格子在左斜线上的投影坐标
+    this.slashUpRow = left - this.slashDownRow - 1
+  }
+}
+
+// 计算 hexagonal tile 的方向
+fun getDirection(start: {}, end: {}) {
+  assert(start.left != end.left || start.top != end.top)
+  if (start.left % 2 != 0) {
+    if (end.left == start.left) {
+      if (end.top < start.top) {
+        return 'north'
+      } else {
+        return 'south'
+      }
+    } else if (end.left > start.left) {
+      if (end.top == start.top) {
+        if (end.left % 2 != 0) {
+          return 'east'
+        } else {
+          return 'southEast'
+        }
+      } else if (end.top < start.top) {
+        return 'northEast'
+      } else {
+        return 'southEast'
+      }
+    } else {
+      if (end.top == start.top) {
+        if (end.left % 2 != 0) {
+          return 'west'
+        } else {
+          return 'southWest'
+        }
+      } else if (end.top < start.top) {
+        return 'northWest'
+      } else {
+        return 'southWest'
+      }
+    }
+  } else {
+    if (end.left == start.left) {
+      if (end.top < start.top) {
+        return 'north'
+      } else {
+        return 'south'
+      }
+    } else if (end.left > start.left) {
+      if (end.top == start.top) {
+        if (end.left.isEven) {
+          return 'east'
+        } else {
+          return 'northEast'
+        }
+      } else if (end.top < start.top) {
+        return 'northEast'
+      } else {
+        return 'southEast'
+      }
+    } else {
+      if (end.top == start.top) {
+        if (end.left.isEven) {
+          return 'west'
+        } else {
+          return 'northWest'
+        }
+      } else if (end.top < start.top) {
+        return 'northWest'
+      } else {
+        return 'southWest'
+      }
+    }
+  }
+}
+
+// 计算 hexagonal tile 的距离，将地图分为 3 个区域
+// \1|1/
+// 2\|/2
+// 2/|\2
+// /3|3\
+fun getTileDistance(tile1, tile2) {
+  final horizontalDistance = (tile2.left - tile1.left).abs()
+  late heightDifference1: int
+  late heightDifference2: int
+  if (tile1.left.isOdd) {
+    heightDifference1 = horizontalDistance.isOdd ? (horizontalDistance + 1) / 2 : horizontalDistance / 2
+    heightDifference2 = horizontalDistance.isOdd ? (horizontalDistance - 1) / 2 : horizontalDistance / 2
+  }
+  // 区域 1
+  if (tile1.top - heightDifference1 >= tile2.top) {
+    return horizontalDistance + (tile1.top - heightDifference1) - tile2.top
+  }
+  // 区域 2
+  else if (tile1.top - heightDifference1 < tile2.top && tile2.top < tile1.top + heightDifference2) {
+    return (tile1.slashDownRow - tile2.slashDownRow).abs() + (tile1.slashUpRow - tile2.slashUpRow).abs()
+  }
+  // 区域 3
+  else {
+    return horizontalDistance + tile2.top - (tile1.top + heightDifference2)
+  }
+}

@@ -1,0 +1,3 @@
+import '../generator/random_names/random_names.ht'
+
+print(getLocation(10, category: 'shore'))

@@ -1,0 +1,23 @@
+import '../generator/hexagonal_tile.ht'
+
+// print('testing tile direction: 3, 3')
+// print(getDirection({left: 3, top: 3}, {left: 3, top: 2}))
+// print(getDirection({left: 3, top: 3}, {left: 4, top: 2}))
+// print(getDirection({left: 3, top: 3}, {left: 4, top: 3}))
+// print(getDirection({left: 3, top: 3}, {left: 3, top: 4}))
+// print(getDirection({left: 3, top: 3}, {left: 2, top: 3}))
+// print(getDirection({left: 3, top: 3}, {left: 2, top: 2}))
+
+// print('testing tile direction: 4, 4')
+// print(getDirection({left: 4, top: 4}, {left: 4, top: 3}))
+// print(getDirection({left: 4, top: 4}, {left: 5, top: 4}))
+// print(getDirection({left: 4, top: 4}, {left: 5, top: 5}))
+// print(getDirection({left: 4, top: 4}, {left: 4, top: 5}))
+// print(getDirection({left: 4, top: 4}, {left: 3, top: 5}))
+// print(getDirection({left: 4, top: 4}, {left: 3, top: 4}))
+
+final t1 = Tile(1,5)
+final t2 = Tile(7,3)
+// print(t1, t2)
+
+print(calculateDistance(t1, t2))

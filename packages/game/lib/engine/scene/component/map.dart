@@ -291,12 +291,12 @@ class MapComponent extends GameComponent with HandlesGesture {
         positions.add(TilePosition(left, top - 1));
         positions.add(TilePosition(left + 1, top));
         positions.add(TilePosition(left, top + 1));
-        if (left % 2 == 0) {
-          positions.add(TilePosition(left + 1, top + 1));
-          positions.add(TilePosition(left - 1, top + 1));
-        } else {
+        if (left.isOdd) {
           positions.add(TilePosition(left - 1, top - 1));
           positions.add(TilePosition(left + 1, top - 1));
+        } else {
+          positions.add(TilePosition(left + 1, top + 1));
+          positions.add(TilePosition(left - 1, top + 1));
         }
         break;
       case TileShape.isometric:
@@ -398,35 +398,17 @@ class MapComponent extends GameComponent with HandlesGesture {
             worldPos.x / scale.x - (l - 1) * (tileSize.x * 3 / 4);
         late final double inTilePosY;
         int t;
-        if (l % 2 == 0) {
+        if (l.isOdd) {
+          t = (worldPos.y / scale.y / tileSize.y).floor() + 1;
+          inTilePosY = tileSize.y / 2 - (worldPos.y / scale.y) % tileSize.y;
+        } else {
           t = ((worldPos.y / scale.y - tileSize.y / 2) / tileSize.y).floor() +
               1;
           inTilePosY = tileSize.y / 2 -
               (worldPos.y / scale.y - tileSize.y / 2) % tileSize.y;
-        } else {
-          t = (worldPos.y / scale.y / tileSize.y).floor() + 1;
-          inTilePosY = tileSize.y / 2 - (worldPos.y / scale.y) % tileSize.y;
         }
         if (inTilePosX < tileSize.x / 4) {
-          if (l % 2 == 0) {
-            if (inTilePosY >= 0) {
-              if (inTilePosY / inTilePosX > tileSize.y / tileSize.x * 2) {
-                left = l - 1;
-                top = t;
-              } else {
-                left = l;
-                top = t;
-              }
-            } else {
-              if (-inTilePosY / inTilePosX > tileSize.y / tileSize.x * 2) {
-                left = l - 1;
-                top = t + 1;
-              } else {
-                left = l;
-                top = t;
-              }
-            }
-          } else {
+          if (l.isOdd) {
             if (inTilePosY >= 0) {
               if (inTilePosY / inTilePosX > tileSize.y / tileSize.x * 2) {
                 left = l - 1;
@@ -439,6 +421,24 @@ class MapComponent extends GameComponent with HandlesGesture {
               if (-inTilePosY / inTilePosX > tileSize.y / tileSize.x * 2) {
                 left = l - 1;
                 top = t;
+              } else {
+                left = l;
+                top = t;
+              }
+            }
+          } else {
+            if (inTilePosY >= 0) {
+              if (inTilePosY / inTilePosX > tileSize.y / tileSize.x * 2) {
+                left = l - 1;
+                top = t;
+              } else {
+                left = l;
+                top = t;
+              }
+            } else {
+              if (-inTilePosY / inTilePosX > tileSize.y / tileSize.x * 2) {
+                left = l - 1;
+                top = t + 1;
               } else {
                 left = l;
                 top = t;
