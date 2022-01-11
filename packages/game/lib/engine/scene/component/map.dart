@@ -37,11 +37,29 @@ enum WorldStyle {
   beach,
 }
 
+class TileMapRoute {
+  final int startLeft, startTop, endLeft, endTop;
+  final List<TilePosition> tiles;
+  Path? path;
+
+  TileMapRoute(
+      {required this.startLeft,
+      required this.startTop,
+      required this.endLeft,
+      required this.endTop,
+      required this.tiles});
+}
+
 class MapComponent extends GameComponent with HandlesGesture {
   static final selectedPaint = Paint()
     ..strokeWidth = 1
     ..style = PaintingStyle.stroke
     ..color = Colors.yellow;
+
+  static final routePaint = Paint()
+    ..strokeWidth = 1
+    ..style = PaintingStyle.stroke
+    ..color = Colors.white;
 
   @override
   Camera get camera => gameRef.camera;
@@ -50,19 +68,20 @@ class MapComponent extends GameComponent with HandlesGesture {
   final int entryX, entryY;
   final Vector2 tileSize;
 
-  List<List<Terrain>> terrains;
-  Map<String, Entity> entities;
-  List<Zone> zones;
+  final bool tapSelect;
+  Terrain? selectedTerrain;
+  Entity? selectedEntity;
+
+  final List<List<Terrain>> terrains;
+  final Map<String, Entity> entities;
+  final List<Zone> zones;
+  final List<TileMapRoute> routes;
 
   final int mapTileWidth;
   final int mapTileHeight;
 
   Vector2 mapScreenSize = Vector2.zero();
   Vector2 mapStartPosition = Vector2.zero();
-
-  final bool tapSelect;
-  Terrain? selectedTerrain;
-  Entity? selectedEntity;
 
   // 从坐标得到索引
   int tilePos2Index(int left, int top) {
@@ -85,6 +104,7 @@ class MapComponent extends GameComponent with HandlesGesture {
     required double gridHeight,
     required this.terrains,
     this.entities = const {},
+    this.routes = const [],
     this.zones = const [],
     this.tapSelect = false,
   })  : mapTileHeight = terrains.length,
@@ -93,6 +113,19 @@ class MapComponent extends GameComponent with HandlesGesture {
         super(game: game) {
     assert(terrains.isNotEmpty);
     scale = Vector2(MapTile.defaultScale, MapTile.defaultScale);
+
+    for (final route in routes) {
+      final path = Path();
+      var pos = tilePosition2TileCenterInWorld(route.startLeft, route.startTop);
+      path.moveTo(pos.x, pos.y);
+      for (final tile in route.tiles) {
+        pos = tilePosition2TileCenterInWorld(tile.left, tile.top);
+        path.lineTo(pos.x, pos.y);
+      }
+      pos = tilePosition2TileCenterInWorld(route.endLeft, route.endTop);
+      path.lineTo(pos.x, pos.y);
+      route.path = path;
+    }
   }
 
   static Future<MapComponent> fromJson(
@@ -133,17 +166,40 @@ class MapComponent extends GameComponent with HandlesGesture {
       zones.add(Zone(index: index, name: name));
     }
 
+    final routesData = data['routes'];
+    final routes = <TileMapRoute>[];
+    for (final routeData in routesData) {
+      final startLeft = routeData['startLeft'];
+      final startTop = routeData['startTop'];
+      final endLeft = routeData['endLeft'];
+      final endTop = routeData['endTop'];
+      final tilesData = routeData['tiles'];
+      final tiles = <TilePosition>[];
+      for (final tile in tilesData) {
+        final left = tile['left'];
+        final top = tile['top'];
+        tiles.add(TilePosition(left, top));
+      }
+      final route = TileMapRoute(
+          startLeft: startLeft,
+          startTop: startTop,
+          endLeft: endLeft,
+          endTop: endTop,
+          tiles: tiles);
+      routes.add(route);
+    }
+
     final tapSelect = data['tapSelect'] ?? false;
 
     final List<List<Terrain>> terrains = [];
     for (var j = 0; j < mapTileHeight; ++j) {
       terrains.add([]);
       for (var i = 0; i < mapTileWidth; ++i) {
-        final terrain = terrainsData[i + j * mapTileWidth];
-        final spritePath = terrain['sprite'];
-        final spriteIndex = terrain['spriteIndex'];
-        final animationPath = terrain['animation'];
-        int animationFrameCount = terrain['animationFrameCount'] ?? 1;
+        final terrainData = terrainsData[i + j * mapTileWidth];
+        final spritePath = terrainData['sprite'];
+        final spriteIndex = terrainData['spriteIndex'];
+        final animationPath = terrainData['animation'];
+        int animationFrameCount = terrainData['animationFrameCount'] ?? 1;
         Sprite? sprite;
         if (spritePath != null) {
           sprite = await Sprite.load(
@@ -167,7 +223,7 @@ class MapComponent extends GameComponent with HandlesGesture {
               from: 0,
               to: animationFrameCount);
         }
-        final zoneIndex = terrain['zoneIndex'];
+        final zoneIndex = terrainData['zoneIndex'];
         var isEntry = false;
         if (i + 1 == entryX && j + 1 == entryY) {
           isEntry = true;
@@ -201,6 +257,7 @@ class MapComponent extends GameComponent with HandlesGesture {
       for (final key in entitiyData.keys) {
         final entityData = entitiyData[key];
         final String id = entityData['id'];
+        final int zoneIndex = entityData['zoneIndex'];
         final String name = entityData['name'];
         final int left = entityData['left'];
         final int top = entityData['top'];
@@ -235,6 +292,19 @@ class MapComponent extends GameComponent with HandlesGesture {
               from: 0,
               to: animationFrameCount);
         }
+        final destinationsData = entityData['destinations'];
+        final destinations = <int, TileRouteDestination>{};
+        if (destinationsData is Map<String, dynamic>) {
+          for (final destination in destinationsData.values) {
+            final destinationIndex = destination['destinationIndex'];
+            final distance = destination['distance'];
+            final routeIndex = destination['routeIndex'];
+            destinations[destinationIndex] = TileRouteDestination(
+                destinationIndex: destinationIndex,
+                distance: distance,
+                routeIndex: routeIndex);
+          }
+        }
         final entity = Entity(
           id: id,
           name: name,
@@ -247,6 +317,8 @@ class MapComponent extends GameComponent with HandlesGesture {
           gridWidth: gridWidth,
           gridHeight: gridHeight,
           isVisible: true,
+          zoneIndex: zoneIndex,
+          destinations: destinations,
           sprite: sprite,
           animation: animation,
           offsetX: offsetX,
@@ -266,6 +338,7 @@ class MapComponent extends GameComponent with HandlesGesture {
       terrains: terrains,
       zones: zones,
       entities: entities,
+      routes: routes,
       tapSelect: tapSelect,
     );
   }
@@ -383,10 +456,30 @@ class MapComponent extends GameComponent with HandlesGesture {
     return position + camera.position;
   }
 
+  Vector2 tilePosition2TileCenterInWorld(int left, int top) {
+    late final double rl, rt;
+    switch (tileShape) {
+      case TileShape.orthogonal:
+        rl = ((left - 1) * tileSize.x);
+        rt = ((top - 1) * tileSize.y);
+        break;
+      case TileShape.hexagonalVertical:
+        rl = (left - 1) * tileSize.x * (3 / 4) + tileSize.x / 2;
+        rt = left.isOdd
+            ? (top - 1) * tileSize.y + tileSize.y / 2
+            : (top - 1) * tileSize.y + tileSize.y;
+        break;
+      case TileShape.isometric:
+        throw 'Isometric map tile is not supported yet!';
+      case TileShape.hexagonalHorizontal:
+        throw 'Vertical hexagonal map tile is not supported yet!';
+    }
+    return Vector2(rl, rt);
+  }
+
   TilePosition screenPosition2Tile(Vector2 position) {
     final worldPos = screenPosition2World(position);
     late final int left, top;
-
     switch (tileShape) {
       case TileShape.orthogonal:
         left = (worldPos.x / scale.x / tileSize.x).floor();
@@ -513,6 +606,9 @@ class MapComponent extends GameComponent with HandlesGesture {
     if (selectedTerrain != null) {
       canvas.drawPath(selectedTerrain!.path, selectedPaint);
     }
+    for (final route in routes) {
+      canvas.drawPath(route.path!, routePaint);
+    }
     canvas.restore();
   }
 
@@ -538,40 +634,13 @@ class MapComponent extends GameComponent with HandlesGesture {
     for (final tile in entities.values) {
       add(tile);
     }
-    updateData();
+    _verifyMaxTopAndLeft(gameRef.size);
+    _moveCameraToTilePosition(entryX, entryY);
   }
 
   @override
   bool containsPoint(Vector2 point) {
     return true;
-  }
-
-  void updateData(
-      {List<List<Terrain>>? terrainData, Map<String, Entity>? entityData}) {
-    if (terrainData != null) {
-      for (final row in terrains) {
-        for (final tile in row) {
-          remove(tile);
-        }
-      }
-      terrains = terrainData;
-      for (final row in terrains) {
-        for (final tile in row) {
-          add(tile);
-        }
-      }
-    }
-    if (entityData != null) {
-      for (final tile in entities.values) {
-        remove(tile);
-      }
-      entities = entityData;
-      for (final tile in entities.values) {
-        add(tile);
-      }
-    }
-    _verifyMaxTopAndLeft(gameRef.size);
-    _moveCameraToTilePosition(entryX, entryY);
   }
 
   void _verifyMaxTopAndLeft(Vector2 size) {

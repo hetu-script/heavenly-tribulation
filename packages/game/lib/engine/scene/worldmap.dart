@@ -10,8 +10,6 @@ class WorldMapScene extends Scene {
 
   MapComponent? map;
 
-  var showTileInfo = false;
-
   @override
   late final Map<String, Widget Function(BuildContext, Scene)>
       overlayBuilderMap;
@@ -21,36 +19,17 @@ class WorldMapScene extends Scene {
   }) : super(key: 'WorldMap', game: game) {
     overlayBuilderMap = {
       'overlayUI': (BuildContext context, Scene scene) {
-        final widgets = <Widget>[
-          Positioned(
-            left: 5,
-            top: 5,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(5.0),
-                border: Border.all(
-                  width: 2,
-                  color: Colors.lightBlue.withOpacity(0.5),
-                ),
-              ),
-              child: IconButton(
-                onPressed: () {
-                  game.leaveScene('WorldMap');
-                },
-                icon: const Icon(Icons.menu_open),
-              ),
-            ),
-          ),
-        ];
-        if (showTileInfo) {
-          final tileInfoContent = <Widget>[
-            Text(
-                'X: ${map!.selectedTerrain!.left}, Y: ${map!.selectedTerrain!.top}'),
-            Text('地域: ${map!.zones[map!.selectedTerrain!.zoneIndex].name}'),
-          ];
+        final informationWidgets = <Widget>[];
+        if (map != null) {
+          informationWidgets.addAll(
+            [
+              Text(
+                  'X: ${map!.selectedTerrain!.left}, Y: ${map!.selectedTerrain!.top}'),
+              Text('地域: ${map!.zones[map!.selectedTerrain!.zoneIndex].name}')
+            ],
+          );
           if (map!.selectedEntity != null) {
-            tileInfoContent.add(
+            informationWidgets.add(
               Row(
                 children: <Widget>[
                   Text('据点: ${map!.selectedEntity!.name}'),
@@ -63,40 +42,59 @@ class WorldMapScene extends Scene {
               ),
             );
           }
-          widgets.add(
-            Positioned(
-              left: 5,
-              bottom: 5,
-              child: Container(
-                height: 200,
-                width: 240,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(5.0),
-                  border: Border.all(
-                    width: 2,
-                    color: Colors.lightBlue.withOpacity(0.5),
-                  ),
-                ),
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: tileInfoContent,
-                ),
-              ),
-            ),
-          );
         }
+
         return Material(
           color: Colors.transparent,
           child: Stack(
-            children: widgets,
+            children: <Widget>[
+              Positioned(
+                left: 5,
+                top: 5,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(5.0),
+                    border: Border.all(
+                      width: 2,
+                      color: Colors.lightBlue.withOpacity(0.5),
+                    ),
+                  ),
+                  child: IconButton(
+                    onPressed: () {
+                      game.leaveScene('WorldMap');
+                    },
+                    icon: const Icon(Icons.menu_open),
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 5,
+                bottom: 5,
+                child: Container(
+                  height: 200,
+                  width: 240,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(5.0),
+                    border: Border.all(
+                      width: 2,
+                      color: Colors.lightBlue.withOpacity(0.5),
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: informationWidgets,
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },
     };
     game.registerListener(MapEvents.tileTapped, (event) {
-      showTileInfo = true;
       overlays.remove('overlayUI');
       overlays.add('overlayUI');
     });

@@ -86,12 +86,8 @@ fun getDirection(start: {}, end: {}) {
 // /3|3\
 fun getTileDistance(tile1, tile2) {
   final horizontalDistance = (tile2.left - tile1.left).abs()
-  late heightDifference1: int
-  late heightDifference2: int
-  if (tile1.left.isOdd) {
-    heightDifference1 = horizontalDistance.isOdd ? (horizontalDistance + 1) / 2 : horizontalDistance / 2
-    heightDifference2 = horizontalDistance.isOdd ? (horizontalDistance - 1) / 2 : horizontalDistance / 2
-  }
+  final heightDifference1 = horizontalDistance.isOdd ? (horizontalDistance + 1) / 2 : horizontalDistance / 2
+  final heightDifference2 = horizontalDistance.isOdd ? (horizontalDistance - 1) / 2 : horizontalDistance / 2
   // 区域 1
   if (tile1.top - heightDifference1 >= tile2.top) {
     return horizontalDistance + (tile1.top - heightDifference1) - tile2.top

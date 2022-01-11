@@ -81,7 +81,7 @@ class MapTile extends GameComponent {
     required this.gridWidth,
     required this.gridHeight,
     required bool isVisible,
-    this.zoneIndex = -1,
+    required this.zoneIndex,
     this.sprite,
     this.animation,
     this.offsetX = 0.0,
@@ -189,6 +189,17 @@ class MapTile extends GameComponent {
   }
 }
 
+class TileRouteDestination {
+  final int destinationIndex;
+  final int distance;
+  final int routeIndex;
+
+  const TileRouteDestination(
+      {required this.destinationIndex,
+      required this.distance,
+      required this.routeIndex});
+}
+
 class Terrain extends MapTile {
   bool get isVoid => sprite == null;
 
@@ -231,6 +242,8 @@ class Entity extends MapTile {
   final String id;
   final String name;
 
+  final Map<int, TileRouteDestination> destinations;
+
   Entity({
     required this.id,
     required this.name,
@@ -244,6 +257,8 @@ class Entity extends MapTile {
     required double gridWidth,
     required double gridHeight,
     required bool isVisible,
+    required int zoneIndex,
+    this.destinations = const {},
     Sprite? sprite,
     SpriteAnimation? animation,
     double offsetX = 0.0,
@@ -259,6 +274,7 @@ class Entity extends MapTile {
           gridWidth: gridWidth,
           gridHeight: gridHeight,
           isVisible: isVisible,
+          zoneIndex: zoneIndex,
           sprite: sprite,
           animation: animation,
           offsetX: offsetX,

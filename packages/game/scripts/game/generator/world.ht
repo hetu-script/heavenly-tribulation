@@ -1,6 +1,6 @@
-import 'component.ht'
 import 'hexagonal_tile.ht'
 import 'random_names/random_names.ht'
+import 'component.ht'
 
 /// 生成世界地图的算法
 ///
@@ -32,6 +32,7 @@ const _kLandCategory = 'land'
 const _kWaterCategory = 'water'
 const _kLocationDensity = 24 // 据点密度，每有 24 个格子，就会有一个据点
 const _kMinZoneSizeForLocation = 8 // 产生据点的最小 Zone 大小
+const _kMinZoneSizeForSea = 8
 
 struct Zone {
   var index: int
@@ -93,7 +94,6 @@ fun createWorld({
           ...Tile(i + 1, j + 1),
           index: tilePos2Index(i + 1, j + 1),
           spriteIndex: _kWater,
-          links: [],
         }
       )
     }
@@ -229,109 +229,6 @@ fun createWorld({
     return neighbors
   }
 
-  // 计算两个格子之间的通路
-  // 一次只计算一格
-  fun getNextRouteTile(tile1: {}, tile2: {}, {restrict2Zone: bool = true}) {
-    final direction = getDirection(tile1, tile2)
-    final neighbors = getNeighbors(tile1.left, tile1.top, restrict2Zone: restrict2Zone)
-    when(direction) {
-      'north' -> {
-        if (neighbors.north) {
-          return neighbors.north
-        } else if (neighbor.northWest) {
-          return neighbors.northWest
-        } else if (neighbor.northEast) {
-          return neighbors.northEast
-        } else {
-          return neighbor.values.random
-        }
-      }
-      'northEast' -> {
-        if (neighbors.northEast) {
-          return neighbors.northEast
-        } else if (neighbor.north) {
-          return neighbors.north
-        } else if (neighbor.east) {
-          return neighbors.east
-        } else {
-          return neighbor.values.random
-        }
-      }
-      'southEast' -> {
-        if (neighbors.southEast) {
-          return neighbors.southEast
-        } else if (neighbor.south) {
-          return neighbors.south
-        } else if (neighbor.northEast) {
-          return neighbors.northEast
-        } else {
-          return neighbor.values.random
-        }
-      }
-      'south' -> {
-        if (neighbors.south) {
-          return neighbors.south
-        } else if (neighbor.southEast) {
-          return neighbors.southEast
-        } else if (neighbor.southWest) {
-          return neighbors.southWest
-        } else {
-          return neighbor.values.random
-        }
-      }
-      'southWest' -> {
-        if (neighbors.southWest) {
-          return neighbors.southWest
-        } else if (neighbor.south) {
-          return neighbors.south
-        } else if (neighbor.northWest) {
-          return neighbors.northWest
-        } else {
-          return neighbor.values.random
-        }
-      }
-      'northWest' -> {
-        if (neighbors.northWest) {
-          return neighbors.northWest
-        } else if (neighbor.southWest) {
-          return neighbors.southWest
-        } else if (neighbor.north) {
-          return neighbors.north
-        } else {
-          return neighbor.values.random
-        }
-      }
-    }
-  }
-
-  // 循环调用计算一格的函数，直到来到终点
-  fun calculateRoute(tile1, tile2) {
-    assert(tile1.zoneIndex > 0)
-    assert(tile2.zoneIndex > 0)
-    final zone1 = zones[tile1.zoneIndex]
-    final zone2 = zones[tile2.zoneIndex]
-    final route = []
-    // 两个据点在相同地域
-    if (zone1.index == zone2.index) {
-      do {
-        final nextRoutTile = getNextRouteTile(tile1, tile2, restrict2Zone: true)
-        route.add(nextRoutTile)
-      } while (nextRoutTile.index != tile2.index)
-    }
-    // 据点 1 所在地域相比据点 2 所在的地域较大
-    else if (zone1.count > zone2.count) {
-
-    }
-    // 据点 1 所在地域相比据点 2 所在的地域较小
-    else {
-
-    }
-
-    for (final tile in route) {
-      
-    }
-  }
-
   // 当前地域的边缘格子坐标
   final shelf = {}
 
@@ -386,7 +283,7 @@ fun createWorld({
     if (tile.zoneIndex != null) {
       return
     }
-    // print('processing: ${tile.left},${tile.top}, spriteIndex: ${tile.spriteIndex}')
+    print('processing: ${tile.left},${tile.top}, spriteIndex: ${tile.spriteIndex}')
     tile.zoneIndex = -1 // mark this tile is being processed, will skip it when process others
     final neighbors = getNeighbors(tile.left, tile.top)
     var foundAdjacentZone = false
@@ -396,17 +293,21 @@ fun createWorld({
         continue
       }
       if (neighbor.zoneIndex == null) {
-        updateZone(neighbor, tile.spriteIndex)
+        updateZone(neighbor, spriteIndex)
       }
       addTile2Zone(neighbor.zoneIndex, tile)
       foundAdjacentZone = true
-      // print('Found neighbor at left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, neighborLeft: ${neighbor.left}, neighborTop: ${neighbor.top}, zoneIndex: ${neighbor.zoneIndex}')
+      print('Found neighbor at left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, neighborLeft: ${neighbor.left}, neighborTop: ${neighbor.top}, zoneIndex: ${neighbor.zoneIndex}')
       break
     }
     if (!foundAdjacentZone) {
-      final zone = newZone(category: tile.spriteIndex == _kLand ? _kLandCategory : _kWaterCategory)
+      var category
+      if (tile.spriteIndex == _kLand) {
+        category = _kLandCategory
+      }
+      final zone = newZone(category: category)
       addTile2Zone(zone.index, tile)
-      // print('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneIndex: ${zone.index}')
+      print('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneIndex: ${zone.index}')
     }
     updatePerimeter(tile.left, tile.top)
   }
@@ -432,7 +333,12 @@ fun createWorld({
     if (zone.name) {
       continue
     }
-    final names = getZone(1, category: zone.category)
+    late names
+    late category
+    if (zone.spriteIndex == _kWater) {
+      category = zone.count < _kMinZoneSizeForSea ? 'lake'
+    }
+    names = getZone(1, category: category)
     zone.name = names.first.name
   }
 
@@ -464,7 +370,7 @@ fun createWorld({
       } else {
         final distance = getTileDistance(origin, location)
         if (nearestDistance == null || distance < nearestDistance) {
-          if (!restrict2Zone || tile.zoneIndex == origin.zoneIndex) 
+          if (!restrict2Zone || location.zoneIndex == origin.zoneIndex) 
           nearestDistance = distance
           tile = location
         }
@@ -493,6 +399,7 @@ fun createWorld({
       locations.add({
         ...Tile(tile.left, tile.top),
         index: tilePos2Index(tile.left, tile.top),
+        zoneIndex: tile.zoneIndex,
         id: 'location_entity_${name}',
         name,
         shape: tileShape,
@@ -507,14 +414,175 @@ fun createWorld({
     }
   }
 
+  final routes = []
+
+  // 计算两个格子之间的通路
+  // 一次只计算一格
+  fun getNextRouteTile(tile1: {}, tile2: {}, {restrict2Zone: bool = true}) {
+    final direction = getDirection(tile1, tile2)
+    final neighbors = getNeighbors(tile1.left, tile1.top, restrict2Zone: restrict2Zone)
+    when(direction) {
+      'north' -> {
+        if (neighbors.north) {
+          return neighbors.north
+        } else if (neighbors.northWest) {
+          return neighbors.northWest
+        } else if (neighbors.northEast) {
+          return neighbors.northEast
+        } else {
+          return neighbors.values.random
+        }
+      }
+      'northEast' -> {
+        if (neighbors.northEast) {
+          return neighbors.northEast
+        } else if (neighbors.north) {
+          return neighbors.north
+        } else if (neighbors.east) {
+          return neighbors.east
+        } else {
+          return neighbors.values.random
+        }
+      }
+      'southEast' -> {
+        if (neighbors.southEast) {
+          return neighbors.southEast
+        } else if (neighbors.south) {
+          return neighbors.south
+        } else if (neighbors.northEast) {
+          return neighbors.northEast
+        } else {
+          return neighbors.values.random
+        }
+      }
+      'east' -> {
+        if (neighbors.northEast) {
+          return neighbors.northEast
+        } else if (neighbors.southEast) {
+          return neighbors.southEast
+        }else {
+          return neighbors.values.random
+        }
+      }
+      'south' -> {
+        if (neighbors.south) {
+          return neighbors.south
+        } else if (neighbors.southEast) {
+          return neighbors.southEast
+        } else if (neighbors.southWest) {
+          return neighbors.southWest
+        } else {
+          return neighbors.values.random
+        }
+      }
+      'southWest' -> {
+        if (neighbors.southWest) {
+          return neighbors.southWest
+        } else if (neighbors.south) {
+          return neighbors.south
+        } else if (neighbors.northWest) {
+          return neighbors.northWest
+        } else {
+          return neighbors.values.random
+        }
+      }
+      'northWest' -> {
+        if (neighbors.northWest) {
+          return neighbors.northWest
+        } else if (neighbors.southWest) {
+          return neighbors.southWest
+        } else if (neighbors.north) {
+          return neighbors.north
+        } else {
+          return neighbors.values.random
+        }
+      }
+      'west' -> {
+        if (neighbors.northWest) {
+          return neighbors.northWest
+        } else if (neighbors.southWest) {
+          return neighbors.southWest
+        }else {
+          return neighbors.values.random
+        }
+      }
+    }
+  }
+
+  // 循环调用计算一格的函数，直到来到终点
+  fun calculateRoute(tile1, tile2) {
+    assert(tile1.zoneIndex > 0)
+    assert(tile2.zoneIndex > 0)
+    assert(tile1.index != tile2.index)
+    final zone1 = zones[tile1.zoneIndex]
+    final zone2 = zones[tile2.zoneIndex]
+    var route
+    // 两个据点在相同地域
+    if (zone1.index == zone2.index) {
+      route = {
+        startLeft: tile1.left,
+        startTop: tile1.top,
+        endLeft: tile2.left,
+        endTop: tile2.top,
+        tiles: []
+      }
+      var nextRouteTile
+      while (true) {
+        late currentTile
+        if (route.tiles.isEmpty) {
+          currentTile = tile1
+        } else {
+          final last = route.tiles.last
+          currentTile = terrains[tilePos2Index(last.left, last.top)]
+        }
+        nextRouteTile = getNextRouteTile(currentTile, tile2, restrict2Zone: true)
+        if (nextRouteTile?.index == tile2.index) {
+          break
+        } else {
+          route.tiles.add({
+            left: nextRouteTile.left,
+            top: nextRouteTile.top,
+          })
+        }
+      }
+    }
+    // 据点 1 所在地域相比据点 2 所在的地域较大
+    else if (zone1.count > zone2.count) {
+
+    }
+    // 据点 1 所在地域相比据点 2 所在的地域较小
+    else {
+
+    }
+    return route
+  }
+
   final entities = {}
 
   for (final location in locations) {
-    entities['${loc.left},${loc.top}'] = loc
-    if (!location.links) {
-      final neighbor = findNearestLocation(location, restrict2Zone: true)
-      if (neighbor) {
-        calculateRoute(location, neighbor)
+    entities['${location.left},${location.top}'] = location
+    if (!location.destinations) {
+      final nearest = findNearestLocation(location, restrict2Zone: true)
+      if (nearest) {
+        // print('prepareing to calculate route. start: ${location.left},${location.top}, end: ${nearest.left},${nearest.top}')
+        final routeIndex = routes.length
+        final route = calculateRoute(location, nearest)
+        if (route) {
+          // print(route)
+          routes.add(route)
+          location.destinations ??= {}
+          location.destinations[nearest.index] = {
+            destinationIndex: nearest.index,
+            distance: route.tiles.length,
+            routeIndex,
+          }
+          nearest.destinations ??= {}
+          nearest.destinations[location.index] = {
+            destinationIndex: location.index,
+            distance: route.tiles.length,
+            routeIndex,
+          }
+        }
       }
     }
   }
@@ -543,6 +611,7 @@ fun createWorld({
     tileOffsetY,
     terrains,
     zones,
+    routes,
     entities,
   }
   

@@ -16,8 +16,8 @@ import '../generator/hexagonal_tile.ht'
 // print(getDirection({left: 4, top: 4}, {left: 3, top: 5}))
 // print(getDirection({left: 4, top: 4}, {left: 3, top: 4}))
 
-final t1 = Tile(1,5)
-final t2 = Tile(7,3)
+final t1 = Tile(5,5)
+final t2 = Tile(1,1)
 // print(t1, t2)
 
-print(calculateDistance(t1, t2))
+print(getTileDistance(t1, t2))
