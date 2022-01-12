@@ -60,8 +60,8 @@ final kCreatureCategory = {
 
 final kLocationCategory = {
   shore: '滨岸',
-  mountain: '山地',
   island: '岛屿',
+  mountain: '山地',
   city: '城市',
 }
 

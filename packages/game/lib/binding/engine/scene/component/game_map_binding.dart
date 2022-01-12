@@ -1,7 +1,7 @@
 import 'package:hetu_script/hetu_script.dart';
 import 'package:hetu_script/binding.dart';
 
-import '../../../../../engine/scene/component/map.dart';
+import '../../../../../engine/tilemap/map.dart';
 
 extension MapComponentBinding on MapComponent {
   dynamic htFetch(String varName) {

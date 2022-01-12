@@ -24,19 +24,16 @@ import 'component.ht'
 
 const _defaultWorldWidth = 12
 const _defaultWorldHeight = 12
-const _kWater = 1
-const _kShelf = 2
-const _kLand = 3
-const _kCity = 4
-const _kForest = 5
-const _kMountain = 6
-const _kVoidCategory = 'void'
-const _kWaterCategory = 'water'
-const _kContinentCategory = 'continent'
-const _kLakeCategory = 'lake'
-const _kPlainCategory = 'plain'
-const _kForestCategory = 'forest'
-const _kMountainCategory = 'mountain'
+const _kSpriteWater = 1
+const _kSpriteShelf = 2
+const _kSpriteLand = 3
+const _kSpriteCity = 4
+const _kSpriteForest = 5
+const _kSpriteMountain = 6
+const _kZoneVoid = 'void'
+const _kZoneWater = 'water'
+const _kZoneContinent = 'continent'
+const _kZoneLake = 'lake'
 const _kMinZoneSizeForLocation = 12 // 据点密度，即产生据点的最小 Zone 大小
 const _kMinZoneSizeForSea = 8
 const _kForestThreshold = 0.5
@@ -101,7 +98,7 @@ fun createWorld({
         {
           ...Tile(i + 1, j + 1),
           index: tilePos2Index(i + 1, j + 1),
-          spriteIndex: _kWater,
+          spriteIndex: _kSpriteWater,
         }
       )
     }
@@ -119,7 +116,7 @@ fun createWorld({
   }
 
   // 没有区域，也是一个区域
-  newZone(name: '无', category: _kVoidCategory)
+  newZone(name: '无', category: _kZoneVoid)
 
   fun addTile2Zone(zoneIndex, tile) {
     assert(tile.zoneIndex == null || tile.zoneIndex == -1)
@@ -132,11 +129,6 @@ fun createWorld({
   }
 
   // 获取尚未被分配地域的区块，可能为 null
-  fun getUnzonedTile() {
-    return terrains.firstWhere((tile) {
-        tile.zoneIndex == null
-      }, orElse: () {})
-  }
   
   // 获取相邻并且在地图范围内的格子
   // 如果 [restrict2Zone] 为 true，则只会返回和起点所在 tile 具有相同 zoneIndex 的格子
@@ -247,7 +239,7 @@ fun createWorld({
     delete shelf[tilePos2Index(left, top)]
     final neighbors = getNeighbors(left, top)
     for (final tile in neighbors) {
-      if (tile.spriteIndex == _kWater) {
+      if (tile.spriteIndex == _kSpriteWater) {
         shelf[tile.index] = true
       }
     }
@@ -266,8 +258,8 @@ fun createWorld({
   // print('start: ${startLeft},${startTop}')
   final startIndex = tilePos2Index(startLeft, startTop)
   final firstTile = terrains[startIndex]
-  firstTile.spriteIndex = _kLand
-  final landZone = newZone(category: _kContinentCategory)
+  firstTile.spriteIndex = _kSpriteLand
+  final landZone = newZone(category: _kZoneContinent)
   addTile2Zone(landZone.index, firstTile)
   updateShelf(startLeft, startTop)
 
@@ -278,14 +270,14 @@ fun createWorld({
     final perimeterIndexes = shelf.keys
     final tile = terrains[int.parse(perimeterIndexes.random)]
     updateShelf(tile.left, tile.top)
-    tile.spriteIndex = _kLand
+    tile.spriteIndex = _kSpriteLand
     addTile2Zone(landZone.index, tile)
   }
 
   // 生成地图上的不同地域
 
   // 已经分配了地域的全部方块的边缘
-  final perimeter = {}
+  // final perimeter = {}
 
   // 根据相邻的格子的地域，分配地域索引
   fun updateZone(tile, [spriteIndex, unzonedNeighbors]) {
@@ -317,7 +309,7 @@ fun createWorld({
       break
     }
     if (!foundAdjacentZone && willCreateZone) {
-      var category = tile.spriteIndex == _kLand ? _kContinentCategory : _kWaterCategory
+      var category = tile.spriteIndex == _kSpriteLand ? _kZoneContinent : _kZoneWater
       final zone = newZone(category: category)
       // print('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneIndex: ${zone.index}')
       addTile2Zone(zone.index, tile)
@@ -328,23 +320,27 @@ fun createWorld({
         }
       }
     }
-    updatePerimeter(tile.left, tile.top)
+    // updatePerimeter(tile.left, tile.top)
   }
 
   // 刷新当前已经分配了地域的全部方块的边缘
-  fun updatePerimeter(left, top) {
-    perimeter[tilePos2Index(left, top)] = false
-    final neighbors = getNeighbors(left, top)
-    for (final tile in neighbors) {
-      if (!perimeter[tile.index]) {
-        perimeter[tile.index] = true
-      }
-    }
-  }
+  // fun updatePerimeter(left, top) {
+  //   perimeter[tilePos2Index(left, top)] = false
+  //   final neighbors = getNeighbors(left, top)
+  //   for (final tile in neighbors) {
+  //     if (!perimeter[tile.index]) {
+  //       perimeter[tile.index] = true
+  //     }
+  //   }
+  // }
 
   var unzonedTile
 
-  while (unzonedTile = getUnzonedTile()) {
+  while (
+    unzonedTile = terrains.firstWhere((tile) {
+        tile.zoneIndex == null
+      }, orElse: () {})
+  ) {
     // print('updating unzoned tile')
     updateZone(unzonedTile)
   }
@@ -355,8 +351,8 @@ fun createWorld({
     }
     late names
     late category
-    if (zone.category == _kWaterCategory) {
-      category = zone.count < _kMinZoneSizeForSea ? _kLakeCategory : _kWaterCategory
+    if (zone.category == _kZoneWater) {
+      category = zone.count < _kMinZoneSizeForSea ? _kZoneLake : _kZoneWater
     } else {
       category = zone.category
     }
@@ -366,10 +362,10 @@ fun createWorld({
 
   // 根据 tile 的所在位置的类型，获取据点类型
   fun getLocationCategory(tile) {
-    if (tile.spriteIndex == _kLand) {
+    if (tile.spriteIndex == _kSpriteLand) {
       final neighbors = getNeighbors(tile.left, tile.top)
       for (final neighbor in neighbors) {
-        if (neighbor.spriteIndex == _kWater) {
+        if (neighbor.spriteIndex == _kSpriteWater) {
           return 'shore'
         }
       }
@@ -440,14 +436,14 @@ fun createWorld({
         srcHeight: tileSpriteSrcHeight,
         gridWidth,
         gridHeight,
-        spriteIndex: _kCity,
+        spriteIndex: _kSpriteCity,
         offsetX: tileOffsetX,
         offsetY: tileOffsetY,
       })
     }
   }
 
-  final routes = []
+  // final routes = []
 
   // hScore(n) 是曼哈顿距离时的 A* 算法
   fun calculateRoute(start, end) {
@@ -542,12 +538,12 @@ fun createWorld({
   for (final location in locations) {
     entities['${location.left},${location.top}'] = location
     // 确保陆地上的每个城市至少可以链接到另外两个城市
-    if (location.zoneCategory == _kContinentCategory) {
+    if (location.zoneCategory == _kZoneContinent) {
       final tiles = find2NearestLocation(location, restrict2Zone: true)
       if (tiles.nearest) {
         final route = calculateRoute(location, tiles.nearest)
         if (route) {
-          routes.add(route)
+          // routes.add(route)
           for (final index in route) {
             final terrain = terrains[index]
             terrain.isRoute = true
@@ -557,7 +553,7 @@ fun createWorld({
       if (tiles.secondNearest) {
         final route = calculateRoute(location, tiles.secondNearest)
         if (route) {
-          routes.add(route)
+          // routes.add(route)
           for (final index in route) {
             final terrain = terrains[index]
             terrain.isRoute = true
@@ -573,9 +569,9 @@ fun createWorld({
     if (!terrain.isRoute) {
       final r = Math.random()
       if (r < _kMountainThreshold) {
-        terrain.spriteIndex = _kMountain
+        terrain.spriteIndex = _kSpriteMountain
       } else if (r < _kForestThreshold) {
-        terrain.spriteIndex = _kForest
+        terrain.spriteIndex = _kSpriteForest
       }
     }
   }
@@ -583,7 +579,7 @@ fun createWorld({
   // 将大陆和海洋接触的地方填充为大陆架
   for (final index in shelf.keys) {
     final tile = terrains[int.parse(index)]
-    tile.spriteIndex = _kShelf
+    tile.spriteIndex = _kSpriteShelf
   }
 
   final data = {
@@ -604,7 +600,7 @@ fun createWorld({
     tileOffsetY,
     terrains,
     zones,
-    routes,
+    // routes,
     entities,
   }
   

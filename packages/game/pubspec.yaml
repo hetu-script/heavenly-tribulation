@@ -45,6 +45,7 @@ flutter:
   assets:
     - assets/images/
     - assets/images/icon/
+    - assets/images/character/
     - assets/images/maze/
     - assets/images/interior/
     - assets/images/location/

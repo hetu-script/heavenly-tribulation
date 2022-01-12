@@ -6,20 +6,21 @@ import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
 import 'package:tian_dao_qi_jie/ui/pointer_detector.dart';
 
-import '../../gestures/gesture_mixin.dart';
-import '../../extensions.dart';
+import '../gestures/gesture_mixin.dart';
+import '../extensions.dart';
 import 'tile.dart';
-import '../../game.dart';
-import '../../event/event.dart';
+import '../game.dart';
+import '../event/event.dart';
 import 'zone.dart';
+import 'actor.dart';
 
 abstract class MapEvents {
   static const tileTapped = 'tile_tapped';
 }
 
 class MapEvent extends Event {
-  final Terrain? terrain;
-  final Entity? entity;
+  final TileMapTerrain? terrain;
+  final TileMapEntity? entity;
 
   const MapEvent({
     required String eventName,
@@ -27,7 +28,8 @@ class MapEvent extends Event {
     this.entity,
   }) : super(eventName);
 
-  const MapEvent.tileTapped({required Terrain terrain, Entity? entity})
+  const MapEvent.tileTapped(
+      {required TileMapTerrain terrain, TileMapEntity? entity})
       : this(eventName: MapEvents.tileTapped, terrain: terrain, entity: entity);
 }
 
@@ -67,13 +69,14 @@ class MapComponent extends GameComponent with HandlesGesture {
   final Vector2 tileSize;
 
   final bool tapSelect;
-  Terrain? selectedTerrain;
-  Entity? selectedEntity;
+  TileMapTerrain? selectedTerrain;
+  TileMapEntity? selectedEntity;
 
-  final List<List<Terrain>> terrains;
-  final Map<String, Entity> entities;
+  final List<List<TileMapTerrain>> terrains;
+  final Map<String, TileMapEntity> entities;
+  final List<TileMapActor> actors = [];
   final List<Zone> zones;
-  final List<TileMapRoute> routes;
+  // final List<TileMapRoute> routes;
 
   final int mapTileWidth;
   final int mapTileHeight;
@@ -96,15 +99,16 @@ class MapComponent extends GameComponent with HandlesGesture {
   MapComponent({
     required SamsaraGame game,
     required this.tileShape,
+    this.tapSelect = false,
     required this.entryX,
     required this.entryY,
     required double gridWidth,
     required double gridHeight,
     required this.terrains,
     this.entities = const {},
-    this.routes = const [],
+    List<TileMapActor> actors = const [],
+    // this.routes = const [],
     this.zones = const [],
-    this.tapSelect = false,
   })  : mapTileHeight = terrains.length,
         mapTileWidth = terrains.first.length,
         tileSize = Vector2(gridWidth, gridHeight),
@@ -112,17 +116,26 @@ class MapComponent extends GameComponent with HandlesGesture {
     assert(terrains.isNotEmpty);
     scale = Vector2(MapTile.defaultScale, MapTile.defaultScale);
 
-    for (final route in routes) {
-      final path = Path();
-      final start = route.tiles.first;
-      var pos = tilePosition2TileCenterInWorld(start.left, start.top);
-      path.moveTo(pos.x, pos.y);
-      for (var i = 1; i < route.tiles.length; ++i) {
-        final tile = route.tiles[i];
-        pos = tilePosition2TileCenterInWorld(tile.left, tile.top);
-        path.lineTo(pos.x, pos.y);
-      }
-      route.path = path;
+    //   for (final route in routes) {
+    //     final path = Path();
+    //     final start = route.tiles.first;
+    //     var pos = tilePosition2TileCenterInWorld(start.left, start.top);
+    //     path.moveTo(pos.x, pos.y);
+    //     for (var i = 1; i < route.tiles.length; ++i) {
+    //       final tile = route.tiles[i];
+    //       pos = tilePosition2TileCenterInWorld(tile.left, tile.top);
+    //       path.lineTo(pos.x, pos.y);
+    //     }
+    //     route.path = path;
+    //   }
+
+    this.actors.addAll(actors);
+
+    for (final actor in actors) {
+      final worldPos = tilePosition2World(
+          actor.left, actor.top, actor.srcWidth, actor.srcHeight);
+      actor.x = worldPos.x;
+      actor.y = worldPos.y;
     }
   }
 
@@ -164,22 +177,22 @@ class MapComponent extends GameComponent with HandlesGesture {
       zones.add(Zone(index: index, name: name));
     }
 
-    final routesData = data['routes'];
-    final routes = <TileMapRoute>[];
-    for (final routeData in routesData) {
-      final tiles = <TilePosition>[];
-      for (final index in routeData) {
-        final left = index % mapTileWidth + 1;
-        final top = index ~/ mapTileHeight + 1;
-        tiles.add(TilePosition(left, top));
-      }
-      final route = TileMapRoute(tiles: tiles);
-      routes.add(route);
-    }
+    // final routesData = data['routes'];
+    // final routes = <TileMapRoute>[];
+    // for (final routeData in routesData) {
+    //   final tiles = <TilePosition>[];
+    //   for (final index in routeData) {
+    //     final left = index % mapTileWidth + 1;
+    //     final top = index ~/ mapTileHeight + 1;
+    //     tiles.add(TilePosition(left, top));
+    //   }
+    //   final route = TileMapRoute(tiles: tiles);
+    //   routes.add(route);
+    // }
 
     final tapSelect = data['tapSelect'] ?? false;
 
-    final List<List<Terrain>> terrains = [];
+    final List<List<TileMapTerrain>> terrains = [];
     for (var j = 0; j < mapTileHeight; ++j) {
       terrains.add([]);
       for (var i = 0; i < mapTileWidth; ++i) {
@@ -216,7 +229,7 @@ class MapComponent extends GameComponent with HandlesGesture {
         if (i + 1 == entryX && j + 1 == entryY) {
           isEntry = true;
         }
-        final tile = Terrain(
+        final tile = TileMapTerrain(
           game: game,
           shape: tileShape,
           left: i + 1,
@@ -240,7 +253,7 @@ class MapComponent extends GameComponent with HandlesGesture {
     }
 
     final entitiyData = data['entities'];
-    final Map<String, Entity> entities = {};
+    final Map<String, TileMapEntity> entities = {};
     if (entitiyData != null) {
       for (final key in entitiyData.keys) {
         final entityData = entitiyData[key];
@@ -280,7 +293,7 @@ class MapComponent extends GameComponent with HandlesGesture {
               from: 0,
               to: animationFrameCount);
         }
-        final entity = Entity(
+        final entity = TileMapEntity(
           id: id,
           name: name,
           game: game,
@@ -302,9 +315,24 @@ class MapComponent extends GameComponent with HandlesGesture {
       }
     }
 
+    final sheet = SpriteSheet.fromColumnsAndRows(
+      image: await Flame.images.load('character/tile_character.png'),
+      columns: 4,
+      rows: 4,
+    );
+    final hero = TileMapActor(
+        game: game,
+        left: entryX,
+        top: entryY,
+        srcWidth: 32,
+        srcHeight: 32,
+        characterId: 'current',
+        sheet: sheet);
+
     return MapComponent(
       game: game,
       tileShape: tileShape,
+      tapSelect: tapSelect,
       entryX: entryX,
       entryY: entryY,
       gridWidth: gridWidth,
@@ -312,8 +340,8 @@ class MapComponent extends GameComponent with HandlesGesture {
       terrains: terrains,
       zones: zones,
       entities: entities,
-      routes: routes,
-      tapSelect: tapSelect,
+      actors: [hero],
+      // routes: routes,
     );
   }
 
@@ -354,11 +382,11 @@ class MapComponent extends GameComponent with HandlesGesture {
     return positions;
   }
 
-  Terrain? getTerrainByPosition(TilePosition position) {
+  TileMapTerrain? getTerrainByPosition(TilePosition position) {
     return getTerrain(position.left, position.top);
   }
 
-  Terrain? getTerrain(int left, int top) {
+  TileMapTerrain? getTerrain(int left, int top) {
     if (isPositionWithinMap(left, top)) {
       return terrains[top - 1][left - 1];
     } else {
@@ -366,7 +394,7 @@ class MapComponent extends GameComponent with HandlesGesture {
     }
   }
 
-  Entity? getEntity(int left, int top) {
+  TileMapEntity? getEntity(int left, int top) {
     return entities['$left,$top'];
   }
 
@@ -381,7 +409,7 @@ class MapComponent extends GameComponent with HandlesGesture {
     }
   }
 
-  void _lightUpAroundTerrain(Terrain tile) {
+  void _lightUpAroundTerrain(TileMapTerrain tile) {
     // final neighbors = getNeighborTilePositions(tile.left, tile.top);
     // for (final pos in neighbors) {
     //   final neighbor = getTerrainByPosition(pos);
@@ -409,7 +437,7 @@ class MapComponent extends GameComponent with HandlesGesture {
     _lightUpAroundTerrain(tile);
   }
 
-  void _moveToTerrain(Terrain tile) {
+  void _moveToTerrain(TileMapTerrain tile) {
     final entity = getEntity(tile.left, tile.top);
     entity?.isVisible = true;
     _moveCameraToTilePosition(tile.left, tile.top, animated: true);
@@ -428,6 +456,46 @@ class MapComponent extends GameComponent with HandlesGesture {
 
   Vector2 screenPosition2World(Vector2 position) {
     return position + camera.position;
+  }
+
+  Vector2 tilePosition2World(int left, int top, int width, int height,
+      {TileRenderDirection renderDirection = TileRenderDirection.rightBottom}) {
+    late final double bl, bt, l, t;
+    switch (tileShape) {
+      case TileShape.orthogonal:
+        bl = ((left - 1) * tileSize.x);
+        bt = ((top - 1) * tileSize.y);
+        break;
+      case TileShape.hexagonalVertical:
+        bl = (left - 1) * tileSize.x * (3 / 4);
+        bt = left.isOdd
+            ? (top - 1) * tileSize.y
+            : (top - 1) * tileSize.y + tileSize.y / 2;
+        break;
+      case TileShape.isometric:
+        throw 'Isometric map tile is not supported yet!';
+      case TileShape.hexagonalHorizontal:
+        throw 'Vertical hexagonal map tile is not supported yet!';
+    }
+    switch (renderDirection) {
+      case TileRenderDirection.rightBottom:
+        l = bl - (width - tileSize.x);
+        t = bt - (height - tileSize.y);
+        break;
+      case TileRenderDirection.leftBottom:
+        l = bl;
+        t = bt - (height - tileSize.y);
+        break;
+      case TileRenderDirection.rightTop:
+        l = bl - (width - tileSize.x);
+        t = bt;
+        break;
+      case TileRenderDirection.leftTop:
+        l = bl;
+        t = bt;
+        break;
+    }
+    return Vector2(l, t);
   }
 
   Vector2 tilePosition2TileCenterInWorld(int left, int top) {
@@ -580,9 +648,12 @@ class MapComponent extends GameComponent with HandlesGesture {
     if (selectedTerrain != null) {
       canvas.drawPath(selectedTerrain!.path, selectedPaint);
     }
-    for (final route in routes) {
-      canvas.drawPath(route.path!, routePaint);
+    for (final actor in actors) {
+      actor.render(canvas);
     }
+    // for (final route in routes) {
+    //   canvas.drawPath(route.path!, routePaint);
+    // }
     canvas.restore();
   }
 

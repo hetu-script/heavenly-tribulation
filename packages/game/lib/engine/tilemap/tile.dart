@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flame/sprite.dart';
 // import 'package:flame/extensions.dart';
 
-import '../../extensions.dart';
-import '../../game.dart';
+import '../extensions.dart';
+import '../game.dart';
 
 class TilePosition {
   final int left, top;
@@ -156,7 +156,6 @@ class MapTile extends GameComponent {
     if (!isVisible) {
       return;
     }
-    super.render(canvas);
     sprite?.renderRect(canvas, rect);
     if (animation != null) {
       animation?.getSprite().renderRect(canvas, rect);
@@ -200,10 +199,10 @@ class TileRouteDestination {
       required this.routeIndex});
 }
 
-class Terrain extends MapTile {
+class TileMapTerrain extends MapTile {
   bool get isVoid => sprite == null;
 
-  Terrain({
+  TileMapTerrain({
     required SamsaraGame game,
     required TileShape shape,
     TileRenderDirection renderDirection = TileRenderDirection.rightBottom,
@@ -238,13 +237,13 @@ class Terrain extends MapTile {
         );
 }
 
-class Entity extends MapTile {
+class TileMapEntity extends MapTile {
   final String id;
   final String name;
 
   // final Map<int, TileRouteDestination> destinations;
 
-  Entity({
+  TileMapEntity({
     required this.id,
     required this.name,
     required SamsaraGame game,

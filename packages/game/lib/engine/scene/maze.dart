@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'scene.dart';
-import 'component/map.dart';
+import '../tilemap/map.dart';
 import '../game.dart';
 
 class MazeScene extends Scene {
