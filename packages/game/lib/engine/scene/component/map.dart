@@ -175,7 +175,7 @@ class MapComponent extends GameComponent with HandlesGesture {
       final endTop = routeData['endTop'];
       final tilesData = routeData['tiles'];
       final tiles = <TilePosition>[];
-      for (final tile in tilesData) {
+      for (final tile in tilesData.values) {
         final left = tile['left'];
         final top = tile['top'];
         tiles.add(TilePosition(left, top));

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'scene.dart';
 import 'component/map.dart';
 import '../game.dart';
+import '../../ui/shared/avatar.dart';
 
 class WorldMapScene extends Scene {
   var _loaded = false;
@@ -19,6 +20,7 @@ class WorldMapScene extends Scene {
   }) : super(key: 'WorldMap', game: game) {
     overlayBuilderMap = {
       'overlayUI': (BuildContext context, Scene scene) {
+        final heroData = game.hetu.invoke('getCurrentCharacterData');
         final informationWidgets = <Widget>[];
         if (map != null) {
           informationWidgets.addAll(
@@ -50,6 +52,30 @@ class WorldMapScene extends Scene {
             children: <Widget>[
               Positioned(
                 left: 5,
+                top: 5,
+                child: Container(
+                    height: 120,
+                    width: 180,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(5.0),
+                      border: Border.all(
+                        width: 2,
+                        color: Colors.lightBlue.withOpacity(0.5),
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(10.0),
+                    child: Row(
+                      children: <Widget>[
+                        Avatar(
+                          avatarAssetKey: 'assets/images/${heroData['avatar']}',
+                          size: 100,
+                        ),
+                      ],
+                    )),
+              ),
+              Positioned(
+                right: 5,
                 top: 5,
                 child: Container(
                   decoration: BoxDecoration(

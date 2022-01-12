@@ -2,10 +2,11 @@ struct Tile {
   construct (left, top) {
     this.left = left
     this.top = top
-    // 以 (1, 1) 为原点，该格子在右斜线上的投影坐标
-    this.slashDownRow = ((left.isOdd ? (left + 1) / 2 : left / 2) - top).truncate()
-    // 以 (1, 1) 为原点，该格子在左斜线上的投影坐标
-    this.slashUpRow = left - this.slashDownRow - 1
+    // 切换为 horizontal hexgonal tile map 的坐标系
+    // 以 (1, 1) 为原点，该格子相对向右下行的斜线的距离
+    this.slashLeft = ((left.isOdd ? (left + 1) / 2 : left / 2) - top).truncate()
+    // 以 (1, 1) 为原点，该格子相对向右上行的斜线的距离
+    this.slashTop = left - this.slashLeft - 1
   }
 }
 
@@ -79,25 +80,13 @@ fun getDirection(start: {}, end: {}) {
   }
 }
 
-// 计算 hexagonal tile 的距离，将地图分为 3 个区域
-// \1|1/
-// 2\|/2
-// 2/|\2
-// /3|3\
-fun getTileDistance(tile1, tile2) {
-  final horizontalDistance = (tile2.left - tile1.left).abs()
-  final heightDifference1 = horizontalDistance.isOdd ? (horizontalDistance + 1) / 2 : horizontalDistance / 2
-  final heightDifference2 = horizontalDistance.isOdd ? (horizontalDistance - 1) / 2 : horizontalDistance / 2
-  // 区域 1
-  if (tile1.top - heightDifference1 >= tile2.top) {
-    return horizontalDistance + (tile1.top - heightDifference1) - tile2.top
-  }
-  // 区域 2
-  else if (tile1.top - heightDifference1 < tile2.top && tile2.top < tile1.top + heightDifference2) {
-    return (tile1.slashDownRow - tile2.slashDownRow).abs() + (tile1.slashUpRow - tile2.slashUpRow).abs()
-  }
-  // 区域 3
-  else {
-    return horizontalDistance + tile2.top - (tile1.top + heightDifference2)
+// manhattan 距离算法
+fun getTileDistance(start, end) {
+  final dx = end.slashLeft - start.slashLeft
+  final dy = end.slashTop - start.slashTop
+  if ((dx >= 0 && dy >= 0) || (dx <= 0 && dy <= 0)) {
+    return (dx + dy).abs()
+  } else {
+    return Math.max(dx.abs(), dy.abs())
   }
 }
