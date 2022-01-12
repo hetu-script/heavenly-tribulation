@@ -38,15 +38,13 @@ enum WorldStyle {
 }
 
 class TileMapRoute {
-  final int startLeft, startTop, endLeft, endTop;
+  // final int startLeft, startTop;
   final List<TilePosition> tiles;
   Path? path;
 
   TileMapRoute(
-      {required this.startLeft,
-      required this.startTop,
-      required this.endLeft,
-      required this.endTop,
+      {
+      //required this.startLeft, required this.startTop,
       required this.tiles});
 }
 
@@ -116,14 +114,14 @@ class MapComponent extends GameComponent with HandlesGesture {
 
     for (final route in routes) {
       final path = Path();
-      var pos = tilePosition2TileCenterInWorld(route.startLeft, route.startTop);
+      final start = route.tiles.first;
+      var pos = tilePosition2TileCenterInWorld(start.left, start.top);
       path.moveTo(pos.x, pos.y);
-      for (final tile in route.tiles) {
+      for (var i = 1; i < route.tiles.length; ++i) {
+        final tile = route.tiles[i];
         pos = tilePosition2TileCenterInWorld(tile.left, tile.top);
         path.lineTo(pos.x, pos.y);
       }
-      pos = tilePosition2TileCenterInWorld(route.endLeft, route.endTop);
-      path.lineTo(pos.x, pos.y);
       route.path = path;
     }
   }
@@ -169,23 +167,13 @@ class MapComponent extends GameComponent with HandlesGesture {
     final routesData = data['routes'];
     final routes = <TileMapRoute>[];
     for (final routeData in routesData) {
-      final startLeft = routeData['startLeft'];
-      final startTop = routeData['startTop'];
-      final endLeft = routeData['endLeft'];
-      final endTop = routeData['endTop'];
-      final tilesData = routeData['tiles'];
       final tiles = <TilePosition>[];
-      for (final tile in tilesData.values) {
-        final left = tile['left'];
-        final top = tile['top'];
+      for (final index in routeData) {
+        final left = index % mapTileWidth + 1;
+        final top = index ~/ mapTileHeight + 1;
         tiles.add(TilePosition(left, top));
       }
-      final route = TileMapRoute(
-          startLeft: startLeft,
-          startTop: startTop,
-          endLeft: endLeft,
-          endTop: endTop,
-          tiles: tiles);
+      final route = TileMapRoute(tiles: tiles);
       routes.add(route);
     }
 
@@ -292,19 +280,6 @@ class MapComponent extends GameComponent with HandlesGesture {
               from: 0,
               to: animationFrameCount);
         }
-        final destinationsData = entityData['destinations'];
-        final destinations = <int, TileRouteDestination>{};
-        if (destinationsData is Map<String, dynamic>) {
-          for (final destination in destinationsData.values) {
-            final destinationIndex = destination['destinationIndex'];
-            final distance = destination['distance'];
-            final routeIndex = destination['routeIndex'];
-            destinations[destinationIndex] = TileRouteDestination(
-                destinationIndex: destinationIndex,
-                distance: distance,
-                routeIndex: routeIndex);
-          }
-        }
         final entity = Entity(
           id: id,
           name: name,
@@ -318,7 +293,6 @@ class MapComponent extends GameComponent with HandlesGesture {
           gridHeight: gridHeight,
           isVisible: true,
           zoneIndex: zoneIndex,
-          destinations: destinations,
           sprite: sprite,
           animation: animation,
           offsetX: offsetX,

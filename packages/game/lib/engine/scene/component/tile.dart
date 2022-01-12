@@ -242,7 +242,7 @@ class Entity extends MapTile {
   final String id;
   final String name;
 
-  final Map<int, TileRouteDestination> destinations;
+  // final Map<int, TileRouteDestination> destinations;
 
   Entity({
     required this.id,
@@ -258,7 +258,7 @@ class Entity extends MapTile {
     required double gridHeight,
     required bool isVisible,
     required int zoneIndex,
-    this.destinations = const {},
+    // this.destinations = const {},
     Sprite? sprite,
     SpriteAnimation? animation,
     double offsetX = 0.0,
