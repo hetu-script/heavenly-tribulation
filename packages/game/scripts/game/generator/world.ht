@@ -437,7 +437,7 @@ fun createWorld({
 
   final routes = []
 
-  // 广度优先算法寻路
+  // G(n) 和 H(n) 都是曼哈顿距离时的 A* 算法
   fun calculateRoute(start, end) {
     assert(start.zoneIndex > 0)
     assert(end.zoneIndex > 0)
@@ -445,15 +445,16 @@ fun createWorld({
     final zone1 = zones[start.zoneIndex]
     final zone2 = zones[end.zoneIndex]
     var route
+    // 节点返回路径，每个 key 对应的 value 代表了 key 的坐标的上一步骤的坐标
     final cameFrom = {}
     fun reconstruct(cameFrom, ) {
       
     }
     // 尚未计算的坐标
-    final closed = {}
-    // 将要计算的坐标
+    final closed = []
+    // 将要计算的坐标, key 是 tile index，value 是 离起点的距离
     final open = {}
-    open[start.index] = true
+    open[start.index] = 0
     final distance = getTileDistance(start, end)
     // 两个据点在相同地域
     if (zone1.index == zone2.index) {
