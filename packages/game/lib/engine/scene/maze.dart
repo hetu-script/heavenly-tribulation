@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import 'scene.dart';
 import '../tilemap/map.dart';
 import '../game.dart';
+import '../../ui/game/overlay/maze.dart';
 
 class MazeScene extends Scene {
   bool _loaded = false;
@@ -12,25 +13,7 @@ class MazeScene extends Scene {
 
   MazeScene({
     required SamsaraGame game,
-  })  : overlayBuilderMap = {
-          'overlayUI': (BuildContext context, Scene scene) {
-            return Material(
-              child: Stack(
-                children: <Widget>[
-                  Positioned(
-                    child: IconButton(
-                      onPressed: () {
-                        game.leaveScene('Maze');
-                      },
-                      icon: const Icon(Icons.menu_open),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        },
-        super(key: 'Maze', game: game);
+  }) : super(key: 'Maze', game: game);
 
   @override
   Future<void> onLoad() async {
@@ -42,6 +25,7 @@ class MazeScene extends Scene {
   }
 
   @override
-  late final Map<String, Widget Function(BuildContext, Scene)>
-      overlayBuilderMap;
+  Widget get widget {
+    return MazeOverlay(game: game, scene: this);
+  }
 }

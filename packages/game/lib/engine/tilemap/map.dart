@@ -10,7 +10,7 @@ import '../gestures/gesture_mixin.dart';
 import '../extensions.dart';
 import 'tile.dart';
 import '../game.dart';
-import '../event/event.dart';
+import '../../event/event.dart';
 import 'zone.dart';
 import 'actor.dart';
 
@@ -18,7 +18,7 @@ abstract class MapEvents {
   static const tileTapped = 'tile_tapped';
 }
 
-class MapEvent extends Event {
+class MapEvent extends GameEvent {
   final TileMapTerrain? terrain;
   final TileMapEntity? entity;
 

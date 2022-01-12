@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 
 import '../game.dart';
-import '../event/event.dart';
+import '../../event/event.dart';
 import '../../ui/pointer_detector.dart';
 import '../gestures/gesture_mixin.dart';
 
@@ -13,7 +13,7 @@ abstract class SceneEvents {
   static const ended = 'scene_ended';
 }
 
-class SceneEvent extends Event {
+class SceneEvent extends GameEvent {
   final String sceneKey;
 
   const SceneEvent({
@@ -39,15 +39,6 @@ abstract class Scene extends FlameGame {
     required this.key,
     required this.game,
   });
-
-  Map<String, Widget Function(BuildContext, Scene)>? get overlayBuilderMap;
-
-  void init() async {
-    if (overlayBuilderMap != null &&
-        overlayBuilderMap!.containsKey(overlayUIBuilderMapKey)) {
-      overlays.add(overlayUIBuilderMapKey);
-    }
-  }
 
   void end() {
     game.leaveScene(key);
@@ -122,7 +113,6 @@ abstract class Scene extends FlameGame {
     return PointerDetector(
       child: GameWidget(
         game: this,
-        overlayBuilderMap: overlayBuilderMap,
       ),
       onTapDown: onTapDown,
       onTapUp: onTapUp,

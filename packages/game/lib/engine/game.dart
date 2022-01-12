@@ -5,7 +5,7 @@ import '../binding/external_game_functions.dart';
 import '../binding/engine/scene/component/game_map_binding.dart';
 import '../binding/engine/game_binding.dart';
 import 'scene/scene.dart';
-import 'event/event.dart';
+import '../event/event.dart';
 import '../shared/localization.dart';
 
 class SamsaraGame with SceneController, EventAggregator {

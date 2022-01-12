@@ -3,25 +3,25 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:tian_dao_qi_jie/shared/localization.dart';
 
-import '../../engine/game.dart';
-import '../shared/avatar.dart';
+import '../../../engine/game.dart';
+import '../../shared/avatar.dart';
 
-class ProtagnistView extends StatefulWidget {
+class MyView extends StatefulWidget {
   final SamsaraGame game;
 
   final void Function() onQuit;
 
-  const ProtagnistView({
+  const MyView({
     Key? key,
     required this.game,
     required this.onQuit,
   }) : super(key: key);
 
   @override
-  _ProtagnistViewState createState() => _ProtagnistViewState();
+  _MyViewState createState() => _MyViewState();
 }
 
-class _ProtagnistViewState extends State<ProtagnistView> {
+class _MyViewState extends State<MyView> {
   SamsaraGame get game => widget.game;
 
   GameLocalization get locale => widget.game.locale;

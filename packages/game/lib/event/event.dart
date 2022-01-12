@@ -1,10 +1,10 @@
-class Event {
+class GameEvent {
   final String name;
 
-  const Event(this.name);
+  const GameEvent(this.name);
 }
 
-typedef EventHandler = void Function(Event event);
+typedef EventHandler = void Function(GameEvent event);
 
 class EventAggregator {
   final _eventHandlers = <String, List<EventHandler>>{};
@@ -16,7 +16,7 @@ class EventAggregator {
     _eventHandlers[name]!.add(handle);
   }
 
-  void broadcast(Event event) {
+  void broadcast(GameEvent event) {
     final listeners = _eventHandlers[event.name]!;
     for (final listener in listeners) {
       listener(event);

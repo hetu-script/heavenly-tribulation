@@ -133,7 +133,6 @@ class _GameAppState extends State<GameApp> with AutomaticKeepAliveClientMixin {
               game: game);
       }
     } else {
-      game.currentScene!.init();
       return game.currentScene!.widget;
     }
   }
