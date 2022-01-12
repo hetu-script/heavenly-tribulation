@@ -36,14 +36,16 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
     final heroData = game.hetu.invoke('getCurrentCharacterData');
     final informationWidgets = <Widget>[];
     if (scene.map != null) {
-      informationWidgets.addAll(
-        [
-          Text(
-              'X: ${scene.map!.selectedTerrain!.left}, Y: ${scene.map!.selectedTerrain!.top}'),
-          Text(
-              '地域: ${scene.map!.zones[scene.map!.selectedTerrain!.zoneIndex].name}')
-        ],
-      );
+      if (scene.map!.selectedTerrain != null) {
+        informationWidgets.addAll(
+          [
+            Text(
+                'X: ${scene.map!.selectedTerrain!.left}, Y: ${scene.map!.selectedTerrain!.top}'),
+            Text(
+                '地域: ${scene.map!.zones[scene.map!.selectedTerrain!.zoneIndex].name}')
+          ],
+        );
+      }
       if (scene.map!.selectedEntity != null) {
         informationWidgets.add(
           Row(

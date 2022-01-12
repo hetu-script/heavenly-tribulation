@@ -1,9 +1,11 @@
 import 'dart:ui';
 
 import 'package:flame/sprite.dart';
-import '../game.dart';
 
+import '../game.dart';
 import '../extensions.dart';
+import 'tile.dart';
+import 'tile_mixin.dart';
 
 enum ActorDirection {
   south,
@@ -12,30 +14,40 @@ enum ActorDirection {
   north,
 }
 
-class TileMapActor extends GameComponent {
-  final int left, top;
-  final int srcWidth, srcHeight;
-
+class TileMapActor extends GameComponent with TileInfo {
   final SpriteAnimation south, east, west, north;
   final ActorDirection direction = ActorDirection.south;
 
   final String characterId;
 
+  bool isWalking = false;
+
   TileMapActor(
       {required SamsaraGame game,
-      required this.left,
-      required this.top,
-      required this.srcWidth,
-      required this.srcHeight,
       required this.characterId,
-      required SpriteSheet sheet})
-      : south = sheet.createAnimation(row: 0, stepTime: 0.2),
-        east = sheet.createAnimation(row: 1, stepTime: 0.2),
-        west = sheet.createAnimation(row: 2, stepTime: 0.2),
-        north = sheet.createAnimation(row: 3, stepTime: 0.2),
-        super(game: game);
+      required TileShape tileShape,
+      required double gridWidth,
+      required double gridHeight,
+      required int left,
+      required int top,
+      required int srcWidth,
+      required int srcHeight,
+      required SpriteSheet spriteSheet})
+      : south = spriteSheet.createAnimation(row: 0, stepTime: 0.2),
+        east = spriteSheet.createAnimation(row: 1, stepTime: 0.2),
+        west = spriteSheet.createAnimation(row: 2, stepTime: 0.2),
+        north = spriteSheet.createAnimation(row: 3, stepTime: 0.2),
+        super(game: game) {
+    this.tileShape = tileShape;
+    this.gridWidth = gridWidth;
+    this.gridHeight = gridHeight;
+    this.left = left;
+    this.top = top;
+    this.srcWidth = srcWidth;
+    this.srcHeight = srcHeight;
+  }
 
-  Sprite get _currentSprite {
+  Sprite get currentSprite {
     switch (direction) {
       case ActorDirection.south:
         return south.getSprite();
@@ -50,6 +62,16 @@ class TileMapActor extends GameComponent {
 
   @override
   void render(Canvas canvas) {
-    _currentSprite.render(canvas, position: position);
+    if (!isWalking) {
+      final worldPos = tilePosition2World(left, top);
+      currentSprite.render(canvas, position: worldPos);
+    }
+  }
+
+  @override
+  void update(double dt) {
+    if (isWalking) {
+      super.update(dt);
+    }
   }
 }
