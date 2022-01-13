@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
-project(sing2 LANGUAGES CXX)
+project(heavenly_tribulation LANGUAGES CXX)
 
-set(BINARY_NAME "sing2")
+set(BINARY_NAME "Heavenly Tribulation")
 
 cmake_policy(SET CMP0063 NEW)
 

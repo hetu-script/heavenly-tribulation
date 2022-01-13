@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "A new Flutter project." "\0"
+            VALUE "CompanyName", "hetu.dev" "\0"
+            VALUE "FileDescription", "A Xianxia genre RPG game mixed with Roguelike/Tycoon elements." "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "sing2" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2021 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "sing2.exe" "\0"
-            VALUE "ProductName", "sing2" "\0"
+            VALUE "InternalName", "heavenly_tribulation" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2021 hetu.dev. All rights reserved." "\0"
+            VALUE "OriginalFilename", "heavenly_tribulation.exe" "\0"
+            VALUE "ProductName", "Heavenly Tribulation" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

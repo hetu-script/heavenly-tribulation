@@ -1,4 +1,4 @@
-package com.example.sing2
+package hetu.game.heavenly_tribulation
 
 import io.flutter.embedding.android.FlutterActivity
 
