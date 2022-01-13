@@ -21,7 +21,7 @@ class TileMapCloud extends PositionComponent with HasGameRef<Scene> {
   bool visible = true;
 
   TileMapCloud({
-    required Vector2 visibleSize,
+    required Vector2 screenSize,
     Sprite? sprite,
     double? duration,
     double? opacity,
@@ -46,8 +46,8 @@ class TileMapCloud extends PositionComponent with HasGameRef<Scene> {
       this.position = position;
     } else {
       // 我也不知道为啥这里一定要除以 scale
-      final randomPosX = (random.nextDouble() * visibleSize.x) / 2;
-      final randomPosY = (random.nextDouble() * visibleSize.y) / 2;
+      final randomPosX = (random.nextDouble() * screenSize.x) / 2;
+      final randomPosY = (random.nextDouble() * screenSize.y) / 2;
       this.position = Vector2(randomPosX, randomPosY);
     }
   }

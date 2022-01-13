@@ -12,15 +12,23 @@ import 'component.ht'
 ///
 /// 算法思路：
 ///
-/// 先用海面填满整个地图空间
-///
-/// 根据地图大小以及陆地和水面的比例，得到应该生成多少块陆地
+/// 用海面填满整个地图空间
 ///
 /// 找到一个出发点，通常在地图中间部分
 ///
 /// 找到出发点周围的方块，将其加入一个数组，作为当前陆地的边界
 ///
 /// 将当前方块变成陆地，检查陆地比例，如果不够，就从当前陆地边界中随机挑选一个方块，将其变成陆地，同时重新计算边界。
+///
+/// 循环上述步骤，直到陆地和海水的比例达到预设值
+///
+/// 为陆地所属的整个大地块命名，然后找到尚未命名的地块，将所有相连的地块作为一个整体命名，直到所有的地块都有名字，根据地块大小有不同命名方式
+///
+/// 根据城市密度，生成城市，并根据城市位于陆地、海边还是海中，对其进行特殊命名
+///
+/// 对于每个城市，链接最近的另外两个城市，使用 A* 寻路算法，标记经过的地块
+///
+/// 对于没有道路经过的地块，随机填充山脉和树林
 
 const _defaultWorldWidth = 12
 const _defaultWorldHeight = 12
@@ -588,10 +596,8 @@ fun createWorld({
     tileShape,
     width,
     height,
-    entry: {
-      x: startLeft,
-      y: startTop,
-    },
+    heroX: startLeft,
+    heroY: startTop,
     gridWidth,
     gridHeight,
     tileSpriteSrcWidth,
@@ -600,7 +606,6 @@ fun createWorld({
     tileOffsetY,
     terrains,
     zones,
-    // routes,
     entities,
   }
   

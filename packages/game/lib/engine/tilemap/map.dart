@@ -12,29 +12,10 @@ import '../gestures/gesture_mixin.dart';
 import '../extensions.dart';
 import 'tile.dart';
 import '../game.dart';
-import '../../event/event.dart';
+import '../../event/map_event.dart';
 import 'zone.dart';
 import 'actor.dart';
 import 'cloud.dart';
-
-abstract class MapEvents {
-  static const tileTapped = 'tile_tapped';
-}
-
-class MapEvent extends GameEvent {
-  final TileMapTerrain? terrain;
-  final TileMapEntity? entity;
-
-  const MapEvent({
-    required String eventName,
-    this.terrain,
-    this.entity,
-  }) : super(eventName);
-
-  const MapEvent.tileTapped(
-      {required TileMapTerrain terrain, TileMapEntity? entity})
-      : this(eventName: MapEvents.tileTapped, terrain: terrain, entity: entity);
-}
 
 enum WorldStyle {
   innerland,
@@ -71,10 +52,15 @@ class MapComponent extends GameComponent with HandlesGesture {
   Camera get camera => gameRef.camera;
 
   final TileShape tileShape;
-  final int entryX, entryY;
-  final Vector2 tileSize;
+  final int heroX, heroY;
+  final double gridWidth, gridHeight;
+
+  final int mapTileWidth, mapTileHeight;
 
   final bool tapSelect;
+
+  Vector2 mapScreenSize = Vector2.zero();
+
   TileMapTerrain? selectedTerrain;
   TileMapEntity? selectedEntity;
 
@@ -84,21 +70,26 @@ class MapComponent extends GameComponent with HandlesGesture {
   final List<Zone> zones;
   // final List<TileMapRoute> routes;
 
-  final int mapTileWidth;
-  final int mapTileHeight;
-
-  Vector2 mapScreenSize = Vector2.zero();
-
   final List<TileMapCloud> clouds = [];
+
+  bool _isTimeFlowing = false;
+  bool get isTimeFlowing => _isTimeFlowing;
+  set isTimeFlowing(bool value) {
+    _isTimeFlowing = value;
+
+    for (final actor in actors) {}
+  }
+
+  late final TileMapActor hero;
 
   MapComponent({
     required SamsaraGame game,
     required this.tileShape,
     this.tapSelect = false,
-    required this.entryX,
-    required this.entryY,
-    required double gridWidth,
-    required double gridHeight,
+    required this.heroX,
+    required this.heroY,
+    required this.gridWidth,
+    required this.gridHeight,
     required this.mapTileWidth,
     required this.mapTileHeight,
     required this.terrains,
@@ -106,8 +97,7 @@ class MapComponent extends GameComponent with HandlesGesture {
     List<TileMapActor> actors = const [],
     // this.routes = const [],
     this.zones = const [],
-  })  : tileSize = Vector2(gridWidth, gridHeight),
-        super(game: game) {
+  }) : super(game: game) {
     assert(terrains.isNotEmpty);
     scale = Vector2(MapTile.defaultScale, MapTile.defaultScale);
 
@@ -123,8 +113,9 @@ class MapComponent extends GameComponent with HandlesGesture {
     //     }
     //     route.path = path;
     //   }
-
+    assert(actors.isNotEmpty);
     this.actors.addAll(actors);
+    hero = actors.first;
   }
 
   static Future<MapComponent> fromJson(
@@ -138,6 +129,8 @@ class MapComponent extends GameComponent with HandlesGesture {
     } else if (tileShapeData == 'hexagonalVertical') {
       tileShape = TileShape.hexagonalVertical;
     }
+    final tapSelect = data['tapSelect'] ?? false;
+
     final gridWidth = data['gridWidth'];
     final gridHeight = data['gridHeight'];
     final tileSpriteSrcWidth = data['tileSpriteSrcWidth'];
@@ -151,10 +144,10 @@ class MapComponent extends GameComponent with HandlesGesture {
       srcSize: Vector2(tileSpriteSrcWidth, tileSpriteSrcHeight),
     );
 
-    final mapTileWidth = data['width'] as int;
-    final mapTileHeight = data['height'] as int;
-    final entryX = data['entry']['x'] as int;
-    final entryY = data['entry']['y'] as int;
+    final int mapTileWidth = data['width'];
+    final int mapTileHeight = data['height'];
+    final int heroX = data['heroX'];
+    final int heroY = data['heroY'];
     final terrainsData = data['terrains'];
 
     final zonesData = data['zones'];
@@ -177,8 +170,6 @@ class MapComponent extends GameComponent with HandlesGesture {
     //   final route = TileMapRoute(tiles: tiles);
     //   routes.add(route);
     // }
-
-    final tapSelect = data['tapSelect'] ?? false;
 
     final List<List<TileMapTerrain>> terrains = [];
     for (var j = 0; j < mapTileHeight; ++j) {
@@ -214,7 +205,7 @@ class MapComponent extends GameComponent with HandlesGesture {
         }
         final zoneIndex = terrainData['zoneIndex'];
         var isEntry = false;
-        if (i + 1 == entryX && j + 1 == entryY) {
+        if (i + 1 == heroX && j + 1 == heroY) {
           isEntry = true;
         }
         final tile = TileMapTerrain(
@@ -313,8 +304,8 @@ class MapComponent extends GameComponent with HandlesGesture {
         tileShape: tileShape,
         gridWidth: gridWidth,
         gridHeight: gridHeight,
-        left: entryX,
-        top: entryY,
+        left: heroX,
+        top: heroY,
         srcWidth: 32,
         srcHeight: 32,
         characterId: 'current',
@@ -324,8 +315,8 @@ class MapComponent extends GameComponent with HandlesGesture {
       game: game,
       tileShape: tileShape,
       tapSelect: tapSelect,
-      entryX: entryX,
-      entryY: entryY,
+      heroX: heroX,
+      heroY: heroY,
       mapTileWidth: mapTileWidth,
       mapTileHeight: mapTileHeight,
       gridWidth: gridWidth,
@@ -467,14 +458,14 @@ class MapComponent extends GameComponent with HandlesGesture {
     late final double rl, rt;
     switch (tileShape) {
       case TileShape.orthogonal:
-        rl = ((left - 1) * tileSize.x);
-        rt = ((top - 1) * tileSize.y);
+        rl = ((left - 1) * gridWidth);
+        rt = ((top - 1) * gridHeight);
         break;
       case TileShape.hexagonalVertical:
-        rl = (left - 1) * tileSize.x * (3 / 4) + tileSize.x / 2;
+        rl = (left - 1) * gridWidth * (3 / 4) + gridWidth / 2;
         rt = left.isOdd
-            ? (top - 1) * tileSize.y + tileSize.y / 2
-            : (top - 1) * tileSize.y + tileSize.y;
+            ? (top - 1) * gridHeight + gridHeight / 2
+            : (top - 1) * gridHeight + gridHeight;
         break;
       case TileShape.isometric:
         throw 'Isometric map tile is not supported yet!';
@@ -489,28 +480,27 @@ class MapComponent extends GameComponent with HandlesGesture {
     late final int left, top;
     switch (tileShape) {
       case TileShape.orthogonal:
-        left = (worldPos.x / scale.x / tileSize.x).floor();
-        top = (worldPos.y / scale.x / tileSize.y).floor();
+        left = (worldPos.x / scale.x / gridWidth).floor();
+        top = (worldPos.y / scale.x / gridHeight).floor();
         break;
       case TileShape.hexagonalVertical:
-        int l = (worldPos.x / (tileSize.x * 3 / 4) / scale.x).floor() + 1;
-        final inTilePosX =
-            worldPos.x / scale.x - (l - 1) * (tileSize.x * 3 / 4);
+        int l = (worldPos.x / (gridWidth * 3 / 4) / scale.x).floor() + 1;
+        final inTilePosX = worldPos.x / scale.x - (l - 1) * (gridWidth * 3 / 4);
         late final double inTilePosY;
         int t;
         if (l.isOdd) {
-          t = (worldPos.y / scale.y / tileSize.y).floor() + 1;
-          inTilePosY = tileSize.y / 2 - (worldPos.y / scale.y) % tileSize.y;
+          t = (worldPos.y / scale.y / gridHeight).floor() + 1;
+          inTilePosY = gridHeight / 2 - (worldPos.y / scale.y) % gridHeight;
         } else {
-          t = ((worldPos.y / scale.y - tileSize.y / 2) / tileSize.y).floor() +
+          t = ((worldPos.y / scale.y - gridHeight / 2) / gridHeight).floor() +
               1;
-          inTilePosY = tileSize.y / 2 -
-              (worldPos.y / scale.y - tileSize.y / 2) % tileSize.y;
+          inTilePosY = gridHeight / 2 -
+              (worldPos.y / scale.y - gridHeight / 2) % gridHeight;
         }
-        if (inTilePosX < tileSize.x / 4) {
+        if (inTilePosX < gridWidth / 4) {
           if (l.isOdd) {
             if (inTilePosY >= 0) {
-              if (inTilePosY / inTilePosX > tileSize.y / tileSize.x * 2) {
+              if (inTilePosY / inTilePosX > gridHeight / gridWidth * 2) {
                 left = l - 1;
                 top = t - 1;
               } else {
@@ -518,7 +508,7 @@ class MapComponent extends GameComponent with HandlesGesture {
                 top = t;
               }
             } else {
-              if (-inTilePosY / inTilePosX > tileSize.y / tileSize.x * 2) {
+              if (-inTilePosY / inTilePosX > gridHeight / gridWidth * 2) {
                 left = l - 1;
                 top = t;
               } else {
@@ -528,7 +518,7 @@ class MapComponent extends GameComponent with HandlesGesture {
             }
           } else {
             if (inTilePosY >= 0) {
-              if (inTilePosY / inTilePosX > tileSize.y / tileSize.x * 2) {
+              if (inTilePosY / inTilePosX > gridHeight / gridWidth * 2) {
                 left = l - 1;
                 top = t;
               } else {
@@ -536,7 +526,7 @@ class MapComponent extends GameComponent with HandlesGesture {
                 top = t;
               }
             } else {
-              if (-inTilePosY / inTilePosX > tileSize.y / tileSize.x * 2) {
+              if (-inTilePosY / inTilePosX > gridHeight / gridWidth * 2) {
                 left = l - 1;
                 top = t + 1;
               } else {
@@ -593,7 +583,49 @@ class MapComponent extends GameComponent with HandlesGesture {
   void onMouseMove(MouseMoveUpdateDetails details) {}
 
   @override
+  Future<void> onLoad() async {
+    super.onLoad();
+    for (final row in terrains) {
+      if (tileShape == TileShape.hexagonalVertical) {
+        for (var i = 0; i < row.length; i = i + 2) {
+          final tile = row[i];
+          add(tile);
+        }
+        for (var i = 1; i < row.length; i = i + 2) {
+          final tile = row[i];
+          add(tile);
+        }
+      } else {
+        for (final tile in row) {
+          add(tile);
+        }
+      }
+    }
+    for (final tile in entities.values) {
+      add(tile);
+    }
+    for (final actor in actors) {
+      add(actor);
+    }
+    double mapScreenSizeX = (gridWidth * 3 / 4) * mapTileWidth;
+    double mapScreenSizeY = (gridHeight * mapTileHeight + gridHeight / 2);
+    mapScreenSize = Vector2(mapScreenSizeX, mapScreenSizeY);
+    _moveCameraToTilePosition(heroX, heroY);
+
+    final r = math.Random().nextInt(6);
+    for (var i = 0; i < r; ++i) {
+      final cloud = TileMapCloud(screenSize: mapScreenSize);
+      clouds.add(cloud);
+      add(cloud);
+    }
+  }
+
+  @override
   void update(double dt) {
+    if (!_isTimeFlowing) {
+      return;
+    }
+
     super.update(dt);
     for (final column in terrains) {
       for (final tile in column) {
@@ -610,7 +642,7 @@ class MapComponent extends GameComponent with HandlesGesture {
     if (clouds.length < maxCloudsCout) {
       final r = math.Random().nextDouble();
       if (r < 0.02) {
-        final cloud = TileMapCloud(visibleSize: mapScreenSize);
+        final cloud = TileMapCloud(screenSize: mapScreenSize);
         clouds.add(cloud);
         add(cloud);
       }
@@ -637,45 +669,14 @@ class MapComponent extends GameComponent with HandlesGesture {
   }
 
   @override
-  Future<void> onLoad() async {
-    super.onLoad();
-    for (final row in terrains) {
-      if (tileShape == TileShape.hexagonalVertical) {
-        for (var i = 0; i < row.length; i = i + 2) {
-          final tile = row[i];
-          add(tile);
-        }
-        for (var i = 1; i < row.length; i = i + 2) {
-          final tile = row[i];
-          add(tile);
-        }
-      } else {
-        for (final tile in row) {
-          add(tile);
-        }
-      }
-    }
-    for (final tile in entities.values) {
-      add(tile);
-    }
-    for (final actor in actors) {
-      add(actor);
-    }
-    double mapScreenSizeX = (tileSize.x * 3 / 4) * mapTileWidth;
-    double mapScreenSizeY = (tileSize.y * mapTileHeight + tileSize.y / 2);
-    mapScreenSize = Vector2(mapScreenSizeX, mapScreenSizeY);
-    _moveCameraToTilePosition(entryX, entryY);
-  }
-
-  @override
   bool containsPoint(Vector2 point) {
     return true;
   }
 
   void _moveCameraToTilePosition(int left, int top,
       {bool animated = false, double speed = 500.0}) {
-    final dest = Vector2(left * tileSize.x * scale.x + tileSize.x / 2 * scale.x,
-            top * tileSize.y * scale.x + tileSize.y / 2 * scale.y) -
+    final dest = Vector2(left * gridWidth * scale.x + gridWidth / 2 * scale.x,
+            top * gridHeight * scale.x + gridHeight / 2 * scale.y) -
         gameRef.size / 2;
     camera.speed = speed;
     camera.moveTo(dest);

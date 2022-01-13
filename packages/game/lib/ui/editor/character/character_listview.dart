@@ -97,8 +97,8 @@ class _CharacterListViewState extends State<CharacterListView>
         game: game,
         data: _currentEditingCharacterData!,
         onClosed: _onEditorClosed,
-        maleAvatarCount: 37, // TODO: number of the male avatar images
-        femaleAvatarCount: 75, // TODO: number of the female avatar images
+        maleAvatarCount: 37, // number of the male avatar images
+        femaleAvatarCount: 75, // number of the female avatar images
       );
     } else {
       return Scaffold(

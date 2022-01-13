@@ -15,12 +15,12 @@ enum ActorDirection {
 }
 
 class TileMapActor extends GameComponent with TileInfo {
-  final SpriteAnimation south, east, west, north;
-  final ActorDirection direction = ActorDirection.south;
-
   final String characterId;
 
-  bool isWalking = false;
+  bool get isHero => characterId == 'current';
+
+  final SpriteAnimation south, east, west, north;
+  final ActorDirection direction = ActorDirection.south;
 
   TileMapActor(
       {required SamsaraGame game,
@@ -62,16 +62,7 @@ class TileMapActor extends GameComponent with TileInfo {
 
   @override
   void render(Canvas canvas) {
-    if (!isWalking) {
-      final worldPos = tilePosition2World(left, top);
-      currentSprite.render(canvas, position: worldPos);
-    }
-  }
-
-  @override
-  void update(double dt) {
-    if (isWalking) {
-      super.update(dt);
-    }
+    final worldPos = tilePosition2World(left, top);
+    currentSprite.render(canvas, position: worldPos);
   }
 }

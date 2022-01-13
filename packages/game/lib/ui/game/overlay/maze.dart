@@ -5,7 +5,7 @@ import '../../../ui/pointer_detector.dart';
 import '../../../engine/game.dart';
 import '../../../engine/scene/maze.dart';
 import '../../../ui/shared/avatar.dart';
-import '../../../engine/tilemap/map.dart';
+import '../../../event/map_event.dart';
 
 class MazeOverlay extends StatefulWidget {
   final SamsaraGame game;
@@ -26,7 +26,7 @@ class _MazeOverlayState extends State<MazeOverlay> {
   void initState() {
     super.initState();
 
-    game.registerListener(MapEvents.tileTapped, (event) {
+    game.registerListener(MapEvents.onTileTapped, (event) {
       setState(() {});
     });
   }
