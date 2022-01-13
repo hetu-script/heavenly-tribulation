@@ -1,10 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:tian_dao_qi_jie/shared/localization.dart';
 
 import '../../../engine/game.dart';
 import '../../shared/avatar.dart';
+import '../../../shared/localization.dart';
 
 class MyView extends StatefulWidget {
   final SamsaraGame game;

@@ -6,8 +6,8 @@ import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
-import 'package:tian_dao_qi_jie/ui/pointer_detector.dart';
 
+import '../../ui/pointer_detector.dart';
 import '../gestures/gesture_mixin.dart';
 import '../extensions.dart';
 import 'tile.dart';
