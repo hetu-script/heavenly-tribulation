@@ -5,8 +5,15 @@ class InkImageButton extends StatelessWidget {
 
   final Widget? child;
 
-  const InkImageButton({Key? key, this.width, this.height, this.child})
-      : super(key: key);
+  final void Function() onPressed;
+
+  const InkImageButton({
+    Key? key,
+    this.width,
+    this.height,
+    this.child,
+    required this.onPressed,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +33,7 @@ class InkImageButton extends StatelessWidget {
           type: MaterialType.transparency,
           child: InkWell(
             customBorder: const CircleBorder(),
-            onTap: () {},
+            onTap: onPressed,
             child: child,
           ),
         ),

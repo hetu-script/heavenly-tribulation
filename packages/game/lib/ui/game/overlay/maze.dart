@@ -5,13 +5,15 @@ import '../../../ui/pointer_detector.dart';
 import '../../../engine/game.dart';
 import '../../../engine/scene/maze.dart';
 import '../../../ui/shared/avatar.dart';
+import '../../../event/event.dart';
 import '../../../event/map_event.dart';
 
 class MazeOverlay extends StatefulWidget {
   final SamsaraGame game;
   final MazeScene scene;
 
-  const MazeOverlay({required this.game, required this.scene, Key? key})
+  const MazeOverlay(
+      {required Key? key, required this.game, required this.scene})
       : super(key: key);
 
   @override
@@ -26,9 +28,12 @@ class _MazeOverlayState extends State<MazeOverlay> {
   void initState() {
     super.initState();
 
-    game.registerListener(MapEvents.onMapTapped, (event) {
-      setState(() {});
-    });
+    game.registerListener(
+      MapEvents.onMapTapped,
+      EventHandler(widget.key!, (event) {
+        setState(() {});
+      }),
+    );
   }
 
   @override

@@ -28,6 +28,6 @@ class WorldMapScene extends Scene {
 
   @override
   Widget get widget {
-    return WorldMapOverlay(game: game, scene: this);
+    return WorldMapOverlay(key: UniqueKey(), game: game, scene: this);
   }
 }

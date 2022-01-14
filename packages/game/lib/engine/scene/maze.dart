@@ -26,6 +26,6 @@ class MazeScene extends Scene {
 
   @override
   Widget get widget {
-    return MazeOverlay(game: game, scene: this);
+    return MazeOverlay(key: UniqueKey(), game: game, scene: this);
   }
 }

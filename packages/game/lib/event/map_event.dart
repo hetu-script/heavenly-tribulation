@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'event.dart';
 import '../engine/tilemap/tile.dart';
 import '../engine/tilemap/actor.dart';
@@ -12,20 +14,19 @@ class MapEvent extends GameEvent {
   final TileMapEntity? entity;
   final TileMapActor? actor;
 
-  const MapEvent({
-    required String eventName,
-    this.terrain,
-    this.entity,
-    this.actor,
-  }) : super(eventName);
+  const MapEvent.mapLoaded(
+      {required String eventName, this.terrain, this.entity, this.actor})
+      : super(MapEvents.onMapLoaded);
+}
 
-  const MapEvent.mapLoaded() : this(eventName: MapEvents.onMapLoaded);
+class MapInteractionEvent extends GameEvent {
+  final Offset globalPosition;
 
-  const MapEvent.mapTapped(
-      {TileMapTerrain? terrain, TileMapEntity? entity, TileMapActor? actor})
-      : this(
-            eventName: MapEvents.onMapTapped,
-            terrain: terrain,
-            entity: entity,
-            actor: actor);
+  final TileMapTerrain? terrain;
+  final TileMapEntity? entity;
+  final TileMapActor? actor;
+
+  const MapInteractionEvent.mapTapped(
+      {required this.globalPosition, this.terrain, this.entity, this.actor})
+      : super(MapEvents.onMapTapped);
 }

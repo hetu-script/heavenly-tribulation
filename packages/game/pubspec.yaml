@@ -2,7 +2,7 @@ name: heavenly_tribulation
 description: A Xianxia genre RPG game mixed with Roguelike/Tycoon elements.
 publish_to: 'none'
 
-version: 0.0.1
+version: 0.1.0-demo
 
 environment:
   sdk: '>=2.12.0 <3.0.0'

@@ -18,7 +18,7 @@ class BorderedIconButton extends StatelessWidget {
 
   final EdgeInsetsGeometry? margin;
 
-  final void Function()? onPressed;
+  final void Function() onPressed;
 
   @override
   Widget build(BuildContext context) {

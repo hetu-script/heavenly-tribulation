@@ -2,23 +2,45 @@ import 'package:flutter/material.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 
+import '../../../event/event.dart';
+import '../../../ui/shared/ink_image_button.dart';
 import '../../../ui/pointer_detector.dart';
 import '../../../engine/game.dart';
 import '../../../engine/scene/worldmap.dart';
 import '../../../ui/shared/avatar.dart';
 import '../../../event/map_event.dart';
-import '../../../ui/shared/bordered_icon_button.dart';
 
 class WorldMapPopup extends StatelessWidget {
-  final double left, top, width, height;
+  static const defaultSize = 160.0;
 
-  const WorldMapPopup(
-      {Key? key,
-      required this.left,
-      required this.top,
-      this.width = 160,
-      this.height = 160})
-      : super(key: key);
+  final double left, top, width = defaultSize, height = defaultSize;
+
+  final void Function()? onPanelTapped;
+
+  final bool moveToIcon;
+  final bool checkIcon;
+  final bool enterIcon;
+  final bool talkIcon;
+
+  final void Function()? onMoveToIconTapped;
+  final void Function()? onCheckIconTapped;
+  final void Function()? onEnterIconTapped;
+  final void Function()? onTalkIconTapped;
+
+  const WorldMapPopup({
+    Key? key,
+    required this.left,
+    required this.top,
+    this.onPanelTapped,
+    this.moveToIcon = false,
+    this.checkIcon = false,
+    this.enterIcon = false,
+    this.talkIcon = false,
+    this.onMoveToIconTapped,
+    this.onCheckIconTapped,
+    this.onEnterIconTapped,
+    this.onTalkIconTapped,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +49,9 @@ class WorldMapPopup extends StatelessWidget {
       top: top,
       child: GestureDetector(
         onTap: () {
-          print("Container was tapped");
+          if (onPanelTapped != null) {
+            onPanelTapped!();
+          }
         },
         child: Container(
           color: Colors.transparent,
@@ -61,17 +85,78 @@ class WorldMapPopup extends StatelessWidget {
                   ),
                 ),
               ),
-              Positioned.fill(
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: BorderedIconButton(
-                    icon: const Image(
-                      image: AssetImage('assets/images/icon/move_to.png'),
+              if (moveToIcon)
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: InkImageButton(
+                      width: 40,
+                      height: 40,
+                      child: const Image(
+                        image: AssetImage('assets/images/icon/move_to.png'),
+                      ),
+                      onPressed: () {
+                        if (onMoveToIconTapped != null) {
+                          onMoveToIconTapped!();
+                        }
+                      },
                     ),
-                    onPressed: () {},
                   ),
                 ),
-              ),
+              if (checkIcon)
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: InkImageButton(
+                      width: 40,
+                      height: 40,
+                      child: const Image(
+                        image: AssetImage('assets/images/icon/check.png'),
+                      ),
+                      onPressed: () {
+                        if (onCheckIconTapped != null) {
+                          onCheckIconTapped!();
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              if (enterIcon)
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: InkImageButton(
+                      width: 40,
+                      height: 40,
+                      child: const Image(
+                        image: AssetImage('assets/images/icon/enter.png'),
+                      ),
+                      onPressed: () {
+                        if (onEnterIconTapped != null) {
+                          onEnterIconTapped!();
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              if (talkIcon)
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: InkImageButton(
+                      width: 40,
+                      height: 40,
+                      child: const Image(
+                        image: AssetImage('assets/images/icon/talk.png'),
+                      ),
+                      onPressed: () {
+                        if (onTalkIconTapped != null) {
+                          onTalkIconTapped!();
+                        }
+                      },
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -84,7 +169,8 @@ class WorldMapOverlay extends StatefulWidget {
   final SamsaraGame game;
   final WorldMapScene scene;
 
-  const WorldMapOverlay({required this.game, required this.scene, Key? key})
+  const WorldMapOverlay(
+      {required Key key, required this.game, required this.scene})
       : super(key: key);
 
   @override
@@ -107,25 +193,36 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
       setState(() {});
     });
 
-    game.registerListener(MapEvents.onMapLoaded, (event) {
-      setState(() {});
-    });
+    game.registerListener(
+      MapEvents.onMapLoaded,
+      EventHandler(widget.key!, (event) {
+        setState(() {});
+      }),
+    );
 
-    game.registerListener(MapEvents.onMapTapped, (event) {
-      setState(() {
-        if (menuPosition != null) {
-          menuPosition = null;
-        } else {
-          final e = event as MapEvent;
-          if (e.terrain != null) {
-            final tilePos = e.terrain!.tilePosition;
-            final worldPos = scene.map!
-                .tilePosition2TileCenterInWorld(tilePos.left, tilePos.top);
-            menuPosition = scene.map!.worldPosition2Screen(worldPos);
+    game.registerListener(
+      MapEvents.onMapTapped,
+      EventHandler(widget.key!, (event) {
+        setState(() {
+          if (menuPosition != null) {
+            menuPosition = null;
+          } else {
+            final e = event as MapInteractionEvent;
+            if (e.terrain != null) {
+              final tilePos = e.terrain!.tilePosition;
+              menuPosition = scene.map!
+                  .tilePosition2TileCenterInScreen(tilePos.left, tilePos.top);
+            }
           }
-        }
-      });
-    });
+        });
+      }),
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    game.disposeListenders(widget.key!);
   }
 
   @override
@@ -253,7 +350,17 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
 
     if (menuPosition != null) {
       screenWidgets.add(
-        WorldMapPopup(left: menuPosition!.x, top: menuPosition!.y),
+        WorldMapPopup(
+          left: menuPosition!.x - WorldMapPopup.defaultSize / 2,
+          top: menuPosition!.y - WorldMapPopup.defaultSize / 2,
+          onPanelTapped: () {
+            setState(() {
+              menuPosition = null;
+              scene.map!.selectedTerrain = null;
+              scene.map!.selectedEntity = null;
+            });
+          },
+        ),
       );
     }
 

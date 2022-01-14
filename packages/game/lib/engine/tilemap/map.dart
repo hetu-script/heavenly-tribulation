@@ -467,8 +467,11 @@ class MapComponent extends GameComponent with HandlesGesture {
       case TileShape.hexagonalHorizontal:
         throw 'Vertical hexagonal map tile is not supported yet!';
     }
-    return Vector2(rl, rt);
+    return Vector2(rl * scale.x, rt * scale.x);
   }
+
+  Vector2 tilePosition2TileCenterInScreen(int left, int top) =>
+      tilePosition2TileCenterInWorld(left, top) - camera.position;
 
   TilePosition screenPosition2Tile(Vector2 position) {
     final worldPos = screenPosition2World(position);
@@ -575,8 +578,14 @@ class MapComponent extends GameComponent with HandlesGesture {
           selectedEntity = entity;
         }
       }
+    } else {
+      selectedTerrain = null;
+      selectedEntity = null;
     }
-    game.broadcast(MapEvent.mapTapped(terrain: terrain, entity: entity));
+    game.broadcast(MapInteractionEvent.mapTapped(
+        globalPosition: details.globalPosition,
+        terrain: terrain,
+        entity: entity));
   }
 
   @override
@@ -604,6 +613,7 @@ class MapComponent extends GameComponent with HandlesGesture {
     for (final tile in entities.values) {
       add(tile);
     }
+    add(hero);
     for (final actor in actors) {
       add(actor);
     }

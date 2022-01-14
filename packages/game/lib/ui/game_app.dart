@@ -8,6 +8,7 @@ import 'loading_screen.dart';
 import '../engine/game.dart';
 import 'editor/editor.dart';
 import '../engine/scene/worldmap.dart';
+import '../event/event.dart';
 
 enum MenuMode {
   menu,
@@ -17,7 +18,7 @@ enum MenuMode {
 class GameApp extends StatefulWidget {
   final SamsaraGame game;
 
-  const GameApp({Key? key, required this.game}) : super(key: key);
+  const GameApp({required Key key, required this.game}) : super(key: key);
 
   @override
   State<GameApp> createState() => _GameAppState();
@@ -50,12 +51,19 @@ class _GameAppState extends State<GameApp> with AutomaticKeepAliveClientMixin {
         game: game,
       );
     });
-    game.registerListener(SceneEvents.started, (event) {
-      setState(() {});
-    });
-    game.registerListener(SceneEvents.ended, (event) {
-      setState(() {});
-    });
+    game.registerListener(
+      SceneEvents.started,
+      EventHandler(widget.key!, (event) {
+        setState(() {});
+      }),
+    );
+
+    game.registerListener(
+      SceneEvents.ended,
+      EventHandler(widget.key!, (event) {
+        setState(() {});
+      }),
+    );
 
     () async {
       await game.init();

@@ -17,5 +17,5 @@ void main() async {
           scrollbarTheme: const ScrollbarThemeData().copyWith(
         thumbColor: MaterialStateProperty.all(Colors.grey),
       )),
-      home: GameApp(game: SamsaraGame())));
+      home: GameApp(key: UniqueKey(), game: SamsaraGame())));
 }
