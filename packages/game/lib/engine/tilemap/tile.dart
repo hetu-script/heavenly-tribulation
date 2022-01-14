@@ -61,8 +61,12 @@ class MapTile extends GameComponent {
   final path = Path();
   late Rect rect;
 
+  final TilePosition tilePosition;
+  int get left => tilePosition.left;
+  int get top => tilePosition.top;
+
   /// the tile position (compare to screen position or world position)
-  final int left, top;
+  final int index;
   final double gridWidth, gridHeight;
 
   final TileShape shape;
@@ -74,8 +78,9 @@ class MapTile extends GameComponent {
     required SamsaraGame game,
     required this.shape,
     this.renderDirection = TileRenderDirection.rightBottom,
-    required this.left,
-    required this.top,
+    required int left,
+    required int top,
+    required this.index,
     required double srcWidth,
     required double srcHeight,
     required this.gridWidth,
@@ -86,7 +91,8 @@ class MapTile extends GameComponent {
     this.animation,
     this.offsetX = 0.0,
     this.offsetY = 0.0,
-  }) : super(game: game) {
+  })  : tilePosition = TilePosition(left, top),
+        super(game: game) {
     width = srcWidth;
     height = srcHeight;
     generateRect();
@@ -208,6 +214,7 @@ class TileMapTerrain extends MapTile {
     TileRenderDirection renderDirection = TileRenderDirection.rightBottom,
     required int left,
     required int top,
+    required int index,
     required double srcWidth,
     required double srcHeight,
     required double gridWidth,
@@ -224,6 +231,7 @@ class TileMapTerrain extends MapTile {
           renderDirection: renderDirection,
           left: left,
           top: top,
+          index: index,
           srcWidth: srcWidth,
           srcHeight: srcHeight,
           gridWidth: gridWidth,
@@ -251,6 +259,7 @@ class TileMapEntity extends MapTile {
     TileRenderDirection renderDirection = TileRenderDirection.rightBottom,
     required int left,
     required int top,
+    required int index,
     required double srcWidth,
     required double srcHeight,
     required double gridWidth,
@@ -268,6 +277,7 @@ class TileMapEntity extends MapTile {
           renderDirection: renderDirection,
           left: left,
           top: top,
+          index: index,
           srcWidth: srcWidth,
           srcHeight: srcHeight,
           gridWidth: gridWidth,

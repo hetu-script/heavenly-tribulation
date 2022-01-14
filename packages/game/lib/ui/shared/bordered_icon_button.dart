@@ -7,7 +7,7 @@ class BorderedIconButton extends StatelessWidget {
     required this.icon,
     this.tooltip,
     this.margin,
-    this.onPressed,
+    required this.onPressed,
   }) : super(key: key);
 
   final double iconSize;

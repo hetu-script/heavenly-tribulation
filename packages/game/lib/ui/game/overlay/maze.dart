@@ -26,7 +26,7 @@ class _MazeOverlayState extends State<MazeOverlay> {
   void initState() {
     super.initState();
 
-    game.registerListener(MapEvents.onTileTapped, (event) {
+    game.registerListener(MapEvents.onMapTapped, (event) {
       setState(() {});
     });
   }

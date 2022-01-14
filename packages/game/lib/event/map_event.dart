@@ -4,7 +4,7 @@ import '../engine/tilemap/actor.dart';
 
 abstract class MapEvents {
   static const onMapLoaded = 'mapLoaded';
-  static const onTileTapped = 'tileTapped';
+  static const onMapTapped = 'tileTapped';
 }
 
 class MapEvent extends GameEvent {
@@ -21,12 +21,10 @@ class MapEvent extends GameEvent {
 
   const MapEvent.mapLoaded() : this(eventName: MapEvents.onMapLoaded);
 
-  const MapEvent.tileTapped(
-      {required TileMapTerrain terrain,
-      TileMapEntity? entity,
-      TileMapActor? actor})
+  const MapEvent.mapTapped(
+      {TileMapTerrain? terrain, TileMapEntity? entity, TileMapActor? actor})
       : this(
-            eventName: MapEvents.onTileTapped,
+            eventName: MapEvents.onMapTapped,
             terrain: terrain,
             entity: entity,
             actor: actor);

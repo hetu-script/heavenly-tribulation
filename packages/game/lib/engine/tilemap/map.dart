@@ -66,21 +66,15 @@ class MapComponent extends GameComponent with HandlesGesture {
 
   final List<List<TileMapTerrain>> terrains;
   final Map<String, TileMapEntity> entities;
-  final List<TileMapActor> actors = [];
+  final List<TileMapActor> actors;
   final List<Zone> zones;
   // final List<TileMapRoute> routes;
 
   final List<TileMapCloud> clouds = [];
 
-  bool _isTimeFlowing = false;
-  bool get isTimeFlowing => _isTimeFlowing;
-  set isTimeFlowing(bool value) {
-    _isTimeFlowing = value;
+  bool isTimeFlowing = false;
 
-    for (final actor in actors) {}
-  }
-
-  late final TileMapActor hero;
+  final TileMapActor hero;
 
   MapComponent({
     required SamsaraGame game,
@@ -94,7 +88,8 @@ class MapComponent extends GameComponent with HandlesGesture {
     required this.mapTileHeight,
     required this.terrains,
     this.entities = const {},
-    List<TileMapActor> actors = const [],
+    required this.hero,
+    this.actors = const [],
     // this.routes = const [],
     this.zones = const [],
   }) : super(game: game) {
@@ -113,9 +108,10 @@ class MapComponent extends GameComponent with HandlesGesture {
     //     }
     //     route.path = path;
     //   }
-    assert(actors.isNotEmpty);
-    this.actors.addAll(actors);
-    hero = actors.first;
+  }
+
+  static int tilePos2Index(int left, int top, int mapTileWidth) {
+    return (left - 1) + (top - 1) * mapTileWidth;
   }
 
   static Future<MapComponent> fromJson(
@@ -175,7 +171,8 @@ class MapComponent extends GameComponent with HandlesGesture {
     for (var j = 0; j < mapTileHeight; ++j) {
       terrains.add([]);
       for (var i = 0; i < mapTileWidth; ++i) {
-        final terrainData = terrainsData[i + j * mapTileWidth];
+        final index = tilePos2Index(i + 1, j + 1, mapTileWidth);
+        final terrainData = terrainsData[index];
         final spritePath = terrainData['sprite'];
         final spriteIndex = terrainData['spriteIndex'];
         final animationPath = terrainData['animation'];
@@ -213,6 +210,7 @@ class MapComponent extends GameComponent with HandlesGesture {
           shape: tileShape,
           left: i + 1,
           top: j + 1,
+          index: index,
           srcWidth: tileSpriteSrcWidth,
           srcHeight: tileSpriteSrcHeight,
           gridWidth: gridWidth,
@@ -236,6 +234,7 @@ class MapComponent extends GameComponent with HandlesGesture {
     if (entitiyData != null) {
       for (final key in entitiyData.keys) {
         final entityData = entitiyData[key];
+        final int index = entityData['index'];
         final String id = entityData['id'];
         final int zoneIndex = entityData['zoneIndex'];
         final String name = entityData['name'];
@@ -279,6 +278,7 @@ class MapComponent extends GameComponent with HandlesGesture {
           shape: tileShape,
           left: left,
           top: top,
+          index: index,
           srcWidth: srcWidth,
           srcHeight: srcHeight,
           gridWidth: gridWidth,
@@ -324,14 +324,9 @@ class MapComponent extends GameComponent with HandlesGesture {
       terrains: terrains,
       zones: zones,
       entities: entities,
-      actors: [hero],
+      hero: hero,
       // routes: routes,
     );
-  }
-
-  // 从坐标得到索引
-  int tilePos2Index(int left, int top) {
-    return left - 1 + (top - 1) * mapTileWidth;
   }
 
   // 从索引得到坐标
@@ -572,11 +567,16 @@ class MapComponent extends GameComponent with HandlesGesture {
       //       positionalArgs: [tile.left, tile.top]);
       // }
       if (tapSelect) {
-        selectedTerrain = terrain;
-        selectedEntity = entity;
+        if (selectedTerrain != null) {
+          selectedTerrain = null;
+          selectedEntity = null;
+        } else {
+          selectedTerrain = terrain;
+          selectedEntity = entity;
+        }
       }
-      game.broadcast(MapEvent.tileTapped(terrain: terrain, entity: entity));
     }
+    game.broadcast(MapEvent.mapTapped(terrain: terrain, entity: entity));
   }
 
   @override
@@ -621,35 +621,18 @@ class MapComponent extends GameComponent with HandlesGesture {
   }
 
   @override
-  void update(double dt) {
-    if (!_isTimeFlowing) {
-      return;
-    }
-
-    super.update(dt);
-    for (final column in terrains) {
-      for (final tile in column) {
-        tile.update(dt);
-      }
-    }
-    for (final entity in entities.values) {
-      entity.update(dt);
-    }
-    for (final actor in actors) {
-      actor.update(dt);
-    }
-    for (final cloud in clouds) {
-      cloud.update(dt);
-    }
+  void updateTree(double dt, {bool callOwnUpdate = true}) {
+    super.updateTree(dt);
 
     if (clouds.length < maxCloudsCout) {
       final r = math.Random().nextDouble();
-      if (r < 0.02) {
+      if (r < 0.04) {
         final cloud = TileMapCloud(screenSize: mapScreenSize);
         clouds.add(cloud);
         add(cloud);
       }
     }
+
     clouds.removeWhere((cloud) {
       if (!cloud.visible) {
         remove(cloud);
