@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(heavenly_tribulation LANGUAGES CXX)
 
-set(BINARY_NAME "Heavenly Tribulation")
+set(BINARY_NAME "heavenly_tribulation")
 
 cmake_policy(SET CMP0063 NEW)
 

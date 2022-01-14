@@ -10,6 +10,15 @@ import '../../../engine/scene/worldmap.dart';
 import '../../../ui/shared/avatar.dart';
 import '../../../event/map_event.dart';
 
+enum _CenterButtonMode {
+  rest,
+  moveTo,
+  movingNorth,
+  movingSouth,
+  movingWest,
+  movingEast,
+}
+
 class WorldMapOverlay extends StatefulWidget {
   final SamsaraGame game;
   final WorldMapScene scene;
@@ -26,6 +35,8 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
   WorldMapScene get scene => widget.scene;
 
   SpriteSheet? walkingSpriteSheet;
+
+  var _centerButtonMode = _CenterButtonMode.rest;
 
   void init() async {}
 
@@ -48,8 +59,19 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
     });
 
     game.registerListener(MapEvents.onTileTapped, (event) {
-      final e = event as MapEvent;
-      setState(() {});
+      setState(() {
+        if (_centerButtonMode == _CenterButtonMode.rest ||
+            _centerButtonMode == _CenterButtonMode.moveTo) {
+          final e = event as MapEvent;
+          final terrain = e.terrain!;
+          if (terrain.left == scene.map?.heroX &&
+              terrain.top == scene.map?.heroY) {
+            _centerButtonMode = _CenterButtonMode.rest;
+          } else {
+            _centerButtonMode = _CenterButtonMode.moveTo;
+          }
+        }
+      });
     });
   }
 
@@ -176,6 +198,50 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
       ),
     ];
 
+    Widget? centerButtonWidget;
+    switch (_centerButtonMode) {
+      case _CenterButtonMode.rest:
+        if (walkingSpriteSheet != null) {
+          centerButtonWidget = SpriteWidget(
+            anchor: Anchor.center,
+            sprite: walkingSpriteSheet!.getSpriteById(0),
+          );
+        }
+        break;
+      case _CenterButtonMode.moveTo:
+        centerButtonWidget =
+            const Image(image: AssetImage('assets/images/icon/move_to.png'));
+        break;
+      case _CenterButtonMode.movingSouth:
+        if (walkingSpriteSheet != null) {
+          centerButtonWidget = SpriteAnimationWidget(
+              animation:
+                  walkingSpriteSheet!.createAnimation(row: 0, stepTime: 0.2));
+        }
+        break;
+      case _CenterButtonMode.movingEast:
+        if (walkingSpriteSheet != null) {
+          centerButtonWidget = SpriteAnimationWidget(
+              animation:
+                  walkingSpriteSheet!.createAnimation(row: 1, stepTime: 0.2));
+        }
+        break;
+      case _CenterButtonMode.movingNorth:
+        if (walkingSpriteSheet != null) {
+          centerButtonWidget = SpriteAnimationWidget(
+              animation:
+                  walkingSpriteSheet!.createAnimation(row: 2, stepTime: 0.2));
+        }
+        break;
+      case _CenterButtonMode.movingWest:
+        if (walkingSpriteSheet != null) {
+          centerButtonWidget = SpriteAnimationWidget(
+              animation:
+                  walkingSpriteSheet!.createAnimation(row: 3, stepTime: 0.2));
+        }
+        break;
+    }
+
     if (walkingSpriteSheet != null) {
       screenWidgets.add(
         Align(
@@ -201,10 +267,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
                     child: InkWell(
                       customBorder: const CircleBorder(),
                       onTap: () {},
-                      child: SpriteWidget(
-                        anchor: Anchor.center,
-                        sprite: walkingSpriteSheet!.getSpriteById(0),
-                      ),
+                      child: centerButtonWidget,
                     ),
                   ),
                 ),

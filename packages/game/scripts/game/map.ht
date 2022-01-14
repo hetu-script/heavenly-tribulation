@@ -70,3 +70,205 @@ fun handleMazeTileInteraction(x: int, y: int) {
     }
   }
 }
+
+// 从 hexagonal 坐标得到索引
+fun tilePos2Index(left, top, width) {
+  return left - 1 + (top - 1) * width
+}
+
+// 从索引得到 hexagonal 坐标
+fun index2TilePos(index: int, width: int) {
+  final left = index % width + 1
+  final top = index ~/ width + 1
+  return Tile(left, top)
+}
+
+// 坐标是否在地图范围内
+fun isPositionWithinMap(left, top, width, height) {
+  return (left > 0 && top > 0 && left <= width && top <= height)
+}
+
+// 获取相邻并且在地图范围内的格子
+// 如果 [restrict2Zone] 为 true，则只会返回和起点所在 tile 具有相同 zoneIndex 的格子
+// 如果指定了方向
+// 必须 apply 或者 bind 到某个 world data 对象上才可以使用
+fun getMapTileNeighbors(data, left: int, top: int, {restrict2Zone: bool = false}) {
+  assert(isPositionWithinMap(left, top, data.width, data.height))
+  final origin = data.terrains[tilePos2Index(left, top, data.width)]
+  final neighbors = []
+  // 奇数列
+  if (left % 2 != 0) {
+    // 上面
+    if (isPositionWithinMap(left, top - 1, data.width, data.height)) {
+      final tile = data.terrains[tilePos2Index(left, top - 1, data.width)]
+      if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+        neighbors.add(tile)
+      }
+    }
+    // 下面
+    if (isPositionWithinMap(left, top + 1, data.width, data.height)) {
+      final tile = data.terrains[tilePos2Index(left, top + 1, data.width)]
+      if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+        neighbors.add(tile)
+      }
+    }
+    // 左上
+    if (isPositionWithinMap(left - 1, top - 1, data.width, data.height)) {
+      final tile = data.terrains[tilePos2Index(left - 1, top - 1, data.width)]
+      if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+        neighbors.add(tile)
+      }
+    }
+    // 左下
+    if (isPositionWithinMap(left - 1, top, data.width, data.height)) {
+      final tile = data.terrains[tilePos2Index(left - 1, top, data.width)]
+      if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+        neighbors.add(tile)
+      }
+    }
+    // 右上
+    if (isPositionWithinMap(left + 1, top - 1, data.width, data.height)) {
+      final tile = data.terrains[tilePos2Index(left + 1, top - 1, data.width)]
+      if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+        neighbors.add(tile)
+      }
+    }
+    // 右下
+    if (isPositionWithinMap(left + 1, top, data.width, data.height)) {
+      final tile = data.terrains[tilePos2Index(left + 1, top, data.width)]
+      if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+        neighbors.add(tile)
+      }
+    }
+  }
+  // 欧数列
+  else {
+    // 上面
+    if (isPositionWithinMap(left, top - 1, data.width, data.height)) {
+      final tile = data.terrains[tilePos2Index(left, top - 1, data.width)]
+      if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+        neighbors.add(tile)
+      }
+    }
+    // 下面
+    if (isPositionWithinMap(left, top + 1, data.width, data.height)) {
+      final tile = data.terrains[tilePos2Index(left, top + 1, data.width)]
+      if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+        neighbors.add(tile)
+      }
+    }
+    // 左上
+    if (isPositionWithinMap(left - 1, top, data.width, data.height)) {
+      final tile = data.terrains[tilePos2Index(left - 1, top, data.width)]
+      if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+        neighbors.add(tile)
+      }
+    }
+    // 左下
+    if (isPositionWithinMap(left - 1, top + 1, data.width, data.height)) {
+      final tile = data.terrains[tilePos2Index(left - 1, top + 1, data.width)]
+      if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+        neighbors.add(tile)
+      }
+    }
+    // 右上
+    if (isPositionWithinMap(left + 1, top, data.width, data.height)) {
+      final tile = data.terrains[tilePos2Index(left + 1, top, data.width)]
+      if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+        neighbors.add(tile)
+      }
+    }
+    // 右下
+    if (isPositionWithinMap(left + 1, top + 1, data.width, data.height)) {
+      final tile = data.terrains[tilePos2Index(left + 1, top + 1, data.width)]
+      if (!restrict2Zone || origin.zoneIndex == tile.zoneIndex) {
+        neighbors.add(tile)
+      }
+    }
+  }
+  return neighbors
+}
+
+// hScore(n) 是曼哈顿距离时的 A* 算法
+fun calculateRoute(data, start, end) {
+  // print('calculating route: ${start.left},${start.top} to ${end.left},${end.top}')
+
+  assert(start.zoneIndex > 0)
+  assert(end.zoneIndex > 0)
+  assert(start.index != end.index)
+  final zone1 = data.zones[start.zoneIndex]
+  final zone2 = data.zones[end.zoneIndex]
+
+  // g(n): 原点到该点的距离
+  final gScore = {}
+  gScore[start.index] = 0
+  // h(n): 该点到终点的距离
+  final hScore = {}
+  hScore[start.index] = getTileDistance(start, end)
+  // f(n) = g(n) + h(n)
+  final fScore = {}
+  fScore[start.index] = hScore[start.index]
+
+  // 节点返回路径，每个 key 对应的 value 代表了 key 的坐标的上一步骤的坐标
+  final cameFrom = {}
+  fun reconstructPath(cameFrom, current) {
+    final from = cameFrom[current]
+    if (from) {
+      final path = reconstructPath(cameFrom, from)
+      return [ ...path, current ]
+    } else {
+      return [ current ]
+    }
+  }
+  // 已被计算的坐标
+  final closed = []
+  // 将要计算的坐标, key 是 tile index，value 是 离起点的距离
+  final open = []
+  open.add(start.index)
+  final distance = getTileDistance(start, end)
+  // 两个据点在相同地域
+  if (zone1.index == zone2.index) {
+    // route = {
+    //   startLeft: start.left,
+    //   startTop: start.top,
+    //   path: []
+    // }
+    while (open.isNotEmpty) {
+      // 找到 f(x) 最小的节点
+      open.sort((t1, t2) => fScore[t1].compareTo(fScore[t2]))
+      final nextIndex = open.first
+      final next = index2TilePos(nextIndex, data.width)
+      if (nextIndex == end.index) {
+        // route.path = reconstructPath(cameFrom, end.index)
+        final route = reconstructPath(cameFrom, end.index)
+        // print(route)
+        return route
+      }
+      open.remove(nextIndex)
+      closed.add(nextIndex)
+      final neighbors = getMapTileNeighbors(data, next.left, next.top, restrict2Zone: true)
+      for (final neighbor in neighbors) {
+        if (closed.contains(neighbor.index)) continue
+        final tentetiveGScore = gScore[nextIndex] + 1
+        var tentativelyBetter = false
+        if (!open.contains(neighbor.index) || (tentetiveGScore < gScore[neighbor.index])) {
+          tentativelyBetter = true
+        }
+        if (tentativelyBetter) {
+          cameFrom[neighbor.index] = nextIndex
+          gScore[neighbor.index] = tentetiveGScore
+          hScore[neighbor.index] = getTileDistance(neighbor, end)
+          fScore[neighbor.index] = gScore[neighbor.index] + hScore[neighbor.index]
+          if (!open.contains(neighbor.index)) {
+            open.add(neighbor.index)
+          }
+        }
+      }
+    }
+    return null
+  }
+  // 需要先找到两个地域的连接点，再从连接点出发到终点
+  else {
+
+  }
+}

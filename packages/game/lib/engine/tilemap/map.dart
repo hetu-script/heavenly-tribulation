@@ -638,6 +638,9 @@ class MapComponent extends GameComponent with HandlesGesture {
     for (final actor in actors) {
       actor.update(dt);
     }
+    for (final cloud in clouds) {
+      cloud.update(dt);
+    }
 
     if (clouds.length < maxCloudsCout) {
       final r = math.Random().nextDouble();
@@ -647,7 +650,6 @@ class MapComponent extends GameComponent with HandlesGesture {
         add(cloud);
       }
     }
-
     clouds.removeWhere((cloud) {
       if (!cloud.visible) {
         remove(cloud);
