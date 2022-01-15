@@ -3,9 +3,11 @@ import 'package:flame/components.dart';
 import 'tile.dart';
 
 mixin TileInfo on Component {
-  late final int left, top;
-  late final int srcWidth, srcHeight;
+  late final TilePosition tilePosition;
+  int get left => tilePosition.left;
+  int get top => tilePosition.top;
 
+  late final double srcWidth, srcHeight;
   late final TileShape tileShape;
   late final double gridWidth, gridHeight;
 

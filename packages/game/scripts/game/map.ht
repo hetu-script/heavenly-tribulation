@@ -1,4 +1,5 @@
 import 'game.ht'
+import 'generator/hexagonal_tile.ht'
 
 export 'generator/world.ht'
 export 'generator/maze.ht'
@@ -88,11 +89,17 @@ fun isPositionWithinMap(left, top, width, height) {
   return (left > 0 && top > 0 && left <= width && top <= height)
 }
 
+fun getTerrain(left, top, { data }) {
+  data ??= game.world
+  return data.terrains[tilePos2Index(left, top, data.width)]
+}
+
 // 获取相邻并且在地图范围内的格子
 // 如果 [restrict2Zone] 为 true，则只会返回和起点所在 tile 具有相同 zoneIndex 的格子
 // 如果指定了方向
 // 必须 apply 或者 bind 到某个 world data 对象上才可以使用
-fun getMapTileNeighbors(data, left: int, top: int, {restrict2Zone: bool = false}) {
+fun getMapTileNeighbors(left: int, top: int, {restrict2Zone: bool = false, data}) {
+  data ??= game.world
   assert(isPositionWithinMap(left, top, data.width, data.height))
   final origin = data.terrains[tilePos2Index(left, top, data.width)]
   final neighbors = []
@@ -190,7 +197,8 @@ fun getMapTileNeighbors(data, left: int, top: int, {restrict2Zone: bool = false}
 }
 
 // hScore(n) 是曼哈顿距离时的 A* 算法
-fun calculateRoute(data, start, end) {
+fun calculateRoute(start, end, { data }) {
+  data ??= game.world
   // print('calculating route: ${start.left},${start.top} to ${end.left},${end.top}')
 
   assert(start.zoneIndex > 0)
@@ -246,7 +254,7 @@ fun calculateRoute(data, start, end) {
       }
       open.remove(nextIndex)
       closed.add(nextIndex)
-      final neighbors = getMapTileNeighbors(data, next.left, next.top, restrict2Zone: true)
+      final neighbors = getMapTileNeighbors(next.left, next.top, restrict2Zone: true, data: data)
       for (final neighbor in neighbors) {
         if (closed.contains(neighbor.index)) continue
         final tentetiveGScore = gScore[nextIndex] + 1
@@ -265,10 +273,6 @@ fun calculateRoute(data, start, end) {
         }
       }
     }
-    return null
   }
-  // 需要先找到两个地域的连接点，再从连接点出发到终点
-  else {
-
-  }
+  return null
 }

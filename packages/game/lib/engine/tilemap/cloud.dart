@@ -38,7 +38,7 @@ class TileMapCloud extends PositionComponent with HasGameRef<Scene> {
         this.sprite = Sprite(image);
       });
     }
-    this.duration = duration ?? 16 + random.nextDouble() * 6;
+    this.duration = duration ?? 20 + random.nextDouble() * 10;
     opacity ??= 0.3 + random.nextDouble() * 0.45;
     paint = Paint()..color = Colors.white.withOpacity(opacity);
     this.velocity = velocity ?? 0.2 + random.nextDouble() * 2;

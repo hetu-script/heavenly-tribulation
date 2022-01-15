@@ -9,6 +9,7 @@ import 'package:flame/sprite.dart';
 
 import '../extensions.dart';
 import '../game.dart';
+import 'tile_mixin.dart';
 
 class TilePosition {
   final int left, top;
@@ -46,7 +47,7 @@ enum TileRenderDirection {
   rightBottom,
 }
 
-class MapTile extends GameComponent {
+class MapTile extends GameComponent with TileInfo {
   static const defaultAnimationStepTime = 0.4;
   static const defaultScale = 2.0;
 
@@ -61,13 +62,8 @@ class MapTile extends GameComponent {
   final path = Path();
   late Rect rect;
 
-  final TilePosition tilePosition;
-  int get left => tilePosition.left;
-  int get top => tilePosition.top;
-
   /// the tile position (compare to screen position or world position)
   final int index;
-  final double gridWidth, gridHeight;
 
   final TileShape shape;
   final TileRenderDirection renderDirection;
@@ -83,18 +79,20 @@ class MapTile extends GameComponent {
     required this.index,
     required double srcWidth,
     required double srcHeight,
-    required this.gridWidth,
-    required this.gridHeight,
+    required double gridWidth,
+    required double gridHeight,
     required bool isVisible,
     required this.zoneIndex,
     this.sprite,
     this.animation,
     this.offsetX = 0.0,
     this.offsetY = 0.0,
-  })  : tilePosition = TilePosition(left, top),
-        super(game: game) {
+  }) : super(game: game) {
+    tilePosition = TilePosition(left, top);
     width = srcWidth;
     height = srcHeight;
+    this.gridWidth = gridWidth;
+    this.gridHeight = gridHeight;
     generateRect();
     this.isVisible = isVisible;
   }

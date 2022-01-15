@@ -63,6 +63,7 @@ class MapComponent extends GameComponent with HandlesGesture {
 
   TileMapTerrain? selectedTerrain;
   TileMapEntity? selectedEntity;
+  List<TileMapActor>? selectedActors;
 
   final List<List<TileMapTerrain>> terrains;
   final Map<String, TileMapEntity> entities;
@@ -636,7 +637,7 @@ class MapComponent extends GameComponent with HandlesGesture {
 
     if (clouds.length < maxCloudsCout) {
       final r = math.Random().nextDouble();
-      if (r < 0.04) {
+      if (r < 0.03) {
         final cloud = TileMapCloud(screenSize: mapScreenSize);
         clouds.add(cloud);
         add(cloud);

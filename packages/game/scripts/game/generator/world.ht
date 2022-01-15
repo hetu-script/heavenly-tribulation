@@ -137,7 +137,7 @@ fun createWorld({
   // 刷新当前地域的边缘格子坐标
   fun updateShelf(left, top) {
     delete shelf[tilePos2Index(left, top, data.width)]
-    final neighbors = getMapTileNeighbors(data, left, top)
+    final neighbors = getMapTileNeighbors(left, top, data: data)
     for (final tile in neighbors) {
       if (tile.spriteIndex == _kSpriteWater) {
         shelf[tile.index] = true
@@ -189,7 +189,7 @@ fun createWorld({
     unzonedNeighbors ??= {}
     // print('processing: ${tile.left},${tile.top}, spriteIndex: ${tile.spriteIndex}')
     tile.zoneIndex = -1 // mark this tile is being processed, will skip it when process others
-    final neighbors = getMapTileNeighbors(data, tile.left, tile.top)
+    final neighbors = getMapTileNeighbors(tile.left, tile.top, data: data)
     var foundAdjacentZone = false
     for (final neighbor in neighbors) {
       // skip tiles that has diffrent spriteIndex and those still being processed
@@ -249,7 +249,7 @@ fun createWorld({
   // 根据 tile 的所在位置的类型，获取据点类型
   fun getLocationCategory(tile) {
     if (tile.spriteIndex == _kSpriteLand) {
-      final neighbors = getMapTileNeighbors(data, tile.left, tile.top)
+      final neighbors = getMapTileNeighbors(tile.left, tile.top, data: data)
       for (final neighbor in neighbors) {
         if (neighbor.spriteIndex == _kSpriteWater) {
           return 'shore'
@@ -335,7 +335,7 @@ fun createWorld({
     if (location.zoneCategory == _kZoneContinent) {
       final tiles = find2NearestLocation(location, restrict2Zone: true)
       if (tiles.nearest) {
-        final route = calculateRoute(data, location, tiles.nearest)
+        final route = calculateRoute(location, tiles.nearest, data: data)
         if (route) {
           // routes.add(route)
           for (final index in route) {
@@ -345,7 +345,7 @@ fun createWorld({
         }
       }
       if (tiles.secondNearest) {
-        final route = calculateRoute(data, location, tiles.secondNearest)
+        final route = calculateRoute(location, tiles.secondNearest, data: data)
         if (route) {
           // routes.add(route)
           for (final index in route) {

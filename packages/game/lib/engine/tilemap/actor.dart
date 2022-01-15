@@ -22,6 +22,8 @@ class TileMapActor extends GameComponent with TileInfo {
   final SpriteAnimation south, east, west, north;
   final ActorDirection direction = ActorDirection.south;
 
+  bool isWalking = false;
+
   TileMapActor(
       {required SamsaraGame game,
       required this.characterId,
@@ -30,8 +32,8 @@ class TileMapActor extends GameComponent with TileInfo {
       required double gridHeight,
       required int left,
       required int top,
-      required int srcWidth,
-      required int srcHeight,
+      required double srcWidth,
+      required double srcHeight,
       required SpriteSheet spriteSheet})
       : south = spriteSheet.createAnimation(row: 0, stepTime: 0.2),
         east = spriteSheet.createAnimation(row: 1, stepTime: 0.2),
@@ -41,28 +43,34 @@ class TileMapActor extends GameComponent with TileInfo {
     this.tileShape = tileShape;
     this.gridWidth = gridWidth;
     this.gridHeight = gridHeight;
-    this.left = left;
-    this.top = top;
+    tilePosition = TilePosition(left, top);
     this.srcWidth = srcWidth;
     this.srcHeight = srcHeight;
   }
 
-  Sprite get currentSprite {
+  SpriteAnimation get currentAnimation {
     switch (direction) {
       case ActorDirection.south:
-        return south.getSprite();
+        return south;
       case ActorDirection.east:
-        return east.getSprite();
+        return east;
       case ActorDirection.west:
-        return west.getSprite();
+        return west;
       case ActorDirection.north:
-        return north.getSprite();
+        return north;
     }
   }
 
   @override
   void render(Canvas canvas) {
     final worldPos = tilePosition2World(left, top);
-    currentSprite.render(canvas, position: worldPos);
+    currentAnimation.getSprite().render(canvas, position: worldPos);
+  }
+
+  @override
+  void update(double dt) {
+    if (isWalking) {
+      currentAnimation.update(dt);
+    }
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 
+import '../../../engine/tilemap/map.dart';
 import '../../../event/event.dart';
 import '../../../ui/shared/ink_image_button.dart';
 import '../../../ui/pointer_detector.dart';
@@ -21,11 +22,13 @@ class WorldMapPopup extends StatelessWidget {
   final bool checkIcon;
   final bool enterIcon;
   final bool talkIcon;
+  final bool restIcon;
 
   final void Function()? onMoveToIconTapped;
   final void Function()? onCheckIconTapped;
   final void Function()? onEnterIconTapped;
   final void Function()? onTalkIconTapped;
+  final void Function()? onRestIconTapped;
 
   const WorldMapPopup({
     Key? key,
@@ -33,13 +36,15 @@ class WorldMapPopup extends StatelessWidget {
     required this.top,
     this.onPanelTapped,
     this.moveToIcon = false,
-    this.checkIcon = false,
-    this.enterIcon = false,
-    this.talkIcon = false,
     this.onMoveToIconTapped,
+    this.checkIcon = false,
     this.onCheckIconTapped,
+    this.enterIcon = false,
     this.onEnterIconTapped,
+    this.talkIcon = false,
     this.onTalkIconTapped,
+    this.restIcon = false,
+    this.onRestIconTapped,
   }) : super(key: key);
 
   @override
@@ -106,7 +111,7 @@ class WorldMapPopup extends StatelessWidget {
               if (checkIcon)
                 Positioned.fill(
                   child: Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: Alignment.bottomCenter,
                     child: InkImageButton(
                       width: 40,
                       height: 40,
@@ -142,7 +147,7 @@ class WorldMapPopup extends StatelessWidget {
               if (talkIcon)
                 Positioned.fill(
                   child: Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: Alignment.centerRight,
                     child: InkImageButton(
                       width: 40,
                       height: 40,
@@ -152,6 +157,24 @@ class WorldMapPopup extends StatelessWidget {
                       onPressed: () {
                         if (onTalkIconTapped != null) {
                           onTalkIconTapped!();
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              if (restIcon)
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: InkImageButton(
+                      width: 40,
+                      height: 40,
+                      child: const Image(
+                        image: AssetImage('assets/images/icon/rest.png'),
+                      ),
+                      onPressed: () {
+                        if (onRestIconTapped != null) {
+                          onRestIconTapped!();
                         }
                       },
                     ),
@@ -180,6 +203,7 @@ class WorldMapOverlay extends StatefulWidget {
 class _WorldMapOverlayState extends State<WorldMapOverlay> {
   SamsaraGame get game => widget.game;
   WorldMapScene get scene => widget.scene;
+  MapComponent get map => widget.scene.map!;
 
   Vector2? menuPosition;
 
@@ -349,6 +373,32 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
     ];
 
     if (menuPosition != null) {
+      final terrain = map.selectedTerrain!;
+      final terrainZone = map.zones[terrain.zoneIndex];
+      final location = map.selectedEntity;
+      final characters = map.selectedActors;
+      final hero = map.hero;
+      var hasRoute = false;
+      var isHeroPosition = false;
+      if (terrain.tilePosition != hero.tilePosition) {
+        final start = game.hetu
+            .invoke('getTerrain', positionalArgs: [hero.left, hero.top]);
+        final end = game.hetu
+            .invoke('getTerrain', positionalArgs: [terrain.left, terrain.top]);
+        final List? route =
+            game.hetu.invoke('calculateRoute', positionalArgs: [start, end]);
+        if (route != null) {
+          hasRoute = true;
+          // for (var i = 1; i < route.length; ++i) {
+          //   final index = route[i];
+          //   final tilePosition = map.index2TilePos(index);
+          //   print(tilePosition);
+          // }
+        }
+      } else {
+        isHeroPosition = true;
+      }
+
       screenWidgets.add(
         WorldMapPopup(
           left: menuPosition!.x - WorldMapPopup.defaultSize / 2,
@@ -359,6 +409,27 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
               scene.map!.selectedTerrain = null;
               scene.map!.selectedEntity = null;
             });
+          },
+          moveToIcon: hasRoute,
+          onMoveToIconTapped: () {
+            menuPosition = null;
+            map.hero.isWalking = true;
+          },
+          checkIcon: terrainZone.index != 0,
+          onCheckIconTapped: () {
+            menuPosition = null;
+          },
+          enterIcon: (hasRoute && location != null) ? true : false,
+          onEnterIconTapped: () {
+            menuPosition = null;
+          },
+          talkIcon: characters != null ? true : false,
+          onTalkIconTapped: () {
+            menuPosition = null;
+          },
+          restIcon: isHeroPosition,
+          onRestIconTapped: () {
+            menuPosition = null;
           },
         ),
       );
