@@ -228,15 +228,11 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
       MapEvents.onMapTapped,
       EventHandler(widget.key!, (event) {
         setState(() {
-          if (menuPosition != null) {
-            menuPosition = null;
-          } else {
-            final e = event as MapInteractionEvent;
-            if (e.terrain != null) {
-              final tilePos = e.terrain!.tilePosition;
-              menuPosition = scene.map!
-                  .tilePosition2TileCenterInScreen(tilePos.left, tilePos.top);
-            }
+          final e = event as MapInteractionEvent;
+          if (e.terrain != null) {
+            final tilePos = e.terrain!.tilePosition;
+            menuPosition = scene.map!
+                .tilePosition2TileCenterInScreen(tilePos.left, tilePos.top);
           }
         });
       }),
@@ -373,66 +369,77 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
     ];
 
     if (menuPosition != null) {
-      final terrain = map.selectedTerrain!;
-      final terrainZone = map.zones[terrain.zoneIndex];
-      final location = map.selectedEntity;
-      final characters = map.selectedActors;
-      final hero = map.hero;
-      var hasRoute = false;
-      var isHeroPosition = false;
-      if (terrain.tilePosition != hero.tilePosition) {
-        final start = game.hetu
-            .invoke('getTerrain', positionalArgs: [hero.left, hero.top]);
-        final end = game.hetu
-            .invoke('getTerrain', positionalArgs: [terrain.left, terrain.top]);
-        final List? route =
-            game.hetu.invoke('calculateRoute', positionalArgs: [start, end]);
-        if (route != null) {
-          hasRoute = true;
-          // for (var i = 1; i < route.length; ++i) {
-          //   final index = route[i];
-          //   final tilePosition = map.index2TilePos(index);
-          //   print(tilePosition);
-          // }
+      if (map.selectedTerrain != null) {
+        final terrain = map.selectedTerrain!;
+        final terrainZone = map.zones[terrain.zoneIndex];
+        final location = map.selectedEntity;
+        final characters = map.selectedActors;
+        final hero = map.hero;
+        List<int>? route;
+        var isHeroPosition = false;
+        if (terrain.tilePosition != hero!.tilePosition) {
+          final start = game.hetu
+              .invoke('getTerrain', positionalArgs: [hero.left, hero.top]);
+          final end = game.hetu.invoke('getTerrain',
+              positionalArgs: [terrain.left, terrain.top]);
+          List? calculatedRoute =
+              game.hetu.invoke('calculateRoute', positionalArgs: [start, end]);
+          if (calculatedRoute != null) {
+            route = List<int>.from(calculatedRoute);
+            // for (var i = 1; i < route.length; ++i) {
+            //   final index = route[i];
+            //   final tilePosition = map.index2TilePos(index);
+            //   print(tilePosition);
+            // }
+          }
+        } else {
+          isHeroPosition = true;
         }
-      } else {
-        isHeroPosition = true;
+        screenWidgets.add(
+          WorldMapPopup(
+            left: menuPosition!.x - WorldMapPopup.defaultSize / 2,
+            top: menuPosition!.y - WorldMapPopup.defaultSize / 2,
+            onPanelTapped: () {
+              setState(() {
+                menuPosition = null;
+                scene.map!.selectedTerrain = null;
+                scene.map!.selectedEntity = null;
+              });
+            },
+            moveToIcon: route != null,
+            onMoveToIconTapped: () {
+              map.moveHeroToTilePositionByRoute(route!);
+              setState(() {
+                menuPosition = null;
+              });
+            },
+            checkIcon: terrainZone.index != 0,
+            onCheckIconTapped: () {
+              setState(() {
+                menuPosition = null;
+              });
+            },
+            enterIcon: (route != null && location != null) ? true : false,
+            onEnterIconTapped: () {
+              setState(() {
+                menuPosition = null;
+              });
+            },
+            talkIcon: characters != null ? true : false,
+            onTalkIconTapped: () {
+              setState(() {
+                menuPosition = null;
+              });
+            },
+            restIcon: isHeroPosition,
+            onRestIconTapped: () {
+              setState(() {
+                menuPosition = null;
+              });
+            },
+          ),
+        );
       }
-
-      screenWidgets.add(
-        WorldMapPopup(
-          left: menuPosition!.x - WorldMapPopup.defaultSize / 2,
-          top: menuPosition!.y - WorldMapPopup.defaultSize / 2,
-          onPanelTapped: () {
-            setState(() {
-              menuPosition = null;
-              scene.map!.selectedTerrain = null;
-              scene.map!.selectedEntity = null;
-            });
-          },
-          moveToIcon: hasRoute,
-          onMoveToIconTapped: () {
-            menuPosition = null;
-            map.hero.isWalking = true;
-          },
-          checkIcon: terrainZone.index != 0,
-          onCheckIconTapped: () {
-            menuPosition = null;
-          },
-          enterIcon: (hasRoute && location != null) ? true : false,
-          onEnterIconTapped: () {
-            menuPosition = null;
-          },
-          talkIcon: characters != null ? true : false,
-          onTalkIconTapped: () {
-            menuPosition = null;
-          },
-          restIcon: isHeroPosition,
-          onRestIconTapped: () {
-            menuPosition = null;
-          },
-        ),
-      );
     }
 
     return Material(

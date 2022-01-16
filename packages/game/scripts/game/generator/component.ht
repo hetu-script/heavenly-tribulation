@@ -5,5 +5,5 @@ external class MapComponent {
 
   fun lightUpAroundTerrain(left: int, top: int)
 
-  fun moveToTerrain(left: int, top: int)
+  fun moveCameraToTilePosition(left: int, top: int)
 }

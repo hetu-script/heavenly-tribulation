@@ -62,9 +62,6 @@ class MapTile extends GameComponent with TileInfo {
   final path = Path();
   late Rect rect;
 
-  /// the tile position (compare to screen position or world position)
-  final int index;
-
   final TileShape shape;
   final TileRenderDirection renderDirection;
 
@@ -76,7 +73,7 @@ class MapTile extends GameComponent with TileInfo {
     this.renderDirection = TileRenderDirection.rightBottom,
     required int left,
     required int top,
-    required this.index,
+    required int index,
     required double srcWidth,
     required double srcHeight,
     required double gridWidth,
@@ -91,6 +88,7 @@ class MapTile extends GameComponent with TileInfo {
     tilePosition = TilePosition(left, top);
     width = srcWidth;
     height = srcHeight;
+    this.index = index;
     this.gridWidth = gridWidth;
     this.gridHeight = gridHeight;
     generateRect();

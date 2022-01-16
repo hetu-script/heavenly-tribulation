@@ -75,7 +75,8 @@ class MapComponent extends GameComponent with HandlesGesture {
 
   bool isTimeFlowing = false;
 
-  final TileMapActor hero;
+  final TileMapActor? hero;
+  List<TilePosition>? currentRoute;
 
   MapComponent({
     required SamsaraGame game,
@@ -300,6 +301,7 @@ class MapComponent extends GameComponent with HandlesGesture {
       columns: 4,
       rows: 4,
     );
+    final heroPositionIndex = tilePos2Index(heroX, heroY, mapTileWidth);
     final hero = TileMapActor(
         game: game,
         tileShape: tileShape,
@@ -307,6 +309,7 @@ class MapComponent extends GameComponent with HandlesGesture {
         gridHeight: gridHeight,
         left: heroX,
         top: heroY,
+        index: heroPositionIndex,
         srcWidth: 32,
         srcHeight: 32,
         characterId: 'current',
@@ -429,19 +432,6 @@ class MapComponent extends GameComponent with HandlesGesture {
     _lightUpAroundTerrain(tile);
   }
 
-  void _moveToTerrain(TileMapTerrain tile) {
-    final entity = getEntity(tile.left, tile.top);
-    entity?.isVisible = true;
-    _moveCameraToTilePosition(tile.left, tile.top, animated: true);
-  }
-
-  void moveToTerrain(int left, int top) {
-    final tile = getTerrain(left, top);
-    if (tile != null) {
-      _moveToTerrain(tile);
-    }
-  }
-
   Vector2 worldPosition2Screen(Vector2 position) {
     return position - camera.position;
   }
@@ -547,6 +537,30 @@ class MapComponent extends GameComponent with HandlesGesture {
     return TilePosition(left, top);
   }
 
+  void moveCameraToTilePosition(int left, int top,
+      {bool animated = true, double speed = 500.0}) {
+    final dest = Vector2(left * gridWidth * scale.x + gridWidth / 2 * scale.x,
+            top * gridHeight * scale.x + gridHeight / 2 * scale.y) -
+        gameRef.size / 2;
+    camera.speed = speed;
+    camera.moveTo(dest);
+    if (!animated) {
+      camera.snap();
+    }
+  }
+
+  void resetHero() {
+    hero!.isWalking = false;
+  }
+
+  void moveHeroToTilePositionByRoute(List<int> route) {
+    assert(hero!.index == route.first);
+    currentRoute =
+        route.map((index) => index2TilePos(index)).toList().reversed.toList();
+    currentRoute!.removeLast();
+    resetHero();
+  }
+
   @override
   void onDragUpdate(int pointer, int buttons, DragUpdateDetails details) {
     camera.snapTo(camera.position - details.delta.toVector2());
@@ -614,14 +628,16 @@ class MapComponent extends GameComponent with HandlesGesture {
     for (final tile in entities.values) {
       add(tile);
     }
-    add(hero);
+    if (hero != null) {
+      add(hero!);
+    }
     for (final actor in actors) {
       add(actor);
     }
     double mapScreenSizeX = (gridWidth * 3 / 4) * mapTileWidth;
     double mapScreenSizeY = (gridHeight * mapTileHeight + gridHeight / 2);
     mapScreenSize = Vector2(mapScreenSizeX, mapScreenSizeY);
-    _moveCameraToTilePosition(heroX, heroY);
+    moveCameraToTilePosition(heroX, heroY);
 
     final r = math.Random().nextInt(6);
     for (var i = 0; i < r; ++i) {
@@ -651,6 +667,14 @@ class MapComponent extends GameComponent with HandlesGesture {
       }
       return false;
     });
+
+    if (currentRoute != null) {
+      if (!hero!.isWalking) {
+        final nextTile = currentRoute!.last;
+        hero!.direction = hero!.directionTo(nextTile);
+        hero!.isWalking = true;
+      }
+    }
   }
 
   @override
@@ -667,17 +691,5 @@ class MapComponent extends GameComponent with HandlesGesture {
   @override
   bool containsPoint(Vector2 point) {
     return true;
-  }
-
-  void _moveCameraToTilePosition(int left, int top,
-      {bool animated = false, double speed = 500.0}) {
-    final dest = Vector2(left * gridWidth * scale.x + gridWidth / 2 * scale.x,
-            top * gridHeight * scale.x + gridHeight / 2 * scale.y) -
-        gameRef.size / 2;
-    camera.speed = speed;
-    camera.moveTo(dest);
-    if (!animated) {
-      camera.snap();
-    }
   }
 }

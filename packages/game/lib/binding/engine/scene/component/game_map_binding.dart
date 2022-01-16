@@ -13,12 +13,12 @@ extension MapComponentBinding on MapComponent {
             List<HTType> typeArgs = const []}) {
           removeEntity(positionalArgs[0], positionalArgs[1]);
         };
-      case r'moveToTerrain':
+      case r'moveCameraToTilePosition':
         return (HTEntity object,
             {List<dynamic> positionalArgs = const [],
             Map<String, dynamic> namedArgs = const {},
             List<HTType> typeArgs = const []}) {
-          moveToTerrain(positionalArgs[0], positionalArgs[1]);
+          moveCameraToTilePosition(positionalArgs[0], positionalArgs[1]);
         };
       case r'lightUpAroundTerrain':
         return (HTEntity object,

@@ -6,6 +6,7 @@ import '../game.dart';
 import '../extensions.dart';
 import 'tile.dart';
 import 'tile_mixin.dart';
+import '../shared/direction.dart';
 
 enum ActorDirection {
   south,
@@ -20,7 +21,27 @@ class TileMapActor extends GameComponent with TileInfo {
   bool get isHero => characterId == 'current';
 
   final SpriteAnimation south, east, west, north;
-  final ActorDirection direction = ActorDirection.south;
+  ActorDirection _direction = ActorDirection.south;
+  set direction(Direction direction) {
+    switch (direction) {
+      case Direction.north:
+        _direction = ActorDirection.north;
+        break;
+      case Direction.south:
+        _direction = ActorDirection.south;
+        break;
+      case Direction.east:
+      case Direction.northEast:
+      case Direction.southEast:
+        _direction = ActorDirection.east;
+        break;
+      case Direction.west:
+      case Direction.northWest:
+      case Direction.southWest:
+        _direction = ActorDirection.west;
+        break;
+    }
+  }
 
   bool isWalking = false;
 
@@ -32,24 +53,26 @@ class TileMapActor extends GameComponent with TileInfo {
       required double gridHeight,
       required int left,
       required int top,
+      required int index,
       required double srcWidth,
       required double srcHeight,
       required SpriteSheet spriteSheet})
       : south = spriteSheet.createAnimation(row: 0, stepTime: 0.2),
         east = spriteSheet.createAnimation(row: 1, stepTime: 0.2),
-        west = spriteSheet.createAnimation(row: 2, stepTime: 0.2),
-        north = spriteSheet.createAnimation(row: 3, stepTime: 0.2),
+        north = spriteSheet.createAnimation(row: 2, stepTime: 0.2),
+        west = spriteSheet.createAnimation(row: 3, stepTime: 0.2),
         super(game: game) {
     this.tileShape = tileShape;
+    tilePosition = TilePosition(left, top);
+    this.index = index;
     this.gridWidth = gridWidth;
     this.gridHeight = gridHeight;
-    tilePosition = TilePosition(left, top);
     this.srcWidth = srcWidth;
     this.srcHeight = srcHeight;
   }
 
   SpriteAnimation get currentAnimation {
-    switch (direction) {
+    switch (_direction) {
       case ActorDirection.south:
         return south;
       case ActorDirection.east:
