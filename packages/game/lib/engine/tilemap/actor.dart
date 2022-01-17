@@ -4,7 +4,6 @@ import 'dart:math' as math;
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
 
-import '../game.dart';
 import '../extensions.dart';
 import 'tile.dart';
 import 'tile_mixin.dart';
@@ -85,8 +84,7 @@ class TileMapActor extends GameComponent with TileInfo {
   }
 
   TileMapActor(
-      {required SamsaraGame game,
-      required this.characterId,
+      {required this.characterId,
       required TileShape shape,
       required double gridWidth,
       required double gridHeight,
@@ -100,8 +98,7 @@ class TileMapActor extends GameComponent with TileInfo {
       : south = spriteSheet.createAnimation(row: 0, stepTime: 0.2),
         east = spriteSheet.createAnimation(row: 1, stepTime: 0.2),
         north = spriteSheet.createAnimation(row: 2, stepTime: 0.2),
-        west = spriteSheet.createAnimation(row: 3, stepTime: 0.2),
-        super(game: game) {
+        west = spriteSheet.createAnimation(row: 3, stepTime: 0.2) {
     this.tileMapWidth = tileMapWidth;
     this.shape = shape;
     this.gridWidth = gridWidth;

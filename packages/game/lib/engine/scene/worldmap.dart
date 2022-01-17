@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'scene.dart';
 import '../tilemap/map.dart';
-import '../game.dart';
-import '../../ui/game/overlay/worldmap.dart';
+import '../engine.dart';
+import '../../ui/overlay/worldmap/worldmap.dart';
 
 class WorldMapScene extends Scene {
   var _loaded = false;
@@ -12,21 +12,18 @@ class WorldMapScene extends Scene {
   MapComponent? map;
   Map<String, dynamic>? mapData;
 
-  WorldMapScene({
-    required SamsaraGame game,
-    this.mapData,
-  }) : super(key: 'WorldMap', game: game);
+  WorldMapScene({this.mapData}) : super(key: 'WorldMap');
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
 
     if (mapData == null) {
-      map = await game.hetu.invoke('createWorldMap', namedArgs: {
+      map = await engine.hetu.invoke('createWorldMap', namedArgs: {
         'terrainSpriteSheet': 'fantasyhextiles_v3_borderless.png',
       });
     } else {
-      map = await game.hetu.invoke('loadWorldMap', positionalArgs: [mapData]);
+      map = await engine.hetu.invoke('loadWorldMap', positionalArgs: [mapData]);
     }
 
     add(map!);
@@ -34,7 +31,7 @@ class WorldMapScene extends Scene {
   }
 
   @override
-  Widget get widget {
-    return WorldMapOverlay(key: UniqueKey(), game: game, scene: this);
+  Widget widgetBuilder(BuildContext context) {
+    return WorldMapOverlay(key: UniqueKey(), scene: this);
   }
 }

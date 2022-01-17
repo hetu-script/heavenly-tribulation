@@ -3,7 +3,7 @@ import 'dart:math';
 // import 'package:change_case/change_case.dart';
 import 'package:flutter/material.dart';
 
-import '../../../engine/game.dart';
+import '../../../engine/engine.dart';
 import '../../../shared/localization.dart';
 import '../../shared/avatar.dart';
 import '../../shared/bordered_icon_button.dart';
@@ -11,14 +11,11 @@ import '../../shared/bordered_icon_button.dart';
 class CharacterEditor extends StatefulWidget {
   const CharacterEditor(
       {Key? key,
-      required this.game,
       required this.data,
       required this.onClosed,
       required this.maleAvatarCount,
       required this.femaleAvatarCount})
       : super(key: key);
-
-  final SamsaraGame game;
 
   final Map<String, dynamic> data;
 
@@ -40,9 +37,7 @@ class _CharacterEditorState extends State<CharacterEditor>
   static const avatarSize = 100.0;
   static const avatarEditButtonSize = 16.0;
 
-  SamsaraGame get game => widget.game;
-
-  GameLocalization get locale => widget.game.locale;
+  GameLocalization get locale => engine.locale;
 
   Map<String, dynamic> get data => widget.data;
 
@@ -179,7 +174,7 @@ class _CharacterEditorState extends State<CharacterEditor>
   }
 
   void _randomizeName() {
-    final List<dynamic> names = game.hetu.invoke('getName',
+    final List<dynamic> names = engine.hetu.invoke('getName',
         positionalArgs: [1],
         namedArgs: {'isFemale': data['characterIsFemale']});
     data['characterName'] = names.first;

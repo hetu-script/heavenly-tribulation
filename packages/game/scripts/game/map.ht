@@ -72,6 +72,10 @@ fun handleMazeTileInteraction(x: int, y: int) {
   }
 }
 
+fun getZonesData() {
+  return game.world.zones.toJson()
+}
+
 // 从 hexagonal 坐标得到索引
 fun tilePos2Index(left, top, width) {
   return left - 1 + (top - 1) * width

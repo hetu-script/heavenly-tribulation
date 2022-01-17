@@ -15,6 +15,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.1.0"
+  change_case:
+    dependency: "direct main"
+    description:
+      name: change_case
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.1"
   characters:
     dependency: transitive
     description:

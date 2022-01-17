@@ -1,5 +1,6 @@
 import 'common.ht'
 import 'game.ht'
+import 'generator/random_names/random_names.ht' as randomNames
 
 struct Character {
   var organization = {}

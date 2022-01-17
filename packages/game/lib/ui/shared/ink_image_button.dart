@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 
 class InkImageButton extends StatelessWidget {
-  final double? width, height;
+  final double width, height;
 
   final Widget? child;
 
   final void Function() onPressed;
 
+  final String? tooltip;
+
   const InkImageButton({
     Key? key,
-    this.width,
-    this.height,
+    this.width = 40,
+    this.height = 40,
+    this.tooltip,
     this.child,
     required this.onPressed,
   }) : super(key: key);
@@ -31,10 +34,14 @@ class InkImageButton extends StatelessWidget {
         ),
         child: Material(
           type: MaterialType.transparency,
-          child: InkWell(
-            customBorder: const CircleBorder(),
-            onTap: onPressed,
-            child: child,
+          child: Tooltip(
+            textStyle: const TextStyle(fontSize: 20.0),
+            message: tooltip,
+            child: InkWell(
+              customBorder: const CircleBorder(),
+              onTap: onPressed,
+              child: child,
+            ),
           ),
         ),
       ),

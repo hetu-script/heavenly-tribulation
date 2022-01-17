@@ -1,7 +1,7 @@
+import '../random_names/random_names.ht' as randomNames
 import '../../game.ht'
 import '../../location.ht'
 import '../../character.ht'
-import '../random_names/random_names.ht' as randomNames
 import 'hexagonal_tile.ht'
 import 'component.ht'
 import {
@@ -58,6 +58,7 @@ const _kMinLocationNumberForOrganization = 1 // 最大组织密度
 const _kMaxLocationNumberForOrganization = 6 // 最小组织密度
 const _kMinNpcNumberForOrganization = 3
 const _kMaxNpcNumberForOrganization = 18
+const _kAdvancedAIOrganizationOpponentProportion = 0.3
 
 struct Zone {
   var index: int
@@ -252,7 +253,7 @@ fun createWorldMap({
     } else {
       category = zone.category
     }
-    names = getZone(1, category: category)
+    names = randomNames.getZone(1, category: category)
     zone.name = names.first.name
   }
 
@@ -394,27 +395,38 @@ fun createWorldMap({
   if (minOrgNum < 2) {
     minOrgNum = 2
   }
+  if (maxOrgNum < minOrgNum) {
+    maxOrgNum = minOrgNum
+  }
   final orgNum = Math.randomInt(maxOrgNum - minOrgNum) + minOrgNum
-  final orgNames = randomNames.getClan(orgNum)
+  var advancedOrgNum = orgNum * _kAdvancedAIOrganizationOpponentProportion
+  if (advancedOrgNum == 0) {
+    advancedOrgNum = 1
+  }
   
-  final locationIndexes = game.locations.values.map((element) => element.index).toList()
+  final locationIndexes = game.locations.values.map((element) => element.id).toList()
   locationIndexes.shuffle()
   final iter = locationIndexes.iterator
-  for (var i in range(orgNames.length)) {
-    final org = orgNames[i]
+  for (var i in range(orgNum)) {
+    final org = Organization()
     org.index = data.organizations.length
     iter.moveNext()
-    org.headquarterLocationIndex = iter.current
+    org.headquarterLocationId = iter.current
+    final loc = game.locations[iter.current]
+    loc.organizationId = org.id
     data.organizations.add(org)
     final npcCount = Math.randomInt(_kMaxNpcNumberForOrganization - _kMinNpcNumberForOrganization) + _kMinNpcNumberForOrganization
-    for (var i in range(npcCount)) {
+    final leader = Character()
+    leader.organization.id = org.id
+    leader.organization.rank = 0
+    for (var i in range(npcCount - 1)) {
       final char = Character()
       char.organization.id = org.id
     }
   }
   
   game.world = data
-  final future = MapComponent.fromJson(dart, data.toJson())
+  final future = MapComponent.fromJson(data.toJson())
   future.then((value) {
     game.world.component = value
   })

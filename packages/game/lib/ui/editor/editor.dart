@@ -3,15 +3,13 @@ import 'package:flutter/material.dart';
 
 // import 'package:path/path.dart' as path;
 
-import '../../engine/game.dart';
+import '../../engine/engine.dart';
 import '../../shared/localization.dart';
 import 'character/character_listview.dart';
 import 'code/code_editor.dart';
 
 class GameEditor extends StatefulWidget {
-  const GameEditor({Key? key, required this.game}) : super(key: key);
-
-  final SamsaraGame game;
+  const GameEditor({Key? key}) : super(key: key);
 
   @override
   State<GameEditor> createState() => _GameEditorState();
@@ -25,9 +23,7 @@ class _GameEditorState extends State<GameEditor>
   @override
   bool get wantKeepAlive => true;
 
-  SamsaraGame get game => widget.game;
-
-  GameLocalization get locale => widget.game.locale;
+  GameLocalization get locale => engine.locale;
 
   final _characterData = <Map<String, dynamic>>[];
 
@@ -153,7 +149,6 @@ class _GameEditorState extends State<GameEditor>
             children: [
               Center(
                 child: CharacterListView(
-                  game: game,
                   data: _characterData,
                   onSaved: (content) {
                     setState(() {

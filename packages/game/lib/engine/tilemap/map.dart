@@ -11,7 +11,7 @@ import '../../ui/shared/pointer_detector.dart';
 import '../gestures/gesture_mixin.dart';
 import '../extensions.dart';
 import 'tile.dart';
-import '../game.dart';
+import '../engine.dart';
 import '../../event/map_event.dart';
 import 'zone.dart';
 import 'actor.dart';
@@ -75,7 +75,6 @@ class MapComponent extends GameComponent with HandlesGesture {
   List<TileMapRouteNode>? currentRoute;
 
   MapComponent({
-    required SamsaraGame game,
     required this.tileShape,
     this.tapSelect = false,
     required this.heroX,
@@ -90,7 +89,7 @@ class MapComponent extends GameComponent with HandlesGesture {
     this.actors = const [],
     // this.routes = const [],
     this.zones = const [],
-  }) : super(game: game) {
+  }) {
     assert(terrains.isNotEmpty);
     scale = Vector2(MapTile.defaultScale, MapTile.defaultScale);
   }
@@ -99,8 +98,7 @@ class MapComponent extends GameComponent with HandlesGesture {
     return (left - 1) + (top - 1) * tileMapWidth;
   }
 
-  static Future<MapComponent> fromJson(
-      SamsaraGame game, Map<String, dynamic> data) async {
+  static Future<MapComponent> fromJson(Map<String, dynamic> data) async {
     final tileShapeData = data['tileShape'];
     var tileShape = TileShape.orthogonal;
     if (tileShapeData == 'isometric') {
@@ -191,7 +189,6 @@ class MapComponent extends GameComponent with HandlesGesture {
           isEntry = true;
         }
         final tile = TileMapTerrain(
-          game: game,
           shape: tileShape,
           left: i + 1,
           top: j + 1,
@@ -219,7 +216,7 @@ class MapComponent extends GameComponent with HandlesGesture {
     if (interactablesData != null) {
       for (final interactableData in interactablesData) {
         final int zoneIndex = interactableData['zoneIndex'];
-        final String name = interactableData['name'];
+        final String? locationId = interactableData['locationId'];
         final int left = interactableData['left'];
         final int top = interactableData['top'];
         final double srcWidth = interactableData['srcWidth'];
@@ -255,8 +252,6 @@ class MapComponent extends GameComponent with HandlesGesture {
               to: animationFrameCount);
         }
         final interactable = TileMapInteractable(
-          name: name,
-          game: game,
           shape: tileShape,
           left: left,
           top: top,
@@ -267,6 +262,7 @@ class MapComponent extends GameComponent with HandlesGesture {
           gridHeight: gridHeight,
           isVisible: true,
           zoneIndex: zoneIndex,
+          locationId: locationId,
           sprite: sprite,
           animation: animation,
           offsetX: offsetX,
@@ -282,7 +278,6 @@ class MapComponent extends GameComponent with HandlesGesture {
       rows: 4,
     );
     final hero = TileMapActor(
-        game: game,
         shape: tileShape,
         gridWidth: gridWidth,
         gridHeight: gridHeight,
@@ -295,7 +290,6 @@ class MapComponent extends GameComponent with HandlesGesture {
         spriteSheet: sheet);
 
     return MapComponent(
-      game: game,
       tileShape: tileShape,
       tapSelect: tapSelect,
       heroX: heroX,
@@ -597,7 +591,7 @@ class MapComponent extends GameComponent with HandlesGesture {
       selectedTerrain = null;
       selectedInteractable = null;
     }
-    game.broadcast(MapInteractionEvent.mapTapped(
+    engine.broadcast(MapInteractionEvent.mapTapped(
         globalPosition: details.globalPosition,
         terrain: terrain,
         interactable: interactable));

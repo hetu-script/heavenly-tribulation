@@ -40,7 +40,7 @@ fun init {
   addModInfo(meta)
 
   addLocalizations(localizations)
-  dart.updateLanguagesData(game.languages.current.toJson())
+  engine.updateLanguagesData(game.languages.current.toJson())
 
   // addCharacters(characters)
 

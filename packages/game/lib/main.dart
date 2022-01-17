@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flame/flame.dart';
 
 import 'ui/game_app.dart';
-import 'engine/game.dart';
 import 'ui/editor/editor.dart';
 
 void main() async {
@@ -10,8 +9,6 @@ void main() async {
 
   await Flame.device.setPortraitDownOnly();
   await Flame.device.fullScreen();
-
-  final game = SamsaraGame();
 
   runApp(
     MaterialApp(
@@ -21,12 +18,9 @@ void main() async {
           scrollbarTheme: const ScrollbarThemeData().copyWith(
         thumbColor: MaterialStateProperty.all(Colors.grey),
       )),
-      home: GameApp(
-        key: UniqueKey(),
-        game: game,
-      ),
+      home: GameApp(key: UniqueKey()),
       routes: {
-        'editor': (context) => GameEditor(game: game),
+        'editor': (context) => const GameEditor(),
       },
     ),
   );

@@ -1,9 +1,9 @@
 import 'package:hetu_script/hetu_script.dart';
 import 'package:hetu_script/binding.dart';
 
-import '../../engine/game.dart';
+import '../../engine/engine.dart';
 
-extension SamsaraGameBinding on SamsaraGame {
+extension SamsaraEngineBinding on SamsaraEngine {
   dynamic htFetch(String varName) {
     switch (varName) {
       case r'updateLanguagesData':
@@ -19,12 +19,12 @@ extension SamsaraGameBinding on SamsaraGame {
   }
 }
 
-class SamsaraGameClassBinding extends HTExternalClass {
-  SamsaraGameClassBinding() : super(r'SamsaraGame');
+class SamsaraEngineClassBinding extends HTExternalClass {
+  SamsaraEngineClassBinding() : super(r'SamsaraEngine');
 
   @override
   dynamic instanceMemberGet(dynamic object, String varName) {
-    var i = object as SamsaraGame;
+    var i = object as SamsaraEngine;
     return i.htFetch(varName);
   }
 }

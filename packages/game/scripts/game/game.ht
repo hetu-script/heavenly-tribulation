@@ -1,4 +1,4 @@
-external class SamsaraGame {
+external class SamsaraEngine {
   fun updateLanguagesData(data)
 }
 
@@ -8,7 +8,7 @@ fun build(ctx) {
   buildContext = ctx
 }
 
-var dart: SamsaraGame
+var engine: SamsaraEngine
 
 final game = {
   debug: true,

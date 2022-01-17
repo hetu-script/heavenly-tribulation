@@ -2,18 +2,15 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import '../../../engine/game.dart';
-import '../../shared/avatar.dart';
+import '../../../engine/engine.dart';
+import '../shared/avatar.dart';
 import '../../../shared/localization.dart';
 
 class MyView extends StatefulWidget {
-  final SamsaraGame game;
-
   final void Function() onQuit;
 
   const MyView({
     Key? key,
-    required this.game,
     required this.onQuit,
   }) : super(key: key);
 
@@ -22,17 +19,15 @@ class MyView extends StatefulWidget {
 }
 
 class _MyViewState extends State<MyView> {
-  SamsaraGame get game => widget.game;
-
-  GameLocalization get locale => widget.game.locale;
+  GameLocalization get locale => engine.locale;
 
   late String _name, _avatarPath;
 
   Future<void> _updateData() async {
-    game.hetu.invoke('nextTick');
+    engine.hetu.invoke('nextTick');
 
     final data =
-        game.hetu.invoke('getCharacterDataById', positionalArgs: ['current']);
+        engine.hetu.invoke('getCharacterDataById', positionalArgs: ['current']);
 
     setState(() {
       final String? name = data['name'];
@@ -40,7 +35,7 @@ class _MyViewState extends State<MyView> {
         _name = name;
       } else {
         final String nameId = data['nameId'];
-        _name = game.locale[nameId];
+        _name = engine.locale[nameId];
       }
       _avatarPath = 'assets/images/${data['avatar']}';
     });

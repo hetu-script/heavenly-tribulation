@@ -2,18 +2,15 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import '../../shared/empty_placeholder.dart';
-import '../../../engine/game.dart';
+import '../shared/empty_placeholder.dart';
+import '../../../engine/engine.dart';
 // import '../colored_widget.dart';
 
 class LocationView extends StatefulWidget {
-  final SamsaraGame game;
-
   final String locationId;
 
   const LocationView({
     Key? key,
-    required this.game,
     required this.locationId,
   }) : super(key: key);
 
@@ -27,8 +24,6 @@ class _LocationViewState extends State<LocationView>
 {
   @override
   bool get wantKeepAlive => true;
-
-  SamsaraGame get game => widget.game;
 
   // final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
 
@@ -47,9 +42,9 @@ class _LocationViewState extends State<LocationView>
       _locationImagePath;
 
   Future<void> _updateData() async {
-    game.hetu.invoke('nextTick');
+    engine.hetu.invoke('nextTick');
 
-    final data = game.hetu
+    final data = engine.hetu
         .invoke('getLocationDataById', positionalArgs: [widget.locationId]);
 
     setState(() {
@@ -58,7 +53,7 @@ class _LocationViewState extends State<LocationView>
         _locationName = name;
       } else {
         final String nameId = data['nameId'];
-        _locationName = game.locale[nameId];
+        _locationName = engine.locale[nameId];
       }
       _locationImagePath = 'assets/images/${data['image']}';
       // _leadershipName = widget.locationData['leadershipName'];
@@ -72,9 +67,9 @@ class _LocationViewState extends State<LocationView>
         final titleId = sceneData['nameId'];
         String title;
         if (titleId == null) {
-          title = game.locale[type];
+          title = engine.locale[type];
         } else {
-          title = game.locale[titleId];
+          title = engine.locale[titleId];
         }
         String? image = sceneData['image'];
         image ??= _getDefaultImagePath(type);
@@ -96,7 +91,7 @@ class _LocationViewState extends State<LocationView>
               child: InkWell(
                 splashColor: Colors.blue.withAlpha(30),
                 onTap: () {
-                  game.hetu
+                  engine.hetu
                       .invoke('handleSceneInteraction', positionalArgs: [id]);
                 },
                 child: Padding(
@@ -206,7 +201,7 @@ class _LocationViewState extends State<LocationView>
                             spacing: 8.0, // gap between adjacent chips
                             runSpacing: 4.0, // gap between lines
                             children: _sceneCards!)
-                        : EmptyPlaceholder(text: game.locale['empty']),
+                        : EmptyPlaceholder(text: engine.locale['empty']),
                   ),
                 ),
               ],

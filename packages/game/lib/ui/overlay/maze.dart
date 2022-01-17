@@ -1,34 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 
-import '../../shared/pointer_detector.dart';
-import '../../../engine/game.dart';
+import '../shared/pointer_detector.dart';
+import '../../../engine/engine.dart';
 import '../../../engine/scene/maze.dart';
 import '../../../ui/shared/avatar.dart';
 import '../../../event/event.dart';
 import '../../../event/map_event.dart';
 
 class MazeOverlay extends StatefulWidget {
-  final SamsaraGame game;
   final MazeScene scene;
 
-  const MazeOverlay(
-      {required Key? key, required this.game, required this.scene})
-      : super(key: key);
+  const MazeOverlay({required Key? key, required this.scene}) : super(key: key);
 
   @override
   _MazeOverlayState createState() => _MazeOverlayState();
 }
 
 class _MazeOverlayState extends State<MazeOverlay> {
-  SamsaraGame get game => widget.game;
   MazeScene get scene => widget.scene;
 
   @override
   void initState() {
     super.initState();
 
-    game.registerListener(
+    engine.registerListener(
       MapEvents.onMapTapped,
       EventHandler(widget.key!, (event) {
         setState(() {});
@@ -38,7 +34,7 @@ class _MazeOverlayState extends State<MazeOverlay> {
 
   @override
   Widget build(BuildContext context) {
-    final heroData = game.hetu.invoke('getCurrentCharacterData');
+    final heroData = engine.hetu.invoke('getCurrentCharacterData');
     return Material(
       color: Colors.transparent,
       child: Stack(
@@ -100,7 +96,7 @@ class _MazeOverlayState extends State<MazeOverlay> {
               ),
               child: IconButton(
                 onPressed: () {
-                  game.leaveScene('Maze');
+                  engine.leaveScene('Maze');
                 },
                 icon: const Icon(Icons.menu_open),
               ),

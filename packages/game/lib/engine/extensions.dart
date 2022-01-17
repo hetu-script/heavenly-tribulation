@@ -5,7 +5,6 @@ import 'package:flame/game.dart';
 import 'package:flame/components.dart';
 
 import 'scene/scene.dart';
-import 'game.dart';
 
 extension Offset2Vector2 on Offset {
   Vector2 toVector2() => Vector2(dx, dy);
@@ -35,10 +34,7 @@ extension CameraExtension on Camera {
 }
 
 abstract class GameComponent extends PositionComponent with HasGameRef<Scene> {
-  final SamsaraGame game;
-
   GameComponent({
-    required this.game,
     Vector2? position,
     Vector2? size,
     Vector2? scale,

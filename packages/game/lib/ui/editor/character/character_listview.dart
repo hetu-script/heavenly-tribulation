@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import '../../../engine/game.dart';
+import '../../../engine/engine.dart';
 import '../../../shared/localization.dart';
 import '../../shared/empty_placeholder.dart';
 import 'character_editor.dart';
@@ -13,12 +13,9 @@ import '../../shared/avatar.dart';
 class CharacterListView extends StatefulWidget {
   const CharacterListView({
     Key? key,
-    required this.game,
     required this.data,
     required this.onSaved,
   }) : super(key: key);
-
-  final SamsaraGame game;
 
   final List<Map<String, dynamic>> data;
 
@@ -33,8 +30,7 @@ class _CharacterListViewState extends State<CharacterListView>
   @override
   bool get wantKeepAlive => true;
 
-  SamsaraGame get game => widget.game;
-  GameLocalization get locale => widget.game.locale;
+  GameLocalization get locale => engine.locale;
 
   List<Map<String, dynamic>> get data => widget.data;
 
@@ -94,7 +90,6 @@ class _CharacterListViewState extends State<CharacterListView>
 
     if (_isEditing) {
       return CharacterEditor(
-        game: game,
         data: _currentEditingCharacterData!,
         onClosed: _onEditorClosed,
         maleAvatarCount: 37, // number of the male avatar images

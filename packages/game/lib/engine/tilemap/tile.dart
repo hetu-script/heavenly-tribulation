@@ -8,7 +8,6 @@ import 'package:flame/sprite.dart';
 // import 'package:flame/extensions.dart';
 
 import '../extensions.dart';
-import '../game.dart';
 import 'tile_mixin.dart';
 
 class TilePosition {
@@ -68,7 +67,6 @@ class MapTile extends GameComponent with TileInfo {
   final int zoneIndex;
 
   MapTile({
-    required SamsaraGame game,
     required TileShape shape,
     this.renderDirection = TileRenderDirection.rightBottom,
     required int left,
@@ -84,7 +82,7 @@ class MapTile extends GameComponent with TileInfo {
     this.animation,
     this.offsetX = 0.0,
     this.offsetY = 0.0,
-  }) : super(game: game) {
+  }) {
     this.tileMapWidth = tileMapWidth;
     this.shape = shape;
     this.gridWidth = gridWidth;
@@ -206,7 +204,6 @@ class TileMapTerrain extends MapTile {
   bool get isVoid => sprite == null;
 
   TileMapTerrain({
-    required SamsaraGame game,
     required TileShape shape,
     TileRenderDirection renderDirection = TileRenderDirection.rightBottom,
     required int left,
@@ -223,7 +220,6 @@ class TileMapTerrain extends MapTile {
     double offsetX = 0.0,
     double offsetY = 0.0,
   }) : super(
-          game: game,
           shape: shape,
           renderDirection: renderDirection,
           left: left,
@@ -243,13 +239,10 @@ class TileMapTerrain extends MapTile {
 }
 
 class TileMapInteractable extends MapTile {
-  final String name;
-
+  final String? locationId;
   // final Map<int, TileRouteDestination> destinations;
 
   TileMapInteractable({
-    required this.name,
-    required SamsaraGame game,
     required TileShape shape,
     TileRenderDirection renderDirection = TileRenderDirection.rightBottom,
     required int left,
@@ -261,13 +254,13 @@ class TileMapInteractable extends MapTile {
     required double gridHeight,
     required bool isVisible,
     required int zoneIndex,
+    this.locationId,
     // this.destinations = const {},
     Sprite? sprite,
     SpriteAnimation? animation,
     double offsetX = 0.0,
     double offsetY = 0.0,
   }) : super(
-          game: game,
           shape: shape,
           renderDirection: renderDirection,
           left: left,

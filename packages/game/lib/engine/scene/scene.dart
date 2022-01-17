@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 
-import '../game.dart';
+import '../engine.dart';
 import '../../event/event.dart';
 import '../../ui/shared/pointer_detector.dart';
 import '../gestures/gesture_mixin.dart';
@@ -33,15 +33,10 @@ abstract class Scene extends FlameGame {
 
   final String key;
 
-  final SamsaraGame game;
-
-  Scene({
-    required this.key,
-    required this.game,
-  });
+  Scene({required this.key});
 
   void end() {
-    game.leaveScene(key);
+    engine.leaveScene(key);
   }
 
   Vector2 get screenCenter => size / 2;
@@ -109,7 +104,7 @@ abstract class Scene extends FlameGame {
     }
   }
 
-  Widget get widget {
+  Widget widgetBuilder(BuildContext context) {
     return PointerDetector(
       child: GameWidget(
         game: this,

@@ -1,4 +1,23 @@
 import 'game.ht'
+import 'generator/random_names/random_names.ht' as randomNames
+
+struct Organization {
+  construct ({
+    category,
+    name,
+  }) {
+    this.index = game.organizations.length
+    if (name) {
+      this.name = name
+    } else {
+      final names = randomNames.getClan(1, category: category)
+      this.name = names.first.name
+    }
+    this.id = 'organization_${this.index}_${this.name}'
+
+    game.organizations[this.id] = this
+  }
+}
 
 // 组织中每个等级的人数上限
 fun maxInferiorNumberOfRank(n: int) {

@@ -542,7 +542,7 @@ fun getClan(number: int, {kind: str, category: str}) {
   final names = []
   for (var i in range(number)) {
     final name = common.random
-    final c = kClanCategories.random
+    final c = category ?? kClanCategories.random
     final k = kind ?? getClanKind(c);
     names.add({ name: name + k, category: c })
   }

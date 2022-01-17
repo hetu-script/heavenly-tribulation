@@ -8,7 +8,11 @@ import 'scene/scene.dart';
 import '../event/event.dart';
 import '../shared/localization.dart';
 
-class SamsaraGame with SceneController, EventAggregator {
+final SamsaraEngine engine = SamsaraEngine._();
+
+class SamsaraEngine with SceneController, EventAggregator {
+  SamsaraEngine._();
+
   final locale = GameLocalization();
 
   void updateLanguagesData(Map<String, dynamic> data) {
@@ -20,6 +24,9 @@ class SamsaraGame with SceneController, EventAggregator {
   bool _isLoaded = false;
   bool get isLoaded => _isLoaded;
 
+  /// Initialize the engine, must be called within
+  /// the initState() of Flutter widget,
+  /// for accessing the assets bundle resources.
   Future<void> init() async {
     const root = 'scripts/';
     final filterConfig = HTFilterConfig(root, extension: [
@@ -35,7 +42,7 @@ class SamsaraGame with SceneController, EventAggregator {
     await hetu.initFlutter(
       externalFunctions: externalGameFunctions,
       externalClasses: [
-        SamsaraGameClassBinding(),
+        SamsaraEngineClassBinding(),
         MapComponentClassBinding(),
       ],
     );
@@ -43,7 +50,7 @@ class SamsaraGame with SceneController, EventAggregator {
         moduleName: 'game:main',
         globallyImport: true,
         invokeFunc: 'init',
-        namedArgs: {'lang': 'zh', 'dartGame': this});
+        namedArgs: {'lang': 'zh', 'gameEngine': this});
     _isLoaded = true;
   }
 
