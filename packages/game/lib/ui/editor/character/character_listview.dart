@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../engine/game.dart';
 import '../../../shared/localization.dart';
-import '../../empty_placeholder.dart';
+import '../../shared/empty_placeholder.dart';
 import 'character_editor.dart';
 import '../../../shared/util.dart' as util;
 import '../../../shared/json.dart';

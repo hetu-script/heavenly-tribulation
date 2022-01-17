@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 
-import '../../../ui/pointer_detector.dart';
+import '../../shared/pointer_detector.dart';
 import '../../../engine/game.dart';
 import '../../../engine/scene/maze.dart';
 import '../../../ui/shared/avatar.dart';

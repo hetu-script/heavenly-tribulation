@@ -2,8 +2,9 @@ final locations = [
   {
     id: 'baiheguan',
     nameId: 'locationBaiheguan',
-    leader: 'xuanqingzi',
-    leadershipName: 'daoguanZhangjiao',
+    development: 0,
+    manager: 'xuanqingzi',
+    managershipName: 'daoguanZhangjiao',
     organization: 'ziyangpai',
     owner: 'xuanqingzi',
     isPrivate: true,

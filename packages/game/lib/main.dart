@@ -3,6 +3,7 @@ import 'package:flame/flame.dart';
 
 import 'ui/game_app.dart';
 import 'engine/game.dart';
+import 'ui/editor/editor.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,12 +11,23 @@ void main() async {
   await Flame.device.setPortraitDownOnly();
   await Flame.device.fullScreen();
 
-  runApp(MaterialApp(
+  final game = SamsaraGame();
+
+  runApp(
+    MaterialApp(
       title: 'Tian Dao Qi Jie',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.light().copyWith(
           scrollbarTheme: const ScrollbarThemeData().copyWith(
         thumbColor: MaterialStateProperty.all(Colors.grey),
       )),
-      home: GameApp(key: UniqueKey(), game: SamsaraGame())));
+      home: GameApp(
+        key: UniqueKey(),
+        game: game,
+      ),
+      routes: {
+        'editor': (context) => GameEditor(game: game),
+      },
+    ),
+  );
 }

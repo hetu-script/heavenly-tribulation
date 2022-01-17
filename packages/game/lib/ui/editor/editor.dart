@@ -9,10 +9,7 @@ import 'character/character_listview.dart';
 import 'code/code_editor.dart';
 
 class GameEditor extends StatefulWidget {
-  const GameEditor({Key? key, required this.onQuit, required this.game})
-      : super(key: key);
-
-  final void Function() onQuit;
+  const GameEditor({Key? key, required this.game}) : super(key: key);
 
   final SamsaraGame game;
 
@@ -117,13 +114,6 @@ class _GameEditorState extends State<GameEditor>
         length: 8,
         child: Scaffold(
           appBar: AppBar(
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              tooltip: locale['goBack'],
-              onPressed: () {
-                widget.onQuit();
-              },
-            ),
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[

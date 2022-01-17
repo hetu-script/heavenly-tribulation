@@ -7,7 +7,7 @@ final entities = [
         final future = showGameDialogById('event01')
         future.then((value) {
           final component = game.mazes.current.component
-          component.removeEntity(x, y)
+          component.removeInteractable(x, y)
           component.lightUpAroundTerrain(x, y)
         })
       }

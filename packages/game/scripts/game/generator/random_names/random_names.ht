@@ -16,6 +16,7 @@ import 'data/skill/numfix.json' as skillNumfix
 import 'data/book/prefix.json' as bookPrefix
 import 'data/book/book.json' as book
 import 'data/book/postfix.json' as bookPostfix
+import 'data/spell/spell.json' as spell
 import 'data/talisman/talisman.json' as talisman
 import 'data/talisman/material.json' as talismanMaterial
 import 'data/talisman/postfix.json' as talismanPostfix
@@ -37,6 +38,7 @@ export {
   kSex,
   kRarity,
   kCreatureCategory,
+  kClanCategory,
   kLocationCategory,
   kZoneCategory,
 } from 'constants.ht'
@@ -50,6 +52,7 @@ export {
   getDao,
   getSkill,
   getBook,
+  getSpell,
   getCreature,
   getMaterial,
   getAlchemy,
@@ -84,6 +87,8 @@ final locations = [
 
 final kLocationCategories = kLocationCategory.keys
 
+final kClanCategories = kClanCategory.keys
+
 final kZoneCategories = kZoneCategory.keys
 
 fun getRarity(max) {
@@ -117,14 +122,14 @@ const _kLinkWord = '之'
 
 fun getName(number: int, {isFemale, style, familyName, middleCharacter}) {
   final names = []
-  for (var i = 0; i < number; ++i) {
+  for (var i in range(number)) {
     var theFamilyName
     if (!familyName) {
       theFamilyName = family.random
     } else {
       theFamilyName = familyName
     }
-    final f = isFemale ?? Math.randomInt(10).isEven
+    final f = isFemale ?? Math.randomInt(2) == 0
     final namesOfASex = f ? female : male
     final r = Math.random()
     var s
@@ -159,14 +164,14 @@ fun getName(number: int, {isFemale, style, familyName, middleCharacter}) {
       final theLastCharacter = namesOfASex.random
       name = theMiddleCharacter + theLastCharacter
     }
-    names.add(theFamilyName + name)
+    names.add({ name: theFamilyName + name, isFemale: f })
   }
   return names
 }
 
 fun getDao(number: int, {isFemale, title, firstCharacter}) {
   final names = []
-  for (var i = 0; i < number; ++i) {
+  for (var i in range(number)) {
     var theFirstCharacter
     if (firstCharacter) {
       theFirstCharacter = firstCharacter
@@ -175,7 +180,7 @@ fun getDao(number: int, {isFemale, title, firstCharacter}) {
     }
     final name = theFirstCharacter + dao.random
     final titleGroup =
-      isFemale ?? Math.randomInt(10).isEven
+      isFemale ?? Math.randomInt(2) == 0
         ? daoTitleFemale
         : daoTitleMale
     var t = ''
@@ -221,12 +226,12 @@ fun _getSkillName({length, kind, prefix, numfix}) {
     rarity = r.rarity
   }
   var name = ''
+  for (var i in range(l)) {
+    name += common.random
+  }
   var pre = prefix ?? ''
   var n = numfix ?? ''
   final k = kind ?? skill.random
-  for (var i = 0; i < l; ++i) {
-    name += common.random
-  }
   if (!prefix && Math.random() < kRarity.epic.probability) {
     pre = skillPrefix.random
   }
@@ -247,7 +252,7 @@ fun _getSkillName({length, kind, prefix, numfix}) {
 
 fun getSkill(number: int, {length, kind, prefix, numfix}) {
   final names = []
-  for (var i = 0; i < number; ++i) {
+  for (var i in range(number)) {
     final name = _getSkillName(length: length, kind: kind, prefix: prefix, numfix: numfix)
     names.add(name)
   }
@@ -256,8 +261,8 @@ fun getSkill(number: int, {length, kind, prefix, numfix}) {
 
 fun getBook(number: int, {length, prefix, mainkind, postkind, postfix}) {
   final names = []
-  for (var i = 0; i < number; ++i) {
-    final skillname = _getSkillName(length, mainkind)
+  for (var i in range(number)) {
+    final skillname = _getSkillName(length: length, kind: mainkind)
     var rarity = skillname.rarity
     var pre = prefix ?? ''
     var pk = postkind || '';
@@ -303,9 +308,18 @@ final commonCreatureNames = [
   ...commonNames.action,
 ]
 
+fun getSpell(number: int) {
+  final names = []
+  for (var i in range(number)) {
+    final name = common.random + spell.random
+    names.add(name)
+  }
+  return names
+}
+
 fun getCreature(number: int, {category, rarity}) {
   final names = []
-  for (var i = 0; i < number; ++i) {
+  for (var i in range(number)) {
     var name = ''
     final pre = commonCreatureNames.random
     final c = colorPrefix.random
@@ -339,7 +353,7 @@ const _kAge100 = '万年'
 
 fun getMaterial(number: int, {kind, rarity, postfix}) {
   final names = []
-  for (var i = 0; i < number; ++i) {
+  for (var i in range(number)) {
     var name = ''
     var age = ''
     final pre = common.random
@@ -425,7 +439,7 @@ final commonAlchemyNames = [
 
 fun getAlchemy(number: int, {kind: str}) {
   final names = []
-  for (var i = 0; i < number; ++i) {
+  for (var i in range(number)) {
     var rarity = 'common'
     final pre = commonAlchemyNames.random
     var s = ''
@@ -442,7 +456,7 @@ fun getAlchemy(number: int, {kind: str}) {
 
 fun getTalisman(number: int, {kind, rarity}) {
   final names = []
-  for (var i = 0; i < number; ++i) {
+  for (var i in range(number)) {
     var name = ''
     final prefix = common.random
     final c = colorPrefix.random
@@ -515,15 +529,22 @@ fun getTalisman(number: int, {kind, rarity}) {
   return names
 }
 
-fun getClan(number: int, {kind}) {
+fun getClanKind([category: str]) {
+  if (category != null) {
+    assert(kClanCategories.contains(category))
+  } else {
+    category = kClanCategories.random
+  }
+  return clan[category].random
+}
+
+fun getClan(number: int, {kind: str, category: str}) {
   final names = []
-  for (var i = 0; i < number; ++i) {
+  for (var i in range(number)) {
     final name = common.random
-    final k = kind
-    if (!k) {
-      k = clan.random
-    }
-    names.add(name + k)
+    final c = kClanCategories.random
+    final k = kind ?? getClanKind(c);
+    names.add({ name: name + k, category: c })
   }
   return names
 }
@@ -532,7 +553,7 @@ const _kContry = '国'
 
 fun getNation(number: int, {kind}) {
   final names = []
-  for (var i = 0; i < number; ++i) {
+  for (var i in range(number)) {
     var name = ''
     var k = kind ?? ''
     var rarity = 'common'
@@ -572,7 +593,7 @@ fun getNation(number: int, {kind}) {
   return names
 }
 
-fun getLocationKind(category: str) {
+fun getLocationKind([category: str]) {
   if (category != null) {
     assert(kLocationCategories.contains(category))
   } else {
@@ -583,9 +604,10 @@ fun getLocationKind(category: str) {
 
 fun getLocation(number: int, {kind: str, category: str}) {
   final names = []
-  for (var i = 0; i < number; ++i) {
+  for (var i in range(number)) {
     var name = ''
-    var k = kind ?? getLocationKind(category);
+    var c = category ?? kLocationCategories.random
+    var k = kind ?? getLocationKind(c);
     var rarity = 'common'
     final r = Math.random()
     if (r < kRarity.rare.probability) {
@@ -601,12 +623,12 @@ fun getLocation(number: int, {kind: str, category: str}) {
       }
       name = place.random + postfix
     }
-    names.add({ name: name + k, rarity })
+    names.add({ name: name + k, category: c, rarity })
   }
   return names
 }
 
-fun getZoneKind(category: str) {
+fun getZoneKind([category: str]) {
   if (category != null) {
     assert(kZoneCategories.contains(category))
   } else {
@@ -617,9 +639,10 @@ fun getZoneKind(category: str) {
 
 fun getZone(number: int, {kind: str, category: str}) {
   final names = []
-  for (var i = 0; i < number; ++i) {
+  for (var i in range(number)) {
     var name = ''
-    var k = kind ?? getZoneKind(category);
+    final c = category ?? kZoneCategories.random
+    final k = kind ?? getZoneKind(c);
     var rarity = 'common'
     final r = Math.random()
     if (r < kRarity.rare.probability) {
@@ -644,7 +667,7 @@ fun getZone(number: int, {kind: str, category: str}) {
         }
       }
     }
-    names.add({ name: name + k, rarity })
+    names.add({ name: name + k, category: c, rarity })
   }
   return names
 }

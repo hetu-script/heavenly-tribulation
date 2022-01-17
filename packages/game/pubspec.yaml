@@ -32,6 +32,7 @@ dependencies:
   highlight: ^0.7.0
   flutter_highlight: ^0.7.0
   quiver: ^3.0.1+1
+  change_case: ^1.0.1
 
 dev_dependencies:
   flutter_test:
@@ -57,9 +58,9 @@ flutter:
     - scripts/
     - scripts/game/
     - scripts/game/l10n/
-    - scripts/game/l10n/zh_name/
     - scripts/game/data/
     - scripts/game/generator/
+    - scripts/game/generator/tilemap/
     - scripts/game/generator/random_names/
     - scripts/game/generator/random_names/data/
     - scripts/game/generator/random_names/data/alchemy/
@@ -72,6 +73,7 @@ flutter:
     - scripts/game/generator/random_names/data/place/
     - scripts/game/generator/random_names/data/shared/
     - scripts/game/generator/random_names/data/skill/
+    - scripts/game/generator/random_names/data/spell/
     - scripts/game/generator/random_names/data/talisman/
     - scripts/core/
     - scripts/core/l10n/

@@ -12,7 +12,7 @@ class GameLocalization {
   String operator [](String key) {
     final text = data[key];
     if (text == null) {
-      return 'missingText$key';
+      return '$missingText$key';
     } else {
       return text;
     }

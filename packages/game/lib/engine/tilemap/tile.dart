@@ -242,14 +242,12 @@ class TileMapTerrain extends MapTile {
         );
 }
 
-class TileMapEntity extends MapTile {
-  final String id;
+class TileMapInteractable extends MapTile {
   final String name;
 
   // final Map<int, TileRouteDestination> destinations;
 
-  TileMapEntity({
-    required this.id,
+  TileMapInteractable({
     required this.name,
     required SamsaraGame game,
     required TileShape shape,

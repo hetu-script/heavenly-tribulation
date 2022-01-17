@@ -1,5 +1,26 @@
 import 'game.ht'
 
+struct Location {
+  construct ({
+    category,
+    name,
+  }) {
+    this.index = game.locations.length
+    if (name) {
+      this.name = name
+    } else {
+      final names = randomNames.getLocation(1, category: category)
+      this.name = names.first.name
+    }
+    this.id = 'location_${this.index}_${this.name}'
+    
+    // 据点规模，默认小
+    this.development = Math.randomInt(5) + 1
+
+    game.locations[this.id] = this
+  }
+}
+
 fun addLocation(loc) {
   game.locations[loc.id] = loc
 }

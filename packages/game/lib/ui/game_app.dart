@@ -4,16 +4,10 @@ import '../shared/localization.dart';
 
 import '../engine/scene/scene.dart';
 import '../engine/scene/maze.dart';
-import 'loading_screen.dart';
+import 'shared/loading_screen.dart';
 import '../engine/game.dart';
-import 'editor/editor.dart';
 import '../engine/scene/worldmap.dart';
 import '../event/event.dart';
-
-enum MenuMode {
-  menu,
-  editor,
-}
 
 class GameApp extends StatefulWidget {
   final SamsaraGame game;
@@ -31,8 +25,6 @@ class _GameAppState extends State<GameApp> with AutomaticKeepAliveClientMixin {
   SamsaraGame get game => widget.game;
 
   GameLocalization get locale => widget.game.locale;
-
-  MenuMode _menuMode = MenuMode.menu;
 
   bool isLoading = false;
 
@@ -85,61 +77,35 @@ class _GameAppState extends State<GameApp> with AutomaticKeepAliveClientMixin {
     if (isLoading) {
       return const LoadingScreen(text: 'Loading...');
     } else if (game.currentScene == null) {
-      switch (_menuMode) {
-        case MenuMode.menu:
-          return Scaffold(
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          // if this is a new game
-                          game.hetu.invoke('onGameEvent',
-                              positionalArgs: ['onNewGameStarted']);
-                        });
-                      },
-                      child: Text(locale['newGame']),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _menuMode = MenuMode.editor;
-                        });
-                      },
-                      child: Text(locale['gameEditor']),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          game.enterScene('WorldMap');
-                        });
-                      },
-                      child: const Text('世界测试'),
-                    ),
-                  ),
-                ],
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      game.enterScene('WorldMap');
+                    });
+                  },
+                  child: Text(locale['sandBoxMode']),
+                ),
               ),
-            ),
-          );
-        case MenuMode.editor:
-          return GameEditor(
-              onQuit: () {
-                setState(() {
-                  _menuMode = MenuMode.menu;
-                });
-              },
-              game: game);
-      }
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pushNamed('editor');
+                  },
+                  child: Text(locale['gameEditor']),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     } else {
       return game.currentScene!.widget;
     }

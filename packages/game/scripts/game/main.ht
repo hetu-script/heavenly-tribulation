@@ -37,7 +37,8 @@ fun init({lang = 'zh', dartGame: SamsaraGame}) {
     // 组织
     organization: {
       id: 'ziyangpai', // 组织id
-      rank: 0, // 在组织中所处的等级数字越小，等级越低
+      // 在组织中所处的等级数字越大，等级越低
+      rank: 4,
       superior: 'xuanqingzi', // 在组织中的上级领导
       loyalty: 100,
     },
@@ -77,19 +78,20 @@ fun init({lang = 'zh', dartGame: SamsaraGame}) {
     currentLocation: 'baiheguan',
     currentScene: null,
 
-    talisman: {
-      id: 'talisman.steelSword',
-      name: 'talisman.tier0.steelSword',
-      attack: 25,
-      speed: 15,
+    talisman: [
+      {
+        index: 1,
+        name: 'talisman.tier0.steelSword',
+        attack: 25,
+        speed: 15,
 
-      skill: {
-        id: 'talisman.steelSword.skill',
-        name: 'talisman.steelSword.skill',
-        attack: 100,
-        speed: 25,
+        skill: {
+          name: 'talisman.steelSword.skill',
+          attack: 100,
+          speed: 25,
+        }
       },
-    },
+    ],
   }
   addCharacter(playerCharacter001);
   setCurrentCharacter('playerCharacter001')

@@ -11,7 +11,7 @@ abstract class MapEvents {
 
 class MapEvent extends GameEvent {
   final TileMapTerrain? terrain;
-  final TileMapEntity? entity;
+  final TileMapInteractable? entity;
   final TileMapActor? actor;
 
   const MapEvent.mapLoaded(
@@ -23,10 +23,13 @@ class MapInteractionEvent extends GameEvent {
   final Offset globalPosition;
 
   final TileMapTerrain? terrain;
-  final TileMapEntity? entity;
+  final TileMapInteractable? interactable;
   final TileMapActor? actor;
 
   const MapInteractionEvent.mapTapped(
-      {required this.globalPosition, this.terrain, this.entity, this.actor})
+      {required this.globalPosition,
+      this.terrain,
+      this.interactable,
+      this.actor})
       : super(MapEvents.onMapTapped);
 }

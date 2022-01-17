@@ -7,7 +7,7 @@ import 'package:flame/game.dart';
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
 
-import '../../ui/pointer_detector.dart';
+import '../../ui/shared/pointer_detector.dart';
 import '../gestures/gesture_mixin.dart';
 import '../extensions.dart';
 import 'tile.dart';
@@ -58,11 +58,11 @@ class MapComponent extends GameComponent with HandlesGesture {
   Vector2 mapScreenSize = Vector2.zero();
 
   TileMapTerrain? selectedTerrain;
-  TileMapEntity? selectedEntity;
+  TileMapInteractable? selectedInteractable;
   List<TileMapActor>? selectedActors;
 
   final List<List<TileMapTerrain>> terrains;
-  final Map<String, TileMapEntity> entities;
+  final List<TileMapInteractable?> interactables;
   final List<TileMapActor> actors;
   final List<Zone> zones;
   // final List<TileMapRoute> routes;
@@ -85,7 +85,7 @@ class MapComponent extends GameComponent with HandlesGesture {
     required this.mapTileWidth,
     required this.mapTileHeight,
     required this.terrains,
-    this.entities = const {},
+    this.interactables = const [],
     required this.hero,
     this.actors = const [],
     // this.routes = const [],
@@ -214,24 +214,23 @@ class MapComponent extends GameComponent with HandlesGesture {
       }
     }
 
-    final entitiyData = data['entities'];
-    final Map<String, TileMapEntity> entities = {};
-    if (entitiyData != null) {
-      for (final key in entitiyData.keys) {
-        final entityData = entitiyData[key];
-        final String id = entityData['id'];
-        final int zoneIndex = entityData['zoneIndex'];
-        final String name = entityData['name'];
-        final int left = entityData['left'];
-        final int top = entityData['top'];
-        final double srcWidth = entityData['srcWidth'];
-        final double srcHeight = entityData['srcHeight'];
-        final double offsetX = entityData['offsetX'] ?? 0.0;
-        final double offsetY = entityData['offsetY'] ?? 0.0;
-        final String? spritePath = entityData['sprite'];
-        final int? spriteIndex = entityData['spriteIndex'];
-        final String? animationPath = entityData['animation'];
-        final int? animationFrameCount = entityData['animationFrameCount'] ?? 1;
+    final interactablesData = data['interactables'];
+    final List<TileMapInteractable> interactables = [];
+    if (interactablesData != null) {
+      for (final interactableData in interactablesData) {
+        final int zoneIndex = interactableData['zoneIndex'];
+        final String name = interactableData['name'];
+        final int left = interactableData['left'];
+        final int top = interactableData['top'];
+        final double srcWidth = interactableData['srcWidth'];
+        final double srcHeight = interactableData['srcHeight'];
+        final double offsetX = interactableData['offsetX'] ?? 0.0;
+        final double offsetY = interactableData['offsetY'] ?? 0.0;
+        final String? spritePath = interactableData['sprite'];
+        final int? spriteIndex = interactableData['spriteIndex'];
+        final String? animationPath = interactableData['animation'];
+        final int? animationFrameCount =
+            interactableData['animationFrameCount'] ?? 1;
         Sprite? sprite;
         if (spritePath != null) {
           sprite = await Sprite.load(
@@ -255,8 +254,7 @@ class MapComponent extends GameComponent with HandlesGesture {
               from: 0,
               to: animationFrameCount);
         }
-        final entity = TileMapEntity(
-          id: id,
+        final interactable = TileMapInteractable(
           name: name,
           game: game,
           shape: tileShape,
@@ -274,7 +272,7 @@ class MapComponent extends GameComponent with HandlesGesture {
           offsetX: offsetX,
           offsetY: offsetY,
         );
-        entities[key] = entity;
+        interactables.add(interactable);
       }
     }
 
@@ -308,7 +306,7 @@ class MapComponent extends GameComponent with HandlesGesture {
       gridHeight: gridHeight,
       terrains: terrains,
       zones: zones,
-      entities: entities,
+      interactables: interactables,
       hero: hero,
       // routes: routes,
     );
@@ -370,15 +368,25 @@ class MapComponent extends GameComponent with HandlesGesture {
     }
   }
 
-  TileMapEntity? getEntity(int left, int top) {
-    return entities['$left,$top'];
+  TileMapInteractable? getInteractable(int left, int top) {
+    try {
+      return interactables.singleWhere(
+          (element) => element!.left == left && element.top == top);
+    } catch (e) {
+      if (e is StateError) {
+        return null;
+      } else {
+        rethrow;
+      }
+    }
   }
 
-  bool removeEntity(int left, int top) {
-    final entity = entities['$left,$top'];
-    if (entity != null) {
-      remove(entity);
-      entities.remove('$left,$top')!;
+  bool removeInteractable(int left, int top) {
+    final interactable = getInteractable(left, top);
+    if (interactable != null) {
+      remove(interactable);
+      interactables.removeWhere(
+          (element) => element!.left == left && element.top == top);
       return true;
     } else {
       return false;
@@ -568,7 +576,7 @@ class MapComponent extends GameComponent with HandlesGesture {
 
     final tilePos = screenPosition2Tile(screenPosition);
     final terrain = getTerrain(tilePos.left, tilePos.top);
-    final entity = entities['${tilePos.left},${tilePos.top}'];
+    final interactable = getInteractable(tilePos.left, tilePos.top);
     if (terrain != null) {
       // if (tile.isRoom && tile.isVisible) {
       //   gameRef.game.hetu.invoke('handleMazeTileInteraction',
@@ -577,20 +585,22 @@ class MapComponent extends GameComponent with HandlesGesture {
       if (tapSelect) {
         if (selectedTerrain != null) {
           selectedTerrain = null;
-          selectedEntity = null;
+          selectedInteractable = null;
         } else {
-          selectedTerrain = terrain;
-          selectedEntity = entity;
+          if (hero == null || !hero!.isMoving) {
+            selectedTerrain = terrain;
+            selectedInteractable = interactable;
+          }
         }
       }
     } else {
       selectedTerrain = null;
-      selectedEntity = null;
+      selectedInteractable = null;
     }
     game.broadcast(MapInteractionEvent.mapTapped(
         globalPosition: details.globalPosition,
         terrain: terrain,
-        entity: entity));
+        interactable: interactable));
   }
 
   @override
@@ -615,8 +625,8 @@ class MapComponent extends GameComponent with HandlesGesture {
         }
       }
     }
-    for (final tile in entities.values) {
-      add(tile);
+    for (final tile in interactables) {
+      add(tile!);
     }
     if (hero != null) {
       add(hero!);

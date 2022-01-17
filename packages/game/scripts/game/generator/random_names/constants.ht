@@ -58,6 +58,16 @@ final kCreatureCategory = {
   insect: '甲虫',
 };
 
+final kClanCategory = {
+  caltivation: '道宗',
+  martial: '门派',
+  political: '政党',
+  military: '军队',
+  business: '商号',
+  academy: '学院',
+  hermit: '隐修会',
+}
+
 final kLocationCategory = {
   shore: '滨岸',
   island: '岛屿',

@@ -99,14 +99,14 @@ packages:
       path: "../../../hetu-script/packages/hetu_script"
       relative: true
     source: path
-    version: "0.3.11"
+    version: "0.3.10+1"
   hetu_script_flutter:
     dependency: "direct main"
     description:
       path: "../../../hetu-script/packages/hetu_script_flutter"
       relative: true
     source: path
-    version: "0.0.6"
+    version: "0.0.6+1"
   highlight:
     dependency: "direct main"
     description:

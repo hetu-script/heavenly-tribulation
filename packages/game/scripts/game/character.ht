@@ -1,8 +1,27 @@
 import 'common.ht'
 import 'game.ht'
 
-fun createCharacter() {
-  
+struct Character {
+  var organization = {}
+  var allegiance = {}
+
+  construct ({name, isFemale}) {
+    this.index = game.characters.length
+    if (isFemale != null) {
+      this.isFemale = isFemale
+    } else {
+      this.isFemale = Math.randomInt(2) == 0
+    }
+    if (name) {
+      this.name = name
+    } else {
+      final names = randomNames.getName(1, isFemale: this.isFemale)
+      this.name = names.first.name
+    }
+    this.id = 'character_${this.index}_${this.name}'
+
+    game.characters[this.id] = this
+  }
 }
 
 fun createCharacterFromJson() {
@@ -92,110 +111,4 @@ fun getLooksScore(looks: float, {favors: float}) -> float {
   } else {
     return (-(looks - characterLooksMax) * (looks - characterLooksMax)) / 20 + characterLooksMax
   }
-}
-
-fun getRandomNames({nameStyle, isFemale, number = 1}) {
-  final family = game.languages.current.names.family
-  final female = game.languages.current.names.female
-  final male = game.languages.current.names.male
-  final middle = game.languages.current.names.middle
-
-  var name = ''
-  final names = []
-  for (var i = 0; i < number; ++i) {
-    final familyIndex = Math.randomInt(family.length + 1) % family.length
-    final familyName = family[familyIndex]
-    final style = Math.random()
-    final isF = isFemale ?? Math.randomInt(10).isEven
-    if (nameStyle == 'single' || style < 0.33333333) {
-      if (isF) {
-        final nameIndex = Math.randomInt(female.length + 1) % female.length
-        name = female[nameIndex]
-      } else {
-        final nameIndex = Math.randomInt(male.length + 1) % male.length
-        name = male[nameIndex]
-      }
-    } else if (nameStyle == 'double' || style < 0.66666666) {
-      if (isF) {
-        final nameIndex1 = Math.randomInt(female.length + 1) % female.length
-        final nameIndex2 = Math.randomInt(female.length + 1) % female.length
-        name = '${female[nameIndex1]}${female[nameIndex2]}'
-      } else {
-        final nameIndex1 = Math.randomInt(male.length + 1) % male.length
-        final nameIndex2 = Math.randomInt(male.length + 1) % male.length
-        name = '${male[nameIndex1]}${male[nameIndex2]}'
-      }
-    } else {
-      if (isF) {
-        final nameIndex1 = Math.randomInt(middle.length + 1) % middle.length
-        final nameIndex2 = Math.randomInt(female.length + 1) % female.length
-        name = '${middle[nameIndex1]}${female[nameIndex2]}'
-      } else {
-        final nameIndex1 = Math.randomInt(middle.length + 1) % middle.length
-        final nameIndex2 = Math.randomInt(male.length + 1) % male.length
-        name = '${middle[nameIndex1]}${male[nameIndex2]}'
-      }
-    }
-    names.add('${familyName}${name}')
-  }
-
-  return names
-}
-
-fun getRandomArtNames({nameStyle, isFemale, number = 1}) {
-  final dao = game.languages.current.names.art
-  final daoTitleFemale = game.languages.current.names.female
-  final daoTitleMale = game.languages.current.names.male
-
-  final names = []
-  for (var i = 0; i < number; ++i) {
-    final nameIndex1 = Math.randomInt(dao.length + 1) % dao.length
-    final nameIndex2 = Math.randomInt(dao.length + 1) % dao.length
-    final name = '${dao[nameIndex1]}${dao[nameIndex2]}'
-    final isF = isFemale ?? Math.randomInt(10).isEven
-    var title = ''
-
-    var titleIndex = -1
-    if (!titleRarity) {
-      final rarity = Math.random()
-      if (rarity < rarityLevels.exotic) {
-        titleIndex = 13
-      } else if (rarity < rarityLevels.mythic) {
-        titleIndex = 10 + Math.randomInt(2)
-      } else if (rarity < rarityLevels.legendary) {
-        titleIndex = 7 + Math.randomInt(3)
-      } else if (rarity < rarityLevels.epic) {
-        titleIndex = 3 + Math.randomInt(4)
-      } else if (rarity < rarityLevels.rare) {
-        titleIndex = 1 + Math.randomInt(3)
-      } else if (rarity < rarityLevels.common) {
-        titleIndex = 0
-      }
-    } else {
-      if (titleRarity == 'exotic') {
-        titleIndex = 13
-      } else if (titleRarity == 'mythic') {
-        titleIndex = 10 + Math.randomInt(2)
-      } else if (titleRarity == 'legendary') {
-        titleIndex = 7 + Math.randomInt(3)
-      } else if (titleRarity == 'epic') {
-        titleIndex = 3 + Math.randomInt(4)
-      } else if (titleRarity == 'rare') {
-        titleIndex = 1 + Math.randomInt(3)
-      } else if (titleRarity == 'common') {
-        titleIndex = 0
-      }
-    }
-    if (titleIndex >= 0) {
-      if (isF) {
-        title = daoTitleFemale[titleIndex]
-      } else {
-        title = daoTitleMale[titleIndex]
-      }
-    }
-
-    names.add('${name}${title}')
-  }
-
-  return names
 }

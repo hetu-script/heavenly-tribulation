@@ -1,8 +1,8 @@
 import 'game.ht'
-import 'generator/hexagonal_tile.ht'
+import 'generator/tilemap/hexagonal_tile.ht'
 
-export 'generator/world.ht'
-export 'generator/maze.ht'
+export 'generator/tilemap/worldmap.ht'
+export 'generator/tilemap/maze.ht'
 
 fun loadWorldMap(jsonData) {
   print('河图: 载入世界地图数据 ...')

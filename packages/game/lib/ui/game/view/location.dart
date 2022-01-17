@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import '../../empty_placeholder.dart';
+import '../../shared/empty_placeholder.dart';
 import '../../../engine/game.dart';
 // import '../colored_widget.dart';
 

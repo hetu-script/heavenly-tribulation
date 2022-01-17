@@ -10,18 +10,25 @@ class WorldMapScene extends Scene {
   bool get loaded => _loaded;
 
   MapComponent? map;
+  Map<String, dynamic>? mapData;
 
   WorldMapScene({
     required SamsaraGame game,
+    this.mapData,
   }) : super(key: 'WorldMap', game: game);
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
 
-    map = await game.hetu.invoke('createWorld', namedArgs: {
-      'terrainSpriteSheet': 'fantasyhextiles_v3_borderless.png',
-    });
+    if (mapData == null) {
+      map = await game.hetu.invoke('createWorldMap', namedArgs: {
+        'terrainSpriteSheet': 'fantasyhextiles_v3_borderless.png',
+      });
+    } else {
+      map = await game.hetu.invoke('loadWorldMap', positionalArgs: [mapData]);
+    }
+
     add(map!);
     _loaded = true;
   }

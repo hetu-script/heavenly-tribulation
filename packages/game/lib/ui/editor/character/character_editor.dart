@@ -1,5 +1,6 @@
 import 'dart:math';
 
+// import 'package:change_case/change_case.dart';
 import 'package:flutter/material.dart';
 
 import '../../../engine/game.dart';
@@ -48,11 +49,11 @@ class _CharacterEditorState extends State<CharacterEditor>
   static const _characterFields = {
     'characterId',
     'characterName',
-    'characterOrganization',
-    'characterSuperiorInOrganization',
+    'characterOrganizationIndex',
+    'characterSuperiorCharacterIndexInOrganization',
     'characterRankInOrganization',
     'characterLoyaltyInOrganization',
-    'characterAllegianceTo',
+    'characterAllegianceToCharacterIndex',
     'characterAllegiance',
     'characterFame',
     'characterInfamy',
@@ -136,6 +137,8 @@ class _CharacterEditorState extends State<CharacterEditor>
     _fieldControllers.addAll(
       Map.fromEntries(
         _characterFields.map((field) {
+          // remove the 'character' prefix of the locale string
+          // final key = field.substring(9).toLowerFirstCase();
           final fieldData = data[field];
           final fieldString = fieldData == null ? '' : fieldData.toString();
           return MapEntry(
@@ -176,14 +179,15 @@ class _CharacterEditorState extends State<CharacterEditor>
   }
 
   void _randomizeName() {
-    final List<dynamic> name = game.hetu.invoke('getRandomNames',
+    final List<dynamic> names = game.hetu.invoke('getName',
+        positionalArgs: [1],
         namedArgs: {'isFemale': data['characterIsFemale']});
-    data['characterName'] = name.first;
-    _fieldControllers['characterName']!.text = name.first;
+    data['characterName'] = names.first;
+    _fieldControllers['characterName']!.text = names.first;
   }
 
   void _randomizeSex() {
-    data['characterIsFemale'] = Random().nextInt(10).isEven;
+    data['characterIsFemale'] = Random().nextInt(2) == 0;
   }
 
   void _randomize() {

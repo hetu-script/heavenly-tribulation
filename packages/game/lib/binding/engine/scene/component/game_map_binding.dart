@@ -6,12 +6,12 @@ import '../../../../../engine/tilemap/map.dart';
 extension MapComponentBinding on MapComponent {
   dynamic htFetch(String varName) {
     switch (varName) {
-      case r'removeEntity':
+      case r'removeInteractable':
         return (HTEntity object,
             {List<dynamic> positionalArgs = const [],
             Map<String, dynamic> namedArgs = const {},
             List<HTType> typeArgs = const []}) {
-          removeEntity(positionalArgs[0], positionalArgs[1]);
+          removeInteractable(positionalArgs[0], positionalArgs[1]);
         };
       case r'moveCameraToTilePosition':
         return (HTEntity object,

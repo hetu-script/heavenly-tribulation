@@ -1,22 +1,4 @@
-import 'zh_name/family.json' as family
-import 'zh_name/female.json' as female
-import 'zh_name/male.json' as male
-import 'zh_name/middle.json' as middle
-import 'zh_name/dao.json' as dao
-import 'zh_name/dao_title_male.json' as daoTitleFemale
-import 'zh_name/dao_title_female.json' as daoTitleMale
-
 final zh = {
-  names: {
-    family,
-    female,
-    male,
-    middle,
-    dao,
-    daoTitleFemale,
-    daoTitleMale,
-  },
-
   'languageId': 'zh',
   'languageName': '简体中文',
 
@@ -30,6 +12,7 @@ final zh = {
 
   'editorTitle': '《天道奇劫》游戏编辑器',
   'newGame': '开始新游戏',
+  'sandBoxMode': '沙盒模式',
   'gameEditor': '编辑器',
   'newProject': '创建新模组...',
   'unnamedProject': '未命名模组',
@@ -60,7 +43,7 @@ final zh = {
   'characterIsFemale': '性别',
   'characterAvatar': '头像',
   'characterName': '名字',
-  'characterOrganization': '所在组织（ID）',
+  'characterOrganizationIndex': '所在组织（ID）',
   'characterRankInOrganization': '在组织中的等级',
   'characterSuperiorInOrganization': '在组织中的上级',
   'characterLoyaltyInOrganization': '对组织忠诚度',

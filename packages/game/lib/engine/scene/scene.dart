@@ -5,7 +5,7 @@ import 'package:flame/game.dart';
 
 import '../game.dart';
 import '../../event/event.dart';
-import '../../ui/pointer_detector.dart';
+import '../../ui/shared/pointer_detector.dart';
 import '../gestures/gesture_mixin.dart';
 
 abstract class SceneEvents {

@@ -1,10 +1,13 @@
+import '../../game.ht'
+import '../../location.ht'
+import '../../character.ht'
+import '../random_names/random_names.ht' as randomNames
 import 'hexagonal_tile.ht'
-import 'random_names/random_names.ht'
 import 'component.ht'
 import {
   tilePos2Index,
   getMapTileNeighbors,
-  calculateRoute } from '../map.ht'
+  calculateRoute } from '../../map.ht'
 
 /// 生成世界地图的算法
 ///
@@ -46,26 +49,32 @@ const _kZoneVoid = 'void'
 const _kZoneWater = 'water'
 const _kZoneContinent = 'continent'
 const _kZoneLake = 'lake'
-const _kMinZoneSizeForLocation = 12 // 据点密度，即产生据点的最小 Zone 大小
+const _kMinZoneSizeForLocation = 9 // 最大据点密度
+const _kMaxZoneSizeForLocation = 18 // 最小据点密度
 const _kMinZoneSizeForSea = 8
 const _kForestThreshold = 0.5
 const _kMountainThreshold = 0.2
+const _kMinLocationNumberForOrganization = 1 // 最大组织密度
+const _kMaxLocationNumberForOrganization = 6 // 最小组织密度
+const _kMinNpcNumberForOrganization = 3
+const _kMaxNpcNumberForOrganization = 18
 
 struct Zone {
   var index: int
   var name: str
   var category: str
   var count = 0
-  var tiles = []
+  var tileIndexes = []
 
   construct ({index, name, category}) {
+    assert(index != null)
     this.index = index
     this.name = name
     this.category = category
   }
 }
 
-fun createWorld({
+fun createWorldMap({
     terrainSpriteSheet: str,
     tileShape = 'hexagonalVertical',
     width = _defaultWorldWidth,
@@ -92,13 +101,15 @@ fun createWorld({
     tileSpriteSrcHeight,
     tileOffsetX,
     tileOffsetY,
-    terrains: [],
     zones: [],
-    entities: {},
+    terrains: [],
+    interactables: [],
+    organizations: [],
+    characters: [],
   }
 
-  for (var j = 0; j < height; ++j) {
-    for (var i = 0; i < width; ++i) {
+  for (var j in range(height)) {
+    for (var i in range(width)) {
       data.terrains.add(
         {
           ...Tile(i + 1, j + 1),
@@ -109,17 +120,16 @@ fun createWorld({
     }
   }
 
-  // 新建一个区域，返回区域index，区域保存为一个列表
-  fun newZone({name: str, category: str}) {
+  // 新建一个区域
+  fun createZone({name: str, category: str}) {
     assert(category != null)
-    final index = data.zones.length
-    final zone = Zone(index: index, name: name, category: category)
+    final zone = Zone(index: data.zones.length, name: name, category: category)
     data.zones.add(zone)
     return zone
   }
 
   // 没有区域，也是一个区域
-  newZone(name: '无', category: _kZoneVoid)
+  createZone(name: '无', category: _kZoneVoid)
 
   fun addTile2Zone(zoneIndex, tile) {
     assert(tile.zoneIndex == null || tile.zoneIndex == -1)
@@ -128,7 +138,7 @@ fun createWorld({
     final zone = data.zones[zoneIndex]
     tile.zoneCategory = zone.category
     ++zone.count
-    zone.tiles.add(tile.index)
+    zone.tileIndexes.add(tile.index)
   }
 
   // 当前地域的边缘格子坐标
@@ -161,7 +171,7 @@ fun createWorld({
   final startIndex = tilePos2Index(startLeft, startTop, data.width)
   final firstTile = data.terrains[startIndex]
   firstTile.spriteIndex = _kSpriteLand
-  final landZone = newZone(category: _kZoneContinent)
+  final landZone = createZone(category: _kZoneContinent)
   addTile2Zone(landZone.index, firstTile)
   updateShelf(startLeft, startTop)
 
@@ -208,7 +218,7 @@ fun createWorld({
     }
     if (!foundAdjacentZone && willCreateZone) {
       var category = tile.spriteIndex == _kSpriteLand ? _kZoneContinent : _kZoneWater
-      final zone = newZone(category: category)
+      final zone = createZone(category: category)
       // print('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneIndex: ${zone.index}')
       addTile2Zone(zone.index, tile)
       // print('processing previoused stored unzoned tiles: ${unzonedNeighbors}')
@@ -262,10 +272,8 @@ fun createWorld({
     }
   }
 
-  final locations = []
-
   fun find2NearestLocation(origin, {restrict2Zone: bool = true}) {
-    assert(locations.length > 0)
+    assert(game.locations.length > 0)
     var nearest
     var nearestDistance
     var secondNearest
@@ -295,42 +303,45 @@ fun createWorld({
 
   // 生成据点
   for (final zone in data.zones) {
+    if (zone.count < _kMinZoneSizeForLocation) continue
     // print('processing zone: ${zone.name} count: ${zone.count}')
-    final locationNumber = zone.count ~/ _kMinZoneSizeForLocation
+    final minLocNum = zone.count ~/ _kMaxZoneSizeForLocation
+    final maxLocNum = zone.count ~/ _kMinZoneSizeForLocation
+    final locationNumber = Math.randomInt(maxLocNum - minLocNum) + minLocNum
     var generatedIndexes = []
     while (generatedIndexes.length < locationNumber) {
       // print('generating location')
       var index
       do {
         // print('generating location index')
-        index = zone.tiles.random
+        index = zone.tileIndexes.random
       } while (generatedIndexes.contains(index))
       generatedIndexes.add(index)
       final tile = data.terrains[index]
       final category = getLocationCategory(tile)
-      final names = getLocation(1, category: category)
-      final name = names.first.name
-      locations.add({
-        ...Tile(tile.left, tile.top),
-        index: tilePos2Index(tile.left, tile.top, data.width),
-        zoneIndex: tile.zoneIndex,
-        zoneCategory: tile.zoneCategory,
-        id: 'location_entity_${name}',
-        name,
-        shape: tileShape,
-        srcWidth: tileSpriteSrcWidth,
-        srcHeight: tileSpriteSrcHeight,
-        gridWidth,
-        gridHeight,
-        spriteIndex: _kSpriteCity,
-        offsetX: tileOffsetX,
-        offsetY: tileOffsetY,
-      })
+      final location = Location(category: category)
+      data.interactables.add(
+        {
+          ...Tile(tile.left, tile.top),
+          index: tilePos2Index(tile.left, tile.top, data.width),
+          zoneIndex: tile.zoneIndex,
+          zoneCategory: tile.zoneCategory,
+          name: location.name,
+          locationId: location.id,
+          shape: tileShape,
+          srcWidth: tileSpriteSrcWidth,
+          srcHeight: tileSpriteSrcHeight,
+          gridWidth,
+          gridHeight,
+          spriteIndex: _kSpriteCity,
+          offsetX: tileOffsetX,
+          offsetY: tileOffsetY,
+        }
+      )
     }
   }
 
-  for (final location in locations) {
-    data.entities['${location.left},${location.top}'] = location
+  for (final location of game.locations) {
     // 确保陆地上的每个城市至少可以链接到另外两个城市
     if (location.zoneCategory == _kZoneContinent) {
       final tiles = find2NearestLocation(location, restrict2Zone: true)
@@ -358,7 +369,7 @@ fun createWorld({
   }
 
   // 将大陆上没有道路的方格，随机填充为平原、森林、山地
-  for (final index in landZone.tiles) {
+  for (final index in landZone.tileIndexes) {
     final terrain = data.terrains[index]
     if (!terrain.isRoute) {
       final r = Math.random()
@@ -374,6 +385,32 @@ fun createWorld({
   for (final index in shelf.keys) {
     final tile = data.terrains[int.parse(index)]
     tile.spriteIndex = _kSpriteShelf
+  }
+
+  // 向世界中填充NPC
+
+  var minOrgNum = game.locations.length ~/ _kMaxLocationNumberForOrganization
+  final maxOrgNum = game.locations.length ~/ _kMinLocationNumberForOrganization
+  if (minOrgNum < 2) {
+    minOrgNum = 2
+  }
+  final orgNum = Math.randomInt(maxOrgNum - minOrgNum) + minOrgNum
+  final orgNames = randomNames.getClan(orgNum)
+  
+  final locationIndexes = game.locations.values.map((element) => element.index).toList()
+  locationIndexes.shuffle()
+  final iter = locationIndexes.iterator
+  for (var i in range(orgNames.length)) {
+    final org = orgNames[i]
+    org.index = data.organizations.length
+    iter.moveNext()
+    org.headquarterLocationIndex = iter.current
+    data.organizations.add(org)
+    final npcCount = Math.randomInt(_kMaxNpcNumberForOrganization - _kMinNpcNumberForOrganization) + _kMinNpcNumberForOrganization
+    for (var i in range(npcCount)) {
+      final char = Character()
+      char.organization.id = org.id
+    }
   }
   
   game.world = data

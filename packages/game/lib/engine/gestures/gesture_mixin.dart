@@ -5,7 +5,7 @@ import 'package:flame/game.dart';
 import 'package:flame/components.dart' show PositionType;
 
 import '../extensions.dart';
-import '../../ui/pointer_detector.dart'
+import '../../ui/shared/pointer_detector.dart'
     show TouchDetails, MouseMoveUpdateDetails;
 
 export 'package:flutter/gestures.dart'

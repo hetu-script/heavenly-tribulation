@@ -5,7 +5,7 @@ import 'package:flame/game.dart';
 import '../../../engine/tilemap/map.dart';
 import '../../../event/event.dart';
 import '../../../ui/shared/ink_image_button.dart';
-import '../../../ui/pointer_detector.dart';
+import '../../shared/pointer_detector.dart';
 import '../../../engine/game.dart';
 import '../../../engine/scene/worldmap.dart';
 import '../../../ui/shared/avatar.dart';
@@ -227,6 +227,9 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
     game.registerListener(
       MapEvents.onMapTapped,
       EventHandler(widget.key!, (event) {
+        if (map.hero!.isMoving) {
+          return;
+        }
         setState(() {
           final e = event as MapInteractionEvent;
           if (e.terrain != null) {
@@ -262,11 +265,11 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
           ],
         );
       }
-      if (scene.map!.selectedEntity != null) {
+      if (scene.map!.selectedInteractable != null) {
         informationWidgets.add(
           Row(
             children: <Widget>[
-              Text('据点: ${scene.map!.selectedEntity!.name}'),
+              Text('据点: ${scene.map!.selectedInteractable!.name}'),
               const Spacer(),
               TextButton(
                 onPressed: () {},
@@ -372,7 +375,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
       if (map.selectedTerrain != null) {
         final terrain = map.selectedTerrain!;
         final terrainZone = map.zones[terrain.zoneIndex];
-        final location = map.selectedEntity;
+        final location = map.selectedInteractable;
         final characters = map.selectedActors;
         final hero = map.hero;
         List<int>? route;
@@ -400,7 +403,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
           setState(() {
             menuPosition = null;
             scene.map!.selectedTerrain = null;
-            scene.map!.selectedEntity = null;
+            scene.map!.selectedInteractable = null;
           });
         }
 
@@ -416,7 +419,10 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
             },
             checkIcon: terrainZone.index != 0,
             onCheckIconTapped: closePopup,
-            enterIcon: (route != null && location != null) ? true : false,
+            enterIcon: ((route != null && location != null) ||
+                    (isHeroPosition && location != null))
+                ? true
+                : false,
             onEnterIconTapped: closePopup,
             talkIcon: characters != null ? true : false,
             onTalkIconTapped: closePopup,

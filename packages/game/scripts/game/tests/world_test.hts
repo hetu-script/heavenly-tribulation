@@ -1,5 +1,5 @@
-import '../generator/world.ht'
+import '../generator/tilemap/worldmap.ht'
 
-final world = createWorld()
+final world = createWorldMap()
 
 print(world)
