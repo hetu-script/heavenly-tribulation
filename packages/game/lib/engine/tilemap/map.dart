@@ -23,15 +23,11 @@ enum WorldStyle {
   beach,
 }
 
-class TileMapRoute {
-  // final int startLeft, startTop;
-  final List<TilePosition> tiles;
-  Path? path;
+class TileMapRouteNode {
+  final TilePosition tilePosition;
+  final Vector2 worldPosition;
 
-  TileMapRoute(
-      {
-      //required this.startLeft, required this.startTop,
-      required this.tiles});
+  TileMapRouteNode({required this.tilePosition, required this.worldPosition});
 }
 
 class MapComponent extends GameComponent with HandlesGesture {
@@ -76,7 +72,7 @@ class MapComponent extends GameComponent with HandlesGesture {
   bool isTimeFlowing = false;
 
   final TileMapActor? hero;
-  List<TilePosition>? currentRoute;
+  List<TileMapRouteNode>? currentRoute;
 
   MapComponent({
     required SamsaraGame game,
@@ -97,23 +93,10 @@ class MapComponent extends GameComponent with HandlesGesture {
   }) : super(game: game) {
     assert(terrains.isNotEmpty);
     scale = Vector2(MapTile.defaultScale, MapTile.defaultScale);
-
-    //   for (final route in routes) {
-    //     final path = Path();
-    //     final start = route.tiles.first;
-    //     var pos = tilePosition2TileCenterInWorld(start.left, start.top);
-    //     path.moveTo(pos.x, pos.y);
-    //     for (var i = 1; i < route.tiles.length; ++i) {
-    //       final tile = route.tiles[i];
-    //       pos = tilePosition2TileCenterInWorld(tile.left, tile.top);
-    //       path.lineTo(pos.x, pos.y);
-    //     }
-    //     route.path = path;
-    //   }
   }
 
-  static int tilePos2Index(int left, int top, int mapTileWidth) {
-    return (left - 1) + (top - 1) * mapTileWidth;
+  static int tilePosition2Index(int left, int top, int tileMapWidth) {
+    return (left - 1) + (top - 1) * tileMapWidth;
   }
 
   static Future<MapComponent> fromJson(
@@ -142,8 +125,8 @@ class MapComponent extends GameComponent with HandlesGesture {
       srcSize: Vector2(tileSpriteSrcWidth, tileSpriteSrcHeight),
     );
 
-    final int mapTileWidth = data['width'];
-    final int mapTileHeight = data['height'];
+    final int tileMapWidth = data['width'];
+    final int tileMapHeight = data['height'];
     final int heroX = data['heroX'];
     final int heroY = data['heroY'];
     final terrainsData = data['terrains'];
@@ -170,10 +153,10 @@ class MapComponent extends GameComponent with HandlesGesture {
     // }
 
     final List<List<TileMapTerrain>> terrains = [];
-    for (var j = 0; j < mapTileHeight; ++j) {
+    for (var j = 0; j < tileMapHeight; ++j) {
       terrains.add([]);
-      for (var i = 0; i < mapTileWidth; ++i) {
-        final index = tilePos2Index(i + 1, j + 1, mapTileWidth);
+      for (var i = 0; i < tileMapWidth; ++i) {
+        final index = tilePosition2Index(i + 1, j + 1, tileMapWidth);
         final terrainData = terrainsData[index];
         final spritePath = terrainData['sprite'];
         final spriteIndex = terrainData['spriteIndex'];
@@ -212,7 +195,7 @@ class MapComponent extends GameComponent with HandlesGesture {
           shape: tileShape,
           left: i + 1,
           top: j + 1,
-          index: index,
+          tileMapWidth: tileMapWidth,
           srcWidth: tileSpriteSrcWidth,
           srcHeight: tileSpriteSrcHeight,
           gridWidth: gridWidth,
@@ -236,7 +219,6 @@ class MapComponent extends GameComponent with HandlesGesture {
     if (entitiyData != null) {
       for (final key in entitiyData.keys) {
         final entityData = entitiyData[key];
-        final int index = entityData['index'];
         final String id = entityData['id'];
         final int zoneIndex = entityData['zoneIndex'];
         final String name = entityData['name'];
@@ -280,7 +262,7 @@ class MapComponent extends GameComponent with HandlesGesture {
           shape: tileShape,
           left: left,
           top: top,
-          index: index,
+          tileMapWidth: tileMapWidth,
           srcWidth: srcWidth,
           srcHeight: srcHeight,
           gridWidth: gridWidth,
@@ -301,15 +283,14 @@ class MapComponent extends GameComponent with HandlesGesture {
       columns: 4,
       rows: 4,
     );
-    final heroPositionIndex = tilePos2Index(heroX, heroY, mapTileWidth);
     final hero = TileMapActor(
         game: game,
-        tileShape: tileShape,
+        shape: tileShape,
         gridWidth: gridWidth,
         gridHeight: gridHeight,
         left: heroX,
         top: heroY,
-        index: heroPositionIndex,
+        tileMapWidth: tileMapWidth,
         srcWidth: 32,
         srcHeight: 32,
         characterId: 'current',
@@ -321,8 +302,8 @@ class MapComponent extends GameComponent with HandlesGesture {
       tapSelect: tapSelect,
       heroX: heroX,
       heroY: heroY,
-      mapTileWidth: mapTileWidth,
-      mapTileHeight: mapTileHeight,
+      mapTileWidth: tileMapWidth,
+      mapTileHeight: tileMapHeight,
       gridWidth: gridWidth,
       gridHeight: gridHeight,
       terrains: terrains,
@@ -334,7 +315,7 @@ class MapComponent extends GameComponent with HandlesGesture {
   }
 
   // 从索引得到坐标
-  TilePosition index2TilePos(int index) {
+  TilePosition index2TilePosition(int index) {
     final left = index % mapTileWidth + 1;
     final top = index ~/ mapTileHeight + 1;
     return TilePosition(left, top);
@@ -458,11 +439,14 @@ class MapComponent extends GameComponent with HandlesGesture {
       case TileShape.hexagonalHorizontal:
         throw 'Vertical hexagonal map tile is not supported yet!';
     }
-    return Vector2(rl * scale.x, rt * scale.x);
+    return Vector2(rl, rt);
   }
 
-  Vector2 tilePosition2TileCenterInScreen(int left, int top) =>
-      tilePosition2TileCenterInWorld(left, top) - camera.position;
+  Vector2 tilePosition2TileCenterInScreen(int left, int top) {
+    final worldPos = tilePosition2TileCenterInWorld(left, top);
+    final scaled = Vector2(worldPos.x * scale.x, worldPos.y * scale.y);
+    return scaled - camera.position;
+  }
 
   TilePosition screenPosition2Tile(Vector2 position) {
     final worldPos = screenPosition2World(position);
@@ -549,16 +533,22 @@ class MapComponent extends GameComponent with HandlesGesture {
     }
   }
 
-  void resetHero() {
-    hero!.isWalking = false;
-  }
-
   void moveHeroToTilePositionByRoute(List<int> route) {
+    if (hero!.isMoving) {
+      return;
+    }
     assert(hero!.index == route.first);
-    currentRoute =
-        route.map((index) => index2TilePos(index)).toList().reversed.toList();
-    currentRoute!.removeLast();
-    resetHero();
+    currentRoute = route
+        .map((index) {
+          final tilePos = index2TilePosition(index);
+          final worldPos =
+              tilePosition2TileCenterInWorld(tilePos.left, tilePos.top);
+          return TileMapRouteNode(
+              tilePosition: tilePos, worldPosition: worldPos);
+        })
+        .toList()
+        .reversed
+        .toList();
   }
 
   @override
@@ -668,11 +658,14 @@ class MapComponent extends GameComponent with HandlesGesture {
       return false;
     });
 
-    if (currentRoute != null) {
-      if (!hero!.isWalking) {
-        final nextTile = currentRoute!.last;
-        hero!.direction = hero!.directionTo(nextTile);
-        hero!.isWalking = true;
+    if (currentRoute != null && currentRoute!.isNotEmpty) {
+      final char = hero!;
+      if (!char.isMoving) {
+        currentRoute!.removeLast();
+        if (currentRoute!.isNotEmpty) {
+          final nextTile = currentRoute!.last;
+          char.moveTo(nextTile.tilePosition);
+        }
       }
     }
   }

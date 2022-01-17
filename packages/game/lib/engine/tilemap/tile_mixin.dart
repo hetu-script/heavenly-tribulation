@@ -4,21 +4,42 @@ import 'tile.dart';
 import '../shared/direction.dart';
 
 mixin TileInfo on Component {
-  late final TilePosition tilePosition;
-  int get left => tilePosition.left;
-  int get top => tilePosition.top;
+  late TilePosition _tilePosition;
+  TilePosition get tilePosition => _tilePosition;
+  set tilePosition(TilePosition position) {
+    _tilePosition = position;
+    _index =
+        tilePosition2Index(_tilePosition.left, _tilePosition.top, tileMapWidth);
+    _renderPosition = tilePosition2RenderPosition(left, top);
+    _worldPosition = tilePosition2TileCenterInWorld(left, top);
+  }
+
+  late Vector2 _renderPosition;
+  Vector2 get renderPosition => _renderPosition;
+
+  late Vector2 _worldPosition;
+  Vector2 get worldPosition => _worldPosition;
+
+  int get left => _tilePosition.left;
+  int get top => _tilePosition.top;
 
   /// the tile index of the terrain array
-  late final int index;
+  late int _index;
+  int get index => _index;
 
   late final double srcWidth, srcHeight;
-  late final TileShape tileShape;
+  late final TileShape shape;
   late final double gridWidth, gridHeight;
+  late final int tileMapWidth;
 
-  Vector2 tilePosition2World(int left, int top,
+  int tilePosition2Index(int left, int top, int tileMapWidth) {
+    return (left - 1) + (top - 1) * tileMapWidth;
+  }
+
+  Vector2 tilePosition2RenderPosition(int left, int top,
       {TileRenderDirection renderDirection = TileRenderDirection.rightBottom}) {
     late final double bl, bt, l, t;
-    switch (tileShape) {
+    switch (shape) {
       case TileShape.orthogonal:
         bl = ((left - 1) * gridWidth);
         bt = ((top - 1) * gridHeight);
@@ -55,9 +76,30 @@ mixin TileInfo on Component {
     return Vector2(l, t);
   }
 
+  Vector2 tilePosition2TileCenterInWorld(int left, int top) {
+    late final double rl, rt;
+    switch (shape) {
+      case TileShape.orthogonal:
+        rl = ((left - 1) * gridWidth);
+        rt = ((top - 1) * gridHeight);
+        break;
+      case TileShape.hexagonalVertical:
+        rl = (left - 1) * gridWidth * (3 / 4) + gridWidth / 2;
+        rt = left.isOdd
+            ? (top - 1) * gridHeight + gridHeight / 2
+            : (top - 1) * gridHeight + gridHeight;
+        break;
+      case TileShape.isometric:
+        throw 'Isometric map tile is not supported yet!';
+      case TileShape.hexagonalHorizontal:
+        throw 'Vertical hexagonal map tile is not supported yet!';
+    }
+    return Vector2(rl, rt);
+  }
+
   // 计算 hexagonal tile 的方向
   Direction directionTo(TilePosition position) {
-    assert(tilePosition != position);
+    assert(_tilePosition != position);
     if (left % 2 != 0) {
       if (position.left == left) {
         if (position.top < top) {

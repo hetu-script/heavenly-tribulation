@@ -15,6 +15,7 @@ class TilePosition {
   final int left, top;
 
   const TilePosition(this.left, this.top);
+  const TilePosition.zero() : this(0, 0);
 
   @override
   String toString() => '[$left,$top]';
@@ -62,18 +63,17 @@ class MapTile extends GameComponent with TileInfo {
   final path = Path();
   late Rect rect;
 
-  final TileShape shape;
   final TileRenderDirection renderDirection;
 
   final int zoneIndex;
 
   MapTile({
     required SamsaraGame game,
-    required this.shape,
+    required TileShape shape,
     this.renderDirection = TileRenderDirection.rightBottom,
     required int left,
     required int top,
-    required int index,
+    required int tileMapWidth,
     required double srcWidth,
     required double srcHeight,
     required double gridWidth,
@@ -85,12 +85,13 @@ class MapTile extends GameComponent with TileInfo {
     this.offsetX = 0.0,
     this.offsetY = 0.0,
   }) : super(game: game) {
-    tilePosition = TilePosition(left, top);
-    width = srcWidth;
-    height = srcHeight;
-    this.index = index;
+    this.tileMapWidth = tileMapWidth;
+    this.shape = shape;
     this.gridWidth = gridWidth;
     this.gridHeight = gridHeight;
+    this.srcWidth = width = srcWidth;
+    this.srcHeight = height = srcHeight;
+    tilePosition = TilePosition(left, top);
     generateRect();
     this.isVisible = isVisible;
   }
@@ -210,7 +211,7 @@ class TileMapTerrain extends MapTile {
     TileRenderDirection renderDirection = TileRenderDirection.rightBottom,
     required int left,
     required int top,
-    required int index,
+    required int tileMapWidth,
     required double srcWidth,
     required double srcHeight,
     required double gridWidth,
@@ -227,7 +228,7 @@ class TileMapTerrain extends MapTile {
           renderDirection: renderDirection,
           left: left,
           top: top,
-          index: index,
+          tileMapWidth: tileMapWidth,
           srcWidth: srcWidth,
           srcHeight: srcHeight,
           gridWidth: gridWidth,
@@ -255,7 +256,7 @@ class TileMapEntity extends MapTile {
     TileRenderDirection renderDirection = TileRenderDirection.rightBottom,
     required int left,
     required int top,
-    required int index,
+    required int tileMapWidth,
     required double srcWidth,
     required double srcHeight,
     required double gridWidth,
@@ -273,7 +274,7 @@ class TileMapEntity extends MapTile {
           renderDirection: renderDirection,
           left: left,
           top: top,
-          index: index,
+          tileMapWidth: tileMapWidth,
           srcWidth: srcWidth,
           srcHeight: srcHeight,
           gridWidth: gridWidth,

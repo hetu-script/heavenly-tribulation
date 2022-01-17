@@ -15,6 +15,10 @@ extension Vector2Ex on Vector2 {
   bool contains(Vector2 position) {
     return position.x > 0 && position.y > 0 && position.x < x && position.y < y;
   }
+
+  Vector2 operator *(Vector2 other) {
+    return Vector2(x * other.x, y * other.y);
+  }
 }
 
 extension CameraExtension on Camera {

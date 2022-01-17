@@ -395,48 +395,33 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
         } else {
           isHeroPosition = true;
         }
+
+        void closePopup() {
+          setState(() {
+            menuPosition = null;
+            scene.map!.selectedTerrain = null;
+            scene.map!.selectedEntity = null;
+          });
+        }
+
         screenWidgets.add(
           WorldMapPopup(
             left: menuPosition!.x - WorldMapPopup.defaultSize / 2,
             top: menuPosition!.y - WorldMapPopup.defaultSize / 2,
-            onPanelTapped: () {
-              setState(() {
-                menuPosition = null;
-                scene.map!.selectedTerrain = null;
-                scene.map!.selectedEntity = null;
-              });
-            },
+            onPanelTapped: closePopup,
             moveToIcon: route != null,
             onMoveToIconTapped: () {
               map.moveHeroToTilePositionByRoute(route!);
-              setState(() {
-                menuPosition = null;
-              });
+              closePopup();
             },
             checkIcon: terrainZone.index != 0,
-            onCheckIconTapped: () {
-              setState(() {
-                menuPosition = null;
-              });
-            },
+            onCheckIconTapped: closePopup,
             enterIcon: (route != null && location != null) ? true : false,
-            onEnterIconTapped: () {
-              setState(() {
-                menuPosition = null;
-              });
-            },
+            onEnterIconTapped: closePopup,
             talkIcon: characters != null ? true : false,
-            onTalkIconTapped: () {
-              setState(() {
-                menuPosition = null;
-              });
-            },
+            onTalkIconTapped: closePopup,
             restIcon: isHeroPosition,
-            onRestIconTapped: () {
-              setState(() {
-                menuPosition = null;
-              });
-            },
+            onRestIconTapped: closePopup,
           ),
         );
       }
