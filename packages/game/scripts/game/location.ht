@@ -2,7 +2,7 @@ import 'game.ht'
 import 'generator/random_names/random_names.ht' as randomNames
 
 struct Location {
-  var scenes = {}
+  final scenes = {}
 
   construct ({
     category,
@@ -51,28 +51,12 @@ fun getCurrentLocation() {
   return game.locations.current;
 }
 
-fun getCurrentLocationData() {
-  return game.locations.current.toJson();
-}
-
 fun getLocationById(id: str) {
   return game.locations[id]
 }
 
-fun getLocationDataById(id: str) {
-  return game.locations[id].toJson()
-}
-
 fun getAllLocations() {
   return game.locations
-}
-
-fun getAllLocationsData() {
-  return game.locations.toJson()
-}
-
-fun getCurrentLocationScenesData() {
-  return game.locations.current.scenes.toJson();
 }
 
 fun getSceneById(id: str) {

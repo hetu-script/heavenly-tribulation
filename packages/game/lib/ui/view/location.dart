@@ -45,7 +45,7 @@ class _LocationViewState extends State<LocationView>
     engine.hetu.invoke('nextTick');
 
     final data = engine.hetu
-        .invoke('getLocationDataById', positionalArgs: [widget.locationId]);
+        .invoke('getLocationById', positionalArgs: [widget.locationId]);
 
     setState(() {
       final String? name = data['name'];

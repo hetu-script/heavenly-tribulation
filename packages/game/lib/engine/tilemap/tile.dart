@@ -56,8 +56,8 @@ class MapTile extends GameComponent with TileInfo {
     ..style = PaintingStyle.stroke
     ..color = Colors.blue;
 
-  final Sprite? sprite;
-  final SpriteAnimation? animation;
+  final Sprite? baseSprite, overlaySprite;
+  final SpriteAnimation? baseAnimation, overlayAnimation;
   final double offsetX, offsetY;
   final path = Path();
   late Rect rect;
@@ -65,6 +65,9 @@ class MapTile extends GameComponent with TileInfo {
   final TileRenderDirection renderDirection;
 
   final int zoneIndex;
+  bool get isVoid => baseSprite == null;
+  final bool isWater;
+  final String? locationId;
 
   MapTile({
     required TileShape shape,
@@ -78,8 +81,12 @@ class MapTile extends GameComponent with TileInfo {
     required double gridHeight,
     required bool isVisible,
     required this.zoneIndex,
-    this.sprite,
-    this.animation,
+    this.isWater = false,
+    this.locationId,
+    this.baseSprite,
+    this.baseAnimation,
+    this.overlaySprite,
+    this.overlayAnimation,
     this.offsetX = 0.0,
     this.offsetY = 0.0,
   }) {
@@ -157,10 +164,10 @@ class MapTile extends GameComponent with TileInfo {
     if (!isVisible) {
       return;
     }
-    sprite?.renderRect(canvas, rect);
-    if (animation != null) {
-      animation?.getSprite().renderRect(canvas, rect);
-    }
+    baseSprite?.renderRect(canvas, rect);
+    baseAnimation?.getSprite().renderRect(canvas, rect);
+    overlaySprite?.renderRect(canvas, rect);
+    overlayAnimation?.getSprite().renderRect(canvas, rect);
 
     // final spriteBorderPaint = Paint()
     //   ..strokeWidth = 0.1
@@ -183,101 +190,8 @@ class MapTile extends GameComponent with TileInfo {
   @override
   void update(double dt) {
     super.update(dt);
-    if (animation != null) {
-      animation?.update(dt);
+    if (baseAnimation != null) {
+      baseAnimation?.update(dt);
     }
   }
-}
-
-class TileRouteDestination {
-  final int destinationIndex;
-  final int distance;
-  final int routeIndex;
-
-  const TileRouteDestination(
-      {required this.destinationIndex,
-      required this.distance,
-      required this.routeIndex});
-}
-
-class TileMapTerrain extends MapTile {
-  bool get isVoid => sprite == null;
-
-  final bool isWater;
-
-  TileMapTerrain({
-    required TileShape shape,
-    TileRenderDirection renderDirection = TileRenderDirection.rightBottom,
-    required int left,
-    required int top,
-    required int tileMapWidth,
-    required double srcWidth,
-    required double srcHeight,
-    required double gridWidth,
-    required double gridHeight,
-    required bool isVisible,
-    required int zoneIndex,
-    this.isWater = false,
-    Sprite? sprite,
-    SpriteAnimation? animation,
-    double offsetX = 0.0,
-    double offsetY = 0.0,
-  }) : super(
-          shape: shape,
-          renderDirection: renderDirection,
-          left: left,
-          top: top,
-          tileMapWidth: tileMapWidth,
-          srcWidth: srcWidth,
-          srcHeight: srcHeight,
-          gridWidth: gridWidth,
-          gridHeight: gridHeight,
-          isVisible: isVisible,
-          zoneIndex: zoneIndex,
-          sprite: sprite,
-          animation: animation,
-          offsetX: offsetX,
-          offsetY: offsetY,
-        );
-}
-
-class TileMapInteractable extends MapTile {
-  final String? locationId;
-  // final Map<int, TileRouteDestination> destinations;
-
-  TileMapInteractable({
-    required TileShape shape,
-    TileRenderDirection renderDirection = TileRenderDirection.rightBottom,
-    required int left,
-    required int top,
-    required int tileMapWidth,
-    required double srcWidth,
-    required double srcHeight,
-    required double gridWidth,
-    required double gridHeight,
-    required bool isVisible,
-    required int zoneIndex,
-    this.locationId,
-    // this.destinations = const {},
-    Sprite? sprite,
-    SpriteAnimation? animation,
-    double offsetX = 0.0,
-    double offsetY = 0.0,
-  }) : super(
-          shape: shape,
-          renderDirection: renderDirection,
-          left: left,
-          top: top,
-          tileMapWidth: tileMapWidth,
-          srcWidth: srcWidth,
-          srcHeight: srcHeight,
-          gridWidth: gridWidth,
-          gridHeight: gridHeight,
-          isVisible: isVisible,
-          zoneIndex: zoneIndex,
-          sprite: sprite,
-          animation: animation,
-          offsetX: offsetX,
-          offsetY: offsetY,
-        );
 }

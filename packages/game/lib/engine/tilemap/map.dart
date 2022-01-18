@@ -57,12 +57,10 @@ class MapComponent extends GameComponent with HandlesGesture {
 
   Vector2 mapScreenSize = Vector2.zero();
 
-  TileMapTerrain? selectedTerrain;
-  TileMapInteractable? selectedInteractable;
+  MapTile? selectedTerrain;
   List<TileMapActor>? selectedActors;
 
-  final List<List<TileMapTerrain>> terrains;
-  final List<TileMapInteractable?> interactables;
+  final List<MapTile> terrains;
   final List<TileMapActor> actors;
   final List<Zone> zones;
   // final List<TileMapRoute> routes;
@@ -84,7 +82,6 @@ class MapComponent extends GameComponent with HandlesGesture {
     required this.mapTileWidth,
     required this.mapTileHeight,
     required this.terrains,
-    this.interactables = const [],
     required this.hero,
     this.actors = const [],
     // this.routes = const [],
@@ -94,8 +91,8 @@ class MapComponent extends GameComponent with HandlesGesture {
     scale = Vector2(MapTile.defaultScale, MapTile.defaultScale);
   }
 
-  static int tilePosition2Index(int left, int top, int tileMapWidth) {
-    return (left - 1) + (top - 1) * tileMapWidth;
+  static int tilePosition2Index(int left, int top, int mapTileWidth) {
+    return (left - 1) + (top - 1) * mapTileWidth;
   }
 
   static Future<MapComponent> fromJson(Map<String, dynamic> data) async {
@@ -150,46 +147,78 @@ class MapComponent extends GameComponent with HandlesGesture {
     //   routes.add(route);
     // }
 
-    final List<List<TileMapTerrain>> terrains = [];
+    final List<MapTile> terrains = [];
     for (var j = 0; j < tileMapHeight; ++j) {
-      terrains.add([]);
       for (var i = 0; i < tileMapWidth; ++i) {
         final index = tilePosition2Index(i + 1, j + 1, tileMapWidth);
         final terrainData = terrainsData[index];
-        final spritePath = terrainData['sprite'];
-        final spriteIndex = terrainData['spriteIndex'];
         final isWater = terrainData['isWater'] ?? false;
-        final animationPath = terrainData['animation'];
-        int animationFrameCount = terrainData['animationFrameCount'] ?? 1;
-        Sprite? sprite;
-        if (spritePath != null) {
-          sprite = await Sprite.load(
-            spritePath,
-            srcSize: Vector2(tileSpriteSrcWidth, tileSpriteSrcHeight),
-          );
-        } else if (spriteIndex != null) {
-          sprite = terrainSpriteSheet.getSpriteById(spriteIndex - 1);
-        }
-        SpriteAnimation? animation;
-        if (animationPath != null) {
-          final sheet = SpriteSheet(
-              image: await Flame.images.load(animationPath),
-              srcSize: Vector2(
-                tileSpriteSrcWidth,
-                tileSpriteSrcHeight,
-              ));
-          animation = sheet.createAnimation(
-              row: 0,
-              stepTime: MapTile.defaultAnimationStepTime,
-              from: 0,
-              to: animationFrameCount);
-        }
         final zoneIndex = terrainData['zoneIndex'];
-        var isEntry = false;
-        if (i + 1 == heroX && j + 1 == heroY) {
-          isEntry = true;
+        final String? locationId = terrainData['locationId'];
+        Sprite? baseSprite;
+        SpriteAnimation? baseAnimation;
+        final baseSpriteData = terrainData['baseSprite'];
+        if (baseSpriteData != null) {
+          final baseSpritePath = baseSpriteData['path'];
+          final baseSpriteIndex = baseSpriteData['index'];
+          final baseAnimationPath = baseSpriteData['animation'];
+          int baseAnimationFrameCount =
+              baseSpriteData['animationFrameCount'] ?? 1;
+          if (baseSpritePath != null) {
+            baseSprite = await Sprite.load(
+              baseSpritePath,
+              srcSize: Vector2(tileSpriteSrcWidth, tileSpriteSrcHeight),
+            );
+          } else if (baseSpriteIndex != null) {
+            baseSprite = terrainSpriteSheet.getSpriteById(baseSpriteIndex - 1);
+          }
+          if (baseAnimationPath != null) {
+            final sheet = SpriteSheet(
+                image: await Flame.images.load(baseAnimationPath),
+                srcSize: Vector2(
+                  tileSpriteSrcWidth,
+                  tileSpriteSrcHeight,
+                ));
+            baseAnimation = sheet.createAnimation(
+                row: 0,
+                stepTime: MapTile.defaultAnimationStepTime,
+                from: 0,
+                to: baseAnimationFrameCount);
+          }
         }
-        final tile = TileMapTerrain(
+        Sprite? overlaySprite;
+        SpriteAnimation? overlayAnimation;
+        final overlaySpriteData = terrainData['overlaySprite'];
+        if (overlaySpriteData != null) {
+          final overlaySpritePath = overlaySpriteData['path'];
+          final overlaySpriteIndex = overlaySpriteData['index'];
+          final overlayAnimationPath = overlaySpriteData['animation'];
+          int overlayAnimationFrameCount =
+              overlaySpriteData['animationFrameCount'] ?? 1;
+          if (overlaySpritePath != null) {
+            overlaySprite = await Sprite.load(
+              overlaySpritePath,
+              srcSize: Vector2(tileSpriteSrcWidth, tileSpriteSrcHeight),
+            );
+          } else if (overlaySpriteIndex != null) {
+            overlaySprite =
+                terrainSpriteSheet.getSpriteById(overlaySpriteIndex - 1);
+          }
+          if (overlayAnimationPath != null) {
+            final sheet = SpriteSheet(
+                image: await Flame.images.load(overlayAnimationPath),
+                srcSize: Vector2(
+                  tileSpriteSrcWidth,
+                  tileSpriteSrcHeight,
+                ));
+            overlayAnimation = sheet.createAnimation(
+                row: 0,
+                stepTime: MapTile.defaultAnimationStepTime,
+                from: 0,
+                to: overlayAnimationFrameCount);
+          }
+        }
+        final tile = MapTile(
           shape: tileShape,
           left: i + 1,
           top: j + 1,
@@ -201,76 +230,15 @@ class MapComponent extends GameComponent with HandlesGesture {
           isVisible: true,
           zoneIndex: zoneIndex,
           isWater: isWater,
-          sprite: sprite,
-          animation: animation,
+          locationId: locationId,
+          baseSprite: baseSprite,
+          baseAnimation: baseAnimation,
+          overlaySprite: overlaySprite,
+          overlayAnimation: overlayAnimation,
           offsetX: tileOffsetX,
           offsetY: tileOffsetY,
         );
-        if (isEntry) {
-          tile.isVisible = true;
-        }
-        terrains[j].add(tile);
-      }
-    }
-
-    final interactablesData = data['interactables'];
-    final List<TileMapInteractable> interactables = [];
-    if (interactablesData != null) {
-      for (final interactableData in interactablesData) {
-        final int zoneIndex = interactableData['zoneIndex'];
-        final String? locationId = interactableData['locationId'];
-        final int left = interactableData['left'];
-        final int top = interactableData['top'];
-        final double srcWidth = interactableData['srcWidth'];
-        final double srcHeight = interactableData['srcHeight'];
-        final double offsetX = interactableData['offsetX'] ?? 0.0;
-        final double offsetY = interactableData['offsetY'] ?? 0.0;
-        final String? spritePath = interactableData['sprite'];
-        final int? spriteIndex = interactableData['spriteIndex'];
-        final String? animationPath = interactableData['animation'];
-        final int? animationFrameCount =
-            interactableData['animationFrameCount'] ?? 1;
-        Sprite? sprite;
-        if (spritePath != null) {
-          sprite = await Sprite.load(
-            spritePath,
-            srcSize: Vector2(tileSpriteSrcWidth, tileSpriteSrcHeight),
-          );
-        } else if (spriteIndex != null) {
-          sprite = terrainSpriteSheet.getSpriteById(spriteIndex - 1);
-        }
-        SpriteAnimation? animation;
-        if (animationPath != null) {
-          final sheet = SpriteSheet(
-              image: await Flame.images.load(animationPath),
-              srcSize: Vector2(
-                srcWidth,
-                srcHeight,
-              ));
-          animation = sheet.createAnimation(
-              row: 0,
-              stepTime: MapTile.defaultAnimationStepTime,
-              from: 0,
-              to: animationFrameCount);
-        }
-        final interactable = TileMapInteractable(
-          shape: tileShape,
-          left: left,
-          top: top,
-          tileMapWidth: tileMapWidth,
-          srcWidth: srcWidth,
-          srcHeight: srcHeight,
-          gridWidth: gridWidth,
-          gridHeight: gridHeight,
-          isVisible: true,
-          zoneIndex: zoneIndex,
-          locationId: locationId,
-          sprite: sprite,
-          animation: animation,
-          offsetX: offsetX,
-          offsetY: offsetY,
-        );
-        interactables.add(interactable);
+        terrains.add(tile);
       }
     }
 
@@ -311,7 +279,6 @@ class MapComponent extends GameComponent with HandlesGesture {
       gridHeight: gridHeight,
       terrains: terrains,
       zones: zones,
-      interactables: interactables,
       hero: hero,
       // routes: routes,
     );
@@ -361,44 +328,19 @@ class MapComponent extends GameComponent with HandlesGesture {
     return positions;
   }
 
-  TileMapTerrain? getTerrainByPosition(TilePosition position) {
+  MapTile? getTerrainByPosition(TilePosition position) {
     return getTerrain(position.left, position.top);
   }
 
-  TileMapTerrain? getTerrain(int left, int top) {
+  MapTile? getTerrain(int left, int top) {
     if (isPositionWithinMap(left, top)) {
-      return terrains[top - 1][left - 1];
+      return terrains[tilePosition2Index(left, top, mapTileWidth)];
     } else {
       return null;
     }
   }
 
-  TileMapInteractable? getInteractable(int left, int top) {
-    try {
-      return interactables.singleWhere(
-          (element) => element!.left == left && element.top == top);
-    } catch (e) {
-      if (e is StateError) {
-        return null;
-      } else {
-        rethrow;
-      }
-    }
-  }
-
-  bool removeInteractable(int left, int top) {
-    final interactable = getInteractable(left, top);
-    if (interactable != null) {
-      remove(interactable);
-      interactables.removeWhere(
-          (element) => element!.left == left && element.top == top);
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  void _lightUpAroundTerrain(TileMapTerrain tile) {
+  void _lightUpAroundTerrain(MapTile tile) {
     // final neighbors = getNeighborTilePositions(tile.left, tile.top);
     // for (final pos in neighbors) {
     //   final neighbor = getTerrainByPosition(pos);
@@ -581,7 +523,6 @@ class MapComponent extends GameComponent with HandlesGesture {
 
     final tilePos = screenPosition2Tile(screenPosition);
     final terrain = getTerrain(tilePos.left, tilePos.top);
-    final interactable = getInteractable(tilePos.left, tilePos.top);
     if (terrain != null) {
       // if (tile.isRoom && tile.isVisible) {
       //   gameRef.game.hetu.invoke('handleMazeTileInteraction',
@@ -590,22 +531,17 @@ class MapComponent extends GameComponent with HandlesGesture {
       if (tapSelect) {
         if (selectedTerrain != null) {
           selectedTerrain = null;
-          selectedInteractable = null;
         } else {
           if (hero == null || !hero!.isMoving) {
             selectedTerrain = terrain;
-            selectedInteractable = interactable;
           }
         }
       }
     } else {
       selectedTerrain = null;
-      selectedInteractable = null;
     }
     engine.broadcast(MapInteractionEvent.mapTapped(
-        globalPosition: details.globalPosition,
-        terrain: terrain,
-        interactable: interactable));
+        globalPosition: details.globalPosition, terrain: terrain));
   }
 
   @override
@@ -614,24 +550,22 @@ class MapComponent extends GameComponent with HandlesGesture {
   @override
   Future<void> onLoad() async {
     super.onLoad();
-    for (final row in terrains) {
+    for (var j = 0; j < mapTileHeight; ++j) {
       if (tileShape == TileShape.hexagonalVertical) {
-        for (var i = 0; i < row.length; i = i + 2) {
-          final tile = row[i];
+        for (var i = 0; i < mapTileWidth; i = i + 2) {
+          final tile = terrains[i + j * mapTileWidth];
           add(tile);
         }
-        for (var i = 1; i < row.length; i = i + 2) {
-          final tile = row[i];
+        for (var i = 1; i < mapTileWidth; i = i + 2) {
+          final tile = terrains[i + j * mapTileWidth];
           add(tile);
         }
       } else {
-        for (final tile in row) {
+        for (var i = 0; i < mapTileWidth; ++i) {
+          final tile = terrains[i + j * mapTileWidth];
           add(tile);
         }
       }
-    }
-    for (final tile in interactables) {
-      add(tile!);
     }
     if (hero != null) {
       add(hero!);

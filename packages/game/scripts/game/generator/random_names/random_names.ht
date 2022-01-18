@@ -21,7 +21,6 @@ import 'data/talisman/talisman.json' as talisman
 import 'data/talisman/material.json' as talismanMaterial
 import 'data/talisman/postfix.json' as talismanPostfix
 import 'data/organization/organization.json' as organization
-import 'data/organization/nation.json' as nation
 import 'data/place/place.json' as place
 import 'data/place/prefix.json' as placePrefix
 import 'data/place/postfix.json' as placePostfix
@@ -549,46 +548,28 @@ fun getOrganization(number: int, {kind: str, category: str}) {
   return names
 }
 
-const _kContry = '国'
+const _kNation = '国'
 
-fun getNation(number: int, {kind}) {
+fun getNation(number: int) {
   final names = []
   for (var i in range(number)) {
     var name = ''
-    var k = kind ?? ''
     var rarity = 'common'
     final r = Math.random()
     if (r < kRarity.rare.probability) {
       name = strangeNames.random
       rarity = 'rare'
-      if (!kind) {
-        if (name.length == 1) {
-          k = _kContry
-        } else {
-          k = nation.random
-        }
-      }
     } else if (r < kRarity.uncommon.probability) {
       name = common.random
       rarity = 'uncommon'
-      if (!kind) {
-        if (name.length == 1) {
-          k = _kContry
-        } else {
-          k = nation.random
-        }
-      }
     } else {
       var prefix = ''
       if (Math.random() < kRarity.rare.probability) {
         prefix = placePrefix.random
       }
       name = prefix + place.random
-      if (!kind) {
-        k = _kContry
-      }
     }
-    names.add({ name: name + k, rarity })
+    names.add({ name: name + _kNation, rarity })
   }
   return names
 }

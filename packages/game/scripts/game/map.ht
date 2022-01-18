@@ -23,16 +23,8 @@ fun addMazes(mazes) {
   }
 }
 
-fun getCurrentMazeData() {
-  return game.mazes.current.toJson();
-}
-
 fun getMazeById(id: str) {
   return game.mazes[id]
-}
-
-fun getMazeDataById(id: str) {
-  return game.mazes[id].toJson()
 }
 
 fun onEnteredMaze(id: str) {
@@ -72,10 +64,6 @@ fun handleMazeTileInteraction(x: int, y: int) {
   }
 }
 
-fun getZonesData() {
-  return game.world.zones.toJson()
-}
-
 // 从 hexagonal 坐标得到索引
 fun tilePos2Index(left, top, width) {
   return left - 1 + (top - 1) * width
@@ -93,9 +81,12 @@ fun isPositionWithinMap(left, top, width, height) {
   return (left > 0 && top > 0 && left <= width && top <= height)
 }
 
-fun getTerrain(left, top, { data }) {
-  data ??= game.world
-  return data.terrains[tilePos2Index(left, top, data.width)]
+fun getTerrain(left, top) {
+  return game.world.terrains[tilePos2Index(left, top, game.world.width)]
+}
+
+fun getZoneByIndex(index: int) {
+  return game.world.zones[index]
 }
 
 // 获取相邻并且在地图范围内的格子

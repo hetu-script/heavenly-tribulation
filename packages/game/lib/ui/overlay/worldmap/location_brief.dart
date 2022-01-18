@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 import '../../../engine/engine.dart';
 import '../../../engine/tilemap/tile.dart';
 
-class LocationInfo extends StatelessWidget {
+class LocationBrief extends StatelessWidget {
   static Future<void> show(
     BuildContext context, {
-    TileMapTerrain? terrain,
-    TileMapInteractable? interactable,
+    MapTile? terrain,
     bool isHeroPosition = false,
   }) {
     return showDialog<void>(
@@ -19,9 +18,8 @@ class LocationInfo extends StatelessWidget {
           child: Stack(
             alignment: Alignment.center,
             children: <Widget>[
-              LocationInfo(
+              LocationBrief(
                 terrain: terrain,
-                interactable: interactable,
                 isHeroPosition: isHeroPosition,
               ),
             ],
@@ -31,23 +29,21 @@ class LocationInfo extends StatelessWidget {
     );
   }
 
-  final TileMapTerrain? terrain;
-  final TileMapInteractable? interactable;
+  final MapTile? terrain;
   final bool isHeroPosition;
 
-  const LocationInfo({
+  const LocationBrief({
     Key? key,
     this.terrain,
-    this.interactable,
     this.isHeroPosition = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final informationWidgets = <Widget>[];
-    if (interactable != null) {
-      final locationData = engine.hetu.invoke('getLocationDataById',
-          positionalArgs: [interactable!.locationId]);
+    if (terrain != null && terrain!.locationId != null) {
+      final locationData = engine.hetu
+          .invoke('getLocationById', positionalArgs: [terrain!.locationId]);
       informationWidgets.add(
         Padding(
           padding: const EdgeInsets.only(bottom: 5.0),
@@ -64,8 +60,8 @@ class LocationInfo extends StatelessWidget {
       final String? organizationId = locationData['organizationId'];
       dynamic organizationData;
       if (organizationId != null) {
-        organizationData = engine.hetu.invoke('getOrganizationDataById',
-            positionalArgs: [organizationId]);
+        organizationData = engine.hetu
+            .invoke('getOrganizationById', positionalArgs: [organizationId]);
       }
       if (organizationData != null) {
         informationWidgets.add(
@@ -74,12 +70,10 @@ class LocationInfo extends StatelessWidget {
       }
     }
     if (terrain != null) {
-      final zonesData = engine.hetu.invoke('getZonesData');
-      final terrainData = zonesData[terrain!.zoneIndex];
+      final zoneData = engine.hetu
+          .invoke('getZoneByIndex', positionalArgs: [terrain!.zoneIndex]);
       informationWidgets.addAll(
-        [
-          Text('地域: ${terrainData['name']} (${terrain!.left}, ${terrain!.top})')
-        ],
+        [Text('地域: ${zoneData['name']} (${terrain!.left}, ${terrain!.top})')],
       );
     }
     if (isHeroPosition) {

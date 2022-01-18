@@ -27,7 +27,7 @@ class _MyViewState extends State<MyView> {
     engine.hetu.invoke('nextTick');
 
     final data =
-        engine.hetu.invoke('getCharacterDataById', positionalArgs: ['current']);
+        engine.hetu.invoke('getCharacterById', positionalArgs: ['current']);
 
     setState(() {
       final String? name = data['name'];

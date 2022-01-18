@@ -34,13 +34,6 @@ fun init({lang = 'zh', gameEngine: SamsaraEngine}) {
     avatar: 'avatar/female/29.jpg',
 
     // 组织
-    organization: {
-      id: 'ziyangpai', // 组织id
-      // 在组织中所处的等级数字越大，等级越低
-      rank: 4,
-      superior: 'xuanqingzi', // 在组织中的上级领导
-      loyalty: 100,
-    },
 
     // 效忠
     allegiance: {
@@ -65,6 +58,8 @@ fun init({lang = 'zh', gameEngine: SamsaraEngine}) {
     intelligence: 89, // 悟性
     memory: 66, // 记忆
 
+    // 境界
+    spiritRank: 0,
     // 五行灵根
     spiritRoots: {
       water: 10,

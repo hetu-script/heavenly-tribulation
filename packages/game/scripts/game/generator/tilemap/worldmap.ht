@@ -2,6 +2,7 @@ import '../random_names/random_names.ht' as randomNames
 import '../../game.ht'
 import '../../location.ht'
 import '../../character.ht'
+import '../../nation.ht'
 import 'hexagonal_tile.ht'
 import 'component.ht'
 import {
@@ -39,6 +40,7 @@ import {
 
 const _defaultWorldWidth = 12
 const _defaultWorldHeight = 12
+const _defaultNumberOfNation = 2
 const _kSpriteWater = 1
 const _kSpriteShelf = 2
 const _kSpriteLand = 3
@@ -68,7 +70,7 @@ struct Zone {
   var name: str
   var category: str
   var count = 0
-  var tileIndexes = Set()
+  final tileIndexes = Set()
 
   construct ({index, name, category}) {
     assert(index != null)
@@ -107,7 +109,6 @@ fun createWorldMap({
     tileOffsetY,
     zones: [],
     terrains: [],
-    interactables: [],
   }
 
   for (var j in range(height)) {
@@ -116,7 +117,10 @@ fun createWorldMap({
         {
           ...Tile(i + 1, j + 1),
           index: tilePos2Index(i + 1, j + 1, data.width),
-          spriteIndex: _kSpriteWater,
+          baseSprite: {
+            index: _kSpriteWater,
+          },
+          overlaySprite: {},
         }
       )
     }
@@ -155,7 +159,7 @@ fun createWorldMap({
     shelf.remove(tilePos2Index(left, top, data.width))
     final neighbors = getMapTileNeighbors(left, top, restricted2Zone: false, data: data)
     for (final tile in neighbors) {
-      if (tile.spriteIndex == _kSpriteWater) {
+      if (tile.baseSprite.index == _kSpriteWater) {
         shelf.add(tile.index)
       }
     }
@@ -176,7 +180,7 @@ fun createWorldMap({
   // print('start: ${startLeft},${startTop}')
   final startIndex = tilePos2Index(startLeft, startTop, data.width)
   final firstTile = data.terrains[startIndex]
-  firstTile.spriteIndex = _kSpriteLand
+  firstTile.baseSprite.index = _kSpriteLand
   final landZone = createZone(category: _kZoneContinent)
   addTile2Zone(landZone.index, firstTile)
   updateShelf(startLeft, startTop)
@@ -187,7 +191,7 @@ fun createWorldMap({
     ++currentLandSize
     final tile = data.terrains[shelf.random]
     updateShelf(tile.left, tile.top)
-    tile.spriteIndex = _kSpriteLand
+    tile.baseSprite.index = _kSpriteLand
     addTile2Zone(landZone.index, tile)
   }
 
@@ -199,7 +203,7 @@ fun createWorldMap({
     if (spriteIndex != null) {
       willCreateZone = false
     } else {
-      spriteIndex = tile.spriteIndex
+      spriteIndex = tile.baseSprite.index
     }
     unzonedNeighbors ??= {}
     // print('processing: ${tile.left},${tile.top}, spriteIndex: ${tile.spriteIndex}')
@@ -208,7 +212,7 @@ fun createWorldMap({
     var foundAdjacentZone = false
     for (final neighbor in neighbors) {
       // skip tiles that has diffrent spriteIndex and those still being processed
-      if (spriteIndex != neighbor.spriteIndex) continue
+      if (spriteIndex != neighbor.baseSprite.index) continue
       if (neighbor.zoneIndex == null) {
         updateZone(neighbor, spriteIndex, unzonedNeighbors)
       }
@@ -222,9 +226,9 @@ fun createWorldMap({
       break
     }
     if (!foundAdjacentZone && willCreateZone) {
-      var category = tile.spriteIndex == _kSpriteLand ? _kZoneContinent : _kZoneWater
+      var category = tile.baseSprite.index == _kSpriteLand ? _kZoneContinent : _kZoneWater
       final zone = createZone(category: category)
-      // print('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneIndex: ${zone.index}')
+      // print('Created zone! left: ${tile.left}, top: ${tile.top} baseSprite.index: ${tile.baseSprite.index}, zoneIndex: ${zone.index}')
       addTile2Zone(zone.index, tile)
       // print('processing previoused stored unzoned tiles: ${unzonedNeighbors}')
       for (final unzonedTile of unzonedNeighbors) {
@@ -238,9 +242,7 @@ fun createWorldMap({
   var unzonedTile
 
   while (
-    unzonedTile = data.terrains.firstWhere((tile) {
-        tile.zoneIndex == null
-      }, orElse: () {})
+    unzonedTile = data.terrains.firstWhere((tile) => tile.zoneIndex == null)
   ) {
     // print('updating unzoned tile')
     updateZone(unzonedTile)
@@ -262,13 +264,13 @@ fun createWorldMap({
   }
 
   // 根据 tile 的所在位置的类型，获取据点类型
-  fun getLocationCategory(tile) {
-    if (tile.spriteIndex == _kSpriteLand) {
+  fun getLocationCategoryInfo(tile) {
+    if (tile.baseSprite.index == _kSpriteLand) {
       return { zoneIndex: tile.zoneIndex, category: _kLocationCategoryCity }
     } else {
       final neighbors = getMapTileNeighbors(tile.left, tile.top, data: data)
       for (final neighbor in neighbors) {
-        if (neighbor.spriteIndex == _kSpriteLand) {
+        if (neighbor.baseSprite.index == _kSpriteLand) {
           return { zoneIndex: neighbor.zoneIndex, category: _kLocationCategoryShore }
         }
       }
@@ -326,11 +328,11 @@ fun createWorldMap({
         index = zone.tileIndexes.random
       } while (locationIndexes.contains(index))
       final tile = data.terrains[index]
-      final categoryInfo = getLocationCategory(tile)
+      final categoryInfo = getLocationCategoryInfo(tile)
       final location = Location(category: categoryInfo.category)
       zoneLocationIndexes.add(index)
       locationIndexes.add(index)
-      print(categoryInfo.category)
+      // print(categoryInfo.category)
       if (categoryInfo.category == _kLocationCategoryShore) {
         // print('processing harbor: ${tile.left},${tile.top}')
         // harborIndexes.add(index)
@@ -339,23 +341,8 @@ fun createWorldMap({
         tile.harborOfZoneIndex = tile.zoneIndex
         addTile2Zone(categoryInfo.zoneIndex, tile)
       }
-      data.interactables.add(
-        {
-          ...Tile(tile.left, tile.top),
-          index,
-          zoneIndex: tile.zoneIndex,
-          zoneCategory: tile.zoneCategory,
-          locationId: location.id,
-          shape: tileShape,
-          srcWidth: tileSpriteSrcWidth,
-          srcHeight: tileSpriteSrcHeight,
-          gridWidth,
-          gridHeight,
-          spriteIndex: _kSpriteCity,
-          offsetX: tileOffsetX,
-          offsetY: tileOffsetY,
-        }
-      )
+      tile.locationId = location.id
+      tile.overlaySprite.index = _kSpriteCity
     }
   }
 
@@ -369,7 +356,7 @@ fun createWorldMap({
   //   final location = Location(category: _kLocationCategoryShore)
   //   harborIndexes.add(index)
   //   // 将港口的地域改成相邻的陆地
-  //   final categoryInfo = getLocationCategory(tile)
+  //   final categoryInfo = getLocationCategoryInfo(tile)
   //   final neighborZone = data.zones[categoryInfo.zoneIndex]
   //   ++neighborZone.count
   //   final thisZone = data.zones[tile.zoneIndex]
@@ -378,28 +365,13 @@ fun createWorldMap({
   //   tile.harborOfZoneIndex = tile.zoneIndex
   //   tile.zoneIndex = neighborZone.index
   //   tile.zoneCategory = neighborZone.category
-  //   data.interactables.add(
-  //     {
-  //       ...Tile(tile.left, tile.top),
-  //       index,
-  //       zoneIndex: tile.zoneIndex,
-  //       zoneCategory: tile.zoneCategory,
-  //       locationId: location.id,
-  //       shape: tileShape,
-  //       srcWidth: tileSpriteSrcWidth,
-  //       srcHeight: tileSpriteSrcHeight,
-  //       gridWidth,
-  //       gridHeight,
-  //       spriteIndex: _kSpriteCity,
-  //       offsetX: tileOffsetX,
-  //       offsetY: tileOffsetY,
-  //     }
-  //   )
+  //   tile.interactable = true
+  //   tile.locationId = location.id
   // }
 
   // 标记属于水面的 tile
   for (final terrain in data.terrains) {
-    if (terrain.spriteIndex == _kSpriteWater) {
+    if (terrain.baseSprite.index == _kSpriteWater) {
       terrain.isWater = true
     }
   }
@@ -407,7 +379,7 @@ fun createWorldMap({
   // 将大陆和海洋接触的地方填充为大陆架
   for (final index in shelf) {
     final tile = data.terrains[index]
-    tile.spriteIndex = _kSpriteShelf
+    tile.baseSprite.index = _kSpriteShelf
   }
 
   for (final location of game.locations) {
@@ -447,12 +419,23 @@ fun createWorldMap({
     if (!terrain.isRoute) {
       final r = Math.random()
       if (r < _kMountainThreshold) {
-        terrain.spriteIndex = _kSpriteMountain
+        terrain.baseSprite.index = _kSpriteMountain
       } else if (r < _kForestThreshold) {
-        terrain.spriteIndex = _kSpriteForest
+        terrain.baseSprite.index = _kSpriteForest
       }
     }
   }
+
+  // 生成世俗国家
+  final nationCapitalTileIndexes = Set()
+  while (game.nations.length < _defaultNumberOfNation) {
+    final nation = Nation()
+    nation.capitalLocationId = game.locations.keys.random
+    final location = game.locations[nation.capitalLocationId]
+    nationCapitalTileIndexes.add(location.index)
+  }
+
+  // 随机选择各个国家的都城，然后各自扩散都城直到没有没有分配国家的区块
 
   // 向世界中填充NPC
   var minOrgNum = game.locations.length ~/ _kMaxLocationNumberForOrganization
@@ -464,27 +447,21 @@ fun createWorldMap({
     maxOrgNum = minOrgNum
   }
   final orgNum = Math.randomInt(maxOrgNum - minOrgNum) + minOrgNum
-  var advancedOrgNum = orgNum * _kAdvancedAIOrganizationOpponentProportion
-  if (advancedOrgNum == 0) {
-    advancedOrgNum = 1
-  }
   
   for (var i in range(orgNum)) {
-    final org = Clan()
-    iter.moveNext()
-    org.headquarterLocationId = locationIndexes.random
     // 在这个据点生成组织相关的场景，总堂，士宅等等。并根据组织类型，生成一些功能性建筑
-    final loc = game.locations[org.headquarterLocationId]
-    loc.rulingOrganizationId ??= org.id
+    final org = Organization()
+    final loc = data.terrains[locationIndexes.random]
+    org.headquarterLocationId = loc.id
+    loc.organizationId ??= org.id
     // loc.scenes.add
 
     final npcCount = Math.randomInt(_kMaxNpcNumberForOrganization - _kMinNpcNumberForOrganization) + _kMinNpcNumberForOrganization
     final leader = Character()
-    leader.organization.id = org.id
-    leader.organization.rank = 0
+    leader.organizationId = org.id
     for (var i in range(npcCount - 1)) {
       final char = Character()
-      char.organization.id = org.id
+      char.organizationId = org.id
     }
   }
   

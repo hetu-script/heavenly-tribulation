@@ -11,7 +11,7 @@ struct Organization {
     if (name) {
       this.name = name
     } else {
-      final names = randomNames.getClan(1, category: category)
+      final names = randomNames.getOrganization(1, category: category)
       this.name = names.first.name
     }
     this.id = 'Clan_${this.index}_${this.name}'
@@ -55,11 +55,7 @@ fun setCurrentOrganization(id: str) {
 }
 
 fun getCurrentOrganization() {
-  return getClanById(game.hero.ClanId)
-}
-
-fun getCurrentClanData() {
-  return getClanDataById(game.hero.ClanId)
+  return getOrganizationById(game.hero.ClanId)
 }
 
 fun addOrganization(char) {
@@ -70,14 +66,6 @@ fun getOrganizationById(id: str) {
   return game.organizations[id]
 }
 
-fun getOrganizationDataById(id: str) {
-  return game.organizations[id].toJson()
-}
-
 fun getAllOrganizations() {
   return game.organizations
-}
-
-fun getAllOrganizationsData() {
-  return game.organizations.toJson()
 }

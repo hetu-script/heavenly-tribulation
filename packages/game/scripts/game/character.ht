@@ -3,9 +3,6 @@ import 'game.ht'
 import 'generator/random_names/random_names.ht' as randomNames
 
 struct Character {
-  var organization = {}
-  var allegiance = {}
-
   construct ({name, isFemale}) {
     this.index = game.characters.length
     if (isFemale != null) {
@@ -40,10 +37,6 @@ fun getCurrentCharacter() {
   return game.characters.current;
 }
 
-fun getCurrentCharacterData() {
-  return game.characters.current.toJson();
-}
-
 fun addCharacter(char) {
   if (char.nameId) {
     char.name = getLocalization(char.nameId)
@@ -67,16 +60,8 @@ fun getCharacterById(id: str) {
   return game.characters[id]
 }
 
-fun getCharacterDataById(id: str) {
-  return game.characters[id].toJson()
-}
-
 fun getAllCharacters() {
   return game.characters
-}
-
-fun getAllCharactersData() {
-  return game.characters.toJson()
 }
 
 fun handleCharacterInteraction(char, {isAtHome: bool}) {

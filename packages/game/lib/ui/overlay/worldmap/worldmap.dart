@@ -10,7 +10,7 @@ import '../../../../engine/scene/worldmap.dart';
 import '../../shared/avatar.dart';
 import '../../../../event/map_event.dart';
 import 'popup.dart';
-import 'location_info.dart';
+import 'location_brief.dart';
 
 class WorldMapOverlay extends StatefulWidget {
   final WorldMapScene scene;
@@ -69,7 +69,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
 
   @override
   Widget build(BuildContext context) {
-    final heroData = engine.hetu.invoke('getCurrentCharacterData');
+    final heroData = engine.hetu.invoke('getCurrentCharacter');
     final screenSize = MediaQuery.of(context).size;
 
     final screenWidgets = <Widget>[
@@ -144,7 +144,6 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
       if (map.selectedTerrain != null) {
         final terrain = map.selectedTerrain!;
         final terrainZone = map.zones[terrain.zoneIndex];
-        final location = map.selectedInteractable;
         final characters = map.selectedActors;
         final hero = map.hero;
         List<int>? route;
@@ -172,7 +171,6 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
           setState(() {
             menuPosition = null;
             scene.map!.selectedTerrain = null;
-            scene.map!.selectedInteractable = null;
           });
         }
 
@@ -188,14 +186,12 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
             },
             checkIcon: terrainZone.index != 0,
             onCheckIconTapped: () {
-              LocationInfo.show(context,
-                  terrain: map.selectedTerrain,
-                  interactable: map.selectedInteractable,
-                  isHeroPosition: isHeroPosition);
+              LocationBrief.show(context,
+                  terrain: map.selectedTerrain, isHeroPosition: isHeroPosition);
               closePopup();
             },
-            enterIcon: ((route != null && location != null) ||
-                    (isHeroPosition && location != null))
+            enterIcon: ((route != null && terrain.locationId != null) ||
+                    (isHeroPosition && terrain.locationId != null))
                 ? true
                 : false,
             onEnterIconTapped: closePopup,

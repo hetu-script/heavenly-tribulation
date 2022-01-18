@@ -1,0 +1,28 @@
+import 'game.ht'
+import 'generator/random_names/random_names.ht' as randomNames
+
+const _kNation = '国'
+
+struct Nation {
+  final tileIndexes = Set()
+
+  construct ({
+    name,
+  }) {
+    this.index = game.nations.length
+    if (name) {
+      this.name = name + _kNation
+      
+    } else {
+      final names = randomNames.getNation(1)
+      this.name = names.first.name
+    }
+    this.id = 'nation_${this.index}_${this.name}'
+
+    game.nations[this.id] = this
+  }
+}
+
+fun getOrganizationById(id: str) {
+  return game.organizations[id]
+}

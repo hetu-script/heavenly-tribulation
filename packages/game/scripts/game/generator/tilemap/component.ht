@@ -1,8 +1,6 @@
 external class MapComponent {
   static fun fromJson
 
-  fun removeInteractable(left: int, top: int) -> bool
-
   fun lightUpAroundTerrain(left: int, top: int)
 
   fun moveCameraToTilePosition(left: int, top: int)

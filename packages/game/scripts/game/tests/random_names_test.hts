@@ -9,4 +9,6 @@ import '../generator/random_names/random_names.ht'
 
 // print(getSpell(10))
 
-print(getName(10))
+// print(getName(10))
+
+print(getNation(10))
