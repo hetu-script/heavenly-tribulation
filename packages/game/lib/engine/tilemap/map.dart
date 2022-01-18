@@ -158,6 +158,7 @@ class MapComponent extends GameComponent with HandlesGesture {
         final terrainData = terrainsData[index];
         final spritePath = terrainData['sprite'];
         final spriteIndex = terrainData['spriteIndex'];
+        final isWater = terrainData['isWater'] ?? false;
         final animationPath = terrainData['animation'];
         int animationFrameCount = terrainData['animationFrameCount'] ?? 1;
         Sprite? sprite;
@@ -199,6 +200,7 @@ class MapComponent extends GameComponent with HandlesGesture {
           gridHeight: gridHeight,
           isVisible: true,
           zoneIndex: zoneIndex,
+          isWater: isWater,
           sprite: sprite,
           animation: animation,
           offsetX: tileOffsetX,
@@ -272,22 +274,31 @@ class MapComponent extends GameComponent with HandlesGesture {
       }
     }
 
-    final sheet = SpriteSheet.fromColumnsAndRows(
+    final charSheet = SpriteSheet.fromColumnsAndRows(
       image: await Flame.images.load('character/tile_character.png'),
       columns: 4,
-      rows: 4,
+      rows: 6,
     );
+
+    final shipSheet = SpriteSheet.fromColumnsAndRows(
+      image: await Flame.images.load('character/tile_ship.png'),
+      columns: 4,
+      rows: 6,
+    );
+
     final hero = TileMapActor(
-        shape: tileShape,
-        gridWidth: gridWidth,
-        gridHeight: gridHeight,
-        left: heroX,
-        top: heroY,
-        tileMapWidth: tileMapWidth,
-        srcWidth: 32,
-        srcHeight: 32,
-        characterId: 'current',
-        spriteSheet: sheet);
+      shape: tileShape,
+      gridWidth: gridWidth,
+      gridHeight: gridHeight,
+      left: heroX,
+      top: heroY,
+      tileMapWidth: tileMapWidth,
+      srcWidth: 32,
+      srcHeight: 32,
+      characterId: 'current',
+      characterAnimationSpriteSheet: charSheet,
+      shipAnimationSpriteSheet: shipSheet,
+    );
 
     return MapComponent(
       tileShape: tileShape,
@@ -665,6 +676,14 @@ class MapComponent extends GameComponent with HandlesGesture {
     if (currentRoute != null && currentRoute!.isNotEmpty) {
       final char = hero!;
       if (!char.isMoving) {
+        final pos = currentRoute!.last.tilePosition;
+        final terrain = getTerrain(pos.left, pos.top);
+        if (terrain!.isWater) {
+          hero!.isOnShip = true;
+        } else {
+          hero!.isOnShip = false;
+        }
+
         currentRoute!.removeLast();
         if (currentRoute!.isNotEmpty) {
           final nextTile = currentRoute!.last;

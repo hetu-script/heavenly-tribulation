@@ -20,7 +20,7 @@ import 'data/spell/spell.json' as spell
 import 'data/talisman/talisman.json' as talisman
 import 'data/talisman/material.json' as talismanMaterial
 import 'data/talisman/postfix.json' as talismanPostfix
-import 'data/organization/clan.json' as clan
+import 'data/organization/organization.json' as organization
 import 'data/organization/nation.json' as nation
 import 'data/place/place.json' as place
 import 'data/place/prefix.json' as placePrefix
@@ -38,7 +38,7 @@ export {
   kSex,
   kRarity,
   kCreatureCategory,
-  kClanCategory,
+  kOrganizationCategory,
   kLocationCategory,
   kZoneCategory,
 } from 'constants.ht'
@@ -57,7 +57,7 @@ export {
   getMaterial,
   getAlchemy,
   getTalisman,
-  getClan,
+  getOrganization,
   getNation,
   getLocationKind,
   getLocation,
@@ -87,7 +87,7 @@ final locations = [
 
 final kLocationCategories = kLocationCategory.keys
 
-final kClanCategories = kClanCategory.keys
+final kOrganizationCategories = kOrganizationCategory.keys
 
 final kZoneCategories = kZoneCategory.keys
 
@@ -529,21 +529,21 @@ fun getTalisman(number: int, {kind, rarity}) {
   return names
 }
 
-fun getClanKind([category: str]) {
+fun getOrganizationKind([category: str]) {
   if (category != null) {
-    assert(kClanCategories.contains(category))
+    assert(kOrganizationCategories.contains(category))
   } else {
-    category = kClanCategories.random
+    category = kOrganizationCategories.random
   }
-  return clan[category].random
+  return organization[category].random
 }
 
-fun getClan(number: int, {kind: str, category: str}) {
+fun getOrganization(number: int, {kind: str, category: str}) {
   final names = []
   for (var i in range(number)) {
     final name = common.random
-    final c = category ?? kClanCategories.random
-    final k = kind ?? getClanKind(c);
+    final c = category ?? kOrganizationCategories.random
+    final k = kind ?? getOrganizationKind(c);
     names.add({ name: name + k, category: c })
   }
   return names

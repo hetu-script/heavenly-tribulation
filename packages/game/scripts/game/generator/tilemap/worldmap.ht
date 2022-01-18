@@ -45,6 +45,9 @@ const _kSpriteLand = 3
 const _kSpriteCity = 4
 const _kSpriteForest = 5
 const _kSpriteMountain = 6
+const _kLocationCategoryCity = 'city'
+const _kLocationCategoryIsland = 'island'
+const _kLocationCategoryShore = 'shore'
 const _kZoneVoid = 'void'
 const _kZoneWater = 'water'
 const _kZoneContinent = 'continent'
@@ -52,20 +55,20 @@ const _kZoneLake = 'lake'
 const _kMinZoneSizeForLocation = 9 // 最大据点密度
 const _kMaxZoneSizeForLocation = 18 // 最小据点密度
 const _kMinZoneSizeForSea = 8
+const _kZoneSizeForHarbor = 18
 const _kForestThreshold = 0.5
 const _kMountainThreshold = 0.2
-const _kMinLocationNumberForOrganization = 1 // 最大组织密度
-const _kMaxLocationNumberForOrganization = 6 // 最小组织密度
+const _kMinLocationNumberForOrganization = 0.5 // 最大组织密度
+const _kMaxLocationNumberForOrganization = 8 // 最小组织密度
 const _kMinNpcNumberForOrganization = 3
 const _kMaxNpcNumberForOrganization = 18
-const _kAdvancedAIOrganizationOpponentProportion = 0.3
 
 struct Zone {
   var index: int
   var name: str
   var category: str
   var count = 0
-  var tileIndexes = []
+  var tileIndexes = Set()
 
   construct ({index, name, category}) {
     assert(index != null)
@@ -105,8 +108,6 @@ fun createWorldMap({
     zones: [],
     terrains: [],
     interactables: [],
-    organizations: [],
-    characters: [],
   }
 
   for (var j in range(height)) {
@@ -133,25 +134,29 @@ fun createWorldMap({
   createZone(name: '无', category: _kZoneVoid)
 
   fun addTile2Zone(zoneIndex, tile) {
-    assert(tile.zoneIndex == null || tile.zoneIndex == -1)
     assert(0 <= zoneIndex && zoneIndex < data.zones.length)
-    tile.zoneIndex = zoneIndex
+    if (tile.zoneIndex != null && tile.zoneIndex >= 0) {
+      final oldZone = data.zones[tile.zoneIndex]
+      --oldZone.count
+      oldZone.tileIndexes.remove(tile.index)
+    }
     final zone = data.zones[zoneIndex]
+    tile.zoneIndex = zoneIndex
     tile.zoneCategory = zone.category
     ++zone.count
     zone.tileIndexes.add(tile.index)
   }
 
   // 当前地域的边缘格子坐标
-  final shelf = {}
+  final shelf = Set()
 
   // 刷新当前地域的边缘格子坐标
   fun updateShelf(left, top) {
-    delete shelf[tilePos2Index(left, top, data.width)]
-    final neighbors = getMapTileNeighbors(left, top, data: data)
+    shelf.remove(tilePos2Index(left, top, data.width))
+    final neighbors = getMapTileNeighbors(left, top, restricted2Zone: false, data: data)
     for (final tile in neighbors) {
       if (tile.spriteIndex == _kSpriteWater) {
-        shelf[tile.index] = true
+        shelf.add(tile.index)
       }
     }
   }
@@ -180,8 +185,7 @@ fun createWorldMap({
   while (currentLandSize < landArea) {
     // print('expanding land')
     ++currentLandSize
-    final perimeterIndexes = shelf.keys
-    final tile = data.terrains[int.parse(perimeterIndexes.random)]
+    final tile = data.terrains[shelf.random]
     updateShelf(tile.left, tile.top)
     tile.spriteIndex = _kSpriteLand
     addTile2Zone(landZone.index, tile)
@@ -260,31 +264,30 @@ fun createWorldMap({
   // 根据 tile 的所在位置的类型，获取据点类型
   fun getLocationCategory(tile) {
     if (tile.spriteIndex == _kSpriteLand) {
+      return { zoneIndex: tile.zoneIndex, category: _kLocationCategoryCity }
+    } else {
       final neighbors = getMapTileNeighbors(tile.left, tile.top, data: data)
       for (final neighbor in neighbors) {
-        if (neighbor.spriteIndex == _kSpriteWater) {
-          return 'shore'
+        if (neighbor.spriteIndex == _kSpriteLand) {
+          return { zoneIndex: neighbor.zoneIndex, category: _kLocationCategoryShore }
         }
       }
-      return 'city'
-    }
-    else {
-      return 'island'
+      return { zoneIndex: tile.zoneIndex, category: _kLocationCategoryIsland }
     }
   }
 
-  fun find2NearestLocation(origin, {restrict2Zone: bool = true}) {
+  fun find2NearestLocation(origin, {restricted2Zone: bool = true}) {
     assert(game.locations.length > 0)
     var nearest
     var nearestDistance
     var secondNearest
     var secondNearestDistance
-    for (final location in locations) {
+    for (final location of game.locations) {
       if (location.index == origin.index) {
         continue
       } else {
         final distance = getTileDistance(origin, location)
-        if (!restrict2Zone || location.zoneIndex == origin.zoneIndex) {
+        if (!restricted2Zone || location.zoneIndex == origin.zoneIndex) {
           if (!location.destinations || !location.destinations[origin.index]) {
             if (nearestDistance == null || distance < nearestDistance) {
               nearestDistance = distance
@@ -302,6 +305,12 @@ fun createWorldMap({
     return { nearest, secondNearest }
   }
 
+  // var harborCount = landZone.count ~/ _kZoneSizeForHarbor
+  // if (harborCount == 0) {
+  //   harborCount = 1
+  // }
+  final locationIndexes = Set()
+  // final harborIndexes = Set()
   // 生成据点
   for (final zone in data.zones) {
     if (zone.count < _kMinZoneSizeForLocation) continue
@@ -309,25 +318,33 @@ fun createWorldMap({
     final minLocNum = zone.count ~/ _kMaxZoneSizeForLocation
     final maxLocNum = zone.count ~/ _kMinZoneSizeForLocation
     final locationNumber = Math.randomInt(maxLocNum - minLocNum) + minLocNum
-    var generatedIndexes = []
-    while (generatedIndexes.length < locationNumber) {
-      // print('generating location')
+    final zoneLocationIndexes = Set()
+    while (zoneLocationIndexes.length < locationNumber) {
       var index
       do {
         // print('generating location index')
         index = zone.tileIndexes.random
-      } while (generatedIndexes.contains(index))
-      generatedIndexes.add(index)
+      } while (locationIndexes.contains(index))
       final tile = data.terrains[index]
-      final category = getLocationCategory(tile)
-      final location = Location(category: category)
+      final categoryInfo = getLocationCategory(tile)
+      final location = Location(category: categoryInfo.category)
+      zoneLocationIndexes.add(index)
+      locationIndexes.add(index)
+      print(categoryInfo.category)
+      if (categoryInfo.category == _kLocationCategoryShore) {
+        // print('processing harbor: ${tile.left},${tile.top}')
+        // harborIndexes.add(index)
+        // 将港口的地域改成相邻的陆地
+        tile.isHarbor = true
+        tile.harborOfZoneIndex = tile.zoneIndex
+        addTile2Zone(categoryInfo.zoneIndex, tile)
+      }
       data.interactables.add(
         {
           ...Tile(tile.left, tile.top),
-          index: tilePos2Index(tile.left, tile.top, data.width),
+          index,
           zoneIndex: tile.zoneIndex,
           zoneCategory: tile.zoneCategory,
-          name: location.name,
           locationId: location.id,
           shape: tileShape,
           srcWidth: tileSpriteSrcWidth,
@@ -342,12 +359,65 @@ fun createWorldMap({
     }
   }
 
+  // 检查港口数量是否足够，否则补充港口
+  // while (harborIndexes.length < harborCount) {
+  //   var index
+  //   do {
+  //     index = shelf.random
+  //   } while (locationIndexes.contains(index))
+  //   final tile = data.terrains[index]
+  //   final location = Location(category: _kLocationCategoryShore)
+  //   harborIndexes.add(index)
+  //   // 将港口的地域改成相邻的陆地
+  //   final categoryInfo = getLocationCategory(tile)
+  //   final neighborZone = data.zones[categoryInfo.zoneIndex]
+  //   ++neighborZone.count
+  //   final thisZone = data.zones[tile.zoneIndex]
+  //   --thisZone.count
+  //   tile.isHarbor = true
+  //   tile.harborOfZoneIndex = tile.zoneIndex
+  //   tile.zoneIndex = neighborZone.index
+  //   tile.zoneCategory = neighborZone.category
+  //   data.interactables.add(
+  //     {
+  //       ...Tile(tile.left, tile.top),
+  //       index,
+  //       zoneIndex: tile.zoneIndex,
+  //       zoneCategory: tile.zoneCategory,
+  //       locationId: location.id,
+  //       shape: tileShape,
+  //       srcWidth: tileSpriteSrcWidth,
+  //       srcHeight: tileSpriteSrcHeight,
+  //       gridWidth,
+  //       gridHeight,
+  //       spriteIndex: _kSpriteCity,
+  //       offsetX: tileOffsetX,
+  //       offsetY: tileOffsetY,
+  //     }
+  //   )
+  // }
+
+  // 标记属于水面的 tile
+  for (final terrain in data.terrains) {
+    if (terrain.spriteIndex == _kSpriteWater) {
+      terrain.isWater = true
+    }
+  }
+  
+  // 将大陆和海洋接触的地方填充为大陆架
+  for (final index in shelf) {
+    final tile = data.terrains[index]
+    tile.spriteIndex = _kSpriteShelf
+  }
+
   for (final location of game.locations) {
     // 确保陆地上的每个城市至少可以链接到另外两个城市
     if (location.zoneCategory == _kZoneContinent) {
-      final tiles = find2NearestLocation(location, restrict2Zone: true)
+      final tiles = find2NearestLocation(location, restricted2Zone: true)
       if (tiles.nearest) {
-        final route = calculateRoute(location, tiles.nearest, data: data)
+        final start = game.terrains[location.index]
+        final end = game.terrains[tiles.nearest.index]
+        final route = calculateRoute(start, end, data: data)
         if (route) {
           // routes.add(route)
           for (final index in route) {
@@ -357,7 +427,9 @@ fun createWorldMap({
         }
       }
       if (tiles.secondNearest) {
-        final route = calculateRoute(location, tiles.secondNearest, data: data)
+        final start = game.terrains[location.index]
+        final end = game.terrains[tiles.secondNearest.index]
+        final route = calculateRoute(start, end, data: data)
         if (route) {
           // routes.add(route)
           for (final index in route) {
@@ -382,14 +454,7 @@ fun createWorldMap({
     }
   }
 
-  // 将大陆和海洋接触的地方填充为大陆架
-  for (final index in shelf.keys) {
-    final tile = data.terrains[int.parse(index)]
-    tile.spriteIndex = _kSpriteShelf
-  }
-
   // 向世界中填充NPC
-
   var minOrgNum = game.locations.length ~/ _kMaxLocationNumberForOrganization
   final maxOrgNum = game.locations.length ~/ _kMinLocationNumberForOrganization
   if (minOrgNum < 2) {
@@ -404,17 +469,15 @@ fun createWorldMap({
     advancedOrgNum = 1
   }
   
-  final locationIndexes = game.locations.values.map((element) => element.id).toList()
-  locationIndexes.shuffle()
-  final iter = locationIndexes.iterator
   for (var i in range(orgNum)) {
-    final org = Organization()
-    org.index = data.organizations.length
+    final org = Clan()
     iter.moveNext()
-    org.headquarterLocationId = iter.current
-    final loc = game.locations[iter.current]
-    loc.organizationId = org.id
-    data.organizations.add(org)
+    org.headquarterLocationId = locationIndexes.random
+    // 在这个据点生成组织相关的场景，总堂，士宅等等。并根据组织类型，生成一些功能性建筑
+    final loc = game.locations[org.headquarterLocationId]
+    loc.rulingOrganizationId ??= org.id
+    // loc.scenes.add
+
     final npcCount = Math.randomInt(_kMaxNpcNumberForOrganization - _kMinNpcNumberForOrganization) + _kMinNpcNumberForOrganization
     final leader = Character()
     leader.organization.id = org.id

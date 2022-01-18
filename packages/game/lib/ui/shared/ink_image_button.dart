@@ -35,7 +35,10 @@ class InkImageButton extends StatelessWidget {
         child: Material(
           type: MaterialType.transparency,
           child: Tooltip(
-            textStyle: const TextStyle(fontSize: 20.0),
+            textStyle: const TextStyle(
+              color: Colors.white,
+              fontSize: 20.0,
+            ),
             message: tooltip,
             child: InkWell(
               customBorder: const CircleBorder(),

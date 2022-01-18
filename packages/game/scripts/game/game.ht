@@ -17,6 +17,7 @@ final game = {
     zh: {},
     en: {}
   },
+  nations: {},
   characters: {},
   locations: {},
   organizations: {},

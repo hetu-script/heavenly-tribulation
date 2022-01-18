@@ -203,6 +203,8 @@ class TileRouteDestination {
 class TileMapTerrain extends MapTile {
   bool get isVoid => sprite == null;
 
+  final bool isWater;
+
   TileMapTerrain({
     required TileShape shape,
     TileRenderDirection renderDirection = TileRenderDirection.rightBottom,
@@ -215,6 +217,7 @@ class TileMapTerrain extends MapTile {
     required double gridHeight,
     required bool isVisible,
     required int zoneIndex,
+    this.isWater = false,
     Sprite? sprite,
     SpriteAnimation? animation,
     double offsetX = 0.0,

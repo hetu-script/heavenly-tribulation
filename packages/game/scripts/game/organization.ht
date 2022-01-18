@@ -5,6 +5,7 @@ struct Organization {
   construct ({
     category,
     name,
+    development,
   }) {
     this.index = game.organizations.length
     if (name) {
@@ -13,19 +14,27 @@ struct Organization {
       final names = randomNames.getClan(1, category: category)
       this.name = names.first.name
     }
-    this.id = 'organization_${this.index}_${this.name}'
+    this.id = 'Clan_${this.index}_${this.name}'
+
+    // 组织规模，组织所能允许的等级数量 = 规模
+    this.development = development ?? Math.randomInt(5) + 1
 
     game.organizations[this.id] = this
   }
 }
 
 // 组织中每个等级的人数上限
-fun maxInferiorNumberOfRank(n: int) {
+fun maxDirectInferiorNumberOfClanRank(n: int) {
   return (n + 1) * 3 - 2
 }
 
-fun createOrganization() {
-  
+fun maxMemberNumberOfClanDevelopment(n: int) {
+  assert(n > 0)
+  var number = 0
+  for (var i in range(n + 1, 1)) {
+    number += maxDirectInferiorNumberOfClanRank(i)
+  }
+  return number + 1
 }
 
 fun createOrganizationFromJson() {
@@ -42,15 +51,15 @@ fun addOrganizations(orgs: List) {
 }
 
 fun setCurrentOrganization(id: str) {
-  game.hero.organizationId = id;
+  game.hero.clanId = id;
 }
 
 fun getCurrentOrganization() {
-  return getOrganizationById(game.hero.organizationId)
+  return getClanById(game.hero.ClanId)
 }
 
-fun getCurrentOrganizationData() {
-  return getOrganizationDataById(game.hero.organizationId)
+fun getCurrentClanData() {
+  return getClanDataById(game.hero.ClanId)
 }
 
 fun addOrganization(char) {

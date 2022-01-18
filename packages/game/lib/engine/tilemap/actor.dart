@@ -23,31 +23,23 @@ class TileMapActor extends GameComponent with TileInfo {
 
   bool get isHero => characterId == 'current';
 
-  final SpriteAnimation south, east, west, north;
-  AnimationDirection _animationDirection = AnimationDirection.south;
-  set direction(Direction direction) {
-    switch (direction) {
-      case Direction.north:
-      case Direction.northEast:
-        _animationDirection = AnimationDirection.north;
-        break;
-      case Direction.east:
-      case Direction.southEast:
-        _animationDirection = AnimationDirection.east;
-        break;
-      case Direction.south:
-      case Direction.southWest:
-        _animationDirection = AnimationDirection.south;
-        break;
-      case Direction.west:
-      case Direction.northWest:
-        _animationDirection = AnimationDirection.west;
-        break;
-    }
-  }
+  final SpriteAnimation characterSouth,
+      characterNorthEast,
+      characterSouthEast,
+      characterNorth,
+      characterNorthWest,
+      characterSouthWest,
+      shipSouth,
+      shipNorthEast,
+      shipSouthEast,
+      shipNorth,
+      shipNorthWest,
+      shipSouthWest;
+  HexagonalDirection direction = HexagonalDirection.south;
 
   bool _isMoving = false;
   bool get isMoving => _isMoving;
+  bool isOnShip = false;
   Vector2 _movingOffset = Vector2.zero();
   Vector2 _movingTargetWorldPosition = Vector2.zero();
   TilePosition _movingTargetTilePosition = const TilePosition.zero();
@@ -69,7 +61,7 @@ class TileMapActor extends GameComponent with TileInfo {
     _movingOffset = Vector2.zero();
     _movingTargetWorldPosition =
         tilePosition2TileCenterInWorld(target.left, target.top);
-    direction = directionTo(target);
+    direction = direction2Hexagonal(directionTo(target));
 
     // 计算地图上的斜方向实际距离
     final sx = _movingTargetWorldPosition.x - worldPosition.x;
@@ -93,12 +85,33 @@ class TileMapActor extends GameComponent with TileInfo {
       required int tileMapWidth,
       required double srcWidth,
       required double srcHeight,
-      required SpriteSheet spriteSheet,
+      required SpriteSheet characterAnimationSpriteSheet,
+      required SpriteSheet shipAnimationSpriteSheet,
       this.velocityFactor = 0.5})
-      : south = spriteSheet.createAnimation(row: 0, stepTime: 0.2),
-        east = spriteSheet.createAnimation(row: 1, stepTime: 0.2),
-        north = spriteSheet.createAnimation(row: 2, stepTime: 0.2),
-        west = spriteSheet.createAnimation(row: 3, stepTime: 0.2) {
+      : characterSouth = characterAnimationSpriteSheet.createAnimation(
+            row: 0, stepTime: 0.2),
+        characterNorthEast = characterAnimationSpriteSheet.createAnimation(
+            row: 1, stepTime: 0.2),
+        characterSouthEast = characterAnimationSpriteSheet.createAnimation(
+            row: 2, stepTime: 0.2),
+        characterNorth = characterAnimationSpriteSheet.createAnimation(
+            row: 3, stepTime: 0.2),
+        characterNorthWest = characterAnimationSpriteSheet.createAnimation(
+            row: 4, stepTime: 0.2),
+        characterSouthWest = characterAnimationSpriteSheet.createAnimation(
+            row: 5, stepTime: 0.2),
+        shipSouth =
+            shipAnimationSpriteSheet.createAnimation(row: 0, stepTime: 0.2),
+        shipNorthEast =
+            shipAnimationSpriteSheet.createAnimation(row: 1, stepTime: 0.2),
+        shipSouthEast =
+            shipAnimationSpriteSheet.createAnimation(row: 2, stepTime: 0.2),
+        shipNorth =
+            shipAnimationSpriteSheet.createAnimation(row: 3, stepTime: 0.2),
+        shipNorthWest =
+            shipAnimationSpriteSheet.createAnimation(row: 4, stepTime: 0.2),
+        shipSouthWest =
+            shipAnimationSpriteSheet.createAnimation(row: 5, stepTime: 0.2) {
     this.tileMapWidth = tileMapWidth;
     this.shape = shape;
     this.gridWidth = gridWidth;
@@ -109,15 +122,36 @@ class TileMapActor extends GameComponent with TileInfo {
   }
 
   SpriteAnimation get currentAnimation {
-    switch (_animationDirection) {
-      case AnimationDirection.south:
-        return south;
-      case AnimationDirection.east:
-        return east;
-      case AnimationDirection.west:
-        return west;
-      case AnimationDirection.north:
-        return north;
+    if (isOnShip) {
+      switch (direction) {
+        case HexagonalDirection.south:
+          return shipSouth;
+        case HexagonalDirection.northEast:
+          return shipNorthEast;
+        case HexagonalDirection.southEast:
+          return shipSouthEast;
+        case HexagonalDirection.north:
+          return shipNorth;
+        case HexagonalDirection.northWest:
+          return shipNorthWest;
+        case HexagonalDirection.southWest:
+          return shipSouthWest;
+      }
+    } else {
+      switch (direction) {
+        case HexagonalDirection.south:
+          return characterSouth;
+        case HexagonalDirection.northEast:
+          return characterNorthEast;
+        case HexagonalDirection.southEast:
+          return characterSouthEast;
+        case HexagonalDirection.north:
+          return characterNorth;
+        case HexagonalDirection.northWest:
+          return characterNorthWest;
+        case HexagonalDirection.southWest:
+          return characterSouthWest;
+      }
     }
   }
 

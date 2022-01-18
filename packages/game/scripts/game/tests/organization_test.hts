@@ -1,0 +1,16 @@
+import '../organization.ht'
+
+// 1 (rank 1)
+// 4 (under 1)
+print(maxMemberNumberOfOrganizationDevelopment(1))
+
+// 1 (rank 1)
+// 4 (under 1)
+// 7 (under 2)
+print(maxMemberNumberOfOrganizationDevelopment(2))
+
+// 1 (rank 1)
+// 4 (under 1)
+// 7 (under 2)
+// 10 (under 3)
+print(maxMemberNumberOfOrganizationDevelopment(3))

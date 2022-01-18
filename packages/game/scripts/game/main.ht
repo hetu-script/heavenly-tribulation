@@ -21,8 +21,6 @@ fun init({lang = 'zh', gameEngine: SamsaraEngine}) {
     print('河图: 初始化游戏 ...')
   }
 
-  print(gameEngine)
-
   engine = gameEngine
 
   setCurrentLanguage(lang)
