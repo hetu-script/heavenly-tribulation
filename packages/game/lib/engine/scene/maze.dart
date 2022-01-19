@@ -1,9 +1,6 @@
-import 'package:flutter/widgets.dart';
-
 import 'scene.dart';
 import '../tilemap/map.dart';
 import '../engine.dart';
-import '../../ui/overlay/maze.dart';
 
 class MazeScene extends Scene {
   bool _loaded = false;
@@ -20,10 +17,5 @@ class MazeScene extends Scene {
     map = await engine.hetu.invoke('createMaze');
     add(map);
     _loaded = true;
-  }
-
-  @override
-  Widget widgetBuilder(BuildContext context) {
-    return MazeOverlay(key: UniqueKey(), scene: this);
   }
 }

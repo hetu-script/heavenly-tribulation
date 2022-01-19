@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 
-import '../../../../engine/tilemap/map.dart';
-import '../../../../event/event.dart';
+import '../../../engine/tilemap/map.dart';
+import '../../../event/event.dart';
 import '../../shared/pointer_detector.dart';
-import '../../../../engine/engine.dart';
-import '../../../../engine/scene/worldmap.dart';
+import '../../../engine/engine.dart';
+import '../../../engine/scene/worldmap.dart';
 import '../../shared/avatar.dart';
-import '../../../../event/map_event.dart';
+import '../../../event/map_event.dart';
+import '../../../event/location_event.dart';
 import 'popup.dart';
 import 'location_brief.dart';
 
@@ -25,7 +25,11 @@ class WorldMapOverlay extends StatefulWidget {
   _WorldMapOverlayState createState() => _WorldMapOverlayState();
 }
 
-class _WorldMapOverlayState extends State<WorldMapOverlay> {
+class _WorldMapOverlayState extends State<WorldMapOverlay>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   WorldMapScene get scene => widget.scene;
   MapComponent get map => widget.scene.map!;
 
@@ -34,10 +38,6 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
   @override
   void initState() {
     super.initState();
-
-    Flame.images.load('character/tile_character.png').then((image) {
-      setState(() {});
-    });
 
     engine.registerListener(
       MapEvents.onMapLoaded,
@@ -53,9 +53,9 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
           return;
         }
         setState(() {
-          final e = event as MapInteractionEvent;
-          if (e.terrain != null) {
-            final tilePos = e.terrain!.tilePosition;
+          final terrain = (event as MapInteractionEvent).terrain;
+          if (terrain != null) {
+            final tilePos = terrain.tilePosition;
             menuPosition = scene.map!
                 .tilePosition2TileCenterInScreen(tilePos.left, tilePos.top);
           }
@@ -72,6 +72,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final heroData = engine.hetu.invoke('getCurrentCharacter');
     final screenSize = MediaQuery.of(context).size;
 
@@ -117,7 +118,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
                 const BorderRadius.only(bottomRight: Radius.circular(5.0)),
             border: Border.all(
               width: 2,
-              color: Colors.lightBlue.withOpacity(0.5),
+              color: Colors.lightBlue,
             ),
           ),
           padding: const EdgeInsets.all(10.0),
@@ -136,7 +137,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
                 const BorderRadius.only(bottomLeft: Radius.circular(5.0)),
             border: Border.all(
               width: 2,
-              color: Colors.lightBlue.withOpacity(0.5),
+              color: Colors.lightBlue,
             ),
           ),
           child: PopupMenuButton<TopMenuItems>(
@@ -248,7 +249,15 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
                     (isHeroPosition && terrain.locationId != null))
                 ? true
                 : false,
-            onEnterIconTapped: closePopup,
+            onEnterIconTapped: () {
+              if (route != null) {
+                map.moveHeroToTilePositionByRoute(route, enterLocation: true);
+              } else {
+                engine.broadcast(
+                    LocationEvent.entered(locationId: terrain.locationId!));
+              }
+              closePopup();
+            },
             talkIcon: characters != null ? true : false,
             onTalkIconTapped: closePopup,
             restIcon: isHeroPosition,

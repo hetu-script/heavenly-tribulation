@@ -2,7 +2,7 @@ import 'game.ht'
 import 'generator/random_names/random_names.ht' as randomNames
 
 struct Location {
-  final scenes = {}
+  final sites = {}
 
   construct ({
     terrainIndex,

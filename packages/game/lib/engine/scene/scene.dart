@@ -1,32 +1,9 @@
-import 'dart:collection';
-
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 
 import '../engine.dart';
-import '../../event/event.dart';
 import '../../ui/shared/pointer_detector.dart';
 import '../gestures/gesture_mixin.dart';
-
-abstract class SceneEvents {
-  static const started = 'scene_started';
-  static const ended = 'scene_ended';
-}
-
-class SceneEvent extends GameEvent {
-  final String sceneKey;
-
-  const SceneEvent({
-    required String eventName,
-    required this.sceneKey,
-  }) : super(eventName);
-
-  const SceneEvent.started({required String sceneKey})
-      : this(eventName: SceneEvents.started, sceneKey: sceneKey);
-
-  const SceneEvent.ended({required String sceneKey})
-      : this(eventName: SceneEvents.ended, sceneKey: sceneKey);
-}
 
 abstract class Scene extends FlameGame {
   static const overlayUIBuilderMapKey = 'overlayUI';
@@ -103,40 +80,13 @@ abstract class Scene extends FlameGame {
       c.handleMouseMove(details);
     }
   }
-
-  Widget widgetBuilder(BuildContext context) {
-    return PointerDetector(
-      child: GameWidget(
-        game: this,
-      ),
-      onTapDown: onTapDown,
-      onTapUp: onTapUp,
-      onDragStart: onDragStart,
-      onDragUpdate: onDragUpdate,
-      onDragEnd: onDragEnd,
-      onScaleStart: onScaleStart,
-      onScaleUpdate: onScaleUpdate,
-      onScaleEnd: onScaleEnd,
-      onLongPress: onLongPress,
-      onMouseMove: onMouseMove,
-    );
-  }
 }
 
 class SceneController {
   Scene? _currentScene;
   Scene? get currentScene => _currentScene;
 
-  String? get currentSceneName {
-    if (_cachedScenes.isNotEmpty) {
-      return _cachedScenes.keys.last;
-    } else {
-      return null;
-    }
-  }
-
-  final LinkedHashMap<String, Scene> _cachedScenes =
-      LinkedHashMap<String, Scene>();
+  final _cachedScenes = <String, Scene>{};
 
   final _sceneConstructors = <String, Function>{};
 

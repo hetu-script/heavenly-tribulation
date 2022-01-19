@@ -13,6 +13,7 @@ import '../extensions.dart';
 import 'tile.dart';
 import '../engine.dart';
 import '../../event/map_event.dart';
+import '../../event/location_event.dart';
 import 'zone.dart';
 import 'actor.dart';
 import 'cloud.dart';
@@ -73,6 +74,8 @@ class MapComponent extends GameComponent with HandlesGesture {
   List<TileMapRouteNode>? currentRoute;
 
   bool showNations = false;
+
+  String? destinationLocationId;
 
   MapComponent({
     required this.tileShape,
@@ -518,9 +521,13 @@ class MapComponent extends GameComponent with HandlesGesture {
     }
   }
 
-  void moveHeroToTilePositionByRoute(List<int> route) {
-    if (hero!.isMoving) {
-      return;
+  void moveHeroToTilePositionByRoute(List<int> route,
+      {bool enterLocation = false}) {
+    assert(!hero!.isMoving);
+    if (enterLocation) {
+      final dest = index2TilePosition(route.last);
+      final terrain = getTerrain(dest.left, dest.top);
+      destinationLocationId = terrain!.locationId;
     }
     assert(hero!.index == route.first);
     currentRoute = route
@@ -652,6 +659,12 @@ class MapComponent extends GameComponent with HandlesGesture {
         if (currentRoute!.isNotEmpty) {
           final nextTile = currentRoute!.last;
           char.moveTo(nextTile.tilePosition);
+        } else {
+          if (destinationLocationId != null) {
+            engine.broadcast(
+                LocationEvent.entered(locationId: destinationLocationId!));
+            destinationLocationId = null;
+          }
         }
       }
     }

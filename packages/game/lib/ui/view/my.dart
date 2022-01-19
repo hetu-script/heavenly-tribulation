@@ -64,7 +64,7 @@ class _MyViewState extends State<MyView> {
             child: Container(
               decoration: const BoxDecoration(
                 image: DecorationImage(
-                  fit: BoxFit.cover,
+                  fit: BoxFit.fill,
                   image: AssetImage('assets/images/interior/home.jpg'),
                 ),
               ),

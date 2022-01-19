@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flame/flame.dart';
 
+import 'ui/view/location.dart';
 import 'ui/game_app.dart';
 import 'ui/editor/editor.dart';
 
@@ -20,6 +21,7 @@ void main() async {
       )),
       home: GameApp(key: UniqueKey()),
       routes: {
+        'location': (context) => const LocationRoute(),
         'editor': (context) => const GameEditor(),
       },
     ),

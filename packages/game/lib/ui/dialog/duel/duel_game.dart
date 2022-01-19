@@ -105,7 +105,7 @@ class _DuelGameState extends State<DuelGame> {
             // image: const DecorationImage(
             //   image: NetworkImage(
             //       'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
-            //   fit: BoxFit.cover,
+            //   fit: BoxFit.fill,
             // ),
             border: Border.all(
               color: Colors.black38,

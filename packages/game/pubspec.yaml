@@ -51,7 +51,7 @@ flutter:
     - assets/images/maze/
     - assets/images/interior/
     - assets/images/location/
-    - assets/images/location/scene/
+    - assets/images/location/site/
     - assets/images/avatar/male/
     - assets/images/avatar/female/
 

@@ -8,6 +8,7 @@ import '../binding/engine/scene/component/game_map_binding.dart';
 import '../binding/engine/game_binding.dart';
 import 'scene/scene.dart';
 import '../event/event.dart';
+import '../event/scene_event.dart';
 import '../shared/localization.dart';
 import '../shared/color.dart';
 
@@ -67,8 +68,9 @@ class SamsaraEngine with SceneController, EventAggregator {
 
   @override
   Future<Scene> enterScene(String key) async {
+    broadcast(SceneEvent.loading(sceneKey: key));
     final scene = await super.enterScene(key);
-    broadcast(SceneEvent.started(sceneKey: scene.key));
+    broadcast(SceneEvent.started(sceneKey: key));
     return scene;
   }
 

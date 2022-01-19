@@ -516,7 +516,6 @@ fun createWorldMap({
   }
   addCharacter(playerCharacter001)
   setCurrentCharacter('playerCharacter001')
-  print('created hero data!');
 
   return MapComponent.fromJson(game.world.toJson())
 }

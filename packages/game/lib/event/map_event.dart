@@ -10,12 +10,7 @@ abstract class MapEvents {
 }
 
 class MapEvent extends GameEvent {
-  final MapTile? terrain;
-  final TileMapActor? actor;
-
-  const MapEvent.mapLoaded(
-      {required String eventName, this.terrain, this.actor})
-      : super(MapEvents.onMapLoaded);
+  const MapEvent.mapLoaded() : super(MapEvents.onMapLoaded);
 }
 
 class MapInteractionEvent extends GameEvent {

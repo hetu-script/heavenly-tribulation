@@ -1,10 +1,25 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/event/location_event.dart';
 
 import '../shared/empty_placeholder.dart';
 import '../../../engine/engine.dart';
 // import '../colored_widget.dart';
+import '../shared/constants.dart';
+
+class LocationRoute extends StatelessWidget {
+  const LocationRoute({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final locationId = ModalRoute.of(context)!.settings.arguments as String;
+
+    return LocationView(
+      locationId: locationId,
+    );
+  }
+}
 
 class LocationView extends StatefulWidget {
   final String locationId;
@@ -27,7 +42,7 @@ class _LocationViewState extends State<LocationView>
 
   // final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
 
-  List<Widget>? _sceneCards;
+  List<Widget>? _siteCards;
 
   // static const _tabs = <Tab>[
   //   Tab(text: '动态'),
@@ -35,11 +50,11 @@ class _LocationViewState extends State<LocationView>
   // ];
 
   // late TabController _tabController;
-  late String _locationName,
-      // _leadershipName,
-      // _organization,
-      // _organizationName,
-      _locationImagePath;
+  late String _locationName;
+  // _leadershipName,
+  // _organization,
+  // _organizationName,
+  String? _locationImagePath;
 
   Future<void> _updateData() async {
     engine.hetu.invoke('nextTick');
@@ -55,23 +70,22 @@ class _LocationViewState extends State<LocationView>
         final String nameId = data['nameId'];
         _locationName = engine.locale[nameId];
       }
-      _locationImagePath = 'assets/images/${data['image']}';
+      _locationImagePath = data['image'] ?? kAssetMissingImage;
       // _leadershipName = widget.locationData['leadershipName'];
 
-      final Map<String, dynamic>? scenesData = data['scenes'];
+      final sitesData = data['sites'];
 
-      _sceneCards = scenesData?.values.map((value) {
-        final sceneData = value as Map<String, dynamic>;
-        final String id = sceneData['id'];
-        final String type = sceneData['type'];
-        final titleId = sceneData['nameId'];
+      _siteCards = List.castFrom(sitesData?.values.map((siteData) {
+        final String id = siteData['id'];
+        final String type = siteData['type'];
+        final titleId = siteData['nameId'];
         String title;
         if (titleId == null) {
           title = engine.locale[type];
         } else {
           title = engine.locale[titleId];
         }
-        String? image = sceneData['image'];
+        String? image = siteData['image'];
         image ??= _getDefaultImagePath(type);
 
         return SizedBox(
@@ -85,7 +99,7 @@ class _LocationViewState extends State<LocationView>
                 borderRadius: BorderRadius.circular(8.0),
                 image: DecorationImage(
                   image: AssetImage('assets/images/$image'),
-                  fit: BoxFit.cover,
+                  fit: BoxFit.fill,
                 ),
               ),
               child: InkWell(
@@ -110,7 +124,7 @@ class _LocationViewState extends State<LocationView>
             ),
           ),
         );
-      }).toList(growable: false);
+      }).toList(growable: false));
     });
   }
 
@@ -132,11 +146,18 @@ class _LocationViewState extends State<LocationView>
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(200.0),
         child: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              engine
+                  .broadcast(LocationEvent.left(locationId: widget.locationId));
+            },
+          ),
           flexibleSpace: Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(_locationImagePath),
-                fit: BoxFit.cover,
+                image: AssetImage('assets/images/$_locationImagePath'),
+                fit: BoxFit.fill,
               ),
             ),
             child: Align(
@@ -196,11 +217,11 @@ class _LocationViewState extends State<LocationView>
                   alignment: Alignment.topCenter,
                   child: Padding(
                     padding: const EdgeInsets.only(top: 8.0),
-                    child: (_sceneCards != null && _sceneCards!.isNotEmpty)
+                    child: (_siteCards != null && _siteCards!.isNotEmpty)
                         ? Wrap(
                             spacing: 8.0, // gap between adjacent chips
                             runSpacing: 4.0, // gap between lines
-                            children: _sceneCards!)
+                            children: _siteCards!)
                         : EmptyPlaceholder(text: engine.locale['empty']),
                   ),
                 ),
@@ -216,58 +237,58 @@ class _LocationViewState extends State<LocationView>
     String imagePath;
     switch (type) {
       case 'headquarters':
-        imagePath = 'location/scene/basic_headquarters.png';
+        imagePath = 'location/site/headquarters.png';
         break;
       case 'residence':
-        imagePath = 'location/scene/basic_residence.png';
+        imagePath = 'location/site/residence.png';
         break;
       case 'library':
-        imagePath = 'location/scene/basic_library.png';
+        imagePath = 'location/site/library.png';
         break;
       case 'farmland':
-        imagePath = 'location/scene/basic_farmland.png';
+        imagePath = 'location/site/farmland.png';
         break;
       case 'mine':
-        imagePath = 'location/scene/basic_mine.png';
+        imagePath = 'location/site/mine.png';
         break;
       case 'timberland':
-        imagePath = 'location/scene/basic_timberland.png';
+        imagePath = 'location/site/timberland.png';
         break;
       case 'market':
-        imagePath = 'location/scene/basic_market.png';
+        imagePath = 'location/site/market.png';
         break;
       case 'shop':
-        imagePath = 'location/scene/basic_shop.png';
+        imagePath = 'location/site/shop.png';
         break;
       case 'restaurant':
-        imagePath = 'location/scene/basic_restaurant.png';
+        imagePath = 'location/site/restaurant.png';
         break;
       case 'arena':
-        imagePath = 'location/scene/basic_arena.png';
+        imagePath = 'location/site/arena.png';
         break;
       case 'nursery':
-        imagePath = 'location/scene/basic_nursery.png';
+        imagePath = 'location/site/nursery.png';
         break;
       case 'workshop':
-        imagePath = 'location/scene/basic_workshop.png';
+        imagePath = 'location/site/workshop.png';
         break;
       case 'alchemylab':
-        imagePath = 'location/scene/basic_alchemylab.png';
+        imagePath = 'location/site/alchemylab.png';
         break;
       case 'smithshop':
-        imagePath = 'location/scene/basic_smithshop.png';
+        imagePath = 'location/site/smithshop.png';
         break;
       case 'zenyard':
-        imagePath = 'location/scene/basic_zenyard.png';
+        imagePath = 'location/site/zenyard.png';
         break;
       case 'zoo':
-        imagePath = 'location/scene/basic_zoo.png';
+        imagePath = 'location/site/zoo.png';
         break;
       case 'maze':
-        imagePath = 'location/scene/basic_maze.png';
+        imagePath = 'location/site/maze.png';
         break;
       default:
-        imagePath = 'location/scene/asset_missing.png';
+        imagePath = kAssetMissingImage;
     }
     return imagePath;
   }

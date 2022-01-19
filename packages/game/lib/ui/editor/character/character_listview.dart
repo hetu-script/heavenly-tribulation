@@ -63,7 +63,7 @@ class _CharacterListViewState extends State<CharacterListView>
           //     borderRadius: BorderRadius.circular(8.0),
           //     image: DecorationImage(
           //       image: AssetImage('assets/images/$avatar'),
-          //       fit: BoxFit.cover,
+          //       fit: BoxFit.fill,
           //     ),
           //   ),
           //   child:

@@ -17,11 +17,11 @@ class EventHandler {
 abstract class EventAggregator {
   final _eventHandlers = <String, List<EventHandler>>{};
 
-  void registerListener(String name, EventHandler handler) {
-    if (_eventHandlers[name] == null) {
-      _eventHandlers[name] = [];
+  void registerListener(String eventId, EventHandler eventHandler) {
+    if (_eventHandlers[eventId] == null) {
+      _eventHandlers[eventId] = [];
     }
-    _eventHandlers[name]!.add(handler);
+    _eventHandlers[eventId]!.add(eventHandler);
   }
 
   void disposeListenders(Key key) {
