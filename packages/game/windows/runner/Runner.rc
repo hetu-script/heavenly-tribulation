@@ -90,7 +90,7 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "hetu.dev" "\0"
-            VALUE "FileDescription", "A Xianxia genre RPG game mixed with Roguelike/Tycoon elements." "\0"
+            VALUE "FileDescription", "Heavenly Tribulation" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "heavenly_tribulation" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2021 hetu.dev. All rights reserved." "\0"

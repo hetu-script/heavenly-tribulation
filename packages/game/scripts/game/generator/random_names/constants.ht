@@ -67,18 +67,17 @@ final kOrganizationCategory = {
 }
 
 final kLocationCategory = {
-  shore: '滨岸',
-  island: '岛屿',
   mountain: '山野',
   city: '城市',
 }
 
 final kZoneCategory = {
-  void: '虚空',
+  empty: '虚空',
   water: '水域',
   continent: '大洲',
-
+  island: '岛屿',
   lake: '湖泊',
+
   plain: '平原',
   mountain: '山脉',
   forest: '树林',

@@ -47,6 +47,17 @@ enum TileRenderDirection {
   rightBottom,
 }
 
+enum ZoneCategory {
+  empty,
+  water,
+  continent,
+  island,
+  lake,
+  plain,
+  moutain,
+  forest,
+}
+
 class MapTile extends GameComponent with TileInfo {
   static const defaultAnimationStepTime = 0.4;
   static const defaultScale = 2.0;
@@ -66,8 +77,15 @@ class MapTile extends GameComponent with TileInfo {
 
   final int zoneIndex;
   bool get isVoid => baseSprite == null;
-  final bool isWater;
+  final ZoneCategory zoneCategory;
+
+  bool get isWater {
+    return zoneCategory == ZoneCategory.lake ||
+        zoneCategory == ZoneCategory.water;
+  }
+
   final String? locationId;
+  final String? nationId;
 
   MapTile({
     required TileShape shape,
@@ -81,7 +99,8 @@ class MapTile extends GameComponent with TileInfo {
     required double gridHeight,
     required bool isVisible,
     required this.zoneIndex,
-    this.isWater = false,
+    required this.nationId,
+    this.zoneCategory = ZoneCategory.continent,
     this.locationId,
     this.baseSprite,
     this.baseAnimation,

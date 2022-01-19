@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'package:hetu_script/hetu_script.dart';
 import 'package:hetu_script_flutter/hetu_script_flutter.dart';
 
@@ -7,6 +9,7 @@ import '../binding/engine/game_binding.dart';
 import 'scene/scene.dart';
 import '../event/event.dart';
 import '../shared/localization.dart';
+import '../shared/color.dart';
 
 final SamsaraEngine engine = SamsaraEngine._();
 
@@ -15,9 +18,17 @@ class SamsaraEngine with SceneController, EventAggregator {
 
   final locale = GameLocalization();
 
-  void updateLanguagesData(Map<String, dynamic> data) {
+  void updateLocales(Map<String, dynamic> data) {
     locale.data.clear();
     locale.data.addAll(data);
+  }
+
+  Map<String, Color> nationColors = {};
+
+  void updateNationColors(Map data) {
+    nationColors.clear();
+    nationColors.addAll(
+        data.map((key, value) => MapEntry(key, HexColor.fromHex(value))));
   }
 
   late final Hetu hetu;

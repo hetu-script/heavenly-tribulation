@@ -4,25 +4,67 @@ import 'generator/random_names/random_names.ht' as randomNames
 const _kNation = '国'
 
 struct Nation {
-  final tileIndexes = Set()
-
   construct ({
     name,
+    capitalId,
   }) {
     this.index = game.nations.length
     if (name) {
       this.name = name + _kNation
-      
     } else {
       final names = randomNames.getNation(1)
       this.name = names.first.name
     }
     this.id = 'nation_${this.index}_${this.name}'
+    this.color = Math.randomColorHex()
+    
+    this.capitalId = capitalId
+    
+    // 本国统治的区块
+    this.territoryIndexes = Set()
+    // 国界线相邻的外国区块
+    this.borderIndexes = Set()
+    // 本国统治的据点
+    this.locationIds = Set()
 
     game.nations[this.id] = this
   }
 }
 
-fun getOrganizationById(id: str) {
-  return game.organizations[id]
+fun getNationById(id: str) {
+  return game.nations[id]
+}
+
+fun removeTerrainFromNation(nationId, terrain) {
+  final nation = game.nations[terrain.nationId]
+  nation.territoryIndexes.remove(terrain.index)
+  nation.borderIndexes.add(terrain.index)
+  if (terrain.locationId) {
+    final location = game.locations[terrain.locationId]
+    location.nationId = null
+    nation.locationIds.remove(location.id)
+  }
+}
+
+fun addTerrain2Nation(nationId, terrain) {
+  assert(game.nations.owns(nationId))
+  if (terrain.nationId != null) {
+    removeTerrainFromNation(terrain.nationId, terrain)
+  }
+  final nation = game.nations[nationId]
+  // print('nation: ${nation.id} expanded to ${terrain.left},${terrain.top}')
+  nation.borderIndexes.remove(terrain.index)
+  nation.territoryIndexes.add(terrain.index)
+  terrain.nationId = nation.id
+  if (terrain.locationId) {
+    final location = game.locations[terrain.locationId]
+    location.nationId = nation.id
+    nation.locationIds.add(location.id)
+  }
+  final neighbors = getMapTileNeighbors(terrain.left, terrain.top)
+  for (final neighbor in neighbors) {
+    if (neighbor.nationId != nation.id) {
+      nation.borderIndexes.add(neighbor.index)
+    }
+  }
 }

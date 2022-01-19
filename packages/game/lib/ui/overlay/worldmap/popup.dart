@@ -15,6 +15,7 @@ class WorldMapPopup extends StatelessWidget {
   final bool enterIcon;
   final bool talkIcon;
   final bool restIcon;
+  final String title;
 
   final void Function()? onMoveToIconTapped;
   final void Function()? onCheckIconTapped;
@@ -37,6 +38,7 @@ class WorldMapPopup extends StatelessWidget {
     this.onTalkIconTapped,
     this.restIcon = false,
     this.onRestIconTapped,
+    this.title = '',
   }) : super(key: key);
 
   @override
@@ -55,29 +57,35 @@ class WorldMapPopup extends StatelessWidget {
           width: width,
           height: height,
           child: Stack(
+            alignment: Alignment.center,
             children: <Widget>[
-              Positioned.fill(
+              Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  border: Border.all(
+                    color: Colors.blue,
+                    width: 2,
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 3,
+                      blurRadius: 6,
+                      offset: const Offset(0, 2), // changes position of shadow
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.all(20),
                 child: Align(
                   alignment: Alignment.center,
-                  child: Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      border: Border.all(
-                        color: Colors.blue,
-                        width: 2,
-                      ),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 3,
-                          blurRadius: 6,
-                          offset:
-                              const Offset(0, 2), // changes position of shadow
-                        ),
-                      ],
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
                     ),
                   ),
                 ),

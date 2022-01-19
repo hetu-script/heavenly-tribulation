@@ -1,5 +1,6 @@
 external class SamsaraEngine {
-  fun updateLanguagesData(data)
+  fun updateLocales(data: Map)
+  fun updateNationColors(data: Map)
 }
 
 var buildContext
@@ -17,14 +18,15 @@ final game = {
     zh: {},
     en: {}
   },
+  dialogs: {},
+  mods: {},
+  entities: {},
+  
   nations: {},
   characters: {},
   locations: {},
   organizations: {},
-  dialogs: {},
   mazes: {},
-  mods: {},
-  entities: {},
 }
 
 fun onGameEvent(id: str, [arg]) {

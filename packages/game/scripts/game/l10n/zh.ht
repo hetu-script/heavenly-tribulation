@@ -10,11 +10,16 @@ final zh = {
   'empty': '空无一物',
   'loading': '载入中...',
 
+  // 大地图弹出菜单
   'moveTo': '移动',
   'check': '探查',
   'enter': '进入',
   'talk': '谈话',
   'rest': '打坐',
+  
+  // 大地图右上角菜单
+  'showNations': '显示国家',
+  'exitGame': '退出游戏',
 
   'character': '人物',
   'location': '据点',

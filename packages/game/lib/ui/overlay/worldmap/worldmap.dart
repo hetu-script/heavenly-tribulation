@@ -12,6 +12,9 @@ import '../../../../event/map_event.dart';
 import 'popup.dart';
 import 'location_brief.dart';
 
+// This is the type used by the popup menu below.
+enum TopMenuItems { showNations, exit }
+
 class WorldMapOverlay extends StatefulWidget {
   final WorldMapScene scene;
 
@@ -72,6 +75,16 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
     final heroData = engine.hetu.invoke('getCurrentCharacter');
     final screenSize = MediaQuery.of(context).size;
 
+    final heroInfoRow = <Widget>[];
+    if (heroData != null) {
+      heroInfoRow.add(
+        Avatar(
+          avatarAssetKey: 'assets/images/${heroData['avatar']}',
+          size: 100,
+        ),
+      );
+    }
+
     final screenWidgets = <Widget>[
       SizedBox(
         height: screenSize.height,
@@ -96,26 +109,22 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
         left: 0,
         top: 0,
         child: Container(
-            height: 120,
-            width: 180,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius:
-                  const BorderRadius.only(bottomRight: Radius.circular(5.0)),
-              border: Border.all(
-                width: 2,
-                color: Colors.lightBlue.withOpacity(0.5),
-              ),
+          height: 120,
+          width: 180,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius:
+                const BorderRadius.only(bottomRight: Radius.circular(5.0)),
+            border: Border.all(
+              width: 2,
+              color: Colors.lightBlue.withOpacity(0.5),
             ),
-            padding: const EdgeInsets.all(10.0),
-            child: Row(
-              children: <Widget>[
-                Avatar(
-                  avatarAssetKey: 'assets/images/${heroData['avatar']}',
-                  size: 100,
-                ),
-              ],
-            )),
+          ),
+          padding: const EdgeInsets.all(10.0),
+          child: Row(
+            children: heroInfoRow,
+          ),
+        ),
       ),
       Positioned(
         right: 0,
@@ -130,11 +139,37 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
               color: Colors.lightBlue.withOpacity(0.5),
             ),
           ),
-          child: IconButton(
-            onPressed: () {
-              engine.leaveScene('WorldMap');
-            },
+          child: PopupMenuButton<TopMenuItems>(
+            offset: const Offset(0, 45),
             icon: const Icon(Icons.menu_open),
+            onSelected: (TopMenuItems item) {
+              if (item == TopMenuItems.showNations) {
+                map.showNations = !map.showNations;
+              }
+            },
+            itemBuilder: (BuildContext context) =>
+                <PopupMenuEntry<TopMenuItems>>[
+              CheckedPopupMenuItem<TopMenuItems>(
+                value: TopMenuItems.showNations,
+                checked: map.showNations,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(engine.locale['showNations']),
+                ),
+              ),
+              const PopupMenuDivider(),
+              PopupMenuItem<TopMenuItems>(
+                padding: const EdgeInsets.only(right: 34),
+                value: TopMenuItems.exit,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(engine.locale['exitGame']),
+                ),
+                onTap: () {
+                  engine.leaveScene('WorldMap');
+                },
+              ),
+            ],
           ),
         ),
       ),
@@ -174,6 +209,25 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
           });
         }
 
+        final stringBuffer = StringBuffer();
+
+        final zoneData = engine.hetu
+            .invoke('getZoneByIndex', positionalArgs: [terrain.zoneIndex]);
+        stringBuffer
+            .writeln('${zoneData['name']}(${terrain.left}, ${terrain.top})');
+
+        if (terrain.nationId != null) {
+          final nationData = engine.hetu
+              .invoke('getNationById', positionalArgs: [terrain.nationId]);
+          stringBuffer.writeln('${nationData['name']}');
+        }
+
+        if (terrain.locationId != null) {
+          final locationData = engine.hetu
+              .invoke('getLocationById', positionalArgs: [terrain.locationId]);
+          stringBuffer.writeln('${locationData['name']}');
+        }
+
         screenWidgets.add(
           WorldMapPopup(
             left: menuPosition!.x - WorldMapPopup.defaultSize / 2,
@@ -199,6 +253,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay> {
             onTalkIconTapped: closePopup,
             restIcon: isHeroPosition,
             onRestIconTapped: closePopup,
+            title: stringBuffer.toString(),
           ),
         );
       }

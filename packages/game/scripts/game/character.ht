@@ -2,6 +2,11 @@ import 'common.ht'
 import 'game.ht'
 import 'generator/random_names/random_names.ht' as randomNames
 
+// number of the male avatar images
+const kMaleAvatarCount = 37
+ // number of the female avatar images
+const kFemaleAvatarCount = 75
+
 struct Character {
   construct ({name, isFemale}) {
     this.index = game.characters.length
@@ -9,6 +14,13 @@ struct Character {
       this.isFemale = isFemale
     } else {
       this.isFemale = Math.randomInt(2) == 0
+    }
+    if (isFemale) {
+      final index = Math.randomInt(kFemaleAvatarCount)
+      this.avatar = 'avatar/male/${index}.jpg';
+    } else {
+      final index = Math.randomInt(kMaleAvatarCount)
+      this.avatar = 'avatar/male/${index}.jpg';
     }
     if (name) {
       this.name = name
@@ -30,11 +42,12 @@ fun setCurrentCharacter(id: str) {
   if (game.debug) {
     print('河图: 设置当前玩家人物为 [${id}] ...')
   }
-  game.characters.current = game.characters[id];
+  assert(game.characters.owns(id))
+  game.heroId = id;
 }
 
 fun getCurrentCharacter() {
-  return game.characters.current;
+  return game.characters[game.heroId]
 }
 
 fun addCharacter(char) {

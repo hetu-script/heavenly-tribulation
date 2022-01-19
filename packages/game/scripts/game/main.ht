@@ -25,72 +25,11 @@ fun init({lang = 'zh', gameEngine: SamsaraEngine}) {
 
   setCurrentLanguage(lang)
   addLocalizations(predefinedLocalizations)
-  engine.updateLanguagesData(game.languages.current.toJson())
+  engine.updateLocales(game.languages.current.toJson())
 
-  addCharacters(predefinedCharacters)
-  final playerCharacter001 = {
-    id: 'playerCharacter001',
-    name: '玲', // 用户创建的人物，名字是固定的而不是来自语言包
-    avatar: 'avatar/female/29.jpg',
+  // addCharacters(predefinedCharacters)
 
-    // 组织
-
-    // 效忠
-    allegiance: {
-      id: 'xuanqingzi',
-      loyalty: 100,
-    },
-    
-    fame: 0,
-    infamy: 0,
-    looks: 75,
-
-    currentLife: 100, // 生命
-    life: 100,
-    currentSpirit: 100, // 精血
-    spirit: 100,
-    currentsStamina: 100, // 元气
-    stamina: 100,
-
-    strength: 65, // 力量
-    dexterity: 78, // 灵巧
-    perception: 46, // 感知
-    intelligence: 89, // 悟性
-    memory: 66, // 记忆
-
-    // 境界
-    spiritRank: 0,
-    // 五行灵根
-    spiritRoots: {
-      water: 10,
-      wood: 5,
-      earth: 5,
-      metal: 5,
-      fire: 5,
-    },
-    
-    currentLocation: 'baiheguan',
-    currentScene: null,
-
-    talisman: [
-      {
-        index: 1,
-        name: 'talisman.tier0.steelSword',
-        attack: 25,
-        speed: 15,
-
-        skill: {
-          name: 'talisman.steelSword.skill',
-          attack: 100,
-          speed: 25,
-        }
-      },
-    ],
-  }
-  addCharacter(playerCharacter001);
-  setCurrentCharacter('playerCharacter001')
-
-  addDialogs(predefinedDialogs) // must be after added characters
+  // addDialogs(predefinedDialogs) // must be after added characters
   
   if (game.debug) {
     print('河图: 初始化函数执行完毕 ...')

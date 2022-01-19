@@ -5,9 +5,12 @@ struct Location {
   final scenes = {}
 
   construct ({
+    terrainIndex,
     category,
     name,
   }) {
+    assert(terrainIndex != null)
+    this.terrainIndex = terrainIndex
     this.index = game.locations.length
     if (name) {
       this.name = name

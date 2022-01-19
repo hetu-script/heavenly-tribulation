@@ -40,18 +40,18 @@ fun init {
   addModInfo(meta)
 
   addLocalizations(localizations)
-  engine.updateLanguagesData(game.languages.current.toJson())
+  engine.updateLocales(game.languages.current.toJson())
 
   // addCharacters(characters)
 
-  addDialogs(dialogs) // must be after added characters
+  // addDialogs(dialogs) // must be after added characters
 
-  addLocations(locations)
-  setCurrentLocation('baiheguan')
+  // addLocations(locations)
+  // setCurrentLocation('baiheguan')
 
   // addOrganizations(organizations)
 
-  addMazes(mazes)
+  // addMazes(mazes)
 
   load()
 

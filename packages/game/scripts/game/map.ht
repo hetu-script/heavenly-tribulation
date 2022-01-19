@@ -65,20 +65,24 @@ fun handleMazeTileInteraction(x: int, y: int) {
 }
 
 // 从 hexagonal 坐标得到索引
-fun tilePos2Index(left, top, width) {
-  return left - 1 + (top - 1) * width
+fun tilePos2Index(left, top) {
+  return left - 1 + (top - 1) * game.world.width
 }
 
 // 从索引得到 hexagonal 坐标
-fun index2TilePos(index: int, width: int) {
-  final left = index % width + 1
-  final top = index ~/ width + 1
+fun index2TilePos(index: int) {
+  final left = index % game.world.width + 1
+  final top = index ~/ game.world.width + 1
   return Tile(left, top)
 }
 
 // 坐标是否在地图范围内
-fun isPositionWithinMap(left, top, width, height) {
-  return (left > 0 && top > 0 && left <= width && top <= height)
+fun isPositionWithinMap(left, top) {
+  return (left > 0 && top > 0 && left <= game.world.width && top <= game.world.height)
+}
+
+fun getWorld() {
+  return game.world
 }
 
 fun getTerrain(left, top) {
@@ -93,13 +97,12 @@ fun getZoneByIndex(index: int) {
 // 如果 [restricted2Zone] 为 true，则只会返回和起点所在 tile 具有相同 zoneIndex 的格子
 // 如果指定了方向
 // 必须 apply 或者 bind 到某个 world data 对象上才可以使用
-fun getMapTileNeighbors(left: int, top: int, {restricted2Zone, data}) {
-  data ??= game.world
-  assert(isPositionWithinMap(left, top, data.width, data.height))
-  final origin = data.terrains[tilePos2Index(left, top, data.width)]
+fun getMapTileNeighbors(left: int, top: int, {restricted2Zone}) {
+  assert(isPositionWithinMap(left, top, game.world.width, game.world.height))
+  final origin = game.world.terrains[tilePos2Index(left, top, game.world.width)]
   final neighbors = []
 
-  fun add2neighbors(tile) {
+  fun add2Neighbors(tile) {
     if (!restricted2Zone || tile.zoneIndex == restricted2Zone ||
       (tile.isHarbor && tile.harborOfZoneIndex == origin.zoneIndex) || 
       (origin.isHarbor && origin.harborOfZoneIndex == tile.zoneIndex)) {
@@ -110,82 +113,81 @@ fun getMapTileNeighbors(left: int, top: int, {restricted2Zone, data}) {
   // 奇数列
   if (left % 2 != 0) {
     // 上面
-    if (isPositionWithinMap(left, top - 1, data.width, data.height)) {
-      final tile = data.terrains[tilePos2Index(left, top - 1, data.width)]
-      add2neighbors(tile)
+    if (isPositionWithinMap(left, top - 1, game.world.width, game.world.height)) {
+      final tile = game.world.terrains[tilePos2Index(left, top - 1, game.world.width)]
+      add2Neighbors(tile)
     }
     // 下面
-    if (isPositionWithinMap(left, top + 1, data.width, data.height)) {
-      final tile = data.terrains[tilePos2Index(left, top + 1, data.width)]
-      add2neighbors(tile)
+    if (isPositionWithinMap(left, top + 1, game.world.width, game.world.height)) {
+      final tile = game.world.terrains[tilePos2Index(left, top + 1, game.world.width)]
+      add2Neighbors(tile)
     }
     // 左上
-    if (isPositionWithinMap(left - 1, top - 1, data.width, data.height)) {
-      final tile = data.terrains[tilePos2Index(left - 1, top - 1, data.width)]
-      add2neighbors(tile)
+    if (isPositionWithinMap(left - 1, top - 1, game.world.width, game.world.height)) {
+      final tile = game.world.terrains[tilePos2Index(left - 1, top - 1, game.world.width)]
+      add2Neighbors(tile)
     }
     // 左下
-    if (isPositionWithinMap(left - 1, top, data.width, data.height)) {
-      final tile = data.terrains[tilePos2Index(left - 1, top, data.width)]
-      add2neighbors(tile)
+    if (isPositionWithinMap(left - 1, top, game.world.width, game.world.height)) {
+      final tile = game.world.terrains[tilePos2Index(left - 1, top, game.world.width)]
+      add2Neighbors(tile)
     }
     // 右上
-    if (isPositionWithinMap(left + 1, top - 1, data.width, data.height)) {
-      final tile = data.terrains[tilePos2Index(left + 1, top - 1, data.width)]
-      add2neighbors(tile)
+    if (isPositionWithinMap(left + 1, top - 1, game.world.width, game.world.height)) {
+      final tile = game.world.terrains[tilePos2Index(left + 1, top - 1, game.world.width)]
+      add2Neighbors(tile)
     }
     // 右下
-    if (isPositionWithinMap(left + 1, top, data.width, data.height)) {
-      final tile = data.terrains[tilePos2Index(left + 1, top, data.width)]
-      add2neighbors(tile)
+    if (isPositionWithinMap(left + 1, top, game.world.width, game.world.height)) {
+      final tile = game.world.terrains[tilePos2Index(left + 1, top, game.world.width)]
+      add2Neighbors(tile)
     }
   }
   // 欧数列
   else {
     // 上面
-    if (isPositionWithinMap(left, top - 1, data.width, data.height)) {
-      final tile = data.terrains[tilePos2Index(left, top - 1, data.width)]
-      add2neighbors(tile)
+    if (isPositionWithinMap(left, top - 1, game.world.width, game.world.height)) {
+      final tile = game.world.terrains[tilePos2Index(left, top - 1, game.world.width)]
+      add2Neighbors(tile)
     }
     // 下面
-    if (isPositionWithinMap(left, top + 1, data.width, data.height)) {
-      final tile = data.terrains[tilePos2Index(left, top + 1, data.width)]
-      add2neighbors(tile)
+    if (isPositionWithinMap(left, top + 1, game.world.width, game.world.height)) {
+      final tile = game.world.terrains[tilePos2Index(left, top + 1, game.world.width)]
+      add2Neighbors(tile)
     }
     // 左上
-    if (isPositionWithinMap(left - 1, top, data.width, data.height)) {
-      final tile = data.terrains[tilePos2Index(left - 1, top, data.width)]
-      add2neighbors(tile)
+    if (isPositionWithinMap(left - 1, top, game.world.width, game.world.height)) {
+      final tile = game.world.terrains[tilePos2Index(left - 1, top, game.world.width)]
+      add2Neighbors(tile)
     }
     // 左下
-    if (isPositionWithinMap(left - 1, top + 1, data.width, data.height)) {
-      final tile = data.terrains[tilePos2Index(left - 1, top + 1, data.width)]
-      add2neighbors(tile)
+    if (isPositionWithinMap(left - 1, top + 1, game.world.width, game.world.height)) {
+      final tile = game.world.terrains[tilePos2Index(left - 1, top + 1, game.world.width)]
+      add2Neighbors(tile)
     }
     // 右上
-    if (isPositionWithinMap(left + 1, top, data.width, data.height)) {
-      final tile = data.terrains[tilePos2Index(left + 1, top, data.width)]
-      add2neighbors(tile)
+    if (isPositionWithinMap(left + 1, top, game.world.width, game.world.height)) {
+      final tile = game.world.terrains[tilePos2Index(left + 1, top, game.world.width)]
+      add2Neighbors(tile)
     }
     // 右下
-    if (isPositionWithinMap(left + 1, top + 1, data.width, data.height)) {
-      final tile = data.terrains[tilePos2Index(left + 1, top + 1, data.width)]
-      add2neighbors(tile)
+    if (isPositionWithinMap(left + 1, top + 1, game.world.width, game.world.height)) {
+      final tile = game.world.terrains[tilePos2Index(left + 1, top + 1, game.world.width)]
+      add2Neighbors(tile)
     }
   }
   return neighbors
 }
 
 // hScore(n) 是曼哈顿距离时的 A* 算法
-fun calculateRoute(start, end, { data, zoneIndex }) {
-  data ??= game.world
+fun calculateRoute(start, end, { zoneIndex }) {
   // print('calculating route: ${start.left},${start.top} to ${end.left},${end.top}')
 
   assert(start.zoneIndex > 0)
   assert(end.zoneIndex > 0)
   assert(start.index != end.index)
-  final zone1 = data.zones[start.zoneIndex]
-  final zone2 = data.zones[end.zoneIndex]
+  final zone1 = game.world.zones[start.zoneIndex]
+  final zone2 = game.world.zones[end.zoneIndex]
 
   // g(n): 原点到该点的距离
   final gScore = {}
@@ -218,7 +220,7 @@ fun calculateRoute(start, end, { data, zoneIndex }) {
   // if (start.zoneIndex == end.zoneIndex) {
   //   // 两个据点在相同地域
   //   // print('same zone: ${start.zoneIndex}')
-    restricted2Zone = start.zoneIndex
+    // restricted2Zone = start.zoneIndex
   // } else if (start.isHarbor && start.harborOfZoneIndex == end.zoneIndex) {
   //   // 起点是港口
   //   // print('start is harbor of zone: ${end.zoneIndex}')
@@ -240,7 +242,7 @@ fun calculateRoute(start, end, { data, zoneIndex }) {
     // 找到 f(x) 最小的节点
     open.sort((t1, t2) => fScore[t1].compareTo(fScore[t2]))
     final nextIndex = open.first
-    final next = index2TilePos(nextIndex, data.width)
+    final next = index2TilePos(nextIndex, game.world.width)
     if (nextIndex == end.index) {
       // route.path = reconstructPath(cameFrom, end.index)
       final route = reconstructPath(cameFrom, end.index)
@@ -249,7 +251,7 @@ fun calculateRoute(start, end, { data, zoneIndex }) {
     }
     open.remove(nextIndex)
     closed.add(nextIndex)
-    final neighbors = getMapTileNeighbors(next.left, next.top, restricted2Zone: restricted2Zone, data: data)
+    final neighbors = getMapTileNeighbors(next.left, next.top, restricted2Zone: restricted2Zone)
     for (final neighbor in neighbors) {
       if (closed.contains(neighbor.index)) continue
       final tentetiveGScore = gScore[nextIndex] + 1

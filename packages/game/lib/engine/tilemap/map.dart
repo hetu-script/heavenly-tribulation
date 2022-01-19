@@ -72,6 +72,8 @@ class MapComponent extends GameComponent with HandlesGesture {
   final TileMapActor? hero;
   List<TileMapRouteNode>? currentRoute;
 
+  bool showNations = false;
+
   MapComponent({
     required this.tileShape,
     this.tapSelect = false,
@@ -152,48 +154,75 @@ class MapComponent extends GameComponent with HandlesGesture {
       for (var i = 0; i < tileMapWidth; ++i) {
         final index = tilePosition2Index(i + 1, j + 1, tileMapWidth);
         final terrainData = terrainsData[index];
-        final isWater = terrainData['isWater'] ?? false;
-        final zoneIndex = terrainData['zoneIndex'];
+        final int zoneIndex = terrainData['zoneIndex'];
+        final String zoneCategoryString = terrainData['zoneCategory'];
+        ZoneCategory zoneCategory;
+        switch (zoneCategoryString) {
+          case 'empty':
+            zoneCategory = ZoneCategory.empty;
+            break;
+          case 'water':
+            zoneCategory = ZoneCategory.water;
+            break;
+          case 'continent':
+            zoneCategory = ZoneCategory.continent;
+            break;
+          case 'island':
+            zoneCategory = ZoneCategory.island;
+            break;
+          case 'lake':
+            zoneCategory = ZoneCategory.lake;
+            break;
+          case 'plain':
+            zoneCategory = ZoneCategory.plain;
+            break;
+          case 'moutain':
+            zoneCategory = ZoneCategory.moutain;
+            break;
+          case 'forest':
+            zoneCategory = ZoneCategory.forest;
+            break;
+          default:
+            zoneCategory = ZoneCategory.continent;
+        }
         final String? locationId = terrainData['locationId'];
+        final String? nationId = terrainData['nationId'];
         Sprite? baseSprite;
         SpriteAnimation? baseAnimation;
-        final baseSpriteData = terrainData['baseSprite'];
-        if (baseSpriteData != null) {
-          final baseSpritePath = baseSpriteData['path'];
-          final baseSpriteIndex = baseSpriteData['index'];
-          final baseAnimationPath = baseSpriteData['animation'];
-          int baseAnimationFrameCount =
-              baseSpriteData['animationFrameCount'] ?? 1;
-          if (baseSpritePath != null) {
-            baseSprite = await Sprite.load(
-              baseSpritePath,
-              srcSize: Vector2(tileSpriteSrcWidth, tileSpriteSrcHeight),
-            );
-          } else if (baseSpriteIndex != null) {
-            baseSprite = terrainSpriteSheet.getSpriteById(baseSpriteIndex - 1);
-          }
-          if (baseAnimationPath != null) {
-            final sheet = SpriteSheet(
-                image: await Flame.images.load(baseAnimationPath),
-                srcSize: Vector2(
-                  tileSpriteSrcWidth,
-                  tileSpriteSrcHeight,
-                ));
-            baseAnimation = sheet.createAnimation(
-                row: 0,
-                stepTime: MapTile.defaultAnimationStepTime,
-                from: 0,
-                to: baseAnimationFrameCount);
-          }
+        final String? baseSpritePath = terrainData['sprite'];
+        final int? baseSpriteIndex = terrainData['spriteIndex'];
+        final String? baseAnimationPath = terrainData['animation'];
+        final int baseAnimationFrameCount =
+            terrainData['animationFrameCount'] ?? 1;
+        if (baseSpritePath != null) {
+          baseSprite = await Sprite.load(
+            baseSpritePath,
+            srcSize: Vector2(tileSpriteSrcWidth, tileSpriteSrcHeight),
+          );
+        } else if (baseSpriteIndex != null) {
+          baseSprite = terrainSpriteSheet.getSpriteById(baseSpriteIndex - 1);
+        }
+        if (baseAnimationPath != null) {
+          final sheet = SpriteSheet(
+              image: await Flame.images.load(baseAnimationPath),
+              srcSize: Vector2(
+                tileSpriteSrcWidth,
+                tileSpriteSrcHeight,
+              ));
+          baseAnimation = sheet.createAnimation(
+              row: 0,
+              stepTime: MapTile.defaultAnimationStepTime,
+              from: 0,
+              to: baseAnimationFrameCount);
         }
         Sprite? overlaySprite;
         SpriteAnimation? overlayAnimation;
         final overlaySpriteData = terrainData['overlaySprite'];
         if (overlaySpriteData != null) {
-          final overlaySpritePath = overlaySpriteData['path'];
-          final overlaySpriteIndex = overlaySpriteData['index'];
-          final overlayAnimationPath = overlaySpriteData['animation'];
-          int overlayAnimationFrameCount =
+          final String? overlaySpritePath = overlaySpriteData['path'];
+          final int? overlaySpriteIndex = overlaySpriteData['index'];
+          final String? overlayAnimationPath = overlaySpriteData['animation'];
+          final int overlayAnimationFrameCount =
               overlaySpriteData['animationFrameCount'] ?? 1;
           if (overlaySpritePath != null) {
             overlaySprite = await Sprite.load(
@@ -229,8 +258,9 @@ class MapComponent extends GameComponent with HandlesGesture {
           gridHeight: gridHeight,
           isVisible: true,
           zoneIndex: zoneIndex,
-          isWater: isWater,
+          zoneCategory: zoneCategory,
           locationId: locationId,
+          nationId: nationId,
           baseSprite: baseSprite,
           baseAnimation: baseAnimation,
           overlaySprite: overlaySprite,
@@ -567,9 +597,9 @@ class MapComponent extends GameComponent with HandlesGesture {
         }
       }
     }
-    if (hero != null) {
-      add(hero!);
-    }
+    // if (hero != null) {
+    //   add(hero!);
+    // }
     for (final actor in actors) {
       add(actor);
     }
@@ -625,6 +655,8 @@ class MapComponent extends GameComponent with HandlesGesture {
         }
       }
     }
+
+    hero!.update(dt);
   }
 
   @override
@@ -632,9 +664,22 @@ class MapComponent extends GameComponent with HandlesGesture {
     super.renderTree(canvas);
     canvas.save();
     canvas.transform(transformMatrix.storage);
+    if (showNations) {
+      for (final tile in terrains) {
+        if (tile.nationId != null) {
+          final color = engine.nationColors[tile.nationId]!;
+          final paint = Paint()
+            ..strokeWidth = 1
+            ..style = PaintingStyle.fill
+            ..color = color.withOpacity(0.6);
+          canvas.drawPath(tile.path, paint);
+        }
+      }
+    }
     if (selectedTerrain != null) {
       canvas.drawPath(selectedTerrain!.path, selectedPaint);
     }
+    hero!.render(canvas);
     canvas.restore();
   }
 
