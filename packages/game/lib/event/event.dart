@@ -31,9 +31,11 @@ abstract class EventAggregator {
   }
 
   void broadcast(GameEvent event) {
-    final listeners = _eventHandlers[event.name]!;
-    for (final listener in listeners) {
-      listener.handle(event);
+    final listeners = _eventHandlers[event.name];
+    if (listeners != null) {
+      for (final listener in listeners) {
+        listener.handle(event);
+      }
     }
   }
 }

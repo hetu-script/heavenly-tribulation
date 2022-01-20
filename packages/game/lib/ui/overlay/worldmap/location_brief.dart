@@ -6,7 +6,7 @@ import '../../../engine/tilemap/tile.dart';
 class LocationBrief extends StatelessWidget {
   static Future<void> show(
     BuildContext context, {
-    MapTile? terrain,
+    TileMapTerrain? terrain,
     bool isHeroPosition = false,
   }) {
     return showDialog<void>(
@@ -29,7 +29,7 @@ class LocationBrief extends StatelessWidget {
     );
   }
 
-  final MapTile? terrain;
+  final TileMapTerrain? terrain;
   final bool isHeroPosition;
 
   const LocationBrief({

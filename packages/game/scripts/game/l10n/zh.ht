@@ -9,6 +9,8 @@ final zh = {
   'no': '不要',
   'empty': '空无一物',
   'loading': '载入中...',
+  'menu': '菜单',
+  'none': '无',
 
   // 大地图弹出菜单
   'moveTo': '移动',
@@ -18,17 +20,25 @@ final zh = {
   'rest': '打坐',
   
   // 大地图右上角菜单
-  'showNations': '显示国家',
+  'info': '情报',
+  'view': '视图',
   'exitGame': '退出游戏',
 
+  'zones': '地域',
+  'nations': '国家',
   'character': '人物',
   'location': '据点',
   'organization': '组织',
   'maze': '迷宫',
   'dialog': '对话',
 
+  'name': '名字',
   'male': '男',
   'female': '女',
+
+  'capital': '首都',
+  'gridSize': '地块大小',
+  'cityNumber': '据点数量',
 
   'ageYear': '岁',
   'ageMonth': '个月',

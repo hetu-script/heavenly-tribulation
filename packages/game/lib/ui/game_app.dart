@@ -9,7 +9,6 @@ import 'shared/loading_screen.dart';
 import '../engine/scene/worldmap.dart';
 import '../event/event.dart';
 import '../event/location_event.dart';
-import 'overlay/worldmap/worldmap.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({required Key key}) : super(key: key);
@@ -24,7 +23,7 @@ class _GameAppState extends State<GameApp> with AutomaticKeepAliveClientMixin {
 
   GameLocalization get locale => engine.locale;
 
-  bool isLoading = true;
+  bool _isLoading = true;
 
   String? currentLocationId;
 
@@ -41,19 +40,10 @@ class _GameAppState extends State<GameApp> with AutomaticKeepAliveClientMixin {
     });
 
     engine.registerListener(
-      SceneEvents.loading,
-      EventHandler(widget.key!, (event) {
-        setState(() {
-          isLoading = true;
-        });
-      }),
-    );
-
-    engine.registerListener(
       SceneEvents.started,
       EventHandler(widget.key!, (event) {
         setState(() {
-          isLoading = false;
+          _isLoading = false;
         });
       }),
     );
@@ -68,8 +58,7 @@ class _GameAppState extends State<GameApp> with AutomaticKeepAliveClientMixin {
     engine.registerListener(
       LocationEvents.entered,
       EventHandler(widget.key!, (event) {
-        Navigator.pushNamed(
-          context,
+        Navigator.of(context).pushNamed(
           'location',
           arguments: (event as LocationEvent).locationId,
         );
@@ -82,7 +71,6 @@ class _GameAppState extends State<GameApp> with AutomaticKeepAliveClientMixin {
     engine.registerListener(
       LocationEvents.left,
       EventHandler(widget.key!, (event) {
-        Navigator.pop(context);
         // setState(() {
         //   // currentLocationId = null;
         // });
@@ -98,7 +86,7 @@ class _GameAppState extends State<GameApp> with AutomaticKeepAliveClientMixin {
       engine.hetu.invoke('build', positionalArgs: [context]);
 
       setState(() {
-        isLoading = false;
+        _isLoading = false;
       });
     }();
   }
@@ -106,16 +94,14 @@ class _GameAppState extends State<GameApp> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    if (isLoading) {
+    if (_isLoading) {
       return const LoadingScreen(text: 'Loading...');
     }
     // else if (currentLocationId != null) {
     //   return LocationView(locationId: currentLocationId!);
     // }
-    else if (engine.currentScene is WorldMapScene) {
-      final worldMap = engine.currentScene as WorldMapScene;
-      worldMap.reload();
-      return WorldMapOverlay(key: UniqueKey(), scene: worldMap);
+    else if (engine.currentScene != null) {
+      return engine.currentScene!.widget;
     } else {
       return Scaffold(
         body: Center(
@@ -126,7 +112,10 @@ class _GameAppState extends State<GameApp> with AutomaticKeepAliveClientMixin {
                 padding: const EdgeInsets.symmetric(vertical: 20.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    engine.enterScene('WorldMap');
+                    setState(() {
+                      _isLoading = true;
+                      engine.enterScene('WorldMap');
+                    });
                   },
                   child: Text(locale['sandBoxMode']),
                 ),

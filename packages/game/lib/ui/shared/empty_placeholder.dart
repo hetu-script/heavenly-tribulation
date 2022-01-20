@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
-class EmptyPlaceholder extends StatelessWidget {
-  const EmptyPlaceholder({Key? key, required this.text}) : super(key: key);
+import '../../engine/engine.dart';
 
-  final String text;
+class EmptyPlaceholder extends StatelessWidget {
+  const EmptyPlaceholder({Key? key, this.text}) : super(key: key);
+
+  final String? text;
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +14,7 @@ class EmptyPlaceholder extends StatelessWidget {
         child: Directionality(
           textDirection: TextDirection.ltr,
           child: Text(
-            text,
+            text ?? engine.locale['empty'],
             style: const TextStyle(color: Colors.black),
           ),
         ),

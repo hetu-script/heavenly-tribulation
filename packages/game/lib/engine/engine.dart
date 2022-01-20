@@ -24,6 +24,14 @@ class SamsaraEngine with SceneController, EventAggregator {
     locale.data.addAll(data);
   }
 
+  Map<int, Color> zoneColors = {};
+
+  void updateZoneColors(Map data) {
+    zoneColors.clear();
+    zoneColors.addAll(
+        data.map((key, value) => MapEntry(key, HexColor.fromHex(value))));
+  }
+
   Map<String, Color> nationColors = {};
 
   void updateNationColors(Map data) {
@@ -68,7 +76,6 @@ class SamsaraEngine with SceneController, EventAggregator {
 
   @override
   Future<Scene> enterScene(String key) async {
-    broadcast(SceneEvent.loading(sceneKey: key));
     final scene = await super.enterScene(key);
     broadcast(SceneEvent.started(sceneKey: key));
     return scene;

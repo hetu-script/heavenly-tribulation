@@ -85,7 +85,7 @@ class WorldMapPopup extends StatelessWidget {
                     title,
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 12,
+                      fontSize: 14,
                     ),
                   ),
                 ),

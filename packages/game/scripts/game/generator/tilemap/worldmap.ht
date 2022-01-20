@@ -40,7 +40,7 @@ import {
 
 const _defaultWorldWidth = 12
 const _defaultWorldHeight = 12
-const _defaultNumberOfNation = 5
+const _defaultNumberOfNations = 5
 const _kSpriteWater = 1
 const _kSpriteShelf = 2
 const _kSpriteLand = 3
@@ -55,8 +55,8 @@ const _kZoneWater = 'water'
 const _kZoneContinent = 'continent'
 const _kZoneIsland = 'island'
 const _kZoneLake = 'lake'
-const _kMinZoneSizeForLocation = 9 // 最大据点密度
-const _kMaxZoneSizeForLocation = 18 // 最小据点密度
+const _kMinTileSizeForLocation = 9 // 最大据点密度
+const _kMaxTileSizeForLocation = 18 // 最小据点密度
 const _kMinZoneSizeForSea = 8
 const _kZoneSizeForHarbor = 18
 const _kForestThreshold = 0.5
@@ -77,6 +77,7 @@ struct Zone {
     this.index = game.world.zones.length
     this.name = name
     this.category = category
+    this.color = Math.randomBrightColorHex()
     game.world.zones.add(this)
   }
 }
@@ -99,6 +100,7 @@ fun createWorldMap({
     width = _defaultWorldWidth,
     height = _defaultWorldHeight,
     style = 'island',
+    numberOfNations = _defaultNumberOfNations,
     landProportion = 0.55,
     gridWidth = 32.0,
     gridHeight = 28.0,
@@ -270,8 +272,6 @@ fun createWorldMap({
     return { nearest, secondNearest }
   }
 
-  final locationIndexes = Set()
-
   final islands = []
   // 根据 tile 的所在位置的类型，添加属性
   fun checkPerimeterOfLocation(tile) {
@@ -289,28 +289,23 @@ fun createWorldMap({
   }
 
   // 生成据点
-  for (final zone in game.world.zones) {
-    if (zone.terrainIndexes.length < _kMinZoneSizeForLocation) continue
-    // print('processing zone: ${zone.name} size: ${zone.terrainIndexes.length}')
-    final minLocNum = zone.terrainIndexes.length ~/ _kMaxZoneSizeForLocation
-    final maxLocNum = zone.terrainIndexes.length ~/ _kMinZoneSizeForLocation
-    final locationNumber = Math.randomInt(maxLocNum - minLocNum) + minLocNum
-    final zoneLocationIndexes = Set()
-    while (zoneLocationIndexes.length < locationNumber) {
-      var index
-      do {
-        // print('generating location index')
-        index = zone.terrainIndexes.random
-      } while (locationIndexes.contains(index))
-      final tile = game.world.terrains[index]
-      // location category只有两种：城市和秘境
-      final location = Location(terrainIndex: tile.index, category: _kLocationCategoryCity)
-      zoneLocationIndexes.add(index)
-      locationIndexes.add(index)
-      checkPerimeterOfLocation(tile)
-      tile.locationId = location.id
-      tile.overlaySprite.index = _kSpriteCity
-    }
+  final locationIndexes = Set()
+  final minLocNum = game.world.terrains.length ~/ _kMaxTileSizeForLocation
+  final maxLocNum = game.world.terrains.length ~/ _kMinTileSizeForLocation
+  final locationNumber = Math.max(Math.randomInt(maxLocNum - minLocNum) + minLocNum, numberOfNations)
+  while (game.locations.length < locationNumber) {
+    var index
+    do {
+      // print('generating location index')
+      index = Math.randomInt(game.world.terrains.length)
+    } while (locationIndexes.contains(index))
+    final tile = game.world.terrains[index]
+    // location category只有两种：城市和秘境
+    final location = Location(terrainIndex: index, category: _kLocationCategoryCity)
+    locationIndexes.add(index)
+    checkPerimeterOfLocation(tile)
+    tile.locationId = location.id
+    tile.overlaySprite.index = _kSpriteCity
   }
 
   // 每个岛屿是独立的 zone
@@ -383,12 +378,15 @@ fun createWorldMap({
       }
     }
   }
-
   // print('generating nations')
   // 随机挑选几个城市，作为各个国家的都城
-  while (game.nations.length < _defaultNumberOfNation) {
-    final nation = Nation(capitalId: game.locations.keys.random)
-    final location = game.locations[nation.capitalId]
+  while (game.nations.length < numberOfNations) {
+    var location
+    do {
+      location = game.locations.values.random
+    } while (location.nationId != null)
+    // print('picking location for new nation capital: ${location}')
+    final nation = Nation(capitalId: location.id)
     final terrain = game.world.terrains[location.terrainIndex]
     addTerrain2Nation(nation.id, terrain)
   }
@@ -419,13 +417,12 @@ fun createWorldMap({
   ) {
     final nation = game.nations.values.random
     expandNation(nation)
+    // print('expanded nation ${nation.name}')
   }
 
-  final nationColors = Map()
-  for (final nation of game.nations) {
-    nationColors[nation.id] = nation.color
-  }
-  engine.updateNationColors(nationColors)
+  // 刷新上色信息
+  updateWorldMapZoneColors()
+  updateWorldMapNationColors()
 
   // 向世界中填充NPC
   var minOrgNum = game.locations.length ~/ _kMaxLocationNumberForOrganization

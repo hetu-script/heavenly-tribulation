@@ -66,6 +66,6 @@ fun getOrganizationById(id: str) {
   return game.organizations[id]
 }
 
-fun getAllOrganizations() {
+fun getOrganizations() {
   return game.organizations
 }

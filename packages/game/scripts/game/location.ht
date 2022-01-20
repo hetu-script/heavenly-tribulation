@@ -58,7 +58,7 @@ fun getLocationById(id: str) {
   return game.locations[id]
 }
 
-fun getAllLocations() {
+fun getLocations() {
   return game.locations
 }
 

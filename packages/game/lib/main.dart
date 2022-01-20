@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flame/flame.dart';
+import 'package:heavenly_tribulation/ui/view/information/information.dart';
 
 import 'ui/view/location.dart';
 import 'ui/game_app.dart';
@@ -22,6 +23,7 @@ void main() async {
       home: GameApp(key: UniqueKey()),
       routes: {
         'location': (context) => const LocationRoute(),
+        'information': (context) => const InformationPanel(),
         'editor': (context) => const GameEditor(),
       },
     ),

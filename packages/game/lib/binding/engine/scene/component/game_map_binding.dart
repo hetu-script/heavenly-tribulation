@@ -3,7 +3,7 @@ import 'package:hetu_script/binding.dart';
 
 import '../../../../../engine/tilemap/map.dart';
 
-extension MapComponentBinding on MapComponent {
+extension MapComponentBinding on TileMap {
   dynamic htFetch(String varName) {
     switch (varName) {
       case r'moveCameraToTilePosition':
@@ -37,7 +37,7 @@ class MapComponentClassBinding extends HTExternalClass {
             {List<dynamic> positionalArgs = const [],
             Map<String, dynamic> namedArgs = const {},
             List<HTType> typeArgs = const []}) {
-          return MapComponent.fromJson(positionalArgs[0]);
+          return TileMap.fromJson(positionalArgs[0]);
         };
       default:
         throw HTError.undefined(varName);
@@ -46,7 +46,7 @@ class MapComponentClassBinding extends HTExternalClass {
 
   @override
   dynamic instanceMemberGet(dynamic object, String varName) {
-    var i = object as MapComponent;
+    var i = object as TileMap;
     return i.htFetch(varName);
   }
 }

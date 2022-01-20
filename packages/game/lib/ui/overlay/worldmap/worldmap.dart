@@ -11,9 +11,10 @@ import '../../../event/map_event.dart';
 import '../../../event/location_event.dart';
 import 'popup.dart';
 import 'location_brief.dart';
+import '../../shared/popup_submenu_item.dart';
 
-// This is the type used by the popup menu below.
-enum TopMenuItems { showNations, exit }
+// This is the type used by the popup menu.
+enum TopRightMenuItems { info, viewNone, viewZones, viewNations, exit }
 
 class WorldMapOverlay extends StatefulWidget {
   final WorldMapScene scene;
@@ -31,7 +32,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
   bool get wantKeepAlive => true;
 
   WorldMapScene get scene => widget.scene;
-  MapComponent get map => widget.scene.map!;
+  TileMap get map => widget.scene.map!;
 
   Vector2? menuPosition;
 
@@ -110,8 +111,8 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
         left: 0,
         top: 0,
         child: Container(
-          height: 120,
           width: 180,
+          height: 120,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius:
@@ -140,35 +141,57 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
               color: Colors.lightBlue,
             ),
           ),
-          child: PopupMenuButton<TopMenuItems>(
+          child: PopupMenuButton<TopRightMenuItems>(
             offset: const Offset(0, 45),
             icon: const Icon(Icons.menu_open),
-            onSelected: (TopMenuItems item) {
-              if (item == TopMenuItems.showNations) {
-                map.showNations = !map.showNations;
+            tooltip: engine.locale['menu'],
+            onSelected: (TopRightMenuItems item) {
+              switch (item) {
+                case TopRightMenuItems.info:
+                  Navigator.of(context).pushNamed('information');
+                  break;
+                case TopRightMenuItems.viewNone:
+                  map.gridMode = GridMode.none;
+                  break;
+                case TopRightMenuItems.viewZones:
+                  map.gridMode = GridMode.zones;
+                  break;
+                case TopRightMenuItems.viewNations:
+                  map.gridMode = GridMode.nations;
+                  break;
+                case TopRightMenuItems.exit:
+                  engine.leaveScene('WorldMap');
+                  break;
+                default:
               }
             },
             itemBuilder: (BuildContext context) =>
-                <PopupMenuEntry<TopMenuItems>>[
-              CheckedPopupMenuItem<TopMenuItems>(
-                value: TopMenuItems.showNations,
-                checked: map.showNations,
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(engine.locale['showNations']),
+                <PopupMenuEntry<TopRightMenuItems>>[
+              PopupMenuItem<TopRightMenuItems>(
+                value: TopRightMenuItems.info,
+                child: Container(
+                  alignment: Alignment.centerLeft,
+                  width: 100,
+                  child: Text(engine.locale['info']),
                 ),
               ),
+              PopupSubMenuItem<TopRightMenuItems>(
+                title: engine.locale['view'],
+                offset: const Offset(-160, 0),
+                items: {
+                  engine.locale['none']: TopRightMenuItems.viewNone,
+                  engine.locale['zones']: TopRightMenuItems.viewZones,
+                  engine.locale['nations']: TopRightMenuItems.viewNations,
+                },
+              ),
               const PopupMenuDivider(),
-              PopupMenuItem<TopMenuItems>(
-                padding: const EdgeInsets.only(right: 34),
-                value: TopMenuItems.exit,
-                child: Align(
-                  alignment: Alignment.centerRight,
+              PopupMenuItem<TopRightMenuItems>(
+                value: TopRightMenuItems.exit,
+                child: Container(
+                  alignment: Alignment.centerLeft,
+                  width: 100,
                   child: Text(engine.locale['exitGame']),
                 ),
-                onTap: () {
-                  engine.leaveScene('WorldMap');
-                },
               ),
             ],
           ),
@@ -212,10 +235,11 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
 
         final stringBuffer = StringBuffer();
 
+        stringBuffer.writeln('坐标: ${terrain.left}, ${terrain.top}');
+
         final zoneData = engine.hetu
             .invoke('getZoneByIndex', positionalArgs: [terrain.zoneIndex]);
-        stringBuffer
-            .writeln('${zoneData['name']}(${terrain.left}, ${terrain.top})');
+        stringBuffer.writeln('${zoneData['name']}');
 
         if (terrain.nationId != null) {
           final nationData = engine.hetu

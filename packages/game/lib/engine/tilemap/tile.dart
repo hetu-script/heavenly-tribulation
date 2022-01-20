@@ -58,7 +58,7 @@ enum ZoneCategory {
   forest,
 }
 
-class MapTile extends GameComponent with TileInfo {
+class TileMapTerrain extends GameComponent with TileInfo {
   static const defaultAnimationStepTime = 0.4;
   static const defaultScale = 2.0;
 
@@ -87,7 +87,7 @@ class MapTile extends GameComponent with TileInfo {
   final String? locationId;
   final String? nationId;
 
-  MapTile({
+  TileMapTerrain({
     required TileShape shape,
     this.renderDirection = TileRenderDirection.rightBottom,
     required int left,

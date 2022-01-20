@@ -272,3 +272,21 @@ fun calculateRoute(start, end, { zoneIndex }) {
   }
   return null
 }
+
+/// 刷新地图地域上色信息
+fun updateWorldMapZoneColors {
+  final zoneColors = Map()
+  for (final zone in game.world.zones) {
+    zoneColors[zone.index] = zone.color
+  }
+  engine.updateZoneColors(zoneColors)
+}
+  
+/// 刷新地图疆域上色信息
+fun updateWorldMapNationColors {
+  final nationColors = Map()
+  for (final nation of game.nations) {
+    nationColors[nation.id] = nation.color
+  }
+  engine.updateNationColors(nationColors)
+}

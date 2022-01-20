@@ -16,7 +16,7 @@ struct Nation {
       this.name = names.first.name
     }
     this.id = 'nation_${this.index}_${this.name}'
-    this.color = Math.randomColorHex()
+    this.color = Math.randomBrightColorHex()
     
     this.capitalId = capitalId
     
@@ -29,6 +29,10 @@ struct Nation {
 
     game.nations[this.id] = this
   }
+}
+
+fun getNations(id: str) {
+  return game.nations
 }
 
 fun getNationById(id: str) {

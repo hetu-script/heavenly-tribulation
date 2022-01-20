@@ -6,7 +6,7 @@ class MazeScene extends Scene {
   bool _loaded = false;
   bool get loaded => _loaded;
 
-  late final MapComponent map;
+  late final TileMap map;
 
   MazeScene() : super(key: 'Maze');
 

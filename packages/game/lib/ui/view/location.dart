@@ -97,10 +97,12 @@ class _LocationViewState extends State<LocationView>
             child: Ink(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8.0),
-                image: DecorationImage(
-                  image: AssetImage('assets/images/$image'),
-                  fit: BoxFit.fill,
-                ),
+                image: image != null
+                    ? DecorationImage(
+                        image: AssetImage('assets/images/$image'),
+                        fit: BoxFit.fill,
+                      )
+                    : null,
               ),
               child: InkWell(
                 splashColor: Colors.blue.withAlpha(30),
@@ -151,6 +153,7 @@ class _LocationViewState extends State<LocationView>
             onPressed: () {
               engine
                   .broadcast(LocationEvent.left(locationId: widget.locationId));
+              Navigator.of(context).pop();
             },
           ),
           flexibleSpace: Container(
@@ -233,8 +236,8 @@ class _LocationViewState extends State<LocationView>
     );
   }
 
-  String _getDefaultImagePath(String type) {
-    String imagePath;
+  String? _getDefaultImagePath(String type) {
+    String? imagePath;
     switch (type) {
       case 'headquarters':
         imagePath = 'location/site/headquarters.png';
@@ -287,8 +290,6 @@ class _LocationViewState extends State<LocationView>
       case 'maze':
         imagePath = 'location/site/maze.png';
         break;
-      default:
-        imagePath = kAssetMissingImage;
     }
     return imagePath;
   }

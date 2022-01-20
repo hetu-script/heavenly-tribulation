@@ -80,6 +80,24 @@ abstract class Scene extends FlameGame {
       c.handleMouseMove(details);
     }
   }
+
+  Widget get widget {
+    return PointerDetector(
+      child: GameWidget(
+        game: this,
+      ),
+      onTapDown: onTapDown,
+      onTapUp: onTapUp,
+      onDragStart: onDragStart,
+      onDragUpdate: onDragUpdate,
+      onDragEnd: onDragEnd,
+      onScaleStart: onScaleStart,
+      onScaleUpdate: onScaleUpdate,
+      onScaleEnd: onScaleEnd,
+      onLongPress: onLongPress,
+      onMouseMove: onMouseMove,
+    );
+  }
 }
 
 class SceneController {

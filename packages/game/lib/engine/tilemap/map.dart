@@ -17,12 +17,7 @@ import '../../event/location_event.dart';
 import 'zone.dart';
 import 'actor.dart';
 import 'cloud.dart';
-
-enum WorldStyle {
-  innerland,
-  island,
-  beach,
-}
+import '../../shared/color.dart';
 
 class TileMapRouteNode {
   final TilePosition tilePosition;
@@ -31,7 +26,13 @@ class TileMapRouteNode {
   TileMapRouteNode({required this.tilePosition, required this.worldPosition});
 }
 
-class MapComponent extends GameComponent with HandlesGesture {
+enum GridMode {
+  none,
+  zones,
+  nations,
+}
+
+class TileMap extends GameComponent with HandlesGesture {
   static const maxCloudsCout = 16;
   static const cloudsKindNum = 12;
 
@@ -58,12 +59,12 @@ class MapComponent extends GameComponent with HandlesGesture {
 
   Vector2 mapScreenSize = Vector2.zero();
 
-  MapTile? selectedTerrain;
+  TileMapTerrain? selectedTerrain;
   List<TileMapActor>? selectedActors;
 
-  final List<MapTile> terrains;
+  final List<TileMapTerrain> terrains;
   final List<TileMapActor> actors;
-  final List<Zone> zones;
+  final List<TileMapZone> zones;
   // final List<TileMapRoute> routes;
 
   final List<TileMapCloud> clouds = [];
@@ -73,11 +74,11 @@ class MapComponent extends GameComponent with HandlesGesture {
   final TileMapActor? hero;
   List<TileMapRouteNode>? currentRoute;
 
-  bool showNations = false;
-
   String? destinationLocationId;
 
-  MapComponent({
+  GridMode gridMode = GridMode.none;
+
+  TileMap({
     required this.tileShape,
     this.tapSelect = false,
     required this.heroX,
@@ -93,14 +94,14 @@ class MapComponent extends GameComponent with HandlesGesture {
     this.zones = const [],
   }) {
     assert(terrains.isNotEmpty);
-    scale = Vector2(MapTile.defaultScale, MapTile.defaultScale);
+    scale = Vector2(TileMapTerrain.defaultScale, TileMapTerrain.defaultScale);
   }
 
   static int tilePosition2Index(int left, int top, int mapTileWidth) {
     return (left - 1) + (top - 1) * mapTileWidth;
   }
 
-  static Future<MapComponent> fromJson(Map<String, dynamic> data) async {
+  static Future<TileMap> fromJson(Map<String, dynamic> data) async {
     final tileShapeData = data['tileShape'];
     var tileShape = TileShape.orthogonal;
     if (tileShapeData == 'isometric') {
@@ -132,11 +133,17 @@ class MapComponent extends GameComponent with HandlesGesture {
     final terrainsData = data['terrains'];
 
     final zonesData = data['zones'];
-    final zones = <Zone>[];
+    final zones = <TileMapZone>[];
     for (final zoneData in zonesData) {
-      final index = zoneData['index'];
-      final name = zoneData['name'];
-      zones.add(Zone(index: index, name: name));
+      final int index = zoneData['index'];
+      final String name = zoneData['name'];
+      final String colorHex = zoneData['color'];
+      final color = HexColor.fromHex(colorHex);
+      zones.add(TileMapZone(
+        index: index,
+        name: name,
+        color: color,
+      ));
     }
 
     // final routesData = data['routes'];
@@ -152,7 +159,7 @@ class MapComponent extends GameComponent with HandlesGesture {
     //   routes.add(route);
     // }
 
-    final List<MapTile> terrains = [];
+    final List<TileMapTerrain> terrains = [];
     for (var j = 0; j < tileMapHeight; ++j) {
       for (var i = 0; i < tileMapWidth; ++i) {
         final index = tilePosition2Index(i + 1, j + 1, tileMapWidth);
@@ -214,7 +221,7 @@ class MapComponent extends GameComponent with HandlesGesture {
               ));
           baseAnimation = sheet.createAnimation(
               row: 0,
-              stepTime: MapTile.defaultAnimationStepTime,
+              stepTime: TileMapTerrain.defaultAnimationStepTime,
               from: 0,
               to: baseAnimationFrameCount);
         }
@@ -245,12 +252,12 @@ class MapComponent extends GameComponent with HandlesGesture {
                 ));
             overlayAnimation = sheet.createAnimation(
                 row: 0,
-                stepTime: MapTile.defaultAnimationStepTime,
+                stepTime: TileMapTerrain.defaultAnimationStepTime,
                 from: 0,
                 to: overlayAnimationFrameCount);
           }
         }
-        final tile = MapTile(
+        final tile = TileMapTerrain(
           shape: tileShape,
           left: i + 1,
           top: j + 1,
@@ -301,7 +308,7 @@ class MapComponent extends GameComponent with HandlesGesture {
       shipAnimationSpriteSheet: shipSheet,
     );
 
-    return MapComponent(
+    return TileMap(
       tileShape: tileShape,
       tapSelect: tapSelect,
       heroX: heroX,
@@ -361,11 +368,11 @@ class MapComponent extends GameComponent with HandlesGesture {
     return positions;
   }
 
-  MapTile? getTerrainByPosition(TilePosition position) {
+  TileMapTerrain? getTerrainByPosition(TilePosition position) {
     return getTerrain(position.left, position.top);
   }
 
-  MapTile? getTerrain(int left, int top) {
+  TileMapTerrain? getTerrain(int left, int top) {
     if (isPositionWithinMap(left, top)) {
       return terrains[tilePosition2Index(left, top, mapTileWidth)];
     } else {
@@ -373,7 +380,7 @@ class MapComponent extends GameComponent with HandlesGesture {
     }
   }
 
-  void _lightUpAroundTerrain(MapTile tile) {
+  void _lightUpAroundTerrain(TileMapTerrain tile) {
     // final neighbors = getNeighborTilePositions(tile.left, tile.top);
     // for (final pos in neighbors) {
     //   final neighbor = getTerrainByPosition(pos);
@@ -677,12 +684,19 @@ class MapComponent extends GameComponent with HandlesGesture {
     super.renderTree(canvas);
     canvas.save();
     canvas.transform(transformMatrix.storage);
-    if (showNations) {
+    if (gridMode == GridMode.zones) {
+      for (final tile in terrains) {
+        final color = engine.zoneColors[tile.zoneIndex]!;
+        final paint = Paint()
+          ..style = PaintingStyle.fill
+          ..color = color.withOpacity(0.6);
+        canvas.drawPath(tile.path, paint);
+      }
+    } else if (gridMode == GridMode.nations) {
       for (final tile in terrains) {
         if (tile.nationId != null) {
           final color = engine.nationColors[tile.nationId]!;
           final paint = Paint()
-            ..strokeWidth = 1
             ..style = PaintingStyle.fill
             ..color = color.withOpacity(0.6);
           canvas.drawPath(tile.path, paint);

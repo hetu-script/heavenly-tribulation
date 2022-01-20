@@ -1,12 +1,15 @@
+import 'package:flutter/widgets.dart';
+
 import '../../event/map_event.dart';
 import 'scene.dart';
 import '../tilemap/map.dart';
 import '../engine.dart';
+import '../../ui/overlay/worldmap/worldmap.dart';
 
 class WorldMapScene extends Scene {
-  MapComponent? map;
+  TileMap? map;
 
-  WorldMapScene() : super(key: 'WorldMap') {}
+  WorldMapScene() : super(key: 'WorldMap');
 
   @override
   Future<void> onLoad() async {
@@ -18,9 +21,14 @@ class WorldMapScene extends Scene {
     engine.broadcast(const MapEvent.mapLoaded());
   }
 
-  void reload() {
-    if (map != null) {
+  void reload() {}
+
+  @override
+  Widget get widget {
+    // 如果不加下面这一行，component 会丢失 Scene, 原因不明
+    if (map != null && map!.parent == null) {
       add(map!);
     }
+    return WorldMapOverlay(key: UniqueKey(), scene: this);
   }
 }

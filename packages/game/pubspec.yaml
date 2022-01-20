@@ -33,6 +33,7 @@ dependencies:
   flutter_highlight: ^0.7.0
   quiver: ^3.0.1+1
   change_case: ^1.0.1
+  data_table_2: ^2.2.0
 
 dev_dependencies:
   flutter_test:

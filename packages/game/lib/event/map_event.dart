@@ -16,7 +16,7 @@ class MapEvent extends GameEvent {
 class MapInteractionEvent extends GameEvent {
   final Offset globalPosition;
 
-  final MapTile? terrain;
+  final TileMapTerrain? terrain;
   final TileMapActor? actor;
 
   const MapInteractionEvent.mapTapped(

@@ -73,7 +73,7 @@ fun getCharacterById(id: str) {
   return game.characters[id]
 }
 
-fun getAllCharacters() {
+fun getCharacters() {
   return game.characters
 }
 
