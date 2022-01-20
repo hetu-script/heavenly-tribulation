@@ -154,10 +154,10 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
                   map.gridMode = GridMode.none;
                   break;
                 case TopRightMenuItems.viewZones:
-                  map.gridMode = GridMode.zones;
+                  map.gridMode = GridMode.zone;
                   break;
                 case TopRightMenuItems.viewNations:
-                  map.gridMode = GridMode.nations;
+                  map.gridMode = GridMode.nation;
                   break;
                 case TopRightMenuItems.exit:
                   engine.leaveScene('WorldMap');
@@ -180,8 +180,8 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
                 offset: const Offset(-160, 0),
                 items: {
                   engine.locale['none']: TopRightMenuItems.viewNone,
-                  engine.locale['zones']: TopRightMenuItems.viewZones,
-                  engine.locale['nations']: TopRightMenuItems.viewNations,
+                  engine.locale['zone']: TopRightMenuItems.viewZones,
+                  engine.locale['nation']: TopRightMenuItems.viewNations,
                 },
               ),
               const PopupMenuDivider(),

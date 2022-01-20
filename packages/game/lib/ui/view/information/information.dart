@@ -11,18 +11,30 @@ const _kNationTableColumns = [
   'capital',
   'gridSize',
   'cityNumber',
+  'organizationNumber',
 ];
 
 const _kLocationTableColumns = [
   'name',
+  'nation',
+  'organization',
+  'category',
+  'development',
 ];
 
 const _kOrganizationTableColumns = [
   'name',
+  'leader',
+  'headquartersLocation',
+  'locationNumber',
+  'memberNumber',
+  'development',
 ];
 
 const _kCharacterTableColumns = [
   'name',
+  'organization',
+  'job',
 ];
 
 class InformationPanel extends StatefulWidget {
@@ -68,6 +80,7 @@ class _InformationPanelState extends State<InformationPanel>
       rowData.add(nation['territoryIndexes'].length.toString());
       // 据点数量
       rowData.add(nation['locationIds'].length.toString());
+      rowData.add(nation['organizationIds'].length.toString());
       _nationsData.add(rowData);
     }
 
@@ -75,6 +88,41 @@ class _InformationPanelState extends State<InformationPanel>
     for (final loc in locationsData.values) {
       final rowData = <String>[];
       rowData.add(loc['name']);
+      final nationId = loc['nationId'];
+      if (nationId != null) {
+        // 国家名字
+        final nation =
+            engine.hetu.invoke('getNationById', positionalArgs: [nationId]);
+        rowData.add(nation['name']);
+      } else {
+        rowData.add(engine.locale['none']);
+      }
+      // 门派名字
+      final orgId = loc['organizationId'];
+      if (orgId != null) {
+        final organization =
+            engine.hetu.invoke('getOrganizationById', positionalArgs: [orgId]);
+        rowData.add(organization['name']);
+      } else {
+        rowData.add(engine.locale['none']);
+      }
+      // 类型
+      final category = loc['category'];
+      switch (category) {
+        case 'city':
+          rowData.add(engine.locale['city']);
+          break;
+        case 'arcana':
+          rowData.add(engine.locale['arcana']);
+          break;
+        case 'mirage':
+          rowData.add(engine.locale['mirage']);
+          break;
+        default:
+          rowData.add(engine.locale['unknown']);
+      }
+      // 发展度
+      rowData.add(loc['development'].toString());
       _locationsData.add(rowData);
     }
 
@@ -82,6 +130,20 @@ class _InformationPanelState extends State<InformationPanel>
     for (final org in organizationsData.values) {
       final rowData = <String>[];
       rowData.add(org['name']);
+      // 掌门
+      final leader = engine.hetu
+          .invoke('getCharacterById', positionalArgs: [org['leaderId']]);
+      rowData.add(leader['name']);
+      // 总堂
+      final headquarters = engine.hetu.invoke('getLocationById',
+          positionalArgs: [org['headquartersLocationId']]);
+      rowData.add(headquarters['name']);
+      // 据点数量
+      rowData.add(org['locationIds'].length.toString());
+      // 成员数量
+      rowData.add(org['characterIds'].length.toString());
+      // 发展度
+      rowData.add(org['development'].toString());
       _organizationsData.add(rowData);
     }
 
@@ -97,64 +159,53 @@ class _InformationPanelState extends State<InformationPanel>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return Container(
-      width: 400,
-      height: 400,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius:
-            const BorderRadius.only(bottomRight: Radius.circular(5.0)),
-        border: Border.all(
-          width: 2,
-          color: Colors.lightBlue,
-        ),
-      ),
-      child: DefaultTabController(
-        length: _kInformationTabs,
-        child: Scaffold(
-          appBar: AppBar(
-            bottom: TabBar(
-              tabs: [
-                Tab(
-                  icon: const Icon(Icons.public),
-                  text: engine.locale['nations'],
-                ),
-                Tab(
-                  icon: const Icon(Icons.location_city),
-                  text: engine.locale['location'],
-                ),
-                Tab(
-                  icon: const Icon(Icons.groups),
-                  text: engine.locale['organization'],
-                ),
-                Tab(
-                  icon: const Icon(Icons.person),
-                  text: engine.locale['character'],
-                ),
-              ],
-            ),
-            title: Text(engine.locale['info']),
-          ),
-          body: TabBarView(
-            children: <Widget>[
-              GameEntityListView(
-                columns: _kNationTableColumns,
-                data: _nationsData,
+    return DefaultTabController(
+      length: _kInformationTabs,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(engine.locale['info']),
+          bottom: TabBar(
+            tabs: [
+              Tab(
+                icon: const Icon(Icons.public),
+                text: '${engine.locale['nation']}(${_nationsData.length})',
               ),
-              GameEntityListView(
-                columns: _kLocationTableColumns,
-                data: _locationsData,
+              Tab(
+                icon: const Icon(Icons.location_city),
+                text: '${engine.locale['location']}(${_locationsData.length})',
               ),
-              GameEntityListView(
-                columns: _kOrganizationTableColumns,
-                data: _organizationsData,
+              Tab(
+                icon: const Icon(Icons.groups),
+                text:
+                    '${engine.locale['organization']}(${_organizationsData.length})',
               ),
-              GameEntityListView(
-                columns: _kCharacterTableColumns,
-                data: _charactersData,
-              )
+              Tab(
+                icon: const Icon(Icons.person),
+                text:
+                    '${engine.locale['character']}(${_charactersData.length})',
+              ),
             ],
           ),
+        ),
+        body: TabBarView(
+          children: <Widget>[
+            GameEntityListView(
+              columns: _kNationTableColumns,
+              data: _nationsData,
+            ),
+            GameEntityListView(
+              columns: _kLocationTableColumns,
+              data: _locationsData,
+            ),
+            GameEntityListView(
+              columns: _kOrganizationTableColumns,
+              data: _organizationsData,
+            ),
+            GameEntityListView(
+              columns: _kCharacterTableColumns,
+              data: _charactersData,
+            )
+          ],
         ),
       ),
     );

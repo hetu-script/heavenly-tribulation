@@ -6,7 +6,6 @@ import 'package:heavenly_tribulation/event/location_event.dart';
 import '../shared/empty_placeholder.dart';
 import '../../../engine/engine.dart';
 // import '../colored_widget.dart';
-import '../shared/constants.dart';
 
 class LocationRoute extends StatelessWidget {
   const LocationRoute({Key? key}) : super(key: key);
@@ -70,7 +69,7 @@ class _LocationViewState extends State<LocationView>
         final String nameId = data['nameId'];
         _locationName = engine.locale[nameId];
       }
-      _locationImagePath = data['image'] ?? kAssetMissingImage;
+      _locationImagePath = data['image'];
       // _leadershipName = widget.locationData['leadershipName'];
 
       final sitesData = data['sites'];
@@ -158,10 +157,12 @@ class _LocationViewState extends State<LocationView>
           ),
           flexibleSpace: Container(
             decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/$_locationImagePath'),
-                fit: BoxFit.fill,
-              ),
+              image: _locationImagePath != null
+                  ? DecorationImage(
+                      image: AssetImage('assets/images/$_locationImagePath'),
+                      fit: BoxFit.fill,
+                    )
+                  : null,
             ),
             child: Align(
               alignment: Alignment.centerRight,

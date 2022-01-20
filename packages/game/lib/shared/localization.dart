@@ -1,5 +1,5 @@
 class GameLocalization {
-  static const missingText = 'missing_text_';
+  static const missingText = 'missing_text';
 
   String get missing => missingText;
 
@@ -12,7 +12,7 @@ class GameLocalization {
   String operator [](String key) {
     final text = data[key];
     if (text == null) {
-      return '$missingText$key';
+      return '$missingText($key)';
     } else {
       return text;
     }

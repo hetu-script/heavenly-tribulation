@@ -18,6 +18,7 @@ struct Location {
       final names = randomNames.getLocation(1, category: category)
       this.name = names.first.name
     }
+    this.category = category
     this.id = 'location_${this.index}_${this.name}'
     
     // 据点规模，默认小

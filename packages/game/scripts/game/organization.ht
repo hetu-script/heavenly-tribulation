@@ -2,9 +2,15 @@ import 'game.ht'
 import 'generator/random_names/random_names.ht' as randomNames
 
 struct Organization {
+  // 本门派统治的据点
+  final locationIds = Set()
+  final characterIds = Set()
+
   construct ({
     category,
     name,
+    nationId,
+    locationId,
     development,
   }) {
     this.index = game.organizations.length
@@ -15,6 +21,15 @@ struct Organization {
       this.name = names.first.name
     }
     this.id = 'Clan_${this.index}_${this.name}'
+    if (nationId != null) {
+      this.nationId = nationId
+      final nation = game.nations[nationId]
+      nation.organizationIds.add(this.id)
+    }
+    if (locationId != null) {
+      final location = game.locations[locationId]
+      addLocation2Organization(org.id, location)
+    }
 
     // 组织规模，组织所能允许的等级数量 = 规模
     this.development = development ?? Math.randomInt(5) + 1
@@ -37,8 +52,45 @@ fun maxMemberNumberOfClanDevelopment(n: int) {
   return number + 1
 }
 
-fun createOrganizationFromJson() {
-  
+fun removeCharacterFromOrganization(character) {
+  if (!character.organizationId) return
+
+  final org = game.organizations[character.organizationId]
+  org.characterIds.remove(character.id)
+  character.organizationId = null
+}
+
+fun addCharacter2Organization(organizationId, character) {
+  assert(game.organizations.owns(organizationId))
+  if (character.organizationId != null) {
+    assert(character.organizationId != organizationId)
+    removeCharacterFromOrganization(character)
+  }
+  final org = game.organizations[organizationId]
+  character.organizationId = organizationId
+  org.characterIds.add(character.id)
+}
+
+fun removeLocationFromOrganization(location) {
+  if (!terrain.organizationId) return
+
+  final org = game.organizations[terrain.organizationId]
+  org.locationIds.remove(location.id)
+  location.organizationId = null
+}
+
+fun addLocation2Organization(organizationId, location) {
+  assert(game.organizations.owns(organizationId))
+  if (location.organizationId != null) {
+    assert(location.organizationId != organizationId)
+    removeLocationFromOrganization(location)
+  }
+  final org = game.organizations[organizationId]
+  // 只能向本国的门派分配本国统治的据点
+  assert(location.nationId == org.nationId)
+  location.organizationId = organizationId
+  assert(!org.locationIds.contains(location.id))
+  org.locationIds.add(location.id)
 }
 
 fun addOrganizations(orgs: List) {

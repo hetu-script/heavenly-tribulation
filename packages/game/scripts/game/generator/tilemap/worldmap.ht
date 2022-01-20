@@ -40,7 +40,7 @@ import {
 
 const _defaultWorldWidth = 12
 const _defaultWorldHeight = 12
-const _defaultNumberOfNations = 5
+const _defaultnationNumber = 5
 const _kSpriteWater = 1
 const _kSpriteShelf = 2
 const _kSpriteLand = 3
@@ -55,6 +55,7 @@ const _kZoneWater = 'water'
 const _kZoneContinent = 'continent'
 const _kZoneIsland = 'island'
 const _kZoneLake = 'lake'
+const _kOrganizationCategoryCultivation = 'caltivation'
 const _kMinTileSizeForLocation = 9 // 最大据点密度
 const _kMaxTileSizeForLocation = 18 // 最小据点密度
 const _kMinZoneSizeForSea = 8
@@ -62,9 +63,8 @@ const _kZoneSizeForHarbor = 18
 const _kForestThreshold = 0.5
 const _kMountainThreshold = 0.2
 const _kMinLocationNumberForOrganization = 0.5 // 最大组织密度
-const _kMaxLocationNumberForOrganization = 8 // 最小组织密度
 const _kMinNpcNumberForOrganization = 3
-const _kMaxNpcNumberForOrganization = 18
+const _kMaxNpcNumberForOrganization = 9
 
 struct Zone {
   var index: int
@@ -100,7 +100,7 @@ fun createWorldMap({
     width = _defaultWorldWidth,
     height = _defaultWorldHeight,
     style = 'island',
-    numberOfNations = _defaultNumberOfNations,
+    nationNumber = _defaultnationNumber,
     landProportion = 0.55,
     gridWidth = 32.0,
     gridHeight = 28.0,
@@ -292,7 +292,7 @@ fun createWorldMap({
   final locationIndexes = Set()
   final minLocNum = game.world.terrains.length ~/ _kMaxTileSizeForLocation
   final maxLocNum = game.world.terrains.length ~/ _kMinTileSizeForLocation
-  final locationNumber = Math.max(Math.randomInt(maxLocNum - minLocNum) + minLocNum, numberOfNations)
+  final locationNumber = Math.max(Math.randomInt(maxLocNum - minLocNum) + minLocNum, nationNumber)
   while (game.locations.length < locationNumber) {
     var index
     do {
@@ -380,7 +380,7 @@ fun createWorldMap({
   }
   // print('generating nations')
   // 随机挑选几个城市，作为各个国家的都城
-  while (game.nations.length < numberOfNations) {
+  while (game.nations.length < nationNumber) {
     var location
     do {
       location = game.locations.values.random
@@ -424,31 +424,36 @@ fun createWorldMap({
   updateWorldMapZoneColors()
   updateWorldMapNationColors()
 
-  // 向世界中填充NPC
-  var minOrgNum = game.locations.length ~/ _kMaxLocationNumberForOrganization
-  final maxOrgNum = game.locations.length ~/ _kMinLocationNumberForOrganization
-  if (minOrgNum < 2) {
-    minOrgNum = 2
-  }
-  if (maxOrgNum < minOrgNum) {
-    maxOrgNum = minOrgNum
-  }
+  // 向世界中填充门派
+  var minOrgNum = nationNumber
+  final maxOrgNum = game.locations.length  
+  assert(maxOrgNum >= minOrgNum)
   final orgNum = Math.randomInt(maxOrgNum - minOrgNum) + minOrgNum
   
   for (var i in range(orgNum)) {
-    // 在这个据点生成组织相关的场景，总堂，士宅等等。并根据组织类型，生成一些功能性建筑
-    final org = Organization()
-    final loc = game.world.terrains[locationIndexes.random]
-    org.headquarterLocationId = loc.id
-    loc.organizationId ??= org.id
-    // loc.scenes.add
+    // 初始门派全部为修真门派，且只有一个据点
+    final org = Organization(category: _kOrganizationCategoryCultivation)
+    var location
+    var nation
+    do {
+      nation = game.nations.values.random
+      location = game.locations[nation.locationIds.random]
+    } while (location.organizationId != null || nation.organizationIds.contains(org.id))
+    org.nationId = nation.id
+    nation.organizationIds.add(org.id)
+    org.headquartersLocationId = location.id
+    addLocation2Organization(org.id, location)
 
+    // 在这个据点生成组织相关的场景，总堂，士宅等等。并根据组织类型，生成一些功能性建筑
+
+    // 向门派中填充角色
     final npcCount = Math.randomInt(_kMaxNpcNumberForOrganization - _kMinNpcNumberForOrganization) + _kMinNpcNumberForOrganization
     final leader = Character()
-    leader.organizationId = org.id
+    addCharacter2Organization(org.id, leader)
+    org.leaderId = leader.id
     for (var i in range(npcCount - 1)) {
       final char = Character()
-      char.organizationId = org.id
+      addCharacter2Organization(org.id, char)
     }
   }
   

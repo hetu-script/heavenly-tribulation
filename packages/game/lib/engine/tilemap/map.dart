@@ -28,8 +28,8 @@ class TileMapRouteNode {
 
 enum GridMode {
   none,
-  zones,
-  nations,
+  zone,
+  nation,
 }
 
 class TileMap extends GameComponent with HandlesGesture {
@@ -684,7 +684,7 @@ class TileMap extends GameComponent with HandlesGesture {
     super.renderTree(canvas);
     canvas.save();
     canvas.transform(transformMatrix.storage);
-    if (gridMode == GridMode.zones) {
+    if (gridMode == GridMode.zone) {
       for (final tile in terrains) {
         final color = engine.zoneColors[tile.zoneIndex]!;
         final paint = Paint()
@@ -692,7 +692,7 @@ class TileMap extends GameComponent with HandlesGesture {
           ..color = color.withOpacity(0.6);
         canvas.drawPath(tile.path, paint);
       }
-    } else if (gridMode == GridMode.nations) {
+    } else if (gridMode == GridMode.nation) {
       for (final tile in terrains) {
         if (tile.nationId != null) {
           final color = engine.nationColors[tile.nationId]!;

@@ -6,9 +6,10 @@ import 'generator/random_names/random_names.ht' as randomNames
 const kMaleAvatarCount = 37
  // number of the female avatar images
 const kFemaleAvatarCount = 75
+const kCharacterInitialAge = 100
 
 struct Character {
-  construct ({name, isFemale}) {
+  construct ({name, isFemale, age}) {
     this.index = game.characters.length
     if (isFemale != null) {
       this.isFemale = isFemale
@@ -29,6 +30,8 @@ struct Character {
       this.name = names.first.name
     }
     this.id = 'character_${this.index}_${this.name}'
+
+    this.age = age ?? Math.randomInt(kCharacterInitialAge)
 
     game.characters[this.id] = this
   }
