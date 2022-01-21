@@ -16,16 +16,16 @@ import 'l10n/predefined_localizations.ht'
 import 'data/predefined_dialogs.ht'
 import 'data/predefined_characters.ht'
 
-fun init({lang = 'zh', gameEngine: SamsaraEngine}) {
+fun init({locale = 'zh', gameEngine: SamsaraEngine}) {
   if (game.debug) {
     print('河图: 初始化游戏 ...')
   }
 
   engine = gameEngine
 
-  setCurrentLanguage(lang)
-  addLocalizations(predefinedLocalizations)
-  engine.updateLocales(game.languages.current.toJson())
+  setLocale(locale)
+  addLocales(predefinedLocalizations)
+  engine.updateLocales(locales[locale])
 
   // addCharacters(predefinedCharacters)
 

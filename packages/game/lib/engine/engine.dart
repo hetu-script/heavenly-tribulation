@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:hetu_script/hetu_script.dart';
+import 'package:hetu_script/value/struct/struct.dart';
 import 'package:hetu_script_flutter/hetu_script_flutter.dart';
 
 import '../binding/external_game_functions.dart';
@@ -8,9 +9,10 @@ import '../binding/engine/scene/component/game_map_binding.dart';
 import '../binding/engine/game_binding.dart';
 import 'scene/scene.dart';
 import '../event/event.dart';
-import '../event/scene_event.dart';
+import '../event/events.dart';
 import '../shared/localization.dart';
 import '../shared/color.dart';
+import 'scene/scene_controller.dart';
 
 final SamsaraEngine engine = SamsaraEngine._();
 
@@ -19,9 +21,8 @@ class SamsaraEngine with SceneController, EventAggregator {
 
   final locale = GameLocalization();
 
-  void updateLocales(Map<String, dynamic> data) {
-    locale.data.clear();
-    locale.data.addAll(data);
+  void updateLocales(HTStruct data) {
+    locale.data = data;
   }
 
   Map<int, Color> zoneColors = {};
@@ -75,8 +76,8 @@ class SamsaraEngine with SceneController, EventAggregator {
   }
 
   @override
-  Future<Scene> enterScene(String key) async {
-    final scene = await super.enterScene(key);
+  Future<Scene> createScene(String key, [String? args]) async {
+    final scene = await super.createScene(key, args);
     broadcast(SceneEvent.started(sceneKey: key));
     return scene;
   }

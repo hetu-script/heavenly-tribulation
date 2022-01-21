@@ -12,13 +12,14 @@ fun build(ctx) {
 
 var engine: SamsaraEngine
 
-final game = {
+var locales = {
+  zh: {},
+  en: {}
+}
+
+var game = {
   debug: true,
   timestamp: 0,
-  languages: {
-    zh: {},
-    en: {}
-  },
   dialogs: {},
   mods: {},
   entities: {},
@@ -32,6 +33,20 @@ final game = {
 
 fun getGameJsonData() {
   return game.toJson()
+}
+
+fun loadGameFromJsonData(jsonData) {
+  game = prototype.fromJson(jsonData)
+  updateWorldMapZoneColors()
+  updateWorldMapNationColors()
+}
+
+fun getSavePath {
+  return game.savePath
+}
+
+fun setSavePath(name: str) {
+  game.savePath = name
 }
 
 fun onGameEvent(id: str, [arg]) {

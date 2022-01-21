@@ -39,8 +39,8 @@ fun init {
 
   addModInfo(meta)
 
-  addLocalizations(localizations)
-  engine.updateLocales(game.languages.current.toJson())
+  addLocales(localizations)
+  engine.updateLocales(locale.current.toJson())
 
   // addCharacters(characters)
 

@@ -90,7 +90,6 @@ class LocationBrief extends StatelessWidget {
     return Container(
       constraints: BoxConstraints.tight(const Size(200, 240)),
       decoration: BoxDecoration(
-        color: Colors.white,
         borderRadius: BorderRadius.circular(5.0),
         border: Border.all(
           width: 2,

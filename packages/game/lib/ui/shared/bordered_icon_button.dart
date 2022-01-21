@@ -25,7 +25,6 @@ class BorderedIconButton extends StatelessWidget {
     return Container(
       margin: margin,
       decoration: BoxDecoration(
-        color: Colors.white,
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(

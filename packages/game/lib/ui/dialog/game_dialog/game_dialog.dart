@@ -83,9 +83,7 @@ class _GameDialogState extends State<GameDialog> {
               Container(
                 height: 240,
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(10.0),
-                  border: Border.all(color: Colors.white.withOpacity(0.5)),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -109,10 +107,7 @@ class _GameDialogState extends State<GameDialog> {
                                   physics: const BouncingScrollPhysics(),
                                   child: Text(
                                     snapshot.data ?? '',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 24,
-                                    ),
+                                    style: const TextStyle(fontSize: 24),
                                   ),
                                 );
                               },

@@ -6,7 +6,7 @@ import '../../../engine/engine.dart';
 import '../../../engine/scene/maze.dart';
 import '../../../ui/shared/avatar.dart';
 import '../../../event/event.dart';
-import '../../../event/map_event.dart';
+import '../../../event/events.dart';
 
 class MazeOverlay extends StatefulWidget {
   final MazeScene scene;
@@ -65,7 +65,6 @@ class _MazeOverlayState extends State<MazeOverlay> {
                 height: 120,
                 width: 180,
                 decoration: BoxDecoration(
-                  color: Colors.white,
                   borderRadius: BorderRadius.circular(5.0),
                   border: Border.all(
                     width: 2,
@@ -87,7 +86,6 @@ class _MazeOverlayState extends State<MazeOverlay> {
             top: 5,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
                 borderRadius: BorderRadius.circular(5.0),
                 border: Border.all(
                   width: 2,

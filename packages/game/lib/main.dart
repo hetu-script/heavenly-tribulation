@@ -16,7 +16,7 @@ void main() async {
     MaterialApp(
       title: 'Tian Dao Qi Jie',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.light().copyWith(
+      theme: ThemeData.dark().copyWith(
           scrollbarTheme: const ScrollbarThemeData().copyWith(
         thumbColor: MaterialStateProperty.all(Colors.grey),
       )),

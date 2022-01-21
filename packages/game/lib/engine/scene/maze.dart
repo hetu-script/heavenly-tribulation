@@ -8,7 +8,7 @@ class MazeScene extends Scene {
 
   late final TileMap map;
 
-  MazeScene() : super(key: 'Maze');
+  MazeScene([String? arg]) : super(key: 'Maze');
 
   @override
   Future<void> onLoad() async {

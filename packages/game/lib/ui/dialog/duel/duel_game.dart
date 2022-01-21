@@ -101,16 +101,11 @@ class _DuelGameState extends State<DuelGame> {
           width: 210,
           height: 320,
           decoration: BoxDecoration(
-            color: Colors.white,
             // image: const DecorationImage(
             //   image: NetworkImage(
             //       'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
             //   fit: BoxFit.fill,
             // ),
-            border: Border.all(
-              color: Colors.black38,
-              width: 2,
-            ),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Column(children: widgets),

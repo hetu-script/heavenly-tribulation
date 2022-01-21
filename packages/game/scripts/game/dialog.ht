@@ -17,7 +17,7 @@ fun addDialogs(dlgs: List) {
       }
       if (content.lineIds) {
         content.lines = content.lineIds.map((id) {
-          return getLocalization(id)
+          return getLocaleString(id)
         })
       }
     }

@@ -65,10 +65,10 @@ fun getHero() {
 
 fun addCharacter(char) {
   if (char.nameId) {
-    char.name = getLocalization(char.nameId)
+    char.name = getLocaleString(char.nameId)
   }
   if (char.artNameId) {
-    char.artName = getLocalization(char.artNameId)
+    char.artName = getLocaleString(char.artNameId)
   }
   game.characters[char.id] = char
 }

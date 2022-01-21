@@ -22,11 +22,40 @@ struct Location {
     this.category = category
     this.id = 'location_${this.index}_${this.name}'
     
-    // 据点规模，默认小
-    this.development = Math.randomInt(5) + 1
+    // 据点发展度
+    // 发展度决定了据点所能拥有的普通居民人口上限，以及所能拥有建筑的数量
+    // 每个发展度还会获得一次招募弟子的机会
+    this.development = 1
+
+    // 普通居民决定了税收收入，以及外门弟子的数量
+    this.population = 0
+    
+    // 外门弟子可以定期产生可供选择的有名有姓的人物作为内门弟子
+    // 第一次出现时通常为练气境界
+    this.disciple = 0
 
     game.locations[this.id] = this
   }
+}
+
+fun maxPopulationOfLocationDevelopment(n: int) {
+  final base = (n - 1) * (n - 1) * (n - 1) * 100 + 50
+
+  return base
+}
+
+fun maxSiteNumberOfLocationDevelopment(n: int) {
+  return n + 2
+}
+
+fun maxNumberOfCharacterRecruitablePerDevelopment() {
+  
+}
+
+// 每个据点，每个月会自然增加人口，直到达到上限
+// 人口上限会受到掌门的技能，门派的发展度和价值观，以及据点的发展度和建筑所影响
+fun increaseLocationPopulationPerMonth(location) {
+
 }
 
 fun removeCharacterResidentLocation(character) {
@@ -58,7 +87,7 @@ fun addLocations(locs: List) {
   }
   for (final loc in locs) {
     if (loc.nameId) {
-      loc.name = getLocalization(loc.nameId)
+      loc.name = getLocaleString(loc.nameId)
     }
     game.locations[loc.id] = loc
   }

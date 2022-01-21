@@ -193,15 +193,12 @@ class _CodeEditorState extends State<CodeEditor> with TickerProviderStateMixin {
                     _textFieldFocusNodes[_selectedIndex].requestFocus();
                   }
                 },
-                child: Container(
-                  color: Colors.white,
-                  // color: const Color(0xff23241f),
-                  child: SingleChildScrollView(
-                    controller: ScrollController(),
-                    child: _textFields.isNotEmpty
-                        ? _textFields[_selectedIndex]
-                        : null,
-                  ),
+                // color: const Color(0xff23241f),
+                child: SingleChildScrollView(
+                  controller: ScrollController(),
+                  child: _textFields.isNotEmpty
+                      ? _textFields[_selectedIndex]
+                      : null,
                 ),
               ),
             ),

@@ -11,10 +11,7 @@ class LoadingScreen extends StatelessWidget {
       child: Center(
         child: Directionality(
           textDirection: TextDirection.ltr,
-          child: Text(
-            text,
-            style: const TextStyle(color: Colors.black),
-          ),
+          child: Text(text),
         ),
       ),
     );

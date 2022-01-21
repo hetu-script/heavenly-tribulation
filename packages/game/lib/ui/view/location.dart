@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/event/location_event.dart';
+import 'package:heavenly_tribulation/event/events.dart';
 
 import '../shared/empty_placeholder.dart';
 import '../../../engine/engine.dart';
@@ -114,10 +114,7 @@ class _LocationViewState extends State<LocationView>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Container(
-                        color: Colors.white.withOpacity(0.5),
-                        child: Text(title),
-                      ),
+                      Text(title),
                     ],
                   ),
                 ),
@@ -171,7 +168,6 @@ class _LocationViewState extends State<LocationView>
                 child: Card(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0)),
-                  color: Colors.white.withOpacity(0.5),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(

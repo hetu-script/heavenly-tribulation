@@ -12,6 +12,10 @@ String uid() {
   return sb.toString();
 }
 
+String timestampCrc() {
+  return crc32b(DateTime.now().toIso8601String());
+}
+
 /// CRC32
 /// Copyright (C) 2012, Kai Sellgren
 /// Licensed under the MIT License.

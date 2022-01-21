@@ -6,14 +6,14 @@ import 'package:path/path.dart' as path;
 
 import '../engine/engine.dart';
 import '../shared/localization.dart';
-import '../event/scene_event.dart';
 import '../engine/scene/maze.dart';
 import 'shared/loading_screen.dart';
 import '../engine/scene/worldmap.dart';
 import '../event/event.dart';
-import '../event/location_event.dart';
+import '../event/events.dart';
 import '../shared/constants.dart';
-import 'load_files.dart';
+import '../../shared/datetime.dart';
+import 'load_game_dialog.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({required Key key}) : super(key: key);
@@ -29,19 +29,25 @@ class _GameAppState extends State<GameApp> {
 
   String? currentLocationId;
 
-  final savedFiles = <String>[];
+  final savedFiles = <SaveInfo>[];
 
   @override
   void initState() {
     super.initState();
 
-    engine.registerSceneConstructor('WorldMap', () {
-      return WorldMapScene();
+    engine.registerSceneConstructor('WorldMap', ([String? arg]) {
+      return WorldMapScene(arg);
     });
 
-    engine.registerSceneConstructor('Maze', () {
-      return MazeScene();
+    engine.registerSceneConstructor('Maze', ([String? arg]) {
+      return MazeScene(arg);
     });
+
+    engine.registerListener(
+        GameEvents.onBack2Menu,
+        EventHandler(widget.key!, (GameEvent event) {
+          refreshSaves();
+        }));
 
     engine.registerListener(
       SceneEvents.started,
@@ -89,7 +95,7 @@ class _GameAppState extends State<GameApp> {
       // pass the build context to script
       engine.hetu.invoke('build', positionalArgs: [context]);
 
-      savedFiles.addAll(await _getSavedFiles());
+      await refreshSaves();
 
       setState(() {
         _isLoading = false;
@@ -97,10 +103,15 @@ class _GameAppState extends State<GameApp> {
     }();
   }
 
+  Future<void> refreshSaves() async {
+    savedFiles.clear();
+    savedFiles.addAll(await _getSavedFiles());
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const LoadingScreen(text: 'Loading...');
+      return LoadingScreen(text: engine.locale['loading']);
     }
     // else if (currentLocationId != null) {
     //   return LocationView(locationId: currentLocationId!);
@@ -115,7 +126,7 @@ class _GameAppState extends State<GameApp> {
             onPressed: () {
               setState(() {
                 _isLoading = true;
-                engine.enterScene('WorldMap');
+                engine.createScene('WorldMap');
               });
             },
             child: Text(locale['sandBoxMode']),
@@ -129,11 +140,17 @@ class _GameAppState extends State<GameApp> {
             padding: const EdgeInsets.symmetric(vertical: 20.0),
             child: ElevatedButton(
               onPressed: () {
-                LoadGame.show(
-                  context,
-                  list: savedFiles,
-                  onLoad: (path) {},
-                );
+                LoadGameDialog.show(context, list: savedFiles)
+                    .then((SaveInfo? info) {
+                  if (info != null) {
+                    _isLoading = true;
+                    engine.createScene('WorldMap', info.path);
+                  } else {
+                    if (savedFiles.isEmpty) {
+                      setState(() {});
+                    }
+                  }
+                });
               },
               child: Text(locale['loadGame']),
             ),
@@ -162,18 +179,21 @@ class _GameAppState extends State<GameApp> {
     }
   }
 
-  Future<List<String>> _getSavedFiles() async {
+  Future<List<SaveInfo>> _getSavedFiles() async {
     final appDirectory = await path.getApplicationDocumentsDirectory();
-    final savePath =
+    final saveFolder =
         path.join(appDirectory.path, 'Heavenly Tribulation', 'save');
 
-    final list = <String>[];
-    final saveDirectory = Directory(savePath);
+    final list = <SaveInfo>[];
+    final saveDirectory = Directory(saveFolder);
     if (saveDirectory.existsSync()) {
       for (final entity in saveDirectory.listSync()) {
         if (entity is File &&
             path.extension(entity.path) == kSaveFileExtension) {
-          list.add(entity.path);
+          final d = entity.lastModifiedSync().toLocal();
+          final saveInfo =
+              SaveInfo(timestamp: d.toMeaningfulString(), path: entity.path);
+          list.add(saveInfo);
         }
       }
     }

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../engine/engine.dart';
 import '../../shared/ink_image_button.dart';
 
+const kPopupButtonSize = 40.0;
+
 class WorldMapPopup extends StatelessWidget {
   static const defaultSize = 160.0;
 
@@ -84,7 +86,6 @@ class WorldMapPopup extends StatelessWidget {
                   child: Text(
                     title,
                     style: const TextStyle(
-                      color: Colors.white,
                       fontSize: 14,
                     ),
                   ),
@@ -95,6 +96,8 @@ class WorldMapPopup extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.topCenter,
                     child: InkImageButton(
+                      width: kPopupButtonSize,
+                      height: kPopupButtonSize,
                       tooltip: engine.locale['moveTo'],
                       child: const Image(
                         image: AssetImage('assets/images/icon/move_to.png'),
@@ -112,6 +115,8 @@ class WorldMapPopup extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.bottomCenter,
                     child: InkImageButton(
+                      width: kPopupButtonSize,
+                      height: kPopupButtonSize,
                       tooltip: engine.locale['check'],
                       child: const Image(
                         image: AssetImage('assets/images/icon/check.png'),
@@ -129,6 +134,8 @@ class WorldMapPopup extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: InkImageButton(
+                      width: kPopupButtonSize,
+                      height: kPopupButtonSize,
                       tooltip: engine.locale['enter'],
                       child: const Image(
                         image: AssetImage('assets/images/icon/enter.png'),
@@ -146,6 +153,8 @@ class WorldMapPopup extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerRight,
                     child: InkImageButton(
+                      width: kPopupButtonSize,
+                      height: kPopupButtonSize,
                       tooltip: engine.locale['talk'],
                       child: const Image(
                         image: AssetImage('assets/images/icon/talk.png'),
@@ -163,6 +172,8 @@ class WorldMapPopup extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.topCenter,
                     child: InkImageButton(
+                      width: kPopupButtonSize,
+                      height: kPopupButtonSize,
                       tooltip: engine.locale['rest'],
                       child: const Image(
                         image: AssetImage('assets/images/icon/rest.png'),

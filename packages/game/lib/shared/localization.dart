@@ -1,12 +1,14 @@
+import 'package:hetu_script/values.dart';
+
 class GameLocalization {
   static const missingText = 'missing_text';
 
   String get missing => missingText;
 
-  final data = <String, dynamic>{};
+  late HTStruct data;
 
-  void loadData(Map<String, dynamic> data) {
-    this.data.addAll(data);
+  void loadData(HTStruct data) {
+    this.data = data;
   }
 
   String operator [](String key) {

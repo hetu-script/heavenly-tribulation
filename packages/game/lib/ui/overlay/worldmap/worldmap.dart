@@ -11,13 +11,12 @@ import '../../shared/pointer_detector.dart';
 import '../../../engine/engine.dart';
 import '../../../engine/scene/worldmap.dart';
 import '../../shared/avatar.dart';
-import '../../../event/map_event.dart';
-import '../../../event/location_event.dart';
+import '../../../event/events.dart';
 import 'popup.dart';
-import 'location_brief.dart';
 import '../../shared/popup_submenu_item.dart';
 import '../../../shared/json.dart';
 import '../../../shared/constants.dart';
+import '../../../shared/util.dart';
 
 // This is the type used by the popup menu.
 enum TopRightMenuItems { info, viewNone, viewZones, viewNations, exit }
@@ -120,7 +119,6 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
           width: 180,
           height: 120,
           decoration: BoxDecoration(
-            color: Colors.white,
             borderRadius:
                 const BorderRadius.only(bottomRight: Radius.circular(5.0)),
             border: Border.all(
@@ -139,7 +137,6 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
         top: 0,
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
             borderRadius:
                 const BorderRadius.only(bottomLeft: Radius.circular(5.0)),
             border: Border.all(
@@ -168,6 +165,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
                 case TopRightMenuItems.exit:
                   engine.leaveScene('WorldMap');
                   _saveGame();
+                  engine.broadcast(const GameEvent.back2Menu());
                   break;
                 default:
               }
@@ -272,8 +270,13 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
             },
             checkIcon: terrainZone.index != 0,
             onCheckIconTapped: () {
-              LocationBrief.show(context,
-                  terrain: map.selectedTerrain, isHeroPosition: isHeroPosition);
+              if (route != null) {
+                map.moveHeroToTilePositionByRoute(route,
+                    action: DestinationAction.check);
+              } else {
+                engine.broadcast(
+                    MapInteractionEvent.checkTerrain(terrain: terrain));
+              }
               closePopup();
             },
             enterIcon: ((route != null && terrain.locationId != null) ||
@@ -282,7 +285,8 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
                 : false,
             onEnterIconTapped: () {
               if (route != null) {
-                map.moveHeroToTilePositionByRoute(route, enterLocation: true);
+                map.moveHeroToTilePositionByRoute(route,
+                    action: DestinationAction.enter);
               } else {
                 engine.broadcast(
                     LocationEvent.entered(locationId: terrain.locationId!));
@@ -312,20 +316,18 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
   }
 
   Future<void> _saveGame() async {
-    final n = DateTime.now();
-    final stampName =
-        '${n.year}${(n.month).toString().padLeft(2, '0')}${(n.day).toString().padLeft(2, '0')}'
-        '-${(n.hour).toString().padLeft(2, '0')}'
-        '${(n.minute).toString().padLeft(2, '0')}'
-        '${(n.second).toString().padLeft(2, '0')}'
-        '-${(n.millisecond).toString().padLeft(3, '0')}'
-        '${(n.microsecond).toString().padLeft(3, '0')}';
-
-    final directory = await path.getApplicationDocumentsDirectory();
-    final savePath = path.join(directory.path, 'Heavenly Tribulation', 'save');
-
-    final fullPath = path.join(savePath, stampName + kSaveFileExtension);
-    final saveFile = await File(fullPath).create(recursive: true);
+    var savePath = engine.hetu.invoke('getSavePath');
+    if (savePath == null) {
+      final stampName = timestampCrc();
+      final directory = await path.getApplicationDocumentsDirectory();
+      savePath = path.join(directory.path, 'Heavenly Tribulation', 'save',
+          stampName + kSaveFileExtension);
+      engine.hetu.invoke('setSavePath', positionalArgs: [savePath]);
+    }
+    final saveFile = File(savePath);
+    if (!saveFile.existsSync()) {
+      saveFile.createSync(recursive: true);
+    }
     final gameJsonData = engine.hetu.invoke('getGameJsonData');
     final gameStringData = jsonEncodeWithIndent(gameJsonData);
     saveFile.writeAsStringSync(gameStringData);

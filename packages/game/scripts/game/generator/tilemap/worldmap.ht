@@ -57,8 +57,7 @@ const _kZoneContinent = 'continent'
 const _kZoneIsland = 'island'
 const _kZoneLake = 'lake'
 const _kOrganizationCategoryCultivation = 'caltivation'
-const _kMinTileSizeForLocation = 9 // 最大据点密度
-const _kMaxTileSizeForLocation = 18 // 最小据点密度
+const _kTileSizeForLocation = 24 // 据点密度
 const _kMinZoneSizeForSea = 8
 const _kZoneSizeForHarbor = 18
 const _kForestThreshold = 0.5
@@ -111,6 +110,8 @@ fun createWorldMap({
     tileOffsetX = 0.0,
     tileOffsetY = 2.0,
   }) {
+
+  game.savePath = null
   
   game.nations = {}
   game.characters = {}
@@ -452,7 +453,7 @@ fun createWorldMap({
   }
   
   // final playerCharacter001 = {
-    
+  
   //   currentLocation: 'baiheguan',
   //   currentScene: null,
 

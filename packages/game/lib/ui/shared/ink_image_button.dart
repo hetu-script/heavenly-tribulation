@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class InkImageButton extends StatelessWidget {
-  final double width, height;
+  final double? width, height;
 
   final Widget? child;
 
@@ -13,8 +13,8 @@ class InkImageButton extends StatelessWidget {
 
   const InkImageButton({
     Key? key,
-    this.width = 40,
-    this.height = 40,
+    this.width,
+    this.height,
     this.tooltip,
     this.child,
     this.borderRadius = 50,
@@ -28,7 +28,6 @@ class InkImageButton extends StatelessWidget {
       height: height,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
           borderRadius: BorderRadius.circular(borderRadius),
           border: Border.all(
             width: 2,
@@ -38,10 +37,7 @@ class InkImageButton extends StatelessWidget {
         child: Material(
           type: MaterialType.transparency,
           child: Tooltip(
-            textStyle: const TextStyle(
-              color: Colors.white,
-              fontSize: 20.0,
-            ),
+            textStyle: const TextStyle(fontSize: 20.0),
             message: tooltip ?? '',
             child: InkWell(
               // customBorder: const CircleBorder(),

@@ -12,8 +12,7 @@ import '../gestures/gesture_mixin.dart';
 import '../extensions.dart';
 import 'tile.dart';
 import '../engine.dart';
-import '../../event/map_event.dart';
-import '../../event/location_event.dart';
+import '../../event/events.dart';
 import 'zone.dart';
 import 'actor.dart';
 import 'cloud.dart';
@@ -32,6 +31,12 @@ enum GridMode {
   nation,
 }
 
+enum DestinationAction {
+  none,
+  enter,
+  check,
+}
+
 class TileMap extends GameComponent with HandlesGesture {
   static const maxCloudsCout = 16;
   static const cloudsKindNum = 12;
@@ -40,11 +45,6 @@ class TileMap extends GameComponent with HandlesGesture {
     ..strokeWidth = 1
     ..style = PaintingStyle.stroke
     ..color = Colors.yellow;
-
-  static final routePaint = Paint()
-    ..strokeWidth = 1
-    ..style = PaintingStyle.stroke
-    ..color = Colors.white;
 
   @override
   Camera get camera => gameRef.camera;
@@ -74,7 +74,9 @@ class TileMap extends GameComponent with HandlesGesture {
   final TileMapActor? hero;
   List<TileMapRouteNode>? currentRoute;
 
-  String? destinationLocationId;
+  TileMapTerrain? currentMoveDestination;
+
+  DestinationAction currentDestinationAction = DestinationAction.none;
 
   GridMode gridMode = GridMode.none;
 
@@ -529,13 +531,11 @@ class TileMap extends GameComponent with HandlesGesture {
   }
 
   void moveHeroToTilePositionByRoute(List<int> route,
-      {bool enterLocation = false}) {
+      {DestinationAction action = DestinationAction.none}) {
     assert(!hero!.isMoving);
-    if (enterLocation) {
-      final dest = index2TilePosition(route.last);
-      final terrain = getTerrain(dest.left, dest.top);
-      destinationLocationId = terrain!.locationId;
-    }
+    currentDestinationAction = action;
+    final dest = index2TilePosition(route.last);
+    currentMoveDestination = getTerrain(dest.left, dest.top);
     assert(hero!.index == route.first);
     currentRoute = route
         .map((index) {
@@ -667,10 +667,14 @@ class TileMap extends GameComponent with HandlesGesture {
           final nextTile = currentRoute!.last;
           char.moveTo(nextTile.tilePosition);
         } else {
-          if (destinationLocationId != null) {
-            engine.broadcast(
-                LocationEvent.entered(locationId: destinationLocationId!));
-            destinationLocationId = null;
+          if (currentDestinationAction == DestinationAction.enter) {
+            engine.broadcast(LocationEvent.entered(
+                locationId: currentMoveDestination!.locationId!));
+            currentMoveDestination = null;
+          } else if (currentDestinationAction == DestinationAction.check) {
+            engine.broadcast(MapInteractionEvent.checkTerrain(
+                terrain: currentMoveDestination));
+            currentMoveDestination = null;
           }
         }
       }

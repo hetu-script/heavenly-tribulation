@@ -43,26 +43,10 @@ class _SelectionDialogState extends State<SelectionDialog> {
         Container(
           margin: const EdgeInsets.all(5.0),
           child: OutlinedButton(
-            style: OutlinedButton.styleFrom(
-              backgroundColor: Colors.black87,
-              side: const BorderSide(
-                width: 1.0,
-                color: Colors.white70,
-              ),
-              textStyle: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
-            ),
             onPressed: () {
               Navigator.pop(context, key);
             },
-            child: Text(
-              value,
-              style: const TextStyle(
-                color: Colors.white60,
-              ),
-            ),
+            child: Text(value),
           ),
         ),
       );

@@ -13,8 +13,8 @@ final zh = {
   'id': 'ID',
   'none': '无',
   'unknown': '未知',
-  'category': '类型',
-  'development': '发展度',
+  'load': '载入',
+  'delete': '删除',
 
   // 大地图弹出菜单
   'moveTo': '移动',
@@ -35,6 +35,8 @@ final zh = {
   'organization': '门派',
   'maze': '迷宫',
   'dialog': '对话',
+  'category': '类型',
+  'development': '发展度',
 
   'city': '城市',
   'arcana': '洞天',
