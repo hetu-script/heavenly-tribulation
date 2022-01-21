@@ -9,7 +9,7 @@ const kFemaleAvatarCount = 75
 const kCharacterInitialAge = 100
 
 struct Character {
-  construct ({name, isFemale, age}) {
+  construct ({name, isFemale, age, spiritRank}) {
     this.index = game.characters.length
     if (isFemale != null) {
       this.isFemale = isFemale
@@ -33,15 +33,25 @@ struct Character {
 
     this.age = age ?? Math.randomInt(kCharacterInitialAge)
 
+    this.philosophy = Math.randomInt(100) - 50
+    this.worldview = Math.randomInt(100) - 50
+    this.ethics = Math.randomInt(100) - 50
+
+    // 名声，指有多少人知道此人的名字
+    this.fame = 0
+
+    // 知道名字中，对此人好评的人的数量
+    this.praised = 0
+    // 知道名字中，对此人差评的人的数量
+    this.reprimanded = 0
+
+    this.spiritRank = spiritRank ?? 0
+
     game.characters[this.id] = this
   }
 }
 
-fun createCharacterFromJson() {
-  
-}
-
-fun setCurrentCharacter(id: str) {
+fun setHero(id: str) {
   if (game.debug) {
     print('河图: 设置当前玩家人物为 [${id}] ...')
   }
@@ -49,7 +59,7 @@ fun setCurrentCharacter(id: str) {
   game.heroId = id;
 }
 
-fun getCurrentCharacter() {
+fun getHero() {
   return game.characters[game.heroId]
 }
 

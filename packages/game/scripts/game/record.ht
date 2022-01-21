@@ -1,0 +1,22 @@
+// 事件记录
+struct Record {
+  final timestamp
+  
+  construct (content, {type = 'witness', timestamp}) {
+    this.content = content
+    this.timestamp = timestamp
+
+    // 事件类型决定了会将信息记录在哪些对象自己的 record 中
+    // witness: 事件本身相关者会得知此消息
+    // global: 全世界的人都会得知此消息
+    when (type) {
+      'witness' -> {
+        
+      }
+      'global' -> {
+        
+      }
+
+    }
+  }
+}

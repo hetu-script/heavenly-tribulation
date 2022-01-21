@@ -3,6 +3,7 @@ import 'package:hetu_script/values.dart' show HTStruct;
 
 import '../../../engine/engine.dart';
 import 'game_entity_listview.dart';
+import '../../../shared/extension.dart';
 
 const _kInformationTabs = 4;
 
@@ -10,7 +11,7 @@ const _kNationTableColumns = [
   'name',
   'capital',
   'gridSize',
-  'cityNumber',
+  'locationNumber',
   'organizationNumber',
 ];
 
@@ -33,8 +34,11 @@ const _kOrganizationTableColumns = [
 
 const _kCharacterTableColumns = [
   'name',
+  'residentLocation',
   'organization',
-  'job',
+  'spiritRank',
+  'fame',
+  'evaluation',
 ];
 
 class InformationPanel extends StatefulWidget {
@@ -151,6 +155,32 @@ class _InformationPanelState extends State<InformationPanel>
     for (final char in charactersData.values) {
       final rowData = <String>[];
       rowData.add(char['name']);
+      // 住所
+      final residentLocation = engine.hetu.invoke('getLocationById',
+          positionalArgs: [char['residentLocationId']]);
+      rowData.add(residentLocation['name']);
+      // 门派名字
+      final orgId = char['organizationId'];
+      if (orgId != null) {
+        final organization =
+            engine.hetu.invoke('getOrganizationById', positionalArgs: [orgId]);
+        rowData.add(organization['name']);
+      } else {
+        rowData.add(engine.locale['none']);
+      }
+      // 境界
+      final spiritRank = char['spiritRank'];
+      rowData.add(engine.locale['spiritRank$spiritRank']);
+      // 名声
+      rowData.add(char['fame'].toString());
+      // 评价
+      final int praised = char['praised'];
+      final int reprimanded = char['reprimanded'];
+      final percentage = praised + reprimanded > 0
+          ? (praised / (praised + reprimanded)).toPercentageString(2)
+          : '0%';
+      rowData.add(percentage);
+
       _charactersData.add(rowData);
     }
   }

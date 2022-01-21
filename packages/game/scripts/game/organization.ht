@@ -67,8 +67,8 @@ fun addCharacter2Organization(organizationId, character) {
     removeCharacterFromOrganization(character)
   }
   final org = game.organizations[organizationId]
-  character.organizationId = organizationId
   org.characterIds.add(character.id)
+  character.organizationId = organizationId
 }
 
 fun removeLocationFromOrganization(location) {

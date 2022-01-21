@@ -1,1 +1,1 @@
-
+const kSaveFileExtension = '.tdqjsave';

@@ -14,7 +14,7 @@ var engine: SamsaraEngine
 
 final game = {
   debug: true,
-  timestamp: 288000,
+  timestamp: 0,
   languages: {
     zh: {},
     en: {}
@@ -28,6 +28,10 @@ final game = {
   locations: {},
   organizations: {},
   mazes: {},
+}
+
+fun getGameJsonData() {
+  return game.toJson()
 }
 
 fun onGameEvent(id: str, [arg]) {
@@ -49,12 +53,4 @@ fun nextTick() {
   ++game.timestamp
 
   onGameEvent('onUpdate')
-}
-
-fun getUid([n = 3]) {
-  var result = ''
-  for (var i in range(n)) {
-    result += ((Math.random() + 1) * 0x10000).truncate().toRadixString(16).substring(1)
-  }
-  return result
 }

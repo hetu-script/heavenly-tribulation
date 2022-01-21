@@ -3,6 +3,7 @@ import 'generator/random_names/random_names.ht' as randomNames
 
 struct Location {
   final sites = {}
+  final residentCharacterIds = Set()
 
   construct ({
     terrainIndex,
@@ -26,6 +27,25 @@ struct Location {
 
     game.locations[this.id] = this
   }
+}
+
+fun removeCharacterResidentLocation(character) {
+  if (!character.residentLocationId) return
+
+  final loc = game.locations[character.residentLocationId]
+  loc.residentCharacterIds.remove(character.id)
+  character.residentCharacterIds = null
+}
+
+fun setCharacterResidentLocation(locationId, character) {
+  assert(game.locations.owns(locationId))
+  if (character.residentLocationId != null) {
+    assert(character.residentLocationId != locationId)
+    removeCharacterFromOrganization(character)
+  }
+  final loc = game.locations[locationId]
+  loc.residentCharacterIds.add(character.id)
+  character.residentLocationId = locationId
 }
 
 fun addLocation(loc) {

@@ -34,7 +34,7 @@ class _MazeOverlayState extends State<MazeOverlay> {
 
   @override
   Widget build(BuildContext context) {
-    final heroData = engine.hetu.invoke('getCurrentCharacter');
+    final heroData = engine.hetu.invoke('getHero');
     return Material(
       color: Colors.transparent,
       child: Stack(

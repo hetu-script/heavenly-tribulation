@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
+import 'package:path_provider/path_provider.dart' as path;
+import 'package:path/path.dart' as path;
 
 import '../../../engine/tilemap/map.dart';
 import '../../../event/event.dart';
@@ -12,6 +16,8 @@ import '../../../event/location_event.dart';
 import 'popup.dart';
 import 'location_brief.dart';
 import '../../shared/popup_submenu_item.dart';
+import '../../../shared/json.dart';
+import '../../../shared/constants.dart';
 
 // This is the type used by the popup menu.
 enum TopRightMenuItems { info, viewNone, viewZones, viewNations, exit }
@@ -74,7 +80,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final heroData = engine.hetu.invoke('getCurrentCharacter');
+    final heroData = engine.hetu.invoke('getHero');
     final screenSize = MediaQuery.of(context).size;
 
     final heroInfoRow = <Widget>[];
@@ -161,6 +167,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
                   break;
                 case TopRightMenuItems.exit:
                   engine.leaveScene('WorldMap');
+                  _saveGame();
                   break;
                 default:
               }
@@ -302,5 +309,25 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
         ),
       ),
     );
+  }
+
+  Future<void> _saveGame() async {
+    final n = DateTime.now();
+    final stampName =
+        '${n.year}${(n.month).toString().padLeft(2, '0')}${(n.day).toString().padLeft(2, '0')}'
+        '-${(n.hour).toString().padLeft(2, '0')}'
+        '${(n.minute).toString().padLeft(2, '0')}'
+        '${(n.second).toString().padLeft(2, '0')}'
+        '-${(n.millisecond).toString().padLeft(3, '0')}'
+        '${(n.microsecond).toString().padLeft(3, '0')}';
+
+    final directory = await path.getApplicationDocumentsDirectory();
+    final savePath = path.join(directory.path, 'Heavenly Tribulation', 'save');
+
+    final fullPath = path.join(savePath, stampName + kSaveFileExtension);
+    final saveFile = await File(fullPath).create(recursive: true);
+    final gameJsonData = engine.hetu.invoke('getGameJsonData');
+    final gameStringData = jsonEncodeWithIndent(gameJsonData);
+    saveFile.writeAsStringSync(gameStringData);
   }
 }

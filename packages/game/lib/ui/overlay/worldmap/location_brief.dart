@@ -15,14 +15,12 @@ class LocationBrief extends StatelessWidget {
       builder: (context) {
         return Material(
           type: MaterialType.transparency,
-          child: Stack(
+          child: Align(
             alignment: Alignment.center,
-            children: <Widget>[
-              LocationBrief(
-                terrain: terrain,
-                isHeroPosition: isHeroPosition,
-              ),
-            ],
+            child: LocationBrief(
+              terrain: terrain,
+              isHeroPosition: isHeroPosition,
+            ),
           ),
         );
       },

@@ -9,12 +9,15 @@ class InkImageButton extends StatelessWidget {
 
   final String? tooltip;
 
+  final double borderRadius;
+
   const InkImageButton({
     Key? key,
     this.width = 40,
     this.height = 40,
     this.tooltip,
     this.child,
+    this.borderRadius = 50,
     required this.onPressed,
   }) : super(key: key);
 
@@ -26,7 +29,7 @@ class InkImageButton extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(50),
+          borderRadius: BorderRadius.circular(borderRadius),
           border: Border.all(
             width: 2,
             color: Colors.lightBlue.withOpacity(0.5),
@@ -39,9 +42,9 @@ class InkImageButton extends StatelessWidget {
               color: Colors.white,
               fontSize: 20.0,
             ),
-            message: tooltip,
+            message: tooltip ?? '',
             child: InkWell(
-              customBorder: const CircleBorder(),
+              // customBorder: const CircleBorder(),
               onTap: onPressed,
               child: child,
             ),
