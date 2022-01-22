@@ -3,6 +3,8 @@ import '../../game.ht'
 import '../../location.ht'
 import '../../character.ht'
 import '../../nation.ht'
+import '../../incident.ht'
+import '../../l10n.ht'
 import 'hexagonal_tile.ht'
 import 'component.ht'
 import {
@@ -41,7 +43,6 @@ import {
 const _defaultWorldWidth = 12
 const _defaultWorldHeight = 12
 const _defaultNationNumber = 5
-const _defaultOrganizationNumber = 5
 const _kSpriteWater = 1
 const _kSpriteShelf = 2
 const _kSpriteLand = 3
@@ -101,7 +102,6 @@ fun createWorldMap({
     height = _defaultWorldHeight,
     style = 'island',
     nationNumber = _defaultNationNumber,
-    organizationNumber = _defaultOrganizationNumber,
     landProportion = 0.55,
     gridWidth = 32.0,
     gridHeight = 28.0,
@@ -293,9 +293,7 @@ fun createWorldMap({
 
   // 生成据点
   final locationIndexes = Set()
-  final minLocNum = game.world.terrains.length ~/ _kMaxTileSizeForLocation
-  final maxLocNum = game.world.terrains.length ~/ _kMinTileSizeForLocation
-  final locationNumber = Math.max(Math.randomInt(maxLocNum - minLocNum) + minLocNum, nationNumber)
+  final locationNumber = game.world.terrains.length ~/ _kTileSizeForLocation
   while (game.locations.length < locationNumber) {
     var index
     do {
@@ -391,7 +389,7 @@ fun createWorldMap({
     // print('picking location for new nation capital: ${location}')
     final nation = Nation(capitalId: location.id)
     final terrain = game.world.terrains[location.terrainIndex]
-    addTerrain2Nation(nation.id, terrain)
+    addTerrain2Nation(nation, terrain)
   }
   // print(game.nations)
 
@@ -406,7 +404,7 @@ fun createWorldMap({
     for (final index in currentBorder) {
       final terrain = game.world.terrains[index]
       if (terrain.nationId == null && terrain.zoneCategory == _kZoneContinent) {
-        addTerrain2Nation(nation.id, terrain)
+        addTerrain2Nation(nation, terrain)
         expanded = true
       }
     }
@@ -427,35 +425,67 @@ fun createWorldMap({
   updateWorldMapZoneColors()
   updateWorldMapNationColors()
 
-  // 向世界中填充门派
-  for (var i in range(organizationNumber)) {
-    // 初始门派全部为修真门派，且只有一个据点
-    final org = Organization(category: _kOrganizationCategoryCultivation)
+  final leaders = []
+  final headquarters = []
+
+  // 向世界中填充门派, 每个国家有且只有一个门派
+  // 初始门派全部为修真门派，且只有一个据点
+  for (final nation of game.nations) {
     var location
-    var nation
     do {
-      nation = game.nations.values.random
-      location = game.locations[nation.locationIds.random]
-    } while (location.organizationId != null || nation.organizationIds.contains(org.id))
-    org.nationId = nation.id
-    nation.organizationIds.add(org.id)
-    org.headquartersLocationId = location.id
-    addLocation2Organization(org.id, location)
+      location = game.locations[nation.capitalId]
+    } while (location.residentCharacterIds.isNotEmpty)
+    final leader = Character(spiritRank: 1, birthPlaceId: location.id, nationId: nation.id)
+    leader.currentLocationId = location.id
+    setCharacterHome(location, leader)
 
-    // 在这个据点生成组织相关的场景，总堂，士宅等等。并根据组织类型，生成一些功能性建筑
+    final org = Organization(
+      category: _kOrganizationCategoryCultivation,
+      nationId: nation.id,
+      headquartersId: location.id,
+      leaderId: leader.id
+    )
 
-    // 向门派中填充角色
-    final npcCount = Math.randomInt(_kMaxNpcNumberForOrganization - _kMinNpcNumberForOrganization) + _kMinNpcNumberForOrganization
-    final leader = Character(spiritRank: 1)
-    addCharacter2Organization(org.id, leader)
-    org.leaderId = leader.id
-    setCharacterResidentLocation(location.id, leader)
+    leaders.add(leader)
+    headquarters.add(location)
+  }
+
+  // 在总堂所在据点生成组织相关的建筑
+  // 并向门派中填充角色
+  // for (final location in headquarters) {
+  //   final npcCount = Math.randomInt(_kMaxNpcNumberForOrganization - _kMinNpcNumberForOrganization) + _kMinNpcNumberForOrganization
+
+
+  // }
+
+  // 触发创派事件
+  for (final leader in leaders) {
+    final nation = game.nations[leader.nationId]
+    final location = game.locations[leader.currentLocationId]
+    final org = game.organizations[leader.organizationId]
+    final incidentContent = getLocaleString('createOrganizationEvent', [
+      leader.name,
+      nation.name,
+      location.name,
+      org.name,
+    ])
+    final incident = Incident(
+      content: incidentContent,
+      order: 30,
+      subjectId: leader.id,
+      isGlobal: true,
+    )
   }
   
   // final playerCharacter001 = {
   
   //   currentLocation: 'baiheguan',
   //   currentScene: null,
+
+  //   master: {
+  //     characterId,
+  //     bond,
+  //   }
 
   //   talisman: [
   //     {

@@ -128,7 +128,7 @@ fun getName(number: int, {isFemale, style, familyName, middleCharacter}) {
     } else {
       theFamilyName = familyName
     }
-    final f = isFemale ?? Math.randomInt(2) == 0
+    final f = isFemale ?? Math.randomBool()
     final namesOfASex = f ? female : male
     final r = Math.random()
     var s
@@ -179,7 +179,7 @@ fun getDao(number: int, {isFemale, title, firstCharacter}) {
     }
     final name = theFirstCharacter + dao.random
     final titleGroup =
-      isFemale ?? Math.randomInt(2) == 0
+      isFemale ?? Math.randomBool()
         ? daoTitleFemale
         : daoTitleMale
     var t = ''

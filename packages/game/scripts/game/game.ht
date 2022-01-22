@@ -2,6 +2,8 @@ external class SamsaraEngine {
   fun updateLocales(data: Map)
   fun updateZoneColors(data: Map)
   fun updateNationColors(data: Map)
+
+  fun onIncident(data)
 }
 
 var buildContext
@@ -29,6 +31,8 @@ var game = {
   locations: {},
   organizations: {},
   mazes: {},
+  
+  incidents: [],
 }
 
 fun getGameJsonData() {

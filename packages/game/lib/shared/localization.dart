@@ -1,22 +1,38 @@
 import 'package:hetu_script/values.dart';
 
 class GameLocalization {
+  static const localeNotInitialized = 'locale_is_not_initialized';
   static const missingText = 'missing_text';
 
   String get missing => missingText;
 
-  late HTStruct data;
+  HTStruct? data;
 
   void loadData(HTStruct data) {
     this.data = data;
   }
 
+  /// 普通字符串可以直接用 [] 操作符快速获取
   String operator [](String key) {
-    final text = data[key];
-    if (text == null) {
-      return '$missingText($key)';
+    if (data != null) {
+      final text = data![key];
+      if (text == null) {
+        return '$missingText($key)';
+      } else {
+        return text;
+      }
     } else {
-      return text;
+      return localeNotInitialized;
     }
+  }
+
+  /// 对于需要替换部分字符串的本地化串，使用这个接口
+  String getString(String key, [List<String> interpolations = const []]) {
+    var message = this[key];
+
+    for (var i = 0; i < interpolations.length; ++i) {
+      message = message.replaceAll('{$i}', interpolations[i]);
+    }
+    return message;
   }
 }

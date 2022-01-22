@@ -25,7 +25,7 @@ class _MazeOverlayState extends State<MazeOverlay> {
     super.initState();
 
     engine.registerListener(
-      MapEvents.onMapTapped,
+      Events.tappedMap,
       EventHandler(widget.key!, (event) {
         setState(() {});
       }),
@@ -68,7 +68,7 @@ class _MazeOverlayState extends State<MazeOverlay> {
                   borderRadius: BorderRadius.circular(5.0),
                   border: Border.all(
                     width: 2,
-                    color: Colors.lightBlue.withOpacity(0.5),
+                    color: Colors.lightBlue,
                   ),
                 ),
                 padding: const EdgeInsets.all(10.0),
@@ -89,7 +89,7 @@ class _MazeOverlayState extends State<MazeOverlay> {
                 borderRadius: BorderRadius.circular(5.0),
                 border: Border.all(
                   width: 2,
-                  color: Colors.lightBlue.withOpacity(0.5),
+                  color: Colors.lightBlue,
                 ),
               ),
               child: IconButton(

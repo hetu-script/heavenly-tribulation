@@ -1,0 +1,56 @@
+import 'game.ht'
+import 'character.ht'
+
+/// 历史事件记录
+struct Incident {
+  construct ({
+    content: str,
+    
+    isPublic = true,
+    isGlobal = false,
+
+    order = 0,
+    ideal = 0,
+    good = 0,
+    
+    subjectId: str,
+    toCharacterIds: List,
+    withItem: str,
+    toItem: str,
+    siteId: str,
+    terrainIndex: int,
+  }) {
+    assert(content != null && content.isNotEmpty)
+    assert(subjectId != null)
+    this.index = game.incidents.length
+
+    this.content = content
+    this.timestamp = game.timestamp
+
+    this.order = order
+    this.ideal = ideal
+    this.good = good
+
+    this.subjectId = subjectId
+    this.toCharacterIds = toCharacterIds
+    this.withItem = withItem
+    this.toItem = toItem
+    this.siteId = siteId
+    this.terrainIndex = terrainIndex
+
+    if (isPublic) {
+      if (isGlobal) {
+        for (final char of game.characters) {
+          if (char.id == subjectId) continue
+          characterHeardOfIncident(char, this)
+        }
+      }
+    }
+
+    game.incidents.add(this)
+  }
+}
+
+fun getIncidents() {
+  return game.incidents
+}

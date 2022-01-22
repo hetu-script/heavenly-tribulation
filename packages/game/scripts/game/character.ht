@@ -1,15 +1,33 @@
 import 'common.ht'
 import 'game.ht'
+import 'l10n.ht'
 import 'generator/random_names/random_names.ht' as randomNames
 
 // number of the male avatar images
 const kMaleAvatarCount = 37
  // number of the female avatar images
 const kFemaleAvatarCount = 75
-const kCharacterInitialAge = 100
+const kCharacterInitialMinAge = 10
+const kCharacterInitialMaxAge = 100
+
+const kCharacterAverageLooks = 75.0
+/// 容貌最大值: 100.0
+const kCharacterLooksMax = 100.0
+
+const kSpiritRankTitle = 'spiritRankTitle'
+const kOrganizationLeaderTitle = 'organizationLeaderTitle'
 
 struct Character {
-  construct ({name, isFemale, age, spiritRank}) {
+  construct ({
+    name,
+    isFemale: bool,
+    age, spiritRank,
+    birthPlaceId,
+    nationId,
+  }) {
+    assert(birthPlaceId != null)
+    assert(nationId != null)
+
     this.index = game.characters.length
     if (isFemale != null) {
       this.isFemale = isFemale
@@ -30,32 +48,114 @@ struct Character {
       this.name = names.first.name
     }
     this.id = 'character_${this.index}_${this.name}'
+    this.age = age ?? Math.randomInt(kCharacterInitialMaxAge - kCharacterInitialMinAge) + kCharacterInitialMinAge
+    this.looks = createRandomLooks(kCharacterAverageLooks)
+    this.favoredLooks = createRandomLooks()
 
-    this.age = age ?? Math.randomInt(kCharacterInitialAge)
-
-    this.philosophy = Math.randomInt(100) - 50
-    this.worldview = Math.randomInt(100) - 50
-    this.ethics = Math.randomInt(100) - 50
-
-    // 名声，指有多少人知道此人的名字
-    this.fame = 0
-
-    // 知道名字中，对此人好评的人的数量
-    this.praised = 0
-    // 知道名字中，对此人差评的人的数量
-    this.reprimanded = 0
+    this.birthPlaceId = birthPlaceId
+    this.nationId = nationId
 
     this.spiritRank = spiritRank ?? 0
 
+    // 该角色的称号
+    this.titles = {
+      kSpiritRankTitle: getSpiritRankTitle(this.spiritRank)
+    }
+    this.currentTitleId = kSpiritRankTitle
+
+    // 该角色对世界上的其他事物的关系
+    this.bonds = {
+      nations: {
+        // id(str): favor(int) 无上下限，可以一直累加
+      },
+      locations: {},
+      organizations: {},
+      characters: {},
+    }
+
+    // 该角色的人格纬度
+    this.personality = {
+      // 三观，最小 -50 最大 +50
+      ideal: Math.randomInt(100) - 50,
+      order: Math.randomInt(100) - 50,
+      good: Math.randomInt(100) - 50,
+
+      // 行为逻辑，最小 -50 最大 +50
+      social: Math.randomInt(100) - 50,
+      intuition: Math.randomInt(100) - 50,
+      reason: Math.randomInt(100) - 50,
+      controlment: Math.randomInt(100) - 50,
+    }
+ 
+    // 名声，指有多少人知道此人的名字
+    this.fame = 0
+
+    // // 恶名，知道名字中，对此人差评的人的数量
+    // this.infamy = 0
+
     game.characters[this.id] = this
   }
+}
+
+fun characterHeardOfIncident(character, incident) {
+  final subject = game.characters[incident.subjectId]
+  final favor = (character.personality.ideal * incident.ideal +
+                 character.personality.order * incident.order +
+                 character.personality.good * incident.good) / 100
+  if (character.bonds.characters.containsKey(incident.subjectId)) {
+    final bond = character.bonds.characters[incident.subjectId]
+    final oldFavor = bond.favor
+    bond.favor += favor
+    bond.incidentIndexes.add(incident.index)
+    // 评价发生了改变
+    // if (oldFavor < 0 && bond.favor >= 0) {
+    //   --subject.infamy
+    // } else if (oldFavor >= 0 && bond.favor < 0) {
+    //   ++subject.infamy
+    // }
+  } else {
+    // 名声增加
+    ++subject.fame
+    character.bonds.characters[incident.subjectId] = {
+      favor,
+      incidentIndexes: [incident.index],
+    }
+    // if (favor < 0) {
+    //   ++subject.infamy
+    // }
+  }
+}
+
+fun getSpiritRankTitle(spiritRank) {
+  return getLocaleString('spiritRank${spiritRank}') + getLocaleString('cultivator')
+}
+
+fun getOrganizationLeaderTitle(organization) {
+  return organization.name + getLocaleString('leader')
+}
+
+fun removeCharacterHome(character) {
+  if (!character.homeId) return
+
+  final loc = game.locations[character.homeId]
+  loc.residentCharacterIds.remove(character.id)
+  character.residentCharacterIds = null
+}
+
+fun setCharacterHome(location, character) {
+  if (character.homeId != null) {
+    assert(character.homeId != location.id)
+    removeCharacterHome(character)
+  }
+  location.residentCharacterIds.add(character.id)
+  character.homeId = location.id
 }
 
 fun setHero(id: str) {
   if (game.debug) {
     print('河图: 设置当前玩家人物为 [${id}] ...')
   }
-  assert(game.characters.owns(id))
+  assert(game.characters.containsKey(id))
   game.heroId = id;
 }
 
@@ -95,16 +195,13 @@ fun handleCharacterInteraction(char, {isAtHome: bool}) {
   showGameDialogById('event01')
 }
 
-/// 容貌最大值: 100.0
-final characterLooksMax = 100.0
-
-/// 获得随机偏好
-/// 大多数人的偏好都会接近于标准的100
+/// 获得随机容貌或者偏好
+/// 大多数人都会接近于标准的100
 /// 取值离100越远，随机出的可能性越低
 /// 公式: y=\frac{6x-6}{5x-6}
-fun createRandomFavoredLooks() {
+fun createRandomLooks([mean = kCharacterLooksMax]) {
   final x = Math.random()
-  return ((x * 6 - 6) / (5 * x - 6)) * 100
+  return ((x * 6 - 6) / (5 * x - 6)) * mean
 }
 
 /// 容貌评价的计算公式
@@ -113,14 +210,14 @@ fun createRandomFavoredLooks() {
 /// 本公式会利用这两个数值，计算某个角色对另一个角色的容貌的评价
 /// looks 是对方的容貌，0 <= looks <= 100
 /// favors 是该角色的偏好，0 <= favors <= 100
-fun getLooksScore(looks: float, {favors: float}) -> float {
-  assert(0.0 <= looks && looks <= characterLooksMax)
+fun calculateLooksScore(looks: float, {favors: float}) -> float {
+  assert(0.0 <= looks && looks <= kCharacterLooksMax)
   if (favors != null) {
-    assert(0.0 <= favors && favors <= characterLooksMax)
+    assert(0.0 <= favors && favors <= kCharacterLooksMax)
   }
-  if (looks < ((favors + characterLooksMax) / 2)) {
-    return (-(looks - favors) * (looks - favors)) / 20 + characterLooksMax
+  if (looks < ((favors + kCharacterLooksMax) / 2)) {
+    return (-(looks - favors) * (looks - favors)) / 20 + kCharacterLooksMax
   } else {
-    return (-(looks - characterLooksMax) * (looks - characterLooksMax)) / 20 + characterLooksMax
+    return (-(looks - kCharacterLooksMax) * (looks - kCharacterLooksMax)) / 20 + kCharacterLooksMax
   }
 }

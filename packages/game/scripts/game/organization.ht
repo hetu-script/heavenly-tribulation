@@ -2,17 +2,18 @@ import 'game.ht'
 import 'generator/random_names/random_names.ht' as randomNames
 
 struct Organization {
-  // 本门派统治的据点
-  final locationIds = Set()
-  final characterIds = Set()
-
   construct ({
     category,
     name,
     nationId,
-    locationId,
+    headquartersId,
+    leaderId,
     development,
   }) {
+    assert(nationId != null)
+    assert(headquartersId != null)
+    assert(leaderId != null)
+
     this.index = game.organizations.length
     if (name) {
       this.name = name
@@ -21,15 +22,23 @@ struct Organization {
       this.name = names.first.name
     }
     this.id = 'Clan_${this.index}_${this.name}'
-    if (nationId != null) {
-      this.nationId = nationId
-      final nation = game.nations[nationId]
-      nation.organizationIds.add(this.id)
-    }
-    if (locationId != null) {
-      final location = game.locations[locationId]
-      addLocation2Organization(org.id, location)
-    }
+    
+    // 本门派统治的据点 id 列表
+    this.locationIds = Set()
+    // 本门派成员 id 列表
+    this.characterIds = Set()
+    
+    this.nationId = nationId
+    final nation = game.nations[nationId]
+    nation.organizationIds.add(this.id)
+
+    this.headquartersId = headquartersId
+    final location = game.locations[headquartersId]
+    addLocation2Organization(this, location)
+
+    final leader = game.characters[leaderId]
+    addCharacter2Organization(this, leader)
+    setOrganizationLeader(this, leader)
 
     // 组织规模，组织所能允许的等级数量 = 规模
     this.development = development ?? 1
@@ -38,14 +47,23 @@ struct Organization {
   }
 }
 
+// 必须已经是门派成员，才可以设定为掌门
+fun setOrganizationLeader(organization, character) {
+  assert(character.organizationId == organization.id)
+  organization.leaderId = character.id
+  character.titles[kOrganizationLeaderTitle] = getOrganizationLeaderTitle(organization)
+  character.currentTitleId = kOrganizationLeaderTitle
+}
+
 // 组织中每个等级的人数上限
 // 数字越大，等级越低，0是掌门
 fun maxMemberNumberOfOrganizationRank(n: int) {
-  return n * n - n * 2 + 2
+  return n * n
 }
 
 // 组织发展度，等于组织可以拥有的境界上限
-// 至少是 1，表示可以拥有 筑基 1 人，和 炼气 4 人
+// 最少是 1，可以拥有 筑基 1 人，炼气 4 人，外门 9 人
+// 最多是 10
 fun maxMemberNumberOfOrganizationDevelopment(n: int) {
   assert(n > 0)
   var number = 0
@@ -63,15 +81,14 @@ fun removeCharacterFromOrganization(character) {
   character.organizationId = null
 }
 
-fun addCharacter2Organization(organizationId, character) {
-  assert(game.organizations.owns(organizationId))
+fun addCharacter2Organization(organization, character) {
+  assert(!organization.characterIds.contains(character.id))
   if (character.organizationId != null) {
-    assert(character.organizationId != organizationId)
+    assert(character.organizationId != organization.id)
     removeCharacterFromOrganization(character)
   }
-  final org = game.organizations[organizationId]
-  org.characterIds.add(character.id)
-  character.organizationId = organizationId
+  organization.characterIds.add(character.id)
+  character.organizationId = organization.id
 }
 
 fun removeLocationFromOrganization(location) {
@@ -82,18 +99,16 @@ fun removeLocationFromOrganization(location) {
   location.organizationId = null
 }
 
-fun addLocation2Organization(organizationId, location) {
-  assert(game.organizations.owns(organizationId))
+fun addLocation2Organization(organization, location) {
   if (location.organizationId != null) {
-    assert(location.organizationId != organizationId)
+    assert(location.organizationId != organization.id)
     removeLocationFromOrganization(location)
   }
-  final org = game.organizations[organizationId]
   // 只能向本国的门派分配本国统治的据点
-  assert(location.nationId == org.nationId)
-  location.organizationId = organizationId
-  assert(!org.locationIds.contains(location.id))
-  org.locationIds.add(location.id)
+  assert(location.nationId == organization.nationId)
+  location.organizationId = organization.id
+  assert(!organization.locationIds.contains(location.id))
+  organization.locationIds.add(location.id)
 }
 
 fun addOrganizations(orgs: List) {

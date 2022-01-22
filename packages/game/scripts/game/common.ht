@@ -6,3 +6,9 @@ final rarityLevels = {
   mythic: 0.01, // mythic 金
   exotic: 0.004, // exotic 虹
 }
+
+type ValuesMeter = {
+  order: int,
+  ideal: int,
+  good: int,
+}

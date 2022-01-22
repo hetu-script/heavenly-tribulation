@@ -17,6 +17,7 @@ import '../../shared/popup_submenu_item.dart';
 import '../../../shared/json.dart';
 import '../../../shared/constants.dart';
 import '../../../shared/util.dart';
+import 'history_panel.dart';
 
 // This is the type used by the popup menu.
 enum TopRightMenuItems { info, viewNone, viewZones, viewNations, exit }
@@ -46,14 +47,14 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
     super.initState();
 
     engine.registerListener(
-      MapEvents.onMapLoaded,
+      Events.loadedMap,
       EventHandler(widget.key!, (event) {
         setState(() {});
       }),
     );
 
     engine.registerListener(
-      MapEvents.onMapTapped,
+      Events.tappedMap,
       EventHandler(widget.key!, (event) {
         if (map.hero!.isMoving) {
           return;
@@ -119,6 +120,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
           width: 180,
           height: 120,
           decoration: BoxDecoration(
+            color: Theme.of(context).backgroundColor,
             borderRadius:
                 const BorderRadius.only(bottomRight: Radius.circular(5.0)),
             border: Border.all(
@@ -137,6 +139,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
         top: 0,
         child: Container(
           decoration: BoxDecoration(
+            color: Theme.of(context).backgroundColor,
             borderRadius:
                 const BorderRadius.only(bottomLeft: Radius.circular(5.0)),
             border: Border.all(
@@ -200,6 +203,24 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
               ),
             ],
           ),
+        ),
+      ),
+      Positioned(
+        left: 0,
+        bottom: 0,
+        child: Container(
+          width: 240,
+          height: 240,
+          decoration: BoxDecoration(
+            color: Theme.of(context).backgroundColor,
+            borderRadius:
+                const BorderRadius.only(topRight: Radius.circular(5.0)),
+            border: Border.all(
+              width: 2,
+              color: Colors.lightBlue,
+            ),
+          ),
+          child: HistoryPanel(key: UniqueKey()),
         ),
       ),
     ];

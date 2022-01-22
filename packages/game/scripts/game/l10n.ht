@@ -14,13 +14,17 @@ fun addLocales(localeList: List) {
 }
 
 fun setLocale(id: str) {
-  assert(locales.owns(id))
+  assert(locales.containsKey(id))
   if (game.debug) {
     print('河图: 设置当前语言为 [${id}] ...')
   }
   locales.currentLocaleId = id
 }
 
-fun getLocaleString(id: str) {
-  return locales[locales.currentLocaleId][id]
+fun getLocaleString(id: str, [interpolations: List = []]) {
+  var string = locales[locales.currentLocaleId][id]
+  for (var i = 0; i < interpolations.length; ++i) {
+    string = string.replaceAll('{${i}}', interpolations[i]);
+  }
+  return string
 }

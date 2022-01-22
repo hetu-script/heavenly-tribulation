@@ -2,7 +2,7 @@
 // 组织中每个等级的人数上限
 // 数字越大，等级越低，0是掌门
 fun maxMemberNumberOfOrganizationRank(n: int) {
-  return (n + 1) * 3 - 2
+  return n * n
 }
 
 // 组织发展度，等于组织可以拥有的境界上限
@@ -16,11 +16,6 @@ fun maxMemberNumberOfOrganizationDevelopment(n: int) {
   return number
 }
 
-// 1 (rank 1)
-// 4 (under 1)
-// print(maxMemberNumberOfOrganizationDevelopment(1))
-
-// 1 (rank 1)
-// 4 (under 1)
-// 7 (under 2)
-print(maxMemberNumberOfOrganizationDevelopment(1))
+for (var i in range(13, 1)) {
+  print(i, maxMemberNumberOfOrganizationRank(i), maxMemberNumberOfOrganizationDevelopment(i))
+}

@@ -2,13 +2,11 @@ import 'game.ht'
 import 'generator/random_names/random_names.ht' as randomNames
 
 struct Location {
-  final sites = {}
-  final residentCharacterIds = Set()
-
   construct ({
     terrainIndex,
     category,
     name,
+    development,
   }) {
     assert(terrainIndex != null)
     this.terrainIndex = terrainIndex
@@ -24,22 +22,30 @@ struct Location {
     
     // 据点发展度
     // 发展度决定了据点所能拥有的普通居民人口上限，以及所能拥有建筑的数量
-    // 每个发展度还会获得一次招募弟子的机会
-    this.development = 1
+    // 最少是 1，最多是 18
+    this.development = development ?? 1
+
+    this.residentCharacterIds = Set()
 
     // 普通居民决定了税收收入，以及外门弟子的数量
-    this.population = 0
+    final minP = maxPopulationOfLocationDevelopment(this.development - 1)
+    final maxP = maxPopulationOfLocationDevelopment(this.development)
+    this.population = Math.randomInt(maxP - minP) + minP
     
-    // 外门弟子可以定期产生可供选择的有名有姓的人物作为内门弟子
-    // 第一次出现时通常为练气境界
+    // 外门弟子数量，记录在据点数据中，不算做门派属性
     this.disciple = 0
+
+    this.sites = {}
 
     game.locations[this.id] = this
   }
 }
 
+// 每个城市发展度，都会产生新的带有灵根的角色
+// 但这些角色并不会立即出现，而是只能依靠探查搜寻的方式找到
+// 并且每次找到的数量是有上限的
 fun maxPopulationOfLocationDevelopment(n: int) {
-  final base = (n - 1) * (n - 1) * (n - 1) * 100 + 50
+  final base = (n - 1) * (n - 1) * (n - 1) * 50 + 100
 
   return base
 }
@@ -48,33 +54,19 @@ fun maxSiteNumberOfLocationDevelopment(n: int) {
   return n + 2
 }
 
-fun maxNumberOfCharacterRecruitablePerDevelopment() {
-  
+/// 定期产生可供选择的有名有姓的人物作为内门弟子
+/// 第一次出现时通常为练气境界
+/// 产生的内门弟子数量，一开始是 1 个，最高是 8 个
+/// 这个数量和外门弟子数量，修炼场的等级
+/// 执行训练任务的长老属性和技能，等等都有关系
+fun maxNumberOfWildCharacterPerDevelopment() {
+  return n * n - n * 2 + 2
 }
 
 // 每个据点，每个月会自然增加人口，直到达到上限
 // 人口上限会受到掌门的技能，门派的发展度和价值观，以及据点的发展度和建筑所影响
 fun increaseLocationPopulationPerMonth(location) {
 
-}
-
-fun removeCharacterResidentLocation(character) {
-  if (!character.residentLocationId) return
-
-  final loc = game.locations[character.residentLocationId]
-  loc.residentCharacterIds.remove(character.id)
-  character.residentCharacterIds = null
-}
-
-fun setCharacterResidentLocation(locationId, character) {
-  assert(game.locations.owns(locationId))
-  if (character.residentLocationId != null) {
-    assert(character.residentLocationId != locationId)
-    removeCharacterFromOrganization(character)
-  }
-  final loc = game.locations[locationId]
-  loc.residentCharacterIds.add(character.id)
-  character.residentLocationId = locationId
 }
 
 fun addLocation(loc) {

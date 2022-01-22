@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import '../../shared/constants.dart';
 
 class Avatar extends StatelessWidget {
   const Avatar({
     Key? key,
     this.avatarAssetKey,
     this.name,
-    this.size = 100.0,
+    this.size = kAvatarSize,
     this.radius = 10.0,
     this.borderColor = Colors.black38,
     this.borderWidth = 3.0,

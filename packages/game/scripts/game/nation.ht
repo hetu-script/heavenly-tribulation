@@ -4,19 +4,12 @@ import 'generator/random_names/random_names.ht' as randomNames
 const _kNation = '国'
 
 struct Nation {
-  // 本国统治的区块
-  final territoryIndexes = Set()
-  // 国界线相邻的外国区块
-  final borderIndexes = Set()
-  // 本国统治的据点
-  final locationIds = Set()
-  // 本国的门派
-  final organizationIds = Set()
-  
   construct ({
     name,
     capitalId,
   }) {
+    assert(capitalId != null)
+
     this.index = game.nations.length
     if (name) {
       this.name = name + _kNation
@@ -28,6 +21,14 @@ struct Nation {
     this.color = Math.randomBrightColorHex()
     
     this.capitalId = capitalId
+    // 本国统治的区块
+    this.territoryIndexes = Set()
+    // 国界线相邻的外国区块
+    this.borderIndexes = Set()
+    // 本国统治的据点
+    this.locationIds = Set()
+    // 本国的门派
+    this.organizationIds = Set()
 
     game.nations[this.id] = this
   }
@@ -52,13 +53,11 @@ fun removeTerrainFromNation(terrain) {
   nation.locationIds.remove(location.id)
 }
 
-fun addTerrain2Nation(nationId, terrain) {
-  assert(game.nations.owns(nationId))
+fun addTerrain2Nation(nation, terrain) {
   if (terrain.nationId != null) {
-    assert(terrain.nationId != nationId)
+    assert(terrain.nationId != nation.id)
     removeTerrainFromNation(terrain)
   }
-  final nation = game.nations[nationId]
   assert(nation.territoryIndexes.isEmpty || !nation.territoryIndexes.contains(terrain.index))
   nation.territoryIndexes.add(terrain.index)
   assert(nation.borderIndexes.isEmpty || nation.borderIndexes.contains(terrain.index))

@@ -22,7 +22,7 @@ class SamsaraEngine with SceneController, EventAggregator {
   final locale = GameLocalization();
 
   void updateLocales(HTStruct data) {
-    locale.data = data;
+    locale.loadData(data);
   }
 
   Map<int, Color> zoneColors = {};
@@ -39,6 +39,10 @@ class SamsaraEngine with SceneController, EventAggregator {
     nationColors.clear();
     nationColors.addAll(
         data.map((key, value) => MapEntry(key, HexColor.fromHex(value))));
+  }
+
+  void onIncident(HTStruct data) {
+    broadcast(HistoryEvent.occurred(data: data));
   }
 
   late final Hetu hetu;

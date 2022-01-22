@@ -7,6 +7,7 @@ import '../../../engine/engine.dart';
 import '../../../shared/localization.dart';
 import '../../shared/avatar.dart';
 import '../../shared/bordered_icon_button.dart';
+import '../../../shared/constants.dart';
 
 class CharacterEditor extends StatefulWidget {
   const CharacterEditor(
@@ -33,9 +34,6 @@ class _CharacterEditorState extends State<CharacterEditor>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
-
-  static const avatarSize = 100.0;
-  static const avatarEditButtonSize = 16.0;
 
   GameLocalization get locale => engine.locale;
 
@@ -292,15 +290,14 @@ class _CharacterEditorState extends State<CharacterEditor>
                           avatarAssetKey: data['characterAvatar'] != null
                               ? 'assets/images/${data['characterAvatar']}'
                               : null,
-                          size: avatarSize,
                         ),
                         Positioned(
-                          top: avatarSize - avatarEditButtonSize,
+                          top: kAvatarSize - kAvatarEditButtonSize,
                           left: MediaQuery.of(context).size.width / 2 +
-                              avatarSize / 2 -
-                              avatarEditButtonSize,
+                              kAvatarSize / 2 -
+                              kAvatarEditButtonSize,
                           child: BorderedIconButton(
-                            iconSize: avatarEditButtonSize,
+                            iconSize: kAvatarEditButtonSize,
                             icon: const Icon(Icons.shuffle_rounded),
                             tooltip: locale['random'],
                             onPressed: () {
@@ -311,12 +308,12 @@ class _CharacterEditorState extends State<CharacterEditor>
                           ),
                         ),
                         Positioned(
-                          top: avatarSize - avatarEditButtonSize,
+                          top: kAvatarSize - kAvatarEditButtonSize,
                           left: MediaQuery.of(context).size.width / 2 -
-                              avatarSize / 2 -
-                              avatarEditButtonSize,
+                              kAvatarSize / 2 -
+                              kAvatarEditButtonSize,
                           child: BorderedIconButton(
-                            iconSize: avatarEditButtonSize,
+                            iconSize: kAvatarEditButtonSize,
                             icon: data['characterIsFemale']
                                 ? const Icon(Icons.female_rounded)
                                 : const Icon(Icons.male_rounded),

@@ -4,42 +4,9 @@ import 'package:hetu_script/values.dart' show HTStruct;
 import '../../../engine/engine.dart';
 import 'game_entity_listview.dart';
 import '../../../shared/extension.dart';
+import '../../../shared/constants.dart';
 
-const _kInformationTabs = 4;
-
-const _kNationTableColumns = [
-  'name',
-  'capital',
-  'gridSize',
-  'locationNumber',
-  'organizationNumber',
-];
-
-const _kLocationTableColumns = [
-  'name',
-  'nation',
-  'organization',
-  'category',
-  'development',
-];
-
-const _kOrganizationTableColumns = [
-  'name',
-  'leader',
-  'headquartersLocation',
-  'locationNumber',
-  'memberNumber',
-  'development',
-];
-
-const _kCharacterTableColumns = [
-  'name',
-  'residentLocation',
-  'organization',
-  'spiritRank',
-  'fame',
-  'evaluation',
-];
+const _kInformationViewTabLengths = 4;
 
 class InformationPanel extends StatefulWidget {
   const InformationPanel({Key? key}) : super(key: key);
@@ -53,10 +20,15 @@ class _InformationPanelState extends State<InformationPanel>
   @override
   bool get wantKeepAlive => true;
 
-  final List<List<String>> _nationsData = [],
-      _locationsData = [],
-      _organizationsData = [],
-      _charactersData = [];
+  late final HTStruct _nationsData,
+      _locationsData,
+      _organizationsData,
+      _charactersData;
+
+  final List<List<String>> _nationsFieldRow = [],
+      _locationsFieldRow = [],
+      _organizationsFieldRow = [],
+      _charactersFieldRow = [];
 
   @override
   void initState() {
@@ -66,13 +38,13 @@ class _InformationPanelState extends State<InformationPanel>
   }
 
   void updateData() {
-    _nationsData.clear();
-    _locationsData.clear();
-    _organizationsData.clear();
-    _charactersData.clear();
+    _nationsFieldRow.clear();
+    _locationsFieldRow.clear();
+    _organizationsFieldRow.clear();
+    _charactersFieldRow.clear();
 
-    final HTStruct nationsData = engine.hetu.invoke('getNations');
-    for (final nation in nationsData.values) {
+    _nationsData = engine.hetu.invoke('getNations');
+    for (final nation in _nationsData.values) {
       final rowData = <String>[];
       // 国家名字
       rowData.add(nation['name']);
@@ -85,11 +57,13 @@ class _InformationPanelState extends State<InformationPanel>
       // 据点数量
       rowData.add(nation['locationIds'].length.toString());
       rowData.add(nation['organizationIds'].length.toString());
-      _nationsData.add(rowData);
+      // 多存一个隐藏的 id 信息，用于点击事件
+      rowData.add(nation['id']);
+      _nationsFieldRow.add(rowData);
     }
 
-    final HTStruct locationsData = engine.hetu.invoke('getLocations');
-    for (final loc in locationsData.values) {
+    _locationsData = engine.hetu.invoke('getLocations');
+    for (final loc in _locationsData.values) {
       final rowData = <String>[];
       rowData.add(loc['name']);
       final nationId = loc['nationId'];
@@ -127,11 +101,13 @@ class _InformationPanelState extends State<InformationPanel>
       }
       // 发展度
       rowData.add(loc['development'].toString());
-      _locationsData.add(rowData);
+      // 多存一个隐藏的 id 信息，用于点击事件
+      rowData.add(loc['id']);
+      _locationsFieldRow.add(rowData);
     }
 
-    final HTStruct organizationsData = engine.hetu.invoke('getOrganizations');
-    for (final org in organizationsData.values) {
+    _organizationsData = engine.hetu.invoke('getOrganizations');
+    for (final org in _organizationsData.values) {
       final rowData = <String>[];
       rowData.add(org['name']);
       // 掌门
@@ -139,8 +115,8 @@ class _InformationPanelState extends State<InformationPanel>
           .invoke('getCharacterById', positionalArgs: [org['leaderId']]);
       rowData.add(leader['name']);
       // 总堂
-      final headquarters = engine.hetu.invoke('getLocationById',
-          positionalArgs: [org['headquartersLocationId']]);
+      final headquarters = engine.hetu
+          .invoke('getLocationById', positionalArgs: [org['headquartersId']]);
       rowData.add(headquarters['name']);
       // 据点数量
       rowData.add(org['locationIds'].length.toString());
@@ -148,17 +124,19 @@ class _InformationPanelState extends State<InformationPanel>
       rowData.add(org['characterIds'].length.toString());
       // 发展度
       rowData.add(org['development'].toString());
-      _organizationsData.add(rowData);
+      // 多存一个隐藏的 id 信息，用于点击事件
+      rowData.add(org['id']);
+      _organizationsFieldRow.add(rowData);
     }
 
-    final HTStruct charactersData = engine.hetu.invoke('getCharacters');
-    for (final char in charactersData.values) {
+    _charactersData = engine.hetu.invoke('getCharacters');
+    for (final char in _charactersData.values) {
       final rowData = <String>[];
       rowData.add(char['name']);
       // 住所
-      final residentLocation = engine.hetu.invoke('getLocationById',
-          positionalArgs: [char['residentLocationId']]);
-      rowData.add(residentLocation['name']);
+      final home = engine.hetu
+          .invoke('getLocationById', positionalArgs: [char['homeId']]);
+      rowData.add(home['name']);
       // 门派名字
       final orgId = char['organizationId'];
       if (orgId != null) {
@@ -172,16 +150,11 @@ class _InformationPanelState extends State<InformationPanel>
       final spiritRank = char['spiritRank'];
       rowData.add(engine.locale['spiritRank$spiritRank']);
       // 名声
-      rowData.add(char['fame'].toString());
-      // 评价
-      final int praised = char['praised'];
-      final int reprimanded = char['reprimanded'];
-      final percentage = praised + reprimanded > 0
-          ? (praised / (praised + reprimanded)).toPercentageString(2)
-          : '0%';
-      rowData.add(percentage);
-
-      _charactersData.add(rowData);
+      final int fame = char['fame'];
+      rowData.add(fame.toString());
+      // 多存一个隐藏的 id 信息，用于点击事件
+      rowData.add(char['id']);
+      _charactersFieldRow.add(rowData);
     }
   }
 
@@ -190,7 +163,7 @@ class _InformationPanelState extends State<InformationPanel>
     super.build(context);
 
     return DefaultTabController(
-      length: _kInformationTabs,
+      length: _kInformationViewTabLengths,
       child: Scaffold(
         appBar: AppBar(
           title: Text(engine.locale['info']),
@@ -198,21 +171,22 @@ class _InformationPanelState extends State<InformationPanel>
             tabs: [
               Tab(
                 icon: const Icon(Icons.public),
-                text: '${engine.locale['nation']}(${_nationsData.length})',
+                text: '${engine.locale['nation']}(${_nationsFieldRow.length})',
               ),
               Tab(
                 icon: const Icon(Icons.location_city),
-                text: '${engine.locale['location']}(${_locationsData.length})',
+                text:
+                    '${engine.locale['location']}(${_locationsFieldRow.length})',
               ),
               Tab(
                 icon: const Icon(Icons.groups),
                 text:
-                    '${engine.locale['organization']}(${_organizationsData.length})',
+                    '${engine.locale['organization']}(${_organizationsFieldRow.length})',
               ),
               Tab(
                 icon: const Icon(Icons.person),
                 text:
-                    '${engine.locale['character']}(${_charactersData.length})',
+                    '${engine.locale['character']}(${_charactersFieldRow.length})',
               ),
             ],
           ),
@@ -220,20 +194,26 @@ class _InformationPanelState extends State<InformationPanel>
         body: TabBarView(
           children: <Widget>[
             GameEntityListView(
-              columns: _kNationTableColumns,
-              data: _nationsData,
+              columns: kInformationViewNationColumns,
+              data: _nationsFieldRow,
             ),
             GameEntityListView(
-              columns: _kLocationTableColumns,
-              data: _locationsData,
+              columns: kInformationViewLocationColumns,
+              data: _locationsFieldRow,
             ),
             GameEntityListView(
-              columns: _kOrganizationTableColumns,
-              data: _organizationsData,
+              columns: kInformationViewOrganizationColumns,
+              data: _organizationsFieldRow,
             ),
             GameEntityListView(
-              columns: _kCharacterTableColumns,
-              data: _charactersData,
+              columns: kInformationViewCharacterColumns,
+              data: _charactersFieldRow,
+              onTap: (dataId) {
+                Navigator.of(context).pushNamed(
+                  'character',
+                  arguments: dataId,
+                );
+              },
             )
           ],
         ),

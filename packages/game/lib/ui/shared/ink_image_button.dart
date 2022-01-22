@@ -28,15 +28,19 @@ class InkImageButton extends StatelessWidget {
       height: height,
       child: Container(
         decoration: BoxDecoration(
+          color: Colors.white,
           borderRadius: BorderRadius.circular(borderRadius),
           border: Border.all(
             width: 2,
-            color: Colors.lightBlue.withOpacity(0.5),
+            color: Colors.lightBlue,
           ),
         ),
         child: Material(
           type: MaterialType.transparency,
           child: Tooltip(
+            decoration: BoxDecoration(
+              color: Theme.of(context).backgroundColor,
+            ),
             textStyle: const TextStyle(fontSize: 20.0),
             message: tooltip ?? '',
             child: InkWell(

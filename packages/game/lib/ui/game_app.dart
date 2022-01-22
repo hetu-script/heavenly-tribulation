@@ -50,7 +50,7 @@ class _GameAppState extends State<GameApp> {
         }));
 
     engine.registerListener(
-      SceneEvents.started,
+      Events.startedScene,
       EventHandler(widget.key!, (event) {
         setState(() {
           _isLoading = false;
@@ -59,14 +59,14 @@ class _GameAppState extends State<GameApp> {
     );
 
     engine.registerListener(
-      SceneEvents.ended,
+      Events.endedScene,
       EventHandler(widget.key!, (event) {
         setState(() {});
       }),
     );
 
     engine.registerListener(
-      LocationEvents.entered,
+      Events.enteredLocation,
       EventHandler(widget.key!, (event) {
         Navigator.of(context).pushNamed(
           'location',
@@ -79,7 +79,7 @@ class _GameAppState extends State<GameApp> {
     );
 
     engine.registerListener(
-      LocationEvents.left,
+      Events.leftLocation,
       EventHandler(widget.key!, (event) {
         // setState(() {
         //   // currentLocationId = null;
@@ -111,7 +111,8 @@ class _GameAppState extends State<GameApp> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return LoadingScreen(text: engine.locale['loading']);
+      return LoadingScreen(
+          text: engine.isLoaded ? engine.locale['loading'] : 'Loading...');
     }
     // else if (currentLocationId != null) {
     //   return LocationView(locationId: currentLocationId!);

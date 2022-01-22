@@ -5,6 +5,7 @@ import 'package:heavenly_tribulation/ui/view/information/information.dart';
 import 'ui/view/location.dart';
 import 'ui/game_app.dart';
 import 'ui/editor/editor.dart';
+import 'ui/view/character.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +25,7 @@ void main() async {
       routes: {
         'location': (context) => const LocationRoute(),
         'information': (context) => const InformationPanel(),
+        'character': (context) => const CharacterView(),
         'editor': (context) => const GameEditor(),
       },
     ),

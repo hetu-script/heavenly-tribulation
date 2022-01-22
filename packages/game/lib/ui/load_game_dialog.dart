@@ -52,7 +52,7 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
         borderRadius: BorderRadius.circular(5.0),
         border: Border.all(
           width: 2,
-          color: Colors.lightBlue.withOpacity(0.5),
+          color: Colors.lightBlue,
         ),
       ),
       padding: const EdgeInsets.all(10.0),

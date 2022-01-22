@@ -1,10 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/event/events.dart';
 
+import '../../event/events.dart';
 import '../shared/empty_placeholder.dart';
-import '../../../engine/engine.dart';
+import '../../engine/engine.dart';
 // import '../colored_widget.dart';
 
 class LocationRoute extends StatelessWidget {
@@ -133,11 +133,6 @@ class _LocationViewState extends State<LocationView>
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
@@ -162,7 +157,7 @@ class _LocationViewState extends State<LocationView>
                   : null,
             ),
             child: Align(
-              alignment: Alignment.centerRight,
+              alignment: Alignment.centerLeft,
               child: SizedBox(
                 width: 180.0,
                 child: Card(
