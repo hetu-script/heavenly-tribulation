@@ -7,10 +7,7 @@ import '../../incident.ht'
 import '../../l10n.ht'
 import 'hexagonal_tile.ht'
 import 'component.ht'
-import {
-  tilePos2Index,
-  getMapTileNeighbors,
-  calculateRoute } from '../../map.ht'
+import '../../map.ht'
 
 /// 生成世界地图的算法
 ///
@@ -432,9 +429,12 @@ fun createWorldMap({
   // 初始门派全部为修真门派，且只有一个据点，位置在该国首都
   for (final nation of game.nations) {
     var location = game.locations[nation.capitalId]
-    final leader = Character(spiritRank: 1, birthPlaceId: location.id, nationId: nation.id)
+    final leader = Character(
+      spiritRank: 1,
+      birthPlaceId: location.id,
+      nationId: nation.id
+    )
     leader.currentLocationId = location.id
-    setCharacterHome(location, leader)
 
     final org = Organization(
       category: _kOrganizationCategoryCultivation,

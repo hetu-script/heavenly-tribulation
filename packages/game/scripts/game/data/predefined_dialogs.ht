@@ -1,18 +1,24 @@
 final predefinedDialogs = [
-  // 不是该组织的人，也不认识首领
-  // 根据声望判断
   {
-    id: 'headquarters01',
+    id: 'headquartersTrain001',
     contents: [
       {
         avatar: 'avatar/general.jpg',
-        lines: [
-          
+        lineIds: [
+          'headquartersTrain001-1',
         ],
       },
     ],
-    options: [
-      
-    ]
+  },
+  {
+    id: 'headquartersLearn001',
+    contents: [
+      {
+        avatar: 'avatar/general.jpg',
+        lineIds: [
+          'headquartersLearn001-1',
+        ],
+      },
+    ],
   },
 ]

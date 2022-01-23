@@ -3,14 +3,18 @@ export 'mod.ht'
 export 'datetime.ht'
 export 'l10n.ht'
 export 'dialog.ht'
+export 'nation.ht'
 export 'organization.ht'
 export 'character.ht'
 export 'location.ht'
+export 'incident.ht'
 export 'map.ht'
 export 'duel.ht'
-export 'relationship.ht'
 export 'resource.ht'
 export 'entity.ht'
+
+export 'generator/tilemap/worldmap.ht'
+export 'generator/tilemap/maze.ht'
 
 import 'l10n/predefined_localizations.ht'
 import 'data/predefined_dialogs.ht'
@@ -26,7 +30,7 @@ fun init({locale = 'zh', gameEngine: SamsaraEngine}) {
   addLocales(predefinedLocalizations)
   engine.updateLocales(locales[locale])
 
-  // addDialogs(predefinedDialogs) // must be after added characters
+  addDialogs(predefinedDialogs)
   
   if (game.debug) {
     print('河图: 初始化函数执行完毕 ...')

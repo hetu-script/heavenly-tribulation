@@ -107,15 +107,15 @@ struct Character {
     // 该角色的人格纬度
     this.personality = {
       // 三观，最小 -50 最大 +50
-      ideal: Math.randomInt(100) - 50,
-      order: Math.randomInt(100) - 50,
-      good: Math.randomInt(100) - 50,
+      ideal: Math.random() * 100 - 50,
+      order: Math.random() * 100 - 50,
+      good: Math.random() *100 - 50,
 
       // 行为逻辑，最小 -50 最大 +50
-      social: Math.randomInt(100) - 50,
-      intuition: Math.randomInt(100) - 50,
-      reason: Math.randomInt(100) - 50,
-      controlment: Math.randomInt(100) - 50,
+      social: Math.random() * 100 - 50,
+      intuition: Math.random() * 100 - 50,
+      reason: Math.random() * 100 - 50,
+      controlment: Math.random() * 100 - 50,
     }
  
     // 名声，指有多少人知道此人的名字
@@ -245,8 +245,8 @@ fun removeCharacterHome(character) {
   if (!character.homeId) return
 
   final loc = game.locations[character.homeId]
-  loc.wildCharacterIds.remove(character.id)
-  loc.organizedCharacterIds.remove(character.id)
+  delete loc.wildCharacterIds[character.id]
+  delete loc.organizedCharacterIds[character.id]
   character.homeId = null
 }
 
@@ -256,9 +256,9 @@ fun setCharacterHome(location, character, {isOrganized: bool = true}) {
     removeCharacterHome(character)
   }
   if (isOrganized) {
-    location.organizedCharacterIds.add(character.id)
+    location.organizedCharacterIds[character.id] = character.name
   } else {
-    location.wildCharacterIds.add(character.id)
+    location.wildCharacterIds[character.id] = character.name
   }
   character.homeId = location.id
 }
@@ -302,9 +302,9 @@ fun getCharacters() {
   return game.characters
 }
 
-fun handleCharacterInteraction(char, {isAtHome: bool}) {
-  final entity = getEntityById(char.id)
-  showGameDialogById('event01')
+fun handleCharacterInteraction(characterId) {
+  final character = game.characters[characterId]
+  print('interaction:', character.name)
 }
 
 /// 获得随机容貌或者偏好

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../engine/engine.dart';
-
-const _kTabBarHeight = 72.0;
+import '../shared/constants.dart';
 
 class HistoryView extends StatelessWidget {
   const HistoryView({Key? key, required this.data}) : super(key: key);
@@ -20,7 +19,7 @@ class HistoryView extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(10),
-      height: MediaQuery.of(context).size.height - _kTabBarHeight,
+      height: MediaQuery.of(context).size.height - kTabBarHeight,
       child: SingleChildScrollView(
         child: ListView(
           shrinkWrap: true,

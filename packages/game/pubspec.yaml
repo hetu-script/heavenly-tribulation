@@ -53,6 +53,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/bg/
     - assets/images/icon/
     - assets/images/character/
     - assets/images/weather/
@@ -60,6 +61,7 @@ flutter:
     - assets/images/interior/
     - assets/images/location/
     - assets/images/location/site/
+    - assets/images/avatar/
     - assets/images/avatar/male/
     - assets/images/avatar/female/
 

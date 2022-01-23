@@ -1,4 +1,5 @@
 import 'game.ht'
+import 'map.ht'
 import 'generator/random_names/random_names.ht' as randomNames
 
 const _kNation = '国'

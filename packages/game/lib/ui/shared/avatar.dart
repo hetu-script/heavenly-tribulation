@@ -30,10 +30,12 @@ class Avatar extends StatelessWidget {
 
     stacked.add(
       Container(
+        width: size,
+        height: size,
         decoration: BoxDecoration(
           image: avatarAssetKey != null
               ? DecorationImage(
-                  fit: BoxFit.fill,
+                  fit: BoxFit.contain,
                   image: AssetImage(avatarAssetKey!),
                 )
               : null,

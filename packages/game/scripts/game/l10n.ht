@@ -21,10 +21,12 @@ fun setLocale(id: str) {
   locales.currentLocaleId = id
 }
 
+const kMissingText = 'missing_text_'
+
 fun getLocaleString(id: str, [interpolations: List = []]) {
   var string = locales[locales.currentLocaleId][id]
   for (var i = 0; i < interpolations.length; ++i) {
     string = string.replaceAll('{${i}}', interpolations[i]);
   }
-  return string
+  return string ?? kMissingText + id
 }

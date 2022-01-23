@@ -17,7 +17,12 @@ void main() async {
     MaterialApp(
       title: 'Tian Dao Qi Jie',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
+      theme: ThemeData.dark().copyWith(
+        brightness: Brightness.dark,
+        textTheme: const TextTheme(
+          button: TextStyle(fontSize: 18),
+        ),
+      ),
       home: GameApp(key: UniqueKey()),
       routes: {
         'location': (context) => LocationView(key: UniqueKey()),

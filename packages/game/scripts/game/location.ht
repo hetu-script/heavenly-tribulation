@@ -1,9 +1,10 @@
 import 'game.ht'
+import 'character.ht'
+import 'dialog.ht'
 import 'generator/random_names/random_names.ht' as randomNames
 
 const kSiteResidence = 'residence'
 const kSiteHeadquarters = 'headquarters'
-const kSiteAdvancedResidence = 'advancedResidence'
 const kSiteLibrary = 'library'
 const kSiteFarmland = 'farmland'
 const kSiteMine = 'mine'
@@ -70,10 +71,10 @@ struct Location {
     // 最少是 1，最多是 18
     this.development = development ?? 1
 
-    // 在野修士
-    this.wildCharacterIds = Set()
-    // 门派修士
-    this.organizedCharacterIds = Set()
+    // 在野修士, key = id, value = name
+    this.wildCharacterIds = {}
+    // 门派修士, key = id, value = name
+    this.organizedCharacterIds = {}
 
     // 普通居民决定了税收收入，以及外门弟子的数量
     final minP = maxPopulationOfLocationDevelopment(this.development - 1)
@@ -187,7 +188,6 @@ fun handleSiteInteraction(siteId: str, locationId: str) {
     when (site.category) {
       'residence' -> _handleResidenceInteraction(site)
       'headquarters' -> _handleHeadquartersInteraction(site)
-      'advancedResidence' -> _handleAdvancedResidenceInteraction(site)
       'library' -> _handleLibraryInteraction(site)
       'farmland' -> _handleFarmlandInteraction(site)
       'mine' -> _handleMineInteraction(site)
@@ -210,79 +210,95 @@ fun handleSiteInteraction(siteId: str, locationId: str) {
   }
 }
 
-fun searchCharactersAtSite(siteId: str) {
+fun searchCharactersAtSite(siteId: str) -> Iterable {
   return game.characters.where((siteId) {
     char.currentSiteId == currentSiteId
   })
 }
 
-fun _handleResidenceInteraction(scn) {
+fun _handleResidenceInteraction(site) {
 
 }
 
-fun _handleHeadquartersInteraction(scn) {
-  // final characters = searchCharactersAtScene(scn.id)
-  // if (characters.isNotEmpty) {
-  //   handleCharacterInteraction(characters.first)
-  // }
+fun _handleHeadquartersInteraction(site) {
+  final location = game.locations[site.locationId]
+  final selections = {
+    train: getLocaleString('train'),
+    learn: getLocaleString('learn'),
+    visit: getLocaleString('visit'),
+  }
+  showSelectionDialog(selections)
+  .then((key) {
+    when (key) {
+      'train' -> {
+        showGameDialogById('headquartersTrain001')
+      }
+      'learn' -> {
+        showGameDialogById('headquartersLearn001')
+      }
+      'visit' -> {
+        assert(location.organizedCharacterIds.isNotEmpty)
+        showSelectionDialog(location.organizedCharacterIds)
+        .then((key) {
+          handleCharacterInteraction(key)
+        })
+      }
+    }
+  })
 }
 
-fun _handleAdvancedResidenceInteraction(scn) {
-
-}
-
-fun _handleLibraryInteraction(scn) {
-
-}
-
-fun _handleFarmlandInteraction(scn) {
-
-}
-
-fun _handleMineInteraction(scn) {
-
-}
-
-fun _handleMarketInteraction(scn) {
-
-}
-
-fun _handleShopInteraction(scn) {
-
-}
-
-fun _handleRestaurantInteraction(scn) {
+fun _handleLibraryInteraction(site) {
 
 }
 
-fun _handleArenaInteraction(scn) {
+fun _handleFarmlandInteraction(site) {
 
 }
 
-fun _handleNurseryInteraction(scn) {
+fun _handleMineInteraction(site) {
 
 }
 
-fun _handleWorkshopInteraction(scn) {
+fun _handleMarketInteraction(site) {
 
 }
 
-fun _handleAlchemylabInteraction(scn) {
+fun _handleShopInteraction(site) {
 
 }
 
-fun _handleSmithshopInteraction(scn) {
+fun _handleRestaurantInteraction(site) {
 
 }
 
-fun _handleZenroomInteraction(scn) {
+fun _handleArenaInteraction(site) {
 
 }
 
-fun _handleZooInteraction(scn) {
+fun _handleNurseryInteraction(site) {
 
 }
 
-fun _handleMazeInteraction(scn) {
+fun _handleWorkshopInteraction(site) {
+
+}
+
+fun _handleAlchemylabInteraction(site) {
+
+}
+
+fun _handleSmithshopInteraction(site) {
+
+}
+
+fun _handleZenroomInteraction(site) {
+
+}
+
+fun _handleZooInteraction(site) {
+
+}
+
+fun _handleMazeInteraction(site) {
 
 }

@@ -91,7 +91,6 @@ final location = {
 
   'residence': '民居',
   'headquarters': '总堂',
-  'advancedResidence': '修士宅',
   'library': '藏书阁',
   'farmland': '农田',
   'mine': '矿山',
@@ -181,6 +180,17 @@ final history = {
   'createOrganizationEvent': '『{0}』在『{1}』『{2}』开宗立派，成为『{3}』第一任掌门。',
 }
 
+final interaction = {
+  'train': '训练',
+  'learn': '学习',
+  'visit': '拜访',
+}
+
+final dialog = {
+  'headquartersTrain001-1': '非本派人士严禁在馆内修行，阁下还是请回吧。',
+  'headquartersLearn001-1': '非本派人士严禁在馆内修行，阁下还是请回吧。',
+}
+
 final editor = {
   'editorTitle': '《天道奇劫》游戏编辑器',
   'newGame': '开始新游戏',
@@ -212,7 +222,6 @@ final editor = {
   'characterEditingMustEnterName': '必须填写角色姓名！',
 }
 
-
 final zh = {
   ...general,
   ...worldMap,
@@ -220,5 +229,7 @@ final zh = {
   ...location,
   ...character,
   ...history,
+  ...interaction,
+  ...dialog,
   ...editor,
 }

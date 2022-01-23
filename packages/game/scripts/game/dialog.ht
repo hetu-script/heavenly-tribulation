@@ -16,9 +16,9 @@ fun addDialogs(dlgs: List) {
         content.avatar = char.avatar
       }
       if (content.lineIds) {
-        content.lines = content.lineIds.map((id) {
-          return getLocaleString(id)
-        })
+        content.lines = content.lineIds.map(
+          (id) => getLocaleString(id)
+        )
       }
     }
     game.dialogs[dlg.id] = dlg
@@ -32,8 +32,8 @@ fun showGameDialogById(id: str) -> Future {
   return _showGameDialog(buildContext, dlg.toJson())
 }
 
-external fun _showSelectionDialog(buildContext, data: Map)
+external fun _showSelectionDialog(buildContext, selections)
 
-fun showSelectionDialog(data) -> Future {
-  return _showSelectionDialog(buildContext, data.toJson())
+fun showSelectionDialog(selections) -> Future {
+  return _showSelectionDialog(buildContext, selections)
 }

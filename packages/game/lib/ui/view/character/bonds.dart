@@ -4,9 +4,9 @@ import 'package:data_table_2/data_table_2.dart';
 
 import '../../../engine/engine.dart';
 import '../../shared/empty_placeholder.dart';
+import '../../shared/constants.dart';
 
 const kCharacterBondsCategoryNum = 5;
-const _kNestedTabBarHeight = 178.0;
 
 const kBondsTableColumns = [
   'name',
@@ -28,7 +28,7 @@ class CharacterBondsView extends StatelessWidget {
       child: Column(
         children: <Widget>[
           PreferredSize(
-            preferredSize: const Size.fromHeight(_kNestedTabBarHeight),
+            preferredSize: const Size.fromHeight(kNestedTabBarHeight),
             child: TabBar(
               tabs: <Widget>[
                 Tab(text: engine.locale['character']),
@@ -40,7 +40,7 @@ class CharacterBondsView extends StatelessWidget {
             ),
           ),
           SizedBox(
-            height: MediaQuery.of(context).size.height - _kNestedTabBarHeight,
+            height: MediaQuery.of(context).size.height - kNestedTabBarHeight,
             child: TabBarView(
               children: data.keys
                   .map(

@@ -44,6 +44,7 @@ struct Organization {
 
     final leader = game.characters[leaderId]
     addCharacter2Organization(this, leader)
+    setCharacterHome(location, leader)
     setOrganizationLeader(this, leader)
 
     // 组织规模，组织所能允许的等级数量 = 规模
@@ -66,7 +67,11 @@ fun setOrganizationHeadquarters(organization, location) {
   assert(!location.sites.containsKey(kSiteHeadquarters))
   assert(location.organizationId == organization.id)
   organization.headquartersId = location.id
-  location.sites[kSiteHeadquarters] = Site(location: location, category: kSiteHeadquarters)
+  location.sites[kSiteHeadquarters] = Site(
+    location: location,
+    category: kSiteHeadquarters,
+    name: organization.name,
+  )
 }
 
 // 组织中每个等级的人数上限

@@ -120,7 +120,13 @@ class _GameAppState extends State<GameApp> {
     else if (engine.currentScene != null) {
       return engine.currentScene!.widget;
     } else {
-      final menuButtons = <Widget>[
+      final menuWidgets = <Widget>[
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 35),
+          child: Image(
+            image: AssetImage('assets/images/title.png'),
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 20.0),
           child: ElevatedButton(
@@ -136,7 +142,7 @@ class _GameAppState extends State<GameApp> {
       ];
 
       if (savedFiles.isNotEmpty) {
-        menuButtons.add(
+        menuWidgets.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20.0),
             child: ElevatedButton(
@@ -159,7 +165,7 @@ class _GameAppState extends State<GameApp> {
         );
       }
 
-      menuButtons.add(Padding(
+      menuWidgets.add(Padding(
         padding: const EdgeInsets.symmetric(vertical: 20.0),
         child: ElevatedButton(
           onPressed: () {
@@ -170,10 +176,18 @@ class _GameAppState extends State<GameApp> {
       ));
 
       return Scaffold(
-        body: Center(
+        body: Container(
+          color: Colors.black,
+          // decoration: const BoxDecoration(
+          //   image: DecorationImage(
+          //     fit: BoxFit.fill,
+          //     image: AssetImage('assets/images/bg/background_01.jpg'),
+          //   ),
+          // ),
+          alignment: Alignment.center,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: menuButtons,
+            children: menuWidgets,
           ),
         ),
       );

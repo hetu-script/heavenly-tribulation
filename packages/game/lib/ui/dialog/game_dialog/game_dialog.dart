@@ -9,9 +9,9 @@ import '../../shared/avatar.dart';
 class GameDialog extends StatefulWidget {
   static Future<void> show(
     BuildContext context,
-    Map<String, dynamic> data,
+    Map<String, dynamic> jsonData,
   ) async {
-    final dlgData = GameDialogData.fromJson(data);
+    final dlgData = GameDialogData.fromJson(jsonData);
     return await showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -83,6 +83,7 @@ class _GameDialogState extends State<GameDialog> {
               Container(
                 height: 240,
                 decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 child: Padding(
@@ -94,7 +95,7 @@ class _GameDialogState extends State<GameDialog> {
                         size: 200.0,
                       ),
                       Padding(
-                        padding: const EdgeInsets.only(left: 10.0),
+                        padding: const EdgeInsets.only(left: 20.0),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[

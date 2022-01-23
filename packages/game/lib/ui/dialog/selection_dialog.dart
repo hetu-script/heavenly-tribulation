@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 
 class SelectionDialog extends StatefulWidget {
-  static Future<String?> show(
+  static Future<dynamic> show(
     BuildContext context,
-    Map<String, dynamic> options,
+    dynamic selections,
   ) async {
-    return await showDialog<String>(
+    assert(selections.isNotEmpty);
+    return await showDialog<dynamic>(
       context: context,
       builder: (BuildContext context) {
-        return SelectionDialog(options: options);
+        return SelectionDialog(selections: selections);
       },
       barrierDismissible: false,
     );
   }
 
-  final Map<String, dynamic> options;
+  final dynamic selections;
 
   const SelectionDialog({
     Key? key,
-    required this.options,
+    required this.selections,
   }) : super(key: key);
 
   @override
@@ -26,27 +27,27 @@ class SelectionDialog extends StatefulWidget {
 }
 
 class _SelectionDialogState extends State<SelectionDialog> {
-  Map<String, dynamic> get _options => widget.options;
+  dynamic get _selections => widget.selections;
 
   @override
   void initState() {
-    assert(_options.isNotEmpty);
+    assert(_selections.isNotEmpty);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final buttons = <Widget>[];
-    for (final key in _options.keys) {
-      final value = _options[key]!.toString();
+    for (final key in _selections.keys) {
+      final value = _selections[key];
       buttons.add(
         Container(
           margin: const EdgeInsets.all(5.0),
-          child: OutlinedButton(
+          child: ElevatedButton(
             onPressed: () {
               Navigator.pop(context, key);
             },
-            child: Text(value),
+            child: Text(value.toString()),
           ),
         ),
       );
