@@ -112,7 +112,8 @@ final character = {
   'stats': '属性',
   'bonds': '羁绊',
   'history': '经历',
-  'impression': '对其印象',
+  'impressionOfThem': '对TA的好感度',
+  'impressionToThisPerson': 'TA对此人的好感度',
 
   'sex': '性别',
   'male': '男',
@@ -160,14 +161,15 @@ final character = {
   'chaotic': '混乱',
   'good': '无私',
   'evil': '自私',
-  'social': '社交',
+  'social': '外向',
   'introspection': '内省',
+  'controlment': '条理',
+  'relaxation': '率性',
+  
   'intuition': '直觉',
   'sensing': '感觉',
   'reason': '理性',
   'fealing': '感性',
-  'controlment': '条理',
-  'relaxation': '率性',
 
   'stress': '压力',
   'confidence': '自信',

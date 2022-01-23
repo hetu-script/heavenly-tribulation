@@ -10,7 +10,7 @@ const kCharacterBondsCategoryNum = 5;
 
 const kBondsTableColumns = [
   'name',
-  'impression',
+  'impressionOfThem',
 ];
 
 class CharacterBondsView extends StatelessWidget {

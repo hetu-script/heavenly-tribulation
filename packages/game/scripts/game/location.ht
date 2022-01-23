@@ -1,7 +1,7 @@
 import 'game.ht'
 import 'character.ht'
 import 'dialog.ht'
-import 'generator/random_names/random_names.ht' as randomNames
+import 'generator/object/object.ht' as randomObject
 
 const kSiteResidence = 'residence'
 const kSiteHeadquarters = 'headquarters'
@@ -57,7 +57,7 @@ struct Location {
     } else {
       var conflict = false
       do {
-        final names = randomNames.getLocation(1, category: category)
+        final names = randomObject.getLocation(1, category: category)
         this.name = names.first.name
         conflict = game.locations.values.where((element) =>
           element.name == this.name).isNotEmpty
@@ -88,7 +88,7 @@ struct Location {
     Site(category: kSiteResidence, location: this)
 
     // 当地居民的稳定度，0 ~ 100
-    this.stable = 100
+    this.stable = 100.0
 
     game.locations[this.id] = this
   }
@@ -231,9 +231,11 @@ fun _handleHeadquartersInteraction(site) {
   .then((key) {
     when (key) {
       'train' -> {
+        // 非本门派修士,需要花钱才能训练
         showGameDialogById('headquartersTrain001')
       }
       'learn' -> {
+        // 非本门派修士,需要花钱才能学习,而且只能学习二阶或以下的功法
         showGameDialogById('headquartersLearn001')
       }
       'visit' -> {

@@ -7,16 +7,12 @@ import 'data/name/family.json' as family
 import 'data/name/female.json' as female
 import 'data/name/male.json' as male
 import 'data/name/middle.json' as middle
-import 'data/dao/dao.json' as dao
-import 'data/dao/title_male.json' as daoTitleMale
-import 'data/dao/title_female.json' as daoTitleFemale
 import 'data/skill/skill.json' as skill
 import 'data/skill/prefix.json' as skillPrefix
 import 'data/skill/numfix.json' as skillNumfix
 import 'data/book/prefix.json' as bookPrefix
 import 'data/book/book.json' as book
 import 'data/book/postfix.json' as bookPostfix
-import 'data/spell/spell.json' as spell
 import 'data/talisman/talisman.json' as talisman
 import 'data/talisman/material.json' as talismanMaterial
 import 'data/talisman/postfix.json' as talismanPostfix
@@ -47,8 +43,7 @@ export {
 }
 
 export {
-  getName,
-  getDao,
+  getCharacter,
   getSkill,
   getBook,
   getSpell,
@@ -83,6 +78,8 @@ final locations = [
   ...location.island,
   ...location.city,
 ]
+
+final kSkillCategories = kSkillCategory.keys
 
 final kLocationCategories = kLocationCategory.keys
 
@@ -119,7 +116,7 @@ const _kBookRight = "》";
 
 const _kLinkWord = '之'
 
-fun getName(number: int, {isFemale, style, familyName, middleCharacter}) {
+fun getCharacter(number: int, {isFemale, familyName, middleCharacter}) {
   final names = []
   for (var i in range(number)) {
     var theFamilyName
@@ -131,20 +128,17 @@ fun getName(number: int, {isFemale, style, familyName, middleCharacter}) {
     final f = isFemale ?? Math.randomBool()
     final namesOfASex = f ? female : male
     final r = Math.random()
-    var s
-    if (style == null || style == 'random') {
-      s = r < 0.33333333 ? 'single' : r < 0.66666666 ? 'double' : 'combine'
-    } else {
-      s = style
-    }
     var name = ''
-    if (s == 'single') {
+    // 单字的名字
+    if (r < 0.33333333) {
       if (middleCharacter) {
         name = middleCharacter
       } else {
         name = namesOfASex.random
       }
-    } else if (s == 'double') {
+    }
+    // 两个实字
+    else if (r < 0.66666666) {
       final theMiddleCharacter
       if (middleCharacter) {
         theMiddleCharacter = middleCharacter
@@ -153,7 +147,9 @@ fun getName(number: int, {isFemale, style, familyName, middleCharacter}) {
       }
       final theLastCharacter = namesOfASex.random
       name = theMiddleCharacter + theLastCharacter
-    } else {
+    }
+    // 中间是虚字
+    else {
       final theMiddleCharacter
       if (middleCharacter) {
         theMiddleCharacter = middleCharacter
@@ -168,51 +164,19 @@ fun getName(number: int, {isFemale, style, familyName, middleCharacter}) {
   return names
 }
 
-fun getDao(number: int, {isFemale, title, firstCharacter}) {
-  final names = []
-  for (var i in range(number)) {
-    var theFirstCharacter
-    if (firstCharacter) {
-      theFirstCharacter = firstCharacter
-    } else {
-      theFirstCharacter = dao.random
-    }
-    final name = theFirstCharacter + dao.random
-    final titleGroup =
-      isFemale ?? Math.randomBool()
-        ? daoTitleFemale
-        : daoTitleMale
-    var t = ''
-    var rarity = 'common'
-    if (!title) {
-      rarity = getRarity().rarity
-      if (rarity == 'exotic') {
-        t =
-          titleGroup.exotic.random
-      } else if (rarity == 'mythic') {
-        t =
-          titleGroup.mythic.random
-      } else if (rarity == 'legendary') {
-        t =
-          titleGroup.legendary.random
-      } else if (rarity == 'epic') {
-        t = titleGroup.epic.random
-      } else if (rarity == 'rare') {
-        t = titleGroup.rare.random
-      } else if (rarity == 'uncommon') {
-        t =
-          titleGroup.uncommon.random
-      }
-    }
-    names.add({ name: name + t, rarity })
-  }
-  return names
-}
-
 const _kNumberBeginSupplement = '路'
 const _kNumberEndSupplement = '式'
 
-fun _getSkillName({length, kind, prefix, numfix}) {
+fun getSkillKind([category: str]) {
+  if (category != null) {
+    assert(kSkillCategories.contains(category))
+  } else {
+    category = kSkillCategories.random
+  }
+  return skill[category].random
+}
+
+fun _getSkillName({length, category, kind, prefix, numfix}) {
   var l = length || 1
   var rarity = 'common'
   if (!length) {
@@ -230,7 +194,7 @@ fun _getSkillName({length, kind, prefix, numfix}) {
   }
   var pre = prefix ?? ''
   var n = numfix ?? ''
-  final k = kind ?? skill.random
+  final k = kind ?? getSkillKind(category)
   if (!prefix && Math.random() < kRarity.epic.probability) {
     pre = skillPrefix.random
   }
@@ -249,38 +213,28 @@ fun _getSkillName({length, kind, prefix, numfix}) {
   return { name, rarity }
 }
 
-fun getSkill(number: int, {length, kind, prefix, numfix}) {
+fun getSkill(number: int, {length, category, kind}) {
   final names = []
   for (var i in range(number)) {
-    final name = _getSkillName(length: length, kind: kind, prefix: prefix, numfix: numfix)
-    names.add(name)
-  }
-  return names
-}
-
-fun getBook(number: int, {length, prefix, mainkind, postkind, postfix}) {
-  final names = []
-  for (var i in range(number)) {
-    final skillname = _getSkillName(length: length, kind: mainkind)
+    final c = category ?? kSkillCategories.random
+    final skillname = _getSkillName(length: length, category: c, kind: kind)
     var rarity = skillname.rarity
-    var pre = prefix ?? ''
-    var pk = postkind || '';
-    var post = postfix ?? ''
-    if (!prefix) {
-      if (skillname.rarity == 'exotic') {
-        pre =
-          bookPrefix.exotic.random
-      } else if (skillname.rarity == 'mythic') {
-        pre =
-          bookPrefix.mythic.random
-      } else if (skillname.rarity == 'legendary') {
-        pre =
-          bookPrefix.legendary.random
-      } else if (skillname.rarity == 'epic') {
-        pre = bookPrefix.epic.random
-      }
+    var pre = ''
+    var pk = '';
+    var post = ''
+    if (skillname.rarity == 'exotic') {
+      pre =
+        bookPrefix.exotic.random
+    } else if (skillname.rarity == 'mythic') {
+      pre =
+        bookPrefix.mythic.random
+    } else if (skillname.rarity == 'legendary') {
+      pre =
+        bookPrefix.legendary.random
+    } else if (skillname.rarity == 'epic') {
+      pre = bookPrefix.epic.random
     }
-    if (pre && !postkind) {
+    if (pre) {
       pk = book.random
     }
     final r1 = Math.random()
@@ -291,7 +245,9 @@ fun getBook(number: int, {length, prefix, mainkind, postkind, postfix}) {
       post = _kParenthesisLeft + bookPostfix.uncommon.random + _kParenthesisRight
     }
     names.add({
-      name: _kBookLeft + skillname.name + pre + pk + post + _kBookRight,
+      skill: skillname.name,
+      book: _kBookLeft + skillname.name + pre + pk + post + _kBookRight,
+      category: c,
       rarity: rarity,
     })
   }

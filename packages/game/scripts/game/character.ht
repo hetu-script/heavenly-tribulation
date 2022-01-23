@@ -3,7 +3,7 @@ import 'game.ht'
 import 'l10n.ht'
 import 'datetime.ht'
 import 'incident.ht'
-import 'generator/random_names/random_names.ht' as randomNames
+import 'generator/object/object.ht' as randomObject
 
 // number of the male avatar images
 const kMaleAvatarCount = 37
@@ -69,7 +69,7 @@ struct Character {
       this.shortName = shortName
       this.name = familyName + shortName
     } else {
-      final randomName = randomNames.getName(1, isFemale: this.isFemale).first
+      final randomName = randomObject.getCharacter(1, isFemale: this.isFemale).first
       this.familyName = randomName.familyName
       this.shortName = randomName.shortName
       this.name = randomName.name
@@ -107,15 +107,15 @@ struct Character {
     // 该角色的人格纬度
     this.personality = {
       // 三观，最小 -50 最大 +50
-      ideal: Math.random() * 100 - 50,
-      order: Math.random() * 100 - 50,
-      good: Math.random() *100 - 50,
+      ideal: Math.random() * 100.0 - 50.0,
+      order: Math.random() * 100.0 - 50.0,
+      good: Math.random() *100.0 - 50.0,
 
       // 行为逻辑，最小 -50 最大 +50
-      social: Math.random() * 100 - 50,
-      intuition: Math.random() * 100 - 50,
-      reason: Math.random() * 100 - 50,
-      controlment: Math.random() * 100 - 50,
+      social: Math.random() * 100.0 - 50.0,
+      intuition: Math.random() * 100.0 - 50.0,
+      reason: Math.random() * 100.0 - 50.0.0,
+      controlment: Math.random() * 100.0 - 50.0,
     }
  
     // 名声，指有多少人知道此人的名字

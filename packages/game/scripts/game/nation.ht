@@ -1,6 +1,6 @@
 import 'game.ht'
 import 'map.ht'
-import 'generator/random_names/random_names.ht' as randomNames
+import 'generator/object/object.ht' as randomObject
 
 const _kNation = '国'
 
@@ -17,7 +17,7 @@ struct Nation {
     } else {
       var conflict = false
       do {
-        final names = randomNames.getNation(1)
+        final names = randomObject.getNation(1)
         this.name = names.first.name
         conflict = game.nations.values.where((element) =>
           element.name == this.name).isNotEmpty

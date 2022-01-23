@@ -172,7 +172,7 @@ class _CharacterEditorState extends State<CharacterEditor>
   }
 
   void _randomizeName() {
-    final List<dynamic> names = engine.hetu.invoke('getName',
+    final List<dynamic> names = engine.hetu.invoke('getCharacter',
         positionalArgs: [1],
         namedArgs: {'isFemale': data['characterIsFemale']});
     data['characterName'] = names.first;

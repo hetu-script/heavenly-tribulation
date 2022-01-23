@@ -1,14 +1,4 @@
-import '../generator/random_names/random_names.ht'
+import '../generator/object/object.ht'
 
-// print(getLocation(10, category: 'shore'))
 
-// print(getClan(10))
-// print(getClan(10, category: 'caltivation'))
-
-// print(getBook(10, mainkind: '功'))
-
-// print(getSpell(10))
-
-// print(getName(10))
-
-print(getName(10))
+print(getSkill(10))
