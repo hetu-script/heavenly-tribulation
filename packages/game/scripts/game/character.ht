@@ -93,6 +93,8 @@ struct Character {
     // // 恶名，知道名字中，对此人差评的人的数量
     // this.infamy = 0
 
+    this.incidentIndexes = []
+
     game.characters[this.id] = this
   }
 }
@@ -127,7 +129,7 @@ fun characterHeardOfIncident(character, incident) {
 }
 
 fun getSpiritRankTitle(spiritRank) {
-  return getLocaleString('spiritRank${spiritRank}') + getLocaleString('cultivator')
+  return getLocaleString('spiritRank${spiritRank}') + getLocaleString('sorcerer')
 }
 
 fun getOrganizationLeaderTitle(organization) {
@@ -138,16 +140,21 @@ fun removeCharacterHome(character) {
   if (!character.homeId) return
 
   final loc = game.locations[character.homeId]
-  loc.residentCharacterIds.remove(character.id)
-  character.residentCharacterIds = null
+  loc.wildCharacterIds.remove(character.id)
+  loc.organizedCharacterIds.remove(character.id)
+  character.homeId = null
 }
 
-fun setCharacterHome(location, character) {
+fun setCharacterHome(location, character, {isOrganized: bool = true}) {
   if (character.homeId != null) {
     assert(character.homeId != location.id)
     removeCharacterHome(character)
   }
-  location.residentCharacterIds.add(character.id)
+  if (isOrganized) {
+    location.organizedCharacterIds.add(character.id)
+  } else {
+    location.wildCharacterIds.add(character.id)
+  }
   character.homeId = location.id
 }
 

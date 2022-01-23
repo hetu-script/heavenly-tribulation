@@ -3,7 +3,6 @@ import 'package:hetu_script/values.dart' show HTStruct;
 
 import '../../../engine/engine.dart';
 import 'game_entity_listview.dart';
-import '../../../shared/extension.dart';
 import '../../../shared/constants.dart';
 
 const _kInformationViewTabLengths = 4;

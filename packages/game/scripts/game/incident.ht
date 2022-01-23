@@ -38,6 +38,9 @@ struct Incident {
     this.siteId = siteId
     this.terrainIndex = terrainIndex
 
+    final subject = game.characters[subjectId]
+    subject.incidentIndexes.add(this.index)
+
     if (isPublic) {
       if (isGlobal) {
         for (final char of game.characters) {

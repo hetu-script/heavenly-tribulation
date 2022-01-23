@@ -23,7 +23,7 @@ void main() async {
       )),
       home: GameApp(key: UniqueKey()),
       routes: {
-        'location': (context) => const LocationRoute(),
+        'location': (context) => LocationView(key: UniqueKey()),
         'information': (context) => const InformationPanel(),
         'character': (context) => const CharacterView(),
         'editor': (context) => const GameEditor(),

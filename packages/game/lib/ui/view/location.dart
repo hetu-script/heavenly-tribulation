@@ -1,140 +1,56 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:hetu_script/values.dart';
 
 import '../../event/events.dart';
-import '../shared/empty_placeholder.dart';
 import '../../engine/engine.dart';
-// import '../colored_widget.dart';
-
-class LocationRoute extends StatelessWidget {
-  const LocationRoute({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final locationId = ModalRoute.of(context)!.settings.arguments as String;
-
-    return LocationView(
-      locationId: locationId,
-    );
-  }
-}
+import 'site_card.dart';
 
 class LocationView extends StatefulWidget {
-  final String locationId;
-
-  const LocationView({
-    Key? key,
-    required this.locationId,
-  }) : super(key: key);
+  const LocationView({required Key key}) : super(key: key);
 
   @override
   _LocationViewState createState() => _LocationViewState();
 }
 
 class _LocationViewState extends State<LocationView>
-    with AutomaticKeepAliveClientMixin
-//, SingleTickerProviderStateMixin
-{
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
-
-  // final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-
-  List<Widget>? _siteCards;
-
-  // static const _tabs = <Tab>[
-  //   Tab(text: '动态'),
-  //   Tab(text: '场景'),
-  // ];
-
-  // late TabController _tabController;
-  late String _locationName;
-  // _leadershipName,
-  // _organization,
-  // _organizationName,
-  String? _locationImagePath;
-
-  Future<void> _updateData() async {
-    engine.hetu.invoke('nextTick');
-
-    final data = engine.hetu
-        .invoke('getLocationById', positionalArgs: [widget.locationId]);
-
-    setState(() {
-      final String? name = data['name'];
-      if (name != null) {
-        _locationName = name;
-      } else {
-        final String nameId = data['nameId'];
-        _locationName = engine.locale[nameId];
-      }
-      _locationImagePath = data['image'];
-      // _leadershipName = widget.locationData['leadershipName'];
-
-      final sitesData = data['sites'];
-
-      _siteCards = List.castFrom(sitesData?.values.map((siteData) {
-        final String id = siteData['id'];
-        final String type = siteData['type'];
-        final titleId = siteData['nameId'];
-        String title;
-        if (titleId == null) {
-          title = engine.locale[type];
-        } else {
-          title = engine.locale[titleId];
-        }
-        String? image = siteData['image'];
-        image ??= _getDefaultImagePath(type);
-
-        return SizedBox(
-          width: 210,
-          height: 150,
-          child: Card(
-            elevation: 8.0,
-            shadowColor: Colors.black26,
-            child: Ink(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8.0),
-                image: image != null
-                    ? DecorationImage(
-                        image: AssetImage('assets/images/$image'),
-                        fit: BoxFit.fill,
-                      )
-                    : null,
-              ),
-              child: InkWell(
-                splashColor: Colors.blue.withAlpha(30),
-                onTap: () {
-                  engine.hetu
-                      .invoke('handleSceneInteraction', positionalArgs: [id]);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(title),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      }).toList(growable: false));
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _updateData();
-  }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    final locationId = ModalRoute.of(context)!.settings.arguments as String;
+
+    final data =
+        engine.hetu.invoke('getLocationById', positionalArgs: [locationId]);
+
+    String? locationName = data['name'];
+    if (locationName == null) {
+      final String nameId = data['nameId'];
+      locationName = engine.locale[nameId];
+    }
+    final locationImagePath = data['image'];
+    // _leadershipName = widget.locationData['leadershipName'];
+
+    final HTStruct sitesData = data['sites'];
+
+    final siteCards = sitesData.values.map((siteData) {
+      final String locationId = siteData['locationId'];
+      final String siteId = siteData['id'];
+      final title = siteData['name'];
+      String? imagePath = siteData['image'];
+      return SiteCard(
+        locationId: locationId,
+        siteId: siteId,
+        title: title,
+        imagePath: imagePath,
+      );
+    }).toList();
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(200.0),
@@ -142,26 +58,27 @@ class _LocationViewState extends State<LocationView>
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
-              engine
-                  .broadcast(LocationEvent.left(locationId: widget.locationId));
+              engine.broadcast(LocationEvent.left(locationId: locationId));
               Navigator.of(context).pop();
             },
           ),
           flexibleSpace: Container(
             decoration: BoxDecoration(
-              image: _locationImagePath != null
+              image: locationImagePath != null
                   ? DecorationImage(
-                      image: AssetImage('assets/images/$_locationImagePath'),
+                      image: AssetImage('assets/images/$locationImagePath'),
                       fit: BoxFit.fill,
                     )
                   : null,
             ),
-            child: Align(
+            child: Container(
               alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.fromLTRB(70, 10, 10, 10),
               child: SizedBox(
                 width: 180.0,
                 child: Card(
                   shape: RoundedRectangleBorder(
+                      side: const BorderSide(color: Colors.lightBlue, width: 2),
                       borderRadius: BorderRadius.circular(8.0)),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -169,10 +86,8 @@ class _LocationViewState extends State<LocationView>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          _locationName,
-                          style: const TextStyle(
-                            fontSize: 24.0,
-                          ),
+                          locationName,
+                          style: const TextStyle(fontSize: 24.0),
                         ),
                       ],
                     ),
@@ -194,7 +109,9 @@ class _LocationViewState extends State<LocationView>
       ),
       body: RefreshIndicator(
         // key: _refreshIndicatorKey,
-        onRefresh: _updateData,
+        onRefresh: () async {
+          setState(() {});
+        },
         child: ScrollConfiguration(
           behavior: ScrollConfiguration.of(context).copyWith(
             dragDevices: {
@@ -212,12 +129,11 @@ class _LocationViewState extends State<LocationView>
                   alignment: Alignment.topCenter,
                   child: Padding(
                     padding: const EdgeInsets.only(top: 8.0),
-                    child: (_siteCards != null && _siteCards!.isNotEmpty)
-                        ? Wrap(
-                            spacing: 8.0, // gap between adjacent chips
-                            runSpacing: 4.0, // gap between lines
-                            children: _siteCards!)
-                        : EmptyPlaceholder(text: engine.locale['empty']),
+                    child: Wrap(
+                      spacing: 8.0, // gap between adjacent chips
+                      runSpacing: 4.0, // gap between lines
+                      children: siteCards,
+                    ),
                   ),
                 ),
               ],
@@ -226,63 +142,5 @@ class _LocationViewState extends State<LocationView>
         ),
       ),
     );
-  }
-
-  String? _getDefaultImagePath(String type) {
-    String? imagePath;
-    switch (type) {
-      case 'headquarters':
-        imagePath = 'location/site/headquarters.png';
-        break;
-      case 'residence':
-        imagePath = 'location/site/residence.png';
-        break;
-      case 'library':
-        imagePath = 'location/site/library.png';
-        break;
-      case 'farmland':
-        imagePath = 'location/site/farmland.png';
-        break;
-      case 'mine':
-        imagePath = 'location/site/mine.png';
-        break;
-      case 'timberland':
-        imagePath = 'location/site/timberland.png';
-        break;
-      case 'market':
-        imagePath = 'location/site/market.png';
-        break;
-      case 'shop':
-        imagePath = 'location/site/shop.png';
-        break;
-      case 'restaurant':
-        imagePath = 'location/site/restaurant.png';
-        break;
-      case 'arena':
-        imagePath = 'location/site/arena.png';
-        break;
-      case 'nursery':
-        imagePath = 'location/site/nursery.png';
-        break;
-      case 'workshop':
-        imagePath = 'location/site/workshop.png';
-        break;
-      case 'alchemylab':
-        imagePath = 'location/site/alchemylab.png';
-        break;
-      case 'smithshop':
-        imagePath = 'location/site/smithshop.png';
-        break;
-      case 'zenyard':
-        imagePath = 'location/site/zenyard.png';
-        break;
-      case 'zoo':
-        imagePath = 'location/site/zoo.png';
-        break;
-      case 'maze':
-        imagePath = 'location/site/maze.png';
-        break;
-    }
-    return imagePath;
   }
 }

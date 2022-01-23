@@ -120,14 +120,6 @@ fun addOrganizations(orgs: List) {
   }
 }
 
-fun setCurrentOrganization(id: str) {
-  game.hero.clanId = id;
-}
-
-fun getCurrentOrganization() {
-  return getOrganizationById(game.hero.ClanId)
-}
-
 fun addOrganization(char) {
   game.organizations[char.id] = char
 }

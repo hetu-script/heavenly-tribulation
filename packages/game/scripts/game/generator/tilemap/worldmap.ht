@@ -429,12 +429,9 @@ fun createWorldMap({
   final headquarters = []
 
   // 向世界中填充门派, 每个国家有且只有一个门派
-  // 初始门派全部为修真门派，且只有一个据点
+  // 初始门派全部为修真门派，且只有一个据点，位置在该国首都
   for (final nation of game.nations) {
-    var location
-    do {
-      location = game.locations[nation.capitalId]
-    } while (location.residentCharacterIds.isNotEmpty)
+    var location = game.locations[nation.capitalId]
     final leader = Character(spiritRank: 1, birthPlaceId: location.id, nationId: nation.id)
     leader.currentLocationId = location.id
     setCharacterHome(location, leader)
@@ -450,13 +447,15 @@ fun createWorldMap({
     headquarters.add(location)
   }
 
-  // 在总堂所在据点生成组织相关的建筑
-  // 并向门派中填充角色
+  // 在总堂所在据点生成初始建筑
+  // 向门派中填充角色
   // for (final location in headquarters) {
   //   final npcCount = Math.randomInt(_kMaxNpcNumberForOrganization - _kMinNpcNumberForOrganization) + _kMinNpcNumberForOrganization
 
 
   // }
+
+  // 触发创世事件
 
   // 触发创派事件
   for (final leader in leaders) {
@@ -469,7 +468,7 @@ fun createWorldMap({
       location.name,
       org.name,
     ])
-    final incident = Incident(
+    Incident(
       content: incidentContent,
       order: 30,
       subjectId: leader.id,

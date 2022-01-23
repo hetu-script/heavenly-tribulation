@@ -1,6 +1,28 @@
 import 'game.ht'
 import 'generator/random_names/random_names.ht' as randomNames
 
+struct Site {
+  construct ({
+    category,
+    name,
+    location,
+    image,
+  }) {
+    assert(location != null)
+    assert(category != null)
+
+    this.index = location.sites.length
+    this.category = category
+    this.name ??= getLocaleString(category)
+
+    this.locationId = location.id
+    this.id = '${location.id}_site_${this.index}_${this.name}'
+    this.image ??= 'location/site/${category}.png'
+
+    location.sites[this.id] = this
+  }
+}
+
 struct Location {
   construct ({
     terrainIndex,
@@ -25,7 +47,10 @@ struct Location {
     // 最少是 1，最多是 18
     this.development = development ?? 1
 
-    this.residentCharacterIds = Set()
+    // 在野修士
+    this.wildCharacterIds = Set()
+    // 门派修士
+    this.organizedCharacterIds = Set()
 
     // 普通居民决定了税收收入，以及外门弟子的数量
     final minP = maxPopulationOfLocationDevelopment(this.development - 1)
@@ -34,8 +59,12 @@ struct Location {
     
     // 外门弟子数量，记录在据点数据中，不算做门派属性
     this.disciple = 0
-
+  
     this.sites = {}
+    Site(category: 'residence', location: this)
+
+    // 当地居民的稳定度，0 ~ 100
+    this.stable = 100
 
     game.locations[this.id] = this
   }
@@ -85,15 +114,13 @@ fun addLocations(locs: List) {
   }
 }
 
-fun setCurrentLocation(id: str) {
+fun setHeroLocationId(id: str) {
+  assert(game.locations.containsKey(id))
   if (game.debug) {
     print('河图: 设置玩家当前地点为 [${id}] ...')
   }
-  game.locations.current = game.locations[id];
-}
-
-fun getCurrentLocation() {
-  return game.locations.current;
+  final hero = game.characters[game.heroId]
+  hero.currentLocationId = id
 }
 
 fun getLocationById(id: str) {
@@ -104,8 +131,11 @@ fun getLocations() {
   return game.locations
 }
 
-fun getSceneById(id: str) {
-  return game.locations.current.scenes[id]
+fun getSiteById(siteId: str, locationId: str) {
+  assert(game.locations.containsKey(locationId))
+  final location = game.locations[locationId]
+  assert(location.sites.containsKey(siteId))
+  return location.sites[siteId]
 }
 
 fun onEnteredLocation(id: str) {
@@ -128,26 +158,28 @@ fun onEnteredScene(id: str, [extra: str]) {
   }
 }
 
-fun handleSceneInteraction(id: str) {
-  final scn = getSceneById(id)
-  if (scn != null) {
-    when (scn.type) {
-      'headquarters' -> _handleHeadquartersInteraction(scn)
-      'residence' -> _handleResidencyInteraction(scn)
-      'library' -> _handleLibraryInteraction(scn)
-      'farmland' -> _handleFarmlandInteraction(scn)
-      'mine' -> _handleMineInteraction(scn)
-      'market' -> _handleMarketInteraction(scn)
-      'shop' -> _handleShopInteraction(scn)
-      'restaurant' -> _handleRestaurantInteraction(scn)
-      'arena' -> _handleArenaInteraction(scn)
-      'nursery' -> _handleNurseryInteraction(scn)
-      'workshop' -> _handleWorkshopInteraction(scn)
-      'alchemylab' -> _handleAlchemylabInteraction(scn)
-      'smithshop' -> _handleSmithshopInteraction(scn)
-      'zenyard' -> _handleZenroomInteraction(scn)
-      'zoo' -> _handleZooInteraction(scn)
-      'maze' -> _handleMazeInteraction(scn)
+fun handleSiteInteraction(siteId: str, locationId: str) {
+  final site = getSiteById(siteId, locationId)
+  if (site != null) {
+    when (site.category) {
+      'residence' -> _handleResidenceInteraction(site)
+      'headquarters' -> _handleHeadquartersInteraction(site)
+      'advancedResidence' -> _handleAdvancedResidenceInteraction(site)
+      'library' -> _handleLibraryInteraction(site)
+      'farmland' -> _handleFarmlandInteraction(site)
+      'mine' -> _handleMineInteraction(site)
+      'timberland' -> _handleMineInteraction(site)
+      'market' -> _handleMarketInteraction(site)
+      'shop' -> _handleShopInteraction(site)
+      'restaurant' -> _handleRestaurantInteraction(site)
+      'arena' -> _handleArenaInteraction(site)
+      'nursery' -> _handleNurseryInteraction(site)
+      'workshop' -> _handleWorkshopInteraction(site)
+      'alchemylab' -> _handleAlchemylabInteraction(site)
+      'smithshop' -> _handleSmithshopInteraction(site)
+      'zenyard' -> _handleZenroomInteraction(site)
+      'zoo' -> _handleZooInteraction(site)
+      'maze' -> _handleMazeInteraction(site)
       else -> {
         print('河图: 错误: 未知的地区类型。')
       }
@@ -155,10 +187,14 @@ fun handleSceneInteraction(id: str) {
   }
 }
 
-fun searchCharactersAtScene(scnId: str) {
-  return game.characters.where((char) {
-    char.scene == scnId
+fun searchCharactersAtSite(siteId: str) {
+  return game.characters.where((siteId) {
+    char.currentSiteId == currentSiteId
   })
+}
+
+fun _handleResidenceInteraction(scn) {
+
 }
 
 fun _handleHeadquartersInteraction(scn) {
@@ -168,7 +204,7 @@ fun _handleHeadquartersInteraction(scn) {
   // }
 }
 
-fun _handleResidencyInteraction(scn) {
+fun _handleAdvancedResidenceInteraction(scn) {
 
 }
 

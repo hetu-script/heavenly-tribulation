@@ -1,4 +1,6 @@
-final zh = {
+export { zh }
+
+final general = {
   'languageId': 'zh',
   'languageName': '简体中文',
 
@@ -15,19 +17,7 @@ final zh = {
   'unknown': '未知',
   'load': '载入',
   'delete': '删除',
-
-  // 大地图弹出菜单
-  'moveTo': '移动',
-  'check': '探查',
-  'enter': '进入',
-  'talk': '谈话',
-  'rest': '打坐',
   
-  // 大地图右上角菜单
-  'info': '情报',
-  'view': '视图',
-  'exitGame': '退出游戏',
-
   'zone': '地域',
   'nation': '国家',
   'character': '人物',
@@ -45,16 +35,7 @@ final zh = {
   'name': '名字',
   'male': '男',
   'female': '女',
-
-  'capital': '首都',
-  'gridSize': '疆域大小',
-  'locationNumber': '据点数量',
-  'organizationNumber': '门派数量',
-
-  'leader': '掌门',
-  'headquartersLocation': '总堂据点',
-  'memberNumber': '成员数量',
-
+  
   'ageYear': '岁',
   'ageMonth': '个月',
   'ageDay': '天',
@@ -64,9 +45,39 @@ final zh = {
   'timeYear': '年',
   'timeMonth': '个月',
   'timeDay': '天',
+}
 
+final worldMap = {
+
+  // 大地图弹出菜单
+  'moveTo': '移动',
+  'check': '探查',
+  'enter': '进入',
+  'talk': '谈话',
+  'rest': '打坐',
+  
+  // 大地图右上角菜单
+  'info': '情报',
+  'view': '视图',
+  'exitGame': '退出游戏',
+}
+
+
+final informationPanel = {
+  
+  'capital': '首都',
+  'gridSize': '疆域大小',
+  'locationNumber': '据点数量',
+  'organizationNumber': '门派数量',
+
+  'leader': '掌门',
+  'headquartersLocation': '总堂据点',
+  'memberNumber': '成员数量',
+}
+
+final location = {
   'population': '人口',
-  'cultivator': '修士',
+  'sorcerer': '修士',
   'gold': '金钱',
   'spiritStone': '灵石',
   'grain': '谷物',
@@ -79,16 +90,16 @@ final zh = {
   'talismanMaterial': '器胚',
   'kosher': '清食',
 
-  'headquarters': '总堂',
   'residence': '民居',
-  'heroResidence': '士宅',
+  'headquarters': '总堂',
+  'advancedResidence': '修士宅',
   'library': '藏书阁',
   'farmland': '农田',
   'mine': '矿山',
   'timberland': '林场',
   'market': '坊市',
   'shop': '商行',
-  'restaurant': '迎宾楼',
+  'restaurant': '宴宾楼',
   'arena': '斗技场',
   'nursery': '苗圃',
   'workshop': '工坊',
@@ -96,34 +107,10 @@ final zh = {
   'smithshop': '锻冶间',
   'zenyard': '禅房',
   'zoo': '兽园',
-  'wilderness': '荒野',
+  'maze': '荒野',
+}
 
-  'characterConcierge': '卫兵',
-
-  'editorTitle': '《天道奇劫》游戏编辑器',
-  'newGame': '开始新游戏',
-  'sandBoxMode': '沙盒模式',
-  'loadGame': '继续游戏',
-  'loadSave': '载入存档',
-  'gameEditor': '编辑器',
-  'newProject': '创建新模组...',
-  'unnamedProject': '未命名模组',
-  'create': '新建',
-  'load': '读取',
-  'save': '保存',
-  'goBack': '返回',
-  'quit': '退出',
-  'random': '随机',
-  'reload': '重新载入',
-  'saveSuccessed': '保存成功！',
-  'directoryNotEmpty': '保存失败：目录不是空的。',
-  
-  'localization': '本地化文本',
-  'code': '代码',
-  'meta': '模组',
-  'script': '脚本',
-  'untitled': '未命名',
-
+final character = {
   'stats': '属性',
   'history': '经历',
 
@@ -180,12 +167,51 @@ final zh = {
 
   'stress': '压力',
   'confidence': '自信',
+}
+
+final history = {
 
   'createOrganizationEvent': '{0}在{1}{2}开宗立派，成为{3}第一任掌门。',
+}
+
+final editor = {
+  'editorTitle': '《天道奇劫》游戏编辑器',
+  'newGame': '开始新游戏',
+  'sandBoxMode': '沙盒模式',
+  'loadGame': '继续游戏',
+  'loadSave': '载入存档',
+  'gameEditor': '编辑器',
+  'newProject': '创建新模组...',
+  'unnamedProject': '未命名模组',
+  'create': '新建',
+  'load': '读取',
+  'save': '保存',
+  'goBack': '返回',
+  'quit': '退出',
+  'random': '随机',
+  'reload': '重新载入',
+  'saveSuccessed': '保存成功！',
+  'directoryNotEmpty': '保存失败：目录不是空的。',
+  
+  'localization': '本地化文本',
+  'code': '代码',
+  'meta': '模组',
+  'script': '脚本',
+  'untitled': '未命名',
 
   'characterEditor': '角色编辑',
   'isFemale': '性别',
   'characterEditingMustEnterId': '必须填写角色ID！',
   'characterEditingMustEnterName': '必须填写角色姓名！',
 }
- 
+
+
+final zh = {
+  ...general,
+  ...worldMap,
+  ...informationPanel,
+  ...location,
+  ...character,
+  ...history,
+  ...editor,
+}

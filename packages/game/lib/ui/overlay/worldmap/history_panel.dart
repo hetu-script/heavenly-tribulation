@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hetu_script/values.dart';
 
 import '../../../engine/engine.dart';
 import '../../../event/event.dart';
@@ -35,20 +34,9 @@ class _HistoryPanelState extends State<HistoryPanel> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints.tight(const Size(200, 240)),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(5.0),
-        border: Border.all(
-          width: 2,
-          color: Colors.lightBlue,
-        ),
-      ),
-      padding: const EdgeInsets.all(10.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: messages.map((text) => Text(text)).toList(),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: messages.map((text) => Text(text)).toList(),
     );
   }
 }

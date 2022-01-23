@@ -63,47 +63,59 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
               shrinkWrap: true,
               children: widget.list
                   .map(
-                    (info) => Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: Text(
-                            info.timestamp,
-                            softWrap: false,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        Column(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 5),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop(info);
-                                },
-                                child: Text(engine.locale['load']),
+                    (info) => Card(
+                      color: Theme.of(context).backgroundColor,
+                      shape: RoundedRectangleBorder(
+                          side: const BorderSide(
+                              color: Colors.lightBlue, width: 2),
+                          borderRadius: BorderRadius.circular(8.0)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Text(
+                                info.timestamp,
+                                softWrap: false,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 5),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  final file = File(info.path);
-                                  file.delete();
-                                  setState(() {
-                                    widget.list.removeWhere(
-                                        (element) => element == info);
+                            Column(
+                              children: [
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 5),
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(info);
+                                    },
+                                    child: Text(engine.locale['load']),
+                                  ),
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 5),
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      final file = File(info.path);
+                                      file.delete();
+                                      setState(() {
+                                        widget.list.removeWhere(
+                                            (element) => element == info);
 
-                                    if (widget.list.isEmpty) {
-                                      Navigator.of(context).pop();
-                                    }
-                                  });
-                                },
-                                child: Text(engine.locale['delete']),
-                              ),
+                                        if (widget.list.isEmpty) {
+                                          Navigator.of(context).pop();
+                                        }
+                                      });
+                                    },
+                                    child: Text(engine.locale['delete']),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
+                      ),
                     ),
                   )
                   .toList(),

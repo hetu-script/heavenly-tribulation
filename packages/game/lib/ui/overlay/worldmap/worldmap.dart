@@ -120,7 +120,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
           width: 180,
           height: 120,
           decoration: BoxDecoration(
-            color: Theme.of(context).backgroundColor,
+            color: Theme.of(context).backgroundColor.withOpacity(0.5),
             borderRadius:
                 const BorderRadius.only(bottomRight: Radius.circular(5.0)),
             border: Border.all(
@@ -212,7 +212,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
           width: 240,
           height: 240,
           decoration: BoxDecoration(
-            color: Theme.of(context).backgroundColor,
+            color: Theme.of(context).backgroundColor.withOpacity(0.5),
             borderRadius:
                 const BorderRadius.only(topRight: Radius.circular(5.0)),
             border: Border.all(
@@ -220,6 +220,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
               color: Colors.lightBlue,
             ),
           ),
+          padding: const EdgeInsets.all(10.0),
           child: HistoryPanel(key: UniqueKey()),
         ),
       ),

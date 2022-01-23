@@ -5,7 +5,7 @@ final predefinedDialogs = [
     id: 'headquarters01',
     contents: [
       {
-        characterId: 'characterConcierge',
+        avatar: 'avatar/general.jpg',
         lines: [
           
         ],
