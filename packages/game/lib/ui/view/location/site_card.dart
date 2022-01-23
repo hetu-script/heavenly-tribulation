@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../engine/engine.dart';
+import '../../../engine/engine.dart';
 
 class SiteCard extends StatelessWidget {
   const SiteCard({
@@ -34,25 +34,28 @@ class SiteCard extends StatelessWidget {
                   )
                 : null,
           ),
-          child: InkWell(
-            splashColor: Colors.blue.withAlpha(30),
-            onTap: () {
-              engine.hetu.invoke('handleSiteInteraction',
-                  positionalArgs: [siteId, locationId]);
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Container(
-                    padding: const EdgeInsets.all(2),
-                    color: Theme.of(context).primaryColor.withOpacity(0.5),
-                    child: Text(
-                      title,
+          child: Material(
+            type: MaterialType.transparency,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8.0),
+              onTap: () {
+                engine.hetu.invoke('handleSiteInteraction',
+                    positionalArgs: [siteId, locationId]);
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Container(
+                      padding: const EdgeInsets.all(2),
+                      color: Theme.of(context).primaryColor.withOpacity(0.5),
+                      child: Text(
+                        title,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

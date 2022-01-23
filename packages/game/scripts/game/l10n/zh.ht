@@ -20,9 +20,10 @@ final general = {
   
   'zone': '地域',
   'nation': '国家',
-  'character': '人物',
   'location': '据点',
   'organization': '门派',
+  'character': '人物',
+  'talisman': '法宝',
   'maze': '迷宫',
   'dialog': '对话',
   'category': '类型',
@@ -33,8 +34,6 @@ final general = {
   'mirage': '福地',
 
   'name': '名字',
-  'male': '男',
-  'female': '女',
   
   'ageYear': '岁',
   'ageMonth': '个月',
@@ -112,8 +111,14 @@ final location = {
 
 final character = {
   'stats': '属性',
+  'bonds': '羁绊',
   'history': '经历',
+  'impression': '对其印象',
 
+  'sex': '性别',
+  'male': '男',
+  'female': '女',
+  'age': '年龄',
   'avatar': '头像',
   'master': '师父',
   'home': '住所',
@@ -154,8 +159,8 @@ final character = {
   'real': '现实',
   'order': '守序',
   'chaotic': '混乱',
-  'good': '善良',
-  'evil': '邪恶',
+  'good': '无私',
+  'evil': '自私',
   'social': '社交',
   'introspection': '内省',
   'intuition': '直觉',
@@ -170,8 +175,10 @@ final character = {
 }
 
 final history = {
-
-  'createOrganizationEvent': '{0}在{1}{2}开宗立派，成为{3}第一任掌门。',
+  'characterFirstImpressionNormalEvent': '『{0}』和『{1}』第一次见面，从此对其就算是认识了。',
+  'characterFirstImpressionHateEvent': '『{0}』和『{1}』第一次见面，心中不免对其有一丝嫌弃。',
+  'characterFirstImpressionLikeEvent': '『{0}』和『{1}』第一次见面，对其印象深刻，恨不能早日相识。',
+  'createOrganizationEvent': '『{0}』在『{1}』『{2}』开宗立派，成为『{3}』第一任掌门。',
 }
 
 final editor = {

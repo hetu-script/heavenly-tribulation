@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../../engine/engine.dart';
-import '../shared/avatar.dart';
+import '../../shared/avatar.dart';
+import 'bonds.dart';
+import '../history.dart';
 
-const _kCharacterViewTabLengths = 2;
+const _kCharacterViewTabLengths = 3;
 
 class CharacterView extends StatelessWidget {
   const CharacterView({Key? key}) : super(key: key);
@@ -24,20 +26,27 @@ class CharacterView extends StatelessWidget {
     final int reason = personality['reason'];
     final int controlment = personality['controlment'];
 
+    final ageString =
+        engine.hetu.invoke('getCharAgeString', positionalArgs: [data]);
+
     return DefaultTabController(
       length: _kCharacterViewTabLengths,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(engine.locale['info']),
+          title: Text(data['name']),
           bottom: TabBar(
             tabs: [
               Tab(
                 icon: const Icon(Icons.summarize),
-                text: '${engine.locale['stats']})',
+                text: engine.locale['stats'],
+              ),
+              Tab(
+                icon: const Icon(Icons.sync_alt),
+                text: engine.locale['bonds'],
               ),
               Tab(
                 icon: const Icon(Icons.history),
-                text: '${engine.locale['history']})',
+                text: engine.locale['history'],
               ),
             ],
           ),
@@ -55,6 +64,20 @@ class CharacterView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(5),
                   child: Text(data['name']),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: Text(
+                      '${engine.locale['sex']}: ${data['isFemale'] ? engine.locale['female'] : engine.locale['male']}'),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: Text('${engine.locale['age']}: $ageString'),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: Text(
+                      '${engine.locale['looks']}: ${data['looks'].toStringAsFixed(2)}'),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(5),
@@ -105,7 +128,8 @@ class CharacterView extends StatelessWidget {
                 ),
               ],
             ),
-            const Icon(Icons.history),
+            CharacterBondsView(data: data['bonds']),
+            HistoryView(data: data['incidentIndexes']),
           ],
         ),
       ),

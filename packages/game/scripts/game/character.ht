@@ -1,6 +1,8 @@
 import 'common.ht'
 import 'game.ht'
 import 'l10n.ht'
+import 'datetime.ht'
+import 'incident.ht'
 import 'generator/random_names/random_names.ht' as randomNames
 
 // number of the male avatar images
@@ -8,20 +10,41 @@ const kMaleAvatarCount = 37
  // number of the female avatar images
 const kFemaleAvatarCount = 75
 const kCharacterInitialMinAge = 10
-const kCharacterInitialMaxAge = 100
+const kCharacterInitialMaxAge = 25
 
 const kCharacterAverageLooks = 75.0
 /// 容貌最大值: 100.0
 const kCharacterLooksMax = 100.0
+const kCharacterImpressionCheckpoint = 10.0
 
 const kSpiritRankTitle = 'spiritRankTitle'
 const kOrganizationLeaderTitle = 'organizationLeaderTitle'
 
+// 羁绊, 人物对其他的某个事物的印象和评价
+struct Bond {
+  var id
+  var name
+  var score
+
+  construct ({
+    id,
+    name,
+    score = 0
+  }) {
+    this.id = id
+    this.name = name
+    this.score = score
+    this.incidentScores = {}
+  }
+}
+
 struct Character {
   construct ({
-    name,
+    familyName,
+    shortName,
     isFemale: bool,
-    age, spiritRank,
+    birthTimestamp,
+    spiritRank,
     birthPlaceId,
     nationId,
   }) {
@@ -41,16 +64,25 @@ struct Character {
       final index = Math.randomInt(kMaleAvatarCount)
       this.avatar = 'avatar/male/${index}.jpg';
     }
-    if (name) {
-      this.name = name
+    if (familyName != null && shorname != null) {
+      this.familyName = familyName
+      this.shortName = shortName
+      this.name = familyName + shortName
     } else {
-      final names = randomNames.getName(1, isFemale: this.isFemale)
-      this.name = names.first.name
+      final randomName = randomNames.getName(1, isFemale: this.isFemale).first
+      this.familyName = randomName.familyName
+      this.shortName = randomName.shortName
+      this.name = randomName.name
     }
     this.id = 'character_${this.index}_${this.name}'
-    this.age = age ?? Math.randomInt(kCharacterInitialMaxAge - kCharacterInitialMinAge) + kCharacterInitialMinAge
-    this.looks = createRandomLooks(kCharacterAverageLooks)
-    this.favoredLooks = createRandomLooks()
+    // age 的格式是 timestamp, 精确到 tick. 
+    if (birthTimestamp != null) {
+      this.birthTimestamp = birthTimestamp
+    } else {
+      this.birthTimestamp = _createRandomBirthTimestamp()
+    }
+    this.looks = _createRandomLooks(kCharacterAverageLooks)
+    this.favoredLooks = _createRandomLooks()
 
     this.birthPlaceId = birthPlaceId
     this.nationId = nationId
@@ -65,12 +97,11 @@ struct Character {
 
     // 该角色对世界上的其他事物的关系
     this.bonds = {
-      nations: {
-        // id(str): favor(int) 无上下限，可以一直累加
-      },
-      locations: {},
-      organizations: {},
       characters: {},
+      organizations: {},
+      talismans: {},
+      locations: {},
+      nations: {},
     }
 
     // 该角色的人格纬度
@@ -99,33 +130,107 @@ struct Character {
   }
 }
 
+fun getCharAgeString(character) {
+  return toAgeString(game.timestamp - character.birthTimestamp)
+}
+
+fun _createRandomBirthTimestamp() {
+  final age = Math.randomInt(kCharacterInitialMaxAge - kCharacterInitialMinAge) + kCharacterInitialMinAge
+  final randomDateInAYear = Math.randomInt(kTicksPerYear)
+  return game.timestamp - (age * kTicksPerYear + randomDateInAYear)
+}
+
+// 第一印象分
+fun firstImpressionOfOtherCharacter(subject, target) {
+  var bond
+  var hasBond = false
+  if (subject.bonds.characters[target.id] != null) {
+    hasBond = true
+    bond = subject.bonds.characters[target.id]
+    assert(bond.scoreOfLooks == null)
+  } else {
+    bond = Bond(id: target.id, name: target.name)
+  }
+  var score = 0
+  score += _calculateLooksScore(looks: target.looks, favor: subject.favoredLooks) / 10
+  if (target.organizationId != null) {
+    // TODO: 敌对门派要减分
+    score += target.organizationId == subject.organizationId ? 10 : 0
+  }
+  // TODO: 敌对国家要减分
+  // TODO: 这两个挪到聊天互动之后再计算
+  // bond.scoreOfSameNation = target.nationId == subject.nationId ? 5 : 0
+  // bond.scoreOfSameBirthPlace = target.birthPlaceId == subject.birthPlaceId ? 10 : 0
+  score += target.familyName == subject.familyName ? 10: 0
+  // TODO: 同名之谊?
+
+  var incidentContent
+  if (bond.score < -kCharacterImpressionCheckpoint) {
+    incidentContent = getLocaleString('characterFirstImpressionHateEvent', [
+      subject.name,
+      target.name,
+    ])
+  } else if (bond.score > kCharacterImpressionCheckpoint) {
+    incidentContent = getLocaleString('characterFirstImpressionLikeEvent', [
+      subject.name,
+      target.name,
+    ])
+  } else {
+    incidentContent = getLocaleString('characterFirstImpressionNormalEvent', [
+      subject.name,
+      target.name,
+    ])
+  }
+
+  final incident = Incident(
+    content: incidentContent,
+    subjectId: subject.id,
+    isPublic: false,
+  )
+
+  bond.incidentScores[incident.index] = score
+  bond.score += score
+
+  if (!hasBond) {
+    ++target.fame
+    subject.bonds.characters[target.id] = bond
+  }
+}
+
 fun characterHeardOfIncident(character, incident) {
   final subject = game.characters[incident.subjectId]
-  final favor = (character.personality.ideal * incident.ideal +
+  final score = ((character.personality.ideal * incident.ideal +
                  character.personality.order * incident.order +
-                 character.personality.good * incident.good) / 100
+                 character.personality.good * incident.good) / 100)
   if (character.bonds.characters.containsKey(incident.subjectId)) {
     final bond = character.bonds.characters[incident.subjectId]
-    final oldFavor = bond.favor
-    bond.favor += favor
-    bond.incidentIndexes.add(incident.index)
+    bond.incidentScores[incident.index] = score
+    bond.score += score
     // 评价发生了改变
-    // if (oldFavor < 0 && bond.favor >= 0) {
+    // if (oldScore < 0 && bond.score >= 0) {
     //   --subject.infamy
-    // } else if (oldFavor >= 0 && bond.favor < 0) {
+    // } else if (oldScore >= 0 && bond.score < 0) {
     //   ++subject.infamy
     // }
   } else {
     // 名声增加
     ++subject.fame
-    character.bonds.characters[incident.subjectId] = {
-      favor,
-      incidentIndexes: [incident.index],
-    }
-    // if (favor < 0) {
+    final bond = Bond(id: subject.id, name: subject.name)
+    bond.incidentScores[incident.index] = score
+    bond.score += score
+    character.bonds.characters[incident.subjectId] = bond
+    // if (score < 0) {
     //   ++subject.infamy
     // }
   }
+}
+
+fun characterWitnessedIncident(character, incident) {
+  
+}
+
+fun characterSufferedIncident(character, incident) {
+
 }
 
 fun getSpiritRankTitle(spiritRank) {
@@ -206,7 +311,7 @@ fun handleCharacterInteraction(char, {isAtHome: bool}) {
 /// 大多数人都会接近于标准的100
 /// 取值离100越远，随机出的可能性越低
 /// 公式: y=\frac{6x-6}{5x-6}
-fun createRandomLooks([mean = kCharacterLooksMax]) {
+fun _createRandomLooks([mean = kCharacterLooksMax]) {
   final x = Math.random()
   return ((x * 6 - 6) / (5 * x - 6)) * mean
 }
@@ -216,14 +321,14 @@ fun createRandomLooks([mean = kCharacterLooksMax]) {
 /// 每个角色都会有一个对特定容貌值的偏好
 /// 本公式会利用这两个数值，计算某个角色对另一个角色的容貌的评价
 /// looks 是对方的容貌，0 <= looks <= 100
-/// favors 是该角色的偏好，0 <= favors <= 100
-fun calculateLooksScore(looks: float, {favors: float}) -> float {
+/// favor 是该角色的偏好，0 <= taste <= 100
+fun _calculateLooksScore({looks: float, favor: float}) -> float {
   assert(0.0 <= looks && looks <= kCharacterLooksMax)
-  if (favors != null) {
-    assert(0.0 <= favors && favors <= kCharacterLooksMax)
+  if (favor != null) {
+    assert(0.0 <= favor && favor <= kCharacterLooksMax)
   }
-  if (looks < ((favors + kCharacterLooksMax) / 2)) {
-    return (-(looks - favors) * (looks - favors)) / 20 + kCharacterLooksMax
+  if (looks < ((favor + kCharacterLooksMax) / 2)) {
+    return (-(looks - favor) * (looks - favor)) / 20 + kCharacterLooksMax
   } else {
     return (-(looks - kCharacterLooksMax) * (looks - kCharacterLooksMax)) / 20 + kCharacterLooksMax
   }

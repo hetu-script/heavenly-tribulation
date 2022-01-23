@@ -92,10 +92,10 @@ class SamsaraEngine with SceneController, EventAggregator {
     broadcast(SceneEvent.ended(sceneKey: key));
   }
 
-  static int _getYear(int timestamp) => timestamp ~/ _ticksPerYear;
-  static int _getMonth(int timestamp) =>
+  static int getYear(int timestamp) => timestamp ~/ _ticksPerYear;
+  static int getMonth(int timestamp) =>
       (timestamp % _ticksPerYear) ~/ _ticksPerMonth;
-  static int _getDay(int timestamp) =>
+  static int getDay(int timestamp) =>
       (timestamp % _ticksPerMonth) ~/ _ticksPerDay;
 
   static const _ticksPerDay = 4; //每天的回合数 morning, afternoon, evening, night
@@ -108,61 +108,4 @@ class SamsaraEngine with SceneController, EventAggregator {
   static int get oneYear => _ticksPerYear;
   static int get oneMonth => _ticksPerMonth;
   static int get oneDay => _ticksPerDay;
-
-  // [format] = 'age' | 'date' | 'time' + 'YMD' | 'YM' | 'MD' | 'D'
-  String _formatString({required int timestamp, String? format}) {
-    int yearN = _getYear(timestamp);
-    int monthN = _getMonth(timestamp);
-    int dayN = _getDay(timestamp);
-
-    final type = format?.split('.').first ?? 'date';
-    if (type == 'age') {
-      return ' $yearN ${locale['date.year']}';
-    }
-
-    if (type == 'date') {
-      ++yearN;
-      ++monthN;
-      ++dayN;
-    }
-
-    final year = ' $yearN ${locale['$type.year']}';
-    final month = ' $monthN ${locale['$type.month']}';
-    final day = ' $dayN ${locale['$type.day']}';
-
-    final fmt = format?.split('.').last;
-    switch (fmt) {
-      case 'y':
-        return year;
-      case 'm':
-        return month;
-      case 'd':
-        return day;
-      case 'ym':
-        return '$year$month';
-      case 'md':
-        return '$month$day';
-      case 'ymd':
-      default:
-        return '$year$month$day';
-    }
-  }
-
-  int _now = 0;
-
-  String next() {
-    return _formatString(timestamp: _now++);
-  }
-
-  int get now => _now;
-  String get currentDate => _formatString(timestamp: _now);
-  int get currentYear => _getYear(_now);
-  int get currentMonth => _getMonth(_now);
-  int get currentDay => _getDay(_now);
-
-  formatDateString(int timestamp) => _formatString(timestamp: timestamp);
-  formatTimeString(int timestamp) =>
-      _formatString(timestamp: timestamp, format: 'time.ymd');
-  formatAgeString(int timestamp) =>
-      _formatString(timestamp: timestamp, format: 'age');
 }

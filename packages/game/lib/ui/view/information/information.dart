@@ -169,13 +169,9 @@ class _InformationPanelState extends State<InformationPanel>
           bottom: TabBar(
             tabs: [
               Tab(
-                icon: const Icon(Icons.public),
-                text: '${engine.locale['nation']}(${_nationsFieldRow.length})',
-              ),
-              Tab(
-                icon: const Icon(Icons.location_city),
+                icon: const Icon(Icons.person),
                 text:
-                    '${engine.locale['location']}(${_locationsFieldRow.length})',
+                    '${engine.locale['character']}(${_charactersFieldRow.length})',
               ),
               Tab(
                 icon: const Icon(Icons.groups),
@@ -183,27 +179,19 @@ class _InformationPanelState extends State<InformationPanel>
                     '${engine.locale['organization']}(${_organizationsFieldRow.length})',
               ),
               Tab(
-                icon: const Icon(Icons.person),
+                icon: const Icon(Icons.location_city),
                 text:
-                    '${engine.locale['character']}(${_charactersFieldRow.length})',
+                    '${engine.locale['location']}(${_locationsFieldRow.length})',
+              ),
+              Tab(
+                icon: const Icon(Icons.public),
+                text: '${engine.locale['nation']}(${_nationsFieldRow.length})',
               ),
             ],
           ),
         ),
         body: TabBarView(
           children: <Widget>[
-            GameEntityListView(
-              columns: kInformationViewNationColumns,
-              data: _nationsFieldRow,
-            ),
-            GameEntityListView(
-              columns: kInformationViewLocationColumns,
-              data: _locationsFieldRow,
-            ),
-            GameEntityListView(
-              columns: kInformationViewOrganizationColumns,
-              data: _organizationsFieldRow,
-            ),
             GameEntityListView(
               columns: kInformationViewCharacterColumns,
               data: _charactersFieldRow,
@@ -213,7 +201,19 @@ class _InformationPanelState extends State<InformationPanel>
                   arguments: dataId,
                 );
               },
-            )
+            ),
+            GameEntityListView(
+              columns: kInformationViewOrganizationColumns,
+              data: _organizationsFieldRow,
+            ),
+            GameEntityListView(
+              columns: kInformationViewLocationColumns,
+              data: _locationsFieldRow,
+            ),
+            GameEntityListView(
+              columns: kInformationViewNationColumns,
+              data: _nationsFieldRow,
+            ),
           ],
         ),
       ),

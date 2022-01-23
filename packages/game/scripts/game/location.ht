@@ -1,25 +1,43 @@
 import 'game.ht'
 import 'generator/random_names/random_names.ht' as randomNames
 
+const kSiteResidence = 'residence'
+const kSiteHeadquarters = 'headquarters'
+const kSiteAdvancedResidence = 'advancedResidence'
+const kSiteLibrary = 'library'
+const kSiteFarmland = 'farmland'
+const kSiteMine = 'mine'
+const kSiteTimberland = 'timberland'
+const kSiteMarket = 'market'
+const kSiteShop = 'shop'
+const kSiteRestaurant = 'restaurant'
+const kSiteArena = 'arena'
+const kSiteNursery = 'nursery'
+const kSiteWorkshop = 'workshop'
+const kSiteAlchemylab = 'alchemylab'
+const kSiteSmithshop = 'smithshop'
+const kSiteZenyard = 'zenyard'
+const kSiteZoo = 'zoo'
+const kSiteMaze = 'maze'
+
 struct Site {
   construct ({
+    location,
+    organizationId,
     category,
     name,
-    location,
     image,
   }) {
     assert(location != null)
     assert(category != null)
 
-    this.index = location.sites.length
+    this.locationId = location.id
+    this.organizationId = organizationId ?? location.organizationId
     this.category = category
     this.name ??= getLocaleString(category)
-
-    this.locationId = location.id
-    this.id = '${location.id}_site_${this.index}_${this.name}'
     this.image ??= 'location/site/${category}.png'
 
-    location.sites[this.id] = this
+    location.sites[category] = this
   }
 }
 
@@ -36,8 +54,13 @@ struct Location {
     if (name) {
       this.name = name
     } else {
-      final names = randomNames.getLocation(1, category: category)
-      this.name = names.first.name
+      var conflict = false
+      do {
+        final names = randomNames.getLocation(1, category: category)
+        this.name = names.first.name
+        conflict = game.locations.values.where((element) =>
+          element.name == this.name).isNotEmpty
+      } while (conflict)
     }
     this.category = category
     this.id = 'location_${this.index}_${this.name}'
@@ -61,7 +84,7 @@ struct Location {
     this.disciple = 0
   
     this.sites = {}
-    Site(category: 'residence', location: this)
+    Site(category: kSiteResidence, location: this)
 
     // 当地居民的稳定度，0 ~ 100
     this.stable = 100

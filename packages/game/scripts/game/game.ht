@@ -21,7 +21,7 @@ var locales = {
 
 var game = {
   debug: true,
-  timestamp: 0,
+  timestamp: 288000,
   dialogs: {},
   mods: {},
   entities: {},
@@ -66,6 +66,10 @@ fun onGameEvent(id: str, [arg]) {
       }
     }
   }
+}
+
+fun getTimestamp() {
+  return game.timestamp
 }
 
 fun nextTick() {

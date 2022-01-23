@@ -163,7 +163,7 @@ fun getName(number: int, {isFemale, style, familyName, middleCharacter}) {
       final theLastCharacter = namesOfASex.random
       name = theMiddleCharacter + theLastCharacter
     }
-    names.add({ name: theFamilyName + name, isFemale: f })
+    names.add({ familyName: theFamilyName, shortName: name, name: theFamilyName + name, isFemale: f })
   }
   return names
 }

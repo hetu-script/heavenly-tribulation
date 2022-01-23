@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flame/flame.dart';
 import 'package:heavenly_tribulation/ui/view/information/information.dart';
 
-import 'ui/view/location.dart';
+import 'ui/view/location/location.dart';
 import 'ui/game_app.dart';
 import 'ui/editor/editor.dart';
-import 'ui/view/character.dart';
+import 'ui/view/character/character.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,10 +17,7 @@ void main() async {
     MaterialApp(
       title: 'Tian Dao Qi Jie',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-          scrollbarTheme: const ScrollbarThemeData().copyWith(
-        thumbColor: MaterialStateProperty.all(Colors.grey),
-      )),
+      theme: ThemeData.dark(),
       home: GameApp(key: UniqueKey()),
       routes: {
         'location': (context) => LocationView(key: UniqueKey()),

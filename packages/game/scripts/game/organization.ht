@@ -1,4 +1,5 @@
 import 'game.ht'
+import { Site, kSiteHeadquarters } from 'location.ht'
 import 'generator/random_names/random_names.ht' as randomNames
 
 struct Organization {
@@ -10,31 +11,36 @@ struct Organization {
     leaderId,
     development,
   }) {
-    assert(nationId != null)
-    assert(headquartersId != null)
-    assert(leaderId != null)
+    assert(game.nations.containsKey(nationId))
+    assert(game.locations.containsKey(headquartersId))
+    assert(game.characters.containsKey(leaderId))
 
     this.index = game.organizations.length
     if (name) {
       this.name = name
     } else {
-      final names = randomNames.getOrganization(1, category: category)
-      this.name = names.first.name
+      var conflict = false
+      do {
+        final names = randomNames.getOrganization(1, category: category)
+        this.name = names.first.name
+        conflict = game.organizations.values.where((element) =>
+          element.name == this.name).isNotEmpty
+      } while (conflict)
     }
-    this.id = 'Clan_${this.index}_${this.name}'
+    this.id = 'clan_${this.index}_${this.name}'
     
     // 本门派统治的据点 id 列表
     this.locationIds = Set()
     // 本门派成员 id 列表
     this.characterIds = Set()
     
-    this.nationId = nationId
     final nation = game.nations[nationId]
     nation.organizationIds.add(this.id)
+    this.nationId = nationId
 
-    this.headquartersId = headquartersId
     final location = game.locations[headquartersId]
     addLocation2Organization(this, location)
+    setOrganizationHeadquarters(this, location)
 
     final leader = game.characters[leaderId]
     addCharacter2Organization(this, leader)
@@ -53,6 +59,14 @@ fun setOrganizationLeader(organization, character) {
   organization.leaderId = character.id
   character.titles[kOrganizationLeaderTitle] = getOrganizationLeaderTitle(organization)
   character.currentTitleId = kOrganizationLeaderTitle
+}
+
+// 必须已经是门派据点, 并且尚未设置总堂，才可以设置总堂
+fun setOrganizationHeadquarters(organization, location) {
+  assert(!location.sites.containsKey(kSiteHeadquarters))
+  assert(location.organizationId == organization.id)
+  organization.headquartersId = location.id
+  location.sites[kSiteHeadquarters] = Site(location: location, category: kSiteHeadquarters)
 }
 
 // 组织中每个等级的人数上限

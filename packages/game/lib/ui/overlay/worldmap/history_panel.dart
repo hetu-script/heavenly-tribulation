@@ -19,7 +19,11 @@ class _HistoryPanelState extends State<HistoryPanel> {
     super.initState();
 
     final List incidents = engine.hetu.invoke('getIncidents');
-    messages.addAll(incidents.map((data) => data['content']));
+    for (final incident in incidents) {
+      if (incident['isPublic']) {
+        messages.add(incident['content']);
+      }
+    }
 
     engine.registerListener(
       Events.incidentOccurred,

@@ -15,7 +15,6 @@ class EmptyPlaceholder extends StatelessWidget {
           textDirection: TextDirection.ltr,
           child: Text(
             text ?? engine.locale['empty'],
-            style: const TextStyle(color: Colors.black),
           ),
         ),
       ),

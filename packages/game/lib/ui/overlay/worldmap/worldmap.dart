@@ -221,7 +221,9 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
             ),
           ),
           padding: const EdgeInsets.all(10.0),
-          child: HistoryPanel(key: UniqueKey()),
+          child: SingleChildScrollView(
+            child: HistoryPanel(key: UniqueKey()),
+          ),
         ),
       ),
     ];

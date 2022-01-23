@@ -112,12 +112,12 @@ fun createWorldMap({
   }) {
 
   game.savePath = null
-  
   game.nations = {}
   game.characters = {}
   game.locations = {}
   game.organizations = {}
   game.mazes = {}
+  game.incidents = []
 
   game.world = {
     terrainSpriteSheet,
@@ -455,7 +455,16 @@ fun createWorldMap({
 
   // }
 
-  // 触发创世事件
+  // 让一开始的几个掌门先互相认识
+
+  for (var i in range(leaders.length)) {
+    final subject = leaders[i]
+    for (var j in range(leaders.length)) {
+      if (j == i) continue
+      final target = leaders[j]
+      firstImpressionOfOtherCharacter(subject, target)
+    }
+  }
 
   // 触发创派事件
   for (final leader in leaders) {

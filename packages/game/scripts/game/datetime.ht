@@ -1,17 +1,93 @@
 import 'game.ht'
 
-const ticksPerDay = 4 //每天的回合数 morning, afternoon, evening, night
-const daysPerMonth = 30 //每月的天数
-const ticksPerMonth = 120 //每月的回合数 120
-const monthsPerYear = 12 //每年的月数
-const ticksPerYear = 1440 //每年的回合数 1440
+const kTicksPerDay = 4 //每天的回合数 morning, afternoon, evening, night
+const kDaysPerMonth = 30 //每月的天数
+const kTicksPerMonth = 120 //每月的回合数 120
+const kMonthsPerYear = 12 //每年的月数
+const kTicksPerYear = 1440 //每年的回合数 1440
 
-fun getYear(timestamp) => (timestamp / ticksPerYear).truncate()
-fun getMonth(timestamp) =>
-    ((timestamp % ticksPerYear) / _ticksPerMonth).truncate()
-fun getDay(timestamp) =>
-    ((timestamp % ticksPerMonth) / _ticksPerDay).truncate()
+fun toYear(timestamp) => (timestamp ~/ kTicksPerYear)
+fun toMonth(timestamp) => (timestamp % kTicksPerYear) ~/ kTicksPerMonth
+fun toDay(timestamp) => (timestamp % kTicksPerMonth) ~/ kTicksPerDay
 
-fun currentYear => getYear(game.timestamp)
-fun currentMonth => getMonth(game.timestamp)
-fun currentDay => getDay(game.timestamp)
+fun currentYear => toYear(game.timestamp)
+fun currentMonth => toMonth(game.timestamp)
+fun currentDay => toDay(game.timestamp)
+
+// [format] = 'age' | 'date' | 'time' . 'ymd' | 'ym' | 'md' | 'd' | 'auto'
+fun formatDateTimeString(timestamp: int, {format: str}) {
+  var yearN = toYear(timestamp)
+  var monthN = toMonth(timestamp)
+  var dayN = toDay(timestamp)
+  
+  var yearC
+  var monthC
+  var dayC
+
+  final fmt = format?.split('.').first ?? 'date'
+  if (fmt == 'age') {
+    yearC = getLocaleString('ageYear')
+    monthC = getLocaleString('ageMonth')
+    dayC = getLocaleString('ageDay')
+  } else if (fmt == 'date') {
+    yearC = getLocaleString('dateYear')
+    monthC = getLocaleString('dateMonth')
+    dayC = getLocaleString('dateDay')
+    ++yearN
+    ++monthN
+    ++dayN
+  } else {
+    yearC = getLocaleString('timeYear')
+    monthC = getLocaleString('timeMonth')
+    dayC = getLocaleString('timeDay')
+  }
+
+  final year = ' ${yearN} ${yearC}'
+  final month = ' ${monthN} ${monthC}'
+  final day = ' ${dayN} ${dayC}'
+
+  final fmt = format?.split('.').last
+  when (fmt) {
+    'y'-> {
+      return year
+    }
+    'm'-> {
+      return month
+    }
+    'd'-> {
+      return day
+    }
+    'ym'-> {
+      return '${year}${month}'
+    }
+    'md'-> {
+      return '${month}${day}'
+    }
+    'ymd'-> {
+      return '${year}${month}${day}'
+    }
+    else-> {
+      if (fmt == 'age') {
+        if (yearN == 0) {
+          if (monthN == 0) {
+            return day
+          } else {
+            return month
+          }
+        } else {
+          return year
+        }
+      } else {
+        return '${year}${month}${day}'
+      }
+    }
+  }
+}
+
+fun getCurrentDate => formatDateTimeString(game.timestamp)
+
+fun toDateString(timestamp) => formatDateTimeString(timestamp)
+
+fun toTimeString(timestamp) => formatDateTimeString(timestamp, format: 'time.ymd')
+
+fun toAgeString(timestamp) => formatDateTimeString(timestamp, format: 'age')

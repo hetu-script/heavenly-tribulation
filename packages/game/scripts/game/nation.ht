@@ -14,8 +14,13 @@ struct Nation {
     if (name) {
       this.name = name + _kNation
     } else {
-      final names = randomNames.getNation(1)
-      this.name = names.first.name
+      var conflict = false
+      do {
+        final names = randomNames.getNation(1)
+        this.name = names.first.name
+        conflict = game.nations.values.where((element) =>
+          element.name == this.name).isNotEmpty
+      } while (conflict)
     }
     this.id = 'nation_${this.index}_${this.name}'
     this.color = Math.randomBrightColorHex()

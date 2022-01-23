@@ -3,8 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../event/events.dart';
-import '../../engine/engine.dart';
+import '../../../event/events.dart';
+import '../../../engine/engine.dart';
 import 'site_card.dart';
 
 class LocationView extends StatefulWidget {
@@ -40,7 +40,7 @@ class _LocationViewState extends State<LocationView>
 
     final siteCards = sitesData.values.map((siteData) {
       final String locationId = siteData['locationId'];
-      final String siteId = siteData['id'];
+      final String siteId = siteData['category'];
       final title = siteData['name'];
       String? imagePath = siteData['image'];
       return SiteCard(
@@ -77,8 +77,8 @@ class _LocationViewState extends State<LocationView>
               child: SizedBox(
                 width: 180.0,
                 child: Card(
+                  elevation: 5,
                   shape: RoundedRectangleBorder(
-                      side: const BorderSide(color: Colors.lightBlue, width: 2),
                       borderRadius: BorderRadius.circular(8.0)),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),

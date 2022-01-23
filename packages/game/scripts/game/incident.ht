@@ -41,6 +41,9 @@ struct Incident {
     final subject = game.characters[subjectId]
     subject.incidentIndexes.add(this.index)
 
+    this.isPublic = isPublic
+    this.isGlobal = isGlobal
+
     if (isPublic) {
       if (isGlobal) {
         for (final char of game.characters) {
@@ -52,6 +55,10 @@ struct Incident {
 
     game.incidents.add(this)
   }
+}
+
+fun getIncidentByIndex(index: int) {
+  return game.incidents[index]
 }
 
 fun getIncidents() {
