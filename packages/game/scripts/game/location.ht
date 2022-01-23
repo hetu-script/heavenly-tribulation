@@ -47,7 +47,7 @@ struct Location {
     terrainIndex,
     category,
     name,
-    development,
+    isCity = true,
   }) {
     assert(terrainIndex != null)
     this.terrainIndex = terrainIndex
@@ -65,27 +65,31 @@ struct Location {
     }
     this.category = category
     this.id = 'location_${this.index}_${this.name}'
+    this.isCity = isCity
     
     // 据点发展度
     // 发展度决定了据点所能拥有的普通居民人口上限，以及所能拥有建筑的数量
     // 最少是 1，最多是 18
-    this.development = development ?? 1
+    this.development = 1
 
     // 在野修士, key = id, value = name
     this.wildCharacterIds = {}
     // 门派修士, key = id, value = name
     this.organizedCharacterIds = {}
-
-    // 普通居民决定了税收收入，以及外门弟子的数量
-    final minP = maxPopulationOfLocationDevelopment(this.development - 1)
-    final maxP = maxPopulationOfLocationDevelopment(this.development)
-    this.population = Math.randomInt(maxP - minP) + minP
     
     // 外门弟子数量，记录在据点数据中，不算做门派属性
     this.disciple = 0
   
     this.sites = {}
-    Site(category: kSiteResidence, location: this)
+
+    // 如果是洞天福地，则默认不会显示在地图上，并且也不会有普通居民
+    if (isCity) {
+      Site(category: kSiteResidence, location: this)
+      // 普通居民决定了税收收入，以及外门弟子的数量
+      final minP = maxPopulationOfLocationDevelopment(this.development - 1)
+      final maxP = maxPopulationOfLocationDevelopment(this.development)
+      this.population = Math.randomInt(maxP - minP) + minP
+    }
 
     // 当地居民的稳定度，0 ~ 100
     this.stable = 100.0
