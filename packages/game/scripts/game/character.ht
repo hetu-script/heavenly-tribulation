@@ -3,7 +3,7 @@ import 'game.ht'
 import 'l10n.ht'
 import 'datetime.ht'
 import 'incident.ht'
-import 'generator/object/object.ht' as randomObject
+import 'generator/entity/entity.ht' as randomEntity
 
 // number of the male avatar images
 const kMaleAvatarCount = 37
@@ -69,7 +69,7 @@ struct Character {
       this.shortName = shortName
       this.name = familyName + shortName
     } else {
-      final randomName = randomObject.getCharacter(1, isFemale: this.isFemale).first
+      final randomName = randomEntity.getCharacter(1, isFemale: this.isFemale).first
       this.familyName = randomName.familyName
       this.shortName = randomName.shortName
       this.name = randomName.name

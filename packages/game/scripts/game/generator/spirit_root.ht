@@ -1,0 +1,61 @@
+import 'constants.ht'
+
+
+struct SpiritOrigin {
+
+  construct {
+    final roots = [
+      'waterSpiritOrigin',
+      'fireSpiritOrigin',
+      'metalSpiritOrigin',
+      'woodSpiritOrigin',
+      'earthSpiritOrigin',
+    ]
+    final mri = Math.randomInt(5)
+    var sri
+    do {
+      sri = Math.randomInt(5)
+    } while (sri == mri ||
+             sri == mri + 1 ||
+             mri == sri + 1 ||
+             sri == mri - 4 ||
+             mri == sri - 4)
+    final mainRoot = roots[mri]
+    final secondRoot = roots[sri]
+
+    final r1 = getRarity()
+    final r2 = getRarity()
+    fun getRootFromRarity([main]) {
+      if (main == null) {
+        if (r1 .value < kRarity.epic.probability) {
+          return Math.random() * 2 + 8
+        } else if (r1 .value < kRarity.rare.probability) {
+          return Math.random() * 2 + 7
+        } else if (r1 .value < kRarity.uncommon.probability) {
+          return Math.random() * 2 + 6
+        } else {
+          return Math.random() * 2 + 5
+        }
+      } else {
+        final v = Math.random() * 0.2
+        if (r2.value < kRarity.epic.probability) {
+          return main - (v + 0.8) * main
+        } else if (r2.value < kRarity.rare.probability) {
+          return main - (v + 0.6) * main
+        } else if (r2.value < kRarity.uncommon.probability) {
+          return main - (v + 0.4) * main
+        } else {
+          return main - (v + 0.2) * main
+        }
+      }
+    }
+
+    this[mainRoot] = getRootFromRarity() * 1000
+    this[secondRoot] = getRootFromRarity(this[mainRoot])
+
+    for (var root in roots) {
+      if (root == mainRoot || root == secondRoot) continue
+      this[root] = Math.random() * 3 * 1000
+    }
+  }
+}

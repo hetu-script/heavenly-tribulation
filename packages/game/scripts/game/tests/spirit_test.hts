@@ -1,0 +1,5 @@
+import '../generator/spirit_root.ht'
+
+for (var i in range(20)) {
+  print(SpiritOrigin())
+}

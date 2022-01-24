@@ -1,4 +1,4 @@
-import 'constants.ht'
+import '../constants.ht'
 import 'data/shared/common.json' as commonNames
 import 'data/shared/strange.json' as strangeNames
 import 'data/shared/color.json' as colorPrefix
@@ -36,7 +36,7 @@ export {
   kOrganizationCategory,
   kLocationCategory,
   kZoneCategory,
-} from 'constants.ht'
+} from '../constants.ht'
 
 export {
   zone,
@@ -86,27 +86,6 @@ final kLocationCategories = kLocationCategory.keys
 final kOrganizationCategories = kOrganizationCategory.keys
 
 final kZoneCategories = kZoneCategory.keys
-
-fun getRarity(max) {
-  var rarity
-  final value = Math.random() * (max || 1.0)
-  if (value < kRarity.exotic.probability) {
-    rarity = 'exotic'
-  } else if (value < kRarity.mythic.probability) {
-    rarity = 'mythic'
-  } else if (value < kRarity.legendary.probability) {
-    rarity = 'legendary'
-  } else if (value < kRarity.epic.probability) {
-    rarity = 'epic'
-  } else if (value < kRarity.rare.probability) {
-    rarity = 'rare'
-  } else if (value < kRarity.uncommon.probability) {
-    rarity = 'uncommon'
-  } else {
-    rarity = 'common'
-  }
-  return { rarity, value }
-}
 
 const _kParenthesisLeft = '（'
 const _kParenthesisRight = '）'

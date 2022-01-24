@@ -74,6 +74,14 @@ final informationPanel = {
   'memberNumber': '成员数量',
 }
 
+final terrian = {
+  'waterSpiritOrigin': '水灵气本源',
+  'fireSpiritOrigin': '火灵气本源',
+  'metalSpiritOrigin': '金灵气本源',
+  'woodSpiritOrigin': '木灵气本源',
+  'earthSpiritOrigin': '土灵气本源',
+}
+
 final location = {
   'population': '人口',
   'sorcerer': '修士',
@@ -125,17 +133,15 @@ final character = {
   'fame': '名声',
   'infamy': '恶名',
   'looks': '容貌',
-  'life': '最大生命',
-  'currentLife': '当前生命',
-  'spirit': '最大精血',
-  'currentSpirit': '当前精血',
+  'life': '最大精血',
+  'currentLife': '当前精血',
   'stamina': '最大元气',
   'currentStamina': '当前元气',
-  'strength': '力量',
+  'spirit': '最大灵力',
+  'currentSpirit': '当前灵力',
+  'strength': '强壮',
   'dexterity': '灵巧',
-  'perception': '感知',
-  'intelligence': '悟性',
-  'memory': '记忆',
+  'perception': '神识',
   'waterSpiritRoot': '水灵根',
   'woodSpiritRoot': '木灵根',
   'earthSpiritRoot': '土灵根',

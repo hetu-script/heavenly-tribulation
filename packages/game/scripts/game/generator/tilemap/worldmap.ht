@@ -1,4 +1,4 @@
-import '../object/object.ht' as randomObject
+import '../entity/entity.ht' as randomEntity
 import '../../game.ht'
 import '../../location.ht'
 import '../../character.ht'
@@ -324,7 +324,7 @@ fun createWorldMap({
     } else {
       category = zone.category
     }
-    names = randomObject.getZone(1, category: category)
+    names = randomEntity.getZone(1, category: category)
     zone.name = names.first.name
   }
   
