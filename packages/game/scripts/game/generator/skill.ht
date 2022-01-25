@@ -1,0 +1,138 @@
+import 'constants.ht'
+import 'data/shared/common.json' as commonNames
+import 'data/skill/skill.json' as skill
+import 'data/skill/extra.json' as skillExtra
+import 'data/skill/numfix.json' as skillNumfix
+import 'data/book/prefix.json' as bookPrefix
+import 'data/book/postfix.json' as bookPostfix
+import '../util.ht'
+
+final common = [
+  ...commonNames.dao,
+  ...commonNames.element,
+  ...commonNames.creature,
+  ...commonNames.object,
+  ...commonNames.color,
+  ...commonNames.place,
+  ...commonNames.adj,
+  ...commonNames.number,
+  ...commonNames.gesture,
+  ...commonNames.action,
+];
+
+final kSkillCategory = {
+  arcane: '玄功',
+  fight: '斗技',
+  escape: '遁术',
+  array: '阵法',
+}
+
+final kSkillCategories = kSkillCategory.keys
+
+const _kNumberBeginSupplement = '路'
+const _kNumberEndSupplement = '式'
+
+const _kParenthesisLeft = '（'
+const _kParenthesisRight = '）'
+
+const _kBookLeft = "《";
+const _kBookRight = "》";
+
+fun getSkillKind([category: str]) {
+  if (category != null) {
+    assert(kSkillCategories.contains(category))
+  } else {
+    category = kSkillCategories.random
+  }
+  return skill[category].kind.random
+}
+
+fun _getSkillName({length, category, kind}) {
+  var l = length || 1
+  var rarity = 'common'
+  if (!length) {
+    final r = getRarity()
+    if (r.value < kRarity.legendary.probability) {
+      l = 3
+    } else if (r.value < kRarity.uncommon.probability) {
+      l = 2
+    }
+    rarity = r.rarity
+  }
+  final baseAffixes = []
+  var name = ''
+  for (var i in range(l)) {
+    name += common.random
+  }
+  var e = ''
+  var n = ''
+  final k = kind ?? getSkillKind(category)
+  if (Math.random() < kRarity.epic.probability) {
+    e = skillExtra.random
+  }
+  if (Math.random() < kRarity.epic.probability) {
+    n = skillNumfix.random
+  }
+  if (Math.random() < 0.5) {
+    name = (n != '' ? n + _kNumberBeginSupplement : '') + e + name + k
+  } else {
+    if (k.length > 1) {
+      name = e + name + k + (n != '' ? n + _kNumberEndSupplement : '')
+    } else {
+      name = e + name + n + k
+    }
+  }
+  return { name, rarity}
+}
+
+final epicAndAbove = Set('exotic', 'mythic', 'legendary', 'epic')
+
+fun getSkill(number: int, {length, category, kind}) {
+  final names = []
+  for (var i in range(number)) {
+    final c = category ?? kSkillCategories.random
+    final skillname = _getSkillName(length: length, category: c, kind: kind)
+    var rarity = skillname.rarity
+    var pre = ''
+    var post = ''
+    final affixes = []
+    if (epicAndAbove.contains(skillname.rarity)) {
+      if (skillname.rarity == 'exotic') {
+        pre = bookPrefix.exotic.affixes.random
+        post = bookPostfix.epic.random
+      } else if (skillname.rarity == 'mythic') {
+        pre = bookPrefix.mythic.affixes.random
+        post = bookPostfix.epic.random
+      } else if (skillname.rarity == 'legendary') {
+        pre = bookPrefix.legendary.affixes.random
+        post = bookPostfix.epic.random
+      } else {
+        pre = bookPrefix.epic.affixes.random
+        post = bookPostfix.epic.random
+      }
+      
+      final value = Math.randomInt(bookPrefix[skillname.rarity].variable.max - bookPrefix[skillname.rarity].variable.min) + bookPrefix[skillname.rarity].variable.min
+      final description = interpolate(bookPrefix[skillname.rarity].description, [value])
+      affixes.add({
+        id: bookPrefix.exotic.id,
+        description,
+        value,
+      })
+    } else if (skillname.rarity == 'rare') {
+      
+    } else if (skillname.rarity == 'uncommon') {
+      post = bookPostfix.uncommon.random 
+    } else {
+      post = bookPostfix.common.random
+    }
+    names.add({
+      ...skillname,
+      book: {
+        name: pre + post,
+        affixes,
+      },
+      category: c,
+    })
+  }
+  return names
+}

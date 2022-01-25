@@ -64,6 +64,45 @@ const _kMinLocationNumberForOrganization = 0.5 // 最大组织密度
 const _kMinNpcNumberForOrganization = 3
 const _kMaxNpcNumberForOrganization = 9
 
+struct SpiritOrigin {
+  construct {
+    final roots = [
+      'water',
+      'fire',
+      'metal',
+      'wood',
+      'earth',
+    ]
+
+    var n = 10
+    var max = 0
+    for (var root in roots) {
+      final current = n - hyperbola(n)
+      if (current > max) {
+        max = current
+      }
+      this[root] = current
+      n -= current
+    }
+    
+    if (max > 9) {
+      this.rarity = 'exotic'
+    } else if (max > 8) {
+      this.rarity = 'mythic'
+    } else if (max > 7) {
+      this.rarity = 'legendary'
+    } else if (max > 6) {
+      this.rarity = 'epic'
+    } else if (max > 5) {
+      this.rarity = 'rare'
+    } else if (max > 4) {
+      this.rarity = 'uncommon'
+    } else if (max > 3) {
+      this.rarity = 'common'
+    }
+  }
+}
+
 struct Zone {
   var index: int
   var name: str
@@ -140,6 +179,7 @@ fun createWorldMap({
           index: tilePos2Index(i + 1, j + 1),
           spriteIndex: _kSpriteWater,
           overlaySprite: {},
+          ...SpiritOrigin(),
         }
       )
     }

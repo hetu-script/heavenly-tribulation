@@ -4,6 +4,7 @@ import 'l10n.ht'
 import 'datetime.ht'
 import 'incident.ht'
 import 'generator/entity/entity.ht' as randomEntity
+import 'generator/util.ht'
 
 // number of the male avatar images
 const kMaleAvatarCount = 37
@@ -14,7 +15,7 @@ const kCharacterInitialMaxAge = 25
 
 const kCharacterAverageLooks = 75.0
 /// 容貌最大值: 100.0
-const kCharacterLooksMax = 100.0
+const kCharacterMaxLooks = 100.0
 const kCharacterImpressionCheckpoint = 10.0
 
 const kSpiritRankTitle = 'spiritRankTitle'
@@ -81,8 +82,8 @@ struct Character {
     } else {
       this.birthTimestamp = _createRandomBirthTimestamp()
     }
-    this.looks = _createRandomLooks(kCharacterAverageLooks)
-    this.favoredLooks = _createRandomLooks()
+    this.looks = hyperbola(kCharacterAverageLooks)
+    this.favoredLooks = hyperbola(kCharacterMaxLooks)
 
     this.birthPlaceId = birthPlaceId
     this.nationId = nationId
@@ -305,15 +306,6 @@ fun getCharacters() {
 fun handleCharacterInteraction(characterId) {
   final character = game.characters[characterId]
   print('interaction:', character.name)
-}
-
-/// 获得随机容貌或者偏好
-/// 大多数人都会接近于标准的100
-/// 取值离100越远，随机出的可能性越低
-/// 公式: y=\frac{6x-6}{5x-6}
-fun _createRandomLooks([mean = kCharacterLooksMax]) {
-  final x = Math.random()
-  return ((x * 6 - 6) / (5 * x - 6)) * mean
 }
 
 /// 容貌评价的计算公式

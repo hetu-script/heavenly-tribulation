@@ -1,5 +1,53 @@
-import '../generator/spirit_root.ht'
+import '../generator/util.ht'
 
-for (var i in range(20)) {
+struct SpiritOrigin {
+  construct {
+    final roots = [
+      'water',
+      'fire',
+      'metal',
+      'wood',
+      'earth',
+    ]
+
+    var n = 10
+    var max = 0
+    for (var root in roots) {
+      final current = n - hyperbola(n)
+      if (current > max) {
+        max = current
+      }
+      this[root] = current
+      n -= current
+    }
+    
+    if (max > 9) {
+      this.rarity = 'exotic'
+    } else if (max > 8) {
+      this.rarity = 'mythic'
+    } else if (max > 7) {
+      this.rarity = 'legendary'
+    } else if (max > 6) {
+      this.rarity = 'epic'
+    } else if (max > 5) {
+      this.rarity = 'rare'
+    } else if (max > 4) {
+      this.rarity = 'uncommon'
+    } else {
+      this.rarity = 'common'
+    }
+  }
+}
+
+// final count = {}
+
+// for (var i in range(1000)) {
+//   final s = SpiritOrigin()
+//   ++count[s.rarity]
+// }
+
+// print(count)
+
+for (var i in range(10)) {
   print(SpiritOrigin())
 }

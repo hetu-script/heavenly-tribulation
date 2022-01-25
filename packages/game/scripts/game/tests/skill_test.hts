@@ -1,0 +1,5 @@
+import '../generator/skill.ht'
+
+final names = getSkill(10, category: 'arcane')
+
+print(names)

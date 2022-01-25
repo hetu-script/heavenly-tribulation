@@ -69,13 +69,6 @@ fun getRarity(max) {
   return { rarity, value }
 }
 
-final kSkillCategory = {
-  arcane: '玄功',
-  fight: '斗技',
-  escape: '遁术',
-  array: '阵法',
-}
-
 final kCreatureCategory = {
   plant: '草木',
   worm: '赢虫',

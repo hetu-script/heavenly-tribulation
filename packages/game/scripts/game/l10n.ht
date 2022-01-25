@@ -1,4 +1,5 @@
 import 'game.ht'
+import 'util.ht'
 
 fun addLocales(localeList: List) {
   if (game.debug) {
@@ -23,10 +24,8 @@ fun setLocale(id: str) {
 
 const kMissingText = 'missing_text_'
 
-fun getLocaleString(id: str, [interpolations: List = []]) {
-  var string = locales[locales.currentLocaleId][id]
-  for (var i = 0; i < interpolations.length; ++i) {
-    string = string.replaceAll('{${i}}', interpolations[i]);
-  }
-  return string ?? kMissingText + id
+fun getLocaleString(key: str, [interpolations: List = []]) {
+  var string = locales[locales.currentLocaleId][key]
+  string = interpolate(string, interpolations)
+  return string ?? kMissingText + key
 }
