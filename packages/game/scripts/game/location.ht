@@ -1,7 +1,7 @@
 import 'game.ht'
 import 'character.ht'
 import 'dialog.ht'
-import 'generator/entity/entity.ht' as randomEntity
+import 'generator/entity.ht' as randomEntity
 
 const kSiteResidence = 'residence'
 const kSiteHeadquarters = 'headquarters'

@@ -1,6 +1,6 @@
 import 'game.ht'
 import 'map.ht'
-import 'generator/entity/entity.ht' as randomEntity
+import 'generator/entity.ht' as randomEntity
 
 const _kNation = '国'
 

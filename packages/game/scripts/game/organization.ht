@@ -1,6 +1,6 @@
 import 'game.ht'
 import { Site, kSiteHeadquarters } from 'location.ht'
-import 'generator/entity/entity.ht' as randomEntity
+import 'generator/entity.ht' as randomEntity
 
 struct Organization {
   construct ({

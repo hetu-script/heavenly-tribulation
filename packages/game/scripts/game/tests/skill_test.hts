@@ -1,5 +1,8 @@
 import '../generator/skill.ht'
+import '../generator/book.ht'
 
-final names = getSkill(10, category: 'arcane')
+final names = getSkill(1, category: 'arcane')
 
-print(names)
+final book = getBook(names.first)
+
+print(book)

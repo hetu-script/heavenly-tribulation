@@ -1,0 +1,45 @@
+{
+  "languageId": "zh",
+  "languageName": "简体中文",
+
+  "missing": "□□□□",
+  "ok": "确定",
+  "cancel": "取消",
+  "yes": "好的",
+  "no": "不要",
+  "empty": "空无一物",
+  "loading": "载入中...",
+  "menu": "菜单",
+  "id": "ID",
+  "none": "无",
+  "unknown": "未知",
+  "load": "载入",
+  "delete": "删除",
+
+  "zone": "地域",
+  "nation": "国家",
+  "location": "据点",
+  "organization": "门派",
+  "character": "人物",
+  "talisman": "法宝",
+  "maze": "迷宫",
+  "dialog": "对话",
+  "category": "类型",
+  "development": "发展度",
+
+  "city": "城市",
+  "arcana": "洞天",
+  "mirage": "福地",
+
+  "name": "名字",
+
+  "ageYear": "岁",
+  "ageMonth": "个月",
+  "ageDay": "天",
+  "dateYear": "年",
+  "dateMonth": "月",
+  "dateDay": "日",
+  "timeYear": "年",
+  "timeMonth": "个月",
+  "timeDay": "天"
+}

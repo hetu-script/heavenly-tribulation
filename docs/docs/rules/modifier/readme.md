@@ -7,3 +7,14 @@
 对象的稀有度决定了他所能拥有的词缀的稀有度上限
 
 也就是说蓝色物品上只能出现蓝色或以下的词缀，以此类推
+
+# 增多/减少 vs 增大/减小
+
+Increased means it will apply additively, more means it will apply multiplicatively.
+
+For example, lets say you have 100 base energy shield. You have 20% increased energy shield from passives, and 30% increased energy shield from Intelligence. You also have 10% more energy shield from passives.
+
+Energy shield=100*(1+.2+.3)*1.1=165
+
+Now if you also had 20% more energy shield from a unique item or something you would have:
+Energy shield=100*(1+.2+.3)*1.1\*1.2=198

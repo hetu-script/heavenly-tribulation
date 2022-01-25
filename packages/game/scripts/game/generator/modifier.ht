@@ -1,0 +1,85 @@
+import 'data/modifier/modifier.json' as modifiers
+// import '../l10n.ht'
+
+fun _handleModifier(data) {
+  final mod = modifiers[data.id]
+  final modRank = mod.ranks[data.rank]
+  final valueRanges = modRank.ranges
+  final name = getLocaleString(modRank.name)
+  final values = []
+  final valueStrings = []
+  if (valueRanges) {
+    for (final range in valueRanges) {
+      final value = Math.random() * (range.max - range.min) + range.min
+      values.add({
+        value,
+        min: range.min,
+        max: range.max,
+      })
+      when (range.type) {
+        'int'-> valueStrings.add(value.toStringAsFixed(0))
+        'float'-> valueStrings.add(value.toStringAsFixed(2))
+        'percentage'-> valueStrings.add(value.toPercentageString(2))
+      }
+    }
+  }
+  var description
+  if (mod.description) {
+    description = getLocaleString(
+      mod.description,
+      valueStrings,
+    )
+  }
+  return {
+    name,
+    rank: data.rank,
+    description,
+    values,
+  }
+}
+
+fun handleModifier(data, {rarity, hasBaseNum: bool, prefixNum: int, postfixNum: int}) {
+  assert(prefixNum != null)
+  assert(postfixNum != null)
+  rarity ??= getRarity().rarity
+  var name = ''
+  final attributes = []
+  final modifiers = {}
+
+  fun pickModifier(mods, number) {
+    if (!mods || !number) return
+    for (var i in range(number)) {
+      final modData = mods.random
+      final modifier = _handleModifier(modData)
+      if (modifier) {
+        name += modifier.name
+        modifiers[modData.id] = modifier
+      }
+    }
+  }
+
+  final mods = data.prefix[rarity]
+  pickModifier(mods, prefixNum)
+
+  final base = data.base[rarity]
+  if (hasBaseNum && base) {
+    final baseMod = base.random
+    final baseName = getLocaleString(baseMod.name)
+    name += baseName
+    if (baseMod.attributes) {
+      for (final attributeData in baseMod.attributes) {
+        final attribute = _handleModifier(attributeData)
+        attributes.add(attribute)
+      }
+    }
+  }
+  
+  final mods = data.postfix[rarity]
+  pickModifier(mods, postfixNum)
+
+  return {
+    name,
+    attributes,
+    modifiers,
+  }
+}

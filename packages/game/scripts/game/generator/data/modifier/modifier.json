@@ -1,0 +1,147 @@
+{
+  "bookBaseNames": {
+    "ranks": [
+      {
+        "name": "bookBaseNames"
+      }
+    ]
+  },
+  "bookTrainingLevelAdd": {
+    "description": "trainingLevelAddDescription",
+    "ranks": [
+      {
+        "name": "bookPrefix0",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 1,
+            "max": 10
+          }
+        ]
+      },
+      {
+        "name": "bookPrefix1",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 11,
+            "max": 20
+          }
+        ]
+      },
+      {
+        "name": "bookPrefix2",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 21,
+            "max": 30
+          }
+        ]
+      },
+      {
+        "name": "bookPrefix3",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 31,
+            "max": 40
+          }
+        ]
+      }
+    ]
+  },
+  "trainingLevelDecrease": {
+    "description": "trainingLevelDecreaseDescription",
+    "ranks": [
+      {
+        "name": "bookPostfix0",
+        "ranges": [
+          {
+            "type": "percentage",
+            "min": 0.11,
+            "max": 0.3
+          }
+        ]
+      },
+      {
+        "name": "bookPostfix1",
+        "ranges": [
+          {
+            "type": "percentage",
+            "min": 0.01,
+            "max": 0.2
+          }
+        ]
+      }
+    ]
+  },
+  "trainingLevel": {
+    "description": "trainingLevelDescription",
+    "ranks": [
+      {
+        "ranges": [
+          {
+            "type": "int",
+            "min": 11,
+            "max": 30
+          }
+        ]
+      },
+      {
+        "ranges": [
+          {
+            "type": "int",
+            "min": 21,
+            "max": 40
+          }
+        ]
+      },
+      {
+        "ranges": [
+          {
+            "type": "int",
+            "min": 31,
+            "max": 50
+          }
+        ]
+      },
+      {
+        "ranges": [
+          {
+            "type": "int",
+            "min": 41,
+            "max": 60
+          }
+        ]
+      },
+      {
+        "ranges": [
+          {
+            "type": "int",
+            "min": 51,
+            "max": 70
+          }
+        ]
+      },
+      {
+        "ranges": [
+          {
+            "type": "int",
+            "min": 61,
+            "max": 80
+          }
+        ]
+      },
+      {
+        "ranges": [
+          {
+            "type": "int",
+            "min": 71,
+            "max": 90
+          }
+        ]
+      }
+    ]
+  }
+}

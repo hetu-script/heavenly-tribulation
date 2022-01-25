@@ -71,17 +71,18 @@ flutter:
     - scripts/game/data/
     - scripts/game/generator/
     - scripts/game/generator/tilemap/
-    - scripts/game/generator/entity/
-    - scripts/game/generator/entity/data/
-    - scripts/game/generator/entity/data/alchemy/
-    - scripts/game/generator/entity/data/creature/
-    - scripts/game/generator/entity/data/material/
-    - scripts/game/generator/entity/data/name/
-    - scripts/game/generator/entity/data/organization/
-    - scripts/game/generator/entity/data/place/
-    - scripts/game/generator/entity/data/shared/
-    - scripts/game/generator/entity/data/skill/
-    - scripts/game/generator/entity/data/talisman/
+    - scripts/game/generator/data/
+    - scripts/game/generator/data/modifier/
+    - scripts/game/generator/data/alchemy/
+    - scripts/game/generator/data/creature/
+    - scripts/game/generator/data/material/
+    - scripts/game/generator/data/name/
+    - scripts/game/generator/data/organization/
+    - scripts/game/generator/data/place/
+    - scripts/game/generator/data/shared/
+    - scripts/game/generator/data/skill/
+    - scripts/game/generator/data/book/
+    - scripts/game/generator/data/talisman/
     - scripts/core/
     - scripts/core/l10n/
     - scripts/core/data/

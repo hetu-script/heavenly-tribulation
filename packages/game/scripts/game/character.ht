@@ -3,7 +3,7 @@ import 'game.ht'
 import 'l10n.ht'
 import 'datetime.ht'
 import 'incident.ht'
-import 'generator/entity/entity.ht' as randomEntity
+import 'generator/entity.ht' as randomEntity
 import 'generator/util.ht'
 
 // number of the male avatar images
@@ -115,7 +115,7 @@ struct Character {
       // 行为逻辑，最小 -50 最大 +50
       social: Math.random() * 100.0 - 50.0,
       intuition: Math.random() * 100.0 - 50.0,
-      reason: Math.random() * 100.0 - 50.0.0,
+      reason: Math.random() * 100.0 - 50.0,
       controlment: Math.random() * 100.0 - 50.0,
     }
  

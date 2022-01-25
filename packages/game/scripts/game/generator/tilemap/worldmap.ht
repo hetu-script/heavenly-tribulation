@@ -1,4 +1,4 @@
-import '../entity/entity.ht' as randomEntity
+import '../entity.ht' as randomEntity
 import '../../game.ht'
 import '../../location.ht'
 import '../../character.ht'

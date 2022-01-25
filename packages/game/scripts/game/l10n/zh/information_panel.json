@@ -1,0 +1,10 @@
+{
+  "capital": "首都",
+  "gridSize": "疆域大小",
+  "locationNumber": "据点数量",
+  "organizationNumber": "门派数量",
+
+  "leader": "掌门",
+  "headquartersLocation": "总堂据点",
+  "memberNumber": "成员数量"
+}

@@ -26,6 +26,12 @@ const kMissingText = 'missing_text_'
 
 fun getLocaleString(key: str, [interpolations: List = []]) {
   var string = locales[locales.currentLocaleId][key]
-  string = interpolate(string, interpolations)
-  return string ?? kMissingText + key
+  if (string) {
+    if (string is List) {
+      string = string.random
+    }
+    return interpolate(string, interpolations)
+  } else {
+    return kMissingText + key
+  }
 }

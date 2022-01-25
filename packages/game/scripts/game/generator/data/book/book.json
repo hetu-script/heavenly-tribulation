@@ -1,0 +1,86 @@
+{
+  "base": {
+    "epic": [
+      {
+        "name": "bookBaseNames",
+        "attributes": [
+          {
+            "id": "bookBaseNames",
+            "rank": 0
+          }
+        ]
+      }
+    ],
+    "legendary": [
+      {
+        "name": "bookBaseNames",
+        "attributes": [
+          {
+            "id": "bookBaseNames",
+            "rank": 0
+          }
+        ]
+      }
+    ],
+    "mythic": [
+      {
+        "name": "bookBaseNames",
+        "attributes": [
+          {
+            "id": "bookBaseNames",
+            "rank": 0
+          }
+        ]
+      }
+    ],
+    "exotic": [
+      {
+        "name": "bookBaseNames",
+        "attributes": [
+          {
+            "id": "bookBaseNames",
+            "rank": 0
+          }
+        ]
+      }
+    ]
+  },
+  "prefix": {
+    "epic": [
+      {
+        "id": "bookTrainingLevelAdd",
+        "rank": 0
+      }
+    ],
+    "legendary": [
+      {
+        "id": "bookTrainingLevelAdd",
+        "rank": 1
+      }
+    ],
+    "mythic": [
+      {
+        "id": "bookTrainingLevelAdd",
+        "rank": 2
+      }
+    ],
+    "exotic": [
+      {
+        "id": "bookTrainingLevelAdd",
+        "rank": 3
+      }
+    ]
+  },
+  "postfix": {
+    "common": [
+      {
+        "id": "trainingLevelDecrease",
+        "rank": 0
+      },
+      {
+        "id": "trainingLevelDecrease",
+        "rank": 1
+      }
+    ]
+  }
+}

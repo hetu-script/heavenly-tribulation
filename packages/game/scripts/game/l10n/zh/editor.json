@@ -1,0 +1,30 @@
+{
+  "editorTitle": "《天道奇劫》游戏编辑器",
+  "newGame": "开始新游戏",
+  "sandBoxMode": "沙盒模式",
+  "loadGame": "继续游戏",
+  "loadSave": "载入存档",
+  "gameEditor": "编辑器",
+  "newProject": "创建新模组...",
+  "unnamedProject": "未命名模组",
+  "create": "新建",
+  "load": "读取",
+  "save": "保存",
+  "goBack": "返回",
+  "quit": "退出",
+  "random": "随机",
+  "reload": "重新载入",
+  "saveSuccessed": "保存成功！",
+  "directoryNotEmpty": "保存失败：目录不是空的。",
+
+  "localization": "本地化文本",
+  "code": "代码",
+  "meta": "模组",
+  "script": "脚本",
+  "untitled": "未命名",
+
+  "characterEditor": "角色编辑",
+  "isFemale": "性别",
+  "characterEditingMustEnterId": "必须填写角色ID！",
+  "characterEditingMustEnterName": "必须填写角色姓名！"
+}
