@@ -8,11 +8,11 @@ import 'data/name/female.json' as female
 import 'data/name/male.json' as male
 import 'data/name/middle.json' as middle
 import 'data/skill/skill.json' as skill
-import 'data/skill/prefix.json' as skillPrefix
+import 'data/skill/extra.json' as skillExtra
 import 'data/skill/numfix.json' as skillNumfix
-import 'data/book/prefix.json' as bookPrefix
-import 'data/book/book.json' as book
-import 'data/book/postfix.json' as bookPostfix
+import 'data/skill/book/prefix.json' as bookPrefix
+import 'data/skill/book/book.json' as book
+import 'data/skill/book/postfix.json' as bookPostfix
 import 'data/talisman/talisman.json' as talisman
 import 'data/talisman/material.json' as talismanMaterial
 import 'data/talisman/postfix.json' as talismanPostfix
@@ -155,41 +155,42 @@ fun getSkillKind([category: str]) {
   return skill[category].random
 }
 
-fun _getSkillName({length, category, kind, prefix, numfix}) {
+fun _getSkillName({length, category, kind}) {
   var l = length || 1
   var rarity = 'common'
   if (!length) {
     final r = getRarity()
-    if (r.value < kRarity.rare.probability) {
+    if (r.value < kRarity.rare.legendary) {
       l = 3
-    } else if (r.value < kRarity.uncommon.probability) {
+    } else if (r.value < kRarity.uncommon.rare) {
       l = 2
     }
     rarity = r.rarity
   }
+  final baseAffixes = []
   var name = ''
   for (var i in range(l)) {
     name += common.random
   }
-  var pre = prefix ?? ''
-  var n = numfix ?? ''
+  var e = ''
+  var n = ''
   final k = kind ?? getSkillKind(category)
-  if (!prefix && Math.random() < kRarity.epic.probability) {
-    pre = skillPrefix.random
+  if (Math.random() < kRarity.epic.probability) {
+    e = skillExtra.random
   }
-  if (!numfix && Math.random() < kRarity.epic.probability) {
+  if (Math.random() < kRarity.epic.probability) {
     n = skillNumfix.random
   }
   if (Math.random() < 0.5) {
-    name = (n != '' ? n + _kNumberBeginSupplement : '') + pre + name + k
+    name = (n != '' ? n + _kNumberBeginSupplement : '') + e + name + k
   } else {
     if (k.length > 1) {
-      name = pre + name + k + (n != '' ? n + _kNumberEndSupplement : '')
+      name = e + name + k + (n != '' ? n + _kNumberEndSupplement : '')
     } else {
-      name = pre + name + n + k
+      name = e + name + n + k
     }
   }
-  return { name, rarity }
+  return { name, rarity, baseAffixes:  }
 }
 
 fun getSkill(number: int, {length, category, kind}) {
@@ -199,35 +200,30 @@ fun getSkill(number: int, {length, category, kind}) {
     final skillname = _getSkillName(length: length, category: c, kind: kind)
     var rarity = skillname.rarity
     var pre = ''
-    var pk = '';
     var post = ''
     if (skillname.rarity == 'exotic') {
-      pre =
-        bookPrefix.exotic.random
+      pre = bookPrefix.exotic.random
+      post = bookPostfix.epic.random
     } else if (skillname.rarity == 'mythic') {
-      pre =
-        bookPrefix.mythic.random
+      pre = bookPrefix.mythic.random
+      post = bookPostfix.epic.random
     } else if (skillname.rarity == 'legendary') {
-      pre =
-        bookPrefix.legendary.random
+      pre = bookPrefix.legendary.random
+      post = bookPostfix.epic.random
     } else if (skillname.rarity == 'epic') {
       pre = bookPrefix.epic.random
-    }
-    if (pre) {
-      pk = book.random
-    }
-    final r1 = Math.random()
-    final r2 = Math.random()
-    if (r1 < kRarity.rare.probability && r2 < kRarity.rare.probability) {
-      post = _kParenthesisLeft + bookPostfix.rare.random + _kParenthesisRight
-    } else if (r1 < kRarity.uncommon.probability && r2 < kRarity.uncommon.probability) {
+      post = bookPostfix.epic.random
+    } else if (skillname.rarity == 'rare') {
+
+    } else if (skillname.rarity == 'uncommon') {
       post = _kParenthesisLeft + bookPostfix.uncommon.random + _kParenthesisRight
+    } else {
+      post = _kParenthesisLeft + bookPostfix.common.random + _kParenthesisRight
     }
     names.add({
-      skill: skillname.name,
+      ...skillname,
       book: _kBookLeft + skillname.name + pre + pk + post + _kBookRight,
       category: c,
-      rarity: rarity,
     })
   }
   return names
