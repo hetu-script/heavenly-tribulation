@@ -74,7 +74,6 @@ flutter:
     - scripts/game/generator/entity/
     - scripts/game/generator/entity/data/
     - scripts/game/generator/entity/data/alchemy/
-    - scripts/game/generator/entity/data/book/
     - scripts/game/generator/entity/data/creature/
     - scripts/game/generator/entity/data/material/
     - scripts/game/generator/entity/data/name/
