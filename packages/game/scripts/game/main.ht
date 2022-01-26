@@ -38,9 +38,10 @@ fun init({locale = 'zh', gameEngine: SamsaraEngine}) {
     print('河图: 初始化函数执行完毕 ...')
   }
 
-  // final names = getSkill(10, category: 'arcane')
-  // for (final name in names) {
-  //   final book = getBook(name)
-  //   print(book)
-  // }
+  final skills = getSkill(10, category: 'arcane')
+  for (final skill in skills) {
+    // final book = getBook(skill)
+    // print(book)
+    print(skill)
+  }
 }

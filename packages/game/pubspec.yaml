@@ -68,6 +68,8 @@ flutter:
     - scripts/
     - scripts/game/
     - scripts/game/l10n/
+    - scripts/game/l10n/zh/
+    - scripts/game/l10n/en/
     - scripts/game/data/
     - scripts/game/generator/
     - scripts/game/generator/tilemap/

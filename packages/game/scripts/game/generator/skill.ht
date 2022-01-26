@@ -7,15 +7,15 @@ import '../util.ht'
 
 final common = [
   ...commonNames.dao,
-  ...commonNames.element,
+  ...commonNames.budda,
+  ...commonNames.emotion,
   ...commonNames.creature,
   ...commonNames.object,
   ...commonNames.color,
   ...commonNames.place,
-  ...commonNames.adj,
   ...commonNames.number,
-  ...commonNames.gesture,
   ...commonNames.action,
+  ...commonNames.target,
 ];
 
 final kSkillCategory = {

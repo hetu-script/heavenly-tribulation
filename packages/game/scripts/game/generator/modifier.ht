@@ -1,8 +1,10 @@
-import 'data/modifier/modifier.json' as modifiers
-// import '../l10n.ht'
+import 'modifier/book/attributes.json' as bookAttributes
+import '../l10n.ht'
 
-fun _handleModifier(data) {
-  final mod = modifiers[data.id]
+fun _getAttribute(data, category) {
+  final mod = when (category) {
+    'book' -> bookAttributes[data.id]
+  }
   final modRank = mod.ranks[data.rank]
   final valueRanges = modRank.ranges
   final name = getLocaleString(modRank.name)
@@ -50,7 +52,7 @@ fun handleModifier(data, {rarity, hasBaseNum: bool, prefixNum: int, postfixNum: 
     if (!mods || !number) return
     for (var i in range(number)) {
       final modData = mods.random
-      final modifier = _handleModifier(modData)
+      final modifier = _getAttribute(modData)
       if (modifier) {
         name += modifier.name
         modifiers[modData.id] = modifier
@@ -68,7 +70,7 @@ fun handleModifier(data, {rarity, hasBaseNum: bool, prefixNum: int, postfixNum: 
     name += baseName
     if (baseMod.attributes) {
       for (final attributeData in baseMod.attributes) {
-        final attribute = _handleModifier(attributeData)
+        final attribute = _getAttribute(attributeData)
         attributes.add(attribute)
       }
     }

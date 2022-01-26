@@ -1,27 +1,27 @@
 import 'constants.ht'
-import 'data/shared/common.json' as commonNames
-import 'data/shared/strange.json' as strangeNames
-import 'data/shared/color.json' as colorPrefix
-import 'data/shared/spirit.json' as spiritPrefix
-import 'data/name/family.json' as family
-import 'data/name/female.json' as female
-import 'data/name/male.json' as male
-import 'data/name/middle.json' as middle
-import 'data/talisman/talisman.json' as talisman
-import 'data/talisman/material.json' as talismanMaterial
-import 'data/talisman/postfix.json' as talismanPostfix
-import 'data/organization/organization.json' as organization
-import 'data/place/place.json' as place
-import 'data/place/prefix.json' as placePrefix
-import 'data/place/postfix.json' as placePostfix
-import 'data/place/location.json' as location
-import 'data/place/zone.json' as zone
-import 'data/material/material.json' as material
-import 'data/material/postfix.json' as materialPostfix
-import 'data/creature/creature.json' as creature
-import 'data/creature/prefix.json' as creaturePrefix
-import 'data/creature/strange.json' as strangeCreature
-import 'data/alchemy/alchemy.json' as alchemy
+import 'name/shared/common.json' as commonNames
+import 'name/shared/strange.json' as strangeNames
+import 'name/shared/color.json' as colorPrefix
+import 'name/shared/spirit.json' as spiritPrefix
+import 'name/name/family.json' as family
+import 'name/name/female.json' as female
+import 'name/name/male.json' as male
+import 'name/name/middle.json' as middle
+import 'name/talisman/talisman.json' as talisman
+import 'name/talisman/material.json' as talismanMaterial
+import 'name/talisman/postfix.json' as talismanPostfix
+import 'name/organization/organization.json' as organization
+import 'name/place/place.json' as place
+import 'name/place/prefix.json' as placePrefix
+import 'name/place/postfix.json' as placePostfix
+import 'name/place/location.json' as location
+import 'name/place/zone.json' as zone
+import 'name/material/material.json' as material
+import 'name/material/postfix.json' as materialPostfix
+import 'name/creature/creature.json' as creature
+import 'name/creature/prefix.json' as creaturePrefix
+import 'name/creature/strange.json' as strangeCreature
+import 'name/alchemy/alchemy.json' as alchemy
 
 export {
   kSex,
@@ -55,15 +55,15 @@ export {
 
 final common = [
   ...commonNames.dao,
-  ...commonNames.element,
+  ...commonNames.budda,
+  ...commonNames.emotion,
   ...commonNames.creature,
   ...commonNames.object,
   ...commonNames.color,
   ...commonNames.place,
-  ...commonNames.adj,
   ...commonNames.number,
-  ...commonNames.gesture,
   ...commonNames.action,
+  ...commonNames.target,
 ];
 
 final locations = [

@@ -8,6 +8,24 @@
 
 也就是说蓝色物品上只能出现蓝色或以下的词缀，以此类推
 
+# 玄功（宠物、傀儡、法宝）词缀
+
+包含对基础属性的永久性改变
+
+# 斗技（符箓）词缀
+
+包含各种战斗中的伤害，击中，debuff，buff 效果
+
+# 丹药词缀
+
+包含各种一次性回复效果或者临时 buff 效果
+
+# 遁术词缀
+
+包含各种防御和移动效果
+
+# 阵法词缀
+
 # 增多/减少 vs 增大/减小
 
 Increased means it will apply additively, more means it will apply multiplicatively.

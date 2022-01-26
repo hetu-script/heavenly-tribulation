@@ -1,6 +1,6 @@
 import 'constants.ht'
 import 'modifier.ht'
-import 'data/book/book.json' as bookAffixes
+import 'modifier/book/modifier.json' as bookAffixes
 
 const _kBookLeft = "《";
 const _kBookRight = "》";
