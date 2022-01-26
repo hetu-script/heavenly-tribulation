@@ -1,0 +1,98 @@
+import 'attributes/attributes.json' as attributes
+import '../l10n.ht'
+
+fun _getAttribute(data) {
+  final mod = attributes[data.id]
+  final modRank = data.rank != null ? mod.ranks[data.rank] : mod
+  final implicit = modRank.implicit
+  final valueRanges = modRank.ranges
+  var affixName = ''
+  if (modRank.affixNameId) {
+    affixName = getLocaleString(modRank.affixNameId)
+  }
+  final values = []
+  final valueStrings = []
+  if (valueRanges) {
+    for (final range in valueRanges) {
+      var value = Math.random() * (range.max - range.min) + range.min
+      when (range.type) {
+        'int'-> {
+          value = value.truncate()
+          valueStrings.add(value.toStringAsFixed(0))
+        }
+        'float'-> valueStrings.add(value.toStringAsFixed(2))
+        'percentage'-> valueStrings.add(value.toPercentageString(2))
+      }
+      values.add({
+        value,
+        min: range.min,
+        max: range.max,
+      })
+    }
+  }
+  var attributeName
+  if (mod.attributeNameId) {
+    attributeName = getLocaleString(
+      mod.attributeNameId,
+      valueStrings,
+    )
+  }
+  return {
+    id: data.id,
+    affixName,
+    implicit,
+    rank: data.rank,
+    attributeName,
+    values,
+  }
+}
+
+fun handleAttributes(data, {
+  rarity,
+  hasBase: bool = true,
+  prefixNum: int = 0,
+  postfixNum: int = 0,
+}) {
+  rarity ??= getRarity().rarity
+  var name = ''
+  final implicitAttributes = []
+  final explicitAttributes = []
+
+  fun getAttributes(rarityAttrs, number) {
+    if (!rarityAttrs || !number) return
+    if (rarityAttrs.affixNameId) {
+      final affixName = getLocaleString(rarityAttrs.affixNameId)
+      name += affixName
+    }
+    final mods = rarityAttrs[rarity]
+    final attrs = []
+    if (!mods) return
+    for (var i in range(number)) {
+      final modData = mods.random
+      final attribute = _getAttribute(modData)
+      if (!rarityAttrs.affixName && attribute.affixName) {
+        name += attribute.affixName
+      }
+      if (attribute.implicit) {
+        implicitAttributes.add(attribute)
+      } else {
+        explicitAttributes.add(attribute)
+      }
+    }
+  }
+
+  getAttributes(data.prefix, prefixNum)
+
+  if (hasBase) {
+    assert(data.base != null)
+    getAttributes(data.base, 1)
+  }
+  
+  getAttributes(data.postfix, postfixNum)
+
+  return {
+    name,
+    implicitAttributes,
+    explicitAttributes,
+  }
+}

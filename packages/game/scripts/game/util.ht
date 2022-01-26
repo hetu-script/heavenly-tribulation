@@ -1,6 +1,6 @@
 fun interpolate(text: str, [interpolations: List = []]) {
   for (var i = 0; i < interpolations.length; ++i) {
-    text = text.replaceAll('{${i}}', interpolations[i]);
+    text = text.replaceAll('{${i}}', stringify(interpolations[i]));
   }
   return text
 }

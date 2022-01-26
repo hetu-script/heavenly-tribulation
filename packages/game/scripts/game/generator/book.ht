@@ -1,29 +1,28 @@
-import 'constants.ht'
-import 'modifier.ht'
-import 'modifier/book/modifier.json' as bookAffixes
+import 'attributes.ht'
+import 'attributes/book/book.json' as bookAttributes
 
 const _kBookLeft = "《";
 const _kBookRight = "》";
 
 fun getBook(skill) {
-  var hasBaseNum = false
+  var hasBase = false
   if (skill.rarity in ['common', 'uncommon', 'rare']) {
-    hasBaseNum = Math.randomBool()
+    hasBase = Math.randomBool()
   } else {
-    hasBaseNum = true
+    hasBase = true
   }
 
-  final modifiers = handleModifier(bookAffixes,
+  final attributes = handleAttributes(bookAttributes,
     rarity: skill.rarity,
-    hasBaseNum: hasBaseNum,
+    hasBase: hasBase,
     prefixNum: 1,
     postfixNum: 1,
   )
 
   return {
-    name: _kBookLeft + skill.name + modifiers.name + _kBookRight,
-    attributes: skill.attributes,
-    modifiers: modifiers.modifiers,
+    name: _kBookLeft + skill.name + attributes.name + _kBookRight,
+    rarity: skill.rarity,
+    explicitAttributes: attributes.explicitAttributes,
     skill,
   }
 }

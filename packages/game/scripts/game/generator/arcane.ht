@@ -1,0 +1,80 @@
+import 'constants.ht'
+import 'attributes.ht'
+import 'attributes/arcane/arcane.json' as arcaneAttributes
+
+fun getArcanePower([rarity]) {
+  rarity ??= getRarity().rarity
+
+  final attributes = handleAttributes(arcaneAttributes,
+    rarity: rarity,
+    prefixNum: 1,
+  )
+
+  var maxStats = when (rarity) {
+    'common' -> Math.randomInt(2) + 3
+    'uncommon' -> Math.randomInt(3) + 3
+    'rare' -> Math.randomInt(2) + 4
+    'epic' -> Math.randomInt(3) + 4
+    'legendary' -> Math.randomInt(2) + 5
+    'mythic' -> Math.randomInt(1) + 6
+    'exotic' -> 7
+  }
+
+  final stats = []
+  stats.add(Math.randomInt(maxStats))
+  stats.add(Math.randomInt(maxStats - stats[0]))
+  stats.add(maxStats - stats[0] - stats[1])
+  stats.sort()
+
+  final basicStatsAttributes = []
+  var str
+  var chi
+  var spi
+
+  when (attributes.explicitAttributes.first.id) {
+    'strengthAdd' -> {
+      str = stats[2]
+      chi = stats[1]
+      spi = stats[0]
+    }
+    'chiAdd' -> {
+      chi = stats[2]
+      str = stats[1]
+      spi = stats[0]
+    }
+    'spiritAdd' -> {
+      spi = stats[2]
+      str = stats[1]
+      chi = stats[0]
+    }
+  }
+
+  if (str) basicStatsAttributes.add(
+    {
+      id: 'strengthAddDescription',
+      description: getLocaleString('strengthAddDescription', [str]),
+      values: [str],
+    }
+  )
+  if (chi) basicStatsAttributes.add(
+    {
+      id: 'chiAddDescription',
+      description: getLocaleString('chiAddDescription', [chi]),
+      values: [chi],
+    }
+  )
+  if (spi) basicStatsAttributes.add(
+    {
+      id: 'spiritAddDescription',
+      description: getLocaleString('spiritAddDescription', [spi]),
+      values: [spi],
+    }
+  )
+  
+  return {
+    name: attributes.name,
+    rarity,
+    implicitAttributes: [ ...basicStatsAttributes, ...attributes.implicitAttributes ],
+    explicitAttributes: attributes.explicitAttributes,
+  }
+}

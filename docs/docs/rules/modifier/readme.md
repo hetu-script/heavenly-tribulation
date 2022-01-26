@@ -28,11 +28,29 @@
 
 # 增多/减少 vs 增大/减小
 
-Increased means it will apply additively, more means it will apply multiplicatively.
+先全部加起来增多减少的数值，将其乘以基础数据，然后再乘以所有增大减小的数值。
 
-For example, lets say you have 100 base energy shield. You have 20% increased energy shield from passives, and 30% increased energy shield from Intelligence. You also have 10% more energy shield from passives.
+```dart
+final result = 100 * ( 1 + 0.2 + 0.3 ) * 1.1 * 1.2
+```
 
-Energy shield=100*(1+.2+.3)*1.1=165
+## 精血
 
-Now if you also had 20% more energy shield from a unique item or something you would have:
-Energy shield=100*(1+.2+.3)*1.1\*1.2=198
+化血
+化骨
+化脉
+化功
+
+## 元炁
+
+玉清
+上清
+太清
+碧清
+
+## 灵力
+
+吞星
+吸星
+移星
+摘星

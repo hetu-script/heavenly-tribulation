@@ -1,0 +1,279 @@
+{
+  "bookBaseNames": {
+    "affixNameId": "bookBaseNames"
+  },
+  "maxTrainingLevelAdd": {
+    "attributeNameId": "maxTrainingLevelAddDescription",
+    "ranks": [
+      {
+        "name": "bookPrefix0",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 1,
+            "max": 10
+          }
+        ]
+      },
+      {
+        "name": "bookPrefix1",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 11,
+            "max": 20
+          }
+        ]
+      },
+      {
+        "name": "bookPrefix2",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 21,
+            "max": 30
+          }
+        ]
+      },
+      {
+        "name": "bookPrefix3",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 31,
+            "max": 40
+          }
+        ]
+      }
+    ]
+  },
+  "maxTrainingLevelDecrease": {
+    "attributeNameId": "maxTrainingLevelDecreaseDescription",
+    "ranks": [
+      {
+        "affixNameId": "bookPostfix0",
+        "ranges": [
+          {
+            "type": "percentage",
+            "min": 0.11,
+            "max": 0.3
+          }
+        ]
+      },
+      {
+        "affixNameId": "bookPostfix1",
+        "ranges": [
+          {
+            "type": "percentage",
+            "min": 0.01,
+            "max": 0.2
+          }
+        ]
+      }
+    ]
+  },
+  "maxTrainingLevel": {
+    "implicit": true,
+    "attributeNameId": "maxTrainingLevelDescription",
+    "ranks": [
+      {
+        "ranges": [
+          {
+            "type": "int",
+            "min": 11,
+            "max": 30
+          }
+        ]
+      },
+      {
+        "ranges": [
+          {
+            "type": "int",
+            "min": 21,
+            "max": 40
+          }
+        ]
+      },
+      {
+        "ranges": [
+          {
+            "type": "int",
+            "min": 31,
+            "max": 50
+          }
+        ]
+      },
+      {
+        "ranges": [
+          {
+            "type": "int",
+            "min": 41,
+            "max": 60
+          }
+        ]
+      },
+      {
+        "ranges": [
+          {
+            "type": "int",
+            "min": 51,
+            "max": 70
+          }
+        ]
+      },
+      {
+        "ranges": [
+          {
+            "type": "int",
+            "min": 61,
+            "max": 80
+          }
+        ]
+      },
+      {
+        "ranges": [
+          {
+            "type": "int",
+            "min": 71,
+            "max": 90
+          }
+        ]
+      }
+    ]
+  },
+  "strengthAdd": {
+    "attributeNameId": "strengthAddDescription",
+    "ranks": [
+      {
+        "affixNameId": "arcaneStrengthAddPrefix0",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 15,
+            "max": 25
+          }
+        ]
+      },
+      {
+        "affixNameId": "arcaneStrengthAddPrefix1",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 25,
+            "max": 35
+          }
+        ]
+      },
+      {
+        "affixNameId": "arcaneStrengthAddPrefix2",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 35,
+            "max": 45
+          }
+        ]
+      },
+      {
+        "affixNameId": "arcaneStrengthAddPrefix3",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 45,
+            "max": 55
+          }
+        ]
+      }
+    ]
+  },
+  "chiAdd": {
+    "attributeNameId": "chiAddDescription",
+    "ranks": [
+      {
+        "affixNameId": "arcaneChiAddPrefix0",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 15,
+            "max": 25
+          }
+        ]
+      },
+      {
+        "affixNameId": "arcaneChiAddPrefix1",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 25,
+            "max": 35
+          }
+        ]
+      },
+      {
+        "affixNameId": "arcaneChiAddPrefix2",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 35,
+            "max": 45
+          }
+        ]
+      },
+      {
+        "affixNameId": "arcaneChiAddPrefix3",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 45,
+            "max": 55
+          }
+        ]
+      }
+    ]
+  },
+  "spiritAdd": {
+    "attributeNameId": "spiritAddDescription",
+    "ranks": [
+      {
+        "affixNameId": "arcaneSpiritAddPrefix0",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 15,
+            "max": 25
+          }
+        ]
+      },
+      {
+        "affixNameId": "arcaneSpiritAddPrefix1",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 25,
+            "max": 35
+          }
+        ]
+      },
+      {
+        "affixNameId": "arcaneSpiritAddPrefix2",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 35,
+            "max": 45
+          }
+        ]
+      },
+      {
+        "affixNameId": "arcaneSpiritAddPrefix3",
+        "ranges": [
+          {
+            "type": "int",
+            "min": 45,
+            "max": 55
+          }
+        ]
+      }
+    ]
+  }
+}

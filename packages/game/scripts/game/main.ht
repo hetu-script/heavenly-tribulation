@@ -15,7 +15,7 @@ export 'entity.ht'
 
 export 'generator/tilemap/worldmap.ht'
 export 'generator/tilemap/maze.ht'
-export 'generator/skill.ht'
+export 'generator/arcane.ht'
 export 'generator/book.ht'
 
 import 'l10n/predefined_localizations.ht'
@@ -38,10 +38,9 @@ fun init({locale = 'zh', gameEngine: SamsaraEngine}) {
     print('河图: 初始化函数执行完毕 ...')
   }
 
-  final skills = getSkill(10, category: 'arcane')
-  for (final skill in skills) {
-    // final book = getBook(skill)
-    // print(book)
-    print(skill)
+  for (var i in range(10)) {
+    final arcane = getArcanePower()
+    final book = getBook(arcane)
+    print(book)
   }
 }

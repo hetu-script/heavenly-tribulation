@@ -1,8 +1,8 @@
 import 'constants.ht'
-import 'data/shared/common.json' as commonNames
-import 'data/skill/skill.json' as skill
-import 'data/skill/extra.json' as skillExtra
-import 'data/skill/numfix.json' as skillNumfix
+import 'name/shared/common.json' as commonNames
+import 'name/skill/skill.json' as skill
+import 'name/skill/extra.json' as skillExtra
+import 'name/skill/numfix.json' as skillNumfix
 import '../util.ht'
 
 final common = [
@@ -87,8 +87,4 @@ fun getSkill(number: int, {length, category, kind}) {
     })
   }
   return names
-}
-
-fun getArcanePower() {
-  final kind = skill['arcane'].kind
 }
