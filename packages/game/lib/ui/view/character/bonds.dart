@@ -8,10 +8,7 @@ import '../../shared/constants.dart';
 
 const kCharacterBondsCategoryNum = 5;
 
-const kBondsTableColumns = [
-  'name',
-  'impressionOfThem',
-];
+const kBondsTableColumns = ['name', 'impressionOfThem'];
 
 class CharacterBondsView extends StatelessWidget {
   const CharacterBondsView({

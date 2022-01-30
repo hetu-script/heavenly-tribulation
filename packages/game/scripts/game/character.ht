@@ -36,6 +36,7 @@ struct Bond {
     this.name = name
     this.score = score
     this.incidentScores = {}
+    this.haveMet = false
   }
 }
 
@@ -96,6 +97,21 @@ struct Character {
     }
     this.currentTitleId = kSpiritRankTitle
 
+    var maxStats = 15
+    final str = Math.randomInt(maxStats - 2) + 1
+    final chi = Math.randomInt(maxStats - str - 1) + 1
+    final spi = maxStats - str - chi
+    final life = 100 + str ~/ 10 * 5
+    final chakra = chi * 10
+    final mana = spi * 10
+    this.stats = {
+      str,
+      chi,
+      spi,
+    }
+
+    calculateAttributesOfCharacter(this)
+
     // 该角色对世界上的其他事物的关系
     this.bonds = {
       characters: {},
@@ -131,6 +147,20 @@ struct Character {
   }
 }
 
+fun calculateAttributesOfCharacter(character) {
+  final life = 100 + character.stats.str ~/ 10 * 5
+  final chakra = 10 + character.stats.chi ~/ 10 * 5
+  final mana = 10 + character.stats.spi ~/ 10 * 5
+  character.attributes = {
+    life,
+    currentLife: life,
+    chakra,
+    currentChakra: 0,
+    mana,
+    currentMana: mana,
+  }
+}
+
 fun getCharAgeString(character) {
   return toAgeString(game.timestamp - character.birthTimestamp)
 }
@@ -142,13 +172,15 @@ fun _createRandomBirthTimestamp() {
 }
 
 // 第一印象分
-fun firstImpressionOfOtherCharacter(subject, target) {
+fun _firstImpressionOfOtherCharacter(subject, target) {
   var bond
   var hasBond = false
   if (subject.bonds.characters[target.id] != null) {
     hasBond = true
     bond = subject.bonds.characters[target.id]
-    assert(bond.scoreOfLooks == null)
+    if (bond.haveMet) {
+      throw 'called first impression on characters already met, subject: ${subject.id}, target: ${target.id}'
+    }
   } else {
     bond = Bond(id: target.id, name: target.name)
   }
@@ -191,11 +223,17 @@ fun firstImpressionOfOtherCharacter(subject, target) {
 
   bond.incidentScores[incident.index] = score
   bond.score += score
+  bond.haveMet = true
 
   if (!hasBond) {
     ++target.fame
     subject.bonds.characters[target.id] = bond
   }
+}
+
+fun firstImpressionOfOtherCharacter(subject, target) {
+  _firstImpressionOfOtherCharacter(subject, target)
+  _firstImpressionOfOtherCharacter(target, subject)
 }
 
 fun characterHeardOfIncident(character, incident) {
@@ -246,8 +284,8 @@ fun removeCharacterHome(character) {
   if (!character.homeId) return
 
   final loc = game.locations[character.homeId]
-  delete loc.wildCharacterIds[character.id]
-  delete loc.organizedCharacterIds[character.id]
+  delete loc.residingWildCharacterIds[character.id]
+  delete loc.residingOrganizedCharacterIds[character.id]
   character.homeId = null
 }
 
@@ -257,15 +295,15 @@ fun setCharacterHome(location, character, {isOrganized: bool = true}) {
     removeCharacterHome(character)
   }
   if (isOrganized) {
-    location.organizedCharacterIds[character.id] = character.name
+    location.residingOrganizedCharacterIds[character.id] = character.name
   } else {
-    location.wildCharacterIds[character.id] = character.name
+    location.residingWildCharacterIds[character.id] = character.name
   }
   character.homeId = location.id
 }
 
 fun setHero(id: str) {
-  if (game.debug) {
+  if (config.debug) {
     print('河图: 设置当前玩家人物为 [${id}] ...')
   }
   assert(game.characters.containsKey(id))
@@ -287,7 +325,7 @@ fun addCharacter(char) {
 }
 
 fun addCharacters(chars: List) {
-  if (game.debug) {
+  if (config.debug) {
     print('河图: 载入人物数据 ...')
   }
   for (final char in chars) {
@@ -304,8 +342,28 @@ fun getCharacters() {
 }
 
 fun handleCharacterInteraction(characterId) {
+  assert(game.characters.containsKey(characterId))
   final character = game.characters[characterId]
-  print('interaction:', character.name)
+  final hero = game.characters[game.heroId]
+  final selections = {}
+  var haveMet = false
+  final bond = hero.bonds.characters[character.id]
+  if (bond != null && bond.haveMet) {
+    haveMet = true
+  }
+
+  selections.practiceDuel = getLocaleString('practiceDuel');
+  showSelectionDialog(selections)
+  .then((key) {
+    when (key) {
+      'greeting' -> {
+        firstImpressionOfOtherCharacter(hero, character)
+      }
+      'practiceDuel' -> {
+        
+      }
+    }
+  }
 }
 
 /// 容貌评价的计算公式
@@ -315,13 +373,13 @@ fun handleCharacterInteraction(characterId) {
 /// looks 是对方的容貌，0 <= looks <= 100
 /// favor 是该角色的偏好，0 <= taste <= 100
 fun _calculateLooksScore({looks: float, favor: float}) -> float {
-  assert(0.0 <= looks && looks <= kCharacterLooksMax)
+  assert(0.0 <= looks && looks <= kCharacterMaxLooks)
   if (favor != null) {
-    assert(0.0 <= favor && favor <= kCharacterLooksMax)
+    assert(0.0 <= favor && favor <= kCharacterMaxLooks)
   }
-  if (looks < ((favor + kCharacterLooksMax) / 2)) {
-    return (-(looks - favor) * (looks - favor)) / 20 + kCharacterLooksMax
+  if (looks < ((favor + kCharacterMaxLooks) / 2)) {
+    return (-(looks - favor) * (looks - favor)) / 20 + kCharacterMaxLooks
   } else {
-    return (-(looks - kCharacterLooksMax) * (looks - kCharacterLooksMax)) / 20 + kCharacterLooksMax
+    return (-(looks - kCharacterMaxLooks) * (looks - kCharacterMaxLooks)) / 20 + kCharacterMaxLooks
   }
 }

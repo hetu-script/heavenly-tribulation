@@ -8,10 +8,10 @@ class SceneController {
 
   final _cachedScenes = <String, Scene>{};
 
-  final _sceneConstructors = <String, Scene Function([String? arg])>{};
+  final _sceneConstructors = <String, Future<Scene> Function([String? arg])>{};
 
   void registerSceneConstructor<T extends Scene>(
-      String name, T Function([String? arg]) constructor) {
+      String name, Future<T> Function([String? arg]) constructor) {
     _sceneConstructors[name] = constructor;
   }
 
@@ -23,7 +23,7 @@ class SceneController {
       return _cached;
     } else {
       final constructor = _sceneConstructors[key]!;
-      final Scene scene = constructor(arg);
+      final Scene scene = await constructor(arg);
       _cachedScenes[key] = scene;
       _currentScene = scene;
       return scene;

@@ -12,7 +12,7 @@ fun handleWorldEntityInteraction(x: int, y: int) {
 }
 
 fun addMazes(mazes) {
-  if (game.debug) {
+  if (config.debug) {
     print('河图: 载入副本数据 ...')
   }
   for (final maze in mazes) {

@@ -18,6 +18,7 @@ import '../../../shared/json.dart';
 import '../../../shared/constants.dart';
 import '../../../shared/util.dart';
 import 'history_panel.dart';
+import '../../shared/loading_screen.dart';
 
 // This is the type used by the popup menu.
 enum TopRightMenuItems { info, viewNone, viewZones, viewNations, exit }
@@ -80,6 +81,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
     final heroData = engine.hetu.invoke('getHero');
     final screenSize = MediaQuery.of(context).size;
 
@@ -325,6 +327,10 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
           ),
         );
       }
+    }
+
+    if (!widget.scene.isMapReady) {
+      screenWidgets.add(LoadingScreen(text: engine.locale['loading']));
     }
 
     return Material(

@@ -18,8 +18,9 @@ var locales = {
   en: {}
 }
 
+var dialogs = {}
+
 var game = {
-  debug: true,
   timestamp: 288000,
   dialogs: {},
   mods: {},
@@ -32,6 +33,14 @@ var game = {
   mazes: {},
   
   incidents: [],
+
+  today: {
+    visited: [],
+  }
+}
+
+var config = {
+  debug: true,
 }
 
 fun getGameJsonData() {

@@ -7,8 +7,8 @@ import '../engine/tilemap/tile.dart';
 import '../engine/tilemap/actor.dart';
 
 abstract class Events {
+  static const createdScene = 'created_scene';
   static const loadingScene = 'loading_scene';
-  static const startedScene = 'started_scene';
   static const endedScene = 'ended_scene';
   static const loadedMap = 'loaded_map';
   static const tappedMap = 'tapped_tile';
@@ -26,11 +26,11 @@ class SceneEvent extends GameEvent {
     required this.sceneKey,
   }) : super(eventName);
 
+  const SceneEvent.created({required String sceneKey})
+      : this(eventName: Events.createdScene, sceneKey: sceneKey);
+
   const SceneEvent.loading({required String sceneKey})
       : this(eventName: Events.loadingScene, sceneKey: sceneKey);
-
-  const SceneEvent.started({required String sceneKey})
-      : this(eventName: Events.startedScene, sceneKey: sceneKey);
 
   const SceneEvent.ended({required String sceneKey})
       : this(eventName: Events.endedScene, sceneKey: sceneKey);

@@ -8,6 +8,7 @@ import '../../l10n.ht'
 import 'hexagonal_tile.ht'
 import 'component.ht'
 import '../../map.ht'
+import '../util.ht'
 
 /// 生成世界地图的算法
 ///
@@ -474,7 +475,7 @@ fun createWorldMap({
       birthPlaceId: location.id,
       nationId: nation.id
     )
-    leader.currentLocationId = location.id
+    setCharacterLocationId(leader, location.id)
 
     final org = Organization(
       category: _kOrganizationCategoryCultivation,
@@ -497,13 +498,10 @@ fun createWorldMap({
 
   // 让一开始的几个掌门先互相认识
 
-  for (var i in range(leaders.length)) {
-    final subject = leaders[i]
-    for (var j in range(leaders.length)) {
-      if (j == i) continue
-      final target = leaders[j]
-      firstImpressionOfOtherCharacter(subject, target)
-    }
+  final subject = leaders.first
+  for (var i in range(leaders.length, 1)) {
+    final target = leaders[i]
+    firstImpressionOfOtherCharacter(subject, target)
   }
 
   // 触发创派事件

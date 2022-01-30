@@ -8,6 +8,7 @@ class LoadingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
+      color: Colors.black,
       child: Center(
         child: Directionality(
           textDirection: TextDirection.ltr,

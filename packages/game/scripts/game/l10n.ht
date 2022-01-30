@@ -2,7 +2,7 @@ import 'game.ht'
 import 'util.ht'
 
 fun addLocales(localeList: List) {
-  if (game.debug) {
+  if (config.debug) {
     print('河图: 载入本地化字符串 ...')
   }
   for (final locale in localeList) {
@@ -16,7 +16,7 @@ fun addLocales(localeList: List) {
 
 fun setLocale(id: str) {
   assert(locales.containsKey(id))
-  if (game.debug) {
+  if (config.debug) {
     print('河图: 设置当前语言为 [${id}] ...')
   }
   locales.currentLocaleId = id
@@ -32,6 +32,6 @@ fun getLocaleString(key: str, [interpolations: List = []]) {
     }
     return interpolate(string, interpolations)
   } else {
-    return kMissingText + key
+    return kMissingText + stringify(key)
   }
 }

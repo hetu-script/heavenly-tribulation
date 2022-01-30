@@ -48,12 +48,13 @@ fun _attack(attacker, victim, [skill = false]) {
 
 // fun createBattle(hero, enemy) -> str {
 
-fun createBattle(enemy) {
+fun createBattle(enemyId, { heroInitiative = 100, enemyInitiative = 100}) {
   battleLog.clear()
 
   var timeframe = 0
 
-  final hero = game.hero
+  final hero = game.characters[game.heroId]
+  final enemy = game.characters[enemyId]
 
   final initiativeSum = hero.initiative + enemy.initiative
   final initiativeValue = initiativeSum * Math.random()

@@ -30,7 +30,7 @@ const kInformationViewOrganizationColumns = [
 
 const kInformationViewCharacterColumns = [
   'name',
-  'home',
+  'currentLocation',
   'organization',
   'spiritRank',
   'fame',

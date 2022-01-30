@@ -16,13 +16,14 @@ export 'entity.ht'
 export 'generator/tilemap/worldmap.ht'
 export 'generator/tilemap/maze.ht'
 export 'generator/arcane.ht'
+export 'generator/martial.ht'
 export 'generator/book.ht'
 
 import 'l10n/predefined_localizations.ht'
 import 'data/predefined_dialogs.ht'
 
 fun init({locale = 'zh', gameEngine: SamsaraEngine}) {
-  if (game.debug) {
+  if (config.debug) {
     print('河图: 初始化游戏 ...')
   }
 
@@ -34,13 +35,14 @@ fun init({locale = 'zh', gameEngine: SamsaraEngine}) {
 
   addDialogs(predefinedDialogs)
   
-  if (game.debug) {
+  if (config.debug) {
     print('河图: 初始化函数执行完毕 ...')
   }
 
-  for (var i in range(10)) {
-    final arcane = getArcanePower()
-    final book = getBook(arcane)
-    print(book)
-  }
+  // for (var i in range(10)) {
+  //   // final ent = getArcanePower()
+  //   // final book = getBook(ent)
+  //   final ent = getMartialArts()
+  //   print(ent)
+  // }
 }

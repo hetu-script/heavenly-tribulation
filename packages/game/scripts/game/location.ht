@@ -72,10 +72,12 @@ struct Location {
     // 最少是 1，最多是 18
     this.development = 1
 
+    this.currentCharacterIds = Set()
+
     // 在野修士, key = id, value = name
-    this.wildCharacterIds = {}
+    this.residingWildCharacterIds = {}
     // 门派修士, key = id, value = name
-    this.organizedCharacterIds = {}
+    this.residingOrganizedCharacterIds = {}
     
     // 外门弟子数量，记录在据点数据中，不算做门派属性
     this.disciple = 0
@@ -131,7 +133,7 @@ fun addLocation(loc) {
 }
 
 fun addLocations(locs: List) {
-  if (game.debug) {
+  if (config.debug) {
     print('河图: 载入地点数据 ...')
   }
   for (final loc in locs) {
@@ -142,13 +144,15 @@ fun addLocations(locs: List) {
   }
 }
 
-fun setHeroLocationId(id: str) {
-  assert(game.locations.containsKey(id))
-  if (game.debug) {
-    print('河图: 设置玩家当前地点为 [${id}] ...')
+fun setCharacterLocationId(character, locationId: str) {
+  assert(game.locations.containsKey(locationId))
+  if (character.currentLocationId != null) {
+    final oldLocation = game.locations(character.currentLocationId)
+    oldLocation.currentCharacterIds.remove(character.id)
   }
-  final hero = game.characters[game.heroId]
-  hero.currentLocationId = id
+  final location = game.locations[locationId]
+  location.currentCharacterIds.add(character.id)
+  character.currentLocationId = locationId
 }
 
 fun getLocationById(id: str) {
@@ -243,8 +247,8 @@ fun _handleHeadquartersInteraction(site) {
         showGameDialogById('headquartersLearn001')
       }
       'visit' -> {
-        assert(location.organizedCharacterIds.isNotEmpty)
-        showSelectionDialog(location.organizedCharacterIds)
+        assert(location.residingOrganizedCharacterIds.isNotEmpty)
+        showSelectionDialog(location.residingOrganizedCharacterIds)
         .then((key) {
           handleCharacterInteraction(key)
         })

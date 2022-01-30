@@ -4,95 +4,102 @@ import '../l10n.ht'
 fun _getAttribute(data) {
   final mod = attributes[data.id]
   final modRank = data.rank != null ? mod.ranks[data.rank] : mod
-  final implicit = modRank.implicit
-  final valueRanges = modRank.ranges
   var affixName = ''
   if (modRank.affixNameId) {
     affixName = getLocaleString(modRank.affixNameId)
   }
-  final values = []
-  final valueStrings = []
-  if (valueRanges) {
-    for (final range in valueRanges) {
-      var value = Math.random() * (range.max - range.min) + range.min
-      when (range.type) {
-        'int'-> {
-          value = value.truncate()
-          valueStrings.add(value.toStringAsFixed(0))
-        }
-        'float'-> valueStrings.add(value.toStringAsFixed(2))
-        'percentage'-> valueStrings.add(value.toPercentageString(2))
-      }
-      values.add({
-        value,
-        min: range.min,
-        max: range.max,
-      })
+  var value
+  var min
+  var max
+  var valueString
+  if (modRank.range) {
+    min = modRank.range.min
+    max = modRank.range.max
+    value = Math.random() * (max - min) + min
+  } else {
+    value = modRank.value ?? 0
+  }
+  when (modRank.type) {
+    'int'-> {
+      value = value.truncate()
+      valueString = value.toStringAsFixed(0)
     }
+    'float'-> valueString = value.toStringAsFixed(2)
+    'percentage'-> valueString = value.toPercentageString(2)
   }
   var attributeName
   if (mod.attributeNameId) {
     attributeName = getLocaleString(
       mod.attributeNameId,
-      valueStrings,
+      [valueString],
     )
   }
-  return {
+  final attr = {
     id: data.id,
     affixName,
-    implicit,
     rank: data.rank,
     attributeName,
-    values,
+    value,
   }
+  if (modRank.range) {
+    attr.min = min
+    attr.max = max
+  }
+  return attr
 }
 
 fun handleAttributes(data, {
   rarity,
+  implicitNum: int = 0,
   hasBase: bool = true,
   prefixNum: int = 0,
   postfixNum: int = 0,
 }) {
   rarity ??= getRarity().rarity
-  var name = ''
-  final implicitAttributes = []
+  var kind = ''
+  if (data.kindNameId) {
+    kind = getLocaleString(data.kindNameId)
+  }
+  var affixNames = ''
+  final implicitAttributes = data.implicit ? data.implicit[rarity] : []
+  final baseAttributes = {}
   final explicitAttributes = []
 
-  fun getAttributes(rarityAttrs, number) {
-    if (!rarityAttrs || !number) return
-    if (rarityAttrs.affixNameId) {
-      final affixName = getLocaleString(rarityAttrs.affixNameId)
-      name += affixName
-    }
+  fun getAttributes(rarityAttrs, number, {isBase = false}) {
     final mods = rarityAttrs[rarity]
-    final attrs = []
     if (!mods) return
     for (var i in range(number)) {
       final modData = mods.random
       final attribute = _getAttribute(modData)
-      if (!rarityAttrs.affixName && attribute.affixName) {
-        name += attribute.affixName
+      if (attribute.affixName) {
+        affixNames += attribute.affixName
       }
-      if (attribute.implicit) {
-        implicitAttributes.add(attribute)
+      if (isBase) {
+        baseAttributes[attribute.id] = attribute
       } else {
         explicitAttributes.add(attribute)
       }
     }
   }
 
-  getAttributes(data.prefix, prefixNum)
+  if (prefixNum) {
+    assert(data.prefix != null)
+    getAttributes(data.prefix, prefixNum)
+  }
 
   if (hasBase) {
     assert(data.base != null)
-    getAttributes(data.base, 1)
+    getAttributes(data.base, 1, isBase: true)
   }
   
-  getAttributes(data.postfix, postfixNum)
+  if (postfixNum) {
+    assert(data.postfix != null)
+    getAttributes(data.postfix, postfixNum)
+  }
 
   return {
-    name,
-    implicitAttributes,
+    name: affixNames + kind,
+    baseAttributes,
     explicitAttributes,
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hetu_script/values.dart';
 
 class DuelPraparation extends StatefulWidget {
   const DuelPraparation({
@@ -7,7 +8,7 @@ class DuelPraparation extends StatefulWidget {
     required this.onFinished,
   }) : super(key: key);
 
-  final Map<String, dynamic> data;
+  final HTStruct data;
 
   final void Function() onFinished;
 

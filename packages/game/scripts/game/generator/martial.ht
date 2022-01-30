@@ -1,0 +1,57 @@
+import 'constants.ht'
+import 'attributes.ht'
+import 'attributes/martial.json' as martialAttributes
+
+fun getMartialArts([rarity]) {
+  rarity ??= getRarity().rarity
+
+  final attributes = handleAttributes(martialAttributes,
+    rarity: rarity,
+    prefixNum: 1,
+  )
+
+  final damageAttr = {
+    id: 'damage',
+    attributeNameId: 'damageDescription',
+    levels: [],
+  }
+
+  var baseDamage = when (rarity) {
+    'common' -> {
+      damageAttr.min = 1
+      damageAttr.max = 5
+    }
+    'uncommon' -> {
+      damageAttr.min = 3
+      damageAttr.max = 7
+    }
+    'rare' -> {
+      damageAttr.min = 5
+      damageAttr.max = 9
+    }
+    'epic' -> {
+      damageAttr.min = 7
+      damageAttr.max = 11
+    }
+    'legendary' -> {
+      damageAttr.min = 9
+      damageAttr.max = 13
+    }
+    'mythic' -> {
+      damageAttr.min = 11
+      damageAttr.max = 15
+    }
+    'exotic' -> {
+      damageAttr.min = 13
+      damageAttr.max = 17
+    }
+  }
+  
+  return {
+    name: attributes.name,
+    rarity,
+    levelAttributes: [damageAttr],
+    baseAttributes: attributes.baseAttributes,
+    explicitAttributes: attributes.explicitAttributes,
+  }
+}

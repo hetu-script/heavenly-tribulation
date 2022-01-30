@@ -132,10 +132,10 @@ class _InformationPanelState extends State<InformationPanel>
     for (final char in _charactersData.values) {
       final rowData = <String>[];
       rowData.add(char['name']);
-      // 住所
-      final home = engine.hetu
-          .invoke('getLocationById', positionalArgs: [char['homeId']]);
-      rowData.add(home['name']);
+      // 当前所在地点
+      final currentLocation = engine.hetu.invoke('getLocationById',
+          positionalArgs: [char['currentLocationId']]);
+      rowData.add(currentLocation['name']);
       // 门派名字
       final orgId = char['organizationId'];
       if (orgId != null) {

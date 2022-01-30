@@ -1,24 +1,23 @@
 {
   "base": {
-    "name": "bookBaseNames",
     "epic": [
       {
-        "id": "bookBaseNames"
+        "id": "bookKindNames"
       }
     ],
     "legendary": [
       {
-        "id": "bookBaseNames"
+        "id": "bookKindNames"
       }
     ],
     "mythic": [
       {
-        "id": "bookBaseNames"
+        "id": "bookKindNames"
       }
     ],
     "exotic": [
       {
-        "id": "bookBaseNames"
+        "id": "bookKindNames"
       }
     ]
   },

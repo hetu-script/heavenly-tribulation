@@ -1,6 +1,6 @@
 {
+  "kindNameId": "arcaneKindNames",
   "base": {
-    "affixNameId": "arcaneBaseNames",
     "common": [
       {
         "id": "maxTrainingLevel",

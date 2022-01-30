@@ -10,30 +10,30 @@ final meta = {
   id: 'tdqj_core',
   type: 'module',
   onNewGameStarted: (arg) {
-    if (game.debug) {
+    if (config.debug) {
       print('河图: 触发新游戏事件 [${this.name}]')
     }
   },
   onUpdate: (arg) {
-    if (game.debug) {
+    if (config.debug) {
       print('河图：触发时间更新事件 [${this.name}]')
     }
   }
 }
 
 fun load {
-  if (game.debug) {
+  if (config.debug) {
     print('河图: 载入 [${meta.id}] ...')
   }
   loadEntity(meta)
   loadEntities(entities)
-  if (game.debug) {
+  if (config.debug) {
     print('河图: [${meta.id}] 载入完毕...')
   }
 }
 
 fun init {
-  if (game.debug) {
+  if (config.debug) {
     print('河图: 初始化模组 ${meta.id} ...')
   }
 
@@ -55,7 +55,7 @@ fun init {
 
   load()
 
-  if (game.debug) {
+  if (config.debug) {
     print('河图: [${meta.id}] 初始化完毕...')
   }
 }

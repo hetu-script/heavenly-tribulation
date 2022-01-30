@@ -1,0 +1,135 @@
+{
+  "kindNameId": "martialKindNames",
+  "implicit": {
+    "common": [
+      {
+        "id": "damage",
+        "rank": 0
+      }
+    ],
+    "uncommon": [
+      {
+        "id": "damage",
+        "rank": 0
+      }
+    ],
+    "rare": [
+      {
+        "id": "damage",
+        "rank": 0
+      }
+    ],
+    "epic": [
+      {
+        "id": "damage",
+        "rank": 0
+      }
+    ],
+    "legendary": [
+      {
+        "id": "damage",
+        "rank": 0
+      }
+    ],
+    "mythic": [
+      {
+        "id": "damage",
+        "rank": 0
+      }
+    ],
+    "exotic": [
+      {
+        "id": "damage",
+        "rank": 0
+      }
+    ]
+  },
+  "base": {
+    "common": [
+      {
+        "id": "maxTrainingLevel",
+        "rank": 0
+      }
+    ],
+    "uncommon": [
+      {
+        "id": "maxTrainingLevel",
+        "rank": 0
+      }
+    ],
+    "rare": [
+      {
+        "id": "maxTrainingLevel",
+        "rank": 0
+      }
+    ],
+    "epic": [
+      {
+        "id": "maxTrainingLevel",
+        "rank": 0
+      }
+    ],
+    "legendary": [
+      {
+        "id": "maxTrainingLevel",
+        "rank": 0
+      }
+    ],
+    "mythic": [
+      {
+        "id": "maxTrainingLevel",
+        "rank": 0
+      }
+    ],
+    "exotic": [
+      {
+        "id": "maxTrainingLevel",
+        "rank": 0
+      }
+    ]
+  },
+  "prefix": {
+    "common": [
+      {
+        "id": "damageAdd",
+        "rank": 0
+      }
+    ],
+    "uncommon": [
+      {
+        "id": "damageAdd",
+        "rank": 1
+      }
+    ],
+    "rare": [
+      {
+        "id": "damageAdd",
+        "rank": 1
+      }
+    ],
+    "epic": [
+      {
+        "id": "damageAdd",
+        "rank": 2
+      }
+    ],
+    "legendary": [
+      {
+        "id": "damageAdd",
+        "rank": 2
+      }
+    ],
+    "mythic": [
+      {
+        "id": "damageAdd",
+        "rank": 3
+      }
+    ],
+    "exotic": [
+      {
+        "id": "damageAdd",
+        "rank": 3
+      }
+    ]
+  }
+}

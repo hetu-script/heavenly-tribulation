@@ -131,7 +131,7 @@ fun addLocation2Organization(organization, location) {
 }
 
 fun addOrganizations(orgs: List) {
-  if (game.debug) {
+  if (config.debug) {
     print('河图: 载入组织数据 ...')
   }
   for (final org in orgs) {

@@ -1,0 +1,12 @@
+
+for (var i in range(10)) {
+  var maxStats = 15
+  final str = Math.randomInt(maxStats - 2) + 1
+  final chi = Math.randomInt(maxStats - str - 1) + 1
+  final spi = maxStats - str - chi
+  final life = 100 + str ~/ 10 * 5
+  final chakra = 10 + chi ~/ 10 * 5
+  final mana = 10 + spi ~/ 10 * 5
+  print('str:', str, 'chi', chi, 'spi', spi)
+  print('life:', life, 'chakra', chakra, 'mana', mana)
+}

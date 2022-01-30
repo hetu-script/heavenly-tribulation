@@ -2,11 +2,11 @@ import 'game.ht'
 import 'character.ht'
 
 fun addDialog(dlg) {
-  game.dialogs[dlg.id] = dlg
+  dialogs[dlg.id] = dlg
 }
 
 fun addDialogs(dlgs: List) {
-  if (game.debug) {
+  if (config.debug) {
     print('河图: 载入对话数据 ...')
   }
   for (final dlg in dlgs) {
@@ -21,14 +21,14 @@ fun addDialogs(dlgs: List) {
         )
       }
     }
-    game.dialogs[dlg.id] = dlg
+    dialogs[dlg.id] = dlg
   }
 }
 
 external fun _showGameDialog(context, data: Map)
 
 fun showGameDialogById(id: str) -> Future {
-  final dlg = game.dialogs[id]
+  final dlg = dialogs[id]
   return _showGameDialog(buildContext, dlg.toJson())
 }
 

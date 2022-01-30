@@ -35,11 +35,11 @@ class _GameAppState extends State<GameApp> {
   void initState() {
     super.initState();
 
-    engine.registerSceneConstructor('WorldMap', ([String? arg]) {
+    engine.registerSceneConstructor('WorldMap', ([String? arg]) async {
       return WorldMapScene(arg);
     });
 
-    engine.registerSceneConstructor('Maze', ([String? arg]) {
+    engine.registerSceneConstructor('Maze', ([String? arg]) async {
       return MazeScene(arg);
     });
 
@@ -49,8 +49,17 @@ class _GameAppState extends State<GameApp> {
           refreshSaves();
         }));
 
+    // engine.registerListener(
+    //   Events.loadingScene,
+    //   EventHandler(widget.key!, (event) {
+    //     setState(() {
+    //       _isLoading = true;
+    //     });
+    //   }),
+    // );
+
     engine.registerListener(
-      Events.startedScene,
+      Events.createdScene,
       EventHandler(widget.key!, (event) {
         setState(() {
           _isLoading = false;
@@ -122,19 +131,19 @@ class _GameAppState extends State<GameApp> {
     } else {
       final menuWidgets = <Widget>[
         const Padding(
-          padding: EdgeInsets.symmetric(vertical: 35),
+          padding: EdgeInsets.only(top: 150),
           child: Image(
             image: AssetImage('assets/images/title.png'),
           ),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20.0),
+          padding: const EdgeInsets.only(top: 40.0),
           child: ElevatedButton(
             onPressed: () {
               setState(() {
                 _isLoading = true;
-                engine.createScene('WorldMap');
               });
+              engine.createScene('WorldMap');
             },
             child: Text(locale['sandBoxMode']),
           ),
@@ -144,13 +153,15 @@ class _GameAppState extends State<GameApp> {
       if (savedFiles.isNotEmpty) {
         menuWidgets.add(
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20.0),
+            padding: const EdgeInsets.only(top: 20.0),
             child: ElevatedButton(
               onPressed: () {
                 LoadGameDialog.show(context, list: savedFiles)
                     .then((SaveInfo? info) {
                   if (info != null) {
-                    _isLoading = true;
+                    setState(() {
+                      _isLoading = true;
+                    });
                     engine.createScene('WorldMap', info.path);
                   } else {
                     if (savedFiles.isEmpty) {
@@ -166,7 +177,7 @@ class _GameAppState extends State<GameApp> {
       }
 
       menuWidgets.add(Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20.0),
+        padding: const EdgeInsets.only(top: 20.0),
         child: ElevatedButton(
           onPressed: () {
             Navigator.of(context).pushNamed('editor');
@@ -186,7 +197,6 @@ class _GameAppState extends State<GameApp> {
           // ),
           alignment: Alignment.center,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: menuWidgets,
           ),
         ),

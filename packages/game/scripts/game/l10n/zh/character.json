@@ -2,8 +2,7 @@
   "stats": "属性",
   "bonds": "羁绊",
   "history": "经历",
-  "impressionOfThem": "对TA的好感度",
-  "impressionToThisPerson": "TA对此人的好感度",
+  "impressionOfThem": "印象",
 
   "sex": "性别",
   "male": "男",
@@ -12,6 +11,7 @@
   "avatar": "头像",
   "master": "师父",
   "home": "住所",
+  "currentLocation": "当前所在地",
   "fame": "名声",
   "infamy": "恶名",
   "looks": "容貌",
@@ -60,5 +60,8 @@
   "fealing": "感性",
 
   "stress": "压力",
-  "confidence": "自信"
+  "confidence": "自信",
+
+  "greeting": "问候",
+  "practiceDuel": "切磋"
 }
