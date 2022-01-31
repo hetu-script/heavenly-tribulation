@@ -101,9 +101,6 @@ class _GameAppState extends State<GameApp> {
       // engine.hetu.evalFile('core/main.ht', invokeFunc: 'init');
       // engine.hetu.switchModule('game:main');
 
-      // pass the build context to script
-      engine.hetu.invoke('build', positionalArgs: [context]);
-
       await refreshSaves();
 
       setState(() {

@@ -9,6 +9,9 @@ import 'hexagonal_tile.ht'
 import 'component.ht'
 import '../../map.ht'
 import '../util.ht'
+import '../arcane.ht'
+import '../martial.ht'
+import '../attributes.ht'
 
 /// 生成世界地图的算法
 ///
@@ -476,6 +479,16 @@ fun createWorldMap({
       nationId: nation.id
     )
     setCharacterLocationId(leader, location.id)
+
+    // 为每个角色设置初始玄功
+    final arcanePower = getArcanePower('common')
+    levelUpAttributes(arcanePower)
+    final martialArts = getMartialArts('common')
+    levelUpAttributes(martialArts)
+    leader.skills = {
+      arcanePower,
+      martialArts
+    }
 
     final org = Organization(
       category: _kOrganizationCategoryCultivation,

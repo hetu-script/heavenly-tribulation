@@ -114,6 +114,27 @@
       }
     ]
   },
+  "initiative": {
+    "attributeNameId": "initiativeDescription",
+    "ranks": [
+      {
+        "type": "int",
+        "value": 40
+      },
+      {
+        "type": "int",
+        "value": 60
+      },
+      {
+        "type": "int",
+        "value": 80
+      },
+      {
+        "type": "int",
+        "value": 100
+      }
+    ]
+  },
   "strengthAdd": {
     "attributeNameId": "strengthAddDescription",
     "ranks": [

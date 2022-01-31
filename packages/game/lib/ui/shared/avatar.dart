@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../shared/constants.dart';
+import '../shared/constants.dart';
 
 class Avatar extends StatelessWidget {
   const Avatar({
@@ -10,6 +10,7 @@ class Avatar extends StatelessWidget {
     this.radius = 10.0,
     this.borderColor = Colors.black38,
     this.borderWidth = 3.0,
+    this.onPressed,
   }) : super(key: key);
 
   final String? avatarAssetKey;
@@ -23,6 +24,8 @@ class Avatar extends StatelessWidget {
   final Color borderColor;
 
   final double borderWidth;
+
+  final void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -57,11 +60,14 @@ class Avatar extends StatelessWidget {
       );
     }
 
-    return SizedBox(
-      width: size,
-      height: size,
-      child: Stack(
-        children: stacked,
+    return GestureDetector(
+      onTap: onPressed,
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: Stack(
+          children: stacked,
+        ),
       ),
     );
   }

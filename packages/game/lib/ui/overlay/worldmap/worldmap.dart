@@ -82,6 +82,9 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
   Widget build(BuildContext context) {
     super.build(context);
 
+    // pass the build context to script
+    engine.hetu.invoke('build', positionalArgs: [context]);
+
     final heroData = engine.hetu.invoke('getHero');
     final screenSize = MediaQuery.of(context).size;
 
@@ -91,6 +94,12 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
         Avatar(
           avatarAssetKey: 'assets/images/${heroData['avatar']}',
           size: 100,
+          onPressed: () {
+            Navigator.of(context).pushNamed(
+              'character',
+              arguments: heroData['id'],
+            );
+          },
         ),
       );
     }

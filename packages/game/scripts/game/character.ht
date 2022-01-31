@@ -5,6 +5,7 @@ import 'datetime.ht'
 import 'incident.ht'
 import 'generator/entity.ht' as randomEntity
 import 'generator/util.ht'
+import 'l10n.ht'
 
 // number of the male avatar images
 const kMaleAvatarCount = 37
@@ -97,20 +98,19 @@ struct Character {
     }
     this.currentTitleId = kSpiritRankTitle
 
-    var maxStats = 15
+    var maxStats = 20
     final str = Math.randomInt(maxStats - 2) + 1
-    final chi = Math.randomInt(maxStats - str - 1) + 1
-    final spi = maxStats - str - chi
-    final life = 100 + str ~/ 10 * 5
-    final chakra = chi * 10
-    final mana = spi * 10
+    final inp = Math.randomInt(maxStats - str - 1) + 1
+    final spi = maxStats - str - inp
     this.stats = {
       str,
-      chi,
+      inp,
       spi,
     }
 
-    calculateAttributesOfCharacter(this)
+    this.attributes = {}
+
+    recalculateAttributesOfCharacter(this)
 
     // 该角色对世界上的其他事物的关系
     this.bonds = {
@@ -141,24 +141,22 @@ struct Character {
     // // 恶名，知道名字中，对此人差评的人的数量
     // this.infamy = 0
 
-    this.incidentIndexes = []
+    this.heardOfIncidentIndexes = Set()
+    this.experiencedOfIncidentIndexes = Set()
 
     game.characters[this.id] = this
   }
 }
 
-fun calculateAttributesOfCharacter(character) {
-  final life = 100 + character.stats.str ~/ 10 * 5
-  final chakra = 10 + character.stats.chi ~/ 10 * 5
-  final mana = 10 + character.stats.spi ~/ 10 * 5
-  character.attributes = {
-    life,
-    currentLife: life,
-    chakra,
-    currentChakra: 0,
-    mana,
-    currentMana: mana,
-  }
+fun recalculateAttributesOfCharacter(character) {
+  character.attributes.strength = character.stats.str +
+    character.skills?.arcanePower.levelAttributes.strengthAdd.sum +
+    character.skills?.arcanePower.explicitAttributes.strengthAdd.value
+
+  character.attributes.maxLife = 100 + character.stats.str ~/ 5 * 10
+  character.attributes.maxChakra = 10 + character.stats.chi ~/ 5 * 10
+  character.attributes.maxMana = 10 + character.stats.spi ~/ 5 * 10
+
 }
 
 fun getCharAgeString(character) {
@@ -169,6 +167,24 @@ fun _createRandomBirthTimestamp() {
   final age = Math.randomInt(kCharacterInitialMaxAge - kCharacterInitialMinAge) + kCharacterInitialMinAge
   final randomDateInAYear = Math.randomInt(kTicksPerYear)
   return game.timestamp - (age * kTicksPerYear + randomDateInAYear)
+}
+
+/// 容貌评价的计算公式
+/// 每个角色自身有一个容貌值，这个数值代表大众眼中的评价
+/// 每个角色都会有一个对特定容貌值的偏好
+/// 本公式会利用这两个数值，计算某个角色对另一个角色的容貌的评价
+/// looks 是对方的容貌，0 <= looks <= 100
+/// favor 是该角色的偏好，0 <= taste <= 100
+fun _calculateLooksScore({looks: float, favor: float}) -> float {
+  assert(0.0 <= looks && looks <= kCharacterMaxLooks)
+  if (favor != null) {
+    assert(0.0 <= favor && favor <= kCharacterMaxLooks)
+  }
+  if (looks < ((favor + kCharacterMaxLooks) / 2)) {
+    return (-(looks - favor) * (looks - favor)) / 20 + kCharacterMaxLooks
+  } else {
+    return (-(looks - kCharacterMaxLooks) * (looks - kCharacterMaxLooks)) / 20 + kCharacterMaxLooks
+  }
 }
 
 // 第一印象分
@@ -262,6 +278,7 @@ fun characterHeardOfIncident(character, incident) {
     //   ++subject.infamy
     // }
   }
+  character.heardOfIncidentIndexes.add(incident.index)
 }
 
 fun characterWitnessedIncident(character, incident) {
@@ -284,8 +301,8 @@ fun removeCharacterHome(character) {
   if (!character.homeId) return
 
   final loc = game.locations[character.homeId]
-  delete loc.residingWildCharacterIds[character.id]
-  delete loc.residingOrganizedCharacterIds[character.id]
+  loc.residingWildCharacterIds.remove(character.id)
+  loc.residingOrganizedCharacterIds.remove(character.id)
   character.homeId = null
 }
 
@@ -295,9 +312,9 @@ fun setCharacterHome(location, character, {isOrganized: bool = true}) {
     removeCharacterHome(character)
   }
   if (isOrganized) {
-    location.residingOrganizedCharacterIds[character.id] = character.name
+    location.residingOrganizedCharacterIds.add(character.id)
   } else {
-    location.residingWildCharacterIds[character.id] = character.name
+    location.residingWildCharacterIds.add(character.id)
   }
   character.homeId = location.id
 }
@@ -341,45 +358,78 @@ fun getCharacters() {
   return game.characters
 }
 
+fun haveMet(subject, target) {
+  final bond = subject.bonds.characters[target.id]
+  if (bond && bond.haveMet) {
+    return true
+  } else {
+    return false
+  }
+}
+
+fun handleCharacterTalk(subject, target) {
+
+}
+
 fun handleCharacterInteraction(characterId) {
   assert(game.characters.containsKey(characterId))
   final character = game.characters[characterId]
   final hero = game.characters[game.heroId]
   final selections = {}
-  var haveMet = false
-  final bond = hero.bonds.characters[character.id]
-  if (bond != null && bond.haveMet) {
-    haveMet = true
+  if (characterId in! game.monthlyActivities.talked) {
+    selections.talk = getLocaleString('talk')
   }
-
-  selections.practiceDuel = getLocaleString('practiceDuel');
+  if (characterId in! game.monthlyActivities.gifted) {
+    selections.gift = getLocaleString('gift')
+  }
+  if (characterId in! game.monthlyActivities.practiced) {
+    selections.practice = getLocaleString('practice')
+  }
+  if (characterId in! game.monthlyActivities.consulted) {
+    selections.consult = getLocaleString('consult')
+  }
+  if (characterId in! game.monthlyActivities.requested) {
+    selections.request = getLocaleString('request')
+  }
+  if (characterId in! game.monthlyActivities.insulted) {
+    selections.insult = getLocaleString('insult')
+  }
+  if (characterId in! game.monthlyActivities.stolen) {
+    selections.steal = getLocaleString('steal')
+  }
+  if (characterId in! game.monthlyActivities.peeped) {
+    selections.peep = getLocaleString('peep')
+  }
   showSelectionDialog(selections)
   .then((key) {
     when (key) {
-      'greeting' -> {
-        firstImpressionOfOtherCharacter(hero, character)
+      'talk' -> {
+        if (haveMet(hero, character)) {
+          firstImpressionOfOtherCharacter(hero, character)
+        }
+        handleCharacterTalk(hero, character)
       }
-      'practiceDuel' -> {
+      'gift' -> {
+        
+      }
+      'practice' -> {
+        
+      }
+      'consult' -> {
+        
+      }
+      'request' -> {
+        
+      }
+      'insult' -> {
+        
+      }
+      'steal' -> {
+        
+      }
+      'peep' -> {
         
       }
     }
-  }
-}
-
-/// 容貌评价的计算公式
-/// 每个角色自身有一个容貌值，这个数值代表大众眼中的评价
-/// 每个角色都会有一个对特定容貌值的偏好
-/// 本公式会利用这两个数值，计算某个角色对另一个角色的容貌的评价
-/// looks 是对方的容貌，0 <= looks <= 100
-/// favor 是该角色的偏好，0 <= taste <= 100
-fun _calculateLooksScore({looks: float, favor: float}) -> float {
-  assert(0.0 <= looks && looks <= kCharacterMaxLooks)
-  if (favor != null) {
-    assert(0.0 <= favor && favor <= kCharacterMaxLooks)
-  }
-  if (looks < ((favor + kCharacterMaxLooks) / 2)) {
-    return (-(looks - favor) * (looks - favor)) / 20 + kCharacterMaxLooks
-  } else {
-    return (-(looks - kCharacterMaxLooks) * (looks - kCharacterMaxLooks)) / 20 + kCharacterMaxLooks
-  }
+  })
 }

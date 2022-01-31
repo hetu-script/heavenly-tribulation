@@ -37,3 +37,9 @@ external fun _showSelectionDialog(buildContext, selections)
 fun showSelectionDialog(selections) -> Future {
   return _showSelectionDialog(buildContext, selections)
 }
+
+external fun _showCharacterSelectionDialog(buildContext, idList)
+
+fun showCharacterSelectionDialog(idList) -> Future {
+  return _showCharacterSelectionDialog(buildContext, idList)
+}

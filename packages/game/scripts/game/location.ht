@@ -35,8 +35,8 @@ struct Site {
     this.locationId = location.id
     this.organizationId = organizationId ?? location.organizationId
     this.category = category
-    this.name ??= getLocaleString(category)
-    this.image ??= 'location/site/${category}.png'
+    this.name = name ?? getLocaleString(category)
+    this.image = image ?? 'location/site/${category}.png'
 
     location.sites[category] = this
   }
@@ -75,9 +75,9 @@ struct Location {
     this.currentCharacterIds = Set()
 
     // 在野修士, key = id, value = name
-    this.residingWildCharacterIds = {}
+    this.residingWildCharacterIds = Set()
     // 门派修士, key = id, value = name
-    this.residingOrganizedCharacterIds = {}
+    this.residingOrganizedCharacterIds = Set()
     
     // 外门弟子数量，记录在据点数据中，不算做门派属性
     this.disciple = 0
@@ -248,9 +248,11 @@ fun _handleHeadquartersInteraction(site) {
       }
       'visit' -> {
         assert(location.residingOrganizedCharacterIds.isNotEmpty)
-        showSelectionDialog(location.residingOrganizedCharacterIds)
+        showCharacterSelectionDialog(location.residingOrganizedCharacterIds.toList())
         .then((key) {
-          handleCharacterInteraction(key)
+          if (key != null) {
+            handleCharacterInteraction(key)
+          }
         })
       }
     }

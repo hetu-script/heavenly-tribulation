@@ -7,7 +7,7 @@ import '../../../engine/engine.dart';
 import '../../../shared/localization.dart';
 import '../../shared/avatar.dart';
 import '../../shared/bordered_icon_button.dart';
-import '../../../shared/constants.dart';
+import '../../shared/constants.dart';
 
 class CharacterEditor extends StatefulWidget {
   const CharacterEditor(

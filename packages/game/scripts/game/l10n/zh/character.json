@@ -62,6 +62,15 @@
   "stress": "压力",
   "confidence": "自信",
 
-  "greeting": "问候",
-  "practiceDuel": "切磋"
+  "characterSelection": "选择角色",
+
+  "haveMet": "见面",
+  "talk": "闲聊",
+  "gift": "赠礼",
+  "practice": "切磋",
+  "consult": "请教",
+  "request": "索取",
+  "insult": "侮辱",
+  "steal": "窃取",
+  "peep": "窥探"
 }

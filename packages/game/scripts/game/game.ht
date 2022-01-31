@@ -34,9 +34,20 @@ var game = {
   
   incidents: [],
 
-  today: {
-    visited: [],
+  monthlyActivities: {
+    talked: [],
+    gifted: [],
+    practiced: [],
+    consulted: [],
+    requested: [],
+    insulted: [],
+    stolen: [],
+    peeped: [],
   }
+}
+
+fun getMonthlyActivities {
+  return game.monthlyActivities
 }
 
 var config = {

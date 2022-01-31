@@ -13,43 +13,49 @@ fun getMartialArts([rarity]) {
   final damageAttr = {
     id: 'damage',
     attributeNameId: 'damageDescription',
-    levels: [],
+    type: 'int',
+    range: {},
+    level: 0,
+    sum: 0,
   }
 
   var baseDamage = when (rarity) {
     'common' -> {
-      damageAttr.min = 1
-      damageAttr.max = 5
+      damageAttr.range.min = 1
+      damageAttr.range.max = 5
     }
     'uncommon' -> {
-      damageAttr.min = 3
-      damageAttr.max = 7
+      damageAttr.range.min = 3
+      damageAttr.range.max = 7
     }
     'rare' -> {
-      damageAttr.min = 5
-      damageAttr.max = 9
+      damageAttr.range.min = 5
+      damageAttr.range.max = 9
     }
     'epic' -> {
-      damageAttr.min = 7
-      damageAttr.max = 11
+      damageAttr.range.min = 7
+      damageAttr.range.max = 11
     }
     'legendary' -> {
-      damageAttr.min = 9
-      damageAttr.max = 13
+      damageAttr.range.min = 9
+      damageAttr.range.max = 13
     }
     'mythic' -> {
-      damageAttr.min = 11
-      damageAttr.max = 15
+      damageAttr.range.min = 11
+      damageAttr.range.max = 15
     }
     'exotic' -> {
-      damageAttr.min = 13
-      damageAttr.max = 17
+      damageAttr.range.min = 13
+      damageAttr.range.max = 17
     }
   }
+
+  final chakraCost = Math.randomInt(6) + 5
   
   return {
     name: attributes.name,
     rarity,
+    chakraCost,
     levelAttributes: [damageAttr],
     baseAttributes: attributes.baseAttributes,
     explicitAttributes: attributes.explicitAttributes,

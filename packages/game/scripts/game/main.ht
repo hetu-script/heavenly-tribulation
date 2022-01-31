@@ -40,9 +40,9 @@ fun init({locale = 'zh', gameEngine: SamsaraEngine}) {
   }
 
   // for (var i in range(10)) {
-  //   // final ent = getArcanePower()
+  //   final ent = getArcanePower()
   //   // final book = getBook(ent)
-  //   final ent = getMartialArts()
+  //   // final ent = getMartialArts()
   //   print(ent)
   // }
 }

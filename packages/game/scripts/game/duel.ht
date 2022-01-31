@@ -48,7 +48,7 @@ fun _attack(attacker, victim, [skill = false]) {
 
 // fun createBattle(hero, enemy) -> str {
 
-fun createBattle(enemyId, { heroInitiative = 100, enemyInitiative = 100}) {
+fun createBattle(enemyId, { heroIsFirst }) {
   battleLog.clear()
 
   var timeframe = 0
@@ -56,15 +56,24 @@ fun createBattle(enemyId, { heroInitiative = 100, enemyInitiative = 100}) {
   final hero = game.characters[game.heroId]
   final enemy = game.characters[enemyId]
 
-  final initiativeSum = hero.initiative + enemy.initiative
-  final initiativeValue = initiativeSum * Math.random()
-  if (hero.initiative > initiativeValue) {
-    battleLog.add('「${hero.name}」趁对手不备，抢先攻击！')
+  if (heroIsFirst == null) {
+    final initiativeSum = hero.initiative + enemy.initiative
+    final initiativeValue = initiativeSum * Math.random()
+    if (hero.initiative > initiativeValue) {
+      battleLog.add('「${hero.name}」趁对手不备，抢先攻击！')
+      _attack(hero, enemy)
+    } else {
+      battleLog.add('「${enemy.name}」趁对手不备，抢先攻击！')
+      _attack(enemy, hero)
+    }
+  } else if (heroIsFirst) {
+    battleLog.add('「${hero.name}」先手进攻！')
     _attack(hero, enemy)
   } else {
-    battleLog.add('「${enemy.name}」趁对手不备，抢先攻击！')
+    battleLog.add('「${enemy.name}」先手进攻！')
     _attack(enemy, hero)
   }
+  
 
   var result = false
 

@@ -22,12 +22,9 @@ class LoadGameDialog extends StatefulWidget {
       barrierColor: Colors.transparent,
       barrierDismissible: false,
       builder: (context) {
-        return Material(
-          type: MaterialType.transparency,
-          child: Align(
-            alignment: Alignment.center,
-            child: LoadGameDialog(list: list),
-          ),
+        return Align(
+          alignment: Alignment.center,
+          child: LoadGameDialog(list: list),
         );
       },
     );
@@ -48,7 +45,7 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
       width: 300,
       height: 400,
       decoration: BoxDecoration(
-        color: Theme.of(context).backgroundColor,
+        color: Theme.of(context).primaryColor,
         borderRadius: BorderRadius.circular(5.0),
         border: Border.all(
           width: 2,
@@ -64,7 +61,7 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
               children: widget.list
                   .map(
                     (info) => Card(
-                      color: Theme.of(context).backgroundColor,
+                      color: Theme.of(context).primaryColor,
                       shape: RoundedRectangleBorder(
                           side: const BorderSide(
                               color: Colors.lightBlue, width: 2),

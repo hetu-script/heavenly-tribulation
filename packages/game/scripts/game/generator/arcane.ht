@@ -11,20 +11,20 @@ fun getArcanePower([rarity]) {
   )
 
   var maxStats = when (rarity) {
-    'common' -> Math.randomInt(2) + 3
-    'uncommon' -> Math.randomInt(3) + 3
-    'rare' -> Math.randomInt(2) + 4
-    'epic' -> Math.randomInt(3) + 4
-    'legendary' -> Math.randomInt(2) + 5
-    'mythic' -> Math.randomInt(1) + 6
-    'exotic' -> 7
+    'common' -> 6
+    'uncommon' -> 6
+    'rare' -> 7
+    'epic' -> 7
+    'legendary' -> 8
+    'mythic' -> 8
+    'exotic' -> 9
   }
 
-  var str = Math.randomInt(maxStats)
-  var chi = Math.randomInt(maxStats - str)
+  var str = Math.randomInt(maxStats - 5) + 2
+  var chi = Math.randomInt(maxStats - str - 3) + 2
   var spi = maxStats - str - chi
 
-  final basicStatsAttributes = []
+  final basicStatsAttributes = {}
 
   // final stats = []
   // stats.add(Math.randomInt(maxStats))
@@ -56,80 +56,75 @@ fun getArcanePower([rarity]) {
 
   if (str) {
     if (str == 1) {
-      basicStatsAttributes.add(
-        {
-          attributeNameId: 'strengthAddDescription',
-          type: 'int',
-          value: str,
-          levels: [],
-        }
-      )
+      basicStatsAttributes['strengthAdd'] = {
+        attributeNameId: 'strengthAddDescription',
+        type: 'int',
+        value: str,
+        level: 0,
+        sum: 0,
+      }
     } else {
-      basicStatsAttributes.add(
-        {
-          attributeNameId: 'strengthAddDescription',
-          type: 'int',
-          range: {
-            min: 1,
-            max: str
-          },
-          levels: [],
-        }
-      )
+      basicStatsAttributes['strengthAdd'] = {
+        attributeNameId: 'strengthAddDescription',
+        type: 'int',
+        range: {
+          min: 1,
+          max: str
+        },
+        level: 0,
+        sum: 0,
+      }
     }
   }
   if (chi) {
     if (chi == 1) {
-      basicStatsAttributes.add(
-        {
-          attributeNameId: 'chiAddDescription',
-          type: 'int',
-          value: chi,
-          levels: [],
-        }
-      )
+      basicStatsAttributes['chiAdd'] = {
+        attributeNameId: 'chiAddDescription',
+        type: 'int',
+        value: chi,
+        level: 0,
+        sum: 0,
+      }
     } else {
-      basicStatsAttributes.add(
-        {
-          attributeNameId: 'chiAddDescription',
-          type: 'int',
-          range: {
-            min: 1,
-            max: chi
-          },
-          levels: [],
-        }
-      )
+      basicStatsAttributes['chiAdd'] = {
+        attributeNameId: 'chiAddDescription',
+        type: 'int',
+        range: {
+          min: 1,
+          max: chi
+        },
+        level: 0,
+        sum: 0,
+      }
     }
   }
   if (spi) {
     if (spi == 1) {
-      basicStatsAttributes.add(
-        {
-          attributeNameId: 'spiritAddDescription',
-          type: 'int',
-          value: spi,
-          levels: [],
-        }
-      )
+      basicStatsAttributes['spiritAdd'] = {
+        attributeNameId: 'spiritAddDescription',
+        type: 'int',
+        value: spi,
+        level: 0,
+        sum: 0,
+      }
     } else {
-      basicStatsAttributes.add(
-        {
-          attributeNameId: 'spiritAddDescription',
-          type: 'int',
-          range: {
-            min: 1,
-            max: spi
-          },
-          levels: [],
-        }
-      )
+      basicStatsAttributes['spiritAdd'] = {
+        attributeNameId: 'spiritAddDescription',
+        type: 'int',
+        range: {
+          min: 1,
+          max: spi
+        },
+        level: 0,
+        sum: 0,
+      }
     }
   }
   
   return {
     name: attributes.name,
     rarity,
+    isTheorized: false,
     levelAttributes: basicStatsAttributes,
     baseAttributes: attributes.baseAttributes,
     explicitAttributes: attributes.explicitAttributes,

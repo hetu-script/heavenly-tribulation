@@ -17,7 +17,7 @@ class GameDialog extends StatefulWidget {
       builder: (BuildContext context) {
         return GameDialog(data: dlgData);
       },
-      barrierColor: Colors.transparent,
+      barrierColor: Colors.black.withOpacity(0.5),
       barrierDismissible: false,
     );
   }
@@ -71,16 +71,14 @@ class _GameDialogState extends State<GameDialog> {
         }
       },
       child: Material(
-        color: Colors.transparent,
-        child: Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              const Spacer(),
-              Container(
+        type: MaterialType.transparency,
+        child: Stack(
+          children: <Widget>[
+            Positioned(
+              left: 20,
+              right: 20,
+              bottom: 20,
+              child: Container(
                 height: 240,
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.5),
@@ -120,8 +118,8 @@ class _GameDialogState extends State<GameDialog> {
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

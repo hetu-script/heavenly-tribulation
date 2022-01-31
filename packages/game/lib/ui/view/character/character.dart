@@ -146,7 +146,7 @@ class CharacterView extends StatelessWidget {
               ),
             ),
             CharacterBondsView(data: data['bonds']),
-            HistoryView(data: data['incidentIndexes']),
+            HistoryView(data: data['experiencedOfIncidentIndexes']),
           ],
         ),
       ),

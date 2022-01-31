@@ -19,31 +19,16 @@ fun _getAttribute(data) {
   } else {
     value = modRank.value ?? 0
   }
-  when (modRank.type) {
-    'int'-> {
-      value = value.truncate()
-      valueString = value.toStringAsFixed(0)
-    }
-    'float'-> valueString = value.toStringAsFixed(2)
-    'percentage'-> valueString = value.toPercentageString(2)
-  }
-  var attributeName
-  if (mod.attributeNameId) {
-    attributeName = getLocaleString(
-      mod.attributeNameId,
-      [valueString],
-    )
-  }
   final attr = {
     id: data.id,
     affixName,
+    type: modRank.type,
     rank: data.rank,
-    attributeName,
+    attributeNameId: mod.attributeNameId,
     value,
   }
   if (modRank.range) {
-    attr.min = min
-    attr.max = max
+    attr.range = modrank.range
   }
   return attr
 }
@@ -61,45 +46,67 @@ fun handleAttributes(data, {
     kind = getLocaleString(data.kindNameId)
   }
   var affixNames = ''
-  final implicitAttributes = data.implicit ? data.implicit[rarity] : []
   final baseAttributes = {}
-  final explicitAttributes = []
+  final explicitAttributes = {}
 
-  fun getAttributes(rarityAttrs, number, {isBase = false}) {
+  fun getAttributes(rarityAttrs, {number, isBase = false}) {
     final mods = rarityAttrs[rarity]
     if (!mods) return
-    for (var i in range(number)) {
-      final modData = mods.random
-      final attribute = _getAttribute(modData)
-      if (attribute.affixName) {
-        affixNames += attribute.affixName
-      }
-      if (isBase) {
+    if (isBase) {
+      for (final modData in mods) {
+        final attribute = _getAttribute(modData)
+        if (attribute.affixName) {
+          affixNames += attribute.affixName
+        }
         baseAttributes[attribute.id] = attribute
-      } else {
-        explicitAttributes.add(attribute)
+      }
+    } else {
+      for (var i in range(number)) {
+        final modData = mods.random
+        final attribute = _getAttribute(modData)
+        if (attribute.affixName) {
+          affixNames += attribute.affixName
+        }
+        explicitAttributes[attribute.id] = attribute
       }
     }
   }
 
   if (prefixNum) {
     assert(data.prefix != null)
-    getAttributes(data.prefix, prefixNum)
+    getAttributes(data.prefix, number: prefixNum)
   }
 
   if (hasBase) {
     assert(data.base != null)
-    getAttributes(data.base, 1, isBase: true)
+    getAttributes(data.base, isBase: true)
   }
   
   if (postfixNum) {
     assert(data.postfix != null)
-    getAttributes(data.postfix, postfixNum)
+    getAttributes(data.postfix, number: postfixNum)
   }
 
   return {
     name: affixNames + kind,
     baseAttributes,
     explicitAttributes,
+  }
+}
+
+fun levelUpAttributes(data) {
+  for (final attr in data.levelAttributes) {
+    ++attr.level
+    if (attr.range) {
+      final min = attr.range.min
+      final max = attr.range.max
+      attr.sum += Math.random() * (max - min) + min
+      if (attr.type == 'int') {
+        attr.sum = attr.sum.round()
+      }
+      attr.assessment = (attr.sum - min * attr.level) / ((max - min) * attr.level)
+    } else {
+      attr.sum += attr.value
+    }
   }
 }

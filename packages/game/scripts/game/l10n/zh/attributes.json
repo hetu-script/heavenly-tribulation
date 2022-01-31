@@ -29,6 +29,7 @@
     "真经"
   ],
   "maxTrainingLevelDescription": "最大修习层数: {0}",
+  "initiativeDescription": "先机：{0}",
   "strengthAddDescription": "强壮增加: {0}",
   "chiAddDescription": "内力增加: {0}",
   "spiritAddDescription": "神识增加: {0}",
@@ -59,10 +60,10 @@
     "棍"
   ],
   "damageAddDescription": "斗技伤害增加: {0}",
-  "damageAddPrefix0": "分花",
+  "damageAddPrefix0": "凌云",
   "damageAddPrefix1": "拂柳",
-  "damageAddPrefix2": "掠影",
-  "damageAddPrefix3": "凌云",
+  "damageAddPrefix2": "分花",
+  "damageAddPrefix3": "掠影",
   "damageAddPrefix4": "碎玉",
   "damageAddPrefix5": "伏虎",
   "damageAddPrefix6": "度厄"

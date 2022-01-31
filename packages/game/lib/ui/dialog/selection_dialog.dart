@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:hetu_script/values.dart';
 
 class SelectionDialog extends StatefulWidget {
   static Future<dynamic> show(
     BuildContext context,
-    dynamic selections,
+    HTStruct selections,
   ) async {
     assert(selections.isNotEmpty);
     return await showDialog<dynamic>(
@@ -11,11 +12,12 @@ class SelectionDialog extends StatefulWidget {
       builder: (BuildContext context) {
         return SelectionDialog(selections: selections);
       },
+      barrierColor: Colors.black.withOpacity(0.5),
       barrierDismissible: false,
     );
   }
 
-  final dynamic selections;
+  final HTStruct selections;
 
   const SelectionDialog({
     Key? key,
@@ -27,7 +29,7 @@ class SelectionDialog extends StatefulWidget {
 }
 
 class _SelectionDialogState extends State<SelectionDialog> {
-  dynamic get _selections => widget.selections;
+  HTStruct get _selections => widget.selections;
 
   @override
   void initState() {
@@ -37,21 +39,18 @@ class _SelectionDialogState extends State<SelectionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final buttons = <Widget>[];
-    for (final key in _selections.keys) {
+    final buttons = _selections.keys.map((key) {
       final value = _selections[key];
-      buttons.add(
-        Container(
-          margin: const EdgeInsets.all(5.0),
-          child: ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context, key);
-            },
-            child: Text(value.toString()),
-          ),
+      return Container(
+        margin: const EdgeInsets.all(5.0),
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context, key);
+          },
+          child: Text(value.toString()),
         ),
       );
-    }
+    }).toList();
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: buttons,
