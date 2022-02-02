@@ -5,8 +5,7 @@ import '../../shared/avatar.dart';
 import 'bonds.dart';
 import '../history.dart';
 import '../../shared/constants.dart';
-
-const _kCharacterViewTabLengths = 3;
+import 'skills.dart';
 
 class CharacterView extends StatelessWidget {
   const CharacterView({Key? key}) : super(key: key);
@@ -31,15 +30,19 @@ class CharacterView extends StatelessWidget {
         engine.hetu.invoke('getCharAgeString', positionalArgs: [data]);
 
     return DefaultTabController(
-      length: _kCharacterViewTabLengths,
+      length: kCharacterViewTabLengths,
       child: Scaffold(
         appBar: AppBar(
           title: Text(data['name']),
           bottom: TabBar(
-            tabs: [
+            tabs: <Widget>[
               Tab(
                 icon: const Icon(Icons.summarize),
                 text: engine.locale['stats'],
+              ),
+              Tab(
+                icon: const Icon(Icons.flash_on),
+                text: engine.locale['skills'],
               ),
               Tab(
                 icon: const Icon(Icons.sync_alt),
@@ -145,8 +148,9 @@ class CharacterView extends StatelessWidget {
                 ),
               ),
             ),
+            CharacterSkillsView(data: data['skills']),
             CharacterBondsView(data: data['bonds']),
-            HistoryView(data: data['experiencedOfIncidentIndexes']),
+            HistoryView(data: data['experiencedIncidentIndexes']),
           ],
         ),
       ),

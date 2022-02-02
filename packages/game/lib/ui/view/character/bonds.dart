@@ -6,10 +6,6 @@ import '../../../engine/engine.dart';
 import '../../shared/empty_placeholder.dart';
 import '../../shared/constants.dart';
 
-const kCharacterBondsCategoryNum = 5;
-
-const kBondsTableColumns = ['name', 'impressionOfThem'];
-
 class CharacterBondsView extends StatelessWidget {
   const CharacterBondsView({
     Key? key,
@@ -27,13 +23,11 @@ class CharacterBondsView extends StatelessWidget {
           PreferredSize(
             preferredSize: const Size.fromHeight(kNestedTabBarHeight),
             child: TabBar(
-              tabs: <Widget>[
-                Tab(text: engine.locale['character']),
-                Tab(text: engine.locale['organization']),
-                Tab(text: engine.locale['talisman']),
-                Tab(text: engine.locale['location']),
-                Tab(text: engine.locale['nation']),
-              ],
+              tabs: kCharacterBondsTableColumns
+                  .map(
+                    (key) => Tab(text: engine.locale[key]),
+                  )
+                  .toList(),
             ),
           ),
           SizedBox(
@@ -44,7 +38,7 @@ class CharacterBondsView extends StatelessWidget {
                     (key) => DataTable2(
                       scrollController: ScrollController(),
                       empty: const EmptyPlaceholder(),
-                      columns: kBondsTableColumns
+                      columns: kCharacterBondsSubTableColumns
                           .map((title) => DataColumn(
                                 label: TextButton(
                                   onPressed: () {},

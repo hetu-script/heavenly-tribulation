@@ -2,6 +2,8 @@ import 'constants.ht'
 import 'attributes.ht'
 import 'attributes/martial.json' as martialAttributes
 
+const kMartialIconCount = 10
+
 fun getMartialArts([rarity]) {
   rarity ??= getRarity().rarity
 
@@ -51,9 +53,13 @@ fun getMartialArts([rarity]) {
   }
 
   final chakraCost = Math.randomInt(6) + 5
+
+  final iconIndex = Math.randomInt(kMartialIconCount)
   
   return {
+    id: 'matial_arts_${Hash.uid4(2)}_${attributes.name}',
     name: attributes.name,
+    icon: 'icon/skill/martial_${iconIndex}.png',
     rarity,
     chakraCost,
     levelAttributes: [damageAttr],

@@ -39,7 +39,7 @@ struct Incident {
     this.terrainIndex = terrainIndex
 
     final subject = game.characters[subjectId]
-    subject.experiencedOfIncidentIndexes.add(this.index)
+    subject.experiencedIncidentIndexes.add(this.index)
 
     this.isPublic = isPublic
     this.isGlobal = isGlobal

@@ -62,11 +62,14 @@ class Avatar extends StatelessWidget {
 
     return GestureDetector(
       onTap: onPressed,
-      child: SizedBox(
-        width: size,
-        height: size,
-        child: Stack(
-          children: stacked,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: SizedBox(
+          width: size,
+          height: size,
+          child: Stack(
+            children: stacked,
+          ),
         ),
       ),
     );

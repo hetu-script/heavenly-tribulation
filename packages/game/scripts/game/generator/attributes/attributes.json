@@ -172,11 +172,11 @@
       }
     ]
   },
-  "chiAdd": {
-    "attributeNameId": "chiAddDescription",
+  "chakraAdd": {
+    "attributeNameId": "chakraAddDescription",
     "ranks": [
       {
-        "affixNameId": "chiAddPrefix0",
+        "affixNameId": "chakraAddPrefix0",
         "type": "int",
         "range": {
           "min": 15,
@@ -184,7 +184,7 @@
         }
       },
       {
-        "affixNameId": "chiAddPrefix1",
+        "affixNameId": "chakraAddPrefix1",
         "type": "int",
         "range": {
           "min": 25,
@@ -192,7 +192,7 @@
         }
       },
       {
-        "affixNameId": "chiAddPrefix2",
+        "affixNameId": "chakraAddPrefix2",
         "type": "int",
         "range": {
           "min": 35,
@@ -200,7 +200,7 @@
         }
       },
       {
-        "affixNameId": "chiAddPrefix3",
+        "affixNameId": "chakraAddPrefix3",
         "type": "int",
         "range": {
           "min": 45,
@@ -209,11 +209,11 @@
       }
     ]
   },
-  "spiritAdd": {
-    "attributeNameId": "spiritAddDescription",
+  "vijnanaAdd": {
+    "attributeNameId": "vijnanaAddDescription",
     "ranks": [
       {
-        "affixNameId": "spiritAddPrefix0",
+        "affixNameId": "vijnanaAddPrefix0",
         "type": "int",
         "range": {
           "min": 15,
@@ -221,7 +221,7 @@
         }
       },
       {
-        "affixNameId": "spiritAddPrefix1",
+        "affixNameId": "vijnanaAddPrefix1",
         "type": "int",
         "range": {
           "min": 25,
@@ -229,7 +229,7 @@
         }
       },
       {
-        "affixNameId": "spiritAddPrefix2",
+        "affixNameId": "vijnanaAddPrefix2",
         "type": "int",
         "range": {
           "min": 35,
@@ -237,7 +237,7 @@
         }
       },
       {
-        "affixNameId": "spiritAddPrefix3",
+        "affixNameId": "vijnanaAddPrefix3",
         "type": "int",
         "range": {
           "min": 45,

@@ -28,7 +28,7 @@ fun _getAttribute(data) {
     value,
   }
   if (modRank.range) {
-    attr.range = modrank.range
+    attr.range = modRank.range
   }
   return attr
 }

@@ -5,7 +5,7 @@ import '../shared/constants.dart';
 class HistoryView extends StatelessWidget {
   const HistoryView({Key? key, required this.data}) : super(key: key);
 
-  final List<dynamic> data;
+  final Iterable<dynamic> data;
 
   @override
   Widget build(BuildContext context) {

@@ -4,6 +4,8 @@ const kNestedTabBarHeight = 178.0;
 const kAvatarSize = 100.0;
 const kAvatarEditButtonSize = 16.0;
 
+const kInformationViewTabLengths = 4;
+
 const kInformationViewNationColumns = [
   'name',
   'capital',
@@ -37,6 +39,20 @@ const kInformationViewCharacterColumns = [
   'fame',
   // 'infamy',
 ];
+
+const kCharacterViewTabLengths = 4;
+
+const kCharacterBondsCategoryNum = 5;
+
+const kCharacterBondsTableColumns = [
+  'character',
+  'organization',
+  'talisman',
+  'location',
+  'nation'
+];
+
+const kCharacterBondsSubTableColumns = ['name', 'impressionOfThem'];
 
 const kCharacterSelectionTableColumns = [
   'name',

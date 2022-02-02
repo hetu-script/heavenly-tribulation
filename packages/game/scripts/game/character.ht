@@ -99,14 +99,36 @@ struct Character {
     this.currentTitleId = kSpiritRankTitle
 
     var maxStats = 20
-    final str = Math.randomInt(maxStats - 2) + 1
-    final inp = Math.randomInt(maxStats - str - 1) + 1
-    final spi = maxStats - str - inp
+    final strength = Math.randomInt(maxStats - 2) + 1
+    final chakra = Math.randomInt(maxStats - strength - 1) + 1
+    final vijnana = maxStats - strength - chakra
     this.stats = {
-      str,
-      inp,
-      spi,
+      strength,
+      chakra,
+      vijnana,
     }
+
+    this.skills = {
+      arcanePowers: {},
+      martialArts: {},
+      escapeSkills: {},
+      equipments: {
+        arcanePower: null,
+        martialArts: null,
+        escapeSkill: null,
+      },
+    }
+
+    this.inventory = {
+      items: [],
+      equipments: {
+        weapon: null,
+        armor: null,
+        amulet: null,
+        vehicle: null,
+      },
+    }
+
 
     this.attributes = {}
 
@@ -142,21 +164,35 @@ struct Character {
     // this.infamy = 0
 
     this.heardOfIncidentIndexes = Set()
-    this.experiencedOfIncidentIndexes = Set()
+    this.experiencedIncidentIndexes = Set()
 
     game.characters[this.id] = this
   }
 }
 
 fun recalculateAttributesOfCharacter(character) {
-  character.attributes.strength = character.stats.str +
+  character.attributes.strength = 
+    character.stats.strength +
     character.skills?.arcanePower.levelAttributes.strengthAdd.sum +
-    character.skills?.arcanePower.explicitAttributes.strengthAdd.value
+    character.skills?.arcanePower.explicitAttributes.strengthAdd.value +
+    character.skills?.martialArts.levelAttributes.strengthAdd.sum +
+    character.skills?.martialArts.explicitAttributes.strengthAdd.value
+  character.attributes.chakra = 
+    character.stats.chakra +
+    character.skills?.arcanePower.levelAttributes.chakraAdd.sum +
+    character.skills?.arcanePower.explicitAttributes.chakraAdd.value +
+    character.skills?.martialArts.levelAttributes.chakraAdd.sum +
+    character.skills?.martialArts.explicitAttributes.chakraAdd.value
+  character.attributes.vijnana = 
+    character.stats.vijnana +
+    character.skills?.arcanePower.levelAttributes.vijnanaAdd.sum +
+    character.skills?.arcanePower.explicitAttributes.vijnanaAdd.value +
+    character.skills?.martialArts.levelAttributes.vijnanaAdd.sum +
+    character.skills?.martialArts.explicitAttributes.vijnanaAdd.value
 
-  character.attributes.maxLife = 100 + character.stats.str ~/ 5 * 10
-  character.attributes.maxChakra = 10 + character.stats.chi ~/ 5 * 10
-  character.attributes.maxMana = 10 + character.stats.spi ~/ 5 * 10
-
+  character.attributes.maxLife = 100 + character.attributes.strength ~/ 5 * 10
+  character.attributes.maxChi = 100 + character.attributes.chakra ~/ 5 * 10
+  character.attributes.maxSpirit = 100 + character.attributes.vijnana ~/ 5 * 10
 }
 
 fun getCharAgeString(character) {

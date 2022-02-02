@@ -2,6 +2,8 @@ import 'constants.ht'
 import 'attributes.ht'
 import 'attributes/arcane.json' as arcaneAttributes
 
+const kArcaneIconCount = 10
+
 fun getArcanePower([rarity]) {
   rarity ??= getRarity().rarity
 
@@ -20,9 +22,9 @@ fun getArcanePower([rarity]) {
     'exotic' -> 9
   }
 
-  var str = Math.randomInt(maxStats - 5) + 2
-  var chi = Math.randomInt(maxStats - str - 3) + 2
-  var spi = maxStats - str - chi
+  var strength = Math.randomInt(maxStats - 5) + 2
+  var chakra = Math.randomInt(maxStats - strength - 3) + 2
+  var vijnana = maxStats - strength - chakra
 
   final basicStatsAttributes = {}
 
@@ -42,24 +44,24 @@ fun getArcanePower([rarity]) {
   //     chi = stats[1]
   //     spi = stats[0]
   //   }
-  //   'chiAdd' -> {
+  //   'chakraAdd' -> {
   //     chi = stats[2]
   //     str = stats[1]
   //     spi = stats[0]
   //   }
-  //   'spiritAdd' -> {
+  //   'vijnanaAdd' -> {
   //     spi = stats[2]
   //     str = stats[1]
   //     chi = stats[0]
   //   }
   // }
 
-  if (str) {
-    if (str == 1) {
+  if (strength) {
+    if (strength == 1) {
       basicStatsAttributes['strengthAdd'] = {
         attributeNameId: 'strengthAddDescription',
         type: 'int',
-        value: str,
+        value: strength,
         level: 0,
         sum: 0,
       }
@@ -69,60 +71,64 @@ fun getArcanePower([rarity]) {
         type: 'int',
         range: {
           min: 1,
-          max: str
+          max: strength
         },
         level: 0,
         sum: 0,
       }
     }
   }
-  if (chi) {
-    if (chi == 1) {
-      basicStatsAttributes['chiAdd'] = {
-        attributeNameId: 'chiAddDescription',
+  if (chakra) {
+    if (chakra == 1) {
+      basicStatsAttributes['chakraAdd'] = {
+        attributeNameId: 'chakraAddDescription',
         type: 'int',
-        value: chi,
+        value: chakra,
         level: 0,
         sum: 0,
       }
     } else {
-      basicStatsAttributes['chiAdd'] = {
-        attributeNameId: 'chiAddDescription',
+      basicStatsAttributes['chakraAdd'] = {
+        attributeNameId: 'chakraAddDescription',
         type: 'int',
         range: {
           min: 1,
-          max: chi
+          max: chakra
         },
         level: 0,
         sum: 0,
       }
     }
   }
-  if (spi) {
-    if (spi == 1) {
-      basicStatsAttributes['spiritAdd'] = {
-        attributeNameId: 'spiritAddDescription',
+  if (vijnana) {
+    if (vijnana == 1) {
+      basicStatsAttributes['vijnanaAdd'] = {
+        attributeNameId: 'vijnanaAddDescription',
         type: 'int',
-        value: spi,
+        value: vijnana,
         level: 0,
         sum: 0,
       }
     } else {
-      basicStatsAttributes['spiritAdd'] = {
-        attributeNameId: 'spiritAddDescription',
+      basicStatsAttributes['vijnanaAdd'] = {
+        attributeNameId: 'vijnanaAddDescription',
         type: 'int',
         range: {
           min: 1,
-          max: spi
+          max: vijnana
         },
         level: 0,
         sum: 0,
       }
     }
   }
+
+  final iconIndex = Math.randomInt(kArcaneIconCount)
   
   return {
+    id: 'arcane_power_${Hash.uid4(2)}_${attributes.name}',
     name: attributes.name,
+    icon: 'icon/skill/arcane_${iconIndex}.png',
     rarity,
     isTheorized: false,
     levelAttributes: basicStatsAttributes,

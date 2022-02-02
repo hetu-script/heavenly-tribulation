@@ -5,8 +5,6 @@ import '../../../engine/engine.dart';
 import 'game_entity_listview.dart';
 import '../../shared/constants.dart';
 
-const _kInformationViewTabLengths = 4;
-
 class InformationPanel extends StatefulWidget {
   const InformationPanel({Key? key}) : super(key: key);
 
@@ -162,7 +160,7 @@ class _InformationPanelState extends State<InformationPanel>
     super.build(context);
 
     return DefaultTabController(
-      length: _kInformationViewTabLengths,
+      length: kInformationViewTabLengths,
       child: Scaffold(
         appBar: AppBar(
           title: Text(engine.locale['info']),

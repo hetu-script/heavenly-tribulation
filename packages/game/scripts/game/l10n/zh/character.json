@@ -1,5 +1,6 @@
 {
   "stats": "属性",
+  "skills": "功法",
   "bonds": "羁绊",
   "history": "经历",
   "impressionOfThem": "印象",
@@ -33,8 +34,8 @@
   "spiritRank": "境界",
   "spiritRank0": "练气",
   "spiritRank1": "筑基",
-  "spiritRank2": "结丹",
-  "spiritRank3": "成婴",
+  "spiritRank2": "金丹",
+  "spiritRank3": "元婴",
   "spiritRank4": "出窍",
   "spiritRank5": "分神",
   "spiritRank6": "合体",

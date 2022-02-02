@@ -55,6 +55,7 @@ flutter:
     - assets/images/
     - assets/images/bg/
     - assets/images/icon/
+    - assets/images/icon/skill/
     - assets/images/character/
     - assets/images/weather/
     - assets/images/maze/

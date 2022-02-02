@@ -476,19 +476,22 @@ fun createWorldMap({
     final leader = Character(
       spiritRank: 1,
       birthPlaceId: location.id,
-      nationId: nation.id
+      nationId: nation.id,
     )
     setCharacterLocationId(leader, location.id)
 
     // 为每个角色设置初始玄功
     final arcanePower = getArcanePower('common')
-    levelUpAttributes(arcanePower)
+    // levelUpAttributes(arcanePower)
     final martialArts = getMartialArts('common')
-    levelUpAttributes(martialArts)
-    leader.skills = {
-      arcanePower,
-      martialArts
-    }
+    // levelUpAttributes(martialArts)
+
+    leader.skills.arcanePowers[arcanePower.id] = arcanePower
+    leader.skills.martialArts[martialArts.id] = martialArts
+    leader.skills.equipments.arcanePower = arcanePower.id
+    leader.skills.equipments.martialArts = martialArts.id
+
+    recalculateAttributesOfCharacter(leader)
 
     final org = Organization(
       category: _kOrganizationCategoryCultivation,
@@ -515,6 +518,10 @@ fun createWorldMap({
   for (var i in range(leaders.length, 1)) {
     final target = leaders[i]
     firstImpressionOfOtherCharacter(subject, target)
+    for (var j in range(leaders.length, i + 1)) {
+      final target2 = leaders[j]
+      firstImpressionOfOtherCharacter(target, target2)
+    }
   }
 
   // 触发创派事件
