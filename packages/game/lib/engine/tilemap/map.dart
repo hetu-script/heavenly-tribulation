@@ -520,9 +520,9 @@ class TileMap extends GameComponent with HandlesGesture {
 
   void moveCameraToTilePosition(int left, int top,
       {bool animated = true, double speed = 500.0}) {
-    final dest = Vector2(left * gridWidth * scale.x + gridWidth / 2 * scale.x,
-            top * gridHeight * scale.x + gridHeight / 2 * scale.y) -
-        gameRef.size / 2;
+    final worldPos = tilePosition2TileCenterInWorld(left, top);
+    final dest =
+        Vector2(worldPos.x * scale.x, worldPos.y * scale.y) - gameRef.size / 2;
     camera.speed = speed;
     camera.moveTo(dest);
     if (!animated) {

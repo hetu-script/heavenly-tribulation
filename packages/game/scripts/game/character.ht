@@ -109,18 +109,17 @@ struct Character {
     }
 
     this.skills = {
-      arcanePowers: {},
-      martialArts: {},
-      escapeSkills: {},
+      length: 8,
+      knowledges: {},
       equipments: {
-        arcanePower: null,
-        martialArts: null,
-        escapeSkill: null,
+        arcanePowerId: null,
+        martialArtsId: null,
+        escapeSkillId: null,
       },
     }
 
-    this.inventory = {
-      items: [],
+    this.items = {
+      inventory: {},
       equipments: {
         weapon: null,
         armor: null,
@@ -128,7 +127,6 @@ struct Character {
         vehicle: null,
       },
     }
-
 
     this.attributes = {}
 
@@ -356,10 +354,10 @@ fun setCharacterHome(location, character, {isOrganized: bool = true}) {
 }
 
 fun setHero(id: str) {
-  if (config.debug) {
-    print('河图: 设置当前玩家人物为 [${id}] ...')
-  }
   assert(game.characters.containsKey(id))
+  if (config.debug) {
+    print('河图: 设置当前玩家人物为 [${game.characters[id].name}] ...')
+  }
   game.heroId = id;
 }
 

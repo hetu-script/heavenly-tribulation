@@ -7,12 +7,14 @@ class ItemGrid extends StatelessWidget {
   const ItemGrid({
     Key? key,
     this.size = kItemGridDefaultSize,
-    this.margin = 5.0,
+    this.verticalMargin = 5.0,
+    this.horizontalMargin = 5.0,
     this.data,
   }) : super(key: key);
 
   final double size;
-  final double margin;
+  final double verticalMargin;
+  final double horizontalMargin;
   final HTStruct? data;
 
   @override
@@ -27,7 +29,8 @@ class ItemGrid extends StatelessWidget {
           child: Container(
             width: size,
             height: size,
-            margin: EdgeInsets.all(margin),
+            margin: EdgeInsets.symmetric(
+                vertical: verticalMargin, horizontal: horizontalMargin),
             decoration: BoxDecoration(
               color: Colors.black,
               border: Border.all(

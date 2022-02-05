@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
@@ -15,48 +17,56 @@ class CharacterSkillsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final equippedArcanePowerData =
-        data['arcanePowers'][data['equipments']['arcanePower']];
-    final equippedMartialArtsData =
-        data['martialArts'][data['equipments']['martialArts']];
-    final equippedEscapeSkillData =
-        data['escapeSkills'][data['equipments']['escapeSkill']];
+    final HTStruct knowledges = data['knowledges'];
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    final equippedArcanePowerData =
+        knowledges[data['equipments']['arcanePowerId']];
+    final equippedMartialArtsData =
+        knowledges[data['equipments']['martialArtsId']];
+    final equippedEscapeSkillData =
+        knowledges[data['equipments']['escapeSkillId']];
+
+    final skillsCount = data['length'];
+    final skills = <ItemGrid>[];
+    for (var i = 0; i < skillsCount; ++i) {
+      if (i < knowledges.length) {
+        skills.add(ItemGrid(data: data['knowledges'].values.elementAt(i)));
+      } else {
+        skills.add(const ItemGrid());
+      }
+    }
+
+    return Column(
       children: <Widget>[
-        Column(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             ItemGrid(
               data: equippedArcanePowerData,
-              margin: 20,
+              verticalMargin: 40,
             ),
-            Column(
-              children: <Widget>[],
-            ),
-          ],
-        ),
-        Column(
-          children: <Widget>[
             ItemGrid(
               data: equippedMartialArtsData,
-              margin: 20,
+              verticalMargin: 40,
             ),
-            Column(
-              children: <Widget>[],
+            ItemGrid(
+              data: equippedEscapeSkillData,
+              verticalMargin: 40,
             ),
           ],
         ),
-        Column(
-          children: <Widget>[
-            ItemGrid(
-              data: equippedEscapeSkillData,
-              margin: 20,
-            ),
-            Column(
-              children: <Widget>[],
-            ),
-          ],
+        Expanded(
+          child: ListView(
+            children: <Widget>[
+              Align(
+                alignment: Alignment.topCenter,
+                child: Wrap(
+                  children: skills,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );

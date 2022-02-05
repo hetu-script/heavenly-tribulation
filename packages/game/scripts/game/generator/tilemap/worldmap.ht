@@ -486,10 +486,10 @@ fun createWorldMap({
     final martialArts = getMartialArts('common')
     // levelUpAttributes(martialArts)
 
-    leader.skills.arcanePowers[arcanePower.id] = arcanePower
-    leader.skills.martialArts[martialArts.id] = martialArts
-    leader.skills.equipments.arcanePower = arcanePower.id
-    leader.skills.equipments.martialArts = martialArts.id
+    leader.skills.knowledges[arcanePower.id] = arcanePower
+    leader.skills.knowledges[martialArts.id] = martialArts
+    leader.skills.equipments.arcanePowerId = arcanePower.id
+    leader.skills.equipments.martialArtsId = martialArts.id
 
     recalculateAttributesOfCharacter(leader)
 

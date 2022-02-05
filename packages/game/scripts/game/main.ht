@@ -29,10 +29,10 @@ fun init({locale = 'zh', gameEngine: SamsaraEngine}) {
 
   engine = gameEngine
 
-  setLocale(locale)
   addLocales(predefinedLocalizations)
   engine.updateLocales(locales[locale])
-
+  setLocale(locale)
+  
   addDialogs(predefinedDialogs)
   
   if (config.debug) {

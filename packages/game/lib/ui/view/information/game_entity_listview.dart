@@ -46,7 +46,11 @@ class _GameEntityListViewState extends State<GameEntityListView>
             .map((title) => DataColumn(
                   label: TextButton(
                     onPressed: () {},
-                    child: Text(engine.locale[title]),
+                    child: Text(
+                      engine.locale[title],
+                      softWrap: false,
+                      overflow: TextOverflow.visible,
+                    ),
                   ),
                 ))
             .toList(),
@@ -55,7 +59,11 @@ class _GameEntityListViewState extends State<GameEntityListView>
                   cells: line
                       .take(widget.columns.length)
                       .map(
-                        (field) => DataCell(Text(field)),
+                        (field) => DataCell(Text(
+                          field,
+                          softWrap: false,
+                          overflow: TextOverflow.visible,
+                        )),
                       )
                       .toList(),
                   onTap: () {

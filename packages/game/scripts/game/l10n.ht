@@ -17,7 +17,7 @@ fun addLocales(localeList: List) {
 fun setLocale(id: str) {
   assert(locales.containsKey(id))
   if (config.debug) {
-    print('河图: 设置当前语言为 [${id}] ...')
+    print('河图: 设置当前语言为 [${locales[id].languageName}] ...')
   }
   locales.currentLocaleId = id
 }

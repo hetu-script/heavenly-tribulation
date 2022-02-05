@@ -119,25 +119,23 @@ class _LocationViewState extends State<LocationView>
               PointerDeviceKind.mouse,
             },
           ),
-          child: Scrollbar(
-            child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(
-                  parent: BouncingScrollPhysics()),
-              shrinkWrap: true,
-              children: <Widget>[
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Wrap(
-                      spacing: 8.0, // gap between adjacent chips
-                      runSpacing: 4.0, // gap between lines
-                      children: siteCards,
-                    ),
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics()),
+            shrinkWrap: true,
+            children: <Widget>[
+              Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Wrap(
+                    spacing: 8.0, // gap between adjacent chips
+                    runSpacing: 4.0, // gap between lines
+                    children: siteCards,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
