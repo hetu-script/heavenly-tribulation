@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:hetu_script/hetu_script.dart';
 import 'package:hetu_script/value/struct/struct.dart';
-import 'package:hetu_script_flutter/hetu_script_flutter.dart';
+// import 'package:hetu_script_flutter/hetu_script_flutter.dart';
 
 import 'binding/scene/component/game_map_binding.dart';
 import 'binding/game_binding.dart';
@@ -41,8 +41,7 @@ class SamsaraEngine with SceneController, EventAggregator {
   }
 
   late final Hetu hetu;
-  bool _isLoaded = false;
-  bool get isLoaded => _isLoaded;
+  bool isLoaded = false;
 
   invoke(String funcName,
           {String? moduleName,
@@ -60,35 +59,37 @@ class SamsaraEngine with SceneController, EventAggregator {
   /// for accessing the assets bundle resources.
   Future<void> init(
       {Map<String, Function> externalFunctions = const {}}) async {
-    const root = 'scripts/';
-    final filterConfig = HTFilterConfig(root, extension: [
-      HTResource.hetuModule,
-      HTResource.hetuScript,
-      HTResource.json,
-    ]);
-    final sourceContext = HTAssetResourceContext(
-        root: root,
-        includedFilter: [filterConfig],
-        expressionModuleExtensions: [HTResource.json]);
+    // const root = 'scripts/';
+    // final filterConfig = HTFilterConfig(root, extension: [
+    //   HTResource.hetuModule,
+    //   HTResource.hetuScript,
+    //   HTResource.json,
+    // ]);
+    // final sourceContext = HTAssetResourceContext(
+    //     root: root,
+    //     includedFilter: [filterConfig],
+    //     expressionModuleExtensions: [HTResource.json]);
     hetu = Hetu(
-        config: HetuConfig(
-          allowImplicitNullToZeroConversion: true,
-          allowImplicitEmptyValueToFalseConversion: true,
-        ),
-        sourceContext: sourceContext);
-    await hetu.initFlutter(
+      config: HetuConfig(
+        allowImplicitNullToZeroConversion: true,
+        allowImplicitEmptyValueToFalseConversion: true,
+      ),
+    );
+    // sourceContext: sourceContext);
+    hetu.init(
       externalFunctions: externalFunctions,
       externalClasses: [
         SamsaraEngineClassBinding(),
         MapComponentClassBinding(),
       ],
     );
-    hetu.evalFile('game/main.ht',
-        moduleName: 'game:main',
-        globallyImport: true,
-        invokeFunc: 'init',
-        namedArgs: {'lang': 'zh', 'gameEngine': this});
-    _isLoaded = true;
+    // await hetu.initFlutter(
+    //   externalFunctions: externalFunctions,
+    //   externalClasses: [
+    //     SamsaraEngineClassBinding(),
+    //     MapComponentClassBinding(),
+    //   ],
+    // );
   }
 
   @override

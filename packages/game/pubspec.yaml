@@ -27,8 +27,8 @@ dependencies:
 
   hetu_script:
     path: ../../../hetu-script/packages/hetu_script
-  hetu_script_flutter:
-    path: ../../../hetu-script/packages/hetu_script_flutter
+  # hetu_script_flutter:
+  #   path: ../../../hetu-script/packages/hetu_script_flutter
 
   code_text_field: ^1.0.2
   highlight: ^0.7.0
@@ -54,6 +54,8 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/scripts/
+
     - assets/images/
     - assets/images/bg/
     - assets/images/icon/
@@ -68,29 +70,29 @@ flutter:
     - assets/images/avatar/male/
     - assets/images/avatar/female/
 
-    - scripts/
-    - scripts/game/
-    - scripts/game/l10n/
-    - scripts/game/l10n/zh/
-    - scripts/game/l10n/en/
-    - scripts/game/data/
-    - scripts/game/generator/
-    - scripts/game/generator/tilemap/
-    - scripts/game/generator/attributes/
-    - scripts/game/generator/name/
-    - scripts/game/generator/name/alchemy/
-    - scripts/game/generator/name/creature/
-    - scripts/game/generator/name/material/
-    - scripts/game/generator/name/character/
-    - scripts/game/generator/name/organization/
-    - scripts/game/generator/name/place/
-    - scripts/game/generator/name/shared/
-    - scripts/game/generator/name/skill/
-    - scripts/game/generator/name/talisman/
-    - scripts/core/
-    - scripts/core/l10n/
-    - scripts/core/data/
-    - scripts/core/entity/
+    # - scripts/
+    # - scripts/game/
+    # - scripts/game/l10n/
+    # - scripts/game/l10n/zh/
+    # - scripts/game/l10n/en/
+    # - scripts/game/data/
+    # - scripts/game/generator/
+    # - scripts/game/generator/tilemap/
+    # - scripts/game/generator/attributes/
+    # - scripts/game/generator/name/
+    # - scripts/game/generator/name/alchemy/
+    # - scripts/game/generator/name/creature/
+    # - scripts/game/generator/name/material/
+    # - scripts/game/generator/name/character/
+    # - scripts/game/generator/name/organization/
+    # - scripts/game/generator/name/place/
+    # - scripts/game/generator/name/shared/
+    # - scripts/game/generator/name/skill/
+    # - scripts/game/generator/name/talisman/
+    # - scripts/core/
+    # - scripts/core/l10n/
+    # - scripts/core/data/
+    # - scripts/core/entity/
 
   fonts:
     - family: NotoSansMono

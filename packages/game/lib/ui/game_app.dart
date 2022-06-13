@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart' as path;
 import 'package:path/path.dart' as path;
 import 'package:samsara/samsara.dart';
@@ -98,8 +99,23 @@ class _GameAppState extends State<GameApp> {
 
     () async {
       await engine.init(externalFunctions: externalGameFunctions);
+      final mod = await rootBundle.load('assets/scripts/compiled.mod');
+      final bytes = mod.buffer.asUint8List();
+      await engine.hetu.loadBytecode(
+        bytes: bytes,
+        moduleName: 'game:main',
+        globallyImport: true,
+        invokeFunc: 'init',
+        namedArgs: {'lang': 'zh', 'gameEngine': engine},
+      );
+      // await engine.hetu.evalFile('game/main.ht',
+      //     moduleName: 'game:main',
+      //     globallyImport: true,
+      //     invokeFunc: 'init',
+      //     namedArgs: {'lang': 'zh', 'gameEngine': engine});
       // engine.hetu.evalFile('core/main.ht', invokeFunc: 'init');
       // engine.hetu.switchModule('game:main');
+      engine.isLoaded = true;
 
       await refreshSaves();
 
