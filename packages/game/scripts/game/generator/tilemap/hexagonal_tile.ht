@@ -82,6 +82,7 @@ fun getDirection(start: {}, end: {}) {
 
 // manhattan 距离算法
 fun getTileDistance(start, end) {
+  // print('getTileDistance: ${start}, ${end}')
   final dx = end.slashLeft - start.slashLeft
   final dy = end.slashTop - start.slashTop
   if ((dx >= 0 && dy >= 0) || (dx <= 0 && dy <= 0)) {

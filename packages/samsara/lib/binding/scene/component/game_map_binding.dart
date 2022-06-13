@@ -38,7 +38,7 @@ class MapComponentClassBinding extends HTExternalClass {
             Map<String, dynamic> namedArgs = const {},
             List<HTType> typeArgs = const []}) {
           return TileMap.fromJson(
-              data: positionalArgs[0], engine: positionalArgs[1]);
+              data: namedArgs['data'], engine: namedArgs['engine']);
         };
       default:
         throw HTError.undefined(varName);

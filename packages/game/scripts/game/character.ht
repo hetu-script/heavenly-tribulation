@@ -438,7 +438,7 @@ fun handleCharacterInteraction(characterId) {
   .then((key) {
     when (key) {
       'talk' -> {
-        if (haveMet(hero, character)) {
+        if (!haveMet(hero, character)) {
           firstImpressionOfOtherCharacter(hero, character)
         }
         handleCharacterTalk(hero, character)

@@ -15,7 +15,6 @@ void main() async {
 
   runApp(
     MaterialApp(
-      title: 'Tian Dao Qi Jie',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
         brightness: Brightness.dark,

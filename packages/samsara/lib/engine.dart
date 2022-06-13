@@ -70,7 +70,12 @@ class SamsaraEngine with SceneController, EventAggregator {
         root: root,
         includedFilter: [filterConfig],
         expressionModuleExtensions: [HTResource.json]);
-    hetu = Hetu(sourceContext: sourceContext);
+    hetu = Hetu(
+        config: HetuConfig(
+          allowImplicitNullToZeroConversion: true,
+          allowImplicitEmptyValueToFalseConversion: true,
+        ),
+        sourceContext: sourceContext);
     await hetu.initFlutter(
       externalFunctions: externalFunctions,
       externalClasses: [
