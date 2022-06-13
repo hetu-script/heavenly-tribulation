@@ -2,19 +2,20 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
+import 'package:heavenly_tribulation/ui/overlay/worldmap/worldmap.dart';
 
-import 'scene.dart';
-import '../tilemap/map.dart';
-import '../../ui/overlay/worldmap/worldmap.dart';
+import 'package:samsara/samsara.dart';
+import 'package:samsara/event.dart';
+
 import '../engine.dart';
-import '../../event/events.dart';
 
 class WorldMapScene extends Scene {
   TileMap? map;
 
   String? arg;
 
-  WorldMapScene(this.arg) : super(key: 'WorldMap');
+  WorldMapScene({this.arg, required SceneController controller})
+      : super(key: 'WorldMap', controller: controller);
 
   bool isMapReady = false;
 
@@ -26,10 +27,11 @@ class WorldMapScene extends Scene {
       final data = File(arg!);
       final dataString = data.readAsStringSync();
       final jsonData = jsonDecode(dataString);
-      engine.hetu.invoke('loadGameFromJsonData', positionalArgs: [jsonData]);
-      map = await TileMap.fromJson(jsonData['world']);
+      engine.hetu.interpreter
+          .invoke('loadGameFromJsonData', positionalArgs: [jsonData]);
+      map = await TileMap.fromJson(data: jsonData['world'], engine: engine);
     } else {
-      map = await engine.hetu.invoke('createWorldMap', namedArgs: {
+      map = await engine.invoke('createWorldMap', namedArgs: {
         'terrainSpriteSheet': 'fantasyhextiles_v3_borderless.png',
       });
     }

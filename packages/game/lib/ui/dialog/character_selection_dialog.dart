@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 
+import '../../engine.dart';
 import '../shared/empty_placeholder.dart';
 import '../shared/constants.dart';
-import '../../engine/engine.dart';
 
 class CharacterSelectionDialog extends StatelessWidget {
   static Future<dynamic> show(
@@ -29,8 +29,8 @@ class CharacterSelectionDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hero = engine.hetu.invoke('getHero');
-    final activitiesData = engine.hetu.invoke('getMonthlyActivities');
+    final hero = engine.invoke('getHero');
+    final activitiesData = engine.invoke('getMonthlyActivities');
 
     return
         // Material(
@@ -46,7 +46,7 @@ class CharacterSelectionDialog extends StatelessWidget {
         body: DataTable2(
           minWidth: 760,
           scrollController: ScrollController(),
-          empty: const EmptyPlaceholder(),
+          empty: EmptyPlaceholder(engine.locale['empty']),
           columns: kCharacterSelectionTableColumns
               .map((title) => DataColumn(
                     label: TextButton(
@@ -56,9 +56,9 @@ class CharacterSelectionDialog extends StatelessWidget {
                   ))
               .toList(),
           rows: characterIds.map((id) {
-            final character =
-                engine.hetu.invoke('getCharacterById', positionalArgs: [id]);
-            final haveMet = engine.hetu
+            final character = engine.hetu.interpreter
+                .invoke('getCharacterById', positionalArgs: [id]);
+            final haveMet = engine.hetu.interpreter
                 .invoke('haveMet', positionalArgs: [hero, character]);
             return DataRow2(
                 onTap: () {

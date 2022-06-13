@@ -570,5 +570,5 @@ fun createWorldMap({
   // }
   setHero(game.characters.keys.random)
 
-  return MapComponent.fromJson(game.world.toJson())
+  return MapComponent.fromJson(data: game.world.toJson(), engine: engine)
 }

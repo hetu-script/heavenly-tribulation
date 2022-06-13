@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flame/game.dart';
+import 'package:samsara/samsara.dart';
+import 'package:samsara/event.dart';
 
-import '../shared/pointer_detector.dart';
-import '../../../engine/engine.dart';
-import '../../../engine/scene/maze.dart';
 import '../../../ui/shared/avatar.dart';
-import '../../../event/event.dart';
-import '../../../event/events.dart';
+import '../../engine.dart';
+import '../../scene/maze.dart';
 
 class MazeOverlay extends StatefulWidget {
   final MazeScene scene;
@@ -34,7 +32,7 @@ class _MazeOverlayState extends State<MazeOverlay> {
 
   @override
   Widget build(BuildContext context) {
-    final heroData = engine.hetu.invoke('getHero');
+    final heroData = engine.invoke('getHero');
     return Material(
       color: Colors.transparent,
       child: Stack(
@@ -42,21 +40,7 @@ class _MazeOverlayState extends State<MazeOverlay> {
           SizedBox(
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
-            child: PointerDetector(
-              child: GameWidget(
-                game: scene,
-              ),
-              onTapDown: scene.onTapDown,
-              onTapUp: scene.onTapUp,
-              onDragStart: scene.onDragStart,
-              onDragUpdate: scene.onDragUpdate,
-              onDragEnd: scene.onDragEnd,
-              onScaleStart: scene.onScaleStart,
-              onScaleUpdate: scene.onScaleUpdate,
-              onScaleEnd: scene.onScaleEnd,
-              onLongPress: scene.onLongPress,
-              onMouseMove: scene.onMouseMove,
-            ),
+            child: SceneWidget(scene: scene),
           ),
           Positioned(
             left: 5,

@@ -2,9 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
+import 'package:samsara/event.dart';
 
-import '../../../event/events.dart';
-import '../../../engine/engine.dart';
+import '../../../engine.dart';
 import 'site_card.dart';
 
 class LocationView extends StatefulWidget {
@@ -25,8 +25,8 @@ class _LocationViewState extends State<LocationView>
 
     final locationId = ModalRoute.of(context)!.settings.arguments as String;
 
-    final data =
-        engine.hetu.invoke('getLocationById', positionalArgs: [locationId]);
+    final data = engine.hetu.interpreter
+        .invoke('getLocationById', positionalArgs: [locationId]);
 
     String? locationName = data['name'];
     if (locationName == null) {

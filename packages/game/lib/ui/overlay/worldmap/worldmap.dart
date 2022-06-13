@@ -4,14 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
 import 'package:path_provider/path_provider.dart' as path;
 import 'package:path/path.dart' as path;
+import 'package:samsara/samsara.dart';
+import 'package:samsara/event.dart';
 
-import '../../../engine/tilemap/map.dart';
-import '../../../event/event.dart';
-import '../../shared/pointer_detector.dart';
-import '../../../engine/engine.dart';
-import '../../../engine/scene/worldmap.dart';
 import '../../shared/avatar.dart';
-import '../../../event/events.dart';
 import 'popup.dart';
 import '../../shared/popup_submenu_item.dart';
 import '../../../shared/json.dart';
@@ -19,6 +15,8 @@ import '../../../shared/constants.dart';
 import '../../../shared/util.dart';
 import 'history_panel.dart';
 import '../../shared/loading_screen.dart';
+import '../../../engine.dart';
+import '../../../scene/worldmap.dart';
 
 // This is the type used by the popup menu.
 enum TopRightMenuItems { info, viewNone, viewZones, viewNations, exit }
@@ -83,9 +81,9 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
     super.build(context);
 
     // pass the build context to script
-    engine.hetu.invoke('build', positionalArgs: [context]);
+    engine.invoke('build', positionalArgs: [context]);
 
-    final heroData = engine.hetu.invoke('getHero');
+    final heroData = engine.invoke('getHero');
     final screenSize = MediaQuery.of(context).size;
 
     final heroInfoRow = <Widget>[];
@@ -108,21 +106,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
       SizedBox(
         height: screenSize.height,
         width: screenSize.width,
-        child: PointerDetector(
-          child: GameWidget(
-            game: scene,
-          ),
-          onTapDown: scene.onTapDown,
-          onTapUp: scene.onTapUp,
-          onDragStart: scene.onDragStart,
-          onDragUpdate: scene.onDragUpdate,
-          onDragEnd: scene.onDragEnd,
-          onScaleStart: scene.onScaleStart,
-          onScaleUpdate: scene.onScaleUpdate,
-          onScaleEnd: scene.onScaleEnd,
-          onLongPress: scene.onLongPress,
-          onMouseMove: scene.onMouseMove,
-        ),
+        child: SceneWidget(scene: scene),
       ),
       Positioned(
         left: 0,
@@ -248,11 +232,11 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
         List<int>? route;
         var isHeroPosition = false;
         if (terrain.tilePosition != hero!.tilePosition) {
-          final start = engine.hetu
+          final start = engine.hetu.interpreter
               .invoke('getTerrain', positionalArgs: [hero.left, hero.top]);
-          final end = engine.hetu.invoke('getTerrain',
+          final end = engine.invoke('getTerrain',
               positionalArgs: [terrain.left, terrain.top]);
-          List? calculatedRoute = engine.hetu
+          List? calculatedRoute = engine.hetu.interpreter
               .invoke('calculateRoute', positionalArgs: [start, end]);
           if (calculatedRoute != null) {
             route = List<int>.from(calculatedRoute);
@@ -277,18 +261,18 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
 
         stringBuffer.writeln('坐标: ${terrain.left}, ${terrain.top}');
 
-        final zoneData = engine.hetu
+        final zoneData = engine.hetu.interpreter
             .invoke('getZoneByIndex', positionalArgs: [terrain.zoneIndex]);
         stringBuffer.writeln('${zoneData['name']}');
 
         if (terrain.nationId != null) {
-          final nationData = engine.hetu
+          final nationData = engine.hetu.interpreter
               .invoke('getNationById', positionalArgs: [terrain.nationId]);
           stringBuffer.writeln('${nationData['name']}');
         }
 
         if (terrain.locationId != null) {
-          final locationData = engine.hetu
+          final locationData = engine.hetu.interpreter
               .invoke('getLocationById', positionalArgs: [terrain.locationId]);
           stringBuffer.writeln('${locationData['name']}');
         }
@@ -355,19 +339,19 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
   }
 
   Future<void> _saveGame() async {
-    var savePath = engine.hetu.invoke('getSavePath');
+    var savePath = engine.invoke('getSavePath');
     if (savePath == null) {
       final stampName = timestampCrc();
       final directory = await path.getApplicationDocumentsDirectory();
       savePath = path.join(directory.path, 'Heavenly Tribulation', 'save',
           stampName + kSaveFileExtension);
-      engine.hetu.invoke('setSavePath', positionalArgs: [savePath]);
+      engine.invoke('setSavePath', positionalArgs: [savePath]);
     }
     final saveFile = File(savePath);
     if (!saveFile.existsSync()) {
       saveFile.createSync(recursive: true);
     }
-    final gameJsonData = engine.hetu.invoke('getGameJsonData');
+    final gameJsonData = engine.invoke('getGameJsonData');
     final gameStringData = jsonEncodeWithIndent(gameJsonData);
     saveFile.writeAsStringSync(gameStringData);
   }

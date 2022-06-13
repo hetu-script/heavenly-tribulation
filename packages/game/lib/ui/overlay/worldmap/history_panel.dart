@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:samsara/event.dart';
 
-import '../../../engine/engine.dart';
-import '../../../event/event.dart';
-import '../../../event/events.dart';
+import '../../../engine.dart';
 
 class HistoryPanel extends StatefulWidget {
   const HistoryPanel({required Key key}) : super(key: key);
@@ -18,7 +17,7 @@ class _HistoryPanelState extends State<HistoryPanel> {
   void initState() {
     super.initState();
 
-    final List incidents = engine.hetu.invoke('getIncidents');
+    final List incidents = engine.invoke('getIncidents');
     for (final incident in incidents) {
       if (incident['isPublic']) {
         messages.add(incident['content']);

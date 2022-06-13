@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../engine/engine.dart';
+import '../../../engine.dart';
 import '../../shared/avatar.dart';
 import 'bonds.dart';
 import '../history.dart';
@@ -14,8 +14,8 @@ class CharacterView extends StatelessWidget {
   Widget build(BuildContext context) {
     final characterId = ModalRoute.of(context)!.settings.arguments as String;
 
-    final data =
-        engine.hetu.invoke('getCharacterById', positionalArgs: [characterId]);
+    final data = engine.hetu.interpreter
+        .invoke('getCharacterById', positionalArgs: [characterId]);
 
     final personality = data['personality'];
     final double ideal = personality['ideal'];
@@ -26,8 +26,8 @@ class CharacterView extends StatelessWidget {
     final double reason = personality['reason'];
     final double controlment = personality['controlment'];
 
-    final ageString =
-        engine.hetu.invoke('getCharAgeString', positionalArgs: [data]);
+    final ageString = engine.hetu.interpreter
+        .invoke('getCharAgeString', positionalArgs: [data]);
 
     return DefaultTabController(
       length: kCharacterViewTabLengths,
@@ -38,11 +38,11 @@ class CharacterView extends StatelessWidget {
             tabs: <Widget>[
               Tab(
                 icon: const Icon(Icons.summarize),
-                text: engine.locale['stats'],
+                text: engine.locale['infomation'],
               ),
               Tab(
                 icon: const Icon(Icons.flash_on),
-                text: engine.locale['skills'],
+                text: engine.locale['cultivation'],
               ),
               Tab(
                 icon: const Icon(Icons.sync_alt),

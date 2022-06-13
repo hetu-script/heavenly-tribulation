@@ -1,11 +1,11 @@
 name: heavenly_tribulation
 description: A Xianxia genre RPG game mixed with Roguelike/Tycoon elements.
-publish_to: "none"
+publish_to: 'none'
 
 version: 0.1.0-demo
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:
@@ -15,26 +15,28 @@ dependencies:
 
   meta: ^1.7.0
 
+  # hive: ^2.0.4
+  # hive_flutter: ^1.1.0
+
+  flame:
+    ^1.2.0
+    # path: ../../../flame/packages/flame
+
+  samsara:
+    path: ../samsara
+
   hetu_script:
     path: ../../../hetu-script/packages/hetu_script
   hetu_script_flutter:
     path: ../../../hetu-script/packages/hetu_script_flutter
-
-  # hive: ^2.0.4
-  # hive_flutter: ^1.1.0
-  flame:
-    ^1.0.0
-    # path: ../../../flame/packages/flame
-  # flame_ecs:
-  #   path: ../packages/flame_ecs
 
   code_text_field: ^1.0.2
   highlight: ^0.7.0
   flutter_highlight: ^0.7.0
   quiver: ^3.0.1+1
   change_case: ^1.0.1
-  data_table_2: ^2.2.0
   path_provider: ^2.0.8
+  data_table_2: ^2.2.0
 
 dev_dependencies:
   flutter_test:
@@ -44,9 +46,9 @@ dev_dependencies:
   flutter_launcher_icons: ^0.9.2
 
 flutter_icons:
-  android: "launcher_icon"
+  android: 'launcher_icon'
   ios: true
-  image_path: "assets/icon/icon.jpg"
+  image_path: 'assets/icon/icon.jpg'
 
 flutter:
   uses-material-design: true

@@ -1,7 +1,7 @@
 import 'package:hetu_script/hetu_script.dart';
 import 'package:hetu_script/binding.dart';
 
-import '../../../../../engine/tilemap/map.dart';
+import '../../../tilemap/tilemap.dart';
 
 extension MapComponentBinding on TileMap {
   dynamic htFetch(String varName) {
@@ -37,7 +37,8 @@ class MapComponentClassBinding extends HTExternalClass {
             {List<dynamic> positionalArgs = const [],
             Map<String, dynamic> namedArgs = const {},
             List<HTType> typeArgs = const []}) {
-          return TileMap.fromJson(positionalArgs[0]);
+          return TileMap.fromJson(
+              data: positionalArgs[0], engine: positionalArgs[1]);
         };
       default:
         throw HTError.undefined(varName);

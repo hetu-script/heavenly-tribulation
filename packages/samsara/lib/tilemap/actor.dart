@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
 
-import '../extensions.dart';
+import '../component/game_component.dart';
 import 'tile.dart';
 import 'tile_mixin.dart';
 import '../shared/direction.dart';

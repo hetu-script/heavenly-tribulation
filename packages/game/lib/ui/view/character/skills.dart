@@ -1,10 +1,6 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../../engine/engine.dart';
-import '../../shared/constants.dart';
 import '../item_grid.dart';
 
 class CharacterSkillsView extends StatelessWidget {

@@ -1,5 +1,5 @@
 external class MapComponent {
-  static fun fromJson
+  static fun fromJson({data, engine})
 
   fun lightUpAroundTerrain(left: int, top: int)
 

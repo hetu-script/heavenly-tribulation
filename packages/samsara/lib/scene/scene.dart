@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
+import 'package:samsara/samsara.dart';
 
-import '../engine.dart';
-import '../../ui/shared/pointer_detector.dart';
+import '../ui/pointer_detector.dart';
 import '../gestures/gesture_mixin.dart';
 
 abstract class Scene extends FlameGame {
   static const overlayUIBuilderMapKey = 'overlayUI';
 
   final String key;
+  final SceneController controller;
 
-  Scene({required this.key});
+  Scene({
+    required this.key,
+    required this.controller,
+  });
 
   void end() {
-    engine.leaveScene(key);
+    controller.leaveScene(key);
   }
 
   Vector2 get screenCenter => size / 2;

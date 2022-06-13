@@ -43,5 +43,10 @@
   "dateDay": "日",
   "timeYear": "年",
   "timeMonth": "个月",
-  "timeDay": "天"
+  "timeDay": "天",
+
+  "infomation": "信息",
+  "cultivation": "修炼",
+  "bonds": "羁绊",
+  "history": "经历"
 }

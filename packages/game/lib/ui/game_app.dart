@@ -3,17 +3,17 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart' as path;
 import 'package:path/path.dart' as path;
+import 'package:samsara/samsara.dart';
+import 'package:samsara/event.dart';
 
-import '../engine/engine.dart';
-import '../shared/localization.dart';
-import '../engine/scene/maze.dart';
+import '../engine.dart';
 import 'shared/loading_screen.dart';
-import '../engine/scene/worldmap.dart';
-import '../event/event.dart';
-import '../event/events.dart';
 import '../shared/constants.dart';
 import '../../shared/datetime.dart';
 import 'load_game_dialog.dart';
+import '../binding/external_game_functions.dart';
+import '../scene/worldmap.dart';
+import '../scene/maze.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({required Key key}) : super(key: key);
@@ -36,11 +36,11 @@ class _GameAppState extends State<GameApp> {
     super.initState();
 
     engine.registerSceneConstructor('WorldMap', ([String? arg]) async {
-      return WorldMapScene(arg);
+      return WorldMapScene(arg: arg, controller: engine);
     });
 
     engine.registerSceneConstructor('Maze', ([String? arg]) async {
-      return MazeScene(arg);
+      return MazeScene(controller: engine);
     });
 
     engine.registerListener(
@@ -97,7 +97,7 @@ class _GameAppState extends State<GameApp> {
     );
 
     () async {
-      await engine.init();
+      await engine.init(externalFunctions: externalGameFunctions);
       // engine.hetu.evalFile('core/main.ht', invokeFunc: 'init');
       // engine.hetu.switchModule('game:main');
 

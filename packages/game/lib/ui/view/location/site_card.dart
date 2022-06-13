@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../engine/engine.dart';
+import '../../../engine.dart';
 
 class SiteCard extends StatelessWidget {
   const SiteCard({
@@ -39,7 +39,7 @@ class SiteCard extends StatelessWidget {
             child: InkWell(
               borderRadius: BorderRadius.circular(8.0),
               onTap: () {
-                engine.hetu.invoke('handleSiteInteraction',
+                engine.invoke('handleSiteInteraction',
                     positionalArgs: [siteId, locationId]);
               },
               child: Padding(

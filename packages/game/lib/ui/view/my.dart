@@ -1,10 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:samsara/samsara.dart';
 
-import '../../../engine/engine.dart';
+import '../../../engine.dart';
 import '../shared/avatar.dart';
-import '../../../shared/localization.dart';
 
 class MyView extends StatefulWidget {
   final void Function() onQuit;
@@ -24,10 +24,10 @@ class _MyViewState extends State<MyView> {
   late String _name, _avatarPath;
 
   Future<void> _updateData() async {
-    engine.hetu.invoke('nextTick');
+    engine.invoke('nextTick');
 
-    final data =
-        engine.hetu.invoke('getCharacterById', positionalArgs: ['current']);
+    final data = engine.hetu.interpreter
+        .invoke('getCharacterById', positionalArgs: ['current']);
 
     setState(() {
       final String? name = data['name'];

@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flame/sprite.dart';
 // import 'package:flame/extensions.dart';
 
-import '../extensions.dart';
+import '../component/game_component.dart';
 import 'tile_mixin.dart';
 
 class TilePosition {

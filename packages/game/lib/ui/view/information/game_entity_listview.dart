@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../shared/empty_placeholder.dart';
 import 'package:data_table_2/data_table_2.dart';
-import '../../../engine/engine.dart';
+import '../../../engine.dart';
 
 class GameEntityListView extends StatefulWidget {
   const GameEntityListView({
@@ -41,7 +41,7 @@ class _GameEntityListViewState extends State<GameEntityListView>
       ),
       child: DataTable2(
         scrollController: ScrollController(),
-        empty: const EmptyPlaceholder(),
+        empty: EmptyPlaceholder(engine.locale['empty']),
         columns: widget.columns
             .map((title) => DataColumn(
                   label: TextButton(

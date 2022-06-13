@@ -4,9 +4,8 @@ import 'package:hetu_script/hetu_script.dart';
 import 'package:hetu_script/value/struct/struct.dart';
 import 'package:hetu_script_flutter/hetu_script_flutter.dart';
 
-import '../binding/external_game_functions.dart';
-import '../binding/engine/scene/component/game_map_binding.dart';
-import '../binding/engine/game_binding.dart';
+import 'binding/scene/component/game_map_binding.dart';
+import 'binding/game_binding.dart';
 import 'scene/scene.dart';
 import '../event/event.dart';
 import '../event/events.dart';
@@ -14,11 +13,7 @@ import '../shared/localization.dart';
 import '../shared/color.dart';
 import 'scene/scene_controller.dart';
 
-final SamsaraEngine engine = SamsaraEngine._();
-
 class SamsaraEngine with SceneController, EventAggregator {
-  SamsaraEngine._();
-
   final locale = GameLocalization();
 
   void updateLocales(HTStruct data) {
@@ -49,10 +44,22 @@ class SamsaraEngine with SceneController, EventAggregator {
   bool _isLoaded = false;
   bool get isLoaded => _isLoaded;
 
+  invoke(String funcName,
+          {String? moduleName,
+          List<dynamic> positionalArgs = const [],
+          Map<String, dynamic> namedArgs = const {},
+          List<HTType> typeArgs = const []}) =>
+      hetu.interpreter.invoke(funcName,
+          moduleName: moduleName,
+          positionalArgs: positionalArgs,
+          namedArgs: namedArgs,
+          typeArgs: typeArgs);
+
   /// Initialize the engine, must be called within
   /// the initState() of Flutter widget,
   /// for accessing the assets bundle resources.
-  Future<void> init() async {
+  Future<void> init(
+      {Map<String, Function> externalFunctions = const {}}) async {
     const root = 'scripts/';
     final filterConfig = HTFilterConfig(root, extension: [
       HTResource.hetuModule,
@@ -65,7 +72,7 @@ class SamsaraEngine with SceneController, EventAggregator {
         expressionModuleExtensions: [HTResource.json]);
     hetu = Hetu(sourceContext: sourceContext);
     await hetu.initFlutter(
-      externalFunctions: externalGameFunctions,
+      externalFunctions: externalFunctions,
       externalClasses: [
         SamsaraEngineClassBinding(),
         MapComponentClassBinding(),

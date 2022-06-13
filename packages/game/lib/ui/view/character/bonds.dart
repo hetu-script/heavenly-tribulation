@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 import 'package:data_table_2/data_table_2.dart';
 
-import '../../../engine/engine.dart';
+import '../../../engine.dart';
 import '../../shared/empty_placeholder.dart';
 import '../../shared/constants.dart';
 
@@ -37,7 +37,7 @@ class CharacterBondsView extends StatelessWidget {
                   .map(
                     (key) => DataTable2(
                       scrollController: ScrollController(),
-                      empty: const EmptyPlaceholder(),
+                      empty: EmptyPlaceholder(engine.locale['empty']),
                       columns: kCharacterBondsSubTableColumns
                           .map((title) => DataColumn(
                                 label: TextButton(

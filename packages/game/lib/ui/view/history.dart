@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../engine/engine.dart';
+import '../../engine.dart';
 import '../shared/constants.dart';
 
 class HistoryView extends StatelessWidget {
@@ -12,8 +12,8 @@ class HistoryView extends StatelessWidget {
     final widgets = <Widget>[];
 
     for (final index in data) {
-      final incident =
-          engine.hetu.invoke('getIncidentByIndex', positionalArgs: [index]);
+      final incident = engine.hetu.interpreter
+          .invoke('getIncidentByIndex', positionalArgs: [index]);
       widgets.add(Text(incident['content']));
     }
 

@@ -3,8 +3,8 @@ import 'dart:ui';
 import 'package:hetu_script/values.dart';
 
 import 'event.dart';
-import '../engine/tilemap/tile.dart';
-import '../engine/tilemap/actor.dart';
+import '../tilemap/tile.dart';
+import '../tilemap/actor.dart';
 
 abstract class Events {
   static const createdScene = 'created_scene';

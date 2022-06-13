@@ -1,9 +1,9 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:samsara/samsara.dart';
 
-import '../../../engine/engine.dart';
-import '../../../shared/localization.dart';
+import '../../../engine.dart';
 import '../../shared/empty_placeholder.dart';
 import 'character_editor.dart';
 import '../../../shared/util.dart' as util;
@@ -132,12 +132,12 @@ class _CharacterListViewState extends State<CharacterListView>
                       child: Padding(
                         padding: const EdgeInsets.only(top: 8.0),
                         child: (_characterCards != null &&
-                                _characterCards!.isNotEmpty
+                                _characterCards!.isNotEmpty)
                             ? Wrap(
                                 spacing: 8.0, // gap between adjacent chips
                                 runSpacing: 4.0, // gap between lines
                                 children: _characterCards!)
-                            : EmptyPlaceholder(text: locale['empty'])),
+                            : EmptyPlaceholder(engine.locale['empty']),
                       ),
                     ),
                   ],

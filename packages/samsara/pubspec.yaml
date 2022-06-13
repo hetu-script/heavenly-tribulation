@@ -1,0 +1,31 @@
+name: samsara
+description: A new Flutter package project.
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: '>=2.16.2 <3.0.0'
+  flutter: '>=1.17.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  flame: ^1.2.0
+
+  hetu_script:
+    path: ../../../hetu-script/packages/hetu_script
+  hetu_script_flutter:
+    path: ../../../hetu-script/packages/hetu_script_flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^1.0.0
+
+flutter:
+
+  # To add assets to your package, add an assets section, like this:
+  # assets:
+  #   - images/a_dot_burr.jpeg
+  #   - images/a_dot_ham.jpeg

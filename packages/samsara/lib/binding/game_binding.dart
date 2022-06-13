@@ -1,7 +1,7 @@
 import 'package:hetu_script/hetu_script.dart';
 import 'package:hetu_script/binding.dart';
 
-import '../../engine/engine.dart';
+import '../../engine.dart';
 
 extension SamsaraEngineBinding on SamsaraEngine {
   dynamic htFetch(String varName) {

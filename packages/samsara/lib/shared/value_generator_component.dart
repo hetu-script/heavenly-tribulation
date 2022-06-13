@@ -29,7 +29,7 @@ class ValueGeneratorComponent extends Component {
   }
 
   @override
-  void render(Canvas c) {}
+  void render(Canvas canvas) {}
 
   @override
   void update(double dt) {

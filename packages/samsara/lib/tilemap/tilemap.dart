@@ -7,16 +7,17 @@ import 'package:flame/game.dart';
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
 
-import '../../ui/shared/pointer_detector.dart';
+import '../ui/pointer_detector.dart';
+import '../component/game_component.dart';
 import '../gestures/gesture_mixin.dart';
 import '../extensions.dart';
 import 'tile.dart';
-import '../engine.dart';
 import '../../event/events.dart';
 import 'zone.dart';
 import 'actor.dart';
 import 'cloud.dart';
 import '../../shared/color.dart';
+import '../engine.dart';
 
 class TileMapRouteNode {
   final TilePosition tilePosition;
@@ -48,6 +49,8 @@ class TileMap extends GameComponent with HandlesGesture {
 
   @override
   Camera get camera => gameRef.camera;
+
+  final SamsaraEngine engine;
 
   final TileShape tileShape;
   final int heroX, heroY;
@@ -81,6 +84,7 @@ class TileMap extends GameComponent with HandlesGesture {
   GridMode gridMode = GridMode.none;
 
   TileMap({
+    required this.engine,
     required this.tileShape,
     this.tapSelect = false,
     required this.heroX,
@@ -103,7 +107,9 @@ class TileMap extends GameComponent with HandlesGesture {
     return (left - 1) + (top - 1) * mapTileWidth;
   }
 
-  static Future<TileMap> fromJson(Map<String, dynamic> data) async {
+  static Future<TileMap> fromJson(
+      {required SamsaraEngine engine,
+      required Map<String, dynamic> data}) async {
     final tileShapeData = data['tileShape'];
     var tileShape = TileShape.orthogonal;
     if (tileShapeData == 'isometric') {
@@ -311,6 +317,7 @@ class TileMap extends GameComponent with HandlesGesture {
     );
 
     return TileMap(
+      engine: engine,
       tileShape: tileShape,
       tapSelect: tapSelect,
       heroX: heroX,
@@ -584,6 +591,7 @@ class TileMap extends GameComponent with HandlesGesture {
     } else {
       selectedTerrain = null;
     }
+
     engine.broadcast(MapInteractionEvent.mapTapped(
         globalPosition: details.globalPosition, terrain: terrain));
   }

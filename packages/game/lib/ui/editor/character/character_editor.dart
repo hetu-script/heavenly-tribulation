@@ -2,9 +2,9 @@ import 'dart:math';
 
 // import 'package:change_case/change_case.dart';
 import 'package:flutter/material.dart';
+import 'package:samsara/samsara.dart';
 
-import '../../../engine/engine.dart';
-import '../../../shared/localization.dart';
+import '../../../engine.dart';
 import '../../shared/avatar.dart';
 import '../../shared/bordered_icon_button.dart';
 import '../../shared/constants.dart';
@@ -172,7 +172,7 @@ class _CharacterEditorState extends State<CharacterEditor>
   }
 
   void _randomizeName() {
-    final List<dynamic> names = engine.hetu.invoke('getCharacter',
+    final List<dynamic> names = engine.invoke('getCharacter',
         positionalArgs: [1],
         namedArgs: {'isFemale': data['characterIsFemale']});
     data['characterName'] = names.first;

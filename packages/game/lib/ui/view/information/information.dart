@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart' show HTStruct;
 
-import '../../../engine/engine.dart';
+import '../../../engine.dart';
 import 'game_entity_listview.dart';
 import '../../shared/constants.dart';
 
@@ -40,13 +40,13 @@ class _InformationPanelState extends State<InformationPanel>
     _organizationsFieldRow.clear();
     _charactersFieldRow.clear();
 
-    _nationsData = engine.hetu.invoke('getNations');
+    _nationsData = engine.invoke('getNations');
     for (final nation in _nationsData.values) {
       final rowData = <String>[];
       // 国家名字
       rowData.add(nation['name']);
       // 首都名字
-      final location = engine.hetu
+      final location = engine.hetu.interpreter
           .invoke('getLocationById', positionalArgs: [nation['capitalId']]);
       rowData.add(location['name']);
       // 地块大小
@@ -59,15 +59,15 @@ class _InformationPanelState extends State<InformationPanel>
       _nationsFieldRow.add(rowData);
     }
 
-    _locationsData = engine.hetu.invoke('getLocations');
+    _locationsData = engine.invoke('getLocations');
     for (final loc in _locationsData.values) {
       final rowData = <String>[];
       rowData.add(loc['name']);
       final nationId = loc['nationId'];
       if (nationId != null) {
         // 国家名字
-        final nation =
-            engine.hetu.invoke('getNationById', positionalArgs: [nationId]);
+        final nation = engine.hetu.interpreter
+            .invoke('getNationById', positionalArgs: [nationId]);
         rowData.add(nation['name']);
       } else {
         rowData.add(engine.locale['none']);
@@ -75,8 +75,8 @@ class _InformationPanelState extends State<InformationPanel>
       // 门派名字
       final orgId = loc['organizationId'];
       if (orgId != null) {
-        final organization =
-            engine.hetu.invoke('getOrganizationById', positionalArgs: [orgId]);
+        final organization = engine.hetu.interpreter
+            .invoke('getOrganizationById', positionalArgs: [orgId]);
         rowData.add(organization['name']);
       } else {
         rowData.add(engine.locale['none']);
@@ -103,16 +103,16 @@ class _InformationPanelState extends State<InformationPanel>
       _locationsFieldRow.add(rowData);
     }
 
-    _organizationsData = engine.hetu.invoke('getOrganizations');
+    _organizationsData = engine.invoke('getOrganizations');
     for (final org in _organizationsData.values) {
       final rowData = <String>[];
       rowData.add(org['name']);
       // 掌门
-      final leader = engine.hetu
+      final leader = engine.hetu.interpreter
           .invoke('getCharacterById', positionalArgs: [org['leaderId']]);
       rowData.add(leader['name']);
       // 总堂
-      final headquarters = engine.hetu
+      final headquarters = engine.hetu.interpreter
           .invoke('getLocationById', positionalArgs: [org['headquartersId']]);
       rowData.add(headquarters['name']);
       // 据点数量
@@ -126,19 +126,19 @@ class _InformationPanelState extends State<InformationPanel>
       _organizationsFieldRow.add(rowData);
     }
 
-    _charactersData = engine.hetu.invoke('getCharacters');
+    _charactersData = engine.invoke('getCharacters');
     for (final char in _charactersData.values) {
       final rowData = <String>[];
       rowData.add(char['name']);
       // 当前所在地点
-      final currentLocation = engine.hetu.invoke('getLocationById',
+      final currentLocation = engine.invoke('getLocationById',
           positionalArgs: [char['currentLocationId']]);
       rowData.add(currentLocation['name']);
       // 门派名字
       final orgId = char['organizationId'];
       if (orgId != null) {
-        final organization =
-            engine.hetu.invoke('getOrganizationById', positionalArgs: [orgId]);
+        final organization = engine.hetu.interpreter
+            .invoke('getOrganizationById', positionalArgs: [orgId]);
         rowData.add(organization['name']);
       } else {
         rowData.add(engine.locale['none']);
