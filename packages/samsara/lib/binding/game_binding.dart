@@ -30,6 +30,30 @@ extension SamsaraEngineBinding on SamsaraEngine {
                 Map<String, dynamic> namedArgs = const {},
                 List<HTType> typeArgs = const []}) =>
             onIncident(positionalArgs.first);
+      case 'debug':
+        return (HTEntity object,
+                {List<dynamic> positionalArgs = const [],
+                Map<String, dynamic> namedArgs = const {},
+                List<HTType> typeArgs = const []}) =>
+            debug(positionalArgs.first);
+      case 'info':
+        return (HTEntity object,
+                {List<dynamic> positionalArgs = const [],
+                Map<String, dynamic> namedArgs = const {},
+                List<HTType> typeArgs = const []}) =>
+            info(positionalArgs.first);
+      case 'warning':
+        return (HTEntity object,
+                {List<dynamic> positionalArgs = const [],
+                Map<String, dynamic> namedArgs = const {},
+                List<HTType> typeArgs = const []}) =>
+            warning(positionalArgs.first);
+      case 'error':
+        return (HTEntity object,
+                {List<dynamic> positionalArgs = const [],
+                Map<String, dynamic> namedArgs = const {},
+                List<HTType> typeArgs = const []}) =>
+            error(positionalArgs.first);
       default:
         throw HTError.undefined(varName);
     }

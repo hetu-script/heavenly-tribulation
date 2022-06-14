@@ -1,4 +1,4 @@
-import 'meta.json' as modInfo
+import 'module:game' as game
 
 export 'l10n/localizations.ht'
 export 'data/dialogs.ht'
@@ -10,37 +10,27 @@ final meta = {
   id: 'tdqj_core',
   type: 'module',
   onNewGameStarted: (arg) {
-    if (config.debug) {
-      print('河图: 触发新游戏事件 [${this.name}]')
-    }
+    game.engine.info('触发新游戏事件 [${this.name}]')
   },
   onUpdate: (arg) {
-    if (config.debug) {
-      print('河图：触发时间更新事件 [${this.name}]')
-    }
+    game.engine.info('触发时间更新事件 [${this.name}]')
   }
 }
 
 fun load {
-  if (config.debug) {
-    print('河图: 载入 [${meta.id}] ...')
-  }
-  loadEntity(meta)
-  loadEntities(entities)
-  if (config.debug) {
-    print('河图: [${meta.id}] 载入完毕...')
-  }
+  game.engine.info('载入 [${meta.id}]')
+  game.loadEntity(meta)
+  game.loadEntities(entities)
+  game.engine.info('[${meta.id}] 载入完毕')
 }
 
 fun init {
-  if (config.debug) {
-    print('河图: 初始化模组 ${meta.id} ...')
-  }
+  game.engine.info('初始化模组 ${meta.id}')
 
-  addModInfo(meta)
+  game.addModInfo(meta)
 
-  addLocales(localizations)
-  engine.updateLocales(locale.current.toJson())
+  game.addLocales(localizations)
+  game.engine.updateLocales(locale.current.toJson())
 
   // addCharacters(characters)
 
@@ -55,7 +45,5 @@ fun init {
 
   load()
 
-  if (config.debug) {
-    print('河图: [${meta.id}] 初始化完毕...')
-  }
+  game.engine.info('模组: [${meta.id}] 初始化完毕...')
 }

@@ -1,6 +1,6 @@
 import 'package:samsara/samsara.dart';
 
-import '../engine.dart';
+import '../global.dart';
 
 class MazeScene extends Scene {
   late final TileMap map;

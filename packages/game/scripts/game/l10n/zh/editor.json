@@ -11,6 +11,7 @@
   "load": "读取",
   "save": "保存",
   "goBack": "返回",
+  "close": "关闭",
   "quit": "退出",
   "random": "随机",
   "reload": "重新载入",

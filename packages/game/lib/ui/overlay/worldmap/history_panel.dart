@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/event.dart';
 
-import '../../../engine.dart';
+import '../../../global.dart';
 
 class HistoryPanel extends StatefulWidget {
   const HistoryPanel({required Key key}) : super(key: key);

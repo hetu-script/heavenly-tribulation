@@ -15,7 +15,7 @@ import '../../../shared/constants.dart';
 import '../../../shared/util.dart';
 import 'history_panel.dart';
 import '../../shared/loading_screen.dart';
-import '../../../engine.dart';
+import '../../../global.dart';
 import '../../../scene/worldmap.dart';
 
 // This is the type used by the popup menu.
@@ -243,7 +243,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
             // for (var i = 1; i < route.length; ++i) {
             //   final index = route[i];
             //   final tilePosition = map.index2TilePos(index);
-            //   print(tilePosition);
+            //   engine.info(tilePosition);
             // }
           }
         } else {

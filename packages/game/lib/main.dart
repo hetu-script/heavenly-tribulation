@@ -1,17 +1,41 @@
+import 'dart:io';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flame/flame.dart';
-import 'package:heavenly_tribulation/ui/view/information/information.dart';
+import 'package:window_manager/window_manager.dart';
 
 import 'ui/view/location/location.dart';
-import 'ui/game_app.dart';
+import 'ui/main_menu.dart';
 import 'ui/editor/editor.dart';
 import 'ui/view/character/character.dart';
+import 'ui/view/information/information.dart';
+import 'global.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Flame.device.setPortraitDownOnly();
-  await Flame.device.fullScreen();
+  if (Platform.isAndroid || Platform.isIOS) {
+    GlobalConfig.desktopMode = false;
+    await Flame.device.setPortraitDownOnly();
+    await Flame.device.fullScreen();
+    GlobalConfig.screenSize = window.physicalSize / window.devicePixelRatio;
+  } else if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+    GlobalConfig.desktopMode = true;
+    await windowManager.ensureInitialized();
+    // WindowOptions windowOptions = const WindowOptions(
+    //   fullScreen: true,
+    // );
+    // windowManager.waitUntilReadyToShow(windowOptions, () async {
+    //   await windowManager.show();
+    //   await windowManager.focus();
+    // });
+    GlobalConfig.screenSize = await windowManager.getSize();
+  }
+
+  engine.info('系统版本：${Platform.operatingSystemVersion}');
+  engine.info(
+      '逻辑分辨率：${GlobalConfig.screenSize.width}x${GlobalConfig.screenSize.height}');
 
   runApp(
     MaterialApp(
@@ -22,9 +46,9 @@ void main() async {
           button: TextStyle(fontSize: 18),
         ),
       ),
-      home: GameApp(key: UniqueKey()),
+      home: MainMenu(key: UniqueKey()),
       routes: {
-        'location': (context) => LocationView(key: UniqueKey()),
+        'location': (context) => LocationView(),
         'information': (context) => const InformationPanel(),
         'character': (context) => const CharacterView(),
         'editor': (context) => const GameEditor(),

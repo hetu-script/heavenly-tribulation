@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 
-import '../../engine.dart';
+import '../../global.dart';
 import '../shared/empty_placeholder.dart';
 import '../shared/constants.dart';
 
@@ -42,6 +42,15 @@ class CharacterSelectionDialog extends StatelessWidget {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(engine.locale['characterSelection']),
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              tooltip: engine.locale['close'],
+            ),
+          ],
         ),
         body: DataTable2(
           minWidth: 760,

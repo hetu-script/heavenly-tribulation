@@ -3,7 +3,7 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
 
 import '../../../ui/shared/avatar.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import '../../scene/maze.dart';
 
 class MazeOverlay extends StatefulWidget {

@@ -1,4 +1,4 @@
-import '../generator/entity.ht'
+import '../generator/random_name.ht'
 
 
 print(getSkill(10))

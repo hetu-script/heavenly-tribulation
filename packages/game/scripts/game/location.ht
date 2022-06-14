@@ -1,7 +1,7 @@
 import 'game.ht'
 import 'character.ht'
 import 'dialog.ht'
-import 'generator/entity.ht' as randomEntity
+import 'generator/random_name.ht' as randomName
 
 const kSiteResidence = 'residence'
 const kSiteHeadquarters = 'headquarters'
@@ -57,8 +57,8 @@ struct Location {
     } else {
       var conflict = false
       do {
-        final names = randomEntity.getLocation(1, category: category)
-        this.name = names.first.name
+        final r = randomName.getLocation(1, category: category)
+        this.name = r.first.name
         conflict = game.locations.values.where((element) =>
           element.name == this.name).isNotEmpty
       } while (conflict)
@@ -133,9 +133,7 @@ fun addLocation(loc) {
 }
 
 fun addLocations(locs: List) {
-  if (config.debug) {
-    print('河图: 载入地点数据 ...')
-  }
+  engine.info('载入地点数据')
   for (final loc in locs) {
     if (loc.nameId) {
       loc.name = getLocaleString(loc.nameId)
@@ -212,7 +210,7 @@ fun handleSiteInteraction(siteId: str, locationId: str) {
       'zoo' -> _handleZooInteraction(site)
       'maze' -> _handleMazeInteraction(site)
       else -> {
-        print('河图: 错误: 未知的地区类型。')
+        engine.error('错误: 未知的地区类型。')
       }
     }
   }
@@ -230,12 +228,11 @@ fun _handleResidenceInteraction(site) {
 
 fun _handleHeadquartersInteraction(site) {
   final location = game.locations[site.locationId]
-  final selections = {
+  showSelectionDialog({
     train: getLocaleString('train'),
     learn: getLocaleString('learn'),
     visit: getLocaleString('visit'),
-  }
-  showSelectionDialog(selections)
+  })
   .then((key) {
     when (key) {
       'train' -> {

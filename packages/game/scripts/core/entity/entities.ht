@@ -24,7 +24,7 @@ final entities = [
     id: 'baiheguanHoushanMinion01',
     onInteraction: (arg) {
       showSelectionDialog({
-        option1: '这是……',
+        option1: '这是',
         option2: '什么呀？',
       })
     },

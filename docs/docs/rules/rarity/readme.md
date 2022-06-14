@@ -1,8 +1,8 @@
 | 稀有度         |
 | :------------- |
 | 凡品 common    |
-| 良品 uncommon  |
-| 上品 rare      |
+| 罕见 uncommon  |
+| 稀有 rare      |
 | 极品 epic      |
 | 秘宝 legendary |
 | 灵宝 mythic    |

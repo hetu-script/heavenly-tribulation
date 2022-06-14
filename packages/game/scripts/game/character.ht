@@ -3,7 +3,7 @@ import 'game.ht'
 import 'l10n.ht'
 import 'datetime.ht'
 import 'incident.ht'
-import 'generator/entity.ht' as randomEntity
+import 'generator/random_name.ht' as randomName
 import 'generator/util.ht'
 import 'l10n.ht'
 
@@ -72,10 +72,10 @@ struct Character {
       this.shortName = shortName
       this.name = familyName + shortName
     } else {
-      final randomName = randomEntity.getCharacter(1, isFemale: this.isFemale).first
-      this.familyName = randomName.familyName
-      this.shortName = randomName.shortName
-      this.name = randomName.name
+      final r = randomName.getCharacter(1, isFemale: this.isFemale).first
+      this.familyName = r.familyName
+      this.shortName = r.shortName
+      this.name = r.name
     }
     this.id = 'character_${this.index}_${this.name}'
     // age 的格式是 timestamp, 精确到 tick. 
@@ -208,7 +208,7 @@ fun _createRandomBirthTimestamp() {
 /// 每个角色都会有一个对特定容貌值的偏好
 /// 本公式会利用这两个数值，计算某个角色对另一个角色的容貌的评价
 /// looks 是对方的容貌，0 <= looks <= 100
-/// favor 是该角色的偏好，0 <= taste <= 100
+/// favor 是该角色的偏好，0 <= favor <= 100
 fun _calculateLooksScore({looks: float, favor: float}) -> float {
   assert(0.0 <= looks && looks <= kCharacterMaxLooks)
   if (favor != null) {
@@ -355,9 +355,7 @@ fun setCharacterHome(location, character, {isOrganized: bool = true}) {
 
 fun setHero(id: str) {
   assert(game.characters.containsKey(id))
-  if (config.debug) {
-    print('河图: 设置当前玩家人物为 [${game.characters[id].name}] ...')
-  }
+  engine.info('设置当前玩家人物为 [${game.characters[id].name}]。')
   game.heroId = id;
 }
 
@@ -376,9 +374,7 @@ fun addCharacter(char) {
 }
 
 fun addCharacters(chars: List) {
-  if (config.debug) {
-    print('河图: 载入人物数据 ...')
-  }
+  engine.info('载入人物数据')
   for (final char in chars) {
     addCharacter(char)
   }

@@ -5,11 +5,22 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "game",
+      "name": "Debug Desktop",
       "cwd": "packages\\game",
       "request": "launch",
       "type": "dart",
-      "program": "lib/main.dart"
+      "program": "lib/main.dart",
+      "flutterMode": "debug",
+      "deviceId": "windows",
+    },
+    {
+      "name": "Debug Android",
+      "cwd": "packages\\game",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "flutterMode": "debug",
+      "deviceId": "M2012K10C"
     }
   ]
 }

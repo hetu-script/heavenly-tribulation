@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:logger/logger.dart';
 import 'package:hetu_script/hetu_script.dart';
 import 'package:hetu_script/value/struct/struct.dart';
 // import 'package:hetu_script_flutter/hetu_script_flutter.dart';
@@ -14,6 +14,16 @@ import '../shared/color.dart';
 import 'scene/scene_controller.dart';
 
 class SamsaraEngine with SceneController, EventAggregator {
+  final logger = Logger(
+    filter: null,
+    printer: PrettyPrinter(
+      methodCount: 0,
+      printEmojis: false,
+      noBoxingByDefault: true,
+    ), // Use the PrettyPrinter to format and print log
+    output: null, // Use the default LogOutput (-> send everything to console)
+  );
+
   final locale = GameLocalization();
 
   void updateLocales(HTStruct data) {
@@ -103,6 +113,22 @@ class SamsaraEngine with SceneController, EventAggregator {
   void leaveScene(String key) {
     super.leaveScene(key);
     broadcast(SceneEvent.ended(sceneKey: key));
+  }
+
+  void debug(String content) {
+    logger.d(content);
+  }
+
+  void info(String content) {
+    logger.i(content);
+  }
+
+  void warning(String content) {
+    logger.w(content);
+  }
+
+  void error(String content) {
+    logger.e(content);
   }
 
   static int getYear(int timestamp) => timestamp ~/ _ticksPerYear;

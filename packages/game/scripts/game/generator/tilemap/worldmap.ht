@@ -1,4 +1,4 @@
-import '../entity.ht' as randomEntity
+import '../random_name.ht' as randomName
 import '../../game.ht'
 import '../../location.ht'
 import '../../character.ht'
@@ -150,7 +150,7 @@ fun createWorldMap({
     tileOffsetX = 0.0,
     tileOffsetY = 2.0,
   }) {
-  print('开始生成世界……')
+  engine.info('开始生成世界')
 
   game.savePath = null
   game.nations = {}
@@ -190,7 +190,7 @@ fun createWorldMap({
     }
   }
 
-  print('生成地块……')
+  engine.info('生成地块')
 
   // 没有区域，也是一个区域
   final voidZone = Zone(name: '无', category: _kZoneVoid)
@@ -209,7 +209,7 @@ fun createWorldMap({
     }
   }
 
-  print('生成地块边缘坐标')
+  engine.info('生成地块边缘坐标')
 
   // 生成地域
   final landArea = (width * height * landProportion).floor()
@@ -285,7 +285,7 @@ fun createWorldMap({
     }
   }
 
-  print('生成地域')
+  engine.info('生成地域')
 
   var unzonedTile
 
@@ -341,7 +341,7 @@ fun createWorldMap({
     islands.add(tile)
   }
 
-  print('根据 tile 的所在位置的类型，添加属性')
+  engine.info('根据 tile 的所在位置的类型，添加属性')
 
   // 生成据点
   final locationIndexes = Set()
@@ -360,29 +360,28 @@ fun createWorldMap({
     tile.locationId = location.id
     tile.overlaySprite.index = _kSpriteCity
   }
-  print('生成据点')
+  engine.info('生成据点')
 
   // 每个岛屿是独立的 zone
   for (final island in islands) {
     final islandZone = Zone(category: _kZoneIsland)
     addTerrain2Zone(islandZone.index, island)
   }
-  print('每个岛屿是独立的 zone')
+  engine.info('处理岛屿')
 
   // 因为 zone 的命名和其大小有关，因此在最后单独处理
   for (final zone in game.world.zones) {
     if (zone.name) {
       continue
     }
-    late names
     late category
     if (zone.category == _kZoneWater) {
       category = zone.terrainIndexes.length < _kMinZoneSizeForSea ? _kZoneLake : _kZoneWater
     } else {
       category = zone.category
     }
-    names = randomEntity.getZone(1, category: category)
-    zone.name = names.first.name
+    final r = randomName.getZone(1, category: category)
+    zone.name = r.first.name
   }
   
   // 将大陆和海洋接触的地方填充为大陆架
@@ -469,7 +468,7 @@ fun createWorldMap({
     }
     return expanded
   }
-  print('生成地图上的不同国家')
+  engine.info('生成地图上的不同国家')
 
   // 随机选择各个国家的都城，然后各自扩散都城直到没有没有分配国家的区块
   var unoccupiedTile
@@ -480,12 +479,12 @@ fun createWorldMap({
     expandNation(nation)
     // print('expanded nation ${nation.name}')
   }
-  print('随机选择各个国家的都城，然后各自扩散都城直到没有没有分配国家的区块')
+  engine.info('随机选择各个国家的都城，然后决定国家疆域')
 
   // 刷新上色信息
   updateWorldMapZoneColors()
   updateWorldMapNationColors()
-  print('刷新上色信息')
+  engine.info('刷新上色信息')
 
   final leaders = []
   final headquarters = []
@@ -524,7 +523,7 @@ fun createWorldMap({
     leaders.add(leader)
     headquarters.add(location)
   }
-  print('向世界中填充门派')
+  engine.info('向世界中填充门派')
 
   // 在总堂所在据点生成初始建筑
   // 向门派中填充角色
@@ -544,7 +543,7 @@ fun createWorldMap({
       firstImpressionOfOtherCharacter(target, target2)
     }
   }
-  print('让一开始的几个掌门先互相认识')
+  engine.info('让一开始的几个掌门先互相认识')
 
   // 触发创派事件
   for (final leader in leaders) {
@@ -564,7 +563,7 @@ fun createWorldMap({
       isGlobal: true,
     )
   }
-  print('触发创派事件')
+  engine.info('触发创派事件')
   
   // final playerCharacter001 = {
   
@@ -593,7 +592,7 @@ fun createWorldMap({
   // }
   setHero(game.characters.keys.random)
 
-  print('世界生成完毕。')
+  engine.info('世界生成完毕。')
 
   return MapComponent.fromJson(data: game.world.toJson(), engine: engine)
 }

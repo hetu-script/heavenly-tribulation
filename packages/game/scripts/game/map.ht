@@ -2,7 +2,7 @@ import 'game.ht'
 import 'generator/tilemap/hexagonal_tile.ht'
 
 fun loadWorldMap(jsonData) {
-  print('河图: 载入世界地图数据 ...')
+  engine.info('载入世界地图数据')
   final data = prototype.fromJson(jsonData)
   game.world = data
 }
@@ -12,9 +12,7 @@ fun handleWorldEntityInteraction(x: int, y: int) {
 }
 
 fun addMazes(mazes) {
-  if (config.debug) {
-    print('河图: 载入副本数据 ...')
-  }
+  engine.info('载入副本数据')
   for (final maze in mazes) {
     game.mazes[maze.id] = maze
   }

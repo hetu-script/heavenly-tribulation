@@ -2,9 +2,7 @@ import 'game.ht'
 import 'util.ht'
 
 fun addLocales(localeList: List) {
-  if (config.debug) {
-    print('河图: 载入本地化字符串 ...')
-  }
+  engine.info('载入本地化字符串')
   for (final locale in localeList) {
     final localeId = locale.languageId
     final localeData = locales[localeId]
@@ -16,9 +14,7 @@ fun addLocales(localeList: List) {
 
 fun setLocale(id: str) {
   assert(locales.containsKey(id))
-  if (config.debug) {
-    print('河图: 设置当前语言为 [${locales[id].languageName}] ...')
-  }
+  engine.info('设置当前语言为 [${locales[id].languageName}]')
   locales.currentLocaleId = id
 }
 

@@ -7,7 +7,7 @@ import 'package:heavenly_tribulation/ui/overlay/worldmap/worldmap.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
 
-import '../engine.dart';
+import '../global.dart';
 
 class WorldMapScene extends Scene {
   TileMap? map;

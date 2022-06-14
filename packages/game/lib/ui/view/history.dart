@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../engine.dart';
+import '../../global.dart';
 import '../shared/constants.dart';
 
 class HistoryView extends StatelessWidget {

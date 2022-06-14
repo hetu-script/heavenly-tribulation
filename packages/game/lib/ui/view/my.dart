@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 
-import '../../../engine.dart';
+import '../../../global.dart';
 import '../shared/avatar.dart';
 
 class MyView extends StatefulWidget {

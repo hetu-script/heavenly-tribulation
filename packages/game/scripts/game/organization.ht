@@ -1,6 +1,6 @@
 import 'game.ht'
 import { Site, kSiteHeadquarters } from 'location.ht'
-import 'generator/entity.ht' as randomEntity
+import 'generator/random_name.ht' as randomName
 
 struct Organization {
   construct ({
@@ -21,8 +21,8 @@ struct Organization {
     } else {
       var conflict = false
       do {
-        final names = randomEntity.getOrganization(1, category: category)
-        this.name = names.first.name
+        final r = randomName.getOrganization(1, category: category)
+        this.name = r.first.name
         conflict = game.organizations.values.where((element) =>
           element.name == this.name).isNotEmpty
       } while (conflict)
@@ -131,9 +131,7 @@ fun addLocation2Organization(organization, location) {
 }
 
 fun addOrganizations(orgs: List) {
-  if (config.debug) {
-    print('河图: 载入组织数据 ...')
-  }
+  engine.info('载入组织数据')
   for (final org in orgs) {
     game.organizations[org.id] = org
   }

@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 
-import '../../../engine.dart';
+import '../../../global.dart';
 import '../../shared/empty_placeholder.dart';
 import 'character_editor.dart';
 import '../../../shared/util.dart' as util;

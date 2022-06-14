@@ -37,6 +37,8 @@ dependencies:
   change_case: ^1.0.1
   path_provider: ^2.0.8
   data_table_2: ^2.2.0
+  window_manager: ^0.2.5
+  logger: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -69,30 +71,6 @@ flutter:
     - assets/images/avatar/
     - assets/images/avatar/male/
     - assets/images/avatar/female/
-
-    # - scripts/
-    # - scripts/game/
-    # - scripts/game/l10n/
-    # - scripts/game/l10n/zh/
-    # - scripts/game/l10n/en/
-    # - scripts/game/data/
-    # - scripts/game/generator/
-    # - scripts/game/generator/tilemap/
-    # - scripts/game/generator/attributes/
-    # - scripts/game/generator/name/
-    # - scripts/game/generator/name/alchemy/
-    # - scripts/game/generator/name/creature/
-    # - scripts/game/generator/name/material/
-    # - scripts/game/generator/name/character/
-    # - scripts/game/generator/name/organization/
-    # - scripts/game/generator/name/place/
-    # - scripts/game/generator/name/shared/
-    # - scripts/game/generator/name/skill/
-    # - scripts/game/generator/name/talisman/
-    # - scripts/core/
-    # - scripts/core/l10n/
-    # - scripts/core/data/
-    # - scripts/core/entity/
 
   fonts:
     - family: NotoSansMono

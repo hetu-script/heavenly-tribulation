@@ -3,7 +3,7 @@ import 'package:samsara/samsara.dart';
 
 import 'character/character_listview.dart';
 import 'code/code_editor.dart';
-import '../../engine.dart';
+import '../../global.dart';
 
 class GameEditor extends StatefulWidget {
   const GameEditor({Key? key}) : super(key: key);

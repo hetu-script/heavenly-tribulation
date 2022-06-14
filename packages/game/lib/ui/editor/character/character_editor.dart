@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 
-import '../../../engine.dart';
+import '../../../global.dart';
 import '../../shared/avatar.dart';
 import '../../shared/bordered_icon_button.dart';
 import '../../shared/constants.dart';

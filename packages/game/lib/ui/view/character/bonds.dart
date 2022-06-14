@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 import 'package:data_table_2/data_table_2.dart';
 
-import '../../../engine.dart';
+import '../../../global.dart';
 import '../../shared/empty_placeholder.dart';
 import '../../shared/constants.dart';
 

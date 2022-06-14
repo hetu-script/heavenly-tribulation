@@ -11,7 +11,7 @@ export 'incident.ht'
 export 'map.ht'
 export 'duel.ht'
 export 'resource.ht'
-export 'entity.ht'
+export 'random_name.ht'
 
 export 'generator/tilemap/worldmap.ht'
 export 'generator/tilemap/maze.ht'
@@ -23,11 +23,9 @@ import 'l10n/predefined_localizations.ht'
 import 'data/predefined_dialogs.ht'
 
 fun init({locale = 'zh', gameEngine: SamsaraEngine}) {
-  if (config.debug) {
-    print('河图: 初始化游戏 ...')
-  }
-
   engine = gameEngine
+  
+  engine.info('初始化游戏')
 
   addLocales(predefinedLocalizations)
   engine.updateLocales(locales[locale])
@@ -35,9 +33,7 @@ fun init({locale = 'zh', gameEngine: SamsaraEngine}) {
   
   addDialogs(predefinedDialogs)
   
-  if (config.debug) {
-    print('河图: 初始化函数执行完毕 ...')
-  }
+  engine.info('初始化函数执行完毕')
 
   // for (var i in range(10)) {
   //   final ent = getArcanePower()

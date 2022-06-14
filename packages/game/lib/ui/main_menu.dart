@@ -6,8 +6,9 @@ import 'package:path_provider/path_provider.dart' as path;
 import 'package:path/path.dart' as path;
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
+import 'package:window_manager/window_manager.dart';
 
-import '../engine.dart';
+import '../global.dart';
 import 'shared/loading_screen.dart';
 import '../shared/constants.dart';
 import '../../shared/datetime.dart';
@@ -16,14 +17,14 @@ import '../binding/external_game_functions.dart';
 import '../scene/worldmap.dart';
 import '../scene/maze.dart';
 
-class GameApp extends StatefulWidget {
-  const GameApp({required Key key}) : super(key: key);
+class MainMenu extends StatefulWidget {
+  const MainMenu({required Key key}) : super(key: key);
 
   @override
-  State<GameApp> createState() => _GameAppState();
+  State<MainMenu> createState() => _MainMenuState();
 }
 
-class _GameAppState extends State<GameApp> {
+class _MainMenuState extends State<MainMenu> {
   GameLocalization get locale => engine.locale;
 
   bool _isLoading = true;
@@ -103,18 +104,18 @@ class _GameAppState extends State<GameApp> {
       final bytes = mod.buffer.asUint8List();
       await engine.hetu.loadBytecode(
         bytes: bytes,
-        moduleName: 'game:main',
-        globallyImport: true,
+        moduleName: 'game',
+        // globallyImport: true,
         invokeFunc: 'init',
         namedArgs: {'lang': 'zh', 'gameEngine': engine},
       );
       // await engine.hetu.evalFile('game/main.ht',
-      //     moduleName: 'game:main',
+      //     moduleName: 'game',
       //     globallyImport: true,
       //     invokeFunc: 'init',
       //     namedArgs: {'lang': 'zh', 'gameEngine': engine});
       // engine.hetu.evalFile('core/main.ht', invokeFunc: 'init');
-      // engine.hetu.switchModule('game:main');
+      // engine.hetu.switchModule('game');
       engine.isLoaded = true;
 
       await refreshSaves();
@@ -142,13 +143,13 @@ class _GameAppState extends State<GameApp> {
     else if (engine.currentScene != null) {
       return engine.currentScene!.widget;
     } else {
-      final menuWidgets = <Widget>[
-        const Padding(
-          padding: EdgeInsets.only(top: 150),
-          child: Image(
-            image: AssetImage('assets/images/title.png'),
-          ),
-        ),
+      final menus = <Widget>[
+        // const Padding(
+        //   padding: EdgeInsets.only(top: 150),
+        //   child: Image(
+        //     image: AssetImage('assets/images/title.png'),
+        //   ),
+        // ),
         Padding(
           padding: const EdgeInsets.only(top: 40.0),
           child: ElevatedButton(
@@ -164,7 +165,7 @@ class _GameAppState extends State<GameApp> {
       ];
 
       if (savedFiles.isNotEmpty) {
-        menuWidgets.add(
+        menus.add(
           Padding(
             padding: const EdgeInsets.only(top: 20.0),
             child: ElevatedButton(
@@ -189,7 +190,7 @@ class _GameAppState extends State<GameApp> {
         );
       }
 
-      menuWidgets.add(Padding(
+      menus.add(Padding(
         padding: const EdgeInsets.only(top: 20.0),
         child: ElevatedButton(
           onPressed: () {
@@ -199,8 +200,36 @@ class _GameAppState extends State<GameApp> {
         ),
       ));
 
-      return Scaffold(
-        body: Container(
+      if (GlobalConfig.desktopMode) {
+        menus.addAll([
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.only(top: 20.0),
+            child: ElevatedButton(
+              onPressed: () {
+                windowManager.close();
+              },
+              child: Text(locale['exit']),
+            ),
+          )
+        ]);
+      }
+
+      Widget layout;
+      if (GlobalConfig.desktopMode) {
+        layout = Stack(
+          children: <Widget>[
+            Positioned(
+              left: 20.0,
+              bottom: 20.0,
+              height: 300.0,
+              width: 120.0,
+              child: Column(children: menus),
+            ),
+          ],
+        );
+      } else {
+        layout = Container(
           color: Colors.black,
           // decoration: const BoxDecoration(
           //   image: DecorationImage(
@@ -209,11 +238,11 @@ class _GameAppState extends State<GameApp> {
           //   ),
           // ),
           alignment: Alignment.center,
-          child: Column(
-            children: menuWidgets,
-          ),
-        ),
-      );
+          child: Column(children: menus),
+        );
+      }
+
+      return Scaffold(body: layout);
     }
   }
 

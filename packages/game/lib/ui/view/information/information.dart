@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart' show HTStruct;
 
-import '../../../engine.dart';
+import '../../../global.dart';
 import 'game_entity_listview.dart';
 import '../../shared/constants.dart';
 
@@ -159,60 +159,64 @@ class _InformationPanelState extends State<InformationPanel>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return DefaultTabController(
-      length: kInformationViewTabLengths,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(engine.locale['info']),
-          bottom: TabBar(
-            tabs: [
-              Tab(
-                icon: const Icon(Icons.person),
-                text:
-                    '${engine.locale['character']}(${_charactersFieldRow.length})',
+    return Container(
+      padding: const EdgeInsets.all(50),
+      child: DefaultTabController(
+        length: kInformationViewTabLengths,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(engine.locale['info']),
+            bottom: TabBar(
+              tabs: [
+                Tab(
+                  icon: const Icon(Icons.person),
+                  text:
+                      '${engine.locale['character']}(${_charactersFieldRow.length})',
+                ),
+                Tab(
+                  icon: const Icon(Icons.groups),
+                  text:
+                      '${engine.locale['organization']}(${_organizationsFieldRow.length})',
+                ),
+                Tab(
+                  icon: const Icon(Icons.location_city),
+                  text:
+                      '${engine.locale['location']}(${_locationsFieldRow.length})',
+                ),
+                Tab(
+                  icon: const Icon(Icons.public),
+                  text:
+                      '${engine.locale['nation']}(${_nationsFieldRow.length})',
+                ),
+              ],
+            ),
+          ),
+          body: TabBarView(
+            children: <Widget>[
+              GameEntityListView(
+                columns: kInformationViewCharacterColumns,
+                data: _charactersFieldRow,
+                onTap: (dataId) {
+                  Navigator.of(context).pushNamed(
+                    'character',
+                    arguments: dataId,
+                  );
+                },
               ),
-              Tab(
-                icon: const Icon(Icons.groups),
-                text:
-                    '${engine.locale['organization']}(${_organizationsFieldRow.length})',
+              GameEntityListView(
+                columns: kInformationViewOrganizationColumns,
+                data: _organizationsFieldRow,
               ),
-              Tab(
-                icon: const Icon(Icons.location_city),
-                text:
-                    '${engine.locale['location']}(${_locationsFieldRow.length})',
+              GameEntityListView(
+                columns: kInformationViewLocationColumns,
+                data: _locationsFieldRow,
               ),
-              Tab(
-                icon: const Icon(Icons.public),
-                text: '${engine.locale['nation']}(${_nationsFieldRow.length})',
+              GameEntityListView(
+                columns: kInformationViewNationColumns,
+                data: _nationsFieldRow,
               ),
             ],
           ),
-        ),
-        body: TabBarView(
-          children: <Widget>[
-            GameEntityListView(
-              columns: kInformationViewCharacterColumns,
-              data: _charactersFieldRow,
-              onTap: (dataId) {
-                Navigator.of(context).pushNamed(
-                  'character',
-                  arguments: dataId,
-                );
-              },
-            ),
-            GameEntityListView(
-              columns: kInformationViewOrganizationColumns,
-              data: _organizationsFieldRow,
-            ),
-            GameEntityListView(
-              columns: kInformationViewLocationColumns,
-              data: _locationsFieldRow,
-            ),
-            GameEntityListView(
-              columns: kInformationViewNationColumns,
-              data: _nationsFieldRow,
-            ),
-          ],
         ),
       ),
     );
