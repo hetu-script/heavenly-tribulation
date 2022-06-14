@@ -1,6 +1,6 @@
 import 'game.ht'
 import { Site, kSiteHeadquarters } from 'location.ht'
-import 'generator/random_name.ht' as randomName
+import 'generator/name/name.ht' as nameGenerator
 
 struct Organization {
   construct ({
@@ -21,7 +21,7 @@ struct Organization {
     } else {
       var conflict = false
       do {
-        final r = randomName.getOrganization(1, category: category)
+        final r = nameGenerator.getOrganization(1, category: category)
         this.name = r.first.name
         conflict = game.organizations.values.where((element) =>
           element.name == this.name).isNotEmpty

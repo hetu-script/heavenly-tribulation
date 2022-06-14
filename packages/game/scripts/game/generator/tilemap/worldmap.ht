@@ -1,4 +1,4 @@
-import '../random_name.ht' as randomName
+import '../name/name.ht' as nameGenerator
 import '../../game.ht'
 import '../../location.ht'
 import '../../character.ht'
@@ -380,7 +380,7 @@ fun createWorldMap({
     } else {
       category = zone.category
     }
-    final r = randomName.getZone(1, category: category)
+    final r = nameGenerator.getZone(1, category: category)
     zone.name = r.first.name
   }
   
@@ -501,17 +501,17 @@ fun createWorldMap({
     setCharacterLocationId(leader, location.id)
 
     // 为每个角色设置初始玄功
-    final arcanePower = getArcanePower('common')
+    // final arcanePower = getArcanePower('common')
     // levelUpAttributes(arcanePower)
-    final martialArts = getMartialArts('common')
+    // final martialArts = getMartialArts('common')
     // levelUpAttributes(martialArts)
 
-    leader.skills.knowledges[arcanePower.id] = arcanePower
-    leader.skills.knowledges[martialArts.id] = martialArts
-    leader.skills.equipments.arcanePowerId = arcanePower.id
-    leader.skills.equipments.martialArtsId = martialArts.id
+    // leader.skills.knowledges[arcanePower.id] = arcanePower
+    // leader.skills.knowledges[martialArts.id] = martialArts
+    // leader.skills.equipments.arcanePowerId = arcanePower.id
+    // leader.skills.equipments.martialArtsId = martialArts.id
 
-    recalculateAttributesOfCharacter(leader)
+    // recalculateAttributesOfCharacter(leader)
 
     final org = Organization(
       category: _kOrganizationCategoryCultivation,

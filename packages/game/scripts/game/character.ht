@@ -3,7 +3,7 @@ import 'game.ht'
 import 'l10n.ht'
 import 'datetime.ht'
 import 'incident.ht'
-import 'generator/random_name.ht' as randomName
+import 'generator/name/name.ht' as nameGenerator
 import 'generator/util.ht'
 import 'l10n.ht'
 
@@ -70,13 +70,12 @@ struct Character {
     if (familyName != null && shorname != null) {
       this.familyName = familyName
       this.shortName = shortName
-      this.name = familyName + shortName
     } else {
-      final r = randomName.getCharacter(1, isFemale: this.isFemale).first
-      this.familyName = r.familyName
-      this.shortName = r.shortName
-      this.name = r.name
+      final r = nameGenerator.getCharacter(1, isFemale: this.isFemale).first
+      this.familyName = familyName ?? r.familyName
+      this.shortName = shortName ?? r.shortName
     }
+    this.name = this.familyName + this.shortName
     this.id = 'character_${this.index}_${this.name}'
     // age 的格式是 timestamp, 精确到 tick. 
     if (birthTimestamp != null) {

@@ -1,5 +1,5 @@
-import 'attributes/attributes.json' as attributes
-import '../l10n.ht'
+import 'data/attributes.json' as attributes
+import '../../l10n.ht'
 
 fun _getAttribute(data) {
   final mod = attributes[data.id]

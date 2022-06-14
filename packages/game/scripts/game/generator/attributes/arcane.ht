@@ -1,6 +1,6 @@
-import 'constants.ht'
+import '../constants.ht'
 import 'attributes.ht'
-import 'attributes/arcane.json' as arcaneAttributes
+import 'data/arcane.json' as arcaneAttributes
 
 const kArcaneIconCount = 10
 

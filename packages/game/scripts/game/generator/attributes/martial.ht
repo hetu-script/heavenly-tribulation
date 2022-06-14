@@ -1,6 +1,6 @@
-import 'constants.ht'
+import '../constants.ht'
 import 'attributes.ht'
-import 'attributes/martial.json' as martialAttributes
+import 'data/martial.json' as martialAttributes
 
 const kMartialIconCount = 10
 

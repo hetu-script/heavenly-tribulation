@@ -1,0 +1,76 @@
+import 'game.ht'
+import 'generator/name/name.ht' as nameGenerator
+import 'generator/name/constants.ht'
+
+const kItemDefaultIcon = 'assets/images/unknown_item.png'
+const kItemDefaultDescription = ''
+
+struct Item {
+  construct ({
+    type, // 'comsumable', 'equipment'
+    id, // id 相同的物品，如果是stackable，则可以堆叠
+    name,
+    kind,
+    rarity,
+    value,
+    icon,
+    creatorId,
+    createdTime,
+    description,
+    inscription,
+  }) {
+    if (rarity != null) {
+      this.rarity = rarity
+      assert(rarity in kRarity.keys)
+    }
+    if (type != null) {
+      this.type = type
+      assert(type in ['comsumable', 'equipment'])
+    }
+    if (name) {
+      this.name = name
+    } else {
+      final r = nameGenerator.getTalisman(1, kind: kind, rarity: rarity)
+      this.name = r.first.name
+      this.rarity ??= r.rarity
+    }
+    this.id = 'item_${id}_${this.name}'
+    this.value = value ?? 0
+    this.icon = icon ?? kItemDefaultIcon
+    this.creatorId = creatorId
+    this.createdTime = createdTime ?? game.timestamp
+    this.description = description ?? kItemDefaultDescription
+    this.inscription = inscription
+  }
+
+  construct consumable({
+    id,
+    name,
+    rarity,
+    value,
+    icon,
+    creatorId,
+    createdTime,
+    description,
+    inscription,
+  }) : this(
+    type: 'consumable',
+    id: id,
+    name: name,
+    rarity: rarity,
+    value: value,
+    icon: icon,
+    creatorId: creatorId,
+    createdTime: createdTime,
+    description: description,
+    inscription: inscription,
+  ) {
+    
+  }
+
+  construct equipment() : this(
+    
+  ) {
+
+  }
+}

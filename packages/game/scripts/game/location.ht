@@ -1,7 +1,7 @@
 import 'game.ht'
 import 'character.ht'
 import 'dialog.ht'
-import 'generator/random_name.ht' as randomName
+import 'generator/name/name.ht' as nameGenerator
 
 const kSiteResidence = 'residence'
 const kSiteHeadquarters = 'headquarters'
@@ -57,7 +57,7 @@ struct Location {
     } else {
       var conflict = false
       do {
-        final r = randomName.getLocation(1, category: category)
+        final r = nameGenerator.getLocation(1, category: category)
         this.name = r.first.name
         conflict = game.locations.values.where((element) =>
           element.name == this.name).isNotEmpty
