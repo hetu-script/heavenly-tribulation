@@ -28,11 +28,11 @@ class GameLocalization {
 
   /// 对于需要替换部分字符串的本地化串，使用这个接口
   String getString(String key, [List<String> interpolations = const []]) {
-    var message = this[key];
+    var text = this[key];
 
     for (var i = 0; i < interpolations.length; ++i) {
-      message = message.replaceAll('{$i}', interpolations[i]);
+      text = text.replaceAll('{$i}', interpolations[i]);
     }
-    return message;
+    return text;
   }
 }

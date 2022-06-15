@@ -1,11 +1,10 @@
-import 'common.ht'
-import 'game.ht'
-import 'l10n.ht'
-import 'datetime.ht'
+import '../game.ht'
+import '../l10n.ht'
+import '../datetime.ht'
 import 'incident.ht'
-import 'generator/name/name.ht' as nameGenerator
-import 'generator/util.ht'
-import 'l10n.ht'
+import '../generator/name/name.ht' as nameGenerator
+import '../generator/util.ht'
+import 'constants.ht'
 
 // number of the male avatar images
 const kMaleAvatarCount = 37
@@ -19,7 +18,6 @@ const kCharacterAverageLooks = 75.0
 const kCharacterMaxLooks = 100.0
 const kCharacterImpressionCheckpoint = 10.0
 
-const kSpiritRankTitle = 'spiritRankTitle'
 const kOrganizationLeaderTitle = 'organizationLeaderTitle'
 
 // 羁绊, 人物对其他的某个事物的印象和评价
@@ -42,12 +40,11 @@ struct Bond {
 }
 
 struct Character {
-  construct ({
+  construct generateRandom ({
     familyName,
     shortName,
     isFemale: bool,
     birthTimestamp,
-    spiritRank,
     birthPlaceId,
     nationId,
   }) {
@@ -89,32 +86,21 @@ struct Character {
     this.birthPlaceId = birthPlaceId
     this.nationId = nationId
 
-    this.spiritRank = spiritRank ?? 0
-
     // 该角色的称号
-    this.titles = {
-      kSpiritRankTitle: getSpiritRankTitle(this.spiritRank)
-    }
-    this.currentTitleId = kSpiritRankTitle
+    this.titles = {}
+    this.currentTitleId = null
+ 
+    // 名声，指有多少人知道此人的名字
+    this.fame = 0
 
-    var maxStats = 20
-    final strength = Math.randomInt(maxStats - 2) + 1
-    final chakra = Math.randomInt(maxStats - strength - 1) + 1
-    final vijnana = maxStats - strength - chakra
-    this.stats = {
-      strength,
-      chakra,
-      vijnana,
-    }
+    // // 恶名，知道名字中，对此人差评的人的数量
+    // this.infamy = 0
 
     this.skills = {
-      length: 8,
+      knowledgeLength: 20,
       knowledges: {},
-      equipments: {
-        arcanePowerId: null,
-        martialArtsId: null,
-        escapeSkillId: null,
-      },
+      equipLength: 6,
+      equipments: {},
     }
 
     this.items = {
@@ -127,9 +113,13 @@ struct Character {
       },
     }
 
-    this.attributes = {}
+    // 属性点数数值
+    this.attributes = generateRandomAttributes(Math.randomInt(10) + 10, 10)
 
     recalculateAttributesOfCharacter(this)
+
+    // 当前状态数值，通常由属性点数计算得来
+    this.stats = {}
 
     // 该角色对世界上的其他事物的关系
     this.bonds = {
@@ -153,43 +143,12 @@ struct Character {
       reason: Math.random() * 100.0 - 50.0,
       controlment: Math.random() * 100.0 - 50.0,
     }
- 
-    // 名声，指有多少人知道此人的名字
-    this.fame = 0
-
-    // // 恶名，知道名字中，对此人差评的人的数量
-    // this.infamy = 0
 
     this.heardOfIncidentIndexes = Set()
     this.experiencedIncidentIndexes = Set()
 
     game.characters[this.id] = this
   }
-}
-
-fun recalculateAttributesOfCharacter(character) {
-  character.attributes.strength = 
-    character.stats.strength +
-    character.skills?.arcanePower.levelAttributes.strengthAdd.sum +
-    character.skills?.arcanePower.explicitAttributes.strengthAdd.value +
-    character.skills?.martialArts.levelAttributes.strengthAdd.sum +
-    character.skills?.martialArts.explicitAttributes.strengthAdd.value
-  character.attributes.chakra = 
-    character.stats.chakra +
-    character.skills?.arcanePower.levelAttributes.chakraAdd.sum +
-    character.skills?.arcanePower.explicitAttributes.chakraAdd.value +
-    character.skills?.martialArts.levelAttributes.chakraAdd.sum +
-    character.skills?.martialArts.explicitAttributes.chakraAdd.value
-  character.attributes.vijnana = 
-    character.stats.vijnana +
-    character.skills?.arcanePower.levelAttributes.vijnanaAdd.sum +
-    character.skills?.arcanePower.explicitAttributes.vijnanaAdd.value +
-    character.skills?.martialArts.levelAttributes.vijnanaAdd.sum +
-    character.skills?.martialArts.explicitAttributes.vijnanaAdd.value
-
-  character.attributes.maxLife = 100 + character.attributes.strength ~/ 5 * 10
-  character.attributes.maxChi = 100 + character.attributes.chakra ~/ 5 * 10
-  character.attributes.maxSpirit = 100 + character.attributes.vijnana ~/ 5 * 10
 }
 
 fun getCharAgeString(character) {
@@ -218,6 +177,32 @@ fun _calculateLooksScore({looks: float, favor: float}) -> float {
   } else {
     return (-(looks - kCharacterMaxLooks) * (looks - kCharacterMaxLooks)) / 20 + kCharacterMaxLooks
   }
+}
+
+fun generateRandomAttributes(maxStats, minValue) {
+  assert(maxStats != null)
+  assert(minValue != null)
+
+  final strength = Math.randomInt(maxStats)
+  final intelligence = Math.randomInt(maxStats - strength)
+  final perception = Math.randomInt(maxStats - strength - intelligence)
+  final superPower = Math.randomInt(maxStats - strength - intelligence - perception)
+  final leadership = Math.randomInt(maxStats - strength - intelligence - perception - superPower)
+  final management = maxStats - strength - intelligence - perception - superPower - leadership
+
+  return {
+    strength: strength + minValue,
+    intelligence: intelligence + minValue,
+    perception: perception + minValue,
+    superPower: superPower + minValue,
+    leadership: leadership + minValue,
+    management: management + minValue,
+  }
+}
+
+fun recalculateAttributesOfCharacter(character) {
+  character.attributes.maxLife = 100 + character.attributes.strength ~/ 5 * 10
+  character.attributes.maxStamina = 100 + character.attributes.strength ~/ 10 * 5
 }
 
 // 第一印象分
@@ -322,9 +307,9 @@ fun characterSufferedIncident(character, incident) {
 
 }
 
-fun getSpiritRankTitle(spiritRank) {
-  return getLocaleString('spiritRank${spiritRank}') + getLocaleString('sorcerer')
-}
+// fun getSpiritRankTitle(spiritRank) {
+//   return getLocaleString('spiritRank${spiritRank}') + getLocaleString('sorcerer')
+// }
 
 fun getOrganizationLeaderTitle(organization) {
   return organization.name + getLocaleString('leader')

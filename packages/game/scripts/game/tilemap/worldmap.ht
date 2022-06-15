@@ -512,6 +512,10 @@ fun createWorldMap({
     // leader.skills.equipments.martialArtsId = martialArts.id
 
     // recalculateAttributesOfCharacter(leader)
+    
+    // 为每个角色生成初始物品
+    final kEquipmentCategory = ['weapon', 'armor', 'boot', 'talisman']
+    final kEquipmentCategoryWithoutBoot = ['weapon', 'armor', 'talisman']
 
     final org = Organization(
       category: _kOrganizationCategoryCultivation,

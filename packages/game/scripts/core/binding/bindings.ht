@@ -1,4 +1,4 @@
-final entities = [
+final bindings = [
   {
     id: 'baiheguanHoushanEvent01',
     onInteraction: (arg) {

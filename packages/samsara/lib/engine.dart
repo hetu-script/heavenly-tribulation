@@ -9,7 +9,7 @@ import 'binding/game_binding.dart';
 import 'scene/scene.dart';
 import '../event/event.dart';
 import '../event/events.dart';
-import '../shared/localization.dart';
+import 'localization.dart';
 import '../shared/color.dart';
 import 'scene/scene_controller.dart';
 

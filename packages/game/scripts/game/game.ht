@@ -28,7 +28,7 @@ var game = {
   timestamp: 288000,
   dialogs: {},
   mods: {},
-  entities: {},
+  bindings: {},
   
   nations: {},
   characters: {},

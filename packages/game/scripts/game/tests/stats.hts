@@ -1,12 +1,22 @@
-
 for (var i in range(10)) {
-  var maxStats = 20
-  final str = Math.randomInt(maxStats - 2) + 1
-  final chi = Math.randomInt(maxStats - str - 1) + 1
-  final spi = maxStats - str - chi
-  final life = 100 + str ~/ 5 * 10
-  final chakra = 10 + chi ~/ 5 * 10
-  final mana = 10 + spi ~/ 5 * 10
-  print('str:', str, 'chi', chi, 'spi', spi)
-  print('life:', life, 'chakra', chakra, 'mana', mana)
+  final maxStats = Math.randomInt(10) + 10
+  final minValue = 10
+
+  final strength = Math.randomInt(maxStats)
+  final intelligence = Math.randomInt(maxStats - strength)
+  final perception = Math.randomInt(maxStats - strength - intelligence)
+  final superPower = Math.randomInt(maxStats - strength - intelligence - perception)
+  final leadership = Math.randomInt(maxStats - strength - intelligence - perception - superPower)
+  final management = maxStats - strength - intelligence - perception - superPower - leadership
+
+  final stats = {
+    strength: strength + minValue,
+    intelligence: intelligence + minValue,
+    perception: perception + minValue,
+    superPower: superPower + minValue,
+    leadership: leadership + minValue,
+    management: management + minValue,
+  }
+  print(maxStats)
+  print(stats)
 }

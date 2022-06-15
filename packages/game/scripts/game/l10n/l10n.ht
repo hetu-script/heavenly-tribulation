@@ -1,5 +1,5 @@
-import 'zh.ht'
-import 'en.ht'
+import 'zh/zh.ht'
+import 'en/en.ht'
 
 final predefinedLocalizations = [
   zh,

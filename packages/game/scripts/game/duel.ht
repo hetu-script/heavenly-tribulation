@@ -1,4 +1,5 @@
 import 'game.ht'
+import 'l10n.ht'
 
 /// 战斗模块
 /// 输入战斗相关角色的对象
@@ -10,20 +11,26 @@ import 'game.ht'
 ///   name: '玲',
 ///   health: 100,
 ///   life: 100,
-///   _attack: 35,
 ///   defense: 5,
-///   speed: 15, 
-///   skillName: '绝尘剑',
-///   offGuard: false,
+///   weapon: {
+///     name: '钢剑',
+///     attack: 25,
+///     speed: 15,
+///   },
+///   skill: {
+///     name: '绝尘剑气',
+///     attack: 100,
+///     speed: 25,
+///   },
+///   ultSpeed: 25,
+///   initiative: 10,
 /// }
 
 external fun _showDuel(context, data: Map)
 
-fun showDuel(battleLog) -> Future {
+fun showDuel(log) -> Future {
   return _showDuel(buildContext, data)
 }
-
-var battleLog = []
 
 fun _isReady(timeframe: int, speed) {
   return timeframe % speed == 0
@@ -31,85 +38,80 @@ fun _isReady(timeframe: int, speed) {
 
 // damage = ((1 / (Math.log((victim.defense + 5) / 100) + 5)) * 2 * attacker._attack)
 
-fun _attack(attacker, victim, [skill = false]) {
+fun _attack(attacker, victim, data) {
   var damage
-  if (!skill) {
-    damage = attacker.weapon.attack - victim.defense * Math.random()
-    battleLog.add('「${attacker.name}」使用「${attacker.weapon.name}」攻击「${victim.name}」，造成了 ${damage.truncate()} 点伤害。')
-  } else {
-    damage = attacker.skill.attack - victim.defense * Math.random()
-    battleLog.add('「${attacker.name}」发动了「${attacker.skill.name}」，对「${victim.name}」造成了 ${damage.truncate()} 点伤害。')
-  }
-  victim.health -= damage
-  if (victim.health < 0) {
-    victim.health = 0
+  damage = data.stats.attack - victim.defense * Math.random()
+  log.add(
+    getLocaleString('attackInfo', [
+      attacker.name,
+      data.name,
+      victim.name,
+      damage.truncate(),
+    ]))
+  victim.stats.health -= damage
+  if (victim.stats.health < 0) {
+    victim.stats.health = 0
   }
 }
 
-// fun createBattle(hero, enemy) -> str {
+struct Duel {
+  construct(enemyId, { heroIsFirst }) {
+    this.log = []
 
-fun createBattle(enemyId, { heroIsFirst }) {
-  battleLog.clear()
+    var timeframe = 0
 
-  var timeframe = 0
+    final hero = game.characters[game.heroId]
+    final enemy = game.characters[enemyId]
 
-  final hero = game.characters[game.heroId]
-  final enemy = game.characters[enemyId]
-
-  if (heroIsFirst == null) {
-    final initiativeSum = hero.initiative + enemy.initiative
-    final initiativeValue = initiativeSum * Math.random()
-    if (hero.initiative > initiativeValue) {
-      battleLog.add('「${hero.name}」趁对手不备，抢先攻击！')
+    if (heroIsFirst == null) {
+      final initiativeSum = hero.attributes.perception + enemy.attributes.perception
+      final initiativeValue = initiativeSum * Math.random()
+      if (hero.attributes.perception > initiativeValue) {
+        log.add(getLocaleString('sneakAttack', [hero.name]))
+        _attack(hero, enemy)
+      } else {
+        log.add(getLocaleString('sneakAttack', [enemy.name]))
+        _attack(enemy, hero)
+      }
+    } else if (heroIsFirst) {
+      log.add(getLocaleString('initiativeAttack', [hero.name]))
       _attack(hero, enemy)
     } else {
-      battleLog.add('「${enemy.name}」趁对手不备，抢先攻击！')
+      log.add(getLocaleString('initiativeAttack', [enemy.name]))
       _attack(enemy, hero)
     }
-  } else if (heroIsFirst) {
-    battleLog.add('「${hero.name}」先手进攻！')
-    _attack(hero, enemy)
-  } else {
-    battleLog.add('「${enemy.name}」先手进攻！')
-    _attack(enemy, hero)
-  }
-  
 
-  var result = false
+    this.hasWon = false
 
-  while (true) {
-    ++timeframe
-    if (timeframe >=1000) {
-      battleLog.add('「${enemy.name}」获胜!')
-      break
+    while (true) {
+      ++timeframe
+      if (timeframe >=1000) {
+        log.add(getLocaleString('duelVictory', [enemy.name]))
+        break
+      }
+
+      if (enemy.stats.health <= 0) {
+        log.add(getLocaleString('duelVictory', [hero.name]))
+        this.hasWon = true
+        break
+      }
+      
+      if (hero.stats.health <= 0) {
+        log.add(getLocaleString('duelVictory', [enemy.name]))
+        break
+      }
+
+      if (_isReady(timeframe, hero.skill.speed)) {
+        _attack(hero, enemy, true)
+      } else if (_isReady(timeframe, hero.weapon.speed)) {
+        _attack(hero, enemy)
+      }
+
+      if (_isReady(timeframe, enemy.skill.speed)) {
+        _attack(enemy, hero, true)
+      } else if (_isReady(timeframe, hero.weapon.speed)) {
+        _attack(enemy, hero)
+      }
     }
-
-    if (enemy.health <= 0) {
-      battleLog.add('「${hero.name}」获胜!')
-      result = true
-      break
-    }
-    
-    if (hero.health <= 0) {
-      battleLog.add('「${enemy.name}」获胜!')
-      break
-    }
-
-    if (_isReady(timeframe, hero.skill.speed)) {
-      _attack(hero, enemy, true)
-    } else if (_isReady(timeframe, hero.weapon.speed)) {
-      _attack(hero, enemy)
-    }
-
-    if (_isReady(timeframe, enemy.skill.speed)) {
-      _attack(enemy, hero, true)
-    } else if (_isReady(timeframe, hero.weapon.speed)) {
-      _attack(enemy, hero)
-    }
-  }
-
-  return {
-    log: battleLog,
-    result: result
   }
 }

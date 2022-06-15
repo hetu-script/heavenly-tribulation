@@ -1,4 +1,4 @@
-import '../constants.ht'
+import '../../entity/constants.ht'
 import 'shared/common.json' as commonNames
 import 'shared/strange.json' as strangeNames
 import 'shared/color.json' as colorPrefix
@@ -284,77 +284,51 @@ fun getAlchemy(number: int, {kind: str}) {
   return names
 }
 
-fun getTalisman(number: int, {kind, rarity}) {
+fun getTalisman(number: int, {category, kind, rarity}) {
   final names = []
   for (var i in range(number)) {
     var name = ''
     final prefix = common.random
-    final c = colorPrefix.random
-    final m =
-      talismanMaterial.random
+    final cp = colorPrefix.random
+    final m = talismanMaterial.random
     final s = spiritPrefix.random
-    final k = kind
     final r = rarity ?? getRarity(kRarity.uncommon.probability).rarity
+    final c = category
+    final k = kind
+    if (!k) {
+      if (c) {
+        assert(talisman.keys.contains(c))
+        k = talisman[c].random
+      } else {
+        c = talisman.keys.random
+        print(c)
+        k = talisman[c].random
+      }
+    }
     if (r == 'exotic') {
-      k ??= [
-        ...talisman.exotic,
-        ...talisman.mythic,
-        ...talisman.legendary,
-        ...talisman.epic,
-        ...talisman.rare,
-        ...talisman.uncommon,
-        ...talisman.common,
-      ].random
       name = prefix + s + k
     } else if (r == 'mythic') {
-      k ??= [
-        ...talisman.mythic,
-        ...talisman.legendary,
-        ...talisman.epic,
-        ...talisman.rare,
-        ...talisman.uncommon,
-        ...talisman.common,
-      ].random
       name = prefix + s + k
     } else if (r == 'legendary') {
-      k ??= [
-        ...talisman.legendary,
-        ...talisman.epic,
-        ...talisman.rare,
-        ...talisman.uncommon,
-        ...talisman.common,
-      ].random
-      name = prefix + c + m + k
+      name = prefix + cp + m + k
     } else if (r == 'epic') {
-      k ??= [
-        ...talisman.epic,
-        ...talisman.rare,
-        ...talisman.uncommon,
-        ...talisman.common,
-      ].random
       name = prefix + m + k
     } else if (r == 'rare') {
-      k ??= [...talisman.rare, ...talisman.uncommon, ...talisman.common].random
       name = prefix + k
     } else if (r == 'uncommon') {
-      k ??= [...talisman.uncommon, ...talisman.common].random
-      name = c + m + k
+      name = cp + m + k
     } else if (r == 'common') {
-      k ??= talisman.common.random
       name = m + k
     }
-    var post = ''
     final r1 = Math.random()
     final r2 = Math.random()
-    if (r1 < kRarity.rare.probability && r2 < kRarity.rare.probability) {
-      post =
-        _kParenthesisLeft +
-        talismanPostfix.broken.random +
-        _kParenthesisRight
-    } else if (r1 < kRarity.uncommon.probability && r2 < kRarity.uncommon.probability) {
-      post = _kParenthesisLeft + talismanPostfix.handmade.random + _kParenthesisRight
-    }
-    names.add({ name: name + post, rarity: r })
+    // var condition
+    // if (r1 < kRarity.rare.probability && r2 < kRarity.rare.probability) {
+    //   condition = talismanPostfix.broken.random
+    // } else if (r1 < kRarity.uncommon.probability && r2 < kRarity.uncommon.probability) {
+    //   condition = talismanPostfix.handmade.random
+    // }
+    names.add({ name, category: c, rarity: r })
   }
   return names
 }

@@ -1,7 +1,7 @@
-import 'game.ht'
+import '../game.ht'
 import 'character.ht'
 import 'dialog.ht'
-import 'generator/name/name.ht' as nameGenerator
+import '../generator/name/name.ht' as nameGenerator
 
 const kSiteResidence = 'residence'
 const kSiteHeadquarters = 'headquarters'

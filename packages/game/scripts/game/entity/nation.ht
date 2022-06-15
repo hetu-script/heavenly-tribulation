@@ -1,6 +1,6 @@
-import 'game.ht'
-import 'map.ht'
-import 'generator/name/name.ht' as nameGenerator
+import '../game.ht'
+import '../map.ht'
+import '../generator/name/name.ht' as nameGenerator
 
 const _kNation = '国'
 

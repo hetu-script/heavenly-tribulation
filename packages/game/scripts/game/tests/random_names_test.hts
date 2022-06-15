@@ -1,4 +1,4 @@
 import '../generator/name/name.ht'
 
 
-print(getSkill(10))
+print(getTalisman(10))

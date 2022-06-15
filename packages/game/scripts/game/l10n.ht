@@ -1,5 +1,4 @@
 import 'game.ht'
-import 'util.ht'
 
 fun addLocales(localeList: List) {
   engine.info('载入本地化字符串')
@@ -20,14 +19,23 @@ fun setLocale(id: str) {
 
 const kMissingText = 'missing_text_'
 
-fun getLocaleString(key: str, [interpolations: List = []]) {
-  var string = locales[locales.currentLocaleId][key]
-  if (string) {
-    if (string is List) {
-      string = string.random
-    }
-    return interpolate(string, interpolations)
-  } else {
-    return kMissingText + stringify(key)
+fun interpolate(text: str, [interpolations: List = []]) {
+  for (var i = 0; i < interpolations.length; ++i) {
+    text = string.replaceAll('{${i}}', stringify(interpolations[i]));
   }
+  return text
+}
+
+fun getLocaleString(key: str, [interpolations: List = []]) {
+  var text = locales[locales.currentLocaleId][key]
+  if (text) {
+    if (text is List) {
+      text = text.random
+    }
+    for (var i = 0; i < interpolations.length; ++i) {
+      text = text.replaceAll('{${i}}', stringify(interpolations[i]));
+    }
+    return text
+  }
+  return kMissingText + stringify(key)
 }

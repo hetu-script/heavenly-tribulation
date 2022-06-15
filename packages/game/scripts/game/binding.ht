@@ -1,0 +1,16 @@
+import 'game.ht'
+
+fun getBindingById(id: str) {
+  return game.bindings[id]
+}
+
+fun loadBinding(bd) {
+  game.bindings[bd.id] = bd
+}
+
+fun loadBindings(bds: List) {
+  engine.info('载入脚本对象')
+  for (final bd in bds) {
+    game.bindings[bd.id] = bd
+  }
+}

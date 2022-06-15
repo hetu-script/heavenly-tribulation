@@ -1,4 +1,4 @@
-import 'game.ht'
+import '../game.ht'
 import 'character.ht'
 
 /// 历史事件记录

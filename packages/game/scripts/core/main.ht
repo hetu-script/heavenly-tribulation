@@ -1,14 +1,14 @@
 import 'module:game' as game
+import 'meta.json' as meta
 
 export 'l10n/localizations.ht'
 export 'data/dialogs.ht'
 export 'data/locations.ht'
 export 'data/mazes.ht'
-export 'entity/entities.ht'
+export 'binding/bindings.ht'
 
-final meta = {
-  id: 'tdqj_core',
-  type: 'module',
+final modinfo = {
+  ...meta,
   onNewGameStarted: (arg) {
     game.engine.info('触发新游戏事件 [${this.name}]')
   },
@@ -19,8 +19,8 @@ final meta = {
 
 fun load {
   game.engine.info('载入 [${meta.id}]')
-  game.loadEntity(meta)
-  game.loadEntities(entities)
+  game.loadBinding(modinfo)
+  game.loadBindings(bindings)
   game.engine.info('[${meta.id}] 载入完毕')
 }
 

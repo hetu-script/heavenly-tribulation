@@ -1,0 +1,26 @@
+import 'general.json' as general
+import 'world_map.json' as worldMap
+import 'information_panel.json' as informationPanel
+import 'terrain.json' as terrain
+import 'location.json' as location
+import 'character.json' as character
+import 'history.json' as history
+import 'interaction.json' as interaction
+import 'dialog.json' as dialog
+import 'duel.json' as duel
+import 'attributes.json' as attributes
+import 'editor.json' as editor
+
+final zh = {
+  ...general,
+  ...worldMap,
+  ...informationPanel,
+  ...location,
+  ...character,
+  ...history,
+  ...interaction,
+  ...dialog,
+  ...duel,
+  ...attributes,
+  ...editor,
+}

@@ -1,4 +1,4 @@
-import 'game.ht'
+import '../game.ht'
 import 'character.ht'
 
 fun addDialog(dlg) {

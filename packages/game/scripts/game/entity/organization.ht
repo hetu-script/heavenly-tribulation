@@ -1,6 +1,6 @@
-import 'game.ht'
+import '../game.ht'
 import { Site, kSiteHeadquarters } from 'location.ht'
-import 'generator/name/name.ht' as nameGenerator
+import '../generator/name/name.ht' as nameGenerator
 
 struct Organization {
   construct ({
