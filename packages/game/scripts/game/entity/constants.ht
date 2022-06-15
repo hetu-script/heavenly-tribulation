@@ -176,3 +176,6 @@ final kResources = [
     image: 'item/kosher.png',
   }
 ]
+
+final kEquipmentCategory = ['weapon', 'armor', 'boot', 'talisman']
+final kEquipmentCategoryWithoutBoot = ['weapon', 'armor', 'talisman']

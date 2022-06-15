@@ -181,80 +181,55 @@ const _kAge1 = '百年'
 const _kAge10 = '千年'
 const _kAge100 = '万年'
 
-fun getMaterial(number: int, {kind, rarity, postfix}) {
+fun getMaterial(number: int, {category, kind, rarity}) {
   final names = []
   for (var i in range(number)) {
     var name = ''
-    var age = ''
     final pre = common.random
-    final c = colorPrefix.random
+    final cp = colorPrefix.random
     final s = spiritPrefix.random
+    var c = category
     var k = kind
-    var post = postfix ?? ''
-    final r = rarity ?? getRarity(kRarity.uncommon.probability).rarity
-    if (r == 'exotic') {
-      k ??= [
-        ...material.exotic,
-        ...material.mythic,
-        ...material.legendary,
-        ...material.epic,
-        ...material.rare,
-        ...material.uncommon,
-        ...material.common,
-      ].random
-      age = _kAge100
-      name = age + pre + c + s + k
-    } else if (r == 'mythic') {
-      k ??= [
-        ...material.mythic,
-        ...material.legendary,
-        ...material.epic,
-        ...material.rare,
-        ...material.uncommon,
-        ...material.common,
-      ].random
-      age = _kAge10
-      name = age + pre + c + s + k
-    } else if (r == 'legendary') {
-      k ??= [
-        ...material.legendary,
-        ...material.epic,
-        ...material.rare,
-        ...material.uncommon,
-        ...material.common,
-      ].random
-      age = _kAge1
-      name = age + pre + c + s + k
-    } else if (r == 'epic') {
-      k ??= [
-        ...material.epic,
-        ...material.rare,
-        ...material.uncommon,
-        ...material.common,
-      ].random
-      name = pre + c + s + k
-    } else if (r == 'rare') {
-      k ??= [...material.rare, ...material.uncommon, ...material.common].random
-      name = pre + s + k
-    } else if (r == 'uncommon') {
-      k ??= [...material.uncommon, ...material.common].random
-      name = c + s + k
-    } else if (r == 'common') {
-      k ??= material.common.random
-      name = c + k
-    }
-    if (!postfix) {
-      final r1 = Math.random()
-      final r2 = Math.random()
-      if (r1 < kRarity.rare.probability && r2 < kRarity.rare.probability) {
-        post = _kParenthesisLeft + materialPostfix.broken.random + _kParenthesisRight
-      } else if (r1 < kRarity.uncommon.probability && r2 < kRarity.uncommon.probability) {
-        post = _kParenthesisLeft + materialPostfix.handmade.random + _kParenthesisRight
+    if (!k) {
+      if (c) {
+        assert(material.keys.contains(c))
+        k = material[c].random
+      } else {
+        c = material.keys.random
+        k = material[c].random
       }
-    } else {
-      post = _kParenthesisLeft + post + _kParenthesisRight
     }
-    names.add({ name: name + post, rarity: r })
+    final r = rarity ?? getRarity().rarity
+    if (r == 'exotic') {
+      // age = _kAge100
+      name = pre + cp + s + k
+    } else if (r == 'mythic') {
+      // age = _kAge10
+      name = pre + cp + s + k
+    } else if (r == 'legendary') {
+      // age = _kAge1
+      name = pre + s + k
+    } else if (r == 'epic') {
+      name = pre + s + k
+    } else if (r == 'rare') {
+      name = cp + s + k
+    } else if (r == 'uncommon') {
+      name = cp + s + k
+    } else if (r == 'common') {
+      name = cp + k
+    }
+    // if (!postfix) {
+    //   final r1 = Math.random()
+    //   final r2 = Math.random()
+    //   if (r1 < kRarity.rare.probability && r2 < kRarity.rare.probability) {
+    //     post = _kParenthesisLeft + materialPostfix.broken.random + _kParenthesisRight
+    //   } else if (r1 < kRarity.uncommon.probability && r2 < kRarity.uncommon.probability) {
+    //     post = _kParenthesisLeft + materialPostfix.handmade.random + _kParenthesisRight
+    //   }
+    // } else {
+    //   post = _kParenthesisLeft + post + _kParenthesisRight
+    // }
+    names.add({ name, category: c, rarity: r })
   }
   return names
 }
@@ -292,7 +267,6 @@ fun getTalisman(number: int, {category, kind, rarity}) {
     final cp = colorPrefix.random
     final m = talismanMaterial.random
     final s = spiritPrefix.random
-    final r = rarity ?? getRarity(kRarity.uncommon.probability).rarity
     final c = category
     final k = kind
     if (!k) {
@@ -301,10 +275,10 @@ fun getTalisman(number: int, {category, kind, rarity}) {
         k = talisman[c].random
       } else {
         c = talisman.keys.random
-        print(c)
         k = talisman[c].random
       }
     }
+    final r = rarity ?? getRarity(kRarity.uncommon.probability).rarity
     if (r == 'exotic') {
       name = prefix + s + k
     } else if (r == 'mythic') {

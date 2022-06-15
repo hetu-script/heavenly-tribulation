@@ -1,17 +1,15 @@
-import '../name/name.ht' as nameGenerator
-import '../../game.ht'
-import '../../location.ht'
-import '../../character.ht'
-import '../../nation.ht'
-import '../../incident.ht'
-import '../../l10n.ht'
+import '../generator/name/name.ht' as nameGenerator
+import '../game.ht'
+import '../entity/location.ht'
+import '../entity/character.ht'
+import '../entity/nation.ht'
+import '../entity/incident.ht'
+import '../l10n.ht'
 import 'hexagonal_tile.ht'
 import 'component.ht'
-import '../../map.ht'
-import '../util.ht'
-import '../arcane.ht'
-import '../martial.ht'
-import '../attributes.ht'
+import '../map.ht'
+import '../entity/item.ht'
+import '../entity/constants.ht'
 
 /// 生成世界地图的算法
 ///
@@ -513,9 +511,10 @@ fun createWorldMap({
 
     // recalculateAttributesOfCharacter(leader)
     
-    // 为每个角色生成初始物品
-    final kEquipmentCategory = ['weapon', 'armor', 'boot', 'talisman']
-    final kEquipmentCategoryWithoutBoot = ['weapon', 'armor', 'talisman']
+    // 为每个创派掌门生成初始物品
+    final item = Item.weapon()
+    leader.items.inventory.add(item)
+    leader.items.equipments[0] = item
 
     final org = Organization(
       category: _kOrganizationCategoryCultivation,

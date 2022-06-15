@@ -1,0 +1,6 @@
+import '../entity/item.ht'
+
+for (final i in range(10)) {
+  final i = Item.weapon()
+  print(i)
+}

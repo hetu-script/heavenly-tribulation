@@ -97,20 +97,13 @@ struct Character {
     // this.infamy = 0
 
     this.skills = {
-      knowledgeLength: 20,
-      knowledges: {},
-      equipLength: 6,
+      inventory: [],
       equipments: {},
     }
 
     this.items = {
-      inventory: {},
-      equipments: {
-        weapon: null,
-        armor: null,
-        amulet: null,
-        vehicle: null,
-      },
+      inventory: [],
+      equipments: {},
     }
 
     // 属性点数数值
@@ -118,7 +111,7 @@ struct Character {
 
     recalculateAttributesOfCharacter(this)
 
-    // 当前状态数值，通常由属性点数计算得来
+    // 当前状态数值，由种族、天赋、属性点数、增益减损、物品、技能等计算得来
     this.stats = {}
 
     // 该角色对世界上的其他事物的关系
@@ -197,6 +190,18 @@ fun generateRandomAttributes(maxStats, minValue) {
     superPower: superPower + minValue,
     leadership: leadership + minValue,
     management: management + minValue,
+
+    resists: {
+      slashing: 0,
+      bludgeoning: 0,
+      piercing: 0,
+      cold: 0,
+      fire: 0,
+      lightning: 0,
+      chi: 0,
+      spell: 0,
+      power: 0,
+    }
   }
 }
 
