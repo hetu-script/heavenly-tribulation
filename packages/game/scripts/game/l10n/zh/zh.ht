@@ -8,7 +8,6 @@ import 'history.json' as history
 import 'interaction.json' as interaction
 import 'dialog.json' as dialog
 import 'duel.json' as duel
-import 'attributes.json' as attributes
 import 'editor.json' as editor
 
 final zh = {
@@ -21,6 +20,5 @@ final zh = {
   ...interaction,
   ...dialog,
   ...duel,
-  ...attributes,
   ...editor,
 }
