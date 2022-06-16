@@ -1,0 +1,11 @@
+const kItemDefaultIcon = 'assets/images/unknown_item.png'
+
+final kRarity2ItemLevels = {
+  common: 10, // common 白
+  uncommon: 20, // uncommon 灰
+  rare: 30, // rare 蓝
+  epic: 40, // epic 紫
+  legendary: 50, // legendary 橙
+  mythic: 60, // mythic 金
+  exotic: 70, // exotic 虹
+}

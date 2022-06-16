@@ -24,19 +24,6 @@ import 'creature/strange.json' as strangeCreature
 import 'alchemy/alchemy.json' as alchemy
 
 export {
-  kSex,
-  kRarity,
-  kCreatureCategory,
-  kOrganizationCategory,
-  kLocationCategory,
-  kZoneCategory,
-} from 'constants.ht'
-
-export {
-  zone,
-}
-
-export {
   getCharacter,
   getSkill,
   getBook,
@@ -66,18 +53,13 @@ final common = [
   ...commonNames.target,
 ];
 
-final locations = [
-  ...location.shore,
-  ...location.mountain,
-  ...location.island,
-  ...location.city,
-]
+final kCreatureCategory = creature.keys
 
-final kLocationCategories = kLocationCategory.keys
+final kLocationCategories = location.keys
 
-final kOrganizationCategories = kOrganizationCategory.keys
+final kOrganizationCategories = organization.keys
 
-final kZoneCategories = kZoneCategory.keys
+final kZoneCategories = zone.keys
 
 const _kLinkWord = '之'
 
@@ -152,27 +134,27 @@ fun getCreature(number: int, {category, rarity}) {
   for (var i in range(number)) {
     var name = ''
     final pre = commonCreatureNames.random
-    final c = colorPrefix.random
+    final cp = colorPrefix.random
     final s = creaturePrefix.random
-    final cat = category ?? kCreatureCategory.keys.random
-    final k = creature[cat].random
-    final r = rarity ?? getRarity(kRarity.uncommon.probability).rarity
+    final c = category ?? kCreatureCategory.random
+    final k = creature[c].random
+    final r = rarity ?? getRarity().rarity
     if (r == 'exotic') {
       name = strangeCreature.random
     } else if (r == 'mythic') {
-      name = pre + c + s + k
+      name = pre + cp + s + k
     } else if (r == 'legendary') {
       name = pre + s + k
     } else if (r == 'epic') {
-      name = pre + c + k
+      name = pre + cp + k
     } else if (r == 'rare') {
       name = pre + k
     } else if (r == 'uncommon') {
-      name = c + s + k
+      name = cp + s + k
     } else if (r == 'common') {
-      name = c + k
+      name = cp + k
     }
-    names.add({ name, rarity: r, category: cat })
+    names.add({ name, rarity: r, category: c })
   }
   return names
 }
@@ -294,8 +276,8 @@ fun getTalisman(number: int, {category, kind, rarity}) {
     } else if (r == 'common') {
       name = m + k
     }
-    final r1 = Math.random()
-    final r2 = Math.random()
+    // final r1 = Math.random()
+    // final r2 = Math.random()
     // var condition
     // if (r1 < kRarity.rare.probability && r2 < kRarity.rare.probability) {
     //   condition = talismanPostfix.broken.random

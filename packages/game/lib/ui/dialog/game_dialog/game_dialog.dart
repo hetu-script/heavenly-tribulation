@@ -5,6 +5,7 @@ import 'package:flutter/scheduler.dart';
 
 import 'game_dialog_data.dart';
 import '../../shared/avatar.dart';
+import '../../../global.dart';
 
 class GameDialog extends StatefulWidget {
   static Future<void> show(
@@ -81,8 +82,8 @@ class _GameDialogState extends State<GameDialog> {
               child: Container(
                 height: 240,
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(10.0),
+                  color: kBackgroundColor,
+                  borderRadius: kBorderRadius,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),

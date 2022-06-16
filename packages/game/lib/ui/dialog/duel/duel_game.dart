@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../../global.dart';
+
 class DuelGame extends StatefulWidget {
   final List<dynamic> log;
 
@@ -106,7 +108,7 @@ class _DuelGameState extends State<DuelGame> {
             //       'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
             //   fit: BoxFit.fill,
             // ),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: kBorderRadius,
           ),
           child: Column(children: widgets),
         ),

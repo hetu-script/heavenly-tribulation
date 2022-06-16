@@ -46,7 +46,7 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
       height: 400,
       decoration: BoxDecoration(
         color: Theme.of(context).primaryColor,
-        borderRadius: BorderRadius.circular(5.0),
+        borderRadius: kBorderRadius,
         border: Border.all(
           width: 2,
           color: Colors.lightBlue,
@@ -63,9 +63,12 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
                     (info) => Card(
                       color: Theme.of(context).primaryColor,
                       shape: RoundedRectangleBorder(
-                          side: const BorderSide(
-                              color: Colors.lightBlue, width: 2),
-                          borderRadius: BorderRadius.circular(8.0)),
+                        side: const BorderSide(
+                          color: Colors.lightBlue,
+                          width: 2,
+                        ),
+                        borderRadius: kBorderRadius,
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(10),
                         child: Row(

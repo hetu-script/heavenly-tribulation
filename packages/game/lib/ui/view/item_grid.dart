@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
+import '../../global.dart';
+
 const kItemGridDefaultSize = 64.0;
 
 class ItemGrid extends StatelessWidget {
@@ -43,7 +45,7 @@ class ItemGrid extends StatelessWidget {
                       image: AssetImage('assets/images/$iconAssetKey'),
                     )
                   : null,
-              borderRadius: BorderRadius.circular(5),
+              borderRadius: kBorderRadius,
             ),
           ),
         ),

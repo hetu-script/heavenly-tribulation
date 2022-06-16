@@ -1,5 +1,5 @@
 import 'game.ht'
-import 'generator/tilemap/hexagonal_tile.ht'
+import 'tilemap/hexagonal_tile.ht'
 
 fun loadWorldMap(jsonData) {
   engine.info('载入世界地图数据')

@@ -49,7 +49,7 @@ class _MazeOverlayState extends State<MazeOverlay> {
                 height: 120,
                 width: 180,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5.0),
+                  borderRadius: kBorderRadius,
                   border: Border.all(
                     width: 2,
                     color: Colors.lightBlue,
@@ -70,7 +70,7 @@ class _MazeOverlayState extends State<MazeOverlay> {
             top: 5,
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(5.0),
+                borderRadius: kBorderRadius,
                 border: Border.all(
                   width: 2,
                   color: Colors.lightBlue,

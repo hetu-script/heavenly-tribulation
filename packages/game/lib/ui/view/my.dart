@@ -85,7 +85,7 @@ class _MyViewState extends State<MyView> {
                         ),
                         Card(
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
+                            borderRadius: kBorderRadius,
                           ),
                           child: SizedBox(
                             width: 400.0,

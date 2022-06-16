@@ -1,8 +1,3 @@
-final kSex = {
-  female: { text: '女', },
-  male: { text: '男', },
-}
-
 final kRarity = {
   common: {
     // common 灰
@@ -69,56 +64,6 @@ fun getRarity([max = 1.0]) {
   return { rarity, value }
 }
 
-final kCreatureCategory = {
-  plant: '草木',
-  worm: '赢虫',
-  fish: '鱼',
-  beast: '兽',
-  bird: '鸟',
-  reptile: '爬虫',
-  insect: '甲虫',
-};
-
-final kOrganizationCategory = {
-  caltivation: '道宗',
-  business: '商号',
-  academy: '学院',
-  craftsmanship: '政党',
-  cook: '军队',
-}
-
-final kLocationCategory = {
-  mountain: '山野',
-  city: '城市',
-}
-
-final kZoneCategory = {
-  empty: '虚空',
-  water: '水域',
-  continent: '大洲',
-  island: '岛屿',
-  lake: '湖泊',
-
-  plain: '平原',
-  mountain: '山脉',
-  forest: '树林',
-}
-
-final kRarityLevels = {
-  common: 0.4, // common 白
-  rare: 0.16, // rare 蓝
-  epic: 0.064, // epic 紫
-  legendary: 0.025, // legendary 橙
-  mythic: 0.01, // mythic 金
-  exotic: 0.004, // exotic 虹
-}
-
-type ValuesMeter = {
-  order: int,
-  ideal: int,
-  good: int,
-}
-
 final kResources = [
   {
     id: 'gold',
@@ -179,3 +124,15 @@ final kResources = [
 
 final kEquipmentCategory = ['weapon', 'armor', 'boot', 'talisman']
 final kEquipmentCategoryWithoutBoot = ['weapon', 'armor', 'talisman']
+
+final kDamageTypes = [
+  'slashing',
+  'bludgeoning',
+  'piercing',
+  'cold',
+  'fire',
+  'lightning',
+  'chi',
+  'spell',
+  'power',
+]

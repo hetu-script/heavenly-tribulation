@@ -1,0 +1,78 @@
+import '../../generator/name/name.ht' as nameGenerator
+import '../constants.ht'
+import 'common.ht'
+
+const kDefaultWeaponIcon = 'assets/images/item/weapon.png'
+
+const kWeaponSpeedBase = 50
+const kWeaponSpeedVariable = 40
+const kWeaponDamageBaseMean = 30
+const kWeaponDamageBaseStandardDeviation = 10
+
+fun _randomDamage {
+  var damage
+  do {
+    damage = Math.gaussianNoise(20,10)
+  } while (damage < 15)
+  return damage
+}
+
+final kWeaponTypes = [
+  'slashing',
+  'bludgeoning',
+  'piercing',
+]
+
+struct Weapon {
+  construct ({
+    name,
+    rarity,
+    value,
+    icon,
+    creatorId,
+    createdTime,
+    description,
+    inscription,
+    weaponType,
+    attributes,
+  }) {
+    this.name = name
+    this.category = 'weapon'
+    this.rarity = rarity
+    this.value = value ?? 0
+    this.icon = icon ?? kDefaultWeaponIcon
+    this.consumable = false
+    this.equippable = true
+    this.creatorId = creatorId
+    this.createdTime = createdTime
+    this.description = description
+    this.inscription = inscription
+    this.weaponType = weaponType ?? kWeaponTypes.random
+    this.attributes = attributes
+    
+    if (!this.name) {
+      final r = nameGenerator.getTalisman(1, category: this.weaponType, rarity: this.rarity).first
+      this.name = r.name
+      this.rarity ??= r.rarity
+    }
+    this.id = 'item_${Hash.uid4(2)}_${this.name}'
+    
+    if (!this.attributes) {
+      this.attributes = {
+        speed: kWeaponSpeedBase - Math.randomInt(kWeaponSpeedVariable),
+        damage: _randomDamage(),
+        levels: [],
+        effects: [],
+        abilities: [],
+      }
+    }
+    this.stats = {
+      speed: this.attributes.speed,
+      damage: this.attributes.damage,
+    }
+  }
+}
+
+fun recalculateAttributesOfWeapon(weapon) {
+  
+}

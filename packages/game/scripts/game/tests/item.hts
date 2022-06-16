@@ -1,6 +1,6 @@
-import '../entity/item.ht'
+import '../entity/item/weapon.ht'
 
-for (final i in range(10)) {
-  final i = Item.weapon()
+for (final i in range(3)) {
+  final i = Weapon()
   print(i)
 }

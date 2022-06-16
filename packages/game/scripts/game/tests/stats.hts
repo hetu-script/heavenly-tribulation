@@ -5,15 +5,15 @@ for (var i in range(10)) {
   final strength = Math.randomInt(maxStats)
   final intelligence = Math.randomInt(maxStats - strength)
   final perception = Math.randomInt(maxStats - strength - intelligence)
-  final superPower = Math.randomInt(maxStats - strength - intelligence - perception)
-  final leadership = Math.randomInt(maxStats - strength - intelligence - perception - superPower)
-  final management = maxStats - strength - intelligence - perception - superPower - leadership
+  final superpower = Math.randomInt(maxStats - strength - intelligence - perception)
+  final leadership = Math.randomInt(maxStats - strength - intelligence - perception - superpower)
+  final management = maxStats - strength - intelligence - perception - superpower - leadership
 
   final stats = {
     strength: strength + minValue,
     intelligence: intelligence + minValue,
     perception: perception + minValue,
-    superPower: superPower + minValue,
+    superpower: superpower + minValue,
     leadership: leadership + minValue,
     management: management + minValue,
   }

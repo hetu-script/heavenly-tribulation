@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
+import 'package:heavenly_tribulation/ui/view/character/character.dart';
 import 'package:path_provider/path_provider.dart' as path;
 import 'package:path/path.dart' as path;
 import 'package:samsara/samsara.dart';
@@ -40,6 +41,13 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
   TileMap get map => widget.scene.map!;
 
   Vector2? menuPosition;
+
+  void showCharacter(String characterId) => showDialog(
+      context: context,
+      barrierColor: Colors.transparent,
+      builder: (context) {
+        return CharacterView(characterId: characterId);
+      });
 
   @override
   void initState() {
@@ -93,10 +101,11 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
           avatarAssetKey: 'assets/images/${heroData['avatar']}',
           size: 100,
           onPressed: () {
-            Navigator.of(context).pushNamed(
-              'character',
-              arguments: heroData['id'],
-            );
+            showCharacter(heroData['id']);
+            // Navigator.of(context).pushNamed(
+            //   'character',
+            //   arguments: heroData['id'],
+            // );
           },
         ),
       );

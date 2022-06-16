@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart' as path;
@@ -16,6 +17,7 @@ import 'load_game_dialog.dart';
 import '../binding/external_game_functions.dart';
 import '../scene/worldmap.dart';
 import '../scene/maze.dart';
+import 'view/location/location.dart';
 
 class MainMenu extends StatefulWidget {
   const MainMenu({required Key key}) : super(key: key);
@@ -32,6 +34,15 @@ class _MainMenuState extends State<MainMenu> {
   String? currentLocationId;
 
   final savedFiles = <SaveInfo>[];
+
+  void showLocation(String locationId) => showDialog(
+      context: context,
+      barrierColor: Colors.transparent,
+      builder: (context) {
+        return LocationView(
+          locationId: locationId,
+        );
+      });
 
   @override
   void initState() {
@@ -79,10 +90,12 @@ class _MainMenuState extends State<MainMenu> {
     engine.registerListener(
       Events.enteredLocation,
       EventHandler(widget.key!, (event) {
-        Navigator.of(context).pushNamed(
-          'location',
-          arguments: (event as LocationEvent).locationId,
-        );
+        final locationId = (event as LocationEvent).locationId;
+        showLocation(locationId);
+        // Navigator.of(context).pushNamed(
+        //   'location',
+        //   arguments: (event as LocationEvent).locationId,
+        // );
         // setState(() {
         //   // currentLocationId = (event as LocationEvent).locationId;
         // });
@@ -100,22 +113,25 @@ class _MainMenuState extends State<MainMenu> {
 
     () async {
       await engine.init(externalFunctions: externalGameFunctions);
-      final mod = await rootBundle.load('assets/scripts/compiled.mod');
-      final bytes = mod.buffer.asUint8List();
-      await engine.hetu.loadBytecode(
-        bytes: bytes,
-        moduleName: 'game',
-        // globallyImport: true,
-        invokeFunc: 'init',
-        namedArgs: {'lang': 'zh', 'gameEngine': engine},
-      );
-      // await engine.hetu.evalFile('game/main.ht',
-      //     moduleName: 'game',
-      //     globallyImport: true,
-      //     invokeFunc: 'init',
-      //     namedArgs: {'lang': 'zh', 'gameEngine': engine});
-      // engine.hetu.evalFile('core/main.ht', invokeFunc: 'init');
-      // engine.hetu.switchModule('game');
+      if (kDebugMode) {
+        await engine.hetu.evalFile('game/main.ht',
+            moduleName: 'game',
+            globallyImport: true,
+            invokeFunc: 'init',
+            namedArgs: {'lang': 'zh', 'gameEngine': engine});
+        // engine.hetu.evalFile('core/main.ht', invokeFunc: 'init');
+        // engine.hetu.interpreter.switchModule('game');
+      } else {
+        final mod = await rootBundle.load('assets/script.mod');
+        final bytes = mod.buffer.asUint8List();
+        await engine.hetu.loadBytecode(
+          bytes: bytes,
+          moduleName: 'game',
+          // globallyImport: true,
+          invokeFunc: 'init',
+          namedArgs: {'lang': 'zh', 'gameEngine': engine},
+        );
+      }
       engine.isLoaded = true;
 
       await refreshSaves();
@@ -200,7 +216,7 @@ class _MainMenuState extends State<MainMenu> {
         ),
       ));
 
-      if (GlobalConfig.desktopMode) {
+      if (GlobalConfig.isOnDesktop) {
         menus.addAll([
           const Spacer(),
           Padding(
@@ -216,7 +232,7 @@ class _MainMenuState extends State<MainMenu> {
       }
 
       Widget layout;
-      if (GlobalConfig.desktopMode) {
+      if (GlobalConfig.orientationMode == OrientationMode.landscape) {
         layout = Stack(
           children: <Widget>[
             Positioned(
@@ -230,7 +246,7 @@ class _MainMenuState extends State<MainMenu> {
         );
       } else {
         layout = Container(
-          color: Colors.black,
+          color: GlobalConfig.theme.backgroundColor,
           // decoration: const BoxDecoration(
           //   image: DecorationImage(
           //     fit: BoxFit.fill,

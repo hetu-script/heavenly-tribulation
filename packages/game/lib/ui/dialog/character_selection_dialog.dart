@@ -32,101 +32,104 @@ class CharacterSelectionDialog extends StatelessWidget {
     final hero = engine.invoke('getHero');
     final activitiesData = engine.invoke('getMonthlyActivities');
 
-    return
-        // Material(
-        //   type: MaterialType.transparency,
-        //   child:
-        Container(
-      padding: const EdgeInsets.all(50),
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: Text(engine.locale['characterSelection']),
-          actions: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              tooltip: engine.locale['close'],
-            ),
-          ],
-        ),
-        body: DataTable2(
-          minWidth: 760,
-          scrollController: ScrollController(),
-          empty: EmptyPlaceholder(engine.locale['empty']),
-          columns: kCharacterSelectionTableColumns
-              .map((title) => DataColumn(
-                    label: TextButton(
-                      onPressed: () {},
-                      child: Text(engine.locale[title]),
-                    ),
-                  ))
-              .toList(),
-          rows: characterIds.map((id) {
-            final character = engine.hetu.interpreter
-                .invoke('getCharacterById', positionalArgs: [id]);
-            final haveMet = engine.hetu.interpreter
-                .invoke('haveMet', positionalArgs: [hero, character]);
-            return DataRow2(
-                onTap: () {
-                  Navigator.pop(context, id);
-                },
-                cells: [
-                  DataCell(
-                    Text(character['name']),
-                  ),
-                  DataCell(
-                    Text(haveMet
-                        ? engine.locale['checked']
-                        : engine.locale['unchecked']),
-                  ),
-                  DataCell(
-                    Text(activitiesData['talked'].contains(id)
-                        ? engine.locale['checked']
-                        : engine.locale['unchecked']),
-                  ),
-                  DataCell(
-                    Text(activitiesData['gifted'].contains(id)
-                        ? engine.locale['checked']
-                        : engine.locale['unchecked']),
-                  ),
-                  DataCell(
-                    Text(activitiesData['practiced'].contains(id)
-                        ? engine.locale['checked']
-                        : engine.locale['unchecked']),
-                  ),
-                  DataCell(
-                    Text(activitiesData['consulted'].contains(id)
-                        ? engine.locale['checked']
-                        : engine.locale['unchecked']),
-                  ),
-                  DataCell(
-                    Text(activitiesData['requested'].contains(id)
-                        ? engine.locale['checked']
-                        : engine.locale['unchecked']),
-                  ),
-                  DataCell(
-                    Text(activitiesData['insulted'].contains(id)
-                        ? engine.locale['checked']
-                        : engine.locale['unchecked']),
-                  ),
-                  DataCell(
-                    Text(activitiesData['stolen'].contains(id)
-                        ? engine.locale['checked']
-                        : engine.locale['unchecked']),
-                  ),
-                  DataCell(
-                    Text(activitiesData['peeped'].contains(id)
-                        ? engine.locale['checked']
-                        : engine.locale['unchecked']),
-                  ),
-                ]);
-          }).toList(),
-        ),
+    final layout = Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Text(engine.locale['characterSelection']),
+        actions: const <Widget>[CloseButton()],
       ),
-      // ),
+      body: DataTable2(
+        minWidth: 760,
+        scrollController: ScrollController(),
+        empty: EmptyPlaceholder(engine.locale['empty']),
+        columns: kCharacterSelectionTableColumns
+            .map((title) => DataColumn(
+                  label: TextButton(
+                    onPressed: () {},
+                    child: Text(engine.locale[title]),
+                  ),
+                ))
+            .toList(),
+        rows: characterIds.map((id) {
+          final character = engine.hetu.interpreter
+              .invoke('getCharacterById', positionalArgs: [id]);
+          final haveMet = engine.hetu.interpreter
+              .invoke('haveMet', positionalArgs: [hero, character]);
+          return DataRow2(
+              onTap: () {
+                Navigator.pop(context, id);
+              },
+              cells: [
+                DataCell(
+                  Text(character['name']),
+                ),
+                DataCell(
+                  Text(haveMet
+                      ? engine.locale['checked']
+                      : engine.locale['unchecked']),
+                ),
+                DataCell(
+                  Text(activitiesData['talked'].contains(id)
+                      ? engine.locale['checked']
+                      : engine.locale['unchecked']),
+                ),
+                DataCell(
+                  Text(activitiesData['gifted'].contains(id)
+                      ? engine.locale['checked']
+                      : engine.locale['unchecked']),
+                ),
+                DataCell(
+                  Text(activitiesData['practiced'].contains(id)
+                      ? engine.locale['checked']
+                      : engine.locale['unchecked']),
+                ),
+                DataCell(
+                  Text(activitiesData['consulted'].contains(id)
+                      ? engine.locale['checked']
+                      : engine.locale['unchecked']),
+                ),
+                DataCell(
+                  Text(activitiesData['requested'].contains(id)
+                      ? engine.locale['checked']
+                      : engine.locale['unchecked']),
+                ),
+                DataCell(
+                  Text(activitiesData['insulted'].contains(id)
+                      ? engine.locale['checked']
+                      : engine.locale['unchecked']),
+                ),
+                DataCell(
+                  Text(activitiesData['stolen'].contains(id)
+                      ? engine.locale['checked']
+                      : engine.locale['unchecked']),
+                ),
+                DataCell(
+                  Text(activitiesData['peeped'].contains(id)
+                      ? engine.locale['checked']
+                      : engine.locale['unchecked']),
+                ),
+              ]);
+        }).toList(),
+      ),
     );
+
+    if (GlobalConfig.orientationMode == OrientationMode.landscape) {
+      return ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: GlobalConfig.screenSize.height - 100,
+          maxWidth: GlobalConfig.screenSize.width - 100,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 50.0, top: 50.0),
+          child: SizedBox(
+            width: 400,
+            height: 300,
+            child: layout,
+          ),
+        ),
+      );
+    } else {
+      return layout;
+    }
   }
 }

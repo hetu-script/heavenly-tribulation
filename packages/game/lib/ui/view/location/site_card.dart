@@ -26,7 +26,7 @@ class SiteCard extends StatelessWidget {
         shadowColor: Colors.black26,
         child: Ink(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8.0),
+            borderRadius: kBorderRadius,
             image: imagePath != null
                 ? DecorationImage(
                     image: AssetImage('assets/images/$imagePath'),
@@ -37,7 +37,7 @@ class SiteCard extends StatelessWidget {
           child: Material(
             type: MaterialType.transparency,
             child: InkWell(
-              borderRadius: BorderRadius.circular(8.0),
+              borderRadius: kBorderRadius,
               onTap: () {
                 engine.invoke('handleSiteInteraction',
                     positionalArgs: [siteId, locationId]);

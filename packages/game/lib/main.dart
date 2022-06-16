@@ -16,12 +16,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (Platform.isAndroid || Platform.isIOS) {
-    GlobalConfig.desktopMode = false;
+    GlobalConfig.isOnDesktop = false;
+    GlobalConfig.orientationMode = OrientationMode.portrait;
     await Flame.device.setPortraitDownOnly();
     await Flame.device.fullScreen();
     GlobalConfig.screenSize = window.physicalSize / window.devicePixelRatio;
   } else if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-    GlobalConfig.desktopMode = true;
+    GlobalConfig.isOnDesktop = true;
+    GlobalConfig.orientationMode = OrientationMode.landscape;
     await windowManager.ensureInitialized();
     // WindowOptions windowOptions = const WindowOptions(
     //   fullScreen: true,
@@ -40,12 +42,7 @@ void main() async {
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        brightness: Brightness.dark,
-        textTheme: const TextTheme(
-          button: TextStyle(fontSize: 18),
-        ),
-      ),
+      theme: GlobalConfig.theme,
       home: MainMenu(key: UniqueKey()),
       routes: {
         'location': (context) => LocationView(),

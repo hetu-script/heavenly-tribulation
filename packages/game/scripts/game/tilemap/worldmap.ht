@@ -8,8 +8,9 @@ import '../l10n.ht'
 import 'hexagonal_tile.ht'
 import 'component.ht'
 import '../map.ht'
-import '../entity/item.ht'
+import '../entity/item/weapon.ht'
 import '../entity/constants.ht'
+import { hyperbola } from '../util.ht'
 
 /// 生成世界地图的算法
 ///
@@ -512,9 +513,10 @@ fun createWorldMap({
     // recalculateAttributesOfCharacter(leader)
     
     // 为每个创派掌门生成初始物品
-    final item = Item.weapon()
-    leader.items.inventory.add(item)
-    leader.items.equipments[0] = item
+    final weapon = Weapon()
+    leader.items.inventory.add(weapon)
+    leader.items.equipments[1] = weapon
+    engine.info('为每个创派掌门生成初始物品')
 
     final org = Organization(
       category: _kOrganizationCategoryCultivation,

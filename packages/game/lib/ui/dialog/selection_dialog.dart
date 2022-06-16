@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
+import '../../global.dart';
+
 class SelectionDialog extends StatefulWidget {
   static Future<dynamic> show(
     BuildContext context,
@@ -12,7 +14,7 @@ class SelectionDialog extends StatefulWidget {
       builder: (BuildContext context) {
         return SelectionDialog(selections: selections);
       },
-      barrierColor: Colors.black.withOpacity(0.5),
+      barrierColor: kBarrierColor,
       barrierDismissible: false,
     );
   }

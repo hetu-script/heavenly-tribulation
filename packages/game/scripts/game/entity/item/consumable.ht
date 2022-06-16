@@ -1,0 +1,37 @@
+import '../../generator/name/name.ht' as nameGenerator
+import '../constants.ht'
+import 'common.ht'
+
+struct Consumable {
+  construct ({
+    name,
+    rarity,
+    value,
+    icon,
+    equippable,
+    creatorId,
+    createdTime,
+    description,
+    inscription,
+    attributes,
+  }) {
+    this.name = name
+    this.rarity = rarity
+    this.value = value ?? 0
+    this.icon = icon ?? kItemDefaultIcon
+    this.consumable = true
+    this.equippable = false
+    this.creatorId = creatorId
+    this.createdTime = createdTime
+    this.description = description
+    this.inscription = inscription
+    this.attributes = attributes
+    
+    if (!this.name) {
+      final r = nameGenerator.getAlchemy(1, rarity: this.rarity).first
+      this.name = r.name
+      this.rarity ??= r.rarity
+    }
+    this.id = 'item_${Hash.uid4(2)}_${this.name}'
+  }
+}

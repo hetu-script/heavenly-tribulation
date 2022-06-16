@@ -8,8 +8,8 @@ class Avatar extends StatelessWidget {
     this.name,
     this.size = kAvatarSize,
     this.radius = 10.0,
-    this.borderColor = Colors.black38,
-    this.borderWidth = 3.0,
+    this.borderColor = Colors.black45,
+    this.borderWidth = 2.0,
     this.onPressed,
   }) : super(key: key);
 

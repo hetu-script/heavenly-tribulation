@@ -7,12 +7,12 @@
 最大生命（Health Point）
 最大体力（Stamina）
 
-体质（Strength）：代表身体素质和灵巧性。
+强壮（Strength）：代表身体素质和灵巧性。
 智慧（Intelligence）：代表学习、记忆和理解能力。
 感知（Perception）：代表对外部世界和他人的知觉和掌控能力。
-灵能（Super Power）：代表超自然能力。
-统帅（Leadership）：代表演讲和说服力，以及对舆论和人心的控制能力。
-管理（Management）：代表领导和项目统筹的能力。
+灵能（Superpower）：代表超自然能力。
+统帅（Leadership）：代表魅力、说服力，以及对舆论和人心的控制能力。
+政务（Management）：代表沟通、协调和项目统筹的能力。
 
 ## 状态 Stats
 

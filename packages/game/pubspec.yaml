@@ -56,21 +56,48 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/scripts/
+    - assets/
 
     - assets/images/
     - assets/images/bg/
-    - assets/images/icon/
-    - assets/images/icon/skill/
+    - assets/images/avatar/
+    - assets/images/avatar/female/
+    - assets/images/avatar/male/
     - assets/images/character/
-    - assets/images/weather/
-    - assets/images/maze/
-    - assets/images/interior/
+    - assets/images/icon/
+    - assets/images/icon/item/
+    - assets/images/icon/skill/
+    - assets/images/item/
     - assets/images/location/
     - assets/images/location/site/
-    - assets/images/avatar/
-    - assets/images/avatar/male/
-    - assets/images/avatar/female/
+    - assets/images/maze/
+    - assets/images/weather/
+
+    - scripts/core/
+    - scripts/core/binding/
+    - scripts/core/data/
+    - scripts/core/l10n/
+    - scripts/game/
+    - scripts/game/entity/
+    - scripts/game/entity/item/
+    - scripts/game/generator/attributes/
+    - scripts/game/generator/attributes/data/
+    - scripts/game/generator/name/
+    - scripts/game/generator/name/alchemy/
+    - scripts/game/generator/name/character/
+    - scripts/game/generator/name/creature/
+    - scripts/game/generator/name/material/
+    - scripts/game/generator/name/organization/
+    - scripts/game/generator/name/place/
+    - scripts/game/generator/name/scroll/
+    - scripts/game/generator/name/shared/
+    - scripts/game/generator/name/skill/
+    - scripts/game/generator/name/talisman/
+    - scripts/game/l10n/
+    - scripts/game/l10n/en/
+    - scripts/game/l10n/zh/
+    - scripts/game/predefined/
+    - scripts/game/tilemap/
 
   fonts:
     - family: NotoSansMono

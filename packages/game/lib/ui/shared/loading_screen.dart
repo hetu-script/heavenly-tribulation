@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../global.dart';
+
 class LoadingScreen extends StatelessWidget {
   const LoadingScreen({Key? key, required this.text}) : super(key: key);
 
@@ -8,7 +10,7 @@ class LoadingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.black,
+      color: kBackgroundColor,
       child: Center(
         child: Directionality(
           textDirection: TextDirection.ltr,

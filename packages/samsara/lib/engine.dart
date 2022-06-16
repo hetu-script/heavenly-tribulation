@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:hetu_script/hetu_script.dart';
 import 'package:hetu_script/value/struct/struct.dart';
-// import 'package:hetu_script_flutter/hetu_script_flutter.dart';
+import 'package:hetu_script_flutter/hetu_script_flutter.dart';
 
 import 'binding/scene/component/game_map_binding.dart';
 import 'binding/game_binding.dart';
@@ -14,6 +14,10 @@ import '../shared/color.dart';
 import 'scene/scene_controller.dart';
 
 class SamsaraEngine with SceneController, EventAggregator {
+  final bool debugMode;
+
+  SamsaraEngine({required this.debugMode});
+
   final logger = Logger(
     filter: null,
     printer: PrettyPrinter(
@@ -69,37 +73,46 @@ class SamsaraEngine with SceneController, EventAggregator {
   /// for accessing the assets bundle resources.
   Future<void> init(
       {Map<String, Function> externalFunctions = const {}}) async {
-    // const root = 'scripts/';
-    // final filterConfig = HTFilterConfig(root, extension: [
-    //   HTResource.hetuModule,
-    //   HTResource.hetuScript,
-    //   HTResource.json,
-    // ]);
-    // final sourceContext = HTAssetResourceContext(
-    //     root: root,
-    //     includedFilter: [filterConfig],
-    //     expressionModuleExtensions: [HTResource.json]);
-    hetu = Hetu(
-      config: HetuConfig(
-        allowImplicitNullToZeroConversion: true,
-        allowImplicitEmptyValueToFalseConversion: true,
-      ),
-    );
-    // sourceContext: sourceContext);
-    hetu.init(
-      externalFunctions: externalFunctions,
-      externalClasses: [
-        SamsaraEngineClassBinding(),
-        MapComponentClassBinding(),
-      ],
-    );
-    // await hetu.initFlutter(
-    //   externalFunctions: externalFunctions,
-    //   externalClasses: [
-    //     SamsaraEngineClassBinding(),
-    //     MapComponentClassBinding(),
-    //   ],
-    // );
+    if (debugMode) {
+      const root = 'scripts/';
+      final filterConfig = HTFilterConfig(root, extension: [
+        HTResource.hetuModule,
+        HTResource.hetuScript,
+        HTResource.json,
+      ]);
+      final sourceContext = HTAssetResourceContext(
+          root: root,
+          includedFilter: [filterConfig],
+          expressionModuleExtensions: [HTResource.json]);
+      hetu = Hetu(
+        config: HetuConfig(
+          allowImplicitNullToZeroConversion: true,
+          allowImplicitEmptyValueToFalseConversion: true,
+        ),
+        sourceContext: sourceContext,
+      );
+      await hetu.initFlutter(
+        externalFunctions: externalFunctions,
+        externalClasses: [
+          SamsaraEngineClassBinding(),
+          MapComponentClassBinding(),
+        ],
+      );
+    } else {
+      hetu = Hetu(
+        config: HetuConfig(
+          allowImplicitNullToZeroConversion: true,
+          allowImplicitEmptyValueToFalseConversion: true,
+        ),
+      );
+      hetu.init(
+        externalFunctions: externalFunctions,
+        externalClasses: [
+          SamsaraEngineClassBinding(),
+          MapComponentClassBinding(),
+        ],
+      );
+    }
   }
 
   @override

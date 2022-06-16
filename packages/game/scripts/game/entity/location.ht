@@ -2,6 +2,7 @@ import '../game.ht'
 import 'character.ht'
 import 'dialog.ht'
 import '../generator/name/name.ht' as nameGenerator
+import '../l10n.ht'
 
 const kSiteResidence = 'residence'
 const kSiteHeadquarters = 'headquarters'
