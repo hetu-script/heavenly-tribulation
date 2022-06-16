@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 // import 'package:quiver/pattern.dart';
@@ -120,40 +118,27 @@ class _LocationViewState extends State<LocationView>
     final layout = Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        centerTitle: true,
         title: Text(locationName),
         actions: const <Widget>[ButtonClose()],
       ),
-      body: RefreshIndicator(
-        // key: _refreshIndicatorKey,
-        onRefresh: () async {
-          setState(() {});
-        },
-        child: ScrollConfiguration(
-          behavior: ScrollConfiguration.of(context).copyWith(
-            dragDevices: {
-              PointerDeviceKind.touch,
-              PointerDeviceKind.mouse,
-            },
-          ),
-          child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics()),
-            shrinkWrap: true,
-            children: <Widget>[
-              Align(
-                alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Wrap(
-                    spacing: 8.0, // gap between adjacent chips
-                    runSpacing: 4.0, // gap between lines
-                    children: siteCards,
-                  ),
-                ),
+      body: ListView(
+        physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics()),
+        shrinkWrap: true,
+        children: <Widget>[
+          Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Wrap(
+                spacing: 8.0, // gap between adjacent chips
+                runSpacing: 4.0, // gap between lines
+                children: siteCards,
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
       backgroundColor: kBackgroundColor,
     );

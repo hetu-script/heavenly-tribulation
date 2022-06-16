@@ -3,7 +3,7 @@ import 'package:hetu_script/values.dart';
 
 import '../../global.dart';
 
-const kItemGridDefaultSize = 64.0;
+const kItemGridDefaultSize = 48.0;
 
 class ItemGrid extends StatelessWidget {
   const ItemGrid({

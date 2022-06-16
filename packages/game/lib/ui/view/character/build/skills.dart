@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../item_grid.dart';
+import '../../item_grid.dart';
 
-class CharacterSkillsView extends StatelessWidget {
-  const CharacterSkillsView({
+const kSkillSlotCount = 20;
+
+class SkillsView extends StatelessWidget {
+  const SkillsView({
     Key? key,
     required this.data,
   }) : super(key: key);
@@ -13,20 +15,12 @@ class CharacterSkillsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final HTStruct knowledges = data['knowledges'];
+    final List knowledges = data['inventory'];
 
-    final equippedArcanePowerData =
-        knowledges[data['equipments']['arcanePowerId']];
-    final equippedMartialArtsData =
-        knowledges[data['equipments']['martialArtsId']];
-    final equippedEscapeSkillData =
-        knowledges[data['equipments']['escapeSkillId']];
-
-    final skillsCount = data['length'];
     final skills = <ItemGrid>[];
-    for (var i = 0; i < skillsCount; ++i) {
+    for (var i = 0; i < kSkillSlotCount; ++i) {
       if (i < knowledges.length) {
-        skills.add(ItemGrid(data: data['knowledges'].values.elementAt(i)));
+        skills.add(ItemGrid(data: knowledges[i]));
       } else {
         skills.add(const ItemGrid());
       }
@@ -37,17 +31,17 @@ class CharacterSkillsView extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
+          children: const <Widget>[
             ItemGrid(
-              data: equippedArcanePowerData,
               verticalMargin: 40,
             ),
             ItemGrid(
-              data: equippedMartialArtsData,
               verticalMargin: 40,
             ),
             ItemGrid(
-              data: equippedEscapeSkillData,
+              verticalMargin: 40,
+            ),
+            ItemGrid(
               verticalMargin: 40,
             ),
           ],

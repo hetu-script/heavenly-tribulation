@@ -66,10 +66,7 @@ class WorldMapPopup extends StatelessWidget {
                 height: 120,
                 decoration: BoxDecoration(
                   color: Theme.of(context).primaryColor.withOpacity(0.2),
-                  border: Border.all(
-                    color: Colors.blue,
-                    width: 2,
-                  ),
+                  border: Border.all(color: Colors.white),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(

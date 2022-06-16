@@ -9,21 +9,17 @@ const iconTheme = IconThemeData(
 );
 
 final kBackgroundColor = Colors.black.withOpacity(0.75);
-final kBarrierColor = Colors.black.withOpacity(0.25);
+final kBarrierColor = Colors.black.withOpacity(0.5);
 final kBorderRadius = BorderRadius.circular(5.0);
 
 final lightTheme = ThemeData(
   brightness: Brightness.dark,
-  fontFamily: 'UbuntuMono',
+  fontFamily: 'NotoSansMono',
   colorScheme: const ColorScheme.dark(),
   backgroundColor: kBackgroundColor,
   scaffoldBackgroundColor: kBackgroundColor,
   appBarTheme: AppBarTheme(
     color: kBackgroundColor,
-    titleTextStyle: const TextStyle(
-      color: Colors.white,
-      fontSize: 16,
-    ),
     toolbarHeight: 40,
     elevation: 1,
     iconTheme: iconTheme,
@@ -36,9 +32,6 @@ final lightTheme = ThemeData(
     shape: RoundedRectangleBorder(
       borderRadius: kBorderRadius,
     ),
-  ),
-  textTheme: const TextTheme(
-    button: TextStyle(fontSize: 18),
   ),
 );
 

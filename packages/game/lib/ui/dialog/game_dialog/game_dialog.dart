@@ -91,7 +91,7 @@ class _GameDialogState extends State<GameDialog> {
                     children: <Widget>[
                       Avatar(
                         avatarAssetKey: 'assets/images/$_currentAvatar',
-                        size: 200.0,
+                        size: const Size(200.0, 200.0),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 20.0),

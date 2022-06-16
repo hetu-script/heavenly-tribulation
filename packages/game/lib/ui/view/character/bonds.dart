@@ -30,8 +30,7 @@ class CharacterBondsView extends StatelessWidget {
                   .toList(),
             ),
           ),
-          SizedBox(
-            height: MediaQuery.of(context).size.height - kNestedTabBarHeight,
+          Expanded(
             child: TabBarView(
               children: data.keys
                   .map(

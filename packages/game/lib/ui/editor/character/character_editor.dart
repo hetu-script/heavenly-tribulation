@@ -206,6 +206,8 @@ class _CharacterEditorState extends State<CharacterEditor>
   Widget build(BuildContext context) {
     super.build(context);
 
+    const kAvatarSize = 100.0;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(locale['characterEditor']),

@@ -2,15 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
-import 'package:heavenly_tribulation/ui/view/character/character.dart';
 import 'package:path_provider/path_provider.dart' as path;
 import 'package:path/path.dart' as path;
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
 
-import '../../shared/avatar.dart';
 import 'popup.dart';
-import '../../shared/popup_submenu_item.dart';
 import '../../../shared/json.dart';
 import '../../../shared/constants.dart';
 import '../../../shared/util.dart';
@@ -18,9 +15,8 @@ import 'history_panel.dart';
 import '../../shared/loading_screen.dart';
 import '../../../global.dart';
 import '../../../scene/worldmap.dart';
-
-// This is the type used by the popup menu.
-enum TopRightMenuItems { info, viewNone, viewZones, viewNations, exit }
+import 'character_info.dart';
+import 'drop_menu.dart';
 
 class WorldMapOverlay extends StatefulWidget {
   final WorldMapScene scene;
@@ -41,13 +37,6 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
   TileMap get map => widget.scene.map!;
 
   Vector2? menuPosition;
-
-  void showCharacter(String characterId) => showDialog(
-      context: context,
-      barrierColor: Colors.transparent,
-      builder: (context) {
-        return CharacterView(characterId: characterId);
-      });
 
   @override
   void initState() {
@@ -94,119 +83,44 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
     final heroData = engine.invoke('getHero');
     final screenSize = MediaQuery.of(context).size;
 
-    final heroInfoRow = <Widget>[];
-    if (heroData != null) {
-      heroInfoRow.add(
-        Avatar(
-          avatarAssetKey: 'assets/images/${heroData['avatar']}',
-          size: 100,
-          onPressed: () {
-            showCharacter(heroData['id']);
-            // Navigator.of(context).pushNamed(
-            //   'character',
-            //   arguments: heroData['id'],
-            // );
-          },
-        ),
-      );
-    }
-
     final screenWidgets = <Widget>[
       SizedBox(
         height: screenSize.height,
         width: screenSize.width,
         child: SceneWidget(scene: scene),
       ),
-      Positioned(
-        left: 0,
-        top: 0,
-        child: Container(
-          width: 180,
-          height: 120,
-          decoration: BoxDecoration(
-            color: Theme.of(context).backgroundColor.withOpacity(0.5),
-            borderRadius:
-                const BorderRadius.only(bottomRight: Radius.circular(5.0)),
-            border: Border.all(
-              width: 2,
-              color: Colors.lightBlue,
-            ),
-          ),
-          padding: const EdgeInsets.all(10.0),
-          child: Row(
-            children: heroInfoRow,
-          ),
+      if (heroData != null)
+        Positioned(
+          left: 0,
+          top: 0,
+          child: HeroInfoPanel(heroData: heroData),
         ),
-      ),
       Positioned(
         right: 0,
         top: 0,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).backgroundColor,
-            borderRadius:
-                const BorderRadius.only(bottomLeft: Radius.circular(5.0)),
-            border: Border.all(
-              width: 2,
-              color: Colors.lightBlue,
-            ),
-          ),
-          child: PopupMenuButton<TopRightMenuItems>(
-            offset: const Offset(0, 45),
-            icon: const Icon(Icons.menu_open),
-            tooltip: engine.locale['menu'],
-            onSelected: (TopRightMenuItems item) {
-              switch (item) {
-                case TopRightMenuItems.info:
-                  Navigator.of(context).pushNamed('information');
-                  break;
-                case TopRightMenuItems.viewNone:
-                  map.gridMode = GridMode.none;
-                  break;
-                case TopRightMenuItems.viewZones:
-                  map.gridMode = GridMode.zone;
-                  break;
-                case TopRightMenuItems.viewNations:
-                  map.gridMode = GridMode.nation;
-                  break;
-                case TopRightMenuItems.exit:
-                  engine.leaveScene('WorldMap');
-                  _saveGame();
-                  engine.broadcast(const GameEvent.back2Menu());
-                  break;
-                default:
-              }
-            },
-            itemBuilder: (BuildContext context) =>
-                <PopupMenuEntry<TopRightMenuItems>>[
-              PopupMenuItem<TopRightMenuItems>(
-                value: TopRightMenuItems.info,
-                child: Container(
-                  alignment: Alignment.centerLeft,
-                  width: 100,
-                  child: Text(engine.locale['info']),
-                ),
-              ),
-              PopupSubMenuItem<TopRightMenuItems>(
-                title: engine.locale['view'],
-                offset: const Offset(-160, 0),
-                items: {
-                  engine.locale['none']: TopRightMenuItems.viewNone,
-                  engine.locale['zone']: TopRightMenuItems.viewZones,
-                  engine.locale['nation']: TopRightMenuItems.viewNations,
-                },
-              ),
-              const PopupMenuDivider(),
-              PopupMenuItem<TopRightMenuItems>(
-                value: TopRightMenuItems.exit,
-                child: Container(
-                  alignment: Alignment.centerLeft,
-                  width: 100,
-                  child: Text(engine.locale['exitGame']),
-                ),
-              ),
-            ],
-          ),
+        child: DropMenu(
+          onSelected: (DropMenuItems item) {
+            switch (item) {
+              case DropMenuItems.info:
+                Navigator.of(context).pushNamed('information');
+                break;
+              case DropMenuItems.viewNone:
+                map.gridMode = GridMode.none;
+                break;
+              case DropMenuItems.viewZones:
+                map.gridMode = GridMode.zone;
+                break;
+              case DropMenuItems.viewNations:
+                map.gridMode = GridMode.nation;
+                break;
+              case DropMenuItems.exit:
+                engine.leaveScene('WorldMap');
+                _saveGame();
+                engine.broadcast(const GameEvent.back2Menu());
+                break;
+              default:
+            }
+          },
         ),
       ),
       Positioned(
@@ -219,10 +133,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
             color: Theme.of(context).backgroundColor.withOpacity(0.5),
             borderRadius:
                 const BorderRadius.only(topRight: Radius.circular(5.0)),
-            border: Border.all(
-              width: 2,
-              color: Colors.lightBlue,
-            ),
+            border: Border.all(color: Colors.white),
           ),
           padding: const EdgeInsets.all(10.0),
           child: SingleChildScrollView(

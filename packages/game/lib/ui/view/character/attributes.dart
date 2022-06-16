@@ -55,9 +55,6 @@ class CharacterAttributesView extends StatelessWidget {
           },
         ),
         child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(
-            parent: BouncingScrollPhysics(),
-          ),
           shrinkWrap: true,
           children: <Widget>[
             Column(

@@ -60,7 +60,6 @@ class _MazeOverlayState extends State<MazeOverlay> {
                   children: <Widget>[
                     Avatar(
                       avatarAssetKey: 'assets/images/${heroData['avatar']}',
-                      size: 100,
                     ),
                   ],
                 )),

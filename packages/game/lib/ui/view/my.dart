@@ -80,7 +80,6 @@ class _MyViewState extends State<MyView> {
                         ),
                         Avatar(
                           avatarAssetKey: _avatarPath,
-                          size: 100,
                           radius: 50,
                         ),
                         Card(

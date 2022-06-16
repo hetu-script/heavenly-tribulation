@@ -11,6 +11,7 @@ class EmptyPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
+      color: Colors.transparent,
       child: Center(
         child: Directionality(
           textDirection: TextDirection.ltr,

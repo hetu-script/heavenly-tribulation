@@ -2,7 +2,7 @@ import '../../generator/name/name.ht' as nameGenerator
 import '../constants.ht'
 import 'common.ht'
 
-const kDefaultWeaponIcon = 'assets/images/item/weapon.png'
+const kDefaultWeaponIcon = 'icon/item/weapon.png'
 
 const kWeaponSpeedBase = 50
 const kWeaponSpeedVariable = 40
