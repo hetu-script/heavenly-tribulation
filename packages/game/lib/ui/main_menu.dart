@@ -272,7 +272,7 @@ class _MainMenuState extends State<MainMenu> {
     if (saveDirectory.existsSync()) {
       for (final entity in saveDirectory.listSync()) {
         if (entity is File &&
-            path.extension(entity.path) == kSaveFileExtension) {
+            path.extension(entity.path) == kWorldSaveFileExtension) {
           final d = entity.lastModifiedSync().toLocal();
           final saveInfo =
               SaveInfo(timestamp: d.toMeaningfulString(), path: entity.path);

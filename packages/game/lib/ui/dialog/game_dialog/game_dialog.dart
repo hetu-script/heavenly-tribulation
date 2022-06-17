@@ -18,7 +18,7 @@ class GameDialog extends StatefulWidget {
       builder: (BuildContext context) {
         return GameDialog(data: dlgData);
       },
-      barrierColor: Colors.black.withOpacity(0.5),
+      barrierColor: kBackgroundColor.withOpacity(0.5),
       barrierDismissible: false,
     );
   }

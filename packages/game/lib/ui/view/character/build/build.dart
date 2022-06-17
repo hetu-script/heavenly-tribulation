@@ -4,12 +4,19 @@ import '../../../../ui/shared/close_button.dart';
 import '../../../../global.dart';
 import 'inventory.dart';
 import 'skills.dart';
-import '../../../../ui/shared/responsive_route.dart';
+import 'item_info.dart';
+import '../../../shared/responsive_route.dart';
 
 class BuildView extends StatefulWidget {
+  const BuildView({
+    Key? key,
+    this.characterId,
+    this.tabIndex = 0,
+  }) : super(key: key);
+
   final String? characterId;
 
-  const BuildView({Key? key, this.characterId}) : super(key: key);
+  final int tabIndex;
 
   @override
   State<BuildView> createState() => _BuildViewState();
@@ -63,6 +70,7 @@ class _BuildViewState extends State<BuildView>
         }
       });
     });
+    _tabController.index = widget.tabIndex;
   }
 
   @override
@@ -93,15 +101,36 @@ class _BuildViewState extends State<BuildView>
       body: TabBarView(
         controller: _tabController,
         children: <Widget>[
-          InventoryView(data: data['items']),
-          SkillsView(data: data['skills']),
+          InventoryView(
+            data: data['items'],
+            onSelect: (item, screenPosition) {
+              setState(() {
+                showDialog(
+                    context: context,
+                    barrierColor: Colors.transparent,
+                    builder: (context) {
+                      return ItemInfo(
+                        data: item,
+                        left: screenPosition.dx,
+                        top: screenPosition.dy - 100.0,
+                      );
+                    });
+              });
+            },
+          ),
+          SkillsView(
+            data: data['skills'],
+            onSelect: (item, screenPosition) {
+              setState(() {});
+            },
+          ),
         ],
       ),
     );
 
     return ResponsiveRoute(
       child: layout,
-      alignment: AlignmentDirectional.topStart,
+      alignment: AlignmentDirectional.topEnd,
       size: const Size(400.0, 400.0),
     );
   }

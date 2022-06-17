@@ -16,7 +16,7 @@ class DropMenu extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).backgroundColor,
         borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(5.0)),
-        border: Border.all(color: Colors.white),
+        border: Border.all(color: kForegroundColor),
       ),
       child: PopupMenuButton<DropMenuItems>(
         offset: const Offset(0, 45),
@@ -47,7 +47,7 @@ class DropMenu extends StatelessWidget {
             child: Container(
               alignment: Alignment.centerLeft,
               width: 100,
-              child: Text(engine.locale['exitGame']),
+              child: Text(engine.locale['saveAndExitGame']),
             ),
           ),
         ],

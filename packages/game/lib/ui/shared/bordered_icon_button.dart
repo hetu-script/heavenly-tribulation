@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../global.dart';
+
 class BorderedIconButton extends StatelessWidget {
   const BorderedIconButton({
     Key? key,
@@ -24,7 +26,7 @@ class BorderedIconButton extends StatelessWidget {
 
   final double borderRadius;
 
-  final void Function() onPressed;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +37,7 @@ class BorderedIconButton extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(color: Colors.white),
+        border: Border.all(color: kForegroundColor),
         // shape: BoxShape.rectangle,
         // boxShadow: [
         //   BoxShadow(

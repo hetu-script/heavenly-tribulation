@@ -61,18 +61,21 @@ struct Weapon {
       this.attributes = {
         speed: kWeaponSpeedBase - Math.randomInt(kWeaponSpeedVariable),
         damage: _randomDamage(),
+        damageType: this.weaponType,
         levels: [],
         effects: [],
         abilities: [],
       }
     }
-    this.stats = {
-      speed: this.attributes.speed,
-      damage: this.attributes.damage,
-    }
+
+    recalculateAttributesOfWeapon(this)
   }
 }
 
 fun recalculateAttributesOfWeapon(weapon) {
-  
+  weapon.stats = {
+    speed: weapon.attributes.speed,
+    damage: weapon.attributes.damage,
+    damageType: weapon.attributes.damageType,
+  }
 }

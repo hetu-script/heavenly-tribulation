@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../item_grid.dart';
+import 'item_grid.dart';
 
 const kInventorySlotCount = 20;
 
@@ -9,9 +9,12 @@ class InventoryView extends StatelessWidget {
   const InventoryView({
     Key? key,
     required this.data,
+    required this.onSelect,
   }) : super(key: key);
 
   final HTStruct data;
+
+  final void Function(HTStruct item, Offset screenPosition) onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +23,14 @@ class InventoryView extends StatelessWidget {
     final items = <ItemGrid>[];
     for (var i = 0; i < kInventorySlotCount; ++i) {
       if (i < inventory.length) {
-        items.add(ItemGrid(data: inventory[i]));
+        items.add(ItemGrid(
+          data: inventory[i],
+          onSelect: onSelect,
+        ));
       } else {
-        items.add(const ItemGrid());
+        items.add(ItemGrid(
+          onSelect: onSelect,
+        ));
       }
     }
 
@@ -31,18 +39,26 @@ class InventoryView extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const <Widget>[
+          children: <Widget>[
             ItemGrid(
               verticalMargin: 40,
+              data: data['equipments'][1],
+              onSelect: onSelect,
             ),
             ItemGrid(
               verticalMargin: 40,
+              data: data['equipments'][2],
+              onSelect: onSelect,
             ),
             ItemGrid(
               verticalMargin: 40,
+              data: data['equipments'][3],
+              onSelect: onSelect,
             ),
             ItemGrid(
               verticalMargin: 40,
+              data: data['equipments'][4],
+              onSelect: onSelect,
             ),
           ],
         ),

@@ -35,8 +35,6 @@ var game = {
   locations: {},
   organizations: {},
   mazes: {},
-  
-  incidents: [],
 
   monthlyActivities: {
     talked: [],
@@ -50,6 +48,8 @@ var game = {
   }
 }
 
+var history = []
+
 fun getMonthlyActivities {
   return game.monthlyActivities
 }
@@ -62,10 +62,25 @@ fun getGameJsonData() {
   return game.toJson()
 }
 
-fun loadGameFromJsonData(jsonData) {
-  game = prototype.fromJson(jsonData)
+fun getHistory() {
+  return history
+}
+
+fun getHistoryJsonData() {
+  return jsonify(history)
+}
+
+fun loadGameFromJsonData(worldData, historyData) {
+  game = prototype.fromJson(worldData)
   updateWorldMapZoneColors()
   updateWorldMapNationColors()
+
+  history = []
+  for (final data in historyData) {
+    history.add(
+      prototype.fromJson(data)
+    )
+  }
 }
 
 fun getSavePath {

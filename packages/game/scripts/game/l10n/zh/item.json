@@ -1,0 +1,8 @@
+{
+  "speed": "发动时间",
+  "damage": "伤害",
+  "damageType": "伤害类型",
+  "slashing": "劈砍",
+  "bludgeoning": "重击",
+  "piercing": "贯穿"
+}

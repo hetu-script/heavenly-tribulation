@@ -1,1 +1,2 @@
-const kSaveFileExtension = '.tdqjsave';
+const kWorldSaveFileExtension = '.tdqjsave';
+const kHistorySaveFileExtension = '.tdqjsave2';

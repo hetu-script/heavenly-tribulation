@@ -157,7 +157,8 @@ fun createWorldMap({
   game.locations = {}
   game.organizations = {}
   game.mazes = {}
-  game.incidents = []
+  
+  history = []
 
   game.world = {
     terrainSpriteSheet,
@@ -514,7 +515,7 @@ fun createWorldMap({
     
     // 为每个创派掌门生成初始物品
     final weapon = Weapon()
-    leader.items.inventory.add(weapon)
+    // leader.items.inventory.add(weapon)
     leader.items.equipments[1] = weapon
     engine.info('为每个创派掌门生成初始物品')
 

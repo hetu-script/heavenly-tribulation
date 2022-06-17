@@ -136,3 +136,16 @@ final kDamageTypes = [
   'spell',
   'power',
 ]
+
+final kItemCategory = [
+  'weapon',
+  'armor',
+  'consume',
+]
+
+final kSkillCategory = [
+  'arcane',
+  'fight',
+  'escape',
+  'array',
+]

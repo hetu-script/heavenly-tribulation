@@ -7,7 +7,7 @@ import '../../../global.dart';
 import '../shared/avatar.dart';
 
 class MyView extends StatefulWidget {
-  final void Function() onQuit;
+  final VoidCallback onQuit;
 
   const MyView({
     Key? key,

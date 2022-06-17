@@ -233,9 +233,11 @@ fun _handleHeadquartersInteraction(site) {
     train: getLocaleString('train'),
     learn: getLocaleString('learn'),
     visit: getLocaleString('visit'),
+    leave: getLocaleString('leave'),
   })
   .then((key) {
     when (key) {
+      // 如果选择 leave，直接忽略，什么也不做
       'train' -> {
         // 非本门派修士,需要花钱才能训练
         showGameDialogById('headquartersTrain001')

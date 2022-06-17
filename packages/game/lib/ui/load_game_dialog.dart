@@ -99,6 +99,8 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
                                     onPressed: () {
                                       final file = File(info.path);
                                       file.delete();
+                                      final file2 = File(info.path + '2');
+                                      file2.delete();
                                       setState(() {
                                         widget.list.removeWhere(
                                             (element) => element == info);

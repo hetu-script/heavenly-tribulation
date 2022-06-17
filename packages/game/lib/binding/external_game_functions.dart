@@ -2,7 +2,7 @@ import 'package:hetu_script/hetu_script.dart';
 
 import '../ui/dialog/game_dialog/game_dialog.dart';
 import '../ui/dialog/selection_dialog.dart';
-import '../ui/dialog/duel/duel.dart';
+import '../ui/view/duel/duel.dart';
 import '../ui/dialog/character_selection_dialog.dart';
 
 final Map<String, Function> externalGameFunctions = {

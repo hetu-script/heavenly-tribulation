@@ -1,5 +1,16 @@
 {
+  "leave": "离开",
   "train": "训练",
   "learn": "学习",
-  "visit": "拜访"
+  "visit": "拜访",
+
+  "talk": "闲聊",
+  "gift": "赠礼",
+  "practice": "切磋",
+  "consult": "请教",
+  "request": "索取",
+  "insult": "侮辱",
+  "steal": "窃取",
+  "peep": "窥探",
+  "sneekAttack": "偷袭"
 }

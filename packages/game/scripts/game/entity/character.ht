@@ -5,6 +5,7 @@ import 'incident.ht'
 import '../generator/name/name.ht' as nameGenerator
 import '../util.ht'
 import 'constants.ht'
+import '../duel.ht'
 
 // number of the male avatar images
 const kMaleAvatarCount = 37
@@ -109,10 +110,10 @@ struct Character {
     // 属性点数数值
     this.attributes = generateRandomAttributes(Math.randomInt(10) + 10, 10)
 
-    recalculateAttributesOfCharacter(this)
-
     // 当前状态数值，由种族、天赋、属性点数、增益减损、物品、技能等计算得来
     this.stats = {}
+
+    recalculateAttributesOfCharacter(this)
 
     // 该角色对世界上的其他事物的关系
     this.bonds = {
@@ -206,8 +207,8 @@ fun generateRandomAttributes(maxStats, minValue) {
 }
 
 fun recalculateAttributesOfCharacter(character) {
-  character.attributes.maxLife = 100 + character.attributes.strength ~/ 5 * 10
-  character.attributes.maxStamina = 100 + character.attributes.strength ~/ 10 * 5
+  character.stats.maxLife = character.stats.life = 100 + character.attributes.strength ~/ 5 * 10
+  character.stats.maxStamina = character.stats.stamina = 100 + character.attributes.strength ~/ 10 * 5
 }
 
 // 第一印象分
@@ -419,6 +420,7 @@ fun handleCharacterInteraction(characterId) {
   if (characterId in! game.monthlyActivities.peeped) {
     selections.peep = getLocaleString('peep')
   }
+  selections.sneekAttack = getLocaleString('sneekAttack')
   showSelectionDialog(selections)
   .then((key) {
     when (key) {
@@ -448,6 +450,10 @@ fun handleCharacterInteraction(characterId) {
       }
       'peep' -> {
         
+      }
+      'sneekAttack' -> {
+        final duel = Duel(hero, character, heroMoveFirst: true)
+        showDuel(duel.log)
       }
     }
   })

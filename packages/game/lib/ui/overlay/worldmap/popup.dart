@@ -10,7 +10,7 @@ class WorldMapPopup extends StatelessWidget {
 
   final double left, top, width = defaultSize, height = defaultSize;
 
-  final void Function()? onPanelTapped;
+  final VoidCallback? onPanelTapped;
 
   final bool moveToIcon;
   final bool checkIcon;
@@ -19,11 +19,11 @@ class WorldMapPopup extends StatelessWidget {
   final bool restIcon;
   final String title;
 
-  final void Function()? onMoveToIconTapped;
-  final void Function()? onCheckIconTapped;
-  final void Function()? onEnterIconTapped;
-  final void Function()? onTalkIconTapped;
-  final void Function()? onRestIconTapped;
+  final VoidCallback? onMoveToIconTapped;
+  final VoidCallback? onCheckIconTapped;
+  final VoidCallback? onEnterIconTapped;
+  final VoidCallback? onTalkIconTapped;
+  final VoidCallback? onRestIconTapped;
 
   const WorldMapPopup({
     Key? key,
@@ -66,7 +66,7 @@ class WorldMapPopup extends StatelessWidget {
                 height: 120,
                 decoration: BoxDecoration(
                   color: Theme.of(context).primaryColor.withOpacity(0.2),
-                  border: Border.all(color: Colors.white),
+                  border: Border.all(color: kForegroundColor),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(

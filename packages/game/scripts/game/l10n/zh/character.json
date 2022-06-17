@@ -15,10 +15,10 @@
   "fame": "名声",
   "infamy": "恶名",
   "looks": "容貌",
-  "life": "最大精血",
-  "currentLife": "当前精血",
-  "stamina": "最大元气",
-  "currentStamina": "当前元气",
+  "maxLife": "最大生命",
+  "life": "生命",
+  "maxStamina": "最大体力",
+  "stamina": "体力",
   "attributes": "属性",
   "strength": "强壮",
   "intelligence": "智慧",
@@ -46,14 +46,5 @@
   "confidence": "自信",
 
   "characterSelection": "选择角色",
-
-  "haveMet": "认识",
-  "talk": "闲聊",
-  "gift": "赠礼",
-  "practice": "切磋",
-  "consult": "请教",
-  "request": "索取",
-  "insult": "侮辱",
-  "steal": "窃取",
-  "peep": "窥探"
+  "haveMet": "认识"
 }

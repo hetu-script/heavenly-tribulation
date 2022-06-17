@@ -16,8 +16,8 @@
   "load": "载入",
   "delete": "删除",
   "exit": "退出",
-  "checked": "√",
-  "unchecked": "×",
+  "checked": "○",
+  "unchecked": "Ｘ",
 
   "zone": "地域",
   "nation": "国家",

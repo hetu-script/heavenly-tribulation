@@ -133,7 +133,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
             color: Theme.of(context).backgroundColor.withOpacity(0.5),
             borderRadius:
                 const BorderRadius.only(topRight: Radius.circular(5.0)),
-            border: Border.all(color: Colors.white),
+            border: Border.all(color: kForegroundColor),
           ),
           padding: const EdgeInsets.all(10.0),
           child: SingleChildScrollView(
@@ -264,9 +264,10 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
       final stampName = timestampCrc();
       final directory = await path.getApplicationDocumentsDirectory();
       savePath = path.join(directory.path, 'Heavenly Tribulation', 'save',
-          stampName + kSaveFileExtension);
+          stampName + kWorldSaveFileExtension);
       engine.invoke('setSavePath', positionalArgs: [savePath]);
     }
+    engine.info('保存游戏至：[$savePath]');
     final saveFile = File(savePath);
     if (!saveFile.existsSync()) {
       saveFile.createSync(recursive: true);
@@ -274,5 +275,13 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
     final gameJsonData = engine.invoke('getGameJsonData');
     final gameStringData = jsonEncodeWithIndent(gameJsonData);
     saveFile.writeAsStringSync(gameStringData);
+
+    final saveFile2 = File(savePath + '2');
+    if (!saveFile2.existsSync()) {
+      saveFile2.createSync(recursive: true);
+    }
+    final historyJsonData = engine.invoke('getHistoryJsonData');
+    final historyStringData = jsonEncodeWithIndent(historyJsonData);
+    saveFile2.writeAsStringSync(historyStringData);
   }
 }

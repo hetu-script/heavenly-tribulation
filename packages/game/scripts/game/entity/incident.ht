@@ -22,7 +22,7 @@ struct Incident {
   }) {
     assert(content != null && content.isNotEmpty)
     assert(subjectId != null)
-    this.index = game.incidents.length
+    this.index = history.length
 
     this.content = content
     this.timestamp = game.timestamp
@@ -53,14 +53,10 @@ struct Incident {
       }
     }
 
-    game.incidents.add(this)
+    history.add(this)
   }
 }
 
 fun getIncidentByIndex(index: int) {
-  return game.incidents[index]
-}
-
-fun getIncidents() {
-  return game.incidents
+  return history[index]
 }

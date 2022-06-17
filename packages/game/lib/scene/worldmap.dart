@@ -24,12 +24,15 @@ class WorldMapScene extends Scene {
     super.onLoad();
 
     if (arg != null) {
-      final data = File(arg!);
-      final dataString = data.readAsStringSync();
-      final jsonData = jsonDecode(dataString);
-      engine.hetu.interpreter
-          .invoke('loadGameFromJsonData', positionalArgs: [jsonData]);
-      map = await TileMap.fromJson(data: jsonData['world'], engine: engine);
+      final worldSavePath = File(arg!);
+      final worldDataString = worldSavePath.readAsStringSync();
+      final worldData = jsonDecode(worldDataString);
+      final historySavePath = File(arg! + '2');
+      final historyDataString = historySavePath.readAsStringSync();
+      final historyData = jsonDecode(historyDataString);
+      engine.hetu.interpreter.invoke('loadGameFromJsonData',
+          positionalArgs: [worldData, historyData]);
+      map = await TileMap.fromJson(data: worldData['world'], engine: engine);
     } else {
       map = await engine.invoke('createWorldMap', namedArgs: {
         'terrainSpriteSheet': 'fantasyhextiles_v3_borderless.png',

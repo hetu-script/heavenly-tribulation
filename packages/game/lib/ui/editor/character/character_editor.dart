@@ -98,7 +98,7 @@ class _CharacterEditorState extends State<CharacterEditor>
 
   final _fieldControllers = <String, TextEditingController>{};
 
-  Widget _textFormField(String field, {void Function()? shuffle}) {
+  Widget _textFormField(String field, {VoidCallback? shuffle}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: SizedBox(

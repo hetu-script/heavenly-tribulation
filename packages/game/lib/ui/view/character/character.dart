@@ -8,9 +8,15 @@ import '../../shared/close_button.dart';
 import 'attributes.dart';
 
 class CharacterView extends StatefulWidget {
+  const CharacterView({
+    Key? key,
+    this.characterId,
+    this.tabIndex = 0,
+  }) : super(key: key);
+
   final String? characterId;
 
-  const CharacterView({Key? key, this.characterId}) : super(key: key);
+  final int tabIndex;
 
   @override
   State<CharacterView> createState() => _CharacterViewState();
@@ -79,6 +85,7 @@ class _CharacterViewState extends State<CharacterView>
         }
       });
     });
+    _tabController.index = widget.tabIndex;
   }
 
   @override

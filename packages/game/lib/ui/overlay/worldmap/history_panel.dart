@@ -17,8 +17,8 @@ class _HistoryPanelState extends State<HistoryPanel> {
   void initState() {
     super.initState();
 
-    final List incidents = engine.invoke('getIncidents');
-    for (final incident in incidents) {
+    final List history = engine.invoke('getHistory');
+    for (final incident in history) {
       if (incident['isPublic']) {
         messages.add(incident['content']);
       }

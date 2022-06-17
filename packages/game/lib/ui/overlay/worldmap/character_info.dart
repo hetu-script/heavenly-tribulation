@@ -65,7 +65,7 @@ class HeroInfoPanel extends StatelessWidget {
         color: GlobalConfig.theme.backgroundColor,
         borderRadius:
             const BorderRadius.only(bottomRight: Radius.circular(5.0)),
-        border: Border.all(color: Colors.white),
+        border: Border.all(color: kForegroundColor),
       ),
       child: Row(
         children: heroInfoRow,

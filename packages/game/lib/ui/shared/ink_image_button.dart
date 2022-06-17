@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../global.dart';
+
 class InkImageButton extends StatelessWidget {
   final double? width, height;
 
   final Widget? child;
 
-  final void Function() onPressed;
+  final VoidCallback onPressed;
 
   final String? tooltip;
 
@@ -28,7 +30,7 @@ class InkImageButton extends StatelessWidget {
       height: height,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: kForegroundColor,
           borderRadius: BorderRadius.circular(borderRadius),
           border: Border.all(
             width: 2,

@@ -32,7 +32,7 @@ class ResponsiveRoute extends StatelessWidget {
             alignment: Alignment.topCenter,
             decoration: BoxDecoration(
               borderRadius: kBorderRadius,
-              border: Border.all(color: Colors.white),
+              border: Border.all(color: kForegroundColor),
             ),
             child: ClipRRect(
               borderRadius: kBorderRadius,

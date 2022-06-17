@@ -145,7 +145,7 @@ class _LocationViewState extends State<LocationView>
 
     return ResponsiveRoute(
       child: layout,
-      alignment: AlignmentDirectional.topEnd,
+      alignment: AlignmentDirectional.topStart,
       size: const Size(400.0, 400.0),
     );
   }

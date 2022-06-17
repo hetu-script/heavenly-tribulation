@@ -4,6 +4,7 @@ import 'information_panel.json' as informationPanel
 import 'terrain.json' as terrain
 import 'location.json' as location
 import 'character.json' as character
+import 'item.json' as item
 import 'history.json' as history
 import 'interaction.json' as interaction
 import 'dialog.json' as dialog
@@ -16,6 +17,7 @@ final zh = {
   ...informationPanel,
   ...location,
   ...character,
+  ...item,
   ...history,
   ...interaction,
   ...dialog,

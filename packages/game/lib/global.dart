@@ -4,13 +4,14 @@ import 'package:samsara/samsara.dart';
 
 final SamsaraEngine engine = SamsaraEngine(debugMode: kDebugMode);
 
-const iconTheme = IconThemeData(
-  color: Colors.white,
-);
-
+const kForegroundColor = Colors.white;
 final kBackgroundColor = Colors.black.withOpacity(0.75);
 final kBarrierColor = Colors.black.withOpacity(0.5);
 final kBorderRadius = BorderRadius.circular(5.0);
+
+const iconTheme = IconThemeData(
+  color: kForegroundColor,
+);
 
 final lightTheme = ThemeData(
   brightness: Brightness.dark,
@@ -31,6 +32,18 @@ final lightTheme = ThemeData(
     elevation: 0.5,
     shape: RoundedRectangleBorder(
       borderRadius: kBorderRadius,
+    ),
+  ),
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      primary: kBackgroundColor,
+      onPrimary: kForegroundColor,
+      shape: RoundedRectangleBorder(
+        side: const BorderSide(
+          color: kForegroundColor,
+        ),
+        borderRadius: BorderRadius.circular(5.0),
+      ),
     ),
   ),
 );

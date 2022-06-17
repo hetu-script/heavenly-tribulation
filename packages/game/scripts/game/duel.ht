@@ -4,32 +4,11 @@ import 'l10n.ht'
 /// 战斗模块
 /// 输入战斗相关角色的对象
 /// 生成战斗过程的文字描述，以及最终结果
-/// 
-/// 角色对象结构示例
-/// final hero = {
-///   id: '玩家',
-///   name: '玲',
-///   health: 100,
-///   life: 100,
-///   defense: 5,
-///   weapon: {
-///     name: '钢剑',
-///     attack: 25,
-///     speed: 15,
-///   },
-///   skill: {
-///     name: '绝尘剑气',
-///     attack: 100,
-///     speed: 25,
-///   },
-///   ultSpeed: 25,
-///   initiative: 10,
-/// }
 
 external fun _showDuel(context, data: Map)
 
 fun showDuel(log) -> Future {
-  return _showDuel(buildContext, data)
+  return _showDuel(buildContext, log)
 }
 
 fun _isReady(timeframe: int, speed) {
@@ -38,80 +17,102 @@ fun _isReady(timeframe: int, speed) {
 
 // damage = ((1 / (Math.log((victim.defense + 5) / 100) + 5)) * 2 * attacker._attack)
 
-fun _attack(attacker, victim, data) {
-  var damage
-  damage = data.stats.attack - victim.defense * Math.random()
-  log.add(
-    getLocaleString('attackInfo', [
-      attacker.name,
-      data.name,
-      victim.name,
-      damage.truncate(),
-    ]))
-  victim.stats.health -= damage
-  if (victim.stats.health < 0) {
-    victim.stats.health = 0
-  }
-}
 
 struct Duel {
-  construct(enemyId, { heroIsFirst }) {
-    this.log = []
-
+  construct(hero, enemy, { heroMoveFirst }) {
+    var log = []
     var timeframe = 0
 
-    final hero = game.characters[game.heroId]
-    final enemy = game.characters[enemyId]
+    var wielding;
+    var foundedWielding = false
+    for (final skill of hero.skills.equipments) {
+      if (skill.category == 'fight') {
+        wielding = skill
+        foundedWielding = true
+        break
+      }
+    }
+    if (!foundedWielding) {
+      for (final item of hero.items.equipments) {
+        if (item.category == 'weapon') {
+          wielding = item
+          foundedWielding = true
+          break
+        }
+      }
+    }
 
-    if (heroIsFirst == null) {
-      final initiativeSum = hero.attributes.perception + enemy.attributes.perception
-      final initiativeValue = initiativeSum * Math.random()
-      if (hero.attributes.perception > initiativeValue) {
+    fun _attack(attacker, victim, wielding) {
+      var damage = wielding.stats.damage - victim.stats.defense * Math.random()
+      log.add(
+        getLocaleString('attackInfo', [
+          attacker.name,
+          wielding.name,
+          victim.name,
+          damage.truncate(),
+        ]))
+      victim.stats.life -= damage
+      if (victim.stats.life < 0) {
+        victim.stats.life = 0
+      }
+    }
+    
+    if (foundedWielding) {
+      if (heroMoveFirst == null) {
+        final initiativeSum = hero.attributes.perception + enemy.attributes.perception
+        final initiativeValue = initiativeSum * Math.random()
+        if (hero.attributes.perception > initiativeValue) {
+          log.add(getLocaleString('sneakAttack', [hero.name]))
+          _attack(hero, enemy, wielding)
+        } else {
+          log.add(getLocaleString('sneakAttack', [enemy.name]))
+          _attack(enemy, hero, wielding)
+        }
+      } else if (heroMoveFirst) {
         log.add(getLocaleString('sneakAttack', [hero.name]))
-        _attack(hero, enemy)
+        _attack(hero, enemy, wielding)
       } else {
         log.add(getLocaleString('sneakAttack', [enemy.name]))
-        _attack(enemy, hero)
+        _attack(enemy, hero, wielding)
       }
-    } else if (heroIsFirst) {
-      log.add(getLocaleString('initiativeAttack', [hero.name]))
-      _attack(hero, enemy)
+
+      this.result = false
+
+      while (true) {
+        ++timeframe
+        if (timeframe >=1000) {
+          log.add(getLocaleString('duelVictory', [enemy.name]))
+          break
+        }
+
+        if (enemy.stats.life <= 0) {
+          log.add(getLocaleString('duelVictory', [hero.name]))
+          this.result = true
+          break
+        }
+        
+        if (hero.stats.life <= 0) {
+          log.add(getLocaleString('duelVictory', [enemy.name]))
+          break
+        }
+
+        for (final item of hero.items.equipments) {
+          if (_isReady(timeframe, item.stats.speed)) {
+            _attack(hero, enemy, item)
+          }
+        }
+
+        for (final item of enemy.items.equipments) {
+          if (_isReady(timeframe, item.stats.speed)) {
+            _attack(enemy, hero, item)
+          }
+        }
+      }
     } else {
-      log.add(getLocaleString('initiativeAttack', [enemy.name]))
-      _attack(enemy, hero)
+      log.add(getLocaleString('failedAttackDueToEmptyHand'))
+      this.result = false
     }
-
-    this.hasWon = false
-
-    while (true) {
-      ++timeframe
-      if (timeframe >=1000) {
-        log.add(getLocaleString('duelVictory', [enemy.name]))
-        break
-      }
-
-      if (enemy.stats.health <= 0) {
-        log.add(getLocaleString('duelVictory', [hero.name]))
-        this.hasWon = true
-        break
-      }
-      
-      if (hero.stats.health <= 0) {
-        log.add(getLocaleString('duelVictory', [enemy.name]))
-        break
-      }
-
-      if (_isReady(timeframe, hero.skill.speed)) {
-        _attack(hero, enemy, true)
-      } else if (_isReady(timeframe, hero.weapon.speed)) {
-        _attack(hero, enemy)
-      }
-
-      if (_isReady(timeframe, enemy.skill.speed)) {
-        _attack(enemy, hero, true)
-      } else if (_isReady(timeframe, hero.weapon.speed)) {
-        _attack(enemy, hero)
-      }
-    }
+    
+    this.log = log
   }
 }

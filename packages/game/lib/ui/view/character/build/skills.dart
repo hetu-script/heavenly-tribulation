@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../item_grid.dart';
+import 'item_grid.dart';
 
 const kSkillSlotCount = 20;
 
@@ -9,9 +9,12 @@ class SkillsView extends StatelessWidget {
   const SkillsView({
     Key? key,
     required this.data,
+    required this.onSelect,
   }) : super(key: key);
 
   final HTStruct data;
+
+  final void Function(HTStruct item, Offset screenPosition) onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -20,9 +23,14 @@ class SkillsView extends StatelessWidget {
     final skills = <ItemGrid>[];
     for (var i = 0; i < kSkillSlotCount; ++i) {
       if (i < knowledges.length) {
-        skills.add(ItemGrid(data: knowledges[i]));
+        skills.add(ItemGrid(
+          data: knowledges[i],
+          onSelect: onSelect,
+        ));
       } else {
-        skills.add(const ItemGrid());
+        skills.add(ItemGrid(
+          onSelect: onSelect,
+        ));
       }
     }
 
@@ -31,18 +39,22 @@ class SkillsView extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const <Widget>[
+          children: <Widget>[
             ItemGrid(
               verticalMargin: 40,
+              onSelect: onSelect,
             ),
             ItemGrid(
               verticalMargin: 40,
+              onSelect: onSelect,
             ),
             ItemGrid(
               verticalMargin: 40,
+              onSelect: onSelect,
             ),
             ItemGrid(
               verticalMargin: 40,
+              onSelect: onSelect,
             ),
           ],
         ),

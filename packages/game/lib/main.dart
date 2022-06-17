@@ -12,6 +12,15 @@ import 'ui/view/character/character.dart';
 import 'ui/view/information/information.dart';
 import 'global.dart';
 
+class CustomWindowListener extends WindowListener {
+  @override
+  void onWindowResize() async {
+    engine.info(
+        '窗口大小已经修改为：${GlobalConfig.screenSize.width}x${GlobalConfig.screenSize.height}');
+    GlobalConfig.screenSize = await windowManager.getSize();
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -25,6 +34,7 @@ void main() async {
     GlobalConfig.isOnDesktop = true;
     GlobalConfig.orientationMode = OrientationMode.landscape;
     await windowManager.ensureInitialized();
+    windowManager.addListener(CustomWindowListener());
     // WindowOptions windowOptions = const WindowOptions(
     //   fullScreen: true,
     // );
@@ -37,7 +47,7 @@ void main() async {
 
   engine.info('系统版本：${Platform.operatingSystemVersion}');
   engine.info(
-      '逻辑分辨率：${GlobalConfig.screenSize.width}x${GlobalConfig.screenSize.height}');
+      '窗口逻辑大小：${GlobalConfig.screenSize.width}x${GlobalConfig.screenSize.height}');
 
   runApp(
     MaterialApp(
