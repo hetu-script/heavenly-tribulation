@@ -4,6 +4,7 @@ import 'package:data_table_2/data_table_2.dart';
 import '../../global.dart';
 import '../shared/empty_placeholder.dart';
 import '../shared/constants.dart';
+import '../shared/responsive_route.dart';
 
 class CharacterSelectionDialog extends StatelessWidget {
   static Future<dynamic> show(
@@ -35,8 +36,9 @@ class CharacterSelectionDialog extends StatelessWidget {
     final layout = Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        centerTitle: true,
         title: Text(engine.locale['characterSelection']),
-        actions: const <Widget>[CloseButton()],
+        actions: const [CloseButton()],
       ),
       body: DataTable2(
         minWidth: 760,
@@ -113,23 +115,9 @@ class CharacterSelectionDialog extends StatelessWidget {
       ),
     );
 
-    if (GlobalConfig.orientationMode == OrientationMode.landscape) {
-      return ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: GlobalConfig.screenSize.height - 100,
-          maxWidth: GlobalConfig.screenSize.width - 100,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.only(left: 50.0, top: 50.0),
-          child: SizedBox(
-            width: 400,
-            height: 300,
-            child: layout,
-          ),
-        ),
-      );
-    } else {
-      return layout;
-    }
+    return ResponsiveRoute(
+      child: layout,
+      alignment: AlignmentDirectional.center,
+    );
   }
 }

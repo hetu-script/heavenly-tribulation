@@ -33,7 +33,7 @@ class _CodeEditorState extends State<CodeEditor> with TickerProviderStateMixin {
   final _textFieldFocusNodes = <FocusNode>[];
   TabController? _tabController;
   final _tabs = <BorderedTab>[];
-  final _textFields = <Widget>[];
+  final _textFields = [];
   final _openedNames = <String>[];
   int _selectedIndex = -1;
   final _fileListItem = <Widget>[];
@@ -137,7 +137,7 @@ class _CodeEditorState extends State<CodeEditor> with TickerProviderStateMixin {
       return SizedBox(
         width: constraints.maxWidth,
         child: Stack(
-          children: <Widget>[
+          children: [
             Positioned(
               child: GestureDetector(
                 onTap: () {

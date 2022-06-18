@@ -126,7 +126,7 @@ class _CharacterListViewState extends State<CharacterListView>
                   physics: const AlwaysScrollableScrollPhysics(
                       parent: BouncingScrollPhysics()),
                   shrinkWrap: true,
-                  children: <Widget>[
+                  children: [
                     Align(
                       alignment: Alignment.topCenter,
                       child: Padding(

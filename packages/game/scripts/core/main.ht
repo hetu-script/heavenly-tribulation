@@ -1,36 +1,34 @@
-import 'module:game' as game
+import 'module:game' as tdqj
 import 'meta.json' as meta
 
 export 'l10n/localizations.ht'
-export 'data/dialogs.ht'
-export 'data/locations.ht'
-export 'data/mazes.ht'
 export 'binding/bindings.ht'
+export 'data/sandbox_story/dialogs.ht'
 
 final modinfo = {
   ...meta,
   onNewGameStarted: (arg) {
-    game.engine.info('触发新游戏事件 [${this.name}]')
+    tdqj.engine.info('触发新游戏事件 [${this.name}]')
   },
   onUpdate: (arg) {
-    game.engine.info('触发时间更新事件 [${this.name}]')
+    tdqj.engine.info('触发时间更新事件 [${this.name}]')
   }
 }
 
 fun load {
-  game.engine.info('载入 [${meta.id}]')
-  game.loadBinding(modinfo)
-  game.loadBindings(bindings)
-  game.engine.info('[${meta.id}] 载入完毕')
+  tdqj.engine.info('载入 [${meta.id}]')
+  tdqj.loadBinding(modinfo)
+  tdqj.loadBindings(bindings)
+  tdqj.engine.info('[${meta.id}] 载入完毕')
 }
 
 fun init {
-  game.engine.info('初始化模组 ${meta.id}')
+  tdqj.engine.info('初始化模组 ${meta.id}')
 
-  game.addModInfo(meta)
+  tdqj.addModInfo(meta)
 
-  game.addLocales(localizations)
-  game.engine.updateLocales(locale.current.toJson())
+  tdqj.addLocales(localizations)
+  tdqj.engine.updateLocales(tdqj.locales[tdqj.locales.currentLocaleId])
 
   // addCharacters(characters)
 
@@ -45,5 +43,5 @@ fun init {
 
   load()
 
-  game.engine.info('模组: [${meta.id}] 初始化完毕...')
+  tdqj.engine.info('模组: [${meta.id}] 初始化完毕...')
 }

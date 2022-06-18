@@ -14,6 +14,8 @@ fun currentYear => toYear(game.timestamp)
 fun currentMonth => toMonth(game.timestamp)
 fun currentDay => toDay(game.timestamp)
 
+fun getDateTimeString() => formatDateTimeString(game.timestamp, format: 'date')
+
 // [format] = 'age' | 'date' | 'time' . 'ymd' | 'ym' | 'md' | 'd' | 'auto'
 fun formatDateTimeString(timestamp: int, {format: str}) {
   var yearN = toYear(timestamp)

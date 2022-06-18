@@ -58,7 +58,7 @@ class _GameEditorState extends State<GameEditor>
           content: TextField(
             controller: _textFieldController,
           ),
-          actions: <Widget>[
+          actions: [
             ElevatedButton(
               child: Text(locale['cancel']),
               onPressed: () {
@@ -109,7 +109,7 @@ class _GameEditorState extends State<GameEditor>
           appBar: AppBar(
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
+              children: [
                 Container(
                   alignment: Alignment.center,
                   margin: const EdgeInsets.only(right: 10.0),
@@ -178,7 +178,7 @@ class _GameEditorState extends State<GameEditor>
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
+            children: [
               ElevatedButton(
                 onPressed: _newProject,
                 child: SizedBox(

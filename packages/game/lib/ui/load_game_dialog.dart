@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../global.dart';
+import 'shared/responsive_route.dart';
 
 class SaveInfo {
   final String timestamp;
@@ -22,10 +23,7 @@ class LoadGameDialog extends StatefulWidget {
       barrierColor: Colors.transparent,
       barrierDismissible: false,
       builder: (context) {
-        return Align(
-          alignment: Alignment.center,
-          child: LoadGameDialog(list: list),
-        );
+        return LoadGameDialog(list: list);
       },
     );
   }
@@ -41,38 +39,34 @@ class LoadGameDialog extends StatefulWidget {
 class _LoadGameDialogState extends State<LoadGameDialog> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 300,
-      height: 400,
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor,
-        borderRadius: kBorderRadius,
-        border: Border.all(
-          width: 2,
-          color: Colors.lightBlue,
-        ),
+    final layout = Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        title: Text(engine.locale['loadGame']),
+        actions: const [CloseButton()],
       ),
-      padding: const EdgeInsets.all(10.0),
-      child: Column(
-        children: <Widget>[
-          SingleChildScrollView(
+      body: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.all(5.0),
             child: ListView(
               shrinkWrap: true,
               children: widget.list
                   .map(
                     (info) => Card(
-                      color: Theme.of(context).primaryColor,
+                      color: kBackgroundColor,
                       shape: RoundedRectangleBorder(
                         side: const BorderSide(
-                          color: Colors.lightBlue,
-                          width: 2,
+                          color: kForegroundColor,
+                          width: 1,
                         ),
                         borderRadius: kBorderRadius,
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(10),
                         child: Row(
-                          children: <Widget>[
+                          children: [
                             Expanded(
                               child: Text(
                                 info.timestamp,
@@ -124,14 +118,22 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
             ),
           ),
           const Spacer(),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text(engine.locale['cancel']),
-          )
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(engine.locale['cancel']),
+            ),
+          ),
         ],
       ),
+    );
+
+    return ResponsiveRoute(
+      alignment: AlignmentDirectional.center,
+      child: layout,
     );
   }
 }

@@ -25,8 +25,7 @@ class PopupSubMenuItem<T> extends PopupMenuEntry<T> {
   final TextStyle? textStyle;
 
   @override
-  double get height =>
-      kMinInteractiveDimension; //Does not actually affect anything
+  double get height => 24;
 
   @override
   bool represents(T? value) =>
@@ -47,14 +46,13 @@ class _PopupSubMenuState<T> extends State<PopupSubMenuItem<T>> {
         theme.textTheme.subtitle1!;
 
     return PopupMenuButton<T>(
-      tooltip: widget.title,
+      tooltip: '',
       child: Padding(
-        padding: const EdgeInsets.only(
-            left: 16.0, right: 8.0, top: 12.0, bottom: 12.0),
+        padding: const EdgeInsets.only(left: 16.0, right: 8.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.max,
-          children: <Widget>[
+          children: [
             Expanded(
               child: Text(widget.title, style: style),
             ),
@@ -83,6 +81,7 @@ class _PopupSubMenuState<T> extends State<PopupSubMenuItem<T>> {
         for (final key in widget.items.keys) {
           final value = widget.items[key]!;
           items.add(PopupMenuItem<T>(
+            height: 24.0,
             value: value,
             child: Text(key, style: style),
           ));

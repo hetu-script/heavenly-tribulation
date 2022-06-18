@@ -35,11 +35,11 @@ class SkillsView extends StatelessWidget {
     }
 
     return Column(
-      children: <Widget>[
+      children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
+          children: [
             ItemGrid(
               verticalMargin: 40,
               onSelect: onSelect,
@@ -60,7 +60,7 @@ class SkillsView extends StatelessWidget {
         ),
         Expanded(
           child: ListView(
-            children: <Widget>[
+            children: [
               Align(
                 alignment: Alignment.topCenter,
                 child: Wrap(

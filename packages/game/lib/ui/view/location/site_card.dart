@@ -46,7 +46,7 @@ class SiteCard extends StatelessWidget {
                 padding: const EdgeInsets.all(5.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
+                  children: [
                     Container(
                       padding: const EdgeInsets.all(2),
                       color: Theme.of(context).primaryColor.withOpacity(0.5),

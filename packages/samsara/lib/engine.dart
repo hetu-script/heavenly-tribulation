@@ -12,21 +12,24 @@ import '../event/events.dart';
 import 'localization.dart';
 import '../shared/color.dart';
 import 'scene/scene_controller.dart';
+import 'logger/printer.dart';
+import 'logger/output.dart';
 
 class SamsaraEngine with SceneController, EventAggregator {
   final bool debugMode;
 
-  SamsaraEngine({required this.debugMode});
+  SamsaraEngine({required this.debugMode}) {
+    logger = Logger(
+      filter: null,
+      printer: _loggerPrinter,
+      output: _loggerOutput,
+    );
+  }
 
-  final logger = Logger(
-    filter: null,
-    printer: PrettyPrinter(
-      methodCount: 0,
-      printEmojis: false,
-      noBoxingByDefault: true,
-    ), // Use the PrettyPrinter to format and print log
-    output: null, // Use the default LogOutput (-> send everything to console)
-  );
+  final CustomLoggerPrinter _loggerPrinter = CustomLoggerPrinter();
+  final CustomLoggerOutput _loggerOutput = CustomLoggerOutput();
+
+  late final Logger logger;
 
   final locale = GameLocalization();
 
@@ -55,7 +58,7 @@ class SamsaraEngine with SceneController, EventAggregator {
   }
 
   late final Hetu hetu;
-  bool isLoaded = false;
+  bool isHetuReady = false;
 
   invoke(String funcName,
           {String? moduleName,
@@ -113,6 +116,8 @@ class SamsaraEngine with SceneController, EventAggregator {
         ],
       );
     }
+
+    // hetu.interpreter.bindExternalFunction('print', info, override: true);
   }
 
   @override
@@ -128,36 +133,37 @@ class SamsaraEngine with SceneController, EventAggregator {
     broadcast(SceneEvent.ended(sceneKey: key));
   }
 
-  void debug(String content) {
-    logger.d(content);
+  List<String> getLog() => _loggerOutput.log;
+
+  String _stringify(dynamic args) {
+    if (args is List) {
+      if (isHetuReady) {
+        return args.map((e) => hetu.lexicon.stringify(e)).join(' ');
+      } else {
+        return args.map((e) => e.toString()).join(' ');
+      }
+    } else {
+      if (isHetuReady) {
+        return hetu.lexicon.stringify(args);
+      } else {
+        return args.toString();
+      }
+    }
   }
 
-  void info(String content) {
-    logger.i(content);
+  void debug(dynamic content) {
+    logger.d(_stringify(content));
   }
 
-  void warning(String content) {
-    logger.w(content);
+  void info(dynamic content) {
+    logger.i(_stringify(content));
   }
 
-  void error(String content) {
-    logger.e(content);
+  void warning(dynamic content) {
+    logger.w(_stringify(content));
   }
 
-  static int getYear(int timestamp) => timestamp ~/ _ticksPerYear;
-  static int getMonth(int timestamp) =>
-      (timestamp % _ticksPerYear) ~/ _ticksPerMonth;
-  static int getDay(int timestamp) =>
-      (timestamp % _ticksPerMonth) ~/ _ticksPerDay;
-
-  static const _ticksPerDay = 4; //每天的回合数 morning, afternoon, evening, night
-  static const _daysPerMonth = 30; //每月的天数
-  static const _ticksPerMonth = _ticksPerDay * _daysPerMonth; //每月的回合数 120
-  static const _monthsPerYear = 12; //每年的月数
-  static const _ticksPerYear =
-      _ticksPerDay * _daysPerMonth * _monthsPerYear; //每年的回合数 1440
-
-  static int get oneYear => _ticksPerYear;
-  static int get oneMonth => _ticksPerMonth;
-  static int get oneDay => _ticksPerDay;
+  void error(dynamic content) {
+    logger.e(_stringify(content));
+  }
 }

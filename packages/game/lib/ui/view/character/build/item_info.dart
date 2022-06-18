@@ -28,7 +28,7 @@ class ItemInfo extends StatelessWidget {
       onTap: () {
         Navigator.of(context).pop();
       },
-      child: Stack(alignment: AlignmentDirectional.topEnd, children: <Widget>[
+      child: Stack(alignment: AlignmentDirectional.topEnd, children: [
         // Positioned(
         //   left: left,
         //   top: top,
@@ -46,7 +46,7 @@ class ItemInfo extends StatelessWidget {
             borderRadius: kBorderRadius,
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
+              children: [
                 Text(
                   data['name'],
                 ),

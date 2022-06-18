@@ -19,7 +19,7 @@ class CharacterBondsView extends StatelessWidget {
     return DefaultTabController(
       length: kCharacterBondsCategoryNum,
       child: Column(
-        children: <Widget>[
+        children: [
           PreferredSize(
             preferredSize: const Size.fromHeight(kNestedTabBarHeight),
             child: TabBar(

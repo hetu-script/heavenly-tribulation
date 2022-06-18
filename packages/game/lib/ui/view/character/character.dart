@@ -29,7 +29,7 @@ class _CharacterViewState extends State<CharacterView>
       height: 40,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
+        children: [
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.0),
             child: Icon(Icons.summarize),
@@ -42,7 +42,7 @@ class _CharacterViewState extends State<CharacterView>
       height: 40,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
+        children: [
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.0),
             child: Icon(Icons.sync_alt),
@@ -55,7 +55,7 @@ class _CharacterViewState extends State<CharacterView>
       height: 40,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
+        children: [
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.0),
             child: Icon(Icons.history),
@@ -115,7 +115,7 @@ class _CharacterViewState extends State<CharacterView>
           ),
         ),
         body: TabBarView(
-          children: <Widget>[
+          children: [
             CharacterAttributesView(data: data),
             CharacterBondsView(data: data['bonds']),
             HistoryView(data: data['experiencedIncidentIndexes']),

@@ -2,10 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
+import 'package:heavenly_tribulation/ui/view/information/information.dart';
 import 'package:path_provider/path_provider.dart' as path;
 import 'package:path/path.dart' as path;
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
+import 'package:flame_audio/flame_audio.dart';
 
 import 'popup.dart';
 import '../../../shared/json.dart';
@@ -17,6 +19,7 @@ import '../../../global.dart';
 import '../../../scene/worldmap.dart';
 import 'character_info.dart';
 import 'drop_menu.dart';
+import '../../view/console.dart';
 
 class WorldMapOverlay extends StatefulWidget {
   final WorldMapScene scene;
@@ -83,7 +86,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
     final heroData = engine.invoke('getHero');
     final screenSize = MediaQuery.of(context).size;
 
-    final screenWidgets = <Widget>[
+    final screenWidgets = [
       SizedBox(
         height: screenSize.height,
         width: screenSize.width,
@@ -102,7 +105,9 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
           onSelected: (DropMenuItems item) {
             switch (item) {
               case DropMenuItems.info:
-                Navigator.of(context).pushNamed('information');
+                showDialog(
+                    context: context,
+                    builder: (context) => const InformationPanel());
                 break;
               case DropMenuItems.viewNone:
                 map.gridMode = GridMode.none;
@@ -113,10 +118,17 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
               case DropMenuItems.viewNations:
                 map.gridMode = GridMode.nation;
                 break;
+              case DropMenuItems.console:
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => const Console(),
+                );
+                break;
               case DropMenuItems.exit:
                 engine.leaveScene('WorldMap');
                 _saveGame();
                 engine.broadcast(const GameEvent.back2Menu());
+                FlameAudio.bgm.stop();
                 break;
               default:
             }
@@ -126,20 +138,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
       Positioned(
         left: 0,
         bottom: 0,
-        child: Container(
-          width: 240,
-          height: 240,
-          decoration: BoxDecoration(
-            color: Theme.of(context).backgroundColor.withOpacity(0.5),
-            borderRadius:
-                const BorderRadius.only(topRight: Radius.circular(5.0)),
-            border: Border.all(color: kForegroundColor),
-          ),
-          padding: const EdgeInsets.all(10.0),
-          child: SingleChildScrollView(
-            child: HistoryPanel(key: UniqueKey()),
-          ),
-        ),
+        child: HistoryPanel(key: UniqueKey()),
       ),
     ];
 

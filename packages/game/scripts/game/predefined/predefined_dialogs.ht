@@ -4,6 +4,7 @@ final predefinedDialogs = [
     contents: [
       {
         avatar: 'avatar/general.jpg',
+        // background: 'cg/intro01.jpg',
         lineIds: [
           'headquartersTrain001-1',
         ],

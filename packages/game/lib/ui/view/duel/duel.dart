@@ -6,8 +6,8 @@ import '../../../global.dart';
 import '../../shared/responsive_route.dart';
 
 class Duel extends StatefulWidget {
-  static show(BuildContext context, List<dynamic> log) {
-    showDialog(
+  static Future<void> show(BuildContext context, List<dynamic> log) {
+    return showDialog(
       context: context,
       barrierColor: Colors.transparent,
       barrierDismissible: false,
@@ -85,7 +85,7 @@ class _DuelState extends State<Duel> {
       );
     }
 
-    final widgets = <Widget>[
+    final widgets = [
       ConstrainedBox(
         constraints: const BoxConstraints(
           minWidth: 200,
@@ -115,7 +115,7 @@ class _DuelState extends State<Duel> {
         width: 400,
         height: 400,
         child: Column(
-          children: <Widget>[
+          children: [
             Expanded(
               child: ListView(
                 controller: _scrollController,

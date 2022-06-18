@@ -5,40 +5,6 @@ const kAvatarEditButtonSize = 16.0;
 
 const kInformationViewTabLengths = 4;
 
-const kInformationViewNationColumns = [
-  'name',
-  'capital',
-  'gridSize',
-  'locationNumber',
-  'organizationNumber',
-];
-
-const kInformationViewLocationColumns = [
-  'name',
-  'nation',
-  'organization',
-  'category',
-  'development',
-];
-
-const kInformationViewOrganizationColumns = [
-  'name',
-  'leader',
-  'headquartersLocation',
-  'locationNumber',
-  'memberNumber',
-  'development',
-];
-
-const kInformationViewCharacterColumns = [
-  'name',
-  'currentLocation',
-  'organization',
-  'spiritRank',
-  'fame',
-  // 'infamy',
-];
-
 const kCharacterBondsCategoryNum = 5;
 
 const kCharacterBondsTableColumns = [
@@ -61,5 +27,5 @@ const kCharacterSelectionTableColumns = [
   'request',
   'insult',
   'steal',
-  'peep',
+  'peep'
 ];

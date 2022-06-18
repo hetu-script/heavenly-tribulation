@@ -36,7 +36,7 @@ class _MazeOverlayState extends State<MazeOverlay> {
     return Material(
       color: Colors.transparent,
       child: Stack(
-        children: <Widget>[
+        children: [
           SizedBox(
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
@@ -57,7 +57,7 @@ class _MazeOverlayState extends State<MazeOverlay> {
                 ),
                 padding: const EdgeInsets.all(10.0),
                 child: Row(
-                  children: <Widget>[
+                  children: [
                     Avatar(
                       avatarAssetKey: 'assets/images/${heroData['avatar']}',
                     ),

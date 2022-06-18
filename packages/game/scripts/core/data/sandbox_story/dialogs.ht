@@ -1,0 +1,17 @@
+// 穿越之后，碰到一个奇怪的元神。
+// 他想要对你进行夺舍，但失败了。被困在了你的身体里。
+// 
+
+final dialogs = [
+  {
+    id: 'story01_001',
+    contents: [
+      {
+        avatar: 'avatar/story_male_01.jpg',
+        lines: [
+          '',
+        ],
+      },
+    ]
+  },
+]

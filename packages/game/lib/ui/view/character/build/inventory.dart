@@ -35,11 +35,11 @@ class InventoryView extends StatelessWidget {
     }
 
     return Column(
-      children: <Widget>[
+      children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
+          children: [
             ItemGrid(
               verticalMargin: 40,
               data: data['equipments'][1],
@@ -64,7 +64,7 @@ class InventoryView extends StatelessWidget {
         ),
         Expanded(
           child: ListView(
-            children: <Widget>[
+            children: [
               Align(
                 alignment: Alignment.topCenter,
                 child: Wrap(

@@ -517,7 +517,6 @@ fun createWorldMap({
     final weapon = Weapon()
     // leader.items.inventory.add(weapon)
     leader.items.equipments[1] = weapon
-    engine.info('为每个创派掌门生成初始物品')
 
     final org = Organization(
       category: _kOrganizationCategoryCultivation,

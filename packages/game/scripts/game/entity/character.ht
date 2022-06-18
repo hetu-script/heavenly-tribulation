@@ -8,7 +8,7 @@ import 'constants.ht'
 import '../duel.ht'
 
 // number of the male avatar images
-const kMaleAvatarCount = 37
+const kMaleAvatarCount = 36
  // number of the female avatar images
 const kFemaleAvatarCount = 75
 const kCharacterInitialMinAge = 10
@@ -60,7 +60,7 @@ struct Character {
     }
     if (isFemale) {
       final index = Math.randomInt(kFemaleAvatarCount)
-      this.avatar = 'avatar/male/${index}.jpg';
+      this.avatar = 'avatar/female/${index}.jpg';
     } else {
       final index = Math.randomInt(kMaleAvatarCount)
       this.avatar = 'avatar/male/${index}.jpg';
@@ -96,6 +96,9 @@ struct Character {
 
     // // 恶名，知道名字中，对此人差评的人的数量
     // this.infamy = 0
+
+    // 身上携带的金钱数量
+    this.wealth = 0
 
     this.skills = {
       inventory: [],
@@ -207,8 +210,27 @@ fun generateRandomAttributes(maxStats, minValue) {
 }
 
 fun recalculateAttributesOfCharacter(character) {
-  character.stats.maxLife = character.stats.life = 100 + character.attributes.strength ~/ 5 * 10
-  character.stats.maxStamina = character.stats.stamina = 100 + character.attributes.strength ~/ 10 * 5
+  character.attributes.life = character.stats.life = 100 + character.attributes.strength ~/ 5 * 10
+  character.attributes.stamina = character.stats.stamina = 100 + character.attributes.strength ~/ 10 * 5
+}
+
+fun getStatsPercentageOfCharacter(character) {
+  final life = (character.stats.life / character.attributes.life)
+  final stamina = (character.stats.stamina / character.attributes.stamina)
+  return {
+    life: {
+      current: character.stats.life,
+      max: character.attributes.life,
+      percentage: life,
+      string: life.toPercentageString(2),
+    },
+    stamina: {
+      current: character.stats.stamina,
+      max: character.attributes.stamina,
+      percentage: stamina,
+      string: stamina.toPercentageString(2),
+    }
+  }
 }
 
 // 第一印象分
@@ -421,6 +443,7 @@ fun handleCharacterInteraction(characterId) {
     selections.peep = getLocaleString('peep')
   }
   selections.sneekAttack = getLocaleString('sneekAttack')
+  selections.leave = getLocaleString('leave')
   showSelectionDialog(selections)
   .then((key) {
     when (key) {

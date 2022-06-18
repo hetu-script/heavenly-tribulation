@@ -26,35 +26,33 @@ class ItemGrid extends StatelessWidget {
     final iconAssetKey = data?['icon'];
 
     return GestureDetector(
+      onTapUp: (TapUpDetails details) {
+        if (data != null) {
+          onSelect(data!, details.globalPosition);
+        }
+      },
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: Tooltip(
           message: data?['name'] ?? '',
-          child: GestureDetector(
-            onTapUp: (TapUpDetails details) {
-              if (data != null) {
-                onSelect(data!, details.globalPosition);
-              }
-            },
-            child: Container(
-              width: size,
-              height: size,
-              margin: EdgeInsets.symmetric(
-                  vertical: verticalMargin, horizontal: horizontalMargin),
-              decoration: BoxDecoration(
-                color: kBackgroundColor,
-                border: Border.all(
-                  color: Colors.white54,
-                  width: 2,
-                ),
-                image: iconAssetKey != null
-                    ? DecorationImage(
-                        fit: BoxFit.contain,
-                        image: AssetImage('assets/images/$iconAssetKey'),
-                      )
-                    : null,
-                borderRadius: kBorderRadius,
+          child: Container(
+            width: size,
+            height: size,
+            margin: EdgeInsets.symmetric(
+                vertical: verticalMargin, horizontal: horizontalMargin),
+            decoration: BoxDecoration(
+              color: kBackgroundColor,
+              border: Border.all(
+                color: Colors.white54,
+                width: 2,
               ),
+              image: iconAssetKey != null
+                  ? DecorationImage(
+                      fit: BoxFit.contain,
+                      image: AssetImage('assets/images/$iconAssetKey'),
+                    )
+                  : null,
+              borderRadius: kBorderRadius,
             ),
           ),
         ),

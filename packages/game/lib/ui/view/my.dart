@@ -60,61 +60,59 @@ class _MyViewState extends State<MyView> {
               PointerDeviceKind.mouse,
             },
           ),
-          child: Scrollbar(
-            child: Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  fit: BoxFit.fill,
-                  image: AssetImage('assets/images/interior/home.jpg'),
-                ),
+          child: Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                fit: BoxFit.fill,
+                image: AssetImage('assets/images/interior/home.jpg'),
               ),
-              child: ListView(
-                physics: const AlwaysScrollableScrollPhysics(
-                    parent: BouncingScrollPhysics()),
-                children: <Widget>[
-                  Center(
-                    child: Column(
-                      children: [
-                        const SizedBox(
-                          height: 160,
+            ),
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics()),
+              children: [
+                Center(
+                  child: Column(
+                    children: [
+                      const SizedBox(
+                        height: 160,
+                      ),
+                      Avatar(
+                        avatarAssetKey: _avatarPath,
+                        radius: 50,
+                      ),
+                      Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: kBorderRadius,
                         ),
-                        Avatar(
-                          avatarAssetKey: _avatarPath,
-                          radius: 50,
-                        ),
-                        Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: kBorderRadius,
+                        child: SizedBox(
+                          width: 400.0,
+                          child: Column(
+                            children: [
+                              Text(
+                                _name,
+                                style: const TextStyle(fontSize: 20.0),
+                              ),
+                              const Text(
+                                  'A sufficiently long subtitle warrants three lines.'),
+                            ],
                           ),
-                          child: SizedBox(
-                            width: 400.0,
-                            child: Column(
-                              children: <Widget>[
-                                Text(
-                                  _name,
-                                  style: const TextStyle(fontSize: 20.0),
-                                ),
-                                const Text(
-                                    'A sufficiently long subtitle warrants three lines.'),
-                              ],
-                            ),
+                        ),
+                      ),
+                      Column(
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              widget.onQuit();
+                            },
+                            child: Text(locale['quit']),
                           ),
-                        ),
-                        Column(
-                          children: <Widget>[
-                            ElevatedButton(
-                              onPressed: () {
-                                widget.onQuit();
-                              },
-                              child: Text(locale['quit']),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

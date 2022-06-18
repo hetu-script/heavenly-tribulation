@@ -24,7 +24,7 @@ class ResponsiveRoute extends StatelessWidget {
     if (GlobalConfig.orientationMode == OrientationMode.landscape) {
       return Stack(
         alignment: alignment,
-        children: <Widget>[
+        children: [
           Container(
             width: size?.width,
             height: size?.height,

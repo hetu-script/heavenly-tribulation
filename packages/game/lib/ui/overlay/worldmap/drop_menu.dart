@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../shared/popup_submenu_item.dart';
 import '../../../global.dart';
 
-enum DropMenuItems { info, viewNone, viewZones, viewNations, exit }
+enum DropMenuItems { info, viewNone, viewZones, viewNations, console, exit }
 
 class DropMenu extends StatelessWidget {
   const DropMenu({Key? key, required this.onSelected}) : super(key: key);
@@ -25,6 +25,7 @@ class DropMenu extends StatelessWidget {
         onSelected: onSelected,
         itemBuilder: (BuildContext context) => <PopupMenuEntry<DropMenuItems>>[
           PopupMenuItem<DropMenuItems>(
+            height: 24.0,
             value: DropMenuItems.info,
             child: Container(
               alignment: Alignment.centerLeft,
@@ -41,8 +42,18 @@ class DropMenu extends StatelessWidget {
               engine.locale['nation']: DropMenuItems.viewNations,
             },
           ),
+          PopupMenuItem<DropMenuItems>(
+            height: 24.0,
+            value: DropMenuItems.console,
+            child: Container(
+              alignment: Alignment.centerLeft,
+              width: 100,
+              child: Text(engine.locale['console']),
+            ),
+          ),
           const PopupMenuDivider(),
           PopupMenuItem<DropMenuItems>(
+            height: 24.0,
             value: DropMenuItems.exit,
             child: Container(
               alignment: Alignment.centerLeft,

@@ -90,7 +90,7 @@ class _LocationViewState extends State<LocationView>
     //           padding: const EdgeInsets.all(8.0),
     //           child: Column(
     //             crossAxisAlignment: CrossAxisAlignment.start,
-    //             children: <Widget>[
+    //             children: [
     //               Text(
     //                 locationName,
     //                 style: const TextStyle(fontSize: 24.0),
@@ -120,13 +120,13 @@ class _LocationViewState extends State<LocationView>
         automaticallyImplyLeading: false,
         centerTitle: true,
         title: Text(locationName),
-        actions: const <Widget>[ButtonClose()],
+        actions: const [ButtonClose()],
       ),
       body: ListView(
         physics: const AlwaysScrollableScrollPhysics(
             parent: BouncingScrollPhysics()),
         shrinkWrap: true,
-        children: <Widget>[
+        children: [
           Align(
             alignment: Alignment.topCenter,
             child: Padding(

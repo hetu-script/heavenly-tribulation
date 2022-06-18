@@ -222,10 +222,10 @@ class _CharacterEditorState extends State<CharacterEditor>
         ),
       ),
       body: Column(
-        children: <Widget>[
+        children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
+            children: [
               BorderedIconButton(
                 onPressed: () {
                   setState(() {
@@ -282,7 +282,7 @@ class _CharacterEditorState extends State<CharacterEditor>
                 physics: const AlwaysScrollableScrollPhysics(
                     parent: BouncingScrollPhysics()),
                 shrinkWrap: true,
-                children: <Widget>[
+                children: [
                   SizedBox(
                     height: 150.0,
                     child: Stack(

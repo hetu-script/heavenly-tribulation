@@ -16,27 +16,27 @@ fun addDialogs(dlgs: List) {
       if (content.lineIds) {
         content.lines = content.lineIds.map(
           (id) => getLocaleString(id)
-        )
+        ).toList()
       }
     }
     dialogs[dlg.id] = dlg
   }
 }
 
-external fun _showGameDialog(context, data: Map)
+external fun _showGameDialog(context, data)
 
 fun showGameDialogById(id: str) -> Future {
   final dlg = dialogs[id]
-  return _showGameDialog(buildContext, dlg.toJson())
+  return _showGameDialog(buildContext, dlg)
 }
 
-external fun _showSelectionDialog(buildContext, selections)
+external fun _showSelectionDialog(context, selections)
 
 fun showSelectionDialog(selections) -> Future {
   return _showSelectionDialog(buildContext, selections)
 }
 
-external fun _showCharacterSelectionDialog(buildContext, idList)
+external fun _showCharacterSelectionDialog(context, idList)
 
 fun showCharacterSelectionDialog(idList) -> Future {
   return _showCharacterSelectionDialog(buildContext, idList)

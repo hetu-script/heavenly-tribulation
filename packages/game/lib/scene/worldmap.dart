@@ -2,12 +2,13 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
-import 'package:heavenly_tribulation/ui/overlay/worldmap/worldmap.dart';
+import 'package:flame_audio/flame_audio.dart';
 
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
 
 import '../global.dart';
+import '../ui/overlay/worldmap/worldmap.dart';
 
 class WorldMapScene extends Scene {
   TileMap? map;
@@ -42,6 +43,8 @@ class WorldMapScene extends Scene {
     add(map!);
     isMapReady = true;
     engine.broadcast(const MapEvent.mapLoaded());
+
+    FlameAudio.bgm.play('music/chinese-oriental-tune-06-12062.mp3');
   }
 
   @override

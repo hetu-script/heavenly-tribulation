@@ -1,9 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/ui/view/character/character.dart';
 import 'package:hetu_script/values.dart' show HTStruct;
 
 import '../../../global.dart';
 import 'game_entity_listview.dart';
 import '../../shared/constants.dart';
+import '../../shared/responsive_route.dart';
+import '../../shared/close_button.dart';
+
+const kInformationViewCharacterColumns = [
+  'name',
+  'currentLocation',
+  'organization',
+  'fame',
+  // 'infamy',
+];
+
+const kInformationViewNationColumns = [
+  'name',
+  'capital',
+  'gridSize',
+  'locationNumber',
+  'organizationNumber',
+];
+
+const kInformationViewLocationColumns = [
+  'name',
+  'nation',
+  'organization',
+  'category',
+  'development',
+];
+
+const kInformationViewOrganizationColumns = [
+  'name',
+  'leader',
+  'headquartersLocation',
+  'locationNumber',
+  'memberNumber',
+  'development',
+];
 
 class InformationPanel extends StatefulWidget {
   const InformationPanel({Key? key}) : super(key: key);
@@ -143,9 +179,6 @@ class _InformationPanelState extends State<InformationPanel>
       } else {
         rowData.add(engine.locale['none']);
       }
-      // 境界
-      final spiritRank = char['spiritRank'];
-      rowData.add(engine.locale['spiritRank$spiritRank']);
       // 名声
       final int fame = char['fame'];
       rowData.add(fame.toString());
@@ -159,66 +192,68 @@ class _InformationPanelState extends State<InformationPanel>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return Container(
-      padding: const EdgeInsets.all(50),
-      child: DefaultTabController(
-        length: kInformationViewTabLengths,
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text(engine.locale['info']),
-            bottom: TabBar(
-              tabs: [
-                Tab(
-                  icon: const Icon(Icons.person),
-                  text:
-                      '${engine.locale['character']}(${_charactersFieldRow.length})',
-                ),
-                Tab(
-                  icon: const Icon(Icons.groups),
-                  text:
-                      '${engine.locale['organization']}(${_organizationsFieldRow.length})',
-                ),
-                Tab(
-                  icon: const Icon(Icons.location_city),
-                  text:
-                      '${engine.locale['location']}(${_locationsFieldRow.length})',
-                ),
-                Tab(
-                  icon: const Icon(Icons.public),
-                  text:
-                      '${engine.locale['nation']}(${_nationsFieldRow.length})',
-                ),
-              ],
-            ),
-          ),
-          body: TabBarView(
-            children: <Widget>[
-              GameEntityListView(
-                columns: kInformationViewCharacterColumns,
-                data: _charactersFieldRow,
-                onTap: (dataId) {
-                  Navigator.of(context).pushNamed(
-                    'character',
-                    arguments: dataId,
-                  );
-                },
+    final layout = DefaultTabController(
+      length: kInformationViewTabLengths,
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          centerTitle: true,
+          title: Text(engine.locale['info']),
+          actions: const [ButtonClose()],
+          bottom: TabBar(
+            tabs: [
+              Tab(
+                icon: const Icon(Icons.person),
+                text:
+                    '${engine.locale['character']}(${_charactersFieldRow.length})',
               ),
-              GameEntityListView(
-                columns: kInformationViewOrganizationColumns,
-                data: _organizationsFieldRow,
+              Tab(
+                icon: const Icon(Icons.groups),
+                text:
+                    '${engine.locale['organization']}(${_organizationsFieldRow.length})',
               ),
-              GameEntityListView(
-                columns: kInformationViewLocationColumns,
-                data: _locationsFieldRow,
+              Tab(
+                icon: const Icon(Icons.location_city),
+                text:
+                    '${engine.locale['location']}(${_locationsFieldRow.length})',
               ),
-              GameEntityListView(
-                columns: kInformationViewNationColumns,
-                data: _nationsFieldRow,
+              Tab(
+                icon: const Icon(Icons.public),
+                text: '${engine.locale['nation']}(${_nationsFieldRow.length})',
               ),
             ],
           ),
         ),
+        body: TabBarView(
+          children: [
+            GameEntityListView(
+              columns: kInformationViewCharacterColumns,
+              data: _charactersFieldRow,
+              onTap: (dataId) => showDialog(
+                context: context,
+                builder: (context) => CharacterView(characterId: dataId),
+              ),
+            ),
+            GameEntityListView(
+              columns: kInformationViewOrganizationColumns,
+              data: _organizationsFieldRow,
+            ),
+            GameEntityListView(
+              columns: kInformationViewLocationColumns,
+              data: _locationsFieldRow,
+            ),
+            GameEntityListView(
+              columns: kInformationViewNationColumns,
+              data: _nationsFieldRow,
+            ),
+          ],
+        ),
       ),
+    );
+
+    return ResponsiveRoute(
+      alignment: AlignmentDirectional.center,
+      child: layout,
     );
   }
 }

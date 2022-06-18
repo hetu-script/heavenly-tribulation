@@ -119,8 +119,8 @@ class _MainMenuState extends State<MainMenu> {
             globallyImport: true,
             invokeFunc: 'init',
             namedArgs: {'lang': 'zh', 'gameEngine': engine});
-        // engine.hetu.evalFile('core/main.ht', invokeFunc: 'init');
-        // engine.hetu.interpreter.switchModule('game');
+        engine.hetu.evalFile('core/main.ht', invokeFunc: 'init');
+        engine.hetu.interpreter.switchModule('game');
       } else {
         final mod = await rootBundle.load('assets/script.mod');
         final bytes = mod.buffer.asUint8List();
@@ -132,7 +132,7 @@ class _MainMenuState extends State<MainMenu> {
           namedArgs: {'lang': 'zh', 'gameEngine': engine},
         );
       }
-      engine.isLoaded = true;
+      engine.isHetuReady = true;
 
       await refreshSaves();
 
@@ -151,7 +151,7 @@ class _MainMenuState extends State<MainMenu> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return LoadingScreen(
-          text: engine.isLoaded ? engine.locale['loading'] : 'Loading...');
+          text: engine.isHetuReady ? engine.locale['loading'] : 'Loading...');
     }
     // else if (currentLocationId != null) {
     //   return LocationView(locationId: currentLocationId!);
@@ -234,7 +234,7 @@ class _MainMenuState extends State<MainMenu> {
       Widget layout;
       if (GlobalConfig.orientationMode == OrientationMode.landscape) {
         layout = Stack(
-          children: <Widget>[
+          children: [
             Positioned(
               left: 20.0,
               bottom: 20.0,

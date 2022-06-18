@@ -2,28 +2,27 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:hetu_script/values.dart';
 
-import 'game_dialog_data.dart';
 import '../../shared/avatar.dart';
 import '../../../global.dart';
 
 class GameDialog extends StatefulWidget {
   static Future<void> show(
     BuildContext context,
-    Map<String, dynamic> jsonData,
-  ) async {
-    final dlgData = GameDialogData.fromJson(jsonData);
-    return await showDialog<void>(
+    HTStruct data,
+  ) {
+    return showDialog<void>(
       context: context,
-      builder: (BuildContext context) {
-        return GameDialog(data: dlgData);
-      },
       barrierColor: kBackgroundColor.withOpacity(0.5),
       barrierDismissible: false,
+      builder: (BuildContext context) {
+        return GameDialog(data: data);
+      },
     );
   }
 
-  final GameDialogData data;
+  final HTStruct data;
 
   const GameDialog({
     Key? key,
@@ -35,11 +34,12 @@ class GameDialog extends StatefulWidget {
 }
 
 class _GameDialogState extends State<GameDialog> {
-  GameDialogData get _data => widget.data;
+  HTStruct get _data => widget.data;
   Timer? _timer;
   String? _currentAvatar;
   String _currentSay = '';
   int _currentContentIndex = 0;
+  HTStruct? _currentContent;
   int _currentSayIndex = 0;
   int _letterCount = 0;
   bool _finished = false;
@@ -48,8 +48,6 @@ class _GameDialogState extends State<GameDialog> {
 
   @override
   void initState() {
-    assert(_data.contents.isNotEmpty);
-    assert(_data.contents.first.lines.isNotEmpty);
     _startTalk();
     super.initState();
   }
@@ -63,6 +61,19 @@ class _GameDialogState extends State<GameDialog> {
 
   @override
   Widget build(BuildContext context) {
+    BoxDecoration? backgroundImage;
+    if (_currentContent != null) {
+      final cg = _currentContent!['background'];
+      if (cg != null) {
+        backgroundImage = BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/' + cg!),
+            fit: BoxFit.cover,
+          ),
+        );
+      }
+    }
+
     return GestureDetector(
       onTap: () {
         if (_finished) {
@@ -74,7 +85,12 @@ class _GameDialogState extends State<GameDialog> {
       child: Material(
         type: MaterialType.transparency,
         child: Stack(
-          children: <Widget>[
+          children: [
+            Expanded(
+              child: Container(
+                decoration: backgroundImage,
+              ),
+            ),
             Positioned(
               left: 20,
               right: 20,
@@ -84,11 +100,12 @@ class _GameDialogState extends State<GameDialog> {
                 decoration: BoxDecoration(
                   color: kBackgroundColor,
                   borderRadius: kBorderRadius,
+                  border: Border.all(color: kForegroundColor),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Row(
-                    children: <Widget>[
+                    children: [
                       Avatar(
                         avatarAssetKey: 'assets/images/$_currentAvatar',
                         size: const Size(200.0, 200.0),
@@ -97,7 +114,7 @@ class _GameDialogState extends State<GameDialog> {
                         padding: const EdgeInsets.only(left: 20.0),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
+                          children: [
                             StreamBuilder(
                               stream: _textShowController.stream,
                               builder:
@@ -130,9 +147,9 @@ class _GameDialogState extends State<GameDialog> {
     setState(() {
       _finished = false;
       _letterCount = 0;
-      final currentContent = _data.contents[_currentContentIndex];
-      _currentAvatar = currentContent.avatar;
-      _currentSay = currentContent.lines[_currentSayIndex];
+      _currentContent = _data['contents'][_currentContentIndex];
+      _currentAvatar = _currentContent!['avatar'];
+      _currentSay = _currentContent!['lines'][_currentSayIndex];
       _timer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
         _letterCount++;
         if (_letterCount > _currentSay.length) {
@@ -146,7 +163,7 @@ class _GameDialogState extends State<GameDialog> {
 
   void _nextSay() {
     ++_currentSayIndex;
-    if (_currentSayIndex >= _data.contents[_currentContentIndex].lines.length) {
+    if (_currentSayIndex >= _currentContent!['lines'].length) {
       _nextContent();
     } else {
       _startTalk();
@@ -162,7 +179,7 @@ class _GameDialogState extends State<GameDialog> {
   void _nextContent() {
     _currentSayIndex = 0;
     ++_currentContentIndex;
-    if (_currentContentIndex < _data.contents.length) {
+    if (_currentContentIndex < _data['contents'].length) {
       _startTalk();
     } else {
       _currentContentIndex = 0;

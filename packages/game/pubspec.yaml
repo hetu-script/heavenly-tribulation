@@ -10,8 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_localizations:
-    sdk: flutter
+  # flutter_localizations:
+  #   sdk: flutter
 
   meta: ^1.7.0
 
@@ -21,14 +21,16 @@ dependencies:
   flame:
     ^1.2.0
     # path: ../../../flame/packages/flame
-
-  samsara:
-    path: ../samsara
+  flame_audio: ^1.1.0
+  flame_splash_screen: ^0.1.0
 
   hetu_script:
     path: ../../../hetu-script/packages/hetu_script
-  # hetu_script_flutter:
-  #   path: ../../../hetu-script/packages/hetu_script_flutter
+  hetu_script_flutter:
+    path: ../../../hetu-script/packages/hetu_script_flutter
+
+  samsara:
+    path: ../samsara
 
   code_text_field: ^1.0.2
   highlight: ^0.7.0
@@ -39,6 +41,7 @@ dependencies:
   data_table_2: ^2.2.0
   window_manager: ^0.2.5
   logger: ^1.1.0
+  gradient_widgets: ^0.6.0
 
 dev_dependencies:
   flutter_test:
@@ -58,8 +61,12 @@ flutter:
   assets:
     - assets/
 
+    - assets/audio/
+    - assets/audio/music/
+
     - assets/images/
     - assets/images/bg/
+    - assets/images/cg/
     - assets/images/avatar/
     - assets/images/avatar/female/
     - assets/images/avatar/male/
@@ -76,6 +83,7 @@ flutter:
     - scripts/core/
     - scripts/core/binding/
     - scripts/core/data/
+    - scripts/core/data/sandbox_story/
     - scripts/core/l10n/
     - scripts/game/
     - scripts/game/entity/

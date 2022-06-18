@@ -29,7 +29,7 @@ class _BuildViewState extends State<BuildView>
       height: 40,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
+        children: [
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.0),
             child: Icon(Icons.inventory),
@@ -42,7 +42,7 @@ class _BuildViewState extends State<BuildView>
       height: 40,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
+        children: [
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 8.0),
             child: Icon(Icons.library_books),
@@ -100,7 +100,7 @@ class _BuildViewState extends State<BuildView>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: <Widget>[
+        children: [
           InventoryView(
             data: data['items'],
             onSelect: (item, screenPosition) {

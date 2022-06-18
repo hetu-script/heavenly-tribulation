@@ -56,10 +56,10 @@ class CharacterAttributesView extends StatelessWidget {
         ),
         child: ListView(
           shrinkWrap: true,
-          children: <Widget>[
+          children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
+              children: [
                 Container(
                   alignment: Alignment.topLeft,
                   margin: const EdgeInsets.symmetric(vertical: 10),
@@ -73,7 +73,6 @@ class CharacterAttributesView extends StatelessWidget {
                 Text('${engine.locale['age']}: $ageString'),
                 Text(
                     '${engine.locale['looks']}: ${data['looks'].toStringAsFixed(2)}'),
-                Text('${engine.locale['fame']}: ${data['fame'].toString()}'),
                 Text('${engine.locale['fame']}: ${data['fame'].toString()}'),
                 Text('---${engine.locale['attributes']}---'),
                 Text('${engine.locale['strength']}: $strength'),

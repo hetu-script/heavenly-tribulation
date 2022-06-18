@@ -30,30 +30,30 @@ class BorderedIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: size.width,
-      height: size.height,
-      margin: margin,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(color: kForegroundColor),
-        // shape: BoxShape.rectangle,
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: Colors.grey.withOpacity(0.5),
-        //     spreadRadius: 3,
-        //     blurRadius: 6,
-        //     offset: const Offset(0, 2), // changes position of shadow
-        //   ),
-        // ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: onPressed,
+    return GestureDetector(
+      onTap: onPressed,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Container(
+          width: size.width,
+          height: size.height,
+          margin: margin,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(borderRadius),
+            border: Border.all(color: kForegroundColor),
+            // shape: BoxShape.rectangle,
+            // boxShadow: [
+            //   BoxShadow(
+            //     color: Colors.grey.withOpacity(0.5),
+            //     spreadRadius: 3,
+            //     blurRadius: 6,
+            //     offset: const Offset(0, 2), // changes position of shadow
+            //   ),
+            // ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(borderRadius),
             child: icon,
           ),
         ),

@@ -47,7 +47,7 @@ class AttributesView extends StatelessWidget {
             ),
             child: Padding(
               padding: const EdgeInsets.all(20.0),
-              child: Column(children: <Widget>[
+              child: Column(children: [
                 Text(data['name']),
               ]),
             ),
