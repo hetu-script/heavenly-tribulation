@@ -15,7 +15,7 @@ class MyView extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _MyViewState createState() => _MyViewState();
+  State<MyView> createState() => _MyViewState();
 }
 
 class _MyViewState extends State<MyView> {

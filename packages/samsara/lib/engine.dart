@@ -121,7 +121,7 @@ class SamsaraEngine with SceneController, EventAggregator {
   }
 
   @override
-  Future<Scene> createScene(String key, [String? args]) async {
+  Future<Scene> createScene(String key, [Map<String, dynamic>? args]) async {
     final scene = await super.createScene(key, args);
     broadcast(SceneEvent.created(sceneKey: key));
     return scene;

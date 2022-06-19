@@ -52,7 +52,7 @@ class ItemInfo extends StatelessWidget {
                 ),
                 RRectIcon(
                   margin: const EdgeInsets.all(10.0),
-                  avatarAssetKey: 'assets/images/' + data['icon'],
+                  avatarAssetKey: 'assets/images/${data['icon']}',
                 ),
                 Text('${engine.locale['speed']}: ${stats['speed']}'),
                 Text(

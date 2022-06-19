@@ -22,7 +22,7 @@ class CharacterListView extends StatefulWidget {
   final void Function(String content) onSaved;
 
   @override
-  _CharacterListViewState createState() => _CharacterListViewState();
+  State<CharacterListView> createState() => _CharacterListViewState();
 }
 
 class _CharacterListViewState extends State<CharacterListView>

@@ -36,7 +36,6 @@ class CharacterSelectionDialog extends StatelessWidget {
     final layout = Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        centerTitle: true,
         title: Text(engine.locale['characterSelection']),
         actions: const [CloseButton()],
       ),
@@ -116,8 +115,8 @@ class CharacterSelectionDialog extends StatelessWidget {
     );
 
     return ResponsiveRoute(
-      child: layout,
       alignment: AlignmentDirectional.center,
+      child: layout,
     );
   }
 }

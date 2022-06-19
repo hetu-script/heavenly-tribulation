@@ -20,7 +20,7 @@ class GameEntityListView extends StatefulWidget {
   final void Function(String dataId)? onTap;
 
   @override
-  _GameEntityListViewState createState() => _GameEntityListViewState();
+  State<GameEntityListView> createState() => _GameEntityListViewState();
 }
 
 class _GameEntityListViewState extends State<GameEntityListView>

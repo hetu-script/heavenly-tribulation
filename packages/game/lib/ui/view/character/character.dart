@@ -107,7 +107,6 @@ class _CharacterViewState extends State<CharacterView>
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          centerTitle: true,
           title: Text('${data['name']} - $_title'),
           actions: const [ButtonClose()],
           bottom: TabBar(
@@ -125,9 +124,9 @@ class _CharacterViewState extends State<CharacterView>
     );
 
     return ResponsiveRoute(
-      child: layout,
       alignment: AlignmentDirectional.topCenter,
       size: const Size(400.0, 400.0),
+      child: layout,
     );
   }
 }

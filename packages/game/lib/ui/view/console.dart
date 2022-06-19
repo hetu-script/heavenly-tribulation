@@ -10,7 +10,7 @@ class Console extends StatefulWidget {
   const Console({Key? key}) : super(key: key);
 
   @override
-  _ConsoleState createState() => _ConsoleState();
+  State<Console> createState() => _ConsoleState();
 }
 
 class _ConsoleState extends State<Console> {
@@ -23,7 +23,6 @@ class _ConsoleState extends State<Console> {
     final layout = Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        centerTitle: true,
         title: Text(engine.locale['console']),
         actions: const [ButtonClose()],
       ),
@@ -85,8 +84,8 @@ class _ConsoleState extends State<Console> {
     );
 
     return ResponsiveRoute(
-      child: layout,
       alignment: AlignmentDirectional.center,
+      child: layout,
     );
   }
 }

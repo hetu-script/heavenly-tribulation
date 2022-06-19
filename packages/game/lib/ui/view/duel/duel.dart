@@ -23,7 +23,7 @@ class Duel extends StatefulWidget {
   const Duel(this.log, {Key? key}) : super(key: key);
 
   @override
-  _DuelState createState() => _DuelState();
+  State<Duel> createState() => _DuelState();
 }
 
 class _DuelState extends State<Duel> {
@@ -135,9 +135,9 @@ class _DuelState extends State<Duel> {
     );
 
     return ResponsiveRoute(
-      child: layout,
       alignment: AlignmentDirectional.bottomCenter,
       size: const Size(300.0, 300.0),
+      child: layout,
     );
   }
 }

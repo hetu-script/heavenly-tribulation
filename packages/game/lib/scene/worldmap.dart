@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
-import 'package:flame_audio/flame_audio.dart';
 
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
@@ -13,9 +12,9 @@ import '../ui/overlay/worldmap/worldmap.dart';
 class WorldMapScene extends Scene {
   TileMap? map;
 
-  String? arg;
+  Map<String, dynamic> arg;
 
-  WorldMapScene({this.arg, required SceneController controller})
+  WorldMapScene({required this.arg, required SceneController controller})
       : super(key: 'WorldMap', controller: controller);
 
   bool isMapReady = false;
@@ -24,11 +23,12 @@ class WorldMapScene extends Scene {
   Future<void> onLoad() async {
     super.onLoad();
 
-    if (arg != null) {
-      final worldSavePath = File(arg!);
+    final path = arg['path'];
+    if (path != null) {
+      final worldSavePath = File(path);
       final worldDataString = worldSavePath.readAsStringSync();
       final worldData = jsonDecode(worldDataString);
-      final historySavePath = File(arg! + '2');
+      final historySavePath = File('${path}2');
       final historyDataString = historySavePath.readAsStringSync();
       final historyData = jsonDecode(historyDataString);
       engine.hetu.interpreter.invoke('loadGameFromJsonData',
@@ -37,14 +37,13 @@ class WorldMapScene extends Scene {
     } else {
       map = await engine.invoke('createWorldMap', namedArgs: {
         'terrainSpriteSheet': 'fantasyhextiles_v3_borderless.png',
+        ...arg,
       });
     }
 
     add(map!);
     isMapReady = true;
     engine.broadcast(const MapEvent.mapLoaded());
-
-    FlameAudio.bgm.play('music/chinese-oriental-tune-06-12062.mp3');
   }
 
   @override

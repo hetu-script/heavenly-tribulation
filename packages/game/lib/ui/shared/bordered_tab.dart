@@ -19,11 +19,6 @@ class BorderedTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Tab(
-        text: text,
-        icon: icon,
-        child: child,
-      ),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
@@ -31,6 +26,11 @@ class BorderedTab extends StatelessWidget {
             color: borderColor,
           ),
         ),
+      ),
+      child: Tab(
+        text: text,
+        icon: icon,
+        child: child,
       ),
     );
   }

@@ -12,7 +12,7 @@ class MazeOverlay extends StatefulWidget {
   const MazeOverlay({required Key? key, required this.scene}) : super(key: key);
 
   @override
-  _MazeOverlayState createState() => _MazeOverlayState();
+  State<MazeOverlay> createState() => _MazeOverlayState();
 }
 
 class _MazeOverlayState extends State<MazeOverlay> {

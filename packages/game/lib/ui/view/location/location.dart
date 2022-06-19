@@ -14,7 +14,7 @@ class LocationView extends StatefulWidget {
   LocationView({Key? key, this.locationId}) : super(key: key ?? UniqueKey());
 
   @override
-  _LocationViewState createState() => _LocationViewState();
+  State<LocationView> createState() => _LocationViewState();
 }
 
 class _LocationViewState extends State<LocationView>
@@ -118,7 +118,6 @@ class _LocationViewState extends State<LocationView>
     final layout = Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        centerTitle: true,
         title: Text(locationName),
         actions: const [ButtonClose()],
       ),
@@ -144,9 +143,9 @@ class _LocationViewState extends State<LocationView>
     );
 
     return ResponsiveRoute(
-      child: layout,
       alignment: AlignmentDirectional.topStart,
       size: const Size(400.0, 400.0),
+      child: layout,
     );
   }
 }

@@ -22,7 +22,7 @@ class CodeEditor extends StatefulWidget {
   final List<String> contents;
 
   @override
-  _CodeEditorState createState() => _CodeEditorState();
+  State<CodeEditor> createState() => _CodeEditorState();
 }
 
 class _CodeEditorState extends State<CodeEditor> with TickerProviderStateMixin {
@@ -156,8 +156,8 @@ class _CodeEditorState extends State<CodeEditor> with TickerProviderStateMixin {
                   ),
                   child: SingleChildScrollView(
                     child: ListView(
-                      children: _fileListItem,
                       shrinkWrap: true,
+                      children: _fileListItem,
                     ),
                   ),
                 ),

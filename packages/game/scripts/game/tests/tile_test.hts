@@ -1,4 +1,4 @@
-import '../tilemap/hexagonal_tile.ht'
+import '../map/hexagonal_tile.ht'
 
 // print('testing tile direction: 3, 3')
 // print(getDirection({left: 3, top: 3}, {left: 3, top: 2}))

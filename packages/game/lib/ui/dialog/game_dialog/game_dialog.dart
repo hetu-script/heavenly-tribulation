@@ -30,7 +30,7 @@ class GameDialog extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _GameDialogState createState() => _GameDialogState();
+  State<GameDialog> createState() => _GameDialogState();
 }
 
 class _GameDialogState extends State<GameDialog> {
@@ -67,7 +67,7 @@ class _GameDialogState extends State<GameDialog> {
       if (cg != null) {
         backgroundImage = BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/' + cg!),
+            image: AssetImage('assets/images/${cg!}'),
             fit: BoxFit.cover,
           ),
         );
@@ -188,7 +188,7 @@ class _GameDialogState extends State<GameDialog> {
   }
 
   void _finishDialog() {
-    SchedulerBinding.instance!.addPostFrameCallback((_) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
       Navigator.pop(context);
     });
   }

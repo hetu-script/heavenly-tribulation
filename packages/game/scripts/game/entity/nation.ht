@@ -1,6 +1,7 @@
 import '../game.ht'
 import '../map.ht'
 import '../generator/name/name.ht' as nameGenerator
+import 'character.ht'
 
 const _kNation = '国'
 
@@ -59,7 +60,7 @@ fun removeTerrainFromNation(terrain) {
   nation.locationIds.remove(location.id)
 }
 
-fun addTerrain2Nation(nation, terrain) {
+fun addTerrainToNation(nation, terrain) {
   if (terrain.nationId != null) {
     assert(terrain.nationId != nation.id)
     removeTerrainFromNation(terrain)
@@ -75,6 +76,8 @@ fun addTerrain2Nation(nation, terrain) {
     if (location.nationId) {
       final oldNation = game.nations[location.nationId]
       oldNation.locationIds.remove(location.id)
+    } else {
+      Site(category: kSiteGovernment, location: location)
     }
     location.nationId = nation.id
     assert(!nation.locationIds.contains(location.id))
@@ -86,4 +89,12 @@ fun addTerrain2Nation(nation, terrain) {
       nation.borderIndexes.add(neighbor.index)
     }
   }
+}
+
+// 必须已经是国民，才可以设定为皇帝
+fun setEmperor(nation, character) {
+  assert(character.nationId == nation.id)
+  nation.emperorId = character.id
+  character.titles[kEmperorTitle] = getEmperorTitle(nation)
+  character.currentTitleId = kEmperorTitle
 }

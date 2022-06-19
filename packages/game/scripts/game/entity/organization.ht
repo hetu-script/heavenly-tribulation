@@ -2,26 +2,78 @@ import '../game.ht'
 import { Site, kSiteHeadquarters } from 'location.ht'
 import '../generator/name/name.ht' as nameGenerator
 
+final kOrganizationCategory = [
+  'caltivation',
+  'religion',
+  'family',
+  'gang',
+  // 'business',
+  // 'academy',
+  // 'craftsmanship',
+  // 'restaurant',
+]
+
+final kOrganizationThinkings = {
+  caltivation: [
+    'martialArtsAddicted',
+    'admireTheStrongest',
+    'repectYourShifu',
+    'mentor',
+    'sectarianism',
+  ],
+  religion: [
+    'coreligionist',
+    'missionary',
+    'discipline',
+    'theology',
+    'religious',
+  ],
+  family: [
+    'respectForElders',
+    'malePreference',
+    'excluding',
+    'familyGuy',
+    'heritage',
+  ],
+  gang: [
+    'swordLover',
+    'brotherhood',
+    'chivalrousness',
+    'promise',
+    'communism',
+  ],
+  business: [],
+  academy: [],
+  craftsmanship: [],
+  restaurant: [],
+}
+
 struct Organization {
   construct ({
     category,
     name,
     nationId,
     headquartersId,
-    leaderId,
+    // leaderId,
     development,
   }) {
     assert(game.nations.containsKey(nationId))
     assert(game.locations.containsKey(headquartersId))
-    assert(game.characters.containsKey(leaderId))
-
+    // assert(game.characters.containsKey(leaderId))
+    if (category == null) {
+      this.category = kOrganizationCategory.random
+    } else {
+      assert(kOrganizationCategory.contains(category))
+      this.category = category
+    }
+    
     this.index = game.organizations.length
     if (name) {
       this.name = name
     } else {
       var conflict = false
       do {
-        final r = nameGenerator.getOrganization(1, category: category)
+        final r = nameGenerator.getOrganization(1, category: this.category)
         this.name = r.first.name
         conflict = game.organizations.values.where((element) =>
           element.name == this.name).isNotEmpty
@@ -39,13 +91,12 @@ struct Organization {
     this.nationId = nationId
 
     final location = game.locations[headquartersId]
-    addLocation2Organization(this, location)
+    addLocationToOrganization(this, location)
     setOrganizationHeadquarters(this, location)
 
-    final leader = game.characters[leaderId]
-    addCharacter2Organization(this, leader)
-    setCharacterHome(location, leader)
-    setOrganizationLeader(this, leader)
+    // final leader = game.characters[leaderId]
+    // addCharacterToOrganization(this, leader)
+    // setLeader(this, leader)
 
     // 组织规模，组织所能允许的等级数量 = 规模
     this.development = development ?? 1
@@ -55,11 +106,11 @@ struct Organization {
 }
 
 // 必须已经是门派成员，才可以设定为掌门
-fun setOrganizationLeader(organization, character) {
+fun setLeader(organization, character) {
   assert(character.organizationId == organization.id)
   organization.leaderId = character.id
-  character.titles[kOrganizationLeaderTitle] = getOrganizationLeaderTitle(organization)
-  character.currentTitleId = kOrganizationLeaderTitle
+  character.titles[kLeaderTitle] = getLeaderTitle(organization)
+  character.currentTitleId = kLeaderTitle
 }
 
 // 必须已经是门派据点, 并且尚未设置总堂，才可以设置总堂
@@ -100,7 +151,7 @@ fun removeCharacterFromOrganization(character) {
   character.organizationId = null
 }
 
-fun addCharacter2Organization(organization, character) {
+fun addCharacterToOrganization(organization, character) {
   assert(!organization.characterIds.contains(character.id))
   if (character.organizationId != null) {
     assert(character.organizationId != organization.id)
@@ -118,7 +169,7 @@ fun removeLocationFromOrganization(location) {
   location.organizationId = null
 }
 
-fun addLocation2Organization(organization, location) {
+fun addLocationToOrganization(organization, location) {
   if (location.organizationId != null) {
     assert(location.organizationId != organization.id)
     removeLocationFromOrganization(location)

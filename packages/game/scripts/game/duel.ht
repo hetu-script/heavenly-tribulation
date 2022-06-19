@@ -19,7 +19,7 @@ fun _isReady(timeframe: int, speed) {
 
 
 struct Duel {
-  construct(hero, enemy, { heroMoveFirst }) {
+  construct(hero, enemy, { heroMoveFirst, isPractice }) {
     var log = []
     var timeframe = 0
 
@@ -62,17 +62,33 @@ struct Duel {
         final initiativeSum = hero.attributes.perception + enemy.attributes.perception
         final initiativeValue = initiativeSum * Math.random()
         if (hero.attributes.perception > initiativeValue) {
-          log.add(getLocaleString('sneakAttack', [hero.name]))
+          if (isPractice) {
+            log.add(getLocaleString('firstAttack', [hero.name]))
+          } else {
+            log.add(getLocaleString('sneakAttack', [hero.name]))
+          }
           _attack(hero, enemy, wielding)
         } else {
-          log.add(getLocaleString('sneakAttack', [enemy.name]))
+          if (isPractice) {
+            log.add(getLocaleString('firstAttack', [enemy.name]))
+          } else {
+            log.add(getLocaleString('sneakAttack', [enemy.name]))
+          }
           _attack(enemy, hero, wielding)
         }
       } else if (heroMoveFirst) {
-        log.add(getLocaleString('sneakAttack', [hero.name]))
+        if (isPractice) {
+          log.add(getLocaleString('firstAttack', [hero.name]))
+        } else {
+          log.add(getLocaleString('sneakAttack', [hero.name]))
+        }
         _attack(hero, enemy, wielding)
       } else {
-        log.add(getLocaleString('sneakAttack', [enemy.name]))
+        if (isPractice) {
+          log.add(getLocaleString('firstAttack', [enemy.name]))
+        } else {
+          log.add(getLocaleString('sneakAttack', [enemy.name]))
+        }
         _attack(enemy, hero, wielding)
       }
 
@@ -114,5 +130,10 @@ struct Duel {
     }
     
     this.log = log
+
+    if (isPractice) {
+      hero.stats.life = hero.attributes.life
+      enemy.stats.life = enemy.attributes.life
+    }
   }
 }

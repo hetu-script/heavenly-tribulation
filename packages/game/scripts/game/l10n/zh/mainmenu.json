@@ -1,0 +1,11 @@
+{
+  "worldSize": "世界大小",
+  "tiny": "微小",
+  "medium": "适中",
+  "huge": "庞大",
+  "massive": "广阔",
+  "initialNationNumber": "国家数量",
+  "initialLocationNumber": "据点数量",
+  "initialCharacterNumber": "角色数量",
+  "initialOrganizationNumber": "门派数量"
+}

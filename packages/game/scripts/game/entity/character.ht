@@ -8,7 +8,7 @@ import 'constants.ht'
 import '../duel.ht'
 
 // number of the male avatar images
-const kMaleAvatarCount = 36
+const kMaleAvatarCount = 37
  // number of the female avatar images
 const kFemaleAvatarCount = 75
 const kCharacterInitialMinAge = 10
@@ -19,7 +19,8 @@ const kCharacterAverageLooks = 75.0
 const kCharacterMaxLooks = 100.0
 const kCharacterImpressionCheckpoint = 10.0
 
-const kOrganizationLeaderTitle = 'organizationLeaderTitle'
+const kLeaderTitle = 'kLeaderTitle'
+const kEmperorTitle = 'emperorTitle'
 
 // 羁绊, 人物对其他的某个事物的印象和评价
 struct Bond {
@@ -39,6 +40,41 @@ struct Bond {
     this.haveMet = false
   }
 }
+
+final kMotivation = [
+  'duty',
+  'enjoyment',
+  'love',
+  'wealth',
+  'rectification',
+  'eternity',
+  'arcane',
+  'hedgemony'
+]
+
+final kGeneralThinkings = [
+  'self-discipline',
+  'helping',
+  'travelling',
+  'curiosity',
+  'competitiveness',
+  'humor',
+  'enthusiasm',
+  'romance',
+  'modesty',
+  'chatting',
+  'clumsy',
+  'cynicism',
+  'appearanceIsEverything',
+  'bullying',
+  'promiscuousness',
+  'saddist',
+  'backstabbing',
+  'greediness',
+  'addicted',
+  'jealousness',
+  'anger',
+]
 
 struct Character {
   construct ({
@@ -136,11 +172,24 @@ struct Character {
 
       // 行为逻辑，最小 -50 最大 +50
       social: Math.random() * 100.0 - 50.0,
-      intuition: Math.random() * 100.0 - 50.0,
       reason: Math.random() * 100.0 - 50.0,
-      controlment: Math.random() * 100.0 - 50.0,
+      control: Math.random() * 100.0 - 50.0,
+      thrifty: Math.random() * 100.0 - 50.0,
+      frank: Math.random() * 100.0 - 50.0,
+      confidence: Math.random() * 100.0 - 50.0,
+      prudence: Math.random() * 100.0 - 50.0,
+      empathy: Math.random() * 100.0 - 50.0,
     }
 
+    // 该角色的思想
+    this.idea = {
+      // 动机
+      motivation: kMotivation.random,
+      // 由组织获得的思想列表
+      thinking: [],
+    }
+
+    // 该角色的记忆
     this.heardOfIncidentIndexes = Set()
     this.experiencedIncidentIndexes = Set()
 
@@ -339,33 +388,39 @@ fun characterSufferedIncident(character, incident) {
 //   return getLocaleString('spiritRank${spiritRank}') + getLocaleString('sorcerer')
 // }
 
-fun getOrganizationLeaderTitle(organization) {
+fun getLeaderTitle(organization) {
   return organization.name + getLocaleString('leader')
+}
+
+fun getEmperorTitle(nation) {
+  return nation.name + getLocaleString('emperor')
 }
 
 fun removeCharacterHome(character) {
   if (!character.homeId) return
 
   final loc = game.locations[character.homeId]
-  loc.residingWildCharacterIds.remove(character.id)
-  loc.residingOrganizedCharacterIds.remove(character.id)
+  loc.residingCharacterIds.remove(character.id)
+  // loc.residingWildCharacterIds.remove(character.id)
+  // loc.residingOrganizedCharacterIds.remove(character.id)
   character.homeId = null
 }
 
-fun setCharacterHome(location, character, {isOrganized: bool = true}) {
+fun setCharacterHome(location, character) {
   if (character.homeId != null) {
     assert(character.homeId != location.id)
     removeCharacterHome(character)
   }
-  if (isOrganized) {
-    location.residingOrganizedCharacterIds.add(character.id)
-  } else {
-    location.residingWildCharacterIds.add(character.id)
-  }
+  location.residingCharacterIds.add(character.id)
+  // if (isOrganized) {
+  //   location.residingOrganizedCharacterIds.add(character.id)
+  // } else {
+  //   location.residingWildCharacterIds.add(character.id)
+  // }
   character.homeId = location.id
 }
 
-fun setHero(id: str) {
+fun setHeroId(id: str) {
   assert(game.characters.containsKey(id))
   engine.info('设置当前玩家人物为 [${game.characters[id].name}]。')
   game.heroId = id;
@@ -457,7 +512,8 @@ fun handleCharacterInteraction(characterId) {
         
       }
       'practice' -> {
-        
+        final duel = Duel(hero, character, isPractice: true)
+        showDuel(duel.log)
       }
       'consult' -> {
         

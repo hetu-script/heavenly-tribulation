@@ -28,7 +28,7 @@ class WorldMapOverlay extends StatefulWidget {
       : super(key: key);
 
   @override
-  _WorldMapOverlayState createState() => _WorldMapOverlayState();
+  State<WorldMapOverlay> createState() => _WorldMapOverlayState();
 }
 
 class _WorldMapOverlayState extends State<WorldMapOverlay>
@@ -68,12 +68,16 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
         });
       }),
     );
+
+    FlameAudio.bgm.play('music/chinese-oriental-tune-06-12062.mp3');
   }
 
   @override
   void dispose() {
     super.dispose();
     engine.disposeListenders(widget.key!);
+    FlameAudio.bgm.stop();
+    FlameAudio.bgm.dispose();
   }
 
   @override
@@ -128,7 +132,6 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
                 engine.leaveScene('WorldMap');
                 _saveGame();
                 engine.broadcast(const GameEvent.back2Menu());
-                FlameAudio.bgm.stop();
                 break;
               default:
             }

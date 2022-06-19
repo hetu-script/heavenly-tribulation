@@ -27,7 +27,7 @@ class SelectionDialog extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _SelectionDialogState createState() => _SelectionDialogState();
+  State<SelectionDialog> createState() => _SelectionDialogState();
 }
 
 class _SelectionDialogState extends State<SelectionDialog> {

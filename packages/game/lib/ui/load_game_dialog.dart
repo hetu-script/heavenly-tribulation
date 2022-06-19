@@ -33,7 +33,7 @@ class LoadGameDialog extends StatefulWidget {
   const LoadGameDialog({Key? key, this.list = const []}) : super(key: key);
 
   @override
-  _LoadGameDialogState createState() => _LoadGameDialogState();
+  State<LoadGameDialog> createState() => _LoadGameDialogState();
 }
 
 class _LoadGameDialogState extends State<LoadGameDialog> {
@@ -42,7 +42,6 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
     final layout = Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        centerTitle: true,
         title: Text(engine.locale['loadGame']),
         actions: const [CloseButton()],
       ),
@@ -93,7 +92,7 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
                                     onPressed: () {
                                       final file = File(info.path);
                                       file.delete();
-                                      final file2 = File(info.path + '2');
+                                      final file2 = File('${info.path}2');
                                       file2.delete();
                                       setState(() {
                                         widget.list.removeWhere(

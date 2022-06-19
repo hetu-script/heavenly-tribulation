@@ -27,7 +27,7 @@ class CharacterEditor extends StatefulWidget {
   final int femaleAvatarCount;
 
   @override
-  _CharacterEditorState createState() => _CharacterEditorState();
+  State<CharacterEditor> createState() => _CharacterEditorState();
 }
 
 class _CharacterEditorState extends State<CharacterEditor>

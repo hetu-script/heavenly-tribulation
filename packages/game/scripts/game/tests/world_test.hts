@@ -1,4 +1,4 @@
-import '../generator/tilemap/worldmap.ht'
+import '../map/worldmap.ht'
 
 final world = createWorldMap()
 

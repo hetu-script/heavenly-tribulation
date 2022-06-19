@@ -1,5 +1,6 @@
 import 'general.json' as general
 import 'world_map.json' as worldMap
+import 'mainmenu.json' as mainmenu
 import 'information_panel.json' as informationPanel
 import 'terrain.json' as terrain
 import 'location.json' as location
@@ -14,6 +15,7 @@ import 'editor.json' as editor
 final zh = {
   ...general,
   ...worldMap,
+  ...mainmenu,
   ...informationPanel,
   ...location,
   ...character,

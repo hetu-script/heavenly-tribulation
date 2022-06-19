@@ -19,12 +19,16 @@ final lightTheme = ThemeData(
   colorScheme: const ColorScheme.dark(),
   backgroundColor: kBackgroundColor,
   scaffoldBackgroundColor: kBackgroundColor,
-  appBarTheme: AppBarTheme(
-    color: kBackgroundColor,
-    toolbarHeight: 40,
-    elevation: 1,
+  appBarTheme: const AppBarTheme(
+    centerTitle: true,
+    color: Colors.transparent,
+    toolbarHeight: 36,
     iconTheme: iconTheme,
     actionsIconTheme: iconTheme,
+    titleTextStyle: TextStyle(
+      fontFamily: 'NotoSansMono',
+      fontSize: 18.0,
+    ),
   ),
   dialogBackgroundColor: kBarrierColor,
   iconTheme: iconTheme,
@@ -46,6 +50,15 @@ final lightTheme = ThemeData(
       ),
     ),
   ),
+  sliderTheme: const SliderThemeData(
+    activeTrackColor: kForegroundColor,
+    activeTickMarkColor: kForegroundColor,
+    thumbColor: kForegroundColor,
+    valueIndicatorTextStyle: TextStyle(
+      fontFamily: 'NotoSansMono',
+      color: kForegroundColor,
+    ),
+  ),
 );
 
 enum OrientationMode {
@@ -58,4 +71,5 @@ abstract class GlobalConfig {
   static bool isOnDesktop = false;
   static OrientationMode orientationMode = OrientationMode.landscape;
   static Size screenSize = Size.zero;
+  static bool isLoading = true;
 }

@@ -1,6 +1,6 @@
 {
+  "firstAttack": "「{0}」出手快如闪电，抢到先手进攻！",
   "sneakAttack": "「{0}」趁对手不备，发动偷袭！",
-  "initiativeAttack": "「{0}」先手进攻！",
   "attackInfo": "「{0}」使用「{1}」攻击「{2}」，造成了 {3} 点伤害。",
   "duelVictory": "「{0}」获胜!",
   "failedAttackDueToEmptyHand": "你目前没有战斗能力，毫无悬念的失败了。"

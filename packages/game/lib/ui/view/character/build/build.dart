@@ -90,7 +90,6 @@ class _BuildViewState extends State<BuildView>
     final layout = Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        centerTitle: true,
         title: Text('${data['name']} - $_title'),
         actions: const [ButtonClose()],
         bottom: TabBar(
@@ -129,9 +128,9 @@ class _BuildViewState extends State<BuildView>
     );
 
     return ResponsiveRoute(
-      child: layout,
       alignment: AlignmentDirectional.topEnd,
       size: const Size(400.0, 400.0),
+      child: layout,
     );
   }
 }

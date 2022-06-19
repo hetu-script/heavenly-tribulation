@@ -45,7 +45,7 @@ class InformationPanel extends StatefulWidget {
   const InformationPanel({Key? key}) : super(key: key);
 
   @override
-  _InformationPanelState createState() => _InformationPanelState();
+  State<InformationPanel> createState() => _InformationPanelState();
 }
 
 class _InformationPanelState extends State<InformationPanel>
@@ -197,7 +197,6 @@ class _InformationPanelState extends State<InformationPanel>
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          centerTitle: true,
           title: Text(engine.locale['info']),
           actions: const [ButtonClose()],
           bottom: TabBar(

@@ -47,6 +47,30 @@ class _PopupSubMenuState<T> extends State<PopupSubMenuItem<T>> {
 
     return PopupMenuButton<T>(
       tooltip: '',
+      onCanceled: () {
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context);
+        }
+      },
+      onSelected: (T value) {
+        if (Navigator.canPop(context)) {
+          Navigator.pop<T>(context, value);
+        }
+        widget.onSelected?.call(value);
+      },
+      offset: widget.offset,
+      itemBuilder: (BuildContext context) {
+        final items = <PopupMenuEntry<T>>[];
+        for (final key in widget.items.keys) {
+          final value = widget.items[key];
+          items.add(PopupMenuItem<T>(
+            height: 24.0,
+            value: value,
+            child: Text(key, style: style),
+          ));
+        }
+        return items;
+      },
       child: Padding(
         padding: const EdgeInsets.only(left: 16.0, right: 8.0),
         child: Row(
@@ -64,30 +88,6 @@ class _PopupSubMenuState<T> extends State<PopupSubMenuItem<T>> {
           ],
         ),
       ),
-      onCanceled: () {
-        if (Navigator.canPop(context)) {
-          Navigator.pop(context);
-        }
-      },
-      onSelected: (T value) {
-        if (Navigator.canPop(context)) {
-          Navigator.pop<T>(context, value);
-        }
-        widget.onSelected?.call(value);
-      },
-      offset: widget.offset,
-      itemBuilder: (BuildContext context) {
-        final items = <PopupMenuEntry<T>>[];
-        for (final key in widget.items.keys) {
-          final value = widget.items[key]!;
-          items.add(PopupMenuItem<T>(
-            height: 24.0,
-            value: value,
-            child: Text(key, style: style),
-          ));
-        }
-        return items;
-      },
     );
   }
 }

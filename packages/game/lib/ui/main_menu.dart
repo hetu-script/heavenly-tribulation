@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:path_provider/path_provider.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
@@ -18,6 +18,7 @@ import '../binding/external_game_functions.dart';
 import '../scene/worldmap.dart';
 import '../scene/maze.dart';
 import 'view/location/location.dart';
+import 'create_game_dialog.dart';
 
 class MainMenu extends StatefulWidget {
   const MainMenu({required Key key}) : super(key: key);
@@ -28,8 +29,6 @@ class MainMenu extends StatefulWidget {
 
 class _MainMenuState extends State<MainMenu> {
   GameLocalization get locale => engine.locale;
-
-  bool _isLoading = true;
 
   String? currentLocationId;
 
@@ -48,11 +47,13 @@ class _MainMenuState extends State<MainMenu> {
   void initState() {
     super.initState();
 
-    engine.registerSceneConstructor('WorldMap', ([String? arg]) async {
-      return WorldMapScene(arg: arg, controller: engine);
+    engine.registerSceneConstructor('WorldMap', (
+        [Map<String, dynamic>? arg]) async {
+      return WorldMapScene(arg: arg!, controller: engine);
     });
 
-    engine.registerSceneConstructor('Maze', ([String? arg]) async {
+    engine.registerSceneConstructor('Maze', (
+        [Map<String, dynamic>? arg]) async {
       return MazeScene(controller: engine);
     });
 
@@ -75,7 +76,7 @@ class _MainMenuState extends State<MainMenu> {
       Events.createdScene,
       EventHandler(widget.key!, (event) {
         setState(() {
-          _isLoading = false;
+          GlobalConfig.isLoading = false;
         });
       }),
     );
@@ -114,7 +115,7 @@ class _MainMenuState extends State<MainMenu> {
     () async {
       await engine.init(externalFunctions: externalGameFunctions);
       if (kDebugMode) {
-        await engine.hetu.evalFile('game/main.ht',
+        engine.hetu.evalFile('game/main.ht',
             moduleName: 'game',
             globallyImport: true,
             invokeFunc: 'init',
@@ -124,7 +125,7 @@ class _MainMenuState extends State<MainMenu> {
       } else {
         final mod = await rootBundle.load('assets/script.mod');
         final bytes = mod.buffer.asUint8List();
-        await engine.hetu.loadBytecode(
+        engine.hetu.loadBytecode(
           bytes: bytes,
           moduleName: 'game',
           // globallyImport: true,
@@ -137,7 +138,7 @@ class _MainMenuState extends State<MainMenu> {
       await refreshSaves();
 
       setState(() {
-        _isLoading = false;
+        GlobalConfig.isLoading = false;
       });
     }();
   }
@@ -149,7 +150,7 @@ class _MainMenuState extends State<MainMenu> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
+    if (GlobalConfig.isLoading) {
       return LoadingScreen(
           text: engine.isHetuReady ? engine.locale['loading'] : 'Loading...');
     }
@@ -170,10 +171,10 @@ class _MainMenuState extends State<MainMenu> {
           padding: const EdgeInsets.only(top: 40.0),
           child: ElevatedButton(
             onPressed: () {
-              setState(() {
-                _isLoading = true;
-              });
-              engine.createScene('WorldMap');
+              showDialog(
+                context: context,
+                builder: (context) => const CreateGameDialog(),
+              );
             },
             child: Text(locale['sandBoxMode']),
           ),
@@ -190,9 +191,9 @@ class _MainMenuState extends State<MainMenu> {
                     .then((SaveInfo? info) {
                   if (info != null) {
                     setState(() {
-                      _isLoading = true;
+                      GlobalConfig.isLoading = false;
                     });
-                    engine.createScene('WorldMap', info.path);
+                    engine.createScene('WorldMap', {"path": info.path});
                   } else {
                     if (savedFiles.isEmpty) {
                       setState(() {});
@@ -263,7 +264,7 @@ class _MainMenuState extends State<MainMenu> {
   }
 
   Future<List<SaveInfo>> _getSavedFiles() async {
-    final appDirectory = await path.getApplicationDocumentsDirectory();
+    final appDirectory = await getApplicationDocumentsDirectory();
     final saveFolder =
         path.join(appDirectory.path, 'Heavenly Tribulation', 'save');
 

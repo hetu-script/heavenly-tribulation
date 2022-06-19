@@ -9,7 +9,7 @@ class HistoryPanel extends StatefulWidget {
   const HistoryPanel({required Key key}) : super(key: key);
 
   @override
-  _HistoryPanelState createState() => _HistoryPanelState();
+  State<HistoryPanel> createState() => _HistoryPanelState();
 }
 
 class _HistoryPanelState extends State<HistoryPanel> {

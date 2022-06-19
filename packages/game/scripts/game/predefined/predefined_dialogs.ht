@@ -1,9 +1,20 @@
 final predefinedDialogs = [
   {
+    id: 'palace_deny_entry',
+    contents: [
+      {
+        avatar: 'avatar/general.png',
+        lineIds: [
+          'palace_deny_entry_01',
+        ],
+      },
+    ],
+  },
+  {
     id: 'headquartersTrain001',
     contents: [
       {
-        avatar: 'avatar/general.jpg',
+        avatar: 'avatar/general.png',
         // background: 'cg/intro01.jpg',
         lineIds: [
           'headquartersTrain001-1',
@@ -15,7 +26,7 @@ final predefinedDialogs = [
     id: 'headquartersLearn001',
     contents: [
       {
-        avatar: 'avatar/general.jpg',
+        avatar: 'avatar/general.png',
         lineIds: [
           'headquartersLearn001-1',
         ],

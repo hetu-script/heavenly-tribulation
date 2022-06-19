@@ -6,5 +6,7 @@
 
   "leader": "掌门",
   "headquartersLocation": "总堂据点",
-  "memberNumber": "成员数量"
+  "memberNumber": "成员数量",
+
+  "emperor": "国王"
 }
