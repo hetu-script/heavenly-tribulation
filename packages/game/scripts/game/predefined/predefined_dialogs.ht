@@ -1,11 +1,22 @@
 final predefinedDialogs = [
   {
-    id: 'palace_deny_entry',
+    id: 'visit_empty_village',
     contents: [
       {
         avatar: 'avatar/general.png',
         lineIds: [
-          'palace_deny_entry_01',
+          'visit_empty_village_01',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'visit_palace_deny_entry',
+    contents: [
+      {
+        avatar: 'avatar/general.png',
+        lineIds: [
+          'visit_palace_deny_entry_01',
         ],
       },
     ],

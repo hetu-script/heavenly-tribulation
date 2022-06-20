@@ -48,6 +48,8 @@ final kOrganizationThinkings = {
   restaurant: [],
 }
 
+const kOrganizationThinkingsOnRecruit = 2
+
 struct Organization {
   construct ({
     category,
@@ -57,7 +59,6 @@ struct Organization {
     leaderId,
     development,
   }) {
-    assert(game.nations.containsKey(nationId))
     assert(game.locations.containsKey(headquartersId))
     assert(game.characters.containsKey(leaderId))
 
@@ -86,9 +87,12 @@ struct Organization {
     // 本门派成员 id 列表
     this.characterIds = Set()
     
-    final nation = game.nations[nationId]
-    nation.organizationIds.add(this.id)
-    this.nationId = nationId
+    if (nationId) {
+      assert(game.nations.containsKey(nationId))
+      final nation = game.nations[nationId]
+      nation.organizationIds.add(this.id)
+      this.nationId = nationId
+    }
 
     final location = game.locations[headquartersId]
     addLocationToOrganization(location, this)
@@ -163,6 +167,14 @@ fun addCharacterToOrganization(character, organization) {
   character.organizationId = organization.id
   final location = game.locations[organization.headquartersId]
   setCharacterHome(character, location)
+
+  for (final i in range(kOrganizationThinkingsOnRecruit)) {
+    var thinking
+    do {
+      thinking = kOrganizationThinkings[organization.category].random
+    } while (character.idea.thinking.contains(thinking))
+    character.idea.thinking.add(thinking)
+  }
 }
 
 fun removeLocationFromOrganization(location) {

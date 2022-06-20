@@ -24,19 +24,19 @@ struct Duel {
     var timeframe = 0
 
     var wielding;
-    var foundedWielding = false
+    var foundWielding = false
     for (final skill of hero.skills.equipments) {
       if (skill.category == 'fight') {
         wielding = skill
-        foundedWielding = true
+        foundWielding = true
         break
       }
     }
-    if (!foundedWielding) {
+    if (!foundWielding) {
       for (final item of hero.items.equipments) {
         if (item.category == 'weapon') {
           wielding = item
-          foundedWielding = true
+          foundWielding = true
           break
         }
       }
@@ -57,7 +57,7 @@ struct Duel {
       }
     }
     
-    if (foundedWielding) {
+    if (foundWielding) {
       if (heroMoveFirst == null) {
         final initiativeSum = hero.attributes.perception + enemy.attributes.perception
         final initiativeValue = initiativeSum * Math.random()

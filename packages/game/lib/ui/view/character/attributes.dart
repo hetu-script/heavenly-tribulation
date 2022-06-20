@@ -7,6 +7,12 @@ import '../../../global.dart';
 import '../../shared/avatar.dart';
 import '../../shared/constants.dart';
 
+extension DoubleFixed on double {
+  double toDoubleAsFixed([int n = 2]) {
+    return double.parse(toStringAsFixed(n));
+  }
+}
+
 class CharacterAttributesView extends StatelessWidget {
   const CharacterAttributesView({
     Key? key,
@@ -26,23 +32,24 @@ class CharacterAttributesView extends StatelessWidget {
     final int management = attributes['management'];
 
     final personality = data['personality'];
-    final double ideal = personality['ideal'];
-    final String idealString = ideal.toStringAsFixed(2);
-    final double order = personality['order'];
-    final String orderString = order.toStringAsFixed(2);
-    final double good = personality['good'];
-    final String goodString = good.toStringAsFixed(2);
-    final double social = personality['social'];
-    final String socialString = social.toStringAsFixed(2);
-    final double intuition = personality['intuition'];
-    final String intuitionString = intuition.toStringAsFixed(2);
-    final double reason = personality['reason'];
-    final String reasonString = reason.toStringAsFixed(2);
-    final double controlment = personality['controlment'];
-    final String controlmentString = controlment.toStringAsFixed(2);
+    final double ideal = (personality['ideal'] as double).toDoubleAsFixed(2);
+    final double order = (personality['order'] as double).toDoubleAsFixed(2);
+    final double good = (personality['good'] as double).toDoubleAsFixed(2);
+    final double social = (personality['social'] as double).toDoubleAsFixed(2);
+    final double reason = (personality['reason'] as double).toDoubleAsFixed(2);
+    final double control =
+        (personality['control'] as double).toDoubleAsFixed(2);
+    final double frugal = (personality['frugal'] as double).toDoubleAsFixed(2);
+    final double frank = (personality['frank'] as double).toDoubleAsFixed(2);
+    final double confidence =
+        (personality['confidence'] as double).toDoubleAsFixed(2);
+    final double prudence =
+        (personality['prudence'] as double).toDoubleAsFixed(2);
+    final double empathy =
+        (personality['empathy'] as double).toDoubleAsFixed(2);
 
     final ageString = engine.hetu.interpreter
-        .invoke('getCharAgeString', positionalArgs: [data]);
+        .invoke('getCharacterAgeString', positionalArgs: [data]);
 
     return Container(
       padding: const EdgeInsets.all(10),
@@ -83,26 +90,38 @@ class CharacterAttributesView extends StatelessWidget {
                 Text('${engine.locale['management']}: $management'),
                 Text('---${engine.locale['personality']}---'),
                 Text(ideal > 0
-                    ? '${engine.locale['ideal']}: +$idealString'
-                    : '${engine.locale['real']}: $idealString'),
+                    ? '${engine.locale['ideal']}: +$ideal'
+                    : '${engine.locale['real']}: $ideal'),
                 Text(order > 0
-                    ? '${engine.locale['order']}: +$orderString'
-                    : '${engine.locale['chaotic']}: $orderString'),
+                    ? '${engine.locale['order']}: +$order'
+                    : '${engine.locale['chaotic']}: $order'),
                 Text(good > 0
-                    ? '${engine.locale['good']}: +$goodString'
-                    : '${engine.locale['evil']}: $goodString'),
+                    ? '${engine.locale['good']}: +$good'
+                    : '${engine.locale['evil']}: $good'),
                 Text(social > 0
-                    ? '${engine.locale['social']}: +$socialString'
-                    : '${engine.locale['introspection']}: $socialString'),
-                Text(intuition > 0
-                    ? '${engine.locale['intuition']}: +$intuitionString'
-                    : '${engine.locale['sensing']}: $intuitionString'),
+                    ? '${engine.locale['extraversion']}: +$social'
+                    : '${engine.locale['introspection']}: $social'),
                 Text(reason > 0
-                    ? '${engine.locale['reason']}: +$reasonString'
-                    : '${engine.locale['fealing']}: $reasonString'),
-                Text(controlment > 0
-                    ? '${engine.locale['controlment']}: +$controlmentString'
-                    : '${engine.locale['relaxation']}: $controlmentString'),
+                    ? '${engine.locale['reasoning']}: +$reason'
+                    : '${engine.locale['fealing']}: $reason'),
+                Text(control > 0
+                    ? '${engine.locale['organizing']}: +$control'
+                    : '${engine.locale['relaxing']}: $control'),
+                Text(frugal > 0
+                    ? '${engine.locale['frugality']}: +$frugal'
+                    : '${engine.locale['lavishness']}: $frugal'),
+                Text(frank > 0
+                    ? '${engine.locale['frankness']}: +$frank'
+                    : '${engine.locale['tactness']}: $frank'),
+                Text(confidence > 0
+                    ? '${engine.locale['confidence']}: +$confidence'
+                    : '${engine.locale['cowardness']}: $confidence'),
+                Text(prudence > 0
+                    ? '${engine.locale['prudence']}: +$prudence'
+                    : '${engine.locale['adventurousness']}: $prudence'),
+                Text(empathy > 0
+                    ? '${engine.locale['empathy']}: +$empathy'
+                    : '${engine.locale['indifference']}: $empathy'),
               ],
             ),
           ],

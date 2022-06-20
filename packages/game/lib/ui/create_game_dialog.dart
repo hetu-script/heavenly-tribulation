@@ -97,26 +97,28 @@ class _CreateGameDialogState extends State<CreateGameDialog> {
                       max: 4,
                       divisions: 3,
                       label: _worldScaleLabel,
-                      onChanged: (double value) {
-                        setState(() {
-                          _worldScale = value.toInt();
-                          _worldScaleLabel =
-                              engine.locale[_kWorldScaleLabel[_worldScale]!];
-                          final newNationNumberMax =
-                              _kMaxNationNumberPerWorldScale[_worldScale]!;
-                          if (_nationNumber > newNationNumberMax) {
-                            _nationNumber = newNationNumberMax;
-                            _nationNumberLabel = newNationNumberMax.toString();
-                          }
-                          final newLocationNumberMax =
-                              _kMaxLocationNumberPerWorldScale[_worldScale]!;
-                          if (_locationNumber > newLocationNumberMax) {
-                            _locationNumber = newLocationNumberMax;
-                            _locationNumberLabel =
-                                newLocationNumberMax.toString();
-                          }
-                        });
-                      },
+                      onChanged: null,
+                      // TODO: demo中暂时限制世界大小为最小
+                      // (double value) {
+                      //   setState(() {
+                      //     _worldScale = value.toInt();
+                      //     _worldScaleLabel =
+                      //         engine.locale[_kWorldScaleLabel[_worldScale]!];
+                      //     final newNationNumberMax =
+                      //         _kMaxNationNumberPerWorldScale[_worldScale]!;
+                      //     if (_nationNumber > newNationNumberMax) {
+                      //       _nationNumber = newNationNumberMax;
+                      //       _nationNumberLabel = newNationNumberMax.toString();
+                      //     }
+                      //     final newLocationNumberMax =
+                      //         _kMaxLocationNumberPerWorldScale[_worldScale]!;
+                      //     if (_locationNumber > newLocationNumberMax) {
+                      //       _locationNumber = newLocationNumberMax;
+                      //       _locationNumberLabel =
+                      //           newLocationNumberMax.toString();
+                      //     }
+                      //   });
+                      // },
                     ),
                     SizedBox(
                       width: 40.0,

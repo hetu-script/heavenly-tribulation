@@ -1,6 +1,7 @@
 {
-  "characterFirstImpressionNormalEvent": "『{0}』和『{1}』第一次见面，从此对其就算是认识了。",
-  "characterFirstImpressionHateEvent": "『{0}』和『{1}』第一次见面，心中不免对其有一丝嫌弃。",
-  "characterFirstImpressionLikeEvent": "『{0}』和『{1}』第一次见面，对其印象深刻，恨不能早日相识。",
-  "createOrganizationEvent": "『{0}』在『{1}』『{2}』开宗立派，成为『{3}』第一任掌门。"
+  "eventFirstImpressionNormal": "{0}认识了{1}。",
+  "eventFirstImpressionHate": "{0}认识了{1}，对其印象不太好。",
+  "eventFirstImpressionLike": "{0}认识了{1}，对其十分喜欢。",
+  "eventOrganizationCreated": "{0}在{1}成立了{2}。",
+  "eventCharacterNewBorn": "{0}在{1}出生了"
 }

@@ -31,7 +31,7 @@ class CharacterSelectionDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hero = engine.invoke('getHero');
-    final activitiesData = engine.invoke('getMonthlyActivities');
+    final activitiesData = engine.invoke('getPlayerMonthlyActivities');
 
     final layout = Scaffold(
       appBar: AppBar(

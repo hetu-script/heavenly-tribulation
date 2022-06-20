@@ -18,8 +18,13 @@ const kCharacterAverageLooks = 75.0
 const kCharacterMaxLooks = 100.0
 const kCharacterImpressionCheckpoint = 10.0
 
-const kLeaderTitle = 'kLeaderTitle'
+const kLeaderTitle = 'leaderTitle'
 const kEmperorTitle = 'emperorTitle'
+
+const kCharacterInitialGeneralThinking = 3
+
+const kCharacterMarriageAgeMin = 15
+const kCharacterMarriageAgeMax = 40
 
 // 羁绊, 人物对其他的某个事物的印象和评价
 struct Bond {
@@ -81,9 +86,10 @@ struct Character {
     shortName,
     isFemale: bool,
     birthTimestamp,
-    birthPlaceId,
+    locationId,
+    bool newborn = false,
   }) {
-    assert(birthPlaceId != null && game.locations.contains(birthPlaceId))
+    assert(locationId != null && game.locations.contains(locationId))
 
     this.index = game.characters.length
     if (isFemale != null) {
@@ -117,11 +123,24 @@ struct Character {
     this.looks = hyperbola(kCharacterAverageLooks)
     this.favoredLooks = hyperbola(kCharacterMaxLooks)
 
-    this.birthPlaceId = birthPlaceId
-    setCharacterLocationId(this, birthPlaceId)
-    final birthPlace = game.locations[birthPlaceId]
-    setCharacterHome(this, birthPlace)
-    this.nationId = birthPlace.nationId
+    final location = game.locations[locationId]
+    if (newborn) {
+      this.birthPlaceId = locationId
+      final incidentContent = getLocaleString('eventFirstImpressionNormal', [
+          subject.name,
+          location.name,
+        ])
+
+      Incident(
+        content: incidentContent,
+        subjectId: subject.id,
+        locationId: locationId,
+        isPublic: true,
+      )
+    }
+    setCharacterLocationId(this, locationId)
+    setCharacterHome(this, location)
+    this.nationId = location.nationId
 
     // 该角色的称号
     this.titles = {}
@@ -157,8 +176,8 @@ struct Character {
     // 该角色对世界上的其他事物的关系
     this.bonds = {
       characters: {},
+      items: {},
       organizations: {},
-      talismans: {},
       locations: {},
       nations: {},
     }
@@ -174,7 +193,7 @@ struct Character {
       social: Math.random() * 100.0 - 50.0,
       reason: Math.random() * 100.0 - 50.0,
       control: Math.random() * 100.0 - 50.0,
-      thrifty: Math.random() * 100.0 - 50.0,
+      frugal: Math.random() * 100.0 - 50.0,
       frank: Math.random() * 100.0 - 50.0,
       confidence: Math.random() * 100.0 - 50.0,
       prudence: Math.random() * 100.0 - 50.0,
@@ -189,15 +208,25 @@ struct Character {
       thinking: [],
     }
 
+    for (final i in range(kCharacterInitialGeneralThinking)) {
+      var thinking
+      do {
+        thinking = kGeneralThinkings.random
+      } while (this.idea.thinking.contains(thinking))
+      this.idea.thinking.add(thinking)
+    }
+
     // 该角色的记忆
-    this.heardOfIncidentIndexes = Set()
-    this.experiencedIncidentIndexes = Set()
+    this.conductedIncidentIndexes = []
+    this.experiencedIncidentIndexes = []
+    this.witnessedIncidentIndexes = []
+    this.heardOfIncidentIndexes = []
 
     game.characters[this.id] = this
   }
 }
 
-fun getCharAgeString(character) {
+fun getCharacterAgeString(character) {
   return toAgeString(game.timestamp - character.birthTimestamp)
 }
 
@@ -311,17 +340,17 @@ fun _firstImpressionOfOtherCharacter(subject, target) {
 
   var incidentContent
   if (bond.score < -kCharacterImpressionCheckpoint) {
-    incidentContent = getLocaleString('characterFirstImpressionHateEvent', [
+    incidentContent = getLocaleString('eventFirstImpressionHate', [
       subject.name,
       target.name,
     ])
   } else if (bond.score > kCharacterImpressionCheckpoint) {
-    incidentContent = getLocaleString('characterFirstImpressionLikeEvent', [
+    incidentContent = getLocaleString('eventFirstImpressionLike', [
       subject.name,
       target.name,
     ])
   } else {
-    incidentContent = getLocaleString('characterFirstImpressionNormalEvent', [
+    incidentContent = getLocaleString('eventFirstImpressionNormal', [
       subject.name,
       target.name,
     ])
@@ -409,11 +438,10 @@ fun removeCharacterHome(character) {
 
 fun setCharacterHome(character, location) {
   if (character.homeId != null) {
-    assert(character.homeId != location.id)
     removeCharacterHome(character)
   }
   // location.residingCharacterIds.add(character.id)
-  if (location.organizationId == character.organizationId) {
+  if (location.organizationId && location.organizationId == character.organizationId) {
     location.residingOrganizedCharacterIds.add(character.id)
   } else {
     location.residingWildCharacterIds.add(character.id)

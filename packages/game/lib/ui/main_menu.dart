@@ -30,7 +30,7 @@ class MainMenu extends StatefulWidget {
 class _MainMenuState extends State<MainMenu> {
   GameLocalization get locale => engine.locale;
 
-  String? currentLocationId;
+  String? locationId;
 
   final savedFiles = <SaveInfo>[];
 
@@ -98,7 +98,7 @@ class _MainMenuState extends State<MainMenu> {
         //   arguments: (event as LocationEvent).locationId,
         // );
         // setState(() {
-        //   // currentLocationId = (event as LocationEvent).locationId;
+        //   // locationId = (event as LocationEvent).locationId;
         // });
       }),
     );
@@ -107,7 +107,7 @@ class _MainMenuState extends State<MainMenu> {
       Events.leftLocation,
       EventHandler(widget.key!, (event) {
         // setState(() {
-        //   // currentLocationId = null;
+        //   // locationId = null;
         // });
       }),
     );
@@ -154,8 +154,8 @@ class _MainMenuState extends State<MainMenu> {
       return LoadingScreen(
           text: engine.isHetuReady ? engine.locale['loading'] : 'Loading...');
     }
-    // else if (currentLocationId != null) {
-    //   return LocationView(locationId: currentLocationId!);
+    // else if (locationId != null) {
+    //   return LocationView(locationId: locationId!);
     // }
     else if (engine.currentScene != null) {
       return engine.currentScene!.widget;

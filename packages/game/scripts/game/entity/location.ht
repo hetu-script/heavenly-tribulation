@@ -76,7 +76,7 @@ struct Location {
     this.development = 1
 
     // 当前处于这个场景的角色
-    this.currentCharacterIds = Set()
+    this.dwellingCharacterIds = []
 
     // 居住在这个场景的角色
     // this.residingCharacterIds = Set()
@@ -151,13 +151,13 @@ fun addLocations(locs: List) {
 
 fun setCharacterLocationId(character, locationId: str) {
   assert(game.locations.containsKey(locationId))
-  if (character.currentLocationId != null) {
-    final oldLocation = game.locations(character.currentLocationId)
-    oldLocation.currentCharacterIds.remove(character.id)
+  if (character.locationId != null) {
+    final oldLocation = game.locations[character.locationId]
+    oldLocation.dwellingCharacterIds.remove(character.id)
   }
   final location = game.locations[locationId]
-  location.currentCharacterIds.add(character.id)
-  character.currentLocationId = locationId
+  location.dwellingCharacterIds.add(character.id)
+  character.locationId = locationId
 }
 
 fun getLocationById(id: str) {
@@ -243,7 +243,28 @@ fun _handleGovernmentInteraction(site) {
 }
 
 fun _handleResidenceInteraction(site) {
-
+  final location = game.locations[site.locationId]
+  showSelectionDialog({
+    visit: getLocaleString('visit'),
+    leave: getLocaleString('leave'),
+  })
+  .then((key) {
+    when (key) {
+      // 如果选择 leave，直接忽略，什么也不做
+      'visit' -> {
+        if (location.residingOrganizedCharacterIds.isNotEmpty) {
+          showCharacterSelectionDialog(location.residingOrganizedCharacterIds.toList())
+          .then((key) {
+            if (key != null) {
+              handleCharacterInteraction(key)
+            }
+          })
+        } else {
+          showGameDialogById('visit_empty_village')
+        }
+      }
+    }
+  })
 }
 
 fun _handleHeadquartersInteraction(site) {
@@ -266,6 +287,7 @@ fun _handleHeadquartersInteraction(site) {
         showGameDialogById('headquartersLearn001')
       }
       'visit' -> {
+        // 既然有总部，那就一定有可以拜访的成员
         assert(location.residingOrganizedCharacterIds.isNotEmpty)
         showCharacterSelectionDialog(location.residingOrganizedCharacterIds.toList())
         .then((key) {

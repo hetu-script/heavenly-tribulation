@@ -167,8 +167,8 @@ class _InformationPanelState extends State<InformationPanel>
       final rowData = <String>[];
       rowData.add(char['name']);
       // 当前所在地点
-      final currentLocation = engine.invoke('getLocationById',
-          positionalArgs: [char['currentLocationId']]);
+      final currentLocation = engine
+          .invoke('getLocationById', positionalArgs: [char['locationId']]);
       rowData.add(currentLocation['name']);
       // 门派名字
       final orgId = char['organizationId'];

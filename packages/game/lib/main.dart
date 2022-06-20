@@ -35,13 +35,14 @@ void main() async {
     GlobalConfig.orientationMode = OrientationMode.landscape;
     await windowManager.ensureInitialized();
     windowManager.addListener(CustomWindowListener());
-    // WindowOptions windowOptions = const WindowOptions(
-    //   fullScreen: true,
-    // );
-    // windowManager.waitUntilReadyToShow(windowOptions, () async {
-    //   await windowManager.show();
-    //   await windowManager.focus();
-    // });
+    WindowOptions windowOptions = const WindowOptions(
+      // fullScreen: true,
+      size: Size(780.0, 640.0),
+    );
+    await windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+    });
     GlobalConfig.screenSize = await windowManager.getSize();
   }
 

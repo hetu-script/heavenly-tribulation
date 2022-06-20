@@ -13,33 +13,38 @@ struct Incident {
     ideal = 0,
     good = 0,
     
-    subjectId: str,
-    toCharacterIds: List,
+    subjectIds: str,
+    objectIds: List = [],
     withItem: str,
     toItem: str,
-    siteId: str,
+    locationId: str,
     terrainIndex: int,
   }) {
     assert(content != null && content.isNotEmpty)
-    assert(subjectId != null)
-    this.index = history.length
+    assert(subjectIds != null && subjectIds.isNotEmpty)
 
+    this.index = history.length
     this.content = content
     this.timestamp = game.timestamp
-
     this.order = order
     this.ideal = ideal
     this.good = good
-
-    this.subjectId = subjectId
-    this.toCharacterIds = toCharacterIds
+    this.subjectIds = subjectIds
+    this.objectIds = objectIds
     this.withItem = withItem
     this.toItem = toItem
-    this.siteId = siteId
+    this.locationId = locationId
     this.terrainIndex = terrainIndex
 
-    final subject = game.characters[subjectId]
-    subject.experiencedIncidentIndexes.add(this.index)
+    for (final id in subjectIds) {
+      final subject = game.characters[id]
+      subject.experiencedIncidentIndexes.add(this.index)
+    }
+
+    for (final id in objectIds) {
+      final object = game.characters[id]
+      object.experiencedIncidentIndexes.add(this.index)
+    }
 
     this.isPublic = isPublic
     this.isGlobal = isGlobal
@@ -48,6 +53,14 @@ struct Incident {
       if (isGlobal) {
         for (final char of game.characters) {
           if (char.id == subjectId) continue
+          characterHeardOfIncident(char, this)
+        }
+      } else if (locationId) {
+        final location = game.locations[locationId]
+        for (final id in location.dwellingCharacterIds) {
+          if (id == subjectId) continue
+          if (objectIds && id in objectIds) continue
+          final char = games.characters[id]
           characterHeardOfIncident(char, this)
         }
       }

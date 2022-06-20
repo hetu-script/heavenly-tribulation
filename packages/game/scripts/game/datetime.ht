@@ -46,9 +46,9 @@ fun formatDateTimeString(timestamp: int, {format: str}) {
     dayC = getLocaleString('timeDay')
   }
 
-  final year = ' ${yearN} ${yearC}'
-  final month = ' ${monthN} ${monthC}'
-  final day = ' ${dayN} ${dayC}'
+  final year = '${yearN}${yearC}'
+  final month = '${monthN}${monthC}'
+  final day = '${dayN}${dayC}'
 
   final fmt = format?.split('.').last
   when (fmt) {

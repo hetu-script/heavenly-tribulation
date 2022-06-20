@@ -498,10 +498,10 @@ fun createWorldMap({
   // final leaders = []
   // final headquarters = []
 
-  // 随机生成每个组织的创建时间，分布在200年的范围内
+  // 随机生成每个组织的创建时间，分布在100年的范围内，时间固定为某月1号
   var organizationCreatedDate = []
   for (final i in range(organizationNumber)) {
-    organizationCreatedDate.add(Math.randomInt(100 * kTicksPerYear))
+    organizationCreatedDate.add(Math.randomInt(100 * kMonthsPerYear) * kTicksPerMonth)
   }
   organizationCreatedDate.sort()
   organizationCreatedDate = organizationCreatedDate.reversed.toList()
@@ -513,12 +513,10 @@ fun createWorldMap({
       headquartersId: location.id,
       leaderId: leader.id,
     )
-    final nation = game.nations[location.nationId]
 
     // 触发创派事件
-    final incidentContent = getLocaleString('createOrganizationEvent', [
+    final incidentContent = getLocaleString('eventOrganizationCreated', [
       leader.name,
-      nation.name,
       location.name,
       organization.name,
     ])
@@ -550,65 +548,64 @@ fun createWorldMap({
           headquarters = game.locations.random
           leader = Character(
             birthPlaceId: location.id,
-            nationId: location.nationId,
             birthTimestamp: createRandomBirthTimestamp(20) // 年龄至少是20岁
           )
         } else {
           final characterIdList = game.characters.keys.toList()
           characterIdList.shuffle()
-          var founded = false
+          var found = false
           for (final id in characterIdList) {
             final character = game.characters[id]
             final age = datetime.toYear(game.timestamp - character.birthTimestamp)
             // 年龄至少是20岁，并且不能已经是其他组织的掌门
             if (!character.isLeader && age >= 20) {
-              founded = true
+              found = true
               leader = character
               break
             }
           }
-          if (!founded) {
-            // 没有找到合适的
+          if (!found) {
+            // 没有找到合适的人，则立刻创建一个
             leader = Character(
               birthPlaceId: location.id,
-              nationId: location.nationId,
               birthTimestamp: createRandomBirthTimestamp(20), // 年龄至少是20岁
             )
           }
         }
-        setCharacterLocationId(leader, location.id)
-        createOrganization(location, leader)
+        setCharacterLocationId(leader, headquarters.id)
+        createOrganization(headquarters, leader)
       }
     }
 
-    if (game.timestamp % kTicksPerWeek == 0) {
-      // 统计在野人物数量，如果不足，就生成新的在野人物，随机补充到世界中
-      // 这些新的在野人物，年龄范围限定为15-50岁
-      // var wildCharacterCount = 0
-      // for (final character of game.characters) {
-      //   if (!character.organizationId) {
-      //     ++wildCharacterCount
-      //   }
-      // }
+    if (game.timestamp % kTicksPerMonth == 0) {
+      // 每月月初执行的代码
       
       if (game.characters.length < characterNumber) {
         // 产生新的在野角色
         final location = game.locations.values.random
         final character = Character(
           birthPlaceId: location.id,
-          nationId: location.nationId,
           birthTimestamp: createRandomBirthTimestamp(15, 50),
         )
       }
-    }
 
-    if (game.timestamp % kTicksPerMonth == 0) {
-      // 每月月初执行的代码
+      // 为角色寻找婚配
+      final characterIdList = game.characters.keys.toList()
+      characterIdList.shuffle()
+      for (final id in characterIdList) {
+        final char1 = game.characters[id]
+        final location = game.locations[char1.locationId]
+        var found
+
+      }
+      
+      
+      // 为组织招募新的角色
       final organizationIdList = game.organizations.keys.toList()
       organizationIdList.shuffle()
       for (final id in organizationIdList) {
         final organization = game.organizations[id]
-        final location = organization.headquartersId
+        final location = game.locations[organization.headquartersId]
         if (location.residingWildCharacterIds.isNotEmpty) {
           final characterId = location.residingWildCharacterIds.random
           final character = game.characters[characterId]
@@ -618,11 +615,8 @@ fun createWorldMap({
       }
     }
 
-    if (game.timestamp % kTicksPerYear == 0) {
-      // 每年年初执行的代码
-    }
-
-    ++game.timestamp
+    // 因为是模拟运行，时间直接以月为单位流逝
+    game.timestamp += kTicksPerMonth
     if (game.timestamp > kTicksPerYear * 100) break
   } while (game.characters.length < characterNumber || game.organizations.length < organizationNumber)
 
