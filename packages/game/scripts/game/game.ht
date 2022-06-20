@@ -25,7 +25,7 @@ var locales = {
 var dialogs = {}
 
 var game = {
-  timestamp: 288000,
+  timestamp: 0,
   mods: {},
   bindings: {},
   
@@ -35,7 +35,8 @@ var game = {
   organizations: {},
   mazes: {},
 
-  monthlyActivities: {
+  // 指玩家对某个其他角色进行过的动作，限定每个月一次
+  playerMonthly: {
     talked: [],
     gifted: [],
     practiced: [],
@@ -44,14 +45,32 @@ var game = {
     insulted: [],
     stolen: [],
     peeped: [],
+  },
+
+  // 指某个NPC进行过的动作，限定每个月一次
+  characterMonthly: {
+    talked: [],
+    gifted: [],
+    practiced: [],
+    consulted: [],
+    requested: [],
+    insulted: [],
+    stolen: [],
+    peeped: [],
+  },
+
+  // 指某个组织进行过的动作，限定每个月一次
+  organizationMonthly: {
+    recruited: [],
+  }
+
+  // 指某个组织进行过的动作，限定每个月一次
+  organizationYearly: {
+    
   }
 }
 
 var history = []
-
-fun getMonthlyActivities {
-  return game.monthlyActivities
-}
 
 var config = {
   debug: true,

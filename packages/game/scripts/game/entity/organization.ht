@@ -54,19 +54,19 @@ struct Organization {
     name,
     nationId,
     headquartersId,
-    // leaderId,
+    leaderId,
     development,
   }) {
     assert(game.nations.containsKey(nationId))
     assert(game.locations.containsKey(headquartersId))
-    // assert(game.characters.containsKey(leaderId))
+    assert(game.characters.containsKey(leaderId))
+
     if (category == null) {
       this.category = kOrganizationCategory.random
     } else {
       assert(kOrganizationCategory.contains(category))
       this.category = category
     }
-    
     this.index = game.organizations.length
     if (name) {
       this.name = name
@@ -91,12 +91,12 @@ struct Organization {
     this.nationId = nationId
 
     final location = game.locations[headquartersId]
-    addLocationToOrganization(this, location)
+    addLocationToOrganization(location, this)
     setOrganizationHeadquarters(this, location)
 
-    // final leader = game.characters[leaderId]
-    // addCharacterToOrganization(this, leader)
-    // setLeader(this, leader)
+    final leader = game.characters[leaderId]
+    addCharacterToOrganization(leader, this)
+    setLeader(this, leader)
 
     // 组织规模，组织所能允许的等级数量 = 规模
     this.development = development ?? 1
@@ -111,6 +111,7 @@ fun setLeader(organization, character) {
   organization.leaderId = character.id
   character.titles[kLeaderTitle] = getLeaderTitle(organization)
   character.currentTitleId = kLeaderTitle
+  character.isLeader = true
 }
 
 // 必须已经是门派据点, 并且尚未设置总堂，才可以设置总堂
@@ -123,6 +124,7 @@ fun setOrganizationHeadquarters(organization, location) {
     category: kSiteHeadquarters,
     name: organization.name,
   )
+  location.isHeadquarters = true
 }
 
 // 组织中每个等级的人数上限
@@ -151,7 +153,7 @@ fun removeCharacterFromOrganization(character) {
   character.organizationId = null
 }
 
-fun addCharacterToOrganization(organization, character) {
+fun addCharacterToOrganization(character, organization) {
   assert(!organization.characterIds.contains(character.id))
   if (character.organizationId != null) {
     assert(character.organizationId != organization.id)
@@ -159,6 +161,8 @@ fun addCharacterToOrganization(organization, character) {
   }
   organization.characterIds.add(character.id)
   character.organizationId = organization.id
+  final location = game.locations[organization.headquartersId]
+  setCharacterHome(character, location)
 }
 
 fun removeLocationFromOrganization(location) {
@@ -169,7 +173,7 @@ fun removeLocationFromOrganization(location) {
   location.organizationId = null
 }
 
-fun addLocationToOrganization(organization, location) {
+fun addLocationToOrganization(location, organization) {
   if (location.organizationId != null) {
     assert(location.organizationId != organization.id)
     removeLocationFromOrganization(location)

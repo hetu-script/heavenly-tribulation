@@ -58,7 +58,7 @@ class _HistoryPanelState extends State<HistoryPanel> {
           padding: const EdgeInsets.all(10.0),
           child: Column(
             children: [
-              Text(engine.invoke('getDateTimeString')),
+              Text(engine.invoke('getCurrentDateString')),
               const Divider(
                 color: kForegroundColor,
               ),

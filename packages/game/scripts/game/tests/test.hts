@@ -1,8 +1,6 @@
-import '../generator/skill.ht'
-import '../generator/book.ht'
-
-final names = getSkill(1, category: 'arcane')
-
-final book = getBook(names.first)
-
-print(book)
+final organizationCreatedDate = []
+for (final i in range(4)) {
+  organizationCreatedDate.add(Math.randomInt(200))
+}
+organizationCreatedDate.sort()
+organizationCreatedDate

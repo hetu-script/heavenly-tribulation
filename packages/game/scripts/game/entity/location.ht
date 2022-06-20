@@ -79,12 +79,12 @@ struct Location {
     this.currentCharacterIds = Set()
 
     // 居住在这个场景的角色
-    this.residingCharacterIds = Set()
+    // this.residingCharacterIds = Set()
 
     // 在野修士, key = id, value = name
-    // this.residingWildCharacterIds = Set()
+    this.residingWildCharacterIds = []
     // 门派修士, key = id, value = name
-    // this.residingOrganizedCharacterIds = Set()
+    this.residingOrganizedCharacterIds = []
     
     // 外门弟子数量，记录在据点数据中，不算做门派属性
     // this.disciple = 0

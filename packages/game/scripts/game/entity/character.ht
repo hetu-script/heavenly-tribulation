@@ -11,8 +11,7 @@ import '../duel.ht'
 const kMaleAvatarCount = 37
  // number of the female avatar images
 const kFemaleAvatarCount = 75
-const kCharacterInitialMinAge = 10
-const kCharacterInitialMaxAge = 25
+const kCharacterRandomAgeMax = 150
 
 const kCharacterAverageLooks = 75.0
 /// 容貌最大值: 100.0
@@ -71,7 +70,7 @@ final kGeneralThinkings = [
   'saddist',
   'backstabbing',
   'greediness',
-  'addicted',
+  'arrogance',
   'jealousness',
   'anger',
 ]
@@ -83,10 +82,8 @@ struct Character {
     isFemale: bool,
     birthTimestamp,
     birthPlaceId,
-    nationId,
   }) {
-    assert(birthPlaceId != null)
-    assert(nationId != null)
+    assert(birthPlaceId != null && game.locations.contains(birthPlaceId))
 
     this.index = game.characters.length
     if (isFemale != null) {
@@ -115,13 +112,16 @@ struct Character {
     if (birthTimestamp != null) {
       this.birthTimestamp = birthTimestamp
     } else {
-      this.birthTimestamp = _createRandomBirthTimestamp()
+      this.birthTimestamp = createRandomBirthTimestamp()
     }
     this.looks = hyperbola(kCharacterAverageLooks)
     this.favoredLooks = hyperbola(kCharacterMaxLooks)
 
     this.birthPlaceId = birthPlaceId
-    this.nationId = nationId
+    setCharacterLocationId(this, birthPlaceId)
+    final birthPlace = game.locations[birthPlaceId]
+    setCharacterHome(this, birthPlace)
+    this.nationId = birthPlace.nationId
 
     // 该角色的称号
     this.titles = {}
@@ -201,8 +201,9 @@ fun getCharAgeString(character) {
   return toAgeString(game.timestamp - character.birthTimestamp)
 }
 
-fun _createRandomBirthTimestamp() {
-  final age = Math.randomInt(kCharacterInitialMaxAge - kCharacterInitialMinAge) + kCharacterInitialMinAge
+fun createRandomBirthTimestamp([min = 1, max = kCharacterRandomAgeMax]) {
+  assert(min > 0)
+  final age = Math.randomInt(max - min) + min
   final randomDateInAYear = Math.randomInt(kTicksPerYear)
   return game.timestamp - (age * kTicksPerYear + randomDateInAYear)
 }
@@ -400,23 +401,23 @@ fun removeCharacterHome(character) {
   if (!character.homeId) return
 
   final loc = game.locations[character.homeId]
-  loc.residingCharacterIds.remove(character.id)
-  // loc.residingWildCharacterIds.remove(character.id)
-  // loc.residingOrganizedCharacterIds.remove(character.id)
+  // loc.residingCharacterIds.remove(character.id)
+  loc.residingWildCharacterIds.remove(character.id)
+  loc.residingOrganizedCharacterIds.remove(character.id)
   character.homeId = null
 }
 
-fun setCharacterHome(location, character) {
+fun setCharacterHome(character, location) {
   if (character.homeId != null) {
     assert(character.homeId != location.id)
     removeCharacterHome(character)
   }
-  location.residingCharacterIds.add(character.id)
-  // if (isOrganized) {
-  //   location.residingOrganizedCharacterIds.add(character.id)
-  // } else {
-  //   location.residingWildCharacterIds.add(character.id)
-  // }
+  // location.residingCharacterIds.add(character.id)
+  if (location.organizationId == character.organizationId) {
+    location.residingOrganizedCharacterIds.add(character.id)
+  } else {
+    location.residingWildCharacterIds.add(character.id)
+  }
   character.homeId = location.id
 }
 
@@ -473,28 +474,28 @@ fun handleCharacterInteraction(characterId) {
   final character = game.characters[characterId]
   final hero = game.characters[game.heroId]
   final selections = {}
-  if (characterId in! game.monthlyActivities.talked) {
+  if (characterId in! game.playerMonthly.talked) {
     selections.talk = getLocaleString('talk')
   }
-  if (characterId in! game.monthlyActivities.gifted) {
+  if (characterId in! game.playerMonthly.gifted) {
     selections.gift = getLocaleString('gift')
   }
-  if (characterId in! game.monthlyActivities.practiced) {
+  if (characterId in! game.playerMonthly.practiced) {
     selections.practice = getLocaleString('practice')
   }
-  if (characterId in! game.monthlyActivities.consulted) {
+  if (characterId in! game.playerMonthly.consulted) {
     selections.consult = getLocaleString('consult')
   }
-  if (characterId in! game.monthlyActivities.requested) {
+  if (characterId in! game.playerMonthly.requested) {
     selections.request = getLocaleString('request')
   }
-  if (characterId in! game.monthlyActivities.insulted) {
+  if (characterId in! game.playerMonthly.insulted) {
     selections.insult = getLocaleString('insult')
   }
-  if (characterId in! game.monthlyActivities.stolen) {
+  if (characterId in! game.playerMonthly.stolen) {
     selections.steal = getLocaleString('steal')
   }
-  if (characterId in! game.monthlyActivities.peeped) {
+  if (characterId in! game.playerMonthly.peeped) {
     selections.peep = getLocaleString('peep')
   }
   selections.sneekAttack = getLocaleString('sneekAttack')

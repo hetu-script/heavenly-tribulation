@@ -1,20 +1,22 @@
 import 'game.ht'
 
 const kTicksPerDay = 4 //每天的回合数 morning, afternoon, evening, night
+const kDaysPerWeek = 10 //每旬的天数
+const kTicksPerWeek = kDaysPerWeek * kTicksPerDay //每旬的回合数 40
 const kDaysPerMonth = 30 //每月的天数
-const kTicksPerMonth = 120 //每月的回合数 120
+const kTicksPerMonth = kDaysPerMonth * kTicksPerDay //每月的回合数 120
 const kMonthsPerYear = 12 //每年的月数
-const kTicksPerYear = 1440 //每年的回合数 1440
+const kTicksPerYear = kMonthsPerYear * kTicksPerMonth //每年的回合数 1440
 
 fun toYear(timestamp) => (timestamp ~/ kTicksPerYear)
 fun toMonth(timestamp) => (timestamp % kTicksPerYear) ~/ kTicksPerMonth
 fun toDay(timestamp) => (timestamp % kTicksPerMonth) ~/ kTicksPerDay
 
-fun currentYear => toYear(game.timestamp)
-fun currentMonth => toMonth(game.timestamp)
-fun currentDay => toDay(game.timestamp)
+fun getCurrentYear => toYear(game.timestamp)
+fun getCurrentMonth => toMonth(game.timestamp)
+fun getCurrentDay => toDay(game.timestamp)
 
-fun getDateTimeString() => formatDateTimeString(game.timestamp, format: 'date')
+fun getCurrentDateString() => formatDateTimeString(game.timestamp, format: 'date')
 
 // [format] = 'age' | 'date' | 'time' . 'ymd' | 'ym' | 'md' | 'd' | 'auto'
 fun formatDateTimeString(timestamp: int, {format: str}) {
@@ -85,8 +87,6 @@ fun formatDateTimeString(timestamp: int, {format: str}) {
     }
   }
 }
-
-fun getCurrentDate => formatDateTimeString(game.timestamp)
 
 fun toDateString(timestamp) => formatDateTimeString(timestamp)
 
