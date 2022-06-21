@@ -59,6 +59,7 @@ final lightTheme = ThemeData(
       color: kForegroundColor,
     ),
   ),
+  dividerColor: kForegroundColor,
 );
 
 enum OrientationMode {

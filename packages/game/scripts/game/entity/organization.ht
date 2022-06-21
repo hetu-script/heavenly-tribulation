@@ -49,7 +49,7 @@ final kOrganizationThinkings = {
   restaurant: [],
 }
 
-const kOrganizationThinkingsOnRecruit = 2
+const kOrganizationThinkingsOnRecruit = 3
 
 struct Organization {
   construct ({
@@ -123,12 +123,17 @@ struct Organization {
   }
 }
 
+// fun getLeaderTitle(organization) {
+//   return organization.name + getLocaleString('${organization.category}LeaderTitle')
+// }
+
 // 必须已经是门派成员，才可以设定为掌门
 fun setLeader(organization, character) {
   assert(character.organizationId == organization.id)
   organization.leaderId = character.id
-  character.titles[kLeaderTitle] = getLeaderTitle(organization)
-  character.currentTitleId = kLeaderTitle
+  final titleId = '${organization.category}LeaderTitle'
+  character.titles[titleId] = getLocaleString(titleId)
+  character.currentTitleId = titleId
   character.isLeader = true
 }
 
@@ -182,7 +187,8 @@ fun addCharacterToOrganization(character, organization) {
   final location = game.locations[organization.headquartersId]
   setCharacterHome(character, location)
 
-  for (final i in range(kOrganizationThinkingsOnRecruit)) {
+  final r = Math.randomInt(kOrganizationThinkingsOnRecruit)
+  for (final i in range(r)) {
     var thinking
     do {
       thinking = kOrganizationThinkings[organization.category].random

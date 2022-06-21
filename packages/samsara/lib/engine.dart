@@ -89,6 +89,7 @@ class SamsaraEngine with SceneController, EventAggregator {
           expressionModuleExtensions: [HTResource.json]);
       hetu = Hetu(
         config: HetuConfig(
+          showHetuStackTrace: true,
           allowImplicitNullToZeroConversion: true,
           allowImplicitEmptyValueToFalseConversion: true,
         ),
@@ -105,11 +106,13 @@ class SamsaraEngine with SceneController, EventAggregator {
     } else {
       hetu = Hetu(
         config: HetuConfig(
+          showHetuStackTrace: true,
           allowImplicitNullToZeroConversion: true,
           allowImplicitEmptyValueToFalseConversion: true,
         ),
       );
       hetu.init(
+        locale: HTLocaleSimplifiedChinese(),
         externalFunctions: externalFunctions,
         externalClasses: [
           SamsaraEngineClassBinding(),

@@ -60,7 +60,7 @@ struct Incident {
           for (final id in location.dwellingCharacterIds) {
             if (id in subjectIds) continue
             if (objectIds && id in objectIds) continue
-            final char = games.characters[id]
+            final char = game.characters[id]
             characterWitnessedIncident(char, this)
           }
         }

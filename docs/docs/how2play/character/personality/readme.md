@@ -94,12 +94,6 @@
 
 不羁 （Relaxing）：随心所欲。
 
-#### 动力 - 勤奋和懒惰
-
-勤奋（Diligent）：勤奋努力。
-
-懒惰（Laziness）：
-
 #### 外物 - 节俭和奢侈
 
 节俭（Frugality）：花钱节省。
@@ -129,6 +123,12 @@
 共情（Empathy）
 
 冷漠（Indifference）
+
+#### 大方 - 慷慨和小气
+
+慷慨（Generosity）
+
+小气（Stinginess）
 
 #### 
 

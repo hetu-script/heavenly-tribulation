@@ -1,9 +1,10 @@
 import '../game.ht'
 import '../map.ht'
 import '../generator/name/name.ht' as nameGenerator
-import 'character.ht'
 
 const _kNation = '国'
+
+const kEmperorTitle = 'emperor'
 
 struct Nation {
   construct ({
@@ -91,10 +92,14 @@ fun addTerrainToNation(nation, terrain) {
   }
 }
 
+// fun getEmperorTitle(nation) {
+//   return nation.name + getLocaleString('emperor')
+// }
+
 // 必须已经是国民，才可以设定为皇帝
 fun setEmperor(nation, character) {
   assert(character.nationId == nation.id)
   nation.emperorId = character.id
-  character.titles[kEmperorTitle] = getEmperorTitle(nation)
+  character.titles[kEmperorTitle] = getLocaleString('emperor')
   character.currentTitleId = kEmperorTitle
 }

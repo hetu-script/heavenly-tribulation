@@ -6,5 +6,16 @@
   "business": "商行",
   "academy": "书院",
   "craftsmanship": "工会",
-  "restaurant": "酒楼"
+  "restaurant": "酒楼",
+
+  "caltivationLeaderTitle": "掌门",
+  "religionLeaderTitle": "方丈",
+  "familyLeaderTitle": "族长",
+  "gangLeaderTitle": "头目",
+  "businessLeaderTitle": "老板",
+  "academyLeaderTitle": "先生",
+  "craftsmanshipLeaderTitle": "坊主",
+  "restaurantLeaderTitle": "掌柜",
+
+  "emperor": "皇帝"
 }

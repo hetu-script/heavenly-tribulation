@@ -18,10 +18,7 @@ const kCharacterAverageLooks = 75.0
 const kCharacterMaxLooks = 100.0
 const kCharacterImpressionCheckpoint = 10.0
 
-const kLeaderTitle = 'leaderTitle'
-const kEmperorTitle = 'emperorTitle'
-
-const kCharacterInitialGeneralThinking = 3
+const kCharacterInitialGeneralThinking = 4
 
 const kCharacterMarriageAgeMin = 15
 const kCharacterMarriageAgeMax = 40
@@ -56,6 +53,8 @@ final kGeneralThinkings = [
   'enthusiasm',
   'romance',
   'modesty',
+  'celibate',
+  'dink',
   'chatting',
   'clumsy',
   'cynicism',
@@ -89,6 +88,74 @@ struct Bond {
   }
 }
 
+final kPregnancyTime = kTicksPerMonth * 9
+final kPregnancyTimeVariable = kTicksPerMonth * 2
+const kPregnancyAgeMax = 40
+
+struct Baby {
+  construct ({
+    father,
+    mother,
+    conceptionTimestamp,
+  }) {
+    assert(father != null)
+    assert(mother != null)
+    assert(conceptionTimestamp != null)
+
+    mother.isPregnant = true
+
+    this.fatherId = father.id
+    this.motherId = mother.id
+    this.conceptionTimestamp = conceptionTimestamp
+    this.pregnancyTimestamp = Math.gaussianNoise(kPregnancyTime, kPregnancyTimeVariable)
+    
+    this.isFemale = Math.randomInt(2) == 0
+    if (this.isFemale) {
+      final index = Math.randomInt(kFemaleAvatarCount)
+      this.avatar = 'avatar/female/${index}.jpg';
+    } else {
+      final index = Math.randomInt(kMaleAvatarCount)
+      this.avatar = 'avatar/male/${index}.jpg';
+    }
+    final r = nameGenerator.getCharacter(
+      1,
+      isFemale: this.isFemale,
+      familyName: father.familyName,
+    ).first
+    this.familyName = father.familyName
+    this.shortName = r.shortName
+    this.name = this.familyName + this.shortName
+    this.id = 'character_${this.index}_${this.name}'
+
+    game.babies[this.id] = this
+  }
+}
+
+fun handleBabies {
+  final bornIds = []
+  for (final baby of game.babies) {
+    if (game.timestamp - baby.conceptionTimestamp > baby.pregnancyTimestamp) {
+      final mother = game.characters[baby.motherId]
+      mother.isPregnant = false
+      final location = game.locations[mother.locationId]
+      final character = Character(
+        familyName: baby.familyName,
+        shorname: baby.shorname,
+        isFemale: baby.isFemale,
+        birthTimestamp: game.timestamp,
+        locationId: location.id,
+        newborn: true,
+        fatherId: baby.fatherId,
+        motherId: baby.motherId,
+      )
+      bornIds.add(baby.id)
+    }
+  }
+  for (final id in bornIds) {
+    delete game.babies[id]
+  }
+}
+
 struct Character {
   construct ({
     familyName,
@@ -115,7 +182,7 @@ struct Character {
       final index = Math.randomInt(kMaleAvatarCount)
       this.avatar = 'avatar/male/${index}.jpg';
     }
-    if (familyName != null && shorname != null) {
+    if (familyName != null && shortName != null) {
       this.familyName = familyName
       this.shortName = shortName
     } else {
@@ -142,6 +209,7 @@ struct Character {
 
     // 该角色的称号
     this.titles = {}
+    // titles中直接保存了称号字符串
     this.currentTitleId = null
  
     // 名声，指有多少人知道此人的名字
@@ -195,6 +263,7 @@ struct Character {
       confidence: Math.random() * 100.0 - 50.0,
       prudence: Math.random() * 100.0 - 50.0,
       empathy: Math.random() * 100.0 - 50.0,
+      generosity: Math.random() * 100.0 - 50.0,
     }
 
     // 该角色的动机，主要动机只有一个，次要动机可以有多个
@@ -208,7 +277,8 @@ struct Character {
       this.motivations.add(kMajorMotivations.random)
     }
 
-    for (final i in range(kCharacterInitialGeneralThinking)) {
+    final r = Math.randomInt(kCharacterInitialGeneralThinking)
+    for (final i in range(r)) {
       var thinking
       do {
         thinking = kGeneralThinkings.random
@@ -233,11 +303,18 @@ struct Character {
 
     this.tasks = []
     
-    // 出生事件会修改自身，需要放在最后处理
+    final location = game.locations[locationId]
     if (newborn) {
+      assert(fatherId != null)
+      assert(motherId != null)
+      final father = game.characters[fatherId]
+      final mother = game.characters[motherId]
       this.birthPlaceId = locationId
-      final incidentContent = getLocaleString('incidentFirstImpressionNormal', [
-          subject.name,
+      // 出生事件会修改自身，需要放在最后处理
+      final incidentContent = getLocaleString('incidentBorn', [
+          father.name,
+          mother.name,
+          this.name,
           location.name,
         ])
       Incident(
@@ -245,10 +322,16 @@ struct Character {
         subjectIds: [this.id],
         locationId: locationId,
       )
+      // final homeId = mother.homeId ?? mother.locationId
+      // final home = game.locations[homeId]
+      final home = game.locations[mother.homeId]
+      setCharacterHome(this, home)
+      father.relationships.childrenIds.add(this.id)
+      mother.relationships.childrenIds.add(this.id)
+    } else {
+      // 设置居住地会触发事件从而修改自身，需要放在最后处理
+      setCharacterHome(this, location)
     }
-    
-    // 设置居住地会触发事件从而修改自身，需要放在最后处理
-    setCharacterHome(this, location)
   }
 }
 
@@ -343,7 +426,7 @@ fun getStatsPercentageOfCharacter(character) {
 }
 
 // 第一印象分
-fun _characterGetKnown(subject, target) {
+fun _characterFirstMet(subject, target) {
   var bond
   var hasBond = false
   if (subject.bonds.characters[target.id] != null) {
@@ -363,22 +446,22 @@ fun _characterGetKnown(subject, target) {
   // TODO: 这两个挪到聊天互动之后再计算
   // bond.scoreOfSameNation = target.nationId == subject.nationId ? 5 : 0
   // bond.scoreOfSameBirthPlace = target.birthPlaceId == subject.birthPlaceId ? 10 : 0
-  score += target.familyName == subject.familyName ? 10: 0
+  // score += target.familyName == subject.familyName ? 10: 0
   // TODO: 同名之谊?
 
   var incidentContent
-  if (bond.score < -kCharacterImpressionCheckpoint) {
-    incidentContent = getLocaleString('incidentFirstImpressionHate', [
+  if (score < -kCharacterImpressionCheckpoint) {
+    incidentContent = getLocaleString('incidentFirstMetHate', [
       subject.name,
       target.name,
     ])
-  } else if (bond.score > kCharacterImpressionCheckpoint) {
-    incidentContent = getLocaleString('incidentFirstImpressionLike', [
+  } else if (score > kCharacterImpressionCheckpoint) {
+    incidentContent = getLocaleString('incidentFirstMetLike', [
       subject.name,
       target.name,
     ])
   } else {
-    incidentContent = getLocaleString('incidentFirstImpressionNormal', [
+    incidentContent = getLocaleString('incidentFirstMetNormal', [
       subject.name,
       target.name,
     ])
@@ -400,38 +483,38 @@ fun _characterGetKnown(subject, target) {
   }
 }
 
-fun characterGetKnown(subject, target) {
-  _characterGetKnown(subject, target)
-  _characterGetKnown(target, subject)
+fun characterFirstMet(subject, target) {
+  _characterFirstMet(subject, target)
+  _characterFirstMet(target, subject)
 }
 
-fun characterWitnessedIncident(character, incident) {
+fun characterWitnessedIncident(character, incident, { scoreBonus = 0 }) {
   final score = ((character.personality.ideal * incident.ideal +
                  character.personality.order * incident.order +
-                 character.personality.good * incident.good) / 100)
-  if (character.bonds.characters.containsKey(incident.subjectId)) {
-    final bond = character.bonds.characters[incident.subjectId]
-    bond.memory[incident.index] = score
-    bond.score += score
-    // 评价发生了改变
-    // if (oldScore < 0 && bond.score >= 0) {
-    //   --subject.infamy
-    // } else if (oldScore >= 0 && bond.score < 0) {
-    //   ++subject.infamy
-    // }
-  } else {
-    // 名声增加
-    for (final id in incident.subjectIds) {
+                 character.personality.good * incident.good) / 100) + scoreBonus
+  for (final id in incident.subjectIds) {
+    if (character.bonds.characters.containsKey(id)) {
+      final bond = character.bonds.characters[id]
+      bond.memory[incident.index] = score
+      bond.score += score
+      // 评价发生了改变
+      // if (oldScore < 0 && bond.score >= 0) {
+      //   --subject.infamy
+      // } else if (oldScore >= 0 && bond.score < 0) {
+      //   ++subject.infamy
+      // }
+    } else {
+      // 名声增加
       final subject = game.characters[id]
       ++subject.fame
       final bond = Bond(id: id, name: subject.name)
       bond.memory[incident.index] = score
       bond.score += score
       character.bonds.characters[id] = bond
+      // if (score < 0) {
+      //   ++subject.infamy
+      // }
     }
-    // if (score < 0) {
-    //   ++subject.infamy
-    // }
   }
   character.memory.witnessed.add(incident.index)
 }
@@ -439,14 +522,6 @@ fun characterWitnessedIncident(character, incident) {
 // fun getSpiritRankTitle(spiritRank) {
 //   return getLocaleString('spiritRank${spiritRank}') + getLocaleString('sorcerer')
 // }
-
-fun getLeaderTitle(organization) {
-  return organization.name + getLocaleString('leader')
-}
-
-fun getEmperorTitle(nation) {
-  return nation.name + getLocaleString('emperor')
-}
 
 fun removeCharacterHome(character) {
   if (!character.homeId) return
@@ -459,19 +534,9 @@ fun removeCharacterHome(character) {
 }
 
 fun setCharacterHome(character, location) {
-  if (character.homeId != null) {
-    removeCharacterHome(character)
-  }
-  // location.residingCharacterIds.add(character.id)
-  if (location.organizationId && location.organizationId == character.organizationId) {
-    location.residingOrganizedCharacterIds.add(character.id)
-  } else {
-    location.residingWildCharacterIds.add(character.id)
-  }
   if (character.homeId != location.id) {
-    character.homeId = location.id
     // 触发定居事件
-    final incidentContent = getLocaleString('incidentCharacterHome', [
+    final incidentContent = getLocaleString('incidentSettle', [
       character.name,
       location.name,
     ])
@@ -481,14 +546,25 @@ fun setCharacterHome(character, location) {
       isPrivate: true,
     )
     for (final id in location.residingWildCharacterIds) {
+      if (id == character.id) continue
       final otherChar = game.characters[id]
-      characterGetKnown(character, otherChar)
+      characterFirstMet(character, otherChar)
     }
     for (final id in location.residingOrganizedCharacterIds) {
+      if (id == character.id) continue
       final otherChar = game.characters[id]
-      characterGetKnown(character, otherChar)
+      characterFirstMet(character, otherChar)
     }
   }
+  // 即便是同一个场景，也有可能是从在野变成加入组织，所以还是要执行下面的代码
+  removeCharacterHome(character)
+  // location.residingCharacterIds.add(character.id)
+  if (location.organizationId && location.organizationId == character.organizationId) {
+    location.residingOrganizedCharacterIds.add(character.id)
+  } else {
+    location.residingWildCharacterIds.add(character.id)
+  }
+  character.homeId = location.id
 }
 
 fun setHeroId(id: str) {
@@ -575,7 +651,7 @@ fun handleCharacterInteraction(characterId) {
     when (key) {
       'talk' -> {
         if (!haveMet(hero, character)) {
-          characterGetKnown(hero, character)
+          characterFirstMet(hero, character)
         }
         handleCharacterTalk(hero, character)
       }

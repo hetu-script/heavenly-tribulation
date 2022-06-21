@@ -29,6 +29,19 @@ class CharacterAttributesView extends StatelessWidget {
     final ageString = engine.hetu.invoke('toAgeString', positionalArgs: [age]);
     final birthday = engine.hetu.invoke('formatDateTimeString',
         positionalArgs: [age], namedArgs: {'format': 'date.md'});
+    final organizationId = data['organizationId'];
+    String organization;
+    if (organizationId != null) {
+      final organizationData = engine.hetu
+          .invoke('getOrganizationById', positionalArgs: [organizationId]);
+      organization = organizationData['name'];
+    } else {
+      organization = engine.locale['none'];
+    }
+
+    final title = data['currentTitleId'] != null
+        ? engine.locale[data['currentTitleId']]
+        : engine.locale['none'];
 
     final homeData =
         engine.hetu.invoke('getLocationById', positionalArgs: [data['homeId']]);
@@ -78,6 +91,8 @@ class CharacterAttributesView extends StatelessWidget {
         (personality['prudence'] as double).toDoubleAsFixed(2);
     final double empathy =
         (personality['empathy'] as double).toDoubleAsFixed(2);
+    final double generosity =
+        (personality['generosity'] as double).toDoubleAsFixed(2);
 
     return Container(
       padding: const EdgeInsets.all(10),
@@ -92,32 +107,45 @@ class CharacterAttributesView extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Container(
-                alignment: Alignment.topLeft,
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                child: Avatar(
-                  avatarAssetKey: 'assets/images/${data['avatar']}',
+              Row(children: [
+                Container(
+                  margin: const EdgeInsets.only(left: 10.0, right: 33.0),
+                  child: Avatar(
+                    name: data['name'],
+                    size: const Size(80.0, 80.0),
+                    avatarAssetKey: 'assets/images/${data['avatar']}',
+                  ),
                 ),
-              ),
-              Text(data['name']),
-              Text(
-                  '${engine.locale['sex']}: ${data['isFemale'] ? engine.locale['female'] : engine.locale['male']}'),
-              Text('${engine.locale['age']}: $ageString'),
-              Text('${engine.locale['birthday']}: $birthday'),
-              Text(
-                  '${engine.locale['looks']}: ${data['looks'].toStringAsFixed(2)}'),
-              Text('${engine.locale['home']}: $home'),
-              Text('${engine.locale['money']}: ${data['money']}'),
-              Text('${engine.locale['fame']}: ${data['fame']}'),
-              if (engine.debugMode) ...[
-                Text('---${engine.locale['debug']}---'),
-                Text(
-                    '${engine.locale['favoredLooks']}: ${data['favoredLooks'].toStringAsFixed(2)}'),
-                Text('${engine.locale['birthPlace']}: ${data['birthPlaceId']}'),
-                Text(
-                    '${engine.locale['currentLocation']}: ${data['locationId']}'),
-              ],
-              Text('---${engine.locale['attributes']}---'),
+                Container(
+                  margin: const EdgeInsets.only(left: 10.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                          '${engine.locale['sex']}: ${data['isFemale'] ? engine.locale['female'] : engine.locale['male']}'),
+                      Text('${engine.locale['age']}: $ageString'),
+                      Text(
+                          '${engine.locale['looks']}: ${data['looks'].toStringAsFixed(2)}'),
+                      Text('${engine.locale['home']}: $home'),
+                    ],
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.only(left: 30.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${engine.locale['money']}: ${data['money']}'),
+                      Text('${engine.locale['fame']}: ${data['fame']}'),
+                      Text('${engine.locale['organization']}: $organization'),
+                      Text('${engine.locale['title']}: $title'),
+                    ],
+                  ),
+                ),
+              ]),
+              const Divider(),
+              // Text('---${engine.locale['attributes']}---'),
               Wrap(children: [
                 Label(
                   '${engine.locale['strength']}: $strength',
@@ -144,12 +172,25 @@ class CharacterAttributesView extends StatelessWidget {
                   width: 120.0,
                 ),
               ]),
-              Text('---${engine.locale['relationship']}---'),
-              Text('${engine.locale['father']}: $father'),
-              Text('${engine.locale['mother']}: $mother'),
-              Text('${engine.locale['spouse']}: $spouse'),
-              Text('${engine.locale['children']}: $children'),
-              Text('---${engine.locale['personality']}---'),
+              const Divider(),
+              // Text('---${engine.locale['relationship']}---'),
+              Wrap(children: [
+                Label(
+                  '${engine.locale['father']}: $father',
+                  width: 120.0,
+                ),
+                Label(
+                  '${engine.locale['mother']}: $mother',
+                  width: 120.0,
+                ),
+                Label(
+                  '${engine.locale['spouse']}: $spouse',
+                  width: 120.0,
+                ),
+                Label('${engine.locale['children']}: $children'),
+              ]),
+              const Divider(),
+              // Text('---${engine.locale['personality']}---'),
               Wrap(
                 children: [
                   Label(
@@ -218,20 +259,37 @@ class CharacterAttributesView extends StatelessWidget {
                         : '${engine.locale['indifference']}: $empathy',
                     width: 120.0,
                   ),
+                  Label(
+                    empathy > 0
+                        ? '${engine.locale['generosity']}: +$generosity'
+                        : '${engine.locale['stinginess']}: $generosity',
+                    width: 120.0,
+                  ),
                 ],
               ),
-              Text('---${engine.locale['motivation']}---'),
-              Wrap(
-                children: (data['motivations'] as List)
-                    .map((e) => Label(engine.locale[e]))
-                    .toList(),
-              ),
-              Text('---${engine.locale['thinking']}---'),
-              Wrap(
-                children: (data['thinkings'] as List)
-                    .map((e) => Label(engine.locale[e]))
-                    .toList(),
-              ),
+              if (engine.debugMode) ...[
+                const Divider(),
+                Text('---${engine.locale['debug']}---'),
+                Wrap(
+                  children: [
+                    Label('${engine.locale['birthday']}: $birthday'),
+                    Label(
+                        '${engine.locale['favoredLooks']}: ${data['favoredLooks'].toStringAsFixed(2)}'),
+                    Label(
+                        '${engine.locale['birthPlace']}: ${data['birthPlaceId']}'),
+                    Label(
+                        '${engine.locale['currentLocation']}: ${data['locationId']}'),
+                    const Divider(),
+                    Label('${engine.locale['motivation']}:'),
+                    ...(data['motivations'] as List)
+                        .map((e) => Label(engine.locale[e])),
+                    const Divider(),
+                    Label('${engine.locale['thinking']}:'),
+                    ...(data['thinkings'] as List)
+                        .map((e) => Label(engine.locale[e])),
+                  ],
+                ),
+              ],
             ],
           ),
         ),
