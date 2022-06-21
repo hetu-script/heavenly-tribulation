@@ -26,34 +26,24 @@ const kCharacterInitialGeneralThinking = 3
 const kCharacterMarriageAgeMin = 15
 const kCharacterMarriageAgeMax = 40
 
-// 羁绊, 人物对其他的某个事物的印象和评价
-struct Bond {
-  var id
-  var name
-  var score
+const kMajorMotivationProbobility = 0.2
 
-  construct ({
-    id,
-    name,
-    score = 0
-  }) {
-    this.id = id
-    this.name = name
-    this.score = score
-    this.incidentScores = {}
-    this.haveMet = false
-  }
-}
-
-final kMotivation = [
+final kMajorMotivations = [
   'duty',
-  'enjoyment',
+  'pleasure',
   'love',
   'wealth',
-  'rectification',
+  'service',
   'eternity',
   'arcane',
-  'hedgemony'
+  'throne',
+  'expert',
+]
+
+final kMinorMotivations = [
+  'recruitment'
+  'marriage',
+  'child',
 ]
 
 final kGeneralThinkings = [
@@ -80,6 +70,25 @@ final kGeneralThinkings = [
   'anger',
 ]
 
+// 羁绊, 人物对其他的某个事物的印象和评价
+struct Bond {
+  var id
+  var name
+  var score
+
+  construct ({
+    id,
+    name,
+    score = 0
+  }) {
+    this.id = id
+    this.name = name
+    this.score = score
+    this.memory = {}
+    this.haveMet = false
+  }
+}
+
 struct Character {
   construct ({
     familyName,
@@ -88,6 +97,8 @@ struct Character {
     birthTimestamp,
     locationId,
     bool newborn = false,
+    fatherId,
+    motherId,
   }) {
     assert(locationId != null && game.locations.contains(locationId))
 
@@ -97,7 +108,7 @@ struct Character {
     } else {
       this.isFemale = Math.randomInt(2) == 0
     }
-    if (isFemale) {
+    if (this.isFemale) {
       final index = Math.randomInt(kFemaleAvatarCount)
       this.avatar = 'avatar/female/${index}.jpg';
     } else {
@@ -133,7 +144,7 @@ struct Character {
 
       Incident(
         content: incidentContent,
-        subjectId: subject.id,
+        subjectIds: [subject.id],
         locationId: locationId,
         isPublic: true,
       )
@@ -153,7 +164,7 @@ struct Character {
     // this.infamy = 0
 
     // 身上携带的金钱数量
-    this.wealth = 0
+    this.money = 0
 
     this.skills = {
       inventory: [],
@@ -173,13 +184,12 @@ struct Character {
 
     recalculateAttributesOfCharacter(this)
 
-    // 该角色对世界上的其他事物的关系
-    this.bonds = {
-      characters: {},
-      items: {},
-      organizations: {},
-      locations: {},
-      nations: {},
+    // 该角色的家庭关系
+    this.relationships = {
+      fatherId,
+      motherId,
+      spouseId: null,
+      childrenIds: [],
     }
 
     // 该角色的人格纬度
@@ -200,30 +210,50 @@ struct Character {
       empathy: Math.random() * 100.0 - 50.0,
     }
 
-    // 该角色的思想
-    this.idea = {
-      // 动机
-      motivation: kMotivation.random,
-      // 由组织获得的思想列表
-      thinking: [],
+    // 该角色的动机，主要动机只有一个，次要动机可以有多个
+    // 动机决定了角色的行动
+    this.motivations = []
+    // 思想列表，思想决定了角色对于其他事物的看法
+    this.thinkings = []
+
+    final r = Math.random()
+    if (r < kMajorMotivationProbobility) {
+      this.motivations.add(kMajorMotivations.random)
     }
 
     for (final i in range(kCharacterInitialGeneralThinking)) {
       var thinking
       do {
         thinking = kGeneralThinkings.random
-      } while (this.idea.thinking.contains(thinking))
-      this.idea.thinking.add(thinking)
+      } while (this.thinkings.contains(thinking))
+      this.thinkings.add(thinking)
     }
 
     // 该角色的记忆
-    this.conductedIncidentIndexes = []
-    this.experiencedIncidentIndexes = []
-    this.witnessedIncidentIndexes = []
-    this.heardOfIncidentIndexes = []
+    this.memory = {
+      conducted: [],
+      experienced: [],
+      witnessed: [],
+      heard: [],
+    }
+
+    // 该角色对世界上的其他事物的喜好程度
+    this.bonds = {
+      characters: {},
+      items: {},
+      organizations: {},
+      locations: {},
+      nations: {},
+    }
+
+    this.tasks = []
 
     game.characters[this.id] = this
   }
+}
+
+fun getCharacterAge(character) {
+  return (game.timestamp - character.birthTimestamp) ~/ kTicksPerYear
 }
 
 fun getCharacterAgeString(character) {
@@ -358,11 +388,11 @@ fun _firstImpressionOfOtherCharacter(subject, target) {
 
   final incident = Incident(
     content: incidentContent,
-    subjectId: subject.id,
+    subjectIds: [subject.id],
     isPublic: false,
   )
 
-  bond.incidentScores[incident.index] = score
+  bond.memory[incident.index] = score
   bond.score += score
   bond.haveMet = true
 
@@ -378,13 +408,12 @@ fun firstImpressionOfOtherCharacter(subject, target) {
 }
 
 fun characterHeardOfIncident(character, incident) {
-  final subject = game.characters[incident.subjectId]
   final score = ((character.personality.ideal * incident.ideal +
                  character.personality.order * incident.order +
                  character.personality.good * incident.good) / 100)
   if (character.bonds.characters.containsKey(incident.subjectId)) {
     final bond = character.bonds.characters[incident.subjectId]
-    bond.incidentScores[incident.index] = score
+    bond.memory[incident.index] = score
     bond.score += score
     // 评价发生了改变
     // if (oldScore < 0 && bond.score >= 0) {
@@ -394,16 +423,19 @@ fun characterHeardOfIncident(character, incident) {
     // }
   } else {
     // 名声增加
-    ++subject.fame
-    final bond = Bond(id: subject.id, name: subject.name)
-    bond.incidentScores[incident.index] = score
-    bond.score += score
-    character.bonds.characters[incident.subjectId] = bond
+    for (final id in incident.subjectIds) {
+      final subject = game.characters[id]
+      ++subject.fame
+      final bond = Bond(id: id, name: subject.name)
+      bond.memory[incident.index] = score
+      bond.score += score
+      character.bonds.characters[id] = bond
+    }
     // if (score < 0) {
     //   ++subject.infamy
     // }
   }
-  character.heardOfIncidentIndexes.add(incident.index)
+  character.memory.heard.add(incident.index)
 }
 
 fun characterWitnessedIncident(character, incident) {

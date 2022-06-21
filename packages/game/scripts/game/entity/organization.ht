@@ -15,9 +15,9 @@ final kOrganizationCategory = [
 
 final kOrganizationThinkings = {
   caltivation: [
-    'martialArtsAddicted',
-    'admireTheStrongest',
-    'repectYourShifu',
+    'martialArtsAddiction',
+    'strengthAdmiration',
+    'masterRespect',
     'mentor',
     'sectarianism',
   ],
@@ -172,8 +172,8 @@ fun addCharacterToOrganization(character, organization) {
     var thinking
     do {
       thinking = kOrganizationThinkings[organization.category].random
-    } while (character.idea.thinking.contains(thinking))
-    character.idea.thinking.add(thinking)
+    } while (character.thinkings.contains(thinking))
+    character.thinkings.add(thinking)
   }
 }
 

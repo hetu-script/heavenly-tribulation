@@ -522,8 +522,8 @@ fun createWorldMap({
     ])
     Incident(
       content: incidentContent,
+      subjectIds: [leader.id],
       order: 30,
-      subjectId: leader.id,
       isGlobal: true,
     )
   }
@@ -545,9 +545,8 @@ fun createWorldMap({
         } while (headquarters.isHeadquarters)
         if (game.characters.length == 0) {
           // 人物列表是空的，此时要创造第一个角色
-          headquarters = game.locations.random
           leader = Character(
-            birthPlaceId: location.id,
+            locationId: headquarters.id,
             birthTimestamp: createRandomBirthTimestamp(20) // 年龄至少是20岁
           )
         } else {
@@ -567,7 +566,7 @@ fun createWorldMap({
           if (!found) {
             // 没有找到合适的人，则立刻创建一个
             leader = Character(
-              birthPlaceId: location.id,
+              locationId: headquarters.id,
               birthTimestamp: createRandomBirthTimestamp(20), // 年龄至少是20岁
             )
           }
@@ -584,21 +583,10 @@ fun createWorldMap({
         // 产生新的在野角色
         final location = game.locations.values.random
         final character = Character(
-          birthPlaceId: location.id,
+          locationId: location.id,
           birthTimestamp: createRandomBirthTimestamp(15, 50),
         )
       }
-
-      // 为角色寻找婚配
-      final characterIdList = game.characters.keys.toList()
-      characterIdList.shuffle()
-      for (final id in characterIdList) {
-        final char1 = game.characters[id]
-        final location = game.locations[char1.locationId]
-        var found
-
-      }
-      
       
       // 为组织招募新的角色
       final organizationIdList = game.organizations.keys.toList()
@@ -613,6 +601,23 @@ fun createWorldMap({
           addCharacterToOrganization(character, organization)
         }
       }
+          
+      // 为角色添加家庭关系
+      final characterIdList = game.characters.keys.toList()
+      characterIdList.shuffle()
+      for (final id in characterIdList) {
+        final char = game.characters[id]
+        if (char.relationships.spouseId == null) {
+          final age = getCharacterAge(char)
+          if (age > kCharacterMarriageAgeMin && age < kCharacterMarriageAgeMax) {
+            
+          }
+        } else {
+          if (char.ralations.childrenIds.isEmpty) {
+            
+          }
+        }
+      }
     }
 
     // 因为是模拟运行，时间直接以月为单位流逝
@@ -620,6 +625,26 @@ fun createWorldMap({
     if (game.timestamp > kTicksPerYear * 100) break
   } while (game.characters.length < characterNumber || game.organizations.length < organizationNumber)
 
+  // 为角色添加次要动机
+  final characterIdList = game.characters.keys.toList()
+  characterIdList.shuffle()
+  for (final id in characterIdList) {
+    final char = game.characters[id]
+    if (char.organizationId == null) {
+      char.motivations.add('recruitment')
+    }
+    if (char.relationships.spouseId == null) {
+      final age = getCharacterAge(char)
+      if (age > kCharacterMarriageAgeMin && age < kCharacterMarriageAgeMax) {
+        char.motivations.add('marriage')
+      }
+    } else {
+      if (char.ralations.childrenIds.isEmpty) {
+        char.motivations.add('child')
+      }
+    }
+  }
+  
   //   // 为每个创派掌门生成初始物品
   //   final weapon = Weapon()
   //   // leader.items.inventory.add(weapon)

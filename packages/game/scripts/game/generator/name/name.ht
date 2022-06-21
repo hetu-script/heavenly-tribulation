@@ -1,4 +1,3 @@
-import '../../entity/constants.ht'
 import 'shared/common.json' as commonNames
 import 'shared/strange.json' as strangeNames
 import 'shared/color.json' as colorPrefix
@@ -22,6 +21,8 @@ import 'creature/creature.json' as creature
 import 'creature/prefix.json' as creaturePrefix
 import 'creature/strange.json' as strangeCreature
 import 'alchemy/alchemy.json' as alchemy
+import '../../entity/constants.ht'
+import '../../util.ht'
 
 export {
   getCharacter,

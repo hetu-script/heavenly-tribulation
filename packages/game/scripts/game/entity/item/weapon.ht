@@ -4,8 +4,8 @@ import 'common.ht'
 
 const kDefaultWeaponIcon = 'icon/item/weapon.png'
 
-const kWeaponSpeedBase = 50
-const kWeaponSpeedVariable = 40
+const kWeaponSpeedBase = 10
+const kWeaponSpeedVariable = 10
 const kWeaponDamageBaseMean = 30
 const kWeaponDamageBaseStandardDeviation = 10
 
@@ -59,7 +59,7 @@ struct Weapon {
     
     if (!this.attributes) {
       this.attributes = {
-        speed: kWeaponSpeedBase - Math.randomInt(kWeaponSpeedVariable),
+        speed: kWeaponSpeedBase + Math.randomInt(kWeaponSpeedVariable),
         damage: _randomDamage(),
         damageType: this.weaponType,
         levels: [],

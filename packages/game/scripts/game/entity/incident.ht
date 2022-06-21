@@ -38,12 +38,12 @@ struct Incident {
 
     for (final id in subjectIds) {
       final subject = game.characters[id]
-      subject.experiencedIncidentIndexes.add(this.index)
+      subject.memory.experienced.add(this.index)
     }
 
     for (final id in objectIds) {
       final object = game.characters[id]
-      object.experiencedIncidentIndexes.add(this.index)
+      object.memory.experienced.add(this.index)
     }
 
     this.isPublic = isPublic
@@ -52,13 +52,13 @@ struct Incident {
     if (isPublic) {
       if (isGlobal) {
         for (final char of game.characters) {
-          if (char.id == subjectId) continue
+          if (char.id in subjectIds) continue
           characterHeardOfIncident(char, this)
         }
       } else if (locationId) {
         final location = game.locations[locationId]
         for (final id in location.dwellingCharacterIds) {
-          if (id == subjectId) continue
+          if (id in subjectIds) continue
           if (objectIds && id in objectIds) continue
           final char = games.characters[id]
           characterHeardOfIncident(char, this)

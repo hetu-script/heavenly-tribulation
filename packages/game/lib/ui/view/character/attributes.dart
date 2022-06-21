@@ -23,6 +23,36 @@ class CharacterAttributesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final timestamp = engine.hetu.invoke('getTimestamp');
+    final age = timestamp - data['birthTimestamp'];
+    final ageString = engine.hetu.invoke('toAgeString', positionalArgs: [age]);
+    final birthday = engine.hetu.invoke('formatDateTimeString',
+        positionalArgs: [age], namedArgs: {'format': 'date.md'});
+
+    final homeData =
+        engine.hetu.invoke('getLocationById', positionalArgs: [data['homeId']]);
+    final home = homeData['name'];
+
+    final fatherData = engine.hetu.invoke('getCharacterById',
+        positionalArgs: [data['relationships']['fatherId']]);
+    final father =
+        fatherData != null ? fatherData['name'] : engine.locale['unknown'];
+    final motherData = engine.hetu.invoke('getCharacterById',
+        positionalArgs: [data['relationships']['motherId']]);
+    final mother =
+        motherData != null ? motherData['name'] : engine.locale['unknown'];
+    final spouseData = engine.hetu.invoke('getCharacterById',
+        positionalArgs: [data['relationships']['spouseId']]);
+    final spouse =
+        spouseData != null ? spouseData['name'] : engine.locale['unknown'];
+    final children = <String>[];
+    final childrenIds = data['relationships']['childrenIds'];
+    for (final id in childrenIds) {
+      final childData =
+          engine.hetu.invoke('getCharacterById', positionalArgs: [id]);
+      children.add(childData['name']);
+    }
+
     final attributes = data['attributes'];
     final int strength = attributes['strength'];
     final int intelligence = attributes['intelligence'];
@@ -47,9 +77,6 @@ class CharacterAttributesView extends StatelessWidget {
         (personality['prudence'] as double).toDoubleAsFixed(2);
     final double empathy =
         (personality['empathy'] as double).toDoubleAsFixed(2);
-
-    final ageString = engine.hetu.interpreter
-        .invoke('getCharacterAgeString', positionalArgs: [data]);
 
     return Container(
       padding: const EdgeInsets.all(10),
@@ -78,9 +105,21 @@ class CharacterAttributesView extends StatelessWidget {
                 Text(
                     '${engine.locale['sex']}: ${data['isFemale'] ? engine.locale['female'] : engine.locale['male']}'),
                 Text('${engine.locale['age']}: $ageString'),
+                Text('${engine.locale['birthday']}: $birthday'),
                 Text(
                     '${engine.locale['looks']}: ${data['looks'].toStringAsFixed(2)}'),
-                Text('${engine.locale['fame']}: ${data['fame'].toString()}'),
+                if (engine.debugMode)
+                  Text(
+                      '${engine.locale['favoredLooks']}: ${data['favoredLooks'].toStringAsFixed(2)}'),
+                Text('${engine.locale['fame']}: ${data['fame']}'),
+                if (engine.debugMode)
+                  Text(
+                      '${engine.locale['birthPlace']}: ${data['birthPlaceId']}'),
+                Text('${engine.locale['home']}: $home'),
+                if (engine.debugMode)
+                  Text(
+                      '${engine.locale['currentLocation']}: ${data['locationId']}'),
+                Text('${engine.locale['money']}: ${data['money']}'),
                 Text('---${engine.locale['attributes']}---'),
                 Text('${engine.locale['strength']}: $strength'),
                 Text('${engine.locale['intelligence']}: $intelligence'),
@@ -88,6 +127,11 @@ class CharacterAttributesView extends StatelessWidget {
                 Text('${engine.locale['superpower']}: $superpower'),
                 Text('${engine.locale['leadership']}: $leadership'),
                 Text('${engine.locale['management']}: $management'),
+                Text('---${engine.locale['relationship']}---'),
+                Text('${engine.locale['father']}: $father'),
+                Text('${engine.locale['mother']}: $mother'),
+                Text('${engine.locale['spouse']}: $spouse'),
+                Text('${engine.locale['children']}: $children'),
                 Text('---${engine.locale['personality']}---'),
                 Text(ideal > 0
                     ? '${engine.locale['ideal']}: +$ideal'
@@ -122,6 +166,14 @@ class CharacterAttributesView extends StatelessWidget {
                 Text(empathy > 0
                     ? '${engine.locale['empathy']}: +$empathy'
                     : '${engine.locale['indifference']}: $empathy'),
+                Text('---${engine.locale['motivation']}---'),
+                Text((data['motivations'] as List)
+                    .map((e) => engine.locale[e])
+                    .toString()),
+                Text('---${engine.locale['thinking']}---'),
+                Text((data['thinkings'] as List)
+                    .map((e) => engine.locale[e])
+                    .toString()),
               ],
             ),
           ],

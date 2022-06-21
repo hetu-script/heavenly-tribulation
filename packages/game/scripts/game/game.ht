@@ -128,7 +128,7 @@ fun onGameEvent(id: str, [arg]) {
   }
 }
 
-fun getTimestamp() {
+fun getTimestamp {
   return game.timestamp
 }
 

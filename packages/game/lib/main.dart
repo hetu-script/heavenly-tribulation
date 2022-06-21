@@ -37,18 +37,17 @@ void main() async {
     windowManager.addListener(CustomWindowListener());
     WindowOptions windowOptions = const WindowOptions(
       // fullScreen: true,
-      size: Size(780.0, 640.0),
+      size: Size(800.0, 600.0),
     );
-    await windowManager.waitUntilReadyToShow(windowOptions, () async {
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
       await windowManager.focus();
+      GlobalConfig.screenSize = await windowManager.getSize();
+      engine.info('系统版本：${Platform.operatingSystemVersion}');
+      engine.info(
+          '窗口逻辑大小：${GlobalConfig.screenSize.width}x${GlobalConfig.screenSize.height}');
     });
-    GlobalConfig.screenSize = await windowManager.getSize();
   }
-
-  engine.info('系统版本：${Platform.operatingSystemVersion}');
-  engine.info(
-      '窗口逻辑大小：${GlobalConfig.screenSize.width}x${GlobalConfig.screenSize.height}');
 
   runApp(
     MaterialApp(

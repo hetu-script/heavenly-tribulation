@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../global.dart';
 import 'bonds.dart';
-import '../history.dart';
+// import '../history.dart';
 import '../../shared/responsive_route.dart';
 import '../../shared/close_button.dart';
 import 'attributes.dart';
@@ -51,19 +51,19 @@ class _CharacterViewState extends State<CharacterView>
         ],
       ),
     ),
-    Tab(
-      height: 40,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
-            child: Icon(Icons.history),
-          ),
-          Text(engine.locale['history']),
-        ],
-      ),
-    ),
+    // Tab(
+    //   height: 40,
+    //   child: Row(
+    //     mainAxisAlignment: MainAxisAlignment.center,
+    //     children: [
+    //       const Padding(
+    //         padding: EdgeInsets.symmetric(horizontal: 8.0),
+    //         child: Icon(Icons.history),
+    //       ),
+    //       Text(engine.locale['history']),
+    //     ],
+    //   ),
+    // ),
   ];
 
   late TabController _tabController;
@@ -98,12 +98,11 @@ class _CharacterViewState extends State<CharacterView>
   Widget build(BuildContext context) {
     final charId = widget.characterId ??
         ModalRoute.of(context)!.settings.arguments as String;
-
-    final data = engine.hetu.interpreter
-        .invoke('getCharacterById', positionalArgs: [charId]);
+    final data =
+        engine.hetu.invoke('getCharacterById', positionalArgs: [charId]);
 
     final layout = DefaultTabController(
-      length: 3,
+      length: _tabs.length,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -117,7 +116,7 @@ class _CharacterViewState extends State<CharacterView>
           children: [
             CharacterAttributesView(data: data),
             CharacterBondsView(data: data['bonds']),
-            HistoryView(data: data['experiencedIncidentIndexes']),
+            // HistoryView(data: data['experiencedIncidentIndexes']),
           ],
         ),
       ),

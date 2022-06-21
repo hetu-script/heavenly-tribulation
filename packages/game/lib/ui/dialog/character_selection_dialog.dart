@@ -3,8 +3,20 @@ import 'package:data_table_2/data_table_2.dart';
 
 import '../../global.dart';
 import '../shared/empty_placeholder.dart';
-import '../shared/constants.dart';
 import '../shared/responsive_route.dart';
+
+const kCharacterSelectionTableColumns = [
+  'name',
+  'haveMet',
+  'talk',
+  'gift',
+  'practice',
+  'consult',
+  'request',
+  'insult',
+  'steal',
+  'peep'
+];
 
 class CharacterSelectionDialog extends StatelessWidget {
   static Future<dynamic> show(
