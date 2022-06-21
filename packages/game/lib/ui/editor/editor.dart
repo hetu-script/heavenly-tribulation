@@ -6,7 +6,7 @@ import 'code/code_editor.dart';
 import '../../global.dart';
 
 class GameEditor extends StatefulWidget {
-  const GameEditor({Key? key}) : super(key: key);
+  const GameEditor({super.key});
 
   @override
   State<GameEditor> createState() => _GameEditorState();

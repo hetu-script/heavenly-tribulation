@@ -83,7 +83,7 @@ class MouseMoveUpdateDetails {
 class PointerDetector extends StatefulWidget {
   /// Creates a widget that detects gestures.
   const PointerDetector({
-    Key? key,
+    super.key,
     required this.child,
     this.onTapDown,
     this.onTapUp,
@@ -96,7 +96,7 @@ class PointerDetector extends StatefulWidget {
     this.onLongPress,
     this.longPressTickTimeConsider = 400,
     this.onMouseMove,
-  }) : super(key: key);
+  });
 
   /// The widget below this widget in the tree.
   ///

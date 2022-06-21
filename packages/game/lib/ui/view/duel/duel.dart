@@ -20,7 +20,7 @@ class Duel extends StatefulWidget {
   // use dynamic list here to compatible with Hetu list
   final List<dynamic> log;
 
-  const Duel(this.log, {Key? key}) : super(key: key);
+  const Duel(this.log, {super.key});
 
   @override
   State<Duel> createState() => _DuelState();
@@ -60,6 +60,7 @@ class _DuelState extends State<Duel> {
   @override
   void dispose() {
     _timer?.cancel();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -117,9 +118,11 @@ class _DuelState extends State<Duel> {
         child: Column(
           children: [
             Expanded(
-              child: ListView(
-                controller: _scrollController,
-                children: widgets,
+              child: SingleChildScrollView(
+                child: ListView(
+                  controller: _scrollController,
+                  children: widgets,
+                ),
               ),
             ),
             if (finished)

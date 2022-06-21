@@ -10,7 +10,7 @@ import '../../view/character/build/build.dart';
 import '../../shared/dynamic_color_progressbar.dart';
 
 class HeroInfoPanel extends StatelessWidget {
-  const HeroInfoPanel({Key? key, required this.heroData}) : super(key: key);
+  const HeroInfoPanel({super.key, required this.heroData});
 
   final HTStruct heroData;
 

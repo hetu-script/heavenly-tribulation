@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+
 import '../../global.dart';
 import '../shared/constants.dart';
 
 class HistoryView extends StatelessWidget {
-  const HistoryView({Key? key, required this.data}) : super(key: key);
+  const HistoryView({super.key, required this.data});
 
   final Iterable<dynamic> data;
 

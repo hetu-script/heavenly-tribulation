@@ -6,6 +6,7 @@ import 'package:hetu_script/values.dart';
 import '../../../global.dart';
 import '../../shared/avatar.dart';
 import '../../shared/constants.dart';
+import '../shared/label.dart';
 
 extension DoubleFixed on double {
   double toDoubleAsFixed([int n = 2]) {
@@ -15,9 +16,9 @@ extension DoubleFixed on double {
 
 class CharacterAttributesView extends StatelessWidget {
   const CharacterAttributesView({
-    Key? key,
+    super.key,
     required this.data,
-  }) : super(key: key);
+  });
 
   final HTStruct data;
 
@@ -88,95 +89,151 @@ class CharacterAttributesView extends StatelessWidget {
             PointerDeviceKind.mouse,
           },
         ),
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  alignment: Alignment.topLeft,
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  child: Avatar(
-                    avatarAssetKey: 'assets/images/${data['avatar']}',
-                  ),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                alignment: Alignment.topLeft,
+                margin: const EdgeInsets.symmetric(vertical: 10),
+                child: Avatar(
+                  avatarAssetKey: 'assets/images/${data['avatar']}',
                 ),
-                Text(data['name']),
+              ),
+              Text(data['name']),
+              Text(
+                  '${engine.locale['sex']}: ${data['isFemale'] ? engine.locale['female'] : engine.locale['male']}'),
+              Text('${engine.locale['age']}: $ageString'),
+              Text('${engine.locale['birthday']}: $birthday'),
+              Text(
+                  '${engine.locale['looks']}: ${data['looks'].toStringAsFixed(2)}'),
+              Text('${engine.locale['home']}: $home'),
+              Text('${engine.locale['money']}: ${data['money']}'),
+              Text('${engine.locale['fame']}: ${data['fame']}'),
+              if (engine.debugMode) ...[
+                Text('---${engine.locale['debug']}---'),
                 Text(
-                    '${engine.locale['sex']}: ${data['isFemale'] ? engine.locale['female'] : engine.locale['male']}'),
-                Text('${engine.locale['age']}: $ageString'),
-                Text('${engine.locale['birthday']}: $birthday'),
+                    '${engine.locale['favoredLooks']}: ${data['favoredLooks'].toStringAsFixed(2)}'),
+                Text('${engine.locale['birthPlace']}: ${data['birthPlaceId']}'),
                 Text(
-                    '${engine.locale['looks']}: ${data['looks'].toStringAsFixed(2)}'),
-                if (engine.debugMode)
-                  Text(
-                      '${engine.locale['favoredLooks']}: ${data['favoredLooks'].toStringAsFixed(2)}'),
-                Text('${engine.locale['fame']}: ${data['fame']}'),
-                if (engine.debugMode)
-                  Text(
-                      '${engine.locale['birthPlace']}: ${data['birthPlaceId']}'),
-                Text('${engine.locale['home']}: $home'),
-                if (engine.debugMode)
-                  Text(
-                      '${engine.locale['currentLocation']}: ${data['locationId']}'),
-                Text('${engine.locale['money']}: ${data['money']}'),
-                Text('---${engine.locale['attributes']}---'),
-                Text('${engine.locale['strength']}: $strength'),
-                Text('${engine.locale['intelligence']}: $intelligence'),
-                Text('${engine.locale['perception']}: $perception'),
-                Text('${engine.locale['superpower']}: $superpower'),
-                Text('${engine.locale['leadership']}: $leadership'),
-                Text('${engine.locale['management']}: $management'),
-                Text('---${engine.locale['relationship']}---'),
-                Text('${engine.locale['father']}: $father'),
-                Text('${engine.locale['mother']}: $mother'),
-                Text('${engine.locale['spouse']}: $spouse'),
-                Text('${engine.locale['children']}: $children'),
-                Text('---${engine.locale['personality']}---'),
-                Text(ideal > 0
-                    ? '${engine.locale['ideal']}: +$ideal'
-                    : '${engine.locale['real']}: $ideal'),
-                Text(order > 0
-                    ? '${engine.locale['order']}: +$order'
-                    : '${engine.locale['chaotic']}: $order'),
-                Text(good > 0
-                    ? '${engine.locale['good']}: +$good'
-                    : '${engine.locale['evil']}: $good'),
-                Text(social > 0
-                    ? '${engine.locale['extraversion']}: +$social'
-                    : '${engine.locale['introspection']}: $social'),
-                Text(reason > 0
-                    ? '${engine.locale['reasoning']}: +$reason'
-                    : '${engine.locale['fealing']}: $reason'),
-                Text(control > 0
-                    ? '${engine.locale['organizing']}: +$control'
-                    : '${engine.locale['relaxing']}: $control'),
-                Text(frugal > 0
-                    ? '${engine.locale['frugality']}: +$frugal'
-                    : '${engine.locale['lavishness']}: $frugal'),
-                Text(frank > 0
-                    ? '${engine.locale['frankness']}: +$frank'
-                    : '${engine.locale['tactness']}: $frank'),
-                Text(confidence > 0
-                    ? '${engine.locale['confidence']}: +$confidence'
-                    : '${engine.locale['cowardness']}: $confidence'),
-                Text(prudence > 0
-                    ? '${engine.locale['prudence']}: +$prudence'
-                    : '${engine.locale['adventurousness']}: $prudence'),
-                Text(empathy > 0
-                    ? '${engine.locale['empathy']}: +$empathy'
-                    : '${engine.locale['indifference']}: $empathy'),
-                Text('---${engine.locale['motivation']}---'),
-                Text((data['motivations'] as List)
-                    .map((e) => engine.locale[e])
-                    .toString()),
-                Text('---${engine.locale['thinking']}---'),
-                Text((data['thinkings'] as List)
-                    .map((e) => engine.locale[e])
-                    .toString()),
+                    '${engine.locale['currentLocation']}: ${data['locationId']}'),
               ],
-            ),
-          ],
+              Text('---${engine.locale['attributes']}---'),
+              Wrap(children: [
+                Label(
+                  '${engine.locale['strength']}: $strength',
+                  width: 120.0,
+                ),
+                Label(
+                  '${engine.locale['intelligence']}: $intelligence',
+                  width: 120.0,
+                ),
+                Label(
+                  '${engine.locale['perception']}: $perception',
+                  width: 120.0,
+                ),
+                Label(
+                  '${engine.locale['superpower']}: $superpower',
+                  width: 120.0,
+                ),
+                Label(
+                  '${engine.locale['leadership']}: $leadership',
+                  width: 120.0,
+                ),
+                Label(
+                  '${engine.locale['management']}: $management',
+                  width: 120.0,
+                ),
+              ]),
+              Text('---${engine.locale['relationship']}---'),
+              Text('${engine.locale['father']}: $father'),
+              Text('${engine.locale['mother']}: $mother'),
+              Text('${engine.locale['spouse']}: $spouse'),
+              Text('${engine.locale['children']}: $children'),
+              Text('---${engine.locale['personality']}---'),
+              Wrap(
+                children: [
+                  Label(
+                    ideal > 0
+                        ? '${engine.locale['ideal']}: +$ideal'
+                        : '${engine.locale['real']}: $ideal',
+                    width: 120.0,
+                  ),
+                  Label(
+                    order > 0
+                        ? '${engine.locale['order']}: +$order'
+                        : '${engine.locale['chaotic']}: $order',
+                    width: 120.0,
+                  ),
+                  Label(
+                    good > 0
+                        ? '${engine.locale['good']}: +$good'
+                        : '${engine.locale['evil']}: $good',
+                    width: 120.0,
+                  ),
+                  Label(
+                    social > 0
+                        ? '${engine.locale['extraversion']}: +$social'
+                        : '${engine.locale['introspection']}: $social',
+                    width: 120.0,
+                  ),
+                  Label(
+                    reason > 0
+                        ? '${engine.locale['reasoning']}: +$reason'
+                        : '${engine.locale['fealing']}: $reason',
+                    width: 120.0,
+                  ),
+                  Label(
+                    control > 0
+                        ? '${engine.locale['organizing']}: +$control'
+                        : '${engine.locale['relaxing']}: $control',
+                    width: 120.0,
+                  ),
+                  Label(
+                    frugal > 0
+                        ? '${engine.locale['frugality']}: +$frugal'
+                        : '${engine.locale['lavishness']}: $frugal',
+                    width: 120.0,
+                  ),
+                  Label(
+                    frank > 0
+                        ? '${engine.locale['frankness']}: +$frank'
+                        : '${engine.locale['tactness']}: $frank',
+                    width: 120.0,
+                  ),
+                  Label(
+                    confidence > 0
+                        ? '${engine.locale['confidence']}: +$confidence'
+                        : '${engine.locale['cowardness']}: $confidence',
+                    width: 120.0,
+                  ),
+                  Label(
+                    prudence > 0
+                        ? '${engine.locale['prudence']}: +$prudence'
+                        : '${engine.locale['adventurousness']}: $prudence',
+                    width: 120.0,
+                  ),
+                  Label(
+                    empathy > 0
+                        ? '${engine.locale['empathy']}: +$empathy'
+                        : '${engine.locale['indifference']}: $empathy',
+                    width: 120.0,
+                  ),
+                ],
+              ),
+              Text('---${engine.locale['motivation']}---'),
+              Wrap(
+                children: (data['motivations'] as List)
+                    .map((e) => Label(engine.locale[e]))
+                    .toList(),
+              ),
+              Text('---${engine.locale['thinking']}---'),
+              Wrap(
+                children: (data['thinkings'] as List)
+                    .map((e) => Label(engine.locale[e]))
+                    .toList(),
+              ),
+            ],
+          ),
         ),
       ),
     );

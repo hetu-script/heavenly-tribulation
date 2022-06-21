@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../global.dart';
 
 class LoadingScreen extends StatelessWidget {
-  const LoadingScreen({Key? key, required this.text}) : super(key: key);
+  const LoadingScreen({super.key, required this.text});
 
   final String text;
 

@@ -30,7 +30,7 @@ class LoadGameDialog extends StatefulWidget {
 
   final List<SaveInfo> list;
 
-  const LoadGameDialog({Key? key, this.list = const []}) : super(key: key);
+  const LoadGameDialog({super.key, this.list = const []});
 
   @override
   State<LoadGameDialog> createState() => _LoadGameDialogState();

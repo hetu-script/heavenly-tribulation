@@ -68,6 +68,8 @@ struct Location {
     }
     this.category = category
     this.id = 'location_${this.index}_${this.name}'
+    game.locations[this.id] = this
+    
     this.isPrivate = isPrivate
     
     // 据点发展度
@@ -102,8 +104,6 @@ struct Location {
 
     // 当地居民的稳定度，0 ~ 100
     // this.stable = 100.0
-
-    game.locations[this.id] = this
   }
 }
 

@@ -22,9 +22,9 @@ class SelectionDialog extends StatefulWidget {
   final HTStruct selections;
 
   const SelectionDialog({
-    Key? key,
+    super.key,
     required this.selections,
-  }) : super(key: key);
+  });
 
   @override
   State<SelectionDialog> createState() => _SelectionDialogState();

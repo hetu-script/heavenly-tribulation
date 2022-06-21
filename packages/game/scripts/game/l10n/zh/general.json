@@ -2,6 +2,7 @@
   "languageId": "zh",
   "languageName": "简体中文",
 
+  "debug": "DEBUG信息",
   "console": "控制台",
   "missing": "□□□□",
   "ok": "确定",
@@ -49,8 +50,10 @@
   "timeMonth": "个月",
   "timeDay": "天",
 
-  "infomation": "信息",
+  "information": "信息",
   "cultivation": "修炼",
   "bonds": "羁绊",
-  "history": "经历"
+  "history": "历史",
+  "experience": "经历",
+  "witness": "见证"
 }

@@ -36,7 +36,7 @@ class CreateGameDialog extends StatefulWidget {
     );
   }
 
-  const CreateGameDialog({Key? key}) : super(key: key);
+  const CreateGameDialog({super.key});
 
   @override
   State<CreateGameDialog> createState() => _CreateGameDialogState();

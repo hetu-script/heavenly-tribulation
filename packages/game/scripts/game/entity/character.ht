@@ -125,6 +125,8 @@ struct Character {
     }
     this.name = this.familyName + this.shortName
     this.id = 'character_${this.index}_${this.name}'
+    game.characters[this.id] = this
+    
     // age 的格式是 timestamp, 精确到 tick. 
     if (birthTimestamp != null) {
       this.birthTimestamp = birthTimestamp
@@ -135,22 +137,7 @@ struct Character {
     this.favoredLooks = hyperbola(kCharacterMaxLooks)
 
     final location = game.locations[locationId]
-    if (newborn) {
-      this.birthPlaceId = locationId
-      final incidentContent = getLocaleString('eventFirstImpressionNormal', [
-          subject.name,
-          location.name,
-        ])
-
-      Incident(
-        content: incidentContent,
-        subjectIds: [subject.id],
-        locationId: locationId,
-        isPublic: true,
-      )
-    }
     setCharacterLocationId(this, locationId)
-    setCharacterHome(this, location)
     this.nationId = location.nationId
 
     // 该角色的称号
@@ -231,10 +218,8 @@ struct Character {
 
     // 该角色的记忆
     this.memory = {
-      conducted: [],
       experienced: [],
       witnessed: [],
-      heard: [],
     }
 
     // 该角色对世界上的其他事物的喜好程度
@@ -247,8 +232,23 @@ struct Character {
     }
 
     this.tasks = []
-
-    game.characters[this.id] = this
+    
+    // 出生事件会修改自身，需要放在最后处理
+    if (newborn) {
+      this.birthPlaceId = locationId
+      final incidentContent = getLocaleString('incidentFirstImpressionNormal', [
+          subject.name,
+          location.name,
+        ])
+      Incident(
+        content: incidentContent,
+        subjectIds: [this.id],
+        locationId: locationId,
+      )
+    }
+    
+    // 设置居住地会触发事件从而修改自身，需要放在最后处理
+    setCharacterHome(this, location)
   }
 }
 
@@ -343,15 +343,13 @@ fun getStatsPercentageOfCharacter(character) {
 }
 
 // 第一印象分
-fun _firstImpressionOfOtherCharacter(subject, target) {
+fun _characterGetKnown(subject, target) {
   var bond
   var hasBond = false
   if (subject.bonds.characters[target.id] != null) {
     hasBond = true
     bond = subject.bonds.characters[target.id]
-    if (bond.haveMet) {
-      throw 'called first impression on characters already met, subject: ${subject.id}, target: ${target.id}'
-    }
+    if (bond.haveMet) return
   } else {
     bond = Bond(id: target.id, name: target.name)
   }
@@ -370,17 +368,17 @@ fun _firstImpressionOfOtherCharacter(subject, target) {
 
   var incidentContent
   if (bond.score < -kCharacterImpressionCheckpoint) {
-    incidentContent = getLocaleString('eventFirstImpressionHate', [
+    incidentContent = getLocaleString('incidentFirstImpressionHate', [
       subject.name,
       target.name,
     ])
   } else if (bond.score > kCharacterImpressionCheckpoint) {
-    incidentContent = getLocaleString('eventFirstImpressionLike', [
+    incidentContent = getLocaleString('incidentFirstImpressionLike', [
       subject.name,
       target.name,
     ])
   } else {
-    incidentContent = getLocaleString('eventFirstImpressionNormal', [
+    incidentContent = getLocaleString('incidentFirstImpressionNormal', [
       subject.name,
       target.name,
     ])
@@ -389,7 +387,7 @@ fun _firstImpressionOfOtherCharacter(subject, target) {
   final incident = Incident(
     content: incidentContent,
     subjectIds: [subject.id],
-    isPublic: false,
+    isPrivate: true,
   )
 
   bond.memory[incident.index] = score
@@ -402,12 +400,12 @@ fun _firstImpressionOfOtherCharacter(subject, target) {
   }
 }
 
-fun firstImpressionOfOtherCharacter(subject, target) {
-  _firstImpressionOfOtherCharacter(subject, target)
-  _firstImpressionOfOtherCharacter(target, subject)
+fun characterGetKnown(subject, target) {
+  _characterGetKnown(subject, target)
+  _characterGetKnown(target, subject)
 }
 
-fun characterHeardOfIncident(character, incident) {
+fun characterWitnessedIncident(character, incident) {
   final score = ((character.personality.ideal * incident.ideal +
                  character.personality.order * incident.order +
                  character.personality.good * incident.good) / 100)
@@ -435,15 +433,7 @@ fun characterHeardOfIncident(character, incident) {
     //   ++subject.infamy
     // }
   }
-  character.memory.heard.add(incident.index)
-}
-
-fun characterWitnessedIncident(character, incident) {
-  
-}
-
-fun characterSufferedIncident(character, incident) {
-
+  character.memory.witnessed.add(incident.index)
 }
 
 // fun getSpiritRankTitle(spiritRank) {
@@ -478,7 +468,27 @@ fun setCharacterHome(character, location) {
   } else {
     location.residingWildCharacterIds.add(character.id)
   }
-  character.homeId = location.id
+  if (character.homeId != location.id) {
+    character.homeId = location.id
+    // 触发定居事件
+    final incidentContent = getLocaleString('incidentCharacterHome', [
+      character.name,
+      location.name,
+    ])
+    Incident(
+      content: incidentContent,
+      subjectIds: [character.id],
+      isPrivate: true,
+    )
+    for (final id in location.residingWildCharacterIds) {
+      final otherChar = game.characters[id]
+      characterGetKnown(character, otherChar)
+    }
+    for (final id in location.residingOrganizedCharacterIds) {
+      final otherChar = game.characters[id]
+      characterGetKnown(character, otherChar)
+    }
+  }
 }
 
 fun setHeroId(id: str) {
@@ -565,7 +575,7 @@ fun handleCharacterInteraction(characterId) {
     when (key) {
       'talk' -> {
         if (!haveMet(hero, character)) {
-          firstImpressionOfOtherCharacter(hero, character)
+          characterGetKnown(hero, character)
         }
         handleCharacterTalk(hero, character)
       }

@@ -5,7 +5,7 @@ import '../../global.dart';
 
 class Avatar extends StatelessWidget {
   const Avatar({
-    Key? key,
+    super.key,
     this.name,
     this.onPressed,
     this.avatarAssetKey,
@@ -13,7 +13,7 @@ class Avatar extends StatelessWidget {
     this.radius = 10.0,
     this.borderColor = kForegroundColor,
     this.borderWidth = 2.0,
-  }) : super(key: key);
+  });
 
   final String? name;
 

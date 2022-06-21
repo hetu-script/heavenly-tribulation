@@ -6,14 +6,14 @@ import 'package:samsara/event.dart';
 import '../../../global.dart';
 
 class HistoryPanel extends StatefulWidget {
-  const HistoryPanel({required Key key}) : super(key: key);
+  const HistoryPanel({required super.key});
 
   @override
   State<HistoryPanel> createState() => _HistoryPanelState();
 }
 
 class _HistoryPanelState extends State<HistoryPanel> {
-  late final ScrollController _scrollController = ScrollController();
+  // late final ScrollController _scrollController = ScrollController();
   final List<String> messages = [];
 
   @override
@@ -22,7 +22,9 @@ class _HistoryPanelState extends State<HistoryPanel> {
 
     final List history = engine.invoke('getHistory');
     for (final incident in history) {
-      if (incident['isPublic']) {
+      final isPrivate = incident['isPrivate'] ?? false;
+      final isGlobal = incident['isGlobal'] ?? false;
+      if (isGlobal) {
         messages.add(incident['content']);
       }
     }
@@ -71,7 +73,7 @@ class _HistoryPanelState extends State<HistoryPanel> {
                     },
                   ),
                   child: ListView(
-                    controller: _scrollController,
+                    // controller: _scrollController,
                     reverse: true,
                     children: messages
                         .map((text) => Text(text))

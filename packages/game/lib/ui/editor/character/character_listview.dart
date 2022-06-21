@@ -12,10 +12,10 @@ import '../../shared/avatar.dart';
 
 class CharacterListView extends StatefulWidget {
   const CharacterListView({
-    Key? key,
+    super.key,
     required this.data,
     required this.onSaved,
-  }) : super(key: key);
+  });
 
   final List<Map<String, dynamic>> data;
 
@@ -121,7 +121,7 @@ class _CharacterListViewState extends State<CharacterListView>
                   PointerDeviceKind.mouse,
                 },
               ),
-              child: Scrollbar(
+              child: SingleChildScrollView(
                 child: ListView(
                   physics: const AlwaysScrollableScrollPhysics(
                       parent: BouncingScrollPhysics()),

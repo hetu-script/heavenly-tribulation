@@ -7,7 +7,7 @@ import '../shared/close_button.dart';
 import '../shared/responsive_route.dart';
 
 class Console extends StatefulWidget {
-  const Console({Key? key}) : super(key: key);
+  const Console({super.key});
 
   @override
   State<Console> createState() => _ConsoleState();
@@ -17,6 +17,13 @@ class _ConsoleState extends State<Console> {
   final TextEditingController _textEditingController = TextEditingController();
   final FocusNode _textFieldFocusNode = FocusNode();
   late final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _textEditingController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -7,11 +7,10 @@ import '../../shared/bordered_tab.dart';
 
 class CodeEditor extends StatefulWidget {
   CodeEditor(
-      {Key? key,
+      {super.key,
       required this.names,
       required this.contents,
-      this.untitledName = 'untitled_script'})
-      : super(key: key) {
+      this.untitledName = 'untitled_script'}) {
     assert(names.length == contents.length);
   }
 

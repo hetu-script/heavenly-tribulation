@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 class EmptyPlaceholder extends StatelessWidget {
   const EmptyPlaceholder(
     this.text, {
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final String text;
 

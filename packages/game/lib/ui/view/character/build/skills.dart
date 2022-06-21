@@ -7,10 +7,10 @@ const kSkillSlotCount = 20;
 
 class SkillsView extends StatelessWidget {
   const SkillsView({
-    Key? key,
+    super.key,
     required this.data,
     required this.onSelect,
-  }) : super(key: key);
+  });
 
   final HTStruct data;
 
@@ -59,15 +59,17 @@ class SkillsView extends StatelessWidget {
           ],
         ),
         Expanded(
-          child: ListView(
-            children: [
-              Align(
-                alignment: Alignment.topCenter,
-                child: Wrap(
-                  children: skills,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.topCenter,
+                  child: Wrap(
+                    children: skills,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],

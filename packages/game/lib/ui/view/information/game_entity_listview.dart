@@ -7,11 +7,11 @@ import '../../../global.dart';
 
 class GameEntityListView extends StatefulWidget {
   const GameEntityListView({
-    Key? key,
+    super.key,
     required this.columns,
     required this.data,
     this.onTap,
-  }) : super(key: key);
+  });
 
   final List<String> columns;
 

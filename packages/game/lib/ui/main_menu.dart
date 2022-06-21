@@ -21,7 +21,7 @@ import 'view/location/location.dart';
 import 'create_game_dialog.dart';
 
 class MainMenu extends StatefulWidget {
-  const MainMenu({required Key key}) : super(key: key);
+  const MainMenu({required super.key});
 
   @override
   State<MainMenu> createState() => _MainMenuState();
@@ -179,10 +179,7 @@ class _MainMenuState extends State<MainMenu> {
             child: Text(locale['sandBoxMode']),
           ),
         ),
-      ];
-
-      if (savedFiles.isNotEmpty) {
-        menus.add(
+        if (savedFiles.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 20.0),
             child: ElevatedButton(
@@ -204,21 +201,16 @@ class _MainMenuState extends State<MainMenu> {
               child: Text(locale['loadGame']),
             ),
           ),
-        );
-      }
-
-      menus.add(Padding(
-        padding: const EdgeInsets.only(top: 20.0),
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).pushNamed('editor');
-          },
-          child: Text(locale['gameEditor']),
+        Padding(
+          padding: const EdgeInsets.only(top: 20.0),
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed('editor');
+            },
+            child: Text(locale['gameEditor']),
+          ),
         ),
-      ));
-
-      if (GlobalConfig.isOnDesktop) {
-        menus.addAll([
+        if (GlobalConfig.isOnDesktop) ...[
           const Spacer(),
           Padding(
             padding: const EdgeInsets.only(top: 20.0),
@@ -228,9 +220,9 @@ class _MainMenuState extends State<MainMenu> {
               },
               child: Text(locale['exit']),
             ),
-          )
-        ]);
-      }
+          ),
+        ],
+      ];
 
       Widget layout;
       if (GlobalConfig.orientationMode == OrientationMode.landscape) {

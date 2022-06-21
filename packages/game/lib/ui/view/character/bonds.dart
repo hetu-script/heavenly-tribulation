@@ -20,9 +20,9 @@ const kCharacterBondsSubTableColumns = ['name', 'impressionOfThem'];
 
 class CharacterBondsView extends StatelessWidget {
   const CharacterBondsView({
-    Key? key,
+    super.key,
     required this.data,
-  }) : super(key: key);
+  });
 
   final HTStruct data;
 

@@ -4,7 +4,7 @@ import '../../global.dart';
 
 class BorderedIconButton extends StatelessWidget {
   const BorderedIconButton({
-    Key? key,
+    super.key,
     this.size = const Size(24.0, 24.0),
     this.iconSize = 24.0,
     required this.icon,
@@ -12,7 +12,7 @@ class BorderedIconButton extends StatelessWidget {
     this.margin,
     this.borderRadius = 5.0,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   final Size size;
 

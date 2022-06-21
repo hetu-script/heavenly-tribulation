@@ -1,7 +1,10 @@
 {
-  "eventFirstImpressionNormal": "{0}认识了{1}。",
-  "eventFirstImpressionHate": "{0}认识了{1}，对其印象不太好。",
-  "eventFirstImpressionLike": "{0}认识了{1}，对其十分喜欢。",
-  "eventOrganizationCreated": "{0}在{1}成立了{2}。",
-  "eventCharacterNewBorn": "{0}在{1}出生了"
+  "experienced": "经历",
+  "witenessed": "见证",
+  "incidentFirstImpressionNormal": "{0}认识了{1}。",
+  "incidentFirstImpressionHate": "{0}认识了{1}，对其印象不太好。",
+  "incidentFirstImpressionLike": "{0}认识了{1}，对其十分喜欢。",
+  "incidentOrganizationCreated": "{0}在{1}成立了{2}。",
+  "incidentCharacterHome": "{0}在{1}安家了。",
+  "incidentCharacterBorn": "{0}在{1}出生了。"
 }

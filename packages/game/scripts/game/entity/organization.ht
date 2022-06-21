@@ -1,6 +1,7 @@
 import '../game.ht'
 import { Site, kSiteHeadquarters } from 'location.ht'
 import '../generator/name/name.ht' as nameGenerator
+import '../l10n.ht'
 
 final kOrganizationCategory = [
   'caltivation',
@@ -81,11 +82,15 @@ struct Organization {
       } while (conflict)
     }
     this.id = 'clan_${this.index}_${this.name}'
+    game.organizations[this.id] = this
     
     // 本门派统治的据点 id 列表
-    this.locationIds = Set()
+    this.locationIds = []
     // 本门派成员 id 列表
-    this.characterIds = Set()
+    this.characterIds = []
+
+    // 组织规模，组织所能允许的等级数量 = 规模
+    this.development = development ?? 1
     
     if (nationId) {
       assert(game.nations.containsKey(nationId))
@@ -102,10 +107,19 @@ struct Organization {
     addCharacterToOrganization(leader, this)
     setLeader(this, leader)
 
-    // 组织规模，组织所能允许的等级数量 = 规模
-    this.development = development ?? 1
-
-    game.organizations[this.id] = this
+    // 触发创派事件
+    final incidentContent = getLocaleString('incidentOrganizationCreated', [
+      leader.name,
+      location.name,
+      this.name,
+    ])
+    
+    Incident(
+      content: incidentContent,
+      subjectIds: [leader.id],
+      order: 30,
+      isGlobal: true,
+    )
   }
 }
 

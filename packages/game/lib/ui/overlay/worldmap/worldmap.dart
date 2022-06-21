@@ -24,8 +24,7 @@ import '../../view/console.dart';
 class WorldMapOverlay extends StatefulWidget {
   final WorldMapScene scene;
 
-  const WorldMapOverlay({required Key key, required this.scene})
-      : super(key: key);
+  const WorldMapOverlay({required super.key, required this.scene});
 
   @override
   State<WorldMapOverlay> createState() => _WorldMapOverlayState();

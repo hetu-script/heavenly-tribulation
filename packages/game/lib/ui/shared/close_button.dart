@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../global.dart';
 
 class ButtonClose extends StatelessWidget {
-  const ButtonClose({Key? key, this.color, this.onPressed}) : super(key: key);
+  const ButtonClose({super.key, this.color, this.onPressed});
 
   final Color? color;
 

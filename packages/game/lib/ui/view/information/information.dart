@@ -42,7 +42,7 @@ const kInformationViewOrganizationColumns = [
 ];
 
 class InformationPanel extends StatefulWidget {
-  const InformationPanel({Key? key}) : super(key: key);
+  const InformationPanel({super.key});
 
   @override
   State<InformationPanel> createState() => _InformationPanelState();

@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/ui/view/character/memory.dart';
 
 import '../../../global.dart';
 import 'bonds.dart';
-// import '../history.dart';
 import '../../shared/responsive_route.dart';
 import '../../shared/close_button.dart';
 import 'attributes.dart';
 
 class CharacterView extends StatefulWidget {
   const CharacterView({
-    Key? key,
+    super.key,
     this.characterId,
     this.tabIndex = 0,
-  }) : super(key: key);
+  });
 
   final String? characterId;
 
@@ -34,7 +34,7 @@ class _CharacterViewState extends State<CharacterView>
             padding: EdgeInsets.symmetric(horizontal: 8.0),
             child: Icon(Icons.summarize),
           ),
-          Text(engine.locale['infomation']),
+          Text(engine.locale['information']),
         ],
       ),
     ),
@@ -51,24 +51,24 @@ class _CharacterViewState extends State<CharacterView>
         ],
       ),
     ),
-    // Tab(
-    //   height: 40,
-    //   child: Row(
-    //     mainAxisAlignment: MainAxisAlignment.center,
-    //     children: [
-    //       const Padding(
-    //         padding: EdgeInsets.symmetric(horizontal: 8.0),
-    //         child: Icon(Icons.history),
-    //       ),
-    //       Text(engine.locale['history']),
-    //     ],
-    //   ),
-    // ),
+    Tab(
+      height: 40,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            child: Icon(Icons.history),
+          ),
+          Text(engine.locale['history']),
+        ],
+      ),
+    ),
   ];
 
   late TabController _tabController;
 
-  String _title = engine.locale['infomation'];
+  String _title = engine.locale['information'];
 
   @override
   void initState() {
@@ -77,7 +77,7 @@ class _CharacterViewState extends State<CharacterView>
     _tabController.addListener(() {
       setState(() {
         if (_tabController.index == 0) {
-          _title = engine.locale['infomation'];
+          _title = engine.locale['information'];
         } else if (_tabController.index == 1) {
           _title = engine.locale['bonds'];
         } else if (_tabController.index == 1) {
@@ -116,7 +116,7 @@ class _CharacterViewState extends State<CharacterView>
           children: [
             CharacterAttributesView(data: data),
             CharacterBondsView(data: data['bonds']),
-            // HistoryView(data: data['experiencedIncidentIndexes']),
+            CharacterMemory(data: data['memory']),
           ],
         ),
       ),

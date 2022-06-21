@@ -7,12 +7,12 @@ import '../../../shared/rrect_icon.dart';
 
 class ItemInfo extends StatelessWidget {
   const ItemInfo({
-    Key? key,
+    super.key,
     required this.data,
     this.left,
     this.top,
     // required this.onClose,
-  }) : super(key: key);
+  });
 
   final HTStruct data;
 

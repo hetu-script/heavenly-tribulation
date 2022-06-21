@@ -506,28 +506,6 @@ fun createWorldMap({
   organizationCreatedDate.sort()
   organizationCreatedDate = organizationCreatedDate.reversed.toList()
 
-  fun createOrganization(location, leader) {
-    // 创建组织
-    final organization = Organization(
-      nationId: location.nationId,
-      headquartersId: location.id,
-      leaderId: leader.id,
-    )
-
-    // 触发创派事件
-    final incidentContent = getLocaleString('eventOrganizationCreated', [
-      leader.name,
-      location.name,
-      organization.name,
-    ])
-    Incident(
-      content: incidentContent,
-      subjectIds: [leader.id],
-      order: 30,
-      isGlobal: true,
-    )
-  }
-
   // 模拟世界演化，按照时间推进并生成人物、组织，并且为期分配人物关系
   // 在此种演化算法中，组织并不会被消灭，因此只判断人数是否达到要求
   engine.info('生成人物，模拟100年的演化过程')
@@ -572,7 +550,13 @@ fun createWorldMap({
           }
         }
         setCharacterLocationId(leader, headquarters.id)
-        createOrganization(headquarters, leader)
+        
+        // 创建组织
+        Organization(
+          nationId: headquarters.nationId,
+          headquartersId: headquarters.id,
+          leaderId: leader.id,
+        )
       }
     }
 
@@ -654,10 +638,10 @@ fun createWorldMap({
   // final subject = leaders.first
   // for (var i in range(1, leaders.length)) {
   //   final target = leaders[i]
-  //   firstImpressionOfOtherCharacter(subject, target)
+  //   characterGetKnown(subject, target)
   //   for (var j in range(i + 1, leaders.length)) {
   //     final target2 = leaders[j]
-  //     firstImpressionOfOtherCharacter(target, target2)
+  //     characterGetKnown(target, target2)
   //   }
   // }
   // engine.info('让一开始的几个掌门先互相认识')

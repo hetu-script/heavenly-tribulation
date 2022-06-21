@@ -10,13 +10,12 @@ import 'package:flutter/material.dart';
 /// Closing the sub menu by clicking outside of it, will automatically close the parent menu
 class PopupSubMenuItem<T> extends PopupMenuEntry<T> {
   const PopupSubMenuItem(
-      {Key? key,
+      {super.key,
       required this.title,
       required this.items,
       this.offset = Offset.zero,
       this.onSelected,
-      this.textStyle})
-      : super(key: key);
+      this.textStyle});
 
   final String title;
   final Offset offset;

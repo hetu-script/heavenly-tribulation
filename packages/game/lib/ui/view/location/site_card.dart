@@ -4,12 +4,12 @@ import '../../../global.dart';
 
 class SiteCard extends StatelessWidget {
   const SiteCard({
-    Key? key,
+    super.key,
     required this.locationId,
     required this.siteId,
     required this.title,
     this.imagePath,
-  }) : super(key: key);
+  });
 
   final String locationId, siteId;
   final String title;

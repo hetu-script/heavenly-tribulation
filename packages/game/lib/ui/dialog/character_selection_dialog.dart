@@ -36,9 +36,9 @@ class CharacterSelectionDialog extends StatelessWidget {
   final Iterable<dynamic> characterIds;
 
   const CharacterSelectionDialog({
-    Key? key,
+    super.key,
     required this.characterIds,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

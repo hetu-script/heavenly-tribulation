@@ -14,14 +14,14 @@ class InkImageButton extends StatelessWidget {
   final double borderRadius;
 
   const InkImageButton({
-    Key? key,
+    super.key,
     this.width,
     this.height,
     this.tooltip,
     this.child,
     this.borderRadius = 50,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

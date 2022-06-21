@@ -26,7 +26,7 @@ class WorldMapPopup extends StatelessWidget {
   final VoidCallback? onRestIconTapped;
 
   const WorldMapPopup({
-    Key? key,
+    super.key,
     required this.left,
     required this.top,
     this.onPanelTapped,
@@ -41,7 +41,7 @@ class WorldMapPopup extends StatelessWidget {
     this.restIcon = false,
     this.onRestIconTapped,
     this.title = '',
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

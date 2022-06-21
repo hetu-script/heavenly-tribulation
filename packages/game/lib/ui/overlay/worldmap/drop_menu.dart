@@ -6,7 +6,7 @@ import '../../../global.dart';
 enum DropMenuItems { info, viewNone, viewZones, viewNations, console, exit }
 
 class DropMenu extends StatelessWidget {
-  const DropMenu({Key? key, required this.onSelected}) : super(key: key);
+  const DropMenu({super.key, required this.onSelected});
 
   final void Function(DropMenuItems)? onSelected;
 

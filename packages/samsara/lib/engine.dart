@@ -95,6 +95,7 @@ class SamsaraEngine with SceneController, EventAggregator {
         sourceContext: sourceContext,
       );
       await hetu.initFlutter(
+        locale: HTLocaleSimplifiedChinese(),
         externalFunctions: externalFunctions,
         externalClasses: [
           SamsaraEngineClassBinding(),

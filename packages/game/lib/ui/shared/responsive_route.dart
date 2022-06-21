@@ -4,12 +4,12 @@ import '../../global.dart';
 
 class ResponsiveRoute extends StatelessWidget {
   const ResponsiveRoute({
-    Key? key,
+    super.key,
     required this.child,
     this.alignment = AlignmentDirectional.topStart,
     this.size,
     this.margin = const EdgeInsets.all(50.0),
-  }) : super(key: key);
+  });
 
   final Widget child;
 

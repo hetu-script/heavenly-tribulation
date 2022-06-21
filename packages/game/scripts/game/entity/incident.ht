@@ -6,14 +6,14 @@ struct Incident {
   construct ({
     content: str,
     
-    isPublic = true,
-    isGlobal = false,
+    isPrivate: bool,
+    isGlobal: bool,
 
     order = 0,
     ideal = 0,
     good = 0,
     
-    subjectIds: str,
+    subjectIds,
     objectIds: List = [],
     withItem: str,
     toItem: str,
@@ -46,25 +46,25 @@ struct Incident {
       object.memory.experienced.add(this.index)
     }
 
-    this.isPublic = isPublic
+    this.isPrivate = isPrivate
     this.isGlobal = isGlobal
 
-    if (isPublic) {
       if (isGlobal) {
         for (final char of game.characters) {
           if (char.id in subjectIds) continue
-          characterHeardOfIncident(char, this)
+          characterWitnessedIncident(char, this)
         }
-      } else if (locationId) {
-        final location = game.locations[locationId]
-        for (final id in location.dwellingCharacterIds) {
-          if (id in subjectIds) continue
-          if (objectIds && id in objectIds) continue
-          final char = games.characters[id]
-          characterHeardOfIncident(char, this)
+      } else if (!isPrivate) {
+        if (locationId) {
+          final location = game.locations[locationId]
+          for (final id in location.dwellingCharacterIds) {
+            if (id in subjectIds) continue
+            if (objectIds && id in objectIds) continue
+            final char = games.characters[id]
+            characterWitnessedIncident(char, this)
+          }
         }
       }
-    }
 
     history.add(this)
   }

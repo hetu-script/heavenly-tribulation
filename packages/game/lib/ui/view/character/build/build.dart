@@ -9,10 +9,10 @@ import '../../../shared/responsive_route.dart';
 
 class BuildView extends StatefulWidget {
   const BuildView({
-    Key? key,
+    super.key,
     this.characterId,
     this.tabIndex = 0,
-  }) : super(key: key);
+  });
 
   final String? characterId;
 

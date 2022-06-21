@@ -11,12 +11,11 @@ import '../../shared/constants.dart';
 
 class CharacterEditor extends StatefulWidget {
   const CharacterEditor(
-      {Key? key,
+      {super.key,
       required this.data,
       required this.onClosed,
       required this.maleAvatarCount,
-      required this.femaleAvatarCount})
-      : super(key: key);
+      required this.femaleAvatarCount});
 
   final Map<String, dynamic> data;
 

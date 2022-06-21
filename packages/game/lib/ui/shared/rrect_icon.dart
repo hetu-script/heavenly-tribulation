@@ -4,14 +4,14 @@ import '../../global.dart';
 
 class RRectIcon extends StatelessWidget {
   const RRectIcon({
-    Key? key,
+    super.key,
     this.margin,
     required this.avatarAssetKey,
     this.size = const Size(48.0, 48.0),
     this.radius = 5.0,
     this.borderColor = kForegroundColor,
     this.borderWidth = 1.0,
-  }) : super(key: key);
+  });
 
   final EdgeInsetsGeometry? margin;
 

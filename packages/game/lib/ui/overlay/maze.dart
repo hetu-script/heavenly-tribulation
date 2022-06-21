@@ -9,7 +9,7 @@ import '../../scene/maze.dart';
 class MazeOverlay extends StatefulWidget {
   final MazeScene scene;
 
-  const MazeOverlay({required Key? key, required this.scene}) : super(key: key);
+  const MazeOverlay({required super.key, required this.scene});
 
   @override
   State<MazeOverlay> createState() => _MazeOverlayState();

@@ -7,13 +7,13 @@ const kItemGridDefaultSize = 48.0;
 
 class ItemGrid extends StatelessWidget {
   const ItemGrid({
-    Key? key,
+    super.key,
     this.size = kItemGridDefaultSize,
     this.verticalMargin = 5.0,
     this.horizontalMargin = 5.0,
     this.data,
     required this.onSelect,
-  }) : super(key: key);
+  });
 
   final double size;
   final double verticalMargin;

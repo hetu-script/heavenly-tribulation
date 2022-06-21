@@ -7,10 +7,10 @@ const kInventorySlotCount = 20;
 
 class InventoryView extends StatelessWidget {
   const InventoryView({
-    Key? key,
+    super.key,
     required this.data,
     required this.onSelect,
-  }) : super(key: key);
+  });
 
   final HTStruct data;
 

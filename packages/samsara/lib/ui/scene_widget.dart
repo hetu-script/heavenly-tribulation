@@ -7,7 +7,7 @@ import 'pointer_detector.dart';
 class SceneWidget<T extends Scene> extends StatelessWidget {
   final T scene;
 
-  const SceneWidget({Key? key, required this.scene}) : super(key: key);
+  const SceneWidget({super.key, required this.scene}) ;
 
   @override
   Widget build(BuildContext context) {

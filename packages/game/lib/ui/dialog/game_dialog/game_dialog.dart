@@ -25,9 +25,9 @@ class GameDialog extends StatefulWidget {
   final HTStruct data;
 
   const GameDialog({
-    Key? key,
+    super.key,
     required this.data,
-  }) : super(key: key);
+  });
 
   @override
   State<GameDialog> createState() => _GameDialogState();
