@@ -8,6 +8,7 @@ import 'package:path/path.dart' as path;
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
 import 'package:flame_audio/flame_audio.dart';
+import 'package:hetu_script/values.dart';
 
 import 'popup.dart';
 import '../../../shared/json.dart';
@@ -22,9 +23,7 @@ import 'drop_menu.dart';
 import '../../view/console.dart';
 
 class WorldMapOverlay extends StatefulWidget {
-  final WorldMapScene scene;
-
-  const WorldMapOverlay({required super.key, required this.scene});
+  const WorldMapOverlay({required super.key});
 
   @override
   State<WorldMapOverlay> createState() => _WorldMapOverlayState();
@@ -35,33 +34,27 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
   @override
   bool get wantKeepAlive => true;
 
-  WorldMapScene get scene => widget.scene;
-  TileMap get map => widget.scene.map!;
+  late final WorldMapScene _scene;
 
-  Vector2? menuPosition;
+  HTStruct? _heroData;
+
+  Vector2? _menuPosition;
 
   @override
   void initState() {
     super.initState();
 
     engine.registerListener(
-      Events.loadedMap,
-      EventHandler(widget.key!, (event) {
-        setState(() {});
-      }),
-    );
-
-    engine.registerListener(
       Events.tappedMap,
       EventHandler(widget.key!, (event) {
-        if (map.hero!.isMoving) {
+        if (_scene.map.hero!.isMoving) {
           return;
         }
         setState(() {
           final terrain = (event as MapInteractionEvent).terrain;
           if (terrain != null) {
             final tilePos = terrain.tilePosition;
-            menuPosition = scene.map!
+            _menuPosition = _scene.map
                 .tilePosition2TileCenterInScreen(tilePos.left, tilePos.top);
           }
         });
@@ -73,189 +66,203 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
 
   @override
   void dispose() {
-    super.dispose();
     engine.disposeListenders(widget.key!);
     FlameAudio.bgm.stop();
     FlameAudio.bgm.dispose();
+    super.dispose();
+  }
+
+  Future<bool> _getScene(Map<String, dynamic> args) async {
+    _heroData = engine.invoke('getHero');
+    _scene = await engine.createScene('WorldMap', args) as WorldMapScene;
+    return true;
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
     // pass the build context to script
     engine.invoke('build', positionalArgs: [context]);
 
-    final heroData = engine.invoke('getHero');
     final screenSize = MediaQuery.of(context).size;
 
-    final screenWidgets = [
-      SizedBox(
-        height: screenSize.height,
-        width: screenSize.width,
-        child: SceneWidget(scene: scene),
-      ),
-      if (heroData != null)
-        Positioned(
-          left: 0,
-          top: 0,
-          child: HeroInfoPanel(heroData: heroData),
-        ),
-      Positioned(
-        right: 0,
-        top: 0,
-        child: DropMenu(
-          onSelected: (DropMenuItems item) {
-            switch (item) {
-              case DropMenuItems.info:
-                showDialog(
-                    context: context,
-                    builder: (context) => const InformationPanel());
-                break;
-              case DropMenuItems.viewNone:
-                map.gridMode = GridMode.none;
-                break;
-              case DropMenuItems.viewZones:
-                map.gridMode = GridMode.zone;
-                break;
-              case DropMenuItems.viewNations:
-                map.gridMode = GridMode.nation;
-                break;
-              case DropMenuItems.console:
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) => const Console(),
-                );
-                break;
-              case DropMenuItems.exit:
-                engine.leaveScene('WorldMap');
-                _saveGame();
-                engine.broadcast(const GameEvent.back2Menu());
-                break;
-              default:
-            }
-          },
-        ),
-      ),
-      Positioned(
-        left: 0,
-        bottom: 0,
-        child: HistoryPanel(key: UniqueKey()),
-      ),
-    ];
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
 
-    if (menuPosition != null) {
-      if (map.selectedTerrain != null) {
-        final terrain = map.selectedTerrain!;
-        final terrainZone = map.zones[terrain.zoneIndex];
-        final characters = map.selectedActors;
-        final hero = map.hero;
-        List<int>? route;
-        var isHeroPosition = false;
-        if (terrain.tilePosition != hero!.tilePosition) {
-          final start = engine.hetu.interpreter
-              .invoke('getTerrain', positionalArgs: [hero.left, hero.top]);
-          final end = engine.invoke('getTerrain',
-              positionalArgs: [terrain.left, terrain.top]);
-          List? calculatedRoute = engine.hetu.interpreter
-              .invoke('calculateRoute', positionalArgs: [start, end]);
-          if (calculatedRoute != null) {
-            route = List<int>.from(calculatedRoute);
-            // for (var i = 1; i < route.length; ++i) {
-            //   final index = route[i];
-            //   final tilePosition = map.index2TilePos(index);
-            //   engine.info(tilePosition);
-            // }
-          }
+    return FutureBuilder(
+      future: _getScene(args),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return LoadingScreen(text: engine.locale['loading']);
         } else {
-          isHeroPosition = true;
-        }
+          final screenWidgets = [
+            SizedBox(
+              height: screenSize.height,
+              width: screenSize.width,
+              child: SceneWidget(scene: _scene),
+            ),
+            if (_heroData != null)
+              Positioned(
+                left: 0,
+                top: 0,
+                child: HeroInfoPanel(heroData: _heroData!),
+              ),
+            Positioned(
+              right: 0,
+              top: 0,
+              child: DropMenu(
+                onSelected: (DropMenuItems item) {
+                  switch (item) {
+                    case DropMenuItems.info:
+                      showDialog(
+                          context: context,
+                          builder: (context) => const InformationPanel());
+                      break;
+                    case DropMenuItems.viewNone:
+                      _scene.map.gridMode = GridMode.none;
+                      break;
+                    case DropMenuItems.viewZones:
+                      _scene.map.gridMode = GridMode.zone;
+                      break;
+                    case DropMenuItems.viewNations:
+                      _scene.map.gridMode = GridMode.nation;
+                      break;
+                    case DropMenuItems.console:
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) => const Console(),
+                      );
+                      break;
+                    case DropMenuItems.exit:
+                      engine.leaveScene('WorldMap');
+                      _saveGame();
+                      engine.broadcast(const GameEvent.back2Menu());
+                      break;
+                    default:
+                  }
+                },
+              ),
+            ),
+            Positioned(
+              left: 0,
+              bottom: 0,
+              child: HistoryPanel(key: UniqueKey()),
+            ),
+          ];
 
-        void closePopup() {
-          setState(() {
-            menuPosition = null;
-            scene.map!.selectedTerrain = null;
-          });
-        }
-
-        final stringBuffer = StringBuffer();
-
-        stringBuffer.writeln('坐标: ${terrain.left}, ${terrain.top}');
-
-        final zoneData = engine.hetu.interpreter
-            .invoke('getZoneByIndex', positionalArgs: [terrain.zoneIndex]);
-        stringBuffer.writeln('${zoneData['name']}');
-
-        if (terrain.nationId != null) {
-          final nationData = engine.hetu.interpreter
-              .invoke('getNationById', positionalArgs: [terrain.nationId]);
-          stringBuffer.writeln('${nationData['name']}');
-        }
-
-        if (terrain.locationId != null) {
-          final locationData = engine.hetu.interpreter
-              .invoke('getLocationById', positionalArgs: [terrain.locationId]);
-          stringBuffer.writeln('${locationData['name']}');
-        }
-
-        screenWidgets.add(
-          WorldMapPopup(
-            left: menuPosition!.x - WorldMapPopup.defaultSize / 2,
-            top: menuPosition!.y - WorldMapPopup.defaultSize / 2,
-            onPanelTapped: closePopup,
-            moveToIcon: route != null,
-            onMoveToIconTapped: () {
-              map.moveHeroToTilePositionByRoute(route!);
-              closePopup();
-            },
-            checkIcon: terrainZone.index != 0,
-            onCheckIconTapped: () {
-              if (route != null) {
-                map.moveHeroToTilePositionByRoute(route,
-                    action: DestinationAction.check);
+          if (_menuPosition != null) {
+            if (_scene.map.selectedTerrain != null) {
+              final terrain = _scene.map.selectedTerrain!;
+              final terrainZone = _scene.map.zones[terrain.zoneIndex];
+              final characters = _scene.map.selectedActors;
+              final hero = _scene.map.hero;
+              List<int>? route;
+              var isHeroPosition = false;
+              if (terrain.tilePosition != hero!.tilePosition) {
+                final start = engine.hetu.interpreter.invoke('getTerrain',
+                    positionalArgs: [hero.left, hero.top]);
+                final end = engine.invoke('getTerrain',
+                    positionalArgs: [terrain.left, terrain.top]);
+                List? calculatedRoute = engine.hetu.interpreter
+                    .invoke('calculateRoute', positionalArgs: [start, end]);
+                if (calculatedRoute != null) {
+                  route = List<int>.from(calculatedRoute);
+                  // for (var i = 1; i < route.length; ++i) {
+                  //   final index = route[i];
+                  //   final tilePosition = map.index2TilePos(index);
+                  //   engine.info(tilePosition);
+                  // }
+                }
               } else {
-                engine.broadcast(
-                    MapInteractionEvent.checkTerrain(terrain: terrain));
+                isHeroPosition = true;
               }
-              closePopup();
-            },
-            enterIcon: ((route != null && terrain.locationId != null) ||
-                    (isHeroPosition && terrain.locationId != null))
-                ? true
-                : false,
-            onEnterIconTapped: () {
-              if (route != null) {
-                map.moveHeroToTilePositionByRoute(route,
-                    action: DestinationAction.enter);
-              } else {
-                engine.broadcast(
-                    LocationEvent.entered(locationId: terrain.locationId!));
+
+              void closePopup() {
+                setState(() {
+                  _menuPosition = null;
+                  _scene.map.selectedTerrain = null;
+                });
               }
-              closePopup();
-            },
-            talkIcon: characters != null ? true : false,
-            onTalkIconTapped: closePopup,
-            restIcon: isHeroPosition,
-            onRestIconTapped: closePopup,
-            title: stringBuffer.toString(),
-          ),
-        );
-      }
-    }
 
-    if (!widget.scene.isMapReady) {
-      screenWidgets.add(LoadingScreen(text: engine.locale['loading']));
-    }
+              final stringBuffer = StringBuffer();
 
-    return Material(
-      color: Colors.transparent,
-      child: SizedBox(
-        height: screenSize.height,
-        width: screenSize.width,
-        child: Stack(
-          children: screenWidgets,
-        ),
-      ),
+              stringBuffer.writeln('坐标: ${terrain.left}, ${terrain.top}');
+
+              final zoneData = engine.hetu.interpreter.invoke('getZoneByIndex',
+                  positionalArgs: [terrain.zoneIndex]);
+              stringBuffer.writeln('${zoneData['name']}');
+
+              if (terrain.nationId != null) {
+                final nationData = engine.hetu.interpreter.invoke(
+                    'getNationById',
+                    positionalArgs: [terrain.nationId]);
+                stringBuffer.writeln('${nationData['name']}');
+              }
+
+              if (terrain.locationId != null) {
+                final locationData = engine.hetu.interpreter.invoke(
+                    'getLocationById',
+                    positionalArgs: [terrain.locationId]);
+                stringBuffer.writeln('${locationData['name']}');
+              }
+
+              screenWidgets.add(
+                WorldMapPopup(
+                  left: _menuPosition!.x - WorldMapPopup.defaultSize / 2,
+                  top: _menuPosition!.y - WorldMapPopup.defaultSize / 2,
+                  onPanelTapped: closePopup,
+                  moveToIcon: route != null,
+                  onMoveToIconTapped: () {
+                    _scene.map.moveHeroToTilePositionByRoute(route!);
+                    closePopup();
+                  },
+                  checkIcon: terrainZone.index != 0,
+                  onCheckIconTapped: () {
+                    if (route != null) {
+                      _scene.map.moveHeroToTilePositionByRoute(route,
+                          action: DestinationAction.check);
+                    } else {
+                      engine.broadcast(
+                          MapInteractionEvent.checkTerrain(terrain: terrain));
+                    }
+                    closePopup();
+                  },
+                  enterIcon: ((route != null && terrain.locationId != null) ||
+                          (isHeroPosition && terrain.locationId != null))
+                      ? true
+                      : false,
+                  onEnterIconTapped: () {
+                    if (route != null) {
+                      _scene.map.moveHeroToTilePositionByRoute(route,
+                          action: DestinationAction.enter);
+                    } else {
+                      engine.broadcast(LocationEvent.entered(
+                          locationId: terrain.locationId!));
+                    }
+                    closePopup();
+                  },
+                  talkIcon: characters != null ? true : false,
+                  onTalkIconTapped: closePopup,
+                  restIcon: isHeroPosition,
+                  onRestIconTapped: closePopup,
+                  title: stringBuffer.toString(),
+                ),
+              );
+            }
+          }
+
+          return Material(
+            color: Colors.transparent,
+            child: SizedBox(
+              height: screenSize.height,
+              width: screenSize.width,
+              child: Stack(
+                children: screenWidgets,
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 

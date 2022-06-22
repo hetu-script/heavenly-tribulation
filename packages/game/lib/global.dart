@@ -72,5 +72,4 @@ abstract class GlobalConfig {
   static bool isOnDesktop = false;
   static OrientationMode orientationMode = OrientationMode.landscape;
   static Size screenSize = Size.zero;
-  static bool isLoading = true;
 }

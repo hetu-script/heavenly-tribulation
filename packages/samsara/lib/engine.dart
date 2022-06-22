@@ -58,7 +58,7 @@ class SamsaraEngine with SceneController, EventAggregator {
   }
 
   late final Hetu hetu;
-  bool isHetuReady = false;
+  bool isLoaded = false;
 
   invoke(String funcName,
           {String? moduleName,
@@ -141,13 +141,13 @@ class SamsaraEngine with SceneController, EventAggregator {
 
   String _stringify(dynamic args) {
     if (args is List) {
-      if (isHetuReady) {
+      if (isLoaded) {
         return args.map((e) => hetu.lexicon.stringify(e)).join(' ');
       } else {
         return args.map((e) => e.toString()).join(' ');
       }
     } else {
-      if (isHetuReady) {
+      if (isLoaded) {
         return hetu.lexicon.stringify(args);
       } else {
         return args.toString();

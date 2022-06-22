@@ -258,9 +258,7 @@ class _CreateGameDialogState extends State<CreateGameDialog> {
                 padding: const EdgeInsets.all(10.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
-                    GlobalConfig.isLoading = true;
-                    engine.createScene('WorldMap', {
+                    Navigator.of(context).pop({
                       "worldScale": _worldScale,
                       "nationNumber": _nationNumber,
                       "organizationNumber": _organizationNumber,

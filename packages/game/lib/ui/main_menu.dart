@@ -72,14 +72,14 @@ class _MainMenuState extends State<MainMenu> {
     //   }),
     // );
 
-    engine.registerListener(
-      Events.createdScene,
-      EventHandler(widget.key!, (event) {
-        setState(() {
-          GlobalConfig.isLoading = false;
-        });
-      }),
-    );
+    // engine.registerListener(
+    //   Events.createdScene,
+    //   EventHandler(widget.key!, (event) {
+    //     setState(() {
+    //       GlobalConfig.isLoading = false;
+    //     });
+    //   }),
+    // );
 
     engine.registerListener(
       Events.endedScene,
@@ -111,36 +111,6 @@ class _MainMenuState extends State<MainMenu> {
         // });
       }),
     );
-
-    () async {
-      await engine.init(externalFunctions: externalGameFunctions);
-      if (kDebugMode) {
-        engine.hetu.evalFile('game/main.ht',
-            moduleName: 'game',
-            globallyImport: true,
-            invokeFunc: 'init',
-            namedArgs: {'lang': 'zh', 'gameEngine': engine});
-        engine.hetu.evalFile('core/main.ht', invokeFunc: 'init');
-        engine.hetu.interpreter.switchModule('game');
-      } else {
-        final mod = await rootBundle.load('assets/script.mod');
-        final bytes = mod.buffer.asUint8List();
-        engine.hetu.loadBytecode(
-          bytes: bytes,
-          moduleName: 'game',
-          // globallyImport: true,
-          invokeFunc: 'init',
-          namedArgs: {'lang': 'zh', 'gameEngine': engine},
-        );
-      }
-      engine.isHetuReady = true;
-
-      await refreshSaves();
-
-      setState(() {
-        GlobalConfig.isLoading = false;
-      });
-    }();
   }
 
   Future<void> refreshSaves() async {
@@ -148,111 +118,153 @@ class _MainMenuState extends State<MainMenu> {
     savedFiles.addAll(await _getSavedFiles());
   }
 
+  Future<bool> initMod() async {
+    if (engine.isLoaded) return false;
+    await engine.init(externalFunctions: externalGameFunctions);
+    if (kDebugMode) {
+      engine.hetu.evalFile('game/main.ht',
+          moduleName: 'game',
+          globallyImport: true,
+          invokeFunc: 'init',
+          namedArgs: {'lang': 'zh', 'gameEngine': engine});
+      engine.hetu.evalFile('core/main.ht', invokeFunc: 'init');
+      engine.hetu.interpreter.switchModule('game');
+    } else {
+      final game = await rootBundle.load('assets/game.mod');
+      final gameBytes = game.buffer.asUint8List();
+      engine.hetu.loadBytecode(
+        bytes: gameBytes,
+        moduleName: 'game',
+        globallyImport: true,
+        invokeFunc: 'init',
+        namedArgs: {'lang': 'zh', 'gameEngine': engine},
+      );
+      final mod = await rootBundle.load('assets/mod.mod');
+      final modBytes = mod.buffer.asUint8List();
+      engine.hetu.loadBytecode(
+        bytes: modBytes,
+        moduleName: 'mod',
+        invokeFunc: 'init',
+      );
+      engine.hetu.interpreter.switchModule('game');
+    }
+    engine.isLoaded = true;
+    await refreshSaves();
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (GlobalConfig.isLoading) {
-      return LoadingScreen(
-          text: engine.isHetuReady ? engine.locale['loading'] : 'Loading...');
-    }
-    // else if (locationId != null) {
-    //   return LocationView(locationId: locationId!);
-    // }
-    else if (engine.currentScene != null) {
-      return engine.currentScene!.widget;
-    } else {
-      final menus = <Widget>[
-        // const Padding(
-        //   padding: EdgeInsets.only(top: 150),
-        //   child: Image(
-        //     image: AssetImage('assets/images/title.png'),
-        //   ),
-        // ),
-        Padding(
-          padding: const EdgeInsets.only(top: 40.0),
-          child: ElevatedButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => const CreateGameDialog(),
+    return FutureBuilder(
+      future: initMod(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return LoadingScreen(
+              text: engine.isLoaded ? engine.locale['loading'] : 'Loading...');
+        } else {
+          if (engine.currentScene != null) {
+            return engine.currentScene!.widget;
+          } else {
+            final menus = <Widget>[
+              // const Padding(
+              //   padding: EdgeInsets.only(top: 150),
+              //   child: Image(
+              //     image: AssetImage('assets/images/title.png'),
+              //   ),
+              // ),
+              Padding(
+                padding: const EdgeInsets.only(top: 40.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const CreateGameDialog(),
+                    ).then(
+                      (value) {
+                        if (value != null) {
+                          Navigator.of(context)
+                              .pushNamed('worldmap', arguments: value);
+                        }
+                      },
+                    );
+                  },
+                  child: Text(locale['sandBoxMode']),
+                ),
+              ),
+              if (savedFiles.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      LoadGameDialog.show(context, list: savedFiles)
+                          .then((SaveInfo? info) {
+                        if (info != null) {
+                          Navigator.of(context).pushNamed('worldmap',
+                              arguments: {"path": info.path});
+                        } else {
+                          if (savedFiles.isEmpty) {
+                            setState(() {});
+                          }
+                        }
+                      });
+                    },
+                    child: Text(locale['loadGame']),
+                  ),
+                ),
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pushNamed('editor');
+                  },
+                  child: Text(locale['gameEditor']),
+                ),
+              ),
+              if (GlobalConfig.isOnDesktop) ...[
+                const Spacer(),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      windowManager.close();
+                    },
+                    child: Text(locale['exit']),
+                  ),
+                ),
+              ],
+            ];
+
+            Widget layout;
+            if (GlobalConfig.orientationMode == OrientationMode.landscape) {
+              layout = Stack(
+                children: [
+                  Positioned(
+                    left: 20.0,
+                    bottom: 20.0,
+                    height: 300.0,
+                    width: 120.0,
+                    child: Column(children: menus),
+                  ),
+                ],
               );
-            },
-            child: Text(locale['sandBoxMode']),
-          ),
-        ),
-        if (savedFiles.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 20.0),
-            child: ElevatedButton(
-              onPressed: () {
-                LoadGameDialog.show(context, list: savedFiles)
-                    .then((SaveInfo? info) {
-                  if (info != null) {
-                    setState(() {
-                      GlobalConfig.isLoading = false;
-                    });
-                    engine.createScene('WorldMap', {"path": info.path});
-                  } else {
-                    if (savedFiles.isEmpty) {
-                      setState(() {});
-                    }
-                  }
-                });
-              },
-              child: Text(locale['loadGame']),
-            ),
-          ),
-        Padding(
-          padding: const EdgeInsets.only(top: 20.0),
-          child: ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed('editor');
-            },
-            child: Text(locale['gameEditor']),
-          ),
-        ),
-        if (GlobalConfig.isOnDesktop) ...[
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.only(top: 20.0),
-            child: ElevatedButton(
-              onPressed: () {
-                windowManager.close();
-              },
-              child: Text(locale['exit']),
-            ),
-          ),
-        ],
-      ];
-
-      Widget layout;
-      if (GlobalConfig.orientationMode == OrientationMode.landscape) {
-        layout = Stack(
-          children: [
-            Positioned(
-              left: 20.0,
-              bottom: 20.0,
-              height: 300.0,
-              width: 120.0,
-              child: Column(children: menus),
-            ),
-          ],
-        );
-      } else {
-        layout = Container(
-          color: GlobalConfig.theme.backgroundColor,
-          // decoration: const BoxDecoration(
-          //   image: DecorationImage(
-          //     fit: BoxFit.fill,
-          //     image: AssetImage('assets/images/bg/background_01.jpg'),
-          //   ),
-          // ),
-          alignment: Alignment.center,
-          child: Column(children: menus),
-        );
-      }
-
-      return Scaffold(body: layout);
-    }
+            } else {
+              layout = Container(
+                color: GlobalConfig.theme.backgroundColor,
+                // decoration: const BoxDecoration(
+                //   image: DecorationImage(
+                //     fit: BoxFit.fill,
+                //     image: AssetImage('assets/images/bg/background_01.jpg'),
+                //   ),
+                // ),
+                alignment: Alignment.center,
+                child: Column(children: menus),
+              );
+            }
+            return Scaffold(body: layout);
+          }
+        }
+      },
+    );
   }
 
   Future<List<SaveInfo>> _getSavedFiles() async {

@@ -1,16 +1,13 @@
 import 'dart:io';
 import 'dart:convert';
 
-import 'package:flutter/widgets.dart';
-
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
 
 import '../global.dart';
-import '../ui/overlay/worldmap/worldmap.dart';
 
 class WorldMapScene extends Scene {
-  TileMap? map;
+  late final TileMap map;
 
   Map<String, dynamic> arg;
 
@@ -41,17 +38,8 @@ class WorldMapScene extends Scene {
       });
     }
 
-    add(map!);
+    add(map);
     isMapReady = true;
     engine.broadcast(const MapEvent.mapLoaded());
-  }
-
-  @override
-  Widget get widget {
-    // 如果不加下面这一行，component 会丢失 Scene, 原因不明
-    if (map != null && map!.parent == null) {
-      add(map!);
-    }
-    return WorldMapOverlay(key: UniqueKey(), scene: this);
   }
 }
