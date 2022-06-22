@@ -7,7 +7,7 @@ import '../l10n.ht'
 const kSitePalace = 'palace'
 const kSiteGovernment = 'government'
 const kSiteResidence = 'residence'
-const kSiteHeadquarters = 'headquarters'
+const kSiteOrganization = 'organization'
 const kSiteLibrary = 'library'
 const kSiteFarmland = 'farmland'
 const kSiteMine = 'mine'
@@ -202,7 +202,7 @@ fun handleSiteInteraction(siteId: str, locationId: str) {
       'palace' -> _handlePalaceInteraction(site)
       'government' -> _handleGovernmentInteraction(site)
       'residence' -> _handleResidenceInteraction(site)
-      'headquarters' -> _handleHeadquartersInteraction(site)
+      'organization' -> _handleOrganizationInteraction(site)
       'library' -> _handleLibraryInteraction(site)
       'farmland' -> _handleFarmlandInteraction(site)
       'mine' -> _handleMineInteraction(site)
@@ -232,13 +232,32 @@ fun searchCharactersAtSite(siteId: str) -> Iterable {
 }
 
 fun _handlePalaceInteraction(site) {
-
+  final location = game.locations[site.locationId]
+  showSelectionDialog({
+    train: getLocaleString('train'),
+    leave: getLocaleString('leave'),
+  }).then((key) {
+    when (key) {
+      // 如果选择 leave，直接忽略，什么也不做
+      'visit' -> {
+        
+      }
+    }
+  })
 }
 
 fun _handleGovernmentInteraction(site) {
   final location = game.locations[site.locationId]
   showSelectionDialog({
     train: getLocaleString('train'),
+    leave: getLocaleString('leave'),
+  }).then((key) {
+    when (key) {
+      // 如果选择 leave，直接忽略，什么也不做
+      'visit' -> {
+
+      }
+    }
   })
 }
 
@@ -247,13 +266,14 @@ fun _handleResidenceInteraction(site) {
   showSelectionDialog({
     visit: getLocaleString('visit'),
     leave: getLocaleString('leave'),
-  })
-  .then((key) {
+  }).then((key) {
     when (key) {
       // 如果选择 leave，直接忽略，什么也不做
       'visit' -> {
-        if (location.residingOrganizedCharacterIds.isNotEmpty) {
-          showCharacterSelectionDialog(location.residingOrganizedCharacterIds.toList())
+        if (location.residingWildCharacterIds.isNotEmpty) {
+          final ids = location.residingWildCharacterIds.toList()
+          ids.remove(game.heroId)
+          showCharacterSelectionDialog(ids)
           .then((key) {
             if (key != null) {
               handleCharacterInteraction(key)
@@ -267,7 +287,7 @@ fun _handleResidenceInteraction(site) {
   })
 }
 
-fun _handleHeadquartersInteraction(site) {
+fun _handleOrganizationInteraction(site) {
   final location = game.locations[site.locationId]
   showSelectionDialog({
     train: getLocaleString('train'),
@@ -288,8 +308,9 @@ fun _handleHeadquartersInteraction(site) {
       }
       'visit' -> {
         // 既然有总部，那就一定有可以拜访的成员
-        assert(location.residingOrganizedCharacterIds.isNotEmpty)
-        showCharacterSelectionDialog(location.residingOrganizedCharacterIds.toList())
+        final ids = location.residingOrganizedCharacterIds.toList()
+        ids.remove(game.heroId)
+        showCharacterSelectionDialog(ids)
         .then((key) {
           if (key != null) {
             handleCharacterInteraction(key)

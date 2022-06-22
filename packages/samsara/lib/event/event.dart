@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
 
-abstract class GameEvents {
-  static const onBack2Menu = 'back2Menu';
-}
-
 class GameEvent {
   final String name;
-
-  const GameEvent.back2Menu() : this(GameEvents.onBack2Menu);
 
   const GameEvent(this.name);
 }

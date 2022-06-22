@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:hetu_script/hetu_script.dart';
@@ -32,6 +34,8 @@ class SamsaraEngine with SceneController, EventAggregator {
   late final Logger logger;
 
   final locale = GameLocalization();
+
+  late final String? _mainModName;
 
   void updateLocales(HTStruct data) {
     locale.loadData(data);
@@ -71,6 +75,52 @@ class SamsaraEngine with SceneController, EventAggregator {
           namedArgs: namedArgs,
           typeArgs: typeArgs);
 
+  Future<void> loadModFromAssets(
+    String key, {
+    required String moduleName,
+    List<dynamic> positionalArgs = const [],
+    Map<String, dynamic> namedArgs = const {},
+    bool isMainMod = false,
+  }) async {
+    if (isMainMod) _mainModName = moduleName;
+    hetu.evalFile(
+      key,
+      moduleName: moduleName,
+      globallyImport: isMainMod,
+      invokeFunc: 'init',
+      positionalArgs: positionalArgs,
+      namedArgs: namedArgs,
+    );
+    if (!isMainMod && _mainModName != null) switchMod(_mainModName!);
+  }
+
+  Future<void> loadModFromBytes(
+    Uint8List bytes, {
+    required String moduleName,
+    List<dynamic> positionalArgs = const [],
+    Map<String, dynamic> namedArgs = const {},
+    bool isMainMod = false,
+  }) async {
+    if (isMainMod) _mainModName = moduleName;
+    hetu.loadBytecode(
+      bytes: bytes,
+      moduleName: moduleName,
+      globallyImport: isMainMod,
+      invokeFunc: 'init',
+      positionalArgs: positionalArgs,
+      namedArgs: namedArgs,
+    );
+    if (!isMainMod && _mainModName != null) switchMod(_mainModName!);
+  }
+
+  void reloadMod(id) {
+    switchMod(id);
+    invoke('bind');
+    if (_mainModName != null) switchMod(_mainModName!);
+  }
+
+  bool switchMod(String id) => hetu.interpreter.switchModule(id);
+
   /// Initialize the engine, must be called within
   /// the initState() of Flutter widget,
   /// for accessing the assets bundle resources.
@@ -89,6 +139,7 @@ class SamsaraEngine with SceneController, EventAggregator {
           expressionModuleExtensions: [HTResource.json]);
       hetu = Hetu(
         config: HetuConfig(
+          showDartStackTrace: debugMode,
           showHetuStackTrace: true,
           allowImplicitNullToZeroConversion: true,
           allowImplicitEmptyValueToFalseConversion: true,

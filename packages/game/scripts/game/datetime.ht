@@ -1,4 +1,5 @@
 import 'game.ht'
+import 'l10n.ht'
 
 const kTicksPerDay = 4 //每天的回合数 morning, afternoon, evening, night
 const kDaysPerWeek = 10 //每旬的天数
@@ -16,7 +17,19 @@ fun getCurrentYear => toYear(game.timestamp)
 fun getCurrentMonth => toMonth(game.timestamp)
 fun getCurrentDay => toDay(game.timestamp)
 
-fun getCurrentDateString() => formatDateTimeString(game.timestamp, format: 'date')
+final kHourString = {
+  '0': 'morning',
+  '1': 'afternoon',
+  '2': 'evening',
+  '3': 'night',
+}
+
+fun getCurrentDateTimeString() {
+  final d = formatDateTimeString(game.timestamp, format: 'date')
+  final h = (game.timestamp % 4).toString()
+  final h2 = getLocaleString(kHourString[h])
+  return '${d}${h2}'
+}
 
 // [format] = 'age' | 'date' | 'time' . 'ymd' | 'ym' | 'md' | 'd' | 'auto'
 fun formatDateTimeString(timestamp: int, {format: str}) {

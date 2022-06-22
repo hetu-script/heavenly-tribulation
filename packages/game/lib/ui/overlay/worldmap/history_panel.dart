@@ -22,7 +22,7 @@ class _HistoryPanelState extends State<HistoryPanel> {
 
     final List history = engine.invoke('getHistory');
     for (final incident in history) {
-      final isPrivate = incident['isPrivate'] ?? false;
+      // final isPrivate = incident['isPrivate'] ?? false;
       final isGlobal = incident['isGlobal'] ?? false;
       if (isGlobal) {
         messages.add(incident['content']);
@@ -60,7 +60,7 @@ class _HistoryPanelState extends State<HistoryPanel> {
           padding: const EdgeInsets.all(10.0),
           child: Column(
             children: [
-              Text(engine.invoke('getCurrentDateString')),
+              Text(engine.invoke('getCurrentDateTimeString')),
               const Divider(
                 color: kForegroundColor,
               ),

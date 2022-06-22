@@ -58,7 +58,7 @@ class CharacterAttributesView extends StatelessWidget {
     final spouseData = engine.hetu.invoke('getCharacterById',
         positionalArgs: [data['relationships']['spouseId']]);
     final spouse =
-        spouseData != null ? spouseData['name'] : engine.locale['unknown'];
+        spouseData != null ? spouseData['name'] : engine.locale['none'];
     final siblingNames = <String>[];
     final siblingIds = data['relationships']['siblingIds'];
     for (final id in siblingIds) {
@@ -167,6 +167,32 @@ class CharacterAttributesView extends StatelessWidget {
                 ),
               ]),
               const Divider(),
+              // Text('---${engine.locale['relationship']}---'),
+              Wrap(children: [
+                Label(
+                  '${engine.locale['father']}: $father',
+                  width: 120.0,
+                ),
+                Label(
+                  '${engine.locale['mother']}: $mother',
+                  width: 120.0,
+                ),
+                Label(
+                  '${engine.locale['spouse']}: $spouse',
+                  width: 120.0,
+                ),
+                LabelsWrap(
+                  minWidth: 120.0,
+                  '${engine.locale['siblings']}: ',
+                  children: siblings,
+                ),
+                LabelsWrap(
+                  minWidth: 120.0,
+                  '${engine.locale['children']}: ',
+                  children: childs,
+                ),
+              ]),
+              const Divider(),
               // Text('---${engine.locale['attributes']}---'),
               Wrap(children: [
                 Label(
@@ -192,32 +218,6 @@ class CharacterAttributesView extends StatelessWidget {
                 Label(
                   '${engine.locale['management']}: $management',
                   width: 120.0,
-                ),
-              ]),
-              const Divider(),
-              // Text('---${engine.locale['relationship']}---'),
-              Wrap(children: [
-                Label(
-                  '${engine.locale['father']}: $father',
-                  width: 120.0,
-                ),
-                Label(
-                  '${engine.locale['mother']}: $mother',
-                  width: 120.0,
-                ),
-                Label(
-                  '${engine.locale['spouse']}: $spouse',
-                  width: 120.0,
-                ),
-                LabelsWrap(
-                  minWidth: 120.0,
-                  '${engine.locale['siblings']}:',
-                  children: siblings,
-                ),
-                LabelsWrap(
-                  minWidth: 120.0,
-                  '${engine.locale['children']}:',
-                  children: childs,
                 ),
               ]),
               const Divider(),
@@ -308,16 +308,18 @@ class CharacterAttributesView extends StatelessWidget {
                   ),
                   Label(
                     '${engine.locale['favoredLooks']}: ${data['favoredLooks'].toStringAsFixed(2)}',
-                    width: 120.0,
+                    width: 240.0,
                   ),
                   Label(
                     '${engine.locale['birthPlace']}: ${data['birthPlaceId']}',
+                    width: 200.0,
                   ),
                   Label(
                     '${engine.locale['currentLocation']}: ${data['locationId']}',
+                    width: 200.0,
                   ),
                   LabelsWrap(
-                    '${engine.locale['motivation']}:',
+                    '${engine.locale['motivation']}: ',
                     minWidth: 120.0,
                     children: motivations,
                   ),

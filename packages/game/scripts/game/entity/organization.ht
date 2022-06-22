@@ -1,5 +1,5 @@
 import '../game.ht'
-import { Site, kSiteHeadquarters } from 'location.ht'
+import { Site, kSiteOrganization } from 'location.ht'
 import '../generator/name/name.ht' as nameGenerator
 import '../l10n.ht'
 
@@ -141,12 +141,12 @@ fun setLeader(organization, character) {
 
 // 必须已经是门派据点, 并且尚未设置总堂，才可以设置总堂
 fun setOrganizationHeadquarters(organization, location) {
-  assert(!location.sites.containsKey(kSiteHeadquarters))
+  assert(!location.sites.containsKey(kSiteOrganization))
   assert(location.organizationId == organization.id)
   organization.headquartersId = location.id
-  location.sites[kSiteHeadquarters] = Site(
+  location.sites[kSiteOrganization] = Site(
     location: location,
-    category: kSiteHeadquarters,
+    category: kSiteOrganization,
     name: organization.name,
   )
   location.isHeadquarters = true

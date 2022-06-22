@@ -49,6 +49,10 @@
   "timeYear": "年",
   "timeMonth": "个月",
   "timeDay": "天",
+  "morning": "清晨",
+  "afternoon": "下午",
+  "evening": "傍晚",
+  "night": "午夜",
 
   "information": "信息",
   "cultivation": "修炼",

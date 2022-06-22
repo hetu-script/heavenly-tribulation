@@ -661,5 +661,6 @@ fun createWorldMap({
 
   engine.info('世界生成完毕。')
 
+  game.world.isNewGame = true
   return game.world.toJson()
 }

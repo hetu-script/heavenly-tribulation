@@ -16,6 +16,7 @@ abstract class Events {
   static const enteredLocation = 'entered_location';
   static const leftLocation = 'left_location';
   static const incidentOccurred = 'incident_occurred';
+  static const heroMoved = 'hero_moved_on_worldmap';
 }
 
 class SceneEvent extends GameEvent {
@@ -36,8 +37,10 @@ class SceneEvent extends GameEvent {
       : this(eventName: Events.endedScene, sceneKey: sceneKey);
 }
 
-class MapEvent extends GameEvent {
-  const MapEvent.mapLoaded() : super(Events.loadedMap);
+class MapLoadedEvent extends GameEvent {
+  final bool isNewGame;
+
+  const MapLoadedEvent({this.isNewGame = false}) : super(Events.loadedMap);
 }
 
 class MapInteractionEvent extends GameEvent {
@@ -51,8 +54,14 @@ class MapInteractionEvent extends GameEvent {
       : super(Events.tappedMap);
 
   const MapInteractionEvent.checkTerrain({required this.terrain, this.actor})
-      : globalPosition = Offset.zero,
+      : globalPosition = null,
         super(Events.checkTerrain);
+
+  const MapInteractionEvent.heroMoved()
+      : terrain = null,
+        actor = null,
+        globalPosition = null,
+        super(Events.heroMoved);
 }
 
 class LocationEvent extends GameEvent {

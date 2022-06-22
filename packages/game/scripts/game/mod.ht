@@ -2,9 +2,9 @@ import 'game.ht'
 
 fun addModInfo(data) {
   engine.info('载入模组 [${data.id}]')
-  mods[data.id] = data
+  game.mods[data.id] = data
 }
 
 fun getModInfo(id: str) {
-  return mods[id]
+  return game.mods[id]
 }

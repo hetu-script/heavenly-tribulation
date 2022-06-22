@@ -12,12 +12,12 @@ import '../component/game_component.dart';
 import '../gestures/gesture_mixin.dart';
 import '../extensions.dart';
 import 'tile.dart';
-import '../../event/events.dart';
 import 'zone.dart';
 import 'actor.dart';
 import 'cloud.dart';
 import '../../shared/color.dart';
 import '../engine.dart';
+import '../../event/events.dart';
 
 class TileMapRouteNode {
   final TilePosition tilePosition;
@@ -83,6 +83,8 @@ class TileMap extends GameComponent with HandlesGesture {
 
   GridMode gridMode = GridMode.none;
 
+  final VoidCallback? onMoved;
+
   TileMap({
     required this.engine,
     required this.tileShape,
@@ -98,6 +100,7 @@ class TileMap extends GameComponent with HandlesGesture {
     this.actors = const [],
     // this.routes = const [],
     this.zones = const [],
+    this.onMoved,
   }) {
     assert(terrains.isNotEmpty);
     scale = Vector2(TileMapTerrain.defaultScale, TileMapTerrain.defaultScale);
@@ -303,6 +306,7 @@ class TileMap extends GameComponent with HandlesGesture {
     );
 
     final hero = TileMapActor(
+      engine: engine,
       shape: tileShape,
       gridWidth: gridWidth,
       gridHeight: gridHeight,
@@ -619,9 +623,6 @@ class TileMap extends GameComponent with HandlesGesture {
         }
       }
     }
-    // if (hero != null) {
-    //   add(hero!);
-    // }
     for (final actor in actors) {
       add(actor);
     }

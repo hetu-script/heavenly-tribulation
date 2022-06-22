@@ -15,9 +15,14 @@ export 'world.ht'
 export 'map/maze.ht'
 export 'generator/name/name.ht'
 export 'binding.ht'
+export 'logic.ht'
 
 import 'predefined/predefined_dialogs.ht'
 import 'l10n/l10n.ht'
+
+fun load {
+  
+}
 
 fun init({locale = 'zh', gameEngine: SamsaraEngine}) {
   engine = gameEngine

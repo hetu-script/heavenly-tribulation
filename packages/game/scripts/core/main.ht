@@ -5,18 +5,27 @@ export 'l10n/localizations.ht'
 export 'binding/bindings.ht'
 export 'data/sandbox_story/dialogs.ht'
 
+// 这里的函数最终是绑定到游戏对象上执行
+// 是运行时的命名空间，并不是这里的命名空间
+// 因此可以直接使用 engine 对象
 final modinfo = {
   ...meta,
-  onNewGameStarted: (arg) {
-    tdqj.engine.info('触发新游戏事件 [${this.name}]')
+  onNewGame: (arg) {
+    engine.info('[模组 - ${this.name}]: 新游戏事件')
   },
   onUpdate: (arg) {
-    tdqj.engine.info('触发时间更新事件 [${this.name}]')
+    engine.info('[模组 - ${this.name}]: 时间更新事件')
   }
 }
 
+fun bind {
+  tdqj.engine.info('[模组 - ${meta.id}]: 载入函数')
+  tdqj.loadBinding(modinfo)
+  tdqj.loadBindings(bindings)
+}
+
 fun init {
-  tdqj.engine.info('初始化模组 ${meta.id}')
+  tdqj.engine.info('[模组 - ${meta.id}]: 初始化 ')
 
   tdqj.addModInfo(meta)
 
@@ -34,10 +43,7 @@ fun init {
 
   // addMazes(mazes)
 
-  tdqj.engine.info('载入 [${meta.id}]')
-  tdqj.loadBinding(modinfo)
-  tdqj.loadBindings(bindings)
-  tdqj.engine.info('[${meta.id}] 载入完毕')
+  bind()
 
   tdqj.engine.info('模组: [${meta.id}] 初始化完毕...')
 }

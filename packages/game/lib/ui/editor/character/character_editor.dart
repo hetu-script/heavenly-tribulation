@@ -7,7 +7,8 @@ import 'package:samsara/samsara.dart';
 import '../../../global.dart';
 import '../../shared/avatar.dart';
 import '../../shared/bordered_icon_button.dart';
-import '../../shared/constants.dart';
+
+const kAvatarEditButtonSize = 16.0;
 
 class CharacterEditor extends StatefulWidget {
   const CharacterEditor(

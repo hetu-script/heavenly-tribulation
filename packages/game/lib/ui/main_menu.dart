@@ -20,6 +20,7 @@ import '../scene/worldmap.dart';
 import '../scene/maze.dart';
 import 'view/location/location.dart';
 import 'create_game_dialog.dart';
+import '../event/events.dart';
 
 class MainMenu extends StatefulWidget {
   const MainMenu({required super.key});
@@ -77,7 +78,7 @@ class _MainMenuState extends State<MainMenu> {
     });
 
     engine.registerListener(
-        GameEvents.onBack2Menu,
+        CustomEvents.back2menu,
         EventHandler(widget.key!, (GameEvent event) {
           refreshSaves();
         }));
@@ -141,32 +142,31 @@ class _MainMenuState extends State<MainMenu> {
     if (engine.isLoaded) return false;
     await engine.init(externalFunctions: externalGameFunctions);
     if (kDebugMode) {
-      engine.hetu.evalFile('game/main.ht',
-          moduleName: 'game',
-          globallyImport: true,
-          invokeFunc: 'init',
-          namedArgs: {'lang': 'zh', 'gameEngine': engine});
-      engine.hetu
-          .evalFile('core/main.ht', moduleName: 'mod', invokeFunc: 'init');
-      engine.hetu.interpreter.switchModule('game');
+      engine.loadModFromAssets(
+        'game/main.ht',
+        moduleName: 'game',
+        namedArgs: {'lang': 'zh', 'gameEngine': engine},
+        isMainMod: true,
+      );
+      engine.loadModFromAssets(
+        'core/main.ht',
+        moduleName: 'mod',
+      );
     } else {
       final game = await rootBundle.load('assets/game.mod');
       final gameBytes = game.buffer.asUint8List();
-      engine.hetu.loadBytecode(
-        bytes: gameBytes,
+      engine.loadModFromBytes(
+        gameBytes,
         moduleName: 'game',
-        globallyImport: true,
-        invokeFunc: 'init',
         namedArgs: {'lang': 'zh', 'gameEngine': engine},
+        isMainMod: true,
       );
       final mod = await rootBundle.load('assets/mod.mod');
       final modBytes = mod.buffer.asUint8List();
-      engine.hetu.loadBytecode(
-        bytes: modBytes,
+      engine.loadModFromBytes(
+        modBytes,
         moduleName: 'mod',
-        invokeFunc: 'init',
       );
-      engine.hetu.interpreter.switchModule('game');
     }
     engine.isLoaded = true;
     await refreshSaves();

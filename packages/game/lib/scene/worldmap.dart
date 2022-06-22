@@ -19,6 +19,6 @@ class WorldMapScene extends Scene {
     map = await TileMap.fromJson(data: jsonData, engine: engine);
     add(map);
     isMapReady = true;
-    engine.broadcast(const MapEvent.mapLoaded());
+    engine.broadcast(MapLoadedEvent(isNewGame: jsonData['isNewGame'] ?? false));
   }
 }

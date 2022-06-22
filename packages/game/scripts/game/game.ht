@@ -24,8 +24,6 @@ var locales = {
 
 var dialogs = {}
 
-var mods = {}
-
 var bindings = {}
 
 var game = {}
@@ -76,6 +74,9 @@ struct Game {
     this.organizationYearly = {
       
     }
+
+    // 已经加载的mod信息
+    this.mods = {}
   }
 }
 
@@ -126,27 +127,6 @@ fun setSavePath(name: str) {
   game.savePath = name
 }
 
-fun onGameEvent(id: str, [arg]) {
-  for (final entity of game.entities) {
-    final handler = entity[id];
-    if (handler is function) {
-      if (entity.type == 'module') {
-        final mod = getModInfo(entity.id)
-        final func = handler.bind(mod)
-        func(arg)
-      } else {
-        handler(arg)
-      }
-    }
-  }
-}
-
 fun getTimestamp {
   return game.timestamp
-}
-
-fun nextTick() {
-  ++game.timestamp
-
-  onGameEvent('onUpdate')
 }

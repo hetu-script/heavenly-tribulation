@@ -1,0 +1,22 @@
+import 'game.ht'
+import 'entity/character.ht'
+
+fun onGameEvent(id: str, [arg]) {
+  for (final binding of bindings) {
+    final handler = binding[id];
+    if(handler is function) {
+      if (binding.type == 'module') {
+        final modInfo = getModInfo(binding.id)
+        final func = handler.bind(modInfo)
+        func(arg)
+      } else {
+        handler(arg)
+      }
+    }
+  }
+}
+
+fun nextTick {
+  onGameEvent('onUpdate')
+  ++game.timestamp
+}

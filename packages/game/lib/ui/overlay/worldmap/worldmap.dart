@@ -21,6 +21,7 @@ import '../../../scene/worldmap.dart';
 import 'character_info.dart';
 import 'drop_menu.dart';
 import '../../view/console.dart';
+import '../../../event/events.dart';
 
 class WorldMapOverlay extends StatefulWidget {
   const WorldMapOverlay({required super.key});
@@ -48,20 +49,46 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
 
     engine.registerListener(
       Events.tappedMap,
-      EventHandler(widget.key!, (event) {
-        if (_scene.map.hero!.isMoving) {
-          return;
-        }
-        setState(() {
-          final terrain = (event as MapInteractionEvent).terrain;
-          if (terrain != null) {
-            final tilePos = terrain.tilePosition;
-            _menuPosition = _scene.map
-                .tilePosition2TileCenterInScreen(tilePos.left, tilePos.top);
+      EventHandler(
+        widget.key!,
+        (event) {
+          if (_scene.map.hero!.isMoving) {
+            return;
           }
-        });
-      }),
+          setState(() {
+            final terrain = (event as MapInteractionEvent).terrain;
+            if (terrain != null) {
+              final tilePos = terrain.tilePosition;
+              _menuPosition = _scene.map
+                  .tilePosition2TileCenterInScreen(tilePos.left, tilePos.top);
+            }
+          });
+        },
+      ),
     );
+
+    engine.registerListener(
+        Events.loadedMap,
+        EventHandler(
+          widget.key!,
+          (GameEvent event) {
+            if ((event as MapLoadedEvent).isNewGame) {
+              engine.invoke('onGameEvent', positionalArgs: ['onNewGame']);
+            }
+          },
+        ));
+
+    engine.registerListener(
+        Events.heroMoved,
+        EventHandler(
+          widget.key!,
+          (GameEvent event) {
+            setState(() {
+              engine.invoke('nextTick');
+            });
+          },
+        ));
+
     // FlameAudio.bgm.play('music/chinese-oriental-tune-06-12062.mp3');
   }
 
@@ -92,7 +119,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
 
     return FutureBuilder(
-      // 我也不知道为啥，这里必须用这种写法才能进入载入界面，否则一定会卡住
+      // 不知道为啥，这里必须用这种写法才能进入载入界面，否则一定会卡住
       future: Future.delayed(
         const Duration(milliseconds: 100),
         () => _getScene(args),
@@ -141,13 +168,13 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
                       showDialog(
                         context: context,
                         builder: (BuildContext context) => const Console(),
-                      );
+                      ).then((value) => setState(() {}));
                       break;
                     case DropMenuItems.exit:
                       engine.leaveScene('worldmap');
                       _saveGame().then((value) {
                         engine.invoke('resetGame');
-                        engine.broadcast(const GameEvent.back2Menu());
+                        engine.broadcast(const MenuEvent.back2menu());
                         Navigator.of(context).pop();
                       });
                       break;
@@ -294,6 +321,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
       saveFile.createSync(recursive: true);
     }
     final gameJsonData = engine.invoke('getGameJsonData');
+    gameJsonData['world']['isNewGame'] = false;
     final gameStringData = jsonEncodeWithIndent(gameJsonData);
     saveFile.writeAsStringSync(gameStringData);
 

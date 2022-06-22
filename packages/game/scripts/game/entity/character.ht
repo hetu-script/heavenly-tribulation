@@ -299,7 +299,6 @@ struct Character {
     // 该角色对世界上的其他事物的喜好程度
     this.bonds = {
       characters: {},
-      items: {},
       organizations: {},
       locations: {},
       nations: {},

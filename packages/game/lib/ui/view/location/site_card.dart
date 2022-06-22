@@ -19,8 +19,8 @@ class SiteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 210,
-      height: 150,
+      width: 140,
+      height: 100,
       child: Card(
         elevation: 8.0,
         shadowColor: Colors.black26,

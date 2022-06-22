@@ -4,7 +4,6 @@ import 'package:hetu_script/values.dart' show HTStruct;
 
 import '../../../global.dart';
 import 'game_entity_listview.dart';
-import '../../shared/constants.dart';
 import '../../shared/responsive_route.dart';
 import '../../shared/close_button.dart';
 
@@ -50,6 +49,8 @@ class InformationPanel extends StatefulWidget {
 
 class _InformationPanelState extends State<InformationPanel>
     with AutomaticKeepAliveClientMixin {
+  static late final List<Widget> _tabs;
+
   @override
   bool get wantKeepAlive => true;
 
@@ -66,15 +67,6 @@ class _InformationPanelState extends State<InformationPanel>
   @override
   void initState() {
     super.initState();
-
-    updateData();
-  }
-
-  void updateData() {
-    _nationsFieldRow.clear();
-    _locationsFieldRow.clear();
-    _organizationsFieldRow.clear();
-    _charactersFieldRow.clear();
 
     _nationsData = engine.invoke('getNations');
     for (final nation in _nationsData.values) {
@@ -186,73 +178,70 @@ class _InformationPanelState extends State<InformationPanel>
       rowData.add(char['id']);
       _charactersFieldRow.add(rowData);
     }
+
+    _tabs = [
+      Tab(
+        icon: const Icon(Icons.person),
+        text: '${engine.locale['character']}(${_charactersFieldRow.length})',
+      ),
+      Tab(
+        icon: const Icon(Icons.groups),
+        text:
+            '${engine.locale['organization']}(${_organizationsFieldRow.length})',
+      ),
+      Tab(
+        icon: const Icon(Icons.location_city),
+        text: '${engine.locale['location']}(${_locationsFieldRow.length})',
+      ),
+      Tab(
+        icon: const Icon(Icons.public),
+        text: '${engine.locale['nation']}(${_nationsFieldRow.length})',
+      ),
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
-    final layout = DefaultTabController(
-      length: kInformationViewTabLengths,
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: Text(engine.locale['info']),
-          actions: const [ButtonClose()],
-          bottom: TabBar(
-            tabs: [
-              Tab(
-                icon: const Icon(Icons.person),
-                text:
-                    '${engine.locale['character']}(${_charactersFieldRow.length})',
+    return ResponsiveRoute(
+      alignment: AlignmentDirectional.center,
+      child: DefaultTabController(
+        length: _tabs.length,
+        child: Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            title: Text(engine.locale['info']),
+            actions: const [ButtonClose()],
+            bottom: TabBar(
+              tabs: _tabs,
+            ),
+          ),
+          body: TabBarView(
+            children: [
+              GameEntityListView(
+                columns: kInformationViewCharacterColumns,
+                data: _charactersFieldRow,
+                onTap: (dataId) => showDialog(
+                  context: context,
+                  builder: (context) => CharacterView(characterId: dataId),
+                ),
               ),
-              Tab(
-                icon: const Icon(Icons.groups),
-                text:
-                    '${engine.locale['organization']}(${_organizationsFieldRow.length})',
+              GameEntityListView(
+                columns: kInformationViewOrganizationColumns,
+                data: _organizationsFieldRow,
               ),
-              Tab(
-                icon: const Icon(Icons.location_city),
-                text:
-                    '${engine.locale['location']}(${_locationsFieldRow.length})',
+              GameEntityListView(
+                columns: kInformationViewLocationColumns,
+                data: _locationsFieldRow,
               ),
-              Tab(
-                icon: const Icon(Icons.public),
-                text: '${engine.locale['nation']}(${_nationsFieldRow.length})',
+              GameEntityListView(
+                columns: kInformationViewNationColumns,
+                data: _nationsFieldRow,
               ),
             ],
           ),
         ),
-        body: TabBarView(
-          children: [
-            GameEntityListView(
-              columns: kInformationViewCharacterColumns,
-              data: _charactersFieldRow,
-              onTap: (dataId) => showDialog(
-                context: context,
-                builder: (context) => CharacterView(characterId: dataId),
-              ),
-            ),
-            GameEntityListView(
-              columns: kInformationViewOrganizationColumns,
-              data: _organizationsFieldRow,
-            ),
-            GameEntityListView(
-              columns: kInformationViewLocationColumns,
-              data: _locationsFieldRow,
-            ),
-            GameEntityListView(
-              columns: kInformationViewNationColumns,
-              data: _nationsFieldRow,
-            ),
-          ],
-        ),
       ),
-    );
-
-    return ResponsiveRoute(
-      alignment: AlignmentDirectional.center,
-      child: layout,
     );
   }
 }

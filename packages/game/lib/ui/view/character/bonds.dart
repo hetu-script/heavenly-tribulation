@@ -6,14 +6,11 @@ import '../../../global.dart';
 import '../../shared/empty_placeholder.dart';
 import '../../shared/constants.dart';
 
-const kCharacterBondsCategoryNum = 5;
-
 const kCharacterBondsTableColumns = [
   'character',
   'organization',
   'location',
   'nation',
-  'items',
 ];
 
 const kCharacterBondsSubTableColumns = ['name', 'impressionOfThem'];
@@ -29,7 +26,7 @@ class CharacterBondsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: kCharacterBondsCategoryNum,
+      length: kCharacterBondsTableColumns.length,
       child: Column(
         children: [
           PreferredSize(

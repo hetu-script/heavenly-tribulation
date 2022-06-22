@@ -8,6 +8,8 @@ import '../component/game_component.dart';
 import 'tile.dart';
 import 'tile_mixin.dart';
 import '../shared/direction.dart';
+import '../engine.dart';
+import '../../event/events.dart';
 
 enum AnimationDirection {
   south,
@@ -45,6 +47,8 @@ class TileMapActor extends GameComponent with TileInfo {
   TilePosition _movingTargetTilePosition = const TilePosition.zero();
   Vector2 _velocity = Vector2.zero();
 
+  final SamsaraEngine engine;
+
   void stop() {
     _isMoving = false;
     _movingOffset = Vector2.zero();
@@ -52,6 +56,7 @@ class TileMapActor extends GameComponent with TileInfo {
     _velocity = Vector2.zero();
     tilePosition = _movingTargetTilePosition;
     _movingTargetTilePosition = const TilePosition.zero();
+    engine.broadcast(const MapInteractionEvent.heroMoved());
   }
 
   void moveTo(TilePosition target) {
@@ -76,7 +81,8 @@ class TileMapActor extends GameComponent with TileInfo {
   }
 
   TileMapActor(
-      {required this.characterId,
+      {required this.engine,
+      required this.characterId,
       required TileShape shape,
       required double gridWidth,
       required double gridHeight,

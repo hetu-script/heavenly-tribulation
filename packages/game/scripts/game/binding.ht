@@ -9,7 +9,6 @@ fun loadBinding(bd) {
 }
 
 fun loadBindings(bds: List) {
-  engine.info('载入脚本对象')
   for (final bd in bds) {
     bindings[bd.id] = bd
   }
