@@ -47,76 +47,79 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
       ),
       body: Column(
         children: [
-          Container(
-            margin: const EdgeInsets.all(5.0),
-            child: ListView(
-              shrinkWrap: true,
-              children: widget.list
-                  .map(
-                    (info) => Card(
-                      color: kBackgroundColor,
-                      shape: RoundedRectangleBorder(
-                        side: const BorderSide(
-                          color: kForegroundColor,
-                          width: 1,
-                        ),
-                        borderRadius: kBorderRadius,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                info.timestamp,
-                                softWrap: false,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.all(5.0),
+              child: SingleChildScrollView(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: widget.list
+                      .map(
+                        (info) => Card(
+                          color: kBackgroundColor,
+                          shape: RoundedRectangleBorder(
+                            side: const BorderSide(
+                              color: kForegroundColor,
+                              width: 1,
                             ),
-                            Column(
+                            borderRadius: kBorderRadius,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Row(
                               children: [
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 5),
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop(info);
-                                    },
-                                    child: Text(engine.locale['load']),
+                                Expanded(
+                                  child: Text(
+                                    info.timestamp,
+                                    softWrap: false,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 5),
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      final file = File(info.path);
-                                      file.delete();
-                                      final file2 = File('${info.path}2');
-                                      file2.delete();
-                                      setState(() {
-                                        widget.list.removeWhere(
-                                            (element) => element == info);
+                                Column(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 5),
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop(info);
+                                        },
+                                        child: Text(engine.locale['load']),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 5),
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          final file = File(info.path);
+                                          file.delete();
+                                          final file2 = File('${info.path}2');
+                                          file2.delete();
+                                          setState(() {
+                                            widget.list.removeWhere(
+                                                (element) => element == info);
 
-                                        if (widget.list.isEmpty) {
-                                          Navigator.of(context).pop();
-                                        }
-                                      });
-                                    },
-                                    child: Text(engine.locale['delete']),
-                                  ),
+                                            if (widget.list.isEmpty) {
+                                              Navigator.of(context).pop();
+                                            }
+                                          });
+                                        },
+                                        child: Text(engine.locale['delete']),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
-                  )
-                  .toList(),
+                      )
+                      .toList(),
+                ),
+              ),
             ),
           ),
-          const Spacer(),
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: ElevatedButton(

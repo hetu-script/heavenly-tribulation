@@ -59,20 +59,26 @@ class CharacterAttributesView extends StatelessWidget {
         positionalArgs: [data['relationships']['spouseId']]);
     final spouse =
         spouseData != null ? spouseData['name'] : engine.locale['unknown'];
-    final siblings = <String>[];
+    final siblingNames = <String>[];
     final siblingIds = data['relationships']['siblingIds'];
     for (final id in siblingIds) {
       final sibData =
           engine.hetu.invoke('getCharacterById', positionalArgs: [id]);
-      siblings.add(sibData['name']);
+      siblingNames.add(sibData['name']);
     }
-    final childs = <String>[];
+    final siblings = siblingNames.isNotEmpty
+        ? siblingNames.map((e) => Label(e)).toList()
+        : [Text(engine.locale['none'])];
+    final childrenNames = <String>[];
     final childrenIds = data['relationships']['childrenIds'];
     for (final id in childrenIds) {
       final childData =
           engine.hetu.invoke('getCharacterById', positionalArgs: [id]);
-      childs.add(childData['name']);
+      childrenNames.add(childData['name']);
     }
+    final childs = childrenNames.isNotEmpty
+        ? childrenNames.map((e) => Label(e)).toList()
+        : [Text(engine.locale['none'])];
 
     final attributes = data['attributes'];
     final int strength = attributes['strength'];
@@ -100,6 +106,15 @@ class CharacterAttributesView extends StatelessWidget {
         (personality['empathy'] as double).toDoubleAsFixed(2);
     final double generosity =
         (personality['generosity'] as double).toDoubleAsFixed(2);
+
+    final motifvationNames = data['motivations'] as List;
+    final motivations = motifvationNames.isNotEmpty
+        ? motifvationNames.map((e) => Label(engine.locale[e])).toList()
+        : [Text(engine.locale['none'])];
+    final thinkingNames = data['thinkings'] as List;
+    final thinkings = thinkingNames.isNotEmpty
+        ? thinkingNames.map((e) => Label(engine.locale[e])).toList()
+        : [Text(engine.locale['none'])];
 
     return Container(
       padding: const EdgeInsets.all(10),
@@ -194,17 +209,15 @@ class CharacterAttributesView extends StatelessWidget {
                   '${engine.locale['spouse']}: $spouse',
                   width: 120.0,
                 ),
-                Wrap(
-                  children: [
-                    Label('${engine.locale['siblings']}:'),
-                    ...siblings.map((e) => Label(engine.locale[e])),
-                  ],
+                LabelsWrap(
+                  minWidth: 120.0,
+                  '${engine.locale['siblings']}:',
+                  children: siblings,
                 ),
-                Wrap(
-                  children: [
-                    Label('${engine.locale['children']}:'),
-                    ...childs.map((e) => Label(engine.locale[e])),
-                  ],
+                LabelsWrap(
+                  minWidth: 120.0,
+                  '${engine.locale['children']}:',
+                  children: childs,
                 ),
               ]),
               const Divider(),
@@ -285,35 +298,40 @@ class CharacterAttributesView extends StatelessWidget {
                   ),
                 ],
               ),
-              if (engine.debugMode) ...[
-                const Divider(),
-                Text('---${engine.locale['debug']}---'),
-                Wrap(
-                  children: [
-                    Label('${engine.locale['birthday']}: $birthday'),
-                    Label(
-                        '${engine.locale['favoredLooks']}: ${data['favoredLooks'].toStringAsFixed(2)}'),
-                    Label(
-                        '${engine.locale['birthPlace']}: ${data['birthPlaceId']}'),
-                    Label(
-                        '${engine.locale['currentLocation']}: ${data['locationId']}'),
-                    Wrap(
-                      children: [
-                        Label('${engine.locale['motivation']}:'),
-                        ...(data['motivations'] as List)
-                            .map((e) => Label(engine.locale[e])),
-                      ],
-                    ),
-                    Wrap(
-                      children: [
-                        Label('${engine.locale['thinking']}:'),
-                        ...(data['thinkings'] as List)
-                            .map((e) => Label(engine.locale[e])),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
+              if (engine.debugMode) const Divider(),
+              Text('---${engine.locale['debug']}---'),
+              Wrap(
+                children: [
+                  Label(
+                    '${engine.locale['birthday']}: $birthday',
+                    width: 120.0,
+                  ),
+                  Label(
+                    '${engine.locale['favoredLooks']}: ${data['favoredLooks'].toStringAsFixed(2)}',
+                    width: 120.0,
+                  ),
+                  Label(
+                    '${engine.locale['birthPlace']}: ${data['birthPlaceId']}',
+                  ),
+                  Label(
+                    '${engine.locale['currentLocation']}: ${data['locationId']}',
+                  ),
+                  LabelsWrap(
+                    '${engine.locale['motivation']}:',
+                    minWidth: 120.0,
+                    children: motivations,
+                  ),
+                  // const Divider(
+                  //   color: Colors.transparent,
+                  //   height: 0,
+                  // ),
+                  LabelsWrap(
+                    '${engine.locale['thinking']}:',
+                    minWidth: 120.0,
+                    children: thinkings,
+                  ),
+                ],
+              ),
             ],
           ),
         ),

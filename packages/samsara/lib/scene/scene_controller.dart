@@ -12,7 +12,7 @@ class SceneController {
       <String, Future<Scene> Function([Map<String, dynamic>? arg])>{};
 
   void registerSceneConstructor<T extends Scene>(String name,
-      Future<T> Function([Map<String, dynamic>? arg]) constructor) {
+      Future<T> Function([Map<String, dynamic>? args]) constructor) {
     _sceneConstructors[name] = constructor;
   }
 

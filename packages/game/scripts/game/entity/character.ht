@@ -521,6 +521,7 @@ fun characterExperiencedIncident(character, incident) {
       bond.score += score
     }
   }
+  character.memory.experienced.add(incident.index)
 }
 
 fun characterKnownIncident(character, incident, { witnessed }) {

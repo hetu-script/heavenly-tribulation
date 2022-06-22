@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
@@ -10,7 +9,6 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:hetu_script/values.dart';
-import 'package:flutter/foundation.dart';
 
 import 'popup.dart';
 import '../../../shared/json.dart';
@@ -38,7 +36,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
 
   bool isLoaded = false;
 
-  late final WorldMapScene _scene;
+  late WorldMapScene _scene;
 
   HTStruct? _heroData;
 
@@ -72,33 +70,15 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
     engine.disposeListenders(widget.key!);
     // FlameAudio.bgm.stop();
     // FlameAudio.bgm.dispose();
+
+    _scene.detach();
     super.dispose();
   }
 
-  Future<bool> _getScene(Map<String, dynamic> args) async {
-    if (isLoaded) return false;
-    Map<String, dynamic> worldData;
-    final path = args['path'];
-    if (path != null) {
-      final gameSavePath = File(path);
-      final gameDataString = gameSavePath.readAsStringSync();
-      final gameData = jsonDecode(gameDataString);
-      final historySavePath = File('${path}2');
-      final historyDataString = historySavePath.readAsStringSync();
-      final historyData = jsonDecode(historyDataString);
-      engine.invoke('loadGameFromJsonData',
-          positionalArgs: [gameData, historyData]);
-      worldData = gameData['world'];
-    } else {
-      worldData = engine.invoke('createWorldMap', namedArgs: {
-        'terrainSpriteSheet': 'fantasyhextiles_v3_borderless.png',
-        ...args,
-      });
-    }
-    _scene = await engine.createScene('worldmap', worldData) as WorldMapScene;
+  Future<Scene> _getScene(Map<String, dynamic> args) async {
+    final scene = await engine.createScene('worldmap', args) as WorldMapScene;
     _heroData = engine.invoke('getHero');
-    isLoaded = true;
-    return true;
+    return scene;
   }
 
   @override
@@ -112,15 +92,19 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
 
     return FutureBuilder(
+      // 我也不知道为啥，这里必须用这种写法才能进入载入界面，否则一定会卡住
       future: Future.delayed(
-        const Duration(microseconds: 100),
+        const Duration(milliseconds: 100),
         () => _getScene(args),
       ),
-      // future: _getScene(args),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return LoadingScreen(text: engine.locale['loading']);
         } else {
+          _scene = snapshot.data as WorldMapScene;
+          if (_scene.isAttached) {
+            _scene.detach();
+          }
           final screenWidgets = [
             SizedBox(
               height: screenSize.height,

@@ -1,6 +1,5 @@
-import 'dart:async';
 import 'dart:io';
-import 'package:flutter/scheduler.dart';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -50,8 +49,26 @@ class _MainMenuState extends State<MainMenu> {
     super.initState();
 
     engine.registerSceneConstructor('worldmap', (
-        [Map<String, dynamic>? arg]) async {
-      return WorldMapScene(jsonData: arg!, controller: engine);
+        [Map<String, dynamic>? args]) async {
+      Map<String, dynamic> worldData;
+      final path = args!['path'];
+      if (path != null) {
+        final gameSavePath = File(path);
+        final gameDataString = gameSavePath.readAsStringSync();
+        final gameData = jsonDecode(gameDataString);
+        final historySavePath = File('${path}2');
+        final historyDataString = historySavePath.readAsStringSync();
+        final historyData = jsonDecode(historyDataString);
+        engine.invoke('loadGameFromJsonData',
+            positionalArgs: [gameData, historyData]);
+        worldData = gameData['world'];
+      } else {
+        worldData = engine.invoke('createWorldMap', namedArgs: {
+          'terrainSpriteSheet': 'fantasyhextiles_v3_borderless.png',
+          ...args,
+        });
+      }
+      return WorldMapScene(jsonData: worldData, controller: engine);
     });
 
     engine.registerSceneConstructor('Maze', (

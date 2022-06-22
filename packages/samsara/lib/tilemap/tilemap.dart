@@ -539,7 +539,7 @@ class TileMap extends GameComponent with HandlesGesture {
 
   void moveHeroToTilePositionByRoute(List<int> route,
       {DestinationAction action = DestinationAction.none}) {
-    assert(!hero!.isMoving);
+    if (hero!.isMoving) return;
     currentDestinationAction = action;
     final dest = index2TilePosition(route.last);
     currentMoveDestination = getTerrain(dest.left, dest.top);
