@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:io';
+import 'package:flutter/scheduler.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -47,9 +49,9 @@ class _MainMenuState extends State<MainMenu> {
   void initState() {
     super.initState();
 
-    engine.registerSceneConstructor('WorldMap', (
+    engine.registerSceneConstructor('worldmap', (
         [Map<String, dynamic>? arg]) async {
-      return WorldMapScene(arg: arg!, controller: engine);
+      return WorldMapScene(jsonData: arg!, controller: engine);
     });
 
     engine.registerSceneConstructor('Maze', (
@@ -127,7 +129,8 @@ class _MainMenuState extends State<MainMenu> {
           globallyImport: true,
           invokeFunc: 'init',
           namedArgs: {'lang': 'zh', 'gameEngine': engine});
-      engine.hetu.evalFile('core/main.ht', invokeFunc: 'init');
+      engine.hetu
+          .evalFile('core/main.ht', moduleName: 'mod', invokeFunc: 'init');
       engine.hetu.interpreter.switchModule('game');
     } else {
       final game = await rootBundle.load('assets/game.mod');

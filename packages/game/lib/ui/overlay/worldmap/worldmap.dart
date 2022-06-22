@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
@@ -9,6 +10,7 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:hetu_script/values.dart';
+import 'package:flutter/foundation.dart';
 
 import 'popup.dart';
 import '../../../shared/json.dart';
@@ -33,6 +35,8 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
+
+  bool isLoaded = false;
 
   late final WorldMapScene _scene;
 
@@ -60,21 +64,40 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
         });
       }),
     );
-
-    FlameAudio.bgm.play('music/chinese-oriental-tune-06-12062.mp3');
+    // FlameAudio.bgm.play('music/chinese-oriental-tune-06-12062.mp3');
   }
 
   @override
   void dispose() {
     engine.disposeListenders(widget.key!);
-    FlameAudio.bgm.stop();
-    FlameAudio.bgm.dispose();
+    // FlameAudio.bgm.stop();
+    // FlameAudio.bgm.dispose();
     super.dispose();
   }
 
   Future<bool> _getScene(Map<String, dynamic> args) async {
+    if (isLoaded) return false;
+    Map<String, dynamic> worldData;
+    final path = args['path'];
+    if (path != null) {
+      final gameSavePath = File(path);
+      final gameDataString = gameSavePath.readAsStringSync();
+      final gameData = jsonDecode(gameDataString);
+      final historySavePath = File('${path}2');
+      final historyDataString = historySavePath.readAsStringSync();
+      final historyData = jsonDecode(historyDataString);
+      engine.invoke('loadGameFromJsonData',
+          positionalArgs: [gameData, historyData]);
+      worldData = gameData['world'];
+    } else {
+      worldData = engine.invoke('createWorldMap', namedArgs: {
+        'terrainSpriteSheet': 'fantasyhextiles_v3_borderless.png',
+        ...args,
+      });
+    }
+    _scene = await engine.createScene('worldmap', worldData) as WorldMapScene;
     _heroData = engine.invoke('getHero');
-    _scene = await engine.createScene('WorldMap', args) as WorldMapScene;
+    isLoaded = true;
     return true;
   }
 
@@ -83,14 +106,17 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
     super.build(context);
     // pass the build context to script
     engine.invoke('build', positionalArgs: [context]);
-
     final screenSize = MediaQuery.of(context).size;
 
     final args =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
 
     return FutureBuilder(
-      future: _getScene(args),
+      future: Future.delayed(
+        const Duration(microseconds: 100),
+        () => _getScene(args),
+      ),
+      // future: _getScene(args),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return LoadingScreen(text: engine.locale['loading']);
@@ -134,9 +160,12 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
                       );
                       break;
                     case DropMenuItems.exit:
-                      engine.leaveScene('WorldMap');
-                      _saveGame();
-                      engine.broadcast(const GameEvent.back2Menu());
+                      engine.leaveScene('worldmap');
+                      _saveGame().then((value) {
+                        engine.invoke('resetGame');
+                        engine.broadcast(const GameEvent.back2Menu());
+                        Navigator.of(context).pop();
+                      });
                       break;
                     default:
                   }

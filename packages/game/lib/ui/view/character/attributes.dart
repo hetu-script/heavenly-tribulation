@@ -59,12 +59,19 @@ class CharacterAttributesView extends StatelessWidget {
         positionalArgs: [data['relationships']['spouseId']]);
     final spouse =
         spouseData != null ? spouseData['name'] : engine.locale['unknown'];
-    final children = <String>[];
+    final siblings = <String>[];
+    final siblingIds = data['relationships']['siblingIds'];
+    for (final id in siblingIds) {
+      final sibData =
+          engine.hetu.invoke('getCharacterById', positionalArgs: [id]);
+      siblings.add(sibData['name']);
+    }
+    final childs = <String>[];
     final childrenIds = data['relationships']['childrenIds'];
     for (final id in childrenIds) {
       final childData =
           engine.hetu.invoke('getCharacterById', positionalArgs: [id]);
-      children.add(childData['name']);
+      childs.add(childData['name']);
     }
 
     final attributes = data['attributes'];
@@ -187,7 +194,18 @@ class CharacterAttributesView extends StatelessWidget {
                   '${engine.locale['spouse']}: $spouse',
                   width: 120.0,
                 ),
-                Label('${engine.locale['children']}: $children'),
+                Wrap(
+                  children: [
+                    Label('${engine.locale['siblings']}:'),
+                    ...siblings.map((e) => Label(engine.locale[e])),
+                  ],
+                ),
+                Wrap(
+                  children: [
+                    Label('${engine.locale['children']}:'),
+                    ...childs.map((e) => Label(engine.locale[e])),
+                  ],
+                ),
               ]),
               const Divider(),
               // Text('---${engine.locale['personality']}---'),
@@ -279,14 +297,20 @@ class CharacterAttributesView extends StatelessWidget {
                         '${engine.locale['birthPlace']}: ${data['birthPlaceId']}'),
                     Label(
                         '${engine.locale['currentLocation']}: ${data['locationId']}'),
-                    const Divider(),
-                    Label('${engine.locale['motivation']}:'),
-                    ...(data['motivations'] as List)
-                        .map((e) => Label(engine.locale[e])),
-                    const Divider(),
-                    Label('${engine.locale['thinking']}:'),
-                    ...(data['thinkings'] as List)
-                        .map((e) => Label(engine.locale[e])),
+                    Wrap(
+                      children: [
+                        Label('${engine.locale['motivation']}:'),
+                        ...(data['motivations'] as List)
+                            .map((e) => Label(engine.locale[e])),
+                      ],
+                    ),
+                    Wrap(
+                      children: [
+                        Label('${engine.locale['thinking']}:'),
+                        ...(data['thinkings'] as List)
+                            .map((e) => Label(engine.locale[e])),
+                      ],
+                    ),
                   ],
                 ),
               ],

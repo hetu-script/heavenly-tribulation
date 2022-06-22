@@ -1,0 +1,25 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "compileGameScript",
+      "type": "shell",
+      "command": "hetu compile packages/game/scripts/game/main.ht -o packages/game/assets/game.mod",
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+      }
+    },
+    {
+      "label": "compileModScript",
+      "type": "shell",
+      "command": "hetu compile packages/game/scripts/core/main.ht -o packages/game/assets/mod.mod",
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+      }
+    }
+  ]
+}

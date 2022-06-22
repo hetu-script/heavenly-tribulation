@@ -23,14 +23,14 @@ fun init({locale = 'zh', gameEngine: SamsaraEngine}) {
   engine = gameEngine
   
   engine.info('初始化游戏')
-
+  
   addLocales(predefinedLocalizations)
   engine.updateLocales(locales[locale])
   setLocale(locale)
   
   addDialogs(predefinedDialogs)
-  
-  engine.info('初始化函数执行完毕')
+
+  resetGame()
 
   // for (var i in range(10)) {
   //   final ent = getArcanePower()
@@ -38,4 +38,6 @@ fun init({locale = 'zh', gameEngine: SamsaraEngine}) {
   //   // final ent = getMartialArts()
   //   print(ent)
   // }
+  
+  engine.info('初始化函数执行完毕')
 }

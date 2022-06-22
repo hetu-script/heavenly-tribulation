@@ -58,62 +58,14 @@ const _kSpriteCity = 4
 const _kSpriteForest = 5
 const _kSpriteMountain = 6
 const _kLocationCategoryCity = 'city'
-const _kLocationCategoryUnchartedLand = 'unchartedLand'
-const _kLocationCategoryUnchartedIsland = 'unchartedIsland'
 const _kZoneVoid = 'empty'
 const _kZoneWater = 'water'
 const _kZoneContinent = 'continent'
 const _kZoneIsland = 'island'
 const _kZoneLake = 'lake'
-const _kOrganizationCategoryCultivation = 'caltivation'
 const _kMinZoneSizeForSea = 8
-const _kZoneSizeForHarbor = 18
 const _kForestThreshold = 0.5
 const _kMountainThreshold = 0.2
-// const _kMinLocationNumberForOrganization = 0.5 // 最大组织密度
-// const _kMinNpcNumberForOrganization = 3
-// const _kMaxNpcNumberForOrganization = 9
-var kMaxWorldPopulation = 800
-var kWildCharacterProportion = 0.1
-
-struct SpiritOrigin {
-  construct {
-    final roots = [
-      'water',
-      'fire',
-      'metal',
-      'wood',
-      'earth',
-    ]
-
-    var n = 10
-    var max = 0
-    for (var root in roots) {
-      final current = n - hyperbola(n)
-      if (current > max) {
-        max = current
-      }
-      this[root] = current
-      n -= current
-    }
-    
-    if (max > 9) {
-      this.rarity = 'exotic'
-    } else if (max > 8) {
-      this.rarity = 'mythic'
-    } else if (max > 7) {
-      this.rarity = 'legendary'
-    } else if (max > 6) {
-      this.rarity = 'epic'
-    } else if (max > 5) {
-      this.rarity = 'rare'
-    } else if (max > 4) {
-      this.rarity = 'uncommon'
-    } else if (max > 3) {
-      this.rarity = 'common'
-    }
-  }
-}
 
 struct Zone {
   var index: int
@@ -162,9 +114,9 @@ fun createWorldMap({
   }) {
   assert(organizationNumber < locationNumber)
   assert(organizationNumber < characterNumber)
-    
+  
   engine.info('开始生成世界')
-
+  
   game.savePath = null
   game.nations = {}
   game.characters = {}
@@ -175,6 +127,8 @@ fun createWorldMap({
   history = []
 
   final { width, height } = _kWorldSizePerWorldScale[worldScale.toString()]
+  game.width = width
+  game.height = height
 
   game.world = {
     terrainSpriteSheet,
@@ -201,7 +155,6 @@ fun createWorldMap({
           index: tilePos2Index(i + 1, j + 1),
           spriteIndex: _kSpriteWater,
           overlaySprite: {},
-          ...SpiritOrigin(),
         }
       )
     }
@@ -510,7 +463,7 @@ fun createWorldMap({
   engine.info('生成人物，模拟20年的演化过程')
   do {
     if (game.organizations.length < organizationNumber) {
-      if (game.timestamp == organizationCreatedDate.last) {
+      if (game.timestamp >= organizationCreatedDate.last) {
         // 组织数量不够，在来到下一个组织创建时间时，创建组织
         engine.info('创建组织')
         organizationCreatedDate.removeLast()
@@ -534,7 +487,7 @@ fun createWorldMap({
             final character = game.characters[id]
             final age = datetime.toYear(game.timestamp - character.birthTimestamp)
             // 年龄至少是20岁，并且不能已经是其他组织的掌门
-            if (!character.isLeader && age >= 20) {
+            if (character.organizationRank == 0 && age >= 20) {
               found = true
               leader = character
               break
@@ -607,6 +560,8 @@ fun createWorldMap({
               }
             }
             final spouse = game.characters[char.relationships.spouseId]
+            if (spouse.thinkings.contains('dink')) continue
+            if (spouse.thinkings.contains('clumsy')) continue
             Baby(
               father: spouse,
               mother: char,
@@ -627,12 +582,16 @@ fun createWorldMap({
                 char.relationships.spouseId = otherId
                 otherChar.relationships.spouseId = id
                 var home
-                if (otherChar.isFemale) {
+                if (char.organizationRank > otherChar.organizationRank) {
                   home = game.locations[char.homeId]
-                  // removeCharacterHome(otherChar)
-                } else {
+                } else if (char.organizationRank < otherChar.organizationRank) {
                   home = game.locations[otherChar.homeId]
-                  // removeCharacterHome(char)
+                } else {
+                  if (otherChar.isFemale) {
+                    home = game.locations[char.homeId]
+                  } else {
+                    home = game.locations[otherChar.homeId]
+                  }
                 }
                 final incidentContent = getLocaleString('incidentMarriage', [
                     char.name,
@@ -702,5 +661,5 @@ fun createWorldMap({
 
   engine.info('世界生成完毕。')
 
-  return MapComponent.fromJson(data: game.world.toJson(), engine: engine)
+  return game.world.toJson()
 }

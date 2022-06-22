@@ -12,6 +12,7 @@
       "program": "lib/main.dart",
       "flutterMode": "debug",
       "deviceId": "windows",
+      // "preLaunchTask": "compileGameScript",
     },
     {
       "name": "Debug Android",
@@ -20,7 +21,8 @@
       "type": "dart",
       "program": "lib/main.dart",
       "flutterMode": "debug",
-      "deviceId": "M2012K10C"
+      "deviceId": "M2012K10C",
+      // "preLaunchTask": "compileGameScript",
     }
   ]
 }

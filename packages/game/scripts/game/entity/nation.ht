@@ -4,7 +4,8 @@ import '../generator/name/name.ht' as nameGenerator
 
 const _kNation = '国'
 
-const kEmperorTitle = 'emperor'
+const kEmperorTitle = 'empireLeaderTitle'
+const kEmperorRank = 99
 
 struct Nation {
   construct ({
@@ -102,4 +103,5 @@ fun setEmperor(nation, character) {
   nation.emperorId = character.id
   character.titles[kEmperorTitle] = getLocaleString('emperor')
   character.currentTitleId = kEmperorTitle
+  character.organizationRank = kEmperorRank
 }

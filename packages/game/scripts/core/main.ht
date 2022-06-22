@@ -15,13 +15,6 @@ final modinfo = {
   }
 }
 
-fun load {
-  tdqj.engine.info('载入 [${meta.id}]')
-  tdqj.loadBinding(modinfo)
-  tdqj.loadBindings(bindings)
-  tdqj.engine.info('[${meta.id}] 载入完毕')
-}
-
 fun init {
   tdqj.engine.info('初始化模组 ${meta.id}')
 
@@ -41,7 +34,10 @@ fun init {
 
   // addMazes(mazes)
 
-  load()
+  tdqj.engine.info('载入 [${meta.id}]')
+  tdqj.loadBinding(modinfo)
+  tdqj.loadBindings(bindings)
+  tdqj.engine.info('[${meta.id}] 载入完毕')
 
   tdqj.engine.info('模组: [${meta.id}] 初始化完毕...')
 }

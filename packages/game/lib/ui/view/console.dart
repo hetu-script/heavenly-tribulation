@@ -63,7 +63,7 @@ class _ConsoleState extends State<Console> {
             onSubmitted: (value) {
               setState(() {
                 try {
-                  final r = engine.hetu.eval(value);
+                  final r = engine.hetu.eval(value, globallyImport: true);
                   engine.info(engine.hetu.lexicon.stringify(r));
                 } catch (e) {
                   engine.error(e.toString());

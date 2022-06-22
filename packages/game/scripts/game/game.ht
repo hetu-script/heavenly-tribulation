@@ -24,58 +24,69 @@ var locales = {
 
 var dialogs = {}
 
-var game = {
-  timestamp: 0,
-  mods: {},
-  bindings: {},
-  
-  nations: {},
-  characters: {},
-  babies: {},
-  locations: {},
-  organizations: {},
-  mazes: {},
+var mods = {}
 
-  // 指玩家对某个其他角色进行过的动作，限定每个月一次
-  playerMonthly: {
-    talked: [],
-    gifted: [],
-    practiced: [],
-    consulted: [],
-    requested: [],
-    insulted: [],
-    stolen: [],
-    peeped: [],
-  },
+var bindings = {}
 
-  // 指某个NPC进行过的动作，限定每个月一次
-  characterMonthly: {
-    talked: [],
-    gifted: [],
-    practiced: [],
-    consulted: [],
-    requested: [],
-    insulted: [],
-    stolen: [],
-    peeped: [],
-  },
+var game = {}
 
-  // 指某个组织进行过的动作，限定每个月一次
-  organizationMonthly: {
-    recruited: [],
-  }
+var history = []
 
-  // 指某个组织进行过的动作，限定每个月一次
-  organizationYearly: {
+struct Game {
+  construct {
+    this.timestamp = 0
     
+    this.nations = {}
+    this.characters = {}
+    this.babies = {}
+    this.locations = {}
+    this.organizations = {}
+    this.mazes = {}
+
+    // 指玩家对某个其他角色进行过的动作，限定每个月一次
+    this.playerMonthly = {
+      talked: [],
+      gifted: [],
+      practiced: [],
+      consulted: [],
+      requested: [],
+      insulted: [],
+      stolen: [],
+      peeped: [],
+    }
+
+    // 指某个NPC进行过的动作，限定每个月一次
+    this.characterMonthly = {
+      talked: [],
+      gifted: [],
+      practiced: [],
+      consulted: [],
+      requested: [],
+      insulted: [],
+      stolen: [],
+      peeped: [],
+    }
+
+    // 指某个组织进行过的动作，限定每个月一次
+    this.organizationMonthly = {
+      recruited: [],
+    }
+
+    // 指某个组织进行过的动作，限定每个月一次
+    this.organizationYearly = {
+      
+    }
   }
+}
+
+fun resetGame {
+  game = Game()
+  history = []
 }
 
 fun getPlayerMonthlyActivities {
   return game.playerMonthly
 }
-
-var history = []
 
 var config = {
   debug: true,
@@ -95,10 +106,11 @@ fun getHistoryJsonData() {
 
 fun loadGameFromJsonData(worldData, historyData) {
   game = prototype.fromJson(worldData)
+  history = []
+  
   updateWorldMapZoneColors()
   updateWorldMapNationColors()
-
-  history = []
+  
   for (final data in historyData) {
     history.add(
       prototype.fromJson(data)

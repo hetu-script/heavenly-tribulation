@@ -51,6 +51,8 @@ final kOrganizationThinkings = {
 
 const kOrganizationThinkingsOnRecruit = 3
 
+const kLeaderRank = 80
+
 struct Organization {
   construct ({
     category,
@@ -134,7 +136,7 @@ fun setLeader(organization, character) {
   final titleId = '${organization.category}LeaderTitle'
   character.titles[titleId] = getLocaleString(titleId)
   character.currentTitleId = titleId
-  character.isLeader = true
+  character.organizationRank = 80
 }
 
 // 必须已经是门派据点, 并且尚未设置总堂，才可以设置总堂
