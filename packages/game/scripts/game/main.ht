@@ -14,7 +14,6 @@ export 'entity/talisman/weapon.ht'
 export 'world.ht'
 export 'map/maze.ht'
 export 'generator/name/name.ht'
-export 'binding.ht'
 export 'logic.ht'
 
 import 'predefined/predefined_dialogs.ht'
@@ -32,7 +31,7 @@ fun init({locale = 'zh', gameEngine: SamsaraEngine}) {
   engine.info('初始化游戏')
   
   addLocales(predefinedLocalizations)
-  engine.useLocale(locales[locale])
+  engine.updateLocale(locales[locale])
   setLocale(locale)
   
   addDialogs(predefinedDialogs)

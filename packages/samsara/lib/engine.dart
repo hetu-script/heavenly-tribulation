@@ -37,7 +37,7 @@ class SamsaraEngine with SceneController, EventAggregator {
 
   late final String? _mainModName;
 
-  void useLocale(HTStruct data) {
+  void updateLocale(HTStruct data) {
     locale.loadData(data);
   }
 
@@ -111,14 +111,6 @@ class SamsaraEngine with SceneController, EventAggregator {
       namedArgs: namedArgs,
     );
     if (!isMainMod && _mainModName != null) switchMod(_mainModName!);
-  }
-
-  void reloadMod(id) {
-    if (_mainModName == id) return;
-    info('重新载入模组 [$id]');
-    switchMod(id);
-    invoke('load');
-    if (_mainModName != null) switchMod(_mainModName!);
   }
 
   bool switchMod(String id) => hetu.interpreter.switchModule(id);

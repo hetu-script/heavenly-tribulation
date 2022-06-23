@@ -7,7 +7,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:samsara/samsara.dart';
-import 'package:samsara/event.dart';
+// import 'package:samsara/event.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../global.dart';
@@ -19,7 +19,8 @@ import '../binding/external_game_functions.dart';
 import '../scene/worldmap.dart';
 import '../scene/maze.dart';
 import 'create_game_dialog.dart';
-import '../event/events.dart';
+// import '../event/events.dart';
+import 'overlay/worldmap/worldmap.dart';
 
 class MainMenu extends StatefulWidget {
   const MainMenu({required super.key});
@@ -37,15 +38,6 @@ class _MainMenuState extends State<MainMenu> {
   void initState() {
     super.initState();
 
-    engine.registerListener(
-      CustomEvents.back2menu,
-      EventHandler(widget.key!, (GameEvent event) {
-        setState(() {
-          refreshSaves();
-        });
-      }),
-    );
-
     engine.registerSceneConstructor('worldmap', (
         [Map<String, dynamic>? args]) async {
       Map<String, dynamic> worldData;
@@ -60,7 +52,7 @@ class _MainMenuState extends State<MainMenu> {
         engine.info('从 [$path] 载入游戏存档。');
         engine.invoke('loadGameFromJsonData',
             positionalArgs: [gameData, historyData]);
-        engine.reloadMod('story');
+        engine.invoke('loadModsToGame');
         worldData = gameData['world'];
       } else {
         worldData = engine.invoke('createWorldMap', namedArgs: {
@@ -82,7 +74,8 @@ class _MainMenuState extends State<MainMenu> {
     savedFiles.addAll(await _getSavedFiles());
   }
 
-  Future<bool> initMod() async {
+  Future<bool> _prepareData() async {
+    await refreshSaves();
     if (engine.isLoaded) return false;
     await engine.init(externalFunctions: externalGameFunctions);
     if (kDebugMode) {
@@ -113,14 +106,13 @@ class _MainMenuState extends State<MainMenu> {
       );
     }
     engine.isLoaded = true;
-    await refreshSaves();
     return true;
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: initMod(),
+      future: _prepareData(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return LoadingScreen(
@@ -146,8 +138,15 @@ class _MainMenuState extends State<MainMenu> {
                     ).then(
                       (value) {
                         if (value != null) {
-                          Navigator.of(context)
-                              .pushNamed('worldmap', arguments: value);
+                          showDialog(
+                            context: context,
+                            builder: (context) => WorldMapOverlay(
+                              key: UniqueKey(),
+                              data: value,
+                            ),
+                          ).then((value) {
+                            setState(() {});
+                          });
                         }
                       },
                     );

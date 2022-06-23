@@ -74,6 +74,8 @@ class _GameDialogState extends State<GameDialog> {
       }
     }
 
+    final screenSize = MediaQuery.of(context).size;
+
     return GestureDetector(
       onTap: () {
         if (_finished) {
@@ -85,54 +87,51 @@ class _GameDialogState extends State<GameDialog> {
       child: Material(
         type: MaterialType.transparency,
         child: Stack(
+          alignment: AlignmentDirectional.bottomCenter,
           children: [
-            Expanded(
-              child: Container(
-                decoration: backgroundImage,
-              ),
+            Container(
+              width: screenSize.width,
+              height: screenSize.height,
+              decoration: backgroundImage,
             ),
-            Positioned(
-              bottom: 80,
-              child: Container(
-                width: 400,
-                height: 200,
-                decoration: BoxDecoration(
-                  color: kBackgroundColor,
-                  borderRadius: kBorderRadius,
-                  border: Border.all(color: kForegroundColor),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Row(
-                    children: [
-                      Avatar(
-                        avatarAssetKey: 'assets/images/$_currentAvatar',
-                        size: const Size(120.0, 120.0),
+            Container(
+              width: 750,
+              height: 160,
+              decoration: BoxDecoration(
+                color: kBackgroundColor,
+                borderRadius: kBorderRadius,
+                border: Border.all(color: kForegroundColor),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Row(
+                  children: [
+                    Avatar(
+                      avatarAssetKey: 'assets/images/$_currentAvatar',
+                      size: const Size(120.0, 120.0),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          StreamBuilder(
+                            stream: _textShowController.stream,
+                            builder: (context, AsyncSnapshot<String> snapshot) {
+                              return SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                physics: const BouncingScrollPhysics(),
+                                child: Text(
+                                  snapshot.data ?? '',
+                                  style: const TextStyle(fontSize: 18),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            StreamBuilder(
-                              stream: _textShowController.stream,
-                              builder:
-                                  (context, AsyncSnapshot<String> snapshot) {
-                                return SingleChildScrollView(
-                                  scrollDirection: Axis.vertical,
-                                  physics: const BouncingScrollPhysics(),
-                                  child: Text(
-                                    snapshot.data ?? '',
-                                    style: const TextStyle(fontSize: 18),
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),

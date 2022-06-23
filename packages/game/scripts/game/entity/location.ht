@@ -285,10 +285,10 @@ fun _handleGovernmentInteraction(site) {
       'appeal' -> {
         showSelectionDialog({
           applyOrganization: getLocaleString('applyOrganization'),
-          applySite: getLocaleString('applyOrganization'),
-          complaintSite: getLocaleString('applyOrganization'),
-          complaintCharacter: getLocaleString('applyOrganization'),
-          appealCharacter: getLocaleString('applyOrganization'),
+          applySite: getLocaleString('applySite'),
+          complaintSite: getLocaleString('complaintSite'),
+          complaintCharacter: getLocaleString('complaintCharacter'),
+          appealCharacter: getLocaleString('appealCharacter'),
           setHome: getLocaleString('setHome'),
           cancel: getLocaleString('cancel'),
         }).then((key) {

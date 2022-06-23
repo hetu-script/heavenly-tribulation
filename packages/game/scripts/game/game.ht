@@ -1,5 +1,5 @@
 external class SamsaraEngine {
-  fun useLocale(data: Map)
+  fun updateLocale(data: Map)
   fun updateZoneColors(data: Map)
   fun updateNationColors(data: Map)
   fun onIncident(data)
@@ -22,18 +22,27 @@ var locales = {
   en: {}
 }
 
+// 全部对话资源
 var dialogs = {}
 
-var bindings = {}
+// 全部 mod 列表
+var mods = {}
 
-var game = {}
+var config = {
+  debug: true,
+}
 
 var history = []
 
+var game = {}
+
 struct Game {
   construct {
+    // 加载到本次游戏的mod信息
+    this.mods = {}
+
     this.timestamp = 0
-    
+
     this.nations = {}
     this.characters = {}
     this.babies = {}
@@ -74,9 +83,6 @@ struct Game {
     this.organizationYearly = {
       
     }
-
-    // 已经加载的mod信息
-    this.mods = {}
   }
 }
 
@@ -87,10 +93,6 @@ fun resetGame {
 
 fun getPlayerMonthlyActivities {
   return game.playerMonthly
-}
-
-var config = {
-  debug: true,
 }
 
 fun getGameJsonData() {

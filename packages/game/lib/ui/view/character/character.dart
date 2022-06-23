@@ -145,7 +145,7 @@ class _CharacterViewState extends State<CharacterView>
 
     return ResponsiveRoute(
       alignment: AlignmentDirectional.topCenter,
-      size: Size(400.0, widget.showConfirmButton ? 425.0 : 400.0),
+      size: Size(400.0, widget.showConfirmButton ? 440.0 : 400.0),
       child: layout,
     );
   }

@@ -6,22 +6,15 @@ export 'data/sandbox_story/dialogs.ht'
 
 import 'mod.ht'
 
-fun getVersion {
-  return version
-}
 
-fun load {
-  game.engine.info('${modName}: 载入函数')
-  game.addModInfo(meta)
-  game.loadBinding(modinfo)
-  game.loadBindings(bindings)
-}
+final modName = '[${mod.name}(${mod.id}-${mod.version})]'
 
 fun init {
-  game.engine.info('${modName}: 初始化 ')
+  game.engine.info('${modName}: 初始化')
 
+  game.engine.info('${modName}: 载入模组使用的本地化字符串')
   game.addLocales(localizations)
-  game.engine.useLocale(game.locales[game.locales.currentLocaleId])
+  game.engine.updateLocale(game.locales[game.locales.currentLocaleId])
 
   // addCharacters(characters)
 
@@ -34,7 +27,7 @@ fun init {
 
   // addMazes(mazes)
 
-  load()
+  game.addMod(mod)
 
   game.engine.info('${modName}: 初始化完毕...')
 }

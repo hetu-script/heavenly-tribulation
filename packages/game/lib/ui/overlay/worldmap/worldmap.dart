@@ -21,12 +21,14 @@ import '../../../scene/worldmap.dart';
 import 'character_info.dart';
 import 'drop_menu.dart';
 import '../../view/console.dart';
-import '../../../event/events.dart';
+// import '../../../event/events.dart';
 import '../../view/location/location.dart';
 import '../../dialog/character_select_dialog.dart';
 
 class WorldMapOverlay extends StatefulWidget {
-  const WorldMapOverlay({required super.key});
+  const WorldMapOverlay({required super.key, this.data});
+
+  final Map<String, dynamic>? data;
 
   @override
   State<WorldMapOverlay> createState() => _WorldMapOverlayState();
@@ -73,24 +75,19 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
         Events.loadedMap,
         EventHandler(
           widget.key!,
-          (GameEvent event) {
-            if ((event as MapLoadedEvent).isNewGame) {
-              setState(() {
-                final charactersData = engine.invoke('getCharacters');
-                final characterIds = charactersData.keys;
-                CharacterSelectDialog.show(
-                  context: context,
-                  title: engine.locale['selectHero'],
-                  characterIds: characterIds,
-                  withCloseButton: false,
-                ).then((key) {
-                  setState(() {
-                    engine.invoke('setHeroId', positionalArgs: [key]);
-                    engine.invoke('onGameEvent', positionalArgs: ['onNewGame']);
-                  });
-                });
-              });
-            }
+          (GameEvent event) async {
+            if (!(event as MapLoadedEvent).isNewGame) return;
+            final charactersData = engine.invoke('getCharacters');
+            final characterIds = charactersData.keys;
+            final key = await CharacterSelectDialog.show(
+              context: context,
+              title: engine.locale['selectHero'],
+              characterIds: characterIds,
+              withCloseButton: false,
+            );
+            engine.invoke('setHeroId', positionalArgs: [key]);
+            engine.invoke('onGameEvent', positionalArgs: ['onNewGame']);
+            setState(() {});
           },
         ));
 
@@ -146,7 +143,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
     engine.invoke('build', positionalArgs: [context]);
     final screenSize = MediaQuery.of(context).size;
 
-    final args =
+    final args = widget.data ??
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
 
     return FutureBuilder(
@@ -179,7 +176,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
               right: 0,
               top: 0,
               child: DropMenu(
-                onSelected: (DropMenuItems item) {
+                onSelected: (DropMenuItems item) async {
                   switch (item) {
                     case DropMenuItems.info:
                       showDialog(
@@ -206,7 +203,6 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
                         engine.leaveScene('worldmap');
                         engine.invoke('resetGame');
                         Navigator.of(context).pop();
-                        engine.broadcast(const MenuEvent.back2menu());
                       });
                       break;
                     default:

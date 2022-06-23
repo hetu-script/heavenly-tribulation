@@ -3,16 +3,10 @@ import 'entity/character.ht'
 import 'l10n.ht'
 
 fun onGameEvent(id: str, [arg]) {
-  for (final binding of bindings) {
-    final handler = binding[id];
+  for (final mod of game.mods) {
+    final handler = mod[id];
     if(handler is function) {
-      if (binding.type == 'module') {
-        final modInfo = getModInfo(binding.id)
-        final func = handler.bind(modInfo)
-        func(arg)
-      } else {
-        handler(arg)
-      }
+      handler(arg)
     }
   }
 }
