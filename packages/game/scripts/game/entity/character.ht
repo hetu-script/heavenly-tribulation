@@ -133,31 +133,6 @@ struct Baby {
   }
 }
 
-fun handleBabies {
-  final bornIds = []
-  for (final baby of game.babies) {
-    if (game.timestamp - baby.conceptionTimestamp > baby.pregnancyTimestamp) {
-      final mother = game.characters[baby.motherId]
-      mother.isPregnant = false
-      final location = game.locations[mother.locationId]
-      final character = Character(
-        familyName: baby.familyName,
-        shorname: baby.shorname,
-        isFemale: baby.isFemale,
-        birthTimestamp: game.timestamp,
-        locationId: location.id,
-        newborn: true,
-        fatherId: baby.fatherId,
-        motherId: baby.motherId,
-      )
-      bornIds.add(baby.id)
-    }
-  }
-  for (final id in bornIds) {
-    delete game.babies[id]
-  }
-}
-
 struct Character {
   construct ({
     familyName,
@@ -363,6 +338,15 @@ fun getCharacterAge(character) {
 
 fun getCharacterAgeString(character) {
   return toAgeString(game.timestamp - character.birthTimestamp)
+}
+
+// 名声等于有多少个角色听说过你，是随着世界上的人数变化而动态变化的，取值：0 - 100
+fun getCharacterFame(character) {
+  return character.fame / game.characters.length * 100
+}
+
+fun getCharacterFameString(character) {
+  return (character.fame / game.characters.length * 100).toPercentageString(2)
 }
 
 fun createRandomBirthTimestamp([min = 1, max = kCharacterRandomAgeMax]) {
@@ -642,17 +626,17 @@ fun addCharacters(chars: List) {
   }
 }
 
-fun getCharacters() {
-  return game.characters
+fun getCharacters([ids]) {
+  if (ids == null) {
+    assert(ids.isNotEmpty)
+    return game.characters.values.where( (value) => value.id in ids )
+  } else {
+    return game.characters
+  }
 }
 
 fun getCharacterById(id: str) {
   return game.characters[id]
-}
-
-fun getCharacterByIds(ids) {
-  assert(ids.isNotEmpty)
-  return game.characters.values.where( (value) => value.id in ids )
 }
 
 fun haveMet(subject, target) {
@@ -665,6 +649,9 @@ fun haveMet(subject, target) {
 }
 
 fun handleCharacterTalk(subject, target) {
+  if (!haveMet(hero, character)) {
+    characterFirstMet(hero, character)
+  }
 
 }
 
@@ -694,18 +681,11 @@ fun handleCharacterInteraction(characterId) {
   if (characterId in! game.playerMonthly.stolen) {
     selections.steal = getLocaleString('steal')
   }
-  if (characterId in! game.playerMonthly.peeped) {
-    selections.peep = getLocaleString('peep')
-  }
   selections.sneekAttack = getLocaleString('sneekAttack')
   selections.leave = getLocaleString('leave')
-  showSelectionDialog(selections)
-  .then((key) {
+  showSelectionDialog(selections).then((key) {
     when (key) {
       'talk' -> {
-        if (!haveMet(hero, character)) {
-          characterFirstMet(hero, character)
-        }
         handleCharacterTalk(hero, character)
       }
       'gift' -> {
@@ -725,9 +705,6 @@ fun handleCharacterInteraction(characterId) {
         
       }
       'steal' -> {
-        
-      }
-      'peep' -> {
         
       }
       'sneekAttack' -> {

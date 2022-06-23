@@ -24,6 +24,8 @@
   "unchecked": "Ｘ",
   "continue": "继续",
   "select": "选择",
+  "inputValue": "输入一个数值",
+  "inputName": "输入一个名字",
   "selectHero": "选择你要扮演的角色",
 
   "zone": "地域",

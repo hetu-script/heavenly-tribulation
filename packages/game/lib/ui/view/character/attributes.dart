@@ -25,19 +25,22 @@ class CharacterAttributesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timestamp = engine.hetu.invoke('getTimestamp');
+    final timestamp = engine.invoke('getTimestamp');
     final age = timestamp - data['birthTimestamp'];
-    final ageString = engine.hetu.invoke('toAgeString', positionalArgs: [age]);
-    final birthday = engine.hetu.invoke('formatDateTimeString',
+    final ageString = engine.invoke('toAgeString', positionalArgs: [age]);
+    final fame =
+        engine.invoke('getCharacterFameString', positionalArgs: [data]);
+    final birthday = engine.invoke('formatDateTimeString',
         positionalArgs: [age], namedArgs: {'format': 'date.md'});
     final organizationId = data['organizationId'];
-    String organization = getNameFromEntityId(organizationId);
+    String organization = getNameFromId(organizationId);
     final title = engine.locale[data['currentTitleId']];
-    final home = getNameFromEntityId(data['homeId']);
+    final home = getNameFromId(data['homeId']);
+    final nation = getNameFromId(data['nationId']);
 
-    final father = getNameFromEntityId(data['relationships']['fatherId']);
-    final mother = getNameFromEntityId(data['relationships']['motherId']);
-    final spouse = getNameFromEntityId(data['relationships']['spouseId']);
+    final father = getNameFromId(data['relationships']['fatherId']);
+    final mother = getNameFromId(data['relationships']['motherId']);
+    final spouse = getNameFromId(data['relationships']['spouseId']);
     final siblings = getNamesFromEntityIds(data['relationships']['siblingIds'])
         .map((e) => Label(e));
     final childs = getNamesFromEntityIds(data['relationships']['childrenIds'])
@@ -96,8 +99,6 @@ class CharacterAttributesView extends StatelessWidget {
                 Container(
                   margin: const EdgeInsets.only(left: 10.0, right: 33.0),
                   child: Avatar(
-                    name: data['name'],
-                    size: const Size(80.0, 80.0),
                     avatarAssetKey: 'assets/images/${data['avatar']}',
                   ),
                 ),
@@ -107,6 +108,7 @@ class CharacterAttributesView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Text('${engine.locale['name']}: ${data['name']}'),
                       Text(
                           '${engine.locale['sex']}: ${data['isFemale'] ? engine.locale['female'] : engine.locale['male']}'),
                       Text('${engine.locale['age']}: $ageString'),
@@ -122,9 +124,10 @@ class CharacterAttributesView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('${engine.locale['money']}: ${data['money']}'),
-                      Text('${engine.locale['fame']}: ${data['fame']}'),
+                      Text('${engine.locale['fame']}: $fame'),
                       Text('${engine.locale['organization']}: $organization'),
                       Text('${engine.locale['title']}: $title'),
+                      Text('${engine.locale['nation']}: $nation'),
                     ],
                   ),
                 ),

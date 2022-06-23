@@ -6,6 +6,13 @@ import 'character/family.json' as family
 import 'character/female.json' as female
 import 'character/male.json' as male
 import 'character/middle.json' as middle
+import 'skill/skill.json' as skill
+import 'skill/extra.json' as skillExtra
+import 'skill/numfix.json' as skillNumfix
+import 'book/prefix.json' as bookPrefix
+import 'book/book.json' as book
+import 'book/postfix.json' as bookPostfix
+import 'spell/spell.json' as spell
 import 'talisman/talisman.json' as talisman
 import 'talisman/material.json' as talismanMaterial
 import 'talisman/postfix.json' as talismanPostfix
@@ -112,6 +119,92 @@ fun getCharacter(number: int, {isFemale, familyName, middleCharacter}) {
   return names
 }
 
+const _kNumberBeginSupplement = '路'
+const _kNumberEndSupplement = '式'
+
+const _kBookLeft = "《";
+const _kBookRight = "》";
+
+fun _getSkillName({length, category, kind}) {
+  var l = length ?? 1
+  var rarity = 'common'
+  if (!length) {
+    final r = getRarity()
+    if (r.value < kRarity.rare.probability) {
+      l = 3
+    } else if (r.value < kRarity.uncommon.probability) {
+      l = 2
+    }
+    rarity = r.rarity
+  }
+  var name = ''
+  for (var i in range(l)) {
+    name += common.random
+  }
+  var e = ''
+  var n = ''
+  final c = category ?? skill.keys.random
+  final k = kind ?? skill[c].random
+  if (Math.random() < kRarity.epic.probability) {
+    e = skillExtra.random
+  }
+  if (Math.random() < kRarity.epic.probability) {
+    n = skillNumfix.random
+  }
+  if (Math.random() < 0.5) {
+    name = (n != '' ? n + _kNumberBeginSupplement : '') + e + name + k
+  } else {
+    if (k.length > 1) {
+      name = e + name + k + (n != '' ? n + _kNumberEndSupplement : '')
+    } else {
+      name = e + name + n + k
+    }
+  }
+  return { name, category: c, rarity }
+}
+
+fun getSkill(number, {length, category, kind}) {
+  var names = [];
+  for (let i = 0; i < number; ++i) {
+    var name = _getSkillName(
+      length: length,
+      category: category,
+      kind: kind,
+    );
+    names.add(name);
+  }
+  return names;
+}
+
+fun getBook(number: int, {length, category, kind}) {
+  final names = []
+  for (var i in range(number)) {
+    final c = category ?? skill.keys.random
+    final skillname = _getSkillName(length: length, category: c, kind: kind)
+    var rarity = skillname.rarity
+    var pre = ''
+    var post = ''
+    if (skillname.rarity == 'exotic') {
+      pre = bookPrefix.exotic.random
+    } else if (skillname.rarity == 'mythic') {
+      pre = bookPrefix.mythic.random
+    } else if (skillname.rarity == 'legendary') {
+      pre = bookPrefix.legendary.random
+    } else if (skillname.rarity == 'epic') {
+      pre = bookPrefix.epic.random
+    }
+    if (pre) {
+      post = book.random
+    }
+    names.add({
+      name: _kBookLeft + skillname.name + pre + post + _kBookRight,
+      category: c,
+      rarity: rarity,
+    })
+  }
+  return names
+}
+
 fun getSpell(number: int) {
   final names = []
   for (var i in range(number)) {
@@ -160,10 +253,6 @@ fun getCreature(number: int, {category, rarity}) {
   return names
 }
 
-const _kAge1 = '百年'
-const _kAge10 = '千年'
-const _kAge100 = '万年'
-
 fun getMaterial(number: int, {category, kind, rarity}) {
   final names = []
   for (var i in range(number)) {
@@ -184,13 +273,10 @@ fun getMaterial(number: int, {category, kind, rarity}) {
     }
     final r = rarity ?? getRarity().rarity
     if (r == 'exotic') {
-      // age = _kAge100
       name = pre + cp + s + k
     } else if (r == 'mythic') {
-      // age = _kAge10
       name = pre + cp + s + k
     } else if (r == 'legendary') {
-      // age = _kAge1
       name = pre + s + k
     } else if (r == 'epic') {
       name = pre + s + k
@@ -201,17 +287,6 @@ fun getMaterial(number: int, {category, kind, rarity}) {
     } else if (r == 'common') {
       name = cp + k
     }
-    // if (!postfix) {
-    //   final r1 = Math.random()
-    //   final r2 = Math.random()
-    //   if (r1 < kRarity.rare.probability && r2 < kRarity.rare.probability) {
-    //     post = _kParenthesisLeft + materialPostfix.broken.random + _kParenthesisRight
-    //   } else if (r1 < kRarity.uncommon.probability && r2 < kRarity.uncommon.probability) {
-    //     post = _kParenthesisLeft + materialPostfix.handmade.random + _kParenthesisRight
-    //   }
-    // } else {
-    //   post = _kParenthesisLeft + post + _kParenthesisRight
-    // }
     names.add({ name, category: c, rarity: r })
   }
   return names

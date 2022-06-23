@@ -106,6 +106,10 @@ struct Location {
       // this.population = Math.randomInt(maxP - minP) + minP
     }
 
+    // 这个据点可以领的任务
+    // 可以在官府，或者在民居的告示栏领任务
+    this.missions = []
+
     // 当地居民的稳定度，0 ~ 100
     // this.stable = 100.0
   }
@@ -236,15 +240,7 @@ fun handleSiteInteraction(siteId: str, locationId: str) {
 // }
 
 fun _handlePalaceInteraction(site) {
-    showGameDialog({
-      contents: [
-        {
-          lines: [
-            getLocaleString('visit_palace_deny'),
-          ],
-        },
-      ]
-    })
+  showSimpleGameDialog(['visitPalaceDeny'])
 
   // final location = game.locations[site.locationId]
   // showSelectionDialog({
@@ -262,26 +258,22 @@ fun _handlePalaceInteraction(site) {
 
 fun _handleGovernmentInteraction(site) {
   final hero = game.characters[game.heroId]
+  final fame = getCharacterFame(hero)
   final location = game.locations[site.locationId]
   final selections = {
+    appeal: getLocaleString('appeal'),
     tribute: getLocaleString('tribute'),
     mission: getLocaleString('mission'),
-    appeal: getLocaleString('appeal'),
-    visitJail: getLocaleString('visitJail'),
     localExam: getLocaleString('localExam'),
-    leave: getLocaleString('leave'),
   }
   if (site.isCapital) {
-    selections[localExam] = getLocaleString('nationalExam')
+    selections[nationalExam] = getLocaleString('nationalExam')
   }
+  selections['visitJail'] = getLocaleString('visitJail')
+  selections['leave'] = getLocaleString('leave')
+  
   showSelectionDialog(selections).then((key) {
     when (key) {
-      'tribute' -> {
-
-      }
-      'mission' -> {
-
-      }
       'appeal' -> {
         showSelectionDialog({
           applyOrganization: getLocaleString('applyOrganization'),
@@ -317,30 +309,40 @@ fun _handleGovernmentInteraction(site) {
           }
         })
       }
-      'visitJail' -> {
-        if (location.jailedCharacterIds.isEmpty) {
-          showSimpleGameDialog(['visit_jail_empty'])
+      'tribute' -> {
+        // TODO: 进贡金钱或者宝物，之后可以选择是否发起请求
+      }
+      'mission' -> {
+        if (location.missions.isEmpty) {
+          showSimpleGameDialog(['missionsEmpty'])
         } else {
-          if (hero.items['${location.id}${kLocationJailVisitPermit}']) {
-            if (hero.fame > game.characters.length * kFameCheckThreshold) {
-              showSimpleGameDialog(['visit_jail_entry_respect'])
-            } else {
-              showSimpleGameDialog(['visit_jail_entry'])
-            }
-          } else {
-            if (hero.fame > game.characters.length * kFameCheckThreshold) {
-              showSimpleGameDialog(['visit_jail_deny_respect'])
-            } else {
-              showSimpleGameDialog(['visit_jail_deny'])
-            }
-          }
+          // TODO: 领取任务
         }
       }
       'localExam' -> {
-
+        showSimpleGameDialog(['localExamIntro'])
       }
       'nationalExam' -> {
-
+        showSimpleGameDialog(['nationalExamIntro'])
+      }
+      'visitJail' -> {
+        if (location.jailedCharacterIds.isEmpty) {
+          showSimpleGameDialog(['visitJailEmpty'])
+        } else {
+          if (hero.items['${location.id}${kLocationJailVisitPermit}']) {
+            if (hero.fame > fameCheckRespect) {
+              showSimpleGameDialog(['visitJailEntryRespect'])
+            } else {
+              showSimpleGameDialog(['visitJailEntry'])
+            }
+          } else if (fame > fameCheckPass) {
+            showSimpleGameDialog(['visitJailEntryFame'])
+          } else if (fame > fameCheckRespect) {
+            showSimpleGameDialog(['visitJailDenyRespect'])
+          } else {
+            showSimpleGameDialog(['visitJailDeny'])
+          }
+        }
       }
     }
   })
@@ -364,7 +366,7 @@ fun _handleResidenceInteraction(site) {
             }
           })
         } else {
-          showGameDialogById('visit_empty_village')
+          showGameDialogById('visitEmptyVillage')
         }
       }
     }
@@ -394,10 +396,11 @@ fun _handleOrganizationInteraction(site) {
         // 既然有总部，那就一定有可以拜访的成员
         final ids = location.residingOrganizedCharacterIds.toList()
         ids.remove(game.heroId)
-        showCharacterVisitDialog(ids)
-        .then((key) {
+        showCharacterVisitDialog(ids).then((key) {
           if (key != null) {
             handleCharacterInteraction(key)
+          } else {
+            _handleOrganizationInteraction(site)
           }
         })
       }

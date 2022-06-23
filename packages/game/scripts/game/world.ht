@@ -11,6 +11,7 @@ import 'entity/talisman/weapon.ht'
 import 'entity/constants.ht'
 import { hyperbola } from 'util.ht'
 import 'datetime.ht' as datetime
+import 'logic.ht'
 
 /// 生成世界地图的算法
 ///

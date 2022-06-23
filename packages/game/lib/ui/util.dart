@@ -1,6 +1,6 @@
 import '../global.dart';
 
-String getNameFromEntityId(String? id) {
+String getNameFromId(String? id) {
   if (id != null) {
     final l = id.split('_');
     return l.last;
@@ -11,7 +11,7 @@ String getNameFromEntityId(String? id) {
 
 Iterable<String> getNamesFromEntityIds(Iterable ids) {
   if (ids.isNotEmpty) {
-    return ids.map((id) => getNameFromEntityId(id));
+    return ids.map((id) => getNameFromId(id));
   } else {
     return [engine.locale['none']];
   }

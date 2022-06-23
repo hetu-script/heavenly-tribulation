@@ -1,4 +1,0 @@
-import '../generator/name/name.ht'
-
-
-print(getTalisman(10, category: 'weapon'))

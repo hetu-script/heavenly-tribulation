@@ -4,7 +4,7 @@ import '../../global.dart';
 import '../shared/responsive_route.dart';
 import '../util.dart';
 import '../shared/close_button.dart';
-import '../shared/game_entity_listview.dart';
+import '../game_entity_listview.dart';
 import '../view/character/character.dart';
 
 const kInformationViewCharacterColumns = [
@@ -21,7 +21,7 @@ class CharacterSelectDialog extends StatelessWidget {
     required BuildContext context,
     required String title,
     required Iterable<String> characterIds,
-    required bool withCloseButton,
+    required bool showCloseButton,
   }) async {
     return await showDialog<dynamic>(
       context: context,
@@ -30,7 +30,7 @@ class CharacterSelectDialog extends StatelessWidget {
         return CharacterSelectDialog(
           title: title,
           characterIds: characterIds,
-          withCloseButton: withCloseButton,
+          showCloseButton: showCloseButton,
         );
       },
     );
@@ -40,19 +40,19 @@ class CharacterSelectDialog extends StatelessWidget {
     super.key,
     required this.title,
     required this.characterIds,
-    this.withCloseButton = true,
+    this.showCloseButton = true,
   });
 
   final String title;
 
   final Iterable<String> characterIds;
 
-  final bool withCloseButton;
+  final bool showCloseButton;
 
   @override
   Widget build(BuildContext context) {
     final Iterable chars =
-        engine.invoke('getCharacterByIds', positionalArgs: [characterIds]);
+        engine.invoke('getCharacters', positionalArgs: [characterIds]);
 
     final List<List<String>> data = [];
     for (final char in chars) {
@@ -63,9 +63,9 @@ class CharacterSelectDialog extends StatelessWidget {
       // 年龄
       row.add(age);
       // 当前所在地点
-      row.add(getNameFromEntityId(char['locationId']));
+      row.add(getNameFromId(char['locationId']));
       // 门派名字
-      row.add(getNameFromEntityId(char['organizationId']));
+      row.add(getNameFromId(char['organizationId']));
       // 名声
       row.add(char['fame'].toString());
       // 多存一个隐藏的 id 信息，用于点击事件
@@ -79,7 +79,7 @@ class CharacterSelectDialog extends StatelessWidget {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(title),
-          actions: [if (withCloseButton) const ButtonClose()],
+          actions: [if (showCloseButton) const ButtonClose()],
         ),
         body: GameEntityListView(
           columns: kInformationViewCharacterColumns,

@@ -83,7 +83,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
               context: context,
               title: engine.locale['selectHero'],
               characterIds: characterIds,
-              withCloseButton: false,
+              showCloseButton: false,
             );
             engine.invoke('setHeroId', positionalArgs: [key]);
             engine.invoke('onGameEvent', positionalArgs: ['onNewGame']);

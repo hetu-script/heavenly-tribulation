@@ -41,7 +41,7 @@ class _LocationViewState extends State<LocationView>
     String? nationId = data['nationId'];
     String nation = '';
     if (nationId != null) {
-      nation = '${getNameFromEntityId(nationId)} - ';
+      nation = '${getNameFromId(nationId)} - ';
     }
 
     final HTStruct sitesData = data['sites'];

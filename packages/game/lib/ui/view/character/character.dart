@@ -101,52 +101,49 @@ class _CharacterViewState extends State<CharacterView>
   Widget build(BuildContext context) {
     final charId = widget.characterId ??
         ModalRoute.of(context)!.settings.arguments as String;
-    final data =
-        engine.hetu.invoke('getCharacterById', positionalArgs: [charId]);
-
-    final layout = DefaultTabController(
-      length: _tabs.length,
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: Text('${data['name']} - $_title'),
-          actions: const [ButtonClose()],
-          bottom: TabBar(
-            controller: _tabController,
-            tabs: _tabs,
-          ),
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  CharacterAttributesView(data: data),
-                  CharacterBondsView(data: data['bonds']),
-                  CharacterMemory(data: data['memory']),
-                ],
-              ),
-            ),
-            if (widget.showConfirmButton)
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(charId);
-                  },
-                  child: Text(engine.locale['confirm']),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
+    final data = engine.invoke('getCharacterById', positionalArgs: [charId]);
 
     return ResponsiveRoute(
       alignment: AlignmentDirectional.topCenter,
-      size: Size(400.0, widget.showConfirmButton ? 440.0 : 400.0),
-      child: layout,
+      size: Size(400.0, widget.showConfirmButton ? 460.0 : 420.0),
+      child: DefaultTabController(
+        length: _tabs.length,
+        child: Scaffold(
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            title: Text('${data['name']} - $_title'),
+            actions: const [ButtonClose()],
+            bottom: TabBar(
+              controller: _tabController,
+              tabs: _tabs,
+            ),
+          ),
+          body: Column(
+            children: [
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    CharacterAttributesView(data: data),
+                    CharacterBondsView(data: data['bonds']),
+                    CharacterMemory(data: data['memory']),
+                  ],
+                ),
+              ),
+              if (widget.showConfirmButton)
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(charId);
+                    },
+                    child: Text(engine.locale['confirm']),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

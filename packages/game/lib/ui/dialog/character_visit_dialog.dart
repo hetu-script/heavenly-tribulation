@@ -14,8 +14,7 @@ const kCharacterVisitTableColumns = [
   'consult',
   'request',
   'insult',
-  'steal',
-  'peep'
+  'steal'
 ];
 
 class CharacterVisitDialog extends StatelessWidget {
@@ -117,12 +116,7 @@ class CharacterVisitDialog extends StatelessWidget {
                   Text(activitiesData['stolen'].contains(id)
                       ? engine.locale['checked']
                       : engine.locale['unchecked']),
-                ),
-                DataCell(
-                  Text(activitiesData['peeped'].contains(id)
-                      ? engine.locale['checked']
-                      : engine.locale['unchecked']),
-                ),
+                )
               ]);
         }).toList(),
       ),

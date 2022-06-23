@@ -94,7 +94,7 @@ flutter:
     - scripts/game/generator/name/material/
     - scripts/game/generator/name/organization/
     - scripts/game/generator/name/place/
-    - scripts/game/generator/name/scroll/
+    - scripts/game/generator/name/spell/
     - scripts/game/generator/name/shared/
     - scripts/game/generator/name/skill/
     - scripts/game/generator/name/talisman/

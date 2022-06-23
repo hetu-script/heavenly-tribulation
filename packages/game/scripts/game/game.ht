@@ -59,7 +59,6 @@ struct Game {
       requested: [],
       insulted: [],
       stolen: [],
-      peeped: [],
     }
 
     // 指某个NPC进行过的动作，限定每个月一次
@@ -71,7 +70,6 @@ struct Game {
       requested: [],
       insulted: [],
       stolen: [],
-      peeped: [],
     }
 
     // 指某个组织进行过的动作，限定每个月一次

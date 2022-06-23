@@ -1,6 +1,7 @@
 import 'game.ht'
 import 'entity/character.ht'
 import 'l10n.ht'
+import 'entity/character.ht'
 
 fun onGameEvent(id: str, [arg]) {
   for (final mod of game.mods) {
@@ -18,4 +19,29 @@ fun newGame {
 fun nextTick {
   onGameEvent('onUpdate')
   ++game.timestamp
+}
+
+fun handleBabies {
+  final bornIds = []
+  for (final baby of game.babies) {
+    if (game.timestamp - baby.conceptionTimestamp > baby.pregnancyTimestamp) {
+      final mother = game.characters[baby.motherId]
+      mother.isPregnant = false
+      final location = game.locations[mother.locationId]
+      final character = Character(
+        familyName: baby.familyName,
+        shorname: baby.shorname,
+        isFemale: baby.isFemale,
+        birthTimestamp: game.timestamp,
+        locationId: location.id,
+        newborn: true,
+        fatherId: baby.fatherId,
+        motherId: baby.motherId,
+      )
+      bornIds.add(baby.id)
+    }
+  }
+  for (final id in bornIds) {
+    delete game.babies[id]
+  }
 }

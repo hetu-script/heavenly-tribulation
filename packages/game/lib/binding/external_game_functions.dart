@@ -1,6 +1,6 @@
 import 'package:hetu_script/hetu_script.dart';
 
-import '../ui/dialog/game_dialog/game_dialog.dart';
+import '../ui/dialog/game_dialog.dart';
 import '../ui/dialog/selection_dialog.dart';
 import '../ui/view/duel/duel.dart';
 import '../ui/dialog/character_visit_dialog.dart';
@@ -27,7 +27,7 @@ final Map<String, Function> externalGameFunctions = {
       context: positionalArgs[0],
       title: positionalArgs[1],
       characterIds: positionalArgs[2],
-      withCloseButton: positionalArgs[3],
+      showCloseButton: positionalArgs[3],
     );
   },
   r'_showCharacterVisitDialog': (HTEntity object,

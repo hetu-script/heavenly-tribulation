@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../shared/avatar.dart';
-import '../../../global.dart';
+import '../shared/avatar.dart';
+import '../../global.dart';
 
 class GameDialog extends StatefulWidget {
   static Future<void> show(

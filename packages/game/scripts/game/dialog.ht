@@ -50,8 +50,8 @@ fun showSelectionDialog(selections) -> Future {
 
 external fun _showCharacterSelectDialog(context, title, idList, notNull)
 
-fun showCharacterSelectDialog({title, ids, withCloseButton = false}) -> Future {
-  return _showCharacterSelectDialog(buildContext, title, ids, withCloseButton)
+fun showCharacterSelectDialog({title, ids, showCloseButton = false}) -> Future {
+  return _showCharacterSelectDialog(buildContext, title, ids, showCloseButton)
 }
 
 external fun _showCharacterVisitDialog(context, idList)
