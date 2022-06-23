@@ -15,7 +15,7 @@
     {
       "label": "compileModScript",
       "type": "shell",
-      "command": "hetu compile packages/game/scripts/core/main.ht -o packages/game/assets/mod.mod",
+      "command": "hetu compile packages/game/scripts/story/main.ht -o packages/game/assets/story.mod",
       "group": "build",
       "presentation": {
         "reveal": "always",

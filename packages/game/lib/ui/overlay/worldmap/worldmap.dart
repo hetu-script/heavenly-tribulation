@@ -7,7 +7,7 @@ import 'package:path_provider/path_provider.dart' as path;
 import 'package:path/path.dart' as path;
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
-import 'package:flame_audio/flame_audio.dart';
+// import 'package:flame_audio/flame_audio.dart';
 import 'package:hetu_script/values.dart';
 
 import 'popup.dart';
@@ -22,6 +22,8 @@ import 'character_info.dart';
 import 'drop_menu.dart';
 import '../../view/console.dart';
 import '../../../event/events.dart';
+import '../../view/location/location.dart';
+import '../../dialog/character_select_dialog.dart';
 
 class WorldMapOverlay extends StatefulWidget {
   const WorldMapOverlay({required super.key});
@@ -73,21 +75,50 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
           widget.key!,
           (GameEvent event) {
             if ((event as MapLoadedEvent).isNewGame) {
-              engine.invoke('onGameEvent', positionalArgs: ['onNewGame']);
+              setState(() {
+                final charactersData = engine.invoke('getCharacters');
+                final characterIds = charactersData.keys;
+                CharacterSelectDialog.show(
+                  context: context,
+                  title: engine.locale['selectHero'],
+                  characterIds: characterIds,
+                  withCloseButton: false,
+                ).then((key) {
+                  setState(() {
+                    engine.invoke('setHeroId', positionalArgs: [key]);
+                    engine.invoke('onGameEvent', positionalArgs: ['onNewGame']);
+                  });
+                });
+              });
             }
           },
         ));
 
     engine.registerListener(
-        Events.heroMoved,
-        EventHandler(
-          widget.key!,
-          (GameEvent event) {
-            setState(() {
-              engine.invoke('nextTick');
-            });
-          },
-        ));
+      Events.heroMoved,
+      EventHandler(
+        widget.key!,
+        (GameEvent event) {
+          setState(() {
+            if (event.scene == 'worldmap') engine.invoke('nextTick');
+          });
+        },
+      ),
+    );
+
+    engine.registerListener(
+      Events.enteredLocation,
+      EventHandler(widget.key!, (event) {
+        final locationId = (event as LocationEvent).locationId;
+        showDialog(
+          context: context,
+          barrierColor: Colors.transparent,
+          builder: (context) => LocationView(
+            locationId: locationId,
+          ),
+        );
+      }),
+    );
 
     // FlameAudio.bgm.play('music/chinese-oriental-tune-06-12062.mp3');
   }
@@ -171,11 +202,11 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
                       ).then((value) => setState(() {}));
                       break;
                     case DropMenuItems.exit:
-                      engine.leaveScene('worldmap');
                       _saveGame().then((value) {
+                        engine.leaveScene('worldmap');
                         engine.invoke('resetGame');
-                        engine.broadcast(const MenuEvent.back2menu());
                         Navigator.of(context).pop();
+                        engine.broadcast(const MenuEvent.back2menu());
                       });
                       break;
                     default:
@@ -199,11 +230,11 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
               List<int>? route;
               var isHeroPosition = false;
               if (terrain.tilePosition != hero!.tilePosition) {
-                final start = engine.hetu.interpreter.invoke('getTerrain',
+                final start = engine.invoke('getTerrain',
                     positionalArgs: [hero.left, hero.top]);
                 final end = engine.invoke('getTerrain',
                     positionalArgs: [terrain.left, terrain.top]);
-                List? calculatedRoute = engine.hetu.interpreter
+                List? calculatedRoute = engine
                     .invoke('calculateRoute', positionalArgs: [start, end]);
                 if (calculatedRoute != null) {
                   route = List<int>.from(calculatedRoute);
@@ -228,20 +259,18 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
 
               stringBuffer.writeln('坐标: ${terrain.left}, ${terrain.top}');
 
-              final zoneData = engine.hetu.interpreter.invoke('getZoneByIndex',
+              final zoneData = engine.invoke('getZoneByIndex',
                   positionalArgs: [terrain.zoneIndex]);
               stringBuffer.writeln('${zoneData['name']}');
 
               if (terrain.nationId != null) {
-                final nationData = engine.hetu.interpreter.invoke(
-                    'getNationById',
+                final nationData = engine.invoke('getNationById',
                     positionalArgs: [terrain.nationId]);
                 stringBuffer.writeln('${nationData['name']}');
               }
 
               if (terrain.locationId != null) {
-                final locationData = engine.hetu.interpreter.invoke(
-                    'getLocationById',
+                final locationData = engine.invoke('getLocationById',
                     positionalArgs: [terrain.locationId]);
                 stringBuffer.writeln('${locationData['name']}');
               }

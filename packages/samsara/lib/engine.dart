@@ -8,7 +8,7 @@ import 'package:hetu_script_flutter/hetu_script_flutter.dart';
 
 import 'binding/scene/component/game_map_binding.dart';
 import 'binding/game_binding.dart';
-import 'scene/scene.dart';
+// import 'scene/scene.dart';
 import '../event/event.dart';
 import '../event/events.dart';
 import 'localization.dart';
@@ -37,7 +37,7 @@ class SamsaraEngine with SceneController, EventAggregator {
 
   late final String? _mainModName;
 
-  void updateLocales(HTStruct data) {
+  void useLocale(HTStruct data) {
     locale.loadData(data);
   }
 
@@ -114,8 +114,10 @@ class SamsaraEngine with SceneController, EventAggregator {
   }
 
   void reloadMod(id) {
+    if (_mainModName == id) return;
+    info('重新载入模组 [$id]');
     switchMod(id);
-    invoke('bind');
+    invoke('load');
     if (_mainModName != null) switchMod(_mainModName!);
   }
 
@@ -175,18 +177,18 @@ class SamsaraEngine with SceneController, EventAggregator {
     // hetu.interpreter.bindExternalFunction('print', info, override: true);
   }
 
-  @override
-  Future<Scene> createScene(String key, [Map<String, dynamic>? args]) async {
-    final scene = await super.createScene(key, args);
-    broadcast(SceneEvent.created(sceneKey: key));
-    return scene;
-  }
+  // @override
+  // Future<Scene> createScene(String key, [Map<String, dynamic>? args]) async {
+  //   final scene = await super.createScene(key, args);
+  //   broadcast(SceneEvent.created(sceneKey: key));
+  //   return scene;
+  // }
 
-  @override
-  void leaveScene(String key) {
-    super.leaveScene(key);
-    broadcast(SceneEvent.ended(sceneKey: key));
-  }
+  // @override
+  // void leaveScene(String key) {
+  //   super.leaveScene(key);
+  //   broadcast(SceneEvent.ended(sceneKey: key));
+  // }
 
   List<String> getLog() => _loggerOutput.log;
 

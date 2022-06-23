@@ -26,8 +26,7 @@ class _MyViewState extends State<MyView> {
   Future<void> _updateData() async {
     engine.invoke('nextTick');
 
-    final data = engine.hetu.interpreter
-        .invoke('getCharacterById', positionalArgs: ['current']);
+    final data = engine.invoke('getHero');
 
     setState(() {
       final String? name = data['name'];

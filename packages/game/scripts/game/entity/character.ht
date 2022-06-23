@@ -25,6 +25,8 @@ const kCharacterMarriageAgeMax = 40
 
 const kMajorMotivationProbobility = 0.2
 
+const kTitleNone = 'none'
+
 final kMajorMotivations = [
   'duty',
   'pleasure',
@@ -208,9 +210,11 @@ struct Character {
     this.nationId = location.nationId
 
     // 该角色的称号
-    this.titles = {}
+    this.titles = {
+      kTitleNone: 'none'
+    }
     // titles中直接保存了称号字符串
-    this.currentTitleId = null
+    this.currentTitleId = kTitleNone
     this.organizationRank = 0
  
     // 名声，指有多少人知道此人的名字
@@ -222,12 +226,17 @@ struct Character {
     // 身上携带的金钱数量
     this.money = 0
 
+    // 身上的普通物品，id相同的可以堆叠
+    this.items = {}
+
+    // 技能，id是唯一的，属性随机生成
     this.skills = {
       inventory: [],
       equipments: {},
     }
 
-    this.items = {
+    // 宝物，id是唯一的，属性随机生成
+    this.talisman = {
       inventory: [],
       equipments: {},
     }
@@ -342,6 +351,10 @@ struct Character {
       setCharacterHome(this, location)
     }
   }
+}
+
+fun setCharacterTitle(character, titleId) {
+  character.currentTitleId = titleId
 }
 
 fun getCharacterAge(character) {
@@ -629,12 +642,17 @@ fun addCharacters(chars: List) {
   }
 }
 
+fun getCharacters() {
+  return game.characters
+}
+
 fun getCharacterById(id: str) {
   return game.characters[id]
 }
 
-fun getCharacters() {
-  return game.characters
+fun getCharacterByIds(ids) {
+  assert(ids.isNotEmpty)
+  return game.characters.values.where( (value) => value.id in ids )
 }
 
 fun haveMet(subject, target) {

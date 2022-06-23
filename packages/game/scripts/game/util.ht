@@ -1,3 +1,5 @@
+import 'l10n.ht'
+
 fun getChance2Hit(accuracy, evasion) {
   final uncapped = accuracy * 1.15 / (accuracy + Math.pow(evasion * 0.2, 0.9))
   return Math.min(Math.max(uncapped, 0.05), 1)

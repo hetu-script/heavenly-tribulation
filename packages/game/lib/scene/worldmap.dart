@@ -8,8 +8,8 @@ class WorldMapScene extends Scene {
 
   Map<String, dynamic> jsonData;
 
-  WorldMapScene({required this.jsonData, required SceneController controller})
-      : super(key: 'worldmap', controller: controller);
+  WorldMapScene({required this.jsonData, required super.controller})
+      : super(key: 'worldmap');
 
   bool isMapReady = false;
 

@@ -27,8 +27,10 @@ class TileMapCloud extends PositionComponent with HasGameRef<Scene> {
     double? opacity,
     double? velocity,
     Vector2? position,
-    Vector2? scale,
-  }) : super(position: position, scale: scale) {
+    super.scale,
+  }) :
+        // 因为这里position为Null时需要自己赋值，因此没有直接在参数中用super
+        super(position: position) {
     final random = math.Random();
     if (sprite != null) {
       sprite = sprite;

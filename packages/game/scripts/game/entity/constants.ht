@@ -1,3 +1,5 @@
+const kFameCheckThreshold = 0.75
+
 final kResources = [
   {
     id: 'gold',

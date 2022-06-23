@@ -99,7 +99,6 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
                                           setState(() {
                                             widget.list.removeWhere(
                                                 (element) => element == info);
-
                                             if (widget.list.isEmpty) {
                                               Navigator.of(context).pop();
                                             }

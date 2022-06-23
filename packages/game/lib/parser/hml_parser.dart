@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const _kEndOfStyledTextMark = '</>';
+// const _kEndOfStyledTextMark = '</>';
 
 const _kSupportedTags = <String>{
   'bold',
@@ -13,7 +13,7 @@ class HMLParser {
     final iter = content.characters.iterator;
     final textBuffer = StringBuffer();
     var isTagStarted = false;
-    final currentStyle = {};
+    // final currentStyle = {};
     String currentTag;
     while (iter.moveNext()) {
       final currentCharacter = iter.current;

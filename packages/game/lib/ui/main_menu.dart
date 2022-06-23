@@ -18,7 +18,6 @@ import 'load_game_dialog.dart';
 import '../binding/external_game_functions.dart';
 import '../scene/worldmap.dart';
 import '../scene/maze.dart';
-import 'view/location/location.dart';
 import 'create_game_dialog.dart';
 import '../event/events.dart';
 
@@ -32,22 +31,20 @@ class MainMenu extends StatefulWidget {
 class _MainMenuState extends State<MainMenu> {
   GameLocalization get locale => engine.locale;
 
-  String? locationId;
-
   final savedFiles = <SaveInfo>[];
-
-  void showLocation(String locationId) => showDialog(
-      context: context,
-      barrierColor: Colors.transparent,
-      builder: (context) {
-        return LocationView(
-          locationId: locationId,
-        );
-      });
 
   @override
   void initState() {
     super.initState();
+
+    engine.registerListener(
+      CustomEvents.back2menu,
+      EventHandler(widget.key!, (GameEvent event) {
+        setState(() {
+          refreshSaves();
+        });
+      }),
+    );
 
     engine.registerSceneConstructor('worldmap', (
         [Map<String, dynamic>? args]) async {
@@ -60,8 +57,10 @@ class _MainMenuState extends State<MainMenu> {
         final historySavePath = File('${path}2');
         final historyDataString = historySavePath.readAsStringSync();
         final historyData = jsonDecode(historyDataString);
+        engine.info('从 [$path] 载入游戏存档。');
         engine.invoke('loadGameFromJsonData',
             positionalArgs: [gameData, historyData]);
+        engine.reloadMod('story');
         worldData = gameData['world'];
       } else {
         worldData = engine.invoke('createWorldMap', namedArgs: {
@@ -76,61 +75,6 @@ class _MainMenuState extends State<MainMenu> {
         [Map<String, dynamic>? arg]) async {
       return MazeScene(controller: engine);
     });
-
-    engine.registerListener(
-        CustomEvents.back2menu,
-        EventHandler(widget.key!, (GameEvent event) {
-          refreshSaves();
-        }));
-
-    // engine.registerListener(
-    //   Events.loadingScene,
-    //   EventHandler(widget.key!, (event) {
-    //     setState(() {
-    //       _isLoading = true;
-    //     });
-    //   }),
-    // );
-
-    // engine.registerListener(
-    //   Events.createdScene,
-    //   EventHandler(widget.key!, (event) {
-    //     setState(() {
-    //       GlobalConfig.isLoading = false;
-    //     });
-    //   }),
-    // );
-
-    engine.registerListener(
-      Events.endedScene,
-      EventHandler(widget.key!, (event) {
-        setState(() {});
-      }),
-    );
-
-    engine.registerListener(
-      Events.enteredLocation,
-      EventHandler(widget.key!, (event) {
-        final locationId = (event as LocationEvent).locationId;
-        showLocation(locationId);
-        // Navigator.of(context).pushNamed(
-        //   'location',
-        //   arguments: (event as LocationEvent).locationId,
-        // );
-        // setState(() {
-        //   // locationId = (event as LocationEvent).locationId;
-        // });
-      }),
-    );
-
-    engine.registerListener(
-      Events.leftLocation,
-      EventHandler(widget.key!, (event) {
-        // setState(() {
-        //   // locationId = null;
-        // });
-      }),
-    );
   }
 
   Future<void> refreshSaves() async {
@@ -149,8 +93,8 @@ class _MainMenuState extends State<MainMenu> {
         isMainMod: true,
       );
       engine.loadModFromAssets(
-        'core/main.ht',
-        moduleName: 'mod',
+        'story/main.ht',
+        moduleName: 'story',
       );
     } else {
       final game = await rootBundle.load('assets/game.mod');
@@ -161,11 +105,11 @@ class _MainMenuState extends State<MainMenu> {
         namedArgs: {'lang': 'zh', 'gameEngine': engine},
         isMainMod: true,
       );
-      final mod = await rootBundle.load('assets/mod.mod');
+      final mod = await rootBundle.load('assets/story.mod');
       final modBytes = mod.buffer.asUint8List();
       engine.loadModFromBytes(
         modBytes,
-        moduleName: 'mod',
+        moduleName: 'story',
       );
     }
     engine.isLoaded = true;

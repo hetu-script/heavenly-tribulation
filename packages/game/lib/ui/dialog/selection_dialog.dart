@@ -11,11 +11,11 @@ class SelectionDialog extends StatefulWidget {
     assert(selections.isNotEmpty);
     return await showDialog<dynamic>(
       context: context,
+      barrierColor: kBarrierColor,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return SelectionDialog(selections: selections);
       },
-      barrierColor: kBarrierColor,
-      barrierDismissible: false,
     );
   }
 

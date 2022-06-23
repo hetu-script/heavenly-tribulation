@@ -7,11 +7,12 @@ import '../../../global.dart';
 import 'site_card.dart';
 import '../../shared/close_button.dart';
 import '../../shared/responsive_route.dart';
+import '../../util.dart';
 
 class LocationView extends StatefulWidget {
   final String? locationId;
 
-  LocationView({Key? key, this.locationId}) : super(key: key ?? UniqueKey());
+  const LocationView({super.key, this.locationId});
 
   @override
   State<LocationView> createState() => _LocationViewState();
@@ -29,16 +30,19 @@ class _LocationViewState extends State<LocationView>
     final locationId = widget.locationId ??
         ModalRoute.of(context)!.settings.arguments as String;
 
-    final data = engine.hetu.interpreter
-        .invoke('getLocationById', positionalArgs: [locationId]);
+    final data = engine.invoke('getLocationById', positionalArgs: [locationId]);
 
     String? locationName = data['name'];
     if (locationName == null) {
       final String nameId = data['nameId'];
       locationName = engine.locale[nameId];
     }
-    // final locationImagePath = data['image'];
-    // _leadershipName = widget.locationData['leadershipName'];
+
+    String? nationId = data['nationId'];
+    String nation = '';
+    if (nationId != null) {
+      nation = '${getNameFromEntityId(nationId)} - ';
+    }
 
     final HTStruct sitesData = data['sites'];
 
@@ -118,7 +122,7 @@ class _LocationViewState extends State<LocationView>
     final layout = Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text(locationName),
+        title: Text('$nation$locationName'),
         actions: const [ButtonClose()],
       ),
       body: ListView(

@@ -5,8 +5,7 @@ import '../global.dart';
 class MazeScene extends Scene {
   late final TileMap map;
 
-  MazeScene({required SceneController controller})
-      : super(key: 'Maze', controller: controller);
+  MazeScene({required super.controller}) : super(key: 'Maze');
 
   @override
   Future<void> onLoad() async {

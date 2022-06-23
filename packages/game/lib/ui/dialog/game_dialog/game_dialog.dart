@@ -92,11 +92,10 @@ class _GameDialogState extends State<GameDialog> {
               ),
             ),
             Positioned(
-              left: 20,
-              right: 20,
-              bottom: 20,
+              bottom: 80,
               child: Container(
-                height: 240,
+                width: 400,
+                height: 200,
                 decoration: BoxDecoration(
                   color: kBackgroundColor,
                   borderRadius: kBorderRadius,
@@ -108,7 +107,7 @@ class _GameDialogState extends State<GameDialog> {
                     children: [
                       Avatar(
                         avatarAssetKey: 'assets/images/$_currentAvatar',
-                        size: const Size(200.0, 200.0),
+                        size: const Size(120.0, 120.0),
                       ),
                       Padding(
                         padding: const EdgeInsets.only(left: 20.0),
@@ -124,7 +123,7 @@ class _GameDialogState extends State<GameDialog> {
                                   physics: const BouncingScrollPhysics(),
                                   child: Text(
                                     snapshot.data ?? '',
-                                    style: const TextStyle(fontSize: 24),
+                                    style: const TextStyle(fontSize: 18),
                                   ),
                                 );
                               },
@@ -148,7 +147,7 @@ class _GameDialogState extends State<GameDialog> {
       _finished = false;
       _letterCount = 0;
       _currentContent = _data['contents'][_currentContentIndex];
-      _currentAvatar = _currentContent!['avatar'];
+      _currentAvatar = _currentContent!['avatar'] ?? 'avatar/general.png';
       _currentSay = _currentContent!['lines'][_currentSayIndex];
       _timer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
         _letterCount++;

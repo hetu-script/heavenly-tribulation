@@ -1,5 +1,6 @@
-import '../game.ht'
-import 'character.ht'
+import 'game.ht'
+import 'entity/character.ht'
+import 'l10n.ht'
 
 fun addDialog(dlg) {
   dialogs[dlg.id] = dlg
@@ -25,6 +26,17 @@ fun addDialogs(dlgs: List) {
 
 external fun _showGameDialog(context, data)
 
+fun showSimpleGameDialog(lines) -> Future {
+  final data = { contents: [ {
+    lines: lines.map( (line) => getLocaleString(line) ).toList()
+  } ] }
+  return _showGameDialog(buildContext, data)
+}
+
+fun showGameDialog(data) -> Future {
+  return _showGameDialog(buildContext, data)
+}
+
 fun showGameDialogById(id: str) -> Future {
   final dlg = dialogs[id]
   return _showGameDialog(buildContext, dlg)
@@ -36,8 +48,14 @@ fun showSelectionDialog(selections) -> Future {
   return _showSelectionDialog(buildContext, selections)
 }
 
-external fun _showCharacterSelectionDialog(context, idList)
+external fun _showCharacterSelectDialog(context, title, idList, notNull)
 
-fun showCharacterSelectionDialog(idList) -> Future {
-  return _showCharacterSelectionDialog(buildContext, idList)
+fun showCharacterSelectDialog({title, ids, withCloseButton = false}) -> Future {
+  return _showCharacterSelectDialog(buildContext, title, ids, withCloseButton)
+}
+
+external fun _showCharacterVisitDialog(context, idList)
+
+fun showCharacterVisitDialog(idList) -> Future {
+  return _showCharacterVisitDialog(buildContext, idList)
 }

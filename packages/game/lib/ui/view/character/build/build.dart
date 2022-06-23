@@ -34,7 +34,7 @@ class _BuildViewState extends State<BuildView>
             padding: EdgeInsets.symmetric(horizontal: 8.0),
             child: Icon(Icons.inventory),
           ),
-          Text(engine.locale['items']),
+          Text(engine.locale['talisman']),
         ],
       ),
     ),
@@ -84,8 +84,7 @@ class _BuildViewState extends State<BuildView>
     final charId = widget.characterId ??
         ModalRoute.of(context)!.settings.arguments as String;
 
-    final data = engine.hetu.interpreter
-        .invoke('getCharacterById', positionalArgs: [charId]);
+    final data = engine.invoke('getCharacterById', positionalArgs: [charId]);
 
     final layout = Scaffold(
       appBar: AppBar(

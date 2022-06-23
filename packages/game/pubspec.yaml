@@ -82,14 +82,9 @@ flutter:
     - assets/images/maze/
     - assets/images/weather/
 
-    - scripts/core/
-    - scripts/core/binding/
-    - scripts/core/data/
-    - scripts/core/data/sandbox_story/
-    - scripts/core/l10n/
     - scripts/game/
     - scripts/game/entity/
-    - scripts/game/entity/item/
+    - scripts/game/entity/talisman/
     - scripts/game/generator/attributes/
     - scripts/game/generator/attributes/data/
     - scripts/game/generator/name/
@@ -108,6 +103,12 @@ flutter:
     - scripts/game/l10n/zh/
     - scripts/game/predefined/
     - scripts/game/map/
+
+    - scripts/story/
+    - scripts/story/binding/
+    - scripts/story/data/
+    - scripts/story/data/sandbox_story/
+    - scripts/story/l10n/
 
   fonts:
     - family: NotoSansMono

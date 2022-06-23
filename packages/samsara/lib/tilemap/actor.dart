@@ -23,7 +23,9 @@ class TileMapActor extends GameComponent with TileInfo {
 
   final String characterId;
 
-  bool get isHero => characterId == 'current';
+  final bool isHero;
+
+  final String sceneKey;
 
   final SpriteAnimation characterSouth,
       characterNorthEast,
@@ -49,52 +51,23 @@ class TileMapActor extends GameComponent with TileInfo {
 
   final SamsaraEngine engine;
 
-  void stop() {
-    _isMoving = false;
-    _movingOffset = Vector2.zero();
-    _movingTargetWorldPosition = Vector2.zero();
-    _velocity = Vector2.zero();
-    tilePosition = _movingTargetTilePosition;
-    _movingTargetTilePosition = const TilePosition.zero();
-    engine.broadcast(const MapInteractionEvent.heroMoved());
-  }
-
-  void moveTo(TilePosition target) {
-    assert(tilePosition != target);
-    _movingTargetTilePosition = target;
-    _isMoving = true;
-    _movingOffset = Vector2.zero();
-    _movingTargetWorldPosition =
-        tilePosition2TileCenterInWorld(target.left, target.top);
-    direction = direction2Hexagonal(directionTo(target));
-
-    // 计算地图上的斜方向实际距离
-    final sx = _movingTargetWorldPosition.x - worldPosition.x;
-    final sy = _movingTargetWorldPosition.y - worldPosition.y;
-    final dx = sx.abs();
-    final dy = sy.abs();
-    final d = math.sqrt(dx * dx + dy * dy);
-    final t = d / velocityFactor;
-    final tx = dx / t;
-    final ty = dy / t;
-    _velocity = Vector2(tx * sx.sign, ty * sy.sign);
-  }
-
-  TileMapActor(
-      {required this.engine,
-      required this.characterId,
-      required TileShape shape,
-      required double gridWidth,
-      required double gridHeight,
-      required int left,
-      required int top,
-      required int tileMapWidth,
-      required double srcWidth,
-      required double srcHeight,
-      required SpriteSheet characterAnimationSpriteSheet,
-      required SpriteSheet shipAnimationSpriteSheet,
-      this.velocityFactor = 0.5})
-      : characterSouth = characterAnimationSpriteSheet.createAnimation(
+  TileMapActor({
+    required this.engine,
+    required this.sceneKey,
+    required this.characterId,
+    required TileShape shape,
+    required double gridWidth,
+    required double gridHeight,
+    required int left,
+    required int top,
+    required int tileMapWidth,
+    required double srcWidth,
+    required double srcHeight,
+    required SpriteSheet characterAnimationSpriteSheet,
+    required SpriteSheet shipAnimationSpriteSheet,
+    this.velocityFactor = 0.5,
+    this.isHero = false,
+  })  : characterSouth = characterAnimationSpriteSheet.createAnimation(
             row: 0, stepTime: 0.2),
         characterNorthEast = characterAnimationSpriteSheet.createAnimation(
             row: 1, stepTime: 0.2),
@@ -125,6 +98,39 @@ class TileMapActor extends GameComponent with TileInfo {
     this.srcWidth = srcWidth;
     this.srcHeight = srcHeight;
     tilePosition = TilePosition(left, top);
+  }
+
+  void stop() {
+    _isMoving = false;
+    _movingOffset = Vector2.zero();
+    _movingTargetWorldPosition = Vector2.zero();
+    _velocity = Vector2.zero();
+    tilePosition = _movingTargetTilePosition;
+    _movingTargetTilePosition = const TilePosition.zero();
+    if (isHero) {
+      engine.broadcast(MapInteractionEvent.heroMoved(scene: sceneKey));
+    }
+  }
+
+  void moveTo(TilePosition target) {
+    assert(tilePosition != target);
+    _movingTargetTilePosition = target;
+    _isMoving = true;
+    _movingOffset = Vector2.zero();
+    _movingTargetWorldPosition =
+        tilePosition2TileCenterInWorld(target.left, target.top);
+    direction = direction2Hexagonal(directionTo(target));
+
+    // 计算地图上的斜方向实际距离
+    final sx = _movingTargetWorldPosition.x - worldPosition.x;
+    final sy = _movingTargetWorldPosition.y - worldPosition.y;
+    final dx = sx.abs();
+    final dy = sy.abs();
+    final d = math.sqrt(dx * dx + dy * dy);
+    final t = d / velocityFactor;
+    final tx = dx / t;
+    final ty = dy / t;
+    _velocity = Vector2(tx * sx.sign, ty * sy.sign);
   }
 
   SpriteAnimation get currentAnimation {

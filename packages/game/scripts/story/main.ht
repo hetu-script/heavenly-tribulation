@@ -1,0 +1,40 @@
+import 'module:game' as game
+
+export 'l10n/localizations.ht'
+export 'binding/bindings.ht'
+export 'data/sandbox_story/dialogs.ht'
+
+import 'mod.ht'
+
+fun getVersion {
+  return version
+}
+
+fun load {
+  game.engine.info('${modName}: 载入函数')
+  game.addModInfo(meta)
+  game.loadBinding(modinfo)
+  game.loadBindings(bindings)
+}
+
+fun init {
+  game.engine.info('${modName}: 初始化 ')
+
+  game.addLocales(localizations)
+  game.engine.useLocale(game.locales[game.locales.currentLocaleId])
+
+  // addCharacters(characters)
+
+  // addDialogs(dialogs) // must be after added characters
+
+  // addLocations(locations)
+  // setCurrentLocation('baiheguan')
+
+  // addOrganizations(organizations)
+
+  // addMazes(mazes)
+
+  load()
+
+  game.engine.info('${modName}: 初始化完毕...')
+}

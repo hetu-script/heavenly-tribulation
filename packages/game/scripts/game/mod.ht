@@ -1,7 +1,7 @@
 import 'game.ht'
 
 fun addModInfo(data) {
-  engine.info('载入模组 [${data.id}]')
+  engine.info('载入模组 [${data.name}]')
   game.mods[data.id] = data
 }
 

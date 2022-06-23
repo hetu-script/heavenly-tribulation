@@ -79,7 +79,10 @@ fun addTerrainToNation(nation, terrain) {
       final oldNation = game.nations[location.nationId]
       oldNation.locationIds.remove(location.id)
     } else {
-      Site(category: kSiteGovernment, location: location)
+      final gov = Site(category: kSiteGovernment, location: location)
+      if (nation.capitalId == location.id) {
+        gov.isCapital = true
+      }
     }
     location.nationId = nation.id
     assert(!nation.locationIds.contains(location.id))

@@ -1,4 +1,4 @@
-import '../entity/item/weapon.ht'
+import '../entity/talisman/weapon.ht'
 
 for (final i in range(3)) {
   final i = Weapon()

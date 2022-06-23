@@ -57,7 +57,7 @@ void main() async {
       home: MainMenu(key: UniqueKey()),
       routes: {
         'worldmap': (context) => WorldMapOverlay(key: UniqueKey()),
-        'location': (context) => LocationView(),
+        'location': (context) => const LocationView(),
         'information': (context) => const InformationPanel(),
         'character': (context) => const CharacterView(),
         'editor': (context) => const GameEditor(),

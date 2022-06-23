@@ -1,5 +1,6 @@
 import 'game.ht'
 import 'entity/character.ht'
+import 'l10n.ht'
 
 fun onGameEvent(id: str, [arg]) {
   for (final binding of bindings) {
@@ -14,6 +15,10 @@ fun onGameEvent(id: str, [arg]) {
       }
     }
   }
+}
+
+fun newGame {
+  
 }
 
 fun nextTick {

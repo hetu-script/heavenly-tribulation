@@ -7,7 +7,7 @@ import 'l10n.ht'
 import 'map/hexagonal_tile.ht'
 import 'map/component.ht'
 import 'map.ht'
-import 'entity/item/weapon.ht'
+import 'entity/talisman/weapon.ht'
 import 'entity/constants.ht'
 import { hyperbola } from 'util.ht'
 import 'datetime.ht' as datetime
@@ -131,6 +131,8 @@ fun createWorldMap({
   game.height = height
 
   game.world = {
+    isNewGame: true,
+    scene: 'worldmap',
     terrainSpriteSheet,
     tapSelect: true,
     tileShape,
@@ -459,8 +461,8 @@ fun createWorldMap({
   organizationCreatedDate = organizationCreatedDate.reversed.toList()
 
   // 模拟世界演化，按照时间推进并生成人物、组织，并且为期分配人物关系
-  // 在此种演化算法中，组织并不会被消灭，因此只判断人数是否达到要求
-  engine.info('生成人物，模拟20年的演化过程')
+  // 在此种演化算法中，人物不会死亡，组织不会被消灭，因此只判断人数是否达到要求
+  engine.info('生成人物，快速模拟一段时间的演化')
   do {
     if (game.organizations.length < organizationNumber) {
       if (game.timestamp >= organizationCreatedDate.last) {
@@ -655,12 +657,11 @@ fun createWorldMap({
   // }
   // engine.info('让一开始的几个掌门先互相认识')
 
-  final hero = game.characters.values.random
+  // final hero = game.characters.values.random
 
-  setHeroId(hero.id)
+  // setHeroId(hero.id)
 
   engine.info('世界生成完毕。')
 
-  game.world.isNewGame = true
   return game.world.toJson()
 }

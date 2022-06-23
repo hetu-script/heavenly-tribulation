@@ -12,11 +12,14 @@ class CharacterView extends StatefulWidget {
     super.key,
     this.characterId,
     this.tabIndex = 0,
+    this.showConfirmButton = false,
   });
 
   final String? characterId;
 
   final int tabIndex;
+
+  final bool showConfirmButton;
 
   @override
   State<CharacterView> createState() => _CharacterViewState();
@@ -109,14 +112,32 @@ class _CharacterViewState extends State<CharacterView>
           title: Text('${data['name']} - $_title'),
           actions: const [ButtonClose()],
           bottom: TabBar(
+            controller: _tabController,
             tabs: _tabs,
           ),
         ),
-        body: TabBarView(
+        body: Column(
           children: [
-            CharacterAttributesView(data: data),
-            CharacterBondsView(data: data['bonds']),
-            CharacterMemory(data: data['memory']),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  CharacterAttributesView(data: data),
+                  CharacterBondsView(data: data['bonds']),
+                  CharacterMemory(data: data['memory']),
+                ],
+              ),
+            ),
+            if (widget.showConfirmButton)
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(charId);
+                  },
+                  child: Text(engine.locale['confirm']),
+                ),
+              ),
           ],
         ),
       ),
@@ -124,7 +145,7 @@ class _CharacterViewState extends State<CharacterView>
 
     return ResponsiveRoute(
       alignment: AlignmentDirectional.topCenter,
-      size: const Size(400.0, 400.0),
+      size: Size(400.0, widget.showConfirmButton ? 425.0 : 400.0),
       child: layout,
     );
   }

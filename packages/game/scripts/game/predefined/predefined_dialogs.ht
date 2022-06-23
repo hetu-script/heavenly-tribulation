@@ -3,43 +3,18 @@ final predefinedDialogs = [
     id: 'visit_empty_village',
     contents: [
       {
-        avatar: 'avatar/general.png',
         lineIds: [
-          'visit_empty_village_01',
+          'visit_empty_village',
         ],
       },
     ],
   },
   {
-    id: 'visit_palace_deny_entry',
+    id: 'visit_palace_deny',
     contents: [
       {
-        avatar: 'avatar/general.png',
         lineIds: [
-          'visit_palace_deny_entry_01',
-        ],
-      },
-    ],
-  },
-  {
-    id: 'headquartersTrain001',
-    contents: [
-      {
-        avatar: 'avatar/general.png',
-        // background: 'cg/intro01.jpg',
-        lineIds: [
-          'headquartersTrain001-1',
-        ],
-      },
-    ],
-  },
-  {
-    id: 'headquartersLearn001',
-    contents: [
-      {
-        avatar: 'avatar/general.png',
-        lineIds: [
-          'headquartersLearn001-1',
+          'visit_palace_deny',
         ],
       },
     ],

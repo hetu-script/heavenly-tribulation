@@ -7,6 +7,7 @@ import '../../../global.dart';
 import '../../shared/avatar.dart';
 import '../../shared/constants.dart';
 import '../shared/label.dart';
+import '../../util.dart';
 
 extension DoubleFixed on double {
   double toDoubleAsFixed([int n = 2]) {
@@ -30,55 +31,17 @@ class CharacterAttributesView extends StatelessWidget {
     final birthday = engine.hetu.invoke('formatDateTimeString',
         positionalArgs: [age], namedArgs: {'format': 'date.md'});
     final organizationId = data['organizationId'];
-    String organization;
-    if (organizationId != null) {
-      final organizationData = engine.hetu
-          .invoke('getOrganizationById', positionalArgs: [organizationId]);
-      organization = organizationData['name'];
-    } else {
-      organization = engine.locale['none'];
-    }
+    String organization = getNameFromEntityId(organizationId);
+    final title = engine.locale[data['currentTitleId']];
+    final home = getNameFromEntityId(data['homeId']);
 
-    final title = data['currentTitleId'] != null
-        ? engine.locale[data['currentTitleId']]
-        : engine.locale['none'];
-
-    final homeData =
-        engine.hetu.invoke('getLocationById', positionalArgs: [data['homeId']]);
-    final home = homeData['name'];
-
-    final fatherData = engine.hetu.invoke('getCharacterById',
-        positionalArgs: [data['relationships']['fatherId']]);
-    final father =
-        fatherData != null ? fatherData['name'] : engine.locale['unknown'];
-    final motherData = engine.hetu.invoke('getCharacterById',
-        positionalArgs: [data['relationships']['motherId']]);
-    final mother =
-        motherData != null ? motherData['name'] : engine.locale['unknown'];
-    final spouseData = engine.hetu.invoke('getCharacterById',
-        positionalArgs: [data['relationships']['spouseId']]);
-    final spouse =
-        spouseData != null ? spouseData['name'] : engine.locale['none'];
-    final siblingNames = <String>[];
-    final siblingIds = data['relationships']['siblingIds'];
-    for (final id in siblingIds) {
-      final sibData =
-          engine.hetu.invoke('getCharacterById', positionalArgs: [id]);
-      siblingNames.add(sibData['name']);
-    }
-    final siblings = siblingNames.isNotEmpty
-        ? siblingNames.map((e) => Label(e)).toList()
-        : [Text(engine.locale['none'])];
-    final childrenNames = <String>[];
-    final childrenIds = data['relationships']['childrenIds'];
-    for (final id in childrenIds) {
-      final childData =
-          engine.hetu.invoke('getCharacterById', positionalArgs: [id]);
-      childrenNames.add(childData['name']);
-    }
-    final childs = childrenNames.isNotEmpty
-        ? childrenNames.map((e) => Label(e)).toList()
-        : [Text(engine.locale['none'])];
+    final father = getNameFromEntityId(data['relationships']['fatherId']);
+    final mother = getNameFromEntityId(data['relationships']['motherId']);
+    final spouse = getNameFromEntityId(data['relationships']['spouseId']);
+    final siblings = getNamesFromEntityIds(data['relationships']['siblingIds'])
+        .map((e) => Label(e));
+    final childs = getNamesFromEntityIds(data['relationships']['childrenIds'])
+        .map((e) => Label(e));
 
     final attributes = data['attributes'];
     final int strength = attributes['strength'];

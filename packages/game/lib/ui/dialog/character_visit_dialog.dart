@@ -5,7 +5,7 @@ import '../../global.dart';
 import '../shared/empty_placeholder.dart';
 import '../shared/responsive_route.dart';
 
-const kCharacterSelectionTableColumns = [
+const kCharacterVisitTableColumns = [
   'name',
   'haveMet',
   'talk',
@@ -18,24 +18,26 @@ const kCharacterSelectionTableColumns = [
   'peep'
 ];
 
-class CharacterSelectionDialog extends StatelessWidget {
-  static Future<dynamic> show(
-    BuildContext context,
-    Iterable<dynamic> characterIds,
-  ) async {
+class CharacterVisitDialog extends StatelessWidget {
+  static Future<dynamic> show({
+    required BuildContext context,
+    required Iterable<dynamic> characterIds,
+  }) async {
     assert(characterIds.isNotEmpty);
     return await showDialog<dynamic>(
       context: context,
-      builder: (BuildContext context) {
-        return CharacterSelectionDialog(characterIds: characterIds);
-      },
       barrierDismissible: false,
+      builder: (BuildContext context) {
+        return CharacterVisitDialog(
+          characterIds: characterIds,
+        );
+      },
     );
   }
 
   final Iterable<dynamic> characterIds;
 
-  const CharacterSelectionDialog({
+  const CharacterVisitDialog({
     super.key,
     required this.characterIds,
   });
@@ -48,14 +50,14 @@ class CharacterSelectionDialog extends StatelessWidget {
     final layout = Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Text(engine.locale['characterSelection']),
+        title: Text(engine.locale['visit']),
         actions: const [CloseButton()],
       ),
       body: DataTable2(
         minWidth: 760,
         scrollController: ScrollController(),
         empty: EmptyPlaceholder(engine.locale['empty']),
-        columns: kCharacterSelectionTableColumns
+        columns: kCharacterVisitTableColumns
             .map((title) => DataColumn(
                   label: TextButton(
                     onPressed: () {},
@@ -64,10 +66,10 @@ class CharacterSelectionDialog extends StatelessWidget {
                 ))
             .toList(),
         rows: characterIds.map((id) {
-          final character = engine.hetu.interpreter
-              .invoke('getCharacterById', positionalArgs: [id]);
-          final haveMet = engine.hetu.interpreter
-              .invoke('haveMet', positionalArgs: [hero, character]);
+          final character =
+              engine.invoke('getCharacterById', positionalArgs: [id]);
+          final haveMet =
+              engine.invoke('haveMet', positionalArgs: [hero, character]);
           return DataRow2(
               onTap: () {
                 Navigator.pop(context, id);

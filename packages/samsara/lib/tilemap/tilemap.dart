@@ -51,6 +51,7 @@ class TileMap extends GameComponent with HandlesGesture {
   Camera get camera => gameRef.camera;
 
   final SamsaraEngine engine;
+  final String sceneKey;
 
   final TileShape tileShape;
   final int heroX, heroY;
@@ -87,6 +88,7 @@ class TileMap extends GameComponent with HandlesGesture {
 
   TileMap({
     required this.engine,
+    required this.sceneKey,
     required this.tileShape,
     this.tapSelect = false,
     required this.heroX,
@@ -113,6 +115,7 @@ class TileMap extends GameComponent with HandlesGesture {
   static Future<TileMap> fromJson(
       {required SamsaraEngine engine,
       required Map<String, dynamic> data}) async {
+    final sceneKey = data['scene'];
     final tileShapeData = data['tileShape'];
     var tileShape = TileShape.orthogonal;
     if (tileShapeData == 'isometric') {
@@ -306,7 +309,9 @@ class TileMap extends GameComponent with HandlesGesture {
     );
 
     final hero = TileMapActor(
+      isHero: true,
       engine: engine,
+      sceneKey: sceneKey,
       shape: tileShape,
       gridWidth: gridWidth,
       gridHeight: gridHeight,
@@ -322,6 +327,7 @@ class TileMap extends GameComponent with HandlesGesture {
 
     return TileMap(
       engine: engine,
+      sceneKey: sceneKey,
       tileShape: tileShape,
       tapSelect: tapSelect,
       heroX: heroX,

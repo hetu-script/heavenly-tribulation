@@ -5,5 +5,6 @@ abstract class CustomEvents extends Events {
 }
 
 class MenuEvent extends GameEvent {
-  const MenuEvent.back2menu() : super(CustomEvents.back2menu);
+  const MenuEvent.back2menu({super.scene})
+      : super(name: CustomEvents.back2menu);
 }

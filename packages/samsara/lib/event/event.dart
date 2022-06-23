@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 class GameEvent {
   final String name;
+  final String? scene;
 
-  const GameEvent(this.name);
+  const GameEvent({required this.name, this.scene});
 }
 
 class EventHandler {
