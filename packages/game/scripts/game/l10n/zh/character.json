@@ -18,10 +18,11 @@
   "money": "金钱",
   "birthPlace": "出生地",
   "currentLocation": "位置",
-  "fame": "名声",
+  "fame": "知名度",
   "infamy": "恶名",
   "looks": "容貌",
   "favoredLooks": "容貌偏好",
+  "reputation": "名望",
 
   "stats": "状态",
   "maxLife": "最大生命",

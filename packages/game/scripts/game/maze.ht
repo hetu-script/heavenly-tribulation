@@ -1,0 +1,64 @@
+import 'tile/hexagonal_tile.ht'
+import 'game.ht'
+
+/// 生成Roguelike副本的算法
+
+const _kSpriteLand = 3
+const _kSpriteForest = 5
+const _kSpriteMountain = 6
+
+fun createMaze ({
+  id,
+  terrainSpriteSheet: str,
+  tileShape = 'hexagonalVertical',
+  levelNumber = 1,
+  gridWidth = 32.0,
+  gridHeight = 28.0,
+  tileSpriteSrcWidth = 32.0,
+  tileSpriteSrcHeight = 48.0,
+  tileOffsetX = 0.0,
+  tileOffsetY = 2.0,
+}) {
+  
+  engine.info('开始生成副本: ${id}')
+
+  final maze = []
+  for (final levelIndex in range(levelNumber)) {
+    final [ width, height ] = [ 6, 7 ]
+    final currentLevel = {
+      scene: 'maze - ${id} - ${levelIndex}',
+      terrainSpriteSheet,
+      tileShape,
+      width,
+      height,
+      gridWidth,
+      gridHeight,
+      tileSpriteSrcWidth,
+      tileSpriteSrcHeight,
+      tileOffsetX,
+      tileOffsetY,
+      terrains: [],
+      heroX: 1,
+      heroY: 1,
+    }
+    
+    engine.info('生成地块')
+    for (var j in range(height)) {
+      for (var i in range(width)) {
+        currentLevel.terrains.add(
+          {
+            ...Tile(i + 1, j + 1),
+            index: tilePos2Index(i + 1, j + 1, width),
+            spriteIndex: _kSpriteLand,
+            overlaySprite: {},
+          }
+        )
+      }
+    }
+
+    maze.add(currentLevel)
+  }
+  
+  engine.info('副本 ${id} 生成完毕')
+  return maze.toJson();
+}

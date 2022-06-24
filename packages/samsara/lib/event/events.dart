@@ -11,6 +11,7 @@ abstract class Events {
   static const loadingScene = 'loading_scene';
   static const endedScene = 'ended_scene';
   static const loadedMap = 'loaded_map';
+  static const loadedMaze = 'loaded_maze';
   static const tappedMap = 'tapped_tile';
   static const checkTerrain = 'checkTerrain';
   static const enteredLocation = 'entered_location';
@@ -61,6 +62,10 @@ class MapInteractionEvent extends GameEvent {
         actor = null,
         globalPosition = null,
         super(name: Events.heroMoved);
+}
+
+class MazeLoadedEvent extends GameEvent {
+  const MazeLoadedEvent() : super(name: Events.loadedMaze);
 }
 
 class LocationEvent extends GameEvent {

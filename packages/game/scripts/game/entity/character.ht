@@ -186,14 +186,14 @@ struct Character {
 
     // 该角色的称号
     this.titles = {
-      kTitleNone: 'none'
+      'none': kTitleNone,
     }
     // titles中直接保存了称号字符串
     this.currentTitleId = kTitleNone
     this.organizationRank = 0
  
-    // 名声，指有多少人知道此人的名字
-    this.fame = 0
+    // 有多少人知道此人的名字
+    this.knownByPopulation = 0
 
     // // 恶名，知道名字中，对此人差评的人的数量
     // this.infamy = 0
@@ -280,11 +280,18 @@ struct Character {
       // heard: [],
     }
 
-    // 该角色对世界上的其他事物的喜好程度
+    // 该角色和世界上其他事物的交互历史
+    // 反过来，这些其他的事物，也保存了一份对应这个人的历史
+    // 例如一个据点保存的这个人所做过事情的历史，决定了此人在此地的声望
+    // 这个声望会影响到和官府的交互。
     this.bonds = {
+      // 代表对另一个角色的记忆
       characters: {},
+      // 代表对某个组织的记忆
       organizations: {},
+      // 代表对某个据点的记忆
       locations: {},
+      // 代表对某个国家的记忆
       nations: {},
     }
 
@@ -332,6 +339,20 @@ fun setCharacterTitle(character, titleId) {
   character.currentTitleId = titleId
 }
 
+// 如果没有称号，会返回空字符串
+fun getCharacterTitle(character) {
+  if (character.currentTitleId != kTitleNone) {
+    return character.titles[character.currentTitleId]
+  } else {
+    return ''
+  }
+}
+
+// 如果没有称号，会返回“无”
+fun getCharacterTitleString(character) {
+  return character.titles[character.currentTitleId]
+}
+
 fun getCharacterAge(character) {
   return (game.timestamp - character.birthTimestamp) ~/ kTicksPerYear
 }
@@ -342,11 +363,11 @@ fun getCharacterAgeString(character) {
 
 // 名声等于有多少个角色听说过你，是随着世界上的人数变化而动态变化的，取值：0 - 100
 fun getCharacterFame(character) {
-  return character.fame / game.characters.length * 100
+  return character.knownByPopulation / game.characters.length * 100
 }
 
 fun getCharacterFameString(character) {
-  return (character.fame / game.characters.length * 100).toPercentageString(2)
+  return (character.knownByPopulation / game.characters.length).toPercentageString(2)
 }
 
 fun createRandomBirthTimestamp([min = 1, max = kCharacterRandomAgeMax]) {
@@ -484,7 +505,7 @@ fun _characterFirstMet(subject, target) {
   bond.haveMet = true
 
   if (!hasBond) {
-    ++target.fame
+    ++target.knownByPopulation
     subject.bonds.characters[target.id] = bond
   }
 }
@@ -538,7 +559,7 @@ fun characterKnownIncident(character, incident, { witnessed }) {
     } else {
       // 名声增加
       final subject = game.characters[id]
-      ++subject.fame
+      ++subject.knownByPopulation
       final bond = Bond(id: id, name: subject.name)
       bond.memory[incident.index] = score
       bond.score += score
@@ -627,7 +648,7 @@ fun addCharacters(chars: List) {
 }
 
 fun getCharacters([ids]) {
-  if (ids == null) {
+  if (ids != null) {
     assert(ids.isNotEmpty)
     return game.characters.values.where( (value) => value.id in ids )
   } else {
@@ -683,7 +704,7 @@ fun handleCharacterInteraction(characterId) {
   }
   selections.sneekAttack = getLocaleString('sneekAttack')
   selections.leave = getLocaleString('leave')
-  showSelectionDialog(selections).then((key) {
+  showSelection(selections).then((key) {
     when (key) {
       'talk' -> {
         handleCharacterTalk(hero, character)

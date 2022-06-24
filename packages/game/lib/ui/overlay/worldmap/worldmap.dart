@@ -18,7 +18,7 @@ import 'history_panel.dart';
 import '../../shared/loading_screen.dart';
 import '../../../global.dart';
 import '../../../scene/worldmap.dart';
-import 'character_info.dart';
+import '../character_info.dart';
 import 'drop_menu.dart';
 import '../../view/console.dart';
 // import '../../../event/events.dart';
@@ -26,9 +26,9 @@ import '../../view/location/location.dart';
 import '../../dialog/character_select_dialog.dart';
 
 class WorldMapOverlay extends StatefulWidget {
-  const WorldMapOverlay({required super.key, this.data});
+  const WorldMapOverlay({required super.key, this.args});
 
-  final Map<String, dynamic>? data;
+  final Map<String, dynamic>? args;
 
   @override
   State<WorldMapOverlay> createState() => _WorldMapOverlayState();
@@ -38,8 +38,6 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
-
-  bool isLoaded = false;
 
   late WorldMapScene _scene;
 
@@ -143,7 +141,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
     engine.invoke('build', positionalArgs: [context]);
     final screenSize = MediaQuery.of(context).size;
 
-    final args = widget.data ??
+    final args = widget.args ??
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
 
     return FutureBuilder(
@@ -161,11 +159,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
             _scene.detach();
           }
           final screenWidgets = [
-            SizedBox(
-              height: screenSize.height,
-              width: screenSize.width,
-              child: SceneWidget(scene: _scene),
-            ),
+            SceneWidget(scene: _scene),
             if (_heroData != null)
               Positioned(
                 left: 0,
@@ -175,30 +169,30 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
             Positioned(
               right: 0,
               top: 0,
-              child: DropMenu(
-                onSelected: (DropMenuItems item) async {
+              child: WorldMapDropMenu(
+                onSelected: (WorldMapDropMenuItems item) async {
                   switch (item) {
-                    case DropMenuItems.info:
+                    case WorldMapDropMenuItems.info:
                       showDialog(
                           context: context,
                           builder: (context) => const InformationPanel());
                       break;
-                    case DropMenuItems.viewNone:
+                    case WorldMapDropMenuItems.viewNone:
                       _scene.map.gridMode = GridMode.none;
                       break;
-                    case DropMenuItems.viewZones:
+                    case WorldMapDropMenuItems.viewZones:
                       _scene.map.gridMode = GridMode.zone;
                       break;
-                    case DropMenuItems.viewNations:
+                    case WorldMapDropMenuItems.viewNations:
                       _scene.map.gridMode = GridMode.nation;
                       break;
-                    case DropMenuItems.console:
+                    case WorldMapDropMenuItems.console:
                       showDialog(
                         context: context,
                         builder: (BuildContext context) => const Console(),
                       ).then((value) => setState(() {}));
                       break;
-                    case DropMenuItems.exit:
+                    case WorldMapDropMenuItems.exit:
                       _saveGame().then((value) {
                         engine.leaveScene('worldmap');
                         engine.invoke('resetGame');

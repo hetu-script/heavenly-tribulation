@@ -4,10 +4,9 @@ import 'entity/location.ht'
 import 'entity/character.ht'
 import 'entity/nation.ht'
 import 'l10n.ht'
-import 'map/hexagonal_tile.ht'
-import 'map/component.ht'
+import 'tile/hexagonal_tile.ht'
 import 'map.ht'
-import 'entity/talisman/weapon.ht'
+import 'entity/item/weapon.ht'
 import 'entity/constants.ht'
 import { hyperbola } from 'util.ht'
 import 'datetime.ht' as datetime
@@ -155,7 +154,7 @@ fun createWorldMap({
       game.world.terrains.add(
         {
           ...Tile(i + 1, j + 1),
-          index: tilePos2Index(i + 1, j + 1),
+          index: tilePos2Index(i + 1, j + 1, width),
           spriteIndex: _kSpriteWater,
           overlaySprite: {},
         }
@@ -171,7 +170,7 @@ fun createWorldMap({
 
   // 刷新当前地域的边缘格子坐标
   fun updateShelf(left, top) {
-    shelf.remove(tilePos2Index(left, top))
+    shelf.remove(tilePos2Index(left, top, width))
     final neighbors = getMapTileNeighbors(left, top, restricted2Zone: false)
     for (final tile in neighbors) {
       if (tile.spriteIndex == _kSpriteWater) {
@@ -194,7 +193,7 @@ fun createWorldMap({
   game.world.heroX = startLeft
   game.world.heroY = startTop
   // engine.info('start: ${startLeft},${startTop}')
-  final startIndex = tilePos2Index(startLeft, startTop)
+  final startIndex = tilePos2Index(startLeft, startTop, width)
   final firstTile = game.world.terrains[startIndex]
   firstTile.spriteIndex = _kSpriteLand
   final landZone = Zone(category: _kZoneContinent)
@@ -411,8 +410,6 @@ fun createWorldMap({
     } while (location.nationId != null)
     // engine.info('picking location for new nation capital: ${location}')
     final nation = Nation(capitalId: location.id)
-    location.isCapital = true
-    location.nationId = nation.id
     Site(category: kSitePalace, location: location)
     final terrain = game.world.terrains[location.terrainIndex]
     addTerrainToNation(nation, terrain)
@@ -639,6 +636,14 @@ fun createWorldMap({
         char.motivations.add('child')
       }
     }
+  }
+
+  // 为世界填充信息
+
+  // 填充据点月常任务
+  for (final location of game.locations) {
+
+    location.missions.add()
   }
   
   //   // 为每个创派掌门生成初始物品

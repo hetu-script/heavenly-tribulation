@@ -11,22 +11,26 @@ class GameDialog extends StatefulWidget {
   static Future<void> show(
     BuildContext context,
     HTStruct data,
+    dynamic returnValue,
   ) {
-    return showDialog<void>(
+    return showDialog<dynamic>(
       context: context,
       barrierColor: kBackgroundColor.withOpacity(0.5),
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return GameDialog(data: data);
+        return GameDialog(data: data, returnValue: returnValue);
       },
     );
   }
 
   final HTStruct data;
 
+  final dynamic returnValue;
+
   const GameDialog({
     super.key,
     required this.data,
+    this.returnValue,
   });
 
   @override
@@ -94,46 +98,46 @@ class _GameDialogState extends State<GameDialog> {
               height: screenSize.height,
               decoration: backgroundImage,
             ),
-            Container(
-              width: 750,
-              height: 160,
-              decoration: BoxDecoration(
-                color: kBackgroundColor,
-                borderRadius: kBorderRadius,
-                border: Border.all(color: kForegroundColor),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: Row(
-                  children: [
-                    Avatar(
-                      avatarAssetKey: 'assets/images/$_currentAvatar',
-                      size: const Size(120.0, 120.0),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          StreamBuilder(
-                            stream: _textShowController.stream,
-                            builder: (context, AsyncSnapshot<String> snapshot) {
-                              return SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                                physics: const BouncingScrollPhysics(),
-                                child: Text(
+            StreamBuilder(
+              stream: _textShowController.stream,
+              builder: (context, AsyncSnapshot<String> snapshot) {
+                return Container(
+                  width: 720,
+                  height: 160,
+                  decoration: BoxDecoration(
+                    color: kBackgroundColor,
+                    borderRadius: kBorderRadius,
+                    border: Border.all(color: kForegroundColor),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Row(
+                      children: [
+                        Avatar(
+                          avatarAssetKey: 'assets/images/$_currentAvatar',
+                          size: const Size(120.0, 120.0),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 20.0),
+                          child: SizedBox(
+                            width: 540,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
                                   snapshot.data ?? '',
                                   style: const TextStyle(fontSize: 18),
                                 ),
-                              );
-                            },
+                              ],
+                            ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -187,7 +191,7 @@ class _GameDialogState extends State<GameDialog> {
 
   void _finishDialog() {
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      Navigator.pop(context);
+      Navigator.pop(context, widget.returnValue);
     });
   }
 }

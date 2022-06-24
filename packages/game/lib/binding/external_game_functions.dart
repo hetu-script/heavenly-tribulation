@@ -11,15 +11,16 @@ final Map<String, Function> externalGameFunctions = {
       {List<dynamic> positionalArgs = const [],
       Map<String, dynamic> namedArgs = const {},
       List<HTType> typeArgs = const []}) {
-    return GameDialog.show(positionalArgs[0], positionalArgs[1]);
+    return GameDialog.show(
+        positionalArgs[0], positionalArgs[1], positionalArgs[2]);
   },
-  r'_showSelectionDialog': (HTEntity object,
+  r'_showSelection': (HTEntity object,
       {List<dynamic> positionalArgs = const [],
       Map<String, dynamic> namedArgs = const {},
       List<HTType> typeArgs = const []}) {
     return SelectionDialog.show(positionalArgs[0], positionalArgs[1]);
   },
-  r'_showCharacterSelectDialog': (HTEntity object,
+  r'_showCharacterSelection': (HTEntity object,
       {List<dynamic> positionalArgs = const [],
       Map<String, dynamic> namedArgs = const {},
       List<HTType> typeArgs = const []}) {
@@ -30,7 +31,7 @@ final Map<String, Function> externalGameFunctions = {
       showCloseButton: positionalArgs[3],
     );
   },
-  r'_showCharacterVisitDialog': (HTEntity object,
+  r'_showVisitCharacterSelection': (HTEntity object,
       {List<dynamic> positionalArgs = const [],
       Map<String, dynamic> namedArgs = const {},
       List<HTType> typeArgs = const []}) {

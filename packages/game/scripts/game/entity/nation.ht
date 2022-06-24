@@ -81,6 +81,7 @@ fun addTerrainToNation(nation, terrain) {
     } else {
       final gov = Site(category: kSiteGovernment, location: location)
       if (nation.capitalId == location.id) {
+        location.isCapital = true
         gov.isCapital = true
       }
     }

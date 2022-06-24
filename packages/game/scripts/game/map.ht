@@ -1,5 +1,5 @@
 import 'game.ht'
-import 'map/hexagonal_tile.ht'
+import 'tile/hexagonal_tile.ht'
 
 fun loadWorldMap(jsonData) {
   engine.info('载入世界地图数据')
@@ -60,14 +60,14 @@ fun handleMazeTileInteraction(x: int, y: int) {
 }
 
 // 从 hexagonal 坐标得到索引
-fun tilePos2Index(left, top) {
-  return left - 1 + (top - 1) * game.world.width
+fun tilePos2Index(left, top, width) {
+  return left - 1 + (top - 1) * width
 }
 
 // 从索引得到 hexagonal 坐标
-fun index2TilePos(index: int) {
-  final left = index % game.world.width + 1
-  final top = index ~/ game.world.width + 1
+fun index2TilePos(index: int, width) {
+  final left = index % width + 1
+  final top = index ~/ width + 1
   return Tile(left, top)
 }
 

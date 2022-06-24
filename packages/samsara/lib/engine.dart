@@ -6,7 +6,6 @@ import 'package:hetu_script/hetu_script.dart';
 import 'package:hetu_script/value/struct/struct.dart';
 import 'package:hetu_script_flutter/hetu_script_flutter.dart';
 
-import 'binding/scene/component/game_map_binding.dart';
 import 'binding/game_binding.dart';
 // import 'scene/scene.dart';
 import '../event/event.dart';
@@ -145,7 +144,6 @@ class SamsaraEngine with SceneController, EventAggregator {
         externalFunctions: externalFunctions,
         externalClasses: [
           SamsaraEngineClassBinding(),
-          MapComponentClassBinding(),
         ],
       );
     } else {
@@ -161,7 +159,6 @@ class SamsaraEngine with SceneController, EventAggregator {
         externalFunctions: externalFunctions,
         externalClasses: [
           SamsaraEngineClassBinding(),
-          MapComponentClassBinding(),
         ],
       );
     }

@@ -51,8 +51,10 @@ class CharacterSelectDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Iterable chars =
-        engine.invoke('getCharacters', positionalArgs: [characterIds]);
+    final Iterable chars = engine
+        .invoke('getCharacters', positionalArgs: [characterIds])
+        .toList()
+        .reversed;
 
     final List<List<String>> data = [];
     for (final char in chars) {
@@ -66,8 +68,10 @@ class CharacterSelectDialog extends StatelessWidget {
       row.add(getNameFromId(char['locationId']));
       // 门派名字
       row.add(getNameFromId(char['organizationId']));
+      final fame =
+          engine.invoke('getCharacterFameString', positionalArgs: [char]);
       // 名声
-      row.add(char['fame'].toString());
+      row.add(fame);
       // 多存一个隐藏的 id 信息，用于点击事件
       row.add(char['id']);
       data.add(row);

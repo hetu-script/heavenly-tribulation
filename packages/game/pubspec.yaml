@@ -84,11 +84,13 @@ flutter:
 
     - scripts/game/
     - scripts/game/entity/
-    - scripts/game/entity/talisman/
+    - scripts/game/entity/item/
+    - scripts/game/entity/mission/
     - scripts/game/generator/attributes/
     - scripts/game/generator/attributes/data/
     - scripts/game/generator/name/
     - scripts/game/generator/name/alchemy/
+    - scripts/game/generator/name/book/
     - scripts/game/generator/name/character/
     - scripts/game/generator/name/creature/
     - scripts/game/generator/name/material/
@@ -102,7 +104,7 @@ flutter:
     - scripts/game/l10n/en/
     - scripts/game/l10n/zh/
     - scripts/game/predefined/
-    - scripts/game/map/
+    - scripts/game/tile/
 
     - scripts/story/
     - scripts/story/binding/

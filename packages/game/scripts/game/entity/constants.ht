@@ -79,5 +79,91 @@ final kSkillCategory = [
 ]
 
 // 进行某些互动的时候
-final fameCheckPass = 90
-final fameCheckRespect = 75
+final fameCheckThreshold = 75
+
+
+
+final kRarity = {
+  common: {
+    // common 灰
+    rarity: 'common',
+    color: '#222A35',
+    probability: 1.0,
+    value: 0,
+    difficulty: 'normal',
+  },
+  uncommon:{
+    // uncommon 白
+    rarity: 'uncommon',
+    color: '#CCCCCC',
+    probability: 0.35,
+    value: 1,
+    difficulty: 'hard',
+  },
+  rare:{
+    // rare 蓝
+    rarity: 'rare',
+    color: '#00A6A9',
+    probability: 0.15,
+    value: 2,
+    difficulty: 'expert',
+  },
+  epic: {
+    // epic 紫
+    rarity: 'epic',
+    color: '#804DC8',
+    probability: 0.075,
+    value: 3,
+    difficulty: 'master',
+  },
+  legendary: {
+    // legendary 橙
+    rarity: 'legendary',
+    color: '#C5C660',
+    probability: 0.012,
+    value: 4,
+    difficulty: 'torment',
+  },
+  mythic: {
+    // mythic 金
+    rarity: 'mythic',
+    color: '#F28234',
+    probability: 0.03,
+    value: 5,
+    difficulty: 'nightmare',
+  },
+  exotic: {
+    // exotic 虹
+    rarity: 'exotic',
+    color: '#C65043',
+    probability: 0.005,
+    value: 6,
+    difficulty: 'purgatory',
+  },
+}
+
+fun getRarity([max = 1.0]) {
+  assert(0 < max && max <= 1.0)
+  var rarity
+  var value
+  do {
+    value = kRarity.values.random
+  } while (value.probability > max)
+  return { rarity: value.rarity, value: rarity.value }
+}
+
+fun getDifficulty([min = 0]) {
+  assert(0 < max && max <= 1.0)
+  var rarity
+  var value
+  do {
+    value = kRarity.values.random
+  } while (value.probability < min)
+  return { rarity: value.difficulty, value: rarity.value }
+}
+
+fun getRarityValue(valueMap) {
+  final r = getRarity()
+  final v = valueMap[r.rarity]
+  return (v is Iterable) ? v.random : v
+}

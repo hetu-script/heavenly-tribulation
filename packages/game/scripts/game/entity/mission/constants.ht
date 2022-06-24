@@ -1,0 +1,23 @@
+final kMissionCategories = [
+  'fightBandits',
+  'fightScoundrel',
+  'convoy',
+  'escort',
+  'training',
+  'ritual',
+  'marriageMaker',
+  'trading',
+  'teaching',
+  'craft',
+  'catering',
+]
+
+final kMissionDifficulty = {
+  'normal',
+  'hard',
+  'expert',
+  'master',
+  'torment',
+  'nightmare',
+  'purgatory',
+}

@@ -1,6 +1,6 @@
 import '../../generator/name/name.ht' as nameGenerator
 import '../constants.ht'
-import 'common.ht'
+import 'constants.ht'
 
 struct Consumable {
   construct ({

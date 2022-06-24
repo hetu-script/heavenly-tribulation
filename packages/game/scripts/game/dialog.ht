@@ -24,38 +24,43 @@ fun addDialogs(dlgs: List) {
   }
 }
 
-external fun _showGameDialog(context, data)
+external fun _showGameDialog(context, data, returnValue)
 
-fun showSimpleGameDialog(lines) -> Future {
+fun showDialogByLocaleKeys(lines, [returnValue]) -> Future {
   final data = { contents: [ {
     lines: lines.map( (line) => getLocaleString(line) ).toList()
   } ] }
-  return _showGameDialog(buildContext, data)
+  return _showGameDialog(buildContext, data, returnValue)
 }
 
-fun showGameDialog(data) -> Future {
-  return _showGameDialog(buildContext, data)
+fun showDialogByStrings(lines, [returnValue]) -> Future {
+  final data = { contents: [ { lines } ] }
+  return _showGameDialog(buildContext, data, returnValue)
 }
 
-fun showGameDialogById(id: str) -> Future {
-  final dlg = dialogs[id]
-  return _showGameDialog(buildContext, dlg)
+fun showDialogByResourceId(id: str, [returnValue]) -> Future {
+  final data = dialogs[id]
+  return _showGameDialog(buildContext, data, returnValue)
 }
 
-external fun _showSelectionDialog(context, selections)
-
-fun showSelectionDialog(selections) -> Future {
-  return _showSelectionDialog(buildContext, selections)
+fun showDialog(data, [returnValue]) -> Future {
+  return _showGameDialog(buildContext, data, returnValue)
 }
 
-external fun _showCharacterSelectDialog(context, title, idList, notNull)
+external fun _showSelection(context, selections)
 
-fun showCharacterSelectDialog({title, ids, showCloseButton = false}) -> Future {
-  return _showCharacterSelectDialog(buildContext, title, ids, showCloseButton)
+fun showSelection(selections) -> Future {
+  return _showSelection(buildContext, selections)
 }
 
-external fun _showCharacterVisitDialog(context, idList)
+external fun _showCharacterSelection(context, title, idList, notNull)
 
-fun showCharacterVisitDialog(idList) -> Future {
-  return _showCharacterVisitDialog(buildContext, idList)
+fun showCharacterSelection({title, ids, showCloseButton = false}) -> Future {
+  return _showCharacterSelection(buildContext, title, ids, showCloseButton)
+}
+
+external fun _showVisitCharacterSelection(context, idList)
+
+fun showVisitCharacterSelection(idList) -> Future {
+  return _showVisitCharacterSelection(buildContext, idList)
 }

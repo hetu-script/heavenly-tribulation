@@ -1,0 +1,45 @@
+import 'constants.ht'
+import '../../l10n.ht'
+import '../constants.ht'
+
+final kMissionFightBanditType = [
+  'Type1', // 消灭盗贼
+  'Type2', // 解救被绑架的人质（不一定要用武力）
+  'Type3', // 寻找被抢走的宝物（不一定要用武力）
+]
+
+// 消灭盗贼
+// 盗贼的具体位置是隐藏的，但一定在该据点四周
+struct MissionFightBandit {
+  construct ({
+    type,
+    difficulty,
+  }) {
+    this.category = 'fightBandits'
+    this.type = 'Type1'
+    this.difficulty = getDifficulty()
+    this.description = getLocaleString('${this.category}${this.kind}Description')
+    // 任务领取有效时间
+    this.publishingMonth = 1
+    // 任务完成有效时间
+    this.expirationMonth = 1
+    // 盗贼生成地点
+    this.worldX = Math.randomInt(game.world.width)
+    this.worldY = Math.randomInt(game.world.width)
+
+    this.stages = [
+      MissionFightBanditStage.started(),
+      MissionFightBanditStage.found(),
+      MissionFightBanditStage.cleared(),
+      MissionFightBanditStage.defeated(),
+    ]
+    this.currentStage = 'started'
+  }
+}
+
+struct MissionFightBanditStage {
+  construct started () {
+    this.name = 'started'
+    this.next = 'found'
+  }
+}

@@ -1,7 +1,0 @@
-external class MapComponent {
-  static fun fromJson({data, engine})
-
-  fun lightUpAroundTerrain(left: int, top: int)
-
-  fun moveCameraToTilePosition(left: int, top: int)
-}

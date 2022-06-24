@@ -4,7 +4,7 @@ import '../dialog.ht'
 import '../generator/name/name.ht' as nameGenerator
 import '../l10n.ht'
 import 'constants.ht'
-import 'item.ht'
+import 'item/common_item.ht'
 
 const kSitePalace = 'palace'
 const kSiteGovernment = 'government'
@@ -240,17 +240,17 @@ fun handleSiteInteraction(siteId: str, locationId: str) {
 // }
 
 fun _handlePalaceInteraction(site) {
-  showSimpleGameDialog(['visitPalaceDeny'])
+  showDialogByLocaleKeys(['visitPalaceDeny'])
 
   // final location = game.locations[site.locationId]
-  // showSelectionDialog({
+  // showSelection({
   //   visit: getLocaleString('visit'),
   //   leave: getLocaleString('leave'),
   // }).then((key) {
   //   when (key) {
   //     // 如果选择 leave，直接忽略，什么也不做
   //     'visit' -> {
-  //       showGameDialogById('visit_palace_deny_entry')
+  //       showDialogByResourceId('visit_palace_deny_entry')
   //     }
   //   }
   // })
@@ -272,10 +272,10 @@ fun _handleGovernmentInteraction(site) {
   selections['visitJail'] = getLocaleString('visitJail')
   selections['leave'] = getLocaleString('leave')
   
-  showSelectionDialog(selections).then((key) {
+  showSelection(selections).then((key) {
     when (key) {
       'appeal' -> {
-        showSelectionDialog({
+        showSelection({
           applyOrganization: getLocaleString('applyOrganization'),
           applySite: getLocaleString('applySite'),
           complaintSite: getLocaleString('complaintSite'),
@@ -289,7 +289,7 @@ fun _handleGovernmentInteraction(site) {
               _handleGovernmentInteraction(site)
             }
             'applyOrganization' -> {
-
+              
             }
             'applySite' -> {
               
@@ -314,35 +314,40 @@ fun _handleGovernmentInteraction(site) {
       }
       'mission' -> {
         if (location.missions.isEmpty) {
-          showSimpleGameDialog(['missionsEmpty'])
+          showDialogByLocaleKeys(['missionsEmpty'])
         } else {
           // TODO: 领取任务
         }
       }
       'localExam' -> {
-        showSimpleGameDialog(['localExamIntro'])
+        showDialogByLocaleKeys(['localExamIntro'])
       }
       'nationalExam' -> {
-        showSimpleGameDialog(['nationalExamIntro'])
+        showDialogByLocaleKeys(['nationalExamIntro'])
       }
       'visitJail' -> {
-        if (location.jailedCharacterIds.isEmpty) {
-          showSimpleGameDialog(['visitJailEmpty'])
-        } else {
-          if (hero.items['${location.id}${kLocationJailVisitPermit}']) {
-            if (hero.fame > fameCheckRespect) {
-              showSimpleGameDialog(['visitJailEntryRespect'])
-            } else {
-              showSimpleGameDialog(['visitJailEntry'])
-            }
-          } else if (fame > fameCheckPass) {
-            showSimpleGameDialog(['visitJailEntryFame'])
-          } else if (fame > fameCheckRespect) {
-            showSimpleGameDialog(['visitJailDenyRespect'])
+        final entry = false
+        (){
+          if (location.jailedCharacterIds.isEmpty) {
+            return showDialogByLocaleKeys(['visitJailEmpty'])
           } else {
-            showSimpleGameDialog(['visitJailDeny'])
+            if (fame > fameCheckThreshold) {
+              final title = getCharacterTitle(hero)
+              return showDialogByStrings(
+                [
+                  getLocaleString('visitJailEntryRespect', [title + hero.name]),
+                ],
+                true,
+              )
+            } else {
+              return showDialogByLocaleKeys(['visitJailDeny'])
+            }
           }
-        }
+        }().then((value) {
+          if (value) {
+            
+          }
+        })
       }
     }
   })
@@ -350,7 +355,7 @@ fun _handleGovernmentInteraction(site) {
 
 fun _handleResidenceInteraction(site) {
   final location = game.locations[site.locationId]
-  showSelectionDialog({
+  showSelection({
     visit: getLocaleString('visit'),
     leave: getLocaleString('leave'),
   }).then((key) {
@@ -360,13 +365,13 @@ fun _handleResidenceInteraction(site) {
         if (location.residingWildCharacterIds.isNotEmpty) {
           final ids = location.residingWildCharacterIds.toList()
           ids.remove(game.heroId)
-          showCharacterVisitDialog(ids).then((key) {
+          showVisitCharacterSelection(ids).then((key) {
             if (key != null) {
               handleCharacterInteraction(key)
             }
           })
         } else {
-          showGameDialogById('visitEmptyVillage')
+          showDialogByResourceId('visitEmptyVillage')
         }
       }
     }
@@ -375,7 +380,7 @@ fun _handleResidenceInteraction(site) {
 
 fun _handleOrganizationInteraction(site) {
   final location = game.locations[site.locationId]
-  showSelectionDialog({
+  showSelection({
     train: getLocaleString('train'),
     learn: getLocaleString('learn'),
     visit: getLocaleString('visit'),
@@ -386,17 +391,17 @@ fun _handleOrganizationInteraction(site) {
       // 如果选择 leave，直接忽略，什么也不做
       'train' -> {
         // 非本门派修士,需要花钱才能训练
-        showSimpleGameDialog(['organization_train_deny'])
+        showDialogByLocaleKeys(['organization_train_deny'])
       }
       'learn' -> {
         // 非本门派修士,需要花钱才能学习,而且只能学习二阶或以下的功法
-        showSimpleGameDialog(['organization_train_deny'])
+        showDialogByLocaleKeys(['organization_train_deny'])
       }
       'visit' -> {
         // 既然有总部，那就一定有可以拜访的成员
         final ids = location.residingOrganizedCharacterIds.toList()
         ids.remove(game.heroId)
-        showCharacterVisitDialog(ids).then((key) {
+        showVisitCharacterSelection(ids).then((key) {
           if (key != null) {
             handleCharacterInteraction(key)
           } else {

@@ -2,6 +2,22 @@
   "languageId": "zh",
   "languageName": "简体中文",
 
+  "common": "凡品",
+  "uncommon": "良品",
+  "rare": "上品",
+  "epic": "极品",
+  "legendary": "秘宝",
+  "mythic": "灵宝",
+  "exotic": "古宝",
+
+  "normal": "普通",
+  "hard": "困难",
+  "expert": "专家",
+  "master": "大师",
+  "torment": "折磨",
+  "nightmare": "梦魇",
+  "purgatory": "炼狱",
+
   "debug": "DEBUG信息",
   "console": "控制台",
   "missing": "□□□□",

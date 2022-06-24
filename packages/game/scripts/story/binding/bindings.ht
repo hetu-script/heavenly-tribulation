@@ -4,7 +4,7 @@ final bindings = [
     onInteraction: (arg) {
       if (!this.isVisited) {
         this.isVisited = true
-        final future = showGameDialogById('event01')
+        final future = showDialogByResourceId('event01')
         future.then((value) {
           final component = game.mazes.current.component
           component.lightUpAroundTerrain(x, y)
@@ -16,14 +16,14 @@ final bindings = [
     id: 'baiheguanHoushanEvent02a',
     onInteraction: (arg) {
       if (!this.isUnlocked) {
-        showGameDialogById('event02a')
+        showDialogByResourceId('event02a')
       }
     }
   },
   {
     id: 'baiheguanHoushanMinion01',
     onInteraction: (arg) {
-      showSelectionDialog({
+      showSelection({
         option1: '这是',
         option2: '什么呀？',
       })
@@ -34,7 +34,7 @@ final bindings = [
     onInteraction: (arg) {
       if (!this.isVisited) {
         this.isVisited = true
-        showGameDialogById('chest01')
+        showDialogByResourceId('chest01')
       }
     },
   },

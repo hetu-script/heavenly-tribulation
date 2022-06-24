@@ -34,7 +34,14 @@
   "wilderness": "荒野",
   "maze": "秘境",
 
-  "appeal": "申请",
+  "tribute": "进贡",
+  "policySuggestion": "献策",
+  "reportOrganization": "报告反贼",
+  "appealOrganization": "为组织伸冤",
+  "reportCharacter": "检举忤逆",
+  "royalExam": "殿试",
+
+  "appeal": "陈情",
   "applyOrganization": "创立组织",
   "applySite": "建立场所",
   "complaintSite": "投诉场所",
@@ -42,33 +49,15 @@
   "appealCharacter": "为人伸冤",
   "setHome": "迁居到此",
   "visitJail": "探监",
-
   "mission": "任务",
-  "fightBandits": "讨贼",
-  "fightScoundrel": "惩戒",
-  "convoy": "押镖",
-  "escort": "护送",
-  "training": "演武",
-  "ritual": "法事",
-  "marriageMaker": "说媒",
-  "trading": "交货",
-  "teaching": "教习",
-  "craft": "定制",
-  "catering": "招待",
 
-  "localExam": "乡试",
-  "nationalExam": "会试",
-
-  "tribute": "进贡",
-  "policySuggestion": "献策",
-
-  "reportOrganization": "报告反贼",
-  "appealOrganization": "为组织伸冤",
-  "reportCharacter": "检举忤逆",
-
-  "royalExam": "殿试",
+  "chat": "闲聊",
+  "visit": "拜访",
+  "recruitServant": "招募",
+  "talentSearch": "探访",
+  "charity": "赈济",
+  "spreadRumor": "造谣",
 
   "train": "训练",
-  "learn": "学习",
-  "visit": "拜访"
+  "learn": "学习"
 }

@@ -29,7 +29,6 @@ import 'creature/prefix.json' as creaturePrefix
 import 'creature/strange.json' as strangeCreature
 import 'alchemy/alchemy.json' as alchemy
 import '../../entity/constants.ht'
-import '../../util.ht'
 
 export {
   getCharacter,
@@ -130,9 +129,9 @@ fun _getSkillName({length, category, kind}) {
   var rarity = 'common'
   if (!length) {
     final r = getRarity()
-    if (r.value < kRarity.rare.probability) {
+    if (r.value < kRarity.rare.value) {
       l = 3
-    } else if (r.value < kRarity.uncommon.probability) {
+    } else if (r.value < kRarity.uncommon.value) {
       l = 2
     }
     rarity = r.rarity
@@ -307,7 +306,7 @@ fun getAlchemy(number: int, {kind: str}) {
     final pre = commonAlchemyNames.random
     var s = ''
     final r = getRarity()
-    if (r.value < kRarity.rare.probability) {
+    if (r.value < kRarity.rare.value) {
       s = spiritPrefix.random
     }
     rarity = r.rarity

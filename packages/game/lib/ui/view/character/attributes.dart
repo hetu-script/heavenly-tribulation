@@ -34,7 +34,8 @@ class CharacterAttributesView extends StatelessWidget {
         positionalArgs: [age], namedArgs: {'format': 'date.md'});
     final organizationId = data['organizationId'];
     String organization = getNameFromId(organizationId);
-    final title = engine.locale[data['currentTitleId']];
+    final title =
+        engine.invoke('getCharacterTitleString', positionalArgs: [data]);
     final home = getNameFromId(data['homeId']);
     final nation = getNameFromId(data['nationId']);
 

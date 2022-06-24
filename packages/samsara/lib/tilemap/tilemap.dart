@@ -148,16 +148,18 @@ class TileMap extends GameComponent with HandlesGesture {
 
     final zonesData = data['zones'];
     final zones = <TileMapZone>[];
-    for (final zoneData in zonesData) {
-      final int index = zoneData['index'];
-      final String name = zoneData['name'];
-      final String colorHex = zoneData['color'];
-      final color = HexColor.fromHex(colorHex);
-      zones.add(TileMapZone(
-        index: index,
-        name: name,
-        color: color,
-      ));
+    if (zonesData != null) {
+      for (final zoneData in zonesData) {
+        final int index = zoneData['index'];
+        final String name = zoneData['name'];
+        final String colorHex = zoneData['color'];
+        final color = HexColor.fromHex(colorHex);
+        zones.add(TileMapZone(
+          index: index,
+          name: name,
+          color: color,
+        ));
+      }
     }
 
     // final routesData = data['routes'];

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:heavenly_tribulation/ui/overlay/maze/maze.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:samsara/samsara.dart';
@@ -63,9 +64,9 @@ class _MainMenuState extends State<MainMenu> {
       return WorldMapScene(jsonData: worldData, controller: engine);
     });
 
-    engine.registerSceneConstructor('Maze', (
-        [Map<String, dynamic>? arg]) async {
-      return MazeScene(controller: engine);
+    engine.registerSceneConstructor('maze', (
+        [Map<String, dynamic>? data]) async {
+      return MazeScene(jsonData: data!, controller: engine);
     });
   }
 
@@ -118,113 +119,125 @@ class _MainMenuState extends State<MainMenu> {
           return LoadingScreen(
               text: engine.isLoaded ? engine.locale['loading'] : 'Loading...');
         } else {
-          if (engine.currentScene != null) {
-            return engine.currentScene!.widget;
-          } else {
-            final menus = <Widget>[
-              // const Padding(
-              //   padding: EdgeInsets.only(top: 150),
-              //   child: Image(
-              //     image: AssetImage('assets/images/title.png'),
-              //   ),
-              // ),
-              Padding(
-                padding: const EdgeInsets.only(top: 40.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => const CreateGameDialog(),
-                    ).then(
-                      (value) {
-                        if (value != null) {
-                          showDialog(
-                            context: context,
-                            builder: (context) => WorldMapOverlay(
-                              key: UniqueKey(),
-                              data: value,
-                            ),
-                          ).then((value) {
-                            setState(() {});
-                          });
-                        }
-                      },
-                    );
-                  },
-                  child: Text(locale['sandBoxMode']),
-                ),
-              ),
-              if (savedFiles.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      LoadGameDialog.show(context, list: savedFiles)
-                          .then((SaveInfo? info) {
-                        if (info != null) {
-                          Navigator.of(context).pushNamed('worldmap',
-                              arguments: {"path": info.path});
-                        } else {
-                          if (savedFiles.isEmpty) {
-                            setState(() {});
-                          }
-                        }
+          final menus = <Widget>[
+            // const Padding(
+            //   padding: EdgeInsets.only(top: 150),
+            //   child: Image(
+            //     image: AssetImage('assets/images/title.png'),
+            //   ),
+            // ),
+            Padding(
+              padding: const EdgeInsets.only(top: 40.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => const CreateGameDialog(),
+                  ).then((value) {
+                    if (value != null) {
+                      showDialog(
+                        context: context,
+                        builder: (context) => WorldMapOverlay(
+                          key: UniqueKey(),
+                          args: value,
+                        ),
+                      ).then((value) {
+                        setState(() {});
                       });
-                    },
-                    child: Text(locale['loadGame']),
-                  ),
-                ),
+                    }
+                  });
+                },
+                child: Text(locale['newGame']),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 40.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  final mazeData = engine.invoke('createMaze', namedArgs: {
+                    'terrainSpriteSheet': 'fantasyhextiles_v3_borderless.png',
+                  });
+                  showDialog(
+                    context: context,
+                    builder: (context) => MazeOverlay(
+                      key: UniqueKey(),
+                      data: mazeData,
+                    ),
+                  ).then((value) {
+                    setState(() {});
+                  });
+                },
+                child: const Text('Test Maze'),
+              ),
+            ),
+            if (savedFiles.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 20.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pushNamed('editor');
+                    LoadGameDialog.show(context, list: savedFiles)
+                        .then((SaveInfo? info) {
+                      if (info != null) {
+                        Navigator.of(context).pushNamed('worldmap',
+                            arguments: {"path": info.path});
+                      } else {
+                        if (savedFiles.isEmpty) {
+                          setState(() {});
+                        }
+                      }
+                    });
                   },
-                  child: Text(locale['gameEditor']),
+                  child: Text(locale['loadGame']),
                 ),
               ),
-              if (GlobalConfig.isOnDesktop) ...[
-                const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      windowManager.close();
-                    },
-                    child: Text(locale['exit']),
-                  ),
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamed('editor');
+                },
+                child: Text(locale['gameEditor']),
+              ),
+            ),
+            if (GlobalConfig.isOnDesktop) ...[
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    windowManager.close();
+                  },
+                  child: Text(locale['exit']),
                 ),
-              ],
-            ];
+              ),
+            ],
+          ];
 
-            Widget layout;
-            if (GlobalConfig.orientationMode == OrientationMode.landscape) {
-              layout = Stack(
-                children: [
-                  Positioned(
-                    left: 20.0,
-                    bottom: 20.0,
-                    height: 300.0,
-                    width: 120.0,
+          return Scaffold(
+            body: GlobalConfig.orientationMode == OrientationMode.landscape
+                ? Stack(
+                    children: [
+                      Positioned(
+                        left: 20.0,
+                        bottom: 20.0,
+                        height: 300.0,
+                        width: 120.0,
+                        child: Column(children: menus),
+                      ),
+                    ],
+                  )
+                : Container(
+                    color: GlobalConfig.theme.backgroundColor,
+                    // decoration: const BoxDecoration(
+                    //   image: DecorationImage(
+                    //     fit: BoxFit.fill,
+                    //     image: AssetImage('assets/images/bg/background_01.jpg'),
+                    //   ),
+                    // ),
+                    alignment: Alignment.center,
                     child: Column(children: menus),
                   ),
-                ],
-              );
-            } else {
-              layout = Container(
-                color: GlobalConfig.theme.backgroundColor,
-                // decoration: const BoxDecoration(
-                //   image: DecorationImage(
-                //     fit: BoxFit.fill,
-                //     image: AssetImage('assets/images/bg/background_01.jpg'),
-                //   ),
-                // ),
-                alignment: Alignment.center,
-                child: Column(children: menus),
-              );
-            }
-            return Scaffold(body: layout);
-          }
+          );
         }
       },
     );

@@ -17,6 +17,8 @@ fun newGame {
 }
 
 fun nextTick {
+  handleBabies()
+
   onGameEvent('onUpdate')
   ++game.timestamp
 }
@@ -43,5 +45,11 @@ fun handleBabies {
   }
   for (final id in bornIds) {
     delete game.babies[id]
+  }
+}
+
+fun generateMissions {
+  for (final locaiton of game.locations) {
+    
   }
 }
