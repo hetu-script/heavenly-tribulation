@@ -11,7 +11,7 @@ import 'ui/editor/editor.dart';
 import 'ui/view/character/character.dart';
 import 'ui/view/information/information.dart';
 import 'global.dart';
-import 'ui/overlay/worldmap/worldmap.dart';
+import 'ui/overlay/main_game.dart';
 
 class CustomWindowListener extends WindowListener {
   @override
@@ -56,7 +56,7 @@ void main() async {
       theme: GlobalConfig.theme,
       home: MainMenu(key: UniqueKey()),
       routes: {
-        'worldmap': (context) => WorldMapOverlay(key: UniqueKey()),
+        'worldmap': (context) => MainGameOverlay(key: UniqueKey()),
         'location': (context) => const LocationView(),
         'information': (context) => const InformationPanel(),
         'character': (context) => const CharacterView(),

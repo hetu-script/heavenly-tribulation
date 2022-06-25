@@ -22,7 +22,7 @@ import '../scene/worldmap.dart';
 import '../scene/maze.dart';
 import 'create_game_dialog.dart';
 // import '../event/events.dart';
-import 'overlay/worldmap/worldmap.dart';
+import 'overlay/main_game.dart';
 
 class MainMenu extends StatefulWidget {
   const MainMenu({required super.key});
@@ -132,7 +132,7 @@ class _MainMenuState extends State<MainMenu> {
                     if (value != null) {
                       showDialog(
                         context: context,
-                        builder: (context) => WorldMapOverlay(
+                        builder: (context) => MainGameOverlay(
                           key: UniqueKey(),
                           args: value,
                         ),

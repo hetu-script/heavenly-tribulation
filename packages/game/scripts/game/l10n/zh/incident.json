@@ -1,0 +1,15 @@
+{
+  "experienced": "经历",
+  "witnessed": "见闻",
+  "incidentFirstMetNormal": "{0} 认识了 {1}。",
+  "incidentFirstMetHate": "{0} 认识了 {1}，对其印象不太好。",
+  "incidentFirstMetLike": "{0} 认识了 {1}，对其十分喜欢。",
+  "incidentOrganizationCreated": "{0} 在 {1} 创建了 {2}。",
+  "incidentEnlist": "{0} 加入了 {1}。",
+  "incidentLeader": "{0} 成为了 {1} {2}。",
+  "incidentSettle": "{0} 在 {1} 安家了。",
+  "incidentSettleOrganized": "{0} 在 {1} 的 {2} 安家了。",
+  "incidentBorn": "{0} 和 {1} 的孩子 {2} 在 {3} 出生了。",
+  "incidentMarriage": "{0} 和 {1} 在 {2} 结婚了。",
+  "incidentAquireItem": "{0} 得到了 {1}。"
+}

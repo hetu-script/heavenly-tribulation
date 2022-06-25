@@ -36,7 +36,7 @@ class CharacterMemory extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 8.0),
             child: Icon(Icons.visibility),
           ),
-          Text(engine.locale['known']),
+          Text(engine.locale['witnessed']),
         ],
       ),
     ),
@@ -58,7 +58,7 @@ class CharacterMemory extends StatelessWidget {
             child: TabBarView(
               children: [
                 HistoryView(data: data['experienced']),
-                HistoryView(data: data['known']),
+                HistoryView(data: data['witnessed']),
               ],
             ),
           ),

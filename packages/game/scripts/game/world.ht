@@ -546,6 +546,7 @@ fun createWorldMap({
                     home = game.locations[otherChar.homeId]
                   }
                 }
+                characterFirstMet(char, otherChar)
                 final incidentContent = getLocaleString('incidentMarriage', [
                     char.name,
                     otherChar.name,

@@ -15,6 +15,7 @@ export 'world.ht'
 export 'maze.ht'
 export 'generator/name/name.ht'
 export 'logic.ht'
+export 'debug.ht'
 
 import 'predefined/predefined_dialogs.ht'
 import 'l10n/l10n.ht'

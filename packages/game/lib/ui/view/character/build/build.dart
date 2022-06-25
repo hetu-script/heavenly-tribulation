@@ -100,7 +100,7 @@ class _BuildViewState extends State<BuildView>
         controller: _tabController,
         children: [
           InventoryView(
-            data: data['items'],
+            data: data['talismans'],
             onSelect: (item, screenPosition) {
               setState(() {
                 showDialog(

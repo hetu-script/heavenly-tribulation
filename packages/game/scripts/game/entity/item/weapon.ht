@@ -4,7 +4,7 @@ import 'constants.ht'
 
 const kDefaultWeaponIcon = 'icon/item/weapon.png'
 
-const kWeaponSpeedBase = 10
+const kWeaponSpeedBase = 50
 const kWeaponSpeedVariable = 10
 const kWeaponDamageBaseMean = 30
 const kWeaponDamageBaseStandardDeviation = 10

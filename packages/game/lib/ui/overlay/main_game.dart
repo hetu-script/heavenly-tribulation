@@ -11,31 +11,31 @@ import 'package:samsara/event.dart';
 // import 'package:flame_audio/flame_audio.dart';
 import 'package:hetu_script/values.dart';
 
-import 'popup.dart';
-import '../../../shared/json.dart';
-import '../../../shared/constants.dart';
-import '../../../shared/util.dart';
-import 'history_panel.dart';
-import '../../shared/loading_screen.dart';
-import '../../../global.dart';
-import '../../../scene/worldmap.dart';
-import '../character_info.dart';
-import 'drop_menu.dart';
-import '../../view/console.dart';
+import 'worldmap/popup.dart';
+import '../../shared/json.dart';
+import '../../shared/constants.dart';
+import '../../shared/util.dart';
+import 'worldmap/history_panel.dart';
+import '../shared/loading_screen.dart';
+import '../../global.dart';
+import '../../scene/worldmap.dart';
+import 'character_info.dart';
+import 'worldmap/drop_menu.dart';
+import '../view/console.dart';
 // import '../../../event/events.dart';
-import '../../view/location/location.dart';
-import '../../dialog/character_select_dialog.dart';
+import '../view/location/location.dart';
+import '../dialog/character_select_dialog.dart';
 
-class WorldMapOverlay extends StatefulWidget {
-  const WorldMapOverlay({required super.key, this.args});
+class MainGameOverlay extends StatefulWidget {
+  const MainGameOverlay({required super.key, this.args});
 
   final Map<String, dynamic>? args;
 
   @override
-  State<WorldMapOverlay> createState() => _WorldMapOverlayState();
+  State<MainGameOverlay> createState() => _MainGameOverlayState();
 }
 
-class _WorldMapOverlayState extends State<WorldMapOverlay>
+class _MainGameOverlayState extends State<MainGameOverlay>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
@@ -128,7 +128,9 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
             );
             engine.invoke('setHeroId', positionalArgs: [key]);
             engine.invoke('onGameEvent', positionalArgs: ['onNewGame']);
-            setState(() {});
+            setState(() {
+              _heroData = engine.invoke('getHero');
+            });
           },
         ));
 
@@ -236,7 +238,9 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
             Positioned(
               left: 0,
               bottom: 0,
-              child: HistoryPanel(key: UniqueKey()),
+              child: HistoryPanel(
+                heroId: _heroData?['id'],
+              ),
             ),
           ];
 

@@ -106,22 +106,20 @@ struct Organization {
     setOrganizationHeadquarters(this, location)
 
     final leader = game.characters[leaderId]
-    addCharacterToOrganization(leader, this)
-    setLeader(this, leader)
-
-    // 触发创派事件
+    // 触发创派事件，创派事件和成为掌门是两个事件
     final incidentContent = getLocaleString('incidentOrganizationCreated', [
       leader.name,
       location.name,
       this.name,
     ])
-    
     Incident(
-      content: incidentContent,
       subjectIds: [leader.id],
-      order: 30,
+      content: incidentContent,
+      order: 15,
       isGlobal: true,
     )
+    addCharacterToOrganization(leader, this, incidentOccured: false)
+    setLeader(leader, this)
   }
 }
 
@@ -130,13 +128,25 @@ struct Organization {
 // }
 
 // 必须已经是门派成员，才可以设定为掌门
-fun setLeader(organization, character) {
+fun setLeader(character, organization) {
   assert(character.organizationId == organization.id)
   organization.leaderId = character.id
   final titleId = '${organization.category}LeaderTitle'
-  character.titles[titleId] = getLocaleString(titleId)
+  final title = getLocaleString(titleId)
+  character.titles[titleId] = title
   character.currentTitleId = titleId
   character.organizationRank = 80
+  final incidentContent = getLocaleString('incidentLeader', [
+    character.name,
+    organization.name,
+    title,
+  ])
+  Incident(
+    subjectIds: [character.id]
+    content: incidentContent,
+    order: 15,
+    isGlobal: true,
+  )
 }
 
 // 必须已经是门派据点, 并且尚未设置总堂，才可以设置总堂
@@ -178,7 +188,7 @@ fun removeCharacterFromOrganization(character) {
   character.organizationId = null
 }
 
-fun addCharacterToOrganization(character, organization) {
+fun addCharacterToOrganization(character, organization, { incidentOccured = true }) {
   assert(!organization.characterIds.contains(character.id))
   if (character.organizationId != null) {
     assert(character.organizationId != organization.id)
@@ -186,9 +196,22 @@ fun addCharacterToOrganization(character, organization) {
   }
   organization.characterIds.add(character.id)
   character.organizationId = organization.id
+
+  if (incidentOccured) {
+    final incidentContent = getLocaleString('incidentEnlist', [
+      character.name,
+      organization.name,
+    ])
+    Incident(
+      subjectIds: [character.id]
+      content: incidentContent,
+      order: 10,
+      isPrivate: false,
+    )
+  }
+
   final location = game.locations[organization.headquartersId]
   setCharacterHome(character, location)
-
   final r = Math.randomInt(kOrganizationThinkingsOnRecruit)
   for (final i in range(r)) {
     var thinking

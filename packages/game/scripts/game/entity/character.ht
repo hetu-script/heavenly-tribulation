@@ -209,7 +209,7 @@ struct Character {
     }
 
     // 宝物，id是唯一的，属性随机生成
-    this.talisman = {
+    this.talismans = {
       inventory: [],
       equipments: {},
     }
@@ -274,7 +274,7 @@ struct Character {
     this.memory = {
       // conducted: [],
       experienced: [], // 主动或者被动
-      known: [],
+      witnessed: [],
       // heard: [],
     }
 
@@ -291,6 +291,8 @@ struct Character {
       locations: {},
       // 代表对某个国家的记忆
       nations: {},
+      // 代表对某个法宝的记忆
+      talismans: {},
     }
 
     this.tasks = []
@@ -311,8 +313,12 @@ struct Character {
         ])
       Incident(
         content: incidentContent,
-        subjectIds: [father.id, mother.id, this.id],
+        subjectIds: [father.id, mother.id],
+        objectIds: [this.id],
         locationId: locationId,
+        isPrivate: false,
+        order: 10,
+        ideal: -10,
       )
       // final homeId = mother.homeId ?? mother.locationId
       // final home = game.locations[homeId]
@@ -451,21 +457,22 @@ fun getStatsPercentageOfCharacter(character) {
 }
 
 // 第一印象分
-fun _characterFirstMet(subject, target) {
+fun _characterFirstMet(subject, target, [causeIncident, causeIncidentScore]) {
   var bond
-  var hasBond = false
   if (subject.bonds.characters[target.id] != null) {
-    hasBond = true
+    // 虽然没见过，但如果以前就听说过的话
     bond = subject.bonds.characters[target.id]
     if (bond.haveMet) return
   } else {
+    ++target.knownByPopulation // 第一次创建羁绊，target 的知名度增加
     bond = Bond(id: target.id, name: target.name)
+    subject.bonds.characters[target.id] = bond
   }
-  var score = 0
-  score += _calculateLooksScore(looks: target.looks, favor: subject.favoredLooks) / 10
+  var metScore = 0
+  metScore += _calculateLooksScore(looks: target.looks, favor: subject.favoredLooks) / 10
   if (target.organizationId != null) {
     // TODO: 敌对门派要减分
-    score += target.organizationId == subject.organizationId ? 10 : 0
+    metScore += target.organizationId == subject.organizationId ? 10 : 0
   }
   // TODO: 敌对国家要减分
   // TODO: 这两个挪到聊天互动之后再计算
@@ -475,12 +482,12 @@ fun _characterFirstMet(subject, target) {
   // TODO: 同名之谊?
 
   var incidentContent
-  if (score < -kCharacterImpressionCheckpoint) {
+  if (metScore < -kCharacterImpressionCheckpoint) {
     incidentContent = getLocaleString('incidentFirstMetHate', [
       subject.name,
       target.name,
     ])
-  } else if (score > kCharacterImpressionCheckpoint) {
+  } else if (metScore > kCharacterImpressionCheckpoint) {
     incidentContent = getLocaleString('incidentFirstMetLike', [
       subject.name,
       target.name,
@@ -492,25 +499,20 @@ fun _characterFirstMet(subject, target) {
     ])
   }
 
-  final incident = Incident(
+  final metIncident = Incident(
     content: incidentContent,
-    subjectIds: [subject.id],
+    subjectIds: [subject.id], // 见面是一个单向事件
     isPrivate: true,
   )
 
-  bond.memory[incident.index] = score
-  bond.score += score
+  bond.memory[metIncident.index] = metScore
+  bond.score += metScore
   bond.haveMet = true
-
-  if (!hasBond) {
-    ++target.knownByPopulation
-    subject.bonds.characters[target.id] = bond
-  }
 }
 
-fun characterFirstMet(subject, target) {
-  _characterFirstMet(subject, target)
-  _characterFirstMet(target, subject)
+fun characterFirstMet(subject, target, [causeIncident, causeIncidentScore]) {
+  _characterFirstMet(subject, target, causeIncident, causeIncidentScore)
+  _characterFirstMet(target, subject, causeIncident, causeIncidentScore)
 }
 
 fun _calculateIncidentScore(character, incident) {
@@ -522,27 +524,37 @@ fun _calculateIncidentScore(character, incident) {
 fun characterExperiencedIncident(character, incident) {
   assert(character != null)
   assert(incident != null)
+  character.memory.experienced.add(incident.index)
   if (character.id in incident.subjectIds) {
     character.personality.ideal += character.personality.ideal * incident.ideal / 100
     character.personality.order += character.personality.order * incident.order / 100
     character.personality.good += character.personality.good * incident.good / 100
   } else if (character.id in incident.objectIds) {
-    // 亲身经历者会放大原本的评价，当前系数为 2.0
-    final score = _calculateIncidentScore(character, incident) * 2.0
+    // 亲身经历者会放大原本的评价
+    final score = _calculateIncidentScore(character, incident) * 1.5 + incident.score
     for (final id in incident.subjectIds) {
-      assert(character.bonds.characters.contains(id))
-      final bond = character.bonds.characters[id]
+      var bond
+      if (!character.bonds.characters.contains(id)) {
+        // 如果还不认识行动者
+        final subject = game.characters[id]
+        characterFirstMet(character, subject, incident, score)
+      }
+      bond = character.bonds.characters[id]
       bond.memory[incident.index] = score
       bond.score += score
     }
   }
-  character.memory.experienced.add(incident.index)
 }
 
-fun characterKnownIncident(character, incident, { witnessed }) {
+fun characterWitnessIncident(character, incident, { witnessed }) {
   assert(character != null)
   assert(incident != null)
-  final score = _calculateIncidentScore(character, incident)
+  character.memory.witnessed.add(incident.index)
+  var score = _calculateIncidentScore(character, incident)
+  if (witnessed) {
+    // 亲身经历者会放大原本的评价
+    score *= 1.5
+  }
   for (final id in incident.subjectIds) {
     if (character.bonds.characters.containsKey(id)) {
       final bond = character.bonds.characters[id]
@@ -567,7 +579,17 @@ fun characterKnownIncident(character, incident, { witnessed }) {
       // }
     }
   }
-  character.memory.known.add(incident.index)
+  for (final id in incident.objectIds) {
+    if (!character.bonds.characters.containsKey(id)) {
+      // 名声增加
+      final object = game.characters[id]
+      ++object.knownByPopulation
+      final bond = Bond(id: id, name: object.name)
+      bond.memory[incident.index] = score
+      bond.score += score
+      character.bonds.characters[id] = bond
+    }
+  }
 }
 
 // fun getSpiritRankTitle(spiritRank) {
@@ -585,36 +607,30 @@ fun removeCharacterHome(character) {
 }
 
 fun setCharacterHome(character, location) {
-  if (character.homeId != location.id) {
-    // 触发定居事件
-    final incidentContent = getLocaleString('incidentSettle', [
+  // 触发定居事件
+  var incidentContent
+  if (location.organizationId && character.organizationId == location.organizationId) {
+    location.residingOrganizedCharacterIds.add(character.id)
+    incidentContent = getLocaleString('incidentSettleOrganized', [
+      character.name,
+      location.name,
+      game.organizations[location.organizationId].name,
+    ])
+  } else {
+    location.residingWildCharacterIds.add(character.id)
+    incidentContent = getLocaleString('incidentSettle', [
       character.name,
       location.name,
     ])
+  }
+  if (character.homeId != location.id) {
     Incident(
       content: incidentContent,
       subjectIds: [character.id],
-      isPrivate: true,
     )
-    for (final id in location.residingWildCharacterIds) {
-      if (id == character.id) continue
-      final otherChar = game.characters[id]
-      characterFirstMet(character, otherChar)
-    }
-    for (final id in location.residingOrganizedCharacterIds) {
-      if (id == character.id) continue
-      final otherChar = game.characters[id]
-      characterFirstMet(character, otherChar)
-    }
   }
   // 即便是同一个场景，也有可能是从在野变成加入组织，所以还是要执行下面的代码
   removeCharacterHome(character)
-  // location.residingCharacterIds.add(character.id)
-  if (location.organizationId && location.organizationId == character.organizationId) {
-    location.residingOrganizedCharacterIds.add(character.id)
-  } else {
-    location.residingWildCharacterIds.add(character.id)
-  }
   character.homeId = location.id
 }
 
@@ -622,6 +638,10 @@ fun setHeroId(id: str) {
   assert(game.characters.containsKey(id))
   engine.info('设置当前玩家人物为 [${game.characters[id].name}]。')
   game.heroId = id;
+}
+
+fun getHeroId() {
+  return game.heroId
 }
 
 fun getHero() {

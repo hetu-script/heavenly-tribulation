@@ -3,7 +3,7 @@ import 'dialog.json' as dialog
 import 'duel.json' as duel
 import 'editor.json' as editor
 import 'general.json' as general
-import 'history.json' as history
+import 'incident.json' as incident
 import 'information_panel.json' as informationPanel
 import 'interaction.json' as interaction
 import 'item.json' as item
@@ -21,7 +21,7 @@ final zh = {
   ...duel,
   ...editor,
   ...general,
-  ...history,
+  ...incident,
   ...informationPanel,
   ...interaction,
   ...item,

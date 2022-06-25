@@ -1,3 +1,26 @@
-fun debug {
-  for (final i = )
+import 'game.ht'
+import 'entity/character.ht'
+import 'entity/item/weapon.ht'
+
+namespace debug {
+  fun getWeapon(n) {
+    final hero = getHero()
+    assert(n > 0)
+    for (final i in range(n)) {
+      final weapon = Weapon()
+      hero.talismans.inventory.add(weapon)
+      final incidentContent = getLocaleString('incidentAquireItem', [
+          father.name,
+          mother.name,
+          this.name,
+          location.name,
+        ])
+      Incident(
+        content: incidentContent,
+        subjectIds: [father.id, mother.id],
+        objectIds: [this.id],
+        locationId: locationId,
+      )
+    }
+  }
 }

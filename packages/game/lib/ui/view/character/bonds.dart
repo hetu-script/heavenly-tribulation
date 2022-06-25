@@ -11,6 +11,7 @@ const kCharacterBondsTableColumns = [
   'organization',
   'location',
   'nation',
+  'talisman',
 ];
 
 const kCharacterBondsSubTableColumns = ['name', 'impressionOfThem'];

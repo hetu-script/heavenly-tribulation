@@ -4,14 +4,30 @@ import 'package:flutter/material.dart';
 
 import '../../../global.dart';
 
+const kMessageLimit = 50;
+
 class HistoryPanel extends StatelessWidget {
   const HistoryPanel({
-    required super.key,
+    super.key,
+    this.heroId,
   });
+
+  final String? heroId;
 
   @override
   Widget build(BuildContext context) {
-    final List history = engine.invoke('getHistory');
+    final Iterable history = engine.invoke('getHistory').reversed;
+    final List items = [];
+    final iter = history.iterator;
+    while (iter.moveNext()) {
+      final current = iter.current;
+      if (current['isGlobal'] ||
+          (heroId != null &&
+              (current['subjectIds'].contains(heroId) ||
+                  current['objectIds'].contains(heroId)))) {
+        items.add(current);
+      }
+    }
 
     return GestureDetector(
       onTap: () {
@@ -20,8 +36,8 @@ class HistoryPanel extends StatelessWidget {
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: Container(
-          width: 240,
-          height: 240,
+          width: 400,
+          height: 160,
           decoration: BoxDecoration(
             color: Theme.of(context).backgroundColor.withOpacity(0.5),
             borderRadius:
@@ -30,6 +46,7 @@ class HistoryPanel extends StatelessWidget {
           ),
           padding: const EdgeInsets.all(10.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(engine.invoke('getCurrentDateTimeString')),
               const Divider(
@@ -46,11 +63,9 @@ class HistoryPanel extends StatelessWidget {
                   child: ListView(
                     // controller: _scrollController,
                     reverse: true,
-                    children: [
-                      for (final incident in history)
-                        if (incident['isGlobal'] ?? false)
-                          Text(incident['content'])
-                    ],
+                    children: items
+                        .map((incident) => Text(incident['content']))
+                        .toList(),
                   ),
                 ),
               ),

@@ -1,9 +1,11 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import 'item_grid.dart';
 
-const kInventorySlotCount = 20;
+const kInventorySlotCount = 18;
 
 class InventoryView extends StatelessWidget {
   const InventoryView({
@@ -21,7 +23,7 @@ class InventoryView extends StatelessWidget {
     final List inventory = data['inventory'];
 
     final items = <ItemGrid>[];
-    for (var i = 0; i < kInventorySlotCount; ++i) {
+    for (var i = 0; i < math.max(kInventorySlotCount, inventory.length); ++i) {
       if (i < inventory.length) {
         items.add(ItemGrid(
           data: inventory[i],

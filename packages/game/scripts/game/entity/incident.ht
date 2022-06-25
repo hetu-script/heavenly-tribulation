@@ -5,24 +5,22 @@ import 'character.ht'
 struct Incident {
   construct ({
     content: str,
-    
-    isPrivate: bool,
-    isGlobal: bool,
-
+    isPrivate: bool = false,
+    isGlobal: bool = false,
     order = 0,
     ideal = 0,
     good = 0,
-    
-    subjectIds,
-    objectIds: List = [],
-    witnessIds: List = [],
+    score = 0, // 额外的好感分，加到本事件的行动者身上
+    subjectIds = [],
+    objectIds = [],
+    witnessIds = [],
+    // heardIds = [],
     withItem: str,
     toItem: str,
     locationId: str,
     terrainIndex: int,
   }) {
     assert(content != null && content.isNotEmpty)
-    assert(subjectIds != null && subjectIds.isNotEmpty)
 
     this.index = history.length
     this.content = content
@@ -30,13 +28,18 @@ struct Incident {
     this.order = order
     this.ideal = ideal
     this.good = good
+    this.score = score
     this.subjectIds = subjectIds
     this.objectIds = objectIds
     this.witnessIds = witnessIds
+    // this.heardIds = heardIds
     this.withItem = withItem
     this.toItem = toItem
     this.locationId = locationId
     this.terrainIndex = terrainIndex
+    this.isPrivate = isPrivate
+    this.isGlobal = isGlobal
+    history.add(this)
 
     for (final id in subjectIds) {
       final char = game.characters[id]
@@ -50,16 +53,18 @@ struct Incident {
 
     for (final id in witnessIds) {
       final char = game.characters[id]
-      characterKnownIncident(char, this, witnessed: true)
+      characterWitnessIncident(char, this, witnessed: true)
     }
 
-    this.isPrivate = isPrivate
-    this.isGlobal = isGlobal
+    // for (final id in heardIds) {
+    //   final char = game.characters[id]
+    //   characterWitnessIncident(char, this)
+    // }
 
     if (isGlobal) {
       for (final char of game.characters) {
         if (char.id in subjectIds || char.id in objectIds || char.id in witnessIds) continue
-        characterKnownIncident(char, this)
+        characterWitnessIncident(char, this)
       }
     } else if (!isPrivate) {
       if (locationId) {
@@ -67,12 +72,10 @@ struct Incident {
         for (final id in location.dwellingCharacterIds) {
           if (id in subjectIds || id in objectIds || id in witnessIds) continue
           final char = game.characters[id]
-          characterKnownIncident(char, this)
+          characterWitnessIncident(char, this)
         }
       }
     }
-
-    history.add(this)
   }
 }
 
