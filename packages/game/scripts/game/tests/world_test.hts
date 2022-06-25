@@ -1,4 +1,4 @@
-import '../map/worldmap.ht'
+import '../worldmap.ht'
 
 final world = createWorldMap()
 

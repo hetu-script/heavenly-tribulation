@@ -2,7 +2,7 @@ external class SamsaraEngine {
   fun updateLocale(data: Map)
   fun updateZoneColors(data: Map)
   fun updateNationColors(data: Map)
-  fun onIncident(data)
+  // fun onIncident(data)
   fun debug(content: str)
   fun info(content: str)
   fun warning(content: str)
@@ -105,8 +105,8 @@ fun getHistoryJsonData() {
   return jsonify(history)
 }
 
-fun loadGameFromJsonData(worldData, historyData) {
-  game = prototype.fromJson(worldData)
+fun loadGameFromJsonData(gameData, historyData) {
+  game = prototype.fromJson(gameData)
   history = []
   
   updateWorldMapZoneColors()
@@ -117,6 +117,8 @@ fun loadGameFromJsonData(worldData, historyData) {
       prototype.fromJson(data)
     )
   }
+
+  return game.world
 }
 
 fun getSavePath {

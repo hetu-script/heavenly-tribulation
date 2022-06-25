@@ -82,12 +82,31 @@ fun getDirection(start: {}, end: {}) {
 
 // manhattan 距离算法
 fun getTileDistance(start, end) {
-  // print('getTileDistance: ${start}, ${end}')
+  var result
   final dx = end.slashLeft - start.slashLeft
   final dy = end.slashTop - start.slashTop
   if ((dx >= 0 && dy >= 0) || (dx <= 0 && dy <= 0)) {
-    return (dx + dy).abs()
+    result = (dx + dy).abs()
   } else {
-    return Math.max(dx.abs(), dy.abs())
+    result = Math.max(dx.abs(), dy.abs())
   }
+  // print('getTileDistance: ${start}, ${end}, result: ${result}')
+  return result
+}
+
+// 从 hexagonal 坐标得到索引
+fun tilePos2Index(left, top, width) {
+  return left - 1 + (top - 1) * width
+}
+
+// 从索引得到 hexagonal 坐标
+fun index2TilePos(index: int, width) {
+  final left = index % width + 1
+  final top = index ~/ width + 1
+  return Tile(left, top)
+}
+
+// 坐标是否在地图范围内
+fun isPositionWithinMap(left, top, width, height) {
+  return (left > 0 && top > 0 && left <= width && top <= height)
 }

@@ -1,0 +1,264 @@
+import '../game.ht'
+import 'hexagonal_tile.ht'
+
+const kSpriteWater = 1
+const kSpriteShelf = 2
+const kSpriteLand = 3
+const kSpriteCity = 4
+const kSpriteForest = 5
+const kSpriteMountain = 6
+const kSpriteGrassLand = 7
+const kLocationCategoryCity = 'city'
+const kZoneVoid = 'empty'
+const kZoneWater = 'water'
+const kZoneContinent = 'continent'
+const kZoneIsland = 'island'
+const kZoneLake = 'lake'
+
+struct Zone {
+  var index: int
+  var category: str
+  var count = 0
+  final terrainIndexes = []
+
+  construct ({index, name, category}) {
+    assert(index != null)
+    assert(category != null)
+    this.index = index
+    this.name = name
+    this.category = category
+    this.color = Math.randomBrightColorHex()
+  }
+}
+
+struct TileMap {
+  construct ({
+    scene,
+    width,
+    height,
+    terrainSpriteSheet = 'fantasyhextiles_v3_borderless.png',
+    tileShape = 'hexagonalVertical',
+    gridWidth = 32.0,
+    gridHeight = 28.0,
+    tileSpriteSrcWidth = 32.0,
+    tileSpriteSrcHeight = 48.0,
+    tileOffsetX = 0.0,
+    tileOffsetY = 2.0,
+    heroX = 1,
+    heroY = 1,
+  }) {
+    this.scene = scene
+    this.width = width
+    this.height = height
+    this.terrainSpriteSheet = terrainSpriteSheet
+    this.tileShape = tileShape
+    this.gridWidth = gridWidth
+    this.gridHeight = gridHeight
+    this.tileSpriteSrcWidth = tileSpriteSrcWidth
+    this.tileSpriteSrcHeight = tileSpriteSrcHeight
+    this.tileOffsetX = tileOffsetX
+    this.tileOffsetY = tileOffsetY
+    this.heroX = heroX
+    this.heroY = heroY
+
+    this.zones = []
+    this.terrains = []
+    this.entities = []
+  }
+}
+
+fun getTerrain(left, top, map) {
+  return map.terrains[tilePos2Index(left, top, map.width)]
+}
+
+fun addTerrainToZone(terrain, zoneIndex, map) {
+  assert(0 <= zoneIndex && zoneIndex < map.zones.length)
+  final zone = map.zones[zoneIndex]
+  if (zone.terrainIndexes.contains(terrain.index)) return
+  if (terrain.zoneIndex != null && terrain.zoneIndex >= 0) {
+    final oldZone = map.zones[terrain.zoneIndex]
+    oldZone.terrainIndexes.remove(terrain.index)
+  }
+  terrain.zoneIndex = zoneIndex
+  terrain.zoneCategory = zone.category
+  zone.terrainIndexes.add(terrain.index)
+}
+
+// 获取相邻并且在地图范围内的格子
+// 如果 [restricted2Zone] 为 true，则只会返回和起点所在 tile 具有相同 zoneIndex 的格子
+fun getMapTileNeighbors(left: int, top: int, map, {zoneIndex}) {
+  assert(isPositionWithinMap(left, top, map.width, map.height))
+  final origin = map.terrains[tilePos2Index(left, top, map.width)]
+  final neighbors = []
+
+  fun addNeighbor(tile) {
+    if (!zoneIndex || tile.zoneIndex == zoneIndex ||
+      (tile.isHarbor && tile.harborOfZoneIndex == origin.zoneIndex) || 
+      (origin.isHarbor && origin.harborOfZoneIndex == tile.zoneIndex)) {
+      neighbors.add(tile)
+    }
+  }
+
+  // 奇数列
+  if (left % 2 != 0) {
+    // 上面
+    if (isPositionWithinMap(left, top - 1, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left, top - 1, map.width)]
+      addNeighbor(tile)
+    }
+    // 下面
+    if (isPositionWithinMap(left, top + 1, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left, top + 1, map.width)]
+      addNeighbor(tile)
+    }
+    // 左上
+    if (isPositionWithinMap(left - 1, top - 1, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left - 1, top - 1, map.width)]
+      addNeighbor(tile)
+    }
+    // 左下
+    if (isPositionWithinMap(left - 1, top, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left - 1, top, map.width)]
+      addNeighbor(tile)
+    }
+    // 右上
+    if (isPositionWithinMap(left + 1, top - 1, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left + 1, top - 1, map.width)]
+      addNeighbor(tile)
+    }
+    // 右下
+    if (isPositionWithinMap(left + 1, top, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left + 1, top, map.width)]
+      addNeighbor(tile)
+    }
+  }
+  // 欧数列
+  else {
+    // 上面
+    if (isPositionWithinMap(left, top - 1, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left, top - 1, map.width)]
+      addNeighbor(tile)
+    }
+    // 下面
+    if (isPositionWithinMap(left, top + 1, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left, top + 1, map.width)]
+      addNeighbor(tile)
+    }
+    // 左上
+    if (isPositionWithinMap(left - 1, top, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left - 1, top, map.width)]
+      addNeighbor(tile)
+    }
+    // 左下
+    if (isPositionWithinMap(left - 1, top + 1, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left - 1, top + 1, map.width)]
+      addNeighbor(tile)
+    }
+    // 右上
+    if (isPositionWithinMap(left + 1, top, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left + 1, top, map.width)]
+      addNeighbor(tile)
+    }
+    // 右下
+    if (isPositionWithinMap(left + 1, top + 1, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left + 1, top + 1, map.width)]
+      addNeighbor(tile)
+    }
+  }
+  return neighbors
+}
+
+// hScore(n) 是曼哈顿距离时的 A* 算法
+fun calculateRoute(start, end, map) {
+  // print('calculating route: ${start.left},${start.top} to ${end.left},${end.top}')
+
+  // assert(start.zoneIndex > 0)
+  // assert(end.zoneIndex > 0)
+  assert(start.index != end.index)
+  // final zone1 = map.zones[start.zoneIndex]
+  // final zone2 = map.zones[end.zoneIndex]
+
+  // g(n): 原点到该点的距离
+  final gScore = Map()
+  gScore[start.index] = 0
+  // h(n): 该点到终点的距离
+  final hScore = Map()
+  hScore[start.index] = getTileDistance(start, end)
+  // f(n) = g(n) + h(n)
+  final fScore = Map()
+  fScore[start.index] = hScore[start.index]
+
+  // 节点返回路径，每个 key 对应的 value 代表了 key 的坐标的上一步骤的坐标
+  final cameFrom = Map()
+  fun reconstructPath(cameFrom, current) {
+    final from = cameFrom[current]
+    if (from != null) {
+      final path = reconstructPath(cameFrom, from)
+      return [ ...path, current ]
+    } else {
+      return [ current ]
+    }
+  }
+  // 已被计算的坐标
+  final closed = Set()
+  // 将要计算的坐标, key 是 tile index，value 是 离起点的距离
+  final open = []
+  open.add(start.index)
+  final distance = getTileDistance(start, end)
+  var restrictedInZoneIndex
+  if (start.zoneIndex == end.zoneIndex) {
+    // 两个据点在相同地域
+    // print('same zone: ${start.zoneIndex}')
+    restrictedInZoneIndex = start.zoneIndex
+  }
+  
+  // else if (start.isHarbor && start.harborOfZoneIndex == end.zoneIndex) {
+  //   // 起点是港口
+  //   // print('start is harbor of zone: ${end.zoneIndex}')
+  //   restricted2Zone = end.zoneIndex
+  // } else if (end.isHarbor && end.harborOfZoneIndex == start.zoneIndex) {
+  //   // 终点是港口
+  //   // print('end is harbor of zone: ${start.zoneIndex}')
+  //   restricted2Zone = start.zoneIndex
+  // } else {
+  //   // 不是相同地域并且终点和起点都不是港口
+  //   return null
+  // }
+  // route = {
+  //   startLeft: start.left,
+  //   startTop: start.top,
+  //   path: []
+  // }
+  while (open.isNotEmpty) {
+    // 找到 f(x) 最小的节点
+    open.sort((t1, t2) => fScore[t1].compareTo(fScore[t2]))
+    final nextIndex = open.first
+    final next = index2TilePos(nextIndex, map.width)
+    if (nextIndex == end.index) {
+      // route.path = reconstructPath(cameFrom, end.index)
+      final route = reconstructPath(cameFrom, end.index)
+      return route
+    }
+    open.remove(nextIndex)
+    closed.add(nextIndex)
+    final neighbors = getMapTileNeighbors(next.left, next.top, map, zoneIndex: restrictedInZoneIndex)
+    for (final neighbor in neighbors) {
+      if (closed.contains(neighbor.index)) continue
+      final tentetiveGScore = gScore[nextIndex] + 1
+      var tentativelyBetter = false
+      if (!open.contains(neighbor.index) || (tentetiveGScore < gScore[neighbor.index])) {
+        tentativelyBetter = true
+      }
+      if (tentativelyBetter) {
+        cameFrom[neighbor.index] = nextIndex
+        gScore[neighbor.index] = tentetiveGScore
+        hScore[neighbor.index] = getTileDistance(neighbor, end)
+        fScore[neighbor.index] = gScore[neighbor.index] + hScore[neighbor.index]
+        if (!open.contains(neighbor.index)) {
+          open.add(neighbor.index)
+        }
+      }
+    }
+  }
+  return null
+}

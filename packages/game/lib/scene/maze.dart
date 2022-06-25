@@ -1,14 +1,15 @@
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
+import 'package:hetu_script/values.dart';
 
 import '../global.dart';
 
 class MazeScene extends Scene {
   late final TileMap map;
 
-  Map<String, dynamic> jsonData;
+  HTStruct data;
 
-  MazeScene({required this.jsonData, required super.controller})
+  MazeScene({required this.data, required super.controller})
       : super(key: 'maze');
 
   bool isMapReady = false;
@@ -16,8 +17,10 @@ class MazeScene extends Scene {
   @override
   Future<void> onLoad() async {
     super.onLoad();
-    map = await TileMap.fromJson(data: jsonData, engine: engine);
-
+    map = await TileMap.fromData(data: data, engine: engine);
+    map.showClouds = false;
+    map.showSelected = false;
+    map.showFogOfWar = true;
     add(map);
     isMapReady = true;
     engine.broadcast(const MapLoadedEvent());

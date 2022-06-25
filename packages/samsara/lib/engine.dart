@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -7,9 +8,7 @@ import 'package:hetu_script/value/struct/struct.dart';
 import 'package:hetu_script_flutter/hetu_script_flutter.dart';
 
 import 'binding/game_binding.dart';
-// import 'scene/scene.dart';
 import '../event/event.dart';
-import '../event/events.dart';
 import 'localization.dart';
 import '../shared/color.dart';
 import 'scene/scene_controller.dart';
@@ -18,15 +17,17 @@ import 'logger/output.dart';
 
 class SamsaraEngine with SceneController, EventAggregator {
   final bool debugMode;
+  late final bool isOnDesktop;
 
-  SamsaraEngine({required this.debugMode}) {
+  SamsaraEngine({required this.debugMode})
+      : isOnDesktop =
+            Platform.isLinux || Platform.isWindows || Platform.isMacOS {
     logger = Logger(
       filter: null,
       printer: _loggerPrinter,
       output: _loggerOutput,
     );
   }
-
   final CustomLoggerPrinter _loggerPrinter = CustomLoggerPrinter();
   final CustomLoggerOutput _loggerOutput = CustomLoggerOutput();
 
@@ -54,10 +55,6 @@ class SamsaraEngine with SceneController, EventAggregator {
     nationColors.clear();
     nationColors.addAll(
         data.map((key, value) => MapEntry(key, HexColor.fromHex(value))));
-  }
-
-  void onIncident(HTStruct data) {
-    broadcast(HistoryEvent.occurred(data: data));
   }
 
   late final Hetu hetu;

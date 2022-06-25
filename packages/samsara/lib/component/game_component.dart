@@ -20,7 +20,7 @@ abstract class GameComponent extends PositionComponent with HasGameRef<Scene> {
   set isVisible(bool value) => _isVisible = value;
 
   bool get isVisible {
-    if (isRemoving == true || size == Vector2.zero() || _isVisible == false) {
+    if (isRemoving == true || _isVisible == false) {
       return false;
     }
     return true;

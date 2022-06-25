@@ -24,12 +24,12 @@ extension SamsaraEngineBinding on SamsaraEngine {
                 Map<String, dynamic> namedArgs = const {},
                 List<HTType> typeArgs = const []}) =>
             updateNationColors(positionalArgs.first);
-      case 'onIncident':
-        return (HTEntity object,
-                {List<dynamic> positionalArgs = const [],
-                Map<String, dynamic> namedArgs = const {},
-                List<HTType> typeArgs = const []}) =>
-            onIncident(positionalArgs.first);
+      // case 'onIncident':
+      //   return (HTEntity object,
+      //           {List<dynamic> positionalArgs = const [],
+      //           Map<String, dynamic> namedArgs = const {},
+      //           List<HTType> typeArgs = const []}) =>
+      //       onIncident(positionalArgs.first);
       case 'debug':
         return (HTEntity object,
                 {List<dynamic> positionalArgs = const [],

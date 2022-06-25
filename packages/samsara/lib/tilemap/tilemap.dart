@@ -1,11 +1,11 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
+// import 'package:hetu_script/values.dart';
 
 import '../ui/pointer_detector.dart';
 import '../component/game_component.dart';
@@ -13,7 +13,7 @@ import '../gestures/gesture_mixin.dart';
 import '../extensions.dart';
 import 'tile.dart';
 import 'zone.dart';
-import 'actor.dart';
+import 'entity.dart';
 import 'cloud.dart';
 import '../../shared/color.dart';
 import '../engine.dart';
@@ -32,11 +32,11 @@ enum GridMode {
   nation,
 }
 
-enum DestinationAction {
-  none,
-  enter,
-  check,
-}
+// enum DestinationAction {
+//   none,
+//   enter,
+//   check,
+// }
 
 class TileMap extends GameComponent with HandlesGesture {
   static const maxCloudsCout = 16;
@@ -47,74 +47,16 @@ class TileMap extends GameComponent with HandlesGesture {
     ..style = PaintingStyle.stroke
     ..color = Colors.yellow;
 
-  @override
-  Camera get camera => gameRef.camera;
+  static final fogPaint = Paint()
+    ..style = PaintingStyle.fill
+    ..color = Colors.black;
 
-  final SamsaraEngine engine;
-  final String sceneKey;
+  static final fogNeighborPaint = Paint()
+    ..style = PaintingStyle.fill
+    ..color = Colors.black.withOpacity(0.5);
 
-  final TileShape tileShape;
-  final int heroX, heroY;
-  final double gridWidth, gridHeight;
-
-  final int mapTileWidth, mapTileHeight;
-
-  final bool tapSelect;
-
-  Vector2 mapScreenSize = Vector2.zero();
-
-  TileMapTerrain? selectedTerrain;
-  List<TileMapActor>? selectedActors;
-
-  final List<TileMapTerrain> terrains;
-  final List<TileMapActor> actors;
-  final List<TileMapZone> zones;
-  // final List<TileMapRoute> routes;
-
-  final List<TileMapCloud> clouds = [];
-
-  bool isTimeFlowing = false;
-
-  final TileMapActor? hero;
-  List<TileMapRouteNode>? currentRoute;
-
-  TileMapTerrain? currentMoveDestination;
-
-  DestinationAction currentDestinationAction = DestinationAction.none;
-
-  GridMode gridMode = GridMode.none;
-
-  final VoidCallback? onMoved;
-
-  TileMap({
-    required this.engine,
-    required this.sceneKey,
-    required this.tileShape,
-    this.tapSelect = false,
-    required this.heroX,
-    required this.heroY,
-    required this.gridWidth,
-    required this.gridHeight,
-    required this.mapTileWidth,
-    required this.mapTileHeight,
-    required this.terrains,
-    required this.hero,
-    this.actors = const [],
-    // this.routes = const [],
-    this.zones = const [],
-    this.onMoved,
-  }) {
-    assert(terrains.isNotEmpty);
-    scale = Vector2(TileMapTerrain.defaultScale, TileMapTerrain.defaultScale);
-  }
-
-  static int tilePosition2Index(int left, int top, int mapTileWidth) {
-    return (left - 1) + (top - 1) * mapTileWidth;
-  }
-
-  static Future<TileMap> fromJson(
-      {required SamsaraEngine engine,
-      required Map<String, dynamic> data}) async {
+  static Future<TileMap> fromData(
+      {required SamsaraEngine engine, required dynamic data}) async {
     final sceneKey = data['scene'];
     final tileShapeData = data['tileShape'];
     var tileShape = TileShape.orthogonal;
@@ -125,7 +67,7 @@ class TileMap extends GameComponent with HandlesGesture {
     } else if (tileShapeData == 'hexagonalVertical') {
       tileShape = TileShape.hexagonalVertical;
     }
-    final tapSelect = data['tapSelect'] ?? false;
+    // final tapSelect = data['tapSelect'] ?? false;
 
     final gridWidth = data['gridWidth'];
     final gridHeight = data['gridHeight'];
@@ -142,8 +84,6 @@ class TileMap extends GameComponent with HandlesGesture {
 
     final int tileMapWidth = data['width'];
     final int tileMapHeight = data['height'];
-    final int heroX = data['heroX'];
-    final int heroY = data['heroY'];
     final terrainsData = data['terrains'];
 
     final zonesData = data['zones'];
@@ -151,12 +91,10 @@ class TileMap extends GameComponent with HandlesGesture {
     if (zonesData != null) {
       for (final zoneData in zonesData) {
         final int index = zoneData['index'];
-        final String name = zoneData['name'];
         final String colorHex = zoneData['color'];
         final color = HexColor.fromHex(colorHex);
         zones.add(TileMapZone(
           index: index,
-          name: name,
           color: color,
         ));
       }
@@ -180,6 +118,9 @@ class TileMap extends GameComponent with HandlesGesture {
       for (var i = 0; i < tileMapWidth; ++i) {
         final index = tilePosition2Index(i + 1, j + 1, tileMapWidth);
         final terrainData = terrainsData[index];
+        final bool isVisible = terrainData['isVisible'] ?? true;
+        final bool isVoid = terrainData['isVoid'] ?? false;
+        final bool showGrid = terrainData['showGrid'] ?? false;
         final int zoneIndex = terrainData['zoneIndex'];
         final String zoneCategoryString = terrainData['zoneCategory'];
         ZoneCategory zoneCategory;
@@ -274,15 +215,17 @@ class TileMap extends GameComponent with HandlesGesture {
           }
         }
         final tile = TileMapTerrain(
-          shape: tileShape,
+          tileShape: tileShape,
           left: i + 1,
           top: j + 1,
+          isVisible: isVisible,
+          isVoid: isVoid,
+          showGrid: showGrid,
           tileMapWidth: tileMapWidth,
           srcWidth: tileSpriteSrcWidth,
           srcHeight: tileSpriteSrcHeight,
           gridWidth: gridWidth,
           gridHeight: gridHeight,
-          isVisible: true,
           zoneIndex: zoneIndex,
           zoneCategory: zoneCategory,
           locationId: locationId,
@@ -298,6 +241,9 @@ class TileMap extends GameComponent with HandlesGesture {
       }
     }
 
+    final int heroX = data['heroX'];
+    final int heroY = data['heroY'];
+
     final charSheet = SpriteSheet.fromColumnsAndRows(
       image: await Flame.images.load('character/tile_character.png'),
       columns: 4,
@@ -310,28 +256,47 @@ class TileMap extends GameComponent with HandlesGesture {
       rows: 6,
     );
 
-    final hero = TileMapActor(
-      isHero: true,
+    final hero = TileMapEntity(
       engine: engine,
-      sceneKey: sceneKey,
-      shape: tileShape,
-      gridWidth: gridWidth,
-      gridHeight: gridHeight,
+      isHero: true,
+      animationSpriteSheet: charSheet,
+      waterAnimationSpriteSheet: shipSheet,
       left: heroX,
       top: heroY,
+      tileShape: tileShape,
       tileMapWidth: tileMapWidth,
+      gridWidth: gridWidth,
+      gridHeight: gridHeight,
       srcWidth: 32,
       srcHeight: 32,
-      characterId: 'current',
-      characterAnimationSpriteSheet: charSheet,
-      shipAnimationSpriteSheet: shipSheet,
     );
+
+    final entityData = data['entities'];
+    final entities = <TileMapEntity>[];
+    if (entityData != null) {
+      for (final data in entityData) {
+        final spriteSrc = data['spriteSrc'];
+        final Sprite sprite = Sprite(await Flame.images.load(spriteSrc));
+        entities.add(TileMapEntity(
+          left: data['left'],
+          top: data['top'],
+          engine: engine,
+          sprite: sprite,
+          tileShape: tileShape,
+          tileMapWidth: tileMapWidth,
+          gridWidth: gridWidth,
+          gridHeight: gridHeight,
+          srcWidth: 32,
+          srcHeight: 32,
+        ));
+      }
+    }
 
     return TileMap(
       engine: engine,
       sceneKey: sceneKey,
       tileShape: tileShape,
-      tapSelect: tapSelect,
+      // tapSelect: tapSelect,
       heroX: heroX,
       heroY: heroY,
       mapTileWidth: tileMapWidth,
@@ -340,15 +305,83 @@ class TileMap extends GameComponent with HandlesGesture {
       gridHeight: gridHeight,
       terrains: terrains,
       zones: zones,
+      entities: entities,
       hero: hero,
-      // routes: routes,
     );
+  }
+
+  @override
+  Camera get camera => gameRef.camera;
+
+  final SamsaraEngine engine;
+  final String sceneKey;
+
+  final TileShape tileShape;
+  final int heroX, heroY;
+  final double gridWidth, gridHeight;
+
+  final int mapTileWidth, mapTileHeight;
+
+  // final bool tapSelect;
+
+  Vector2 mapScreenSize = Vector2.zero();
+
+  TileMapTerrain? selectedTerrain;
+  List<TileMapEntity>? selectedActors;
+
+  final List<TileMapTerrain> terrains;
+  final List<TileMapZone> zones;
+  final List<TileMapEntity> entities;
+  final TileMapEntity hero;
+
+  final List<AnimatedCloud> _clouds = [];
+
+  bool isTimeFlowing = false;
+
+  List<TileMapRouteNode>? _currentRoute;
+
+  // TileMapTerrain? _currentMoveDestination;
+
+  // DestinationAction currentDestinationAction = DestinationAction.none;
+
+  VoidCallback? _currentDestinationCallback;
+
+  GridMode gridMode = GridMode.none;
+
+  bool showClouds = true;
+  bool showSelected = true;
+  bool showFogOfWar = false;
+  bool isFogOfWarForever = false;
+
+  final Set<TilePosition> _visiblePerimeter = {};
+
+  TileMap({
+    required this.engine,
+    required this.sceneKey,
+    required this.tileShape,
+    // this.tapSelect = false,
+    required this.heroX,
+    required this.heroY,
+    required this.gridWidth,
+    required this.gridHeight,
+    required this.mapTileWidth,
+    required this.mapTileHeight,
+    required this.terrains,
+    this.zones = const [],
+    this.entities = const [],
+    // this.routes = const [],
+    required this.hero,
+  }) {
+    assert(terrains.isNotEmpty);
+    scale = Vector2(TileMapTerrain.defaultScale, TileMapTerrain.defaultScale);
+
+    lightUpAroundTile(hero.tilePosition, size: 1);
   }
 
   // 从索引得到坐标
   TilePosition index2TilePosition(int index) {
     final left = index % mapTileWidth + 1;
-    final top = index ~/ mapTileHeight + 1;
+    final top = index ~/ mapTileWidth + 1;
     return TilePosition(left, top);
   }
 
@@ -401,32 +434,23 @@ class TileMap extends GameComponent with HandlesGesture {
     }
   }
 
-  void _lightUpAroundTerrain(TileMapTerrain tile) {
-    // final neighbors = getNeighborTilePositions(tile.left, tile.top);
-    // for (final pos in neighbors) {
-    //   final neighbor = getTerrainByPosition(pos);
-    //   if (neighbor != null && !neighbor.isVoid) {
-    //     if (neighbor.isVisible) {
-    //       continue;
-    //     } else {
-    //       neighbor.isVisible = true;
-    //       final entity = getEntity(neighbor.left, neighbor.top);
-    //       entity?.isVisible = true;
-    //       if (!neighbor.isRoom) {
-    //         _lightUpAroundTerrain(neighbor);
-    //       }
-    //     }
-    //   }
-    // }
-  }
-
-  void lightUpAroundTerrain(int left, int top) {
-    final tile = getTerrain(left, top);
-    if (tile == null) {
-      return;
+  void lightUpAroundTile(TilePosition tilePosition, {int size = 0}) {
+    final start = getTerrain(tilePosition.left, tilePosition.top)!;
+    start.isVisible = true;
+    _visiblePerimeter.remove(tilePosition);
+    final neighbors =
+        getNeighborTilePositions(tilePosition.left, tilePosition.top);
+    for (final pos in neighbors) {
+      final tile = getTerrain(pos.left, pos.top);
+      if (tile != null && !tile.isVoid) {
+        if (!tile.isVisible) {
+          _visiblePerimeter.add(tile.tilePosition);
+        }
+        if (size > 0) {
+          lightUpAroundTile(pos, size: size - 1);
+        }
+      }
     }
-
-    _lightUpAroundTerrain(tile);
   }
 
   Vector2 worldPosition2Screen(Vector2 position) {
@@ -550,13 +574,12 @@ class TileMap extends GameComponent with HandlesGesture {
   }
 
   void moveHeroToTilePositionByRoute(List<int> route,
-      {DestinationAction action = DestinationAction.none}) {
-    if (hero!.isMoving) return;
-    currentDestinationAction = action;
-    final dest = index2TilePosition(route.last);
-    currentMoveDestination = getTerrain(dest.left, dest.top);
-    assert(hero!.index == route.first);
-    currentRoute = route
+      [VoidCallback? onDestinationCallback]) {
+    if (hero.isMoving) return;
+    _currentDestinationCallback = onDestinationCallback;
+    assert(
+        tilePosition2Index(hero.left, hero.top, mapTileWidth) == route.first);
+    _currentRoute = route
         .map((index) {
           final tilePos = index2TilePosition(index);
           final worldPos =
@@ -584,28 +607,30 @@ class TileMap extends GameComponent with HandlesGesture {
     // print('screen position: $screenPosition');
     // print('tile position: ${screenPosition2Tile(screenPosition)}');
 
-    final tilePos = screenPosition2Tile(screenPosition);
-    final terrain = getTerrain(tilePos.left, tilePos.top);
-    if (terrain != null) {
+    final tilePosition = screenPosition2Tile(screenPosition);
+    final terrain = getTerrain(tilePosition.left, tilePosition.top);
+    if (terrain != null && !terrain.isVoid) {
       // if (tile.isRoom && tile.isVisible) {
       //   gameRef.game.hetu.invoke('handleMazeTileInteraction',
       //       positionalArgs: [tile.left, tile.top]);
       // }
-      if (tapSelect) {
-        if (selectedTerrain != null) {
-          selectedTerrain = null;
-        } else {
-          if (hero == null || !hero!.isMoving) {
-            selectedTerrain = terrain;
-          }
-        }
-      }
+      // if (tapSelect) {
+      //   if (selectedTerrain != null) {
+      //     selectedTerrain = null;
+      //   } else {
+      //     if (hero == null || !hero.isMoving) {
+      selectedTerrain = terrain;
+      //     }
+      //   }
+      // }
     } else {
       selectedTerrain = null;
     }
 
     engine.broadcast(MapInteractionEvent.mapTapped(
-        globalPosition: details.globalPosition, terrain: terrain));
+        globalPosition: details.globalPosition,
+        buttons: buttons,
+        tilePosition: tilePosition));
   }
 
   @override
@@ -631,19 +656,21 @@ class TileMap extends GameComponent with HandlesGesture {
         }
       }
     }
-    for (final actor in actors) {
-      add(actor);
+    for (final entity in entities) {
+      add(entity);
     }
     double mapScreenSizeX = (gridWidth * 3 / 4) * mapTileWidth;
     double mapScreenSizeY = (gridHeight * mapTileHeight + gridHeight / 2);
     mapScreenSize = Vector2(mapScreenSizeX, mapScreenSizeY);
     moveCameraToTilePosition(heroX, heroY);
 
-    final r = math.Random().nextInt(6);
-    for (var i = 0; i < r; ++i) {
-      final cloud = TileMapCloud(screenSize: mapScreenSize);
-      clouds.add(cloud);
-      add(cloud);
+    if (showClouds) {
+      final r = math.Random().nextInt(6);
+      for (var i = 0; i < r; ++i) {
+        final cloud = AnimatedCloud(screenSize: mapScreenSize);
+        _clouds.add(cloud);
+        add(cloud);
+      }
     }
   }
 
@@ -651,53 +678,49 @@ class TileMap extends GameComponent with HandlesGesture {
   void updateTree(double dt, {bool callOwnUpdate = true}) {
     super.updateTree(dt);
 
-    if (clouds.length < maxCloudsCout) {
-      final r = math.Random().nextDouble();
-      if (r < 0.03) {
-        final cloud = TileMapCloud(screenSize: mapScreenSize);
-        clouds.add(cloud);
-        add(cloud);
+    if (showClouds) {
+      if (_clouds.length < maxCloudsCout) {
+        final r = math.Random().nextDouble();
+        if (r < 0.03) {
+          final cloud = AnimatedCloud(screenSize: mapScreenSize);
+          _clouds.add(cloud);
+          add(cloud);
+        }
       }
+      _clouds.removeWhere((cloud) {
+        if (!cloud.visible) {
+          remove(cloud);
+          return true;
+        }
+        return false;
+      });
     }
 
-    clouds.removeWhere((cloud) {
-      if (!cloud.visible) {
-        remove(cloud);
-        return true;
-      }
-      return false;
-    });
-
-    if (currentRoute != null && currentRoute!.isNotEmpty) {
-      final char = hero!;
+    if (_currentRoute != null && _currentRoute!.isNotEmpty) {
+      final char = hero;
       if (!char.isMoving) {
-        final pos = currentRoute!.last.tilePosition;
-        final terrain = getTerrain(pos.left, pos.top);
-        if (terrain!.isWater) {
-          hero!.isOnShip = true;
-        } else {
-          hero!.isOnShip = false;
-        }
-
-        currentRoute!.removeLast();
-        if (currentRoute!.isNotEmpty) {
-          final nextTile = currentRoute!.last;
+        final current = getTerrain(hero.left, hero.top)!;
+        lightUpAroundTile(current.tilePosition, size: 1);
+        _currentRoute!.removeLast();
+        if (_currentRoute!.isNotEmpty) {
+          final nextTile = _currentRoute!.last;
           char.moveTo(nextTile.tilePosition);
+          final pos = nextTile.tilePosition;
+          final terrain = getTerrain(pos.left, pos.top);
+          if (terrain!.isWater) {
+            hero.isOnWater = true;
+          } else {
+            hero.isOnWater = false;
+          }
         } else {
-          if (currentDestinationAction == DestinationAction.enter) {
-            engine.broadcast(LocationEvent.entered(
-                locationId: currentMoveDestination!.locationId!));
-            currentMoveDestination = null;
-          } else if (currentDestinationAction == DestinationAction.check) {
-            engine.broadcast(MapInteractionEvent.checkTerrain(
-                terrain: currentMoveDestination));
-            currentMoveDestination = null;
+          if (_currentDestinationCallback != null) {
+            _currentDestinationCallback!();
           }
         }
       }
     }
 
-    hero!.update(dt);
+    hero.update(dt);
   }
 
   @override
@@ -711,7 +734,7 @@ class TileMap extends GameComponent with HandlesGesture {
         final paint = Paint()
           ..style = PaintingStyle.fill
           ..color = color.withOpacity(0.6);
-        canvas.drawPath(tile.path, paint);
+        canvas.drawPath(tile.borderPath, paint);
       }
     } else if (gridMode == GridMode.nation) {
       for (final tile in terrains) {
@@ -720,14 +743,30 @@ class TileMap extends GameComponent with HandlesGesture {
           final paint = Paint()
             ..style = PaintingStyle.fill
             ..color = color.withOpacity(0.6);
-          canvas.drawPath(tile.path, paint);
+          canvas.drawPath(tile.borderPath, paint);
         }
       }
     }
-    if (selectedTerrain != null) {
-      canvas.drawPath(selectedTerrain!.path, selectedPaint);
+
+    if (showFogOfWar) {
+      for (final tile in terrains) {
+        if (tile.isVisible) {
+          continue;
+        } else if (_visiblePerimeter.contains(tile.tilePosition)) {
+          canvas.drawShadow(tile.borderPath, Colors.black, 0, true);
+        } else {
+          final Paint paint = Paint()
+            ..color = Colors.black
+            ..maskFilter =
+                MaskFilter.blur(BlurStyle.normal, convertRadiusToSigma(0.5));
+          canvas.drawPath(tile.shadowPath, paint);
+        }
+      }
     }
-    hero!.render(canvas);
+    if (showSelected && selectedTerrain != null) {
+      canvas.drawPath(selectedTerrain!.borderPath, selectedPaint);
+    }
+    hero.render(canvas);
     canvas.restore();
   }
 

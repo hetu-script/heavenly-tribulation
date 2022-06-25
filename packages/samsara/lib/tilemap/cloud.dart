@@ -6,7 +6,7 @@ import 'package:flame/components.dart';
 
 import '../scene/scene.dart';
 
-class TileMapCloud extends PositionComponent with HasGameRef<Scene> {
+class AnimatedCloud extends PositionComponent with HasGameRef<Scene> {
   late final Paint paint;
 
   Sprite? sprite;
@@ -20,7 +20,7 @@ class TileMapCloud extends PositionComponent with HasGameRef<Scene> {
 
   bool visible = true;
 
-  TileMapCloud({
+  AnimatedCloud({
     required Vector2 screenSize,
     Sprite? sprite,
     double? duration,
@@ -33,7 +33,7 @@ class TileMapCloud extends PositionComponent with HasGameRef<Scene> {
         super(position: position) {
     final random = math.Random();
     if (sprite != null) {
-      sprite = sprite;
+      this.sprite = sprite;
     } else {
       final randomIndex = random.nextInt(12).toString();
       Flame.images.load('weather/cloud$randomIndex.png').then((image) {

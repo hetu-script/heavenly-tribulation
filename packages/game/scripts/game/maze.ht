@@ -1,64 +1,131 @@
 import 'tile/hexagonal_tile.ht'
+import 'tile/tilemap.ht'
 import 'game.ht'
+import 'tile/entity.ht'
+
+var maze = []
+
+final landSprites = [
+  kSpriteLand,
+  kSpriteGrassLand,
+]
 
 /// 生成Roguelike副本的算法
-
-const _kSpriteLand = 3
-const _kSpriteForest = 5
-const _kSpriteMountain = 6
-
 fun createMaze ({
-  id,
-  terrainSpriteSheet: str,
-  tileShape = 'hexagonalVertical',
-  levelNumber = 1,
-  gridWidth = 32.0,
-  gridHeight = 28.0,
-  tileSpriteSrcWidth = 32.0,
-  tileSpriteSrcHeight = 48.0,
-  tileOffsetX = 0.0,
-  tileOffsetY = 2.0,
-}) {
-  
+    id,
+    levelNumber = 1,
+  }) {
   engine.info('开始生成副本: ${id}')
 
-  final maze = []
-  for (final levelIndex in range(levelNumber)) {
-    final [ width, height ] = [ 6, 7 ]
-    final currentLevel = {
-      scene: 'maze - ${id} - ${levelIndex}',
-      terrainSpriteSheet,
-      tileShape,
-      width,
-      height,
-      gridWidth,
-      gridHeight,
-      tileSpriteSrcWidth,
-      tileSpriteSrcHeight,
-      tileOffsetX,
-      tileOffsetY,
-      terrains: [],
-      heroX: 1,
-      heroY: 1,
+  maze = []
+
+  final occupied = []
+  fun randomPosition(heroX, heroY, width, height) {
+    assert(width > 2)
+    assert(height > 2)
+    if (occupied.length >= (width * height - width * 2 - (height - 2) * 2)) {
+      throw 'all tiles have been occupied!'
     }
+    var left
+    var top
+    var index
+    do {
+      left = Math.randomInt(width - 2) + 2
+      top = Math.randomInt(height - 2) + 2
+      index = tilePos2Index(left, top, width)
+    } while (occupied.contains(index) ||
+      (left == heroX && top == heroY)
+    )
+    occupied.add(index)
+    return { index, left, top }
+  }
+
+  for (final levelIndex in range(levelNumber)) {
+    final [ heroX, heroY ] = [ 2, 2 ]
+    final [ width, height ] = [ 8, 9 ]
+    final currentLevel = TileMap(
+      scene: 'maze - ${id} - ${levelIndex}',
+      width: width,
+      height: height,
+      heroX: heroX,
+      heroY: heroY,
+    )
     
+    final voidZone = Zone(index: currentLevel.zones.length, category: kZoneVoid)
+    final landZone = Zone(index: currentLevel.zones.length, category: kZoneContinent)
+    currentLevel.zones.add(landZone)
+
     engine.info('生成地块')
     for (var j in range(height)) {
       for (var i in range(width)) {
-        currentLevel.terrains.add(
-          {
-            ...Tile(i + 1, j + 1),
-            index: tilePos2Index(i + 1, j + 1, width),
-            spriteIndex: _kSpriteLand,
-            overlaySprite: {},
-          }
-        )
+        final isVoid = (i == 0) || (i == width - 1) || (j == 0) || (j == height - 1)
+        final terrain = {
+          ...Tile(i + 1, j + 1),
+          isVisible: false,
+          isVoid,
+          index: tilePos2Index(i + 1, j + 1, width),
+          spriteIndex: isVoid ? null : landSprites.random,
+          overlaySprite: {},
+        }
+        currentLevel.terrains.add(terrain)
+        if (isVoid) {
+          addTerrainToZone(terrain, voidZone.index, currentLevel)
+        } else {
+          addTerrainToZone(terrain, landZone.index, currentLevel)
+        }
       }
     }
 
+    engine.info('生成敌人')
+    for (final i in range(1)) {
+      final pos = randomPosition(heroX, heroY, width, height)
+      final enemy = TileMapEntity(
+        terrainIndex: pos.index,
+        left: pos.left,
+        top: pos.top,
+        spriteSrc: 'maze/enemy01.png',
+        srcWidth: 32,
+        srcHeight: 32,
+      )
+
+      final tileIndex = tilePos2Index(pos.left, pos.top, width)
+      final tile = currentLevel.terrains[tileIndex]
+      tile.entityIndex = currentLevel.entities.length
+      currentLevel.entities.add(enemy)
+    }
+    
+    engine.info('生成宝箱')
+    for (final i in range(1)) {
+      final pos = randomPosition(heroX, heroY, width, height)
+      final chest = TileMapEntity(
+        terrainIndex: pos.index,
+        left: pos.left,
+        top: pos.top,
+        spriteSrc: 'maze/chest02.png',
+        srcWidth: 32,
+        srcHeight: 32,
+      )
+
+      final tileIndex = tilePos2Index(pos.left, pos.top, width)
+      final tile = currentLevel.terrains[tileIndex]
+      tile.entityIndex = currentLevel.entities.length
+      currentLevel.entities.add(chest)
+    }
+
+    engine.info('生成路标 ')
+    
     maze.add(currentLevel)
   }
   
   engine.info('副本 ${id} 生成完毕')
-  return maze.toJson();
+
+  return maze
+}
+
+fun handleMazeInteraction(level, left, top) {
+  final tileIndex = tilePos2Index(i + 1, j + 1, width)
+  final tile = maze[level].terrains[tileIndex]
+  if (tile.entityIndex) {
+
+  }
 }

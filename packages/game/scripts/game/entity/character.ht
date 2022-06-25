@@ -25,8 +25,6 @@ const kCharacterMarriageAgeMax = 40
 
 const kMajorMotivationProbobility = 0.2
 
-const kTitleNone = 'none'
-
 final kMajorMotivations = [
   'duty',
   'pleasure',
@@ -186,10 +184,10 @@ struct Character {
 
     // 该角色的称号
     this.titles = {
-      'none': kTitleNone,
+      'none': getLocaleString(kNone),
     }
     // titles中直接保存了称号字符串
-    this.currentTitleId = kTitleNone
+    this.currentTitleId = kNone
     this.organizationRank = 0
  
     // 有多少人知道此人的名字
@@ -341,7 +339,7 @@ fun setCharacterTitle(character, titleId) {
 
 // 如果没有称号，会返回空字符串
 fun getCharacterTitle(character) {
-  if (character.currentTitleId != kTitleNone) {
+  if (character.currentTitleId != kNone) {
     return character.titles[character.currentTitleId]
   } else {
     return ''
@@ -670,8 +668,8 @@ fun haveMet(subject, target) {
 }
 
 fun handleCharacterTalk(subject, target) {
-  if (!haveMet(hero, character)) {
-    characterFirstMet(hero, character)
+  if (!haveMet(subject, target)) {
+    characterFirstMet(subject, target)
   }
 
 }

@@ -1,14 +1,15 @@
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
+import 'package:hetu_script/values.dart';
 
 import '../global.dart';
 
 class WorldMapScene extends Scene {
   late final TileMap map;
 
-  Map<String, dynamic> jsonData;
+  HTStruct data;
 
-  WorldMapScene({required this.jsonData, required super.controller})
+  WorldMapScene({required this.data, required super.controller})
       : super(key: 'worldmap');
 
   bool isMapReady = false;
@@ -16,9 +17,9 @@ class WorldMapScene extends Scene {
   @override
   Future<void> onLoad() async {
     super.onLoad();
-    map = await TileMap.fromJson(data: jsonData, engine: engine);
+    map = await TileMap.fromData(data: data, engine: engine);
     add(map);
     isMapReady = true;
-    engine.broadcast(MapLoadedEvent(isNewGame: jsonData['isNewGame'] ?? false));
+    engine.broadcast(MapLoadedEvent(isNewGame: data['isNewGame'] ?? false));
   }
 }

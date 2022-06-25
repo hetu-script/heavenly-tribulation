@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-import '../../shared/popup_submenu_item.dart';
+// import '../../shared/popup_submenu_item.dart';
 import '../../../global.dart';
 
-enum DropMenuItems { console, giveUp }
+enum MazeDropMenuItems { console, quit }
 
-class DropMenu extends StatelessWidget {
-  const DropMenu({super.key, required this.onSelected});
+class MazeDropMenu extends StatelessWidget {
+  const MazeDropMenu({super.key, required this.onSelected});
 
-  final void Function(DropMenuItems)? onSelected;
+  final void Function(MazeDropMenuItems)? onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -18,15 +18,16 @@ class DropMenu extends StatelessWidget {
         borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(5.0)),
         border: Border.all(color: kForegroundColor),
       ),
-      child: PopupMenuButton<DropMenuItems>(
+      child: PopupMenuButton<MazeDropMenuItems>(
         offset: const Offset(0, 45),
         icon: const Icon(Icons.menu_open),
         tooltip: engine.locale['menu'],
         onSelected: onSelected,
-        itemBuilder: (BuildContext context) => <PopupMenuEntry<DropMenuItems>>[
-          PopupMenuItem<DropMenuItems>(
+        itemBuilder: (BuildContext context) =>
+            <PopupMenuEntry<MazeDropMenuItems>>[
+          PopupMenuItem<MazeDropMenuItems>(
             height: 24.0,
-            value: DropMenuItems.console,
+            value: MazeDropMenuItems.console,
             child: Container(
               alignment: Alignment.centerLeft,
               width: 100,
@@ -34,13 +35,13 @@ class DropMenu extends StatelessWidget {
             ),
           ),
           const PopupMenuDivider(),
-          PopupMenuItem<DropMenuItems>(
+          PopupMenuItem<MazeDropMenuItems>(
             height: 24.0,
-            value: DropMenuItems.giveUp,
+            value: MazeDropMenuItems.quit,
             child: Container(
               alignment: Alignment.centerLeft,
               width: 100,
-              child: Text(engine.locale['giveUp']),
+              child: Text(engine.locale['quit']),
             ),
           ),
         ],

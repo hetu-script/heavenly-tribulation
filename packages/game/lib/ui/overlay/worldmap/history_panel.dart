@@ -1,47 +1,18 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:samsara/event.dart';
 
 import '../../../global.dart';
 
-class HistoryPanel extends StatefulWidget {
-  const HistoryPanel({required super.key});
-
-  @override
-  State<HistoryPanel> createState() => _HistoryPanelState();
-}
-
-class _HistoryPanelState extends State<HistoryPanel> {
-  // late final ScrollController _scrollController = ScrollController();
-  final List<String> messages = [];
-
-  @override
-  void initState() {
-    super.initState();
-
-    final List history = engine.invoke('getHistory');
-    for (final incident in history) {
-      // final isPrivate = incident['isPrivate'] ?? false;
-      final isGlobal = incident['isGlobal'] ?? false;
-      if (isGlobal) {
-        messages.add(incident['content']);
-      }
-    }
-
-    engine.registerListener(
-      Events.incidentOccurred,
-      EventHandler(widget.key!, (event) {
-        final historyEvent = event as HistoryEvent;
-        setState(() {
-          messages.add(historyEvent.data['content']);
-        });
-      }),
-    );
-  }
+class HistoryPanel extends StatelessWidget {
+  const HistoryPanel({
+    required super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final List history = engine.invoke('getHistory');
+
     return GestureDetector(
       onTap: () {
         // TODO: open hitstory view.
@@ -75,11 +46,11 @@ class _HistoryPanelState extends State<HistoryPanel> {
                   child: ListView(
                     // controller: _scrollController,
                     reverse: true,
-                    children: messages
-                        .map((text) => Text(text))
-                        .toList()
-                        .reversed
-                        .toList(),
+                    children: [
+                      for (final incident in history)
+                        if (incident['isGlobal'] ?? false)
+                          Text(incident['content'])
+                    ],
                   ),
                 ),
               ),

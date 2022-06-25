@@ -267,10 +267,10 @@ fun _handleGovernmentInteraction(site) {
     localExam: getLocaleString('localExam'),
   }
   if (site.isCapital) {
-    selections[nationalExam] = getLocaleString('nationalExam')
+    selections.nationalExam = getLocaleString('nationalExam')
   }
-  selections['visitJail'] = getLocaleString('visitJail')
-  selections['leave'] = getLocaleString('leave')
+  selections.visitJail = getLocaleString('visitJail')
+  selections.leave = getLocaleString('leave')
   
   showSelection(selections).then((key) {
     when (key) {
@@ -371,7 +371,7 @@ fun _handleResidenceInteraction(site) {
             }
           })
         } else {
-          showDialogByResourceId('visitEmptyVillage')
+          showDialogByLocaleKeys(['visitEmptyVillage'])
         }
       }
     }
@@ -391,11 +391,11 @@ fun _handleOrganizationInteraction(site) {
       // 如果选择 leave，直接忽略，什么也不做
       'train' -> {
         // 非本门派修士,需要花钱才能训练
-        showDialogByLocaleKeys(['organization_train_deny'])
+        showDialogByLocaleKeys(['organizationTrainDeny'])
       }
       'learn' -> {
         // 非本门派修士,需要花钱才能学习,而且只能学习二阶或以下的功法
-        showDialogByLocaleKeys(['organization_train_deny'])
+        showDialogByLocaleKeys(['organizationTrainDeny'])
       }
       'visit' -> {
         // 既然有总部，那就一定有可以拜访的成员

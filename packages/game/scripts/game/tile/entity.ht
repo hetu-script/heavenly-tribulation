@@ -1,0 +1,19 @@
+struct TileMapEntity {
+  construct ({
+    terrainIndex,
+    left,
+    top,
+    velocityFactor = 0.5,
+    spriteSrc,
+    srcWidth,
+    srcHeight,
+  }) {
+    this.terrainIndex = terrainIndex
+    this.left = left
+    this.top = top
+    this.velocityFactor = velocityFactor
+    this.spriteSrc = spriteSrc
+    this.srcWidth = srcWidth
+    this.srcHeight = srcHeight
+  }
+}

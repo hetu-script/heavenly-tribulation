@@ -105,6 +105,7 @@ flutter:
     - scripts/game/l10n/zh/
     - scripts/game/predefined/
     - scripts/game/tile/
+    - scripts/game/ai/
 
     - scripts/story/
     - scripts/story/binding/

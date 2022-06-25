@@ -33,7 +33,7 @@ struct Duel {
       }
     }
     if (!foundWielding) {
-      for (final item of hero.items.equipments) {
+      for (final item of hero.talisman.equipments) {
         if (item.category == 'weapon') {
           wielding = item
           foundWielding = true
@@ -112,13 +112,13 @@ struct Duel {
           break
         }
 
-        for (final item of hero.items.equipments) {
+        for (final item of hero.talisman.equipments) {
           if (_isReady(timeframe, item.stats.speed)) {
             _attack(hero, enemy, item)
           }
         }
 
-        for (final item of enemy.items.equipments) {
+        for (final item of enemy.talisman.equipments) {
           if (_isReady(timeframe, item.stats.speed)) {
             _attack(enemy, hero, item)
           }

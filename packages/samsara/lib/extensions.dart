@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'component/game_component.dart';
 
@@ -17,6 +18,12 @@ extension Vector2Ex on Vector2 {
   }
 }
 
+extension CornerPosition on PositionComponent {
+  Vector2 get topRightPosition => positionOfAnchor(Anchor.topRight);
+  Vector2 get bottomLeftPosition => positionOfAnchor(Anchor.bottomLeft);
+  Vector2 get bottomRightPosition => positionOfAnchor(Anchor.bottomRight);
+}
+
 extension CameraExtension on Camera {
   Rect toRect() {
     return Rect.fromLTWH(position.x, position.y, gameSize.x, gameSize.y);
@@ -26,6 +33,10 @@ extension CameraExtension on Camera {
     if (!c.isVisible) {
       return false;
     }
-    return gameSize.contains(c.position);
+
+    return gameSize.contains(c.topLeftPosition) ||
+        gameSize.contains(c.topRightPosition) ||
+        gameSize.contains(c.bottomLeftPosition) ||
+        gameSize.contains(c.bottomRightPosition);
   }
 }

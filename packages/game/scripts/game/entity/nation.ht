@@ -1,5 +1,5 @@
 import '../game.ht'
-import '../map.ht'
+import '../tile/tilemap.ht'
 import '../generator/name/name.ht' as nameGenerator
 
 const _kNation = '国'
@@ -89,7 +89,7 @@ fun addTerrainToNation(nation, terrain) {
     assert(!nation.locationIds.contains(location.id))
     nation.locationIds.add(location.id)
   }
-  final neighbors = getMapTileNeighbors(terrain.left, terrain.top)
+  final neighbors = getMapTileNeighbors(terrain.left, terrain.top, game.world)
   for (final neighbor in neighbors) {
     if (neighbor.nationId != nation.id) {
       nation.borderIndexes.add(neighbor.index)

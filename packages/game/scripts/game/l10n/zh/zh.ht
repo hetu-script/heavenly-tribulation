@@ -1,30 +1,35 @@
-import 'general.json' as general
-import 'world_map.json' as worldMap
-import 'mainmenu.json' as mainmenu
-import 'information_panel.json' as informationPanel
-import 'terrain.json' as terrain
-import 'location.json' as location
 import 'character.json' as character
-import 'organization.json' as organization
-import 'item.json' as item
-import 'history.json' as history
-import 'interaction.json' as interaction
 import 'dialog.json' as dialog
 import 'duel.json' as duel
 import 'editor.json' as editor
+import 'general.json' as general
+import 'history.json' as history
+import 'information_panel.json' as informationPanel
+import 'interaction.json' as interaction
+import 'item.json' as item
+import 'location.json' as location
+import 'mainmenu.json' as mainmenu
+import 'maze.json' as maze
+import 'mission.json' as mission
+import 'organization.json' as organization
+import 'terrain.json' as terrain
+import 'world_map.json' as worldMap
 
 final zh = {
-  ...general,
-  ...worldMap,
-  ...mainmenu,
-  ...informationPanel,
-  ...location,
   ...character,
-  ...organization,
-  ...item,
-  ...history,
-  ...interaction,
   ...dialog,
   ...duel,
   ...editor,
+  ...general,
+  ...history,
+  ...informationPanel,
+  ...interaction,
+  ...item,
+  ...location,
+  ...mainmenu,
+  ...maze,
+  ...mission,
+  ...organization,
+  ...terrain,
+  ...worldMap,
 }

@@ -10,6 +10,7 @@ import 'package:path/path.dart' as path;
 import 'package:samsara/samsara.dart';
 // import 'package:samsara/event.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:hetu_script/values.dart';
 
 import '../global.dart';
 import 'shared/loading_screen.dart';
@@ -39,9 +40,8 @@ class _MainMenuState extends State<MainMenu> {
   void initState() {
     super.initState();
 
-    engine.registerSceneConstructor('worldmap', (
-        [Map<String, dynamic>? args]) async {
-      Map<String, dynamic> worldData;
+    engine.registerSceneConstructor('worldmap', ([dynamic args]) async {
+      HTStruct world;
       final path = args!['path'];
       if (path != null) {
         final gameSavePath = File(path);
@@ -51,22 +51,17 @@ class _MainMenuState extends State<MainMenu> {
         final historyDataString = historySavePath.readAsStringSync();
         final historyData = jsonDecode(historyDataString);
         engine.info('从 [$path] 载入游戏存档。');
-        engine.invoke('loadGameFromJsonData',
+        world = engine.invoke('loadGameFromJsonData',
             positionalArgs: [gameData, historyData]);
-        engine.invoke('loadModsToGame');
-        worldData = gameData['world'];
       } else {
-        worldData = engine.invoke('createWorldMap', namedArgs: {
-          'terrainSpriteSheet': 'fantasyhextiles_v3_borderless.png',
-          ...args,
-        });
+        world = engine.invoke('createWorldMap', namedArgs: args);
       }
-      return WorldMapScene(jsonData: worldData, controller: engine);
+      engine.invoke('loadModsToGame');
+      return WorldMapScene(data: world, controller: engine);
     });
 
-    engine.registerSceneConstructor('maze', (
-        [Map<String, dynamic>? data]) async {
-      return MazeScene(jsonData: data!, controller: engine);
+    engine.registerSceneConstructor('maze', ([dynamic data]) async {
+      return MazeScene(data: data!, controller: engine);
     });
   }
 
@@ -154,9 +149,7 @@ class _MainMenuState extends State<MainMenu> {
               padding: const EdgeInsets.only(top: 40.0),
               child: ElevatedButton(
                 onPressed: () {
-                  final mazeData = engine.invoke('createMaze', namedArgs: {
-                    'terrainSpriteSheet': 'fantasyhextiles_v3_borderless.png',
-                  });
+                  final mazeData = engine.invoke('createMaze', namedArgs: {});
                   showDialog(
                     context: context,
                     builder: (context) => MazeOverlay(

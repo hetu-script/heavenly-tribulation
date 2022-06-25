@@ -7,13 +7,18 @@ import 'package:flutter/foundation.dart';
 
 class TouchDetails {
   int pointer;
+  int buttons;
   Offset startLocalPosition;
   Offset startGlobalPosition;
   Offset currentLocalPosition;
   Offset currentGlobalPosition;
 
-  TouchDetails(this.pointer, this.startGlobalPosition, this.startLocalPosition)
-      : currentLocalPosition = startLocalPosition,
+  TouchDetails(
+    this.pointer,
+    this.buttons,
+    this.startGlobalPosition,
+    this.startLocalPosition,
+  )   : currentLocalPosition = startLocalPosition,
         currentGlobalPosition = startGlobalPosition;
 }
 
@@ -184,8 +189,8 @@ class _PointerDetectorState extends State<PointerDetector> {
   }
 
   void onPointerDown(PointerDownEvent event) {
-    _touchDetails
-        .add(TouchDetails(event.pointer, event.position, event.localPosition));
+    _touchDetails.add(TouchDetails(
+        event.pointer, event.buttons, event.position, event.localPosition));
 
     if (touchCount == 1) {
       _gestureState = _GestureState.pointerDown;
@@ -218,16 +223,16 @@ class _PointerDetectorState extends State<PointerDetector> {
   }
 
   void onPointerMove(PointerMoveEvent event) {
-    final touch =
-        _touchDetails.firstWhere((touch) => touch.pointer == event.pointer);
+    final detail =
+        _touchDetails.firstWhere((detail) => detail.pointer == event.pointer);
 
     final distance = Offset(
-            touch.currentLocalPosition.dx - event.localPosition.dx,
-            touch.currentLocalPosition.dy - event.localPosition.dy)
+            detail.currentLocalPosition.dx - event.localPosition.dx,
+            detail.currentLocalPosition.dy - event.localPosition.dy)
         .distance;
 
-    touch.currentLocalPosition = event.localPosition;
-    touch.currentGlobalPosition = event.position;
+    detail.currentLocalPosition = event.localPosition;
+    detail.currentGlobalPosition = event.position;
     cleanupTimer();
 
     switch (_gestureState) {
@@ -246,8 +251,8 @@ class _PointerDetectorState extends State<PointerDetector> {
         //print('move distance: ' + distance.toString());
         if (distance > 1) {
           _gestureState = _GestureState.dragStart;
-          touch.startGlobalPosition = event.position;
-          touch.startLocalPosition = event.localPosition;
+          detail.startGlobalPosition = event.position;
+          detail.startLocalPosition = event.localPosition;
           if (widget.onDragStart != null) {
             widget.onDragStart!(
                 event.pointer,
@@ -272,8 +277,8 @@ class _PointerDetectorState extends State<PointerDetector> {
         }
         break;
       case _GestureState.scaleStart:
-        touch.startGlobalPosition = touch.currentGlobalPosition;
-        touch.startLocalPosition = touch.currentLocalPosition;
+        detail.startGlobalPosition = detail.currentGlobalPosition;
+        detail.startLocalPosition = detail.currentLocalPosition;
         _gestureState = _GestureState.scalling;
         initScaleAndRotate();
         if (widget.onScaleStart != null) {
@@ -312,8 +317,8 @@ class _PointerDetectorState extends State<PointerDetector> {
         }
         break;
       default:
-        touch.startGlobalPosition = touch.currentGlobalPosition;
-        touch.startLocalPosition = touch.currentLocalPosition;
+        detail.startGlobalPosition = detail.currentGlobalPosition;
+        detail.startLocalPosition = detail.currentLocalPosition;
         break;
     }
   }
@@ -333,12 +338,14 @@ class _PointerDetectorState extends State<PointerDetector> {
   }
 
   void onPointerUp(PointerEvent event) {
-    _touchDetails.removeWhere((touch) => touch.pointer == event.pointer);
-
+    // use the original detail's buttons information instead
+    // because this information will be lost in the pointerUp event.
+    final originalDetail =
+        _touchDetails.singleWhere((detail) => detail.pointer == event.pointer);
     if (_gestureState == _GestureState.pointerDown) {
       widget.onTapUp?.call(
           event.pointer,
-          event.buttons,
+          originalDetail.buttons,
           TapUpDetails(
               globalPosition: event.position,
               localPosition: event.localPosition,
@@ -356,6 +363,7 @@ class _PointerDetectorState extends State<PointerDetector> {
       _gestureState = _GestureState.none;
     }
 
+    _touchDetails.removeWhere((detail) => detail.pointer == event.pointer);
     // _lastTouchUpPos = event.localPosition;
   }
 

@@ -98,13 +98,13 @@ class CharacterAttributesView extends StatelessWidget {
             children: [
               Row(children: [
                 Container(
-                  margin: const EdgeInsets.only(left: 10.0, right: 33.0),
+                  margin: const EdgeInsets.only(left: 10.0, right: 16.0),
                   child: Avatar(
                     avatarAssetKey: 'assets/images/${data['avatar']}',
                   ),
                 ),
                 Container(
-                  margin: const EdgeInsets.only(left: 10.0),
+                  margin: const EdgeInsets.only(left: 5.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,

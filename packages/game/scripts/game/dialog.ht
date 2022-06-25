@@ -40,6 +40,7 @@ fun showDialogByStrings(lines, [returnValue]) -> Future {
 
 fun showDialogByResourceId(id: str, [returnValue]) -> Future {
   final data = dialogs[id]
+  print(data)
   return _showGameDialog(buildContext, data, returnValue)
 }
 

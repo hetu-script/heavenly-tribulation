@@ -19,11 +19,11 @@ class WorldMapPopup extends StatelessWidget {
   final bool restIcon;
   final String title;
 
-  final VoidCallback? onMoveToIconTapped;
-  final VoidCallback? onCheckIconTapped;
-  final VoidCallback? onEnterIconTapped;
-  final VoidCallback? onTalkIconTapped;
-  final VoidCallback? onRestIconTapped;
+  final VoidCallback? onMoveTo;
+  final VoidCallback? onCheck;
+  final VoidCallback? onEnter;
+  final VoidCallback? onTalk;
+  final VoidCallback? onRest;
 
   const WorldMapPopup({
     super.key,
@@ -31,15 +31,15 @@ class WorldMapPopup extends StatelessWidget {
     required this.top,
     this.onPanelTapped,
     this.moveToIcon = false,
-    this.onMoveToIconTapped,
+    this.onMoveTo,
     this.checkIcon = false,
-    this.onCheckIconTapped,
+    this.onCheck,
     this.enterIcon = false,
-    this.onEnterIconTapped,
+    this.onEnter,
     this.talkIcon = false,
-    this.onTalkIconTapped,
+    this.onTalk,
     this.restIcon = false,
-    this.onRestIconTapped,
+    this.onRest,
     this.title = '',
   });
 
@@ -100,8 +100,8 @@ class WorldMapPopup extends StatelessWidget {
                         image: AssetImage('assets/images/icon/move_to.png'),
                       ),
                       onPressed: () {
-                        if (onMoveToIconTapped != null) {
-                          onMoveToIconTapped!();
+                        if (onMoveTo != null) {
+                          onMoveTo!();
                         }
                       },
                     ),
@@ -119,8 +119,8 @@ class WorldMapPopup extends StatelessWidget {
                         image: AssetImage('assets/images/icon/check.png'),
                       ),
                       onPressed: () {
-                        if (onCheckIconTapped != null) {
-                          onCheckIconTapped!();
+                        if (onCheck != null) {
+                          onCheck!();
                         }
                       },
                     ),
@@ -138,8 +138,8 @@ class WorldMapPopup extends StatelessWidget {
                         image: AssetImage('assets/images/icon/enter.png'),
                       ),
                       onPressed: () {
-                        if (onEnterIconTapped != null) {
-                          onEnterIconTapped!();
+                        if (onEnter != null) {
+                          onEnter!();
                         }
                       },
                     ),
@@ -157,8 +157,8 @@ class WorldMapPopup extends StatelessWidget {
                         image: AssetImage('assets/images/icon/talk.png'),
                       ),
                       onPressed: () {
-                        if (onTalkIconTapped != null) {
-                          onTalkIconTapped!();
+                        if (onTalk != null) {
+                          onTalk!();
                         }
                       },
                     ),
@@ -176,8 +176,8 @@ class WorldMapPopup extends StatelessWidget {
                         image: AssetImage('assets/images/icon/rest.png'),
                       ),
                       onPressed: () {
-                        if (onRestIconTapped != null) {
-                          onRestIconTapped!();
+                        if (onRest != null) {
+                          onRest!();
                         }
                       },
                     ),

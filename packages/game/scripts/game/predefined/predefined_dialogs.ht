@@ -1,20 +1,10 @@
 final predefinedDialogs = [
   {
-    id: 'visit_empty_village',
+    id: 'visitEmptyVillage',
     contents: [
       {
         lineIds: [
           'visit_empty_village',
-        ],
-      },
-    ],
-  },
-  {
-    id: 'visit_palace_deny',
-    contents: [
-      {
-        lineIds: [
-          'visit_palace_deny',
         ],
       },
     ],

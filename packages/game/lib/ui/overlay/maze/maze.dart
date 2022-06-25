@@ -3,10 +3,12 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../../../ui/shared/avatar.dart';
+// import '../../../../ui/shared/avatar.dart';
 import '../../shared/loading_screen.dart';
 import '../../../global.dart';
 import '../../../scene/maze.dart';
+import 'drop_menu.dart';
+import '../../view/console.dart';
 
 class MazeOverlay extends StatefulWidget {
   const MazeOverlay({
@@ -32,7 +34,7 @@ class _MazeOverlayState extends State<MazeOverlay>
 
   late int _currentLevel;
 
-  late final HTStruct _heroData;
+  // late final HTStruct _heroData;
 
   @override
   void initState() {
@@ -40,6 +42,33 @@ class _MazeOverlayState extends State<MazeOverlay>
 
     _currentLevel = widget.startLevel;
     // _heroData = engine.invoke('getHero');
+
+    engine.registerListener(
+      Events.mapTapped,
+      EventHandler(
+        widget.key!,
+        (event) {
+          final hero = _scene.map.hero;
+          if (hero.isMoving) return;
+          final terrain = _scene.map.selectedTerrain;
+          if (terrain == null) return;
+          if (terrain.isVoid) return;
+          List<int>? route;
+          if (terrain.tilePosition != hero.tilePosition) {
+            final start = engine.invoke('getTerrain',
+                positionalArgs: [hero.left, hero.top, _scene.data]);
+            final end = engine.invoke('getTerrain',
+                positionalArgs: [terrain.left, terrain.top, _scene.data]);
+            List? calculatedRoute = engine.invoke('calculateRoute',
+                positionalArgs: [start, end, _scene.data]);
+            if (calculatedRoute != null) {
+              route = List<int>.from(calculatedRoute);
+              _scene.map.moveHeroToTilePositionByRoute(route);
+            }
+          }
+        },
+      ),
+    );
   }
 
   @override
@@ -52,7 +81,7 @@ class _MazeOverlayState extends State<MazeOverlay>
     super.dispose();
   }
 
-  Future<Scene> _createLevel(Map<String, dynamic> levelData) async {
+  Future<Scene> _createLevel(HTStruct levelData) async {
     final scene = await engine.createScene('maze', levelData) as MazeScene;
     return scene;
   }
@@ -78,7 +107,35 @@ class _MazeOverlayState extends State<MazeOverlay>
           if (_scene.isAttached) {
             _scene.detach();
           }
-          return SceneWidget(scene: _scene);
+          return Material(
+            color: Colors.transparent,
+            child: Stack(
+              children: [
+                SceneWidget(scene: _scene),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: MazeDropMenu(
+                    onSelected: (MazeDropMenuItems item) async {
+                      switch (item) {
+                        case MazeDropMenuItems.console:
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) => const Console(),
+                          ).then((value) => setState(() {}));
+                          break;
+                        case MazeDropMenuItems.quit:
+                          engine.leaveScene('maze');
+                          Navigator.of(context).pop();
+                          break;
+                        default:
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
         }
       },
     );

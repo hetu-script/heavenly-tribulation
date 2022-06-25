@@ -1,7 +1,6 @@
 import 'game.ht'
 import 'entity/character.ht'
 import 'l10n.ht'
-import 'entity/character.ht'
 
 fun onGameEvent(id: str, [arg]) {
   for (final mod of game.mods) {

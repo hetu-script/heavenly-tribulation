@@ -1,3 +1,5 @@
+const kNone = 'none'
+
 final kResources = [
   {
     id: 'gold',

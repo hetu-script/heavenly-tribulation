@@ -8,16 +8,15 @@ class SceneController {
 
   final _cachedScenes = <String, Scene>{};
 
-  final _sceneConstructors =
-      <String, Future<Scene> Function([Map<String, dynamic>? arg])>{};
+  final _sceneConstructors = <String, Future<Scene> Function([dynamic arg])>{};
 
-  void registerSceneConstructor<T extends Scene>(String name,
-      Future<T> Function([Map<String, dynamic>? args]) constructor) {
+  void registerSceneConstructor<T extends Scene>(
+      String name, Future<T> Function([dynamic args]) constructor) {
     _sceneConstructors[name] = constructor;
   }
 
   @mustCallSuper
-  Future<Scene> createScene(String key, [Map<String, dynamic>? args]) async {
+  Future<Scene> createScene(String key, [dynamic args]) async {
     final _cached = _cachedScenes[key];
     if (_cached != null) {
       _currentScene = _cached;

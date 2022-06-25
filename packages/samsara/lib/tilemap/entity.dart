@@ -6,7 +6,6 @@ import 'package:flame/sprite.dart';
 
 import '../component/game_component.dart';
 import 'tile.dart';
-import 'tile_mixin.dart';
 import '../shared/direction.dart';
 import '../engine.dart';
 import '../../event/events.dart';
@@ -18,16 +17,14 @@ enum AnimationDirection {
   north,
 }
 
-class TileMapActor extends GameComponent with TileInfo {
+class TileMapEntity extends GameComponent with TileInfo {
+  final bool isHero;
   final double velocityFactor;
 
-  final String characterId;
-
-  final bool isHero;
-
-  final String sceneKey;
-
-  final SpriteAnimation characterSouth,
+  Sprite? sprite;
+  bool _isAnimated = false;
+  bool _hasOnWaterAnimation = false;
+  late final SpriteAnimation? characterSouth,
       characterNorthEast,
       characterSouthEast,
       characterNorth,
@@ -43,56 +40,71 @@ class TileMapActor extends GameComponent with TileInfo {
 
   bool _isMoving = false;
   bool get isMoving => _isMoving;
-  bool isOnShip = false;
+  bool isOnWater = false;
   Vector2 _movingOffset = Vector2.zero();
   Vector2 _movingTargetWorldPosition = Vector2.zero();
-  TilePosition _movingTargetTilePosition = const TilePosition.zero();
+  TilePosition _movingTargetTilePosition = const TilePosition.leftTop();
   Vector2 _velocity = Vector2.zero();
 
   final SamsaraEngine engine;
 
-  TileMapActor({
+  String? entityIndex;
+
+  TileMapEntity({
     required this.engine,
-    required this.sceneKey,
-    required this.characterId,
-    required TileShape shape,
+    this.isHero = false,
+    int left = 1,
+    int top = 1,
+    this.velocityFactor = 0.5,
+    Sprite? sprite,
+    SpriteSheet? animationSpriteSheet,
+    SpriteSheet? waterAnimationSpriteSheet,
+    required TileShape tileShape,
+    required int tileMapWidth,
     required double gridWidth,
     required double gridHeight,
-    required int left,
-    required int top,
-    required int tileMapWidth,
     required double srcWidth,
     required double srcHeight,
-    required SpriteSheet characterAnimationSpriteSheet,
-    required SpriteSheet shipAnimationSpriteSheet,
-    this.velocityFactor = 0.5,
-    this.isHero = false,
-  })  : characterSouth = characterAnimationSpriteSheet.createAnimation(
-            row: 0, stepTime: 0.2),
-        characterNorthEast = characterAnimationSpriteSheet.createAnimation(
-            row: 1, stepTime: 0.2),
-        characterSouthEast = characterAnimationSpriteSheet.createAnimation(
-            row: 2, stepTime: 0.2),
-        characterNorth = characterAnimationSpriteSheet.createAnimation(
-            row: 3, stepTime: 0.2),
-        characterNorthWest = characterAnimationSpriteSheet.createAnimation(
-            row: 4, stepTime: 0.2),
-        characterSouthWest = characterAnimationSpriteSheet.createAnimation(
-            row: 5, stepTime: 0.2),
+    this.entityIndex,
+  }) {
+    if (animationSpriteSheet != null) {
+      _isAnimated = true;
+      characterSouth =
+          animationSpriteSheet.createAnimation(row: 0, stepTime: 0.2);
+      characterNorthEast =
+          animationSpriteSheet.createAnimation(row: 1, stepTime: 0.2);
+      characterSouthEast =
+          animationSpriteSheet.createAnimation(row: 2, stepTime: 0.2);
+      characterNorth =
+          animationSpriteSheet.createAnimation(row: 3, stepTime: 0.2);
+      characterNorthWest =
+          animationSpriteSheet.createAnimation(row: 4, stepTime: 0.2);
+      characterSouthWest =
+          animationSpriteSheet.createAnimation(row: 5, stepTime: 0.2);
+
+      if (waterAnimationSpriteSheet != null) {
+        _hasOnWaterAnimation = true;
+
         shipSouth =
-            shipAnimationSpriteSheet.createAnimation(row: 0, stepTime: 0.2),
+            waterAnimationSpriteSheet.createAnimation(row: 0, stepTime: 0.2);
         shipNorthEast =
-            shipAnimationSpriteSheet.createAnimation(row: 1, stepTime: 0.2),
+            waterAnimationSpriteSheet.createAnimation(row: 1, stepTime: 0.2);
         shipSouthEast =
-            shipAnimationSpriteSheet.createAnimation(row: 2, stepTime: 0.2),
+            waterAnimationSpriteSheet.createAnimation(row: 2, stepTime: 0.2);
         shipNorth =
-            shipAnimationSpriteSheet.createAnimation(row: 3, stepTime: 0.2),
+            waterAnimationSpriteSheet.createAnimation(row: 3, stepTime: 0.2);
         shipNorthWest =
-            shipAnimationSpriteSheet.createAnimation(row: 4, stepTime: 0.2),
+            waterAnimationSpriteSheet.createAnimation(row: 4, stepTime: 0.2);
         shipSouthWest =
-            shipAnimationSpriteSheet.createAnimation(row: 5, stepTime: 0.2) {
+            waterAnimationSpriteSheet.createAnimation(row: 5, stepTime: 0.2);
+      }
+    } else {
+      assert(sprite != null);
+      this.sprite = sprite;
+    }
+
     this.tileMapWidth = tileMapWidth;
-    this.shape = shape;
+    this.tileShape = tileShape;
     this.gridWidth = gridWidth;
     this.gridHeight = gridHeight;
     this.srcWidth = srcWidth;
@@ -101,14 +113,15 @@ class TileMapActor extends GameComponent with TileInfo {
   }
 
   void stop() {
+    currentAnimation?.setToLast();
     _isMoving = false;
     _movingOffset = Vector2.zero();
     _movingTargetWorldPosition = Vector2.zero();
     _velocity = Vector2.zero();
     tilePosition = _movingTargetTilePosition;
-    _movingTargetTilePosition = const TilePosition.zero();
+    _movingTargetTilePosition = const TilePosition.leftTop();
     if (isHero) {
-      engine.broadcast(MapInteractionEvent.heroMoved(scene: sceneKey));
+      engine.broadcast(const HeroEvent.heroMoved());
     }
   }
 
@@ -133,8 +146,8 @@ class TileMapActor extends GameComponent with TileInfo {
     _velocity = Vector2(tx * sx.sign, ty * sy.sign);
   }
 
-  SpriteAnimation get currentAnimation {
-    if (isOnShip) {
+  SpriteAnimation? get currentAnimation {
+    if (_hasOnWaterAnimation && isOnWater) {
       switch (direction) {
         case HexagonalDirection.south:
           return shipSouth;
@@ -167,19 +180,29 @@ class TileMapActor extends GameComponent with TileInfo {
     }
   }
 
+  Sprite getSprite() {
+    if (_isAnimated) {
+      return currentAnimation!.getSprite();
+    } else {
+      return sprite!;
+    }
+  }
+
   @override
   void render(Canvas canvas) {
+    if (!isVisible) return;
+
     var rpos = renderPosition;
     if (isMoving) {
       rpos += _movingOffset;
     }
-    currentAnimation.getSprite().render(canvas, position: rpos);
+    getSprite().render(canvas, position: rpos);
   }
 
   @override
   void update(double dt) {
     if (isMoving) {
-      currentAnimation.update(dt);
+      currentAnimation?.update(dt);
       _movingOffset.x += _velocity.x;
       _movingOffset.y += _velocity.y;
 
