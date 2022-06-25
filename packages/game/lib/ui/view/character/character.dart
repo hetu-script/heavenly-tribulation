@@ -106,42 +106,39 @@ class _CharacterViewState extends State<CharacterView>
     return ResponsiveRoute(
       alignment: AlignmentDirectional.topCenter,
       size: Size(400.0, widget.showConfirmButton ? 460.0 : 420.0),
-      child: DefaultTabController(
-        length: _tabs.length,
-        child: Scaffold(
-          appBar: AppBar(
-            automaticallyImplyLeading: false,
-            title: Text('${data['name']} - $_title'),
-            actions: const [ButtonClose()],
-            bottom: TabBar(
-              controller: _tabController,
-              tabs: _tabs,
-            ),
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Text('${data['name']} - $_title'),
+          actions: const [ButtonClose()],
+          bottom: TabBar(
+            controller: _tabController,
+            tabs: _tabs,
           ),
-          body: Column(
-            children: [
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    CharacterAttributesView(data: data),
-                    CharacterBondsView(data: data['bonds']),
-                    CharacterMemory(data: data['memory']),
-                  ],
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  CharacterAttributesView(data: data),
+                  CharacterBondsView(data: data['bonds']),
+                  CharacterMemory(data: data['memory']),
+                ],
+              ),
+            ),
+            if (widget.showConfirmButton)
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(charId);
+                  },
+                  child: Text(engine.locale['confirm']),
                 ),
               ),
-              if (widget.showConfirmButton)
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(charId);
-                    },
-                    child: Text(engine.locale['confirm']),
-                  ),
-                ),
-            ],
-          ),
+          ],
         ),
       ),
     );

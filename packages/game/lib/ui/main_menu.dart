@@ -25,7 +25,7 @@ import 'create_game_dialog.dart';
 import 'overlay/main_game.dart';
 
 class MainMenu extends StatefulWidget {
-  const MainMenu({required super.key});
+  const MainMenu({super.key});
 
   @override
   State<MainMenu> createState() => _MainMenuState();

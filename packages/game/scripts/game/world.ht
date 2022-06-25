@@ -493,7 +493,7 @@ fun createWorldMap({
           addCharacterToOrganization(character, organization)
         }
       }
-          
+      
       // 为角色添加家庭关系
       final characterIdList = game.characters.keys.toList()
       characterIdList.shuffle()

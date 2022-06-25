@@ -54,7 +54,7 @@ void main() async {
     MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: GlobalConfig.theme,
-      home: MainMenu(key: UniqueKey()),
+      home: const MainMenu(),
       routes: {
         'worldmap': (context) => MainGameOverlay(key: UniqueKey()),
         'location': (context) => const LocationView(),
