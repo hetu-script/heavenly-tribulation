@@ -9,6 +9,8 @@ class DynamicColorProgressBar extends StatelessWidget {
     this.margin = const EdgeInsets.all(2.0),
     required this.size,
     required this.value,
+    required this.max,
+    this.showPercentage = true,
     this.begin = Alignment.centerLeft,
     this.end = Alignment.centerRight,
     required this.colors,
@@ -33,7 +35,9 @@ class DynamicColorProgressBar extends StatelessWidget {
 
   final Size size;
 
-  final double value;
+  final int value, max;
+
+  final bool showPercentage;
 
   final AlignmentGeometry begin;
 
@@ -77,16 +81,20 @@ class DynamicColorProgressBar extends StatelessWidget {
             child: Stack(
               children: [
                 Container(
-                  width: value * size.width,
+                  width: value / max * size.width,
                   height: size.height,
                   decoration: BoxDecoration(
-                    color: _lerpGradient(value),
+                    color: _lerpGradient(value / max),
                   ),
                 ),
                 Container(
                   alignment: Alignment.center,
                   padding: const EdgeInsets.only(right: 5.0),
-                  child: Text(value.toPercentageString()),
+                  child: Text(
+                    showPercentage
+                        ? (value / max).toPercentageString()
+                        : '$value/$max',
+                  ),
                 ),
               ],
             ),

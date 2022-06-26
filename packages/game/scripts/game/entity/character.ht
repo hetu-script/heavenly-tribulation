@@ -439,13 +439,13 @@ fun getStatsPercentageOfCharacter(character) {
   final stamina = (character.stats.stamina / character.attributes.stamina)
   return {
     life: {
-      current: character.stats.life,
+      value: character.stats.life,
       max: character.attributes.life,
       percentage: life,
       string: life.toPercentageString(2),
     },
     stamina: {
-      current: character.stats.stamina,
+      value: character.stats.stamina,
       max: character.attributes.stamina,
       percentage: stamina,
       string: stamina.toPercentageString(2),

@@ -152,8 +152,10 @@ class _DuelState extends State<Duel> {
                               children: [
                                 DynamicColorProgressBar(
                                   title: '${engine.locale['life']}: ',
-                                  value: heroStatsPercentage['life']
-                                      ['percentage'],
+                                  value: heroStatsPercentage['life']['value']
+                                      .toInt(),
+                                  max: heroStatsPercentage['life']['max']
+                                      .toInt(),
                                   size: const Size(100.0, 24.0),
                                   colors: const <Color>[
                                     Colors.red,
@@ -162,8 +164,10 @@ class _DuelState extends State<Duel> {
                                 ),
                                 DynamicColorProgressBar(
                                   title: '${engine.locale['stamina']}: ',
-                                  value: heroStatsPercentage['stamina']
-                                      ['percentage'],
+                                  value: heroStatsPercentage['stamina']['value']
+                                      .toInt(),
+                                  max: heroStatsPercentage['stamina']['max']
+                                      .toInt(),
                                   size: const Size(100.0, 24.0),
                                   colors: const <Color>[
                                     Colors.yellow,
@@ -193,14 +197,57 @@ class _DuelState extends State<Duel> {
                     image: AssetImage('assets/images/maze/versus.png'),
                   ),
                   SizedBox(
-                    width: 200.0,
+                    width: 250.0,
                     height: 220.0,
                     child: Column(
                       children: [
-                        Avatar(
-                          name: widget.enemy['name'],
-                          avatarAssetKey:
-                              'assets/images/${widget.enemy['avatar']}',
+                        Row(
+                          children: [
+                            Avatar(
+                              name: widget.enemy['name'],
+                              avatarAssetKey:
+                                  'assets/images/${widget.enemy['avatar']}',
+                            ),
+                            Column(
+                              children: [
+                                DynamicColorProgressBar(
+                                  title: '${engine.locale['life']}: ',
+                                  value: enemyStatsPercentage['life']['value']
+                                      .toInt(),
+                                  max: enemyStatsPercentage['life']['max']
+                                      .toInt(),
+                                  size: const Size(100.0, 24.0),
+                                  colors: const <Color>[
+                                    Colors.red,
+                                    Colors.green
+                                  ],
+                                ),
+                                DynamicColorProgressBar(
+                                  title: '${engine.locale['stamina']}: ',
+                                  value: enemyStatsPercentage['stamina']
+                                          ['value']
+                                      .toInt(),
+                                  max: enemyStatsPercentage['stamina']['max']
+                                      .toInt(),
+                                  size: const Size(100.0, 24.0),
+                                  colors: const <Color>[
+                                    Colors.yellow,
+                                    Colors.blue
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        EquipmentsView(
+                          verticalMargin: 10.0,
+                          horizontalMargin: 5.0,
+                          data: widget.hero['talismans']['equipments'],
+                        ),
+                        EquipmentsView(
+                          verticalMargin: 0.0,
+                          horizontalMargin: 5.0,
+                          data: widget.hero['skills']['equipments'],
                         ),
                       ],
                     ),

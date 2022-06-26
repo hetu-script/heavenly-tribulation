@@ -50,13 +50,15 @@ class HeroInfoPanel extends StatelessWidget {
               children: [
                 DynamicColorProgressBar(
                   title: '${engine.locale['life']}: ',
-                  value: percentage['life']['percentage'],
+                  value: percentage['life']['value'],
+                  max: percentage['life']['max'],
                   size: const Size(100.0, 24.0),
                   colors: const <Color>[Colors.red, Colors.green],
                 ),
                 DynamicColorProgressBar(
                   title: '${engine.locale['stamina']}: ',
-                  value: percentage['stamina']['percentage'],
+                  value: percentage['stamina']['value'],
+                  max: percentage['stamina']['max'],
                   size: const Size(100.0, 24.0),
                   colors: const <Color>[Colors.yellow, Colors.blue],
                 ),

@@ -42,6 +42,7 @@ class EquipmentsView extends StatelessWidget {
           data: data[1],
           onSelect: (item, screenPosition) =>
               _onItemTapped(context, item, screenPosition),
+          cooldownValue: 0.5,
         ),
         ItemGrid(
           verticalMargin: verticalMargin,
