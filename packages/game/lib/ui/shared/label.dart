@@ -21,7 +21,10 @@ class Label extends StatelessWidget {
       width: width,
       height: height,
       padding: padding,
-      child: Text(text),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+      ),
     );
   }
 }

@@ -2,16 +2,18 @@ import '../../generator/name/name.ht' as nameGenerator
 import '../constants.ht'
 import 'constants.ht'
 import '../../l10n.ht'
+import '../../util.ht'
 
 const kDefaultWeaponIcon = 'icon/item/sword.png'
 
 const kSpeedShort = 5
 const kSpeedBase = 20
 const kSpeedVariable = 10
-const kDamageMin = 15
-const kDamageLow = 20
-const kDamageMedium = 20
-const kDamageHigh = 20
+const kDamageMin = 10
+const kDamageMax = 65
+const kDamageLow = 15
+const kDamageMedium = 30
+const kDamageHigh = 50
 const kDamageDeviation = 10
 const kDurabilityLow = 200
 const kDurabilityMedium = 300
@@ -69,7 +71,7 @@ struct Weapon {
         'slashing' -> {
           this.attributes = {
             durability: randomInt(kDurabilityLow, kDurabilityVariable),
-            damage: normalDistribute(kDamageMedium, kDamageDeviation, kDamageMin),
+            damage: normalDistribute(kDamageMedium, kDamageDeviation, kDamageMin, kDamageMax),
             startUp: randomInt(kSpeedBase, kSpeedVariable),
             recovery: randomInt(kSpeedShort, kSpeedVariable),
             effects: {
@@ -87,7 +89,7 @@ struct Weapon {
         'bludgeoning' -> {
           this.attributes = {
             durability: randomInt(kDurabilityHigh, kDurabilityVariable),
-            damage: normalDistribute(kDamageHigh, kDamageDeviation, kDamageMin),
+            damage: normalDistribute(kDamageHigh, kDamageDeviation, kDamageMin, kDamageMax),
             startUp: randomInt(kSpeedBase, kSpeedVariable),
             recovery: randomInt(kSpeedBase, kSpeedVariable),
             effects: {
@@ -110,7 +112,7 @@ struct Weapon {
         'piercing' -> {
           this.attributes = {
             durability: randomInt(kDurabilityMedium, kDurabilityVariable),
-            damage: normalDistribute(kDamageLow, kDamageDeviation, kDamageMin),
+            damage: normalDistribute(kDamageLow, kDamageDeviation, kDamageMin, kDamageMax),
             startUp: randomInt(kSpeedShort, kSpeedVariable),
             recovery: randomInt(kSpeedShort, kSpeedVariable),
             effects: {},

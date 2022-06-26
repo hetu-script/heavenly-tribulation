@@ -5,10 +5,10 @@ import 'l10n.ht'
 /// 输入战斗相关角色的对象
 /// 生成战斗过程的文字描述，以及最终结果
 
-external fun _showDuel(context, data: Map)
+external fun _showDuel(context, hero, enemy, [ type ])
 
-fun showDuel(data) -> Future {
-  return _showDuel(buildContext, data)
+fun showDuel(hero, enemy, [ type ]) -> Future {
+  return _showDuel(buildContext, hero, enemy, type)
 }
 
 // damage = ((1 / (Math.log((victim.defense + 5) / 100) + 5)) * 2 * attacker._attack)
@@ -43,8 +43,6 @@ fun _attack(attacker, wielding, victim, log) {
 
 struct Duel {
   construct(char1, char2, { type = 'normal' }) {
-    this.char1Name = char1.name
-    this.char2Name = char2.name
     this.log = []
     var timeframe = 0
 

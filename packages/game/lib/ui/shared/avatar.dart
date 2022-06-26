@@ -53,7 +53,10 @@ class Avatar extends StatelessWidget {
                   alignment: Alignment.bottomCenter,
                   child: Container(
                     width: double.infinity,
-                    color: Colors.white.withOpacity(0.5),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(radius)),
+                      color: Colors.white.withOpacity(0.5),
+                    ),
                     child: Text(
                       name!,
                       textAlign: TextAlign.center,

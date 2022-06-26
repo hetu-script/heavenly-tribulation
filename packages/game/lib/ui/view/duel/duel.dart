@@ -5,23 +5,37 @@ import 'package:hetu_script/values.dart';
 
 import '../../../global.dart';
 import '../../shared/responsive_route.dart';
+import '../character/build/equipments.dart';
+import '../../shared/avatar.dart';
+import '../../shared/dynamic_color_progressbar.dart';
 
 class Duel extends StatefulWidget {
-  static Future<void> show(BuildContext context, HTStruct data) {
+  static Future<void> show(
+      BuildContext context, HTStruct hero, HTStruct enemy, String? type) {
     return showDialog(
       context: context,
       barrierColor: Colors.transparent,
       barrierDismissible: false,
       builder: (context) {
-        return Duel(data);
+        return Duel(
+          hero: hero,
+          enemy: enemy,
+          type: type,
+        );
       },
     );
   }
 
-  // use dynamic list here to compatible with Hetu list
-  final HTStruct data;
+  final HTStruct hero;
+  final HTStruct enemy;
+  final String? type;
 
-  const Duel(this.data, {super.key});
+  const Duel({
+    super.key,
+    required this.hero,
+    required this.enemy,
+    this.type,
+  });
 
   @override
   State<Duel> createState() => _DuelState();
@@ -30,9 +44,9 @@ class Duel extends StatefulWidget {
 class _DuelState extends State<Duel> {
   Timer? _timer;
   int _count = 1;
-  late List _log;
+  HTStruct? _result;
 
-  bool get finished => _count >= _log.length;
+  bool get finished => _result != null && _count >= _result!['log'].length;
 
   late final ScrollController _scrollController = ScrollController();
 
@@ -46,9 +60,17 @@ class _DuelState extends State<Duel> {
   @override
   void initState() {
     super.initState();
-    _log = widget.data['log'];
-    assert(_log.isNotEmpty);
+    _result = _getDuelResult();
     _startTimer();
+  }
+
+  HTStruct _getDuelResult() {
+    return engine.invoke('Duel', positionalArgs: [
+      widget.hero,
+      widget.enemy
+    ], namedArgs: {
+      'type': widget.type,
+    });
   }
 
   void _startTimer() {
@@ -70,16 +92,22 @@ class _DuelState extends State<Duel> {
   @override
   Widget build(BuildContext context) {
     List<Widget> lines = [];
-    for (var i = 0; i < _count; ++i) {
-      final text = _log[i].toString();
-      lines.add(
-        Text(
-          text,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyText1,
-        ),
-      );
+    if (_result != null) {
+      for (var i = 0; i < _count; ++i) {
+        final text = _result!['log'][i].toString();
+        lines.add(
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyText1,
+          ),
+        );
+      }
     }
+    final heroStatsPercentage = engine
+        .invoke('getStatsPercentageOfCharacter', positionalArgs: [widget.hero]);
+    final enemyStatsPercentage = engine.invoke('getStatsPercentageOfCharacter',
+        positionalArgs: [widget.enemy]);
 
     // executes after build
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -93,39 +121,124 @@ class _DuelState extends State<Duel> {
     // _lines = <Widget>[Text('what?')];
 
     return ResponsiveRoute(
-      alignment: AlignmentDirectional.bottomCenter,
+      alignment: AlignmentDirectional.center,
       size: const Size(800.0, 600.0),
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: Text(
-              '${widget.data['char1Name']} vs ${widget.data['char2Name']}'),
+          title: Text('${widget.hero['name']} vs ${widget.enemy['name']}'),
         ),
         body: Container(
-          margin: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(10.0),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Expanded(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  SizedBox(
+                    width: 250.0,
+                    height: 220.0,
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Avatar(
+                              name: widget.hero['name'],
+                              avatarAssetKey:
+                                  'assets/images/${widget.hero['avatar']}',
+                            ),
+                            Column(
+                              children: [
+                                DynamicColorProgressBar(
+                                  title: '${engine.locale['life']}: ',
+                                  value: heroStatsPercentage['life']
+                                      ['percentage'],
+                                  size: const Size(100.0, 24.0),
+                                  colors: const <Color>[
+                                    Colors.red,
+                                    Colors.green
+                                  ],
+                                ),
+                                DynamicColorProgressBar(
+                                  title: '${engine.locale['stamina']}: ',
+                                  value: heroStatsPercentage['stamina']
+                                      ['percentage'],
+                                  size: const Size(100.0, 24.0),
+                                  colors: const <Color>[
+                                    Colors.yellow,
+                                    Colors.blue
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        EquipmentsView(
+                          verticalMargin: 10.0,
+                          horizontalMargin: 5.0,
+                          data: widget.hero['talismans']['equipments'],
+                        ),
+                        EquipmentsView(
+                          verticalMargin: 0.0,
+                          horizontalMargin: 5.0,
+                          data: widget.hero['skills']['equipments'],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Image(
+                    width: 80.0,
+                    fit: BoxFit.contain,
+                    image: AssetImage('assets/images/maze/versus.png'),
+                  ),
+                  SizedBox(
+                    width: 200.0,
+                    height: 220.0,
+                    child: Column(
+                      children: [
+                        Avatar(
+                          name: widget.enemy['name'],
+                          avatarAssetKey:
+                              'assets/images/${widget.enemy['avatar']}',
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                margin: const EdgeInsets.all(10.0),
+                height: 120.0,
+                width: 480.0,
+                decoration: BoxDecoration(
+                  borderRadius: kBorderRadius,
+                  border: Border.all(color: kForegroundColor),
+                ),
                 child: SingleChildScrollView(
                   controller: _scrollController,
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: lines,
+                  child: Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: lines,
+                    ),
                   ),
                 ),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      child: Text(engine.locale['retry']),
+                  if (finished)
+                    Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        child: Text(engine.locale['retry']),
+                      ),
                     ),
-                  ),
                   Padding(
-                    padding: const EdgeInsets.all(10.0),
+                    padding: const EdgeInsets.all(5.0),
                     child: ElevatedButton(
                       onPressed: () {
                         if (finished) {
@@ -133,7 +246,7 @@ class _DuelState extends State<Duel> {
                         } else {
                           _timer?.cancel();
                           setState(() {
-                            _count = _log.length;
+                            _count = _result?['log'].length ?? 1;
                           });
                         }
                       },

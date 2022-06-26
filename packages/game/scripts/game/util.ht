@@ -12,3 +12,28 @@ fun hyperbola([normal = 1.0]) {
   final x = Math.random()
   return ((x * 6 - 6) / (5 * x - 6)) * normal
 }
+
+fun randomInt(base, variable) {
+  assert(base != null)
+  assert(variable != null)
+  return Math.randomInt(variable) + base
+}
+
+fun random(base, variable) {
+  assert(base != null)
+  assert(variable != null)
+  return Math.random() * variable + base
+}
+
+fun normalDistribute(mean, standardDeviation, min, max) {
+  assert(mean != null)
+  assert(standardDeviation != null)
+  assert(min != null)
+  assert(max != null)
+  assert(min < (mean + standardDeviation))
+  var damage
+  do {
+    damage = Math.gaussianNoise(mean, standardDeviation)
+  } while (damage < min || damage > max)
+  return damage
+}

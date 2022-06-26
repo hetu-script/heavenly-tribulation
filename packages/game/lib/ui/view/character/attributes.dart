@@ -6,7 +6,7 @@ import 'package:hetu_script/values.dart';
 import '../../../global.dart';
 import '../../shared/avatar.dart';
 import '../../shared/constants.dart';
-import '../shared/label.dart';
+import '../../shared/label.dart';
 import '../../util.dart';
 
 extension DoubleFixed on double {

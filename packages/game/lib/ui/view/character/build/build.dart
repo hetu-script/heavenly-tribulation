@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../ui/shared/close_button.dart';
 import '../../../../global.dart';
+import 'equipments.dart';
 import 'inventory.dart';
-import 'skills.dart';
-import 'item_info.dart';
 import '../../../shared/responsive_route.dart';
 
 class BuildView extends StatefulWidget {
@@ -86,50 +85,45 @@ class _BuildViewState extends State<BuildView>
 
     final data = engine.invoke('getCharacterById', positionalArgs: [charId]);
 
-    final layout = Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text('${data['name']} - $_title'),
-        actions: const [ButtonClose()],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: _tabs,
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          InventoryView(
-            data: data['talismans'],
-            onSelect: (item, screenPosition) {
-              setState(() {
-                showDialog(
-                    context: context,
-                    barrierColor: Colors.transparent,
-                    builder: (context) {
-                      return ItemInfo(
-                        data: item,
-                        left: screenPosition.dx,
-                        top: screenPosition.dy - 100.0,
-                      );
-                    });
-              });
-            },
-          ),
-          SkillsView(
-            data: data['skills'],
-            onSelect: (item, screenPosition) {
-              setState(() {});
-            },
-          ),
-        ],
-      ),
-    );
-
     return ResponsiveRoute(
       alignment: AlignmentDirectional.topEnd,
       size: const Size(400.0, 400.0),
-      child: layout,
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Text('${data['name']} - $_title'),
+          actions: const [ButtonClose()],
+          bottom: TabBar(
+            controller: _tabController,
+            tabs: _tabs,
+          ),
+        ),
+        body: TabBarView(
+          controller: _tabController,
+          children: [
+            Column(
+              children: [
+                EquipmentsView(
+                  data: data['talismans']['equipments'],
+                ),
+                InventoryView(
+                  data: data['talismans']['inventory'],
+                ),
+              ],
+            ),
+            Column(
+              children: [
+                EquipmentsView(
+                  data: data['skills']['equipments'],
+                ),
+                InventoryView(
+                  data: data['skills']['inventory'],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -42,18 +42,22 @@ class ItemGrid extends StatelessWidget {
                 vertical: verticalMargin, horizontal: horizontalMargin),
             decoration: BoxDecoration(
               color: kBackgroundColor,
-              border: Border.all(
-                color: Colors.white54,
-                width: 2,
+              // border: Border.all(
+              //   color: Colors.white54,
+              //   width: 2,
+              // ),
+              image: const DecorationImage(
+                fit: BoxFit.contain,
+                image: AssetImage('assets/images/icon/item/grid.png'),
               ),
-              image: iconAssetKey != null
-                  ? DecorationImage(
-                      fit: BoxFit.contain,
-                      image: AssetImage('assets/images/$iconAssetKey'),
-                    )
-                  : null,
               borderRadius: kBorderRadius,
             ),
+            child: iconAssetKey != null
+                ? Image(
+                    fit: BoxFit.contain,
+                    image: AssetImage('assets/images/$iconAssetKey'),
+                  )
+                : null,
           ),
         ),
       ),

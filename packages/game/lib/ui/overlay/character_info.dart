@@ -56,7 +56,7 @@ class HeroInfoPanel extends StatelessWidget {
                 ),
                 DynamicColorProgressBar(
                   title: '${engine.locale['stamina']}: ',
-                  value: percentage['life']['percentage'],
+                  value: percentage['stamina']['percentage'],
                   size: const Size(100.0, 24.0),
                   colors: const <Color>[Colors.yellow, Colors.blue],
                 ),

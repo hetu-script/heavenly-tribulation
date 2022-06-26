@@ -23,6 +23,7 @@ import '../scene/maze.dart';
 import 'create_game_dialog.dart';
 // import '../event/events.dart';
 import 'overlay/main_game.dart';
+import 'shared/label.dart';
 
 class MainMenu extends StatefulWidget {
   const MainMenu({super.key});
@@ -143,7 +144,10 @@ class _MainMenuState extends State<MainMenu> {
                     }
                   });
                 },
-                child: Text(locale['newGame']),
+                child: Label(
+                  locale['newGame'],
+                  width: 100.0,
+                ),
               ),
             ),
             Padding(
@@ -162,7 +166,10 @@ class _MainMenuState extends State<MainMenu> {
                     }
                   });
                 },
-                child: Text(locale['loadGame']),
+                child: Label(
+                  locale['loadGame'],
+                  width: 100.0,
+                ),
               ),
             ),
             Padding(
@@ -171,7 +178,10 @@ class _MainMenuState extends State<MainMenu> {
                 onPressed: () {
                   Navigator.of(context).pushNamed('editor');
                 },
-                child: Text(locale['gameEditor']),
+                child: Label(
+                  locale['gameEditor'],
+                  width: 100.0,
+                ),
               ),
             ),
             if (GlobalConfig.isOnDesktop) ...[
@@ -182,7 +192,10 @@ class _MainMenuState extends State<MainMenu> {
                   onPressed: () {
                     windowManager.close();
                   },
-                  child: Text(locale['exit']),
+                  child: Label(
+                    locale['exit'],
+                    width: 100.0,
+                  ),
                 ),
               ),
             ],
@@ -222,7 +235,10 @@ class _MainMenuState extends State<MainMenu> {
                                       setState(() {});
                                     });
                                   },
-                                  child: const Text('Test Maze'),
+                                  child: const Label(
+                                    'Test Maze',
+                                    width: 100.0,
+                                  ),
                                 ),
                               ),
                               Padding(
@@ -231,7 +247,10 @@ class _MainMenuState extends State<MainMenu> {
                                   onPressed: () {
                                     engine.invoke('testDuel');
                                   },
-                                  child: const Text('Test Duel'),
+                                  child: const Label(
+                                    'Test Duel',
+                                    width: 100.0,
+                                  ),
                                 ),
                               ),
                             ],

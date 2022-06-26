@@ -27,43 +27,11 @@ fun giveHeroWeapon([n = 1]) {
   }
 }
 
-// 测试战斗：随机生成两个角色，并让他们战斗
+// 测试战斗：随机生成两个准备好战斗的角色
 fun testDuel() {
-  final minValue = 10
-  final heroStatsVariable = 30
-  final enemyStatsVariable = 30
-
-  engine.debug('战斗测试')
-  final hero = {
-    name: getCharacter(1).first.name,
-    attributes: generateRandomAttributes(heroStatsVariable, minValue),
-    stats: {},
-    talismans: {
-      equipments: {
-        '1': Weapon(),
-      },
-    },
-    skills: {
-      equipments: {},
-    },
-  }
-  recalculateAttributesOfCharacter(hero)
-  final enemy = {
-    name: getCharacter(1).first.name,
-    attributes: generateRandomAttributes(enemyStatsVariable, minValue),
-    stats: {},
-    talismans: {
-      equipments: {
-        '1': Weapon(),
-      },
-    },
-    skills: {
-      equipments: {},
-    },
-  }
-  recalculateAttributesOfCharacter(enemy)
-  engine.info('Hero:\n${hero}')
-  engine.info('Enemy:\n${enemy}')
-  final duel = Duel(hero, enemy)
-  showDuel(duel)
+  final hero = Character()
+  final enemy = Character()
+  hero.talismans.equipments[1] = Weapon()
+  enemy.talismans.equipments[1] = Weapon()
+  showDuel(hero, enemy)
 }

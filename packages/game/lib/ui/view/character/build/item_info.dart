@@ -68,68 +68,71 @@ class ItemInfo extends StatelessWidget {
       onTap: () {
         Navigator.of(context).pop();
       },
-      child: Stack(alignment: AlignmentDirectional.topEnd, children: [
-        // Positioned(
-        //   left: left,
-        //   top: top,
-        //   child:
-        Container(
-          margin: const EdgeInsets.only(right: 240.0, top: 120.0),
-          padding: const EdgeInsets.all(10.0),
-          width: 300.0,
-          decoration: BoxDecoration(
-            color: kBackgroundColor,
-            borderRadius: kBorderRadius,
-            border: Border.all(color: kForegroundColor),
-          ),
-          child: ClipRRect(
-            borderRadius: kBorderRadius,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+      child: Stack(
+        alignment: AlignmentDirectional.topEnd,
+        children: [
+          Positioned(
+            left: left,
+            top: 80.0,
+            child: Container(
+              // margin: const EdgeInsets.only(right: 240.0, top: 120.0),
+              padding: const EdgeInsets.all(10.0),
+              width: 300.0,
+              decoration: BoxDecoration(
+                color: kBackgroundColor,
+                borderRadius: kBorderRadius,
+                border: Border.all(color: kForegroundColor),
+              ),
+              child: ClipRRect(
+                borderRadius: kBorderRadius,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    RRectIcon(
-                      margin: const EdgeInsets.only(right: 10.0, bottom: 10.0),
-                      avatarAssetKey: 'assets/images/${data['icon']}',
-                      size: const Size(80.0, 80.0),
-                    ),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            data['name'],
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        RRectIcon(
+                          margin:
+                              const EdgeInsets.only(right: 10.0, bottom: 10.0),
+                          avatarAssetKey: 'assets/images/${data['icon']}',
+                          size: const Size(80.0, 80.0),
+                        ),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                data['name'],
+                              ),
+                              const Divider(),
+                              Text(
+                                data['description'],
+                              ),
+                            ],
                           ),
-                          const Divider(),
-                          Text(
-                            data['description'],
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
+                    Text(
+                        '${engine.locale[data['category']]} - ${engine.locale[data['type']]}'),
+                    Text(
+                        '${engine.locale['durability']}: ${stats['durability']}/${attributes['durability']}'),
+                    if (isAttackItem)
+                      Text(
+                          '${engine.locale['damage']}: ${stats['damage'].toStringAsFixed(2)}'),
+                    Text('${engine.locale['startUp']}: ${stats['startUp']}f'),
+                    Text('${engine.locale['recovery']}: ${stats['recovery']}f'),
+                    if (effects.isNotEmpty) const Divider(),
+                    ...effects,
                   ],
                 ),
-                Text(
-                    '${engine.locale[data['category']]} - ${engine.locale[data['type']]}'),
-                Text(
-                    '${engine.locale['durability']}: ${stats['durability']}/${attributes['durability']}'),
-                if (isAttackItem)
-                  Text(
-                      '${engine.locale['damage']}: ${stats['damage'].toStringAsFixed(2)}'),
-                Text('${engine.locale['startUp']}: ${stats['startUp']}f'),
-                Text('${engine.locale['recovery']}: ${stats['recovery']}f'),
-                if (effects.isNotEmpty) const Divider(),
-                ...effects,
-              ],
+              ),
             ),
           ),
-        ),
-        // ),
-      ]),
+        ],
+      ),
     );
   }
 }

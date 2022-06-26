@@ -12,13 +12,19 @@ final Map<String, Function> externalGameFunctions = {
       Map<String, dynamic> namedArgs = const {},
       List<HTType> typeArgs = const []}) {
     return GameDialog.show(
-        positionalArgs[0], positionalArgs[1], positionalArgs[2]);
+      positionalArgs[0],
+      positionalArgs[1],
+      positionalArgs[2],
+    );
   },
   r'_showSelection': (HTEntity object,
       {List<dynamic> positionalArgs = const [],
       Map<String, dynamic> namedArgs = const {},
       List<HTType> typeArgs = const []}) {
-    return SelectionDialog.show(positionalArgs[0], positionalArgs[1]);
+    return SelectionDialog.show(
+      positionalArgs[0],
+      positionalArgs[1],
+    );
   },
   r'_showCharacterSelection': (HTEntity object,
       {List<dynamic> positionalArgs = const [],
@@ -36,12 +42,19 @@ final Map<String, Function> externalGameFunctions = {
       Map<String, dynamic> namedArgs = const {},
       List<HTType> typeArgs = const []}) {
     return CharacterVisitDialog.show(
-        context: positionalArgs[0], characterIds: positionalArgs[1]);
+      context: positionalArgs[0],
+      characterIds: positionalArgs[1],
+    );
   },
   r'_showDuel': (HTEntity object,
       {List<dynamic> positionalArgs = const [],
       Map<String, dynamic> namedArgs = const {},
       List<HTType> typeArgs = const []}) {
-    return Duel.show(positionalArgs[0], positionalArgs[1]);
+    return Duel.show(
+      positionalArgs[0],
+      positionalArgs[1],
+      positionalArgs[2],
+      positionalArgs[3],
+    );
   },
 };

@@ -66,31 +66,29 @@ class DynamicColorProgressBar extends StatelessWidget {
       child: Row(
         children: [
           if (title != null) Text(title!),
-          Expanded(
-            child: Container(
-              width: size.width,
-              height: size.height,
-              decoration: BoxDecoration(
-                color: Colors.white24,
-                borderRadius: BorderRadius.circular(borderRadius),
-                border: Border.all(color: kForegroundColor),
-              ),
-              child: Stack(
-                children: [
-                  Container(
-                    width: value * size.width,
-                    height: size.height,
-                    decoration: BoxDecoration(
-                      color: _lerpGradient(value),
-                    ),
+          Container(
+            width: size.width,
+            height: size.height,
+            decoration: BoxDecoration(
+              color: Colors.white24,
+              borderRadius: BorderRadius.circular(borderRadius),
+              border: Border.all(color: kForegroundColor),
+            ),
+            child: Stack(
+              children: [
+                Container(
+                  width: value * size.width,
+                  height: size.height,
+                  decoration: BoxDecoration(
+                    color: _lerpGradient(value),
                   ),
-                  Container(
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.only(right: 5.0),
-                    child: Text(value.toPercentageString()),
-                  ),
-                ],
-              ),
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.only(right: 5.0),
+                  child: Text(value.toPercentageString()),
+                ),
+              ],
             ),
           ),
         ],

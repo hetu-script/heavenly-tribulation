@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import 'item_grid.dart';
+import 'item_info.dart';
 
 const kInventorySlotCount = 18;
 
@@ -11,72 +12,55 @@ class InventoryView extends StatelessWidget {
   const InventoryView({
     super.key,
     required this.data,
-    required this.onSelect,
   });
 
-  final HTStruct data;
+  final List<dynamic> data;
 
-  final void Function(HTStruct item, Offset screenPosition) onSelect;
+  void _onItemTapped(
+      BuildContext context, HTStruct item, Offset screenPosition) {
+    showDialog(
+        context: context,
+        barrierColor: Colors.transparent,
+        builder: (context) {
+          return ItemInfo(
+            data: item,
+            left: screenPosition.dx,
+            top: screenPosition.dy - 100.0,
+          );
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final List inventory = data['inventory'];
-
-    final items = <ItemGrid>[];
-    for (var i = 0; i < math.max(kInventorySlotCount, inventory.length); ++i) {
-      if (i < inventory.length) {
-        items.add(ItemGrid(
-          data: inventory[i],
-          onSelect: onSelect,
+    final skills = <ItemGrid>[];
+    for (var i = 0; i < math.max(kInventorySlotCount, data.length); ++i) {
+      if (i < data.length) {
+        skills.add(ItemGrid(
+          data: data[i],
+          onSelect: (item, screenPosition) =>
+              _onItemTapped(context, item, screenPosition),
         ));
       } else {
-        items.add(ItemGrid(
-          onSelect: onSelect,
+        skills.add(ItemGrid(
+          onSelect: (item, screenPosition) =>
+              _onItemTapped(context, item, screenPosition),
         ));
       }
     }
 
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Expanded(
+      child: SingleChildScrollView(
+        child: Column(
           children: [
-            ItemGrid(
-              verticalMargin: 40,
-              data: data['equipments'][1],
-              onSelect: onSelect,
-            ),
-            ItemGrid(
-              verticalMargin: 40,
-              data: data['equipments'][2],
-              onSelect: onSelect,
-            ),
-            ItemGrid(
-              verticalMargin: 40,
-              data: data['equipments'][3],
-              onSelect: onSelect,
-            ),
-            ItemGrid(
-              verticalMargin: 40,
-              data: data['equipments'][4],
-              onSelect: onSelect,
+            Align(
+              alignment: Alignment.topCenter,
+              child: Wrap(
+                children: skills,
+              ),
             ),
           ],
         ),
-        Expanded(
-          child: ListView(
-            children: [
-              Align(
-                alignment: Alignment.topCenter,
-                child: Wrap(
-                  children: items,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

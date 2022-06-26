@@ -150,7 +150,7 @@ struct Character {
     fatherId,
     motherId,
   }) {
-    assert(locationId != null && game.locations.contains(locationId))
+    // assert(locationId != null && game.locations.contains(locationId))
 
     this.index = game.characters.length
     if (isFemale != null) {
@@ -185,10 +185,6 @@ struct Character {
     }
     this.looks = hyperbola(kCharacterAverageLooks)
     this.favoredLooks = hyperbola(kCharacterMaxLooks)
-
-    final location = game.locations[locationId]
-    setCharacterLocationId(this, locationId)
-    this.nationId = location.nationId
 
     // 该角色的称号
     this.titles = {
@@ -308,44 +304,48 @@ struct Character {
 
     this.tasks = []
     
-    final location = game.locations[locationId]
-    if (newborn) {
-      assert(fatherId != null)
-      assert(motherId != null)
-      final father = game.characters[fatherId]
-      final mother = game.characters[motherId]
-      this.birthPlaceId = locationId
-      // 出生事件会修改自身，需要放在最后处理
-      final incidentContent = getLocaleString('incidentBorn', [
-          father.name,
-          mother.name,
-          this.name,
-          location.name,
-        ])
-      Incident(
-        content: incidentContent,
-        subjectIds: [father.id, mother.id],
-        objectIds: [this.id],
-        locationId: locationId,
-        isPrivate: false,
-        order: 10,
-        ideal: -10,
-      )
-      // final homeId = mother.homeId ?? mother.locationId
-      // final home = game.locations[homeId]
-      final home = game.locations[mother.homeId]
-      setCharacterHome(this, home)
-      final siblingIds = father.relationships.childrenIds
-      this.relationships.siblingIds.addAll(siblingIds)
-      for (final id in siblingIds) {
-        final sib = game.characters[id]
-        sib.relationships.siblingIds.add(this.id)
+    if (locationId) {
+      final location = game.locations[locationId]
+      setCharacterLocationId(this, locationId)
+      this.nationId = location.nationId
+      if (newborn) {
+        assert(fatherId != null)
+        assert(motherId != null)
+        final father = game.characters[fatherId]
+        final mother = game.characters[motherId]
+        this.birthPlaceId = locationId
+        // 出生事件会修改自身，需要放在最后处理
+        final incidentContent = getLocaleString('incidentBorn', [
+            father.name,
+            mother.name,
+            this.name,
+            location.name,
+          ])
+        Incident(
+          content: incidentContent,
+          subjectIds: [father.id, mother.id],
+          objectIds: [this.id],
+          locationId: locationId,
+          isPrivate: false,
+          order: 10,
+          ideal: -10,
+        )
+        // final homeId = mother.homeId ?? mother.locationId
+        // final home = game.locations[homeId]
+        final home = game.locations[mother.homeId]
+        setCharacterHome(this, home)
+        final siblingIds = father.relationships.childrenIds
+        this.relationships.siblingIds.addAll(siblingIds)
+        for (final id in siblingIds) {
+          final sib = game.characters[id]
+          sib.relationships.siblingIds.add(this.id)
+        }
+        father.relationships.childrenIds.add(this.id)
+        mother.relationships.childrenIds.add(this.id)
+      } else {
+        // 设置居住地会触发事件从而修改自身，需要放在最后处理
+        setCharacterHome(this, location)
       }
-      father.relationships.childrenIds.add(this.id)
-      mother.relationships.childrenIds.add(this.id)
-    } else {
-      // 设置居住地会触发事件从而修改自身，需要放在最后处理
-      setCharacterHome(this, location)
     }
   }
 }
@@ -717,7 +717,7 @@ fun handleCharacterInteraction(characterId) {
   if (characterId in! game.playerMonthly.stolen) {
     selections.steal = getLocaleString('steal')
   }
-  selections.sneekAttack = getLocaleString('sneekAttack')
+  selections.sneakAttack = getLocaleString('sneakAttack')
   selections.leave = getLocaleString('leave')
   showSelection(selections).then((key) {
     when (key) {
@@ -728,8 +728,7 @@ fun handleCharacterInteraction(characterId) {
         
       }
       'practice' -> {
-        final duel = Duel(hero, character, isPractice: true)
-        showDuel(duel)
+        showDuel(hero, enemy, type: 'practice')
       }
       'consult' -> {
         
@@ -743,9 +742,8 @@ fun handleCharacterInteraction(characterId) {
       'steal' -> {
         
       }
-      'sneekAttack' -> {
-        final duel = Duel(hero, character, heroMoveFirst: true)
-        showDuel(duel)
+      'sneakAttack' -> {
+        showDuel(hero, character, 'sneakAttack')
       }
     }
   })
