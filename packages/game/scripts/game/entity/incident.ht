@@ -76,6 +76,8 @@ struct Incident {
         }
       }
     }
+
+    engine.info('触发事件：${content}')
   }
 }
 

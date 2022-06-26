@@ -1,4 +1,7 @@
+import '../../l10n.ht'
+
 const kItemDefaultIcon = 'assets/images/unknown_item.png'
+final kDefaultItemDescription = getLocaleString('defaultItemDescription')
 
 final kRarity2ItemLevels = {
   common: 10, // common 白
@@ -8,4 +11,26 @@ final kRarity2ItemLevels = {
   legendary: 50, // legendary 橙
   mythic: 60, // mythic 金
   exotic: 70, // exotic 虹
+}
+
+fun randomInt(base, variable) {
+  assert(base != null)
+  assert(variable != null)
+  return Math.randomInt(variable) + base
+}
+
+fun random(base, variable) {
+  assert(base != null)
+  assert(variable != null)
+  return Math.random() * variable + base
+}
+
+fun normalDistribute(mean, standardDeviation, [min = 0]) {
+  assert(mean != null)
+  assert(min < (mean + standardDeviation))
+  var damage
+  do {
+    damage = Math.gaussianNoise(mean, standardDeviation)
+  } while (damage < min)
+  return damage
 }

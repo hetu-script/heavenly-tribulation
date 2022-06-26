@@ -126,8 +126,6 @@ class _LocationViewState extends State<LocationView>
         actions: const [ButtonClose()],
       ),
       body: ListView(
-        physics: const AlwaysScrollableScrollPhysics(
-            parent: BouncingScrollPhysics()),
         shrinkWrap: true,
         children: [
           Align(

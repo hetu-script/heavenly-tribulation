@@ -22,7 +22,47 @@ class ItemInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isAttackItem = data['isAttackItem'] ?? false;
+
+    final attributes = data['attributes'];
     final stats = data['stats'];
+
+    final effectData = data['stats']['effects'];
+    final effects = <Widget>[];
+    for (final name in effectData.keys) {
+      final List valueData = effectData[name];
+      final List<String> values = [];
+      for (final data in valueData) {
+        final v = data['value'] as num;
+        if (data['type'] == kValueTypeInt) {
+          values.add(v.toString());
+        } else if (data['type'] == kValueTypeFloat) {
+          values.add(v.toStringAsFixed(2));
+        } else if (data['type'] == kValueTypePercentage) {
+          values.add(v.toPercentageString());
+        }
+      }
+      final description = engine.locale.getString('${name}Description', values);
+      effects.add(
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.only(top: 4.0),
+                width: 60.0,
+                child: Text('${engine.locale[name]}: '),
+              ),
+              Container(
+                padding: const EdgeInsets.only(top: 4.0),
+                width: 200.0,
+                child: Text(description),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return GestureDetector(
       onTap: () {
@@ -35,8 +75,8 @@ class ItemInfo extends StatelessWidget {
         //   child:
         Container(
           margin: const EdgeInsets.only(right: 240.0, top: 120.0),
-          padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 15.0),
-          width: 240.0,
+          padding: const EdgeInsets.all(10.0),
+          width: 300.0,
           decoration: BoxDecoration(
             color: kBackgroundColor,
             borderRadius: kBorderRadius,
@@ -46,19 +86,44 @@ class ItemInfo extends StatelessWidget {
             borderRadius: kBorderRadius,
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  data['name'],
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RRectIcon(
+                      margin: const EdgeInsets.only(right: 10.0, bottom: 10.0),
+                      avatarAssetKey: 'assets/images/${data['icon']}',
+                      size: const Size(80.0, 80.0),
+                    ),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            data['name'],
+                          ),
+                          const Divider(),
+                          Text(
+                            data['description'],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                RRectIcon(
-                  margin: const EdgeInsets.all(10.0),
-                  avatarAssetKey: 'assets/images/${data['icon']}',
-                ),
-                Text('${engine.locale['speed']}: ${stats['speed']}'),
                 Text(
-                    '${engine.locale['damage']}: ${stats['damage'].toStringAsFixed(2)}'),
+                    '${engine.locale[data['category']]} - ${engine.locale[data['type']]}'),
                 Text(
-                    '${engine.locale['damageType']}: ${engine.locale[stats['damageType']]}'),
+                    '${engine.locale['durability']}: ${stats['durability']}/${attributes['durability']}'),
+                if (isAttackItem)
+                  Text(
+                      '${engine.locale['damage']}: ${stats['damage'].toStringAsFixed(2)}'),
+                Text('${engine.locale['startUp']}: ${stats['startUp']}f'),
+                Text('${engine.locale['recovery']}: ${stats['recovery']}f'),
+                if (effects.isNotEmpty) const Divider(),
+                ...effects,
               ],
             ),
           ),

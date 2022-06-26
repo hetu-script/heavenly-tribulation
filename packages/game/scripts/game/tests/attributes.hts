@@ -1,0 +1,32 @@
+final kCharacterAttributeNames = [
+  'strength',
+  'superpower',
+  'intelligence',
+  'perception',
+  'leadership',
+  'management',
+]
+
+fun generateRandomAttributes(maxStats, minValue) {
+  assert(maxStats != null)
+  assert(minValue != null)
+
+  final attributes = {}
+  
+  final list = kCharacterAttributeNames.toList()
+  list.shuffle()
+  var rest = maxStats
+  for (var i = 0; i < list.length - 1; ++i) {
+    final name = list[i]
+    final value = Math.randomInt(rest)
+    attributes[name] = value + minValue
+    rest -= value
+  }
+  attributes[list.last] = rest + minValue
+  return attributes
+}
+
+for (final i in range(5)) {
+  final attr = generateRandomAttributes(20, 10)
+  print(attr)
+}

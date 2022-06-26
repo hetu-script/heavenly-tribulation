@@ -59,6 +59,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
   @override
   void initState() {
     super.initState();
+    engine.invoke('build', positionalArgs: [context]);
 
     engine.registerListener(
       Events.mapTapped,
@@ -169,7 +170,6 @@ class _MainGameOverlayState extends State<MainGameOverlay>
   Widget build(BuildContext context) {
     super.build(context);
     // pass the build context to script
-    engine.invoke('build', positionalArgs: [context]);
     // final screenSize = MediaQuery.of(context).size;
 
     final args = widget.args ??

@@ -1,26 +1,69 @@
 import 'game.ht'
 import 'entity/character.ht'
 import 'entity/item/weapon.ht'
+import 'duel.ht'
+import 'generator/name/name.ht'
 
-namespace debug {
-  fun getWeapon(n) {
-    final hero = getHero()
-    assert(n > 0)
-    for (final i in range(n)) {
-      final weapon = Weapon()
-      hero.talismans.inventory.add(weapon)
-      final incidentContent = getLocaleString('incidentAquireItem', [
-          father.name,
-          mother.name,
-          this.name,
-          location.name,
-        ])
-      Incident(
-        content: incidentContent,
-        subjectIds: [father.id, mother.id],
-        objectIds: [this.id],
-        locationId: locationId,
-      )
-    }
+fun giveWeapon(character) {
+  final weapon = Weapon()
+  character.talismans.inventory.add(weapon)
+  final incidentContent = getLocaleString('incidentAquireItem', [
+      character.name,
+      weapon.name,
+    ])
+  Incident(
+    content: incidentContent,
+    subjectIds: [character.id],
+    isPrivate: true,
+  )
+}
+
+// 测试物品：主角获取指定数量的武器，必须在游戏开始后才可以使用
+fun giveHeroWeapon([n = 1]) {
+  assert(n > 0)
+  final hero = getHero()
+  for (final i in range(n)) {
+    giveWeapon(hero)
   }
+}
+
+// 测试战斗：随机生成两个角色，并让他们战斗
+fun testDuel() {
+  final minValue = 10
+  final heroStatsVariable = 30
+  final enemyStatsVariable = 30
+
+  engine.debug('战斗测试')
+  final hero = {
+    name: getCharacter(1).first.name,
+    attributes: generateRandomAttributes(heroStatsVariable, minValue),
+    stats: {},
+    talismans: {
+      equipments: {
+        '1': Weapon(),
+      },
+    },
+    skills: {
+      equipments: {},
+    },
+  }
+  recalculateAttributesOfCharacter(hero)
+  final enemy = {
+    name: getCharacter(1).first.name,
+    attributes: generateRandomAttributes(enemyStatsVariable, minValue),
+    stats: {},
+    talismans: {
+      equipments: {
+        '1': Weapon(),
+      },
+    },
+    skills: {
+      equipments: {},
+    },
+  }
+  recalculateAttributesOfCharacter(enemy)
+  engine.info('Hero:\n${hero}')
+  engine.info('Enemy:\n${enemy}')
+  final duel = Duel(hero, enemy)
+  showDuel(duel)
 }

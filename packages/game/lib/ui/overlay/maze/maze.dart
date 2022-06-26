@@ -40,6 +40,7 @@ class _MazeOverlayState extends State<MazeOverlay>
   void initState() {
     super.initState();
 
+    engine.invoke('build', positionalArgs: [context]);
     _currentLevel = widget.startLevel;
     // _heroData = engine.invoke('getHero');
 

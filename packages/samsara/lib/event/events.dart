@@ -42,7 +42,8 @@ class MapInteractionEvent extends GameEvent {
 }
 
 class HeroEvent extends GameEvent {
-  const HeroEvent.heroMoved() : super(name: Events.heroMoved);
+  const HeroEvent.heroMoved({required String scene})
+      : super(name: Events.heroMoved, scene: scene);
 }
 
 class MazeLoadedEvent extends GameEvent {

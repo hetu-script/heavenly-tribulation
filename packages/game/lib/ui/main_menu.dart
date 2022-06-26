@@ -101,6 +101,7 @@ class _MainMenuState extends State<MainMenu> {
         moduleName: 'story',
       );
     }
+    engine.invoke('build', positionalArgs: [context]);
     engine.isLoaded = true;
     return true;
   }
@@ -146,43 +147,24 @@ class _MainMenuState extends State<MainMenu> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 40.0),
+              padding: const EdgeInsets.only(top: 20.0),
               child: ElevatedButton(
                 onPressed: () {
-                  final mazeData = engine.invoke('createMaze', namedArgs: {});
-                  showDialog(
-                    context: context,
-                    builder: (context) => MazeOverlay(
-                      key: UniqueKey(),
-                      data: mazeData,
-                    ),
-                  ).then((value) {
-                    setState(() {});
+                  LoadGameDialog.show(context, list: savedFiles)
+                      .then((SaveInfo? info) {
+                    if (info != null) {
+                      Navigator.of(context).pushNamed('worldmap',
+                          arguments: {"path": info.path});
+                    } else {
+                      if (savedFiles.isEmpty) {
+                        setState(() {});
+                      }
+                    }
                   });
                 },
-                child: const Text('Test Maze'),
+                child: Text(locale['loadGame']),
               ),
             ),
-            if (savedFiles.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    LoadGameDialog.show(context, list: savedFiles)
-                        .then((SaveInfo? info) {
-                      if (info != null) {
-                        Navigator.of(context).pushNamed('worldmap',
-                            arguments: {"path": info.path});
-                      } else {
-                        if (savedFiles.isEmpty) {
-                          setState(() {});
-                        }
-                      }
-                    });
-                  },
-                  child: Text(locale['loadGame']),
-                ),
-              ),
             Padding(
               padding: const EdgeInsets.only(top: 20.0),
               child: ElevatedButton(
@@ -217,6 +199,44 @@ class _MainMenuState extends State<MainMenu> {
                         width: 120.0,
                         child: Column(children: menus),
                       ),
+                      if (engine.debugMode)
+                        Positioned(
+                          right: 20.0,
+                          bottom: 20.0,
+                          width: 120.0,
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(top: 20.0),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    final mazeData = engine
+                                        .invoke('createMaze', namedArgs: {});
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => MazeOverlay(
+                                        key: UniqueKey(),
+                                        data: mazeData,
+                                      ),
+                                    ).then((value) {
+                                      setState(() {});
+                                    });
+                                  },
+                                  child: const Text('Test Maze'),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 20.0),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    engine.invoke('testDuel');
+                                  },
+                                  child: const Text('Test Duel'),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   )
                 : Container(

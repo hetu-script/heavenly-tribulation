@@ -39,7 +39,7 @@ class HistoryPanel extends StatelessWidget {
           width: 400,
           height: 160,
           decoration: BoxDecoration(
-            color: Theme.of(context).backgroundColor.withOpacity(0.5),
+            color: kBackgroundColor,
             borderRadius:
                 const BorderRadius.only(topRight: Radius.circular(5.0)),
             border: Border.all(color: kForegroundColor),

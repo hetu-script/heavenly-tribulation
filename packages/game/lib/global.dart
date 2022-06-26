@@ -73,3 +73,13 @@ abstract class GlobalConfig {
   static OrientationMode orientationMode = OrientationMode.landscape;
   static Size screenSize = Size.zero;
 }
+
+extension PercentageString on num {
+  String toPercentageString([int fractionDigits = 0]) {
+    return '${(this * 100).toStringAsFixed(fractionDigits).toString()}%';
+  }
+}
+
+const kValueTypeInt = 'integer';
+const kValueTypeFloat = 'float';
+const kValueTypePercentage = 'percentage';

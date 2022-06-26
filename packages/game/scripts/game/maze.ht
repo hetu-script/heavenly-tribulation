@@ -3,8 +3,6 @@ import 'tile/tilemap.ht'
 import 'game.ht'
 import 'tile/entity.ht'
 
-var maze = []
-
 final landSprites = [
   kSpriteLand,
   kSpriteGrassLand,
@@ -17,7 +15,10 @@ fun createMaze ({
   }) {
   engine.info('开始生成副本: ${id}')
 
-  maze = []
+  game.maze = {
+    levels: [],
+    currentLevel: 0,
+  }
 
   final occupied = []
   fun randomPosition(heroX, heroY, width, height) {
@@ -114,12 +115,12 @@ fun createMaze ({
 
     engine.info('生成路标 ')
     
-    maze.add(currentLevel)
+    game.maze.levels.add(currentLevel)
   }
   
   engine.info('副本 ${id} 生成完毕')
 
-  return maze
+  return game.maze.levels
 }
 
 fun handleMazeInteraction(level, left, top) {

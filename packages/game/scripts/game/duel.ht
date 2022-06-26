@@ -7,133 +7,169 @@ import 'l10n.ht'
 
 external fun _showDuel(context, data: Map)
 
-fun showDuel(log) -> Future {
-  return _showDuel(buildContext, log)
-}
-
-fun _isReady(timeframe: int, speed) {
-  return timeframe % speed == 0
+fun showDuel(data) -> Future {
+  return _showDuel(buildContext, data)
 }
 
 // damage = ((1 / (Math.log((victim.defense + 5) / 100) + 5)) * 2 * attacker._attack)
 
+const kDuelTypePractice = 'practice'
+const kDuelTypeSneakAttack = 'sneakAttack'
+const kDuelTimeLimit = 1000
+
+fun _findWieldings(character) {
+  var wieldings = []
+  for (final skill of character.skills.equipments) {
+    if (skill.category == 'fighting') {
+      wieldings.add(skill)
+    }
+  }
+  for (final item of character.talismans.equipments) {
+    if (item.category == 'weapon') {
+      wieldings.add(item)
+    }
+  }
+  return wieldings
+}
+
+fun _attack(attacker, wielding, victim, log) {
+  var damage = wielding.stats.damage - victim.stats.defense * Math.random()
+  victim.stats.life -= damage
+  if (victim.stats.life < 0) {
+    victim.stats.life = 0
+  }
+  return damage
+}
 
 struct Duel {
-  construct(hero, enemy, { heroMoveFirst, isPractice }) {
-    var log = []
+  construct(char1, char2, { type = 'normal' }) {
+    this.char1Name = char1.name
+    this.char2Name = char2.name
+    this.log = []
     var timeframe = 0
 
-    var wielding;
-    var foundWielding = false
-    for (final skill of hero.skills.equipments) {
-      if (skill.category == 'fight') {
-        wielding = skill
-        foundWielding = true
-        break
-      }
+    final char1info = {
+      frames: 0,
+      itemIndex: 0,
+      inRecovery: false,
+      wieldings: _findWieldings(char1),
     }
-    if (!foundWielding) {
-      for (final item of hero.talismans.equipments) {
-        if (item.category == 'weapon') {
-          wielding = item
-          foundWielding = true
-          break
-        }
-      }
-    }
-
-    fun _attack(attacker, victim, wielding) {
-      var damage = wielding.stats.damage - victim.stats.defense * Math.random()
-      log.add(
-        getLocaleString('attackInfo', [
-          attacker.name,
-          wielding.name,
-          victim.name,
-          damage.truncate(),
-        ]))
-      victim.stats.life -= damage
-      if (victim.stats.life < 0) {
-        victim.stats.life = 0
-      }
+    final char2info = {
+      frames: 0,
+      itemIndex: 0,
+      inRecovery: false,
+      wieldings: _findWieldings(char2),
     }
     
-    if (foundWielding) {
-      if (heroMoveFirst == null) {
-        final initiativeSum = hero.attributes.perception + enemy.attributes.perception
+    if (char1info.wieldings.isEmpty) {
+      // 如果没有装备任何武器或者战斗技能，则直接判负（无论对方是否有装备）
+      this.log.add(getLocaleString('emptyHands'))
+      this.canceled = true
+      this.result = false
+    } else if (char1info.wieldings.isEmpty) {
+      this.log.add(getLocaleString('enemyEmptyHands'))
+      this.canceled = true
+      this.result = true
+    } else {
+      var sneedAttackSuccess = false
+      if (type == kDuelTypeSneakAttack) {
+        final initiativeSum = char1.attributes.perception + char2.attributes.perception
         final initiativeValue = initiativeSum * Math.random()
-        if (hero.attributes.perception > initiativeValue) {
-          if (isPractice) {
-            log.add(getLocaleString('firstAttack', [hero.name]))
-          } else {
-            log.add(getLocaleString('sneakAttack', [hero.name]))
-          }
-          _attack(hero, enemy, wielding)
+        if (char1.attributes.perception > initiativeValue) {
+          this.log.add(getLocaleString('sneakAttackSuccess', [char1.name]))
+          final damage = _attack(char1, wielding, char2)
+          this.log.add(getLocaleString('attackInfo', [
+            char1.name,
+            char2.name,
+            victim.name,
+            damage.truncate(),
+          ]))
+          sneedAttackSuccess = true
         } else {
-          if (isPractice) {
-            log.add(getLocaleString('firstAttack', [enemy.name]))
-          } else {
-            log.add(getLocaleString('sneakAttack', [enemy.name]))
-          }
-          _attack(enemy, hero, wielding)
+          this.log.add(getLocaleString('sneakAttackFail', [char1.name]))
         }
-      } else if (heroMoveFirst) {
-        if (isPractice) {
-          log.add(getLocaleString('firstAttack', [hero.name]))
-        } else {
-          log.add(getLocaleString('sneakAttack', [hero.name]))
-        }
-        _attack(hero, enemy, wielding)
-      } else {
-        if (isPractice) {
-          log.add(getLocaleString('firstAttack', [enemy.name]))
-        } else {
-          log.add(getLocaleString('sneakAttack', [enemy.name]))
-        }
-        _attack(enemy, hero, wielding)
       }
 
       this.result = false
+      this.timeFrames = 0
+
+      char1info.wielding = char1info.wieldings[char1info.itemIndex]
+      char2info.wielding = char2info.wieldings[char2info.itemIndex]
+      
+      fun _nextTick(info, { enemeyTurn = false }) {
+        if (!info.inRecovery) {
+          // 出招等待阶段
+          if (info.frames >= info.wielding.stats.startUp) {
+            // 出招
+            if (!enemeyTurn) {
+              final damage = _attack(char1, info.wielding, char2)
+              this.log.add(getLocaleString('attackInfo', [
+                char1.name,
+                info.wielding.name,
+                char2.name,
+                damage.truncate(),
+              ]))
+            } else {
+              final damage = _attack(char2, info.wielding, char1)
+              this.log.add(getLocaleString('attackInfo', [
+                char2.name,
+                info.wielding.name,
+                char1.name,
+                damage.truncate(),
+              ]))
+            }
+            info.frames = 0
+            info.inRecovery = true
+          }
+        } else {
+          // 收招等待阶段
+          if (info.frames >= info.wielding.stats.recovery) {
+            // 收招
+            ++info.itemIndex
+            if (info.itemIndex >= info.wieldings.length) {
+              info.itemIndex = 0
+            }
+            info.wielding = info.wieldings[info.itemIndex]
+            info.frames = 0
+            info.inRecovery = false
+          }
+        }
+        ++info.frames
+      }
 
       while (true) {
-        ++timeframe
-        if (timeframe >=1000) {
-          log.add(getLocaleString('duelVictory', [enemy.name]))
+        if (this.timeFrames >= kDuelTimeLimit) {
+          this.log.add(getLocaleString('drawGame', [char2.name]))
+          this.tied = true
           break
         }
 
-        if (enemy.stats.life <= 0) {
-          log.add(getLocaleString('duelVictory', [hero.name]))
+        if (char2.stats.life <= 0) {
+          this.log.add(getLocaleString('duelVictory', [char1.name, char2.name]))
           this.result = true
           break
         }
         
-        if (hero.stats.life <= 0) {
-          log.add(getLocaleString('duelVictory', [enemy.name]))
+        if (char1.stats.life <= 0) {
+          this.log.add(getLocaleString('duelVictory', [char1.name, char2.name]))
           break
         }
 
-        for (final item of hero.talismans.equipments) {
-          if (_isReady(timeframe, item.stats.speed)) {
-            _attack(hero, enemy, item)
-          }
-        }
+        _nextTick(char1info)
+        _nextTick(char2info, enemeyTurn: true)
 
-        for (final item of enemy.talismans.equipments) {
-          if (_isReady(timeframe, item.stats.speed)) {
-            _attack(enemy, hero, item)
-          }
-        }
+        ++this.timeFrames
       }
-    } else {
-      log.add(getLocaleString('failedAttackDueToEmptyHand'))
-      this.result = false
+
+      if (type == kDuelTypePractice) {
+        char1.stats.life = char1.attributes.life
+        char2.stats.life = char2.attributes.life
+      }
     }
     
-    this.log = log
-
-    if (isPractice) {
-      hero.stats.life = hero.attributes.life
-      enemy.stats.life = enemy.attributes.life
+    if (config.debug) {
+      engine.info(this)
+      engine.info('${char1.name} 和 ${char2.name} 的战斗结束了：')
     }
   }
 }

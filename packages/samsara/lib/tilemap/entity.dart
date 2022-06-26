@@ -18,6 +18,7 @@ enum AnimationDirection {
 }
 
 class TileMapEntity extends GameComponent with TileInfo {
+  final String sceneKey;
   final bool isHero;
   final double velocityFactor;
 
@@ -52,6 +53,7 @@ class TileMapEntity extends GameComponent with TileInfo {
 
   TileMapEntity({
     required this.engine,
+    required this.sceneKey,
     this.isHero = false,
     int left = 1,
     int top = 1,
@@ -121,7 +123,7 @@ class TileMapEntity extends GameComponent with TileInfo {
     tilePosition = _movingTargetTilePosition;
     _movingTargetTilePosition = const TilePosition.leftTop();
     if (isHero) {
-      engine.broadcast(const HeroEvent.heroMoved());
+      engine.broadcast(HeroEvent.heroMoved(scene: sceneKey));
     }
   }
 

@@ -13,7 +13,7 @@ class ResponsiveRoute extends StatelessWidget {
 
   final Widget child;
 
-  final AlignmentDirectional alignment;
+  final AlignmentGeometry alignment;
 
   final Size? size;
 
@@ -22,24 +22,27 @@ class ResponsiveRoute extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (GlobalConfig.orientationMode == OrientationMode.landscape) {
-      return Stack(
-        alignment: alignment,
-        children: [
-          Container(
-            width: size?.width,
-            height: size?.height,
-            margin: margin,
-            alignment: Alignment.topCenter,
-            decoration: BoxDecoration(
-              borderRadius: kBorderRadius,
-              border: Border.all(color: kForegroundColor),
+      return Material(
+        type: MaterialType.transparency,
+        child: Stack(
+          alignment: alignment,
+          children: [
+            Container(
+              width: size?.width,
+              height: size?.height,
+              margin: margin,
+              alignment: Alignment.topCenter,
+              decoration: BoxDecoration(
+                borderRadius: kBorderRadius,
+                border: Border.all(color: kForegroundColor),
+              ),
+              child: ClipRRect(
+                borderRadius: kBorderRadius,
+                child: child,
+              ),
             ),
-            child: ClipRRect(
-              borderRadius: kBorderRadius,
-              child: child,
-            ),
-          ),
-        ],
+          ],
+        ),
       );
     } else {
       return child;

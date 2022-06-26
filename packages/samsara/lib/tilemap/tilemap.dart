@@ -258,6 +258,7 @@ class TileMap extends GameComponent with HandlesGesture {
 
     final hero = TileMapEntity(
       engine: engine,
+      sceneKey: sceneKey,
       isHero: true,
       animationSpriteSheet: charSheet,
       waterAnimationSpriteSheet: shipSheet,
@@ -278,9 +279,10 @@ class TileMap extends GameComponent with HandlesGesture {
         final spriteSrc = data['spriteSrc'];
         final Sprite sprite = Sprite(await Flame.images.load(spriteSrc));
         entities.add(TileMapEntity(
+          engine: engine,
+          sceneKey: sceneKey,
           left: data['left'],
           top: data['top'],
-          engine: engine,
           sprite: sprite,
           tileShape: tileShape,
           tileMapWidth: tileMapWidth,

@@ -64,7 +64,9 @@ class _ConsoleState extends State<Console> {
               setState(() {
                 try {
                   final r = engine.hetu.eval(value, globallyImport: true);
-                  engine.info(engine.hetu.lexicon.stringify(r));
+                  if (r != null) {
+                    engine.info(engine.hetu.lexicon.stringify(r));
+                  }
                 } catch (e) {
                   engine.error(e.toString());
                 }

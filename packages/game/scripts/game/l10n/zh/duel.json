@@ -1,7 +1,10 @@
 {
-  "firstAttack": "「{0}」出手快如闪电，抢到先手进攻！",
-  "sneakAttack": "「{0}」趁对手不备，发动偷袭！",
-  "attackInfo": "「{0}」使用「{1}」攻击「{2}」，造成了 {3} 点伤害。",
-  "duelVictory": "「{0}」获胜!",
-  "failedAttackDueToEmptyHand": "你目前没有战斗能力，毫无悬念的失败了。"
+  "firstAttack": "{0} 抢先出手攻击！",
+  "sneakAttackSuccess": "{0} 趁对手不备，发动偷袭！",
+  "sneakAttackFail": "{0} 打算发动偷袭，但却被 {1} 发觉了。",
+  "attackInfo": "{0} 使用 {1} 攻击 {2}，造成了 {3} 点伤害。",
+  "drawGame": "{0} 和 {1} 拼尽全力，结果不分胜败，只好暂且停手。",
+  "duelVictory": "{0} 击败了 {1}!",
+  "emptyHands": "你目前没有战斗能力，挑战失败。",
+  "enemyEmptyHands": "对手毫无战斗能力，只得向你投降。"
 }

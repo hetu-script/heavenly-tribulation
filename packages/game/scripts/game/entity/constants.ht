@@ -151,7 +151,7 @@ fun getRarity([max = 1.0]) {
   do {
     value = kRarity.values.random
   } while (value.probability > max)
-  return { rarity: value.rarity, value: rarity.value }
+  return value
 }
 
 fun getDifficulty([min = 0]) {
@@ -169,3 +169,7 @@ fun getRarityValue(valueMap) {
   final v = valueMap[r.rarity]
   return (v is Iterable) ? v.random : v
 }
+
+const kValueTypeInt = 'integer'
+const kValueTypeFloat = 'float'
+const kValueTypePercentage = 'percentage'

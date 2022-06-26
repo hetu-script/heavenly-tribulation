@@ -24,7 +24,7 @@ class HeroInfoPanel extends StatelessWidget {
       height: 120,
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        color: GlobalConfig.theme.backgroundColor,
+        color: kBackgroundColor,
         borderRadius:
             const BorderRadius.only(bottomRight: Radius.circular(5.0)),
         border: Border.all(color: kForegroundColor),
@@ -74,7 +74,7 @@ class HeroInfoPanel extends StatelessWidget {
                         );
                       },
                       icon: const Image(
-                        image: AssetImage('assets/images/icon/build.png'),
+                        image: AssetImage('assets/images/icon/inventory02.png'),
                       ),
                     ),
                   ],

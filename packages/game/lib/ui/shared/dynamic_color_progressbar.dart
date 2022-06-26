@@ -2,12 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../global.dart';
 
-extension PercentageString on num {
-  String toPercentageString([int fractionDigits = 0]) {
-    return '${(this * 100).toStringAsFixed(fractionDigits).toString()}%';
-  }
-}
-
 class DynamicColorProgressBar extends StatelessWidget {
   DynamicColorProgressBar({
     Key? key,

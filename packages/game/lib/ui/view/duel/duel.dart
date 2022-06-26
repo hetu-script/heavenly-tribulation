@@ -1,26 +1,27 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:hetu_script/values.dart';
 
 import '../../../global.dart';
 import '../../shared/responsive_route.dart';
 
 class Duel extends StatefulWidget {
-  static Future<void> show(BuildContext context, List<dynamic> log) {
+  static Future<void> show(BuildContext context, HTStruct data) {
     return showDialog(
       context: context,
       barrierColor: Colors.transparent,
       barrierDismissible: false,
       builder: (context) {
-        return Duel(log);
+        return Duel(data);
       },
     );
   }
 
   // use dynamic list here to compatible with Hetu list
-  final List<dynamic> log;
+  final HTStruct data;
 
-  const Duel(this.log, {super.key});
+  const Duel(this.data, {super.key});
 
   @override
   State<Duel> createState() => _DuelState();
@@ -29,33 +30,11 @@ class Duel extends StatefulWidget {
 class _DuelState extends State<Duel> {
   Timer? _timer;
   int _count = 1;
-  bool _finished = false;
+  late List _log;
 
-  bool get finished => _finished || _count >= widget.log.length;
+  bool get finished => _count >= _log.length;
 
-  late final ScrollController _scrollController;
-
-  void _startTimer() {
-    _timer = Timer.periodic(
-      const Duration(milliseconds: 800),
-      (Timer timer) {
-        if (finished) {
-          setState(() {
-            timer.cancel();
-          });
-        } else {
-          setState(() {
-            ++_count;
-            _scrollController.animateTo(
-              _scrollController.position.maxScrollExtent,
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.fastOutSlowIn,
-            );
-          });
-        }
-      },
-    );
-  }
+  late final ScrollController _scrollController = ScrollController();
 
   @override
   void dispose() {
@@ -67,80 +46,108 @@ class _DuelState extends State<Duel> {
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
+    _log = widget.data['log'];
+    assert(_log.isNotEmpty);
     _startTimer();
+  }
+
+  void _startTimer() {
+    _count = 1;
+    _timer = Timer.periodic(
+      const Duration(milliseconds: 800),
+      (Timer timer) {
+        setState(() {
+          if (finished) {
+            timer.cancel();
+          } else {
+            ++_count;
+          }
+        });
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final lines = <Text>[];
-    for (var i = 0; i < (finished ? widget.log.length : _count); ++i) {
-      final text = widget.log[i].toString();
+    List<Widget> lines = [];
+    for (var i = 0; i < _count; ++i) {
+      final text = _log[i].toString();
       lines.add(
-        Text.rich(
-          TextSpan(
-            text: text,
-          ),
+        Text(
+          text,
+          textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyText1,
         ),
       );
     }
 
-    final widgets = [
-      ConstrainedBox(
-        constraints: const BoxConstraints(
-          minWidth: 200,
-          minHeight: 275,
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: lines,
-          ),
-        ),
-      )
-    ];
+    // executes after build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.fastOutSlowIn,
+      );
+    });
 
-    final layout = GestureDetector(
-      onTap: () {
-        setState(() {
-          if (_count > 30) {
-            _finished = true;
-          }
-        });
-      },
-      child: Container(
-        color: kBackgroundColor,
-        padding: const EdgeInsets.fromLTRB(10.0, 15.0, 10.0, 15.0),
-        width: 400,
-        height: 400,
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: ListView(
-                  controller: _scrollController,
-                  children: widgets,
-                ),
-              ),
-            ),
-            if (finished)
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text(engine.locale['close']),
-              ),
-          ],
-        ),
-      ),
-    );
+    // _lines = <Widget>[Text('what?')];
 
     return ResponsiveRoute(
       alignment: AlignmentDirectional.bottomCenter,
-      size: const Size(300.0, 300.0),
-      child: layout,
+      size: const Size(800.0, 600.0),
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Text(
+              '${widget.data['char1Name']} vs ${widget.data['char2Name']}'),
+        ),
+        body: Container(
+          margin: const EdgeInsets.all(10.0),
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: lines,
+                  ),
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      child: Text(engine.locale['retry']),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (finished) {
+                          Navigator.pop(context);
+                        } else {
+                          _timer?.cancel();
+                          setState(() {
+                            _count = _log.length;
+                          });
+                        }
+                      },
+                      child: finished
+                          ? Text(engine.locale['close'])
+                          : Text(engine.locale['skip']),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

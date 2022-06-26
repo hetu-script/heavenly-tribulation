@@ -12,18 +12,26 @@ const kMaleAvatarCount = 37
  // number of the female avatar images
 const kFemaleAvatarCount = 75
 const kCharacterRandomAgeMax = 150
-
 const kCharacterAverageLooks = 75.0
 /// 容貌最大值: 100.0
 const kCharacterMaxLooks = 100.0
 const kCharacterImpressionCheckpoint = 10.0
-
 const kCharacterInitialGeneralThinking = 4
-
 const kCharacterMarriageAgeMin = 15
 const kCharacterMarriageAgeMax = 40
-
 const kMajorMotivationProbobility = 0.2
+const kCharacterAttributeMinValue = 10
+const kCharacterAttributeBase = 10
+const kCharacterAttributeVariable = 10
+
+final kCharacterAttributeNames = [
+  'strength',
+  'superpower',
+  'intelligence',
+  'perception',
+  'leadership',
+  'management',
+]
 
 final kMajorMotivations = [
   'duty',
@@ -215,7 +223,10 @@ struct Character {
     }
 
     // 属性点数数值
-    this.attributes = generateRandomAttributes(Math.randomInt(10) + 10, 10)
+    this.attributes = generateRandomAttributes(
+      Math.randomInt(kCharacterAttributeVariable) + kCharacterAttributeBase,
+      kCharacterAttributeMinValue,
+    )
 
     // 当前状态数值，由种族、天赋、属性点数、增益减损、物品、技能等计算得来
     this.stats = {}
@@ -403,33 +414,19 @@ fun generateRandomAttributes(maxStats, minValue) {
   assert(maxStats != null)
   assert(minValue != null)
 
-  final strength = Math.randomInt(maxStats)
-  final intelligence = Math.randomInt(maxStats - strength)
-  final perception = Math.randomInt(maxStats - strength - intelligence)
-  final superpower = Math.randomInt(maxStats - strength - intelligence - perception)
-  final leadership = Math.randomInt(maxStats - strength - intelligence - perception - superpower)
-  final management = maxStats - strength - intelligence - perception - superpower - leadership
-
-  return {
-    strength: strength + minValue,
-    intelligence: intelligence + minValue,
-    perception: perception + minValue,
-    superpower: superpower + minValue,
-    leadership: leadership + minValue,
-    management: management + minValue,
-
-    resists: {
-      slashing: 0,
-      bludgeoning: 0,
-      piercing: 0,
-      cold: 0,
-      fire: 0,
-      lightning: 0,
-      chi: 0,
-      spell: 0,
-      power: 0,
-    }
+  final attributes = {}
+  
+  final list = kCharacterAttributeNames.toList()
+  list.shuffle()
+  var rest = maxStats
+  for (var i = 0; i < list.length - 1; ++i) {
+    final name = list[i]
+    final value = Math.randomInt(rest)
+    attributes[name] = value + minValue
+    rest -= value
   }
+  attributes[list.last] = rest + minValue
+  return attributes
 }
 
 fun recalculateAttributesOfCharacter(character) {
@@ -732,7 +729,7 @@ fun handleCharacterInteraction(characterId) {
       }
       'practice' -> {
         final duel = Duel(hero, character, isPractice: true)
-        showDuel(duel.log)
+        showDuel(duel)
       }
       'consult' -> {
         
@@ -748,7 +745,7 @@ fun handleCharacterInteraction(characterId) {
       }
       'sneekAttack' -> {
         final duel = Duel(hero, character, heroMoveFirst: true)
-        showDuel(duel.log)
+        showDuel(duel)
       }
     }
   })
