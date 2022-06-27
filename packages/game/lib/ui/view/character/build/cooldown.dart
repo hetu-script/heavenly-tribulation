@@ -11,35 +11,11 @@ class CoolDownPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (value == 0.0) return;
-    // assert(0 < value && value <= 1.0);
-    // final p = Paint()
-    //   ..color = Colors.white.withOpacity(0.4)
-    //   ..style = PaintingStyle.fill
-    //   ..strokeWidth = 2;
-    // final x = size.width / 2;
-    // final y = size.height / 2;
-    // assert(radius < x && radius < y);
-    // final path = Path();
-    // path.moveTo(x, y);
-    // path.moveTo(x, -radius);
-    // // between '\ |'
-    // const eighth1 = 1.0 * 1 / 8;
-    // double d, v;
-    // if (value < eighth1) {
-    //   d = (eighth1 - value) * 8 * x;
-    //   path.relativeLineTo(d, 0);
-    //   path.lineTo(x, y);
-    // }
-
-    final x = size.width / 2;
-    final y = size.height / 2;
-    assert(radius < x && radius < y);
     var p = Paint()
       ..color = Colors.white.withOpacity(0.75)
-      ..style = PaintingStyle.fill
       ..strokeWidth = 2;
-
-    canvas.drawLine(Offset(x, -radius), Offset(x * 2, -radius), p);
+    canvas.drawLine(
+        Offset(0, size.height), Offset(size.width * value, size.height), p);
   }
 
   @override

@@ -5,6 +5,6 @@
   "attackInfo": "{0} 使用 {1} 攻击 {2}，造成了 {3} 点伤害。",
   "drawGame": "{0} 和 {1} 拼尽全力，结果不分胜败，只好暂且停手。",
   "duelVictory": "{0} 击败了 {1}!",
-  "emptyHands": "你目前没有战斗能力，挑战失败。",
-  "enemyEmptyHands": "对手毫无战斗能力，只得向你投降。"
+  "emptyHands": "{0} 毫无战斗能力，无法发起战斗。",
+  "enemyEmptyHands": "{0} 毫无战斗能力，只得投降。"
 }

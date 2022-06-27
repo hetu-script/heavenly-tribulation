@@ -6,7 +6,7 @@ import 'generator/name/name.ht'
 
 fun giveWeapon(character) {
   final weapon = Weapon()
-  character.talismans.inventory.add(weapon)
+  character.inventory.add(weapon)
   final incidentContent = getLocaleString('incidentAquireItem', [
       character.name,
       weapon.name,
@@ -31,7 +31,7 @@ fun giveHeroWeapon([n = 1]) {
 fun testDuel() {
   final hero = Character()
   final enemy = Character()
-  hero.talismans.equipments[1] = Weapon()
-  enemy.talismans.equipments[1] = Weapon()
+  equipTalisman(Weapon(), hero)
+  equipTalisman(Weapon(), enemy)
   showDuel(hero, enemy)
 }

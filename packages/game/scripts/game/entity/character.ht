@@ -23,6 +23,7 @@ const kMajorMotivationProbobility = 0.2
 const kCharacterAttributeMinValue = 10
 const kCharacterAttributeBase = 10
 const kCharacterAttributeVariable = 10
+const kEquipmentMax = 5
 
 final kCharacterAttributeNames = [
   'strength',
@@ -117,7 +118,7 @@ struct Baby {
     this.conceptionTimestamp = conceptionTimestamp
     this.pregnancyTimestamp = Math.gaussianNoise(kPregnancyTime, kPregnancyTimeVariable)
     
-    this.isFemale = Math.randomInt(2) == 0
+    this.isFemale = Math.randomBool()
     if (this.isFemale) {
       final index = Math.randomInt(kFemaleAvatarCount)
       this.avatar = 'avatar/female/${index}.jpg';
@@ -156,7 +157,7 @@ struct Character {
     if (isFemale != null) {
       this.isFemale = isFemale
     } else {
-      this.isFemale = Math.randomInt(2) == 0
+      this.isFemale = Math.randomBool()
     }
     if (this.isFemale) {
       final index = Math.randomInt(kFemaleAvatarCount)
@@ -206,17 +207,11 @@ struct Character {
     // 身上的普通物品，id相同的可以堆叠
     this.items = {}
 
-    // 技能，id是唯一的，属性随机生成
-    this.skills = {
-      inventory: [],
-      equipments: {},
-    }
+    // 宝物，技能，道具都在这里
+    this.inventory = []
 
-    // 宝物，id是唯一的，属性随机生成
-    this.talismans = {
-      inventory: [],
-      equipments: {},
-    }
+    // 装备栏的key是固定的数字，从1开始
+    this.equipments = {}
 
     // 属性点数数值
     this.attributes = generateRandomAttributes(
@@ -681,6 +676,34 @@ fun haveMet(subject, target) {
     return true
   } else {
     return false
+  }
+}
+
+fun equipSkill(data, character, [index]) {
+  final r = range(1, kEquipmentMax)
+  if (index == null) {
+    // 如果有空位就装备在空位上
+    for (final i in r) {
+      if (!character.equipments[i]) {
+        character.skills.equipments[i] = skill
+        skill.isEquipped = true
+        break
+      }
+    }
+    // 否则就替换掉第一个空位
+    if (!skill.isEquipped) {
+      final eq = character.skills.equipments[1]
+      eq.isEquipped = false
+      character.skills.equipments[1] = skill
+      skill.isEquipped = true
+    }
+  } else {
+    // 直接替换掉指定的空位
+    assert(index in r)
+    final eq = character.skills.equipments[index]
+    eq?.isEquipped = false
+    character.skills.equipments[index] = skill
+    skill.isEquipped = true
   }
 }
 

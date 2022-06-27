@@ -57,7 +57,7 @@ class TileMapEntity extends GameComponent with TileInfo {
     this.isHero = false,
     int left = 1,
     int top = 1,
-    this.velocityFactor = 0.5,
+    this.velocityFactor = 0.8,
     Sprite? sprite,
     SpriteSheet? animationSpriteSheet,
     SpriteSheet? waterAnimationSpriteSheet,

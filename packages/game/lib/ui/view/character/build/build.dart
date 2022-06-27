@@ -93,31 +93,24 @@ class _BuildViewState extends State<BuildView>
           automaticallyImplyLeading: false,
           title: Text('${data['name']} - $_title'),
           actions: const [ButtonClose()],
-          bottom: TabBar(
-            controller: _tabController,
-            tabs: _tabs,
-          ),
         ),
-        body: TabBarView(
-          controller: _tabController,
+        body: Column(
           children: [
-            Column(
-              children: [
-                EquipmentsView(
-                  data: data['talismans']['equipments'],
-                ),
-                InventoryView(
-                  data: data['talismans']['inventory'],
-                ),
-              ],
+            TabBar(
+              controller: _tabController,
+              tabs: _tabs,
             ),
-            Column(
+            EquipmentsView(
+              data: data['equipments'],
+            ),
+            TabBarView(
+              controller: _tabController,
               children: [
-                EquipmentsView(
-                  data: data['skills']['equipments'],
+                InventoryView(
+                  data: data['inventory'],
                 ),
                 InventoryView(
-                  data: data['skills']['inventory'],
+                  data: data['inventory'],
                 ),
               ],
             ),

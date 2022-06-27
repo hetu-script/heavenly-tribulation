@@ -162,18 +162,6 @@ class _DuelState extends State<Duel> {
                                     Colors.green
                                   ],
                                 ),
-                                DynamicColorProgressBar(
-                                  title: '${engine.locale['stamina']}: ',
-                                  value: heroStatsPercentage['stamina']['value']
-                                      .toInt(),
-                                  max: heroStatsPercentage['stamina']['max']
-                                      .toInt(),
-                                  size: const Size(100.0, 24.0),
-                                  colors: const <Color>[
-                                    Colors.yellow,
-                                    Colors.blue
-                                  ],
-                                ),
                               ],
                             ),
                           ],
@@ -195,7 +183,7 @@ class _DuelState extends State<Duel> {
                   const Image(
                     width: 80.0,
                     fit: BoxFit.contain,
-                    image: AssetImage('assets/images/maze/versus.png'),
+                    image: AssetImage('assets/images/battle/versus.png'),
                   ),
                   SizedBox(
                     width: 250.0,
@@ -221,19 +209,6 @@ class _DuelState extends State<Duel> {
                                   colors: const <Color>[
                                     Colors.red,
                                     Colors.green
-                                  ],
-                                ),
-                                DynamicColorProgressBar(
-                                  title: '${engine.locale['stamina']}: ',
-                                  value: enemyStatsPercentage['stamina']
-                                          ['value']
-                                      .toInt(),
-                                  max: enemyStatsPercentage['stamina']['max']
-                                      .toInt(),
-                                  size: const Size(100.0, 24.0),
-                                  colors: const <Color>[
-                                    Colors.yellow,
-                                    Colors.blue
                                   ],
                                 ),
                               ],
