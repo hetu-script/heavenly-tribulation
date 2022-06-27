@@ -10,11 +10,17 @@ class EquipmentsView extends StatelessWidget {
     required this.data,
     this.verticalMargin = 40.0,
     this.horizontalMargin = 10.0,
+    this.cooldown1 = 0.0,
+    this.cooldown2 = 0.0,
+    this.cooldown3 = 0.0,
+    this.cooldown4 = 0.0,
   });
 
   final HTStruct data;
 
   final double verticalMargin, horizontalMargin;
+
+  final double cooldown1, cooldown2, cooldown3, cooldown4;
 
   void _onItemTapped(
       BuildContext context, HTStruct item, Offset screenPosition) {
@@ -42,7 +48,7 @@ class EquipmentsView extends StatelessWidget {
           data: data[1],
           onSelect: (item, screenPosition) =>
               _onItemTapped(context, item, screenPosition),
-          cooldownValue: 0.5,
+          cooldownValue: cooldown1,
         ),
         ItemGrid(
           verticalMargin: verticalMargin,
@@ -50,6 +56,7 @@ class EquipmentsView extends StatelessWidget {
           data: data[2],
           onSelect: (item, screenPosition) =>
               _onItemTapped(context, item, screenPosition),
+          cooldownValue: cooldown2,
         ),
         ItemGrid(
           verticalMargin: verticalMargin,
@@ -57,6 +64,7 @@ class EquipmentsView extends StatelessWidget {
           data: data[3],
           onSelect: (item, screenPosition) =>
               _onItemTapped(context, item, screenPosition),
+          cooldownValue: cooldown3,
         ),
         ItemGrid(
           verticalMargin: verticalMargin,
@@ -64,6 +72,7 @@ class EquipmentsView extends StatelessWidget {
           data: data[4],
           onSelect: (item, screenPosition) =>
               _onItemTapped(context, item, screenPosition),
+          cooldownValue: cooldown4,
         ),
       ],
     );

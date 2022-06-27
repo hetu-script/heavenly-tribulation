@@ -12,7 +12,7 @@ class ItemGrid extends StatelessWidget {
     this.horizontalMargin = 5.0,
     this.data,
     required this.onSelect,
-    this.cooldownValue = 1.0,
+    this.cooldownValue = 0.0,
   });
 
   final Size size;
@@ -60,7 +60,7 @@ class ItemGrid extends StatelessWidget {
                       fit: BoxFit.contain,
                       image: AssetImage('assets/images/$iconAssetKey'),
                     ),
-                  if (cooldownValue < 1.0) const CooldownIndicator(),
+                  CooldownIndicator(value: cooldownValue),
                 ],
               )),
         ),

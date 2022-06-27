@@ -182,6 +182,7 @@ class _DuelState extends State<Duel> {
                           verticalMargin: 10.0,
                           horizontalMargin: 5.0,
                           data: widget.hero['talismans']['equipments'],
+                          cooldown1: 0.1,
                         ),
                         EquipmentsView(
                           verticalMargin: 0.0,
