@@ -4,15 +4,17 @@ class CoolDownPainter extends CustomPainter {
   const CoolDownPainter({
     required this.value,
     required this.radius,
+    this.color = Colors.white,
   });
 
   final double value, radius;
+  final Color color;
 
   @override
   void paint(Canvas canvas, Size size) {
     if (value == 0.0) return;
     var p = Paint()
-      ..color = Colors.yellow
+      ..color = color
       ..strokeWidth = 4;
     canvas.drawLine(
         Offset(0, size.height), Offset(size.width * value, size.height), p);
@@ -22,27 +24,29 @@ class CoolDownPainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
 
-class CooldownIndicator extends StatefulWidget {
+class CooldownIndicator extends StatelessWidget {
   const CooldownIndicator({
     super.key,
     this.size = const Size(48.0, 48.0),
     this.value = 0.0,
+    this.color = Colors.white,
   });
 
   final Size size;
 
   final double value;
 
-  @override
-  State<CooldownIndicator> createState() => _CooldownIndicatorState();
-}
+  final Color color;
 
-class _CooldownIndicatorState extends State<CooldownIndicator> {
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      size: widget.size,
-      painter: CoolDownPainter(value: widget.value, radius: 5.0),
+      size: size,
+      painter: CoolDownPainter(
+        value: value,
+        radius: 5.0,
+        color: color,
+      ),
     );
   }
 }

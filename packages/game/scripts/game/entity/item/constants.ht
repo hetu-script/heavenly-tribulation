@@ -3,6 +3,8 @@ import '../../l10n.ht'
 const kItemDefaultIcon = 'assets/images/unknown_item.png'
 final kDefaultItemDescription = getLocaleString('defaultItemDescription')
 
+const kUnknownItemIcon = 'icon/unknown_item.png'
+
 final kRarity2ItemLevels = {
   common: 10, // common 白
   uncommon: 20, // uncommon 灰

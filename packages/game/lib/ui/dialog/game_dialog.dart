@@ -150,7 +150,7 @@ class _GameDialogState extends State<GameDialog> {
       _finished = false;
       _letterCount = 0;
       _currentContent = _data['contents'][_currentContentIndex];
-      _currentAvatar = _currentContent!['avatar'] ?? 'avatar/general.png';
+      _currentAvatar = _currentContent!['avatar'];
       _currentSay = _currentContent!['lines'][_currentSayIndex];
       _timer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
         _letterCount++;

@@ -56,61 +56,68 @@ class _MainGameOverlayState extends State<MainGameOverlay>
     );
   }
 
+  void _mapTapHandler(GameEvent event) {
+    final e = event as MapInteractionEvent;
+    if (engine.isOnDesktop) {
+      if (e.buttons & kPrimaryButton != kPrimaryButton) return;
+      final hero = _scene.map.hero;
+      if (hero.isMoving) return;
+      final terrain = _scene.map.selectedTerrain;
+      if (terrain == null) return;
+      if (terrain.isVoid) return;
+      List<int>? route;
+      if (terrain.tilePosition != hero.tilePosition) {
+        final start = engine.invoke('getTerrain',
+            positionalArgs: [hero.left, hero.top, _scene.data]);
+        final end = engine.invoke('getTerrain',
+            positionalArgs: [terrain.left, terrain.top, _scene.data]);
+        List? calculatedRoute = engine.invoke('calculateRoute',
+            positionalArgs: [start, end, _scene.data]);
+        if (calculatedRoute != null) {
+          route = List<int>.from(calculatedRoute);
+          if (terrain.locationId != null) {
+            if (hero.tilePosition == terrain.tilePosition) {
+              _enterLocation(terrain.locationId!);
+            } else {
+              _scene.map.moveHeroToTilePositionByRoute(
+                route,
+                () => _enterLocation(terrain.locationId!),
+              );
+            }
+          } else {
+            _scene.map.moveHeroToTilePositionByRoute(route);
+          }
+        }
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     engine.invoke('build', positionalArgs: [context]);
 
     engine.registerListener(
-      Events.mapTapped,
-      EventHandler(
-        widget.key!,
-        (event) {
-          final e = event as MapInteractionEvent;
-          if (engine.isOnDesktop) {
-            if (e.buttons & kPrimaryButton == kPrimaryButton) {
-              final hero = _scene.map.hero;
-              if (hero.isMoving) return;
-              final terrain = _scene.map.selectedTerrain;
-              if (terrain == null) return;
-              if (terrain.isVoid) return;
-              List<int>? route;
-              if (terrain.tilePosition != hero.tilePosition) {
-                final start = engine.invoke('getTerrain',
-                    positionalArgs: [hero.left, hero.top, _scene.data]);
-                final end = engine.invoke('getTerrain',
-                    positionalArgs: [terrain.left, terrain.top, _scene.data]);
-                List? calculatedRoute = engine.invoke('calculateRoute',
-                    positionalArgs: [start, end, _scene.data]);
-                if (calculatedRoute != null) {
-                  route = List<int>.from(calculatedRoute);
-                  _scene.map.moveHeroToTilePositionByRoute(route);
-                }
-              }
-              if (_menuPosition != null) {
-                setState(() {
-                  _menuPosition = null;
-                });
-              }
-            } else if (e.buttons & kSecondaryButton == kSecondaryButton) {
-              setState(() {
-                _menuPosition = _scene.map.tilePosition2TileCenterInScreen(
-                    e.tilePosition.left, e.tilePosition.top);
-              });
-            }
-          }
+      Events.mapDoubleTapped,
+      EventHandler(widget.key!, _mapTapHandler),
+    );
 
-          // if (_scene.map.hero.isMoving) {
-          //   return;
-          // }
-          // setState(() {
-          //   final terrain = (event as MapInteractionEvent).terrain;
-          //   if (terrain != null) {
-          //     final tilePos = terrain.tilePosition;
-          //   }
-          // });
-        },
-      ),
+    engine.registerListener(
+      Events.mapTapped,
+      EventHandler(widget.key!, (event) {
+        final e = event as MapInteractionEvent;
+        if (_menuPosition != null) {
+          setState(() {
+            _menuPosition = null;
+          });
+        } else if (e.buttons & kSecondaryButton == kSecondaryButton) {
+          if (_scene.map.hero.isMoving) return;
+          setState(() {
+            _menuPosition = _scene.map.tilePosition2TileCenterInScreen(
+                e.tilePosition.left, e.tilePosition.top);
+          });
+        }
+      }),
     );
 
     engine.registerListener(

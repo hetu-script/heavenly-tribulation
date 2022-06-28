@@ -26,25 +26,38 @@ fun addDialogs(dlgs: List) {
 
 external fun _showGameDialog(context, data, returnValue)
 
-fun showDialogByLocaleKeys(lines, [returnValue]) -> Future {
-  final data = { contents: [ {
-    lines: lines.map( (line) => getLocaleString(line) ).toList()
-  } ] }
+fun showDialogByLocaleKeys(lines, { returnValue, character }) -> Future {
+  var avatar = character ? character.avatar : 'avatar/general.png'
+  final data = { 
+    contents: [
+      {
+        avatar,
+        lines: lines.map( (line) => getLocaleString(line) ).toList()
+      }
+    ]
+  }
   return _showGameDialog(buildContext, data, returnValue)
 }
 
-fun showDialogByStrings(lines, [returnValue]) -> Future {
-  final data = { contents: [ { lines } ] }
+fun showDialogByStrings(lines, { returnValue, character }) -> Future {
+  var avatar = character ? character.avatar : 'avatar/general.png'
+  final data = {
+    contents:[
+      { 
+        avatar,
+        lines,
+      }
+    ]
+  }
   return _showGameDialog(buildContext, data, returnValue)
 }
 
-fun showDialogByResourceId(id: str, [returnValue]) -> Future {
+fun showDialogByResourceId(id: str, { returnValue }) -> Future {
   final data = dialogs[id]
-  print(data)
   return _showGameDialog(buildContext, data, returnValue)
 }
 
-fun showDialog(data, [returnValue]) -> Future {
+fun showDialog(data, { returnValue }) -> Future {
   return _showGameDialog(buildContext, data, returnValue)
 }
 

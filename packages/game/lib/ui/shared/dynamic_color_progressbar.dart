@@ -6,7 +6,7 @@ class DynamicColorProgressBar extends StatelessWidget {
   DynamicColorProgressBar({
     Key? key,
     this.title,
-    this.margin = const EdgeInsets.all(2.0),
+    this.margin = const EdgeInsets.all(5.0),
     required this.size,
     required this.value,
     required this.max,
@@ -68,8 +68,13 @@ class DynamicColorProgressBar extends StatelessWidget {
     return Container(
       margin: margin,
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (title != null) Text(title!),
+          if (title != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 5.0),
+              child: Text(title!),
+            ),
           Container(
             width: size.width,
             height: size.height,

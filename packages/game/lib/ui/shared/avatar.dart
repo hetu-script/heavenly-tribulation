@@ -7,6 +7,7 @@ class Avatar extends StatelessWidget {
   const Avatar({
     super.key,
     this.name,
+    this.margin = const EdgeInsets.all(5.0),
     this.onPressed,
     this.avatarAssetKey,
     this.size = const Size(100.0, 100.0),
@@ -16,6 +17,8 @@ class Avatar extends StatelessWidget {
   });
 
   final String? name;
+
+  final EdgeInsetsGeometry margin;
 
   final VoidCallback? onPressed;
 
@@ -35,7 +38,8 @@ class Avatar extends StatelessWidget {
       onTap: onPressed,
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
-        child: SizedBox(
+        child: Container(
+          margin: margin,
           width: size.width,
           height: size.height,
           child: Stack(

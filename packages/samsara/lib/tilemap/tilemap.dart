@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
@@ -599,37 +600,40 @@ class TileMap extends GameComponent with HandlesGesture {
     camera.snapTo(camera.position - details.delta.toVector2());
   }
 
-  @override
-  void onTapUp(int pointer, int buttons, TapUpDetails details) {
-    final screenPosition = details.globalPosition.toVector2();
-
-    // print('clicked!');
-    // print('world position: ${screenPosition2World(screenPosition)}');
-    // print('camera position: ${camera.position}');
-    // print('screen position: $screenPosition');
-    // print('tile position: ${screenPosition2Tile(screenPosition)}');
-
-    final tilePosition = screenPosition2Tile(screenPosition);
-    final terrain = getTerrain(tilePosition.left, tilePosition.top);
+  void selectTile(int left, int top) {
+    final terrain = getTerrain(left, top);
     if (terrain != null && !terrain.isVoid) {
-      // if (tile.isRoom && tile.isVisible) {
-      //   gameRef.game.hetu.invoke('handleMazeTileInteraction',
-      //       positionalArgs: [tile.left, tile.top]);
-      // }
-      // if (tapSelect) {
-      //   if (selectedTerrain != null) {
-      //     selectedTerrain = null;
-      //   } else {
-      //     if (hero == null || !hero.isMoving) {
       selectedTerrain = terrain;
-      //     }
-      //   }
-      // }
     } else {
       selectedTerrain = null;
     }
+  }
 
+  @override
+  void onTap(int pointer, int buttons, TapUpDetails details) {
+    final screenPosition = details.globalPosition.toVector2();
+    final tilePosition = screenPosition2Tile(screenPosition);
+    selectTile(tilePosition.left, tilePosition.top);
+
+    if (kDebugMode) {
+      print('tilemap tapped at: $tilePosition');
+    }
     engine.broadcast(MapInteractionEvent.mapTapped(
+        globalPosition: details.globalPosition,
+        buttons: buttons,
+        tilePosition: tilePosition));
+  }
+
+  @override
+  void onDoubleTap(int pointer, int buttons, TapUpDetails details) {
+    final screenPosition = details.globalPosition.toVector2();
+    final tilePosition = screenPosition2Tile(screenPosition);
+    selectTile(tilePosition.left, tilePosition.top);
+
+    if (kDebugMode) {
+      print('tilemap double tapped at: $tilePosition');
+    }
+    engine.broadcast(MapInteractionEvent.mapDoubleTapped(
         globalPosition: details.globalPosition,
         buttons: buttons,
         tilePosition: tilePosition));

@@ -337,7 +337,7 @@ fun _handleGovernmentInteraction(site) {
                 [
                   getLocaleString('visitJailEntryRespect', [title + hero.name]),
                 ],
-                true,
+                returnValue: true,
               )
             } else {
               return showDialogByLocaleKeys(['visitJailDeny'])
@@ -354,6 +354,7 @@ fun _handleGovernmentInteraction(site) {
 }
 
 fun _handleResidenceInteraction(site) {
+  final hero = game.characters[game.heroId]
   final location = game.locations[site.locationId]
   showSelection({
     visit: getLocaleString('visit'),
@@ -371,7 +372,7 @@ fun _handleResidenceInteraction(site) {
             }
           })
         } else {
-          showDialogByLocaleKeys(['visitEmptyVillage'])
+          showDialogByLocaleKeys(['visitEmptyVillage'], character: hero)
         }
       }
     }

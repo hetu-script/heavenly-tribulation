@@ -10,8 +10,8 @@ import '../../shared/avatar.dart';
 import '../../shared/dynamic_color_progressbar.dart';
 
 class Duel extends StatefulWidget {
-  static Future<void> show(
-      BuildContext context, HTStruct char1, HTStruct char2, String? type) {
+  static Future<void> show(BuildContext context, HTStruct char1, HTStruct char2,
+      String? type, HTStruct? data) {
     return showDialog(
       context: context,
       barrierColor: Colors.transparent,
@@ -21,6 +21,7 @@ class Duel extends StatefulWidget {
           char1: char1,
           char2: char2,
           type: type,
+          data: data,
         );
       },
     );
@@ -29,12 +30,14 @@ class Duel extends StatefulWidget {
   final HTStruct char1;
   final HTStruct char2;
   final String? type;
+  final HTStruct? data;
 
   const Duel({
     super.key,
     required this.char1,
     required this.char2,
     this.type,
+    this.data,
   });
 
   @override
@@ -74,7 +77,7 @@ class _DuelState extends State<Duel> {
         positionalArgs: [widget.char1]);
     _char2StatsPercentage = engine.invoke('getStatsPercentageOfCharacter',
         positionalArgs: [widget.char2]);
-    _startDuel();
+    _startDuel(data: widget.data);
   }
 
   void _reset() {
@@ -90,13 +93,14 @@ class _DuelState extends State<Duel> {
     _char2InRecovery = false;
   }
 
-  void _startDuel() {
-    _data = engine.invoke('Duel', positionalArgs: [
-      widget.char1,
-      widget.char2
-    ], namedArgs: {
-      'type': widget.type,
-    });
+  void _startDuel({HTStruct? data}) {
+    _data = data ??
+        engine.invoke('Duel', positionalArgs: [
+          widget.char1,
+          widget.char2
+        ], namedArgs: {
+          'type': widget.type,
+        });
     _reset();
     _char1Health = _char1StatsPercentage!['life']['value'].toInt();
     _char1HealthMax = _char1StatsPercentage!['life']['max'].toInt();
@@ -108,21 +112,21 @@ class _DuelState extends State<Duel> {
   }
 
   HTStruct? getNextChar1ActivatedItem() {
-    if (_data!['logs']['char1'].isEmpty) return null;
-    if (_char1ActionIter >= _data!['logs']['char1'].length) {
+    if (_data!['actions']['char1'].isEmpty) return null;
+    if (_char1ActionIter >= _data!['actions']['char1'].length) {
       _char1ActionIter = 0;
     }
-    final item = _data!['logs']['char1'][_char1ActionIter];
+    final item = _data!['actions']['char1'][_char1ActionIter];
     ++_char1ActionIter;
     return item;
   }
 
   HTStruct? getNextChar2ActivatedItem() {
-    if (_data!['logs']['char2'].isEmpty) return null;
-    if (_char2ActionIter >= _data!['logs']['char2'].length) {
+    if (_data!['actions']['char2'].isEmpty) return null;
+    if (_char2ActionIter >= _data!['actions']['char2'].length) {
       _char2ActionIter = 0;
     }
-    final item = _data!['logs']['char2'][_char2ActionIter];
+    final item = _data!['actions']['char2'][_char2ActionIter];
     ++_char2ActionIter;
     return item;
   }
@@ -231,9 +235,10 @@ class _DuelState extends State<Duel> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text('${widget.char1['name']} vs ${widget.char2['name']}'),
+          toolbarHeight: 40.0,
         ),
         body: Container(
-          padding: const EdgeInsets.all(10.0),
+          margin: const EdgeInsets.all(10.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -241,40 +246,31 @@ class _DuelState extends State<Duel> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   SizedBox(
-                    width: 250.0,
-                    height: 220.0,
+                    width: 270.0,
+                    height: 270.0,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Row(
-                          children: [
-                            Avatar(
-                              name: widget.char1['name'],
-                              avatarAssetKey:
-                                  'assets/images/${widget.char1['avatar']}',
-                            ),
-                            Column(
-                              children: [
-                                DynamicColorProgressBar(
-                                  title: '${engine.locale['life']}: ',
-                                  value: _char1Health.truncate(),
-                                  max: _char1HealthMax,
-                                  showPercentage: false,
-                                  size: const Size(100.0, 24.0),
-                                  colors: const <Color>[
-                                    Colors.red,
-                                    Colors.green
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
+                        Avatar(
+                          name: widget.char1['name'],
+                          avatarAssetKey:
+                              'assets/images/${widget.char1['avatar']}',
+                        ),
+                        DynamicColorProgressBar(
+                          size: const Size(175.0, 24.0),
+                          value: _char1Health.truncate(),
+                          max: _char1HealthMax,
+                          showPercentage: false,
+                          colors: const <Color>[Colors.red, Colors.green],
                         ),
                         EquipmentsView(
                           verticalMargin: 5.0,
                           horizontalMargin: 5.0,
                           data: widget.char1['equipments'],
                           selectedIndex: _currentChar1Item?['index'] ?? 0,
-                          cooldown: _char1Cooldown,
+                          cooldownValue: _char1Cooldown,
+                          cooldownColor:
+                              _char1InRecovery ? Colors.blue : Colors.yellow,
                         ),
                       ],
                     ),
@@ -285,103 +281,101 @@ class _DuelState extends State<Duel> {
                     image: AssetImage('assets/images/battle/versus.png'),
                   ),
                   SizedBox(
-                    width: 250.0,
-                    height: 220.0,
+                    width: 270.0,
+                    height: 270.0,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Row(
-                          children: [
-                            Avatar(
-                              name: widget.char2['name'],
-                              avatarAssetKey:
-                                  'assets/images/${widget.char2['avatar']}',
-                            ),
-                            Column(
-                              children: [
-                                DynamicColorProgressBar(
-                                  title: '${engine.locale['life']}: ',
-                                  value: _char2Health.truncate(),
-                                  max: _char2HealthMax,
-                                  showPercentage: false,
-                                  size: const Size(100.0, 24.0),
-                                  colors: const <Color>[
-                                    Colors.red,
-                                    Colors.green
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
+                        Avatar(
+                          name: widget.char2['name'],
+                          avatarAssetKey:
+                              'assets/images/${widget.char2['avatar']}',
+                        ),
+                        DynamicColorProgressBar(
+                          size: const Size(175.0, 24.0),
+                          value: _char2Health.truncate(),
+                          max: _char2HealthMax,
+                          showPercentage: false,
+                          colors: const <Color>[Colors.red, Colors.green],
                         ),
                         EquipmentsView(
                           verticalMargin: 5.0,
                           horizontalMargin: 5.0,
                           data: widget.char2['equipments'],
                           selectedIndex: _currentChar2Item?['index'] ?? 0,
-                          cooldown: _char2Cooldown,
+                          cooldownValue: _char2Cooldown,
+                          cooldownColor:
+                              _char2InRecovery ? Colors.blue : Colors.yellow,
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
-              Container(
-                margin: const EdgeInsets.all(10.0),
-                height: 120.0,
-                width: 480.0,
-                decoration: BoxDecoration(
-                  borderRadius: kBorderRadius,
-                  border: Border.all(color: kForegroundColor),
-                ),
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  child: Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: ListView(
-                      shrinkWrap: true,
-                      children: _messages.map((line) => Text(line)).toList(),
-                    ),
-                  ),
-                ),
-              ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(5.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (finished) {
-                          Navigator.pop(context);
-                        } else {
-                          _timer?.cancel();
-                          setState(() {
-                            _reset();
-                            _messages = _data!['messages'];
-                            _char1Health = _data!['stats']['char1']['life'];
-                            _char2Health = _data!['stats']['char2']['life'];
-                          });
-                        }
-                      },
-                      child: finished
-                          ? Text(engine.locale['close'])
-                          : Text(engine.locale['skip']),
+                  Container(
+                    height: 100.0,
+                    width: 570.0,
+                    decoration: BoxDecoration(
+                      borderRadius: kBorderRadius,
+                      border: Border.all(color: kForegroundColor),
                     ),
-                  ),
-                  if (finished)
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          engine.invoke('rejuvenate',
-                              positionalArgs: [widget.char1]);
-                          engine.invoke('rejuvenate',
-                              positionalArgs: [widget.char2]);
-                          _startDuel();
-                        },
-                        child: Text(engine.locale['retry']),
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: ListView(
+                          shrinkWrap: true,
+                          children:
+                              _messages.map((line) => Text(line)).toList(),
+                        ),
                       ),
                     ),
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      if (finished)
+                        Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              _timer?.cancel();
+                              engine.invoke('rejuvenate',
+                                  positionalArgs: [widget.char1]);
+                              engine.invoke('rejuvenate',
+                                  positionalArgs: [widget.char2]);
+                              _startDuel();
+                            },
+                            child: Text(engine.locale['retry']),
+                          ),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (finished) {
+                              Navigator.pop(context);
+                            } else {
+                              _timer?.cancel();
+                              setState(() {
+                                _reset();
+                                _messages = List<String>.from((_data!['messages']);
+                                _char1Health = _data!['stats']['char1']['life'];
+                                _char2Health = _data!['stats']['char2']['life'];
+                              });
+                            }
+                          },
+                          child: finished
+                              ? Text(engine.locale['close'])
+                              : Text(engine.locale['skip']),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ],

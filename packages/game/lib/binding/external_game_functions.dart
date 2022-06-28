@@ -55,6 +55,7 @@ final Map<String, Function> externalGameFunctions = {
       positionalArgs[1],
       positionalArgs[2],
       positionalArgs[3],
+      positionalArgs[4],
     );
   },
 };

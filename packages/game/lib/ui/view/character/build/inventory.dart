@@ -48,8 +48,9 @@ class InventoryView extends StatelessWidget {
       }
     }
 
-    return Expanded(
-      child: SingleChildScrollView(
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 15.0),
         child: Column(
           children: [
             Align(

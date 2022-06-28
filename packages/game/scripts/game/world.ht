@@ -418,7 +418,6 @@ fun createWorldMap({
     if (game.organizations.length < organizationNumber) {
       if (game.timestamp >= organizationCreatedDate.last) {
         // 组织数量不够，在来到下一个组织创建时间时，创建组织
-        engine.info('创建组织')
         organizationCreatedDate.removeLast()
         var leader
         // 组织总舵不允许和其他组织的总舵在同一个据点

@@ -52,29 +52,29 @@ class _BuildViewState extends State<BuildView>
     ),
   ];
 
-  late TabController _tabController;
+  // late TabController _tabController;
 
-  String _title = engine.locale['items'];
+  // String _title = engine.locale['items'];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(vsync: this, length: _tabs.length);
-    _tabController.addListener(() {
-      setState(() {
-        if (_tabController.index == 0) {
-          _title = engine.locale['items'];
-        } else if (_tabController.index == 1) {
-          _title = engine.locale['skills'];
-        }
-      });
-    });
-    _tabController.index = widget.tabIndex;
+    // _tabController = TabController(vsync: this, length: _tabs.length);
+    // _tabController.addListener(() {
+    //   setState(() {
+    //     if (_tabController.index == 0) {
+    //       _title = engine.locale['items'];
+    //     } else if (_tabController.index == 1) {
+    //       _title = engine.locale['skills'];
+    //     }
+    //   });
+    // });
+    // _tabController.index = widget.tabIndex;
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
+    // _tabController.dispose();
     super.dispose();
   }
 
@@ -91,30 +91,38 @@ class _BuildViewState extends State<BuildView>
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: Text('${data['name']} - $_title'),
+          title: Text(data['name']),
           actions: const [ButtonClose()],
-        ),
-        body: Column(
-          children: [
-            TabBar(
-              controller: _tabController,
-              tabs: _tabs,
-            ),
-            EquipmentsView(
+          bottom: PreferredSize(
+            preferredSize: const Size(450.0, 120.0),
+            child: EquipmentsView(
               data: data['equipments'],
             ),
-            TabBarView(
-              controller: _tabController,
-              children: [
-                InventoryView(
-                  data: data['inventory'],
+          ),
+        ),
+        body: DefaultTabController(
+          length: _tabs.length,
+          child: Column(
+            children: [
+              TabBar(
+                // controller: _tabController,
+                tabs: _tabs,
+              ),
+              Expanded(
+                child: TabBarView(
+                  // controller: _tabController,
+                  children: [
+                    InventoryView(
+                      data: data['inventory'],
+                    ),
+                    InventoryView(
+                      data: data['inventory'],
+                    ),
+                  ],
                 ),
-                InventoryView(
-                  data: data['inventory'],
-                ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );

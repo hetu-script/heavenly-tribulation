@@ -5,24 +5,37 @@ import 'l10n.ht'
 /// 输入战斗相关角色的对象
 /// 生成战斗过程的文字描述，以及最终结果
 
-external fun _showDuel(context, char1, char2, [ type ])
+external fun _showDuel(context, char1, char2, [ type, data ])
 
-fun showDuel(char1, char2, [ type ]) -> Future {
-  return _showDuel(buildContext, char1, char2, type)
+fun showDuel(char1, char2, { type }) -> Future {
+  final duelResult = Duel(char1, char2, type: type);
+  if (duelResult.started) {
+    _showDuel(buildContext, char1, char2, type, duelResult)
+  } else {
+    if (duelResult.result) {
+      final message = getLocaleString('enemyEmptyHands', [char2.name])
+      showDialogByStrings(message, character: char2)
+    } else {
+      final messages = getLocaleString('emptyHands').split('\n')
+      showDialogByStrings(messages, character: char1)
+    }
+  }
+  return duelResult
 }
 
 // damage = ((1 / (Math.log((victim.defense + 5) / 100) + 5)) * 2 * attacker._attack)
 
 const kDuelTypePractice = 'practice'
 const kDuelTypeSneakAttack = 'sneakAttack'
-const kDuelticksLimit = 1000
+const kDuelticksLimit = 500
 
 fun _attack(attacker, wielding, victim, log) {
-  var damage = wielding.stats.damage - victim.stats.defense * Math.random()
-  victim.stats.life -= damage
-  if (victim.stats.life < 0) {
-    victim.stats.life = 0
+  var offset = 0
+  final defense = victim.stats.defense ?? 0
+  if (defense > 0) {
+    offset = Math.gaussianNoise(defense, defense * 0.25, min: defense * 0.5 max: defense)
   }
+  final damage = wielding.stats.damage - offset
   return damage
 }
 
@@ -46,7 +59,7 @@ struct Log {
 struct Duel {
   construct(char1, char2, { type = 'normal' }) {
     this.messages = []
-    this.logs = {
+    this.actions = {
       char1: [],
       char2: [],
     }
@@ -56,12 +69,14 @@ struct Duel {
       inRecovery: false,
       index: 1,
       wieldings: char1.equipments.offense,
+      life: char1.stats.life,
     }
     final char2info = {
       ticks: 0,
       inRecovery: false,
       index: 1,
       wieldings: char2.equipments.offense,
+      life: char1.stats.life,
     }
     
     this.started = false
@@ -85,15 +100,17 @@ struct Duel {
         final initiativeValue = initiativeSum * Math.random()
         if (char1.attributes.perception > initiativeValue) {
           // this.messages.add(getLocaleString('sneakAttackSuccess', [char1.name]))
-          final damage = _attack(char1, wielding, char2).truncate()
+          final damage = _attack(char1, char1info.wielding, char2)
+          life -= damage
+          if (life < 0) life = 0
           final message = getLocaleString('attackInfo', [
             char1.name,
             char1info.wielding.name,
             char2.name,
-            damage,
+            damage.truncate(),
           ])
           this.messages.add(message)
-          this.logs.char1.add(Log(damage: damage, message: message))
+          this.actions.char1.add(Log(damage: damage, message: message))
         } else {
           // this.log.add(getLocaleString('sneakAttackFail', [char1.name, char2.name]))
         }
@@ -101,22 +118,29 @@ struct Duel {
       
       fun _nextTick({ enemyTurn = false }) {
         final info = enemyTurn ? char2info : char1info
-        final logs = enemyTurn ? this.logs.char2 : this.logs.char1
+        final actions = enemyTurn ? this.actions.char2 : this.actions.char1
         final subject = enemyTurn ? char2 : char1
         final target = enemyTurn ? char1 : char2
         if (!info.inRecovery) {
           // 出招等待阶段
           if (info.ticks >= info.wielding.stats.startUp) {
             // 出招
-            final damage = _attack(subject, info.wielding, target).truncate()
+            final damage = _attack(subject, info.wielding, target)
+            if (enemyTurn) {
+              char1info.life -= damage
+              if (char1info.life < 0) char1info.life = 0
+            } else {
+              char2info.life -= damage
+              if (char2info.life < 0) char2info.life = 0
+            }
             final message = getLocaleString('attackInfo', [
               subject.name, 
               info.wielding.name,
               target.name,
-              damage,
+              damage.truncate(),
             ])
             this.messages.add(message)
-            logs.add(Log(
+            actions.add(Log(
               index: info.index,
               startUp: info.wielding.stats.startUp,
               damage: damage,
@@ -152,13 +176,13 @@ struct Duel {
           break
         }
 
-        if (char2.stats.life <= 0) {
+        if (char1info.life <= 0) {
           // this.messages.add(getLocaleString('duelVictory', [char1.name, char2.name]))
           this.result = true
           break
         }
         
-        if (char1.stats.life <= 0) {
+        if (char2info.life <= 0) {
           // this.messages.add(getLocaleString('duelVictory', [char2.name, char1.name]))
           break
         }
@@ -172,10 +196,10 @@ struct Duel {
 
     this.stats = {
       char1: {
-        life: char1.stats.life,
+        life: char1info.life,
       },
       char2: {
-        life: char2.stats.life,
+        life: char2info.life,
       }
     }
     

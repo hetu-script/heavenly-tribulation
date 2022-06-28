@@ -31,13 +31,7 @@ mixin HandlesGesture on GameComponent {
 
   Timer? doubleTapTimer;
 
-  void _cleanupTimer() {
-    if (doubleTapTimer != null) {
-      doubleTapTimer!.cancel();
-    }
-  }
-
-  void onTap(int pointer, int buttons) {}
+  void onTap(int pointer, int buttons, TapUpDetails details) {}
   void onTapDown(int pointer, int buttons, TapDownDetails details) {}
   void onTapUp(int pointer, int buttons, TapUpDetails details) {}
   void onDoubleTap(int pointer, int buttons, TapUpDetails details) {}
@@ -73,24 +67,24 @@ mixin HandlesGesture on GameComponent {
         ? pointerPosition
         : gameRef.camera.screenToWorld(pointerPosition);
     if (containsPoint(convertedPointerPosition)) {
-      if (doubleTapTimer == null) {
-        doubleTapTimer =
-            Timer(Duration(milliseconds: doubleTapTimeConsider), () {
-          _cleanupTimer();
-        });
-      } else {
-        _cleanupTimer();
+      if (doubleTapTimer?.isActive ?? false) {
+        doubleTapTimer?.cancel();
         if (tapPointer == pointer) {
           onDoubleTap(pointer, buttons, details);
         } else {
           doubleTapTimer =
               Timer(Duration(milliseconds: doubleTapTimeConsider), () {
-            _cleanupTimer();
+            doubleTapTimer?.cancel();
           });
         }
+      } else {
+        onTap(pointer, buttons, details);
+        doubleTapTimer =
+            Timer(Duration(milliseconds: doubleTapTimeConsider), () {
+          doubleTapTimer?.cancel();
+        });
       }
       onTapUp(pointer, buttons, details);
-      onTap(pointer, buttons);
     } else {
       onTapCancel();
     }

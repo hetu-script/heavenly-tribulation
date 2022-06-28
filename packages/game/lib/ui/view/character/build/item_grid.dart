@@ -14,6 +14,7 @@ class ItemGrid extends StatelessWidget {
     required this.onSelect,
     this.isSelected = false,
     this.cooldownValue = 0.0,
+    this.cooldownColor = Colors.white,
   });
 
   final Size size;
@@ -23,6 +24,7 @@ class ItemGrid extends StatelessWidget {
   final void Function(HTStruct item, Offset screenPosition) onSelect;
   final bool isSelected;
   final double cooldownValue;
+  final Color cooldownColor;
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +64,10 @@ class ItemGrid extends StatelessWidget {
                       fit: BoxFit.contain,
                       image: AssetImage('assets/images/$iconAssetKey'),
                     ),
-                  CooldownIndicator(value: cooldownValue),
+                  CooldownIndicator(
+                    value: cooldownValue,
+                    color: cooldownColor,
+                  ),
                 ],
               )),
         ),

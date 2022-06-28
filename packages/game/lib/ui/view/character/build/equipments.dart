@@ -12,7 +12,8 @@ class EquipmentsView extends StatelessWidget {
     this.verticalMargin = 5.0,
     this.horizontalMargin = 10.0,
     this.selectedIndex = 0,
-    this.cooldown = 0.0,
+    this.cooldownValue = 0.0,
+    this.cooldownColor = Colors.white,
   });
 
   final HTStruct data;
@@ -21,7 +22,9 @@ class EquipmentsView extends StatelessWidget {
 
   final int selectedIndex;
 
-  final double cooldown;
+  final double cooldownValue;
+
+  final Color cooldownColor;
 
   void _onItemTapped(
       BuildContext context, HTStruct item, Offset screenPosition) {
@@ -52,7 +55,8 @@ class EquipmentsView extends StatelessWidget {
               onSelect: (item, screenPosition) =>
                   _onItemTapped(context, item, screenPosition),
               isSelected: selectedIndex == 1,
-              cooldownValue: selectedIndex == 1 ? cooldown : 0,
+              cooldownValue: selectedIndex == 1 ? cooldownValue : 0,
+              cooldownColor: cooldownColor,
             ),
             ItemGrid(
               verticalMargin: verticalMargin,
@@ -61,7 +65,8 @@ class EquipmentsView extends StatelessWidget {
               onSelect: (item, screenPosition) =>
                   _onItemTapped(context, item, screenPosition),
               isSelected: selectedIndex == 2,
-              cooldownValue: selectedIndex == 2 ? cooldown : 0,
+              cooldownValue: selectedIndex == 2 ? cooldownValue : 0,
+              cooldownColor: cooldownColor,
             ),
             ItemGrid(
               verticalMargin: verticalMargin,
@@ -70,7 +75,8 @@ class EquipmentsView extends StatelessWidget {
               onSelect: (item, screenPosition) =>
                   _onItemTapped(context, item, screenPosition),
               isSelected: selectedIndex == 3,
-              cooldownValue: selectedIndex == 3 ? cooldown : 0,
+              cooldownValue: selectedIndex == 3 ? cooldownValue : 0,
+              cooldownColor: cooldownColor,
             ),
             ItemGrid(
               verticalMargin: verticalMargin,
@@ -79,7 +85,8 @@ class EquipmentsView extends StatelessWidget {
               onSelect: (item, screenPosition) =>
                   _onItemTapped(context, item, screenPosition),
               isSelected: selectedIndex == 4,
-              cooldownValue: selectedIndex == 4 ? cooldown : 0,
+              cooldownValue: selectedIndex == 4 ? cooldownValue : 0,
+              cooldownColor: cooldownColor,
             ),
           ],
         ),

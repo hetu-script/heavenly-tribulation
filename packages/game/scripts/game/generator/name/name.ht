@@ -359,7 +359,7 @@ fun getTalisman(number: int, {category, kind, rarity}) {
     // } else if (r1 < kRarity.uncommon.probability && r2 < kRarity.uncommon.probability) {
     //   condition = talismanPostfix.handmade.random
     // }
-    names.add({ name, category: c, rarity: r })
+    names.add({ name, category: c, kind: k, rarity: r })
   }
   return names
 }

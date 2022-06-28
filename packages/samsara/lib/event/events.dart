@@ -10,6 +10,7 @@ abstract class Events {
   static const loadedMap = 'loaded_map';
   static const loadedMaze = 'loaded_maze';
   static const mapTapped = 'map_tapped';
+  static const mapDoubleTapped = 'map_double_tapped';
   static const mapLongPressed = 'map_long_pressed';
   static const heroMoved = 'hero_moved_on_worldmap';
 }
@@ -33,6 +34,12 @@ class MapInteractionEvent extends GameEvent {
     required this.buttons,
     required this.tilePosition,
   }) : super(name: Events.mapTapped);
+
+  const MapInteractionEvent.mapDoubleTapped({
+    required this.globalPosition,
+    required this.buttons,
+    required this.tilePosition,
+  }) : super(name: Events.mapDoubleTapped);
 
   const MapInteractionEvent.mapLongPressed({
     required this.globalPosition,
