@@ -211,7 +211,10 @@ struct Character {
     this.inventory = []
 
     // 装备栏的key是固定的数字，从1开始
-    this.equipments = {}
+    this.equipments = {
+      offense: {},
+      defense: {},
+    }
 
     // 属性点数数值
     this.attributes = generateRandomAttributes(
@@ -222,7 +225,8 @@ struct Character {
     // 当前状态数值，由种族、天赋、属性点数、增益减损、物品、技能等计算得来
     this.stats = {}
 
-    recalculateAttributesOfCharacter(this)
+    recalculateAttributes(this)
+    rejuvenate(this)
 
     // 该角色的家庭关系
     this.relationships = {
@@ -345,6 +349,11 @@ struct Character {
   }
 }
 
+fun rejuvenate(character) {
+  character.stats.life = character.attributes.life
+  character.stats.stamina = character.attributes.stamina
+}
+
 fun setCharacterTitle(character, titleId) {
   character.currentTitleId = titleId
 }
@@ -424,9 +433,9 @@ fun generateRandomAttributes(maxStats, minValue) {
   return attributes
 }
 
-fun recalculateAttributesOfCharacter(character) {
-  character.attributes.life = character.stats.life = 100 + character.attributes.strength ~/ 5 * 10
-  character.attributes.stamina = character.stats.stamina = 100 + character.attributes.strength ~/ 10 * 5
+fun recalculateAttributes(character) {
+  character.attributes.life = 100 + character.attributes.strength ~/ 5 * 10
+  character.attributes.stamina = 100 + character.attributes.strength ~/ 10 * 5
 }
 
 fun getStatsPercentageOfCharacter(character) {
@@ -679,31 +688,32 @@ fun haveMet(subject, target) {
   }
 }
 
-fun equipSkill(data, character, [index]) {
+fun equip(data, type, character, [index]) {
+  assert(type != null)
   final r = range(1, kEquipmentMax)
   if (index == null) {
     // 如果有空位就装备在空位上
     for (final i in r) {
-      if (!character.equipments[i]) {
-        character.skills.equipments[i] = skill
-        skill.isEquipped = true
+      if (!character.equipments[type][i]) {
+        character.equipments[type][i] = data
+        data.isEquipped = true
         break
       }
     }
     // 否则就替换掉第一个空位
-    if (!skill.isEquipped) {
-      final eq = character.skills.equipments[1]
+    if (!data.isEquipped) {
+      final eq = character.equipments[type][1]
       eq.isEquipped = false
-      character.skills.equipments[1] = skill
-      skill.isEquipped = true
+      character.equipments[type][1] = skill
+      data.isEquipped = true
     }
   } else {
     // 直接替换掉指定的空位
     assert(index in r)
-    final eq = character.skills.equipments[index]
+    final eq = character.skills.equipments[type][index]
     eq?.isEquipped = false
-    character.skills.equipments[index] = skill
-    skill.isEquipped = true
+    character.equipments[type][index] = skill
+    data.isEquipped = true
   }
 }
 

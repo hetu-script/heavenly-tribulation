@@ -67,11 +67,12 @@ flutter:
     - assets/audio/music/
 
     - assets/images/
-    - assets/images/bg/
-    - assets/images/cg/
     - assets/images/avatar/
     - assets/images/avatar/female/
     - assets/images/avatar/male/
+    - assets/images/battle/
+    - assets/images/bg/
+    - assets/images/cg/
     - assets/images/character/
     - assets/images/icon/
     - assets/images/icon/item/

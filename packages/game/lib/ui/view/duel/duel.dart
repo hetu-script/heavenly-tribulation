@@ -11,29 +11,29 @@ import '../../shared/dynamic_color_progressbar.dart';
 
 class Duel extends StatefulWidget {
   static Future<void> show(
-      BuildContext context, HTStruct hero, HTStruct enemy, String? type) {
+      BuildContext context, HTStruct char1, HTStruct char2, String? type) {
     return showDialog(
       context: context,
       barrierColor: Colors.transparent,
       barrierDismissible: false,
       builder: (context) {
         return Duel(
-          hero: hero,
-          enemy: enemy,
+          char1: char1,
+          char2: char2,
           type: type,
         );
       },
     );
   }
 
-  final HTStruct hero;
-  final HTStruct enemy;
+  final HTStruct char1;
+  final HTStruct char2;
   final String? type;
 
   const Duel({
     super.key,
-    required this.hero,
-    required this.enemy,
+    required this.char1,
+    required this.char2,
     this.type,
   });
 
@@ -43,10 +43,19 @@ class Duel extends StatefulWidget {
 
 class _DuelState extends State<Duel> {
   Timer? _timer;
-  int _count = 1;
-  HTStruct? _result;
+  int _frames = 0;
+  HTStruct? _data;
+  int char1Index = 0, char2Index = 0;
+  int _char1Frames = 0;
+  bool _char1InRecovery = false;
+  double _char1Cooldown = 0;
+  HTStruct? _currentChar1Item;
+  int _char2Frames = 0;
+  bool _char2InRecovery = false;
+  double _char2Cooldown = 0;
+  HTStruct? _currentChar2Item;
 
-  bool get finished => _result != null && _count >= _result!['log'].length;
+  bool get finished => _data != null && _frames >= _data!['frames'];
 
   late final ScrollController _scrollController = ScrollController();
 
@@ -60,29 +69,65 @@ class _DuelState extends State<Duel> {
   @override
   void initState() {
     super.initState();
-    _result = _getDuelResult();
-    _startTimer();
+    _startDuel();
   }
 
-  HTStruct _getDuelResult() {
-    return engine.invoke('Duel', positionalArgs: [
-      widget.hero,
-      widget.enemy
+  void _startDuel() {
+    _data = engine.invoke('Duel', positionalArgs: [
+      widget.char1,
+      widget.char2
     ], namedArgs: {
       'type': widget.type,
     });
+    _currentChar1Item = getNextActivatedItem('char1');
+    _currentChar2Item = getNextActivatedItem('char2');
+    _startTimer();
+  }
+
+  // tag 取值只能是 'char1'，'char2'
+  HTStruct? getNextActivatedItem(String tag) {
+    if (_data!['logs'][tag].isEmpty) return null;
+    if (char1Index >= _data!['logs'][tag].length) {
+      char1Index = 0;
+    }
+    final item = _data!['logs'][tag][char1Index];
+    ++char1Index;
+    return item;
   }
 
   void _startTimer() {
-    _count = 1;
+    assert(_data != null);
+    assert(_currentChar1Item != null);
+    assert(_currentChar2Item != null);
+    _frames = 0;
+    // _visibleLines = 0;
+    _timer?.cancel();
     _timer = Timer.periodic(
-      const Duration(milliseconds: 800),
+      const Duration(milliseconds: 400),
       (Timer timer) {
         setState(() {
           if (finished) {
             timer.cancel();
+            _frames = 0;
           } else {
-            ++_count;
+            if (!_char1InRecovery) {
+              final startUp = _currentChar1Item!['startUp'];
+              if (_char1Frames >= startUp) {
+                _char1InRecovery = true;
+                _char1Frames = 0;
+              }
+              _char1Cooldown = _char1Frames / startUp;
+            } else {
+              final recovery = _currentChar1Item!['recovery'];
+              if (_char1Frames >= recovery) {
+                _char1InRecovery = false;
+                _char1Frames = 0;
+                _currentChar1Item = getNextActivatedItem('char1');
+              }
+              _char1Cooldown = _char1Frames / recovery;
+            }
+            ++_char1Frames;
+            ++_frames;
           }
         });
       },
@@ -92,9 +137,9 @@ class _DuelState extends State<Duel> {
   @override
   Widget build(BuildContext context) {
     List<Widget> lines = [];
-    if (_result != null) {
-      for (var i = 0; i < _count; ++i) {
-        final text = _result!['log'][i].toString();
+    if (_data != null) {
+      for (var i = 0; i < _data!['messages'].length; ++i) {
+        final text = _data!['messages'][i].toString();
         lines.add(
           Text(
             text,
@@ -104,12 +149,12 @@ class _DuelState extends State<Duel> {
         );
       }
     }
-    final heroStatsPercentage = engine
-        .invoke('getStatsPercentageOfCharacter', positionalArgs: [widget.hero]);
-    final enemyStatsPercentage = engine.invoke('getStatsPercentageOfCharacter',
-        positionalArgs: [widget.enemy]);
+    final char1StatsPercentage = engine.invoke('getStatsPercentageOfCharacter',
+        positionalArgs: [widget.char1]);
+    final char2StatsPercentage = engine.invoke('getStatsPercentageOfCharacter',
+        positionalArgs: [widget.char2]);
 
-    // executes after build
+    // execute after build completed
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
@@ -118,15 +163,14 @@ class _DuelState extends State<Duel> {
       );
     });
 
-    // _lines = <Widget>[Text('what?')];
-
     return ResponsiveRoute(
       alignment: AlignmentDirectional.center,
       size: const Size(800.0, 600.0),
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: Text('${widget.hero['name']} vs ${widget.enemy['name']}'),
+          title: Text(
+              '${widget.char1['name']} vs ${widget.char2['name']} ($_frames)'),
         ),
         body: Container(
           padding: const EdgeInsets.all(10.0),
@@ -144,17 +188,17 @@ class _DuelState extends State<Duel> {
                         Row(
                           children: [
                             Avatar(
-                              name: widget.hero['name'],
+                              name: widget.char1['name'],
                               avatarAssetKey:
-                                  'assets/images/${widget.hero['avatar']}',
+                                  'assets/images/${widget.char1['avatar']}',
                             ),
                             Column(
                               children: [
                                 DynamicColorProgressBar(
                                   title: '${engine.locale['life']}: ',
-                                  value: heroStatsPercentage['life']['value']
+                                  value: char1StatsPercentage['life']['value']
                                       .toInt(),
-                                  max: heroStatsPercentage['life']['max']
+                                  max: char1StatsPercentage['life']['max']
                                       .toInt(),
                                   size: const Size(100.0, 24.0),
                                   colors: const <Color>[
@@ -167,15 +211,11 @@ class _DuelState extends State<Duel> {
                           ],
                         ),
                         EquipmentsView(
-                          verticalMargin: 10.0,
+                          verticalMargin: 5.0,
                           horizontalMargin: 5.0,
-                          data: widget.hero['talismans']['equipments'],
-                          cooldown1: 0.1,
-                        ),
-                        EquipmentsView(
-                          verticalMargin: 0.0,
-                          horizontalMargin: 5.0,
-                          data: widget.hero['skills']['equipments'],
+                          data: widget.char1['equipments'],
+                          selectedIndex: _currentChar1Item?['index'] ?? 0,
+                          cooldown: _char1Cooldown,
                         ),
                       ],
                     ),
@@ -193,17 +233,17 @@ class _DuelState extends State<Duel> {
                         Row(
                           children: [
                             Avatar(
-                              name: widget.enemy['name'],
+                              name: widget.char2['name'],
                               avatarAssetKey:
-                                  'assets/images/${widget.enemy['avatar']}',
+                                  'assets/images/${widget.char2['avatar']}',
                             ),
                             Column(
                               children: [
                                 DynamicColorProgressBar(
                                   title: '${engine.locale['life']}: ',
-                                  value: enemyStatsPercentage['life']['value']
+                                  value: char2StatsPercentage['life']['value']
                                       .toInt(),
-                                  max: enemyStatsPercentage['life']['max']
+                                  max: char2StatsPercentage['life']['max']
                                       .toInt(),
                                   size: const Size(100.0, 24.0),
                                   colors: const <Color>[
@@ -216,14 +256,11 @@ class _DuelState extends State<Duel> {
                           ],
                         ),
                         EquipmentsView(
-                          verticalMargin: 10.0,
+                          verticalMargin: 5.0,
                           horizontalMargin: 5.0,
-                          data: widget.hero['talismans']['equipments'],
-                        ),
-                        EquipmentsView(
-                          verticalMargin: 0.0,
-                          horizontalMargin: 5.0,
-                          data: widget.hero['skills']['equipments'],
+                          data: widget.char2['equipments'],
+                          selectedIndex: _currentChar2Item?['index'] ?? 0,
+                          cooldown: _char2Cooldown,
                         ),
                       ],
                     ),
@@ -252,14 +289,6 @@ class _DuelState extends State<Duel> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (finished)
-                    Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        child: Text(engine.locale['retry']),
-                      ),
-                    ),
                   Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: ElevatedButton(
@@ -269,7 +298,8 @@ class _DuelState extends State<Duel> {
                         } else {
                           _timer?.cancel();
                           setState(() {
-                            _count = _result?['log'].length ?? 1;
+                            _frames = _data?['frames'] ?? 0;
+                            // _visibleLines = _data?['messages'].length ?? 1;
                           });
                         }
                       },
@@ -278,6 +308,20 @@ class _DuelState extends State<Duel> {
                           : Text(engine.locale['skip']),
                     ),
                   ),
+                  if (finished)
+                    Padding(
+                      padding: const EdgeInsets.all(5.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          engine.invoke('rejuvenate',
+                              positionalArgs: [widget.char1]);
+                          engine.invoke('rejuvenate',
+                              positionalArgs: [widget.char2]);
+                          _startDuel();
+                        },
+                        child: Text(engine.locale['retry']),
+                      ),
+                    ),
                 ],
               ),
             ],

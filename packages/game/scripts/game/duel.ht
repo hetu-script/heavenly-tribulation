@@ -17,23 +17,6 @@ const kDuelTypePractice = 'practice'
 const kDuelTypeSneakAttack = 'sneakAttack'
 const kDuelticksLimit = 1000
 
-fun _findWieldings(character) {
-  var wieldings = {}
-  for (final key in character.skills.equipments.keys) {
-    final skill = character.skills.equipments[key]
-    if (skill.category == 'fighting') {
-      wieldings[key] = skill
-    }
-  }
-  for (final key in character.talismans.equipments.keys) {
-    final talisman = character.talismans.equipments[key]
-    if (talisman.category == 'weapon') {
-      wieldings[key] = talisman
-    }
-  }
-  return wieldings
-}
-
 fun _attack(attacker, wielding, victim, log) {
   var damage = wielding.stats.damage - victim.stats.defense * Math.random()
   victim.stats.life -= damage
@@ -45,14 +28,12 @@ fun _attack(attacker, wielding, victim, log) {
 
 struct Log {
   construct ({
-    equipIndex = 0,
+    index = 0,
     startUp = 0,
     damage = 0,
     recovery = 0,
   }) {
-    assert(message != null)
-
-    this.equipIndex = equipIndex
+    this.index = index
     this.startUp = startUp
     this.damage = damage
     this.recovery = recovery
@@ -70,16 +51,17 @@ struct Duel {
     final char1info = {
       ticks: 0,
       inRecovery: false,
-      wieldIndex: 0,
-      wieldings: _findWieldings(char1),
+      index: 1,
+      wieldings: char1.equipments.offense,
     }
     final char2info = {
       ticks: 0,
       inRecovery: false,
-      wieldIndex: 0,
-      wieldings: _findWieldings(char2),
+      index: 1,
+      wieldings: char2.equipments.offense,
     }
     
+    this.started = false
     if (char1info.wieldings.isEmpty) {
       // 如果没有装备任何武器或者战斗技能，则直接判负
       this.messages.add(getLocaleString('emptyHands', [char1.name]))
@@ -89,11 +71,10 @@ struct Duel {
       this.result = true
     } else {
       this.result = false
+      this.started = true
       // 战斗本身的客观时间，不会受任何因素影响
       this.frames = 0
-      char1info.wieldIndex = 0
       char1info.wielding = char1info.wieldings.values.first
-      char2info.wieldIndex = 0
       char2info.wielding = char2info.wieldings.values.first
 
       if (type == kDuelTypeSneakAttack) {
@@ -117,9 +98,9 @@ struct Duel {
       
       fun _nextTick({ enemyTurn = false }) {
         final info = enemyTurn ? char2info : char1info
-        final logs = enemyTurn ? this.logs.char1 : this.logs.char2
-        final subject = enemyTurn ? char1 : char2
-        final target = enemyTurn ? char2 : char1
+        final logs = enemyTurn ? this.logs.char2 : this.logs.char1
+        final subject = enemyTurn ? char2 : char1
+        final target = enemyTurn ? char1 : char2
         if (!info.inRecovery) {
           // 出招等待阶段
           if (info.ticks >= info.wielding.stats.startUp) {
@@ -131,15 +112,15 @@ struct Duel {
               target.name,
               damage,
             ])
+            this.messages.add(message)
             logs.add(Log(
-              equipIndex: info.wieldings.keys.elementAt(info.wieldIndex),
+              index: info.index,
               startUp: info.wielding.stats.startUp,
               damage: damage,
               recovery: info.wielding.stats.recovery,
-              message: message,
             ))
             info.ticks = 0
-            info.recovery = info.wielding.stats.recovery
+            info.inRecovery = true
           }
         } else {
           // 收招等待阶段
@@ -147,11 +128,11 @@ struct Duel {
             info.ticks = 0
             info.inRecovery = false
             // 收招
-            ++info.wieldIndex
-            if (info.wieldIndex >= info.wieldings.length) {
-              info.wieldIndex = 0
+            ++info.index
+            if (info.index >= info.wieldings.length) {
+              info.index = 1
             }
-            info.wielding = info.wieldings[info.wieldIndex]
+            info.wielding = info.wieldings[info.index]
           }
         }
         ++info.ticks
@@ -159,22 +140,19 @@ struct Duel {
 
       while (true) {
         if (this.frames >= kDuelticksLimit) {
-          this.logs.char2.add(Log(
-            message: getLocaleString('drawGame'),
-            breakOff: true,
-          ))
+          this.messages.add(getLocaleString('drawGame'))
           this.tied = true
           break
         }
 
         if (char2.stats.life <= 0) {
-          this.log.add(getLocaleString('duelVictory', [char1.name, char2.name]))
+          this.messages.add(getLocaleString('duelVictory', [char1.name, char2.name]))
           this.result = true
           break
         }
         
         if (char1.stats.life <= 0) {
-          this.log.add(getLocaleString('duelVictory', [char1.name, char2.name]))
+          this.messages.add(getLocaleString('duelVictory', [char2.name, char1.name]))
           break
         }
 
@@ -183,16 +161,12 @@ struct Duel {
 
         ++this.frames
       }
-
-      if (type == kDuelTypePractice) {
-        char1.stats.life = char1.attributes.life
-        char2.stats.life = char2.attributes.life
-      }
     }
     
     if (config.debug) {
-      engine.info(this)
-      engine.info('${char1.name} 和 ${char2.name} 的战斗结束了：')
+      // engine.info(this)
+      engine.info('${char1.name} 和 ${char2.name} 的战斗结束了')
+      engine.info(this.messages.last)
     }
   }
 }

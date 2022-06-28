@@ -31,7 +31,10 @@ fun giveHeroWeapon([n = 1]) {
 fun testDuel() {
   final hero = Character()
   final enemy = Character()
-  equipTalisman(Weapon(), hero)
-  equipTalisman(Weapon(), enemy)
+  equip(Weapon(), 'offense', hero)
+  equip(Weapon(), 'offense', hero)
+  equip(Weapon(), 'offense', hero)
+  equip(Weapon(), 'offense', hero)
+  equip(Weapon(), 'offense', enemy)
   showDuel(hero, enemy)
 }

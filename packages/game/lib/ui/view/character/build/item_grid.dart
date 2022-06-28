@@ -12,6 +12,7 @@ class ItemGrid extends StatelessWidget {
     this.horizontalMargin = 5.0,
     this.data,
     required this.onSelect,
+    this.isSelected = false,
     this.cooldownValue = 0.0,
   });
 
@@ -20,6 +21,7 @@ class ItemGrid extends StatelessWidget {
   final double horizontalMargin;
   final HTStruct? data;
   final void Function(HTStruct item, Offset screenPosition) onSelect;
+  final bool isSelected;
   final double cooldownValue;
 
   @override
@@ -43,14 +45,16 @@ class ItemGrid extends StatelessWidget {
                   vertical: verticalMargin, horizontal: horizontalMargin),
               decoration: BoxDecoration(
                 color: kBackgroundColor,
-                // border: Border.all(
-                //   color: Colors.white54,
-                //   width: 2,
+                border: isSelected
+                    ? Border.all(
+                        color: Colors.white.withOpacity(0.5),
+                        width: 2,
+                      )
+                    : null,
+                // image: const DecorationImage(
+                //   fit: BoxFit.contain,
+                //   image: AssetImage('assets/images/icon/item/grid.png'),
                 // ),
-                image: const DecorationImage(
-                  fit: BoxFit.contain,
-                  image: AssetImage('assets/images/icon/item/grid.png'),
-                ),
                 borderRadius: kBorderRadius,
               ),
               child: Stack(
