@@ -12,8 +12,8 @@ class CoolDownPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     if (value == 0.0) return;
     var p = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 3;
+      ..color = Colors.yellow
+      ..strokeWidth = 4;
     canvas.drawLine(
         Offset(0, size.height), Offset(size.width * value, size.height), p);
   }

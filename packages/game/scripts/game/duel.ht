@@ -32,11 +32,14 @@ struct Log {
     startUp = 0,
     damage = 0,
     recovery = 0,
+    message,
   }) {
+    assert(message != null)
     this.index = index
     this.startUp = startUp
     this.damage = damage
     this.recovery = recovery
+    this.message = message
   }
 }
 
@@ -64,10 +67,10 @@ struct Duel {
     this.started = false
     if (char1info.wieldings.isEmpty) {
       // 如果没有装备任何武器或者战斗技能，则直接判负
-      this.messages.add(getLocaleString('emptyHands', [char1.name]))
+      // this.messages.add(getLocaleString('emptyHands', [char1.name]))
       this.result = false
     } else if (char2info.wieldings.isEmpty) {
-      this.messages.add(getLocaleString('enemyEmptyHands', [char2.name]))
+      // this.messages.add(getLocaleString('enemyEmptyHands', [char2.name]))
       this.result = true
     } else {
       this.result = false
@@ -81,7 +84,7 @@ struct Duel {
         final initiativeSum = char1.attributes.perception + char2.attributes.perception
         final initiativeValue = initiativeSum * Math.random()
         if (char1.attributes.perception > initiativeValue) {
-          this.messages.add(getLocaleString('sneakAttackSuccess', [char1.name]))
+          // this.messages.add(getLocaleString('sneakAttackSuccess', [char1.name]))
           final damage = _attack(char1, wielding, char2).truncate()
           final message = getLocaleString('attackInfo', [
             char1.name,
@@ -90,9 +93,9 @@ struct Duel {
             damage,
           ])
           this.messages.add(message)
-          this.logs.char1.add(Log(damage: damage))
+          this.logs.char1.add(Log(damage: damage, message: message))
         } else {
-          this.log.add(getLocaleString('sneakAttackFail', [char1.name, char2.name]))
+          // this.log.add(getLocaleString('sneakAttackFail', [char1.name, char2.name]))
         }
       }
       
@@ -118,9 +121,12 @@ struct Duel {
               startUp: info.wielding.stats.startUp,
               damage: damage,
               recovery: info.wielding.stats.recovery,
+              message: message,
             ))
             info.ticks = 0
             info.inRecovery = true
+          } else {
+            ++info.ticks
           }
         } else {
           // 收招等待阶段
@@ -133,26 +139,27 @@ struct Duel {
               info.index = 1
             }
             info.wielding = info.wieldings[info.index]
+          } else {
+            ++info.ticks
           }
         }
-        ++info.ticks
       }
 
       while (true) {
         if (this.frames >= kDuelticksLimit) {
-          this.messages.add(getLocaleString('drawGame'))
+          // this.messages.add(getLocaleString('drawGame'))
           this.tied = true
           break
         }
 
         if (char2.stats.life <= 0) {
-          this.messages.add(getLocaleString('duelVictory', [char1.name, char2.name]))
+          // this.messages.add(getLocaleString('duelVictory', [char1.name, char2.name]))
           this.result = true
           break
         }
         
         if (char1.stats.life <= 0) {
-          this.messages.add(getLocaleString('duelVictory', [char2.name, char1.name]))
+          // this.messages.add(getLocaleString('duelVictory', [char2.name, char1.name]))
           break
         }
 
@@ -162,11 +169,19 @@ struct Duel {
         ++this.frames
       }
     }
+
+    this.stats = {
+      char1: {
+        life: char1.stats.life,
+      },
+      char2: {
+        life: char2.stats.life,
+      }
+    }
     
     if (config.debug) {
       // engine.info(this)
       engine.info('${char1.name} 和 ${char2.name} 的战斗结束了')
-      engine.info(this.messages.last)
     }
   }
 }

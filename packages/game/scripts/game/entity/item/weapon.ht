@@ -55,7 +55,6 @@ struct Weapon {
     this.description = description ?? kDefaultItemDescription
     this.inscription = inscription
     this.type = weaponType ?? kWeaponTypes.random
-    this.attributes = attributes
     this.isEquipped = false
     
     if (!this.name) {
@@ -65,65 +64,67 @@ struct Weapon {
     }
     this.id = 'item_${Hash.uid4(2)}_${this.name}'
     
-    if (!this.attributes) {
-      when (this.type) {
-        // 伤害低，耐久一般，出招速度快，收招速度快
-        'piercing' -> {
-          final effects = {}
-          this.attributes = {
-            durability: randomInt(kDurabilityMedium, kDurabilityVariable),
-            damage: normalDistribute(kDamageLow, kDamageDeviation, kDamageMin, kDamageMax),
-            startUp: randomInt(kSpeedShort, kSpeedVariable),
-            recovery: randomInt(kSpeedShort, kSpeedVariable),
-            effects: effects,
-            abilities: [],
-            levels: [],
-          }
-        }
-        // 伤害一般，耐久低，出招速度一般，收招速度快
-        'slashing' -> {
-          final effects = {
-            parry: [
-                      { value: random(kEffectProbabilityBase, kEffectProbabilityVariable),
-                        type: kValueTypePercentage
-                      }
-                    ],
-          }
-          this.attributes = {
-            durability: randomInt(kDurabilityLow, kDurabilityVariable),
-            damage: normalDistribute(kDamageMedium, kDamageDeviation, kDamageMin, kDamageMax),
-            startUp: randomInt(kSpeedBase, kSpeedVariable),
-            recovery: randomInt(kSpeedShort, kSpeedVariable),
-            effects: effects,
-            abilities: [],
-            levels: [],
-          }
-        }
-        // 伤害高，耐久高，出招速度一般，收招速度慢
-        'bludgeoning' -> {
-          final effects = {
-            parry: [
-                      { value: random(kEffectProbabilityBase, kEffectProbabilityVariable),
-                        type: kValueTypePercentage
-                      }
-                    ],
-            counter: [
-                      { value: random(kEffectProbabilityBase, kEffectProbabilityVariable),
-                        type: kValueTypePercentage
-                      }
-                    ],
-          }
-          this.attributes = {
-            durability: randomInt(kDurabilityHigh, kDurabilityVariable),
-            damage: normalDistribute(kDamageHigh, kDamageDeviation, kDamageMin, kDamageMax),
-            startUp: randomInt(kSpeedShort, kSpeedVariable),
-            recovery: randomInt(kSpeedBase, kSpeedVariable),
-            effects: effects,
-            abilities: [],
-            levels: [],
-          }
+    when (this.type) {
+      // 伤害低，耐久一般，出招速度快，收招速度快
+      'piercing' -> {
+        final effects = {}
+        this.attributes = {
+          durability: randomInt(kDurabilityMedium, kDurabilityVariable),
+          damage: normalDistribute(kDamageLow, kDamageDeviation, kDamageMin, kDamageMax),
+          startUp: randomInt(kSpeedShort, kSpeedVariable),
+          recovery: randomInt(kSpeedShort, kSpeedVariable),
+          effects: effects,
+          abilities: [],
+          levels: [],
         }
       }
+      // 伤害一般，耐久低，出招速度一般，收招速度快
+      'slashing' -> {
+        final effects = {
+          parry: [
+                    { value: random(kEffectProbabilityBase, kEffectProbabilityVariable),
+                      type: kValueTypePercentage
+                    }
+                  ],
+        }
+        this.attributes = {
+          durability: randomInt(kDurabilityLow, kDurabilityVariable),
+          damage: normalDistribute(kDamageMedium, kDamageDeviation, kDamageMin, kDamageMax),
+          startUp: randomInt(kSpeedBase, kSpeedVariable),
+          recovery: randomInt(kSpeedShort, kSpeedVariable),
+          effects: effects,
+          abilities: [],
+          levels: [],
+        }
+      }
+      // 伤害高，耐久高，出招速度一般，收招速度慢
+      'bludgeoning' -> {
+        final effects = {
+          parry: [
+                    { value: random(kEffectProbabilityBase, kEffectProbabilityVariable),
+                      type: kValueTypePercentage
+                    }
+                  ],
+          counter: [
+                    { value: random(kEffectProbabilityBase, kEffectProbabilityVariable),
+                      type: kValueTypePercentage
+                    }
+                  ],
+        }
+        this.attributes = {
+          durability: randomInt(kDurabilityHigh, kDurabilityVariable),
+          damage: normalDistribute(kDamageHigh, kDamageDeviation, kDamageMin, kDamageMax),
+          startUp: randomInt(kSpeedShort, kSpeedVariable),
+          recovery: randomInt(kSpeedBase, kSpeedVariable),
+          effects: effects,
+          abilities: [],
+          levels: [],
+        }
+      }
+    }
+
+    if (attributes) {
+      this.assign(attributes)
     }
 
     recalculateAttributesOfWeapon(this)

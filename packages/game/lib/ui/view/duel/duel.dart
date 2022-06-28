@@ -43,19 +43,19 @@ class Duel extends StatefulWidget {
 
 class _DuelState extends State<Duel> {
   Timer? _timer;
-  int _frames = 0;
   HTStruct? _data;
-  int char1Index = 0, char2Index = 0;
-  int _char1Frames = 0;
-  bool _char1InRecovery = false;
-  double _char1Cooldown = 0;
-  HTStruct? _currentChar1Item;
-  int _char2Frames = 0;
-  bool _char2InRecovery = false;
-  double _char2Cooldown = 0;
-  HTStruct? _currentChar2Item;
+  int _frames = 0;
+  List<String> _messages = [];
+  int _char1ActionIter = 0, _char2ActionIter = 0;
+  int _char1Ticks = 0, _char2Ticks = 0;
+  double _char1Cooldown = 0, _char2Cooldown = 0;
+  bool _char1InRecovery = false, _char2InRecovery = false;
+  HTStruct? _currentChar1Item, _currentChar2Item;
+  HTStruct? _char1StatsPercentage, _char2StatsPercentage;
+  late num _char1Health, _char2Health;
+  late int _char1HealthMax, _char2HealthMax;
 
-  bool get finished => _data != null && _frames >= _data!['frames'];
+  bool get finished => _data != null && _frames > _data!['frames'];
 
   late final ScrollController _scrollController = ScrollController();
 
@@ -69,7 +69,25 @@ class _DuelState extends State<Duel> {
   @override
   void initState() {
     super.initState();
+
+    _char1StatsPercentage = engine.invoke('getStatsPercentageOfCharacter',
+        positionalArgs: [widget.char1]);
+    _char2StatsPercentage = engine.invoke('getStatsPercentageOfCharacter',
+        positionalArgs: [widget.char2]);
     _startDuel();
+  }
+
+  void _reset() {
+    _frames = 0;
+    _messages = [];
+    _char1ActionIter = 0;
+    _char2ActionIter = 0;
+    _char1Ticks = 0;
+    _char2Ticks = 0;
+    _char1Cooldown = 0;
+    _char2Cooldown = 0;
+    _char1InRecovery = false;
+    _char2InRecovery = false;
   }
 
   void _startDuel() {
@@ -79,19 +97,33 @@ class _DuelState extends State<Duel> {
     ], namedArgs: {
       'type': widget.type,
     });
-    _currentChar1Item = getNextActivatedItem('char1');
-    _currentChar2Item = getNextActivatedItem('char2');
+    _reset();
+    _char1Health = _char1StatsPercentage!['life']['value'].toInt();
+    _char1HealthMax = _char1StatsPercentage!['life']['max'].toInt();
+    _char2Health = _char2StatsPercentage!['life']['value'].toInt();
+    _char2HealthMax = _char2StatsPercentage!['life']['max'].toInt();
+    _currentChar1Item = getNextChar1ActivatedItem();
+    _currentChar2Item = getNextChar2ActivatedItem();
     _startTimer();
   }
 
-  // tag 取值只能是 'char1'，'char2'
-  HTStruct? getNextActivatedItem(String tag) {
-    if (_data!['logs'][tag].isEmpty) return null;
-    if (char1Index >= _data!['logs'][tag].length) {
-      char1Index = 0;
+  HTStruct? getNextChar1ActivatedItem() {
+    if (_data!['logs']['char1'].isEmpty) return null;
+    if (_char1ActionIter >= _data!['logs']['char1'].length) {
+      _char1ActionIter = 0;
     }
-    final item = _data!['logs'][tag][char1Index];
-    ++char1Index;
+    final item = _data!['logs']['char1'][_char1ActionIter];
+    ++_char1ActionIter;
+    return item;
+  }
+
+  HTStruct? getNextChar2ActivatedItem() {
+    if (_data!['logs']['char2'].isEmpty) return null;
+    if (_char2ActionIter >= _data!['logs']['char2'].length) {
+      _char2ActionIter = 0;
+    }
+    final item = _data!['logs']['char2'][_char2ActionIter];
+    ++_char2ActionIter;
     return item;
   }
 
@@ -103,30 +135,63 @@ class _DuelState extends State<Duel> {
     // _visibleLines = 0;
     _timer?.cancel();
     _timer = Timer.periodic(
-      const Duration(milliseconds: 400),
+      const Duration(milliseconds: 100),
       (Timer timer) {
         setState(() {
           if (finished) {
             timer.cancel();
-            _frames = 0;
           } else {
             if (!_char1InRecovery) {
               final startUp = _currentChar1Item!['startUp'];
-              if (_char1Frames >= startUp) {
+              if (_char1Ticks >= startUp) {
+                _char1Ticks = 0;
                 _char1InRecovery = true;
-                _char1Frames = 0;
+                _char1Cooldown = 0;
+                _messages.add(_currentChar1Item!['message']);
+                final newHP = _char2Health - _currentChar1Item!['damage'];
+                _char2Health = newHP >= 0 ? newHP : 0;
+              } else {
+                ++_char1Ticks;
               }
-              _char1Cooldown = _char1Frames / startUp;
+              _char1Cooldown = startUp > 0 ? _char1Ticks / startUp : 1.0;
             } else {
               final recovery = _currentChar1Item!['recovery'];
-              if (_char1Frames >= recovery) {
+              if (_char1Ticks >= recovery) {
+                _char1Ticks = 0;
                 _char1InRecovery = false;
-                _char1Frames = 0;
-                _currentChar1Item = getNextActivatedItem('char1');
+                _currentChar1Item = getNextChar1ActivatedItem();
+                _char1Cooldown = 0;
+              } else {
+                ++_char1Ticks;
               }
-              _char1Cooldown = _char1Frames / recovery;
+              _char1Cooldown = recovery > 0 ? _char1Ticks / recovery : 1.0;
             }
-            ++_char1Frames;
+
+            if (!_char2InRecovery) {
+              final startUp = _currentChar2Item!['startUp'];
+              if (_char2Ticks >= startUp) {
+                _char2Ticks = 0;
+                _char2InRecovery = true;
+                _char2Cooldown = 0;
+                _messages.add(_currentChar2Item!['message']);
+                final newHP = _char1Health - _currentChar2Item!['damage'];
+                _char1Health = newHP >= 0 ? newHP : 0;
+              } else {
+                ++_char2Ticks;
+              }
+              _char2Cooldown = startUp > 0 ? _char2Ticks / startUp : 1.0;
+            } else {
+              final recovery = _currentChar2Item!['recovery'];
+              if (_char2Ticks >= recovery) {
+                _char2Ticks = 0;
+                _char2InRecovery = false;
+                _currentChar2Item = getNextChar2ActivatedItem();
+                _char2Cooldown = 0;
+              } else {
+                ++_char2Ticks;
+              }
+              _char2Cooldown = recovery > 0 ? _char2Ticks / recovery : 1.0;
+            }
             ++_frames;
           }
         });
@@ -136,23 +201,19 @@ class _DuelState extends State<Duel> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> lines = [];
-    if (_data != null) {
-      for (var i = 0; i < _data!['messages'].length; ++i) {
-        final text = _data!['messages'][i].toString();
-        lines.add(
-          Text(
-            text,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyText1,
-          ),
-        );
-      }
-    }
-    final char1StatsPercentage = engine.invoke('getStatsPercentageOfCharacter',
-        positionalArgs: [widget.char1]);
-    final char2StatsPercentage = engine.invoke('getStatsPercentageOfCharacter',
-        positionalArgs: [widget.char2]);
+    // List<Widget> lines = [];
+    // if (_data != null) {
+    //   for (var i = 0; i < _data!['messages'].length; ++i) {
+    //     final text = _data!['messages'][i].toString();
+    //     lines.add(
+    //       Text(
+    //         text,
+    //         textAlign: TextAlign.center,
+    //         style: Theme.of(context).textTheme.bodyText1,
+    //       ),
+    //     );
+    //   }
+    // }
 
     // execute after build completed
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -169,8 +230,7 @@ class _DuelState extends State<Duel> {
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: Text(
-              '${widget.char1['name']} vs ${widget.char2['name']} ($_frames)'),
+          title: Text('${widget.char1['name']} vs ${widget.char2['name']}'),
         ),
         body: Container(
           padding: const EdgeInsets.all(10.0),
@@ -196,10 +256,9 @@ class _DuelState extends State<Duel> {
                               children: [
                                 DynamicColorProgressBar(
                                   title: '${engine.locale['life']}: ',
-                                  value: char1StatsPercentage['life']['value']
-                                      .toInt(),
-                                  max: char1StatsPercentage['life']['max']
-                                      .toInt(),
+                                  value: _char1Health.truncate(),
+                                  max: _char1HealthMax,
+                                  showPercentage: false,
                                   size: const Size(100.0, 24.0),
                                   colors: const <Color>[
                                     Colors.red,
@@ -241,10 +300,9 @@ class _DuelState extends State<Duel> {
                               children: [
                                 DynamicColorProgressBar(
                                   title: '${engine.locale['life']}: ',
-                                  value: char2StatsPercentage['life']['value']
-                                      .toInt(),
-                                  max: char2StatsPercentage['life']['max']
-                                      .toInt(),
+                                  value: _char2Health.truncate(),
+                                  max: _char2HealthMax,
+                                  showPercentage: false,
                                   size: const Size(100.0, 24.0),
                                   colors: const <Color>[
                                     Colors.red,
@@ -281,7 +339,7 @@ class _DuelState extends State<Duel> {
                     padding: const EdgeInsets.all(10.0),
                     child: ListView(
                       shrinkWrap: true,
-                      children: lines,
+                      children: _messages.map((line) => Text(line)).toList(),
                     ),
                   ),
                 ),
@@ -298,8 +356,10 @@ class _DuelState extends State<Duel> {
                         } else {
                           _timer?.cancel();
                           setState(() {
-                            _frames = _data?['frames'] ?? 0;
-                            // _visibleLines = _data?['messages'].length ?? 1;
+                            _reset();
+                            _messages = _data!['messages'];
+                            _char1Health = _data!['stats']['char1']['life'];
+                            _char2Health = _data!['stats']['char2']['life'];
                           });
                         }
                       },

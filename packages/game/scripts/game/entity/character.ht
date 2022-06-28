@@ -150,6 +150,7 @@ struct Character {
     bool newborn = false,
     fatherId,
     motherId,
+    attributes,
   }) {
     // assert(locationId != null && game.locations.contains(locationId))
 
@@ -221,6 +222,10 @@ struct Character {
       Math.randomInt(kCharacterAttributeVariable) + kCharacterAttributeBase,
       kCharacterAttributeMinValue,
     )
+
+    if (attributes) {
+      this.assign(attributes)
+    }
 
     // 当前状态数值，由种族、天赋、属性点数、增益减损、物品、技能等计算得来
     this.stats = {}

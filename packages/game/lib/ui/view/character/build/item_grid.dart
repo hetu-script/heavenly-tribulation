@@ -45,12 +45,10 @@ class ItemGrid extends StatelessWidget {
                   vertical: verticalMargin, horizontal: horizontalMargin),
               decoration: BoxDecoration(
                 color: kBackgroundColor,
-                border: isSelected
-                    ? Border.all(
-                        color: Colors.white.withOpacity(0.5),
-                        width: 2,
-                      )
-                    : null,
+                border: Border.all(
+                  color: Colors.white.withOpacity(isSelected ? 1 : 0.25),
+                  width: 2,
+                ),
                 // image: const DecorationImage(
                 //   fit: BoxFit.contain,
                 //   image: AssetImage('assets/images/icon/item/grid.png'),

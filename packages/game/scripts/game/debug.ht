@@ -36,5 +36,8 @@ fun testDuel() {
   equip(Weapon(), 'offense', hero)
   equip(Weapon(), 'offense', hero)
   equip(Weapon(), 'offense', enemy)
+  equip(Weapon(), 'offense', enemy)
+  equip(Weapon(), 'offense', enemy)
+  equip(Weapon(), 'offense', enemy)
   showDuel(hero, enemy)
 }
