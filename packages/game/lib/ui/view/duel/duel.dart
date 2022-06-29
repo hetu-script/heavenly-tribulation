@@ -363,7 +363,8 @@ class _DuelState extends State<Duel> {
                               _timer?.cancel();
                               setState(() {
                                 _reset();
-                                _messages = List<String>.from((_data!['messages']);
+                                _messages =
+                                    List<String>.from(_data!['messages']);
                                 _char1Health = _data!['stats']['char1']['life'];
                                 _char2Health = _data!['stats']['char2']['life'];
                               });

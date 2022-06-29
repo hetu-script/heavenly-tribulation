@@ -1,7 +1,7 @@
 import 'generator/name/name.ht' as nameGenerator
 import 'game.ht'
 import 'entity/location.ht'
-import 'entity/character.ht'
+import 'entity/character/character.ht'
 import 'entity/nation.ht'
 import 'l10n.ht'
 import 'tile/hexagonal_tile.ht'
@@ -571,6 +571,8 @@ fun createWorldMap({
     game.timestamp += kTicksPerMonth
   } while (game.characters.length < characterNumber || game.organizations.length < organizationNumber)
 
+  // 为生成的世界填充一些必要信息
+
   // 为角色添加次要动机
   final characterIdList = game.characters.keys.toList()
   characterIdList.shuffle()
@@ -591,12 +593,11 @@ fun createWorldMap({
     }
   }
 
-  // 为世界填充信息
-
   // 填充据点月常任务
+  engine.info('填充据点月常任务')
   for (final location of game.locations) {
 
-    location.missions.add()
+    location.quests.add()
   }
 
   engine.info('世界生成完毕。')

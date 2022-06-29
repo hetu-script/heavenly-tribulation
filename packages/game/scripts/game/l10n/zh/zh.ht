@@ -10,8 +10,9 @@ import 'item.json' as item
 import 'location.json' as location
 import 'mainmenu.json' as mainmenu
 import 'maze.json' as maze
-import 'mission.json' as mission
+import 'npc.json' as npc
 import 'organization.json' as organization
+import 'quest.json' as quest
 import 'terrain.json' as terrain
 import 'world_map.json' as worldMap
 
@@ -28,8 +29,9 @@ final zh = {
   ...location,
   ...mainmenu,
   ...maze,
-  ...mission,
+  ...npc,
   ...organization,
+  ...quest,
   ...terrain,
   ...worldMap,
 }

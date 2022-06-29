@@ -113,10 +113,10 @@ class _BuildViewState extends State<BuildView>
                   // controller: _tabController,
                   children: [
                     InventoryView(
-                      data: data['inventory'],
+                      data: data['talismans'],
                     ),
                     InventoryView(
-                      data: data['inventory'],
+                      data: data['talismans'],
                     ),
                   ],
                 ),

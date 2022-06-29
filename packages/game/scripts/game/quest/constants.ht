@@ -1,4 +1,4 @@
-final kMissionCategories = [
+final kQuestCategories = [
   'fightBandits',
   'fightScoundrel',
   'convoy',
@@ -12,7 +12,7 @@ final kMissionCategories = [
   'catering',
 ]
 
-final kMissionDifficulty = {
+final kQuestDifficulty = {
   'normal',
   'hard',
   'expert',

@@ -1,11 +1,11 @@
+import 'constants.ht'
 import '../game.ht'
 import '../l10n.ht'
 import '../datetime.ht'
 import 'incident.ht'
 import '../generator/name/name.ht' as nameGenerator
-import '../util.ht'
-import 'constants.ht'
 import '../duel.ht'
+import '../util.ht'
 
 // number of the male avatar images
 const kMaleAvatarCount = 37
@@ -144,13 +144,15 @@ struct Character {
   construct ({
     familyName,
     shortName,
+    hasName = true,
     isFemale: bool,
     birthTimestamp,
     locationId,
-    bool newborn = false,
+    isNewborn = false, // 是否是新生儿，如果是则会自动为其添加父母关系
     fatherId,
     motherId,
     attributes,
+    isMajor = true, // 是否是主要NPC，主要NPC会加入世界人物列表，并会有更多互动
   }) {
     // assert(locationId != null && game.locations.contains(locationId))
 
@@ -170,14 +172,17 @@ struct Character {
     if (familyName != null && shortName != null) {
       this.familyName = familyName
       this.shortName = shortName
-    } else {
+    } else if (hasName) {
       final r = nameGenerator.getCharacter(1, isFemale: this.isFemale).first
       this.familyName = familyName ?? r.familyName
       this.shortName = shortName ?? r.shortName
     }
     this.name = this.familyName + this.shortName
-    this.id = 'character_${this.index}_${this.name}'
-    game.characters[this.id] = this
+    if (isMajor) {
+      assert(this.name != null)
+      this.id = 'character_${this.index}_${this.name}'
+      game.characters[this.id] = this
+    }
     
     // age 的格式是 timestamp, 精确到 tick. 
     if (birthTimestamp != null) {
@@ -208,14 +213,17 @@ struct Character {
     // 身上的普通物品，id相同的可以堆叠
     this.items = {}
 
-    // 宝物，技能，道具都在这里
-    this.inventory = []
+    // 宝物，技能，道具都在这里，每一个都是单独生成，无法堆叠
+    this.talismans = []
 
     // 装备栏的key是固定的数字，从1开始
     this.equipments = {
       offense: {},
       defense: {},
     }
+
+    // NPC类随从，跟随时可以装备他们的物品和技能，并在战斗中使用
+    this.companions = []
 
     // 属性点数数值
     this.attributes = generateRandomAttributes(
@@ -312,7 +320,7 @@ struct Character {
       final location = game.locations[locationId]
       setCharacterLocationId(this, locationId)
       this.nationId = location.nationId
-      if (newborn) {
+      if (isNewborn) {
         assert(fatherId != null)
         assert(motherId != null)
         final father = game.characters[fatherId]

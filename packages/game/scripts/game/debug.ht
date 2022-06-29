@@ -1,12 +1,13 @@
 import 'game.ht'
-import 'entity/character.ht'
+import 'entity/character/character.ht'
 import 'entity/item/weapon.ht'
 import 'duel.ht'
 import 'generator/name/name.ht'
+import 'entity/character/bandit.ht'
 
 fun giveWeapon(character) {
   final weapon = Weapon()
-  character.inventory.add(weapon)
+  character.talismans.add(weapon)
   final incidentContent = getLocaleString('incidentAquireItem', [
       character.name,
       weapon.name,
@@ -30,14 +31,8 @@ fun giveHeroWeapon([n = 1]) {
 // 测试战斗：随机生成两个准备好战斗的角色
 fun testDuel() {
   final hero = Character()
-  final enemy = Character()
+  final enemy = Character() // Bandit(kind: 'gangLeader')
   equip(Weapon(), 'offense', hero)
-  equip(Weapon(), 'offense', hero)
-  equip(Weapon(), 'offense', hero)
-  equip(Weapon(), 'offense', hero)
-  equip(Weapon(), 'offense', enemy)
-  equip(Weapon(), 'offense', enemy)
-  equip(Weapon(), 'offense', enemy)
   equip(Weapon(), 'offense', enemy)
   showDuel(hero, enemy)
 }

@@ -69,10 +69,10 @@ struct Weapon {
       'piercing' -> {
         final effects = {}
         this.attributes = {
-          durability: randomInt(kDurabilityMedium, kDurabilityVariable),
-          damage: normalDistribute(kDamageLow, kDamageDeviation, kDamageMin, kDamageMax),
-          startUp: randomInt(kSpeedShort, kSpeedVariable),
-          recovery: randomInt(kSpeedShort, kSpeedVariable),
+          durability: Math.randomInt(kDurabilityVariable) + kDurabilityMedium,
+          damage: Math.gaussianNoise(kDamageLow, kDamageDeviation, min: kDamageMin, max: kDamageMax),
+          startUp: Math.randomInt(kSpeedVariable) + kSpeedShort,
+          recovery: Math.randomInt(kSpeedVariable) + kSpeedShort,
           effects: effects,
           abilities: [],
           levels: [],
@@ -82,16 +82,16 @@ struct Weapon {
       'slashing' -> {
         final effects = {
           parry: [
-                    { value: random(kEffectProbabilityBase, kEffectProbabilityVariable),
+                    { value: Math.random() * kEffectProbabilityVariable + kEffectProbabilityBase,
                       type: kValueTypePercentage
                     }
                   ],
         }
         this.attributes = {
-          durability: randomInt(kDurabilityLow, kDurabilityVariable),
-          damage: normalDistribute(kDamageMedium, kDamageDeviation, kDamageMin, kDamageMax),
-          startUp: randomInt(kSpeedBase, kSpeedVariable),
-          recovery: randomInt(kSpeedShort, kSpeedVariable),
+          durability: Math.randomInt(kDurabilityVariable) + kDurabilityLow,
+          damage: Math.gaussianNoise(kDamageMedium, kDamageDeviation, min: kDamageMin, max: kDamageMax),
+          startUp: Math.randomInt(kSpeedVariable) + kSpeedBase,
+          recovery: Math.randomInt(kSpeedVariable) + kSpeedShort,
           effects: effects,
           abilities: [],
           levels: [],
@@ -101,21 +101,21 @@ struct Weapon {
       'bludgeoning' -> {
         final effects = {
           parry: [
-                    { value: random(kEffectProbabilityBase, kEffectProbabilityVariable),
+                    { value: Math.random() * kEffectProbabilityVariable + kEffectProbabilityBase,
                       type: kValueTypePercentage
                     }
                   ],
           counter: [
-                    { value: random(kEffectProbabilityBase, kEffectProbabilityVariable),
+                    { value: Math.random() * kEffectProbabilityVariable + kEffectProbabilityBase,
                       type: kValueTypePercentage
                     }
                   ],
         }
         this.attributes = {
-          durability: randomInt(kDurabilityHigh, kDurabilityVariable),
-          damage: normalDistribute(kDamageHigh, kDamageDeviation, kDamageMin, kDamageMax),
-          startUp: randomInt(kSpeedShort, kSpeedVariable),
-          recovery: randomInt(kSpeedBase, kSpeedVariable),
+          durability: Math.randomInt(kDurabilityVariable) + kDurabilityHigh,
+          damage: Math.gaussianNoise(kDamageHigh, kDamageDeviation, min: kDamageMin, max: kDamageMax),
+          startUp: Math.randomInt(kSpeedVariable) + kSpeedShort,
+          recovery: Math.randomInt(kSpeedVariable) + kSpeedBase,
           effects: effects,
           abilities: [],
           levels: [],

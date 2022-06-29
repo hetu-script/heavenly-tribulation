@@ -1,5 +1,5 @@
 import 'game.ht'
-import 'entity/character.ht'
+import 'entity/character/character.ht'
 import 'l10n.ht'
 
 fun addDialog(dlg) {

@@ -1,0 +1,78 @@
+import 'constants.ht'
+import '../l10n.ht'
+import 'constants.ht'
+
+final kQuestFightBanditKind = [
+  'wipe', // 消灭盗贼
+  'hostage', // 解救被绑架的人质（不一定要用武力）
+  'treasure', // 寻找被抢走的宝物（不一定要用武力）
+]
+
+// 消灭盗贼
+// 盗贼的具体位置是隐藏的，但一定在该据点四周
+struct QuestFightBandit {
+  construct ({
+    kind,
+    difficulty,
+    description,
+    locationId,
+    publishingMonth = 1,
+    expirationMonth = 1,
+    reward,
+  }) {
+    this.category = 'fightBandits'
+    this.kind = kind ?? kQuestFightBanditKind.random
+    this.difficulty = difficulty
+    this.description = description
+    // 任务领取有效时间
+    this.publishingMonth = publishingMonth
+    // 任务完成有效时间
+    this.expirationMonth = expirationMonth
+    // 生成地点
+    final location = game.locations[locationId]
+    if (location.nationId) {
+      // 对于国家地点，悬赏会随机在本国境内
+      final nation = game.nations[nationId]
+
+    } else {
+      // 对于非国家地点，悬赏会随机在游戏内非国家所属的所有地块
+    }
+
+    this.stages = createStages(
+      [
+        QuestFightBanditStage.started(),
+        QuestFightBanditStage.found(),
+        QuestFightBanditStage.cleared(),
+        QuestFightBanditStage.defeated(),
+      ]
+    )
+    this.currentStage = 'started'
+    
+    this.reward = reward
+    if (!this.reward) {
+      this.reward = {}
+    }
+    
+  }
+}
+
+fun createStages(stages) {
+  final result = {}
+  for (final stage in stages) {
+    result[id] = stage
+  }
+  return result
+}
+
+struct QuestFightBanditStage {
+  construct started () {
+    this.name = 'started'
+    this.next = 'found'
+    this.failed = 'foundFailed'
+  }
+
+  construct foundFailed() {
+
+  }
+
+}

@@ -1,0 +1,44 @@
+import 'character.ht'
+
+final kBanditKinds = [
+  'gangLeader',
+  'killer',
+  'minion',
+]
+
+const kBanditName = 'bandit'
+const kPirateName = 'pirate'
+
+struct Bandit extends Character {
+  construct ({
+    isPirate,
+    kind,
+  }) : super(
+    hasName: false,
+    isMajor: false,
+  ) {
+    this.familyName = getLocaleString(isPirate ? kPirateName : kBanditName)
+    this.shorName = getLocaleString(kBanditKinds.random)
+
+    this.kind = kind ?? kBanditKinds.random
+    
+    when (this.kind) {
+      'gangLeader' -> {
+        equip(Weapon(), 'offense', this)
+        equip(Weapon(), 'offense', this)
+        equip(Weapon(), 'offense', this)
+        equip(Weapon(), 'offense', this)
+      }
+      'killer' -> {
+        equip(Weapon(), 'offense', this)
+        equip(Weapon(), 'offense', this)
+        equip(Weapon(), 'offense', this)
+      }
+      'minion' -> {
+        equip(Weapon(), 'offense', this)
+        equip(Weapon(), 'offense', this)
+      }
+    }
+
+  }
+}

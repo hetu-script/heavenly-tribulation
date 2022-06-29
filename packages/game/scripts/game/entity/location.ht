@@ -1,10 +1,9 @@
 import '../game.ht'
-import 'character.ht'
+import 'character/character.ht'
 import '../dialog.ht'
 import '../generator/name/name.ht' as nameGenerator
 import '../l10n.ht'
 import 'constants.ht'
-import 'item/common_item.ht'
 
 const kSitePalace = 'palace'
 const kSiteGovernment = 'government'
@@ -89,7 +88,10 @@ struct Location {
     this.residingWildCharacterIds = []
     // 门派角色
     this.residingOrganizedCharacterIds = []
+
     // 大牢中的角色
+    // 如果主角自己进入了监牢，则要通过监牢副本才能离开，并且离开后会进入本据点的敌对名单。
+    // 另外两种选择是通过诉讼，或者贿赂离开
     this.jailedCharacterIds = []
     
     // 外门弟子数量，记录在据点数据中，不算做门派属性
@@ -108,10 +110,22 @@ struct Location {
 
     // 这个据点可以领的任务
     // 可以在官府，或者在民居的告示栏领任务
-    this.missions = []
+    this.quests = []
 
-    // 当地居民的稳定度，0 ~ 100
-    // this.stable = 100.0
+    // 被禁止进入的名单，名单可能重叠
+    // 一个人本身在名单上，但他的国家也可能在名单上，并且互相独立
+    this.banLists = {
+      characterIds: [],
+      organizationIds: [],
+      nationIds: [],
+    }
+
+    // 敌对名单，遇到后将会直接开始战斗，战败会被投入监牢
+    this.enemyLists = {
+      characterIds: [],
+      organizationIds: [],
+      nationIds: [],
+    }
   }
 }
 
@@ -263,7 +277,7 @@ fun _handleGovernmentInteraction(site) {
   final selections = {
     appeal: getLocaleString('appeal'),
     tribute: getLocaleString('tribute'),
-    mission: getLocaleString('mission'),
+    quest: getLocaleString('quest'),
     localExam: getLocaleString('localExam'),
   }
   if (site.isCapital) {
@@ -312,9 +326,9 @@ fun _handleGovernmentInteraction(site) {
       'tribute' -> {
         // TODO: 进贡金钱或者宝物，之后可以选择是否发起请求
       }
-      'mission' -> {
-        if (location.missions.isEmpty) {
-          showDialogByLocaleKeys(['missionsEmpty'])
+      'quest' -> {
+        if (location.quests.isEmpty) {
+          showDialogByLocaleKeys(['questEmpty'])
         } else {
           // TODO: 领取任务
         }

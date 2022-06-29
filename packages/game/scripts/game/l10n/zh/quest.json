@@ -1,0 +1,30 @@
+{
+  "publishingMonth": "领取截止日期",
+  "expirationMonth": "完成截至日期",
+
+  "fightBandits": "讨贼",
+  "fightScoundrel": "惩戒",
+  "convoy": "押镖",
+  "escort": "护送",
+  "training": "演武",
+  "ritual": "法事",
+  "marriageMaker": "说媒",
+  "trading": "交货",
+  "teaching": "教习",
+  "craft": "定制",
+  "catering": "招待",
+  "localExam": "乡试",
+  "nationalExam": "会试",
+
+  "questFightBandit.wipe.title": "讨伐盗贼",
+
+  "questFightBandit.wipe.description": "在 {0} 出现了一伙盗贼，经常抢劫过往客商，如有好汉将其征讨消灭，将有重赏。",
+
+  "questFightBandit.hostage.title": "失踪人口",
+
+  "questFightBandit.hostage.description": "我的孩子在 {0} 附近走失。如有好汉能将其救回，必将重金酬谢。",
+
+  "questFightBandit.treasure.title": "失窃宝物",
+
+  "questFightBandit.treasure.description": "我的 {0} 在 {1} 附近丢失。如有好汉能将其找回，必将重金酬谢。"
+}

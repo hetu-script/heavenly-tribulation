@@ -100,8 +100,5 @@ final mazes = [
         y: 1,
       },
     },
-    inventory: {
-      
-    }
   },
 ]

@@ -1,5 +1,5 @@
 import 'game.ht'
-import 'entity/character.ht'
+import 'entity/character/character.ht'
 import 'l10n.ht'
 
 fun onGameEvent(id: str, [arg]) {
@@ -35,7 +35,7 @@ fun handleBabies {
         isFemale: baby.isFemale,
         birthTimestamp: game.timestamp,
         locationId: location.id,
-        newborn: true,
+        isNewborn: true,
         fatherId: baby.fatherId,
         motherId: baby.motherId,
       )

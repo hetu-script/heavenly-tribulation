@@ -20,7 +20,7 @@ class HeroInfoPanel extends StatelessWidget {
         .invoke('getStatsPercentageOfCharacter', positionalArgs: [heroData]);
 
     return Container(
-      width: 270,
+      width: 300,
       height: 120,
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(

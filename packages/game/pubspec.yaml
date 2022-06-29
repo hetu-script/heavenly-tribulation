@@ -85,8 +85,9 @@ flutter:
 
     - scripts/game/
     - scripts/game/entity/
+    - scripts/game/entity/character/
     - scripts/game/entity/item/
-    - scripts/game/entity/mission/
+    - scripts/game/quest/
     - scripts/game/generator/attributes/
     - scripts/game/generator/attributes/data/
     - scripts/game/generator/name/

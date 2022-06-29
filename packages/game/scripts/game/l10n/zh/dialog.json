@@ -2,7 +2,7 @@
   "visitEmptyVillage": "（这个地方似乎没有什么值得拜访的人。）",
   "visitPalaceDeny": "卫兵：此乃皇宫禁地，闲杂人等不许靠近！",
 
-  "missionsEmpty": "小吏：最近太平无事，并无人发布委托任务。",
+  "questEmpty": "小吏：最近太平无事，并无人发布悬赏任务。",
 
   "visitJailEmpty": "狱卒：最近太平无事，牢中并无犯人。",
   "visitJailDeny": "狱卒：你要探监？没有官府许可，谁也不能进去。",
