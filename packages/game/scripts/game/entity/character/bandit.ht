@@ -17,8 +17,7 @@ struct Bandit extends Character {
     hasName: false,
     isMajor: false,
   ) {
-    this.familyName = getLocaleString(isPirate ? kPirateName : kBanditName)
-    this.shorName = getLocaleString(kBanditKinds.random)
+    this.name = getLocaleString(isPirate ? kPirateName : kBanditName) + getLocaleString(kBanditKinds.random)
 
     this.kind = kind ?? kBanditKinds.random
     

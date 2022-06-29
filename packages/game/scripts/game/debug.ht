@@ -31,8 +31,10 @@ fun giveHeroWeapon([n = 1]) {
 // 测试战斗：随机生成两个准备好战斗的角色
 fun testDuel() {
   final hero = Character()
-  final enemy = Character() // Bandit(kind: 'gangLeader')
+  final enemy = Bandit(kind: 'gangLeader')
   equip(Weapon(), 'offense', hero)
-  equip(Weapon(), 'offense', enemy)
+  equip(Weapon(), 'offense', hero)
+  equip(Weapon(), 'offense', hero)
+  equip(Weapon(), 'offense', hero)
   showDuel(hero, enemy)
 }

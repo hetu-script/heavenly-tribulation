@@ -81,8 +81,6 @@ class _DuelState extends State<Duel> {
   }
 
   void _reset() {
-    _frames = 0;
-    _messages = [];
     _char1ActionIter = 0;
     _char2ActionIter = 0;
     _char1Ticks = 0;
@@ -94,6 +92,8 @@ class _DuelState extends State<Duel> {
   }
 
   void _startDuel({HTStruct? data}) {
+    _frames = 0;
+    _messages = [];
     _data = data ??
         engine.invoke('Duel', positionalArgs: [
           widget.char1,
@@ -144,6 +144,7 @@ class _DuelState extends State<Duel> {
         setState(() {
           if (finished) {
             timer.cancel();
+            _reset();
           } else {
             if (!_char1InRecovery) {
               final startUp = _currentChar1Item!['startUp'];

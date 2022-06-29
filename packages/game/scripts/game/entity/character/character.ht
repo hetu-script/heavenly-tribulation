@@ -1,11 +1,11 @@
-import 'constants.ht'
-import '../game.ht'
-import '../l10n.ht'
-import '../datetime.ht'
-import 'incident.ht'
-import '../generator/name/name.ht' as nameGenerator
-import '../duel.ht'
-import '../util.ht'
+import '../../game.ht'
+import '../../l10n.ht'
+import '../../datetime.ht'
+import '../incident.ht'
+import '../../generator/name/name.ht' as nameGenerator
+import '../../duel.ht'
+import '../../util.ht'
+import '../constants.ht'
 
 // number of the male avatar images
 const kMaleAvatarCount = 37
@@ -172,12 +172,13 @@ struct Character {
     if (familyName != null && shortName != null) {
       this.familyName = familyName
       this.shortName = shortName
+      this.name = this.familyName + this.shortName
     } else if (hasName) {
       final r = nameGenerator.getCharacter(1, isFemale: this.isFemale).first
       this.familyName = familyName ?? r.familyName
       this.shortName = shortName ?? r.shortName
+      this.name = this.familyName + this.shortName
     }
-    this.name = this.familyName + this.shortName
     if (isMajor) {
       assert(this.name != null)
       this.id = 'character_${this.index}_${this.name}'
