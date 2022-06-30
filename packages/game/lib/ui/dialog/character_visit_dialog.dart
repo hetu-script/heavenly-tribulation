@@ -5,7 +5,7 @@ import '../../global.dart';
 import '../shared/empty_placeholder.dart';
 import '../shared/responsive_route.dart';
 
-const kCharacterVisitTableColumns = [
+const _kCharacterVisitTableColumns = [
   'name',
   'haveMet',
   'talk',
@@ -56,7 +56,7 @@ class CharacterVisitDialog extends StatelessWidget {
         minWidth: 760,
         scrollController: ScrollController(),
         empty: EmptyPlaceholder(engine.locale['empty']),
-        columns: kCharacterVisitTableColumns
+        columns: _kCharacterVisitTableColumns
             .map((title) => DataColumn(
                   label: TextButton(
                     onPressed: () {},

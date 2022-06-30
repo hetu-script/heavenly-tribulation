@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../global.dart';
 
-const kMessageLimit = 50;
+const _kMessageLimit = 50;
 
 class HistoryPanel extends StatelessWidget {
   const HistoryPanel({

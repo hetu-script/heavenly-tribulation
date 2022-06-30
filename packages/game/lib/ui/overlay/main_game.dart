@@ -67,7 +67,6 @@ class _MainGameOverlayState extends State<MainGameOverlay>
       if (hero.isMoving) return;
       final terrain = _scene.map.selectedTerrain;
       if (terrain == null) return;
-      if (terrain.isVoid) return;
       List<int>? route;
       if (terrain.tilePosition != hero.tilePosition) {
         final start = engine.invoke('getTerrain',
@@ -128,19 +127,21 @@ class _MainGameOverlayState extends State<MainGameOverlay>
       EventHandler(
         widget.key!,
         (GameEvent event) async {
-          if (!(event as MapLoadedEvent).isNewGame) return;
-          final charactersData = engine.invoke('getCharacters');
-          final characterIds = charactersData.keys;
-          final key = await CharacterSelectDialog.show(
-            context: context,
-            title: engine.locale['selectHero'],
-            characterIds: characterIds,
-            showCloseButton: false,
-          );
-          engine.invoke('setHeroId', positionalArgs: [key]);
-          engine.invoke('onGameEvent', positionalArgs: ['onNewGame']);
+          if ((event as MapLoadedEvent).isNewGame) {
+            final charactersData = engine.invoke('getCharacters');
+            final characterIds = charactersData.keys;
+            final key = await CharacterSelectDialog.show(
+              context: context,
+              title: engine.locale['selectHero'],
+              characterIds: characterIds,
+              showCloseButton: false,
+            );
+            engine.invoke('setHeroId', positionalArgs: [key]);
+            engine.invoke('onGameEvent', positionalArgs: ['onNewGame']);
+          }
           _heroData = engine.invoke('getHero');
-          final positionData = engine.invoke('getCharacterWorldPosition');
+          final positionData = engine
+              .invoke('getCharacterWorldPosition', positionalArgs: [_heroData]);
           final charSheet = SpriteSheet(
             image: await Flame.images.load('character/tile_character.png'),
             srcSize: Vector2(32.0, 32.0),

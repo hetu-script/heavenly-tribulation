@@ -120,7 +120,7 @@ class TileMap extends GameComponent with HandlesGesture {
         final index = tilePosition2Index(i + 1, j + 1, tileMapWidth);
         final terrainData = terrainsData[index];
         final bool isVisible = terrainData['isVisible'] ?? true;
-        final bool isVoid = terrainData['isVoid'] ?? false;
+        final bool isSelectable = terrainData['isSelectable'] ?? false;
         final bool showGrid = terrainData['showGrid'] ?? false;
         final int zoneIndex = terrainData['zoneIndex'];
         final String zoneCategoryString = terrainData['zoneCategory'];
@@ -220,7 +220,7 @@ class TileMap extends GameComponent with HandlesGesture {
           left: i + 1,
           top: j + 1,
           isVisible: isVisible,
-          isVoid: isVoid,
+          isSelectable: isSelectable,
           showGrid: showGrid,
           tileMapWidth: tileMapWidth,
           srcWidth: tileSpriteSrcWidth,
@@ -420,7 +420,7 @@ class TileMap extends GameComponent with HandlesGesture {
         getNeighborTilePositions(tilePosition.left, tilePosition.top);
     for (final pos in neighbors) {
       final tile = getTerrain(pos.left, pos.top);
-      if (tile != null && !tile.isVoid) {
+      if (tile != null) {
         if (!tile.isVisible) {
           _visiblePerimeter.add(tile.tilePosition);
         }
@@ -578,7 +578,7 @@ class TileMap extends GameComponent with HandlesGesture {
 
   void selectTile(int left, int top) {
     final terrain = getTerrain(left, top);
-    if (terrain != null && !terrain.isVoid) {
+    if (terrain != null && terrain.isSelectable) {
       selectedTerrain = terrain;
     } else {
       selectedTerrain = null;

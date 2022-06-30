@@ -8,7 +8,7 @@ import '../../../global.dart';
 import '../../shared/avatar.dart';
 import '../../shared/bordered_icon_button.dart';
 
-const kAvatarEditButtonSize = 16.0;
+const _kAvatarEditButtonSize = 16.0;
 
 class CharacterEditor extends StatefulWidget {
   const CharacterEditor(
@@ -206,7 +206,7 @@ class _CharacterEditorState extends State<CharacterEditor>
   Widget build(BuildContext context) {
     super.build(context);
 
-    const kAvatarSize = 100.0;
+    const avatarSize = 100.0;
 
     return Scaffold(
       appBar: AppBar(
@@ -294,12 +294,12 @@ class _CharacterEditorState extends State<CharacterEditor>
                               : null,
                         ),
                         Positioned(
-                          top: kAvatarSize - kAvatarEditButtonSize,
+                          top: avatarSize - _kAvatarEditButtonSize,
                           left: MediaQuery.of(context).size.width / 2 +
-                              kAvatarSize / 2 -
-                              kAvatarEditButtonSize,
+                              avatarSize / 2 -
+                              _kAvatarEditButtonSize,
                           child: BorderedIconButton(
-                            iconSize: kAvatarEditButtonSize,
+                            iconSize: _kAvatarEditButtonSize,
                             icon: const Icon(Icons.shuffle_rounded),
                             tooltip: locale['random'],
                             onPressed: () {
@@ -310,12 +310,12 @@ class _CharacterEditorState extends State<CharacterEditor>
                           ),
                         ),
                         Positioned(
-                          top: kAvatarSize - kAvatarEditButtonSize,
+                          top: avatarSize - _kAvatarEditButtonSize,
                           left: MediaQuery.of(context).size.width / 2 -
-                              kAvatarSize / 2 -
-                              kAvatarEditButtonSize,
+                              avatarSize / 2 -
+                              _kAvatarEditButtonSize,
                           child: BorderedIconButton(
-                            iconSize: kAvatarEditButtonSize,
+                            iconSize: _kAvatarEditButtonSize,
                             icon: data['characterIsFemale']
                                 ? const Icon(Icons.female_rounded)
                                 : const Icon(Icons.male_rounded),

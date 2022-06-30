@@ -6,7 +6,7 @@ import 'package:hetu_script/values.dart';
 import 'item_grid.dart';
 import 'item_info.dart';
 
-const kInventorySlotCount = 18;
+const _kInventorySlotCount = 18;
 
 class InventoryView extends StatelessWidget {
   const InventoryView({
@@ -33,7 +33,7 @@ class InventoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final skills = <ItemGrid>[];
-    for (var i = 0; i < math.max(kInventorySlotCount, data.length); ++i) {
+    for (var i = 0; i < math.max(_kInventorySlotCount, data.length); ++i) {
       if (i < data.length) {
         skills.add(ItemGrid(
           data: data[i],

@@ -49,9 +49,9 @@ final kOrganizationThinkings = {
   restaurant: [],
 }
 
-const kOrganizationThinkingsOnRecruit = 3
+const _kOrganizationThinkingsOnRecruit = 3
 
-const kLeaderRank = 80
+const _kLeaderRank = 80
 
 struct Organization {
   construct ({
@@ -212,7 +212,7 @@ fun addCharacterToOrganization(character, organization, { incidentOccured = true
 
   final location = game.locations[organization.headquartersId]
   setCharacterHome(character, location)
-  final r = Math.randomInt(kOrganizationThinkingsOnRecruit)
+  final r = Math.randomInt(_kOrganizationThinkingsOnRecruit)
   for (final i in range(r)) {
     var thinking
     do {

@@ -56,6 +56,10 @@ const _kMinZoneSizeForSea = 8
 const _kForestThreshold = 0.5
 const _kMountainThreshold = 0.2
 
+const _kCharacterMarriageAgeMin = 15
+const _kCharacterMarriageAgeMax = 40
+const _kPregnancyAgeMax = 40
+
 fun createWorldMap({
     style = 'island',
     terrainSpriteSheet: str,
@@ -102,6 +106,7 @@ fun createWorldMap({
           spriteIndex: kSpriteWater,
           overlaySprite: {},
           showGrid: true,
+          isSelectable: true,
         }
       )
     }
@@ -498,7 +503,7 @@ fun createWorldMap({
         final char = game.characters[id]
         final age = getCharacterAge(char)
         if (char.relationships.spouseId) {
-          if (char.isFemale && !char.isPregnant && age < kPregnancyAgeMax) {
+          if (char.isFemale && !char.isPregnant && age < _kPregnancyAgeMax) {
             if (char.thinkings.contains('dink')) continue
             if (char.thinkings.contains('clumsy')) continue
             if (char.relationships.childrenIds.isNotEmpty) {
@@ -519,15 +524,15 @@ fun createWorldMap({
             )
           }
         } else {
-          if (age > kCharacterMarriageAgeMin && age < kCharacterMarriageAgeMax) {
+          if (age > _kCharacterMarriageAgeMin && age < _kCharacterMarriageAgeMax) {
             for (final otherId in characterIdList) {
               if (id == otherId) continue
               final otherChar = game.characters[otherId]
               // TODO: 这里暂时没有允许同性婚姻
               if (otherChar.isFemale == char.isFemale) continue
               final otherCharAge = getCharacterAge(otherChar)
-              if (otherCharAge > kCharacterMarriageAgeMin
-                  && otherCharAge < kCharacterMarriageAgeMax
+              if (otherCharAge > _kCharacterMarriageAgeMin
+                  && otherCharAge < _kCharacterMarriageAgeMax
                   && otherChar.relationships.spouseId == null) {
                 char.relationships.spouseId = otherId
                 otherChar.relationships.spouseId = id
@@ -581,7 +586,7 @@ fun createWorldMap({
     }
     if (char.relationships.spouseId == null) {
       final age = getCharacterAge(char)
-      if (age > kCharacterMarriageAgeMin && age < kCharacterMarriageAgeMax) {
+      if (age > _kCharacterMarriageAgeMin && age < _kCharacterMarriageAgeMax) {
         char.motivations.add('marriage')
       }
     } else {

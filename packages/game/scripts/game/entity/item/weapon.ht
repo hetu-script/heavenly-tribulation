@@ -4,24 +4,24 @@ import 'constants.ht'
 import '../../l10n.ht'
 import '../../util.ht'
 
-const kDefaultWeaponIcon = 'icon/item/sword.png'
+const _kDefaultWeaponIcon = 'icon/item/sword.png'
 
-const kSpeedShort = 5
-const kSpeedBase = 20
-const kSpeedVariable = 10
-const kDamageMin = 10
-const kDamageMax = 65
-const kDamageLow = 15
-const kDamageMedium = 30
-const kDamageHigh = 50
-const kDamageDeviation = 10
-const kDurabilityLow = 200
-const kDurabilityMedium = 300
-const kDurabilityHigh = 400
-const kDurabilityVariable = 100
-final kEffects = ['parry', 'counter']
-const kEffectProbabilityBase = 0.1
-const kEffectProbabilityVariable = 0.1
+const _kSpeedShort = 5
+const _kSpeedBase = 20
+const _kSpeedVariable = 10
+const _kDamageMin = 10
+const _kDamageMax = 65
+const _kDamageLow = 15
+const _kDamageMedium = 30
+const _kDamageHigh = 50
+const _kDamageDeviation = 10
+const _kDurabilityLow = 200
+const _kDurabilityMedium = 300
+const _kDurabilityHigh = 400
+const _kDurabilityVariable = 100
+final _kEffects = ['parry', 'counter']
+const _kEffectProbabilityBase = 0.1
+const _kEffectProbabilityVariable = 0.1
 
 final kWeaponTypes = [
   'slashing',
@@ -47,7 +47,7 @@ struct Weapon {
     this.isAttackItem = true
     this.rarity = rarity
     this.value = value ?? 0
-    this.icon = icon ?? kDefaultWeaponIcon
+    this.icon = icon ?? _kDefaultWeaponIcon
     this.consumable = false
     this.equippable = true
     this.creatorId = creatorId
@@ -69,10 +69,10 @@ struct Weapon {
       'piercing' -> {
         final effects = {}
         this.attributes = {
-          durability: Math.randomInt(kDurabilityVariable) + kDurabilityMedium,
-          damage: Math.gaussianNoise(kDamageLow, kDamageDeviation, min: kDamageMin, max: kDamageMax),
-          startUp: Math.randomInt(kSpeedVariable) + kSpeedShort,
-          recovery: Math.randomInt(kSpeedVariable) + kSpeedShort,
+          durability: Math.randomInt(_kDurabilityVariable) + _kDurabilityMedium,
+          damage: Math.gaussianNoise(_kDamageLow, _kDamageDeviation, min: _kDamageMin, max: _kDamageMax),
+          startUp: Math.randomInt(_kSpeedVariable) + _kSpeedShort,
+          recovery: Math.randomInt(_kSpeedVariable) + _kSpeedShort,
           effects: effects,
           abilities: [],
           levels: [],
@@ -82,16 +82,16 @@ struct Weapon {
       'slashing' -> {
         final effects = {
           parry: [
-                    { value: Math.random() * kEffectProbabilityVariable + kEffectProbabilityBase,
+                    { value: Math.random() * _kEffectProbabilityVariable + _kEffectProbabilityBase,
                       type: kValueTypePercentage
                     }
                   ],
         }
         this.attributes = {
-          durability: Math.randomInt(kDurabilityVariable) + kDurabilityLow,
-          damage: Math.gaussianNoise(kDamageMedium, kDamageDeviation, min: kDamageMin, max: kDamageMax),
-          startUp: Math.randomInt(kSpeedVariable) + kSpeedBase,
-          recovery: Math.randomInt(kSpeedVariable) + kSpeedShort,
+          durability: Math.randomInt(_kDurabilityVariable) + _kDurabilityLow,
+          damage: Math.gaussianNoise(_kDamageMedium, _kDamageDeviation, min: _kDamageMin, max: _kDamageMax),
+          startUp: Math.randomInt(_kSpeedVariable) + _kSpeedBase,
+          recovery: Math.randomInt(_kSpeedVariable) + _kSpeedShort,
           effects: effects,
           abilities: [],
           levels: [],
@@ -101,21 +101,21 @@ struct Weapon {
       'bludgeoning' -> {
         final effects = {
           parry: [
-                    { value: Math.random() * kEffectProbabilityVariable + kEffectProbabilityBase,
+                    { value: Math.random() * _kEffectProbabilityVariable + _kEffectProbabilityBase,
                       type: kValueTypePercentage
                     }
                   ],
           counter: [
-                    { value: Math.random() * kEffectProbabilityVariable + kEffectProbabilityBase,
+                    { value: Math.random() * _kEffectProbabilityVariable + _kEffectProbabilityBase,
                       type: kValueTypePercentage
                     }
                   ],
         }
         this.attributes = {
-          durability: Math.randomInt(kDurabilityVariable) + kDurabilityHigh,
-          damage: Math.gaussianNoise(kDamageHigh, kDamageDeviation, min: kDamageMin, max: kDamageMax),
-          startUp: Math.randomInt(kSpeedVariable) + kSpeedShort,
-          recovery: Math.randomInt(kSpeedVariable) + kSpeedBase,
+          durability: Math.randomInt(_kDurabilityVariable) + _kDurabilityHigh,
+          damage: Math.gaussianNoise(_kDamageHigh, _kDamageDeviation, min: _kDamageMin, max: _kDamageMax),
+          startUp: Math.randomInt(_kSpeedVariable) + _kSpeedShort,
+          recovery: Math.randomInt(_kSpeedVariable) + _kSpeedBase,
           effects: effects,
           abilities: [],
           levels: [],

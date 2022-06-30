@@ -8,7 +8,7 @@ import '../../shared/responsive_route.dart';
 import '../../shared/close_button.dart';
 import '../../util.dart';
 
-const kInformationViewCharacterColumns = [
+const _kInformationViewCharacterColumns = [
   'name',
   'currentLocation',
   'organization',
@@ -16,7 +16,7 @@ const kInformationViewCharacterColumns = [
   // 'infamy',
 ];
 
-const kInformationViewNationColumns = [
+const _kInformationViewNationColumns = [
   'name',
   'capital',
   'gridSize',
@@ -24,7 +24,7 @@ const kInformationViewNationColumns = [
   'organizationNumber',
 ];
 
-const kInformationViewLocationColumns = [
+const _kInformationViewLocationColumns = [
   'name',
   'nation',
   'organization',
@@ -32,7 +32,7 @@ const kInformationViewLocationColumns = [
   'development',
 ];
 
-const kInformationViewOrganizationColumns = [
+const _kInformationViewOrganizationColumns = [
   'name',
   'leader',
   'headquartersLocation',
@@ -192,7 +192,7 @@ class _InformationPanelState extends State<InformationPanel>
           body: TabBarView(
             children: [
               GameEntityListView(
-                columns: kInformationViewCharacterColumns,
+                columns: _kInformationViewCharacterColumns,
                 data: _charactersFieldRow,
                 onTap: (dataId) => showDialog(
                   context: context,
@@ -200,15 +200,15 @@ class _InformationPanelState extends State<InformationPanel>
                 ),
               ),
               GameEntityListView(
-                columns: kInformationViewOrganizationColumns,
+                columns: _kInformationViewOrganizationColumns,
                 data: _organizationsFieldRow,
               ),
               GameEntityListView(
-                columns: kInformationViewLocationColumns,
+                columns: _kInformationViewLocationColumns,
                 data: _locationsFieldRow,
               ),
               GameEntityListView(
-                columns: kInformationViewNationColumns,
+                columns: _kInformationViewNationColumns,
                 data: _nationsFieldRow,
               ),
             ],

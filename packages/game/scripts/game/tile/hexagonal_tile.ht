@@ -1,5 +1,6 @@
 struct Tile {
-  construct (left, top) {
+  construct (left, top, {index}) {
+    this.index = index
     this.left = left
     this.top = top
     // 切换为 horizontal hexgonal tile map 的坐标系
@@ -96,14 +97,14 @@ fun getTileDistance(start, end) {
 
 // 从 hexagonal 坐标得到索引
 fun tilePos2Index(left, top, width) {
-  return left - 1 + (top - 1) * width
+  return (left - 1 + (top - 1) * width).toInt()
 }
 
 // 从索引得到 hexagonal 坐标
 fun index2TilePos(index: int, width) {
-  final left = index % width + 1
-  final top = index ~/ width + 1
-  return Tile(left, top)
+  final left = (index % width + 1).toInt()
+  final top = (index ~/ width + 1).toInt()
+  return Tile(left, top, index: index)
 }
 
 // 坐标是否在地图范围内

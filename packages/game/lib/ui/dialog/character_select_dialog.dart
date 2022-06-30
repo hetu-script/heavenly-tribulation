@@ -7,7 +7,7 @@ import '../shared/close_button.dart';
 import '../game_entity_listview.dart';
 import '../view/character/character.dart';
 
-const kInformationViewCharacterColumns = [
+const _kInformationViewCharacterColumns = [
   'name',
   'age',
   'currentLocation',
@@ -86,7 +86,7 @@ class CharacterSelectDialog extends StatelessWidget {
           actions: [if (showCloseButton) const ButtonClose()],
         ),
         body: GameEntityListView(
-          columns: kInformationViewCharacterColumns,
+          columns: _kInformationViewCharacterColumns,
           data: data,
           onTap: (dataId) => showDialog(
             context: context,

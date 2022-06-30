@@ -1,6 +1,18 @@
-final organizationCreatedDate = []
-for (final i in range(4)) {
-  organizationCreatedDate.add(Math.randomInt(200))
+
+// 每个锚点所连接的路径
+final _kRoutesOfAnchor = {
+  '1': ['topLeft', 'topRight'],
+  '2': ['topLeft', 'topRight', 'centerTop'],
+  '3': ['topRight', 'rightTop'],
+  '4': ['leftTop', 'centerLeft', 'leftBottom'],
+  '5': ['centerTop', 'centerLeft', 'centerRight', 'centerBottom'],
+  '6': ['rightTop', 'centerRight', 'rightBottom'],
+  '7': ['leftBottom', 'bottomLeft'],
+  '8': ['bottomLeft', 'bottomRight', 'centerBottom'],
+  '9': ['rightBottom', 'bottomRight'],
 }
-organizationCreatedDate.sort()
-organizationCreatedDate
+
+
+final routes = Set() // 最终结果
+
+final middlePoint = [2,4,6,8]

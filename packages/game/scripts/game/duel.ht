@@ -27,7 +27,7 @@ fun showDuel(char1, char2, { type }) -> Future {
 
 const kDuelTypePractice = 'practice'
 const kDuelTypeSneakAttack = 'sneakAttack'
-const kDuelticksLimit = 500
+const _kDuelticksLimit = 500
 
 fun _attack(attacker, wielding, victim, log) {
   var offset = 0
@@ -170,7 +170,7 @@ struct Duel {
       }
 
       while (true) {
-        if (this.frames >= kDuelticksLimit) {
+        if (this.frames >= _kDuelticksLimit) {
           // this.messages.add(getLocaleString('drawGame'))
           this.tied = true
           break

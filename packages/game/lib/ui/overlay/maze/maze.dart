@@ -57,7 +57,6 @@ class _MazeOverlayState extends State<MazeOverlay>
           if (hero.isMoving) return;
           final terrain = _scene.map.selectedTerrain;
           if (terrain == null) return;
-          if (terrain.isVoid) return;
           List<int>? route;
           if (terrain.tilePosition != hero.tilePosition) {
             final start = engine.invoke('getTerrain',

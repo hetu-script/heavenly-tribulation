@@ -17,7 +17,7 @@ fun setLocale(id: str) {
   locales.currentLocaleId = id
 }
 
-const kMissingText = 'missing_text_'
+const _kMissingText = 'missing_text_'
 
 fun interpolate(text: str, [interpolations: List = []]) {
   for (var i = 0; i < interpolations.length; ++i) {
@@ -37,5 +37,5 @@ fun getLocaleString(key: str, [interpolations: List = []]) {
     }
     return text
   }
-  return kMissingText + stringify(key)
+  return _kMissingText + stringify(key)
 }

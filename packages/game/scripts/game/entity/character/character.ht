@@ -9,22 +9,20 @@ import '../constants.ht'
 import '../../tile/hexagonal_tile.ht'
 
 // number of the male avatar images
-const kMaleAvatarCount = 37
+const _kMaleAvatarCount = 37
  // number of the female avatar images
-const kFemaleAvatarCount = 75
-const kCharacterRandomAgeMax = 150
-const kCharacterAverageLooks = 75.0
+const _kFemaleAvatarCount = 75
+const _kCharacterRandomAgeMax = 150
+const _kCharacterAverageLooks = 75.0
 /// 容貌最大值: 100.0
-const kCharacterMaxLooks = 100.0
-const kCharacterImpressionCheckpoint = 10.0
-const kCharacterInitialGeneralThinking = 4
-const kCharacterMarriageAgeMin = 15
-const kCharacterMarriageAgeMax = 40
-const kMajorMotivationProbobility = 0.2
-const kCharacterAttributeMinValue = 10
-const kCharacterAttributeBase = 10
-const kCharacterAttributeVariable = 10
-const kEquipmentMax = 5
+const _kCharacterMaxLooks = 100.0
+const _kCharacterImpressionCheckpoint = 10.0
+const _kCharacterInitialGeneralThinking = 4
+const _kMajorMotivationProbobility = 0.2
+const _kCharacterAttributeMinValue = 10
+const _kCharacterAttributeBase = 10
+const _kCharacterAttributeVariable = 10
+const _kEquipmentMax = 5
 
 final kCharacterAttributeNames = [
   'strength',
@@ -98,9 +96,8 @@ struct Bond {
   }
 }
 
-final kPregnancyTime = kTicksPerMonth * 9
-final kPregnancyTimeVariable = kTicksPerMonth * 2
-const kPregnancyAgeMax = 40
+final _kPregnancyTime = kTicksPerMonth * 9
+final _kPregnancyTimeVariable = kTicksPerMonth * 2
 
 struct Baby {
   construct ({
@@ -117,14 +114,14 @@ struct Baby {
     this.fatherId = father.id
     this.motherId = mother.id
     this.conceptionTimestamp = conceptionTimestamp
-    this.pregnancyTimestamp = Math.gaussianNoise(kPregnancyTime, kPregnancyTimeVariable)
+    this.pregnancyTimestamp = Math.gaussianNoise(_kPregnancyTime, _kPregnancyTimeVariable)
     
     this.isFemale = Math.randomBool()
     if (this.isFemale) {
-      final index = Math.randomInt(kFemaleAvatarCount)
+      final index = Math.randomInt(_kFemaleAvatarCount)
       this.avatar = 'avatar/female/${index}.jpg';
     } else {
-      final index = Math.randomInt(kMaleAvatarCount)
+      final index = Math.randomInt(_kMaleAvatarCount)
       this.avatar = 'avatar/male/${index}.jpg';
     }
     final r = nameGenerator.getCharacter(
@@ -165,10 +162,10 @@ struct Character {
       this.isFemale = Math.randomBool()
     }
     if (this.isFemale) {
-      final index = Math.randomInt(kFemaleAvatarCount)
+      final index = Math.randomInt(_kFemaleAvatarCount)
       this.avatar = 'avatar/female/${index}.jpg';
     } else {
-      final index = Math.randomInt(kMaleAvatarCount)
+      final index = Math.randomInt(_kMaleAvatarCount)
       this.avatar = 'avatar/male/${index}.jpg';
     }
     if (familyName != null && shortName != null) {
@@ -193,9 +190,9 @@ struct Character {
     } else {
       this.birthTimestamp = createRandomBirthTimestamp()
     }
-    this.nationId = location.nationId
-    this.looks = hyperbola(kCharacterAverageLooks)
-    this.favoredLooks = hyperbola(kCharacterMaxLooks)
+    this.nationId = nationId
+    this.looks = hyperbola(_kCharacterAverageLooks)
+    this.favoredLooks = hyperbola(_kCharacterMaxLooks)
 
     // 该角色的称号
     this.titles = {
@@ -231,8 +228,8 @@ struct Character {
 
     // 属性点数数值
     this.attributes = generateRandomAttributes(
-      Math.randomInt(kCharacterAttributeVariable) + kCharacterAttributeBase,
-      kCharacterAttributeMinValue,
+      Math.randomInt(_kCharacterAttributeVariable) + _kCharacterAttributeBase,
+      _kCharacterAttributeMinValue,
     )
 
     if (attributes) {
@@ -280,11 +277,11 @@ struct Character {
     this.thinkings = []
 
     final r = Math.random()
-    if (r < kMajorMotivationProbobility) {
+    if (r < _kMajorMotivationProbobility) {
       this.motivations.add(kMajorMotivations.random)
     }
 
-    final r = Math.randomInt(kCharacterInitialGeneralThinking)
+    final r = Math.randomInt(_kCharacterInitialGeneralThinking)
     for (final i in range(r)) {
       var thinking
       do {
@@ -414,7 +411,7 @@ fun getCharacterFameString(character) {
   return (character.knownByPopulation / game.characters.length).toPercentageString(2)
 }
 
-fun createRandomBirthTimestamp([min = 1, max = kCharacterRandomAgeMax]) {
+fun createRandomBirthTimestamp([min = 1, max = _kCharacterRandomAgeMax]) {
   assert(min > 0)
   final age = Math.randomInt(max - min) + min
   final randomDateInAYear = Math.randomInt(kTicksPerYear)
@@ -428,14 +425,14 @@ fun createRandomBirthTimestamp([min = 1, max = kCharacterRandomAgeMax]) {
 /// looks 是对方的容貌，0 <= looks <= 100
 /// favor 是该角色的偏好，0 <= favor <= 100
 fun _calculateLooksScore({looks: float, favor: float}) -> float {
-  assert(0.0 <= looks && looks <= kCharacterMaxLooks)
+  assert(0.0 <= looks && looks <= _kCharacterMaxLooks)
   if (favor != null) {
-    assert(0.0 <= favor && favor <= kCharacterMaxLooks)
+    assert(0.0 <= favor && favor <= _kCharacterMaxLooks)
   }
-  if (looks < ((favor + kCharacterMaxLooks) / 2)) {
-    return (-(looks - favor) * (looks - favor)) / 20 + kCharacterMaxLooks
+  if (looks < ((favor + _kCharacterMaxLooks) / 2)) {
+    return (-(looks - favor) * (looks - favor)) / 20 + _kCharacterMaxLooks
   } else {
-    return (-(looks - kCharacterMaxLooks) * (looks - kCharacterMaxLooks)) / 20 + kCharacterMaxLooks
+    return (-(looks - _kCharacterMaxLooks) * (looks - _kCharacterMaxLooks)) / 20 + _kCharacterMaxLooks
   }
 }
 
@@ -508,12 +505,12 @@ fun _characterFirstMet(subject, target, [causeIncident, causeIncidentScore]) {
   // TODO: 同名之谊?
 
   var incidentContent
-  if (metScore < -kCharacterImpressionCheckpoint) {
+  if (metScore < -_kCharacterImpressionCheckpoint) {
     incidentContent = getLocaleString('incidentFirstMetHate', [
       subject.name,
       target.name,
     ])
-  } else if (metScore > kCharacterImpressionCheckpoint) {
+  } else if (metScore > _kCharacterImpressionCheckpoint) {
     incidentContent = getLocaleString('incidentFirstMetLike', [
       subject.name,
       target.name,
@@ -660,7 +657,7 @@ fun setCharacterHome(character, location) {
   character.homeId = location.id
 }
 
-fun setHero(id: str) {
+fun setHeroId(id: str) {
   assert(game.characters.containsKey(id))
   engine.info('设置当前玩家人物为 [${game.characters[id].name}]。')
   game.heroId = id;
@@ -722,7 +719,7 @@ fun haveMet(subject, target) {
 
 fun equip(data, type, character, [index]) {
   assert(type != null)
-  final r = range(1, kEquipmentMax)
+  final r = range(1, _kEquipmentMax)
   if (index == null) {
     // 如果有空位就装备在空位上
     for (final i in r) {

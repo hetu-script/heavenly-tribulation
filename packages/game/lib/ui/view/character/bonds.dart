@@ -6,7 +6,7 @@ import '../../../global.dart';
 import '../../shared/empty_placeholder.dart';
 import '../../shared/constants.dart';
 
-const kCharacterBondsTableColumns = [
+const _kCharacterBondsTableColumns = [
   'character',
   'organization',
   'location',
@@ -14,7 +14,7 @@ const kCharacterBondsTableColumns = [
   'talisman',
 ];
 
-const kCharacterBondsSubTableColumns = ['name', 'impressionOfThem'];
+const _kCharacterBondsSubTableColumns = ['name', 'impressionOfThem'];
 
 class CharacterBondsView extends StatelessWidget {
   const CharacterBondsView({
@@ -27,13 +27,13 @@ class CharacterBondsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: kCharacterBondsTableColumns.length,
+      length: _kCharacterBondsTableColumns.length,
       child: Column(
         children: [
           PreferredSize(
             preferredSize: const Size.fromHeight(kNestedTabBarHeight),
             child: TabBar(
-              tabs: kCharacterBondsTableColumns
+              tabs: _kCharacterBondsTableColumns
                   .map(
                     (key) => Tab(text: engine.locale[key]),
                   )
@@ -47,7 +47,7 @@ class CharacterBondsView extends StatelessWidget {
                     (key) => DataTable2(
                       scrollController: ScrollController(),
                       empty: EmptyPlaceholder(engine.locale['empty']),
-                      columns: kCharacterBondsSubTableColumns
+                      columns: _kCharacterBondsSubTableColumns
                           .map((title) => DataColumn(
                                 label: TextButton(
                                   onPressed: () {},

@@ -58,7 +58,7 @@ class _DuelState extends State<Duel> {
   late num _char1Health, _char2Health;
   late int _char1HealthMax, _char2HealthMax;
 
-  bool get finished => _data != null && _frames > _data!['frames'];
+  bool _finished = false;
 
   late final ScrollController _scrollController = ScrollController();
 
@@ -108,6 +108,7 @@ class _DuelState extends State<Duel> {
     _char2HealthMax = _char2StatsPercentage!['life']['max'].toInt();
     _currentChar1Item = getNextChar1ActivatedItem();
     _currentChar2Item = getNextChar2ActivatedItem();
+    _finished = false;
     _startTimer();
   }
 
@@ -142,9 +143,10 @@ class _DuelState extends State<Duel> {
       const Duration(milliseconds: 100),
       (Timer timer) {
         setState(() {
-          if (finished) {
+          if (_frames > _data!['frames']) {
             timer.cancel();
             _reset();
+            _finished = true;
           } else {
             if (!_char1InRecovery) {
               final startUp = _currentChar1Item!['startUp'];
@@ -339,7 +341,7 @@ class _DuelState extends State<Duel> {
                   Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      if (finished)
+                      if (_finished)
                         Padding(
                           padding: const EdgeInsets.all(5.0),
                           child: ElevatedButton(
@@ -358,12 +360,13 @@ class _DuelState extends State<Duel> {
                         padding: const EdgeInsets.all(5.0),
                         child: ElevatedButton(
                           onPressed: () {
-                            if (finished) {
+                            if (_finished) {
                               Navigator.pop(context);
                             } else {
                               _timer?.cancel();
                               setState(() {
                                 _reset();
+                                _finished = true;
                                 _messages =
                                     List<String>.from(_data!['messages']);
                                 _char1Health = _data!['stats']['char1']['life'];
@@ -371,7 +374,7 @@ class _DuelState extends State<Duel> {
                               });
                             }
                           },
-                          child: finished
+                          child: _finished
                               ? Text(engine.locale['close'])
                               : Text(engine.locale['skip']),
                         ),

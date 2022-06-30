@@ -1,11 +1,10 @@
 import '../game.ht'
 import '../tile/tilemap.ht'
 import '../generator/name/name.ht' as nameGenerator
+import '../l10n.ht'
 
-const _kNation = '国'
-
-const kEmperorTitle = 'empireLeaderTitle'
-const kEmperorRank = 99
+const _kEmperorTitle = 'empireLeaderTitle'
+const _kEmperorRank = 99
 
 struct Nation {
   construct ({
@@ -16,7 +15,7 @@ struct Nation {
 
     this.index = game.nations.length
     if (name) {
-      this.name = name + _kNation
+      this.name = name + getLocaleString('nationPostfix')
     } else {
       var conflict = false
       do {
@@ -105,7 +104,7 @@ fun addTerrainToNation(nation, terrain) {
 fun setEmperor(nation, character) {
   assert(character.nationId == nation.id)
   nation.emperorId = character.id
-  character.titles[kEmperorTitle] = getLocaleString('emperor')
-  character.currentTitleId = kEmperorTitle
-  character.organizationRank = kEmperorRank
+  character.titles[_kEmperorTitle] = getLocaleString('emperor')
+  character.currentTitleId = _kEmperorTitle
+  character.organizationRank = _kEmperorRank
 }

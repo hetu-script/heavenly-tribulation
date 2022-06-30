@@ -83,7 +83,7 @@ class TileMapTerrain extends GameComponent with TileInfo {
 
   final String? locationId;
   final String? nationId;
-  bool isVoid;
+  bool isSelectable;
   bool showGrid;
 
   TileMapEntity? entity;
@@ -94,7 +94,7 @@ class TileMapTerrain extends GameComponent with TileInfo {
     required int left,
     required int top,
     bool isVisible = true,
-    this.isVoid = false,
+    this.isSelectable = false,
     this.showGrid = false,
     required int tileMapWidth,
     required double srcWidth,
