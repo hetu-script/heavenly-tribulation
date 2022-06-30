@@ -136,8 +136,6 @@ fun createWorldMap({
 
   final startLeft = Math.randomInt(maxLeft - minLeft) + minLeft
   final startTop = Math.randomInt(maxTop - minTop) + minTop
-  game.world.heroX = startLeft
-  game.world.heroY = startTop
   // engine.info('start: ${startLeft},${startTop}')
   final startIndex = tilePos2Index(startLeft, startTop, width)
   final firstTile = game.world.terrains[startIndex]

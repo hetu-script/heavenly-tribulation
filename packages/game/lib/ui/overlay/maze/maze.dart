@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
 import 'package:hetu_script/values.dart';
+import 'package:flame/sprite.dart';
+import 'package:flame/flame.dart';
+import 'package:flame/components.dart';
 
 // import '../../../../ui/shared/avatar.dart';
 import '../../shared/loading_screen.dart';
@@ -50,6 +53,7 @@ class _MazeOverlayState extends State<MazeOverlay>
         widget.key!,
         (event) {
           final hero = _scene.map.hero;
+          if (hero == null) return;
           if (hero.isMoving) return;
           final terrain = _scene.map.selectedTerrain;
           if (terrain == null) return;
@@ -67,6 +71,39 @@ class _MazeOverlayState extends State<MazeOverlay>
               _scene.map.moveHeroToTilePositionByRoute(route);
             }
           }
+        },
+      ),
+    );
+
+    engine.registerListener(
+      Events.loadedMap,
+      EventHandler(
+        widget.key!,
+        (GameEvent event) async {
+          final charSheet = SpriteSheet(
+            image: await Flame.images.load('character/tile_character.png'),
+            srcSize: Vector2(32.0, 32.0),
+          );
+          final shipSheet = SpriteSheet(
+            image: await Flame.images.load('character/tile_ship.png'),
+            srcSize: Vector2(32.0, 32.0),
+          );
+          _scene.map.hero = TileMapEntity(
+            engine: engine,
+            sceneKey: _scene.key,
+            isHero: true,
+            animationSpriteSheet: charSheet,
+            waterAnimationSpriteSheet: shipSheet,
+            left: _scene.data['entryX'],
+            top: _scene.data['entryY'],
+            tileShape: _scene.map.tileShape,
+            tileMapWidth: _scene.map.tileMapWidth,
+            gridWidth: _scene.map.gridWidth,
+            gridHeight: _scene.map.gridHeight,
+            srcWidth: 32,
+            srcHeight: 32,
+          );
+          setState(() {});
         },
       ),
     );

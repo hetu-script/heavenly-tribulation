@@ -8,6 +8,7 @@ const kSpriteCity = 4
 const kSpriteForest = 5
 const kSpriteMountain = 6
 const kSpriteGrassLand = 7
+const kSpriteBush = 8
 const kLocationCategoryCity = 'city'
 const kZoneVoid = 'empty'
 const kZoneWater = 'water'
@@ -44,8 +45,8 @@ struct TileMap {
     tileSpriteSrcHeight = 48.0,
     tileOffsetX = 0.0,
     tileOffsetY = 2.0,
-    heroX = 1,
-    heroY = 1,
+    entryX = 1,
+    entryY = 1,
   }) {
     this.scene = scene
     this.width = width
@@ -58,8 +59,8 @@ struct TileMap {
     this.tileSpriteSrcHeight = tileSpriteSrcHeight
     this.tileOffsetX = tileOffsetX
     this.tileOffsetY = tileOffsetY
-    this.heroX = heroX
-    this.heroY = heroY
+    this.entryX = entryX
+    this.entryY = entryY
 
     this.zones = []
     this.terrains = []

@@ -10,6 +10,8 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
 // import 'package:flame_audio/flame_audio.dart';
 import 'package:hetu_script/values.dart';
+import 'package:flame/flame.dart';
+import 'package:flame/sprite.dart';
 
 import 'worldmap/popup.dart';
 import '../../shared/json.dart';
@@ -61,6 +63,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
     if (engine.isOnDesktop) {
       if (e.buttons & kPrimaryButton != kPrimaryButton) return;
       final hero = _scene.map.hero;
+      if (hero == null) return;
       if (hero.isMoving) return;
       final terrain = _scene.map.selectedTerrain;
       if (terrain == null) return;
@@ -111,7 +114,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
             _menuPosition = null;
           });
         } else if (e.buttons & kSecondaryButton == kSecondaryButton) {
-          if (_scene.map.hero.isMoving) return;
+          if (_scene.map.hero?.isMoving ?? false) return;
           setState(() {
             _menuPosition = _scene.map.tilePosition2TileCenterInScreen(
                 e.tilePosition.left, e.tilePosition.top);
@@ -121,26 +124,50 @@ class _MainGameOverlayState extends State<MainGameOverlay>
     );
 
     engine.registerListener(
-        Events.loadedMap,
-        EventHandler(
-          widget.key!,
-          (GameEvent event) async {
-            if (!(event as MapLoadedEvent).isNewGame) return;
-            final charactersData = engine.invoke('getCharacters');
-            final characterIds = charactersData.keys;
-            final key = await CharacterSelectDialog.show(
-              context: context,
-              title: engine.locale['selectHero'],
-              characterIds: characterIds,
-              showCloseButton: false,
-            );
-            engine.invoke('setHeroId', positionalArgs: [key]);
-            engine.invoke('onGameEvent', positionalArgs: ['onNewGame']);
-            setState(() {
-              _heroData = engine.invoke('getHero');
-            });
-          },
-        ));
+      Events.loadedMap,
+      EventHandler(
+        widget.key!,
+        (GameEvent event) async {
+          if (!(event as MapLoadedEvent).isNewGame) return;
+          final charactersData = engine.invoke('getCharacters');
+          final characterIds = charactersData.keys;
+          final key = await CharacterSelectDialog.show(
+            context: context,
+            title: engine.locale['selectHero'],
+            characterIds: characterIds,
+            showCloseButton: false,
+          );
+          engine.invoke('setHeroId', positionalArgs: [key]);
+          engine.invoke('onGameEvent', positionalArgs: ['onNewGame']);
+          _heroData = engine.invoke('getHero');
+          final positionData = engine.invoke('getCharacterWorldPosition');
+          final charSheet = SpriteSheet(
+            image: await Flame.images.load('character/tile_character.png'),
+            srcSize: Vector2(32.0, 32.0),
+          );
+          final shipSheet = SpriteSheet(
+            image: await Flame.images.load('character/tile_ship.png'),
+            srcSize: Vector2(32.0, 32.0),
+          );
+          _scene.map.hero = TileMapEntity(
+            engine: engine,
+            sceneKey: _scene.key,
+            isHero: true,
+            animationSpriteSheet: charSheet,
+            waterAnimationSpriteSheet: shipSheet,
+            left: positionData['left'],
+            top: positionData['top'],
+            tileShape: _scene.map.tileShape,
+            tileMapWidth: _scene.map.tileMapWidth,
+            gridWidth: _scene.map.gridWidth,
+            gridHeight: _scene.map.gridHeight,
+            srcWidth: 32,
+            srcHeight: 32,
+          );
+          setState(() {});
+        },
+      ),
+    );
 
     engine.registerListener(
       Events.heroMoved,
@@ -258,17 +285,20 @@ class _MainGameOverlayState extends State<MainGameOverlay>
               final characters = _scene.map.selectedActors;
               final hero = _scene.map.hero;
               List<int>? route;
-              var isTappingHeroPosition =
-                  terrain.tilePosition == hero.tilePosition;
-              if (!isTappingHeroPosition) {
-                final start = engine.invoke('getTerrain',
-                    positionalArgs: [hero.left, hero.top, _scene.data]);
-                final end = engine.invoke('getTerrain',
-                    positionalArgs: [terrain.left, terrain.top, _scene.data]);
-                List? calculatedRoute = engine.invoke('calculateRoute',
-                    positionalArgs: [start, end, _scene.data]);
-                if (calculatedRoute != null) {
-                  route = List<int>.from(calculatedRoute);
+              var isTappingHeroPosition = false;
+              if (hero != null) {
+                isTappingHeroPosition =
+                    terrain.tilePosition == hero.tilePosition;
+                if (!isTappingHeroPosition) {
+                  final start = engine.invoke('getTerrain',
+                      positionalArgs: [hero.left, hero.top, _scene.data]);
+                  final end = engine.invoke('getTerrain',
+                      positionalArgs: [terrain.left, terrain.top, _scene.data]);
+                  List? calculatedRoute = engine.invoke('calculateRoute',
+                      positionalArgs: [start, end, _scene.data]);
+                  if (calculatedRoute != null) {
+                    route = List<int>.from(calculatedRoute);
+                  }
                 }
               }
 

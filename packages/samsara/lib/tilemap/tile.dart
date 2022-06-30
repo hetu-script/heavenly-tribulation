@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../component/game_component.dart';
 import '../shared/direction.dart';
+import 'entity.dart';
 
 class TilePosition {
   final int left, top;
@@ -36,10 +37,11 @@ enum TileShape {
 }
 
 enum TileRenderDirection {
-  leftTop,
-  rightTop,
-  leftBottom,
-  rightBottom,
+  topLeft,
+  topRight,
+  bottomLeft,
+  bottomRight,
+  bottomCenter,
 }
 
 enum ZoneCategory {
@@ -69,7 +71,7 @@ class TileMapTerrain extends GameComponent with TileInfo {
   final SpriteAnimation? baseAnimation, overlayAnimation;
   final double offsetX, offsetY;
 
-  final TileRenderDirection renderDirection;
+  // final TileRenderDirection renderDirection;
 
   final int zoneIndex;
   final ZoneCategory zoneCategory;
@@ -84,9 +86,11 @@ class TileMapTerrain extends GameComponent with TileInfo {
   bool isVoid;
   bool showGrid;
 
+  TileMapEntity? entity;
+
   TileMapTerrain({
     required TileShape tileShape,
-    this.renderDirection = TileRenderDirection.rightBottom,
+    // this.renderDirection = TileRenderDirection.bottomRight,
     required int left,
     required int top,
     bool isVisible = true,
@@ -129,28 +133,28 @@ class TileMapTerrain extends GameComponent with TileInfo {
       bleendingPixelVertical = 2;
     }
 
-    late final double l, t, bl, bt;
+    late final double l, t; // l, t,
     switch (tileShape) {
       case TileShape.orthogonal:
-        bl = ((left - 1) * gridWidth);
-        bt = ((top - 1) * gridHeight);
-        final border = Rect.fromLTWH(bl, bt, gridWidth, gridHeight);
+        l = ((left - 1) * gridWidth);
+        t = ((top - 1) * gridHeight);
+        final border = Rect.fromLTWH(l, t, gridWidth, gridHeight);
         borderPath.addRect(border);
         break;
       case TileShape.hexagonalVertical:
-        bl = (left - 1) * gridWidth * (3 / 4);
-        bt = left.isOdd
+        l = (left - 1) * gridWidth * (3 / 4);
+        t = left.isOdd
             ? (top - 1) * gridHeight
             : (top - 1) * gridHeight + gridHeight / 2;
-        borderPath.moveTo(bl, bt + gridHeight / 2);
+        borderPath.moveTo(l, t + gridHeight / 2);
         borderPath.relativeLineTo(gridWidth / 4, -gridHeight / 2);
         borderPath.relativeLineTo(gridWidth / 2, 0);
         borderPath.relativeLineTo(gridWidth / 4, gridHeight / 2);
         borderPath.relativeLineTo(-gridWidth / 4, gridHeight / 2);
         borderPath.relativeLineTo(-gridWidth / 2, 0);
         borderPath.relativeLineTo(-gridWidth / 4, -gridHeight / 2);
-        shadowPath.moveTo(bl - bleendingPixelHorizontal + offsetX,
-            bt + gridHeight / 2 + offsetX);
+        shadowPath.moveTo(l - bleendingPixelHorizontal + offsetX,
+            t + gridHeight / 2 + offsetX);
         shadowPath.relativeLineTo(gridWidth / 4 + bleendingPixelHorizontal,
             -gridHeight / 2 - bleendingPixelVertical);
         shadowPath.relativeLineTo(gridWidth / 2, 0);
@@ -167,27 +171,29 @@ class TileMapTerrain extends GameComponent with TileInfo {
       case TileShape.hexagonalHorizontal:
         throw 'Vertical hexagonal map tile is not supported yet!';
     }
-    switch (renderDirection) {
-      case TileRenderDirection.rightBottom:
-        l = bl - (width - gridWidth);
-        t = bt - (height - gridHeight);
-        break;
-      case TileRenderDirection.leftBottom:
-        l = bl;
-        t = bt - (height - gridHeight);
-        break;
-      case TileRenderDirection.rightTop:
-        l = bl - (width - gridWidth);
-        t = bt;
-        break;
-      case TileRenderDirection.leftTop:
-        l = bl;
-        t = bt;
-        break;
-    }
+    // switch (renderDirection) {
+    //   case TileRenderDirection.bottomRight:
+    //     l = bl - (width - gridWidth);
+    //     t = bt - (height - gridHeight);
+    //     break;
+    //   case TileRenderDirection.bottomLeft:
+    //     l = bl;
+    //     t = bt - (height - gridHeight);
+    //     break;
+    //   case TileRenderDirection.topRight:
+    //     l = bl - (width - gridWidth);
+    //     t = bt;
+    //     break;
+    //   case TileRenderDirection.topLeft:
+    //     l = bl;
+    //     t = bt;
+    //     break;
+    //   case TileRenderDirection.bottomCenter:
+    //     break;
+    // }
     rect = Rect.fromLTWH(
-        l - bleendingPixelHorizontal / 2 + offsetX,
-        t - bleendingPixelVertical / 2 + offsetY,
+        l - (width - gridWidth) / 2 - bleendingPixelHorizontal / 2 + offsetX,
+        t - (height - gridHeight) - bleendingPixelVertical / 2 + offsetY,
         width + bleendingPixelHorizontal,
         height + bleendingPixelVertical);
   }
@@ -246,17 +252,16 @@ mixin TileInfo on Component {
   late int _index;
   int get index => _index;
 
-  Vector2 tilePosition2RenderPosition(int left, int top,
-      {TileRenderDirection renderDirection = TileRenderDirection.rightBottom}) {
-    late final double bl, bt, l, t;
+  Vector2 tilePosition2RenderPosition(int left, int top) {
+    late final double l, t; //, l, t;
     switch (tileShape) {
       case TileShape.orthogonal:
-        bl = ((left - 1) * gridWidth);
-        bt = ((top - 1) * gridHeight);
+        l = ((left - 1) * gridWidth);
+        t = ((top - 1) * gridHeight);
         break;
       case TileShape.hexagonalVertical:
-        bl = (left - 1) * gridWidth * (3 / 4);
-        bt = left.isOdd
+        l = (left - 1) * gridWidth * (3 / 4);
+        t = left.isOdd
             ? (top - 1) * gridHeight
             : (top - 1) * gridHeight + gridHeight / 2;
         break;
@@ -265,25 +270,28 @@ mixin TileInfo on Component {
       case TileShape.hexagonalHorizontal:
         throw 'Vertical hexagonal map tile is not supported yet!';
     }
-    switch (renderDirection) {
-      case TileRenderDirection.rightBottom:
-        l = bl - (srcWidth - gridWidth);
-        t = bt - (srcHeight - gridHeight);
-        break;
-      case TileRenderDirection.leftBottom:
-        l = bl;
-        t = bt - (srcWidth - gridHeight);
-        break;
-      case TileRenderDirection.rightTop:
-        l = bl - (srcHeight - gridWidth);
-        t = bt;
-        break;
-      case TileRenderDirection.leftTop:
-        l = bl;
-        t = bt;
-        break;
-    }
-    return Vector2(l, t);
+    // switch (renderDirection) {
+    //   case TileRenderDirection.bottomRight:
+    //     l = bl - (srcWidth - gridWidth);
+    //     t = bt - (srcHeight - gridHeight);
+    //     break;
+    //   case TileRenderDirection.bottomLeft:
+    //     l = bl;
+    //     t = bt - (srcWidth - gridHeight);
+    //     break;
+    //   case TileRenderDirection.topRight:
+    //     l = bl - (srcHeight - gridWidth);
+    //     t = bt;
+    //     break;
+    //   case TileRenderDirection.topLeft:
+    //     l = bl;
+    //     t = bt;
+    //     break;
+    //   case TileRenderDirection.bottomCenter:
+    //     break;
+    // }
+    return Vector2(
+        l - (srcWidth - gridWidth) / 2, t - (srcHeight - gridHeight));
   }
 
   Vector2 tilePosition2TileCenterInWorld(int left, int top) {

@@ -6,6 +6,7 @@ import '../../generator/name/name.ht' as nameGenerator
 import '../../duel.ht'
 import '../../util.ht'
 import '../constants.ht'
+import '../../tile/hexagonal_tile.ht'
 
 // number of the male avatar images
 const kMaleAvatarCount = 37
@@ -148,14 +149,15 @@ struct Character {
     isFemale: bool,
     birthTimestamp,
     locationId,
+    nationId,
     isNewborn = false, // 是否是新生儿，如果是则会自动为其添加父母关系
     fatherId,
     motherId,
     attributes,
     isMajor = true, // 是否是主要NPC，主要NPC会加入世界人物列表，并会有更多互动
+    worldPositionX,
+    worldPositionY,
   }) {
-    // assert(locationId != null && game.locations.contains(locationId))
-
     this.index = game.characters.length
     if (isFemale != null) {
       this.isFemale = isFemale
@@ -191,6 +193,7 @@ struct Character {
     } else {
       this.birthTimestamp = createRandomBirthTimestamp()
     }
+    this.nationId = location.nationId
     this.looks = hyperbola(kCharacterAverageLooks)
     this.favoredLooks = hyperbola(kCharacterMaxLooks)
 
@@ -320,7 +323,12 @@ struct Character {
     if (locationId) {
       final location = game.locations[locationId]
       setCharacterLocationId(this, locationId)
-      this.nationId = location.nationId
+
+      final terrainIndex = location.terrainIndex
+      final position = index2TilePos(terrainIndex, game.world.width)
+      this.worldPositionX = position.left
+      this.worldPositionY = position.top
+
       if (isNewborn) {
         assert(fatherId != null)
         assert(motherId != null)
@@ -359,6 +367,9 @@ struct Character {
         // 设置居住地会触发事件从而修改自身，需要放在最后处理
         setCharacterHome(this, location)
       }
+    } else {
+      this.worldPositionX = worldPositionX
+      this.worldPositionY = worldPositionY
     }
   }
 }
@@ -649,7 +660,7 @@ fun setCharacterHome(character, location) {
   character.homeId = location.id
 }
 
-fun setHeroId(id: str) {
+fun setHero(id: str) {
   assert(game.characters.containsKey(id))
   engine.info('设置当前玩家人物为 [${game.characters[id].name}]。')
   game.heroId = id;
@@ -661,6 +672,13 @@ fun getHeroId() {
 
 fun getHero() {
   return game.characters[game.heroId]
+}
+
+fun getCharacterWorldPosition(character) {
+  return {
+    left: character.worldPositionX,
+    top: character.worldPositionY,
+  }
 }
 
 fun addCharacter(char) {
