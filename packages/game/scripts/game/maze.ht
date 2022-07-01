@@ -60,6 +60,7 @@ fun _random2(list) {
   return [l.first, l.last]
 }
 
+// 执行这个函数时地图尚未生成，因此不需要考虑zone，所以无需使用真正的terrain来计算
 fun _generateRoute(index1, index2, map) {
   final tile1 = index2TilePos(index1, map.width)
   final tile2 = index2TilePos(index2, map.width)
@@ -74,18 +75,18 @@ fun _generateRoute(index1, index2, map) {
 
 fun generateRoute(name, anchors, map) {
   when (name) {
-    'topLeft' -> _generateRoute(anchors[1], anchors[2], map)
-    'topRight' -> _generateRoute(anchors[2], anchors[3], map)
-    'leftTop' -> _generateRoute(anchors[1], anchors[4], map)
-    'centerTop' -> _generateRoute(anchors[2], anchors[5], map)
-    'rightTop' -> _generateRoute(anchors[3], anchors[6], map)
-    'centerLeft' -> _generateRoute(anchors[4], anchors[5], map)
-    'centerRight' -> _generateRoute(anchors[5], anchors[6], map)
-    'leftBottom' -> _generateRoute(anchors[4], anchors[7], map)
-    'centerBottom' -> _generateRoute(anchors[5], anchors[8], map)
-    'rightBottom' -> _generateRoute(anchors[6], anchors[9], map)
-    'bottomLeft' -> _generateRoute(anchors[7], anchors[8], map)
-    'bottomRight' -> _generateRoute(anchors[8], anchors[9], map)
+    'topLeft' -> _generateRoute(anchors[1].index, anchors[2].index, map)
+    'topRight' -> _generateRoute(anchors[2].index, anchors[3].index, map)
+    'leftTop' -> _generateRoute(anchors[1].index, anchors[4].index, map)
+    'centerTop' -> _generateRoute(anchors[2].index, anchors[5].index, map)
+    'rightTop' -> _generateRoute(anchors[3].index, anchors[6].index, map)
+    'centerLeft' -> _generateRoute(anchors[4].index, anchors[5].index, map)
+    'centerRight' -> _generateRoute(anchors[5].index, anchors[6].index, map)
+    'leftBottom' -> _generateRoute(anchors[4].index, anchors[7].index, map)
+    'centerBottom' -> _generateRoute(anchors[5].index, anchors[8].index, map)
+    'rightBottom' -> _generateRoute(anchors[6].index, anchors[9].index, map)
+    'bottomLeft' -> _generateRoute(anchors[7].index, anchors[8].index, map)
+    'bottomRight' -> _generateRoute(anchors[8].index, anchors[9].index, map)
   }
 }
 
@@ -146,11 +147,10 @@ fun createMaze ({
       for (var i in range(width)) {
         // final isVoid = (i == 0) || (i == width - 1) || (j == 0) || (j == height - 1)
         final terrain = {
-          ...Tile(i + 1, j + 1),
+          ...Tile(i + 1, j + 1, mapWidth: width),
           isVisible: false,
           isSelectable: true,
           showGrid: true,
-          index: tilePos2Index(i + 1, j + 1, width),
           // spriteIndex: isVoid ? null : _kLandSprites.random,
           spriteIndex: _kLandSprites.random,
           overlaySprite: {},
@@ -165,41 +165,74 @@ fun createMaze ({
     var isOnCorner = false
     // 迷宫中的主要roguelike元素的可能位置锚点，分布在横三竖三的9个区块中
     // 四个角的锚点需要避免位于可能的出入口上
-    final anchors = {
-      '1': 1 + Math.randomInt(blockSize - 1), // 左上角
-      '9': blockSize * 8 + Math.randomInt(blockSize - 1), // 右下角
-    }
+    final anchors = {}
+    var left
+    var top
+    // 左上角
+    do {
+      left = Math.randomInt(_kDefaultBlockWidth) + 1
+      top = Math.randomInt(_kDefaultBlockHeight) + 1
+    } while (left == 1 && top == 1)
+    anchors[1] = Tile(left, top, mapWidth: width)
+    // 正上方
+    do {
+      left = Math.randomInt(_kDefaultBlockWidth) + 1 + _kDefaultBlockWidth
+      top = Math.randomInt(_kDefaultBlockHeight) + 1
+    } while (left == 1 && top == 1)
+    anchors[2] = Tile(left, top, mapWidth: width)
     // 右上角
-    var topRightAnchor
     do {
-      topRightAnchor = blockSize * 2 + Math.randomInt(blockSize)
-      final tilepos = index2TilePos(topRightAnchor, width)
-      isOnCorner = tilepos.left == width && tilepos.top == 1
-    } while (isOnCorner)
-    anchors[3] = topRightAnchor
+      left = Math.randomInt(_kDefaultBlockWidth) + 1 + _kDefaultBlockWidth * 2
+      top = Math.randomInt(_kDefaultBlockHeight) + 1
+    } while (left == 1 && top == 1)
+    anchors[3] = Tile(left, top, mapWidth: width)
+    // 左边
+    do {
+      left = Math.randomInt(_kDefaultBlockWidth) + 1
+      top = Math.randomInt(_kDefaultBlockHeight) + 1 + _kDefaultBlockHeight
+    } while (left == 1 && top == 1)
+    anchors[4] = Tile(left, top, mapWidth: width)
+    // 正中
+    do {
+      left = Math.randomInt(_kDefaultBlockWidth) + 1 + _kDefaultBlockWidth
+      top = Math.randomInt(_kDefaultBlockHeight) + 1 + _kDefaultBlockHeight
+    } while (left == 1 && top == 1)
+    anchors[5] = Tile(left, top, mapWidth: width)
+    // 右边
+    do {
+      left = Math.randomInt(_kDefaultBlockWidth) + 1 + _kDefaultBlockWidth * 2
+      top = Math.randomInt(_kDefaultBlockHeight) + 1 + _kDefaultBlockHeight
+    } while (left == 1 && top == 1)
+    anchors[6] = Tile(left, top, mapWidth: width)
     // 左下角
-    var bottomLeftAnchor
     do {
-      bottomLeftAnchor = blockSize * 6 + Math.randomInt(blockSize)
-      final tilepos = index2TilePos(bottomLeftAnchor, width)
-      isOnCorner = tilepos.left == 1 && tilepos.top == height
-    } while (isOnCorner)
-    anchors[7] = bottomLeftAnchor
-    // 其余锚点
-    anchors[2] = blockSize + Math.randomInt(blockSize), // 正上方
-    anchors[4] = blockSize * 3 + Math.randomInt(blockSize), // 左边
-    anchors[5] = blockSize * 4 + Math.randomInt(blockSize), // 中间
-    anchors[6]= blockSize * 5 + Math.randomInt(blockSize), // 右边
-    anchors[8] = blockSize * 7 + Math.randomInt(blockSize), // 正下方
-    occupied.addAll(anchors.values)
+      left = Math.randomInt(_kDefaultBlockWidth) + 1
+      top = Math.randomInt(_kDefaultBlockHeight) + 1 + _kDefaultBlockHeight * 2
+    } while (left == 1 && top == 1)
+    anchors[7] = Tile(left, top, mapWidth: width)
+    // 正下方
+    do {
+      left = Math.randomInt(_kDefaultBlockWidth) + 1 + _kDefaultBlockWidth
+      top = Math.randomInt(_kDefaultBlockHeight) + 1 + _kDefaultBlockHeight * 2
+    } while (left == 1 && top == 1)
+    anchors[8] = Tile(left, top, mapWidth: width)
+    // 右下角
+    do {
+      left = Math.randomInt(_kDefaultBlockWidth) + 1 + _kDefaultBlockWidth * 2
+      top = Math.randomInt(_kDefaultBlockHeight) + 1 + _kDefaultBlockHeight * 2
+    } while (left == 1 && top == 1)
+    anchors[9] = Tile(left, top, mapWidth: width)
+    for (final anchor of anchors) {
+      occupied.add(anchor.index)
+    }
     
     engine.info('计算出入口')
     // 可能的出入口
     final possibleEntries = [
-      { left: 1, top: 1, index: tilePos2Index(1, 1, width), nearestAnchor: anchors[1] },
-      { left: width, top: 1, index: tilePos2Index(width, 1, width), nearestAnchor: anchors[3] },
-      { left: 1, top: height, index: tilePos2Index(1, height, width), nearestAnchor: anchors[7] },
-      { left: width, top: height, index: tilePos2Index(width, height, width), nearestAnchor: anchors[9] },
+      { ...Tile(1, 1, mapWidth: width), nearestAnchor: anchors[1].index },
+      { ...Tile(width, 1, mapWidth: width), nearestAnchor: anchors[3].index },
+      { ...Tile(1, height, mapWidth: width), nearestAnchor: anchors[7].index },
+      { ...Tile(width, height, mapWidth: width), nearestAnchor: anchors[9].index },
     ]
     possibleEntries.shuffle()
     final entry = possibleEntries.first
@@ -231,14 +264,13 @@ fun createMaze ({
     
     engine.info('在锚点放置遭遇')
     for (final anchor of anchors) {
-      final pos = index2TilePos(anchor, width)
       final encounterType = _kEncounterTypes.random
       when (encounterType) {
         'treasure' -> {
           final chest = TileMapEntity(
-            terrainIndex: anchor,
-            left: pos.left,
-            top: pos.top,
+            terrainIndex: anchor.index,
+            left: anchor.left,
+            top: anchor.top,
             spriteSrc: 'maze/chest02.png',
             srcWidth: 32.0,
             srcHeight: 32.0,
@@ -247,9 +279,9 @@ fun createMaze ({
         }
         'enemy' -> {
           final enemy = TileMapEntity(
-            terrainIndex: anchor,
-            left: pos.left,
-            top: pos.top,
+            terrainIndex: anchor.index,
+            left: anchor.left,
+            top: anchor.top,
             spriteSrc: 'maze/enemy01.png',
             srcWidth: 32.0,
             srcHeight: 32.0,
@@ -279,8 +311,8 @@ fun createMaze ({
     final routes = Set() // 最终结果
     final middleAnchors = [2,4,6,8]
     middleAnchors.shuffle()
-    for (final anchor in middleAnchors) {
-      routes.addAll(_random2(_kRoutesOfAnchor[anchor]))
+    for (final point in middleAnchors) {
+      routes.addAll(_random2(_kRoutesOfAnchor[point]))
     }
     for (final name in routes) {
       // print('initial routes: ${name}')
@@ -310,11 +342,11 @@ fun createMaze ({
     // check if there's any anchor left as unconnected
     final restAnchors = [1,3,5,7,9]
     for (final anchor in restAnchors) {
-      final index = anchors[anchor]
+      final index = anchors[anchor].index
       final tile = currentLevel.terrains[index]
       if (!tile.isRoute) {
         final name = _kRoutesOfAnchor[anchor].random
-        print('add name to empty anchor: ${name}')
+        // print('add name to empty anchor: ${name}')
         generateRoute(name, anchors, currentLevel)
       }
     }

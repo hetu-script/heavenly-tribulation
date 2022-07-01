@@ -116,7 +116,7 @@ class ItemInfo extends StatelessWidget {
                       ],
                     ),
                     Text(
-                        '${engine.locale[data['category']]} - ${engine.locale[data['type']]}'),
+                        '${engine.locale[data['category']]} - ${engine.locale[data['kind']]}'),
                     Text(
                         '${engine.locale['durability']}: ${stats['durability']}/${attributes['durability']}'),
                     if (isAttackItem)

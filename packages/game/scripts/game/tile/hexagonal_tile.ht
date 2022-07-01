@@ -1,6 +1,11 @@
 struct Tile {
-  construct (left, top, {index}) {
-    this.index = index
+  construct (left, top, {index, mapWidth}) {
+    assert(left != null && top != null)
+    if (index) {
+      this.index = index
+    } else if (mapWidth) {
+      this.index = tilePos2Index(left, top, mapWidth)
+    }
     this.left = left
     this.top = top
     // 切换为 horizontal hexgonal tile map 的坐标系
@@ -83,6 +88,7 @@ fun getDirection(start: {}, end: {}) {
 
 // manhattan 距离算法
 fun getTileDistance(start, end) {
+  assert(start.slashLeft != null && start.slashTop != null && end.slashLeft != null && end.slashTop != null)
   var result
   final dx = end.slashLeft - start.slashLeft
   final dy = end.slashTop - start.slashTop
@@ -96,14 +102,14 @@ fun getTileDistance(start, end) {
 }
 
 // 从 hexagonal 坐标得到索引
-fun tilePos2Index(left, top, width) {
-  return (left - 1 + (top - 1) * width).toInt()
+fun tilePos2Index(left, top, mapWidth) {
+  return (left - 1 + (top - 1) * mapWidth).toInt()
 }
 
 // 从索引得到 hexagonal 坐标
-fun index2TilePos(index: int, width) {
-  final left = (index % width + 1).toInt()
-  final top = (index ~/ width + 1).toInt()
+fun index2TilePos(index: int, mapWidth) {
+  final left = (index % mapWidth + 1).toInt()
+  final top = (index ~/ mapWidth + 1).toInt()
   return Tile(left, top, index: index)
 }
 

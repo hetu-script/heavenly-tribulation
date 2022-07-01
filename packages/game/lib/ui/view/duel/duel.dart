@@ -193,11 +193,12 @@ class _DuelState extends State<Duel> {
                 _char2Ticks = 0;
                 _char2InRecovery = false;
                 _currentChar2Item = getNextChar2ActivatedItem();
-                _char2Cooldown = 0;
+                _char2Cooldown = 1;
               } else {
                 ++_char2Ticks;
               }
-              _char2Cooldown = recovery > 0 ? _char2Ticks / recovery : 1.0;
+              _char2Cooldown =
+                  recovery > 0 ? (1 - _char2Ticks / recovery) : 0.0;
             }
             ++_frames;
           }

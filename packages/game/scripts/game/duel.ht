@@ -92,8 +92,8 @@ struct Duel {
       this.started = true
       // 战斗本身的客观时间，不会受任何因素影响
       this.frames = 0
-      char1info.wielding = char1info.wieldings.values.first
-      char2info.wielding = char2info.wieldings.values.first
+      char1info.wielding = getEquippedItem(char1info.wieldings.values.first, char1)
+      char2info.wielding = getEquippedItem(char2info.wieldings.values.first, char2)
 
       if (type == kDuelTypeSneakAttack) {
         final initiativeSum = char1.attributes.perception + char2.attributes.perception
@@ -162,7 +162,7 @@ struct Duel {
             if (info.index >= info.wieldings.length) {
               info.index = 1
             }
-            info.wielding = info.wieldings[info.index]
+            info.wielding = getEquippedItem(info.wieldings.elementAt(info.index), subject)
           } else {
             ++info.ticks
           }

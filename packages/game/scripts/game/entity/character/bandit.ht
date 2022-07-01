@@ -23,19 +23,13 @@ struct Bandit extends Character {
     
     when (this.kind) {
       'gangLeader' -> {
-        equip(Weapon(), 'offense', this)
-        equip(Weapon(), 'offense', this)
-        equip(Weapon(), 'offense', this)
-        equip(Weapon(), 'offense', this)
+        equip(Weapon(), this)
       }
       'killer' -> {
-        equip(Weapon(), 'offense', this)
-        equip(Weapon(), 'offense', this)
-        equip(Weapon(), 'offense', this)
+        equip(Weapon(), this)
       }
       'minion' -> {
-        equip(Weapon(), 'offense', this)
-        equip(Weapon(), 'offense', this)
+        equip(Weapon(), this)
       }
     }
 

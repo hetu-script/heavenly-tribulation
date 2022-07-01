@@ -1,33 +1,95 @@
 import '../../generator/name/name.ht' as nameGenerator
 import '../constants.ht'
 import 'constants.ht'
-import '../../l10n.ht'
 import '../../util.ht'
 
 const _kDefaultWeaponIcon = 'icon/item/sword.png'
 
-const _kSpeedShort = 5
-const _kSpeedBase = 20
-const _kSpeedVariable = 10
-const _kDamageMin = 10
-const _kDamageMax = 65
-const _kDamageLow = 15
-const _kDamageMedium = 30
-const _kDamageHigh = 50
-const _kDamageDeviation = 10
-const _kDurabilityLow = 200
-const _kDurabilityMedium = 300
-const _kDurabilityHigh = 400
 const _kDurabilityVariable = 100
 final _kEffects = ['parry', 'counter']
 const _kEffectProbabilityBase = 0.1
 const _kEffectProbabilityVariable = 0.1
 
-final kWeaponTypes = [
-  'slashing',
-  'bludgeoning',
-  'piercing',
-]
+final kWeaponKinds = {
+  // 伤害一般，耐久低，出招速度一般，收招速度快
+  'sabre': {
+    icon: 'icon/item/sabre.png',
+    attributes: {
+      speed: 10,
+      durability: 200,
+      damage: 30,
+      criticalDamageMultiply: 4,
+    },
+  },
+  // 伤害一般，耐久低，出招速度一般，收招速度快
+  'sword': {
+    icon: 'icon/item/sword.png',
+    attributes: {
+      speed: 10,
+      durability: 200,
+      damage: 30,
+      criticalDamageMultiply: 3.5,
+    },
+  },
+  // 伤害高，耐久高，出招速度一般，收招速度慢
+  'axe': {
+    icon: 'icon/item/axe.png',
+    attributes: {
+      speed: 10,
+      durability: 250,
+      damage: 40,
+      criticalDamageMultiply: 5,
+    },
+  },
+  // 伤害高，耐久高，出招速度一般，收招速度慢
+  'helberd': {
+    icon: 'icon/item/helberd.png',
+    attributes: {
+      speed: 15,
+      durability: 300,
+      damage: 50,
+      criticalDamageMultiply: 5,
+    },
+  },
+  // 伤害高，耐久高，出招速度一般，收招速度慢
+  'staff': {
+    icon: 'icon/item/staff.png',
+    attributes: {
+      speed: 12,
+      durability: 300,
+      damage: 12,
+      criticalDamageMultiply: 1.5,
+    },
+  },
+  'hammer': {
+    icon: 'icon/item/mace.png',
+    attributes: {
+      speed: 20,
+      durability: 400,
+      damage: 25,
+      criticalDamageMultiply: 3.5,
+    },
+  },
+  'spear': {
+    icon: 'icon/item/spear.png',
+    attributes: {
+      speed: 20,
+      durability: 300,
+      damage: 40,
+      criticalDamageMultiply: 3.5,
+    },
+  },
+  // 伤害低，耐久一般，出招速度快，收招速度快
+  'dagger': {
+    icon: 'icon/item/dagger.png',
+    attributes: {
+      speed: 5,
+      durability: 100,
+      damage: 15,
+      criticalDamageMultiply: 3.5,
+    },
+  },
+}
 
 struct Weapon {
   construct ({
@@ -39,88 +101,37 @@ struct Weapon {
     createdTime,
     description,
     inscription,
-    weaponType,
+    weaponKind,
     attributes,
   }) {
     this.name = name
-    this.category = 'weapon'
+    this.equipType = kEquipTypeOffense
+    this.category = kEntityCategoryWeapon
     this.isAttackItem = true
     this.rarity = rarity
     this.value = value ?? 0
-    this.icon = icon ?? _kDefaultWeaponIcon
     this.consumable = false
     this.equippable = true
     this.creatorId = creatorId
     this.createdTime = createdTime
-    this.description = description ?? kDefaultItemDescription
+    this.description = description
     this.inscription = inscription
-    this.type = weaponType ?? kWeaponTypes.random
+    this.kind = weaponKind ?? kWeaponKinds.keys.random
     this.isEquipped = false
     
     if (!this.name) {
-      final r = nameGenerator.getTalisman(1, category: this.type, rarity: this.rarity).first
+      final r = nameGenerator.getTalisman(1, category: this.kind, rarity: this.rarity).first
       this.name = r.name
       this.rarity ??= r.rarity 
     }
-    this.id = 'item_${Hash.uid4(2)}_${this.name}'
+    this.id = 'weapon_${Hash.uid4(2)}_${this.name}'
     
-    when (this.type) {
-      // 伤害低，耐久一般，出招速度快，收招速度快
-      'piercing' -> {
-        final effects = {}
-        this.attributes = {
-          durability: Math.randomInt(_kDurabilityVariable) + _kDurabilityMedium,
-          damage: Math.gaussianNoise(_kDamageLow, _kDamageDeviation, min: _kDamageMin, max: _kDamageMax),
-          startUp: Math.randomInt(_kSpeedVariable) + _kSpeedShort,
-          recovery: Math.randomInt(_kSpeedVariable) + _kSpeedShort,
-          effects: effects,
-          abilities: [],
-          levels: [],
-        }
-      }
-      // 伤害一般，耐久低，出招速度一般，收招速度快
-      'slashing' -> {
-        final effects = {
-          parry: [
-                    { value: Math.random() * _kEffectProbabilityVariable + _kEffectProbabilityBase,
-                      type: kValueTypePercentage
-                    }
-                  ],
-        }
-        this.attributes = {
-          durability: Math.randomInt(_kDurabilityVariable) + _kDurabilityLow,
-          damage: Math.gaussianNoise(_kDamageMedium, _kDamageDeviation, min: _kDamageMin, max: _kDamageMax),
-          startUp: Math.randomInt(_kSpeedVariable) + _kSpeedBase,
-          recovery: Math.randomInt(_kSpeedVariable) + _kSpeedShort,
-          effects: effects,
-          abilities: [],
-          levels: [],
-        }
-      }
-      // 伤害高，耐久高，出招速度一般，收招速度慢
-      'bludgeoning' -> {
-        final effects = {
-          parry: [
-                    { value: Math.random() * _kEffectProbabilityVariable + _kEffectProbabilityBase,
-                      type: kValueTypePercentage
-                    }
-                  ],
-          counter: [
-                    { value: Math.random() * _kEffectProbabilityVariable + _kEffectProbabilityBase,
-                      type: kValueTypePercentage
-                    }
-                  ],
-        }
-        this.attributes = {
-          durability: Math.randomInt(_kDurabilityVariable) + _kDurabilityHigh,
-          damage: Math.gaussianNoise(_kDamageHigh, _kDamageDeviation, min: _kDamageMin, max: _kDamageMax),
-          startUp: Math.randomInt(_kSpeedVariable) + _kSpeedShort,
-          recovery: Math.randomInt(_kSpeedVariable) + _kSpeedBase,
-          effects: effects,
-          abilities: [],
-          levels: [],
-        }
-      }
+    this.kind = weaponKind ?? kWeaponKinds.keys.random
+
+    this.icon = kWeaponKinds[this.kind].icon
+    this.attributes = {
+      ...kWeaponKinds[this.kind].attributes,
+      effects: {},
     }
 
     if (attributes) {

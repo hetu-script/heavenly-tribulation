@@ -32,16 +32,16 @@ class InventoryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final skills = <ItemGrid>[];
+    final grids = <ItemGrid>[];
     for (var i = 0; i < math.max(_kInventorySlotCount, data.length); ++i) {
       if (i < data.length) {
-        skills.add(ItemGrid(
+        grids.add(ItemGrid(
           data: data[i],
           onSelect: (item, screenPosition) =>
               _onItemTapped(context, item, screenPosition),
         ));
       } else {
-        skills.add(ItemGrid(
+        grids.add(ItemGrid(
           onSelect: (item, screenPosition) =>
               _onItemTapped(context, item, screenPosition),
         ));
@@ -56,7 +56,7 @@ class InventoryView extends StatelessWidget {
             Align(
               alignment: Alignment.topCenter,
               child: Wrap(
-                children: skills,
+                children: grids,
               ),
             ),
           ],

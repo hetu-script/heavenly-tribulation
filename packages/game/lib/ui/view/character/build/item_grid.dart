@@ -64,10 +64,13 @@ class ItemGrid extends StatelessWidget {
                       fit: BoxFit.contain,
                       image: AssetImage('assets/images/$iconAssetKey'),
                     ),
-                  CooldownIndicator(
-                    value: cooldownValue,
-                    color: cooldownColor,
-                  ),
+                  CustomPaint(
+                    size: size,
+                    painter: CoolDownPainter(
+                      value: cooldownValue,
+                      color: cooldownColor,
+                    ),
+                  )
                 ],
               )),
         ),

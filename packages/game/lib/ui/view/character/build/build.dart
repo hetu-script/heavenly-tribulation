@@ -33,7 +33,7 @@ class _BuildViewState extends State<BuildView>
             padding: EdgeInsets.symmetric(horizontal: 8.0),
             child: Icon(Icons.inventory),
           ),
-          Text(engine.locale['talisman']),
+          Text(engine.locale['inventory']),
         ],
       ),
     ),
@@ -87,42 +87,43 @@ class _BuildViewState extends State<BuildView>
 
     return ResponsiveRoute(
       alignment: AlignmentDirectional.topEnd,
-      size: const Size(400.0, 400.0),
+      size: const Size(800.0, 400.0),
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(data['name']),
           actions: const [ButtonClose()],
-          bottom: PreferredSize(
-            preferredSize: const Size(450.0, 120.0),
-            child: EquipmentsView(
+        ),
+        body: Row(
+          children: [
+            EquipmentsView(
               data: data['equipments'],
             ),
-          ),
-        ),
-        body: DefaultTabController(
-          length: _tabs.length,
-          child: Column(
-            children: [
-              TabBar(
-                // controller: _tabController,
-                tabs: _tabs,
-              ),
-              Expanded(
-                child: TabBarView(
-                  // controller: _tabController,
-                  children: [
-                    InventoryView(
-                      data: data['talismans'],
+            DefaultTabController(
+              length: _tabs.length, // 物品栏通过tabs过滤不同种类的物品
+              child: Column(
+                children: [
+                  TabBar(
+                    // controller: _tabController,
+                    tabs: _tabs,
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      // controller: _tabController,
+                      children: [
+                        InventoryView(
+                          data: data['inventory'],
+                        ),
+                        InventoryView(
+                          data: data['skills'],
+                        ),
+                      ],
                     ),
-                    InventoryView(
-                      data: data['talismans'],
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

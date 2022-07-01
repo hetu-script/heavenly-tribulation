@@ -173,3 +173,10 @@ fun getRarityValue(valueMap) {
 const kValueTypeInt = 'integer'
 const kValueTypeFloat = 'float'
 const kValueTypePercentage = 'percentage'
+
+const kEquipTypeOffense = 'offense'
+const kEquipTypeSupport = 'support'
+const kEquipTypeDefense = 'defense'
+
+const kEntityCategoryWeapon = 'weapon'
+const kEntityCategoryMartialArts = 'martialArts'

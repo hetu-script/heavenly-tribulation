@@ -7,7 +7,7 @@ import 'entity/character/bandit.ht'
 
 fun giveWeapon(character) {
   final weapon = Weapon()
-  character.talismans.add(weapon)
+  character.inventory[weapon.id] = weapon
   final incidentContent = getLocaleString('incidentAquireItem', [
       character.name,
       weapon.name,
@@ -32,9 +32,9 @@ fun giveHeroWeapon([n = 1]) {
 fun testDuel() {
   final hero = Character()
   final enemy = Bandit(kind: 'gangLeader')
-  equip(Weapon(), 'offense', hero)
-  equip(Weapon(), 'offense', hero)
-  equip(Weapon(), 'offense', hero)
-  equip(Weapon(), 'offense', hero)
+  equip(Weapon(), hero)
+  equip(Weapon(), hero)
+  equip(Weapon(), hero)
+  equip(Weapon(), hero)
   showDuel(hero, enemy)
 }

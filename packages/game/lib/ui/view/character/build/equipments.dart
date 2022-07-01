@@ -42,89 +42,93 @@ class EquipmentsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ItemGrid(
-              verticalMargin: verticalMargin,
-              horizontalMargin: horizontalMargin,
-              data: data['offense'][1],
-              onSelect: (item, screenPosition) =>
-                  _onItemTapped(context, item, screenPosition),
-              isSelected: selectedIndex == 1,
-              cooldownValue: selectedIndex == 1 ? cooldownValue : 0,
-              cooldownColor: cooldownColor,
-            ),
-            ItemGrid(
-              verticalMargin: verticalMargin,
-              horizontalMargin: horizontalMargin,
-              data: data['offense'][2],
-              onSelect: (item, screenPosition) =>
-                  _onItemTapped(context, item, screenPosition),
-              isSelected: selectedIndex == 2,
-              cooldownValue: selectedIndex == 2 ? cooldownValue : 0,
-              cooldownColor: cooldownColor,
-            ),
-            ItemGrid(
-              verticalMargin: verticalMargin,
-              horizontalMargin: horizontalMargin,
-              data: data['offense'][3],
-              onSelect: (item, screenPosition) =>
-                  _onItemTapped(context, item, screenPosition),
-              isSelected: selectedIndex == 3,
-              cooldownValue: selectedIndex == 3 ? cooldownValue : 0,
-              cooldownColor: cooldownColor,
-            ),
-            ItemGrid(
-              verticalMargin: verticalMargin,
-              horizontalMargin: horizontalMargin,
-              data: data['offense'][4],
-              onSelect: (item, screenPosition) =>
-                  _onItemTapped(context, item, screenPosition),
-              isSelected: selectedIndex == 4,
-              cooldownValue: selectedIndex == 4 ? cooldownValue : 0,
-              cooldownColor: cooldownColor,
-            ),
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ItemGrid(
-              verticalMargin: verticalMargin,
-              horizontalMargin: horizontalMargin,
-              data: data['defense'][1],
-              onSelect: (item, screenPosition) =>
-                  _onItemTapped(context, item, screenPosition),
-            ),
-            ItemGrid(
-              verticalMargin: verticalMargin,
-              horizontalMargin: horizontalMargin,
-              data: data['defense'][2],
-              onSelect: (item, screenPosition) =>
-                  _onItemTapped(context, item, screenPosition),
-            ),
-            ItemGrid(
-              verticalMargin: verticalMargin,
-              horizontalMargin: horizontalMargin,
-              data: data['defense'][3],
-              onSelect: (item, screenPosition) =>
-                  _onItemTapped(context, item, screenPosition),
-            ),
-            ItemGrid(
-              verticalMargin: verticalMargin,
-              horizontalMargin: horizontalMargin,
-              data: data['defense'][4],
-              onSelect: (item, screenPosition) =>
-                  _onItemTapped(context, item, screenPosition),
-            ),
-          ],
-        ),
-      ],
+    return SizedBox(
+      width: 390.0,
+      height: 390.0,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ItemGrid(
+                verticalMargin: verticalMargin,
+                horizontalMargin: horizontalMargin,
+                data: data['offense'][1],
+                onSelect: (item, screenPosition) =>
+                    _onItemTapped(context, item, screenPosition),
+                isSelected: selectedIndex == 1,
+                cooldownValue: selectedIndex == 1 ? cooldownValue : 0,
+                cooldownColor: cooldownColor,
+              ),
+              ItemGrid(
+                verticalMargin: verticalMargin,
+                horizontalMargin: horizontalMargin,
+                data: data['offense'][2],
+                onSelect: (item, screenPosition) =>
+                    _onItemTapped(context, item, screenPosition),
+                isSelected: selectedIndex == 2,
+                cooldownValue: selectedIndex == 2 ? cooldownValue : 0,
+                cooldownColor: cooldownColor,
+              ),
+              ItemGrid(
+                verticalMargin: verticalMargin,
+                horizontalMargin: horizontalMargin,
+                data: data['offense'][3],
+                onSelect: (item, screenPosition) =>
+                    _onItemTapped(context, item, screenPosition),
+                isSelected: selectedIndex == 3,
+                cooldownValue: selectedIndex == 3 ? cooldownValue : 0,
+                cooldownColor: cooldownColor,
+              ),
+              ItemGrid(
+                verticalMargin: verticalMargin,
+                horizontalMargin: horizontalMargin,
+                data: data['offense'][4],
+                onSelect: (item, screenPosition) =>
+                    _onItemTapped(context, item, screenPosition),
+                isSelected: selectedIndex == 4,
+                cooldownValue: selectedIndex == 4 ? cooldownValue : 0,
+                cooldownColor: cooldownColor,
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ItemGrid(
+                verticalMargin: verticalMargin,
+                horizontalMargin: horizontalMargin,
+                data: data['defense'][1],
+                onSelect: (item, screenPosition) =>
+                    _onItemTapped(context, item, screenPosition),
+              ),
+              ItemGrid(
+                verticalMargin: verticalMargin,
+                horizontalMargin: horizontalMargin,
+                data: data['defense'][2],
+                onSelect: (item, screenPosition) =>
+                    _onItemTapped(context, item, screenPosition),
+              ),
+              ItemGrid(
+                verticalMargin: verticalMargin,
+                horizontalMargin: horizontalMargin,
+                data: data['defense'][3],
+                onSelect: (item, screenPosition) =>
+                    _onItemTapped(context, item, screenPosition),
+              ),
+              ItemGrid(
+                verticalMargin: verticalMargin,
+                horizontalMargin: horizontalMargin,
+                data: data['defense'][4],
+                onSelect: (item, screenPosition) =>
+                    _onItemTapped(context, item, screenPosition),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

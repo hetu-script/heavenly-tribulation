@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 class CoolDownPainter extends CustomPainter {
   const CoolDownPainter({
     required this.value,
-    required this.radius,
     this.color = Colors.white,
   });
 
-  final double value, radius;
+  final double value;
   final Color color;
 
   @override
@@ -22,31 +21,4 @@ class CoolDownPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => true;
-}
-
-class CooldownIndicator extends StatelessWidget {
-  const CooldownIndicator({
-    super.key,
-    this.size = const Size(48.0, 48.0),
-    this.value = 0.0,
-    this.color = Colors.white,
-  });
-
-  final Size size;
-
-  final double value;
-
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      size: size,
-      painter: CoolDownPainter(
-        value: value,
-        radius: 5.0,
-        color: color,
-      ),
-    );
-  }
 }

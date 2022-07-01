@@ -1,7 +1,7 @@
-import '../../l10n.ht'
+// import '../../l10n.ht'
 
 const kItemDefaultIcon = 'assets/images/unknown_item.png'
-final kDefaultItemDescription = getLocaleString('defaultItemDescription')
+// final kDefaultItemDescription = getLocaleString('defaultItemDescription')
 
 const kUnknownItemIcon = 'icon/unknown_item.png'
 
