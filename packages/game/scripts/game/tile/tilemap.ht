@@ -75,7 +75,6 @@ fun getTerrain(left, top, map) {
 fun addTerrainToZone(terrain, zoneIndex, map) {
   assert(0 <= zoneIndex && zoneIndex < map.zones.length)
   final zone = map.zones[zoneIndex]
-  if (zone.terrainIndexes.contains(terrain.index)) return
   if (terrain.zoneIndex != null && terrain.zoneIndex >= 0) {
     final oldZone = map.zones[terrain.zoneIndex]
     oldZone.terrainIndexes.remove(terrain.index)
@@ -170,7 +169,7 @@ fun getMapTileNeighbors(left: int, top: int, map, {zoneIndex}) {
 }
 
 // hScore(n) 是曼哈顿距离时的 A* 算法
-fun calculateRoute(start, end, map) {
+fun calculateRoute(start, end, map, {restrictedInZoneIndex}) {
   // print('calculating route: ${start.left},${start.top} to ${end.left},${end.top}')
 
   // assert(start.zoneIndex > 0)
@@ -206,12 +205,12 @@ fun calculateRoute(start, end, map) {
   final open = []
   open.add(start.index)
   final distance = getTileDistance(start, end)
-  var restrictedInZoneIndex
-  if (start.zoneIndex == end.zoneIndex) {
+  // var restrictedInZoneIndex
+  // if (start.zoneIndex == end.zoneIndex) {
     // 两个据点在相同地域
     // print('same zone: ${start.zoneIndex}')
-    restrictedInZoneIndex = start.zoneIndex
-  }
+  //   restrictedInZoneIndex = start.zoneIndex
+  // }
   
   // else if (start.isHarbor && start.harborOfZoneIndex == end.zoneIndex) {
   //   // 起点是港口

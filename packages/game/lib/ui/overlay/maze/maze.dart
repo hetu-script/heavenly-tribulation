@@ -64,7 +64,8 @@ class _MazeOverlayState extends State<MazeOverlay>
             final end = engine.invoke('getTerrain',
                 positionalArgs: [terrain.left, terrain.top, _scene.data]);
             List? calculatedRoute = engine.invoke('calculateRoute',
-                positionalArgs: [start, end, _scene.data]);
+                positionalArgs: [start, end, _scene.data],
+                namedArgs: {'restrictedInZoneIndex': start['zoneIndex']});
             if (calculatedRoute != null) {
               route = List<int>.from(calculatedRoute);
               _scene.map.moveHeroToTilePositionByRoute(route);

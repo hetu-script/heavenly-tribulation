@@ -156,11 +156,7 @@ fun createMaze ({
           overlaySprite: {},
         }
         currentLevel.terrains.add(terrain)
-        // if (isVoid) {
-        //   addTerrainToZone(terrain, voidZone.index, currentLevel)
-        // } else {
-          addTerrainToZone(terrain, landZone.index, currentLevel)
-        // }
+        addTerrainToZone(terrain, landZone.index, currentLevel)
       }
     }
 
@@ -208,14 +204,30 @@ fun createMaze ({
     possibleEntries.shuffle()
     final entry = possibleEntries.first
     occupied.add(entry.index)
-    _generateRoute(entry.index, entry.nearestAnchor, currentLevel)
     currentLevel.entryX = entry.left
     currentLevel.entryY = entry.top
+    final entryEntity = TileMapEntity(
+      terrainIndex: entry.index,
+      left: entry.left,
+      top: entry.top,
+      spriteSrc: 'maze/roadsign01.png',
+      srcWidth: 32.0,
+      srcHeight: 32.0,
+    )
+    addMazeEntity(entryEntity, currentLevel)
     final exit = possibleEntries.last
     occupied.add(exit.index)
-    _generateRoute(exit.index, exit.nearestAnchor, currentLevel)
     currentLevel.exitX = exit.left
     currentLevel.exitX = exit.top
+    final exitEntity = TileMapEntity(
+      terrainIndex: exit.index,
+      left: exit.left,
+      top: exit.top,
+      spriteSrc: 'maze/roadsign01.png',
+      srcWidth: 32.0,
+      srcHeight: 32.0,
+    )
+    addMazeEntity(exitEntity, currentLevel)
     
     engine.info('在锚点放置遭遇')
     for (final anchor of anchors) {
@@ -268,26 +280,31 @@ fun createMaze ({
     final middleAnchors = [2,4,6,8]
     middleAnchors.shuffle()
     for (final anchor in middleAnchors) {
-      routes.add(_random2(_kRoutesOfAnchor[anchor]))
+      routes.addAll(_random2(_kRoutesOfAnchor[anchor]))
     }
     for (final name in routes) {
+      // print('initial routes: ${name}')
       generateRoute(name, anchors, currentLevel)
     }
     // check if there's a unconnected
     if (!routes.contains('topLeft') && !routes.contains('centerLeft') && !routes.contains('bottomLeft')) {
       final name = ['topLeft', 'centerLeft', 'bottomLeft'].random
+      // print('add route to blank parallel: ${name}')
       generateRoute(name, anchors, currentLevel)
     }
     if (!routes.contains('topRight') && !routes.contains('centerRight') && !routes.contains('bottomRight')) {
       final name = ['topRight', 'centerRight', 'bottomRight'].random
+      // print('add route to blank parallel: ${name}')
       generateRoute(name, anchors, currentLevel)
     }
     if (!routes.contains('leftTop') && !routes.contains('centerTop') && !routes.contains('rightTop')) {
       final name = ['leftTop', 'centerTop', 'rightTop'].random
+      // print('add route to blank parallel: ${name}')
       generateRoute(name, anchors, currentLevel)
     }
     if (!routes.contains('leftBottom') && !routes.contains('centerBottom') && !routes.contains('rightBottom')) {
       final name = ['leftBottom', 'centerBottom', 'rightBottom'].random
+      // print('add route to blank parallel: ${name}')
       generateRoute(name, anchors, currentLevel)
     }
     // check if there's any anchor left as unconnected
@@ -297,15 +314,23 @@ fun createMaze ({
       final tile = currentLevel.terrains[index]
       if (!tile.isRoute) {
         final name = _kRoutesOfAnchor[anchor].random
+        print('add name to empty anchor: ${name}')
         generateRoute(name, anchors, currentLevel)
       }
     }
+    // 最后再联通到入口和出口上
+    _generateRoute(entry.index, entry.nearestAnchor, currentLevel)
+    _generateRoute(exit.index, exit.nearestAnchor, currentLevel)
 
     // 在非路径非锚点非出入点的地块上生成装饰物
     engine.info('生成装饰物')
+    final blockZone = Zone(index: currentLevel.zones.length, category: 'block')
+    currentLevel.zones.add(blockZone)
     for (final tile in currentLevel.terrains) {
       if (occupied.contains(tile.index)) continue
       if (tile.isRoute) continue
+      tile.isSelectable = false
+      addTerrainToZone(tile, blockZone.index, currentLevel)
       final blockType = _kBlockTypes.random
       when (blockType) {
         'bush' -> {
@@ -317,7 +342,6 @@ fun createMaze ({
             srcWidth: 32.0,
             srcHeight: 48.0,
           )
-          tile.isSelectable = false
           addMazeEntity(bush, currentLevel)
         }
         'rock' -> {
@@ -329,7 +353,6 @@ fun createMaze ({
             srcWidth: 32.0,
             srcHeight: 48.0,
           )
-          tile.isSelectable = false
           addMazeEntity(rock, currentLevel)
         }
       }

@@ -578,8 +578,8 @@ class TileMap extends GameComponent with HandlesGesture {
 
   void selectTile(int left, int top) {
     final terrain = getTerrain(left, top);
-    if (terrain != null && terrain.isSelectable) {
-      selectedTerrain = terrain;
+    if (terrain != null) {
+      if (terrain.isSelectable) selectedTerrain = terrain;
     } else {
       selectedTerrain = null;
     }
@@ -591,9 +591,9 @@ class TileMap extends GameComponent with HandlesGesture {
     final tilePosition = screenPosition2Tile(screenPosition);
     selectTile(tilePosition.left, tilePosition.top);
 
-    if (kDebugMode) {
-      print('tilemap tapped at: $tilePosition');
-    }
+    // if (kDebugMode) {
+    //   print('tilemap tapped at: $tilePosition');
+    // }
     engine.broadcast(MapInteractionEvent.mapTapped(
         globalPosition: details.globalPosition,
         buttons: buttons,
@@ -606,9 +606,9 @@ class TileMap extends GameComponent with HandlesGesture {
     final tilePosition = screenPosition2Tile(screenPosition);
     selectTile(tilePosition.left, tilePosition.top);
 
-    if (kDebugMode) {
-      print('tilemap double tapped at: $tilePosition');
-    }
+    // if (kDebugMode) {
+    // print('tilemap double tapped at: $tilePosition');
+    // }
     engine.broadcast(MapInteractionEvent.mapDoubleTapped(
         globalPosition: details.globalPosition,
         buttons: buttons,

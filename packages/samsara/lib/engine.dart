@@ -131,6 +131,7 @@ class SamsaraEngine with SceneController, EventAggregator {
         config: HetuConfig(
           showDartStackTrace: debugMode,
           showHetuStackTrace: true,
+          allowVariableShadowing: false,
           allowImplicitNullToZeroConversion: true,
           allowImplicitEmptyValueToFalseConversion: true,
         ),
