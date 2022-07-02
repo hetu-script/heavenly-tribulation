@@ -97,7 +97,7 @@ class _BuildViewState extends State<BuildView>
         body: Row(
           children: [
             EquipmentsView(
-              data: data['equipments'],
+              equipmentsData: data['equipments'],
             ),
             DefaultTabController(
               length: _tabs.length, // 物品栏通过tabs过滤不同种类的物品
@@ -112,10 +112,10 @@ class _BuildViewState extends State<BuildView>
                       // controller: _tabController,
                       children: [
                         InventoryView(
-                          data: data['inventory'],
+                          inventoryData: data['inventory'],
                         ),
                         InventoryView(
-                          data: data['skills'],
+                          inventoryData: data['skills'],
                         ),
                       ],
                     ),

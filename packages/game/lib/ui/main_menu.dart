@@ -42,7 +42,7 @@ class _MainMenuState extends State<MainMenu> {
     super.initState();
 
     engine.registerSceneConstructor('worldmap', ([dynamic args]) async {
-      HTStruct world;
+      HTStruct worldData;
       final path = args!['path'];
       if (path != null) {
         final gameSavePath = File(path);
@@ -52,17 +52,17 @@ class _MainMenuState extends State<MainMenu> {
         final historyDataString = historySavePath.readAsStringSync();
         final historyData = jsonDecode(historyDataString);
         engine.info('从 [$path] 载入游戏存档。');
-        world = engine.invoke('loadGameFromJsonData',
+        worldData = engine.invoke('loadGameFromJsonData',
             positionalArgs: [gameData, historyData]);
       } else {
-        world = engine.invoke('createWorldMap', namedArgs: args);
+        worldData = engine.invoke('createWorldMap', namedArgs: args);
       }
       engine.invoke('loadModsToGame');
-      return WorldMapScene(data: world, controller: engine);
+      return WorldMapScene(worldData: worldData, controller: engine);
     });
 
     engine.registerSceneConstructor('maze', ([dynamic data]) async {
-      return MazeScene(data: data!, controller: engine);
+      return MazeScene(mapData: data!, controller: engine);
     });
   }
 
@@ -139,6 +139,7 @@ class _MainMenuState extends State<MainMenu> {
                           args: value,
                         ),
                       ).then((value) {
+                        engine.invoke('build', positionalArgs: [context]);
                         setState(() {});
                       });
                     }
@@ -158,7 +159,10 @@ class _MainMenuState extends State<MainMenu> {
                       .then((SaveInfo? info) {
                     if (info != null) {
                       Navigator.of(context).pushNamed('worldmap',
-                          arguments: {"path": info.path});
+                          arguments: {"path": info.path}).then((value) {
+                        engine.invoke('build', positionalArgs: [context]);
+                        setState(() {});
+                      });
                     } else {
                       if (savedFiles.isEmpty) {
                         setState(() {});
@@ -229,9 +233,11 @@ class _MainMenuState extends State<MainMenu> {
                                       context: context,
                                       builder: (context) => MazeOverlay(
                                         key: UniqueKey(),
-                                        data: mazeData,
+                                        mazeData: mazeData,
                                       ),
                                     ).then((value) {
+                                      engine.invoke('build',
+                                          positionalArgs: [context]);
                                       setState(() {});
                                     });
                                   },

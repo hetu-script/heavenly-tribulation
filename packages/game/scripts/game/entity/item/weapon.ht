@@ -2,13 +2,9 @@ import '../../generator/name/name.ht' as nameGenerator
 import '../constants.ht'
 import 'constants.ht'
 import '../../util.ht'
+import '../../game.ht'
 
-const _kDefaultWeaponIcon = 'icon/item/sword.png'
-
-const _kDurabilityVariable = 100
 final _kEffects = ['parry', 'counter']
-const _kEffectProbabilityBase = 0.1
-const _kEffectProbabilityVariable = 0.1
 
 final kWeaponKinds = {
   // 伤害一般，耐久低，出招速度一般，收招速度快
@@ -16,7 +12,7 @@ final kWeaponKinds = {
     icon: 'icon/item/sabre.png',
     attributes: {
       speed: 10,
-      durability: 200,
+      life: 200,
       damage: 30,
       criticalDamageMultiply: 4,
     },
@@ -26,7 +22,7 @@ final kWeaponKinds = {
     icon: 'icon/item/sword.png',
     attributes: {
       speed: 10,
-      durability: 200,
+      life: 200,
       damage: 30,
       criticalDamageMultiply: 3.5,
     },
@@ -36,17 +32,17 @@ final kWeaponKinds = {
     icon: 'icon/item/axe.png',
     attributes: {
       speed: 10,
-      durability: 250,
+      life: 250,
       damage: 40,
       criticalDamageMultiply: 5,
     },
   },
   // 伤害高，耐久高，出招速度一般，收招速度慢
-  'helberd': {
-    icon: 'icon/item/helberd.png',
+  'halberd': {
+    icon: 'icon/item/halberd.png',
     attributes: {
       speed: 15,
-      durability: 300,
+      life: 300,
       damage: 50,
       criticalDamageMultiply: 5,
     },
@@ -56,16 +52,16 @@ final kWeaponKinds = {
     icon: 'icon/item/staff.png',
     attributes: {
       speed: 12,
-      durability: 300,
+      life: 300,
       damage: 12,
       criticalDamageMultiply: 1.5,
     },
   },
   'hammer': {
-    icon: 'icon/item/mace.png',
+    icon: 'icon/item/hammer.png',
     attributes: {
       speed: 20,
-      durability: 400,
+      life: 400,
       damage: 25,
       criticalDamageMultiply: 3.5,
     },
@@ -74,7 +70,7 @@ final kWeaponKinds = {
     icon: 'icon/item/spear.png',
     attributes: {
       speed: 20,
-      durability: 300,
+      life: 300,
       damage: 40,
       criticalDamageMultiply: 3.5,
     },
@@ -84,7 +80,7 @@ final kWeaponKinds = {
     icon: 'icon/item/dagger.png',
     attributes: {
       speed: 5,
-      durability: 100,
+      life: 100,
       damage: 15,
       criticalDamageMultiply: 3.5,
     },
@@ -101,22 +97,21 @@ struct Weapon {
     createdTime,
     description,
     inscription,
-    weaponKind,
+    kind,
     attributes,
   }) {
     this.name = name
-    this.equipType = kEquipTypeOffense
-    this.category = kEntityCategoryWeapon
-    this.isAttackItem = true
+    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
+    this.category = kEntityCategoryWeapon // 武器、防护、斗技、玄功等等
+    this.kind = kind ?? kWeaponKinds.keys.random // 枪、剑、斧等等
+    this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
     this.rarity = rarity
     this.value = value ?? 0
     this.consumable = false
-    this.equippable = true
     this.creatorId = creatorId
-    this.createdTime = createdTime
-    this.description = description
-    this.inscription = inscription
-    this.kind = weaponKind ?? kWeaponKinds.keys.random
+    this.createdTime = createdTime ?? game.timestamp
+    this.description = description ?? ''
+    this.inscription = inscription ?? ''
     this.isEquipped = false
     
     if (!this.name) {
@@ -125,9 +120,6 @@ struct Weapon {
       this.rarity ??= r.rarity 
     }
     this.id = 'weapon_${Hash.uid4(2)}_${this.name}'
-    
-    this.kind = weaponKind ?? kWeaponKinds.keys.random
-
     this.icon = kWeaponKinds[this.kind].icon
     this.attributes = {
       ...kWeaponKinds[this.kind].attributes,
@@ -135,7 +127,7 @@ struct Weapon {
     }
 
     if (attributes) {
-      this.assign(attributes)
+      this.attributes.assign(attributes)
     }
 
     recalculateAttributesOfWeapon(this)
@@ -143,5 +135,5 @@ struct Weapon {
 }
 
 fun recalculateAttributesOfWeapon(weapon) {
-  weapon.stats = weapon.attributes
+  weapon.stats = { ...weapon.attributes }
 }

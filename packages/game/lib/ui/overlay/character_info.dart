@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/ui/view/character/build/build.dart';
 import 'package:hetu_script/values.dart';
 
-import '../shared/avatar.dart';
+import '../avatar.dart';
 import '../view/character/character.dart';
 import '../../global.dart';
 import '../shared/bordered_icon_button.dart';
@@ -16,8 +16,8 @@ class HeroInfoPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final percentage = engine
-        .invoke('getStatsPercentageOfCharacter', positionalArgs: [heroData]);
+    final percentage =
+        engine.invoke('getCharacterStats', positionalArgs: [heroData]);
 
     return Container(
       width: 300,
@@ -35,12 +35,12 @@ class HeroInfoPanel extends StatelessWidget {
             padding: const EdgeInsets.only(right: 5.0),
             child: Avatar(
               name: heroData['name'],
-              avatarAssetKey: 'assets/images/${heroData['avatar']}',
+              avatarAssetKey: 'assets/images/${heroData['icon']}',
               onPressed: () => showDialog(
                 context: context,
                 barrierColor: Colors.transparent,
                 builder: (context) {
-                  return CharacterView(characterId: heroData['id']);
+                  return CharacterView(characterData: heroData);
                 },
               ),
             ),
@@ -52,14 +52,14 @@ class HeroInfoPanel extends StatelessWidget {
                   title: '${engine.locale['life']}: ',
                   value: percentage['life']['value'],
                   max: percentage['life']['max'],
-                  size: const Size(100.0, 24.0),
+                  width: 100.0,
                   colors: const <Color>[Colors.red, Colors.green],
                 ),
                 DynamicColorProgressBar(
                   title: '${engine.locale['stamina']}: ',
                   value: percentage['stamina']['value'],
                   max: percentage['stamina']['max'],
-                  size: const Size(100.0, 24.0),
+                  width: 100.0,
                   colors: const <Color>[Colors.yellow, Colors.blue],
                 ),
                 const Spacer(),

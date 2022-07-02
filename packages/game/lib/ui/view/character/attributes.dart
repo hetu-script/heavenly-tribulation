@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import '../../../global.dart';
-import '../../shared/avatar.dart';
+import '../../avatar.dart';
 import '../../shared/constants.dart';
 import '../../shared/label.dart';
 import '../../util.dart';
@@ -18,36 +18,38 @@ extension DoubleFixed on double {
 class CharacterAttributesView extends StatelessWidget {
   const CharacterAttributesView({
     super.key,
-    required this.data,
+    required this.characterData,
   });
 
-  final HTStruct data;
+  final HTStruct characterData;
 
   @override
   Widget build(BuildContext context) {
     final timestamp = engine.invoke('getTimestamp');
-    final age = timestamp - data['birthTimestamp'];
+    final age = timestamp - characterData['birthTimestamp'];
     final ageString = engine.invoke('toAgeString', positionalArgs: [age]);
-    final fame =
-        engine.invoke('getCharacterFameString', positionalArgs: [data]);
+    final fame = engine
+        .invoke('getCharacterFameString', positionalArgs: [characterData]);
     final birthday = engine.invoke('formatDateTimeString',
         positionalArgs: [age], namedArgs: {'format': 'date.md'});
-    final organizationId = data['organizationId'];
+    final organizationId = characterData['organizationId'];
     String organization = getNameFromId(organizationId);
-    final title =
-        engine.invoke('getCharacterTitleString', positionalArgs: [data]);
-    final home = getNameFromId(data['homeId']);
-    final nation = getNameFromId(data['nationId']);
+    final title = engine
+        .invoke('getCharacterTitleString', positionalArgs: [characterData]);
+    final home = getNameFromId(characterData['homeId']);
+    final nation = getNameFromId(characterData['nationId']);
 
-    final father = getNameFromId(data['relationships']['fatherId']);
-    final mother = getNameFromId(data['relationships']['motherId']);
-    final spouse = getNameFromId(data['relationships']['spouseId']);
-    final siblings = getNamesFromEntityIds(data['relationships']['siblingIds'])
-        .map((e) => Label(e));
-    final childs = getNamesFromEntityIds(data['relationships']['childrenIds'])
-        .map((e) => Label(e));
+    final father = getNameFromId(characterData['relationships']['fatherId']);
+    final mother = getNameFromId(characterData['relationships']['motherId']);
+    final spouse = getNameFromId(characterData['relationships']['spouseId']);
+    final siblings =
+        getNamesFromEntityIds(characterData['relationships']['siblingIds'])
+            .map((e) => Label(e));
+    final childs =
+        getNamesFromEntityIds(characterData['relationships']['childrenIds'])
+            .map((e) => Label(e));
 
-    final attributes = data['attributes'];
+    final attributes = characterData['attributes'];
     final int strength = attributes['strength'];
     final int intelligence = attributes['intelligence'];
     final int perception = attributes['perception'];
@@ -55,7 +57,7 @@ class CharacterAttributesView extends StatelessWidget {
     final int leadership = attributes['leadership'];
     final int management = attributes['management'];
 
-    final personality = data['personality'];
+    final personality = characterData['personality'];
     final double ideal = (personality['ideal'] as double).toDoubleAsFixed(2);
     final double order = (personality['order'] as double).toDoubleAsFixed(2);
     final double good = (personality['good'] as double).toDoubleAsFixed(2);
@@ -74,11 +76,11 @@ class CharacterAttributesView extends StatelessWidget {
     final double generosity =
         (personality['generosity'] as double).toDoubleAsFixed(2);
 
-    final motifvationNames = data['motivations'] as List;
+    final motifvationNames = characterData['motivations'] as List;
     final motivations = motifvationNames.isNotEmpty
         ? motifvationNames.map((e) => Label(engine.locale[e])).toList()
         : [Text(engine.locale['none'])];
-    final thinkingNames = data['thinkings'] as List;
+    final thinkingNames = characterData['thinkings'] as List;
     final thinkings = thinkingNames.isNotEmpty
         ? thinkingNames.map((e) => Label(engine.locale[e])).toList()
         : [Text(engine.locale['none'])];
@@ -100,7 +102,7 @@ class CharacterAttributesView extends StatelessWidget {
                 Container(
                   margin: const EdgeInsets.only(left: 10.0, right: 16.0),
                   child: Avatar(
-                    avatarAssetKey: 'assets/images/${data['avatar']}',
+                    avatarAssetKey: 'assets/images/${characterData['icon']}',
                   ),
                 ),
                 Container(
@@ -109,12 +111,13 @@ class CharacterAttributesView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('${engine.locale['name']}: ${data['name']}'),
                       Text(
-                          '${engine.locale['sex']}: ${data['isFemale'] ? engine.locale['female'] : engine.locale['male']}'),
+                          '${engine.locale['name']}: ${characterData['name']}'),
+                      Text(
+                          '${engine.locale['sex']}: ${characterData['isFemale'] ? engine.locale['female'] : engine.locale['male']}'),
                       Text('${engine.locale['age']}: $ageString'),
                       Text(
-                          '${engine.locale['looks']}: ${data['looks'].toStringAsFixed(2)}'),
+                          '${engine.locale['looks']}: ${characterData['looks'].toStringAsFixed(2)}'),
                       Text('${engine.locale['home']}: $home'),
                     ],
                   ),
@@ -124,7 +127,8 @@ class CharacterAttributesView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('${engine.locale['money']}: ${data['money']}'),
+                      Text(
+                          '${engine.locale['money']}: ${characterData['money']}'),
                       Text('${engine.locale['fame']}: $fame'),
                       Text('${engine.locale['organization']}: $organization'),
                       Text('${engine.locale['title']}: $title'),
@@ -274,15 +278,15 @@ class CharacterAttributesView extends StatelessWidget {
                     width: 120.0,
                   ),
                   Label(
-                    '${engine.locale['favoredLooks']}: ${data['favoredLooks'].toStringAsFixed(2)}',
+                    '${engine.locale['favoredLooks']}: ${characterData['favoredLooks'].toStringAsFixed(2)}',
                     width: 240.0,
                   ),
                   Label(
-                    '${engine.locale['birthPlace']}: ${data['birthPlaceId']}',
+                    '${engine.locale['birthPlace']}: ${characterData['birthPlaceId']}',
                     width: 200.0,
                   ),
                   Label(
-                    '${engine.locale['currentLocation']}: ${data['locationId']}',
+                    '${engine.locale['currentLocation']}: ${characterData['locationId']}',
                     width: 200.0,
                   ),
                   LabelsWrap(

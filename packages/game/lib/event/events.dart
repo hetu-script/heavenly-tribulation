@@ -12,13 +12,13 @@ class MenuEvent extends GameEvent {
 }
 
 class HistoryEvent extends GameEvent {
-  final HTStruct data;
+  final HTStruct incidentData;
 
   const HistoryEvent({
     required super.name,
-    required this.data,
+    required this.incidentData,
   });
 
-  const HistoryEvent.occurred({required HTStruct data})
-      : this(name: CustomEvents.incidentOccurred, data: data);
+  const HistoryEvent.occurred({required HTStruct incidentData})
+      : this(name: CustomEvents.incidentOccurred, incidentData: incidentData);
 }

@@ -6,11 +6,12 @@ class DynamicColorProgressBar extends StatelessWidget {
   DynamicColorProgressBar({
     Key? key,
     this.title,
-    this.margin = const EdgeInsets.all(5.0),
-    required this.size,
+    required this.width,
+    this.height,
     required this.value,
     required this.max,
-    this.showPercentage = true,
+    this.showNumber = true,
+    this.showNumberAsPercentage = true,
     this.begin = Alignment.centerLeft,
     this.end = Alignment.centerRight,
     required this.colors,
@@ -31,13 +32,13 @@ class DynamicColorProgressBar extends StatelessWidget {
 
   final String? title;
 
-  final EdgeInsets margin;
+  final double width;
 
-  final Size size;
+  final double? height;
 
   final int value, max;
 
-  final bool showPercentage;
+  final bool showNumber, showNumberAsPercentage;
 
   final AlignmentGeometry begin;
 
@@ -65,47 +66,46 @@ class DynamicColorProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: margin,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (title != null)
-            Padding(
-              padding: const EdgeInsets.only(right: 5.0),
-              child: Text(title!),
-            ),
-          Container(
-            width: size.width,
-            height: size.height,
-            decoration: BoxDecoration(
-              color: Colors.white24,
-              borderRadius: BorderRadius.circular(borderRadius),
-              border: Border.all(color: kForegroundColor),
-            ),
-            child: Stack(
-              children: [
-                Container(
-                  width: value / max * size.width,
-                  height: size.height,
-                  decoration: BoxDecoration(
-                    color: _lerpGradient(value / max),
-                  ),
+    return Row(
+      children: [
+        if (title != null)
+          Padding(
+            padding: const EdgeInsets.only(right: 5.0),
+            child: Text(title!),
+          ),
+        Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            color: Colors.white24,
+            borderRadius: BorderRadius.circular(borderRadius),
+            border: Border.all(color: kForegroundColor),
+          ),
+          child: Stack(
+            alignment: AlignmentDirectional.centerStart,
+            children: [
+              Container(
+                alignment: Alignment.centerLeft,
+                width: value / max * width,
+                height: height,
+                decoration: BoxDecoration(
+                  color: _lerpGradient(value / max),
                 ),
-                Container(
+              ),
+              if (showNumber)
+                Align(
                   alignment: Alignment.center,
-                  padding: const EdgeInsets.only(right: 5.0),
                   child: Text(
-                    showPercentage
+                    showNumberAsPercentage
                         ? (value / max).toPercentageString()
                         : '$value/$max',
+                    style: const TextStyle(fontSize: 12.0),
                   ),
-                ),
-              ],
-            ),
+                )
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

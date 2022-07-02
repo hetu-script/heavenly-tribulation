@@ -146,7 +146,7 @@ class _GameEditorState extends State<GameEditor>
             children: [
               Center(
                 child: CharacterListView(
-                  data: _characterData,
+                  characterData: _characterData,
                   onSaved: (content) {
                     setState(() {
                       _onCharacterSaved(content);

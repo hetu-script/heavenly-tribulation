@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/ui/view/character/memory.dart';
+import 'package:hetu_script/values.dart';
 
 import '../../../global.dart';
 import 'bonds.dart';
+import 'memory.dart';
 import '../../shared/responsive_route.dart';
 import '../../shared/close_button.dart';
 import 'attributes.dart';
@@ -11,11 +12,14 @@ class CharacterView extends StatefulWidget {
   const CharacterView({
     super.key,
     this.characterId,
+    this.characterData,
     this.tabIndex = 0,
     this.showConfirmButton = false,
   });
 
   final String? characterId;
+
+  final HTStruct? characterData;
 
   final int tabIndex;
 
@@ -73,9 +77,20 @@ class _CharacterViewState extends State<CharacterView>
 
   String _title = engine.locale['information'];
 
+  late final HTStruct _data;
+
   @override
   void initState() {
     super.initState();
+
+    if (widget.characterData != null) {
+      _data = widget.characterData!;
+    } else {
+      final charId = widget.characterId ??
+          ModalRoute.of(context)!.settings.arguments as String;
+      _data = engine.invoke('getCharacterById', positionalArgs: [charId]);
+    }
+
     _tabController = TabController(vsync: this, length: _tabs.length);
     _tabController.addListener(() {
       setState(() {
@@ -99,17 +114,13 @@ class _CharacterViewState extends State<CharacterView>
 
   @override
   Widget build(BuildContext context) {
-    final charId = widget.characterId ??
-        ModalRoute.of(context)!.settings.arguments as String;
-    final data = engine.invoke('getCharacterById', positionalArgs: [charId]);
-
     return ResponsiveRoute(
       alignment: AlignmentDirectional.topCenter,
       size: Size(400.0, widget.showConfirmButton ? 460.0 : 420.0),
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: Text('${data['name']} - $_title'),
+          title: Text('${_data['name']} - $_title'),
           actions: const [ButtonClose()],
           bottom: TabBar(
             controller: _tabController,
@@ -122,9 +133,9 @@ class _CharacterViewState extends State<CharacterView>
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  CharacterAttributesView(data: data),
-                  CharacterBondsView(data: data['bonds']),
-                  CharacterMemory(data: data['memory']),
+                  CharacterAttributesView(characterData: _data),
+                  CharacterBondsView(bondsData: _data['bonds']),
+                  CharacterMemory(memoryData: _data['memory']),
                 ],
               ),
             ),
@@ -133,7 +144,7 @@ class _CharacterViewState extends State<CharacterView>
                 padding: const EdgeInsets.all(10.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pop(charId);
+                    Navigator.of(context).pop(_data['id']);
                   },
                   child: Text(engine.locale['confirm']),
                 ),

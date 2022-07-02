@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
@@ -57,9 +56,9 @@ class TileMap extends GameComponent with HandlesGesture {
     ..color = Colors.black.withOpacity(0.5);
 
   static Future<TileMap> fromData(
-      {required SamsaraEngine engine, required dynamic data}) async {
-    final sceneKey = data['scene'];
-    final tileShapeData = data['tileShape'];
+      {required SamsaraEngine engine, required dynamic mapData}) async {
+    final sceneKey = mapData['scene'];
+    final tileShapeData = mapData['tileShape'];
     var tileShape = TileShape.orthogonal;
     if (tileShapeData == 'isometric') {
       tileShape = TileShape.isometric;
@@ -70,24 +69,24 @@ class TileMap extends GameComponent with HandlesGesture {
     }
     // final tapSelect = data['tapSelect'] ?? false;
 
-    final gridWidth = data['gridWidth'].toDouble();
-    final gridHeight = data['gridHeight'].toDouble();
-    final tileSpriteSrcWidth = data['tileSpriteSrcWidth'].toDouble();
-    final tileSpriteSrcHeight = data['tileSpriteSrcHeight'].toDouble();
-    final tileOffsetX = data['tileOffsetX'];
-    final tileOffsetY = data['tileOffsetY'];
+    final gridWidth = mapData['gridWidth'].toDouble();
+    final gridHeight = mapData['gridHeight'].toDouble();
+    final tileSpriteSrcWidth = mapData['tileSpriteSrcWidth'].toDouble();
+    final tileSpriteSrcHeight = mapData['tileSpriteSrcHeight'].toDouble();
+    final tileOffsetX = mapData['tileOffsetX'];
+    final tileOffsetY = mapData['tileOffsetY'];
 
-    final terrainSpritePath = data['terrainSpriteSheet'];
+    final terrainSpritePath = mapData['terrainSpriteSheet'];
     final terrainSpriteSheet = SpriteSheet(
       image: await Flame.images.load(terrainSpritePath),
       srcSize: Vector2(tileSpriteSrcWidth, tileSpriteSrcHeight),
     );
 
-    final int tileMapWidth = data['width'];
-    final int tileMapHeight = data['height'];
-    final terrainsData = data['terrains'];
+    final int tileMapWidth = mapData['width'];
+    final int tileMapHeight = mapData['height'];
+    final terrainsData = mapData['terrains'];
 
-    final zonesData = data['zones'];
+    final zonesData = mapData['zones'];
     final zones = <TileMapZone>[];
     if (zonesData != null) {
       for (final zoneData in zonesData) {
@@ -243,7 +242,7 @@ class TileMap extends GameComponent with HandlesGesture {
       }
     }
 
-    final entityData = data['entities'];
+    final entityData = mapData['entities'];
     final entities = <TileMapEntity>[];
     if (entityData != null) {
       for (final data in entityData) {

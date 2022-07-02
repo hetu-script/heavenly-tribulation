@@ -9,13 +9,13 @@ class GameEntityListView extends StatefulWidget {
   const GameEntityListView({
     super.key,
     required this.columns,
-    required this.data,
+    required this.tableData,
     this.onTap,
   });
 
   final List<String> columns;
 
-  final List<List<String>> data;
+  final List<List<String>> tableData;
 
   final void Function(String dataId)? onTap;
 
@@ -54,7 +54,7 @@ class _GameEntityListViewState extends State<GameEntityListView>
                   ),
                 ))
             .toList(),
-        rows: widget.data
+        rows: widget.tableData
             .map((line) => DataRow2(
                   cells: line
                       .take(widget.columns.length)

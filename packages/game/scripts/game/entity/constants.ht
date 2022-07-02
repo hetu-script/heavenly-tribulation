@@ -174,9 +174,19 @@ const kValueTypeInt = 'integer'
 const kValueTypeFloat = 'float'
 const kValueTypePercentage = 'percentage'
 
+const kEquipTypeDefense = 'defense'
+const kEquipTypeManeuver = 'maneuver'
 const kEquipTypeOffense = 'offense'
 const kEquipTypeSupport = 'support'
-const kEquipTypeDefense = 'defense'
 
+const kEntityTypeCharacter = 'character'
+const kEntityTypeItem = 'item'
+const kEntityTypeSkill = 'skill'
 const kEntityCategoryWeapon = 'weapon'
 const kEntityCategoryMartialArts = 'martialArts'
+
+fun entityTakeDamage(entity, damage) {
+  assert(entity?.stats?.life != null)
+  entity.stats.life -= damage
+  if (entity.stats.life < 0) entity.stats.life = 0
+}

@@ -4,15 +4,15 @@ import '../../global.dart';
 import '../shared/constants.dart';
 
 class HistoryView extends StatelessWidget {
-  const HistoryView({super.key, required this.data});
+  const HistoryView({super.key, required this.historyData});
 
-  final Iterable<dynamic> data;
+  final Iterable<dynamic> historyData;
 
   @override
   Widget build(BuildContext context) {
     final widgets = <Widget>[];
 
-    for (final index in data) {
+    for (final index in historyData) {
       final incident =
           engine.invoke('getIncidentByIndex', positionalArgs: [index]);
       widgets.add(Text(incident['content']));

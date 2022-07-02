@@ -70,26 +70,24 @@ class _MainGameOverlayState extends State<MainGameOverlay>
       List<int>? route;
       if (terrain.tilePosition != hero.tilePosition) {
         final start = engine.invoke('getTerrain',
-            positionalArgs: [hero.left, hero.top, _scene.data]);
+            positionalArgs: [hero.left, hero.top, _scene.worldData]);
         final end = engine.invoke('getTerrain',
-            positionalArgs: [terrain.left, terrain.top, _scene.data]);
+            positionalArgs: [terrain.left, terrain.top, _scene.worldData]);
         List? calculatedRoute = engine.invoke('calculateRoute',
-            positionalArgs: [start, end, _scene.data]);
+            positionalArgs: [start, end, _scene.worldData]);
         if (calculatedRoute != null) {
           route = List<int>.from(calculatedRoute);
           if (terrain.locationId != null) {
-            if (hero.tilePosition == terrain.tilePosition) {
-              _enterLocation(terrain.locationId!);
-            } else {
-              _scene.map.moveHeroToTilePositionByRoute(
-                route,
-                () => _enterLocation(terrain.locationId!),
-              );
-            }
+            _scene.map.moveHeroToTilePositionByRoute(
+              route,
+              () => _enterLocation(terrain.locationId!),
+            );
           } else {
             _scene.map.moveHeroToTilePositionByRoute(route);
           }
         }
+      } else {
+        _enterLocation(terrain.locationId!);
       }
     }
   }
@@ -292,11 +290,14 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                     terrain.tilePosition == hero.tilePosition;
                 if (!isTappingHeroPosition) {
                   final start = engine.invoke('getTerrain',
-                      positionalArgs: [hero.left, hero.top, _scene.data]);
-                  final end = engine.invoke('getTerrain',
-                      positionalArgs: [terrain.left, terrain.top, _scene.data]);
+                      positionalArgs: [hero.left, hero.top, _scene.worldData]);
+                  final end = engine.invoke('getTerrain', positionalArgs: [
+                    terrain.left,
+                    terrain.top,
+                    _scene.worldData
+                  ]);
                   List? calculatedRoute = engine.invoke('calculateRoute',
-                      positionalArgs: [start, end, _scene.data]);
+                      positionalArgs: [start, end, _scene.worldData]);
                   if (calculatedRoute != null) {
                     route = List<int>.from(calculatedRoute);
                   }

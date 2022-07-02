@@ -87,7 +87,7 @@ class CharacterSelectDialog extends StatelessWidget {
         ),
         body: GameEntityListView(
           columns: _kInformationViewCharacterColumns,
-          data: data,
+          tableData: data,
           onTap: (dataId) => showDialog(
             context: context,
             barrierDismissible: false,

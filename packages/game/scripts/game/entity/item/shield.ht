@@ -1,0 +1,60 @@
+import '../../generator/name/name.ht' as nameGenerator
+import '../constants.ht'
+import 'constants.ht'
+import '../../util.ht'
+import '../../game.ht'
+
+const kShieldKind = 'shield'
+
+struct Shield {
+  construct ({
+    name,
+    rarity,
+    value,
+    icon,
+    creatorId,
+    createdTime,
+    description,
+    inscription,
+    kind,
+    attributes,
+  }) {
+    this.name = name
+    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
+    this.category = kEntityCategoryProtect // 武器、防护、斗技、玄功等等
+    this.kind = kShieldKind // 枪、剑、斧等等
+    this.equipType = kEquipTypeSupport // 装备类型：如果没有就是不可装备
+    this.rarity = rarity
+    this.value = value ?? 0
+    this.consumable = false
+    this.creatorId = creatorId
+    this.createdTime = createdTime ?? game.timestamp
+    this.description = description ?? ''
+    this.inscription = inscription ?? ''
+    this.isEquipped = false
+    
+    if (!this.name) {
+      final r = nameGenerator.getTalisman(1, category: this.kind, rarity: this.rarity).first
+      this.name = r.name
+      this.rarity ??= r.rarity 
+    }
+    this.id = 'shield_${Hash.uid4(2)}_${this.name}'
+    this.icon = 'icon/item/shield.png'
+    this.attributes = {
+      attributes: {
+        life: 150,
+      },
+      effects: {},
+    }
+
+    if (attributes) {
+      this.attributes.assign(attributes)
+    }
+
+    recalculateAttributesOfShield(this)
+  }
+}
+
+fun recalculateAttributesOfShield(shield) {
+  shield.stats = { ...shield.attributes }
+}

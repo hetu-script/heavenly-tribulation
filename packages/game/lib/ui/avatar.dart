@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'rrect_icon.dart';
-import '../../global.dart';
+import 'shared/rrect_icon.dart';
+import '../global.dart';
 
 class Avatar extends StatelessWidget {
   const Avatar({

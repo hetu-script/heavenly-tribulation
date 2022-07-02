@@ -16,11 +16,11 @@ import '../../view/console.dart';
 class MazeOverlay extends StatefulWidget {
   const MazeOverlay({
     required super.key,
-    this.data,
+    this.mazeData,
     this.startLevel = 0,
   });
 
-  final List<dynamic>? data;
+  final List<dynamic>? mazeData;
 
   final int startLevel;
 
@@ -60,11 +60,11 @@ class _MazeOverlayState extends State<MazeOverlay>
           List<int>? route;
           if (terrain.tilePosition != hero.tilePosition) {
             final start = engine.invoke('getTerrain',
-                positionalArgs: [hero.left, hero.top, _scene.data]);
+                positionalArgs: [hero.left, hero.top, _scene.mapData]);
             final end = engine.invoke('getTerrain',
-                positionalArgs: [terrain.left, terrain.top, _scene.data]);
+                positionalArgs: [terrain.left, terrain.top, _scene.mapData]);
             List? calculatedRoute = engine.invoke('calculateRoute',
-                positionalArgs: [start, end, _scene.data],
+                positionalArgs: [start, end, _scene.mapData],
                 namedArgs: {'restrictedInZoneIndex': start['zoneIndex']});
             if (calculatedRoute != null) {
               route = List<int>.from(calculatedRoute);
@@ -94,8 +94,8 @@ class _MazeOverlayState extends State<MazeOverlay>
             isHero: true,
             animationSpriteSheet: charSheet,
             waterAnimationSpriteSheet: shipSheet,
-            left: _scene.data['entryX'],
-            top: _scene.data['entryY'],
+            left: _scene.mapData['entryX'],
+            top: _scene.mapData['entryY'],
             tileShape: _scene.map.tileShape,
             tileMapWidth: _scene.map.tileMapWidth,
             gridWidth: _scene.map.gridWidth,
@@ -128,7 +128,7 @@ class _MazeOverlayState extends State<MazeOverlay>
   Widget build(BuildContext context) {
     super.build(context);
 
-    late final List<dynamic> data = widget.data ??
+    late final List<dynamic> data = widget.mazeData ??
         ModalRoute.of(context)!.settings.arguments as List<dynamic>;
 
     return FutureBuilder(

@@ -22,8 +22,9 @@ const _kMajorMotivationProbobility = 0.2
 const _kCharacterAttributeMinValue = 1
 const _kCharacterAttributeMaxValue = 100
 const _kCharacterAttributeSumBase = 400
-const _kCharacterAttributeSumDeviation = 300
-const _kEquipmentMax = 5
+const _kCharacterAttributeSumDeviation = 200
+const _kOffenseEquipmentMax = 5
+const _kSupportEquipmentMax = 4
 
 final kCharacterAttributeNames = [
   'strength',
@@ -120,10 +121,10 @@ struct Baby {
     this.isFemale = Math.randomBool()
     if (this.isFemale) {
       final index = Math.randomInt(_kFemaleAvatarCount)
-      this.avatar = 'avatar/female/${index}.jpg';
+      this.icon = 'avatar/female/${index}.jpg';
     } else {
       final index = Math.randomInt(_kMaleAvatarCount)
-      this.avatar = 'avatar/male/${index}.jpg';
+      this.icon = 'avatar/male/${index}.jpg';
     }
     final r = nameGenerator.getCharacter(
       1,
@@ -156,6 +157,7 @@ struct Character {
     worldPositionX,
     worldPositionY,
   }) {
+    this.entityType = kEntityTypeCharacter
     this.index = game.characters.length
     if (isFemale != null) {
       this.isFemale = isFemale
@@ -164,10 +166,10 @@ struct Character {
     }
     if (this.isFemale) {
       final index = Math.randomInt(_kFemaleAvatarCount)
-      this.avatar = 'avatar/female/${index}.jpg';
+      this.icon = 'avatar/female/${index}.jpg';
     } else {
       final index = Math.randomInt(_kMaleAvatarCount)
-      this.avatar = 'avatar/male/${index}.jpg';
+      this.icon = 'avatar/male/${index}.jpg';
     }
     if (familyName != null && shortName != null) {
       this.familyName = familyName
@@ -220,11 +222,11 @@ struct Character {
     this.skills = {}
 
     // 装备栏的位置和数量是固定的
-    // 法宝、技能都可以装备，比如拳法作为技能可以直接放在装备栏第一位，但剑法作为辅助技能只能放在作为物品的剑后面
     // 每个位置都是一个EquipSlot形式的对象
     this.equipments = {
-      offense: {},
-      defense: {},
+      defense: null, // 防具只能装备一个
+      maneuver: null, // 靴子只能装备一个
+      offense: {}, // 可以装备多个武器、斗技、法宝
     }
 
     // NPC类随从，跟随时可以装备他们的物品和技能，并在战斗中使用
@@ -232,13 +234,13 @@ struct Character {
 
     // 属性点数数值
     this.attributes = generateRandomAttributes(
-      Math.gaussianNoise(_kCharacterAttributeSumBase, _kCharacterAttributeSumDeviation, min: 6, max: 600),
+      Math.gaussianNoise(_kCharacterAttributeSumBase, _kCharacterAttributeSumDeviation, min: 6, max: 600).toInt(),
       _kCharacterAttributeMinValue,
       _kCharacterAttributeMaxValue,
     )
 
     if (attributes) {
-      this.assign(attributes)
+      this.attributes.assign(attributes)
     }
 
     // 当前状态数值，由种族、天赋、属性点数、增益减损、物品、技能等计算得来
@@ -378,6 +380,14 @@ struct Character {
 fun rejuvenate(character) {
   character.stats.life = character.attributes.life
   character.stats.stamina = character.attributes.stamina
+
+  for (var i = 1; i < _kOffenseEquipmentMax; ++i) {
+    final equipData = character.equipments.offense[i]
+    if (equipData != null) {
+      final item = getEquippedItem(equipData, character)
+      item.stats.life = item.stats.lifeMax
+    }
+  }
 }
 
 fun setCharacterTitle(character, titleId) {
@@ -440,7 +450,7 @@ fun _calculateLooksScore({looks: float, favor: float}) -> float {
   }
 }
 
-fun generateRandomAttributes(maxStats, minValue, maxValue) {
+fun generateRandomAttributes(maxStats, minValue, maxValue, [majorAttr]) {
   assert(maxStats != null)
   assert(minValue != null)
   assert(maxValue != null)
@@ -455,41 +465,51 @@ fun generateRandomAttributes(maxStats, minValue, maxValue) {
   
   final list = kCharacterAttributeNames.toList()
   list.shuffle()
-  var rest = maxStats
-  for (var i = 0; i < list.length - 1; ++i) {
+  for (var i = 0; i < list.length; ++i) {
     final name = list[i]
-    final value = Math.randomInt(rest)
+    var min = minValue
+    if (majorAttr && name == majorAttr) {
+      min = maxStats / list.length * 0.75
+    }
+    final value = (Math.gaussianNoise(maxStats / list.length * 0.6, 20, min: min, max: maxValue)).toInt()
     attributes[name] = checkValue(value)
-    rest -= value
   }
-  attributes[list.last] = checkValue(rest)
   return attributes
 }
 
 // 根据属性、装备、技能计算出当前状态
 // 状态包括：生命、伤害、防御等。
 fun recalculateAttributes(character) {
-  character.attributes.life = (character.attributes.strength ~/ 5 + 1) * 25
-  character.attributes.stamina = (character.attributes.strength ~/ 10 + 1) * 50
+  character.attributes.life = 100 + (character.attributes.strength ~/ 5) * 5
+  character.attributes.chi = 100 + (character.attributes.superpower ~/ 5) * 5
+  character.attributes.stamina = 100 + (character.attributes.strength ~/ 10) * 5
+
+  character.stats.lifeMax = character.stats.life = character.attributes.life
+  character.stats.chiMax = character.stats.chi = character.attributes.chi
+  character.stats.staminaMax = character.stats.stamina = character.attributes.stamina
 }
 
-fun getStatsPercentageOfCharacter(character) {
-  final life = (character.stats.life / character.attributes.life)
-  final stamina = (character.stats.stamina / character.attributes.stamina)
-  return {
-    life: {
-      value: character.stats.life,
-      max: character.attributes.life,
-      percentage: life,
-      string: life.toPercentageString(2),
-    },
-    stamina: {
-      value: character.stats.stamina,
-      max: character.attributes.stamina,
-      percentage: stamina,
-      string: stamina.toPercentageString(2),
+fun getCharacterStats(character) {
+  final stats = {
+    life: character.stats.life,
+    lifeMax: character.stats.lifeMax,
+    chi: character.stats.chi,
+    chiMax: character.stats.chiMax,
+    stamina: character.stats.stamina,
+    staminaMax: character.stats.staminaMax,
+    equipments: {},
+  }
+  for (var i = 1; i < _kOffenseEquipmentMax; ++i) {
+    final equipData = character.equipments.offense[i]
+    if (equipData != null) {
+      final item = getEquippedItem(equipData, character)
+      stats.equipments[i] = {
+        life: item.stats.life,
+        lifeMax: item.stats.lifeMax,
+      }
     }
   }
+  return stats
 }
 
 // 第一印象分
@@ -732,11 +752,11 @@ fun haveMet(subject, target) {
 
 fun getEquippedItem(equipData, character) {
   var item
-  when (equipData.category) {
-    kEntityCategoryWeapon -> {
+  when (equipData.entityType) {
+    kEntityTypeItem -> {
       item = character.inventory[equipData.id]
     }
-    kEntityCategoryMartialArts -> {
+    kEntityTypeSkill -> {
       item = character.skills[equipData.id]
     }
   }
@@ -744,10 +764,11 @@ fun getEquippedItem(equipData, character) {
   return item
 }
 
-// 法宝和技能都可以装备，只要类型符合
+// 法宝和技能都可以装备，只要类型符合，返回值代表是否装备成功
 // {
-//   category,
 //   id,
+//   category,
+//   kind,
 //   supports,
 // }
 fun equip(item, character, [index]) -> bool {
@@ -755,14 +776,19 @@ fun equip(item, character, [index]) -> bool {
   if (!character.inventory[item.id]) character.inventory[item.id] = item
   final equipData = {
     id: item.id,
+    entityType: item.entityType,
     category: item.category, // 主类型：武器、斗技等
     kind: item.kind, // 次类型：剑、拳法等
+    equipType: item.equipType,
+    life: item.stats.life,
   }
+
   when (item.equipType) {
+    // 斗技、武器、法宝等
     kEquipTypeOffense -> {
+      // 如果有空位就装备在空位上
       if (!index) {
-        // 如果有空位就装备在空位上
-        for (final i in range(1, _kEquipmentMax)) {
+        for (final i in range(1, _kOffenseEquipmentMax)) {
           if (!character.equipments[kEquipTypeOffense][i]) {
             character.equipments[kEquipTypeOffense][i] = equipData
             item.isEquipped = true
@@ -772,7 +798,7 @@ fun equip(item, character, [index]) -> bool {
         // 否则替换掉第一个空位
         index = 1
       }
-      final oldEquipData = character.equipments[kEquipTypeOffense][index]
+      final oldEquipData = character.equipments[kEquipTypeOffense][1]
       final oldItem = getEquippedItem(equipData, character)
       oldItem.isEquipped = false
       character.equipments[kEquipTypeOffense][index] = equipData
@@ -782,13 +808,14 @@ fun equip(item, character, [index]) -> bool {
       item.isEquipped = true
       return true
     }
-    kEquipTypeSupport -> {
+    // 剑法、玄功等
+    kEquipTypeBoost -> {
       if (!index) {
-        for (final i in range(1, _kEquipmentMax)) {
+        for (final i in range(1, _kSupportEquipmentMax)) {
           final oldEquipData = character.equipments[kEquipTypeOffense][i]
           if (oldEquipData && oldEquipData.category == data.category &&
               oldEquipData.kind == data.kind) {
-            if (oldEquipData.supports.length < _kEquipmentMax - 1) {
+            if (oldEquipData.supports.length < _kSupportEquipmentMax - 1) {
               oldEquipData.supports.add(equipData)
             } else {
               oldEquipData.supports.first = equipData
@@ -800,34 +827,33 @@ fun equip(item, character, [index]) -> bool {
         return false
       } else {
         final oldEquipData = character.equipments[kEquipTypeOffense][index]
-        assert(oldEquipData.category == data.category &&
-              oldEquipData.kind == data.kind)
-        if (oldEquipData.supports.length < _kEquipmentMax - 1) {
-          equipData.supports.add(equipData)
+        if (oldEquipData.category == data.category &&
+              oldEquipData.kind == data.kind) {
+          if (oldEquipData.supports.length < _kSupportEquipmentMax - 1) {
+            equipData.supports.add(equipData)
+          } else {
+            oldEquipData.supports.first = equipData
+          }
+          item.isEquipped = true
+          return true
         } else {
-          oldEquipData.supports.first = equipData
+          return false
         }
+      }
+    }
+    // 盾牌、轻功等
+    kEquipTypeDefense, kEquipTypeManeuver -> {
+      // 如果有空位就装备在空位上
+      if (!character.equipments[item.equipType]) {
+        character.equipments[item.equipType] = equipData
         item.isEquipped = true
         return true
       }
-    }
-    kEquipTypeDefense -> {
-      // 如果有空位就装备在空位上
-      if (!index) {
-        for (final i in range(1, _kEquipmentMax)) {
-          if (!character.equipments[kEquipTypeDefense][i]) {
-            character.equipments[kEquipTypeDefense][i] = equipData
-            item.isEquipped = true
-            return true
-          }
-        }
-        // 否则替换掉第一个空位
-        index = 1
-      }
-      final oldEquipData = character.equipments[kEquipTypeDefense][index]
+      // 否则替换掉
+      final oldEquipData = character.equipments[item.equipType]
       final oldItem = getEquippedItem(equipData, character)
       oldItem.isEquipped = false
-      character.equipments[kEquipTypeDefense][index] = equipData
+      character.equipments[item.equipType] = equipData
       if (equipData.category == oldItem.category && equipData.kind == oldItem.kind) {
         equipData.supports = oldEquipData.supports
       }

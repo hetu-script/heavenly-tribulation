@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 
 import '../../../global.dart';
-import '../../shared/avatar.dart';
+import '../../avatar.dart';
 import '../../shared/bordered_icon_button.dart';
 
 const _kAvatarEditButtonSize = 16.0;

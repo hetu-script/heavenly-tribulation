@@ -8,10 +8,10 @@ import '../history.dart';
 class CharacterMemory extends StatelessWidget {
   const CharacterMemory({
     super.key,
-    required this.data,
+    required this.memoryData,
   });
 
-  final HTStruct data;
+  final HTStruct memoryData;
 
   static final List<Tab> _tabs = <Tab>[
     Tab(
@@ -57,8 +57,8 @@ class CharacterMemory extends StatelessWidget {
           Expanded(
             child: TabBarView(
               children: [
-                HistoryView(data: data['experienced']),
-                HistoryView(data: data['witnessed']),
+                HistoryView(historyData: memoryData['experienced']),
+                HistoryView(historyData: memoryData['witnessed']),
               ],
             ),
           ),

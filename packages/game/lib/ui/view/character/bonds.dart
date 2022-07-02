@@ -19,10 +19,10 @@ const _kCharacterBondsSubTableColumns = ['name', 'impressionOfThem'];
 class CharacterBondsView extends StatelessWidget {
   const CharacterBondsView({
     super.key,
-    required this.data,
+    required this.bondsData,
   });
 
-  final HTStruct data;
+  final HTStruct bondsData;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class CharacterBondsView extends StatelessWidget {
           ),
           Expanded(
             child: TabBarView(
-              children: data.keys
+              children: bondsData.keys
                   .map(
                     (key) => DataTable2(
                       scrollController: ScrollController(),
@@ -55,8 +55,8 @@ class CharacterBondsView extends StatelessWidget {
                                 ),
                               ))
                           .toList(),
-                      rows: data[key] != null
-                          ? (data[key] as HTStruct)
+                      rows: bondsData[key] != null
+                          ? (bondsData[key] as HTStruct)
                               .values
                               .map((object) => DataRow2(cells: [
                                     DataCell(

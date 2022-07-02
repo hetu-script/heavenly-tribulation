@@ -1,6 +1,6 @@
 import 'game.ht'
 import 'entity/character/character.ht'
-import 'entity/item/weapon.ht'
+import 'entity/item/item.ht'
 import 'duel.ht'
 import 'generator/name/name.ht'
 import 'entity/character/bandit.ht'
@@ -31,10 +31,11 @@ fun giveHeroWeapon([n = 1]) {
 // 测试战斗：随机生成两个准备好战斗的角色
 fun testDuel() {
   final hero = Character()
-  final enemy = Bandit(kind: 'gangLeader')
+  final enemy = Character()
+  // final enemy = Bandit(kind: 'gangLeader')
   equip(Weapon(), hero)
   equip(Weapon(), hero)
-  equip(Weapon(), hero)
-  equip(Weapon(), hero)
+  equip(Weapon(), enemy)
+  equip(Weapon(), enemy)
   showDuel(hero, enemy)
 }

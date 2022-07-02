@@ -1,18 +1,40 @@
+final kCharacterAttributeNames = [
+  'strength',
+  'superpower',
+  'intelligence',
+  'perception',
+  'leadership',
+  'management',
+]
 
-// 每个锚点所连接的路径
-final _kRoutesOfAnchor = {
-  '1': ['topLeft', 'topRight'],
-  '2': ['topLeft', 'topRight', 'centerTop'],
-  '3': ['topRight', 'rightTop'],
-  '4': ['leftTop', 'centerLeft', 'leftBottom'],
-  '5': ['centerTop', 'centerLeft', 'centerRight', 'centerBottom'],
-  '6': ['rightTop', 'centerRight', 'rightBottom'],
-  '7': ['leftBottom', 'bottomLeft'],
-  '8': ['bottomLeft', 'bottomRight', 'centerBottom'],
-  '9': ['rightBottom', 'bottomRight'],
+fun generateRandomAttributes(maxStats, minValue, maxValue, [majorAttr]) {
+  assert(maxStats != null)
+  assert(minValue != null)
+  assert(maxValue != null)
+
+  final attributes = {}
+  
+  fun checkValue(value) {
+    if (value < minValue) return minValue
+    if (value > maxValue) return maxValue
+    return value
+  }
+  
+  final list = kCharacterAttributeNames.toList()
+  list.shuffle()
+  for (var i = 0; i < list.length; ++i) {
+    final name = list[i]
+    var min = minValue
+    if (majorAttr && name == majorAttr) {
+      min = maxStats / list.length * 0.75
+    }
+    final value = (Math.gaussianNoise(maxStats / list.length * 0.6, 20, min: min, max: maxValue)).toInt()
+    attributes[name] = checkValue(value)
+  }
+  return attributes
 }
 
-
-final routes = Set() // 最终结果
-
-final middlePoint = [2,4,6,8]
+for (final i in range(10)) {
+  final a = generateRandomAttributes(600, 1, 100, 'strength')
+  print(a)
+}

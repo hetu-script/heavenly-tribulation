@@ -41,12 +41,12 @@ fun formatDateTimeString(timestamp: int, {format: str}) {
   var monthC
   var dayC
 
-  final fmt = format?.split('.').first ?? 'date'
-  if (fmt == 'age') {
+  final t = format?.split('.').first ?? 'date'
+  if (t == 'age') {
     yearC = getLocaleString('ageYear')
     monthC = getLocaleString('ageMonth')
     dayC = getLocaleString('ageDay')
-  } else if (fmt == 'date') {
+  } else if (t == 'date') {
     yearC = getLocaleString('dateYear')
     monthC = getLocaleString('dateMonth')
     dayC = getLocaleString('dateDay')

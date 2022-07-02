@@ -5,8 +5,8 @@ import 'package:hetu_script/values.dart';
 
 import '../../../global.dart';
 import '../../shared/responsive_route.dart';
-import '../character/build/equipments.dart';
-import '../../shared/avatar.dart';
+import 'battle_cards.dart';
+import '../../avatar.dart';
 import '../../shared/dynamic_color_progressbar.dart';
 
 class Duel extends StatefulWidget {
@@ -21,7 +21,7 @@ class Duel extends StatefulWidget {
           char1: char1,
           char2: char2,
           type: type,
-          data: data,
+          duelData: data,
         );
       },
     );
@@ -30,14 +30,14 @@ class Duel extends StatefulWidget {
   final HTStruct char1;
   final HTStruct char2;
   final String? type;
-  final HTStruct? data;
+  final HTStruct? duelData;
 
   const Duel({
     super.key,
     required this.char1,
     required this.char2,
     this.type,
-    this.data,
+    this.duelData,
   });
 
   @override
@@ -52,11 +52,13 @@ class _DuelState extends State<Duel> {
   int _char1ActionIter = 0, _char2ActionIter = 0;
   int _char1Ticks = 0, _char2Ticks = 0;
   double _char1Cooldown = 0, _char2Cooldown = 0;
-  bool _char1InRecovery = false, _char2InRecovery = false;
-  HTStruct? _currentChar1Item, _currentChar2Item;
-  HTStruct? _char1StatsPercentage, _char2StatsPercentage;
-  late num _char1Health, _char2Health;
-  late int _char1HealthMax, _char2HealthMax;
+  HTStruct? _char1ActivatedOffenseItem, _char2ActivatedOffenseItem;
+  HTStruct? _char1InitialStats,
+      _char1Stats,
+      _char1ResultStats,
+      _char2InitialStats,
+      _char2Stats,
+      _char2ResultStats;
 
   bool _finished = false;
 
@@ -73,11 +75,31 @@ class _DuelState extends State<Duel> {
   void initState() {
     super.initState();
 
-    _char1StatsPercentage = engine.invoke('getStatsPercentageOfCharacter',
-        positionalArgs: [widget.char1]);
-    _char2StatsPercentage = engine.invoke('getStatsPercentageOfCharacter',
-        positionalArgs: [widget.char2]);
-    _startDuel(data: widget.data);
+    _startDuel(duelData: widget.duelData);
+  }
+
+  void _startDuel({HTStruct? duelData}) {
+    _frames = 0;
+    _messages = [];
+    _data = duelData ??
+        engine.invoke('Duel', positionalArgs: [
+          widget.char1,
+          widget.char2
+        ], namedArgs: {
+          'type': widget.type,
+        });
+    assert(_data != null);
+    _char1InitialStats = _data!['initialStats']['char1'];
+    _char2InitialStats = _data!['initialStats']['char2'];
+    _char1Stats = _char1InitialStats!.clone();
+    _char2Stats = _char2InitialStats!.clone();
+    _char1ResultStats = _data!['resultStats']['char1'];
+    _char2ResultStats = _data!['resultStats']['char2'];
+    _reset();
+    _char1ActivatedOffenseItem = getNextChar1ActivatedItem();
+    _char2ActivatedOffenseItem = getNextChar2ActivatedItem();
+    _finished = false;
+    _startTimer();
   }
 
   void _reset() {
@@ -87,29 +109,6 @@ class _DuelState extends State<Duel> {
     _char2Ticks = 0;
     _char1Cooldown = 0;
     _char2Cooldown = 0;
-    _char1InRecovery = false;
-    _char2InRecovery = false;
-  }
-
-  void _startDuel({HTStruct? data}) {
-    _frames = 0;
-    _messages = [];
-    _data = data ??
-        engine.invoke('Duel', positionalArgs: [
-          widget.char1,
-          widget.char2
-        ], namedArgs: {
-          'type': widget.type,
-        });
-    _reset();
-    _char1Health = _char1StatsPercentage!['life']['value'].toInt();
-    _char1HealthMax = _char1StatsPercentage!['life']['max'].toInt();
-    _char2Health = _char2StatsPercentage!['life']['value'].toInt();
-    _char2HealthMax = _char2StatsPercentage!['life']['max'].toInt();
-    _currentChar1Item = getNextChar1ActivatedItem();
-    _currentChar2Item = getNextChar2ActivatedItem();
-    _finished = false;
-    _startTimer();
   }
 
   HTStruct? getNextChar1ActivatedItem() {
@@ -134,10 +133,7 @@ class _DuelState extends State<Duel> {
 
   void _startTimer() {
     assert(_data != null);
-    assert(_currentChar1Item != null);
-    assert(_currentChar2Item != null);
     _frames = 0;
-    // _visibleLines = 0;
     _timer?.cancel();
     _timer = Timer.periodic(
       const Duration(milliseconds: 100),
@@ -145,60 +141,38 @@ class _DuelState extends State<Duel> {
         setState(() {
           if (_frames > _data!['frames']) {
             timer.cancel();
-            _reset();
             _finished = true;
           } else {
-            if (!_char1InRecovery) {
-              final startUp = _currentChar1Item!['startUp'];
-              if (_char1Ticks >= startUp) {
+            if (_char1ActivatedOffenseItem != null) {
+              final char1speed = _char1ActivatedOffenseItem!['speed'];
+              if (_char1Ticks >= char1speed) {
                 _char1Ticks = 0;
-                _char1InRecovery = true;
                 _char1Cooldown = 0;
-                _messages.add(_currentChar1Item!['message']);
-                final newHP = _char2Health - _currentChar1Item!['damage'];
-                _char2Health = newHP >= 0 ? newHP : 0;
+                _messages.add(_char1ActivatedOffenseItem!['message']);
+                final newHP = _char2Stats!['life'] -
+                    _char1ActivatedOffenseItem!['damage'];
+                _char2Stats!['life'] = newHP >= 0 ? newHP : 0;
+                _char1ActivatedOffenseItem = getNextChar1ActivatedItem();
               } else {
                 ++_char1Ticks;
               }
-              _char1Cooldown = startUp > 0 ? _char1Ticks / startUp : 1.0;
-            } else {
-              final recovery = _currentChar1Item!['recovery'];
-              if (_char1Ticks >= recovery) {
-                _char1Ticks = 0;
-                _char1InRecovery = false;
-                _currentChar1Item = getNextChar1ActivatedItem();
-                _char1Cooldown = 0;
-              } else {
-                ++_char1Ticks;
-              }
-              _char1Cooldown = recovery > 0 ? _char1Ticks / recovery : 1.0;
+              _char1Cooldown = char1speed > 0 ? _char1Ticks / char1speed : 1.0;
             }
 
-            if (!_char2InRecovery) {
-              final startUp = _currentChar2Item!['startUp'];
-              if (_char2Ticks >= startUp) {
+            if (_char2ActivatedOffenseItem != null) {
+              final char2speed = _char2ActivatedOffenseItem!['speed'];
+              if (_char2Ticks >= char2speed) {
                 _char2Ticks = 0;
-                _char2InRecovery = true;
                 _char2Cooldown = 0;
-                _messages.add(_currentChar2Item!['message']);
-                final newHP = _char1Health - _currentChar2Item!['damage'];
-                _char1Health = newHP >= 0 ? newHP : 0;
+                _messages.add(_char2ActivatedOffenseItem!['message']);
+                final newHP = _char1Stats!['life'] -
+                    _char2ActivatedOffenseItem!['damage'];
+                _char1Stats!['life'] = newHP >= 0 ? newHP : 0;
+                _char2ActivatedOffenseItem = getNextChar2ActivatedItem();
               } else {
                 ++_char2Ticks;
               }
-              _char2Cooldown = startUp > 0 ? _char2Ticks / startUp : 1.0;
-            } else {
-              final recovery = _currentChar2Item!['recovery'];
-              if (_char2Ticks >= recovery) {
-                _char2Ticks = 0;
-                _char2InRecovery = false;
-                _currentChar2Item = getNextChar2ActivatedItem();
-                _char2Cooldown = 1;
-              } else {
-                ++_char2Ticks;
-              }
-              _char2Cooldown =
-                  recovery > 0 ? (1 - _char2Ticks / recovery) : 0.0;
+              _char2Cooldown = char2speed > 0 ? _char2Ticks / char2speed : 1.0;
             }
             ++_frames;
           }
@@ -209,20 +183,6 @@ class _DuelState extends State<Duel> {
 
   @override
   Widget build(BuildContext context) {
-    // List<Widget> lines = [];
-    // if (_data != null) {
-    //   for (var i = 0; i < _data!['messages'].length; ++i) {
-    //     final text = _data!['messages'][i].toString();
-    //     lines.add(
-    //       Text(
-    //         text,
-    //         textAlign: TextAlign.center,
-    //         style: Theme.of(context).textTheme.bodyText1,
-    //       ),
-    //     );
-    //   }
-    // }
-
     // execute after build completed
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.animateTo(
@@ -244,75 +204,62 @@ class _DuelState extends State<Duel> {
         body: Container(
           margin: const EdgeInsets.all(10.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  SizedBox(
-                    width: 270.0,
-                    height: 270.0,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Avatar(
-                          name: widget.char1['name'],
-                          avatarAssetKey:
-                              'assets/images/${widget.char1['avatar']}',
-                        ),
-                        DynamicColorProgressBar(
-                          size: const Size(175.0, 24.0),
-                          value: _char1Health.truncate(),
-                          max: _char1HealthMax,
-                          showPercentage: false,
-                          colors: const <Color>[Colors.red, Colors.green],
-                        ),
-                        EquipmentsView(
-                          verticalMargin: 5.0,
-                          horizontalMargin: 5.0,
-                          data: widget.char1['equipments'],
-                          selectedIndex: _currentChar1Item?['index'] ?? 0,
-                          cooldownValue: _char1Cooldown,
-                          cooldownColor:
-                              _char1InRecovery ? Colors.blue : Colors.yellow,
-                        ),
-                      ],
-                    ),
+                  Column(
+                    children: [
+                      Avatar(
+                        name: widget.char1['name'],
+                        avatarAssetKey: 'assets/images/${widget.char1['icon']}',
+                      ),
+                      DynamicColorProgressBar(
+                        width: 175.0,
+                        height: 20.0,
+                        value: _char1Stats!['life'],
+                        max: _char1Stats!['lifeMax'],
+                        showNumberAsPercentage: false,
+                        colors: const <Color>[Colors.red, Colors.green],
+                      ),
+                      BattleCards(
+                        characterData: widget.char1,
+                        activatedIndex:
+                            _char1ActivatedOffenseItem?['activatedIndex'] ?? 0,
+                        cooldownValue: _char1Cooldown,
+                        cooldownColor: Colors.blue,
+                      ),
+                    ],
                   ),
                   const Image(
                     width: 80.0,
                     fit: BoxFit.contain,
                     image: AssetImage('assets/images/battle/versus.png'),
                   ),
-                  SizedBox(
-                    width: 270.0,
-                    height: 270.0,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Avatar(
-                          name: widget.char2['name'],
-                          avatarAssetKey:
-                              'assets/images/${widget.char2['avatar']}',
-                        ),
-                        DynamicColorProgressBar(
-                          size: const Size(175.0, 24.0),
-                          value: _char2Health.truncate(),
-                          max: _char2HealthMax,
-                          showPercentage: false,
-                          colors: const <Color>[Colors.red, Colors.green],
-                        ),
-                        EquipmentsView(
-                          verticalMargin: 5.0,
-                          horizontalMargin: 5.0,
-                          data: widget.char2['equipments'],
-                          selectedIndex: _currentChar2Item?['index'] ?? 0,
-                          cooldownValue: _char2Cooldown,
-                          cooldownColor:
-                              _char2InRecovery ? Colors.blue : Colors.yellow,
-                        ),
-                      ],
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Avatar(
+                        name: widget.char2['name'],
+                        avatarAssetKey: 'assets/images/${widget.char1['icon']}',
+                      ),
+                      DynamicColorProgressBar(
+                        width: 175.0,
+                        height: 20.0,
+                        value: _char2Stats!['life'],
+                        max: _char2Stats!['lifeMax'],
+                        showNumberAsPercentage: false,
+                        colors: const <Color>[Colors.red, Colors.green],
+                      ),
+                      BattleCards(
+                        characterData: widget.char2,
+                        activatedIndex:
+                            _char2ActivatedOffenseItem?['activatedIndex'] ?? 0,
+                        cooldownValue: _char2Cooldown,
+                        cooldownColor: Colors.blue,
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -370,8 +317,8 @@ class _DuelState extends State<Duel> {
                                 _finished = true;
                                 _messages =
                                     List<String>.from(_data!['messages']);
-                                _char1Health = _data!['stats']['char1']['life'];
-                                _char2Health = _data!['stats']['char2']['life'];
+                                _char1Stats = _char1ResultStats;
+                                _char2Stats = _char2ResultStats;
                               });
                             }
                           },

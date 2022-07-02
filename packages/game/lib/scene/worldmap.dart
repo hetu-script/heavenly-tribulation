@@ -7,9 +7,9 @@ import '../global.dart';
 class WorldMapScene extends Scene {
   late final TileMap map;
 
-  HTStruct data;
+  HTStruct worldData;
 
-  WorldMapScene({required this.data, required super.controller})
+  WorldMapScene({required this.worldData, required super.controller})
       : super(key: 'worldmap');
 
   bool isMapReady = false;
@@ -17,9 +17,10 @@ class WorldMapScene extends Scene {
   @override
   Future<void> onLoad() async {
     super.onLoad();
-    map = await TileMap.fromData(data: data, engine: engine);
+    map = await TileMap.fromData(mapData: worldData, engine: engine);
     add(map);
     isMapReady = true;
-    engine.broadcast(MapLoadedEvent(isNewGame: data['isNewGame'] ?? false));
+    engine
+        .broadcast(MapLoadedEvent(isNewGame: worldData['isNewGame'] ?? false));
   }
 }

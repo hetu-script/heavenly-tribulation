@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 
 import '../../../global.dart';
-import '../shared/avatar.dart';
+import '../avatar.dart';
 
 class MyView extends StatefulWidget {
   final VoidCallback onQuit;
@@ -36,7 +36,7 @@ class _MyViewState extends State<MyView> {
         final String nameId = data['nameId'];
         _name = engine.locale[nameId];
       }
-      _avatarPath = 'assets/images/${data['avatar']}';
+      _avatarPath = 'assets/images/${data['icon']}';
     });
   }
 

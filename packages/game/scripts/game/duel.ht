@@ -1,5 +1,6 @@
 import 'game.ht'
 import 'l10n.ht'
+import 'entity/constants.ht'
 
 /// 战斗模块
 /// 输入战斗相关角色的对象
@@ -14,7 +15,7 @@ fun showDuel(char1, char2, { type }) -> Future {
   } else {
     if (duelResult.result) {
       final message = getLocaleString('enemyEmptyHands', [char2.name])
-      showDialogByStrings(message, character: char2)
+      showDialogByStrings([message], character: char2)
     } else {
       final messages = getLocaleString('emptyHands').split('\n')
       showDialogByStrings(messages, character: char1)
@@ -29,30 +30,30 @@ const kDuelTypePractice = 'practice'
 const kDuelTypeSneakAttack = 'sneakAttack'
 const _kDuelticksLimit = 500
 
-fun _attack(attacker, wielding, victim, log) {
+fun _attack(offenseItem, defenseItem, log) {
   var offset = 0
-  final defense = victim.stats.defense ?? 0
-  if (defense > 0) {
-    offset = Math.gaussianNoise(defense, defense * 0.25, min: defense * 0.5 max: defense)
+  final defenseValue = defenseItem.stats.defense ?? 0
+  if (defenseValue > 0) {
+    offset = Math.gaussianNoise(defenseValue, defenseValue * 0.25, min: defenseValue * 0.5 max: defenseValue)
   }
-  final damage = wielding.stats.damage - offset
+  final damage = offenseItem.stats.damage - offset
   return damage
 }
 
 struct Log {
   construct ({
-    index = 0,
-    startUp = 0,
-    damage = 0,
-    recovery = 0,
     message,
+    activatedIndex = 0,
+    speed,
+    damage = 0,
+    targetIndex,
   }) {
     assert(message != null)
-    this.index = index
-    this.startUp = startUp
+    this.activatedIndex = activatedIndex
+    this.speed = speed
     this.damage = damage
-    this.recovery = recovery
     this.message = message
+    this.targetIndex = targetIndex
   }
 }
 
@@ -66,46 +67,67 @@ struct Duel {
 
     final char1info = {
       ticks: 0,
-      inRecovery: false,
-      index: 1,
-      wieldings: char1.equipments.offense,
-      life: char1.stats.life,
+      offenseItems: char1.equipments.offense, // 进攻手段列表
+      activatedIndex: 1, // 当前激活的进攻手段
+      // 复制出来的人物当前状态，包括生命值等
+      stats: getCharacterStats(char1),
     }
     final char2info = {
       ticks: 0,
-      inRecovery: false,
-      index: 1,
-      wieldings: char2.equipments.offense,
-      life: char1.stats.life,
+      offenseItems: char2.equipments.offense,
+      activatedIndex: 1,
+      stats: getCharacterStats(char2),
+    }
+    // 保存战斗开始时双方的初始状态
+    this.initialStats = {
+      char1: char1info.stats.clone(),
+      char2: char2info.stats.clone(),
     }
     
     this.started = false
-    if (char1info.wieldings.isEmpty) {
+    if (char1.equipments.offense.isEmpty) {
       // 如果没有装备任何武器或者战斗技能，则直接判负
       // this.messages.add(getLocaleString('emptyHands', [char1.name]))
       this.result = false
-    } else if (char2info.wieldings.isEmpty) {
+    } else if (char2.equipments.offense.isEmpty) {
       // this.messages.add(getLocaleString('enemyEmptyHands', [char2.name]))
       this.result = true
     } else {
       this.result = false
+      this.tied = false
       this.started = true
       // 战斗本身的客观时间，不会受任何因素影响
       this.frames = 0
-      char1info.wielding = getEquippedItem(char1info.wieldings.values.first, char1)
-      char2info.wielding = getEquippedItem(char2info.wieldings.values.first, char2)
+      char1info.activatedOffense = getEquippedItem(char1info.offenseItems.values.first, char1)
+      char2info.activatedOffense = getEquippedItem(char2info.offenseItems.values.first, char2)
+
+      // 设置人物当前防护物品位置，0 = 无防护物品
+      // fun setNextActivatedDefenseItem(info, character) {
+      //   for (final i = 1; i < _kDefenseEquipmentMax) {
+      //     final item = 
+      //     if (item.stats.life > 0) {
+      //       info.activatedDefense = item
+      //       return i + 1
+      //     }
+      //   }
+      //   // 没有找到防护装备，伤害会直接作用于人物本身
+      //   info.activatedDefense = info.entity
+      //   return 0
+      // }
+      
+      // char1info.targetIndex = setNextActivatedDefenseItem(char2info, char2)
+      // char2info.targetIndex = setNextActivatedDefenseItem(char1info, char1)
 
       if (type == kDuelTypeSneakAttack) {
         final initiativeSum = char1.attributes.perception + char2.attributes.perception
         final initiativeValue = initiativeSum * Math.random()
         if (char1.attributes.perception > initiativeValue) {
           // this.messages.add(getLocaleString('sneakAttackSuccess', [char1.name]))
-          final damage = _attack(char1, char1info.wielding, char2)
-          life -= damage
-          if (life < 0) life = 0
+          final damage = _attack(char1info.activatedOffense, char2)
+          entityTakeDamage(char2info, damage)
           final message = getLocaleString('attackInfo', [
             char1.name,
-            char1info.wielding.name,
+            char1info.activatedOffense.name,
             char2.name,
             damage.truncate(),
           ])
@@ -121,51 +143,41 @@ struct Duel {
         final actions = enemyTurn ? this.actions.char2 : this.actions.char1
         final subject = enemyTurn ? char2 : char1
         final target = enemyTurn ? char1 : char2
-        if (!info.inRecovery) {
-          // 出招等待阶段
-          if (info.ticks >= info.wielding.stats.startUp) {
-            // 出招
-            final damage = _attack(subject, info.wielding, target)
-            if (enemyTurn) {
-              char1info.life -= damage
-              if (char1info.life < 0) char1info.life = 0
-            } else {
-              char2info.life -= damage
-              if (char2info.life < 0) char2info.life = 0
-            }
-            final message = getLocaleString('attackInfo', [
-              subject.name, 
-              info.wielding.name,
-              target.name,
-              damage.truncate(),
-            ])
-            this.messages.add(message)
-            actions.add(Log(
-              index: info.index,
-              startUp: info.wielding.stats.startUp,
-              damage: damage,
-              recovery: info.wielding.stats.recovery,
-              message: message,
-            ))
-            info.ticks = 0
-            info.inRecovery = true
-          } else {
-            ++info.ticks
+        final targetInfo = enemyTurn ? char1info : char2info
+        // 出招等待阶段
+        if (info.ticks >= info.activatedOffense.stats.speed) {
+          // 出招
+          final damage = _attack(info.activatedOffense, target)
+          final message = getLocaleString('attackInfo', [
+            subject.name, 
+            info.activatedOffense.name,
+            target.name,
+            damage.truncate(),
+          ])
+          this.messages.add(message)
+          actions.add(Log(
+            activatedIndex: info.activatedIndex,
+            speed: info.activatedOffense.stats.speed,
+            damage: damage,
+            message: message,
+            // protected: info.activatedDefense.entityType != kEntityTypeCharacter,
+            // targetIndex: info.activatedDefense.id,
+          ))
+          info.ticks = 0
+          // 计算伤害
+          entityTakeDamage(targetInfo, damage)
+          // if (info.activatedDefense.stats.life <= 0) {
+          //   info.targetIndex = setNextActivatedDefenseItem(info, target)
+          // }
+          // 收招
+          ++info.activatedIndex
+          if (info.activatedIndex > info.offenseItems.length) {
+            info.activatedIndex = 1
           }
+          info.activatedOffense =
+            getEquippedItem(info.offenseItems[info.activatedIndex], subject)
         } else {
-          // 收招等待阶段
-          if (info.ticks >= info.wielding.stats.recovery) {
-            info.ticks = 0
-            info.inRecovery = false
-            // 收招
-            ++info.index
-            if (info.index >= info.wieldings.length) {
-              info.index = 1
-            }
-            info.wielding = getEquippedItem(info.wieldings.elementAt(info.index), subject)
-          } else {
-            ++info.ticks
-          }
+          ++info.ticks
         }
       }
 
@@ -175,15 +187,18 @@ struct Duel {
           this.tied = true
           break
         }
-
-        if (char1info.life <= 0) {
+ 
+        if (char1info.stats.life <= 0) {
           // this.messages.add(getLocaleString('duelVictory', [char1.name, char2.name]))
-          this.result = true
+          if (char2info.stats.life <= 0) {
+            this.tied = true
+          }
           break
         }
         
-        if (char2info.life <= 0) {
+        if (char2info.stats.life <= 0) {
           // this.messages.add(getLocaleString('duelVictory', [char2.name, char1.name]))
+          this.result = true
           break
         }
 
@@ -194,13 +209,10 @@ struct Duel {
       }
     }
 
-    this.stats = {
-      char1: {
-        life: char1info.life,
-      },
-      char2: {
-        life: char2info.life,
-      }
+    // 双方结束时的状态
+    this.resultStats = {
+      char1: char1info.stats,
+      char2: char2info.stats,
     }
     
     if (config.debug) {

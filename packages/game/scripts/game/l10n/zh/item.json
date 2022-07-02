@@ -3,12 +3,13 @@
 
   "category": "类型",
   "weapon": "武器",
-  "kind": "类型",
+  "protect": "防护",
 
+  "kind": "类型",
   "sabre": "刀",
   "sword": "剑",
   "axe": "斧",
-  "helberd": "戟",
+  "halberd": "戟",
   "staff": "棍",
   "hammer": "锤",
   "spear": "枪",
@@ -21,6 +22,7 @@
 
   "damage": "伤害",
   "durability": "耐久",
+  "speed": "速度",
   "startUp": "出招时间",
   "recovery": "收招时间",
   "parry": "格挡",

@@ -193,7 +193,7 @@ class _InformationPanelState extends State<InformationPanel>
             children: [
               GameEntityListView(
                 columns: _kInformationViewCharacterColumns,
-                data: _charactersFieldRow,
+                tableData: _charactersFieldRow,
                 onTap: (dataId) => showDialog(
                   context: context,
                   builder: (context) => CharacterView(characterId: dataId),
@@ -201,15 +201,15 @@ class _InformationPanelState extends State<InformationPanel>
               ),
               GameEntityListView(
                 columns: _kInformationViewOrganizationColumns,
-                data: _organizationsFieldRow,
+                tableData: _organizationsFieldRow,
               ),
               GameEntityListView(
                 columns: _kInformationViewLocationColumns,
-                data: _locationsFieldRow,
+                tableData: _locationsFieldRow,
               ),
               GameEntityListView(
                 columns: _kInformationViewNationColumns,
-                data: _nationsFieldRow,
+                tableData: _nationsFieldRow,
               ),
             ],
           ),

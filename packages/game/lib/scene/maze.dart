@@ -7,9 +7,9 @@ import '../global.dart';
 class MazeScene extends Scene {
   late final TileMap map;
 
-  HTStruct data;
+  HTStruct mapData;
 
-  MazeScene({required this.data, required super.controller})
+  MazeScene({required this.mapData, required super.controller})
       : super(key: 'maze');
 
   bool isMapReady = false;
@@ -17,7 +17,7 @@ class MazeScene extends Scene {
   @override
   Future<void> onLoad() async {
     super.onLoad();
-    map = await TileMap.fromData(data: data, engine: engine);
+    map = await TileMap.fromData(mapData: mapData, engine: engine);
     map.showClouds = false;
     map.showSelected = false;
     map.showFogOfWar = true;

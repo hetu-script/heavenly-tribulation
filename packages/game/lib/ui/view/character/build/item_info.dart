@@ -5,29 +5,42 @@ import '../../../../global.dart';
 import '../../../shared/rrect_icon.dart';
 // import '../../../shared/close_button.dart';
 
+const _kItemInfoWidth = 390.0;
+
+const kEquipTypeOffense = 'offense';
+
 class ItemInfo extends StatelessWidget {
   const ItemInfo({
     super.key,
-    required this.data,
+    required this.itemData,
     this.left,
-    this.top,
     // required this.onClose,
   });
 
-  final HTStruct data;
+  final HTStruct itemData;
 
-  final double? left, top;
+  final double? left;
 
   // final VoidCallback onClose;
 
   @override
   Widget build(BuildContext context) {
-    final isAttackItem = data['isAttackItem'] ?? false;
+    double? actualLeft;
+    if (left != null) {
+      actualLeft = left;
+      final contextSize = MediaQuery.of(context).size;
+      if (contextSize.width - left! < _kItemInfoWidth) {
+        final l = contextSize.width - _kItemInfoWidth;
+        actualLeft = l > 0 ? l : 0;
+      }
+    }
 
-    final attributes = data['attributes'];
-    final stats = data['stats'];
+    final equipType = itemData['equipType'];
 
-    final effectData = data['stats']['effects'];
+    final attributes = itemData['attributes'];
+    final stats = itemData['stats'];
+
+    final effectData = itemData['stats']['effects'];
     final effects = <Widget>[];
     for (final name in effectData.keys) {
       final List valueData = effectData[name];
@@ -72,7 +85,7 @@ class ItemInfo extends StatelessWidget {
         alignment: AlignmentDirectional.topEnd,
         children: [
           Positioned(
-            left: left,
+            left: actualLeft,
             top: 80.0,
             child: Container(
               // margin: const EdgeInsets.only(right: 240.0, top: 120.0),
@@ -95,7 +108,7 @@ class ItemInfo extends StatelessWidget {
                         RRectIcon(
                           margin:
                               const EdgeInsets.only(right: 10.0, bottom: 10.0),
-                          avatarAssetKey: 'assets/images/${data['icon']}',
+                          avatarAssetKey: 'assets/images/${itemData['icon']}',
                           size: const Size(80.0, 80.0),
                         ),
                         Expanded(
@@ -104,11 +117,11 @@ class ItemInfo extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                data['name'],
+                                itemData['name'],
                               ),
                               const Divider(),
                               Text(
-                                data['description'],
+                                itemData['description'],
                               ),
                             ],
                           ),
@@ -116,14 +129,14 @@ class ItemInfo extends StatelessWidget {
                       ],
                     ),
                     Text(
-                        '${engine.locale[data['category']]} - ${engine.locale[data['kind']]}'),
+                        '${engine.locale[itemData['category']]} - ${engine.locale[itemData['kind']]}'),
                     Text(
-                        '${engine.locale['durability']}: ${stats['durability']}/${attributes['durability']}'),
-                    if (isAttackItem)
+                        '${engine.locale['durability']}: ${stats['life']}/${attributes['life']}'),
+                    if (equipType == kEquipTypeOffense)
                       Text(
                           '${engine.locale['damage']}: ${stats['damage'].toStringAsFixed(2)}'),
-                    Text('${engine.locale['startUp']}: ${stats['startUp']}f'),
-                    Text('${engine.locale['recovery']}: ${stats['recovery']}f'),
+                    if (equipType == kEquipTypeOffense)
+                      Text('${engine.locale['speed']}: ${stats['speed']}f'),
                     if (effects.isNotEmpty) const Divider(),
                     ...effects,
                   ],

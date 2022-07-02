@@ -8,16 +8,16 @@ import '../../shared/empty_placeholder.dart';
 import 'character_editor.dart';
 import '../../../shared/util.dart' as util;
 import '../../../shared/json.dart';
-import '../../shared/avatar.dart';
+import '../../avatar.dart';
 
 class CharacterListView extends StatefulWidget {
   const CharacterListView({
     super.key,
-    required this.data,
+    required this.characterData,
     required this.onSaved,
   });
 
-  final List<Map<String, dynamic>> data;
+  final List<Map<String, dynamic>> characterData;
 
   final void Function(String content) onSaved;
 
@@ -32,7 +32,7 @@ class _CharacterListViewState extends State<CharacterListView>
 
   GameLocalization get locale => engine.locale;
 
-  List<Map<String, dynamic>> get data => widget.data;
+  List<Map<String, dynamic>> get data => widget.characterData;
 
   Map<String, dynamic>? _currentEditingCharacterData;
 

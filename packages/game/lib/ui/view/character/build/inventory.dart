@@ -11,10 +11,10 @@ const _kInventorySlotCount = 18;
 class InventoryView extends StatelessWidget {
   const InventoryView({
     super.key,
-    required this.data,
+    required this.inventoryData,
   });
 
-  final List<dynamic> data;
+  final List<dynamic> inventoryData;
 
   void _onItemTapped(
       BuildContext context, HTStruct item, Offset screenPosition) {
@@ -23,9 +23,8 @@ class InventoryView extends StatelessWidget {
         barrierColor: Colors.transparent,
         builder: (context) {
           return ItemInfo(
-            data: item,
+            itemData: item,
             left: screenPosition.dx,
-            top: screenPosition.dy - 100.0,
           );
         });
   }
@@ -33,10 +32,12 @@ class InventoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final grids = <ItemGrid>[];
-    for (var i = 0; i < math.max(_kInventorySlotCount, data.length); ++i) {
-      if (i < data.length) {
+    for (var i = 0;
+        i < math.max(_kInventorySlotCount, inventoryData.length);
+        ++i) {
+      if (i < inventoryData.length) {
         grids.add(ItemGrid(
-          data: data[i],
+          itemData: inventoryData[i],
           onSelect: (item, screenPosition) =>
               _onItemTapped(context, item, screenPosition),
         ));

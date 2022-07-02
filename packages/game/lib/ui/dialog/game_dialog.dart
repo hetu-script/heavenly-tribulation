@@ -1,16 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
+// import 'package:flutter/scheduler.dart';
 import 'package:hetu_script/values.dart';
 
-import '../shared/avatar.dart';
+import '../avatar.dart';
 import '../../global.dart';
 
 class GameDialog extends StatefulWidget {
   static Future<void> show(
     BuildContext context,
-    HTStruct data,
+    HTStruct dialogData,
     dynamic returnValue,
   ) {
     return showDialog<dynamic>(
@@ -18,18 +18,18 @@ class GameDialog extends StatefulWidget {
       barrierColor: kBackgroundColor.withOpacity(0.5),
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return GameDialog(data: data, returnValue: returnValue);
+        return GameDialog(dialogData: dialogData, returnValue: returnValue);
       },
     );
   }
 
-  final HTStruct data;
+  final HTStruct dialogData;
 
   final dynamic returnValue;
 
   const GameDialog({
     super.key,
-    required this.data,
+    required this.dialogData,
     this.returnValue,
   });
 
@@ -38,7 +38,7 @@ class GameDialog extends StatefulWidget {
 }
 
 class _GameDialogState extends State<GameDialog> {
-  HTStruct get _data => widget.data;
+  HTStruct get _data => widget.dialogData;
   Timer? _timer;
   String? _currentAvatar;
   String _currentSay = '';
@@ -104,37 +104,33 @@ class _GameDialogState extends State<GameDialog> {
                 return Container(
                   width: 720,
                   height: 160,
+                  padding: const EdgeInsets.all(15.0),
                   decoration: BoxDecoration(
                     color: kBackgroundColor,
                     borderRadius: kBorderRadius,
                     border: Border.all(color: kForegroundColor),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Row(
-                      children: [
-                        Avatar(
-                          avatarAssetKey: 'assets/images/$_currentAvatar',
-                          size: const Size(120.0, 120.0),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 20.0),
-                          child: SizedBox(
-                            width: 540,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  snapshot.data ?? '',
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                              ],
+                  child: Row(
+                    children: [
+                      Avatar(
+                        avatarAssetKey: 'assets/images/$_currentAvatar',
+                        size: const Size(120.0, 120.0),
+                      ),
+                      Container(
+                        width: 520,
+                        padding: const EdgeInsets.only(left: 20.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              snapshot.data ?? '',
+                              style: const TextStyle(fontSize: 18),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 );
               },
@@ -190,8 +186,8 @@ class _GameDialogState extends State<GameDialog> {
   }
 
   void _finishDialog() {
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      Navigator.pop(context, widget.returnValue);
-    });
+    // SchedulerBinding.instance.addPostFrameCallback((_) {
+    Navigator.pop(context, widget.returnValue);
+    // });
   }
 }
