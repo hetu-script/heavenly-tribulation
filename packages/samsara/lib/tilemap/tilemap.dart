@@ -13,7 +13,7 @@ import '../gestures/gesture_mixin.dart';
 import '../extensions.dart';
 import 'tile.dart';
 import 'zone.dart';
-import 'entity.dart';
+import 'object.dart';
 import 'cloud.dart';
 import '../../shared/color.dart';
 import '../engine.dart';
@@ -242,15 +242,16 @@ class TileMap extends GameComponent with HandlesGesture {
       }
     }
 
-    final entityData = mapData['entities'];
-    final entities = <TileMapEntity>[];
-    if (entityData != null) {
-      for (final data in entityData) {
+    final objectData = mapData['objects'];
+    final objects = <TileMapObject>[];
+    if (objectData != null) {
+      for (final data in objectData) {
         final spriteSrc = data['spriteSrc'];
-        final entitySpriteSrcWidth = data['srcWidth'].toDouble();
-        final entitySpriteSrcHeight = data['srcHeight'].toDouble();
+        final objectSpriteSrcWidth = data['srcWidth'].toDouble();
+        final objectSpriteSrcHeight = data['srcHeight'].toDouble();
         final Sprite sprite = Sprite(await Flame.images.load(spriteSrc));
-        final entity = TileMapEntity(
+        final entityId = data['entityId'];
+        final object = TileMapObject(
           engine: engine,
           sceneKey: sceneKey,
           left: data['left'],
@@ -260,13 +261,14 @@ class TileMap extends GameComponent with HandlesGesture {
           tileMapWidth: tileMapWidth,
           gridWidth: gridWidth,
           gridHeight: gridHeight,
-          srcWidth: entitySpriteSrcWidth,
-          srcHeight: entitySpriteSrcHeight,
+          srcWidth: objectSpriteSrcWidth,
+          srcHeight: objectSpriteSrcHeight,
+          entityId: entityId,
         );
 
-        final tile = terrains[entity.index];
-        tile.entity = entity;
-        entities.add(entity);
+        final tile = terrains[object.index];
+        tile.object = object;
+        objects.add(object);
       }
     }
 
@@ -280,7 +282,7 @@ class TileMap extends GameComponent with HandlesGesture {
       gridHeight: gridHeight,
       terrains: terrains,
       zones: zones,
-      entities: entities,
+      objects: objects,
     );
   }
 
@@ -300,14 +302,14 @@ class TileMap extends GameComponent with HandlesGesture {
   Vector2 mapScreenSize = Vector2.zero();
 
   TileMapTerrain? selectedTerrain;
-  List<TileMapEntity>? selectedActors;
+  List<TileMapObject>? selectedActors;
 
   final List<TileMapTerrain> terrains;
   final List<TileMapZone> zones;
-  final List<TileMapEntity> entities;
-  TileMapEntity? _hero;
-  TileMapEntity? get hero => _hero;
-  set hero(TileMapEntity? entity) {
+  final List<TileMapObject> objects;
+  TileMapObject? _hero;
+  TileMapObject? get hero => _hero;
+  set hero(TileMapObject? entity) {
     _hero = entity;
     if (_hero != null) {
       lightUpAroundTile(_hero!.tilePosition, size: 1);
@@ -347,7 +349,7 @@ class TileMap extends GameComponent with HandlesGesture {
     required this.tileMapHeight,
     required this.terrains,
     this.zones = const [],
-    this.entities = const [],
+    this.objects = const [],
     // this.routes = const [],
     // required this._hero,
   }) {
@@ -409,6 +411,14 @@ class TileMap extends GameComponent with HandlesGesture {
     } else {
       return null;
     }
+  }
+
+  TileMapTerrain? getTerrainAtHero() {
+    if (_hero != null) {
+      return terrains[
+          tilePosition2Index(_hero!.left, _hero!.top, tileMapWidth)];
+    }
+    return null;
   }
 
   void lightUpAroundTile(TilePosition tilePosition, {int size = 0}) {
@@ -658,9 +668,11 @@ class TileMap extends GameComponent with HandlesGesture {
 
     if (_hero != null) {
       if (_currentRoute != null && _currentRoute!.isNotEmpty) {
-        if (!_hero!.isMoving) {
-          final current = getTerrain(_hero!.left, _hero!.top)!;
-          lightUpAroundTile(current.tilePosition, size: 1);
+        if (_hero!.isMovingCanceled) {
+          _currentRoute == null;
+        } else if (!_hero!.isMoving) {
+          final currentTile = getTerrain(_hero!.left, _hero!.top)!;
+          lightUpAroundTile(currentTile.tilePosition, size: 1);
           _currentRoute!.removeLast();
           if (_currentRoute!.isNotEmpty) {
             final nextTile = _currentRoute!.last;
@@ -709,21 +721,21 @@ class TileMap extends GameComponent with HandlesGesture {
       }
     }
 
-    // after all terrains, render the entities, in the same way:
+    // after all terrains, render the objects, in the same way:
     for (var j = 0; j < tileMapHeight; ++j) {
       if (tileShape == TileShape.hexagonalVertical) {
         for (var i = 0; i < tileMapWidth; i = i + 2) {
           final tile = terrains[i + j * tileMapWidth];
-          tile.entity?.render(canvas);
+          tile.object?.render(canvas);
         }
         for (var i = 1; i < tileMapWidth; i = i + 2) {
           final tile = terrains[i + j * tileMapWidth];
-          tile.entity?.render(canvas);
+          tile.object?.render(canvas);
         }
       } else {
         for (var i = 0; i < tileMapWidth; ++i) {
           final tile = terrains[i + j * tileMapWidth];
-          tile.entity?.render(canvas);
+          tile.object?.render(canvas);
         }
       }
     }

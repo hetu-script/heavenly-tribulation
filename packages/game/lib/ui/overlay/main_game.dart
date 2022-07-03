@@ -21,7 +21,7 @@ import 'worldmap/history_panel.dart';
 import '../shared/loading_screen.dart';
 import '../../global.dart';
 import '../../scene/worldmap.dart';
-import 'character_info.dart';
+import 'hero_info.dart';
 import 'worldmap/drop_menu.dart';
 import '../view/console.dart';
 // import '../../../event/events.dart';
@@ -148,7 +148,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
             image: await Flame.images.load('character/tile_ship.png'),
             srcSize: Vector2(32.0, 32.0),
           );
-          _scene.map.hero = TileMapEntity(
+          _scene.map.hero = TileMapObject(
             engine: engine,
             sceneKey: _scene.key,
             isHero: true,

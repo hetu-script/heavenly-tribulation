@@ -86,8 +86,7 @@ class _BuildViewState extends State<BuildView>
     final data = engine.invoke('getCharacterById', positionalArgs: [charId]);
 
     return ResponsiveRoute(
-      alignment: AlignmentDirectional.topEnd,
-      size: const Size(800.0, 400.0),
+      size: const Size(700.0, 400.0),
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -95,32 +94,41 @@ class _BuildViewState extends State<BuildView>
           actions: const [ButtonClose()],
         ),
         body: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            EquipmentsView(
-              equipmentsData: data['equipments'],
+            SizedBox(
+              width: 340.0,
+              height: 390.0,
+              child: EquipmentsView(
+                equipmentsData: data['equipments'],
+              ),
             ),
-            DefaultTabController(
-              length: _tabs.length, // 物品栏通过tabs过滤不同种类的物品
-              child: Column(
-                children: [
-                  TabBar(
-                    // controller: _tabController,
-                    tabs: _tabs,
-                  ),
-                  Expanded(
-                    child: TabBarView(
+            SizedBox(
+              width: 340.0,
+              height: 390.0,
+              child: DefaultTabController(
+                length: _tabs.length, // 物品栏通过tabs过滤不同种类的物品
+                child: Column(
+                  children: [
+                    TabBar(
                       // controller: _tabController,
-                      children: [
-                        InventoryView(
-                          inventoryData: data['inventory'],
-                        ),
-                        InventoryView(
-                          inventoryData: data['skills'],
-                        ),
-                      ],
+                      tabs: _tabs,
                     ),
-                  ),
-                ],
+                    Expanded(
+                      child: TabBarView(
+                        // controller: _tabController,
+                        children: [
+                          InventoryView(
+                            inventoryData: data['inventory'],
+                          ),
+                          InventoryView(
+                            inventoryData: data['skills'],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

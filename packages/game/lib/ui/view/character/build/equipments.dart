@@ -8,16 +8,12 @@ class EquipmentsView extends StatelessWidget {
   const EquipmentsView({
     super.key,
     required this.equipmentsData,
-    this.verticalMargin = 5.0,
-    this.horizontalMargin = 10.0,
     this.selectedIndex = 0,
     this.cooldownValue = 0.0,
     this.cooldownColor = Colors.white,
   });
 
   final HTStruct equipmentsData;
-
-  final double verticalMargin, horizontalMargin;
 
   final int selectedIndex;
 
@@ -40,64 +36,116 @@ class EquipmentsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       width: 390.0,
       height: 390.0,
+      padding: const EdgeInsets.only(left: 25.0, right: 25.0, bottom: 25.0),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ItemGrid(
-                itemData: equipmentsData['offense'][1],
-                onSelect: (item, screenPosition) =>
-                    _onItemTapped(context, item, screenPosition),
-                isSelected: selectedIndex == 1,
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: ItemGrid(
+                      itemData: equipmentsData['offense'][1],
+                      onSelect: (item, screenPosition) =>
+                          _onItemTapped(context, item, screenPosition),
+                      isSelected: selectedIndex == 1,
+                      backgroundImage: const AssetImage(
+                          'assets/images/icon/item/bg_armor.png'),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: ItemGrid(
+                      itemData: equipmentsData['offense'][2],
+                      onSelect: (item, screenPosition) =>
+                          _onItemTapped(context, item, screenPosition),
+                      isSelected: selectedIndex == 2,
+                      backgroundImage: const AssetImage(
+                          'assets/images/icon/item/bg_boots.png'),
+                    ),
+                  ),
+                ],
               ),
-              ItemGrid(
-                itemData: equipmentsData['offense'][2],
-                onSelect: (item, screenPosition) =>
-                    _onItemTapped(context, item, screenPosition),
-                isSelected: selectedIndex == 2,
-              ),
-              ItemGrid(
-                itemData: equipmentsData['offense'][3],
-                onSelect: (item, screenPosition) =>
-                    _onItemTapped(context, item, screenPosition),
-                isSelected: selectedIndex == 3,
-              ),
-              ItemGrid(
-                itemData: equipmentsData['offense'][4],
-                onSelect: (item, screenPosition) =>
-                    _onItemTapped(context, item, screenPosition),
-                isSelected: selectedIndex == 4,
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: ItemGrid(
+                      itemData: equipmentsData['offense'][1],
+                      onSelect: (item, screenPosition) =>
+                          _onItemTapped(context, item, screenPosition),
+                      isSelected: selectedIndex == 1,
+                      backgroundImage: const AssetImage(
+                          'assets/images/icon/item/bg_talismam.png'),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: ItemGrid(
+                      itemData: equipmentsData['offense'][2],
+                      onSelect: (item, screenPosition) =>
+                          _onItemTapped(context, item, screenPosition),
+                      isSelected: selectedIndex == 2,
+                      backgroundImage: const AssetImage(
+                          'assets/images/icon/item/bg_talismam.png'),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ItemGrid(
-                itemData: equipmentsData['defense'][1],
-                onSelect: (item, screenPosition) =>
-                    _onItemTapped(context, item, screenPosition),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: ItemGrid(
+                  itemData: equipmentsData['offense'][1],
+                  onSelect: (item, screenPosition) =>
+                      _onItemTapped(context, item, screenPosition),
+                  isSelected: selectedIndex == 1,
+                  backgroundImage:
+                      const AssetImage('assets/images/icon/item/bg_weapon.png'),
+                ),
               ),
-              ItemGrid(
-                itemData: equipmentsData['defense'][2],
-                onSelect: (item, screenPosition) =>
-                    _onItemTapped(context, item, screenPosition),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: ItemGrid(
+                  itemData: equipmentsData['offense'][2],
+                  onSelect: (item, screenPosition) =>
+                      _onItemTapped(context, item, screenPosition),
+                  isSelected: selectedIndex == 2,
+                  backgroundImage:
+                      const AssetImage('assets/images/icon/item/bg_weapon.png'),
+                ),
               ),
-              ItemGrid(
-                itemData: equipmentsData['defense'][3],
-                onSelect: (item, screenPosition) =>
-                    _onItemTapped(context, item, screenPosition),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: ItemGrid(
+                  itemData: equipmentsData['offense'][3],
+                  onSelect: (item, screenPosition) =>
+                      _onItemTapped(context, item, screenPosition),
+                  isSelected: selectedIndex == 3,
+                  backgroundImage:
+                      const AssetImage('assets/images/icon/item/bg_weapon.png'),
+                ),
               ),
-              ItemGrid(
-                itemData: equipmentsData['defense'][4],
-                onSelect: (item, screenPosition) =>
-                    _onItemTapped(context, item, screenPosition),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: ItemGrid(
+                  itemData: equipmentsData['offense'][4],
+                  onSelect: (item, screenPosition) =>
+                      _onItemTapped(context, item, screenPosition),
+                  isSelected: selectedIndex == 4,
+                  backgroundImage:
+                      const AssetImage('assets/images/icon/item/bg_weapon.png'),
+                ),
               ),
             ],
           ),

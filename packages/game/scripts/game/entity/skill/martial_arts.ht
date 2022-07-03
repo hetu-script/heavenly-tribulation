@@ -1,0 +1,81 @@
+import '../../generator/name/name.ht' as nameGenerator
+import '../constants.ht'
+import '../../game.ht'
+
+final kMartialArtsIcons = [
+  'icon/skill/martial_0.png',
+]
+
+final kMartialArtsKinds = {
+  // 伤害一般，耐久低，出招速度一般，收招速度快
+  'fist': {
+    attributes: {
+      speed: 5,
+      damage: 30,
+      criticalDamageMultiply: 1.5,
+    },
+  },
+  // 伤害一般，耐久低，出招速度一般，收招速度快
+  'kick': {
+    attributes: {
+      speed: 8,
+      damage: 30,
+      criticalDamageMultiply: 1.5,
+    },
+  },
+  // 伤害一般，耐久低，出招速度一般，收招速度快
+  'wrestling': {
+    attributes: {
+      speed: 10,
+      damage: 30,
+      criticalDamageMultiply: 2,
+    },
+  },
+}
+
+struct MartialArt {
+  construct ({
+    name,
+    rarity,
+    icon,
+    creatorId,
+    createdTime,
+    description,
+    kind,
+    attributes,
+  }) {
+    this.name = name
+    this.entityType = kEntityTypeSkill // 人物、地点、物品、技能等等
+    this.category = kEntityCategoryMartialArts // 武器、防护、斗技、玄功等等
+    this.kind = kind ?? kMartialArtsKinds.keys.random // 枪、剑、斧等等
+    this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
+    this.rarity = rarity
+    this.creatorId = creatorId
+    this.createdTime = createdTime
+    this.description = description ?? ''
+    this.isEquipped = false
+    
+    if (!this.name) {
+      print(this.kind)
+      final r = nameGenerator.getSkill(1, category: this.kind, rarity: this.rarity).first
+      this.name = r.name
+      this.rarity ??= r.rarity 
+    }
+    this.id = 'martial_arts_${Hash.uid4(2)}_${this.name}'
+    this.icon = kMartialArtsIcons.random
+    this.attributes = {
+      ...kMartialArtsKinds[this.kind].attributes,
+      effects: [],
+    }
+
+    if (attributes) {
+      this.attributes.assign(attributes)
+    }
+
+    recalculateAttributesOfMartialArt(this)
+  }
+}
+
+fun recalculateAttributesOfMartialArt(skill) {
+  skill.stats = { ...skill.attributes }
+}

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../component/game_component.dart';
 import '../shared/direction.dart';
-import 'entity.dart';
+import 'object.dart';
 
 class TilePosition {
   final int left, top;
@@ -86,7 +86,8 @@ class TileMapTerrain extends GameComponent with TileInfo {
   bool isSelectable;
   bool showGrid;
 
-  TileMapEntity? entity;
+  // this is set by the tilemap after objects are loaded.
+  TileMapObject? object;
 
   TileMapTerrain({
     required TileShape tileShape,

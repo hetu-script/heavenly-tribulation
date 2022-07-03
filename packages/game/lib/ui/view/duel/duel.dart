@@ -8,6 +8,7 @@ import '../../shared/responsive_route.dart';
 import 'battle_cards.dart';
 import '../../avatar.dart';
 import '../../shared/dynamic_color_progressbar.dart';
+import '../character/character.dart';
 
 class Duel extends StatefulWidget {
   static Future<void> show(BuildContext context, HTStruct char1, HTStruct char2,
@@ -214,6 +215,13 @@ class _DuelState extends State<Duel> {
                       Avatar(
                         name: widget.char1['name'],
                         avatarAssetKey: 'assets/images/${widget.char1['icon']}',
+                        onPressed: () => showDialog(
+                          context: context,
+                          barrierColor: Colors.transparent,
+                          builder: (context) {
+                            return CharacterView(characterData: widget.char1);
+                          },
+                        ),
                       ),
                       DynamicColorProgressBar(
                         width: 175.0,
@@ -243,6 +251,13 @@ class _DuelState extends State<Duel> {
                       Avatar(
                         name: widget.char2['name'],
                         avatarAssetKey: 'assets/images/${widget.char1['icon']}',
+                        onPressed: () => showDialog(
+                          context: context,
+                          barrierColor: Colors.transparent,
+                          builder: (context) {
+                            return CharacterView(characterData: widget.char1);
+                          },
+                        ),
                       ),
                       DynamicColorProgressBar(
                         width: 175.0,

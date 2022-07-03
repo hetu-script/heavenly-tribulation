@@ -197,6 +197,7 @@ fun getBook(number: int, {length, category, kind}) {
     }
     names.add({
       name: _kBookLeft + skillname.name + pre + post + _kBookRight,
+      skillName: skillName.name
       category: c,
       rarity: rarity,
     })

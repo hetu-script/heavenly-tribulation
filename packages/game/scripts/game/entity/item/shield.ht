@@ -21,7 +21,7 @@ struct Shield {
   }) {
     this.name = name
     this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
-    this.category = kEntityCategoryProtect // 武器、防护、斗技、玄功等等
+    this.category = kEntityCategoryWeaponSupport // 武器、防护、斗技、玄功等等
     this.kind = kShieldKind // 枪、剑、斧等等
     this.equipType = kEquipTypeSupport // 装备类型：如果没有就是不可装备
     this.rarity = rarity
@@ -44,7 +44,6 @@ struct Shield {
       attributes: {
         life: 150,
       },
-      effects: {},
     }
 
     if (attributes) {

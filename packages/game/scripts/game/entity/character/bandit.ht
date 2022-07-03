@@ -1,7 +1,8 @@
 import 'character.ht'
 
 final kBanditKinds = [
-  'gangLeader',
+  'boss',
+  'muscle',
   'killer',
   'minion',
 ]
@@ -18,14 +19,14 @@ struct Bandit extends Character {
     isMajor: false,
   ) {
     this.name = getLocaleString(isPirate ? kPirateName : kBanditName) + getLocaleString(kBanditKinds.random)
+    this.id = 'bandit_${Hash.uid4(2)}_${this.name}'
 
     this.kind = kind ?? kBanditKinds.random
-    
     when (this.kind) {
-      'gangLeader' -> {
+      'boss' -> {
         equip(Weapon(), this)
       }
-      'killer' -> {
+      'muscle' -> {
         equip(Weapon(), this)
       }
       'minion' -> {

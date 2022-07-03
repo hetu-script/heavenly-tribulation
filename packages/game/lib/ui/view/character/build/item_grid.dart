@@ -14,6 +14,7 @@ class ItemGrid extends StatelessWidget {
     this.hasBorder = true,
     this.isSelected = false,
     this.child,
+    this.backgroundImage,
   });
 
   final Size size;
@@ -22,6 +23,7 @@ class ItemGrid extends StatelessWidget {
   final bool hasBorder;
   final bool isSelected;
   final Widget? child;
+  final ImageProvider<Object>? backgroundImage;
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +49,13 @@ class ItemGrid extends StatelessWidget {
                         color: Colors.white.withOpacity(isSelected ? 1 : 0.25),
                         width: 2,
                       ),
+                      image: backgroundImage != null
+                          ? DecorationImage(
+                              fit: BoxFit.contain,
+                              image: backgroundImage!,
+                              opacity: 0.2,
+                            )
+                          : null,
                       borderRadius: kBorderRadius,
                     )
                   : null,
@@ -54,7 +63,9 @@ class ItemGrid extends StatelessWidget {
                 children: [
                   if (iconAssetKey != null)
                     Image(
-                      fit: BoxFit.contain,
+                      width: size.width,
+                      height: size.height,
+                      fit: BoxFit.fill,
                       image: AssetImage('assets/images/$iconAssetKey'),
                     ),
                   if (child != null) child!,

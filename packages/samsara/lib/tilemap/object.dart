@@ -17,7 +17,7 @@ enum AnimationDirection {
   north,
 }
 
-class TileMapEntity extends GameComponent with TileInfo {
+class TileMapObject extends GameComponent with TileInfo {
   final String sceneKey;
   final bool isHero;
   final double velocityFactor;
@@ -41,6 +41,7 @@ class TileMapEntity extends GameComponent with TileInfo {
 
   bool _isMoving = false;
   bool get isMoving => _isMoving;
+  bool isMovingCanceled = false;
   bool isOnWater = false;
   Vector2 _movingOffset = Vector2.zero();
   Vector2 _movingTargetWorldPosition = Vector2.zero();
@@ -49,9 +50,9 @@ class TileMapEntity extends GameComponent with TileInfo {
 
   final SamsaraEngine engine;
 
-  String? entityIndex;
+  String? entityId;
 
-  TileMapEntity({
+  TileMapObject({
     required this.engine,
     required this.sceneKey,
     this.isHero = false,
@@ -67,7 +68,7 @@ class TileMapEntity extends GameComponent with TileInfo {
     required double gridHeight,
     required double srcWidth,
     required double srcHeight,
-    this.entityIndex,
+    this.entityId,
   }) {
     if (animationSpriteSheet != null) {
       _isAnimated = true;

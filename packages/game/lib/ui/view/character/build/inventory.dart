@@ -14,7 +14,7 @@ class InventoryView extends StatelessWidget {
     required this.inventoryData,
   });
 
-  final List<dynamic> inventoryData;
+  final HTStruct inventoryData;
 
   void _onItemTapped(
       BuildContext context, HTStruct item, Offset screenPosition) {
@@ -31,20 +31,26 @@ class InventoryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final grids = <ItemGrid>[];
+    final grids = <Widget>[];
     for (var i = 0;
         i < math.max(_kInventorySlotCount, inventoryData.length);
         ++i) {
       if (i < inventoryData.length) {
-        grids.add(ItemGrid(
-          itemData: inventoryData[i],
-          onSelect: (item, screenPosition) =>
-              _onItemTapped(context, item, screenPosition),
+        grids.add(Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: ItemGrid(
+            itemData: inventoryData.values.elementAt(i),
+            onSelect: (item, screenPosition) =>
+                _onItemTapped(context, item, screenPosition),
+          ),
         ));
       } else {
-        grids.add(ItemGrid(
-          onSelect: (item, screenPosition) =>
-              _onItemTapped(context, item, screenPosition),
+        grids.add(Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: ItemGrid(
+            onSelect: (item, screenPosition) =>
+                _onItemTapped(context, item, screenPosition),
+          ),
         ));
       }
     }

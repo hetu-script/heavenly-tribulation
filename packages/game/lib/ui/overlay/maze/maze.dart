@@ -12,6 +12,7 @@ import '../../../global.dart';
 import '../../../scene/maze.dart';
 import 'drop_menu.dart';
 import '../../view/console.dart';
+import '../hero_info.dart';
 
 class MazeOverlay extends StatefulWidget {
   const MazeOverlay({
@@ -34,6 +35,8 @@ class _MazeOverlayState extends State<MazeOverlay>
   bool get wantKeepAlive => true;
 
   late MazeScene _scene;
+
+  HTStruct? _heroData;
 
   late int _currentLevel;
 
@@ -88,7 +91,7 @@ class _MazeOverlayState extends State<MazeOverlay>
             image: await Flame.images.load('character/tile_ship.png'),
             srcSize: Vector2(32.0, 32.0),
           );
-          _scene.map.hero = TileMapEntity(
+          _scene.map.hero = TileMapObject(
             engine: engine,
             sceneKey: _scene.key,
             isHero: true,
@@ -107,6 +110,25 @@ class _MazeOverlayState extends State<MazeOverlay>
         },
       ),
     );
+
+    engine.registerListener(
+      Events.heroMoved,
+      EventHandler(
+        widget.key!,
+        (GameEvent event) {
+          setState(() {
+            final currentTile = _scene.map.getTerrainAtHero()!;
+            if (currentTile.object != null) {
+              final String? entityId = currentTile.object!.entityId;
+              if (entityId != null) {
+                engine.invoke('handleMazeEntityInteraction',
+                    positionalArgs: [entityId]);
+              }
+            }
+          });
+        },
+      ),
+    );
   }
 
   @override
@@ -121,6 +143,7 @@ class _MazeOverlayState extends State<MazeOverlay>
 
   Future<Scene> _createLevel(HTStruct levelData) async {
     final scene = await engine.createScene('maze', levelData) as MazeScene;
+    _heroData = engine.invoke('getHero');
     return scene;
   }
 
@@ -150,6 +173,12 @@ class _MazeOverlayState extends State<MazeOverlay>
             child: Stack(
               children: [
                 SceneWidget(scene: _scene),
+                if (_heroData != null)
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    child: HeroInfoPanel(heroData: _heroData!),
+                  ),
                 Positioned(
                   right: 0,
                   top: 0,

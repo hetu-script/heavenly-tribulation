@@ -13,6 +13,7 @@ import 'maze.json' as maze
 import 'npc.json' as npc
 import 'organization.json' as organization
 import 'quest.json' as quest
+import 'skill.json' as skill
 import 'terrain.json' as terrain
 import 'world_map.json' as worldMap
 
@@ -32,6 +33,7 @@ final zh = {
   ...npc,
   ...organization,
   ...quest,
+  ...skill,
   ...terrain,
   ...worldMap,
 }

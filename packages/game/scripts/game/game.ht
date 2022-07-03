@@ -34,8 +34,6 @@ var config = {
 
 var history = []
 
-var game = {}
-
 struct Game {
   construct {
     // 加载到本次游戏的mod信息
@@ -83,6 +81,8 @@ struct Game {
     }
   }
 }
+
+var game
 
 fun resetGame {
   game = Game()

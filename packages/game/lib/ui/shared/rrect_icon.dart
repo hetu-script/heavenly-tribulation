@@ -5,15 +5,12 @@ import '../../global.dart';
 class RRectIcon extends StatelessWidget {
   const RRectIcon({
     super.key,
-    this.margin,
     required this.avatarAssetKey,
     this.size = const Size(48.0, 48.0),
     this.radius = 5.0,
     this.borderColor = kForegroundColor,
     this.borderWidth = 1.0,
   });
-
-  final EdgeInsetsGeometry? margin;
 
   final String avatarAssetKey;
 
@@ -30,7 +27,6 @@ class RRectIcon extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(radius),
       child: Container(
-        margin: margin,
         width: size.width,
         height: size.height,
         decoration: BoxDecoration(

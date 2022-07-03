@@ -9,6 +9,8 @@ const _kItemInfoWidth = 390.0;
 
 const kEquipTypeOffense = 'offense';
 
+const kEntityCategoryWeapon = 'weapon';
+
 class ItemInfo extends StatelessWidget {
   const ItemInfo({
     super.key,
@@ -35,6 +37,7 @@ class ItemInfo extends StatelessWidget {
       }
     }
 
+    final category = itemData['category'];
     final equipType = itemData['equipType'];
 
     final attributes = itemData['attributes'];
@@ -42,7 +45,7 @@ class ItemInfo extends StatelessWidget {
 
     final effectData = itemData['stats']['effects'];
     final effects = <Widget>[];
-    for (final name in effectData.keys) {
+    for (final name in effectData) {
       final List valueData = effectData[name];
       final List<String> values = [];
       for (final data in valueData) {
@@ -105,11 +108,13 @@ class ItemInfo extends StatelessWidget {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        RRectIcon(
-                          margin:
+                        Padding(
+                          padding:
                               const EdgeInsets.only(right: 10.0, bottom: 10.0),
-                          avatarAssetKey: 'assets/images/${itemData['icon']}',
-                          size: const Size(80.0, 80.0),
+                          child: RRectIcon(
+                            avatarAssetKey: 'assets/images/${itemData['icon']}',
+                            size: const Size(80.0, 80.0),
+                          ),
                         ),
                         Expanded(
                           child: Column(
@@ -130,8 +135,9 @@ class ItemInfo extends StatelessWidget {
                     ),
                     Text(
                         '${engine.locale[itemData['category']]} - ${engine.locale[itemData['kind']]}'),
-                    Text(
-                        '${engine.locale['durability']}: ${stats['life']}/${attributes['life']}'),
+                    if (category == kEntityCategoryWeapon)
+                      Text(
+                          '${engine.locale['durability']}: ${stats['life']}/${attributes['life']}'),
                     if (equipType == kEquipTypeOffense)
                       Text(
                           '${engine.locale['damage']}: ${stats['damage'].toStringAsFixed(2)}'),

@@ -2,7 +2,8 @@
   "bandit": "山贼",
   "pirate": "海贼",
 
-  "gangLeader": "头目",
-  "killer": "杀手",
+  "boss": "头目",
+  "muscle": "打手",
+  "killer": "刺客",
   "minion": "喽啰"
 }

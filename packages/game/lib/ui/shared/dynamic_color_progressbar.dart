@@ -7,7 +7,7 @@ class DynamicColorProgressBar extends StatelessWidget {
     Key? key,
     this.title,
     required this.width,
-    this.height,
+    this.height = 20.0,
     required this.value,
     required this.max,
     this.showNumber = true,
@@ -34,7 +34,7 @@ class DynamicColorProgressBar extends StatelessWidget {
 
   final double width;
 
-  final double? height;
+  final double height;
 
   final int value, max;
 

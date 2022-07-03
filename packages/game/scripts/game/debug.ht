@@ -4,6 +4,8 @@ import 'entity/item/item.ht'
 import 'duel.ht'
 import 'generator/name/name.ht'
 import 'entity/character/bandit.ht'
+import 'entity/skill/skill.ht'
+import 'maze.ht'
 
 fun giveWeapon(character) {
   final weapon = Weapon()
@@ -30,12 +32,21 @@ fun giveHeroWeapon([n = 1]) {
 
 // 测试战斗：随机生成两个准备好战斗的角色
 fun testDuel() {
-  final hero = Character()
-  final enemy = Character()
-  // final enemy = Bandit(kind: 'gangLeader')
+  final hero = Character(isMajor: false)
+  final enemy = Character(isMajor: false)
+  // final enemy = Bandit(kind: 'boss')
+  equip(MartialArt(), hero)
   equip(Weapon(), hero)
-  equip(Weapon(), hero)
-  equip(Weapon(), enemy)
+  equip(MartialArt(), enemy)
   equip(Weapon(), enemy)
   showDuel(hero, enemy)
+}
+
+fun testMaze() {
+  resetGame()
+  final hero = Character()
+  equip(MartialArt(), hero)
+  equip(Weapon(), hero)
+  setHeroId(hero.id)
+  return createMaze()
 }

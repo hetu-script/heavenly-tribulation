@@ -22,7 +22,7 @@ final mazes = [
     rooms: [0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1],
     // 可交互对象，包括NPC、机关、宝箱、记录等等
     // 此处key是坐标，真正的id是对象上的id字段
-    entities: {
+    objects: {
       '3,3': {
         id: 'baiheguanHoushanEvent01',
         sprite: 'maze/question_mark01.png',

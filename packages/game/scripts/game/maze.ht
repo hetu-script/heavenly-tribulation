@@ -1,7 +1,8 @@
 import 'tile/hexagonal_tile.ht'
 import 'tile/tilemap.ht'
 import 'game.ht'
-import 'tile/entity.ht'
+import 'tile/object.ht'
+import 'entity/character/bandit.ht'
 
 final _kLandSprites = [
   kSpriteLand,
@@ -90,12 +91,14 @@ fun generateRoute(name, anchors, map) {
   }
 }
 
-fun addMazeEntity(entity, map) {
-  final tileIndex = tilePos2Index(entity.left, entity.top, map.width)
-  final tile = map.terrains[tileIndex]
-  tile.entityIndex = map.entities.length
-  map.entities.add(entity)
-}
+// fun addMazeObject(object, map) {
+//   if (object.entityId) {
+//     final tileIndex = tilePos2Index(object.left, object.top, map.width)
+//     final tile = map.terrains[tileIndex]
+//     tile.objectIndex = map.objects.length
+//   }
+//   map.objects.add(object)
+// }
 
 /// 生成Roguelike副本的算法
 fun createMaze ({
@@ -105,8 +108,9 @@ fun createMaze ({
   engine.info('开始生成副本: ${id}')
 
   game.maze = {
-    levels: [],
+    levels: [], // 每一层是一个单独的 tilemap
     currentLevel: 0,
+    entities: {}, // 包含所有显示在地图上的可互动对象，包括NPC、敌人、宝箱、陷阱、机关等等。
   }
 
   // 已经被分配了的地块
@@ -239,7 +243,7 @@ fun createMaze ({
     occupied.add(entry.index)
     currentLevel.entryX = entry.left
     currentLevel.entryY = entry.top
-    final entryEntity = TileMapEntity(
+    final entryEntity = TileMapObject(
       terrainIndex: entry.index,
       left: entry.left,
       top: entry.top,
@@ -247,12 +251,12 @@ fun createMaze ({
       srcWidth: 32.0,
       srcHeight: 32.0,
     )
-    addMazeEntity(entryEntity, currentLevel)
+    currentLevel.objects.add(entryEntity)
     final exit = possibleEntries.last
     occupied.add(exit.index)
     currentLevel.exitX = exit.left
     currentLevel.exitX = exit.top
-    final exitEntity = TileMapEntity(
+    final exitEntity = TileMapObject(
       terrainIndex: exit.index,
       left: exit.left,
       top: exit.top,
@@ -260,14 +264,14 @@ fun createMaze ({
       srcWidth: 32.0,
       srcHeight: 32.0,
     )
-    addMazeEntity(exitEntity, currentLevel)
+    currentLevel.objects.add(exitEntity)
     
     engine.info('在锚点放置遭遇')
     for (final anchor of anchors) {
       final encounterType = _kEncounterTypes.random
       when (encounterType) {
         'treasure' -> {
-          final chest = TileMapEntity(
+          final chest = TileMapObject(
             terrainIndex: anchor.index,
             left: anchor.left,
             top: anchor.top,
@@ -275,18 +279,22 @@ fun createMaze ({
             srcWidth: 32.0,
             srcHeight: 32.0,
           )
-          addMazeEntity(chest, currentLevel)
+          currentLevel.objects.add(chest)
         }
         'enemy' -> {
-          final enemy = TileMapEntity(
+          final enemyEntity = Bandit(kind: 'boss')
+          print(enemyEntity.id)
+          game.maze.entities[enemyEntity.id] = enemyEntity
+          final enemyObject = TileMapObject(
             terrainIndex: anchor.index,
             left: anchor.left,
             top: anchor.top,
             spriteSrc: 'maze/enemy01.png',
             srcWidth: 32.0,
             srcHeight: 32.0,
+            entityId: enemyEntity.id,
           )
-          addMazeEntity(enemy, currentLevel)
+          currentLevel.objects.add(enemyObject)
         }
       }
     }
@@ -366,7 +374,7 @@ fun createMaze ({
       final blockType = _kBlockTypes.random
       when (blockType) {
         'bush' -> {
-          final bush = TileMapEntity(
+          final bush = TileMapObject(
             terrainIndex: tile.index,
             left: tile.left,
             top: tile.top,
@@ -374,10 +382,10 @@ fun createMaze ({
             srcWidth: 32.0,
             srcHeight: 48.0,
           )
-          addMazeEntity(bush, currentLevel)
+          currentLevel.objects.add(bush)
         }
         'rock' -> {
-          final rock = TileMapEntity(
+          final rock = TileMapObject(
             terrainIndex: tile.index,
             left: tile.left,
             top: tile.top,
@@ -385,13 +393,11 @@ fun createMaze ({
             srcWidth: 32.0,
             srcHeight: 48.0,
           )
-          addMazeEntity(rock, currentLevel)
+          currentLevel.objects.add(rock)
         }
       }
     }
-
     engine.info('生成路标')
-    
     game.maze.levels.add(currentLevel)
   }
   
@@ -400,10 +406,8 @@ fun createMaze ({
   return game.maze.levels
 }
 
-fun handleMazeInteraction(level, left, top) {
-  final tileIndex = tilePos2Index(i + 1, j + 1, width)
-  final tile = maze[level].terrains[tileIndex]
-  if (tile.entityIndex) {
-
-  }
+fun handleMazeEntityInteraction(entityId) {
+  final entity = game.maze?.entities[entityId]
+  assert(entity != null)
+  engine.info('地图对象互动事件：[${entity.id}]')
 }

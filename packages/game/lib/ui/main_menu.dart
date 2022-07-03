@@ -148,6 +148,7 @@ class _MainMenuState extends State<MainMenu> {
                 child: Label(
                   locale['newGame'],
                   width: 100.0,
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
@@ -173,6 +174,7 @@ class _MainMenuState extends State<MainMenu> {
                 child: Label(
                   locale['loadGame'],
                   width: 100.0,
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
@@ -180,11 +182,12 @@ class _MainMenuState extends State<MainMenu> {
               padding: const EdgeInsets.only(top: 20.0),
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).pushNamed('editor');
+                  // Navigator.of(context).pushNamed('editor');
                 },
                 child: Label(
                   locale['gameEditor'],
                   width: 100.0,
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
@@ -199,6 +202,7 @@ class _MainMenuState extends State<MainMenu> {
                   child: Label(
                     locale['exit'],
                     width: 100.0,
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
@@ -227,8 +231,7 @@ class _MainMenuState extends State<MainMenu> {
                                 padding: const EdgeInsets.only(top: 20.0),
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    final mazeData = engine
-                                        .invoke('createMaze', namedArgs: {});
+                                    final mazeData = engine.invoke('testMaze');
                                     showDialog(
                                       context: context,
                                       builder: (context) => MazeOverlay(
@@ -244,6 +247,7 @@ class _MainMenuState extends State<MainMenu> {
                                   child: const Label(
                                     'Test Maze',
                                     width: 100.0,
+                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ),
@@ -256,6 +260,7 @@ class _MainMenuState extends State<MainMenu> {
                                   child: const Label(
                                     'Test Duel',
                                     width: 100.0,
+                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ),

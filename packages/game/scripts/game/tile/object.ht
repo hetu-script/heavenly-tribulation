@@ -1,4 +1,4 @@
-struct TileMapEntity {
+struct TileMapObject {
   construct ({
     terrainIndex,
     left,
@@ -7,6 +7,7 @@ struct TileMapEntity {
     spriteSrc,
     srcWidth,
     srcHeight,
+    entityId,
   }) {
     this.terrainIndex = terrainIndex
     this.left = left
@@ -15,5 +16,6 @@ struct TileMapEntity {
     this.spriteSrc = spriteSrc
     this.srcWidth = srcWidth
     this.srcHeight = srcHeight
+    this.entityId = entityId
   }
 }

@@ -7,7 +7,7 @@ import 'package:window_manager/window_manager.dart';
 
 import 'ui/view/location/location.dart';
 import 'ui/main_menu.dart';
-import 'ui/editor/editor.dart';
+// import 'ui/editor/editor.dart';
 import 'ui/view/character/character.dart';
 import 'ui/view/information/information.dart';
 import 'global.dart';
@@ -60,7 +60,7 @@ void main() async {
         'location': (context) => const LocationView(),
         'information': (context) => const InformationPanel(),
         'character': (context) => const CharacterView(),
-        'editor': (context) => const GameEditor(),
+        // 'editor': (context) => const GameEditor(),
       },
     ),
   );

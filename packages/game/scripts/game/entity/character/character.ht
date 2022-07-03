@@ -773,8 +773,8 @@ fun getEquippedItem(equipData, character) {
 // }
 fun equip(item, character, [index]) -> bool {
   if (item.isEquipped) return
-  if (!character.inventory[item.id]) character.inventory[item.id] = item
-  final equipData = {
+
+  var equipData = {
     id: item.id,
     entityType: item.entityType,
     category: item.category, // 主类型：武器、斗技等
@@ -783,6 +783,15 @@ fun equip(item, character, [index]) -> bool {
     life: item.stats.life,
   }
 
+  when (item.entityType) {
+    kEntityTypeItem -> {
+      if (!character.inventory[item.id]) character.inventory[item.id] = item
+    }
+    kEntityTypeSkill -> {
+      if (!character.skills[item.id]) character.skills[item.id] = item
+    }
+  }
+  
   when (item.equipType) {
     // 斗技、武器、法宝等
     kEquipTypeOffense -> {
