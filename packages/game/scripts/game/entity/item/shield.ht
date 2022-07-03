@@ -31,7 +31,6 @@ struct Shield {
     this.createdTime = createdTime ?? game.timestamp
     this.description = description ?? ''
     this.inscription = inscription ?? ''
-    this.isEquipped = false
     
     if (!this.name) {
       final r = nameGenerator.getTalisman(1, category: this.kind, rarity: this.rarity).first

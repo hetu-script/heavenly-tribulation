@@ -15,8 +15,9 @@ struct Bandit extends Character {
     isPirate,
     kind,
   }) : super(
+    icon: 'avatar/general.png',
     hasName: false,
-    isMajor: false,
+    isMajorCharacter: false,
   ) {
     this.name = getLocaleString(isPirate ? kPirateName : kBanditName) + getLocaleString(kBanditKinds.random)
     this.id = 'bandit_${Hash.uid4(2)}_${this.name}'

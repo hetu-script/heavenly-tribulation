@@ -11,5 +11,9 @@
   "incidentSettleOrganized": "{0} 在 {1} 的 {2} 安家了。",
   "incidentBorn": "{0} 和 {1} 的孩子 {2} 在 {3} 出生了。",
   "incidentMarriage": "{0} 和 {1} 在 {2} 结婚了。",
-  "incidentAquireItem": "{0} 得到了 {1}。"
+  "incidentTransferMoney": "{0} 将 {1} 银两交给了 {2}。",
+  "incidentTransferItem": "{0} 将 {1} 交给了 {2}",
+
+  "heroAquireMoney": "{0} 得到了 {1} 银两。",
+  "heroAquireItem": "{0} 得到了 {1}。"
 }

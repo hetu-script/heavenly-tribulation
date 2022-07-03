@@ -17,7 +17,7 @@ import 'worldmap/popup.dart';
 import '../../shared/json.dart';
 import '../../shared/constants.dart';
 import '../../shared/util.dart';
-import 'worldmap/history_panel.dart';
+import 'history_panel.dart';
 import '../shared/loading_screen.dart';
 import '../../global.dart';
 import '../../scene/worldmap.dart';

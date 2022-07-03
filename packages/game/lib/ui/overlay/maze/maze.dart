@@ -13,6 +13,7 @@ import '../../../scene/maze.dart';
 import 'drop_menu.dart';
 import '../../view/console.dart';
 import '../hero_info.dart';
+import '../history_panel.dart';
 
 class MazeOverlay extends StatefulWidget {
   const MazeOverlay({
@@ -38,7 +39,7 @@ class _MazeOverlayState extends State<MazeOverlay>
 
   HTStruct? _heroData;
 
-  late int _currentLevel;
+  late int _currentLevelIndex;
 
   // late final HTStruct _heroData;
 
@@ -47,7 +48,7 @@ class _MazeOverlayState extends State<MazeOverlay>
     super.initState();
 
     engine.invoke('build', positionalArgs: [context]);
-    _currentLevel = widget.startLevel;
+    _currentLevelIndex = widget.startLevel;
     // _heroData = engine.invoke('getHero');
 
     engine.registerListener(
@@ -121,14 +122,31 @@ class _MazeOverlayState extends State<MazeOverlay>
             if (currentTile.object != null) {
               final String? entityId = currentTile.object!.entityId;
               if (entityId != null) {
-                engine.invoke('handleMazeEntityInteraction',
-                    positionalArgs: [entityId]);
+                if (_scene.map.hero != null) {
+                  final blocked = engine.invoke('handleMazeEntityInteraction',
+                      positionalArgs: [entityId]);
+                  if (blocked) {
+                    _scene.map.moveHeroToLastRouteNode();
+                  } else {
+                    _scene.map.hero!.isMovingCanceled = true;
+                  }
+                }
               }
             }
           });
         },
       ),
     );
+
+    // engine.registerListener(
+    //   CustomEvents.dialogFinished,
+    //   EventHandler(
+    //     widget.key!,
+    //     (GameEvent event) {
+    //       setState(() {});
+    //     },
+    //   ),
+    // );
   }
 
   @override
@@ -158,7 +176,7 @@ class _MazeOverlayState extends State<MazeOverlay>
       // 不知道为啥，这里必须用这种写法才能进入载入界面，否则一定会卡住
       future: Future.delayed(
         const Duration(milliseconds: 100),
-        () => _createLevel(data[_currentLevel]),
+        () => _createLevel(data[_currentLevelIndex]),
       ),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -198,6 +216,13 @@ class _MazeOverlayState extends State<MazeOverlay>
                         default:
                       }
                     },
+                  ),
+                ),
+                Positioned(
+                  left: 0,
+                  bottom: 0,
+                  child: HistoryPanel(
+                    heroId: _heroData?['id'],
                   ),
                 ),
               ],

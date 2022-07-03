@@ -75,7 +75,7 @@ fun createWorldMap({
   
   engine.info('开始生成世界')
   
-  game.savePath = null
+  delete game.savePath
   game.nations = {}
   game.characters = {}
   game.locations = {}

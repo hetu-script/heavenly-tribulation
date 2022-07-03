@@ -282,7 +282,7 @@ fun createMaze ({
           currentLevel.objects.add(chest)
         }
         'enemy' -> {
-          final enemyEntity = Bandit(kind: 'boss')
+          final enemyEntity = Bandit(kind: 'minion')
           print(enemyEntity.id)
           game.maze.entities[enemyEntity.id] = enemyEntity
           final enemyObject = TileMapObject(
@@ -406,8 +406,36 @@ fun createMaze ({
   return game.maze.levels
 }
 
-fun handleMazeEntityInteraction(entityId) {
+// 返回布尔值，如果为真，则玩家控制角色会返回上一格，否则停在这一格
+fun handleMazeEntityInteraction(entityId) -> bool {
+  final hero = getHero()
   final entity = game.maze?.entities[entityId]
   assert(entity != null)
   engine.info('地图对象互动事件：[${entity.id}]')
+  when (entity.kind) {
+    'minion' -> {
+      final messages = getLocaleString('mazeBandit01').split('/n')
+      showDialogByStrings(messages).then((value) {
+        final selections = {
+          handOver: getLocaleString('handOver'),
+          fight: getLocaleString('fight'),
+          escape: getLocaleString('escape'),
+        } 
+        showSelection(selections).then((key) {
+          when (key) {
+            'handOver' -> {
+              characterGiveMoneyTo(hero, hero.money, entity)
+            }
+            'fight' -> {
+              showDialogByStrings([getLocaleString('fightBandit')], character: hero)
+                .then((value) {
+                  showDuel(hero, entity)
+                })
+            }
+          }
+        })
+      })
+    }
+  }
+  return false
 }

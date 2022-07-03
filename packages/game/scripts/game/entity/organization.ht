@@ -185,7 +185,7 @@ fun removeCharacterFromOrganization(character) {
 
   final org = game.organizations[character.organizationId]
   org.characterIds.remove(character.id)
-  character.organizationId = null
+  delete character.organizationId
 }
 
 fun addCharacterToOrganization(character, organization, { incidentOccured = true }) {
@@ -227,7 +227,7 @@ fun removeLocationFromOrganization(location) {
 
   final org = game.organizations[terrain.organizationId]
   org.locationIds.remove(location.id)
-  location.organizationId = null
+  delete location.organizationId
 }
 
 fun addLocationToOrganization(location, organization) {

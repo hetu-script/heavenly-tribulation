@@ -68,7 +68,14 @@ class HeroInfoPanel extends StatelessWidget {
                     colors: const <Color>[Colors.yellow, Colors.blue],
                   ),
                 ),
-                const Spacer(),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 5.0),
+                  child: Row(
+                    children: [
+                      Text('${engine.locale['money']}: ${heroData['money']}'),
+                    ],
+                  ),
+                ),
                 Row(
                   children: [
                     BorderedIconButton(

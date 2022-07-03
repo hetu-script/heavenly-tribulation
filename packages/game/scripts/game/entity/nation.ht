@@ -57,7 +57,7 @@ fun removeTerrainFromNation(terrain) {
   nation.territoryIndexes.remove(terrain.index)
   nation.borderIndexes.add(terrain.index)
   final location = game.locations[terrain.locationId]
-  location.nationId = null
+  delete location.nationId
   nation.locationIds.remove(location.id)
 }
 

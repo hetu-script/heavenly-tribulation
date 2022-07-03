@@ -2,29 +2,35 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-import '../../../global.dart';
-
-const _kMessageLimit = 50;
+import '../../global.dart';
 
 class HistoryPanel extends StatelessWidget {
   const HistoryPanel({
     super.key,
     this.heroId,
+    this.retraceMessageCount = 50,
+    this.showGlobalIncident = true,
   });
 
   final String? heroId;
+
+  final int retraceMessageCount;
+
+  final bool showGlobalIncident;
 
   @override
   Widget build(BuildContext context) {
     final Iterable history = engine.invoke('getHistory').reversed;
     final List items = [];
     final iter = history.iterator;
-    while (iter.moveNext()) {
+    var i = 0;
+    while (iter.moveNext() && i < retraceMessageCount) {
+      ++i;
       final current = iter.current;
-      if (current['isGlobal'] ||
-          (heroId != null &&
-              (current['subjectIds'].contains(heroId) ||
-                  current['objectIds'].contains(heroId)))) {
+      if (!showGlobalIncident) continue;
+      if ((heroId != null &&
+          (current['subjectIds'].contains(heroId) ||
+              current['objectIds'].contains(heroId)))) {
         items.add(current);
       }
     }
@@ -36,7 +42,7 @@ class HistoryPanel extends StatelessWidget {
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: Container(
-          width: 400,
+          width: 300,
           height: 160,
           decoration: BoxDecoration(
             color: kBackgroundColor,

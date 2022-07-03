@@ -20,10 +20,15 @@ import '../engine.dart';
 import '../../event/events.dart';
 
 class TileMapRouteNode {
+  final int index;
   final TilePosition tilePosition;
   final Vector2 worldPosition;
 
-  TileMapRouteNode({required this.tilePosition, required this.worldPosition});
+  TileMapRouteNode({
+    required this.index,
+    required this.tilePosition,
+    required this.worldPosition,
+  });
 }
 
 enum GridMode {
@@ -323,6 +328,8 @@ class TileMap extends GameComponent with HandlesGesture {
 
   List<TileMapRouteNode>? _currentRoute;
 
+  TileMapRouteNode? _lastRouteNode;
+
   // TileMapTerrain? _currentMoveDestination;
 
   // DestinationAction currentDestinationAction = DestinationAction.none;
@@ -573,11 +580,22 @@ class TileMap extends GameComponent with HandlesGesture {
           final worldPos =
               tilePosition2TileCenterInWorld(tilePos.left, tilePos.top);
           return TileMapRouteNode(
-              tilePosition: tilePos, worldPosition: worldPos);
+            index: index,
+            tilePosition: tilePos,
+            worldPosition: worldPos,
+          );
         })
         .toList()
         .reversed
         .toList();
+  }
+
+  void moveHeroToLastRouteNode() {
+    assert(_hero != null);
+    assert(_lastRouteNode != null);
+    _currentRoute = null;
+    moveHeroToTilePositionByRoute([_hero!.index, _lastRouteNode!.index]);
+    _lastRouteNode = null;
   }
 
   @override
@@ -585,7 +603,7 @@ class TileMap extends GameComponent with HandlesGesture {
     camera.snapTo(camera.position - details.delta.toVector2());
   }
 
-  void selectTile(int left, int top) {
+  void _selectTile(int left, int top) {
     final terrain = getTerrain(left, top);
     if (terrain != null) {
       if (terrain.isSelectable) selectedTerrain = terrain;
@@ -598,7 +616,7 @@ class TileMap extends GameComponent with HandlesGesture {
   void onTap(int pointer, int buttons, TapUpDetails details) {
     final screenPosition = details.globalPosition.toVector2();
     final tilePosition = screenPosition2Tile(screenPosition);
-    selectTile(tilePosition.left, tilePosition.top);
+    _selectTile(tilePosition.left, tilePosition.top);
 
     // if (kDebugMode) {
     //   print('tilemap tapped at: $tilePosition');
@@ -613,7 +631,7 @@ class TileMap extends GameComponent with HandlesGesture {
   void onDoubleTap(int pointer, int buttons, TapUpDetails details) {
     final screenPosition = details.globalPosition.toVector2();
     final tilePosition = screenPosition2Tile(screenPosition);
-    selectTile(tilePosition.left, tilePosition.top);
+    _selectTile(tilePosition.left, tilePosition.top);
 
     // if (kDebugMode) {
     // print('tilemap double tapped at: $tilePosition');
@@ -668,11 +686,13 @@ class TileMap extends GameComponent with HandlesGesture {
 
     if (_hero != null) {
       if (_currentRoute != null && _currentRoute!.isNotEmpty) {
-        if (_hero!.isMovingCanceled) {
-          _currentRoute == null;
+        if (hero!.isMovingCanceled) {
+          _currentRoute = null;
+          hero!.isMovingCanceled = false;
         } else if (!_hero!.isMoving) {
           final currentTile = getTerrain(_hero!.left, _hero!.top)!;
           lightUpAroundTile(currentTile.tilePosition, size: 1);
+          _lastRouteNode = _currentRoute!.last;
           _currentRoute!.removeLast();
           if (_currentRoute!.isNotEmpty) {
             final nextTile = _currentRoute!.last;
@@ -690,6 +710,8 @@ class TileMap extends GameComponent with HandlesGesture {
             }
           }
         }
+      } else {
+        if (_lastRouteNode != null) _lastRouteNode = null;
       }
     }
 

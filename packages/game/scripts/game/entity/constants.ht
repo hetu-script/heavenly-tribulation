@@ -177,10 +177,11 @@ const kEntityCategoryWeapon = 'weapon'
 const kEntityCategoryWeaponSupport = 'weaponSupport'
 const kEntityCategoryMartialArts = 'martialArts'
 
-const kEquipTypeProtect = 'protect'
-const kEquipTypeManeuver = 'maneuver'
 const kEquipTypeOffense = 'offense'
 const kEquipTypeSupport = 'support'
+const kEquipTypeProtect = 'protect'
+const kEquipTypeArcane = 'arcane'
+const kEquipTypeManeuver = 'maneuver'
 
 fun entityTakeDamage(entity, damage) {
   assert(entity?.stats?.life != null)

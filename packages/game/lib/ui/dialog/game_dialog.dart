@@ -6,6 +6,7 @@ import 'package:hetu_script/values.dart';
 
 import '../avatar.dart';
 import '../../global.dart';
+import '../../event/events.dart';
 
 class GameDialog extends StatefulWidget {
   static Future<void> show(
@@ -146,7 +147,7 @@ class _GameDialogState extends State<GameDialog> {
       _finished = false;
       _letterCount = 0;
       _currentContent = _data['contents'][_currentContentIndex];
-      _currentAvatar = _currentContent!['avatar'];
+      _currentAvatar = _currentContent!['icon'];
       _currentSay = _currentContent!['lines'][_currentSayIndex];
       _timer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
         _letterCount++;
@@ -188,6 +189,7 @@ class _GameDialogState extends State<GameDialog> {
   void _finishDialog() {
     // SchedulerBinding.instance.addPostFrameCallback((_) {
     Navigator.pop(context, widget.returnValue);
+    engine.broadcast(const UIEvent.dialogFinished());
     // });
   }
 }

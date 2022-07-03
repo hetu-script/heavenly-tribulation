@@ -53,7 +53,6 @@ struct MartialArt {
     this.creatorId = creatorId
     this.createdTime = createdTime
     this.description = description ?? ''
-    this.isEquipped = false
     
     if (!this.name) {
       print(this.kind)

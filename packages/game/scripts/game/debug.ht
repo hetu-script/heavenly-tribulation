@@ -7,33 +7,44 @@ import 'entity/character/bandit.ht'
 import 'entity/skill/skill.ht'
 import 'maze.ht'
 
-fun giveWeapon(character) {
-  final weapon = Weapon()
-  character.inventory[weapon.id] = weapon
-  final incidentContent = getLocaleString('incidentAquireItem', [
-      character.name,
+fun getMoney(value) {
+  assert(value > 0)
+  final hero = getHero()
+  hero.money += value
+  final incidentContent = getLocaleString('heroAquireMoney', [
+      hero.name,
       weapon.name,
     ])
   Incident(
     content: incidentContent,
-    subjectIds: [character.id],
+    subjectIds: [hero.id],
     isPrivate: true,
   )
 }
 
 // 测试物品：主角获取指定数量的武器，必须在游戏开始后才可以使用
-fun giveHeroWeapon([n = 1]) {
+fun getWeapon([n = 1]) {
   assert(n > 0)
   final hero = getHero()
   for (final i in range(n)) {
-    giveWeapon(hero)
+    final weapon = Weapon()
+    character.inventory[weapon.id] = weapon
+    final incidentContent = getLocaleString('heroAquireItem', [
+      character.name,
+      weapon.name,
+    ])
+    Incident(
+      content: incidentContent,
+      subjectIds: [character.id],
+      isPrivate: true,
+    )
   }
 }
 
 // 测试战斗：随机生成两个准备好战斗的角色
 fun testDuel() {
-  final hero = Character(isMajor: false)
-  final enemy = Character(isMajor: false)
+  final hero = Character(isMajorCharacter: false)
+  final enemy = Character(isMajorCharacter: false)
   // final enemy = Bandit(kind: 'boss')
   equip(MartialArt(), hero)
   equip(Weapon(), hero)
@@ -45,6 +56,7 @@ fun testDuel() {
 fun testMaze() {
   resetGame()
   final hero = Character()
+  hero.money += 5000
   equip(MartialArt(), hero)
   equip(Weapon(), hero)
   setHeroId(hero.id)

@@ -84,3 +84,4 @@ struct Incident {
 fun getIncidentByIndex(index: int) {
   return history[index]
 }
+

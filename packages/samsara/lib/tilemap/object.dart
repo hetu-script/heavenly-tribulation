@@ -42,6 +42,7 @@ class TileMapObject extends GameComponent with TileInfo {
   bool _isMoving = false;
   bool get isMoving => _isMoving;
   bool isMovingCanceled = false;
+
   bool isOnWater = false;
   Vector2 _movingOffset = Vector2.zero();
   Vector2 _movingTargetWorldPosition = Vector2.zero();
