@@ -10,6 +10,7 @@ class HistoryPanel extends StatelessWidget {
     this.heroId,
     this.retraceMessageCount = 50,
     this.showGlobalIncident = true,
+    this.historyData,
   });
 
   final String? heroId;
@@ -18,20 +19,23 @@ class HistoryPanel extends StatelessWidget {
 
   final bool showGlobalIncident;
 
+  final Iterable? historyData;
+
   @override
   Widget build(BuildContext context) {
-    final Iterable history = engine.invoke('getHistory').reversed;
+    final Iterable history =
+        historyData ?? engine.invoke('getHistory').reversed;
     final List items = [];
     final iter = history.iterator;
     var i = 0;
     while (iter.moveNext() && i < retraceMessageCount) {
       ++i;
-      final current = iter.current;
-      if (!showGlobalIncident) continue;
+      final incident = iter.current;
+      if (!showGlobalIncident && !incident['isGlobal']) continue;
       if ((heroId != null &&
-          (current['subjectIds'].contains(heroId) ||
-              current['objectIds'].contains(heroId)))) {
-        items.add(current);
+          (incident['subjectIds'].contains(heroId) ||
+              incident['objectIds'].contains(heroId)))) {
+        items.add(incident);
       }
     }
 

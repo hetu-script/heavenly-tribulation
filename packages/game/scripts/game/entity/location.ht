@@ -274,30 +274,30 @@ fun _handleGovernmentInteraction(site) {
   final hero = game.characters[game.heroId]
   final fame = getCharacterFame(hero)
   final location = game.locations[site.locationId]
-  final selections = {
-    appeal: getLocaleString('appeal'),
-    tribute: getLocaleString('tribute'),
-    quest: getLocaleString('quest'),
-    localExam: getLocaleString('localExam'),
-  }
+  final selections = [
+    'appeal',
+    'tribute',
+    'quest',
+    'localExam',
+  ]
   if (site.isCapital) {
-    selections.nationalExam = getLocaleString('nationalExam')
+    selections.add('nationalExam')
   }
-  selections.visitJail = getLocaleString('visitJail')
-  selections.leave = getLocaleString('leave')
+  selections.add('visitJail')
+  selections.add('leave')
   
-  showSelection(selections).then((key) {
+  showSelectionByLocaleKeys(selections).then((key) {
     when (key) {
       'appeal' -> {
-        showSelection({
-          applyOrganization: getLocaleString('applyOrganization'),
-          applySite: getLocaleString('applySite'),
-          complaintSite: getLocaleString('complaintSite'),
-          complaintCharacter: getLocaleString('complaintCharacter'),
-          appealCharacter: getLocaleString('appealCharacter'),
-          setHome: getLocaleString('setHome'),
-          cancel: getLocaleString('cancel'),
-        }).then((key) {
+        showSelection([
+          'applyOrganization',
+          'applySite',
+          'complaintSite',
+          'complaintCharacter',
+          'appealCharacter',
+          'setHome',
+          'cancel',
+        ]).then((key) {
           when (key) {
             'cancel' -> {
               _handleGovernmentInteraction(site)
@@ -370,10 +370,10 @@ fun _handleGovernmentInteraction(site) {
 fun _handleResidenceInteraction(site) {
   final hero = game.characters[game.heroId]
   final location = game.locations[site.locationId]
-  showSelection({
-    visit: getLocaleString('visit'),
-    leave: getLocaleString('leave'),
-  }).then((key) {
+  showSelectionByLocaleKeys([
+    'visit',
+    'leave',
+  ]).then((key) {
     when (key) {
       // 如果选择 leave，直接忽略，什么也不做
       'visit' -> {
@@ -395,11 +395,11 @@ fun _handleResidenceInteraction(site) {
 
 fun _handleOrganizationInteraction(site) {
   final location = game.locations[site.locationId]
-  showSelection({
-    train: getLocaleString('train'),
-    learn: getLocaleString('learn'),
-    visit: getLocaleString('visit'),
-    leave: getLocaleString('leave'),
+  showSelectionByLocaleKeys({
+    'train',
+    'learn',
+    'visit',
+    'leave',
   })
   .then((key) {
     when (key) {

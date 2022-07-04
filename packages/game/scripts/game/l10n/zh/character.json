@@ -28,12 +28,15 @@
   "stamina": "体力",
 
   "attributes": "属性",
-  "strength": "强壮",
-  "intelligence": "智慧",
-  "perception": "感知",
+  "strength": "力量",
+  "dexterity": "敏捷",
+  "constitution": "体质",
   "superpower": "灵力",
+  "perception": "感知",
+  "intelligence": "智慧",
   "leadership": "统帅",
   "management": "政务",
+  "charisma": "魅力",
 
   "relationship": "家庭关系",
   "father": "父亲",

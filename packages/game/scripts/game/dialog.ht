@@ -63,6 +63,14 @@ fun showDialog(data, { returnValue }) -> Future {
 
 external fun _showSelection(context, selections)
 
+fun showSelectionByLocaleKeys(texts: List) -> Future {
+  final selections = {}
+  for (final text in texts) {
+    selections[text] = getLocaleString(text)
+  }
+  return _showSelection(buildContext, selections)
+}
+
 fun showSelection(selections) -> Future {
   return _showSelection(buildContext, selections)
 }

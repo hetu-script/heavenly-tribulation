@@ -19,6 +19,7 @@ struct Incident {
     toItem: str,
     locationId: str,
     terrainIndex: int,
+    localHistory: List,
   }) {
     assert(content != null && content.isNotEmpty)
 
@@ -39,7 +40,11 @@ struct Incident {
     this.terrainIndex = terrainIndex
     this.isPrivate = isPrivate
     this.isGlobal = isGlobal
-    history.add(this)
+    if (localHistory is List) {
+      localHistory.add(this)
+    } else {
+      history.add(this)
+    }
 
     for (final id in subjectIds) {
       final char = game.characters[id]

@@ -31,8 +31,13 @@
   "inputName": "输入一个名字",
   "selectHero": "选择你要扮演的角色",
 
+  "surrender": "投降",
+  "handOver": "交出财物",
   "escape": "逃跑",
   "fight": "战斗",
+  "bargain": "讨价还价",
+  "plead": "求情",
+  "beg": "求饶",
 
   "common": "凡品",
   "uncommon": "良品",

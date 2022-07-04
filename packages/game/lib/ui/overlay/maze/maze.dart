@@ -22,7 +22,7 @@ class MazeOverlay extends StatefulWidget {
     this.startLevel = 0,
   });
 
-  final List<dynamic>? mazeData;
+  final HTStruct? mazeData;
 
   final int startLevel;
 
@@ -169,14 +169,14 @@ class _MazeOverlayState extends State<MazeOverlay>
   Widget build(BuildContext context) {
     super.build(context);
 
-    late final List<dynamic> data = widget.mazeData ??
-        ModalRoute.of(context)!.settings.arguments as List<dynamic>;
+    late final HTStruct data = widget.mazeData ??
+        ModalRoute.of(context)!.settings.arguments as HTStruct;
 
     return FutureBuilder(
       // 不知道为啥，这里必须用这种写法才能进入载入界面，否则一定会卡住
       future: Future.delayed(
         const Duration(milliseconds: 100),
-        () => _createLevel(data[_currentLevelIndex]),
+        () => _createLevel(data['levels'][_currentLevelIndex]),
       ),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {

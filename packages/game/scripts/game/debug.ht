@@ -60,5 +60,5 @@ fun testMaze() {
   equip(MartialArt(), hero)
   equip(Weapon(), hero)
   setHeroId(hero.id)
-  return createMaze()
+  return createMaze(isOnWorldMap: false)
 }

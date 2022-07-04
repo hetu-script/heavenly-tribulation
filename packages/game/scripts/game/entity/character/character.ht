@@ -29,11 +29,14 @@ const _kSupportEquipmentMax = 4
 
 final kCharacterAttributeNames = [
   'strength',
+  'dexterity',
+  'constitution',
   'superpower',
-  'intelligence',
   'perception',
+  'intelligence',
   'leadership',
   'management',
+  'charisma',
 ]
 
 final kMajorMotivations = [
@@ -483,13 +486,17 @@ fun generateRandomAttributes(maxStats, minValue, maxValue, [majorAttr]) {
 // 根据属性、装备、技能计算出当前状态
 // 状态包括：生命、伤害、防御等。
 fun recalculateAttributes(character) {
-  character.attributes.life = 100 + (character.attributes.strength ~/ 5) * 5
-  character.attributes.chi = 100 + (character.attributes.superpower ~/ 5) * 5
-  character.attributes.stamina = 100 + (character.attributes.strength ~/ 10) * 5
 
-  character.stats.lifeMax = character.stats.life = character.attributes.life
-  character.stats.chiMax = character.stats.chi = character.attributes.chi
-  character.stats.staminaMax = character.stats.stamina = character.attributes.stamina
+  character.attributes.life = 100 + (character.attributes.constitution ~/ 5) * 5
+  character.attributes.chi = 100 + (character.attributes.superpower ~/ 5) * 5
+  character.attributes.stamina = 100 + (character.attributes.strength ~/ 5) * 5
+  character.attributes.speed = 100 + (Math.max(character.attributes.dexterity, character.attributes.strength) ~/ 5) * 5
+
+  character.stats = character.attributes.clone()
+
+  character.stats.lifeMax = character.stats.life
+  character.stats.chiMax = character.stats.chi
+  character.stats.staminaMax = character.stats.stamina
 }
 
 fun getCharacterStats(character) {
@@ -917,7 +924,7 @@ fun unequip(item, character) {
   }
 }
 
-fun characterGiveMoneyTo(char1, value, char2) {
+fun characterGiveMoneyTo(char1, value, char2, localHistory) {
   assert(char1.money >= value)
   char1.money -= value
   char2.money += value
@@ -931,6 +938,7 @@ fun characterGiveMoneyTo(char1, value, char2) {
     subjectIds: char1.isMajorCharacter ? [char1.id] : null,
     objectIds: char2.isMajorCharacter ? [char2.id] : null,
     isPrivate: true,
+    localHistory: localHistory,
   )
 }
 
@@ -962,31 +970,31 @@ fun handleCharacterInteraction(characterId) {
   assert(game.characters.containsKey(characterId))
   final character = game.characters[characterId]
   final hero = game.characters[game.heroId]
-  final selections = {}
+  final selections = []
   if (characterId in! game.playerMonthly.talked) {
-    selections.talk = getLocaleString('talk')
+    selections.add('talk')
   }
   if (characterId in! game.playerMonthly.gifted) {
-    selections.gift = getLocaleString('gift')
+    selections.add('gift')
   }
   if (characterId in! game.playerMonthly.practiced) {
-    selections.practice = getLocaleString('practice')
+    selections.add('practice')
   }
   if (characterId in! game.playerMonthly.consulted) {
-    selections.consult = getLocaleString('consult')
+    selections.add('consult')
   }
   if (characterId in! game.playerMonthly.requested) {
-    selections.request = getLocaleString('request')
+    selections.add('request')
   }
   if (characterId in! game.playerMonthly.insulted) {
-    selections.insult = getLocaleString('insult')
+    selections.add('insult')
   }
   if (characterId in! game.playerMonthly.stolen) {
-    selections.steal = getLocaleString('steal')
+    selections.add('steal')
   }
-  selections.sneakAttack = getLocaleString('sneakAttack')
-  selections.leave = getLocaleString('leave')
-  showSelection(selections).then((key) {
+  selections.add('sneakAttack')
+  selections.add('leave')
+  showSelectionByLocaleKeys(selections).then((key) {
     when (key) {
       'talk' -> {
         handleCharacterTalk(hero, character)

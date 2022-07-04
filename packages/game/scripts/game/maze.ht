@@ -104,13 +104,15 @@ fun generateRoute(name, anchors, map) {
 fun createMaze ({
     id = 'unknown_maze',
     levelNumber = 1,
+    isOnWorldMap = true,
   }) {
   engine.info('开始生成副本: ${id}')
 
-  game.maze = {
+  final maze = {
     levels: [], // 每一层是一个单独的 tilemap
     currentLevel: 0,
     entities: {}, // 包含所有显示在地图上的可互动对象，包括NPC、敌人、宝箱、陷阱、机关等等。
+    history: [], // 本次副本中发生的事件记录，这些事件不会计入世界历史
   }
 
   // 已经被分配了的地块
@@ -284,7 +286,7 @@ fun createMaze ({
         'enemy' -> {
           final enemyEntity = Bandit(kind: 'minion')
           print(enemyEntity.id)
-          game.maze.entities[enemyEntity.id] = enemyEntity
+          maze.entities[enemyEntity.id] = enemyEntity
           final enemyObject = TileMapObject(
             terrainIndex: anchor.index,
             left: anchor.left,
@@ -398,16 +400,20 @@ fun createMaze ({
       }
     }
     engine.info('生成路标')
-    game.maze.levels.add(currentLevel)
+    maze.levels.add(currentLevel)
   }
   
   engine.info('副本 ${id} 生成完毕')
 
-  return game.maze.levels
+  if (isOnWorldMap) {
+    world.mazes[maze.id] = maze
+  }
+
+  return maze
 }
 
 // 返回布尔值，如果为真，则玩家控制角色会返回上一格，否则停在这一格
-fun handleMazeEntityInteraction(entityId) -> bool {
+fun handleMazeEntityInteraction(entityId, maze) -> bool {
   final hero = getHero()
   final entity = game.maze?.entities[entityId]
   assert(entity != null)
@@ -416,15 +422,48 @@ fun handleMazeEntityInteraction(entityId) -> bool {
     'minion' -> {
       final messages = getLocaleString('mazeBandit01').split('/n')
       showDialogByStrings(messages).then((value) {
-        final selections = {
-          handOver: getLocaleString('handOver'),
-          fight: getLocaleString('fight'),
-          escape: getLocaleString('escape'),
-        } 
-        showSelection(selections).then((key) {
+        final selections = [
+          'handOver',
+          'plead',
+          'escape',
+          'fight',
+        ]
+        showSelectionByLocaleKeys(selections).then((key) {
           when (key) {
             'handOver' -> {
-              characterGiveMoneyTo(hero, hero.money, entity)
+              characterGiveMoneyTo(hero, hero.money, entity, maze.history)
+            }
+            // 向盗贼求情，是否成功依赖于
+            'plead' -> {
+              
+            }
+            'escape' -> {
+              if (hero.stats.dexterity > entity.stats.dexterity || hero.stats.speed > entity.stats.speed) {
+                final incidentContent = getLocaleString('incidentEscaped', [
+                  hero.name,
+                ])
+                Incident(
+                  content: incidentContent,
+                  subjectIds: [hero.id],
+                  isPrivate: true,
+                  localHistory: maze.history,
+                )
+                return true
+              } else {
+                final incidentContent = getLocaleString('incidentEscapeFailed', [
+                  hero.name,
+                ])
+                Incident(
+                  content: incidentContent,
+                  subjectIds: [hero.id],
+                  isPrivate: true,
+                  localHistory: maze.history,
+                )
+                showDialogByStrings([getLocaleString('escapeFailed')], character: hero)
+                  .then((value) {
+                    showDuel(hero, entity)
+                  })
+              }
             }
             'fight' -> {
               showDialogByStrings([getLocaleString('fightBandit')], character: hero)

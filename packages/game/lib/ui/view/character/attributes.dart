@@ -15,6 +15,18 @@ extension DoubleFixed on double {
   }
 }
 
+const kCharacterAttributes = [
+  'strength',
+  'dexterity',
+  'constitution',
+  'superpower',
+  'perception',
+  'intelligence',
+  'leadership',
+  'management',
+  'charisma',
+];
+
 class CharacterAttributesView extends StatelessWidget {
   const CharacterAttributesView({
     super.key,
@@ -50,12 +62,6 @@ class CharacterAttributesView extends StatelessWidget {
             .map((e) => Label(e));
 
     final attributes = characterData['attributes'];
-    final int strength = attributes['strength'];
-    final int intelligence = attributes['intelligence'];
-    final int perception = attributes['perception'];
-    final int superpower = attributes['superpower'];
-    final int leadership = attributes['leadership'];
-    final int management = attributes['management'];
 
     final personality = characterData['personality'];
     final double ideal = (personality['ideal'] as double).toDoubleAsFixed(2);
@@ -165,32 +171,16 @@ class CharacterAttributesView extends StatelessWidget {
               ]),
               const Divider(),
               // Text('---${engine.locale['attributes']}---'),
-              Wrap(children: [
-                Label(
-                  '${engine.locale['strength']}: $strength',
-                  width: 120.0,
-                ),
-                Label(
-                  '${engine.locale['intelligence']}: $intelligence',
-                  width: 120.0,
-                ),
-                Label(
-                  '${engine.locale['perception']}: $perception',
-                  width: 120.0,
-                ),
-                Label(
-                  '${engine.locale['superpower']}: $superpower',
-                  width: 120.0,
-                ),
-                Label(
-                  '${engine.locale['leadership']}: $leadership',
-                  width: 120.0,
-                ),
-                Label(
-                  '${engine.locale['management']}: $management',
-                  width: 120.0,
-                ),
-              ]),
+              Wrap(
+                children: kCharacterAttributes
+                    .map(
+                      (name) => Label(
+                        '${engine.locale[name]}: ${attributes[name] ?? 0}',
+                        width: 120.0,
+                      ),
+                    )
+                    .toList(),
+              ),
               const Divider(),
               // Text('---${engine.locale['personality']}---'),
               Wrap(
