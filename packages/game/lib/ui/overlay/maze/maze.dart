@@ -6,7 +6,6 @@ import 'package:flame/sprite.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/components.dart';
 
-// import '../../../../ui/shared/avatar.dart';
 import '../../shared/loading_screen.dart';
 import '../../../global.dart';
 import '../../../scene/maze.dart';

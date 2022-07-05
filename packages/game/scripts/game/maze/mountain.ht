@@ -467,6 +467,7 @@ fun handleMazeEntityInteraction(entityId, maze) -> bool {
         ]
         showSelectionByLocaleKeys(selections).then((key) {
           when (key) {
+            // 增加现实主义
             'handOver' -> {
               characterGiveMoneyTo(hero, hero.money, entity, maze.history)
               for (final item of hero.inventory) {
@@ -474,6 +475,7 @@ fun handleMazeEntityInteraction(entityId, maze) -> bool {
               }
             }
             // 向盗贼求情，是否成功依赖于
+            // 增加圆滑
             'plead' -> {
               if (hero.stats.charisma > kCharismaCheckThreshold) {
                 showDialogByStrings([getLocaleString('pleadSuccess')], character: hero)
@@ -487,9 +489,10 @@ fun handleMazeEntityInteraction(entityId, maze) -> bool {
                   })
               }
             }
+            // 增加懦弱
             'escape' -> {
               if (hero.stats.dexterity > entity.stats.dexterity || hero.stats.strength > entity.stats.strength) {
-                final incidentContent = getLocaleString('incidentEscaped', [
+                final incidentContent = getLocaleString('incidentEscapeSuccess', [
                   hero.name,
                 ])
                 Incident(
@@ -505,6 +508,7 @@ fun handleMazeEntityInteraction(entityId, maze) -> bool {
                   })
               }
             }
+            // 增加自信
             'fight' -> {
               showDialogByStrings([getLocaleString('fightBandit')], character: hero)
                 .then((value) {

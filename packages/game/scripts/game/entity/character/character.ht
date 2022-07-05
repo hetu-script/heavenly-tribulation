@@ -14,7 +14,8 @@ const _kMaleAvatarCount = 37
  // number of the female avatar images
 const _kFemaleAvatarCount = 75
 const _kCharacterRandomAgeMax = 150
-const _kCharacterAverageLooks = 75.0
+const _kCharacterAverageLooks = 60.0
+const _kCharacterLooksDeviation = 25.0
 /// 容貌最大值: 100.0
 const _kCharacterMaxLooks = 100.0
 const _kCharacterImpressionCheckpoint = 10.0
@@ -149,10 +150,11 @@ struct Character {
     isNewborn = false, // 是否是新生儿，如果是则会自动为其添加父母关系
     fatherId,
     motherId,
+    attributes,
+    attributeSum = _kCharacterAttributeSumBase,
     isMajorCharacter = true, // 是否是主要NPC，主要NPC会加入世界人物列表，并会有更多互动
     worldPositionX,
     worldPositionY,
-    attributes,
   }) {
     this.entityType = kEntityTypeCharacter
     this.index = game.characters.length
@@ -192,8 +194,8 @@ struct Character {
       this.birthTimestamp = createRandomBirthTimestamp()
     }
     this.nationId = nationId
-    this.looks = hyperbola(_kCharacterAverageLooks)
-    this.favoredLooks = hyperbola(_kCharacterMaxLooks)
+    this.looks = Math.gaussianNoise(_kCharacterAverageLooks, _kCharacterLooksDeviation, min: 0, max: 100)
+    this.favoredLooks =  Math.gaussianNoise(_kCharacterMaxLooks, _kCharacterLooksDeviation, min: 0, max: 100)
 
     // 该角色的称号
     this.titles = {

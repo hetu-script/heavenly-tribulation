@@ -8,7 +8,6 @@ import 'tile/hexagonal_tile.ht'
 import 'tile/tilemap.ht'
 import 'entity/item/weapon.ht'
 import 'entity/constants.ht'
-import { hyperbola } from 'util.ht'
 import 'datetime.ht' as datetime
 import 'logic.ht'
 
