@@ -1,0 +1,4 @@
+
+fun calculateSkillStats(skill) {
+  skill.stats = skill.attributes.clone()
+}

@@ -1,6 +1,7 @@
 import '../../generator/name/name.ht' as nameGenerator
 import '../constants.ht'
 import '../../game.ht'
+import 'constants.ht'
 
 final kMartialArtsIcons = [
   'icon/skill/martial_0.png',
@@ -71,10 +72,6 @@ struct MartialArt {
       this.attributes.assign(attributes)
     }
 
-    recalculateAttributesOfMartialArt(this)
+    calculateSkillStats(this)
   }
-}
-
-fun recalculateAttributesOfMartialArt(skill) {
-  skill.stats = { ...skill.attributes }
 }

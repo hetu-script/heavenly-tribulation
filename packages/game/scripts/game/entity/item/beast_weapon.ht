@@ -57,10 +57,7 @@ struct BeastWeapon {
     rarity,
     value,
     icon,
-    creatorId,
-    createdTime,
     description,
-    inscription,
     kind,
     attributes,
   }) {
@@ -79,10 +76,10 @@ struct BeastWeapon {
       this.name = r.name
       this.rarity ??= r.rarity 
     }
-    this.id = 'weapon_${Hash.uid4(2)}_${this.name}'
-    this.icon = kWeaponKinds[this.kind].icon
+    this.id = 'beast_bodypart_${Hash.uid4(2)}_${this.name}'
+    this.icon = _kBeastWeaponKinds[this.kind].icon
     this.attributes = {
-      ...kWeaponKinds[this.kind].attributes,
+      ..._kBeastWeaponKinds[this.kind].attributes,
       effects: [],
     }
 
@@ -90,12 +87,8 @@ struct BeastWeapon {
       this.attributes.assign(attributes)
     }
 
-    recalculateAttributesOfWeapon(this)
+    calculateItemStats(this)
   }
-}
-
-fun recalculateAttributesOfWeapon(weapon) {
-  weapon.stats = { ...weapon.attributes }
 }
 
 struct BeastArmor {

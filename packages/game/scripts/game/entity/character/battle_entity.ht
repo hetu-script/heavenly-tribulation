@@ -47,7 +47,7 @@ struct BattleEntity {
     // 当前状态数值，由种族、天赋、属性点数、增益减损、物品、技能等计算得来
     this.stats = {}
 
-    recalculateAttributes(this)
+    calculateCharacterStats(this)
     rejuvenate(this)
   }
 }
@@ -81,7 +81,7 @@ fun generateRandomAttributes(maxStats, minValue, maxValue, [majorAttr]) {
 
 // 根据属性、装备、技能计算出当前状态
 // 状态包括：生命、伤害、防御等。
-fun recalculateAttributes(character) {
+fun calculateCharacterStats(character) {
 
   character.attributes.life = 100 + (character.attributes.constitution ~/ 5) * 5
   character.attributes.chi = 100 + (character.attributes.superpower ~/ 5) * 5

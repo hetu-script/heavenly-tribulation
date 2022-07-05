@@ -14,3 +14,7 @@ final kRarity2ItemLevels = {
   mythic: 60, // mythic 金
   exotic: 70, // exotic 虹
 }
+
+fun calculateItemStats(item) {
+  item.stats = item.attributes.clone()
+}

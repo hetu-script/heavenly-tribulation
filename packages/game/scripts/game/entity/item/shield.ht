@@ -49,10 +49,7 @@ struct Shield {
       this.attributes.assign(attributes)
     }
 
-    recalculateAttributesOfShield(this)
+    calculateItemStats(this)
   }
 }
 
-fun recalculateAttributesOfShield(shield) {
-  shield.stats = { ...shield.attributes }
-}

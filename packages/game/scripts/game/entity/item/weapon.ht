@@ -136,10 +136,6 @@ struct Weapon {
       this.attributes.assign(attributes)
     }
 
-    recalculateAttributesOfWeapon(this)
+    calculateItemStats(this)
   }
-}
-
-fun recalculateAttributesOfWeapon(weapon) {
-  weapon.stats = { ...weapon.attributes }
 }
