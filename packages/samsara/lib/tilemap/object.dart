@@ -26,18 +26,15 @@ class TileMapObject extends GameComponent with TileInfo {
   bool _isAnimated = false;
   bool _hasOnWaterAnimation = false;
   late final SpriteAnimation? characterSouth,
-      characterNorthEast,
-      characterSouthEast,
+      characterEast,
       characterNorth,
-      characterNorthWest,
-      characterSouthWest,
+      characterWest,
       shipSouth,
-      shipNorthEast,
-      shipSouthEast,
+      shipEast,
       shipNorth,
-      shipNorthWest,
-      shipSouthWest;
-  HexagonalDirection direction = HexagonalDirection.south;
+      shipWest;
+
+  OrthogonalDirection direction = OrthogonalDirection.south;
 
   bool _isMoving = false;
   bool get isMoving => _isMoving;
@@ -75,32 +72,24 @@ class TileMapObject extends GameComponent with TileInfo {
       _isAnimated = true;
       characterSouth =
           animationSpriteSheet.createAnimation(row: 0, stepTime: 0.2);
-      characterNorthEast =
+      characterEast =
           animationSpriteSheet.createAnimation(row: 1, stepTime: 0.2);
-      characterSouthEast =
-          animationSpriteSheet.createAnimation(row: 2, stepTime: 0.2);
       characterNorth =
+          animationSpriteSheet.createAnimation(row: 2, stepTime: 0.2);
+      characterWest =
           animationSpriteSheet.createAnimation(row: 3, stepTime: 0.2);
-      characterNorthWest =
-          animationSpriteSheet.createAnimation(row: 4, stepTime: 0.2);
-      characterSouthWest =
-          animationSpriteSheet.createAnimation(row: 5, stepTime: 0.2);
 
       if (waterAnimationSpriteSheet != null) {
         _hasOnWaterAnimation = true;
 
         shipSouth =
             waterAnimationSpriteSheet.createAnimation(row: 0, stepTime: 0.2);
-        shipNorthEast =
+        shipEast =
             waterAnimationSpriteSheet.createAnimation(row: 1, stepTime: 0.2);
-        shipSouthEast =
-            waterAnimationSpriteSheet.createAnimation(row: 2, stepTime: 0.2);
         shipNorth =
+            waterAnimationSpriteSheet.createAnimation(row: 2, stepTime: 0.2);
+        shipWest =
             waterAnimationSpriteSheet.createAnimation(row: 3, stepTime: 0.2);
-        shipNorthWest =
-            waterAnimationSpriteSheet.createAnimation(row: 4, stepTime: 0.2);
-        shipSouthWest =
-            waterAnimationSpriteSheet.createAnimation(row: 5, stepTime: 0.2);
       }
     } else {
       assert(sprite != null);
@@ -136,7 +125,7 @@ class TileMapObject extends GameComponent with TileInfo {
     _movingOffset = Vector2.zero();
     _movingTargetWorldPosition =
         tilePosition2TileCenterInWorld(target.left, target.top);
-    direction = direction2Hexagonal(directionTo(target));
+    direction = direction2Orthogonal(directionTo(target));
 
     // 计算地图上的斜方向实际距离
     final sx = _movingTargetWorldPosition.x - worldPosition.x;
@@ -153,33 +142,25 @@ class TileMapObject extends GameComponent with TileInfo {
   SpriteAnimation? get currentAnimation {
     if (_hasOnWaterAnimation && isOnWater) {
       switch (direction) {
-        case HexagonalDirection.south:
+        case OrthogonalDirection.south:
           return shipSouth;
-        case HexagonalDirection.northEast:
-          return shipNorthEast;
-        case HexagonalDirection.southEast:
-          return shipSouthEast;
-        case HexagonalDirection.north:
+        case OrthogonalDirection.east:
+          return shipEast;
+        case OrthogonalDirection.west:
+          return shipWest;
+        case OrthogonalDirection.north:
           return shipNorth;
-        case HexagonalDirection.northWest:
-          return shipNorthWest;
-        case HexagonalDirection.southWest:
-          return shipSouthWest;
       }
     } else {
       switch (direction) {
-        case HexagonalDirection.south:
+        case OrthogonalDirection.south:
           return characterSouth;
-        case HexagonalDirection.northEast:
-          return characterNorthEast;
-        case HexagonalDirection.southEast:
-          return characterSouthEast;
-        case HexagonalDirection.north:
+        case OrthogonalDirection.east:
+          return characterEast;
+        case OrthogonalDirection.west:
+          return characterWest;
+        case OrthogonalDirection.north:
           return characterNorth;
-        case HexagonalDirection.northWest:
-          return characterNorthWest;
-        case HexagonalDirection.southWest:
-          return characterSouthWest;
       }
     }
   }

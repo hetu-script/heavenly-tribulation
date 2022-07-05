@@ -19,14 +19,14 @@ const _kEncounterProbability = 0.5
 
 final _kEncounterTypes = [
   'bandit',
-  'beast',
-  'ancientTree',
-  'woodcutter',
-  'fisherman',
-  'hunter',
+  'beast' ,
+  // 'ancientTree',
+  // 'woodcutter',
+  // 'fisherman',
+  // 'hunter',
   'peddler',
   'lostTraveller',
-  'deadRemains',
+  'pileOfBones',
   'chest',
 ]
 
