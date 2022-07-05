@@ -3,7 +3,7 @@ import 'entity/character/character.ht'
 import 'entity/item/item.ht'
 import 'duel.ht'
 import 'generator/name/name.ht'
-import 'entity/character/bandit.ht'
+import 'entity/character/enemy/bandit.ht'
 import 'entity/skill/skill.ht'
 import 'maze.ht'
 

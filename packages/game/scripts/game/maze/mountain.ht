@@ -1,23 +1,55 @@
-import 'tile/hexagonal_tile.ht'
-import 'tile/tilemap.ht'
-import 'game.ht'
-import 'tile/object.ht'
-import 'entity/character/bandit.ht'
+import '../tile/hexagonal_tile.ht'
+import '../tile/tilemap.ht'
+import '../game.ht'
+import '../tile/object.ht'
+import '../entity/character/enemy/bandit.ht'
+import '../entity/constants.ht'
 
 final _kLandSprites = [
   kSpriteLand,
   kSpriteGrassLand,
 ]
 
-const _kDefaultBlockWidth = 6
-const _kDefaultBlockHeight = 6
+const _kDefaultBlockWidth = 4
+const _kDefaultBlockHeight = 4
 const _kDefaultMazeScale = 3
 final _kDefaultBlockNumber = _kDefaultMazeScale * _kDefaultMazeScale
 
+const _kEncounterProbability = 0.5
+
 final _kEncounterTypes = [
-  'empty',
-  'treasure',
-  'enemy',
+  'bandit',
+  'beast',
+  'ancientTree',
+  'woodcutter',
+  'fisherman',
+  'hunter',
+  'peddler',
+  'lostTraveller',
+  'deadRemains',
+  'chest',
+]
+
+final _kUniqueEncounterTypes = [
+  'trappedAdventurer',
+  'anotherAdventurer',
+  'vigilantePeasant',
+  'uniqueTreasure',
+  'undercoverCaptor',
+  'undercoverRoyalGuard',
+]
+
+final _kUniqueScene = [
+  'restaurant',
+  'inn',
+  'teaShop',
+  'hotel',
+  'buddaTemple',
+  'taoistTemple',
+  'lake',
+  'waterfall',
+  'cliffBridge',
+  'riverBridge',
 ]
 
 final _kBlockTypes = [
@@ -270,33 +302,36 @@ fun createMaze ({
     
     engine.info('在锚点放置遭遇')
     for (final anchor of anchors) {
-      final encounterType = _kEncounterTypes.random
-      when (encounterType) {
-        'treasure' -> {
-          final chest = TileMapObject(
-            terrainIndex: anchor.index,
-            left: anchor.left,
-            top: anchor.top,
-            spriteSrc: 'maze/chest02.png',
-            srcWidth: 32.0,
-            srcHeight: 32.0,
-          )
-          currentLevel.objects.add(chest)
-        }
-        'enemy' -> {
-          final enemyEntity = Bandit(kind: 'minion')
-          print(enemyEntity.id)
-          maze.entities[enemyEntity.id] = enemyEntity
-          final enemyObject = TileMapObject(
-            terrainIndex: anchor.index,
-            left: anchor.left,
-            top: anchor.top,
-            spriteSrc: 'maze/enemy01.png',
-            srcWidth: 32.0,
-            srcHeight: 32.0,
-            entityId: enemyEntity.id,
-          )
-          currentLevel.objects.add(enemyObject)
+      final r = Math.random()
+      if (r < _kEncounterProbability) {
+        final encounterType = _kEncounterTypes.random
+        when (encounterType) {
+          'treasure' -> {
+            final chest = TileMapObject(
+              terrainIndex: anchor.index,
+              left: anchor.left,
+              top: anchor.top,
+              spriteSrc: 'maze/chest02.png',
+              srcWidth: 32.0,
+              srcHeight: 32.0,
+            )
+            currentLevel.objects.add(chest)
+          }
+          'enemy' -> {
+            final enemyEntity = Bandit(kind: 'minion')
+            print(enemyEntity.id)
+            maze.entities[enemyEntity.id] = enemyEntity
+            final enemyObject = TileMapObject(
+              terrainIndex: anchor.index,
+              left: anchor.left,
+              top: anchor.top,
+              spriteSrc: 'maze/enemy01.png',
+              srcWidth: 32.0,
+              srcHeight: 32.0,
+              entityId: enemyEntity.id,
+            )
+            currentLevel.objects.add(enemyObject)
+          }
         }
       }
     }
@@ -412,16 +447,18 @@ fun createMaze ({
   return maze
 }
 
+external fun moveHeroToLastRouteNode
+
 // 返回布尔值，如果为真，则玩家控制角色会返回上一格，否则停在这一格
 fun handleMazeEntityInteraction(entityId, maze) -> bool {
   final hero = getHero()
-  final entity = game.maze?.entities[entityId]
+  final entity = maze.entities[entityId]
   assert(entity != null)
   engine.info('地图对象互动事件：[${entity.id}]')
   when (entity.kind) {
     'minion' -> {
       final messages = getLocaleString('mazeBandit01').split('/n')
-      showDialogByStrings(messages).then((value) {
+      return showDialogByStrings(messages).then((value) {
         final selections = [
           'handOver',
           'plead',
@@ -432,13 +469,26 @@ fun handleMazeEntityInteraction(entityId, maze) -> bool {
           when (key) {
             'handOver' -> {
               characterGiveMoneyTo(hero, hero.money, entity, maze.history)
+              for (final item of hero.inventory) {
+                characterGiveItemTo(hero, item, entity, maze.history)
+              }
             }
             // 向盗贼求情，是否成功依赖于
             'plead' -> {
-              
+              if (hero.stats.charisma > kCharismaCheckThreshold) {
+                showDialogByStrings([getLocaleString('pleadSuccess')], character: hero)
+                  .then((value) {
+                    characterGiveMoneyTo(hero, hero.money, entity, maze.history)
+                  })
+              } else {
+                showDialogByStrings([getLocaleString('pleadFailed')], character: hero)
+                  .then((value) {
+                    showDuel(hero, entity)
+                  })
+              }
             }
             'escape' -> {
-              if (hero.stats.dexterity > entity.stats.dexterity || hero.stats.speed > entity.stats.speed) {
+              if (hero.stats.dexterity > entity.stats.dexterity || hero.stats.strength > entity.stats.strength) {
                 final incidentContent = getLocaleString('incidentEscaped', [
                   hero.name,
                 ])
@@ -448,17 +498,7 @@ fun handleMazeEntityInteraction(entityId, maze) -> bool {
                   isPrivate: true,
                   localHistory: maze.history,
                 )
-                return true
               } else {
-                final incidentContent = getLocaleString('incidentEscapeFailed', [
-                  hero.name,
-                ])
-                Incident(
-                  content: incidentContent,
-                  subjectIds: [hero.id],
-                  isPrivate: true,
-                  localHistory: maze.history,
-                )
                 showDialogByStrings([getLocaleString('escapeFailed')], character: hero)
                   .then((value) {
                     showDuel(hero, entity)

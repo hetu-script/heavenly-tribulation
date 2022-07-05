@@ -7,6 +7,7 @@ import '../../duel.ht'
 import '../../util.ht'
 import '../constants.ht'
 import '../../tile/hexagonal_tile.ht'
+import 'battle_entity.ht'
 
 // number of the male avatar images
 const _kMaleAvatarCount = 37
@@ -19,13 +20,6 @@ const _kCharacterMaxLooks = 100.0
 const _kCharacterImpressionCheckpoint = 10.0
 const _kCharacterInitialGeneralThinking = 4
 const _kMajorMotivationProbobility = 0.2
-const _kCharacterAttributeMinValue = 1
-const _kCharacterAttributeMaxValue = 100
-const _kCharacterAttributeSumBase = 400
-const _kCharacterAttributeSumDeviation = 200
-const _kOffenseEquipmentMax = 5
-const _kArcaneEquipmentMax = 3
-const _kSupportEquipmentMax = 4
 
 final kCharacterAttributeNames = [
   'strength',
@@ -36,7 +30,6 @@ final kCharacterAttributeNames = [
   'intelligence',
   'leadership',
   'management',
-  'charisma',
 ]
 
 final kMajorMotivations = [
@@ -148,7 +141,7 @@ struct Character {
   construct ({
     familyName,
     shortName,
-    hasName = true,
+    generateRandomName = true,
     isFemale: bool,
     birthTimestamp,
     locationId,
@@ -156,10 +149,10 @@ struct Character {
     isNewborn = false, // 是否是新生儿，如果是则会自动为其添加父母关系
     fatherId,
     motherId,
-    attributes,
     isMajorCharacter = true, // 是否是主要NPC，主要NPC会加入世界人物列表，并会有更多互动
     worldPositionX,
     worldPositionY,
+    attributes,
   }) {
     this.entityType = kEntityTypeCharacter
     this.index = game.characters.length
@@ -179,7 +172,7 @@ struct Character {
       this.familyName = familyName
       this.shortName = shortName
       this.name = this.familyName + this.shortName
-    } else if (hasName) {
+    } else if (generateRandomName) {
       final r = nameGenerator.getCharacter(1, isFemale: this.isFemale).first
       this.familyName = familyName ?? r.familyName
       this.shortName = shortName ?? r.shortName
@@ -216,44 +209,8 @@ struct Character {
     // // 恶名，知道名字中，对此人差评的人的数量
     // this.infamy = 0
 
-    // 身上携带的金钱数量
-    this.money = 0
-
-    // 身上的普通物品，id相同的可以堆叠，宝物，技能，道具都在这里，每一个都是单独生成，无法堆叠
-    // 可以放在主位（武器）、支持位（护甲、靴子）
-    this.inventory = {}
-
-    // 技能，可以放在主位（斗技）、辅助位（玄功）、支持位（遁术）
-    this.skills = {}
-
-    // 装备栏的位置和数量是固定的
-    // 每个位置都是一个EquipSlot形式的对象
-    this.equipments = {
-      defense: null, // 防具只能装备一个
-      maneuver: null, // 靴子只能装备一个
-      arcane: {}, // 可以装备多个内功、辅助法宝
-      offense: {}, // 可以装备多个武器、斗技、进攻法宝
-    }
-
     // NPC类随从，跟随时可以装备他们的物品和技能，并在战斗中使用
     this.companions = []
-
-    // 属性点数数值
-    this.attributes = generateRandomAttributes(
-      Math.gaussianNoise(_kCharacterAttributeSumBase, _kCharacterAttributeSumDeviation, min: 6, max: 600).toInt(),
-      _kCharacterAttributeMinValue,
-      _kCharacterAttributeMaxValue,
-    )
-
-    if (attributes) {
-      this.attributes.assign(attributes)
-    }
-
-    // 当前状态数值，由种族、天赋、属性点数、增益减损、物品、技能等计算得来
-    this.stats = {}
-
-    recalculateAttributes(this)
-    rejuvenate(this)
 
     // 该角色的家庭关系
     this.relationships = {
@@ -380,19 +337,10 @@ struct Character {
       this.worldPositionX = worldPositionX
       this.worldPositionY = worldPositionY
     }
-  }
-}
 
-fun rejuvenate(character) {
-  character.stats.life = character.attributes.life
-  character.stats.stamina = character.attributes.stamina
-
-  for (var i = 1; i < _kOffenseEquipmentMax; ++i) {
-    final equipData = character.equipments.offense[i]
-    if (equipData != null) {
-      final item = getEquippedItem(equipData, character)
-      item.stats.life = item.stats.lifeMax
-    }
+    // 生成战斗单位相关数据，并写入当前对象
+    // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
+    this.assign(BattleEntity(attributes: attributes, attributeSum: attributeSum))
   }
 }
 
@@ -454,72 +402,6 @@ fun _calculateLooksScore({looks: float, favor: float}) -> float {
   } else {
     return (-(looks - _kCharacterMaxLooks) * (looks - _kCharacterMaxLooks)) / 20 + _kCharacterMaxLooks
   }
-}
-
-fun generateRandomAttributes(maxStats, minValue, maxValue, [majorAttr]) {
-  assert(maxStats != null)
-  assert(minValue != null)
-  assert(maxValue != null)
-
-  final attributes = {}
-  
-  fun checkValue(value) {
-    if (value < minValue) return minValue
-    if (value > maxValue) return maxValue
-    return value
-  }
-  
-  final list = kCharacterAttributeNames.toList()
-  list.shuffle()
-  for (var i = 0; i < list.length; ++i) {
-    final name = list[i]
-    var min = minValue
-    if (majorAttr && name == majorAttr) {
-      min = maxStats / list.length * 0.75
-    }
-    final value = (Math.gaussianNoise(maxStats / list.length * 0.6, 20, min: min, max: maxValue)).toInt()
-    attributes[name] = checkValue(value)
-  }
-  return attributes
-}
-
-// 根据属性、装备、技能计算出当前状态
-// 状态包括：生命、伤害、防御等。
-fun recalculateAttributes(character) {
-
-  character.attributes.life = 100 + (character.attributes.constitution ~/ 5) * 5
-  character.attributes.chi = 100 + (character.attributes.superpower ~/ 5) * 5
-  character.attributes.stamina = 100 + (character.attributes.strength ~/ 5) * 5
-  character.attributes.speed = 100 + (Math.max(character.attributes.dexterity, character.attributes.strength) ~/ 5) * 5
-
-  character.stats = character.attributes.clone()
-
-  character.stats.lifeMax = character.stats.life
-  character.stats.chiMax = character.stats.chi
-  character.stats.staminaMax = character.stats.stamina
-}
-
-fun getCharacterStats(character) {
-  final stats = {
-    life: character.stats.life,
-    lifeMax: character.stats.lifeMax,
-    chi: character.stats.chi,
-    chiMax: character.stats.chiMax,
-    stamina: character.stats.stamina,
-    staminaMax: character.stats.staminaMax,
-    equipments: {},
-  }
-  for (var i = 1; i < _kOffenseEquipmentMax; ++i) {
-    final equipData = character.equipments.offense[i]
-    if (equipData != null) {
-      final item = getEquippedItem(equipData, character)
-      stats.equipments[i] = {
-        life: item.stats.life,
-        lifeMax: item.stats.lifeMax,
-      }
-    }
-  }
-  return stats
 }
 
 // 第一印象分
@@ -772,191 +654,6 @@ fun getEquippedItem(equipData, character) {
   }
   assert(item != null)
   return item
-}
-
-// 法宝和技能都可以装备，只要类型符合，返回值代表是否装备成功
-// {
-//   id,
-//   category,
-//   kind,
-//   supports,
-// }
-fun equip(item, character, [index]) -> bool {
-  if (item.equippedPosition) return
-  var equipData = {
-    id: item.id,
-    entityType: item.entityType,
-    category: item.category, // 主类型：武器、斗技等
-    kind: item.kind, // 次类型：剑、拳法等
-    equipType: item.equipType,
-    life: item.stats.life,
-  }
-  when (item.entityType) {
-    kEntityTypeItem -> {
-      if (!character.inventory[item.id]) character.inventory[item.id] = item
-    }
-    kEntityTypeSkill -> {
-      if (!character.skills[item.id]) character.skills[item.id] = item
-    }
-  }
-  
-  when (item.equipType) {
-    // 斗技、武器、攻击法宝等
-    kEquipTypeOffense -> {
-      equipData.supports = []
-      // 如果有空位就装备在空位上
-      if (!index) {
-        for (final i in range(1, _kOffenseEquipmentMax)) {
-          if (!character.equipments[kEquipTypeOffense][i]) {
-            character.equipments[kEquipTypeOffense][i] = equipData
-            item.equippedPosition = i
-            return true
-          }
-        }
-        // 否则替换掉第一个空位
-        index = 1
-      }
-      final oldEquipData = character.equipments[kEquipTypeOffense][1]
-      final oldItem = getEquippedItem(equipData, character)
-      delete oldItem.equippedPosition
-      character.equipments[kEquipTypeOffense][index] = equipData
-      if (equipData.category == oldItem.category && equipData.kind == oldItem.kind) {
-        equipData.supports = oldEquipData.supports
-      } else {
-        for (final support in equipData.supports) {
-          delete support.equippedPosition
-        }
-      }
-      item.equippedPosition = index
-      return true
-    }
-    // 剑法、心诀等支持型技能
-    kEquipTypeSupport -> {
-      for (final i in range(1, _kOffenseEquipmentMax)) {
-        final oldEquipData = character.equipments[kEquipTypeOffense][i]
-        if (oldEquipData && oldEquipData.category == data.category &&
-            oldEquipData.kind == data.kind) {
-          if (oldEquipData.supports.length < _kSupportEquipmentMax - 1) {
-            oldEquipData.supports.add(equipData)
-          } else {
-            // 移除旧装备
-            final item = getEquippedItem(oldEquipData.supports.first, character)
-            delete item.equippedPosition
-            oldEquipData.supports.first = equipData
-          }
-          item.equippedPosition = i
-          return true
-        }
-      }
-      return false
-    }
-    // 内功、辅助法宝等
-    kEquipTypeArcane -> {
-      equipData.supports = []
-      // 如果有空位就装备在空位上
-      if (!index) {
-        for (final i in range(1, _kArcaneEquipmentMax)) {
-          if (!character.equipments[kEquipTypeArcane][i]) {
-            character.equipments[kEquipTypeArcane][i] = equipData
-            item.equippedPosition = i
-            return true
-          }
-        }
-        // 否则替换掉第一个空位
-        index = 1
-      }
-      final oldEquipData = character.equipments[kEquipTypeArcane][1]
-      final oldItem = getEquippedItem(equipData, character)
-      delete oldItem.equippedPosition
-      character.equipments[kEquipTypeArcane][index] = equipData
-      if (equipData.category == oldItem.category && equipData.kind == oldItem.kind) {
-        equipData.supports = oldEquipData.supports
-      } else {
-        for (final support in equipData.supports) {
-          delete support.equippedPosition
-        }
-      }
-      item.equippedPosition = index
-      return true
-    }
-    // 护甲、轻功等
-    kEquipTypeProtect, kEquipTypeManeuver -> {
-      equipData.supports = []
-      // 如果有空位就装备在空位上
-      if (!character.equipments[item.equipType]) {
-        character.equipments[item.equipType] = equipData
-        item.equippedPosition = 1
-        return true
-      }
-      // 否则替换掉
-      final oldEquipData = character.equipments[item.equipType]
-      final oldItem = getEquippedItem(equipData, character)
-      delete oldItem.equippedPosition
-      character.equipments[item.equipType] = equipData
-      if (equipData.category == oldItem.category && equipData.kind == oldItem.kind) {
-        equipData.supports = oldEquipData.supports
-      }
-      item.equippedPosition = 1
-      return true
-    }
-  }
-}
-
-fun unequip(item, character) {
-  assert(item.equippedPosition != null)
-  when (item.equipType) {
-    // 斗技、武器、法宝等
-    kEquipTypeOffense -> {
-      delete character.equipments[kEquipTypeOffense][item.equippedPosition]
-    }
-    // 剑法、心诀等支持型技能
-    kEquipTypeSupport -> {
-      character.equipments[kEquipTypeOffense][item.equippedPosition]
-        .supports.removeWhere((equipData) => equipData.id == item.id)
-    }
-    kEquipTypeArcane -> {
-      delete character.equipments[kEquipTypeArcane][item.equippedPosition]
-    }
-    // 护甲、轻功等
-    kEquipTypeProtect, kEquipTypeManeuver -> {
-      delete character.equipments[item.equipType]
-    }
-  }
-}
-
-fun characterGiveMoneyTo(char1, value, char2, localHistory) {
-  assert(char1.money >= value)
-  char1.money -= value
-  char2.money += value
-  final incidentContent = getLocaleString('incidentTransferMoney', [
-    char1.name,
-    value.toString(),
-    char2.name,
-  ])
-  Incident(
-    content: incidentContent,
-    subjectIds: char1.isMajorCharacter ? [char1.id] : null,
-    objectIds: char2.isMajorCharacter ? [char2.id] : null,
-    isPrivate: true,
-    localHistory: localHistory,
-  )
-}
-
-fun characterGiveItemTo(char1, item, char2) {
-  assert(char1.inventory[item.id] != null)
-  if (item.equippedPosition) unequip(item, char1)
-  char2.inventory[item.id] = item
-  final incidentContent = getLocaleString('incidentTransferItem', [
-    char1.name,
-    item.name,
-    char2.name,
-  ])
-  Incident(
-    content: incidentContent,
-    subjectIds: char1.isMajorCharacter ? [char1.id] : null,
-    objectIds: char2.isMajorCharacter ? [char2.id] : null,
-    isPrivate: true,
-  )
 }
 
 fun handleCharacterTalk(subject, target) {

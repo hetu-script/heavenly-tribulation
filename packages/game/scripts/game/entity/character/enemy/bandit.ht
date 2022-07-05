@@ -1,0 +1,44 @@
+import '../battle_entity.ht'
+
+final _kBanditKinds = [
+  'boss',
+  'muscle',
+  'killer',
+  'minion',
+]
+
+const _kBanditName = 'bandit'
+const _kPirateName = 'pirate'
+
+struct Bandit {
+  construct ({
+    isPirate,
+    kind,
+    attributes,
+    attributeSum,
+  }) {
+    this.icon = 'avatar/general.png'
+    this.name = getLocaleString(isPirate ? _kPirateName : _kBanditName) + getLocaleString(_kBanditKinds.random)
+    this.id = 'bandit_${Hash.uid4(2)}_${this.name}'
+
+    this.kind = kind ?? _kBanditKinds.random
+    when (this.kind) {
+      'boss' -> {
+        equip(Weapon(), this)
+      }
+      'muscle' -> {
+        equip(Weapon(), this)
+      }
+      'killer' -> {
+        equip(Weapon(), this)
+      }
+      'minion' -> {
+        equip(Weapon(), this)
+      }
+    }
+
+    // 生成战斗单位相关数据，并写入当前对象
+    // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
+    this.assign(BattleEntity(attributes: attributes, attributeSum: attributeSum))
+  }
+}

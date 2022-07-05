@@ -86,9 +86,11 @@ flutter:
     - scripts/game/
     - scripts/game/entity/
     - scripts/game/entity/character/
+    - scripts/game/entity/character/enemy/
     - scripts/game/entity/item/
     - scripts/game/entity/skill/
     - scripts/game/quest/
+    - scripts/game/maze/
     - scripts/game/generator/attributes/
     - scripts/game/generator/attributes/data/
     - scripts/game/generator/name/

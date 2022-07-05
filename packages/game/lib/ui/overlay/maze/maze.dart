@@ -14,6 +14,7 @@ import 'drop_menu.dart';
 import '../../view/console.dart';
 import '../hero_info.dart';
 import '../history_panel.dart';
+import '../../../event/events.dart';
 
 class MazeOverlay extends StatefulWidget {
   const MazeOverlay({
@@ -50,6 +51,10 @@ class _MazeOverlayState extends State<MazeOverlay>
     engine.invoke('build', positionalArgs: [context]);
     _currentLevelIndex = widget.startLevel;
     // _heroData = engine.invoke('getHero');
+
+    engine.hetu.interpreter.bindExternalFunction('moveHeroToLastRouteNode', () {
+      _scene.map.moveHeroToLastRouteNode();
+    }, override: true);
 
     engine.registerListener(
       Events.mapTapped,
@@ -116,37 +121,37 @@ class _MazeOverlayState extends State<MazeOverlay>
       Events.heroMoved,
       EventHandler(
         widget.key!,
-        (GameEvent event) {
-          setState(() {
-            final currentTile = _scene.map.getTerrainAtHero()!;
-            if (currentTile.object != null) {
-              final String? entityId = currentTile.object!.entityId;
-              if (entityId != null) {
-                if (_scene.map.hero != null) {
-                  final blocked = engine.invoke('handleMazeEntityInteraction',
-                      positionalArgs: [entityId]);
-                  if (blocked) {
-                    _scene.map.moveHeroToLastRouteNode();
-                  } else {
-                    _scene.map.hero!.isMovingCanceled = true;
-                  }
+        (GameEvent event) async {
+          final currentTile = _scene.map.getTerrainAtHero()!;
+          if (currentTile.object != null) {
+            final String? entityId = currentTile.object!.entityId;
+            if (entityId != null) {
+              if (_scene.map.hero != null) {
+                final blocked = await engine.invoke(
+                    'handleMazeEntityInteraction',
+                    positionalArgs: [entityId, widget.mazeData]);
+                if (blocked) {
+                  _scene.map.moveHeroToLastRouteNode();
+                } else {
+                  _scene.map.hero!.isMovingCanceled = true;
                 }
               }
             }
-          });
+          }
+          setState(() {});
         },
       ),
     );
 
-    // engine.registerListener(
-    //   CustomEvents.dialogFinished,
-    //   EventHandler(
-    //     widget.key!,
-    //     (GameEvent event) {
-    //       setState(() {});
-    //     },
-    //   ),
-    // );
+    engine.registerListener(
+      CustomEvents.dialogFinished,
+      EventHandler(
+        widget.key!,
+        (GameEvent event) {
+          setState(() {});
+        },
+      ),
+    );
   }
 
   @override
@@ -223,6 +228,7 @@ class _MazeOverlayState extends State<MazeOverlay>
                   bottom: 0,
                   child: HistoryPanel(
                     heroId: _heroData?['id'],
+                    historyData: widget.mazeData?['history'],
                   ),
                 ),
               ],

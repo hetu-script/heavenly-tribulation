@@ -1,0 +1,38 @@
+import '../battle_entity.ht'
+import '../../../generator/name/name.ht' as nameGenerator
+
+final _kBeastTypes = [
+  'tiger',
+  'monkey',
+  'snake',
+]
+
+struct Bandit extends Character {
+  construct ({
+    isPirate,
+    kind,
+  }) {
+    this.kind = kind ?? _kBeastTypes.random
+
+    final r = nameGenerator.getCreature(
+      1,
+      category: this.kind,
+    ).first
+    this.name = r.name
+    this.rarity = r.rarity
+    this.id = 'bandit_${Hash.uid4(2)}_${this.name}'
+
+    when (this.kind) {
+      'tiger' -> {
+        equip(Weapon(), this)
+      }
+      'monkey' -> {
+        equip(Weapon(), this)
+      }
+      'snake' -> {
+        equip(Weapon(), this)
+      }
+    }
+
+  }
+}

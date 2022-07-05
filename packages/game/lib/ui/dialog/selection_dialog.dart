@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import '../../global.dart';
+import '../../event/events.dart';
 
 class SelectionDialog extends StatefulWidget {
   static Future<dynamic> show(
@@ -48,6 +49,7 @@ class _SelectionDialogState extends State<SelectionDialog> {
         child: ElevatedButton(
           onPressed: () {
             Navigator.pop(context, key);
+            engine.broadcast(const UIEvent.dialogFinished());
           },
           child: Text(value.toString()),
         ),
