@@ -27,7 +27,7 @@ const _kMaxLocationNumberPerWorldScale = {
 };
 
 class CreateGameDialog extends StatefulWidget {
-  static Future<void> show(BuildContext context) {
+  static Future<dynamic> show(BuildContext context) {
     return showDialog(
       context: context,
       barrierColor: Colors.transparent,

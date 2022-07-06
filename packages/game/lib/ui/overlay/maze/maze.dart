@@ -15,6 +15,7 @@ import '../../view/console.dart';
 import '../hero_info.dart';
 import '../history_panel.dart';
 import '../../../event/events.dart';
+import '../../dialog/game_over.dart';
 
 class MazeOverlay extends StatefulWidget {
   const MazeOverlay({
@@ -52,6 +53,18 @@ class _MazeOverlayState extends State<MazeOverlay>
     _currentLevelIndex = widget.startLevel;
     // _heroData = engine.invoke('getHero');
 
+    engine.hetu.interpreter.bindExternalFunction('gameOver', (HTEntity object,
+        {List<dynamic> positionalArgs = const [],
+        Map<String, dynamic> namedArgs = const {},
+        List<HTType> typeArgs = const []}) {
+      engine.leaveScene('maze');
+      Navigator.of(context).pop();
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => GameOver(),
+      );
+    }, override: true);
+
     engine.hetu.interpreter.bindExternalFunction(
         'moveHeroToLastRouteNode',
         (HTEntity object,
@@ -69,6 +82,17 @@ class _MazeOverlayState extends State<MazeOverlay>
                 List<HTType> typeArgs = const []}) =>
             _scene.map.showFogOfWar = positionalArgs.first,
         override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('removeEntity',
+        (HTEntity object,
+            {List<dynamic> positionalArgs = const [],
+            Map<String, dynamic> namedArgs = const {},
+            List<HTType> typeArgs = const []}) {
+      final int left = positionalArgs[0];
+      final int top = positionalArgs[1];
+      final tile = _scene.map.getTerrain(left, top);
+      tile?.object = null;
+    }, override: true);
 
     engine.registerListener(
       Events.mapTapped,
@@ -136,13 +160,20 @@ class _MazeOverlayState extends State<MazeOverlay>
       EventHandler(
         widget.key!,
         (GameEvent event) async {
-          final currentTile = _scene.map.getTerrainAtHero()!;
-          if (currentTile.object != null) {
-            final String? entityId = currentTile.object!.entityId;
+          final tile = _scene.map.getTerrainAtHero()!;
+          if (tile.object != null) {
+            final String? entityId = tile.object!.entityId;
             if (entityId != null) {
               if (_scene.map.hero != null) {
-                final blocked = engine.invoke('handleMazeEntityInteraction',
-                    positionalArgs: [entityId, widget.mazeData]);
+                final blocked = engine.invoke(
+                  'handleMazeEntityInteraction',
+                  positionalArgs: [
+                    entityId,
+                    tile.left,
+                    tile.top,
+                    widget.mazeData,
+                  ],
+                );
                 if (blocked) {
                   _scene.map.moveHeroToLastRouteNode();
                 } else {

@@ -118,14 +118,14 @@ class TileMapObject extends GameComponent with TileInfo {
     }
   }
 
-  void moveTo(TilePosition target) {
+  void moveTo(TilePosition target, {bool backward = false}) {
     assert(tilePosition != target);
     _movingTargetTilePosition = target;
     _isMoving = true;
     _movingOffset = Vector2.zero();
     _movingTargetWorldPosition =
         tilePosition2TileCenterInWorld(target.left, target.top);
-    direction = direction2Orthogonal(directionTo(target));
+    direction = direction2Orthogonal(directionTo(target, backward: backward));
 
     // 计算地图上的斜方向实际距离
     final sx = _movingTargetWorldPosition.x - worldPosition.x;

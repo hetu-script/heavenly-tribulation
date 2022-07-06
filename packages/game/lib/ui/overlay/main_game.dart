@@ -80,7 +80,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
           if (terrain.locationId != null) {
             _scene.map.moveHeroToTilePositionByRoute(
               route,
-              () => _enterLocation(terrain.locationId!),
+              onDestinationCallback: () => _enterLocation(terrain.locationId!),
             );
           } else {
             _scene.map.moveHeroToTilePositionByRoute(route);
@@ -346,7 +346,8 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                   checkIcon: terrainZone.index != 0,
                   onCheck: () {
                     if (route != null) {
-                      _scene.map.moveHeroToTilePositionByRoute(route, () {});
+                      _scene.map.moveHeroToTilePositionByRoute(route,
+                          onDestinationCallback: () {});
                     } else if (isTappingHeroPosition) {}
                     closePopup();
                   },
@@ -358,7 +359,8 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                     if (route != null) {
                       _scene.map.moveHeroToTilePositionByRoute(
                         route,
-                        () => _enterLocation(terrain.locationId!),
+                        onDestinationCallback: () =>
+                            _enterLocation(terrain.locationId!),
                       );
                     } else if (isTappingHeroPosition) {
                       _enterLocation(terrain.locationId!);

@@ -1,3 +1,7 @@
+external fun gameOver
+
 external fun moveHeroToLastRouteNode
 
 external fun setFogOfWar(value: bool)
+
+external fun removeEntity(left, top)

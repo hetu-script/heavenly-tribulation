@@ -316,71 +316,71 @@ mixin TileInfo on Component {
     return Vector2(rl, rt);
   }
 
-// 计算 hexagonal tile 的方向
-  Direction directionTo(TilePosition position) {
+  /// 计算 hexagonal tile 的方向，如果是 backward 则是反方向
+  Direction directionTo(TilePosition position, {bool backward = false}) {
     assert(tilePosition != position);
     if (left % 2 != 0) {
       if (position.left == left) {
         if (position.top < top) {
-          return Direction.north;
+          return backward ? Direction.south : Direction.north;
         } else {
-          return Direction.south;
+          return backward ? Direction.north : Direction.south;
         }
       } else if (position.left > left) {
         if (position.top == top) {
           if (position.left % 2 != 0) {
-            return Direction.east;
+            return backward ? Direction.west : Direction.east;
           } else {
-            return Direction.southEast;
+            return backward ? Direction.northWest : Direction.southEast;
           }
         } else if (position.top < top) {
-          return Direction.northEast;
+          return backward ? Direction.southWest : Direction.northEast;
         } else {
-          return Direction.southEast;
+          return backward ? Direction.northWest : Direction.southEast;
         }
       } else {
         if (position.top == top) {
           if (position.left % 2 != 0) {
-            return Direction.west;
+            return backward ? Direction.east : Direction.west;
           } else {
-            return Direction.southWest;
+            return backward ? Direction.northEast : Direction.southWest;
           }
         } else if (position.top < top) {
-          return Direction.northWest;
+          return backward ? Direction.southEast : Direction.northWest;
         } else {
-          return Direction.southWest;
+          return backward ? Direction.northEast : Direction.southWest;
         }
       }
     } else {
       if (position.left == left) {
         if (position.top < top) {
-          return Direction.north;
+          return backward ? Direction.south : Direction.north;
         } else {
-          return Direction.south;
+          return backward ? Direction.north : Direction.south;
         }
       } else if (position.left > left) {
         if (position.top == top) {
           if (position.left.isEven) {
-            return Direction.east;
+            return backward ? Direction.west : Direction.east;
           } else {
-            return Direction.northEast;
+            return backward ? Direction.southWest : Direction.northEast;
           }
         } else if (position.top < top) {
-          return Direction.northEast;
+          return backward ? Direction.southWest : Direction.northEast;
         } else {
-          return Direction.southEast;
+          return backward ? Direction.northWest : Direction.southEast;
         }
       } else {
         if (position.top == top) {
           if (position.left.isEven) {
-            return Direction.west;
+            return backward ? Direction.east : Direction.west;
           } else {
-            return Direction.northWest;
+            return backward ? Direction.southEast : Direction.northWest;
           }
         } else if (position.top < top) {
-          return Direction.northWest;
+          return backward ? Direction.southEast : Direction.northWest;
         } else {
-          return Direction.southWest;
+          return backward ? Direction.northEast : Direction.southWest;
         }
       }
     }

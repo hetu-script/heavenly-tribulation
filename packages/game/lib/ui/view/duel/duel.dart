@@ -15,9 +15,9 @@ const kEntityTypeCharacter = 'character';
 const kEntityTypeEnemy = 'enemy';
 
 class Duel extends StatefulWidget {
-  static Future<void> show(BuildContext context, HTStruct char1, HTStruct char2,
-      String? type, HTStruct? data) {
-    return showDialog(
+  static Future<bool?> show(BuildContext context, HTStruct char1,
+      HTStruct char2, String? type, HTStruct? data) {
+    return showDialog<bool>(
       context: context,
       barrierColor: Colors.transparent,
       barrierDismissible: false,
@@ -357,7 +357,7 @@ class _DuelState extends State<Duel> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (_finished) {
-                              Navigator.pop(context);
+                              Navigator.pop(context, _data?['result'] ?? false);
                             } else {
                               _timer?.cancel();
                               setState(() {

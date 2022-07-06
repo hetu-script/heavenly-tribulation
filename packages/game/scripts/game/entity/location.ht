@@ -277,7 +277,7 @@ fun _handleGovernmentInteraction(site) {
   final selections = [
     'appeal',
     'tribute',
-    'quest',
+    'noticeBoard',
     'localExam',
   ]
   if (site.isCapital) {
@@ -289,7 +289,7 @@ fun _handleGovernmentInteraction(site) {
   showSelectionByLocaleKeys(selections).then((key) {
     when (key) {
       'appeal' -> {
-        showSelection([
+        showSelectionByLocaleKeys([
           'applyOrganization',
           'applySite',
           'complaintSite',
@@ -326,7 +326,7 @@ fun _handleGovernmentInteraction(site) {
       'tribute' -> {
         // TODO: 进贡金钱或者宝物，之后可以选择是否发起请求
       }
-      'quest' -> {
+      'noticeBoard' -> {
         if (location.quests.isEmpty) {
           showDialogByLocaleKeys(['questEmpty'])
         } else {

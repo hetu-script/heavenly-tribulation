@@ -328,6 +328,8 @@ class TileMap extends GameComponent with HandlesGesture {
 
   List<TileMapRouteNode>? _currentRoute;
 
+  bool _backwardMoving = false;
+
   TileMapRouteNode? _lastRouteNode;
 
   // TileMapTerrain? _currentMoveDestination;
@@ -568,9 +570,10 @@ class TileMap extends GameComponent with HandlesGesture {
   }
 
   void moveHeroToTilePositionByRoute(List<int> route,
-      [VoidCallback? onDestinationCallback]) {
+      {VoidCallback? onDestinationCallback, bool backwardMoving = false}) {
     assert(_hero != null);
     if (_hero!.isMoving) return;
+    _backwardMoving = backwardMoving;
     _currentDestinationCallback = onDestinationCallback;
     assert(tilePosition2Index(_hero!.left, _hero!.top, tileMapWidth) ==
         route.first);
@@ -594,7 +597,8 @@ class TileMap extends GameComponent with HandlesGesture {
     assert(_hero != null);
     assert(_lastRouteNode != null);
     _currentRoute = null;
-    moveHeroToTilePositionByRoute([_hero!.index, _lastRouteNode!.index]);
+    moveHeroToTilePositionByRoute([_hero!.index, _lastRouteNode!.index],
+        backwardMoving: true);
     _lastRouteNode = null;
   }
 
@@ -696,7 +700,7 @@ class TileMap extends GameComponent with HandlesGesture {
           _currentRoute!.removeLast();
           if (_currentRoute!.isNotEmpty) {
             final nextTile = _currentRoute!.last;
-            _hero!.moveTo(nextTile.tilePosition);
+            _hero!.moveTo(nextTile.tilePosition, backward: _backwardMoving);
             final pos = nextTile.tilePosition;
             final terrain = getTerrain(pos.left, pos.top);
             if (terrain!.isWater) {

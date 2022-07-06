@@ -144,6 +144,8 @@ fun createMaze ({
     id = 'unknown_maze',
     levelNumber = 1,
     isOnWorldMap = true,
+    tileset = 'mountain',
+    encounters = _kEncounterTypes,
   }) {
   engine.info('开始生成副本: ${id}')
 
@@ -278,7 +280,7 @@ fun createMaze ({
     for (final anchor of anchors) {
       final r = Math.random()
       if (r < _kEncounterProbability) {
-        final encounterType = _kEncounterTypes.random
+        final encounterType = encounters.random
         when (encounterType) {
           'bandit' -> {
             final enemyEntity = Bandit()
@@ -438,7 +440,7 @@ fun createMaze ({
 }
 
 // 返回布尔值，如果为真，则玩家控制角色会返回上一格，否则停在这一格
-fun handleMazeEntityInteraction(entityId, maze) -> bool {
+fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
   final hero = getHero()
   final entity = maze.entities[entityId]
   assert(entity != null)
@@ -455,7 +457,7 @@ fun handleMazeEntityInteraction(entityId, maze) -> bool {
         ]
         showSelectionByLocaleKeys(selections).then((key) {
           when (key) {
-            // 增加现实主义
+            // 现实主义
             'handOver' -> {
               characterGiveMoneyTo(hero, hero.money, entity, maze.history)
               for (final item of hero.inventory) {
@@ -463,19 +465,27 @@ fun handleMazeEntityInteraction(entityId, maze) -> bool {
               }
             }
             // 向盗贼求情，是否成功依赖于
-            // 增加圆滑
+            // 圆滑
             'plead' -> {
               if (hero.stats.charisma > kCharismaCheckThreshold) {
-                showDialogByStrings([getLocaleString('pleadSuccess')], character: hero)
+                showDialogByStrings([getLocaleString('pleadSuccess')])
                   .then((value) {
                     characterGiveMoneyTo(hero, hero.money, entity, maze.history)
                   })
               } else {
-                showDialogByStrings([getLocaleString('pleadFailed')], character: hero)
-                  .then( (value) => showDuel(hero, entity) )
+                showDialogByStrings([getLocaleString('pleadFailed')])
+                .then( (value) =>
+                  showDuel(hero, entity).then((value) {
+                    if (value) {
+                      removeEntity(left, top)
+                    } else {
+                      gameOver()
+                    }
+                  })
+                )
               }
             }
-            // 增加懦弱
+            // 懦弱
             'escape' -> {
               if (hero.stats.dexterity > entity.stats.dexterity || hero.stats.strength > entity.stats.strength) {
                 final incidentContent = getLocaleString('incidentEscapeSuccess', [ entity.name ] )
@@ -486,21 +496,43 @@ fun handleMazeEntityInteraction(entityId, maze) -> bool {
                   localHistory: maze.history,
                 )
               } else {
-                showDialogByStrings([getLocaleString('escapeFailed')], character: hero)
-                  .then( (value) => showDuel(hero, entity) )
+                showDialogByStrings([getLocaleString('escapeFailed')])
+                .then( (value) => 
+                  showDuel(hero, entity).then((value) {
+                    if (value) {
+                      removeEntity(left, top)
+                    } else {
+                      gameOver()
+                    }
+                  })
+                )
               }
             }
-            // 增加自信
+            // 自信
             'fight' -> {
               showDialogByStrings([getLocaleString('fightBandit')], character: hero)
-                  .then( (value) => showDuel(hero, entity) )
+              .then( (value) => 
+                showDuel(hero, entity).then((value) {
+                  if (value) {
+                    removeEntity(left, top)
+                  } else {
+                    gameOver()
+                  }
+                })
+              )
             }
           }
         })
       })
     }
     'beast' -> {
-      showDuel(hero, entity)
+      showDuel(hero, entity).then((value) {
+        if (value) {
+          removeEntity(left, top)
+        } else {
+          gameOver()
+        }
+      })
     }
   }
   return true

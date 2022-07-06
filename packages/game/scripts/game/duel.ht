@@ -8,20 +8,20 @@ import 'entity/constants.ht'
 
 external fun _showDuel(context, char1, char2, [ type, data ])
 
-fun showDuel(char1, char2, { type }) -> Future {
+fun showDuel(char1, char2, { type, onCallback: ( any ) -> any }) -> Future {
   final duelResult = Duel(char1, char2, type: type);
-  if (duelResult.started) {
-    _showDuel(buildContext, char1, char2, type, duelResult)
-  } else {
-    if (duelResult.result) {
-      final message = getLocaleString('enemyEmptyHands', [char2.name])
-      showDialogByStrings([message], character: char2)
-    } else {
-      final messages = getLocaleString('emptyHands').split('\n')
-      showDialogByStrings(messages, character: char1)
-    }
-  }
-  return duelResult
+  // if (duelResult.started) {
+    return _showDuel(buildContext, char1, char2, type, duelResult)
+  // } else {
+  //   if (duelResult.result) {
+  //     final message = getLocaleString('enemyEmptyHands', [char2.name])
+  //     showDialogByStrings([message], character: char2)
+  //   } else {
+  //     final messages = getLocaleString('emptyHands').split('\n')
+  //     showDialogByStrings(messages, character: char1)
+  //   }
+  // }
+  // return duelResult
 }
 
 // damage = ((1 / (Math.log((victim.defense + 5) / 100) + 5)) * 2 * attacker._attack)
@@ -95,7 +95,6 @@ struct Duel {
     } else {
       this.result = false
       this.tied = false
-      this.started = true
       // 战斗本身的客观时间，不会受任何因素影响
       this.frames = 0
       char1info.activatedOffense = getEquippedItem(char1info.offenseItems.values.first, char1)
@@ -117,6 +116,20 @@ struct Duel {
       
       // char1info.targetIndex = setNextActivatedDefenseItem(char2info, char2)
       // char2info.targetIndex = setNextActivatedDefenseItem(char1info, char1)
+      this.started = true
+
+      fun checkIfEnd {
+        if (char1info.stats.life <= 0) {
+          engine.info('${char1.name} 和 ${char2.name} 的战斗结束了。${char2.name} 获胜。')
+          return true
+        }
+        if (char2info.stats.life <= 0) {
+          engine.info('${char1.name} 和 ${char2.name} 的战斗结束了。${char1.name} 获胜。')
+          this.result = true
+          return true
+        }
+        return false
+      }
 
       if (type == kDuelTypeSneakAttack) {
         final initiativeSum = char1.attributes.perception + char2.attributes.perception
@@ -133,79 +146,70 @@ struct Duel {
           ])
           this.messages.add(message)
           this.actions.char1.add(Log(damage: damage, message: message))
+          if (checkIfEnd()) this.started = false
         } else {
           // this.log.add(getLocaleString('sneakAttackFail', [char1.name, char2.name]))
         }
       }
-      
-      fun _nextTick({ enemyTurn = false }) {
-        final info = enemyTurn ? char2info : char1info
-        final actions = enemyTurn ? this.actions.char2 : this.actions.char1
-        final subject = enemyTurn ? char2 : char1
-        final target = enemyTurn ? char1 : char2
-        final targetInfo = enemyTurn ? char1info : char2info
-        // 出招等待阶段
-        if (info.ticks >= info.activatedOffense.stats.speed) {
-          // 出招
-          final damage = _attack(info.activatedOffense, target)
-          final message = getLocaleString('attackInfo', [
-            subject.name, 
-            info.activatedOffense.name,
-            target.name,
-            damage.truncate(),
-          ])
-          this.messages.add(message)
-          actions.add(Log(
-            activatedIndex: info.activatedIndex,
-            speed: info.activatedOffense.stats.speed,
-            damage: damage,
-            message: message,
-            // protected: info.activatedDefense.entityType != kEntityTypeCharacter,
-            // targetIndex: info.activatedDefense.id,
-          ))
-          info.ticks = 0
-          // 计算伤害
-          entityTakeDamage(targetInfo, damage)
-          // if (info.activatedDefense.stats.life <= 0) {
-          //   info.targetIndex = setNextActivatedDefenseItem(info, target)
-          // }
-          // 收招
-          ++info.activatedIndex
-          if (info.activatedIndex > info.offenseItems.length) {
-            info.activatedIndex = 1
-          }
-          info.activatedOffense =
-            getEquippedItem(info.offenseItems[info.activatedIndex], subject)
-        } else {
-          ++info.ticks
-        }
-      }
 
-      while (true) {
-        if (this.frames >= _kDuelticksLimit) {
-          // this.messages.add(getLocaleString('drawGame'))
-          this.tied = true
-          break
+      if (this.started) {
+        fun _nextTick({ enemyTurn = false }) {
+          final info = enemyTurn ? char2info : char1info
+          final actions = enemyTurn ? this.actions.char2 : this.actions.char1
+          final subject = enemyTurn ? char2 : char1
+          final target = enemyTurn ? char1 : char2
+          final targetInfo = enemyTurn ? char1info : char2info
+          // 出招等待阶段
+          if (info.ticks >= info.activatedOffense.stats.speed) {
+            // 出招
+            final damage = _attack(info.activatedOffense, target)
+            final message = getLocaleString('attackInfo', [
+              subject.name, 
+              info.activatedOffense.name,
+              target.name,
+              damage.truncate(),
+            ])
+            this.messages.add(message)
+            actions.add(Log(
+              activatedIndex: info.activatedIndex,
+              speed: info.activatedOffense.stats.speed,
+              damage: damage,
+              message: message,
+              // protected: info.activatedDefense.entityType != kEntityTypeCharacter,
+              // targetIndex: info.activatedDefense.id,
+            ))
+            info.ticks = 0
+            // 计算伤害
+            entityTakeDamage(targetInfo, damage)
+            // if (info.activatedDefense.stats.life <= 0) {
+            //   info.targetIndex = setNextActivatedDefenseItem(info, target)
+            // }
+            // 收招
+            ++info.activatedIndex
+            if (info.activatedIndex > info.offenseItems.length) {
+              info.activatedIndex = 1
+            }
+            info.activatedOffense =
+              getEquippedItem(info.offenseItems[info.activatedIndex], subject)
+          } else {
+            ++info.ticks
+          }
         }
- 
-        if (char1info.stats.life <= 0) {
-          // this.messages.add(getLocaleString('duelVictory', [char1.name, char2.name]))
-          if (char2info.stats.life <= 0) {
+
+        while (true) {
+          if (this.frames >= _kDuelticksLimit) {
+            // this.messages.add(getLocaleString('drawGame'))
             this.tied = true
+            break
           }
-          break
-        }
-        
-        if (char2info.stats.life <= 0) {
-          // this.messages.add(getLocaleString('duelVictory', [char2.name, char1.name]))
-          this.result = true
-          break
-        }
 
-        _nextTick(char1info)
-        _nextTick(char2info, enemyTurn: true)
+          _nextTick(char1info)
+          if (checkIfEnd()) break
+          _nextTick(char2info, enemyTurn: true)
+          if (checkIfEnd()) break
 
-        ++this.frames
+          ++this.frames
+        }
       }
     }
 
@@ -215,9 +219,8 @@ struct Duel {
       char2: char2info.stats,
     }
     
-    if (config.debug) {
-      // engine.info(this)
-      engine.info('${char1.name} 和 ${char2.name} 的战斗结束了')
-    }
+    // if (config.debug) {
+    //   engine.info(this)
+    // }
   }
 }
