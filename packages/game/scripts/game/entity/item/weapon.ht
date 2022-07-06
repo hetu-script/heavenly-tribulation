@@ -7,25 +7,33 @@ import '../../game.ht'
 final _kEffects = ['parry', 'counter']
 
 final kWeaponKinds = {
-  // 伤害一般，耐久低，出招速度一般，收招速度快
+  'staff': {
+    icon: 'icon/item/staff.png',
+    attributes: {
+      speed: 12,
+      life: 300,
+      damage: 24,
+      criticalDamageHits: 10,
+      criticalDamageMultiply: 1.5,
+    },
+  },
   'sabre': {
     icon: 'icon/item/sabre.png',
     attributes: {
       speed: 10,
       life: 200,
       damage: 30,
-      criticalDamageHit: 7,
+      criticalDamageHits: 7,
       criticalDamageMultiply: 4,
     },
   },
-  // 伤害一般，耐久低，出招速度一般，收招速度快
   'sword': {
     icon: 'icon/item/sword.png',
     attributes: {
       speed: 10,
       life: 200,
       damage: 30,
-      criticalDamageHit: 7,
+      criticalDamageHits: 7,
       criticalDamageMultiply: 3.5,
     },
   },
@@ -34,41 +42,28 @@ final kWeaponKinds = {
     attributes: {
       speed: 20,
       life: 300,
-      damage: 40,
-      criticalDamageHit: 5,
+      damage: 60,
+      criticalDamageHits: 5,
       criticalDamageMultiply: 3.5,
     },
   },
-  // 伤害高，耐久高，出招速度一般，收招速度慢
-  'staff': {
-    icon: 'icon/item/staff.png',
-    attributes: {
-      speed: 12,
-      life: 300,
-      damage: 12,
-      criticalDamageHit: 10,
-      criticalDamageMultiply: 1.5,
-    },
-  },
-  // 伤害高，耐久高，出招速度一般，收招速度慢
   // 'axe': {
   //   icon: 'icon/item/axe.png',
   //   attributes: {
   //     speed: 10,
   //     life: 250,
   //     damage: 40,
-  //     criticalDamageHit: 7,
+  //     criticalDamageHits: 7,
   //     criticalDamageMultiply: 5,
   //   },
   // },
-  // 伤害高，耐久高，出招速度一般，收招速度慢
   // 'halberd': {
   //   icon: 'icon/item/halberd.png',
   //   attributes: {
   //     speed: 15,
   //     life: 300,
   //     damage: 50,
-  //     criticalDamageHit: 5,
+  //     criticalDamageHits: 5,
   //     criticalDamageMultiply: 5,
   //   },
   // },
@@ -78,18 +73,17 @@ final kWeaponKinds = {
   //     speed: 20,
   //     life: 400,
   //     damage: 25,
-  //     criticalDamageHit: 7,
+  //     criticalDamageHits: 7,
   //     criticalDamageMultiply: 3.5,
   //   },
   // },
-  // 伤害低，耐久一般，出招速度快，收招速度快
   // 'dagger': {
   //   icon: 'icon/item/dagger.png',
   //   attributes: {
   //     speed: 5,
   //     life: 100,
   //     damage: 15,
-  //     criticalDamageHit: 7,
+  //     criticalDamageHits: 7,
   //     criticalDamageMultiply: 3.5,
   //   },
   // },

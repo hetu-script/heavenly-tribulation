@@ -171,10 +171,10 @@ fun getRarityValue(valueMap) {
 }
 
 const kEntityTypeCharacter = 'character'
+const kEntityTypeEnemy = 'enemy'
 const kEntityTypeItem = 'item'
 const kEntityTypeSkill = 'skill'
 const kEntityCategoryWeapon = 'weapon'
-const kEntityCategoryBeastBodyPart = 'beastBodyPart'
 const kEntityCategoryWeaponSupport = 'weaponSupport'
 const kEntityCategoryMartialArts = 'martialArts'
 
@@ -188,4 +188,13 @@ fun entityTakeDamage(entity, damage) {
   assert(entity?.stats?.life != null)
   entity.stats.life -= damage
   if (entity.stats.life < 0) entity.stats.life = 0
+}
+
+const _kCharacterRandomAgeMax = 150
+
+fun createRandomBirthTimestamp([min = 1, max = _kCharacterRandomAgeMax]) {
+  assert(min > 0)
+  final age = Math.randomInt(max - min) + min
+  final randomDateInAYear = Math.randomInt(kTicksPerYear)
+  return game.timestamp - (age * kTicksPerYear + randomDateInAYear)
 }

@@ -106,3 +106,11 @@ fun toDateString(timestamp) => formatDateTimeString(timestamp)
 fun toTimeString(timestamp) => formatDateTimeString(timestamp, format: 'time.ymd')
 
 fun toAgeString(timestamp) => formatDateTimeString(timestamp, format: 'age')
+
+fun getEntityAgeString(entity) {
+  return toAgeString(game.timestamp - entity.birthTimestamp)
+}
+
+fun getEntityBirthDateString(entity) {
+  return formatDateTimeString(game.timestamp - entity.birthTimestamp, format: 'date.md')
+}

@@ -1,0 +1,19 @@
+external class SamsaraEngine {
+  fun updateLocale(data: Map)
+  fun updateZoneColors(data: Map)
+  fun updateNationColors(data: Map)
+  // fun onIncident(data)
+  fun debug(content: str)
+  fun info(content: str)
+  fun warning(content: str)
+  fun error(content: str)
+}
+
+var buildContext
+
+fun build(ctx) {
+  buildContext = ctx
+}
+
+var engine: SamsaraEngine
+

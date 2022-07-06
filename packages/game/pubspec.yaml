@@ -105,6 +105,7 @@ flutter:
     - scripts/game/generator/name/shared/
     - scripts/game/generator/name/skill/
     - scripts/game/generator/name/talisman/
+    - scripts/game/binding/
     - scripts/game/l10n/
     - scripts/game/l10n/en/
     - scripts/game/l10n/zh/

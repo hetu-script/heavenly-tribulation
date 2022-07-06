@@ -174,7 +174,8 @@ fun calculateRoute(start, end, map, {restrictedInZoneIndex}) {
 
   // assert(start.zoneIndex > 0)
   // assert(end.zoneIndex > 0)
-  assert(start.index != null && end.index != null && start.index != end.index)
+  assert(start.index != null && end.index != null)
+  if (start.index == end.index) return null
   // final zone1 = map.zones[start.zoneIndex]
   // final zone2 = map.zones[end.zoneIndex]
 

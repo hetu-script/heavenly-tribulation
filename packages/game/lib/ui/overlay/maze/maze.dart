@@ -5,6 +5,7 @@ import 'package:hetu_script/values.dart';
 import 'package:flame/sprite.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/components.dart';
+import 'package:hetu_script/types.dart';
 
 import '../../shared/loading_screen.dart';
 import '../../../global.dart';
@@ -51,9 +52,23 @@ class _MazeOverlayState extends State<MazeOverlay>
     _currentLevelIndex = widget.startLevel;
     // _heroData = engine.invoke('getHero');
 
-    engine.hetu.interpreter.bindExternalFunction('moveHeroToLastRouteNode', () {
-      _scene.map.moveHeroToLastRouteNode();
-    }, override: true);
+    engine.hetu.interpreter.bindExternalFunction(
+        'moveHeroToLastRouteNode',
+        (HTEntity object,
+                {List<dynamic> positionalArgs = const [],
+                Map<String, dynamic> namedArgs = const {},
+                List<HTType> typeArgs = const []}) =>
+            _scene.map.moveHeroToLastRouteNode(),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'setFogOfWar',
+        (HTEntity object,
+                {List<dynamic> positionalArgs = const [],
+                Map<String, dynamic> namedArgs = const {},
+                List<HTType> typeArgs = const []}) =>
+            _scene.map.showFogOfWar = positionalArgs.first,
+        override: true);
 
     engine.registerListener(
       Events.mapTapped,
@@ -126,8 +141,7 @@ class _MazeOverlayState extends State<MazeOverlay>
             final String? entityId = currentTile.object!.entityId;
             if (entityId != null) {
               if (_scene.map.hero != null) {
-                final blocked = await engine.invoke(
-                    'handleMazeEntityInteraction',
+                final blocked = engine.invoke('handleMazeEntityInteraction',
                     positionalArgs: [entityId, widget.mazeData]);
                 if (blocked) {
                   _scene.map.moveHeroToLastRouteNode();

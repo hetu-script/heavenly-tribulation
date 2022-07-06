@@ -1,3 +1,16 @@
+import '../constants.ht'
+
+final kCharacterAttributeNames = [
+  'strength',
+  'dexterity',
+  'constitution',
+  'superpower',
+  'perception',
+  'intelligence',
+  'leadership',
+  'management',
+]
+
 const _kCharacterAttributeMinValue = 1
 const _kCharacterAttributeMaxValue = 100
 const _kCharacterAttributeSumBase = 400
@@ -8,12 +21,9 @@ const _kSupportEquipmentMax = 4
 
 struct BattleEntity {
   construct ({
-    name,
     attributes,
     attributeSum = _kCharacterAttributeSumBase,
   }) {
-    this.name = name
-
     // 身上携带的金钱数量
     this.money = 0
 

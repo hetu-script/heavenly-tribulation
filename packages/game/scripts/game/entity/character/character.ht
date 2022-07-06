@@ -13,7 +13,6 @@ import 'battle_entity.ht'
 const _kMaleAvatarCount = 37
  // number of the female avatar images
 const _kFemaleAvatarCount = 75
-const _kCharacterRandomAgeMax = 150
 const _kCharacterAverageLooks = 60.0
 const _kCharacterLooksDeviation = 25.0
 /// 容貌最大值: 100.0
@@ -21,17 +20,6 @@ const _kCharacterMaxLooks = 100.0
 const _kCharacterImpressionCheckpoint = 10.0
 const _kCharacterInitialGeneralThinking = 4
 const _kMajorMotivationProbobility = 0.2
-
-final kCharacterAttributeNames = [
-  'strength',
-  'dexterity',
-  'constitution',
-  'superpower',
-  'perception',
-  'intelligence',
-  'leadership',
-  'management',
-]
 
 final kMajorMotivations = [
   'duty',
@@ -151,7 +139,7 @@ struct Character {
     fatherId,
     motherId,
     attributes,
-    attributeSum = _kCharacterAttributeSumBase,
+    attributeSum,
     isMajorCharacter = true, // 是否是主要NPC，主要NPC会加入世界人物列表，并会有更多互动
     worldPositionX,
     worldPositionY,
@@ -342,7 +330,8 @@ struct Character {
 
     // 生成战斗单位相关数据，并写入当前对象
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
-    this.assign(BattleEntity(attributes: attributes, attributeSum: attributeSum))
+    final battleInfo = BattleEntity(attributes: attributes, attributeSum: attributeSum)
+    this.assign(battleInfo)
   }
 }
 
@@ -379,13 +368,6 @@ fun getCharacterFame(character) {
 
 fun getCharacterFameString(character) {
   return (character.knownByPopulation / game.characters.length).toPercentageString(2)
-}
-
-fun createRandomBirthTimestamp([min = 1, max = _kCharacterRandomAgeMax]) {
-  assert(min > 0)
-  final age = Math.randomInt(max - min) + min
-  final randomDateInAYear = Math.randomInt(kTicksPerYear)
-  return game.timestamp - (age * kTicksPerYear + randomDateInAYear)
 }
 
 /// 容貌评价的计算公式

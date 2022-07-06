@@ -15,7 +15,7 @@ extension DoubleFixed on double {
   }
 }
 
-const kCharacterAttributes = [
+const kCharacterStats = [
   'strength',
   'dexterity',
   'constitution',
@@ -37,13 +37,12 @@ class CharacterAttributesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final timestamp = engine.invoke('getTimestamp');
-    final age = timestamp - characterData['birthTimestamp'];
-    final ageString = engine.invoke('toAgeString', positionalArgs: [age]);
+    final ageString =
+        engine.invoke('getEntityAgeString', positionalArgs: [characterData]);
     final fame = engine
         .invoke('getCharacterFameString', positionalArgs: [characterData]);
-    final birthday = engine.invoke('formatDateTimeString',
-        positionalArgs: [age], namedArgs: {'format': 'date.md'});
+    final birthday = engine
+        .invoke('getEntityBirthDateString', positionalArgs: [characterData]);
     final organizationId = characterData['organizationId'];
     String organization = getNameFromId(organizationId);
     final title = engine
@@ -60,8 +59,6 @@ class CharacterAttributesView extends StatelessWidget {
     final childs =
         getNamesFromEntityIds(characterData['relationships']['childrenIds'])
             .map((e) => Label(e));
-
-    final attributes = characterData['attributes'];
 
     final personality = characterData['personality'];
     final double ideal = (personality['ideal'] as double).toDoubleAsFixed(2);
@@ -172,10 +169,10 @@ class CharacterAttributesView extends StatelessWidget {
               const Divider(),
               // Text('---${engine.locale['attributes']}---'),
               Wrap(
-                children: kCharacterAttributes
+                children: kCharacterStats
                     .map(
                       (name) => Label(
-                        '${engine.locale[name]}: ${attributes[name] ?? 0}',
+                        '${engine.locale[name]}: ${characterData['stats'][name] ?? 0}',
                         width: 120.0,
                       ),
                     )

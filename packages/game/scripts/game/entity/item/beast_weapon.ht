@@ -3,48 +3,33 @@ import '../constants.ht'
 import 'constants.ht'
 import '../../util.ht'
 import '../../game.ht'
+import '../../l10n.ht'
 
 final _kEffects = ['parry', 'counter']
 
-final _kBeastBodyPartNames = {
-  fang: [ '牙', '齿' ],
-  horn: [ '角' ],
-  claw: [ '爪' ],
-  hoof: [ '蹄' ],
-  eye: [
-    '目',
-    '眼',
-    '睛',
-    '眼珠',
-  ],
-  tail: [ '尾' ],
-  scale: [ '鳞' ],
-  skin: [ '皮' ],
-  feather: [ '羽' ],
-  wings: [ '翅' ],
-}
+final kBeastWeaponKindClaw = 'claw'
+final kBeastWeaponKindFang = 'fang'
+
 
 final _kBeastWeaponKinds = {
-  // 伤害一般，耐久低，出招速度一般，收招速度快
   'claw': {
-    icon: 'icon/item/sabre.png',
+    icon: 'icon/item/claw.png',
     attributes: {
-      speed: 10,
+      speed: 7,
       life: 200,
-      damage: 30,
-      criticalDamageHit: 7,
-      criticalDamageMultiply: 4,
+      damage: 18,
+      criticalDamageHits: 4,
+      criticalDamageMultiply: 2,
     },
   },
-  // 伤害一般，耐久低，出招速度一般，收招速度快
   'fang': {
-    icon: 'icon/item/sword.png',
+    icon: 'icon/item/fang.png',
     attributes: {
       speed: 10,
       life: 200,
-      damage: 30,
-      criticalDamageHit: 7,
-      criticalDamageMultiply: 3.5,
+      damage: 25,
+      criticalDamageHits: 4,
+      criticalDamageMultiply: 3,
     },
   },
 }
@@ -53,7 +38,7 @@ final _kBeastWeaponKinds = {
 // 在击杀野兽之后，以物品形式存在，此时可以重新装备和取下
 struct BeastWeapon {
   construct ({
-    name,
+    beastName,
     rarity,
     value,
     icon,
@@ -61,22 +46,21 @@ struct BeastWeapon {
     kind,
     attributes,
   }) {
-    this.name = name
-    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
-    this.category = kEntityCategoryBeastBodyPart // 武器、防护、斗技、玄功等等
+    assert(beastName != null)
+    assert(kind != null)
+    this.beastName = beastName
     this.kind = kind
+    this.name = beastName + getLocaleString(kind)
+    this.id = 'beast_bodypart_${Hash.uid4(2)}_${this.name}'
+    this.rarity = rarity ?? kRarity.common.rarity
+
+    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
+    this.category = kEntityCategoryWeapon // 武器、防护、斗技、玄功等等
     this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
-    this.rarity = rarity
+    this.isBodyPart = true
     this.value = value ?? 0
     this.description = description ?? ''
-    this.unequippable = true
 
-    if (!this.name) {
-      final r = nameGenerator.getTalisman(1, category: this.kind, rarity: this.rarity).first
-      this.name = r.name
-      this.rarity ??= r.rarity 
-    }
-    this.id = 'beast_bodypart_${Hash.uid4(2)}_${this.name}'
     this.icon = _kBeastWeaponKinds[this.kind].icon
     this.attributes = {
       ..._kBeastWeaponKinds[this.kind].attributes,
@@ -91,10 +75,10 @@ struct BeastWeapon {
   }
 }
 
-struct BeastArmor {
-  construct ({
+// struct BeastArmor {
+//   construct ({
 
-  }) {
+//   }) {
 
-  }
-}
+//   }
+// }

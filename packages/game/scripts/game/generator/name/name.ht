@@ -60,8 +60,6 @@ final common = [
   ...commonNames.target,
 ];
 
-final kCreatureCategory = creature.keys
-
 final kLocationCategories = location.keys
 
 final kOrganizationCategories = organization.keys
@@ -216,9 +214,7 @@ fun getSpell(number: int) {
 
 final commonCreatureNames = [
   ...commonNames.dao,
-  ...commonNames.element,
-  ...commonNames.thing,
-  ...commonNames.color,
+  ...commonNames.place,
   ...commonNames.number,
   ...commonNames.action,
 ]
@@ -230,7 +226,7 @@ fun getCreature(number: int, {category, rarity}) {
     final pre = commonCreatureNames.random
     final cp = colorPrefix.random
     final s = creaturePrefix.random
-    final c = category ?? kCreatureCategory.random
+    final c = category ?? creature.keys.random
     final k = creature[c].random
     final r = rarity ?? getRarity().rarity
     if (r == 'exotic') {

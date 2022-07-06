@@ -19,6 +19,8 @@ export 'logic.ht'
 export 'debug.ht'
 export 'quest/quest.ht'
 export 'util.ht'
+export 'binding/worldmap.ht'
+export 'binding/maze.ht'
 
 import 'predefined/predefined_dialogs.ht'
 import 'l10n/l10n.ht'

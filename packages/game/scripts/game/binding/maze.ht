@@ -1,0 +1,3 @@
+external fun moveHeroToLastRouteNode
+
+external fun setFogOfWar(value: bool)

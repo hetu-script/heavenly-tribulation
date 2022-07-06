@@ -9,5 +9,5 @@
 
   "escapeFailed": "山贼：还想跑？你这是敬酒不吃吃罚酒！",
 
-  "incidentEscaped": "{0} 成功的逃掉了。"
+  "incidentEscapeSuccess": "成功的逃离了 {0}。"
 }

@@ -56,7 +56,6 @@ struct MartialArt {
     this.description = description ?? ''
     
     if (!this.name) {
-      print(this.kind)
       final r = nameGenerator.getSkill(1, category: this.kind, rarity: this.rarity).first
       this.name = r.name
       this.rarity ??= r.rarity 

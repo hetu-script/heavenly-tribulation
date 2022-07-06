@@ -3,7 +3,9 @@ import '../tile/tilemap.ht'
 import '../game.ht'
 import '../tile/object.ht'
 import '../entity/character/enemy/bandit.ht'
+import '../entity/character/enemy/beast.ht'
 import '../entity/constants.ht'
+import '../binding/maze.ht'
 
 final _kLandSprites = [
   kSpriteLand,
@@ -19,15 +21,15 @@ const _kEncounterProbability = 0.5
 
 final _kEncounterTypes = [
   'bandit',
-  'beast' ,
+  'beast',
+  // 'pileOfBones',
+  // 'chest',
+  // 'lostTraveller',
   // 'ancientTree',
   // 'woodcutter',
   // 'fisherman',
   // 'hunter',
-  'peddler',
-  'lostTraveller',
-  'pileOfBones',
-  'chest',
+  // 'peddler',
 ]
 
 final _kUniqueEncounterTypes = [
@@ -97,12 +99,17 @@ fun _random2(list) {
 fun _generateRoute(index1, index2, map) {
   final tile1 = index2TilePos(index1, map.width)
   final tile2 = index2TilePos(index2, map.width)
+  // print('generate route from ${tile1} to ${tile2}')
   final route = calculateRoute(tile1, tile2, map)
+  // print(route)
   if (route) {
     for (final index in route) {
       final terrain = map.terrains[index]
       terrain.isRoute = true
     }
+  } else {
+    final terrain = map.terrains[index1]
+    terrain.isRoute = true
   }
 }
 
@@ -150,7 +157,7 @@ fun createMaze ({
   // 已经被分配了的地块
   final occupied = Set()
 
-  fun randomPosition(width, height) {
+  fun randomPosition(width, height, mapWidth, [offsetX = 0, offsetY = 0]) {
     assert(width > 2)
     assert(height > 2)
     // if (occupied.length >= (width * height - width * 2 - (height - 2) * 2)) {
@@ -160,9 +167,9 @@ fun createMaze ({
     var top
     var index
     do {
-      left = Math.randomInt(width - 2) + 2
-      top = Math.randomInt(height - 2) + 2
-      index = tilePos2Index(left, top, width)
+      left = Math.randomInt(width) + 1 + offsetX
+      top = Math.randomInt(height) + 1 + offsetY
+      index = tilePos2Index(left, top, mapWidth)
     } while (occupied.contains(index))
     occupied.add(index)
     return { index, left, top }
@@ -197,80 +204,14 @@ fun createMaze ({
         addTerrainToZone(terrain, landZone.index, currentLevel)
       }
     }
-
-    engine.info('计算随机遭遇的位置')
-    final blockSize = terrainSize / 9
-    var isOnCorner = false
-    // 迷宫中的主要roguelike元素的可能位置锚点，分布在横三竖三的9个区块中
-    // 四个角的锚点需要避免位于可能的出入口上
-    final anchors = {}
-    var left
-    var top
-    // 左上角
-    do {
-      left = Math.randomInt(_kDefaultBlockWidth) + 1
-      top = Math.randomInt(_kDefaultBlockHeight) + 1
-    } while (left == 1 && top == 1)
-    anchors[1] = Tile(left, top, mapWidth: width)
-    // 正上方
-    do {
-      left = Math.randomInt(_kDefaultBlockWidth) + 1 + _kDefaultBlockWidth
-      top = Math.randomInt(_kDefaultBlockHeight) + 1
-    } while (left == 1 && top == 1)
-    anchors[2] = Tile(left, top, mapWidth: width)
-    // 右上角
-    do {
-      left = Math.randomInt(_kDefaultBlockWidth) + 1 + _kDefaultBlockWidth * 2
-      top = Math.randomInt(_kDefaultBlockHeight) + 1
-    } while (left == 1 && top == 1)
-    anchors[3] = Tile(left, top, mapWidth: width)
-    // 左边
-    do {
-      left = Math.randomInt(_kDefaultBlockWidth) + 1
-      top = Math.randomInt(_kDefaultBlockHeight) + 1 + _kDefaultBlockHeight
-    } while (left == 1 && top == 1)
-    anchors[4] = Tile(left, top, mapWidth: width)
-    // 正中
-    do {
-      left = Math.randomInt(_kDefaultBlockWidth) + 1 + _kDefaultBlockWidth
-      top = Math.randomInt(_kDefaultBlockHeight) + 1 + _kDefaultBlockHeight
-    } while (left == 1 && top == 1)
-    anchors[5] = Tile(left, top, mapWidth: width)
-    // 右边
-    do {
-      left = Math.randomInt(_kDefaultBlockWidth) + 1 + _kDefaultBlockWidth * 2
-      top = Math.randomInt(_kDefaultBlockHeight) + 1 + _kDefaultBlockHeight
-    } while (left == 1 && top == 1)
-    anchors[6] = Tile(left, top, mapWidth: width)
-    // 左下角
-    do {
-      left = Math.randomInt(_kDefaultBlockWidth) + 1
-      top = Math.randomInt(_kDefaultBlockHeight) + 1 + _kDefaultBlockHeight * 2
-    } while (left == 1 && top == 1)
-    anchors[7] = Tile(left, top, mapWidth: width)
-    // 正下方
-    do {
-      left = Math.randomInt(_kDefaultBlockWidth) + 1 + _kDefaultBlockWidth
-      top = Math.randomInt(_kDefaultBlockHeight) + 1 + _kDefaultBlockHeight * 2
-    } while (left == 1 && top == 1)
-    anchors[8] = Tile(left, top, mapWidth: width)
-    // 右下角
-    do {
-      left = Math.randomInt(_kDefaultBlockWidth) + 1 + _kDefaultBlockWidth * 2
-      top = Math.randomInt(_kDefaultBlockHeight) + 1 + _kDefaultBlockHeight * 2
-    } while (left == 1 && top == 1)
-    anchors[9] = Tile(left, top, mapWidth: width)
-    for (final anchor of anchors) {
-      occupied.add(anchor.index)
-    }
     
     engine.info('计算出入口')
     // 可能的出入口
     final possibleEntries = [
-      { ...Tile(1, 1, mapWidth: width), nearestAnchor: anchors[1].index },
-      { ...Tile(width, 1, mapWidth: width), nearestAnchor: anchors[3].index },
-      { ...Tile(1, height, mapWidth: width), nearestAnchor: anchors[7].index },
-      { ...Tile(width, height, mapWidth: width), nearestAnchor: anchors[9].index },
+      { ...Tile(1, 1, mapWidth: width) },
+      { ...Tile(width, 1, mapWidth: width) },
+      { ...Tile(1, height, mapWidth: width) },
+      { ...Tile(width, height, mapWidth: width) },
     ]
     possibleEntries.shuffle()
     final entry = possibleEntries.first
@@ -299,6 +240,39 @@ fun createMaze ({
       srcHeight: 32.0,
     )
     currentLevel.objects.add(exitEntity)
+
+    engine.info('计算随机遭遇的位置')
+    final blockSize = terrainSize / 9
+    var isOnCorner = false
+    // 迷宫中的主要roguelike元素的可能位置锚点，分布在横三竖三的9个区块中
+    // 四个角的锚点需要避免位于可能的出入口上
+    final anchors = {}
+    // 左上角
+    anchors[1] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, 0, 0)
+    // 正上方
+    anchors[2] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth, 0)
+    // 右上角
+    anchors[3] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth * 2, 0)
+    // 左边
+    anchors[4] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, 0, _kDefaultBlockHeight)
+    // 正中
+    anchors[5] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth, _kDefaultBlockHeight)
+    // 右边
+    // 正中
+    anchors[6] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth * 2, _kDefaultBlockHeight)
+    // 左下角
+    anchors[7] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, 0, _kDefaultBlockHeight * 2)
+    // 正下方
+    anchors[8] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth, _kDefaultBlockHeight * 2)
+    // 右下角
+    anchors[9] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth * 2, _kDefaultBlockHeight * 2)
+
+    // print(anchors)
+
+    possibleEntries[0].nearestAnchor = anchors[1].index
+    possibleEntries[1].nearestAnchor = anchors[3].index
+    possibleEntries[2].nearestAnchor = anchors[7].index
+    possibleEntries[3].nearestAnchor = anchors[9].index
     
     engine.info('在锚点放置遭遇')
     for (final anchor of anchors) {
@@ -306,20 +280,9 @@ fun createMaze ({
       if (r < _kEncounterProbability) {
         final encounterType = _kEncounterTypes.random
         when (encounterType) {
-          'treasure' -> {
-            final chest = TileMapObject(
-              terrainIndex: anchor.index,
-              left: anchor.left,
-              top: anchor.top,
-              spriteSrc: 'maze/chest02.png',
-              srcWidth: 32.0,
-              srcHeight: 32.0,
-            )
-            currentLevel.objects.add(chest)
-          }
-          'enemy' -> {
-            final enemyEntity = Bandit(kind: 'minion')
-            print(enemyEntity.id)
+          'bandit' -> {
+            final enemyEntity = Bandit()
+            enemyEntity.encounterType = encounterType
             maze.entities[enemyEntity.id] = enemyEntity
             final enemyObject = TileMapObject(
               terrainIndex: anchor.index,
@@ -332,6 +295,32 @@ fun createMaze ({
             )
             currentLevel.objects.add(enemyObject)
           }
+          'beast' -> {
+            final enemyEntity = Beast()
+            enemyEntity.encounterType = encounterType
+            maze.entities[enemyEntity.id] = enemyEntity
+            final enemyObject = TileMapObject(
+              terrainIndex: anchor.index,
+              left: anchor.left,
+              top: anchor.top,
+              spriteSrc: enemyEntity.icon,
+              srcWidth: 32.0,
+              srcHeight: 32.0,
+              entityId: enemyEntity.id,
+            )
+            currentLevel.objects.add(enemyObject)
+          }
+          // 'chest' -> {
+          //   final chest = TileMapObject(
+          //     terrainIndex: anchor.index,
+          //     left: anchor.left,
+          //     top: anchor.top,
+          //     spriteSrc: 'maze/chest02.png',
+          //     srcWidth: 32.0,
+          //     srcHeight: 32.0,
+          //   )
+          //   currentLevel.objects.add(chest)
+          // }
         }
       }
     }
@@ -406,6 +395,7 @@ fun createMaze ({
     for (final tile in currentLevel.terrains) {
       if (occupied.contains(tile.index)) continue
       if (tile.isRoute) continue
+      // print('adding decor to ${tile.index}')
       tile.isSelectable = false
       addTerrainToZone(tile, blockZone.index, currentLevel)
       final blockType = _kBlockTypes.random
@@ -447,18 +437,16 @@ fun createMaze ({
   return maze
 }
 
-external fun moveHeroToLastRouteNode
-
 // 返回布尔值，如果为真，则玩家控制角色会返回上一格，否则停在这一格
 fun handleMazeEntityInteraction(entityId, maze) -> bool {
   final hero = getHero()
   final entity = maze.entities[entityId]
   assert(entity != null)
-  engine.info('地图对象互动事件：[${entity.id}]')
-  when (entity.kind) {
-    'minion' -> {
+  engine.info('地图对象互动事件：[${entity.encounterType}: ${entity.id}]')
+  when (entity.encounterType) {
+    'bandit' -> {
       final messages = getLocaleString('mazeBandit01').split('/n')
-      return showDialogByStrings(messages).then((value) {
+      showDialogByStrings(messages).then((value) {
         final selections = [
           'handOver',
           'plead',
@@ -484,17 +472,13 @@ fun handleMazeEntityInteraction(entityId, maze) -> bool {
                   })
               } else {
                 showDialogByStrings([getLocaleString('pleadFailed')], character: hero)
-                  .then((value) {
-                    showDuel(hero, entity)
-                  })
+                  .then( (value) => showDuel(hero, entity) )
               }
             }
             // 增加懦弱
             'escape' -> {
               if (hero.stats.dexterity > entity.stats.dexterity || hero.stats.strength > entity.stats.strength) {
-                final incidentContent = getLocaleString('incidentEscapeSuccess', [
-                  hero.name,
-                ])
+                final incidentContent = getLocaleString('incidentEscapeSuccess', [ entity.name ] )
                 Incident(
                   content: incidentContent,
                   subjectIds: [hero.id],
@@ -503,22 +487,21 @@ fun handleMazeEntityInteraction(entityId, maze) -> bool {
                 )
               } else {
                 showDialogByStrings([getLocaleString('escapeFailed')], character: hero)
-                  .then((value) {
-                    showDuel(hero, entity)
-                  })
+                  .then( (value) => showDuel(hero, entity) )
               }
             }
             // 增加自信
             'fight' -> {
               showDialogByStrings([getLocaleString('fightBandit')], character: hero)
-                .then((value) {
-                  showDuel(hero, entity)
-                })
+                  .then( (value) => showDuel(hero, entity) )
             }
           }
         })
       })
     }
+    'beast' -> {
+      showDuel(hero, entity)
+    }
   }
-  return false
+  return true
 }

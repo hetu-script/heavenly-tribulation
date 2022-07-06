@@ -9,6 +9,10 @@ import 'battle_cards.dart';
 import '../../avatar.dart';
 import '../../shared/dynamic_color_progressbar.dart';
 import '../character/character.dart';
+import '../enemy/enemy.dart';
+
+const kEntityTypeCharacter = 'character';
+const kEntityTypeEnemy = 'enemy';
 
 class Duel extends StatefulWidget {
   static Future<void> show(BuildContext context, HTStruct char1, HTStruct char2,
@@ -184,6 +188,9 @@ class _DuelState extends State<Duel> {
 
   @override
   Widget build(BuildContext context) {
+    final char1EntityType = widget.char1['entityType'];
+    final char2EntityType = widget.char2['entityType'];
+
     // execute after build completed
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.animateTo(
@@ -215,13 +222,26 @@ class _DuelState extends State<Duel> {
                       Avatar(
                         name: widget.char1['name'],
                         avatarAssetKey: 'assets/images/${widget.char1['icon']}',
-                        onPressed: () => showDialog(
-                          context: context,
-                          barrierColor: Colors.transparent,
-                          builder: (context) {
-                            return CharacterView(characterData: widget.char1);
-                          },
-                        ),
+                        onPressed: () {
+                          if (char1EntityType == kEntityTypeCharacter) {
+                            showDialog(
+                              context: context,
+                              barrierColor: Colors.transparent,
+                              builder: (context) {
+                                return CharacterView(
+                                    characterData: widget.char1);
+                              },
+                            );
+                          } else if (char1EntityType == kEntityTypeEnemy) {
+                            showDialog(
+                              context: context,
+                              barrierColor: Colors.transparent,
+                              builder: (context) {
+                                return EnemyView(data: widget.char1);
+                              },
+                            );
+                          }
+                        },
                       ),
                       DynamicColorProgressBar(
                         width: 175.0,
@@ -250,14 +270,27 @@ class _DuelState extends State<Duel> {
                     children: [
                       Avatar(
                         name: widget.char2['name'],
-                        avatarAssetKey: 'assets/images/${widget.char1['icon']}',
-                        onPressed: () => showDialog(
-                          context: context,
-                          barrierColor: Colors.transparent,
-                          builder: (context) {
-                            return CharacterView(characterData: widget.char1);
-                          },
-                        ),
+                        avatarAssetKey: 'assets/images/${widget.char2['icon']}',
+                        onPressed: () {
+                          if (char2EntityType == kEntityTypeCharacter) {
+                            showDialog(
+                              context: context,
+                              barrierColor: Colors.transparent,
+                              builder: (context) {
+                                return CharacterView(
+                                    characterData: widget.char2);
+                              },
+                            );
+                          } else if (char2EntityType == kEntityTypeEnemy) {
+                            showDialog(
+                              context: context,
+                              barrierColor: Colors.transparent,
+                              builder: (context) {
+                                return EnemyView(data: widget.char2);
+                              },
+                            );
+                          }
+                        },
                       ),
                       DynamicColorProgressBar(
                         width: 175.0,

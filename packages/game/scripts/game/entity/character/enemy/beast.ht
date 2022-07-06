@@ -1,5 +1,7 @@
 import '../battle_entity.ht'
 import '../../../generator/name/name.ht' as nameGenerator
+import '../../item/beast_weapon.ht'
+import '../../constants.ht'
 
 final _kBeastTypes = [
   'tiger',
@@ -7,36 +9,84 @@ final _kBeastTypes = [
   'snake',
 ]
 
-struct Bandit {
-  construct ({
-    isPirate,
-    kind,
-  }) {
-    this.kind = kind ?? _kBeastTypes.random
+const _kBeastAttributeSum = 200
 
-    final r = nameGenerator.getCreature(
-      1,
-      category: this.kind,
-    ).first
+final _kBeastAttributes = {
+  tiger: {
+    strength: 92,
+    dexterity: 88,
+    constitution: 75,
+    superpower: 0,
+    perception: 77,
+    intelligence: 0,
+    leadership: 0,
+    management: 0,
+  },
+  monkey: {
+    strength: 55,
+    dexterity: 84,
+    constitution: 59,
+    superpower: 0,
+    perception: 85,
+    intelligence: 0,
+    leadership: 0,
+    management: 0,
+  },
+  snake: {
+    strength: 74,
+    dexterity: 42,
+    constitution: 37,
+    superpower: 0,
+    perception: 96,
+    intelligence: 0,
+    leadership: 0,
+    management: 0,
+  },
+}
+
+struct Beast {
+  construct ({
+    birthTimestamp,
+    kind,
+    attributes,
+    rarity = kRarity.uncommon.rarity
+  }) {
+    this.entityType = kEntityTypeEnemy
+
+    this.kind = kind ?? _kBeastTypes.random
+    final r = nameGenerator.getCreature(1, category: this.kind, rarity: rarity).first
     this.name = r.name
     this.rarity = r.rarity
-    this.id = 'bandit_${Hash.uid4(2)}_${this.name}'
+    this.id = 'beast_${Hash.uid4(2)}_${this.name}'
 
-    when (this.kind) {
-      'tiger' -> {
-        equip(Weapon(), this)
-      }
-      'monkey' -> {
-        equip(Weapon(), this)
-      }
-      'snake' -> {
-        equip(Weapon(), this)
-      }
+    // age 的格式是 timestamp, 精确到 tick. 
+    if (birthTimestamp != null) {
+      this.birthTimestamp = birthTimestamp
+    } else {
+      this.birthTimestamp = createRandomBirthTimestamp()
     }
 
     // 生成战斗单位相关数据，并写入当前对象
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
-    this.assign(BattleEntity(attributes: attributes, attributeSum: attributeSum))
+    final battleInfo = BattleEntity(attributes: attributes ?? _kBeastAttributes[this.kind], attributeSum: _kBeastAttributeSum)
+    this.assign(battleInfo)
+
+    // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
+    when (this.kind) {
+      'tiger' -> {
+        this.icon = 'maze/tiger.png'
+        equip(BeastWeapon(beastName: this.name, kind: kBeastWeaponKindClaw), this)
+        equip(BeastWeapon(beastName: this.name, kind: kBeastWeaponKindFang), this)
+      }
+      'monkey' -> {
+        this.icon = 'maze/monkey.png'
+        equip(BeastWeapon(beastName: this.name, kind: kBeastWeaponKindClaw), this)
+      }
+      'snake' -> {
+        this.icon = 'maze/snake.png'
+        equip(BeastWeapon(beastName: this.name, kind: kBeastWeaponKindFang), this)
+      }
+    }
 
     calculateCharacterStats(this)
   }
