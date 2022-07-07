@@ -49,7 +49,7 @@ class _SelectionDialogState extends State<SelectionDialog> {
         child: ElevatedButton(
           onPressed: () {
             Navigator.pop(context, key);
-            engine.broadcast(const UIEvent.dialogFinished());
+            engine.broadcast(const UIEvent.needRebuildUI());
           },
           child: Text(value.toString()),
         ),

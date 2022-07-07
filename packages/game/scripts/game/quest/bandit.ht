@@ -1,4 +1,4 @@
-import 'constants.ht'
+import 'common.ht'
 import '../l10n.ht'
 
 final kQuestFightBanditKind = [

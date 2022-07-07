@@ -3,7 +3,7 @@ import 'character/character.ht'
 import '../dialog.ht'
 import '../name/name.ht' as nameGenerator
 import '../l10n.ht'
-import 'constants.ht'
+import 'common.ht'
 
 const kSitePalace = 'palace'
 const kSiteGovernment = 'government'

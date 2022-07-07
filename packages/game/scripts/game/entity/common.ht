@@ -26,86 +26,91 @@ const kLegendary = 'legendary'
 const kMythic = 'mythic'
 const kExotic = 'exotic'
 
+final kDifficulties = [
+  'normal',
+  'hard',
+  'expert',
+  'master',
+  'torment',
+  'nightmare',
+  'purgatory',
+]
+
 final kRarity = {
   common: {
-    // common 灰
+    // common 白
     rarity: 'common',
-    color: '#222A35',
-    probability: 1.0,
-    value: 0,
-    difficulty: 'normal',
+    color: '#ffffff',
+    rarityLevel: 0,
   },
   uncommon:{
-    // uncommon 白
+    // uncommon 灰
     rarity: 'uncommon',
     color: '#CCCCCC',
-    probability: 0.35,
-    value: 1,
-    difficulty: 'hard',
+    rarityLevel: 1,
   },
   rare:{
     // rare 蓝
     rarity: 'rare',
     color: '#00A6A9',
-    probability: 0.15,
-    value: 2,
-    difficulty: 'expert',
+    rarityLevel: 2,
   },
   epic: {
     // epic 紫
     rarity: 'epic',
     color: '#804DC8',
-    probability: 0.075,
-    value: 3,
-    difficulty: 'master',
+    rarityLevel: 3,
   },
   legendary: {
     // legendary 橙
     rarity: 'legendary',
     color: '#C5C660',
-    probability: 0.012,
-    value: 4,
-    difficulty: 'torment',
+    rarityLevel: 4,
   },
   mythic: {
     // mythic 金
     rarity: 'mythic',
     color: '#F28234',
-    probability: 0.03,
-    value: 5,
-    difficulty: 'nightmare',
+    rarityLevel: 5,
   },
   exotic: {
     // exotic 虹
     rarity: 'exotic',
     color: '#C65043',
-    probability: 0.005,
-    value: 6,
-    difficulty: 'purgatory',
+    rarityLevel: 6,
   },
 }
 
-fun getRarity([max = 1.0]) {
-  assert(0 < max && max <= 1.0)
-  var rarity
-  var value
-  do {
-    value = kRarity.values.random
-  } while (value.probability > max)
-  return value
+fun getRarity({ name }) {
+  if (name) {
+    assert(kRarity.containsKey(name))
+    return kRarity[name]
+  } else {
+    final r = Math.random()
+    if (r > 0.35) {
+      return kRarity.common
+    }
+    if (r > 0.15) {
+      return kRarity.uncommon
+    }
+    if (r > 0.075) {
+      return kRarity.rare
+    }
+    if (r > 0.012) {
+      return kRarity.epic
+    }
+    if (r > 0.003) {
+      return kRarity.legendary
+    }
+    if (r > 0.0005) {
+      return kRarity.mythic
+    }
+    return kRarity.exotic
+  }
 }
 
-fun getDifficulty([min = 0]) {
-  assert(0 < max && max <= 1.0)
-  var rarity
-  var value
-  do {
-    value = kRarity.values.random
-  } while (value.probability < min)
-  return { rarity: value.difficulty, value: rarity.value }
-}
-
-fun getRarityValue(valueMap) {
+// 从一个稀有度和值的对应表中，按照稀有度的概率取出值
+fun getMappedRarityValue(valueMap) {
   final r = getRarity()
   final v = valueMap[r.rarity]
   return (v is Iterable) ? v.random : v

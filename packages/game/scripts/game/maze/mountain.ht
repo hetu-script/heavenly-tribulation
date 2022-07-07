@@ -4,7 +4,7 @@ import '../game.ht'
 import '../tile/object.ht'
 import '../entity/character/enemy/bandit.ht'
 import '../entity/character/enemy/beast.ht'
-import '../entity/constants.ht'
+import '../entity/common.ht'
 import '../binding/maze.ht'
 
 final _kLandSprites = [
@@ -141,15 +141,18 @@ fun generateRoute(name, anchors, map) {
 
 /// 生成Roguelike副本的算法
 fun createMaze ({
-    id = 'unknown_maze',
+    name = 'unknown_maze',
     levelNumber = 1,
     isOnWorldMap = true,
     tileset = 'mountain',
     encounters = _kEncounterTypes,
   }) {
-  engine.info('开始生成副本: ${id}')
+  final id = 'maze_${Hash.uid4(2)}_${name}'
+  engine.info('开始生成副本: [${id}]')
 
   final maze = {
+    id,
+    name,
     levels: [], // 每一层是一个单独的 tilemap
     currentLevel: 0,
     entities: {}, // 包含所有显示在地图上的可互动对象，包括NPC、敌人、宝箱、陷阱、机关等等。
@@ -448,7 +451,7 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
   when (entity.encounterType) {
     'bandit' -> {
       final messages = getLocaleString('mazeBandit01').split('/n')
-      showDialogByStrings(messages).then((value) {
+      showDialogByStrings(messages, character: entity).then((value) {
         final selections = [
           'handOver',
           'plead',
@@ -468,12 +471,12 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
             // 圆滑
             'plead' -> {
               if (hero.stats.charisma > kCharismaCheckThreshold) {
-                showDialogByStrings([getLocaleString('pleadSuccess')])
+                showDialogByStrings([getLocaleString('pleadSuccess')], character: entity)
                   .then((value) {
                     characterGiveMoneyTo(hero, hero.money, entity, maze.history)
                   })
               } else {
-                showDialogByStrings([getLocaleString('pleadFailed')])
+                showDialogByStrings([getLocaleString('pleadFailed')], character: entity)
                 .then( (value) =>
                   showDuel(hero, entity).then((value) {
                     if (value) {
@@ -482,7 +485,6 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
                         content: incidentContent,
                         subjectIds: [hero.id],
                         isPrivate: true,
-                        localHistory: maze.history,
                       )
                       removeEntity(left, top)
                     } else {
@@ -500,10 +502,9 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
                   content: incidentContent,
                   subjectIds: [hero.id],
                   isPrivate: true,
-                  localHistory: maze.history,
                 )
               } else {
-                showDialogByStrings([getLocaleString('escapeFailed')])
+                showDialogByStrings([getLocaleString('escapeFailed')], character: entity)
                 .then( (value) => 
                   showDuel(hero, entity).then((value) {
                     if (value) {
@@ -512,7 +513,6 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
                         content: incidentContent,
                         subjectIds: [hero.id],
                         isPrivate: true,
-                        localHistory: maze.history,
                       )
                       removeEntity(left, top)
                     } else {
@@ -533,7 +533,6 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
                       content: incidentContent,
                       subjectIds: [hero.id],
                       isPrivate: true,
-                      localHistory: maze.history,
                     )
                     removeEntity(left, top)
                   } else {

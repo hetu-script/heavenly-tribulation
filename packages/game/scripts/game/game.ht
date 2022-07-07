@@ -15,7 +15,30 @@ var config = {
   debug: true,
 }
 
+// 进入副本时，使用这个临时事件列表，平时此列表为 null
+var localHistory = null
+
+fun getLocalHistory() {
+  return localHistory
+}
+
+fun enterMaze(maze) {
+  localHistory = maze.history
+}
+
+fun leaveMaze {
+  localHistory = null
+}
+
 var history = []
+
+fun getHistory() {
+  return history
+}
+
+fun getHistoryJsonData() {
+  return jsonify(history)
+}
 
 struct Game {
   construct {
@@ -26,6 +49,7 @@ struct Game {
 
     this.nations = {}
     this.characters = {}
+    this.npcs = {}
     this.babies = {}
     this.locations = {}
     this.organizations = {}
@@ -80,21 +104,13 @@ fun getGameJsonData() {
   return game.toJson()
 }
 
-fun getHistory() {
-  return history
-}
-
-fun getHistoryJsonData() {
-  return jsonify(history)
-}
-
 fun loadGameFromJsonData(gameData, historyData) {
   game = prototype.fromJson(gameData)
-  history = []
   
   updateWorldMapZoneColors()
   updateWorldMapNationColors()
   
+  history = []
   for (final data in historyData) {
     history.add(
       prototype.fromJson(data)

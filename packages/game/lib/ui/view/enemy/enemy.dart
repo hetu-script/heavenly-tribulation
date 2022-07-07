@@ -20,15 +20,15 @@ const kEnemyStats = [
 class EnemyView extends StatelessWidget {
   const EnemyView({
     super.key,
-    required this.data,
+    required this.enemyData,
   });
 
-  final HTStruct data;
+  final HTStruct enemyData;
 
   @override
   Widget build(BuildContext context) {
     final ageString =
-        engine.invoke('getEntityAgeString', positionalArgs: [data]);
+        engine.invoke('getEntityAgeString', positionalArgs: [enemyData]);
 
     return ResponsiveRoute(
       alignment: AlignmentDirectional.topCenter,
@@ -36,7 +36,7 @@ class EnemyView extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: Text(data['name']),
+          title: Text(enemyData['name']),
           actions: const [ButtonClose()],
         ),
         body: Container(
@@ -51,47 +51,51 @@ class EnemyView extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  Row(children: [
-                    Container(
-                      margin: const EdgeInsets.only(left: 10.0, right: 16.0),
-                      child: Avatar(
-                        avatarAssetKey: 'assets/images/${data['icon']}',
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.only(left: 10.0, right: 16.0),
+                        child: Avatar(
+                          avatarAssetKey: 'assets/images/${enemyData['icon']}',
+                        ),
                       ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(left: 5.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('${engine.locale['name']}: ${data['name']}'),
-                          Text('${engine.locale['age']}: $ageString'),
-                        ],
+                      Container(
+                        margin: const EdgeInsets.only(left: 5.0, top: 5.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                                '${engine.locale['name']}: ${enemyData['name']}'),
+                            Text('${engine.locale['age']}: $ageString'),
+                          ],
+                        ),
                       ),
-                    ),
-                    // Container(
-                    //   margin: const EdgeInsets.only(left: 30.0),
-                    //   child: Column(
-                    //     crossAxisAlignment: CrossAxisAlignment.start,
-                    //     children: [
-                    //       Text(
-                    //           '${engine.locale['money']}: ${characterData['money']}'),
-                    //       Text('${engine.locale['fame']}: $fame'),
-                    //       Text(
-                    //           '${engine.locale['organization']}: $organization'),
-                    //       Text('${engine.locale['title']}: $title'),
-                    //       Text('${engine.locale['nation']}: $nation'),
-                    //     ],
-                    //   ),
-                    // ),
-                  ]),
+                      // Container(
+                      //   margin: const EdgeInsets.only(left: 30.0),
+                      //   child: Column(
+                      //     crossAxisAlignment: CrossAxisAlignment.start,
+                      //     children: [
+                      //       Text(
+                      //           '${engine.locale['money']}: ${characterData['money']}'),
+                      //       Text('${engine.locale['fame']}: $fame'),
+                      //       Text(
+                      //           '${engine.locale['organization']}: $organization'),
+                      //       Text('${engine.locale['title']}: $title'),
+                      //       Text('${engine.locale['nation']}: $nation'),
+                      //     ],
+                      //   ),
+                      // ),
+                    ],
+                  ),
                   const Divider(),
                   // Text('---${engine.locale['attributes']}---'),
                   Wrap(
                     children: kEnemyStats
                         .map(
                           (name) => Label(
-                            '${engine.locale[name]}: ${data['stats'][name] ?? 0}',
+                            '${engine.locale[name]}: ${enemyData['stats'][name] ?? 0}',
                             width: 120.0,
                           ),
                         )

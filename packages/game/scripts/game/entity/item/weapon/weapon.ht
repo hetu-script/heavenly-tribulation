@@ -1,6 +1,6 @@
 import '../../../name/name.ht' as nameGenerator
-import '../../constants.ht'
-import '../constants.ht'
+import '../../common.ht'
+import '../common.ht'
 import '../../../util.ht'
 import '../../../game.ht'
 
@@ -104,6 +104,7 @@ struct Weapon {
     this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
     this.category = kEntityCategoryWeapon // 武器、防护、斗技、玄功等等
     this.kind = kind ?? kWeaponKinds.keys.random // 枪、剑、斧等等
+    this.isEquippable = true
     this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
     this.rarity = rarity
     this.value = value ?? 0
@@ -111,12 +112,12 @@ struct Weapon {
     this.createdTime = createdTime ?? game.timestamp
     this.description = description ?? ''
     this.inscription = inscription ?? ''
-    
     if (!this.name) {
       final r = nameGenerator.getTalisman(1, category: this.kind, rarity: this.rarity).first
       this.name = r.name
       this.rarity ??= r.rarity 
     }
+    this.color = kRarity[this.rarity].color
     this.id = this.rarity != kCommon ? 'weapon_${Hash.uid4(2)}_${this.name}' : 'weapon_${this.name}'
     
     this.icon = kWeaponKinds[this.kind].icon

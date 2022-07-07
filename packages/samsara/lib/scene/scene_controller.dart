@@ -32,10 +32,9 @@ class SceneController {
 
   void leaveScene(String key) {
     assert(_cachedScenes.containsKey(key));
-    final scene = _cachedScenes[key]!;
-    _cachedScenes.remove(key);
-    if (_currentScene?.key == scene.key) {
+    if (_currentScene?.key == _cachedScenes[key]!.key) {
       _currentScene = null;
     }
+    _cachedScenes.remove(key);
   }
 }

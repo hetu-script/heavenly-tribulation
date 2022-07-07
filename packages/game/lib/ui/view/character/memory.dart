@@ -3,6 +3,7 @@ import 'package:hetu_script/values.dart';
 
 import '../../../global.dart';
 import '../../shared/constants.dart';
+import '../../shared/empty_placeholder.dart';
 import '../history.dart';
 
 class CharacterMemory extends StatelessWidget {
@@ -11,7 +12,7 @@ class CharacterMemory extends StatelessWidget {
     required this.memoryData,
   });
 
-  final HTStruct memoryData;
+  final HTStruct? memoryData;
 
   static final List<Tab> _tabs = <Tab>[
     Tab(
@@ -55,12 +56,14 @@ class CharacterMemory extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: TabBarView(
-              children: [
-                HistoryView(historyData: memoryData['experienced']),
-                HistoryView(historyData: memoryData['witnessed']),
-              ],
-            ),
+            child: memoryData != null
+                ? TabBarView(
+                    children: [
+                      HistoryView(historyData: memoryData!['experienced']),
+                      HistoryView(historyData: memoryData!['witnessed']),
+                    ],
+                  )
+                : EmptyPlaceholder(engine.locale['empty']),
           ),
         ],
       ),

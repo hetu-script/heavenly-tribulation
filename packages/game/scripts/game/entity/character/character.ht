@@ -5,7 +5,7 @@ import '../incident.ht'
 import '../../name/name.ht' as nameGenerator
 import '../../duel.ht'
 import '../../util.ht'
-import '../constants.ht'
+import '../common.ht'
 import '../../tile/hexagonal_tile.ht'
 import 'battle_entity.ht'
 
@@ -145,7 +145,6 @@ struct Character {
     worldPositionY,
   }) {
     this.entityType = kEntityTypeCharacter
-    this.index = game.characters.length
     if (isFemale != null) {
       this.isFemale = isFemale
     } else {
@@ -168,12 +167,16 @@ struct Character {
       this.shortName = shortName ?? r.shortName
       this.name = this.familyName + this.shortName
     }
+    assert(this.name != null)
     this.isMajorCharacter = isMajorCharacter
     if (isMajorCharacter) {
-      assert(this.name != null)
-      this.id = 'character_${this.index}_${this.name}'
+      this.id = 'character_${game.characters.length}_${this.name}'
       game.characters[this.id] = this
+    } else {
+      this.id = 'npc_${Hash.uid4(2)}_${this.name}'
+      game.npcs[this.id] = this
     }
+    this.color = kRarity.common.color
     
     // age 的格式是 timestamp, 精确到 tick. 
     if (birthTimestamp != null) {
@@ -617,6 +620,10 @@ fun getCharacterById(id: str) {
   return game.characters[id]
 }
 
+fun getNpcById(id: str) {
+  return game.npcs[id]
+}
+
 fun haveMet(subject, target) {
   final bond = subject.bonds.characters[target.id]
   if (bond && bond.haveMet) {
@@ -703,4 +710,8 @@ fun handleCharacterInteraction(characterId) {
       }
     }
   })
+}
+
+fun characterSteal(character, item) {
+  throw 'steal is not implemented yet'
 }

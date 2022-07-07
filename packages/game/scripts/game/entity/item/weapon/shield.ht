@@ -1,6 +1,6 @@
 import '../../../name/name.ht' as nameGenerator
-import '../../constants.ht'
-import '../constants.ht'
+import '../../common.ht'
+import '../common.ht'
 import '../../../util.ht'
 import '../../../game.ht'
 
@@ -23,6 +23,7 @@ struct Shield {
     this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
     this.category = kEntityCategoryWeaponSupport // 武器、防护、斗技、玄功等等
     this.kind = kShieldKind // 枪、剑、斧等等
+    this.isEquippable = true
     this.equipType = kEquipTypeSupport // 装备类型：如果没有就是不可装备
     this.rarity = rarity
     this.value = value ?? 0

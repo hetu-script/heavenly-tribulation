@@ -19,7 +19,6 @@ struct Incident {
     toItem: str,
     locationId: str,
     terrainIndex: int,
-    localHistory: List,
   }) {
     assert(content != null && content.isNotEmpty)
 

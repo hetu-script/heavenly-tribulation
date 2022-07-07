@@ -6,7 +6,7 @@ import 'entity/nation.ht'
 import 'l10n.ht'
 import 'tile/hexagonal_tile.ht'
 import 'tile/tilemap.ht'
-import 'entity/constants.ht'
+import 'entity/common.ht'
 import 'datetime.ht' as datetime
 import 'logic.ht'
 

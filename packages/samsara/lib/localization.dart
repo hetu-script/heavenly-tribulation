@@ -8,8 +8,8 @@ class GameLocalization {
 
   HTStruct? data;
 
-  void loadData(HTStruct data) {
-    this.data = data;
+  void loadData(HTStruct localeData) {
+    data = localeData;
   }
 
   /// 普通字符串可以直接用 [] 操作符快速获取

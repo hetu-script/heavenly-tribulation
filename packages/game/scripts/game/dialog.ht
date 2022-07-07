@@ -22,11 +22,12 @@ fun addDialogs(dlgs: List) {
 external fun _showGameDialog(context, data, returnValue)
 
 fun showDialogByLocaleKeys(lines, { returnValue, character }) -> Future {
-  var icon = character ? character.icon : 'avatar/general.png'
   final data = { 
     contents: [
       {
-        icon,
+        characterId: character?.id,
+        isMajorCharacter: character?.isMajorCharacter ?? false,
+        icon: character?.icon ?? 'avatar/general.png',
         lines: lines.map( (line) => getLocaleString(line) ).toList()
       }
     ]
@@ -35,11 +36,12 @@ fun showDialogByLocaleKeys(lines, { returnValue, character }) -> Future {
 }
 
 fun showDialogByStrings(lines, { returnValue, character }) -> Future {
-  var icon = character ? character.icon : 'avatar/general.png'
   final data = {
     contents:[
-      { 
-        icon,
+      {
+        characterId: character?.id,
+        isMajorCharacter: character?.isMajorCharacter ?? false,
+        icon: character?.icon ?? 'avatar/general.png',
         lines,
       }
     ]

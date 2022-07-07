@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
+import 'package:samsara/util.dart';
 
 import '../../../../global.dart';
 import '../../../shared/rrect_icon.dart';
@@ -16,14 +17,14 @@ class ItemInfo extends StatelessWidget {
     super.key,
     required this.itemData,
     this.left,
-    this.actions,
+    this.actions = const [],
   });
 
   final HTStruct itemData;
 
   final double? left;
 
-  final Widget? actions;
+  final List<Widget> actions;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +37,8 @@ class ItemInfo extends StatelessWidget {
         actualLeft = l > 0 ? l : 0;
       }
     }
+
+    final titleColor = HexColor.fromHex(itemData['color']);
 
     final stackSize = itemData['stackSize'] ?? 1;
 
@@ -58,7 +61,7 @@ class ItemInfo extends StatelessWidget {
         } else if (type == kValueTypeFloat) {
           values.add(v.toStringAsFixed(2));
         } else if (type == kValueTypePercentage) {
-          values.add(v.toPercentageString());
+          values.add(v.toPercentageString(2));
         }
       }
       final description = engine.locale.getString(data['description'], values);
@@ -67,12 +70,6 @@ class ItemInfo extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (name != null)
-                Container(
-                  padding: const EdgeInsets.only(top: 4.0),
-                  width: 60.0,
-                  child: Text('${engine.locale[name]}: '),
-                ),
               Container(
                 padding: const EdgeInsets.only(top: 4.0),
                 width: 200.0,
@@ -127,6 +124,7 @@ class ItemInfo extends StatelessWidget {
                             children: [
                               Text(
                                 itemData['name'],
+                                style: TextStyle(color: titleColor),
                               ),
                               const Divider(),
                               Text(
@@ -137,8 +135,14 @@ class ItemInfo extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Text(
-                        '${engine.locale[itemData['category']]} - ${engine.locale[itemData['kind']]}'),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                            '${engine.locale[category]} - ${engine.locale[itemData['kind']]}'),
+                        Text(engine.locale[itemData['rarity']]),
+                      ],
+                    ),
                     if (stackSize > 1)
                       Text('${engine.locale['stackSize']}: $stackSize'),
                     if (category == kEntityCategoryWeapon)
@@ -151,6 +155,12 @@ class ItemInfo extends StatelessWidget {
                       Text('${engine.locale['speed']}: ${stats['speed']}f'),
                     if (effects.isNotEmpty) const Divider(),
                     ...effects,
+                    if (actions.isNotEmpty) const Divider(),
+                    if (actions.isNotEmpty)
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: actions,
+                      ),
                   ],
                 ),
               ),

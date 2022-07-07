@@ -9,6 +9,7 @@ struct Tile {
     this.left = left
     this.top = top
     // 切换为 horizontal hexgonal tile map 的坐标系
+    // 用于距离计算的函数
     // 以 (1, 1) 为原点，该格子相对向右下行的斜线的距离
     this.slashLeft = ((left.isOdd ? (left + 1) / 2 : left / 2) - top).truncate()
     // 以 (1, 1) 为原点，该格子相对向右上行的斜线的距离

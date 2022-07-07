@@ -7,6 +7,8 @@ import 'package:hetu_script/values.dart';
 import '../avatar.dart';
 import '../../global.dart';
 import '../../event/events.dart';
+import '../view/character/character.dart';
+import '../view/enemy/enemy.dart';
 
 class GameDialog extends StatefulWidget {
   static Future<void> show(
@@ -48,6 +50,9 @@ class _GameDialogState extends State<GameDialog> {
   int _currentSayIndex = 0;
   int _letterCount = 0;
   bool _finished = false;
+
+  HTStruct? _characterData;
+  bool _isNpc = false;
 
   final _textShowController = StreamController<String>.broadcast();
 
@@ -116,6 +121,37 @@ class _GameDialogState extends State<GameDialog> {
                       Avatar(
                         avatarAssetKey: 'assets/images/$_currentAvatar',
                         size: const Size(120.0, 120.0),
+                        onPressed: () {
+                          if (_characterData != null) {
+                            if (_isNpc) {
+                              showDialog(
+                                context: context,
+                                barrierColor: Colors.transparent,
+                                builder: (context) {
+                                  return EnemyView(enemyData: _characterData!);
+                                },
+                              );
+                            } else {
+                              showDialog(
+                                context: context,
+                                barrierColor: Colors.transparent,
+                                builder: (context) {
+                                  return CharacterView(
+                                      characterData: _characterData);
+                                },
+                              );
+                            }
+
+                            showDialog(
+                              context: context,
+                              barrierColor: Colors.transparent,
+                              builder: (context) {
+                                return CharacterView(
+                                    characterData: _characterData);
+                              },
+                            );
+                          }
+                        },
                       ),
                       Container(
                         width: 520,
@@ -147,6 +183,20 @@ class _GameDialogState extends State<GameDialog> {
       _finished = false;
       _letterCount = 0;
       _currentContent = _data['contents'][_currentContentIndex];
+
+      final characterId = _currentContent!['characterId'];
+      if (characterId != null) {
+        if (widget.dialogData['isMajorCharacter'] ?? false) {
+          _characterData =
+              engine.invoke('getCharacterById', positionalArgs: [characterId]);
+          _isNpc = false;
+        } else {
+          _characterData =
+              engine.invoke('getNpcById', positionalArgs: [characterId]);
+          _isNpc = true;
+        }
+      }
+
       _currentAvatar = _currentContent!['icon'];
       _currentSay = _currentContent!['lines'][_currentSayIndex];
       _timer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
@@ -189,7 +239,7 @@ class _GameDialogState extends State<GameDialog> {
   void _finishDialog() {
     // SchedulerBinding.instance.addPostFrameCallback((_) {
     Navigator.pop(context, widget.returnValue);
-    engine.broadcast(const UIEvent.dialogFinished());
+    engine.broadcast(const UIEvent.needRebuildUI());
     // });
   }
 }

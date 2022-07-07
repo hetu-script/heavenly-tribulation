@@ -1,6 +1,6 @@
 import 'game.ht'
 import 'l10n.ht'
-import 'entity/constants.ht'
+import 'entity/common.ht'
 
 /// 战斗模块
 /// 输入战斗相关角色的对象
@@ -87,10 +87,10 @@ struct Duel {
     this.started = false
     if (char1.equipments.offense.isEmpty) {
       // 如果没有装备任何武器或者战斗技能，则直接判负
-      // this.messages.add(getLocaleString('emptyHands', [char1.name]))
+      engine.info(getLocaleString('无法开始战斗：${char1.name} 没有装备武器。'))
       this.result = false
     } else if (char2.equipments.offense.isEmpty) {
-      // this.messages.add(getLocaleString('enemyEmptyHands', [char2.name]))
+      engine.info(getLocaleString('无法开始战斗：${char2.name} 没有装备武器。'))
       this.result = true
     } else {
       this.result = false

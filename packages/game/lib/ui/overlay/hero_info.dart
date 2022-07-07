@@ -16,7 +16,7 @@ class HeroInfoPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final percentage =
+    final charStats =
         engine.invoke('getCharacterStats', positionalArgs: [heroData]);
 
     return Container(
@@ -52,9 +52,10 @@ class HeroInfoPanel extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 5.0),
                   child: DynamicColorProgressBar(
                     title: '${engine.locale['life']}: ',
-                    value: percentage['life'],
-                    max: percentage['lifeMax'],
+                    value: charStats['life'],
+                    max: charStats['lifeMax'],
                     width: 100.0,
+                    showNumberAsPercentage: false,
                     colors: const <Color>[Colors.red, Colors.green],
                   ),
                 ),
@@ -62,9 +63,10 @@ class HeroInfoPanel extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 5.0),
                   child: DynamicColorProgressBar(
                     title: '${engine.locale['stamina']}: ',
-                    value: percentage['stamina'],
-                    max: percentage['staminaMax'],
+                    value: charStats['stamina'],
+                    max: charStats['staminaMax'],
                     width: 100.0,
+                    showNumberAsPercentage: false,
                     colors: const <Color>[Colors.yellow, Colors.blue],
                   ),
                 ),

@@ -1,4 +1,5 @@
-import '../constants.ht'
+import '../common.ht'
+import '../effects.ht'
 
 const kItemDefaultIcon = 'assets/images/unknown_item.png'
 // final kDefaultItemDescription = getLocaleString('defaultItemDescription')
@@ -19,32 +20,33 @@ fun calculateItemStats(item) {
   item.stats = item.attributes.clone()
 }
 
-fun characterAcquireMoney(character, value, [ localHistory ]) {
+fun characterAcquireMoney(character, value) {
   assert(value > 0)
   character.money += value
   final incidentContent = getLocaleString('characterAcquireMoney', [ character.name, value ])
   Incident(
     content: incidentContent,
     subjectIds: [character.id],
-    localHistory: localHistory,
+    isPrivate: true,
   )
 }
 
-fun characterAcquire(character, item, [ localHistory ]) {
+// 角色获得物品，此函数并不检查物品本身是否在其他角色的物品栏中
+fun characterAcquire(character, item) {
   if (item.rarity == kCommon && character.inventory.containsKey(item.id)) {
     character.inventory[item.id].stackSize += 1
   } else {
     character.inventory[item.id] = item
   }
 
-  final incidentContent = getLocaleString('characterAcquireItem', [
+  final incidentContent = getLocaleString('characterAcquiredItem', [
     character.name,
     item.name,
   ])
   Incident(
     content: incidentContent,
     subjectIds: [character.id],
-    localHistory: localHistory,
+    isPrivate: true,
   )
 }
 
@@ -54,8 +56,12 @@ fun characterLearn(character, item) {
 
 // 使用食物或者丹药
 // 返回值代表是否使用成功
+// 此函数允许对一个不在物品栏中的物品调用
 fun characterConsume(character, item) {
-  if (item.isConsumable) return false
+  if (!item.isConsumable) {
+    engine.info('${item.name} 无法食用。')
+    return false
+  }
 
   if (character.inventory.containsKey(item.id)) {
     if (item.rarity == kCommon) {
@@ -69,31 +75,69 @@ fun characterConsume(character, item) {
 
   if (item.effects) {
     for (final effect in item.effects) {
-      when (effect.type) {
-        kStats -> {
-          if (effect.isPercentage) {
-            character.stats[effect.name] *= effect.value
-          } else {
-            character.stats[effect.name] += effect.value
-          }
+      when (effect.name) {
+        kEffectRestoreLife -> {
+          character.stats.life += effect.values.first.value
+        }
+        kEffectRestoreChi -> {
+          character.stats.chi += effect.values.first.value
+        }
+        kEffectRestoreStamina -> {
+          character.stats.stamina += effect.values.first.value
         }
       }
     }
   }
+
+  var incidentContent
+  when (item.kind) {
+    kEntityElixirKindBeverage -> {
+      incidentContent = getLocaleString('characterDrankBeverage', [
+        character.name,
+        item.name,
+      ])
+    }
+    kEntityElixirKindMedicine -> {
+      incidentContent = getLocaleString('characterTakeMedicine', [
+        character.name,
+        item.name,
+      ])
+    }
+    else -> {
+      incidentContent = getLocaleString('characterAteFood', [
+        character.name,
+        item.name,
+      ])
+    }
+  }
+
+  Incident(
+    content: incidentContent,
+    subjectIds: [character.id],
+    isPrivate: true,
+  )
   
   return true
 }
 
 // 法宝和技能都可以装备，只要类型符合
 // 返回值代表是否装备成功
+// 如果对一个不在物品栏中的物品调用，会先将其加入物品栏
 // {
 //   id,
 //   category,
 //   kind,
 //   supports,
 // }
-fun characterEquip(character, item, { index, localHistory }) -> bool {
-  if (item.equippedPosition) return
+fun characterEquip(character, item, { index }) -> bool {
+  if (!item.isEquippable) {
+    engine.info('${item.name} 无法装备。')
+    return false
+  }
+  if (item.equippedPosition) {
+    engine.info('${item.name} 已经装备在身上了。')
+    return false
+  }
   var equipData = {
     id: item.id,
     entityType: item.entityType,
@@ -104,10 +148,10 @@ fun characterEquip(character, item, { index, localHistory }) -> bool {
   }
   when (item.entityType) {
     kEntityTypeItem -> {
-      if (!character.inventory[item.id]) characterAcquire(character, item, localHistory)
+      if (!character.inventory[item.id]) characterAcquire(character, item)
     }
     kEntityTypeSkill -> {
-      if (!character.skills[item.id]) characterLearn(character, item, localHistory)
+      if (!character.skills[item.id]) characterLearn(character, item)
     }
   }
   
@@ -213,7 +257,7 @@ fun characterEquip(character, item, { index, localHistory }) -> bool {
   }
 }
 
-fun uncharacterEquip(item, character) {
+fun characterUnequip(item, character) {
   assert(item.equippedPosition != null)
   when (item.equipType) {
     // 斗技、武器、法宝等

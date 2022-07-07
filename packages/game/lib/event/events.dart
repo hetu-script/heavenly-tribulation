@@ -3,14 +3,14 @@ import 'package:hetu_script/values.dart';
 
 abstract class CustomEvents extends Events {
   static const back2menu = 'back_to_menu';
-  static const rebuildUI = 'rebuild_UI';
+  static const needRebuildUI = 'need_rebuild_UI';
   static const incidentOccurred = 'incident_occurred';
 }
 
 class UIEvent extends GameEvent {
   const UIEvent.back2menu({super.scene}) : super(name: CustomEvents.back2menu);
-  const UIEvent.dialogFinished({super.scene})
-      : super(name: CustomEvents.rebuildUI);
+  const UIEvent.needRebuildUI({super.scene})
+      : super(name: CustomEvents.needRebuildUI);
 }
 
 class HistoryEvent extends GameEvent {

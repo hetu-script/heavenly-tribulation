@@ -1,7 +1,7 @@
 import '../battle_entity.ht'
 import '../../../name/name.ht' as nameGenerator
 import '../../item/weapon/beast_weapon.ht'
-import '../../constants.ht'
+import '../../common.ht'
 
 final _kBeastTypes = [
   'tiger',
@@ -56,8 +56,10 @@ struct Beast {
     this.kind = kind ?? _kBeastTypes.random
     final r = nameGenerator.getCreature(1, category: this.kind, rarity: rarity).first
     this.name = r.name
-    this.rarity = r.rarity ?? kUncommon
     this.id = 'beast_${Hash.uid4(2)}_${this.name}'
+    this.rarity = r.rarity ?? kCommon
+    this.color = kRarity[this.rarity].color
+    game.npcs[this.id] = this
 
     // age 的格式是 timestamp, 精确到 tick. 
     if (birthTimestamp != null) {
@@ -75,16 +77,16 @@ struct Beast {
     when (this.kind) {
       'tiger' -> {
         this.icon = 'maze/tiger.png'
-        characterEquip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindClaw))
-        characterEquip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindFang))
+        characterEquip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindClaw, rarity: this.rarity))
+        characterEquip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindFang, rarity: this.rarity))
       }
       'monkey' -> {
         this.icon = 'maze/monkey.png'
-        characterEquip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindClaw))
+        characterEquip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindClaw, rarity: this.rarity))
       }
       'snake' -> {
         this.icon = 'maze/snake.png'
-        characterEquip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindFang))
+        characterEquip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindFang, rarity: this.rarity))
       }
     }
 

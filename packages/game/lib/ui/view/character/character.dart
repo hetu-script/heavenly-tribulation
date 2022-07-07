@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
+import 'package:samsara/util.dart';
 
 import '../../../global.dart';
 import 'bonds.dart';
@@ -75,34 +76,35 @@ class _CharacterViewState extends State<CharacterView>
 
   late TabController _tabController;
 
-  String _title = engine.locale['information'];
+  // String _title = engine.locale['information'];
 
-  late final HTStruct _data;
+  late final HTStruct _characterData;
 
   @override
   void initState() {
     super.initState();
 
     if (widget.characterData != null) {
-      _data = widget.characterData!;
+      _characterData = widget.characterData!;
     } else {
       final charId = widget.characterId ??
           ModalRoute.of(context)!.settings.arguments as String;
-      _data = engine.invoke('getCharacterById', positionalArgs: [charId]);
+      _characterData =
+          engine.invoke('getCharacterById', positionalArgs: [charId]);
     }
 
     _tabController = TabController(vsync: this, length: _tabs.length);
-    _tabController.addListener(() {
-      setState(() {
-        if (_tabController.index == 0) {
-          _title = engine.locale['information'];
-        } else if (_tabController.index == 1) {
-          _title = engine.locale['bonds'];
-        } else if (_tabController.index == 1) {
-          _title = engine.locale['history'];
-        }
-      });
-    });
+    // _tabController.addListener(() {
+    //   setState(() {
+    //     if (_tabController.index == 0) {
+    //       _title = engine.locale['information'];
+    //     } else if (_tabController.index == 1) {
+    //       _title = engine.locale['bonds'];
+    //     } else if (_tabController.index == 1) {
+    //       _title = engine.locale['history'];
+    //     }
+    //   });
+    // });
     _tabController.index = widget.tabIndex;
   }
 
@@ -120,7 +122,12 @@ class _CharacterViewState extends State<CharacterView>
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: Text('${_data['name']} - $_title'),
+          title: Text(
+            _characterData['name'],
+            style: TextStyle(
+              color: HexColor.fromHex(_characterData['color']),
+            ),
+          ),
           actions: const [ButtonClose()],
           bottom: TabBar(
             controller: _tabController,
@@ -133,9 +140,9 @@ class _CharacterViewState extends State<CharacterView>
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  CharacterAttributesView(characterData: _data),
-                  CharacterBondsView(bondsData: _data['bonds']),
-                  CharacterMemory(memoryData: _data['memory']),
+                  CharacterAttributesView(characterData: _characterData),
+                  CharacterBondsView(bondsData: _characterData['bonds']),
+                  CharacterMemory(memoryData: _characterData['memory']),
                 ],
               ),
             ),
@@ -144,7 +151,7 @@ class _CharacterViewState extends State<CharacterView>
                 padding: const EdgeInsets.all(10.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pop(_data['id']);
+                    Navigator.of(context).pop(_characterData['id']);
                   },
                   child: Text(engine.locale['confirm']),
                 ),

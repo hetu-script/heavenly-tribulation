@@ -1,2 +1,2 @@
-export 'constants.ht'
+export 'common.ht'
 export 'kickboxing.ht'

@@ -13,6 +13,7 @@ class ItemGrid extends StatelessWidget {
     required this.onSelect,
     this.hasBorder = true,
     this.isSelected = false,
+    this.isEquipped = false,
     this.child,
     this.backgroundImage,
   });
@@ -21,7 +22,7 @@ class ItemGrid extends StatelessWidget {
   final HTStruct? itemData;
   final void Function(HTStruct item, Offset screenPosition) onSelect;
   final bool hasBorder;
-  final bool isSelected;
+  final bool isSelected, isEquipped;
   final Widget? child;
   final ImageProvider<Object>? backgroundImage;
 
@@ -74,6 +75,18 @@ class ItemGrid extends StatelessWidget {
                     Align(
                       alignment: AlignmentDirectional.bottomEnd,
                       child: Text(stackSize.toString()),
+                    ),
+                  if (isEquipped)
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: Image(
+                        width: size.width / 3,
+                        height: size.height / 3,
+                        fit: BoxFit.contain,
+                        image: const AssetImage(
+                            'assets/images/icon/item/equipped.png'),
+                      ),
                     )
                 ],
               )),

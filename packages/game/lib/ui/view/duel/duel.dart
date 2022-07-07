@@ -10,6 +10,7 @@ import '../../avatar.dart';
 import '../../shared/dynamic_color_progressbar.dart';
 import '../character/character.dart';
 import '../enemy/enemy.dart';
+import '../../../event/events.dart';
 
 const kEntityTypeCharacter = 'character';
 const kEntityTypeEnemy = 'enemy';
@@ -138,6 +139,7 @@ class _DuelState extends State<Duel> {
 
   void _startTimer() {
     assert(_data != null);
+    if (!(_data!['started'] ?? false)) return;
     _frames = 0;
     _timer?.cancel();
     _timer = Timer.periodic(
@@ -237,7 +239,7 @@ class _DuelState extends State<Duel> {
                               context: context,
                               barrierColor: Colors.transparent,
                               builder: (context) {
-                                return EnemyView(data: widget.char1);
+                                return EnemyView(enemyData: widget.char1);
                               },
                             );
                           }
@@ -286,7 +288,7 @@ class _DuelState extends State<Duel> {
                               context: context,
                               barrierColor: Colors.transparent,
                               builder: (context) {
-                                return EnemyView(data: widget.char2);
+                                return EnemyView(enemyData: widget.char2);
                               },
                             );
                           }
@@ -358,6 +360,7 @@ class _DuelState extends State<Duel> {
                           onPressed: () {
                             if (_finished) {
                               Navigator.pop(context, _data?['result'] ?? false);
+                              engine.broadcast(const UIEvent.needRebuildUI());
                             } else {
                               _timer?.cancel();
                               setState(() {

@@ -1,6 +1,6 @@
 import '../../../name/name.ht' as nameGenerator
-import '../../constants.ht'
-import '../constants.ht'
+import '../../common.ht'
+import '../common.ht'
 import '../../../util.ht'
 import '../../../game.ht'
 import '../../../l10n.ht'
@@ -38,21 +38,22 @@ final _kBeastWeaponKinds = {
 struct BeastWeapon {
   construct ({
     beastName,
+    kind,
     rarity,
     value,
     icon,
     description,
-    kind,
     attributes,
   }) {
     assert(beastName != null)
     assert(kind != null)
     this.beastName = beastName
     this.kind = kind
-    this.name = beastName + getLocaleString(kind)
-    this.id = 'beast_bodypart_${Hash.uid4(2)}_${this.name}'
     this.rarity = rarity ?? kCommon
-
+    this.name = beastName + getLocaleString(kind)
+    this.color = kRarity[this.rarity].color
+    this.id = 'beast_bodypart_${Hash.uid4(2)}_${this.name}'
+    this.isEquippable = true
     this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
     this.category = kEntityCategoryWeapon // 武器、防护、斗技、玄功等等
     this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备

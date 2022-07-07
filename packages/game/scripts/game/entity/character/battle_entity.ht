@@ -1,4 +1,4 @@
-import '../constants.ht'
+import '../common.ht'
 
 final kCharacterAttributeNames = [
   'strength',
@@ -140,7 +140,7 @@ fun getCharacterStats(character) {
   return stats
 }
 
-fun characterGiveMoneyTo(char1, value, char2, localHistory) {
+fun characterGiveMoneyTo(char1, value, char2) {
   assert(char1.money >= value)
   char1.money -= value
   char2.money += value
@@ -154,11 +154,10 @@ fun characterGiveMoneyTo(char1, value, char2, localHistory) {
     subjectIds: char1.isMajorCharacter ? [char1.id] : null,
     objectIds: char2.isMajorCharacter ? [char2.id] : null,
     isPrivate: true,
-    localHistory: localHistory,
   )
 }
 
-fun characterGiveItemTo(char1, item, char2, localHistory) {
+fun characterGiveItemTo(char1, item, char2) {
   assert(char1.inventory[item.id] != null)
   if (item.equippedPosition) uncharacterEquip(item, char1)
   char2.inventory[item.id] = item
@@ -172,6 +171,5 @@ fun characterGiveItemTo(char1, item, char2, localHistory) {
     subjectIds: char1.isMajorCharacter ? [char1.id] : null,
     objectIds: char2.isMajorCharacter ? [char2.id] : null,
     isPrivate: true,
-    localHistory: localHistory,
   )
 }

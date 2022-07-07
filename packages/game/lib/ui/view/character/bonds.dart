@@ -22,7 +22,7 @@ class CharacterBondsView extends StatelessWidget {
     required this.bondsData,
   });
 
-  final HTStruct bondsData;
+  final HTStruct? bondsData;
 
   @override
   Widget build(BuildContext context) {
@@ -41,37 +41,40 @@ class CharacterBondsView extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: TabBarView(
-              children: bondsData.keys
-                  .map(
-                    (key) => DataTable2(
-                      scrollController: ScrollController(),
-                      empty: EmptyPlaceholder(engine.locale['empty']),
-                      columns: _kCharacterBondsSubTableColumns
-                          .map((title) => DataColumn(
-                                label: TextButton(
-                                  onPressed: () {},
-                                  child: Text(engine.locale[title]),
-                                ),
-                              ))
-                          .toList(),
-                      rows: bondsData[key] != null
-                          ? (bondsData[key] as HTStruct)
-                              .values
-                              .map((object) => DataRow2(cells: [
-                                    DataCell(
-                                      Text(object['name']),
-                                    ),
-                                    DataCell(
-                                      Text(object['score'].toStringAsFixed(2)),
-                                    ),
-                                  ]))
-                              .toList()
-                          : const [],
-                    ),
+            child: bondsData != null
+                ? TabBarView(
+                    children: bondsData!.keys
+                        .map(
+                          (key) => DataTable2(
+                            scrollController: ScrollController(),
+                            empty: EmptyPlaceholder(engine.locale['empty']),
+                            columns: _kCharacterBondsSubTableColumns
+                                .map((title) => DataColumn(
+                                      label: TextButton(
+                                        onPressed: () {},
+                                        child: Text(engine.locale[title]),
+                                      ),
+                                    ))
+                                .toList(),
+                            rows: bondsData![key] != null
+                                ? (bondsData![key] as HTStruct)
+                                    .values
+                                    .map((object) => DataRow2(cells: [
+                                          DataCell(
+                                            Text(object['name']),
+                                          ),
+                                          DataCell(
+                                            Text(object['score']
+                                                .toStringAsFixed(2)),
+                                          ),
+                                        ]))
+                                    .toList()
+                                : const [],
+                          ),
+                        )
+                        .toList(),
                   )
-                  .toList(),
-            ),
+                : EmptyPlaceholder(engine.locale['empty']),
           ),
         ],
       ),

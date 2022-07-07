@@ -37,8 +37,8 @@ class SamsaraEngine with SceneController, EventAggregator {
 
   late final String? _mainModName;
 
-  void updateLocale(HTStruct data) {
-    locale.loadData(data);
+  void updateLocale(HTStruct localeData) {
+    locale.loadData(localeData);
   }
 
   Map<int, Color> zoneColors = {};

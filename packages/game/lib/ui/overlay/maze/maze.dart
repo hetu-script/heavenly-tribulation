@@ -20,11 +20,11 @@ import '../../dialog/game_over.dart';
 class MazeOverlay extends StatefulWidget {
   const MazeOverlay({
     required super.key,
-    this.mazeData,
+    required this.mazeData,
     this.startLevel = 0,
   });
 
-  final HTStruct? mazeData;
+  final HTStruct mazeData;
 
   final int startLevel;
 
@@ -53,15 +53,18 @@ class _MazeOverlayState extends State<MazeOverlay>
     _currentLevelIndex = widget.startLevel;
     // _heroData = engine.invoke('getHero');
 
+    engine.invoke('enterMaze', positionalArgs: [widget.mazeData]);
+
     engine.hetu.interpreter.bindExternalFunction('gameOver', (HTEntity object,
         {List<dynamic> positionalArgs = const [],
         Map<String, dynamic> namedArgs = const {},
         List<HTType> typeArgs = const []}) {
       engine.leaveScene('maze');
+      engine.invoke('leaveMaze');
       Navigator.of(context).pop();
       showDialog(
         context: context,
-        builder: (BuildContext context) => GameOver(),
+        builder: (BuildContext context) => const GameOver(),
       );
     }, override: true);
 
@@ -188,7 +191,7 @@ class _MazeOverlayState extends State<MazeOverlay>
     );
 
     engine.registerListener(
-      CustomEvents.rebuildUI,
+      CustomEvents.needRebuildUI,
       EventHandler(
         widget.key!,
         (GameEvent event) {
@@ -218,14 +221,11 @@ class _MazeOverlayState extends State<MazeOverlay>
   Widget build(BuildContext context) {
     super.build(context);
 
-    late final HTStruct data = widget.mazeData ??
-        ModalRoute.of(context)!.settings.arguments as HTStruct;
-
     return FutureBuilder(
       // 不知道为啥，这里必须用这种写法才能进入载入界面，否则一定会卡住
       future: Future.delayed(
         const Duration(milliseconds: 100),
-        () => _createLevel(data['levels'][_currentLevelIndex]),
+        () => _createLevel(widget.mazeData['levels'][_currentLevelIndex]),
       ),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -259,6 +259,7 @@ class _MazeOverlayState extends State<MazeOverlay>
                           ).then((value) => setState(() {}));
                           break;
                         case MazeDropMenuItems.quit:
+                          engine.invoke('leaveMaze');
                           engine.leaveScene('maze');
                           Navigator.of(context).pop();
                           break;
@@ -272,7 +273,7 @@ class _MazeOverlayState extends State<MazeOverlay>
                   bottom: 0,
                   child: HistoryPanel(
                     heroId: _heroData?['id'],
-                    historyData: widget.mazeData?['history'],
+                    historyData: widget.mazeData['history'],
                   ),
                 ),
               ],

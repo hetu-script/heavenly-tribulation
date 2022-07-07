@@ -1,6 +1,6 @@
 import '../../../name/name.ht' as nameGenerator
-import '../../constants.ht'
-import '../constants.ht'
+import '../../common.ht'
+import '../common.ht'
 import '../../effects.ht'
 
 struct Beverage {
@@ -22,25 +22,25 @@ struct Beverage {
     this.kind = kEntityElixirKindBeverage // 枪、剑、斧等等
     this.rarity = rarity
     this.value = value ?? 0
-    this.consumable = true
+    this.isConsumable = true
     this.creatorId = creatorId
     this.createdTime = createdTime
     this.description = description ?? ''
     this.attributes = attributes
     this.stackSize = stackSize
-    
     if (!this.name) {
       final r = nameGenerator.getElixir(1, category: this.kind, rarity: this.rarity).first
       this.name = r.name
       this.rarity ??= r.rarity
     }
+    this.color = kRarity[this.rarity].color
 
     this.id = this.rarity != kCommon ? 'elixir_${Hash.uid4(2)}_${this.name}' : 'elixir_${this.name}'
 
     this.icon = 'icon/item/drink.png'
     this.effects = [
       {
-        // name: kEffectRestoreStamina,
+        name: kEffectRestoreStamina,
         description: kEffectRestoreStamina,
         values: [
           {

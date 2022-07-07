@@ -33,6 +33,11 @@
   "inputName": "输入一个名字",
   "selectHero": "选择你要扮演的角色",
 
+  "equip": "装备",
+  "unequip": "卸下",
+  "consume": "食用",
+  "steal": "偷取",
+
   "surrender": "投降",
   "handOver": "交出财物",
   "escape": "逃跑",
@@ -41,6 +46,7 @@
   "plead": "求情",
   "beg": "求饶",
 
+  "rarity": "品级",
   "common": "凡品",
   "uncommon": "良品",
   "rare": "上品",

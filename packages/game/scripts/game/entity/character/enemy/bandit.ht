@@ -1,5 +1,5 @@
 import '../battle_entity.ht'
-import '../../constants.ht'
+import '../../common.ht'
 
 final _kBanditKinds = [
   'muscle',
@@ -17,6 +17,7 @@ struct Bandit {
     birthTimestamp,
     isPirate,
     kind,
+    rarity,
     attributes,
     attributeSum,
   }) {
@@ -25,6 +26,9 @@ struct Bandit {
     this.kind = kind ?? _kBanditKinds.random
     this.name = getLocaleString(isPirate ? _kPirateName : _kBanditName) + getLocaleString(this.kind)
     this.id = 'bandit_${Hash.uid4(2)}_${this.name}'
+    this.rarity = rarity ?? kCommon
+    this.color = kRarity[this.rarity].color
+    game.npcs[this.id] = this
 
     // age 的格式是 timestamp, 精确到 tick. 
     if (birthTimestamp != null) {

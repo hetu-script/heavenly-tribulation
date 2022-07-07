@@ -28,7 +28,7 @@ import 'creature/creature.json' as creature
 import 'creature/prefix.json' as creaturePrefix
 import 'creature/strange.json' as strangeCreature
 import 'elixir/elixir.json' as elixir
-import '../entity/constants.ht'
+import '../entity/common.ht'
 
 export {
   getCharacter,
@@ -122,14 +122,19 @@ const _kNumberEndSupplement = '式'
 const _kBookLeft = "《";
 const _kBookRight = "》";
 
+const _kSkillExtraProbability = 0.075
+const _kSkillNumfixProbability = 0.075
+const _kSkillWithThreeElementsProbability = 0.15
+const _kSkillWithTwoElementsProbability = 0.35
+
 fun _getSkillName({length, category, kind}) {
   var l = length ?? 1
   var rarity = 'common'
   if (!length) {
     final r = getRarity()
-    if (r.value < kRarity.rare.value) {
+    if (r.rarityLevel > kRarity.epic.rarityLevel) {
       l = 3
-    } else if (r.value < kRarity.uncommon.value) {
+    } else if (r.rarityLevel > kRarity.uncommon.rarityLevel) {
       l = 2
     }
     rarity = r.rarity
@@ -142,10 +147,10 @@ fun _getSkillName({length, category, kind}) {
   var n = ''
   final c = category ?? skill.keys.random
   final k = kind ?? skill[c].random
-  if (Math.random() < kRarity.epic.probability) {
+  if (Math.random() < _kSkillExtraProbability) {
     e = skillExtra.random
   }
-  if (Math.random() < kRarity.epic.probability) {
+  if (Math.random() < _kSkillNumfixProbability) {
     n = skillNumfix.random
   }
   if (Math.random() < 0.5) {
@@ -305,7 +310,7 @@ fun getElixir(number: int, {category: str, kind: str}) {
     final pre = commonElixirNames.random
     var s = ''
     final r = getRarity()
-    if (r.value < kRarity.rare.value) {
+    if (r.rarityLevel > kRarity.rare.rarityLevel) {
       s = spiritPrefix.random
     }
     rarity = r.rarity
@@ -341,7 +346,7 @@ fun getTalisman(number: int, {category, kind, rarity}) {
         k = talisman[c].random
       }
     }
-    final r = rarity ?? getRarity(kRarity.uncommon.probability).rarity
+    final r = rarity ?? getRarity().rarity
     if (r == 'exotic') {
       name = prefix + s + k
     } else if (r == 'mythic') {
@@ -357,14 +362,6 @@ fun getTalisman(number: int, {category, kind, rarity}) {
     } else if (r == 'common') {
       name = m + k
     }
-    // final r1 = Math.random()
-    // final r2 = Math.random()
-    // var condition
-    // if (r1 < kRarity.rare.probability && r2 < kRarity.rare.probability) {
-    //   condition = talismanPostfix.broken.random
-    // } else if (r1 < kRarity.uncommon.probability && r2 < kRarity.uncommon.probability) {
-    //   condition = talismanPostfix.handmade.random
-    // }
     names.add({ name, category: c, kind: k, rarity: r })
   }
   return names
@@ -392,21 +389,26 @@ fun getOrganization(number: int, {kind: str, category: str}) {
 
 const _kNation = '国'
 
+const _kStrangeNameProbability = 0.15
+const _kXianXiaNameProbability = 0.35
+const _kNameWithDirectionProbability = 0.5
+const _kNameWithLinkWordProbability = 0.15
+
 fun getNation(number: int) {
   final names = []
   for (var i in range(number)) {
     var name = ''
     var rarity = 'common'
     final r = Math.random()
-    if (r < kRarity.rare.probability) {
+    if (r < _kStrangeNameProbability) {
       name = strangeNames.random
       rarity = 'rare'
-    } else if (r < kRarity.uncommon.probability) {
+    } else if (r < _kXianXiaNameProbability) {
       name = common.random
       rarity = 'uncommon'
     } else {
       var prefix = ''
-      if (Math.random() < kRarity.rare.probability) {
+      if (Math.random() < _kNameWithDirectionProbability) {
         prefix = placePrefix.random
       }
       name = prefix + place.random
@@ -433,15 +435,15 @@ fun getLocation(number: int, {kind: str, category: str}) {
     var k = kind ?? getLocationKind(c);
     var rarity = 'common'
     final r = Math.random()
-    if (r < kRarity.rare.probability) {
+    if (r < _kStrangeNameProbability) {
       name = strangeNames.random
       rarity = 'rare'
-    } else if (r < kRarity.uncommon.probability) {
+    } else if (r < _kXianXiaNameProbability) {
       name = common.random
       rarity = 'uncommon'
     } else {
       var postfix = ''
-      if (Math.random() < kRarity.uncommon.probability) {
+      if (Math.random() < _kNameWithDirectionProbability) {
         postfix = placePostfix.random
       }
       name = place.random + postfix
@@ -468,15 +470,15 @@ fun getZone(number: int, {kind: str, category: str}) {
     final k = kind ?? getZoneKind(c);
     var rarity = 'common'
     final r = Math.random()
-    if (r < kRarity.rare.probability) {
+    if (r < _kStrangeNameProbability) {
       name = strangeNames.random
       rarity = 'rare'
-    } else if (r < kRarity.uncommon.probability) {
+    } else if (r < _kXianXiaNameProbability) {
       name = common.random
       rarity = 'uncommon'
     } else {
       var prefix = ''
-      if (Math.random() < kRarity.rare.probability) {
+      if (Math.random() < _kNameWithDirectionProbability) {
         prefix = placePrefix.random
       }
       name = prefix + place.random
@@ -484,7 +486,7 @@ fun getZone(number: int, {kind: str, category: str}) {
         if (k.length > 1) {
           name += _kLinkWord;
         } else {
-          if (Math.random() < kRarity.rare.probability) {
+          if (Math.random() < _kNameWithLinkWordProbability) {
             name += _kLinkWord;
           }
         }
