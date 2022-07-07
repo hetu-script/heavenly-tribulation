@@ -2,67 +2,44 @@ import 'game.ht'
 import 'entity/character/character.ht'
 import 'entity/item/item.ht'
 import 'duel.ht'
-import 'generator/name/name.ht'
+import 'name/name.ht'
 import 'entity/character/enemy/bandit.ht'
 import 'entity/character/enemy/beast.ht'
-import 'entity/skill/skill.ht'
+import 'entity/item/item.ht'
 import 'maze/maze.ht'
-
-fun getMoney(value) {
-  assert(value > 0)
-  final hero = getHero()
-  hero.money += value
-  final incidentContent = getLocaleString('heroAquireMoney', [
-      hero.name,
-      weapon.name,
-    ])
-  Incident(
-    content: incidentContent,
-    subjectIds: [hero.id],
-    isPrivate: true,
-  )
-}
 
 // 测试物品：主角获取指定数量的武器，必须在游戏开始后才可以使用
 fun getWeapon([n = 1]) {
   assert(n > 0)
   final hero = getHero()
   for (final i in range(n)) {
-    final weapon = Weapon()
-    character.inventory[weapon.id] = weapon
-    final incidentContent = getLocaleString('heroAquireItem', [
-      character.name,
-      weapon.name,
-    ])
-    Incident(
-      content: incidentContent,
-      subjectIds: [character.id],
-      isPrivate: true,
-    )
+    characterAcquire(hero, Weapon())
   }
 }
 
 // 测试战斗：随机生成两个准备好战斗的角色
 fun testDuel() {
   final hero = Character(isMajorCharacter: false)
-  equip(MartialArt(), hero)
-  equip(Weapon(), hero)
+  characterEquip(hero, Kickboxing())
+  characterEquip(hero, Weapon())
 
   // final enemy = Character(isMajorCharacter: false)
   // final enemy = Bandit(kind: 'boss')
-  // equip(MartialArt(), enemy)
-  // equip(Weapon(), enemy)
+  // characterEquip(enemy, Kickboxing())
+  // characterEquip(enemy, Weapon())
 
   final enemy = Beast()
-  showDuel(hero, enemy)
+  showDuel(hero, enemy, type: kDuelTypePractice)
 }
 
 fun testMaze() {
   resetGame()
   final hero = Character()
   hero.money += 5000
-  equip(MartialArt(), hero)
-  equip(Weapon(), hero)
+  characterEquip(hero, Kickboxing())
+  characterEquip(hero, Weapon())
+  characterAcquire(hero, Medicine(rarity: 'common', stackSize: 5))
+  characterAcquire(hero, Beverage(rarity: 'common', stackSize: 5))
   setHeroId(hero.id)
   return createMaze(isOnWorldMap: false)
 }

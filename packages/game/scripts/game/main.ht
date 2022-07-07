@@ -14,7 +14,7 @@ export 'entity/item/item.ht'
 export 'tile/tilemap.ht'
 export 'world.ht'
 export 'maze/maze.ht'
-export 'generator/name/name.ht'
+export 'name/name.ht'
 export 'logic.ht'
 export 'debug.ht'
 export 'quest/quest.ht'
@@ -22,7 +22,6 @@ export 'util.ht'
 export 'binding/worldmap.ht'
 export 'binding/maze.ht'
 
-import 'predefined/predefined_dialogs.ht'
 import 'l10n/l10n.ht'
 
 final version = '0.1.0'
@@ -39,17 +38,8 @@ fun init({locale = 'zh', gameEngine: SamsaraEngine}) {
   addLocales(predefinedLocalizations)
   engine.updateLocale(locales[locale])
   setLocale(locale)
-  
-  addDialogs(predefinedDialogs)
 
   resetGame()
-
-  // for (var i in range(10)) {
-  //   final ent = getArcanePower()
-  //   // final book = getBook(ent)
-  //   // final ent = getMartialArts()
-  //   print(ent)
-  // }
 
   engine.info('初始化函数执行完毕')
 }

@@ -1,0 +1,8 @@
+const kEffectValueTypeInt = 'int';
+const kEffectValueTypeFloat = 'float';
+const kEffectValueTypePercentage = 'percentage';
+
+const kEffectRestoreLife = 'effectRestoreLife'
+const kEffectRestoreChi = 'effectRestoreChi'
+const kEffectRestoreStamina = 'effectRestoreStamina'
+

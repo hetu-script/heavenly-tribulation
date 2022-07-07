@@ -1,8 +1,8 @@
-import '../../generator/name/name.ht' as nameGenerator
+import '../../../name/name.ht' as nameGenerator
+import '../../constants.ht'
 import '../constants.ht'
-import 'constants.ht'
-import '../../util.ht'
-import '../../game.ht'
+import '../../../util.ht'
+import '../../../game.ht'
 
 const kShieldKind = 'shield'
 
@@ -37,7 +37,8 @@ struct Shield {
       this.name = r.name
       this.rarity ??= r.rarity 
     }
-    this.id = 'shield_${Hash.uid4(2)}_${this.name}'
+    this.id = this.rarity != kCommon ? 'shield_${Hash.uid4(2)}_${this.name}' : 'shield_${this.name}'
+    
     this.icon = 'icon/item/shield.png'
     this.attributes = {
       attributes: {

@@ -1,89 +1,30 @@
 const kNone = 'none'
 
-final kResources = [
-  {
-    id: 'gold',
-    name: 'gold',
-    image: 'item/gold.png',
-  },
-  {
-    id: 'spiritStone',
-    name: 'spiritStone',
-    image: 'item/spirit_stone.png',
-  },
-  {
-    id: 'grain',
-    name: 'grain',
-    image: 'item/grain.png',
-  },
-  {
-    id: 'ore',
-    name: 'ore',
-    image: 'item/ore.png',
-  },
-  {
-    id: 'timber',
-    name: 'timber',
-    image: 'item/timber.png',
-  },
-  {
-    id: 'jade',
-    name: 'jade',
-    image: 'item/jade.png',
-  },
-  {
-    id: 'food',
-    name: 'food',
-    image: 'item/food.png',
-  },
-  {
-    id: 'medicine',
-    name: 'medicine',
-    image: 'item/medicine.png',
-  },
-  {
-    id: 'buldingMaterial',
-    name: 'buldingMaterial',
-    image: 'item/bulding_aterial.png',
-  },
-  {
-    id: 'talismanMaterial',
-    name: 'talismanMaterial',
-    image: 'item/talisman_material.png',
-  },
-  {
-    id: 'kosher',
-    name: 'kosher',
-    image: 'item/kosher.png',
-  }
-]
-
 final kEquipmentCategory = ['weapon', 'armor', 'boot', 'talisman']
 final kEquipmentCategoryWithoutBoot = ['weapon', 'armor', 'talisman']
 
-final kDamageTypes = [
-  'slashing',
-  'bludgeoning',
-  'piercing',
-  'cold',
-  'fire',
-  'lightning',
-  'chi',
-  'spell',
-  'power',
-]
-
-final kSkillCategory = [
-  'arcane',
-  'fight',
-  'escape',
-  'array',
-]
+const kStats = 'stats'
+final kStrength = 'strength'
+final kDexterity = 'dexterity'
+final kConstitution = 'constitution'
+final kSuperpower = 'superpower'
+final kPerception = 'perception'
+final kIntelligence = 'intelligence'
+final kLeadership = 'leadership'
+final kManagement = 'management'
 
 // 进行某些互动的时候
 final kFameCheckThreshold = 75
 // 进行某些互动的时候
 final kCharismaCheckThreshold = 75
+
+const kCommon = 'common'
+const kUncommon = 'uncommon'
+const kRare = 'rare'
+const kEpic = 'epic'
+const kLegendary = 'legendary'
+const kMythic = 'mythic'
+const kExotic = 'exotic'
 
 final kRarity = {
   common: {
@@ -170,13 +111,26 @@ fun getRarityValue(valueMap) {
   return (v is Iterable) ? v.random : v
 }
 
+const kLife = 'life'
+const kStamina = 'stamina'
+
 const kEntityTypeCharacter = 'character'
 const kEntityTypeEnemy = 'enemy'
 const kEntityTypeItem = 'item'
 const kEntityTypeSkill = 'skill'
 const kEntityCategoryWeapon = 'weapon'
 const kEntityCategoryWeaponSupport = 'weaponSupport'
-const kEntityCategoryMartialArts = 'martialArts'
+const kEntityCategoryKickboxing = 'kickboxing'
+const kEntityCategoryProtect = 'protect'
+const kEntityCategoryElixir = 'elixir'
+
+const kEntityElixirKindMedicine = 'medicine'
+const kEntityElixirKindBeverage = 'beverage'
+const kEntityElixirKindAlchemy = 'alchemy'
+
+const kOffenseEquipmentMax = 5
+const kArcaneEquipmentMax = 3
+const kSupportEquipmentMax = 4
 
 const kEquipTypeOffense = 'offense'
 const kEquipTypeSupport = 'support'

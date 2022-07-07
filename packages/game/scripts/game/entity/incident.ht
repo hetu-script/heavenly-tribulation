@@ -42,23 +42,32 @@ struct Incident {
     this.isGlobal = isGlobal
     if (localHistory is List) {
       localHistory.add(this)
+      if (!isPrivate) {
+        history.add(this)
+      }
     } else {
       history.add(this)
     }
 
     for (final id in subjectIds) {
       final char = game.characters[id]
-      characterExperiencedIncident(char, this)
+      if (char != null) {
+        characterExperiencedIncident(char, this)
+      }
     }
 
     for (final id in objectIds) {
       final char = game.characters[id]
-      characterExperiencedIncident(char, this)
+      if (char != null) {
+        characterExperiencedIncident(char, this)
+      }
     }
 
     for (final id in witnessIds) {
       final char = game.characters[id]
-      characterWitnessIncident(char, this, witnessed: true)
+      if (char != null) {
+        characterWitnessIncident(char, this, witnessed: true)
+      }
     }
 
     // for (final id in heardIds) {
@@ -89,4 +98,3 @@ struct Incident {
 fun getIncidentByIndex(index: int) {
   return history[index]
 }
-

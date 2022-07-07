@@ -1,4 +1,4 @@
-import '../generator/util.ht'
+import '../util.ht'
 
 struct SpiritOrigin {
   construct {

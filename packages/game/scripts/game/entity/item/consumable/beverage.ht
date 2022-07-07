@@ -1,0 +1,53 @@
+import '../../../name/name.ht' as nameGenerator
+import '../../constants.ht'
+import '../constants.ht'
+import '../../effects.ht'
+
+struct Beverage {
+  construct ({
+    name,
+    kind,
+    rarity,
+    value,
+    icon,
+    creatorId,
+    createdTime,
+    description,
+    attributes,
+    stackSize = 1,
+  }) {
+    this.name = name
+    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
+    this.category = kEntityCategoryElixir // 武器、防护、斗技、玄功等等
+    this.kind = kEntityElixirKindBeverage // 枪、剑、斧等等
+    this.rarity = rarity
+    this.value = value ?? 0
+    this.consumable = true
+    this.creatorId = creatorId
+    this.createdTime = createdTime
+    this.description = description ?? ''
+    this.attributes = attributes
+    this.stackSize = stackSize
+    
+    if (!this.name) {
+      final r = nameGenerator.getElixir(1, category: this.kind, rarity: this.rarity).first
+      this.name = r.name
+      this.rarity ??= r.rarity
+    }
+
+    this.id = this.rarity != kCommon ? 'elixir_${Hash.uid4(2)}_${this.name}' : 'elixir_${this.name}'
+
+    this.icon = 'icon/item/drink.png'
+    this.effects = [
+      {
+        // name: kEffectRestoreStamina,
+        description: kEffectRestoreStamina,
+        values: [
+          {
+            value: 80,
+          },
+        ],
+      },
+    ]
+  }
+}

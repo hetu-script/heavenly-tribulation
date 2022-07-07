@@ -27,7 +27,8 @@ class ItemGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final iconAssetKey = itemData?['icon'];
+    final String? iconAssetKey = itemData?['icon'];
+    final int stackSize = itemData?['stackSize'] ?? 1;
 
     return GestureDetector(
       onTapUp: (TapUpDetails details) {
@@ -69,6 +70,11 @@ class ItemGrid extends StatelessWidget {
                       image: AssetImage('assets/images/$iconAssetKey'),
                     ),
                   if (child != null) child!,
+                  if (stackSize > 1)
+                    Align(
+                      alignment: AlignmentDirectional.bottomEnd,
+                      child: Text(stackSize.toString()),
+                    )
                 ],
               )),
         ),

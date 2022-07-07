@@ -14,11 +14,6 @@ fun addDialogs(dlgs: List) {
         final char = getCharacterById(content.characterId)
         content.avatar = char.avatar
       }
-      if (content.lineIds) {
-        content.lines = content.lineIds.map(
-          (id) => getLocaleString(id)
-        ).toList()
-      }
     }
     dialogs[dlg.id] = dlg
   }

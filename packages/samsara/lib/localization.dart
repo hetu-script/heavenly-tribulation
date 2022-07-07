@@ -2,7 +2,7 @@ import 'package:hetu_script/values.dart';
 
 class GameLocalization {
   static const localeNotInitialized = 'locale_is_not_initialized';
-  static const missingText = 'missing_text';
+  static const missingText = 'missing_text_';
 
   String get missing => missingText;
 

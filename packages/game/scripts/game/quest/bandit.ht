@@ -1,6 +1,5 @@
 import 'constants.ht'
 import '../l10n.ht'
-import 'constants.ht'
 
 final kQuestFightBanditKind = [
   'wipe', // 消灭盗贼

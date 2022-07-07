@@ -58,7 +58,7 @@ struct Log {
 }
 
 struct Duel {
-  construct(char1, char2, { type = 'normal' }) {
+  construct(char1, char2, { type }) {
     this.messages = []
     this.actions = {
       char1: [],
@@ -119,11 +119,13 @@ struct Duel {
       this.started = true
 
       fun checkIfEnd {
-        if (char1info.stats.life <= 0) {
+        final char1Life = type == kDuelTypePractice ? char1info.stats.life : char1.stats.life
+        if ( char1Life <= 0) {
           engine.info('${char1.name} 和 ${char2.name} 的战斗结束了。${char2.name} 获胜。')
           return true
         }
-        if (char2info.stats.life <= 0) {
+        final char2Life = type == kDuelTypePractice ? char2info.stats.life : char2.stats.life
+        if (char2Life <= 0) {
           engine.info('${char1.name} 和 ${char2.name} 的战斗结束了。${char1.name} 获胜。')
           this.result = true
           return true
@@ -137,7 +139,7 @@ struct Duel {
         if (char1.attributes.perception > initiativeValue) {
           // this.messages.add(getLocaleString('sneakAttackSuccess', [char1.name]))
           final damage = _attack(char1info.activatedOffense, char2)
-          entityTakeDamage(char2info, damage)
+          entityTakeDamage(type == kDuelTypePractice ? char2info : char2, damage)
           final message = getLocaleString('attackInfo', [
             char1.name,
             char1info.activatedOffense.name,
@@ -180,7 +182,7 @@ struct Duel {
             ))
             info.ticks = 0
             // 计算伤害
-            entityTakeDamage(targetInfo, damage)
+            entityTakeDamage(type == kDuelTypePractice ? targetInfo : target, damage)
             // if (info.activatedDefense.stats.life <= 0) {
             //   info.targetIndex = setNextActivatedDefenseItem(info, target)
             // }
@@ -215,8 +217,8 @@ struct Duel {
 
     // 双方结束时的状态
     this.resultStats = {
-      char1: char1info.stats,
-      char2: char2info.stats,
+      char1: type == kDuelTypePractice ? char1info.stats : char1.stats,
+      char2: type == kDuelTypePractice ? char2info.stats : char2.stats,
     }
     
     // if (config.debug) {

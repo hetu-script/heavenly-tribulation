@@ -1,10 +1,8 @@
-import '../../generator/name/name.ht' as nameGenerator
+import '../../../name/name.ht' as nameGenerator
+import '../../constants.ht'
 import '../constants.ht'
-import 'constants.ht'
-import '../../util.ht'
-import '../../game.ht'
-
-final _kEffects = ['parry', 'counter']
+import '../../../util.ht'
+import '../../../game.ht'
 
 final kWeaponKinds = {
   'staff': {
@@ -119,12 +117,24 @@ struct Weapon {
       this.name = r.name
       this.rarity ??= r.rarity 
     }
-    this.id = 'weapon_${Hash.uid4(2)}_${this.name}'
+    this.id = this.rarity != kCommon ? 'weapon_${Hash.uid4(2)}_${this.name}' : 'weapon_${this.name}'
+    
     this.icon = kWeaponKinds[this.kind].icon
     this.attributes = {
       ...kWeaponKinds[this.kind].attributes,
-      effects: [],
     }
+    this.effects = [
+      // {
+      //   name: effectParry,
+      //   description: effectParryDescription,
+      //   values: [
+      //     {
+      //       value: 0.15,
+      //       type: kEffectValueTypePercentage,
+      //     },
+      //   ],
+      // },
+    ]
 
     if (attributes) {
       this.attributes.assign(attributes)

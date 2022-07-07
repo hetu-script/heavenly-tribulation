@@ -1,4 +1,4 @@
-import 'generator/name/name.ht' as nameGenerator
+import 'name/name.ht' as nameGenerator
 import 'game.ht'
 import 'entity/location.ht'
 import 'entity/character/character.ht'
@@ -6,7 +6,6 @@ import 'entity/nation.ht'
 import 'l10n.ht'
 import 'tile/hexagonal_tile.ht'
 import 'tile/tilemap.ht'
-import 'entity/item/weapon.ht'
 import 'entity/constants.ht'
 import 'datetime.ht' as datetime
 import 'logic.ht'

@@ -1,15 +1,14 @@
-import '../../generator/name/name.ht' as nameGenerator
+import '../../../name/name.ht' as nameGenerator
+import '../../constants.ht'
 import '../constants.ht'
-import 'constants.ht'
-import '../../util.ht'
-import '../../game.ht'
-import '../../l10n.ht'
+import '../../../util.ht'
+import '../../../game.ht'
+import '../../../l10n.ht'
 
 final _kEffects = ['parry', 'counter']
 
 final kBeastWeaponKindClaw = 'claw'
 final kBeastWeaponKindFang = 'fang'
-
 
 final _kBeastWeaponKinds = {
   'claw': {
@@ -52,7 +51,7 @@ struct BeastWeapon {
     this.kind = kind
     this.name = beastName + getLocaleString(kind)
     this.id = 'beast_bodypart_${Hash.uid4(2)}_${this.name}'
-    this.rarity = rarity ?? kRarity.common.rarity
+    this.rarity = rarity ?? kCommon
 
     this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
     this.category = kEntityCategoryWeapon // 武器、防护、斗技、玄功等等
@@ -64,8 +63,8 @@ struct BeastWeapon {
     this.icon = _kBeastWeaponKinds[this.kind].icon
     this.attributes = {
       ..._kBeastWeaponKinds[this.kind].attributes,
-      effects: [],
     }
+    this.effects = []
 
     if (attributes) {
       this.attributes.assign(attributes)

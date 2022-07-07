@@ -16,14 +16,14 @@ class ItemInfo extends StatelessWidget {
     super.key,
     required this.itemData,
     this.left,
-    // required this.onClose,
+    this.actions,
   });
 
   final HTStruct itemData;
 
   final double? left;
 
-  // final VoidCallback onClose;
+  final Widget? actions;
 
   @override
   Widget build(BuildContext context) {
@@ -37,38 +37,42 @@ class ItemInfo extends StatelessWidget {
       }
     }
 
+    final stackSize = itemData['stackSize'] ?? 1;
+
     final category = itemData['category'];
     final equipType = itemData['equipType'];
 
     final attributes = itemData['attributes'];
     final stats = itemData['stats'];
 
-    final effectData = itemData['stats']['effects'];
+    final effectData = itemData['effects'] ?? [];
     final effects = <Widget>[];
-    for (final name in effectData) {
-      final List valueData = effectData[name];
-      final List<String> values = [];
-      for (final data in valueData) {
-        final v = data['value'] as num;
-        if (data['type'] == kValueTypeInt) {
+    for (final data in effectData) {
+      final String? name = data['name'];
+      final values = <String>[];
+      for (final value in data['values']) {
+        final v = value['value'] as num;
+        final type = value['type'];
+        if (type == null || type == kValueTypeInt) {
           values.add(v.toString());
-        } else if (data['type'] == kValueTypeFloat) {
+        } else if (type == kValueTypeFloat) {
           values.add(v.toStringAsFixed(2));
-        } else if (data['type'] == kValueTypePercentage) {
+        } else if (type == kValueTypePercentage) {
           values.add(v.toPercentageString());
         }
       }
-      final description = engine.locale.getString('${name}Description', values);
+      final description = engine.locale.getString(data['description'], values);
       effects.add(
         IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.only(top: 4.0),
-                width: 60.0,
-                child: Text('${engine.locale[name]}: '),
-              ),
+              if (name != null)
+                Container(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  width: 60.0,
+                  child: Text('${engine.locale[name]}: '),
+                ),
               Container(
                 padding: const EdgeInsets.only(top: 4.0),
                 width: 200.0,
@@ -135,6 +139,8 @@ class ItemInfo extends StatelessWidget {
                     ),
                     Text(
                         '${engine.locale[itemData['category']]} - ${engine.locale[itemData['kind']]}'),
+                    if (stackSize > 1)
+                      Text('${engine.locale['stackSize']}: $stackSize'),
                     if (category == kEntityCategoryWeapon)
                       Text(
                           '${engine.locale['durability']}: ${stats['life']}/${attributes['life']}'),

@@ -1,13 +1,13 @@
-import '../../generator/name/name.ht' as nameGenerator
+import '../../../name/name.ht' as nameGenerator
+import '../../constants.ht'
+import '../../../game.ht'
 import '../constants.ht'
-import '../../game.ht'
-import 'constants.ht'
 
-final kMartialArtsIcons = [
+final kKickboxingIcons = [
   'icon/skill/martial_0.png',
 ]
 
-final kMartialArtsKinds = {
+final kKickboxingKinds = {
   // 伤害一般，耐久低，出招速度一般，收招速度快
   'fist': {
     attributes: {
@@ -34,7 +34,7 @@ final kMartialArtsKinds = {
   },
 }
 
-struct MartialArt {
+struct Kickboxing {
   construct ({
     name,
     rarity,
@@ -47,8 +47,8 @@ struct MartialArt {
   }) {
     this.name = name
     this.entityType = kEntityTypeSkill // 人物、地点、物品、技能等等
-    this.category = kEntityCategoryMartialArts // 武器、防护、斗技、玄功等等
-    this.kind = kind ?? kMartialArtsKinds.keys.random // 枪、剑、斧等等
+    this.category = kEntityCategoryKickboxing // 武器、防护、斗技、玄功等等
+    this.kind = kind ?? kKickboxingKinds.keys.random // 枪、剑、斧等等
     this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
     this.rarity = rarity
     this.creatorId = creatorId
@@ -61,11 +61,12 @@ struct MartialArt {
       this.rarity ??= r.rarity 
     }
     this.id = 'martial_arts_${Hash.uid4(2)}_${this.name}'
-    this.icon = kMartialArtsIcons.random
+    
+    this.icon = kKickboxingIcons.random
     this.attributes = {
-      ...kMartialArtsKinds[this.kind].attributes,
-      effects: [],
+      ...kKickboxingKinds[this.kind].attributes,
     }
+    this.effects = []
 
     if (attributes) {
       this.attributes.assign(attributes)

@@ -3,7 +3,8 @@
 
   "category": "类型",
   "weapon": "武器",
-  "protect": "防护",
+  "protect": "防具",
+  "elixir": "食物",
 
   "kind": "类型",
   "sabre": "刀",
@@ -20,13 +21,16 @@
   "coat": "衣服",
   "armor": "铠甲",
 
+  "medicine": "方剂",
+  "beverage": "饮料",
+  "alchemy": "丹药",
+
+  "stackSize": "数量",
   "damage": "伤害",
   "durability": "耐久",
   "speed": "速度",
   "startUp": "出招时间",
   "recovery": "收招时间",
   "parry": "格挡",
-  "parryDescription": "在出招阶段受击时，{0} 几率免除伤害。",
-  "counter": "破招",
-  "counterDescription": "在敌方出招阶段击中时，{0} 几率使对方中止出招并硬直 10 秒。"
+  "counter": "破招"
 }

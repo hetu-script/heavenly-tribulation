@@ -2,7 +2,7 @@ import '../../game.ht'
 import '../../l10n.ht'
 import '../../datetime.ht'
 import '../incident.ht'
-import '../../generator/name/name.ht' as nameGenerator
+import '../../name/name.ht' as nameGenerator
 import '../../duel.ht'
 import '../../util.ht'
 import '../constants.ht'

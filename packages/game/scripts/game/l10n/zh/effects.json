@@ -1,0 +1,8 @@
+{
+  "effectParry": "在出招阶段受击时，{0} 几率免除伤害。",
+  "effectCounter": "在敌方出招阶段击中时，{0} 几率使对方中止出招并硬直 10 秒。",
+
+  "effectRestoreLife": "回复 {0} 点生命",
+  "effectRestoreChi": "回复 {0} 点元气",
+  "effectRestoreStamina": "回复 {0} 点体力"
+}

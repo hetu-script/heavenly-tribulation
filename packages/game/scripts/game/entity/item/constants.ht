@@ -1,4 +1,4 @@
-// import '../../l10n.ht'
+import '../constants.ht'
 
 const kItemDefaultIcon = 'assets/images/unknown_item.png'
 // final kDefaultItemDescription = getLocaleString('defaultItemDescription')
@@ -17,4 +17,220 @@ final kRarity2ItemLevels = {
 
 fun calculateItemStats(item) {
   item.stats = item.attributes.clone()
+}
+
+fun characterAcquireMoney(character, value, [ localHistory ]) {
+  assert(value > 0)
+  character.money += value
+  final incidentContent = getLocaleString('characterAcquireMoney', [ character.name, value ])
+  Incident(
+    content: incidentContent,
+    subjectIds: [character.id],
+    localHistory: localHistory,
+  )
+}
+
+fun characterAcquire(character, item, [ localHistory ]) {
+  if (item.rarity == kCommon && character.inventory.containsKey(item.id)) {
+    character.inventory[item.id].stackSize += 1
+  } else {
+    character.inventory[item.id] = item
+  }
+
+  final incidentContent = getLocaleString('characterAcquireItem', [
+    character.name,
+    item.name,
+  ])
+  Incident(
+    content: incidentContent,
+    subjectIds: [character.id],
+    localHistory: localHistory,
+  )
+}
+
+fun characterLearn(character, item) {
+  character.skills[item.id] = item
+}
+
+// 使用食物或者丹药
+// 返回值代表是否使用成功
+fun characterConsume(character, item) {
+  if (item.isConsumable) return false
+
+  if (character.inventory.containsKey(item.id)) {
+    if (item.rarity == kCommon) {
+      if (item.stackSize > 1) {
+        --item.stackSize
+      }
+    } else {
+      delete character.inventory[item.id]
+    }
+  }
+
+  if (item.effects) {
+    for (final effect in item.effects) {
+      when (effect.type) {
+        kStats -> {
+          if (effect.isPercentage) {
+            character.stats[effect.name] *= effect.value
+          } else {
+            character.stats[effect.name] += effect.value
+          }
+        }
+      }
+    }
+  }
+  
+  return true
+}
+
+// 法宝和技能都可以装备，只要类型符合
+// 返回值代表是否装备成功
+// {
+//   id,
+//   category,
+//   kind,
+//   supports,
+// }
+fun characterEquip(character, item, { index, localHistory }) -> bool {
+  if (item.equippedPosition) return
+  var equipData = {
+    id: item.id,
+    entityType: item.entityType,
+    category: item.category, // 主类型：武器、斗技等
+    kind: item.kind, // 次类型：剑、拳法等
+    equipType: item.equipType,
+    life: item.stats.life,
+  }
+  when (item.entityType) {
+    kEntityTypeItem -> {
+      if (!character.inventory[item.id]) characterAcquire(character, item, localHistory)
+    }
+    kEntityTypeSkill -> {
+      if (!character.skills[item.id]) characterLearn(character, item, localHistory)
+    }
+  }
+  
+  when (item.equipType) {
+    // 斗技、武器、攻击法宝等
+    kEquipTypeOffense -> {
+      equipData.supports = []
+      // 如果有空位就装备在空位上
+      if (!index) {
+        for (final i in range(1, kOffenseEquipmentMax)) {
+          if (!character.equipments[kEquipTypeOffense][i]) {
+            character.equipments[kEquipTypeOffense][i] = equipData
+            item.equippedPosition = i
+            return true
+          }
+        }
+        // 否则替换掉第一个空位
+        index = 1
+      }
+      final oldEquipData = character.equipments[kEquipTypeOffense][1]
+      final oldItem = getEquippedItem(equipData, character)
+      delete oldItem.equippedPosition
+      character.equipments[kEquipTypeOffense][index] = equipData
+      if (equipData.category == oldItem.category && equipData.kind == oldItem.kind) {
+        equipData.supports = oldEquipData.supports
+      } else {
+        for (final support in equipData.supports) {
+          delete support.equippedPosition
+        }
+      }
+      item.equippedPosition = index
+      return true
+    }
+    // 剑法、心诀等支持型技能
+    kEquipTypeSupport -> {
+      for (final i in range(1, kOffenseEquipmentMax)) {
+        final oldEquipData = character.equipments[kEquipTypeOffense][i]
+        if (oldEquipData && oldEquipData.category == data.category &&
+            oldEquipData.kind == data.kind) {
+          if (oldEquipData.supports.length < _kSupportEquipmentMax - 1) {
+            oldEquipData.supports.add(equipData)
+          } else {
+            // 移除旧装备
+            final item = getEquippedItem(oldEquipData.supports.first, character)
+            delete item.equippedPosition
+            oldEquipData.supports.first = equipData
+          }
+          item.equippedPosition = i
+          return true
+        }
+      }
+      return false
+    }
+    // 内功、辅助法宝等
+    kEquipTypeArcane -> {
+      equipData.supports = []
+      // 如果有空位就装备在空位上
+      if (!index) {
+        for (final i in range(1, _kArcaneEquipmentMax)) {
+          if (!character.equipments[kEquipTypeArcane][i]) {
+            character.equipments[kEquipTypeArcane][i] = equipData
+            item.equippedPosition = i
+            return true
+          }
+        }
+        // 否则替换掉第一个空位
+        index = 1
+      }
+      final oldEquipData = character.equipments[kEquipTypeArcane][1]
+      final oldItem = getEquippedItem(equipData, character)
+      delete oldItem.equippedPosition
+      character.equipments[kEquipTypeArcane][index] = equipData
+      if (equipData.category == oldItem.category && equipData.kind == oldItem.kind) {
+        equipData.supports = oldEquipData.supports
+      } else {
+        for (final support in equipData.supports) {
+          delete support.equippedPosition
+        }
+      }
+      item.equippedPosition = index
+      return true
+    }
+    // 护甲、轻功等
+    kEquipTypeProtect, kEquipTypeManeuver -> {
+      equipData.supports = []
+      // 如果有空位就装备在空位上
+      if (!character.equipments[item.equipType]) {
+        character.equipments[item.equipType] = equipData
+        item.equippedPosition = 1
+        return true
+      }
+      // 否则替换掉
+      final oldEquipData = character.equipments[item.equipType]
+      final oldItem = getEquippedItem(equipData, character)
+      delete oldItem.equippedPosition
+      character.equipments[item.equipType] = equipData
+      if (equipData.category == oldItem.category && equipData.kind == oldItem.kind) {
+        equipData.supports = oldEquipData.supports
+      }
+      item.equippedPosition = 1
+      return true
+    }
+  }
+}
+
+fun uncharacterEquip(item, character) {
+  assert(item.equippedPosition != null)
+  when (item.equipType) {
+    // 斗技、武器、法宝等
+    kEquipTypeOffense -> {
+      delete character.equipments[kEquipTypeOffense][item.equippedPosition]
+    }
+    // 剑法、心诀等支持型技能
+    kEquipTypeSupport -> {
+      character.equipments[kEquipTypeOffense][item.equippedPosition]
+        .supports.removeWhere((equipData) => equipData.id == item.id)
+    }
+    kEquipTypeArcane -> {
+      delete character.equipments[kEquipTypeArcane][item.equippedPosition]
+    }
+    // 护甲、轻功等
+    kEquipTypeProtect, kEquipTypeManeuver -> {
+      delete character.equipments[item.equipType]
+    }
+  }
 }

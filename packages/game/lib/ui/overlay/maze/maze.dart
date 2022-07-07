@@ -188,7 +188,7 @@ class _MazeOverlayState extends State<MazeOverlay>
     );
 
     engine.registerListener(
-      CustomEvents.dialogFinished,
+      CustomEvents.rebuildUI,
       EventHandler(
         widget.key!,
         (GameEvent event) {

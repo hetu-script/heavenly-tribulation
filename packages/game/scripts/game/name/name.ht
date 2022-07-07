@@ -27,8 +27,8 @@ import 'material/postfix.json' as materialPostfix
 import 'creature/creature.json' as creature
 import 'creature/prefix.json' as creaturePrefix
 import 'creature/strange.json' as strangeCreature
-import 'alchemy/alchemy.json' as alchemy
-import '../../entity/constants.ht'
+import 'elixir/elixir.json' as elixir
+import '../entity/constants.ht'
 
 export {
   getCharacter,
@@ -37,7 +37,7 @@ export {
   getSpell,
   getCreature,
   getMaterial,
-  getAlchemy,
+  getElixir,
   getTalisman,
   getOrganization,
   getNation,
@@ -288,27 +288,36 @@ fun getMaterial(number: int, {category, kind, rarity}) {
   return names
 }
 
-final commonAlchemyNames = [
+final commonElixirNames = [
   ...commonNames.dao,
-  ...commonNames.element,
+  ...commonNames.budda,
+  ...commonNames.emotion,
   ...commonNames.color,
   ...commonNames.number,
   ...commonNames.action,
+  // ...commonNames.target,
 ]
 
-fun getAlchemy(number: int, {kind: str}) {
+fun getElixir(number: int, {category: str, kind: str}) {
   final names = []
   for (var i in range(number)) {
     var rarity = 'common'
-    final pre = commonAlchemyNames.random
+    final pre = commonElixirNames.random
     var s = ''
     final r = getRarity()
     if (r.value < kRarity.rare.value) {
       s = spiritPrefix.random
     }
     rarity = r.rarity
-    var k = kind ?? alchemy.random
-    names.add({ name: pre + s + k, rarity })
+    var c = category
+    if (c) {
+      assert(elixir.keys.contains(c))
+      c = category
+    } else {
+      c = elixir.keys.random
+    }
+    var k = kind ?? elixir[c].random
+    names.add({ name: pre + s + k, category: c, kind: k, rarity })
   }
   return names
 }
@@ -321,8 +330,8 @@ fun getTalisman(number: int, {category, kind, rarity}) {
     final cp = colorPrefix.random
     final m = talismanMaterial.random
     final s = spiritPrefix.random
-    final c = category
-    final k = kind
+    var c = category
+    var k = kind
     if (!k) {
       if (c) {
         assert(talisman.keys.contains(c))

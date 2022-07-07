@@ -3,6 +3,7 @@ import 'creature.json' as creature
 import 'dialog.json' as dialog
 import 'duel.json' as duel
 import 'editor.json' as editor
+import 'effects.json' as effects
 import 'general.json' as general
 import 'incident.json' as incident
 import 'information_panel.json' as informationPanel
@@ -24,6 +25,7 @@ final zh = {
   ...dialog,
   ...duel,
   ...editor,
+  ...effects,
   ...general,
   ...incident,
   ...informationPanel,

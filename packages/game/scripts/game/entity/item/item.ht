@@ -1,2 +1,6 @@
-export 'weapon.ht'
-export 'shield.ht'
+export 'skill/skill.ht'
+export 'weapon/weapon.ht'
+export 'weapon/shield.ht'
+export 'consumable/beverage.ht'
+export 'consumable/medicine.ht'
+export 'constants.ht'

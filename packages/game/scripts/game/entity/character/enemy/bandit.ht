@@ -41,16 +41,16 @@ struct Bandit {
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
     when (this.kind) {
       'boss' -> {
-        equip(Weapon(), this)
+        characterEquip(this, Weapon())
       }
       'muscle' -> {
-        equip(Weapon(), this)
+        characterEquip(this, Weapon())
       }
       'killer' -> {
-        equip(Weapon(), this)
+        characterEquip(this, Weapon())
       }
       'minion' -> {
-        equip(Weapon(), this)
+        characterEquip(this, Weapon())
       }
     }
     

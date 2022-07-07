@@ -1,6 +1,6 @@
 import '../game.ht'
 import { Site, kSiteOrganization } from 'location.ht'
-import '../generator/name/name.ht' as nameGenerator
+import '../name/name.ht' as nameGenerator
 import '../l10n.ht'
 
 final kOrganizationCategory = [
