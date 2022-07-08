@@ -1,4 +1,4 @@
-external fun gameOver
+external fun showGameOver
 
 external fun moveHeroToLastRouteNode
 

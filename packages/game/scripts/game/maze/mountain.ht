@@ -54,11 +54,11 @@ final _kUniqueScene = [
   'riverBridge',
 ]
 
-final _kBlockTypes = [
-  // 'empty',
-  'bush',
-  'rock',
-]
+// final _kBlockTypes = [
+//   // 'empty',
+//   'bush',
+//   'rock',
+// ]
 
 // 所有路径名字
 final _kRoutes = [
@@ -139,307 +139,312 @@ fun generateRoute(name, anchors, map) {
 //   map.objects.add(object)
 // }
 
+fun gameOver {
+  showGameOver()
+  leaveMaze()
+}
+
 /// 生成Roguelike副本的算法
-fun createMaze ({
+/// 一个Maze包含多个地图，每个地图是一个单独的tilemap
+/// 地图之间通过出入口或者传送点互相连接
+struct MountainMaze {
+  construct ({
     name = 'unknown_maze',
     levelNumber = 1,
     isOnWorldMap = true,
     tileset = 'mountain',
-    encounters = _kEncounterTypes,
+    encounterTypes = _kEncounterTypes,
   }) {
-  final id = 'maze_${Hash.uid4(2)}_${name}'
-  engine.info('开始生成副本: [${id}]')
+    this.name = name
+    this.id = 'maze_${Hash.uid4(2)}_${name}'
+    engine.info('开始生成副本: [${id}]')
 
-  final maze = {
-    id,
-    name,
-    levels: [], // 每一层是一个单独的 tilemap
-    currentLevel: 0,
-    entities: {}, // 包含所有显示在地图上的可互动对象，包括NPC、敌人、宝箱、陷阱、机关等等。
-    history: [], // 本次副本中发生的事件记录，这些事件不会计入世界历史
-  }
+    this.levels = [] // 每一层是一个单独的 tilemap
+    this.currentLevel =0
+    this.entities = {} // 包含所有显示在地图上的可互动对象，包括NPC、敌人、宝箱、陷阱、机关等等。
+    this.history = [] // 本次副本中发生的事件记录，这些事件不会计入世界历史
 
-  // 已经被分配了的地块
-  final occupied = Set()
+    // 已经被分配了的地块
+    final occupied = Set()
 
-  fun randomPosition(width, height, mapWidth, [offsetX = 0, offsetY = 0]) {
-    assert(width > 2)
-    assert(height > 2)
-    // if (occupied.length >= (width * height - width * 2 - (height - 2) * 2)) {
-    //   throw 'all tiles have been occupied!'
-    // }
-    var left
-    var top
-    var index
-    do {
-      left = Math.randomInt(width) + 1 + offsetX
-      top = Math.randomInt(height) + 1 + offsetY
-      index = tilePos2Index(left, top, mapWidth)
-    } while (occupied.contains(index))
-    occupied.add(index)
-    return { index, left, top }
-  }
-
-  for (final levelIndex in range(levelNumber)) {
-    final [ width, height ] = [ _kDefaultBlockWidth * _kDefaultMazeScale, _kDefaultBlockHeight * _kDefaultMazeScale ]
-    final terrainSize = width * height
-
-    final currentLevel = TileMap(
-      scene: 'maze_${id}_${levelIndex}',
-      width: width,
-      height: height,
-    )
-
-    engine.info('生成迷宫地块')
-    final landZone = Zone(index: currentLevel.zones.length, category: kZoneContinent)
-    currentLevel.zones.add(landZone)
-    for (var j in range(height)) {
-      for (var i in range(width)) {
-        // final isVoid = (i == 0) || (i == width - 1) || (j == 0) || (j == height - 1)
-        final terrain = {
-          ...Tile(i + 1, j + 1, mapWidth: width),
-          isVisible: false,
-          isSelectable: true,
-          showGrid: true,
-          // spriteIndex: isVoid ? null : _kLandSprites.random,
-          spriteIndex: _kLandSprites.random,
-          overlaySprite: {},
-        }
-        currentLevel.terrains.add(terrain)
-        addTerrainToZone(terrain, landZone.index, currentLevel)
-      }
+    fun randomPosition(width, height, mapWidth, [offsetX = 0, offsetY = 0]) {
+      assert(width > 2)
+      assert(height > 2)
+      // if (occupied.length >= (width * height - width * 2 - (height - 2) * 2)) {
+      //   throw 'all tiles have been occupied!'
+      // }
+      var left
+      var top
+      var index
+      do {
+        left = Math.randomInt(width) + 1 + offsetX
+        top = Math.randomInt(height) + 1 + offsetY
+        index = tilePos2Index(left, top, mapWidth)
+      } while (occupied.contains(index))
+      occupied.add(index)
+      return { index, left, top }
     }
-    
-    engine.info('计算出入口')
-    // 可能的出入口
-    final possibleEntries = [
-      { ...Tile(1, 1, mapWidth: width) },
-      { ...Tile(width, 1, mapWidth: width) },
-      { ...Tile(1, height, mapWidth: width) },
-      { ...Tile(width, height, mapWidth: width) },
-    ]
-    possibleEntries.shuffle()
-    final entry = possibleEntries.first
-    occupied.add(entry.index)
-    currentLevel.entryX = entry.left
-    currentLevel.entryY = entry.top
-    final entryEntity = TileMapObject(
-      terrainIndex: entry.index,
-      left: entry.left,
-      top: entry.top,
-      spriteSrc: 'maze/roadsign01.png',
-      srcWidth: 32.0,
-      srcHeight: 32.0,
-    )
-    currentLevel.objects.add(entryEntity)
-    final exit = possibleEntries.last
-    occupied.add(exit.index)
-    currentLevel.exitX = exit.left
-    currentLevel.exitX = exit.top
-    final exitEntity = TileMapObject(
-      terrainIndex: exit.index,
-      left: exit.left,
-      top: exit.top,
-      spriteSrc: 'maze/roadsign01.png',
-      srcWidth: 32.0,
-      srcHeight: 32.0,
-    )
-    currentLevel.objects.add(exitEntity)
 
-    engine.info('计算随机遭遇的位置')
-    final blockSize = terrainSize / 9
-    var isOnCorner = false
-    // 迷宫中的主要roguelike元素的可能位置锚点，分布在横三竖三的9个区块中
-    // 四个角的锚点需要避免位于可能的出入口上
-    final anchors = {}
-    // 左上角
-    anchors[1] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, 0, 0)
-    // 正上方
-    anchors[2] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth, 0)
-    // 右上角
-    anchors[3] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth * 2, 0)
-    // 左边
-    anchors[4] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, 0, _kDefaultBlockHeight)
-    // 正中
-    anchors[5] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth, _kDefaultBlockHeight)
-    // 右边
-    // 正中
-    anchors[6] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth * 2, _kDefaultBlockHeight)
-    // 左下角
-    anchors[7] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, 0, _kDefaultBlockHeight * 2)
-    // 正下方
-    anchors[8] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth, _kDefaultBlockHeight * 2)
-    // 右下角
-    anchors[9] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth * 2, _kDefaultBlockHeight * 2)
+    for (final levelIndex in range(levelNumber)) {
+      final [ width, height ] = [ _kDefaultBlockWidth * _kDefaultMazeScale, _kDefaultBlockHeight * _kDefaultMazeScale ]
+      final terrainSize = width * height
 
-    // print(anchors)
+      final currentLevel = TileMap(
+        scene: 'maze_${id}_${levelIndex}',
+        width: width,
+        height: height,
+      )
 
-    possibleEntries[0].nearestAnchor = anchors[1].index
-    possibleEntries[1].nearestAnchor = anchors[3].index
-    possibleEntries[2].nearestAnchor = anchors[7].index
-    possibleEntries[3].nearestAnchor = anchors[9].index
-    
-    engine.info('在锚点放置遭遇')
-    for (final anchor of anchors) {
-      final r = Math.random()
-      if (r < _kEncounterProbability) {
-        final encounterType = encounters.random
-        when (encounterType) {
-          'bandit' -> {
-            final enemyEntity = Bandit()
-            enemyEntity.encounterType = encounterType
-            maze.entities[enemyEntity.id] = enemyEntity
-            final enemyObject = TileMapObject(
-              terrainIndex: anchor.index,
-              left: anchor.left,
-              top: anchor.top,
-              spriteSrc: 'maze/enemy01.png',
-              srcWidth: 32.0,
-              srcHeight: 32.0,
-              entityId: enemyEntity.id,
-            )
-            currentLevel.objects.add(enemyObject)
+      engine.info('生成迷宫地块')
+      final landZone = Zone(index: currentLevel.zones.length, category: kZoneContinent)
+      currentLevel.zones.add(landZone)
+      for (var j in range(height)) {
+        for (var i in range(width)) {
+          // final isVoid = (i == 0) || (i == width - 1) || (j == 0) || (j == height - 1)
+          final terrain = {
+            ...Tile(i + 1, j + 1, mapWidth: width),
+            isVisible: false,
+            isSelectable: true,
+            showGrid: true,
           }
-          'beast' -> {
-            final enemyEntity = Beast()
-            enemyEntity.encounterType = encounterType
-            maze.entities[enemyEntity.id] = enemyEntity
-            final enemyObject = TileMapObject(
-              terrainIndex: anchor.index,
-              left: anchor.left,
-              top: anchor.top,
-              spriteSrc: enemyEntity.icon,
-              srcWidth: 32.0,
-              srcHeight: 32.0,
-              entityId: enemyEntity.id,
-            )
-            currentLevel.objects.add(enemyObject)
+          currentLevel.terrains.add(terrain)
+          addTerrainToZone(terrain, landZone.index, currentLevel)
+        }
+      }
+      
+      engine.info('计算出入口')
+      // 可能的出入口
+      final possibleEntries = [
+        { ...Tile(1, 1, mapWidth: width) },
+        { ...Tile(width, 1, mapWidth: width) },
+        { ...Tile(1, height, mapWidth: width) },
+        { ...Tile(width, height, mapWidth: width) },
+      ]
+      possibleEntries.shuffle()
+      final entry = possibleEntries.first
+      occupied.add(entry.index)
+      currentLevel.entryX = entry.left
+      currentLevel.entryY = entry.top
+      final entryEntity = TileMapObject(
+        terrainIndex: entry.index,
+        left: entry.left,
+        top: entry.top,
+        spriteSrc: 'maze/roadsign01.png',
+        srcWidth: 32.0,
+        srcHeight: 32.0,
+      )
+      currentLevel.objects.add(entryEntity)
+      final exit = possibleEntries.last
+      occupied.add(exit.index)
+      currentLevel.exitX = exit.left
+      currentLevel.exitX = exit.top
+      final exitEntity = TileMapObject(
+        terrainIndex: exit.index,
+        left: exit.left,
+        top: exit.top,
+        spriteSrc: 'maze/roadsign01.png',
+        srcWidth: 32.0,
+        srcHeight: 32.0,
+      )
+      currentLevel.objects.add(exitEntity)
+
+      engine.info('计算随机遭遇的位置')
+      final blockSize = terrainSize / 9
+      var isOnCorner = false
+      // 迷宫中的主要roguelike元素的可能位置锚点，分布在横三竖三的9个区块中
+      // 四个角的锚点需要避免位于可能的出入口上
+      final anchors = {}
+      // 左上角
+      anchors[1] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, 0, 0)
+      // 正上方
+      anchors[2] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth, 0)
+      // 右上角
+      anchors[3] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth * 2, 0)
+      // 左边
+      anchors[4] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, 0, _kDefaultBlockHeight)
+      // 正中
+      anchors[5] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth, _kDefaultBlockHeight)
+      // 右边
+      // 正中
+      anchors[6] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth * 2, _kDefaultBlockHeight)
+      // 左下角
+      anchors[7] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, 0, _kDefaultBlockHeight * 2)
+      // 正下方
+      anchors[8] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth, _kDefaultBlockHeight * 2)
+      // 右下角
+      anchors[9] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth * 2, _kDefaultBlockHeight * 2)
+
+      // print(anchors)
+
+      possibleEntries[0].nearestAnchor = anchors[1].index
+      possibleEntries[1].nearestAnchor = anchors[3].index
+      possibleEntries[2].nearestAnchor = anchors[7].index
+      possibleEntries[3].nearestAnchor = anchors[9].index
+      
+      engine.info('在锚点放置遭遇')
+      for (final anchor of anchors) {
+        final r = Math.random()
+        if (r < _kEncounterProbability) {
+          final encounterType = encounterTypes.random
+          when (encounterType) {
+            'bandit' -> {
+              final enemyEntity = Bandit()
+              enemyEntity.encounterType = encounterType
+              this.entities[enemyEntity.id] = enemyEntity
+              final enemyObject = TileMapObject(
+                terrainIndex: anchor.index,
+                left: anchor.left,
+                top: anchor.top,
+                spriteSrc: 'maze/enemy01.png',
+                srcWidth: 32.0,
+                srcHeight: 32.0,
+                entityId: enemyEntity.id,
+              )
+              currentLevel.objects.add(enemyObject)
+            }
+            'beast' -> {
+              final enemyEntity = Beast(rarity: kCommon)
+              enemyEntity.encounterType = encounterType
+              this.entities[enemyEntity.id] = enemyEntity
+              final enemyObject = TileMapObject(
+                terrainIndex: anchor.index,
+                left: anchor.left,
+                top: anchor.top,
+                spriteSrc: enemyEntity.icon,
+                srcWidth: 32.0,
+                srcHeight: 32.0,
+                entityId: enemyEntity.id,
+              )
+              currentLevel.objects.add(enemyObject)
+            }
+            // 'chest' -> {
+            //   final chest = TileMapObject(
+            //     terrainIndex: anchor.index,
+            //     left: anchor.left,
+            //     top: anchor.top,
+            //     spriteSrc: 'maze/chest02.png',
+            //     srcWidth: 32.0,
+            //     srcHeight: 32.0,
+            //   )
+            //   currentLevel.objects.add(chest)
+            // }
           }
-          // 'chest' -> {
-          //   final chest = TileMapObject(
-          //     terrainIndex: anchor.index,
-          //     left: anchor.left,
-          //     top: anchor.top,
-          //     spriteSrc: 'maze/chest02.png',
-          //     srcWidth: 32.0,
-          //     srcHeight: 32.0,
-          //   )
-          //   currentLevel.objects.add(chest)
+        }
+      }
+
+      // 确保从任意一个角可以到达所有锚点的算法
+      // 链接所有九个锚点的路径一共有9种（字母含义为left, right, top, bottom）：
+      //
+      //     1--tl--2--tr--3
+      //     |      |      |
+      //     lt     ct     rt
+      //     |      |      |
+      //     4--cl--5--cr--6
+      //     |      |      |
+      //     lb     cb     rb
+      //     |      |      |
+      //     7--bl--8--br--9
+      //
+      // 要想让一次可以经过所有的锚点，最少需要8个路径
+      // 为了保证角落和中心必然可以到达，角落和中心会必然单独随机分配一个路径
+      // 剩下的路径则随机分配
+      engine.info('确保各个锚点之间的通路')
+      final routes = Set() // 最终结果
+      final middleAnchors = [2,4,6,8]
+      middleAnchors.shuffle()
+      for (final point in middleAnchors) {
+        routes.addAll(_random2(_kRoutesOfAnchor[point]))
+      }
+      for (final name in routes) {
+        // print('initial routes: ${name}')
+        generateRoute(name, anchors, currentLevel)
+      }
+      // check if there's a unconnected
+      if (!routes.contains('topLeft') && !routes.contains('centerLeft') && !routes.contains('bottomLeft')) {
+        final name = ['topLeft', 'centerLeft', 'bottomLeft'].random
+        // print('add route to blank parallel: ${name}')
+        generateRoute(name, anchors, currentLevel)
+      }
+      if (!routes.contains('topRight') && !routes.contains('centerRight') && !routes.contains('bottomRight')) {
+        final name = ['topRight', 'centerRight', 'bottomRight'].random
+        // print('add route to blank parallel: ${name}')
+        generateRoute(name, anchors, currentLevel)
+      }
+      if (!routes.contains('leftTop') && !routes.contains('centerTop') && !routes.contains('rightTop')) {
+        final name = ['leftTop', 'centerTop', 'rightTop'].random
+        // print('add route to blank parallel: ${name}')
+        generateRoute(name, anchors, currentLevel)
+      }
+      if (!routes.contains('leftBottom') && !routes.contains('centerBottom') && !routes.contains('rightBottom')) {
+        final name = ['leftBottom', 'centerBottom', 'rightBottom'].random
+        // print('add route to blank parallel: ${name}')
+        generateRoute(name, anchors, currentLevel)
+      }
+      // check if there's any anchor left as unconnected
+      final restAnchors = [1,3,5,7,9]
+      for (final anchor in restAnchors) {
+        final index = anchors[anchor].index
+        final tile = currentLevel.terrains[index]
+        if (!tile.isRoute) {
+          final name = _kRoutesOfAnchor[anchor].random
+          // print('add name to empty anchor: ${name}')
+          generateRoute(name, anchors, currentLevel)
+        }
+      }
+      // 最后再联通到入口和出口上
+      _generateRoute(entry.index, entry.nearestAnchor, currentLevel)
+      _generateRoute(exit.index, exit.nearestAnchor, currentLevel)
+
+      // 在非路径非锚点非出入点的地块上生成装饰物
+      engine.info('生成装饰物')
+      final blockZone = Zone(index: currentLevel.zones.length, category: 'block')
+      currentLevel.zones.add(blockZone)
+      for (final tile in currentLevel.terrains) {
+        if (occupied.contains(tile.index) || tile.isRoute) {
+          tile.isSelectable = true
+          tile.spriteIndex = _kLandSprites.random
+        } else {
+          // print('adding decor to ${tile.index}')
+          tile.isVoid = true
+          tile.isSelectable = false
+          addTerrainToZone(tile, blockZone.index, currentLevel)
+          // final blockType = _kBlockTypes.random
+          // when (blockType) {
+          //   'bush' -> {
+          //     final bush = TileMapObject(
+          //       terrainIndex: tile.index,
+          //       left: tile.left,
+          //       top: tile.top,
+          //       spriteSrc: 'maze/bush.png',
+          //       srcWidth: 32.0,
+          //       srcHeight: 48.0,
+          //     )
+          //     currentLevel.objects.add(bush)
+          //   }
+          //   'rock' -> {
+          //     final rock = TileMapObject(
+          //       terrainIndex: tile.index,
+          //       left: tile.left,
+          //       top: tile.top,
+          //       spriteSrc: 'maze/rock.png',
+          //       srcWidth: 32.0,
+          //       srcHeight: 48.0,
+          //     )
+          //     currentLevel.objects.add(rock)
+          //   }
           // }
         }
       }
+      engine.info('生成路标')
+      this.levels.add(currentLevel)
     }
+    
+    engine.info('副本 ${id} 生成完毕')
 
-    // 确保从任意一个角可以到达所有锚点的算法
-    // 链接所有九个锚点的路径一共有9种（字母含义为left, right, top, bottom）：
-    //
-    //     1--tl--2--tr--3
-    //     |      |      |
-    //     lt     ct     rt
-    //     |      |      |
-    //     4--cl--5--cr--6
-    //     |      |      |
-    //     lb     cb     rb
-    //     |      |      |
-    //     7--bl--8--br--9
-    //
-    // 要想让一次可以经过所有的锚点，最少需要8个路径
-    // 为了保证角落和中心必然可以到达，角落和中心会必然单独随机分配一个路径
-    // 剩下的路径则随机分配
-    engine.info('确保各个锚点之间的通路')
-    final routes = Set() // 最终结果
-    final middleAnchors = [2,4,6,8]
-    middleAnchors.shuffle()
-    for (final point in middleAnchors) {
-      routes.addAll(_random2(_kRoutesOfAnchor[point]))
+    if (isOnWorldMap) {
+      world.mazes[this.id] = this
     }
-    for (final name in routes) {
-      // print('initial routes: ${name}')
-      generateRoute(name, anchors, currentLevel)
-    }
-    // check if there's a unconnected
-    if (!routes.contains('topLeft') && !routes.contains('centerLeft') && !routes.contains('bottomLeft')) {
-      final name = ['topLeft', 'centerLeft', 'bottomLeft'].random
-      // print('add route to blank parallel: ${name}')
-      generateRoute(name, anchors, currentLevel)
-    }
-    if (!routes.contains('topRight') && !routes.contains('centerRight') && !routes.contains('bottomRight')) {
-      final name = ['topRight', 'centerRight', 'bottomRight'].random
-      // print('add route to blank parallel: ${name}')
-      generateRoute(name, anchors, currentLevel)
-    }
-    if (!routes.contains('leftTop') && !routes.contains('centerTop') && !routes.contains('rightTop')) {
-      final name = ['leftTop', 'centerTop', 'rightTop'].random
-      // print('add route to blank parallel: ${name}')
-      generateRoute(name, anchors, currentLevel)
-    }
-    if (!routes.contains('leftBottom') && !routes.contains('centerBottom') && !routes.contains('rightBottom')) {
-      final name = ['leftBottom', 'centerBottom', 'rightBottom'].random
-      // print('add route to blank parallel: ${name}')
-      generateRoute(name, anchors, currentLevel)
-    }
-    // check if there's any anchor left as unconnected
-    final restAnchors = [1,3,5,7,9]
-    for (final anchor in restAnchors) {
-      final index = anchors[anchor].index
-      final tile = currentLevel.terrains[index]
-      if (!tile.isRoute) {
-        final name = _kRoutesOfAnchor[anchor].random
-        // print('add name to empty anchor: ${name}')
-        generateRoute(name, anchors, currentLevel)
-      }
-    }
-    // 最后再联通到入口和出口上
-    _generateRoute(entry.index, entry.nearestAnchor, currentLevel)
-    _generateRoute(exit.index, exit.nearestAnchor, currentLevel)
-
-    // 在非路径非锚点非出入点的地块上生成装饰物
-    engine.info('生成装饰物')
-    final blockZone = Zone(index: currentLevel.zones.length, category: 'block')
-    currentLevel.zones.add(blockZone)
-    for (final tile in currentLevel.terrains) {
-      if (occupied.contains(tile.index)) continue
-      if (tile.isRoute) continue
-      // print('adding decor to ${tile.index}')
-      tile.isSelectable = false
-      addTerrainToZone(tile, blockZone.index, currentLevel)
-      final blockType = _kBlockTypes.random
-      when (blockType) {
-        'bush' -> {
-          final bush = TileMapObject(
-            terrainIndex: tile.index,
-            left: tile.left,
-            top: tile.top,
-            spriteSrc: 'maze/bush.png',
-            srcWidth: 32.0,
-            srcHeight: 48.0,
-          )
-          currentLevel.objects.add(bush)
-        }
-        'rock' -> {
-          final rock = TileMapObject(
-            terrainIndex: tile.index,
-            left: tile.left,
-            top: tile.top,
-            spriteSrc: 'maze/rock.png',
-            srcWidth: 32.0,
-            srcHeight: 48.0,
-          )
-          currentLevel.objects.add(rock)
-        }
-      }
-    }
-    engine.info('生成路标')
-    maze.levels.add(currentLevel)
   }
-  
-  engine.info('副本 ${id} 生成完毕')
-
-  if (isOnWorldMap) {
-    world.mazes[maze.id] = maze
-  }
-
-  return maze
 }
 
 // 返回布尔值，如果为真，则玩家控制角色会返回上一格，否则停在这一格

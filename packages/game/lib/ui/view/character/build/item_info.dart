@@ -51,7 +51,6 @@ class ItemInfo extends StatelessWidget {
     final effectData = itemData['effects'] ?? [];
     final effects = <Widget>[];
     for (final data in effectData) {
-      final String? name = data['name'];
       final values = <String>[];
       for (final value in data['values']) {
         final v = value['value'] as num;

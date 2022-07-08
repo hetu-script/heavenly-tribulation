@@ -55,12 +55,14 @@ class _MazeOverlayState extends State<MazeOverlay>
 
     engine.invoke('enterMaze', positionalArgs: [widget.mazeData]);
 
-    engine.hetu.interpreter.bindExternalFunction('gameOver', (HTEntity object,
-        {List<dynamic> positionalArgs = const [],
-        Map<String, dynamic> namedArgs = const {},
-        List<HTType> typeArgs = const []}) {
+    engine.hetu.interpreter.bindExternalFunction('showGameOver',
+        (HTEntity object,
+            {List<dynamic> positionalArgs = const [],
+            Map<String, dynamic> namedArgs = const {},
+            List<HTType> typeArgs = const []}) {
       engine.leaveScene('maze');
-      engine.invoke('leaveMaze');
+      // 脚本调用dart，dart又调用脚本，这种行为应该注意尽量避免
+      // engine.invoke('leaveMaze');
       Navigator.of(context).pop();
       showDialog(
         context: context,

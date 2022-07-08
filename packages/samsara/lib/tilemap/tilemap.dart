@@ -125,6 +125,7 @@ class TileMap extends GameComponent with HandlesGesture {
         final terrainData = terrainsData[index];
         final bool isVisible = terrainData['isVisible'] ?? true;
         final bool isSelectable = terrainData['isSelectable'] ?? false;
+        final bool isVoid = terrainData['isVoid'] ?? false;
         final bool showGrid = terrainData['showGrid'] ?? false;
         final int zoneIndex = terrainData['zoneIndex'];
         final String zoneCategoryString = terrainData['zoneCategory'];
@@ -225,6 +226,7 @@ class TileMap extends GameComponent with HandlesGesture {
           top: j + 1,
           isVisible: isVisible,
           isSelectable: isSelectable,
+          isVoid: isVoid,
           showGrid: showGrid,
           tileMapWidth: tileMapWidth,
           srcWidth: tileSpriteSrcWidth,

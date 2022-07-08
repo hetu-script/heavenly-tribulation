@@ -41,5 +41,5 @@ fun testMaze() {
   characterAcquire(hero, Medicine(rarity: 'common', stackSize: 5))
   characterAcquire(hero, Beverage(rarity: 'common', stackSize: 5))
   setHeroId(hero.id)
-  return createMaze(isOnWorldMap: false)
+  return MountainMaze(isOnWorldMap: false)
 }

@@ -84,6 +84,7 @@ class TileMapTerrain extends GameComponent with TileInfo {
   final String? locationId;
   final String? nationId;
   bool isSelectable;
+  bool isVoid;
   bool showGrid;
 
   // this is set by the tilemap after objects are loaded.
@@ -96,6 +97,7 @@ class TileMapTerrain extends GameComponent with TileInfo {
     required int top,
     bool isVisible = true,
     this.isSelectable = false,
+    this.isVoid = false,
     this.showGrid = false,
     required int tileMapWidth,
     required double srcWidth,
@@ -201,7 +203,7 @@ class TileMapTerrain extends GameComponent with TileInfo {
 
   @override
   void render(Canvas canvas) {
-    // if (!isVisible) return;
+    if (isVoid) return;
     baseSprite?.renderRect(canvas, rect);
     baseAnimation?.getSprite().renderRect(canvas, rect);
     overlaySprite?.renderRect(canvas, rect);
