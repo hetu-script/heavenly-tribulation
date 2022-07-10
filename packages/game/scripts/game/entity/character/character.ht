@@ -21,6 +21,8 @@ const _kCharacterImpressionCheckpoint = 10.0
 const _kCharacterInitialGeneralThinking = 4
 const _kMajorMotivationProbobility = 0.2
 
+const _kCompanionMax = 4
+
 final kMajorMotivations = [
   'duty',
   'pleasure',
@@ -202,8 +204,8 @@ struct Character {
     // // 恶名，知道名字中，对此人差评的人的数量
     // this.infamy = 0
 
-    // NPC类随从，跟随时可以装备他们的物品和技能，并在战斗中使用
-    this.companions = []
+    // NPC类随从，他们单独计算时间和攻击，但他们只有第一个装备会起作用
+    this.companions = {}
 
     // 该角色的家庭关系
     this.relationships = {
@@ -633,6 +635,44 @@ fun haveMet(subject, target) {
   }
 }
 
+fun rejuvenate(character) {
+  character.stats.life = character.attributes.life
+  character.stats.stamina = character.attributes.stamina
+
+  for (var i = 1; i < kEquipmentMax; ++i) {
+    final equipData = character.equipments.offense[i]
+    if (equipData != null) {
+      final item = getEquippedEntity(equipData, character)
+      item.stats.life = item.stats.lifeMax
+    }
+  }
+}
+
+fun getCharacterStats(character) {
+  final stats = {
+    life: character.stats.life,
+    lifeMax: character.stats.lifeMax,
+    chi: character.stats.chi,
+    chiMax: character.stats.chiMax,
+    stamina: character.stats.stamina,
+    staminaMax: character.stats.staminaMax,
+    offense: {},
+    companion: {},
+  }
+  for (var i = 1; i < kEquipmentMax; ++i) {
+    final equipData = character.equipments.offense[i]
+    if (equipData != null) {
+      final item = getEquippedEntity(equipData, character)
+      stats.offense[i] = {
+        life: item.stats.life,
+        lifeMax: item.stats.lifeMax,
+        damage: item.stats.damage,
+      }
+    }
+  }
+  return stats
+}
+
 fun getEquippedItem(equipData, character) {
   var item
   when (equipData.entityType) {
@@ -712,6 +752,65 @@ fun handleCharacterInteraction(characterId) {
   })
 }
 
+fun characterGiveMoneyTo(char1, value, char2) {
+  assert(char1.money >= value)
+  char1.money -= value
+  char2.money += value
+  final incidentContent = getLocaleString('incidentTransferMoney', [
+    char1.name,
+    value.toString(),
+    char2.name,
+  ])
+  Incident(
+    content: incidentContent,
+    subjectIds: char1.isMajorCharacter ? [char1.id] : null,
+    objectIds: char2.isMajorCharacter ? [char2.id] : null,
+    isPrivate: true,
+  )
+}
+
+fun characterGiveItemTo(char1, item, char2) {
+  assert(char1.inventory[item.id] != null)
+  if (item.equippedPosition) uncharacterEquip(item, char1)
+  char2.inventory[item.id] = item
+  final incidentContent = getLocaleString('incidentTransferItem', [
+    char1.name,
+    item.name,
+    char2.name,
+  ])
+  Incident(
+    content: incidentContent,
+    subjectIds: char1.isMajorCharacter ? [char1.id] : null,
+    objectIds: char2.isMajorCharacter ? [char2.id] : null,
+    isPrivate: true,
+  )
+}
+
 fun characterSteal(character, item) {
   throw 'steal is not implemented yet'
+}
+
+// 设定人物的随从，返回值是否成功
+// 随从并非直接将人物数据放在人物上，而是用下面的数据结构
+// {
+//   id,
+//   entityType,
+// }
+fun characterGetCompanion(character, companion) {
+  if (character.companions.length >= _kCompanionMax) {
+    engine.info('${character.name} 的随从数量已满，无法再添加新的随从。')
+    return false
+  }
+  var companionData = {
+    id: companion.id,
+    entityType: companion.entityType,
+  }
+  character.companions[companionData.id] = companionData
+}
+
+fun characterDismissCompanion(character, companion) {
+  delete character.companions[companion.id]
+  if (companion.entityType == kEntityTypeNpc) {
+    delete game.npcs[companion.id]
+  }
 }

@@ -50,8 +50,6 @@ struct Kickboxing {
     this.entityType = kEntityTypeSkill // 人物、地点、物品、技能等等
     this.category = kEntityCategoryKickboxing // 武器、防护、斗技、玄功等等
     this.kind = kind ?? kKickboxingKinds.keys.random // 枪、剑、斧等等
-    this.isEquippable = true
-    this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
     this.rarity = rarity
     this.creatorId = creatorId
     this.createdTime = createdTime
@@ -63,7 +61,10 @@ struct Kickboxing {
     }
     this.color = kRarity[this.rarity].color
     this.id = 'martial_arts_${Hash.uid4(2)}_${this.name}'
-    
+
+    this.isEquippable = true
+    this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
+
     this.icon = kKickboxingIcons.random
     this.attributes = {
       ...kKickboxingKinds[this.kind].attributes,

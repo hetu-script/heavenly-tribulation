@@ -38,7 +38,7 @@ class BattleCards extends StatelessWidget {
     // for (var i = 1; i < _kDefenseItemMax; ++i) {
     //   final equipData = characterData['equipments']['defense'][i];
     //   final item = equipData != null
-    //       ? engine.invoke('getEquippedItem',
+    //       ? engine.invoke('getEquippedEntity',
     //           positionalArgs: [equipData, characterData])
     //       : null;
     //   defenseItems.add(Padding(
@@ -53,7 +53,7 @@ class BattleCards extends StatelessWidget {
     for (var i = 1; i < _kOffenseItemMax; ++i) {
       final equipData = characterData['equipments']['offense'][i];
       final item = equipData != null
-          ? engine.invoke('getEquippedItem',
+          ? engine.invoke('getEquippedEntity',
               positionalArgs: [equipData, characterData])
           : null;
       offenseItems.add(Padding(

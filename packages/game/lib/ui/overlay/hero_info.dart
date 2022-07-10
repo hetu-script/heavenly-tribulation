@@ -86,7 +86,7 @@ class HeroInfoPanel extends StatelessWidget {
                           context: context,
                           barrierColor: Colors.transparent,
                           builder: (context) {
-                            return BuildView(characterId: heroData['id']);
+                            return BuildView(characterData: heroData);
                           },
                         );
                       },

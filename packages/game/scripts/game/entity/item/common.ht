@@ -6,6 +6,22 @@ const kItemDefaultIcon = 'assets/images/unknown_item.png'
 
 const kUnknownItemIcon = 'icon/unknown_item.png'
 
+const kEquipTypeOffense = 'offense'
+const kEquipTypeSupport = 'support'
+const kEquipTypeArcane = 'arcane'
+const kEquipTypeTalisman = 'talisman'
+const kEquipTypeCompanion = 'companion'
+// const kEquipTypeArmor = 'armor'
+// const kEquipTypeBoots = 'boots'
+// const kEquipTypeManeuver = 'maneuver'
+
+const kEquipmentMax = 5
+// const kOffenseEquipmentMax = 5
+// const kSupportEquipmentMax = 4
+// const kArcaneEquipmentMax = 4
+// const kTalismanEquipmentMax = 4
+// const kCompanionEquipmentMax = 5
+
 final kRarity2ItemLevels = {
   common: 10, // common 白
   uncommon: 20, // uncommon 灰
@@ -50,8 +66,8 @@ fun characterAcquire(character, item) {
   )
 }
 
-fun characterLearn(character, item) {
-  character.skills[item.id] = item
+fun characterLearn(character, skill) {
+  character.skills[skill.id] = skill
 }
 
 // 使用食物或者丹药
@@ -91,13 +107,13 @@ fun characterConsume(character, item) {
 
   var incidentContent
   when (item.kind) {
-    kEntityElixirKindBeverage -> {
+    kEntityConsumableKindBeverage -> {
       incidentContent = getLocaleString('characterDrankBeverage', [
         character.name,
         item.name,
       ])
     }
-    kEntityElixirKindMedicine -> {
+    kEntityConsumableKindMedicine -> {
       incidentContent = getLocaleString('characterTakeMedicine', [
         character.name,
         item.name,
@@ -123,48 +139,79 @@ fun characterConsume(character, item) {
 // 法宝和技能都可以装备，只要类型符合
 // 返回值代表是否装备成功
 // 如果对一个不在物品栏中的物品调用，会先将其加入物品栏
+// 
+// 装备并非直接将物品数据放在人物上，而是用下面的数据结构
 // {
 //   id,
+//   entityType,
 //   category,
 //   kind,
+//   equipType,
+//   life,
 //   supports,
 // }
-fun characterEquip(character, item, { index }) -> bool {
-  if (!item.isEquippable) {
-    engine.info('${item.name} 无法装备。')
+fun characterEquip(character, entity, { index }) -> bool {
+  if (!entity.isEquippable) {
+    engine.info('${entity.name} 无法装备。')
     return false
   }
-  if (item.equippedPosition) {
-    engine.info('${item.name} 已经装备在身上了。')
+  if (entity.equippedPosition) {
+    engine.info('${entity.name} 已经在装备中了。')
     return false
   }
   var equipData = {
-    id: item.id,
-    entityType: item.entityType,
-    category: item.category, // 主类型：武器、斗技等
-    kind: item.kind, // 次类型：剑、拳法等
-    equipType: item.equipType,
-    life: item.stats.life,
+    id: entity.id,
+    entityType: entity.entityType,
+    category: entity.category, // 主类型：武器、斗技等
+    kind: entity.kind, // 次类型：剑、拳法等
+    equipType: entity.equipType,
+    life: entity.stats.life,
+    lifeMax: entity.stats.lifeMax,
   }
-  when (item.entityType) {
+  when (entity.entityType) {
     kEntityTypeItem -> {
-      if (!character.inventory[item.id]) characterAcquire(character, item)
+      if (!character.inventory[entity.id]) characterAcquire(character, entity)
     }
     kEntityTypeSkill -> {
-      if (!character.skills[item.id]) characterLearn(character, item)
+      if (!character.skills[entity.id]) characterLearn(character, entity)
+    }
+    kEntityTypeNpc, kEntityTypeCharacter -> {
+      if (!character.companions[entity.id]) characterGetCompanion(character, entity)
     }
   }
   
-  when (item.equipType) {
-    // 斗技、武器、攻击法宝等
-    kEquipTypeOffense -> {
+  when (entity.equipType) {
+    // 剑法、心诀等支持型技能
+    kEquipTypeSupport -> {
+      for (final i in range(1, kSupportEquipmentMax)) {
+        final oldEquipData = character.equipments[kEquipTypeOffense][i]
+        if (oldEquipData && oldEquipData.category == data.category &&
+            oldEquipData.kind == data.kind) {
+          if (oldEquipData.supports.length < _kSupportEquipmentMax - 1) {
+            oldEquipData.supports.add(equipData)
+          } else {
+            // 移除旧装备
+            final oldEntity = getEquippedEntity(oldEquipData.supports.first, character)
+            delete oldEntity.equippedPosition
+            oldEquipData.supports.first = equipData
+          }
+          entity.equippedPosition = i
+          return true
+        }
+      }
+      return false
+    }
+    // kEquipTypeOffense: 斗技、武器、攻击法宝等
+    // kEquipTypeArcane: 内功、轻功等
+    // kEquipTypeTalisman: 护甲、靴子、辅助法宝等
+    kEquipTypeOffense, kEquipTypeArcane, kEquipTypeTalisman -> {
       equipData.supports = []
       // 如果有空位就装备在空位上
       if (!index) {
-        for (final i in range(1, kOffenseEquipmentMax)) {
+        for (final i in range(1, kEquipmentMax)) {
           if (!character.equipments[kEquipTypeOffense][i]) {
             character.equipments[kEquipTypeOffense][i] = equipData
-            item.equippedPosition = i
+            entity.equippedPosition = i
             return true
           }
         }
@@ -172,7 +219,7 @@ fun characterEquip(character, item, { index }) -> bool {
         index = 1
       }
       final oldEquipData = character.equipments[kEquipTypeOffense][1]
-      final oldItem = getEquippedItem(equipData, character)
+      final oldItem = getEquippedEntity(equipData, character)
       delete oldItem.equippedPosition
       character.equipments[kEquipTypeOffense][index] = equipData
       if (equipData.category == oldItem.category && equipData.kind == oldItem.kind) {
@@ -182,99 +229,50 @@ fun characterEquip(character, item, { index }) -> bool {
           delete support.equippedPosition
         }
       }
-      item.equippedPosition = index
+      entity.equippedPosition = index
       return true
     }
-    // 剑法、心诀等支持型技能
-    kEquipTypeSupport -> {
-      for (final i in range(1, kOffenseEquipmentMax)) {
-        final oldEquipData = character.equipments[kEquipTypeOffense][i]
-        if (oldEquipData && oldEquipData.category == data.category &&
-            oldEquipData.kind == data.kind) {
-          if (oldEquipData.supports.length < _kSupportEquipmentMax - 1) {
-            oldEquipData.supports.add(equipData)
-          } else {
-            // 移除旧装备
-            final item = getEquippedItem(oldEquipData.supports.first, character)
-            delete item.equippedPosition
-            oldEquipData.supports.first = equipData
-          }
-          item.equippedPosition = i
-          return true
-        }
-      }
-      return false
-    }
-    // 内功、辅助法宝等
-    kEquipTypeArcane -> {
-      equipData.supports = []
-      // 如果有空位就装备在空位上
-      if (!index) {
-        for (final i in range(1, _kArcaneEquipmentMax)) {
-          if (!character.equipments[kEquipTypeArcane][i]) {
-            character.equipments[kEquipTypeArcane][i] = equipData
-            item.equippedPosition = i
-            return true
-          }
-        }
-        // 否则替换掉第一个空位
-        index = 1
-      }
-      final oldEquipData = character.equipments[kEquipTypeArcane][1]
-      final oldItem = getEquippedItem(equipData, character)
-      delete oldItem.equippedPosition
-      character.equipments[kEquipTypeArcane][index] = equipData
-      if (equipData.category == oldItem.category && equipData.kind == oldItem.kind) {
-        equipData.supports = oldEquipData.supports
-      } else {
-        for (final support in equipData.supports) {
-          delete support.equippedPosition
-        }
-      }
-      item.equippedPosition = index
-      return true
-    }
-    // 护甲、轻功等
-    kEquipTypeProtect, kEquipTypeManeuver -> {
-      equipData.supports = []
-      // 如果有空位就装备在空位上
-      if (!character.equipments[item.equipType]) {
-        character.equipments[item.equipType] = equipData
-        item.equippedPosition = 1
-        return true
-      }
-      // 否则替换掉
-      final oldEquipData = character.equipments[item.equipType]
-      final oldItem = getEquippedItem(equipData, character)
-      delete oldItem.equippedPosition
-      character.equipments[item.equipType] = equipData
-      if (equipData.category == oldItem.category && equipData.kind == oldItem.kind) {
-        equipData.supports = oldEquipData.supports
-      }
-      item.equippedPosition = 1
-      return true
+    else -> {
+      throw '装备数据错误，未知的装备类型：[${entity.equipType}]'
     }
   }
 }
 
-fun characterUnequip(item, character) {
-  assert(item.equippedPosition != null)
-  when (item.equipType) {
-    // 斗技、武器、法宝等
-    kEquipTypeOffense -> {
-      delete character.equipments[kEquipTypeOffense][item.equippedPosition]
-    }
+fun characterUnequip(character, entity) {
+  assert(entity.equippedPosition != null)
+  when (entity.equipType) {
     // 剑法、心诀等支持型技能
     kEquipTypeSupport -> {
-      character.equipments[kEquipTypeOffense][item.equippedPosition]
-        .supports.removeWhere((equipData) => equipData.id == item.id)
+      character.equipments[kEquipTypeOffense][entity.equippedPosition]
+        .supports.removeWhere((equipData) => equipData.id == entity.id)
     }
-    kEquipTypeArcane -> {
-      delete character.equipments[kEquipTypeArcane][item.equippedPosition]
+    kEquipTypeCompanion -> {
+      characterDismissCompanion(character, entity)
     }
-    // 护甲、轻功等
-    kEquipTypeProtect, kEquipTypeManeuver -> {
-      delete character.equipments[item.equipType]
+    // 斗技、武器、法宝等
+    kEquipTypeOffense, kEquipTypeArcane, kEquipTypeTalisman -> {
+      delete character.equipments[entity.equipType][entity.equippedPosition]
     }
   }
+}
+
+fun getEquippedEntity(equipData, character) {
+  if (equipData == null) return null
+  var entity
+  when (equipData.entityType) {
+    kEntityTypeItem -> {
+      entity = character.inventory[equipData.id]
+    }
+    kEntityTypeSkill -> {
+      entity = character.skills[equipData.id]
+    }
+    kEntityTypeNpc -> {
+      entity = game.npcs[equipData.id]
+    }
+    kEntityTypeCharacter -> {
+      entity = game.characters[equipData.id]
+    }
+  }
+  assert(entity != null)
+  return entity
 }

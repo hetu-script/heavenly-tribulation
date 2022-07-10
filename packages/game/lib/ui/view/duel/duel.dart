@@ -9,11 +9,11 @@ import 'battle_cards.dart';
 import '../../avatar.dart';
 import '../../shared/dynamic_color_progressbar.dart';
 import '../character/character.dart';
-import '../enemy/enemy.dart';
+import '../character/npc.dart';
 import '../../../event/events.dart';
 
 const kEntityTypeCharacter = 'character';
-const kEntityTypeEnemy = 'enemy';
+const kEntityTypeNpc = 'npc';
 
 class Duel extends StatefulWidget {
   static Future<bool?> show(BuildContext context, HTStruct char1,
@@ -234,12 +234,12 @@ class _DuelState extends State<Duel> {
                                     characterData: widget.char1);
                               },
                             );
-                          } else if (char1EntityType == kEntityTypeEnemy) {
+                          } else if (char1EntityType == kEntityTypeNpc) {
                             showDialog(
                               context: context,
                               barrierColor: Colors.transparent,
                               builder: (context) {
-                                return EnemyView(enemyData: widget.char1);
+                                return NpcView(npcData: widget.char1);
                               },
                             );
                           }
@@ -283,12 +283,12 @@ class _DuelState extends State<Duel> {
                                     characterData: widget.char2);
                               },
                             );
-                          } else if (char2EntityType == kEntityTypeEnemy) {
+                          } else if (char2EntityType == kEntityTypeNpc) {
                             showDialog(
                               context: context,
                               barrierColor: Colors.transparent,
                               builder: (context) {
-                                return EnemyView(enemyData: widget.char2);
+                                return NpcView(npcData: widget.char2);
                               },
                             );
                           }

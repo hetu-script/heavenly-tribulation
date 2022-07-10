@@ -1,18 +1,14 @@
 import '../battle_entity.ht'
 import '../../common.ht'
+import '../../item/common.ht'
 
-final _kBanditKinds = [
-  'muscle',
-  'killer',
-  'minion',
+final _kCompanionKinds = [
+  'villageWarrior',
 ]
 
-const _kBanditName = 'bandit'
-const _kPirateName = 'pirate'
+const _kCompanionAttributeSum = 300
 
-const _kBanditAttributeSum = 300
-
-struct Bandit {
+struct VillageWarrior {
   construct ({
     birthTimestamp,
     isPirate,
@@ -24,30 +20,24 @@ struct Bandit {
     this.entityType = kEntityTypeNpc
     this.birthTimestamp = birthTimestamp ?? createRandomBirthTimestamp()
     this.icon = 'avatar/general.png'
-    this.kind = kind ?? _kBanditKinds.random
-    this.name = getLocaleString(isPirate ? _kPirateName : _kBanditName) + getLocaleString(this.kind)
-    this.id = 'bandit_${Hash.uid4(2)}_${this.name}'
+    this.kind = kind ?? _kCompanionKinds.random
+    this.name = getLocaleString(this.kind)
+    this.id = '${this.kind}_${Hash.uid4(2)}_${this.name}'
     this.rarity = rarity ?? kCommon
     this.color = kRarity[this.rarity].color
     game.npcs[this.id] = this
+    
+    this.isEquippable = true
+    this.equipType = kEquipTypeCompanion
 
     // 生成战斗单位相关数据，并写入当前对象
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
-    final battleInfo = BattleEntity(attributes: attributes, attributeSum: _kBanditAttributeSum)
+    final battleInfo = BattleEntity(attributes: attributes, attributeSum: _kCompanionAttributeSum)
     this.assign(battleInfo)
 
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
     when (this.kind) {
-      'boss' -> {
-        characterEquip(this, Weapon())
-      }
-      'muscle' -> {
-        characterEquip(this, Weapon())
-      }
-      'killer' -> {
-        characterEquip(this, Weapon())
-      }
-      'minion' -> {
+      'villager' -> {
         characterEquip(this, Weapon())
       }
     }

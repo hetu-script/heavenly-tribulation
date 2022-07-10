@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hetu_script/values.dart';
 
 import '../../../../ui/shared/close_button.dart';
 import '../../../../global.dart';
@@ -9,11 +10,11 @@ import '../../../shared/responsive_route.dart';
 class BuildView extends StatefulWidget {
   const BuildView({
     super.key,
-    this.characterId,
+    required this.characterData,
     this.tabIndex = 0,
   });
 
-  final String? characterId;
+  final HTStruct characterData;
 
   final int tabIndex;
 
@@ -80,17 +81,18 @@ class _BuildViewState extends State<BuildView>
 
   @override
   Widget build(BuildContext context) {
-    final charId = widget.characterId ??
-        ModalRoute.of(context)!.settings.arguments as String;
+    // final charId = widget.characterId ??
+    //     ModalRoute.of(context)!.settings.arguments as String;
 
-    final data = engine.invoke('getCharacterById', positionalArgs: [charId]);
+    // final characterData =
+    //     engine.invoke('getCharacterById', positionalArgs: [charId]);
 
     return ResponsiveRoute(
       size: const Size(700.0, 400.0),
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: Text(data['name']),
+          title: Text(widget.characterData['name']),
           actions: const [ButtonClose()],
         ),
         body: Row(
@@ -100,7 +102,7 @@ class _BuildViewState extends State<BuildView>
               width: 340.0,
               height: 390.0,
               child: EquipmentsView(
-                equipmentsData: data['equipments'],
+                characterData: widget.characterData,
               ),
             ),
             SizedBox(
@@ -119,10 +121,10 @@ class _BuildViewState extends State<BuildView>
                         // controller: _tabController,
                         children: [
                           InventoryView(
-                            inventoryData: data['inventory'],
+                            inventoryData: widget.characterData['inventory'],
                           ),
                           InventoryView(
-                            inventoryData: data['skills'],
+                            inventoryData: widget.characterData['skills'],
                           ),
                         ],
                       ),

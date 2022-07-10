@@ -120,7 +120,7 @@ const kLife = 'life'
 const kStamina = 'stamina'
 
 const kEntityTypeCharacter = 'character'
-const kEntityTypeEnemy = 'enemy'
+const kEntityTypeNpc = 'npc'
 const kEntityTypeItem = 'item'
 const kEntityTypeSkill = 'skill'
 const kEntityCategoryWeapon = 'weapon'
@@ -129,19 +129,9 @@ const kEntityCategoryKickboxing = 'kickboxing'
 const kEntityCategoryProtect = 'protect'
 const kEntityCategoryElixir = 'elixir'
 
-const kEntityElixirKindMedicine = 'medicine'
-const kEntityElixirKindBeverage = 'beverage'
-const kEntityElixirKindAlchemy = 'alchemy'
-
-const kOffenseEquipmentMax = 5
-const kArcaneEquipmentMax = 3
-const kSupportEquipmentMax = 4
-
-const kEquipTypeOffense = 'offense'
-const kEquipTypeSupport = 'support'
-const kEquipTypeProtect = 'protect'
-const kEquipTypeArcane = 'arcane'
-const kEquipTypeManeuver = 'maneuver'
+const kEntityConsumableKindMedicine = 'medicine'
+const kEntityConsumableKindBeverage = 'beverage'
+const kEntityConsumableKindElixir = 'elixir'
 
 fun entityTakeDamage(entity, damage) {
   assert(entity?.stats?.life != null)
@@ -149,9 +139,9 @@ fun entityTakeDamage(entity, damage) {
   if (entity.stats.life < 0) entity.stats.life = 0
 }
 
-const _kCharacterRandomAgeMax = 150
+const _kCharacterRandomAgeMax = 40
 
-fun createRandomBirthTimestamp([min = 1, max = _kCharacterRandomAgeMax]) {
+fun createRandomBirthTimestamp({min = 1, max = _kCharacterRandomAgeMax}) {
   assert(min > 0)
   final age = Math.randomInt(max - min) + min
   final randomDateInAYear = Math.randomInt(kTicksPerYear)

@@ -23,11 +23,12 @@ import 'place/postfix.json' as placePostfix
 import 'place/location.json' as location
 import 'place/zone.json' as zone
 import 'material/material.json' as material
-import 'material/postfix.json' as materialPostfix
 import 'creature/creature.json' as creature
 import 'creature/prefix.json' as creaturePrefix
 import 'creature/strange.json' as strangeCreature
-import 'elixir/elixir.json' as elixir
+import 'consumable/consumable.json' as consumable
+import 'consumable/medicine.json' as medicine
+import 'consumable/beverage.json' as beverage
 import '../entity/common.ht'
 
 export {
@@ -37,7 +38,7 @@ export {
   getSpell,
   getCreature,
   getMaterial,
-  getElixir,
+  getConsumable,
   getTalisman,
   getOrganization,
   getNation,
@@ -303,11 +304,10 @@ final commonElixirNames = [
   // ...commonNames.target,
 ]
 
-fun getElixir(number: int, {category: str, kind: str}) {
+fun getConsumable(number: int, {category: str, kind: str}) {
   final names = []
   for (var i in range(number)) {
     var rarity = 'common'
-    final pre = commonElixirNames.random
     var s = ''
     final r = getRarity()
     if (r.rarityLevel > kRarity.rare.rarityLevel) {
@@ -316,13 +316,25 @@ fun getElixir(number: int, {category: str, kind: str}) {
     rarity = r.rarity
     var c = category
     if (c) {
-      assert(elixir.keys.contains(c))
+      assert(consumable.keys.contains(c))
       c = category
     } else {
-      c = elixir.keys.random
+      c = consumable.keys.random
     }
-    var k = kind ?? elixir[c].random
-    names.add({ name: pre + s + k, category: c, kind: k, rarity })
+    var pre
+    if (rarity == 'common') {
+      if (c == 'medicine') {
+        pre = medicine.random
+      } else if (c == 'beverage') {
+        pre = beverage.random
+      } else {
+        pre = commonElixirNames.random
+      }
+    } else {
+      pre = commonElixirNames.random
+    }
+    var k = kind ?? consumable[c].random
+    names.add({ name: pre + s + k, category: c, rarity })
   }
   return names
 }
@@ -362,7 +374,7 @@ fun getTalisman(number: int, {category, kind, rarity}) {
     } else if (r == 'common') {
       name = m + k
     }
-    names.add({ name, category: c, kind: k, rarity: r })
+    names.add({ name, category: c, rarity: r })
   }
   return names
 }

@@ -1,12 +1,14 @@
 {
+  "beast": "兽",
   "fang": "牙",
   "horn": "角",
   "claw": "爪",
   "hoof": "蹄",
   "eye": "目",
   "tail": "尾",
-  "scale": "鳞",
   "skin": "皮",
+  "scale": "鳞",
+  "bird": "禽",
   "feather": "羽",
   "wings": "翅"
 }

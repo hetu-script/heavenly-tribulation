@@ -3,6 +3,8 @@ import '../../../name/name.ht' as nameGenerator
 import '../../item/weapon/beast_weapon.ht'
 import '../../common.ht'
 
+const _kBeastRandomAgeMax = 150
+
 final _kBeastTypes = [
   'tiger',
   'monkey',
@@ -51,8 +53,8 @@ struct Beast {
     attributes,
     rarity,
   }) {
-    this.entityType = kEntityTypeEnemy
-
+    this.entityType = kEntityTypeNpc
+    this.birthTimestamp = birthTimestamp ?? createRandomBirthTimestamp(max: _kBeastRandomAgeMax)
     this.kind = kind ?? _kBeastTypes.random
     final r = nameGenerator.getCreature(1, category: this.kind, rarity: rarity).first
     this.name = r.name
@@ -60,13 +62,6 @@ struct Beast {
     this.rarity = r.rarity ?? kCommon
     this.color = kRarity[this.rarity].color
     game.npcs[this.id] = this
-
-    // age 的格式是 timestamp, 精确到 tick. 
-    if (birthTimestamp != null) {
-      this.birthTimestamp = birthTimestamp
-    } else {
-      this.birthTimestamp = createRandomBirthTimestamp()
-    }
 
     // 生成战斗单位相关数据，并写入当前对象
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰

@@ -19,8 +19,8 @@ struct Beverage {
     this.name = name
     this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
     this.category = kEntityCategoryElixir // 武器、防护、斗技、玄功等等
-    this.kind = kEntityElixirKindBeverage // 枪、剑、斧等等
-    this.rarity = rarity
+    this.kind = kEntityConsumableKindBeverage // 枪、剑、斧等等
+    this.rarity = rarity ?? kCommon
     this.value = value ?? 0
     this.isConsumable = true
     this.creatorId = creatorId
@@ -29,7 +29,8 @@ struct Beverage {
     this.attributes = attributes
     this.stackSize = stackSize
     if (!this.name) {
-      final r = nameGenerator.getElixir(1, category: this.kind, rarity: this.rarity).first
+      if (this.rarity )
+      final r = nameGenerator.getConsumable(1, category: this.kind, rarity: this.rarity).first
       this.name = r.name
       this.rarity ??= r.rarity
     }

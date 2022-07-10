@@ -8,7 +8,7 @@ import '../avatar.dart';
 import '../../global.dart';
 import '../../event/events.dart';
 import '../view/character/character.dart';
-import '../view/enemy/enemy.dart';
+import '../view/character/npc.dart';
 
 class GameDialog extends StatefulWidget {
   static Future<void> show(
@@ -128,7 +128,7 @@ class _GameDialogState extends State<GameDialog> {
                                 context: context,
                                 barrierColor: Colors.transparent,
                                 builder: (context) {
-                                  return EnemyView(enemyData: _characterData!);
+                                  return NpcView(npcData: _characterData!);
                                 },
                               );
                             } else {

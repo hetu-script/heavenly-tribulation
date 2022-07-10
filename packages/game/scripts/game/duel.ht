@@ -1,6 +1,7 @@
 import 'game.ht'
 import 'l10n.ht'
 import 'entity/common.ht'
+import 'entity/character/character.ht'
 
 /// 战斗模块
 /// 输入战斗相关角色的对象
@@ -10,18 +11,7 @@ external fun _showDuel(context, char1, char2, [ type, data ])
 
 fun showDuel(char1, char2, { type, onCallback: ( any ) -> any }) -> Future {
   final duelResult = Duel(char1, char2, type: type);
-  // if (duelResult.started) {
-    return _showDuel(buildContext, char1, char2, type, duelResult)
-  // } else {
-  //   if (duelResult.result) {
-  //     final message = getLocaleString('enemyEmptyHands', [char2.name])
-  //     showDialogByStrings([message], character: char2)
-  //   } else {
-  //     final messages = getLocaleString('emptyHands').split('\n')
-  //     showDialogByStrings(messages, character: char1)
-  //   }
-  // }
-  // return duelResult
+  return _showDuel(buildContext, char1, char2, type, duelResult)
 }
 
 // damage = ((1 / (Math.log((victim.defense + 5) / 100) + 5)) * 2 * attacker._attack)
@@ -30,15 +20,15 @@ const kDuelTypePractice = 'practice'
 const kDuelTypeSneakAttack = 'sneakAttack'
 const _kDuelticksLimit = 500
 
-fun _attack(offenseItem, defenseItem, log) {
-  var offset = 0
-  final defenseValue = defenseItem.stats.defense ?? 0
-  if (defenseValue > 0) {
-    offset = Math.gaussianNoise(defenseValue, defenseValue * 0.25, min: defenseValue * 0.5 max: defenseValue)
-  }
-  final damage = offenseItem.stats.damage - offset
-  return damage
-}
+// fun _attack(offenseItem, defenseItem, log) {
+  // var offset = 0
+  // final defenseValue = defenseItem.stats.defense ?? 0
+  // if (defenseValue > 0) {
+  //   offset = Math.gaussianNoise(defenseValue, defenseValue * 0.25, min: defenseValue * 0.5 max: defenseValue)
+  // }
+  // final damage = offenseItem.stats.damage - offset
+  // return damage
+// }
 
 struct Log {
   construct ({
@@ -65,25 +55,26 @@ struct Duel {
       char2: [],
     }
 
+    // 保存战斗开始时双方的初始状态
+    this.initialStats = {
+      char1: getCharacterStats(char1),
+      char2: getCharacterStats(char1),
+    }
+    
     final char1info = {
       ticks: 0,
       offenseItems: char1.equipments.offense, // 进攻手段列表
       activatedIndex: 1, // 当前激活的进攻手段
       // 复制出来的人物当前状态，包括生命值等
-      stats: getCharacterStats(char1),
+      stats: initialStats.char1.clone(),
     }
     final char2info = {
       ticks: 0,
       offenseItems: char2.equipments.offense,
       activatedIndex: 1,
-      stats: getCharacterStats(char2),
+      stats: initialStats.char2.clone(),
     }
-    // 保存战斗开始时双方的初始状态
-    this.initialStats = {
-      char1: char1info.stats.clone(),
-      char2: char2info.stats.clone(),
-    }
-    
+
     this.started = false
     if (char1.equipments.offense.isEmpty) {
       // 如果没有装备任何武器或者战斗技能，则直接判负
@@ -97,8 +88,8 @@ struct Duel {
       this.tied = false
       // 战斗本身的客观时间，不会受任何因素影响
       this.frames = 0
-      char1info.activatedOffense = getEquippedItem(char1info.offenseItems.values.first, char1)
-      char2info.activatedOffense = getEquippedItem(char2info.offenseItems.values.first, char2)
+      char1info.activatedOffense = getEquippedEntity(char1info.offenseItems.values.first, char1)
+      char2info.activatedOffense = getEquippedEntity(char2info.offenseItems.values.first, char2)
 
       // 设置人物当前防护物品位置，0 = 无防护物品
       // fun setNextActivatedDefenseItem(info, character) {
@@ -138,7 +129,8 @@ struct Duel {
         final initiativeValue = initiativeSum * Math.random()
         if (char1.attributes.perception > initiativeValue) {
           // this.messages.add(getLocaleString('sneakAttackSuccess', [char1.name]))
-          final damage = _attack(char1info.activatedOffense, char2)
+          // final damage = _attack(char1info.activatedOffense, char2)
+          final damege = offenseItem.stats.damage
           entityTakeDamage(type == kDuelTypePractice ? char2info : char2, damage)
           final message = getLocaleString('attackInfo', [
             char1.name,
@@ -164,7 +156,8 @@ struct Duel {
           // 出招等待阶段
           if (info.ticks >= info.activatedOffense.stats.speed) {
             // 出招
-            final damage = _attack(info.activatedOffense, target)
+            // final damage = _attack(info.activatedOffense, target)
+            final damege = offenseItem.stats.damage
             final message = getLocaleString('attackInfo', [
               subject.name, 
               info.activatedOffense.name,
@@ -192,7 +185,7 @@ struct Duel {
               info.activatedIndex = 1
             }
             info.activatedOffense =
-              getEquippedItem(info.offenseItems[info.activatedIndex], subject)
+              getEquippedEntity(info.offenseItems[info.activatedIndex], subject)
           } else {
             ++info.ticks
           }

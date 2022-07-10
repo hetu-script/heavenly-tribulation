@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../character/build/item_grid.dart';
+import '../character/build/entity_grid.dart';
 import 'cooldown.dart';
 import '../../../global.dart';
 import '../character/build/item_info.dart';
@@ -53,13 +53,13 @@ class OffenseItemCard extends StatelessWidget {
         ),
         borderRadius: kBorderRadius,
       ),
-      child: ItemGrid(
-        itemData: itemData,
+      child: EntityGrid(
+        entityData: itemData,
         hasBorder: false,
         onSelect: (item, screenPosition) =>
             _onItemTapped(context, item, screenPosition),
         child: CustomPaint(
-          size: kItemGridDefaultSize,
+          size: kDefaultGridSize,
           painter: CoolDownPainter(
             value: isSelected ? cooldownValue : 0,
             color: cooldownColor,

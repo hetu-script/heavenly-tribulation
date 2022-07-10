@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import 'item_grid.dart';
+import 'entity_grid.dart';
 import 'item_info.dart';
 import '../../../../global.dart';
 import '../../../../event/events.dart';
@@ -115,8 +115,8 @@ class _InventoryViewState extends State<InventoryView> {
 
         grids.add(Padding(
           padding: const EdgeInsets.all(5.0),
-          child: ItemGrid(
-            itemData: itemData,
+          child: EntityGrid(
+            entityData: itemData,
             isEquipped: isEquipped,
             onSelect: (item, screenPosition) =>
                 _onItemTapped(context, item, screenPosition),
@@ -125,7 +125,7 @@ class _InventoryViewState extends State<InventoryView> {
       } else {
         grids.add(Padding(
           padding: const EdgeInsets.all(5.0),
-          child: ItemGrid(
+          child: EntityGrid(
             onSelect: (item, screenPosition) =>
                 _onItemTapped(context, item, screenPosition),
           ),

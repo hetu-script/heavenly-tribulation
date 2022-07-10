@@ -29,14 +29,17 @@
 
   "attributes": "属性",
   "strength": "力量",
-  "dexterity": "敏捷",
   "constitution": "体质",
-  "superpower": "灵力",
-  "perception": "感知",
+  "spirituality": "灵性",
+  "willpower": "念力",
+  "dexterity": "敏捷",
   "intelligence": "智慧",
-  "leadership": "统帅",
-  "management": "政务",
+  "perception": "感知",
   "charisma": "魅力",
+
+  "knowledgement": "知识",
+  "leadership": "领导",
+  "management": "政务",
 
   "relationship": "家庭关系",
   "father": "父亲",

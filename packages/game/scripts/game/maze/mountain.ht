@@ -17,25 +17,27 @@ const _kDefaultBlockHeight = 4
 const _kDefaultMazeScale = 3
 final _kDefaultBlockNumber = _kDefaultMazeScale * _kDefaultMazeScale
 
-const _kEncounterProbability = 0.5
+const _kEncounterProbability = 0.35
+const _kLevelUniqueEncounterProbability = 0.15
+const _kMazeUniqueEncounterProbability = 0.075
 
 final _kEncounterTypes = [
-  'bandit',
-  'beast',
-  // 'pileOfBones',
-  // 'chest',
-  // 'lostTraveller',
-  // 'ancientTree',
-  // 'woodcutter',
-  // 'fisherman',
-  // 'hunter',
-  // 'peddler',
+  'bandit', // 获得武器，在anchor生成
+  'beast', // 获得野兽材料，在anchor生成
 ]
 
-final _kUniqueEncounterTypes = [
+final _kLevelUniqueEncounterTypes = [
+  'peddler', // 在anchor生成，购买酒、药恢复体力和生命（但buff效果不会离开副本）
+  // 'woodcutter', // 买卖草木材料
+  // 'hunter', // 买卖野兽材料
+  // 'tree', // 获得草木材料，在邻近道路的地方生成
+  // 'bones', // 获得银两、秘籍，在邻近道路的地方生成
+]
+
+final _kMazeUniqueEncounterTypes = [
+  'vigilantePeasant', //（随从离开副本就会离队）
   'trappedAdventurer',
   'anotherAdventurer',
-  'vigilantePeasant',
   'uniqueTreasure',
   'undercoverCaptor',
   'undercoverRoyalGuard',
@@ -149,15 +151,14 @@ fun gameOver {
 /// 地图之间通过出入口或者传送点互相连接
 struct MountainMaze {
   construct ({
-    name = 'unknown_maze',
+    name = 'mountain_maze',
     levelNumber = 1,
     isOnWorldMap = true,
     tileset = 'mountain',
-    encounterTypes = _kEncounterTypes,
   }) {
     this.name = name
     this.id = 'maze_${Hash.uid4(2)}_${name}'
-    engine.info('开始生成副本: [${id}]')
+    engine.info('开始生成副本: [${this.id}]')
 
     this.levels = [] // 每一层是一个单独的 tilemap
     this.currentLevel =0
@@ -190,7 +191,7 @@ struct MountainMaze {
       final terrainSize = width * height
 
       final currentLevel = TileMap(
-        scene: 'maze_${id}_${levelIndex}',
+        scene: 'maze_${this.id}_level_${levelIndex}',
         width: width,
         height: height,
       )
@@ -284,8 +285,22 @@ struct MountainMaze {
       engine.info('在锚点放置遭遇')
       for (final anchor of anchors) {
         final r = Math.random()
-        if (r < _kEncounterProbability) {
-          final encounterType = encounterTypes.random
+        if (r < _kMazeUniqueEncounterProbability) {
+          final encounterType = _kMazeUniqueEncounterTypes
+          when (encounterType) {
+            'bandit' -> {
+
+            }
+          }
+        } else if (r < _kLevelUniqueEncounterProbability) {
+          final encounterType = _kLevelUniqueEncounterTypes
+          when (encounterType) {
+            'bandit' -> {
+
+            }
+          }
+        } else if (r < _kEncounterProbability) {
+          final encounterType = _kEncounterTypes.random
           when (encounterType) {
             'bandit' -> {
               final enemyEntity = Bandit()
@@ -295,7 +310,7 @@ struct MountainMaze {
                 terrainIndex: anchor.index,
                 left: anchor.left,
                 top: anchor.top,
-                spriteSrc: 'maze/enemy01.png',
+                spriteSrc: 'maze/bandit.png',
                 srcWidth: 32.0,
                 srcHeight: 32.0,
                 entityId: enemyEntity.id,
@@ -317,17 +332,6 @@ struct MountainMaze {
               )
               currentLevel.objects.add(enemyObject)
             }
-            // 'chest' -> {
-            //   final chest = TileMapObject(
-            //     terrainIndex: anchor.index,
-            //     left: anchor.left,
-            //     top: anchor.top,
-            //     spriteSrc: 'maze/chest02.png',
-            //     srcWidth: 32.0,
-            //     srcHeight: 32.0,
-            //   )
-            //   currentLevel.objects.add(chest)
-            // }
           }
         }
       }
@@ -439,7 +443,7 @@ struct MountainMaze {
       this.levels.add(currentLevel)
     }
     
-    engine.info('副本 ${id} 生成完毕')
+    engine.info('副本 ${this.id} 生成完毕')
 
     if (isOnWorldMap) {
       world.mazes[this.id] = this
@@ -492,6 +496,7 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
                         isPrivate: true,
                       )
                       removeEntity(left, top)
+                      game.npcs.remove(entity.id)
                     } else {
                       gameOver()
                     }
@@ -520,6 +525,7 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
                         isPrivate: true,
                       )
                       removeEntity(left, top)
+                      game.npcs.remove(entity.id)
                     } else {
                       gameOver()
                     }
@@ -540,6 +546,7 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
                       isPrivate: true,
                     )
                     removeEntity(left, top)
+                    game.npcs.remove(entity.id)
                   } else {
                     gameOver()
                   }
@@ -554,6 +561,7 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
       showDuel(hero, entity).then((value) {
         if (value) {
           removeEntity(left, top)
+          game.npcs.remove(entity.id)
         } else {
           gameOver()
         }

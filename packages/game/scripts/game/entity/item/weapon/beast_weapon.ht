@@ -7,6 +7,7 @@ import '../../../l10n.ht'
 
 final _kEffects = ['parry', 'counter']
 
+final kBeast = 'beast'
 final kBeastWeaponKindClaw = 'claw'
 final kBeastWeaponKindFang = 'fang'
 
@@ -50,7 +51,11 @@ struct BeastWeapon {
     this.beastName = beastName
     this.kind = kind
     this.rarity = rarity ?? kCommon
-    this.name = beastName + getLocaleString(kind)
+    if (this.rarity == kCommon) {
+      this.name = getLocaleString(kBeast) + getLocaleString(kind)
+    } else {
+      this.name = beastName + getLocaleString(kind)
+    }
     this.color = kRarity[this.rarity].color
     this.id = 'beast_bodypart_${Hash.uid4(2)}_${this.name}'
     this.isEquippable = true

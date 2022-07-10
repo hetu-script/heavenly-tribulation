@@ -7,6 +7,7 @@ import 'entity/character/enemy/bandit.ht'
 import 'entity/character/enemy/beast.ht'
 import 'entity/item/item.ht'
 import 'maze/maze.ht'
+import 'entity/character/companion/villager.ht'
 
 // 测试物品：主角获取指定数量的武器，必须在游戏开始后才可以使用
 fun getWeapon([n = 1]) {
@@ -40,6 +41,7 @@ fun testMaze() {
   characterEquip(hero, Weapon())
   characterAcquire(hero, Medicine(rarity: 'common', stackSize: 5))
   characterAcquire(hero, Beverage(rarity: 'common', stackSize: 5))
+  characterEquip(hero, VillageWarrior())
   setHeroId(hero.id)
   return MountainMaze(isOnWorldMap: false)
 }

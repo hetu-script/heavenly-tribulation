@@ -86,6 +86,7 @@ flutter:
     - scripts/game/
     - scripts/game/entity/
     - scripts/game/entity/character/
+    - scripts/game/entity/character/companion/
     - scripts/game/entity/character/enemy/
     - scripts/game/entity/item/
     - scripts/game/entity/item/consumable/
@@ -95,9 +96,9 @@ flutter:
     - scripts/game/quest/
     - scripts/game/maze/
     - scripts/game/name/
-    - scripts/game/name/elixir/
     - scripts/game/name/book/
     - scripts/game/name/character/
+    - scripts/game/name/consumable/
     - scripts/game/name/creature/
     - scripts/game/name/material/
     - scripts/game/name/organization/

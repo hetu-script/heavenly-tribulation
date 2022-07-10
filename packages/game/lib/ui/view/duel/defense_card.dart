@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../character/build/item_grid.dart';
+import '../character/build/entity_grid.dart';
 import '../../../global.dart';
 import '../character/build/item_info.dart';
 import '../character/character.dart';
@@ -76,8 +76,8 @@ class DefenseItemCard extends StatelessWidget {
             ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 5.0),
-            child: ItemGrid(
-              itemData: itemData,
+            child: EntityGrid(
+              entityData: itemData,
               hasBorder: false,
               onSelect: (item, screenPosition) =>
                   _onItemTapped(context, item, screenPosition),

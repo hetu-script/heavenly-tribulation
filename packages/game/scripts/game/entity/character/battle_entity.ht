@@ -2,13 +2,13 @@ import '../common.ht'
 
 final kCharacterAttributeNames = [
   'strength',
-  'dexterity',
   'constitution',
-  'superpower',
-  'perception',
+  'spirituality',
+  'willpower',
+  'dexterity',
   'intelligence',
-  'leadership',
-  'management',
+  'perception',
+  'charisma',
 ]
 
 const _kCharacterAttributeMinValue = 1
@@ -34,10 +34,10 @@ struct BattleEntity {
     // 装备栏的位置和数量是固定的
     // 每个位置都是一个EquipSlot形式的对象
     this.equipments = {
-      defense: null, // 防具只能装备一个
-      maneuver: null, // 靴子只能装备一个
-      arcane: {}, // 可以装备多个内功、辅助法宝
-      offense: {}, // 可以装备多个武器、斗技、进攻法宝
+      talisman: {}, // 防具、靴子、辅助法宝总共可以装备 4 个
+      arcane: {}, // 内功、轻功总共可以装备 4 个
+      offense: {}, // 武器、斗技、进攻法宝总共可以装备 4 个
+      companion: {}, // 随从总共可以装备 4 个
     }
 
     // 属性点数数值
@@ -102,74 +102,4 @@ fun calculateCharacterStats(character) {
   character.stats.lifeMax = character.stats.life
   character.stats.chiMax = character.stats.chi
   character.stats.staminaMax = character.stats.stamina
-}
-
-fun rejuvenate(character) {
-  character.stats.life = character.attributes.life
-  character.stats.stamina = character.attributes.stamina
-
-  for (var i = 1; i < kOffenseEquipmentMax; ++i) {
-    final equipData = character.equipments.offense[i]
-    if (equipData != null) {
-      final item = getEquippedItem(equipData, character)
-      item.stats.life = item.stats.lifeMax
-    }
-  }
-}
-
-fun getCharacterStats(character) {
-  final stats = {
-    life: character.stats.life,
-    lifeMax: character.stats.lifeMax,
-    chi: character.stats.chi,
-    chiMax: character.stats.chiMax,
-    stamina: character.stats.stamina,
-    staminaMax: character.stats.staminaMax,
-    equipments: {},
-  }
-  for (var i = 1; i < kOffenseEquipmentMax; ++i) {
-    final equipData = character.equipments.offense[i]
-    if (equipData != null) {
-      final item = getEquippedItem(equipData, character)
-      stats.equipments[i] = {
-        life: item.stats.life,
-        lifeMax: item.stats.lifeMax,
-      }
-    }
-  }
-  return stats
-}
-
-fun characterGiveMoneyTo(char1, value, char2) {
-  assert(char1.money >= value)
-  char1.money -= value
-  char2.money += value
-  final incidentContent = getLocaleString('incidentTransferMoney', [
-    char1.name,
-    value.toString(),
-    char2.name,
-  ])
-  Incident(
-    content: incidentContent,
-    subjectIds: char1.isMajorCharacter ? [char1.id] : null,
-    objectIds: char2.isMajorCharacter ? [char2.id] : null,
-    isPrivate: true,
-  )
-}
-
-fun characterGiveItemTo(char1, item, char2) {
-  assert(char1.inventory[item.id] != null)
-  if (item.equippedPosition) uncharacterEquip(item, char1)
-  char2.inventory[item.id] = item
-  final incidentContent = getLocaleString('incidentTransferItem', [
-    char1.name,
-    item.name,
-    char2.name,
-  ])
-  Incident(
-    content: incidentContent,
-    subjectIds: char1.isMajorCharacter ? [char1.id] : null,
-    objectIds: char2.isMajorCharacter ? [char2.id] : null,
-    isPrivate: true,
-  )
 }

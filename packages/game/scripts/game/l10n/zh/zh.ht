@@ -1,4 +1,5 @@
 import 'character.json' as character
+import 'companion.json' as companion
 import 'creature.json' as creature
 import 'dialog.json' as dialog
 import 'duel.json' as duel
@@ -21,6 +22,7 @@ import 'world_map.json' as worldMap
 
 final zh = {
   ...character,
+  ...companion,
   ...creature,
   ...dialog,
   ...duel,

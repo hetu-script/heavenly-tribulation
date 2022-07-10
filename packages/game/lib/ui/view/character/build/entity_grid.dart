@@ -3,13 +3,13 @@ import 'package:hetu_script/values.dart';
 
 import '../../../../global.dart';
 
-const kItemGridDefaultSize = Size(48.0, 48.0);
+const kDefaultGridSize = Size(48.0, 48.0);
 
-class ItemGrid extends StatelessWidget {
-  const ItemGrid({
+class EntityGrid extends StatelessWidget {
+  const EntityGrid({
     super.key,
-    this.size = kItemGridDefaultSize,
-    this.itemData,
+    this.size = kDefaultGridSize,
+    this.entityData,
     required this.onSelect,
     this.hasBorder = true,
     this.isSelected = false,
@@ -19,7 +19,7 @@ class ItemGrid extends StatelessWidget {
   });
 
   final Size size;
-  final HTStruct? itemData;
+  final HTStruct? entityData;
   final void Function(HTStruct item, Offset screenPosition) onSelect;
   final bool hasBorder;
   final bool isSelected, isEquipped;
@@ -28,19 +28,19 @@ class ItemGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String? iconAssetKey = itemData?['icon'];
-    final int stackSize = itemData?['stackSize'] ?? 1;
+    final String? iconAssetKey = entityData?['icon'];
+    final int stackSize = entityData?['stackSize'] ?? 1;
 
     return GestureDetector(
       onTapUp: (TapUpDetails details) {
-        if (itemData != null) {
-          onSelect(itemData!, details.globalPosition);
+        if (entityData != null) {
+          onSelect(entityData!, details.globalPosition);
         }
       },
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: Tooltip(
-          message: itemData?['name'] ?? '',
+          message: entityData?['name'] ?? '',
           child: Container(
               width: size.width,
               height: size.height,
