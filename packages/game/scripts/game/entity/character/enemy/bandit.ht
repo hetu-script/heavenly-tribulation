@@ -18,18 +18,22 @@ struct Bandit {
     isPirate,
     kind,
     rarity,
+    description,
     attributes,
     attributeSum,
   }) {
     this.entityType = kEntityTypeNpc
     this.birthTimestamp = birthTimestamp ?? createRandomBirthTimestamp()
     this.icon = 'avatar/general.png'
+    this.category = kEntityCategoryCharacter
     this.kind = kind ?? _kBanditKinds.random
     this.name = getLocaleString(isPirate ? _kPirateName : _kBanditName) + getLocaleString(this.kind)
     this.id = 'bandit_${Hash.uid4(2)}_${this.name}'
     this.rarity = rarity ?? kCommon
     this.color = kRarity[this.rarity].color
     game.npcs[this.id] = this
+
+    this.description = description ?? ''
 
     // 生成战斗单位相关数据，并写入当前对象
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰

@@ -109,7 +109,7 @@ class SamsaraEngine with SceneController, EventAggregator {
     if (!isMainMod && _mainModName != null) switchMod(_mainModName!);
   }
 
-  bool switchMod(String id) => hetu.interpreter.switchModule(id);
+  void switchMod(String id) => hetu.interpreter.switchModule(id);
 
   /// Initialize the engine, must be called within
   /// the initState() of Flutter widget,

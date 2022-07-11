@@ -2,15 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 import 'package:samsara/util.dart';
 
-import '../../../../global.dart';
-import '../../../shared/rrect_icon.dart';
+import '../../global.dart';
+import '../shared/rrect_icon.dart';
 // import '../../../shared/close_button.dart';
 
 const _kItemInfoWidth = 390.0;
 
-const kEquipTypeOffense = 'offense';
+// entityType决定了该对象的数据结构和保存位置
+const kEntityTypeCharacter = 'character'; //game.characters
+const kEntityTypeNpc = 'npc'; //game.npcs
+const kEntityTypeItem = 'item'; //character.inventory
+const kEntityTypeSkill = 'skill'; //character.skills
 
+// category是界面上显示的对象类型文字
+const kEntityCategoryCharacter = 'character';
+const kEntityCategoryBeast = 'beast';
 const kEntityCategoryWeapon = 'weapon';
+const kEntityCategoryTalisman = 'talisman';
+const kEntityCategoryConsumable = 'consumable';
+const kEntityCategoryFightSkill = 'fightSkill';
+
+const kEntityConsumableKindMedicine = 'medicine';
+const kEntityConsumableKindBeverage = 'beverage';
+const kEntityConsumableKindElixir = 'elixir';
+
+const kEquipTypeOffense = 'offense';
+const kEquipTypeSupport = 'support';
+const kEquipTypeArcane = 'arcane';
+const kEquipTypeTalisman = 'talisman';
+const kEquipTypeCompanion = 'companion';
 
 class ItemInfo extends StatelessWidget {
   const ItemInfo({
@@ -42,6 +62,7 @@ class ItemInfo extends StatelessWidget {
 
     final stackSize = itemData['stackSize'] ?? 1;
 
+    final entityType = itemData['entityType'];
     final category = itemData['category'];
     final equipType = itemData['equipType'];
 
@@ -139,7 +160,8 @@ class ItemInfo extends StatelessWidget {
                       children: [
                         Text(
                             '${engine.locale[category]} - ${engine.locale[itemData['kind']]}'),
-                        Text(engine.locale[itemData['rarity']]),
+                        if (entityType == kEntityTypeItem)
+                          Text(engine.locale[itemData['rarity']]),
                       ],
                     ),
                     if (stackSize > 1)

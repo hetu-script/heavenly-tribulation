@@ -204,13 +204,13 @@ fun characterEquip(character, entity, { index }) -> bool {
     // kEquipTypeOffense: 斗技、武器、攻击法宝等
     // kEquipTypeArcane: 内功、轻功等
     // kEquipTypeTalisman: 护甲、靴子、辅助法宝等
-    kEquipTypeOffense, kEquipTypeArcane, kEquipTypeTalisman -> {
+    kEquipTypeOffense, kEquipTypeArcane, kEquipTypeTalisman, kEquipTypeCompanion -> {
       equipData.supports = []
       // 如果有空位就装备在空位上
       if (!index) {
         for (final i in range(1, kEquipmentMax)) {
-          if (!character.equipments[kEquipTypeOffense][i]) {
-            character.equipments[kEquipTypeOffense][i] = equipData
+          if (!character.equipments[entity.equipType][i]) {
+            character.equipments[entity.equipType][i] = equipData
             entity.equippedPosition = i
             return true
           }
@@ -218,10 +218,10 @@ fun characterEquip(character, entity, { index }) -> bool {
         // 否则替换掉第一个空位
         index = 1
       }
-      final oldEquipData = character.equipments[kEquipTypeOffense][1]
+      final oldEquipData = character.equipments[entity.equipType][1]
       final oldItem = getEquippedEntity(equipData, character)
       delete oldItem.equippedPosition
-      character.equipments[kEquipTypeOffense][index] = equipData
+      character.equipments[entity.equipType][index] = equipData
       if (equipData.category == oldItem.category && equipData.kind == oldItem.kind) {
         equipData.supports = oldEquipData.supports
       } else {
@@ -231,9 +231,6 @@ fun characterEquip(character, entity, { index }) -> bool {
       }
       entity.equippedPosition = index
       return true
-    }
-    else -> {
-      throw '装备数据错误，未知的装备类型：[${entity.equipType}]'
     }
   }
 }

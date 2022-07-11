@@ -48,7 +48,7 @@ struct Kickboxing {
   }) {
     this.name = name
     this.entityType = kEntityTypeSkill // 人物、地点、物品、技能等等
-    this.category = kEntityCategoryKickboxing // 武器、防护、斗技、玄功等等
+    this.category = kEntityCategoryFightSkill // 武器、防护、斗技、玄功等等
     this.kind = kind ?? kKickboxingKinds.keys.random // 枪、剑、斧等等
     this.rarity = rarity
     this.creatorId = creatorId

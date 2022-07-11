@@ -11,9 +11,9 @@ import '../../shared/dynamic_color_progressbar.dart';
 import '../character/character.dart';
 import '../character/npc.dart';
 import '../../../event/events.dart';
+import '../item_info.dart';
 
 const kEntityTypeCharacter = 'character';
-const kEntityTypeNpc = 'npc';
 
 class Duel extends StatefulWidget {
   static Future<bool?> show(BuildContext context, HTStruct char1,

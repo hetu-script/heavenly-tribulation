@@ -3,8 +3,7 @@
 
   "category": "类型",
   "weapon": "武器",
-  "protect": "防具",
-  "elixir": "食物",
+  "consumable": "食物",
 
   "kind": "类型",
   "sabre": "刀",

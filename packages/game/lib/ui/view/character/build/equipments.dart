@@ -3,7 +3,7 @@ import 'package:heavenly_tribulation/global.dart';
 import 'package:hetu_script/values.dart';
 
 import 'entity_grid.dart';
-import 'item_info.dart';
+import '../../item_info.dart';
 
 class EquipmentsView extends StatelessWidget {
   const EquipmentsView({

@@ -138,6 +138,7 @@ struct Character {
     locationId,
     nationId,
     isNewborn = false, // 是否是新生儿，如果是则会自动为其添加父母关系
+    description,
     fatherId,
     motherId,
     attributes,
@@ -146,7 +147,6 @@ struct Character {
     worldPositionX,
     worldPositionY,
   }) {
-    this.entityType = kEntityTypeCharacter
     if (isFemale != null) {
       this.isFemale = isFemale
     } else {
@@ -171,6 +171,8 @@ struct Character {
     }
     assert(this.name != null)
     this.isMajorCharacter = isMajorCharacter
+    this.entityType = kEntityTypeCharacter
+    this.category = kEntityCategoryCharacter
     if (isMajorCharacter) {
       this.id = 'character_${game.characters.length}_${this.name}'
       game.characters[this.id] = this
@@ -196,6 +198,9 @@ struct Character {
     }
     // titles中直接保存了称号字符串
     this.currentTitleId = kNone
+
+    this.description = description ?? ''
+
     this.organizationRank = 0
  
     // 有多少人知道此人的名字

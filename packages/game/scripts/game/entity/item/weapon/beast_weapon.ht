@@ -48,8 +48,12 @@ struct BeastWeapon {
   }) {
     assert(beastName != null)
     assert(kind != null)
+    this.entityType = kEntityTypeItem
+    this.category = kEntityCategoryWeapon
     this.beastName = beastName
     this.kind = kind
+    this.isEquippable = true
+    this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
     this.rarity = rarity ?? kCommon
     if (this.rarity == kCommon) {
       this.name = getLocaleString(kBeast) + getLocaleString(kind)
@@ -58,10 +62,6 @@ struct BeastWeapon {
     }
     this.color = kRarity[this.rarity].color
     this.id = 'beast_bodypart_${Hash.uid4(2)}_${this.name}'
-    this.isEquippable = true
-    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
-    this.category = kEntityCategoryWeapon // 武器、防护、斗技、玄功等等
-    this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
     this.isBodyPart = true
     this.value = value ?? 0
     this.description = description ?? ''

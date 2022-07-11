@@ -3,12 +3,9 @@ import 'package:hetu_script/values.dart';
 
 import '../character/build/entity_grid.dart';
 import '../../../global.dart';
-import '../character/build/item_info.dart';
+import '../item_info.dart';
 import '../character/character.dart';
 import '../../shared/dynamic_color_progressbar.dart';
-
-const kEntityTypeCharacter = 'character';
-const kEntityTypeItem = 'item';
 
 class DefenseItemCard extends StatelessWidget {
   const DefenseItemCard({
@@ -34,7 +31,9 @@ class DefenseItemCard extends StatelessWidget {
         context: context,
         barrierColor: Colors.transparent,
         builder: (context) {
-          if (item['entityType'] == kEntityTypeItem) {
+          if (item['entityType'] == kEntityTypeItem ||
+              item['entityType'] == kEntityTypeSkill ||
+              item['entityType'] == kEntityTypeNpc) {
             return ItemInfo(
               itemData: item,
               left: screenPosition.dx,

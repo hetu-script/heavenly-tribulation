@@ -14,18 +14,22 @@ struct VillageWarrior {
     isPirate,
     kind,
     rarity,
+    description,
     attributes,
     attributeSum,
   }) {
     this.entityType = kEntityTypeNpc
     this.birthTimestamp = birthTimestamp ?? createRandomBirthTimestamp()
     this.icon = 'avatar/general.png'
+    this.category = kEntityCategoryCharacter
     this.kind = kind ?? _kCompanionKinds.random
     this.name = getLocaleString(this.kind)
     this.id = '${this.kind}_${Hash.uid4(2)}_${this.name}'
     this.rarity = rarity ?? kCommon
     this.color = kRarity[this.rarity].color
     game.npcs[this.id] = this
+    
+    this.description = description ?? ''
     
     this.isEquippable = true
     this.equipType = kEquipTypeCompanion

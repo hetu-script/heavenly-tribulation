@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import 'entity_grid.dart';
-import 'item_info.dart';
+import '../../item_info.dart';
 import '../../../../global.dart';
 import '../../../../event/events.dart';
 

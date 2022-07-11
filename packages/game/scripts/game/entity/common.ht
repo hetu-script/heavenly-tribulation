@@ -119,15 +119,19 @@ fun getMappedRarityValue(valueMap) {
 const kLife = 'life'
 const kStamina = 'stamina'
 
-const kEntityTypeCharacter = 'character'
-const kEntityTypeNpc = 'npc'
-const kEntityTypeItem = 'item'
-const kEntityTypeSkill = 'skill'
+// entityType决定了该对象的数据结构和保存位置
+const kEntityTypeCharacter = 'character' //game.characters
+const kEntityTypeNpc = 'npc' //game.npcs
+const kEntityTypeItem = 'item' //character.inventory
+const kEntityTypeSkill = 'skill' //character.skills
+
+// category是界面上显示的对象类型文字
+const kEntityCategoryCharacter = 'character'
+const kEntityCategoryBeast = 'beast'
 const kEntityCategoryWeapon = 'weapon'
-const kEntityCategoryWeaponSupport = 'weaponSupport'
-const kEntityCategoryKickboxing = 'kickboxing'
-const kEntityCategoryProtect = 'protect'
-const kEntityCategoryElixir = 'elixir'
+const kEntityCategoryTalisman = 'talisman'
+const kEntityCategoryConsumable = 'consumable'
+const kEntityCategoryFightSkill = 'fightSkill'
 
 const kEntityConsumableKindMedicine = 'medicine'
 const kEntityConsumableKindBeverage = 'beverage'

@@ -4,7 +4,7 @@ import 'package:hetu_script/values.dart';
 import '../character/build/entity_grid.dart';
 import 'cooldown.dart';
 import '../../../global.dart';
-import '../character/build/item_info.dart';
+import '../item_info.dart';
 
 class OffenseItemCard extends StatelessWidget {
   const OffenseItemCard({
