@@ -34,7 +34,8 @@ struct Zone {
 
 struct TileMap {
   construct ({
-    scene,
+    id,
+    name,
     width,
     height,
     terrainSpriteSheet = 'fantasyhextiles_v3_borderless.png',
@@ -48,7 +49,8 @@ struct TileMap {
     entryX = 1,
     entryY = 1,
   }) {
-    this.scene = scene
+    this.id = id
+    this.name = name
     this.width = width
     this.height = height
     this.terrainSpriteSheet = terrainSpriteSheet

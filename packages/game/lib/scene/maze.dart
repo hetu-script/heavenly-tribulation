@@ -10,7 +10,7 @@ class MazeScene extends Scene {
   HTStruct mapData;
 
   MazeScene({required this.mapData, required super.controller})
-      : super(key: 'maze');
+      : super(id: mapData['id'], key: 'maze');
 
   bool isMapReady = false;
 

@@ -43,6 +43,8 @@ class _MazeOverlayState extends State<MazeOverlay>
 
   late int _currentLevelIndex;
 
+  bool _isDisposing = false;
+
   // late final HTStruct _heroData;
 
   @override
@@ -55,20 +57,19 @@ class _MazeOverlayState extends State<MazeOverlay>
 
     engine.invoke('enterMaze', positionalArgs: [widget.mazeData]);
 
-    engine.hetu.interpreter.bindExternalFunction('showGameOver',
+    engine.hetu.interpreter.bindExternalFunction(
+        'showGameOver',
         (HTEntity object,
-            {List<dynamic> positionalArgs = const [],
-            Map<String, dynamic> namedArgs = const {},
-            List<HTType> typeArgs = const []}) {
-      engine.leaveScene('maze');
-      // 脚本调用dart，dart又调用脚本，这种行为应该注意尽量避免
-      // engine.invoke('leaveMaze');
-      Navigator.of(context).pop();
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => const GameOver(),
-      );
-    }, override: true);
+                {List<dynamic> positionalArgs = const [],
+                Map<String, dynamic> namedArgs = const {},
+                List<HTType> typeArgs = const []}) =>
+            // 脚本调用dart，dart又调用脚本，这种行为应该注意尽量避免
+            // engine.invoke('leaveMaze');
+            showDialog(
+              context: context,
+              builder: (BuildContext context) => const GameOver(),
+            ),
+        override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
         'moveHeroToLastRouteNode',
@@ -97,6 +98,42 @@ class _MazeOverlayState extends State<MazeOverlay>
       final int top = positionalArgs[1];
       final tile = _scene.map.getTerrain(left, top);
       tile?.object = null;
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('proceedToNextLevel',
+        (HTEntity object,
+            {List<dynamic> positionalArgs = const [],
+            Map<String, dynamic> namedArgs = const {},
+            List<HTType> typeArgs = const []}) {
+      assert(_currentLevelIndex < widget.mazeData['levels'].length);
+      setState(() {
+        ++_currentLevelIndex;
+      });
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('backToPreviousLevel',
+        (HTEntity object,
+            {List<dynamic> positionalArgs = const [],
+            Map<String, dynamic> namedArgs = const {},
+            List<HTType> typeArgs = const []}) {
+      assert(_currentLevelIndex > 0);
+      setState(() {
+        --_currentLevelIndex;
+      });
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('disposeMaze',
+        (HTEntity object,
+            {List<dynamic> positionalArgs = const [],
+            Map<String, dynamic> namedArgs = const {},
+            List<HTType> typeArgs = const []}) {
+      Navigator.of(context).pop();
+      for (final level in widget.mazeData['levels']) {
+        final id = level['id'];
+        engine.clearCache(id);
+      }
+      // 这里使用isDisposing来阻止在界面重绘时再次创建场景
+      _isDisposing = true;
     }, override: true);
 
     engine.registerListener(
@@ -177,6 +214,7 @@ class _MazeOverlayState extends State<MazeOverlay>
                     tile.left,
                     tile.top,
                     widget.mazeData,
+                    _currentLevelIndex,
                   ],
                 );
                 if (blocked) {
@@ -209,12 +247,14 @@ class _MazeOverlayState extends State<MazeOverlay>
     // FlameAudio.bgm.stop();
     // FlameAudio.bgm.dispose();
 
-    _scene.detach();
+    // _scene.detach();
     super.dispose();
   }
 
-  Future<Scene> _createLevel(HTStruct levelData) async {
-    final scene = await engine.createScene('maze', levelData) as MazeScene;
+  Future<Scene?> _createLevel(HTStruct levelData) async {
+    if (_isDisposing) return null;
+    final scene = await engine.createScene('maze', levelData['id'], levelData)
+        as MazeScene;
     _heroData = engine.invoke('getHero');
     return scene;
   }
@@ -263,8 +303,6 @@ class _MazeOverlayState extends State<MazeOverlay>
                         case MazeDropMenuItems.quit:
                           engine.invoke('leaveMaze',
                               positionalArgs: [widget.mazeData]);
-                          engine.leaveScene('maze');
-                          Navigator.of(context).pop();
                           break;
                         default:
                       }
@@ -275,6 +313,8 @@ class _MazeOverlayState extends State<MazeOverlay>
                   left: 0,
                   bottom: 0,
                   child: HistoryPanel(
+                    title:
+                        '${widget.mazeData['name']} ${widget.mazeData['levels'][_currentLevelIndex]['name']}',
                     heroId: _heroData?['id'],
                     historyData: widget.mazeData['history'],
                   ),

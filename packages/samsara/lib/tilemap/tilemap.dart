@@ -62,7 +62,7 @@ class TileMap extends GameComponent with HandlesGesture {
 
   static Future<TileMap> fromData(
       {required SamsaraEngine engine, required dynamic mapData}) async {
-    final sceneKey = mapData['scene'];
+    final sceneKey = mapData['id'];
     final tileShapeData = mapData['tileShape'];
     var tileShape = TileShape.orthogonal;
     if (tileShapeData == 'isometric') {

@@ -1,6 +1,8 @@
 {
   "bandit": "山贼",
   "pirate": "海贼",
+  "merchant": "商人",
+  "peddler": "行贩",
 
   "boss": "头目",
   "muscle": "打手",
@@ -8,7 +10,5 @@
   "minion": "喽啰",
 
   "companion": "随从",
-  "villageWarrior": "村汉",
-
-  "peddler": "担贩"
+  "villageWarrior": "村汉"
 }

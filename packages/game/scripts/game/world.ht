@@ -59,6 +59,7 @@ const _kCharacterMarriageAgeMax = 40
 const _kPregnancyAgeMax = 40
 
 fun createWorldMap({
+    id,
     style = 'island',
     terrainSpriteSheet: str,
     worldScale = _kDefaultWorldScale,
@@ -68,6 +69,7 @@ fun createWorldMap({
     characterNumber = _kDefaultCharacterNumber,
     landProportion = 0.55,
   }) {
+  assert(id != null)
   assert(organizationNumber < locationNumber)
   assert(organizationNumber < characterNumber)
   
@@ -87,7 +89,7 @@ fun createWorldMap({
   // 生成过程中，引入了一些别的文件中的函数
   // 他们可能会通过game.world访问, 因此这里直接使用全局变量
   game.world = TileMap(
-    scene: 'worldmap',
+    id: id,
     width: width,
     height: height,
   )

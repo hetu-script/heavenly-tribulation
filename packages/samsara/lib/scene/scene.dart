@@ -8,16 +8,17 @@ import '../gestures/gesture_mixin.dart';
 abstract class Scene extends FlameGame {
   static const overlayUIBuilderMapKey = 'overlayUI';
 
-  final String key;
+  final String id, key;
   final SceneController controller;
 
   Scene({
+    required this.id,
     required this.key,
     required this.controller,
   });
 
   void end() {
-    controller.leaveScene(key);
+    controller.leaveScene(id);
   }
 
   Vector2 get screenCenter => size / 2;

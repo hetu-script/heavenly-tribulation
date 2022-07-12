@@ -7,11 +7,14 @@ import '../../global.dart';
 class HistoryPanel extends StatelessWidget {
   const HistoryPanel({
     super.key,
+    this.title,
     this.heroId,
     this.retraceMessageCount = 50,
     this.showGlobalIncident = true,
     this.historyData,
   });
+
+  final String? title;
 
   final String? heroId;
 
@@ -58,7 +61,9 @@ class HistoryPanel extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(engine.invoke('getCurrentDateTimeString')),
+              if (title != null) Text(title!),
+              if (title == null)
+                Text(engine.invoke('getCurrentDateTimeString')),
               const Divider(
                 color: kForegroundColor,
               ),

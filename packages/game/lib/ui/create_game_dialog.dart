@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 
 import '../global.dart';
 import 'shared/responsive_window.dart';
+import 'util.dart';
 
 const _kWorldScaleLabel = {
-  1: "tiny",
-  2: "medium",
-  3: "huge",
-  4: "massive",
+  1: 'tiny',
+  2: 'medium',
+  3: 'huge',
+  4: 'massive',
 };
 
 const _kMaxNationNumberPerWorldScale = {
@@ -259,10 +260,11 @@ class _CreateGameDialogState extends State<CreateGameDialog> {
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pop({
-                      "worldScale": _worldScale,
-                      "nationNumber": _nationNumber,
-                      "organizationNumber": _organizationNumber,
-                      "characterNumber": _characterNumber,
+                      'id': 'world_${uid4(2)}',
+                      'worldScale': _worldScale,
+                      'nationNumber': _nationNumber,
+                      'organizationNumber': _organizationNumber,
+                      'characterNumber': _characterNumber,
                     });
                   },
                   child: Text(engine.locale['continue']),

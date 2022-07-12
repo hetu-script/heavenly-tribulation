@@ -1,26 +1,28 @@
-import '../tile/hexagonal_tile.ht'
 import '../tile/tilemap.ht'
+import '../tile/hexagonal_tile.ht'
 import '../game.ht'
 import '../tile/object.ht'
 import '../entity/character/enemy/bandit.ht'
 import '../entity/character/enemy/beast.ht'
 import '../entity/common.ht'
-import '../binding/maze.ht'
 import '../entity/character/merchant/peddler.ht'
+import '../l10n.ht'
+import 'common.ht'
+import '../binding/maze.ht'
+
+fun leaveMaze(maze) {
+  localHistory = null
+  // 移除所有临时npc
+  for (final entity of maze.entities) {
+    delete game.npcs[entity.id]
+  }
+  disposeMaze()
+}
 
 final _kLandSprites = [
   kSpriteLand,
   kSpriteGrassLand,
 ]
-
-const _kDefaultBlockWidth = 4
-const _kDefaultBlockHeight = 4
-const _kDefaultMazeScale = 3
-final _kDefaultBlockNumber = _kDefaultMazeScale * _kDefaultMazeScale
-
-const _kEncounterProbability = 0.65
-const _kLevelUniqueEncounterProbability = 0.15
-const _kMazeUniqueEncounterProbability = 0.075
 
 final _kEncounterTypes = [
   'bandit', // 获得武器，在anchor生成
@@ -62,90 +64,6 @@ final _kBlockTypes = [
   'bush',
   'rock',
 ]
-
-// 所有路径名字
-final _kRoutes = [
-  'topLeft',
-  'topRight',
-  'leftTop',
-  'centerTop',
-  'rightTop',
-  'centerLeft',
-  'centerRight',
-  'leftBottom',
-  'centerBottom',
-  'rightBottom',
-  'bottomLeft',
-  'bottomRight',
-]
-
-// 每个锚点所连接的路径
-final _kRoutesOfAnchor = {
-  '1': ['topLeft', 'topRight'],
-  '2': ['topLeft', 'topRight', 'centerTop'],
-  '3': ['topRight', 'rightTop'],
-  '4': ['leftTop', 'centerLeft', 'leftBottom'],
-  '5': ['centerTop', 'centerLeft', 'centerRight', 'centerBottom'],
-  '6': ['rightTop', 'centerRight', 'rightBottom'],
-  '7': ['leftBottom', 'bottomLeft'],
-  '8': ['bottomLeft', 'bottomRight', 'centerBottom'],
-  '9': ['rightBottom', 'bottomRight'],
-}
-
-fun _random2(list) {
-  final l = list.toList()
-  l.shuffle()
-  return [l.first, l.last]
-}
-
-// 执行这个函数时地图尚未生成，因此不需要考虑zone，所以无需使用真正的terrain来计算
-fun _generateRoute(index1, index2, map) {
-  final tile1 = index2TilePos(index1, map.width)
-  final tile2 = index2TilePos(index2, map.width)
-  // print('generate route from ${tile1} to ${tile2}')
-  final route = calculateRoute(tile1, tile2, map)
-  // print(route)
-  if (route) {
-    for (final index in route) {
-      final terrain = map.terrains[index]
-      terrain.isRoute = true
-    }
-  } else {
-    final terrain = map.terrains[index1]
-    terrain.isRoute = true
-  }
-}
-
-fun generateRoute(name, anchors, map) {
-  when (name) {
-    'topLeft' -> _generateRoute(anchors[1].index, anchors[2].index, map)
-    'topRight' -> _generateRoute(anchors[2].index, anchors[3].index, map)
-    'leftTop' -> _generateRoute(anchors[1].index, anchors[4].index, map)
-    'centerTop' -> _generateRoute(anchors[2].index, anchors[5].index, map)
-    'rightTop' -> _generateRoute(anchors[3].index, anchors[6].index, map)
-    'centerLeft' -> _generateRoute(anchors[4].index, anchors[5].index, map)
-    'centerRight' -> _generateRoute(anchors[5].index, anchors[6].index, map)
-    'leftBottom' -> _generateRoute(anchors[4].index, anchors[7].index, map)
-    'centerBottom' -> _generateRoute(anchors[5].index, anchors[8].index, map)
-    'rightBottom' -> _generateRoute(anchors[6].index, anchors[9].index, map)
-    'bottomLeft' -> _generateRoute(anchors[7].index, anchors[8].index, map)
-    'bottomRight' -> _generateRoute(anchors[8].index, anchors[9].index, map)
-  }
-}
-
-// fun addMazeObject(object, map) {
-//   if (object.entityId) {
-//     final tileIndex = tilePos2Index(object.left, object.top, map.width)
-//     final tile = map.terrains[tileIndex]
-//     tile.objectIndex = map.objects.length
-//   }
-//   map.objects.add(object)
-// }
-
-fun mazeGameOver(maze) {
-  showGameOver()
-  leaveMaze(maze)
-}
 
 /// 生成Roguelike副本的算法
 /// 一个Maze包含多个地图，每个地图是一个单独的tilemap
@@ -192,11 +110,12 @@ struct MountainMaze {
     for (final levelIndex in range(levelNumber)) {
       final levelUniqueEncounters = Set()
 
-      final [ width, height ] = [ _kDefaultBlockWidth * _kDefaultMazeScale, _kDefaultBlockHeight * _kDefaultMazeScale ]
+      final [ width, height ] = [ kDefaultBlockWidth * kDefaultMazeScale, kDefaultBlockHeight * kDefaultMazeScale ]
       final terrainSize = width * height
 
       final currentLevel = TileMap(
-        scene: 'maze_${this.id}_level_${levelIndex}',
+        id: '${this.id}_level_${levelIndex}',
+        name: getLocaleString('level', [levelIndex + 1]),
         width: width,
         height: height,
       )
@@ -231,28 +150,40 @@ struct MountainMaze {
       occupied.add(entry.index)
       currentLevel.entryX = entry.left
       currentLevel.entryY = entry.top
-      final entryEntity = TileMapObject(
+      final entryEntity = {
+        id: 'level_${levelIndex}_entry',
+        encounterType: 'level_entry',
+      }
+      this.entities[entryEntity.id] = entryEntity
+      final entryObject = TileMapObject(
         terrainIndex: entry.index,
         left: entry.left,
         top: entry.top,
         spriteSrc: 'maze/roadsign01.png',
         srcWidth: 32.0,
         srcHeight: 32.0,
+        entityId: entryEntity.id,
       )
-      currentLevel.objects.add(entryEntity)
+      currentLevel.objects.add(entryObject)
       final exit = possibleEntries.last
       occupied.add(exit.index)
       currentLevel.exitX = exit.left
       currentLevel.exitX = exit.top
-      final exitEntity = TileMapObject(
+      final exitEntity = {
+        id: 'level_${levelIndex}_exit',
+        encounterType: 'level_exit',
+      }
+      this.entities[exitEntity.id] = exitEntity
+      final exitObject = TileMapObject(
         terrainIndex: exit.index,
         left: exit.left,
         top: exit.top,
         spriteSrc: 'maze/roadsign01.png',
         srcWidth: 32.0,
         srcHeight: 32.0,
+        entityId: exitEntity.id,
       )
-      currentLevel.objects.add(exitEntity)
+      currentLevel.objects.add(exitObject)
 
       engine.info('计算随机遭遇的位置')
       final blockSize = terrainSize / 9
@@ -261,24 +192,24 @@ struct MountainMaze {
       // 四个角的锚点需要避免位于可能的出入口上
       final anchors = {}
       // 左上角
-      anchors[1] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, 0, 0)
+      anchors[1] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, 0, 0)
       // 正上方
-      anchors[2] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth, 0)
+      anchors[2] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, kDefaultBlockWidth, 0)
       // 右上角
-      anchors[3] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth * 2, 0)
+      anchors[3] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, kDefaultBlockWidth * 2, 0)
       // 左边
-      anchors[4] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, 0, _kDefaultBlockHeight)
+      anchors[4] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, 0, kDefaultBlockHeight)
       // 正中
-      anchors[5] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth, _kDefaultBlockHeight)
+      anchors[5] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, kDefaultBlockWidth, kDefaultBlockHeight)
       // 右边
       // 正中
-      anchors[6] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth * 2, _kDefaultBlockHeight)
+      anchors[6] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, kDefaultBlockWidth * 2, kDefaultBlockHeight)
       // 左下角
-      anchors[7] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, 0, _kDefaultBlockHeight * 2)
+      anchors[7] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, 0, kDefaultBlockHeight * 2)
       // 正下方
-      anchors[8] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth, _kDefaultBlockHeight * 2)
+      anchors[8] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, kDefaultBlockWidth, kDefaultBlockHeight * 2)
       // 右下角
-      anchors[9] = randomPosition(_kDefaultBlockWidth, _kDefaultBlockHeight, width, _kDefaultBlockWidth * 2, _kDefaultBlockHeight * 2)
+      anchors[9] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, kDefaultBlockWidth * 2, kDefaultBlockHeight * 2)
 
       // print(anchors)
 
@@ -290,7 +221,7 @@ struct MountainMaze {
       engine.info('在锚点放置遭遇')
       for (final anchor of anchors) {
         final r = Math.random()
-        if (r < _kMazeUniqueEncounterProbability) {
+        if (r < kMazeUniqueEncounterProbability) {
           _kMazeUniqueEncounterTypes.shuffle()
           var encounterType
           for (final encounter in _kMazeUniqueEncounterTypes) {
@@ -307,7 +238,7 @@ struct MountainMaze {
           }
         }
         
-        if (r < _kLevelUniqueEncounterProbability) {
+        if (r < kLevelUniqueEncounterProbability) {
           _kLevelUniqueEncounterTypes.shuffle()
           var encounterType
           for (final encounter in _kLevelUniqueEncounterTypes) {
@@ -320,6 +251,7 @@ struct MountainMaze {
           when (encounterType) {
             'peddler' -> {
               final peddler = Peddler()
+              peddler.money += 1000
               characterAcquire(peddler, Medicine(rarity: 'common'), 20)
               characterAcquire(peddler, Beverage(rarity: 'common'), 20)
               peddler.encounterType = encounterType
@@ -339,7 +271,7 @@ struct MountainMaze {
           }
         }
 
-        if (r < _kEncounterProbability) {
+        if (r < kEncounterProbability) {
           final encounterType = _kEncounterTypes.random
           when (encounterType) {
             'bandit' -> {
@@ -397,32 +329,34 @@ struct MountainMaze {
       final middleAnchors = [2,4,6,8]
       middleAnchors.shuffle()
       for (final point in middleAnchors) {
-        routes.addAll(_random2(_kRoutesOfAnchor[point]))
+        final l = kRoutesOfAnchor[point].toList()
+        l.shuffle()
+        routes.addAll([l.first, l.last])
       }
       for (final name in routes) {
         // print('initial routes: ${name}')
-        generateRoute(name, anchors, currentLevel)
+        generateRouteByName(name, anchors, currentLevel)
       }
       // check if there's a unconnected
       if (!routes.contains('topLeft') && !routes.contains('centerLeft') && !routes.contains('bottomLeft')) {
         final name = ['topLeft', 'centerLeft', 'bottomLeft'].random
         // print('add route to blank parallel: ${name}')
-        generateRoute(name, anchors, currentLevel)
+        generateRouteByName(name, anchors, currentLevel)
       }
       if (!routes.contains('topRight') && !routes.contains('centerRight') && !routes.contains('bottomRight')) {
         final name = ['topRight', 'centerRight', 'bottomRight'].random
         // print('add route to blank parallel: ${name}')
-        generateRoute(name, anchors, currentLevel)
+        generateRouteByName(name, anchors, currentLevel)
       }
       if (!routes.contains('leftTop') && !routes.contains('centerTop') && !routes.contains('rightTop')) {
         final name = ['leftTop', 'centerTop', 'rightTop'].random
         // print('add route to blank parallel: ${name}')
-        generateRoute(name, anchors, currentLevel)
+        generateRouteByName(name, anchors, currentLevel)
       }
       if (!routes.contains('leftBottom') && !routes.contains('centerBottom') && !routes.contains('rightBottom')) {
         final name = ['leftBottom', 'centerBottom', 'rightBottom'].random
         // print('add route to blank parallel: ${name}')
-        generateRoute(name, anchors, currentLevel)
+        generateRouteByName(name, anchors, currentLevel)
       }
       // check if there's any anchor left as unconnected
       final restAnchors = [1,3,5,7,9]
@@ -430,14 +364,14 @@ struct MountainMaze {
         final index = anchors[anchor].index
         final tile = currentLevel.terrains[index]
         if (!tile.isRoute) {
-          final name = _kRoutesOfAnchor[anchor].random
+          final name = kRoutesOfAnchor[anchor].random
           // print('add name to empty anchor: ${name}')
-          generateRoute(name, anchors, currentLevel)
+          generateRouteByName(name, anchors, currentLevel)
         }
       }
       // 最后再联通到入口和出口上
-      _generateRoute(entry.index, entry.nearestAnchor, currentLevel)
-      _generateRoute(exit.index, exit.nearestAnchor, currentLevel)
+      generateRouteByIndex(entry.index, entry.nearestAnchor, currentLevel)
+      generateRouteByIndex(exit.index, exit.nearestAnchor, currentLevel)
 
       // 在非路径非锚点非出入点的地块上生成装饰物
       engine.info('生成装饰物')
@@ -492,12 +426,54 @@ struct MountainMaze {
 }
 
 // 返回布尔值，如果为真，则玩家控制角色会返回上一格，否则停在这一格
-fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
+fun handleMazeEntityInteraction(entityId, left, top, maze, currentLevelIndex) -> bool {
   final hero = getHero()
   final entity = maze.entities[entityId]
   assert(entity != null)
-  engine.info('地图对象互动事件：[${entity.encounterType}: ${entity.id}]')
+  engine.info('地图对象互动事件：[${entity.encounterType}: ${entity.id}](${left}, ${top})')
   when (entity.encounterType) {
+    'level_entry' -> {
+      var selections
+      if (currentLevelIndex == 0) {
+        selections = [
+          'leaveMaze',
+          'cancel',
+        ]
+      } else {
+        selections = [
+          'backToPreviousLevel',
+          'cancel',
+        ]
+      }
+      showSelectionByLocaleKeys(selections).then((key) =>
+        when (key) {
+          'leaveMaze' -> leaveMaze(maze)
+          'backToPreviousLevel' -> backToPreviousLevel()
+        }
+      )
+      return false
+    }
+    'level_exit' -> {
+      var selections
+      if (currentLevelIndex == maze.levels.length) {
+        selections = [
+          'leaveMaze',
+          'cancel',
+        ]
+      } else {
+        selections = [
+          'proceedToNextLevel',
+          'cancel',
+        ]
+      }
+      showSelectionByLocaleKeys(selections).then((key) =>
+        when (key) {
+          'proceedToNextLevel' -> proceedToNextLevel()
+          'leaveMaze' -> leaveMaze(maze)
+        }
+      )
+      return false
+    }
     'bandit' -> {
       final messages = getLocaleString('mazeBandit01').split('/n')
       showDialogByStrings(messages, character: entity).then((value) {
@@ -536,7 +512,7 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
                         isPrivate: true,
                       )
                       removeEntity(left, top)
-                      game.npcs.remove(entity.id)
+                      delete game.npcs[entity.id]
                     } else {
                       mazeGameOver(maze)
                     }
@@ -565,7 +541,7 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
                         isPrivate: true,
                       )
                       removeEntity(left, top)
-                      game.npcs.remove(entity.id)
+                      delete game.npcs[entity.id]
                     } else {
                       mazeGameOver(maze)
                     }
@@ -586,7 +562,7 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
                       isPrivate: true,
                     )
                     removeEntity(left, top)
-                    game.npcs.remove(entity.id)
+                    delete game.npcs[entity.id]
                   } else {
                     mazeGameOver(maze)
                   }
@@ -608,24 +584,26 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
       })
     }
     'peddler' -> {
-      showDialogByStrings([getLocaleString('fightBandit')], character: hero)
-      .then( (value) => 
-        showDuel(hero, entity).then((value) {
-          if (value) {
-            final incidentContent = getLocaleString('duelVistory', [ hero.name, entity.name ] )
-            Incident(
-              content: incidentContent,
-              subjectIds: [hero.id],
-              isPrivate: true,
-            )
-            removeEntity(left, top)
-            game.npcs.remove(entity.id)
-          } else {
-            mazeGameOver(maze)
+      final messages = getLocaleString('peddlerDialogIntro').split('/n')
+      showDialogByStrings(messages, character: entity)
+      .then((value) {
+        final selections = [
+          'askForDirections',
+          'trade',
+          'rob',
+          'attack',
+          'sneakAttack',
+          'cancel',
+        ]
+        showSelectionByLocaleKeys(selections)
+        .then((key) {
+          when (key) {
+            'trade' -> {
+              showMerchant(entity)
+            }
           }
         })
-      )
-      showMerchant(entity)
+      })
       return false
     }
   }

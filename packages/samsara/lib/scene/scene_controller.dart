@@ -16,25 +16,37 @@ class SceneController {
   }
 
   @mustCallSuper
-  Future<Scene> createScene(String key, [dynamic args]) async {
-    final _cached = _cachedScenes[key];
+  Future<Scene> createScene(String key, String id, [dynamic args]) async {
+    final _cached = _cachedScenes[id];
     if (_cached != null) {
       _currentScene = _cached;
       return _cached;
     } else {
       final constructor = _sceneConstructors[key]!;
       final Scene scene = await constructor(args);
-      _cachedScenes[key] = scene;
+      _cachedScenes[id] = scene;
       _currentScene = scene;
       return scene;
     }
   }
 
-  void leaveScene(String key) {
-    assert(_cachedScenes.containsKey(key));
-    if (_currentScene?.key == _cachedScenes[key]!.key) {
+  void leaveScene(String id, {bool clearCache = false}) {
+    assert(_cachedScenes.containsKey(id));
+    if (_currentScene?.key == _cachedScenes[id]!.key) {
       _currentScene = null;
     }
-    _cachedScenes.remove(key);
+    if (clearCache) {
+      _cachedScenes.remove(id);
+    }
+  }
+
+  /// 删除某个之前缓存的场景，这里允许接收一个不存在的id
+  void clearCache(String id) {
+    if (_cachedScenes.containsKey(id)) {
+      if (_currentScene?.key == _cachedScenes[id]!.key) {
+        _currentScene = null;
+      }
+      _cachedScenes.remove(id);
+    }
   }
 }

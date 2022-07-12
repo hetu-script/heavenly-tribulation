@@ -194,7 +194,8 @@ class _MainGameOverlayState extends State<MainGameOverlay>
   }
 
   Future<Scene> _getScene(Map<String, dynamic> args) async {
-    final scene = await engine.createScene('worldmap', args) as WorldMapScene;
+    final scene =
+        await engine.createScene('worldmap', args['id'], args) as WorldMapScene;
     _heroData = engine.invoke('getHero');
     return scene;
   }
@@ -258,7 +259,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                       break;
                     case WorldMapDropMenuItems.exit:
                       _saveGame().then((value) {
-                        engine.leaveScene('worldmap');
+                        engine.leaveScene(_scene.id, clearCache: true);
                         engine.invoke('resetGame');
                         Navigator.of(context).pop();
                       });

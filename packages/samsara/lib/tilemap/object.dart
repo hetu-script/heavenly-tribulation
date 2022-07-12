@@ -37,6 +37,7 @@ class TileMapObject extends GameComponent with TileInfo {
   OrthogonalDirection direction = OrthogonalDirection.south;
 
   bool _isMoving = false;
+  bool _isBackward = false;
   bool get isMoving => _isMoving;
   bool isMovingCanceled = false;
 
@@ -106,22 +107,27 @@ class TileMapObject extends GameComponent with TileInfo {
   }
 
   void stop() {
-    currentAnimation?.setToLast();
+    tilePosition = _movingTargetTilePosition;
     _isMoving = false;
+    // 广播事件中会检查英雄是否正在移动，因此这里要先取消移动，再广播
+    // 检查isBackward的目的，是为了在英雄倒退到entity上时，不触发
+    // 只有玩家自己主动经过某个entity，才触发事件
+    if (isHero && !_isBackward) {
+      engine.broadcast(HeroEvent.heroMoved(scene: sceneKey));
+    }
+    _isBackward = false;
+    currentAnimation?.setToLast();
     _movingOffset = Vector2.zero();
     _movingTargetWorldPosition = Vector2.zero();
     _velocity = Vector2.zero();
-    tilePosition = _movingTargetTilePosition;
     _movingTargetTilePosition = const TilePosition.leftTop();
-    if (isHero) {
-      engine.broadcast(HeroEvent.heroMoved(scene: sceneKey));
-    }
   }
 
   void moveTo(TilePosition target, {bool backward = false}) {
     assert(tilePosition != target);
     _movingTargetTilePosition = target;
     _isMoving = true;
+    _isBackward = backward;
     _movingOffset = Vector2.zero();
     _movingTargetWorldPosition =
         tilePosition2TileCenterInWorld(target.left, target.top);

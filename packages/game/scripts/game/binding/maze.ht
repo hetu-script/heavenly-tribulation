@@ -5,3 +5,9 @@ external fun moveHeroToLastRouteNode
 external fun setFogOfWar(value: bool)
 
 external fun removeEntity(left, top)
+
+external fun proceedToNextLevel
+
+external fun backToPreviousLevel
+
+external fun disposeMaze

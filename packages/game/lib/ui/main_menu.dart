@@ -160,8 +160,13 @@ class _MainMenuState extends State<MainMenu> {
                   LoadGameDialog.show(context, list: savedFiles)
                       .then((SaveInfo? info) {
                     if (info != null) {
-                      Navigator.of(context).pushNamed('worldmap',
-                          arguments: {"path": info.path}).then((value) {
+                      showDialog(
+                        context: context,
+                        builder: (context) => MainGameOverlay(
+                          key: UniqueKey(),
+                          args: {"path": info.path},
+                        ),
+                      ).then((value) {
                         engine.invoke('build', positionalArgs: [context]);
                         setState(() {});
                       });

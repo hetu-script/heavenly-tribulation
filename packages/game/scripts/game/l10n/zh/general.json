@@ -41,6 +41,10 @@
   "sell": "出售",
   "quantity": "数量",
 
+  "leaveMaze": "离开场景",
+  "backToPreviousLevel": "返回上个地图",
+  "proceedToNextLevel": "前往下个地图",
+
   "surrender": "投降",
   "handOver": "交出财物",
   "escape": "逃跑",
@@ -48,6 +52,12 @@
   "bargain": "讨价还价",
   "plead": "求情",
   "beg": "求饶",
+  "exchange": "交换",
+  "askForDirections": "问路",
+  "trade": "交易",
+  "rob": "抢劫",
+  "attack": "攻击",
+  "sneakAttack": "偷袭",
 
   "rarity": "品级",
   "common": "凡品",
@@ -107,7 +117,5 @@
 
   "nationPostfix": "国",
 
-  "merchant": "商人",
-  "exchange": "交换",
-  "trade": "交易"
+  "level": "第 {0} 层"
 }

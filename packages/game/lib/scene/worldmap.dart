@@ -10,7 +10,7 @@ class WorldMapScene extends Scene {
   HTStruct worldData;
 
   WorldMapScene({required this.worldData, required super.controller})
-      : super(key: 'worldmap');
+      : super(id: worldData['id'], key: 'worldmap');
 
   bool isMapReady = false;
 

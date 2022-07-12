@@ -1,0 +1,83 @@
+import '../binding/maze.ht'
+import '../tile/hexagonal_tile.ht'
+import '../tile/tilemap.ht'
+import '../game.ht'
+
+const kDefaultBlockWidth = 4
+const kDefaultBlockHeight = 4
+const kDefaultMazeScale = 3
+final kDefaultBlockNumber = kDefaultMazeScale * kDefaultMazeScale
+
+const kEncounterProbability = 0.65
+const kLevelUniqueEncounterProbability = 0.15
+const kMazeUniqueEncounterProbability = 0.075
+
+// 所有路径名字
+final kRoutes = [
+  'topLeft',
+  'topRight',
+  'leftTop',
+  'centerTop',
+  'rightTop',
+  'centerLeft',
+  'centerRight',
+  'leftBottom',
+  'centerBottom',
+  'rightBottom',
+  'bottomLeft',
+  'bottomRight',
+]
+
+// 每个锚点所连接的路径
+final kRoutesOfAnchor = {
+  '1': ['topLeft', 'topRight'],
+  '2': ['topLeft', 'topRight', 'centerTop'],
+  '3': ['topRight', 'rightTop'],
+  '4': ['leftTop', 'centerLeft', 'leftBottom'],
+  '5': ['centerTop', 'centerLeft', 'centerRight', 'centerBottom'],
+  '6': ['rightTop', 'centerRight', 'rightBottom'],
+  '7': ['leftBottom', 'bottomLeft'],
+  '8': ['bottomLeft', 'bottomRight', 'centerBottom'],
+  '9': ['rightBottom', 'bottomRight'],
+}
+
+// 执行这个函数时地图尚未生成，因此不需要考虑zone，所以无需使用真正的terrain来计算
+fun generateRouteByIndex(index1, index2, map) {
+  final tile1 = index2TilePos(index1, map.width)
+  final tile2 = index2TilePos(index2, map.width)
+  // print('generate route from ${tile1} to ${tile2}')
+  final route = calculateRoute(tile1, tile2, map)
+  // print(route)
+  if (route) {
+    for (final index in route) {
+      final terrain = map.terrains[index]
+      terrain.isRoute = true
+    }
+  } else {
+    final terrain = map.terrains[index1]
+    terrain.isRoute = true
+  }
+}
+
+fun generateRouteByName(name, anchors, map) {
+  when (name) {
+    'topLeft' -> generateRouteByIndex(anchors[1].index, anchors[2].index, map)
+    'topRight' -> generateRouteByIndex(anchors[2].index, anchors[3].index, map)
+    'leftTop' -> generateRouteByIndex(anchors[1].index, anchors[4].index, map)
+    'centerTop' -> generateRouteByIndex(anchors[2].index, anchors[5].index, map)
+    'rightTop' -> generateRouteByIndex(anchors[3].index, anchors[6].index, map)
+    'centerLeft' -> generateRouteByIndex(anchors[4].index, anchors[5].index, map)
+    'centerRight' -> generateRouteByIndex(anchors[5].index, anchors[6].index, map)
+    'leftBottom' -> generateRouteByIndex(anchors[4].index, anchors[7].index, map)
+    'centerBottom' -> generateRouteByIndex(anchors[5].index, anchors[8].index, map)
+    'rightBottom' -> generateRouteByIndex(anchors[6].index, anchors[9].index, map)
+    'bottomLeft' -> generateRouteByIndex(anchors[7].index, anchors[8].index, map)
+    'bottomRight' -> generateRouteByIndex(anchors[8].index, anchors[9].index, map)
+  }
+}
+
+fun mazeGameOver(maze) {
+  showGameOver().then((value) {
+    leaveMaze(maze)
+  })
+}

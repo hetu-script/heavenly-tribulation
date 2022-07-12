@@ -44,7 +44,11 @@ fun testMaze {
   characterAcquire(hero, Beverage(rarity: 'common'), 5)
   characterEquip(hero, VillageWarrior())
   setHeroId(hero.id)
-  return MountainMaze(isOnWorldMap: false)
+  return MountainMaze(
+    name: '测试副本'
+    isOnWorldMap: false,
+    levelNumber: 3,
+  )
 }
 
 fun testMerchant {
