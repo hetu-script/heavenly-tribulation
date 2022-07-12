@@ -11,11 +11,13 @@
   "incidentSettleOrganized": "{0} 在 {1} 的 {2} 安家了。",
   "incidentBorn": "{0} 和 {1} 的孩子 {2} 在 {3} 出生了。",
   "incidentMarriage": "{0} 和 {1} 在 {2} 结婚了。",
-  "incidentTransferMoney": "{0} 将 {1} 银两交给了 {2}。",
-  "incidentTransferItem": "{0} 将 {1} 交给了 {2}",
 
   "characterAcquiredMoney": "{0} 得到了 {1} 银两。",
+  "characterAcquiredCommonItem": "{0} 得到了 {1} 个 {2}。",
   "characterAcquiredItem": "{0} 得到了 {1}。",
+  "characterGiveMoney": "{0} 将 {1} 银两给了 {2}。",
+  "characterGiveCommonItem": "{0} 将 {1} 个 {2} 给了 {3}。",
+  "characterGiveItem": "{0} 将 {1} 给了 {2}。",
   "characterAteFood": "{0} 吃掉了 {1}。",
   "characterTakeMedicine": "{0} 服下了 {1}。",
   "characterDrankBeverage": "{0} 饮下了 {1}。"

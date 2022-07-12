@@ -33,6 +33,7 @@ class _BuildViewState extends State<BuildView>
   static final List<Tab> _tabs = _kBuildTabNames
       .map(
         (title) => Tab(
+          iconMargin: const EdgeInsets.all(5.0),
           height: 40,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -83,7 +84,7 @@ class _BuildViewState extends State<BuildView>
     //     engine.invoke('getCharacterById', positionalArgs: [charId]);
 
     return ResponsiveWindow(
-      size: const Size(700.0, 400.0),
+      size: const Size(720.0, 420.0),
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -91,10 +92,10 @@ class _BuildViewState extends State<BuildView>
           actions: const [ButtonClose()],
         ),
         body: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             SizedBox(
-              width: 340.0,
+              width: 300.0,
               height: 390.0,
               child: EquipmentsView(
                 characterData: widget.characterData,
@@ -102,7 +103,7 @@ class _BuildViewState extends State<BuildView>
             ),
             const VerticalDivider(),
             SizedBox(
-              width: 340.0,
+              width: 350.0,
               height: 390.0,
               child: DefaultTabController(
                 length: _tabs.length, // 物品栏通过tabs过滤不同种类的物品
@@ -120,10 +121,10 @@ class _BuildViewState extends State<BuildView>
                             inventoryData: widget.characterData['inventory'],
                           ),
                           InventoryView(
-                            inventoryData: widget.characterData['skill'],
+                            inventoryData: widget.characterData['skills'],
                           ),
                           InventoryView(
-                            inventoryData: widget.characterData['companion'],
+                            inventoryData: widget.characterData['companions'],
                           ),
                         ],
                       ),

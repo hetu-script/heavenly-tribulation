@@ -21,7 +21,7 @@ struct Medicine {
     this.category = kEntityCategoryConsumable // 武器、防护、斗技、玄功等等
     this.kind = kEntityConsumableKindMedicine // 枪、剑、斧等等
     this.rarity = rarity
-    this.value = value ?? 0
+    this.value = value ?? 5
     this.isConsumable = true
     this.creatorId = creatorId
     this.createdTime = createdTime

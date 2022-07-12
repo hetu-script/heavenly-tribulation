@@ -37,6 +37,9 @@
   "unequip": "卸下",
   "consume": "食用",
   "steal": "偷取",
+  "buy": "购买",
+  "sell": "出售",
+  "quantity": "数量",
 
   "surrender": "投降",
   "handOver": "交出财物",
@@ -104,5 +107,7 @@
 
   "nationPostfix": "国",
 
-  "merchant": "商人"
+  "merchant": "商人",
+  "exchange": "交换",
+  "trade": "交易"
 }

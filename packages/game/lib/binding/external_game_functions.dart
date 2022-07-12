@@ -66,6 +66,7 @@ final Map<String, Function> externalGameFunctions = {
     return MerchantView.show(
       context: positionalArgs[0],
       merchantData: positionalArgs[1],
+      priceFactor: positionalArgs[2],
     );
   },
 };

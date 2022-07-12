@@ -2,6 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:samsara/samsara.dart';
 
+extension PercentageString on num {
+  String toPercentageString([int fractionDigits = 0]) {
+    return '${(this * 100).toStringAsFixed(fractionDigits).toString()}%';
+  }
+}
+
+extension DoubleFixed on double {
+  double toDoubleAsFixed([int n = 2]) {
+    return double.parse(toStringAsFixed(n));
+  }
+}
+
 final SamsaraEngine engine = SamsaraEngine(debugMode: kDebugMode);
 
 const kForegroundColor = Colors.white;
@@ -72,12 +84,6 @@ abstract class GlobalConfig {
   static bool isOnDesktop = false;
   static OrientationMode orientationMode = OrientationMode.landscape;
   static Size screenSize = Size.zero;
-}
-
-extension PercentageString on num {
-  String toPercentageString([int fractionDigits = 0]) {
-    return '${(this * 100).toStringAsFixed(fractionDigits).toString()}%';
-  }
 }
 
 const kValueTypeInt = 'integer';

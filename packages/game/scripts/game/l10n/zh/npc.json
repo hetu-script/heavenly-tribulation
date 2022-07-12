@@ -5,5 +5,10 @@
   "boss": "头目",
   "muscle": "打手",
   "killer": "刺客",
-  "minion": "喽啰"
+  "minion": "喽啰",
+
+  "companion": "随从",
+  "villageWarrior": "村汉",
+
+  "peddler": "担贩"
 }

@@ -39,29 +39,110 @@ fun calculateItemStats(item) {
 fun characterAcquireMoney(character, value) {
   assert(value > 0)
   character.money += value
-  final incidentContent = getLocaleString('characterAcquireMoney', [ character.name, value ])
+  final incidentContent = getLocaleString('characterAcquiredMoney', [ character.name, value ])
   Incident(
     content: incidentContent,
-    subjectIds: [character.id],
+    subjectIds: character.isMajorCharacter ? [character.id] : null,
     isPrivate: true,
   )
 }
 
 // 角色获得物品，此函数并不检查物品本身是否在其他角色的物品栏中
-fun characterAcquire(character, item) {
-  if (item.rarity == kCommon && character.inventory.containsKey(item.id)) {
-    character.inventory[item.id].stackSize += 1
-  } else {
-    character.inventory[item.id] = item
+// 主要用于获取一个本来不存在的物品
+// 如果数量大于1，则必须指定获取数量，item的stackSize将会被忽略
+fun characterAcquire(character, item, [n = 1]) {
+  if (item.stackSize > 1) {
+    engine.warning('物品对象的数量[${item.stackSize}]将会被忽略。实际获取数值应该由[characterAcquire]函数的第三个参数指定。')
   }
+  var incidentContent
+  if (item.rarity == kCommon) {
+    if (character.inventory.containsKey(item.id)) {
+      // 因为普通物品可以堆叠，也可以重复存在，因此这里要从inventory取，而不要直接修改item
+      character.inventory[item.id].stackSize += n
+    } else {
+      item.stackSize = n
+      character.inventory[item.id] = item
+    }
+    incidentContent = getLocaleString('characterAcquiredCommonItem', [
+      character.name,
+      n,
+      item.name,
+    ])
+  } else {
+    assert(n == 1)
+    item.stackSize = n
+    character.inventory[item.id] = item
+    incidentContent = getLocaleString('characterAcquiredItem', [
+      character.name,
+      item.name,
+    ])
+  }
+  Incident(
+    content: incidentContent,
+    subjectIds: character.isMajorCharacter ? [character.id] : null,
+    isPrivate: true,
+  )
+}
 
-  final incidentContent = getLocaleString('characterAcquiredItem', [
-    character.name,
-    item.name,
+fun characterGiveMoney(char1, char2, value) {
+  assert(char1.money >= value && value > 0)
+  char1.money -= value
+  char2.money += value
+  final incidentContent = getLocaleString('characterGiveMoney', [
+    char1.name,
+    value,
+    char2.name,
   ])
   Incident(
     content: incidentContent,
-    subjectIds: [character.id],
+    subjectIds: char1.isMajorCharacter ? [char1.id] : null,
+    objectIds: char2.isMajorCharacter ? [char2.id] : null,
+    isPrivate: true,
+  )
+}
+
+fun characterGive(char1, char2, item, [n = 1]) {
+  assert(char1.inventory.containsKey(item.id))
+  final char1Item = char1.inventory[item.id]
+  if (char1Item.equippedPosition) characterUnequip(char1Item, char1)
+  var incidentContent
+  if (char1Item.rarity == kCommon) {
+    var actualNumber = n
+    if (char1Item.stackSize > n) {
+      char1Item.stackSize -= n
+    } else if (char1Item.stackSize <= n) {
+      // char1身上的数量不够支付n
+      actualNumber = char1Item.stackSize
+      engine.warning('${char1.name} 身上的 ${item.name} 数量不够 ${n}，实际交付数量：${actualNumber}')
+      delete char1.inventory[item.id]
+    }
+    if (char2.inventory.containsKey(item.id)) {
+      char2.inventory[item.id].stackSize += n
+    } else {
+      final itemCopy = char1Item.clone()
+      itemCopy.stackSize = actualNumber
+      char2.inventory[itemCopy.id] = itemCopy
+    }
+    incidentContent = getLocaleString('characterGiveCommonItem', [
+      char1.name,
+      n,
+      item.name,
+      char2.name,
+    ])
+  } else {
+    assert(n == 1)
+    delete char1.inventory[item.id]
+    char2.inventory[item.id] = item
+    incidentContent = getLocaleString('characterGiveItem', [
+      char1.name,
+      item.name,
+      char2.name,
+    ])
+  }
+  Incident(
+    content: incidentContent,
+    subjectIds: char1.isMajorCharacter ? [char1.id] : null,
+    objectIds: char2.isMajorCharacter ? [char2.id] : null,
     isPrivate: true,
   )
 }

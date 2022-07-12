@@ -261,7 +261,8 @@ class _MazeOverlayState extends State<MazeOverlay>
                           ).then((value) => setState(() {}));
                           break;
                         case MazeDropMenuItems.quit:
-                          engine.invoke('leaveMaze');
+                          engine.invoke('leaveMaze',
+                              positionalArgs: [widget.mazeData]);
                           engine.leaveScene('maze');
                           Navigator.of(context).pop();
                           break;

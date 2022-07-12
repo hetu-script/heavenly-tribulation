@@ -9,12 +9,6 @@ import '../../shared/constants.dart';
 import '../../shared/label.dart';
 import '../../util.dart';
 
-extension DoubleFixed on double {
-  double toDoubleAsFixed([int n = 2]) {
-    return double.parse(toStringAsFixed(n));
-  }
-}
-
 const kCharacterStats = [
   'strength',
   'dexterity',

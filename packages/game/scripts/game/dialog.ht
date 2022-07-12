@@ -72,7 +72,7 @@ fun showSelection(selections) -> Future {
   return _showSelection(buildContext, selections)
 }
 
-external fun _showCharacterSelection(context, title, idList, notNull)
+external fun _showCharacterSelection(context, title, ids, showCloseButton)
 
 fun showCharacterSelection({title, ids, showCloseButton = false}) -> Future {
   return _showCharacterSelection(buildContext, title, ids, showCloseButton)
@@ -84,8 +84,8 @@ fun showVisitCharacterSelection(idList) -> Future {
   return _showVisitCharacterSelection(buildContext, idList)
 }
 
-external fun _showMerchant(context, merchant)
+external fun _showMerchant(context, merchant, priceFactor)
 
-fun showMerchant(merchant) -> Future {
-  return _showMerchant(buildContext, merchant)
+fun showMerchant(merchant, [ priceFactor = 2.0 ]) -> Future {
+  return _showMerchant(buildContext, merchant, priceFactor)
 }

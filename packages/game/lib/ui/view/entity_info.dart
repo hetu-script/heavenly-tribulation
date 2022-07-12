@@ -38,13 +38,15 @@ class EntityInfo extends StatelessWidget {
     required this.entityData,
     this.left,
     this.actions = const [],
+    this.priceFactor = 1.0,
+    this.showPrice = false,
   });
 
   final HTStruct entityData;
-
   final double? left;
-
   final List<Widget> actions;
+  final double priceFactor;
+  final bool showPrice;
 
   @override
   Widget build(BuildContext context) {
@@ -165,6 +167,9 @@ class EntityInfo extends StatelessWidget {
                           Text(engine.locale[entityData['rarity']]),
                       ],
                     ),
+                    if (showPrice)
+                      Text(
+                          '${engine.locale['price']}: ${(entityData['value'] * priceFactor).truncate()}'),
                     if (stackSize > 1)
                       Text('${engine.locale['stackSize']}: $stackSize'),
                     if (category == kEntityCategoryWeapon)

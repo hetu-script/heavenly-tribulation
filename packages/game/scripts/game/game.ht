@@ -26,8 +26,12 @@ fun enterMaze(maze) {
   localHistory = maze.history
 }
 
-fun leaveMaze {
+fun leaveMaze(maze) {
   localHistory = null
+  // 移除所有临时npc
+  for (final entity of maze.entities) {
+    delete game.npcs[entity.id]
+  }
 }
 
 var history = []

@@ -107,7 +107,8 @@ struct Weapon {
     this.isEquippable = true
     this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
     this.rarity = rarity
-    this.value = value ?? 0
+    this.value = value ?? 50
+    this.stackSize = 1
     this.creatorId = creatorId
     this.createdTime = createdTime ?? game.timestamp
     this.description = description ?? ''

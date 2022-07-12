@@ -12,6 +12,7 @@ import 'package:window_manager/window_manager.dart';
 import 'package:hetu_script/values.dart';
 
 import 'overlay/maze/maze.dart';
+import 'view/console.dart';
 import '../global.dart';
 import 'shared/loading_screen.dart';
 import '../shared/constants.dart';
@@ -255,10 +256,17 @@ class _MainMenuState extends State<MainMenu> {
                                 padding: const EdgeInsets.only(top: 20.0),
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    engine.invoke('testDuel');
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) =>
+                                          const Console(),
+                                    ).then((value) => setState(() {
+                                          engine.invoke('build',
+                                              positionalArgs: [context]);
+                                        }));
                                   },
                                   child: const Label(
-                                    'Test Duel',
+                                    'Console',
                                     width: 100.0,
                                     textAlign: TextAlign.center,
                                   ),

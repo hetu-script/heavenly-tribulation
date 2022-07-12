@@ -37,11 +37,11 @@ fun testDuel {
 fun testMaze {
   resetGame()
   final hero = Character()
-  hero.money += 5000
+  hero.money += 1000
   characterEquip(hero, Kickboxing())
   characterEquip(hero, Weapon())
-  characterAcquire(hero, Medicine(rarity: 'common', stackSize: 5))
-  characterAcquire(hero, Beverage(rarity: 'common', stackSize: 5))
+  characterAcquire(hero, Medicine(rarity: 'common'), 5)
+  characterAcquire(hero, Beverage(rarity: 'common'), 5)
   characterEquip(hero, VillageWarrior())
   setHeroId(hero.id)
   return MountainMaze(isOnWorldMap: false)
@@ -50,11 +50,11 @@ fun testMaze {
 fun testMerchant {
   resetGame()
   final hero = Character()
-  hero.money += 100000
+  hero.money += 100
   setHeroId(hero.id)
   final merchant = Character()
-  merchant.money += 500000
-  characterAcquire(merchant, Medicine(rarity: 'common', stackSize: 20))
-  characterAcquire(merchant, Beverage(rarity: 'common', stackSize: 20))
+  merchant.money += 500
+  characterAcquire(merchant, Medicine(rarity: 'common'), 20)
+  characterAcquire(merchant, Beverage(rarity: 'common'), 20)
   showMerchant(merchant)
 }

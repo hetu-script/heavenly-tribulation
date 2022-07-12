@@ -757,40 +757,6 @@ fun handleCharacterInteraction(characterId) {
   })
 }
 
-fun characterGiveMoneyTo(char1, value, char2) {
-  assert(char1.money >= value)
-  char1.money -= value
-  char2.money += value
-  final incidentContent = getLocaleString('incidentTransferMoney', [
-    char1.name,
-    value.toString(),
-    char2.name,
-  ])
-  Incident(
-    content: incidentContent,
-    subjectIds: char1.isMajorCharacter ? [char1.id] : null,
-    objectIds: char2.isMajorCharacter ? [char2.id] : null,
-    isPrivate: true,
-  )
-}
-
-fun characterGiveItemTo(char1, item, char2) {
-  assert(char1.inventory[item.id] != null)
-  if (item.equippedPosition) uncharacterEquip(item, char1)
-  char2.inventory[item.id] = item
-  final incidentContent = getLocaleString('incidentTransferItem', [
-    char1.name,
-    item.name,
-    char2.name,
-  ])
-  Incident(
-    content: incidentContent,
-    subjectIds: char1.isMajorCharacter ? [char1.id] : null,
-    objectIds: char2.isMajorCharacter ? [char2.id] : null,
-    isPrivate: true,
-  )
-}
-
 fun characterSteal(character, item) {
   throw 'steal is not implemented yet'
 }

@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
 import '../../global.dart';
@@ -14,6 +15,8 @@ class Console extends StatefulWidget {
 }
 
 class _ConsoleState extends State<Console> {
+  static int _commandHistoryIndex = 0;
+  static final _commandHistory = <String>[];
   final TextEditingController _textEditingController = TextEditingController();
   final FocusNode _textFieldFocusNode = FocusNode();
   late final ScrollController _scrollController = ScrollController();
@@ -58,33 +61,80 @@ class _ConsoleState extends State<Console> {
               ),
             ),
           ),
-          TextField(
+          RawKeyboardListener(
             focusNode: _textFieldFocusNode,
-            onSubmitted: (value) {
-              setState(() {
-                try {
-                  final r = engine.hetu.eval(value, globallyImport: true);
-                  if (r != null) {
-                    engine.info(engine.hetu.lexicon.stringify(r));
+            key: UniqueKey(),
+            onKey: (RawKeyEvent key) {
+              if (key is RawKeyUpEvent) {
+                if (key.data is RawKeyEventDataWindows ||
+                    key.data is RawKeyEventDataMacOs ||
+                    key.data is RawKeyEventDataLinux) {
+                  final int code = (key.data as dynamic).keyCode;
+                  switch (code) {
+                    case 36: // home
+                      _textEditingController.selection =
+                          TextSelection.fromPosition(
+                              const TextPosition(offset: 0));
+                      break;
+                    case 35: // end
+                      _textEditingController.selection =
+                          TextSelection.fromPosition(TextPosition(
+                              offset: _textEditingController.text.length));
+                      break;
+                    case 38: // up
+                      if (_commandHistoryIndex > 0) {
+                        --_commandHistoryIndex;
+                      }
+                      if (_commandHistory.isNotEmpty) {
+                        _textEditingController.text =
+                            _commandHistory[_commandHistoryIndex];
+                      } else {
+                        _textEditingController.text = '';
+                      }
+                      break;
+                    case 40: // down
+                      if (_commandHistoryIndex < _commandHistory.length - 1) {
+                        ++_commandHistoryIndex;
+                        _textEditingController.text =
+                            _commandHistory[_commandHistoryIndex];
+                      } else {
+                        _textEditingController.text = '';
+                      }
+                      break;
                   }
-                } catch (e) {
-                  engine.error(e.toString());
                 }
-                _textEditingController.text = '';
-                _textFieldFocusNode.requestFocus();
-                _scrollController
-                    .jumpTo(_scrollController.position.minScrollExtent);
-              });
+              }
             },
-            cursorColor: kForegroundColor,
-            autofocus: true,
-            controller: _textEditingController,
-            decoration: const InputDecoration(
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey, width: 1.0),
-              ),
-              border: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey, width: 0.0),
+            child: TextField(
+              key: UniqueKey(),
+              onSubmitted: (value) {
+                _commandHistory.add(value);
+                _commandHistoryIndex = _commandHistory.length;
+                setState(() {
+                  try {
+                    final r = engine.hetu.eval(value, globallyImport: true);
+                    if (r != null) {
+                      engine.info(engine.hetu.lexicon.stringify(r));
+                    }
+                  } catch (e) {
+                    engine.error(e.toString());
+                  }
+                  _textEditingController.text = '';
+                  _textFieldFocusNode.requestFocus();
+                  _scrollController
+                      .jumpTo(_scrollController.position.minScrollExtent);
+                });
+              },
+              cursorColor: kForegroundColor,
+              autofocus: true,
+              controller: _textEditingController,
+              decoration: const InputDecoration(
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey, width: 0.0),
+                ),
               ),
             ),
           ),

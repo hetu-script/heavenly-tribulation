@@ -6,6 +6,7 @@ import '../entity/character/enemy/bandit.ht'
 import '../entity/character/enemy/beast.ht'
 import '../entity/common.ht'
 import '../binding/maze.ht'
+import '../entity/character/merchant/peddler.ht'
 
 final _kLandSprites = [
   kSpriteLand,
@@ -17,7 +18,7 @@ const _kDefaultBlockHeight = 4
 const _kDefaultMazeScale = 3
 final _kDefaultBlockNumber = _kDefaultMazeScale * _kDefaultMazeScale
 
-const _kEncounterProbability = 0.35
+const _kEncounterProbability = 0.65
 const _kLevelUniqueEncounterProbability = 0.15
 const _kMazeUniqueEncounterProbability = 0.075
 
@@ -43,7 +44,7 @@ final _kMazeUniqueEncounterTypes = [
   'undercoverRoyalGuard',
 ]
 
-final _kUniqueScene = [
+final _kUniqueScenes = [
   'restaurant',
   'inn',
   'teaShop',
@@ -56,11 +57,11 @@ final _kUniqueScene = [
   'riverBridge',
 ]
 
-// final _kBlockTypes = [
-//   // 'empty',
-//   'bush',
-//   'rock',
-// ]
+final _kBlockTypes = [
+  // 'empty',
+  'bush',
+  'rock',
+]
 
 // 所有路径名字
 final _kRoutes = [
@@ -141,9 +142,9 @@ fun generateRoute(name, anchors, map) {
 //   map.objects.add(object)
 // }
 
-fun gameOver {
+fun mazeGameOver(maze) {
   showGameOver()
-  leaveMaze()
+  leaveMaze(maze)
 }
 
 /// 生成Roguelike副本的算法
@@ -185,8 +186,12 @@ struct MountainMaze {
       occupied.add(index)
       return { index, left, top }
     }
+    
+    final mazeUniqueEncounters = Set()
 
     for (final levelIndex in range(levelNumber)) {
+      final levelUniqueEncounters = Set()
+
       final [ width, height ] = [ _kDefaultBlockWidth * _kDefaultMazeScale, _kDefaultBlockHeight * _kDefaultMazeScale ]
       final terrainSize = width * height
 
@@ -286,51 +291,86 @@ struct MountainMaze {
       for (final anchor of anchors) {
         final r = Math.random()
         if (r < _kMazeUniqueEncounterProbability) {
-          final encounterType = _kMazeUniqueEncounterTypes
+          _kMazeUniqueEncounterTypes.shuffle()
+          var encounterType
+          for (final encounter in _kMazeUniqueEncounterTypes) {
+            if (!mazeUniqueEncounters.contains(encounter)) {
+              mazeUniqueEncounters.add(encounter)
+              encounterType = encounter
+              break
+            }
+          }
           when (encounterType) {
-            'bandit' -> {
+            'vigilantePeasant' -> {
 
             }
           }
-        } else if (r < _kLevelUniqueEncounterProbability) {
-          final encounterType = _kLevelUniqueEncounterTypes
-          when (encounterType) {
-            'bandit' -> {
-
+        }
+        
+        if (r < _kLevelUniqueEncounterProbability) {
+          _kLevelUniqueEncounterTypes.shuffle()
+          var encounterType
+          for (final encounter in _kLevelUniqueEncounterTypes) {
+            if (!levelUniqueEncounters.contains(encounter)) {
+              levelUniqueEncounters.add(encounter)
+              encounterType = encounter
+              break
             }
           }
-        } else if (r < _kEncounterProbability) {
+          when (encounterType) {
+            'peddler' -> {
+              final peddler = Peddler()
+              characterAcquire(peddler, Medicine(rarity: 'common'), 20)
+              characterAcquire(peddler, Beverage(rarity: 'common'), 20)
+              peddler.encounterType = encounterType
+              this.entities[peddler.id] = peddler
+              final object = TileMapObject(
+                terrainIndex: anchor.index,
+                left: anchor.left,
+                top: anchor.top,
+                spriteSrc: 'maze/peddler.png',
+                srcWidth: 32.0,
+                srcHeight: 32.0,
+                entityId: peddler.id,
+              )
+              currentLevel.objects.add(object)
+              continue
+            }
+          }
+        }
+
+        if (r < _kEncounterProbability) {
           final encounterType = _kEncounterTypes.random
           when (encounterType) {
             'bandit' -> {
-              final enemyEntity = Bandit()
-              enemyEntity.encounterType = encounterType
-              this.entities[enemyEntity.id] = enemyEntity
-              final enemyObject = TileMapObject(
+              final bandit = Bandit()
+              bandit.encounterType = encounterType
+              this.entities[bandit.id] = bandit
+              final object = TileMapObject(
                 terrainIndex: anchor.index,
                 left: anchor.left,
                 top: anchor.top,
                 spriteSrc: 'maze/bandit.png',
                 srcWidth: 32.0,
                 srcHeight: 32.0,
-                entityId: enemyEntity.id,
+                entityId: bandit.id,
               )
-              currentLevel.objects.add(enemyObject)
+              currentLevel.objects.add(object)
             }
             'beast' -> {
-              final enemyEntity = Beast(rarity: kCommon)
-              enemyEntity.encounterType = encounterType
-              this.entities[enemyEntity.id] = enemyEntity
-              final enemyObject = TileMapObject(
+              final beast = Beast(rarity: kCommon)
+              beast.encounterType = encounterType
+              this.entities[beast.id] = beast
+              final object = TileMapObject(
                 terrainIndex: anchor.index,
                 left: anchor.left,
                 top: anchor.top,
-                spriteSrc: enemyEntity.icon,
+                spriteSrc: beast.icon,
                 srcWidth: 32.0,
                 srcHeight: 32.0,
-                entityId: enemyEntity.id,
+                entityId: beast.id,
               )
-              currentLevel.objects.add(enemyObject)
+              currentLevel.objects.add(object)
             }
           }
         }
@@ -409,34 +449,34 @@ struct MountainMaze {
           tile.spriteIndex = _kLandSprites.random
         } else {
           // print('adding decor to ${tile.index}')
-          tile.isVoid = true
+          // tile.isVoid = true
           tile.isSelectable = false
           addTerrainToZone(tile, blockZone.index, currentLevel)
-          // final blockType = _kBlockTypes.random
-          // when (blockType) {
-          //   'bush' -> {
-          //     final bush = TileMapObject(
-          //       terrainIndex: tile.index,
-          //       left: tile.left,
-          //       top: tile.top,
-          //       spriteSrc: 'maze/bush.png',
-          //       srcWidth: 32.0,
-          //       srcHeight: 48.0,
-          //     )
-          //     currentLevel.objects.add(bush)
-          //   }
-          //   'rock' -> {
-          //     final rock = TileMapObject(
-          //       terrainIndex: tile.index,
-          //       left: tile.left,
-          //       top: tile.top,
-          //       spriteSrc: 'maze/rock.png',
-          //       srcWidth: 32.0,
-          //       srcHeight: 48.0,
-          //     )
-          //     currentLevel.objects.add(rock)
-          //   }
-          // }
+          final blockType = _kBlockTypes.random
+          when (blockType) {
+            'bush' -> {
+              final bush = TileMapObject(
+                terrainIndex: tile.index,
+                left: tile.left,
+                top: tile.top,
+                spriteSrc: 'maze/bush.png',
+                srcWidth: 32.0,
+                srcHeight: 48.0,
+              )
+              currentLevel.objects.add(bush)
+            }
+            'rock' -> {
+              final rock = TileMapObject(
+                terrainIndex: tile.index,
+                left: tile.left,
+                top: tile.top,
+                spriteSrc: 'maze/rock.png',
+                srcWidth: 32.0,
+                srcHeight: 48.0,
+              )
+              currentLevel.objects.add(rock)
+            }
+          }
         }
       }
       engine.info('生成路标')
@@ -471,9 +511,9 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
           when (key) {
             // 现实主义
             'handOver' -> {
-              characterGiveMoneyTo(hero, hero.money, entity, maze.history)
+              characterGiveMoney(hero, entity, hero.money)
               for (final item of hero.inventory) {
-                characterGiveItemTo(hero, item, entity, maze.history)
+                characterGive(hero, entity, item)
               }
             }
             // 向盗贼求情，是否成功依赖于
@@ -482,7 +522,7 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
               if (hero.stats.charisma > kCharismaCheckThreshold) {
                 showDialogByStrings([getLocaleString('pleadSuccess')], character: entity)
                   .then((value) {
-                    characterGiveMoneyTo(hero, hero.money, entity, maze.history)
+                    characterGiveMoney(hero, entity, hero.money)
                   })
               } else {
                 showDialogByStrings([getLocaleString('pleadFailed')], character: entity)
@@ -498,7 +538,7 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
                       removeEntity(left, top)
                       game.npcs.remove(entity.id)
                     } else {
-                      gameOver()
+                      mazeGameOver(maze)
                     }
                   })
                 )
@@ -527,7 +567,7 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
                       removeEntity(left, top)
                       game.npcs.remove(entity.id)
                     } else {
-                      gameOver()
+                      mazeGameOver(maze)
                     }
                   })
                 )
@@ -535,7 +575,7 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
             }
             // 自信
             'fight' -> {
-              showDialogByStrings([getLocaleString('fightBandit')], character: hero)
+              showDialogByStrings([getLocaleString('startFightBandit')], character: hero)
               .then( (value) => 
                 showDuel(hero, entity).then((value) {
                   if (value) {
@@ -548,7 +588,7 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
                     removeEntity(left, top)
                     game.npcs.remove(entity.id)
                   } else {
-                    gameOver()
+                    mazeGameOver(maze)
                   }
                 })
               )
@@ -561,11 +601,32 @@ fun handleMazeEntityInteraction(entityId, left, top, maze) -> bool {
       showDuel(hero, entity).then((value) {
         if (value) {
           removeEntity(left, top)
-          game.npcs.remove(entity.id)
+          delete game.npcs[entity.id]
         } else {
-          gameOver()
+          mazeGameOver(maze)
         }
       })
+    }
+    'peddler' -> {
+      showDialogByStrings([getLocaleString('fightBandit')], character: hero)
+      .then( (value) => 
+        showDuel(hero, entity).then((value) {
+          if (value) {
+            final incidentContent = getLocaleString('duelVistory', [ hero.name, entity.name ] )
+            Incident(
+              content: incidentContent,
+              subjectIds: [hero.id],
+              isPrivate: true,
+            )
+            removeEntity(left, top)
+            game.npcs.remove(entity.id)
+          } else {
+            mazeGameOver(maze)
+          }
+        })
+      )
+      showMerchant(entity)
+      return false
     }
   }
   return true

@@ -304,16 +304,14 @@ final commonElixirNames = [
   // ...commonNames.target,
 ]
 
-fun getConsumable(number: int, {category: str, kind: str}) {
+fun getConsumable(number: int, {category: str, kind: str, rarity: str}) {
   final names = []
   for (var i in range(number)) {
-    var rarity = 'common'
     var s = ''
-    final r = getRarity()
-    if (r.rarityLevel > kRarity.rare.rarityLevel) {
+    final r = rarity ?? getRarity().rarity
+    if (r != kCommon) {
       s = spiritPrefix.random
     }
-    rarity = r.rarity
     var c = category
     if (c) {
       assert(consumable.keys.contains(c))
@@ -322,7 +320,7 @@ fun getConsumable(number: int, {category: str, kind: str}) {
       c = consumable.keys.random
     }
     var pre
-    if (rarity == 'common') {
+    if (r == 'common') {
       if (c == 'medicine') {
         pre = medicine.random
       } else if (c == 'beverage') {
@@ -334,7 +332,7 @@ fun getConsumable(number: int, {category: str, kind: str}) {
       pre = commonElixirNames.random
     }
     var k = kind ?? consumable[c].random
-    names.add({ name: pre + s + k, category: c, rarity })
+    names.add({ name: pre + s + k, category: c, rarity: r })
   }
   return names
 }

@@ -1,5 +1,5 @@
 {
-  "fightBandit": "大胆毛贼，看来我今天要给你点教训尝尝了！",
+  "startFightBandit": "大胆毛贼，看来我今天要给你点教训尝尝了！",
 
   "mazeBandit01": "山贼：你怎么敢一个人在这里走路？/n快把行李交出来，我们便饶你性命，让你过去。",
 
@@ -9,5 +9,7 @@
 
   "escapeFailed": "山贼：还想跑？你这是敬酒不吃吃罚酒！",
 
-  "incidentEscapeSuccess": "成功的逃离了 {0}。"
+  "incidentEscapeSuccess": "成功的逃离了 {0}。",
+
+  "peddlerDialogIntro": ""
 }

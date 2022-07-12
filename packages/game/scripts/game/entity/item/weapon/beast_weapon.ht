@@ -63,7 +63,8 @@ struct BeastWeapon {
     this.color = kRarity[this.rarity].color
     this.id = 'beast_bodypart_${Hash.uid4(2)}_${this.name}'
     this.isBodyPart = true
-    this.value = value ?? 0
+    this.value = value ?? 30
+    this.stackSize = 1
     this.description = description ?? ''
 
     this.icon = _kBeastWeaponKinds[this.kind].icon

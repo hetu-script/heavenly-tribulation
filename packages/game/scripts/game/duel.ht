@@ -66,13 +66,13 @@ struct Duel {
       offenseItems: char1.equipments.offense, // 进攻手段列表
       activatedIndex: 1, // 当前激活的进攻手段
       // 复制出来的人物当前状态，包括生命值等
-      stats: initialStats.char1.clone(),
+      stats: this.initialStats.char1.clone(),
     }
     final char2info = {
       ticks: 0,
       offenseItems: char2.equipments.offense,
       activatedIndex: 1,
-      stats: initialStats.char2.clone(),
+      stats: this.initialStats.char2.clone(),
     }
 
     this.started = false
@@ -130,7 +130,7 @@ struct Duel {
         if (char1.attributes.perception > initiativeValue) {
           // this.messages.add(getLocaleString('sneakAttackSuccess', [char1.name]))
           // final damage = _attack(char1info.activatedOffense, char2)
-          final damege = offenseItem.stats.damage
+          final damage = char1info.activatedOffense.stats.damage
           entityTakeDamage(type == kDuelTypePractice ? char2info : char2, damage)
           final message = getLocaleString('attackInfo', [
             char1.name,
@@ -157,7 +157,7 @@ struct Duel {
           if (info.ticks >= info.activatedOffense.stats.speed) {
             // 出招
             // final damage = _attack(info.activatedOffense, target)
-            final damege = offenseItem.stats.damage
+            final damage = info.activatedOffense.stats.damage
             final message = getLocaleString('attackInfo', [
               subject.name, 
               info.activatedOffense.name,

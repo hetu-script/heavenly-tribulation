@@ -2,13 +2,9 @@ import '../battle_entity.ht'
 import '../../common.ht'
 import '../../item/common.ht'
 
-final _kCompanionKinds = [
-  'villageWarrior',
-]
+const _kPeddlerAttributeSum = 400
 
-const _kVillageWarriorAttributeSum = 400
-
-struct VillageWarrior {
+struct Peddler {
   construct ({
     birthTimestamp,
     kind,
@@ -21,10 +17,10 @@ struct VillageWarrior {
     this.birthTimestamp = birthTimestamp ?? createRandomBirthTimestamp()
     this.icon = 'avatar/general.png'
     this.category = kEntityCategoryCharacter
-    this.kind = kind ?? _kCompanionKinds.random
+    this.kind = 'peddler'
     this.name = getLocaleString(this.kind)
     this.id = '${this.kind}_${Hash.uid4(2)}_${this.name}'
-    this.rarity = rarity ?? kCommon
+    this.rarity = kCommon
     this.color = kRarity[this.rarity].color
     game.npcs[this.id] = this
     
@@ -35,7 +31,7 @@ struct VillageWarrior {
 
     // 生成战斗单位相关数据，并写入当前对象
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
-    final battleInfo = BattleEntity(attributes: attributes, attributeSum: _kVillageWarriorAttributeSum)
+    final battleInfo = BattleEntity(attributes: attributes, attributeSum: _kPeddlerAttributeSum)
     this.assign(battleInfo)
 
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
