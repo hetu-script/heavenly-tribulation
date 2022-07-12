@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:heavenly_tribulation/ui/overlay/maze/maze.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:samsara/samsara.dart';
@@ -12,6 +11,7 @@ import 'package:samsara/samsara.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:hetu_script/values.dart';
 
+import 'overlay/maze/maze.dart';
 import '../global.dart';
 import 'shared/loading_screen.dart';
 import '../shared/constants.dart';

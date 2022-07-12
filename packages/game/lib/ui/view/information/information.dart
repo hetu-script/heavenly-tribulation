@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/ui/view/character/character.dart';
 import 'package:hetu_script/values.dart' show HTStruct;
 
+import '../../view/character/character.dart';
 import '../../../global.dart';
 import '../../game_entity_listview.dart';
-import '../../shared/responsive_route.dart';
+import '../../shared/responsive_window.dart';
 import '../../shared/close_button.dart';
 import '../../util.dart';
 
@@ -176,7 +176,7 @@ class _InformationPanelState extends State<InformationPanel>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return ResponsiveRoute(
+    return ResponsiveWindow(
       alignment: AlignmentDirectional.center,
       child: DefaultTabController(
         length: _tabs.length,

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../global.dart';
 import '../shared/close_button.dart';
-import '../shared/responsive_route.dart';
+import '../shared/responsive_window.dart';
 
 class Console extends StatefulWidget {
   const Console({super.key});
@@ -92,7 +92,7 @@ class _ConsoleState extends State<Console> {
       ),
     );
 
-    return ResponsiveRoute(
+    return ResponsiveWindow(
       alignment: AlignmentDirectional.center,
       child: layout,
     );

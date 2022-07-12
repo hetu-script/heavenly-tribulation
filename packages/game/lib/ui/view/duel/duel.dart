@@ -4,20 +4,24 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import '../../../global.dart';
-import '../../shared/responsive_route.dart';
+import '../../shared/responsive_window.dart';
 import 'battle_cards.dart';
 import '../../avatar.dart';
 import '../../shared/dynamic_color_progressbar.dart';
 import '../character/character.dart';
 import '../character/npc.dart';
 import '../../../event/events.dart';
-import '../item_info.dart';
+import '../entity_info.dart';
 
 const kEntityTypeCharacter = 'character';
 
 class Duel extends StatefulWidget {
-  static Future<bool?> show(BuildContext context, HTStruct char1,
-      HTStruct char2, String? type, HTStruct? data) {
+  static Future<bool?> show(
+      {required BuildContext context,
+      required HTStruct char1,
+      required HTStruct char2,
+      String? type,
+      HTStruct? data}) {
     return showDialog<bool>(
       context: context,
       barrierColor: Colors.transparent,
@@ -202,7 +206,7 @@ class _DuelState extends State<Duel> {
       );
     });
 
-    return ResponsiveRoute(
+    return ResponsiveWindow(
       alignment: AlignmentDirectional.center,
       size: const Size(800.0, 600.0),
       child: Scaffold(

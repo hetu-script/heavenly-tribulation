@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../../../global.dart';
+import '../../global.dart';
 
 const kDefaultGridSize = Size(48.0, 48.0);
 

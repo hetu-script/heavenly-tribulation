@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../global.dart';
-import 'shared/responsive_route.dart';
+import 'shared/responsive_window.dart';
 
 class SaveInfo {
   final String timestamp;
@@ -132,7 +132,7 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
       ),
     );
 
-    return ResponsiveRoute(
+    return ResponsiveWindow(
       alignment: AlignmentDirectional.center,
       child: layout,
     );

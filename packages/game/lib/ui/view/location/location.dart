@@ -6,7 +6,7 @@ import 'package:hetu_script/values.dart';
 import '../../../global.dart';
 import 'site_card.dart';
 import '../../shared/close_button.dart';
-import '../../shared/responsive_route.dart';
+import '../../shared/responsive_window.dart';
 import '../../util.dart';
 
 class LocationView extends StatefulWidget {
@@ -144,7 +144,7 @@ class _LocationViewState extends State<LocationView>
       backgroundColor: kBackgroundColor,
     );
 
-    return ResponsiveRoute(
+    return ResponsiveWindow(
       alignment: AlignmentDirectional.topStart,
       size: const Size(400.0, 400.0),
       child: layout,

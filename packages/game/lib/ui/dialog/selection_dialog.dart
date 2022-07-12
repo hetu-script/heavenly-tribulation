@@ -5,10 +5,10 @@ import '../../global.dart';
 import '../../event/events.dart';
 
 class SelectionDialog extends StatefulWidget {
-  static Future<dynamic> show(
-    BuildContext context,
-    HTStruct selections,
-  ) async {
+  static Future<dynamic> show({
+    required BuildContext context,
+    required HTStruct selections,
+  }) async {
     assert(selections.isNotEmpty);
     return await showDialog<dynamic>(
       context: context,

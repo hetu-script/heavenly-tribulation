@@ -11,11 +11,11 @@ import '../view/character/character.dart';
 import '../view/character/npc.dart';
 
 class GameDialog extends StatefulWidget {
-  static Future<void> show(
-    BuildContext context,
-    HTStruct dialogData,
-    dynamic returnValue,
-  ) {
+  static Future<void> show({
+    required BuildContext context,
+    required HTStruct dialogData,
+    required dynamic returnValue,
+  }) {
     return showDialog<dynamic>(
       context: context,
       barrierColor: kBackgroundColor.withOpacity(0.5),

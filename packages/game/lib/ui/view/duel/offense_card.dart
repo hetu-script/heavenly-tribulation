@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../character/build/entity_grid.dart';
+import '../entity_grid.dart';
 import 'cooldown.dart';
 import '../../../global.dart';
-import '../item_info.dart';
+import '../entity_info.dart';
 
 class OffenseItemCard extends StatelessWidget {
   const OffenseItemCard({
@@ -32,8 +32,8 @@ class OffenseItemCard extends StatelessWidget {
         context: context,
         barrierColor: Colors.transparent,
         builder: (context) {
-          return ItemInfo(
-            itemData: item,
+          return EntityInfo(
+            entityData: item,
             left: screenPosition.dx,
           );
         });

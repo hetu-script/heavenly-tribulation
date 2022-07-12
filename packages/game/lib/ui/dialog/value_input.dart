@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../shared/responsive_route.dart';
+import '../shared/responsive_window.dart';
 import '../shared/close_button.dart';
 import '../../global.dart';
 
@@ -38,7 +38,7 @@ class _ValueInputState extends State<ValueInput> {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsiveRoute(
+    return ResponsiveWindow(
       alignment: AlignmentDirectional.center,
       size: const Size(220.0, 100.0),
       child: Scaffold(

@@ -5,7 +5,7 @@ import 'package:hetu_script/values.dart';
 
 import '../../../global.dart';
 import '../../shared/close_button.dart';
-import '../../shared/responsive_route.dart';
+import '../../shared/responsive_window.dart';
 import '../../shared/label.dart';
 import '../../avatar.dart';
 import '../../shared/dynamic_color_progressbar.dart';
@@ -23,7 +23,7 @@ class NpcView extends StatelessWidget {
     final ageString =
         engine.invoke('getEntityAgeString', positionalArgs: [npcData]);
 
-    return ResponsiveRoute(
+    return ResponsiveWindow(
       alignment: AlignmentDirectional.topCenter,
       size: const Size(400.0, 400.0),
       child: Scaffold(

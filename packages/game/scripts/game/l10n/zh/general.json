@@ -70,7 +70,7 @@
   "character": "人物",
   "inventory": "物品",
   "talisman": "宝物",
-  "skills": "技能",
+  "skill": "技能",
   "dialog": "对话",
   "category": "类型",
   "development": "发展度",
@@ -102,5 +102,7 @@
   "experience": "经历",
   "known": "见闻",
 
-  "nationPostfix": "国"
+  "nationPostfix": "国",
+
+  "merchant": "商人"
 }

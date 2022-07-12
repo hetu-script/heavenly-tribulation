@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../global.dart';
-import '../shared/responsive_route.dart';
+import '../shared/responsive_window.dart';
 import '../util.dart';
 import '../shared/close_button.dart';
 import '../game_entity_listview.dart';
@@ -21,7 +21,7 @@ class CharacterSelectDialog extends StatelessWidget {
     required BuildContext context,
     required String title,
     required Iterable<String> characterIds,
-    required bool showCloseButton,
+    bool showCloseButton = true,
   }) async {
     return await showDialog<dynamic>(
       context: context,
@@ -77,7 +77,7 @@ class CharacterSelectDialog extends StatelessWidget {
       data.add(row);
     }
 
-    return ResponsiveRoute(
+    return ResponsiveWindow(
       alignment: AlignmentDirectional.center,
       child: Scaffold(
         appBar: AppBar(

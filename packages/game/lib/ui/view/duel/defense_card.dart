@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../character/build/entity_grid.dart';
+import '../entity_grid.dart';
 import '../../../global.dart';
-import '../item_info.dart';
+import '../entity_info.dart';
 import '../character/character.dart';
 import '../../shared/dynamic_color_progressbar.dart';
 
@@ -34,8 +34,8 @@ class DefenseItemCard extends StatelessWidget {
           if (item['entityType'] == kEntityTypeItem ||
               item['entityType'] == kEntityTypeSkill ||
               item['entityType'] == kEntityTypeNpc) {
-            return ItemInfo(
-              itemData: item,
+            return EntityInfo(
+              entityData: item,
               left: screenPosition.dx,
             );
           } else if (item['entityType'] == kEntityTypeCharacter) {

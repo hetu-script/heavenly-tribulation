@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
-import 'package:heavenly_tribulation/ui/view/information/information.dart';
 import 'package:path_provider/path_provider.dart' as path;
 import 'package:path/path.dart' as path;
 import 'package:samsara/samsara.dart';
@@ -13,6 +12,7 @@ import 'package:hetu_script/values.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
 
+import '../view/information/information.dart';
 import 'worldmap/popup.dart';
 import '../../shared/json.dart';
 import '../../shared/constants.dart';
@@ -228,7 +228,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
               Positioned(
                 left: 0,
                 top: 0,
-                child: HeroInfoPanel(heroData: _heroData!),
+                child: HeroInfoPanel(characterData: _heroData!),
               ),
             Positioned(
               right: 0,

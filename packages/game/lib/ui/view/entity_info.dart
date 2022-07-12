@@ -6,13 +6,13 @@ import '../../global.dart';
 import '../shared/rrect_icon.dart';
 // import '../../../shared/close_button.dart';
 
-const _kItemInfoWidth = 390.0;
+const _kInfoPanelWidth = 390.0;
 
 // entityType决定了该对象的数据结构和保存位置
 const kEntityTypeCharacter = 'character'; //game.characters
 const kEntityTypeNpc = 'npc'; //game.npcs
 const kEntityTypeItem = 'item'; //character.inventory
-const kEntityTypeSkill = 'skill'; //character.skills
+const kEntityTypeSkill = 'skill'; //character.skill
 
 // category是界面上显示的对象类型文字
 const kEntityCategoryCharacter = 'character';
@@ -32,15 +32,15 @@ const kEquipTypeArcane = 'arcane';
 const kEquipTypeTalisman = 'talisman';
 const kEquipTypeCompanion = 'companion';
 
-class ItemInfo extends StatelessWidget {
-  const ItemInfo({
+class EntityInfo extends StatelessWidget {
+  const EntityInfo({
     super.key,
-    required this.itemData,
+    required this.entityData,
     this.left,
     this.actions = const [],
   });
 
-  final HTStruct itemData;
+  final HTStruct entityData;
 
   final double? left;
 
@@ -52,24 +52,24 @@ class ItemInfo extends StatelessWidget {
     if (left != null) {
       actualLeft = left;
       final contextSize = MediaQuery.of(context).size;
-      if (contextSize.width - left! < _kItemInfoWidth) {
-        final l = contextSize.width - _kItemInfoWidth;
+      if (contextSize.width - left! < _kInfoPanelWidth) {
+        final l = contextSize.width - _kInfoPanelWidth;
         actualLeft = l > 0 ? l : 0;
       }
     }
 
-    final titleColor = HexColor.fromHex(itemData['color']);
+    final titleColor = HexColor.fromHex(entityData['color']);
 
-    final stackSize = itemData['stackSize'] ?? 1;
+    final stackSize = entityData['stackSize'] ?? 1;
 
-    final entityType = itemData['entityType'];
-    final category = itemData['category'];
-    final equipType = itemData['equipType'];
+    final entityType = entityData['entityType'];
+    final category = entityData['category'];
+    final equipType = entityData['equipType'];
 
-    final attributes = itemData['attributes'];
-    final stats = itemData['stats'];
+    final attributes = entityData['attributes'];
+    final stats = entityData['stats'];
 
-    final effectData = itemData['effects'] ?? [];
+    final effectData = entityData['effects'] ?? [];
     final effects = <Widget>[];
     for (final data in effectData) {
       final values = <String>[];
@@ -133,7 +133,8 @@ class ItemInfo extends StatelessWidget {
                           padding:
                               const EdgeInsets.only(right: 10.0, bottom: 10.0),
                           child: RRectIcon(
-                            avatarAssetKey: 'assets/images/${itemData['icon']}',
+                            avatarAssetKey:
+                                'assets/images/${entityData['icon']}',
                             size: const Size(80.0, 80.0),
                           ),
                         ),
@@ -143,12 +144,12 @@ class ItemInfo extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                itemData['name'],
+                                entityData['name'],
                                 style: TextStyle(color: titleColor),
                               ),
                               const Divider(),
                               Text(
-                                itemData['description'],
+                                entityData['description'],
                               ),
                             ],
                           ),
@@ -159,9 +160,9 @@ class ItemInfo extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                            '${engine.locale[category]} - ${engine.locale[itemData['kind']]}'),
+                            '${engine.locale[category]} - ${engine.locale[entityData['kind']]}'),
                         if (entityType == kEntityTypeItem)
-                          Text(engine.locale[itemData['rarity']]),
+                          Text(engine.locale[entityData['rarity']]),
                       ],
                     ),
                     if (stackSize > 1)

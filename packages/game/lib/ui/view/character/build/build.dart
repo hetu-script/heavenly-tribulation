@@ -5,7 +5,13 @@ import '../../../../ui/shared/close_button.dart';
 import '../../../../global.dart';
 import 'equipments.dart';
 import 'inventory.dart';
-import '../../../shared/responsive_route.dart';
+import '../../../shared/responsive_window.dart';
+
+const _kBuildTabNames = [
+  'inventory',
+  'skill',
+  'companion',
+];
 
 class BuildView extends StatefulWidget {
   const BuildView({
@@ -24,34 +30,23 @@ class BuildView extends StatefulWidget {
 
 class _BuildViewState extends State<BuildView>
     with SingleTickerProviderStateMixin {
-  static final List<Tab> _tabs = <Tab>[
-    Tab(
-      height: 40,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
-            child: Icon(Icons.inventory),
+  static final List<Tab> _tabs = _kBuildTabNames
+      .map(
+        (title) => Tab(
+          height: 40,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                child: Icon(Icons.inventory),
+              ),
+              Text(engine.locale[title]),
+            ],
           ),
-          Text(engine.locale['inventory']),
-        ],
-      ),
-    ),
-    Tab(
-      height: 40,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
-            child: Icon(Icons.library_books),
-          ),
-          Text(engine.locale['skills']),
-        ],
-      ),
-    ),
-  ];
+        ),
+      )
+      .toList();
 
   // late TabController _tabController;
 
@@ -87,7 +82,7 @@ class _BuildViewState extends State<BuildView>
     // final characterData =
     //     engine.invoke('getCharacterById', positionalArgs: [charId]);
 
-    return ResponsiveRoute(
+    return ResponsiveWindow(
       size: const Size(700.0, 400.0),
       child: Scaffold(
         appBar: AppBar(
@@ -105,6 +100,7 @@ class _BuildViewState extends State<BuildView>
                 characterData: widget.characterData,
               ),
             ),
+            const VerticalDivider(),
             SizedBox(
               width: 340.0,
               height: 390.0,
@@ -124,7 +120,10 @@ class _BuildViewState extends State<BuildView>
                             inventoryData: widget.characterData['inventory'],
                           ),
                           InventoryView(
-                            inventoryData: widget.characterData['skills'],
+                            inventoryData: widget.characterData['skill'],
+                          ),
+                          InventoryView(
+                            inventoryData: widget.characterData['companion'],
                           ),
                         ],
                       ),

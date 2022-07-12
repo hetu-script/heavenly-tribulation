@@ -246,7 +246,7 @@ class _MazeOverlayState extends State<MazeOverlay>
                   Positioned(
                     left: 0,
                     top: 0,
-                    child: HeroInfoPanel(heroData: _heroData!),
+                    child: HeroInfoPanel(characterData: _heroData!),
                   ),
                 Positioned(
                   right: 0,

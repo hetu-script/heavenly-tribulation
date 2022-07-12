@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/global.dart';
 import 'package:hetu_script/values.dart';
 
-import 'entity_grid.dart';
-import '../../item_info.dart';
+import '../../entity_grid.dart';
+import '../../entity_info.dart';
+import '../../../../global.dart';
 
 class EquipmentsView extends StatelessWidget {
   const EquipmentsView({
@@ -28,8 +28,8 @@ class EquipmentsView extends StatelessWidget {
         context: context,
         barrierColor: Colors.transparent,
         builder: (context) {
-          return ItemInfo(
-            itemData: item,
+          return EntityInfo(
+            entityData: item,
             left: screenPosition.dx,
           );
         });

@@ -5,7 +5,7 @@ import 'package:samsara/util.dart';
 import '../../../global.dart';
 import 'bonds.dart';
 import 'memory.dart';
-import '../../shared/responsive_route.dart';
+import '../../shared/responsive_window.dart';
 import '../../shared/close_button.dart';
 import 'attributes.dart';
 
@@ -116,7 +116,7 @@ class _CharacterViewState extends State<CharacterView>
 
   @override
   Widget build(BuildContext context) {
-    return ResponsiveRoute(
+    return ResponsiveWindow(
       alignment: AlignmentDirectional.topCenter,
       size: Size(400.0, widget.showConfirmButton ? 460.0 : 420.0),
       child: Scaffold(

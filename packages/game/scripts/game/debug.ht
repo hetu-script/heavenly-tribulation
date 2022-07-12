@@ -8,6 +8,7 @@ import 'entity/character/enemy/beast.ht'
 import 'entity/item/item.ht'
 import 'maze/maze.ht'
 import 'entity/character/companion/villager.ht'
+import 'dialog.ht'
 
 // 测试物品：主角获取指定数量的武器，必须在游戏开始后才可以使用
 fun getWeapon([n = 1]) {
@@ -19,7 +20,7 @@ fun getWeapon([n = 1]) {
 }
 
 // 测试战斗：随机生成两个准备好战斗的角色
-fun testDuel() {
+fun testDuel {
   final hero = Character(isMajorCharacter: false)
   characterEquip(hero, Kickboxing())
   characterEquip(hero, Weapon())
@@ -33,7 +34,7 @@ fun testDuel() {
   showDuel(hero, enemy, type: kDuelTypePractice)
 }
 
-fun testMaze() {
+fun testMaze {
   resetGame()
   final hero = Character()
   hero.money += 5000
@@ -44,4 +45,16 @@ fun testMaze() {
   characterEquip(hero, VillageWarrior())
   setHeroId(hero.id)
   return MountainMaze(isOnWorldMap: false)
+}
+
+fun testMerchant {
+  resetGame()
+  final hero = Character()
+  hero.money += 100000
+  setHeroId(hero.id)
+  final merchant = Character()
+  merchant.money += 500000
+  characterAcquire(merchant, Medicine(rarity: 'common', stackSize: 20))
+  characterAcquire(merchant, Beverage(rarity: 'common', stackSize: 20))
+  showMerchant(merchant)
 }

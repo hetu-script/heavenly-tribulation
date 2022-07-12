@@ -83,3 +83,9 @@ external fun _showVisitCharacterSelection(context, idList)
 fun showVisitCharacterSelection(idList) -> Future {
   return _showVisitCharacterSelection(buildContext, idList)
 }
+
+external fun _showMerchant(context, merchant)
+
+fun showMerchant(merchant) -> Future {
+  return _showMerchant(buildContext, merchant)
+}

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/ui/view/character/build/build.dart';
 import 'package:hetu_script/values.dart';
 
 import '../avatar.dart';
@@ -10,12 +9,16 @@ import '../view/character/build/build.dart';
 import '../shared/dynamic_color_progressbar.dart';
 
 class HeroInfoPanel extends StatelessWidget {
-  const HeroInfoPanel({super.key, required this.heroData});
+  const HeroInfoPanel({
+    super.key,
+    this.characterData,
+  });
 
-  final HTStruct heroData;
+  final HTStruct? characterData;
 
   @override
   Widget build(BuildContext context) {
+    final heroData = characterData ?? engine.invoke('getHero');
     final charStats =
         engine.invoke('getCharacterStats', positionalArgs: [heroData]);
 

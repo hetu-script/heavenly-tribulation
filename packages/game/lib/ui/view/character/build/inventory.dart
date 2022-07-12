@@ -3,8 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import 'entity_grid.dart';
-import '../../item_info.dart';
+import '../../entity_grid.dart';
+import '../../entity_info.dart';
 import '../../../../global.dart';
 import '../../../../event/events.dart';
 
@@ -83,8 +83,8 @@ class _InventoryViewState extends State<InventoryView> {
           );
         }
 
-        return ItemInfo(
-          itemData: itemData,
+        return EntityInfo(
+          entityData: itemData,
           left: screenPosition.dx,
           actions: [
             if (action != null)

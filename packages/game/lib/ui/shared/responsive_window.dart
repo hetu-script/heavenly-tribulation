@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../global.dart';
 
-class ResponsiveRoute extends StatelessWidget {
-  const ResponsiveRoute({
+class ResponsiveWindow extends StatelessWidget {
+  const ResponsiveWindow({
     super.key,
     required this.child,
     this.alignment = AlignmentDirectional.topStart,

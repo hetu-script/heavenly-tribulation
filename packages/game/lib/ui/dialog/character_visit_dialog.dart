@@ -3,7 +3,7 @@ import 'package:data_table_2/data_table_2.dart';
 
 import '../../global.dart';
 import '../shared/empty_placeholder.dart';
-import '../shared/responsive_route.dart';
+import '../shared/responsive_window.dart';
 
 const _kCharacterVisitTableColumns = [
   'name',
@@ -122,7 +122,7 @@ class CharacterVisitDialog extends StatelessWidget {
       ),
     );
 
-    return ResponsiveRoute(
+    return ResponsiveWindow(
       alignment: AlignmentDirectional.center,
       child: layout,
     );

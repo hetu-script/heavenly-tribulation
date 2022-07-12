@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../global.dart';
-import 'shared/responsive_route.dart';
+import 'shared/responsive_window.dart';
 
 const _kWorldScaleLabel = {
   1: "tiny",
@@ -274,7 +274,7 @@ class _CreateGameDialogState extends State<CreateGameDialog> {
       ),
     );
 
-    return ResponsiveRoute(
+    return ResponsiveWindow(
       alignment: AlignmentDirectional.center,
       child: layout,
     );
