@@ -387,9 +387,13 @@ fun getEquippedEntity(equipData, character) {
     }
     kEntityTypeNpc -> {
       entity = game.npcs[equipData.id]
+      // 协调度并没有保存在对象数据中，而是保存在装备数据中，这里会临时将其赋值
+      entity.stats.coordination = equipData.coordination
     }
     kEntityTypeCharacter -> {
       entity = game.characters[equipData.id]
+      // 协调度并没有保存在对象数据中，而是保存在装备数据中，这里会临时将其赋值
+      entity.stats.coordination = equipData.coordination
     }
   }
   assert(entity != null)

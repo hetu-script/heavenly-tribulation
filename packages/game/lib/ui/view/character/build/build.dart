@@ -28,8 +28,8 @@ class BuildView extends StatefulWidget {
   State<BuildView> createState() => _BuildViewState();
 }
 
-class _BuildViewState extends State<BuildView>
-    with SingleTickerProviderStateMixin {
+class _BuildViewState extends State<BuildView> {
+  // with SingleTickerProviderStateMixin {
   static final List<Tab> _tabs = _kBuildTabNames
       .map(
         (title) => Tab(

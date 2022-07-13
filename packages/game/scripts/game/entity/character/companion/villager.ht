@@ -39,8 +39,6 @@ struct VillageWarrior {
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
     final battleInfo = BattleEntity(attributes: attributes, attributeSum: _kVillageWarriorAttributeSum)
     this.assign(battleInfo)
-    
-    this.looks = Math.gaussianNoise(_kCharacterAverageLooks, _kCharacterLooksDeviation, min: 0, max: 100)
 
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
     when (this.kind) {

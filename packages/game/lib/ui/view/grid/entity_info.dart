@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 import 'package:samsara/util.dart';
 
-import '../../global.dart';
-import '../shared/rrect_icon.dart';
+import '../../../global.dart';
+import '../../shared/rrect_icon.dart';
 // import '../../../shared/close_button.dart';
 
 const _kInfoPanelWidth = 390.0;
@@ -172,6 +172,9 @@ class EntityInfo extends StatelessWidget {
                           '${engine.locale['price']}: ${(entityData['value'] * priceFactor).truncate()}'),
                     if (stackSize > 1)
                       Text('${engine.locale['stackSize']}: $stackSize'),
+                    if (equipType == kEquipTypeCompanion)
+                      Text(
+                          '${engine.locale['coordination']}: ${stats['coordination']}'),
                     if (category == kEntityCategoryWeapon ||
                         category == kEntityCategoryProtect)
                       Text(
@@ -183,7 +186,6 @@ class EntityInfo extends StatelessWidget {
                       Text('${engine.locale['speed']}: ${stats['speed']}f'),
                     if (effects.isNotEmpty) const Divider(),
                     ...effects,
-                    if (actions.isNotEmpty) const Divider(),
                     if (actions.isNotEmpty)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,

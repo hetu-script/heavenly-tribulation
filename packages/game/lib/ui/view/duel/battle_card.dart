@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../entity_grid.dart';
+import '../grid/entity_grid.dart';
 import 'cooldown.dart';
 import '../../../global.dart';
-import '../entity_info.dart';
+import '../grid/entity_info.dart';
 import '../character/character.dart';
 import '../../shared/dynamic_color_progressbar.dart';
 import '../character/npc.dart';

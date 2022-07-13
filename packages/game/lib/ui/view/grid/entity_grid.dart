@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../global.dart';
+import '../../../global.dart';
 
 class EntityGrid extends StatelessWidget {
   const EntityGrid({

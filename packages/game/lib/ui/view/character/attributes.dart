@@ -9,15 +9,14 @@ import '../../shared/constants.dart';
 import '../../shared/label.dart';
 import '../../util.dart';
 
-const kCharacterStats = [
+const kCharacterAttributeNames = [
   'strength',
-  'dexterity',
   'constitution',
-  'superpower',
-  'perception',
+  'spirituality',
+  'willpower',
+  'dexterity',
   'intelligence',
-  'leadership',
-  'management',
+  'perception',
   'charisma',
 ];
 
@@ -163,7 +162,7 @@ class CharacterAttributesView extends StatelessWidget {
               const Divider(),
               // Text('---${engine.locale['attributes']}---'),
               Wrap(
-                children: kCharacterStats
+                children: kCharacterAttributeNames
                     .map(
                       (name) => Label(
                         '${engine.locale[name]}: ${characterData['stats'][name] ?? 0}',

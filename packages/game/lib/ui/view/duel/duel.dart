@@ -187,9 +187,6 @@ class _DuelState extends State<Duel> {
 
   @override
   Widget build(BuildContext context) {
-    final char1EntityType = widget.char1['entityType'];
-    final char2EntityType = widget.char2['entityType'];
-
     // execute after build completed
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.animateTo(
