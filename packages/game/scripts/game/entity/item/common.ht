@@ -8,19 +8,18 @@ const kUnknownItemIcon = 'icon/unknown_item.png'
 
 const kEquipTypeOffense = 'offense'
 const kEquipTypeSupport = 'support'
-const kEquipTypeArcane = 'arcane'
-const kEquipTypeTalisman = 'talisman'
+const kEquipTypeDefense = 'defense'
 const kEquipTypeCompanion = 'companion'
 // const kEquipTypeArmor = 'armor'
 // const kEquipTypeBoots = 'boots'
 // const kEquipTypeManeuver = 'maneuver'
 
-const kEquipmentMax = 5
-// const kOffenseEquipmentMax = 5
-// const kSupportEquipmentMax = 4
-// const kArcaneEquipmentMax = 4
-// const kTalismanEquipmentMax = 4
-// const kCompanionEquipmentMax = 5
+final kEquipmentMax = {
+  offense: 5,
+  support: 5,
+  defense: 4,
+  companion: 4,
+}
 
 final kRarity2ItemLevels = {
   common: 10, // common 白
@@ -39,7 +38,7 @@ fun calculateItemStats(item) {
 fun characterAcquireMoney(character, value) {
   assert(value > 0)
   character.money += value
-  final incidentContent = getLocaleString('characterAcquiredMoney', [ character.name, value ])
+  final incidentContent = getLocaleString('characterAcquireMoney', [ character.name, value ])
   Incident(
     content: incidentContent,
     subjectIds: character.isMajorCharacter ? [character.id] : null,
@@ -63,7 +62,7 @@ fun characterAcquire(character, item, [n = 1]) {
       item.stackSize = n
       character.inventory[item.id] = item
     }
-    incidentContent = getLocaleString('characterAcquiredCommonItem', [
+    incidentContent = getLocaleString('characterAcquireCommonItem', [
       character.name,
       n,
       item.name,
@@ -72,7 +71,7 @@ fun characterAcquire(character, item, [n = 1]) {
     assert(n == 1)
     item.stackSize = n
     character.inventory[item.id] = item
-    incidentContent = getLocaleString('characterAcquiredItem', [
+    incidentContent = getLocaleString('characterAcquireItem', [
       character.name,
       item.name,
     ])
@@ -156,7 +155,7 @@ fun characterLearn(character, skill) {
 // 此函数允许对一个不在物品栏中的物品调用
 fun characterConsume(character, item) {
   if (!item.isConsumable) {
-    engine.info('${item.name} 无法食用。')
+    engine.warning('${item.name} 无法食用。')
     return false
   }
 
@@ -234,11 +233,11 @@ fun characterConsume(character, item) {
 fun characterEquip(character, entity, { index }) -> bool {
   if (!entity.isEquippable) {
     engine.info('${entity.name} 无法装备。')
-    return false
+    return null
   }
   if (entity.equippedPosition) {
     engine.info('${entity.name} 已经在装备中了。')
-    return false
+    return null
   }
   var equipData = {
     id: entity.id,
@@ -252,23 +251,64 @@ fun characterEquip(character, entity, { index }) -> bool {
   when (entity.entityType) {
     kEntityTypeItem -> {
       if (!character.inventory[entity.id]) characterAcquire(character, entity)
+      equipData.damage = entity.stats.damage
+      
+      final incidentContent = getLocaleString('characterEquip', [
+        character.name,
+        entity.name,
+      ])
+      Incident(
+        content: incidentContent,
+        subjectIds: character.isMajorCharacter ? [character.id] : null,
+        isPrivate: true,
+      )
     }
     kEntityTypeSkill -> {
       if (!character.skills[entity.id]) characterLearn(character, entity)
+      equipData.damage = entity.stats.damage
+      
+      final incidentContent = getLocaleString('characterEquipSkill', [
+        character.name,
+        entity.name,
+      ])
+      Incident(
+        content: incidentContent,
+        subjectIds: character.isMajorCharacter ? [character.id] : null,
+        isPrivate: true,
+      )
     }
     kEntityTypeNpc, kEntityTypeCharacter -> {
-      if (!character.companions[entity.id]) characterGetCompanion(character, entity)
+      final companionData = character.companions.containsKey(entity.id) ?
+        character.companions[entity.id] : characterGetCompanion(character, entity)
+      final firstOffenseItemEquipData = entity.equipments.offense[1]
+      if (firstOffenseItemEquipData == null) {
+        engine.warning('${entity.name} 的第一个攻击格子没有装备，因此无法设置为战斗伙伴。')
+        return null
+      }
+      equipData.damage = firstOffenseItemEquipData.damage
+      equipData.coordination = companionData.coordination
+      
+      final incidentContent = getLocaleString('characterFollow', [
+        entity.name,
+        character.name,
+      ])
+      Incident(
+        content: incidentContent,
+        subjectIds: entity.isMajorCharacter ? [entity.id] : null,
+        objectIds: character.isMajorCharacter ? [character.id] : null,
+        isPrivate: true,
+      )
     }
   }
   
   when (entity.equipType) {
     // 剑法、心诀等支持型技能
     kEquipTypeSupport -> {
-      for (final i in range(1, kSupportEquipmentMax)) {
+      for (final i in range(1, kEquipmentMax.support)) {
         final oldEquipData = character.equipments[kEquipTypeOffense][i]
         if (oldEquipData && oldEquipData.category == data.category &&
             oldEquipData.kind == data.kind) {
-          if (oldEquipData.supports.length < _kSupportEquipmentMax - 1) {
+          if (oldEquipData.supports.length < kEquipmentMax.support - 1) {
             oldEquipData.supports.add(equipData)
           } else {
             // 移除旧装备
@@ -283,13 +323,12 @@ fun characterEquip(character, entity, { index }) -> bool {
       return false
     }
     // kEquipTypeOffense: 斗技、武器、攻击法宝等
-    // kEquipTypeArcane: 内功、轻功等
-    // kEquipTypeTalisman: 护甲、靴子、辅助法宝等
-    kEquipTypeOffense, kEquipTypeArcane, kEquipTypeTalisman, kEquipTypeCompanion -> {
+    // kEquipTypeDefense: 内功、轻功、护甲、靴子、辅助法宝等
+    kEquipTypeDefense, kEquipTypeOffense, kEquipTypeCompanion -> {
       equipData.supports = []
       // 如果有空位就装备在空位上
       if (!index) {
-        for (final i in range(1, kEquipmentMax)) {
+        for (final i in range(1, kEquipmentMax[entity.equipType])) {
           if (!character.equipments[entity.equipType][i]) {
             character.equipments[entity.equipType][i] = equipData
             entity.equippedPosition = i
@@ -314,6 +353,8 @@ fun characterEquip(character, entity, { index }) -> bool {
       return true
     }
   }
+
+  return equipData
 }
 
 fun characterUnequip(character, entity) {
@@ -328,7 +369,7 @@ fun characterUnequip(character, entity) {
       characterDismissCompanion(character, entity)
     }
     // 斗技、武器、法宝等
-    kEquipTypeOffense, kEquipTypeArcane, kEquipTypeTalisman -> {
+    kEquipTypeDefense, kEquipTypeOffense -> {
       delete character.equipments[entity.equipType][entity.equippedPosition]
     }
   }

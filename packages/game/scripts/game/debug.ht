@@ -24,6 +24,10 @@ fun testDuel {
   final hero = Character(isMajorCharacter: false)
   characterEquip(hero, Kickboxing())
   characterEquip(hero, Weapon())
+  characterEquip(hero, Shield())
+  final companion = VillageWarrior()
+  characterEquip(companion, Weapon())
+  characterEquip(hero, companion)
 
   // final enemy = Character(isMajorCharacter: false)
   // final enemy = Bandit(kind: 'boss')
@@ -32,23 +36,6 @@ fun testDuel {
 
   final enemy = Beast()
   showDuel(hero, enemy, type: kDuelTypePractice)
-}
-
-fun testMaze {
-  resetGame()
-  final hero = Character()
-  hero.money += 1000
-  characterEquip(hero, Kickboxing())
-  characterEquip(hero, Weapon())
-  characterAcquire(hero, Medicine(rarity: 'common'), 5)
-  characterAcquire(hero, Beverage(rarity: 'common'), 5)
-  characterEquip(hero, VillageWarrior())
-  setHeroId(hero.id)
-  return MountainMaze(
-    name: '测试副本'
-    isOnWorldMap: false,
-    levelNumber: 3,
-  )
 }
 
 fun testMerchant {
@@ -61,4 +48,26 @@ fun testMerchant {
   characterAcquire(merchant, Medicine(rarity: 'common'), 20)
   characterAcquire(merchant, Beverage(rarity: 'common'), 20)
   showMerchant(merchant)
+}
+
+fun testMaze {
+  resetGame()
+  // 先创建副本再创建英雄，这样会直接用localHistory替换掉hostory
+  final maze = MountainMaze(
+    name: '测试副本'
+    isOnWorldMap: false,
+    levelNumber: 3,
+  )
+  final hero = Character()
+  hero.money += 200
+  characterEquip(hero, Kickboxing())
+  characterEquip(hero, Weapon())
+  characterEquip(hero, Shield())
+  characterAcquire(hero, Medicine(rarity: 'common'), 5)
+  characterAcquire(hero, Beverage(rarity: 'common'), 5)
+  final companion = VillageWarrior()
+  characterEquip(companion, Weapon())
+  characterEquip(hero, companion)
+  setHeroId(hero.id)
+  return maze
 }

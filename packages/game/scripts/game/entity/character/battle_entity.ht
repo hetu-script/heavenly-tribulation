@@ -34,8 +34,7 @@ struct BattleEntity {
     // 装备栏的位置和数量是固定的
     // 每个位置都是一个EquipSlot形式的对象
     this.equipments = {
-      talisman: {}, // 防具、靴子、辅助法宝总共可以装备 4 个
-      arcane: {}, // 内功、轻功总共可以装备 4 个
+      defense: {}, // 防具、靴子、辅助法宝、内功、轻功总共可以装备 4 个
       offense: {}, // 武器、斗技、进攻法宝总共可以装备 4 个
       companion: {}, // 随从总共可以装备 4 个
     }
@@ -102,4 +101,65 @@ fun calculateCharacterStats(character) {
   character.stats.lifeMax = character.stats.life
   character.stats.chiMax = character.stats.chi
   character.stats.staminaMax = character.stats.stamina
+}
+
+fun getCharacterStats(character) {
+  final stats = {
+    life: character.stats.life,
+    lifeMax: character.stats.lifeMax,
+    chi: character.stats.chi,
+    chiMax: character.stats.chiMax,
+    stamina: character.stats.stamina,
+    staminaMax: character.stats.staminaMax,
+    defense: {},
+    offense: {},
+    companion: {},
+  }
+  for (var i = 1; i < kEquipmentMax.defense; ++i) {
+    final equipData = character.equipments.defense[i]
+    if (equipData != null) {
+      final item = getEquippedEntity(equipData, character)
+      stats.defense[i] = {
+        life: item.stats.life,
+        lifeMax: item.stats.lifeMax,
+      }
+    }
+  }
+  for (var i = 1; i < kEquipmentMax.offense; ++i) {
+    final equipData = character.equipments.offense[i]
+    if (equipData != null) {
+      final item = getEquippedEntity(equipData, character)
+      stats.offense[i] = {
+        life: item.stats.life,
+        lifeMax: item.stats.lifeMax,
+        damage: item.stats.damage,
+      }
+    }
+  }
+  for (var i = 1; i < kEquipmentMax.companion; ++i) {
+    final equipData = character.equipments.companion[i]
+    if (equipData != null) {
+      final companion = getEquippedEntity(equipData, character)
+      stats.companion[i] = {
+        life: companion.stats.life,
+        lifeMax: companion.stats.lifeMax,
+        damage: equipData.damage, // 在装备数据中已经提前计算了随从的攻击伤害
+      }
+    }
+  }
+  return stats
+}
+
+fun getEquippedItem(equipData, character) {
+  var item
+  when (equipData.entityType) {
+    kEntityTypeItem -> {
+      item = character.inventory[equipData.id]
+    }
+    kEntityTypeSkill -> {
+      item = character.skills[equipData.id]
+    }
+  }
+  assert(item != null)
+  return item
 }

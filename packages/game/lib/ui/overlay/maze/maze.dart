@@ -55,8 +55,6 @@ class _MazeOverlayState extends State<MazeOverlay>
     _currentLevelIndex = widget.startLevel;
     // _heroData = engine.invoke('getHero');
 
-    engine.invoke('enterMaze', positionalArgs: [widget.mazeData]);
-
     engine.hetu.interpreter.bindExternalFunction(
         'showGameOver',
         (HTEntity object,

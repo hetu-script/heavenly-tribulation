@@ -1,8 +1,5 @@
 const kNone = 'none'
 
-final kEquipmentCategory = ['weapon', 'armor', 'boot', 'talisman']
-final kEquipmentCategoryWithoutBoot = ['weapon', 'armor', 'talisman']
-
 const kStats = 'stats'
 final kStrength = 'strength'
 final kDexterity = 'dexterity'
@@ -129,6 +126,7 @@ const kEntityTypeSkill = 'skill' //character.skills
 const kEntityCategoryCharacter = 'character'
 const kEntityCategoryBeast = 'beast'
 const kEntityCategoryWeapon = 'weapon'
+const kEntityCategoryProtect = 'protect'
 const kEntityCategoryTalisman = 'talisman'
 const kEntityCategoryConsumable = 'consumable'
 const kEntityCategoryFightSkill = 'fightSkill'

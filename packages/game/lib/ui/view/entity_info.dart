@@ -18,6 +18,7 @@ const kEntityTypeSkill = 'skill'; //character.skill
 const kEntityCategoryCharacter = 'character';
 const kEntityCategoryBeast = 'beast';
 const kEntityCategoryWeapon = 'weapon';
+const kEntityCategoryProtect = 'protect';
 const kEntityCategoryTalisman = 'talisman';
 const kEntityCategoryConsumable = 'consumable';
 const kEntityCategoryFightSkill = 'fightSkill';
@@ -28,8 +29,7 @@ const kEntityConsumableKindElixir = 'elixir';
 
 const kEquipTypeOffense = 'offense';
 const kEquipTypeSupport = 'support';
-const kEquipTypeArcane = 'arcane';
-const kEquipTypeTalisman = 'talisman';
+const kEquipTypeDefense = 'defense';
 const kEquipTypeCompanion = 'companion';
 
 class EntityInfo extends StatelessWidget {
@@ -172,7 +172,8 @@ class EntityInfo extends StatelessWidget {
                           '${engine.locale['price']}: ${(entityData['value'] * priceFactor).truncate()}'),
                     if (stackSize > 1)
                       Text('${engine.locale['stackSize']}: $stackSize'),
-                    if (category == kEntityCategoryWeapon)
+                    if (category == kEntityCategoryWeapon ||
+                        category == kEntityCategoryProtect)
                       Text(
                           '${engine.locale['durability']}: ${stats['life']}/${attributes['life']}'),
                     if (equipType == kEquipTypeOffense)

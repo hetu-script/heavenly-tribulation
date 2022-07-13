@@ -66,46 +66,50 @@ class DynamicColorProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        if (title != null)
-          Padding(
-            padding: const EdgeInsets.only(right: 5.0),
-            child: Text(title!),
-          ),
-        Container(
-          width: width,
-          height: height,
-          decoration: BoxDecoration(
-            color: Colors.white24,
-            borderRadius: BorderRadius.circular(borderRadius),
-            border: Border.all(color: kForegroundColor),
-          ),
-          child: Stack(
-            alignment: AlignmentDirectional.centerStart,
-            children: [
-              Container(
-                alignment: Alignment.centerLeft,
-                width: value / max * width,
-                height: height,
-                decoration: BoxDecoration(
-                  color: _lerpGradient(value / max),
-                ),
-              ),
-              if (showNumber)
-                Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    showNumberAsPercentage
-                        ? (value / max).toPercentageString()
-                        : '$value/$max',
-                    style: const TextStyle(fontSize: 12.0),
+    return Tooltip(
+      message: '$value/$max',
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (title != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 5.0),
+              child: Text(title!),
+            ),
+          Container(
+            width: width,
+            height: height,
+            decoration: BoxDecoration(
+              color: Colors.white24,
+              borderRadius: BorderRadius.circular(borderRadius),
+              border: Border.all(color: kForegroundColor),
+            ),
+            child: Stack(
+              alignment: AlignmentDirectional.centerStart,
+              children: [
+                Container(
+                  alignment: Alignment.centerLeft,
+                  width: value / max * width,
+                  height: height,
+                  decoration: BoxDecoration(
+                    color: _lerpGradient(value / max),
                   ),
-                )
-            ],
+                ),
+                if (showNumber)
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      showNumberAsPercentage
+                          ? (value / max).toPercentageString()
+                          : '$value/$max',
+                      style: const TextStyle(fontSize: 12.0),
+                    ),
+                  )
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

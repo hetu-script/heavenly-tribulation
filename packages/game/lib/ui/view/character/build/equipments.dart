@@ -37,30 +37,17 @@ class EquipmentsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final talismans = characterData['equipments']['talisman'];
-    final talisman1 = engine.invoke('getEquippedEntity', positionalArgs: [
-      talismans[1],
+    final defenses = characterData['equipments']['defense'];
+    final defense1 = engine.invoke('getEquippedEntity', positionalArgs: [
+      defenses[1],
       characterData,
     ]);
-    final talisman2 = engine.invoke('getEquippedEntity', positionalArgs: [
-      talismans[2],
+    final defense2 = engine.invoke('getEquippedEntity', positionalArgs: [
+      defenses[2],
       characterData,
     ]);
-    final talisman3 = engine.invoke('getEquippedEntity', positionalArgs: [
-      talismans[3],
-      characterData,
-    ]);
-    final arcanes = characterData['equipments']['arcane'];
-    final arcane1 = engine.invoke('getEquippedEntity', positionalArgs: [
-      arcanes[1],
-      characterData,
-    ]);
-    final arcane2 = engine.invoke('getEquippedEntity', positionalArgs: [
-      arcanes[2],
-      characterData,
-    ]);
-    final arcane3 = engine.invoke('getEquippedEntity', positionalArgs: [
-      arcanes[3],
+    final defense3 = engine.invoke('getEquippedEntity', positionalArgs: [
+      defenses[3],
       characterData,
     ]);
     final offenses = characterData['equipments']['offense'];
@@ -93,10 +80,6 @@ class EquipmentsView extends StatelessWidget {
       companions[3],
       characterData,
     ]);
-    final companion4 = engine.invoke('getEquippedEntity', positionalArgs: [
-      companions[4],
-      characterData,
-    ]);
 
     return Container(
       width: 390.0,
@@ -113,34 +96,34 @@ class EquipmentsView extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: EntityGrid(
-                      entityData: talisman1,
+                      entityData: defense1,
                       onSelect: (item, screenPosition) =>
                           _onItemTapped(context, item, screenPosition),
                       isSelected: selectedIndex == 1,
                       backgroundImage: const AssetImage(
-                          'assets/images/icon/item/bg_talisman.png'),
+                          'assets/images/icon/item/bg_defense.png'),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: EntityGrid(
-                      entityData: talisman2,
+                      entityData: defense2,
                       onSelect: (item, screenPosition) =>
                           _onItemTapped(context, item, screenPosition),
                       isSelected: selectedIndex == 2,
                       backgroundImage: const AssetImage(
-                          'assets/images/icon/item/bg_talisman.png'),
+                          'assets/images/icon/item/bg_defense.png'),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: EntityGrid(
-                      entityData: talisman3,
+                      entityData: defense3,
                       onSelect: (item, screenPosition) =>
                           _onItemTapped(context, item, screenPosition),
                       isSelected: selectedIndex == 2,
                       backgroundImage: const AssetImage(
-                          'assets/images/icon/item/bg_talisman.png'),
+                          'assets/images/icon/item/bg_defense.png'),
                     ),
                   ),
                 ],
@@ -150,34 +133,34 @@ class EquipmentsView extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: EntityGrid(
-                      entityData: arcane1,
+                      entityData: companion1,
                       onSelect: (item, screenPosition) =>
                           _onItemTapped(context, item, screenPosition),
                       isSelected: selectedIndex == 1,
                       backgroundImage: const AssetImage(
-                          'assets/images/icon/item/bg_arcane.png'),
+                          'assets/images/icon/item/bg_companion.png'),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: EntityGrid(
-                      entityData: arcane2,
+                      entityData: companion2,
                       onSelect: (item, screenPosition) =>
                           _onItemTapped(context, item, screenPosition),
                       isSelected: selectedIndex == 2,
                       backgroundImage: const AssetImage(
-                          'assets/images/icon/item/bg_arcane.png'),
+                          'assets/images/icon/item/bg_companion.png'),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: EntityGrid(
-                      entityData: arcane3,
+                      entityData: companion3,
                       onSelect: (item, screenPosition) =>
                           _onItemTapped(context, item, screenPosition),
                       isSelected: selectedIndex == 2,
                       backgroundImage: const AssetImage(
-                          'assets/images/icon/item/bg_arcane.png'),
+                          'assets/images/icon/item/bg_companion.png'),
                     ),
                   ),
                 ],
@@ -194,8 +177,8 @@ class EquipmentsView extends StatelessWidget {
                   onSelect: (item, screenPosition) =>
                       _onItemTapped(context, item, screenPosition),
                   isSelected: selectedIndex == 1,
-                  backgroundImage:
-                      const AssetImage('assets/images/icon/item/bg_weapon.png'),
+                  backgroundImage: const AssetImage(
+                      'assets/images/icon/item/bg_offense.png'),
                 ),
               ),
               Padding(
@@ -205,8 +188,8 @@ class EquipmentsView extends StatelessWidget {
                   onSelect: (item, screenPosition) =>
                       _onItemTapped(context, item, screenPosition),
                   isSelected: selectedIndex == 2,
-                  backgroundImage:
-                      const AssetImage('assets/images/icon/item/bg_weapon.png'),
+                  backgroundImage: const AssetImage(
+                      'assets/images/icon/item/bg_offense.png'),
                 ),
               ),
               Padding(
@@ -216,8 +199,8 @@ class EquipmentsView extends StatelessWidget {
                   onSelect: (item, screenPosition) =>
                       _onItemTapped(context, item, screenPosition),
                   isSelected: selectedIndex == 3,
-                  backgroundImage:
-                      const AssetImage('assets/images/icon/item/bg_weapon.png'),
+                  backgroundImage: const AssetImage(
+                      'assets/images/icon/item/bg_offense.png'),
                 ),
               ),
               Padding(
@@ -227,57 +210,8 @@ class EquipmentsView extends StatelessWidget {
                   onSelect: (item, screenPosition) =>
                       _onItemTapped(context, item, screenPosition),
                   isSelected: selectedIndex == 4,
-                  backgroundImage:
-                      const AssetImage('assets/images/icon/item/bg_weapon.png'),
-                ),
-              ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: EntityGrid(
-                  entityData: companion1,
-                  onSelect: (item, screenPosition) =>
-                      _onItemTapped(context, item, screenPosition),
-                  isSelected: selectedIndex == 1,
                   backgroundImage: const AssetImage(
-                      'assets/images/icon/item/bg_companion.png'),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: EntityGrid(
-                  entityData: companion2,
-                  onSelect: (item, screenPosition) =>
-                      _onItemTapped(context, item, screenPosition),
-                  isSelected: selectedIndex == 2,
-                  backgroundImage: const AssetImage(
-                      'assets/images/icon/item/bg_companion.png'),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: EntityGrid(
-                  entityData: companion3,
-                  onSelect: (item, screenPosition) =>
-                      _onItemTapped(context, item, screenPosition),
-                  isSelected: selectedIndex == 3,
-                  backgroundImage: const AssetImage(
-                      'assets/images/icon/item/bg_companion.png'),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: EntityGrid(
-                  entityData: companion4,
-                  onSelect: (item, screenPosition) =>
-                      _onItemTapped(context, item, screenPosition),
-                  isSelected: selectedIndex == 4,
-                  backgroundImage: const AssetImage(
-                      'assets/images/icon/item/bg_companion.png'),
+                      'assets/images/icon/item/bg_offense.png'),
                 ),
               ),
             ],

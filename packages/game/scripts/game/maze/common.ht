@@ -76,6 +76,21 @@ fun generateRouteByName(name, anchors, map) {
   }
 }
 
+// fun enterMaze(maze) {
+//   localHistory = maze.history
+// }
+
+fun leaveMaze(maze) {
+  localHistory = null
+  // 移除所有临时npc
+  for (final entity of maze.entities) {
+    if (!entity.isPermanent) {
+      delete game.npcs[entity.id]
+    }
+  }
+  disposeMaze()
+}
+
 fun mazeGameOver(maze) {
   showGameOver().then((value) {
     leaveMaze(maze)

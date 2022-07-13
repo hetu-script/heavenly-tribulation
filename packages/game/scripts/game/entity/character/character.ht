@@ -8,6 +8,7 @@ import '../../util.ht'
 import '../common.ht'
 import '../../tile/hexagonal_tile.ht'
 import 'battle_entity.ht'
+import '../item/common.ht'
 
 // number of the male avatar images
 const _kMaleAvatarCount = 37
@@ -20,8 +21,6 @@ const _kCharacterMaxLooks = 100.0
 const _kCharacterImpressionCheckpoint = 10.0
 const _kCharacterInitialGeneralThinking = 4
 const _kMajorMotivationProbobility = 0.2
-
-const _kCompanionMax = 4
 
 final kMajorMotivations = [
   'duty',
@@ -644,52 +643,27 @@ fun rejuvenate(character) {
   character.stats.life = character.attributes.life
   character.stats.stamina = character.attributes.stamina
 
-  for (var i = 1; i < kEquipmentMax; ++i) {
+  for (var i = 1; i < kEquipmentMax.defense; ++i) {
+    final equipData = character.equipments.defense[i]
+    if (equipData != null) {
+      final item = getEquippedEntity(equipData, character)
+      item.stats.life = item.stats.lifeMax
+    }
+  }
+  for (var i = 1; i < kEquipmentMax.offense; ++i) {
     final equipData = character.equipments.offense[i]
     if (equipData != null) {
       final item = getEquippedEntity(equipData, character)
       item.stats.life = item.stats.lifeMax
     }
   }
-}
-
-fun getCharacterStats(character) {
-  final stats = {
-    life: character.stats.life,
-    lifeMax: character.stats.lifeMax,
-    chi: character.stats.chi,
-    chiMax: character.stats.chiMax,
-    stamina: character.stats.stamina,
-    staminaMax: character.stats.staminaMax,
-    offense: {},
-    companion: {},
-  }
-  for (var i = 1; i < kEquipmentMax; ++i) {
-    final equipData = character.equipments.offense[i]
+  for (var i = 1; i < kEquipmentMax.companion; ++i) {
+    final equipData = character.equipments.companion[i]
     if (equipData != null) {
       final item = getEquippedEntity(equipData, character)
-      stats.offense[i] = {
-        life: item.stats.life,
-        lifeMax: item.stats.lifeMax,
-        damage: item.stats.damage,
-      }
+      item.stats.life = item.stats.lifeMax
     }
   }
-  return stats
-}
-
-fun getEquippedItem(equipData, character) {
-  var item
-  when (equipData.entityType) {
-    kEntityTypeItem -> {
-      item = character.inventory[equipData.id]
-    }
-    kEntityTypeSkill -> {
-      item = character.skills[equipData.id]
-    }
-  }
-  assert(item != null)
-  return item
 }
 
 fun handleCharacterTalk(subject, target) {
@@ -766,17 +740,24 @@ fun characterSteal(character, item) {
 // {
 //   id,
 //   entityType,
+//   coordination,
 // }
 fun characterGetCompanion(character, companion) {
-  if (character.companions.length >= _kCompanionMax) {
-    engine.info('${character.name} 的随从数量已满，无法再添加新的随从。')
+  if (character.companions.length >= kEquipmentMax.companion) {
+    engine.warning('${character.name} 的随从数量已满，无法再添加新的随从。')
+    return false
+  }
+  if (character.companions.containsKey(companion.id)) {
+    engine.warning('${companion.name} 已经是 ${character.name} 的随从了，无法再次添加。')
     return false
   }
   var companionData = {
     id: companion.id,
     entityType: companion.entityType,
+    coordination: 0, // 该随从对于该角色的配合程度
   }
   character.companions[companionData.id] = companionData
+  return companionData
 }
 
 fun characterDismissCompanion(character, companion) {

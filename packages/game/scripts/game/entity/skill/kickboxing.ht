@@ -1,8 +1,8 @@
-import '../../../name/name.ht' as nameGenerator
-import '../../common.ht'
-import '../../../game.ht'
+import '../../name/name.ht' as nameGenerator
 import '../common.ht'
+import '../../game.ht'
 import 'common.ht'
+import '../item/common.ht'
 
 final kKickboxingIcons = [
   'icon/skill/martial_0.png',

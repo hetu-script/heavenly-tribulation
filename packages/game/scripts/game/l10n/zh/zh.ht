@@ -6,8 +6,7 @@ import 'editor.json' as editor
 import 'effects.json' as effects
 import 'general.json' as general
 import 'incident.json' as incident
-import 'information_panel.json' as informationPanel
-import 'interaction.json' as interaction
+import 'information.json' as information
 import 'item.json' as item
 import 'location.json' as location
 import 'mainmenu.json' as mainmenu
@@ -28,8 +27,7 @@ final zh = {
   ...effects,
   ...general,
   ...incident,
-  ...informationPanel,
-  ...interaction,
+  ...information,
   ...item,
   ...location,
   ...mainmenu,

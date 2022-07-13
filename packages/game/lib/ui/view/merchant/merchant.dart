@@ -105,7 +105,7 @@ class _MerchantViewState extends State<MerchantView> {
                   final int restOfMoney = widget.merchantData['money'];
                   final int payment = item['value'].truncate() * quantity;
                   if (restOfMoney < payment) {
-                    engine.info('${widget.merchantData['name']} 银两不足，无法出售。');
+                    engine.info('${widget.merchantData['name']} 银钱不足，无法出售。');
                     return;
                   }
                   engine.invoke('characterGiveMoney', positionalArgs: [

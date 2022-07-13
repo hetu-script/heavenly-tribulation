@@ -3,12 +3,10 @@ import 'package:hetu_script/values.dart';
 
 import '../../global.dart';
 
-const kDefaultGridSize = Size(48.0, 48.0);
-
 class EntityGrid extends StatelessWidget {
   const EntityGrid({
     super.key,
-    this.size = kDefaultGridSize,
+    this.size = const Size(48.0, 48.0),
     this.entityData,
     required this.onSelect,
     this.hasBorder = true,

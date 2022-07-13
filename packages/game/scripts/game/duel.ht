@@ -33,13 +33,13 @@ const _kDuelticksLimit = 500
 struct Log {
   construct ({
     message,
-    activatedIndex = 0,
+    activatedOffenseIndex = 0,
     speed,
     damage = 0,
     targetIndex,
   }) {
     assert(message != null)
-    this.activatedIndex = activatedIndex
+    this.activatedOffenseIndex = activatedOffenseIndex
     this.speed = speed
     this.damage = damage
     this.message = message
@@ -58,20 +58,20 @@ struct Duel {
     // 保存战斗开始时双方的初始状态
     this.initialStats = {
       char1: getCharacterStats(char1),
-      char2: getCharacterStats(char1),
+      char2: getCharacterStats(char2),
     }
     
     final char1info = {
       ticks: 0,
-      offenseItems: char1.equipments.offense, // 进攻手段列表
-      activatedIndex: 1, // 当前激活的进攻手段
+      activatedDefenseIndex: 0, // 当前激活的防御单位，0代表英雄本身，1-3代表防具，4-6代表随从
+      activatedOffenseIndex: 1, // 当前激活的进攻手段，1代表第一个武器或斗技
       // 复制出来的人物当前状态，包括生命值等
       stats: this.initialStats.char1.clone(),
     }
     final char2info = {
       ticks: 0,
-      offenseItems: char2.equipments.offense,
-      activatedIndex: 1,
+      activatedDefenseIndex: 0,
+      activatedOffenseIndex: 1,
       stats: this.initialStats.char2.clone(),
     }
 
@@ -166,7 +166,7 @@ struct Duel {
             ])
             this.messages.add(message)
             actions.add(Log(
-              activatedIndex: info.activatedIndex,
+              activatedOffenseIndex: info.activatedOffenseIndex,
               speed: info.activatedOffense.stats.speed,
               damage: damage,
               message: message,
@@ -180,12 +180,12 @@ struct Duel {
             //   info.targetIndex = setNextActivatedDefenseItem(info, target)
             // }
             // 收招
-            ++info.activatedIndex
-            if (info.activatedIndex > info.offenseItems.length) {
-              info.activatedIndex = 1
+            ++info.activatedOffenseIndex
+            if (info.activatedOffenseIndex > info.offenseItems.length) {
+              info.activatedOffenseIndex = 1
             }
             info.activatedOffense =
-              getEquippedEntity(info.offenseItems[info.activatedIndex], subject)
+              getEquippedEntity(info.offenseItems[info.activatedOffenseIndex], subject)
           } else {
             ++info.ticks
           }

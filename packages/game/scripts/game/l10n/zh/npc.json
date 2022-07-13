@@ -10,5 +10,9 @@
   "minion": "喽啰",
 
   "companion": "随从",
-  "villageWarrior": "村汉"
+  "villageWarrior": "村汉",
+
+  "monkey": "猴",
+  "tiger": "虎",
+  "snake": "蛇"
 }

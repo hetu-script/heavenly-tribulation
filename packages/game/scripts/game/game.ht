@@ -22,10 +22,6 @@ fun getLocalHistory() {
   return localHistory
 }
 
-fun enterMaze(maze) {
-  localHistory = maze.history
-}
-
 var history = []
 
 fun getHistory() {

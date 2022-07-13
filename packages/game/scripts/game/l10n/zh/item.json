@@ -1,10 +1,6 @@
 {
   "defaultItemDescription": "未知来历的神秘物品。",
 
-  "category": "类型",
-  "weapon": "武器",
-  "consumable": "食物",
-
   "kind": "类型",
   "sabre": "刀",
   "sword": "剑",
