@@ -88,8 +88,8 @@ struct Duel {
       this.tied = false
       // 战斗本身的客观时间，不会受任何因素影响
       this.frames = 0
-      char1info.activatedOffense = getEquippedEntity(char1info.offenseItems.values.first, char1)
-      char2info.activatedOffense = getEquippedEntity(char2info.offenseItems.values.first, char2)
+      char1info.activatedOffense = getEquippedEntity(char1.equipments.offense.values.first, char1)
+      char2info.activatedOffense = getEquippedEntity(char2.equipments.offense.values.first, char2)
 
       // 设置人物当前防护物品位置，0 = 无防护物品
       // fun setNextActivatedDefenseItem(info, character) {
@@ -181,11 +181,11 @@ struct Duel {
             // }
             // 收招
             ++info.activatedOffenseIndex
-            if (info.activatedOffenseIndex > info.offenseItems.length) {
+            if (info.activatedOffenseIndex > subject.equipments.offesne.length) {
               info.activatedOffenseIndex = 1
             }
             info.activatedOffense =
-              getEquippedEntity(info.offenseItems[info.activatedOffenseIndex], subject)
+              getEquippedEntity(subject.equipments.offesne[info.activatedOffenseIndex], subject)
           } else {
             ++info.ticks
           }

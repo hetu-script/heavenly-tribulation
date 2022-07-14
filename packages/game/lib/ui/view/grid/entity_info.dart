@@ -172,9 +172,9 @@ class EntityInfo extends StatelessWidget {
                           '${engine.locale['price']}: ${(entityData['value'] * priceFactor).truncate()}'),
                     if (stackSize > 1)
                       Text('${engine.locale['stackSize']}: $stackSize'),
-                    if (equipType == kEquipTypeCompanion)
-                      Text(
-                          '${engine.locale['coordination']}: ${stats['coordination']}'),
+                    // if (equipType == kEquipTypeCompanion)
+                    //   Text(
+                    //       '${engine.locale['coordination']}: ${stats['coordination']}'),
                     if (category == kEntityCategoryWeapon ||
                         category == kEntityCategoryProtect)
                       Text(

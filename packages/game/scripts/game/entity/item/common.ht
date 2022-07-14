@@ -31,6 +31,9 @@ final kRarity2ItemLevels = {
   exotic: 70, // exotic 虹
 }
 
+const kCompanionAssistProbability = 0.1
+const kCompanionDefendProbability = 0.1
+
 fun calculateItemStats(item) {
   item.stats = item.attributes.clone()
 }
@@ -286,7 +289,7 @@ fun characterEquip(character, entity, { index }) -> bool {
         return null
       }
       equipData.damage = firstOffenseItemEquipData.damage
-      equipData.coordination = companionData.coordination
+      // equipData.coordination = companionData.coordination
       
       final incidentContent = getLocaleString('characterFollow', [
         entity.name,
@@ -387,13 +390,22 @@ fun getEquippedEntity(equipData, character) {
     }
     kEntityTypeNpc -> {
       entity = game.npcs[equipData.id]
-      // 协调度并没有保存在对象数据中，而是保存在装备数据中，这里会临时将其赋值
-      entity.stats.coordination = equipData.coordination
+      // 协调度并没有保存在对象数据中，而是保存在装备数据中
+      // 这里会临时计算出来，赋值在entity上
+      final assist = {
+        name: effectCompanionAssist,
+        description: effectParryDescription,
+        values: [
+          {
+            value: kCompanionAssistProbability + equipData.coordination / 100 * kCompanionAssistProbability,
+            type: kEffectValueTypePercentage,
+          },
+        ],
+      }
+      
     }
     kEntityTypeCharacter -> {
       entity = game.characters[equipData.id]
-      // 协调度并没有保存在对象数据中，而是保存在装备数据中，这里会临时将其赋值
-      entity.stats.coordination = equipData.coordination
     }
   }
   assert(entity != null)
