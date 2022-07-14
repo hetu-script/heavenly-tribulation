@@ -146,7 +146,6 @@ struct Duel {
                       item.name,
                       shareDamage.truncate(),
                     ])
-                    engine.info(message)
                     actions.add(Action(
                       activatedOffenseIndex: subjectInfo.activatedOffenseIndex,
                       speed: subjectInfo.activatedOffense.stats.speed,
@@ -179,7 +178,6 @@ struct Duel {
                       companion.name,
                       shareDamage.truncate(),
                     ])
-                    engine.info(message)
                     actions.add(Action(
                       activatedOffenseIndex: subjectInfo.activatedOffenseIndex,
                       speed: subjectInfo.activatedOffense.stats.speed,
@@ -203,7 +201,6 @@ struct Duel {
                 target.name,
                 baseDamage.truncate(),
               ])
-              engine.info(message)
               actions.add(Action(
                 activatedOffenseIndex: subjectInfo.activatedOffenseIndex,
                 speed: subjectInfo.activatedOffense.stats.speed,
@@ -214,6 +211,7 @@ struct Duel {
             }
 
             this.messages.add(message)
+            // engine.info(message)
             
             subjectInfo.ticks = 0
             // if (info.activatedDefense.stats.life <= 0) {

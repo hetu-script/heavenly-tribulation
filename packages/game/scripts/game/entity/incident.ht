@@ -40,8 +40,14 @@ struct Incident {
     this.isGlobal = isGlobal
     if (localHistory is List) {
       localHistory.add(this)
+      if (!isPrivate) {
+        this.index = history.length
+        history.add(this)
+      }
+    } else {
+      this.index = history.length
+      history.add(this)
     }
-    history.add(this)
 
     for (final id in subjectIds) {
       final char = game.characters[id]
