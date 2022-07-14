@@ -10,7 +10,7 @@ fun generateBattleCompanionData(companionData, battleEntity) {
 
   // 生成同伴数据
   final assist = {
-    name: kEffectIncreaseDamage,
+    name: kEffectIncreaseDamageByChance,
     description: kEffectCompanionIncreaseDamageDescription,
     values: [
       {
@@ -24,8 +24,8 @@ fun generateBattleCompanionData(companionData, battleEntity) {
     ],
   }
   final defend = {
-    name: kEffectDefend,
-    description: kEffectDefend,
+    name: kEffectDefendByChance,
+    description: kEffectDefendByChance,
     values: [
       {
         value: _kCompanionDefendProbability,
@@ -37,8 +37,7 @@ fun generateBattleCompanionData(companionData, battleEntity) {
       },
     ],
   }
-  companionData.effects = [
-    assist,
-    defend,
-  ]
+  if (!companionData.effects) companionData.effects = {}
+  companionData.effects[kEffectIncreaseDamageByChance] = assist
+  companionData.effects[kEffectDefendByChance] = defend
 }

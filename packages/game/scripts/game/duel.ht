@@ -3,6 +3,7 @@ import 'l10n.ht'
 import 'entity/common.ht'
 import 'entity/item/common.ht'
 import 'entity/character/character.ht'
+import 'entity/effect.ht'
 
 /// 战斗模块
 /// 输入战斗相关角色的对象
@@ -31,20 +32,24 @@ const _kDuelticksLimit = 500
   // return damage
 // }
 
-struct Log {
+struct Action {
   construct ({
     message,
     activatedOffenseIndex = 0,
     speed,
     damage = 0,
-    targetIndex,
+    itemIndex,
+    companionIndex,
+    shareDamage = 0,
   }) {
     assert(message != null)
     this.activatedOffenseIndex = activatedOffenseIndex
     this.speed = speed
     this.damage = damage
     this.message = message
-    this.targetIndex = targetIndex
+    this.itemIndex = itemIndex
+    this.companionIndex = companionIndex
+    this.shareDamage = shareDamage
   }
 }
 
@@ -64,14 +69,12 @@ struct Duel {
     
     final char1info = {
       ticks: 0,
-      activatedDefenseIndex: 0, // 当前激活的防御单位，0代表英雄本身，1-3代表防具，4-6代表随从
       activatedOffenseIndex: 1, // 当前激活的进攻手段，1代表第一个武器或斗技
       // 复制出来的人物当前状态，包括生命值等
       stats: this.initialStats.char1.clone(),
     }
     final char2info = {
       ticks: 0,
-      activatedDefenseIndex: 0,
       activatedOffenseIndex: 1,
       stats: this.initialStats.char2.clone(),
     }
@@ -110,87 +113,129 @@ struct Duel {
       // char2info.targetIndex = setNextActivatedDefenseItem(char1info, char1)
       this.started = true
 
-      fun checkIfEnd {
-        final char1Life = type == kDuelTypePractice ? char1info.stats.life : char1.stats.life
-        if ( char1Life <= 0) {
-          engine.info('${char1.name} 和 ${char2.name} 的战斗结束了。${char2.name} 获胜。')
-          return true
-        }
-        final char2Life = type == kDuelTypePractice ? char2info.stats.life : char2.stats.life
-        if (char2Life <= 0) {
-          engine.info('${char1.name} 和 ${char2.name} 的战斗结束了。${char1.name} 获胜。')
-          this.result = true
-          return true
-        }
-        return false
-      }
-
-      if (type == kDuelTypeSneakAttack) {
-        final initiativeSum = char1.attributes.perception + char2.attributes.perception
-        final initiativeValue = initiativeSum * Math.random()
-        if (char1.attributes.perception > initiativeValue) {
-          // this.messages.add(getLocaleString('sneakAttackSuccess', [char1.name]))
-          // final damage = _attack(char1info.activatedOffense, char2)
-          final damage = char1info.activatedOffense.stats.damage
-          entityTakeDamage(type == kDuelTypePractice ? char2info : char2, damage)
-          final message = getLocaleString('attackInfo', [
-            char1.name,
-            char1info.activatedOffense.name,
-            char2.name,
-            damage.truncate(),
-          ])
-          this.messages.add(message)
-          this.actions.char1.add(Log(damage: damage, message: message))
-          if (checkIfEnd()) this.started = false
-        } else {
-          // this.log.add(getLocaleString('sneakAttackFail', [char1.name, char2.name]))
-        }
-      }
-
       if (this.started) {
-        fun _nextTick({ enemyTurn = false }) {
-          final info = enemyTurn ? char2info : char1info
+        // 如果目标声明小于0，返回true
+        fun _nextTick({ enemyTurn = false, sneakAttack = false }) {
           final actions = enemyTurn ? this.actions.char2 : this.actions.char1
           final subject = enemyTurn ? char2 : char1
+          final subjectInfo = enemyTurn ? char2info : char1info
           final target = enemyTurn ? char1 : char2
           final targetInfo = enemyTurn ? char1info : char2info
           // 出招等待阶段
-          if (info.ticks >= info.activatedOffense.stats.speed) {
+          if (subjectInfo.ticks >= subjectInfo.activatedOffense.stats.speed) {
             // 出招
             // final damage = _attack(info.activatedOffense, target)
-            final damage = info.activatedOffense.stats.damage
-            final message = getLocaleString('attackInfo', [
-              subject.name, 
-              info.activatedOffense.name,
-              target.name,
-              damage.truncate(),
-            ])
+            final baseDamage = subjectInfo.activatedOffense.stats.damage
+
+            // 检查是否被某个道具分担伤害
+            var message
+            var splitDamage
+            for (final i in range(1, kEquipmentMax.defense)) {
+              final equipData = target.equipments.defense[i]
+              if (equipData) {
+                final item = getEquipped(equipData, target)
+                if (item.effects.containsKey(kEffectDefendByChance)) {
+                  if (Math.random() < item.effects[kEffectDefendByChance].values[0].value) {
+                    splitDamage = true
+                    final shareDamage = baseDamage * item.effects[kEffectDefendByChance].values[1].value
+                    message = getLocaleString(sneakAttack ? 'sneakShareDamageInfo' : 'shareDamageInfo', [
+                      subject.name,
+                      subjectInfo.activatedOffense.name,
+                      target.name,
+                      (baseDamage - shareDamage).truncate(),
+                      item.name,
+                      shareDamage.truncate(),
+                    ])
+                    engine.info(message)
+                    actions.add(Action(
+                      activatedOffenseIndex: subjectInfo.activatedOffenseIndex,
+                      speed: subjectInfo.activatedOffense.stats.speed,
+                      damage: baseDamage - shareDamage,
+                      message: message,
+                      itemIndex: i,
+                      shareDamage: shareDamage,
+                    ))
+                    entityTakeDamage(targetInfo, baseDamage - shareDamage)
+                    entityTakeDamage(targetInfo.stats.defense[i], shareDamage)
+                    break
+                  }
+                }
+              }
+            }
+            if (!splitDamage) {
+              for (final i in range(1, kEquipmentMax.companion)) {
+                final equipData = target.equipments.companion[i]
+                if (equipData) {
+                  final companion = getEquipped(equipData, target)
+                  // assert(shareDamageCompanion.effects.containsKey(kEffectDefendByChance))
+                  if (Math.random() < companion.effects[kEffectDefendByChance].values[0].value) {
+                    splitDamage = true
+                    final shareDamage = baseDamage * companion.effects[kEffectDefendByChance].values[1].value
+                    message = getLocaleString(sneakAttack ? 'sneakShareDamageInfo' : 'shareDamageInfo', [
+                      subject.name,
+                      subjectInfo.activatedOffense.name,
+                      target.name,
+                      (baseDamage - shareDamage).truncate(),
+                      companion.name,
+                      shareDamage.truncate(),
+                    ])
+                    engine.info(message)
+                    actions.add(Action(
+                      activatedOffenseIndex: subjectInfo.activatedOffenseIndex,
+                      speed: subjectInfo.activatedOffense.stats.speed,
+                      damage: baseDamage - shareDamage,
+                      message: message,
+                      companionIndex: i,
+                      shareDamage: shareDamage,
+                    ))
+                    entityTakeDamage(targetInfo, baseDamage - shareDamage)
+                    entityTakeDamage(targetInfo.stats.companion[i], shareDamage)
+                    break
+                  }
+                }
+              }
+            }
+
+            if (!splitDamage) {
+              message = getLocaleString(sneakAttack ? 'sneakDamageInfo' : 'damageInfo', [
+                subject.name, 
+                subjectInfo.activatedOffense.name,
+                target.name,
+                baseDamage.truncate(),
+              ])
+              engine.info(message)
+              actions.add(Action(
+                activatedOffenseIndex: subjectInfo.activatedOffenseIndex,
+                speed: subjectInfo.activatedOffense.stats.speed,
+                damage: baseDamage,
+                message: message,
+              ))
+              entityTakeDamage(targetInfo, baseDamage)
+            }
+
             this.messages.add(message)
-            actions.add(Log(
-              activatedOffenseIndex: info.activatedOffenseIndex,
-              speed: info.activatedOffense.stats.speed,
-              damage: damage,
-              message: message,
-              // protected: info.activatedDefense.entityType != kEntityTypeCharacter,
-              // targetIndex: info.activatedDefense.id,
-            ))
-            info.ticks = 0
-            // 计算伤害
-            entityTakeDamage(type == kDuelTypePractice ? targetInfo : target, damage)
+            
+            subjectInfo.ticks = 0
             // if (info.activatedDefense.stats.life <= 0) {
             //   info.targetIndex = setNextActivatedDefenseItem(info, target)
             // }
             // 收招
-            ++info.activatedOffenseIndex
-            if (info.activatedOffenseIndex > subject.equipments.offesne.length) {
-              info.activatedOffenseIndex = 1
+            ++subjectInfo.activatedOffenseIndex
+            if (subjectInfo.activatedOffenseIndex > subject.equipments.offense.length) {
+              subjectInfo.activatedOffenseIndex = 1
             }
-            info.activatedOffense =
-              getEquipped(subject.equipments.offesne[info.activatedOffenseIndex], subject)
+            subjectInfo.activatedOffense =
+              getEquipped(subject.equipments.offense[subjectInfo.activatedOffenseIndex], subject)
           } else {
-            ++info.ticks
+            ++subjectInfo.ticks
+          }
+
+          if (targetInfo.stats.life <= 0) {
+            return true
           }
         }
+
+        var firstMove = true
 
         while (true) {
           if (this.frames >= _kDuelticksLimit) {
@@ -199,10 +244,28 @@ struct Duel {
             break
           }
 
-          _nextTick(char1info)
-          if (checkIfEnd()) break
-          _nextTick(char2info, enemyTurn: true)
-          if (checkIfEnd()) break
+          var r
+          if (firstMove) {
+            firstMove = false
+            final initiativeSum = char1.attributes.perception + char2.attributes.perception
+            final initiativeValue = initiativeSum * Math.random()
+            if (char1.attributes.perception > initiativeValue) {
+              r = _nextTick(char1info, sneakAttack: type == kDuelTypeSneakAttack)
+            }
+          } else {
+            r = _nextTick(char1info)
+          }
+          if (r) {
+            engine.info('${char1.name} 和 ${char2.name} 的战斗结束了。${char1.name} 获胜。')
+            this.result = true
+            break
+          }
+
+          r = _nextTick(char2info, enemyTurn: true)
+          if (r) {
+            engine.info('${char1.name} 和 ${char2.name} 的战斗结束了。${char2.name} 获胜。')
+            break
+          }
 
           ++this.frames
         }
@@ -211,8 +274,13 @@ struct Duel {
 
     // 双方结束时的状态
     this.resultStats = {
-      char1: type == kDuelTypePractice ? char1info.stats : char1.stats,
-      char2: type == kDuelTypePractice ? char2info.stats : char2.stats,
+      char1: char1info.stats,
+      char2: char2info.stats,
+    }
+
+    if (type != kDuelTypePractice) {
+      char1.stats = char1info.stats
+      char2.stats = char2info.stats
     }
     
     // if (config.debug) {

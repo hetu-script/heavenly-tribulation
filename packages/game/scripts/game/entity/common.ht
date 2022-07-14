@@ -137,9 +137,14 @@ const kEntityConsumableKindBeverage = 'beverage'
 const kEntityConsumableKindElixir = 'elixir'
 
 fun entityTakeDamage(entity, damage) {
-  assert(entity?.stats?.life != null)
-  entity.stats.life -= damage
-  if (entity.stats.life < 0) entity.stats.life = 0
+  assert(entity.stats?.life != null || entity.life != null)
+  if (entity.stats) {
+    entity.stats.life -= damage
+    if (entity.stats.life < 0) entity.stats.life = 0
+  } else {
+    entity.life -= damage
+    if (entity.life < 0) entity.life = 0
+  }
 }
 
 const _kCharacterRandomAgeMax = 40

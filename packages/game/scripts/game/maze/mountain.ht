@@ -67,7 +67,7 @@ struct MountainMaze {
     tileset = 'mountain',
   }) {
     this.name = name
-    this.id = 'maze_${Hash.uid4(2)}_${name}'
+    this.id = 'maze_${Hash.uid4(4)}_${name}'
     engine.info('开始生成副本: [${this.id}]')
 
     this.levels = [] // 每一层是一个单独的 tilemap

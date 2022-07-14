@@ -25,7 +25,7 @@ class BattleItemCard extends StatelessWidget {
 
   final HTStruct? itemData;
 
-  final int? life, lifeMax;
+  final num? life, lifeMax;
 
   final bool isSelected;
 
@@ -81,8 +81,8 @@ class BattleItemCard extends StatelessWidget {
             DynamicColorProgressBar(
               width: size.width - 4,
               height: 8.0,
-              value: life!,
-              max: lifeMax!,
+              value: life!.truncate(),
+              max: lifeMax!.truncate(),
               showNumber: false,
               colors: const <Color>[Colors.red, Colors.green],
             ),

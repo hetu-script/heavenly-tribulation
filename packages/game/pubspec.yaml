@@ -92,6 +92,7 @@ flutter:
     - scripts/game/entity/item/
     - scripts/game/entity/item/consumable/
     - scripts/game/entity/item/protect/
+    - scripts/game/entity/item/talisman/
     - scripts/game/entity/skill/
     - scripts/game/entity/item/weapon/
     - scripts/game/quest/

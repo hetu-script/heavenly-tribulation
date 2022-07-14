@@ -46,28 +46,28 @@ struct Shield {
     this.icon = 'icon/item/shield.png'
     this.attributes = {
       life: 150,
+      lifeMax: 150,
     }
 
     if (attributes) {
       this.attributes.assign(attributes)
     }
 
-    this.effects = [
-      {
-        name: kEffectDefend,
-        description: kEffectDefend,
-        values: [
-          {
-            value: _kShieldDefendProbability,
-            type: kEffectValueTypePercentage,
-          },
-          {
-            value: _kShieldDefendPercentage,
-            type: kEffectValueTypePercentage,
-          },
-        ],
-      }
-    ]
+    this.effects = {}
+    this.effects[kEffectDefendByChance] = {
+      name: kEffectDefendByChance,
+      description: kEffectDefendByChance,
+      values: [
+        {
+          value: _kShieldDefendProbability,
+          type: kEffectValueTypePercentage,
+        },
+        {
+          value: _kShieldDefendPercentage,
+          type: kEffectValueTypePercentage,
+        },
+      ],
+    }
 
     calculateItemStats(this)
   }

@@ -68,7 +68,7 @@ struct Kickboxing {
     this.attributes = {
       ...kKickboxingKinds[this.kind].attributes,
     }
-    this.effects = []
+    this.effects = {}
 
     if (attributes) {
       this.attributes.assign(attributes)

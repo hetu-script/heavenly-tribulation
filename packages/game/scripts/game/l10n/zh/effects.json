@@ -6,7 +6,7 @@
   "effectParry": "在出招阶段受击时，{0} 几率免除伤害。",
   "effectCounter": "命中时 {0} 几率使对方硬直 {1}f。",
 
-  "effectDefend": "{0} 几率承担 {1} 伤害。",
+  "effectDefendByChance": "{0} 几率承担 {1} 伤害。",
 
   "effectCompanionIncreaseDamageDescription": "{0} 几率协同进攻，增加 {1} 伤害。"
 }

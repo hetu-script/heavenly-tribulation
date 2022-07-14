@@ -22,7 +22,6 @@ struct Incident {
   }) {
     assert(content != null && content.isNotEmpty)
 
-    this.index = history.length
     this.content = content
     this.timestamp = game.timestamp
     this.order = order
@@ -41,9 +40,6 @@ struct Incident {
     this.isGlobal = isGlobal
     if (localHistory is List) {
       localHistory.add(this)
-      if (!isPrivate) {
-        history.add(this)
-      }
     }
     history.add(this)
 

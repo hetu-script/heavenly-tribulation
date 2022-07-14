@@ -37,18 +37,19 @@ struct Beverage {
     this.color = kRarity[this.rarity].color
 
     this.id = this.rarity != kCommon ? 'elixir_${Hash.uid4(2)}_${this.name}' : 'elixir_${this.name}'
-
     this.icon = 'icon/item/drink.png'
-    this.effects = [
-      {
-        name: kEffectRestoreStamina,
-        description: kEffectRestoreStamina,
-        values: [
-          {
-            value: 80,
-          },
-        ],
-      },
-    ]
+
+    this.effects = {}
+    this.effects[kEffectRestoreStamina] = {
+      name: kEffectRestoreStamina,
+      description: kEffectRestoreStamina,
+      values: [
+        {
+          value: 80,
+        },
+      ],
+    }
+
+
   }
 }

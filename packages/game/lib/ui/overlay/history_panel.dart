@@ -32,13 +32,13 @@ class HistoryPanel extends StatelessWidget {
     final iter = history.iterator;
     var i = 0;
     while (iter.moveNext() && i < retraceMessageCount) {
-      ++i;
       final incident = iter.current;
       if (!showGlobalIncident && !incident['isGlobal']) continue;
       if ((heroId != null &&
           (incident['subjectIds'].contains(heroId) ||
               incident['objectIds'].contains(heroId)))) {
         items.add(incident);
+        ++i;
       }
     }
 

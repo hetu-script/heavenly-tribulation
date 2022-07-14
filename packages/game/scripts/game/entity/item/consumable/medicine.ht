@@ -35,18 +35,17 @@ struct Medicine {
     this.color = kRarity[this.rarity].color
 
     this.id = this.rarity != kCommon ? 'elixir_${Hash.uid4(2)}_${this.name}' : 'elixir_${this.name}'
-
     this.icon = 'icon/item/medicine.png'
-    this.effects = [
-      {
-        name: kEffectRestoreLife,
-        description: kEffectRestoreLife,
-        values: [
-          {
-            value: 80,
-          },
-        ],
-      },
-    ]
+    
+    this.effects = {}
+    this.effects[kEffectRestoreLife] = {
+      name: kEffectRestoreLife,
+      description: kEffectRestoreLife,
+      values: [
+        {
+          value: 80,
+        },
+      ],
+    }
   }
 }

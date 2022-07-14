@@ -73,7 +73,7 @@ class EntityInfo extends StatelessWidget {
 
     final effectData = entityData['effects'] ?? [];
     final effects = <Widget>[];
-    for (final data in effectData) {
+    for (final data in effectData.values) {
       final values = <String>[];
       for (final value in data['values']) {
         final v = value['value'] as num;

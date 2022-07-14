@@ -124,7 +124,7 @@ struct Weapon {
     this.attributes = {
       ...kWeaponKinds[this.kind].attributes,
     }
-    this.effects = [
+    this.effects = {}
       // {
       //   name: effectParry,
       //   description: effectParryDescription,
@@ -135,7 +135,6 @@ struct Weapon {
       //     },
       //   ],
       // },
-    ]
 
     if (attributes) {
       this.attributes.assign(attributes)

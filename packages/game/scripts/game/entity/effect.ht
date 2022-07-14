@@ -17,7 +17,15 @@ const kEffectDecreaseDamage = 'effectDecreaseDamage'
 const kEffectMoreDamage = 'effectMoreDamage'
 const kEffectLessDamage = 'effectLessDamage'
 
+const kEffectIncreaseDamageByChance = 'effectIncreaseDamage'
+const kEffectDecreaseDamageByChance = 'effectDecreaseDamage'
+
+const kEffectMoreDamageByChance = 'effectMoreDamage'
+const kEffectLessDamageByChance = 'effectLessDamage'
+
 const kEffectDefend = 'effectDefend'
+
+const kEffectDefendByChance = 'effectDefendByChance'
 
 const kEffectCompanionIncreaseDamageDescription = 'effectCompanionIncreaseDamageDescription'
 

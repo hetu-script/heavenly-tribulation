@@ -101,8 +101,8 @@ class _DuelState extends State<Duel> {
     _char1ResultStats = _data!['resultStats']['char1'];
     _char2ResultStats = _data!['resultStats']['char2'];
     _reset();
-    _char1Action = getNextChar1ActivatedItem();
-    _char2Action = getNextChar2ActivatedItem();
+    _char1Action = getNextChar1Action();
+    _char2Action = getNextChar2Action();
     _finished = false;
     _startTimer();
   }
@@ -116,7 +116,7 @@ class _DuelState extends State<Duel> {
     _char2Cooldown = 0;
   }
 
-  HTStruct? getNextChar1ActivatedItem() {
+  HTStruct? getNextChar1Action() {
     if (_data!['actions']['char1'].isEmpty) return null;
     if (_char1ActionIter >= _data!['actions']['char1'].length) {
       _char1ActionIter = 0;
@@ -126,7 +126,7 @@ class _DuelState extends State<Duel> {
     return item;
   }
 
-  HTStruct? getNextChar2ActivatedItem() {
+  HTStruct? getNextChar2Action() {
     if (_data!['actions']['char2'].isEmpty) return null;
     if (_char2ActionIter >= _data!['actions']['char2'].length) {
       _char2ActionIter = 0;
@@ -134,6 +134,11 @@ class _DuelState extends State<Duel> {
     final item = _data!['actions']['char2'][_char2ActionIter];
     ++_char2ActionIter;
     return item;
+  }
+
+  void _entityTakeDamage(HTStruct data, num damage) {
+    final newHP = data['life'] - damage;
+    data['life'] = newHP >= 0 ? newHP : 0;
   }
 
   void _startTimer() {
@@ -155,9 +160,19 @@ class _DuelState extends State<Duel> {
                 _char1Ticks = 0;
                 _char1Cooldown = 0;
                 _messages.add(_char1Action!['message']);
-                final newHP = _char2Stats!['life'] - _char1Action!['damage'];
-                _char2Stats!['life'] = newHP >= 0 ? newHP : 0;
-                _char1Action = getNextChar1ActivatedItem();
+                _entityTakeDamage(_char2Stats!, _char1Action!['damage']);
+                int? itemIndex = _char1Action!['itemIndex'];
+                if (itemIndex != null) {
+                  _entityTakeDamage(_char2Stats!['defense'][itemIndex],
+                      _char1Action!['shareDamage']);
+                } else {
+                  int? companionIndex = _char1Action!['companionIndex'];
+                  if (itemIndex != null) {
+                    _entityTakeDamage(_char2Stats!['companion'][companionIndex],
+                        _char1Action!['shareDamage']);
+                  }
+                }
+                _char1Action = getNextChar1Action();
               } else {
                 ++_char1Ticks;
               }
@@ -170,9 +185,19 @@ class _DuelState extends State<Duel> {
                 _char2Ticks = 0;
                 _char2Cooldown = 0;
                 _messages.add(_char2Action!['message']);
-                final newHP = _char1Stats!['life'] - _char2Action!['damage'];
-                _char1Stats!['life'] = newHP >= 0 ? newHP : 0;
-                _char2Action = getNextChar2ActivatedItem();
+                _entityTakeDamage(_char1Stats!, _char2Action!['damage']);
+                int? itemIndex = _char2Action!['itemIndex'];
+                if (itemIndex != null) {
+                  _entityTakeDamage(_char1Stats!['defense'][itemIndex],
+                      _char2Action!['shareDamage']);
+                } else {
+                  int? companionIndex = _char1Action!['companionIndex'];
+                  if (itemIndex != null) {
+                    _entityTakeDamage(_char1Stats!['companion'][companionIndex],
+                        _char2Action!['shareDamage']);
+                  }
+                }
+                _char2Action = getNextChar2Action();
               } else {
                 ++_char2Ticks;
               }
@@ -262,8 +287,12 @@ class _DuelState extends State<Duel> {
                         padding: const EdgeInsets.all(5.0),
                         child: ListView(
                           shrinkWrap: true,
-                          children:
-                              _messages.map((line) => Text(line)).toList(),
+                          children: _messages
+                              .map((line) => Text(
+                                    line,
+                                    style: const TextStyle(fontSize: 14.0),
+                                  ))
+                              .toList(),
                         ),
                       ),
                     ),
