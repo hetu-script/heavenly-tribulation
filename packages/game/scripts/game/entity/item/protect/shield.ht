@@ -3,8 +3,12 @@ import '../../common.ht'
 import '../common.ht'
 import '../../../util.ht'
 import '../../../game.ht'
+import '../../effect.ht'
 
 const kShieldKind = 'shield'
+
+const _kShieldDefendProbability = 0.6
+const _kShieldDefendPercentage = 0.8
 
 struct Shield {
   construct ({
@@ -25,7 +29,7 @@ struct Shield {
     this.kind = kShieldKind
     this.isEquippable = true
     this.equipType = kEquipTypeDefense // 装备类型：如果没有就是不可装备
-    this.rarity = rarity
+    this.rarity = rarity ?? kCommon
     this.value = value ?? 25
     this.stackSize = 1
     this.creatorId = creatorId
@@ -35,7 +39,6 @@ struct Shield {
     if (!this.name) {
       final r = nameGenerator.getTalisman(1, category: this.kind, rarity: this.rarity).first
       this.name = r.name
-      this.rarity ??= r.rarity
     }
     this.color = kRarity[this.rarity].color
     this.id = this.rarity != kCommon ? 'shield_${Hash.uid4(2)}_${this.name}' : 'shield_${this.name}'
@@ -44,11 +47,27 @@ struct Shield {
     this.attributes = {
       life: 150,
     }
-    this.effects = []
 
     if (attributes) {
       this.attributes.assign(attributes)
     }
+
+    this.effects = [
+      {
+        name: kEffectDefend,
+        description: kEffectDefend,
+        values: [
+          {
+            value: _kShieldDefendProbability,
+            type: kEffectValueTypePercentage,
+          },
+          {
+            value: _kShieldDefendPercentage,
+            type: kEffectValueTypePercentage,
+          },
+        ],
+      }
+    ]
 
     calculateItemStats(this)
   }

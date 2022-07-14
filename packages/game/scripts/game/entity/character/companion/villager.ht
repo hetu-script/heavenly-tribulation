@@ -1,6 +1,7 @@
 import '../battle_entity.ht'
 import '../../common.ht'
 import '../../item/common.ht'
+import 'common.ht'
 
 final _kCompanionKinds = [
   'villageWarrior',
@@ -28,6 +29,7 @@ struct VillageWarrior {
     this.rarity = rarity ?? kCommon
     this.color = kRarity[this.rarity].color
     this.isPermanent = isPermanent
+    this.isBattleCompanion = true
     game.npcs[this.id] = this
     
     this.description = description ?? ''

@@ -1,7 +1,7 @@
 import '../../../name/name.ht' as nameGenerator
 import '../../common.ht'
 import '../common.ht'
-import '../../effects.ht'
+import '../../effect.ht'
 
 struct Medicine {
   construct ({
@@ -20,7 +20,7 @@ struct Medicine {
     this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
     this.category = kEntityCategoryConsumable // 武器、防护、斗技、玄功等等
     this.kind = kEntityConsumableKindMedicine // 枪、剑、斧等等
-    this.rarity = rarity
+    this.rarity = rarity ?? kCommon
     this.value = value ?? 5
     this.isConsumable = true
     this.creatorId = creatorId
@@ -31,7 +31,6 @@ struct Medicine {
     if (!this.name) {
       final r = nameGenerator.getConsumable(1, category: this.kind, rarity: this.rarity).first
       this.name = r.name
-      this.rarity ??= r.rarity
     }
     this.color = kRarity[this.rarity].color
 

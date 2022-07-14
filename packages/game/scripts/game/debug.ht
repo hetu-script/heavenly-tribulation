@@ -45,8 +45,8 @@ fun testMerchant {
   setHeroId(hero.id)
   final merchant = Character()
   merchant.money += 500
-  characterAcquire(merchant, Medicine(rarity: 'common'), 20)
-  characterAcquire(merchant, Beverage(rarity: 'common'), 20)
+  characterAcquire(merchant, Medicine(), 20)
+  characterAcquire(merchant, Beverage(), 20)
   showMerchant(merchant)
 }
 
@@ -63,11 +63,12 @@ fun testMaze {
   characterEquip(hero, Kickboxing())
   characterEquip(hero, Weapon())
   characterEquip(hero, Shield())
-  characterAcquire(hero, Medicine(rarity: 'common'), 5)
-  characterAcquire(hero, Beverage(rarity: 'common'), 5)
+  characterAcquire(hero, Medicine(), 5)
+  characterAcquire(hero, Beverage(), 5)
   final companion = VillageWarrior()
   characterEquip(companion, Weapon())
   characterEquip(hero, companion)
   setHeroId(hero.id)
+  enterMaze(maze)
   return maze
 }

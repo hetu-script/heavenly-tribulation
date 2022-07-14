@@ -106,7 +106,7 @@ struct Weapon {
     this.kind = kind ?? kWeaponKinds.keys.random // 枪、剑、斧等等
     this.isEquippable = true
     this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
-    this.rarity = rarity
+    this.rarity = rarity ?? kCommon
     this.value = value ?? 50
     this.stackSize = 1
     this.creatorId = creatorId
@@ -116,7 +116,6 @@ struct Weapon {
     if (!this.name) {
       final r = nameGenerator.getTalisman(1, category: this.kind, rarity: this.rarity).first
       this.name = r.name
-      this.rarity ??= r.rarity 
     }
     this.color = kRarity[this.rarity].color
     this.id = this.rarity != kCommon ? 'weapon_${Hash.uid4(2)}_${this.name}' : 'weapon_${this.name}'

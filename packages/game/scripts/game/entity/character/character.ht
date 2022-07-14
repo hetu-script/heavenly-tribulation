@@ -9,6 +9,7 @@ import '../common.ht'
 import '../../tile/hexagonal_tile.ht'
 import 'battle_entity.ht'
 import '../item/common.ht'
+import 'companion/common.ht'
 
 // number of the male avatar images
 const _kMaleAvatarCount = 37
@@ -284,6 +285,9 @@ struct Character {
     }
 
     this.tasks = []
+
+    // 用于遭遇等剧情，判断某个事件是否已经发生过。
+    this.encounterTags = {}
     
     if (locationId) {
       final location = game.locations[locationId]
@@ -646,21 +650,21 @@ fun rejuvenate(character) {
   for (var i = 1; i < kEquipmentMax.defense; ++i) {
     final equipData = character.equipments.defense[i]
     if (equipData != null) {
-      final item = getEquippedEntity(equipData, character)
+      final item = getEquipped(equipData, character)
       item.stats.life = item.stats.lifeMax
     }
   }
   for (var i = 1; i < kEquipmentMax.offense; ++i) {
     final equipData = character.equipments.offense[i]
     if (equipData != null) {
-      final item = getEquippedEntity(equipData, character)
+      final item = getEquipped(equipData, character)
       item.stats.life = item.stats.lifeMax
     }
   }
   for (var i = 1; i < kEquipmentMax.companion; ++i) {
     final equipData = character.equipments.companion[i]
     if (equipData != null) {
-      final item = getEquippedEntity(equipData, character)
+      final item = getEquipped(equipData, character)
       item.stats.life = item.stats.lifeMax
     }
   }
@@ -751,11 +755,24 @@ fun characterGetCompanion(character, companion) {
     engine.warning('${companion.name} 已经是 ${character.name} 的随从了，无法再次添加。')
     return false
   }
+  
   var companionData = {
     id: companion.id,
-    entityType: companion.entityType,
-    coordination: 0, // 该随从对于该角色的配合程度
+    name: companion.name,
+    category: companion.category,
+    kind: companion.kind,
+    description: companion.description,
+    icon: companion.icon,
+    color: companion.color,
+    entityType: kEntityTypeCompanion,
+    coordination: 0, // 该随从对于该角色的配合程度，新加入的伙伴从0开始
+    stats: companion.stats.clone(),
   }
+
+  if (companion.isBattleCompanion) {
+    generateBattleCompanionData(companionData, companion)
+  }
+  
   character.companions[companionData.id] = companionData
   return companionData
 }

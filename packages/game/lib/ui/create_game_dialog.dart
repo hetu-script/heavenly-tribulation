@@ -260,7 +260,7 @@ class _CreateGameDialogState extends State<CreateGameDialog> {
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pop({
-                      'id': 'world_${uid4(2)}',
+                      'id': 'world_${uid4(4)}',
                       'worldScale': _worldScale,
                       'nationNumber': _nationNumber,
                       'organizationNumber': _organizationNumber,

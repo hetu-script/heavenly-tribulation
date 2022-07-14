@@ -76,11 +76,12 @@ fun generateRouteByName(name, anchors, map) {
   }
 }
 
-// fun enterMaze(maze) {
-//   localHistory = maze.history
-// }
+fun enterMaze(maze) {
+  currentMaze = maze
+}
 
 fun leaveMaze(maze) {
+  currentMaze = null
   localHistory = null
   // 移除所有临时npc
   for (final entity of maze.entities) {

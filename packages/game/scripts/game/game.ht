@@ -15,6 +15,8 @@ var config = {
   debug: true,
 }
 
+// 当前副本的引用
+var currentMaze = null
 // 进入副本时，使用这个临时事件列表，平时此列表为 null
 var localHistory = null
 
@@ -110,6 +112,10 @@ fun loadGameFromJsonData(gameData, historyData) {
   }
 
   return game.world
+}
+
+fun getWorldId {
+  return game.world.id
 }
 
 fun getSavePath {

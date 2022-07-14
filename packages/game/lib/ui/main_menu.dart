@@ -164,7 +164,10 @@ class _MainMenuState extends State<MainMenu> {
                         context: context,
                         builder: (context) => MainGameOverlay(
                           key: UniqueKey(),
-                          args: {"path": info.path},
+                          args: {
+                            "id": info.worldId,
+                            "path": info.path,
+                          },
                         ),
                       ).then((value) {
                         engine.invoke('build', positionalArgs: [context]);
@@ -310,9 +313,13 @@ class _MainMenuState extends State<MainMenu> {
       for (final entity in saveDirectory.listSync()) {
         if (entity is File &&
             path.extension(entity.path) == kWorldSaveFileExtension) {
+          final worldId = path.basenameWithoutExtension(entity.path);
           final d = entity.lastModifiedSync().toLocal();
-          final saveInfo =
-              SaveInfo(timestamp: d.toMeaningfulString(), path: entity.path);
+          final saveInfo = SaveInfo(
+            worldId: worldId,
+            timestamp: d.toMeaningfulString(),
+            path: entity.path,
+          );
           list.add(saveInfo);
         }
       }

@@ -5,18 +5,18 @@ import '../../global.dart';
 class RRectIcon extends StatelessWidget {
   const RRectIcon({
     super.key,
-    required this.avatarAssetKey,
+    required this.image,
     this.size = const Size(48.0, 48.0),
-    this.radius = 5.0,
+    required this.borderRadius,
     this.borderColor = kForegroundColor,
     this.borderWidth = 1.0,
   });
 
-  final String avatarAssetKey;
+  final ImageProvider<Object> image;
 
   final Size size;
 
-  final double radius;
+  final BorderRadius borderRadius;
 
   final Color borderColor;
 
@@ -25,16 +25,16 @@ class RRectIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
+      borderRadius: borderRadius,
       child: Container(
         width: size.width,
         height: size.height,
         decoration: BoxDecoration(
           image: DecorationImage(
             fit: BoxFit.fill,
-            image: AssetImage(avatarAssetKey),
+            image: image,
           ),
-          borderRadius: BorderRadius.all(Radius.circular(radius)),
+          borderRadius: borderRadius,
           border: Border.all(color: borderColor, width: borderWidth),
         ),
       ),

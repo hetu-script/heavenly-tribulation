@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import '../../../global.dart';
+import '../../shared/rrect_icon.dart';
 
 class EntityGrid extends StatelessWidget {
   const EntityGrid({
@@ -62,11 +63,12 @@ class EntityGrid extends StatelessWidget {
               child: Stack(
                 children: [
                   if (iconAssetKey != null)
-                    Image(
-                      width: size.width,
-                      height: size.height,
-                      fit: BoxFit.fill,
+                    RRectIcon(
                       image: AssetImage('assets/images/$iconAssetKey'),
+                      size: size,
+                      borderRadius: kBorderRadius,
+                      borderColor: Colors.transparent,
+                      borderWidth: 0.0,
                     ),
                   if (child != null) child!,
                   if (stackSize > 1)

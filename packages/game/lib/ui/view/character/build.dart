@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../../../ui/shared/close_button.dart';
-import '../../../../global.dart';
+import '../../../ui/shared/close_button.dart';
+import '../../../global.dart';
 import 'equipments.dart';
 import 'inventory.dart';
-import '../../../shared/responsive_window.dart';
+import '../../shared/responsive_window.dart';
 
 const _kBuildTabNames = [
   'inventory',

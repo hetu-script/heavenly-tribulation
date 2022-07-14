@@ -22,12 +22,12 @@ class HistoryPanel extends StatelessWidget {
 
   final bool showGlobalIncident;
 
-  final Iterable? historyData;
+  final List? historyData;
 
   @override
   Widget build(BuildContext context) {
     final Iterable history =
-        historyData ?? engine.invoke('getHistory').reversed;
+        historyData?.reversed ?? engine.invoke('getHistory').reversed;
     final List items = [];
     final iter = history.iterator;
     var i = 0;

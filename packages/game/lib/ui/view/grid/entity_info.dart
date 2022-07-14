@@ -6,7 +6,7 @@ import '../../../global.dart';
 import '../../shared/rrect_icon.dart';
 // import '../../../shared/close_button.dart';
 
-const _kInfoPanelWidth = 390.0;
+const _kInfoPanelWidth = 300.0;
 
 // entityType决定了该对象的数据结构和保存位置
 const kEntityTypeCharacter = 'character'; //game.characters
@@ -83,7 +83,9 @@ class EntityInfo extends StatelessWidget {
         } else if (type == kValueTypeFloat) {
           values.add(v.toStringAsFixed(2));
         } else if (type == kValueTypePercentage) {
-          values.add(v.toPercentageString(2));
+          values.add(v.toPercentageString());
+        } else {
+          engine.error('在 ${entityData.id} 上遇到了未知的效果数据类型：$type');
         }
       }
       final description = engine.locale.getString(data['description'], values);
@@ -93,8 +95,8 @@ class EntityInfo extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.only(top: 4.0),
-                width: 200.0,
+                padding: const EdgeInsets.only(top: 2.0),
+                width: 275.0,
                 child: Text(description),
               ),
             ],
@@ -116,7 +118,7 @@ class EntityInfo extends StatelessWidget {
             child: Container(
               // margin: const EdgeInsets.only(right: 240.0, top: 120.0),
               padding: const EdgeInsets.all(10.0),
-              width: 300.0,
+              width: _kInfoPanelWidth,
               decoration: BoxDecoration(
                 color: kBackgroundColor,
                 borderRadius: kBorderRadius,
@@ -135,9 +137,11 @@ class EntityInfo extends StatelessWidget {
                           padding:
                               const EdgeInsets.only(right: 10.0, bottom: 10.0),
                           child: RRectIcon(
-                            avatarAssetKey:
-                                'assets/images/${entityData['icon']}',
+                            image: AssetImage(
+                                'assets/images/${entityData['icon']}'),
                             size: const Size(80.0, 80.0),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(5)),
                           ),
                         ),
                         Expanded(
@@ -163,7 +167,8 @@ class EntityInfo extends StatelessWidget {
                       children: [
                         Text(
                             '${engine.locale[category]} - ${engine.locale[entityData['kind']]}'),
-                        if (entityType == kEntityTypeItem)
+                        if (entityType == kEntityTypeItem ||
+                            entityType == kEntityTypeSkill)
                           Text(engine.locale[entityData['rarity']]),
                       ],
                     ),
@@ -175,6 +180,9 @@ class EntityInfo extends StatelessWidget {
                     // if (equipType == kEquipTypeCompanion)
                     //   Text(
                     //       '${engine.locale['coordination']}: ${stats['coordination']}'),
+                    if (equipType == kEquipTypeCompanion)
+                      Text(
+                          '${engine.locale['life']}: ${stats['life']}/${attributes['life']}'),
                     if (category == kEntityCategoryWeapon ||
                         category == kEntityCategoryProtect)
                       Text(

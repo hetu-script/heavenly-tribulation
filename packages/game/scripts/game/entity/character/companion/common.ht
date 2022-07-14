@@ -1,0 +1,44 @@
+import '../../effect.ht'
+
+const _kCompanionAssistProbability = 0.1
+const _kCompanionDefendProbability = 0.1
+const _kCompanionDefendPercentage = 1.0
+
+fun generateBattleCompanionData(companionData, battleEntity) {
+  final firstOffenseItem = getFirstEquippedOffenseItem(battleEntity)
+  companionData.stats.damage = firstOffenseItem?.stats.damage
+
+  // 生成同伴数据
+  final assist = {
+    name: kEffectIncreaseDamage,
+    description: kEffectCompanionIncreaseDamageDescription,
+    values: [
+      {
+        value: _kCompanionAssistProbability,
+        type: kEffectValueTypePercentage,
+      },
+      {
+        value: companionData.stats.damage,
+        type: kEffectValueTypeInt,
+      },
+    ],
+  }
+  final defend = {
+    name: kEffectDefend,
+    description: kEffectDefend,
+    values: [
+      {
+        value: _kCompanionDefendProbability,
+        type: kEffectValueTypePercentage,
+      },
+      {
+        value: _kCompanionDefendPercentage,
+        type: kEffectValueTypePercentage,
+      },
+    ],
+  }
+  companionData.effects = [
+    assist,
+    defend,
+  ]
+}

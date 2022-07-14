@@ -44,9 +44,8 @@ struct Incident {
       if (!isPrivate) {
         history.add(this)
       }
-    } else {
-      history.add(this)
     }
+    history.add(this)
 
     for (final id in subjectIds) {
       final char = game.characters[id]

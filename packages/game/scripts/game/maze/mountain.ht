@@ -246,8 +246,8 @@ struct MountainMaze {
             'peddler' -> {
               final peddler = Peddler()
               peddler.money += 1000
-              characterAcquire(peddler, Medicine(rarity: 'common'), 20)
-              characterAcquire(peddler, Beverage(rarity: 'common'), 20)
+              characterAcquire(peddler, Medicine(), 20)
+              characterAcquire(peddler, Beverage(), 20)
               peddler.encounterType = encounterType
               this.entities[peddler.id] = peddler
               final object = TileMapObject(

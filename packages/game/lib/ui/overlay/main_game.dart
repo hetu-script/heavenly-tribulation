@@ -16,7 +16,6 @@ import '../view/information/information.dart';
 import 'worldmap/popup.dart';
 import '../../shared/json.dart';
 import '../../shared/constants.dart';
-import '../../shared/util.dart';
 import 'history_panel.dart';
 import '../shared/loading_screen.dart';
 import '../../global.dart';
@@ -392,10 +391,10 @@ class _MainGameOverlayState extends State<MainGameOverlay>
   Future<void> _saveGame() async {
     var savePath = engine.invoke('getSavePath');
     if (savePath == null) {
-      final stampName = timestampCrc();
+      final worldId = engine.invoke('getWorldId');
       final directory = await path.getApplicationDocumentsDirectory();
       savePath = path.join(directory.path, 'Heavenly Tribulation', 'save',
-          stampName + kWorldSaveFileExtension);
+          worldId + kWorldSaveFileExtension);
       engine.invoke('setSavePath', positionalArgs: [savePath]);
     }
     engine.info('保存游戏至：[$savePath]');

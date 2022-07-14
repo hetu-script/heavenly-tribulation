@@ -118,7 +118,7 @@ fun getCharacterStats(character) {
   for (var i = 1; i < kEquipmentMax.defense; ++i) {
     final equipData = character.equipments.defense[i]
     if (equipData != null) {
-      final item = getEquippedEntity(equipData, character)
+      final item = getEquipped(equipData, character)
       stats.defense[i] = {
         life: item.stats.life,
         lifeMax: item.stats.lifeMax,
@@ -128,7 +128,7 @@ fun getCharacterStats(character) {
   for (var i = 1; i < kEquipmentMax.offense; ++i) {
     final equipData = character.equipments.offense[i]
     if (equipData != null) {
-      final item = getEquippedEntity(equipData, character)
+      final item = getEquipped(equipData, character)
       stats.offense[i] = {
         life: item.stats.life,
         lifeMax: item.stats.lifeMax,
@@ -139,7 +139,7 @@ fun getCharacterStats(character) {
   for (var i = 1; i < kEquipmentMax.companion; ++i) {
     final equipData = character.equipments.companion[i]
     if (equipData != null) {
-      final companion = getEquippedEntity(equipData, character)
+      final companion = getEquipped(equipData, character)
       stats.companion[i] = {
         life: companion.stats.life,
         lifeMax: companion.stats.lifeMax,
@@ -148,18 +148,4 @@ fun getCharacterStats(character) {
     }
   }
   return stats
-}
-
-fun getEquippedItem(equipData, character) {
-  var item
-  when (equipData.entityType) {
-    kEntityTypeItem -> {
-      item = character.inventory[equipData.id]
-    }
-    kEntityTypeSkill -> {
-      item = character.skills[equipData.id]
-    }
-  }
-  assert(item != null)
-  return item
 }

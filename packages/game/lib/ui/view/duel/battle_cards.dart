@@ -42,8 +42,8 @@ class BattleCards extends StatelessWidget {
     for (var i = 1; i < kEquipmentMaxDefense; ++i) {
       final equipData = characterData['equipments']['defense'][i];
       final item = equipData != null
-          ? engine.invoke('getEquippedEntity',
-              positionalArgs: [equipData, characterData])
+          ? engine
+              .invoke('getEquipped', positionalArgs: [equipData, characterData])
           : null;
       defenseItems.add(Padding(
         padding: const EdgeInsets.all(5.0),
@@ -60,8 +60,8 @@ class BattleCards extends StatelessWidget {
     for (var i = 1; i < kEquipmentMaxCompanion; ++i) {
       final equipData = characterData['equipments']['companion'][i];
       final compnanion = equipData != null
-          ? engine.invoke('getEquippedEntity',
-              positionalArgs: [equipData, characterData])
+          ? engine
+              .invoke('getEquipped', positionalArgs: [equipData, characterData])
           : null;
       companions.add(Padding(
         padding: const EdgeInsets.all(5.0),
@@ -78,8 +78,8 @@ class BattleCards extends StatelessWidget {
     for (var i = 1; i < kEquipmentMaxOffense; ++i) {
       final equipData = characterData['equipments']['offense'][i];
       final item = equipData != null
-          ? engine.invoke('getEquippedEntity',
-              positionalArgs: [equipData, characterData])
+          ? engine
+              .invoke('getEquipped', positionalArgs: [equipData, characterData])
           : null;
       offenseItems.add(Padding(
         padding: const EdgeInsets.all(5.0),

@@ -4,10 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../grid/entity_grid.dart';
-import '../../grid/entity_info.dart';
-import '../../../../global.dart';
-import '../../../../event/events.dart';
+import '../grid/entity_grid.dart';
+import '../grid/entity_info.dart';
+import '../../../global.dart';
+import '../../../event/events.dart';
 
 const _kInventorySlotCount = 30;
 

@@ -1,5 +1,5 @@
 import '../common.ht'
-import '../effects.ht'
+import '../effect.ht'
 
 const kItemDefaultIcon = 'assets/images/unknown_item.png'
 // final kDefaultItemDescription = getLocaleString('defaultItemDescription')
@@ -30,9 +30,6 @@ final kRarity2ItemLevels = {
   mythic: 60, // mythic 金
   exotic: 70, // exotic 虹
 }
-
-const kCompanionAssistProbability = 0.1
-const kCompanionDefendProbability = 0.1
 
 fun calculateItemStats(item) {
   item.stats = item.attributes.clone()
@@ -248,13 +245,10 @@ fun characterEquip(character, entity, { index }) -> bool {
     category: entity.category, // 主类型：武器、斗技等
     kind: entity.kind, // 次类型：剑、拳法等
     equipType: entity.equipType,
-    life: entity.stats.life,
-    lifeMax: entity.stats.lifeMax,
   }
   when (entity.entityType) {
     kEntityTypeItem -> {
       if (!character.inventory[entity.id]) characterAcquire(character, entity)
-      equipData.damage = entity.stats.damage
       
       final incidentContent = getLocaleString('characterEquip', [
         character.name,
@@ -268,7 +262,6 @@ fun characterEquip(character, entity, { index }) -> bool {
     }
     kEntityTypeSkill -> {
       if (!character.skills[entity.id]) characterLearn(character, entity)
-      equipData.damage = entity.stats.damage
       
       final incidentContent = getLocaleString('characterEquipSkill', [
         character.name,
@@ -281,15 +274,14 @@ fun characterEquip(character, entity, { index }) -> bool {
       )
     }
     kEntityTypeNpc, kEntityTypeCharacter -> {
-      final companionData = character.companions.containsKey(entity.id) ?
-        character.companions[entity.id] : characterGetCompanion(character, entity)
-      final firstOffenseItemEquipData = entity.equipments.offense[1]
-      if (firstOffenseItemEquipData == null) {
-        engine.warning('${entity.name} 的第一个攻击格子没有装备，因此无法设置为战斗伙伴。')
+      if (!entity.isBattleCompanion) {
+        engine.warning('${entity.name} 不能设置为战斗伙伴。')
         return null
       }
-      equipData.damage = firstOffenseItemEquipData.damage
-      // equipData.coordination = companionData.coordination
+      final companionData = character.companions.containsKey(entity.id) ?
+        character.companions[entity.id] : characterGetCompanion(character, entity)
+      // 战斗伙伴的装备数据中，对象类型和实际的对象类型不同
+      equipData.entityType = kEntityTypeCompanion
       
       final incidentContent = getLocaleString('characterFollow', [
         entity.name,
@@ -315,7 +307,7 @@ fun characterEquip(character, entity, { index }) -> bool {
             oldEquipData.supports.add(equipData)
           } else {
             // 移除旧装备
-            final oldEntity = getEquippedEntity(oldEquipData.supports.first, character)
+            final oldEntity = getEquipped(oldEquipData.supports.first, character)
             delete oldEntity.equippedPosition
             oldEquipData.supports.first = equipData
           }
@@ -342,7 +334,7 @@ fun characterEquip(character, entity, { index }) -> bool {
         index = 1
       }
       final oldEquipData = character.equipments[entity.equipType][1]
-      final oldItem = getEquippedEntity(equipData, character)
+      final oldItem = getEquipped(equipData, character)
       delete oldItem.equippedPosition
       character.equipments[entity.equipType][index] = equipData
       if (equipData.category == oldItem.category && equipData.kind == oldItem.kind) {
@@ -378,7 +370,7 @@ fun characterUnequip(character, entity) {
   }
 }
 
-fun getEquippedEntity(equipData, character) {
+fun getEquipped(equipData, character) {
   if (equipData == null) return null
   var entity
   when (equipData.entityType) {
@@ -388,26 +380,19 @@ fun getEquippedEntity(equipData, character) {
     kEntityTypeSkill -> {
       entity = character.skills[equipData.id]
     }
-    kEntityTypeNpc -> {
-      entity = game.npcs[equipData.id]
-      // 协调度并没有保存在对象数据中，而是保存在装备数据中
-      // 这里会临时计算出来，赋值在entity上
-      final assist = {
-        name: effectCompanionAssist,
-        description: effectParryDescription,
-        values: [
-          {
-            value: kCompanionAssistProbability + equipData.coordination / 100 * kCompanionAssistProbability,
-            type: kEffectValueTypePercentage,
-          },
-        ],
-      }
-      
-    }
-    kEntityTypeCharacter -> {
-      entity = game.characters[equipData.id]
+    kEntityTypeCompanion -> {
+      entity = character.companions[equipData.id]
     }
   }
   assert(entity != null)
   return entity
+}
+
+fun getFirstEquippedOffenseItem(character) {
+  for (final i in range(1, kEquipmentMax.offense)) {
+    final equipData = character.equipments.offense[i]
+    if (equipData != null) {
+      return getEquipped(equipData, character)
+    }
+  }
 }

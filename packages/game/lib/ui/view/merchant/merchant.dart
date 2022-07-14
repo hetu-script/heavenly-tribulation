@@ -4,7 +4,7 @@ import 'package:hetu_script/values.dart';
 import '../../shared/responsive_window.dart';
 import '../../../global.dart';
 import '../../shared/close_button.dart';
-import '../character/build/inventory.dart';
+import '../character/inventory.dart';
 import '../../../event/events.dart';
 
 class MerchantView extends StatefulWidget {

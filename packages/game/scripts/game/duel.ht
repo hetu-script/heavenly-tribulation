@@ -1,6 +1,7 @@
 import 'game.ht'
 import 'l10n.ht'
 import 'entity/common.ht'
+import 'entity/item/common.ht'
 import 'entity/character/character.ht'
 
 /// 战斗模块
@@ -88,8 +89,8 @@ struct Duel {
       this.tied = false
       // 战斗本身的客观时间，不会受任何因素影响
       this.frames = 0
-      char1info.activatedOffense = getEquippedEntity(char1.equipments.offense.values.first, char1)
-      char2info.activatedOffense = getEquippedEntity(char2.equipments.offense.values.first, char2)
+      char1info.activatedOffense = getFirstEquippedOffenseItem(char1)
+      char2info.activatedOffense = getFirstEquippedOffenseItem(char2)
 
       // 设置人物当前防护物品位置，0 = 无防护物品
       // fun setNextActivatedDefenseItem(info, character) {
@@ -185,7 +186,7 @@ struct Duel {
               info.activatedOffenseIndex = 1
             }
             info.activatedOffense =
-              getEquippedEntity(subject.equipments.offesne[info.activatedOffenseIndex], subject)
+              getEquipped(subject.equipments.offesne[info.activatedOffenseIndex], subject)
           } else {
             ++info.ticks
           }

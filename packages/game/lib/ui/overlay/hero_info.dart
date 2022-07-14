@@ -5,7 +5,7 @@ import '../avatar.dart';
 import '../view/character/character.dart';
 import '../../global.dart';
 import '../shared/bordered_icon_button.dart';
-import '../view/character/build/build.dart';
+import '../view/character/build.dart';
 import '../shared/dynamic_color_progressbar.dart';
 
 class HeroInfoPanel extends StatelessWidget {

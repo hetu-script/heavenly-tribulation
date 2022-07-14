@@ -6,10 +6,12 @@ import '../global.dart';
 import 'shared/responsive_window.dart';
 
 class SaveInfo {
+  final String worldId;
   final String timestamp;
   final String path;
 
   SaveInfo({
+    required this.worldId,
     required this.timestamp,
     required this.path,
   });
@@ -69,10 +71,19 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
                             child: Row(
                               children: [
                                 Expanded(
-                                  child: Text(
-                                    info.timestamp,
-                                    softWrap: false,
-                                    overflow: TextOverflow.ellipsis,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        info.worldId,
+                                      ),
+                                      Text(
+                                        info.timestamp,
+                                        softWrap: false,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 Column(

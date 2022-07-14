@@ -86,6 +86,6 @@ abstract class GlobalConfig {
   static Size screenSize = Size.zero;
 }
 
-const kValueTypeInt = 'integer';
+const kValueTypeInt = 'int';
 const kValueTypeFloat = 'float';
 const kValueTypePercentage = 'percentage';

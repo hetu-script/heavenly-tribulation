@@ -1,8 +1,12 @@
 {
-  "effectParry": "在出招阶段受击时，{0} 几率免除伤害。",
-  "effectCounter": "在敌方出招阶段击中时，{0} 几率使对方中止出招并硬直 10 秒。",
+  "effectRestoreLife": "回复 {0} 生命",
+  "effectRestoreChi": "回复 {0} 元气",
+  "effectRestoreStamina": "回复 {0} 体力",
 
-  "effectRestoreLife": "回复 {0} 点生命",
-  "effectRestoreChi": "回复 {0} 点元气",
-  "effectRestoreStamina": "回复 {0} 点体力"
+  "effectParry": "在出招阶段受击时，{0} 几率免除伤害。",
+  "effectCounter": "命中时 {0} 几率使对方硬直 {1}f。",
+
+  "effectDefend": "{0} 几率承担 {1} 伤害。",
+
+  "effectCompanionIncreaseDamageDescription": "{0} 几率协同进攻，增加 {1} 伤害。"
 }

@@ -48,9 +48,9 @@ class Avatar extends StatelessWidget {
             children: [
               if (avatarAssetKey != null)
                 RRectIcon(
-                  avatarAssetKey: avatarAssetKey!,
+                  image: AssetImage(avatarAssetKey!),
                   size: size,
-                  radius: radius,
+                  borderRadius: BorderRadius.all(Radius.circular(radius)),
                   borderColor: borderColor,
                   borderWidth: borderWidth,
                 ),
