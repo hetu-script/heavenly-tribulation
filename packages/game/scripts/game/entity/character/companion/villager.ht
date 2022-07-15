@@ -16,7 +16,7 @@ struct VillageWarrior {
     rarity,
     description,
     attributes,
-    attributeSum,
+    attributeSum = _kVillageWarriorAttributeSum,
     isPermanent = false,
   }) {
     this.entityType = kEntityTypeNpc
@@ -39,7 +39,7 @@ struct VillageWarrior {
 
     // 生成战斗单位相关数据，并写入当前对象
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
-    final battleInfo = BattleEntity(attributes: attributes, attributeSum: _kVillageWarriorAttributeSum)
+    final battleInfo = BattleEntity(attributes: attributes, attributeSum: attributeSum)
     this.assign(battleInfo)
 
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前

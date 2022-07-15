@@ -24,7 +24,7 @@ fun testDuel {
   final hero = Character(isMajorCharacter: false)
   characterEquip(hero, Kickboxing())
   characterEquip(hero, Weapon())
-  characterEquip(hero, Shield())
+  // characterEquip(hero, Shield())
   final companion = VillageWarrior()
   characterEquip(companion, Weapon())
   characterEquip(hero, companion)

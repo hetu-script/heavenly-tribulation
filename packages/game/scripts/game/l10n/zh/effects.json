@@ -6,7 +6,9 @@
   "effectParry": "在出招阶段受击时，{0} 几率免除伤害。",
   "effectCounter": "命中时 {0} 几率使对方硬直 {1}f。",
 
-  "effectDefendByChance": "{0} 几率承担 {1} 伤害。",
+  "effectDefend": "受击时分担 {1} 伤害。",
 
-  "effectCompanionIncreaseDamageDescription": "{0} 几率协同进攻，增加 {1} 伤害。"
+  "effectDefendWithCooldown": "受击时分担 {0} 伤害。冷却时间：{1}。",
+
+  "effectCompanionIncreaseDamageDescription": "协同攻击伤害：{0} 。冷却时间：{1}"
 }

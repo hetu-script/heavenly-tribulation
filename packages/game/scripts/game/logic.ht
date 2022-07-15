@@ -1,11 +1,12 @@
 import 'game.ht'
+import 'event.ht'
 import 'entity/character/character.ht'
 import 'l10n.ht'
 
 fun onGameEvent(id: str, [arg]) {
-  for (final mod of game.mods) {
-    final handler = mod[id];
-    if(handler is function) {
+  for (final handler of eventHandlers) {
+    final callback = handler[id];
+    if(callback is function) {
       handler(arg)
     }
   }
@@ -47,7 +48,7 @@ fun handleBabies {
   }
 }
 
-fun generateMissions {
+fun generateQuests {
   for (final locaiton of game.locations) {
     
   }

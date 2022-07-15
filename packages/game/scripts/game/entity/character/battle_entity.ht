@@ -41,7 +41,10 @@ struct BattleEntity {
 
     // 属性点数数值
     this.attributes = generateRandomAttributes(
-      Math.gaussianNoise(attributeSum, _kCharacterAttributeSumDeviation, min: 6, max: 600).toInt(),
+      Math.gaussianNoise(attributeSum, _kCharacterAttributeSumDeviation,
+        min: kCharacterAttributeNames.length,
+        max: kCharacterAttributeNames.length * 100,
+      ).toInt(),
       _kCharacterAttributeMinValue,
       _kCharacterAttributeMaxValue,
     )
@@ -115,7 +118,7 @@ fun getCharacterStats(character) {
     offense: {},
     companion: {},
   }
-  for (var i = 1; i < kEquipmentMax.defense; ++i) {
+  for (final i in range(1, kEquipmentMax.defense)) {
     final equipData = character.equipments.defense[i]
     if (equipData != null) {
       final item = getEquipped(equipData, character)
@@ -125,7 +128,7 @@ fun getCharacterStats(character) {
       }
     }
   }
-  for (var i = 1; i < kEquipmentMax.offense; ++i) {
+  for (final i in range(1, kEquipmentMax.offense)) {
     final equipData = character.equipments.offense[i]
     if (equipData != null) {
       final item = getEquipped(equipData, character)
@@ -136,7 +139,7 @@ fun getCharacterStats(character) {
       }
     }
   }
-  for (var i = 1; i < kEquipmentMax.companion; ++i) {
+  for (final i in range(1, kEquipmentMax.companion)) {
     final equipData = character.equipments.companion[i]
     if (equipData != null) {
       final companion = getEquipped(equipData, character)

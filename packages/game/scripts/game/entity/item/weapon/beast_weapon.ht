@@ -5,8 +5,6 @@ import '../../../util.ht'
 import '../../../game.ht'
 import '../../../l10n.ht'
 
-final _kEffects = ['parry', 'counter']
-
 final kBeast = 'beast'
 final kBeastWeaponKindClaw = 'claw'
 final kBeastWeaponKindFang = 'fang'

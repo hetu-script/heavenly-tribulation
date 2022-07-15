@@ -73,9 +73,9 @@ class EntityInfo extends StatelessWidget {
 
     final effectData = entityData['effects'] ?? [];
     final effects = <Widget>[];
-    for (final data in effectData.values) {
+    for (final effect in effectData.values) {
       final values = <String>[];
-      for (final value in data['values']) {
+      for (final value in effect['values']) {
         final v = value['value'] as num;
         final type = value['type'];
         if (type == null || type == kValueTypeInt) {
@@ -88,7 +88,8 @@ class EntityInfo extends StatelessWidget {
           engine.error('在 ${entityData.id} 上遇到了未知的效果数据类型：$type');
         }
       }
-      final description = engine.locale.getString(data['description'], values);
+      final description =
+          engine.locale.getString(effect['description'], values);
       effects.add(
         IntrinsicHeight(
           child: Row(

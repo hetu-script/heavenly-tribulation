@@ -1,33 +1,28 @@
 import 'module:game' as game
 
-export 'l10n/localizations.ht'
-export 'binding/bindings.ht'
-export 'data/sandbox_story/dialogs.ht'
+import 'l10n/localizations.ht'
+import 'data/sandbox_story/dialogs.ht'
+import 'meta.json' as meta
 
-import 'mod.ht'
+// 这里的函数最终是绑定到游戏对象上执行
+// 是运行时的命名空间，并不是这里的命名空间
+// 因此可以直接使用 engine 对象
+final module = {
+  ...meta,
+  onNewGame: (arg) {
+    engine.info('[${this.name}]: 新游戏事件')
+  },
+  onUpdate: (arg) {
+    engine.info('[${this.name}]: 时间更新事件')
+  }
+}
 
-
-final modName = '[${mod.name}(${mod.id}-${mod.version})]'
-
-fun init {
+fun init(arg) {
+  final modName = '[${module.name}(${module.id}-${module.version})]'
+  
   game.engine.info('${modName}: 初始化')
-
-  game.engine.info('${modName}: 载入模组使用的本地化字符串')
   game.addLocales(localizations)
   game.engine.updateLocale(game.locales[game.locales.currentLocaleId])
-
-  // addCharacters(characters)
-
-  // addDialogs(dialogs) // must be after added characters
-
-  // addLocations(locations)
-  // setCurrentLocation('baiheguan')
-
-  // addOrganizations(organizations)
-
-  // addMazes(mazes)
-
-  game.addMod(mod)
-
+  game.addEventHandler(module)
   game.engine.info('${modName}: 初始化完毕...')
 }

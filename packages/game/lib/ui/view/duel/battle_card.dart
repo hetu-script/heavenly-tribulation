@@ -5,9 +5,7 @@ import '../grid/entity_grid.dart';
 import 'cooldown.dart';
 import '../../../global.dart';
 import '../grid/entity_info.dart';
-import '../character/character.dart';
 import '../../shared/dynamic_color_progressbar.dart';
-import '../character/npc.dart';
 
 class BattleItemCard extends StatelessWidget {
   const BattleItemCard({
@@ -39,22 +37,10 @@ class BattleItemCard extends StatelessWidget {
       context: context,
       barrierColor: Colors.transparent,
       builder: (context) {
-        if (item['entityType'] == kEntityTypeItem ||
-            item['entityType'] == kEntityTypeSkill) {
-          return EntityInfo(
-            entityData: item,
-            left: screenPosition.dx,
-          );
-        } else if (item['entityType'] == kEntityTypeNpc) {
-          return NpcView(
-            npcData: item,
-          );
-        } else if (item['entityType'] == kEntityTypeCharacter) {
-          return CharacterView(
-            characterData: item,
-          );
-        }
-        throw '错误的游戏对象数据（并非物品或人物）：\n$item';
+        return EntityInfo(
+          entityData: item,
+          left: screenPosition.dx,
+        );
       },
     );
   }
@@ -81,8 +67,8 @@ class BattleItemCard extends StatelessWidget {
             DynamicColorProgressBar(
               width: size.width - 4,
               height: 8.0,
-              value: life!.truncate(),
-              max: lifeMax!.truncate(),
+              value: life!.toDouble(),
+              max: lifeMax!.toDouble(),
               showNumber: false,
               colors: const <Color>[Colors.red, Colors.green],
             ),

@@ -36,7 +36,7 @@ class DynamicColorProgressBar extends StatelessWidget {
 
   final double height;
 
-  final int value, max;
+  final double value, max;
 
   final bool showNumber, showNumberAsPercentage;
 
@@ -66,8 +66,9 @@ class DynamicColorProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final valueString = '${value.truncate()}/${max.truncate()}';
     return Tooltip(
-      message: '$value/$max',
+      message: valueString,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -101,7 +102,7 @@ class DynamicColorProgressBar extends StatelessWidget {
                     child: Text(
                       showNumberAsPercentage
                           ? (value / max).toPercentageString()
-                          : '$value/$max',
+                          : valueString,
                       style: const TextStyle(fontSize: 12.0),
                     ),
                   )

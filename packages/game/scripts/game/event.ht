@@ -1,0 +1,16 @@
+// 加载到本次游戏的事件处理模块。
+// 理论上每个游戏Mod都是单独的一个模块，
+// 每个模块都可以处理多种事件，
+// 每个模块内部的key是游戏自己定义的事件名之一，
+// value是一个接受一个arg的函数，
+// 这个arg是一个struct对象，包含不同的事件参数
+var eventHandlers = {}
+
+fun getEventHandlerById(id: str) {
+  return eventHandlers[id]
+}
+
+fun addEventHandler(handler) {
+  engine.info('载入事件处理模块 [${handler.name}]')
+  eventHandlers[handler.id] = handler
+}

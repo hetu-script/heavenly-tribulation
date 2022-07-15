@@ -1,7 +1,7 @@
 import '../../../name/name.ht' as nameGenerator
 import '../../common.ht'
 import '../common.ht'
-import '../../effect.ht'
+import '../../../effect.ht'
 
 struct Beverage {
   construct ({
@@ -40,16 +40,16 @@ struct Beverage {
     this.icon = 'icon/item/drink.png'
 
     this.effects = {}
-    this.effects[kEffectRestoreStamina] = {
-      name: kEffectRestoreStamina,
+    this.effects[kEffectRestoreStamina] = Effect(
+      id: kEffectRestoreStamina,
       description: kEffectRestoreStamina,
+      category: kEffectCategoryConsume,
       values: [
-        {
+        EffectValue(
           value: 80,
-        },
+        ),
       ],
-    }
-
+    )
 
   }
 }

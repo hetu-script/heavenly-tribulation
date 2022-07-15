@@ -5,11 +5,8 @@ var locales = {
   en: {}
 }
 
-// 全部对话资源
+// 加载到本次游戏的对话资源
 var dialogs = {}
-
-// 全部 mod 列表
-var mods = {}
 
 var config = {
   debug: true,
@@ -20,11 +17,13 @@ var currentMaze = null
 // 进入副本时，使用这个临时事件列表，平时此列表为 null
 var localHistory = null
 
+var history = []
+
+var game
+
 fun getLocalHistory() {
   return localHistory
 }
-
-var history = []
 
 fun getHistory() {
   return history
@@ -36,9 +35,6 @@ fun getHistoryJsonData() {
 
 struct Game {
   construct {
-    // 加载到本次游戏的mod信息
-    this.mods = {}
-
     this.timestamp = 0
 
     this.nations = {}
@@ -82,8 +78,6 @@ struct Game {
     }
   }
 }
-
-var game
 
 fun resetGame {
   game = Game()

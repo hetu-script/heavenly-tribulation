@@ -1,5 +1,5 @@
 import '../common.ht'
-import '../effect.ht'
+import '../../effect.ht'
 
 const kItemDefaultIcon = 'assets/images/unknown_item.png'
 // final kDefaultItemDescription = getLocaleString('defaultItemDescription')
@@ -171,16 +171,10 @@ fun characterConsume(character, item) {
 
   if (item.effects) {
     for (final effect in item.effects) {
-      when (effect.name) {
-        kEffectRestoreLife -> {
-          character.stats.life += effect.values.first.value
-        }
-        kEffectRestoreChi -> {
-          character.stats.chi += effect.values.first.value
-        }
-        kEffectRestoreStamina -> {
-          character.stats.stamina += effect.values.first.value
-        }
+      // 即便是可以食用的物品，也可能包含一些非食用效果，因此这里要加以判断
+      if (effect.category == kEffectCategoryConsume) {
+        final effectHandler = getEffectHandlerById(effect.id)
+        if (effectHandler is function) effectHandler(effect, character)
       }
     }
   }

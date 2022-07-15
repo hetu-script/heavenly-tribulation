@@ -652,6 +652,9 @@ fun rejuvenate(character) {
     if (equipData != null) {
       final item = getEquipped(equipData, character)
       item.stats.life = item.stats.lifeMax
+      for (final effect of item.effects) {
+        effect.cooldown = 0
+      }
     }
   }
   for (var i = 1; i < kEquipmentMax.offense; ++i) {
@@ -659,6 +662,9 @@ fun rejuvenate(character) {
     if (equipData != null) {
       final item = getEquipped(equipData, character)
       item.stats.life = item.stats.lifeMax
+      for (final effect of item.effects) {
+        effect.cooldown = 0
+      }
     }
   }
   for (var i = 1; i < kEquipmentMax.companion; ++i) {
@@ -666,6 +672,9 @@ fun rejuvenate(character) {
     if (equipData != null) {
       final item = getEquipped(equipData, character)
       item.stats.life = item.stats.lifeMax
+      for (final effect of item.effects) {
+        effect.cooldown = 0
+      }
     }
   }
 }

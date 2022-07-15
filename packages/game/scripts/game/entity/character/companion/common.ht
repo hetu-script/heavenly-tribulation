@@ -1,7 +1,7 @@
-import '../../effect.ht'
+import '../../../effect.ht'
 
-const _kCompanionAssistProbability = 0.1
-const _kCompanionDefendProbability = 0.1
+const _kCompanionAssistCooldown = 5
+const _kCompanionDefendCooldown = 5
 const _kCompanionDefendPercentage = 1.0
 
 fun generateBattleCompanionData(companionData, battleEntity) {
@@ -9,35 +9,37 @@ fun generateBattleCompanionData(companionData, battleEntity) {
   companionData.stats.damage = firstOffenseItem?.stats.damage
 
   // 生成同伴数据
-  final assist = {
-    name: kEffectIncreaseDamageByChance,
+  final assist = Effect(
+    id: kEffectIncreaseDamageWithCooldown,
     description: kEffectCompanionIncreaseDamageDescription,
+    category: kEffectCategoryDamage,
     values: [
-      {
-        value: _kCompanionAssistProbability,
-        type: kEffectValueTypePercentage,
-      },
-      {
+      EffectValue(
         value: companionData.stats.damage,
         type: kEffectValueTypeInt,
-      },
+      ),
+      EffectValue(
+        value: _kCompanionAssistCooldown,
+        type: kEffectValueTypeInt,
+      ),
     ],
-  }
-  final defend = {
-    name: kEffectDefendByChance,
-    description: kEffectDefendByChance,
+  )
+  final defend = Effect(
+    id: kEffectDefendWithCooldown,
+    description: kEffectDefendWithCooldown,
+    category: kEffectCategoryDefend,
     values: [
-      {
-        value: _kCompanionDefendProbability,
-        type: kEffectValueTypePercentage,
-      },
-      {
+      EffectValue(
         value: _kCompanionDefendPercentage,
         type: kEffectValueTypePercentage,
-      },
+      ),
+      EffectValue(
+        value: _kCompanionDefendCooldown,
+        type: kEffectValueTypeInt,
+      ),
     ],
-  }
-  if (!companionData.effects) companionData.effects = {}
-  companionData.effects[kEffectIncreaseDamageByChance] = assist
-  companionData.effects[kEffectDefendByChance] = defend
+  )
+  if (companionData.effects == null) companionData.effects = {}
+  companionData.effects[assist.id] = assist
+  companionData.effects[defend.id] = defend
 }

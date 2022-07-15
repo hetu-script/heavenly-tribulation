@@ -3,11 +3,11 @@ import '../../common.ht'
 import '../common.ht'
 import '../../../util.ht'
 import '../../../game.ht'
-import '../../effect.ht'
+import '../../../effect.ht'
 
 const kShieldKind = 'shield'
 
-const _kShieldDefendProbability = 0.6
+const _kShieldDefendCooldown = 3
 const _kShieldDefendPercentage = 0.8
 
 struct Shield {
@@ -45,8 +45,8 @@ struct Shield {
     
     this.icon = 'icon/item/shield.png'
     this.attributes = {
-      life: 150,
-      lifeMax: 150,
+      life: 50,
+      lifeMax: 50,
     }
 
     if (attributes) {
@@ -54,20 +54,21 @@ struct Shield {
     }
 
     this.effects = {}
-    this.effects[kEffectDefendByChance] = {
-      name: kEffectDefendByChance,
-      description: kEffectDefendByChance,
+    this.effects[kEffectDefendWithCooldown] = Effect(
+      id: kEffectDefendWithCooldown,
+      description: kEffectDefendWithCooldown,
+      category: kEffectCategoryDefend,
       values: [
-        {
-          value: _kShieldDefendProbability,
-          type: kEffectValueTypePercentage,
-        },
-        {
+        EffectValue(
           value: _kShieldDefendPercentage,
           type: kEffectValueTypePercentage,
-        },
+        ),
+        EffectValue(
+          value: _kShieldDefendCooldown,
+          type: kEffectValueTypeInt,
+        ),
       ],
-    }
+    )
 
     calculateItemStats(this)
   }
