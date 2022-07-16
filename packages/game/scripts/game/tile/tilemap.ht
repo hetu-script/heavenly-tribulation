@@ -17,11 +17,6 @@ const kZoneIsland = 'island'
 const kZoneLake = 'lake'
 
 struct Zone {
-  var index: int
-  var category: str
-  var count = 0
-  final terrainIndexes = []
-
   construct ({index, name, category}) {
     assert(index != null)
     assert(category != null)
@@ -29,6 +24,8 @@ struct Zone {
     this.name = name
     this.category = category
     this.color = Math.randomBrightColorHex()
+    this.count = 0
+    this.terrainIndexes = []
   }
 }
 
@@ -174,8 +171,6 @@ fun getMapTileNeighbors(left: int, top: int, map, {zoneIndex}) {
 fun calculateRoute(start, end, map, {restrictedInZoneIndex}) {
   // print('calculating route: ${start.left},${start.top} to ${end.left},${end.top}')
 
-  // assert(start.zoneIndex > 0)
-  // assert(end.zoneIndex > 0)
   assert(start.index != null && end.index != null)
   if (start.index == end.index) return null
   // final zone1 = map.zones[start.zoneIndex]

@@ -56,7 +56,7 @@ fun testMaze {
   final maze = MountainMaze(
     name: '测试副本'
     isOnWorldMap: false,
-    levelNumber: 3,
+    // levelNumber: 3,
   )
   final hero = Character()
   hero.money += 200

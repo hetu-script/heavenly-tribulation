@@ -55,6 +55,7 @@ struct Action {
 
 struct Duel {
   construct(char1, char2, { type }) {
+    this.type = type;
     this.messages = []
     this.actions = {
       char1: [],
@@ -328,59 +329,67 @@ struct Duel {
 
     // 双方结束时的状态
     this.resultStats = {
-      char1: char1info.stats,
-      char2: char2info.stats,
-    }
-
-    if (type != kDuelTypePractice) {
-      for (final i in range(1, kEquipmentMax.offense)) {
-        final char1EquippedItem = char1.equipments.offense[i]
-        if (char1EquippedItem) {
-          final char1ItemStats = char1info.stats.offense[i]
-          char1EquippedItem.stats = char1ItemStats
-        }
-        final char2EquippedItem = char2.equipments.offense[i]
-        if (char2EquippedItem) {
-          final char2ItemStats = char2info.stats.offense[i]
-          char2EquippedItem.stats = char2ItemStats
-        }
-      }
-      delete char1info.stats.offense
-
-      for (final i in range(1, kEquipmentMax.defense)) {
-        final char1EquippedItem = char1.equipments.defense[i]
-        if (char1EquippedItem) {
-          final char1ItemStats = char1info.stats.defense[i]
-          char1EquippedItem.stats = char1ItemStats
-        }
-        final char2EquippedItem = char2.equipments.defense[i]
-        if (char2EquippedItem) {
-          final char2ItemStats = char2info.stats.defense[i]
-          char2EquippedItem.stats = char2ItemStats
-        }
-      }
-      delete char1info.stats.defense
-
-      for (final i in range(1, kEquipmentMax.companion)) {
-        final char1EquippedItem = char1.equipments.companion[i]
-        if (char1EquippedItem) {
-          final char1ItemStats = char1info.stats.companion[i]
-          char1EquippedItem.stats = char1ItemStats
-        }
-        final char2EquippedItem = char2.equipments.companion[i]
-        if (char2EquippedItem) {
-          final char2ItemStats = char2info.stats.companion[i]
-          char2EquippedItem.stats = char2ItemStats
-        }
-      }
-      delete char1info.stats.companion
-
-      char1.stats = char1info.stats
-      char2.stats = char2info.stats
+      result: this.result,
+      // 因为这里的数据用于界面显示，会包括物品、随从等额外的数据
+      // 所以复制一份，而之后直接赋值给人物时会删掉额外数据
+      char1: char1info.stats.clone(),
+      char2: char2info.stats.clone(),
     }
     
     // if (config.debug) {
     //   engine.info(this)
     // }
   }
+}
+
+fun resolveDuelResult(char1, char2, resultStats) {
+  for (final i in range(1, kEquipmentMax.offense)) {
+    final char1EquippedItem = char1.equipments.offense[i]
+    if (char1EquippedItem) {
+      final char1ItemStats = resultStats.char1.offense[i]
+      char1EquippedItem.stats = char1ItemStats
+    }
+    final char2EquippedItem = char2.equipments.offense[i]
+    if (char2EquippedItem) {
+      final char2ItemStats = resultStats.char2.offense[i]
+      char2EquippedItem.stats = char2ItemStats
+    }
+  }
+  delete resultStats.char1.offense
+  delete resultStats.char2.offense
+
+  for (final i in range(1, kEquipmentMax.defense)) {
+    final char1EquippedItem = char1.equipments.defense[i]
+    if (char1EquippedItem) {
+      final char1ItemStats = resultStats.char1.defense[i]
+      char1EquippedItem.stats = char1ItemStats
+    }
+    final char2EquippedItem = char2.equipments.defense[i]
+    if (char2EquippedItem) {
+      final char2ItemStats = resultStats.char2.defense[i]
+      char2EquippedItem.stats = char2ItemStats
+    }
+  }
+  delete resultStats.char1.defense
+  delete resultStats.char2.defense
+
+
+  for (final i in range(1, kEquipmentMax.companion)) {
+    final char1EquippedItem = char1.equipments.companion[i]
+    if (char1EquippedItem) {
+      final char1ItemStats = resultStats.char1.companion[i]
+      char1EquippedItem.stats = char1ItemStats
+    }
+    final char2EquippedItem = char2.equipments.companion[i]
+    if (char2EquippedItem) {
+      final char2ItemStats = resultStats.char2.companion[i]
+      char2EquippedItem.stats = char2ItemStats
+    }
+  }
+  delete resultStats.char1.companion
+  delete resultStats.char2.companion
+
+
+  char1.stats = resultStats.char1
+  char2.stats = resultStats.char2
 }

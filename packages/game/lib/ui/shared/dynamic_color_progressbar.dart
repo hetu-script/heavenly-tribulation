@@ -36,7 +36,7 @@ class DynamicColorProgressBar extends StatelessWidget {
 
   final double height;
 
-  final double value, max;
+  final num value, max;
 
   final bool showNumber, showNumberAsPercentage;
 

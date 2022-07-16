@@ -9,7 +9,7 @@ class EntityGrid extends StatelessWidget {
     super.key,
     this.size = const Size(48.0, 48.0),
     this.entityData,
-    required this.onSelect,
+    this.onItemTapped,
     this.hasBorder = true,
     this.isSelected = false,
     this.isEquipped = false,
@@ -19,7 +19,7 @@ class EntityGrid extends StatelessWidget {
 
   final Size size;
   final HTStruct? entityData;
-  final void Function(HTStruct item, Offset screenPosition) onSelect;
+  final void Function(HTStruct item, Offset screenPosition)? onItemTapped;
   final bool hasBorder;
   final bool isSelected, isEquipped;
   final Widget? child;
@@ -32,8 +32,8 @@ class EntityGrid extends StatelessWidget {
 
     return GestureDetector(
       onTapUp: (TapUpDetails details) {
-        if (entityData != null) {
-          onSelect(entityData!, details.globalPosition);
+        if (entityData != null && onItemTapped != null) {
+          onItemTapped!(entityData!, details.globalPosition);
         }
       },
       child: MouseRegion(

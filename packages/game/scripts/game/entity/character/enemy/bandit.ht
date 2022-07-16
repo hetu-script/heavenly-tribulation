@@ -1,16 +1,62 @@
 import '../battle_entity.ht'
 import '../../common.ht'
+import '../../item/item.ht'
+import '../companion/common.ht'
 
-final _kBanditKinds = [
-  'muscle',
-  'killer',
+final _kBanditKinds = Set(
+  'boss', // level 3 出口的 boss
+  'killer', // level 2 出口的 boss
+  'muscle', // level 1 出口的 boss
   'minion',
-]
+)
 
 const _kBanditName = 'bandit'
 const _kPirateName = 'pirate'
 
 const _kBanditAttributeSum = 300
+
+final _kBeastAttributes = {
+  minion: {
+    strength: 79,
+    constitution: 75,
+    spirituality: 0,
+    willpower: 44,
+    dexterity: 51,
+    intelligence: 49,
+    perception: 63,
+    charisma: 43,
+  },
+  muscle: {
+    strength: 92,
+    constitution: 89,
+    spirituality: 0,
+    willpower: 73,
+    dexterity: 60,
+    intelligence: 32,
+    perception: 47,
+    charisma: 31,
+  },
+  killer: {
+    strength: 80,
+    constitution: 89,
+    spirituality: 0,
+    willpower: 77,
+    dexterity: 84,
+    intelligence: 76,
+    perception: 85,
+    charisma: 60,
+  },
+  boss: {
+    strength: 95,
+    constitution: 92,
+    spirituality: 0,
+    willpower: 80,
+    dexterity: 72,
+    intelligence: 89,
+    perception: 86,
+    charisma: 66,
+  },
+}
 
 struct Bandit {
   construct ({
@@ -22,40 +68,91 @@ struct Bandit {
     attributes,
     attributeSum,
   }) {
+    assert(kind in _kBanditKinds)
+    this.kind = kind
     this.entityType = kEntityTypeNpc
     this.birthTimestamp = birthTimestamp ?? createRandomBirthTimestamp()
     this.icon = 'avatar/general.png'
     this.category = kEntityCategoryCharacter
-    this.kind = kind ?? _kBanditKinds.random
     this.name = getLocaleString(isPirate ? _kPirateName : _kBanditName) + getLocaleString(this.kind)
     this.id = 'bandit_${Hash.uid4(2)}_${this.name}'
     this.rarity = rarity ?? kCommon
     this.color = kRarity[this.rarity].color
-    game.npcs[this.id] = this
-
     this.description = description ?? ''
-
-    // 生成战斗单位相关数据，并写入当前对象
-    // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
-    final battleInfo = BattleEntity(attributes: attributes, attributeSum: _kBanditAttributeSum)
-    this.assign(battleInfo)
+    game.npcs[this.id] = this
 
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
     when (this.kind) {
-      'boss' -> {
+      'minion' -> {
+        final battleInfo = BattleEntity(
+          attributes: attributes ?? _kBeastAttributes.minion,
+          attributeSum: _kBanditAttributeSum,
+          generate: false,
+          baseLife: 125,
+        )
+        this.assign(battleInfo)
+        // BattleEntity 会初始化银两为0，因此必须在其之后赋值
+        this.money = Math.randomInt(50) + 50
+        this.icon = 'maze/bandit_minion.png'
         characterEquip(this, Weapon())
+        // 山贼喽啰可以成为别的山贼的战斗伙伴
+        this.isEquippable = true
+        this.equipType = kEquipTypeCompanion
+        this.companionType = kCompanionTypeBattle
       }
       'muscle' -> {
-        characterEquip(this, Weapon())
+        final battleInfo = BattleEntity(
+          attributes: attributes ?? _kBeastAttributes.muscle,
+          attributeSum: _kBanditAttributeSum,
+          generate: false,
+          baseLife: 175,
+        )
+        this.assign(battleInfo)
+        // BattleEntity 会初始化银两为0，因此必须在其之后赋值
+        this.money = Math.randomInt(75) + 50
+        this.icon = 'maze/bandit_muscle.png'
+        characterEquip(this, Weapon(kind: 'spear'))
+        final minion1 = Bandit(kind: 'minion')
+        characterEquip(this, minion1)
       }
       'killer' -> {
-        characterEquip(this, Weapon())
+        final battleInfo = BattleEntity(
+          attributes: attributes ?? _kBeastAttributes.killer,
+          attributeSum: _kBanditAttributeSum,
+          generate: false,
+          baseLife: 225,
+        )
+        this.assign(battleInfo)
+        // BattleEntity 会初始化银两为0，因此必须在其之后赋值
+        this.money = Math.randomInt(100) + 50
+        this.icon = 'maze/bandit_killer.png'
+        characterEquip(this, Weapon(kind: 'sabre'))
+        characterEquip(this, Weapon(kind: 'sabre'))
+        final minion1 = Bandit(kind: 'minion')
+        characterEquip(this, minion1)
       }
-      'minion' -> {
+      'boss' -> {
+        final battleInfo = BattleEntity(
+          attributes: attributes ?? _kBeastAttributes.boss,
+          attributeSum: _kBanditAttributeSum,
+          generate: false,
+          baseLife: 300,
+        )
+        this.assign(battleInfo)
+        // BattleEntity 会初始化银两为0，因此必须在其之后赋值
+        this.money = Math.randomInt(300) + 100
+        this.icon = 'maze/bandit_boss.png'
         characterEquip(this, Weapon())
+        characterEquip(this, Shield())
+        final minion1 = Bandit(kind: 'minion')
+        final minion2 = Bandit(kind: 'minion')
+        final minion3 = Bandit(kind: 'minion')
+        characterEquip(this, minion1)
+        characterEquip(this, minion2)
+        characterEquip(this, minion3)
       }
     }
     
-    calculateCharacterStats(this)
+    generateCharacterStats(this)
   }
 }

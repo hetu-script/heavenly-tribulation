@@ -1,5 +1,12 @@
 import '../common.ht'
 
+const _kCharacterAttributeMinValue = 1
+const _kCharacterAttributeMaxValue = 100
+const _kCharacterAttributeSumBase = 500
+const _kCharacterAttributeSumDeviation = 300
+
+const kEscapedLootProbability = 0.5
+
 final kCharacterAttributeNames = [
   'strength',
   'constitution',
@@ -11,15 +18,17 @@ final kCharacterAttributeNames = [
   'charisma',
 ]
 
-const _kCharacterAttributeMinValue = 1
-const _kCharacterAttributeMaxValue = 100
-const _kCharacterAttributeSumBase = 400
-const _kCharacterAttributeSumDeviation = 200
+const kMajorAttributeFactor = 0.75
 
 struct BattleEntity {
   construct ({
     attributes,
     attributeSum = _kCharacterAttributeSumBase,
+    majorAttributes: List = [],
+    generate = true,
+    baseLife = 100,
+    baseChi = 100,
+    baseStamina = 100,
   }) {
     // 身上携带的金钱数量
     this.money = 0
@@ -31,6 +40,9 @@ struct BattleEntity {
     // 技能，可以放在主位（斗技）、辅助位（玄功）、支持位（遁术）
     this.skills = {}
 
+    // 随从，可以设置为战斗伙伴
+    this.companions = {}
+
     // 装备栏的位置和数量是固定的
     // 每个位置都是一个EquipSlot形式的对象
     this.equipments = {
@@ -40,14 +52,21 @@ struct BattleEntity {
     }
 
     // 属性点数数值
-    this.attributes = generateRandomAttributes(
-      Math.gaussianNoise(attributeSum, _kCharacterAttributeSumDeviation,
-        min: kCharacterAttributeNames.length,
-        max: kCharacterAttributeNames.length * 100,
-      ).toInt(),
-      _kCharacterAttributeMinValue,
-      _kCharacterAttributeMaxValue,
-    )
+    if (generate) {
+      this.attributes = generateCharacterAttributes(
+        attributesSum: Math.gaussianNoise(
+            attributeSum,
+            _kCharacterAttributeSumDeviation,
+            min: kCharacterAttributeNames.length,
+            max: kCharacterAttributeNames.length * 100,
+          ).toInt(),
+        minValue: _kCharacterAttributeMinValue,
+        maxValue: _kCharacterAttributeMaxValue,
+        majorAttributes: majorAttributes,
+      )
+    } else {
+      this.attributes = {}
+    }
 
     if (attributes) {
       this.attributes.assign(attributes)
@@ -56,15 +75,25 @@ struct BattleEntity {
     // 当前状态数值，由种族、天赋、属性点数、增益减损、物品、技能等计算得来
     this.stats = {}
 
-    calculateCharacterStats(this)
+    generateCharacterStats(
+      this,
+      baseLife: baseLife,
+      baseChi: baseChi,
+      baseStamina: baseStamina,
+    )
     rejuvenate(this)
   }
 }
 
-fun generateRandomAttributes(maxStats, minValue, maxValue, [majorAttr]) {
-  assert(maxStats != null)
-  assert(minValue != null)
-  assert(maxValue != null)
+fun generateCharacterAttributes({
+    attributesSum,
+    minValue,
+    maxValue,
+    majorAttributes: List = [],
+  }) {
+  assert(attributesSum > 0)
+  assert(minValue > 0)
+  assert(maxValue > 0 && maxValue > minValue)
 
   final attributes = {}
   
@@ -78,11 +107,17 @@ fun generateRandomAttributes(maxStats, minValue, maxValue, [majorAttr]) {
   list.shuffle()
   for (var i = 0; i < list.length; ++i) {
     final name = list[i]
-    var min = minValue
-    if (majorAttr && name == majorAttr) {
-      min = maxStats / list.length * 0.75
+    if (name in majorAttributes) {
+      minValue = attributesSum / list.length * kMajorAttributeFactor
     }
-    final value = (Math.gaussianNoise(maxStats / list.length * 0.6, 20, min: min, max: maxValue)).toInt()
+    final value = (
+      Math.gaussianNoise(
+        attributesSum / list.length * 0.6,
+        20,
+        min: minValue,
+        max: maxValue,
+      )
+    ).toInt()
     attributes[name] = checkValue(value)
   }
   return attributes
@@ -90,12 +125,15 @@ fun generateRandomAttributes(maxStats, minValue, maxValue, [majorAttr]) {
 
 // 根据属性、装备、技能计算出当前状态
 // 状态包括：生命、伤害、防御等。
-fun calculateCharacterStats(character) {
-
-  character.attributes.life = 100 + (character.attributes.constitution ~/ 5) * 5
-  character.attributes.chi = 100 + (character.attributes.superpower ~/ 5) * 5
-  character.attributes.stamina = 100 + (character.attributes.strength ~/ 5) * 5
-  // character.attributes.speed = ((character.attributes.dexterity + character.attributes.strength) ~/ 10) * 5
+fun generateCharacterStats(
+    character, {
+    baseLife = 100,
+    baseChi = 100,
+    baseStamina = 100,
+  }) {
+  character.attributes.life = baseLife + (character.attributes.constitution ~/ 5) * 5
+  character.attributes.chi = baseChi + (character.attributes.superpower ~/ 5) * 5
+  character.attributes.stamina = baseStamina + (character.attributes.strength ~/ 5) * 5
 
   character.stats = character.attributes.clone()
 

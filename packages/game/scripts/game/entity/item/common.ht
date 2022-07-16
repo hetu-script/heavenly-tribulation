@@ -1,5 +1,6 @@
 import '../common.ht'
 import '../../effect.ht'
+import '../character/companion/common.ht'
 
 const kItemDefaultIcon = 'assets/images/unknown_item.png'
 // final kDefaultItemDescription = getLocaleString('defaultItemDescription')
@@ -35,10 +36,10 @@ fun calculateItemStats(item) {
   item.stats = item.attributes.clone()
 }
 
-fun characterAcquireMoney(character, value) {
-  assert(value > 0)
-  character.money += value
-  final incidentContent = getLocaleString('characterAcquireMoney', [ character.name, value ])
+fun characterAcquireMoney(character, count) {
+  assert(count > 0)
+  character.money += count
+  final incidentContent = getLocaleString('characterAcquireMoney', [ character.name, count ])
   Incident(
     content: incidentContent,
     subjectIds: character.isMajorCharacter ? [character.id] : null,
@@ -49,7 +50,7 @@ fun characterAcquireMoney(character, value) {
 // 角色获得物品，此函数并不检查物品本身是否在其他角色的物品栏中
 // 主要用于获取一个本来不存在的物品
 // 如果数量大于1，则必须指定获取数量，item的stackSize将会被忽略
-fun characterAcquire(character, item, [n = 1]) {
+fun characterAcquire(character, item, [count = 1]) {
   if (item.stackSize > 1) {
     engine.warning('物品对象的数量[${item.stackSize}]将会被忽略。实际获取数值应该由[characterAcquire]函数的第三个参数指定。')
   }
@@ -57,19 +58,19 @@ fun characterAcquire(character, item, [n = 1]) {
   if (item.rarity == kCommon) {
     if (character.inventory.containsKey(item.id)) {
       // 因为普通物品可以堆叠，也可以重复存在，因此这里要从inventory取，而不要直接修改item
-      character.inventory[item.id].stackSize += n
+      character.inventory[item.id].stackSize += count
     } else {
-      item.stackSize = n
+      item.stackSize = count
       character.inventory[item.id] = item
     }
     incidentContent = getLocaleString('characterAcquireCommonItem', [
       character.name,
-      n,
+      count,
       item.name,
     ])
   } else {
-    assert(n == 1)
-    item.stackSize = n
+    assert(count == 1)
+    item.stackSize = count
     character.inventory[item.id] = item
     incidentContent = getLocaleString('characterAcquireItem', [
       character.name,
@@ -83,15 +84,26 @@ fun characterAcquire(character, item, [n = 1]) {
   )
 }
 
-fun characterGiveMoney(char1, char2, value) {
-  assert(char1.money >= value && value > 0)
+fun characterGiveMoney(char1, char2, value, { isForced = false }) {
+  if (value < 0) {
+    engine.error('函数 characterGiveMoney 调用时的金额参数无效（小于 0）。')
+    return
+  }
+  if (value == 0) return
+  assert(char1.money >= value)
   char1.money -= value
   char2.money += value
-  final incidentContent = getLocaleString('characterGiveMoney', [
-    char1.name,
-    value,
-    char2.name,
-  ])
+  final incidentContent = isForced ?
+    getLocaleString('characterGiveMoneyForced', [
+      char2.name,
+      char1.name,
+      value,
+    ]) :
+    getLocaleString('characterGiveMoney', [
+      char1.name,
+      value,
+      char2.name,
+    ])
   Incident(
     content: incidentContent,
     subjectIds: char1.isMajorCharacter ? [char1.id] : null,
@@ -100,48 +112,73 @@ fun characterGiveMoney(char1, char2, value) {
   )
 }
 
-fun characterGive(char1, char2, item, [n = 1]) {
+// isForced 如果为 true，表示char2强行夺取了char1的物品
+fun characterGive(char1, char2, item, { count = 1, isForced = false}) {
   assert(char1.inventory.containsKey(item.id))
   final char1Item = char1.inventory[item.id]
-  if (char1Item.equippedPosition) characterUnequip(char1Item, char1)
+  if (char1Item.equippedPosition) characterUnequip(char1, char1Item)
   var incidentContent
   if (char1Item.rarity == kCommon) {
-    var actualNumber = n
-    if (char1Item.stackSize > n) {
-      char1Item.stackSize -= n
-    } else if (char1Item.stackSize <= n) {
+    var actualNumber = count
+    if (char1Item.stackSize > count) {
+      char1Item.stackSize -= count
+    } else if (char1Item.stackSize < count) {
       // char1身上的数量不够支付n
       actualNumber = char1Item.stackSize
-      engine.warning('${char1.name} 身上的 ${item.name} 数量不够 ${n}，实际交付数量：${actualNumber}')
+      engine.warning('${char1.name} 身上的 ${item.name} 不够 ${count} 个，实际数量：${actualNumber}。')
       delete char1.inventory[item.id]
     }
     if (char2.inventory.containsKey(item.id)) {
-      char2.inventory[item.id].stackSize += n
+      char2.inventory[item.id].stackSize += count
     } else {
       final itemCopy = char1Item.clone()
       itemCopy.stackSize = actualNumber
       char2.inventory[itemCopy.id] = itemCopy
     }
-    incidentContent = getLocaleString('characterGiveCommonItem', [
-      char1.name,
-      n,
-      item.name,
-      char2.name,
-    ])
+    incidentContent = isForced ?
+      getLocaleString('characterGiveCommonItemForced', [
+        char2.name,
+        char1.name,
+        count,
+        item.name,
+      ]) :
+      getLocaleString('characterGiveCommonItem', [
+        char1.name,
+        count,
+        item.name,
+        char2.name,
+      ])
   } else {
-    assert(n == 1)
+    assert(count == 1)
     delete char1.inventory[item.id]
     char2.inventory[item.id] = item
-    incidentContent = getLocaleString('characterGiveItem', [
-      char1.name,
-      item.name,
-      char2.name,
-    ])
+    incidentContent = isForced ?
+      getLocaleString('characterGiveCommonItemForced', [
+        char2.name,
+        char1.name,
+        item.name,
+      ]) :
+      getLocaleString('characterGiveItem', [
+        char1.name,
+        item.name,
+        char2.name,
+      ])
   }
+
+  var subjectIds
+  var objectIds
+  if (isForced) {
+    subjectIds = char1.isMajorCharacter ? [char1.id] : null
+    objectIds = char2.isMajorCharacter ? [char2.id] : null
+  } else {
+    subjectIds = char2.isMajorCharacter ? [char2.id] : null
+    objectIds = char1.isMajorCharacter ? [char1.id] : null
+  }
+
   Incident(
     content: incidentContent,
-    subjectIds: char1.isMajorCharacter ? [char1.id] : null,
-    objectIds: char2.isMajorCharacter ? [char2.id] : null,
+    subjectIds: subjectIds,
+    objectIds: objectIds,
     isPrivate: true,
   )
 }
@@ -153,7 +190,7 @@ fun characterLearn(character, skill) {
 // 使用食物或者丹药
 // 返回值代表是否使用成功
 // 此函数允许对一个不在物品栏中的物品调用
-fun characterConsume(character, item) {
+fun characterConsume(character, item, { forcerCharacter }) {
   if (!item.isConsumable) {
     engine.warning('${item.name} 无法食用。')
     return false
@@ -163,6 +200,8 @@ fun characterConsume(character, item) {
     if (item.rarity == kCommon) {
       if (item.stackSize > 1) {
         --item.stackSize
+      } else {
+        delete character.inventory[item.id]
       }
     } else {
       delete character.inventory[item.id]
@@ -170,7 +209,7 @@ fun characterConsume(character, item) {
   }
 
   if (item.effects) {
-    for (final effect in item.effects) {
+    for (final effect of item.effects) {
       // 即便是可以食用的物品，也可能包含一些非食用效果，因此这里要加以判断
       if (effect.category == kEffectCategoryConsume) {
         final effectHandler = getEffectHandlerById(effect.id)
@@ -181,29 +220,59 @@ fun characterConsume(character, item) {
 
   var incidentContent
   when (item.kind) {
-    kEntityConsumableKindBeverage -> {
-      incidentContent = getLocaleString('characterDrankBeverage', [
-        character.name,
-        item.name,
-      ])
-    }
     kEntityConsumableKindMedicine -> {
-      incidentContent = getLocaleString('characterTakeMedicine', [
-        character.name,
-        item.name,
-      ])
+      incidentContent = forcerCharacter ?
+        getLocaleString('characterTakeMedicineForced', [
+          forcerCharacter.name,
+          character.name,
+          item.name,
+        ]) :
+        getLocaleString('characterTakeMedicine', [
+          character.name,
+          item.name,
+        ])
+    }
+    kEntityConsumableKindBeverage -> {
+      incidentContent = forcerCharacter ?
+        getLocaleString('characterDrankBeverageForced', [
+          forcerCharacter.name,
+          character.name,
+          item.name,
+        ]) :
+        getLocaleString('characterDrankBeverage', [
+          character.name,
+          item.name,
+        ])
     }
     else -> {
-      incidentContent = getLocaleString('characterAteFood', [
-        character.name,
-        item.name,
-      ])
+      incidentContent = forcerCharacter ?
+        getLocaleString('characterAteForced', [
+          forcerCharacter.name,
+          character.name,
+          item.name,
+        ]) :
+        getLocaleString('characterAte', [
+          character.name,
+          item.name,
+        ])
     }
+  }
+
+  var subjectIds
+  var objectIds
+  if (forcerCharacter && forcerCharacter.isMajorCharacter) {
+    subjectIds = [forcerCharacter.id]
+    if (character.isMajorCharacter) {
+      objectIds = [character.id]
+    }
+  } else if (character.isMajorCharacter) {
+    subjectIds = [character.id]
   }
 
   Incident(
     content: incidentContent,
-    subjectIds: [character.id],
+    subjectIds: subjectIds,
+    objectIds: objectIds,
     isPrivate: true,
   )
   
@@ -268,12 +337,15 @@ fun characterEquip(character, entity, { index }) -> bool {
       )
     }
     kEntityTypeNpc, kEntityTypeCharacter -> {
-      if (!entity.isBattleCompanion) {
-        engine.warning('${entity.name} 不能设置为战斗伙伴。')
+      if (entity.companionType != kCompanionTypeBattle) {
+        engine.warning('${entity.name} 无法设置为战斗伙伴。')
         return null
       }
-      final companionData = character.companions.containsKey(entity.id) ?
-        character.companions[entity.id] : characterGetCompanion(character, entity)
+      entity =
+        character.companions.containsKey(entity.id) ?
+        character.companions[entity.id] : 
+        characterGetCompanion(character, entity)
+      
       // 战斗伙伴的装备数据中，对象类型和实际的对象类型不同
       equipData.entityType = kEntityTypeCompanion
       
@@ -354,14 +426,12 @@ fun characterUnequip(character, entity) {
       character.equipments[kEquipTypeOffense][entity.equippedPosition]
         .supports.removeWhere((equipData) => equipData.id == entity.id)
     }
-    kEquipTypeCompanion -> {
-      characterDismissCompanion(character, entity)
-    }
     // 斗技、武器、法宝等
-    kEquipTypeDefense, kEquipTypeOffense -> {
+    kEquipTypeDefense, kEquipTypeOffense, kEquipTypeCompanion -> {
       delete character.equipments[entity.equipType][entity.equippedPosition]
     }
   }
+  delete entity.equippedPosition
 }
 
 fun getEquipped(equipData, character) {
@@ -387,6 +457,30 @@ fun getFirstEquippedOffenseItem(character) {
     final equipData = character.equipments.offense[i]
     if (equipData != null) {
       return getEquipped(equipData, character)
+    }
+  }
+}
+
+// 战斗胜利后，根据情况获得战利品
+// 如果对方逃跑，则随机获得对方一部分物品
+// 否则，如果对方活着，则根据我们对其投降的处理方案（杀死活着放走）
+fun characterLoot(character, defeated, { takeAll = false }) {
+  if (takeAll) {
+    for (final item of defeated.inventory) {
+      characterGive(defeated, character, item, count: item.stackSize, isForced: true)
+    }
+    characterGiveMoney(defeated, character, defeated.money, isForced: true)
+  } else {
+    for (final item of defeated.inventory) {
+      if (Math.random() < kEscapedLootProbability) {
+        var count = item.stackSize > 1 ?
+          Math.randomInt(item.stackSize) + 1 :
+          1
+        characterGive(defeated, character, item, count: count, isForced: true)
+      }
+    }
+    if (Math.random() < kEscapedLootProbability) {
+      characterGiveMoney(defeated, character, Math.randomInt(defeated.money) + 1, isForced: true)
     }
   }
 }

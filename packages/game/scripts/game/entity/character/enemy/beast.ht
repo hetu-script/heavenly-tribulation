@@ -16,33 +16,33 @@ const _kBeastAttributeSum = 200
 final _kBeastAttributes = {
   tiger: {
     strength: 92,
-    dexterity: 88,
     constitution: 75,
-    superpower: 0,
-    perception: 77,
+    spirituality: 0,
+    willpower: 0,
+    dexterity: 88,
     intelligence: 0,
-    leadership: 0,
-    management: 0,
+    perception: 77,
+    charisma: 0,
   },
   monkey: {
     strength: 55,
-    dexterity: 84,
     constitution: 59,
-    superpower: 0,
-    perception: 85,
+    spirituality: 0,
+    willpower: 0,
+    dexterity: 84,
     intelligence: 0,
-    leadership: 0,
-    management: 0,
+    perception: 85,
+    charisma: 0,
   },
   snake: {
     strength: 74,
-    dexterity: 42,
     constitution: 37,
-    superpower: 0,
-    perception: 96,
+    spirituality: 0,
+    willpower: 0,
+    dexterity: 42,
     intelligence: 0,
-    leadership: 0,
-    management: 0,
+    perception: 96,
+    charisma: 0,
   },
 }
 
@@ -57,6 +57,7 @@ struct Beast {
     this.entityType = kEntityTypeNpc
     this.birthTimestamp = birthTimestamp ?? createRandomBirthTimestamp(max: _kBeastRandomAgeMax)
     this.kind = kind ?? _kBeastTypes.random
+    assert(this.kind in _kBeastTypes)
     final r = nameGenerator.getCreature(1, category: this.kind, rarity: rarity).first
     this.name = r.name
     this.category = kEntityCategoryBeast
@@ -69,7 +70,11 @@ struct Beast {
 
     // 生成战斗单位相关数据，并写入当前对象
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
-    final battleInfo = BattleEntity(attributes: attributes ?? _kBeastAttributes[this.kind], attributeSum: _kBeastAttributeSum)
+    final battleInfo = BattleEntity(
+      attributes: attributes ?? _kBeastAttributes[this.kind],
+      attributeSum: _kBeastAttributeSum,
+      generate: false,
+    )
     this.assign(battleInfo)
 
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
@@ -89,6 +94,6 @@ struct Beast {
       }
     }
 
-    calculateCharacterStats(this)
+    generateCharacterStats(this)
   }
 }

@@ -9,15 +9,16 @@ import 'battle_cards.dart';
 import '../../../event/events.dart';
 
 const kEntityTypeCharacter = 'character';
+const kDuelTypePractice = 'practice';
 
 class Duel extends StatefulWidget {
-  static Future<bool?> show(
+  static Future<HTStruct?> show(
       {required BuildContext context,
       required HTStruct char1,
       required HTStruct char2,
       String? type,
       HTStruct? data}) {
-    return showDialog<bool>(
+    return showDialog<HTStruct?>(
       context: context,
       barrierColor: Colors.transparent,
       barrierDismissible: false,
@@ -314,7 +315,7 @@ class _DuelState extends State<Duel> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (_finished) {
-                              Navigator.pop(context, _data?['result'] ?? false);
+                              Navigator.pop(context, _data?['resultStats']);
                               engine.broadcast(const UIEvent.needRebuildUI());
                             } else {
                               _timer?.cancel();

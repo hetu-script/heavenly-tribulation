@@ -7,7 +7,7 @@ final kCharacterAttributeNames = [
   'management',
 ]
 
-fun generateRandomAttributes(maxStats, minValue) {
+fun generateCharacterAttributes(maxStats, minValue) {
   assert(maxStats != null)
   assert(minValue != null)
 
@@ -27,6 +27,6 @@ fun generateRandomAttributes(maxStats, minValue) {
 }
 
 for (final i in range(5)) {
-  final attr = generateRandomAttributes(20, 10)
+  final attr = generateCharacterAttributes(20, 10)
   print(attr)
 }

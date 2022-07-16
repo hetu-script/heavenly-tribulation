@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import '../grid/entity_grid.dart';
-import '../grid/entity_info.dart';
 import '../../../global.dart';
 
 class EquipmentsView extends StatelessWidget {
@@ -12,28 +11,14 @@ class EquipmentsView extends StatelessWidget {
     this.selectedIndex = 0,
     this.cooldownValue = 0.0,
     this.cooldownColor = Colors.white,
+    this.onItemTapped,
   });
 
   final HTStruct characterData;
-
   final int selectedIndex;
-
   final double cooldownValue;
-
   final Color cooldownColor;
-
-  void _onItemTapped(
-      BuildContext context, HTStruct item, Offset screenPosition) {
-    showDialog(
-        context: context,
-        barrierColor: Colors.transparent,
-        builder: (context) {
-          return EntityInfo(
-            entityData: item,
-            left: screenPosition.dx,
-          );
-        });
-  }
+  final void Function(HTStruct item, Offset screenPosition)? onItemTapped;
 
   @override
   Widget build(BuildContext context) {
@@ -97,8 +82,7 @@ class EquipmentsView extends StatelessWidget {
                     padding: const EdgeInsets.all(5.0),
                     child: EntityGrid(
                       entityData: defense1,
-                      onSelect: (item, screenPosition) =>
-                          _onItemTapped(context, item, screenPosition),
+                      onItemTapped: onItemTapped,
                       isSelected: selectedIndex == 1,
                       backgroundImage: const AssetImage(
                           'assets/images/icon/item/bg_defense.png'),
@@ -108,8 +92,7 @@ class EquipmentsView extends StatelessWidget {
                     padding: const EdgeInsets.all(5.0),
                     child: EntityGrid(
                       entityData: defense2,
-                      onSelect: (item, screenPosition) =>
-                          _onItemTapped(context, item, screenPosition),
+                      onItemTapped: onItemTapped,
                       isSelected: selectedIndex == 2,
                       backgroundImage: const AssetImage(
                           'assets/images/icon/item/bg_defense.png'),
@@ -119,8 +102,7 @@ class EquipmentsView extends StatelessWidget {
                     padding: const EdgeInsets.all(5.0),
                     child: EntityGrid(
                       entityData: defense3,
-                      onSelect: (item, screenPosition) =>
-                          _onItemTapped(context, item, screenPosition),
+                      onItemTapped: onItemTapped,
                       isSelected: selectedIndex == 2,
                       backgroundImage: const AssetImage(
                           'assets/images/icon/item/bg_defense.png'),
@@ -134,8 +116,7 @@ class EquipmentsView extends StatelessWidget {
                     padding: const EdgeInsets.all(5.0),
                     child: EntityGrid(
                       entityData: companion1,
-                      onSelect: (item, screenPosition) =>
-                          _onItemTapped(context, item, screenPosition),
+                      onItemTapped: onItemTapped,
                       isSelected: selectedIndex == 1,
                       backgroundImage: const AssetImage(
                           'assets/images/icon/item/bg_companion.png'),
@@ -145,8 +126,7 @@ class EquipmentsView extends StatelessWidget {
                     padding: const EdgeInsets.all(5.0),
                     child: EntityGrid(
                       entityData: companion2,
-                      onSelect: (item, screenPosition) =>
-                          _onItemTapped(context, item, screenPosition),
+                      onItemTapped: onItemTapped,
                       isSelected: selectedIndex == 2,
                       backgroundImage: const AssetImage(
                           'assets/images/icon/item/bg_companion.png'),
@@ -156,8 +136,7 @@ class EquipmentsView extends StatelessWidget {
                     padding: const EdgeInsets.all(5.0),
                     child: EntityGrid(
                       entityData: companion3,
-                      onSelect: (item, screenPosition) =>
-                          _onItemTapped(context, item, screenPosition),
+                      onItemTapped: onItemTapped,
                       isSelected: selectedIndex == 2,
                       backgroundImage: const AssetImage(
                           'assets/images/icon/item/bg_companion.png'),
@@ -174,8 +153,7 @@ class EquipmentsView extends StatelessWidget {
                 padding: const EdgeInsets.all(5.0),
                 child: EntityGrid(
                   entityData: offense1,
-                  onSelect: (item, screenPosition) =>
-                      _onItemTapped(context, item, screenPosition),
+                  onItemTapped: onItemTapped,
                   isSelected: selectedIndex == 1,
                   backgroundImage: const AssetImage(
                       'assets/images/icon/item/bg_offense.png'),
@@ -185,8 +163,7 @@ class EquipmentsView extends StatelessWidget {
                 padding: const EdgeInsets.all(5.0),
                 child: EntityGrid(
                   entityData: offense2,
-                  onSelect: (item, screenPosition) =>
-                      _onItemTapped(context, item, screenPosition),
+                  onItemTapped: onItemTapped,
                   isSelected: selectedIndex == 2,
                   backgroundImage: const AssetImage(
                       'assets/images/icon/item/bg_offense.png'),
@@ -196,8 +173,7 @@ class EquipmentsView extends StatelessWidget {
                 padding: const EdgeInsets.all(5.0),
                 child: EntityGrid(
                   entityData: offense3,
-                  onSelect: (item, screenPosition) =>
-                      _onItemTapped(context, item, screenPosition),
+                  onItemTapped: onItemTapped,
                   isSelected: selectedIndex == 3,
                   backgroundImage: const AssetImage(
                       'assets/images/icon/item/bg_offense.png'),
@@ -207,8 +183,7 @@ class EquipmentsView extends StatelessWidget {
                 padding: const EdgeInsets.all(5.0),
                 child: EntityGrid(
                   entityData: offense4,
-                  onSelect: (item, screenPosition) =>
-                      _onItemTapped(context, item, screenPosition),
+                  onItemTapped: onItemTapped,
                   isSelected: selectedIndex == 4,
                   backgroundImage: const AssetImage(
                       'assets/images/icon/item/bg_offense.png'),

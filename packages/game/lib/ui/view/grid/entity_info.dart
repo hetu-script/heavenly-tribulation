@@ -68,7 +68,6 @@ class EntityInfo extends StatelessWidget {
     final category = entityData['category'];
     final equipType = entityData['equipType'];
 
-    final attributes = entityData['attributes'];
     final stats = entityData['stats'];
 
     final effectData = entityData['effects'] ?? [];
@@ -183,11 +182,11 @@ class EntityInfo extends StatelessWidget {
                     //       '${engine.locale['coordination']}: ${stats['coordination']}'),
                     if (equipType == kEquipTypeCompanion)
                       Text(
-                          '${engine.locale['life']}: ${stats['life']}/${attributes['life']}'),
+                          '${engine.locale['life']}: ${stats['life']}/${stats['lifeMax']}'),
                     if (category == kEntityCategoryWeapon ||
                         category == kEntityCategoryProtect)
                       Text(
-                          '${engine.locale['durability']}: ${stats['life']}/${attributes['life']}'),
+                          '${engine.locale['durability']}: ${stats['life']}/${stats['lifeMax']}'),
                     if (equipType == kEquipTypeOffense)
                       Text(
                           '${engine.locale['damage']}: ${stats['damage'].toStringAsFixed(2)}'),

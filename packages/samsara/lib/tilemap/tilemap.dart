@@ -250,14 +250,14 @@ class TileMap extends GameComponent with HandlesGesture {
     }
 
     final objectData = mapData['objects'];
-    final objects = <TileMapObject>[];
+    final objects = <String, TileMapObject>{};
     if (objectData != null) {
       for (final data in objectData) {
         final spriteSrc = data['spriteSrc'];
         final objectSpriteSrcWidth = data['srcWidth'].toDouble();
         final objectSpriteSrcHeight = data['srcHeight'].toDouble();
         final Sprite sprite = Sprite(await Flame.images.load(spriteSrc));
-        final entityId = data['entityId'];
+        final entityId = data['id'];
         final object = TileMapObject(
           engine: engine,
           sceneKey: sceneKey,
@@ -274,8 +274,8 @@ class TileMap extends GameComponent with HandlesGesture {
         );
 
         final tile = terrains[object.index];
-        tile.object = object;
-        objects.add(object);
+        tile.objectId = entityId;
+        objects[entityId] = object;
       }
     }
 
@@ -313,7 +313,19 @@ class TileMap extends GameComponent with HandlesGesture {
 
   final List<TileMapTerrain> terrains;
   final List<TileMapZone> zones;
-  final List<TileMapObject> objects;
+
+  /// 按id保存的object
+  /// 这些object不一定都可以互动
+  /// 而且也不一定都会在一开始就显示出来
+  final Map<String, TileMapObject> objects;
+
+  void setTerrainObject(int left, int top, String objectId) {
+    assert(objects.containsKey(objectId));
+    final tile = getTerrain(left, top);
+    assert(tile != null);
+    tile!.objectId = objectId;
+  }
+
   TileMapObject? _hero;
   TileMapObject? get hero => _hero;
   set hero(TileMapObject? entity) {
@@ -360,7 +372,7 @@ class TileMap extends GameComponent with HandlesGesture {
     required this.tileMapHeight,
     required this.terrains,
     this.zones = const [],
-    this.objects = const [],
+    this.objects = const {},
     // this.routes = const [],
     // required this._hero,
   }) {
@@ -754,16 +766,31 @@ class TileMap extends GameComponent with HandlesGesture {
       if (tileShape == TileShape.hexagonalVertical) {
         for (var i = 0; i < tileMapWidth; i = i + 2) {
           final tile = terrains[i + j * tileMapWidth];
-          tile.object?.render(canvas);
+          if (tile.objectId != null) {
+            final object = objects[tile.objectId]!;
+            object.render(canvas);
+          }
+          if (tile.tilePosition == hero?.tilePosition) {
+            hero?.render(canvas);
+          }
         }
         for (var i = 1; i < tileMapWidth; i = i + 2) {
           final tile = terrains[i + j * tileMapWidth];
-          tile.object?.render(canvas);
+          if (tile.objectId != null) {
+            final object = objects[tile.objectId]!;
+            object.render(canvas);
+          }
+          if (tile.tilePosition == hero?.tilePosition) {
+            hero?.render(canvas);
+          }
         }
       } else {
         for (var i = 0; i < tileMapWidth; ++i) {
           final tile = terrains[i + j * tileMapWidth];
-          tile.object?.render(canvas);
+          if (tile.objectId != null) {
+            final object = objects[tile.objectId]!;
+            object.render(canvas);
+          }
         }
       }
     }
@@ -806,7 +833,6 @@ class TileMap extends GameComponent with HandlesGesture {
     if (showSelected && selectedTerrain != null) {
       canvas.drawPath(selectedTerrain!.borderPath, selectedPaint);
     }
-    _hero?.render(canvas);
     canvas.restore();
   }
 

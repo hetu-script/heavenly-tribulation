@@ -1,5 +1,6 @@
 struct TileMapObject {
   construct ({
+    id, // 这个id和对应的entity的id必须一致
     terrainIndex,
     left,
     top,
@@ -7,8 +8,8 @@ struct TileMapObject {
     spriteSrc,
     srcWidth,
     srcHeight,
-    entityId,
   }) {
+    this.id = id ?? 'tileMapObject_${Hash.uid4(2)}'
     this.terrainIndex = terrainIndex
     this.left = left
     this.top = top
@@ -16,6 +17,5 @@ struct TileMapObject {
     this.spriteSrc = spriteSrc
     this.srcWidth = srcWidth
     this.srcHeight = srcHeight
-    this.entityId = entityId
   }
 }

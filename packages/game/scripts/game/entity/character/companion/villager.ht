@@ -29,13 +29,11 @@ struct VillageWarrior {
     this.rarity = rarity ?? kCommon
     this.color = kRarity[this.rarity].color
     this.isPermanent = isPermanent
-    this.isBattleCompanion = true
-    game.npcs[this.id] = this
-    
     this.description = description ?? ''
-    
     this.isEquippable = true
     this.equipType = kEquipTypeCompanion
+    this.companionType = kCompanionTypeBattle
+    game.npcs[this.id] = this
 
     // 生成战斗单位相关数据，并写入当前对象
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
@@ -49,6 +47,6 @@ struct VillageWarrior {
       }
     }
     
-    calculateCharacterStats(this)
+    generateCharacterStats(this)
   }
 }

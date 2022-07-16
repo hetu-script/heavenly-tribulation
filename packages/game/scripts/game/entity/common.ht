@@ -132,9 +132,11 @@ const kEntityCategoryTalisman = 'talisman'
 const kEntityCategoryConsumable = 'consumable'
 const kEntityCategoryFightSkill = 'fightSkill'
 
+// 可食用的物品类型，这里的类型只影响文字描述。
+const kEntityConsumableKindFood = 'food'
+const kEntityConsumableKindElixir = 'elixir'
 const kEntityConsumableKindMedicine = 'medicine'
 const kEntityConsumableKindBeverage = 'beverage'
-const kEntityConsumableKindElixir = 'elixir'
 
 fun entityTakeDamage(entity, damage) {
   assert(entity.stats?.life != null || entity.life != null)

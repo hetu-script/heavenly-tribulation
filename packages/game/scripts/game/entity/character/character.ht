@@ -209,9 +209,6 @@ struct Character {
     // // 恶名，知道名字中，对此人差评的人的数量
     // this.infamy = 0
 
-    // NPC类随从，他们单独计算时间和攻击，但他们只有第一个装备会起作用
-    this.companions = {}
-
     // 该角色的家庭关系
     this.relationships = {
       fatherId,
@@ -774,11 +771,12 @@ fun characterGetCompanion(character, companion) {
     icon: companion.icon,
     color: companion.color,
     entityType: kEntityTypeCompanion,
+    companionType: companion.companionType ?? kCompanionTypeFollower,
     coordination: 0, // 该随从对于该角色的配合程度，新加入的伙伴从0开始
     stats: companion.stats.clone(),
   }
 
-  if (companion.isBattleCompanion) {
+  if (companion.companionType == kCompanionTypeBattle) {
     generateBattleCompanionData(companionData, companion)
   }
   

@@ -10,6 +10,7 @@ final kWeaponKinds = {
     attributes: {
       speed: 12,
       life: 300,
+      lifeMax: 300,
       damage: 24,
       criticalDamageHits: 10,
       criticalDamageMultiply: 1.5,
@@ -20,7 +21,8 @@ final kWeaponKinds = {
     attributes: {
       speed: 10,
       life: 200,
-      damage: 30,
+      lifeMax: 200,
+      damage: 35,
       criticalDamageHits: 7,
       criticalDamageMultiply: 4,
     },
@@ -30,6 +32,7 @@ final kWeaponKinds = {
     attributes: {
       speed: 10,
       life: 200,
+      lifeMax: 200,
       damage: 30,
       criticalDamageHits: 7,
       criticalDamageMultiply: 3.5,
@@ -40,7 +43,8 @@ final kWeaponKinds = {
     attributes: {
       speed: 20,
       life: 300,
-      damage: 60,
+      lifeMax: 300,
+      damage: 70,
       criticalDamageHits: 5,
       criticalDamageMultiply: 3.5,
     },

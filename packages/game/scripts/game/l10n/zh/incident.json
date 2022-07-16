@@ -19,9 +19,15 @@
   "characterAcquireCommonItem": "{0} 得到了 {1} 个 {2}。",
   "characterAcquireItem": "{0} 得到了 {1}。",
   "characterGiveMoney": "{0} 将 {1} 银两给了 {2}。",
+  "characterGiveMoneyForced": "{0} 拿走了 {1} 身上的 {2} 银两。",
   "characterGiveCommonItem": "{0} 将 {1} 个 {2} 给了 {3}。",
+  "characterGiveCommonItemForced": "{0} 拿走了 {1} 身上的 {2} 个 {3}。",
   "characterGiveItem": "{0} 将 {1} 给了 {2}。",
-  "characterAteFood": "{0} 吃掉了 {1}。",
+  "characterGiveItemForced": "{0} 拿走了 {1} 身上的 {2}。",
+  "characterAte": "{0} 吃掉了 {1}。",
+  "characterAteForced": "{0} 喂 {1} 吃掉了 {2}。",
   "characterTakeMedicine": "{0} 服下了 {1}。",
-  "characterDrankBeverage": "{0} 饮下了 {1}。"
+  "characterTakeMedicineForced": "{0} 喂 {1} 服下了 {2}。",
+  "characterDrankBeverage": "{0} 饮下了 {1}。",
+  "characterDrankBeverageForced": "{0} 喂 {1} 饮下了 {2}。"
 }

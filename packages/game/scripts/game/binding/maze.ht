@@ -4,6 +4,8 @@ external fun moveHeroToLastRouteNode
 
 external fun setFogOfWar(value: bool)
 
+external fun setTerrainObject(left, top, objectId)
+
 external fun removeEntity(left, top)
 
 external fun proceedToNextLevel

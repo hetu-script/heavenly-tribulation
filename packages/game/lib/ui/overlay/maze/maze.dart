@@ -87,6 +87,16 @@ class _MazeOverlayState extends State<MazeOverlay>
             _scene.map.showFogOfWar = positionalArgs.first,
         override: true);
 
+    engine.hetu.interpreter.bindExternalFunction(
+        'setTerrainObject',
+        (HTEntity object,
+                {List<dynamic> positionalArgs = const [],
+                Map<String, dynamic> namedArgs = const {},
+                List<HTType> typeArgs = const []}) =>
+            _scene.map.setTerrainObject(
+                positionalArgs[0], positionalArgs[1], positionalArgs[2]),
+        override: true);
+
     engine.hetu.interpreter.bindExternalFunction('removeEntity',
         (HTEntity object,
             {List<dynamic> positionalArgs = const [],
@@ -95,7 +105,7 @@ class _MazeOverlayState extends State<MazeOverlay>
       final int left = positionalArgs[0];
       final int top = positionalArgs[1];
       final tile = _scene.map.getTerrain(left, top);
-      tile?.object = null;
+      tile?.objectId = null;
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('proceedToNextLevel',
@@ -201,19 +211,19 @@ class _MazeOverlayState extends State<MazeOverlay>
         widget.key!,
         (GameEvent event) async {
           final tile = _scene.map.getTerrainAtHero()!;
-          if (tile.object != null) {
-            final String? entityId = tile.object!.entityId;
+          if (tile.objectId != null) {
+            final String? entityId = tile.objectId;
             if (entityId != null) {
               if (_scene.map.hero != null) {
                 final blocked = engine.invoke(
                   'handleMazeEntityInteraction',
-                  positionalArgs: [
-                    entityId,
-                    tile.left,
-                    tile.top,
-                    widget.mazeData,
-                    _currentLevelIndex,
-                  ],
+                  namedArgs: {
+                    'entityId': entityId,
+                    'left': tile.left,
+                    'top': tile.top,
+                    'maze': widget.mazeData,
+                    'currentLevelIndex': _currentLevelIndex,
+                  },
                 );
                 if (blocked) {
                   _scene.map.moveHeroToLastRouteNode();

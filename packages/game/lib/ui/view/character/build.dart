@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
+import '../grid/entity_info.dart';
+import '../../../event/events.dart';
 import '../../../ui/shared/close_button.dart';
 import '../../../global.dart';
 import 'equipments.dart';
@@ -13,16 +15,22 @@ const _kBuildTabNames = [
   'companion',
 ];
 
+enum BuildViewType {
+  player,
+  npc,
+}
+
 class BuildView extends StatefulWidget {
   const BuildView({
     super.key,
     required this.characterData,
     this.tabIndex = 0,
+    this.type = BuildViewType.player,
   });
 
   final HTStruct characterData;
-
   final int tabIndex;
+  final BuildViewType type;
 
   @override
   State<BuildView> createState() => _BuildViewState();
@@ -75,6 +83,95 @@ class _BuildViewState extends State<BuildView> {
     super.dispose();
   }
 
+  void _onItemTapped(HTStruct itemData, Offset screenPosition) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.transparent,
+      builder: (context) {
+        final List<Widget> actions = [];
+        final hero = engine.invoke('getHero');
+        switch (widget.type) {
+          case BuildViewType.player:
+            if (itemData['isConsumable'] ?? false) {
+              actions.add(
+                Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      engine.invoke('characterConsume',
+                          positionalArgs: [hero, itemData]);
+                      Navigator.of(context).pop();
+                      engine.broadcast(const UIEvent.needRebuildUI());
+                      setState(() {});
+                    },
+                    child: Text(engine.locale['consume']),
+                  ),
+                ),
+              );
+            } else if (itemData['isEquippable'] != null) {
+              if (itemData['equippedPosition'] == null) {
+                actions.add(
+                  Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        engine.invoke('characterEquip',
+                            positionalArgs: [hero, itemData]);
+                        Navigator.of(context).pop();
+                        engine.broadcast(const UIEvent.needRebuildUI());
+                        setState(() {});
+                      },
+                      child: Text(engine.locale['equip']),
+                    ),
+                  ),
+                );
+              } else {
+                actions.add(
+                  Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        engine.invoke('characterUnequip',
+                            positionalArgs: [hero, itemData]);
+                        Navigator.of(context).pop();
+                        engine.broadcast(const UIEvent.needRebuildUI());
+                        setState(() {});
+                      },
+                      child: Text(engine.locale['unequip']),
+                    ),
+                  ),
+                );
+              }
+            }
+            break;
+          case BuildViewType.npc:
+            actions.add(
+              Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    engine.invoke('characterSteal',
+                        positionalArgs: [hero, itemData]);
+                    Navigator.of(context).pop();
+                    engine.broadcast(const UIEvent.needRebuildUI());
+                    setState(() {});
+                  },
+                  child: Text(engine.locale['steal']),
+                ),
+              ),
+            );
+            break;
+        }
+
+        return EntityInfo(
+          entityData: itemData,
+          left: screenPosition.dx,
+          actions: actions,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // final charId = widget.characterId ??
@@ -99,6 +196,7 @@ class _BuildViewState extends State<BuildView> {
               height: 390.0,
               child: EquipmentsView(
                 characterData: widget.characterData,
+                onItemTapped: _onItemTapped,
               ),
             ),
             const VerticalDivider(),
@@ -119,12 +217,15 @@ class _BuildViewState extends State<BuildView> {
                         children: [
                           InventoryView(
                             inventoryData: widget.characterData['inventory'],
+                            onEquipChanged: () => setState(() {}),
                           ),
                           InventoryView(
                             inventoryData: widget.characterData['skills'],
+                            onEquipChanged: () => setState(() {}),
                           ),
                           InventoryView(
                             inventoryData: widget.characterData['companions'],
+                            onEquipChanged: () => setState(() {}),
                           ),
                         ],
                       ),

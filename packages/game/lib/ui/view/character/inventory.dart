@@ -29,6 +29,7 @@ class InventoryView extends StatefulWidget {
     this.priceFactor = 1.0,
     this.onBuy,
     this.onSell,
+    this.onEquipChanged,
   });
 
   final HTStruct inventoryData;
@@ -37,17 +38,17 @@ class InventoryView extends StatefulWidget {
   final InventoryType type;
   final double priceFactor;
   final void Function(HTStruct item, int quantity)? onBuy, onSell;
+  final VoidCallback? onEquipChanged;
 
   @override
   State<InventoryView> createState() => _InventoryViewState();
 }
 
 class _InventoryViewState extends State<InventoryView> {
-  final _textEditingController = TextEditingController();
   final _scrollController = ScrollController();
+  final _textEditingController = TextEditingController();
 
-  void _onItemTapped(
-      BuildContext context, HTStruct itemData, Offset screenPosition) {
+  void _onItemTapped(HTStruct itemData, Offset screenPosition) {
     showDialog(
       context: context,
       barrierColor: Colors.transparent,
@@ -83,7 +84,9 @@ class _InventoryViewState extends State<InventoryView> {
                             positionalArgs: [hero, itemData]);
                         Navigator.of(context).pop();
                         engine.broadcast(const UIEvent.needRebuildUI());
-                        setState(() {});
+                        if (widget.onEquipChanged != null) {
+                          widget.onEquipChanged!();
+                        }
                       },
                       child: Text(engine.locale['equip']),
                     ),
@@ -99,7 +102,9 @@ class _InventoryViewState extends State<InventoryView> {
                             positionalArgs: [hero, itemData]);
                         Navigator.of(context).pop();
                         engine.broadcast(const UIEvent.needRebuildUI());
-                        setState(() {});
+                        if (widget.onEquipChanged != null) {
+                          widget.onEquipChanged!();
+                        }
                       },
                       child: Text(engine.locale['unequip']),
                     ),
@@ -242,28 +247,22 @@ class _InventoryViewState extends State<InventoryView> {
         ++i) {
       if (i < widget.inventoryData.length) {
         final itemData = widget.inventoryData.values.elementAt(i);
-        var isEquipped = false;
-        if (itemData['isEquippable'] ?? false) {
-          if (itemData['equippedPosition'] != null) {
-            isEquipped = true;
-          }
-        }
+        final isEquipped = itemData['isEquippable'] == true &&
+            itemData['equippedPosition'] != null;
 
         grids.add(Padding(
           padding: const EdgeInsets.all(5.0),
           child: EntityGrid(
             entityData: itemData,
             isEquipped: isEquipped,
-            onSelect: (item, screenPosition) =>
-                _onItemTapped(context, item, screenPosition),
+            onItemTapped: _onItemTapped,
           ),
         ));
       } else {
         grids.add(Padding(
           padding: const EdgeInsets.all(5.0),
           child: EntityGrid(
-            onSelect: (item, screenPosition) =>
-                _onItemTapped(context, item, screenPosition),
+            onItemTapped: _onItemTapped,
           ),
         ));
       }

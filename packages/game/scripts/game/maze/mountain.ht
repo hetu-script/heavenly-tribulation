@@ -16,7 +16,7 @@ final _kLandSprites = [
 ]
 
 final _kEncounterTypes = [
-  'bandit', // 获得武器，在anchor生成
+  'bandit_minion', // 获得武器，在anchor生成
   'beast', // 获得野兽材料，在anchor生成
 ]
 
@@ -56,13 +56,15 @@ final _kBlockTypes = [
   'rock',
 ]
 
+const kLevelNumber = 3
+
 /// 生成Roguelike副本的算法
 /// 一个Maze包含多个地图，每个地图是一个单独的tilemap
 /// 地图之间通过出入口或者传送点互相连接
 struct MountainMaze {
   construct ({
     name = 'mountain_maze',
-    levelNumber = 1,
+    // levelNumber = kLevelNumber,
     isOnWorldMap = true,
     tileset = 'mountain',
   }) {
@@ -71,9 +73,10 @@ struct MountainMaze {
     engine.info('开始生成副本: [${this.id}]')
 
     this.levels = [] // 每一层是一个单独的 tilemap
-    this.currentLevel =0
+    this.currentLevel = 0
     this.entities = {} // 包含所有显示在地图上的可互动对象，包括NPC、敌人、宝箱、陷阱、机关等等。
     this.history = [] // 本次副本中发生的事件记录，这些事件不会计入世界历史
+    this.flags = {} // 本次副本中的一些事件存档，用于脚本的一些逻辑判断，例如是否已经有过某种遭遇之类。
 
     // 创建副本过程中也会触发事件，因此这里要提前给localHistory赋值
     localHistory = this.history
@@ -101,7 +104,7 @@ struct MountainMaze {
     
     final mazeUniqueEncounters = Set()
 
-    for (final levelIndex in range(levelNumber)) {
+    for (final levelIndex in range(kLevelNumber)) {
       final levelUniqueEncounters = Set()
 
       final [ width, height ] = [ kDefaultBlockWidth * kDefaultMazeScale, kDefaultBlockHeight * kDefaultMazeScale ]
@@ -146,17 +149,17 @@ struct MountainMaze {
       currentLevel.entryY = entry.top
       final entryEntity = {
         id: 'level_${levelIndex}_entry',
-        encounterType: 'level_entry',
+        encounterType: 'levelEntry',
       }
       this.entities[entryEntity.id] = entryEntity
       final entryObject = TileMapObject(
+        id: entryEntity.id,
         terrainIndex: entry.index,
         left: entry.left,
         top: entry.top,
         spriteSrc: 'maze/roadsign01.png',
         srcWidth: 32.0,
         srcHeight: 32.0,
-        entityId: entryEntity.id,
       )
       currentLevel.objects.add(entryObject)
       final exit = possibleEntries.last
@@ -164,20 +167,70 @@ struct MountainMaze {
       currentLevel.exitX = exit.left
       currentLevel.exitX = exit.top
       final exitEntity = {
-        id: 'level_${levelIndex}_exit',
-        encounterType: 'level_exit',
+        id: 'levelExit${levelIndex}',
+        encounterType: 'levelExit',
       }
       this.entities[exitEntity.id] = exitEntity
       final exitObject = TileMapObject(
+        id: exitEntity.id,
         terrainIndex: exit.index,
         left: exit.left,
         top: exit.top,
         spriteSrc: 'maze/roadsign01.png',
         srcWidth: 32.0,
         srcHeight: 32.0,
-        entityId: exitEntity.id,
       )
       currentLevel.objects.add(exitObject)
+      when (levelIndex) {
+        // 第一层的boss是 山贼打手
+        0 -> {
+          final banditMuscle = Bandit(kind: 'muscle')
+          banditMuscle.encounterType = 'banditMuscle'
+          this.entities[banditMuscle.id] = banditMuscle
+          final object = TileMapObject(
+            id: banditMuscle.id,
+            terrainIndex: exit.index,
+            left: exit.left,
+            top: exit.top,
+            spriteSrc: 'maze/bandit_muscle.png',
+            srcWidth: 36.0,
+            srcHeight: 36.0,
+          )
+          currentLevel.objects.add(object)
+        }
+        // 第一层的boss是 山贼杀手
+        1 -> {
+          final banditKiller = Bandit(kind: 'killer')
+          banditKiller.encounterType = 'banditKiller'
+          this.entities[banditKiller.id] = banditKiller
+          final object = TileMapObject(
+            id: banditKiller.id,
+            terrainIndex: exit.index,
+            left: exit.left,
+            top: exit.top,
+            spriteSrc: 'maze/bandit_killer.png',
+            srcWidth: 32.0,
+            srcHeight: 32.0,
+          )
+          currentLevel.objects.add(object)
+        }
+        // 第一层的boss是 山贼头目
+        2 -> {
+          final banditBoss = Bandit(kind: 'boss')
+          banditBoss.encounterType = 'banditBoss'
+          this.entities[banditBoss.id] = banditBoss
+          final object = TileMapObject(
+            id: banditBoss.id,
+            terrainIndex: exit.index,
+            left: exit.left,
+            top: exit.top,
+            spriteSrc: 'maze/bandit_boss.png',
+            srcWidth: 36.0,
+            srcHeight: 36.0,
+          )
+          currentLevel.objects.add(object)
+        }
+      }
 
       engine.info('计算随机遭遇的位置')
       final blockSize = terrainSize / 9
@@ -251,13 +304,13 @@ struct MountainMaze {
               peddler.encounterType = encounterType
               this.entities[peddler.id] = peddler
               final object = TileMapObject(
+                id: peddler.id,
                 terrainIndex: anchor.index,
                 left: anchor.left,
                 top: anchor.top,
                 spriteSrc: 'maze/peddler.png',
                 srcWidth: 32.0,
                 srcHeight: 32.0,
-                entityId: peddler.id,
               )
               currentLevel.objects.add(object)
               continue
@@ -268,18 +321,18 @@ struct MountainMaze {
         if (r < kEncounterProbability) {
           final encounterType = _kEncounterTypes.random
           when (encounterType) {
-            'bandit' -> {
-              final bandit = Bandit()
+            'bandit_minion' -> {
+              final bandit = Bandit(kind: 'minion')
               bandit.encounterType = encounterType
               this.entities[bandit.id] = bandit
               final object = TileMapObject(
+                id: bandit.id,
                 terrainIndex: anchor.index,
                 left: anchor.left,
                 top: anchor.top,
-                spriteSrc: 'maze/bandit.png',
+                spriteSrc: 'maze/bandit_minion.png',
                 srcWidth: 32.0,
                 srcHeight: 32.0,
-                entityId: bandit.id,
               )
               currentLevel.objects.add(object)
             }
@@ -288,13 +341,13 @@ struct MountainMaze {
               beast.encounterType = encounterType
               this.entities[beast.id] = beast
               final object = TileMapObject(
+                id: beast.id,
                 terrainIndex: anchor.index,
                 left: anchor.left,
                 top: anchor.top,
                 spriteSrc: beast.icon,
                 srcWidth: 32.0,
                 srcHeight: 32.0,
-                entityId: beast.id,
               )
               currentLevel.objects.add(object)
             }
@@ -420,13 +473,146 @@ struct MountainMaze {
 }
 
 // 返回布尔值，如果为真，则玩家控制角色会返回上一格，否则停在这一格
-fun handleMazeEntityInteraction(entityId, left, top, maze, currentLevelIndex) -> bool {
+fun handleMazeEntityInteraction({entityId, left, top, maze, currentLevelIndex}) -> bool {
   final hero = getHero()
   final entity = maze.entities[entityId]
   assert(entity != null)
   engine.info('地图对象互动事件：[${entity.encounterType}: ${entity.id}](${left}, ${top})')
+
+  // 战斗，异步函数，如果获胜则返回 true
+  fun battle -> Future {
+    return showDuel(hero, entity).then((result) {
+      if (result?.result) {
+        resolveDuelResult(hero, entity, result)
+        characterLoot(hero, entity, takeAll: true)
+        final incidentContent = getLocaleString('duelVistory', [ hero.name, entity.name ] )
+        Incident(
+          content: incidentContent,
+          subjectIds: [hero.id],
+          isPrivate: true,
+        )
+        removeEntity(left, top)
+        delete game.npcs[entity.id]
+        return true
+      } else {
+        mazeGameOver(maze)
+      }
+    })
+  }
+
+  // 盗贼，如果成功击败则返回true，否则返回false
+  async banditEncounter {
+    maze.flags.haveMetBandit = true
+    final messages = getLocaleString('mazeBandit01').split('/n')
+    return showDialogByStrings(messages, character: entity).then((value) {
+      final selections = [
+        'handOver',
+        'plead',
+        'escape',
+        'fight',
+      ]
+      return showSelectionByLocaleKeys(selections).then((key) {
+        when (key) {
+          // 现实主义
+          'handOver' -> {
+            characterLoot(entity, hero, takeAll: true)
+            return false
+          }
+          // 向盗贼求情，是否成功依赖于
+          // 圆滑
+          'plead' -> {
+            if (hero.stats.charisma > kCharismaCheckThreshold) {
+              showDialogByStrings([getLocaleString('pleadSuccess')], character: entity)
+                .then((value) {
+                  characterLoot(entity, hero, takeAll: false)
+                })
+              return false
+            } else {
+              showDialogByStrings([getLocaleString('pleadFailed')], character: entity)
+              .then( (value) => battle() )
+            }
+          }
+          // 懦弱
+          'escape' -> {
+            if (hero.stats.dexterity > entity.stats.dexterity || hero.stats.strength > entity.stats.strength) {
+              final incidentContent = getLocaleString('incidentEscapeSuccess', [ entity.name ] )
+              Incident(
+                content: incidentContent,
+                subjectIds: [hero.id],
+                isPrivate: true,
+              )
+              return false
+            } else {
+              return showDialogByStrings([getLocaleString('escapeFailed')], character: entity)
+              .then( (value) => battle() )
+            }
+          }
+          // 自信
+          'fight' -> {
+            return showDialogByStrings([getLocaleString('startFightBandit')], character: hero)
+            .then( (value) => battle() )
+          }
+        }
+      })
+    })
+  }
+
   when (entity.encounterType) {
-    'level_entry' -> {
+    'banditMuscle' -> {
+      if (!maze.flags.haveMetBandit) {
+        banditEncounter().then((result) {
+          if (result) {
+            setTerrainObject(left, top, 'levelExit0')
+          }
+        })
+      }
+      // 如果已经遇到过盗贼，不再对话，直接开始战斗
+      else {
+        battle().then((result) {
+          if (result) {
+            setTerrainObject(left, top, 'levelExit0')
+          }
+        })
+      }
+      return true
+    }
+    'banditKiller' -> {
+      if (!maze.flags.haveMetBandit) {
+        banditEncounter().then((result) {
+          if (result) {
+            setTerrainObject(left, top, 'levelExit0')
+          }
+        })
+      }
+      // 如果已经遇到过盗贼，不再对话，直接开始战斗
+      else {
+        battle().then((result) {
+          if (result) {
+            setTerrainObject(left, top, 'levelExit0')
+          }
+        })
+      }
+      return true
+    }
+    'banditBoss' -> {
+      if (!maze.flags.haveMetBandit) {
+        banditEncounter().then((result) {
+          if (result) {
+            setTerrainObject(left, top, 'levelExit0')
+          }
+        })
+      }
+      // 如果已经遇到过盗贼，不再对话，直接开始战斗
+      else {
+        battle().then((result) {
+          if (result) {
+            setTerrainObject(left, top, 'levelExit0')
+          }
+        })
+      }
+      return true
+    }
+    'levelEntry' -> {
       var selections
       if (currentLevelIndex == 0) {
         selections = [
@@ -445,11 +631,10 @@ fun handleMazeEntityInteraction(entityId, left, top, maze, currentLevelIndex) ->
           'backToPreviousLevel' -> backToPreviousLevel()
         }
       )
-      return false
     }
-    'level_exit' -> {
+    'levelExit' -> {
       var selections
-      if (currentLevelIndex == maze.levels.length) {
+      if (currentLevelIndex == maze.levels.length - 1) {
         selections = [
           'leaveMaze',
           'cancel',
@@ -466,116 +651,18 @@ fun handleMazeEntityInteraction(entityId, left, top, maze, currentLevelIndex) ->
           'leaveMaze' -> leaveMaze(maze)
         }
       )
-      return false
     }
-    'bandit' -> {
-      final messages = getLocaleString('mazeBandit01').split('/n')
-      showDialogByStrings(messages, character: entity).then((value) {
-        final selections = [
-          'handOver',
-          'plead',
-          'escape',
-          'fight',
-        ]
-        showSelectionByLocaleKeys(selections).then((key) {
-          when (key) {
-            // 现实主义
-            'handOver' -> {
-              characterGiveMoney(hero, entity, hero.money)
-              for (final item of hero.inventory) {
-                characterGive(hero, entity, item)
-              }
-            }
-            // 向盗贼求情，是否成功依赖于
-            // 圆滑
-            'plead' -> {
-              if (hero.stats.charisma > kCharismaCheckThreshold) {
-                showDialogByStrings([getLocaleString('pleadSuccess')], character: entity)
-                  .then((value) {
-                    characterGiveMoney(hero, entity, hero.money)
-                  })
-              } else {
-                showDialogByStrings([getLocaleString('pleadFailed')], character: entity)
-                .then( (value) =>
-                  showDuel(hero, entity).then((value) {
-                    if (value) {
-                      final incidentContent = getLocaleString('duelVistory', [ hero.name, entity.name ] )
-                      Incident(
-                        content: incidentContent,
-                        subjectIds: [hero.id],
-                        isPrivate: true,
-                      )
-                      removeEntity(left, top)
-                      delete game.npcs[entity.id]
-                    } else {
-                      mazeGameOver(maze)
-                    }
-                  })
-                )
-              }
-            }
-            // 懦弱
-            'escape' -> {
-              if (hero.stats.dexterity > entity.stats.dexterity || hero.stats.strength > entity.stats.strength) {
-                final incidentContent = getLocaleString('incidentEscapeSuccess', [ entity.name ] )
-                Incident(
-                  content: incidentContent,
-                  subjectIds: [hero.id],
-                  isPrivate: true,
-                )
-              } else {
-                showDialogByStrings([getLocaleString('escapeFailed')], character: entity)
-                .then( (value) => 
-                  showDuel(hero, entity).then((value) {
-                    if (value) {
-                      final incidentContent = getLocaleString('duelVistory', [ hero.name, entity.name ] )
-                      Incident(
-                        content: incidentContent,
-                        subjectIds: [hero.id],
-                        isPrivate: true,
-                      )
-                      removeEntity(left, top)
-                      delete game.npcs[entity.id]
-                    } else {
-                      mazeGameOver(maze)
-                    }
-                  })
-                )
-              }
-            }
-            // 自信
-            'fight' -> {
-              showDialogByStrings([getLocaleString('startFightBandit')], character: hero)
-              .then( (value) => 
-                showDuel(hero, entity).then((value) {
-                  if (value) {
-                    final incidentContent = getLocaleString('duelVistory', [ hero.name, entity.name ] )
-                    Incident(
-                      content: incidentContent,
-                      subjectIds: [hero.id],
-                      isPrivate: true,
-                    )
-                    removeEntity(left, top)
-                    delete game.npcs[entity.id]
-                  } else {
-                    mazeGameOver(maze)
-                  }
-                })
-              )
-            }
-          }
-        })
-      })
+    'bandit_minion' -> {
+      if (!maze.flags.haveMetBandit) {
+        banditEncounter()
+      }
+      // 如果已经遇到过盗贼喽啰，不再对话，直接开始战斗
+      else {
+        battle()
+      }
     }
     'beast' -> {
-      showDuel(hero, entity).then((value) {
-        if (value) {
-          removeEntity(left, top)
-          delete game.npcs[entity.id]
-        } else {
-          mazeGameOver(maze)
-        }
-      })
+      battle()
     }
     'peddler' -> {
       final messages = getLocaleString('peddlerDialogIntro').split('/n')
@@ -596,11 +683,14 @@ fun handleMazeEntityInteraction(entityId, left, top, maze, currentLevelIndex) ->
             'trade' -> {
               showMerchant(entity)
             }
+            'attack' -> {
+
+            }
           }
         })
       })
-      return false
     }
   }
-  return true
+  
+  return false
 }

@@ -14,8 +14,6 @@ extension DoubleFixed on double {
   }
 }
 
-final SamsaraEngine engine = SamsaraEngine(debugMode: kDebugMode);
-
 const kForegroundColor = Colors.white;
 final kBackgroundColor = Colors.black.withOpacity(0.75);
 final kBarrierColor = Colors.black.withOpacity(0.5);
@@ -80,6 +78,7 @@ enum OrientationMode {
 }
 
 abstract class GlobalConfig {
+  static bool debugMode = true;
   static ThemeData theme = lightTheme;
   static bool isOnDesktop = false;
   static OrientationMode orientationMode = OrientationMode.landscape;
@@ -89,3 +88,5 @@ abstract class GlobalConfig {
 const kValueTypeInt = 'int';
 const kValueTypeFloat = 'float';
 const kValueTypePercentage = 'percentage';
+
+final SamsaraEngine engine = SamsaraEngine(debugMode: GlobalConfig.debugMode);

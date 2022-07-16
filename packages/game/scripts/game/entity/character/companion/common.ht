@@ -4,11 +4,21 @@ const _kCompanionAssistCooldown = 5
 const _kCompanionDefendCooldown = 5
 const _kCompanionDefendPercentage = 1.0
 
+// 单纯的随从
+const kCompanionTypeFollower = 'follower'
+// 可以设置在战斗伙伴栏的随从
+const kCompanionTypeBattle = 'battleCompanion'
+// 俘虏
+const kCompanionTypeCapture = 'capture'
+
+// 战斗伙伴是一种特殊的随从，可以“装备”在物品栏，并且带有一些战斗中的效果
 fun generateBattleCompanionData(companionData, battleEntity) {
   final firstOffenseItem = getFirstEquippedOffenseItem(battleEntity)
   companionData.stats.damage = firstOffenseItem?.stats.damage
 
-  // 生成同伴数据
+  companionData.isEquippable = true
+  companionData.equipType = kEquipTypeCompanion
+
   final assist = Effect(
     id: kEffectIncreaseDamageWithCooldown,
     description: kEffectCompanionIncreaseDamageDescription,

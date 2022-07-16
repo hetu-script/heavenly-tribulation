@@ -71,7 +71,8 @@ class _MerchantViewState extends State<MerchantView> {
                       (item['value'] * widget.priceFactor).truncate() *
                           quantity;
                   if (restOfMoney < payment) {
-                    engine.info('${heroData['name']} 银两不足，无法购买。');
+                    engine.info(
+                        '${heroData['name']} 银两只有 $restOfMoney 不足 $payment，无法购买。');
                     return;
                   }
                   engine.invoke('characterGiveMoney', positionalArgs: [
@@ -79,12 +80,17 @@ class _MerchantViewState extends State<MerchantView> {
                     widget.merchantData,
                     payment,
                   ]);
-                  engine.invoke('characterGive', positionalArgs: [
-                    widget.merchantData,
-                    heroData,
-                    item,
-                    quantity,
-                  ]);
+                  engine.invoke(
+                    'characterGive',
+                    positionalArgs: [
+                      widget.merchantData,
+                      heroData,
+                      item,
+                    ],
+                    namedArgs: {
+                      'count': quantity,
+                    },
+                  );
                   Navigator.of(context).pop();
                   engine.broadcast(const UIEvent.needRebuildUI());
                   setState(() {});
