@@ -3,53 +3,62 @@ import 'event.ht'
 import 'entity/character/character.ht'
 import 'l10n.ht'
 
-fun onGameEvent(id: str, [arg]) {
-  for (final handler of eventHandlers) {
-    final callback = handler[id];
-    if(callback is function) {
-      handler(arg)
-    }
-  }
-}
-
-fun newGame {
-  
-}
-
-fun nextTick {
+fun updateGame({nextTick = true}) {
+  // 每个tick执行的代码
   handleBabies()
 
+  // 每个月执行的代码
+  if (game.timestamp % kTicksPerMonth == 0) {
+    generateQuests()
+  }
+
   onGameEvent('onUpdate')
-  ++game.timestamp
+
+  if (nextTick) ++game.timestamp
 }
 
+// 每个tick检查一次当前是否有婴儿出生
 fun handleBabies {
-  final bornIds = []
+  final bornIds = Set()
   for (final baby of game.babies) {
-    if (game.timestamp - baby.conceptionTimestamp > baby.pregnancyTimestamp) {
-      final mother = game.characters[baby.motherId]
-      mother.isPregnant = false
-      final location = game.locations[mother.locationId]
-      final character = Character(
-        familyName: baby.familyName,
-        shorname: baby.shorname,
-        isFemale: baby.isFemale,
-        birthTimestamp: game.timestamp,
-        locationId: location.id,
-        isNewborn: true,
-        fatherId: baby.fatherId,
-        motherId: baby.motherId,
-      )
-      bornIds.add(baby.id)
-    }
+    if (game.timestamp - baby.conceptionTimestamp < baby.pregnancyTime) continue
+    final mother = game.characters[baby.motherId]
+    mother.isPregnant = false
+    final location = game.locations[mother.locationId]
+    final character = Character(
+      familyName: baby.familyName,
+      shorname: baby.shorname,
+      isFemale: baby.isFemale,
+      birthTimestamp: game.timestamp,
+      locationId: location.id,
+      isNewborn: true,
+      fatherId: baby.fatherId,
+      motherId: baby.motherId,
+    )
+    bornIds.add(baby.id)
   }
   for (final id in bornIds) {
     delete game.babies[id]
   }
 }
 
+// 每个月生成一次每个地点的悬赏任务
 fun generateQuests {
-  for (final locaiton of game.locations) {
-    
+  for (final location of game.locations) {
+    // 生成盗贼副本
+    // 暂时只在有国家的据点上生成
+    if (!location.nationId) continue
+    if (Math.random() < location.stability / 100) {
+      final nation = game.nations[location]
+    }
+  }
+}
+
+fun onGameEvent(id: str, [arg]) {
+  for (final handler of eventHandlers) {
+    final callback = handler[id];
+    if(callback is function) {
+      callback(arg)
+    }
   }
 }

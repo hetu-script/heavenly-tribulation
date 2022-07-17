@@ -1,14 +1,14 @@
-import 'name/name.ht' as nameGenerator
-import 'game.ht'
-import 'entity/location.ht'
-import 'entity/character/character.ht'
-import 'entity/nation.ht'
-import 'l10n.ht'
-import 'tile/hexagonal_tile.ht'
-import 'tile/tilemap.ht'
-import 'entity/common.ht'
-import 'datetime.ht' as datetime
-import 'logic.ht'
+import '../name/name.ht' as nameGenerator
+import '../game.ht'
+import '../entity/location.ht'
+import '../entity/character/character.ht'
+import '../entity/nation.ht'
+import '../l10n.ht'
+import '../tile/hexagonal_tile.ht'
+import '../tile/tilemap.ht'
+import '../entity/common.ht'
+import '../datetime.ht' as datetime
+import '../logic.ht'
 
 /// 生成世界地图的算法
 ///
@@ -57,6 +57,8 @@ const _kMountainThreshold = 0.2
 const _kCharacterMarriageAgeMin = 15
 const _kCharacterMarriageAgeMax = 40
 const _kPregnancyAgeMax = 40
+
+const _kLocationInitialDevelopmentMax = 3
 
 fun createWorldMap({
     id,
@@ -116,102 +118,17 @@ fun createWorldMap({
   final voidZone = Zone(index: game.world.zones.length, name: null, category: kZoneVoid)
   game.world.zones.add(voidZone)
 
-  // 当前地域的边缘格子坐标
-  final shelf = Set()
-
-  // 刷新当前地域的边缘格子坐标
-  fun updateShelf(left, top) {
-    shelf.remove(tilePos2Index(left, top, width))
-    final neighbors = getMapTileNeighbors(left, top, game.world)
-    for (final tile in neighbors) {
-      if (tile.spriteIndex == kSpriteWater) {
-        shelf.add(tile.index)
-      }
-    }
-  }
 
   // 生成地域
   engine.info('准备生成地域')
-  final landArea = (width * height * landProportion).floor()
-
-  final minLeft = width ~/ 3
-  final minTop = height ~/ 3
-  final maxLeft = width ~/ 3 * 2
-  final maxTop = height ~/ 3 * 2
-
-  final startLeft = Math.randomInt(maxLeft - minLeft) + minLeft
-  final startTop = Math.randomInt(maxTop - minTop) + minTop
-  // engine.info('start: ${startLeft},${startTop}')
-  final startIndex = tilePos2Index(startLeft, startTop, width)
-  final firstTile = game.world.terrains[startIndex]
-  firstTile.spriteIndex = kSpriteLand
   final landZone = Zone(index: game.world.zones.length, category: kZoneContinent)
   game.world.zones.add(landZone)
-  addTerrainToZone(firstTile, landZone.index, game.world)
-  updateShelf(startLeft, startTop)
-
-  var currentLandSize = 1
-  while (currentLandSize < landArea) {
-    // engine.info('expanding land')
-    ++currentLandSize
-    final tile = game.world.terrains[shelf.random]
-    updateShelf(tile.left, tile.top)
-    tile.spriteIndex = kSpriteLand
-    addTerrainToZone(tile, landZone.index, game.world)
-  }
-
-  // 根据相邻的格子的地域，分配地域索引
-  fun updateZone(tile, [spriteIndex, unzonedNeighbors]) {
-    assert(tile.zoneIndex == null)
-    var willCreateZone = true
-    if (spriteIndex != null) {
-      willCreateZone = false
-    } else {
-      spriteIndex = tile.spriteIndex
-    }
-    unzonedNeighbors ??= {}
-    // engine.info('processing: ${tile.left},${tile.top}, spriteIndex: ${tile.spriteIndex}')
-    tile.zoneIndex = -1 // mark this tile is being processed, will skip it when process others
-    final neighbors = getMapTileNeighbors(tile.left, tile.top, game.world)
-    var foundAdjacentZone = false
-    for (final neighbor in neighbors) {
-      // skip tiles that has diffrent spriteIndex and those still being processed
-      if (neighbor.spriteIndex != spriteIndex) continue
-      if (neighbor.zoneIndex == null) {
-        updateZone(neighbor, spriteIndex, unzonedNeighbors)
-      }
-      if (neighbor.zoneIndex == -1) {
-        unzonedNeighbors[neighbor.index] = neighbor
-        continue
-      }
-      addTerrainToZone(tile, neighbor.zoneIndex, game.world)
-      foundAdjacentZone = true
-      // engine.info('Found neighbor: ${neighbor.left},${neighbor.top}, zoneIndex: ${neighbor.zoneIndex}')
-      break
-    }
-    if (!foundAdjacentZone && willCreateZone) {
-      var category = tile.spriteIndex == kSpriteLand ? kZoneContinent : kZoneWater
-      final zone = Zone(index: game.world.zones.length, category: category)
-      game.world.zones.add(zone)
-      // engine.info('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneIndex: ${zone.index}')
-      addTerrainToZone(tile, zone.index, game.world)
-      // engine.info('processing previoused stored unzoned tiles: ${unzonedNeighbors}')
-      for (final unzonedTile of unzonedNeighbors) {
-        if (unzonedTile.zoneIndex == -1) {
-          addTerrainToZone(unzonedTile, zone.index, game.world)
-        }
-      }
-    }
-  }
-
-  var unzonedTile
-  engine.info('开始生成地域')
-  while (
-    unzonedTile = game.world.terrains.firstWhere((tile) => tile.zoneIndex == null)
-  ) {
-    // engine.info('updating unzoned tile')
-    updateZone(unzonedTile)
-  }
+  continentGenerateMethod1(
+    width: width,
+    height: height,
+    landProportion: landProportion,
+    landZone: landZone,
+  )
 
   fun find2NearestLocation(origin, {restricted2Zone: bool = true}) {
     assert(game.locations.length > 0)
@@ -271,7 +188,10 @@ fun createWorldMap({
     final tile = game.world.terrains[index]
     // location category只有两种：城市和秘境
     final location = Location(terrainIndex: index, category: kLocationCategoryCity)
+    // 随机生成的据点，初始发展度是0-2之间随机。
+    location.development = Math.randomInt(_kLocationInitialDevelopmentMax)
     locationIndexes.add(index)
+    // 如果据点生成在海洋之中，就将该地块设定为岛屿
     checkPerimeterOfLocation(tile)
     tile.locationId = location.id
     tile.overlaySprite.index = kSpriteCity
@@ -299,13 +219,6 @@ fun createWorldMap({
     }
     final r = nameGenerator.getZone(1, category: category)
     zone.name = r.first.name
-  }
-  
-  // 将大陆和海洋接触的地方填充为大陆架
-  engine.info('将大陆和海洋接触的地方填充为大陆架')
-  for (final index in shelf) {
-    final tile = game.world.terrains[index]
-    tile.spriteIndex = kSpriteShelf
   }
 
   engine.info('确保陆地上的每个城市至少可以链接到另外两个城市')
@@ -468,8 +381,6 @@ fun createWorldMap({
     }
 
     if (game.timestamp % kTicksPerMonth == 0) {
-      // 每月月初执行的代码
-
       // 婴儿出生
       handleBabies()
       

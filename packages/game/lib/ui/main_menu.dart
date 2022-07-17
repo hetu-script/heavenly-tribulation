@@ -58,7 +58,6 @@ class _MainMenuState extends State<MainMenu> {
       } else {
         worldData = engine.invoke('createWorldMap', namedArgs: args);
       }
-      engine.invoke('loadModsToGame');
       return WorldMapScene(worldData: worldData, controller: engine);
     });
 

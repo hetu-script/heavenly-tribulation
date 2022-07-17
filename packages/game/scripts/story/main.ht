@@ -10,10 +10,10 @@ import 'meta.json' as meta
 final module = {
   ...meta,
   onNewGame: (arg) {
-    engine.info('[${this.name}]: 新游戏事件')
+    engine.info('[${this.name}]: 新游戏事件回调函数')
   },
   onUpdate: (arg) {
-    engine.info('[${this.name}]: 时间更新事件')
+    engine.info('[${this.name}]: 更新世界事件回调函数')
   }
 }
 

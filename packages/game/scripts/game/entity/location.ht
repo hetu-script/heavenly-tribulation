@@ -25,6 +25,8 @@ const kSiteZenyard = 'zenyard'
 const kSiteZoo = 'zoo'
 const kSiteMaze = 'maze'
 
+const _kLocationInitialStabilityMax = 50
+
 struct Site {
   construct ({
     location,
@@ -73,10 +75,14 @@ struct Location {
     
     this.isPrivate = isPrivate
     
-    // 据点发展度
+    // 据点发展度，最高20，初始0
     // 发展度决定了据点所能拥有的普通居民人口上限，以及所能拥有建筑的数量
-    // 最少是 1，最多是 18
-    this.development = 1
+    // 发展度需要花费银两、矿石和木料来升级
+    this.development = 0
+
+    // 据点稳定度，最高100，初始随机0-49
+    // 稳定度决定了盗贼和动乱事件的可能性。
+    this.stability = Math.randomInt(_kLocationInitialStabilityMax)
 
     // 当前处于这个场景的角色
     this.dwellingCharacterIds = []
@@ -395,12 +401,12 @@ fun _handleResidenceInteraction(site) {
 
 fun _handleOrganizationInteraction(site) {
   final location = game.locations[site.locationId]
-  showSelectionByLocaleKeys({
+  showSelectionByLocaleKeys([
     'train',
     'learn',
     'visit',
     'leave',
-  })
+  ])
   .then((key) {
     when (key) {
       // 如果选择 leave，直接忽略，什么也不做

@@ -44,6 +44,7 @@ dependencies:
   gradient_widgets: ^0.6.0
   path: ^1.8.1
   async: ^2.8.2
+  fast_noise: ^1.0.1
 
 dev_dependencies:
   flutter_test:
@@ -84,6 +85,8 @@ flutter:
     - assets/images/weather/
 
     - scripts/game/
+    - scripts/game/ai/
+    - scripts/game/binding/
     - scripts/game/entity/
     - scripts/game/entity/character/
     - scripts/game/entity/character/companion/
@@ -93,9 +96,11 @@ flutter:
     - scripts/game/entity/item/consumable/
     - scripts/game/entity/item/protect/
     - scripts/game/entity/item/talisman/
-    - scripts/game/entity/skill/
     - scripts/game/entity/item/weapon/
-    - scripts/game/quest/
+    - scripts/game/entity/skill/
+    - scripts/game/l10n/
+    - scripts/game/l10n/en/
+    - scripts/game/l10n/zh/
     - scripts/game/maze/
     - scripts/game/name/
     - scripts/game/name/book/
@@ -105,16 +110,13 @@ flutter:
     - scripts/game/name/material/
     - scripts/game/name/organization/
     - scripts/game/name/place/
-    - scripts/game/name/spell/
     - scripts/game/name/shared/
     - scripts/game/name/skill/
+    - scripts/game/name/spell/
     - scripts/game/name/talisman/
-    - scripts/game/binding/
-    - scripts/game/l10n/
-    - scripts/game/l10n/en/
-    - scripts/game/l10n/zh/
+    - scripts/game/quest/
     - scripts/game/tile/
-    - scripts/game/ai/
+    - scripts/game/world/
 
     - scripts/story/
     - scripts/story/binding/

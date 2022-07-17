@@ -104,7 +104,7 @@ struct Baby {
     this.fatherId = father.id
     this.motherId = mother.id
     this.conceptionTimestamp = conceptionTimestamp
-    this.pregnancyTimestamp = Math.gaussianNoise(_kPregnancyTime, _kPregnancyTimeVariable)
+    this.pregnancyTime = Math.gaussianNoise(_kPregnancyTime, _kPregnancyTimeVariable)
     
     this.isFemale = Math.randomBool()
     if (this.isFemale) {

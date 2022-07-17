@@ -141,6 +141,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.3.0"
+  fast_noise:
+    dependency: "direct main"
+    description:
+      name: fast_noise
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.1"
   ffi:
     dependency: transitive
     description:
@@ -155,6 +162,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "6.1.2"
+  fixnum:
+    dependency: transitive
+    description:
+      name: fixnum
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.1"
   flame:
     dependency: "direct main"
     description:

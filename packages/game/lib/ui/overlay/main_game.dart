@@ -141,11 +141,11 @@ class _MainGameOverlayState extends State<MainGameOverlay>
               .invoke('getCharacterWorldPosition', positionalArgs: [_heroData]);
           final charSheet = SpriteSheet(
             image: await Flame.images.load('character/tile_character.png'),
-            srcSize: Vector2(32.0, 32.0),
+            srcSize: heroSrcSize,
           );
           final shipSheet = SpriteSheet(
             image: await Flame.images.load('character/tile_ship.png'),
-            srcSize: Vector2(32.0, 32.0),
+            srcSize: heroSrcSize,
           );
           _scene.map.hero = TileMapObject(
             engine: engine,
@@ -159,8 +159,8 @@ class _MainGameOverlayState extends State<MainGameOverlay>
             tileMapWidth: _scene.map.tileMapWidth,
             gridWidth: _scene.map.gridWidth,
             gridHeight: _scene.map.gridHeight,
-            srcWidth: 32,
-            srcHeight: 32,
+            srcWidth: heroSrcSize.x,
+            srcHeight: heroSrcSize.y,
           );
           setState(() {});
         },
@@ -173,7 +173,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
         widget.key!,
         (GameEvent event) {
           setState(() {
-            if (event.scene == 'worldmap') engine.invoke('nextTick');
+            if (event.scene == 'worldmap') engine.invoke('updateGame');
           });
         },
       ),

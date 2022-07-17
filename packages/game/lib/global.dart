@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:samsara/samsara.dart';
+import 'package:flame/components.dart';
 
 extension PercentageString on num {
   String toPercentageString([int fractionDigits = 0]) {
@@ -90,3 +90,5 @@ const kValueTypeFloat = 'float';
 const kValueTypePercentage = 'percentage';
 
 final SamsaraEngine engine = SamsaraEngine(debugMode: GlobalConfig.debugMode);
+
+final heroSrcSize = Vector2(32.0, 48.0);

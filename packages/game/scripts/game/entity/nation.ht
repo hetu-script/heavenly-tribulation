@@ -12,6 +12,11 @@ struct Nation {
     capitalId,
   }) {
     assert(capitalId != null)
+    this.capitalId = capitalId
+    final location = game.locations[capitalId]
+    // 设为首都后，免费获得发展度+2，稳定度+50
+    location.development += 2
+    location.stability += 50
 
     this.index = game.nations.length
     if (name) {
@@ -28,7 +33,6 @@ struct Nation {
     this.id = 'nation_${this.index}_${this.name}'
     this.color = Math.randomBrightColorHex()
     
-    this.capitalId = capitalId
     // 本国统治的区块
     this.territoryIndexes = Set()
     // 国界线相邻的外国区块
