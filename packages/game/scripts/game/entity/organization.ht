@@ -66,7 +66,7 @@ struct Organization {
     assert(game.characters.containsKey(leaderId))
 
     if (category == null) {
-      this.category = kOrganizationCategory.random
+      this.category = random.nextIterable(kOrganizationCategory)
     } else {
       assert(kOrganizationCategory.contains(category))
       this.category = category
@@ -212,11 +212,11 @@ fun addCharacterToOrganization(character, organization, { incidentOccured = true
 
   final location = game.locations[organization.headquartersId]
   setCharacterHome(character, location)
-  final r = Math.randomInt(_kOrganizationThinkingsOnRecruit)
+  final r = random.nextInt(_kOrganizationThinkingsOnRecruit)
   for (final i in range(r)) {
     var thinking
     do {
-      thinking = kOrganizationThinkings[organization.category].random
+      thinking = random.nextIterable(kOrganizationThinkings[organization.category])
     } while (character.thinkings.contains(thinking))
     character.thinkings.add(thinking)
   }

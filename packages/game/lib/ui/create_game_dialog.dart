@@ -1,10 +1,10 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:hetu_script/util.dart' as util;
 
 import '../global.dart';
 import 'shared/responsive_window.dart';
-import 'util.dart';
 
 const _kWorldScaleLabel = {
   1: 'tiny',
@@ -44,6 +44,8 @@ class CreateGameDialog extends StatefulWidget {
 }
 
 class _CreateGameDialogState extends State<CreateGameDialog> {
+  final _seedStringEditingController = TextEditingController();
+  String _worldStyle = 'coast';
   int _worldScale = 1;
   int _nationNumber = 4;
   int _locationNumber = 6;
@@ -64,6 +66,8 @@ class _CreateGameDialogState extends State<CreateGameDialog> {
     _locationNumberLabel = _locationNumber.toString();
     _characterNumberLabel = _characterNumber.toString();
     _organizationNumberLabel = _organizationNumber.toString();
+
+    _seedStringEditingController.text = 'Hello world!';
   }
 
   @override
@@ -85,6 +89,53 @@ class _CreateGameDialogState extends State<CreateGameDialog> {
             child: Container(
               margin: const EdgeInsets.all(15.0),
               child: Column(children: [
+                // 随机数种子
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 100.0,
+                      child: Text('${engine.locale['randomSeed']}: '),
+                    ),
+                    SizedBox(
+                      width: 200.0,
+                      child: TextField(
+                        controller: _seedStringEditingController,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _seedStringEditingController.text =
+                              math.Random().nextInt(1 << 32).toString();
+                        },
+                        child: Text(engine.locale['random']),
+                      ),
+                    ),
+                  ],
+                ),
+                // 地图风格
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 100.0,
+                      child: Text('${engine.locale['worldStyle']}: '),
+                    ),
+                    DropdownButton<String>(
+                      items: <String>['islands', 'coast', 'inland']
+                          .map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(engine.locale[value]),
+                        );
+                      }).toList(),
+                      value: _worldStyle,
+                      onChanged: (value) {
+                        _worldStyle = value!;
+                      },
+                    ),
+                  ],
+                ),
                 // world size
                 Row(
                   children: [
@@ -259,13 +310,17 @@ class _CreateGameDialogState extends State<CreateGameDialog> {
                 padding: const EdgeInsets.all(10.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pop({
-                      'id': 'world_${uid4(4)}',
-                      'worldScale': _worldScale,
-                      'nationNumber': _nationNumber,
-                      'organizationNumber': _organizationNumber,
-                      'characterNumber': _characterNumber,
-                    });
+                    if (_seedStringEditingController.text.isNotEmpty) {
+                      Navigator.of(context).pop({
+                        'id': 'world_${util.uid4(4)}',
+                        'seedString': _seedStringEditingController.text,
+                        'style': _worldStyle,
+                        'worldScale': _worldScale,
+                        'nationNumber': _nationNumber,
+                        'organizationNumber': _organizationNumber,
+                        'characterNumber': _characterNumber,
+                      });
+                    } else {}
                   },
                   child: Text(engine.locale['continue']),
                 ),

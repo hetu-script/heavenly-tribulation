@@ -59,6 +59,7 @@ struct BattleEntity {
             _kCharacterAttributeSumDeviation,
             min: kCharacterAttributeNames.length,
             max: kCharacterAttributeNames.length * 100,
+            randomGenerator: random,
           ).toInt(),
         minValue: _kCharacterAttributeMinValue,
         maxValue: _kCharacterAttributeMaxValue,
@@ -103,19 +104,17 @@ fun generateCharacterAttributes({
     return value
   }
   
-  final list = kCharacterAttributeNames.toList()
-  list.shuffle()
-  for (var i = 0; i < list.length; ++i) {
-    final name = list[i]
+  for (final name in random.shuffle(kCharacterAttributeNames)) {
     if (name in majorAttributes) {
-      minValue = attributesSum / list.length * kMajorAttributeFactor
+      minValue = attributesSum / kCharacterAttributeNames.length * kMajorAttributeFactor
     }
     final value = (
       Math.gaussianNoise(
-        attributesSum / list.length * 0.6,
+        attributesSum / kCharacterAttributeNames.length * 0.6,
         20,
         min: minValue,
         max: maxValue,
+        randomGenerator: random,
       )
     ).toInt()
     attributes[name] = checkValue(value)

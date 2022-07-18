@@ -21,6 +21,7 @@ fun getWeapon([n = 1]) {
 
 // 测试战斗：随机生成两个准备好战斗的角色
 fun testDuel {
+  setRandomSeed(1002)
   final hero = Character(isMajorCharacter: false)
   characterEquip(hero, Kickboxing())
   characterEquip(hero, Weapon())
@@ -39,6 +40,7 @@ fun testDuel {
 }
 
 fun testMerchant {
+  setRandomSeed(1003)
   resetGame()
   final hero = Character()
   hero.money += 100
@@ -51,6 +53,7 @@ fun testMerchant {
 }
 
 fun testMaze {
+  setRandomSeed(1001)
   resetGame()
   // 先创建副本再创建英雄，这样会直接用localHistory替换掉hostory
   final maze = MountainMaze(

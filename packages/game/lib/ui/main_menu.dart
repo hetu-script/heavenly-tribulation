@@ -199,7 +199,7 @@ class _MainMenuState extends State<MainMenu> {
                 ),
               ),
             ),
-            if (GlobalConfig.isOnDesktop) ...[
+            if (Global.isOnDesktop) ...[
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.only(top: 20.0),
@@ -218,7 +218,7 @@ class _MainMenuState extends State<MainMenu> {
           ];
 
           return Scaffold(
-            body: GlobalConfig.orientationMode == OrientationMode.landscape
+            body: Global.orientationMode == OrientationMode.landscape
                 ? Stack(
                     children: [
                       Positioned(
@@ -285,7 +285,7 @@ class _MainMenuState extends State<MainMenu> {
                     ],
                   )
                 : Container(
-                    color: GlobalConfig.theme.backgroundColor,
+                    color: Global.appTheme.backgroundColor,
                     // decoration: const BoxDecoration(
                     //   image: DecorationImage(
                     //     fit: BoxFit.fill,

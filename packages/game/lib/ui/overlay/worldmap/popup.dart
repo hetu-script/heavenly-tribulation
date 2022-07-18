@@ -17,7 +17,7 @@ class WorldMapPopup extends StatelessWidget {
   final bool enterIcon;
   final bool talkIcon;
   final bool restIcon;
-  final String title;
+  final String description;
 
   final VoidCallback? onMoveTo;
   final VoidCallback? onCheck;
@@ -40,7 +40,7 @@ class WorldMapPopup extends StatelessWidget {
     this.onTalk,
     this.restIcon = false,
     this.onRest,
-    this.title = '',
+    this.description = '',
   });
 
   @override
@@ -81,9 +81,9 @@ class WorldMapPopup extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.center,
                   child: Text(
-                    title,
+                    description,
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                     ),
                   ),
                 ),

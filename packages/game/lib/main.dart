@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/flame.dart';
 import 'package:window_manager/window_manager.dart';
@@ -17,8 +18,8 @@ class CustomWindowListener extends WindowListener {
   @override
   void onWindowResize() async {
     engine.info(
-        '窗口大小已经修改为：${GlobalConfig.screenSize.width}x${GlobalConfig.screenSize.height}');
-    GlobalConfig.screenSize = await windowManager.getSize();
+        '窗口大小已经修改为：${Global.screenSize.width}x${Global.screenSize.height}');
+    Global.screenSize = await windowManager.getSize();
   }
 }
 
@@ -26,14 +27,14 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (Platform.isAndroid || Platform.isIOS) {
-    GlobalConfig.isOnDesktop = false;
-    GlobalConfig.orientationMode = OrientationMode.portrait;
+    Global.isOnDesktop = false;
+    Global.orientationMode = OrientationMode.portrait;
     await Flame.device.setPortraitDownOnly();
     await Flame.device.fullScreen();
-    GlobalConfig.screenSize = window.physicalSize / window.devicePixelRatio;
+    Global.screenSize = window.physicalSize / window.devicePixelRatio;
   } else if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-    GlobalConfig.isOnDesktop = true;
-    GlobalConfig.orientationMode = OrientationMode.landscape;
+    Global.isOnDesktop = true;
+    Global.orientationMode = OrientationMode.landscape;
     await windowManager.ensureInitialized();
     windowManager.addListener(CustomWindowListener());
     WindowOptions windowOptions = const WindowOptions(
@@ -43,17 +44,43 @@ void main() async {
     windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();
       await windowManager.focus();
-      GlobalConfig.screenSize = await windowManager.getSize();
+      Global.screenSize = await windowManager.getSize();
       engine.info('系统版本：${Platform.operatingSystemVersion}');
       engine.info(
-          '窗口逻辑大小：${GlobalConfig.screenSize.width}x${GlobalConfig.screenSize.height}');
+          '窗口逻辑大小：${Global.screenSize.width}x${Global.screenSize.height}');
     });
   }
+
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    if (kDebugMode) {
+      return ErrorWidget(details.exception);
+    }
+    // In release builds, show a yellow-on-blue message instead:
+    return Container(
+      color: Colors.red,
+      alignment: Alignment.center,
+      child: Text(
+        'Error!\n${details.exception}',
+        style: const TextStyle(color: Colors.yellow),
+        textAlign: TextAlign.center,
+        textDirection: TextDirection.ltr,
+      ),
+    );
+  };
 
   runApp(
     MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: GlobalConfig.theme,
+      theme: Global.appTheme,
+      builder: (BuildContext context, Widget? widget) {
+        Widget error = const Text('...rendering error...');
+        if (widget is Scaffold || widget is Navigator) {
+          error = Scaffold(body: Center(child: error));
+        }
+        ErrorWidget.builder = (FlutterErrorDetails errorDetails) => error;
+        if (widget != null) return widget;
+        throw ('widget is null');
+      },
       home: const MainMenu(),
       routes: {
         'worldmap': (context) => MainGameOverlay(key: UniqueKey()),

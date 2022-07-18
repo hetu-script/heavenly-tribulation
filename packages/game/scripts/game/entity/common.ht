@@ -1,3 +1,5 @@
+import { random } from '../game.ht'
+
 const kNone = 'none'
 
 const kStats = 'stats'
@@ -83,7 +85,7 @@ fun getRarity({ name }) {
     assert(kRarity.containsKey(name))
     return kRarity[name]
   } else {
-    final r = Math.random()
+    final r = random.nextDouble()
     if (r > 0.35) {
       return kRarity.common
     }
@@ -107,11 +109,11 @@ fun getRarity({ name }) {
 }
 
 // 从一个稀有度和值的对应表中，按照稀有度的概率取出值
-fun getMappedRarityValue(valueMap) {
-  final r = getRarity()
-  final v = valueMap[r.rarity]
-  return (v is Iterable) ? v.random : v
-}
+// fun getMappedRarityValue(valueMap) {
+//   final r = getRarity()
+//   final v = valueMap[r.rarity]
+//   return (v is Iterable) ? v.random : v
+// }
 
 const kLife = 'life'
 const kStamina = 'stamina'
@@ -153,7 +155,7 @@ const _kCharacterRandomAgeMax = 40
 
 fun createRandomBirthTimestamp({min = 1, max = _kCharacterRandomAgeMax}) {
   assert(min > 0)
-  final age = Math.randomInt(max - min) + min
-  final randomDateInAYear = Math.randomInt(kTicksPerYear)
+  final age = random.nextInt(max - min) + min
+  final randomDateInAYear = random.nextInt(kTicksPerYear)
   return game.timestamp - (age * kTicksPerYear + randomDateInAYear)
 }

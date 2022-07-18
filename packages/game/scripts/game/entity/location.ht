@@ -82,7 +82,7 @@ struct Location {
 
     // 据点稳定度，最高100，初始随机0-49
     // 稳定度决定了盗贼和动乱事件的可能性。
-    this.stability = Math.randomInt(_kLocationInitialStabilityMax)
+    this.stability = random.nextInt(_kLocationInitialStabilityMax)
 
     // 当前处于这个场景的角色
     this.dwellingCharacterIds = []
@@ -111,7 +111,7 @@ struct Location {
       // 普通居民决定了税收收入，以及外门弟子的数量
       // final minP = maxPopulationOfLocationDevelopment(this.development - 1)
       // final maxP = maxPopulationOfLocationDevelopment(this.development)
-      // this.population = Math.randomInt(maxP - minP) + minP
+      // this.population = random.nextInt(maxP - minP) + minP
     }
 
     // 这个据点可以领的任务

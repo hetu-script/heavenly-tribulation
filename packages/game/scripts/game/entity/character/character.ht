@@ -104,14 +104,18 @@ struct Baby {
     this.fatherId = father.id
     this.motherId = mother.id
     this.conceptionTimestamp = conceptionTimestamp
-    this.pregnancyTime = Math.gaussianNoise(_kPregnancyTime, _kPregnancyTimeVariable)
+    this.pregnancyTime = Math.gaussianNoise(
+      _kPregnancyTime,
+      _kPregnancyTimeVariable, 
+      randomGenerator: random,
+    )
     
-    this.isFemale = Math.randomBool()
+    this.isFemale = random.nextBool()
     if (this.isFemale) {
-      final index = Math.randomInt(_kFemaleAvatarCount)
+      final index = random.nextInt(_kFemaleAvatarCount)
       this.icon = 'avatar/female/${index}.jpg';
     } else {
-      final index = Math.randomInt(_kMaleAvatarCount)
+      final index = random.nextInt(_kMaleAvatarCount)
       this.icon = 'avatar/male/${index}.jpg';
     }
     final r = nameGenerator.getCharacter(
@@ -150,13 +154,13 @@ struct Character {
     if (isFemale != null) {
       this.isFemale = isFemale
     } else {
-      this.isFemale = Math.randomBool()
+      this.isFemale = random.nextBool()
     }
     if (this.isFemale) {
-      final index = Math.randomInt(_kFemaleAvatarCount)
+      final index = random.nextInt(_kFemaleAvatarCount)
       this.icon = 'avatar/female/${index}.jpg';
     } else {
-      final index = Math.randomInt(_kMaleAvatarCount)
+      final index = random.nextInt(_kMaleAvatarCount)
       this.icon = 'avatar/male/${index}.jpg';
     }
     if (familyName != null && shortName != null) {
@@ -189,8 +193,20 @@ struct Character {
       this.birthTimestamp = createRandomBirthTimestamp()
     }
     this.nationId = nationId
-    this.looks = Math.gaussianNoise(_kCharacterAverageLooks, _kCharacterLooksDeviation, min: 0, max: 100)
-    this.favoredLooks =  Math.gaussianNoise(_kCharacterMaxLooks, _kCharacterLooksDeviation, min: 0, max: 100)
+    this.looks = Math.gaussianNoise(
+      _kCharacterAverageLooks,
+      _kCharacterLooksDeviation,
+      min: 0,
+      max: 100,
+      randomGenerator: random,
+    )
+    this.favoredLooks =  Math.gaussianNoise(
+      _kCharacterMaxLooks,
+      _kCharacterLooksDeviation,
+      min: 0,
+      max: 100,
+      randomGenerator: random,
+    )
 
     // 该角色的称号
     this.titles = {
@@ -221,20 +237,20 @@ struct Character {
     // 该角色的人格纬度
     this.personality = {
       // 三观，最小 -50 最大 +50
-      ideal: Math.random() * 100.0 - 50.0,
-      order: Math.random() * 100.0 - 50.0,
-      good: Math.random() *100.0 - 50.0,
+      ideal: random.nextDouble() * 100.0 - 50.0,
+      order: random.nextDouble() * 100.0 - 50.0,
+      good: random.nextDouble() *100.0 - 50.0,
 
       // 行为逻辑，最小 -50 最大 +50
-      social: Math.random() * 100.0 - 50.0,
-      reason: Math.random() * 100.0 - 50.0,
-      control: Math.random() * 100.0 - 50.0,
-      frugal: Math.random() * 100.0 - 50.0,
-      frank: Math.random() * 100.0 - 50.0,
-      confidence: Math.random() * 100.0 - 50.0,
-      prudence: Math.random() * 100.0 - 50.0,
-      empathy: Math.random() * 100.0 - 50.0,
-      generosity: Math.random() * 100.0 - 50.0,
+      social: random.nextDouble() * 100.0 - 50.0,
+      reason: random.nextDouble() * 100.0 - 50.0,
+      control: random.nextDouble() * 100.0 - 50.0,
+      frugal: random.nextDouble() * 100.0 - 50.0,
+      frank: random.nextDouble() * 100.0 - 50.0,
+      confidence: random.nextDouble() * 100.0 - 50.0,
+      prudence: random.nextDouble() * 100.0 - 50.0,
+      empathy: random.nextDouble() * 100.0 - 50.0,
+      generosity: random.nextDouble() * 100.0 - 50.0,
     }
 
     // 该角色的动机，主要动机只有一个，次要动机可以有多个
@@ -243,15 +259,15 @@ struct Character {
     // 思想列表，思想决定了角色对于其他事物的看法
     this.thinkings = []
 
-    if (Math.random() < _kMajorMotivationProbobility) {
-      this.motivations.add(kMajorMotivations.random)
+    if (random.nextDouble() < _kMajorMotivationProbobility) {
+      this.motivations.add(random.nextIterable(kMajorMotivations))
     }
 
-    final r = Math.randomInt(_kCharacterInitialGeneralThinking)
+    final r = random.nextInt(_kCharacterInitialGeneralThinking)
     for (final i in range(r)) {
       var thinking
       do {
-        thinking = kGeneralThinkings.random
+        thinking = random.nextIterable(kGeneralThinkings)
       } while (this.thinkings.contains(thinking))
       this.thinkings.add(thinking)
     }

@@ -4,7 +4,6 @@ import 'package:samsara/event.dart';
 import 'package:hetu_script/values.dart';
 import 'package:flame/sprite.dart';
 import 'package:flame/flame.dart';
-import 'package:flame/components.dart';
 import 'package:hetu_script/types.dart';
 
 import '../../shared/loading_screen.dart';

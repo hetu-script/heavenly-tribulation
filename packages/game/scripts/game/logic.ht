@@ -48,7 +48,7 @@ fun generateQuests {
     // 生成盗贼副本
     // 暂时只在有国家的据点上生成
     if (!location.nationId) continue
-    if (Math.random() < location.stability / 100) {
+    if (random.nextDouble() < location.stability / 100) {
       final nation = game.nations[location]
     }
   }

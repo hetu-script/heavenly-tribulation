@@ -2,6 +2,7 @@ import '../battle_entity.ht'
 import '../../common.ht'
 import '../../item/item.ht'
 import '../companion/common.ht'
+import { random } from '../../../game.ht'
 
 final _kBanditKinds = Set(
   'boss', // level 3 出口的 boss
@@ -92,7 +93,7 @@ struct Bandit {
         )
         this.assign(battleInfo)
         // BattleEntity 会初始化银两为0，因此必须在其之后赋值
-        this.money = Math.randomInt(50) + 50
+        this.money = random.nextInt(50) + 50
         this.icon = 'maze/bandit_minion.png'
         characterEquip(this, Weapon())
         // 山贼喽啰可以成为别的山贼的战斗伙伴
@@ -109,7 +110,7 @@ struct Bandit {
         )
         this.assign(battleInfo)
         // BattleEntity 会初始化银两为0，因此必须在其之后赋值
-        this.money = Math.randomInt(75) + 50
+        this.money = random.nextInt(75) + 50
         this.icon = 'maze/bandit_muscle.png'
         characterEquip(this, Weapon(kind: 'spear'))
         final minion1 = Bandit(kind: 'minion')
@@ -124,7 +125,7 @@ struct Bandit {
         )
         this.assign(battleInfo)
         // BattleEntity 会初始化银两为0，因此必须在其之后赋值
-        this.money = Math.randomInt(100) + 50
+        this.money = random.nextInt(100) + 50
         this.icon = 'maze/bandit_killer.png'
         characterEquip(this, Weapon(kind: 'sabre'))
         characterEquip(this, Weapon(kind: 'sabre'))
@@ -140,7 +141,7 @@ struct Bandit {
         )
         this.assign(battleInfo)
         // BattleEntity 会初始化银两为0，因此必须在其之后赋值
-        this.money = Math.randomInt(300) + 100
+        this.money = random.nextInt(300) + 100
         this.icon = 'maze/bandit_boss.png'
         characterEquip(this, Weapon())
         characterEquip(this, Shield())

@@ -13,12 +13,9 @@ fun generateCharacterAttributes(maxStats, minValue) {
 
   final attributes = {}
   
-  final list = kCharacterAttributeNames.toList()
-  list.shuffle()
   var rest = maxStats
-  for (var i = 0; i < list.length - 1; ++i) {
-    final name = list[i]
-    final value = Math.randomInt(rest)
+  for (final name in random.shuffle(kCharacterAttributeNames)) {
+    final value = Random().nextInt(rest)
     attributes[name] = value + minValue
     rest -= value
   }

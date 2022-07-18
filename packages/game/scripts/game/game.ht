@@ -1,5 +1,11 @@
 export 'binding/engine.ht'
 
+var random = Random()
+
+fun setRandomSeed([seed: int]) {
+  random = Random(seed)
+}
+
 var locales = {
   zh: {},
   en: {}

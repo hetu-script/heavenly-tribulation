@@ -1,3 +1,5 @@
+// Don't import this, it has already exported in game.ht
+
 external class SamsaraEngine {
   fun updateLocale(data: Map)
   fun updateZoneColors(data: Map)

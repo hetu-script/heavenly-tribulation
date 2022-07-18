@@ -21,7 +21,7 @@ class ResponsiveWindow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (GlobalConfig.orientationMode == OrientationMode.landscape) {
+    if (Global.orientationMode == OrientationMode.landscape) {
       return Material(
         type: MaterialType.transparency,
         child: Stack(

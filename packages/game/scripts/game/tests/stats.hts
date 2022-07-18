@@ -1,12 +1,14 @@
+final random = Random()
+
 for (var i in range(10)) {
-  final maxStats = Math.randomInt(10) + 10
+  final maxStats = random.nextInt(10) + 10
   final minValue = 10
 
-  final strength = Math.randomInt(maxStats)
-  final intelligence = Math.randomInt(maxStats - strength)
-  final perception = Math.randomInt(maxStats - strength - intelligence)
-  final superpower = Math.randomInt(maxStats - strength - intelligence - perception)
-  final leadership = Math.randomInt(maxStats - strength - intelligence - perception - superpower)
+  final strength = random.nextInt(maxStats)
+  final intelligence = random.nextInt(maxStats - strength)
+  final perception = random.nextInt(maxStats - strength - intelligence)
+  final superpower = random.nextInt(maxStats - strength - intelligence - perception)
+  final leadership = random.nextInt(maxStats - strength - intelligence - perception - superpower)
   final management = maxStats - strength - intelligence - perception - superpower - leadership
 
   final stats = {

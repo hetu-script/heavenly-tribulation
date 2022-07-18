@@ -20,15 +20,20 @@ fun generateCharacterAttributes(maxStats, minValue, maxValue, [majorAttr]) {
     return value
   }
   
-  final list = kCharacterAttributeNames.toList()
-  list.shuffle()
-  for (var i = 0; i < list.length; ++i) {
-    final name = list[i]
+  for (final name in random.shuffle(kCharacterAttributeNames)) {
     var min = minValue
     if (majorAttr && name == majorAttr) {
       min = maxStats / list.length * 0.75
     }
-    final value = (Math.gaussianNoise(maxStats / list.length * 0.6, 20, min: min, max: maxValue)).toInt()
+    final value = (
+      Math.gaussianNoise(
+        maxStats / list.length * 0.6,
+        20,
+        min: min,
+        max: maxValue,
+        randomGenerator: random,
+      )
+    ).toInt()
     attributes[name] = checkValue(value)
   }
   return attributes

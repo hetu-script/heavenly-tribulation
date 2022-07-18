@@ -77,9 +77,9 @@ enum OrientationMode {
   portrait,
 }
 
-abstract class GlobalConfig {
-  static bool debugMode = true;
-  static ThemeData theme = lightTheme;
+abstract class Global {
+  static ThemeData appTheme = lightTheme;
+  static bool isDebugMode = true;
   static bool isOnDesktop = false;
   static OrientationMode orientationMode = OrientationMode.landscape;
   static Size screenSize = Size.zero;
@@ -89,6 +89,6 @@ const kValueTypeInt = 'int';
 const kValueTypeFloat = 'float';
 const kValueTypePercentage = 'percentage';
 
-final SamsaraEngine engine = SamsaraEngine(debugMode: GlobalConfig.debugMode);
+final SamsaraEngine engine = SamsaraEngine(debugMode: Global.isDebugMode);
 
 final heroSrcSize = Vector2(32.0, 48.0);

@@ -31,16 +31,16 @@ struct Nation {
       } while (conflict)
     }
     this.id = 'nation_${this.index}_${this.name}'
-    this.color = Math.randomBrightColorHex()
+    this.color = random.nextBrightColorHex()
     
     // 本国统治的区块
-    this.territoryIndexes = Set()
+    this.territoryIndexes = []
     // 国界线相邻的外国区块
-    this.borderIndexes = Set()
+    this.borderIndexes = []
     // 本国统治的据点
-    this.locationIds = Set()
+    this.locationIds = []
     // 本国的门派
-    this.organizationIds = Set()
+    this.organizationIds = []
 
     game.nations[this.id] = this
   }

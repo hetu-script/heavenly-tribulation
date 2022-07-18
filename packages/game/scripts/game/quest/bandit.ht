@@ -1,5 +1,6 @@
 import 'common.ht'
 import '../l10n.ht'
+import { random } from '../game.ht'
 
 final kQuestFightBanditKind = [
   'wipe', // 消灭盗贼
@@ -20,7 +21,7 @@ struct QuestFightBandit {
     reward,
   }) {
     this.category = 'fightBandits'
-    this.kind = kind ?? kQuestFightBanditKind.random
+    this.kind = kind ?? random.nextIterable(kQuestFightBanditKind)
     this.difficulty = difficulty
     this.description = description
     // 任务领取有效时间

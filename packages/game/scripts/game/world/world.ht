@@ -9,6 +9,7 @@ import '../tile/tilemap.ht'
 import '../entity/common.ht'
 import '../datetime.ht' as datetime
 import '../logic.ht'
+import 'generation_algorithm.ht'
 
 /// 生成世界地图的算法
 ///
@@ -40,10 +41,10 @@ import '../logic.ht'
 
 const _kDefaultWorldScale = 1
 final _kWorldSizePerWorldScale = {
-  '1': {width: 12, height: 12},
-  '2': {width: 18, height: 18},
-  '3': {width: 27, height: 27},
-  '4': {width: 40, height: 40},
+  '1': 12,
+  '2': 18,
+  '3': 27,
+  '4': 40,
 }
 const _kDefaultNationNumber = 4
 const _kDefaultLocationNumber = 6
@@ -62,7 +63,8 @@ const _kLocationInitialDevelopmentMax = 3
 
 fun createWorldMap({
     id,
-    style = 'island',
+    seedString,
+    style = 'coast',
     terrainSpriteSheet: str,
     worldScale = _kDefaultWorldScale,
     nationNumber = _kDefaultNationNumber,
@@ -72,10 +74,13 @@ fun createWorldMap({
     landProportion = 0.55,
   }) {
   assert(id != null)
+  assert(seedString is str && seedString.isNotEmpty)
   assert(organizationNumber < locationNumber)
   assert(organizationNumber < characterNumber)
-  
-  engine.info('开始生成世界')
+
+  final seed = Hash.crcInt(seedString)
+  engine.info('开始生成世界，设置随机数种子为：${seedString}(${seed})')
+  setRandomSeed(seed)
   
   delete game.savePath
   game.nations = {}
@@ -86,7 +91,10 @@ fun createWorldMap({
   
   history = []
 
-  final { width, height } = _kWorldSizePerWorldScale[worldScale.toString()]
+  final width
+  final height
+
+  width = height = _kWorldSizePerWorldScale[worldScale.toString()]
 
   // 生成过程中，引入了一些别的文件中的函数
   // 他们可能会通过game.world访问, 因此这里直接使用全局变量
@@ -123,12 +131,77 @@ fun createWorldMap({
   engine.info('准备生成地域')
   final landZone = Zone(index: game.world.zones.length, category: kZoneContinent)
   game.world.zones.add(landZone)
-  continentGenerateMethod1(
-    width: width,
-    height: height,
-    landProportion: landProportion,
-    landZone: landZone,
+  generateContinent(
+    seed: seed,
+    size: width,
+    style: style,
   )
+
+  // 根据相邻的格子的地域，分配地域索引
+  fun updateZone(tile, [spriteIndex, unzonedNeighbors]) {
+    assert(tile.zoneIndex == null)
+    var willCreateZone = true
+    if (spriteIndex != null) {
+      willCreateZone = false
+    } else {
+      spriteIndex = tile.spriteIndex
+    }
+    unzonedNeighbors ??= {}
+    // engine.info('processing: ${tile.left},${tile.top}, spriteIndex: ${tile.spriteIndex}')
+    tile.zoneIndex = -1 // mark this tile is being processed, will skip it when process others
+    final neighbors = getMapTileNeighbors(tile.left, tile.top, game.world)
+    var foundAdjacentZone = false
+    for (final neighbor in neighbors) {
+      // skip tiles that has diffrent spriteIndex and those still being processed
+      if (neighbor.spriteIndex != spriteIndex) continue
+      if (neighbor.zoneIndex == null) {
+        updateZone(neighbor, spriteIndex, unzonedNeighbors)
+      }
+      if (neighbor.zoneIndex == -1) {
+        unzonedNeighbors[neighbor.index] = neighbor
+        continue
+      }
+      addTerrainToZone(tile, neighbor.zoneIndex, game.world)
+      foundAdjacentZone = true
+      // engine.info('Found neighbor: ${neighbor.left},${neighbor.top}, zoneIndex: ${neighbor.zoneIndex}')
+      break
+    }
+    if (!foundAdjacentZone && willCreateZone) {
+      var category = tile.spriteIndex == kSpriteLand ? kZoneContinent : kZoneWater
+      final zone = Zone(index: game.world.zones.length, category: category)
+      game.world.zones.add(zone)
+      // engine.info('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneIndex: ${zone.index}')
+      addTerrainToZone(tile, zone.index, game.world)
+      // engine.info('processing previoused stored unzoned tiles: ${unzonedNeighbors}')
+      for (final unzonedTile of unzonedNeighbors) {
+        if (unzonedTile.zoneIndex == -1) {
+          addTerrainToZone(unzonedTile, zone.index, game.world)
+        }
+      }
+    }
+  }
+
+  var unzonedTile
+  engine.info('开始生成地域')
+  while (
+    unzonedTile = game.world.terrains.firstWhere((tile) => tile.zoneIndex == null)
+  ) {
+    // engine.info('updating unzoned tile')
+    updateZone(unzonedTile)
+  }
+  
+  // 将大陆和海洋接触的地方填充为大陆架
+  engine.info('将大陆和海洋接触的地方填充为大陆架')
+  for (final tile in game.world.terrains) {
+    if (tile.spriteIndex != kSpriteWater) continue
+    final neighbors = getMapTileNeighbors(tile.left, tile.top, game.world)
+    for (final tile in neighbors) {
+      if (tile.spriteIndex == kSpriteLand) {
+        tile.spriteIndex == kSpriteShelf
+        break
+      }
+    }
+  }
 
   fun find2NearestLocation(origin, {restricted2Zone: bool = true}) {
     assert(game.locations.length > 0)
@@ -159,50 +232,24 @@ fun createWorldMap({
     return { nearest, secondNearest }
   }
 
-  final islands = []
-  // 根据 tile 的所在位置的类型，添加属性
-  engine.info('根据 tile 的所在位置的类型，添加属性')
-  fun checkPerimeterOfLocation(tile) {
-    if (tile.spriteIndex == kSpriteLand) return
-    final neighbors = getMapTileNeighbors(tile.left, tile.top, game.world)
-    for (final neighbor in neighbors) {
-      if (neighbor.spriteIndex == kSpriteLand) {
-        tile.isHarbor = true
-        tile.harborOfZoneIndex = tile.zoneIndex
-        addTerrainToZone(tile, neighbor.zoneIndex, game.world)
-        return
-      }
-    }
-    islands.add(tile)
-  }
-
   // 生成据点
-  engine.info('生成据点')
+  engine.info('生成大陆上的据点')
   final locationIndexes = Set()
   while (game.locations.length < locationNumber) {
     var index
+    var tile
     do {
       // engine.info('generating location index')
-      index = Math.randomInt(game.world.terrains.length)
-    } while (locationIndexes.contains(index))
-    final tile = game.world.terrains[index]
+      index = random.nextInt(game.world.terrains.length)
+      tile = game.world.terrains[index]
+    } while (locationIndexes.contains(index) || tile.spriteIndex != kSpriteLand)
     // location category只有两种：城市和秘境
     final location = Location(terrainIndex: index, category: kLocationCategoryCity)
     // 随机生成的据点，初始发展度是0-2之间随机。
-    location.development = Math.randomInt(_kLocationInitialDevelopmentMax)
+    location.development = random.nextInt(_kLocationInitialDevelopmentMax)
     locationIndexes.add(index)
-    // 如果据点生成在海洋之中，就将该地块设定为岛屿
-    checkPerimeterOfLocation(tile)
     tile.locationId = location.id
     tile.overlaySprite.index = kSpriteCity
-  }
-
-  // 每个岛屿是独立的 zone
-  engine.info('处理岛屿')
-  for (final island in islands) {
-    final islandZone = Zone(index: game.world.zones.length, category: kZoneIsland)
-    game.world.zones.add(islandZone)
-    addTerrainToZone(island, islandZone.index, game.world)
   }
 
   // 因为 zone 的命名和其大小有关，因此在最后单独处理
@@ -254,24 +301,40 @@ fun createWorldMap({
 
   // 将大陆上没有道路的方格，随机填充为平原、森林、山地
   engine.info('将大陆上没有道路的方格，随机填充为平原、森林、山地')
-  for (final index in landZone.terrainIndexes) {
-    final terrain = game.world.terrains[index]
-    if (!terrain.isRoute) {
-      final r = Math.random()
+  for (final tile in game.world.terrains) {
+    if (tile.spriteIndex != kSpriteLand) continue
+    if (!tile.isRoute) {
+      final r = random.nextDouble()
       if (r < _kMountainThreshold) {
-        terrain.spriteIndex = kSpriteMountain
+        tile.spriteIndex = kSpriteMountain
       } else if (r < _kForestThreshold) {
-        terrain.spriteIndex = kSpriteForest
+        tile.spriteIndex = kSpriteForest
       }
     }
   }
+
+  // TODO: 生成洞天福地，洞天是大陆上山峰所在地，福地是大海中的岛屿
+  // 洞天福地在未被探索之前，对玩家不可见。只是显示为平常的地形。
+  // 如果据点生成在海洋之中，就将该地块设定为岛屿
+  // checkPerimeterOfLocation(tile)
+  // 洞天福地都直接以“xx山”, "xx岛"命名，并且没有特别装备的话，一开始无法进入。
+
+  // 每个岛屿是独立的 zone
+  // engine.info('处理据点所在岛屿')
+  // for (final island in islands) {
+  //   final islandZone = Zone(index: game.world.zones.length, category: kZoneIsland)
+  //   game.world.zones.add(islandZone)
+  //   addTerrainToZone(island, islandZone.index, game.world)
+  // }
 
   // 随机挑选几个城市，作为各个国家的都城，生成地图上的不同国家
   engine.info('随机挑选几个城市，作为各个国家的都城，生成地图上的不同国家')
   while (game.nations.length < nationNumber) {
     var location
     do {
-      location = game.locations.values.random
+      // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
+      final locationId = random.nextIterable(game.locations.keys)
+      location = game.locations[locationId]
     } while (location.nationId != null)
     // engine.info('picking location for new nation capital: ${location}')
     final nation = Nation(capitalId: location.id)
@@ -279,57 +342,35 @@ fun createWorldMap({
     final terrain = game.world.terrains[location.terrainIndex]
     addTerrainToNation(nation, terrain)
   }
-
-  // 根据相邻的格子的 nationId 进行分配
+  
+  // 一个国家将其疆域扩展到周边的一个格子
+  // 返回值表示是否扩展成功
   fun expandNation(nation) {
     // engine.info('processing nation: ${nation}')
-    assert(nation.borderIndexes != null && nation.borderIndexes.length > 0)
-    var expanded = false
+    assert(nation.borderIndexes != null && nation.borderIndexes.isNotEmpty)
     // avoid editing iterable while iterating
-    final currentBorder = nation.borderIndexes.toList()
-    for (final index in currentBorder) {
+    for (final index in random.shuffle(nation.borderIndexes)) {
       final terrain = game.world.terrains[index]
       if (terrain.nationId == null && terrain.zoneCategory == kZoneContinent) {
         addTerrainToNation(nation, terrain)
-        expanded = true
+        return true
       }
     }
-    return expanded
+    return false
   }
-
-  // 随机选择各个国家的都城，然后各自扩散都城直到没有没有分配国家的区块
-  engine.info('生成每个国家的疆域')
-  var unoccupiedTile
-  while (
-    unoccupiedTile = game.world.terrains.firstWhere(
-      (tile) => 
-        tile.nationId == null &&
-        tile.zoneCategory == kZoneContinent
-    )
-  ) {
-    final nation = game.nations.values.random
-    expandNation(nation)
-    // engine.info('expanded nation ${nation.name}')
-  }
-
-  // 将地域的上色信息复制到引擎侧
-  engine.info('刷新上色信息')
-  updateWorldMapZoneColors()
-  updateWorldMapNationColors()
-  // final leaders = []
-  // final headquarters = []
 
   // 随机生成每个组织的创建时间，分布在20年的范围内，时间固定为某月1号
   var organizationCreatedDate = []
   for (final i in range(organizationNumber)) {
-    organizationCreatedDate.add(Math.randomInt(20 * kMonthsPerYear) * kTicksPerMonth)
+    organizationCreatedDate.add(random.nextInt(20 * kMonthsPerYear) * kTicksPerMonth)
   }
   organizationCreatedDate.sort()
   organizationCreatedDate = organizationCreatedDate.reversed.toList()
 
   // 模拟世界演化，按照时间推进并生成人物、组织，并且为期分配人物关系
   // 在此种演化算法中，人物不会死亡，组织不会被消灭，因此只判断人数是否达到要求
-  engine.info('生成人物，快速模拟一段时间的演化')
+  // 因为是模拟运行，每个tick接跳过一个月
+  engine.info('快速模拟一段时间的演化，生成人物、组织、国家等信息')
   do {
     if (game.organizations.length < organizationNumber) {
       if (game.timestamp >= organizationCreatedDate.last) {
@@ -339,7 +380,9 @@ fun createWorldMap({
         // 组织总舵不允许和其他组织的总舵在同一个据点
         var headquarters
         do {
-          headquarters = game.locations.values.random
+          // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
+          final headquartersId = random.nextIterable(game.locations.keys)
+          headquarters = game.locations[headquartersId]
         } while (headquarters.isHeadquarters)
         if (game.characters.length == 0) {
           // 人物列表是空的，此时要创造第一个角色
@@ -348,10 +391,8 @@ fun createWorldMap({
             birthTimestamp: createRandomBirthTimestamp(20) // 年龄至少是20岁
           )
         } else {
-          final characterIdList = game.characters.keys.toList()
-          characterIdList.shuffle()
           var found = false
-          for (final id in characterIdList) {
+          for (final id in random.shuffle(game.characters.keys)) {
             final character = game.characters[id]
             final age = datetime.toYear(game.timestamp - character.birthTimestamp)
             // 年龄至少是20岁，并且不能已经是其他组织的掌门
@@ -380,104 +421,107 @@ fun createWorldMap({
       }
     }
 
-    if (game.timestamp % kTicksPerMonth == 0) {
-      // 婴儿出生
-      handleBabies()
-      
-      // 产生新的在野角色
-      if (game.characters.length < characterNumber) {
-        final location = game.locations.values.random
-        final character = Character(
-          locationId: location.id,
-          birthTimestamp: createRandomBirthTimestamp(15, 50),
-        )
+    // 婴儿出生
+    handleBabies()
+    
+    // 产生新的在野角色
+    if (game.characters.length < characterNumber) {
+      // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
+      final locationId = random.nextIterable(game.locations.keys)
+      final location = game.locations[locationId]
+      final character = Character(
+        locationId: location.id,
+        birthTimestamp: createRandomBirthTimestamp(15, 50),
+      )
+    }
+    
+    // 为组织招募新的角色
+    for (final id in random.shuffle(game.organizations.keys)) {
+      final organization = game.organizations[id]
+      final location = game.locations[organization.headquartersId]
+      if (location.residingWildCharacterIds.isNotEmpty) {
+        final characterId = random.nextIterable(location.residingWildCharacterIds)
+        final character = game.characters[characterId]
+        assert(character.organizationId == null)
+        addCharacterToOrganization(character, organization)
       }
-      
-      // 为组织招募新的角色
-      final organizationIdList = game.organizations.keys.toList()
-      organizationIdList.shuffle()
-      for (final id in organizationIdList) {
-        final organization = game.organizations[id]
-        final location = game.locations[organization.headquartersId]
-        if (location.residingWildCharacterIds.isNotEmpty) {
-          final characterId = location.residingWildCharacterIds.random
-          final character = game.characters[characterId]
-          assert(character.organizationId == null)
-          addCharacterToOrganization(character, organization)
-        }
-      }
-      
-      // 为角色添加家庭关系
-      final characterIdList = game.characters.keys.toList()
-      characterIdList.shuffle()
-      for (final id in characterIdList) {
-        final char = game.characters[id]
-        final age = getCharacterAge(char)
-        if (char.relationships.spouseId) {
-          if (char.isFemale && !char.isPregnant && age < _kPregnancyAgeMax) {
-            if (char.thinkings.contains('dink')) continue
-            if (char.thinkings.contains('clumsy')) continue
-            if (char.relationships.childrenIds.isNotEmpty) {
-              if (char.personality.social < 10) continue
-              if (char.personality.prudence > 10) continue
-              if (char.personality.frugal > 10) continue
-              if (char.relationships.childrenIds.length > 2) {
-                continue
-              }
+    }
+    
+    // 为角色添加家庭关系
+    for (final id in random.shuffle(game.characters.keys)) {
+      final char = game.characters[id]
+      final age = getCharacterAge(char)
+      if (char.relationships.spouseId) {
+        if (char.isFemale && !char.isPregnant && age < _kPregnancyAgeMax) {
+          if (char.thinkings.contains('dink')) continue
+          if (char.thinkings.contains('clumsy')) continue
+          if (char.relationships.childrenIds.isNotEmpty) {
+            if (char.personality.social < 10) continue
+            if (char.personality.prudence > 10) continue
+            if (char.personality.frugal > 10) continue
+            if (char.relationships.childrenIds.length > 2) {
+              continue
             }
-            final spouse = game.characters[char.relationships.spouseId]
-            if (spouse.thinkings.contains('dink')) continue
-            if (spouse.thinkings.contains('clumsy')) continue
-            Baby(
-              father: spouse,
-              mother: char,
-              conceptionTimestamp: game.timestamp,
-            )
           }
-        } else {
-          if (age > _kCharacterMarriageAgeMin && age < _kCharacterMarriageAgeMax) {
-            for (final otherId in characterIdList) {
-              if (id == otherId) continue
-              final otherChar = game.characters[otherId]
-              // TODO: 这里暂时没有允许同性婚姻
-              if (otherChar.isFemale == char.isFemale) continue
-              final otherCharAge = getCharacterAge(otherChar)
-              if (otherCharAge > _kCharacterMarriageAgeMin
-                  && otherCharAge < _kCharacterMarriageAgeMax
-                  && otherChar.relationships.spouseId == null) {
-                char.relationships.spouseId = otherId
-                otherChar.relationships.spouseId = id
-                var home
-                if (char.organizationRank > otherChar.organizationRank) {
+          final spouse = game.characters[char.relationships.spouseId]
+          if (spouse.thinkings.contains('dink')) continue
+          if (spouse.thinkings.contains('clumsy')) continue
+          Baby(
+            father: spouse,
+            mother: char,
+            conceptionTimestamp: game.timestamp,
+          )
+        }
+      } else {
+        if (age > _kCharacterMarriageAgeMin && age < _kCharacterMarriageAgeMax) {
+          for (final otherId in random.shuffle(game.characters.keys)) {
+            if (id == otherId) continue
+            final otherChar = game.characters[otherId]
+            // TODO: 这里暂时没有允许同性婚姻
+            if (otherChar.isFemale == char.isFemale) continue
+            final otherCharAge = getCharacterAge(otherChar)
+            if (otherCharAge > _kCharacterMarriageAgeMin
+                && otherCharAge < _kCharacterMarriageAgeMax
+                && otherChar.relationships.spouseId == null) {
+              char.relationships.spouseId = otherId
+              otherChar.relationships.spouseId = id
+              var home
+              if (char.organizationRank > otherChar.organizationRank) {
+                home = game.locations[char.homeId]
+              } else if (char.organizationRank < otherChar.organizationRank) {
+                home = game.locations[otherChar.homeId]
+              } else {
+                if (otherChar.isFemale) {
                   home = game.locations[char.homeId]
-                } else if (char.organizationRank < otherChar.organizationRank) {
-                  home = game.locations[otherChar.homeId]
                 } else {
-                  if (otherChar.isFemale) {
-                    home = game.locations[char.homeId]
-                  } else {
-                    home = game.locations[otherChar.homeId]
-                  }
+                  home = game.locations[otherChar.homeId]
                 }
-                characterFirstMet(char, otherChar)
-                final incidentContent = getLocaleString('incidentMarriage', [
-                    char.name,
-                    otherChar.name,
-                    home.name,
-                  ])
-                Incident(
-                  content: incidentContent,
-                  subjectIds: [char.id, otherChar.id],
-                  locationId: home.id,
-                  order: 20,
-                )
-                char.marriageTimestamp = game.timestamp
-                otherChar.marriageTimestamp = game.timestamp
-                break
               }
+              characterFirstMet(char, otherChar)
+              final incidentContent = getLocaleString('incidentMarriage', [
+                  char.name,
+                  otherChar.name,
+                  home.name,
+                ])
+              Incident(
+                content: incidentContent,
+                subjectIds: [char.id, otherChar.id],
+                locationId: home.id,
+                order: 20,
+              )
+              char.marriageTimestamp = game.timestamp
+              otherChar.marriageTimestamp = game.timestamp
+              break
             }
           }
         }
+      }
+    }
+
+    // 每半年一次
+    if (game.timestamp % (kTicksPerMonth * 6) == 0) {
+      for (final nation of game.nations) {
+        expandNation(nation)
       }
     }
 
@@ -488,9 +532,7 @@ fun createWorldMap({
   // 为生成的世界填充一些必要信息
 
   // 为角色添加次要动机
-  final characterIdList = game.characters.keys.toList()
-  characterIdList.shuffle()
-  for (final id in characterIdList) {
+  for (final id in random.shuffle(game.characters.keys)) {
     final char = game.characters[id]
     if (char.organizationId == null) {
       char.motivations.add('recruitment')
@@ -514,7 +556,13 @@ fun createWorldMap({
     location.quests.add()
   }
 
-  engine.info('世界生成完毕。')
+  // 将地域的上色信息复制到引擎侧
+  engine.info('刷新世界地图上色信息')
+  updateWorldMapZoneColors()
+  updateWorldMapNationColors()
+
+  engine.info('世界生成完毕。重置随机数生成器，从此刻开始这个世界的命运开始独自流淌')
+  setRandomSeed()
 
   return game.world
 }

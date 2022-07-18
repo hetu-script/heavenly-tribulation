@@ -1,3 +1,4 @@
+import '../common.ht'
 import '../name/name.ht'
 
-print(getConsumable(10))
+print(random.nextInt(10))

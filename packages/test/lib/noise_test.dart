@@ -20,9 +20,9 @@ Future<ui.Image> makeImage(List<List<double>> noiseData) {
     for (var y = 0; y < dimension; ++y) {
       final noise = noiseData[x][y];
       final normalize = (noise + 1) / 2;
-      // 群岛：normalize > 0.55，frequency： 6 /, type: PerlinFractal
-      // 滨海：normalize > 0.48，frequency： 3.5 /, type: CubicFractal
-      // 内陆：normalize > 0.35，frequency： 6 /, type: CubicFractal
+      // 群岛 islands：normalize > 0.55，frequency： 6 /, type: PerlinFractal
+      // 滨海 coast：normalize > 0.48，frequency： 3.5 /, type: CubicFractal
+      // 内陆 inland：normalize > 0.35，frequency： 6 /, type: CubicFractal
       final alpha = normalize > 0.48 ? 255 : 0;
       final argb = Color.fromARGB(alpha, 0, 0, 0).value;
       final abgr = argbToABGR(argb);

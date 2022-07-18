@@ -30,7 +30,7 @@ fun getLocaleString(key: str, [interpolations: List = []]) {
   var text = locales[locales.currentLocaleId][key]
   if (text) {
     if (text is List) {
-      text = text.random
+      text = text[random.nextIterable(text)]
     }
     for (var i = 0; i < interpolations.length; ++i) {
       text = text.replaceAll('{${i}}', stringify(interpolations[i]));

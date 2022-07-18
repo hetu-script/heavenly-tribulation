@@ -49,7 +49,7 @@ struct Kickboxing {
     this.name = name
     this.entityType = kEntityTypeSkill // 人物、地点、物品、技能等等
     this.category = kEntityCategoryFightSkill // 武器、防护、斗技、玄功等等
-    this.kind = kind ?? kKickboxingKinds.keys.random // 枪、剑、斧等等
+    this.kind = kind ?? random.nextIterable(kKickboxingKinds.keys) // 枪、剑、斧等等
     this.rarity = rarity ?? kCommon
     this.creatorId = creatorId
     this.createdTime = createdTime
@@ -64,7 +64,7 @@ struct Kickboxing {
     this.isEquippable = true
     this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
 
-    this.icon = kKickboxingIcons.random
+    this.icon = random.nextIterable(kKickboxingIcons)
     this.attributes = {
       ...kKickboxingKinds[this.kind].attributes,
     }

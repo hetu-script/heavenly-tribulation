@@ -94,8 +94,8 @@ struct MountainMaze {
       var top
       var index
       do {
-        left = Math.randomInt(width) + 1 + offsetX
-        top = Math.randomInt(height) + 1 + offsetY
+        left = random.nextInt(width) + 1 + offsetX
+        top = random.nextInt(height) + 1 + offsetY
         index = tilePos2Index(left, top, mapWidth)
       } while (occupied.contains(index))
       occupied.add(index)
@@ -142,8 +142,7 @@ struct MountainMaze {
         { ...Tile(1, height, mapWidth: width) },
         { ...Tile(width, height, mapWidth: width) },
       ]
-      possibleEntries.shuffle()
-      final entry = possibleEntries.first
+      final entry = random.shuffle(possibleEntries).first
       occupied.add(entry.index)
       currentLevel.entryX = entry.left
       currentLevel.entryY = entry.top
@@ -267,11 +266,10 @@ struct MountainMaze {
       
       engine.info('在锚点放置遭遇')
       for (final anchor of anchors) {
-        final r = Math.random()
+        final r = random.nextDouble()
         if (r < kMazeUniqueEncounterProbability) {
-          _kMazeUniqueEncounterTypes.shuffle()
           var encounterType
-          for (final encounter in _kMazeUniqueEncounterTypes) {
+          for (final encounter in random.shuffle(_kMazeUniqueEncounterTypes)) {
             if (!mazeUniqueEncounters.contains(encounter)) {
               mazeUniqueEncounters.add(encounter)
               encounterType = encounter
@@ -286,9 +284,8 @@ struct MountainMaze {
         }
         
         if (r < kLevelUniqueEncounterProbability) {
-          _kLevelUniqueEncounterTypes.shuffle()
           var encounterType
-          for (final encounter in _kLevelUniqueEncounterTypes) {
+          for (final encounter in random.shuffle(_kLevelUniqueEncounterTypes)) {
             if (!levelUniqueEncounters.contains(encounter)) {
               levelUniqueEncounters.add(encounter)
               encounterType = encounter
@@ -319,7 +316,7 @@ struct MountainMaze {
         }
 
         if (r < kEncounterProbability) {
-          final encounterType = _kEncounterTypes.random
+          final encounterType = random.nextIterable(_kEncounterTypes)
           when (encounterType) {
             'bandit_minion' -> {
               final bandit = Bandit(kind: 'minion')
@@ -374,11 +371,9 @@ struct MountainMaze {
       engine.info('确保各个锚点之间的通路')
       final routes = Set() // 最终结果
       final middleAnchors = [2,4,6,8]
-      middleAnchors.shuffle()
-      for (final point in middleAnchors) {
-        final l = kRoutesOfAnchor[point].toList()
-        l.shuffle()
-        routes.addAll([l.first, l.last])
+      for (final point in random.shuffle(middleAnchors)) {
+        final shuffled = random.shuffle(kRoutesOfAnchor[point])
+        routes.addAll([shuffled.first, shuffled.last])
       }
       for (final name in routes) {
         // print('initial routes: ${name}')
@@ -386,22 +381,22 @@ struct MountainMaze {
       }
       // check if there's a unconnected
       if (!routes.contains('topLeft') && !routes.contains('centerLeft') && !routes.contains('bottomLeft')) {
-        final name = ['topLeft', 'centerLeft', 'bottomLeft'].random
+        final name = random.nextIterable(['topLeft', 'centerLeft', 'bottomLeft'])
         // print('add route to blank parallel: ${name}')
         generateRouteByName(name, anchors, currentLevel)
       }
       if (!routes.contains('topRight') && !routes.contains('centerRight') && !routes.contains('bottomRight')) {
-        final name = ['topRight', 'centerRight', 'bottomRight'].random
+        final name = random.nextIterable(['topRight', 'centerRight', 'bottomRight'])
         // print('add route to blank parallel: ${name}')
         generateRouteByName(name, anchors, currentLevel)
       }
       if (!routes.contains('leftTop') && !routes.contains('centerTop') && !routes.contains('rightTop')) {
-        final name = ['leftTop', 'centerTop', 'rightTop'].random
+        final name = random.nextIterable(['leftTop', 'centerTop', 'rightTop'])
         // print('add route to blank parallel: ${name}')
         generateRouteByName(name, anchors, currentLevel)
       }
       if (!routes.contains('leftBottom') && !routes.contains('centerBottom') && !routes.contains('rightBottom')) {
-        final name = ['leftBottom', 'centerBottom', 'rightBottom'].random
+        final name = random.nextIterable(['leftBottom', 'centerBottom', 'rightBottom'])
         // print('add route to blank parallel: ${name}')
         generateRouteByName(name, anchors, currentLevel)
       }
@@ -411,7 +406,7 @@ struct MountainMaze {
         final index = anchors[anchor].index
         final tile = currentLevel.terrains[index]
         if (!tile.isRoute) {
-          final name = kRoutesOfAnchor[anchor].random
+          final name = random.nextIterable(kRoutesOfAnchor[anchor])
           // print('add name to empty anchor: ${name}')
           generateRouteByName(name, anchors, currentLevel)
         }
@@ -427,13 +422,13 @@ struct MountainMaze {
       for (final tile in currentLevel.terrains) {
         if (occupied.contains(tile.index) || tile.isRoute) {
           tile.isSelectable = true
-          tile.spriteIndex = _kLandSprites.random
+          tile.spriteIndex = random.nextIterable(_kLandSprites)
         } else {
           // print('adding decor to ${tile.index}')
           // tile.isVoid = true
           tile.isSelectable = false
           addTerrainToZone(tile, blockZone.index, currentLevel)
-          final blockType = _kBlockTypes.random
+          final blockType = random.nextIterable(_kBlockTypes)
           when (blockType) {
             'bush' -> {
               final bush = TileMapObject(

@@ -305,7 +305,7 @@ struct Duel {
           if (firstMove) {
             firstMove = false
             final initiativeSum = char1.attributes.perception + char2.attributes.perception
-            final initiativeValue = initiativeSum * Math.random()
+            final initiativeValue = initiativeSum * random.nextDouble()
             if (char1.attributes.perception > initiativeValue) {
               r = nextTick(char1info, sneakAttack: type == kDuelTypeSneakAttack)
             }

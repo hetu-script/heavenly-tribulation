@@ -32,7 +32,10 @@ fun getVersion {
   return version
 }
 
-fun init({locale = 'zh', gameEngine: SamsaraEngine}) {
+fun init({
+    locale = 'zh',
+    gameEngine: SamsaraEngine,
+  }) {
   engine = gameEngine
   
   engine.info('初始化游戏')

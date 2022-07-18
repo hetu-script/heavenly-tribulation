@@ -23,7 +23,7 @@ struct VillageWarrior {
     this.birthTimestamp = birthTimestamp ?? createRandomBirthTimestamp()
     this.icon = 'avatar/general.png'
     this.category = kEntityCategoryCharacter
-    this.kind = kind ?? _kCompanionKinds.random
+    this.kind = kind ?? random.nextIterable(_kCompanionKinds)
     this.name = getLocaleString(this.kind)
     this.id = '${this.kind}_${Hash.uid4(2)}_${this.name}'
     this.rarity = rarity ?? kCommon

@@ -1,5 +1,10 @@
 {
-  "worldSize": "世界大小",
+  "randomSeed": "随机数种子",
+  "worldStyle": "地图风格",
+  "islands": "群岛",
+  "coast": "滨海",
+  "inland": "内陆",
+  "worldSize": "地图大小",
   "tiny": "微小",
   "medium": "适中",
   "huge": "庞大",

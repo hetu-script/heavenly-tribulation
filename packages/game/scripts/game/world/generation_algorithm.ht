@@ -1,9 +1,9 @@
 import '../tile/tilemap.ht'
 import '../tile/hexagonal_tile.ht'
-import '../binding/engine.ht'
+import '../game.ht'
 
 /// 以一个种子地块出发，逐渐生长出一块大陆的算法
-fun continentGenerateMethod1({width, height, landProportion, landZone}) {
+fun generateContinent1({width, height, landProportion, landZone}) {
   // 当前地域的边缘格子坐标
   final shelf = Set()
 
@@ -25,8 +25,8 @@ fun continentGenerateMethod1({width, height, landProportion, landZone}) {
   final maxLeft = width ~/ 3 * 2
   final maxTop = height ~/ 3 * 2
 
-  final startLeft = Math.randomInt(maxLeft - minLeft) + minLeft
-  final startTop = Math.randomInt(maxTop - minTop) + minTop
+  final startLeft = random.nextInt(maxLeft - minLeft) + minLeft
+  final startTop = random.nextInt(maxTop - minTop) + minTop
   // engine.info('start: ${startLeft},${startTop}')
   final startIndex = tilePos2Index(startLeft, startTop, width)
   final firstTile = game.world.terrains[startIndex]
@@ -38,7 +38,7 @@ fun continentGenerateMethod1({width, height, landProportion, landZone}) {
   while (currentLandSize < landArea) {
     // engine.info('expanding land')
     ++currentLandSize
-    final tile = game.world.terrains[shelf.random]
+    final tile = game.world.terrains[random.nextIterable(shelf)]
     updateShelf(tile.left, tile.top)
     tile.spriteIndex = kSpriteLand
     addTerrainToZone(tile, landZone.index, game.world)
@@ -105,5 +105,55 @@ fun continentGenerateMethod1({width, height, landProportion, landZone}) {
   }
 }
 
-/// 以一个种子地块出发，逐渐生长出一块大陆的算法
-fun continentGenerateMethod2({width, height, landProportion, landZone}) {
+final kMapStyles = Set(
+  'islands',
+  'coast',
+  'inland',
+)
+
+/// 利用 noise 函数生成大陆和海洋的算法
+fun generateContinent({seed, size, style}) {
+  final noiseData
+  final threshold
+  assert(style in kMapStyles)
+  when (style) {
+    'islands' -> {
+      threshold = 0.55
+      noiseData = Math.noise2d(
+        size,
+        seed: seed,
+        noiseType: 'perlinFractal',
+        frequency: 6 / size,
+      )
+    }
+    'coast' -> {
+      threshold = 0.48
+      noiseData = Math.noise2d(
+        size,
+        seed: seed,
+        noiseType: 'cubicFractal',
+        frequency: 3.5 / size,
+      )
+    }
+    'inland' -> {
+      threshold = 0.35
+      noiseData = Math.noise2d(
+        size,
+        seed: seed,
+        noiseType: 'cubicFractal',
+        frequency: 6 / size,
+      )
+    }
+  }
+  for (final x in range(size)) {
+    for (final y in range(size)) {
+      final index = tilePos2Index(x + 1, y + 1, size)
+      final noise = noiseData[x][y]
+      final normalize = (noise + 1) / 2;
+      if (normalize > threshold) {
+        final tile = game.world.terrains[index]
+        tile.spriteIndex = kSpriteLand
+      }
+    }
+  }
+}

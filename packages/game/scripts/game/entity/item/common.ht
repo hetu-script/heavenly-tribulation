@@ -1,6 +1,7 @@
 import '../common.ht'
 import '../../effect.ht'
 import '../character/companion/common.ht'
+import { random } from '../../game.ht'
 
 const kItemDefaultIcon = 'assets/images/unknown_item.png'
 // final kDefaultItemDescription = getLocaleString('defaultItemDescription')
@@ -472,15 +473,15 @@ fun characterLoot(character, defeated, { takeAll = false }) {
     characterGiveMoney(defeated, character, defeated.money, isForced: true)
   } else {
     for (final item of defeated.inventory) {
-      if (Math.random() < kEscapedLootProbability) {
+      if (random.nextDouble() < kEscapedLootProbability) {
         var count = item.stackSize > 1 ?
-          Math.randomInt(item.stackSize) + 1 :
+          random.nextInt(item.stackSize) + 1 :
           1
         characterGive(defeated, character, item, count: count, isForced: true)
       }
     }
-    if (Math.random() < kEscapedLootProbability) {
-      characterGiveMoney(defeated, character, Math.randomInt(defeated.money) + 1, isForced: true)
+    if (random.nextDouble() < kEscapedLootProbability) {
+      characterGiveMoney(defeated, character, random.nextInt(defeated.money) + 1, isForced: true)
     }
   }
 }

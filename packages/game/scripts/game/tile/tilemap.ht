@@ -23,7 +23,7 @@ struct Zone {
     this.index = index
     this.name = name
     this.category = category
-    this.color = Math.randomBrightColorHex()
+    this.color = random.nextBrightColorHex()
     this.count = 0
     this.terrainIndexes = []
   }

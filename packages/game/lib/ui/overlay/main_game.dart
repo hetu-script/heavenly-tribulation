@@ -371,7 +371,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                   onTalk: closePopup,
                   restIcon: isTappingHeroPosition,
                   onRest: closePopup,
-                  title: stringBuffer.toString(),
+                  description: stringBuffer.toString(),
                 ),
               );
             }
