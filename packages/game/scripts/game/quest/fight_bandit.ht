@@ -2,15 +2,16 @@ import 'common.ht'
 import '../l10n.ht'
 import { random } from '../game.ht'
 
-final kQuestFightBanditKind = [
-  'wipe', // 消灭盗贼
-  'hostage', // 解救被绑架的人质（不一定要用武力）
-  'treasure', // 寻找被抢走的宝物（不一定要用武力）
+final kQuestHuntKinds = [
+  'boss', // 消灭头目
+  'wipe', // 扫荡窝点
+  'hostage', // 解救人质
+  'treasure', // 寻回宝物
 ]
 
 // 消灭盗贼
 // 盗贼的具体位置是隐藏的，但一定在该据点四周
-struct QuestFightBandit {
+struct QuestHunt {
   construct ({
     kind,
     difficulty,
@@ -20,8 +21,11 @@ struct QuestFightBandit {
     expirationMonth = 1,
     reward,
   }) {
-    this.category = 'fightBandits'
-    this.kind = kind ?? random.nextIterable(kQuestFightBanditKind)
+    assert(locationId != null)
+
+    this.category = kQuestCategoryHunt
+    this.kind = kind ?? random.nextIterable(kQuestHuntKinds)
+    this.id = 'quest_${Hash.uid4(2)}_${locationId}_${this.category}_${this.kind}'
     this.difficulty = difficulty
     this.description = description
     // 任务领取有效时间
@@ -46,14 +50,33 @@ struct QuestFightBandit {
         QuestFightBanditStage.defeated(),
       ]
     )
-    this.currentStage = 'started'
+
+    this.currentStageId = 'started'
     
+    // 赏金类似一个物品栏，但可能包含银两、物品、资源这三种不同的对象
     this.reward = reward
     if (!this.reward) {
-      this.reward = {}
+      this.reward = generateReward()
     }
     
+    final nation = game.nations[location.nationId]
+    for (final index in nation.territoryIndexes) {
+      final tile = game.world.terrains[index]
+      if (tile.locationId) continue
+      if (tile.mazeId) continue
+      
+    }
   }
+}
+
+fun generateReward {
+  final reward = {
+    money: 0,
+    resource: {},
+    items: {},
+  }
+
+  
 }
 
 fun createStages(stages) {
@@ -66,7 +89,7 @@ fun createStages(stages) {
 
 struct QuestFightBanditStage {
   construct started () {
-    this.name = 'started'
+    this.id = 'started'
     this.next = 'found'
     this.failed = 'foundFailed'
   }

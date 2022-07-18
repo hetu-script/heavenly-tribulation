@@ -249,6 +249,7 @@ fun createWorldMap({
     location.development = random.nextInt(_kLocationInitialDevelopmentMax)
     locationIndexes.add(index)
     tile.locationId = location.id
+    // 城市的贴图重叠于地形贴图之上
     tile.overlaySprite.index = kSpriteCity
   }
 
@@ -597,4 +598,9 @@ fun updateWorldMapNationColors {
     nationColors[nation.id] = nation.color
   }
   engine.updateNationColors(nationColors)
+}
+
+// 返回布尔值，如果为真，则玩家可以进入这一格，否则不会进行移动
+fun handleWorldMapInteraction({left, top}) -> bool {
+  
 }

@@ -78,6 +78,7 @@ fun generateRouteByName(name, anchors, map) {
 
 fun enterMaze(maze) {
   currentMaze = maze
+  localHistory = maze.history
 }
 
 fun leaveMaze(maze) {

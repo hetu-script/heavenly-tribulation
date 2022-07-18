@@ -1,0 +1,11 @@
+const kQuestCategoryHunt = 'banditCamp' // 讨贼
+const kQuestCategoryArrest = 'arrest' // 抓捕
+const kQuestCategoryConvoy = 'convoy' // 押镖
+const kQuestCategoryEscort = 'escort' // 护送
+const kQuestCategoryTraining = 'training' // 演武
+const kQuestCategoryRitual = 'ritual' // 法事
+const kQuestCategoryMarriage = 'marriage' // 联姻
+const kQuestCategoryTrading = 'trading' // 交货
+const kQuestCategoryTeaching = 'teaching' // 教习
+const kQuestCategoryCraft = 'craft' // 定制
+const kQuestCategoryCatering = 'catering' // 招待

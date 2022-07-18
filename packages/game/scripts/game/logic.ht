@@ -2,6 +2,18 @@ import 'game.ht'
 import 'event.ht'
 import 'entity/character/character.ht'
 import 'l10n.ht'
+import 'maze/maze.ht'
+import 'quest/quest.ht'
+
+const kLocationQuestProbability = 0.35
+
+final getQuestMaxFromLocationDevelopment(development) -> int {
+  if (development > 20) {
+    return 5
+  } else {
+    return development ~/ 4 + 1
+  }
+}
 
 fun updateGame({nextTick = true}) {
   // 每个tick执行的代码
@@ -45,11 +57,14 @@ fun handleBabies {
 // 每个月生成一次每个地点的悬赏任务
 fun generateQuests {
   for (final location of game.locations) {
-    // 生成盗贼副本
     // 暂时只在有国家的据点上生成
     if (!location.nationId) continue
+    final questMax = getQuestMaxFromLocationDevelopment(location.development)
+    if (location.quests.length >= questMax) continue
+    if (random.nextDouble() > kLocationQuestProbability) continue
+    // 生成悬赏任务
     if (random.nextDouble() < location.stability / 100) {
-      final nation = game.nations[location]
+      // final quest = QuestHunt(locationId: location.id)
     }
   }
 }
