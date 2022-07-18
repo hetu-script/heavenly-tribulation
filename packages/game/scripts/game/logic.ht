@@ -7,7 +7,7 @@ import 'quest/quest.ht'
 
 const kLocationQuestProbability = 0.35
 
-final getQuestMaxFromLocationDevelopment(development) -> int {
+fun getQuestMaxFromLocationDevelopment(development) -> int {
   if (development > 20) {
     return 5
   } else {

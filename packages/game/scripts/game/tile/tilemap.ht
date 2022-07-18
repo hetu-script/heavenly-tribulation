@@ -45,6 +45,7 @@ struct TileMap {
     tileOffsetY = 2.0,
     entryX = 1,
     entryY = 1,
+    scale = 2.0,
   }) {
     this.id = id
     this.name = name
@@ -60,6 +61,7 @@ struct TileMap {
     this.tileOffsetY = tileOffsetY
     this.entryX = entryX
     this.entryY = entryY
+    this.scale = scale
 
     this.zones = []
     this.terrains = []

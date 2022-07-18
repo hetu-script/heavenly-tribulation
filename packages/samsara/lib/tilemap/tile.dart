@@ -56,7 +56,6 @@ enum ZoneCategory {
 
 class TileMapTerrain extends GameComponent with TileInfo {
   static const defaultAnimationStepTime = 0.4;
-  static const defaultScale = 2.0;
 
   static final borderPaint = Paint()
     ..strokeWidth = 0.5

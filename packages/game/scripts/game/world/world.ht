@@ -71,7 +71,8 @@ fun createWorldMap({
     locationNumber = _kDefaultLocationNumber,
     organizationNumber = _kDefaultOrganizationNumber,
     characterNumber = _kDefaultCharacterNumber,
-    landProportion = 0.55,
+    // landProportion = 0.55,
+    scale = 2.0,
   }) {
   assert(id != null)
   assert(seedString is str && seedString.isNotEmpty)
@@ -102,6 +103,7 @@ fun createWorldMap({
     id: id,
     width: width,
     height: height,
+    scale: scale,
   )
 
   game.world.isNewGame = true

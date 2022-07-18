@@ -64,6 +64,7 @@ class TileMap extends GameComponent with HandlesGesture {
       {required SamsaraEngine engine, required dynamic mapData}) async {
     final sceneKey = mapData['id'];
     final tileShapeData = mapData['tileShape'];
+    final scaleFactor = mapData['scale'];
     var tileShape = TileShape.orthogonal;
     if (tileShapeData == 'isometric') {
       tileShape = TileShape.isometric;
@@ -290,6 +291,7 @@ class TileMap extends GameComponent with HandlesGesture {
       terrains: terrains,
       zones: zones,
       objects: objects,
+      scaleFactor: scaleFactor,
     );
   }
 
@@ -375,9 +377,10 @@ class TileMap extends GameComponent with HandlesGesture {
     this.objects = const {},
     // this.routes = const [],
     // required this._hero,
+    double scaleFactor = 2.0,
   }) {
     assert(terrains.isNotEmpty);
-    scale = Vector2(TileMapTerrain.defaultScale, TileMapTerrain.defaultScale);
+    scale = Vector2(scaleFactor, scaleFactor);
   }
 
   // 从索引得到坐标
