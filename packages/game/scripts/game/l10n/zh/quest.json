@@ -2,17 +2,23 @@
   "publishingMonth": "领取截止日期",
   "expirationMonth": "完成截至日期",
 
-  "fightBandits": "讨贼",
-  "fightScoundrel": "惩戒",
+  "manhunt": "征讨",
+  "killBanditBoss": "消灭 {0} 的山贼头目 {0}。",
+  "wipeBandits": "消灭 {0} 的山贼窝点。",
+  "returnHostage": "解救人质",
+  "returnTreasure": "寻回宝物",
+
+  "arrest": "抓捕",
   "convoy": "押镖",
   "escort": "护送",
   "training": "演武",
   "ritual": "法事",
   "marriageMaker": "说媒",
-  "trading": "交货",
+  "trading": "贸易",
   "teaching": "教习",
   "craft": "定制",
   "catering": "招待",
+
   "localExam": "乡试",
   "nationalExam": "会试",
 
