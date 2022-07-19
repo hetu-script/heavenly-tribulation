@@ -60,12 +60,11 @@ fun generateQuests {
     final questMax = getQuestMaxFromLocationDevelopment(location.development)
     if (location.quests.length >= questMax) continue
     if (random.nextDouble() > kLocationQuestProbability) continue
-    if () {
+    if (!location.hasBanditEvent) {
       // 生成盗贼副本类悬赏任务
       if ((random.nextDouble() < location.stability / 100) &&
-        location.nationId && // 只在有国家的据点上生成盗贼副本
-        !location.hasBanditEvent) {
-        
+        location.nationId && !location.hasBanditEvent) {
+        // 只在有国家的据点上生成盗贼副本
         location.hasBanditEvent = true
         // final quest = QuestHunt(locationId: location.id)
       }

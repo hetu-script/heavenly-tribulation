@@ -142,7 +142,7 @@ fun setLeader(character, organization) {
     title,
   ])
   Incident(
-    subjectIds: [character.id]
+    subjectIds: [character.id],
     content: incidentContent,
     order: 15,
     isGlobal: true,
@@ -203,7 +203,7 @@ fun addCharacterToOrganization(character, organization, { incidentOccured = true
       organization.name,
     ])
     Incident(
-      subjectIds: [character.id]
+      subjectIds: [character.id],
       content: incidentContent,
       order: 10,
       isPrivate: false,

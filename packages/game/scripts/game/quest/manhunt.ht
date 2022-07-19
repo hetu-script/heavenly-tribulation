@@ -58,22 +58,21 @@ struct QuestManhunt {
       
     }
 
-
     this.stages = createStages({
-      // 任务开始，尚未找到副本入口
       started: {
+      // 任务开始，尚未找到副本入口
 
       },
-      // 找到了副本入口，但尚未通关
       foundMaze: {
+      // 找到了副本入口，但尚未通关
         
       },
+      returning: {
       // 等待交还物品、随从等，交换后立即会获得奖励
-      return: {
 
       },
-      // 完成了目标，可以在原本的据点领取奖励
       finished: {
+      // 完成了目标，可以在原本的据点领取奖励
 
       },
     })
