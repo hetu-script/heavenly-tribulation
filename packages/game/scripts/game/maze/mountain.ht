@@ -145,7 +145,8 @@ struct MountainMaze {
         { ...Tile(1, height, mapWidth: width) },
         { ...Tile(width, height, mapWidth: width) },
       ]
-      final entry = random.shuffle(possibleEntries).first
+      final shuffle = random.shuffle(possibleEntries)
+      final entry = shuffle.first
       occupied.add(entry.index)
       currentLevel.entryX = entry.left
       currentLevel.entryY = entry.top
@@ -164,7 +165,7 @@ struct MountainMaze {
         srcHeight: 32.0,
       )
       currentLevel.objects.add(entryObject)
-      final exit = possibleEntries.last
+      final exit = shuffle.last
       occupied.add(exit.index)
       currentLevel.exitX = exit.left
       currentLevel.exitX = exit.top

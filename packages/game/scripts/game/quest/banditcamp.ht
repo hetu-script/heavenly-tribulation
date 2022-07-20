@@ -118,7 +118,7 @@ struct QuestBanditCamp {
     final maze = MountainMaze(
       name: getLocaleString(_kBanditCampMaze),
     )
-    game.mazes[this.id] = this
+    game.mazes[maze.id] = maze
 
     final worldMapEntity = {
       id: maze.id,

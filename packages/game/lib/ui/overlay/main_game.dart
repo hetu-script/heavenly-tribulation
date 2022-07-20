@@ -191,22 +191,22 @@ class _MainGameOverlayState extends State<MainGameOverlay>
           setState(() {
             if (event.scene == 'worldmap') {
               engine.invoke('updateGame');
-            }
-            final tile = _scene.map.getTerrainAtHero();
-            if (tile != null) {
-              final String? entityId = tile.entityId;
-              if (entityId != null) {
-                if (_scene.map.hero != null) {
-                  final blocked = engine.invoke(
-                    'handleWorldMapEntityInteraction',
-                    namedArgs: {
-                      'entityId': entityId,
-                      'left': tile.left,
-                      'top': tile.top,
-                    },
-                  );
-                  if (blocked) {
-                    _scene.map.hero!.isMovingCanceled = true;
+              final tile = _scene.map.getTerrainAtHero();
+              if (tile != null) {
+                final String? entityId = tile.entityId;
+                if (entityId != null) {
+                  if (_scene.map.hero != null) {
+                    final blocked = engine.invoke(
+                      'handleWorldMapEntityInteraction',
+                      namedArgs: {
+                        'entityId': entityId,
+                        'left': tile.left,
+                        'top': tile.top,
+                      },
+                    );
+                    if (blocked) {
+                      _scene.map.hero!.isMovingCanceled = true;
+                    }
                   }
                 }
               }

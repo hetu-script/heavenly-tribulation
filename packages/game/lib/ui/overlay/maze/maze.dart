@@ -17,6 +17,24 @@ import '../../../event/events.dart';
 import '../../dialog/game_over.dart';
 
 class MazeOverlay extends StatefulWidget {
+  static Future<bool?> show({
+    required BuildContext context,
+    required HTStruct mazeData,
+    double priceFactor = 1.0,
+  }) {
+    return showDialog<bool?>(
+      context: context,
+      barrierColor: Colors.transparent,
+      barrierDismissible: false,
+      builder: (context) {
+        return MazeOverlay(
+          key: UniqueKey(),
+          mazeData: mazeData,
+        );
+      },
+    );
+  }
+
   const MazeOverlay({
     required super.key,
     required this.mazeData,

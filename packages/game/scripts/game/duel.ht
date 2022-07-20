@@ -4,16 +4,15 @@ import 'entity/common.ht'
 import 'entity/item/common.ht'
 import 'entity/character/character.ht'
 import 'effect.ht'
+import 'binding/dialog.ht'
 
 /// 战斗模块
 /// 输入战斗相关角色的对象
 /// 生成战斗过程的文字描述，以及最终结果
 
-external fun _showDuel(context, char1, char2, [ type, data ])
-
 fun showDuel(char1, char2, { type, onCallback: ( any ) -> any }) -> Future {
   final duelResult = Duel(char1, char2, type: type);
-  return _showDuel(buildContext, char1, char2, type, duelResult)
+  return ui.showDuel(buildContext, char1, char2, type, duelResult)
 }
 
 // damage = ((1 / (Math.log((victim.defense + 5) / 100) + 5)) * 2 * attacker._attack)

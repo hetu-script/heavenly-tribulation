@@ -7,6 +7,7 @@ import '../ui/dialog/character_visit_dialog.dart';
 import '../ui/dialog/character_select_dialog.dart';
 import '../ui/view/merchant/merchant.dart';
 import '../ui/view/quest/quests.dart';
+import '../ui/overlay/maze/maze.dart';
 
 final Map<String, Function> externalGameFunctions = {
   r'showGameDialog': (HTEntity object,
@@ -77,6 +78,15 @@ final Map<String, Function> externalGameFunctions = {
     return QuestsView.show(
       context: positionalArgs[0],
       locationData: positionalArgs[1],
+    );
+  },
+  r'showMaze': (HTEntity object,
+      {List<dynamic> positionalArgs = const [],
+      Map<String, dynamic> namedArgs = const {},
+      List<HTType> typeArgs = const []}) {
+    return MazeOverlay.show(
+      context: positionalArgs[0],
+      mazeData: positionalArgs[1],
     );
   },
 };

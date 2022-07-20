@@ -84,3 +84,7 @@ fun showMerchant(merchant, [ priceFactor = 2.0 ]) -> Future {
 fun showQuests(location) -> Future {
   return ui.showQuests(buildContext, location)
 }
+
+fun showMaze(maze) -> Future {
+  return ui.showMaze(buildContext, maze)
+}

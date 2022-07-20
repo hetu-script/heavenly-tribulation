@@ -613,7 +613,12 @@ fun handleWorldMapEntityInteraction({entityId, left, top}) -> bool {
   when (entity.encounterType) {
     'banditCamp' -> {
       engine.info('发现了盗贼营地')
-      showDialogByStrings(['发现了盗贼营地。。。。'], character: hero)
+      showDialogByStrings(['发现了盗贼营地。。。。'], character: hero).then((value) {
+        final maze = game.mazes[entity.id]
+        assert(maze != null)
+        enterMaze(maze)
+        showMaze(maze)
+      })
       return true
     }
   }
