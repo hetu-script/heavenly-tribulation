@@ -1,4 +1,9 @@
-const kQuestCategoryManhunt = 'manhunt' // 征讨
+const kQuestCategoryBanditCamp = 'banditCamp' // 征讨
+const kQuestKindKillBanditBoss = 'killBanditBoss'
+const kQuestKindWipeBandits = 'wipeBandits'
+const kQuestKindReturnHostage = 'returnHostage'
+const kQuestKindReturnTreasure = 'returnTreasure'
+
 const kQuestCategoryArrest = 'arrest' // 抓捕
 const kQuestCategoryConvoy = 'convoy' // 押镖
 const kQuestCategoryEscort = 'escort' // 护送
@@ -28,8 +33,34 @@ fun generateQuestReward(difficulty) {
 
 fun createQuestStages(stages) {
   final result = {}
-  for (final stage in stages) {
-    result[id] = stage
+  for (final stage of stages) {
+    result[stage.id] = stage
   }
   return result
+}
+
+fun characterAcceptQuest(character, location, quest) {
+  assert(location.quests.containsKey(quest.id))
+  delete location.quests[quest.id]
+  character.quests[quest.id] = quest
+  character.activeQuestId ??= quest.id
+
+  final questName = getLocaleString(quest.kind);
+  final incidentContent = getLocaleString(
+    'characterAcceptQuest',
+    [character.name, location.name, questName],
+  )
+  Incident(
+    content: incidentContent,
+    subjectIds: character.isMajorCharacter ? [character.id] : null,
+  )
+}
+
+fun setCharacterActiveQuest(character, quest) {
+  assert(character.quests.containsKey(quest.id))
+  character.activeQuestId = quest.id
+}
+
+fun getCharacterActiveQuest(character) {
+  return character.quests[character.activeQuestId]
 }

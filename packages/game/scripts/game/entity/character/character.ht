@@ -297,10 +297,11 @@ struct Character {
       talismans: {},
     }
 
-    this.tasks = []
-
     // 用于遭遇等剧情，判断某个事件是否已经发生过。
     this.encounterTags = {}
+
+    // 该角色当前的任务
+    this.quests = {}
     
     if (locationId) {
       final location = game.locations[locationId]

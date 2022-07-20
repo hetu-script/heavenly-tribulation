@@ -85,7 +85,10 @@ class TileMapTerrain extends GameComponent with TileInfo {
   bool isVoid;
   bool showGrid;
 
-  // this is set by the tilemap after objects are loaded.
+  // 纯逻辑对象
+  String? entityId;
+
+  // 显示对象
   String? objectId;
 
   TileMapTerrain({
@@ -112,6 +115,8 @@ class TileMapTerrain extends GameComponent with TileInfo {
     this.overlayAnimation,
     this.offsetX = 0.0,
     this.offsetY = 0.0,
+    this.entityId,
+    this.objectId,
   }) {
     this.tileMapWidth = tileMapWidth;
     this.tileShape = tileShape;

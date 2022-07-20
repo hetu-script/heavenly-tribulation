@@ -3,15 +3,18 @@ import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/game.dart';
+import 'package:heavenly_tribulation/ui/overlay/quest_info.dart';
 import 'package:path_provider/path_provider.dart' as path;
 import 'package:path/path.dart' as path;
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
 // import 'package:flame_audio/flame_audio.dart';
+import 'package:hetu_script/hetu_script.dart';
 import 'package:hetu_script/values.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
 
+import '../../event/events.dart';
 import '../view/information/information.dart';
 import 'worldmap/popup.dart';
 import '../../shared/json.dart';
@@ -28,9 +31,12 @@ import '../view/location/location.dart';
 import '../dialog/character_select_dialog.dart';
 
 class MainGameOverlay extends StatefulWidget {
-  const MainGameOverlay({required super.key, this.args});
+  const MainGameOverlay({
+    required super.key,
+    required this.args,
+  });
 
-  final Map<String, dynamic>? args;
+  final Map<String, dynamic> args;
 
   @override
   State<MainGameOverlay> createState() => _MainGameOverlayState();
@@ -43,7 +49,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
 
   late WorldMapScene _scene;
 
-  HTStruct? _heroData;
+  HTStruct? _heroData, _questData;
 
   Vector2? _menuPosition;
 
@@ -95,6 +101,16 @@ class _MainGameOverlayState extends State<MainGameOverlay>
   void initState() {
     super.initState();
     engine.invoke('build', positionalArgs: [context]);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'setWorldMapEntity',
+        (HTEntity object,
+                {List<dynamic> positionalArgs = const [],
+                Map<String, dynamic> namedArgs = const {},
+                List<HTType> typeArgs = const []}) =>
+            _scene.map.setTerrainEntity(
+                positionalArgs[0], positionalArgs[1], positionalArgs[2]),
+        override: true);
 
     engine.registerListener(
       Events.mapDoubleTapped,
@@ -173,8 +189,40 @@ class _MainGameOverlayState extends State<MainGameOverlay>
         widget.key!,
         (GameEvent event) {
           setState(() {
-            if (event.scene == 'worldmap') engine.invoke('updateGame');
+            if (event.scene == 'worldmap') {
+              engine.invoke('updateGame');
+            }
+            final tile = _scene.map.getTerrainAtHero();
+            if (tile != null) {
+              final String? entityId = tile.entityId;
+              if (entityId != null) {
+                if (_scene.map.hero != null) {
+                  final blocked = engine.invoke(
+                    'handleWorldMapEntityInteraction',
+                    namedArgs: {
+                      'entityId': entityId,
+                      'left': tile.left,
+                      'top': tile.top,
+                    },
+                  );
+                  if (blocked) {
+                    _scene.map.hero!.isMovingCanceled = true;
+                  }
+                }
+              }
+            }
           });
+        },
+      ),
+    );
+
+    engine.registerListener(
+      CustomEvents.needRebuildUI,
+      EventHandler(
+        widget.key!,
+        (GameEvent event) {
+          if (!mounted) return;
+          updateInfoPanels();
         },
       ),
     );
@@ -192,10 +240,21 @@ class _MainGameOverlayState extends State<MainGameOverlay>
     super.dispose();
   }
 
+  void updateInfoPanels() {
+    setState(() {
+      if (_heroData != null) {
+        _questData = engine
+            .invoke('getCharacterActiveQuest', positionalArgs: [_heroData]);
+      }
+    });
+  }
+
   Future<Scene> _getScene(Map<String, dynamic> args) async {
     final scene =
         await engine.createScene('worldmap', args['id'], args) as WorldMapScene;
     _heroData = engine.invoke('getHero');
+    updateInfoPanels();
+    engine.hetu.assign('isGameLoaded', true);
     return scene;
   }
 
@@ -205,14 +264,13 @@ class _MainGameOverlayState extends State<MainGameOverlay>
     // pass the build context to script
     // final screenSize = MediaQuery.of(context).size;
 
-    final args = widget.args ??
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    // ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
 
     return FutureBuilder(
       // 不知道为啥，这里必须用这种写法才能进入载入界面，否则一定会卡住
       future: Future.delayed(
         const Duration(milliseconds: 100),
-        () => _getScene(args),
+        () => _getScene(widget.args),
       ),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -229,6 +287,12 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                 left: 0,
                 top: 0,
                 child: HeroInfoPanel(characterData: _heroData!),
+              ),
+            if (_questData != null)
+              Positioned(
+                left: 300,
+                top: 0,
+                child: QuestInfoPanel(characterData: _heroData!),
               ),
             Positioned(
               right: 0,

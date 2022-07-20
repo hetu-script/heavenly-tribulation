@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import '../../../global.dart';
-import 'battle_card.dart';
+import 'battle_item_card.dart';
 // import 'defense_card.dart';
 
 const kEquipmentMaxOffense = 5;
@@ -10,9 +10,9 @@ const kEquipmentMaxSupport = 5;
 const kEquipmentMaxDefense = 4;
 const kEquipmentMaxCompanion = 4;
 
-class BattleCards extends StatelessWidget {
+class BattlePanel extends StatelessWidget {
   /// [activatedOffenseIndex] 表示目前正在激活的武器/斗技，表现为一个边框。默认是0，表示没有激活。
-  const BattleCards({
+  const BattlePanel({
     super.key,
     required this.characterData,
     required this.statsData,

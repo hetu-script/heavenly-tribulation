@@ -2,10 +2,27 @@
   "publishingMonth": "领取截止日期",
   "expirationMonth": "完成截至日期",
 
-  "manhunt": "征讨",
-  "killBanditBoss": "消灭 {0} 的山贼头目 {0}。",
-  "wipeBandits": "消灭 {0} 的山贼窝点。",
+  "banditCamp": "讨贼",
+  "banditCampSearchingDescription": "在 {0} 寻找盗贼营地。",
+  "banditCampSearchingSuccessedDescription": "",
+  "banditCampSearchingFailedDescription": "",
+
+  "banditCampClearingDescription": "",
+  "banditCampClearingSuccessedDescription": "",
+  "banditCampClearingFailedDescription": "",
+
+  "banditCampReturningDescription": "",
+  "banditCampReturningSuccessedDescription": "",
+  "banditCampReturningFailedDescription": "",
+
+  "killBanditBoss": "消灭山贼头目",
+  "killBanditBossDescription": "消灭 {0} 的山贼头目：{1}。",
+
+  "wipeBandits": "扫荡山贼窝点",
+  "wipeBanditsDescription": "消灭 {0} 的山贼窝点。",
+
   "returnHostage": "解救人质",
+
   "returnTreasure": "寻回宝物",
 
   "arrest": "抓捕",

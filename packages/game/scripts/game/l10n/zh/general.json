@@ -134,5 +134,8 @@
 
   "nationPostfix": "国",
 
-  "level": "第 {0} 层"
+  "level": "第 {0} 层",
+
+  "quest": "任务",
+  "takeQuest": "领取"
 }

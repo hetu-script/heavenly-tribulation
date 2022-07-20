@@ -5,7 +5,7 @@ import 'package:hetu_script/values.dart';
 
 import '../../../global.dart';
 import '../../shared/responsive_window.dart';
-import 'battle_cards.dart';
+import 'battle_panel.dart';
 import '../../../event/events.dart';
 
 const kEntityTypeCharacter = 'character';
@@ -235,7 +235,7 @@ class _DuelState extends State<Duel> {
                 children: [
                   Column(
                     children: [
-                      BattleCards(
+                      BattlePanel(
                         characterData: widget.char1,
                         statsData: _char1Stats!,
                         activatedOffenseIndex:
@@ -253,7 +253,7 @@ class _DuelState extends State<Duel> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      BattleCards(
+                      BattlePanel(
                         characterData: widget.char2,
                         statsData: _char2Stats!,
                         activatedOffenseIndex:

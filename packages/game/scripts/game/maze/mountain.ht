@@ -9,6 +9,7 @@ import '../entity/character/merchant/peddler.ht'
 import '../l10n.ht'
 import 'common.ht'
 import '../binding/maze.ht'
+import '../tile/common.ht'
 
 final _kLandSprites = [
   kSpriteLand,
@@ -16,7 +17,7 @@ final _kLandSprites = [
 ]
 
 final _kEncounterTypes = [
-  'bandit_minion', // 获得武器，在anchor生成
+  'banditMinion', // 获得武器，在anchor生成
   'beast', // 获得野兽材料，在anchor生成
 ]
 
@@ -65,8 +66,8 @@ struct MountainMaze {
   construct ({
     name = 'mountain_maze',
     // levelNumber = kLevelNumber,
-    isOnWorldMap = true,
     tileset = 'mountain',
+    bossName,
   }) {
     this.name = name
     this.id = 'maze_${Hash.uid4(4)}_${name}'
@@ -105,11 +106,12 @@ struct MountainMaze {
     
     final mazeUniqueEncounters = Set()
 
+    final [ width, height ] = [ kDefaultBlockWidth * kDefaultMazeScale, kDefaultBlockHeight * kDefaultMazeScale ]
+    this.width = width
+    this.height = height
+
     for (final levelIndex in range(kLevelNumber)) {
       final levelUniqueEncounters = Set()
-
-      final [ width, height ] = [ kDefaultBlockWidth * kDefaultMazeScale, kDefaultBlockHeight * kDefaultMazeScale ]
-      final terrainSize = width * height
 
       final currentLevel = TileMap(
         id: '${this.id}_level_${levelIndex}',
@@ -233,7 +235,7 @@ struct MountainMaze {
       }
 
       engine.info('计算随机遭遇的位置')
-      final blockSize = terrainSize / 9
+      final blockSize = (width * height) ~/ 9
       var isOnCorner = false
       // 迷宫中的主要roguelike元素的可能位置锚点，分布在横三竖三的9个区块中
       // 四个角的锚点需要避免位于可能的出入口上
@@ -319,7 +321,7 @@ struct MountainMaze {
         if (r < kEncounterProbability) {
           final encounterType = random.nextIterable(_kEncounterTypes)
           when (encounterType) {
-            'bandit_minion' -> {
+            'banditMinion' -> {
               final bandit = Bandit(kind: 'minion')
               bandit.encounterType = encounterType
               this.entities[bandit.id] = bandit
@@ -464,232 +466,5 @@ struct MountainMaze {
 
     // 重置临时历史，需要在手动调用enterMaze时再赋值
     localHistory = savedLocalHistory
-
-    if (isOnWorldMap) {
-      world.mazes[this.id] = this
-    }
   }
-}
-
-// 返回布尔值，如果为真，则玩家控制角色会返回上一格，否则停在这一格
-fun handleMazeEntityInteraction({entityId, left, top, maze, currentLevelIndex}) -> bool {
-  final hero = getHero()
-  final entity = maze.entities[entityId]
-  assert(entity != null)
-  engine.info('地图对象互动事件：[${entity.encounterType}: ${entity.id}](${left}, ${top})')
-
-  // 战斗，异步函数，如果获胜则返回 true
-  fun battle -> Future {
-    return showDuel(hero, entity).then((result) {
-      if (result?.result) {
-        resolveDuelResult(hero, entity, result)
-        characterLoot(hero, entity, takeAll: true)
-        final incidentContent = getLocaleString('duelVistory', [ hero.name, entity.name ] )
-        Incident(
-          content: incidentContent,
-          subjectIds: [hero.id],
-          isPrivate: true,
-        )
-        removeEntity(left, top)
-        delete game.npcs[entity.id]
-        return true
-      } else {
-        mazeGameOver(maze)
-      }
-    })
-  }
-
-  // 盗贼，如果成功击败则返回true，否则返回false
-  async banditEncounter {
-    maze.flags.haveMetBandit = true
-    final messages = getLocaleString('mazeBandit01').split('/n')
-    return showDialogByStrings(messages, character: entity).then((value) {
-      final selections = [
-        'handOver',
-        'plead',
-        'escape',
-        'fight',
-      ]
-      return showSelectionByLocaleKeys(selections).then((key) {
-        when (key) {
-          // 现实主义
-          'handOver' -> {
-            characterLoot(entity, hero, takeAll: true)
-            return false
-          }
-          // 向盗贼求情，是否成功依赖于
-          // 圆滑
-          'plead' -> {
-            if (hero.stats.charisma > kCharismaCheckThreshold) {
-              showDialogByStrings([getLocaleString('pleadSuccess')], character: entity)
-                .then((value) {
-                  characterLoot(entity, hero, takeAll: false)
-                })
-              return false
-            } else {
-              showDialogByStrings([getLocaleString('pleadFailed')], character: entity)
-              .then( (value) => battle() )
-            }
-          }
-          // 懦弱
-          'escape' -> {
-            if (hero.stats.dexterity > entity.stats.dexterity || hero.stats.strength > entity.stats.strength) {
-              final incidentContent = getLocaleString('incidentEscapeSuccess', [ entity.name ] )
-              Incident(
-                content: incidentContent,
-                subjectIds: [hero.id],
-                isPrivate: true,
-              )
-              return false
-            } else {
-              return showDialogByStrings([getLocaleString('escapeFailed')], character: entity)
-              .then( (value) => battle() )
-            }
-          }
-          // 自信
-          'fight' -> {
-            return showDialogByStrings([getLocaleString('startFightBandit')], character: hero)
-            .then( (value) => battle() )
-          }
-        }
-      })
-    })
-  }
-
-  when (entity.encounterType) {
-    'banditMuscle' -> {
-      if (!maze.flags.haveMetBandit) {
-        banditEncounter().then((result) {
-          if (result) {
-            setTerrainObject(left, top, 'levelExit0')
-          }
-        })
-      }
-      // 如果已经遇到过盗贼，不再对话，直接开始战斗
-      else {
-        battle().then((result) {
-          if (result) {
-            setTerrainObject(left, top, 'levelExit0')
-          }
-        })
-      }
-      return true
-    }
-    'banditKiller' -> {
-      if (!maze.flags.haveMetBandit) {
-        banditEncounter().then((result) {
-          if (result) {
-            setTerrainObject(left, top, 'levelExit0')
-          }
-        })
-      }
-      // 如果已经遇到过盗贼，不再对话，直接开始战斗
-      else {
-        battle().then((result) {
-          if (result) {
-            setTerrainObject(left, top, 'levelExit0')
-          }
-        })
-      }
-      return true
-    }
-    'banditBoss' -> {
-      if (!maze.flags.haveMetBandit) {
-        banditEncounter().then((result) {
-          if (result) {
-            setTerrainObject(left, top, 'levelExit0')
-          }
-        })
-      }
-      // 如果已经遇到过盗贼，不再对话，直接开始战斗
-      else {
-        battle().then((result) {
-          if (result) {
-            setTerrainObject(left, top, 'levelExit0')
-          }
-        })
-      }
-      return true
-    }
-    'levelEntry' -> {
-      var selections
-      if (currentLevelIndex == 0) {
-        selections = [
-          'leaveMaze',
-          'cancel',
-        ]
-      } else {
-        selections = [
-          'backToPreviousLevel',
-          'cancel',
-        ]
-      }
-      showSelectionByLocaleKeys(selections).then((key) =>
-        when (key) {
-          'leaveMaze' -> leaveMaze(maze)
-          'backToPreviousLevel' -> backToPreviousLevel()
-        }
-      )
-    }
-    'levelExit' -> {
-      var selections
-      if (currentLevelIndex == maze.levels.length - 1) {
-        selections = [
-          'leaveMaze',
-          'cancel',
-        ]
-      } else {
-        selections = [
-          'proceedToNextLevel',
-          'cancel',
-        ]
-      }
-      showSelectionByLocaleKeys(selections).then((key) =>
-        when (key) {
-          'proceedToNextLevel' -> proceedToNextLevel()
-          'leaveMaze' -> leaveMaze(maze)
-        }
-      )
-    }
-    'bandit_minion' -> {
-      if (!maze.flags.haveMetBandit) {
-        banditEncounter()
-      }
-      // 如果已经遇到过盗贼喽啰，不再对话，直接开始战斗
-      else {
-        battle()
-      }
-    }
-    'beast' -> {
-      battle()
-    }
-    'peddler' -> {
-      final messages = getLocaleString('peddlerDialogIntro').split('/n')
-      showDialogByStrings(messages, character: entity)
-      .then((value) {
-        final selections = [
-          'askForDirections',
-          'trade',
-          'steal',
-          'rob',
-          'attack',
-          'sneakAttack',
-          'cancel',
-        ]
-        showSelectionByLocaleKeys(selections)
-        .then((key) {
-          when (key) {
-            'trade' -> {
-              showMerchant(entity)
-            }
-            'attack' -> {
-
-            }
-          }
-        })
-      })
-    }
-  }
-  
-  return false
 }

@@ -1,6 +1,7 @@
 import 'game.ht'
 import 'entity/character/character.ht'
 import 'l10n.ht'
+import 'binding/dialog.ht'
 
 fun addDialog(dlg) {
   dialogs[dlg.id] = dlg
@@ -19,8 +20,6 @@ fun addDialogs(dlgs: List) {
   }
 }
 
-external fun _showGameDialog(context, data, returnValue)
-
 fun showDialogByLocaleKeys(lines, { returnValue, character }) -> Future {
   final data = { 
     contents: [
@@ -32,7 +31,7 @@ fun showDialogByLocaleKeys(lines, { returnValue, character }) -> Future {
       }
     ]
   }
-  return _showGameDialog(buildContext, data, returnValue)
+  return ui.showGameDialog(buildContext, data, returnValue)
 }
 
 fun showDialogByStrings(lines, { returnValue, character }) -> Future {
@@ -46,46 +45,42 @@ fun showDialogByStrings(lines, { returnValue, character }) -> Future {
       }
     ]
   }
-  return _showGameDialog(buildContext, data, returnValue)
+  return ui.showGameDialog(buildContext, data, returnValue)
 }
 
 fun showDialogByResourceId(id: str, { returnValue }) -> Future {
   final data = dialogs[id]
-  return _showGameDialog(buildContext, data, returnValue)
+  return ui.showGameDialog(buildContext, data, returnValue)
 }
 
 fun showDialog(data, { returnValue }) -> Future {
-  return _showGameDialog(buildContext, data, returnValue)
+  return ui.showGameDialog(buildContext, data, returnValue)
 }
-
-external fun _showSelection(context, selections)
 
 fun showSelectionByLocaleKeys(texts: List) -> Future {
   final selections = {}
   for (final text in texts) {
     selections[text] = getLocaleString(text)
   }
-  return _showSelection(buildContext, selections)
+  return ui.showSelection(buildContext, selections)
 }
 
 fun showSelection(selections) -> Future {
-  return _showSelection(buildContext, selections)
+  return ui.showSelection(buildContext, selections)
 }
-
-external fun _showCharacterSelection(context, title, ids, showCloseButton)
 
 fun showCharacterSelection({title, ids, showCloseButton = false}) -> Future {
-  return _showCharacterSelection(buildContext, title, ids, showCloseButton)
+  return ui.showCharacterSelection(buildContext, title, ids, showCloseButton)
 }
-
-external fun _showVisitCharacterSelection(context, idList)
 
 fun showVisitCharacterSelection(idList) -> Future {
-  return _showVisitCharacterSelection(buildContext, idList)
+  return ui.showVisitCharacterSelection(buildContext, idList)
 }
 
-external fun _showMerchant(context, merchant, priceFactor)
-
 fun showMerchant(merchant, [ priceFactor = 2.0 ]) -> Future {
-  return _showMerchant(buildContext, merchant, priceFactor)
+  return ui.showMerchant(buildContext, merchant, priceFactor)
+}
+
+fun showQuests(location) -> Future {
+  return ui.showQuests(buildContext, location)
 }

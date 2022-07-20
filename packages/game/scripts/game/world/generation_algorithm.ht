@@ -1,6 +1,7 @@
 import '../tile/tilemap.ht'
 import '../tile/hexagonal_tile.ht'
 import '../game.ht'
+import '../tile/common.ht'
 
 /// 以一个种子地块出发，逐渐生长出一块大陆的算法
 fun generateContinent1({width, height, landProportion, landZone}) {

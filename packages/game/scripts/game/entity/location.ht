@@ -116,7 +116,7 @@ struct Location {
 
     // 这个据点可以领的任务
     // 可以在官府，或者在民居的告示栏领任务
-    this.quests = []
+    this.quests = {}
 
     // 被禁止进入的名单，名单可能重叠
     // 一个人本身在名单上，但他的国家也可能在名单上，并且互相独立
@@ -336,7 +336,7 @@ fun _handleGovernmentInteraction(site) {
         if (location.quests.isEmpty) {
           showDialogByLocaleKeys(['questEmpty'])
         } else {
-          // TODO: 领取任务
+          showQuests(location)
         }
       }
       'localExam' -> {

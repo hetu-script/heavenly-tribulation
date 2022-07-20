@@ -27,6 +27,8 @@ var history = []
 
 var game
 
+var isGameLoaded = false
+
 fun getLocalHistory() {
   return localHistory
 }
@@ -88,6 +90,7 @@ struct Game {
 fun resetGame {
   game = Game()
   history = []
+  isGameLoaded = false
 }
 
 fun getPlayerMonthlyActivities {

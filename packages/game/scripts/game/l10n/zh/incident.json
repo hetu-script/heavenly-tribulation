@@ -29,5 +29,7 @@
   "characterTakeMedicine": "{0} 服下了 {1}。",
   "characterTakeMedicineForced": "{0} 喂 {1} 服下了 {2}。",
   "characterDrankBeverage": "{0} 饮下了 {1}。",
-  "characterDrankBeverageForced": "{0} 喂 {1} 饮下了 {2}。"
+  "characterDrankBeverageForced": "{0} 喂 {1} 饮下了 {2}。",
+
+  "characterAcceptQuest": "{0} 在 {1} 接下了 {2} 的悬赏任务。"
 }

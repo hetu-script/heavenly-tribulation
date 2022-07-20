@@ -58,8 +58,6 @@ fun testMaze {
   // 先创建副本再创建英雄，这样会直接用localHistory替换掉hostory
   final maze = MountainMaze(
     name: '测试副本',
-    isOnWorldMap: false,
-    // levelNumber: 3,
   )
   final hero = Character()
   hero.money += 200

@@ -46,7 +46,7 @@ class _LocationViewState extends State<LocationView>
 
     final HTStruct sitesData = data['sites'];
 
-    final siteCards = sitesData.values.map((siteData) {
+    final List<Widget> siteCards = sitesData.values.map((siteData) {
       final String locationId = siteData['locationId'];
       final String siteId = siteData['category'];
       final title = siteData['name'];

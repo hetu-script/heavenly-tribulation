@@ -87,7 +87,7 @@ class _MazeOverlayState extends State<MazeOverlay>
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
-        'setTerrainObject',
+        'setMazeObject',
         (HTEntity object,
                 {List<dynamic> positionalArgs = const [],
                 Map<String, dynamic> namedArgs = const {},
@@ -95,17 +95,6 @@ class _MazeOverlayState extends State<MazeOverlay>
             _scene.map.setTerrainObject(
                 positionalArgs[0], positionalArgs[1], positionalArgs[2]),
         override: true);
-
-    engine.hetu.interpreter.bindExternalFunction('removeEntity',
-        (HTEntity object,
-            {List<dynamic> positionalArgs = const [],
-            Map<String, dynamic> namedArgs = const {},
-            List<HTType> typeArgs = const []}) {
-      final int left = positionalArgs[0];
-      final int top = positionalArgs[1];
-      final tile = _scene.map.getTerrain(left, top);
-      tile?.objectId = null;
-    }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('proceedToNextLevel',
         (HTEntity object,
@@ -209,8 +198,8 @@ class _MazeOverlayState extends State<MazeOverlay>
       EventHandler(
         widget.key!,
         (GameEvent event) async {
-          final tile = _scene.map.getTerrainAtHero()!;
-          if (tile.objectId != null) {
+          final tile = _scene.map.getTerrainAtHero();
+          if (tile != null) {
             final String? entityId = tile.objectId;
             if (entityId != null) {
               if (_scene.map.hero != null) {
@@ -242,6 +231,7 @@ class _MazeOverlayState extends State<MazeOverlay>
       EventHandler(
         widget.key!,
         (GameEvent event) {
+          if (!mounted) return;
           setState(() {});
         },
       ),

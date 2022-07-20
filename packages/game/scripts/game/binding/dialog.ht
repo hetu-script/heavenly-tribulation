@@ -1,0 +1,13 @@
+namespace ui {
+  external fun showGameDialog(context, data, returnValue)
+
+  external fun showSelection(context, selections)
+
+  external fun showCharacterSelection(context, title, ids, showCloseButton)
+
+  external fun showVisitCharacterSelection(context, idList)
+
+  external fun showMerchant(context, merchant, priceFactor)
+
+  external fun showQuests(context, location)
+}

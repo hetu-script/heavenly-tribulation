@@ -6,13 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flame/flame.dart';
 import 'package:window_manager/window_manager.dart';
 
-import 'ui/view/location/location.dart';
+// import 'ui/view/location/location.dart';
 import 'ui/main_menu.dart';
 // import 'ui/editor/editor.dart';
-import 'ui/view/character/character.dart';
-import 'ui/view/information/information.dart';
+// import 'ui/view/character/character.dart';
+// import 'ui/view/information/information.dart';
 import 'global.dart';
-import 'ui/overlay/main_game.dart';
+// import 'ui/overlay/main_game.dart';
 
 class CustomWindowListener extends WindowListener {
   @override
@@ -82,13 +82,13 @@ void main() async {
         throw ('widget is null');
       },
       home: const MainMenu(),
-      routes: {
-        'worldmap': (context) => MainGameOverlay(key: UniqueKey()),
-        'location': (context) => const LocationView(),
-        'information': (context) => const InformationPanel(),
-        'character': (context) => const CharacterView(),
-        // 'editor': (context) => const GameEditor(),
-      },
+      // routes: {
+      //   'worldmap': (context) => MainGameOverlay(key: UniqueKey()),
+      //   'location': (context) => const LocationView(),
+      //   'information': (context) => const InformationPanel(),
+      //   'character': (context) => const CharacterView(),
+      //   // 'editor': (context) => const GameEditor(),
+      // },
     ),
   );
 }

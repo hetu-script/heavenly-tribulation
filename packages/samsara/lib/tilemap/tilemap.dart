@@ -221,6 +221,8 @@ class TileMap extends GameComponent with HandlesGesture {
                 to: overlayAnimationFrameCount);
           }
         }
+        final String? entityId = terrainData['entityId'];
+        final String? objectId = terrainData['objectId'];
         final tile = TileMapTerrain(
           tileShape: tileShape,
           left: i + 1,
@@ -244,6 +246,8 @@ class TileMap extends GameComponent with HandlesGesture {
           overlayAnimation: overlayAnimation,
           offsetX: tileOffsetX,
           offsetY: tileOffsetY,
+          entityId: entityId,
+          objectId: objectId,
         );
 
         terrains.add(tile);
@@ -321,8 +325,14 @@ class TileMap extends GameComponent with HandlesGesture {
   /// 而且也不一定都会在一开始就显示出来
   final Map<String, TileMapObject> objects;
 
-  void setTerrainObject(int left, int top, String objectId) {
-    assert(objects.containsKey(objectId));
+  void setTerrainEntity(int left, int top, String? entityId) {
+    final tile = getTerrain(left, top);
+    assert(tile != null);
+    tile!.entityId = entityId;
+  }
+
+  void setTerrainObject(int left, int top, String? objectId) {
+    if (objectId != null) assert(objects.containsKey(objectId));
     final tile = getTerrain(left, top);
     assert(tile != null);
     tile!.objectId = objectId;
@@ -669,8 +679,9 @@ class TileMap extends GameComponent with HandlesGesture {
   @override
   Future<void> onLoad() async {
     super.onLoad();
-    double mapScreenSizeX = (gridWidth * 3 / 4) * tileMapWidth;
-    double mapScreenSizeY = (gridHeight * tileMapHeight + gridHeight / 2);
+    double mapScreenSizeX = (gridWidth * 3 / 4) * tileMapWidth * scale.x;
+    double mapScreenSizeY =
+        (gridHeight * tileMapHeight + gridHeight / 2) * scale.y;
     mapScreenSize = Vector2(mapScreenSizeX, mapScreenSizeY);
 
     if (showClouds) {
@@ -688,17 +699,19 @@ class TileMap extends GameComponent with HandlesGesture {
     super.updateTree(dt);
 
     if (showClouds) {
+      for (final cloud in _clouds) {
+        cloud.update(dt);
+      }
+
       if (_clouds.length < maxCloudsCout) {
         final r = math.Random().nextDouble();
         if (r < 0.03) {
           final cloud = AnimatedCloud(screenSize: mapScreenSize);
           _clouds.add(cloud);
-          add(cloud);
         }
       }
       _clouds.removeWhere((cloud) {
         if (!cloud.visible) {
-          remove(cloud);
           return true;
         }
         return false;
@@ -815,6 +828,12 @@ class TileMap extends GameComponent with HandlesGesture {
             ..color = color.withOpacity(0.6);
           canvas.drawPath(tile.borderPath, paint);
         }
+      }
+    }
+
+    if (showClouds) {
+      for (final cloud in _clouds) {
+        cloud.render(canvas);
       }
     }
 

@@ -320,7 +320,7 @@ class _CreateGameDialogState extends State<CreateGameDialog> {
                         'locationNumber': _locationNumber,
                         'organizationNumber': _organizationNumber,
                         'characterNumber': _characterNumber,
-                        'scale': 1.0,
+                        // 'scale': 2.0,
                       });
                     } else {}
                   },

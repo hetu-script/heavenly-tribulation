@@ -1,20 +1,6 @@
 import '../game.ht'
 import 'hexagonal_tile.ht'
 
-const kSpriteWater = 1
-const kSpriteShelf = 2
-const kSpriteLand = 3
-const kSpriteCity = 4
-const kSpriteForest = 5
-const kSpriteMountain = 6
-const kSpriteGrassLand = 7
-const kSpriteBush = 8
-const kLocationCategoryCity = 'city'
-const kZoneVoid = 'empty'
-const kZoneWater = 'water'
-const kZoneContinent = 'continent'
-const kZoneIsland = 'island'
-const kZoneLake = 'lake'
 
 struct Zone {
   construct ({index, name, category}) {
@@ -86,7 +72,7 @@ fun addTerrainToZone(terrain, zoneIndex, map) {
 }
 
 // 获取相邻并且在地图范围内的格子
-// 如果 [restricted2Zone] 为 true，则只会返回和起点所在 tile 具有相同 zoneIndex 的格子
+// 如果 [zoneIndex] 不为 null，则只会返回和起点所在 tile 具有相同 zoneIndex 的格子
 fun getMapTileNeighbors(left: int, top: int, map, {zoneIndex}) {
   assert(isPositionWithinMap(left, top, map.width, map.height))
   final origin = map.terrains[tilePos2Index(left, top, map.width)]

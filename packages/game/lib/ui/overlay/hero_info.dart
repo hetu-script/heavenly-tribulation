@@ -28,8 +28,8 @@ class HeroInfoPanel extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
         color: kBackgroundColor,
-        borderRadius:
-            const BorderRadius.only(bottomRight: Radius.circular(5.0)),
+        // borderRadius:
+        //     const BorderRadius.only(bottomRight: Radius.circular(5.0)),
         border: Border.all(color: kForegroundColor),
       ),
       child: Row(

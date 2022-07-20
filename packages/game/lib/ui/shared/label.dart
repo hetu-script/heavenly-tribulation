@@ -6,7 +6,7 @@ class Label extends StatelessWidget {
     super.key,
     this.width,
     this.height = 20.0,
-    this.padding = const EdgeInsets.only(left: 5.0),
+    this.padding = const EdgeInsets.symmetric(horizontal: 5.0),
     this.textAlign = TextAlign.left,
   });
 

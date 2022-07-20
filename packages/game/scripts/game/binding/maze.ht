@@ -4,9 +4,8 @@ external fun moveHeroToLastRouteNode
 
 external fun setFogOfWar(value: bool)
 
-external fun setTerrainObject(left, top, objectId)
-
-external fun removeEntity(left, top)
+// 删除object，就是设置为null
+external fun setMazeObject(left, top, objectId)
 
 external fun proceedToNextLevel
 

@@ -1,3 +1,18 @@
+// 地图上的可互动对象必须同时创建包含两个数据结构： entity，和object
+
+// 地图可互动对象，包含了一些用于互动逻辑的数据
+struct TileMapEntity {
+  construct ({
+    id,
+    encounterType,
+  }) {
+    this.id = id
+    this.encounterType = encounterType
+  }
+}
+
+// 地图显示对象，包含了一些用于UI侧的数据
+// 但显示对象实际上也不一定都会显示，可能是隐藏的
 struct TileMapObject {
   construct ({
     id, // 这个id和对应的entity的id必须一致

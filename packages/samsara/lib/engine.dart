@@ -129,6 +129,7 @@ class SamsaraEngine with SceneController, EventAggregator {
           expressionModuleExtensions: [HTResource.json]);
       hetu = Hetu(
         config: HetuConfig(
+          debugPerformance: debugMode,
           showDartStackTrace: debugMode,
           showHetuStackTrace: true,
           allowVariableShadowing: false,

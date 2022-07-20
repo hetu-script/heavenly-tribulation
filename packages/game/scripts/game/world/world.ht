@@ -10,6 +10,8 @@ import '../entity/common.ht'
 import '../datetime.ht' as datetime
 import '../logic.ht'
 import 'generation_algorithm.ht'
+import '../tile/common.ht'
+import '../dialog.ht'
 
 /// 生成世界地图的算法
 ///
@@ -106,6 +108,9 @@ fun createWorldMap({
     scale: scale,
   )
 
+  // 地图上的可互动对象，因为世界地图目前只有一层，所以这个表直接放在map上。
+  game.world.entities = {}
+
   game.world.isNewGame = true
 
   engine.info('生成地块')
@@ -197,9 +202,9 @@ fun createWorldMap({
   for (final tile in game.world.terrains) {
     if (tile.spriteIndex != kSpriteWater) continue
     final neighbors = getMapTileNeighbors(tile.left, tile.top, game.world)
-    for (final tile in neighbors) {
-      if (tile.spriteIndex == kSpriteLand) {
-        tile.spriteIndex == kSpriteShelf
+    for (final neighbor in neighbors) {
+      if (neighbor.spriteIndex == kSpriteLand) {
+        tile.spriteIndex = kSpriteShelf
         break
       }
     }
@@ -552,12 +557,8 @@ fun createWorldMap({
     }
   }
 
-  // 填充据点月常任务
-  engine.info('填充据点月常任务')
-  for (final location of game.locations) {
-
-    location.quests.add()
-  }
+  // 在不改变时间的情况下刷新一下世界事件
+  updateGame(nextTick: false)
 
   // 将地域的上色信息复制到引擎侧
   engine.info('刷新世界地图上色信息')
@@ -602,7 +603,20 @@ fun updateWorldMapNationColors {
   engine.updateNationColors(nationColors)
 }
 
-// 返回布尔值，如果为真，则玩家可以进入这一格，否则不会进行移动
-fun handleWorldMapInteraction({left, top}) -> bool {
+// 返回布尔值，如果为真，则玩家控制角色会停止移动
+fun handleWorldMapEntityInteraction({entityId, left, top}) -> bool {
+  final hero = getHero()
+  final entity = game.world.entities[entityId]
+  assert(entity != null)
+  engine.info('世界地图对象互动事件：[${entity.encounterType}: ${entity.id}](${left}, ${top})')
   
+  when (entity.encounterType) {
+    'banditCamp' -> {
+      engine.info('发现了盗贼营地')
+      showDialogByStrings(['发现了盗贼营地。。。。'], character: hero)
+      return true
+    }
+  }
+
+  return false
 }
