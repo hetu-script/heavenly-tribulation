@@ -558,14 +558,14 @@ fun createWorldMap({
   }
 
   // 在不改变时间的情况下刷新一下世界事件
-  updateGame(nextTick: false)
+  updateGame(timeflow: false)
 
   // 将地域的上色信息复制到引擎侧
   engine.info('刷新世界地图上色信息')
   updateWorldMapZoneColors()
   updateWorldMapNationColors()
 
-  engine.info('世界生成完毕。重置随机数生成器，从此刻开始这个世界的命运开始独自流淌')
+  engine.info('世界生成完毕。重置随机数生成器。')
   setRandomSeed()
 
   return game.world
@@ -601,27 +601,4 @@ fun updateWorldMapNationColors {
     nationColors[nation.id] = nation.color
   }
   engine.updateNationColors(nationColors)
-}
-
-// 返回布尔值，如果为真，则玩家控制角色会停止移动
-fun handleWorldMapEntityInteraction({entityId, left, top}) -> bool {
-  final hero = getHero()
-  final entity = game.world.entities[entityId]
-  assert(entity != null)
-  engine.info('世界地图对象互动事件：[${entity.encounterType}: ${entity.id}](${left}, ${top})')
-  
-  when (entity.encounterType) {
-    'banditCamp' -> {
-      engine.info('发现了盗贼营地')
-      showDialogByStrings(['发现了盗贼营地。。。。'], character: hero).then((value) {
-        final maze = game.mazes[entity.id]
-        assert(maze != null)
-        enterMaze(maze)
-        showMaze(maze)
-      })
-      return true
-    }
-  }
-
-  return false
 }

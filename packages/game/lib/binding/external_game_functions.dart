@@ -8,6 +8,7 @@ import '../ui/dialog/character_select_dialog.dart';
 import '../ui/view/merchant/merchant.dart';
 import '../ui/view/quest/quests.dart';
 import '../ui/overlay/maze/maze.dart';
+import '../ui/dialog/explore_indicator.dart';
 
 final Map<String, Function> externalGameFunctions = {
   r'showGameDialog': (HTEntity object,
@@ -88,5 +89,11 @@ final Map<String, Function> externalGameFunctions = {
       context: positionalArgs[0],
       mazeData: positionalArgs[1],
     );
+  },
+  r'showExplore': (HTEntity object,
+      {List<dynamic> positionalArgs = const [],
+      Map<String, dynamic> namedArgs = const {},
+      List<HTType> typeArgs = const []}) {
+    return ExploreIndicator.show(context: positionalArgs[0]);
   },
 };

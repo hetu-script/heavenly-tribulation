@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'noise_test.dart';
+import 'explore.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,15 +34,30 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => const NoiseTest(),
-            );
-          },
-          child: const Text('test noise'),
+      body: Align(
+        alignment: AlignmentDirectional.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => const NoiseTest(),
+                );
+              },
+              child: const Text('perlin noise'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => const ExploreDialog(),
+                );
+              },
+              child: const Text('progress indicator'),
+            ),
+          ],
         ),
       ),
     );

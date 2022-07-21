@@ -31,7 +31,6 @@ class ResponsiveWindow extends StatelessWidget {
               width: size?.width,
               height: size?.height,
               margin: margin,
-              alignment: Alignment.topCenter,
               decoration: BoxDecoration(
                 borderRadius: kBorderRadius,
                 border: Border.all(color: kForegroundColor),

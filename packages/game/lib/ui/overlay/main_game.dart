@@ -53,6 +53,15 @@ class _MainGameOverlayState extends State<MainGameOverlay>
 
   Vector2? _menuPosition;
 
+  bool _isDisposing = false;
+
+  void _checkTerrain(TilePosition tilePosition) {
+    engine.invoke(
+      'handleWorldMapExplore',
+      positionalArgs: [tilePosition.left, tilePosition.top],
+    );
+  }
+
   void _enterLocation(String locationId) {
     showDialog(
       context: context,
@@ -92,7 +101,9 @@ class _MainGameOverlayState extends State<MainGameOverlay>
           }
         }
       } else {
-        _enterLocation(terrain.locationId!);
+        if (terrain.locationId != null) {
+          _enterLocation(terrain.locationId!);
+        }
       }
     }
   }
@@ -221,7 +232,6 @@ class _MainGameOverlayState extends State<MainGameOverlay>
       EventHandler(
         widget.key!,
         (GameEvent event) {
-          if (!mounted) return;
           updateInfoPanels();
         },
       ),
@@ -241,20 +251,19 @@ class _MainGameOverlayState extends State<MainGameOverlay>
   }
 
   void updateInfoPanels() {
-    setState(() {
-      if (_heroData != null) {
-        _questData = engine
-            .invoke('getCharacterActiveQuest', positionalArgs: [_heroData]);
-      }
-    });
+    if (_heroData != null) {
+      _questData =
+          engine.invoke('getCharacterActiveQuest', positionalArgs: [_heroData]);
+    }
+    if (mounted) setState(() {});
   }
 
-  Future<Scene> _getScene(Map<String, dynamic> args) async {
+  Future<Scene?> _getScene(Map<String, dynamic> args) async {
+    if (_isDisposing) return null;
     final scene =
         await engine.createScene('worldmap', args['id'], args) as WorldMapScene;
     _heroData = engine.invoke('getHero');
     updateInfoPanels();
-    engine.hetu.assign('isGameLoaded', true);
     return scene;
   }
 
@@ -322,6 +331,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                       break;
                     case WorldMapDropMenuItems.exit:
                       _saveGame().then((value) {
+                        _isDisposing = true;
                         engine.leaveScene(_scene.id, clearCache: true);
                         engine.invoke('resetGame');
                         Navigator.of(context).pop();
@@ -411,8 +421,12 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                   onCheck: () {
                     if (route != null) {
                       _scene.map.moveHeroToTilePositionByRoute(route,
-                          onDestinationCallback: () {});
-                    } else if (isTappingHeroPosition) {}
+                          onDestinationCallback: () {
+                        _checkTerrain(terrain.tilePosition);
+                      });
+                    } else if (isTappingHeroPosition) {
+                      _checkTerrain(terrain.tilePosition);
+                    }
                     closePopup();
                   },
                   enterIcon: ((route != null && terrain.locationId != null) ||

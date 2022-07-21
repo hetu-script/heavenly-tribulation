@@ -1,0 +1,70 @@
+import '../game.ht'
+import '../l10n.ht'
+import '../tile/hexagonal_tile.ht'
+import '../tile/tilemap.ht'
+import '../logic.ht'
+
+const kWorldMapMazePerceptionThreshold = 75
+
+fun handleWorldMapExplore(left, top) {
+  final hero = getHero()
+  final terrainIndex = tilePos2Index(left, top, game.world.width)
+
+  if (game.playerMonthly.explored.contains(terrainIndex)) {
+    showDialogByLocaleKeys(['terrainAlreadyExplored'], character: hero)
+    return
+  }
+
+  game.playerMonthly.explored.add(terrainIndex)
+
+  // 探查要花费一天时间
+  updateGame(ticks: 4)
+
+  final terrain = game.world.terrains[terrainIndex]
+  final entityId = terrain.entityId
+  showExplore().then((value) {
+    if (entityId) {
+      // 探查发现隐藏副本或地点
+      final entity = game.world.entities[entityId]
+      when (entity.encounterType) {
+        // 隐藏的盗贼营地副本
+        'banditCamp' -> {
+          showDialogByLocaleKeys(['worldMapEncounterBanditCamp'], character: hero).then((value) {
+            showSelectionByLocaleKeys(['exploreMaze', 'cancel',]).then((key) {
+              when (key) {
+                'exploreMaze' -> {
+                  final maze = game.mazes[entity.id]
+                  assert(maze != null)
+                  enterMaze(maze)
+                  showMaze(maze)
+                }
+              }
+            })
+          })
+        }
+        // 隐藏的洞天福地
+        'location' -> {
+
+        }
+      }
+    } else {
+      // 探查获得材料
+    }
+  })
+}
+
+// 返回布尔值，如果为真，则玩家控制角色会停止移动
+fun handleWorldMapEntityInteraction({entityId, left, top}) -> bool {
+  final hero = getHero()
+  final entity = game.world.entities[entityId]
+  assert(entity != null)
+  engine.info('世界地图对象互动事件：[${entity.encounterType}: ${entity.id}](${left}, ${top})')
+  
+  // when (entity.encounterType) {
+  //   'banditCamp' -> {
+  //     engine.info('在 ${left}, ${top} 碰到了盗贼营地')
+  //   }
+  // }
+
+  return false
+}

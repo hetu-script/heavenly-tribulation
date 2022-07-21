@@ -2,9 +2,9 @@ import '../battle_entity.ht'
 import '../../common.ht'
 import '../../item/common.ht'
 
-const _kPeddlerAttributeSum = 400
+const _kTrevelingMerchantAttributeSum = 400
 
-struct Peddler {
+struct TrevelingMerchant {
   construct ({
     birthTimestamp,
     kind,
@@ -17,7 +17,7 @@ struct Peddler {
     this.birthTimestamp = birthTimestamp ?? createRandomBirthTimestamp()
     this.icon = 'avatar/general.png'
     this.category = kEntityCategoryCharacter
-    this.kind = 'peddler'
+    this.kind = 'trevelingMerchant'
     this.name = getLocaleString(this.kind)
     this.id = '${this.kind}_${Hash.uid4(2)}_${this.name}'
     this.rarity = kCommon
@@ -36,8 +36,8 @@ struct Peddler {
 
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
     when (this.kind) {
-      'peddler' -> {
-        
+      'trevelingMerchant' -> {
+        characterEquip(this, Weapon())
       }
     }
     

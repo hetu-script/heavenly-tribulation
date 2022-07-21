@@ -7,5 +7,7 @@
 
   "info": "情报",
   "view": "视图",
-  "saveAndExitGame": "保存并退出"
+  "saveAndExitGame": "保存并退出",
+
+  "terrainAlreadyExplored": "看来我这个月已经探查过这个地方了……"
 }

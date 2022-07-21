@@ -1,5 +1,9 @@
 {
+  "exploreMaze": "继续探索",
+
   "banditCampMaze": "盗贼营地",
+
+  "worldMapEncounterBanditCamp": "这里按说应该人迹罕至，却似乎有些可疑的踪迹，是否要前去探查一番？",
 
   "startFightBandit": "大胆毛贼，看来我今天要给你点教训尝尝了！",
 

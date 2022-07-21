@@ -17,18 +17,22 @@ fun getQuestMaxFromLocationDevelopment(development) -> int {
   }
 }
 
-fun updateGame({nextTick = true}) {
-  // 每个tick执行的代码
-  handleBabies()
+fun updateGame({ticks = 1, timeflow = true}) {
+  for (final i in range(ticks)) {
+    // 每个tick执行的代码
+    handleBabies()
 
-  // 每个月执行的代码
-  if (game.timestamp % kTicksPerMonth == 0) {
-    generateQuests()
+    // 每个月执行的代码
+    if (game.timestamp % kTicksPerMonth == 0) {
+      resetMonthlyActivities(game)
+
+      generateQuests()
+    }
+
+    onGameEvent('onUpdate')
+
+    if (timeflow) ++game.timestamp
   }
-
-  onGameEvent('onUpdate')
-
-  if (nextTick) ++game.timestamp
 }
 
 // 每个tick检查一次当前是否有婴儿出生

@@ -159,3 +159,5 @@ fun createRandomBirthTimestamp({min = 1, max = _kCharacterRandomAgeMax}) {
   final randomDateInAYear = random.nextInt(kTicksPerYear)
   return game.timestamp - (age * kTicksPerYear + randomDateInAYear)
 }
+
+const kEncounterTypeCharacter = 'character'

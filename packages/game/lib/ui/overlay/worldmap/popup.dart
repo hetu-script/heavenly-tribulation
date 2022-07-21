@@ -114,7 +114,7 @@ class WorldMapPopup extends StatelessWidget {
                     child: InkImageButton(
                       width: _kPopupButtonSize,
                       height: _kPopupButtonSize,
-                      tooltip: engine.locale['check'],
+                      tooltip: engine.locale['explore'],
                       child: const Image(
                         image: AssetImage('assets/images/icon/check.png'),
                       ),

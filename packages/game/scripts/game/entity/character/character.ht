@@ -176,6 +176,7 @@ struct Character {
     assert(this.name != null)
     this.isMajorCharacter = isMajorCharacter
     this.entityType = kEntityTypeCharacter
+    this.encounterType = kEncounterTypeCharacter
     this.category = kEntityCategoryCharacter
     if (isMajorCharacter) {
       this.id = 'character_${game.characters.length}_${this.name}'

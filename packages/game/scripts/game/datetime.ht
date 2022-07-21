@@ -114,3 +114,19 @@ fun getEntityAgeString(entity) {
 fun getEntityBirthDateString(entity) {
   return formatDateTimeString(game.timestamp - entity.birthTimestamp, format: 'date.md')
 }
+
+fun getDayString(count) {
+  assert(count > 0)
+  return '${count} ${getLocaleString('timeDay')}'
+}
+
+fun getMonthString(count) {
+  assert(count > 0)
+  return '${count} ${getLocaleString('timeMonth')}'
+}
+
+fun getYearString(count) {
+  assert(count > 0)
+  return '${count} ${getLocaleString('timeYear')}'
+}
+

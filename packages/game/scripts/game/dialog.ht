@@ -88,3 +88,7 @@ fun showQuests(location) -> Future {
 fun showMaze(maze) -> Future {
   return ui.showMaze(buildContext, maze)
 }
+
+fun showExplore() {
+  return ui.showExplore(buildContext)
+}

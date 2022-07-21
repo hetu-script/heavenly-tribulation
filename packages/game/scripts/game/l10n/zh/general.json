@@ -10,6 +10,7 @@
   "cancel": "取消",
   "yes": "是",
   "no": "否",
+  "close": "关闭",
   "empty": "空无一物",
   "loadGame": "载入游戏",
   "loading": "载入中...",
@@ -137,5 +138,7 @@
   "level": "第 {0} 层",
 
   "quest": "任务",
-  "takeQuest": "领取"
+  "takeQuest": "领取",
+
+  "explore": "探查"
 }
