@@ -17,12 +17,11 @@ fun handleWorldMapExplore(left, top) {
 
   game.playerMonthly.explored.add(terrainIndex)
 
-  // 探查要花费一天时间
-  updateGame(ticks: 4)
-
   final terrain = game.world.terrains[terrainIndex]
   final entityId = terrain.entityId
   showExplore().then((value) {
+    // 探查要花费一天时间
+    updateGame(ticks: 4)
     if (entityId) {
       // 探查发现隐藏副本或地点
       final entity = game.world.entities[entityId]

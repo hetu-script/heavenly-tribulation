@@ -54,6 +54,7 @@ const _kDefaultOrganizationNumber = 4
 const _kDefaultCharacterNumber = 20
 
 const _kMinZoneSizeForSea = 8
+const _kMinZoneSizeForIsland = 8
 const _kForestThreshold = 0.5
 const _kMountainThreshold = 0.2
 
@@ -136,7 +137,7 @@ fun createWorldMap({
 
   // 生成地域
   engine.info('准备生成地域')
-  final landZone = Zone(index: game.world.zones.length, category: kZoneContinent)
+  final landZone = Zone(index: game.world.zones.length, category: kZoneLand)
   game.world.zones.add(landZone)
   generateContinent(
     seed: seed,
@@ -174,7 +175,7 @@ fun createWorldMap({
       break
     }
     if (!foundAdjacentZone && willCreateZone) {
-      var category = tile.spriteIndex == kSpriteLand ? kZoneContinent : kZoneWater
+      var category = tile.spriteIndex == kSpriteLand ? kZoneLand : kZoneWater
       final zone = Zone(index: game.world.zones.length, category: category)
       game.world.zones.add(zone)
       // engine.info('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneIndex: ${zone.index}')
@@ -198,6 +199,7 @@ fun createWorldMap({
   }
   
   // 将大陆和海洋接触的地方填充为大陆架
+  // 大陆架只影响贴图，不影响该地块的 category 和 kind
   engine.info('将大陆和海洋接触的地方填充为大陆架')
   for (final tile in game.world.terrains) {
     if (tile.spriteIndex != kSpriteWater) continue
@@ -260,27 +262,11 @@ fun createWorldMap({
     tile.overlaySprite.index = kSpriteCity
   }
 
-  // 因为 zone 的命名和其大小有关，因此在最后单独处理
-  engine.info('为地域命名')
-  for (final zone in game.world.zones) {
-    if (zone.name) {
-      continue
-    }
-    late category
-    if (zone.category == kZoneWater) {
-      category = zone.terrainIndexes.length < _kMinZoneSizeForSea ? kZoneLake : kZoneWater
-    } else {
-      category = zone.category
-    }
-    final r = nameGenerator.getZone(1, category: category)
-    zone.name = r.first.name
-  }
-
   engine.info('确保陆地上的每个城市至少可以链接到另外两个城市')
   for (final location of game.locations) {
     final start = game.world.terrains[location.terrainIndex]
     // 确保陆地上的每个城市至少可以链接到另外两个城市
-    if (start.zoneCategory == kZoneContinent) {
+    if (start.zoneCategory == kZoneLand) {
       final searchResult = find2NearestLocation(location, restricted2Zone: true)
       if (searchResult.nearest) {
         final end = game.world.terrains[searchResult.nearest.terrainIndex]
@@ -321,6 +307,53 @@ fun createWorldMap({
     }
   }
 
+  // 因为 zone 的名字和其大小有关，因此在最后在才命名和赋值 category/kind
+  engine.info('为地域命名')
+  for (final zone in game.world.zones) {
+    if (zone.name) {
+      continue
+    }
+    // kZoneWater & kZoneLand 只是临时类型，现在替换为具体的类型
+    if (zone.category == kZoneWater) {
+      zone.category = zone.terrainIndexes.length < _kMinZoneSizeForSea ? kZoneCategoryLake : kZoneCategorySea
+      
+      // 为该地域中所有地块赋值 kind
+      for (final terrainIndex in zone.terrainIndexes) {
+        final tile = game.world.terrains[terrainIndex]
+        tile.isWater = true
+        tile.zoneCategory = zone.category
+        tile.kind = zone.category
+      }
+    } else {
+      zone.category = zone.terrainIndexes.length < _kMinZoneSizeForIsland ? kZoneCategoryIsland : kZoneCategoryContinent
+      
+      // 为该地域中所有地块赋值 kind
+      for (final terrainIndex in zone.terrainIndexes) {
+        final tile = game.world.terrains[terrainIndex]
+        tile.zoneCategory = zone.category
+        
+        if (tile.locationId) {
+          tile.kind = kTerrainKindLocation
+        }
+        // else if (tile.isRoute) {
+        //   tile.kind = kTerrainKindRoad
+        // }
+        else if (tile.spriteIndex == kSpriteMountain) {
+          tile.kind = kTerrainKindMountain
+        } else if (tile.spriteIndex == kSpriteForest) {
+          tile.kind = kTerrainKindForest
+        } else {
+          tile.kind = kTerrainKindPlain
+        }
+        // TODO: river类型和道路类型单独的贴图
+      }
+    }
+
+    final r = nameGenerator.getZone(1, category: zone.category)
+    zone.name = r.first.name
+
+  }
+
   // TODO: 生成洞天福地，洞天是大陆上山峰所在地，福地是大海中的岛屿
   // 洞天福地在未被探索之前，对玩家不可见。只是显示为平常的地形。
   // 如果据点生成在海洋之中，就将该地块设定为岛屿
@@ -359,7 +392,7 @@ fun createWorldMap({
     // avoid editing iterable while iterating
     for (final index in random.shuffle(nation.borderIndexes)) {
       final terrain = game.world.terrains[index]
-      if (terrain.nationId == null && terrain.zoneCategory == kZoneContinent) {
+      if (terrain.nationId == null && !terrain.isWater) {
         addTerrainToNation(nation, terrain)
         return true
       }

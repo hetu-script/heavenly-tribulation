@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart' as path;
 import 'package:path/path.dart' as path;
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
+import 'package:samsara/tilemap.dart';
 // import 'package:flame_audio/flame_audio.dart';
 import 'package:hetu_script/hetu_script.dart';
 import 'package:hetu_script/values.dart';
@@ -29,6 +30,8 @@ import '../view/console.dart';
 // import '../../../event/events.dart';
 import '../view/location/location.dart';
 import '../dialog/character_select_dialog.dart';
+// import 'worldmap/terrain_info.dart';
+// import 'worldmap/location_info.dart';
 
 class MainGameOverlay extends StatefulWidget {
   const MainGameOverlay({
@@ -55,6 +58,32 @@ class _MainGameOverlayState extends State<MainGameOverlay>
 
   bool _isDisposing = false;
 
+  TileMapTerrain? _currentTerrain;
+  set currentTerrain(TileMapTerrain? terrain) {
+    _currentTerrain = terrain;
+    if (_currentTerrain != null) {
+      final String? locationId = _currentTerrain!.locationId;
+
+      final nationId = _currentTerrain!.nationId;
+      if (nationId != null) {
+        _currentNation =
+            engine.invoke('getNationById', positionalArgs: [nationId]);
+      } else {
+        _currentNation = null;
+      }
+
+      if (locationId != null) {
+        _currentLocation =
+            engine.invoke('getLocationById', positionalArgs: [locationId]);
+      } else {
+        _currentLocation = null;
+      }
+    }
+  }
+
+  HTStruct? _currentLocation;
+  HTStruct? _currentNation;
+
   void _checkTerrain(TilePosition tilePosition) {
     engine.invoke(
       'handleWorldMapExplore',
@@ -75,35 +104,44 @@ class _MainGameOverlayState extends State<MainGameOverlay>
   void _mapTapHandler(GameEvent event) {
     final e = event as MapInteractionEvent;
     if (engine.isOnDesktop) {
-      if (e.buttons & kPrimaryButton != kPrimaryButton) return;
-      final hero = _scene.map.hero;
-      if (hero == null) return;
-      if (hero.isMoving) return;
-      final terrain = _scene.map.selectedTerrain;
-      if (terrain == null) return;
-      List<int>? route;
-      if (terrain.tilePosition != hero.tilePosition) {
-        final start = engine.invoke('getTerrain',
-            positionalArgs: [hero.left, hero.top, _scene.worldData]);
-        final end = engine.invoke('getTerrain',
-            positionalArgs: [terrain.left, terrain.top, _scene.worldData]);
-        List? calculatedRoute = engine.invoke('calculateRoute',
-            positionalArgs: [start, end, _scene.worldData]);
-        if (calculatedRoute != null) {
-          route = List<int>.from(calculatedRoute);
+      if (e.buttons & kPrimaryButton == kPrimaryButton) {
+        _menuPosition = null;
+        final hero = _scene.map.hero;
+        if (hero == null) return;
+        if (hero.isMoving) return;
+        final terrain = _scene.map.selectedTerrain;
+        if (terrain == null) return;
+        List<int>? route;
+        if (terrain.tilePosition != hero.tilePosition) {
+          final start = engine.invoke('getTerrain',
+              positionalArgs: [hero.left, hero.top, _scene.worldData]);
+          final end = engine.invoke('getTerrain',
+              positionalArgs: [terrain.left, terrain.top, _scene.worldData]);
+          List? calculatedRoute = engine.invoke('calculateRoute',
+              positionalArgs: [start, end, _scene.worldData]);
+          if (calculatedRoute != null) {
+            route = List<int>.from(calculatedRoute);
+            if (terrain.locationId != null) {
+              _scene.map.moveHeroToTilePositionByRoute(
+                route,
+                onDestinationCallback: () =>
+                    _enterLocation(terrain.locationId!),
+              );
+            } else {
+              _scene.map.moveHeroToTilePositionByRoute(route);
+            }
+          }
+        } else {
           if (terrain.locationId != null) {
-            _scene.map.moveHeroToTilePositionByRoute(
-              route,
-              onDestinationCallback: () => _enterLocation(terrain.locationId!),
-            );
-          } else {
-            _scene.map.moveHeroToTilePositionByRoute(route);
+            _enterLocation(terrain.locationId!);
           }
         }
-      } else {
-        if (terrain.locationId != null) {
-          _enterLocation(terrain.locationId!);
-        }
+      } else if (e.buttons & kSecondaryButton == kSecondaryButton) {
+        if (_scene.map.hero?.isMoving ?? false) return;
+        setState(() {
+          _menuPosition = _scene.map.tilePosition2TileCenterInScreen(
+              e.tilePosition.left, e.tilePosition.top);
+        });
       }
     }
   }
@@ -124,27 +162,32 @@ class _MainGameOverlayState extends State<MainGameOverlay>
         override: true);
 
     engine.registerListener(
-      Events.mapDoubleTapped,
+      Events.mapTapped,
       EventHandler(widget.key!, _mapTapHandler),
     );
 
-    engine.registerListener(
-      Events.mapTapped,
-      EventHandler(widget.key!, (event) {
-        final e = event as MapInteractionEvent;
-        if (_menuPosition != null) {
-          setState(() {
-            _menuPosition = null;
-          });
-        } else if (e.buttons & kSecondaryButton == kSecondaryButton) {
-          if (_scene.map.hero?.isMoving ?? false) return;
-          setState(() {
-            _menuPosition = _scene.map.tilePosition2TileCenterInScreen(
-                e.tilePosition.left, e.tilePosition.top);
-          });
-        }
-      }),
-    );
+    // engine.registerListener(
+    //   Events.mapDoubleTapped,
+    //   EventHandler(widget.key!, _mapTapHandler),
+    // );
+
+    // engine.registerListener(
+    //   Events.mapTapped,
+    //   EventHandler(widget.key!, (event) {
+    //     final e = event as MapInteractionEvent;
+    //     if (_menuPosition != null) {
+    //       setState(() {
+    //         _menuPosition = null;
+    //       });
+    //     } else if (e.buttons & kSecondaryButton == kSecondaryButton) {
+    //       if (_scene.map.hero?.isMoving ?? false) return;
+    //       setState(() {
+    //         _menuPosition = _scene.map.tilePosition2TileCenterInScreen(
+    //             e.tilePosition.left, e.tilePosition.top);
+    //       });
+    //     }
+    //   }),
+    // );
 
     engine.registerListener(
       Events.loadedMap,
@@ -164,8 +207,6 @@ class _MainGameOverlayState extends State<MainGameOverlay>
             engine.invoke('onGameEvent', positionalArgs: ['onNewGame']);
           }
           _heroData = engine.invoke('getHero');
-          final positionData = engine
-              .invoke('getCharacterWorldPosition', positionalArgs: [_heroData]);
           final charSheet = SpriteSheet(
             image: await Flame.images.load('character/tile_character.png'),
             srcSize: heroSrcSize,
@@ -180,8 +221,8 @@ class _MainGameOverlayState extends State<MainGameOverlay>
             isHero: true,
             animationSpriteSheet: charSheet,
             waterAnimationSpriteSheet: shipSheet,
-            left: positionData['left'],
-            top: positionData['top'],
+            left: _heroData!['worldPosition']['left'],
+            top: _heroData!['worldPosition']['top'],
             tileShape: _scene.map.tileShape,
             tileMapWidth: _scene.map.tileMapWidth,
             gridWidth: _scene.map.gridWidth,
@@ -189,6 +230,10 @@ class _MainGameOverlayState extends State<MainGameOverlay>
             srcWidth: heroSrcSize.x,
             srcHeight: heroSrcSize.y,
           );
+          currentTerrain = _scene.map.getTerrain(
+              _heroData!['worldPosition']['left'],
+              _heroData!['worldPosition']['top']);
+
           setState(() {});
         },
       ),
@@ -199,25 +244,30 @@ class _MainGameOverlayState extends State<MainGameOverlay>
       EventHandler(
         widget.key!,
         (GameEvent event) {
+          final heroEvent = event as HeroEvent;
           setState(() {
-            if (event.scene == 'worldmap') {
+            if (heroEvent.scene == 'worldmap') {
+              engine.invoke('setHeroPosition', positionalArgs: [
+                heroEvent.tilePosition.left,
+                heroEvent.tilePosition.top,
+              ]);
+
               engine.invoke('updateGame');
-              final tile = _scene.map.getTerrainAtHero();
-              if (tile != null) {
-                final String? entityId = tile.entityId;
-                if (entityId != null) {
-                  if (_scene.map.hero != null) {
-                    final blocked = engine.invoke(
-                      'handleWorldMapEntityInteraction',
-                      namedArgs: {
-                        'entityId': entityId,
-                        'left': tile.left,
-                        'top': tile.top,
-                      },
-                    );
-                    if (blocked) {
-                      _scene.map.hero!.isMovingCanceled = true;
-                    }
+              currentTerrain = _scene.map.getTerrainAtHero();
+              assert(_currentTerrain != null);
+              final String? entityId = _currentTerrain!.entityId;
+              if (entityId != null) {
+                if (_scene.map.hero != null) {
+                  final blocked = engine.invoke(
+                    'handleWorldMapEntityInteraction',
+                    namedArgs: {
+                      'entityId': entityId,
+                      'left': _currentTerrain!.left,
+                      'top': _currentTerrain!.top,
+                    },
+                  );
+                  if (blocked) {
+                    _scene.map.hero!.isMovingCanceled = true;
                   }
                 }
               }
@@ -295,7 +345,12 @@ class _MainGameOverlayState extends State<MainGameOverlay>
               Positioned(
                 left: 0,
                 top: 0,
-                child: HeroInfoPanel(characterData: _heroData!),
+                child: HeroInfoPanel(
+                  heroData: _heroData!,
+                  currentTerrain: _currentTerrain,
+                  currentNationData: _currentNation,
+                  currentLocationData: _currentLocation,
+                ),
               ),
             if (_questData != null)
               Positioned(
@@ -342,32 +397,44 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                 },
               ),
             ),
-            Positioned(
-              left: 0,
-              bottom: 0,
-              child: HistoryPanel(
-                heroId: _heroData?['id'],
+            Positioned.fill(
+              child: Align(
+                alignment: AlignmentDirectional.bottomCenter,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    HistoryPanel(
+                      heroId: _heroData?['id'],
+                    ),
+                    // TerrainInfoPanel(
+                    //   terrainData: selectedTerrain,
+                    // ),
+                    // LocationInfoPanel(
+                    //   locationData: selectedLocation,
+                    // ),
+                  ],
+                ),
               ),
             ),
           ];
 
+          final selectedTerrain = _scene.map.selectedTerrain;
           if (_menuPosition != null) {
-            if (_scene.map.selectedTerrain != null) {
-              final terrain = _scene.map.selectedTerrain!;
-              final terrainZone = _scene.map.zones[terrain.zoneIndex];
+            if (selectedTerrain != null) {
+              final terrainZone = _scene.map.zones[selectedTerrain.zoneIndex];
               final characters = _scene.map.selectedActors;
               final hero = _scene.map.hero;
               List<int>? route;
               var isTappingHeroPosition = false;
               if (hero != null) {
                 isTappingHeroPosition =
-                    terrain.tilePosition == hero.tilePosition;
+                    selectedTerrain.tilePosition == hero.tilePosition;
                 if (!isTappingHeroPosition) {
                   final start = engine.invoke('getTerrain',
                       positionalArgs: [hero.left, hero.top, _scene.worldData]);
                   final end = engine.invoke('getTerrain', positionalArgs: [
-                    terrain.left,
-                    terrain.top,
+                    selectedTerrain.left,
+                    selectedTerrain.top,
                     _scene.worldData
                   ]);
                   List? calculatedRoute = engine.invoke('calculateRoute',
@@ -385,28 +452,6 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                 });
               }
 
-              final stringBuffer = StringBuffer();
-              stringBuffer.writeln('坐标: ${terrain.left}, ${terrain.top}');
-
-              final zoneData = engine.invoke('getZoneByIndex',
-                  positionalArgs: [terrain.zoneIndex]);
-              final zoneName = zoneData['name'];
-              if (zoneName != null) {
-                stringBuffer.writeln(zoneName);
-              }
-
-              if (terrain.nationId != null) {
-                final nationData = engine.invoke('getNationById',
-                    positionalArgs: [terrain.nationId]);
-                stringBuffer.writeln('${nationData['name']}');
-              }
-
-              if (terrain.locationId != null) {
-                final locationData = engine.invoke('getLocationById',
-                    positionalArgs: [terrain.locationId]);
-                stringBuffer.writeln('${locationData['name']}');
-              }
-
               screenWidgets.add(
                 WorldMapPopup(
                   left: _menuPosition!.x - WorldMapPopup.defaultSize / 2,
@@ -422,26 +467,28 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                     if (route != null) {
                       _scene.map.moveHeroToTilePositionByRoute(route,
                           onDestinationCallback: () {
-                        _checkTerrain(terrain.tilePosition);
+                        _checkTerrain(selectedTerrain.tilePosition);
                       });
                     } else if (isTappingHeroPosition) {
-                      _checkTerrain(terrain.tilePosition);
+                      _checkTerrain(selectedTerrain.tilePosition);
                     }
                     closePopup();
                   },
-                  enterIcon: ((route != null && terrain.locationId != null) ||
-                          (isTappingHeroPosition && terrain.locationId != null))
-                      ? true
-                      : false,
+                  enterIcon:
+                      ((route != null && selectedTerrain.locationId != null) ||
+                              (isTappingHeroPosition &&
+                                  selectedTerrain.locationId != null))
+                          ? true
+                          : false,
                   onEnter: () {
                     if (route != null) {
                       _scene.map.moveHeroToTilePositionByRoute(
                         route,
                         onDestinationCallback: () =>
-                            _enterLocation(terrain.locationId!),
+                            _enterLocation(selectedTerrain.locationId!),
                       );
                     } else if (isTappingHeroPosition) {
-                      _enterLocation(terrain.locationId!);
+                      _enterLocation(selectedTerrain.locationId!);
                     }
                     closePopup();
                   },
@@ -449,7 +496,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                   onTalk: closePopup,
                   restIcon: isTappingHeroPosition,
                   onRest: closePopup,
-                  description: stringBuffer.toString(),
+                  // description: stringBuffer.toString(),
                 ),
               );
             }

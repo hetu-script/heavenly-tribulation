@@ -10,7 +10,6 @@ struct Zone {
     this.name = name
     this.category = category
     this.color = random.nextBrightColorHex()
-    this.count = 0
     this.terrainIndexes = []
   }
 }
@@ -21,6 +20,8 @@ struct TileMap {
     name,
     width,
     height,
+    entryX,
+    entryY,
     terrainSpriteSheet = 'fantasyhextiles_v3_borderless.png',
     tileShape = 'hexagonalVertical',
     gridWidth = 32.0,
@@ -29,14 +30,13 @@ struct TileMap {
     tileSpriteSrcHeight = 48.0,
     tileOffsetX = 0.0,
     tileOffsetY = 2.0,
-    entryX = 1,
-    entryY = 1,
-    scale = 2.0,
   }) {
     this.id = id
     this.name = name
     this.width = width
     this.height = height
+    this.entryX = entryX
+    this.entryY = entryY
     this.terrainSpriteSheet = terrainSpriteSheet
     this.tileShape = tileShape
     this.gridWidth = gridWidth
@@ -45,9 +45,6 @@ struct TileMap {
     this.tileSpriteSrcHeight = tileSpriteSrcHeight
     this.tileOffsetX = tileOffsetX
     this.tileOffsetY = tileOffsetY
-    this.entryX = entryX
-    this.entryY = entryY
-    this.scale = scale
 
     this.zones = []
     this.terrains = []

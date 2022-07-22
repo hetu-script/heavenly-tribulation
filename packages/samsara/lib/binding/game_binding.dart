@@ -35,25 +35,33 @@ extension SamsaraEngineBinding on SamsaraEngine {
                 {List<dynamic> positionalArgs = const [],
                 Map<String, dynamic> namedArgs = const {},
                 List<HTType> typeArgs = const []}) =>
-            debug(positionalArgs.first);
+            debug(positionalArgs
+                .map((object) => hetu.lexicon.stringify(object))
+                .join(' '));
       case 'info':
         return (HTEntity object,
                 {List<dynamic> positionalArgs = const [],
                 Map<String, dynamic> namedArgs = const {},
                 List<HTType> typeArgs = const []}) =>
-            info(positionalArgs.first);
+            info(positionalArgs
+                .map((object) => hetu.lexicon.stringify(object))
+                .join(' '));
       case 'warning':
         return (HTEntity object,
                 {List<dynamic> positionalArgs = const [],
                 Map<String, dynamic> namedArgs = const {},
                 List<HTType> typeArgs = const []}) =>
-            warning(positionalArgs.first);
+            warning(positionalArgs
+                .map((object) => hetu.lexicon.stringify(object))
+                .join(' '));
       case 'error':
         return (HTEntity object,
                 {List<dynamic> positionalArgs = const [],
                 Map<String, dynamic> namedArgs = const {},
                 List<HTType> typeArgs = const []}) =>
-            error(positionalArgs.first);
+            error(positionalArgs
+                .map((object) => hetu.lexicon.stringify(object))
+                .join(' '));
       default:
         throw HTError.undefined(varName);
     }

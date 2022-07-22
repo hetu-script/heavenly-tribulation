@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
+import 'package:samsara/tilemap.dart';
 import 'package:hetu_script/values.dart';
 import 'package:flame/sprite.dart';
 import 'package:flame/flame.dart';
@@ -292,6 +293,7 @@ class _MazeOverlayState extends State<MazeOverlay>
           if (_scene.isAttached) {
             _scene.detach();
           }
+
           return Material(
             color: Colors.transparent,
             child: Stack(
@@ -301,7 +303,9 @@ class _MazeOverlayState extends State<MazeOverlay>
                   Positioned(
                     left: 0,
                     top: 0,
-                    child: HeroInfoPanel(characterData: _heroData!),
+                    child: HeroInfoPanel(
+                      heroData: _heroData!,
+                    ),
                   ),
                 Positioned(
                   right: 0,

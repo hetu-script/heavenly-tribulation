@@ -10,6 +10,7 @@ import '../l10n.ht'
 import 'common.ht'
 import '../binding/maze.ht'
 import '../tile/common.ht'
+import 'generation_algorithm.ht'
 
 final _kLandSprites = [
   kSpriteLand,
@@ -109,6 +110,7 @@ struct MountainMaze {
     final [ width, height ] = [ kDefaultBlockWidth * kDefaultMazeScale, kDefaultBlockHeight * kDefaultMazeScale ]
     this.width = width
     this.height = height
+    this.currentLevelIndex = 0
 
     for (final levelIndex in range(kLevelNumber)) {
       final levelUniqueEncounters = Set()
@@ -121,7 +123,7 @@ struct MountainMaze {
       )
 
       engine.info('生成迷宫地块')
-      final landZone = Zone(index: currentLevel.zones.length, category: kZoneContinent)
+      final landZone = Zone(index: currentLevel.zones.length, category: kZoneLand)
       currentLevel.zones.add(landZone)
       for (var j in range(height)) {
         for (var i in range(width)) {

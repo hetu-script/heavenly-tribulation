@@ -1,23 +1,38 @@
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
+import 'package:samsara/tilemap.dart';
 import 'package:hetu_script/values.dart';
 
 import '../global.dart';
 
 class WorldMapScene extends Scene {
-  late final TileMap map;
+  final TileMap map;
 
   HTStruct worldData;
 
   WorldMapScene({required this.worldData, required super.controller})
-      : super(id: worldData['id'], key: 'worldmap');
+      : map = TileMap(
+          engine: engine,
+          tileShape: TileShape.hexagonalVertical,
+          gridWidth: 32.0,
+          gridHeight: 28.0,
+          tileSpriteSrcWidth: 32.0,
+          tileSpriteSrcHeight: 48.0,
+          tileOffsetX: 0.0,
+          tileOffsetY: 2.0,
+          scaleFactor: 2.0,
+          showClouds: true,
+          showSelected: false,
+          showFogOfWar: false,
+        ),
+        super(id: worldData['id'], key: 'worldmap');
 
   bool isMapReady = false;
 
   @override
   Future<void> onLoad() async {
     super.onLoad();
-    map = await TileMap.fromData(mapData: worldData, engine: engine);
+    await map.updateData(worldData);
     add(map);
     isMapReady = true;
     engine

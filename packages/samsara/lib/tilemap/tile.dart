@@ -43,16 +43,10 @@ enum TileRenderDirection {
   bottomCenter,
 }
 
-enum ZoneCategory {
-  empty,
-  water,
-  continent,
-  island,
-  lake,
-  plain,
-  moutain,
-  forest,
-}
+const kZoneCategoryContinent = 'continent';
+const kZoneCategoryIsland = 'island';
+const kZoneCategoryLake = 'lake';
+const kZoneCategorySea = 'sea';
 
 class TileMapTerrain extends GameComponent with TileInfo {
   static const defaultAnimationStepTime = 0.4;
@@ -72,12 +66,10 @@ class TileMapTerrain extends GameComponent with TileInfo {
   // final TileRenderDirection renderDirection;
 
   final int zoneIndex;
-  final ZoneCategory zoneCategory;
+  final String zoneCategory;
+  final String? kind;
 
-  bool get isWater {
-    return zoneCategory == ZoneCategory.lake ||
-        zoneCategory == ZoneCategory.water;
-  }
+  bool isWater;
 
   final String? locationId;
   final String? nationId;
@@ -107,7 +99,9 @@ class TileMapTerrain extends GameComponent with TileInfo {
     required double gridHeight,
     required this.zoneIndex,
     required this.nationId,
-    this.zoneCategory = ZoneCategory.continent,
+    required this.isWater,
+    required this.zoneCategory,
+    required this.kind,
     this.locationId,
     this.baseSprite,
     this.baseAnimation,

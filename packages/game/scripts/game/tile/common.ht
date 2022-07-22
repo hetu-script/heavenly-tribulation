@@ -4,11 +4,24 @@ const kSpriteLand = 3
 const kSpriteCity = 4
 const kSpriteForest = 5
 const kSpriteMountain = 6
+
 const kSpriteGrassLand = 7
-const kSpriteBush = 8
+
 const kLocationCategoryCity = 'city'
+
 const kZoneVoid = 'empty'
+const kZoneLand = 'land'
 const kZoneWater = 'water'
-const kZoneContinent = 'continent'
-const kZoneIsland = 'island'
-const kZoneLake = 'lake'
+const kZoneCategoryContinent = 'continent'
+const kZoneCategoryIsland = 'island'
+const kZoneCategoryLake = 'lake'
+const kZoneCategorySea = 'sea'
+
+const kTerrainKindLocation = 'location'
+const kTerrainKindRoad = 'road'
+const kTerrainKindLake = 'lake'
+const kTerrainKindSea = 'sea'
+const kTerrainKindMountain = 'mountain'
+const kTerrainKindForest = 'forest'
+const kTerrainKindPlain = 'plain'
+const kTerrainKindRiver = 'river'

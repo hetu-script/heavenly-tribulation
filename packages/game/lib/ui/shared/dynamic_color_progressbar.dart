@@ -70,7 +70,6 @@ class DynamicColorProgressBar extends StatelessWidget {
     return Tooltip(
       message: valueString,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (title != null)
             Padding(

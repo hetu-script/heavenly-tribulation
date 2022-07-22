@@ -75,7 +75,7 @@ fun generateContinent1({width, height, landProportion, landZone}) {
       break
     }
     if (!foundAdjacentZone && willCreateZone) {
-      var category = tile.spriteIndex == kSpriteLand ? kZoneContinent : kZoneWater
+      var category = tile.spriteIndex == kSpriteLand ? kZoneLand : kZoneWater
       final zone = Zone(index: game.world.zones.length, category: category)
       game.world.zones.add(zone)
       // engine.info('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneIndex: ${zone.index}')

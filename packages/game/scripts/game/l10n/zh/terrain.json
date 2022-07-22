@@ -1,7 +1,15 @@
 {
-  "waterSpiritOrigin": "水灵气本源",
-  "fireSpiritOrigin": "火灵气本源",
-  "metalSpiritOrigin": "金灵气本源",
-  "woodSpiritOrigin": "木灵气本源",
-  "earthSpiritOrigin": "土灵气本源"
+  "void": "虚空",
+  "land": "土地",
+  "water": "水面",
+  "continent": "大陆",
+  "island": "岛屿",
+  "lake": "湖泊",
+  "sea": "海洋",
+
+  "plain": "平原",
+  "mountain": "山峰",
+  "forest": "森林",
+  "river": "河流",
+  "road": "道路"
 }

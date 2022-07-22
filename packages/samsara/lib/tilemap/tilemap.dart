@@ -60,27 +60,68 @@ class TileMap extends GameComponent with HandlesGesture {
     ..style = PaintingStyle.fill
     ..color = Colors.black.withOpacity(0.5);
 
-  static Future<TileMap> fromData(
-      {required SamsaraEngine engine, required dynamic mapData}) async {
-    final sceneKey = mapData['id'];
+  TileMap({
+    required this.engine,
+    this.tileShape = TileShape.hexagonalVertical,
+    this.gridWidth = 32.0,
+    this.gridHeight = 28.0,
+    this.tileSpriteSrcWidth = 32.0,
+    this.tileSpriteSrcHeight = 48.0,
+    this.tileOffsetX = 0.0,
+    this.tileOffsetY = 2.0,
+    double scaleFactor = 2.0,
+    this.showClouds = false,
+    this.showSelected = false,
+    this.showFogOfWar = false,
+  }) {
+    scale = Vector2(scaleFactor, scaleFactor);
+  }
+
+  Future<void> updateData(dynamic mapData) async {
+    sceneKey = mapData['id'];
+    TileShape dataTileShape = TileShape.orthogonal;
     final tileShapeData = mapData['tileShape'];
-    final scaleFactor = mapData['scale'];
-    var tileShape = TileShape.orthogonal;
     if (tileShapeData == 'isometric') {
-      tileShape = TileShape.isometric;
+      dataTileShape = TileShape.isometric;
     } else if (tileShapeData == 'hexagonalHorizontal') {
-      tileShape = TileShape.hexagonalHorizontal;
+      dataTileShape = TileShape.hexagonalHorizontal;
     } else if (tileShapeData == 'hexagonalVertical') {
-      tileShape = TileShape.hexagonalVertical;
+      dataTileShape = TileShape.hexagonalVertical;
+    }
+    if (tileShape != dataTileShape) {
+      throw 'tile shape in loaded map data [$dataTileShape] is not the same to the tile map component [$tileShape]';
     }
     // final tapSelect = data['tapSelect'] ?? false;
 
-    final gridWidth = mapData['gridWidth'].toDouble();
-    final gridHeight = mapData['gridHeight'].toDouble();
-    final tileSpriteSrcWidth = mapData['tileSpriteSrcWidth'].toDouble();
-    final tileSpriteSrcHeight = mapData['tileSpriteSrcHeight'].toDouble();
-    final tileOffsetX = mapData['tileOffsetX'];
-    final tileOffsetY = mapData['tileOffsetY'];
+    final dataGridWidth = mapData['gridWidth'].toDouble();
+    if (gridWidth != dataGridWidth) {
+      throw 'gridWidth in loaded map data [$dataGridWidth] is not the same to the tile map component [$gridWidth]';
+    }
+
+    final dataGridHeight = mapData['gridHeight'].toDouble();
+    if (gridHeight != dataGridHeight) {
+      throw 'gridWidth in loaded map data [$dataGridHeight] is not the same to the tile map component [$gridHeight]';
+    }
+
+    final dataTileSpriteSrcWidth = mapData['tileSpriteSrcWidth'].toDouble();
+    if (tileSpriteSrcWidth != dataTileSpriteSrcWidth) {
+      throw 'gridWidth in loaded map data [$dataTileSpriteSrcWidth] is not the same to the tile map component [$tileSpriteSrcWidth]';
+    }
+
+    final dataTileSpriteSrcHeight = mapData['tileSpriteSrcHeight'].toDouble();
+    if (tileSpriteSrcHeight != dataTileSpriteSrcHeight) {
+      throw 'gridWidth in loaded map data [$dataTileSpriteSrcHeight] is not the same to the tile map component [$tileSpriteSrcHeight]';
+    }
+
+    final dataTileOffsetX = mapData['tileOffsetX'];
+    if (tileOffsetX != dataTileOffsetX) {
+      throw 'gridWidth in loaded map data [$dataTileOffsetX] is not the same to the tile map component [$tileOffsetX]';
+    }
+
+    final dataTileOffsetY = mapData['tileOffsetY'];
+    if (tileOffsetY != dataTileOffsetY) {
+      throw 'gridWidth in loaded map data [$dataTileOffsetY] is not the same to the tile map component [$tileOffsetY]';
+    }
 
     final terrainSpritePath = mapData['terrainSpriteSheet'];
     final terrainSpriteSheet = SpriteSheet(
@@ -88,12 +129,12 @@ class TileMap extends GameComponent with HandlesGesture {
       srcSize: Vector2(tileSpriteSrcWidth, tileSpriteSrcHeight),
     );
 
-    final int tileMapWidth = mapData['width'];
-    final int tileMapHeight = mapData['height'];
+    tileMapWidth = mapData['width'];
+    tileMapHeight = mapData['height'];
     final terrainsData = mapData['terrains'];
 
     final zonesData = mapData['zones'];
-    final zones = <TileMapZone>[];
+    zones = <TileMapZone>[];
     if (zonesData != null) {
       for (final zoneData in zonesData) {
         final int index = zoneData['index'];
@@ -106,20 +147,7 @@ class TileMap extends GameComponent with HandlesGesture {
       }
     }
 
-    // final routesData = data['routes'];
-    // final routes = <TileMapRoute>[];
-    // for (final routeData in routesData) {
-    //   final tiles = <TilePosition>[];
-    //   for (final index in routeData) {
-    //     final left = index % mapTileWidth + 1;
-    //     final top = index ~/ mapTileHeight + 1;
-    //     tiles.add(TilePosition(left, top));
-    //   }
-    //   final route = TileMapRoute(tiles: tiles);
-    //   routes.add(route);
-    // }
-
-    final List<TileMapTerrain> terrains = [];
+    terrains = <TileMapTerrain>[];
     for (var j = 0; j < tileMapHeight; ++j) {
       for (var i = 0; i < tileMapWidth; ++i) {
         final index = tilePosition2Index(i + 1, j + 1, tileMapWidth);
@@ -128,37 +156,10 @@ class TileMap extends GameComponent with HandlesGesture {
         final bool isSelectable = terrainData['isSelectable'] ?? false;
         final bool isVoid = terrainData['isVoid'] ?? false;
         final bool showGrid = terrainData['showGrid'] ?? false;
+        final bool isWater = terrainData['isWater'] ?? false;
         final int zoneIndex = terrainData['zoneIndex'];
-        final String zoneCategoryString = terrainData['zoneCategory'];
-        ZoneCategory zoneCategory;
-        switch (zoneCategoryString) {
-          case 'empty':
-            zoneCategory = ZoneCategory.empty;
-            break;
-          case 'water':
-            zoneCategory = ZoneCategory.water;
-            break;
-          case 'continent':
-            zoneCategory = ZoneCategory.continent;
-            break;
-          case 'island':
-            zoneCategory = ZoneCategory.island;
-            break;
-          case 'lake':
-            zoneCategory = ZoneCategory.lake;
-            break;
-          case 'plain':
-            zoneCategory = ZoneCategory.plain;
-            break;
-          case 'moutain':
-            zoneCategory = ZoneCategory.moutain;
-            break;
-          case 'forest':
-            zoneCategory = ZoneCategory.forest;
-            break;
-          default:
-            zoneCategory = ZoneCategory.continent;
-        }
+        final String zoneCategory = terrainData['zoneCategory'];
+        final String? kind = terrainData['kind'];
         final String? locationId = terrainData['locationId'];
         final String? nationId = terrainData['nationId'];
         Sprite? baseSprite;
@@ -236,8 +237,10 @@ class TileMap extends GameComponent with HandlesGesture {
           srcHeight: tileSpriteSrcHeight,
           gridWidth: gridWidth,
           gridHeight: gridHeight,
+          isWater: isWater,
           zoneIndex: zoneIndex,
           zoneCategory: zoneCategory,
+          kind: kind,
           locationId: locationId,
           nationId: nationId,
           baseSprite: baseSprite,
@@ -255,7 +258,7 @@ class TileMap extends GameComponent with HandlesGesture {
     }
 
     final objectData = mapData['objects'];
-    final objects = <String, TileMapObject>{};
+    objects = <String, TileMapObject>{};
     if (objectData != null) {
       for (final data in objectData) {
         final spriteSrc = data['spriteSrc'];
@@ -283,32 +286,23 @@ class TileMap extends GameComponent with HandlesGesture {
         objects[entityId] = object;
       }
     }
-
-    return TileMap(
-      engine: engine,
-      sceneKey: sceneKey,
-      tileShape: tileShape,
-      tileMapWidth: tileMapWidth,
-      tileMapHeight: tileMapHeight,
-      gridWidth: gridWidth,
-      gridHeight: gridHeight,
-      terrains: terrains,
-      zones: zones,
-      objects: objects,
-      scaleFactor: scaleFactor,
-    );
   }
 
   @override
   Camera get camera => gameRef.camera;
 
   final SamsaraEngine engine;
-  final String sceneKey;
+  late String sceneKey;
+  TileShape tileShape;
 
-  final TileShape tileShape;
-  final double gridWidth, gridHeight;
+  final double gridWidth,
+      gridHeight,
+      tileSpriteSrcWidth,
+      tileSpriteSrcHeight,
+      tileOffsetX,
+      tileOffsetY;
 
-  final int tileMapWidth, tileMapHeight;
+  late int tileMapWidth, tileMapHeight;
 
   // final bool tapSelect;
 
@@ -317,13 +311,13 @@ class TileMap extends GameComponent with HandlesGesture {
   TileMapTerrain? selectedTerrain;
   List<TileMapObject>? selectedActors;
 
-  final List<TileMapTerrain> terrains;
-  final List<TileMapZone> zones;
+  List<TileMapTerrain> terrains = [];
+  List<TileMapZone> zones = [];
 
   /// 按id保存的object
   /// 这些object不一定都可以互动
   /// 而且也不一定都会在一开始就显示出来
-  final Map<String, TileMapObject> objects;
+  Map<String, TileMapObject> objects = {};
 
   void setTerrainEntity(int left, int top, String? entityId) {
     final tile = getTerrain(left, top);
@@ -366,32 +360,11 @@ class TileMap extends GameComponent with HandlesGesture {
 
   GridMode gridMode = GridMode.none;
 
-  bool showClouds = true;
-  bool showSelected = true;
-  bool showFogOfWar = false;
-  bool isFogOfWarForever = false;
+  bool showClouds;
+  bool showSelected;
+  bool showFogOfWar;
 
   final Set<TilePosition> _visiblePerimeter = {};
-
-  TileMap({
-    required this.engine,
-    required this.sceneKey,
-    required this.tileShape,
-    // this.tapSelect = false,
-    required this.gridWidth,
-    required this.gridHeight,
-    required this.tileMapWidth,
-    required this.tileMapHeight,
-    required this.terrains,
-    this.zones = const [],
-    this.objects = const {},
-    // this.routes = const [],
-    // required this._hero,
-    double scaleFactor = 2.0,
-  }) {
-    assert(terrains.isNotEmpty);
-    scale = Vector2(scaleFactor, scaleFactor);
-  }
 
   // 从索引得到坐标
   TilePosition index2TilePosition(int index) {

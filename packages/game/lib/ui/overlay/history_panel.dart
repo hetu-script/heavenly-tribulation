@@ -49,12 +49,12 @@ class HistoryPanel extends StatelessWidget {
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: Container(
-          width: 300,
-          height: 160,
+          width: 290,
+          height: 120,
           decoration: BoxDecoration(
             color: kBackgroundColor,
-            borderRadius:
-                const BorderRadius.only(topRight: Radius.circular(5.0)),
+            // borderRadius:
+            //     const BorderRadius.only(topRight: Radius.circular(5.0)),
             border: Border.all(color: kForegroundColor),
           ),
           padding: const EdgeInsets.all(10.0),

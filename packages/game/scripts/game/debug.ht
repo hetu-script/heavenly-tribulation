@@ -9,13 +9,40 @@ import 'entity/item/item.ht'
 import 'maze/maze.ht'
 import 'entity/character/companion/villager.ht'
 import 'dialog.ht'
+import 'tile/hexagonal_tile.ht'
 
-// 测试物品：主角获取指定数量的武器，必须在游戏开始后才可以使用
-fun getWeapon([n = 1]) {
-  assert(n > 0)
-  final hero = getHero()
-  for (final i in range(n)) {
-    characterAcquire(hero, Weapon())
+namespace debug {
+  fun terrain {
+    final position = getHeroPosition()
+    final terrainIndex = tilePos2Index(position.left, position.top, game.world.width)
+    final terrain
+    final zone
+    final entity
+    if (currentMaze) {
+      final map = currentMaze.levels[currentMaze.currentLevelIndex]
+      terrain = map.terrains[terrainIndex]
+      if (terrain.zoneIndex) {
+        zone = map.zones[terrain.zoneIndex]
+      }
+      if (terrain.entityId) {
+        entity = currentMaze.entities[terrain.entityId]
+      }
+    } else {
+      terrain = game.world.terrains[terrainIndex]
+      if (terrain.zoneIndex) {
+        zone = game.world.zones[terrain.zoneIndex]
+      }
+      if (terrain.entityId) {
+        entity = game.world.entities[terrain.entityId]
+      }
+    }
+    engine.info('terrain:', terrain)
+    if (zone) {
+      engine.info('zone:', zone)
+    }
+    if (entity) {
+      engine.info('entity:', entity)
+    }
   }
 }
 

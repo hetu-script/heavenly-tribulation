@@ -4,6 +4,7 @@ import '../dialog.ht'
 import '../name/name.ht' as nameGenerator
 import '../l10n.ht'
 import 'common.ht'
+import '../tile/hexagonal_tile.ht'
 
 const kSitePalace = 'palace'
 const kSiteGovernment = 'government'
@@ -194,6 +195,12 @@ fun getLocationById(id: str) {
 
 fun getLocations() {
   return game.locations
+}
+
+fun getLocationByPosition(left, top) {
+  final tile = game.world.terrains[tilePos2Index(left, top, game.world.width)]
+  if (tile.locationId)
+  return game.locations[tile.locationId]
 }
 
 fun getSiteById(siteId: str, locationId: str) {
