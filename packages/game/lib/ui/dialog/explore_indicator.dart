@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../shared/responsive_window.dart';
 import '../../global.dart';
 
-class ExploreIndicator extends StatefulWidget {
+class ProgressIndicator extends StatefulWidget {
   static Future<void> show({
     required BuildContext context,
   }) {
@@ -13,20 +13,20 @@ class ExploreIndicator extends StatefulWidget {
       barrierColor: Colors.transparent,
       barrierDismissible: false,
       builder: (context) {
-        return const ExploreIndicator();
+        return const ProgressIndicator();
       },
     );
   }
 
-  const ExploreIndicator({
+  const ProgressIndicator({
     super.key,
   });
 
   @override
-  State<ExploreIndicator> createState() => _ExploreIndicatorState();
+  State<ProgressIndicator> createState() => _ProgressIndicatorState();
 }
 
-class _ExploreIndicatorState extends State<ExploreIndicator> {
+class _ProgressIndicatorState extends State<ProgressIndicator> {
   Timer? _timer;
   double _progress = 0;
 

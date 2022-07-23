@@ -80,7 +80,7 @@ fun handleWorldTerrainInteraction(left, top) {
             return
           }
           game.playerMonthly.explored.add(terrainIndex)
-          showExplore().then((value) {
+          showProgress().then((value) {
             final entityId = terrain.entityId
             if (entityId) {
               // 探查发现隐藏副本或地点
@@ -114,98 +114,100 @@ fun handleWorldTerrainInteraction(left, top) {
         // 采集，可能会获得：浆果、香草、药草、木柴
         'gather' -> {
           showIntInput(1, 15, getLocaleString('timeDays')).then((days) {
-            final ticks = kTicksPerDay * days
-            updateGame(ticks: ticks)
-            var berryCount = 0
-            var aromaticHerbCount = 0
-            var herbCount = 0
-            var logCount = 0
-            var metBeast = false
-            when (terrain.kind) {
-              kTerrainKindMountain -> {
-                for (final i in range(days)) {
-                  print('day: ${i}')
-                  if (random.nextDouble() < kMountainBeastProbability) {
-                    metBeast = true
-                    break
+            showProgress().then((value) {
+              final ticks = kTicksPerDay * days
+              updateGame(ticks: ticks)
+              var berryCount = 0
+              var aromaticHerbCount = 0
+              var herbCount = 0
+              var logCount = 0
+              var metBeast = false
+              when (terrain.kind) {
+                kTerrainKindMountain -> {
+                  for (final i in range(days)) {
+                    print('day: ${i}')
+                    if (random.nextDouble() < kMountainBeastProbability) {
+                      metBeast = true
+                      break
+                    }
+                    if (random.nextDouble() < kMountainBerryProbability) {
+                      ++berryCount
+                    }
+                    if (random.nextDouble() < kMountainAromaticHerbProbability) {
+                      ++aromaticHerbCount
+                    }
+                    if (random.nextDouble() < kMountainHerbProbability) {
+                      ++herbCount
+                    }
+                    if (random.nextDouble() < kMountainLogProbability) {
+                      ++logCount
+                    }
                   }
-                  if (random.nextDouble() < kMountainBerryProbability) {
-                    ++berryCount
-                  }
-                  if (random.nextDouble() < kMountainAromaticHerbProbability) {
-                    ++aromaticHerbCount
-                  }
-                  if (random.nextDouble() < kMountainHerbProbability) {
-                    ++herbCount
-                  }
-                  if (random.nextDouble() < kMountainLogProbability) {
-                    ++logCount
+                  characterAcquire(hero, Consumable.berry(), berryCount)
+                  characterAcquire(hero, Resource.aromaticHerb(), aromaticHerbCount)
+                  characterAcquire(hero, Consumable.herb(), herbCount)
+                  characterAcquire(hero, Resource.log(), logCount)
+                  if (metBeast) {
+                    heroBattle(Beast(),
+                      onLost: () {
+                        showWorldMapGameOver()
+                      },
+                    )
                   }
                 }
-                characterAcquire(hero, Consumable.berry(), berryCount)
-                characterAcquire(hero, Resource.aromaticHerb(), aromaticHerbCount)
-                characterAcquire(hero, Consumable.herb(), herbCount)
-                characterAcquire(hero, Resource.log(), logCount)
-                if (metBeast) {
-                  heroBattle(Beast(),
-                    onLost: () {
-                      showWorldMapGameOver()
-                    },
-                  )
+                kTerrainKindForest -> {
+                  for (final i in range(days)) {
+                    if (random.nextDouble() < kForestBeastProbability) {
+                      metBeast = true
+                      break
+                    }
+                    if (random.nextDouble() < kForestBerryProbability) {
+                      ++berryCount
+                    }
+                    if (random.nextDouble() < kForestAromaticHerbProbability) {
+                      ++aromaticHerbCount
+                    }
+                    if (random.nextDouble() < kForestHerbProbability) {
+                      ++herbCount
+                    }
+                    if (random.nextDouble() < kForestLogProbability) {
+                      ++logCount
+                    }
+                  }
+                  characterAcquire(hero, Consumable.berry(), berryCount)
+                  characterAcquire(hero, Resource.aromaticHerb(), aromaticHerbCount)
+                  characterAcquire(hero, Consumable.herb(), herbCount)
+                  characterAcquire(hero, Resource.log(), logCount)
+                  if (metBeast) {
+                    heroBattle(Beast(),
+                      onLost: () {
+                        showWorldMapGameOver()
+                      },
+                    )
+                  }
+                }
+                kTerrainKindPlain -> {
+                  for (final i in range(days)) {
+                    if (random.nextDouble() < kPlainBerryProbability) {
+                      ++berryCount
+                    }
+                    if (random.nextDouble() < kPlainAromaticHerbProbability) {
+                      ++aromaticHerbCount
+                    }
+                    if (random.nextDouble() < kPlainHerbProbability) {
+                      ++herbCount
+                    }
+                    if (random.nextDouble() < kPlainLogProbability) {
+                      ++logCount
+                    }
+                  }
+                  characterAcquire(hero, Consumable.berry(), berryCount)
+                  characterAcquire(hero, Resource.aromaticHerb(), aromaticHerbCount)
+                  characterAcquire(hero, Consumable.herb(), herbCount)
+                  characterAcquire(hero, Resource.log(), logCount)
                 }
               }
-              kTerrainKindForest -> {
-                for (final i in range(days)) {
-                  if (random.nextDouble() < kForestBeastProbability) {
-                    metBeast = true
-                    break
-                  }
-                  if (random.nextDouble() < kForestBerryProbability) {
-                    ++berryCount
-                  }
-                  if (random.nextDouble() < kForestAromaticHerbProbability) {
-                    ++aromaticHerbCount
-                  }
-                  if (random.nextDouble() < kForestHerbProbability) {
-                    ++herbCount
-                  }
-                  if (random.nextDouble() < kForestLogProbability) {
-                    ++logCount
-                  }
-                }
-                characterAcquire(hero, Consumable.berry(), berryCount)
-                characterAcquire(hero, Resource.aromaticHerb(), aromaticHerbCount)
-                characterAcquire(hero, Consumable.herb(), herbCount)
-                characterAcquire(hero, Resource.log(), logCount)
-                if (metBeast) {
-                  heroBattle(Beast(),
-                    onLost: () {
-                      showWorldMapGameOver()
-                    },
-                  )
-                }
-              }
-              kTerrainKindPlain -> {
-                for (final i in range(days)) {
-                  if (random.nextDouble() < kPlainBerryProbability) {
-                    ++berryCount
-                  }
-                  if (random.nextDouble() < kPlainAromaticHerbProbability) {
-                    ++aromaticHerbCount
-                  }
-                  if (random.nextDouble() < kPlainHerbProbability) {
-                    ++herbCount
-                  }
-                  if (random.nextDouble() < kPlainLogProbability) {
-                    ++logCount
-                  }
-                }
-                characterAcquire(hero, Consumable.berry(), berryCount)
-                characterAcquire(hero, Resource.aromaticHerb(), aromaticHerbCount)
-                characterAcquire(hero, Consumable.herb(), herbCount)
-                characterAcquire(hero, Resource.log(), logCount)
-              }
-            }
+            })
           })
         }
         // 伐木，可能会获得：木柴、木料

@@ -91,11 +91,11 @@ final Map<String, Function> externalGameFunctions = {
       mazeData: positionalArgs[1],
     );
   },
-  r'showExplore': (HTEntity object,
+  r'showProgress': (HTEntity object,
       {List<dynamic> positionalArgs = const [],
       Map<String, dynamic> namedArgs = const {},
       List<HTType> typeArgs = const []}) {
-    return ExploreIndicator.show(context: positionalArgs[0]);
+    return ProgressIndicator.show(context: positionalArgs[0]);
   },
   r'showIntInput': (HTEntity object,
       {List<dynamic> positionalArgs = const [],
