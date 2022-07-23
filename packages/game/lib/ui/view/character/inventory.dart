@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
@@ -8,6 +7,7 @@ import '../grid/entity_grid.dart';
 import '../grid/entity_info.dart';
 import '../../../global.dart';
 import '../../../event/events.dart';
+import '../../shared/integer_input_field.dart';
 
 const _kInventorySlotCount = 30;
 
@@ -138,23 +138,10 @@ class _InventoryViewState extends State<InventoryView> {
                   type: MaterialType.transparency,
                   child: SizedBox(
                     width: 100.0,
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
-                      style: const TextStyle(fontSize: 12.0),
+                    child: IntegerInputField(
+                      min: 1,
+                      max: itemData['stackSize'],
                       controller: _textEditingController,
-                      decoration: InputDecoration(
-                        label: Text(engine.locale['quantity']),
-                        focusedBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.white,
-                          ),
-                          gapPadding: 0.0,
-                        ),
-                        border: const OutlineInputBorder(),
-                      ),
                     ),
                   ),
                 ),
@@ -185,23 +172,10 @@ class _InventoryViewState extends State<InventoryView> {
                   type: MaterialType.transparency,
                   child: SizedBox(
                     width: 100.0,
-                    child: TextField(
-                      keyboardType: TextInputType.number,
-                      inputFormatters: <TextInputFormatter>[
-                        FilteringTextInputFormatter.digitsOnly
-                      ],
-                      style: const TextStyle(fontSize: 12.0),
+                    child: IntegerInputField(
+                      min: 1,
+                      max: itemData['stackSize'],
                       controller: _textEditingController,
-                      decoration: InputDecoration(
-                        label: Text(engine.locale['quantity']),
-                        focusedBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.white,
-                          ),
-                          gapPadding: 0.0,
-                        ),
-                        border: const OutlineInputBorder(),
-                      ),
                     ),
                   ),
                 ),

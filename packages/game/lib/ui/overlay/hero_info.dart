@@ -13,12 +13,14 @@ class HeroInfoPanel extends StatelessWidget {
   const HeroInfoPanel({
     super.key,
     required this.heroData,
+    this.showTilePosition = true,
     this.currentTerrain,
     this.currentNationData,
     this.currentLocationData,
   });
 
   final HTStruct heroData;
+  final bool showTilePosition;
   final TileMapTerrain? currentTerrain;
   final HTStruct? currentNationData;
   final HTStruct? currentLocationData;
@@ -29,6 +31,7 @@ class HeroInfoPanel extends StatelessWidget {
         engine.invoke('getCharacterStats', positionalArgs: [heroData]);
 
     final sb = StringBuffer();
+
     sb.write(
         '${heroData['worldPosition']['left']}, ${heroData['worldPosition']['top']}');
 
@@ -98,10 +101,11 @@ class HeroInfoPanel extends StatelessWidget {
                     colors: const <Color>[Colors.yellow, Colors.blue],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 5.0),
-                  child: Text(sb.toString()),
-                ),
+                if (showTilePosition)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 5.0),
+                    child: Text(sb.toString()),
+                  ),
                 const Spacer(),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 5.0),

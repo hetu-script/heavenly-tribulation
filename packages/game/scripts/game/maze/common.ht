@@ -1,5 +1,7 @@
 import '../binding/maze.ht'
 import '../game.ht'
+import '../entity/character/battle_entity.ht'
+import '../tile/hexagonal_tile.ht'
 
 const kEncounterProbability = 0.5
 const kLevelUniqueEncounterProbability = 0.15
@@ -27,7 +29,7 @@ fun setMazeLevelIndex(maze, levelIndex) {
 }
 
 fun mazeGameOver(maze) {
-  showGameOver().then((value) {
+  showMazeGameOver().then((value) {
     leaveMaze(maze)
   })
 }
@@ -43,25 +45,21 @@ fun handleMazeEntityInteraction({entityId, left, top, maze, currentLevelIndex}) 
 
   // 战斗，异步函数，如果获胜则返回 true
   fun battle -> Future {
-    return showDuel(hero, entity).then((result) {
-      if (result?.result) {
-        resolveDuelResult(hero, entity, result)
-        characterLoot(hero, entity, takeAll: true)
-        final incidentContent = getLocaleString('duelVistory', [ hero.name, entity.name ] )
-        Incident(
-          content: incidentContent,
-          subjectIds: [hero.id],
-          isPrivate: true,
-          isLocal: true,
-        )
+    return heroBattle(
+      entity,
+      loot: true,
+      takeAll: true,
+      char1Resurrect: false,
+      char2Resurrect: false,
+      onWon: () {
         tile.objectId = null
         setMazeObject(left, top, null)
         delete game.npcs[entity.id]
-        return true
-      } else {
+      },
+      onLost: () {
         mazeGameOver(maze)
-      }
-    })
+      },
+    )
   }
 
   // 盗贼，如果成功击败则返回true，否则返回false

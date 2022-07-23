@@ -37,25 +37,27 @@ fun updateGame({ticks = 1, timeflow = true}) {
 
 // 每个tick检查一次当前是否有婴儿出生
 fun handleBabies {
-  final bornIds = Set()
+  final toBeRemovedIds = Set()
   for (final baby of game.babies) {
     if (game.timestamp - baby.conceptionTimestamp < baby.pregnancyTime) continue
     final mother = game.characters[baby.motherId]
-    mother.isPregnant = false
-    final location = game.locations[mother.locationId]
-    final character = Character(
-      familyName: baby.familyName,
-      shorname: baby.shorname,
-      isFemale: baby.isFemale,
-      birthTimestamp: game.timestamp,
-      locationId: location.id,
-      isNewborn: true,
-      fatherId: baby.fatherId,
-      motherId: baby.motherId,
-    )
-    bornIds.add(baby.id)
+    if (!mother.isDead) {
+      mother.isPregnant = false
+      final location = game.locations[mother.locationId]
+      final character = Character(
+        familyName: baby.familyName,
+        shorname: baby.shorname,
+        isFemale: baby.isFemale,
+        birthTimestamp: game.timestamp,
+        locationId: location.id,
+        isNewborn: true,
+        fatherId: baby.fatherId,
+        motherId: baby.motherId,
+      )
+    }
+    toBeRemovedIds.add(baby.id)
   }
-  for (final id in bornIds) {
+  for (final id in toBeRemovedIds) {
     delete game.babies[id]
   }
 }

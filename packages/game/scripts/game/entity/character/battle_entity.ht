@@ -1,4 +1,5 @@
 import '../common.ht'
+import '../../binding/worldmap.ht'
 
 const _kCharacterAttributeMinValue = 1
 const _kCharacterAttributeMaxValue = 100
@@ -188,4 +189,63 @@ fun getCharacterStats(character) {
     }
   }
   return stats
+}
+
+
+// 战斗，异步函数，如果获胜则返回 true
+fun heroBattle(
+  char2, {
+  loot = true,
+  takeAll = true,
+  char1Resurrect = true,
+  char2Resurrect = false,
+  onWon,
+  onLost,
+}) -> Future {
+  final char1 = getHero()
+  return showDuel(char1, char2).then((result) {
+    if (result?.result) {
+      resolveDuelResult(char1, char2, result)
+      if (loot) {
+        characterLoot(char1, char2, takeAll: takeAll)
+      }
+      final incidentContent = getLocaleString('duelVistory', [ char1.name, char2.name ] )
+      Incident(
+        content: incidentContent,
+        subjectIds: [char1.id],
+        isPrivate: true,
+        isLocal: true,
+      )
+      if (char2Resurrect && char2.isMajorCharacter) {
+        char2.stats.life = 1
+        setCharacterLocationId(char2, char2.homeId)
+      } else {
+        final incidentContent = getLocaleString('characterKilledOther', [ char1.name, char2.name ] )
+        Incident(
+          content: incidentContent,
+          subjectIds: [char1.id],
+          isPrivate: true,
+          isLocal: true,
+        )
+        if (char2.isMajorCharacter) {
+          char2.isDead = true
+        } else {
+          delete game.npcs[char2.id]
+        }
+      }
+      if (onWon is function) {
+        onWon()
+      }
+      return true
+    } else {
+      if (char1Resurrect) {
+        char2.stats.life = 1
+        setCharacterLocationId(char2, char2.homeId)
+      }
+      if (onLost is function) {
+        onLost()
+      }
+      return false
+    }
+  })
 }

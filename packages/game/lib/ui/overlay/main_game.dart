@@ -32,6 +32,16 @@ import '../view/location/location.dart';
 import '../dialog/character_select_dialog.dart';
 // import 'worldmap/terrain_info.dart';
 // import 'worldmap/location_info.dart';
+import '../dialog/game_over.dart';
+
+const kTerrainKindLocation = 'location';
+const kTerrainKindLake = 'lake';
+const kTerrainKindSea = 'sea';
+const kTerrainKindMountain = 'mountain';
+const kTerrainKindForest = 'forest';
+const kTerrainKindPlain = 'plain';
+const kTerrainKindRiver = 'river';
+const kTerrainKindRoad = 'road';
 
 class MainGameOverlay extends StatefulWidget {
   const MainGameOverlay({
@@ -84,11 +94,9 @@ class _MainGameOverlayState extends State<MainGameOverlay>
   HTStruct? _currentLocation;
   HTStruct? _currentNation;
 
-  void _checkTerrain(TilePosition tilePosition) {
-    engine.invoke(
-      'handleWorldMapExplore',
-      positionalArgs: [tilePosition.left, tilePosition.top],
-    );
+  void _interactTerrain(TileMapTerrain terrain) async {
+    engine.invoke('handleWorldTerrainInteraction',
+        positionalArgs: [terrain.left, terrain.top]);
   }
 
   void _enterLocation(String locationId) {
@@ -150,6 +158,18 @@ class _MainGameOverlayState extends State<MainGameOverlay>
   void initState() {
     super.initState();
     engine.invoke('build', positionalArgs: [context]);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'showWorldMapGameOver',
+        (HTEntity object,
+                {List<dynamic> positionalArgs = const [],
+                Map<String, dynamic> namedArgs = const {},
+                List<HTType> typeArgs = const []}) =>
+            showDialog(
+              context: context,
+              builder: (BuildContext context) => const GameOver(),
+            ),
+        override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
         'setWorldMapEntity',
@@ -245,34 +265,33 @@ class _MainGameOverlayState extends State<MainGameOverlay>
         widget.key!,
         (GameEvent event) {
           final heroEvent = event as HeroEvent;
-          setState(() {
-            if (heroEvent.scene == 'worldmap') {
-              engine.invoke('setHeroPosition', positionalArgs: [
-                heroEvent.tilePosition.left,
-                heroEvent.tilePosition.top,
-              ]);
+          if (heroEvent.scene == 'worldmap') {
+            engine.invoke('setHeroPosition', positionalArgs: [
+              heroEvent.tilePosition.left,
+              heroEvent.tilePosition.top,
+            ]);
 
-              engine.invoke('updateGame');
-              currentTerrain = _scene.map.getTerrainAtHero();
-              assert(_currentTerrain != null);
-              final String? entityId = _currentTerrain!.entityId;
-              if (entityId != null) {
-                if (_scene.map.hero != null) {
-                  final blocked = engine.invoke(
-                    'handleWorldMapEntityInteraction',
-                    namedArgs: {
-                      'entityId': entityId,
-                      'left': _currentTerrain!.left,
-                      'top': _currentTerrain!.top,
-                    },
-                  );
-                  if (blocked) {
-                    _scene.map.hero!.isMovingCanceled = true;
-                  }
+            engine.invoke('updateGame');
+            currentTerrain = _scene.map.getTerrainAtHero();
+            assert(_currentTerrain != null);
+            final String? entityId = _currentTerrain!.entityId;
+            if (entityId != null) {
+              if (_scene.map.hero != null) {
+                final blocked = engine.invoke(
+                  'handleWorldMapEntityInteraction',
+                  namedArgs: {
+                    'entityId': entityId,
+                    'left': _currentTerrain!.left,
+                    'top': _currentTerrain!.top,
+                  },
+                );
+                if (blocked) {
+                  _scene.map.hero!.isMovingCanceled = true;
                 }
               }
             }
-          });
+          }
+          setState(() {});
         },
       ),
     );
@@ -462,15 +481,15 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                     _scene.map.moveHeroToTilePositionByRoute(route!);
                     closePopup();
                   },
-                  checkIcon: terrainZone.index != 0,
-                  onCheck: () {
+                  interactIcon: terrainZone.index != 0,
+                  onInteract: () {
                     if (route != null) {
                       _scene.map.moveHeroToTilePositionByRoute(route,
                           onDestinationCallback: () {
-                        _checkTerrain(selectedTerrain.tilePosition);
+                        _interactTerrain(selectedTerrain);
                       });
                     } else if (isTappingHeroPosition) {
-                      _checkTerrain(selectedTerrain.tilePosition);
+                      _interactTerrain(selectedTerrain);
                     }
                     closePopup();
                   },

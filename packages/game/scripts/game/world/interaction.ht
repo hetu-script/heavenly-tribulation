@@ -3,53 +3,234 @@ import '../l10n.ht'
 import '../tile/hexagonal_tile.ht'
 import '../tile/tilemap.ht'
 import '../logic.ht'
+import '../datetime.ht'
+import '../entity/item/consumable/consumable.ht'
+import '../entity/item/resource/resource.ht'
+import '../entity/character/battle_entity.ht'
+import '../binding/worldmap.ht'
+import '../tile/common.ht'
+import '../entity/character/enemy/bandit.ht'
+import '../entity/character/enemy/beast.ht'
 
 const kWorldMapMazePerceptionThreshold = 75
 
-fun handleWorldMapExplore(left, top) {
-  final hero = getHero()
-  final terrainIndex = tilePos2Index(left, top, game.world.width)
+const kMountainBeastProbability = 0.15
+const kMountainLogProbability = 0.4
+const kMountainTimberProbability = 0.3
+const kMountainOreProbability = 0.15
+const kMountainJadeProbability = 0.07
+const kMountainHerbProbability = 0.2
+const kMountainLeatherProbability = 0.2
+const kMountainMeatProbability = 0.4
+const kMountainBerryProbability = 0.6
+const kMountainAromaticHerbProbability = 0.25
 
-  if (game.playerMonthly.explored.contains(terrainIndex)) {
-    showDialogByLocaleKeys(['terrainAlreadyExplored'], character: hero)
-    return
-  }
+const kForestBeastProbability = 0.07
+const kForestLogProbability = 0.8
+const kForestTimberProbability = 0.6
+const kForestOreProbability = 0.04
+const kForestJadeProbability = 0.02
+const kForestHerbProbability = 0.4
+const kForestLeatherProbability = 0.2
+const kForestMeatProbability = 0.4
+const kForestBerryProbability = 0.6
+const kForestAromaticHerbProbability = 0.4
 
-  game.playerMonthly.explored.add(terrainIndex)
+const kPlainLogProbability = 0.3
+const kPlainTimberProbability = 0.1
+const kPlainOreProbability = 0.05
+const kPlainJadeProbability = 0.01
+const kPlainHerbProbability = 0.1
+const kPlainLeatherProbability = 0.05
+const kPlainMeatProbability = 0.1
+const kPlainBerryProbability = 0.2
+const kPlainAromaticHerbProbability = 0.15
 
-  final terrain = game.world.terrains[terrainIndex]
-  final entityId = terrain.entityId
-  showExplore().then((value) {
-    // 探查要花费一天时间
-    updateGame(ticks: 4)
-    if (entityId) {
-      // 探查发现隐藏副本或地点
-      final entity = game.world.entities[entityId]
-      when (entity.encounterType) {
-        // 隐藏的盗贼营地副本
-        'banditCamp' -> {
-          showDialogByLocaleKeys(['worldMapEncounterBanditCamp'], character: hero).then((value) {
-            showSelectionByLocaleKeys(['exploreMaze', 'cancel',]).then((key) {
-              when (key) {
-                'exploreMaze' -> {
-                  final maze = game.mazes[entity.id]
-                  assert(maze != null)
-                  enterMaze(maze)
-                  showMaze(maze)
+// 在某个地形块上进行互动操作
+// 山峰或树林产出物品更多，平原产出数量较少
+// 但前者会有几率碰到野兽或者强盗
+// days 是互动的天数，如果是 explore 会忽略此参数并只花费 1 天
+fun handleWorldTerrainInteraction(left, top) {
+    final hero = getHero()
+    final terrainIndex = tilePos2Index(left, top, game.world.width)
+    final terrain = game.world.terrains[terrainIndex]
+    final selections = [
+      'explore',
+    ]
+
+    when (terrain.kind) {
+      kTerrainKindMountain, kTerrainKindForest, kTerrainKindPlain -> {
+        selections.add('gather')
+        selections.add('woodcut')
+        selections.add('mine')
+        selections.add('hunt')
+      }
+      kTerrainKindLake, kTerrainKindSea -> {
+        selections.add('fish')
+      }
+    }
+    
+    showSelectionByLocaleKeys(selections).then((key) {
+      when (key) {
+        'explore' -> {
+          // 探查固定花费一天时间
+          updateGame(ticks: kTicksPerDay)
+          if (game.playerMonthly.explored.contains(terrainIndex)) {
+            showDialogByLocaleKeys(['terrainAlreadyExplored'], character: hero)
+            return
+          }
+          game.playerMonthly.explored.add(terrainIndex)
+          showExplore().then((value) {
+            final entityId = terrain.entityId
+            if (entityId) {
+              // 探查发现隐藏副本或地点
+              final entity = game.world.entities[entityId]
+              when (entity.encounterType) {
+                // 隐藏的盗贼营地副本
+                'banditCamp' -> {
+                  showDialogByLocaleKeys(['worldMapEncounterBanditCamp'], character: hero).then((value) {
+                    showSelectionByLocaleKeys(['exploreMaze', 'cancel',]).then((key) {
+                      when (key) {
+                        'exploreMaze' -> {
+                          final maze = game.mazes[entity.id]
+                          assert(maze != null)
+                          enterMaze(maze)
+                          showMaze(maze)
+                        }
+                      }
+                    })
+                  })
+                }
+                // 隐藏的洞天福地
+                'location' -> {
+
                 }
               }
-            })
+            } else {
+              // 探查获得材料
+            }
           })
         }
-        // 隐藏的洞天福地
-        'location' -> {
+        // 采集，可能会获得：浆果、香草、药草、木柴
+        'gather' -> {
+          showIntInput(1, 15, getLocaleString('timeDays')).then((days) {
+            final ticks = kTicksPerDay * days
+            updateGame(ticks: ticks)
+            var berryCount = 0
+            var aromaticHerbCount = 0
+            var herbCount = 0
+            var logCount = 0
+            var metBeast = false
+            when (terrain.kind) {
+              kTerrainKindMountain -> {
+                for (final i in range(days)) {
+                  print('day: ${i}')
+                  if (random.nextDouble() < kMountainBeastProbability) {
+                    metBeast = true
+                    break
+                  }
+                  if (random.nextDouble() < kMountainBerryProbability) {
+                    ++berryCount
+                  }
+                  if (random.nextDouble() < kMountainAromaticHerbProbability) {
+                    ++aromaticHerbCount
+                  }
+                  if (random.nextDouble() < kMountainHerbProbability) {
+                    ++herbCount
+                  }
+                  if (random.nextDouble() < kMountainLogProbability) {
+                    ++logCount
+                  }
+                }
+                characterAcquire(hero, Consumable.berry(), berryCount)
+                characterAcquire(hero, Resource.aromaticHerb(), aromaticHerbCount)
+                characterAcquire(hero, Consumable.herb(), herbCount)
+                characterAcquire(hero, Resource.log(), logCount)
+                if (metBeast) {
+                  heroBattle(Beast(),
+                    onLost: () {
+                      showWorldMapGameOver()
+                    },
+                  )
+                }
+              }
+              kTerrainKindForest -> {
+                for (final i in range(days)) {
+                  if (random.nextDouble() < kForestBeastProbability) {
+                    metBeast = true
+                    break
+                  }
+                  if (random.nextDouble() < kForestBerryProbability) {
+                    ++berryCount
+                  }
+                  if (random.nextDouble() < kForestAromaticHerbProbability) {
+                    ++aromaticHerbCount
+                  }
+                  if (random.nextDouble() < kForestHerbProbability) {
+                    ++herbCount
+                  }
+                  if (random.nextDouble() < kForestLogProbability) {
+                    ++logCount
+                  }
+                }
+                characterAcquire(hero, Consumable.berry(), berryCount)
+                characterAcquire(hero, Resource.aromaticHerb(), aromaticHerbCount)
+                characterAcquire(hero, Consumable.herb(), herbCount)
+                characterAcquire(hero, Resource.log(), logCount)
+                if (metBeast) {
+                  heroBattle(Beast(),
+                    onLost: () {
+                      showWorldMapGameOver()
+                    },
+                  )
+                }
+              }
+              kTerrainKindPlain -> {
+                for (final i in range(days)) {
+                  if (random.nextDouble() < kPlainBerryProbability) {
+                    ++berryCount
+                  }
+                  if (random.nextDouble() < kPlainAromaticHerbProbability) {
+                    ++aromaticHerbCount
+                  }
+                  if (random.nextDouble() < kPlainHerbProbability) {
+                    ++herbCount
+                  }
+                  if (random.nextDouble() < kPlainLogProbability) {
+                    ++logCount
+                  }
+                }
+                characterAcquire(hero, Consumable.berry(), berryCount)
+                characterAcquire(hero, Resource.aromaticHerb(), aromaticHerbCount)
+                characterAcquire(hero, Consumable.herb(), herbCount)
+                characterAcquire(hero, Resource.log(), logCount)
+              }
+            }
+          })
+        }
+        // 伐木，可能会获得：木柴、木料
+        'woodcut' -> {
 
         }
+        // 挖矿，可能会获得：矿石、灵石
+        'mine' -> {
+          
+        }
+        // 挖矿，可能会获得：兽皮、兽肉
+        'hunt' -> {
+          
+        }
+        // 捕鱼，可能会获得：生鱼
+        'fish' -> {
+          
+        }
       }
-    } else {
-      // 探查获得材料
-    }
-  })
+    })
+
+
+
+
+
 }
 
 // 返回布尔值，如果为真，则玩家控制角色会停止移动

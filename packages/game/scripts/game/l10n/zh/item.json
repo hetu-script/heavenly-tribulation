@@ -1,6 +1,17 @@
 {
   "defaultItemDescription": "未知来历的神秘物品。",
 
+  "log": "木柴",
+  "timber": "木料",
+  "ore": "矿石",
+  "jade": "灵石",
+  "herb": "药草",
+  "leather": "兽皮",
+  "rawMeat": "兽肉",
+  "rawFish": "生鱼",
+  "berry": "浆果",
+  "aromaticHerb": "香草",
+
   "kind": "类型",
   "sabre": "刀",
   "sword": "剑",

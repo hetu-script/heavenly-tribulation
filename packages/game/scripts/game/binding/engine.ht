@@ -1,10 +1,13 @@
 // Don't import this, it has already exported in game.ht
+// TODO: should be compiled into bytecode
+// and load this in the engine lib, rather than in the game.
 
 external class SamsaraEngine {
   fun updateLocale(data: Map)
   fun updateZoneColors(data: Map)
   fun updateNationColors(data: Map)
   // fun onIncident(data)
+  fun log(...content: str)
   fun debug(...content: str)
   fun info(...content: str)
   fun warning(...content: str)

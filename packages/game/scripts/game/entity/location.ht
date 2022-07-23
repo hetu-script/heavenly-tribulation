@@ -58,6 +58,8 @@ struct Location {
   }) {
     assert(terrainIndex != null)
     this.terrainIndex = terrainIndex
+    final position = index2TilePos(terrainIndex, game.world.width)
+    this.worldPosition = { left: position.left, top: position.top }
     this.index = game.locations.length
     if (name) {
       this.name = name
@@ -187,6 +189,7 @@ fun setCharacterLocationId(character, locationId: str) {
   final location = game.locations[locationId]
   location.dwellingCharacterIds.add(character.id)
   character.locationId = locationId
+  character.worldPosition = location.worldPosition.clone()
 }
 
 fun getLocationById(id: str) {

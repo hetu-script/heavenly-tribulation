@@ -32,8 +32,8 @@
   "continue": "继续",
   "select": "选择",
   "gameOver": "游戏失败",
-  "inputValue": "输入一个数值",
   "inputName": "输入一个名字",
+  "inputInt": "输入一个数字",
   "selectHero": "选择你要扮演的角色",
 
   "equip": "装备",
@@ -112,12 +112,18 @@
 
   "name": "名字",
 
+  "age": "年龄",
   "ageYear": "岁",
   "ageMonth": "个月",
   "ageDay": "天",
+  "date": "日期",
   "dateYear": "年",
   "dateMonth": "月",
   "dateDay": "日",
+  "time": "时间",
+  "timeDays": "时间(天)",
+  "timeMonths": "时间(月)",
+  "timeYears": "时间(年)",
   "timeYear": "年",
   "timeMonth": "个月",
   "timeDay": "天",
@@ -138,7 +144,5 @@
   "level": "第 {0} 层",
 
   "quest": "任务",
-  "takeQuest": "领取",
-
-  "explore": "探查"
+  "takeQuest": "领取"
 }

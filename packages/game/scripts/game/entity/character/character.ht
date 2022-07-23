@@ -141,6 +141,7 @@ struct Character {
     birthTimestamp,
     locationId,
     nationId,
+    isArmed = true,
     isNewborn = false, // 是否是新生儿，如果是则会自动为其添加父母关系
     description,
     fatherId,
@@ -358,6 +359,10 @@ struct Character {
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
     final battleInfo = BattleEntity(attributes: attributes, attributeSum: attributeSum)
     this.assign(battleInfo)
+
+    if (isArmed) {
+      characterEquip(this, Weapon())
+    }
   }
 }
 

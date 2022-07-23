@@ -51,7 +51,6 @@ fun testDuel {
   setRandomSeed(1002)
   final hero = Character(isMajorCharacter: false)
   characterEquip(hero, Kickboxing())
-  characterEquip(hero, Weapon())
   // characterEquip(hero, Shield())
   final companion = VillageWarrior()
   characterEquip(companion, Weapon())
@@ -74,8 +73,8 @@ fun testMerchant {
   setHeroId(hero.id)
   final merchant = Character()
   merchant.money += 500
-  characterAcquire(merchant, Medicine(), 20)
-  characterAcquire(merchant, Beverage(), 20)
+  characterAcquire(merchant, Consumable.medicine(), 20)
+  characterAcquire(merchant, Consumable.beverage(), 20)
   showMerchant(merchant)
 }
 
@@ -89,10 +88,10 @@ fun testMaze {
   final hero = Character()
   hero.money += 200
   characterEquip(hero, Kickboxing())
-  characterEquip(hero, Weapon())
+  // characterEquip(hero, Weapon())
   characterEquip(hero, Shield())
-  characterAcquire(hero, Medicine(), 5)
-  characterAcquire(hero, Beverage(), 5)
+  characterAcquire(hero, Consumable.medicine(), 5)
+  characterAcquire(hero, Consumable.beverage(), 5)
   final companion = VillageWarrior()
   characterEquip(companion, Weapon())
   characterEquip(hero, companion)

@@ -60,13 +60,42 @@ class SamsaraEngine with SceneController, EventAggregator {
   late final Hetu hetu;
   bool isLoaded = false;
 
+  HTStruct createStruct([Map<String, dynamic> jsonData = const {}]) =>
+      hetu.interpreter.createStructfromJson(jsonData);
+
+  dynamic fetch(
+    String varName, {
+    String? moduleName,
+    String? sourceName,
+  }) =>
+      hetu.interpreter.fetch(
+        varName,
+        moduleName: moduleName,
+        sourceName: sourceName,
+      );
+
+  dynamic assign(
+    String varName,
+    dynamic value, {
+    String? moduleName,
+    String? sourceName,
+  }) =>
+      hetu.interpreter.assign(
+        varName,
+        value,
+        moduleName: moduleName,
+        sourceName: sourceName,
+      );
+
   invoke(String funcName,
           {String? moduleName,
+          String? sourceName,
           List<dynamic> positionalArgs = const [],
           Map<String, dynamic> namedArgs = const {},
           List<HTType> typeArgs = const []}) =>
       hetu.interpreter.invoke(funcName,
           moduleName: moduleName,
+          sourceName: sourceName,
           positionalArgs: positionalArgs,
           namedArgs: namedArgs,
           typeArgs: typeArgs);
@@ -194,6 +223,10 @@ class SamsaraEngine with SceneController, EventAggregator {
         return args.toString();
       }
     }
+  }
+
+  void log(dynamic content) {
+    _loggerOutput.log.add(_stringify(content));
   }
 
   void debug(dynamic content) {

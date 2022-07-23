@@ -302,8 +302,8 @@ struct MountainMaze {
             'peddler' -> {
               final peddler = Peddler()
               peddler.money += 1000
-              characterAcquire(peddler, Medicine(), 20)
-              characterAcquire(peddler, Beverage(), 20)
+              characterAcquire(peddler, Consumable.medicine(), 20)
+              characterAcquire(peddler, Consumable.beverage(), 20)
               peddler.encounterType = encounterType
               this.entities[peddler.id] = peddler
               final object = TileMapObject(
@@ -378,8 +378,10 @@ struct MountainMaze {
       final routes = Set() // 最终结果
       final middleAnchors = [2,4,6,8]
       for (final point in random.shuffle(middleAnchors)) {
-        final shuffled = random.shuffle(kRoutesOfAnchor[point])
-        routes.addAll([shuffled.first, shuffled.last])
+        final shuffled = random.shuffle(kRoutesOfAnchor[point]).toList()
+        final routeForPoint = [shuffled.first, shuffled.last]
+        // print('add route for point ${point}: ${routeForPoint}')
+        routes.addAll(routeForPoint)
       }
       for (final name in routes) {
         // print('initial routes: ${name}')
@@ -413,7 +415,7 @@ struct MountainMaze {
         final tile = currentLevel.terrains[index]
         if (!tile.isRoute) {
           final name = random.nextIterable(kRoutesOfAnchor[anchor])
-          // print('add name to empty anchor: ${name}')
+          print('add name to empty anchor: ${name}')
           generateRouteByName(name, anchors, currentLevel)
         }
       }

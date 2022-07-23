@@ -74,7 +74,7 @@ class _MazeOverlayState extends State<MazeOverlay>
     // _heroData = engine.invoke('getHero');
 
     engine.hetu.interpreter.bindExternalFunction(
-        'showGameOver',
+        'showMazeGameOver',
         (HTEntity object,
                 {List<dynamic> positionalArgs = const [],
                 Map<String, dynamic> namedArgs = const {},
@@ -218,25 +218,24 @@ class _MazeOverlayState extends State<MazeOverlay>
         widget.key!,
         (GameEvent event) async {
           final tile = _scene.map.getTerrainAtHero();
-          if (tile != null) {
-            final String? entityId = tile.objectId;
-            if (entityId != null) {
-              if (_scene.map.hero != null) {
-                final blocked = engine.invoke(
-                  'handleMazeEntityInteraction',
-                  namedArgs: {
-                    'entityId': entityId,
-                    'left': tile.left,
-                    'top': tile.top,
-                    'maze': widget.mazeData,
-                    'currentLevelIndex': _currentLevelIndex,
-                  },
-                );
-                if (blocked) {
-                  _scene.map.moveHeroToLastRouteNode();
-                } else {
-                  _scene.map.hero!.isMovingCanceled = true;
-                }
+          assert(tile != null);
+          final String? entityId = tile!.objectId;
+          if (entityId != null) {
+            if (_scene.map.hero != null) {
+              final blocked = engine.invoke(
+                'handleMazeEntityInteraction',
+                namedArgs: {
+                  'entityId': entityId,
+                  'left': tile.left,
+                  'top': tile.top,
+                  'maze': widget.mazeData,
+                  'currentLevelIndex': _currentLevelIndex,
+                },
+              );
+              if (blocked) {
+                _scene.map.moveHeroToLastRouteNode();
+              } else {
+                _scene.map.hero!.isMovingCanceled = true;
               }
             }
           }
@@ -305,6 +304,7 @@ class _MazeOverlayState extends State<MazeOverlay>
                     top: 0,
                     child: HeroInfoPanel(
                       heroData: _heroData!,
+                      showTilePosition: false,
                     ),
                   ),
                 Positioned(

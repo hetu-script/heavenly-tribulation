@@ -52,6 +52,8 @@ fun characterAcquireMoney(character, count) {
 // 主要用于获取一个本来不存在的物品
 // 如果数量大于1，则必须指定获取数量，item的stackSize将会被忽略
 fun characterAcquire(character, item, [count = 1]) {
+  // 某些时候会批量生成物品，可能数量会是 0，此时直接跳过，但无需报错
+  if (count < 1) return
   if (item.stackSize > 1) {
     engine.warning('物品对象的数量[${item.stackSize}]将会被忽略。实际获取数值应该由[characterAcquire]函数的第三个参数指定。')
   }

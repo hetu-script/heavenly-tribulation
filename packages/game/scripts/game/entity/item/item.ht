@@ -1,5 +1,4 @@
 export 'weapon/weapon.ht'
 export 'protect/shield.ht'
-export 'consumable/beverage.ht'
-export 'consumable/medicine.ht'
+export 'consumable/consumable.ht'
 export 'common.ht'

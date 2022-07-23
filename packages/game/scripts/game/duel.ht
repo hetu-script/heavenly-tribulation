@@ -320,6 +320,7 @@ struct Duel {
           r = nextTick(char2info, enemyTurn: true)
           if (r) {
             engine.info('${char1.name} 和 ${char2.name} 的战斗结束了。${char2.name} 获胜。')
+            
             break
           }
         }

@@ -24,7 +24,7 @@ final kRoutes = [
 
 // 每个锚点所连接的路径
 final kRoutesOfAnchor = {
-  '1': ['topLeft', 'topRight'],
+  '1': ['leftTop', 'topLeft'],
   '2': ['topLeft', 'topRight', 'centerTop'],
   '3': ['topRight', 'rightTop'],
   '4': ['leftTop', 'centerLeft', 'leftBottom'],

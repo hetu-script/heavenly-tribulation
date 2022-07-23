@@ -125,9 +125,9 @@ class _ConsoleState extends State<Console> {
                       .jumpTo(_scrollController.position.minScrollExtent);
                 });
               },
-              cursorColor: kForegroundColor,
               autofocus: true,
               controller: _textEditingController,
+              cursorColor: kForegroundColor,
               decoration: const InputDecoration(
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.grey, width: 1.0),

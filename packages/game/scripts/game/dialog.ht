@@ -92,3 +92,14 @@ fun showMaze(maze) -> Future {
 fun showExplore() {
   return ui.showExplore(buildContext)
 }
+
+fun showIntInput(minOrMax, [max, title]) {
+  var min = 1
+  if (max == null) {
+    max = minOrMax
+  } else {
+    min = minOrMax
+  }
+  assert(min < max)
+  return ui.showIntInput(buildContext, min, max, title)
+}

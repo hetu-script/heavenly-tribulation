@@ -1,9 +1,15 @@
 {
   "moveTo": "移动",
-  "check": "探查",
   "enter": "进入",
   "talk": "谈话",
   "rest": "打坐",
+  "interact": "交互",
+  "explore": "探查",
+  "gather": "采摘",
+  "woodcut": "伐木",
+  "fish": "捕鱼",
+  "hunt": "狩猎",
+  "mine": "挖矿",
 
   "info": "情报",
   "view": "视图",

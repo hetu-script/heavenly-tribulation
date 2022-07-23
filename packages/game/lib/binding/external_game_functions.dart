@@ -9,6 +9,7 @@ import '../ui/view/merchant/merchant.dart';
 import '../ui/view/quest/quests.dart';
 import '../ui/overlay/maze/maze.dart';
 import '../ui/dialog/explore_indicator.dart';
+import '../ui/dialog/integer_input.dart';
 
 final Map<String, Function> externalGameFunctions = {
   r'showGameDialog': (HTEntity object,
@@ -95,5 +96,16 @@ final Map<String, Function> externalGameFunctions = {
       Map<String, dynamic> namedArgs = const {},
       List<HTType> typeArgs = const []}) {
     return ExploreIndicator.show(context: positionalArgs[0]);
+  },
+  r'showIntInput': (HTEntity object,
+      {List<dynamic> positionalArgs = const [],
+      Map<String, dynamic> namedArgs = const {},
+      List<HTType> typeArgs = const []}) {
+    return IntegerInputDialog.show(
+      context: positionalArgs[0],
+      min: positionalArgs[1],
+      max: positionalArgs[2],
+      title: positionalArgs[3],
+    );
   },
 };

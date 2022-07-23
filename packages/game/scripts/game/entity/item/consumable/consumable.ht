@@ -1,0 +1,221 @@
+import '../../../name/name.ht' as nameGenerator
+import '../../common.ht'
+import '../common.ht'
+import '../../../effect.ht'
+
+struct Consumable {
+
+  construct medicine ({
+    name,
+    kind,
+    rarity,
+    value,
+    icon,
+    creatorId,
+    createdTime,
+    description,
+    attributes,
+    stackSize = 1,
+  }) {
+    this.name = name
+    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
+    this.category = kEntityCategoryConsumable // 武器、防护、斗技、玄功等等
+    this.kind = kEntityConsumableKindMedicine // 枪、剑、斧等等
+    this.rarity = rarity ?? kCommon
+    this.value = value ?? 5
+    this.creatorId = creatorId
+    this.createdTime = createdTime
+    this.description = description ?? ''
+    this.attributes = attributes
+    this.stackSize = stackSize
+    if (!this.name) {
+      final r = nameGenerator.getConsumable(1, category: this.kind, rarity: this.rarity).first
+      this.name = r.name
+    }
+    this.color = kRarity[this.rarity].color
+
+    this.id = this.rarity != kCommon ? 'medicine_${Hash.uid4(2)}_${this.name}' : 'medicine_${this.name}'
+    this.icon = 'icon/item/consumable/medicine.png'
+    
+    this.isConsumable = true
+    this.effects = {}
+    this.effects[kEffectRestoreLife] = Effect(
+      id: kEffectRestoreLife,
+      description: kEffectRestoreLife,
+      category: kEffectCategoryConsume,
+      values: [
+        EffectValue(
+          value: 80,
+        ),
+      ],
+    )
+  }
+  
+  construct beverage ({
+    name,
+    kind,
+    rarity,
+    value,
+    icon,
+    creatorId,
+    createdTime,
+    description,
+    attributes,
+    stackSize = 1,
+  }) {
+    this.name = name
+    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
+    this.category = kEntityCategoryConsumable // 武器、防护、斗技、玄功等等
+    this.kind = kEntityConsumableKindBeverage // 枪、剑、斧等等
+    this.rarity = rarity ?? kCommon
+    this.value = value ?? 5
+    this.creatorId = creatorId
+    this.createdTime = createdTime
+    this.description = description ?? ''
+    this.attributes = attributes
+    this.stackSize = stackSize
+    if (!this.name) {
+      if (this.rarity )
+      final r = nameGenerator.getConsumable(1, category: this.kind, rarity: this.rarity).first
+      this.name = r.name
+      this.rarity ??= r.rarity
+    }
+    this.color = kRarity[this.rarity].color
+
+    this.id = this.rarity != kCommon ? 'beverage_${Hash.uid4(2)}_${this.name}' : 'beverage_${this.name}'
+    this.icon = 'icon/item/consumable/drink.png'
+
+    this.isConsumable = true
+    this.effects = {}
+    this.effects[kEffectRestoreStamina] = Effect(
+      id: kEffectRestoreStamina,
+      description: kEffectRestoreStamina,
+      category: kEffectCategoryConsume,
+      values: [
+        EffectValue(
+          value: 80,
+        ),
+      ],
+    )
+  }
+
+  construct herb ({
+    stackSize = 1,
+  }) {
+    this.name = getLocaleString('herb')
+    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
+    this.category = kEntityCategoryConsumable // 武器、防护、斗技、玄功等等
+    this.kind = kEntityConsumableKindMedicine // 枪、剑、斧等等
+    this.rarity = kCommon
+    this.value = 5
+    this.description = ''
+    this.stackSize = stackSize
+    this.color = kRarity[this.rarity].color
+
+    this.id = 'medicine_${this.name}'
+    this.icon = 'icon/item/consumable/herb.png'
+
+    this.isConsumable = true
+    this.effects = {}
+    this.effects[kEffectRestoreStamina] = Effect(
+      id: kEffectRestoreLife,
+      description: kEffectRestoreLife,
+      category: kEffectCategoryConsume,
+      values: [
+        EffectValue(
+          value: 20,
+        ),
+      ],
+    )
+  }
+
+  construct berry ({
+    stackSize = 1,
+  }) {
+    this.name = getLocaleString('berry')
+    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
+    this.category = kEntityCategoryConsumable // 武器、防护、斗技、玄功等等
+    this.kind = kEntityConsumableKindFood // 枪、剑、斧等等
+    this.rarity = kCommon
+    this.value = 1
+    this.description = ''
+    this.stackSize = stackSize
+    this.color = kRarity[this.rarity].color
+
+    this.id = 'food_${this.name}'
+    this.icon = 'icon/item/consumable/berry.png'
+
+    this.isConsumable = true
+    this.effects = {}
+    this.effects[kEffectRestoreStamina] = Effect(
+      id: kEffectRestoreStamina,
+      description: kEffectRestoreStamina,
+      category: kEffectCategoryConsume,
+      values: [
+        EffectValue(
+          value: 20,
+        ),
+      ],
+    )
+  }
+
+  construct rawMeat ({
+    stackSize = 1,
+  }) {
+    this.name = getLocaleString('rawMeat')
+    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
+    this.category = kEntityCategoryResource // 武器、防护、斗技、玄功等等
+    this.kind = kEntityResourceKindFoodIngrident // 枪、剑、斧等等
+    this.rarity = kCommon
+    this.value = 4
+    this.description = ''
+    this.stackSize = stackSize
+    this.color = kRarity[this.rarity].color
+
+    this.id = 'resource_${this.name}'
+    this.icon = 'icon/item/consumable/raw_meat.png'
+
+    this.isConsumable = true
+    this.effects = {}
+    this.effects[kEffectRestoreStamina] = Effect(
+      id: kEffectRestoreLife,
+      description: kEffectRestoreLife,
+      category: kEffectCategoryConsume,
+      values: [
+        EffectValue(
+          value: 10,
+        ),
+      ],
+    )
+  }
+
+  construct rawFish ({
+    stackSize = 1,
+  }) {
+    this.name = getLocaleString('rawFish')
+    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
+    this.category = kEntityCategoryResource // 武器、防护、斗技、玄功等等
+    this.kind = kEntityResourceKindFoodIngrident // 枪、剑、斧等等
+    this.rarity = kCommon
+    this.value = 7
+    this.description = ''
+    this.stackSize = stackSize
+    this.color = kRarity[this.rarity].color
+
+    this.id = 'resource_${this.name}'
+    this.icon = 'icon/item/consumable/raw_fish.png'
+
+    this.isConsumable = true
+    this.effects = {}
+    this.effects[kEffectRestoreStamina] = Effect(
+      id: kEffectRestoreLife,
+      description: kEffectRestoreLife,
+      category: kEffectCategoryConsume,
+      values: [
+        EffectValue(
+          value: 10,
+        ),
+      ],
+    )
+  }
+}

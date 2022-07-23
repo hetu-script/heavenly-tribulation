@@ -77,6 +77,8 @@ flutter:
     - assets/images/character/
     - assets/images/icon/
     - assets/images/icon/item/
+    - assets/images/icon/item/consumable/
+    - assets/images/icon/item/resource/
     - assets/images/icon/skill/
     - assets/images/item/
     - assets/images/location/
@@ -95,6 +97,7 @@ flutter:
     - scripts/game/entity/item/
     - scripts/game/entity/item/consumable/
     - scripts/game/entity/item/protect/
+    - scripts/game/entity/item/resource/
     - scripts/game/entity/item/talisman/
     - scripts/game/entity/item/weapon/
     - scripts/game/entity/skill/

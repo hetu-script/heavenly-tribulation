@@ -1,1 +1,3 @@
+external fun showWorldMapGameOver
+
 external fun setWorldMapEntity(left, top, entityId)

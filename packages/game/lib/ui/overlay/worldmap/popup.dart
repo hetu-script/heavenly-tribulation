@@ -13,14 +13,14 @@ class WorldMapPopup extends StatelessWidget {
   final VoidCallback? onPanelTapped;
 
   final bool moveToIcon;
-  final bool checkIcon;
+  final bool interactIcon;
   final bool enterIcon;
   final bool talkIcon;
   final bool restIcon;
   final String description;
 
   final VoidCallback? onMoveTo;
-  final VoidCallback? onCheck;
+  final VoidCallback? onInteract;
   final VoidCallback? onEnter;
   final VoidCallback? onTalk;
   final VoidCallback? onRest;
@@ -32,8 +32,8 @@ class WorldMapPopup extends StatelessWidget {
     this.onPanelTapped,
     this.moveToIcon = false,
     this.onMoveTo,
-    this.checkIcon = false,
-    this.onCheck,
+    this.interactIcon = false,
+    this.onInteract,
     this.enterIcon = false,
     this.onEnter,
     this.talkIcon = false,
@@ -107,20 +107,20 @@ class WorldMapPopup extends StatelessWidget {
                     ),
                   ),
                 ),
-              if (checkIcon)
+              if (interactIcon)
                 Positioned.fill(
                   child: Align(
                     alignment: Alignment.bottomCenter,
                     child: InkImageButton(
                       width: _kPopupButtonSize,
                       height: _kPopupButtonSize,
-                      tooltip: engine.locale['explore'],
+                      tooltip: engine.locale['interact'],
                       child: const Image(
-                        image: AssetImage('assets/images/icon/check.png'),
+                        image: AssetImage('assets/images/icon/hand.png'),
                       ),
                       onPressed: () {
-                        if (onCheck != null) {
-                          onCheck!();
+                        if (onInteract != null) {
+                          onInteract!();
                         }
                       },
                     ),

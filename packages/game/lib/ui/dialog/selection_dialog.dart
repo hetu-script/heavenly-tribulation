@@ -4,13 +4,13 @@ import 'package:hetu_script/values.dart';
 import '../../global.dart';
 import '../../event/events.dart';
 
-class SelectionDialog extends StatefulWidget {
-  static Future<dynamic> show({
+class SelectionDialog extends StatelessWidget {
+  static Future<String?> show({
     required BuildContext context,
     required HTStruct selections,
   }) async {
     assert(selections.isNotEmpty);
-    return await showDialog<dynamic>(
+    return await showDialog<String>(
       context: context,
       barrierColor: kBarrierColor,
       barrierDismissible: false,
@@ -28,22 +28,9 @@ class SelectionDialog extends StatefulWidget {
   });
 
   @override
-  State<SelectionDialog> createState() => _SelectionDialogState();
-}
-
-class _SelectionDialogState extends State<SelectionDialog> {
-  HTStruct get _selections => widget.selections;
-
-  @override
-  void initState() {
-    assert(_selections.isNotEmpty);
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final buttons = _selections.keys.map((key) {
-      final value = _selections[key];
+    final buttons = selections.keys.map((key) {
+      final value = selections[key];
       return Container(
         margin: const EdgeInsets.all(5.0),
         child: ElevatedButton(

@@ -132,13 +132,23 @@ const kEntityCategoryWeapon = 'weapon'
 const kEntityCategoryProtect = 'protect'
 const kEntityCategoryTalisman = 'talisman'
 const kEntityCategoryConsumable = 'consumable'
+const kEntityCategoryResource = 'resource'
 const kEntityCategoryFightSkill = 'fightSkill'
 
 // 可食用的物品类型，这里的类型只影响文字描述。
-const kEntityConsumableKindFood = 'food'
-const kEntityConsumableKindElixir = 'elixir'
 const kEntityConsumableKindMedicine = 'medicine'
 const kEntityConsumableKindBeverage = 'beverage'
+const kEntityConsumableKindElixir = 'elixir'
+const kEntityConsumableKindFood = 'food'
+
+// 材料的类型
+const kEntityResourceKindLog = 'log'
+const kEntityResourceKindTimber = 'timber'
+const kEntityResourceKindOre = 'ore'
+const kEntityResourceKindHerb = 'herb'
+const kEntityResourceKindJade = 'jade'
+const kEntityResourceKindLeather = 'leather'
+const kEntityResourceKindFoodIngrident = 'foodIngrident'
 
 fun entityTakeDamage(entity, damage) {
   assert(entity.stats?.life != null || entity.life != null)
