@@ -157,11 +157,11 @@ fun handleWorldTerrainInteraction(left, top) {
       }
       // 采集，可能会获得：浆果、香草、药草、木柴
       'gather' -> {
-        if (game.playerMonthly.gathered.contains(terrainIndex)) {
-          showDialogByLocaleKeys(['terrainAlreadyGathered'], character: hero)
-          return
-        }
-        game.playerMonthly.gathered.add(terrainIndex)
+        // if (game.playerMonthly.gathered.contains(terrainIndex)) {
+        //   showDialogByLocaleKeys(['terrainAlreadyGathered'], character: hero)
+        //   return
+        // }
+        // game.playerMonthly.gathered.add(terrainIndex)
         
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
           showProgress().then((value) {
@@ -272,11 +272,11 @@ fun handleWorldTerrainInteraction(left, top) {
       }
       // 伐木，可能会获得：木柴、木料
       'woodcut' -> {
-        if (game.playerMonthly.woodcutted.contains(terrainIndex)) {
-          showDialogByLocaleKeys(['terrainAlreadyWoodcutted'], character: hero)
-          return
-        }
-        game.playerMonthly.woodcutted.add(terrainIndex)
+        // if (game.playerMonthly.woodcutted.contains(terrainIndex)) {
+        //   showDialogByLocaleKeys(['terrainAlreadyWoodcutted'], character: hero)
+        //   return
+        // }
+        // game.playerMonthly.woodcutted.add(terrainIndex)
         
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
           showProgress().then((value) {
@@ -363,11 +363,11 @@ fun handleWorldTerrainInteraction(left, top) {
       }
       // 挖矿，可能会获得：矿石、灵石
       'mine' -> {
-        if (game.playerMonthly.mined.contains(terrainIndex)) {
-          showDialogByLocaleKeys(['terrainAlreadyMined'], character: hero)
-          return
-        }
-        game.playerMonthly.mined.add(terrainIndex)
+        // if (game.playerMonthly.mined.contains(terrainIndex)) {
+        //   showDialogByLocaleKeys(['terrainAlreadyMined'], character: hero)
+        //   return
+        // }
+        // game.playerMonthly.mined.add(terrainIndex)
         
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
           showProgress().then((value) {
@@ -452,11 +452,11 @@ fun handleWorldTerrainInteraction(left, top) {
       }
       // 捕猎，可能会获得：兽皮、兽肉
       'hunt' -> {
-        if (game.playerMonthly.hunted.contains(terrainIndex)) {
-          showDialogByLocaleKeys(['terrainAlreadyHunted'], character: hero)
-          return
-        }
-        game.playerMonthly.hunted.add(terrainIndex)
+        // if (game.playerMonthly.hunted.contains(terrainIndex)) {
+        //   showDialogByLocaleKeys(['terrainAlreadyHunted'], character: hero)
+        //   return
+        // }
+        // game.playerMonthly.hunted.add(terrainIndex)
         
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
           showProgress().then((value) {
@@ -541,11 +541,11 @@ fun handleWorldTerrainInteraction(left, top) {
       }
       // 捕鱼，可能会获得：河鱼、海鱼、虾、蟹
       'fish' -> {
-        if (game.playerMonthly.fished.contains(terrainIndex)) {
-          showDialogByLocaleKeys(['terrainAlreadyFished'], character: hero)
-          return
-        }
-        game.playerMonthly.fished.add(terrainIndex)
+        // if (game.playerMonthly.fished.contains(terrainIndex)) {
+        //   showDialogByLocaleKeys(['terrainAlreadyFished'], character: hero)
+        //   return
+        // }
+        // game.playerMonthly.fished.add(terrainIndex)
         
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
           showProgress().then((value) {
