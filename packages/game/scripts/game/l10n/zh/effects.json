@@ -3,6 +3,8 @@
   "effectRestoreChi": "回复 {0} 元气",
   "effectRestoreStamina": "回复 {0} 体力",
 
+  "effectHealInjury": "治疗外伤。",
+
   "effectParry": "在出招阶段受击时，{0} 几率免除伤害。",
   "effectCounter": "命中时 {0} 几率使对方硬直 {1}f。",
 

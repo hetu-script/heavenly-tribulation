@@ -3,105 +3,52 @@ import '../common.ht'
 
 struct Resource {
 
-  construct log ({
+  construct ({
+    name,
+    kind,
+    value = 1,
+    description = '',
     stackSize = 1,
   }) {
-    this.name = getLocaleString('log')
     this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
     this.category = kEntityCategoryResource // 武器、防护、斗技、玄功等等
-    this.kind = kEntityResourceKindLog // 枪、剑、斧等等
+    this.name = getLocaleString(name)
+    this.kind = kind
+
     this.rarity = kCommon
-    this.value = 1
-    this.description = ''
-    this.stackSize = stackSize
     this.color = kRarity[this.rarity].color
 
     this.id = 'resource_${this.name}'
-    this.icon = 'icon/item/resource/log.png'
+    this.icon = 'icon/item/resource/${name}.png'
   }
 
-  construct timber ({
-    stackSize = 1,
-  }) {
-    this.name = getLocaleString('timber')
-    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
-    this.category = kEntityCategoryResource // 武器、防护、斗技、玄功等等
-    this.kind = kEntityResourceKindTimber // 枪、剑、斧等等
-    this.rarity = kCommon
-    this.value = 3
-    this.description = ''
-    this.stackSize = stackSize
-    this.color = kRarity[this.rarity].color
+  construct log: this(
+    name: 'log',
+    value: 1,
+    kind: kEntityResourceKindLog
+  ) {}
 
-    this.id = 'resource_${this.name}'
-    this.icon = 'icon/item/resource/timber.png'
-  }
+  construct timber: this(
+    name: 'timber',
+    value: 3,
+    kind: kEntityResourceKindTimber
+  ) {}
 
-  construct ore ({
-    stackSize = 1,
-  }) {
-    this.name = getLocaleString('ore')
-    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
-    this.category = kEntityCategoryResource // 武器、防护、斗技、玄功等等
-    this.kind = kEntityResourceKindOre // 枪、剑、斧等等
-    this.rarity = kCommon
-    this.value = 3
-    this.description = ''
-    this.stackSize = stackSize
-    this.color = kRarity[this.rarity].color
+  construct ore: this(
+    name: 'ore',
+    value: 5,
+    kind: kEntityResourceKindOre
+  ) {}
 
-    this.id = 'resource_${this.name}'
-    this.icon = 'icon/item/resource/ore.png'
-  }
+  construct jade: this(
+    name: 'jade',
+    value: 10,
+    kind: kEntityResourceKindJade
+  ) {}
 
-  construct jade ({
-    stackSize = 1,
-  }) {
-    this.name = getLocaleString('jade')
-    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
-    this.category = kEntityCategoryResource // 武器、防护、斗技、玄功等等
-    this.kind = kEntityResourceKindJade // 枪、剑、斧等等
-    this.rarity = kCommon
-    this.value = 10
-    this.description = ''
-    this.stackSize = stackSize
-    this.color = kRarity[this.rarity].color
-
-    this.id = 'resource_${this.name}'
-    this.icon = 'icon/item/resource/jade.png'
-  }
-
-  construct animalHide ({
-    stackSize = 1,
-  }) {
-    this.name = getLocaleString('animalHide')
-    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
-    this.category = kEntityCategoryResource // 武器、防护、斗技、玄功等等
-    this.kind = kEntityResourceKindAnimalHide // 枪、剑、斧等等
-    this.rarity = kCommon
-    this.value = 4
-    this.description = ''
-    this.stackSize = stackSize
-    this.color = kRarity[this.rarity].color
-
-    this.id = 'resource_${this.name}'
-    this.icon = 'icon/item/resource/leather.png'
-  }
-
-  construct aromaticHerb ({
-    stackSize = 1,
-  }) {
-    this.name = getLocaleString('aromaticHerb')
-    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
-    this.category = kEntityCategoryResource // 武器、防护、斗技、玄功等等
-    this.kind = kEntityResourceKindFoodIngrident // 枪、剑、斧等等
-    this.rarity = kCommon
-    this.value = 3
-    this.description = ''
-    this.stackSize = stackSize
-    this.color = kRarity[this.rarity].color
-
-    this.id = 'resource_${this.name}'
-    this.icon = 'icon/item/resource/aromatic_herb.png'
-  }
+  construct animalHide: this(
+    name: 'animalHide',
+    value: 5,
+    kind: kEntityResourceKindAnimalHide
+  ) {}
 }

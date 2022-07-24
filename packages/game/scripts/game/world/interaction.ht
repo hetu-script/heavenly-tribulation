@@ -254,9 +254,9 @@ fun handleWorldTerrainInteraction(left, top) {
                   herbCount == 0 &&
                   logCount == 0) {
                 return showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
-              } {
+              } else {
                 characterAcquire(hero, Consumable.berry(), berryCount)
-                characterAcquire(hero, Resource.aromaticHerb(), aromaticHerbCount)
+                characterAcquire(hero, Consumable.aromaticHerb(), aromaticHerbCount)
                 characterAcquire(hero, Consumable.herb(), herbCount)
                 characterAcquire(hero, Resource.log(), logCount)
               }

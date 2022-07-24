@@ -8,12 +8,12 @@ struct Consumable {
   construct medicine ({
     name,
     kind,
-    rarity,
-    value,
+    rarity = kCommon,
+    value = 5,
     icon,
     creatorId,
     createdTime,
-    description,
+    description = '',
     attributes,
     stackSize = 1,
   }) {
@@ -21,11 +21,11 @@ struct Consumable {
     this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
     this.category = kEntityCategoryConsumable // 武器、防护、斗技、玄功等等
     this.kind = kEntityConsumableKindMedicine // 枪、剑、斧等等
-    this.rarity = rarity ?? kCommon
-    this.value = value ?? 5
+    this.rarity = rarity
+    this.value = value
     this.creatorId = creatorId
     this.createdTime = createdTime
-    this.description = description ?? ''
+    this.description = description
     this.attributes = attributes
     this.stackSize = stackSize
     if (!this.name) {
@@ -54,12 +54,12 @@ struct Consumable {
   construct beverage ({
     name,
     kind,
-    rarity,
-    value,
+    rarity = kCommon,
+    value = 5,
     icon,
     creatorId,
     createdTime,
-    description,
+    description = '',
     attributes,
     stackSize = 1,
   }) {
@@ -67,11 +67,11 @@ struct Consumable {
     this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
     this.category = kEntityCategoryConsumable // 武器、防护、斗技、玄功等等
     this.kind = kEntityConsumableKindBeverage // 枪、剑、斧等等
-    this.rarity = rarity ?? kCommon
-    this.value = value ?? 5
+    this.rarity = rarity
+    this.value = value
     this.creatorId = creatorId
     this.createdTime = createdTime
-    this.description = description ?? ''
+    this.description = description
     this.attributes = attributes
     this.stackSize = stackSize
     if (!this.name) {
@@ -99,6 +99,7 @@ struct Consumable {
     )
   }
 
+  // 治疗外伤，但并不能回复生命
   construct herb ({
     stackSize = 1,
   }) {
@@ -118,32 +119,33 @@ struct Consumable {
     this.isConsumable = true
     this.effects = {}
     this.effects[kEffectRestoreStamina] = Effect(
-      id: kEffectRestoreLife,
-      description: kEffectRestoreLife,
+      id: kEffectHealInjury,
+      description: kEffectHealInjury,
       category: kEffectCategoryConsume,
-      values: [
-        EffectValue(
-          value: 20,
-        ),
-      ],
     )
   }
 
-  construct berry ({
+  construct foodIngrident({
+    name,
+    rarity = kCommon,
+    value = 1,
+    description = '',
     stackSize = 1,
+    effectValue = 10,
   }) {
-    this.name = getLocaleString('berry')
     this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
-    this.category = kEntityCategoryConsumable // 武器、防护、斗技、玄功等等
+    this.category = kEntityCategoryResource // 武器、防护、斗技、玄功等等
     this.kind = kEntityResourceKindFoodIngrident // 枪、剑、斧等等
-    this.rarity = kCommon
-    this.value = 1
-    this.description = ''
+    this.name = getLocaleString(name)
+    this.value = value
+    this.description = description
     this.stackSize = stackSize
+
+    this.rarity = rarity
     this.color = kRarity[this.rarity].color
 
-    this.id = 'food_${this.name}'
-    this.icon = 'icon/item/consumable/berry.png'
+    this.id = 'resource_${this.name}'
+    this.icon = 'icon/item/consumable/${name}.png'
 
     this.isConsumable = true
     this.effects = {}
@@ -153,159 +155,51 @@ struct Consumable {
       category: kEffectCategoryConsume,
       values: [
         EffectValue(
-          value: 20,
+          value: effectValue,
         ),
       ],
     )
   }
 
-  construct meat ({
-    stackSize = 1,
-  }) {
-    this.name = getLocaleString('meat')
-    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
-    this.category = kEntityCategoryResource // 武器、防护、斗技、玄功等等
-    this.kind = kEntityResourceKindFoodIngrident // 枪、剑、斧等等
-    this.rarity = kCommon
-    this.value = 4
-    this.description = ''
-    this.stackSize = stackSize
-    this.color = kRarity[this.rarity].color
+  construct berry : this.foodIngrident(
+    name: 'berry',
+    value: 2,
+    effectValue: 10,
+  ) {}
 
-    this.id = 'resource_${this.name}'
-    this.icon = 'icon/item/consumable/meat.png'
+  construct meat : this.foodIngrident(
+    name: 'meat',
+    value: 4,
+    effectValue: 10,
+  ) {}
 
-    this.isConsumable = true
-    this.effects = {}
-    this.effects[kEffectRestoreStamina] = Effect(
-      id: kEffectRestoreLife,
-      description: kEffectRestoreLife,
-      category: kEffectCategoryConsume,
-      values: [
-        EffectValue(
-          value: 10,
-        ),
-      ],
-    )
-  }
+  construct riverFish : this.foodIngrident(
+    name: 'riverFish',
+    value: 7,
+    effectValue: 20,
+  ) {}
 
-  construct riverFish ({
-    stackSize = 1,
-  }) {
-    this.name = getLocaleString('riverFish')
-    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
-    this.category = kEntityCategoryResource // 武器、防护、斗技、玄功等等
-    this.kind = kEntityResourceKindFoodIngrident // 枪、剑、斧等等
-    this.rarity = kCommon
-    this.value = 7
-    this.description = ''
-    this.stackSize = stackSize
-    this.color = kRarity[this.rarity].color
+  construct seaFish : this.foodIngrident(
+    name: 'seaFish',
+    value: 14,
+    effectValue: 35,
+  ) {}
 
-    this.id = 'resource_${this.name}'
-    this.icon = 'icon/item/consumable/river_fish.png'
+  construct crab : this.foodIngrident(
+    name: 'crab',
+    value: 12,
+    effectValue: 25,
+  ) {}
 
-    this.isConsumable = true
-    this.effects = {}
-    this.effects[kEffectRestoreStamina] = Effect(
-      id: kEffectRestoreStamina,
-      description: kEffectRestoreStamina,
-      category: kEffectCategoryConsume,
-      values: [
-        EffectValue(
-          value: 10,
-        ),
-      ],
-    )
-  }
+  construct shrimp : this.foodIngrident(
+    name: 'crab',
+    value: 12,
+    effectValue: 25,
+  ) {}
 
-  construct seaFish ({
-    stackSize = 1,
-  }) {
-    this.name = getLocaleString('seaFish')
-    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
-    this.category = kEntityCategoryResource // 武器、防护、斗技、玄功等等
-    this.kind = kEntityResourceKindFoodIngrident // 枪、剑、斧等等
-    this.rarity = kCommon
-    this.value = 14
-    this.description = ''
-    this.stackSize = stackSize
-    this.color = kRarity[this.rarity].color
-
-    this.id = 'resource_${this.name}'
-    this.icon = 'icon/item/consumable/sea_fish.png'
-
-    this.isConsumable = true
-    this.effects = {}
-    this.effects[kEffectRestoreStamina] = Effect(
-      id: kEffectRestoreStamina,
-      description: kEffectRestoreStamina,
-      category: kEffectCategoryConsume,
-      values: [
-        EffectValue(
-          value: 20,
-        ),
-      ],
-    )
-  }
-
-  construct crab ({
-    stackSize = 1,
-  }) {
-    this.name = getLocaleString('crab')
-    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
-    this.category = kEntityCategoryResource // 武器、防护、斗技、玄功等等
-    this.kind = kEntityResourceKindFoodIngrident // 枪、剑、斧等等
-    this.rarity = kCommon
-    this.value = 12
-    this.description = ''
-    this.stackSize = stackSize
-    this.color = kRarity[this.rarity].color
-
-    this.id = 'resource_${this.name}'
-    this.icon = 'icon/item/consumable/crab.png'
-
-    this.isConsumable = true
-    this.effects = {}
-    this.effects[kEffectRestoreStamina] = Effect(
-      id: kEffectRestoreStamina,
-      description: kEffectRestoreStamina,
-      category: kEffectCategoryConsume,
-      values: [
-        EffectValue(
-          value: 20,
-        ),
-      ],
-    )
-  }
-
-  construct shrimp ({
-    stackSize = 1,
-  }) {
-    this.name = getLocaleString('shrimp')
-    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
-    this.category = kEntityCategoryResource // 武器、防护、斗技、玄功等等
-    this.kind = kEntityResourceKindFoodIngrident // 枪、剑、斧等等
-    this.rarity = kCommon
-    this.value = 12
-    this.description = ''
-    this.stackSize = stackSize
-    this.color = kRarity[this.rarity].color
-
-    this.id = 'resource_${this.name}'
-    this.icon = 'icon/item/consumable/shrimp.png'
-
-    this.isConsumable = true
-    this.effects = {}
-    this.effects[kEffectRestoreStamina] = Effect(
-      id: kEffectRestoreStamina,
-      description: kEffectRestoreStamina,
-      category: kEffectCategoryConsume,
-      values: [
-        EffectValue(
-          value: 20,
-        ),
-      ],
-    )
-  }
+  construct aromaticHerb : this.foodIngrident(
+    name: 'aromaticHerb',
+    value: 12,
+    effectValue: 10,
+  ) {}
 }

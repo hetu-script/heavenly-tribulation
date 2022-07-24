@@ -193,7 +193,7 @@ fun getCharacterStats(character) {
 
 
 // 战斗，异步函数，如果获胜则返回 true
-fun heroBattle async (
+fun heroBattle (
   char2, {
   resolveResult = true,
   loot = true,
@@ -202,7 +202,7 @@ fun heroBattle async (
   char2Resurrect = false,
   onWon,
   onLost,
-}) -> Future {
+}) -> Future async {
   final char1 = getHero()
   return showDuel(char1, char2).then((result) {
     if (result?.result) {

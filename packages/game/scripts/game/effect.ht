@@ -15,6 +15,7 @@ const kEffectValueTypePercentage = 'percentage';
 const kEffectRestoreLife = 'effectRestoreLife'
 const kEffectRestoreChi = 'effectRestoreChi'
 const kEffectRestoreStamina = 'effectRestoreStamina'
+const kEffectHealInjury = 'effectHealInjury'
 
 // 食用时触发的效果
 final kEffectCategoryConsume = 'consume'
@@ -41,7 +42,7 @@ const kEffectIncreaseDamageWithCooldown = 'effectIncreaseDamageWithCooldown'
 const kEffectCompanionIncreaseDamageDescription = 'effectCompanionIncreaseDamageDescription'
 
 // 加载到本次游戏的效果脚本
-var effectHandlers = {
+final effectHandlers = {
   // 食用类效果
   // 回复生命
   effectRestoreLife: (effect, character) {
@@ -54,6 +55,10 @@ var effectHandlers = {
   // 回复体力
   effectRestoreStamina: (effect, character) {
     character.stats.stamina += effect.values[0].value
+  },
+  // 治疗外伤
+  effectHealInjury: (effect, character) {
+    character.isInjured = false
   },
 
   // 受击类效果
