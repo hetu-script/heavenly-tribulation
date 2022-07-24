@@ -1,7 +1,9 @@
 import '../name/name.ht' as nameGenerator
 import '../game.ht'
-import '../entity/location.ht'
+import '../entity/location/site.ht'
+import '../entity/location/location.ht'
 import '../entity/character/character.ht'
+import '../entity/organization.ht'
 import '../entity/nation.ht'
 import '../l10n.ht'
 import '../tile/hexagonal_tile.ht'
@@ -400,13 +402,42 @@ fun createWorldMap({
     return false
   }
 
-  // 随机生成每个组织的创建时间，分布在20年的范围内，时间固定为某月1号
-  var organizationCreatedDate = []
+  // 随机生成每个修真门派的创建时间，分布在20年的范围内，时间固定为某月1号
+  var cultivationOrganizationCreatedDate = []
   for (final i in range(organizationNumber)) {
-    organizationCreatedDate.add(random.nextInt(20 * kMonthsPerYear) * kTicksPerMonth)
+    cultivationOrganizationCreatedDate.add(random.nextInt(20 * kMonthsPerYear) * kTicksPerMonth)
   }
-  organizationCreatedDate.sort()
-  organizationCreatedDate = organizationCreatedDate.reversed.toList()
+  cultivationOrganizationCreatedDate.sort()
+  cultivationOrganizationCreatedDate = cultivationOrganizationCreatedDate.reversed.toList()
+
+  fun findLeader {
+    var leader
+    if (game.characters.length == 0) {
+      // 人物列表是空的，此时要创造第一个角色
+      leader = Character(
+        birthTimestamp: createRandomBirthTimestamp(20) // 年龄至少是20岁
+      )
+    } else {
+      var found = false
+      for (final id in random.shuffle(game.characters.keys)) {
+        final character = game.characters[id]
+        final age = datetime.toYear(game.timestamp - character.birthTimestamp)
+        // 年龄至少是20岁，并且不能担任其他组织职务
+        if (character.organizationRank == 0 && age >= 20) {
+          found = true
+          leader = character
+          break
+        }
+      }
+      if (!found) {
+        // 没有找到合适的人，则立刻创建一个
+        leader = Character(
+          birthTimestamp: createRandomBirthTimestamp(20), // 年龄至少是20岁
+        )
+      }
+    }
+    return leader
+  }
 
   // 模拟世界演化，按照时间推进并生成人物、组织，并且为期分配人物关系
   // 在此种演化算法中，人物不会死亡，组织不会被消灭，因此只判断人数是否达到要求
@@ -414,52 +445,31 @@ fun createWorldMap({
   engine.info('快速模拟一段时间的演化，生成人物、组织、国家等信息')
   do {
     if (game.organizations.length < organizationNumber) {
-      if (game.timestamp >= organizationCreatedDate.last) {
+      if (game.timestamp >= cultivationOrganizationCreatedDate.last) {
         // 组织数量不够，在来到下一个组织创建时间时，创建组织
-        organizationCreatedDate.removeLast()
-        var leader
+        cultivationOrganizationCreatedDate.removeLast()
+
         // 组织总舵不允许和其他组织的总舵在同一个据点
-        var headquarters
+        final headquarters
         do {
           // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
           final headquartersId = random.nextIterable(game.locations.keys)
           headquarters = game.locations[headquartersId]
-        } while (headquarters.isHeadquarters)
-        if (game.characters.length == 0) {
-          // 人物列表是空的，此时要创造第一个角色
-          leader = Character(
-            locationId: headquarters.id,
-            birthTimestamp: createRandomBirthTimestamp(20) // 年龄至少是20岁
-          )
-        } else {
-          var found = false
-          for (final id in random.shuffle(game.characters.keys)) {
-            final character = game.characters[id]
-            final age = datetime.toYear(game.timestamp - character.birthTimestamp)
-            // 年龄至少是20岁，并且不能已经是其他组织的掌门
-            if (character.organizationRank == 0 && age >= 20) {
-              found = true
-              leader = character
-              break
-            }
-          }
-          if (!found) {
-            // 没有找到合适的人，则立刻创建一个
-            leader = Character(
-              locationId: headquarters.id,
-              birthTimestamp: createRandomBirthTimestamp(20), // 年龄至少是20岁
-            )
-          }
-        }
-        setCharacterLocationId(leader, headquarters.id)
+        } while (headquarters.organizaitons.isNotEmpty)
+
+        final leader = findLeader()
+        setLeader()
         
         // 创建组织
         Organization(
+          category: kOrganizationCategoryCaltivation,
           nationId: headquarters.nationId,
           headquartersId: headquarters.id,
           leaderId: leader.id,
         )
       }
+
+
     }
 
     // 婴儿出生
@@ -480,8 +490,8 @@ fun createWorldMap({
     for (final id in random.shuffle(game.organizations.keys)) {
       final organization = game.organizations[id]
       final location = game.locations[organization.headquartersId]
-      if (location.residingWildCharacterIds.isNotEmpty) {
-        final characterId = random.nextIterable(location.residingWildCharacterIds)
+      if (location.residingCharacterIds.isNotEmpty) {
+        final characterId = random.nextIterable(location.residingCharacterIds)
         final character = game.characters[characterId]
         assert(character.organizationId == null)
         addCharacterToOrganization(character, organization)

@@ -40,7 +40,7 @@ class SiteCard extends StatelessWidget {
               borderRadius: kBorderRadius,
               onTap: () {
                 engine.invoke('handleSiteInteraction',
-                    positionalArgs: [siteId, locationId]);
+                    positionalArgs: [locationId, siteId]);
               },
               child: Padding(
                 padding: const EdgeInsets.all(5.0),

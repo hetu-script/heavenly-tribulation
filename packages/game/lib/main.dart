@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'dart:ui';
+import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/flame.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:flutter_platform_alert/flutter_platform_alert.dart';
 
 // import 'ui/view/location/location.dart';
 import 'ui/main_menu.dart';
@@ -68,27 +70,36 @@ void main() async {
     );
   };
 
-  runApp(
-    MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: Global.appTheme,
-      builder: (BuildContext context, Widget? widget) {
-        Widget error = const Text('...rendering error...');
-        if (widget is Scaffold || widget is Navigator) {
-          error = Scaffold(body: Center(child: error));
-        }
-        ErrorWidget.builder = (FlutterErrorDetails errorDetails) => error;
-        if (widget != null) return widget;
-        throw ('widget is null');
-      },
-      home: const MainMenu(),
-      // routes: {
-      //   'worldmap': (context) => MainGameOverlay(key: UniqueKey()),
-      //   'location': (context) => const LocationView(),
-      //   'information': (context) => const InformationPanel(),
-      //   'character': (context) => const CharacterView(),
-      //   // 'editor': (context) => const GameEditor(),
-      // },
-    ),
-  );
+  runZonedGuarded(() {
+    runApp(
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: Global.appTheme,
+        builder: (BuildContext context, Widget? widget) {
+          Widget error = const Text('...rendering error...');
+          if (widget is Scaffold || widget is Navigator) {
+            error = Scaffold(body: Center(child: error));
+          }
+          ErrorWidget.builder = (FlutterErrorDetails errorDetails) => error;
+          if (widget != null) return widget;
+          throw ('widget is null');
+        },
+        home: const MainMenu(),
+        // routes: {
+        //   'worldmap': (context) => MainGameOverlay(key: UniqueKey()),
+        //   'location': (context) => const LocationView(),
+        //   'information': (context) => const InformationPanel(),
+        //   'character': (context) => const CharacterView(),
+        //   // 'editor': (context) => const GameEditor(),
+        // },
+      ),
+    );
+  }, (Object error, StackTrace stack) {
+    FlutterPlatformAlert.showAlert(
+      windowTitle: 'An unexpected error happened!',
+      text: '$error\n\n$stack',
+      alertStyle: AlertButtonStyle.ok,
+      iconStyle: IconStyle.error,
+    );
+  });
 }

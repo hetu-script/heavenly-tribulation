@@ -1,17 +1,21 @@
 import '../game.ht'
-import { Site, kSiteOrganization } from 'location.ht'
+import 'location/site.ht'
 import '../name/name.ht' as nameGenerator
 import '../l10n.ht'
+import 'common.ht'
 
-final kOrganizationCategory = [
-  'caltivation',
-  'religion',
-  'family',
-  'gang',
-  // 'business',
-  // 'academy',
-  // 'craftsmanship',
-  // 'restaurant',
+final kOrganizationCategoryCaltivation = 'caltivation'
+final kOrganizationCategoryGang = 'gang'
+final kOrganizationCategoryReligion = 'religion'
+final kOrganizationCategoryAcademy = 'academy'
+final kOrganizationCategoryTradinghouse = 'tradinghouse' // 直接对应site类型
+final kOrganizationCategoryWorkshop = 'workshop' // 直接对应site类型
+final kOrganizationCategoryRestaurant = 'restaurant' // 直接对应site类型
+
+final kTradingOrganizationCategories = [
+  'tradinghouse',
+  'workshop',
+  'restaurant',
 ]
 
 final kOrganizationThinkings = {
@@ -22,19 +26,12 @@ final kOrganizationThinkings = {
     'mentor',
     'sectarianism',
   ],
-  religion: [
-    'coreligionist',
-    'missionary',
-    'discipline',
-    'theology',
-    'religious',
-  ],
-  family: [
-    'respectForElders',
-    'malePreference',
-    'excluding',
-    'familyGuy',
-    'heritage',
+  business: [
+    'everyOneIsForHimself',
+    'asLongAsProfit',
+    'privateProperty',
+    'spiritOfContract',
+    'monopolism',
   ],
   gang: [
     'swordLover',
@@ -43,7 +40,13 @@ final kOrganizationThinkings = {
     'promise',
     'communism',
   ],
-  business: [],
+  religion: [
+    'coreligionist',
+    'missionary',
+    'discipline',
+    'theology',
+    'religious',
+  ],
   academy: [],
   craftsmanship: [],
   restaurant: [],
@@ -64,13 +67,11 @@ struct Organization {
   }) {
     assert(game.locations.containsKey(headquartersId))
     assert(game.characters.containsKey(leaderId))
+    assert(kOrganizationCategory.contains(category))
 
-    if (category == null) {
-      this.category = random.nextIterable(kOrganizationCategory)
-    } else {
-      assert(kOrganizationCategory.contains(category))
-      this.category = category
-    }
+    this.entityType = kEntityTypeOrganization
+    this.category = category
+
     this.index = game.organizations.length
     if (name) {
       this.name = name
@@ -101,9 +102,14 @@ struct Organization {
       this.nationId = nationId
     }
 
-    final location = game.locations[headquartersId]
-    addLocationToOrganization(location, this)
-    setOrganizationHeadquarters(this, location)
+    final headquarters = game.locations[headquartersId]
+      // addLocationToOrganization(location, this)
+    stationOrganization(
+      this,
+      headquarters,
+      characterIds: [leader.id],
+      isHeadquarters: true,
+    )
 
     final leader = game.characters[leaderId]
     // 触发创派事件，创派事件和成为掌门是两个事件
@@ -120,6 +126,7 @@ struct Organization {
     )
     addCharacterToOrganization(leader, this, incidentOccured: false)
     setLeader(leader, this)
+    setCharacterLocationId(leader, headquarters.id)
   }
 }
 
@@ -147,19 +154,47 @@ fun setLeader(character, organization) {
     order: 15,
     isGlobal: true,
   )
+  setCharacterLocationId(character, organization.headquartersId)
 }
 
-// 必须已经是门派据点, 并且尚未设置总堂，才可以设置总堂
-fun setOrganizationHeadquarters(organization, location) {
-  assert(!location.sites.containsKey(kSiteOrganization))
-  assert(location.organizationId == organization.id)
-  organization.headquartersId = location.id
-  location.sites[kSiteOrganization] = Site(
+// 类似 equip，将会在 location 上保存一个新的数据对象
+// {
+//   id,
+//   isHeadquarters
+//   category,
+//   characterIds, // 指在这个地点的该组织的人员，并不一定等于该组织的全部人员
+// }
+fun stationOrganization(
+  organization,
+  location, {
+  characterIds,
+  isHeadquarters = false,
+}) {
+  assert(!location.organizations.containsKey(organization.id))
+  characterIds ??= organizaiton.characterIds.toList()
+  if (isHeadquarters) {
+    organization.headquartersId = location.id
+  }
+  Site(
     location: location,
-    category: kSiteOrganization,
+    organizationId: organization.id,
+    category: (organization.category in kTradingOrganizationCategories) ?
+              organization.category : kSiteOrganization,
     name: organization.name,
-  )
-  location.isHeadquarters = true
+  ) 
+  location.organizations[organization.id] = {
+    id: organization.id,
+    isHeadquarters: isHeadquarters,
+    category: organization.category,
+    characterIds: characterIds,
+  }
+
+  for (final id in characterIds) {
+    final character = game.characters[id]
+    setCharacterHome(character, location, isOrganized: true)
+  }
+
+  organizaiton.locationIds.add(location.id)
 }
 
 // 组织中每个等级的人数上限
@@ -222,25 +257,24 @@ fun addCharacterToOrganization(character, organization, { incidentOccured = true
   }
 }
 
-fun removeLocationFromOrganization(location) {
-  if (!terrain.organizationId) return
+// fun removeLocationFromOrganization(location) {
+//   if (!terrain.organizationId) return
 
-  final org = game.organizations[terrain.organizationId]
-  org.locationIds.remove(location.id)
-  delete location.organizationId
-}
+//   final org = game.organizations[terrain.organizationId]
+//   org.locationIds.remove(location.id)
+//   delete location.organizationId
+// }
 
-fun addLocationToOrganization(location, organization) {
-  if (location.organizationId != null) {
-    assert(location.organizationId != organization.id)
-    removeLocationFromOrganization(location)
-  }
-  // 只能向本国的门派分配本国统治的据点
-  assert(location.nationId == organization.nationId)
-  location.organizationId = organization.id
-  assert(!organization.locationIds.contains(location.id))
-  organization.locationIds.add(location.id)
-}
+// fun addLocationToOrganization(location, organization) {
+//   if (location.organizationId != null && location.organizationId != organization.id) {
+//     removeLocationFromOrganization(location)
+//   }
+//   // 只能向本国的门派分配本国统治的据点
+//   assert(location.nationId == organization.nationId)
+//   location.organizationId = organization.id
+//   assert(!organization.locationIds.contains(location.id))
+//   organization.locationIds.add(location.id)
+// }
 
 fun addOrganizations(orgs: List) {
   engine.info('载入组织数据')

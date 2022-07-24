@@ -35,6 +35,7 @@ const _kInformationViewLocationColumns = [
 const _kInformationViewOrganizationColumns = [
   'name',
   'leader',
+  'category',
   'headquartersLocation',
   'locationNumber',
   'memberNumber',
@@ -122,6 +123,8 @@ class _InformationPanelState extends State<InformationPanel>
       rowData.add(org['name']);
       // 掌门
       rowData.add(getNameFromId(org['leaderId']));
+      // 类型
+      rowData.add(engine.locale[org['category']]);
       // 总堂
       rowData.add(getNameFromId(org['headquartersId']));
       // 据点数量

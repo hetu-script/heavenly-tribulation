@@ -42,7 +42,12 @@ final kMinorMotivations = [
 ]
 
 final kGeneralThinkings = [
-  'self-discipline',
+  "respectForElders",
+  "malePreference",
+  "exclusionism",
+  "bigFamily",
+  "heritage",
+  'selfDiscipline',
   'helping',
   'travelling',
   'curiosity',
@@ -559,41 +564,22 @@ fun characterWitnessIncident(character, incident, { witnessed }) {
 //   return getLocaleString('spiritRank${spiritRank}') + getLocaleString('sorcerer')
 // }
 
-fun removeCharacterHome(character) {
-  if (!character.homeId) return
-
-  final loc = game.locations[character.homeId]
-  // loc.residingCharacterIds.remove(character.id)
-  loc.residingWildCharacterIds.remove(character.id)
-  loc.residingOrganizedCharacterIds.remove(character.id)
-  delete character.homeId
-}
-
-fun setCharacterHome(character, location) {
-  // 触发定居事件
-  var incidentContent
-  if (location.organizationId && character.organizationId == location.organizationId) {
-    location.residingOrganizedCharacterIds.add(character.id)
-    incidentContent = getLocaleString('incidentSettleOrganization', [
+fun setCharacterHome(character, location, {isOrganized = false}) {
+  location.residingCharacterIds.remove(character.id)
+  if (!isOrganized) {
+    location.residingCharacterIds.add(character.id)
+    // 触发定居事件
+    final incidentContent = getLocaleString('incidentSettle', [
       character.name,
       location.name,
-      game.organizations[location.organizationId].name,
     ])
   } else {
-    location.residingWildCharacterIds.add(character.id)
-    incidentContent = getLocaleString('incidentSettle', [
-      character.name,
-      location.name,
-    ])
+
   }
-  if (character.homeId != location.id) {
-    Incident(
-      content: incidentContent,
-      subjectIds: [character.id],
-    )
-  }
-  // 即便是同一个场景，也有可能是从在野变成加入组织，所以还是要执行下面的代码
-  removeCharacterHome(character)
+  Incident(
+    content: incidentContent,
+    subjectIds: [character.id],
+  )
   character.homeId = location.id
 }
 

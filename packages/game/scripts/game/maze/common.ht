@@ -50,6 +50,7 @@ fun handleMazeEntityInteraction({entityId, left, top, maze, currentLevelIndex}) 
       resolveResult: true,
       loot: true,
       takeAll: true,
+      isMaze: true,
       char1Resurrect: false,
       char2Resurrect: false,
       onWon: () {
@@ -103,7 +104,7 @@ fun handleMazeEntityInteraction({entityId, left, top, maze, currentLevelIndex}) 
                 content: incidentContent,
                 subjectIds: [hero.id],
                 isPrivate: true,
-                isLocal: true,
+                isInMaze: true,
               )
               return false
             } else {

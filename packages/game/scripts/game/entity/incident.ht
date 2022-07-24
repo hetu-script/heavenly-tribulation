@@ -7,7 +7,7 @@ struct Incident {
     content: str,
     isPrivate: bool = false, // 是否通知当前据点所有人
     isGlobal: bool = false, // 是否记录到全世界的人都记录
-    isLocal: bool = false, // 是否只记录在副本自己的历史中
+    isInMaze: bool = false, // 是否只记录在副本自己的历史中
     order = 0,
     ideal = 0,
     good = 0,
@@ -40,7 +40,7 @@ struct Incident {
     this.isPrivate = isPrivate
     this.isGlobal = isGlobal
 
-    if (!isLocal) {
+    if (!isInMaze) {
       this.index = history.length
       history.add(this)
     }

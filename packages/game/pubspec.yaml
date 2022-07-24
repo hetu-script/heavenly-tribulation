@@ -45,6 +45,7 @@ dependencies:
   path: ^1.8.1
   async: ^2.8.2
   fast_noise: ^1.0.1
+  flutter_platform_alert: ^0.3.0
 
 dev_dependencies:
   flutter_test:

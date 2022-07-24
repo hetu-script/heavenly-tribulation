@@ -1,0 +1,301 @@
+import '../../l10n.ht'
+import 'location.ht'
+import '../../dialog.ht'
+
+const kSiteTradinghouse = 'tradinghouse'
+const kSiteWorkshop = 'workshop'
+const kSitePalace = 'palace'
+const kSiteGovernment = 'government'
+const kSiteResidence = 'residence'
+const kSiteOrganization = 'organization'
+const kSiteLibrary = 'library'
+const kSiteFarmland = 'farmland'
+const kSiteMine = 'mine'
+const kSiteTimberland = 'timberland'
+const kSiteArena = 'arena'
+const kSiteNursery = 'nursery'
+const kSiteAlchemylab = 'alchemylab'
+const kSiteZenyard = 'zenyard'
+const kSiteZoo = 'zoo'
+const kSiteMaze = 'maze'
+
+struct Site {
+  construct ({
+    location,
+    organizationId,
+    category,
+    name,
+    image,
+  }) {
+    assert(location != null)
+    assert(organizationId != null)
+    assert(category != null)
+
+    this.locationId = location.id
+    this.organizationId = organizationId
+    this.category = category
+    this.name = name ?? getLocaleString(category)
+    this.image = image ?? 'location/site/${category}.png'
+
+    this.id = 'site_${location.id}_${category}_${this.name}'
+    location.sites[this.id] = this
+  }
+}
+
+fun handleSiteInteraction(locationId, siteId: str) {
+  final location = getLocationById(locationId)
+  final site = getLocationSiteById(location, siteId)
+  if (site != null) {
+    when (site.category) {
+      'tradinghouse' -> _handleShopInteraction(site)
+      'workshop' -> _handleWorkshopInteraction(site)
+      'restaurant' -> _handleRestaurantInteraction(site)
+      'palace' -> _handlePalaceInteraction(site)
+      'government' -> _handleGovernmentInteraction(site)
+      'residence' -> _handleResidenceInteraction(site)
+      'organization' -> _handleOrganizationInteraction(site)
+      'library' -> _handleLibraryInteraction(site)
+      'farmland' -> _handleFarmlandInteraction(site)
+      'mine' -> _handleMineInteraction(site)
+      'timberland' -> _handleMineInteraction(site)
+      'arena' -> _handleArenaInteraction(site)
+      'nursery' -> _handleNurseryInteraction(site)
+      'alchemylab' -> _handleAlchemylabInteraction(site)
+      'zenyard' -> _handleZenroomInteraction(site)
+      'zoo' -> _handleZooInteraction(site)
+      'maze' -> _handleMazeInteraction(site)
+      else -> {
+        engine.error('错误: 未知的地区类型。')
+      }
+    }
+  }
+}
+
+// fun searchCharactersAtSite(siteId: str) -> Iterable {
+//   return game.characters.where((siteId) {
+//     char.currentSiteId == currentSiteId
+//   })
+// }
+
+fun _handlePalaceInteraction(site) {
+  showDialogByLocaleKeys(['visitPalaceDeny'])
+
+  // final location = game.locations[site.locationId]
+  // showSelection({
+  //   visit: getLocaleString('visit'),
+  //   leave: getLocaleString('leave'),
+  // }).then((key) {
+  //   when (key) {
+  //     // 如果选择 leave，直接忽略，什么也不做
+  //     'visit' -> {
+  //       showDialogByResourceId('visit_palace_deny_entry')
+  //     }
+  //   }
+  // })
+}
+
+fun _handleGovernmentInteraction(site) {
+  final hero = game.characters[game.heroId]
+  final fame = getCharacterFame(hero)
+  final location = game.locations[site.locationId]
+  final selections = [
+    'appeal',
+    'tribute',
+    'noticeBoard',
+    'localExam',
+  ]
+  if (site.isCapital) {
+    selections.add('nationalExam')
+  }
+  selections.add('visitJail')
+  selections.add('leave')
+  
+  showSelectionByLocaleKeys(selections).then((key) {
+    when (key) {
+      'appeal' -> {
+        showSelectionByLocaleKeys([
+          'applyOrganization',
+          'applySite',
+          'complaintSite',
+          'complaintCharacter',
+          'appealCharacter',
+          'setHome',
+          'cancel',
+        ]).then((key) {
+          when (key) {
+            'cancel' -> {
+              _handleGovernmentInteraction(site)
+            }
+            'applyOrganization' -> {
+              
+            }
+            'applySite' -> {
+              
+            }
+            'complaintSite' -> {
+              
+            }
+            'complaintCharacter' -> {
+              
+            }
+            'appealCharacter' -> {
+              
+            }
+            'setHome' -> {
+              
+            }
+          }
+        })
+      }
+      'tribute' -> {
+        // TODO: 进贡金钱或者宝物，之后可以选择是否发起请求
+      }
+      'noticeBoard' -> {
+        if (location.quests.isEmpty) {
+          showDialogByLocaleKeys(['questEmpty'])
+        } else {
+          showQuests(location)
+        }
+      }
+      'localExam' -> {
+        showDialogByLocaleKeys(['localExamIntro'])
+      }
+      'nationalExam' -> {
+        showDialogByLocaleKeys(['nationalExamIntro'])
+      }
+      'visitJail' -> {
+        final entry = false
+        () async {
+          if (location.jailedCharacterIds.isEmpty) {
+            return showDialogByLocaleKeys(['visitJailEmpty'])
+          } else {
+            if (fame > kFameCheckThreshold) {
+              final title = getCharacterTitle(hero)
+              return showDialogByStrings(
+                [
+                  getLocaleString('visitJailEntryRespect', [title + hero.name]),
+                ],
+                returnValue: true,
+              )
+            } else {
+              return showDialogByLocaleKeys(['visitJailDeny'])
+            }
+          }
+        }().then((value) {
+          if (value) {
+            
+          }
+        })
+      }
+    }
+  })
+}
+
+fun _handleResidenceInteraction(site) {
+  final hero = game.characters[game.heroId]
+  final location = game.locations[site.locationId]
+  showSelectionByLocaleKeys([
+    'visit',
+    'leave',
+  ]).then((key) {
+    when (key) {
+      // 如果选择 leave，直接忽略，什么也不做
+      'visit' -> {
+        if (location.residingCharacterIds.isNotEmpty) {
+          final ids = location.residingCharacterIds.toList()
+          ids.remove(game.heroId)
+          showVisitCharacterSelection(ids).then((key) {
+            if (key != null) {
+              handleCharacterInteraction(key)
+            }
+          })
+        } else {
+          showDialogByLocaleKeys(['visitEmptyVillage'], character: hero)
+        }
+      }
+    }
+  })
+}
+
+fun _handleOrganizationInteraction(site) {
+  final location = game.locations[site.locationId]
+  showSelectionByLocaleKeys([
+    'train',
+    'learn',
+    'visit',
+    'leave',
+  ])
+  .then((key) {
+    when (key) {
+      // 如果选择 leave，直接忽略，什么也不做
+      'train' -> {
+        // 非本门派修士,需要花钱才能训练
+        showDialogByLocaleKeys(['organizationTrainDeny'])
+      }
+      'learn' -> {
+        // 非本门派修士,需要花钱才能学习,而且只能学习二阶或以下的功法
+        showDialogByLocaleKeys(['organizationTrainDeny'])
+      }
+      'visit' -> {
+        // 既然有总部，那就一定有可以拜访的成员
+        final ids = location.organizaitons[site.organizationId].characterIds.toList()
+        ids.remove(game.heroId)
+        showVisitCharacterSelection(ids).then((key) {
+          if (key != null) {
+            handleCharacterInteraction(key)
+          } else {
+            _handleOrganizationInteraction(site)
+          }
+        })
+      }
+    }
+  })
+}
+
+fun _handleLibraryInteraction(site) {
+
+}
+
+fun _handleFarmlandInteraction(site) {
+
+}
+
+fun _handleMineInteraction(site) {
+
+}
+
+fun _handleShopInteraction(site) {
+
+}
+
+fun _handleRestaurantInteraction(site) {
+
+}
+
+fun _handleArenaInteraction(site) {
+
+}
+
+fun _handleNurseryInteraction(site) {
+
+}
+
+fun _handleWorkshopInteraction(site) {
+
+}
+
+fun _handleAlchemylabInteraction(site) {
+
+}
+
+fun _handleZenroomInteraction(site) {
+
+}
+
+fun _handleZooInteraction(site) {
+
+}
+
+fun _handleMazeInteraction(site) {
+
+}

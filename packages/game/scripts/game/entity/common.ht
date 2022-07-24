@@ -124,6 +124,7 @@ const kEntityTypeNpc = 'npc' //game.npcs
 const kEntityTypeCompanion = 'companion' //character.companions
 const kEntityTypeItem = 'item' //character.inventory
 const kEntityTypeSkill = 'skill' //character.skills
+const kEntityTypeOrganization = 'organization' //game.organizations
 
 // category是界面上显示的对象类型文字
 const kEntityCategoryCharacter = 'character'

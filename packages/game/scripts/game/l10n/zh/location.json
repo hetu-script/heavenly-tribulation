@@ -1,6 +1,8 @@
 {
   "population": "人口",
 
+  "wilderness": "荒野",
+
   "palace": "皇宫",
   "government": "官府",
   "residence": "民居",
@@ -9,17 +11,11 @@
   "farmland": "农田",
   "mine": "矿山",
   "timberland": "林场",
-  "market": "坊市",
-  "shop": "商行",
-  "restaurant": "宴宾楼",
   "arena": "斗技场",
   "nursery": "苗圃",
-  "workshop": "工坊",
   "alchemylab": "丹房",
-  "smithshop": "锻冶间",
   "zenyard": "禅房",
   "zoo": "兽园",
-  "wilderness": "荒野",
   "maze": "秘境",
 
   "tribute": "进贡",

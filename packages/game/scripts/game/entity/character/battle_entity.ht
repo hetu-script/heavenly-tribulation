@@ -198,6 +198,7 @@ fun heroBattle (
   resolveResult = true,
   loot = true,
   takeAll = true,
+  isInMaze = false,
   char1Resurrect = true,
   char2Resurrect = false,
   onWon,
@@ -214,7 +215,7 @@ fun heroBattle (
         content: incidentContent,
         subjectIds: [char1.id],
         isPrivate: true,
-        isLocal: true,
+        isInMaze: isInMaze,
       )
       if (char2Resurrect && char2.isMajorCharacter) {
         char2.isInjured = true
@@ -225,7 +226,7 @@ fun heroBattle (
           content: incidentContent,
           subjectIds: [char1.id],
           isPrivate: true,
-          isLocal: true,
+          isInMaze: isInMaze,
         )
         if (char2.isMajorCharacter) {
           char2.isDead = true

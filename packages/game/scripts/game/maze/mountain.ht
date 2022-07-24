@@ -72,7 +72,7 @@ struct MountainMaze {
   }) {
     this.name = name
     this.id = 'maze_${Hash.uid4(4)}_${name}'
-    engine.info('开始生成副本: [${this.id}]')
+    engine.info('生成副本: [${this.id}]')
 
     this.levels = [] // 每一层是一个单独的 tilemap
     this.currentLevel = 0
@@ -122,7 +122,7 @@ struct MountainMaze {
         height: height,
       )
 
-      engine.info('生成迷宫地块')
+      // engine.info('生成迷宫地块')
       final landZone = Zone(index: currentLevel.zones.length, category: kZoneLand)
       currentLevel.zones.add(landZone)
       for (var j in range(height)) {
@@ -139,7 +139,7 @@ struct MountainMaze {
         }
       }
       
-      engine.info('计算出入口')
+      // engine.info('计算出入口')
       // 可能的出入口
       final possibleEntries = [
         { ...Tile(1, 1, mapWidth: width) },
@@ -237,7 +237,7 @@ struct MountainMaze {
         }
       }
 
-      engine.info('计算随机遭遇的位置')
+      // engine.info('计算随机遭遇的位置')
       final blockSize = (width * height) ~/ 9
       var isOnCorner = false
       // 迷宫中的主要roguelike元素的可能位置锚点，分布在横三竖三的9个区块中
@@ -270,7 +270,7 @@ struct MountainMaze {
       possibleEntries[2].nearestAnchor = anchors[7].index
       possibleEntries[3].nearestAnchor = anchors[9].index
       
-      engine.info('在锚点放置遭遇')
+      // engine.info('在锚点放置遭遇')
       for (final anchor of anchors) {
         final r = random.nextDouble()
         if (r < kMazeUniqueEncounterProbability) {
@@ -374,7 +374,7 @@ struct MountainMaze {
       // 要想让一次可以经过所有的锚点，最少需要8个路径
       // 为了保证角落和中心必然可以到达，角落和中心会必然单独随机分配一个路径
       // 剩下的路径则随机分配
-      engine.info('确保各个锚点之间的通路')
+      // engine.info('确保各个锚点之间的通路')
       final routes = Set() // 最终结果
       final middleAnchors = [2,4,6,8]
       for (final point in random.shuffle(middleAnchors)) {
@@ -424,7 +424,7 @@ struct MountainMaze {
       generateRouteByIndex(exit.index, exit.nearestAnchor, currentLevel)
 
       // 在非路径非锚点非出入点的地块上生成装饰物
-      engine.info('生成装饰物')
+      // engine.info('生成装饰物')
       final blockZone = Zone(index: currentLevel.zones.length, category: 'block')
       currentLevel.zones.add(blockZone)
       for (final tile in currentLevel.terrains) {
@@ -463,11 +463,11 @@ struct MountainMaze {
           }
         }
       }
-      engine.info('生成路标')
+      // engine.info('生成路标')
       this.levels.add(currentLevel)
     }
     
-    engine.info('副本 ${this.id} 生成完毕')
+    // engine.info('副本 ${this.id} 生成完毕')
 
     // 重置临时历史，需要在手动调用enterMaze时再赋值
     localHistory = savedLocalHistory
