@@ -1,14 +1,14 @@
 {
   "experienced": "经历",
   "witnessed": "见闻",
-  "incidentFirstMetNormal": "{0} 认识了 {1}。",
-  "incidentFirstMetHate": "{0} 认识了 {1}，对其印象不太好。",
-  "incidentFirstMetLike": "{0} 认识了 {1}，对其十分喜欢。",
-  "incidentOrganizationCreated": "{0} 在 {1} 创建了 {2}。",
+  "incidentFirstMeetNormal": "{0} 认识了 {1}。",
+  "incidentFirstMeetHate": "{0} 认识了 {1}，对其印象不太好。",
+  "incidentFirstMeetLike": "{0} 认识了 {1}，对其十分喜欢。",
+  "incidentOrganizationCreate": "{0} 在 {1} 创建了 {2}。",
   "incidentEnlist": "{0} 加入了 {1}。",
   "incidentLeader": "{0} 成为了 {1} {2}。",
   "incidentSettle": "{0} 在 {1} 安家了。",
-  "incidentSettleOrganized": "{0} 在 {1} 的 {2} 安家了。",
+  "incidentSettleOrganization": "{0} 在 {1} 的 {2} 安家了。",
   "incidentBorn": "{0} 和 {1} 的孩子 {2} 在 {3} 出生了。",
   "incidentMarriage": "{0} 和 {1} 在 {2} 结婚了。",
 
@@ -24,14 +24,22 @@
   "characterGiveCommonItemForced": "{0} 拿走了 {1} 身上的 {2} 个 {3}。",
   "characterGiveItem": "{0} 将 {1} 给了 {2}。",
   "characterGiveItemForced": "{0} 拿走了 {1} 身上的 {2}。",
-  "characterAte": "{0} 吃掉了 {1}。",
-  "characterAteForced": "{0} 喂 {1} 吃掉了 {2}。",
+  "characterEat": "{0} 吃掉了 {1}。",
+  "characterEatForced": "{0} 喂 {1} 吃掉了 {2}。",
   "characterTakeMedicine": "{0} 服下了 {1}。",
   "characterTakeMedicineForced": "{0} 喂 {1} 服下了 {2}。",
-  "characterDrankBeverage": "{0} 饮下了 {1}。",
-  "characterDrankBeverageForced": "{0} 喂 {1} 饮下了 {2}。",
+  "characterDrinkBeverage": "{0} 饮下了 {1}。",
+  "characterDrinkBeverageForced": "{0} 喂 {1} 饮下了 {2}。",
 
   "characterAcceptQuest": "{0} 在 {1} 接下了 {2} 的悬赏任务。",
 
-  "characterKilledOther": "{0} 杀死了 {1}。"
+  "characterDefeat": "{0} 击败了 {1}。",
+  "characterKill": "{0} 杀死了 {1}。",
+
+  "characterExplore": "{0} 在 {1} 进行了探查，花费了 {2} 天。",
+  "characterGathered": "{0} 在 {1} 进行了采集，花费了 {2} 天。",
+  "characterWoodcutted": "{0} 在 {1} 进行了伐木，花费了 {2} 天。",
+  "characterMined": "{0} 在 {1} 进行了挖矿，花费了 {2} 天。",
+  "characterHunted": "{0} 在 {1} 进行了狩猎，花费了 {2} 天。",
+  "characterFished": "{0} 在 {1} 进行了捕鱼，花费了 {2} 天。"
 }

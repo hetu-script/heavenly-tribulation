@@ -103,9 +103,9 @@ final Map<String, Function> externalGameFunctions = {
       List<HTType> typeArgs = const []}) {
     return IntegerInputDialog.show(
       context: positionalArgs[0],
-      min: positionalArgs[1],
-      max: positionalArgs[2],
-      title: positionalArgs[3],
+      title: positionalArgs[1],
+      min: positionalArgs[2],
+      max: positionalArgs[3],
     );
   },
 };

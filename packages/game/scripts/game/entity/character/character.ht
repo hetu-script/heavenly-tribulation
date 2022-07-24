@@ -446,17 +446,17 @@ fun _characterFirstMet(subject, target, [causeIncident, causeIncidentScore]) {
 
   var incidentContent
   if (metScore < -_kCharacterImpressionCheckpoint) {
-    incidentContent = getLocaleString('incidentFirstMetHate', [
+    incidentContent = getLocaleString('incidentFirstMeetHate', [
       subject.name,
       target.name,
     ])
   } else if (metScore > _kCharacterImpressionCheckpoint) {
-    incidentContent = getLocaleString('incidentFirstMetLike', [
+    incidentContent = getLocaleString('incidentFirstMeetLike', [
       subject.name,
       target.name,
     ])
   } else {
-    incidentContent = getLocaleString('incidentFirstMetNormal', [
+    incidentContent = getLocaleString('incidentFirstMeetNormal', [
       subject.name,
       target.name,
     ])
@@ -574,7 +574,7 @@ fun setCharacterHome(character, location) {
   var incidentContent
   if (location.organizationId && character.organizationId == location.organizationId) {
     location.residingOrganizedCharacterIds.add(character.id)
-    incidentContent = getLocaleString('incidentSettleOrganized', [
+    incidentContent = getLocaleString('incidentSettleOrganization', [
       character.name,
       location.name,
       game.organizations[location.organizationId].name,

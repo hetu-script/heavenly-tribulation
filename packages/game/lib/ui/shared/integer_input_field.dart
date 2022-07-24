@@ -10,8 +10,8 @@ class IntegerInputField extends StatefulWidget {
   final int min;
   final int max;
   final int step;
-  final double arrowsWidth;
-  final double arrowsHeight;
+  final double buttonWidth;
+  final double buttonHeight;
   final EdgeInsets contentPadding;
   final double borderWidth;
   final ValueChanged<int?>? onChanged;
@@ -25,8 +25,8 @@ class IntegerInputField extends StatefulWidget {
     required this.min,
     required this.max,
     this.step = 1,
-    this.arrowsWidth = 24,
-    this.arrowsHeight = 24,
+    this.buttonWidth = 48,
+    this.buttonHeight = 24,
     this.contentPadding = const EdgeInsets.symmetric(horizontal: 0.0),
     this.borderWidth = 2,
     this.onChanged,
@@ -51,7 +51,7 @@ class _IntegerInputFieldState extends State<IntegerInputField> {
         ? widget.initValue.toString()
         : widget.min.toString();
     _focusNode = widget.focusNode ?? FocusNode();
-    _updateArrows(int.tryParse(_controller.text));
+    _updateButtons(int.tryParse(_controller.text));
   }
 
   @override
@@ -59,7 +59,7 @@ class _IntegerInputFieldState extends State<IntegerInputField> {
     super.didUpdateWidget(oldWidget);
     _controller = widget.controller ?? _controller;
     _focusNode = widget.focusNode ?? _focusNode;
-    _updateArrows(int.tryParse(_controller.text));
+    _updateButtons(int.tryParse(_controller.text));
   }
 
   @override
@@ -86,8 +86,7 @@ class _IntegerInputFieldState extends State<IntegerInputField> {
           fillColor: Theme.of(context).colorScheme.surface,
           contentPadding: widget.contentPadding,
           prefixIconConstraints: BoxConstraints(
-              maxHeight: widget.arrowsHeight,
-              maxWidth: widget.arrowsWidth + widget.contentPadding.left),
+              maxHeight: widget.buttonHeight, maxWidth: widget.buttonWidth),
           prefixIcon: Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
@@ -96,23 +95,41 @@ class _IntegerInputFieldState extends State<IntegerInputField> {
             clipBehavior: Clip.antiAlias,
             margin: EdgeInsets.only(
                 top: widget.borderWidth,
-                right: widget.contentPadding.right,
+                right: widget.borderWidth,
                 bottom: widget.borderWidth,
                 left: widget.borderWidth),
             child: Material(
               type: MaterialType.transparency,
-              child: InkWell(
-                onTap: _canGoDown ? () => _update(false) : null,
-                child: Opacity(
-                  opacity: _canGoDown ? 1 : .5,
-                  child: const Icon(Icons.remove),
-                ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: _canGoDown
+                          ? () => _update(absolute: widget.min)
+                          : null,
+                      child: Opacity(
+                        opacity: _canGoDown ? 1 : 0.5,
+                        child: const Text('MIN'),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: InkWell(
+                      onTap: _canGoDown
+                          ? () => _update(relative: -widget.step)
+                          : null,
+                      child: Opacity(
+                        opacity: _canGoDown ? 1 : 0.5,
+                        child: const Icon(Icons.remove),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
           suffixIconConstraints: BoxConstraints(
-              maxHeight: widget.arrowsHeight,
-              maxWidth: widget.arrowsWidth + widget.contentPadding.right),
+              maxHeight: widget.buttonHeight, maxWidth: widget.buttonWidth),
           suffixIcon: Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
@@ -123,15 +140,33 @@ class _IntegerInputFieldState extends State<IntegerInputField> {
                 top: widget.borderWidth,
                 right: widget.borderWidth,
                 bottom: widget.borderWidth,
-                left: widget.contentPadding.right),
+                left: widget.borderWidth),
             child: Material(
               type: MaterialType.transparency,
-              child: InkWell(
-                onTap: _canGoUp ? () => _update(true) : null,
-                child: Opacity(
-                  opacity: _canGoUp ? 1 : .5,
-                  child: const Icon(Icons.add),
-                ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: _canGoUp
+                          ? () => _update(relative: widget.step)
+                          : null,
+                      child: Opacity(
+                        opacity: _canGoUp ? 1 : 0.5,
+                        child: const Icon(Icons.add),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: InkWell(
+                      onTap:
+                          _canGoUp ? () => _update(absolute: widget.max) : null,
+                      child: Opacity(
+                        opacity: _canGoUp ? 1 : 0.5,
+                        child: const Text('MAX'),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -140,7 +175,7 @@ class _IntegerInputFieldState extends State<IntegerInputField> {
         onChanged: (value) {
           final intValue = int.tryParse(value);
           widget.onChanged?.call(intValue);
-          _updateArrows(intValue);
+          _updateButtons(intValue);
         },
         inputFormatters: [
           FilteringTextInputFormatter.digitsOnly,
@@ -148,17 +183,22 @@ class _IntegerInputFieldState extends State<IntegerInputField> {
         ],
       );
 
-  void _update(bool up) {
-    var intValue = int.tryParse(_controller.text);
-    intValue == null
-        ? intValue = 0
-        : intValue += up ? widget.step : -widget.step;
-    _controller.text = intValue.toString();
-    _updateArrows(intValue);
+  void _update({int? relative, int? absolute}) {
+    if (relative != null) {
+      var intValue = int.tryParse(_controller.text);
+      intValue == null ? intValue = 0 : intValue += relative;
+      _updateButtons(intValue);
+      _controller.text = intValue.toString();
+    } else if (absolute != null) {
+      if (absolute < widget.min) absolute = widget.min;
+      if (absolute > widget.max) absolute = widget.max;
+      _updateButtons(absolute);
+      _controller.text = absolute.toString();
+    }
     // _focusNode.requestFocus();
   }
 
-  void _updateArrows(int? value) {
+  void _updateButtons(int? value) {
     final canGoUp = value == null || value < widget.max;
     final canGoDown = value == null || value > widget.min;
     if (_canGoUp != canGoUp || _canGoDown != canGoDown) {

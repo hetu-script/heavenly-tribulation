@@ -357,7 +357,7 @@ fun _handleGovernmentInteraction(site) {
       }
       'visitJail' -> {
         final entry = false
-        (){
+        () async {
           if (location.jailedCharacterIds.isEmpty) {
             return showDialogByLocaleKeys(['visitJailEmpty'])
           } else {

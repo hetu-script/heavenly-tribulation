@@ -312,14 +312,35 @@ struct Duel {
             r = nextTick(char1info)
           }
           if (r) {
-            engine.info('${char1.name} 和 ${char2.name} 的战斗结束了。${char1.name} 获胜。')
+            engine.info('${char1.name} 击败了 ${char2.name}。')
+            final incidentContent = getLocaleString('characterDefeat', [
+              char1.name,
+              char2.name,
+            ])
+            Incident(
+              subjectIds: char1.isMajorCharacter ? [char1.id] : null,
+              objectIds: char2.isMajorCharacter ? [char2.id] : null,
+              content: incidentContent,
+              isPrivate: true,
+            )
+
             this.result = true
             break
           }
 
           r = nextTick(char2info, enemyTurn: true)
           if (r) {
-            engine.info('${char1.name} 和 ${char2.name} 的战斗结束了。${char2.name} 获胜。')
+            engine.info('${char2.name} 击败了 ${char1.name}。')
+            final incidentContent = getLocaleString('characterDefeat', [
+              char2.name,
+              char1.name,
+            ])
+            Incident(
+              subjectIds: char2.isMajorCharacter ? [char2.id] : null,
+              objectIds: char1.isMajorCharacter ? [char1.id] : null,
+              content: incidentContent,
+              isPrivate: true,
+            )
             
             break
           }

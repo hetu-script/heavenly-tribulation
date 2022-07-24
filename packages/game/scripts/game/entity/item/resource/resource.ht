@@ -71,13 +71,13 @@ struct Resource {
     this.icon = 'icon/item/resource/jade.png'
   }
 
-  construct leather ({
+  construct animalHide ({
     stackSize = 1,
   }) {
-    this.name = getLocaleString('leather')
+    this.name = getLocaleString('animalHide')
     this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
     this.category = kEntityCategoryResource // 武器、防护、斗技、玄功等等
-    this.kind = kEntityResourceKindLeather // 枪、剑、斧等等
+    this.kind = kEntityResourceKindAnimalHide // 枪、剑、斧等等
     this.rarity = kCommon
     this.value = 4
     this.description = ''

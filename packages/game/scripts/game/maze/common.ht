@@ -47,6 +47,7 @@ fun handleMazeEntityInteraction({entityId, left, top, maze, currentLevelIndex}) 
   fun battle -> Future {
     return heroBattle(
       entity,
+      resolveResult: true,
       loot: true,
       takeAll: true,
       char1Resurrect: false,
@@ -63,7 +64,7 @@ fun handleMazeEntityInteraction({entityId, left, top, maze, currentLevelIndex}) 
   }
 
   // 盗贼，如果成功击败则返回true，否则返回false
-  async banditEncounter {
+  fun banditEncounter async {
     maze.flags.haveMetBandit = true
     final messages = getLocaleString('mazeBandit01').split('/n')
     return showDialogByStrings(messages, character: entity).then((value) {

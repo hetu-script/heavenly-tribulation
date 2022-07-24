@@ -95,7 +95,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
   HTStruct? _currentNation;
 
   void _interactTerrain(TileMapTerrain terrain) async {
-    engine.invoke('handleWorldTerrainInteraction',
+    await engine.invoke('handleWorldTerrainInteraction',
         positionalArgs: [terrain.left, terrain.top]);
   }
 

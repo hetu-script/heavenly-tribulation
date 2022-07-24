@@ -195,6 +195,7 @@ fun getCharacterStats(character) {
 // 战斗，异步函数，如果获胜则返回 true
 fun heroBattle(
   char2, {
+  resolveResult = true,
   loot = true,
   takeAll = true,
   char1Resurrect = true,
@@ -205,10 +206,9 @@ fun heroBattle(
   final char1 = getHero()
   return showDuel(char1, char2).then((result) {
     if (result?.result) {
-      resolveDuelResult(char1, char2, result)
-      if (loot) {
-        characterLoot(char1, char2, takeAll: takeAll)
-      }
+      if (resolveResult) resolveDuelResult(char1, char2, result)
+      if (loot) characterLoot(char1, char2, takeAll: takeAll)
+      
       final incidentContent = getLocaleString('duelVistory', [ char1.name, char2.name ] )
       Incident(
         content: incidentContent,
@@ -217,10 +217,10 @@ fun heroBattle(
         isLocal: true,
       )
       if (char2Resurrect && char2.isMajorCharacter) {
+        char2.isInjured = true
         char2.stats.life = 1
-        setCharacterLocationId(char2, char2.homeId)
       } else {
-        final incidentContent = getLocaleString('characterKilledOther', [ char1.name, char2.name ] )
+        final incidentContent = getLocaleString('characterKill', [ char1.name, char2.name ] )
         Incident(
           content: incidentContent,
           subjectIds: [char1.id],
@@ -239,8 +239,8 @@ fun heroBattle(
       return true
     } else {
       if (char1Resurrect) {
-        char2.stats.life = 1
-        setCharacterLocationId(char2, char2.homeId)
+        char1.isInjured = true
+        char1.stats.life = 1
       }
       if (onLost is function) {
         onLost()
@@ -248,4 +248,9 @@ fun heroBattle(
       return false
     }
   })
+}
+
+fun characterCostStamina(character, value) {
+  character.stats.stamina -= value
+  if (character.stats.stamina < 0) character.stats.stamina = 0
 }

@@ -73,7 +73,12 @@ fun resetMonthlyActivities(gameData){
     requested: [],
     insulted: [],
     stolen: [],
-    explored: [],
+    // explored: [],
+    // gathered: [],
+    // woodcutted: [],
+    // mined: [],
+    // hunted: [],
+    // fished: [],
   }
 
   // 指某个NPC进行过的动作，限定每个月一次

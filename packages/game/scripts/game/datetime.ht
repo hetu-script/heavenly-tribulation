@@ -13,9 +13,9 @@ fun toYear(timestamp) => (timestamp ~/ kTicksPerYear)
 fun toMonth(timestamp) => (timestamp % kTicksPerYear) ~/ kTicksPerMonth
 fun toDay(timestamp) => (timestamp % kTicksPerMonth) ~/ kTicksPerDay
 
-fun getCurrentYear => toYear(game.timestamp)
-fun getCurrentMonth => toMonth(game.timestamp)
-fun getCurrentDay => toDay(game.timestamp)
+fun getCurrentYear => toYear(game.timestamp) + 1
+fun getCurrentMonth => toMonth(game.timestamp) + 1
+fun getCurrentDay => toDay(game.timestamp) + 1
 
 final kHourString = {
   '0': 'morning',

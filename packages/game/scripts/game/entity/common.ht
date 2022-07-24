@@ -147,7 +147,7 @@ const kEntityResourceKindTimber = 'timber'
 const kEntityResourceKindOre = 'ore'
 const kEntityResourceKindHerb = 'herb'
 const kEntityResourceKindJade = 'jade'
-const kEntityResourceKindLeather = 'leather'
+const kEntityResourceKindAnimalHide = 'animalHide'
 const kEntityResourceKindFoodIngrident = 'foodIngrident'
 
 fun entityTakeDamage(entity, damage) {

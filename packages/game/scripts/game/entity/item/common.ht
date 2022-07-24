@@ -237,24 +237,24 @@ fun characterConsume(character, item, { forcerCharacter }) {
     }
     kEntityConsumableKindBeverage -> {
       incidentContent = forcerCharacter ?
-        getLocaleString('characterDrankBeverageForced', [
+        getLocaleString('characterDrinkBeverageForced', [
           forcerCharacter.name,
           character.name,
           item.name,
         ]) :
-        getLocaleString('characterDrankBeverage', [
+        getLocaleString('characterDrinkBeverage', [
           character.name,
           item.name,
         ])
     }
     else -> {
       incidentContent = forcerCharacter ?
-        getLocaleString('characterAteForced', [
+        getLocaleString('characterEatForced', [
           forcerCharacter.name,
           character.name,
           item.name,
         ]) :
-        getLocaleString('characterAte', [
+        getLocaleString('characterEat', [
           character.name,
           item.name,
         ])

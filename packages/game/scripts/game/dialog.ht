@@ -93,13 +93,13 @@ fun showProgress() {
   return ui.showProgress(buildContext)
 }
 
-fun showIntInput(minOrMax, [max, title]) {
+fun showIntInput(title, minOrMax, [max]) {
   var min = 1
   if (max == null) {
     max = minOrMax
   } else {
     min = minOrMax
   }
-  assert(min < max)
-  return ui.showIntInput(buildContext, min, max, title)
+  assert(min <= max)
+  return ui.showIntInput(buildContext, title, min, max)
 }

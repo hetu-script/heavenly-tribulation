@@ -107,7 +107,7 @@ struct Organization {
 
     final leader = game.characters[leaderId]
     // 触发创派事件，创派事件和成为掌门是两个事件
-    final incidentContent = getLocaleString('incidentOrganizationCreated', [
+    final incidentContent = getLocaleString('incidentOrganizationCreate', [
       leader.name,
       location.name,
       this.name,
