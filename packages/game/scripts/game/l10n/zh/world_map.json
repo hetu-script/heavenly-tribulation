@@ -16,7 +16,7 @@
   "view": "视图",
   "saveAndExitGame": "保存并退出",
 
-  "cannotInteractWhenInjured": "（我现在正身负重伤，还是疗伤休息一下要紧……）",
+  "cannotInteractWhenInjured": "（我现在正身负重伤，要赶紧疗伤休息一下……）",
   "cannotInteractAtEndOfMonth": "（这个月时间不够了，还是等下个月再来吧……）",
   "interactionGotNothing": "（看来运气不太好，这次的行动居然一无所获……）",
   "terrainAlreadyExplored": "（看来这个月我已经在这个地方探查过了……）",

@@ -193,7 +193,7 @@ fun getCharacterStats(character) {
 
 
 // 战斗，异步函数，如果获胜则返回 true
-fun heroBattle(
+fun heroBattle async (
   char2, {
   resolveResult = true,
   loot = true,
@@ -241,6 +241,7 @@ fun heroBattle(
       if (char1Resurrect) {
         char1.isInjured = true
         char1.stats.life = 1
+        showDialogByLocaleKeys(['cannotInteractWhenInjured'], character: hero)
       }
       if (onLost is function) {
         onLost()
