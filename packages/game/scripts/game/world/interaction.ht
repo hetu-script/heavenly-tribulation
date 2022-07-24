@@ -96,7 +96,7 @@ fun handleWorldTerrainInteraction(left, top) {
   final terrain = game.world.terrains[terrainIndex]
 
   final selections = [
-    'explore',
+    'search',
   ]
 
   when (terrain.kind) {
@@ -113,7 +113,7 @@ fun handleWorldTerrainInteraction(left, top) {
   
   showSelectionByLocaleKeys(selections).then((key) {
     when (key) {
-      'explore' -> {
+      'search' -> {
         // if (game.playerMonthly.explored.contains(terrainIndex)) {
         //   showDialogByLocaleKeys(['terrainAlreadyExplored'], character: hero)
         //   return
@@ -124,33 +124,35 @@ fun handleWorldTerrainInteraction(left, top) {
           handleWorldMapEntityInteraction(entityId)
         } else {
           showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-            var i = 0
-            final entityId = terrain.entityId
-            if (entityId) {
-              var found = false
-              while (i < days) {
-                ++i
-                // TODO: 角色感知可以提高成功率
-                if (random.nextDouble() < kFoundBanditCampProbability) {
-                  found = true
-                  break
+            showProgress(getLocaleString('search')) {
+              var i = 0
+              final entityId = terrain.entityId
+              if (entityId) {
+                var found = false
+                while (i < days) {
+                  ++i
+                  // TODO: 角色感知可以提高成功率
+                  if (random.nextDouble() < kFoundBanditCampProbability) {
+                    found = true
+                    break
+                  }
                 }
-              }
-              final ticks = kTicksPerDay * i
-              updateGame(ticks: ticks)
-              characterCostStamina(hero, ticks)
+                final ticks = kTicksPerDay * i
+                updateGame(ticks: ticks)
+                characterCostStamina(hero, ticks)
 
-              if (found) {
-                terrain.hasExplored = true
-                handleWorldMapEntityInteraction(entityId)
+                if (found) {
+                  terrain.hasExplored = true
+                  handleWorldMapEntityInteraction(entityId)
+                } else {
+                  showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
+                }
               } else {
+                final ticks = kTicksPerDay * i
+                updateGame(ticks: ticks)
+                characterCostStamina(hero, ticks)
                 showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
               }
-            } else {
-              final ticks = kTicksPerDay * i
-              updateGame(ticks: ticks)
-              characterCostStamina(hero, ticks)
-              showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
             }
           })
         }
@@ -164,7 +166,7 @@ fun handleWorldTerrainInteraction(left, top) {
         // game.playerMonthly.gathered.add(terrainIndex)
         
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-          showProgress().then((value) {
+          showProgress(getLocaleString('gather')).then((value) {
             var berryCount = 0
             var aromaticHerbCount = 0
             var herbCount = 0
@@ -279,7 +281,7 @@ fun handleWorldTerrainInteraction(left, top) {
         // game.playerMonthly.woodcutted.add(terrainIndex)
         
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-          showProgress().then((value) {
+          showProgress(getLocaleString('woodcut')).then((value) {
             final ticks = kTicksPerDay * days
             updateGame(ticks: ticks)
             var logCount = 0
@@ -370,7 +372,7 @@ fun handleWorldTerrainInteraction(left, top) {
         // game.playerMonthly.mined.add(terrainIndex)
         
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-          showProgress().then((value) {
+          showProgress(getLocaleString('mine')).then((value) {
             var oreCount = 0
             var jadeCount = 0
             var metBeast = false
@@ -459,7 +461,7 @@ fun handleWorldTerrainInteraction(left, top) {
         // game.playerMonthly.hunted.add(terrainIndex)
         
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-          showProgress().then((value) {
+          showProgress(getLocaleString('hunt')).then((value) {
             var skinCount = 0
             var meatCount = 0
             var metBeast = false
@@ -548,7 +550,7 @@ fun handleWorldTerrainInteraction(left, top) {
         // game.playerMonthly.fished.add(terrainIndex)
         
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-          showProgress().then((value) {
+          showProgress(getLocaleString('fish')).then((value) {
             var riverFishCount = 0
             var seaFishCount = 0
             var shrimpCount = 0

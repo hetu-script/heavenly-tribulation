@@ -89,8 +89,8 @@ fun showMaze(maze) -> Future {
   return ui.showMaze(buildContext, maze)
 }
 
-fun showProgress() {
-  return ui.showProgress(buildContext)
+fun showProgress(title) {
+  return ui.showProgress(buildContext, title)
 }
 
 fun showIntInput(title, minOrMax, [max]) {

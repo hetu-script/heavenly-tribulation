@@ -95,7 +95,10 @@ final Map<String, Function> externalGameFunctions = {
       {List<dynamic> positionalArgs = const [],
       Map<String, dynamic> namedArgs = const {},
       List<HTType> typeArgs = const []}) {
-    return ProgressIndicator.show(context: positionalArgs[0]);
+    return ProgressIndicator.show(
+      context: positionalArgs[0],
+      title: positionalArgs[1],
+    );
   },
   r'showIntInput': (HTEntity object,
       {List<dynamic> positionalArgs = const [],

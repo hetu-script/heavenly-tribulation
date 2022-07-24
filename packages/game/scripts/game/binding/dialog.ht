@@ -15,7 +15,7 @@ namespace ui {
   
   external fun showDuel(context, char1, char2, [ type, data ])
 
-  external fun showProgress(context)
+  external fun showProgress(context, title)
 
-  external fun showIntInput(context, min, max, [ title ])
+  external fun showIntInput(context, title, min, max)
 }

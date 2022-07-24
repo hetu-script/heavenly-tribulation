@@ -7,20 +7,26 @@ import '../../global.dart';
 class ProgressIndicator extends StatefulWidget {
   static Future<void> show({
     required BuildContext context,
+    required String title,
   }) {
     return showDialog<void>(
       context: context,
       barrierColor: Colors.transparent,
       barrierDismissible: false,
       builder: (context) {
-        return const ProgressIndicator();
+        return ProgressIndicator(
+          title: title,
+        );
       },
     );
   }
 
   const ProgressIndicator({
     super.key,
+    required this.title,
   });
+
+  final String title;
 
   @override
   State<ProgressIndicator> createState() => _ProgressIndicatorState();
@@ -67,7 +73,7 @@ class _ProgressIndicatorState extends State<ProgressIndicator> {
           backgroundColor: kBackgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
-            title: Text(engine.locale['explore']),
+            title: Text(widget.title),
           ),
           body: Align(
             alignment: AlignmentDirectional.center,
