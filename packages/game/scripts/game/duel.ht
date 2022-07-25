@@ -3,7 +3,7 @@ import 'l10n.ht'
 import 'entity/common.ht'
 import 'entity/item/common.ht'
 import 'entity/character/character.ht'
-import 'effect.ht'
+import 'entity/effect.ht'
 import 'binding/dialog.ht'
 
 /// 战斗模块

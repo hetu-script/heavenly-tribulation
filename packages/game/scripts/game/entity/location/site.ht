@@ -3,6 +3,7 @@ import 'location.ht'
 import '../../dialog.ht'
 import '../organization.ht'
 import '../../game.ht'
+import '../character/status_effect.ht'
 
 // 这三种交易建筑，可能属于某个组织，也可能没有组织。
 // 当没有组织时，属于默认生成的单纯服务性质的建筑。
@@ -171,12 +172,28 @@ fun _handleRestaurantInteraction(site) {
 }
 
 fun _handleHospitalInteraction(site) {
-  if (site.organizaitonId) {
-    final organization = getOrganizationById(site.organizaitonId)
-    showMerchant(organization)
-  } else {
-    showMerchant(site)
-  }
+  final hero = getHero()
+  final selections = [
+    'diagnose',
+    'trade',
+  ]
+  showSelectionByLocaleKeys(selections).then((key) {
+    when (key) {
+      'diagnose' -> {
+        if (hero.statusEffects.containsKey(kStatusInjuryKindSlash)) {
+          // showDialogByLocaleKeys([])
+        }
+      }
+      'trade' -> {
+        if (site.organizaitonId) {
+          final organization = getOrganizationById(site.organizaitonId)
+          showMerchant(organization)
+        } else {
+          showMerchant(site)
+        }
+      }
+    }
+  })
 }
 
 fun _handlePalaceInteraction(site) {

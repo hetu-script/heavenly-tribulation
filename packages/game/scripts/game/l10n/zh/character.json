@@ -143,5 +143,10 @@
   "brotherhood": "义气",
   "chivalrousness": "任侠",
   "promise": "一诺千金",
-  "communism": "四海之内皆兄弟"
+  "communism": "四海之内皆兄弟",
+
+  "wound": "外伤",
+  "slash": "劈砍",
+  "bludgeon": "重击",
+  "pierce": "穿刺"
 }

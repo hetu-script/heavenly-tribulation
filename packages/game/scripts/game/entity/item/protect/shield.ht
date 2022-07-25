@@ -3,7 +3,7 @@ import '../../common.ht'
 import '../common.ht'
 import '../../../util.ht'
 import '../../../game.ht'
-import '../../../effect.ht'
+import '../../effect.ht'
 
 const kShieldKind = 'shield'
 

@@ -67,8 +67,13 @@ const kSeaCrabProbability = 0.25
 // 但前者会有几率碰到野兽或者强盗
 fun handleWorldTerrainInteraction(left, top) {
   final hero = getHero()
-
-  if (hero.isInjured) {
+  
+  var isInjured = false
+  for (final status of hero.statusEffects) {
+    if (status.category == kStatusCategoryInjury)
+    isInjured = true
+  }
+  if (isInjured) {
     showDialogByLocaleKeys(['cannotInteractWhenInjured'], character: hero)
     return
   }

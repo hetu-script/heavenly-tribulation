@@ -1,5 +1,6 @@
 import '../common.ht'
 import '../../binding/worldmap.ht'
+import 'status_effect.ht'
 
 const _kCharacterAttributeMinValue = 1
 const _kCharacterAttributeMaxValue = 100
@@ -76,6 +77,9 @@ struct BattleEntity {
 
     // 当前状态数值，由种族、天赋、属性点数、增益减损、物品、技能等计算得来
     this.stats = {}
+
+    // 当前异常状态，包括 buff debuff 等等。
+    this.statusEffects = {}
 
     generateCharacterStats(
       this,
@@ -218,7 +222,10 @@ fun heroBattle (
         isInMaze: isInMaze,
       )
       if (char2Resurrect && char2.isMajorCharacter) {
-        char2.isInjured = true
+        final injury = Injury(
+          kind: kStatusInjuryKindSlash,
+        )
+        char2.statusEffects[injury.kind] = injury
         char2.stats.life = 1
       } else {
         final incidentContent = getLocaleString('characterKill', [ char1.name, char2.name ] )
@@ -240,7 +247,10 @@ fun heroBattle (
       return true
     } else {
       if (char1Resurrect) {
-        char1.isInjured = true
+        final injury = Injury(
+          kind: kStatusInjuryKindSlash,
+        )
+        char1.statusEffects[injury.kind] = injury
         char1.stats.life = 1
         showDialogByLocaleKeys(['cannotInteractWhenInjured'], character: hero)
       }

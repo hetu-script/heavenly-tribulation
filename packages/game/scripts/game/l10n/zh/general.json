@@ -149,5 +149,8 @@
   "level": "第 {0} 层",
 
   "quest": "任务",
-  "takeQuest": "领取"
+  "takeQuest": "领取",
+
+  "diagnose": "诊断",
+  "heal": "治疗"
 }

@@ -1,5 +1,5 @@
 import '../common.ht'
-import '../../effect.ht'
+import '../effect.ht'
 import '../character/companion/common.ht'
 import { random } from '../../game.ht'
 

@@ -1,0 +1,20 @@
+// status effect 指人物身上的特殊状态和效果，例如各种增益、减益
+
+const kStatusCategoryInjury = 'injury'
+
+const kStatusInjuryKindSlash = 'slash'
+const kStatusInjuryKindBludgeon = 'bludgeon'
+const kStatusInjuryKindPierce = 'pierce'
+
+struct Injury {
+  construct ({
+    kind,
+    value = 1,
+  }) {
+    assert(kind != null)
+    this.category = kStatusCategoryInjury
+    this.kind = kind
+    this.value = value
+    this.selfCurable = true
+  }
+}
