@@ -21,7 +21,7 @@ fun init(arg) {
   final modName = '[${module.name}(${module.id}-${module.version})]'
   
   game.engine.info('${modName}: 初始化')
-  game.addLocales(localizations)
+  game.addLocales(localizations, module.name)
   game.engine.updateLocale(game.locales[game.locales.currentLocaleId])
   game.addEventHandler(module)
   game.engine.info('${modName}: 初始化完毕...')

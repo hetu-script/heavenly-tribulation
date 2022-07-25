@@ -1,16 +1,26 @@
 import '../game.ht'
 import 'location/site.ht'
-import '../name/name.ht' as nameGenerator
+import '../name/name.ht'
 import '../l10n.ht'
 import 'common.ht'
 
-final kOrganizationCategoryCaltivation = 'caltivation'
-final kOrganizationCategoryGang = 'gang'
-final kOrganizationCategoryReligion = 'religion'
-final kOrganizationCategoryAcademy = 'academy'
-final kOrganizationCategoryTradinghouse = 'tradinghouse' // 直接对应site类型
-final kOrganizationCategoryWorkshop = 'workshop' // 直接对应site类型
-final kOrganizationCategoryRestaurant = 'restaurant' // 直接对应site类型
+final kOrganizationCategories = [
+  'cultivation',
+  'gang',
+  'religion',
+  'academy',
+  'tradinghouse',
+  'workshop',
+  'restaurant',
+]
+
+const kOrganizationCategoryCultivation = 'cultivation'
+const kOrganizationCategoryGang = 'gang'
+const kOrganizationCategoryReligion = 'religion'
+const kOrganizationCategoryAcademy = 'academy'
+const kOrganizationCategoryTradinghouse = 'tradinghouse' // 直接对应site类型
+const kOrganizationCategoryWorkshop = 'workshop' // 直接对应site类型
+const kOrganizationCategoryRestaurant = 'restaurant' // 直接对应site类型
 
 final kTradingOrganizationCategories = [
   'tradinghouse',
@@ -19,7 +29,7 @@ final kTradingOrganizationCategories = [
 ]
 
 final kOrganizationThinkings = {
-  caltivation: [
+  cultivation: [
     'martialArtsAddiction',
     'strengthAdmiration',
     'masterRespect',
@@ -63,11 +73,11 @@ struct Organization {
     nationId,
     headquartersId,
     leaderId,
-    development,
+    development = 0,
   }) {
     assert(game.locations.containsKey(headquartersId))
     assert(game.characters.containsKey(leaderId))
-    assert(kOrganizationCategory.contains(category))
+    assert(kOrganizationCategories.contains(category))
 
     this.entityType = kEntityTypeOrganization
     this.category = category
@@ -93,7 +103,7 @@ struct Organization {
     this.characterIds = []
 
     // 组织规模，组织所能允许的等级数量 = 规模
-    this.development = development ?? 1
+    this.development = development
     
     if (nationId) {
       assert(game.nations.containsKey(nationId))
@@ -107,7 +117,7 @@ struct Organization {
     stationOrganization(
       this,
       headquarters,
-      characterIds: [leader.id],
+      characterIds: [leaderId],
       isHeadquarters: true,
     )
 
@@ -115,7 +125,7 @@ struct Organization {
     // 触发创派事件，创派事件和成为掌门是两个事件
     final incidentContent = getLocaleString('incidentOrganizationCreate', [
       leader.name,
-      location.name,
+      headquarters.name,
       this.name,
     ])
     Incident(
@@ -124,7 +134,7 @@ struct Organization {
       order: 15,
       isGlobal: true,
     )
-    addCharacterToOrganization(leader, this, incidentOccured: false)
+    addCharacterToOrganization(leader, this)
     setLeader(leader, this)
     setCharacterLocationId(leader, headquarters.id)
   }
@@ -171,15 +181,14 @@ fun stationOrganization(
   isHeadquarters = false,
 }) {
   assert(!location.organizations.containsKey(organization.id))
-  characterIds ??= organizaiton.characterIds.toList()
+  characterIds ??= organization.characterIds.toList()
   if (isHeadquarters) {
     organization.headquartersId = location.id
   }
   Site(
-    location: location,
+    category: organization.category,
+    locationId: location.id,
     organizationId: organization.id,
-    category: (organization.category in kTradingOrganizationCategories) ?
-              organization.category : kSiteOrganization,
     name: organization.name,
   ) 
   location.organizations[organization.id] = {
@@ -191,10 +200,10 @@ fun stationOrganization(
 
   for (final id in characterIds) {
     final character = game.characters[id]
-    setCharacterHome(character, location, isOrganized: true)
+    setCharacterHome(character, location, organizationName: organization.name)
   }
 
-  organizaiton.locationIds.add(location.id)
+  organization.locationIds.add(location.id)
 }
 
 // 组织中每个等级的人数上限
@@ -246,7 +255,7 @@ fun addCharacterToOrganization(character, organization, { incidentOccured = true
   }
 
   final location = game.locations[organization.headquartersId]
-  setCharacterHome(character, location)
+  setCharacterHome(character, location, organizationName: organization.name)
   final r = random.nextInt(_kOrganizationThinkingsOnRecruit)
   for (final i in range(r)) {
     var thinking

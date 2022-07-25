@@ -101,6 +101,7 @@ flutter:
     - scripts/game/entity/item/resource/
     - scripts/game/entity/item/talisman/
     - scripts/game/entity/item/weapon/
+    - scripts/game/entity/location/
     - scripts/game/entity/skill/
     - scripts/game/l10n/
     - scripts/game/l10n/en/

@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:hetu_script/values.dart';
 
 import '../../../global.dart';
 
 class SiteCard extends StatelessWidget {
   const SiteCard({
     super.key,
-    required this.locationId,
-    required this.siteId,
-    required this.title,
+    required this.siteData,
     this.imagePath,
   });
 
-  final String locationId, siteId;
-  final String title;
+  final HTStruct siteData;
 
   final String? imagePath;
 
@@ -39,8 +37,10 @@ class SiteCard extends StatelessWidget {
             child: InkWell(
               borderRadius: kBorderRadius,
               onTap: () {
-                engine.invoke('handleSiteInteraction',
-                    positionalArgs: [locationId, siteId]);
+                engine.invoke('handleSiteInteraction', positionalArgs: [
+                  siteData['locationId'],
+                  siteData['id'],
+                ]);
               },
               child: Padding(
                 padding: const EdgeInsets.all(5.0),
@@ -51,7 +51,7 @@ class SiteCard extends StatelessWidget {
                       padding: const EdgeInsets.all(2),
                       color: Theme.of(context).primaryColor.withOpacity(0.5),
                       child: Text(
-                        title,
+                        siteData['name'],
                       ),
                     ),
                   ],

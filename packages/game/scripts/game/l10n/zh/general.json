@@ -12,6 +12,8 @@
   "no": "否",
   "close": "关闭",
   "empty": "空无一物",
+  "newGame": "开始新游戏",
+  "sandboxMode": "沙盒模式",
   "loadGame": "载入游戏",
   "loading": "载入中...",
   "menu": "菜单",
@@ -92,6 +94,7 @@
   "zone": "地域",
   "nation": "国家",
   "location": "据点",
+  "site": "建筑",
   "organization": "门派",
   "inventory": "物品栏",
 

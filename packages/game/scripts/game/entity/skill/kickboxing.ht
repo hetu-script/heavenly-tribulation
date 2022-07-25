@@ -1,4 +1,4 @@
-import '../../name/name.ht' as nameGenerator
+import '../../name/name.ht'
 import '../common.ht'
 import '../../game.ht'
 import 'common.ht'

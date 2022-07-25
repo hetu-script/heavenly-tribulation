@@ -1,5 +1,5 @@
 import '../battle_entity.ht'
-import '../../../name/name.ht' as nameGenerator
+import '../../../name/name.ht'
 import '../../item/weapon/beast_weapon.ht'
 import '../../common.ht'
 

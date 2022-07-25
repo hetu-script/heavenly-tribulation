@@ -19,8 +19,8 @@ import 'global.dart';
 class CustomWindowListener extends WindowListener {
   @override
   void onWindowResize() async {
-    engine.info(
-        '窗口大小已经修改为：${Global.screenSize.width}x${Global.screenSize.height}');
+    engine
+        .info('窗口大小修改为：${Global.screenSize.width}x${Global.screenSize.height}');
     Global.screenSize = await windowManager.getSize();
   }
 }

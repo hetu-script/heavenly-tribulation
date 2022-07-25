@@ -20,7 +20,7 @@ enum InventoryType {
 
 /// 如果是玩家自己的物品栏，则传入characterData
 class InventoryView extends StatefulWidget {
-  const InventoryView({
+  InventoryView({
     super.key,
     required this.inventoryData,
     this.characterName,
@@ -30,7 +30,8 @@ class InventoryView extends StatefulWidget {
     this.onBuy,
     this.onSell,
     this.onEquipChanged,
-  });
+    List<dynamic> filter = const [],
+  }) : filter = List<String>.from(filter);
 
   final HTStruct inventoryData;
   final String? characterName;
@@ -39,6 +40,7 @@ class InventoryView extends StatefulWidget {
   final double priceFactor;
   final void Function(HTStruct item, int quantity)? onBuy, onSell;
   final VoidCallback? onEquipChanged;
+  final List<String> filter;
 
   @override
   State<InventoryView> createState() => _InventoryViewState();
@@ -137,7 +139,7 @@ class _InventoryViewState extends State<InventoryView> {
                 Material(
                   type: MaterialType.transparency,
                   child: SizedBox(
-                    width: 100.0,
+                    width: 120.0,
                     child: IntegerInputField(
                       min: 1,
                       max: itemData['stackSize'],
@@ -171,7 +173,7 @@ class _InventoryViewState extends State<InventoryView> {
                 Material(
                   type: MaterialType.transparency,
                   child: SizedBox(
-                    width: 100.0,
+                    width: 120.0,
                     child: IntegerInputField(
                       min: 1,
                       max: itemData['stackSize'],

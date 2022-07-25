@@ -110,6 +110,8 @@ fun handleWorldTerrainInteraction(left, top) {
       selections.add('fish')
     }
   }
+
+  selections.add('cancel')
   
   showSelectionByLocaleKeys(selections).then((key) {
     when (key) {
@@ -120,13 +122,13 @@ fun handleWorldTerrainInteraction(left, top) {
         // }
         // game.playerMonthly.explored.add(terrainIndex)
 
+        final entityId = terrain.entityId
         if (terrain.hasExplored) {
           handleWorldMapEntityInteraction(entityId)
         } else {
           showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-            showProgress(getLocaleString('search')) {
+            showProgress(getLocaleString('search')).then((value) {
               var i = 0
-              final entityId = terrain.entityId
               if (entityId) {
                 var found = false
                 while (i < days) {
@@ -153,7 +155,7 @@ fun handleWorldTerrainInteraction(left, top) {
                 characterCostStamina(hero, ticks)
                 showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
               }
-            }
+            })
           })
         }
       }
@@ -255,10 +257,10 @@ fun handleWorldTerrainInteraction(left, top) {
                   logCount == 0) {
                 return showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
               } else {
-                characterAcquire(hero, Consumable.berry(), berryCount)
-                characterAcquire(hero, Consumable.aromaticHerb(), aromaticHerbCount)
-                characterAcquire(hero, Consumable.herb(), herbCount)
-                characterAcquire(hero, Resource.log(), logCount)
+                entityAcquireItem(hero, Consumable.berry(), berryCount)
+                entityAcquireItem(hero, Consumable.aromaticHerb(), aromaticHerbCount)
+                entityAcquireItem(hero, Consumable.herb(), herbCount)
+                entityAcquireItem(hero, Resource.log(), logCount)
               }
             } ().then((value) {
               if (metBeast) {
@@ -348,8 +350,8 @@ fun handleWorldTerrainInteraction(left, top) {
               if (logCount == 0 && timberCount == 0) {
                 return showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
               } else {
-                characterAcquire(hero, Resource.log(), logCount)
-                characterAcquire(hero, Resource.timber(), timberCount)
+                entityAcquireItem(hero, Resource.log(), logCount)
+                entityAcquireItem(hero, Resource.timber(), timberCount)
               }
             } ().then((value) {
               if (metBeast) {
@@ -437,8 +439,8 @@ fun handleWorldTerrainInteraction(left, top) {
               if (oreCount == 0 && jadeCount == 0) {
                 return showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
               } else {
-                characterAcquire(hero, Resource.ore(), oreCount)
-                characterAcquire(hero, Resource.jade(), jadeCount)
+                entityAcquireItem(hero, Resource.ore(), oreCount)
+                entityAcquireItem(hero, Resource.jade(), jadeCount)
               }
             } ().then((value) {
               if (metBeast) {
@@ -526,8 +528,8 @@ fun handleWorldTerrainInteraction(left, top) {
               if (skinCount == 0 && meatCount == 0) {
                 return showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
               } else {
-                characterAcquire(hero, Resource.animalHide(), skinCount)
-                characterAcquire(hero, Consumable.meat(), meatCount)
+                entityAcquireItem(hero, Resource.animalHide(), skinCount)
+                entityAcquireItem(hero, Consumable.meat(), meatCount)
               }
             } ().then((value) {
               if (metBeast) {
@@ -609,10 +611,10 @@ fun handleWorldTerrainInteraction(left, top) {
                   crabCount == 0) {
                 return showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
               } else {
-                characterAcquire(hero, Consumable.riverFish(), riverFishCount)
-                characterAcquire(hero, Consumable.seaFish(), seaFishCount)
-                characterAcquire(hero, Consumable.shrimp(), shrimpCount)
-                characterAcquire(hero, Consumable.crab(), crabCount)
+                entityAcquireItem(hero, Consumable.riverFish(), riverFishCount)
+                entityAcquireItem(hero, Consumable.seaFish(), seaFishCount)
+                entityAcquireItem(hero, Consumable.shrimp(), shrimpCount)
+                entityAcquireItem(hero, Consumable.crab(), crabCount)
               }
             } ().then((value) {
               if (metStorm) {

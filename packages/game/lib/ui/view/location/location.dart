@@ -9,52 +9,104 @@ import '../../shared/close_button.dart';
 import '../../shared/responsive_window.dart';
 import '../../util.dart';
 
-class LocationView extends StatefulWidget {
-  final String? locationId;
+// const _kLocationTabNames = [
+//   'site',
+//   'information',
+//   'character',
+// ];
 
-  const LocationView({super.key, this.locationId});
+class LocationView extends StatefulWidget {
+  final bool showSites;
+  final String locationId;
+
+  const LocationView({
+    super.key,
+    this.showSites = true,
+    required this.locationId,
+  });
 
   @override
   State<LocationView> createState() => _LocationViewState();
 }
 
-class _LocationViewState extends State<LocationView>
-    with AutomaticKeepAliveClientMixin {
+class _LocationViewState extends State<LocationView> {
+  late final List<Tab> _tabs;
+  late final HTStruct _locationData;
+
   @override
-  bool get wantKeepAlive => true;
+  void initState() {
+    _tabs = [
+      if (widget.showSites)
+        Tab(
+          iconMargin: const EdgeInsets.all(5.0),
+          height: 40,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                child: Icon(Icons.business),
+              ),
+              Text(engine.locale['site']),
+            ],
+          ),
+        ),
+      Tab(
+        iconMargin: const EdgeInsets.all(5.0),
+        height: 40,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              child: Icon(Icons.summarize),
+            ),
+            Text(engine.locale['information']),
+          ],
+        ),
+      ),
+      Tab(
+        iconMargin: const EdgeInsets.all(5.0),
+        height: 40,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0),
+              child: Icon(Icons.person),
+            ),
+            Text(engine.locale['character']),
+          ],
+        ),
+      ),
+    ];
+
+    _locationData =
+        engine.invoke('getLocationById', positionalArgs: [widget.locationId]);
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
-
-    final locationId = widget.locationId ??
-        ModalRoute.of(context)!.settings.arguments as String;
-
-    final data = engine.invoke('getLocationById', positionalArgs: [locationId]);
-
-    String? locationName = data['name'];
+    String? locationName = _locationData['name'];
     if (locationName == null) {
-      final String nameId = data['nameId'];
+      final String nameId = _locationData['nameId'];
       locationName = engine.locale[nameId];
     }
 
-    String? nationId = data['nationId'];
+    String? nationId = _locationData['nationId'];
     String nation = '';
     if (nationId != null) {
       nation = '${getNameFromId(nationId)} - ';
     }
 
-    final HTStruct sitesData = data['sites'];
+    final HTStruct sitesData = _locationData['sites'];
 
     final List<Widget> siteCards = sitesData.values.map((siteData) {
-      final String locationId = siteData['locationId'];
-      final String siteId = siteData['category'];
-      final title = siteData['name'];
       String? imagePath = siteData['image'];
       return SiteCard(
-        locationId: locationId,
-        siteId: siteId,
-        title: title,
+        siteData: siteData,
         imagePath: imagePath,
       );
     }).toList();
@@ -119,29 +171,54 @@ class _LocationViewState extends State<LocationView>
     // ),
     // body:
 
-    final layout = Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text('$nation$locationName'),
-        actions: const [ButtonClose()],
-      ),
-      body: ListView(
-        shrinkWrap: true,
-        children: [
-          Align(
-            alignment: Alignment.topCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Wrap(
-                spacing: 8.0, // gap between adjacent chips
-                runSpacing: 4.0, // gap between lines
-                children: siteCards,
+    final layout = DefaultTabController(
+      length: _tabs.length, // 物品栏通过tabs过滤不同种类的物品
+      child: Scaffold(
+        backgroundColor: kBackgroundColor,
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Text('$nation$locationName'),
+          actions: const [ButtonClose()],
+          bottom: TabBar(
+            tabs: _tabs,
+          ),
+        ),
+        body: TabBarView(
+          children: [
+            if (widget.showSites)
+              ListView(
+                shrinkWrap: true,
+                children: [
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Wrap(
+                        spacing: 8.0, // gap between adjacent chips
+                        runSpacing: 4.0, // gap between lines
+                        children: siteCards,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            Container(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('${engine.locale['money']}: ${_locationData['money']}'),
+                  Text(
+                      '${engine.locale['development']}: ${_locationData['development']}'),
+                  Text(
+                      '${engine.locale['stability']}: ${_locationData['stability']}'),
+                ],
               ),
             ),
-          ),
-        ],
+            Container(),
+          ],
+        ),
       ),
-      backgroundColor: kBackgroundColor,
     );
 
     return ResponsiveWindow(

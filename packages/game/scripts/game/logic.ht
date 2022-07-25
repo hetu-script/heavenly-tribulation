@@ -4,7 +4,7 @@ import 'entity/character/character.ht'
 import 'l10n.ht'
 import 'maze/maze.ht'
 import 'quest/quest.ht'
-import 'name/name.ht' as nameGenerator
+import 'name/name.ht'
 import 'tile/common.ht'
 
 const kLocationQuestProbability = 0.35

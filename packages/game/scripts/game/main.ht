@@ -11,7 +11,7 @@ export 'entity/location/location.ht'
 export 'entity/nation.ht'
 export 'entity/organization.ht'
 export 'maze/maze.ht'
-export 'name/name.ht' as nameGenerator
+export 'name/name.ht'
 export 'quest/quest.ht'
 export 'tile/tilemap.ht'
 export 'world/interaction.ht'

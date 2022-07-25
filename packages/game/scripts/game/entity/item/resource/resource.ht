@@ -15,6 +15,10 @@ struct Resource {
     this.name = getLocaleString(name)
     this.kind = kind
 
+    this.value = value
+    this.description = description
+    this.stackSize = stackSize
+
     this.rarity = kCommon
     this.color = kRarity[this.rarity].color
 

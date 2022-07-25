@@ -89,6 +89,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
         _currentLocation = null;
       }
     }
+    setState(() {});
   }
 
   HTStruct? _currentLocation;
@@ -273,23 +274,19 @@ class _MainGameOverlayState extends State<MainGameOverlay>
 
             engine.invoke('updateGame');
             currentTerrain = _scene.map.getTerrainAtHero();
-            assert(_currentTerrain != null);
-            final String? entityId = _currentTerrain!.entityId;
-            if (entityId != null) {
-              if (_scene.map.hero != null) {
-                final blocked = engine.invoke(
-                  'handleWorldMapEntityInteraction',
-                  namedArgs: {
-                    'entityId': entityId,
-                    'left': _currentTerrain!.left,
-                    'top': _currentTerrain!.top,
-                  },
-                );
-                if (blocked) {
-                  _scene.map.hero!.isMovingCanceled = true;
-                }
-              }
-            }
+            // assert(_currentTerrain != null);
+            // final String? entityId = _currentTerrain!.entityId;
+            // if (entityId != null) {
+            //   if (_scene.map.hero != null) {
+            //     final blocked = engine.invoke(
+            //       'handleWorldMapEntityInteraction',
+            //       positionalArgs: [entityId],
+            //     );
+            //     if (blocked) {
+            //       _scene.map.hero!.isMovingCanceled = true;
+            //     }
+            //   }
+            // }
           }
           setState(() {});
         },

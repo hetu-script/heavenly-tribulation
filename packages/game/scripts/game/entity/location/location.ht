@@ -1,7 +1,7 @@
 import '../../game.ht'
 import '../character/character.ht'
 import '../../dialog.ht'
-import '../../name/name.ht' as nameGenerator
+import '../../name/name.ht'
 import '../../l10n.ht'
 import '../common.ht'
 import '../../tile/hexagonal_tile.ht'
@@ -14,7 +14,7 @@ struct Location {
     terrainIndex,
     category,
     name,
-    isPrivate = false,
+    isHidden = false,
   }) {
     assert(terrainIndex != null)
     this.terrainIndex = terrainIndex
@@ -36,16 +36,20 @@ struct Location {
     this.id = 'location_${this.index}_${this.name}'
     game.locations[this.id] = this
     
-    this.isPrivate = isPrivate
+    this.isHidden = isHidden
+
+    // 据点稳定度，最高100，初始随机0-49
+    // 稳定度决定了盗贼和动乱事件的可能性。
+    this.stability = random.nextInt(_kLocationInitialStabilityMax)
     
     // 据点发展度，最高20，初始0
     // 发展度决定了据点所能拥有的普通居民人口上限，所能拥有建筑的数量，以及能产生的悬赏任务上限等
     // 发展度需要花费银两、矿石和木料来升级
     this.development = 0
 
-    // 据点稳定度，最高100，初始随机0-49
-    // 稳定度决定了盗贼和动乱事件的可能性。
-    this.stability = random.nextInt(_kLocationInitialStabilityMax)
+    // 据点和人物类似，也具有金钱和物品栏
+    this.money = 0
+    this.inventory = {}
 
     // 当前处于这个场景的角色
     this.dwellingCharacterIds = []
@@ -64,11 +68,12 @@ struct Location {
     this.sites = {}
 
     // 这个地点的组织
-    this.organizations = []
+    this.organizations = {}
 
-    if (!isPrivate) {
-      // 如果是洞天福地，则默认不会显示在地图上，并且也不会有民居场景
-      Site(category: kSiteResidence, location: this)
+    // 如果是盗贼营地或者洞天福地，则默认不会显示在地图上，并且也不会默认添加民居
+    // 隐藏的洞天会显示为山峰，但隐藏的福地只有被发现后才会出现岛屿，之前就是普通的水面
+    if (!isHidden) {
+      Site(category: kSiteResidence, locationId: this.id)
       // 普通居民决定了税收收入，以及外门弟子的数量
       // final minP = maxPopulationOfLocationDevelopment(this.development - 1)
       // final maxP = maxPopulationOfLocationDevelopment(this.development)
@@ -164,9 +169,7 @@ fun getLocationByPosition(left, top) {
   return game.locations[tile.locationId]
 }
 
-fun getLocationSiteById(location, siteId: str, locationId: str) {
-  assert(game.locations.containsKey(locationId))
-  final location = game.locations[locationId]
+fun getLocationSiteById(location, siteId: str) {
   assert(location.sites.containsKey(siteId))
   return location.sites[siteId]
 }

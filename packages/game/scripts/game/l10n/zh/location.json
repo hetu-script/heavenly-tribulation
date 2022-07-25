@@ -1,22 +1,21 @@
 {
   "population": "人口",
+  "development": "发展度",
+  "stability": "稳定度",
 
-  "wilderness": "荒野",
+  "hospital": "医馆",
 
   "palace": "皇宫",
   "government": "官府",
   "residence": "民居",
-  "organization": "门派",
   "library": "藏书阁",
-  "farmland": "农田",
   "mine": "矿山",
+  "farmland": "农场",
   "timberland": "林场",
   "arena": "斗技场",
   "nursery": "苗圃",
   "alchemylab": "丹房",
-  "zenyard": "禅房",
   "zoo": "兽园",
-  "maze": "秘境",
 
   "tribute": "进贡",
   "policySuggestion": "献策",

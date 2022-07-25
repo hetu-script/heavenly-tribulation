@@ -11,7 +11,7 @@ class MerchantView extends StatefulWidget {
   static Future<bool?> show({
     required BuildContext context,
     required HTStruct merchantData,
-    double priceFactor = 1.0,
+    double priceFactor = 2.0,
   }) {
     return showDialog<bool>(
       context: context,
@@ -29,7 +29,7 @@ class MerchantView extends StatefulWidget {
   const MerchantView({
     super.key,
     required this.merchantData,
-    this.priceFactor = 1.0,
+    this.priceFactor = 2.0,
   });
 
   final HTStruct merchantData;

@@ -1,81 +1,183 @@
 import '../../l10n.ht'
 import 'location.ht'
 import '../../dialog.ht'
+import '../organization.ht'
+import '../../game.ht'
+
+// 这三种交易建筑，可能属于某个组织，也可能没有组织。
+// 当没有组织时，属于默认生成的单纯服务性质的建筑。
+// 此时交易所产生的物品、金钱，将会归属于其所在的据点。
 
 const kSiteTradinghouse = 'tradinghouse'
 const kSiteWorkshop = 'workshop'
+const kSiteRestaurant = 'restaurant'
+const kSiteHospital = 'hospital'
+
 const kSitePalace = 'palace'
 const kSiteGovernment = 'government'
 const kSiteResidence = 'residence'
-const kSiteOrganization = 'organization'
 const kSiteLibrary = 'library'
 const kSiteFarmland = 'farmland'
 const kSiteMine = 'mine'
 const kSiteTimberland = 'timberland'
 const kSiteArena = 'arena'
+
 const kSiteNursery = 'nursery'
 const kSiteAlchemylab = 'alchemylab'
-const kSiteZenyard = 'zenyard'
 const kSiteZoo = 'zoo'
-const kSiteMaze = 'maze'
 
 struct Site {
   construct ({
-    location,
+    locationId,
     organizationId,
     category,
     name,
     image,
   }) {
-    assert(location != null)
-    assert(organizationId != null)
+    assert(locationId != null)
     assert(category != null)
 
-    this.locationId = location.id
-    this.organizationId = organizationId
+    this.locationId = locationId
     this.category = category
+    this.organizationId = organizationId
     this.name = name ?? getLocaleString(category)
     this.image = image ?? 'location/site/${category}.png'
 
     this.id = 'site_${location.id}_${category}_${this.name}'
+
+    final location = game.locations[locationId]
+    engine.info('在 ${location.name} 创建了 ${this.name}')
     location.sites[this.id] = this
+
+    when (category) {
+      kOrganizationCategoryCultivation -> location.hasCultivation = true
+      kOrganizationCategoryGang -> location.hasGang = true
+      kOrganizationCategoryReligion -> location.hasReligion = true
+      kOrganizationCategoryAcademy -> location.hasAcademy = true
+      kOrganizationCategoryTradinghouse -> location.hasTradingHouse = true
+      kOrganizationCategoryWorkshop -> location.hasWorkshop = true
+      kOrganizationCategoryRestaurant -> location.hasRestaurant = true
+    }
+    
+    // 建筑和人物类似，也具有金钱和物品栏
+    this.money = 0
+    this.inventory = {}
   }
 }
 
-fun handleSiteInteraction(locationId, siteId: str) {
+fun handleSiteInteraction(locationId: str, siteId: str) {
   final location = getLocationById(locationId)
   final site = getLocationSiteById(location, siteId)
-  if (site != null) {
-    when (site.category) {
-      'tradinghouse' -> _handleShopInteraction(site)
-      'workshop' -> _handleWorkshopInteraction(site)
-      'restaurant' -> _handleRestaurantInteraction(site)
-      'palace' -> _handlePalaceInteraction(site)
-      'government' -> _handleGovernmentInteraction(site)
-      'residence' -> _handleResidenceInteraction(site)
-      'organization' -> _handleOrganizationInteraction(site)
-      'library' -> _handleLibraryInteraction(site)
-      'farmland' -> _handleFarmlandInteraction(site)
-      'mine' -> _handleMineInteraction(site)
-      'timberland' -> _handleMineInteraction(site)
-      'arena' -> _handleArenaInteraction(site)
-      'nursery' -> _handleNurseryInteraction(site)
-      'alchemylab' -> _handleAlchemylabInteraction(site)
-      'zenyard' -> _handleZenroomInteraction(site)
-      'zoo' -> _handleZooInteraction(site)
-      'maze' -> _handleMazeInteraction(site)
-      else -> {
-        engine.error('错误: 未知的地区类型。')
-      }
+  when (site.category) {
+    'cultivation' -> _handleCultivationInteraction(site)
+    'gang' -> _handleGangInteraction(site)
+    'religion' -> _handleReligionInteraction(site)
+    'academy' -> _handleAcademyInteraction(site)
+    'tradinghouse' -> _handleTradingHouseInteraction(site)
+    'workshop' -> _handleWorkshopInteraction(site)
+    'restaurant' -> _handleRestaurantInteraction(site)
+
+    'hospital' -> _handleHospitalInteraction(site)
+
+    'palace' -> _handlePalaceInteraction(site)
+    'government' -> _handleGovernmentInteraction(site)
+    'residence' -> _handleResidenceInteraction(site)
+    'library' -> _handleLibraryInteraction(site)
+    'farmland' -> _handleFarmlandInteraction(site)
+    'mine' -> _handleMineInteraction(site)
+    'timberland' -> _handleTimberInteraction(site)
+    'arena' -> _handleArenaInteraction(site)
+    'nursery' -> _handleNurseryInteraction(site)
+    'alchemylab' -> _handleAlchemylabInteraction(site)
+    'zoo' -> _handleZooInteraction(site)
+    else -> {
+      engine.error('未知的建筑类型 (category)。建筑对象数据：${site}。')
     }
   }
 }
 
-// fun searchCharactersAtSite(siteId: str) -> Iterable {
-//   return game.characters.where((siteId) {
-//     char.currentSiteId == currentSiteId
-//   })
-// }
+fun _handleCultivationInteraction(site) {
+  final location = game.locations[site.locationId]
+  showSelectionByLocaleKeys([
+    'train',
+    'learn',
+    'visit',
+    'leave',
+  ])
+  .then((key) {
+    when (key) {
+      // 如果选择 leave，直接忽略，什么也不做
+      'train' -> {
+        // 非本门派修士,需要花钱才能训练
+        showDialogByLocaleKeys(['organizationTrainDeny'])
+      }
+      'learn' -> {
+        // 非本门派修士,需要花钱才能学习,而且只能学习二阶或以下的功法
+        showDialogByLocaleKeys(['organizationTrainDeny'])
+      }
+      'visit' -> {
+        // 既然有总部，那就一定有可以拜访的成员
+        final ids = location.organizations[site.organizationId].characterIds.toList()
+        ids.remove(game.heroId)
+        showVisitCharacterSelection(ids).then((key) {
+          if (key != null) {
+            handleCharacterInteraction(key)
+          } else {
+            _handleCultivationInteraction(site)
+          }
+        })
+      }
+    }
+  })
+}
+
+fun _handleGangInteraction(site) {
+
+}
+
+fun _handleReligionInteraction(site) {
+  
+}
+
+fun _handleAcademyInteraction(site) {
+  
+}
+
+fun _handleTradingHouseInteraction(site) {
+  if (site.organizaitonId) {
+    final organization = getOrganizationById(site.organizaitonId)
+    showMerchant(organization)
+  } else {
+    showMerchant(site)
+  }
+}
+
+fun _handleWorkshopInteraction(site) {
+  if (site.organizaitonId) {
+    final organization = getOrganizationById(site.organizaitonId)
+    showMerchant(organization)
+  } else {
+    showMerchant(site)
+  }
+}
+
+fun _handleRestaurantInteraction(site) {
+  if (site.organizaitonId) {
+    final organization = getOrganizationById(site.organizaitonId)
+    showMerchant(organization)
+  } else {
+    showMerchant(site)
+  }
+}
+
+fun _handleHospitalInteraction(site) {
+  if (site.organizaitonId) {
+    final organization = getOrganizationById(site.organizaitonId)
+    showMerchant(organization)
+  } else {
+    showMerchant(site)
+  }
+}
 
 fun _handlePalaceInteraction(site) {
   showDialogByLocaleKeys(['visitPalaceDeny'])
@@ -217,41 +319,6 @@ fun _handleResidenceInteraction(site) {
   })
 }
 
-fun _handleOrganizationInteraction(site) {
-  final location = game.locations[site.locationId]
-  showSelectionByLocaleKeys([
-    'train',
-    'learn',
-    'visit',
-    'leave',
-  ])
-  .then((key) {
-    when (key) {
-      // 如果选择 leave，直接忽略，什么也不做
-      'train' -> {
-        // 非本门派修士,需要花钱才能训练
-        showDialogByLocaleKeys(['organizationTrainDeny'])
-      }
-      'learn' -> {
-        // 非本门派修士,需要花钱才能学习,而且只能学习二阶或以下的功法
-        showDialogByLocaleKeys(['organizationTrainDeny'])
-      }
-      'visit' -> {
-        // 既然有总部，那就一定有可以拜访的成员
-        final ids = location.organizaitons[site.organizationId].characterIds.toList()
-        ids.remove(game.heroId)
-        showVisitCharacterSelection(ids).then((key) {
-          if (key != null) {
-            handleCharacterInteraction(key)
-          } else {
-            _handleOrganizationInteraction(site)
-          }
-        })
-      }
-    }
-  })
-}
-
 fun _handleLibraryInteraction(site) {
 
 }
@@ -264,11 +331,7 @@ fun _handleMineInteraction(site) {
 
 }
 
-fun _handleShopInteraction(site) {
-
-}
-
-fun _handleRestaurantInteraction(site) {
+fun _handleTimberInteraction(site) {
 
 }
 
@@ -280,22 +343,10 @@ fun _handleNurseryInteraction(site) {
 
 }
 
-fun _handleWorkshopInteraction(site) {
-
-}
-
 fun _handleAlchemylabInteraction(site) {
 
 }
 
-fun _handleZenroomInteraction(site) {
-
-}
-
 fun _handleZooInteraction(site) {
-
-}
-
-fun _handleMazeInteraction(site) {
 
 }

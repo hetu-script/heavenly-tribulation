@@ -2,7 +2,7 @@ import '../../game.ht'
 import '../../l10n.ht'
 import '../../datetime.ht'
 import '../incident.ht'
-import '../../name/name.ht' as nameGenerator
+import '../../name/name.ht'
 import '../../duel.ht'
 import '../../util.ht'
 import '../common.ht'
@@ -564,17 +564,21 @@ fun characterWitnessIncident(character, incident, { witnessed }) {
 //   return getLocaleString('spiritRank${spiritRank}') + getLocaleString('sorcerer')
 // }
 
-fun setCharacterHome(character, location, {isOrganized = false}) {
+fun setCharacterHome(character, location, { organizationName }) {
   location.residingCharacterIds.remove(character.id)
-  if (!isOrganized) {
+  final incidentContent
+  if (organizationName == null) {
     location.residingCharacterIds.add(character.id)
-    // 触发定居事件
-    final incidentContent = getLocaleString('incidentSettle', [
+    incidentContent = getLocaleString('incidentSettle', [
       character.name,
       location.name,
     ])
   } else {
-
+    incidentContent = getLocaleString('incidentSettleOrganization', [
+      character.name,
+      location.name,
+      organizationName,
+    ])
   }
   Incident(
     content: incidentContent,

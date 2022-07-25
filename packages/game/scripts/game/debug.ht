@@ -73,8 +73,8 @@ fun testMerchant {
   setHeroId(hero.id)
   final merchant = Character()
   merchant.money += 500
-  characterAcquire(merchant, Consumable.medicine(), 20)
-  characterAcquire(merchant, Consumable.beverage(), 20)
+  entityAcquireItem(merchant, Consumable.medicine(), 20)
+  entityAcquireItem(merchant, Consumable.beverage(), 20)
   showMerchant(merchant)
 }
 
@@ -90,8 +90,8 @@ fun testMaze {
   characterEquip(hero, Kickboxing())
   // characterEquip(hero, Weapon())
   characterEquip(hero, Shield())
-  characterAcquire(hero, Consumable.medicine(), 5)
-  characterAcquire(hero, Consumable.beverage(), 5)
+  entityAcquireItem(hero, Consumable.medicine(), 5)
+  entityAcquireItem(hero, Consumable.beverage(), 5)
   final companion = VillageWarrior()
   characterEquip(companion, Weapon())
   characterEquip(hero, companion)

@@ -146,7 +146,7 @@ class _MainMenuState extends State<MainMenu> {
                   });
                 },
                 child: Label(
-                  locale['newGame'],
+                  locale['sandboxMode'],
                   width: 100.0,
                   textAlign: TextAlign.center,
                 ),

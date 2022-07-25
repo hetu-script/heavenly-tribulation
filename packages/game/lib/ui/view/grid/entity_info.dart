@@ -84,7 +84,7 @@ class EntityInfo extends StatelessWidget {
         } else if (type == kValueTypePercentage) {
           values.add(v.toPercentageString());
         } else {
-          engine.error('在 ${entityData.id} 上遇到了未知的效果数据类型：$type');
+          engine.error('未知的效果数据类型：[$type]，效果对象数据：$entityData');
         }
       }
       final description =
@@ -194,6 +194,7 @@ class EntityInfo extends StatelessWidget {
                       Text('${engine.locale['speed']}: ${stats['speed']}f'),
                     if (effects.isNotEmpty) const Divider(),
                     ...effects,
+                    if (actions.isNotEmpty) const Divider(),
                     if (actions.isNotEmpty)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,

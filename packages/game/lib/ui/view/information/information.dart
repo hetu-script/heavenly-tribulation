@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart' show HTStruct;
 
-import '../../view/character/character.dart';
+import '../character/character.dart';
 import '../../../global.dart';
 import '../../game_entity_listview.dart';
 import '../../shared/responsive_window.dart';
 import '../../shared/close_button.dart';
 import '../../util.dart';
+import '../location/location.dart';
 
 const _kInformationViewCharacterColumns = [
   'name',
@@ -14,22 +15,6 @@ const _kInformationViewCharacterColumns = [
   'organization',
   'fame',
   // 'infamy',
-];
-
-const _kInformationViewNationColumns = [
-  'name',
-  'capital',
-  'gridSize',
-  'locationNumber',
-  'organizationNumber',
-];
-
-const _kInformationViewLocationColumns = [
-  'name',
-  'nation',
-  'organization',
-  'category',
-  'development',
 ];
 
 const _kInformationViewOrganizationColumns = [
@@ -40,6 +25,22 @@ const _kInformationViewOrganizationColumns = [
   'locationNumber',
   'memberNumber',
   'development',
+];
+
+const _kInformationViewLocationColumns = [
+  'name',
+  'nation',
+  'organization',
+  'category',
+  'development',
+];
+
+const _kInformationViewNationColumns = [
+  'name',
+  'capital',
+  'gridSize',
+  'locationNumber',
+  'organizationNumber',
 ];
 
 class InformationPanel extends StatefulWidget {
@@ -209,6 +210,16 @@ class _InformationPanelState extends State<InformationPanel>
               GameEntityListView(
                 columns: _kInformationViewLocationColumns,
                 tableData: _locationsFieldRow,
+                onTap: (dataId) {
+                  showDialog(
+                    context: context,
+                    barrierColor: Colors.transparent,
+                    builder: (context) => LocationView(
+                      showSites: false,
+                      locationId: dataId,
+                    ),
+                  );
+                },
               ),
               GameEntityListView(
                 columns: _kInformationViewNationColumns,

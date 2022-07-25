@@ -1,4 +1,4 @@
-import '../name/name.ht' as nameGenerator
+import '../name/name.ht'
 import '../game.ht'
 import '../entity/location/site.ht'
 import '../entity/location/location.ht'
@@ -14,6 +14,7 @@ import '../logic.ht'
 import 'generation_algorithm.ht'
 import '../tile/common.ht'
 import '../dialog.ht'
+import '../entity/item/item.ht'
 
 /// 生成世界地图的算法
 ///
@@ -52,8 +53,9 @@ final _kWorldSizePerWorldScale = {
 }
 const _kDefaultNationNumber = 4
 const _kDefaultLocationNumber = 6
-const _kDefaultOrganizationNumber = 4
 const _kDefaultCharacterNumber = 20
+const _kDefaultCultivationOrganizationNumber = 4
+const _kDefaultTradingHouseOrganizationNumber = 2
 
 const _kMinZoneSizeForSea = 8
 const _kMinZoneSizeForIsland = 8
@@ -64,7 +66,15 @@ const _kCharacterMarriageAgeMin = 15
 const _kCharacterMarriageAgeMax = 40
 const _kPregnancyAgeMax = 40
 
-const _kLocationInitialDevelopmentMax = 3
+const _kLocationInitialDevelopmentMax = 4
+
+const _kNPCStoreInitialMoney = 2000
+const _kNPCStoreInitialMoney = 4000
+const _kSiteTradinghouseProbability = 0.6
+const _kSiteTradinghouseMoney = 0.6
+const _kSiteWorkshopProbability = 0.6
+const _kSiteHospitalProbability = 0.6
+const _kSiteRestaurantProbability = 0.6
 
 fun createWorldMap({
     id,
@@ -74,15 +84,18 @@ fun createWorldMap({
     worldScale = _kDefaultWorldScale,
     nationNumber = _kDefaultNationNumber,
     locationNumber = _kDefaultLocationNumber,
-    organizationNumber = _kDefaultOrganizationNumber,
+    cultivationOrganizationNumber = _kDefaultCultivationOrganizationNumber,
+    // tradinghouseOrganizationNumber = _kDefaultTradingHouseOrganizationNumber,
     characterNumber = _kDefaultCharacterNumber,
     // landProportion = 0.55,
     scale = 2.0,
   }) {
   assert(id != null)
   assert(seedString is str && seedString.isNotEmpty)
-  assert(organizationNumber < locationNumber)
-  assert(organizationNumber < characterNumber)
+  assert(cultivationOrganizationNumber < locationNumber)
+  assert(cultivationOrganizationNumber < characterNumber)
+  // assert(tradinghouseOrganizationNumber < locationNumber)
+  // assert(tradinghouseOrganizationNumber < characterNumber)
 
   final seed = Hash.crcInt(seedString)
   engine.info('开始生成世界，设置随机数种子为：${seedString}(${seed})')
@@ -256,9 +269,47 @@ fun createWorldMap({
     } while (locationIndexes.contains(index) || tile.spriteIndex != kSpriteLand)
     // location category只有两种：城市和秘境
     final location = Location(terrainIndex: index, category: kLocationCategoryCity)
-    // 随机生成的据点，初始发展度是0-2之间随机。
-    location.development = random.nextInt(_kLocationInitialDevelopmentMax)
     locationIndexes.add(index)
+    
+    // 随机生成的据点，初始发展度是0-3之间随机。
+    location.development = random.nextInt(_kLocationInitialDevelopmentMax)
+    // 据点所拥有的金钱，和发展度有关
+    for (final i in range(location.development)) {
+      location.money +=  random.nextInt((i + 1) * _kLocationInitialMoney)
+    }
+
+    // 随机为据点添加一些初始建筑和对应的物品
+    // 初始时、根据发展度，可能会有商号（1）、工坊（2）、医馆和酒楼（3）
+    if (location.development > 0 && random.nextDouble() < _kSiteTradinghouseProbability) {
+      final site = Site(category: kSiteTradinghouse, locationId: location.id)
+      // 商号可能有：木料、矿石、玉石、兽皮
+      entityAcquireItem(site, Resource.timber(), 20)
+      entityAcquireItem(site, Resource.ore(), 20)
+      entityAcquireItem(site, Resource.jade(), 20)
+      entityAcquireItem(site, Resource.animalHide(), 20)
+    }
+    if (location.development > 1 && random.nextDouble() < _kSiteWorkshopProbability) {
+      final site = Site(category: kSiteWorkshop, locationId: location.id)
+      // 工坊可能有：武器、盾牌
+      entityAcquireItem(site, Weapon())
+      entityAcquireItem(site, Weapon())
+      entityAcquireItem(site, Weapon())
+      entityAcquireItem(site, Shield())
+      entityAcquireItem(site, Shield())
+    }
+    if (location.development > 2 && random.nextDouble() < _kSiteHospitalProbability) {
+      final site = Site(category: kSiteHospital, locationId: location.id)
+      // 医馆可能有：方剂、草药
+      entityAcquireItem(site, Consumable.medicine(), 20)
+      entityAcquireItem(site, Consumable.herb(), 10)
+    }
+    if (location.development > 2 && random.nextDouble() < _kSiteRestaurantProbability) {
+      final site = Site(category: kSiteHospital, locationId: location.id)
+      site.money = 
+      // 酒楼可能有：饮料、食物
+      entityAcquireItem(site, Consumable.beverage(), 20)
+    }
+    
     tile.locationId = location.id
     // 城市的贴图重叠于地形贴图之上
     tile.overlaySprite.index = kSpriteCity
@@ -381,7 +432,7 @@ fun createWorldMap({
     } while (location.nationId != null)
     // engine.info('picking location for new nation capital: ${location}')
     final nation = Nation(capitalId: location.id)
-    Site(category: kSitePalace, location: location)
+    Site(category: kSitePalace, locationId: location.id)
     final terrain = game.world.terrains[location.terrainIndex]
     addTerrainToNation(nation, terrain)
   }
@@ -402,13 +453,25 @@ fun createWorldMap({
     return false
   }
 
-  // 随机生成每个修真门派的创建时间，分布在20年的范围内，时间固定为某月1号
+  // 随机生成每个组织的创建时间，分布在20年的范围内，时间固定为某月1号
+
+  // 修真门派
+  var createdCultivationOrganizationCount = 0
   var cultivationOrganizationCreatedDate = []
-  for (final i in range(organizationNumber)) {
+  for (final i in range(cultivationOrganizationNumber)) {
     cultivationOrganizationCreatedDate.add(random.nextInt(20 * kMonthsPerYear) * kTicksPerMonth)
   }
   cultivationOrganizationCreatedDate.sort()
   cultivationOrganizationCreatedDate = cultivationOrganizationCreatedDate.reversed.toList()
+  
+  // 商号
+  // var createdTradinghouseOrganizationCount = 0
+  // var tradinghouseOrganizationCreatedDate = []
+  // for (final i in range(tradinghouseOrganizationNumber)) {
+  //   tradinghouseOrganizationCreatedDate.add(random.nextInt(20 * kMonthsPerYear) * kTicksPerMonth)
+  // }
+  // tradinghouseOrganizationCreatedDate.sort()
+  // tradinghouseOrganizationCreatedDate = tradinghouseOrganizationCreatedDate.reversed.toList()
 
   fun findLeader {
     var leader
@@ -444,32 +507,29 @@ fun createWorldMap({
   // 因为是模拟运行，每个tick接跳过一个月
   engine.info('快速模拟一段时间的演化，生成人物、组织、国家等信息')
   do {
-    if (game.organizations.length < organizationNumber) {
+    if (createdCultivationOrganizationCount < cultivationOrganizationNumber) {
       if (game.timestamp >= cultivationOrganizationCreatedDate.last) {
         // 组织数量不够，在来到下一个组织创建时间时，创建组织
         cultivationOrganizationCreatedDate.removeLast()
 
-        // 组织总舵不允许和其他组织的总舵在同一个据点
-        final headquarters
+        // 修真门派的总舵不允许和其他修真组织的总舵在同一个据点
+        var headquarters
         do {
           // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
           final headquartersId = random.nextIterable(game.locations.keys)
           headquarters = game.locations[headquartersId]
-        } while (headquarters.organizaitons.isNotEmpty)
+        } while (headquarters.hasCultivation)
 
         final leader = findLeader()
-        setLeader()
-        
         // 创建组织
         Organization(
-          category: kOrganizationCategoryCaltivation,
+          category: kOrganizationCategoryCultivation,
           nationId: headquarters.nationId,
           headquartersId: headquarters.id,
           leaderId: leader.id,
         )
+        ++createdCultivationOrganizationCount
       }
-
-
     }
 
     // 婴儿出生
@@ -485,8 +545,9 @@ fun createWorldMap({
         birthTimestamp: createRandomBirthTimestamp(15, 50),
       )
     }
-    
+
     // 为组织招募新的角色
+    // engine.info('为组织招募新的角色')
     for (final id in random.shuffle(game.organizations.keys)) {
       final organization = game.organizations[id]
       final location = game.locations[organization.headquartersId]
@@ -499,6 +560,7 @@ fun createWorldMap({
     }
     
     // 为角色添加家庭关系
+    // engine.info('为角色添加家庭关系')
     for (final id in random.shuffle(game.characters.keys)) {
       final char = game.characters[id]
       final age = getCharacterAge(char)
@@ -578,7 +640,10 @@ fun createWorldMap({
 
     // 因为是模拟运行，时间直接以月为单位流逝
     game.timestamp += kTicksPerMonth
-  } while (game.characters.length < characterNumber || game.organizations.length < organizationNumber)
+  } while (
+    game.characters.length < characterNumber ||
+    createdCultivationOrganizationCount < cultivationOrganizationNumber
+  )
 
   // 为生成的世界填充一些必要信息
 
