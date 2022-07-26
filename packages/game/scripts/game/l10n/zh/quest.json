@@ -35,8 +35,10 @@
   "catering": "招待",
 
   "delivery": "运输",
-  "delivery.description": "在 {0} 之前，将 {1} 送到 {2} 的 {3}。",
-  "delivery.commonItem.description": "在 {0} 之前，将 {1} 个 {2} 送到 {3} 的 {4}。",
+  "delivery.targetSite.description": "在 {0} 之前，将 {1} 送到 {2} 的 {3}。",
+  "delivery.targetCharacter.description": "在 {0} 之前，将 {1} 送给 {2} 的 {3}。",
+  "delivery.commonItem.targetSite.description": "在 {0} 之前，将 {1} 个 {2} 送到 {3} 的 {4}。",
+  "delivery.commonItem.targetCharacter.description": "在 {0} 之前，将 {1} 个 {2} 送给 {3} 的 {4}。",
   "escort": "护送人员",
   "convoy": "运送物品",
 

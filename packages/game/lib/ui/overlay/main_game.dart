@@ -274,19 +274,14 @@ class _MainGameOverlayState extends State<MainGameOverlay>
 
             engine.invoke('updateGame');
             currentTerrain = _scene.map.getTerrainAtHero();
-            // assert(_currentTerrain != null);
-            // final String? entityId = _currentTerrain!.entityId;
-            // if (entityId != null) {
-            //   if (_scene.map.hero != null) {
-            //     final blocked = engine.invoke(
-            //       'handleWorldMapEntityInteraction',
-            //       positionalArgs: [entityId],
-            //     );
-            //     if (blocked) {
-            //       _scene.map.hero!.isMovingCanceled = true;
-            //     }
-            //   }
-            // }
+            final bool blocked = engine.invoke('onHeroMovedOnWorldMap',
+                positionalArgs: [
+                  heroEvent.tilePosition.left,
+                  heroEvent.tilePosition.top
+                ]);
+            if (blocked) {
+              _scene.map.hero!.isMovingCanceled = true;
+            }
           }
           setState(() {});
         },

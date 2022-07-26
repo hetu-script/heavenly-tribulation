@@ -12,14 +12,21 @@ const _kLocationInitialStabilityMax = 50
 struct Location {
   construct ({
     terrainIndex,
+    left,
+    top,
     category,
     name,
     isHidden = false,
   }) {
     assert(terrainIndex != null)
+    assert(left != null && top !=)
     this.terrainIndex = terrainIndex
-    final position = index2TilePos(terrainIndex, game.world.width)
-    this.worldPosition = { left: position.left, top: position.top }
+    this.tilePosition = Tile(
+      left,
+      top,
+      index: terrainIndex,
+      mapWidth: game.world.width,
+    )
     this.index = game.locations.length
     if (name) {
       this.name = name
@@ -98,6 +105,10 @@ struct Location {
   }
 }
 
+fun getLocationDistance(loc1, loc2) {
+  return getTileDistance(loc1.tilePosition, loc2.tilePosition)
+}
+
 // 每个城市发展度，都会产生新的带有灵根的角色
 // 但这些角色并不会立即出现，而是只能依靠探查搜寻的方式找到
 // 并且每次找到的数量是有上限的
@@ -149,7 +160,7 @@ fun setCharacterLocationId(character, locationId: str) {
   final location = game.locations[locationId]
   location.dwellingCharacterIds.add(character.id)
   character.locationId = locationId
-  character.worldPosition = location.worldPosition.clone()
+  character.tilePosition = {}
 }
 
 fun getLocationById(id: str) {

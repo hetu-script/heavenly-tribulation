@@ -314,9 +314,7 @@ struct Character {
       final location = game.locations[locationId]
       setCharacterLocationId(this, locationId)
 
-      final terrainIndex = location.terrainIndex
-      final position = index2TilePos(terrainIndex, game.world.width)
-      this.worldPosition = { left: position.left, top: position.top }
+      this.worldPosition = { left: location.tilePosition.left, top: location.tilePosition.top }
 
       if (isNewborn) {
         assert(fatherId != null)

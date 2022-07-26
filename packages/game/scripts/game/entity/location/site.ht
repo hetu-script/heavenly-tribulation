@@ -68,7 +68,7 @@ struct Site {
     // 这个建筑可以领的任务
     // 可以在官府，或者在民居的告示栏领任务
     // 也可以在商号等建筑领任务
-    this.quests = {}
+    this. {}
   }
 }
 
@@ -156,6 +156,7 @@ fun _handleAcademyInteraction(site) {
 // 没有提交足够数量的材料或者超过时间都会算作失败。
 fun _handleTradingHouseInteraction(site) {
   final hero = getHero()
+  final location = game.locations[site.locationId]
   final selections = [
     // 'diagnose',
     'work',
@@ -168,7 +169,12 @@ fun _handleTradingHouseInteraction(site) {
           showDialogByLocaleKeys(['workedThisMonth'])
         } else {
           // 非门派商号，这里会临时生成一个任务
-          final quest = 
+          final destinationLocation = random.nextIterable(game.locations.values)
+          final destinationSite = random.nextIterable(destinationLocation.sites.value)
+          final quest = QuestDelivery(
+            locationId: location.id,
+            siteId: site.id,
+          )
           
         }
       }

@@ -21,7 +21,7 @@ var config = {
 // 当前副本的引用
 var currentMaze = null
 // 进入副本时，使用这个临时事件列表，平时此列表为 null
-var localHistory = null
+var currentMazeHistory = null
 
 var history = []
 
@@ -29,8 +29,8 @@ var game
 
 var isGameLoaded = false
 
-fun getLocalHistory() {
-  return localHistory
+fun getCurrentMazeHistory() {
+  return currentMazeHistory
 }
 
 fun getHistory() {
@@ -43,6 +43,9 @@ fun getHistoryJsonData() {
 
 struct Game {
   construct {
+    // 本次游戏加载的 module，这里是纯数据，函数保存在另外的地方
+    this.modules = {}
+
     this.timestamp = 0
 
     this.nations = {}
@@ -154,4 +157,9 @@ fun setSavePath(name: str) {
 
 fun getTimestamp {
   return game.timestamp
+}
+
+fun addModule(module) {
+  engine.info('载入模组：《${module.name}》')
+  game.modules[module.id] = module
 }

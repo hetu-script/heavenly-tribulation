@@ -1,3 +1,5 @@
+import 'game.ht'
+
 // 加载到本次游戏的事件处理模块。
 // 理论上每个游戏Mod都是单独的一个模块，
 // 每个模块都可以处理多种事件，
@@ -6,11 +8,41 @@
 // 这个arg是一个struct对象，包含不同的事件参数
 var eventHandlers = {}
 
+// EventHanlder
+// 如果 isDisposable 为 true，则这个时间处理会在第一次触发之后被删除
+// EventHandler {
+//   id: 'myname',
+//   isDisposable: false,
+//   onNewGame: (arg) {
+//     engine.info('[${this.name}]: 新游戏事件回调函数')
+//   },
+//   onUpdate: (arg) {
+//     engine.info('[${this.name}]: 更新世界事件回调函数')
+//   },
+// }
+
 fun getEventHandlerById(id: str) {
   return eventHandlers[id]
 }
 
 fun addEventHandler(handler) {
-  engine.info('载入事件处理模块 [${handler.name}]')
   eventHandlers[handler.id] = handler
+}
+
+// 触发 mod 的回调函数
+// 游戏自己的逻辑不用这个
+// 回调函数需要在游戏开始时就读取，不要动态添加
+// 因为函数无法保存，因此一旦读档，回调就会消失
+fun onGameEvent(id: str, [arg]) {
+  for (final handler of eventHandlers) {
+    final module = game.modules[hendler.id]
+    assert(module != null)
+    // 只执行那些没有被移除的回调处理
+    if (module.isRemoved) continue
+    final callback = handler[id];
+    // callback 可能是 null
+    if(callback is function) {
+      callback(arg)
+    }
+  }
 }

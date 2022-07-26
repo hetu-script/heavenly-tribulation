@@ -41,7 +41,7 @@ fun updateGame({ticks = 1, timeflow = true}) {
 
 // 每个tick检查一次当前是否有婴儿出生
 fun handleBabies {
-  final toBeRemovedIds = Set()
+  final pendingRemoveIds = Set()
   for (final baby of game.babies) {
     if (game.timestamp - baby.conceptionTimestamp < baby.pregnancyTime) continue
     final mother = game.characters[baby.motherId]
@@ -59,9 +59,9 @@ fun handleBabies {
         motherId: baby.motherId,
       )
     }
-    toBeRemovedIds.add(baby.id)
+    pendingRemoveIds.add(baby.id)
   }
-  for (final id in toBeRemovedIds) {
+  for (final id in pendingRemoveIds) {
     delete game.babies[id]
   }
 }
@@ -144,11 +144,20 @@ fun generateQuests {
   }
 }
 
-fun onGameEvent(id: str, [arg]) {
-  for (final handler of eventHandlers) {
-    final callback = handler[id];
-    if(callback is function) {
-      callback(arg)
-    }
+// 如果返回值为 true，则英雄的s移动会中止在这一格。
+fun onHeroMovedOnWorldMap(left, top) {
+
+  return false
+}
+
+fun onHeroEnteredLocation(location) {
+
+}
+
+fun onHeroEnteredSite(site) {
+  final hero = getHero()
+  // 检查是否有任务满足了提交条件
+  for (final quest of hero.quests) {
+
   }
 }

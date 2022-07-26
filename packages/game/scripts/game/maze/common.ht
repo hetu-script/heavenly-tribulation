@@ -9,12 +9,12 @@ const kMazeUniqueEncounterProbability = 0.075
 
 fun enterMaze(maze) {
   currentMaze = maze
-  localHistory = maze.history
+  currentMazeHistory = maze.history
 }
 
 fun leaveMaze(maze) {
   currentMaze = null
-  localHistory = null
+  currentMazeHistory = null
   // 移除所有临时npc
   for (final entity of maze.entities) {
     if (!entity.isPermanent) {

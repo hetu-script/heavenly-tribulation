@@ -268,7 +268,12 @@ fun createWorldMap({
       tile = game.world.terrains[index]
     } while (locationIndexes.contains(index) || tile.spriteIndex != kSpriteLand)
     // location category只有两种：城市和秘境
-    final location = Location(terrainIndex: index, category: kLocationCategoryCity)
+    final location = Location(
+      terrainIndex: index,
+      left: tile.left,
+      top: tile.top,
+      category: kLocationCategoryCity,
+    )
     locationIndexes.add(index)
     
     // 随机生成的据点，初始发展度是0-3之间随机。

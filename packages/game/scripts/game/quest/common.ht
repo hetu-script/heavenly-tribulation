@@ -67,3 +67,7 @@ fun setCharacterActiveQuest(character, quest) {
 fun getCharacterActiveQuest(character) {
   return character.quests[character.activeQuestId]
 }
+
+fun handleQuestComplete(quest) {
+  
+}

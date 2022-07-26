@@ -44,8 +44,8 @@ struct Incident {
       this.index = history.length
       history.add(this)
     }
-    if (localHistory is List) {
-      localHistory.add(this)
+    if (currentMazeHistory is List) {
+      currentMazeHistory.add(this)
     }
 
     for (final id in subjectIds) {

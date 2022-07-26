@@ -19,6 +19,7 @@ struct QuestDelivery {
     siteId,
     destinationLocationId,
     destinationSiteId,
+    destinationCharacterId,
     entity,
     expirationDays = 15, // 时间限制，以天为单位
     rewardMoney = 0,
@@ -26,7 +27,6 @@ struct QuestDelivery {
     assert(locationId != null)
     assert(siteId != null)
     assert(destinationLocationId != null)
-    assert(destinationSiteId != null)
     assert(entity != null)
 
     this.difficulty = kQuestDifficultyNormal,
@@ -41,7 +41,7 @@ struct QuestDelivery {
 
     final destination = game.locations[destinationLocationId]
     final destinationSite = destination.sites[destinationSiteId]
-    
+    final destinationCharacter = game.characters[destinationCharacterId]
 
     // 任务完成有效时间
     this.expirationDate = game.timestamp + expirationDays * kTicksPerDay
@@ -49,7 +49,8 @@ struct QuestDelivery {
 
     if (entity.entityType == kEntityTypeCharacter || entity.entityType == kEntityTypeNpc) {
       this.kind = kQuestDeliveryKindEscort
-      this.description = getLocaleString('${this.category}.description',
+      assert(destinationSiteId != null)
+      this.description = getLocaleString('${this.category}.targetSite.description',
         [
           expirationDateString,
           entity.name,
@@ -59,25 +60,49 @@ struct QuestDelivery {
       )
     } else if (entity.entityType == kEntityTypeItem) {
       this.kind = kQuestDeliveryKindConvoy
-      if (entity.rarity == kCommon) {
-        this.description = getLocaleString('${this.category}.commonItem.description',
-          [
-            expirationDateString,
-            entity.stackSize,
-            entity.name,
-            destination.name,
-            destinationSite.name,
-          ],
-        )
+      if (destinationSite) {
+        if (entity.rarity == kCommon) {
+          this.description = getLocaleString('${this.category}.commonItem.targetSite.description',
+            [
+              expirationDateString,
+              entity.stackSize,
+              entity.name,
+              destination.name,
+              destinationSite.name,
+            ],
+          )
+        } else {
+          this.description = getLocaleString('${this.category}.targetSite.description',
+            [
+              expirationDateString,
+              entity.name,
+              destination.name,
+              destinationSite.name,
+            ],
+          )
+        }
       } else {
-        this.description = getLocaleString('${this.category}.description',
-          [
-            expirationDateString,
-            entity.name,
-            destination.name,
-            destinationSite.name,
-          ],
-        )
+        assert(destinationCharacter != null)
+        if (entity.rarity == kCommon) {
+          this.description = getLocaleString('${this.category}.commonItem.targetCharacter.description',
+            [
+              expirationDateString,
+              entity.stackSize,
+              entity.name,
+              destination.name,
+              destinationSite.name,
+            ],
+          )
+        } else {
+          this.description = getLocaleString('${this.category}.targetCharacter.description',
+            [
+              expirationDateString,
+              entity.name,
+              destination.name,
+              destinationSite.name,
+            ],
+          )
+        }
       }
     } else {
       engine.error('运输任务的对象类型既不是人员也是物品：${entity.entityType}')
