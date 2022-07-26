@@ -23,7 +23,10 @@ const kEntityCategoryTalisman = 'talisman';
 const kEntityCategoryConsumable = 'consumable';
 const kEntityCategoryFightSkill = 'fightSkill';
 
+const kEntityConsumableKindMedicineIngrident = 'medicineIngrident';
 const kEntityConsumableKindMedicine = 'medicine';
+const kEntityConsumableKindFoodIngrident = 'foodIngrident';
+const kEntityConsumableKindFood = 'food';
 const kEntityConsumableKindBeverage = 'beverage';
 const kEntityConsumableKindElixir = 'elixir';
 

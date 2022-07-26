@@ -5,7 +5,7 @@ import '../shared/responsive_window.dart';
 import '../util.dart';
 import '../shared/close_button.dart';
 import '../game_entity_listview.dart';
-import '../view/character/character.dart';
+import '../view/character/information/character.dart';
 
 const _kInformationViewCharacterColumns = [
   'name',

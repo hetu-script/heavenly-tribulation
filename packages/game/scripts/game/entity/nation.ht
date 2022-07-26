@@ -87,6 +87,7 @@ fun addTerrainToNation(nation, terrain) {
         location.isCapital = true
         gov.isCapital = true
       }
+      locaiton.governmentSiteId = gov.id
     }
     location.nationId = nation.id
     assert(!nation.locationIds.contains(location.id))

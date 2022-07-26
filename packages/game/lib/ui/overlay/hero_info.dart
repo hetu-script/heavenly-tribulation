@@ -3,11 +3,12 @@ import 'package:hetu_script/values.dart';
 import 'package:samsara/tilemap.dart';
 
 import '../avatar.dart';
-import '../view/character/character.dart';
+import '../view/character/information/character.dart';
 import '../../global.dart';
 import '../shared/bordered_icon_button.dart';
-import '../view/character/build.dart';
+import '../view/character/builds/build.dart';
 import '../shared/dynamic_color_progressbar.dart';
+import '../view/character/stats/status.dart';
 
 class HeroInfoPanel extends StatelessWidget {
   const HeroInfoPanel({
@@ -65,13 +66,6 @@ class HeroInfoPanel extends StatelessWidget {
             child: Avatar(
               name: heroData['name'],
               avatarAssetKey: 'assets/images/${heroData['icon']}',
-              onPressed: () => showDialog(
-                context: context,
-                barrierColor: Colors.transparent,
-                builder: (context) {
-                  return CharacterView(characterData: heroData);
-                },
-              ),
             ),
           ),
           Expanded(
@@ -116,14 +110,39 @@ class HeroInfoPanel extends StatelessWidget {
                           showDialog(
                             context: context,
                             barrierColor: Colors.transparent,
-                            builder: (context) {
-                              return BuildView(characterData: heroData);
-                            },
+                            builder: (context) =>
+                                CharacterView(characterData: heroData),
                           );
                         },
                         icon: const Image(
                           image:
-                              AssetImage('assets/images/icon/inventory02.png'),
+                              AssetImage('assets/images/icon/information.png'),
+                        ),
+                      ),
+                      BorderedIconButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            barrierColor: Colors.transparent,
+                            builder: (context) =>
+                                StatusView(characterData: heroData),
+                          );
+                        },
+                        icon: const Image(
+                          image: AssetImage('assets/images/icon/status.png'),
+                        ),
+                      ),
+                      BorderedIconButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            barrierColor: Colors.transparent,
+                            builder: (context) =>
+                                BuildView(characterData: heroData),
+                          );
+                        },
+                        icon: const Image(
+                          image: AssetImage('assets/images/icon/inventory.png'),
                         ),
                       ),
                       const Spacer(),

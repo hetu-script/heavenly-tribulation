@@ -3,8 +3,6 @@
 
   "visitPalaceDeny": "卫兵：此乃皇宫禁地，闲杂人等不许靠近！",
 
-  "questEmpty": "小吏：最近太平无事，并无人发布悬赏任务。",
-
   "visitJailEmpty": "狱卒：最近太平无事，牢中并无犯人。",
   "visitJailDeny": "狱卒：你要探监？没有官府许可，谁也不能进去。",
   "visitJailEntryRespect": "狱卒：原来是 {0} 大人来了。接待不周，还望恕罪。小的们这就给您带您进去。",

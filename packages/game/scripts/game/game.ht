@@ -54,11 +54,7 @@ struct Game {
     this.mazes = {}
 
     resetMonthlyActivities(this)
-
-    // 指某个组织进行过的动作，限定每个月一次
-    this.organizationYearly = {
-      
-    }
+    resetYearlyActivities(this)
   }
 }
 
@@ -73,16 +69,11 @@ fun resetMonthlyActivities(gameData){
     requested: [],
     insulted: [],
     stolen: [],
-    // explored: [],
-    // gathered: [],
-    // woodcutted: [],
-    // mined: [],
-    // hunted: [],
-    // fished: [],
   }
 
   // 指某个NPC进行过的动作，限定每个月一次
   gameData.characterMonthly = {
+    // 人物互动
     talked: [],
     gifted: [],
     practiced: [],
@@ -90,11 +81,32 @@ fun resetMonthlyActivities(gameData){
     requested: [],
     insulted: [],
     stolen: [],
+
+    // 采集互动
+    explored: [],
+    gathered: [],
+    woodcutted: [],
+    mined: [],
+    hunted: [],
+    fished: [],
+  }
+
+  // 指某个建筑进行过的动作，限定每个月一次
+  gameData.siteMonthly = {
+    worked: [],
   }
 
   // 指某个组织进行过的动作，限定每个月一次
   gameData.organizationMonthly = {
     recruited: [],
+  }
+}
+
+
+fun resetYearlyActivities(gameData){
+  // 指某个组织进行过的动作，限定每个月一次
+  this.organizationYearly = {
+    
   }
 }
 

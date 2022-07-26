@@ -7,6 +7,7 @@
 // 效果中的数值以列表形式保存，这是为了在游戏界面显示时可以不用关心具体数值的key。
 // 某些效果会以“第x次攻击后”的形式触发
 // 对于此种效果，回调函数会在该效果对象上临时赋值，计算CD时间。
+import 'character/status_effect.ht'
 
 const kEffectValueTypeInt = 'int';
 const kEffectValueTypeFloat = 'float';
@@ -15,7 +16,9 @@ const kEffectValueTypePercentage = 'percentage';
 const kEffectRestoreLife = 'effectRestoreLife'
 const kEffectRestoreChi = 'effectRestoreChi'
 const kEffectRestoreStamina = 'effectRestoreStamina'
+
 const kEffectHealInjury = 'effectHealInjury'
+const kEffectHealInfection = 'effectHealInfection'
 
 // 食用时触发的效果
 final kEffectCategoryConsume = 'consume'
@@ -58,7 +61,23 @@ final effectHandlers = {
   },
   // 治疗外伤
   effectHealInjury: (effect, character) {
-    char2.statusEffects[injury.kind]
+    final currentInjury = character.statusEffects[kStatusCategoryInjury]
+    if (currentInjury) {
+      currentInjury.value -= effect.values[0].value
+      if (currentInjury.value <= 0) {
+        delete character.statusEffects[kStatusCategoryInjury]
+      }
+    }
+  },
+  // 治疗感染
+  effectHealInfection: (effect, character) {
+    final currentInfection = character.statusEffects[kStatusCategoryInfection]
+    if (currentInfection) {
+      currentInfection.value -= effect.values[0].value
+      if (currentInfection.value <= 0) {
+        delete character.statusEffects[kStatusCategoryInfection]
+      }
+    }
   },
 
   // 受击类效果

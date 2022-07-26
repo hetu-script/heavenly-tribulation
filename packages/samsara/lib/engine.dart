@@ -16,11 +16,14 @@ import 'logger/printer.dart';
 import 'logger/output.dart';
 
 class SamsaraEngine with SceneController, EventAggregator {
+  final String gameName;
   final bool debugMode;
   late final bool isOnDesktop;
 
-  SamsaraEngine({required this.debugMode})
-      : isOnDesktop =
+  SamsaraEngine({
+    required this.gameName,
+    required this.debugMode,
+  }) : isOnDesktop =
             Platform.isLinux || Platform.isWindows || Platform.isMacOS {
     logger = Logger(
       filter: null,

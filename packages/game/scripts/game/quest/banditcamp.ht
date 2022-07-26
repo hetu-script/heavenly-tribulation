@@ -6,9 +6,9 @@ import '../tile/common.ht'
 import '../binding/worldmap.ht'
 import '../game.ht'
 
-const _kSearching = 'Searching'
-const _kClearing = 'Clearing'
-const _kReturning = 'Returning'
+const _kSearching = 'searching'
+const _kClearing = 'clearing'
+const _kReturning = 'returning'
 
 const _kBanditCampMaze = 'banditCampMaze'
 
@@ -27,77 +27,77 @@ struct QuestBanditCamp {
     difficulty = kQuestDifficultyNormal,
     locationId,
     mazeTerrainIndex,
-    nationId,
-    publishingMonth = 1,
-    expirationMonth = 1,
+    publishingDate,
+    expirationDate,
     reward,
     bossName,
   }) {
     assert(locationId != null)
     assert(mazeTerrainIndex != null)
-    assert(nationId != null)
-    this.category = kQuestCategoryBanditCamp
+    this.category = kQuestCategoryConquestMaze
     this.kind = kind ?? random.nextIterable(kQuestBanditCampKinds)
     this.id = 'quest_${Hash.uid4(2)}_${locationId}_${this.category}_${this.kind}'
 
     final location = game.locations[locationId]
-    location.quests[this.id] = this
-    
-    final nation = game.nations[nationId]
+    assert(location.governmentSiteId != null)
+    final gov = location.sites[location.governmentSiteId]
+    gov.quests[this.id] = this
+
+    assert(location.nationId != null)
+    final nation = game.nations[location.nationId]
     when (this.kind) {
-      kQuestKindKillBanditBoss -> {
+      kQuestConquestMazeKindKillBanditBoss -> {
         assert(bossName != null)
         this.description = getLocaleString(
-          '${this.kind}Description',
+          '${this.category}.${this.kind}.description',
           [nation.name, bossName],
         )
-        this.stages = createQuestStages({
+        this.stages = {
           searching: {
             // 任务开始，目前行动：寻找副本
             id: _kSearching,
-            description: '${this.category}${_kClearing}Description',
+            description: '${this.category}.${_kClearing}.description',
             success: 'found',
-            successedDescription: '${this.category}${_kClearing}SuccessedDescription',
-            failedDescription: '${this.category}${_kClearing}FailedDescription',
+            successedDescription: '${this.category}.${_kClearing}.successed.description',
+            failedDescription: '${this.category}.${_kClearing}.failed.description',
           },
           clearing: {
             // 找到了副本入口，但尚未消灭boss
             id: _kClearing,
-            description: '${this.category}${_kClearing}Description',
+            description: '${this.category}.${_kClearing}.description',
             success: 'finished',
-            successedDescription: '${this.category}${_kClearing}SuccessedDescription',
+            successedDescription: '${this.category}.${_kClearing}.successed.description',
             // 找到副本后，中途离开算失败
-            failedDescription: '${this.category}${_kClearing}FailedDescription',
+            failedDescription: '${this.category}.${_kClearing}.failed.description',
           },
           returning: {
             // 完成了目标，可以在原本的据点交还信物领取奖励
             id: _kReturning,
-            description: '${this.category}${_kReturning}Description',
-            successedDescription: '${this.category}${_kReturning}SuccessedDescription',
+            description: '${this.category}.${_kReturning}.description',
+            successedDescription: '${this.category}.${_kReturning}.successed.description',
             // 没有交还算失败
-            failedDescription: '${this.category}${_kReturning}FailedDescription',
+            failedDescription: '${this.category}.${_kReturning}.failed.description',
           },
-        })
+        }
       }
-      kQuestKindWipeBandits -> {
-        this.description = getLocaleString('${this.kind}Description')
+      kQuestConquestMazeKindWipeBandits -> {
+        this.description = getLocaleString('${this.category}.${this.kind}.description')
       }
-      kQuestKindReturnHostage -> {
-        this.description = getLocaleString('${this.kind}Description')
+      kQuestConquestMazeKindReturnHostage -> {
+        this.description = getLocaleString('${this.category}.${this.kind}.description')
       }
-      kQuestKindReturnTreasure -> {
-        this.description = getLocaleString('${this.kind}Description')
+      kQuestConquestMazeKindReturnTreasure -> {
+        this.description = getLocaleString('${this.category}.${this.kind}.description')
       }
     }
-    this.currentStageId = 'searching'
+    this.currentStageId = this.stages.keys.first
 
     this.difficulty = difficulty
     // 任务领取有效时间
-    this.publishingMonth = publishingMonth
+    this.publishingDate = publishingDate
     // 任务完成有效时间
-    this.expirationMonth = expirationMonth
+    this.expirationDate = expirationDate
 
-    assert(location.nationId != null)
     // 生成的副本悬赏会随机在本国境内
     for (final index in nation.territoryIndexes) {
       final tile = game.world.terrains[index]

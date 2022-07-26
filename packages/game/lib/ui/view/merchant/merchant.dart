@@ -4,7 +4,7 @@ import 'package:hetu_script/values.dart';
 import '../../shared/responsive_window.dart';
 import '../../../global.dart';
 import '../../shared/close_button.dart';
-import '../character/inventory.dart';
+import '../character/builds/inventory.dart';
 import '../../../event/events.dart';
 
 class MerchantView extends StatefulWidget {
@@ -12,6 +12,7 @@ class MerchantView extends StatefulWidget {
     required BuildContext context,
     required HTStruct merchantData,
     double priceFactor = 2.0,
+    bool allowSell = true,
   }) {
     return showDialog<bool>(
       context: context,
@@ -21,6 +22,7 @@ class MerchantView extends StatefulWidget {
         return MerchantView(
           merchantData: merchantData,
           priceFactor: priceFactor,
+          allowSell: allowSell,
         );
       },
     );
@@ -30,10 +32,12 @@ class MerchantView extends StatefulWidget {
     super.key,
     required this.merchantData,
     this.priceFactor = 2.0,
+    this.allowSell = true,
   });
 
   final HTStruct merchantData;
   final double priceFactor;
+  final bool allowSell;
 
   @override
   State<MerchantView> createState() => _MerchantViewState();
@@ -101,7 +105,9 @@ class _MerchantViewState extends State<MerchantView> {
                 characterName: heroData['name'],
                 inventoryData: heroData['inventory'],
                 money: heroData['money'],
-                type: InventoryType.customer,
+                type: widget.allowSell
+                    ? InventoryType.customer
+                    : InventoryType.player,
                 priceFactor: widget.priceFactor,
                 onSell: (item, quantity) {
                   final int restOfMoney = widget.merchantData['money'];

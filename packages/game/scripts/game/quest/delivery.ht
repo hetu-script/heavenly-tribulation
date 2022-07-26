@@ -1,0 +1,100 @@
+import 'common.ht'
+import '../l10n.ht'
+import { random } from '../game.ht'
+import '../maze/mountain.ht'
+import '../tile/common.ht'
+import '../binding/worldmap.ht'
+import '../game.ht'
+import '../entity/common.ht'
+import '../reward.ht'
+import '../datetime.ht'
+import '../entity/commont.ht'
+
+const _kDelivering = 'delivering'
+
+// 运送货物
+struct QuestDelivery {
+  construct ({
+    locationId,
+    siteId,
+    destinationLocationId,
+    destinationSiteId,
+    entity,
+    expirationDays = 15, // 时间限制，以天为单位
+    rewardMoney = 0,
+  }) {
+    assert(locationId != null)
+    assert(siteId != null)
+    assert(destinationLocationId != null)
+    assert(destinationSiteId != null)
+    assert(entity != null)
+
+    this.difficulty = kQuestDifficultyNormal,
+    this.category = kQuestCategoryDelivery
+    this.daysLimit = daysLimit
+    this.reward = Reward(money: rewardMoney)
+
+    this.questEntityOnAcception = entity
+
+    final location = game.locations[locationId]
+    final site = location.sites[siteId]
+
+    final destination = game.locations[destinationLocationId]
+    final destinationSite = destination.sites[destinationSiteId]
+    
+
+    // 任务完成有效时间
+    this.expirationDate = game.timestamp + expirationDays * kTicksPerDay
+    final expirationDateString = toDateString(this.expirationDate)
+
+    if (entity.entityType == kEntityTypeCharacter || entity.entityType == kEntityTypeNpc) {
+      this.kind = kQuestDeliveryKindEscort
+      this.description = getLocaleString('${this.category}.description',
+        [
+          expirationDateString,
+          entity.name,
+          destination.name,
+          destinationSite.name,
+        ],
+      )
+    } else if (entity.entityType == kEntityTypeItem) {
+      this.kind = kQuestDeliveryKindConvoy
+      if (entity.rarity == kCommon) {
+        this.description = getLocaleString('${this.category}.commonItem.description',
+          [
+            expirationDateString,
+            entity.stackSize,
+            entity.name,
+            destination.name,
+            destinationSite.name,
+          ],
+        )
+      } else {
+        this.description = getLocaleString('${this.category}.description',
+          [
+            expirationDateString,
+            entity.name,
+            destination.name,
+            destinationSite.name,
+          ],
+        )
+      }
+    } else {
+      engine.error('运输任务的对象类型既不是人员也是物品：${entity.entityType}')
+    }
+
+    this.id = 'quest_${Hash.uid4(2)}_${siteId}_${this.category}_${this.kind}'
+
+    this.stages = {
+      delivering: {
+        // 任务开始，目前行动：寻找副本
+        id: _kDelivering,
+        description: this.description,
+        successedDescription: '${this.category}${_kDelivering}.successed.description',
+        failedDescription: '${this.category}${_kDelivering}.failed.description',
+      },
+    }
+    this.currentStageId = this.stages.keys.first
+    
+  }
+}

@@ -1,0 +1,9 @@
+struct Reward {
+  construct ({
+    money = 0,
+    items,
+  }) {
+    this.money = money
+    this.items = items ?? []
+  }
+}

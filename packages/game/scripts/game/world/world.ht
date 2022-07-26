@@ -283,7 +283,7 @@ fun createWorldMap({
     if (location.development > 0 && random.nextDouble() < _kSiteTradinghouseProbability) {
       final site = Site(category: kSiteTradinghouse, locationId: location.id)
       site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
-      // 商号可能有：木料、矿石、玉石、兽皮
+      // 商号可能有：木料、矿石、玉石、兽皮、药材、食材
       entityAcquireItem(site, Resource.timber(), 20)
       entityAcquireItem(site, Resource.ore(), 20)
       entityAcquireItem(site, Resource.jade(), 20)
@@ -302,7 +302,7 @@ fun createWorldMap({
     if (location.development > 2 && random.nextDouble() < _kSiteHospitalProbability) {
       final site = Site(category: kSiteHospital, locationId: location.id)
       site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
-      // 医馆可能有：方剂、草药
+      // 医馆可能有：方剂
       entityAcquireItem(site, Consumable.medicine(), 20)
       entityAcquireItem(site, Consumable.herb(), 10)
     }

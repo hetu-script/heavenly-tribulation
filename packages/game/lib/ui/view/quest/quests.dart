@@ -16,7 +16,7 @@ enum BuildViewType {
 class QuestsView extends StatefulWidget {
   static Future<bool?> show({
     required BuildContext context,
-    required HTStruct locationData,
+    required HTStruct siteData,
     double priceFactor = 1.0,
   }) {
     return showDialog<bool>(
@@ -26,7 +26,7 @@ class QuestsView extends StatefulWidget {
       builder: (context) {
         return QuestsView(
           key: UniqueKey(),
-          locationData: locationData,
+          locationData: siteData,
         );
       },
     );

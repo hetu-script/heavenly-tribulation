@@ -7,9 +7,9 @@ import 'quest/quest.ht'
 import 'name/name.ht'
 import 'tile/common.ht'
 
-const kLocationQuestProbability = 0.35
+const kQuestProbability = 0.35
 
-fun getQuestMaxFromLocationDevelopment(development) -> int {
+fun getGovernmentQuestMax(development) -> int {
   if (development > 20) {
     return 5
   } else {
@@ -27,6 +27,10 @@ fun updateGame({ticks = 1, timeflow = true}) {
       resetMonthlyActivities(game)
 
       generateQuests()
+    }
+
+    if (game.timestamp % kTicksPerYear == 0) {
+      resetYearlyActivities(game)
     }
 
     onGameEvent('onUpdate')
@@ -62,43 +66,81 @@ fun handleBabies {
   }
 }
 
-// 每个月生成一次每个地点的悬赏任务
+// 生成每月任务
+// 门派和官府会生成多个可选的任务
+// 但商号、工坊和酒楼只有在是门派开设的情况下才会有多个任务，否则每个月只会提供唯一的一个任务
 fun generateQuests {
   for (final location of game.locations) {
-    final questMax = getQuestMaxFromLocationDevelopment(location.development)
-    if (location.quests.length >= questMax) continue
-    if (random.nextDouble() > kLocationQuestProbability) continue
-    // 生成盗贼副本类悬赏任务，只在有国家的据点上生成
-    if (!location.nationId) continue
-    final nation = game.nations[location.nationId]
-    if ((random.nextDouble() < location.stability / 100) && !nation.hasBanditEvent && !location.hasBanditEvent) {
+    for (final site of locaiton.sites) {
+      when (site.category) {
+        'cultivation' -> {
 
-      var mazeTerrain
-      for (final terrainIndex in nation.territoryIndexes) {
-        final terrain = game.world.terrains[terrainIndex]
-        if (terrain.locationId) continue
-        if (terrain.spriteIndex == kSpriteLand) {
-          mazeTerrain = terrain
-          break
+        }
+        'gang' -> {
+          
+        }
+        'religion' -> {
+          
+        }
+        'academy' -> {
+          
+        }
+        'tradinghouse' -> {
+          if (site.organizaitonId) {
+
+          }
+        }
+        'workshop' -> {
+          if (site.organizaitonId) {
+            
+          }
+        }
+        'restaurant' -> {
+          if (site.organizaitonId) {
+            
+          }
+        }
+        'palace' -> {
+          
+        }
+        'government' -> {
+          var questMax = getGovernmentQuestMax(location.development)
+          if (site.quests.length >= questMax) continue
+
+          // 生成盗贼副本类悬赏任务，只在有国家的据点上生成
+          if (random.nextDouble() > kQuestProbability) continue
+          if (!location.nationId) continue
+          final nation = game.nations[location.nationId]
+          if ((random.nextDouble() < location.stability / 100) && !nation.hasBanditEvent && !location.hasBanditEvent) {
+            var mazeTerrain
+            for (final terrainIndex in nation.territoryIndexes) {
+              final terrain = game.world.terrains[terrainIndex]
+              if (terrain.locationId) continue
+              if (terrain.spriteIndex == kSpriteLand) {
+                mazeTerrain = terrain
+                break
+              }
+            }
+
+            if (mazeTerrain) {
+              nation.hasBanditEvent = true
+              location.hasBanditEvent = true
+
+              final bossName = nameGenerator.getCharacter(1).first.name
+              final quest = QuestBanditCamp(
+                locationId: location.id,
+                mazeTerrainIndex: mazeTerrain.index,
+                kind: kQuestConquestMazeKindKillBanditBoss,
+                bossName: bossName,
+              )
+              engine.info('在 ${location.name} 生成悬赏任务：${quest.id}，副本地点：${mazeTerrain.left}, ${mazeTerrain.top}')
+              location.quests[quest.id] = quest
+            }
+          }
         }
       }
-
-      if (mazeTerrain) {
-        nation.hasBanditEvent = true
-        location.hasBanditEvent = true
-
-        final bossName = nameGenerator.getCharacter(1).first.name
-        final quest = QuestBanditCamp(
-          locationId: location.id,
-          mazeTerrainIndex: mazeTerrain.index,
-          nationId: nation.id,
-          kind: kQuestKindKillBanditBoss,
-          bossName: bossName,
-        )
-        engine.info('在 ${location.name} 生成悬赏任务：${quest.id}，副本地点：${mazeTerrain.left}, ${mazeTerrain.top}')
-        location.quests[quest.id] = quest
-      }
     }
+
   }
 }
 

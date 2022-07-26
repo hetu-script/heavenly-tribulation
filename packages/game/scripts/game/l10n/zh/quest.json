@@ -1,53 +1,47 @@
 {
-  "publishingMonth": "领取截止日期",
-  "expirationMonth": "完成截至日期",
+  "publishingDate": "领取截止日期",
+  "expirationDate": "完成截至日期",
 
-  "banditCamp": "讨贼",
-  "banditCampSearchingDescription": "在 {0} 寻找盗贼营地。",
-  "banditCampSearchingSuccessedDescription": "",
-  "banditCampSearchingFailedDescription": "",
+  "workedThisMonth": "老板：这个月你已经在我们这儿领过任务了。你去别处问问，或者下个月再来吧。",
 
-  "banditCampClearingDescription": "",
-  "banditCampClearingSuccessedDescription": "",
-  "banditCampClearingFailedDescription": "",
+  "governmentQuestEmpty": "小吏：最近太平无事，并无人发布悬赏任务。你下个月再来看看吧。",
 
-  "banditCampReturningDescription": "",
-  "banditCampReturningSuccessedDescription": "",
-  "banditCampReturningFailedDescription": "",
+  "questEmpty": "老板：这个月已经没有什么活需要帮忙了。你去别处问问，或者下个月再来吧。",
+
+  "conquestMaze.searching.description": "在 {0} 寻找盗贼营地。",
+  "conquestMaze.searching.successed.description": "",
+  "conquestMaze.searching.failed.description": "",
+
+  "conquestMaze.clearing.description": "",
+  "conquestMaze.clearing.successed.description": "",
+  "conquestMaze.clearing.failed.description": "",
+
+  "conquestMaze.returning.description": "",
+  "conquestMaze.returning.successed.description": "",
+  "conquestMaze.returning.failed.description": "",
 
   "killBanditBoss": "消灭山贼头目",
-  "killBanditBossDescription": "消灭 {0} 的山贼头目：{1}。",
-
+  "killBanditBoss.description": "消灭 {0} 的山贼头目：{1}。",
   "wipeBandits": "扫荡山贼窝点",
-  "wipeBanditsDescription": "消灭 {0} 的山贼窝点。",
-
+  "wipeBandits.description": "消灭 {0} 的山贼窝点。",
   "returnHostage": "解救人质",
-
   "returnTreasure": "寻回宝物",
 
+  "conquestMaze": "讨贼",
   "arrest": "抓捕",
-  "convoy": "押镖",
-  "escort": "护送",
   "training": "演武",
   "ritual": "法事",
-  "marriageMaker": "说媒",
-  "trading": "贸易",
   "teaching": "教习",
-  "craft": "定制",
   "catering": "招待",
 
+  "delivery": "运输",
+  "delivery.description": "在 {0} 之前，将 {1} 送到 {2} 的 {3}。",
+  "delivery.commonItem.description": "在 {0} 之前，将 {1} 个 {2} 送到 {3} 的 {4}。",
+  "escort": "护送人员",
+  "convoy": "运送物品",
+
+  "craft": "打造",
+
   "localExam": "乡试",
-  "nationalExam": "会试",
-
-  "questFightBandit.wipe.title": "讨伐盗贼",
-
-  "questFightBandit.wipe.description": "在 {0} 出现了一伙盗贼，经常抢劫过往客商，如有好汉将其征讨消灭，将有重赏。",
-
-  "questFightBandit.hostage.title": "失踪人口",
-
-  "questFightBandit.hostage.description": "我的孩子在 {0} 附近走失。如有好汉能将其救回，必将重金酬谢。",
-
-  "questFightBandit.treasure.title": "失窃宝物",
-
-  "questFightBandit.treasure.description": "我的 {0} 在 {1} 附近丢失。如有好汉能将其找回，必将重金酬谢。"
+  "nationalExam": "会试"
 }

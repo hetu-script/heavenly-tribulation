@@ -3,7 +3,7 @@ import '../common.ht'
 
 struct Resource {
 
-  construct ({
+  construct craftIngrident ({
     name,
     kind,
     value = 1,
@@ -26,31 +26,31 @@ struct Resource {
     this.icon = 'icon/item/resource/${name}.png'
   }
 
-  construct log: this(
+  construct log: this.craftIngrident(
     name: 'log',
     value: 1,
     kind: kEntityResourceKindLog
   ) {}
 
-  construct timber: this(
+  construct timber: this.craftIngrident(
     name: 'timber',
     value: 3,
     kind: kEntityResourceKindTimber
   ) {}
 
-  construct ore: this(
+  construct ore: this.craftIngrident(
     name: 'ore',
     value: 5,
     kind: kEntityResourceKindOre
   ) {}
 
-  construct jade: this(
+  construct jade: this.craftIngrident(
     name: 'jade',
     value: 10,
     kind: kEntityResourceKindJade
   ) {}
 
-  construct animalHide: this(
+  construct animalHide: this.craftIngrident(
     name: 'animalHide',
     value: 5,
     kind: kEntityResourceKindAnimalHide

@@ -89,6 +89,9 @@ const kValueTypeInt = 'int';
 const kValueTypeFloat = 'float';
 const kValueTypePercentage = 'percentage';
 
-final SamsaraEngine engine = SamsaraEngine(debugMode: Global.isDebugMode);
+final SamsaraEngine engine = SamsaraEngine(
+  gameName: 'Heavenly Tribulation',
+  debugMode: Global.isDebugMode,
+);
 
 final heroSrcSize = Vector2(32.0, 48.0);

@@ -7,13 +7,13 @@ namespace ui {
 
   external fun showVisitCharacterSelection(context, idList)
 
-  external fun showMerchant(context, merchant, priceFactor)
+  external fun showMerchant(context, merchant, priceFactor, allowSell)
 
-  external fun showQuests(context, location)
+  external fun showQuests(context, site)
 
   external fun showMaze(context, maze)
   
-  external fun showDuel(context, char1, char2, [ type, data ])
+  external fun showDuel(context, char1, char2, type, data)
 
   external fun showProgress(context, title)
 

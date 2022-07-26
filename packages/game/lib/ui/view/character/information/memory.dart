@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../../global.dart';
-import '../../shared/constants.dart';
-import '../../shared/empty_placeholder.dart';
-import '../history.dart';
+import '../../../../global.dart';
+import '../../../shared/constants.dart';
+import '../../../shared/empty_placeholder.dart';
+import '../../history.dart';
 
 class CharacterMemory extends StatelessWidget {
   const CharacterMemory({

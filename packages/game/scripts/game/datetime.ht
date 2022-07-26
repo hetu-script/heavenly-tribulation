@@ -83,20 +83,19 @@ fun formatDateTimeString(timestamp: int, {format: str}) {
     'ymd'-> {
       return '${year}${month}${day}'
     }
-    else-> {
-      if (fmt == 'age') {
-        if (yearN == 0) {
-          if (monthN == 0) {
-            return day
-          } else {
-            return month
-          }
+    'age' -> {
+      if (yearN == 0) {
+        if (monthN == 0) {
+          return day
         } else {
-          return year
+          return month
         }
       } else {
-        return '${year}${month}${day}'
+        return year
       }
+    }
+    else -> {
+      return '${year}${month}${day}'
     }
   }
 }

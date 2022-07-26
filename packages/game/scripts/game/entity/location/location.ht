@@ -65,6 +65,7 @@ struct Location {
     // 另外两种选择是通过诉讼，或者贿赂离开
     this.jailedCharacterIds = []
     
+    // 这个据点的建筑
     this.sites = {}
 
     // 这个地点的组织
@@ -79,10 +80,6 @@ struct Location {
       // final maxP = maxPopulationOfLocationDevelopment(this.development)
       // this.population = random.nextInt(maxP - minP) + minP
     }
-
-    // 这个据点可以领的任务
-    // 可以在官府，或者在民居的告示栏领任务
-    this.quests = {}
 
     // 被禁止进入的名单，名单可能重叠
     // 一个人本身在名单上，但他的国家也可能在名单上，并且互相独立

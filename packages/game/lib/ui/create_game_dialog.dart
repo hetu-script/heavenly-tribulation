@@ -45,12 +45,12 @@ class CreateGameDialog extends StatefulWidget {
 class _CreateGameDialogState extends State<CreateGameDialog> {
   final _seedStringEditingController = TextEditingController();
   String _worldStyle = 'coast';
-  int _worldScale = 1;
-  int _nationNumber = 4;
-  int _locationNumber = 6;
-  int _characterNumber = 20;
-  int _cultivationOrganizationNumber = 4;
-  int _tradinghouseOrganizationNumber = 2;
+  int _worldScale = 2;
+  int _nationNumber = 6;
+  int _locationNumber = 14;
+  int _characterNumber = 36;
+  int _cultivationOrganizationNumber = 8;
+  int _tradinghouseOrganizationNumber = 4;
   // int _religionOrganizationNumber = 0;
   // int _gangOrganizationNumber = 0;
   // int _academyOrganizationNumber = 0;
@@ -64,7 +64,7 @@ class _CreateGameDialogState extends State<CreateGameDialog> {
     super.initState();
     _worldScaleLabel = engine.locale[_kWorldScaleLabel[_worldScale]!];
 
-    _seedStringEditingController.text = 'Hello world!';
+    _seedStringEditingController.text = '你好，世界！';
   }
 
   @override
@@ -285,7 +285,7 @@ class _CreateGameDialogState extends State<CreateGameDialog> {
                               Slider(
                                 value: _characterNumber.toDouble(),
                                 min: 1,
-                                max: 100,
+                                max: 800,
                                 divisions: 10,
                                 label: _characterNumber.toString(),
                                 onChanged: (double value) {

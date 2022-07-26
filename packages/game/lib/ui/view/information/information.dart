@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart' show HTStruct;
 
-import '../character/character.dart';
+import '../character/information/character.dart';
 import '../../../global.dart';
 import '../../game_entity_listview.dart';
 import '../../shared/responsive_window.dart';

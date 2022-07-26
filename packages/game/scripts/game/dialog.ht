@@ -77,12 +77,12 @@ fun showVisitCharacterSelection(idList) -> Future {
   return ui.showVisitCharacterSelection(buildContext, idList)
 }
 
-fun showMerchant(merchant, [ priceFactor = 2.0 ]) -> Future {
-  return ui.showMerchant(buildContext, merchant, priceFactor)
+fun showMerchant(merchant, { priceFactor = 2.0, allowSell = true }) -> Future {
+  return ui.showMerchant(buildContext, merchant, priceFactor, allowSell)
 }
 
-fun showQuests(location) -> Future {
-  return ui.showQuests(buildContext, location)
+fun showQuests(site) -> Future {
+  return ui.showQuests(buildContext, site)
 }
 
 fun showMaze(maze) -> Future {

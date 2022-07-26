@@ -68,15 +68,15 @@ const kSeaCrabProbability = 0.25
 fun handleWorldTerrainInteraction(left, top) {
   final hero = getHero()
   
-  var isInjured = false
-  for (final status of hero.statusEffects) {
-    if (status.category == kStatusCategoryInjury)
-    isInjured = true
-  }
-  if (isInjured) {
-    showDialogByLocaleKeys(['cannotInteractWhenInjured'], character: hero)
-    return
-  }
+  // var isInjured = false
+  // for (final status of hero.statusEffects) {
+  //   if (status.category == kStatusCategoryInjury)
+  //   isInjured = true
+  // }
+  // if (isInjured) {
+  //   showDialogByLocaleKeys(['cannotInteractWhenInjured'], character: hero)
+  //   return
+  // }
 
   // 本月剩余的天数
   final currentDayOfMonth = getCurrentDay()

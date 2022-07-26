@@ -16,6 +16,7 @@ import 'organization.json' as organization
 import 'quest.json' as quest
 import 'site.json' as site
 import 'skill.json' as skill
+import 'status_effect.json' as statusEffect
 import 'terrain.json' as terrain
 import 'world_map.json' as worldMap
 
@@ -38,6 +39,7 @@ final zh = {
   ...quest,
   ...site,
   ...skill,
+  ...statusEffect,
   ...terrain,
   ...worldMap,
 }

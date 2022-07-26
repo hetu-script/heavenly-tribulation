@@ -1,0 +1,11 @@
+{
+  "injury": "外伤",
+  "slash": "撕裂",
+  "bludgeon": "重击",
+  "pierce": "贯穿",
+  "cold": "寒冷",
+  "fire": "灼烧",
+  "lightning": "麻痹",
+
+  "infection": "感染"
+}

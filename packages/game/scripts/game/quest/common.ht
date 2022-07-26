@@ -1,20 +1,3 @@
-const kQuestCategoryBanditCamp = 'banditCamp' // 征讨
-const kQuestKindKillBanditBoss = 'killBanditBoss'
-const kQuestKindWipeBandits = 'wipeBandits'
-const kQuestKindReturnHostage = 'returnHostage'
-const kQuestKindReturnTreasure = 'returnTreasure'
-
-const kQuestCategoryArrest = 'arrest' // 抓捕
-const kQuestCategoryConvoy = 'convoy' // 押镖
-const kQuestCategoryEscort = 'escort' // 护送
-const kQuestCategoryTraining = 'training' // 演武
-const kQuestCategoryRitual = 'ritual' // 法事
-const kQuestCategoryMarriage = 'marriage' // 联姻
-const kQuestCategoryTrading = 'trading' // 贸易
-const kQuestCategoryTeaching = 'teaching' // 教习
-const kQuestCategoryCraft = 'craft' // 定制
-const kQuestCategoryCatering = 'catering' // 招待
-
 final kQuestDifficultyNormal = 'normal'
 final kQuestDifficultyHard = 'hard'
 final kQuestDifficultyExpert = 'expert'
@@ -23,20 +6,29 @@ final kQuestDifficultyTorment = 'torment'
 final kQuestDifficultyNightmare = 'nightmare'
 final kQuestDifficultyPurgatory = 'purgatory'
 
+const kQuestCategoryConquestMaze = 'conquestMaze' // 征讨盗贼营地
+const kQuestCategoryArrest = 'arrest' // 抓捕
+const kQuestCategoryTraining = 'training' // 演武
+const kQuestCategoryRitual = 'ritual' // 法事
+const kQuestCategoryCatering = 'catering' // 招待
+const kQuestCategoryDelivery = 'delivery' // 运送人员或物品
+const kQuestCategoryCraft = 'craft' // 定制
+
+const kQuestDeliveryKindEscort = 'escort'
+const kQuestDeliveryKindConvoy = 'convoy'
+
+const kQuestConquestMazeKindKillBanditBoss = 'killBanditBoss'
+const kQuestConquestMazeKindWipeBandits = 'wipeBandits'
+const kQuestConquestMazeKindReturnHostage = 'returnHostage'
+const kQuestConquestMazeKindReturnTreasure = 'returnTreasure'
+
 fun generateQuestReward(difficulty) {
   final reward = {
     money: 0,
     resource: {},
     items: {},
   }
-}
-
-fun createQuestStages(stages) {
-  final result = {}
-  for (final stage of stages) {
-    result[stage.id] = stage
-  }
-  return result
+  return reword
 }
 
 fun characterAcceptQuest(character, location, quest) {
@@ -44,6 +36,17 @@ fun characterAcceptQuest(character, location, quest) {
   delete location.quests[quest.id]
   character.quests[quest.id] = quest
   character.activeQuestId ??= quest.id
+  
+  final entity = quest.questEntityOnAcception
+  if (entity) {
+    if (entity.entityType == kEntityTypeCharacter || entity.entityType == kEntityTypeNpc) {
+      characterGetCompanion(character, entity)
+    } else if (entity.entityType == kEntityTypeItem) {
+      entityAcquireItem(character, entity)
+    } else {
+      engine.error('任务物品的对象类型既不是人员也是物品：${entity.entityType}')
+    }
+  }
 
   final questName = getLocaleString(quest.kind);
   final incidentContent = getLocaleString(

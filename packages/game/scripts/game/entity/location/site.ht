@@ -4,6 +4,7 @@ import '../../dialog.ht'
 import '../organization.ht'
 import '../../game.ht'
 import '../character/status_effect.ht'
+import '../../quest/quest.ht'
 
 // 这三种交易建筑，可能属于某个组织，也可能没有组织。
 // 当没有组织时，属于默认生成的单纯服务性质的建筑。
@@ -63,6 +64,11 @@ struct Site {
     // 建筑和人物类似，也具有金钱和物品栏
     this.money = 0
     this.inventory = {}
+
+    // 这个建筑可以领的任务
+    // 可以在官府，或者在民居的告示栏领任务
+    // 也可以在商号等建筑领任务
+    this.quests = {}
   }
 }
 
@@ -92,7 +98,7 @@ fun handleSiteInteraction(locationId: str, siteId: str) {
     'alchemylab' -> _handleAlchemylabInteraction(site)
     'zoo' -> _handleZooInteraction(site)
     else -> {
-      engine.error('未知的建筑类型 (category)。建筑对象数据：${site}。')
+      engine.error('未知的建筑类型 (category)：${site.category}。[${site.id}]')
     }
   }
 }
@@ -144,52 +150,123 @@ fun _handleAcademyInteraction(site) {
   
 }
 
+// 商号，可以在这里交易大多数物品
+// 打工可以提升本地声望
+// 将指定数量的材料运送到另一个城市，但途中可能会遇到劫匪或风暴，风暴会耽误时间。
+// 没有提交足够数量的材料或者超过时间都会算作失败。
 fun _handleTradingHouseInteraction(site) {
-  if (site.organizaitonId) {
-    final organization = getOrganizationById(site.organizaitonId)
-    showMerchant(organization)
-  } else {
-    showMerchant(site)
-  }
-}
-
-fun _handleWorkshopInteraction(site) {
-  if (site.organizaitonId) {
-    final organization = getOrganizationById(site.organizaitonId)
-    showMerchant(organization)
-  } else {
-    showMerchant(site)
-  }
-}
-
-fun _handleRestaurantInteraction(site) {
-  if (site.organizaitonId) {
-    final organization = getOrganizationById(site.organizaitonId)
-    showMerchant(organization)
-  } else {
-    showMerchant(site)
-  }
-}
-
-fun _handleHospitalInteraction(site) {
   final hero = getHero()
   final selections = [
-    'diagnose',
+    // 'diagnose',
+    'work',
     'trade',
   ]
   showSelectionByLocaleKeys(selections).then((key) {
     when (key) {
-      'diagnose' -> {
-        if (hero.statusEffects.containsKey(kStatusInjuryKindSlash)) {
-          // showDialogByLocaleKeys([])
+      'work' -> {
+        if (game.siteMonthly.contains[site.id]) {
+          showDialogByLocaleKeys(['workedThisMonth'])
+        } else {
+          // 非门派商号，这里会临时生成一个任务
+          final quest = 
+          
         }
       }
       'trade' -> {
         if (site.organizaitonId) {
           final organization = getOrganizationById(site.organizaitonId)
-          showMerchant(organization)
+          showMerchant(organization, allowSell: false)
         } else {
-          showMerchant(site)
+          showMerchant(site, allowSell: false)
+        }
+      }
+    }
+  })
+}
+
+fun _handleWorkshopInteraction(site) {
+  final hero = getHero()
+  final selections = [
+    // 'diagnose',
+    'work', // 打工可以提升本地声望，收集指定数量的木料、矿石、玉石、兽皮
+    'trade', // 不能在这里卖东西
+  ]
+  showSelectionByLocaleKeys(selections).then((key) {
+    when (key) {
+      'work' -> {
+        if (game.siteMonthly.contains[site.id]) {
+          showDialogByLocaleKeys(['workedThisMonth'])
+        } else {
+          game.siteMonthly.add(site.id)
+        }
+      }
+      'trade' -> {
+        if (site.organizaitonId) {
+          final organization = getOrganizationById(site.organizaitonId)
+          showMerchant(organization, allowSell: false)
+        } else {
+          showMerchant(site, allowSell: false)
+        }
+      }
+    }
+  })
+}
+
+fun _handleRestaurantInteraction(site) {
+  final hero = getHero()
+  final selections = [
+    // 'diagnose',
+    'work', // 打工可以提升本地声望，收集指定数量的食材
+    'trade', // 不能在这里卖东西
+  ]
+  showSelectionByLocaleKeys(selections).then((key) {
+    when (key) {
+      'work' -> {
+        if (game.siteMonthly.contains[site.id]) {
+          showDialogByLocaleKeys(['workedThisMonth'])
+        } else {
+          game.siteMonthly.add(site.id)
+        }
+      }
+      'trade' -> {
+        if (site.organizaitonId) {
+          final organization = getOrganizationById(site.organizaitonId)
+          showMerchant(organization, allowSell: false)
+        } else {
+          showMerchant(site, allowSell: false)
+        }
+      }
+    }
+  })
+}
+
+fun _handleHospitalInteraction(site) {
+  final hero = getHero()
+  final selections = [
+    // 'diagnose',
+    'work', // 打工可以提升本地声望，收集指定数量的药草
+    'trade', // 不能在这里卖东西
+  ]
+  showSelectionByLocaleKeys(selections).then((key) {
+    when (key) {
+      // 'diagnose' -> {
+      //   if (hero.statusEffects.containsKey(kStatusInjuryKindSlash)) {
+          
+      //   }
+      // }
+      'work' -> {
+        if (game.siteMonthly.contains[site.id]) {
+          showDialogByLocaleKeys(['workedThisMonth'])
+        } else {
+          game.siteMonthly.add(site.id)
+        }
+      }
+      'trade' -> {
+        if (site.organizaitonId) {
+          final organization = getOrganizationById(site.organizaitonId)
+          showMerchant(organization, allowSell: false)
+        } else {
+          showMerchant(site, allowSell: false)
         }
       }
     }
@@ -270,10 +347,12 @@ fun _handleGovernmentInteraction(site) {
         // TODO: 进贡金钱或者宝物，之后可以选择是否发起请求
       }
       'noticeBoard' -> {
-        if (location.quests.isEmpty) {
-          showDialogByLocaleKeys(['questEmpty'])
+        if (game.siteMonthly.contains[site.id]) {
+          showDialogByLocaleKeys(['workedThisMonth'])
+        } else if (site.quests.isEmpty) {
+          showDialogByLocaleKeys(['governmentQuestEmpty'])
         } else {
-          showQuests(location)
+          showQuests(site)
         }
       }
       'localExam' -> {

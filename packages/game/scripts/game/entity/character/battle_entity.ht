@@ -222,9 +222,7 @@ fun heroBattle (
         isInMaze: isInMaze,
       )
       if (char2Resurrect && char2.isMajorCharacter) {
-        final injury = Injury(
-          kind: kStatusInjuryKindSlash,
-        )
+        final injury = StatusEffect.injury()
         char2.statusEffects[injury.kind] = injury
         char2.stats.life = 1
       } else {
@@ -247,12 +245,9 @@ fun heroBattle (
       return true
     } else {
       if (char1Resurrect) {
-        final injury = Injury(
-          kind: kStatusInjuryKindSlash,
-        )
+        final injury = StatusEffect.injury()
         char1.statusEffects[injury.kind] = injury
         char1.stats.life = 1
-        showDialogByLocaleKeys(['cannotInteractWhenInjured'], character: char1)
       }
       if (onLost is function) {
         onLost()

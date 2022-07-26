@@ -3,25 +3,14 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../../global.dart';
-import '../../avatar.dart';
-import '../../shared/constants.dart';
-import '../../shared/label.dart';
-import '../../util.dart';
+import '../../../../global.dart';
+import '../../../avatar.dart';
+import '../../../shared/constants.dart';
+import '../../../shared/label.dart';
+import '../../../util.dart';
 
-const kCharacterAttributeNames = [
-  'strength',
-  'constitution',
-  'spirituality',
-  'willpower',
-  'dexterity',
-  'intelligence',
-  'perception',
-  'charisma',
-];
-
-class CharacterAttributesView extends StatelessWidget {
-  const CharacterAttributesView({
+class ProfileView extends StatelessWidget {
+  const ProfileView({
     super.key,
     required this.characterData,
   });
@@ -159,18 +148,6 @@ class CharacterAttributesView extends StatelessWidget {
                   children: childs,
                 ),
               ]),
-              const Divider(),
-              // Text('---${engine.locale['attributes']}---'),
-              Wrap(
-                children: kCharacterAttributeNames
-                    .map(
-                      (name) => Label(
-                        '${engine.locale[name]}: ${characterData['stats'][name] ?? 0}',
-                        width: 120.0,
-                      ),
-                    )
-                    .toList(),
-              ),
               const Divider(),
               // Text('---${engine.locale['personality']}---'),
               Wrap(

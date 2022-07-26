@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../grid/entity_grid.dart';
-import '../../../global.dart';
+import '../../grid/entity_grid.dart';
+import '../../../../global.dart';
 
 class EquipmentsView extends StatelessWidget {
   const EquipmentsView({

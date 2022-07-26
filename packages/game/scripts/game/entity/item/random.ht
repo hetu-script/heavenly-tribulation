@@ -1,0 +1,23 @@
+final _itemTypes = [
+  'medicineIngrident',
+  'foodIngrident',
+  'craftIngrident'
+]
+
+final _medicineIngridentTypes = [
+  'gouqi',
+  'sanqi',
+  'jinyinhua',
+]
+
+final _foodIngridentTypes = [
+  'meat',
+  'riverFish',
+  'seaFish',
+  'crab',
+  'shrimp',
+]
+
+fun getRandomItem({ count = 1 }) {
+
+}

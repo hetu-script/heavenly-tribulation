@@ -71,6 +71,7 @@ final Map<String, Function> externalGameFunctions = {
       context: positionalArgs[0],
       merchantData: positionalArgs[1],
       priceFactor: positionalArgs[2],
+      allowSell: positionalArgs[3],
     );
   },
   r'showQuests': (HTEntity object,
@@ -79,7 +80,7 @@ final Map<String, Function> externalGameFunctions = {
       List<HTType> typeArgs = const []}) {
     return QuestsView.show(
       context: positionalArgs[0],
-      locationData: positionalArgs[1],
+      siteData: positionalArgs[1],
     );
   },
   r'showMaze': (HTEntity object,
