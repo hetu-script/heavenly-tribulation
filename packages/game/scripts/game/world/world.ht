@@ -68,8 +68,8 @@ const _kPregnancyAgeMax = 40
 
 const _kLocationInitialDevelopmentMax = 4
 
+const _kLocationInitialMoney = 2000
 const _kNPCStoreInitialMoney = 2000
-const _kNPCStoreInitialMoney = 4000
 const _kSiteTradinghouseProbability = 0.6
 const _kSiteTradinghouseMoney = 0.6
 const _kSiteWorkshopProbability = 0.6
@@ -282,6 +282,7 @@ fun createWorldMap({
     // 初始时、根据发展度，可能会有商号（1）、工坊（2）、医馆和酒楼（3）
     if (location.development > 0 && random.nextDouble() < _kSiteTradinghouseProbability) {
       final site = Site(category: kSiteTradinghouse, locationId: location.id)
+      site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
       // 商号可能有：木料、矿石、玉石、兽皮
       entityAcquireItem(site, Resource.timber(), 20)
       entityAcquireItem(site, Resource.ore(), 20)
@@ -290,6 +291,7 @@ fun createWorldMap({
     }
     if (location.development > 1 && random.nextDouble() < _kSiteWorkshopProbability) {
       final site = Site(category: kSiteWorkshop, locationId: location.id)
+      site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
       // 工坊可能有：武器、盾牌
       entityAcquireItem(site, Weapon())
       entityAcquireItem(site, Weapon())
@@ -299,12 +301,14 @@ fun createWorldMap({
     }
     if (location.development > 2 && random.nextDouble() < _kSiteHospitalProbability) {
       final site = Site(category: kSiteHospital, locationId: location.id)
+      site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
       // 医馆可能有：方剂、草药
       entityAcquireItem(site, Consumable.medicine(), 20)
       entityAcquireItem(site, Consumable.herb(), 10)
     }
     if (location.development > 2 && random.nextDouble() < _kSiteRestaurantProbability) {
       final site = Site(category: kSiteHospital, locationId: location.id)
+      site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
       site.money = 
       // 酒楼可能有：饮料、食物
       entityAcquireItem(site, Consumable.beverage(), 20)
@@ -554,7 +558,9 @@ fun createWorldMap({
       if (location.residingCharacterIds.isNotEmpty) {
         final characterId = random.nextIterable(location.residingCharacterIds)
         final character = game.characters[characterId]
-        assert(character.organizationId == null)
+        if (character.organizationId != null) {
+          engine.error(character.name, character.organizationId, organization.id)
+        }
         addCharacterToOrganization(character, organization)
       }
     }

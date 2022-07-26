@@ -9,9 +9,10 @@ final kBeast = 'beast'
 final kBeastWeaponKindClaw = 'claw'
 final kBeastWeaponKindFang = 'fang'
 
-final _kBeastWeaponKinds = {
+final kBeastWeaponKinds = {
   'claw': {
     icon: 'icon/item/claw.png',
+    damageType: kDamageTypeSlash,
     attributes: {
       speed: 7,
       life: 200,
@@ -22,6 +23,7 @@ final _kBeastWeaponKinds = {
   },
   'fang': {
     icon: 'icon/item/fang.png',
+    damageType: kDamageTypePierce,
     attributes: {
       speed: 10,
       life: 200,
@@ -65,10 +67,11 @@ struct BeastWeapon {
     this.stackSize = 1
     this.description = description ?? ''
 
-    this.icon = _kBeastWeaponKinds[this.kind].icon
+    this.icon = kBeastWeaponKinds[this.kind].icon
     this.attributes = {
-      ..._kBeastWeaponKinds[this.kind].attributes,
+      ...kBeastWeaponKinds[this.kind].attributes,
     }
+    this.damageType = kBeastWeaponKinds[this.kind].damageType
     this.effects = {}
 
     if (attributes) {

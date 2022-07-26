@@ -7,6 +7,7 @@ import '../../../game.ht'
 final kWeaponKinds = {
   'staff': {
     icon: 'icon/item/staff.png',
+    damageType: kDamageTypeBludgeon,
     attributes: {
       speed: 12,
       life: 300,
@@ -18,6 +19,7 @@ final kWeaponKinds = {
   },
   'sabre': {
     icon: 'icon/item/sabre.png',
+    damageType: kDamageTypeSlash,
     attributes: {
       speed: 10,
       life: 200,
@@ -29,6 +31,7 @@ final kWeaponKinds = {
   },
   'sword': {
     icon: 'icon/item/sword.png',
+    damageType: kDamageTypeSlash,
     attributes: {
       speed: 10,
       life: 200,
@@ -40,6 +43,7 @@ final kWeaponKinds = {
   },
   'spear': {
     icon: 'icon/item/spear.png',
+    damageType: kDamageTypePierce,
     attributes: {
       speed: 20,
       life: 300,
@@ -128,6 +132,7 @@ struct Weapon {
     this.attributes = {
       ...kWeaponKinds[this.kind].attributes,
     }
+    this.damageType = kWeaponKinds[this.kind].damageType
     this.effects = {}
       // {
       //   name: effectParry,

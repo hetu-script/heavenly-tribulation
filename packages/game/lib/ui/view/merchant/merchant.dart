@@ -80,17 +80,13 @@ class _MerchantViewState extends State<MerchantView> {
                     widget.merchantData,
                     payment,
                   ]);
-                  engine.invoke(
-                    'characterGive',
-                    positionalArgs: [
-                      widget.merchantData,
-                      heroData,
-                      item,
-                    ],
-                    namedArgs: {
-                      'count': quantity,
-                    },
-                  );
+                  engine.invoke('enityGiveItem', positionalArgs: [
+                    widget.merchantData,
+                    heroData,
+                    item,
+                  ], namedArgs: {
+                    'count': quantity,
+                  });
                   Navigator.of(context).pop();
                   engine.broadcast(const UIEvent.needRebuildUI());
                   setState(() {});
@@ -119,12 +115,13 @@ class _MerchantViewState extends State<MerchantView> {
                     heroData,
                     payment,
                   ]);
-                  engine.invoke('characterGive', positionalArgs: [
+                  engine.invoke('enityGiveItem', positionalArgs: [
                     heroData,
                     widget.merchantData,
                     item,
-                    quantity,
-                  ]);
+                  ], namedArgs: {
+                    'count': quantity,
+                  });
                   Navigator.of(context).pop();
                   engine.broadcast(const UIEvent.needRebuildUI());
                   setState(() {});

@@ -40,6 +40,7 @@
   "price": "价格",
   "stackSize": "数量",
   "damage": "伤害",
+  "damageType": "伤害类型",
   "durability": "耐久",
   "speed": "速度",
   "startUp": "出招时间",

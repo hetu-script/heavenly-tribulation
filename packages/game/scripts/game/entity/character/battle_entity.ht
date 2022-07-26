@@ -252,7 +252,7 @@ fun heroBattle (
         )
         char1.statusEffects[injury.kind] = injury
         char1.stats.life = 1
-        showDialogByLocaleKeys(['cannotInteractWhenInjured'], character: hero)
+        showDialogByLocaleKeys(['cannotInteractWhenInjured'], character: char1)
       }
       if (onLost is function) {
         onLost()

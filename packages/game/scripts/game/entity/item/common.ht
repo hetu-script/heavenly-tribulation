@@ -51,12 +51,12 @@ fun characterAcquireMoney(character, count) {
 // 角色、场景获得物品，此函数并不检查物品本身是否在其他角色的物品栏中
 // 主要用于获取一个本来不存在的物品
 // 如果数量大于1，则必须指定获取数量，item的stackSize将会被忽略
-fun entityAcquireItem(character, item, [count]) {
+fun entityAcquireItem(character, item, [ count ]) {
   // 某些时候会批量生成物品，可能数量会是 0，此时直接跳过，但无需报错
   if (count != null) {
     if (count < 1) return
     if (item.stackSize > 1) {
-      engine.warning('物品对象的数量[${item.stackSize}]将会被忽略。实际获取数值应该由[entityAcquireItem]函数的第三个参数指定。')
+      engine.warning('物品对象的数量[${item.stackSize}]将会被忽略。实际获取数量 ${count}。')
     }
   } else {
     count = item.stackSize ?? 1
@@ -121,7 +121,8 @@ fun characterGiveMoney(char1, char2, value, { isForced = false }) {
 }
 
 // isForced 如果为 true，表示char2强行夺取了char1的物品
-fun characterGive(char1, char2, item, { count = 1, isForced = false}) {
+fun enityGiveItem(char1, char2, item, { count, isForced = false}) {
+  count ??= item.stackSize ?? 1
   assert(char1.inventory.containsKey(item.id))
   final char1Item = char1.inventory[item.id]
   if (char1Item.equippedPosition) characterUnequip(char1, char1Item)
@@ -135,9 +136,12 @@ fun characterGive(char1, char2, item, { count = 1, isForced = false}) {
       actualNumber = char1Item.stackSize
       engine.warning('${char1.name} 身上的 ${item.name} 不够 ${count} 个，实际数量：${actualNumber}。')
       delete char1.inventory[item.id]
+    } else {
+      // 数量刚好
+      delete char1.inventory[item.id]
     }
     if (char2.inventory.containsKey(item.id)) {
-      char2.inventory[item.id].stackSize += count
+      char2.inventory[item.id].stackSize += actualNumber
     } else {
       final itemCopy = char1Item.clone()
       itemCopy.stackSize = actualNumber
@@ -475,7 +479,7 @@ fun getFirstEquippedOffenseItem(character) {
 fun characterLoot(character, defeated, { takeAll = false }) {
   if (takeAll) {
     for (final item of defeated.inventory) {
-      characterGive(defeated, character, item, count: item.stackSize, isForced: true)
+      enityGiveItem(defeated, character, item, count: item.stackSize, isForced: true)
     }
     characterGiveMoney(defeated, character, defeated.money, isForced: true)
   } else {
@@ -484,7 +488,7 @@ fun characterLoot(character, defeated, { takeAll = false }) {
         var count = item.stackSize > 1 ?
           random.nextInt(item.stackSize) + 1 :
           1
-        characterGive(defeated, character, item, count: count, isForced: true)
+        enityGiveItem(defeated, character, item, count: count, isForced: true)
       }
     }
     if (random.nextDouble() < kEscapedLootProbability) {

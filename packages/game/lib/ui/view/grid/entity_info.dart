@@ -191,6 +191,9 @@ class EntityInfo extends StatelessWidget {
                       Text(
                           '${engine.locale['damage']}: ${stats['damage'].toStringAsFixed(2)}'),
                     if (equipType == kEquipTypeOffense)
+                      Text(
+                          '${engine.locale['damageType']}: ${entityData['damageType'].toStringAsFixed(2)}'),
+                    if (equipType == kEquipTypeOffense)
                       Text('${engine.locale['speed']}: ${stats['speed']}f'),
                     if (effects.isNotEmpty) const Divider(),
                     ...effects,

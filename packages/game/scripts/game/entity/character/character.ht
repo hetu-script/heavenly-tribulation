@@ -563,28 +563,62 @@ fun characterWitnessIncident(character, incident, { witnessed }) {
 // fun getSpiritRankTitle(spiritRank) {
 //   return getLocaleString('spiritRank${spiritRank}') + getLocaleString('sorcerer')
 // }
+fun removeCharacterHome(character) {
+  if (!character.homeId) return
+  final oldHome = game.locations[character.homeId]
+  oldHome.residingCharacterIds.remove(character.id)
+  final organizationData = oldHome.organizations[character.organizationId]
+  if (organizationData != null) {
+    organizationData.characterIds.remove(character.id)
+  }
+}
 
 fun setCharacterHome(character, location, { organizationName }) {
-  location.residingCharacterIds.remove(character.id)
+  if (character.homeId == location.id) {
+    final oldHome = game.locations[character.homeId]
+    if (organizationName) {
+      oldHome.residingCharacterIds.remove(character.id)
+    } else {
+      final organizationData = oldHome.organizations[character.organizationId]
+      if (organizationData != null) {
+        organizationData.characterIds.remove(character.id)
+      }
+    }
+  }
   final incidentContent
   if (organizationName == null) {
-    location.residingCharacterIds.add(character.id)
-    incidentContent = getLocaleString('incidentSettle', [
-      character.name,
-      location.name,
-    ])
+    if (!location.residingCharacterIds.contains(character.id)) {
+      location.residingCharacterIds.add(character.id)
+      incidentContent = getLocaleString('incidentSettle', [
+        character.name,
+        location.name,
+      ])
+      Incident(
+        content: incidentContent,
+        subjectIds: [character.id],
+      )
+    }
   } else {
-    incidentContent = getLocaleString('incidentSettleOrganization', [
-      character.name,
-      location.name,
-      organizationName,
-    ])
+    final organizationData = location.organizations[character.organizationId]
+    if (organizationData != null) {
+      if (!organizationData.characterIds.contains(character.id)) {
+        organizationData.characterIds.add(character.id)
+        incidentContent = getLocaleString('incidentSettleOrganization', [
+          character.name,
+          location.name,
+          organizationName,
+        ])
+        Incident(
+          content: incidentContent,
+          subjectIds: [character.id],
+        )
+      }
+    }
   }
-  Incident(
-    content: incidentContent,
-    subjectIds: [character.id],
-  )
-  character.homeId = location.id
+  if (character.homeId != location.id) {
+    removeCharacterHome(character)
+    character.homeId = location.id
+  }
 }
 
 fun getHeroId() {

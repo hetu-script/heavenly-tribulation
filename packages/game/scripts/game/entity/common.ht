@@ -173,3 +173,13 @@ fun createRandomBirthTimestamp({min = 1, max = _kCharacterRandomAgeMax}) {
 }
 
 const kEncounterTypeCharacter = 'character'
+
+const kDamageTypeBludgeon = 'bludgeon'
+const kDamageTypeSlash = 'slash'
+const kDamageTypePierce = 'pierce'
+const kDamageTypeCold = 'cold'
+const kDamageTypeFire = 'fire'
+const kDamageTypeLightning = 'lightning'
+const kDamageTypeChi = 'chi'
+const kDamageTypeSpell = 'spell'
+const kDamageTypeCurse = 'curse'

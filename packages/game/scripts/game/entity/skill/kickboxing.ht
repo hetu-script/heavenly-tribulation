@@ -11,6 +11,7 @@ final kKickboxingIcons = [
 final kKickboxingKinds = {
   // 伤害一般，耐久低，出招速度一般，收招速度快
   'fist': {
+    damageType: kDamageTypeBludgeon,
     attributes: {
       speed: 5,
       damage: 30,
@@ -19,6 +20,7 @@ final kKickboxingKinds = {
   },
   // 伤害一般，耐久低，出招速度一般，收招速度快
   'kick': {
+    damageType: kDamageTypeBludgeon,
     attributes: {
       speed: 8,
       damage: 30,
@@ -27,6 +29,7 @@ final kKickboxingKinds = {
   },
   // 伤害一般，耐久低，出招速度一般，收招速度快
   'wrestling': {
+    damageType: kDamageTypeBludgeon,
     attributes: {
       speed: 10,
       damage: 30,
@@ -68,6 +71,7 @@ struct Kickboxing {
     this.attributes = {
       ...kKickboxingKinds[this.kind].attributes,
     }
+    this.damageType = kKickboxingKinds[this.kind].damageType
     this.effects = {}
 
     if (attributes) {

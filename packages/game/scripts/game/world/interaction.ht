@@ -289,8 +289,6 @@ fun handleWorldTerrainInteraction(left, top) {
         
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
           showProgress(getLocaleString('woodcut')).then((value) {
-            final ticks = kTicksPerDay * days
-            updateGame(ticks: ticks)
             var logCount = 0
             var timberCount = 0
             var metBeast = false

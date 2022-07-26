@@ -58,7 +58,7 @@ final effectHandlers = {
   },
   // 治疗外伤
   effectHealInjury: (effect, character) {
-    character.id = false
+    char2.statusEffects[injury.kind]
   },
 
   // 受击类效果

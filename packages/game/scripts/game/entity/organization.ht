@@ -79,6 +79,8 @@ struct Organization {
     assert(game.characters.containsKey(leaderId))
     assert(kOrganizationCategories.contains(category))
 
+    this.headquartersId = headquartersId
+    this.leaderId = leaderId
     this.entityType = kEntityTypeOrganization
     this.category = category
 
@@ -113,14 +115,6 @@ struct Organization {
     }
 
     final headquarters = game.locations[headquartersId]
-      // addLocationToOrganization(location, this)
-    stationOrganization(
-      this,
-      headquarters,
-      characterIds: [leaderId],
-      isHeadquarters: true,
-    )
-
     final leader = game.characters[leaderId]
     // 触发创派事件，创派事件和成为掌门是两个事件
     final incidentContent = getLocaleString('incidentOrganizationCreate', [
@@ -136,7 +130,14 @@ struct Organization {
     )
     addCharacterToOrganization(leader, this)
     setLeader(leader, this)
-    setCharacterLocationId(leader, headquarters.id)
+
+    // addLocationToOrganization(location, this)
+    stationOrganization(
+      this,
+      headquarters,
+      characterIds: [leaderId],
+      isHeadquarters: true,
+    )
   }
 }
 
@@ -164,7 +165,6 @@ fun setLeader(character, organization) {
     order: 15,
     isGlobal: true,
   )
-  setCharacterLocationId(character, organization.headquartersId)
 }
 
 // 类似 equip，将会在 location 上保存一个新的数据对象
@@ -195,7 +195,7 @@ fun stationOrganization(
     id: organization.id,
     isHeadquarters: isHeadquarters,
     category: organization.category,
-    characterIds: characterIds,
+    characterIds: [],
   }
 
   for (final id in characterIds) {
@@ -264,6 +264,8 @@ fun addCharacterToOrganization(character, organization, { incidentOccured = true
     } while (character.thinkings.contains(thinking))
     character.thinkings.add(thinking)
   }
+
+  setCharacterLocationId(character, organization.headquartersId)
 }
 
 // fun removeLocationFromOrganization(location) {
