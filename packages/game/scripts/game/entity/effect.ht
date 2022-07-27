@@ -144,3 +144,69 @@ struct Effect {
   }
 }
 
+// 方剂和药品的效果
+final kEffects = {
+  beverage: [
+    Effect(
+      id: kEffectRestoreStamina,
+      description: kEffectRestoreStamina,
+      category: kEffectCategoryConsume,
+      values: [
+        EffectValue(
+          value: 10,
+        ),
+      ],
+    ),
+  ],
+  medicine: [
+    Effect(
+      id: kEffectRestoreLife,
+      description: kEffectRestoreLife,
+      category: kEffectCategoryConsume,
+      values: [
+        EffectValue(
+          value: 10,
+        ),
+      ],
+    ),
+    Effect(
+      id: kEffectHealInjury,
+      description: kEffectHealInjury,
+      category: kEffectCategoryConsume,
+      values: [
+        EffectValue(
+          value: 10,
+        ),
+      ],
+    ),
+    Effect(
+      id: kEffectHealInfection,
+      description: kEffectHealInfection,
+      category: kEffectCategoryConsume,
+      values: [
+        EffectValue(
+          value: 10,
+        ),
+      ],
+    ),
+  ],
+
+  grain: [
+
+  ],
+  fruit: [
+    
+  ],
+  fish: [
+    
+  ],
+  vegetable: [
+    
+  ],
+  herb: [
+    
+  ],
+  water: [
+    
+  ],
+}

@@ -1,19 +1,19 @@
-import '../../shared_names/common.json' as commonNames
+import '../../shared_names/common.json' as commonNamesData
 import '../../shared_names/color.json' as colorPrefix
 import '../../shared_names/spirit.json' as spiritPrefix
-import 'data/consumable.json' as consumable
-import 'data/medicine.json' as medicine
-import 'data/beverage.json' as beverage
+import 'name/consumable.json' as consumable
+import 'name/medicine.json' as medicine
+import 'name/beverage.json' as beverage
 import '../../common.ht'
 import '../../../random.ht'
 
 final commonConsumableNames = [
-  ...commonNames.dao,
-  ...commonNames.budda,
-  ...commonNames.emotion,
-  ...commonNames.color,
-  ...commonNames.number,
-  ...commonNames.action,
+  ...commonNamesData.dao,
+  ...commonNamesData.budda,
+  ...commonNamesData.emotion,
+  ...commonNamesData.color,
+  ...commonNamesData.number,
+  ...commonNamesData.action,
 ]
 
 // 生成方剂、饮品、灵丹的名字
@@ -33,19 +33,10 @@ fun generateConsumableName({category: str, rarity: str}) {
   final name
   when (rarity) {
     'exotic' -> name = pre + pre2 + kind
-    'mythic' -> name = pre + s + kind
-    'legendary' -> name = pre + s + kind
-    'epic' -> name = pre + kind
-    'rare' -> name = pre + kind
-    'uncommon' -> {
-      if (category == 'elixir') {
-        name = pre + kind
-      } else {
-        name = commonPrefix + kind
-      }
-    }
-    'common' -> {
-      if (category == 'elixir') {
+    'mythic', 'legendary' -> name = pre + s + kind
+    'epic', 'rare' -> name = pre + kind
+    'common', 'uncommon' -> {
+      if (category == 'alchemy') {
         name = pre + kind
       } else {
         name = commonPrefix + kind

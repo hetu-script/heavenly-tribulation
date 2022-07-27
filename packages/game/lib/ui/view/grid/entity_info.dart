@@ -28,7 +28,7 @@ const kEntityConsumableKindMedicine = 'medicine';
 const kEntityConsumableKindFoodIngrident = 'foodIngrident';
 const kEntityConsumableKindFood = 'food';
 const kEntityConsumableKindBeverage = 'beverage';
-const kEntityConsumableKindElixir = 'elixir';
+const kEntityConsumableKindAlchemy = 'alchemy';
 
 const kEquipTypeOffense = 'offense';
 const kEquipTypeSupport = 'support';

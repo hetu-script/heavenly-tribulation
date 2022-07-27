@@ -5,15 +5,9 @@ import '../../common.ht'
 
 const _kBeastRandomAgeMax = 150
 
-final _kBeastTypes = [
-  'tiger',
-  'monkey',
-  'snake',
-]
-
 const _kBeastAttributeSum = 200
 
-final _kBeastAttributes = {
+final _kBeastTypes = {
   tiger: {
     strength: 92,
     constitution: 75,
@@ -56,8 +50,7 @@ struct Beast {
   }) {
     this.entityType = kEntityTypeNpc
     this.birthTimestamp = birthTimestamp ?? createRandomBirthTimestamp(max: _kBeastRandomAgeMax)
-    this.kind = kind ?? random.nextIterable(_kBeastTypes)
-    assert(this.kind in _kBeastTypes)
+    this.kind = kind ?? random.nextIterable(_kBeastTypes.keys)
     final r = Name.getCreature(1, category: this.kind, rarity: rarity).first
     this.name = r.name
     this.category = kEntityCategoryBeast
@@ -71,7 +64,7 @@ struct Beast {
     // 生成战斗单位相关数据，并写入当前对象
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
     final battleInfo = BattleEntity(
-      attributes: attributes ?? _kBeastAttributes[this.kind],
+      attributes: attributes ?? _kBeastTypes[this.kind],
       attributeSum: _kBeastAttributeSum,
       generate: false,
     )

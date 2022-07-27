@@ -1,7 +1,7 @@
 import '../common.ht'
 import '../effect.ht'
 import '../character/companion/common.ht'
-import { random } from '../../game.ht'
+import '../../random.ht'
 
 const kItemDefaultIcon = 'assets/images/unknown_item.png'
 // final kDefaultItemDescription = getLocaleString('defaultItemDescription')

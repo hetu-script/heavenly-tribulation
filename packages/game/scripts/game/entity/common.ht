@@ -1,7 +1,6 @@
 import '../random.ht'
 import 'shared_names/common.json' as commonNamesData
 
-
 final commonNames = [
   ...commonNamesData.dao,
   ...commonNamesData.budda,
@@ -154,7 +153,7 @@ const kEntityCategoryFightSkill = 'fightSkill'
 // 可食用的物品类型，这里的类型只影响文字描述。
 const kEntityConsumableKindMedicine = 'medicine'
 const kEntityConsumableKindBeverage = 'beverage'
-const kEntityConsumableKindElixir = 'elixir'
+const kEntityConsumableKindAlchemy = 'alchemy'
 const kEntityConsumableKindFood = 'food'
 
 // 材料的类型
