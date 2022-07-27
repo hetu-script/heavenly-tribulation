@@ -1,10 +1,5 @@
 export 'binding/engine.ht'
-
-var random = Random()
-
-fun setRandomSeed([seed: int]) {
-  random = Random(seed)
-}
+export 'random.ht'
 
 var locales = {
   zh: {},

@@ -79,7 +79,7 @@ flutter:
     - assets/images/icon/
     - assets/images/icon/item/
     - assets/images/icon/item/consumable/
-    - assets/images/icon/item/resource/
+    - assets/images/icon/item/material/
     - assets/images/icon/skill/
     - assets/images/item/
     - assets/images/location/
@@ -92,13 +92,13 @@ flutter:
     - scripts/game/binding/
     - scripts/game/entity/
     - scripts/game/entity/character/
+    - scripts/game/entity/character/beast/
     - scripts/game/entity/character/companion/
     - scripts/game/entity/character/enemy/
     - scripts/game/entity/character/merchant/
     - scripts/game/entity/item/
-    - scripts/game/entity/item/consumable/
+    - scripts/game/entity/item/name/
     - scripts/game/entity/item/protect/
-    - scripts/game/entity/item/resource/
     - scripts/game/entity/item/talisman/
     - scripts/game/entity/item/weapon/
     - scripts/game/entity/location/
@@ -109,13 +109,8 @@ flutter:
     - scripts/game/maze/
     - scripts/game/name/
     - scripts/game/name/book/
-    - scripts/game/name/character/
-    - scripts/game/name/consumable/
     - scripts/game/name/creature/
-    - scripts/game/name/material/
-    - scripts/game/name/organization/
     - scripts/game/name/place/
-    - scripts/game/name/shared/
     - scripts/game/name/skill/
     - scripts/game/name/spell/
     - scripts/game/name/talisman/

@@ -33,7 +33,7 @@ struct Location {
     } else {
       var conflict = false
       do {
-        final r = nameGenerator.getLocation(1, category: category)
+        final r = Name.getLocation(1, category: category)
         this.name = r.first.name
         conflict = game.locations.values.where((element) =>
           element.name == this.name).isNotEmpty

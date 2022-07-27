@@ -122,7 +122,7 @@ struct Weapon {
     this.description = description ?? ''
     this.inscription = inscription ?? ''
     if (!this.name) {
-      final r = nameGenerator.getTalisman(1, category: this.kind, rarity: this.rarity).first
+      final r = Name.getTalisman(1, category: this.kind, rarity: this.rarity).first
       this.name = r.name
     }
     this.color = kRarity[this.rarity].color

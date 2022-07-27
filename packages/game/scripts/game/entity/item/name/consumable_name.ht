@@ -1,0 +1,56 @@
+import '../../shared_names/common.json' as commonNames
+import '../../shared_names/color.json' as colorPrefix
+import '../../shared_names/spirit.json' as spiritPrefix
+import 'data/consumable.json' as consumable
+import 'data/medicine.json' as medicine
+import 'data/beverage.json' as beverage
+import '../../common.ht'
+import '../../../random.ht'
+
+final commonConsumableNames = [
+  ...commonNames.dao,
+  ...commonNames.budda,
+  ...commonNames.emotion,
+  ...commonNames.color,
+  ...commonNames.number,
+  ...commonNames.action,
+]
+
+// 生成方剂、饮品、灵丹的名字
+fun generateConsumableName({category: str, rarity: str}) {
+  assert(consumable.keys.contains(category))
+  rarity ??= getRarity().rarity
+  final kind = random.nextIterable(consumable[category])
+  final commonPrefix
+  if (category == 'medicine') {
+    commonPrefix = random.nextIterable(medicine)
+  } else if (category == 'beverage') {
+    commonPrefix = random.nextIterable(beverage)
+  }
+  final pre = random.nextIterable(commonConsumableNames)
+  final pre2 = random.nextIterable(commonConsumableNames)
+  final s = random.nextIterable(spiritPrefix)
+  final name
+  when (rarity) {
+    'exotic' -> name = pre + pre2 + kind
+    'mythic' -> name = pre + s + kind
+    'legendary' -> name = pre + s + kind
+    'epic' -> name = pre + kind
+    'rare' -> name = pre + kind
+    'uncommon' -> {
+      if (category == 'elixir') {
+        name = pre + kind
+      } else {
+        name = commonPrefix + kind
+      }
+    }
+    'common' -> {
+      if (category == 'elixir') {
+        name = pre + kind
+      } else {
+        name = commonPrefix + kind
+      }
+    }
+  }
+  return { name, category, rarity }
+}

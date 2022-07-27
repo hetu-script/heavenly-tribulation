@@ -58,7 +58,7 @@ struct Beast {
     this.birthTimestamp = birthTimestamp ?? createRandomBirthTimestamp(max: _kBeastRandomAgeMax)
     this.kind = kind ?? random.nextIterable(_kBeastTypes)
     assert(this.kind in _kBeastTypes)
-    final r = nameGenerator.getCreature(1, category: this.kind, rarity: rarity).first
+    final r = Name.getCreature(1, category: this.kind, rarity: rarity).first
     this.name = r.name
     this.category = kEntityCategoryBeast
     this.id = 'beast_${Hash.uid4(2)}_${this.name}'

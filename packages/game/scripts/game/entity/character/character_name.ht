@@ -1,0 +1,54 @@
+import 'name/family.json' as family
+import 'name/female.json' as female
+import 'name/male.json' as male
+import 'name/middle.json' as middle
+import '../../random.ht'
+
+fun generateCharacterName({isFemale, familyName, middleCharacter}) {
+  var theFamilyName
+  if (!familyName) {
+    theFamilyName = random.nextIterable(family)
+  } else {
+    theFamilyName = familyName
+  }
+  final f = isFemale ?? random.nextBool()
+  final namesOfASex = f ? female : male
+  final r = random.nextDouble()
+  var name = ''
+  // 单字的名字
+  if (r < 0.33333333) {
+    if (middleCharacter) {
+      name = middleCharacter
+    } else {
+      name = random.nextIterable(namesOfASex)
+    }
+  }
+  // 两个实字
+  else if (r < 0.66666666) {
+    final theMiddleCharacter
+    if (middleCharacter) {
+      theMiddleCharacter = middleCharacter
+    } else {
+      theMiddleCharacter = random.nextIterable(namesOfASex)
+    }
+    final theLastCharacter = random.nextIterable(namesOfASex)
+    name = theMiddleCharacter + theLastCharacter
+  }
+  // 中间是虚字
+  else {
+    final theMiddleCharacter
+    if (middleCharacter) {
+      theMiddleCharacter = middleCharacter
+    } else {
+      theMiddleCharacter = random.nextIterable(middle)
+    }
+    final theLastCharacter = random.nextIterable(namesOfASex)
+    name = theMiddleCharacter + theLastCharacter
+  }
+  return {
+    familyName: theFamilyName,
+    shortName: name,
+    name: theFamilyName + name,
+    isFemale: f,
+  }
+}

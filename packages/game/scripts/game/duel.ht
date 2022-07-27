@@ -12,7 +12,7 @@ import 'binding/dialog.ht'
 
 fun showDuel(char1, char2, { type, onCallback: ( any ) -> any }) -> Future {
   final duelResult = Duel(char1, char2, type: type);
-  return ui.showDuel(buildContext, char1, char2, type, duelResult)
+  return Dialog.showDuel(buildContext, char1, char2, type, duelResult)
 }
 
 // damage = ((1 / (Math.log((victim.defense + 5) / 100) + 5)) * 2 * attacker._attack)

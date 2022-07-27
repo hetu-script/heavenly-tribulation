@@ -58,7 +58,7 @@ struct Kickboxing {
     this.createdTime = createdTime
     this.description = description ?? ''
     if (!this.name) {
-      final r = nameGenerator.getSkill(1, category: this.kind, rarity: this.rarity).first
+      final r = Name.getSkill(1, category: this.kind, rarity: this.rarity).first
       this.name = r.name
     }
     this.color = kRarity[this.rarity].color

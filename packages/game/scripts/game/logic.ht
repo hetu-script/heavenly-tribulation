@@ -126,7 +126,7 @@ fun generateQuests {
               nation.hasBanditEvent = true
               location.hasBanditEvent = true
 
-              final bossName = nameGenerator.getCharacter(1).first.name
+              final bossName = Name.getCharacter(1).first.name
               final quest = QuestBanditCamp(
                 locationId: location.id,
                 mazeTerrainIndex: mazeTerrain.index,

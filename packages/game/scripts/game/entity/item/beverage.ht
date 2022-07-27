@@ -1,0 +1,78 @@
+import '../../random.ht'
+import '../common.ht'
+import 'common.ht'
+import '../effect.ht'
+import 'name/consumable_name.ht'
+
+// 饮品的效果
+// final medicineEffects = [
+//   Effect(
+//     id: kEffectRestoreLife,
+//     description: kEffectRestoreLife,
+//     category: kEffectCategoryConsume,
+//     values: [
+//       EffectValue(
+//         value: 10,
+//       ),
+//     ],
+//   ),
+// ]
+
+final kWeaponKinds = {
+  'staff': {
+    icon: 'icon/item/staff.png',
+  }
+}
+
+struct Beverage {
+  construct ({
+    name,
+    rarity = kCommon,
+    value = 5,
+    icon,
+    creatorId,
+    createdTime,
+    description = '',
+    stackSize = 1,
+    effects,
+  }) {
+    this.name = name
+    this.rarity = rarity
+    if (!name) {
+      final r = generateConsumableName(category: kEntityConsumableKindBeverage, rarity: this.rarity)
+      this.name = r.name
+      this.rarity ??= r.rarity
+    }
+
+    this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
+    this.category = kEntityCategoryConsumable // 武器、防护、斗技、玄功等等
+    this.kind = kEntityConsumableKindBeverage // 枪、剑、斧等等
+    this.value = value
+
+    this.creatorId = creatorId
+    this.createdTime = createdTime
+
+    this.description = description
+    this.stackSize = stackSize
+    this.color = kRarity[this.rarity].color
+    this.id = this.rarity != kCommon ? 'beverage_${Hash.uid4(2)}_${this.name}' : 'beverage_${this.name}'
+    this.icon = 'icon/item/consumable/drink.png'
+
+    this.isConsumable = true
+    this.effects = {}
+    if (effects is {}) {
+      this.effects.assign(effects)
+    } else {
+      this.effects[kEffectRestoreStamina] = Effect(
+        id: kEffectRestoreStamina,
+        description: kEffectRestoreStamina,
+        category: kEffectCategoryConsume,
+        values: [
+          EffectValue(
+            value: 80,
+          ),
+        ],
+      )
+    }
+  }
+}

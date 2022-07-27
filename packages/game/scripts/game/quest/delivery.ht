@@ -105,7 +105,7 @@ struct QuestDelivery {
         }
       }
     } else {
-      engine.error('运输任务的对象类型既不是人员也是物品：${entity.entityType}')
+      engine.error('运输任务的对象类型既不是人员也不是物品：${entity.entityType}')
     }
 
     this.id = 'quest_${Hash.uid4(2)}_${siteId}_${this.category}_${this.kind}'

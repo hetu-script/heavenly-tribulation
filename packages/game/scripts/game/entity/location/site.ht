@@ -1,10 +1,11 @@
 import '../../l10n.ht'
 import 'location.ht'
 import '../../dialog.ht'
-import '../organization.ht'
+import '../organization/organization.ht'
 import '../../game.ht'
 import '../character/status_effect.ht'
 import '../../quest/quest.ht'
+import '../item.ht'
 
 // 这三种交易建筑，可能属于某个组织，也可能没有组织。
 // 当没有组织时，属于默认生成的单纯服务性质的建筑。
@@ -169,11 +170,15 @@ fun _handleTradingHouseInteraction(site) {
           showDialogByLocaleKeys(['workedThisMonth'])
         } else {
           // 非门派商号，这里会临时生成一个任务
+          // 商号的运送任务都是普通物品，并且送到指定地点而非人物
           final destinationLocation = random.nextIterable(game.locations.values)
           final destinationSite = random.nextIterable(destinationLocation.sites.value)
           final quest = QuestDelivery(
             locationId: location.id,
             siteId: site.id,
+            destinationLocationId: destinationLocation.id,
+            destinationSiteId: destinationSite.id,
+            entity: 
           )
           
         }

@@ -2,10 +2,6 @@ import 'shared/common.json' as commonNames
 import 'shared/strange.json' as strangeNames
 import 'shared/color.json' as colorPrefix
 import 'shared/spirit.json' as spiritPrefix
-import 'character/family.json' as family
-import 'character/female.json' as female
-import 'character/male.json' as male
-import 'character/middle.json' as middle
 import 'skill/skill.json' as skill
 import 'skill/extra.json' as skillExtra
 import 'skill/numfix.json' as skillNumfix
@@ -26,13 +22,10 @@ import 'material/material.json' as material
 import 'creature/creature.json' as creature
 import 'creature/prefix.json' as creaturePrefix
 import 'creature/strange.json' as strangeCreature
-import 'consumable/consumable.json' as consumable
-import 'consumable/medicine.json' as medicine
-import 'consumable/beverage.json' as beverage
 import '../entity/common.ht'
-import { random } from '../game.ht'
+import '../random.ht'
 
-namespace nameGenerator {
+namespace Name {
 
   final common = [
     ...commonNames.dao,
@@ -55,53 +48,6 @@ namespace nameGenerator {
 
   const _kLinkWord = '之'
 
-  fun getCharacter(number: int, {isFemale, familyName, middleCharacter}) {
-    final names = []
-    for (var i in range(number)) {
-      var theFamilyName
-      if (!familyName) {
-        theFamilyName = random.nextIterable(family)
-      } else {
-        theFamilyName = familyName
-      }
-      final f = isFemale ?? random.nextBool()
-      final namesOfASex = f ? female : male
-      final r = random.nextDouble()
-      var name = ''
-      // 单字的名字
-      if (r < 0.33333333) {
-        if (middleCharacter) {
-          name = middleCharacter
-        } else {
-          name = random.nextIterable(namesOfASex)
-        }
-      }
-      // 两个实字
-      else if (r < 0.66666666) {
-        final theMiddleCharacter
-        if (middleCharacter) {
-          theMiddleCharacter = middleCharacter
-        } else {
-          theMiddleCharacter = random.nextIterable(namesOfASex)
-        }
-        final theLastCharacter = random.nextIterable(namesOfASex)
-        name = theMiddleCharacter + theLastCharacter
-      }
-      // 中间是虚字
-      else {
-        final theMiddleCharacter
-        if (middleCharacter) {
-          theMiddleCharacter = middleCharacter
-        } else {
-          theMiddleCharacter = random.nextIterable(middle)
-        }
-        final theLastCharacter = random.nextIterable(namesOfASex)
-        name = theMiddleCharacter + theLastCharacter
-      }
-      names.add({ familyName: theFamilyName, shortName: name, name: theFamilyName + name, isFemale: f })
-    }
-    return names
-  }
 
   const _kNumberBeginSupplement = '路'
   const _kNumberEndSupplement = '式'
@@ -241,88 +187,6 @@ namespace nameGenerator {
     return names
   }
 
-  fun getMaterial(number: int, {category, kind, rarity}) {
-    final names = []
-    for (var i in range(number)) {
-      var name = ''
-      final pre = random.nextIterable(common)
-      final cp = random.nextIterable(colorPrefix)
-      final s = random.nextIterable(spiritPrefix)
-      var c = category
-      var k = kind
-      if (!k) {
-        if (c) {
-          assert(material.keys.contains(c))
-          k = random.nextIterable(material[c])
-        } else {
-          c = random.nextIterable(material.keys)
-          k = random.nextIterable(material[c])
-        }
-      }
-      final r = rarity ?? getRarity().rarity
-      if (r == 'exotic') {
-        name = pre + cp + s + k
-      } else if (r == 'mythic') {
-        name = pre + cp + s + k
-      } else if (r == 'legendary') {
-        name = pre + s + k
-      } else if (r == 'epic') {
-        name = pre + s + k
-      } else if (r == 'rare') {
-        name = cp + s + k
-      } else if (r == 'uncommon') {
-        name = cp + s + k
-      } else if (r == 'common') {
-        name = cp + k
-      }
-      names.add({ name, category: c, rarity: r })
-    }
-    return names
-  }
-
-  final commonElixirNames = [
-    ...commonNames.dao,
-    ...commonNames.budda,
-    ...commonNames.emotion,
-    ...commonNames.color,
-    ...commonNames.number,
-    ...commonNames.action,
-    // ...commonNames.target,
-  ]
-
-  fun getConsumable(number: int, {category: str, kind: str, rarity: str}) {
-    final names = []
-    for (var i in range(number)) {
-      var s = ''
-      final r = rarity ?? getRarity().rarity
-      if (r != kCommon) {
-        s = random.nextIterable(spiritPrefix)
-      }
-      var c = category
-      if (c) {
-        assert(consumable.keys.contains(c))
-        c = category
-      } else {
-        c = random.nextIterable(consumable.keys)
-      }
-      var pre
-      if (r == 'common') {
-        if (c == 'medicine') {
-          pre = random.nextIterable(medicine)
-        } else if (c == 'beverage') {
-          pre = random.nextIterable(beverage)
-        } else {
-          pre = random.nextIterable(commonElixirNames)
-        }
-      } else {
-        pre = random.nextIterable(commonElixirNames)
-      }
-      var k = kind ?? random.nextIterable(consumable[c])
-      names.add({ name: pre + s + k, category: c, rarity: r })
-    }
-    return names
-  }
-
   fun getTalisman(number: int, {category, kind, rarity}) {
     final names = []
     for (var i in range(number)) {
@@ -403,36 +267,6 @@ namespace nameGenerator {
     return names
   }
 
-  const _kNation = '国'
-
-  const _kStrangeNameProbability = 0.15
-  const _kXianXiaNameProbability = 0.35
-  const _kNameWithDirectionProbability = 0.5
-  const _kNameWithLinkWordProbability = 0.15
-
-  fun getNation(number: int) {
-    final names = []
-    for (var i in range(number)) {
-      var name = ''
-      var rarity = 'common'
-      final r = random.nextDouble()
-      if (r < _kStrangeNameProbability) {
-        name = random.nextIterable(strangeNames)
-        rarity = 'rare'
-      } else if (r < _kXianXiaNameProbability) {
-        name = random.nextIterable(common)
-        rarity = 'uncommon'
-      } else {
-        var prefix = ''
-        if (random.nextDouble() < _kNameWithDirectionProbability) {
-          prefix = random.nextIterable(placePrefix)
-        }
-        name = prefix + random.nextIterable(place)
-      }
-      names.add({ name: name + _kNation, rarity })
-    }
-    return names
-  }
 
   fun getLocationKind([category: str]) {
     if (category != null) {

@@ -31,7 +31,7 @@ fun showDialogByLocaleKeys(lines, { returnValue, character }) -> Future {
       }
     ]
   }
-  return ui.showGameDialog(buildContext, data, returnValue)
+  return Dialog.showGameDialog(buildContext, data, returnValue)
 }
 
 fun showDialogByStrings(lines, { returnValue, character }) -> Future {
@@ -45,16 +45,16 @@ fun showDialogByStrings(lines, { returnValue, character }) -> Future {
       }
     ]
   }
-  return ui.showGameDialog(buildContext, data, returnValue)
+  return Dialog.showGameDialog(buildContext, data, returnValue)
 }
 
 fun showDialogByResourceId(id: str, { returnValue }) -> Future {
   final data = dialogs[id]
-  return ui.showGameDialog(buildContext, data, returnValue)
+  return Dialog.showGameDialog(buildContext, data, returnValue)
 }
 
 fun showDialog(data, { returnValue }) -> Future {
-  return ui.showGameDialog(buildContext, data, returnValue)
+  return Dialog.showGameDialog(buildContext, data, returnValue)
 }
 
 fun showSelectionByLocaleKeys(texts: List) -> Future {
@@ -62,35 +62,35 @@ fun showSelectionByLocaleKeys(texts: List) -> Future {
   for (final text in texts) {
     selections[text] = getLocaleString(text)
   }
-  return ui.showSelection(buildContext, selections)
+  return Dialog.showSelection(buildContext, selections)
 }
 
 fun showSelection(selections) -> Future {
-  return ui.showSelection(buildContext, selections)
+  return Dialog.showSelection(buildContext, selections)
 }
 
 fun showCharacterSelection({title, ids, showCloseButton = false}) -> Future {
-  return ui.showCharacterSelection(buildContext, title, ids, showCloseButton)
+  return Dialog.showCharacterSelection(buildContext, title, ids, showCloseButton)
 }
 
 fun showVisitCharacterSelection(idList) -> Future {
-  return ui.showVisitCharacterSelection(buildContext, idList)
+  return Dialog.showVisitCharacterSelection(buildContext, idList)
 }
 
 fun showMerchant(merchant, { priceFactor = 2.0, allowSell = true }) -> Future {
-  return ui.showMerchant(buildContext, merchant, priceFactor, allowSell)
+  return Dialog.showMerchant(buildContext, merchant, priceFactor, allowSell)
 }
 
 fun showQuests(site) -> Future {
-  return ui.showQuests(buildContext, site)
+  return Dialog.showQuests(buildContext, site)
 }
 
 fun showMaze(maze) -> Future {
-  return ui.showMaze(buildContext, maze)
+  return Dialog.showMaze(buildContext, maze)
 }
 
 fun showProgress(title) {
-  return ui.showProgress(buildContext, title)
+  return Dialog.showProgress(buildContext, title)
 }
 
 fun showIntInput(title, minOrMax, [max]) {
@@ -101,5 +101,5 @@ fun showIntInput(title, minOrMax, [max]) {
     min = minOrMax
   }
   assert(min <= max)
-  return ui.showIntInput(buildContext, title, min, max)
+  return Dialog.showIntInput(buildContext, title, min, max)
 }

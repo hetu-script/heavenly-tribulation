@@ -1,0 +1,25 @@
+import '../../shared_names/color.json' as colorPrefix
+import '../../shared_names/spirit.json' as spiritPrefix
+import 'data/material.json' as material
+import '../../common.ht'
+import '../../../random.ht'
+
+fun generateMaterialName({category, rarity}) {
+  assert(material.keys.contains(category))
+  rarity ??= getRarity().rarity
+  final pre = random.nextIterable(commonNames)
+  final cp = random.nextIterable(colorPrefix)
+  final s = random.nextIterable(spiritPrefix)
+  final kind = random.nextIterable(material[c])
+  final name
+  when (r) {
+    'exotic' -> name = pre + cp + s + kind
+    'mythic' -> name = pre + s + kind
+    'legendary' -> name = pre + s + kind
+    'epic' -> name = pre + kind
+    'rare' -> name = pre + kind
+    'uncommon' -> name = cp + s + kind
+    'common' -> name = cp + kind
+  }
+  return { name, category, rarity }
+}

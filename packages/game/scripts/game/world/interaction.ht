@@ -5,15 +5,19 @@ import '../tile/tilemap.ht'
 import '../logic.ht'
 import '../datetime.ht'
 import '../entity/item/consumable/consumable.ht'
-import '../entity/item/resource/resource.ht'
+import '../entity/item/material/material.ht'
 import '../entity/character/battle_entity.ht'
 import '../binding/worldmap.ht'
 import '../tile/common.ht'
 import '../entity/character/enemy/bandit.ht'
-import '../entity/character/enemy/beast.ht'
+import '../entity/character/beast/beast.ht'
 
 const kFoundBanditCampProbability = 0.25
 const kFoundArcanaMirageProbability = 0.05
+
+// 打猎会增加遇到野兽的概率200%
+// 这个概率将会和地点本身的野兽概率相乘
+const kHuntBeastProbability = 2.0
 
 // 山峰上可能遇到强盗和野兽，但产出也较高
 const kMountainBeastProbability = 0.15
@@ -39,7 +43,8 @@ const kForestMeatProbability = 0.4
 const kForestBerryProbability = 0.6
 const kForestAromaticHerbProbability = 0.4
 
-// 平原上不会遇到强盗和野兽，但产出也较低
+// 平原上几乎不会遇到强盗和野兽，但产出也较低
+const kPlainBeastProbability = 0.02
 const kPlainLogProbability = 0.3
 const kPlainTimberProbability = 0.1
 const kPlainOreProbability = 0.05
@@ -50,13 +55,12 @@ const kPlainMeatProbability = 0.1
 const kPlainBerryProbability = 0.2
 const kPlainAromaticHerbProbability = 0.15
 
-// 湖泊上风暴概率较小，但产出也较低
-const kLakeStormProbability = 0.1
+// 湖泊上没有风暴，但产出也较低
 const kLakeFishProbability = 0.25
 const kLakeShrimpProbability = 0.12
 const kLakeCrabProbability = 0.12
 
-// 海洋上风暴概率较高，但产出也较高
+// 海洋上可能会遇到暴风雨，但产出也较高
 const kSeaStormProbability = 0.3
 const kSeaFishProbability = 0.45
 const kSeaShrimpProbability = 0.25
@@ -121,12 +125,6 @@ fun handleWorldTerrainInteraction(left, top) {
   showSelectionByLocaleKeys(selections).then((key) {
     when (key) {
       'search' -> {
-        // if (game.playerMonthly.explored.contains(terrainIndex)) {
-        //   showDialogByLocaleKeys(['terrainAlreadyExplored'], character: hero)
-        //   return
-        // }
-        // game.playerMonthly.explored.add(terrainIndex)
-
         final entityId = terrain.entityId
         if (terrain.hasExplored) {
           handleWorldMapEntityInteraction(entityId)
@@ -164,20 +162,12 @@ fun handleWorldTerrainInteraction(left, top) {
           })
         }
       }
-      // 采集，可能会获得：浆果、香草、药草、木柴
+      // 采集，可能会获得：药材（食物）、水果（食物）
       'gather' -> {
-        // if (game.playerMonthly.gathered.contains(terrainIndex)) {
-        //   showDialogByLocaleKeys(['terrainAlreadyGathered'], character: hero)
-        //   return
-        // }
-        // game.playerMonthly.gathered.add(terrainIndex)
-        
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
           showProgress(getLocaleString('gather')).then((value) {
-            var berryCount = 0
-            var aromaticHerbCount = 0
+            var fruitCount = 0
             var herbCount = 0
-            var logCount = 0
             var metBeast = false
             var i = 0
             when (terrain.kind) {
@@ -189,16 +179,10 @@ fun handleWorldTerrainInteraction(left, top) {
                     break
                   }
                   if (random.nextDouble() < kMountainBerryProbability) {
-                    ++berryCount
+                    ++fruitCount
                   }
                   if (random.nextDouble() < kMountainAromaticHerbProbability) {
-                    ++aromaticHerbCount
-                  }
-                  if (random.nextDouble() < kMountainHerbProbability) {
                     ++herbCount
-                  }
-                  if (random.nextDouble() < kMountainLogProbability) {
-                    ++logCount
                   }
                 }
               }
@@ -279,14 +263,8 @@ fun handleWorldTerrainInteraction(left, top) {
           })
         })
       }
-      // 伐木，可能会获得：木柴、木料
+      // 伐木，可能会获得：木料
       'woodcut' -> {
-        // if (game.playerMonthly.woodcutted.contains(terrainIndex)) {
-        //   showDialogByLocaleKeys(['terrainAlreadyWoodcutted'], character: hero)
-        //   return
-        // }
-        // game.playerMonthly.woodcutted.add(terrainIndex)
-        
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
           showProgress(getLocaleString('woodcut')).then((value) {
             var logCount = 0
@@ -370,12 +348,6 @@ fun handleWorldTerrainInteraction(left, top) {
       }
       // 挖矿，可能会获得：矿石、灵石
       'mine' -> {
-        // if (game.playerMonthly.mined.contains(terrainIndex)) {
-        //   showDialogByLocaleKeys(['terrainAlreadyMined'], character: hero)
-        //   return
-        // }
-        // game.playerMonthly.mined.add(terrainIndex)
-        
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
           showProgress(getLocaleString('mine')).then((value) {
             var oreCount = 0
@@ -459,46 +431,26 @@ fun handleWorldTerrainInteraction(left, top) {
       }
       // 捕猎，可能会获得：兽皮、兽肉
       'hunt' -> {
-        // if (game.playerMonthly.hunted.contains(terrainIndex)) {
-        //   showDialogByLocaleKeys(['terrainAlreadyHunted'], character: hero)
-        //   return
-        // }
-        // game.playerMonthly.hunted.add(terrainIndex)
-        
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
           showProgress(getLocaleString('hunt')).then((value) {
-            var skinCount = 0
-            var meatCount = 0
             var metBeast = false
             var i = 0
             when (terrain.kind) {
               kTerrainKindMountain -> {
                 while(i < days) {
                   ++i
-                  if (random.nextDouble() < kMountainBeastProbability) {
+                  if (random.nextDouble() < (kMountainBeastProbability + kHuntBeastProbability)) {
                     metBeast = true
                     break
-                  }
-                  if (random.nextDouble() < kMountainAnimalHideProbability) {
-                    ++skinCount
-                  }
-                  if (random.nextDouble() < kMountainMeatProbability) {
-                    ++meatCount
                   }
                 }
               }
               kTerrainKindForest -> {
                 while(i < days) {
                   ++i
-                  if (random.nextDouble() < kForestBeastProbability) {
+                  if (random.nextDouble() < (kForestBeastProbability + kHuntBeastProbability)) {
                     metBeast = true
                     break
-                  }
-                  if (random.nextDouble() < kForestAnimalHideProbability) {
-                    ++skinCount
-                  }
-                  if (random.nextDouble() < kForestMeatProbability) {
-                    ++meatCount
                   }
                 }
               }
@@ -507,9 +459,6 @@ fun handleWorldTerrainInteraction(left, top) {
                   ++i
                   if (random.nextDouble() < kPlainAnimalHideProbability) {
                     ++skinCount
-                  }
-                  if (random.nextDouble() < kPlainMeatProbability) {
-                    ++meatCount
                   }
                 }
               }
@@ -566,10 +515,6 @@ fun handleWorldTerrainInteraction(left, top) {
               kTerrainKindLake -> {
                 while(i < days) {
                   ++i
-                  if (random.nextDouble() < kLakeStormProbability) {
-                    metStorm = true
-                    break
-                  }
                   if (random.nextDouble() < kLakeFishProbability) {
                     ++riverFishCount
                   }
@@ -607,23 +552,17 @@ fun handleWorldTerrainInteraction(left, top) {
               content: incidentContent,
               isPrivate: true,
             )
-            () async {
-              if (riverFishCount == 0 &&
-                  seaFishCount == 0 &&
-                  shrimpCount == 0 &&
-                  crabCount == 0) {
-                return showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
-              } else {
-                entityAcquireItem(hero, Consumable.riverFish(), riverFishCount)
-                entityAcquireItem(hero, Consumable.seaFish(), seaFishCount)
-                entityAcquireItem(hero, Consumable.shrimp(), shrimpCount)
-                entityAcquireItem(hero, Consumable.crab(), crabCount)
-              }
-            } ().then((value) {
-              if (metStorm) {
-                showDialogByLocaleKeys(['metStorm'], character: hero)
-              }
-            })
+            if (riverFishCount == 0 &&
+                seaFishCount == 0 &&
+                shrimpCount == 0 &&
+                crabCount == 0) {
+              return showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
+            } else {
+              entityAcquireItem(hero, Consumable.riverFish(), riverFishCount)
+              entityAcquireItem(hero, Consumable.seaFish(), seaFishCount)
+              entityAcquireItem(hero, Consumable.shrimp(), shrimpCount)
+              entityAcquireItem(hero, Consumable.crab(), crabCount)
+            }
           })
         })
       }

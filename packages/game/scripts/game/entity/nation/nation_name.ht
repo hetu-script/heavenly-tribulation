@@ -1,0 +1,28 @@
+import '../../random.ht'
+
+const _kNation = '国'
+
+const _kStrangeNameProbability = 0.15
+const _kXianXiaNameProbability = 0.35
+const _kNameWithDirectionProbability = 0.5
+const _kNameWithLinkWordProbability = 0.15
+
+fun generateNationName(number: int) {
+  var name = ''
+  var rarity = 'common'
+  final r = random.nextDouble()
+  if (r < _kStrangeNameProbability) {
+    name = random.nextIterable(strangeNames)
+    rarity = 'rare'
+  } else if (r < _kXianXiaNameProbability) {
+    name = random.nextIterable(common)
+    rarity = 'uncommon'
+  } else {
+    var prefix = ''
+    if (random.nextDouble() < _kNameWithDirectionProbability) {
+      prefix = random.nextIterable(placePrefix)
+    }
+    name = prefix + random.nextIterable(place)
+  }
+  return { name: name + _kNation, rarity }
+}

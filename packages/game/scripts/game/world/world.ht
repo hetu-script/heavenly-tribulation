@@ -3,8 +3,8 @@ import '../game.ht'
 import '../entity/location/site.ht'
 import '../entity/location/location.ht'
 import '../entity/character/character.ht'
-import '../entity/organization.ht'
-import '../entity/nation.ht'
+import '../entity/organization/organization.ht'
+import '../entity/nation/nation.ht'
 import '../l10n.ht'
 import '../tile/hexagonal_tile.ht'
 import '../tile/tilemap.ht'
@@ -411,7 +411,7 @@ fun createWorldMap({
       }
     }
 
-    final r = nameGenerator.getZone(1, category: zone.category)
+    final r = Name.getZone(1, category: zone.category)
     zone.name = r.first.name
 
   }

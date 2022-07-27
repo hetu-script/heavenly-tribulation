@@ -1,4 +1,19 @@
-import { random } from '../game.ht'
+import '../random.ht'
+import 'shared_names/common.json' as commonNamesData
+
+
+final commonNames = [
+  ...commonNamesData.dao,
+  ...commonNamesData.budda,
+  ...commonNamesData.emotion,
+  ...commonNamesData.creature,
+  ...commonNamesData.object,
+  ...commonNamesData.color,
+  ...commonNamesData.place,
+  ...commonNamesData.number,
+  ...commonNamesData.action,
+  ...commonNamesData.target,
+];
 
 const kNone = 'none'
 
@@ -133,7 +148,7 @@ const kEntityCategoryWeapon = 'weapon'
 const kEntityCategoryProtect = 'protect'
 const kEntityCategoryTalisman = 'talisman'
 const kEntityCategoryConsumable = 'consumable'
-const kEntityCategoryResource = 'resource'
+const kEntityCategoryMaterial = 'material'
 const kEntityCategoryFightSkill = 'fightSkill'
 
 // 可食用的物品类型，这里的类型只影响文字描述。
@@ -143,14 +158,17 @@ const kEntityConsumableKindElixir = 'elixir'
 const kEntityConsumableKindFood = 'food'
 
 // 材料的类型
-const kEntityResourceKindLog = 'log'
-const kEntityResourceKindTimber = 'timber'
-const kEntityResourceKindOre = 'ore'
-const kEntityResourceKindHerb = 'herb'
-const kEntityResourceKindJade = 'jade'
-const kEntityResourceKindAnimalHide = 'animalHide'
-const kEntityResourceKindMedicineIngrident = 'medicineIngrident'
-const kEntityResourceKindFoodIngrident = 'foodIngrident'
+const kEntityMaterialKindGrain = 'grain'
+const kEntityMaterialKindTimber = 'fruit'
+const kEntityMaterialKindFish = 'fish'
+const kEntityMaterialKindVegetable = 'vegetable'
+const kEntityMaterialKindHerb = 'herb'
+const kEntityMaterialKindWood = 'wood'
+const kEntityMaterialKindOre = 'ore'
+const kEntityMaterialKindJade = 'jade'
+const kEntityMaterialKindWater = 'water'
+const kEntityMaterialKindEnergy = 'energy'
+const kEntityMaterialKindSpirit = 'spirit'
 
 fun entityTakeDamage(entity, damage) {
   assert(entity.stats?.life != null || entity.life != null)

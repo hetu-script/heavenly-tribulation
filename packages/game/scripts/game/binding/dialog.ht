@@ -1,4 +1,4 @@
-namespace ui {
+namespace Dialog {
   external fun showGameDialog(context, data, returnValue)
 
   external fun showSelection(context, selections)

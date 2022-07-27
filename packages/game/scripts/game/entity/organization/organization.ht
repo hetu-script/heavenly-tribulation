@@ -1,8 +1,9 @@
-import '../game.ht'
-import 'location/site.ht'
-import '../name/name.ht'
-import '../l10n.ht'
-import 'common.ht'
+import '../../game.ht'
+import '../location/site.ht'
+import '../../name/name.ht'
+import '../../l10n.ht'
+import '../common.ht'
+import 'organization_name.ht'
 
 final kOrganizationCategories = [
   'cultivation',
@@ -90,7 +91,7 @@ struct Organization {
     } else {
       var conflict = false
       do {
-        final r = nameGenerator.getOrganization(1, category: this.category)
+        final r = Name.getOrganization(1, category: this.category)
         this.name = r.first.name
         conflict = game.organizations.values.where((element) =>
           element.name == this.name).isNotEmpty

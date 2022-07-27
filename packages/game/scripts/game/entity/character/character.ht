@@ -2,7 +2,6 @@ import '../../game.ht'
 import '../../l10n.ht'
 import '../../datetime.ht'
 import '../incident.ht'
-import '../../name/name.ht'
 import '../../duel.ht'
 import '../../util.ht'
 import '../common.ht'
@@ -10,6 +9,7 @@ import '../../tile/hexagonal_tile.ht'
 import 'battle_entity.ht'
 import '../item/common.ht'
 import 'companion/common.ht'
+import 'character_name.ht'
 
 // number of the male avatar images
 const _kMaleAvatarCount = 37
@@ -123,13 +123,12 @@ struct Baby {
       final index = random.nextInt(_kMaleAvatarCount)
       this.icon = 'avatar/male/${index}.jpg';
     }
-    final r = nameGenerator.getCharacter(
-      1,
+    final randomName = generateCharacterName(
       isFemale: this.isFemale,
       familyName: father.familyName,
-    ).first
+    )
     this.familyName = father.familyName
-    this.shortName = r.shortName
+    this.shortName = randomName.shortName
     this.name = this.familyName + this.shortName
     this.id = 'character_${this.index}_${this.name}'
 
@@ -157,11 +156,7 @@ struct Character {
     worldPositionX,
     worldPositionY,
   }) {
-    if (isFemale != null) {
-      this.isFemale = isFemale
-    } else {
-      this.isFemale = random.nextBool()
-    }
+    this.isFemale = isFemale ?? random.nextBool()
     if (this.isFemale) {
       final index = random.nextInt(_kFemaleAvatarCount)
       this.icon = 'avatar/female/${index}.jpg';
@@ -174,9 +169,9 @@ struct Character {
       this.shortName = shortName
       this.name = this.familyName + this.shortName
     } else if (generateRandomName) {
-      final r = nameGenerator.getCharacter(1, isFemale: this.isFemale).first
-      this.familyName = familyName ?? r.familyName
-      this.shortName = shortName ?? r.shortName
+      final randomName = generateCharacterName(isFemale: this.isFemale)
+      this.familyName = familyName ?? randomName.familyName
+      this.shortName = shortName ?? randomName.shortName
       this.name = this.familyName + this.shortName
     }
     assert(this.name != null)

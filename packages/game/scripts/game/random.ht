@@ -1,0 +1,5 @@
+var random = Random()
+
+fun setRandomSeed([seed: int]) {
+  random = Random(seed)
+}
