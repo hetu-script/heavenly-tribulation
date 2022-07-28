@@ -1,0 +1,31 @@
+import 'common/common.json' as commonNamesData
+import 'common/color.json' as colorPrefix
+import 'common/spirit.json' as spiritPrefix
+
+final commonNames = [
+  ...commonNamesData.dao,
+  ...commonNamesData.budda,
+  ...commonNamesData.emotion,
+  ...commonNamesData.creature,
+  ...commonNamesData.object,
+  ...commonNamesData.color,
+  ...commonNamesData.place,
+  ...commonNamesData.number,
+  ...commonNamesData.action,
+  ...commonNamesData.target,
+];
+
+const kStrangeNameProbability = 0.15
+const kXianXiaNameProbability = 0.35
+const kNameWithDirectionProbability = 0.5
+const kNameWithLinkWordProbability = 0.15
+
+export {
+  commonNames,
+  colorPrefix,
+  spiritPrefix,
+  kStrangeNameProbability,
+  kXianXiaNameProbability,
+  kNameWithDirectionProbability,
+  kNameWithLinkWordProbability,
+}

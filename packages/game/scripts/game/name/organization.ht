@@ -1,0 +1,30 @@
+import 'organization/organization.json' as orgNames
+import 'common.ht'
+import 'common/common.json' as commonNamesData
+
+final kNonBattleOrganizationCategories = [
+  'academy',
+  'tradinghouse',
+  'workshop',
+  'restaurant',
+]
+
+final kNonBattleOrganizationNames = [
+  ...commonNamesData.emotion,
+  ...commonNamesData.object,
+  ...commonNamesData.color,
+  ...commonNamesData.number,
+  ...commonNamesData.action,
+]
+
+fun getOrganization({category: str}) {
+  assert(category in orgNames.keys)
+  final name
+  if (category in kNonBattleOrganizationCategories) {
+    name = random.nextIterable(commonNames)
+  } else {
+    name = random.nextIterable(kNonBattleOrganizationNames)
+  }
+  kind ??= random.nextIterable(orgNames[category])
+  names.add({ name: name + k, category: c })
+}

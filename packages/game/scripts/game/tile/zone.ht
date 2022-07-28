@@ -1,0 +1,17 @@
+import '../random.ht'
+import '../entity/common.ht'
+import 'zone.json' as zoneNames
+import '../entity/shared_names/place/place.json' as placeNames
+import '../entity/shared_names/place/prefix.json' as placePrefixes
+
+struct Zone {
+  construct ({index, name, category}) {
+    assert(index != null)
+    assert(category != null)
+    this.index = index
+    this.name = name
+    this.category = category
+    this.color = random.nextBrightColorHex()
+    this.terrainIndexes = []
+  }
+}

@@ -1,0 +1,34 @@
+import 'common.ht'
+import 'common/common.json' as commonNamesData
+import 'creature/creature.json' as creatureNames
+import 'creature/prefix.json' as creaturePrefix
+import 'common/strange.json' as strangeCreature
+import '../random.ht'
+import '../entity/common.ht'
+
+final commonCreatureNames = [
+  ...commonNamesData.dao,
+  ...commonNamesData.place,
+  ...commonNamesData.number,
+  ...commonNamesData.action,
+]
+
+fun generateCreatureName({category, rarity}) {
+  final pre = random.nextIterable(commonCreatureNames)
+  final cp = random.nextIterable(colorPrefix)
+  final s = random.nextIterable(creaturePrefix)
+  final c = category ?? random.nextIterable(creatureNames.keys)
+  final k = random.nextIterable(creatureNames[c])
+  rarity ??= getRarity().rarity
+  final name
+  when (rarity) {
+    'exotic' -> name = random.nextIterable(strangeCreature)
+    'mythic' -> name = pre + cp + s + k
+    'legendary' -> name = pre + s + k
+    'epic' -> name = pre + cp + k
+    'rare' -> name = pre + k
+    'uncommon' -> name = cp + s + k
+    'common' -> name = cp + k
+  }
+  return { name, rarity, category: c }
+}

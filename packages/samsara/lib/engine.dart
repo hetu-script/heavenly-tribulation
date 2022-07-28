@@ -69,36 +69,30 @@ class SamsaraEngine with SceneController, EventAggregator {
   dynamic fetch(
     String varName, {
     String? moduleName,
-    String? sourceName,
   }) =>
       hetu.interpreter.fetch(
         varName,
         moduleName: moduleName,
-        sourceName: sourceName,
       );
 
   dynamic assign(
     String varName,
     dynamic value, {
     String? moduleName,
-    String? sourceName,
   }) =>
       hetu.interpreter.assign(
         varName,
         value,
         moduleName: moduleName,
-        sourceName: sourceName,
       );
 
   invoke(String funcName,
           {String? moduleName,
-          String? sourceName,
           List<dynamic> positionalArgs = const [],
           Map<String, dynamic> namedArgs = const {},
           List<HTType> typeArgs = const []}) =>
       hetu.interpreter.invoke(funcName,
           moduleName: moduleName,
-          sourceName: sourceName,
           positionalArgs: positionalArgs,
           namedArgs: namedArgs,
           typeArgs: typeArgs);
@@ -161,7 +155,7 @@ class SamsaraEngine with SceneController, EventAggregator {
           expressionModuleExtensions: [HTResource.json]);
       hetu = Hetu(
         config: HetuConfig(
-          debugPerformance: debugMode,
+          printPerformanceStatistics: debugMode,
           showDartStackTrace: debugMode,
           showHetuStackTrace: true,
           allowVariableShadowing: false,

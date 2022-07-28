@@ -1,9 +1,8 @@
-import '../../../name/name.ht'
+import '../../../common.ht'
 import '../../common.ht'
-import '../common.ht'
-import '../../../util.ht'
-import '../../../game.ht'
-import '../../../l10n.ht'
+import '../../../../util.ht'
+import '../../../../game.ht'
+import '../../../../l10n.ht'
 
 final kBeast = 'beast'
 final kBeastWeaponKindClaw = 'claw'

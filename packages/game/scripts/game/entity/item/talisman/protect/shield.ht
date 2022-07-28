@@ -1,9 +1,9 @@
-import '../../../name/name.ht'
+import '../../../common.ht'
 import '../../common.ht'
-import '../common.ht'
-import '../../../util.ht'
-import '../../../game.ht'
-import '../../effect.ht'
+import '../../../../util.ht'
+import '../../../../game.ht'
+import '../../../effect.ht'
+import '../../../../name/talisman.ht'
 
 const kShieldKind = 'shield'
 
@@ -37,7 +37,7 @@ struct Shield {
     this.description = description ?? ''
     this.inscription = inscription ?? ''
     if (!this.name) {
-      final r = Name.getTalisman(1, category: this.kind, rarity: this.rarity).first
+      final r = generateTalismanName(category: this.kind, rarity: this.rarity)
       this.name = r.name
     }
     this.color = kRarity[this.rarity].color

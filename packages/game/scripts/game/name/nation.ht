@@ -1,0 +1,27 @@
+import 'common.ht'
+import 'common/strange.json' as strangeNames
+import '../random.ht'
+import 'place/place.json' as place
+import 'place/prefix.json' as placePrefix
+
+const _kNationNamePostfix = '国'
+
+fun generateNationName(number: int) {
+  var name = ''
+  var rarity = 'common'
+  final r = random.nextDouble()
+  if (r < kStrangeNameProbability) {
+    name = random.nextIterable(strangeNames)
+    rarity = 'rare'
+  } else if (r < kXianXiaNameProbability) {
+    name = random.nextIterable(common)
+    rarity = 'uncommon'
+  } else {
+    var prefix = ''
+    if (random.nextDouble() < kNameWithDirectionProbability) {
+      prefix = random.nextIterable(placePrefix)
+    }
+    name = prefix + random.nextIterable(place)
+  }
+  return { name: name + _kNationNamePostfix, rarity }
+}

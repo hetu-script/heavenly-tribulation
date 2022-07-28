@@ -1,0 +1,36 @@
+import 'zone/zone.json' as zoneNames
+import 'common/strange.json' as strangeNames
+import 'common.ht'
+
+const _kLinkWord = '之'
+
+fun generateZoneName(category: str) {
+  assert(category in zoneNames.keys)
+  final kind = random.nextIterable(zoneNames[category])
+  var rarity = 'common'
+  final r = random.nextDouble()
+  final name
+  if (r < kStrangeNameProbability) {
+    name = random.nextIterable(strangeNames)
+    rarity = 'rare'
+  } else if (r < kXianXiaNameProbability) {
+    name = random.nextIterable(commonNames)
+    rarity = 'uncommon'
+  } else {
+    var prefix = ''
+    if (random.nextDouble() < kNameWithDirectionProbability) {
+      prefix = random.nextIterable(placePrefixes)
+    }
+    name = prefix + random.nextIterable(placeNames)
+    if (name.length == 1) {
+      if (kind.length > 1) {
+        name += _kLinkWord;
+      } else {
+        if (random.nextDouble() < kNameWithLinkWordProbability) {
+          name += _kLinkWord;
+        }
+      }
+    }
+  }
+  return { name: name + kind, category, rarity }
+}

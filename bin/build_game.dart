@@ -11,11 +11,11 @@ const out2Path = 'packages/game/assets/story.mod';
 final sourceContext =
     HTFileSystemResourceContext(root: 'packages/game/scripts/');
 final hetu = Hetu(
-  config: HetuConfig(debugPerformance: true),
+  config: HetuConfig(printPerformanceStatistics: true),
   sourceContext: sourceContext,
 );
 
-void testCompile(String sourcePath, String outPath) {
+void compileGameMod(String sourcePath, String outPath) {
   final source = sourceContext.getResource(sourcePath);
   print('started parsing ${source.fullName}');
   final module = hetu.bundle(source);
@@ -37,6 +37,6 @@ void testCompile(String sourcePath, String outPath) {
 }
 
 void main() {
-  testCompile(source1Path, out1Path);
-  testCompile(source2Path, out2Path);
+  compileGameMod(source1Path, out1Path);
+  compileGameMod(source2Path, out2Path);
 }

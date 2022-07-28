@@ -9,7 +9,6 @@ import '../../tile/hexagonal_tile.ht'
 import 'battle_entity.ht'
 import '../item/common.ht'
 import 'companion/common.ht'
-import 'character_name.ht'
 
 // number of the male avatar images
 const _kMaleAvatarCount = 37

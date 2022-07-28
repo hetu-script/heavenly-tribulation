@@ -1,0 +1,50 @@
+import 'skill/skill.json' as skillNames
+import 'skill/extra.json' as skillExtra
+import 'skill/numfix.json' as skillNumfix
+import 'common.ht'
+import '../entity/common.ht'
+
+const _kNumberBeginSupplement = '路'
+const _kNumberEndSupplement = '式'
+
+const _kSkillExtraProbability = 0.075
+const _kSkillNumfixProbability = 0.075
+const _kSkillWithThreeElementsProbability = 0.15
+const _kSkillWithTwoElementsProbability = 0.35
+
+fun generateSkillName({category, kind}) {
+  assert(category in skillNames.keys)
+  final l
+  final r = getRarity()
+  if (r.rarityLevel > kRarity.epic.rarityLevel) {
+    l = 3
+  } else if (r.rarityLevel > kRarity.uncommon.rarityLevel) {
+    l = 2
+  } else {
+    l = 1
+  }
+  final rarity = r.rarity
+  for (var i in range(l)) {
+    name += random.nextIterable(commonNames)
+  }
+  var e = ''
+  var n = ''
+  kind ??= random.nextIterable(skillNames[category])
+  if (random.nextDouble() < _kSkillExtraProbability) {
+    e = random.nextIterable(skillExtra)
+  }
+  if (random.nextDouble() < _kSkillNumfixProbability) {
+    n = random.nextIterable(skillNumfix)
+  }
+  final name
+  if (random.nextDouble() < 0.5) {
+    name = (n != '' ? n + _kNumberBeginSupplement : '') + e + name + kind
+  } else {
+    if (kind.length > 1) {
+      name = e + name + kind + (n != '' ? n + _kNumberEndSupplement : '')
+    } else {
+      name = e + name + n + kind
+    }
+  }
+  return { name, category, rarity }
+}

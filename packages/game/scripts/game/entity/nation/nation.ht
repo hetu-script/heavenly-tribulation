@@ -1,8 +1,8 @@
 import '../../game.ht'
 import '../../tile/tilemap.ht'
-import '../../name/name.ht'
+import '../../name/nation.ht'
 import '../../l10n.ht'
-import 'nation_name.ht'
+import '../common.ht'
 
 const _kEmperorTitle = 'empireLeaderTitle'
 const _kEmperorRank = 99
@@ -25,7 +25,7 @@ struct Nation {
     } else {
       var conflict = false
       do {
-        final r = Name.getNation(1)
+        final r = generateNationName()
         this.name = r.first.name
         conflict = game.nations.values.where((element) =>
           element.name == this.name).isNotEmpty

@@ -29,5 +29,6 @@
   "terrainAlreadyFished": "（看来这个月我已经在这个地方捕过鱼了……）",
 
   "metBeast": "（你遭到了 {0} 的袭击！）",
+  "foundBeast": "（你发现了 {0}！）",
   "metStorm": "（糟糕，暴风雨要来了，我们要赶紧离开这里……）"
 }

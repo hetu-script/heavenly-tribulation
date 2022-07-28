@@ -1,0 +1,30 @@
+import 'talisman/talisman.json' as talismanNames
+import 'talisman/material.json' as talismanMaterial
+import 'talisman/postfix.json' as talismanPostfix
+import 'common.ht'
+import '../random.ht'
+import '../entity/common.ht'
+
+fun generateTalismanName({category, kind, rarity}) {
+  assert(category in talismanNames.keys)
+  kind ??= random.nextIterable(talismanNames[category])
+  rarity ??= getRarity().rarity
+
+  final prefix = random.nextIterable(commonNames)
+  final prefix2 = random.nextIterable(commonNames)
+  final cp = random.nextIterable(colorPrefix)
+  final m = random.nextIterable(talismanMaterial)
+  final s = random.nextIterable(spiritPrefix)
+
+  final name
+  when (rarity) {
+    'exotic' -> name = prefix + prefix2 + kind
+    'mythic' -> name = prefix + s + kind
+    'legendary' -> name = prefix + cp + m + kind
+    'epic' -> name = prefix + m + kind
+    'rare' -> name = prefix + kind
+    'uncommon' -> name = cp + m + kind
+    'common' -> name = m + kind
+  }
+  return { name, category, rarity }
+}

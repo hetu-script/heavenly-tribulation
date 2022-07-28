@@ -75,33 +75,33 @@ class _MainMenuState extends State<MainMenu> {
     await refreshSaves();
     if (engine.isLoaded) return false;
     await engine.init(externalFunctions: externalGameFunctions);
-    if (kDebugMode) {
-      engine.loadModFromAssets(
-        'game/main.ht',
-        moduleName: 'game',
-        namedArgs: {'lang': 'zh', 'gameEngine': engine},
-        isMainMod: true,
-      );
-      engine.loadModFromAssets(
-        'story/main.ht',
-        moduleName: 'story',
-      );
-    } else {
-      final game = await rootBundle.load('assets/game.mod');
-      final gameBytes = game.buffer.asUint8List();
-      engine.loadModFromBytes(
-        gameBytes,
-        moduleName: 'game',
-        namedArgs: {'lang': 'zh', 'gameEngine': engine},
-        isMainMod: true,
-      );
-      final mod = await rootBundle.load('assets/story.mod');
-      final modBytes = mod.buffer.asUint8List();
-      engine.loadModFromBytes(
-        modBytes,
-        moduleName: 'story',
-      );
-    }
+    // if (kDebugMode) {
+    //   engine.loadModFromAssets(
+    //     'game/main.ht',
+    //     moduleName: 'game',
+    //     namedArgs: {'lang': 'zh', 'gameEngine': engine},
+    //     isMainMod: true,
+    //   );
+    //   engine.loadModFromAssets(
+    //     'story/main.ht',
+    //     moduleName: 'story',
+    //   );
+    // } else {
+    final game = await rootBundle.load('assets/game.mod');
+    final gameBytes = game.buffer.asUint8List();
+    engine.loadModFromBytes(
+      gameBytes,
+      moduleName: 'game',
+      namedArgs: {'lang': 'zh', 'gameEngine': engine},
+      isMainMod: true,
+    );
+    final mod = await rootBundle.load('assets/story.mod');
+    final modBytes = mod.buffer.asUint8List();
+    engine.loadModFromBytes(
+      modBytes,
+      moduleName: 'story',
+    );
+    // }
     engine.invoke('build', positionalArgs: [context]);
     engine.isLoaded = true;
     return true;

@@ -1,7 +1,7 @@
 import '../../game.ht'
 import '../character/character.ht'
 import '../../dialog.ht'
-import '../../name/name.ht'
+import '../../name/location.ht'
 import '../../l10n.ht'
 import '../common.ht'
 import '../../tile/hexagonal_tile.ht'
@@ -33,8 +33,8 @@ struct Location {
     } else {
       var conflict = false
       do {
-        final r = Name.getLocation(1, category: category)
-        this.name = r.first.name
+        final randomName = generateLocationName(category: category)
+        this.name = randomName.name
         conflict = game.locations.values.where((element) =>
           element.name == this.name).isNotEmpty
       } while (conflict)

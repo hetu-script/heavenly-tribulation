@@ -8,7 +8,7 @@ import '../game.ht'
 import '../entity/common.ht'
 import '../reward.ht'
 import '../datetime.ht'
-import '../entity/commont.ht'
+import '../entity/common.ht'
 
 const _kDelivering = 'delivering'
 
@@ -42,6 +42,8 @@ struct QuestDelivery {
     final destination = game.locations[destinationLocationId]
     final destinationSite = destination.sites[destinationSiteId]
     final destinationCharacter = game.characters[destinationCharacterId]
+
+    this.distance = getTileDistance(location.tilePosition, destination.tilePosition)
 
     // 任务完成有效时间
     this.expirationDate = game.timestamp + expirationDays * kTicksPerDay

@@ -1,19 +1,6 @@
 import '../game.ht'
 import 'hexagonal_tile.ht'
 
-
-struct Zone {
-  construct ({index, name, category}) {
-    assert(index != null)
-    assert(category != null)
-    this.index = index
-    this.name = name
-    this.category = category
-    this.color = random.nextBrightColorHex()
-    this.terrainIndexes = []
-  }
-}
-
 struct TileMap {
   construct ({
     id,

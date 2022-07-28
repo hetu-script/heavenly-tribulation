@@ -1,18 +1,4 @@
 import '../random.ht'
-import 'shared_names/common.json' as commonNamesData
-
-final commonNames = [
-  ...commonNamesData.dao,
-  ...commonNamesData.budda,
-  ...commonNamesData.emotion,
-  ...commonNamesData.creature,
-  ...commonNamesData.object,
-  ...commonNamesData.color,
-  ...commonNamesData.place,
-  ...commonNamesData.number,
-  ...commonNamesData.action,
-  ...commonNamesData.target,
-];
 
 const kNone = 'none'
 
@@ -158,7 +144,7 @@ const kEntityConsumableKindFood = 'food'
 
 // 材料的类型
 const kEntityMaterialKindGrain = 'grain'
-const kEntityMaterialKindTimber = 'fruit'
+const kEntityMaterialKindFruit = 'fruit'
 const kEntityMaterialKindFish = 'fish'
 const kEntityMaterialKindVegetable = 'vegetable'
 const kEntityMaterialKindHerb = 'herb'

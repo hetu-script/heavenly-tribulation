@@ -1,4 +1,4 @@
-import '../name/name.ht'
+import '../name/zone.ht'
 import '../game.ht'
 import '../entity/location/site.ht'
 import '../entity/location/location.ht'
@@ -411,7 +411,7 @@ fun createWorldMap({
       }
     }
 
-    final r = Name.getZone(1, category: zone.category)
+    final r = generateZoneName(category: zone.category)
     zone.name = r.first.name
 
   }

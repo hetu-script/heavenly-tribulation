@@ -79,7 +79,7 @@ class _MerchantViewState extends State<MerchantView> {
                         '${heroData['name']} 银两只有 $restOfMoney 不足 $payment，无法购买。');
                     return;
                   }
-                  engine.invoke('characterGiveMoney', positionalArgs: [
+                  engine.invoke('entityGiveMoney', positionalArgs: [
                     heroData,
                     widget.merchantData,
                     payment,
@@ -116,7 +116,7 @@ class _MerchantViewState extends State<MerchantView> {
                     engine.info('${widget.merchantData['name']} 银钱不足，无法出售。');
                     return;
                   }
-                  engine.invoke('characterGiveMoney', positionalArgs: [
+                  engine.invoke('entityGiveMoney', positionalArgs: [
                     widget.merchantData,
                     heroData,
                     payment,

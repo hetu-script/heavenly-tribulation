@@ -4,8 +4,8 @@ import 'entity/character/character.ht'
 import 'l10n.ht'
 import 'maze/maze.ht'
 import 'quest/quest.ht'
-import 'name/name.ht'
 import 'tile/common.ht'
+import 'name/character.ht'
 
 const kQuestProbability = 0.35
 
@@ -126,12 +126,11 @@ fun generateQuests {
               nation.hasBanditEvent = true
               location.hasBanditEvent = true
 
-              final bossName = Name.getCharacter(1).first.name
               final quest = QuestBanditCamp(
                 locationId: location.id,
                 mazeTerrainIndex: mazeTerrain.index,
                 kind: kQuestConquestMazeKindKillBanditBoss,
-                bossName: bossName,
+                bossName: generateCharacterName(),
               )
               engine.info('在 ${location.name} 生成悬赏任务：${quest.id}，副本地点：${mazeTerrain.left}, ${mazeTerrain.top}')
               location.quests[quest.id] = quest

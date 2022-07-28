@@ -1,0 +1,26 @@
+import 'place/place.json' as placeNames
+import 'place/postfix.json' as placePostfix
+import 'place/location.json' as locationNames
+import 'common.ht'
+
+fun generateLocationName({category: str}) {
+  var name = ''
+  category ??= random.nextIterable(locationNames.keys)
+  var k = kind ?? random.nextIterable(locationNames[category])
+  var rarity = 'common'
+  final r = random.nextDouble()
+  if (r < kStrangeNameProbability) {
+    name = random.nextIterable(strangeNames)
+    rarity = 'rare'
+  } else if (r < kXianXiaNameProbability) {
+    name = random.nextIterable(common)
+    rarity = 'uncommon'
+  } else {
+    var postfix = ''
+    if (random.nextDouble() < kNameWithDirectionProbability) {
+      postfix = random.nextIterable(placePostfix)
+    }
+    name = random.nextIterable(placeNames) + postfix
+  }
+  return { name: name + k, category, rarity }
+}

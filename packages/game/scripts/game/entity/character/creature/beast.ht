@@ -1,6 +1,6 @@
 import '../battle_entity.ht'
-import '../../../name/name.ht'
-import '../../item/weapon/beast_weapon.ht'
+import '../../../name/creature.ht'
+import '../../item/talisman/weapon/beast_weapon.ht'
 import '../../common.ht'
 
 const _kBeastRandomAgeMax = 150
@@ -51,11 +51,11 @@ struct Beast {
     this.entityType = kEntityTypeNpc
     this.birthTimestamp = birthTimestamp ?? createRandomBirthTimestamp(max: _kBeastRandomAgeMax)
     this.kind = kind ?? random.nextIterable(_kBeastTypes.keys)
-    final r = Name.getCreature(1, category: this.kind, rarity: rarity).first
-    this.name = r.name
+    final randomName = generateCreatureName(category: this.kind, rarity: rarity)
+    this.name = randomName.name
     this.category = kEntityCategoryBeast
     this.id = 'beast_${Hash.uid4(2)}_${this.name}'
-    this.rarity = r.rarity ?? kCommon
+    this.rarity = randomName.rarity ?? kCommon
     this.color = kRarity[this.rarity].color
     game.npcs[this.id] = this
 

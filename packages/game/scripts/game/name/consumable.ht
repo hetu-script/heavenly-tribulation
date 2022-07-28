@@ -1,11 +1,10 @@
-import '../../shared_names/common.json' as commonNamesData
-import '../../shared_names/color.json' as colorPrefix
-import '../../shared_names/spirit.json' as spiritPrefix
-import 'name/consumable.json' as consumable
-import 'name/medicine.json' as medicine
-import 'name/beverage.json' as beverage
-import '../../common.ht'
-import '../../../random.ht'
+import 'common/common.json' as commonNamesData
+import 'common/spirit.json' as spiritPrefix
+import 'consumable/consumable.json' as consumableNames
+import 'consumable/medicine.json' as medicineNames
+import 'consumable/beverage.json' as beverageNames
+import '../random.ht'
+import '../entity/common.ht'
 
 final commonConsumableNames = [
   ...commonNamesData.dao,
@@ -18,14 +17,14 @@ final commonConsumableNames = [
 
 // 生成方剂、饮品、灵丹的名字
 fun generateConsumableName({category: str, rarity: str}) {
-  assert(consumable.keys.contains(category))
+  assert(consumableNames.keys.contains(category))
   rarity ??= getRarity().rarity
-  final kind = random.nextIterable(consumable[category])
+  final kind = random.nextIterable(consumableNames[category])
   final commonPrefix
   if (category == 'medicine') {
-    commonPrefix = random.nextIterable(medicine)
+    commonPrefix = random.nextIterable(medicineNames)
   } else if (category == 'beverage') {
-    commonPrefix = random.nextIterable(beverage)
+    commonPrefix = random.nextIterable(beverageNames)
   }
   final pre = random.nextIterable(commonConsumableNames)
   final pre2 = random.nextIterable(commonConsumableNames)

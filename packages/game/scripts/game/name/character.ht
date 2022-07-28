@@ -1,18 +1,18 @@
-import 'name/family.json' as family
-import 'name/female.json' as female
-import 'name/male.json' as male
-import 'name/middle.json' as middle
-import '../../random.ht'
+import 'character/family.json' as familyNames
+import 'character/female.json' as femaleNames
+import 'character/male.json' as maleNames
+import 'character/middle.json' as middleNames
+import '../random.ht'
 
 fun generateCharacterName({isFemale, familyName, middleCharacter}) {
   var theFamilyName
   if (!familyName) {
-    theFamilyName = random.nextIterable(family)
+    theFamilyName = random.nextIterable(familyNames)
   } else {
     theFamilyName = familyName
   }
   final f = isFemale ?? random.nextBool()
-  final namesOfASex = f ? female : male
+  final namesOfASex = f ? femaleNames : maleNames
   final r = random.nextDouble()
   var name = ''
   // 单字的名字
@@ -40,7 +40,7 @@ fun generateCharacterName({isFemale, familyName, middleCharacter}) {
     if (middleCharacter) {
       theMiddleCharacter = middleCharacter
     } else {
-      theMiddleCharacter = random.nextIterable(middle)
+      theMiddleCharacter = random.nextIterable(middleNames)
     }
     final theLastCharacter = random.nextIterable(namesOfASex)
     name = theMiddleCharacter + theLastCharacter
