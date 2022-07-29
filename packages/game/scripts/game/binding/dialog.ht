@@ -7,7 +7,14 @@ namespace Dialog {
 
   external fun showVisitCharacterSelection(context, idList)
 
-  external fun showMerchant(context, merchant, priceFactor, allowSell)
+  external fun showMerchant(
+    context,
+    merchant,
+    priceFactor,
+    allowSell,
+    sellableCategory,
+    sellableKind,
+  )
 
   external fun showQuests(context, site)
 
@@ -15,7 +22,7 @@ namespace Dialog {
   
   external fun showDuel(context, char1, char2, type, data)
 
-  external fun showProgress(context, title)
+  external fun showProgress(context, titletitle, checkProgress)
 
   external fun showIntInput(context, title, min, max)
 }

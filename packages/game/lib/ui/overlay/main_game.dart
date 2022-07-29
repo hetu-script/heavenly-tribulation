@@ -43,6 +43,9 @@ const kTerrainKindPlain = 'plain';
 const kTerrainKindRiver = 'river';
 const kTerrainKindRoad = 'road';
 
+const kMinHeroAge = 15;
+const kMaxHeroAge = 40;
+
 class MainGameOverlay extends StatefulWidget {
   const MainGameOverlay({
     required super.key,
@@ -222,7 +225,14 @@ class _MainGameOverlayState extends State<MainGameOverlay>
         (GameEvent event) async {
           if ((event as MapLoadedEvent).isNewGame) {
             final charactersData = engine.invoke('getCharacters');
-            final characterIds = charactersData.keys;
+            final characterIds = <String>[];
+            for (final characterData in charactersData) {
+              final age = engine
+                  .invoke('getCharacterAge', positionalArgs: [characterData]);
+              if (age >= kMinHeroAge && age < kMaxHeroAge) {
+                characterIds.add(characterData['id']);
+              }
+            }
             final key = await CharacterSelectDialog.show(
               context: context,
               title: engine.locale['selectHero'],
@@ -398,10 +408,10 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                       showDialog(
                         context: context,
                         builder: (BuildContext context) => const Console(),
-                      ).then((value) => setState(() {}));
+                      ).then((_) => setState(() {}));
                       break;
                     case WorldMapDropMenuItems.exit:
-                      _saveGame().then((value) {
+                      _saveGame().then((_) {
                         _isDisposing = true;
                         engine.leaveScene(_scene.id, clearCache: true);
                         engine.invoke('resetGame');

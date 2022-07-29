@@ -152,9 +152,25 @@ class EntityInfo extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                entityData['name'],
-                                style: TextStyle(color: titleColor),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    entityData['name'],
+                                    style: TextStyle(color: titleColor),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                      '${engine.locale[category]} - ${engine.locale[entityData['kind']]}'),
+                                  if (entityData['rarity'] != null)
+                                    Text(engine.locale[entityData['rarity']]),
+                                ],
                               ),
                               const Divider(),
                               Text(
@@ -163,16 +179,6 @@ class EntityInfo extends StatelessWidget {
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                            '${engine.locale[category]} - ${engine.locale[entityData['kind']]}'),
-                        if (entityType == kEntityTypeItem ||
-                            entityType == kEntityTypeSkill)
-                          Text(engine.locale[entityData['rarity']]),
                       ],
                     ),
                     if (showPrice)

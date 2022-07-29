@@ -5,7 +5,7 @@ final bindings = [
       if (!this.isVisited) {
         this.isVisited = true
         final future = showDialogByResourceId('event01')
-        future.then((value) {
+        future.then((_) {
           final component = game.mazes.current.component
           component.lightUpAroundTerrain(x, y)
         })

@@ -317,7 +317,7 @@ class _MazeOverlayState extends State<MazeOverlay>
                           showDialog(
                             context: context,
                             builder: (BuildContext context) => const Console(),
-                          ).then((value) => setState(() {}));
+                          ).then((_) => setState(() {}));
                           break;
                         case MazeDropMenuItems.quit:
                           engine.invoke('leaveMaze',

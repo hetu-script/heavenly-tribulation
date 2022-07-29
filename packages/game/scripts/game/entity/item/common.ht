@@ -38,7 +38,7 @@ fun calculateItemStats(item) {
 }
 
 fun entityAcquireMoney(entity, count) {
-  assert(count > 0)
+  if (count < 1) return
   entity.money += count
   final incidentContent = getLocaleString('characterAcquireMoney', [ entity.name, count ])
   Incident(
@@ -48,30 +48,29 @@ fun entityAcquireMoney(entity, count) {
   )
 }
 
-// 角色、场景获得物品，此函数并不检查物品本身是否在其他角色的物品栏中
+// 角色、场景获得物品，此函数并不会复制该物品，因此物品不能在其他角色的物品栏中
 fun entityAcquireItem(entity, item, { count, incidentOccured = true }) {
-  final acquiredItem = item.clone()
   // 某些时候会批量生成物品，可能数量会是 0，此时直接跳过，但无需报错
   if (count != null) {
     if (count < 1) return
-    if (acquiredItem.stackSize > 1) {
-      engine.warning('物品对象的数量[${acquiredItem.stackSize}]将会被忽略。实际获取数量 ${count}。')
+    if (item.stackSize > count) {
+      engine.warning('物品对象的数量[${item.stackSize}]将会被忽略。实际获取数量 ${count}。')
     }
   } else {
-    count = acquiredItem.stackSize ?? 1
+    count = item.stackSize ?? 1
   }
 
   var incidentContent
-  if (entity.inventory.containsKey(acquiredItem.id)) {
-    entity.inventory[acquiredItem.id].stackSize += count
+  if (entity.inventory.containsKey(item.id)) {
+    entity.inventory[item.id].stackSize += count
   } else {
-    acquiredItem.stackSize = count
-    entity.inventory[acquiredItem.id] = acquiredItem
+    entity.inventory[item.id] = item
+    item.stackSize = count
   }
   incidentContent = getLocaleString('characterAcquireMultipleItem', [
     entity.name,
     count,
-    acquiredItem.name,
+    item.name,
   ])
 
   if (incidentOccured) {
@@ -115,19 +114,20 @@ fun entityGiveMoney(entity, target, value, { isForced = false, incidentOccured =
 }
 
 // isForced 如果为 true，表示 target 强行夺取了 entity 的物品
-fun entityGiveItem(entity, target, item, { count, isForced = false, incidentOccured = true}) {
+// 将会立刻移除该物品，不要在物品栏循环中使用这个函数
+fun entityGiveItem(entity, target, itemId, { count, removeItem = true, isForced = false, incidentOccured = true}) {
+  assert(entity.inventory.containsKey(itemId))
+  final item = entity.inventory[itemId]
   count ??= item.stackSize ?? 1
-  assert(entity.inventory.containsKey(item.id))
-  final theItem = entity.inventory[item.id]
-  if (theItem.equippedPosition) characterUnequip(entity, theItem)
+  if (item.equippedPosition) characterUnequip(entity, item)
   var incidentContent
 
   var actualNumber = count
-  if (theItem.stackSize > count) {
-    theItem.stackSize -= count
-  } else if (theItem.stackSize < count) {
+  if (item.stackSize > count) {
+    item.stackSize -= count
+  } else if (item.stackSize < count) {
     // char1身上的数量不够支付n
-    actualNumber = theItem.stackSize
+    actualNumber = item.stackSize
     engine.warning('${entity.name} 身上的 ${item.name} 不够 ${count} 个，实际数量：${actualNumber}。')
     delete entity.inventory[item.id]
   } else {
@@ -137,7 +137,7 @@ fun entityGiveItem(entity, target, item, { count, isForced = false, incidentOccu
   if (target.inventory.containsKey(item.id)) {
     target.inventory[item.id].stackSize += actualNumber
   } else {
-    final itemCopy = theItem.clone()
+    final itemCopy = item.clone()
     itemCopy.stackSize = actualNumber
     target.inventory[itemCopy.id] = itemCopy
   }
@@ -301,13 +301,14 @@ fun characterConsume(character, item, { forcerCharacter }) {
 //   supports,
 // }
 fun characterEquip(character, entity, { index }) -> bool {
+  assert(index == null || index > 0)
   if (!entity.isEquippable) {
     engine.info('${entity.name} 无法装备。')
-    return null
+    return false
   }
   if (entity.equippedPosition) {
     engine.info('${entity.name} 已经在装备中了。')
-    return null
+    return false
   }
   var equipData = {
     id: entity.id,
@@ -395,9 +396,9 @@ fun characterEquip(character, entity, { index }) -> bool {
     kEquipTypeDefense, kEquipTypeOffense, kEquipTypeCompanion -> {
       equipData.supports = []
       // 如果有空位就装备在空位上
-      if (!index) {
+      if (index == null) {
         for (final i in range(1, kEquipmentMax[entity.equipType])) {
-          if (!character.equipments[entity.equipType][i]) {
+          if (character.equipments[entity.equipType][i] == null) {
             character.equipments[entity.equipType][i] = equipData
             entity.equippedPosition = i
             return true
@@ -406,9 +407,11 @@ fun characterEquip(character, entity, { index }) -> bool {
         // 否则替换掉第一个空位
         index = 1
       }
-      final oldEquipData = character.equipments[entity.equipType][1]
-      final oldItem = getEquipped(equipData, character)
-      delete oldItem.equippedPosition
+      final oldEquipData = character.equipments[entity.equipType][index]
+      if (oldEquipData != null) {
+        final oldItem = getEquipped(oldEquipData, character)
+        delete oldItem.equippedPosition
+      }
       character.equipments[entity.equipType][index] = equipData
       if (equipData.category == oldItem.category && equipData.kind == oldItem.kind) {
         equipData.supports = oldEquipData.supports
@@ -422,7 +425,7 @@ fun characterEquip(character, entity, { index }) -> bool {
     }
   }
 
-  return equipData
+  return false
 }
 
 fun characterUnequip(character, entity) {
@@ -487,19 +490,22 @@ fun characterLootBox(character, lootbox, { incidentOccured = true }) {
 // 否则，如果对方活着，则根据我们对其投降的处理方案（杀死活着放走）
 fun characterLootOther(character, target, { takeAll = false, incidentOccured = true }) {
   if (takeAll) {
-    for (final item of target.inventory) {
-      entityGiveItem(target, character, item, count: item.stackSize, isForced: true, incidentOccured: incidentOccured)
+    // 为了避免在循环中修改 iterable，先提取出 id 列表
+    final itemIds = target.inventory.keys.toList()
+    for (final itemId in itemIds) {
+      entityGiveItem(target, character, itemId, isForced: true, incidentOccured: incidentOccured)
     }
     if (target.money) {
       entityGiveMoney(defeated, character, target.money, isForced: true, incidentOccured: incidentOccured)
     }
   } else {
-    for (final item of target.inventory) {
+    // 为了避免在循环中修改 iterable，先提取出 id 列表
+    final itemIds = target.inventory.keys.toList()
+    for (final itemId in itemIds) {
+      final stackSize = target.inventory[itemId].stackSize
       if (random.nextDouble() < kEscapedLootProbability) {
-        var count = item.stackSize > 1 ?
-          random.nextInt(item.stackSize) + 1 :
-          1
-        entityGiveItem(target, character, item, count: count, isForced: true, incidentOccured: incidentOccured)
+        var count = stackSize > 1 ? random.nextInt(stackSize) + 1 : 1
+        entityGiveItem(target, character, itemId, count: count, isForced: true, incidentOccured: incidentOccured)
       }
     }
     if (target.money && random.nextDouble() < kEscapedLootProbability) {

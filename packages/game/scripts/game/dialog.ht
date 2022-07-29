@@ -79,8 +79,20 @@ fun showVisitCharacterSelection(idList) -> Future {
   return Dialog.showVisitCharacterSelection(buildContext, idList)
 }
 
-fun showMerchant(merchant, { priceFactor = 2.0, allowSell = true }) -> Future {
-  return Dialog.showMerchant(buildContext, merchant, priceFactor, allowSell)
+fun showMerchant(merchant, {
+  priceFactor = 2.0,
+  allowSell = true,
+  sellableCategory = [],
+  sellableKind = [],
+}) -> Future {
+  return Dialog.showMerchant(
+    buildContext,
+    merchant,
+    priceFactor,
+    allowSell,
+    sellableCategory,
+    sellableKind,
+  )
 }
 
 fun showQuests(site) -> Future {
@@ -91,8 +103,8 @@ fun showMaze(maze) -> Future {
   return Dialog.showMaze(buildContext, maze)
 }
 
-fun showProgress(title) {
-  return Dialog.showProgress(buildContext, title)
+fun showProgress(title, checkProgress: function) {
+  return Dialog.showProgress(buildContext, title, checkProgress)
 }
 
 fun showIntInput(title, minOrMax, [max]) {

@@ -24,6 +24,7 @@ fun generateSkillName({category, kind}) {
     l = 1
   }
   final rarity = r.rarity
+  var name = ''
   for (var i in range(l)) {
     name += random.nextIterable(commonNames)
   }
@@ -36,7 +37,6 @@ fun generateSkillName({category, kind}) {
   if (random.nextDouble() < _kSkillNumfixProbability) {
     n = random.nextIterable(skillNumfix)
   }
-  final name
   if (random.nextDouble() < 0.5) {
     name = (n != '' ? n + _kNumberBeginSupplement : '') + e + name + kind
   } else {

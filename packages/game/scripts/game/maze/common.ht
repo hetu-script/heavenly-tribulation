@@ -29,7 +29,7 @@ fun setMazeLevelIndex(maze, levelIndex) {
 }
 
 fun mazeGameOver(maze) {
-  showMazeGameOver().then((value) {
+  showMazeGameOver().then((_) {
     leaveMaze(maze)
   })
 }
@@ -68,7 +68,7 @@ fun handleMazeEntityInteraction({entityId, left, top, maze, currentLevelIndex}) 
   fun banditEncounter async {
     maze.flags.haveMetBandit = true
     final messages = getLocaleString('mazeBandit01').split('/n')
-    return showDialogByStrings(messages, character: entity).then((value) {
+    return showDialogByStrings(messages, character: entity).then((_) {
       return showSelectionByLocaleKeys([
         'handOver',
         'plead',
@@ -86,13 +86,13 @@ fun handleMazeEntityInteraction({entityId, left, top, maze, currentLevelIndex}) 
           'plead' -> {
             if (hero.stats.charisma > kCharismaCheckThreshold) {
               showDialogByStrings([getLocaleString('pleadSuccess')], character: entity)
-                .then((value) {
+                .then((_) {
                   characterLootOther(entity, hero, takeAll: false)
                 })
               return false
             } else {
               showDialogByStrings([getLocaleString('pleadFailed')], character: entity)
-              .then( (value) => battle() )
+              .then( (_) => battle() )
             }
           }
           // 懦弱
@@ -243,7 +243,7 @@ fun handleMazeEntityInteraction({entityId, left, top, maze, currentLevelIndex}) 
     'peddler' -> {
       final messages = getLocaleString('peddlerDialogIntro').split('/n')
       showDialogByStrings(messages, character: entity)
-      .then((value) {
+      .then((_) {
         showSelectionByLocaleKeys([
           'askForDirections',
           'trade',

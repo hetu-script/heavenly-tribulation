@@ -116,32 +116,26 @@ fun handleWorldTerrainInteraction(left, top) {
           handleWorldMapEntityInteraction(entityId)
         } else {
           showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-            showProgress(getLocaleString('search')).then((value) {
-              var i = 0
+            var i = 0
+            var found = false
+            showProgress(getLocaleString('search'), checkProgress: () {
+              ++i
+              updateGame(ticks: kTicksPerDay)
+              characterCostStamina(hero, kTicksPerDay)
               if (entityId) {
-                var found = false
-                while (i < days) {
-                  ++i
-                  // TODO: 角色感知可以提高成功率
-                  if (random.nextDouble() < kFoundBanditCampProbability) {
-                    found = true
-                    break
-                  }
+                // TODO: 角色感知可以提高成功率
+                if (random.nextDouble() < kFoundBanditCampProbability) {
+                  found = true
+                  return false
                 }
-                final ticks = kTicksPerDay * i
-                updateGame(ticks: ticks)
-                characterCostStamina(hero, ticks)
-
-                if (found) {
-                  terrain.hasExplored = true
-                  handleWorldMapEntityInteraction(entityId)
-                } else {
-                  showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
-                }
+              }
+              if (i >= days) return false
+              return true
+            }).then((_) {
+              if (found) {
+                terrain.hasExplored = true
+                handleWorldMapEntityInteraction(entityId)
               } else {
-                final ticks = kTicksPerDay * i
-                updateGame(ticks: ticks)
-                characterCostStamina(hero, ticks)
                 showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
               }
             })
@@ -151,49 +145,50 @@ fun handleWorldTerrainInteraction(left, top) {
       // 采集，可能会获得：药材（材料）、水果（材料）
       'gather' -> {
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-          showProgress(getLocaleString('gather')).then((value) {
-            final lootbox = Reward()
-            var metBeast = false
-            var i = 0
-            while(i < days) {
-              ++i
-              updateGame(ticks: kTicksPerDay)
-              characterCostStamina(hero, kTicksPerDay)
-              when (terrain.kind) {
-                kTerrainKindMountain -> {
-                  if (random.nextDouble() < kMountainBeastProbability) {
-                    metBeast = true
-                    break
-                  }
-                  if (random.nextDouble() < kMountainHerbProbability) {
-                    entityAcquireItem(lootbox, Material.herb(), incidentOccured: false)
-                  }
-                  if (random.nextDouble() < kMountainFruitProbability) {
-                    entityAcquireItem(lootbox, Material.fruit(), incidentOccured: false)
-                  }
+          final lootbox = Reward()
+          var metBeast = false
+          var i = 0
+          showProgress(getLocaleString('gather'), () {
+            ++i
+            updateGame(ticks: kTicksPerDay)
+            characterCostStamina(hero, kTicksPerDay)
+            when (terrain.kind) {
+              kTerrainKindMountain -> {
+                if (random.nextDouble() < kMountainBeastProbability) {
+                  metBeast = true
+                  return false
                 }
-                kTerrainKindForest -> {
-                  if (random.nextDouble() < kForestBeastProbability) {
-                    metBeast = true
-                    break
-                  }
-                  if (random.nextDouble() < kForestHerbProbability) {
-                    entityAcquireItem(lootbox, Material.herb(), incidentOccured: false)
-                  }
-                  if (random.nextDouble() < kForestFruitProbability) {
-                    entityAcquireItem(lootbox, Material.fruit(), incidentOccured: false)
-                  }
+                if (random.nextDouble() < kMountainHerbProbability) {
+                  entityAcquireItem(lootbox, Material.herb(), incidentOccured: false)
                 }
-                kTerrainKindPlain -> {
-                  if (random.nextDouble() < kPlainHerbProbability) {
-                    entityAcquireItem(lootbox, Material.herb(), incidentOccured: false)
-                  }
-                  if (random.nextDouble() < kPlainFruitProbability) {
-                    entityAcquireItem(lootbox, Material.fruit(), incidentOccured: false)
-                  }
+                if (random.nextDouble() < kMountainFruitProbability) {
+                  entityAcquireItem(lootbox, Material.fruit(), incidentOccured: false)
+                }
+              }
+              kTerrainKindForest -> {
+                if (random.nextDouble() < kForestBeastProbability) {
+                  metBeast = true
+                  return false
+                }
+                if (random.nextDouble() < kForestHerbProbability) {
+                  entityAcquireItem(lootbox, Material.herb(), incidentOccured: false)
+                }
+                if (random.nextDouble() < kForestFruitProbability) {
+                  entityAcquireItem(lootbox, Material.fruit(), incidentOccured: false)
+                }
+              }
+              kTerrainKindPlain -> {
+                if (random.nextDouble() < kPlainHerbProbability) {
+                  entityAcquireItem(lootbox, Material.herb(), incidentOccured: false)
+                }
+                if (random.nextDouble() < kPlainFruitProbability) {
+                  entityAcquireItem(lootbox, Material.fruit(), incidentOccured: false)
                 }
               }
             }
+            if (i >= days) return false
+            return true
+          }).then((_) {
             final incidentContent = getLocaleString('characterExplore', [
               hero.name,
               '${terrain.left}, ${terrain.top}',
@@ -210,11 +205,11 @@ fun handleWorldTerrainInteraction(left, top) {
               } else {
                 characterLootBox(hero, lootbox)
               }
-            } ().then((value) {
+            } ().then((_) {
               if (metBeast) {
                 final beast = Beast()
                 final message = getLocaleString('metBeast', [beast.name])
-                showDialogByStrings([message]).then((value) {
+                showDialogByStrings([message]).then((_) {
                   heroBattle(beast)
                 })
               }
@@ -225,40 +220,41 @@ fun handleWorldTerrainInteraction(left, top) {
       // 伐木，可能会获得：木料
       'woodcut' -> {
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-          showProgress(getLocaleString('woodcut')).then((value) {
-            final lootbox = Reward()
-            var metBeast = false
-            var i = 0
-            while(i < days) {
-              ++i
-              updateGame(ticks: kTicksPerDay)
-              characterCostStamina(hero, kTicksPerDay)
-              when (terrain.kind) {
-                kTerrainKindMountain -> {
-                  if (random.nextDouble() < kMountainBeastProbability) {
-                    metBeast = true
-                    break
-                  }
-                  if (random.nextDouble() < kMountainWoodProbability) {
-                    entityAcquireItem(lootbox, Material.wood(), incidentOccured: false)
-                  }
+          final lootbox = Reward()
+          var metBeast = false
+          var i = 0
+          showProgress(getLocaleString('woodcut'), () {
+            ++i
+            updateGame(ticks: kTicksPerDay)
+            characterCostStamina(hero, kTicksPerDay)
+            when (terrain.kind) {
+              kTerrainKindMountain -> {
+                if (random.nextDouble() < kMountainBeastProbability) {
+                  metBeast = true
+                  return false
                 }
-                kTerrainKindForest -> {
-                  if (random.nextDouble() < kForestBeastProbability) {
-                    metBeast = true
-                    break
-                  }
-                  if (random.nextDouble() < kForestWoodProbability) {
-                    entityAcquireItem(lootbox, Material.wood(), incidentOccured: false)
-                  }
+                if (random.nextDouble() < kMountainWoodProbability) {
+                  entityAcquireItem(lootbox, Material.wood(), incidentOccured: false)
                 }
-                kTerrainKindPlain -> {
-                  if (random.nextDouble() < kPlainWoodProbability) {
-                    entityAcquireItem(lootbox, Material.wood(), incidentOccured: false)
-                  }
+              }
+              kTerrainKindForest -> {
+                if (random.nextDouble() < kForestBeastProbability) {
+                  metBeast = true
+                  return false
+                }
+                if (random.nextDouble() < kForestWoodProbability) {
+                  entityAcquireItem(lootbox, Material.wood(), incidentOccured: false)
+                }
+              }
+              kTerrainKindPlain -> {
+                if (random.nextDouble() < kPlainWoodProbability) {
+                  entityAcquireItem(lootbox, Material.wood(), incidentOccured: false)
                 }
               }
             }
+            if (i >= days) return false
+            return true
+          }).then((_) {
             final incidentContent = getLocaleString('characterWoodcutted', [
               hero.name,
               '${terrain.left}, ${terrain.top}',
@@ -275,11 +271,11 @@ fun handleWorldTerrainInteraction(left, top) {
               } else {
                 characterLootBox(hero, lootbox)
               }
-            } ().then((value) {
+            } ().then((_) {
               if (metBeast) {
                 final beast = Beast()
                 final message = getLocaleString('metBeast', [beast.name])
-                showDialogByStrings([message]).then((value) {
+                showDialogByStrings([message]).then((_) {
                   heroBattle(beast)
                 })
               }
@@ -290,49 +286,50 @@ fun handleWorldTerrainInteraction(left, top) {
       // 挖矿，可能会获得：矿石、灵石
       'mine' -> {
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-          showProgress(getLocaleString('mine')).then((value) {
-            final lootbox = Reward()
-            var metBeast = false
-            var i = 0
-            while(i < days) {
-              ++i
-              updateGame(ticks: kTicksPerDay)
-              characterCostStamina(hero, kTicksPerDay)
-              when (terrain.kind) {
-                kTerrainKindMountain -> {
-                  if (random.nextDouble() < kMountainBeastProbability) {
-                    metBeast = true
-                    break
-                  }
-                  if (random.nextDouble() < kMountainOreProbability) {
-                    entityAcquireItem(lootbox, Material.ore(), incidentOccured: false)
-                  }
-                  if (random.nextDouble() < kMountainJadeProbability) {
-                    entityAcquireItem(lootbox, Jade(), incidentOccured: false)
-                  }
+          final lootbox = Reward()
+          var metBeast = false
+          var i = 0
+          showProgress(getLocaleString('mine'), () {
+            ++i
+            updateGame(ticks: kTicksPerDay)
+            characterCostStamina(hero, kTicksPerDay)
+            when (terrain.kind) {
+              kTerrainKindMountain -> {
+                if (random.nextDouble() < kMountainBeastProbability) {
+                  metBeast = true
+                  return false
                 }
-                kTerrainKindForest -> {
-                  if (random.nextDouble() < kForestBeastProbability) {
-                    metBeast = true
-                    break
-                  }
-                  if (random.nextDouble() < kForestOreProbability) {
-                    entityAcquireItem(lootbox, Material.ore(), incidentOccured: false)
-                  }
-                  if (random.nextDouble() < kForestJadeProbability) {
-                    entityAcquireItem(lootbox, Jade(), incidentOccured: false)
-                  }
+                if (random.nextDouble() < kMountainOreProbability) {
+                  entityAcquireItem(lootbox, Material.ore(), incidentOccured: false)
                 }
-                kTerrainKindPlain -> {
-                  if (random.nextDouble() < kPlainOreProbability) {
-                    entityAcquireItem(lootbox, Material.ore(), incidentOccured: false)
-                  }
-                  if (random.nextDouble() < kPlainJadeProbability) {
-                    entityAcquireItem(lootbox, Jade(), incidentOccured: false)
-                  }
+                if (random.nextDouble() < kMountainJadeProbability) {
+                  entityAcquireItem(lootbox, Jade(), incidentOccured: false)
+                }
+              }
+              kTerrainKindForest -> {
+                if (random.nextDouble() < kForestBeastProbability) {
+                  metBeast = true
+                  return false
+                }
+                if (random.nextDouble() < kForestOreProbability) {
+                  entityAcquireItem(lootbox, Material.ore(), incidentOccured: false)
+                }
+                if (random.nextDouble() < kForestJadeProbability) {
+                  entityAcquireItem(lootbox, Jade(), incidentOccured: false)
+                }
+              }
+              kTerrainKindPlain -> {
+                if (random.nextDouble() < kPlainOreProbability) {
+                  entityAcquireItem(lootbox, Material.ore(), incidentOccured: false)
+                }
+                if (random.nextDouble() < kPlainJadeProbability) {
+                  entityAcquireItem(lootbox, Jade(), incidentOccured: false)
                 }
               }
             }
+            if (i >= days) return false
+            return true
+          }).then((_) {
             final incidentContent = getLocaleString('characterMined', [
               hero.name,
               '${terrain.left}, ${terrain.top}',
@@ -349,11 +346,11 @@ fun handleWorldTerrainInteraction(left, top) {
               } else {
                 characterLootBox(hero, lootbox)
               }
-            } ().then((value) {
+            } ().then((_) {
               if (metBeast) {
                 final beast = Beast()
                 final message = getLocaleString('metBeast', [beast.name])
-                showDialogByStrings([message]).then((value) {
+                showDialogByStrings([message]).then((_) {
                   heroBattle(beast)
                 })
               }
@@ -364,34 +361,35 @@ fun handleWorldTerrainInteraction(left, top) {
       // 捕猎，增加遇到野兽的概率200%
       'hunt' -> {
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-          showProgress(getLocaleString('hunt')).then((value) {
-            var metBeast = false
-            var i = 0
-            while(i < days) {
-              ++i
-              updateGame(ticks: kTicksPerDay)
-              characterCostStamina(hero, kTicksPerDay)
-              when (terrain.kind) {
-                kTerrainKindMountain -> {
-                  if (random.nextDouble() < (kMountainBeastProbability * kHuntBeastProbability)) {
-                    metBeast = true
-                    break
-                  }
+          var metBeast = false
+          var i = 0
+          showProgress(getLocaleString('hunt'), () {
+            ++i
+            updateGame(ticks: kTicksPerDay)
+            characterCostStamina(hero, kTicksPerDay)
+            when (terrain.kind) {
+              kTerrainKindMountain -> {
+                if (random.nextDouble() < (kMountainBeastProbability * kHuntBeastProbability)) {
+                  metBeast = true
+                  return false
                 }
-                kTerrainKindForest -> {
-                  if (random.nextDouble() < (kForestBeastProbability * kHuntBeastProbability)) {
-                    metBeast = true
-                    break
-                  }
+              }
+              kTerrainKindForest -> {
+                if (random.nextDouble() < (kForestBeastProbability * kHuntBeastProbability)) {
+                  metBeast = true
+                  return false
                 }
-                kTerrainKindPlain -> {
-                  if (random.nextDouble() < (kPlainBeastProbability * kHuntBeastProbability)) {
-                    metBeast = true
-                    break
-                  }
+              }
+              kTerrainKindPlain -> {
+                if (random.nextDouble() < (kPlainBeastProbability * kHuntBeastProbability)) {
+                  metBeast = true
+                  return false
                 }
               }
             }
+            if (i >= days) return false
+            return true
+          }).then((_) {
             final incidentContent = getLocaleString('characterHunted', [
               hero.name,
               '${terrain.left}, ${terrain.top}',
@@ -405,9 +403,11 @@ fun handleWorldTerrainInteraction(left, top) {
             if (metBeast) {
               final beast = Beast()
               final message = getLocaleString('foundBeast', [beast.name])
-              showDialogByStrings([message]).then((value) {
+              showDialogByStrings([message]).then((_) {
                 heroBattle(beast)
               })
+            } else {
+              return showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
             }
           })
         })
@@ -421,31 +421,32 @@ fun handleWorldTerrainInteraction(left, top) {
         // game.playerMonthly.fished.add(terrainIndex)
         
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-          showProgress(getLocaleString('fish')).then((value) {
-            final lootbox = Reward()
-            var metStorm = false
-            var i = 0
-            while(i < days) {
-              ++i
-              updateGame(ticks: kTicksPerDay)
-              characterCostStamina(hero, kTicksPerDay)
-              when (terrain.kind) {
-                kTerrainKindLake -> {
-                  if (random.nextDouble() < kLakeFishProbability) {
-                    entityAcquireItem(lootbox, Material.fish(), incidentOccured: false)
-                  }
+          final lootbox = Reward()
+          var metStorm = false
+          var i = 0
+          showProgress(getLocaleString('fish'), () {
+            ++i
+            updateGame(ticks: kTicksPerDay)
+            characterCostStamina(hero, kTicksPerDay)
+            when (terrain.kind) {
+              kTerrainKindLake -> {
+                if (random.nextDouble() < kLakeFishProbability) {
+                  entityAcquireItem(lootbox, Material.fish(), incidentOccured: false)
                 }
-                kTerrainKindSea -> {
-                  if (random.nextDouble() < kSeaStormProbability) {
-                    metStorm = true
-                    break
-                  }
-                  if (random.nextDouble() < kSeaFishProbability) {
-                    entityAcquireItem(lootbox, Material.fish(), incidentOccured: false)
-                  }
+              }
+              kTerrainKindSea -> {
+                if (random.nextDouble() < kSeaStormProbability) {
+                  metStorm = true
+                  return false
+                }
+                if (random.nextDouble() < kSeaFishProbability) {
+                  entityAcquireItem(lootbox, Material.fish(), incidentOccured: false)
                 }
               }
             }
+            if (i >= days) return false
+            return true
+          }).then((_) {
             final incidentContent = getLocaleString('characterFished', [
               hero.name,
               '${terrain.left}, ${terrain.top}',
@@ -457,14 +458,14 @@ fun handleWorldTerrainInteraction(left, top) {
               isPrivate: true,
             )
             () async {
+              if (metStorm) {
+                return showDialogByLocaleKeys(['metStorm'], character: hero)
+              }
+            } ().then((_) {
               if (lootbox.inventory.isEmpty) {
                 return showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
               } else {
                 characterLootBox(hero, lootbox)
-              }
-            } ().then((value) {
-              if (metStorm) {
-                showDialogByLocaleKeys(['metStorm'], character: hero)
               }
             })
           })
@@ -483,7 +484,7 @@ fun handleWorldMapEntityInteraction(entityId) -> bool {
   when (entity.encounterType) {
     // 隐藏的盗贼营地副本
     'banditCamp' -> {
-      showDialogByLocaleKeys(['worldMapEncounterBanditCamp'], character: hero).then((value) {
+      showDialogByLocaleKeys(['worldMapEncounterBanditCamp'], character: hero).then((_) {
         showSelectionByLocaleKeys(['exploreMaze', 'cancel']).then((key) {
           when (key) {
             'exploreMaze' -> {

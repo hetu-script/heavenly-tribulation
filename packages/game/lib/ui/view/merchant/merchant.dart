@@ -13,6 +13,8 @@ class MerchantView extends StatefulWidget {
     required HTStruct merchantData,
     double priceFactor = 2.0,
     bool allowSell = true,
+    List<dynamic> sellableCategory = const [],
+    List<dynamic> sellableKind = const [],
   }) {
     return showDialog<bool>(
       context: context,
@@ -23,6 +25,8 @@ class MerchantView extends StatefulWidget {
           merchantData: merchantData,
           priceFactor: priceFactor,
           allowSell: allowSell,
+          sellableCategory: List<String>.from(sellableCategory),
+          sellableKind: List<String>.from(sellableKind),
         );
       },
     );
@@ -33,11 +37,15 @@ class MerchantView extends StatefulWidget {
     required this.merchantData,
     this.priceFactor = 2.0,
     this.allowSell = true,
+    this.sellableCategory = const [],
+    this.sellableKind = const [],
   });
 
   final HTStruct merchantData;
   final double priceFactor;
   final bool allowSell;
+  final List<String> sellableCategory;
+  final List<String> sellableKind;
 
   @override
   State<MerchantView> createState() => _MerchantViewState();

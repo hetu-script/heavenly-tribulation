@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import '../shared/responsive_window.dart';
 import '../../global.dart';
 
+const kProgressIndicatorSpeed = 0.036;
+
 class ProgressIndicator extends StatefulWidget {
   static Future<void> show({
     required BuildContext context,
     required String title,
+    bool Function()? checkProgress,
   }) {
     return showDialog<void>(
       context: context,
@@ -16,6 +19,7 @@ class ProgressIndicator extends StatefulWidget {
       builder: (context) {
         return ProgressIndicator(
           title: title,
+          checkProgress: checkProgress,
         );
       },
     );
@@ -24,9 +28,11 @@ class ProgressIndicator extends StatefulWidget {
   const ProgressIndicator({
     super.key,
     required this.title,
+    this.checkProgress,
   });
 
   final String title;
+  final bool Function()? checkProgress;
 
   @override
   State<ProgressIndicator> createState() => _ProgressIndicatorState();
@@ -34,7 +40,7 @@ class ProgressIndicator extends StatefulWidget {
 
 class _ProgressIndicatorState extends State<ProgressIndicator> {
   Timer? _timer;
-  double _progress = 0;
+  double _progress = 0.0;
 
   @override
   void initState() {
@@ -45,11 +51,23 @@ class _ProgressIndicatorState extends State<ProgressIndicator> {
       (timer) {
         if (_progress < 1.0) {
           setState(() {
-            _progress += 0.018;
+            _progress += kProgressIndicatorSpeed;
           });
         } else {
-          _timer?.cancel();
-          Navigator.of(context).pop();
+          if (widget.checkProgress == null) {
+            _timer?.cancel();
+            Navigator.of(context).pop();
+          } else {
+            final result = widget.checkProgress!();
+            if (result == true) {
+              setState(() {
+                _progress = 0.0;
+              });
+            } else {
+              _timer?.cancel();
+              Navigator.of(context).pop();
+            }
+          }
         }
       },
     );

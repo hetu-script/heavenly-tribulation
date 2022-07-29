@@ -188,7 +188,7 @@ fun _handleTradingHouseInteraction(site) {
           final description = '${quest.description}${
             getLocaleString('questRewardMoney', [quest.reward.money])
           }'
-          showDialogByStrings([message,description], displayName: displayName).then((value) {
+          showDialogByStrings([message,description], displayName: displayName).then((_) {
             showSelectionByLocaleKeys([
               'accept',
               'cancel',
@@ -203,9 +203,9 @@ fun _handleTradingHouseInteraction(site) {
       'trade' -> {
         if (site.organizaitonId) {
           final organization = getOrganizationById(site.organizaitonId)
-          showMerchant(organization, allowSell: false)
+          showMerchant(organization, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
         } else {
-          showMerchant(site, allowSell: false)
+          showMerchant(site, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
         }
       }
     }
@@ -295,7 +295,7 @@ fun _handleGovernmentInteraction(site) {
         // TODO: 进贡金钱或者宝物，之后可以选择是否发起请求
       }
       'noticeBoard' -> {
-        if (game.siteMonthly.contains[site.id]) {
+        if (game.siteMonthly.contains(site.id)) {
           showDialogByLocaleKeys(['workedThisMonth'])
         } else if (site.quests.isEmpty) {
           showDialogByLocaleKeys(['governmentQuestEmpty'])

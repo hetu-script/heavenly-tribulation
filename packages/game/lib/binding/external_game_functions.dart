@@ -1,4 +1,5 @@
 import 'package:hetu_script/hetu_script.dart';
+import 'package:hetu_script/value/function/function.dart';
 
 import '../ui/dialog/game_dialog.dart';
 import '../ui/dialog/selection_dialog.dart';
@@ -8,7 +9,7 @@ import '../ui/dialog/character_select_dialog.dart';
 import '../ui/view/merchant/merchant.dart';
 import '../ui/view/quest/quests.dart';
 import '../ui/overlay/maze/maze.dart';
-import '../ui/dialog/explore_indicator.dart';
+import '../ui/dialog/progress_indicator.dart';
 import '../ui/dialog/integer_input.dart';
 
 final Map<String, Function> externalGameFunctions = {
@@ -72,6 +73,8 @@ final Map<String, Function> externalGameFunctions = {
       merchantData: positionalArgs[1],
       priceFactor: positionalArgs[2],
       allowSell: positionalArgs[3],
+      sellableCategory: positionalArgs[4],
+      sellableKind: positionalArgs[5],
     );
   },
   r'showQuests': (HTEntity object,
@@ -96,9 +99,14 @@ final Map<String, Function> externalGameFunctions = {
       {List<dynamic> positionalArgs = const [],
       Map<String, dynamic> namedArgs = const {},
       List<HTType> typeArgs = const []}) {
+    bool Function()? func;
+    if (positionalArgs[2] is HTFunction) {
+      func = () => (positionalArgs[2] as HTFunction).call();
+    }
     return ProgressIndicator.show(
       context: positionalArgs[0],
       title: positionalArgs[1],
+      checkProgress: func,
     );
   },
   r'showIntInput': (HTEntity object,

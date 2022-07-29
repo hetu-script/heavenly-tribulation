@@ -668,7 +668,7 @@ fun getCharacters([ids]) {
     assert(ids.isNotEmpty)
     return game.characters.values.where( (value) => value.id in ids )
   } else {
-    return game.characters
+    return game.characters.values
   }
 }
 

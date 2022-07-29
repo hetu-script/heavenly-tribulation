@@ -168,7 +168,7 @@ class _MainMenuState extends State<MainMenu> {
                           key: UniqueKey(),
                           args: value,
                         ),
-                      ).then((value) {
+                      ).then((_) {
                         engine.invoke('build', positionalArgs: [context]);
                         setState(() {});
                       });
@@ -198,7 +198,7 @@ class _MainMenuState extends State<MainMenu> {
                             "path": info.path,
                           },
                         ),
-                      ).then((value) {
+                      ).then((_) {
                         engine.invoke('build', positionalArgs: [context]);
                         setState(() {});
                       });
@@ -276,7 +276,7 @@ class _MainMenuState extends State<MainMenu> {
                                         key: UniqueKey(),
                                         mazeData: mazeData,
                                       ),
-                                    ).then((value) {
+                                    ).then((_) {
                                       engine.invoke('build',
                                           positionalArgs: [context]);
                                       setState(() {});
@@ -297,7 +297,7 @@ class _MainMenuState extends State<MainMenu> {
                                       context: context,
                                       builder: (BuildContext context) =>
                                           const Console(),
-                                    ).then((value) => setState(() {
+                                    ).then((_) => setState(() {
                                           engine.invoke('build',
                                               positionalArgs: [context]);
                                         }));

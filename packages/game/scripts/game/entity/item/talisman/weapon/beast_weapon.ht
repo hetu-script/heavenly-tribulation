@@ -4,7 +4,6 @@ import '../../../../util.ht'
 import '../../../../game.ht'
 import '../../../../l10n.ht'
 
-final kBeast = 'beast'
 final kBeastWeaponKindClaw = 'claw'
 final kBeastWeaponKindFang = 'fang'
 
@@ -54,11 +53,7 @@ struct BeastWeapon {
     this.isEquippable = true
     this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
     this.rarity = rarity ?? kCommon
-    if (this.rarity == kCommon) {
-      this.name = getLocaleString(kBeast) + getLocaleString(kind)
-    } else {
-      this.name = beastName + getLocaleString(kind)
-    }
+    this.name = beastName + getLocaleString(kind)
     this.color = kRarity[this.rarity].color
     this.id = 'beast_bodypart_${Hash.uid4(2)}_${this.name}'
     this.isBodyPart = true
