@@ -8,7 +8,8 @@ import '../game.ht'
 import '../entity/common.ht'
 import '../reward.ht'
 import '../datetime.ht'
-import '../entity/common.ht'
+import '../tile/hexagonal_tile.ht'
+
 
 const _kDelivering = 'delivering'
 
@@ -31,7 +32,6 @@ struct QuestDelivery {
 
     this.difficulty = kQuestDifficultyNormal,
     this.category = kQuestCategoryDelivery
-    this.daysLimit = daysLimit
     this.reward = Reward(money: rewardMoney)
 
     this.questEntityOnAcception = entity

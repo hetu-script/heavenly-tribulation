@@ -7,6 +7,7 @@ import '../entity/organization/organization.ht'
 import '../entity/nation/nation.ht'
 import '../l10n.ht'
 import '../tile/hexagonal_tile.ht'
+import '../tile/zone.ht'
 import '../tile/tilemap.ht'
 import '../entity/common.ht'
 import '../datetime.ht' as datetime
@@ -288,11 +289,14 @@ fun createWorldMap({
     if (location.development > 0 && random.nextDouble() < _kSiteTradinghouseProbability) {
       final site = Site(category: kSiteTradinghouse, locationId: location.id)
       site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
-      // 商号可能有：木料、矿石、玉石、兽皮、药材、食材
-      entityAcquireItem(site, Resource.timber(), 20)
-      entityAcquireItem(site, Resource.ore(), 20)
-      entityAcquireItem(site, Resource.jade(), 20)
-      entityAcquireItem(site, Resource.animalHide(), 20)
+      // 商号可能有：谷物、水果、鱼、蔬菜、药材、木料、矿石
+      entityAcquireItem(site, Material.grain(), 20)
+      entityAcquireItem(site, Material.fruit(), 20)
+      entityAcquireItem(site, Material.fish(), 20)
+      entityAcquireItem(site, Material.vegetable(), 20)
+      entityAcquireItem(site, Material.herb(), 20)
+      entityAcquireItem(site, Material.wood(), 20)
+      entityAcquireItem(site, Material.ore(), 20)
     }
     if (location.development > 1 && random.nextDouble() < _kSiteWorkshopProbability) {
       final site = Site(category: kSiteWorkshop, locationId: location.id)
@@ -411,8 +415,8 @@ fun createWorldMap({
       }
     }
 
-    final r = generateZoneName(category: zone.category)
-    zone.name = r.first.name
+    final randomName = generateZoneName(category: zone.category)
+    zone.name = randomName.name
 
   }
 

@@ -47,7 +47,7 @@ struct Site {
     this.name = name ?? getLocaleString(category)
     this.image = image ?? 'location/site/${category}.png'
 
-    this.id = 'site_${location.id}_${category}_${this.name}'
+    this.id = 'site_${locationId}_${category}_${this.name}'
 
     final location = game.locations[locationId]
     engine.info('在 ${location.name} 创建了 ${this.name}')
@@ -70,7 +70,7 @@ struct Site {
     // 这个建筑可以领的任务
     // 可以在官府，或者在民居的告示栏领任务
     // 也可以在商号等建筑领任务
-    this. {}
+    this.quests = {}
   }
 }
 
@@ -159,21 +159,19 @@ fun _handleAcademyInteraction(site) {
 fun _handleTradingHouseInteraction(site) {
   final hero = getHero()
   final location = game.locations[site.locationId]
-  final selections = [
-    // 'diagnose',
+  showSelectionByLocaleKeys([
     'work',
     'trade',
-  ]
-  showSelectionByLocaleKeys(selections).then((key) {
+  ]).then((key) {
     when (key) {
       'work' -> {
-        if (game.siteMonthly.contains[site.id]) {
+        if (game.siteMonthly.worked.contains(site.id)) {
           showDialogByLocaleKeys(['workedThisMonth'])
         } else {
           // 非门派商号，这里会临时生成一个任务
           // 商号的运送任务都是普通物品，并且送到指定地点而非人物
           final destination = random.nextIterable(game.locations.values)
-          final destinationSite = random.nextIterable(destination.sites.value)
+          final destinationSite = random.nextIterable(destination.sites.values)
           final distance = getTileDistance(location.tilePosition, destination.tilePosition)
           final quest = QuestDelivery(
             locationId: location.id,
@@ -183,7 +181,19 @@ fun _handleTradingHouseInteraction(site) {
             entity: Material(stackSize: 20),
             rewardMoney: distance * 50,
           )
-          
+          final displayName = getLocaleString('server')
+          final message = getLocaleString('delivery.introDialog')
+          final description = '${quest.description}${
+            getLocaleString('questRewardMoney', [quest.reward.money])
+          }'
+          showDialogByStrings([message,description], displayName: displayName).then((value) {
+            showSelectionByLocaleKeys([
+              'accept',
+              'cancel',
+            ]).then((value) {
+              characterAcceptQuest(hero, location, quest)
+            })
+          })
         }
       }
       'trade' -> {
@@ -200,12 +210,10 @@ fun _handleTradingHouseInteraction(site) {
 
 fun _handleWorkshopInteraction(site) {
   final hero = getHero()
-  final selections = [
-    // 'diagnose',
+  showSelectionByLocaleKeys([
     'work', // 打工可以提升本地声望，收集指定数量的木料、矿石、玉石、兽皮
     'trade', // 不能在这里卖东西
-  ]
-  showSelectionByLocaleKeys(selections).then((key) {
+  ]).then((key) {
     when (key) {
       'work' -> {
         if (game.siteMonthly.contains[site.id]) {
@@ -228,12 +236,10 @@ fun _handleWorkshopInteraction(site) {
 
 fun _handleRestaurantInteraction(site) {
   final hero = getHero()
-  final selections = [
-    // 'diagnose',
+  showSelectionByLocaleKeys([
     'work', // 打工可以提升本地声望，收集指定数量的食材
     'trade', // 不能在这里卖东西
-  ]
-  showSelectionByLocaleKeys(selections).then((key) {
+  ]).then((key) {
     when (key) {
       'work' -> {
         if (game.siteMonthly.contains[site.id]) {
@@ -256,12 +262,11 @@ fun _handleRestaurantInteraction(site) {
 
 fun _handleHospitalInteraction(site) {
   final hero = getHero()
-  final selections = [
+  showSelectionByLocaleKeys([
     // 'diagnose',
     'work', // 打工可以提升本地声望，收集指定数量的药草
     'trade', // 不能在这里卖东西
-  ]
-  showSelectionByLocaleKeys(selections).then((key) {
+  ]).then((key) {
     when (key) {
       // 'diagnose' -> {
       //   if (hero.statusEffects.containsKey(kStatusInjuryKindSlash)) {

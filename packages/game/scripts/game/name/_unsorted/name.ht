@@ -69,7 +69,7 @@ namespace Name {
   fun getSpell(number: int) {
     final names = []
     for (var i in range(number)) {
-      final name = random.nextIterable(common) + random.nextIterable(spell)
+      final name = random.nextIterable(commonNames) + random.nextIterable(spell)
       names.add(name)
     }
     return names

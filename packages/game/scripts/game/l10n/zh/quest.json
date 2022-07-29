@@ -2,6 +2,8 @@
   "publishingDate": "领取截止日期",
   "expirationDate": "完成截至日期",
 
+  "questRewardMoney": "任务奖励：{0} 银两。",
+
   "workedThisMonth": "老板：这个月你已经在我们这儿领过任务了。你去别处问问，或者下个月再来吧。",
 
   "governmentQuestEmpty": "小吏：最近太平无事，并无人发布悬赏任务。你下个月再来看看吧。",
@@ -41,6 +43,7 @@
   "delivery.commonItem.targetCharacter.description": "在 {0} 之前，将 {1} 个 {2} 送给 {3} 的 {4}。",
   "escort": "护送人员",
   "convoy": "运送物品",
+  "delivery.introDialog": "你要打工？我这刚好有批货要找人托运。看看你要不要把这个活接下来……",
 
   "craft": "打造",
 

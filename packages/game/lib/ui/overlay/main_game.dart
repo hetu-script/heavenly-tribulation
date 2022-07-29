@@ -114,35 +114,38 @@ class _MainGameOverlayState extends State<MainGameOverlay>
     final e = event as MapInteractionEvent;
     if (engine.isOnDesktop) {
       if (e.buttons & kPrimaryButton == kPrimaryButton) {
-        _menuPosition = null;
-        final hero = _scene.map.hero;
-        if (hero == null) return;
-        if (hero.isMoving) return;
-        final terrain = _scene.map.selectedTerrain;
-        if (terrain == null) return;
-        List<int>? route;
-        if (terrain.tilePosition != hero.tilePosition) {
-          final start = engine.invoke('getTerrain',
-              positionalArgs: [hero.left, hero.top, _scene.worldData]);
-          final end = engine.invoke('getTerrain',
-              positionalArgs: [terrain.left, terrain.top, _scene.worldData]);
-          List? calculatedRoute = engine.invoke('calculateRoute',
-              positionalArgs: [start, end, _scene.worldData]);
-          if (calculatedRoute != null) {
-            route = List<int>.from(calculatedRoute);
-            if (terrain.locationId != null) {
-              _scene.map.moveHeroToTilePositionByRoute(
-                route,
-                onDestinationCallback: () =>
-                    _enterLocation(terrain.locationId!),
-              );
-            } else {
-              _scene.map.moveHeroToTilePositionByRoute(route);
-            }
-          }
+        if (_menuPosition != null) {
+          _menuPosition = null;
         } else {
-          if (terrain.locationId != null) {
-            _enterLocation(terrain.locationId!);
+          final hero = _scene.map.hero;
+          if (hero == null) return;
+          if (hero.isMoving) return;
+          final terrain = _scene.map.selectedTerrain;
+          if (terrain == null) return;
+          List<int>? route;
+          if (terrain.tilePosition != hero.tilePosition) {
+            final start = engine.invoke('getTerrain',
+                positionalArgs: [hero.left, hero.top, _scene.worldData]);
+            final end = engine.invoke('getTerrain',
+                positionalArgs: [terrain.left, terrain.top, _scene.worldData]);
+            List? calculatedRoute = engine.invoke('calculateRoute',
+                positionalArgs: [start, end, _scene.worldData]);
+            if (calculatedRoute != null) {
+              route = List<int>.from(calculatedRoute);
+              if (terrain.locationId != null) {
+                _scene.map.moveHeroToTilePositionByRoute(
+                  route,
+                  onDestinationCallback: () =>
+                      _enterLocation(terrain.locationId!),
+                );
+              } else {
+                _scene.map.moveHeroToTilePositionByRoute(route);
+              }
+            }
+          } else {
+            if (terrain.locationId != null) {
+              _enterLocation(terrain.locationId!);
+            }
           }
         }
       } else if (e.buttons & kSecondaryButton == kSecondaryButton) {
@@ -463,6 +466,29 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                 });
               }
 
+              final stringBuffer = StringBuffer();
+              stringBuffer.writeln(
+                  '坐标: ${selectedTerrain.left}, ${selectedTerrain.top}');
+
+              final zoneData = engine.invoke('getZoneByIndex',
+                  positionalArgs: [selectedTerrain.zoneIndex]);
+              final zoneName = zoneData['name'];
+              if (zoneName != null) {
+                stringBuffer.writeln(zoneName);
+              }
+
+              if (selectedTerrain.nationId != null) {
+                final nationData = engine.invoke('getNationById',
+                    positionalArgs: [selectedTerrain.nationId]);
+                stringBuffer.writeln('${nationData['name']}');
+              }
+
+              if (selectedTerrain.locationId != null) {
+                final locationData = engine.invoke('getLocationById',
+                    positionalArgs: [selectedTerrain.locationId]);
+                stringBuffer.writeln('${locationData['name']}');
+              }
+
               screenWidgets.add(
                 WorldMapPopup(
                   left: _menuPosition!.x - WorldMapPopup.defaultSize / 2,
@@ -507,7 +533,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                   onTalk: closePopup,
                   restIcon: isTappingHeroPosition,
                   onRest: closePopup,
-                  // description: stringBuffer.toString(),
+                  description: stringBuffer.toString(),
                 ),
               );
             }

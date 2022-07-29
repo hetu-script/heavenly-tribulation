@@ -1,10 +1,12 @@
 import 'zone/zone.json' as zoneNames
+import 'place/place.json' as placeNames
+import 'place/prefix.json' as placePrefixes
 import 'common/strange.json' as strangeNames
 import 'common.ht'
 
 const _kLinkWord = '之'
 
-fun generateZoneName(category: str) {
+fun generateZoneName({category: str}) {
   assert(category in zoneNames.keys)
   final kind = random.nextIterable(zoneNames[category])
   var rarity = 'common'

@@ -90,8 +90,8 @@ struct Organization {
     } else {
       var conflict = false
       do {
-        final r = generateOrganizationName(category: this.category)
-        this.name = r.first.name
+        final randomName = generateOrganizationName(category: this.category)
+        this.name = randomName.name
         conflict = game.organizations.values.where((element) =>
           element.name == this.name).isNotEmpty
       } while (conflict)

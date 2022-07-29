@@ -1,8 +1,6 @@
 import '../random.ht'
 import '../entity/common.ht'
-import 'zone.json' as zoneNames
-import '../entity/shared_names/place/place.json' as placeNames
-import '../entity/shared_names/place/prefix.json' as placePrefixes
+import '../name/zone.ht'
 
 struct Zone {
   construct ({index, name, category}) {

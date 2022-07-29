@@ -28,7 +28,7 @@ fun generateQuestReward(difficulty) {
     resource: {},
     items: {},
   }
-  return reword
+  return reward
 }
 
 fun characterAcceptQuest(character, location, quest) {

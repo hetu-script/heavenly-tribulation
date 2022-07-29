@@ -17,7 +17,7 @@ final kNonBattleOrganizationNames = [
   ...commonNamesData.action,
 ]
 
-fun getOrganization({category: str}) {
+fun generateOrganizationName({category: str}) {
   assert(category in orgNames.keys)
   final name
   if (category in kNonBattleOrganizationCategories) {
@@ -25,6 +25,6 @@ fun getOrganization({category: str}) {
   } else {
     name = random.nextIterable(kNonBattleOrganizationNames)
   }
-  kind ??= random.nextIterable(orgNames[category])
-  names.add({ name: name + k, category: c })
+  final kind = random.nextIterable(orgNames[category])
+  return { name: name + kind, category }
 }

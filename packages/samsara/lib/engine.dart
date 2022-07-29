@@ -150,9 +150,9 @@ class SamsaraEngine with SceneController, EventAggregator {
         HTResource.json,
       ]);
       final sourceContext = HTAssetResourceContext(
-          root: root,
-          includedFilter: [filterConfig],
-          expressionModuleExtensions: [HTResource.json]);
+        root: root,
+        includedFilter: [filterConfig],
+      );
       hetu = Hetu(
         config: HetuConfig(
           printPerformanceStatistics: debugMode,

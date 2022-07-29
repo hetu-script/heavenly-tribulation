@@ -1,5 +1,6 @@
 import '../tile/tilemap.ht'
 import '../tile/hexagonal_tile.ht'
+import '../tile/zone.ht'
 import '../game.ht'
 import '../tile/object.ht'
 import '../entity/character/enemy/bandit.ht'

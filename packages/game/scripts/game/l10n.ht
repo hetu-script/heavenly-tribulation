@@ -2,7 +2,7 @@ import 'game.ht'
 
 fun addLocales(localeList: List, [modName]) {
   var info = '载入本地化字符串'
-  if (modName != null) info += ' [${modName}]'
+  if (modName != null) info = '${modName}: ' + info
   engine.info(info)
   for (final locale in localeList) {
     final localeId = locale.languageId

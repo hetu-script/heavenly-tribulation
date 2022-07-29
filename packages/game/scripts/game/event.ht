@@ -35,10 +35,9 @@ fun addEventHandler(handler) {
 // 因为函数无法保存，因此一旦读档，回调就会消失
 fun onGameEvent(id: str, [arg]) {
   for (final handler of eventHandlers) {
-    final module = game.modules[hendler.id]
+    final module = game.modules[handler.id]
+    print(id, handler.id)
     assert(module != null)
-    // 只执行那些没有被移除的回调处理
-    if (module.isRemoved) continue
     final callback = handler[id];
     // callback 可能是 null
     if(callback is function) {

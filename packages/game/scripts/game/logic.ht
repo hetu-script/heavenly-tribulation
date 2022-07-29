@@ -71,7 +71,7 @@ fun handleBabies {
 // 但商号、工坊和酒楼只有在是门派开设的情况下才会有多个任务，否则每个月只会提供唯一的一个任务
 fun generateQuests {
   for (final location of game.locations) {
-    for (final site of locaiton.sites) {
+    for (final site of location.sites) {
       when (site.category) {
         'cultivation' -> {
 
@@ -132,8 +132,8 @@ fun generateQuests {
                 kind: kQuestConquestMazeKindKillBanditBoss,
                 bossName: generateCharacterName(),
               )
-              engine.info('在 ${location.name} 生成悬赏任务：${quest.id}，副本地点：${mazeTerrain.left}, ${mazeTerrain.top}')
-              location.quests[quest.id] = quest
+              engine.info('在 ${location.name} ${site.name} 生成悬赏任务：${quest.id}，副本地点：${mazeTerrain.left}, ${mazeTerrain.top}')
+              site.quests[quest.id] = quest
             }
           }
         }

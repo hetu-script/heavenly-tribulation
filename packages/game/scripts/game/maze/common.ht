@@ -69,13 +69,12 @@ fun handleMazeEntityInteraction({entityId, left, top, maze, currentLevelIndex}) 
     maze.flags.haveMetBandit = true
     final messages = getLocaleString('mazeBandit01').split('/n')
     return showDialogByStrings(messages, character: entity).then((value) {
-      final selections = [
+      return showSelectionByLocaleKeys([
         'handOver',
         'plead',
         'escape',
         'fight',
-      ]
-      return showSelectionByLocaleKeys(selections).then((key) {
+      ]).then((key) {
         when (key) {
           // 现实主义
           'handOver' -> {
@@ -245,7 +244,7 @@ fun handleMazeEntityInteraction({entityId, left, top, maze, currentLevelIndex}) 
       final messages = getLocaleString('peddlerDialogIntro').split('/n')
       showDialogByStrings(messages, character: entity)
       .then((value) {
-        final selections = [
+        showSelectionByLocaleKeys([
           'askForDirections',
           'trade',
           'steal',
@@ -253,8 +252,7 @@ fun handleMazeEntityInteraction({entityId, left, top, maze, currentLevelIndex}) 
           'attack',
           'sneakAttack',
           'cancel',
-        ]
-        showSelectionByLocaleKeys(selections)
+        ])
         .then((key) {
           when (key) {
             'trade' -> {

@@ -10,20 +10,23 @@ import 'module.json' as module
 final eventHandler = {
   id: module.id,
   onNewGame: (arg) {
-    engine.info('[${this.name}]: 新游戏事件回调函数')
+    engine.info('[${this.id}]: 新游戏事件回调函数')
   },
   onUpdate: (arg) {
-    engine.info('[${this.name}]: 更新世界事件回调函数')
+    engine.info('[${this.id}]: 更新世界事件回调函数')
   },
+}
+
+fun load() {
+  game.addModule(module)
 }
 
 fun init(arg) {
   final modName = '[${module.name}(${module.id}-${module.version})]'
   
   game.engine.info('${modName}: 初始化')
-  game.addLocales(localizations, module.name)
+  game.addLocales(localizations, modName)
   game.engine.updateLocale(game.locales[game.locales.currentLocaleId])
-  game.addModule(module)
   game.addEventHandler(eventHandler)
   game.engine.info('${modName}: 初始化完毕...')
 }

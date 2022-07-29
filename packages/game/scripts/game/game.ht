@@ -103,7 +103,7 @@ fun resetMonthlyActivities(gameData){
 
 fun resetYearlyActivities(gameData){
   // 指某个组织进行过的动作，限定每个月一次
-  this.organizationYearly = {
+  gameData.organizationYearly = {
     
   }
 }
@@ -155,6 +155,6 @@ fun getTimestamp {
 }
 
 fun addModule(module) {
-  engine.info('载入模组：《${module.name}》')
+  engine.info('[${module.name}] 载入模组数据')
   game.modules[module.id] = module
 }

@@ -25,8 +25,8 @@ struct Nation {
     } else {
       var conflict = false
       do {
-        final r = generateNationName()
-        this.name = r.first.name
+        final randomName = generateNationName()
+        this.name = randomName.name
         conflict = game.nations.values.where((element) =>
           element.name == this.name).isNotEmpty
       } while (conflict)
@@ -88,7 +88,7 @@ fun addTerrainToNation(nation, terrain) {
         location.isCapital = true
         gov.isCapital = true
       }
-      locaiton.governmentSiteId = gov.id
+      location.governmentSiteId = gov.id
     }
     location.nationId = nation.id
     assert(!nation.locationIds.contains(location.id))

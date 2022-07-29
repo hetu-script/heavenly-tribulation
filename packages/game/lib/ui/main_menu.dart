@@ -36,13 +36,25 @@ class MainMenu extends StatefulWidget {
 class _MainMenuState extends State<MainMenu> {
   GameLocalization get locale => engine.locale;
 
-  final savedFiles = <SaveInfo>[];
+  // 模组信息，key是模组名字，value代表是否启用
+  final _modsInfo = <String, bool>{
+    'story': true,
+  };
+
+  final _savedFiles = <SaveInfo>[];
 
   @override
   void initState() {
     super.initState();
 
     engine.registerSceneConstructor('worldmap', ([dynamic args]) async {
+      // 因为生成世界时会触发一些mod的回调函数，因此需要先载入 mod 数据
+      for (final key in _modsInfo.keys) {
+        if (_modsInfo[key] == true) {
+          engine.invoke('load', moduleName: key);
+        }
+      }
+
       HTStruct worldData;
       final path = args!['path'];
       if (path != null) {
@@ -58,6 +70,7 @@ class _MainMenuState extends State<MainMenu> {
       } else {
         worldData = engine.invoke('createWorldMap', namedArgs: args);
       }
+
       return WorldMapScene(worldData: worldData, controller: engine);
     });
 
@@ -67,41 +80,50 @@ class _MainMenuState extends State<MainMenu> {
   }
 
   Future<void> refreshSaves() async {
-    savedFiles.clear();
-    savedFiles.addAll(await _getSavedFiles());
+    _savedFiles.clear();
+    _savedFiles.addAll(await _getSavedFiles());
   }
 
   Future<bool> _prepareData() async {
     await refreshSaves();
     if (engine.isLoaded) return false;
     await engine.init(externalFunctions: externalGameFunctions);
-    // if (kDebugMode) {
-    //   engine.loadModFromAssets(
-    //     'game/main.ht',
-    //     moduleName: 'game',
-    //     namedArgs: {'lang': 'zh', 'gameEngine': engine},
-    //     isMainMod: true,
-    //   );
-    //   engine.loadModFromAssets(
-    //     'story/main.ht',
-    //     moduleName: 'story',
-    //   );
-    // } else {
-    final game = await rootBundle.load('assets/game.mod');
-    final gameBytes = game.buffer.asUint8List();
-    engine.loadModFromBytes(
-      gameBytes,
-      moduleName: 'game',
-      namedArgs: {'lang': 'zh', 'gameEngine': engine},
-      isMainMod: true,
-    );
-    final mod = await rootBundle.load('assets/story.mod');
-    final modBytes = mod.buffer.asUint8List();
-    engine.loadModFromBytes(
-      modBytes,
-      moduleName: 'story',
-    );
-    // }
+    if (kDebugMode) {
+      engine.loadModFromAssets(
+        'game/main.ht',
+        moduleName: 'game',
+        namedArgs: {'lang': 'zh', 'gameEngine': engine},
+        isMainMod: true,
+      );
+      for (final key in _modsInfo.keys) {
+        if (_modsInfo[key] == true) {
+          engine.loadModFromAssets(
+            '$key/main.ht',
+            moduleName: key,
+          );
+        }
+      }
+    } else {
+      final game = await rootBundle.load('assets/mods/game.mod');
+      final gameBytes = game.buffer.asUint8List();
+      engine.loadModFromBytes(
+        gameBytes,
+        moduleName: 'game',
+        namedArgs: {'lang': 'zh', 'gameEngine': engine},
+        isMainMod: true,
+      );
+      for (final key in _modsInfo.keys) {
+        if (_modsInfo[key] == true) {
+          final mod = await rootBundle.load('assets/mods/$key.mod');
+          final modBytes = mod.buffer.asUint8List();
+          engine.loadModFromBytes(
+            modBytes,
+            moduleName: key,
+          );
+        }
+      }
+    }
+
     engine.invoke('build', positionalArgs: [context]);
     engine.isLoaded = true;
     return true;
@@ -156,7 +178,7 @@ class _MainMenuState extends State<MainMenu> {
               padding: const EdgeInsets.only(top: 20.0),
               child: ElevatedButton(
                 onPressed: () {
-                  LoadGameDialog.show(context, list: savedFiles)
+                  LoadGameDialog.show(context, list: _savedFiles)
                       .then((SaveInfo? info) {
                     if (info != null) {
                       showDialog(
@@ -173,7 +195,7 @@ class _MainMenuState extends State<MainMenu> {
                         setState(() {});
                       });
                     } else {
-                      if (savedFiles.isEmpty) {
+                      if (_savedFiles.isEmpty) {
                         setState(() {});
                       }
                     }

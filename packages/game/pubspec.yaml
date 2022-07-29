@@ -65,6 +65,8 @@ flutter:
   assets:
     - assets/
 
+    - assets/mods/
+
     - assets/audio/
     - assets/audio/music/
 
@@ -103,6 +105,8 @@ flutter:
     - scripts/game/entity/item/talisman/protect/
     - scripts/game/entity/item/talisman/weapon/
     - scripts/game/entity/location/
+    - scripts/game/entity/nation/
+    - scripts/game/entity/organization/
     - scripts/game/entity/skill/
     - scripts/game/l10n/
     - scripts/game/l10n/en/
@@ -115,6 +119,7 @@ flutter:
     - scripts/game/name/creature/
     - scripts/game/name/material/
     - scripts/game/name/organization/
+    - scripts/game/name/place/
     - scripts/game/name/skill/
     - scripts/game/name/talisman/
     - scripts/game/name/zone/

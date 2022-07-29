@@ -37,8 +37,8 @@ struct Shield {
     this.description = description ?? ''
     this.inscription = inscription ?? ''
     if (!this.name) {
-      final r = generateTalismanName(category: this.kind, rarity: this.rarity)
-      this.name = r.name
+      final randomName = generateTalismanName(category: this.kind, rarity: this.rarity)
+      this.name = randomName.name
     }
     this.color = kRarity[this.rarity].color
     this.id = this.rarity != kCommon ? 'shield_${Hash.uid4(2)}_${this.name}' : 'shield_${this.name}'

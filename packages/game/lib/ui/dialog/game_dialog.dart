@@ -199,6 +199,10 @@ class _GameDialogState extends State<GameDialog> {
 
       _currentAvatar = _currentContent!['icon'];
       _currentSay = _currentContent!['lines'][_currentSayIndex];
+      final displayName = _currentContent!['displayName'];
+      if (displayName != null) {
+        _currentSay = '$displayName: $_currentSay';
+      }
       _timer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
         _letterCount++;
         if (_letterCount > _currentSay.length) {

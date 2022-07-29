@@ -483,7 +483,7 @@ fun handleWorldMapEntityInteraction(entityId) -> bool {
     // 隐藏的盗贼营地副本
     'banditCamp' -> {
       showDialogByLocaleKeys(['worldMapEncounterBanditCamp'], character: hero).then((value) {
-        showSelectionByLocaleKeys(['exploreMaze', 'cancel',]).then((key) {
+        showSelectionByLocaleKeys(['exploreMaze', 'cancel']).then((key) {
           when (key) {
             'exploreMaze' -> {
               final maze = game.mazes[entity.id]

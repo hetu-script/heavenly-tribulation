@@ -64,7 +64,7 @@ fun entityAcquireItem(entity, item, { count, incidentOccured = true }) {
 
   var incidentContent
   if (item.rarity == kCommon) {
-    if (character.inventory.containsKey(item.id)) {
+    if (entity.inventory.containsKey(item.id)) {
       // 因为普通物品可以堆叠，也可以重复存在，因此这里要从inventory取，而不要直接修改item
       entity.inventory[item.id].stackSize += count
     } else {

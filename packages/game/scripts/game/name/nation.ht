@@ -14,7 +14,7 @@ fun generateNationName(number: int) {
     name = random.nextIterable(strangeNames)
     rarity = 'rare'
   } else if (r < kXianXiaNameProbability) {
-    name = random.nextIterable(common)
+    name = random.nextIterable(commonNames)
     rarity = 'uncommon'
   } else {
     var prefix = ''

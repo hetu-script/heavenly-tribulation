@@ -58,8 +58,8 @@ struct Kickboxing {
     this.createdTime = createdTime
     this.description = description ?? ''
     if (!this.name) {
-      final r = generateSkillName(category: this.kind, rarity: this.rarity)
-      this.name = r.name
+      final randomName = generateSkillName(category: this.kind, rarity: this.rarity)
+      this.name = randomName.name
     }
     this.color = kRarity[this.rarity].color
     this.id = 'martial_arts_${Hash.uid4(2)}_${this.name}'

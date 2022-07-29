@@ -19,7 +19,7 @@ struct Location {
     isHidden = false,
   }) {
     assert(terrainIndex != null)
-    assert(left != null && top !=)
+    assert(left != null && top != null)
     this.terrainIndex = terrainIndex
     this.tilePosition = Tile(
       left,
