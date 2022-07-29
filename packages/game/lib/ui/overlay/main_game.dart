@@ -100,13 +100,15 @@ class _MainGameOverlayState extends State<MainGameOverlay>
         positionalArgs: [terrain.left, terrain.top]);
   }
 
-  void _enterLocation(String locationId) {
+  void _enterLocation(String locationId) async {
+    final locationData =
+        engine.invoke('getLocationById', positionalArgs: [locationId]);
+    await engine
+        .invoke('onHeroEnteredLocation', positionalArgs: [locationData]);
     showDialog(
       context: context,
       barrierColor: Colors.transparent,
-      builder: (context) => LocationView(
-        locationId: locationId,
-      ),
+      builder: (context) => LocationView(locationData: locationData),
     );
   }
 

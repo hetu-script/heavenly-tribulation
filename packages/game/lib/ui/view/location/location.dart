@@ -17,12 +17,14 @@ import '../../util.dart';
 
 class LocationView extends StatefulWidget {
   final bool showSites;
-  final String locationId;
+  final String? locationId;
+  final HTStruct? locationData;
 
   const LocationView({
     super.key,
     this.showSites = true,
-    required this.locationId,
+    this.locationId,
+    this.locationData,
   });
 
   @override
@@ -81,8 +83,14 @@ class _LocationViewState extends State<LocationView> {
       ),
     ];
 
-    _locationData =
-        engine.invoke('getLocationById', positionalArgs: [widget.locationId]);
+    if (widget.locationData != null) {
+      _locationData = widget.locationData!;
+    } else {
+      final locationId = widget.locationId ??
+          ModalRoute.of(context)!.settings.arguments as String;
+      _locationData =
+          engine.invoke('getLocationById', positionalArgs: [locationId]);
+    }
 
     super.initState();
   }
@@ -103,13 +111,15 @@ class _LocationViewState extends State<LocationView> {
 
     final HTStruct sitesData = _locationData['sites'];
 
-    final List<Widget> siteCards = sitesData.values.map((siteData) {
-      String? imagePath = siteData['image'];
-      return SiteCard(
-        siteData: siteData,
-        imagePath: imagePath,
-      );
-    }).toList();
+    final List<Widget> siteCards = sitesData.values.map(
+      (siteData) {
+        String? imagePath = siteData['image'];
+        return SiteCard(
+          siteData: siteData,
+          imagePath: imagePath,
+        );
+      },
+    ).toList();
 
     // Scaffold(
     //   appBar:

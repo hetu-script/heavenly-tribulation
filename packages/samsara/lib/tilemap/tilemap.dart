@@ -73,6 +73,7 @@ class TileMap extends GameComponent with HandlesGesture {
     this.showClouds = false,
     this.showSelected = false,
     this.showFogOfWar = false,
+    required this.captionStyle,
   }) {
     scale = Vector2(scaleFactor, scaleFactor);
   }
@@ -160,8 +161,9 @@ class TileMap extends GameComponent with HandlesGesture {
         final int zoneIndex = terrainData['zoneIndex'];
         final String zoneCategory = terrainData['zoneCategory'];
         final String? kind = terrainData['kind'];
-        final String? locationId = terrainData['locationId'];
         final String? nationId = terrainData['nationId'];
+        final String? locationId = terrainData['locationId'];
+        final String? caption = terrainData['caption'];
         Sprite? baseSprite;
         SpriteAnimation? baseAnimation;
         final String? baseSpritePath = terrainData['sprite'];
@@ -241,8 +243,10 @@ class TileMap extends GameComponent with HandlesGesture {
           zoneIndex: zoneIndex,
           zoneCategory: zoneCategory,
           kind: kind,
-          locationId: locationId,
           nationId: nationId,
+          locationId: locationId,
+          caption: caption,
+          captionStyle: captionStyle,
           baseSprite: baseSprite,
           baseAnimation: baseAnimation,
           overlaySprite: overlaySprite,
@@ -290,6 +294,8 @@ class TileMap extends GameComponent with HandlesGesture {
 
   @override
   Camera get camera => gameRef.camera;
+
+  final TextStyle captionStyle;
 
   final SamsaraEngine engine;
   late String sceneKey;
@@ -780,8 +786,15 @@ class TileMap extends GameComponent with HandlesGesture {
             final object = objects[tile.objectId]!;
             object.render(canvas);
           }
+          if (tile.tilePosition == hero?.tilePosition) {
+            hero?.render(canvas);
+          }
         }
       }
+    }
+
+    for (final tile in terrains) {
+      tile.renderCaption(canvas);
     }
 
     if (gridMode == GridMode.zone) {

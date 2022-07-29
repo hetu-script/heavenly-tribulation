@@ -78,7 +78,7 @@ fun handleMazeEntityInteraction({entityId, left, top, maze, currentLevelIndex}) 
         when (key) {
           // 现实主义
           'handOver' -> {
-            characterLoot(entity, hero, takeAll: true)
+            characterLootOther(entity, hero, takeAll: true)
             return false
           }
           // 向盗贼求情，是否成功依赖于
@@ -87,7 +87,7 @@ fun handleMazeEntityInteraction({entityId, left, top, maze, currentLevelIndex}) 
             if (hero.stats.charisma > kCharismaCheckThreshold) {
               showDialogByStrings([getLocaleString('pleadSuccess')], character: entity)
                 .then((value) {
-                  characterLoot(entity, hero, takeAll: false)
+                  characterLootOther(entity, hero, takeAll: false)
                 })
               return false
             } else {

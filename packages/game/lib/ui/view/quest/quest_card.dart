@@ -8,11 +8,11 @@ import '../../shared/label.dart';
 class QuestCard extends StatelessWidget {
   const QuestCard({
     super.key,
-    required this.locationData,
+    required this.siteData,
     required this.questData,
   });
 
-  final HTStruct locationData, questData;
+  final HTStruct siteData, questData;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +57,7 @@ class QuestCard extends StatelessWidget {
                       'characterAcceptQuest',
                       positionalArgs: [
                         heroData,
-                        locationData,
+                        siteData,
                         questData,
                       ],
                     );

@@ -1,3 +1,6 @@
+import '../entity/common.ht'
+import '../reward.ht'
+
 final kQuestDifficultyNormal = 'normal'
 final kQuestDifficultyHard = 'hard'
 final kQuestDifficultyExpert = 'expert'
@@ -23,40 +26,70 @@ const kQuestConquestMazeKindReturnHostage = 'returnHostage'
 const kQuestConquestMazeKindReturnTreasure = 'returnTreasure'
 
 fun generateQuestReward(difficulty) {
-  final reward = {
+  final reward = Reward(
     money: 0,
-    resource: {},
-    items: {},
-  }
+    inventory: {},
+  )
   return reward
 }
 
-fun characterAcceptQuest(character, location, quest) {
-  assert(location.quests.containsKey(quest.id))
-  delete location.quests[quest.id]
+fun characterAcceptQuest(character, site, quest) {
+  // 有可能是临时生成的任务，site可能并没有这个任务，但这里并不影响。
+  delete site.quests[quest.id]
   character.quests[quest.id] = quest
   character.activeQuestId ??= quest.id
-  
-  final entity = quest.questEntityOnAcception
-  if (entity) {
-    if (entity.entityType == kEntityTypeCharacter || entity.entityType == kEntityTypeNpc) {
-      characterGetCompanion(character, entity)
-    } else if (entity.entityType == kEntityTypeItem) {
-      entityAcquireItem(character, entity)
-    } else {
-      engine.error('任务物品的对象类型既不是人员也是物品：${entity.entityType}')
-    }
+  final entity = quest.questEntityAccept
+  if (entity.entityType == kEntityTypeCharacter || entity.entityType == kEntityTypeNpc) {
+    characterGetCompanion(character, entity)
+  } else if (entity.entityType == kEntityTypeItem) {
+    entityAcquireItem(character, entity)
+  } else {
+    engine.error('获取任务时发生错误，对象类型既不是人员也是物品：${entity.entityType}')
   }
 
   final questName = getLocaleString(quest.kind);
   final incidentContent = getLocaleString(
     'characterAcceptQuest',
-    [character.name, location.name, questName],
+    [character.name, site.name, questName],
   )
   Incident(
     content: incidentContent,
     subjectIds: character.isMajorCharacter ? [character.id] : null,
   )
+}
+
+// 尝试完成任务，如果成功返回 true，并扣除任务所要求提交的物品等
+fun characterTrySubmitQuest(character, target, quest) -> bool {
+  if (quest.questEntitiesSubmit) {
+    for (final data in quest.questEntitiesSubmit) {
+      if (data.entityType == kEntityTypeCharacter || data.entityType == kEntityTypeNpc) {
+        if (!character.companions.containsKey(data.id)) return false
+      } else if (data.entityType == kEntityTypeItem) {
+        if (!character.inventory.containsKey(data.id)) {
+          return false
+        } else {
+          final item = character.inventory[data.id]
+          if (item.stackSize < data.count) {
+            return false
+          }
+        }
+      } else {
+        print(data)
+        engine.error('提交任务时发生错误，对象类型既不是人员也是物品：${data.entityType}')
+      }
+    }
+
+    for (final data in quest.questEntitiesSubmit) {
+      if (data.entityType == kEntityTypeCharacter || data.entityType == kEntityTypeNpc) {
+        final entity = character.companions[data.id]
+        characterDismissCompanion(character, entity)
+      } else if (data.entityType == kEntityTypeItem) {
+        final entity = character.inventory[data.id]
+        entityGiveItem(character, target, entity, count: data.count)
+      }
+    }
+  }
+  return true
 }
 
 fun setCharacterActiveQuest(character, quest) {
@@ -66,8 +99,4 @@ fun setCharacterActiveQuest(character, quest) {
 
 fun getCharacterActiveQuest(character) {
   return character.quests[character.activeQuestId]
-}
-
-fun handleQuestComplete(quest) {
-  
 }

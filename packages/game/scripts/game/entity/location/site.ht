@@ -162,12 +162,14 @@ fun _handleTradingHouseInteraction(site) {
   showSelectionByLocaleKeys([
     'work',
     'trade',
+    'leave',
   ]).then((key) {
     when (key) {
       'work' -> {
         if (game.siteMonthly.worked.contains(site.id)) {
           showDialogByLocaleKeys(['workedThisMonth'])
         } else {
+          game.siteMonthly.worked.add(site.id)
           // 非门派商号，这里会临时生成一个任务
           // 商号的运送任务都是普通物品，并且送到指定地点而非人物
           final destination = random.nextIterable(game.locations.values)
@@ -178,7 +180,7 @@ fun _handleTradingHouseInteraction(site) {
             siteId: site.id,
             destinationLocationId: destination.id,
             destinationSiteId: destinationSite.id,
-            entity: Material(stackSize: 20),
+            item: Material(stackSize: 20),
             rewardMoney: distance * 50,
           )
           final displayName = getLocaleString('server')
@@ -190,8 +192,10 @@ fun _handleTradingHouseInteraction(site) {
             showSelectionByLocaleKeys([
               'accept',
               'cancel',
-            ]).then((value) {
-              characterAcceptQuest(hero, location, quest)
+            ]).then((key) {
+              if (key == 'accept') {
+                characterAcceptQuest(hero, site, quest)
+              }
             })
           })
         }
@@ -209,87 +213,12 @@ fun _handleTradingHouseInteraction(site) {
 }
 
 fun _handleWorkshopInteraction(site) {
-  final hero = getHero()
-  showSelectionByLocaleKeys([
-    'work', // 打工可以提升本地声望，收集指定数量的木料、矿石、玉石、兽皮
-    'trade', // 不能在这里卖东西
-  ]).then((key) {
-    when (key) {
-      'work' -> {
-        if (game.siteMonthly.contains[site.id]) {
-          showDialogByLocaleKeys(['workedThisMonth'])
-        } else {
-          game.siteMonthly.add(site.id)
-        }
-      }
-      'trade' -> {
-        if (site.organizaitonId) {
-          final organization = getOrganizationById(site.organizaitonId)
-          showMerchant(organization, allowSell: false)
-        } else {
-          showMerchant(site, allowSell: false)
-        }
-      }
-    }
-  })
 }
 
 fun _handleRestaurantInteraction(site) {
-  final hero = getHero()
-  showSelectionByLocaleKeys([
-    'work', // 打工可以提升本地声望，收集指定数量的食材
-    'trade', // 不能在这里卖东西
-  ]).then((key) {
-    when (key) {
-      'work' -> {
-        if (game.siteMonthly.contains[site.id]) {
-          showDialogByLocaleKeys(['workedThisMonth'])
-        } else {
-          game.siteMonthly.add(site.id)
-        }
-      }
-      'trade' -> {
-        if (site.organizaitonId) {
-          final organization = getOrganizationById(site.organizaitonId)
-          showMerchant(organization, allowSell: false)
-        } else {
-          showMerchant(site, allowSell: false)
-        }
-      }
-    }
-  })
 }
 
 fun _handleHospitalInteraction(site) {
-  final hero = getHero()
-  showSelectionByLocaleKeys([
-    // 'diagnose',
-    'work', // 打工可以提升本地声望，收集指定数量的药草
-    'trade', // 不能在这里卖东西
-  ]).then((key) {
-    when (key) {
-      // 'diagnose' -> {
-      //   if (hero.statusEffects.containsKey(kStatusInjuryKindSlash)) {
-          
-      //   }
-      // }
-      'work' -> {
-        if (game.siteMonthly.contains[site.id]) {
-          showDialogByLocaleKeys(['workedThisMonth'])
-        } else {
-          game.siteMonthly.add(site.id)
-        }
-      }
-      'trade' -> {
-        if (site.organizaitonId) {
-          final organization = getOrganizationById(site.organizaitonId)
-          showMerchant(organization, allowSell: false)
-        } else {
-          showMerchant(site, allowSell: false)
-        }
-      }
-    }
-  })
 }
 
 fun _handlePalaceInteraction(site) {

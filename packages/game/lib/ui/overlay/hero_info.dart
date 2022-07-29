@@ -106,6 +106,7 @@ class HeroInfoPanel extends StatelessWidget {
                   child: Row(
                     children: [
                       BorderedIconButton(
+                        padding: const EdgeInsets.only(right: 5.0),
                         onPressed: () {
                           showDialog(
                             context: context,
@@ -114,12 +115,14 @@ class HeroInfoPanel extends StatelessWidget {
                                 CharacterView(characterData: heroData),
                           );
                         },
+                        tooltip: engine.locale['information'],
                         icon: const Image(
                           image:
                               AssetImage('assets/images/icon/information.png'),
                         ),
                       ),
                       BorderedIconButton(
+                        padding: const EdgeInsets.only(right: 5.0),
                         onPressed: () {
                           showDialog(
                             context: context,
@@ -128,11 +131,13 @@ class HeroInfoPanel extends StatelessWidget {
                                 StatusView(characterData: heroData),
                           );
                         },
+                        tooltip: engine.locale['status'],
                         icon: const Image(
                           image: AssetImage('assets/images/icon/status.png'),
                         ),
                       ),
                       BorderedIconButton(
+                        padding: const EdgeInsets.only(right: 5.0),
                         onPressed: () {
                           showDialog(
                             context: context,
@@ -141,6 +146,7 @@ class HeroInfoPanel extends StatelessWidget {
                                 BuildView(characterData: heroData),
                           );
                         },
+                        tooltip: engine.locale['build'],
                         icon: const Image(
                           image: AssetImage('assets/images/icon/inventory.png'),
                         ),

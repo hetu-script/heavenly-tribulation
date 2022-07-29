@@ -26,7 +26,7 @@ class QuestsView extends StatefulWidget {
       builder: (context) {
         return QuestsView(
           key: UniqueKey(),
-          locationData: siteData,
+          siteData: siteData,
         );
       },
     );
@@ -34,10 +34,10 @@ class QuestsView extends StatefulWidget {
 
   const QuestsView({
     super.key,
-    required this.locationData,
+    required this.siteData,
   });
 
-  final HTStruct locationData;
+  final HTStruct siteData;
 
   @override
   State<QuestsView> createState() => _QuestsViewState();
@@ -57,7 +57,7 @@ class _QuestsViewState extends State<QuestsView> {
         (GameEvent event) {
           if (!mounted) return;
           setState(() {
-            _questsData = widget.locationData['quests'];
+            _questsData = widget.siteData['quests'];
             if (_questsData!.isEmpty) {
               Navigator.of(context).pop();
             }
@@ -74,11 +74,11 @@ class _QuestsViewState extends State<QuestsView> {
 
   @override
   Widget build(BuildContext context) {
-    _questsData = widget.locationData['quests'];
+    _questsData = widget.siteData['quests'];
 
     final List<Widget> questCards = _questsData!.values.map((questData) {
       return QuestCard(
-        locationData: widget.locationData,
+        siteData: widget.siteData,
         questData: questData,
       );
     }).toList();

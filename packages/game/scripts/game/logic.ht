@@ -143,20 +143,51 @@ fun generateQuests {
   }
 }
 
-// 如果返回值为 true，则英雄的s移动会中止在这一格。
+// 如果返回值为 true，则英雄的移动会中止在这一格。
 fun onHeroMovedOnWorldMap(left, top) {
+  engine.info('玩家控制角色移动到了: ${left}, ${top}')
 
   return false
 }
 
-fun onHeroEnteredLocation(location) {
+// 异步函数，会在显示地点窗口之前执行，执行完毕后才会显示地点窗口
+fun onHeroEnteredLocation(location) async {
+  engine.info('玩家进入了: ${location.name}')
 
 }
 
-fun onHeroEnteredSite(site) {
+// 异步函数，会在建筑代码之前执行，执行完毕后才会进入建筑代码
+fun onHeroEnteredSite(site) async {
+  engine.info('玩家进入了: ${site.name}')
+
   final hero = getHero()
   // 检查是否有任务满足了提交条件
+  final future
   for (final quest of hero.quests) {
+    if (site.id == quest.destinationSiteId) {
+      quest.result = characterTrySubmitQuest(hero, site, quest)
+      // modEventId 意味着这是一个 mod 创建的任务，将由 mod 自己的函数处理
+      if (quest.modEventId) {
+        return onGameEvent(quest.modEventId, quest)
+      } else {
+        return handleQuestEnding(quest)
+      }
+    }
+  }
+}
 
+fun handleQuestEnding(quest, result) {
+  final hero = getHero()
+  when (quest.category) {
+    kQuestCategoryDelivery -> {
+      if (quest.result) {
+        return showDialogByLocaleKeys(['delivery.submitSuccessed']).then((value) {
+          characterLootBox(hero, quest.reward)
+          quest.isEnded = true
+        })
+      } else {
+        return showDialogByLocaleKeys(['delivery.submitFailed'])
+      }
+    }
   }
 }

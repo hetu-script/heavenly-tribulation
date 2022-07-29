@@ -23,6 +23,11 @@ const iconTheme = IconThemeData(
   color: kForegroundColor,
 );
 
+const captionStyle = TextStyle(
+  fontFamily: 'NotoSansMono',
+  fontSize: 18.0,
+);
+
 final lightTheme = ThemeData(
   brightness: Brightness.dark,
   fontFamily: 'NotoSansMono',
@@ -35,10 +40,7 @@ final lightTheme = ThemeData(
     toolbarHeight: 36,
     iconTheme: iconTheme,
     actionsIconTheme: iconTheme,
-    titleTextStyle: TextStyle(
-      fontFamily: 'NotoSansMono',
-      fontSize: 18.0,
-    ),
+    titleTextStyle: captionStyle,
   ),
   dialogBackgroundColor: kBarrierColor,
   iconTheme: iconTheme,

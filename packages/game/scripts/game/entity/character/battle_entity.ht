@@ -212,7 +212,7 @@ fun heroBattle (
   return showDuel(char1, char2).then((result) {
     if (result?.result) {
       if (resolveResult) resolveDuelResult(char1, char2, result)
-      if (loot) characterLoot(char1, char2, takeAll: takeAll)
+      if (loot) characterLootOther(char1, char2, takeAll: takeAll)
       
       final incidentContent = getLocaleString('duelVistory', [ char1.name, char2.name ] )
       Incident(

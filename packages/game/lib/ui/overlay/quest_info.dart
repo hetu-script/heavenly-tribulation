@@ -19,7 +19,7 @@ class QuestInfoPanel extends StatelessWidget {
 
     return Container(
       width: 300,
-      height: 120,
+      height: 130,
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
         color: kBackgroundColor,

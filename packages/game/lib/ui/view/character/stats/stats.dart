@@ -58,8 +58,6 @@ class _StatusViewState extends State<StatusView>
 
   // String _title = engine.locale['information'];
 
-  late final HTStruct _characterData;
-
   @override
   void initState() {
     super.initState();
@@ -94,9 +92,9 @@ class _StatusViewState extends State<StatusView>
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(
-            _characterData['name'],
+            widget.characterData['name'],
             style: TextStyle(
-              color: HexColor.fromHex(_characterData['color']),
+              color: HexColor.fromHex(widget.characterData['color']),
             ),
           ),
           actions: const [ButtonClose()],
@@ -111,7 +109,8 @@ class _StatusViewState extends State<StatusView>
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  AttributesView(characterData: _characterData),
+                  AttributesView(characterData: widget.characterData),
+                  Container(),
                 ],
               ),
             ),

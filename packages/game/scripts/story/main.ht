@@ -6,15 +6,15 @@ import 'module.json' as module
 
 // 这里的函数最终是绑定到游戏对象上执行
 // 是运行时的命名空间，并不是这里的命名空间
-// 因此可以直接使用 engine 对象
+// 因此可以直接使用 engine, game 等 global 上的 对象
 final eventHandler = {
   id: module.id,
-  onNewGame: (arg) {
-    engine.info('[${this.id}]: 新游戏事件回调函数')
-  },
-  onUpdate: (arg) {
-    engine.info('[${this.id}]: 更新世界事件回调函数')
-  },
+  // onNewGame: (arg) {
+  //   engine.info('[${this.id}]: 新游戏事件回调函数')
+  // },
+  // onUpdate: (arg) {
+  //   engine.info('[${this.id}]: 更新世界事件回调函数')
+  // },
 }
 
 fun load() {

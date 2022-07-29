@@ -71,11 +71,19 @@ class _MainMenuState extends State<MainMenu> {
         worldData = engine.invoke('createWorldMap', namedArgs: args);
       }
 
-      return WorldMapScene(worldData: worldData, controller: engine);
+      return WorldMapScene(
+        worldData: worldData,
+        controller: engine,
+        captionStyle: captionStyle,
+      );
     });
 
     engine.registerSceneConstructor('maze', ([dynamic data]) async {
-      return MazeScene(mapData: data!, controller: engine);
+      return MazeScene(
+        mapData: data!,
+        controller: engine,
+        captionStyle: captionStyle,
+      );
     });
   }
 

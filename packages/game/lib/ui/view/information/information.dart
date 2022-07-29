@@ -214,10 +214,8 @@ class _InformationPanelState extends State<InformationPanel>
                   showDialog(
                     context: context,
                     barrierColor: Colors.transparent,
-                    builder: (context) => LocationView(
-                      showSites: false,
-                      locationId: dataId,
-                    ),
+                    builder: (context) =>
+                        LocationView(showSites: false, locationId: dataId),
                   );
                 },
               ),

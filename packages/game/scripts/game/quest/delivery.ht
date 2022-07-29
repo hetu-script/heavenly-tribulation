@@ -1,6 +1,5 @@
 import 'common.ht'
 import '../l10n.ht'
-import { random } from '../game.ht'
 import '../maze/mountain.ht'
 import '../tile/common.ht'
 import '../binding/worldmap.ht'
@@ -13,31 +12,36 @@ import '../tile/hexagonal_tile.ht'
 
 const _kDelivering = 'delivering'
 
-// 运送货物
+// 运送货物或者护送人员。
+// 货物只能指定一种，但数量可以大于 1
 struct QuestDelivery {
   construct ({
     locationId,
-    siteId,
     destinationLocationId,
     destinationSiteId,
     destinationCharacterId,
-    entity,
+    item,
+    character,
     expirationDays = 15, // 时间限制，以天为单位
     rewardMoney = 0,
   }) {
     assert(locationId != null)
-    assert(siteId != null)
     assert(destinationLocationId != null)
-    assert(entity != null)
+    this.locationId = locationId
+    this.destinationLocationId = destinationLocationId
+    this.destinationSiteId = destinationSiteId
+    this.destinationCharacterId = destinationCharacterId
+    // 接受任务时拿到的任务物品
+    this.questEntityAccept = item ?? character
+    // 在最后检查完成状态时用id和数量来比对
+    // 只保存id和数量信息
+    this.questEntitiesSubmit = []
 
-    this.difficulty = kQuestDifficultyNormal,
+    this.difficulty = kQuestDifficultyNormal
     this.category = kQuestCategoryDelivery
     this.reward = Reward(money: rewardMoney)
 
-    this.questEntityOnAcception = entity
-
     final location = game.locations[locationId]
-    final site = location.sites[siteId]
 
     final destination = game.locations[destinationLocationId]
     final destinationSite = destination.sites[destinationSiteId]
@@ -49,68 +53,65 @@ struct QuestDelivery {
     this.expirationDate = game.timestamp + expirationDays * kTicksPerDay
     final expirationDateString = toDateString(this.expirationDate)
 
-    if (entity.entityType == kEntityTypeCharacter || entity.entityType == kEntityTypeNpc) {
-      this.kind = kQuestDeliveryKindEscort
-      assert(destinationSiteId != null)
-      this.description = getLocaleString('${this.category}.targetSite.description',
-        [
-          expirationDateString,
-          entity.name,
-          destination.name,
-          destinationSite.name,
-        ],
-      )
-    } else if (entity.entityType == kEntityTypeItem) {
+    if (item != null) {
+      this.questEntitiesSubmit.add({
+        id: item.id,
+        count: item.stackSize,
+        entityType: item.entityType,
+      })
       this.kind = kQuestDeliveryKindConvoy
       if (destinationSite) {
-        if (entity.rarity == kCommon) {
-          this.description = getLocaleString('${this.category}.commonItem.targetSite.description',
-            [
-              expirationDateString,
-              entity.stackSize,
-              entity.name,
-              destination.name,
-              destinationSite.name,
-            ],
-          )
-        } else {
-          this.description = getLocaleString('${this.category}.targetSite.description',
-            [
-              expirationDateString,
-              entity.name,
-              destination.name,
-              destinationSite.name,
-            ],
-          )
-        }
+        this.description = getLocaleString('${this.category}.item.targetSite.description',
+          [
+            expirationDateString,
+            item.stackSize,
+            item.name,
+            destination.name,
+            destinationSite.name,
+          ],
+        )
       } else {
         assert(destinationCharacter != null)
-        if (entity.rarity == kCommon) {
-          this.description = getLocaleString('${this.category}.commonItem.targetCharacter.description',
-            [
-              expirationDateString,
-              entity.stackSize,
-              entity.name,
-              destination.name,
-              destinationSite.name,
-            ],
-          )
-        } else {
-          this.description = getLocaleString('${this.category}.targetCharacter.description',
-            [
-              expirationDateString,
-              entity.name,
-              destination.name,
-              destinationSite.name,
-            ],
-          )
-        }
+        this.description = getLocaleString('${this.category}.item.targetCharacter.description',
+          [
+            expirationDateString,
+            item.stackSize,
+            item.name,
+            destination.name,
+            destinationSite.name,
+          ],
+        )
       }
     } else {
-      engine.error('运输任务的对象类型既不是人员也不是物品：${entity.entityType}')
+      assert(character != null)
+      this.questEntitiesSubmit.add({
+        id: character.id,
+        entityType: character.entityType,
+      })
+      this.kind = kQuestDeliveryKindEscort
+      if (destinationSite) {
+        this.description = getLocaleString('${this.category}.character.targetSite.description',
+          [
+            expirationDateString,
+            character.name,
+            destination.name,
+            destinationSite.name,
+          ],
+        )
+      } else {
+        assert(destinationCharacter != null)
+        this.description = getLocaleString('${this.category}.character.targetCharacter.description',
+          [
+            expirationDateString,
+            character.name,
+            destination.name,
+            destinationSite.name,
+          ],
+        )
+      }
     }
 
-    this.id = 'quest_${Hash.uid4(2)}_${siteId}_${this.category}_${this.kind}'
+    this.id = 'quest_${Hash.uid4(2)}_${this.category}_${this.kind}'
 
     this.stages = {
       delivering: {

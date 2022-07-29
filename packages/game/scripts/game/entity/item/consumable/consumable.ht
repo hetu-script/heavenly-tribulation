@@ -58,7 +58,7 @@ struct Consumable {
     this.stackSize = stackSize
     this.color = kRarity[this.rarity].color
     this.id = this.rarity != kCommon ? 'consumable_${Hash.uid4(2)}_${this.name}' : 'consumable_${this.name}'
-    this.icon = icon ?? 'icon/item/consumable/${kind}.png'
+    this.icon = icon ?? 'icon/item/consumable/${this.kind}.png'
 
     this.isConsumable = true
     this.effects = {}

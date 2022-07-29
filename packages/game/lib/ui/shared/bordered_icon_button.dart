@@ -9,7 +9,7 @@ class BorderedIconButton extends StatelessWidget {
     this.iconSize = 24.0,
     required this.icon,
     this.tooltip,
-    this.margin,
+    this.padding = const EdgeInsets.all(0.0),
     this.borderRadius = 5.0,
     required this.onPressed,
   });
@@ -22,7 +22,7 @@ class BorderedIconButton extends StatelessWidget {
 
   final String? tooltip;
 
-  final EdgeInsetsGeometry? margin;
+  final EdgeInsetsGeometry padding;
 
   final double borderRadius;
 
@@ -30,31 +30,33 @@ class BorderedIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: Container(
-          width: size.width,
-          height: size.height,
-          margin: margin,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(borderRadius),
-            border: Border.all(color: kForegroundColor),
-            // shape: BoxShape.rectangle,
-            // boxShadow: [
-            //   BoxShadow(
-            //     color: Colors.grey.withOpacity(0.5),
-            //     spreadRadius: 3,
-            //     blurRadius: 6,
-            //     offset: const Offset(0, 2), // changes position of shadow
-            //   ),
-            // ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(borderRadius),
-            child: icon,
+    return Padding(
+      padding: padding,
+      child: GestureDetector(
+        onTap: onPressed,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Container(
+            width: size.width,
+            height: size.height,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(borderRadius),
+              border: Border.all(color: kForegroundColor),
+              // shape: BoxShape.rectangle,
+              // boxShadow: [
+              //   BoxShadow(
+              //     color: Colors.grey.withOpacity(0.5),
+              //     spreadRadius: 3,
+              //     blurRadius: 6,
+              //     offset: const Offset(0, 2), // changes position of shadow
+              //   ),
+              // ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(borderRadius),
+              child: icon,
+            ),
           ),
         ),
       ),

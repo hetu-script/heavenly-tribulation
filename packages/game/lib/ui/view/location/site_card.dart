@@ -36,7 +36,9 @@ class SiteCard extends StatelessWidget {
             type: MaterialType.transparency,
             child: InkWell(
               borderRadius: kBorderRadius,
-              onTap: () {
+              onTap: () async {
+                await engine
+                    .invoke('onHeroEnteredSite', positionalArgs: [siteData]);
                 engine.invoke('handleSiteInteraction', positionalArgs: [
                   siteData['locationId'],
                   siteData['id'],

@@ -76,7 +76,8 @@ void main() async {
         debugShowCheckedModeBanner: false,
         theme: Global.appTheme,
         builder: (BuildContext context, Widget? widget) {
-          Widget error = const Text('...rendering error...');
+          Widget error =
+              const Text('an error occurred while rendering this widget...');
           if (widget is Scaffold || widget is Navigator) {
             error = Scaffold(body: Center(child: error));
           }

@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import '../component/game_component.dart';
 import '../shared/direction.dart';
 
+const _kCaptionOffset = 14.0;
+
 class TilePosition {
   final int left, top;
 
@@ -71,8 +73,11 @@ class TileMapTerrain extends GameComponent with TileInfo {
 
   bool isWater;
 
-  final String? locationId;
   final String? nationId;
+  final String? locationId;
+  final String? caption;
+  final TextPaint locationNamePaint;
+
   bool isSelectable;
   bool isVoid;
   bool showGrid;
@@ -98,11 +103,13 @@ class TileMapTerrain extends GameComponent with TileInfo {
     required double gridWidth,
     required double gridHeight,
     required this.zoneIndex,
-    required this.nationId,
     required this.isWater,
     required this.zoneCategory,
     required this.kind,
+    this.nationId,
     this.locationId,
+    this.caption,
+    required TextStyle captionStyle,
     this.baseSprite,
     this.baseAnimation,
     this.overlaySprite,
@@ -111,7 +118,29 @@ class TileMapTerrain extends GameComponent with TileInfo {
     this.offsetY = 0.0,
     this.entityId,
     this.objectId,
-  }) {
+  }) : locationNamePaint = TextPaint(
+          style: captionStyle.copyWith(
+            fontSize: 7.0,
+            shadows: const [
+              Shadow(
+                  // bottomLeft
+                  offset: Offset(-0.5, -0.5),
+                  color: Colors.black),
+              Shadow(
+                  // bottomRight
+                  offset: Offset(0.5, -0.5),
+                  color: Colors.black),
+              Shadow(
+                  // topRight
+                  offset: Offset(0.5, 0.5),
+                  color: Colors.black),
+              Shadow(
+                  // topLeft
+                  offset: Offset(-0.5, 0.5),
+                  color: Colors.black),
+            ],
+          ),
+        ) {
     this.tileMapWidth = tileMapWidth;
     this.tileShape = tileShape;
     this.gridWidth = gridWidth;
@@ -207,6 +236,20 @@ class TileMapTerrain extends GameComponent with TileInfo {
     overlayAnimation?.getSprite().renderRect(canvas, rect);
     if (showGrid) {
       canvas.drawPath(borderPath, borderPaint);
+    }
+  }
+
+  void renderCaption(Canvas canvas) {
+    if (caption != null) {
+      final worldPos =
+          tilePosition2TileCenterInWorld(tilePosition.left, tilePosition.top);
+      worldPos.y += _kCaptionOffset;
+      locationNamePaint.render(
+        canvas,
+        caption!,
+        worldPos,
+        anchor: Anchor.bottomCenter,
+      );
     }
   }
 

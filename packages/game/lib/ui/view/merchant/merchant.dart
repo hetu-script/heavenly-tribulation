@@ -84,7 +84,7 @@ class _MerchantViewState extends State<MerchantView> {
                     widget.merchantData,
                     payment,
                   ]);
-                  engine.invoke('enityGiveItem', positionalArgs: [
+                  engine.invoke('entityGiveItem', positionalArgs: [
                     widget.merchantData,
                     heroData,
                     item,
@@ -121,7 +121,7 @@ class _MerchantViewState extends State<MerchantView> {
                     heroData,
                     payment,
                   ]);
-                  engine.invoke('enityGiveItem', positionalArgs: [
+                  engine.invoke('entityGiveItem', positionalArgs: [
                     heroData,
                     widget.merchantData,
                     item,

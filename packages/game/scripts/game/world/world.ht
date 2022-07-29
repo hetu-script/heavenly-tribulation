@@ -290,13 +290,13 @@ fun createWorldMap({
       final site = Site(category: kSiteTradinghouse, locationId: location.id)
       site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
       // 商号可能有：谷物、水果、鱼、蔬菜、药材、木料、矿石
-      entityAcquireItem(site, Material.grain(), 20)
-      entityAcquireItem(site, Material.fruit(), 20)
-      entityAcquireItem(site, Material.fish(), 20)
-      entityAcquireItem(site, Material.vegetable(), 20)
-      entityAcquireItem(site, Material.herb(), 20)
-      entityAcquireItem(site, Material.wood(), 20)
-      entityAcquireItem(site, Material.ore(), 20)
+      entityAcquireItem(site, Material.grain(), count: 20)
+      entityAcquireItem(site, Material.fruit(), count: 20)
+      entityAcquireItem(site, Material.fish(), count: 20)
+      entityAcquireItem(site, Material.vegetable(), count: 20)
+      entityAcquireItem(site, Material.herb(), count: 20)
+      entityAcquireItem(site, Material.wood(), count: 20)
+      entityAcquireItem(site, Material.ore(), count: 20)
     }
     if (location.development > 1 && random.nextDouble() < _kSiteWorkshopProbability) {
       final site = Site(category: kSiteWorkshop, locationId: location.id)
@@ -312,18 +312,19 @@ fun createWorldMap({
       final site = Site(category: kSiteHospital, locationId: location.id)
       site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
       // 医馆可能有：方剂
-      entityAcquireItem(site, Consumable.medicine(), 20)
-      entityAcquireItem(site, Consumable.herb(), 10)
+      entityAcquireItem(site, Consumable.medicine(), count: 20)
+      entityAcquireItem(site, Consumable.herb(), count: 10)
     }
     if (location.development > 2 && random.nextDouble() < _kSiteRestaurantProbability) {
       final site = Site(category: kSiteHospital, locationId: location.id)
       site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
       site.money = 
       // 酒楼可能有：饮料、食物
-      entityAcquireItem(site, Consumable.beverage(), 20)
+      entityAcquireItem(site, Consumable.beverage(), count: 20)
     }
     
     tile.locationId = location.id
+    tile.caption = location.name
     // 城市的贴图重叠于地形贴图之上
     tile.overlaySprite.index = kSpriteCity
   }

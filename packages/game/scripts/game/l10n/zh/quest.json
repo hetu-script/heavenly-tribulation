@@ -37,13 +37,15 @@
   "catering": "招待",
 
   "delivery": "运输",
-  "delivery.targetSite.description": "在 {0} 之前，将 {1} 送到 {2} 的 {3}。",
-  "delivery.targetCharacter.description": "在 {0} 之前，将 {1} 送给 {2} 的 {3}。",
-  "delivery.commonItem.targetSite.description": "在 {0} 之前，将 {1} 个 {2} 送到 {3} 的 {4}。",
-  "delivery.commonItem.targetCharacter.description": "在 {0} 之前，将 {1} 个 {2} 送给 {3} 的 {4}。",
+  "delivery.character.targetSite.description": "在 {0} 之前，将 {1} 带到 {2} 的 {3}。",
+  "delivery.character.targetCharacter.description": "在 {0} 之前，将 {1} 带给 {2} 的 {3}。",
+  "delivery.item.targetSite.description": "在 {0} 之前，将 {1} 个 {2} 送到 {3} 的 {4}。",
+  "delivery.item.targetCharacter.description": "在 {0} 之前，将 {1} 个 {2} 送给 {3} 的 {4}。",
   "escort": "护送人员",
   "convoy": "运送物品",
-  "delivery.introDialog": "你要打工？我这刚好有批货要找人托运。看看你要不要把这个活接下来……",
+  "delivery.introDialog": "我这有批货物要送到另一个城市。你有兴趣负责托运吗？",
+  "delivery.submitSuccessed": "负责托运货物的就是你吧。我们已经清点过了，一切妥当。这里把运费给你。",
+  "delivery.submitFailed": "负责托运货物的就是你吧。可这货物数目和清单上的不符呀，这样子我们可没办法签收……",
 
   "craft": "打造",
 

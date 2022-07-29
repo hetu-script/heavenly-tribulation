@@ -97,7 +97,7 @@
   "location": "据点",
   "site": "建筑",
   "organization": "门派",
-  "inventory": "物品栏",
+  "inventory": "物品",
 
   "character": "人物",
   "beast": "野兽",
@@ -139,6 +139,7 @@
   "night": "午夜",
 
   "information": "信息",
+  "build": "装备",
   "attributes": "属性",
   "status": "状态",
   "cultivation": "修炼",

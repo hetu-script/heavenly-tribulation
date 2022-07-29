@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
 import 'package:samsara/tilemap.dart';
@@ -10,9 +11,15 @@ class MazeScene extends Scene {
 
   HTStruct mapData;
 
-  MazeScene({required this.mapData, required super.controller})
-      : map = TileMap(
+  TextStyle captionStyle;
+
+  MazeScene({
+    required this.mapData,
+    required super.controller,
+    required this.captionStyle,
+  })  : map = TileMap(
           engine: engine,
+          captionStyle: captionStyle,
           tileShape: TileShape.hexagonalVertical,
           gridWidth: 32.0,
           gridHeight: 28.0,
