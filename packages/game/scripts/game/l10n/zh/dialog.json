@@ -1,4 +1,11 @@
 {
+  "sensedUndiscovered": "这里明明并无人烟，却似乎有些奇怪的人为的踪迹。是否要 搜索 一下附近？",
+
+  "exploredEmtpy": "这里好像并没什么值得搜索的对象。",
+  "alreadyExplored": "你已经搜索过这里了。",
+
+  "firstVisitCity": "你发现了据点：{0}。",
+
   "visitEmptyVillage": "（这个地方似乎没有什么值得拜访的人。）",
 
   "visitPalaceDeny": "卫兵：此乃皇宫禁地，闲杂人等不许靠近！",

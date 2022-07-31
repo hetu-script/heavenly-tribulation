@@ -133,7 +133,6 @@ struct MountainMaze {
             ...Tile(i + 1, j + 1, mapWidth: width),
             isVisible: false,
             isSelectable: true,
-            showGrid: true,
           }
           currentLevel.terrains.add(terrain)
           addTerrainToZone(terrain, landZone.index, currentLevel)

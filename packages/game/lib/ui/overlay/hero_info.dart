@@ -65,7 +65,7 @@ class HeroInfoPanel extends StatelessWidget {
             padding: const EdgeInsets.only(right: 5.0),
             child: Avatar(
               name: heroData['name'],
-              avatarAssetKey: 'assets/images/${heroData['icon']}',
+              image: AssetImage('assets/images/${heroData['icon']}'),
             ),
           ),
           Expanded(

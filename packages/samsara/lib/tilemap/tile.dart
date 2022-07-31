@@ -57,68 +57,66 @@ class TileMapTerrain extends GameComponent with TileInfo {
     ..strokeWidth = 0.5
     ..style = PaintingStyle.stroke
     ..color = Colors.blue;
+
+  /// internal data of this tile, possible json or other user-defined data form.
+  final dynamic data;
+
   final borderPath = Path();
   final shadowPath = Path();
   late Rect rect;
 
-  final Sprite? baseSprite, overlaySprite;
   final SpriteAnimation? baseAnimation, overlayAnimation;
   final double offsetX, offsetY;
 
   // final TileRenderDirection renderDirection;
 
-  final int zoneIndex;
-  final String zoneCategory;
   final String? kind;
 
   bool isWater;
 
   final String? nationId;
   final String? locationId;
-  final String? caption;
-  final TextPaint locationNamePaint;
+  final TextPaint _captionPaint;
 
   bool isSelectable;
+
   bool isVoid;
-  bool showGrid;
 
-  // 纯逻辑对象
-  String? entityId;
-
-  // 显示对象
+  // 显示标签
+  String? caption;
+  // 显示物体
   String? objectId;
+  // 显示贴图
+  Sprite? sprite, overlaySprite;
 
   TileMapTerrain({
     required TileShape tileShape,
     // this.renderDirection = TileRenderDirection.bottomRight,
+    this.data,
     required int left,
     required int top,
     bool isVisible = true,
     this.isSelectable = false,
     this.isVoid = false,
-    this.showGrid = false,
     required int tileMapWidth,
     required double srcWidth,
     required double srcHeight,
     required double gridWidth,
     required double gridHeight,
-    required this.zoneIndex,
     required this.isWater,
-    required this.zoneCategory,
     required this.kind,
     this.nationId,
     this.locationId,
     this.caption,
     required TextStyle captionStyle,
-    this.baseSprite,
+    this.sprite,
     this.baseAnimation,
     this.overlaySprite,
     this.overlayAnimation,
     this.offsetX = 0.0,
     this.offsetY = 0.0,
-    this.entityId,
     this.objectId,
-  }) : locationNamePaint = TextPaint(
+  }) : _captionPaint = TextPaint(
           style: captionStyle.copyWith(
             fontSize: 7.0,
             shadows: const [
@@ -228,13 +226,13 @@ class TileMapTerrain extends GameComponent with TileInfo {
   }
 
   @override
-  void render(Canvas canvas) {
+  void render(Canvas canvas, [bool showGrids = false]) {
     if (isVoid) return;
-    baseSprite?.renderRect(canvas, rect);
+    sprite?.renderRect(canvas, rect);
     baseAnimation?.getSprite().renderRect(canvas, rect);
     overlaySprite?.renderRect(canvas, rect);
     overlayAnimation?.getSprite().renderRect(canvas, rect);
-    if (showGrid) {
+    if (showGrids) {
       canvas.drawPath(borderPath, borderPaint);
     }
   }
@@ -244,7 +242,7 @@ class TileMapTerrain extends GameComponent with TileInfo {
       final worldPos =
           tilePosition2TileCenterInWorld(tilePosition.left, tilePosition.top);
       worldPos.y += _kCaptionOffset;
-      locationNamePaint.render(
+      _captionPaint.render(
         canvas,
         caption!,
         worldPos,

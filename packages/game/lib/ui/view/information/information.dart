@@ -71,6 +71,8 @@ class _InformationPanelState extends State<InformationPanel>
   void initState() {
     super.initState();
 
+    // TODO:只显示认识的人物和发现的据点
+
     _nationsData = engine.invoke('getNations');
     for (final nation in _nationsData.values) {
       final rowData = <String>[];

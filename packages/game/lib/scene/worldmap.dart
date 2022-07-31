@@ -29,7 +29,7 @@ class WorldMapScene extends Scene {
           tileOffsetY: 2.0,
           scaleFactor: 2.0,
           showClouds: true,
-          showSelected: false,
+          showSelected: true,
           showFogOfWar: false,
         ),
         super(id: worldData['id'], key: 'worldmap');

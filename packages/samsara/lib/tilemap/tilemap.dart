@@ -31,17 +31,13 @@ class TileMapRouteNode {
   });
 }
 
-enum GridMode {
-  none,
-  zone,
-  nation,
-}
-
 // enum DestinationAction {
 //   none,
 //   enter,
 //   check,
 // }
+
+const kGridModeNone = -1;
 
 class TileMap extends GameComponent with HandlesGesture {
   static const maxCloudsCout = 16;
@@ -70,6 +66,7 @@ class TileMap extends GameComponent with HandlesGesture {
     this.tileOffsetX = 0.0,
     this.tileOffsetY = 2.0,
     double scaleFactor = 2.0,
+    this.showGrids = false,
     this.showClouds = false,
     this.showSelected = false,
     this.showFogOfWar = false,
@@ -125,7 +122,7 @@ class TileMap extends GameComponent with HandlesGesture {
     }
 
     final terrainSpritePath = mapData['terrainSpriteSheet'];
-    final terrainSpriteSheet = SpriteSheet(
+    terrainSpriteSheet = SpriteSheet(
       image: await Flame.images.load(terrainSpritePath),
       srcSize: Vector2(tileSpriteSrcWidth, tileSpriteSrcHeight),
     );
@@ -156,10 +153,7 @@ class TileMap extends GameComponent with HandlesGesture {
         final bool isVisible = terrainData['isVisible'] ?? true;
         final bool isSelectable = terrainData['isSelectable'] ?? false;
         final bool isVoid = terrainData['isVoid'] ?? false;
-        final bool showGrid = terrainData['showGrid'] ?? false;
         final bool isWater = terrainData['isWater'] ?? false;
-        final int zoneIndex = terrainData['zoneIndex'];
-        final String zoneCategory = terrainData['zoneCategory'];
         final String? kind = terrainData['kind'];
         final String? nationId = terrainData['nationId'];
         final String? locationId = terrainData['locationId'];
@@ -228,32 +222,29 @@ class TileMap extends GameComponent with HandlesGesture {
         final String? objectId = terrainData['objectId'];
         final tile = TileMapTerrain(
           tileShape: tileShape,
+          data: terrainData,
           left: i + 1,
           top: j + 1,
           isVisible: isVisible,
           isSelectable: isSelectable,
           isVoid: isVoid,
-          showGrid: showGrid,
           tileMapWidth: tileMapWidth,
           srcWidth: tileSpriteSrcWidth,
           srcHeight: tileSpriteSrcHeight,
           gridWidth: gridWidth,
           gridHeight: gridHeight,
           isWater: isWater,
-          zoneIndex: zoneIndex,
-          zoneCategory: zoneCategory,
           kind: kind,
           nationId: nationId,
           locationId: locationId,
           caption: caption,
           captionStyle: captionStyle,
-          baseSprite: baseSprite,
+          sprite: baseSprite,
           baseAnimation: baseAnimation,
           overlaySprite: overlaySprite,
           overlayAnimation: overlayAnimation,
           offsetX: tileOffsetX,
           offsetY: tileOffsetY,
-          entityId: entityId,
           objectId: objectId,
         );
 
@@ -269,7 +260,7 @@ class TileMap extends GameComponent with HandlesGesture {
         final objectSpriteSrcWidth = data['srcWidth'].toDouble();
         final objectSpriteSrcHeight = data['srcHeight'].toDouble();
         final Sprite sprite = Sprite(await Flame.images.load(spriteSrc));
-        final entityId = data['id'];
+        final objectId = data['id'];
         final object = TileMapObject(
           engine: engine,
           sceneKey: sceneKey,
@@ -282,12 +273,12 @@ class TileMap extends GameComponent with HandlesGesture {
           gridHeight: gridHeight,
           srcWidth: objectSpriteSrcWidth,
           srcHeight: objectSpriteSrcHeight,
-          entityId: entityId,
+          entityId: objectId,
         );
 
         final tile = terrains[object.index];
-        tile.objectId = entityId;
-        objects[entityId] = object;
+        tile.objectId = objectId;
+        objects[objectId] = object;
       }
     }
   }
@@ -308,6 +299,8 @@ class TileMap extends GameComponent with HandlesGesture {
       tileOffsetX,
       tileOffsetY;
 
+  late final SpriteSheet terrainSpriteSheet;
+
   late int tileMapWidth, tileMapHeight;
 
   // final bool tapSelect;
@@ -325,10 +318,10 @@ class TileMap extends GameComponent with HandlesGesture {
   /// 而且也不一定都会在一开始就显示出来
   Map<String, TileMapObject> objects = {};
 
-  void setTerrainEntity(int left, int top, String? entityId) {
+  void setTerrainCaption(int left, int top, String? caption) {
     final tile = getTerrain(left, top);
     assert(tile != null);
-    tile!.entityId = entityId;
+    tile!.caption = caption;
   }
 
   void setTerrainObject(int left, int top, String? objectId) {
@@ -336,6 +329,26 @@ class TileMap extends GameComponent with HandlesGesture {
     final tile = getTerrain(left, top);
     assert(tile != null);
     tile!.objectId = objectId;
+  }
+
+  void setTerrainSprite(int left, int top, int? spriteIndex) {
+    final tile = getTerrain(left, top);
+    assert(tile != null);
+    if (spriteIndex != null) {
+      tile!.sprite = terrainSpriteSheet.getSpriteById(spriteIndex - 1);
+    } else {
+      tile!.sprite = null;
+    }
+  }
+
+  void setTerrainOverlaySprite(int left, int top, int? spriteIndex) {
+    final tile = getTerrain(left, top);
+    assert(tile != null);
+    if (spriteIndex != null) {
+      tile!.overlaySprite = terrainSpriteSheet.getSpriteById(spriteIndex - 1);
+    } else {
+      tile!.overlaySprite = null;
+    }
   }
 
   TileMapObject? _hero;
@@ -364,8 +377,9 @@ class TileMap extends GameComponent with HandlesGesture {
 
   VoidCallback? _currentDestinationCallback;
 
-  GridMode gridMode = GridMode.none;
+  int gridMode = kGridModeNone;
 
+  bool showGrids;
   bool showClouds;
   bool showSelected;
   bool showFogOfWar;
@@ -742,18 +756,22 @@ class TileMap extends GameComponent with HandlesGesture {
       if (tileShape == TileShape.hexagonalVertical) {
         for (var i = 0; i < tileMapWidth; i = i + 2) {
           final tile = terrains[i + j * tileMapWidth];
-          tile.render(canvas);
+          tile.render(canvas, showGrids);
         }
         for (var i = 1; i < tileMapWidth; i = i + 2) {
           final tile = terrains[i + j * tileMapWidth];
-          tile.render(canvas);
+          tile.render(canvas, showGrids);
         }
       } else {
         for (var i = 0; i < tileMapWidth; ++i) {
           final tile = terrains[i + j * tileMapWidth];
-          tile.render(canvas);
+          tile.render(canvas, showGrids);
         }
       }
+    }
+
+    if (showSelected && selectedTerrain != null) {
+      canvas.drawPath(selectedTerrain!.borderPath, selectedPaint);
     }
 
     // after all terrains, render the objects, in the same way:
@@ -797,18 +815,10 @@ class TileMap extends GameComponent with HandlesGesture {
       tile.renderCaption(canvas);
     }
 
-    if (gridMode == GridMode.zone) {
+    if (gridMode >= 0) {
       for (final tile in terrains) {
-        final color = engine.zoneColors[tile.zoneIndex]!;
-        final paint = Paint()
-          ..style = PaintingStyle.fill
-          ..color = color.withOpacity(0.6);
-        canvas.drawPath(tile.borderPath, paint);
-      }
-    } else if (gridMode == GridMode.nation) {
-      for (final tile in terrains) {
-        if (tile.nationId != null) {
-          final color = engine.nationColors[tile.nationId]!;
+        final color = engine.colors[gridMode][tile.index];
+        if (color != null) {
           final paint = Paint()
             ..style = PaintingStyle.fill
             ..color = color.withOpacity(0.6);
@@ -838,9 +848,7 @@ class TileMap extends GameComponent with HandlesGesture {
         }
       }
     }
-    if (showSelected && selectedTerrain != null) {
-      canvas.drawPath(selectedTerrain!.borderPath, selectedPaint);
-    }
+
     canvas.restore();
   }
 

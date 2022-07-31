@@ -12,11 +12,14 @@ import '../../tile/hexagonal_tile.ht'
 // 当没有组织时，属于默认生成的单纯服务性质的建筑。
 // 此时交易所产生的物品、金钱，将会归属于其所在的据点。
 
+
+const kSiteCultivation = 'cultivation'
+const kSiteGang = 'gang'
+const kSiteReligion = 'religion'
+const kSiteAcademy = 'academy'
 const kSiteTradinghouse = 'tradinghouse'
 const kSiteWorkshop = 'workshop'
 const kSiteRestaurant = 'restaurant'
-const kSiteHospital = 'hospital'
-
 const kSitePalace = 'palace'
 const kSiteGovernment = 'government'
 const kSiteResidence = 'residence'
@@ -25,7 +28,7 @@ const kSiteFarmland = 'farmland'
 const kSiteMine = 'mine'
 const kSiteTimberland = 'timberland'
 const kSiteArena = 'arena'
-
+const kSiteHospital = 'hospital'
 const kSiteNursery = 'nursery'
 const kSiteAlchemylab = 'alchemylab'
 const kSiteZoo = 'zoo'
@@ -54,13 +57,10 @@ struct Site {
     location.sites[this.id] = this
 
     when (category) {
-      kOrganizationCategoryCultivation -> location.hasCultivation = true
-      kOrganizationCategoryGang -> location.hasGang = true
-      kOrganizationCategoryReligion -> location.hasReligion = true
-      kOrganizationCategoryAcademy -> location.hasAcademy = true
-      kOrganizationCategoryTradinghouse -> location.hasTradingHouse = true
-      kOrganizationCategoryWorkshop -> location.hasWorkshop = true
-      kOrganizationCategoryRestaurant -> location.hasRestaurant = true
+      kSiteCultivation -> location.hasCultivation = true
+      kSiteGang -> location.hasGang = true
+      kSiteReligion -> location.hasReligion = true
+      kSiteAcademy -> location.hasAcademy = true
     }
     
     // 建筑和人物类似，也具有金钱和物品栏
@@ -85,9 +85,6 @@ fun handleSiteInteraction(locationId: str, siteId: str) {
     'tradinghouse' -> _handleTradingHouseInteraction(site)
     'workshop' -> _handleWorkshopInteraction(site)
     'restaurant' -> _handleRestaurantInteraction(site)
-
-    'hospital' -> _handleHospitalInteraction(site)
-
     'palace' -> _handlePalaceInteraction(site)
     'government' -> _handleGovernmentInteraction(site)
     'residence' -> _handleResidenceInteraction(site)
@@ -96,6 +93,7 @@ fun handleSiteInteraction(locationId: str, siteId: str) {
     'mine' -> _handleMineInteraction(site)
     'timberland' -> _handleTimberInteraction(site)
     'arena' -> _handleArenaInteraction(site)
+    'hospital' -> _handleHospitalInteraction(site)
     'nursery' -> _handleNurseryInteraction(site)
     'alchemylab' -> _handleAlchemylabInteraction(site)
     'zoo' -> _handleZooInteraction(site)
@@ -157,14 +155,21 @@ fun _handleAcademyInteraction(site) {
 // 将指定数量的材料运送到另一个城市，但途中可能会遇到劫匪或风暴，风暴会耽误时间。
 // 没有提交足够数量的材料或者超过时间都会算作失败。
 fun _handleTradingHouseInteraction(site) {
-  final hero = getHero()
   final location = game.locations[site.locationId]
   showSelectionByLocaleKeys([
-    'work',
     'trade',
+    'work',
     'leave',
   ]).then((key) {
     when (key) {
+      'trade' -> {
+        if (site.organizaitonId) {
+          final organization = getOrganizationById(site.organizaitonId)
+          showMerchant(organization, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
+        } else {
+          showMerchant(site, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
+        }
+      }
       'work' -> {
         if (game.siteMonthly.worked.contains(site.id)) {
           showDialogByLocaleKeys(['workedThisMonth'])
@@ -200,16 +205,8 @@ fun _handleTradingHouseInteraction(site) {
           })
         }
       }
-      'trade' -> {
-        if (site.organizaitonId) {
-          final organization = getOrganizationById(site.organizaitonId)
-          showMerchant(organization, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
-        } else {
-          showMerchant(site, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
-        }
-      }
     }
-  })
+  })  
 }
 
 fun _handleWorkshopInteraction(site) {
@@ -239,7 +236,6 @@ fun _handlePalaceInteraction(site) {
 }
 
 fun _handleGovernmentInteraction(site) {
-  final hero = game.characters[game.heroId]
   final fame = getCharacterFame(hero)
   final location = game.locations[site.locationId]
   final selections = [
@@ -338,7 +334,6 @@ fun _handleGovernmentInteraction(site) {
 }
 
 fun _handleResidenceInteraction(site) {
-  final hero = game.characters[game.heroId]
   final location = game.locations[site.locationId]
   showSelectionByLocaleKeys([
     'visit',

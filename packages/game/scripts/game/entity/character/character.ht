@@ -619,23 +619,25 @@ fun getHeroId() {
 
 fun setHeroId(id: str) {
   assert(game.characters.containsKey(id))
-  final character = game.characters[id]
-  engine.info('设置当前玩家人物为 [${character.name}]。')
+  hero = game.characters[id]
+  engine.info('设置当前玩家人物为 [${hero.name}]。')
   game.heroId = id;
 }
 
 fun getHeroPosition {
-  final hero = game.characters[game.heroId]
   return hero.worldPosition
 }
 
 fun setHeroPosition(left, top) {
-  final hero = game.characters[game.heroId]
   hero.worldPosition = { left, top }
 }
 
-fun getHero() {
+fun getHero {
   return game.characters[game.heroId]
+}
+
+fun getHeroHome {
+  return game.locations[hero.homeId]
 }
 
 fun getCharacterWorldPosition(character) {
@@ -668,7 +670,7 @@ fun getCharacters([ids]) {
     assert(ids.isNotEmpty)
     return game.characters.values.where( (value) => value.id in ids )
   } else {
-    return game.characters.values
+    return game.characters
   }
 }
 
@@ -735,7 +737,6 @@ fun handleCharacterTalk(subject, target) {
 fun handleCharacterInteraction(characterId) {
   assert(game.characters.containsKey(characterId))
   final character = game.characters[characterId]
-  final hero = game.characters[game.heroId]
   final selections = []
   if (characterId in! game.playerMonthly.talked) {
     selections.add('talk')

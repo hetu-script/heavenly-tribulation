@@ -6,6 +6,9 @@ import 'maze/maze.ht'
 import 'quest/quest.ht'
 import 'tile/common.ht'
 import 'name/character.ht'
+import 'binding/worldmap.ht'
+import 'entity/location/location.ht'
+import 'tile/hexagonal_tile.ht'
 
 const kQuestProbability = 0.35
 
@@ -145,22 +148,35 @@ fun generateQuests {
 
 // 如果返回值为 true，则英雄的移动会中止在这一格。
 fun onHeroMovedOnWorldMap(left, top) {
-  engine.info('玩家控制角色移动到了: ${left}, ${top}')
-
+  engine.info('玩家移动到: ${left}, ${top}')
+  final tile = game.world.terrains[tilePos2Index(left, top, game.world.width)]
+  if (tile.entityId && !tile.hasSearched) {
+    // TODO: 感知阈值
+    showDialogByLocaleKeys(['sensedUndiscovered'], character: hero)
+  }
   return false
 }
 
 // 异步函数，会在显示地点窗口之前执行，执行完毕后才会显示地点窗口
 fun onHeroEnteredLocation(location) async {
   engine.info('玩家进入了: ${location.name}')
-
+  if (!location.isDiscovered) {
+    if (location.category == kLocationCategoryCity) {
+      discoverLocation(location)
+      final message = getLocaleString('firstVisitCity', [location.name])
+      // TODO: 第一次发现据点事件
+      return showDialogByStrings([message])
+    } else {
+      // TODO: 感知阈值
+      return showDialogByLocaleKeys(['sensedUndiscovered'], character: hero)
+    }
+  }
 }
 
 // 异步函数，会在建筑代码之前执行，执行完毕后才会进入建筑代码
 fun onHeroEnteredSite(site) async {
   engine.info('玩家进入了: ${site.name}')
 
-  final hero = getHero()
   // 检查是否有任务满足了提交条件
   final future
   for (final quest of hero.quests) {
@@ -177,7 +193,6 @@ fun onHeroEnteredSite(site) async {
 }
 
 fun handleQuestEnding(quest, result) {
-  final hero = getHero()
   when (quest.category) {
     kQuestCategoryDelivery -> {
       if (quest.result) {

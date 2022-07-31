@@ -9,7 +9,7 @@ class Avatar extends StatelessWidget {
     this.name,
     this.margin = const EdgeInsets.all(5.0),
     this.onPressed,
-    this.avatarAssetKey,
+    this.image,
     this.size = const Size(100.0, 100.0),
     this.radius = 10.0,
     this.borderColor = kForegroundColor,
@@ -22,7 +22,7 @@ class Avatar extends StatelessWidget {
 
   final VoidCallback? onPressed;
 
-  final String? avatarAssetKey;
+  final ImageProvider<Object>? image;
 
   final Size size;
 
@@ -46,9 +46,9 @@ class Avatar extends StatelessWidget {
           height: size.height,
           child: Stack(
             children: [
-              if (avatarAssetKey != null)
+              if (image != null)
                 RRectIcon(
-                  image: AssetImage(avatarAssetKey!),
+                  image: image!,
                   size: size,
                   borderRadius: BorderRadius.all(Radius.circular(radius)),
                   borderColor: borderColor,

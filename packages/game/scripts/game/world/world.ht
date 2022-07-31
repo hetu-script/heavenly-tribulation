@@ -77,6 +77,12 @@ const _kSiteWorkshopProbability = 0.6
 const _kSiteHospitalProbability = 0.6
 const _kSiteRestaurantProbability = 0.6
 
+final _cultivationKinds = [
+  'location',
+  'mountain',
+  'island',
+]
+
 fun createWorldMap({
     id,
     seedString,
@@ -139,7 +145,6 @@ fun createWorldMap({
           index: tilePos2Index(i + 1, j + 1, width),
           spriteIndex: kSpriteWater,
           overlaySprite: {},
-          showGrid: true,
           isSelectable: true,
         }
       )
@@ -149,7 +154,6 @@ fun createWorldMap({
   // 没有区域，也是一个区域
   final voidZone = Zone(index: game.world.zones.length, name: null, category: kZoneVoid)
   game.world.zones.add(voidZone)
-
 
   // 生成地域
   engine.info('准备生成地域')
@@ -213,20 +217,6 @@ fun createWorldMap({
     // engine.info('updating unzoned tile')
     updateZone(unzonedTile)
   }
-  
-  // 将大陆和海洋接触的地方填充为大陆架
-  // 大陆架只影响贴图，不影响该地块的 category 和 kind
-  engine.info('将大陆和海洋接触的地方填充为大陆架')
-  for (final tile in game.world.terrains) {
-    if (tile.spriteIndex != kSpriteWater) continue
-    final neighbors = getMapTileNeighbors(tile.left, tile.top, game.world)
-    for (final neighbor in neighbors) {
-      if (neighbor.spriteIndex == kSpriteLand) {
-        tile.spriteIndex = kSpriteShelf
-        break
-      }
-    }
-  }
 
   fun find2NearestLocation(origin, {restricted2Zone: bool = true}) {
     assert(game.locations.length > 0)
@@ -268,13 +258,17 @@ fun createWorldMap({
       index = random.nextInt(game.world.terrains.length)
       tile = game.world.terrains[index]
     } while (locationIndexes.contains(index) || tile.spriteIndex != kSpriteLand)
-    // location category只有两种：城市和秘境
+    // location category 有三种：城市、岛屿和山峰，后两者为隐藏据点
     final location = Location(
       terrainIndex: index,
       left: tile.left,
       top: tile.top,
       category: kLocationCategoryCity,
     )
+    tile.locationId = location.id
+    // tile.caption = location.name
+    // 城市的贴图重叠于地形贴图之上
+    tile.overlaySprite.index = kSpriteCity
     locationIndexes.add(index)
     
     // 随机生成的据点，初始发展度是0-3之间随机。
@@ -322,11 +316,6 @@ fun createWorldMap({
       // 酒楼可能有：饮料、食物
       entityAcquireItem(site, Consumable.beverage(), count: 20)
     }
-    
-    tile.locationId = location.id
-    tile.caption = location.name
-    // 城市的贴图重叠于地形贴图之上
-    tile.overlaySprite.index = kSpriteCity
   }
 
   engine.info('确保陆地上的每个城市至少可以链接到另外两个城市')
@@ -359,17 +348,37 @@ fun createWorldMap({
       }
     }
   }
+  
+  final mountains = Set()
+  final seas = Set()
 
-  // 将大陆上没有道路的方格，随机填充为平原、森林、山地
-  engine.info('将大陆上没有道路的方格，随机填充为平原、森林、山地')
+  // 地形装饰贴图
+  // 将大陆和海洋接触的地方填充为大陆架，将大陆上没有道路的方格，随机填充为平原、森林、山地
+  // 这些修改不影响该地块的 category 和 kind
+  engine.info('填充地形装饰贴图：大陆架、平原、森林、山地')
   for (final tile in game.world.terrains) {
-    if (tile.spriteIndex != kSpriteLand) continue
-    if (!tile.isRoute) {
-      final r = random.nextDouble()
-      if (r < _kMountainThreshold) {
-        tile.spriteIndex = kSpriteMountain
-      } else if (r < _kForestThreshold) {
-        tile.spriteIndex = kSpriteForest
+    if (tile.spriteIndex == kSpriteLand) {
+      if (!tile.isRoute) {
+        final r = random.nextDouble()
+        if (r < _kMountainThreshold) {
+          tile.spriteIndex = kSpriteMountain
+          mountains.add(tile.index)
+        } else if (r < _kForestThreshold) {
+          tile.spriteIndex = kSpriteForest
+        }
+      }
+    } else if (tile.spriteIndex == kSpriteWater) {
+      final neighbors = getMapTileNeighbors(tile.left, tile.top, game.world)
+      var isSea = true
+      for (final neighbor in neighbors) {
+        if (neighbor.spriteIndex == kSpriteLand) {
+          tile.spriteIndex = kSpriteShelf
+          isSea = false
+          break
+        }
+      }
+      if (isSea) {
+        seas.add(tile.index)
       }
     }
   }
@@ -421,20 +430,6 @@ fun createWorldMap({
 
   }
 
-  // TODO: 生成洞天福地，洞天是大陆上山峰所在地，福地是大海中的岛屿
-  // 洞天福地在未被探索之前，对玩家不可见。只是显示为平常的地形。
-  // 如果据点生成在海洋之中，就将该地块设定为岛屿
-  // checkPerimeterOfLocation(tile)
-  // 洞天福地都直接以“xx山”, "xx岛"命名，并且没有特别装备的话，一开始无法进入。
-
-  // 每个岛屿是独立的 zone
-  // engine.info('处理据点所在岛屿')
-  // for (final island in islands) {
-  //   final islandZone = Zone(index: game.world.zones.length, category: kZoneIsland)
-  //   game.world.zones.add(islandZone)
-  //   addTerrainToZone(island, islandZone.index, game.world)
-  // }
-
   // 随机挑选几个城市，作为各个国家的都城，生成地图上的不同国家
   engine.info('随机挑选几个城市，作为各个国家的都城，生成地图上的不同国家')
   while (game.nations.length < nationNumber) {
@@ -469,24 +464,6 @@ fun createWorldMap({
 
   // 随机生成每个组织的创建时间，分布在20年的范围内，时间固定为某月1号
 
-  // 修真门派
-  var createdCultivationOrganizationCount = 0
-  var cultivationOrganizationCreatedDate = []
-  for (final i in range(cultivationOrganizationNumber)) {
-    cultivationOrganizationCreatedDate.add(random.nextInt(20 * kMonthsPerYear) * kTicksPerMonth)
-  }
-  cultivationOrganizationCreatedDate.sort()
-  cultivationOrganizationCreatedDate = cultivationOrganizationCreatedDate.reversed.toList()
-  
-  // 商号
-  // var createdTradinghouseOrganizationCount = 0
-  // var tradinghouseOrganizationCreatedDate = []
-  // for (final i in range(tradinghouseOrganizationNumber)) {
-  //   tradinghouseOrganizationCreatedDate.add(random.nextInt(20 * kMonthsPerYear) * kTicksPerMonth)
-  // }
-  // tradinghouseOrganizationCreatedDate.sort()
-  // tradinghouseOrganizationCreatedDate = tradinghouseOrganizationCreatedDate.reversed.toList()
-
   fun findLeader {
     var leader
     if (game.characters.length == 0) {
@@ -516,23 +493,100 @@ fun createWorldMap({
     return leader
   }
 
+  // 修真门派
+  var createdCultivationOrganizationCount = 0
+  var cultivationOrganizationCreatedDate = []
+  for (final i in range(cultivationOrganizationNumber)) {
+    cultivationOrganizationCreatedDate.add(random.nextInt(20 * kMonthsPerYear) * kTicksPerMonth)
+  }
+  cultivationOrganizationCreatedDate.sort()
+  cultivationOrganizationCreatedDate = cultivationOrganizationCreatedDate.reversed.toList()
+  
+  // 商号
+  // var createdTradinghouseOrganizationCount = 0
+  // var tradinghouseOrganizationCreatedDate = []
+  // for (final i in range(tradinghouseOrganizationNumber)) {
+  //   tradinghouseOrganizationCreatedDate.add(random.nextInt(20 * kMonthsPerYear) * kTicksPerMonth)
+  // }
+  // tradinghouseOrganizationCreatedDate.sort()
+  // tradinghouseOrganizationCreatedDate = tradinghouseOrganizationCreatedDate.reversed.toList()
+
   // 模拟世界演化，按照时间推进并生成人物、组织，并且为期分配人物关系
   // 在此种演化算法中，人物不会死亡，组织不会被消灭，因此只判断人数是否达到要求
   // 因为是模拟运行，每个tick接跳过一个月
   engine.info('快速模拟一段时间的演化，生成人物、组织、国家等信息')
+  final islands = Set() // 用来保存在这一步骤才生成的隐居岛屿的门派据点
   do {
     if (createdCultivationOrganizationCount < cultivationOrganizationNumber) {
       if (game.timestamp >= cultivationOrganizationCreatedDate.last) {
         // 组织数量不够，在来到下一个组织创建时间时，创建组织
         cultivationOrganizationCreatedDate.removeLast()
 
-        // 修真门派的总舵不允许和其他修真组织的总舵在同一个据点
+        // 修真门派分成三种：入世、洞天、福地。入世是公开的据点。
+        // 洞天是大陆上山峰所在地，福地是大海中的岛屿。
+        // 洞天福地在未被探索之前，对玩家不可见。只是显示为平常的地形。
+        // 如果据点生成在海洋之中，就将该地块设定为岛屿
+        // 洞天福地的据点都直接以“xx山”, "xx岛"命名。
+
+        // 在生成世界时，两个修真组织不会在同一个据点
         var headquarters
-        do {
-          // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
-          final headquartersId = random.nextIterable(game.locations.keys)
-          headquarters = game.locations[headquartersId]
-        } while (headquarters.hasCultivation)
+
+        final cultivationKind = random.nextIterable(_cultivationKinds)
+        when (cultivationKind) {
+          'location' -> {
+            do {
+              // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
+              final headquartersId = random.nextIterable(game.locations.keys)
+              headquarters = game.locations[headquartersId]
+            } while (headquarters.hasCultivation)
+          }
+          'mountain' -> {
+            // 临时生成一个新的隐藏据点
+            final mountainTile
+            do {
+              final mountainTileIndex = random.nextIterable(mountains)
+              mountainTile = game.world.terrains[mountainTileIndex]
+            } while (mountainTile.locationId != null)
+
+            headquarters = Location(
+              terrainIndex: mountainTile.index,
+              left: mountainTile.left,
+              top: mountainTile.top,
+              category: kLocationCategoryMountain,
+            )
+            mountainTile.locationId = headquarters.id
+            // 隐居门派据点，名字在地图上一开始不可见
+            // mountainTile.caption = headquarters.name
+          }
+          'island' -> {
+            // 临时生成一个新的隐藏据点
+            final islandTile
+            do {
+              final islandTileIndex = random.nextIterable(seas)
+              islandTile = game.world.terrains[islandTileIndex]
+            } while (islandTile.locationId != null)
+
+            final islandZone = Zone(index: game.world.zones.length, category: kZoneCategoryIsland)
+            game.world.zones.add(islandZone)
+            addTerrainToZone(islandTile, islandZone.index, game.world)
+            
+            final neighbors = getMapTileNeighbors(islandTile.left, islandTile.top, game.world)
+            for (final neighbor in neighbors) {
+              seas.remove(neighbor.index)
+              neighbor.spriteIndex == kSpriteShelf
+            }
+
+            headquarters = Location(
+              terrainIndex: islandTile.index,
+              left: islandTile.left,
+              top: islandTile.top,
+              category: kLocationCategoryIsland,
+            )
+            islandTile.locationId = headquarters.id
+            // 隐居门派据点，名字在地图上一开始不可见
+            // islandTile.caption = headquarters.name
+          }
+        }
 
         final leader = findLeader()
         // 创建组织
@@ -542,6 +596,7 @@ fun createWorldMap({
           headquartersId: headquarters.id,
           leaderId: leader.id,
         )
+
         ++createdCultivationOrganizationCount
       }
     }
@@ -686,8 +741,7 @@ fun createWorldMap({
 
   // 将地域的上色信息复制到引擎侧
   engine.info('刷新世界地图上色信息')
-  updateWorldMapZoneColors()
-  updateWorldMapNationColors()
+  loadColors()
 
   engine.info('世界生成完毕。重置随机数生成器。')
   setRandomSeed()
@@ -709,20 +763,22 @@ fun getZoneByIndex(index: int) {
   return game.world.zones[index]
 }
 
-/// 刷新地图地域上色信息
-fun updateWorldMapZoneColors {
+/// 刷新地图上色信息
+fun loadColors {
+  final colors = []
   final zoneColors = Map()
-  for (final zone in game.world.zones) {
-    zoneColors[zone.index] = zone.color
-  }
-  engine.updateZoneColors(zoneColors)
-}
-  
-/// 刷新地图疆域上色信息
-fun updateWorldMapNationColors {
   final nationColors = Map()
-  for (final nation of game.nations) {
-    nationColors[nation.id] = nation.color
+  for (final tile in game.world.terrains) {
+    if (tile.zoneIndex) {
+      final zone = game.world.zones[tile.zoneIndex]
+      zoneColors[tile.index] = zone.color
+    }
+    if (tile.nationId) {
+      final nation = game.nations[tile.nationId]
+      nationColors[tile.index] = nation.color
+    }
   }
-  engine.updateNationColors(nationColors)
+  colors.add(zoneColors)
+  colors.add(nationColors)
+  engine.loadColors(colors)
 }

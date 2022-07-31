@@ -43,7 +43,7 @@ class CharacterVisitDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hero = engine.invoke('getHero');
+    final hero = engine.fetch('hero');
     final activitiesData = engine.invoke('getPlayerMonthlyActivities');
 
     final layout = Scaffold(

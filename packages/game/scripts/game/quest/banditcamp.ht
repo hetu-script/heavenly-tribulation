@@ -128,8 +128,8 @@ struct QuestBanditCamp {
 
     final mazeTerrain = game.world.terrains[mazeTerrainIndex]
     mazeTerrain.entityId = maze.id
-    if (isGameLoaded) {
-      setWorldMapEntity(mazeTerrain.left, mazeTerrain.top, maze.id)
-    }
+    // if (isGameLoaded) {
+    //   setWorldMapEntity(mazeTerrain.left, mazeTerrain.top, maze.id)
+    // }
   }
 }

@@ -24,6 +24,8 @@ var game
 
 var isGameLoaded = false
 
+var hero
+
 fun getCurrentMazeHistory() {
   return currentMazeHistory
 }
@@ -125,8 +127,7 @@ fun getGameJsonData() {
 fun loadGameFromJsonData(gameData, historyData) {
   game = prototype.fromJson(gameData)
   
-  updateWorldMapZoneColors()
-  updateWorldMapNationColors()
+  loadColors()
   
   history = []
   for (final data in historyData) {

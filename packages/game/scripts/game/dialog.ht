@@ -103,7 +103,7 @@ fun showMaze(maze) -> Future {
   return Dialog.showMaze(buildContext, maze)
 }
 
-fun showProgress(title, checkProgress: function) {
+fun showProgress(title, { checkProgress: function }) {
   return Dialog.showProgress(buildContext, title, checkProgress)
 }
 

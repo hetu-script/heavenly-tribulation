@@ -34,6 +34,9 @@ import '../dialog/character_select_dialog.dart';
 // import 'worldmap/location_info.dart';
 import '../dialog/game_over.dart';
 
+const kGridModeZone = 0;
+const kGridModeNation = 1;
+
 const kTerrainKindLocation = 'location';
 const kTerrainKindLake = 'lake';
 const kTerrainKindSea = 'sea';
@@ -43,8 +46,8 @@ const kTerrainKindPlain = 'plain';
 const kTerrainKindRiver = 'river';
 const kTerrainKindRoad = 'road';
 
-const kMinHeroAge = 15;
-const kMaxHeroAge = 40;
+const kMinHeroAge = 10;
+const kMaxHeroAge = 20;
 
 class MainGameOverlay extends StatefulWidget {
   const MainGameOverlay({
@@ -103,16 +106,18 @@ class _MainGameOverlayState extends State<MainGameOverlay>
         positionalArgs: [terrain.left, terrain.top]);
   }
 
-  void _enterLocation(String locationId) async {
+  void _tryEnterLocation(String locationId) async {
     final locationData =
         engine.invoke('getLocationById', positionalArgs: [locationId]);
     await engine
         .invoke('onHeroEnteredLocation', positionalArgs: [locationData]);
-    showDialog(
-      context: context,
-      barrierColor: Colors.transparent,
-      builder: (context) => LocationView(locationData: locationData),
-    );
+    if (locationData['isDiscovered'] == true) {
+      showDialog(
+        context: context,
+        barrierColor: Colors.transparent,
+        builder: (context) => LocationView(locationData: locationData),
+      );
+    }
   }
 
   void _mapTapHandler(GameEvent event) {
@@ -141,7 +146,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                 _scene.map.moveHeroToTilePositionByRoute(
                   route,
                   onDestinationCallback: () =>
-                      _enterLocation(terrain.locationId!),
+                      _tryEnterLocation(terrain.locationId!),
                 );
               } else {
                 _scene.map.moveHeroToTilePositionByRoute(route);
@@ -149,7 +154,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
             }
           } else {
             if (terrain.locationId != null) {
-              _enterLocation(terrain.locationId!);
+              _tryEnterLocation(terrain.locationId!);
             }
           }
         }
@@ -180,15 +185,40 @@ class _MainGameOverlayState extends State<MainGameOverlay>
             ),
         override: true);
 
-    engine.hetu.interpreter.bindExternalFunction(
-        'setWorldMapEntity',
+    engine.hetu.interpreter.bindExternalFunction('setWorldMapCaption',
         (HTEntity object,
-                {List<dynamic> positionalArgs = const [],
-                Map<String, dynamic> namedArgs = const {},
-                List<HTType> typeArgs = const []}) =>
-            _scene.map.setTerrainEntity(
-                positionalArgs[0], positionalArgs[1], positionalArgs[2]),
-        override: true);
+            {List<dynamic> positionalArgs = const [],
+            Map<String, dynamic> namedArgs = const {},
+            List<HTType> typeArgs = const []}) {
+      _scene.map.setTerrainCaption(
+          positionalArgs[0], positionalArgs[1], positionalArgs[2]);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('setWorldMapSprite',
+        (HTEntity object,
+            {List<dynamic> positionalArgs = const [],
+            Map<String, dynamic> namedArgs = const {},
+            List<HTType> typeArgs = const []}) {
+      _scene.map.setTerrainSprite(
+          positionalArgs[0], positionalArgs[1], positionalArgs[2]);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('setWorldMapOverlaySprite',
+        (HTEntity object,
+            {List<dynamic> positionalArgs = const [],
+            Map<String, dynamic> namedArgs = const {},
+            List<HTType> typeArgs = const []}) {
+      _scene.map.setTerrainOverlaySprite(
+          positionalArgs[0], positionalArgs[1], positionalArgs[2]);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('enterLocation',
+        (HTEntity object,
+            {List<dynamic> positionalArgs = const [],
+            Map<String, dynamic> namedArgs = const {},
+            List<HTType> typeArgs = const []}) {
+      _tryEnterLocation(positionalArgs.first);
+    }, override: true);
 
     engine.registerListener(
       Events.mapTapped,
@@ -225,21 +255,26 @@ class _MainGameOverlayState extends State<MainGameOverlay>
         (GameEvent event) async {
           if ((event as MapLoadedEvent).isNewGame) {
             final charactersData = engine.invoke('getCharacters');
-            final characterIds = <String>[];
-            for (final characterData in charactersData) {
-              final age = engine
-                  .invoke('getCharacterAge', positionalArgs: [characterData]);
+            final Iterable filteredCharacters =
+                (charactersData.values as Iterable).where((character) {
+              final age =
+                  engine.invoke('getCharacterAge', positionalArgs: [character]);
               if (age >= kMinHeroAge && age < kMaxHeroAge) {
-                characterIds.add(characterData['id']);
+                if (character['organizationId'] == null) {
+                  return true;
+                }
               }
-            }
+              return false;
+            });
             final key = await CharacterSelectDialog.show(
               context: context,
               title: engine.locale['selectHero'],
-              characterIds: characterIds,
+              charactersData: filteredCharacters,
               showCloseButton: false,
             );
             engine.invoke('setHeroId', positionalArgs: [key]);
+            final heroHome = engine.invoke('getHeroHome');
+            engine.invoke('discoverLocation', positionalArgs: [heroHome]);
             engine.invoke('onGameEvent', positionalArgs: ['onNewGame']);
           }
           _heroData = engine.invoke('getHero');
@@ -396,13 +431,13 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                           builder: (context) => const InformationPanel());
                       break;
                     case WorldMapDropMenuItems.viewNone:
-                      _scene.map.gridMode = GridMode.none;
+                      _scene.map.gridMode = kGridModeNone;
                       break;
                     case WorldMapDropMenuItems.viewZones:
-                      _scene.map.gridMode = GridMode.zone;
+                      _scene.map.gridMode = kGridModeZone;
                       break;
                     case WorldMapDropMenuItems.viewNations:
-                      _scene.map.gridMode = GridMode.nation;
+                      _scene.map.gridMode = kGridModeNation;
                       break;
                     case WorldMapDropMenuItems.console:
                       showDialog(
@@ -447,7 +482,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
           final selectedTerrain = _scene.map.selectedTerrain;
           if (_menuPosition != null) {
             if (selectedTerrain != null) {
-              final terrainZone = _scene.map.zones[selectedTerrain.zoneIndex];
+              final terrainData = selectedTerrain.data;
               final characters = _scene.map.selectedActors;
               final hero = _scene.map.hero;
               List<int>? route;
@@ -483,7 +518,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                   '坐标: ${selectedTerrain.left}, ${selectedTerrain.top}');
 
               final zoneData = engine.invoke('getZoneByIndex',
-                  positionalArgs: [selectedTerrain.zoneIndex]);
+                  positionalArgs: [terrainData['zoneIndex']]);
               final zoneName = zoneData['name'];
               if (zoneName != null) {
                 stringBuffer.writeln(zoneName);
@@ -511,7 +546,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                     _scene.map.moveHeroToTilePositionByRoute(route!);
                     closePopup();
                   },
-                  interactIcon: terrainZone.index != 0,
+                  interactIcon: true,
                   onInteract: () {
                     if (route != null) {
                       _scene.map.moveHeroToTilePositionByRoute(route,
@@ -534,10 +569,10 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                       _scene.map.moveHeroToTilePositionByRoute(
                         route,
                         onDestinationCallback: () =>
-                            _enterLocation(selectedTerrain.locationId!),
+                            _tryEnterLocation(selectedTerrain.locationId!),
                       );
                     } else if (isTappingHeroPosition) {
-                      _enterLocation(selectedTerrain.locationId!);
+                      _tryEnterLocation(selectedTerrain.locationId!);
                     }
                     closePopup();
                   },

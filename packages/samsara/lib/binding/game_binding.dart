@@ -12,18 +12,18 @@ extension SamsaraEngineBinding on SamsaraEngine {
                 Map<String, dynamic> namedArgs = const {},
                 List<HTType> typeArgs = const []}) =>
             updateLocale(positionalArgs.first);
-      case 'updateZoneColors':
+      // case 'updateZoneColors':
+      //   return (HTEntity object,
+      //           {List<dynamic> positionalArgs = const [],
+      //           Map<String, dynamic> namedArgs = const {},
+      //           List<HTType> typeArgs = const []}) =>
+      //       updateZoneColors(positionalArgs.first);
+      case 'loadColors':
         return (HTEntity object,
                 {List<dynamic> positionalArgs = const [],
                 Map<String, dynamic> namedArgs = const {},
                 List<HTType> typeArgs = const []}) =>
-            updateZoneColors(positionalArgs.first);
-      case 'updateNationColors':
-        return (HTEntity object,
-                {List<dynamic> positionalArgs = const [],
-                Map<String, dynamic> namedArgs = const {},
-                List<HTType> typeArgs = const []}) =>
-            updateNationColors(positionalArgs.first);
+            loadColors(positionalArgs.first);
       // case 'onIncident':
       //   return (HTEntity object,
       //           {List<dynamic> positionalArgs = const [],

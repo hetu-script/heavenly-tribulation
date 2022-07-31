@@ -1,3 +1,9 @@
 external fun showWorldMapGameOver
 
-external fun setWorldMapEntity(left, top, entityId)
+external fun setWorldMapCaption(left, top, caption)
+
+external fun setWorldMapSprite(left, top, spriteIndex)
+
+external fun setWorldMapOverlaySprite(left, top, spriteIndex)
+
+external fun enterLocation(locationId)

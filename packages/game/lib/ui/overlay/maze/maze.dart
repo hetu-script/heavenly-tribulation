@@ -105,15 +105,14 @@ class _MazeOverlayState extends State<MazeOverlay>
             _scene.map.showFogOfWar = positionalArgs.first,
         override: true);
 
-    engine.hetu.interpreter.bindExternalFunction(
-        'setMazeObject',
+    engine.hetu.interpreter.bindExternalFunction('setMazeObject',
         (HTEntity object,
-                {List<dynamic> positionalArgs = const [],
-                Map<String, dynamic> namedArgs = const {},
-                List<HTType> typeArgs = const []}) =>
-            _scene.map.setTerrainObject(
-                positionalArgs[0], positionalArgs[1], positionalArgs[2]),
-        override: true);
+            {List<dynamic> positionalArgs = const [],
+            Map<String, dynamic> namedArgs = const {},
+            List<HTType> typeArgs = const []}) {
+      _scene.map.setTerrainObject(
+          positionalArgs[0], positionalArgs[1], positionalArgs[2]);
+    }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('proceedToNextLevel',
         (HTEntity object,
@@ -219,13 +218,13 @@ class _MazeOverlayState extends State<MazeOverlay>
         (GameEvent event) async {
           final tile = _scene.map.getTerrainAtHero();
           assert(tile != null);
-          final String? entityId = tile!.objectId;
-          if (entityId != null) {
+          final String? objectId = tile!.data['objectId'];
+          if (objectId != null) {
             if (_scene.map.hero != null) {
               final blocked = engine.invoke(
                 'handleMazeEntityInteraction',
                 namedArgs: {
-                  'entityId': entityId,
+                  'entityId': objectId,
                   'left': tile.left,
                   'top': tile.top,
                   'maze': widget.mazeData,

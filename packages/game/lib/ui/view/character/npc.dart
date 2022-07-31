@@ -50,7 +50,7 @@ class NpcView extends StatelessWidget {
                       Container(
                         margin: const EdgeInsets.only(left: 10.0, right: 16.0),
                         child: Avatar(
-                          avatarAssetKey: 'assets/images/${npcData['icon']}',
+                          image: AssetImage('assets/images/${npcData['icon']}'),
                         ),
                       ),
                       Container(

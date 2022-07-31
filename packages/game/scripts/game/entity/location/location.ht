@@ -6,8 +6,13 @@ import '../../l10n.ht'
 import '../common.ht'
 import '../../tile/hexagonal_tile.ht'
 import 'site.ht'
+import '../../tile/common.ht'
 
 const _kLocationInitialStabilityMax = 50
+
+const kLocationCategoryCity = 'city'
+const kLocationCategoryIsland = 'island'
+const kLocationCategoryMountain = 'mountain'
 
 struct Location {
   construct ({
@@ -16,7 +21,6 @@ struct Location {
     top,
     category,
     name,
-    isHidden = false,
   }) {
     assert(terrainIndex != null)
     assert(left != null && top != null)
@@ -42,8 +46,6 @@ struct Location {
     this.category = category
     this.id = 'location_${this.index}_${this.name}'
     game.locations[this.id] = this
-    
-    this.isHidden = isHidden
 
     // 据点稳定度，最高100，初始随机0-49
     // 稳定度决定了盗贼和动乱事件的可能性。
@@ -80,7 +82,7 @@ struct Location {
 
     // 如果是盗贼营地或者洞天福地，则默认不会显示在地图上，并且也不会默认添加民居
     // 隐藏的洞天会显示为山峰，但隐藏的福地只有被发现后才会出现岛屿，之前就是普通的水面
-    if (!isHidden) {
+    if (this.category == kLocationCategoryCity) {
       Site(category: kSiteResidence, locationId: this.id)
       // 普通居民决定了税收收入，以及外门弟子的数量
       // final minP = maxPopulationOfLocationDevelopment(this.development - 1)
@@ -182,22 +184,15 @@ fun getLocationSiteById(location, siteId: str) {
   return location.sites[siteId]
 }
 
-fun onEnteredLocation(id: str) {
-  final entity = getEntityById(id)
-  if (entity != null) {
-    final handler = entity.onEntered
-    if (handler is function) {
-      handler()
-    }
-  }
-}
-
-fun onEnteredScene(id: str, [extra: str]) {
-  final entity = getEntityById(id)
-  if (entity != null) {
-    final handler = entity.onEntered
-    if (handler is function) {
-      handler()
-    }
+fun discoverLocation(location) {
+  if (location.isDiscovered) return
+  location.isDiscovered = true
+  setWorldMapCaption(location.tilePosition.left, location.tilePosition.top, location.name)
+  if (location.category == kLocationCategoryIsland) {
+    final tile = game.world.terrains[location.terrainIndex]
+    // tile.spriteIndex = kSpriteLand
+    tile.overlaySprite.index = kSpriteCity
+    // setWorldMapSprite(location.tilePosition.left, location.tilePosition.top, kSpriteLand)
+    setWorldMapOverlaySprite(location.tilePosition.left, location.tilePosition.top, kSpriteCity)
   }
 }

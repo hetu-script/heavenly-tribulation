@@ -7,16 +7,6 @@ const kSpriteMountain = 6
 
 const kSpriteGrassLand = 7
 
-const kLocationCategoryCity = 'city'
-
-const kZoneVoid = 'empty'
-const kZoneLand = 'land'
-const kZoneWater = 'water'
-const kZoneCategoryContinent = 'continent'
-const kZoneCategoryIsland = 'island'
-const kZoneCategoryLake = 'lake'
-const kZoneCategorySea = 'sea'
-
 const kTerrainKindLocation = 'location'
 const kTerrainKindRoad = 'road'
 const kTerrainKindLake = 'lake'

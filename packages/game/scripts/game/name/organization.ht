@@ -4,9 +4,7 @@ import 'common/common.json' as commonNamesData
 
 final kNonBattleOrganizationCategories = [
   'academy',
-  'tradinghouse',
-  'workshop',
-  'restaurant',
+  'business',
 ]
 
 final kNonBattleOrganizationNames = [

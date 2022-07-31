@@ -87,7 +87,7 @@ class ProfileView extends StatelessWidget {
                 Container(
                   margin: const EdgeInsets.only(left: 10.0, right: 16.0),
                   child: Avatar(
-                    avatarAssetKey: 'assets/images/${characterData['icon']}',
+                    image: AssetImage('assets/images/${characterData['icon']}'),
                   ),
                 ),
                 Container(

@@ -75,6 +75,8 @@
   "attack": "攻击",
   "sneakAttack": "偷袭",
 
+  "worldPosition": "位置",
+
   "rarity": "品级",
   "common": "凡品",
   "uncommon": "良品",
@@ -110,9 +112,9 @@
   "skill": "技能",
   "dialog": "对话",
   "category": "类型",
-  "development": "发展度",
 
   "city": "城市",
+  "harbor": "港口",
   "arcana": "洞天",
   "mirage": "福地",
 

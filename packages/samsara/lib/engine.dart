@@ -44,20 +44,14 @@ class SamsaraEngine with SceneController, EventAggregator {
     locale.loadData(localeData);
   }
 
-  Map<int, Color> zoneColors = {};
+  List<Map<int, Color>> colors = [];
 
-  void updateZoneColors(Map data) {
-    zoneColors.clear();
-    zoneColors.addAll(
-        data.map((key, value) => MapEntry(key, HexColor.fromHex(value))));
-  }
-
-  Map<String, Color> nationColors = {};
-
-  void updateNationColors(Map data) {
-    nationColors.clear();
-    nationColors.addAll(
-        data.map((key, value) => MapEntry(key, HexColor.fromHex(value))));
+  void loadColors(List colorsList) {
+    for (final Map colorData in colorsList) {
+      final data = colorData
+          .map((key, value) => MapEntry(key as int, HexColor.fromHex(value)));
+      colors.add(data);
+    }
   }
 
   late final Hetu hetu;

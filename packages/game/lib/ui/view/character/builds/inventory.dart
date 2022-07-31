@@ -56,7 +56,7 @@ class _InventoryViewState extends State<InventoryView> {
       barrierColor: Colors.transparent,
       builder: (context) {
         final List<Widget> actions = [];
-        final hero = engine.invoke('getHero');
+        final hero = engine.fetch('hero');
         switch (widget.type) {
           case InventoryType.player:
             if (itemData['isConsumable'] ?? false) {

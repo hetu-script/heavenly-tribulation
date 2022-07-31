@@ -13,9 +13,9 @@ import '../tile/common.ht'
 import '../entity/character/enemy/bandit.ht'
 import '../entity/character/creature/beast.ht'
 import '../reward.ht'
+import '../binding/worldmap.ht'
 
-const kFoundBanditCampProbability = 0.25
-const kFoundArcanaMirageProbability = 0.05
+const kSearchSuccessProbability = 0.25
 
 // 打猎会增加遇到野兽的概率200%
 // 这个概率将会和地点本身的野兽概率相乘
@@ -56,7 +56,6 @@ const kSeaFishProbability = 0.45
 // 山峰或树林产出物品更多，平原产出数量较少
 // 但前者会有几率碰到野兽或者强盗
 fun handleWorldTerrainInteraction(left, top) {
-  final hero = getHero()
   
   // var isInjured = false
   // for (final status of hero.statusEffects) {
@@ -112,34 +111,116 @@ fun handleWorldTerrainInteraction(left, top) {
     when (key) {
       'search' -> {
         final entityId = terrain.entityId
-        if (terrain.hasExplored) {
-          handleWorldMapEntityInteraction(entityId)
+        final locationId = terrain.locationId
+        final undiscoveredLocation
+        if (locationId) {
+          final location = game.locations[locationId]
+          if (!location.isDiscovered) {
+            undiscoveredLocation = location
+          }
+        }
+        if (terrain.hasSearched) {
+          if (entityId) {
+            handleWorldMapEntityInteraction(entityId)
+          } else {
+            showDialogByLocaleKeys([alreadyExplored], character: hero)
+          }
         } else {
-          showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-            var i = 0
-            var found = false
-            showProgress(getLocaleString('search'), checkProgress: () {
-              ++i
-              updateGame(ticks: kTicksPerDay)
-              characterCostStamina(hero, kTicksPerDay)
-              if (entityId) {
+          if (entityId) {
+            showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
+              var i = 0
+              var found = false
+              showProgress(getLocaleString('search'), checkProgress: () {
+                ++i
+                updateGame(ticks: kTicksPerDay)
+                characterCostStamina(hero, kTicksPerDay)
                 // TODO: 角色感知可以提高成功率
-                if (random.nextDouble() < kFoundBanditCampProbability) {
+                if (random.nextDouble() < kSearchSuccessProbability) {
                   found = true
                   return false
                 }
-              }
-              if (i >= days) return false
-              return true
-            }).then((_) {
-              if (found) {
-                terrain.hasExplored = true
-                handleWorldMapEntityInteraction(entityId)
-              } else {
-                showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
-              }
+                if (i >= days) return false
+                return true
+              }).then((_) {
+                final incidentContent = getLocaleString('characterExplore', [
+                  hero.name,
+                  '${terrain.left}, ${terrain.top}',
+                  i,
+                ])
+                Incident(
+                  subjectIds: [hero.id],
+                  content: incidentContent,
+                  isPrivate: true,
+                )
+                if (found) {
+                  terrain.hasSearched = true
+                  handleWorldMapEntityInteraction(entityId)
+                } else {
+                  showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
+                }
+              })
             })
-          })
+          } else if (undiscoveredLocation) {
+            showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
+              var i = 0
+              var found = false
+              showProgress(getLocaleString('search'), checkProgress: () {
+                ++i
+                updateGame(ticks: kTicksPerDay)
+                characterCostStamina(hero, kTicksPerDay)
+                // TODO: 角色感知可以提高成功率
+                if (random.nextDouble() < kSearchSuccessProbability) {
+                  found = true
+                  return false
+                }
+                if (i >= days) return false
+                return true
+              }).then((_) {
+                final incidentContent = getLocaleString('characterExplore', [
+                  hero.name,
+                  '${terrain.left}, ${terrain.top}',
+                  i,
+                ])
+                Incident(
+                  subjectIds: [hero.id],
+                  content: incidentContent,
+                  isPrivate: true,
+                )
+                if (found) {
+                  terrain.hasSearched = true
+                  discoverLocation(undiscoveredLocation)
+                  // TODO: 第一次发现据点事件
+                  final message = getLocaleString('firstVisitCity', [undiscoveredLocation.name])
+                  showDialogByStrings([message]).then((_) {
+                    enterLocation(undiscoveredLocation.id)
+                  })
+                } else {
+                  showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
+                }
+              })
+            })
+          } else {
+            terrain.hasSearched = true
+            showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
+              showProgress(getLocaleString('search'), checkProgress: () {
+                updateGame(ticks: kTicksPerDay)
+                characterCostStamina(hero, kTicksPerDay)
+                return false
+              }).then((_) {
+                final incidentContent = getLocaleString('characterExplore', [
+                  hero.name,
+                  '${terrain.left}, ${terrain.top}',
+                  1,
+                ])
+                Incident(
+                  subjectIds: [hero.id],
+                  content: incidentContent,
+                  isPrivate: true,
+                )
+                showDialogByLocaleKeys(['exploredEmtpy'], character: hero)
+              })
+            })
+          }
         }
       }
       // 采集，可能会获得：药材（材料）、水果（材料）
@@ -477,7 +558,6 @@ fun handleWorldTerrainInteraction(left, top) {
 
 // 返回布尔值，如果为真，则玩家控制角色会停止移动
 fun handleWorldMapEntityInteraction(entityId) -> bool {
-  final hero = getHero()
   final entity = game.world.entities[entityId]
   assert(entity != null)
 

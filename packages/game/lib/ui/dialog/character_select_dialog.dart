@@ -20,7 +20,8 @@ class CharacterSelectDialog extends StatelessWidget {
   static Future<dynamic> show({
     required BuildContext context,
     required String title,
-    required Iterable<String> characterIds,
+    Iterable<String>? characterIds,
+    Iterable? charactersData,
     bool showCloseButton = true,
   }) async {
     return await showDialog<dynamic>(
@@ -30,6 +31,7 @@ class CharacterSelectDialog extends StatelessWidget {
         return CharacterSelectDialog(
           title: title,
           characterIds: characterIds,
+          charactersData: charactersData,
           showCloseButton: showCloseButton,
         );
       },
@@ -39,22 +41,27 @@ class CharacterSelectDialog extends StatelessWidget {
   const CharacterSelectDialog({
     super.key,
     required this.title,
-    required this.characterIds,
+    this.characterIds,
+    this.charactersData,
     this.showCloseButton = true,
   });
 
   final String title;
 
-  final Iterable<String> characterIds;
+  final Iterable<String>? characterIds;
+  final Iterable? charactersData;
 
   final bool showCloseButton;
 
   @override
   Widget build(BuildContext context) {
-    final Iterable chars = engine
-        .invoke('getCharacters', positionalArgs: [characterIds])
-        .toList()
-        .reversed;
+    Iterable chars;
+    if (charactersData != null) {
+      chars = charactersData!;
+    } else {
+      assert(characterIds != null);
+      chars = engine.invoke('getCharacters', positionalArgs: [characterIds]);
+    }
 
     final List<List<String>> data = [];
     for (final char in chars) {

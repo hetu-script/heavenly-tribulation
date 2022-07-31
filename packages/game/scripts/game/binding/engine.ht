@@ -4,9 +4,8 @@
 
 external class SamsaraEngine {
   fun updateLocale(data: Map)
-  fun updateZoneColors(data: Map)
-  fun updateNationColors(data: Map)
-  // fun onIncident(data)
+  fun loadColors(data: List)
+  // fun updateNationColors(data: Map)
   fun log(...content: str)
   fun debug(...content: str)
   fun info(...content: str)

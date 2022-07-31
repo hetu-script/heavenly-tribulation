@@ -38,7 +38,6 @@ fun mazeGameOver(maze) {
 fun handleMazeEntityInteraction({entityId, left, top, maze, currentLevelIndex}) -> bool {
   final index = tilePos2Index(left, top, maze.width)
   final tile = maze.levels[currentLevelIndex].terrains[index]
-  final hero = getHero()
   final entity = maze.entities[entityId]
   assert(entity != null)
   engine.info('副本地图对象互动事件：[${entity.encounterType}: ${entity.id}](${left}, ${top})')
