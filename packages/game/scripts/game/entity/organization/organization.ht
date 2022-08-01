@@ -151,7 +151,9 @@ struct Organization {
 
     // 该组织每年刷新时间的时间，一般都为 X 月 1 日
     // 例如招募大比时间等等，都发生在这个日期
-    this.yearlyUpdateTime = random.nextInt(kMonthsPerYear) * kTicksPerMonth
+    final month = random.nextInt(kMonthsPerYear)
+    this.yearlyUpdateTime = month * kTicksPerMonth + random.next(kTicksPerMonth)
+    this.yearlyRecruitMonth = month + 1
 
     this.headquartersId = headquartersId
     this.leaderId = leaderId

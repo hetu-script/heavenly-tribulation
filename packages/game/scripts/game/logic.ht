@@ -20,7 +20,7 @@ fun getGovernmentQuestMax(development) -> int {
   }
 }
 
-fun updateGame({ticks = 1, timeflow = true}) {
+fun updateGame({ticks = 1, timeflow = true, playerEvent = true}) {
   for (final i in range(ticks)) {
     // 每个tick执行的代码
     handleBabies()
@@ -58,9 +58,9 @@ fun updateGame({ticks = 1, timeflow = true}) {
       if (game.heroId != null && game.heroId == organization.leaderId) continue
 
       // 年度事件
-      if (getCurrentTicksOfYear() == organization.yearlyUpdateTime) {
-        updateOrganizationYearly(organization)
-      }
+      // if (getCurrentTicksOfYear() == organization.yearlyUpdateTime) {
+      //   updateOrganizationYearly(organization)
+      // }
 
       // 月度事件
       if (getCurrentTicksOfMonth() == organization.monthlyUpdateTime) {
@@ -79,11 +79,13 @@ fun updateGame({ticks = 1, timeflow = true}) {
     //   }
     // }
 
-    // 触发一些玩家遇到的固定事件
-    if (game.timestamp % kTicksPerMonth == 0) {
-      // 重置玩家自己的每月行动
-      resetPlayerMonthlyActivities(game)
-    }
+    // if (playerEvent) {
+    //   // 触发一些玩家遇到的固定事件
+    //   if (game.timestamp % kTicksPerMonth == 0) {
+    //     // 重置玩家自己的每月行动
+    //     resetPlayerMonthlyActivities(game)
+    //   }
+    // }
 
     // 调用mod上的回调函数
     onGameEvent('onUpdate')

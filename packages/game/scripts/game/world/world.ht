@@ -758,7 +758,7 @@ fun createWorldMap({
   }
 
   // 在不改变时间的情况下刷新一下世界事件
-  updateGame(timeflow: false)
+  updateGame(timeflow: false, playerEvent: false)
 
   // 将地域的上色信息复制到引擎侧
   engine.info('刷新世界地图上色信息')
