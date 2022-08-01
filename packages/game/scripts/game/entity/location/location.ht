@@ -14,6 +14,8 @@ const kLocationCategoryCity = 'city'
 const kLocationCategoryIsland = 'island'
 const kLocationCategoryMountain = 'mountain'
 
+const kLocationDevelopmentMax = 9
+
 struct Location {
   construct ({
     terrainIndex,
@@ -24,6 +26,10 @@ struct Location {
   }) {
     assert(terrainIndex != null)
     assert(left != null && top != null)
+
+    // 该据点的每月刷新时间
+    this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
+
     this.terrainIndex = terrainIndex
     this.tilePosition = Tile(
       left,
@@ -55,6 +61,7 @@ struct Location {
     // 发展度决定了据点所能拥有的普通居民人口上限，所能拥有建筑的数量，以及能产生的悬赏任务上限等
     // 发展度需要花费银两、矿石和木料来升级
     this.development = 0
+    this.pupulation = maxPopulationOfLocationDevelopment
 
     // 据点和人物类似，也具有金钱和物品栏
     this.money = 0
@@ -111,26 +118,14 @@ fun getLocationDistance(loc1, loc2) {
   return getTileDistance(loc1.tilePosition, loc2.tilePosition)
 }
 
-// 每个城市发展度，都会产生新的带有灵根的角色
-// 但这些角色并不会立即出现，而是只能依靠探查搜寻的方式找到
-// 并且每次找到的数量是有上限的
-// fun maxPopulationOfLocationDevelopment(n: int) {
-//   final base = (n - 1) * (n - 1) * (n - 1) * 50 + 100
-
-//   return base
-// }
-
-fun maxSiteNumberOfLocationDevelopment(n: int) {
-  return n + 2
+// 每个城市发展度对应的居民上限
+// 居民可以用于充当据点的仆役
+fun maxPopulationOfLocationDevelopment(n: int) {
+  return (n - 1) * (n - 1) * (n - 1) * 50 + 100
 }
 
-/// 定期产生可供选择的有名有姓的人物作为内门弟子
-/// 第一次出现时通常为练气境界
-/// 产生的内门弟子数量，一开始是 1 个，最高是 8 个
-/// 这个数量和外门弟子数量，修炼场的等级
-/// 执行训练任务的长老属性和技能，等等都有关系
-fun maxNumberOfWildCharacterPerDevelopment() {
-  return n * n - n * 2 + 2
+fun maxSiteNumberOfLocationDevelopment(n: int) {
+  return (n + 1) * n ~/ 2 + 1
 }
 
 // 每个据点，每个月会自然增加人口，直到达到上限
@@ -194,5 +189,13 @@ fun discoverLocation(location) {
     tile.overlaySprite.index = kSpriteCity
     // setWorldMapSprite(location.tilePosition.left, location.tilePosition.top, kSpriteLand)
     setWorldMapOverlaySprite(location.tilePosition.left, location.tilePosition.top, kSpriteCity)
+  }
+}
+
+fun increaseLocationDevelopment(location) {
+  if (location.development < kLocationDevelopmentMax) {
+    ++location.development
+  } else {
+    engine.warning('据点 ${location.name} 的发展度（${location.development}）已达到或超过最大值。')
   }
 }

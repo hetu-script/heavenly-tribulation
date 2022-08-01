@@ -9,13 +9,20 @@ const kTicksPerMonth = kDaysPerMonth * kTicksPerDay //每月的回合数 120
 const kMonthsPerYear = 12 //每年的月数
 const kTicksPerYear = kMonthsPerYear * kTicksPerMonth //每年的回合数 1440
 
+// 当前年数
 fun toYear(timestamp) => (timestamp ~/ kTicksPerYear)
+// 0-11 当前月数
 fun toMonth(timestamp) => (timestamp % kTicksPerYear) ~/ kTicksPerMonth
+// 0-29 当前月的天数
 fun toDay(timestamp) => (timestamp % kTicksPerMonth) ~/ kTicksPerDay
+// 0-3 当前的时刻（清晨、下午、傍晚、午夜）
+fun toTime(timestamp) => (timestamp % kTicksPerDay)
 
 fun getCurrentYear => toYear(game.timestamp) + 1
 fun getCurrentMonth => toMonth(game.timestamp) + 1
 fun getCurrentDay => toDay(game.timestamp) + 1
+fun getCurrentTicksOfYear => (game.timestamp % kTicksPerYear)
+fun getCurrentTicksOfMonth => (game.timestamp % kTicksPerMonth)
 
 final kHourString = {
   '0': 'morning',

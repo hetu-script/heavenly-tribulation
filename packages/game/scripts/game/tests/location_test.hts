@@ -1,12 +1,12 @@
 
 fun maxPopulationOfLocationDevelopment(n: int) {
-  return (n - 1) * (n - 1) * (n - 1) * 50 + 100
+  return ((n - 1) * (n - 1) * (n - 1) * 50 + 100) * 11
 }
 
-fun maxNumberOfWildCharacterPerDevelopment(n: int) {
-  return n * n - n * 2 + 2
+fun maxSiteNumberOfLocationDevelopment(n: int) {
+  return (n + 1) * n ~/ 2 + 1
 }
 
-for (var i in range(19)) {
-  print(i, maxPopulationOfLocationDevelopment(i))
+for (var i in range(10)) {
+  print(i, maxSiteNumberOfLocationDevelopment(i))
 }

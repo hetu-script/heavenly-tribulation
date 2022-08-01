@@ -25,17 +25,67 @@ fun updateGame({ticks = 1, timeflow = true}) {
     // 每个tick执行的代码
     handleBabies()
 
-    // 每个月执行的代码
+    // 对于每个游戏中的单位，每个月执行的代码随机分布在一个月中的某一天，这是为了让游戏不会在某一天集中运算而卡住。
+    
+    // 每一个野外地块，每个月固定时间会随机刷新一个野外遭遇
+    // 野外遭遇包括NPC事件、随机副本等等
+    // for (final terrain in game.world.terrains) {
+    //   if (getCurrentTicksOfMonth() == terrain.monthlyUpdateTime) {
+    //     updateTerrain(terrain)
+    //   }
+    // }
+
+    // 每个建筑，每个月会根据其属性而支付费用和获得收入，费用和收入可能是各种资源
+    // 商店类建筑会刷新物品和银两
+    // 刷新任务，无论之前的任务是否还存在，非组织拥有的第三方建筑每个月只会有一个任务
+    for (final location of game.locations) {
+      for (final site of location.sites) {
+        if (getCurrentTicksOfMonth() == site.monthlyUpdateTime) {
+          updateSite(site)
+        }
+      }
+      // 据点会进行稳定度的变化、人口的增长等
+      // if (getCurrentTicksOfMonth() == location.monthlyUpdateTime) {
+      //   updateLocation(location)
+      // }
+    }
+
+    // final heroOrganization = getHeroOrganization()
+    
+    // 触发每个组织的刷新事件
+    for (final organization of game.organizations) {
+      // 跳过玩家自己控制的组织
+      if (game.heroId != null && game.heroId == organization.leaderId) continue
+
+      // 年度事件
+      if (getCurrentTicksOfYear() == organization.yearlyUpdateTime) {
+        updateOrganizationYearly(organization)
+      }
+
+      // 月度事件
+      if (getCurrentTicksOfMonth() == organization.monthlyUpdateTime) {
+        updateOrganizationMonthly(organization)
+      }
+    }
+    
+    // 触发每个角色的刷新事件
+    // for (final character of game.characters) {
+    //   // 跳过玩家自己控制的角色
+    //   if (game.heroId != null && game.heroId == character.id) continue
+
+    //   // 据点会进行稳定度的变化、人口的增长等
+    //   if (getCurrentTicksOfMonth() == character.monthlyUpdateTime) {
+    //     updateCharacter(character)
+    //   }
+    // }
+
+    // 触发一些玩家遇到的固定事件
     if (game.timestamp % kTicksPerMonth == 0) {
-      resetMonthlyActivities(game)
-
-      generateQuests()
+      // 重置玩家自己的每月行动
+      resetPlayerMonthlyActivities(game)
     }
 
-    if (game.timestamp % kTicksPerYear == 0) {
-      resetYearlyActivities(game)
-    }
-
+    // 调用mod上的回调函数
     onGameEvent('onUpdate')
 
     if (timeflow) ++game.timestamp
@@ -44,7 +94,7 @@ fun updateGame({ticks = 1, timeflow = true}) {
 
 // 每个tick检查一次当前是否有婴儿出生
 fun handleBabies {
-  final pendingRemoveIds = Set()
+  final pendingRemovedIds = Set()
   for (final baby of game.babies) {
     if (game.timestamp - baby.conceptionTimestamp < baby.pregnancyTime) continue
     final mother = game.characters[baby.motherId]
@@ -62,102 +112,172 @@ fun handleBabies {
         motherId: baby.motherId,
       )
     }
-    pendingRemoveIds.add(baby.id)
+    pendingRemovedIds.add(baby.id)
   }
-  for (final id in pendingRemoveIds) {
+  for (final id in pendingRemovedIds) {
     delete game.babies[id]
   }
 }
 
-// 生成每月任务
+fun updateTerrain(terrain) {
+
+}
+
+// 刷新资源、生成每月任务
 // 门派和官府会生成多个可选的任务
 // 但商号、工坊和酒楼只有在是门派开设的情况下才会有多个任务，否则每个月只会提供唯一的一个任务
-fun generateQuests {
-  for (final location of game.locations) {
-    for (final site of location.sites) {
-      when (site.category) {
-        'cultivation' -> {
+fun updateSite(site) {
+  final location = game.locations[site.locationId]
+  when (site.category) {
+    'cultivation' -> {
 
-        }
-        'gang' -> {
-          
-        }
-        'religion' -> {
-          
-        }
-        'academy' -> {
-          
-        }
-        'tradinghouse' -> {
-          if (site.organizaitonId) {
+    }
+    'gang' -> {
+      
+    }
+    'religion' -> {
+      
+    }
+    'tradinghouse' -> {
+      if (site.organizationId) {
 
+      } else {
+        site.workedThisMonth = false
+
+        // 非门派商号，这里会临时生成一个任务
+        // 商号的运送任务都是普通物品，并且送到指定地点而非人物
+        final destination = random.nextIterable(game.locations.values)
+        final destinationSite = random.nextIterable(destination.sites.values)
+        final distance = getTileDistance(location.tilePosition, destination.tilePosition)
+        final quest = QuestDelivery(
+          locationId: location.id,
+          siteId: site.id,
+          destinationLocationId: destination.id,
+          destinationSiteId: destinationSite.id,
+          item: Material(stackSize: 20),
+          rewardMoney: distance * 50,
+        )
+        site.quests[quest.id] = quest
+      }
+    }
+    'workshop' -> {
+      if (site.organizationId) {
+        
+      } else {
+        
+      }
+    }
+    'restaurant' -> {
+      if (site.organizationId) {
+        
+      } else {
+        
+      }
+    }
+    'nation' -> {
+      
+    }
+    'government' -> {
+      site.workedThisMonth = false
+
+      if (site.quests.length >= getGovernmentQuestMax(location.development)) return
+      
+      // 生成盗贼副本类悬赏任务，只在有国家的据点上生成
+      if (random.nextDouble() > kQuestProbability) return
+      if (!location.nationId) return
+      final nation = game.organizations[location.nationId]
+      if ((random.nextDouble() < location.stability / 100) && !nation.hasBanditEvent && !location.hasBanditEvent) {
+        var mazeTerrain
+        for (final terrainIndex in nation.territoryIndexes) {
+          final terrain = game.world.terrains[terrainIndex]
+          if (terrain.locationId) continue
+          if (terrain.spriteIndex == kSpriteLand) {
+            mazeTerrain = terrain
+            break
           }
         }
-        'workshop' -> {
-          if (site.organizaitonId) {
-            
-          }
-        }
-        'restaurant' -> {
-          if (site.organizaitonId) {
-            
-          }
-        }
-        'palace' -> {
-          
-        }
-        'government' -> {
-          var questMax = getGovernmentQuestMax(location.development)
-          if (site.quests.length >= questMax) continue
 
-          // 生成盗贼副本类悬赏任务，只在有国家的据点上生成
-          if (random.nextDouble() > kQuestProbability) continue
-          if (!location.nationId) continue
-          final nation = game.nations[location.nationId]
-          if ((random.nextDouble() < location.stability / 100) && !nation.hasBanditEvent && !location.hasBanditEvent) {
-            var mazeTerrain
-            for (final terrainIndex in nation.territoryIndexes) {
-              final terrain = game.world.terrains[terrainIndex]
-              if (terrain.locationId) continue
-              if (terrain.spriteIndex == kSpriteLand) {
-                mazeTerrain = terrain
-                break
-              }
-            }
+        if (mazeTerrain) {
+          nation.hasBanditEvent = true
+          location.hasBanditEvent = true
 
-            if (mazeTerrain) {
-              nation.hasBanditEvent = true
-              location.hasBanditEvent = true
-
-              final quest = QuestBanditCamp(
-                locationId: location.id,
-                mazeTerrainIndex: mazeTerrain.index,
-                kind: kQuestConquestMazeKindKillBanditBoss,
-                bossName: generateCharacterName(),
-              )
-              engine.info('在 ${location.name} ${site.name} 生成悬赏任务：${quest.id}，副本地点：${mazeTerrain.left}, ${mazeTerrain.top}')
-              site.quests[quest.id] = quest
-            }
-          }
+          final quest = QuestBanditCamp(
+            locationId: location.id,
+            mazeTerrainIndex: mazeTerrain.index,
+            kind: kQuestConquestMazeKindKillBanditBoss,
+            bossName: generateCharacterName(),
+          )
+          engine.info('在 ${location.name} ${site.name} 生成悬赏任务：${quest.id}，副本地点：${mazeTerrain.left}, ${mazeTerrain.top}')
+          site.quests[quest.id] = quest
         }
       }
     }
-
   }
+}
+
+fun updateLocation(location) {
+
+}
+
+// 年度组织事件
+fun updateOrganizationYearly(organization) {
+  when (organization.category) {
+    'cultivation' -> {
+      
+    }
+    'gang' -> {
+      
+    }
+    'religion' -> {
+      
+    }
+    'business' -> {
+      
+    }
+    'nation' -> {
+      
+    }
+  }
+}
+
+// 月度组织事件
+fun updateOrganizationMonthly(organization) {
+  when (organization.category) {
+    'cultivation' -> {
+      
+    }
+    'gang' -> {
+      
+    }
+    'religion' -> {
+      
+    }
+    'business' -> {
+      
+    }
+    'nation' -> {
+      
+    }
+  }
+}
+
+fun updateCharacter(character) {
+
 }
 
 // 如果返回值为 true，则英雄的移动会中止在这一格。
 fun onHeroMovedOnWorldMap(left, top) {
   engine.info('玩家移动到: ${left}, ${top}')
-  final tile = game.world.terrains[tilePos2Index(left, top, game.world.width)]
-  if (tile.entityId && !tile.hasSearched) {
-    // TODO: 感知阈值
-    showDialogByLocaleKeys(['sensedUndiscovered'], character: hero)
-  }
+  // final tile = game.world.terrains[tilePos2Index(left, top, game.world.width)]
+  // if (tile.entityId && !tile.hasSearched) {
+  //   // TODO: 感知阈值
+  //   showDialogByLocaleKeys(['sensedUndiscovered'], character: hero)
+  //   return true
+  // }
   return false
 }
 
-// 异步函数，会在显示地点窗口之前执行，执行完毕后才会显示地点窗口
+// 异步函数，会在显示地点窗口之前执行，执行完毕后才会进入地点
 fun onHeroEnteredLocation(location) async {
   engine.info('玩家进入了: ${location.name}')
   if (!location.isDiscovered) {
@@ -173,7 +293,7 @@ fun onHeroEnteredLocation(location) async {
   }
 }
 
-// 异步函数，会在建筑代码之前执行，执行完毕后才会进入建筑代码
+// 异步函数，会在显示建筑窗口之前执行，执行完毕后才会进入建筑
 fun onHeroEnteredSite(site) async {
   engine.info('玩家进入了: ${site.name}')
 

@@ -83,7 +83,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
       final nationId = _currentTerrain!.nationId;
       if (nationId != null) {
         _currentNation =
-            engine.invoke('getNationById', positionalArgs: [nationId]);
+            engine.invoke('getOrganizationById', positionalArgs: [nationId]);
       } else {
         _currentNation = null;
       }
@@ -415,7 +415,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
               ),
             if (_questData != null)
               Positioned(
-                left: 300,
+                left: 330,
                 top: 0,
                 child: QuestInfoPanel(characterData: _heroData!),
               ),
@@ -525,7 +525,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
               }
 
               if (selectedTerrain.nationId != null) {
-                final nationData = engine.invoke('getNationById',
+                final nationData = engine.invoke('getOrganizationById',
                     positionalArgs: [selectedTerrain.nationId]);
                 stringBuffer.writeln('${nationData['name']}');
               }

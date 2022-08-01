@@ -155,6 +155,9 @@ struct Character {
     worldPositionX,
     worldPositionY,
   }) {
+    // 该人物的每月刷新事件的时间
+    this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
+
     this.isFemale = isFemale ?? random.nextBool()
     if (this.isFemale) {
       final index = random.nextInt(_kFemaleAvatarCount)
@@ -292,8 +295,6 @@ struct Character {
       organizations: {},
       // 代表对某个据点的记忆
       locations: {},
-      // 代表对某个国家的记忆
-      nations: {},
       // 代表对某个法宝的记忆
       talismans: {},
     }
@@ -359,6 +360,26 @@ struct Character {
 
     if (isArmed) {
       characterEquip(this, Weapon())
+    }
+
+    // 指某个NPC对其他角色进行过的动作，限定每个月一次
+    this.montylyActivities = {
+      // 人物互动
+      talked: [],
+      gifted: [],
+      practiced: [],
+      consulted: [],
+      requested: [],
+      insulted: [],
+      stolen: [],
+
+      // 采集互动
+      explored: [],
+      gathered: [],
+      woodcutted: [],
+      mined: [],
+      hunted: [],
+      fished: [],
     }
   }
 }
@@ -635,6 +656,14 @@ fun getHeroHome {
   return game.locations[hero.homeId]
 }
 
+fun getHeroOrganization {
+  if (hero.organizationId) {
+    return game.organizations[hero.organizationId]
+  } else {
+    return null
+  }
+}
+
 fun getCharacterWorldPosition(character) {
   return character.worldPosition
 }
@@ -733,25 +762,25 @@ fun handleCharacterInteraction(characterId) {
   assert(game.characters.containsKey(characterId))
   final character = game.characters[characterId]
   final selections = []
-  if (characterId in! game.playerMonthly.talked) {
+  if (characterId in! game.playerCharacterMonthly.talked) {
     selections.add('talk')
   }
-  if (characterId in! game.playerMonthly.gifted) {
+  if (characterId in! game.playerCharacterMonthly.gifted) {
     selections.add('gift')
   }
-  if (characterId in! game.playerMonthly.practiced) {
+  if (characterId in! game.playerCharacterMonthly.practiced) {
     selections.add('practice')
   }
-  if (characterId in! game.playerMonthly.consulted) {
+  if (characterId in! game.playerCharacterMonthly.consulted) {
     selections.add('consult')
   }
-  if (characterId in! game.playerMonthly.requested) {
+  if (characterId in! game.playerCharacterMonthly.requested) {
     selections.add('request')
   }
-  if (characterId in! game.playerMonthly.insulted) {
+  if (characterId in! game.playerCharacterMonthly.insulted) {
     selections.add('insult')
   }
-  if (characterId in! game.playerMonthly.stolen) {
+  if (characterId in! game.playerCharacterMonthly.stolen) {
     selections.add('steal')
   }
   selections.add('sneakAttack')

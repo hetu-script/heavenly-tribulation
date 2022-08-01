@@ -35,13 +35,13 @@ const _kInformationViewLocationColumns = [
   'development',
 ];
 
-const _kInformationViewNationColumns = [
-  'name',
-  'capital',
-  'gridSize',
-  'locationNumber',
-  'organizationNumber',
-];
+// const _kInformationViewNationColumns = [
+//   'name',
+//   'capital',
+//   'gridSize',
+//   'locationNumber',
+//   'organizationNumber',
+// ];
 
 class InformationPanel extends StatefulWidget {
   const InformationPanel({super.key});
@@ -73,22 +73,22 @@ class _InformationPanelState extends State<InformationPanel>
 
     // TODO:只显示认识的人物和发现的据点
 
-    _nationsData = engine.invoke('getNations');
-    for (final nation in _nationsData.values) {
-      final rowData = <String>[];
-      // 国家名字
-      rowData.add(nation['name']);
-      // 首都名字
-      rowData.add(getNameFromId(nation['capitalId']));
-      // 地块大小
-      rowData.add(nation['territoryIndexes'].length.toString());
-      // 据点数量
-      rowData.add(nation['locationIds'].length.toString());
-      rowData.add(nation['organizationIds'].length.toString());
-      // 多存一个隐藏的 id 信息，用于点击事件
-      rowData.add(nation['id']);
-      _nationsFieldRow.add(rowData);
-    }
+    // _nationsData = engine.invoke('getNations');
+    // for (final nation in _nationsData.values) {
+    //   final rowData = <String>[];
+    //   // 国家名字
+    //   rowData.add(nation['name']);
+    //   // 首都名字
+    //   rowData.add(getNameFromId(nation['capitalId']));
+    //   // 地块大小
+    //   rowData.add(nation['territoryIndexes'].length.toString());
+    //   // 据点数量
+    //   rowData.add(nation['locationIds'].length.toString());
+    //   rowData.add(nation['organizationIds'].length.toString());
+    //   // 多存一个隐藏的 id 信息，用于点击事件
+    //   rowData.add(nation['id']);
+    //   _nationsFieldRow.add(rowData);
+    // }
 
     _locationsData = engine.invoke('getLocations');
     for (final loc in _locationsData.values) {
@@ -172,10 +172,10 @@ class _InformationPanelState extends State<InformationPanel>
         icon: const Icon(Icons.location_city),
         text: '${engine.locale['location']}(${_locationsFieldRow.length})',
       ),
-      Tab(
-        icon: const Icon(Icons.public),
-        text: '${engine.locale['nation']}(${_nationsFieldRow.length})',
-      ),
+      // Tab(
+      //   icon: const Icon(Icons.public),
+      //   text: '${engine.locale['nation']}(${_nationsFieldRow.length})',
+      // ),
     ];
   }
 
@@ -221,10 +221,10 @@ class _InformationPanelState extends State<InformationPanel>
                   );
                 },
               ),
-              GameEntityListView(
-                columns: _kInformationViewNationColumns,
-                tableData: _nationsFieldRow,
-              ),
+              // GameEntityListView(
+              //   columns: _kInformationViewNationColumns,
+              //   tableData: _nationsFieldRow,
+              // ),
             ],
           ),
         ),

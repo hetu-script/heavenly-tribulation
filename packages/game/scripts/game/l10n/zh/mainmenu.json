@@ -9,17 +9,14 @@
   "medium": "适中",
   "huge": "庞大",
   "massive": "广阔",
-  "nationNumber": "国家数量",
   "locationNumber": "据点数量",
   "characterNumber": "角色数量",
 
   "organizationNumber": "门派数量",
 
+  "nationNumber": "国家数量",
   "cultivationOrganizationNumber": "仙门数量",
   "religionOrganizationNumber": "宗派数量",
   "gangOrganizationNumber": "帮会数量",
-  "academyOrganizationNumber": "书院数量",
-  "tradinghouseOrganizationNumber": "商号数量",
-  "workshopOrganizationNumber": "工坊数量",
-  "restaurantOrganizationNumber": "酒楼数量"
+  "businessOrganizationNumber": "商号数量"
 }

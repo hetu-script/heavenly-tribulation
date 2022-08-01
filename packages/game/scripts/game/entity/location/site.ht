@@ -7,23 +7,25 @@ import '../character/status_effect.ht'
 import '../../quest/quest.ht'
 import '../item/item.ht'
 import '../../tile/hexagonal_tile.ht'
+import '../../datetime.ht'
+import '../common.ht'
 
 // 这三种交易建筑，可能属于某个组织，也可能没有组织。
 // 当没有组织时，属于默认生成的单纯服务性质的建筑。
 // 此时交易所产生的物品、金钱，将会归属于其所在的据点。
 
-
 const kSiteCultivation = 'cultivation'
 const kSiteGang = 'gang'
 const kSiteReligion = 'religion'
-const kSiteAcademy = 'academy'
+const kSiteBusiness = 'business'
+const kSiteNation = 'nation'
 const kSiteTradinghouse = 'tradinghouse'
 const kSiteWorkshop = 'workshop'
 const kSiteRestaurant = 'restaurant'
-const kSitePalace = 'palace'
 const kSiteGovernment = 'government'
 const kSiteResidence = 'residence'
 const kSiteLibrary = 'library'
+const kSiteAcademy = 'academy'
 const kSiteFarmland = 'farmland'
 const kSiteMine = 'mine'
 const kSiteTimberland = 'timberland'
@@ -44,23 +46,33 @@ struct Site {
     assert(locationId != null)
     assert(category != null)
 
+    // 该建筑的每月刷新任务的时间
+    this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
+
     this.locationId = locationId
     this.category = category
     this.organizationId = organizationId
-    this.name = name ?? getLocaleString(category)
+    if (category == kSiteNation) {
+      final organization = game.organizations[organizationId]
+      this.name = organization.name + getLocaleString('palace')
+    } else if (category == kSiteGovernment) {
+      final location = game.locations[locationId]
+      this.name = location.name + getLocaleString(kSiteGovernment)
+    } else {
+      this.name = name ?? getLocaleString(category)
+    }
     this.image = image ?? 'location/site/${category}.png'
 
     this.id = 'site_${locationId}_${category}_${this.name}'
 
     final location = game.locations[locationId]
-    engine.info('在 ${location.name} 创建了 ${this.name}')
+    engine.info('在 ${location.name} 建立了新建筑 ${this.name}')
     location.sites[this.id] = this
 
     when (category) {
       kSiteCultivation -> location.hasCultivation = true
       kSiteGang -> location.hasGang = true
       kSiteReligion -> location.hasReligion = true
-      kSiteAcademy -> location.hasAcademy = true
     }
     
     // 建筑和人物类似，也具有金钱和物品栏
@@ -81,14 +93,14 @@ fun handleSiteInteraction(locationId: str, siteId: str) {
     'cultivation' -> _handleCultivationInteraction(site)
     'gang' -> _handleGangInteraction(site)
     'religion' -> _handleReligionInteraction(site)
-    'academy' -> _handleAcademyInteraction(site)
     'tradinghouse' -> _handleTradingHouseInteraction(site)
     'workshop' -> _handleWorkshopInteraction(site)
     'restaurant' -> _handleRestaurantInteraction(site)
-    'palace' -> _handlePalaceInteraction(site)
+    'nation' -> _handlePalaceInteraction(site)
     'government' -> _handleGovernmentInteraction(site)
     'residence' -> _handleResidenceInteraction(site)
     'library' -> _handleLibraryInteraction(site)
+    'academy' -> _handleAcademyInteraction(site)
     'farmland' -> _handleFarmlandInteraction(site)
     'mine' -> _handleMineInteraction(site)
     'timberland' -> _handleTimberInteraction(site)
@@ -163,31 +175,21 @@ fun _handleTradingHouseInteraction(site) {
   ]).then((key) {
     when (key) {
       'trade' -> {
-        if (site.organizaitonId) {
-          final organization = getOrganizationById(site.organizaitonId)
+        if (site.organizationId) {
+          final organization = getOrganizationById(site.organizationId)
           showMerchant(organization, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
         } else {
           showMerchant(site, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
         }
       }
       'work' -> {
-        if (game.siteMonthly.worked.contains(site.id)) {
+        if (site.workedThisMonth) {
           showDialogByLocaleKeys(['workedThisMonth'])
+        } else if (site.quests.isEmpty) {
+          showDialogByLocaleKeys(['questEmpty'])
         } else {
-          game.siteMonthly.worked.add(site.id)
-          // 非门派商号，这里会临时生成一个任务
-          // 商号的运送任务都是普通物品，并且送到指定地点而非人物
-          final destination = random.nextIterable(game.locations.values)
-          final destinationSite = random.nextIterable(destination.sites.values)
-          final distance = getTileDistance(location.tilePosition, destination.tilePosition)
-          final quest = QuestDelivery(
-            locationId: location.id,
-            siteId: site.id,
-            destinationLocationId: destination.id,
-            destinationSiteId: destinationSite.id,
-            item: Material(stackSize: 20),
-            rewardMoney: distance * 50,
-          )
+          final quest = site.quests.values.first
+          assert(quest.category == kQuestCategoryDelivery)
           final displayName = getLocaleString('server')
           final message = getLocaleString('delivery.introDialog')
           final description = '${quest.description}${
@@ -199,6 +201,7 @@ fun _handleTradingHouseInteraction(site) {
               'cancel',
             ]).then((key) {
               if (key == 'accept') {
+                site.workedThisMonth = true
                 characterAcceptQuest(hero, site, quest)
               }
             })

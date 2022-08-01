@@ -105,7 +105,6 @@ flutter:
     - scripts/game/entity/item/talisman/protect/
     - scripts/game/entity/item/talisman/weapon/
     - scripts/game/entity/location/
-    - scripts/game/entity/nation/
     - scripts/game/entity/organization/
     - scripts/game/entity/skill/
     - scripts/game/l10n/

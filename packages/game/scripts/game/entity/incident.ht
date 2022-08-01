@@ -13,6 +13,7 @@ struct Incident {
     good = 0,
     score = 0, // 额外的好感分，加到本事件的行动者身上
     subjectIds = [],
+    organizationId,
     objectIds = [],
     witnessIds = [],
     // heardIds = [],
@@ -50,23 +51,25 @@ struct Incident {
 
     for (final id in subjectIds) {
       final char = game.characters[id]
-      if (char != null) {
-        characterExperiencedIncident(char, this)
-      }
+      assert(char != null)
+      characterExperiencedIncident(char, this)
+    }
+
+    if (organizationId) {
+      final organization = game.organizations[organizationId]
+      organizationExperiencedIncident(organization, this)
     }
 
     for (final id in objectIds) {
       final char = game.characters[id]
-      if (char != null) {
-        characterExperiencedIncident(char, this)
-      }
+      assert(char != null)
+      characterExperiencedIncident(char, this)
     }
 
     for (final id in witnessIds) {
       final char = game.characters[id]
-      if (char != null) {
-        characterWitnessIncident(char, this, witnessed: true)
-      }
+      assert(char != null)
+      characterWitnessIncident(char, this, witnessed: true)
     }
 
     // for (final id in heardIds) {

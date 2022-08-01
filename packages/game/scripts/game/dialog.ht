@@ -103,6 +103,7 @@ fun showMaze(maze) -> Future {
   return Dialog.showMaze(buildContext, maze)
 }
 
+// 显示一个进度窗口，以天为单位显示动画，每天会调用传入的 checkProgress 函数的返回值来判断是否继续下一天
 fun showProgress(title, { checkProgress: function }) {
   return Dialog.showProgress(buildContext, title, checkProgress)
 }

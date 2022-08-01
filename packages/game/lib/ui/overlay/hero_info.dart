@@ -33,15 +33,13 @@ class HeroInfoPanel extends StatelessWidget {
 
     final sb = StringBuffer();
 
-    sb.write(
-        '${heroData['worldPosition']['left']}, ${heroData['worldPosition']['top']}');
-
-    if (currentLocationData != null) {
-      sb.write(' - ');
-      sb.write(currentLocationData!['name']);
-    } else if (currentTerrain != null) {
-      sb.write(' - ');
-      sb.write(engine.locale[currentTerrain!.kind!]);
+    if (currentTerrain != null) {
+      final zoneIndex = currentTerrain!.data!['zoneIndex'];
+      if (zoneIndex != null) {
+        final zoneData =
+            engine.invoke('getZoneByIndex', positionalArgs: [zoneIndex]);
+        sb.write(zoneData['name']);
+      }
     }
 
     if (currentNationData != null) {
@@ -49,8 +47,19 @@ class HeroInfoPanel extends StatelessWidget {
       sb.write(currentNationData!['name']);
     }
 
+    if (currentLocationData != null) {
+      sb.write(', ');
+      sb.write(currentLocationData!['name']);
+    } else if (currentTerrain != null) {
+      sb.write(', ');
+      sb.write(engine.locale[currentTerrain!.kind!]);
+    }
+
+    sb.write(
+        ' (${heroData['worldPosition']['left']}, ${heroData['worldPosition']['top']})');
+
     return Container(
-      width: 298,
+      width: 328,
       height: 130,
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
@@ -79,7 +88,7 @@ class HeroInfoPanel extends StatelessWidget {
                     title: '${engine.locale['life']}: ',
                     value: charStats['life'],
                     max: charStats['lifeMax'],
-                    width: 100.0,
+                    width: 140.0,
                     showNumberAsPercentage: false,
                     colors: const <Color>[Colors.red, Colors.green],
                   ),
@@ -90,19 +99,13 @@ class HeroInfoPanel extends StatelessWidget {
                     title: '${engine.locale['stamina']}: ',
                     value: charStats['stamina'],
                     max: charStats['staminaMax'],
-                    width: 100.0,
+                    width: 140.0,
                     showNumberAsPercentage: false,
                     colors: const <Color>[Colors.yellow, Colors.blue],
                   ),
                 ),
-                if (showTilePosition)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 5.0),
-                    child: Text(sb.toString()),
-                  ),
-                const Spacer(),
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 5.0),
+                  padding: const EdgeInsets.symmetric(vertical: 5.0),
                   child: Row(
                     children: [
                       BorderedIconButton(
@@ -160,6 +163,15 @@ class HeroInfoPanel extends StatelessWidget {
                     ],
                   ),
                 ),
+                const Spacer(),
+                if (showTilePosition)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 5.0),
+                    child: Text(
+                      sb.toString(),
+                      style: const TextStyle(fontSize: 12.0),
+                    ),
+                  ),
               ],
             ),
           ),

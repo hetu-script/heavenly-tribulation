@@ -55,6 +55,6 @@ fun _handlerCallback(eventId, handler, [...args]) {
   // callback 可能是 null
   if(callback is function) {
     engine.info('事件处理回调函数：[${handler.id}] - ${eventId}')
-    callback(...args)
+    callback.apply(module, ...args)
   }
 }

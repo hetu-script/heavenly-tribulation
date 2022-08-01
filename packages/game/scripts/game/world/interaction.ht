@@ -156,7 +156,7 @@ fun handleWorldTerrainInteraction(left, top) {
                   terrain.hasSearched = true
                   handleWorldMapEntityInteraction(entityId)
                 } else {
-                  showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
+                  showDialogByLocaleKeys(['sensedUndiscovered'], character: hero)
                 }
               })
             })
@@ -195,7 +195,7 @@ fun handleWorldTerrainInteraction(left, top) {
                     enterLocation(undiscoveredLocation.id)
                   })
                 } else {
-                  showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
+                  showDialogByLocaleKeys(['sensedUndiscovered'], character: hero)
                 }
               })
             })
@@ -495,11 +495,11 @@ fun handleWorldTerrainInteraction(left, top) {
       }
       // 捕鱼，可能会获得：河鱼、海鱼、虾、蟹
       'fish' -> {
-        // if (game.playerMonthly.fished.contains(terrainIndex)) {
+        // if (game.playerCharacterMonthly.fished.contains(terrainIndex)) {
         //   showDialogByLocaleKeys(['terrainAlreadyFished'], character: hero)
         //   return
         // }
-        // game.playerMonthly.fished.add(terrainIndex)
+        // game.playerCharacterMonthly.fished.add(terrainIndex)
         
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
           final lootbox = Reward()

@@ -45,23 +45,25 @@ struct Game {
 
     this.timestamp = 0
 
-    this.nations = {}
     this.characters = {}
     this.npcs = {}
     this.babies = {}
     this.locations = {}
     this.organizations = {}
     this.mazes = {}
+    
+    // 游戏本身逻辑所用到的一些事件检查选项
+    // 例如每个月是否进行了某个动作之类
+    this.flags = {}
 
-    resetMonthlyActivities(this)
-    resetYearlyActivities(this)
+    resetPlayerMonthlyActivities(this)
   }
 }
 
-fun resetMonthlyActivities(gameData){
+fun resetPlayerMonthlyActivities(gameData){
   
   // 指玩家对某个其他角色、据点、地形进行过的动作，限定每个月一次
-  gameData.playerMonthly = {
+  gameData.flags.playerCharacterMonthly = {
     talked: [],
     gifted: [],
     practiced: [],
@@ -71,42 +73,9 @@ fun resetMonthlyActivities(gameData){
     stolen: [],
   }
 
-  // 指某个NPC进行过的动作，限定每个月一次
-  gameData.characterMonthly = {
-    // 人物互动
-    talked: [],
-    gifted: [],
-    practiced: [],
-    consulted: [],
-    requested: [],
-    insulted: [],
-    stolen: [],
-
-    // 采集互动
-    explored: [],
-    gathered: [],
-    woodcutted: [],
-    mined: [],
-    hunted: [],
-    fished: [],
-  }
-
-  // 指某个建筑进行过的动作，限定每个月一次
-  gameData.siteMonthly = {
-    worked: [],
-  }
-
-  // 指某个组织进行过的动作，限定每个月一次
-  gameData.organizationMonthly = {
+  // 指玩家的组织进行过的动作，限定每个月一次
+  gameData.flags.playerOrganizationMonthly = {
     recruited: [],
-  }
-}
-
-
-fun resetYearlyActivities(gameData){
-  // 指某个组织进行过的动作，限定每个月一次
-  gameData.organizationYearly = {
-    
   }
 }
 
@@ -117,7 +86,7 @@ fun resetGame {
 }
 
 fun getPlayerMonthlyActivities {
-  return game.playerMonthly
+  return game.playerCharacterMonthly
 }
 
 fun getGameJsonData() {

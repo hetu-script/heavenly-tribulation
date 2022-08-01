@@ -4,7 +4,6 @@ import '../entity/location/site.ht'
 import '../entity/location/location.ht'
 import '../entity/character/character.ht'
 import '../entity/organization/organization.ht'
-import '../entity/nation/nation.ht'
 import '../l10n.ht'
 import '../tile/hexagonal_tile.ht'
 import '../tile/zone.ht'
@@ -109,7 +108,7 @@ fun createWorldMap({
   setRandomSeed(seed)
   
   delete game.savePath
-  game.nations = {}
+  // game.nations = {}
   game.characters = {}
   game.locations = {}
   game.organizations = {}
@@ -146,6 +145,8 @@ fun createWorldMap({
           spriteIndex: kSpriteWater,
           overlaySprite: {},
           isSelectable: true,
+          // 该地块的每月刷新野外事件的时间
+          monthlyUpdateTime: random.nextInt(kTicksPerMonth)
         }
       )
     }
@@ -302,19 +303,19 @@ fun createWorldMap({
       entityAcquireItem(site, Shield())
       entityAcquireItem(site, Shield())
     }
+    if (location.development > 2 && random.nextDouble() < _kSiteRestaurantProbability) {
+      final site = Site(category: kSiteRestaurant, locationId: location.id)
+      site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
+      site.money = 
+      // 酒楼可能有：饮料、食物
+      entityAcquireItem(site, Consumable.beverage(), count: 20)
+    }
     if (location.development > 2 && random.nextDouble() < _kSiteHospitalProbability) {
       final site = Site(category: kSiteHospital, locationId: location.id)
       site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
       // 医馆可能有：方剂
       entityAcquireItem(site, Consumable.medicine(), count: 20)
-      entityAcquireItem(site, Consumable.herb(), count: 10)
-    }
-    if (location.development > 2 && random.nextDouble() < _kSiteRestaurantProbability) {
-      final site = Site(category: kSiteHospital, locationId: location.id)
-      site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
-      site.money = 
-      // 酒楼可能有：饮料、食物
-      entityAcquireItem(site, Consumable.beverage(), count: 20)
+      entityAcquireItem(site, Material.herb(), count: 10)
     }
   }
 
@@ -430,9 +431,10 @@ fun createWorldMap({
 
   }
 
+  final nations = []
   // 随机挑选几个城市，作为各个国家的都城，生成地图上的不同国家
   engine.info('随机挑选几个城市，作为各个国家的都城，生成地图上的不同国家')
-  while (game.nations.length < nationNumber) {
+  while (nations.length < nationNumber) {
     var location
     do {
       // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
@@ -440,10 +442,17 @@ fun createWorldMap({
       location = game.locations[locationId]
     } while (location.nationId != null)
     // engine.info('picking location for new nation capital: ${location}')
-    final nation = Nation(capitalId: location.id)
-    Site(category: kSitePalace, locationId: location.id)
+    final emperor = Character(
+      birthTimestamp: createRandomBirthTimestamp(40), // 年龄至少是20岁
+    )
+    final nation = Organization.nation(
+      capitalId: location.id,
+      emperorId: emperor.id,
+    )
+    // Site(category: kSitePalace, locationId: location.id, organizationId: nation.id)
     final terrain = game.world.terrains[location.terrainIndex]
-    addTerrainToNation(nation, terrain)
+    addTerrainToNation(terrain, nation)
+    nations.add(nation)
   }
   
   // 一个国家将其疆域扩展到周边的一个格子
@@ -455,7 +464,7 @@ fun createWorldMap({
     for (final index in random.shuffle(nation.borderIndexes)) {
       final terrain = game.world.terrains[index]
       if (terrain.nationId == null && !terrain.isWater) {
-        addTerrainToNation(nation, terrain)
+        addTerrainToNation(terrain, nation)
         return true
       }
     }
@@ -619,12 +628,24 @@ fun createWorldMap({
     // engine.info('为组织招募新的角色')
     for (final id in random.shuffle(game.organizations.keys)) {
       final organization = game.organizations[id]
+      // 暂时不为国家组织添加成员
+      if (organization.category == kOrganizationCategoryNation) continue
+      
       final location = game.locations[organization.headquartersId]
       if (location.residingCharacterIds.isNotEmpty) {
         final characterId = random.nextIterable(location.residingCharacterIds)
         final character = game.characters[characterId]
         if (character.organizationId != null) {
           engine.error(character.name, character.organizationId, organization.id)
+        }
+        if (organization.development < kOrganizationDevelopmentMax && organizationMemberReachMax(organization)) {
+          increaseOrganizationDevelopment(organization)
+        } else {
+          // final lowestRankMemberIds = getOrganizationMemberIdOfRank(organization, kOrganizationRankMax)
+          // if (lowestRankMemberIds.length >= maxMemberOfDevelopment(kOrganizationRankMax)) {
+          //   final randomId = random.nextIterable(lowestRankMemberIds)
+
+          // }
         }
         addCharacterToOrganization(character, organization)
       }
@@ -704,7 +725,7 @@ fun createWorldMap({
 
     // 每半年一次
     if (game.timestamp % (kTicksPerMonth * 6) == 0) {
-      for (final nation of game.nations) {
+      for (final nation in nations) {
         expandNation(nation)
       }
     }
@@ -774,7 +795,7 @@ fun loadColors {
       zoneColors[tile.index] = zone.color
     }
     if (tile.nationId) {
-      final nation = game.nations[tile.nationId]
+      final nation = game.organizations[tile.nationId]
       nationColors[tile.index] = nation.color
     }
   }

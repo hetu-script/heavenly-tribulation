@@ -6,11 +6,13 @@
   "incidentFirstMeetLike": "{0} 认识了 {1}，对其十分喜欢。",
   "incidentOrganizationCreate": "{0} 在 {1} 创建了 {2}。",
   "incidentEnlist": "{0} 加入了 {1}。",
-  "incidentLeader": "{0} 成为了 {1} {2}。",
   "incidentSettle": "{0} 在 {1} 安家了。",
   "incidentSettleOrganization": "{0} 在 {1} 的 {2} 安家了。",
   "incidentBorn": "{0} 和 {1} 的孩子 {2} 在 {3} 出生了。",
   "incidentMarriage": "{0} 和 {1} 在 {2} 结婚了。",
+
+  "organizationDeveloped": "{0} 的规模扩大到了 {1}。",
+  "locationDeveloped": "{0} 的规模扩大到了 {1}。",
 
   "characterEquip": "{0} 装备了 {1}。",
   "characterEquipSkill": "{0} 开始运使 {1}。",
@@ -41,5 +43,7 @@
   "characterWoodcutted": "{0} 在 {1} 进行了伐木，花费了 {2} 天。",
   "characterMined": "{0} 在 {1} 进行了挖矿，花费了 {2} 天。",
   "characterHunted": "{0} 在 {1} 进行了狩猎，花费了 {2} 天。",
-  "characterFished": "{0} 在 {1} 进行了捕鱼，花费了 {2} 天。"
+  "characterFished": "{0} 在 {1} 进行了捕鱼，花费了 {2} 天。",
+
+  "characterSetOrganizationRank": "{0} 成为了 {1} {2}。"
 }

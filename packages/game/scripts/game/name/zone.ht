@@ -11,7 +11,7 @@ fun generateZoneName({category: str}) {
   final kind = random.nextIterable(zoneNames[category])
   var rarity = 'common'
   final r = random.nextDouble()
-  final name
+  var name
   if (r < kStrangeNameProbability) {
     name = random.nextIterable(strangeNames)
     rarity = 'rare'

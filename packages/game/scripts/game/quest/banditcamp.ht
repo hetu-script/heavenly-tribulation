@@ -44,7 +44,7 @@ struct QuestBanditCamp {
     gov.quests[this.id] = this
 
     assert(location.nationId != null)
-    final nation = game.nations[location.nationId]
+    final nation = game.organizations[location.nationId]
     when (this.kind) {
       kQuestConquestMazeKindKillBanditBoss -> {
         assert(bossName != null)

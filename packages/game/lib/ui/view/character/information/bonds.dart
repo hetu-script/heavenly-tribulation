@@ -10,7 +10,6 @@ const _kCharacterBondsTableColumns = [
   'character',
   'organization',
   'location',
-  'nation',
   'talisman',
 ];
 

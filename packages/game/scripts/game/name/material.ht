@@ -1,5 +1,6 @@
 import 'common.ht'
 import 'material/material.json' as materialNames
+import 'material/common.json' as commonMaterialNames
 import '../entity/common.ht'
 import '../random.ht'
 
@@ -11,14 +12,27 @@ fun generateMaterialName({category, rarity}) {
   final sp = random.nextIterable(spiritPrefix)
   final kind = random.nextIterable(materialNames[category])
   final name
-  when (rarity) {
-    'exotic' -> name = pre + cp + sp + kind
-    'mythic' -> name = pre + sp + kind
-    'legendary' -> name = pre + sp + kind
-    'epic' -> name = pre + kind
-    'rare' -> name = pre + kind
-    'uncommon' -> name = cp + sp + kind
-    'common' -> name = cp + kind
+  if (category != 'energy' && category != 'spirit') {
+    when (rarity) {
+      'exotic' -> name = pre + cp + sp + kind
+      'mythic' -> name = pre + sp + kind
+      'legendary' -> name = pre + kind
+      'epic' -> name = pre + kind
+      'rare' -> name = cp + sp + kind
+      'uncommon' -> name = cp + kind
+      'common' -> name = commonMaterialNames[category]
+    }
+  } else {
+    when (rarity) {
+      'exotic' -> name = pre + cp + sp + kind
+      'mythic' -> name = pre + sp + kind
+      'legendary' -> name = pre + sp + kind
+      'epic' -> name = pre + kind
+      'rare' -> name = pre + kind
+      'uncommon' -> name = cp + sp + kind
+      'common' -> name = cp + kind
+      'common' -> name = cp + kind
+    }
   }
   return { name, category, rarity }
 }
