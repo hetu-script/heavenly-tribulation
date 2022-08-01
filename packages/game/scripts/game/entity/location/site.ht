@@ -312,7 +312,7 @@ fun _handleGovernmentInteraction(site) {
             return showDialogByLocaleKeys(['visitJailEmpty'])
           } else {
             if (fame > kFameCheckThreshold) {
-              final title = getCharacterTitle(hero)
+              final title = getCharacterTitle(hero) ?? ''
               return showDialogByStrings(
                 [
                   getLocaleString('visitJailEntryRespect', [title + hero.name]),

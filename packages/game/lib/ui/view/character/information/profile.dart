@@ -27,8 +27,9 @@ class ProfileView extends StatelessWidget {
         .invoke('getEntityBirthDateString', positionalArgs: [characterData]);
     final organizationId = characterData['organizationId'];
     String organization = getNameFromId(organizationId);
-    final title = engine
-        .invoke('getCharacterTitleString', positionalArgs: [characterData]);
+    final title =
+        engine.invoke('getCharacterTitle', positionalArgs: [characterData]) ??
+            engine.locale['none'];
     final home = getNameFromId(characterData['homeId']);
     final nation = getNameFromId(characterData['nationId']);
 

@@ -3,21 +3,89 @@ import '../location/site.ht'
 import '../../name/organization.ht'
 import '../../l10n.ht'
 import '../common.ht'
+import '../../l10n.ht'
 
 final kOrganizationCategories = [
   'cultivation',
   'gang',
   'religion',
-  'academy',
-  'tradinghouse',
-  'workshop',
+  'empire',
+  'business',
 ]
+
+final kEmpireRankTitles = {
+  '0': getLocaleString('empire.titleRank0'),
+  '1': getLocaleString('empire.titleRank1'),
+  '2': getLocaleString('empire.titleRank2'),
+  '3': getLocaleString('empire.titleRank3'),
+  '4': getLocaleString('empire.titleRank4'),
+  '5': getLocaleString('empire.titleRank5'),
+  '6': getLocaleString('empire.titleRank6'),
+  'creator': getLocaleString('empire.titleCreator'),
+  'elder': getLocaleString('empire.titleElder'),
+  'disipliner': getLocaleString('empire.titleDiscipliner'),
+}
+
+final kCultivationRankTitles = {
+  '0': getLocaleString('cultivation.titleRank0'),
+  '1': getLocaleString('cultivation.titleRank1'),
+  '2': getLocaleString('cultivation.titleRank2'),
+  '3': getLocaleString('cultivation.titleRank3'),
+  '4': getLocaleString('cultivation.titleRank4'),
+  '5': getLocaleString('cultivation.titleRank5'),
+  '6': getLocaleString('cultivation.titleRank6'),
+  'creator': getLocaleString('cultivation.titleCreator'),
+  'elder': getLocaleString('cultivation.titleElder'),
+  'disipliner': getLocaleString('cultivation.titleDiscipliner'),
+  'guest': getLocaleString('cultivation.titleGuest'),
+}
+
+final kGangRankTitles = {
+  '0': getLocaleString('gang.titleRank0'),
+  '1': getLocaleString('gang.titleRank1'),
+  '2': getLocaleString('gang.titleRank2'),
+  '3': getLocaleString('gang.titleRank3'),
+  '4': getLocaleString('gang.titleRank4'),
+  '5': getLocaleString('gang.titleRank5'),
+  '6': getLocaleString('gang.titleRank6'),
+  'counsellor': getLocaleString('gang.titleCounsellor'),
+  'elder': getLocaleString('gang.titleElder'),
+  'disipliner': getLocaleString('gang.titleDiscipliner'),
+}
+
+final kReligionRankTitles = {
+  '0': getLocaleString('religion.titleRank0'),
+  '1': getLocaleString('religion.titleRank1'),
+  '2': getLocaleString('religion.titleRank2'),
+  '3': getLocaleString('religion.titleRank3'),
+  '4': getLocaleString('religion.titleRank4'),
+  '5': getLocaleString('religion.titleRank5'),
+  '6': getLocaleString('religion.titleRank6'),
+  'creator': getLocaleString('religion.titleCreator'),
+  'elder': getLocaleString('religion.titleElder'),
+  'disipliner': getLocaleString('religion.titleDiscipliner'),
+}
+
+final kBusinessRankTitles = {
+  '0': getLocaleString('business.titleRank0'),
+  '1': getLocaleString('business.titleRank1'),
+  '2': getLocaleString('business.titleRank2'),
+  '3': getLocaleString('business.titleRank3'),
+  '4': getLocaleString('business.titleRank4'),
+  '5': getLocaleString('business.titleRank5'),
+  '6': getLocaleString('business.titleRank6'),
+  'creator': getLocaleString('business.titleCreator'),
+  'craftsman': getLocaleString('business.titleCraftsman'),
+  'chef': getLocaleString('business.titleChef'),
+}
 
 const kOrganizationCategoryCultivation = 'cultivation'
 const kOrganizationCategoryGang = 'gang'
 const kOrganizationCategoryReligion = 'religion'
-const kOrganizationCategoryAcademy = 'academy'
+const kOrganizationCategoryEmpire = 'empire'
 const kOrganizationCategoryBusiness = 'business'
+
+const kOrganizationDevelopmentMax = 5
 
 final kOrganizationThinkings = {
   cultivation: [
@@ -48,7 +116,7 @@ final kOrganizationThinkings = {
     'theology',
     'religious',
   ],
-  academy: [],
+  empire: [],
   craftsmanship: [],
   restaurant: [],
 }
@@ -65,6 +133,7 @@ struct Organization {
     headquartersId,
     leaderId,
     development = 0,
+    rankTitles,
   }) {
     assert(game.locations.containsKey(headquartersId))
     assert(game.characters.containsKey(leaderId))
@@ -89,13 +158,34 @@ struct Organization {
     }
     this.id = 'clan_${this.index}_${this.name}'
     game.organizations[this.id] = this
+
+    when (this.category) {
+      'empire' -> {
+        this.rankTitles = rankTitles ?? kEmpireRankTitles
+      }
+      'cultivation' -> {
+        this.rankTitles = rankTitles ?? kCultivationRankTitles
+      }
+      'gang' -> {
+        this.rankTitles = rankTitles ?? kGangRankTitles
+      }
+      'religion' -> {
+        this.rankTitles = rankTitles ?? kReligionRankTitles
+      }
+      'business' -> {
+        this.rankTitles = rankTitles ?? kBusinessRankTitles
+      }
+    }
     
     // 本门派统治的据点 id 列表
     this.locationIds = []
     // 本门派成员，key 是 角色的 id，value 是角色的 rank
     this.characterIds = {}
 
-    // 组织规模，组织所能允许的等级数量 = 规模
+    // 组织规模，决定了组织所能允许的成员数量
+    // 规模也决定了新成员加入组织之后的等级
+    // 例如当前规模0，那么总人数限制为 5
+    // 新人加入时的等级为 1
     this.development = development
     
     if (nationId) {
@@ -140,11 +230,11 @@ struct Organization {
 fun setLeader(character, organization) {
   assert(character.organizationId == organization.id)
   organization.leaderId = character.id
-  final titleId = '${organization.category}LeaderTitle'
+  final titleId = '${organization.category}.titleRank0'
   final title = getLocaleString(titleId)
   character.titles[titleId] = title
   character.currentTitleId = titleId
-  character.organizationRank = 80
+  character.organizationRank = 0
   final incidentContent = getLocaleString('incidentLeader', [
     character.name,
     organization.name,
@@ -172,7 +262,7 @@ fun stationOrganization(
   isHeadquarters = false,
 }) {
   assert(!location.organizations.containsKey(organization.id))
-  characterIds ??= organization.characterIds.toList()
+  characterIds ??= organization.characterIds.keys.toList()
   if (isHeadquarters) {
     organization.headquartersId = location.id
   }
@@ -208,7 +298,7 @@ fun maxMemberOfRank(n: int) {
 fun maxMemberOfDevelopment(n: int) {
   var number = 0
   for (final i in range(1, n + 2)) {
-    number += maxMemberNumberOfOrganizationRank(i)
+    number += maxMemberOfRank(i)
   }
   return number
 }
@@ -221,13 +311,23 @@ fun removeCharacterFromOrganization(character) {
   delete character.organizationId
 }
 
+fun organizationMemberReachMax(organization) {
+  return organization.characterIds.length >= maxMemberOfDevelopment(organization.development)
+}
+
+// 新加入的成员的等级，是当前的组织发展度 + 1
 fun addCharacterToOrganization(character, organization, { incidentOccured = true }) {
   assert(!organization.characterIds.contains(character.id))
+  if (organizationMemberReachMax(organization)) {
+    engine.warning('组织 ${organization.name} 的成员数量达到上限，在提升发展度之前无法再添加新成员。')
+    return false
+  }
   if (character.organizationId != null) {
     assert(character.organizationId != organization.id)
     removeCharacterFromOrganization(character)
   }
-  organization.characterIds.add(character.id)
+  character.organizationRank = organization.development + 1
+  organization.characterIds[character.id] = character.organizationRank
   character.organizationId = organization.id
 
   if (incidentOccured) {
@@ -255,6 +355,7 @@ fun addCharacterToOrganization(character, organization, { incidentOccured = true
   }
 
   setCharacterLocationId(character, organization.headquartersId)
+  return true
 }
 
 fun addOrganizations(orgs: List) {
@@ -274,4 +375,12 @@ fun getOrganizationById(id: str) {
 
 fun getOrganizations() {
   return game.organizations
+}
+
+fun increaseOrganizationDevelopment(organization) {
+  if (organization.development < kOrganizationDevelopmentMax) {
+    ++organization.development
+  } else {
+    engine.warning('组织 ${organization.name} 的发展度（${organization.development}）已无法再增加。')
+  }
 }

@@ -210,15 +210,15 @@ struct Character {
     )
 
     // 该角色的称号
-    this.titles = {
-      'none': getLocaleString(kNone),
-    }
+    this.titles = {}
     // titles中直接保存了称号字符串
-    this.currentTitleId = kNone
+    this.currentTitleId = null
 
     this.description = description ?? ''
 
-    this.organizationRank = 0
+    // 职务等级，一开始是-1，表示没有职务，当等级 >= 0 时，越小等级越高
+    // 掌门的等级是 0
+    this.organizationRank = -1
  
     // 有多少人知道此人的名字
     this.knownByPopulation = 0
@@ -367,18 +367,13 @@ fun setCharacterTitle(character, titleId) {
   character.currentTitleId = titleId
 }
 
-// 如果没有称号，会返回空字符串
+// 如果没有称号，会返回 null
 fun getCharacterTitle(character) {
-  if (character.currentTitleId != kNone) {
+  if (character.currentTitleId != null) {
     return character.titles[character.currentTitleId]
   } else {
-    return ''
+    return null
   }
-}
-
-// 如果没有称号，会返回“无”
-fun getCharacterTitleString(character) {
-  return character.titles[character.currentTitleId]
 }
 
 fun getCharacterAge(character) {

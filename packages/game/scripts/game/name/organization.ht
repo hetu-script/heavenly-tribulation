@@ -2,11 +2,6 @@ import 'organization/organization.json' as orgNames
 import 'common.ht'
 import 'common/common.json' as commonNamesData
 
-final kNonBattleOrganizationCategories = [
-  'academy',
-  'business',
-]
-
 final kNonBattleOrganizationNames = [
   ...commonNamesData.emotion,
   ...commonNamesData.object,
@@ -18,7 +13,7 @@ final kNonBattleOrganizationNames = [
 fun generateOrganizationName({category: str}) {
   assert(category in orgNames.keys)
   final name
-  if (category in kNonBattleOrganizationCategories) {
+  if (category == kOrganizationCategoryBusiness) {
     name = random.nextIterable(commonNames)
   } else {
     name = random.nextIterable(kNonBattleOrganizationNames)

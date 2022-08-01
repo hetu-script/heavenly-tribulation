@@ -5,7 +5,6 @@ import '../../l10n.ht'
 import '../common.ht'
 
 const _kEmperorTitle = 'empireLeaderTitle'
-const _kEmperorRank = 99
 
 struct Nation {
   construct ({
@@ -112,5 +111,5 @@ fun setEmperor(nation, character) {
   nation.emperorId = character.id
   character.titles[_kEmperorTitle] = getLocaleString('emperor')
   character.currentTitleId = _kEmperorTitle
-  character.organizationRank = _kEmperorRank
+  character.organizationRank = 0
 }

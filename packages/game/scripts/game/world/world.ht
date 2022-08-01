@@ -477,7 +477,7 @@ fun createWorldMap({
         final character = game.characters[id]
         final age = datetime.toYear(game.timestamp - character.birthTimestamp)
         // 年龄至少是20岁，并且不能担任其他组织职务
-        if (character.organizationRank == 0 && age >= 20) {
+        if (character.organizationRank < 0 && age >= 20) {
           found = true
           leader = character
           break
@@ -670,9 +670,9 @@ fun createWorldMap({
               char.relationships.spouseId = otherId
               otherChar.relationships.spouseId = id
               var home
-              if (char.organizationRank > otherChar.organizationRank) {
+              if (char.organizationRank < otherChar.organizationRank) {
                 home = game.locations[char.homeId]
-              } else if (char.organizationRank < otherChar.organizationRank) {
+              } else if (char.organizationRank > otherChar.organizationRank) {
                 home = game.locations[otherChar.homeId]
               } else {
                 if (otherChar.isFemale) {
