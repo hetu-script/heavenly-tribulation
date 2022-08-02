@@ -23,7 +23,7 @@ const _kMissingText = 'missing_text_'
 
 fun interpolate(text: str, [interpolations: List = []]) {
   for (var i = 0; i < interpolations.length; ++i) {
-    text = string.replaceAll('{${i}}', stringify(interpolations[i]));
+    text = text.replaceAll('{${i}}', stringify(interpolations[i]));
   }
   return text
 }

@@ -15,10 +15,10 @@ class CustomLoggerOutput extends LogOutput {
   final List<String> log = [];
   @override
   void output(OutputEvent event) {
-    log.addAll(event.lines);
-    if (kDebugMode) {
-      for (final message in event.lines) {
-        final lines = message.split('\n');
+    for (final message in event.lines) {
+      final lines = message.split('\n');
+      if (kDebugMode) {
+        log.addAll(event.lines);
         if (lines.length > 1) {
           if (event.level == Level.warning) {
             print(
@@ -47,6 +47,12 @@ class CustomLoggerOutput extends LogOutput {
                 '${kConsoleColorRed}samsara engine - ${event.level.name}: $message$kConsoleColorReset');
           } else {
             print('samsara engine - ${event.level.name}: $message');
+          }
+        }
+      } else {
+        for (final line in lines) {
+          if (event.level == Level.warning || event.level == Level.error) {
+            log.add(line);
           }
         }
       }

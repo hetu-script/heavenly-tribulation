@@ -119,7 +119,9 @@ class _GameDialogState extends State<GameDialog> {
                   child: Row(
                     children: [
                       Avatar(
-                        image: AssetImage('assets/images/$_currentAvatar'),
+                        image: _currentAvatar != null
+                            ? AssetImage('assets/images/$_currentAvatar')
+                            : null,
                         size: const Size(120.0, 120.0),
                         onPressed: () {
                           if (_characterData != null) {

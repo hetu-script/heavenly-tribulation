@@ -106,15 +106,6 @@ fun createWorldMap({
   final seed = Hash.crcInt(seedString)
   engine.info('开始生成世界，设置随机数种子为：${seedString}(${seed})')
   setRandomSeed(seed)
-  
-  delete game.savePath
-  // game.nations = {}
-  game.characters = {}
-  game.locations = {}
-  game.organizations = {}
-  game.mazes = {}
-  
-  history = []
 
   final width
   final height
@@ -612,121 +603,148 @@ fun createWorldMap({
 
     // 婴儿出生
     handleBabies()
-    
-    // 产生新的在野角色
-    if (game.characters.length < characterNumber) {
-      // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
-      final locationId = random.nextIterable(game.locations.keys)
-      final location = game.locations[locationId]
-      final character = Character(
-        locationId: location.id,
-        birthTimestamp: createRandomBirthTimestamp(15, 50),
-      )
-    }
 
-    // 为组织招募新的角色
-    // engine.info('为组织招募新的角色')
-    for (final id in random.shuffle(game.organizations.keys)) {
-      final organization = game.organizations[id]
-      // 暂时不为国家组织添加成员
-      if (organization.category == kOrganizationCategoryNation) continue
-      
-      final location = game.locations[organization.headquartersId]
-      if (location.residingCharacterIds.isNotEmpty) {
-        final characterId = random.nextIterable(location.residingCharacterIds)
-        final character = game.characters[characterId]
-        if (character.organizationId != null) {
-          engine.error(character.name, character.organizationId, organization.id)
-        }
-        if (organization.development < kOrganizationDevelopmentMax && organizationMemberReachMax(organization)) {
-          increaseOrganizationDevelopment(organization)
-        } else {
-          // final lowestRankMemberIds = getOrganizationMemberIdOfRank(organization, kOrganizationRankMax)
-          // if (lowestRankMemberIds.length >= maxMemberOfDevelopment(kOrganizationRankMax)) {
-          //   final randomId = random.nextIterable(lowestRankMemberIds)
-
-          // }
-        }
-        addCharacterToOrganization(character, organization)
-      }
-    }
-    
-    // 为角色添加家庭关系
-    // engine.info('为角色添加家庭关系')
-    for (final id in random.shuffle(game.characters.keys)) {
-      final char = game.characters[id]
-      final age = getCharacterAge(char)
-      if (char.relationships.spouseId) {
-        if (char.isFemale && !char.isPregnant && age < _kPregnancyAgeMax) {
-          if (char.thinkings.contains('dink')) continue
-          if (char.thinkings.contains('clumsy')) continue
-          if (char.relationships.childrenIds.isNotEmpty) {
-            if (char.personality.social < 10) continue
-            if (char.personality.prudence > 10) continue
-            if (char.personality.frugal > 10) continue
-            if (char.relationships.childrenIds.length > 2) {
-              continue
-            }
-          }
-          final spouse = game.characters[char.relationships.spouseId]
-          if (spouse.thinkings.contains('dink')) continue
-          if (spouse.thinkings.contains('clumsy')) continue
-          Baby(
-            father: spouse,
-            mother: char,
-            conceptionTimestamp: game.timestamp,
-          )
-        }
-      } else {
-        if (age > _kCharacterMarriageAgeMin && age < _kCharacterMarriageAgeMax) {
-          for (final otherId in random.shuffle(game.characters.keys)) {
-            if (id == otherId) continue
-            final otherChar = game.characters[otherId]
-            // TODO: 这里暂时没有允许同性婚姻
-            if (otherChar.isFemale == char.isFemale) continue
-            final otherCharAge = getCharacterAge(otherChar)
-            if (otherCharAge > _kCharacterMarriageAgeMin
-                && otherCharAge < _kCharacterMarriageAgeMax
-                && otherChar.relationships.spouseId == null) {
-              char.relationships.spouseId = otherId
-              otherChar.relationships.spouseId = id
-              var home
-              if (char.organizationRank < otherChar.organizationRank) {
-                home = game.locations[char.homeId]
-              } else if (char.organizationRank > otherChar.organizationRank) {
-                home = game.locations[otherChar.homeId]
-              } else {
-                if (otherChar.isFemale) {
-                  home = game.locations[char.homeId]
-                } else {
-                  home = game.locations[otherChar.homeId]
-                }
-              }
-              characterFirstMet(char, otherChar)
-              final incidentContent = getLocaleString('incidentMarriage', [
-                  char.name,
-                  otherChar.name,
-                  home.name,
-                ])
-              Incident(
-                content: incidentContent,
-                subjectIds: [char.id, otherChar.id],
-                locationId: home.id,
-                order: 20,
-              )
-              char.marriageTimestamp = game.timestamp
-              otherChar.marriageTimestamp = game.timestamp
-              break
-            }
-          }
-        }
-      }
-    }
-
-    // 每半年一次
-    if (game.timestamp % (kTicksPerMonth * 6) == 0) {
+    // 每年一次
+    if (game.timestamp % kTicksPerYear == 0) {
+      // 国家扩张
       for (final nation in nations) {
         expandNation(nation)
+      }
+      
+      // 产生新的在野角色
+      if (game.characters.length < characterNumber) {
+        // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
+        final locationId = random.nextIterable(game.locations.keys)
+        final location = game.locations[locationId]
+        final character = Character(
+          locationId: location.id,
+          birthTimestamp: createRandomBirthTimestamp(15, 50),
+        )
+      }
+
+      // 为组织招募新的角色
+      // engine.info('为组织招募新的角色')
+      for (final id in random.shuffle(game.organizations.keys)) {
+        final organization = game.organizations[id]
+        // 暂时不为国家组织添加成员
+        if (organization.category == kOrganizationCategoryNation) continue
+
+        if (organizationMemberReachMax(organization) && organization.development < kOrganizationDevelopmentMax) {
+          // engine.info('提升组织发展度')
+          increaseOrganizationDevelopment(organization)
+        } else {
+          // 从最低等级开始，尝试提升成员等级
+          for (final rank in range(kOrganizationRankMax, 0, -1)) {
+            final membersOfThisRank = getOrganizationMemberIdOfRank(organization, rank)
+            final membersOfHigherRank = getOrganizationMemberIdOfRank(organization, rank - 1)
+            if (membersOfThisRank.length >= maxMemberOfRank(rank)) {
+              if (membersOfHigherRank.length < maxMemberOfRank(rank - 1)) {
+                final memberId = random.nextIterable(membersOfThisRank)
+                final member = game.characters[memberId]
+                setCharacterRank(member, organization, rank - 1)
+                break
+              }
+            }
+          }
+        }
+        
+        var location = game.locations[organization.headquartersId]
+        if (location.residingCharacterIds.isEmpty) {
+          // 组织据点本身没有可用的人才（一般是因为是隐士据点）
+          if (random.nextDouble() < kOrganizationRecruitOtherLocationProbability) {
+            for (final otherLocation of game.locations) {
+              if (otherLocation.id == location.id) continue
+
+              if (otherLocation.residingCharacterIds.isNotEmpty) {
+                location = otherLocation
+                break
+              }
+            }
+          }
+        }
+
+        if (location.residingCharacterIds.isNotEmpty) {
+          if (random.nextDouble() < kOrganizationRecruitSuccessProbability) {
+            final characterId = random.nextIterable(location.residingCharacterIds)
+            final character = game.characters[characterId]
+            if (character.organizationId != null) {
+              engine.error(character.name, character.organizationId, organization.id)
+            }
+            addCharacterToOrganization(character, organization)
+          }
+        }
+      }
+      
+      // 为角色添加家庭关系
+      // engine.info('为角色添加家庭关系')
+      for (final id in random.shuffle(game.characters.keys)) {
+        final char = game.characters[id]
+        final age = getCharacterAge(char)
+        if (char.relationships.spouseId) {
+          if (char.isFemale && !char.isPregnant && age < _kPregnancyAgeMax) {
+            if (char.thinkings.contains('dink')) continue
+            if (char.thinkings.contains('clumsy')) continue
+            if (char.relationships.childrenIds.isNotEmpty) {
+              if (char.personality.social < 10) continue
+              if (char.personality.prudence > 10) continue
+              if (char.personality.frugal > 10) continue
+              if (char.relationships.childrenIds.length > 2) {
+                continue
+              }
+            }
+            final spouse = game.characters[char.relationships.spouseId]
+            if (spouse.thinkings.contains('dink')) continue
+            if (spouse.thinkings.contains('clumsy')) continue
+            Baby(
+              father: spouse,
+              mother: char,
+              conceptionTimestamp: game.timestamp,
+            )
+          }
+        } else {
+          if (age > _kCharacterMarriageAgeMin && age < _kCharacterMarriageAgeMax) {
+            for (final otherId in random.shuffle(game.characters.keys)) {
+              if (id == otherId) continue
+              final otherChar = game.characters[otherId]
+              // TODO: 这里暂时没有允许同性婚姻
+              if (otherChar.isFemale == char.isFemale) continue
+              final otherCharAge = getCharacterAge(otherChar)
+              if (otherCharAge > _kCharacterMarriageAgeMin
+                  && otherCharAge < _kCharacterMarriageAgeMax
+                  && otherChar.relationships.spouseId == null) {
+                char.relationships.spouseId = otherId
+                otherChar.relationships.spouseId = id
+                var home
+                if (char.organizationRank < otherChar.organizationRank) {
+                  home = game.locations[char.homeId]
+                } else if (char.organizationRank > otherChar.organizationRank) {
+                  home = game.locations[otherChar.homeId]
+                } else {
+                  if (otherChar.isFemale) {
+                    home = game.locations[char.homeId]
+                  } else {
+                    home = game.locations[otherChar.homeId]
+                  }
+                }
+                characterFirstMet(char, otherChar)
+                final incidentContent = getLocaleString('incidentMarriage', [
+                    char.name,
+                    otherChar.name,
+                    home.name,
+                  ])
+                Incident(
+                  content: incidentContent,
+                  subjectIds: [char.id, otherChar.id],
+                  locationId: home.id,
+                  order: 20,
+                )
+                char.marriageTimestamp = game.timestamp
+                otherChar.marriageTimestamp = game.timestamp
+                break
+              }
+            }
+          }
+        }
       }
     }
 

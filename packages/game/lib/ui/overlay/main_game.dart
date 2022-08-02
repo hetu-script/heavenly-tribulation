@@ -260,9 +260,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
               final age =
                   engine.invoke('getCharacterAge', positionalArgs: [character]);
               if (age >= kMinHeroAge && age < kMaxHeroAge) {
-                if (character['organizationId'] == null) {
-                  return true;
-                }
+                return true;
               }
               return false;
             });
@@ -386,215 +384,224 @@ class _MainGameOverlayState extends State<MainGameOverlay>
 
     // ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
 
-    return FutureBuilder(
-      // 不知道为啥，这里必须用这种写法才能进入载入界面，否则一定会卡住
-      future: Future.delayed(
-        const Duration(milliseconds: 100),
-        () => _getScene(widget.args),
-      ),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return LoadingScreen(text: engine.locale['loading']);
-        } else {
-          _scene = snapshot.data as WorldMapScene;
-          if (_scene.isAttached) {
-            _scene.detach();
-          }
-          final screenWidgets = [
-            SceneWidget(scene: _scene),
-            if (_heroData != null)
-              Positioned(
-                left: 0,
-                top: 0,
-                child: HeroInfoPanel(
-                  heroData: _heroData!,
-                  currentTerrain: _currentTerrain,
-                  currentNationData: _currentNation,
-                  currentLocationData: _currentLocation,
-                ),
-              ),
-            if (_questData != null)
-              Positioned(
-                left: 330,
-                top: 0,
-                child: QuestInfoPanel(characterData: _heroData!),
-              ),
-            Positioned(
-              right: 0,
-              top: 0,
-              child: WorldMapDropMenu(
-                onSelected: (WorldMapDropMenuItems item) async {
-                  switch (item) {
-                    case WorldMapDropMenuItems.info:
-                      showDialog(
-                          context: context,
-                          builder: (context) => const InformationPanel());
-                      break;
-                    case WorldMapDropMenuItems.viewNone:
-                      _scene.map.gridMode = kGridModeNone;
-                      break;
-                    case WorldMapDropMenuItems.viewZones:
-                      _scene.map.gridMode = kGridModeZone;
-                      break;
-                    case WorldMapDropMenuItems.viewNations:
-                      _scene.map.gridMode = kGridModeNation;
-                      break;
-                    case WorldMapDropMenuItems.console:
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) => const Console(),
-                      ).then((_) => setState(() {}));
-                      break;
-                    case WorldMapDropMenuItems.exit:
-                      _saveGame().then((_) {
-                        _isDisposing = true;
-                        engine.leaveScene(_scene.id, clearCache: true);
-                        engine.invoke('resetGame');
-                        Navigator.of(context).pop();
-                      });
-                      break;
-                    default:
-                  }
-                },
-              ),
+    return _isDisposing
+        ? LoadingScreen(text: engine.locale['loading'])
+        : FutureBuilder(
+            // 不知道为啥，这里必须用这种写法才能进入载入界面，否则一定会卡住
+            future: Future.delayed(
+              const Duration(milliseconds: 100),
+              () => _getScene(widget.args),
             ),
-            Positioned.fill(
-              child: Align(
-                alignment: AlignmentDirectional.bottomCenter,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    HistoryPanel(
-                      heroId: _heroData?['id'],
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return LoadingScreen(text: engine.locale['loading']);
+              } else {
+                _scene = snapshot.data as WorldMapScene;
+                if (_scene.isAttached) {
+                  _scene.detach();
+                }
+                final screenWidgets = [
+                  SceneWidget(scene: _scene),
+                  if (_heroData != null)
+                    Positioned(
+                      left: 0,
+                      top: 0,
+                      child: HeroInfoPanel(
+                        heroData: _heroData!,
+                        currentTerrain: _currentTerrain,
+                        currentNationData: _currentNation,
+                        currentLocationData: _currentLocation,
+                      ),
                     ),
-                    // TerrainInfoPanel(
-                    //   terrainData: selectedTerrain,
-                    // ),
-                    // LocationInfoPanel(
-                    //   locationData: selectedLocation,
-                    // ),
-                  ],
-                ),
-              ),
-            ),
-          ];
+                  if (_questData != null)
+                    Positioned(
+                      left: 330,
+                      top: 0,
+                      child: QuestInfoPanel(characterData: _heroData!),
+                    ),
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: WorldMapDropMenu(
+                      onSelected: (WorldMapDropMenuItems item) async {
+                        switch (item) {
+                          case WorldMapDropMenuItems.info:
+                            showDialog(
+                                context: context,
+                                builder: (context) => const InformationPanel());
+                            break;
+                          case WorldMapDropMenuItems.viewNone:
+                            _scene.map.gridMode = kGridModeNone;
+                            break;
+                          case WorldMapDropMenuItems.viewZones:
+                            _scene.map.gridMode = kGridModeZone;
+                            break;
+                          case WorldMapDropMenuItems.viewNations:
+                            _scene.map.gridMode = kGridModeNation;
+                            break;
+                          case WorldMapDropMenuItems.console:
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) =>
+                                  const Console(),
+                            ).then((_) => setState(() {}));
+                            break;
+                          case WorldMapDropMenuItems.exit:
+                            _saveGame().then((_) {
+                              engine.leaveScene(_scene.id, clearCache: true);
+                              _isDisposing = true;
+                              engine.invoke('resetGame');
+                              Navigator.of(context).pop();
+                            });
+                            break;
+                          default:
+                        }
+                      },
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: Align(
+                      alignment: AlignmentDirectional.bottomCenter,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          HistoryPanel(
+                            heroId: _heroData?['id'],
+                          ),
+                          // TerrainInfoPanel(
+                          //   terrainData: selectedTerrain,
+                          // ),
+                          // LocationInfoPanel(
+                          //   locationData: selectedLocation,
+                          // ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ];
 
-          final selectedTerrain = _scene.map.selectedTerrain;
-          if (_menuPosition != null) {
-            if (selectedTerrain != null) {
-              final terrainData = selectedTerrain.data;
-              final characters = _scene.map.selectedActors;
-              final hero = _scene.map.hero;
-              List<int>? route;
-              var isTappingHeroPosition = false;
-              if (hero != null) {
-                isTappingHeroPosition =
-                    selectedTerrain.tilePosition == hero.tilePosition;
-                if (!isTappingHeroPosition) {
-                  final start = engine.invoke('getTerrain',
-                      positionalArgs: [hero.left, hero.top, _scene.worldData]);
-                  final end = engine.invoke('getTerrain', positionalArgs: [
-                    selectedTerrain.left,
-                    selectedTerrain.top,
-                    _scene.worldData
-                  ]);
-                  List? calculatedRoute = engine.invoke('calculateRoute',
-                      positionalArgs: [start, end, _scene.worldData]);
-                  if (calculatedRoute != null) {
-                    route = List<int>.from(calculatedRoute);
+                final selectedTerrain = _scene.map.selectedTerrain;
+                if (_menuPosition != null) {
+                  if (selectedTerrain != null) {
+                    final terrainData = selectedTerrain.data;
+                    final characters = _scene.map.selectedActors;
+                    final hero = _scene.map.hero;
+                    List<int>? route;
+                    var isTappingHeroPosition = false;
+                    if (hero != null) {
+                      isTappingHeroPosition =
+                          selectedTerrain.tilePosition == hero.tilePosition;
+                      if (!isTappingHeroPosition) {
+                        final start = engine.invoke('getTerrain',
+                            positionalArgs: [
+                              hero.left,
+                              hero.top,
+                              _scene.worldData
+                            ]);
+                        final end = engine.invoke('getTerrain',
+                            positionalArgs: [
+                              selectedTerrain.left,
+                              selectedTerrain.top,
+                              _scene.worldData
+                            ]);
+                        List? calculatedRoute = engine.invoke('calculateRoute',
+                            positionalArgs: [start, end, _scene.worldData]);
+                        if (calculatedRoute != null) {
+                          route = List<int>.from(calculatedRoute);
+                        }
+                      }
+                    }
+
+                    void closePopup() {
+                      setState(() {
+                        _menuPosition = null;
+                        _scene.map.selectedTerrain = null;
+                      });
+                    }
+
+                    final stringBuffer = StringBuffer();
+
+                    stringBuffer.writeln(
+                        '坐标: ${selectedTerrain.left}, ${selectedTerrain.top}');
+
+                    final zoneData = engine.invoke('getZoneByIndex',
+                        positionalArgs: [terrainData['zoneIndex']]);
+                    final zoneName = zoneData['name'];
+                    if (zoneName != null) {
+                      stringBuffer.writeln(zoneName);
+                    }
+
+                    if (selectedTerrain.nationId != null) {
+                      final nationData = engine.invoke('getOrganizationById',
+                          positionalArgs: [selectedTerrain.nationId]);
+                      stringBuffer.writeln('${nationData['name']}');
+                    }
+
+                    if (selectedTerrain.locationId != null) {
+                      final locationData = engine.invoke('getLocationById',
+                          positionalArgs: [selectedTerrain.locationId]);
+                      stringBuffer.writeln('${locationData['name']}');
+                    }
+
+                    screenWidgets.add(
+                      WorldMapPopup(
+                        left: _menuPosition!.x - WorldMapPopup.defaultSize / 2,
+                        top: _menuPosition!.y - WorldMapPopup.defaultSize / 2,
+                        onPanelTapped: closePopup,
+                        moveToIcon: route != null,
+                        onMoveTo: () {
+                          _scene.map.moveHeroToTilePositionByRoute(route!);
+                          closePopup();
+                        },
+                        interactIcon: true,
+                        onInteract: () {
+                          if (route != null) {
+                            _scene.map.moveHeroToTilePositionByRoute(route,
+                                onDestinationCallback: () {
+                              _interactTerrain(selectedTerrain);
+                            });
+                          } else if (isTappingHeroPosition) {
+                            _interactTerrain(selectedTerrain);
+                          }
+                          closePopup();
+                        },
+                        enterIcon: ((route != null &&
+                                    selectedTerrain.locationId != null) ||
+                                (isTappingHeroPosition &&
+                                    selectedTerrain.locationId != null))
+                            ? true
+                            : false,
+                        onEnter: () {
+                          if (route != null) {
+                            _scene.map.moveHeroToTilePositionByRoute(
+                              route,
+                              onDestinationCallback: () => _tryEnterLocation(
+                                  selectedTerrain.locationId!),
+                            );
+                          } else if (isTappingHeroPosition) {
+                            _tryEnterLocation(selectedTerrain.locationId!);
+                          }
+                          closePopup();
+                        },
+                        talkIcon: characters != null ? true : false,
+                        onTalk: closePopup,
+                        restIcon: isTappingHeroPosition,
+                        onRest: closePopup,
+                        description: stringBuffer.toString(),
+                      ),
+                    );
                   }
                 }
+
+                return Material(
+                  color: Colors.transparent,
+                  child: Stack(
+                    children: screenWidgets,
+                  ),
+                );
               }
-
-              void closePopup() {
-                setState(() {
-                  _menuPosition = null;
-                  _scene.map.selectedTerrain = null;
-                });
-              }
-
-              final stringBuffer = StringBuffer();
-              stringBuffer.writeln(
-                  '坐标: ${selectedTerrain.left}, ${selectedTerrain.top}');
-
-              final zoneData = engine.invoke('getZoneByIndex',
-                  positionalArgs: [terrainData['zoneIndex']]);
-              final zoneName = zoneData['name'];
-              if (zoneName != null) {
-                stringBuffer.writeln(zoneName);
-              }
-
-              if (selectedTerrain.nationId != null) {
-                final nationData = engine.invoke('getOrganizationById',
-                    positionalArgs: [selectedTerrain.nationId]);
-                stringBuffer.writeln('${nationData['name']}');
-              }
-
-              if (selectedTerrain.locationId != null) {
-                final locationData = engine.invoke('getLocationById',
-                    positionalArgs: [selectedTerrain.locationId]);
-                stringBuffer.writeln('${locationData['name']}');
-              }
-
-              screenWidgets.add(
-                WorldMapPopup(
-                  left: _menuPosition!.x - WorldMapPopup.defaultSize / 2,
-                  top: _menuPosition!.y - WorldMapPopup.defaultSize / 2,
-                  onPanelTapped: closePopup,
-                  moveToIcon: route != null,
-                  onMoveTo: () {
-                    _scene.map.moveHeroToTilePositionByRoute(route!);
-                    closePopup();
-                  },
-                  interactIcon: true,
-                  onInteract: () {
-                    if (route != null) {
-                      _scene.map.moveHeroToTilePositionByRoute(route,
-                          onDestinationCallback: () {
-                        _interactTerrain(selectedTerrain);
-                      });
-                    } else if (isTappingHeroPosition) {
-                      _interactTerrain(selectedTerrain);
-                    }
-                    closePopup();
-                  },
-                  enterIcon:
-                      ((route != null && selectedTerrain.locationId != null) ||
-                              (isTappingHeroPosition &&
-                                  selectedTerrain.locationId != null))
-                          ? true
-                          : false,
-                  onEnter: () {
-                    if (route != null) {
-                      _scene.map.moveHeroToTilePositionByRoute(
-                        route,
-                        onDestinationCallback: () =>
-                            _tryEnterLocation(selectedTerrain.locationId!),
-                      );
-                    } else if (isTappingHeroPosition) {
-                      _tryEnterLocation(selectedTerrain.locationId!);
-                    }
-                    closePopup();
-                  },
-                  talkIcon: characters != null ? true : false,
-                  onTalk: closePopup,
-                  restIcon: isTappingHeroPosition,
-                  onRest: closePopup,
-                  description: stringBuffer.toString(),
-                ),
-              );
-            }
-          }
-
-          return Material(
-            color: Colors.transparent,
-            child: Stack(
-              children: screenWidgets,
-            ),
+            },
           );
-        }
-      },
-    );
   }
 
   Future<void> _saveGame() async {

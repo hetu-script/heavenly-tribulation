@@ -27,6 +27,7 @@ export 'logic.ht'
 export 'util.ht'
 
 import 'l10n/l10n.ht'
+import 'predefined/dialogs.json' as predefinedDialogs
 
 final version = '0.1.0'
 
@@ -45,6 +46,8 @@ fun init({
   addLocales(predefinedLocalizations)
   engine.updateLocale(locales[locale])
   setLocale(locale)
+
+  addDialogs(predefinedDialogs)
 
   resetGame()
 

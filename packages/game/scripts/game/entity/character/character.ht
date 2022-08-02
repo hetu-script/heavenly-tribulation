@@ -157,6 +157,8 @@ struct Character {
   }) {
     // 该人物的每月刷新事件的时间
     this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
+    // 该人物的事件触发选项
+    this.flags = {}
 
     this.isFemale = isFemale ?? random.nextBool()
     if (this.isFemale) {

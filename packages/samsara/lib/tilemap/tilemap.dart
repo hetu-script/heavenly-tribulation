@@ -739,6 +739,7 @@ class TileMap extends GameComponent with HandlesGesture {
         }
       } else {
         if (_lastRouteNode != null) _lastRouteNode = null;
+        _hero!.stopAnimation();
       }
     }
 

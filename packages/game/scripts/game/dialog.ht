@@ -3,55 +3,127 @@ import 'entity/character/character.ht'
 import 'l10n.ht'
 import 'binding/dialog.ht'
 
-fun addDialog(dlg) {
-  dialogs[dlg.id] = dlg
+struct DialogData {
+  construct({
+    this.id,
+    this.contents,
+  }) {}
 }
 
-fun addDialogs(dlgs: List) {
-  engine.info('载入对话数据')
-  for (final dlg in dlgs) {
-    for (final content in dlg.contents) {
-      if (content.characterId) {
-        final char = getCharacterById(content.characterId)
-        content.avatar = char.avatar
+struct DialogContentData {
+  construct({
+    isHero,
+    characterId,
+    displayNameLocaleKey,
+    displayName,
+    isMajorCharacter,
+    icon,
+    localeKeys,
+    lines,
+  }) {
+    // 在游戏刚启动时，载入对话框数据，此时尚未设定玩家角色信息
+    // 因此 hero 有可能是 null
+    if (isHero && hero != null) {
+      this.characterId = hero.id
+      this.displayName = hero.name
+      this.isMajorCharacter = true
+      this.icon = hero.icon
+    } else if (characterId) {
+      final character = game.characters[characterId]
+      assert(character != null)
+      this.displayName = character.name
+      this.isMajorCharacter = character.isMajorCharacter
+      this.icon = character.icon
+    } else {
+      if (displayNameLocaleKey) {
+        this.displayName = getLocaleString(displayNameLocaleKey)
+      } else {
+        this.displayName = displayName
       }
+      this.isMajorCharacter = isMajorCharacter
+      this.icon = icon
+    }
+    
+    if (localeKeys is List) {
+      this.lines = localeKeys.map( (key) => getLocaleString(key) ).toList()
+    } else {
+      assert(lines is List && lines.isNotEmpty)
+      this.lines = lines
+    }
+  }
+
+  construct fromData(data) : this(
+    isHero: data.isHero,
+    characterId: data.characterId,
+    displayNameLocaleKey: data.displayNameLocaleKey,
+    displayName: data.displayName,
+    isMajorCharacter: data.isMajorCharacter,
+    icon: data.icon,
+    localeKeys: data.localeKeys,
+    lines: data.lines,
+  ) {}
+}
+
+// 将预定义的对话数据转化为实际上的对话数据，例如本地化Key会被替换为文本等
+fun addDialogs(dlgsData: List) {
+  engine.info('载入预定义对话树数据')
+  for (final dlgData in dlgsData) {
+    final dlg = DialogData(
+      id: dlgData.id,
+      contents: [],
+    )
+    for (final contentData in dlgData.contents) {
+      final dlgContent = DialogContentData.fromData(contentData)
+      dlg.contents.add(dlgContent)
     }
     dialogs[dlg.id] = dlg
   }
 }
 
-fun showDialogByLocaleKeys(lines, { returnValue, character, displayName }) -> Future {
-  final data = { 
+fun showDialogByLocaleKeys(localeKeys, { returnValue, character, displayName }) -> Future {
+  assert(localeKeys is List)
+  final dlgData = {
     contents: [
-      {
+      DialogContentData(
         characterId: character?.id,
-        displayName: displayName ?? character?.name,
-        isMajorCharacter: character?.isMajorCharacter ?? false,
-        icon: character?.icon ?? 'avatar/general.png',
-        lines: lines.map( (line) => getLocaleString(line) ).toList()
-      }
+        displayName: displayName,
+        localeKeys: localeKeys,
+      ),
     ]
   }
-  return Dialog.showGameDialog(buildContext, data, returnValue)
+  return Dialog.showGameDialog(buildContext, dlgData, returnValue)
 }
 
 fun showDialogByStrings(lines, { returnValue, character, displayName }) -> Future {
-  final data = {
+  assert(lines is List)
+  final dlgData = {
     contents:[
-      {
+      DialogContentData(
         characterId: character?.id,
-        displayName: displayName ?? character?.name,
-        isMajorCharacter: character?.isMajorCharacter ?? false,
-        icon: character?.icon ?? 'avatar/general.png',
-        lines,
-      }
+        displayName: displayName,
+        lines: lines,
+      ),
     ]
   }
-  return Dialog.showGameDialog(buildContext, data, returnValue)
+  return Dialog.showGameDialog(buildContext, dlgData, returnValue)
 }
 
-fun showDialogByResourceId(id: str, { returnValue }) -> Future {
+fun showDialogByResourceId(id: str, { returnValue, interpolations: List }) -> Future {
   final data = dialogs[id]
+  // 这里之后是否可以优化一下？
+  for (final content in data.contents) {
+    if (content.isHero) {
+      content.displayName = hero.name
+      content.isMajorCharacter = true
+      content.icon = hero.icon
+      delete content.isHero
+    }
+    if (interpolations is List) {
+      for (var i = 0; i < content.lines.length; ++i) {
+        content.lines[i] = interpolate(content.lines[i], interpolations)
+      }
+    }
+  }
   return Dialog.showGameDialog(buildContext, data, returnValue)
 }
 

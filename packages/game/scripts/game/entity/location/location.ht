@@ -29,6 +29,11 @@ struct Location {
 
     // 该据点的每月刷新时间
     this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
+    // 该据点的事件触发选项
+    this.flags = {
+      recruitingOrganizationIds: [],
+    }
+
 
     this.terrainIndex = terrainIndex
     this.tilePosition = Tile(

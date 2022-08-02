@@ -15,21 +15,21 @@ const kOrganizationCategoryReligion = 'religion';
 const kOrganizationCategoryNation = 'nation';
 const kOrganizationCategoryBusiness = 'business';
 
-class LocationView extends StatefulWidget {
+class OrganizationView extends StatefulWidget {
   final String? organizationId;
   final HTStruct? organizationData;
 
-  const LocationView({
+  const OrganizationView({
     super.key,
     this.organizationId,
     this.organizationData,
   });
 
   @override
-  State<LocationView> createState() => _LocationViewState();
+  State<OrganizationView> createState() => _OrganizationViewState();
 }
 
-class _LocationViewState extends State<LocationView> {
+class _OrganizationViewState extends State<OrganizationView> {
   late final List<Tab> _tabs;
   late final HTStruct _organizationData;
 
@@ -140,6 +140,8 @@ class _LocationViewState extends State<LocationView> {
                       '$leaderTitle:  ${getNameFromId(_organizationData['leaderId'])}'),
                   Text(
                       '${engine.locale['development']}: ${_organizationData['development']}'),
+                  Text(
+                      '${engine.locale['recruitMonth']}: ${_organizationData['yearlyRecruitMonth']}'),
                 ],
               ),
             ),

@@ -106,6 +106,10 @@ class TileMapObject extends GameComponent with TileInfo {
     tilePosition = TilePosition(left, top);
   }
 
+  void stopAnimation() {
+    currentAnimation?.setToLast();
+  }
+
   void stop() {
     tilePosition = _movingTargetTilePosition;
     _isMoving = false;
@@ -119,7 +123,6 @@ class TileMapObject extends GameComponent with TileInfo {
       ));
     }
     _isBackward = false;
-    currentAnimation?.setToLast();
     _movingOffset = Vector2.zero();
     _movingTargetWorldPosition = Vector2.zero();
     _velocity = Vector2.zero();

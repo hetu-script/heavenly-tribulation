@@ -10,6 +10,7 @@
   "cancel": "取消",
   "yes": "是",
   "no": "否",
+  "and": "和",
   "accept": "接受",
   "close": "关闭",
   "empty": "空无一物",
@@ -98,7 +99,7 @@
   "nation": "国家",
   "location": "据点",
   "site": "建筑",
-  "organization": "门派",
+  "organization": "组织",
   "inventory": "物品",
 
   "character": "人物",
@@ -158,5 +159,9 @@
   "work": "打工",
 
   "diagnose": "诊断",
-  "heal": "治疗"
+  "heal": "治疗",
+
+  "leader": "首领",
+  "development": "发展度",
+  "recruitMonth": "招募月份"
 }

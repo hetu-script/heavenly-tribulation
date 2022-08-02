@@ -8,6 +8,7 @@ import '../../shared/responsive_window.dart';
 import '../../shared/close_button.dart';
 import '../../util.dart';
 import '../location/location.dart';
+import '../organization/organization.dart';
 
 const _kInformationViewCharacterColumns = [
   'name',
@@ -21,7 +22,7 @@ const _kInformationViewOrganizationColumns = [
   'name',
   'leader',
   'category',
-  'headquartersLocation',
+  'headquarters',
   'locationNumber',
   'memberNumber',
   'development',
@@ -208,6 +209,13 @@ class _InformationPanelState extends State<InformationPanel>
               GameEntityListView(
                 columns: _kInformationViewOrganizationColumns,
                 tableData: _organizationsFieldRow,
+                onTap: (dataId) {
+                  showDialog(
+                    context: context,
+                    builder: (context) =>
+                        OrganizationView(organizationId: dataId),
+                  );
+                },
               ),
               GameEntityListView(
                 columns: _kInformationViewLocationColumns,
@@ -215,7 +223,6 @@ class _InformationPanelState extends State<InformationPanel>
                 onTap: (dataId) {
                   showDialog(
                     context: context,
-                    barrierColor: Colors.transparent,
                     builder: (context) =>
                         LocationView(showSites: false, locationId: dataId),
                   );

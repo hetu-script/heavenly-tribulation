@@ -277,71 +277,74 @@ class _MazeOverlayState extends State<MazeOverlay>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return FutureBuilder(
-      // 不知道为啥，这里必须用这种写法才能进入载入界面，否则一定会卡住
-      future: Future.delayed(
-        const Duration(milliseconds: 100),
-        () => _createLevel(widget.mazeData['levels'][_currentLevelIndex]),
-      ),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return LoadingScreen(text: engine.locale['loading']);
-        } else {
-          _scene = snapshot.data as MazeScene;
-          if (_scene.isAttached) {
-            _scene.detach();
-          }
-
-          return Material(
-            color: Colors.transparent,
-            child: Stack(
-              children: [
-                SceneWidget(scene: _scene),
-                if (_heroData != null)
-                  Positioned(
-                    left: 0,
-                    top: 0,
-                    child: HeroInfoPanel(
-                      heroData: _heroData!,
-                      showTilePosition: false,
-                    ),
-                  ),
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: MazeDropMenu(
-                    onSelected: (MazeDropMenuItems item) async {
-                      switch (item) {
-                        case MazeDropMenuItems.console:
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) => const Console(),
-                          ).then((_) => setState(() {}));
-                          break;
-                        case MazeDropMenuItems.quit:
-                          engine.invoke('leaveMaze',
-                              positionalArgs: [widget.mazeData]);
-                          break;
-                        default:
-                      }
-                    },
-                  ),
-                ),
-                Positioned(
-                  left: 0,
-                  bottom: 0,
-                  child: HistoryPanel(
-                    title:
-                        '${widget.mazeData['name']} ${widget.mazeData['levels'][_currentLevelIndex]['name']}',
-                    heroId: _heroData?['id'],
-                    historyData: widget.mazeData['history'],
-                  ),
-                ),
-              ],
+    return _isDisposing
+        ? LoadingScreen(text: engine.locale['loading'])
+        : FutureBuilder(
+            // 不知道为啥，这里必须用这种写法才能进入载入界面，否则一定会卡住
+            future: Future.delayed(
+              const Duration(milliseconds: 100),
+              () => _createLevel(widget.mazeData['levels'][_currentLevelIndex]),
             ),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return LoadingScreen(text: engine.locale['loading']);
+              } else {
+                _scene = snapshot.data as MazeScene;
+                if (_scene.isAttached) {
+                  _scene.detach();
+                }
+
+                return Material(
+                  color: Colors.transparent,
+                  child: Stack(
+                    children: [
+                      SceneWidget(scene: _scene),
+                      if (_heroData != null)
+                        Positioned(
+                          left: 0,
+                          top: 0,
+                          child: HeroInfoPanel(
+                            heroData: _heroData!,
+                            showTilePosition: false,
+                          ),
+                        ),
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: MazeDropMenu(
+                          onSelected: (MazeDropMenuItems item) async {
+                            switch (item) {
+                              case MazeDropMenuItems.console:
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      const Console(),
+                                ).then((_) => setState(() {}));
+                                break;
+                              case MazeDropMenuItems.quit:
+                                engine.invoke('leaveMaze',
+                                    positionalArgs: [widget.mazeData]);
+                                break;
+                              default:
+                            }
+                          },
+                        ),
+                      ),
+                      Positioned(
+                        left: 0,
+                        bottom: 0,
+                        child: HistoryPanel(
+                          title:
+                              '${widget.mazeData['name']} ${widget.mazeData['levels'][_currentLevelIndex]['name']}',
+                          heroId: _heroData?['id'],
+                          historyData: widget.mazeData['history'],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            },
           );
-        }
-      },
-    );
   }
 }

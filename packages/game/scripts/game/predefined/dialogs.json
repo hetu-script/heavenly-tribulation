@@ -1,0 +1,54 @@
+[
+  {
+    "id": "organizationRecruitMonth",
+    "contents": [
+      {
+        "localeKeys": ["organizationRecruitMonth.intro1"]
+      },
+      {
+        "displayNameLocaleKey": "villager",
+        "localeKeys": ["organizationRecruitMonth.intro2"]
+      }
+    ]
+  },
+  {
+    "id": "organizationRecruitMonth.reply1",
+    "contents": [
+      {
+        "displayNameLocaleKey": "villager",
+        "localeKeys": ["organizationRecruitMonth.selection1.reply"]
+      },
+      {
+        "displayNameLocaleKey": "villager",
+        "localeKeys": ["organizationRecruitMonth.selection2.reply"]
+      }
+    ]
+  },
+  {
+    "id": "organizationRecruitMonth.reply2",
+    "contents": [
+      {
+        "displayNameLocaleKey": "villager",
+        "localeKeys": ["organizationRecruitMonth.selection2.reply"]
+      }
+    ]
+  },
+  {
+    "id": "organizationRecruitMonth.reply3",
+    "contents": [
+      {
+        "displayNameLocaleKey": "villager",
+        "localeKeys": ["organizationRecruitMonth.selection3.reply"]
+      }
+    ]
+  },
+  {
+    "id": "organizationRecruitMonth.hint",
+    "contents": [
+      {
+        "isHero": true,
+        "localeKeys": ["organizationRecruitMonth.hint"]
+      }
+    ]
+  }
+]

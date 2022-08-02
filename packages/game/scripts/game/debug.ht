@@ -43,6 +43,30 @@ namespace debug {
       engine.info('entity:', entity)
     }
   }
+
+  fun location {
+    if (game.world == null) return
+    final position = getHeroPosition()
+    final terrainIndex = tilePos2Index(position.left, position.top, game.world.width)
+    final terrain = game.world.terrains[terrainIndex]
+    if (terrain.nationId) {
+      final nation = game.locations[terrain.nationId]
+      engine.info('nation:', nation)
+    }
+    if (terrain.locationId) {
+      final location = game.locations[terrain.locationId]
+      engine.info('location:', location)
+    }
+  }
+
+  fun showAllCaption {
+    for (final tile in game.world.terrains) {
+      if (tile.locationId) {
+        final location = game.locations[tile.locationId]
+        setWorldMapCaption(location.tilePosition.left, location.tilePosition.top, location.name)
+      }
+    }
+  }
 }
 
 // 测试战斗：随机生成两个准备好战斗的角色

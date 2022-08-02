@@ -57,15 +57,28 @@ fun updateGame({ticks = 1, timeflow = true, playerEvent = true}) {
       // 跳过玩家自己控制的组织
       if (game.heroId != null && game.heroId == organization.leaderId) continue
 
-      // 年度事件
-      // if (getCurrentTicksOfYear() == organization.yearlyUpdateTime) {
-      //   updateOrganizationYearly(organization)
-      // }
-
-      // 月度事件
-      if (getCurrentTicksOfMonth() == organization.monthlyUpdateTime) {
-        updateOrganizationMonthly(organization)
+      if (organization.category != kOrganizationCategoryNation) {
+        final location = game.locations[organization.headquartersId]
+        if (getCurrentMonth() == organization.yearlyRecruitMonth) {
+          if (!location.flags.recruitingOrganizationIds.contains(organization.id)) {
+            location.flags.recruitingOrganizationIds.add(organization.id)
+            engine.info('${organization.name} 的招募大比本月开始。')
+          }
+        } else if (location.flags.recruitingOrganizationIds.contains(organization.id)) {
+          location.flags.recruitingOrganizationIds.remove(organization.id)
+          engine.info('${organization.name} 的招募大比已经结束。')
+        }
       }
+
+      // 年度事件
+      if (getCurrentTicksOfYear() == organization.yearlyUpdateTime) {
+        updateOrganizationYearly(organization)
+      }
+
+    //   // 月度事件
+    //   if (getCurrentTicksOfMonth() == organization.monthlyUpdateTime) {
+    //     updateOrganizationMonthly(organization)
+    //   }
     }
     
     // 触发每个角色的刷新事件
@@ -102,6 +115,7 @@ fun handleBabies {
     final mother = game.characters[baby.motherId]
     if (!mother.isDead) {
       mother.isPregnant = false
+      assert(mother.locationId != null)
       final location = game.locations[mother.locationId]
       final character = Character(
         familyName: baby.familyName,
@@ -130,6 +144,7 @@ fun updateTerrain(terrain) {
 // 但商号、工坊和酒楼只有在是门派开设的情况下才会有多个任务，否则每个月只会提供唯一的一个任务
 fun updateSite(site) {
   final location = game.locations[site.locationId]
+  engine.info('触发 ${location.name} ${site.name} 的月度更新事件')
   when (site.category) {
     'cultivation' -> {
 
@@ -144,20 +159,23 @@ fun updateSite(site) {
       if (site.organizationId) {
 
       } else {
+        // 清除上个月的数据
         site.workedThisMonth = false
+        site.quests = {}
 
         // 非门派商号，这里会临时生成一个任务
         // 商号的运送任务都是普通物品，并且送到指定地点而非人物
-        final destination = random.nextIterable(game.locations.values)
-        final destinationSite = random.nextIterable(destination.sites.values)
+        final destinationId = random.nextIterable(game.locations.keys)
+        final destination = game.locations[destinationId]
+        final destinationSiteId = random.nextIterable(destination.sites.keys)
         final distance = getTileDistance(location.tilePosition, destination.tilePosition)
         final quest = QuestDelivery(
           locationId: location.id,
           siteId: site.id,
-          destinationLocationId: destination.id,
-          destinationSiteId: destinationSite.id,
+          destinationLocationId: destinationId,
+          destinationSiteId: destinationSiteId,
           item: Material(stackSize: 20),
-          rewardMoney: distance * 50,
+          rewardMoney: distance * 10,
         )
         site.quests[quest.id] = quest
       }
@@ -188,7 +206,8 @@ fun updateSite(site) {
       if (random.nextDouble() > kQuestProbability) return
       if (!location.nationId) return
       final nation = game.organizations[location.nationId]
-      if ((random.nextDouble() < location.stability / 100) && !nation.hasBanditEvent && !location.hasBanditEvent) {
+      if (nation.hasBanditEvent) return
+      if ((random.nextDouble() < location.stability / 100)) {
         var mazeTerrain
         for (final terrainIndex in nation.territoryIndexes) {
           final terrain = game.world.terrains[terrainIndex]
@@ -201,7 +220,6 @@ fun updateSite(site) {
 
         if (mazeTerrain) {
           nation.hasBanditEvent = true
-          location.hasBanditEvent = true
 
           final quest = QuestBanditCamp(
             locationId: location.id,
@@ -218,11 +236,13 @@ fun updateSite(site) {
 }
 
 fun updateLocation(location) {
+  engine.info('触发 ${location.name} 的月度更新事件')
 
 }
 
 // 年度组织事件
 fun updateOrganizationYearly(organization) {
+  engine.info('触发 ${organization.name} 的年度更新事件')
   when (organization.category) {
     'cultivation' -> {
       
@@ -244,6 +264,7 @@ fun updateOrganizationYearly(organization) {
 
 // 月度组织事件
 fun updateOrganizationMonthly(organization) {
+  engine.info('触发 ${organization.name} 的月度更新事件')
   when (organization.category) {
     'cultivation' -> {
       
@@ -264,6 +285,7 @@ fun updateOrganizationMonthly(organization) {
 }
 
 fun updateCharacter(character) {
+  engine.info('触发 ${character.name} 的月度更新事件')
 
 }
 
@@ -293,6 +315,45 @@ fun onHeroEnteredLocation(location) async {
       return showDialogByLocaleKeys(['sensedUndiscovered'], character: hero)
     }
   }
+
+  if (location.flags.recruitingOrganizationIds.isNotEmpty) {
+    var names = ''
+    for (final id in location.flags.recruitingOrganizationIds) {
+      if (names.isEmpty) {
+        names = game.organizations[id].name
+      } else {
+        final linkWord = getLocaleString('and')
+        names += linkWord + game.organizations[id].name
+      }
+    }
+
+    final villager = getLocaleString('villager')
+
+    showDialogByResourceId('organizationRecruitMonth').then((_) {
+      showSelectionByLocaleKeys([
+        'organizationRecruitMonth.selection1',
+        'organizationRecruitMonth.selection2',
+        'organizationRecruitMonth.selection3',
+      ]).then((key) {
+        when (key) {
+          'organizationRecruitMonth.selection1' -> {
+            return showDialogByResourceId('organizationRecruitMonth.reply1', interpolations: [names])
+          }
+          'organizationRecruitMonth.selection2' -> {
+            return showDialogByResourceId('organizationRecruitMonth.reply2', interpolations: [names])
+          }
+          'organizationRecruitMonth.selection3' -> {
+            return showDialogByResourceId('organizationRecruitMonth.reply3', interpolations: [names])
+          }
+        }
+      }).then((_) {
+        if (hero.organizationId == null) {
+          return showDialogByLocaleKeys(['organizationRecruitMonth.hint'], character: hero)
+        }
+      })
+    })
+
+  }
 }
 
 // 异步函数，会在显示建筑窗口之前执行，执行完毕后才会进入建筑
@@ -315,6 +376,7 @@ fun onHeroEnteredSite(site) async {
 }
 
 fun handleQuestEnding(quest, result) {
+  engine.info('完成了 ${quest.description} 的任务。')
   when (quest.category) {
     kQuestCategoryDelivery -> {
       if (quest.result) {

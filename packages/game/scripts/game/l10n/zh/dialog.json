@@ -17,5 +17,15 @@
   "localExamIntro": "小吏：你要参加乡试？现在还不到时间。明年1月份你再来这里报名吧。",
   "nationalExamIntro": "官员：会试只有已经在乡试中取得功名之人才可以参加。每两年的1月举办。如今还不到时候。",
 
-  "organizationTrainDeny": "门人：非本派人士不能在此修行，阁下还是请回吧。"
+  "organizationTrainDeny": "门人：非本派人士不能在此修行，阁下还是请回吧。",
+
+  "organizationRecruitMonth.intro1": "（城里熙熙攘攘的，变得比往常热闹了许多，似乎正在发生什么事情。）",
+  "organizationRecruitMonth.intro2": "你是来参加 大比 的吗？",
+  "organizationRecruitMonth.selection1": "大比？",
+  "organizationRecruitMonth.selection1.reply": "看来你是外地来的吧？{0} 一年一度招募外门弟子的大比正在进行。这可是能够得登仙门的好机会，许多年轻人都跃跃欲试呢。",
+  "organizationRecruitMonth.selection2": "是的",
+  "organizationRecruitMonth.selection2.reply": "如果你还没有登记的话，可以立刻前往 {0} 。去晚了可能就报不上名了。",
+  "organizationRecruitMonth.selection3": "我只是路过这里",
+  "organizationRecruitMonth.selection3.reply": "{0} 一年一度招募外门弟子的大比正在进行。无关之人最好离得远些，干扰了仙师们可是会有严重后果。",
+  "organizationRecruitMonth.hint": "我现在也还未加入任何组织，是否要要报个名看看？"
 }

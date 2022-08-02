@@ -122,6 +122,7 @@ flutter:
     - scripts/game/name/skill/
     - scripts/game/name/talisman/
     - scripts/game/name/zone/
+    - scripts/game/predefined/
     - scripts/game/quest/
     - scripts/game/tile/
     - scripts/game/world/

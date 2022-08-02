@@ -10,6 +10,10 @@ const kOrganizationRankMax = 6
 
 const kOrganizationDevelopmentMax = 5
 
+const kOrganizationRecruitOtherLocationProbability = 0.2
+
+const kOrganizationRecruitSuccessProbability = 0.4
+
 final kOrganizationCategories = [
   'cultivation',
   'gang',
@@ -148,11 +152,13 @@ struct Organization {
 
     // 该组织的每月刷新事件的时间
     this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
+    // 该组织的事件触发选项
+    this.flags = {}
 
     // 该组织每年刷新时间的时间，一般都为 X 月 1 日
     // 例如招募大比时间等等，都发生在这个日期
     final month = random.nextInt(kMonthsPerYear)
-    this.yearlyUpdateTime = month * kTicksPerMonth + random.next(kTicksPerMonth)
+    this.yearlyUpdateTime = month * kTicksPerMonth + random.nextInt(kTicksPerMonth)
     this.yearlyRecruitMonth = month + 1
 
     this.headquartersId = headquartersId
@@ -536,19 +542,21 @@ fun addTerrainToNation(terrain, nation) {
   terrain.nationId = nation.id
   if (terrain.locationId) {
     final location = game.locations[terrain.locationId]
-    if (location.nationId) {
-      final oldNation = game.organizations[location.nationId]
-      oldNation.locationIds.remove(location.id)
-      final oldGov = location.sites.values.singleWhere((site) => site.category == kSiteGovernment)
-      oldGov.organizationId = nation.id
-    } else {
-      final gov = Site(category: kSiteGovernment, locationId: location.id)
-      if (nation.capitalId == location.id) {
-        location.isCapital = true
-        gov.isCapital = true
+    if (location.category == kLocationCategoryCity) {
+      if (location.nationId) {
+        final oldNation = game.organizations[location.nationId]
+        oldNation.locationIds.remove(location.id)
+        final oldGov = location.sites.values.singleWhere((site) => site.category == kSiteGovernment)
+        oldGov.organizationId = nation.id
+      } else {
+        final gov = Site(category: kSiteGovernment, locationId: location.id)
+        if (nation.capitalId == location.id) {
+          location.isCapital = true
+          gov.isCapital = true
+        }
+        gov.organizationId = nation.id
+        location.governmentSiteId = gov.id
       }
-      gov.organizationId = nation.id
-      location.governmentSiteId = gov.id
     }
     location.nationId = nation.id
     if (!nation.locationIds.contains(location.id)) {
