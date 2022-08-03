@@ -59,8 +59,6 @@ final _kBlockTypes = [
   'rock',
 ]
 
-const kLevelNumber = 3
-
 /// 生成Roguelike副本的算法
 /// 一个Maze包含多个地图，每个地图是一个单独的tilemap
 /// 地图之间通过出入口或者传送点互相连接
@@ -172,7 +170,7 @@ struct MountainMaze {
       currentLevel.exitX = exit.left
       currentLevel.exitX = exit.top
       final exitEntity = {
-        id: 'levelExit${levelIndex}',
+        id: 'level_${levelIndex}_exit',
         encounterType: 'levelExit',
       }
       this.entities[exitEntity.id] = exitEntity
@@ -254,7 +252,6 @@ struct MountainMaze {
       // 正中
       anchors[5] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, kDefaultBlockWidth, kDefaultBlockHeight)
       // 右边
-      // 正中
       anchors[6] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, kDefaultBlockWidth * 2, kDefaultBlockHeight)
       // 左下角
       anchors[7] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, 0, kDefaultBlockHeight * 2)
@@ -284,7 +281,7 @@ struct MountainMaze {
           }
           when (encounterType) {
             'vigilantePeasant' -> {
-
+              
             }
           }
         }
@@ -475,13 +472,8 @@ struct MountainMaze {
 }
 
 // 返回布尔值，如果为真，则玩家控制角色会返回上一格，否则停在这一格
-fun handleMountainInteraction({entityId, left, top, maze, currentLevelIndex}) -> bool {
-  final index = tilePos2Index(left, top, maze.width)
-  final tile = maze.levels[currentLevelIndex].terrains[index]
-  final entity = maze.entities[entityId]
-  assert(entity != null)
-  engine.info('副本地图对象互动事件：[${entity.encounterType}: ${entity.id}](${left}, ${top})')
-
+fun handleMountainInteraction({entity, tile, maze, currentLevelIndex}) -> bool {
+  
   // 战斗，异步函数，如果获胜则返回 true
   fun battle -> Future {
     return heroBattle(

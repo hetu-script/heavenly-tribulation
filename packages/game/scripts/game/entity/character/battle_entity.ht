@@ -135,6 +135,7 @@ fun generateCharacterStats(
     baseChi = 100,
     baseStamina = 100,
   }) {
+
   character.attributes.life = baseLife + (character.attributes.constitution ~/ 5) * 5
   character.attributes.chi = baseChi + (character.attributes.superpower ~/ 5) * 5
   character.attributes.stamina = baseStamina + (character.attributes.strength ~/ 5) * 5

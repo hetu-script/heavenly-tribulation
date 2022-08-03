@@ -19,7 +19,7 @@ struct TrevelingMerchant {
     this.category = kEntityCategoryCharacter
     this.kind = 'trevelingMerchant'
     this.name = getLocaleString(this.kind)
-    this.id = '${this.kind}_${Hash.uid4(2)}_${this.name}'
+    this.id = 'npc_${Hash.uid4(2)}_${this.kind}_${this.name}'
     this.rarity = kCommon
     this.color = kRarity[this.rarity].color
     game.npcs[this.id] = this

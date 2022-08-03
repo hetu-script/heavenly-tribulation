@@ -101,7 +101,7 @@ fun testMerchant {
   showMerchant(merchant)
 }
 
-fun testMaze {
+fun testMazeMountain {
   setRandomSeed(1001)
   resetGame()
   // 先创建副本再创建英雄，这样会直接用localHistory替换掉hostory
@@ -118,6 +118,23 @@ fun testMaze {
   final companion = VillageWarrior()
   characterEquip(companion, Weapon())
   characterEquip(hero, companion)
+  setHeroId(hero.id)
+  enterMaze(maze)
+  return maze
+}
+
+fun testMazeCultivationRecruit {
+  resetGame()
+  // 先创建副本再创建英雄，这样会直接用localHistory替换掉hostory
+  final maze = CultivationRecruitMaze(
+    name: '测试副本',
+  )
+  final hero = Character()
+  characterEquip(hero, Kickboxing())
+  characterEquip(hero, Weapon())
+  characterEquip(hero, Shield())
+  entityAcquireItem(hero, Consumable.medicine(), count: 5)
+  entityAcquireItem(hero, Consumable.beverage(), count: 5)
   setHeroId(hero.id)
   enterMaze(maze)
   return maze

@@ -36,16 +36,17 @@ final kRoutesOfAnchor = {
 }
 
 // 执行这个函数时地图尚未生成，因此不需要考虑zone，所以无需使用真正的terrain来计算
-fun generateRouteByIndex(index1, index2, map) {
+fun generateRouteByIndex(index1, index2, map, { spriteIndex }) {
   final tile1 = index2TilePos(index1, map.width)
   final tile2 = index2TilePos(index2, map.width)
   // print('generate route from ${tile1} to ${tile2}')
-  final route = calculateRoute(tile1, tile2, map)
+  final route = calculateRoute(tile1, tile2, map, spriteIndex: spriteIndex)
   // print(route)
-  if (route) {
+  if (route && route.length > 1) {
     for (final index in route) {
       final terrain = map.terrains[index]
       terrain.isRoute = true
+      terrain.spriteIndex = spriteIndex
     }
   } else {
     final terrain = map.terrains[index1]
@@ -53,19 +54,19 @@ fun generateRouteByIndex(index1, index2, map) {
   }
 }
 
-fun generateRouteByName(name, anchors, map) {
+fun generateRouteByName(name, anchors, map, { spriteIndex }) {
   when (name) {
-    'topLeft' -> generateRouteByIndex(anchors[1].index, anchors[2].index, map)
-    'topRight' -> generateRouteByIndex(anchors[2].index, anchors[3].index, map)
-    'leftTop' -> generateRouteByIndex(anchors[1].index, anchors[4].index, map)
-    'centerTop' -> generateRouteByIndex(anchors[2].index, anchors[5].index, map)
-    'rightTop' -> generateRouteByIndex(anchors[3].index, anchors[6].index, map)
-    'centerLeft' -> generateRouteByIndex(anchors[4].index, anchors[5].index, map)
-    'centerRight' -> generateRouteByIndex(anchors[5].index, anchors[6].index, map)
-    'leftBottom' -> generateRouteByIndex(anchors[4].index, anchors[7].index, map)
-    'centerBottom' -> generateRouteByIndex(anchors[5].index, anchors[8].index, map)
-    'rightBottom' -> generateRouteByIndex(anchors[6].index, anchors[9].index, map)
-    'bottomLeft' -> generateRouteByIndex(anchors[7].index, anchors[8].index, map)
-    'bottomRight' -> generateRouteByIndex(anchors[8].index, anchors[9].index, map)
+    'topLeft' -> generateRouteByIndex(anchors[1].index, anchors[2].index, map, spriteIndex: spriteIndex)
+    'topRight' -> generateRouteByIndex(anchors[2].index, anchors[3].index, map, spriteIndex: spriteIndex)
+    'leftTop' -> generateRouteByIndex(anchors[1].index, anchors[4].index, map, spriteIndex: spriteIndex)
+    'centerTop' -> generateRouteByIndex(anchors[2].index, anchors[5].index, map, spriteIndex: spriteIndex)
+    'rightTop' -> generateRouteByIndex(anchors[3].index, anchors[6].index, map, spriteIndex: spriteIndex)
+    'centerLeft' -> generateRouteByIndex(anchors[4].index, anchors[5].index, map, spriteIndex: spriteIndex)
+    'centerRight' -> generateRouteByIndex(anchors[5].index, anchors[6].index, map, spriteIndex: spriteIndex)
+    'leftBottom' -> generateRouteByIndex(anchors[4].index, anchors[7].index, map, spriteIndex: spriteIndex)
+    'centerBottom' -> generateRouteByIndex(anchors[5].index, anchors[8].index, map, spriteIndex: spriteIndex)
+    'rightBottom' -> generateRouteByIndex(anchors[6].index, anchors[9].index, map, spriteIndex: spriteIndex)
+    'bottomLeft' -> generateRouteByIndex(anchors[7].index, anchors[8].index, map, spriteIndex: spriteIndex)
+    'bottomRight' -> generateRouteByIndex(anchors[8].index, anchors[9].index, map, spriteIndex: spriteIndex)
   }
 }

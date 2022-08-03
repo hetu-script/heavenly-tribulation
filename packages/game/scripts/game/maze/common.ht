@@ -39,22 +39,41 @@ fun mazeGameOver(maze) {
   })
 }
 
-// 返回布尔值，如果为真，则玩家控制角色会返回上一格，否则停在这一格
-fun handleMazeEntityInteraction({entityId, left, top, maze, currentLevelIndex}) -> bool {
-  return when (maze.category) {
-    'mountain' -> handleMountainInteraction(
-      entityId: entityId,
-      left: left,
-      top: top,
-      maze: maze,
-      currentLevelIndex: currentLevelIndex,
-    )
-    'cultivationRecruit' -> handleCultivationRecruitInteraction(
-      entityId: entityId,
-      left: left,
-      top: top,
-      maze: maze,
-      currentLevelIndex: currentLevelIndex,
-    )
+// 返回布尔值，如果为真，则玩家控制角色会返回上一格，false 则停在这一格，null 则不影响
+fun onHeroMovedOnMazeMap({left, top, maze, currentLevelIndex}) {
+  engine.info('玩家在副本地图 ${maze.id} 第 ${currentLevelIndex + 1} 层移动到了: ${left}, ${top}')
+  
+  final index = tilePos2Index(left, top, maze.width)
+  final tile = maze.levels[currentLevelIndex].terrains[index]
+
+  when (maze.category) {
+    'mountain' -> {
+      if (tile.entityId) {
+        final entity = maze.entities[tile.entityId]
+        assert(entity != null)
+        engine.info('玩家在副本地图 ${maze.id} 第 ${currentLevelIndex + 1} 层 ${left}, ${top} 碰到了 ${entity.id}')
+        return handleMountainInteraction(
+          entity: entity,
+          tile: tile,
+          maze: maze,
+          currentLevelIndex: currentLevelIndex,
+        )
+      }
+    }
+    'cultivationRecruit' -> {
+      if (tile.entityId) {
+        final entity = maze.entities[tile.entityId]
+        assert(entity != null)
+        engine.info('玩家在副本地图 ${maze.id} 第 ${currentLevelIndex + 1} 层 ${left}, ${top} 碰到了 ${entity.id}')
+        return handleCultivationRecruitInteraction(
+          entity: entity,
+          tile: tile,
+          maze: maze,
+          currentLevelIndex: currentLevelIndex,
+        )
+      }
+    }
   }
+
+  return null
 }

@@ -218,19 +218,17 @@ class _MazeOverlayState extends State<MazeOverlay>
         (GameEvent event) async {
           final tile = _scene.map.getTerrainAtHero();
           assert(tile != null);
-          final String? objectId = tile!.data['objectId'];
-          if (objectId != null) {
-            if (_scene.map.hero != null) {
-              final blocked = engine.invoke(
-                'handleMazeEntityInteraction',
-                namedArgs: {
-                  'entityId': objectId,
-                  'left': tile.left,
-                  'top': tile.top,
-                  'maze': widget.mazeData,
-                  'currentLevelIndex': _currentLevelIndex,
-                },
-              );
+          if (_scene.map.hero != null) {
+            final blocked = engine.invoke(
+              'onHeroMovedOnMazeMap',
+              namedArgs: {
+                'left': tile!.left,
+                'top': tile.top,
+                'maze': widget.mazeData,
+                'currentLevelIndex': _currentLevelIndex,
+              },
+            );
+            if (blocked != null) {
               if (blocked) {
                 _scene.map.moveHeroToLastRouteNode();
               } else {

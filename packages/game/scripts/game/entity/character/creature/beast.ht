@@ -54,7 +54,7 @@ struct Beast {
     final randomName = generateCreatureName(category: this.kind, rarity: rarity)
     this.name = randomName.name
     this.category = kEntityCategoryBeast
-    this.id = 'beast_${Hash.uid4(2)}_${this.name}'
+    this.id = 'creature_${Hash.uid4(2)}_${this.name}'
     this.rarity = randomName.rarity ?? kCommon
     this.color = kRarity[this.rarity].color
     game.npcs[this.id] = this

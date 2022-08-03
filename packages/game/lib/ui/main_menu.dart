@@ -269,18 +269,86 @@ class _MainMenuState extends State<MainMenu> {
                                 padding: const EdgeInsets.only(top: 20.0),
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    final mazeData = engine.invoke('testMaze');
                                     showDialog(
                                       context: context,
-                                      builder: (context) => MazeOverlay(
-                                        key: UniqueKey(),
-                                        mazeData: mazeData,
-                                      ),
-                                    ).then((_) {
-                                      engine.invoke('build',
-                                          positionalArgs: [context]);
-                                      setState(() {});
-                                    });
+                                      builder: (context) {
+                                        return Material(
+                                          type: MaterialType.transparency,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.all(10.0),
+                                                child: ElevatedButton(
+                                                  onPressed: () {
+                                                    final mazeData =
+                                                        engine.invoke(
+                                                            'testMazeMountain');
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (context) =>
+                                                          MazeOverlay(
+                                                        key: UniqueKey(),
+                                                        mazeData: mazeData,
+                                                      ),
+                                                    ).then(
+                                                      (_) {
+                                                        engine.invoke('build',
+                                                            positionalArgs: [
+                                                              context
+                                                            ]);
+                                                        setState(() {});
+                                                      },
+                                                    );
+                                                  },
+                                                  child: const Text('mountain'),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.all(10.0),
+                                                child: ElevatedButton(
+                                                  onPressed: () {
+                                                    final mazeData = engine.invoke(
+                                                        'testMazeCultivationRecruit');
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (context) =>
+                                                          MazeOverlay(
+                                                        key: UniqueKey(),
+                                                        mazeData: mazeData,
+                                                      ),
+                                                    ).then(
+                                                      (_) {
+                                                        engine.invoke('build',
+                                                            positionalArgs: [
+                                                              context
+                                                            ]);
+                                                        setState(() {});
+                                                      },
+                                                    );
+                                                  },
+                                                  child: const Text(
+                                                      'cultivation recruit'),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.all(10.0),
+                                                child: ElevatedButton(
+                                                  onPressed: () =>
+                                                      Navigator.of(context)
+                                                          .pop(),
+                                                  child: const Text('close'),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    );
                                   },
                                   child: const Label(
                                     'Test Maze',

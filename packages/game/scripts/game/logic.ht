@@ -291,7 +291,7 @@ fun updateCharacter(character) {
 
 // 如果返回值为 true，则英雄的移动会中止在这一格。
 fun onHeroMovedOnWorldMap(left, top) {
-  engine.info('玩家移动到: ${left}, ${top}')
+  engine.info('玩家移动到了: ${left}, ${top}')
   // final tile = game.world.terrains[tilePos2Index(left, top, game.world.width)]
   // if (tile.entityId && !tile.hasSearched) {
   //   // TODO: 感知阈值

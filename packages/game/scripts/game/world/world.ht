@@ -434,7 +434,7 @@ fun createWorldMap({
     } while (location.nationId != null)
     // engine.info('picking location for new nation capital: ${location}')
     final emperor = Character(
-      birthTimestamp: createRandomBirthTimestamp(40), // 年龄至少是20岁
+      birthTimestamp: createRandomBirthTimestamp(min: 40, max: 70), // 年龄至少是20岁
     )
     final nation = Organization.nation(
       capitalId: location.id,
@@ -469,7 +469,7 @@ fun createWorldMap({
     if (game.characters.length == 0) {
       // 人物列表是空的，此时要创造第一个角色
       leader = Character(
-        birthTimestamp: createRandomBirthTimestamp(20) // 年龄至少是20岁
+        birthTimestamp: createRandomBirthTimestamp(min: 20) // 年龄至少是20岁
       )
     } else {
       var found = false
@@ -486,7 +486,7 @@ fun createWorldMap({
       if (!found) {
         // 没有找到合适的人，则立刻创建一个
         leader = Character(
-          birthTimestamp: createRandomBirthTimestamp(20), // 年龄至少是20岁
+          birthTimestamp: createRandomBirthTimestamp(min: 20), // 年龄至少是20岁
         )
       }
     }
@@ -618,7 +618,7 @@ fun createWorldMap({
         final location = game.locations[locationId]
         final character = Character(
           locationId: location.id,
-          birthTimestamp: createRandomBirthTimestamp(15, 50),
+          birthTimestamp: createRandomBirthTimestamp(min: 15, max: 50),
         )
       }
 

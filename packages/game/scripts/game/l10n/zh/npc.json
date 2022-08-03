@@ -1,6 +1,11 @@
 {
   "coordination": "协同",
 
+  "seniorMateMale": "师兄",
+  "seniorMateFemale": "师姐",
+  "juniorMateMale": "师弟",
+  "juniorMateFemale": "师妹",
+
   "villager": "村民",
   "server": "伙计",
   "concierge": "门人",

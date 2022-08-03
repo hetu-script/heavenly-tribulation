@@ -2,7 +2,7 @@ import '../battle_entity.ht'
 import '../../common.ht'
 import '../../item/item.ht'
 import '../companion/common.ht'
-import { random } from '../../../game.ht'
+import '../../../game.ht'
 
 final _kBanditKinds = Set(
   'boss', // level 3 出口的 boss
@@ -73,10 +73,10 @@ struct Bandit {
     this.kind = kind
     this.entityType = kEntityTypeNpc
     this.birthTimestamp = birthTimestamp ?? createRandomBirthTimestamp()
-    this.icon = 'avatar/general.png'
+    // this.icon = 'avatar/general.png'
     this.category = kEntityCategoryCharacter
     this.name = getLocaleString(isPirate ? _kPirateName : _kBanditName) + getLocaleString(this.kind)
-    this.id = 'bandit_${Hash.uid4(2)}_${this.name}'
+    this.id = 'npc_${Hash.uid4(2)}_${this.name}'
     this.rarity = rarity ?? kCommon
     this.color = kRarity[this.rarity].color
     this.description = description ?? ''

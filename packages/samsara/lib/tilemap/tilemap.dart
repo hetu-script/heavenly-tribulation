@@ -218,7 +218,7 @@ class TileMap extends GameComponent with HandlesGesture {
                 to: overlayAnimationFrameCount);
           }
         }
-        final String? entityId = terrainData['entityId'];
+        // final String? entityId = terrainData['entityId'];
         final String? objectId = terrainData['objectId'];
         final tile = TileMapTerrain(
           tileShape: tileShape,

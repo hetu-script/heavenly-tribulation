@@ -4,8 +4,10 @@ const kSpriteLand = 3
 const kSpriteCity = 4
 const kSpriteForest = 5
 const kSpriteMountain = 6
-
 const kSpriteGrassLand = 7
+
+const kPavedRockTile = 9
+const kRockyTrail = 10
 
 const kTerrainKindLocation = 'location'
 const kTerrainKindRoad = 'road'
