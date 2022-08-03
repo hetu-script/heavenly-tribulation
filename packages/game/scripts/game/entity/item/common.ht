@@ -496,7 +496,7 @@ fun characterLootOther(character, target, { takeAll = false, incidentOccured = t
       entityGiveItem(target, character, itemId, isForced: true, incidentOccured: incidentOccured)
     }
     if (target.money) {
-      entityGiveMoney(defeated, character, target.money, isForced: true, incidentOccured: incidentOccured)
+      entityGiveMoney(target, character, target.money, isForced: true, incidentOccured: incidentOccured)
     }
   } else {
     // 为了避免在循环中修改 iterable，先提取出 id 列表

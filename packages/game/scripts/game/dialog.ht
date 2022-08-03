@@ -85,8 +85,9 @@ fun showDialogByLocaleKeys(localeKeys, { returnValue, character, displayName }) 
   final dlgData = {
     contents: [
       DialogContentData(
-        characterId: character?.id,
-        displayName: displayName,
+        characterId: character.isMajorCharacter ? character?.id : null,
+        displayName: displayName ?? character?.name,
+        icon: character?.icon,
         localeKeys: localeKeys,
       ),
     ]
@@ -99,8 +100,9 @@ fun showDialogByStrings(lines, { returnValue, character, displayName }) -> Futur
   final dlgData = {
     contents:[
       DialogContentData(
-        characterId: character?.id,
-        displayName: displayName,
+        characterId: character.isMajorCharacter ? character?.id : null,
+        displayName: displayName ?? character?.name,
+        icon: character?.icon,
         lines: lines,
       ),
     ]

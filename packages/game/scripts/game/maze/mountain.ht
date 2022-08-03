@@ -13,6 +13,8 @@ import '../binding/maze.ht'
 import '../tile/common.ht'
 import 'generation_algorithm.ht'
 
+const _kLevelNumber = 3
+
 final _kLandSprites = [
   kSpriteLand,
   kSpriteGrassLand,
@@ -59,6 +61,8 @@ final _kBlockTypes = [
   'rock',
 ]
 
+const _kBlockSize = 3
+
 /// 生成Roguelike副本的算法
 /// 一个Maze包含多个地图，每个地图是一个单独的tilemap
 /// 地图之间通过出入口或者传送点互相连接
@@ -82,36 +86,33 @@ struct MountainMaze {
     // 创建副本过程中也会触发事件，因此这里要提前给localHistory赋值
     final savedLocalHistory = currentMazeHistory
     currentMazeHistory = this.history
+    
+    final mazeUniqueEncounters = Set()
 
+    final [ width, height ] = [ kDefaultBlockWidth * _kBlockSize, kDefaultBlockHeight * _kBlockSize ]
+    this.width = width
+    this.height = height
+    this.currentLevelIndex = 0
+    
     // 已经被分配了的地块
     final occupied = Set()
 
-    fun randomPosition(width, height, mapWidth, [offsetX = 0, offsetY = 0]) {
-      assert(width > 2)
-      assert(height > 2)
-      // if (occupied.length >= (width * height - width * 2 - (height - 2) * 2)) {
-      //   throw 'all tiles have been occupied!'
-      // }
+    fun randomPosition(xScope, yScope, [offsetX = 0, offsetY = 0]) {
+      assert(xScope >= 2)
+      assert(yScope >= 2)
       var left
       var top
       var index
       do {
-        left = random.nextInt(width) + 1 + offsetX
-        top = random.nextInt(height) + 1 + offsetY
-        index = tilePos2Index(left, top, mapWidth)
+        left = random.nextInt(xScope) + 1 + offsetX
+        top = random.nextInt(yScope) + 1 + offsetY
+        index = tilePos2Index(left, top, width)
       } while (occupied.contains(index))
       occupied.add(index)
-      return { index, left, top }
+      return Tile(left, top, index: index, mapWidth: width)
     }
-    
-    final mazeUniqueEncounters = Set()
 
-    final [ width, height ] = [ kDefaultBlockWidth * kDefaultMazeScale, kDefaultBlockHeight * kDefaultMazeScale ]
-    this.width = width
-    this.height = height
-    this.currentLevelIndex = 0
-
-    for (final levelIndex in range(kLevelNumber)) {
+    for (final levelIndex in range(_kLevelNumber)) {
       final levelUniqueEncounters = Set()
 
       final currentLevel = TileMap(
@@ -155,6 +156,7 @@ struct MountainMaze {
         encounterType: 'levelEntry',
       }
       this.entities[entryEntity.id] = entryEntity
+      currentLevel.terrains[entry.index].entityId = entryEntity.id
       final entryObject = TileMapObject(
         id: entryEntity.id,
         terrainIndex: entry.index,
@@ -190,6 +192,7 @@ struct MountainMaze {
           final banditMuscle = Bandit(kind: 'muscle')
           banditMuscle.encounterType = 'banditMuscle'
           this.entities[banditMuscle.id] = banditMuscle
+          currentLevel.terrains[exit.index].entityId = banditMuscle.id
           final object = TileMapObject(
             id: banditMuscle.id,
             terrainIndex: exit.index,
@@ -206,6 +209,7 @@ struct MountainMaze {
           final banditKiller = Bandit(kind: 'killer')
           banditKiller.encounterType = 'banditKiller'
           this.entities[banditKiller.id] = banditKiller
+          currentLevel.terrains[exit.index].entityId = banditKiller.id
           final object = TileMapObject(
             id: banditKiller.id,
             terrainIndex: exit.index,
@@ -222,6 +226,7 @@ struct MountainMaze {
           final banditBoss = Bandit(kind: 'boss')
           banditBoss.encounterType = 'banditBoss'
           this.entities[banditBoss.id] = banditBoss
+          currentLevel.terrains[exit.index].entityId = banditBoss.id
           final object = TileMapObject(
             id: banditBoss.id,
             terrainIndex: exit.index,
@@ -242,23 +247,23 @@ struct MountainMaze {
       // 四个角的锚点需要避免位于可能的出入口上
       final anchors = {}
       // 左上角
-      anchors[1] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, 0, 0)
+      anchors[1] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, 0, 0)
       // 正上方
-      anchors[2] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, kDefaultBlockWidth, 0)
+      anchors[2] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, kDefaultBlockWidth, 0)
       // 右上角
-      anchors[3] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, kDefaultBlockWidth * 2, 0)
+      anchors[3] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, kDefaultBlockWidth * 2, 0)
       // 左边
-      anchors[4] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, 0, kDefaultBlockHeight)
+      anchors[4] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, 0, kDefaultBlockHeight)
       // 正中
-      anchors[5] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, kDefaultBlockWidth, kDefaultBlockHeight)
+      anchors[5] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, kDefaultBlockWidth, kDefaultBlockHeight)
       // 右边
-      anchors[6] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, kDefaultBlockWidth * 2, kDefaultBlockHeight)
+      anchors[6] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, kDefaultBlockWidth * 2, kDefaultBlockHeight)
       // 左下角
-      anchors[7] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, 0, kDefaultBlockHeight * 2)
+      anchors[7] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, 0, kDefaultBlockHeight * 2)
       // 正下方
-      anchors[8] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, kDefaultBlockWidth, kDefaultBlockHeight * 2)
+      anchors[8] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, kDefaultBlockWidth, kDefaultBlockHeight * 2)
       // 右下角
-      anchors[9] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, width, kDefaultBlockWidth * 2, kDefaultBlockHeight * 2)
+      anchors[9] = randomPosition(kDefaultBlockWidth, kDefaultBlockHeight, kDefaultBlockWidth * 2, kDefaultBlockHeight * 2)
 
       // print(anchors)
 
@@ -269,6 +274,8 @@ struct MountainMaze {
       
       // engine.info('在锚点放置遭遇')
       for (final anchor of anchors) {
+        if (anchor.index = entry.index) continue
+        if (anchor.index = exit.index) continue
         final r = random.nextDouble()
         if (r < kMazeUniqueEncounterProbability) {
           var encounterType
@@ -303,6 +310,7 @@ struct MountainMaze {
               entityAcquireItem(peddler, Consumable.beverage(), count: 20)
               peddler.encounterType = encounterType
               this.entities[peddler.id] = peddler
+              currentLevel.terrains[anchor.index].entityId = peddler.id
               final object = TileMapObject(
                 id: peddler.id,
                 terrainIndex: anchor.index,
@@ -325,6 +333,7 @@ struct MountainMaze {
               final bandit = Bandit(kind: 'minion')
               bandit.encounterType = encounterType
               this.entities[bandit.id] = bandit
+              currentLevel.terrains[anchor.index].entityId = bandit.id
               final object = TileMapObject(
                 id: bandit.id,
                 terrainIndex: anchor.index,
@@ -340,6 +349,7 @@ struct MountainMaze {
               final beast = Beast(rarity: kCommon)
               beast.encounterType = encounterType
               this.entities[beast.id] = beast
+              currentLevel.terrains[anchor.index].entityId = beast.id
               final object = TileMapObject(
                 id: beast.id,
                 terrainIndex: anchor.index,
@@ -356,18 +366,6 @@ struct MountainMaze {
       }
 
       // 确保从任意一个角可以到达所有锚点的算法
-      // 链接所有九个锚点的路径一共有9种（字母含义为left, right, top, bottom）：
-      //
-      //     1--tl--2--tr--3
-      //     |      |      |
-      //     lt     ct     rt
-      //     |      |      |
-      //     4--cl--5--cr--6
-      //     |      |      |
-      //     lb     cb     rb
-      //     |      |      |
-      //     7--bl--8--br--9
-      //
       // 要想让一次可以经过所有的锚点，最少需要8个路径
       // 为了保证角落和中心必然可以到达，角落和中心会必然单独随机分配一个路径
       // 剩下的路径则随机分配
@@ -375,35 +373,35 @@ struct MountainMaze {
       final routes = Set() // 最终结果
       final middleAnchors = [2,4,6,8]
       for (final point in random.shuffle(middleAnchors)) {
-        final shuffled = random.shuffle(kRoutesOfAnchor[point]).toList()
+        final shuffled = random.shuffle(kRoutesOfAnchorBySquare3[point]).toList()
         final routeForPoint = [shuffled.first, shuffled.last]
         // print('add route for point ${point}: ${routeForPoint}')
         routes.addAll(routeForPoint)
       }
-      for (final name in routes) {
+      for (final route in routes) {
         // print('initial routes: ${name}')
-        generateRouteByName(name, anchors, currentLevel)
+        generateRouteByAnchor(route, anchors, currentLevel)
       }
       // check if there's a unconnected
-      if (!routes.contains('topLeft') && !routes.contains('centerLeft') && !routes.contains('bottomLeft')) {
-        final name = random.nextIterable(['topLeft', 'centerLeft', 'bottomLeft'])
-        // print('add route to blank parallel: ${name}')
-        generateRouteByName(name, anchors, currentLevel)
+      if (!routes.contains('1-2') && !routes.contains('4-5') && !routes.contains('7-8')) {
+        final route = random.nextIterable(['1-2', '4-5', '7-8'])
+        // print('add route to blank parallel: ${route}')
+        generateRouteByAnchor(route, anchors, currentLevel)
       }
-      if (!routes.contains('topRight') && !routes.contains('centerRight') && !routes.contains('bottomRight')) {
-        final name = random.nextIterable(['topRight', 'centerRight', 'bottomRight'])
-        // print('add route to blank parallel: ${name}')
-        generateRouteByName(name, anchors, currentLevel)
+      if (!routes.contains('2-3') && !routes.contains('5-6') && !routes.contains('8-9')) {
+        final route = random.nextIterable(['2-3', '5-6', '8-9'])
+        // print('add route to blank parallel: ${route}')
+        generateRouteByAnchor(route, anchors, currentLevel)
       }
-      if (!routes.contains('leftTop') && !routes.contains('centerTop') && !routes.contains('rightTop')) {
-        final name = random.nextIterable(['leftTop', 'centerTop', 'rightTop'])
-        // print('add route to blank parallel: ${name}')
-        generateRouteByName(name, anchors, currentLevel)
+      if (!routes.contains('1-4') && !routes.contains('2-5') && !routes.contains('3-6')) {
+        final route = random.nextIterable(['1-4', '2-5', '3-6'])
+        // print('add route to blank parallel: ${route}')
+        generateRouteByAnchor(route, anchors, currentLevel)
       }
-      if (!routes.contains('leftBottom') && !routes.contains('centerBottom') && !routes.contains('rightBottom')) {
-        final name = random.nextIterable(['leftBottom', 'centerBottom', 'rightBottom'])
-        // print('add route to blank parallel: ${name}')
-        generateRouteByName(name, anchors, currentLevel)
+      if (!routes.contains('4-7') && !routes.contains('5-8') && !routes.contains('6-9')) {
+        final route = random.nextIterable(['4-7', '5-8', '6-9'])
+        // print('add route to blank parallel: ${route}')
+        generateRouteByAnchor(route, anchors, currentLevel)
       }
       // check if there's any anchor left as unconnected
       final restAnchors = [1,3,5,7,9]
@@ -411,12 +409,13 @@ struct MountainMaze {
         final index = anchors[anchor].index
         final tile = currentLevel.terrains[index]
         if (!tile.isRoute) {
-          final name = random.nextIterable(kRoutesOfAnchor[anchor])
-          print('add name to empty anchor: ${name}')
-          generateRouteByName(name, anchors, currentLevel)
+          final route = random.nextIterable(kRoutesOfAnchorBySquare3[anchor])
+          print('add name to empty anchor: ${route}')
+          generateRouteByAnchor(route, anchors, currentLevel)
         }
       }
-      // 最后再联通到入口和出口上
+
+      // 最后将入口和出口联通到锚点上
       generateRouteByIndex(entry.index, entry.nearestAnchor, currentLevel)
       generateRouteByIndex(exit.index, exit.nearestAnchor, currentLevel)
 
@@ -485,8 +484,9 @@ fun handleMountainInteraction({entity, tile, maze, currentLevelIndex}) -> bool {
       char1Resurrect: false,
       char2Resurrect: false,
       onWon: () {
+        tile.entityId = null
         tile.objectId = null
-        setMazeObject(left, top, null)
+        setMazeObject(tile.left, tile.top, null)
         delete game.npcs[entity.id]
       },
       onLost: () {
@@ -557,6 +557,7 @@ fun handleMountainInteraction({entity, tile, maze, currentLevelIndex}) -> bool {
       if (!maze.flags.haveMetBandit) {
         banditEncounter().then((result) {
           if (result) {
+            tile.entityId = levelExit0
             tile.objectId = levelExit0
             setMazeObject(left, top, 'levelExit0')
           }
@@ -566,6 +567,7 @@ fun handleMountainInteraction({entity, tile, maze, currentLevelIndex}) -> bool {
       else {
         battle().then((result) {
           if (result) {
+            tile.entityId = levelExit0
             tile.objectId = levelExit0
             setMazeObject(left, top, 'levelExit0')
           }
@@ -577,6 +579,7 @@ fun handleMountainInteraction({entity, tile, maze, currentLevelIndex}) -> bool {
       if (!maze.flags.haveMetBandit) {
         banditEncounter().then((result) {
           if (result) {
+            tile.entityId = levelExit0
             tile.objectId = levelExit0
             setMazeObject(left, top, 'levelExit0')
           }
@@ -586,6 +589,7 @@ fun handleMountainInteraction({entity, tile, maze, currentLevelIndex}) -> bool {
       else {
         battle().then((result) {
           if (result) {
+            tile.entityId = levelExit0
             tile.objectId = levelExit0
             setMazeObject(left, top, 'levelExit0')
           }
@@ -597,6 +601,7 @@ fun handleMountainInteraction({entity, tile, maze, currentLevelIndex}) -> bool {
       if (!maze.flags.haveMetBandit) {
         banditEncounter().then((result) {
           if (result) {
+            tile.entityId = levelExit0
             tile.objectId = levelExit0
             setMazeObject(left, top, 'levelExit0')
           }
@@ -606,6 +611,7 @@ fun handleMountainInteraction({entity, tile, maze, currentLevelIndex}) -> bool {
       else {
         battle().then((result) {
           if (result) {
+            tile.entityId = levelExit0
             tile.objectId = levelExit0
             setMazeObject(left, top, 'levelExit0')
           }

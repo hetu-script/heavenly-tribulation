@@ -14,9 +14,9 @@ struct TileMap {
     gridWidth = 32.0,
     gridHeight = 28.0,
     tileSpriteSrcWidth = 32.0,
-    tileSpriteSrcHeight = 48.0,
+    tileSpriteSrcHeight = 64.0,
     tileOffsetX = 0.0,
-    tileOffsetY = 2.0,
+    tileOffsetY = 16.0,
   }) {
     this.id = id
     this.name = name
@@ -55,88 +55,21 @@ fun addTerrainToZone(terrain, zoneIndex, map) {
   zone.terrainIndexes.add(terrain.index)
 }
 
-// 获取相邻并且在地图范围内的格子
-// 如果 [zoneIndex] 不为 null，则只会返回和起点所在 tile 具有相同 zoneIndex 的格子
-fun getMapTileNeighbors(left: int, top: int, map, {zoneIndex}) {
-  assert(isPositionWithinMap(left, top, map.width, map.height))
-  final origin = map.terrains[tilePos2Index(left, top, map.width)]
-  final neighbors = []
+// 从 hexagonal 坐标得到索引
+fun tilePos2Index(left, top, mapWidth) {
+  return left - 1 + (top - 1) * mapWidth
+}
 
-  fun addNeighbor(tile) {
-    if (!zoneIndex || tile.zoneIndex == zoneIndex ||
-      (tile.isHarbor && tile.harborOfZoneIndex == origin.zoneIndex) || 
-      (origin.isHarbor && origin.harborOfZoneIndex == tile.zoneIndex)) {
-      neighbors.add(tile)
-    }
-  }
+// 从索引得到 hexagonal 坐标
+fun index2TilePos(index: int, mapWidth) {
+  final left = index % mapWidth + 1
+  final top = index ~/ mapWidth + 1
+  return Tile(left, top, index: index, mapWidth: mapWidth)
+}
 
-  // 奇数列
-  if (left % 2 != 0) {
-    // 上面
-    if (isPositionWithinMap(left, top - 1, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left, top - 1, map.width)]
-      addNeighbor(tile)
-    }
-    // 下面
-    if (isPositionWithinMap(left, top + 1, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left, top + 1, map.width)]
-      addNeighbor(tile)
-    }
-    // 左上
-    if (isPositionWithinMap(left - 1, top - 1, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left - 1, top - 1, map.width)]
-      addNeighbor(tile)
-    }
-    // 左下
-    if (isPositionWithinMap(left - 1, top, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left - 1, top, map.width)]
-      addNeighbor(tile)
-    }
-    // 右上
-    if (isPositionWithinMap(left + 1, top - 1, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left + 1, top - 1, map.width)]
-      addNeighbor(tile)
-    }
-    // 右下
-    if (isPositionWithinMap(left + 1, top, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left + 1, top, map.width)]
-      addNeighbor(tile)
-    }
-  }
-  // 欧数列
-  else {
-    // 上面
-    if (isPositionWithinMap(left, top - 1, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left, top - 1, map.width)]
-      addNeighbor(tile)
-    }
-    // 下面
-    if (isPositionWithinMap(left, top + 1, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left, top + 1, map.width)]
-      addNeighbor(tile)
-    }
-    // 左上
-    if (isPositionWithinMap(left - 1, top, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left - 1, top, map.width)]
-      addNeighbor(tile)
-    }
-    // 左下
-    if (isPositionWithinMap(left - 1, top + 1, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left - 1, top + 1, map.width)]
-      addNeighbor(tile)
-    }
-    // 右上
-    if (isPositionWithinMap(left + 1, top, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left + 1, top, map.width)]
-      addNeighbor(tile)
-    }
-    // 右下
-    if (isPositionWithinMap(left + 1, top + 1, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left + 1, top + 1, map.width)]
-      addNeighbor(tile)
-    }
-  }
-  return neighbors
+// 坐标是否在地图范围内
+fun isPositionWithinMap(left, top, width, height) {
+  return (left > 0 && top > 0 && left <= width && top <= height)
 }
 
 // hScore(n) 是曼哈顿距离时的 A* 算法
@@ -145,8 +78,6 @@ fun calculateRoute(start, end, map, {restrictedInZoneIndex}) {
 
   assert(start.index != null && end.index != null)
   if (start.index == end.index) return null
-  // final zone1 = map.zones[start.zoneIndex]
-  // final zone2 = map.zones[end.zoneIndex]
 
   // g(n): 原点到该点的距离
   final gScore = Map()
@@ -175,30 +106,7 @@ fun calculateRoute(start, end, map, {restrictedInZoneIndex}) {
   final open = []
   open.add(start.index)
   final distance = getTileDistance(start, end)
-  // var restrictedInZoneIndex
-  // if (start.zoneIndex == end.zoneIndex) {
-    // 两个据点在相同地域
-    // print('same zone: ${start.zoneIndex}')
-  //   restrictedInZoneIndex = start.zoneIndex
-  // }
-  
-  // else if (start.isHarbor && start.harborOfZoneIndex == end.zoneIndex) {
-  //   // 起点是港口
-  //   // print('start is harbor of zone: ${end.zoneIndex}')
-  //   restricted2Zone = end.zoneIndex
-  // } else if (end.isHarbor && end.harborOfZoneIndex == start.zoneIndex) {
-  //   // 终点是港口
-  //   // print('end is harbor of zone: ${start.zoneIndex}')
-  //   restricted2Zone = start.zoneIndex
-  // } else {
-  //   // 不是相同地域并且终点和起点都不是港口
-  //   return null
-  // }
-  // route = {
-  //   startLeft: start.left,
-  //   startTop: start.top,
-  //   path: []
-  // }
+
   while (open.isNotEmpty) {
     // 找到 f(x) 最小的节点
     open.sort((t1, t2) => fScore[t1].compareTo(fScore[t2]))
@@ -231,4 +139,10 @@ fun calculateRoute(start, end, map, {restrictedInZoneIndex}) {
     }
   }
   return null
+}
+
+fun generateLabrynth(start, end, map, {restrictedInZoneIndex}) {
+  
+  assert(start.index != null && end.index != null)
+  if (start.index == end.index) return null
 }

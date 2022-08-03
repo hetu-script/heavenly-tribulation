@@ -3,38 +3,58 @@ import '../tile/tilemap.ht'
 
 const kDefaultBlockWidth = 4
 const kDefaultBlockHeight = 4
-const kDefaultMazeScale = 3
-final kDefaultBlockNumber = kDefaultMazeScale * kDefaultMazeScale
 
-// 所有路径名字
-final kRoutes = [
-  'topLeft',
-  'topRight',
-  'leftTop',
-  'centerTop',
-  'rightTop',
-  'centerLeft',
-  'centerRight',
-  'leftBottom',
-  'centerBottom',
-  'rightBottom',
-  'bottomLeft',
-  'bottomRight',
-]
-
-// 每个锚点所连接的路径
-final kRoutesOfAnchor = {
-  '1': ['leftTop', 'topLeft'],
-  '2': ['topLeft', 'topRight', 'centerTop'],
-  '3': ['topRight', 'rightTop'],
-  '4': ['leftTop', 'centerLeft', 'leftBottom'],
-  '5': ['centerTop', 'centerLeft', 'centerRight', 'centerBottom'],
-  '6': ['rightTop', 'centerRight', 'rightBottom'],
-  '7': ['leftBottom', 'bottomLeft'],
-  '8': ['bottomLeft', 'bottomRight', 'centerBottom'],
-  '9': ['rightBottom', 'bottomRight'],
+// 3*3 的区块地图中，每个锚点所连接的路径
+// 链接所有九个锚点的路径一共有 12 个：
+//
+//     1-----2-----3
+//     |     |     |
+//     |     |     |
+//     4-----5-----6
+//     |     |     |
+//     |     |     |
+//     7-----8-----9
+//
+// 为了保证唯一性，描述字符串一定是从左到右，从上到下
+final kRoutesOfAnchorBySquare3 = {
+  '1': ['1-2', '1-4'],
+  '2': ['1-2', '2-5', '2-3'],
+  '3': ['2-3', '3-6'],
+  '4': ['1-4', '4-5', '4-7'],
+  '5': ['2-5', '4-5', '5-6', '5-8'],
+  '6': ['3-6', '5-6', '6-9'],
+  '7': ['4-7', '7-8'],
+  '8': ['7-8', '5-8', '8-9'],
+  '9': ['6-9', '8-9'],
 }
 
+// 4*4 的区块地图中，每个锚点所连接的路径
+// 链接所有九个锚点的路径一共有 12 个：
+//
+//     1------2------3------4
+//     |      |      |      |
+//     |      |      |      |
+//     5------6------7------8
+//     |      |      |      |
+//     |      |      |      |
+//     9-----10-----11-----12
+//     |      |      |      |
+//     |      |      |      |
+//     13----14-----15-----16
+// 
+
+// 根据路径的描述字符串生成路径，描述字符串必须是 1-2 的形式，其中1和2是锚点的index，可以是其他数字
+fun generateRouteByAnchor(achorDescription, anchors, map, { spriteIndex }) {
+  final pos = achorDescription.split('-')
+  assert(pos.length > 1)
+  final start = int.parse(pos.first)
+  final end = int.parse(pos.last)
+  assert(start is int && end is int)
+  assert(start < end)
+  generateRouteByIndex(anchors[start].index, anchors[end].index, map, spriteIndex: spriteIndex)
+}
+
+// 调用 A* 算法（calculateRoute）来计算路径
 // 执行这个函数时地图尚未生成，因此不需要考虑zone，所以无需使用真正的terrain来计算
 fun generateRouteByIndex(index1, index2, map, { spriteIndex }) {
   final tile1 = index2TilePos(index1, map.width)
@@ -51,22 +71,5 @@ fun generateRouteByIndex(index1, index2, map, { spriteIndex }) {
   } else {
     final terrain = map.terrains[index1]
     terrain.isRoute = true
-  }
-}
-
-fun generateRouteByName(name, anchors, map, { spriteIndex }) {
-  when (name) {
-    'topLeft' -> generateRouteByIndex(anchors[1].index, anchors[2].index, map, spriteIndex: spriteIndex)
-    'topRight' -> generateRouteByIndex(anchors[2].index, anchors[3].index, map, spriteIndex: spriteIndex)
-    'leftTop' -> generateRouteByIndex(anchors[1].index, anchors[4].index, map, spriteIndex: spriteIndex)
-    'centerTop' -> generateRouteByIndex(anchors[2].index, anchors[5].index, map, spriteIndex: spriteIndex)
-    'rightTop' -> generateRouteByIndex(anchors[3].index, anchors[6].index, map, spriteIndex: spriteIndex)
-    'centerLeft' -> generateRouteByIndex(anchors[4].index, anchors[5].index, map, spriteIndex: spriteIndex)
-    'centerRight' -> generateRouteByIndex(anchors[5].index, anchors[6].index, map, spriteIndex: spriteIndex)
-    'leftBottom' -> generateRouteByIndex(anchors[4].index, anchors[7].index, map, spriteIndex: spriteIndex)
-    'centerBottom' -> generateRouteByIndex(anchors[5].index, anchors[8].index, map, spriteIndex: spriteIndex)
-    'rightBottom' -> generateRouteByIndex(anchors[6].index, anchors[9].index, map, spriteIndex: spriteIndex)
-    'bottomLeft' -> generateRouteByIndex(anchors[7].index, anchors[8].index, map, spriteIndex: spriteIndex)
-    'bottomRight' -> generateRouteByIndex(anchors[8].index, anchors[9].index, map, spriteIndex: spriteIndex)
   }
 }

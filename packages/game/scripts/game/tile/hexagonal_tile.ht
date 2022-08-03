@@ -1,3 +1,5 @@
+import 'tilemap.ht'
+
 struct Tile {
   construct (left, top, {index, mapWidth}) {
     assert(left != null && top != null)
@@ -102,19 +104,86 @@ fun getTileDistance(start, end) {
   return result
 }
 
-// 从 hexagonal 坐标得到索引
-fun tilePos2Index(left, top, mapWidth) {
-  return (left - 1 + (top - 1) * mapWidth).toInt()
-}
+// 获取相邻并且在地图范围内的格子
+// 如果 [zoneIndex] 不为 null，则只会返回和起点所在 tile 具有相同 zoneIndex 的格子
+fun getMapTileNeighbors(left: int, top: int, map, {zoneIndex}) {
+  assert(isPositionWithinMap(left, top, map.width, map.height))
+  final origin = map.terrains[tilePos2Index(left, top, map.width)]
+  final neighbors = []
 
-// 从索引得到 hexagonal 坐标
-fun index2TilePos(index: int, mapWidth) {
-  final left = (index % mapWidth + 1).toInt()
-  final top = (index ~/ mapWidth + 1).toInt()
-  return Tile(left, top, index: index, mapWidth: mapWidth)
-}
+  fun addNeighbor(tile) {
+    if (!zoneIndex || tile.zoneIndex == zoneIndex ||
+      (tile.isHarbor && tile.harborOfZoneIndex == origin.zoneIndex) || 
+      (origin.isHarbor && origin.harborOfZoneIndex == tile.zoneIndex)) {
+      neighbors.add(tile)
+    }
+  }
 
-// 坐标是否在地图范围内
-fun isPositionWithinMap(left, top, width, height) {
-  return (left > 0 && top > 0 && left <= width && top <= height)
+  // 奇数列
+  if (left % 2 != 0) {
+    // 上面
+    if (isPositionWithinMap(left, top - 1, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left, top - 1, map.width)]
+      addNeighbor(tile)
+    }
+    // 下面
+    if (isPositionWithinMap(left, top + 1, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left, top + 1, map.width)]
+      addNeighbor(tile)
+    }
+    // 左上
+    if (isPositionWithinMap(left - 1, top - 1, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left - 1, top - 1, map.width)]
+      addNeighbor(tile)
+    }
+    // 左下
+    if (isPositionWithinMap(left - 1, top, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left - 1, top, map.width)]
+      addNeighbor(tile)
+    }
+    // 右上
+    if (isPositionWithinMap(left + 1, top - 1, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left + 1, top - 1, map.width)]
+      addNeighbor(tile)
+    }
+    // 右下
+    if (isPositionWithinMap(left + 1, top, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left + 1, top, map.width)]
+      addNeighbor(tile)
+    }
+  }
+  // 偶数列
+  else {
+    // 上面
+    if (isPositionWithinMap(left, top - 1, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left, top - 1, map.width)]
+      addNeighbor(tile)
+    }
+    // 下面
+    if (isPositionWithinMap(left, top + 1, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left, top + 1, map.width)]
+      addNeighbor(tile)
+    }
+    // 左上
+    if (isPositionWithinMap(left - 1, top, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left - 1, top, map.width)]
+      addNeighbor(tile)
+    }
+    // 左下
+    if (isPositionWithinMap(left - 1, top + 1, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left - 1, top + 1, map.width)]
+      addNeighbor(tile)
+    }
+    // 右上
+    if (isPositionWithinMap(left + 1, top, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left + 1, top, map.width)]
+      addNeighbor(tile)
+    }
+    // 右下
+    if (isPositionWithinMap(left + 1, top + 1, map.width, map.height)) {
+      final tile = map.terrains[tilePos2Index(left + 1, top + 1, map.width)]
+      addNeighbor(tile)
+    }
+  }
+  return neighbors
 }
