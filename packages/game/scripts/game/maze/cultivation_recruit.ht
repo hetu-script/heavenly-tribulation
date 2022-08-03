@@ -187,7 +187,7 @@ struct CultivationRecruitMaze {
       top: anchors[5].top,
       spriteSrc: 'maze/elder_cultivator.png',
       srcWidth: 32.0,
-      srcHeight: 32.0,
+      srcHeight: 48.0,
     )
     currentLevel.objects.add(object)
 

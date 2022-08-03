@@ -197,7 +197,7 @@ struct MountainMaze {
             top: exit.top,
             spriteSrc: 'maze/bandit_muscle.png',
             srcWidth: 36.0,
-            srcHeight: 36.0,
+            srcHeight: 48.0,
           )
           currentLevel.objects.add(object)
         }
@@ -213,7 +213,7 @@ struct MountainMaze {
             top: exit.top,
             spriteSrc: 'maze/bandit_killer.png',
             srcWidth: 32.0,
-            srcHeight: 32.0,
+            srcHeight: 48.0,
           )
           currentLevel.objects.add(object)
         }
@@ -229,7 +229,7 @@ struct MountainMaze {
             top: exit.top,
             spriteSrc: 'maze/bandit_boss.png',
             srcWidth: 36.0,
-            srcHeight: 36.0,
+            srcHeight: 48.0,
           )
           currentLevel.objects.add(object)
         }
@@ -310,7 +310,7 @@ struct MountainMaze {
                 top: anchor.top,
                 spriteSrc: 'maze/peddler.png',
                 srcWidth: 32.0,
-                srcHeight: 32.0,
+                srcHeight: 48.0,
               )
               currentLevel.objects.add(object)
               continue
@@ -332,7 +332,7 @@ struct MountainMaze {
                 top: anchor.top,
                 spriteSrc: 'maze/bandit_minion.png',
                 srcWidth: 32.0,
-                srcHeight: 32.0,
+                srcHeight: 48.0,
               )
               currentLevel.objects.add(object)
             }
