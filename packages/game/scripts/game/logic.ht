@@ -329,26 +329,26 @@ fun onHeroEnteredLocation(location) async {
 
     final villager = getLocaleString('villager')
 
-    showDialogByResourceId('organizationRecruitMonth').then((_) {
+    showDialogByResourceId('cultivatorRecruitMonth').then((_) {
       showSelectionByLocaleKeys([
-        'organizationRecruitMonth.selection1',
-        'organizationRecruitMonth.selection2',
-        'organizationRecruitMonth.selection3',
+        'cultivatorRecruitMonth.selection1',
+        'cultivatorRecruitMonth.selection2',
+        'cultivatorRecruitMonth.selection3',
       ]).then((key) {
         when (key) {
-          'organizationRecruitMonth.selection1' -> {
-            return showDialogByResourceId('organizationRecruitMonth.reply1', interpolations: [names])
+          'cultivatorRecruitMonth.selection1' -> {
+            return showDialogByResourceId('cultivatorRecruitMonth.reply1', interpolations: [names])
           }
-          'organizationRecruitMonth.selection2' -> {
-            return showDialogByResourceId('organizationRecruitMonth.reply2', interpolations: [names])
+          'cultivatorRecruitMonth.selection2' -> {
+            return showDialogByResourceId('cultivatorRecruitMonth.reply2', interpolations: [names])
           }
-          'organizationRecruitMonth.selection3' -> {
-            return showDialogByResourceId('organizationRecruitMonth.reply3', interpolations: [names])
+          'cultivatorRecruitMonth.selection3' -> {
+            return showDialogByResourceId('cultivatorRecruitMonth.reply3', interpolations: [names])
           }
         }
       }).then((_) {
         if (hero.organizationId == null) {
-          return showDialogByLocaleKeys(['organizationRecruitMonth.hint'], character: hero)
+          return showDialogByLocaleKeys(['cultivatorRecruitMonth.hint'], character: hero)
         }
       })
     })

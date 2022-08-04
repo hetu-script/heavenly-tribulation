@@ -3,14 +3,14 @@ import '../game.ht'
 import '../entity/character/battle_entity.ht'
 import '../tile/hexagonal_tile.ht'
 import 'mountain.ht'
-import 'cultivation_recruit.ht'
+import 'cultivator_recruit.ht'
 
 const kEncounterProbability = 0.5
 const kLevelUniqueEncounterProbability = 0.15
 const kMazeUniqueEncounterProbability = 0.075
 
 const kMazeCategoryMountain = 'mountain'
-const kMazeCategoryCultivationRecruit = 'cultivationRecruit'
+const kMazeCategoryCultivatorRecruit = 'cultivatorRecruit'
 
 fun enterMaze(maze) {
   currentMaze = maze
@@ -46,34 +46,30 @@ fun onHeroMovedOnMazeMap({left, top, maze, currentLevelIndex}) {
   final index = tilePos2Index(left, top, maze.width)
   final tile = maze.levels[currentLevelIndex].terrains[index]
 
-  when (maze.category) {
-    'mountain' -> {
-      if (tile.entityId) {
-        final entity = maze.entities[tile.entityId]
-        assert(entity != null)
-        engine.info('玩家在副本地图 ${maze.id} 第 ${currentLevelIndex + 1} 层 ${left}, ${top} 碰到了 ${entity.id}')
-        return handleMountainInteraction(
-          entity: entity,
+  if (maze.modName == null) {
+    // 游戏本体内置的副本
+    when (maze.category) {
+      kMazeCategoryMountain -> {
+        return onHeroMovedOnMountain(
+          tile: tile,
+          maze: maze,
+          currentLevelIndex: currentLevelIndex,
+        )
+      }
+      kMazeCategoryCultivatorRecruit -> {
+        return onHeroMovedOnCultivationRecruitMaze(
           tile: tile,
           maze: maze,
           currentLevelIndex: currentLevelIndex,
         )
       }
     }
-    'cultivationRecruit' -> {
-      if (tile.entityId) {
-        final entity = maze.entities[tile.entityId]
-        assert(entity != null)
-        engine.info('玩家在副本地图 ${maze.id} 第 ${currentLevelIndex + 1} 层 ${left}, ${top} 碰到了 ${entity.id}')
-        return handleCultivationRecruitInteraction(
-          entity: entity,
-          tile: tile,
-          maze: maze,
-          currentLevelIndex: currentLevelIndex,
-        )
-      }
-    }
+
+    engine.error('未知的内置副本类型：${maze.category}')
+  } else {
+    // mod 创建的副本，使用对应的 mod 的 eventHandler 处理
+    
+    engine.error('没有找到副本 ${maze.id} 对应的 mod ${moze.modName} 的事件处理模块')
   }
 
-  return null
 }

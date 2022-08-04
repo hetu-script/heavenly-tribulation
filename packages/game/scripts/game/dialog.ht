@@ -44,11 +44,18 @@ struct DialogContentData {
       this.icon = icon
     }
     
+    final strings
     if (localeKeys is List) {
-      this.lines = localeKeys.map( (key) => getLocaleString(key) ).toList()
+      assert(localeKeys.isNotEmpty)
+      strings = localeKeys.map( (key) => getLocaleString(key) ).toList()
     } else {
       assert(lines is List && lines.isNotEmpty)
-      this.lines = lines
+      strings = lines
+    }
+    this.lines = []
+    for (final message in strings) {
+      final splits = message.split('\n')
+      this.lines.addAll(splits)
     }
   }
 
@@ -85,7 +92,7 @@ fun showDialogByLocaleKeys(localeKeys, { returnValue, character, displayName }) 
   final dlgData = {
     contents: [
       DialogContentData(
-        characterId: character.isMajorCharacter ? character?.id : null,
+        characterId: character?.isMajorCharacter ? character.id : null,
         displayName: displayName ?? character?.name,
         icon: character?.icon,
         localeKeys: localeKeys,
@@ -100,7 +107,7 @@ fun showDialogByStrings(lines, { returnValue, character, displayName }) -> Futur
   final dlgData = {
     contents:[
       DialogContentData(
-        characterId: character.isMajorCharacter ? character?.id : null,
+        characterId: character?.isMajorCharacter ? character.id : null,
         displayName: displayName ?? character?.name,
         icon: character?.icon,
         lines: lines,

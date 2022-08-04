@@ -85,6 +85,10 @@ fun resetGame {
   isGameLoaded = false
 }
 
+fun getModInfo(id) {
+  return game.modules[id]
+}
+
 fun getPlayerMonthlyActivities {
   return game.playerCharacterMonthly
 }

@@ -2,6 +2,7 @@ import '../tile/tilemap.ht'
 import '../tile/hexagonal_tile.ht'
 import '../tile/orthogonal_tile.ht' as orthogonalTile
 import '../tile/zone.ht'
+import '../tile/common.ht'
 import '../game.ht'
 import '../tile/object.ht'
 import '../entity/character/enemy/elder_cultivator.ht'
@@ -11,7 +12,6 @@ import '../entity/character/merchant/peddler.ht'
 import '../l10n.ht'
 import 'common.ht'
 import '../binding/maze.ht'
-import '../tile/common.ht'
 import 'generation_algorithm.ht'
 
 final _kLandSprites = [
@@ -21,7 +21,7 @@ final _kLandSprites = [
   kRockyTrail,
 ]
 
-const _kBlockWidth = 6
+const _kBlockWidth = 4
 const _kBlockSize = 4
 const _kElderCultivatorProbability = 0.2
 
@@ -38,7 +38,7 @@ struct CultivationRecruitMaze {
     this.id = 'maze_${Hash.uid4(4)}_${name}'
     engine.info('开始生成副本: [${this.id}]')
 
-    this.category = kMazeCategoryCultivationRecruit
+    this.category = kMazeCategoryCultivatorRecruit
     this.levels = [] // 每一层是一个单独的 tilemap
     this.currentLevel = 0
     this.entities = {} // 包含所有显示在地图上的可互动对象，包括NPC、敌人、宝箱、陷阱、机关等等。
@@ -158,7 +158,6 @@ struct CultivationRecruitMaze {
     currentLevel.terrains[entry.index].entityId = entryEntity.id
     final entryObject = TileMapObject(
       id: entryEntity.id,
-      terrainIndex: entry.index,
       left: entry.left,
       top: entry.top,
       spriteSrc: 'maze/roadsign01.png',
@@ -175,10 +174,9 @@ struct CultivationRecruitMaze {
       encounterType: 'levelExit',
     }
     this.entities[exitEntity.id] = exitEntity
-    currentLevel.terrains[exit.index].entityId = entryEntity.id
+    currentLevel.terrains[exit.index].entityId = exitEntity.id
     final exitObject = TileMapObject(
       id: exitEntity.id,
-      terrainIndex: exit.index,
       left: exit.left,
       top: exit.top,
       spriteSrc: 'maze/roadsign01.png',
@@ -224,7 +222,6 @@ struct CultivationRecruitMaze {
       currentLevel.terrains[anchor.index].entityId = senior.id
       final object = TileMapObject(
         id: senior.id,
-        terrainIndex: anchors[5].index,
         left: anchor.left,
         top: anchor.top,
         spriteSrc: 'maze/elder_cultivator.png',
@@ -244,8 +241,6 @@ struct CultivationRecruitMaze {
     generateRouteByIndex(entry.index, entry.nearestAnchor, currentLevel)
     generateRouteByIndex(exit.index, exit.nearestAnchor, currentLevel)
 
-    // 在非路径非锚点非出入点的地块上生成装饰物
-    // engine.info('生成装饰物')
     final blockZone = Zone(index: currentLevel.zones.length, category: 'block')
     currentLevel.zones.add(blockZone)
     for (final tile in currentLevel.terrains) {
@@ -260,8 +255,6 @@ struct CultivationRecruitMaze {
     }
     
     this.levels.add(currentLevel)
-    
-    // engine.info('副本 ${this.id} 生成完毕')
 
     // 重置临时历史，需要在手动调用enterMaze时再赋值
     currentMazeHistory = savedLocalHistory
@@ -269,13 +262,47 @@ struct CultivationRecruitMaze {
 }
 
 // 返回布尔值，如果为真，则玩家控制角色会返回上一格，否则停在这一格
-fun handleCultivationRecruitInteraction({entity, tile, maze, currentLevelIndex}) -> bool {
+fun onHeroMovedOnCultivationRecruitMaze({tile, maze, currentLevelIndex}) -> bool {
 
-  when (entity.encounterType) {
-    'senior' -> {
+  if (tile.entityId != null) {
+    final entity = maze.entities[tile.entityId]
+    assert(entity != null)
+    engine.info('玩家在副本地图 ${maze.id} 第 ${currentLevelIndex + 1} 层 ${tile.left}, ${tile.top} 碰到了 ${entity.id}')
+    
+    when (entity.encounterType) {
+      'senior' -> {
+        return true
+      }
+    }
+    
+    return false
+  }
+  else if (tile.spriteIndex == kPavedRockTile) {
+    if (!maze.flags.hintedSpirit) {
+      maze.flags.hintedSpirit = true
+
+      showDialogByLocaleKeys(['cultivatorRecruitMaze.spiritHint'])
       return true
+    } else if (!tile.flags.isGlowing) {
+      tile.flags.isGlowing = true
+
+      setMazeOverlaySprite(tile.left, tile.top, kPavedRockTileGlowing)
+      // 扣除精神数值
+      entitySpiritChange(hero, -18)
+    }
+
+  } else if (tile.spriteIndex == kRockyTrail) {
+    if (!maze.flags.hintedStamina) {
+      maze.flags.hintedStamina = true
+
+      showDialogByLocaleKeys(['cultivatorRecruitMaze.staminaHint'])
+      return true
+    } else {
+      
+      // 扣除体力数值
+      entityStaminaChange(hero, -18)
     }
   }
-  
-  return false
+
+  return null
 }

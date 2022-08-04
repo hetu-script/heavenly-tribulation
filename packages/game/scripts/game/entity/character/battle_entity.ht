@@ -131,32 +131,37 @@ fun generateCharacterAttributes({
 // 状态包括：生命、伤害、防御等。
 fun generateCharacterStats(
     character, {
+    baseStamina = 100,
     baseLife = 100,
     baseChi = 100,
-    baseStamina = 100,
+    baseSpirit = 100,
   }) {
 
-  character.attributes.life = baseLife + (character.attributes.constitution ~/ 5) * 5
-  character.attributes.chi = baseChi + (character.attributes.superpower ~/ 5) * 5
   character.attributes.stamina = baseStamina + (character.attributes.strength ~/ 5) * 5
+  character.attributes.life = baseLife + (character.attributes.constitution ~/ 5) * 5
+  character.attributes.chi = baseChi + (character.attributes.spirituality ~/ 5) * 5
+  character.attributes.spirit = baseSpirit + (character.attributes.willpower ~/ 5) * 5
 
   character.stats = character.attributes.clone()
 
   character.stats.charisma = (character.attributes.charisma + character.looks) ~/ 2
 
+  character.stats.staminaMax = character.stats.stamina
   character.stats.lifeMax = character.stats.life
   character.stats.chiMax = character.stats.chi
-  character.stats.staminaMax = character.stats.stamina
+  character.stats.spiritMax = character.stats.spirit
 }
 
 fun getCharacterStats(character) {
   final stats = {
+    stamina: character.stats.stamina,
+    staminaMax: character.stats.staminaMax,
     life: character.stats.life,
     lifeMax: character.stats.lifeMax,
     chi: character.stats.chi,
     chiMax: character.stats.chiMax,
-    stamina: character.stats.stamina,
-    staminaMax: character.stats.staminaMax,
+    spirit: character.stats.spirit,
+    spiritMax: character.stats.spiritMax,
     defense: {},
     offense: {},
     companion: {},

@@ -159,7 +159,6 @@ struct MountainMaze {
       currentLevel.terrains[entry.index].entityId = entryEntity.id
       final entryObject = TileMapObject(
         id: entryEntity.id,
-        terrainIndex: entry.index,
         left: entry.left,
         top: entry.top,
         spriteSrc: 'maze/roadsign01.png',
@@ -178,7 +177,6 @@ struct MountainMaze {
       this.entities[exitEntity.id] = exitEntity
       final exitObject = TileMapObject(
         id: exitEntity.id,
-        terrainIndex: exit.index,
         left: exit.left,
         top: exit.top,
         spriteSrc: 'maze/roadsign01.png',
@@ -195,7 +193,6 @@ struct MountainMaze {
           currentLevel.terrains[exit.index].entityId = banditMuscle.id
           final object = TileMapObject(
             id: banditMuscle.id,
-            terrainIndex: exit.index,
             left: exit.left,
             top: exit.top,
             spriteSrc: 'maze/bandit_muscle.png',
@@ -212,7 +209,6 @@ struct MountainMaze {
           currentLevel.terrains[exit.index].entityId = banditKiller.id
           final object = TileMapObject(
             id: banditKiller.id,
-            terrainIndex: exit.index,
             left: exit.left,
             top: exit.top,
             spriteSrc: 'maze/bandit_killer.png',
@@ -229,7 +225,6 @@ struct MountainMaze {
           currentLevel.terrains[exit.index].entityId = banditBoss.id
           final object = TileMapObject(
             id: banditBoss.id,
-            terrainIndex: exit.index,
             left: exit.left,
             top: exit.top,
             spriteSrc: 'maze/bandit_boss.png',
@@ -313,7 +308,6 @@ struct MountainMaze {
               currentLevel.terrains[anchor.index].entityId = peddler.id
               final object = TileMapObject(
                 id: peddler.id,
-                terrainIndex: anchor.index,
                 left: anchor.left,
                 top: anchor.top,
                 spriteSrc: 'maze/peddler.png',
@@ -336,7 +330,6 @@ struct MountainMaze {
               currentLevel.terrains[anchor.index].entityId = bandit.id
               final object = TileMapObject(
                 id: bandit.id,
-                terrainIndex: anchor.index,
                 left: anchor.left,
                 top: anchor.top,
                 spriteSrc: 'maze/bandit_minion.png',
@@ -352,7 +345,6 @@ struct MountainMaze {
               currentLevel.terrains[anchor.index].entityId = beast.id
               final object = TileMapObject(
                 id: beast.id,
-                terrainIndex: anchor.index,
                 left: anchor.left,
                 top: anchor.top,
                 spriteSrc: beast.icon,
@@ -436,7 +428,6 @@ struct MountainMaze {
           when (blockType) {
             'bush' -> {
               final bush = TileMapObject(
-                terrainIndex: tile.index,
                 left: tile.left,
                 top: tile.top,
                 spriteSrc: 'maze/bush.png',
@@ -470,8 +461,13 @@ struct MountainMaze {
   }
 }
 
-// 返回布尔值，如果为真，则玩家控制角色会返回上一格，否则停在这一格
-fun handleMountainInteraction({entity, tile, maze, currentLevelIndex}) -> bool {
+// 返回布尔值，如果为true，则玩家控制角色会返回上一格，如果为 false 停在这一格，如果为 null 则没有影响
+fun onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
+  if (tile.entityId == null) return null
+
+  final entity = maze.entities[tile.entityId]
+  assert(entity != null)
+  engine.info('玩家在副本地图 ${maze.id} 第 ${currentLevelIndex + 1} 层 ${tile.left}, ${tile.top} 碰到了 ${entity.id}')
   
   // 战斗，异步函数，如果获胜则返回 true
   fun battle -> Future {

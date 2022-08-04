@@ -60,7 +60,7 @@ class HeroInfoPanel extends StatelessWidget {
 
     return Container(
       width: 328,
-      height: 130,
+      height: 160,
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
         color: kBackgroundColor,
@@ -90,7 +90,7 @@ class HeroInfoPanel extends StatelessWidget {
                     max: charStats['lifeMax'],
                     width: 140.0,
                     showNumberAsPercentage: false,
-                    colors: const <Color>[Colors.red, Colors.green],
+                    colors: const <Color>[Colors.red, Colors.red],
                   ),
                 ),
                 Padding(
@@ -101,7 +101,29 @@ class HeroInfoPanel extends StatelessWidget {
                     max: charStats['staminaMax'],
                     width: 140.0,
                     showNumberAsPercentage: false,
-                    colors: const <Color>[Colors.yellow, Colors.blue],
+                    colors: const <Color>[Colors.blue, Colors.blue],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 5.0),
+                  child: DynamicColorProgressBar(
+                    title: '${engine.locale['chi']}: ',
+                    value: charStats['chi'],
+                    max: charStats['chiMax'],
+                    width: 140.0,
+                    showNumberAsPercentage: false,
+                    colors: const <Color>[Colors.yellow, Colors.yellow],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 5.0),
+                  child: DynamicColorProgressBar(
+                    title: '${engine.locale['spirit']}: ',
+                    value: charStats['spirit'],
+                    max: charStats['spiritMax'],
+                    width: 140.0,
+                    showNumberAsPercentage: false,
+                    colors: const <Color>[Colors.green, Colors.green],
                   ),
                 ),
                 Padding(

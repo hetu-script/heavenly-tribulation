@@ -105,6 +105,24 @@ class _MazeOverlayState extends State<MazeOverlay>
             _scene.map.showFogOfWar = positionalArgs.first,
         override: true);
 
+    engine.hetu.interpreter.bindExternalFunction('setMazeSprite',
+        (HTEntity object,
+            {List<dynamic> positionalArgs = const [],
+            Map<String, dynamic> namedArgs = const {},
+            List<HTType> typeArgs = const []}) {
+      _scene.map.setTerrainSprite(
+          positionalArgs[0], positionalArgs[1], positionalArgs[2]);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('setMazeOverlaySprite',
+        (HTEntity object,
+            {List<dynamic> positionalArgs = const [],
+            Map<String, dynamic> namedArgs = const {},
+            List<HTType> typeArgs = const []}) {
+      _scene.map.setTerrainOverlaySprite(
+          positionalArgs[0], positionalArgs[1], positionalArgs[2]);
+    }, override: true);
+
     engine.hetu.interpreter.bindExternalFunction('setMazeObject',
         (HTEntity object,
             {List<dynamic> positionalArgs = const [],
@@ -112,6 +130,14 @@ class _MazeOverlayState extends State<MazeOverlay>
             List<HTType> typeArgs = const []}) {
       _scene.map.setTerrainObject(
           positionalArgs[0], positionalArgs[1], positionalArgs[2]);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('addMazeObject',
+        (HTEntity object,
+            {List<dynamic> positionalArgs = const [],
+            Map<String, dynamic> namedArgs = const {},
+            List<HTType> typeArgs = const []}) {
+      _scene.map.addObject(positionalArgs[0]);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('proceedToNextLevel',
@@ -235,8 +261,8 @@ class _MazeOverlayState extends State<MazeOverlay>
                 _scene.map.hero!.isMovingCanceled = true;
               }
             }
+            setState(() {});
           }
-          setState(() {});
         },
       ),
     );

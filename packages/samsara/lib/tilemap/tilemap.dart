@@ -256,29 +256,7 @@ class TileMap extends GameComponent with HandlesGesture {
     objects = <String, TileMapObject>{};
     if (objectData != null) {
       for (final data in objectData) {
-        final spriteSrc = data['spriteSrc'];
-        final objectSpriteSrcWidth = data['srcWidth'].toDouble();
-        final objectSpriteSrcHeight = data['srcHeight'].toDouble();
-        final Sprite sprite = Sprite(await Flame.images.load(spriteSrc));
-        final objectId = data['id'];
-        final object = TileMapObject(
-          engine: engine,
-          sceneKey: sceneKey,
-          left: data['left'],
-          top: data['top'],
-          sprite: sprite,
-          tileShape: tileShape,
-          tileMapWidth: tileMapWidth,
-          gridWidth: gridWidth,
-          gridHeight: gridHeight,
-          srcWidth: objectSpriteSrcWidth,
-          srcHeight: objectSpriteSrcHeight,
-          entityId: objectId,
-        );
-
-        final tile = terrains[object.index];
-        tile.objectId = objectId;
-        objects[objectId] = object;
+        addObject(data);
       }
     }
   }
@@ -322,6 +300,35 @@ class TileMap extends GameComponent with HandlesGesture {
     final tile = getTerrain(left, top);
     assert(tile != null);
     tile!.caption = caption;
+  }
+
+  void addObject(dynamic data) async {
+    final spriteSrc = data['spriteSrc'];
+    final int? left = data['left'];
+    final int? top = data['top'];
+    final Sprite sprite = Sprite(await Flame.images.load(spriteSrc));
+    final objectId = data['id'];
+    final object = TileMapObject(
+      engine: engine,
+      sceneKey: sceneKey,
+      left: left,
+      top: top,
+      sprite: sprite,
+      tileShape: tileShape,
+      tileMapWidth: tileMapWidth,
+      gridWidth: gridWidth,
+      gridHeight: gridHeight,
+      srcWidth: data['srcWidth'].toDouble(),
+      srcHeight: data['srcHeight'].toDouble(),
+      entityId: objectId,
+      offsetY: data['offsetY'],
+    );
+
+    if (left != null && top != null) {
+      final tile = terrains[object.index];
+      tile.objectId = objectId;
+    }
+    objects[objectId] = object;
   }
 
   void setTerrainObject(int left, int top, String? objectId) {

@@ -269,6 +269,7 @@ mixin TileInfo on Component {
   late final TileShape tileShape;
   late final double gridWidth, gridHeight;
   late final double srcWidth, srcHeight;
+  late final double offsetY;
   late TilePosition _tilePosition;
 
   TilePosition get tilePosition => _tilePosition;
@@ -276,7 +277,9 @@ mixin TileInfo on Component {
     _tilePosition = position;
     _index =
         tilePosition2Index(_tilePosition.left, _tilePosition.top, tileMapWidth);
-    _renderPosition = tilePosition2RenderPosition(left, top);
+    final p = tilePosition2RenderPosition(left, top);
+    p.y += offsetY;
+    _renderPosition = p;
     _worldPosition = tilePosition2TileCenterInWorld(left, top);
   }
 

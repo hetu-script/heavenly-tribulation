@@ -7,7 +7,8 @@ const kSpriteMountain = 6
 const kSpriteGrassLand = 7
 
 const kPavedRockTile = 9
-const kRockyTrail = 10
+const kPavedRockTileGlowing = 10
+const kRockyTrail = 11
 
 const kTerrainKindLocation = 'location'
 const kTerrainKindRoad = 'road'

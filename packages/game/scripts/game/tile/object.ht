@@ -13,24 +13,26 @@ struct TileMapEntity {
 
 // 地图显示对象，包含了一些用于UI侧的数据
 // 但显示对象实际上也不一定都会显示，可能是隐藏的
+// 使用 addMazeObject 可以动态添加物品
+// 如果由dart侧控制该物品位置的话，可以不传 left, top
 struct TileMapObject {
   construct ({
     id, // 这个id和对应的entity的id必须一致
-    terrainIndex,
     left,
     top,
     velocityFactor = 0.5,
     spriteSrc,
     srcWidth,
     srcHeight,
+    offsetY,
   }) {
     this.id = id ?? 'tileMapObject_${Hash.uid4(2)}'
-    this.terrainIndex = terrainIndex
     this.left = left
     this.top = top
     this.velocityFactor = velocityFactor
     this.spriteSrc = spriteSrc
     this.srcWidth = srcWidth
     this.srcHeight = srcHeight
+    this.offsetY = offsetY
   }
 }

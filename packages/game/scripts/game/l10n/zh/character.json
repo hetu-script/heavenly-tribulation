@@ -22,10 +22,14 @@
   "reputation": "名望",
 
   "stats": "状态",
-  "maxLife": "最大生命",
-  "life": "生命",
   "maxStamina": "最大体力",
   "stamina": "体力",
+  "maxLife": "最大生命",
+  "life": "生命",
+  "maxChi": "最大元气",
+  "chi": "元气",
+  "maxSpirit": "最大精神",
+  "spirit": "精神",
 
   "attributes": "属性",
   "strength": "力量",

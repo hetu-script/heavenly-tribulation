@@ -2,7 +2,11 @@ external fun showMazeGameOver
 
 external fun moveHeroToLastRouteNode
 
-external fun setFogOfWar(value: bool)
+external fun setMazeSprite(left, top, spriteIndex)
+
+external fun setMazeOverlaySprite(left, top, spriteIndex)
+
+external fun addMazeObject(data)
 
 // 删除object，就是设置为null
 external fun setMazeObject(left, top, objectId)

@@ -153,16 +153,47 @@ const kEntityMaterialKindOre = 'ore'
 const kEntityMaterialKindJade = 'jade'
 const kEntityMaterialKindWater = 'water'
 const kEntityMaterialKindEnergy = 'energy'
-const kEntityMaterialKindSpirit = 'spirit'
+const kEntityMaterialKindSpectre = 'spectre'
 
-fun entityTakeDamage(entity, damage) {
-  assert(entity.stats?.life != null || entity.life != null)
+fun _entityStatsChange(data, statsName, change, { overflow = false }) {
+  assert(data[statsName] != null)
+  data[statsName] += change
+  if (!overflow) {
+    final max = data['${statsName}Max']
+    if (data[statsName] < 0) data[statsName] = 0
+    if (data[statsName] >= max) data.life = max
+  }
+}
+
+fun entityStaminaChange(entity, change, { overflow = false }) {
   if (entity.stats) {
-    entity.stats.life -= damage
-    if (entity.stats.life < 0) entity.stats.life = 0
+    _entityStatsChange(entity.stats, 'stamina', change, overflow: overflow)
   } else {
-    entity.life -= damage
-    if (entity.life < 0) entity.life = 0
+    _entityStatsChange(entity, 'stamina', change, overflow: overflow)
+  }
+}
+
+fun entityLifeChange(entity, change, { overflow = false }) {
+  if (entity.stats) {
+    _entityStatsChange(entity.stats, 'life', change, overflow: overflow)
+  } else {
+    _entityStatsChange(entity, 'life', change, overflow: overflow)
+  }
+}
+
+fun entityChiChange(entity, change, { overflow = false }) {
+  if (entity.stats) {
+    _entityStatsChange(entity.stats, 'chi', change, overflow: overflow)
+  } else {
+    _entityStatsChange(entity, 'chi', change, overflow: overflow)
+  }
+}
+
+fun entitySpiritChange(entity, change, { overflow = false }) {
+  if (entity.stats) {
+    _entityStatsChange(entity.stats, 'spirit', change, overflow: overflow)
+  } else {
+    _entityStatsChange(entity, 'spirit', change, overflow: overflow)
   }
 }
 

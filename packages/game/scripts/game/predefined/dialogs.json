@@ -1,53 +1,53 @@
 [
   {
-    "id": "organizationRecruitMonth",
+    "id": "cultivatorRecruitMonth",
     "contents": [
       {
-        "localeKeys": ["organizationRecruitMonth.intro1"]
+        "localeKeys": ["cultivatorRecruitMonth.intro1"]
       },
       {
         "displayNameLocaleKey": "villager",
-        "localeKeys": ["organizationRecruitMonth.intro2"]
+        "localeKeys": ["cultivatorRecruitMonth.intro2"]
       }
     ]
   },
   {
-    "id": "organizationRecruitMonth.reply1",
+    "id": "cultivatorRecruitMonth.reply1",
     "contents": [
       {
         "displayNameLocaleKey": "villager",
-        "localeKeys": ["organizationRecruitMonth.selection1.reply"]
+        "localeKeys": ["cultivatorRecruitMonth.selection1.reply"]
       },
       {
         "displayNameLocaleKey": "villager",
-        "localeKeys": ["organizationRecruitMonth.selection2.reply"]
+        "localeKeys": ["cultivatorRecruitMonth.selection2.reply"]
       }
     ]
   },
   {
-    "id": "organizationRecruitMonth.reply2",
+    "id": "cultivatorRecruitMonth.reply2",
     "contents": [
       {
         "displayNameLocaleKey": "villager",
-        "localeKeys": ["organizationRecruitMonth.selection2.reply"]
+        "localeKeys": ["cultivatorRecruitMonth.selection2.reply"]
       }
     ]
   },
   {
-    "id": "organizationRecruitMonth.reply3",
+    "id": "cultivatorRecruitMonth.reply3",
     "contents": [
       {
         "displayNameLocaleKey": "villager",
-        "localeKeys": ["organizationRecruitMonth.selection3.reply"]
+        "localeKeys": ["cultivatorRecruitMonth.selection3.reply"]
       }
     ]
   },
   {
-    "id": "organizationRecruitMonth.hint",
+    "id": "cultivatorRecruitMonth.hint",
     "contents": [
       {
         "isHero": true,
-        "localeKeys": ["organizationRecruitMonth.hint"]
+        "localeKeys": ["cultivatorRecruitMonth.hint"]
       }
     ]
   }

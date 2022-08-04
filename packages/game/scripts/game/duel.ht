@@ -166,9 +166,9 @@ struct Duel {
                   action.itemIndex = index
                 }
                 actions.add(action)
-                entityTakeDamage(targetInfo, baseDamage - shareDamage)
+                entityLifeChange(targetInfo, baseDamage - shareDamage)
                 final equipItemStats = isCompanion ? targetInfo.stats.companion[index] : targetInfo.stats.defense[index]
-                entityTakeDamage(equipItemStats, shareDamage)
+                entityLifeChange(equipItemStats, shareDamage)
                 return true
               }
               return false
@@ -197,7 +197,7 @@ struct Duel {
                   damage: assistDamage,
                   message: message,
                 ))
-                entityTakeDamage(targetInfo, assistDamage)
+                entityLifeChange(targetInfo, assistDamage)
                 return true
               }
               return false
@@ -264,7 +264,7 @@ struct Duel {
                 damage: baseDamage,
                 message: message,
               ))
-              entityTakeDamage(targetInfo, baseDamage)
+              entityLifeChange(targetInfo, baseDamage)
             }
 
             this.messages.add(message)

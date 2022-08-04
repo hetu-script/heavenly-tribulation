@@ -15,7 +15,7 @@ final _kMaterialKinds = [
   'ore',
   // 'water',
   // 'energy',
-  // 'spirit',
+  // 'spectre',
 ]
 
 // 可食用的材料：谷物、蔬菜、水果、药材、溶液、鱼

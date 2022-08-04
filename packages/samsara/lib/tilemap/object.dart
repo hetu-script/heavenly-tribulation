@@ -55,8 +55,8 @@ class TileMapObject extends GameComponent with TileInfo {
     required this.engine,
     required this.sceneKey,
     this.isHero = false,
-    int left = 1,
-    int top = 1,
+    int? left,
+    int? top,
     this.velocityFactor = 0.8,
     Sprite? sprite,
     SpriteSheet? animationSpriteSheet,
@@ -67,6 +67,7 @@ class TileMapObject extends GameComponent with TileInfo {
     required double gridHeight,
     required double srcWidth,
     required double srcHeight,
+    double? offsetY,
     this.entityId,
   }) {
     if (animationSpriteSheet != null) {
@@ -103,7 +104,8 @@ class TileMapObject extends GameComponent with TileInfo {
     this.gridHeight = gridHeight;
     this.srcWidth = srcWidth;
     this.srcHeight = srcHeight;
-    tilePosition = TilePosition(left, top);
+    this.offsetY = offsetY ?? 0.0;
+    tilePosition = TilePosition(left ?? 1, top ?? 1);
   }
 
   void stopAnimation() {
@@ -186,13 +188,18 @@ class TileMapObject extends GameComponent with TileInfo {
   }
 
   @override
-  void render(Canvas canvas) {
+  void render(Canvas canvas, {TilePosition? tilePosition}) {
     if (!isVisible) return;
+
+    if (tilePosition != null) {
+      this.tilePosition = tilePosition;
+    }
 
     var rpos = renderPosition;
     if (isMoving) {
       rpos += _movingOffset;
     }
+
     getSprite().render(canvas, position: rpos);
   }
 

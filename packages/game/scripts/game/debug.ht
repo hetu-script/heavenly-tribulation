@@ -11,6 +11,8 @@ import 'dialog.ht'
 import 'tile/hexagonal_tile.ht'
 
 namespace debug {
+  external fun setFogOfWar(value: bool)
+
   fun terrain {
     final position = getHeroPosition()
     final terrainIndex = tilePos2Index(position.left, position.top, game.world.width)

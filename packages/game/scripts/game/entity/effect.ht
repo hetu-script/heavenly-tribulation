@@ -47,6 +47,10 @@ const kEffectCompanionIncreaseDamageDescription = 'effectCompanionIncreaseDamage
 // 加载到本次游戏的效果脚本
 final effectHandlers = {
   // 食用类效果
+  // 回复体力
+  effectRestoreStamina: (effect, character) {
+    character.stats.stamina += effect.values[0].value
+  },
   // 回复生命
   effectRestoreLife: (effect, character) {
     character.stats.life += effect.values[0].value
@@ -55,9 +59,9 @@ final effectHandlers = {
   effectRestoreChi: (effect, character) {
     character.stats.chi += effect.values[0].value
   },
-  // 回复体力
-  effectRestoreStamina: (effect, character) {
-    character.stats.stamina += effect.values[0].value
+  // 回复精神
+  effectRestoreSpirit: (effect, character) {
+    character.stats.spirit += effect.values[0].value
   },
   // 治疗外伤
   effectHealInjury: (effect, character) {

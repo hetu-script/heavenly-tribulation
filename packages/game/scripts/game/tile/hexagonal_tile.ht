@@ -16,6 +16,8 @@ struct Tile {
     this.slashLeft = ((left.isOdd ? (left + 1) / 2 : left / 2) - top).truncate()
     // 以 (1, 1) 为原点，该格子相对向右上行的斜线的距离
     this.slashTop = left - this.slashLeft - 1
+    // 用于事件判断
+    this.flags = {}
   }
 }
 
