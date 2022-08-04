@@ -1,4 +1,4 @@
-import '../../effect.ht'
+import '../effect.ht'
 
 const _kCompanionAssistCooldown = 5
 const _kCompanionDefendCooldown = 5

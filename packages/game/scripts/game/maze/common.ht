@@ -1,6 +1,7 @@
 import '../binding/maze.ht'
 import '../game.ht'
 import '../entity/character/battle_entity.ht'
+import '../entity/common.ht'
 import '../tile/hexagonal_tile.ht'
 import 'mountain.ht'
 import 'cultivator_recruit.ht'
@@ -22,7 +23,7 @@ fun leaveMaze(maze) {
   currentMazeHistory = null
   // 移除所有临时npc
   for (final entity of maze.entities) {
-    if (!entity.isPermanent) {
+    if (entity.entityType == kEntityTypeNpc && !entity.isPermanent) {
       delete game.npcs[entity.id]
     }
   }

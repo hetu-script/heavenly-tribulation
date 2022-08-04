@@ -50,7 +50,7 @@ struct QuestBanditCamp {
         assert(bossName != null)
         this.description = getLocaleString(
           '${this.category}.${this.kind}.description',
-          [nation.name, bossName],
+          interpolations: [nation.name, bossName],
         )
         this.stages = {
           searching: {

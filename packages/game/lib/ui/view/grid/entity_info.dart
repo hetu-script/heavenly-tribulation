@@ -90,8 +90,8 @@ class EntityInfo extends StatelessWidget {
           engine.error('未知的效果数据类型：[$type]，效果对象数据：$entityData');
         }
       }
-      final description =
-          engine.locale.getString(effect['description'], values);
+      final description = engine.locale
+          .getString(effect['description'], interpolations: values);
       effects.add(
         IntrinsicHeight(
           child: Row(

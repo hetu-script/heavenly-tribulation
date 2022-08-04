@@ -727,7 +727,7 @@ fun createWorldMap({
                   }
                 }
                 characterFirstMet(char, otherChar)
-                final incidentContent = getLocaleString('incidentMarriage', [
+                final incidentContent = getLocaleString('incidentMarriage', interpolations: [
                     char.name,
                     otherChar.name,
                     home.name,

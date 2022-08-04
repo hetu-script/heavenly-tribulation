@@ -95,9 +95,7 @@ flutter:
     - scripts/game/entity/
     - scripts/game/entity/character/
     - scripts/game/entity/character/creature/
-    - scripts/game/entity/character/companion/
-    - scripts/game/entity/character/enemy/
-    - scripts/game/entity/character/merchant/
+    - scripts/game/entity/character/npc/
     - scripts/game/entity/item/
     - scripts/game/entity/item/consumable/
     - scripts/game/entity/item/material/

@@ -1,6 +1,6 @@
 import '../common.ht'
 import '../effect.ht'
-import '../character/companion/common.ht'
+import '../character/companion.ht'
 import '../../random.ht'
 
 const kItemDefaultIcon = 'assets/images/unknown_item.png'
@@ -40,7 +40,7 @@ fun calculateItemStats(item) {
 fun entityAcquireMoney(entity, count) {
   if (count < 1) return
   entity.money += count
-  final incidentContent = getLocaleString('characterAcquireMoney', [ entity.name, count ])
+  final incidentContent = getLocaleString('characterAcquireMoney', interpolations: [ entity.name, count ])
   Incident(
     content: incidentContent,
     subjectIds: entity.isMajorCharacter ? [entity.id] : null,
@@ -67,7 +67,7 @@ fun entityAcquireItem(entity, item, { count, incidentOccured = true }) {
     entity.inventory[item.id] = item
     item.stackSize = count
   }
-  incidentContent = getLocaleString('characterAcquireMultipleItem', [
+  incidentContent = getLocaleString('characterAcquireMultipleItem', interpolations: [
     entity.name,
     count,
     item.name,
@@ -94,12 +94,12 @@ fun entityGiveMoney(entity, target, value, { isForced = false, incidentOccured =
   
   if (incidentOccured) {
     final incidentContent = isForced ?
-      getLocaleString('entityGiveMoneyForced', [
+      getLocaleString('entityGiveMoneyForced', interpolations: [
         target.name,
         entity.name,
         value,
       ]) :
-      getLocaleString('entityGiveMoney', [
+      getLocaleString('entityGiveMoney', interpolations: [
         entity.name,
         value,
         target.name,
@@ -143,13 +143,13 @@ fun entityGiveItem(entity, target, itemId, { count, removeItem = true, isForced 
   }
   if (count > 1) {
     incidentContent = isForced ?
-      getLocaleString('characterGiveMultipleItemForced', [
+      getLocaleString('characterGiveMultipleItemForced', interpolations: [
         target.name,
         entity.name,
         count,
         item.name,
       ]) :
-      getLocaleString('characterGiveMultipleItem', [
+      getLocaleString('characterGiveMultipleItem', interpolations: [
         entity.name,
         count,
         item.name,
@@ -157,13 +157,13 @@ fun entityGiveItem(entity, target, itemId, { count, removeItem = true, isForced 
       ])
   } else {
     incidentContent = isForced ?
-      getLocaleString('characterGiveItemForced', [
+      getLocaleString('characterGiveItemForced', interpolations: [
         target.name,
         entity.name,
         count,
         item.name,
       ]) :
-      getLocaleString('characterGiveItem', [
+      getLocaleString('characterGiveItem', interpolations: [
         entity.name,
         count,
         item.name,
@@ -229,36 +229,36 @@ fun characterConsume(character, item, { forcerCharacter }) {
   when (item.kind) {
     kEntityConsumableKindMedicine -> {
       incidentContent = forcerCharacter ?
-        getLocaleString('characterTakeMedicineForced', [
+        getLocaleString('characterTakeMedicineForced', interpolations: [
           forcerCharacter.name,
           character.name,
           item.name,
         ]) :
-        getLocaleString('characterTakeMedicine', [
+        getLocaleString('characterTakeMedicine', interpolations: [
           character.name,
           item.name,
         ])
     }
     kEntityConsumableKindBeverage -> {
       incidentContent = forcerCharacter ?
-        getLocaleString('characterDrinkBeverageForced', [
+        getLocaleString('characterDrinkBeverageForced', interpolations: [
           forcerCharacter.name,
           character.name,
           item.name,
         ]) :
-        getLocaleString('characterDrinkBeverage', [
+        getLocaleString('characterDrinkBeverage', interpolations: [
           character.name,
           item.name,
         ])
     }
     else -> {
       incidentContent = forcerCharacter ?
-        getLocaleString('characterEatForced', [
+        getLocaleString('characterEatForced', interpolations: [
           forcerCharacter.name,
           character.name,
           item.name,
         ]) :
-        getLocaleString('characterEat', [
+        getLocaleString('characterEat', interpolations: [
           character.name,
           item.name,
         ])
@@ -321,7 +321,7 @@ fun characterEquip(character, entity, { index }) -> bool {
     kEntityTypeItem -> {
       if (!character.inventory[entity.id]) entityAcquireItem(character, entity)
       
-      final incidentContent = getLocaleString('characterEquip', [
+      final incidentContent = getLocaleString('characterEquip', interpolations: [
         character.name,
         entity.name,
       ])
@@ -334,7 +334,7 @@ fun characterEquip(character, entity, { index }) -> bool {
     kEntityTypeSkill -> {
       if (!character.skills[entity.id]) characterLearn(character, entity)
       
-      final incidentContent = getLocaleString('characterEquipSkill', [
+      final incidentContent = getLocaleString('characterEquipSkill', interpolations: [
         character.name,
         entity.name,
       ])
@@ -357,7 +357,7 @@ fun characterEquip(character, entity, { index }) -> bool {
       // 战斗伙伴的装备数据中，对象类型和实际的对象类型不同
       equipData.entityType = kEntityTypeCompanion
       
-      final incidentContent = getLocaleString('characterFollow', [
+      final incidentContent = getLocaleString('characterFollow', interpolations: [
         entity.name,
         character.name,
       ])

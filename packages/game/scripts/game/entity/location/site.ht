@@ -193,7 +193,7 @@ fun _handleTradingHouseInteraction(site) {
           final displayName = getLocaleString('server')
           final message = getLocaleString('delivery.introDialog')
           final description = '${quest.description}${
-            getLocaleString('questRewardMoney', [quest.reward.money])
+            getLocaleString('questRewardMoney', interpolations: [quest.reward.money])
           }'
           showDialogByStrings([message,description], displayName: displayName).then((_) {
             showSelectionByLocaleKeys([
@@ -318,7 +318,7 @@ fun _handleGovernmentInteraction(site) {
               final title = getCharacterTitle(hero) ?? ''
               return showDialogByStrings(
                 [
-                  getLocaleString('visitJailEntryRespect', [title + hero.name]),
+                  getLocaleString('visitJailEntryRespect', interpolations: [title + hero.name]),
                 ],
                 returnValue: true,
               )

@@ -208,7 +208,7 @@ struct Organization {
     final headquarters = game.locations[headquartersId]
     final leader = game.characters[leaderId]
     // 触发创派事件，创派事件和成为掌门是两个事件
-    final incidentContent = getLocaleString('incidentOrganizationCreate', [
+    final incidentContent = getLocaleString('incidentOrganizationCreate', interpolations: [
       leader.name,
       headquarters.name,
       this.name,
@@ -311,7 +311,7 @@ fun setCharacterRank(character, organization, rank) {
   if (rank == 0) {
     organization.leaderId = character.id
   }
-  final incidentContent = getLocaleString('characterSetOrganizationRank', [
+  final incidentContent = getLocaleString('characterSetOrganizationRank', interpolations: [
     character.name,
     organization.name,
     title,
@@ -429,7 +429,7 @@ fun addCharacterToOrganization(character, organization, { incidentOccured = true
   character.organizationId = organization.id
 
   if (incidentOccured) {
-    final incidentContent = getLocaleString('incidentEnlist', [
+    final incidentContent = getLocaleString('incidentEnlist', interpolations: [
       character.name,
       organization.name,
     ])
@@ -486,7 +486,7 @@ fun increaseOrganizationDevelopment(organization) {
     engine.warning('组织 ${organization.name} 的发展度（${organization.development}）已达到或超过最大值。')
   }
   
-  final incidentContent = getLocaleString('organizationDeveloped', [
+  final incidentContent = getLocaleString('organizationDeveloped', interpolations: [
     organization.name,
     organization.development,
   ])

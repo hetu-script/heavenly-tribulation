@@ -56,6 +56,8 @@ struct Duel {
   construct(char1, char2, { type }) {
     this.type = type;
     this.messages = []
+    this.char1Name = char1.name
+    this.char2Name = char2.name
     this.actions = {
       char1: [],
       char2: [],
@@ -145,7 +147,8 @@ struct Duel {
               assert(effectHandler is function)
               shareDamage = effectHandler(effect, baseDamage)
               if (shareDamage) {
-                message = getLocaleString(sneakAttack ? 'sneakShareDamageInfo' : 'shareDamageInfo', [
+                message = getLocaleString(sneakAttack ? 'sneakShareDamageInfo' : 'shareDamageInfo',
+                  interpolations: [
                   subject.name,
                   subjectInfo.activatedOffense.name,
                   target.name,
@@ -166,9 +169,9 @@ struct Duel {
                   action.itemIndex = index
                 }
                 actions.add(action)
-                entityLifeChange(targetInfo, baseDamage - shareDamage)
+                entityLifeChange(targetInfo, -(baseDamage - shareDamage))
                 final equipItemStats = isCompanion ? targetInfo.stats.companion[index] : targetInfo.stats.defense[index]
-                entityLifeChange(equipItemStats, shareDamage)
+                entityLifeChange(equipItemStats, -shareDamage)
                 return true
               }
               return false
@@ -185,7 +188,8 @@ struct Duel {
               assert(effectHandler is function)
               assistDamage = effectHandler(effect, baseDamage)
               if (assistDamage) {
-                message = getLocaleString('assistDamageInfo', [
+                message = getLocaleString('assistDamageInfo',
+                  interpolations: [
                   subject.name,
                   companion.name,
                   target.name,
@@ -197,7 +201,7 @@ struct Duel {
                   damage: assistDamage,
                   message: message,
                 ))
-                entityLifeChange(targetInfo, assistDamage)
+                entityLifeChange(targetInfo, -assistDamage)
                 return true
               }
               return false
@@ -252,7 +256,8 @@ struct Duel {
 
             // 没有额外效果的进攻
             if (!shareDamage && !assistDamage) {
-              message = getLocaleString(sneakAttack ? 'sneakDamageInfo' : 'damageInfo', [
+              message = getLocaleString(sneakAttack ? 'sneakDamageInfo' : 'damageInfo',
+                interpolations: [
                 subject.name, 
                 subjectInfo.activatedOffense.name,
                 target.name,
@@ -264,7 +269,7 @@ struct Duel {
                 damage: baseDamage,
                 message: message,
               ))
-              entityLifeChange(targetInfo, baseDamage)
+              entityLifeChange(targetInfo, -baseDamage)
             }
 
             this.messages.add(message)
@@ -294,6 +299,7 @@ struct Duel {
 
         while (true) {
           if (this.frames >= _kDuelticksLimit) {
+            engine.warning('战斗超时，未产生结果！')
             // this.messages.add(getLocaleString('drawGame'))
             this.tied = true
             break
@@ -313,7 +319,7 @@ struct Duel {
           }
           if (r) {
             engine.info('${char1.name} 击败了 ${char2.name}。')
-            final incidentContent = getLocaleString('characterDefeat', [
+            final incidentContent = getLocaleString('characterDefeat', interpolations: [
               char1.name,
               char2.name,
             ])
@@ -331,7 +337,7 @@ struct Duel {
           r = nextTick(char2info, enemyTurn: true)
           if (r) {
             engine.info('${char2.name} 击败了 ${char1.name}。')
-            final incidentContent = getLocaleString('characterDefeat', [
+            final incidentContent = getLocaleString('characterDefeat', interpolations: [
               char2.name,
               char1.name,
             ])

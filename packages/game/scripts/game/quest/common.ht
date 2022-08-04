@@ -50,7 +50,7 @@ fun characterAcceptQuest(character, site, quest) {
   final questName = getLocaleString(quest.kind);
   final incidentContent = getLocaleString(
     'characterAcceptQuest',
-    [character.name, site.name, questName],
+    interpolations: [character.name, site.name, questName],
   )
   Incident(
     content: incidentContent,

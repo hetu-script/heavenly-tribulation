@@ -3,10 +3,10 @@ import '../tile/hexagonal_tile.ht'
 import '../tile/zone.ht'
 import '../game.ht'
 import '../tile/object.ht'
-import '../entity/character/enemy/bandit.ht'
+import '../entity/character/npc/bandit.ht'
 import '../entity/character/creature/beast.ht'
 import '../entity/common.ht'
-import '../entity/character/merchant/peddler.ht'
+import '../entity/character/npc/peddler.ht'
 import '../l10n.ht'
 import 'common.ht'
 import '../binding/maze.ht'
@@ -109,7 +109,8 @@ struct MountainMaze {
         index = tilePos2Index(left, top, width)
       } while (occupied.contains(index))
       occupied.add(index)
-      return Tile(left, top, index: index, mapWidth: width)
+      final tile = Tile(left, top, index: index, mapWidth: width)
+      return tile
     }
 
     for (final levelIndex in range(_kLevelNumber)) {
@@ -117,7 +118,7 @@ struct MountainMaze {
 
       final currentLevel = TileMap(
         id: '${this.id}_level_${levelIndex}',
-        name: getLocaleString('level', [levelIndex + 1]),
+        name: getLocaleString('level', interpolations: [levelIndex + 1]),
         width: width,
         height: height,
       )
@@ -269,8 +270,8 @@ struct MountainMaze {
       
       // engine.info('在锚点放置遭遇')
       for (final anchor of anchors) {
-        if (anchor.index = entry.index) continue
-        if (anchor.index = exit.index) continue
+        if (anchor.index == entry.index) continue
+        if (anchor.index == exit.index) continue
         final r = random.nextDouble()
         if (r < kMazeUniqueEncounterProbability) {
           var encounterType
@@ -371,7 +372,7 @@ struct MountainMaze {
         routes.addAll(routeForPoint)
       }
       for (final route in routes) {
-        // print('initial routes: ${name}')
+        // print('initial routes: ${route}')
         generateRouteByAnchor(route, anchors, currentLevel)
       }
       // check if there's a unconnected
@@ -402,7 +403,7 @@ struct MountainMaze {
         final tile = currentLevel.terrains[index]
         if (!tile.isRoute) {
           final route = random.nextIterable(kRoutesOfAnchorBySquare3[anchor])
-          print('add name to empty anchor: ${route}')
+          // print('add name to empty anchor: ${route}')
           generateRouteByAnchor(route, anchors, currentLevel)
         }
       }
@@ -476,7 +477,7 @@ fun onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
       resolveResult: true,
       loot: true,
       takeAll: true,
-      isMaze: true,
+      isMazeIncident: true,
       char1Resurrect: false,
       char2Resurrect: false,
       onWon: () {
@@ -494,8 +495,7 @@ fun onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
   // 盗贼，如果成功击败则返回true，否则返回false
   fun banditEncounter async {
     maze.flags.haveMetBandit = true
-    final messages = getLocaleString('mazeBandit01').split('/n')
-    return showDialogByStrings(messages, character: entity).then((_) {
+    return showDialogByLocaleKeys(['mazeBandit01'], character: entity).then((_) {
       return showSelectionByLocaleKeys([
         'handOver',
         'plead',
@@ -512,14 +512,14 @@ fun onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
           // 圆滑
           'plead' -> {
             if (hero.stats.charisma > kCharismaCheckThreshold) {
-              showDialogByStrings([getLocaleString('pleadSuccess')], character: entity)
+              showDialogByLocaleKeys(['pleadSuccess'], character: entity)
                 .then((_) {
                   characterLootOther(entity, hero, takeAll: false)
                 })
               return false
             } else {
-              showDialogByStrings([getLocaleString('pleadFailed')], character: entity)
-              .then( (_) => battle() )
+              showDialogByLocaleKeys(['pleadFailed'], character: entity)
+                .then( (_) => battle() )
             }
           }
           // 懦弱
@@ -530,18 +530,18 @@ fun onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
                 content: incidentContent,
                 subjectIds: [hero.id],
                 isPrivate: true,
-                isInMaze: true,
+                isMazeIncident: true,
               )
               return false
             } else {
-              return showDialogByStrings([getLocaleString('escapeFailed')], character: entity)
-              .then( (value) => battle() )
+              return showDialogByLocaleKeys(['escapeFailed'], character: entity)
+                .then( (value) => battle() )
             }
           }
           // 自信
           'fight' -> {
-            return showDialogByStrings([getLocaleString('startFightBandit')], character: hero)
-            .then( (value) => battle() )
+            return showDialogByLocaleKeys(['startFightBandit'], character: hero)
+              .then( (value) => battle() )
           }
         }
       })
@@ -674,8 +674,7 @@ fun onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
       battle()
     }
     'peddler' -> {
-      final messages = getLocaleString('peddlerDialogIntro').split('/n')
-      showDialogByStrings(messages, character: entity)
+      showDialogByLocaleKeys(['peddlerDialogIntro'], character: entity)
       .then((_) {
         showSelectionByLocaleKeys([
           'askForDirections',

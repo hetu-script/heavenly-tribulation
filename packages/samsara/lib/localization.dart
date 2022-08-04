@@ -27,7 +27,7 @@ class GameLocalization {
   }
 
   /// 对于需要替换部分字符串的本地化串，使用这个接口
-  String getString(String key, [List<String> interpolations = const []]) {
+  String getString(String key, {List<String> interpolations = const []}) {
     var text = this[key];
 
     for (var i = 0; i < interpolations.length; ++i) {

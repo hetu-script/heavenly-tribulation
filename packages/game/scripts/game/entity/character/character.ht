@@ -8,7 +8,7 @@ import '../common.ht'
 import '../../tile/hexagonal_tile.ht'
 import 'battle_entity.ht'
 import '../item/common.ht'
-import 'companion/common.ht'
+import 'companion.ht'
 
 // number of the male avatar images
 const _kMaleAvatarCount = 37
@@ -320,7 +320,8 @@ struct Character {
         final mother = game.characters[motherId]
         this.birthPlaceId = locationId
         // 出生事件会修改自身，需要放在最后处理
-        final incidentContent = getLocaleString('incidentBorn', [
+        final incidentContent = getLocaleString('incidentBorn',
+          interpolations: [
             father.name,
             mother.name,
             this.name,
@@ -461,17 +462,17 @@ fun _characterFirstMet(subject, target, [causeIncident, causeIncidentScore]) {
 
   var incidentContent
   if (metScore < -_kCharacterImpressionCheckpoint) {
-    incidentContent = getLocaleString('incidentFirstMeetHate', [
+    incidentContent = getLocaleString('incidentFirstMeetHate', interpolations: [
       subject.name,
       target.name,
     ])
   } else if (metScore > _kCharacterImpressionCheckpoint) {
-    incidentContent = getLocaleString('incidentFirstMeetLike', [
+    incidentContent = getLocaleString('incidentFirstMeetLike', interpolations: [
       subject.name,
       target.name,
     ])
   } else {
-    incidentContent = getLocaleString('incidentFirstMeetNormal', [
+    incidentContent = getLocaleString('incidentFirstMeetNormal', interpolations: [
       subject.name,
       target.name,
     ])
@@ -599,7 +600,7 @@ fun setCharacterHome(character, location, { organizationName }) {
   if (organizationName == null) {
     if (!location.residingCharacterIds.contains(character.id)) {
       location.residingCharacterIds.add(character.id)
-      incidentContent = getLocaleString('incidentSettle', [
+      incidentContent = getLocaleString('incidentSettle', interpolations: [
         character.name,
         location.name,
       ])
@@ -613,7 +614,7 @@ fun setCharacterHome(character, location, { organizationName }) {
     if (organizationData != null) {
       if (!organizationData.characterIds.contains(character.id)) {
         organizationData.characterIds.add(character.id)
-        incidentContent = getLocaleString('incidentSettleOrganization', [
+        incidentContent = getLocaleString('incidentSettleOrganization', interpolations: [
           character.name,
           location.name,
           organizationName,

@@ -51,14 +51,19 @@ fun generateRouteByAnchor(achorDescription, anchors, map, { spriteIndex }) {
   final end = int.parse(pos.last)
   assert(start is int && end is int)
   assert(start < end)
+  // print('generateRouteByAnchor', start, end)
+  // print('generateRouteByAnchor', anchors[start], anchors[end])
   generateRouteByIndex(anchors[start].index, anchors[end].index, map, spriteIndex: spriteIndex)
 }
 
 // 调用 A* 算法（calculateRoute）来计算路径
 // 执行这个函数时地图尚未生成，因此不需要考虑zone，所以无需使用真正的terrain来计算
 fun generateRouteByIndex(index1, index2, map, { spriteIndex }) {
+  // print('generateRouteByIndex', index1, index2)
+
   final tile1 = index2TilePos(index1, map.width)
   final tile2 = index2TilePos(index2, map.width)
+  // print('tile position', tile1.left, tile1.top, tile2.left, tile2.top)
   // print('generate route from ${tile1} to ${tile2}')
   final route = calculateRoute(tile1, tile2, map, spriteIndex: spriteIndex)
   // print(route)

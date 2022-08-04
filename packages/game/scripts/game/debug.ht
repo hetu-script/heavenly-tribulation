@@ -2,11 +2,11 @@ import 'game.ht'
 import 'entity/character/character.ht'
 import 'entity/item/item.ht'
 import 'duel.ht'
-import 'entity/character/enemy/bandit.ht'
+import 'entity/character/npc/bandit.ht'
 import 'entity/character/creature/beast.ht'
 import 'entity/item/item.ht'
 import 'maze/maze.ht'
-import 'entity/character/companion/villager.ht'
+import 'entity/character/npc/villager.ht'
 import 'dialog.ht'
 import 'tile/hexagonal_tile.ht'
 
@@ -130,6 +130,7 @@ fun testMazeCultivationRecruit {
   // 先创建副本再创建英雄，这样会直接用localHistory替换掉hostory
   final maze = CultivationRecruitMaze(
     name: '测试副本',
+    organizationName: '天玑堂',
   )
   final hero = Character()
   characterEquip(hero, Kickboxing())

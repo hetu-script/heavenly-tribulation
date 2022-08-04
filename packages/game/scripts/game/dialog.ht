@@ -19,6 +19,7 @@ struct DialogContentData {
     isMajorCharacter,
     icon,
     localeKeys,
+    interpolations,
     lines,
   }) {
     // 在游戏刚启动时，载入对话框数据，此时尚未设定玩家角色信息
@@ -47,7 +48,7 @@ struct DialogContentData {
     final strings
     if (localeKeys is List) {
       assert(localeKeys.isNotEmpty)
-      strings = localeKeys.map( (key) => getLocaleString(key) ).toList()
+      strings = localeKeys.map( (key) => getLocaleString(key, interpolations: interpolations) ).toList()
     } else {
       assert(lines is List && lines.isNotEmpty)
       strings = lines
@@ -87,7 +88,7 @@ fun addDialogs(dlgsData: List) {
   }
 }
 
-fun showDialogByLocaleKeys(localeKeys, { returnValue, character, displayName }) -> Future {
+fun showDialogByLocaleKeys(localeKeys, { returnValue, character, displayName, interpolations: List }) -> Future {
   assert(localeKeys is List)
   final dlgData = {
     contents: [
@@ -96,6 +97,7 @@ fun showDialogByLocaleKeys(localeKeys, { returnValue, character, displayName }) 
         displayName: displayName ?? character?.name,
         icon: character?.icon,
         localeKeys: localeKeys,
+        interpolations: interpolations,
       ),
     ]
   }

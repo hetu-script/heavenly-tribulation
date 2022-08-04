@@ -307,7 +307,7 @@ fun onHeroEnteredLocation(location) async {
   if (!location.isDiscovered) {
     if (location.category == kLocationCategoryCity) {
       discoverLocation(location)
-      final message = getLocaleString('firstVisitCity', [location.name])
+      final message = getLocaleString('firstVisitCity', interpolations: [location.name])
       // TODO: 第一次发现据点事件
       return showDialogByStrings([message])
     } else {

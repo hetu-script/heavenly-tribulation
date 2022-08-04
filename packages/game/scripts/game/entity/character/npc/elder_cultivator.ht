@@ -2,7 +2,6 @@ import '../battle_entity.ht'
 import '../../common.ht'
 import '../../item/item.ht'
 import '../../skill/skill.ht'
-import '../companion/common.ht'
 import '../../../game.ht'
 
 const _kElderCultivatorName = 'seniorMateMale'

@@ -10,7 +10,7 @@ import '../entity/item/material/jade.ht'
 import '../entity/character/battle_entity.ht'
 import '../binding/worldmap.ht'
 import '../tile/common.ht'
-import '../entity/character/enemy/bandit.ht'
+import '../entity/character/npc/bandit.ht'
 import '../entity/character/creature/beast.ht'
 import '../reward.ht'
 import '../binding/worldmap.ht'
@@ -142,7 +142,7 @@ fun handleWorldTerrainInteraction(left, top) {
                 if (i >= days) return false
                 return true
               }).then((_) {
-                final incidentContent = getLocaleString('characterExplore', [
+                final incidentContent = getLocaleString('characterExplore', interpolations: [
                   hero.name,
                   '${terrain.left}, ${terrain.top}',
                   i,
@@ -176,7 +176,7 @@ fun handleWorldTerrainInteraction(left, top) {
                 if (i >= days) return false
                 return true
               }).then((_) {
-                final incidentContent = getLocaleString('characterExplore', [
+                final incidentContent = getLocaleString('characterExplore', interpolations: [
                   hero.name,
                   '${terrain.left}, ${terrain.top}',
                   i,
@@ -190,7 +190,7 @@ fun handleWorldTerrainInteraction(left, top) {
                   terrain.hasSearched = true
                   discoverLocation(undiscoveredLocation)
                   // TODO: 第一次发现据点事件
-                  final message = getLocaleString('firstVisitCity', [undiscoveredLocation.name])
+                  final message = getLocaleString('firstVisitCity', interpolations: [undiscoveredLocation.name])
                   showDialogByStrings([message]).then((_) {
                     enterLocation(undiscoveredLocation.id)
                   })
@@ -207,7 +207,7 @@ fun handleWorldTerrainInteraction(left, top) {
                 characterCostStamina(hero, kTicksPerDay)
                 return false
               }).then((_) {
-                final incidentContent = getLocaleString('characterExplore', [
+                final incidentContent = getLocaleString('characterExplore', interpolations: [
                   hero.name,
                   '${terrain.left}, ${terrain.top}',
                   1,
@@ -270,7 +270,7 @@ fun handleWorldTerrainInteraction(left, top) {
             if (i >= days) return false
             return true
           }).then((_) {
-            final incidentContent = getLocaleString('characterExplore', [
+            final incidentContent = getLocaleString('characterExplore', interpolations: [
               hero.name,
               '${terrain.left}, ${terrain.top}',
               i,
@@ -289,7 +289,7 @@ fun handleWorldTerrainInteraction(left, top) {
             } ().then((_) {
               if (metBeast) {
                 final beast = Beast()
-                final message = getLocaleString('metBeast', [beast.name])
+                final message = getLocaleString('metBeast', interpolations: [beast.name])
                 showDialogByStrings([message]).then((_) {
                   heroBattle(beast)
                 })
@@ -336,7 +336,7 @@ fun handleWorldTerrainInteraction(left, top) {
             if (i >= days) return false
             return true
           }).then((_) {
-            final incidentContent = getLocaleString('characterWoodcutted', [
+            final incidentContent = getLocaleString('characterWoodcutted', interpolations: [
               hero.name,
               '${terrain.left}, ${terrain.top}',
               i,
@@ -355,7 +355,7 @@ fun handleWorldTerrainInteraction(left, top) {
             } ().then((_) {
               if (metBeast) {
                 final beast = Beast()
-                final message = getLocaleString('metBeast', [beast.name])
+                final message = getLocaleString('metBeast', interpolations: [beast.name])
                 showDialogByStrings([message]).then((_) {
                   heroBattle(beast)
                 })
@@ -411,7 +411,7 @@ fun handleWorldTerrainInteraction(left, top) {
             if (i >= days) return false
             return true
           }).then((_) {
-            final incidentContent = getLocaleString('characterMined', [
+            final incidentContent = getLocaleString('characterMined', interpolations: [
               hero.name,
               '${terrain.left}, ${terrain.top}',
               i,
@@ -430,7 +430,7 @@ fun handleWorldTerrainInteraction(left, top) {
             } ().then((_) {
               if (metBeast) {
                 final beast = Beast()
-                final message = getLocaleString('metBeast', [beast.name])
+                final message = getLocaleString('metBeast', interpolations: [beast.name])
                 showDialogByStrings([message]).then((_) {
                   heroBattle(beast)
                 })
@@ -471,7 +471,7 @@ fun handleWorldTerrainInteraction(left, top) {
             if (i >= days) return false
             return true
           }).then((_) {
-            final incidentContent = getLocaleString('characterHunted', [
+            final incidentContent = getLocaleString('characterHunted', interpolations: [
               hero.name,
               '${terrain.left}, ${terrain.top}',
               i,
@@ -483,7 +483,7 @@ fun handleWorldTerrainInteraction(left, top) {
             )
             if (metBeast) {
               final beast = Beast()
-              final message = getLocaleString('foundBeast', [beast.name])
+              final message = getLocaleString('foundBeast', interpolations: [beast.name])
               showDialogByStrings([message]).then((_) {
                 heroBattle(beast)
               })
@@ -528,7 +528,7 @@ fun handleWorldTerrainInteraction(left, top) {
             if (i >= days) return false
             return true
           }).then((_) {
-            final incidentContent = getLocaleString('characterFished', [
+            final incidentContent = getLocaleString('characterFished', interpolations: [
               hero.name,
               '${terrain.left}, ${terrain.top}',
               i,

@@ -5,10 +5,10 @@ import '../tile/zone.ht'
 import '../tile/common.ht'
 import '../game.ht'
 import '../tile/object.ht'
-import '../entity/character/enemy/elder_cultivator.ht'
+import '../entity/character/npc/elder_cultivator.ht'
 import '../entity/character/creature/beast.ht'
 import '../entity/common.ht'
-import '../entity/character/merchant/peddler.ht'
+import '../entity/character/npc/peddler.ht'
 import '../l10n.ht'
 import 'common.ht'
 import '../binding/maze.ht'
@@ -32,7 +32,7 @@ struct CultivationRecruitMaze {
   construct ({
     name = 'cultivation_recruit_maze',
     tileset = 'cliff',
-    bossName,
+    organizationName,
   }) {
     this.name = name
     this.id = 'maze_${Hash.uid4(4)}_${name}'
@@ -43,7 +43,10 @@ struct CultivationRecruitMaze {
     this.currentLevel = 0
     this.entities = {} // 包含所有显示在地图上的可互动对象，包括NPC、敌人、宝箱、陷阱、机关等等。
     this.history = [] // 本次副本中发生的事件记录，这些事件不会计入世界历史
-    this.flags = {} // 本次副本中的一些事件存档，用于脚本的一些逻辑判断，例如是否已经有过某种遭遇之类。
+    // 本次副本中的一些事件存档，用于脚本的一些逻辑判断，例如是否已经有过某种遭遇之类。
+    this.flags = {
+      organizationName,
+    }
 
     // 创建副本过程中也会触发事件，因此这里要提前给localHistory赋值
     final savedLocalHistory = currentMazeHistory
@@ -56,7 +59,7 @@ struct CultivationRecruitMaze {
 
     final currentLevel = TileMap(
       id: '${this.id}',
-      name: getLocaleString('level', [1]),
+      name: getLocaleString('level', interpolations: [1]),
       width: width,
       height: height,
     )
@@ -263,14 +266,49 @@ struct CultivationRecruitMaze {
 
 // 返回布尔值，如果为真，则玩家控制角色会返回上一格，否则停在这一格
 fun onHeroMovedOnCultivationRecruitMaze({tile, maze, currentLevelIndex}) -> bool {
+  final entity = tile.entityId != null ? maze.entities[tile.entityId] : null
 
-  if (tile.entityId != null) {
-    final entity = maze.entities[tile.entityId]
-    assert(entity != null)
+  // 战斗，异步函数，如果获胜则返回 true
+  fun battle -> Future {
+    return heroBattle(
+      entity,
+      resolveResult: true,
+      loot: false,
+      takeAll: false,
+      isMazeIncident: true,
+      char1Resurrect: true,
+      char2Resurrect: true,
+      onWon: () {
+        tile.entityId = null
+        setMazeObject(tile.left, tile.top, null)
+        delete game.npcs[entity.id]
+      },
+      onLost: () {
+        // TODO: 闯关失败的对话
+        leaveMaze(maze)
+      },
+    )
+  }
+
+  if (entity != null) {
     engine.info('玩家在副本地图 ${maze.id} 第 ${currentLevelIndex + 1} 层 ${tile.left}, ${tile.top} 碰到了 ${entity.id}')
     
     when (entity.encounterType) {
       'senior' -> {
+        showDialogByLocaleKeys(
+          ['elderCultivatorGuard'],
+          character: entity,
+          interpolations: [maze.flags.organizationName]
+        ).then((_) {
+          showSelectionByLocaleKeys([
+            'fight',
+            'leave',
+          ]).then((key) {
+            when (key) {
+              'fight' -> battle()
+            }
+          })
+        })
         return true
       }
     }

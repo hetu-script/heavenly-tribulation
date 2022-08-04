@@ -1,7 +1,7 @@
 import '../battle_entity.ht'
 import '../../common.ht'
 import '../../item/item.ht'
-import '../companion/common.ht'
+import '../companion.ht'
 import '../../../game.ht'
 
 final _kBanditKinds = Set(

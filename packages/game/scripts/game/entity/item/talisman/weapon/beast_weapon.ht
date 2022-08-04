@@ -13,7 +13,6 @@ final kBeastWeaponKinds = {
     damageType: kDamageTypeSlash,
     attributes: {
       speed: 7,
-      life: 200,
       damage: 18,
       criticalDamageHits: 4,
       criticalDamageMultiply: 2,
@@ -24,7 +23,6 @@ final kBeastWeaponKinds = {
     damageType: kDamageTypePierce,
     attributes: {
       speed: 10,
-      life: 200,
       damage: 25,
       criticalDamageHits: 4,
       criticalDamageMultiply: 3,

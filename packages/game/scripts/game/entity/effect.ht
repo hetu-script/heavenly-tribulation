@@ -8,6 +8,7 @@
 // 某些效果会以“第x次攻击后”的形式触发
 // 对于此种效果，回调函数会在该效果对象上临时赋值，计算CD时间。
 import 'character/status_effect.ht'
+import 'common.ht'
 
 const kEffectValueTypeInt = 'int';
 const kEffectValueTypeFloat = 'float';
@@ -49,19 +50,19 @@ final effectHandlers = {
   // 食用类效果
   // 回复体力
   effectRestoreStamina: (effect, character) {
-    character.stats.stamina += effect.values[0].value
+    entityStaminaChange(character, effect.values[0].value)
   },
   // 回复生命
   effectRestoreLife: (effect, character) {
-    character.stats.life += effect.values[0].value
+    entityLifeChange(character, effect.values[0].value)
   },
   // 回复元气
   effectRestoreChi: (effect, character) {
-    character.stats.chi += effect.values[0].value
+    entityChiChange(character, effect.values[0].value)
   },
   // 回复精神
   effectRestoreSpirit: (effect, character) {
-    character.stats.spirit += effect.values[0].value
+    entitySpiritChange(character, effect.values[0].value)
   },
   // 治疗外伤
   effectHealInjury: (effect, character) {

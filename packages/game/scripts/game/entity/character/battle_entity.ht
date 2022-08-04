@@ -208,7 +208,7 @@ fun heroBattle (
   resolveResult = true,
   loot = true,
   takeAll = true,
-  isInMaze = false,
+  isMazeIncident = false,
   char1Resurrect = true,
   char2Resurrect = false,
   onWon,
@@ -219,24 +219,26 @@ fun heroBattle (
     if (result?.result) {
       if (resolveResult) resolveDuelResult(char1, char2, result)
       if (loot) characterLootOther(char1, char2, takeAll: takeAll)
-      final incidentContent = getLocaleString('duelVistory', [ char1.name, char2.name ] )
+      final incidentContent = getLocaleString('duelVistory', interpolations: [ char1.name, char2.name ] )
       Incident(
         content: incidentContent,
         subjectIds: [char1.id],
         isPrivate: true,
-        isInMaze: isInMaze,
+        isMazeIncident: isMazeIncident,
       )
-      if (char2Resurrect && char2.isMajorCharacter) {
-        final injury = StatusEffect.injury()
-        char2.statusEffects[injury.kind] = injury
-        char2.stats.life = 1
+      if (char2Resurrect) {
+        if (char2.isMajorCharacter) {
+          final injury = StatusEffect.injury()
+          char2.statusEffects[injury.kind] = injury
+          char2.stats.life = 1
+        }
       } else {
-        final incidentContent = getLocaleString('characterKill', [ char1.name, char2.name ] )
+        final incidentContent = getLocaleString('characterKill', interpolations: [ char1.name, char2.name ] )
         Incident(
           content: incidentContent,
           subjectIds: [char1.id],
           isPrivate: true,
-          isInMaze: isInMaze,
+          isMazeIncident: isMazeIncident,
         )
         if (char2.isMajorCharacter) {
           char2.isDead = true

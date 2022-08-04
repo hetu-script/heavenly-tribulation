@@ -62,7 +62,7 @@ struct QuestDelivery {
       this.kind = kQuestDeliveryKindConvoy
       if (destinationSite) {
         this.description = getLocaleString('${this.category}.item.targetSite.description',
-          [
+          interpolations: [
             expirationDateString,
             item.stackSize,
             item.name,
@@ -73,7 +73,7 @@ struct QuestDelivery {
       } else {
         assert(destinationCharacter != null)
         this.description = getLocaleString('${this.category}.item.targetCharacter.description',
-          [
+          interpolations: [
             expirationDateString,
             item.stackSize,
             item.name,
@@ -91,7 +91,7 @@ struct QuestDelivery {
       this.kind = kQuestDeliveryKindEscort
       if (destinationSite) {
         this.description = getLocaleString('${this.category}.character.targetSite.description',
-          [
+          interpolations: [
             expirationDateString,
             character.name,
             destination.name,
@@ -101,7 +101,7 @@ struct QuestDelivery {
       } else {
         assert(destinationCharacter != null)
         this.description = getLocaleString('${this.category}.character.targetCharacter.description',
-          [
+          interpolations: [
             expirationDateString,
             character.name,
             destination.name,

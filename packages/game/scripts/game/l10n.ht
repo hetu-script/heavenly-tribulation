@@ -28,14 +28,16 @@ fun interpolate(text: str, [interpolations: List = []]) {
   return text
 }
 
-fun getLocaleString(key: str, [interpolations: List = []]) {
+fun getLocaleString(key: str, { interpolations: List }) {
   var text = locales[locales.currentLocaleId][key]
   if (text) {
     if (text is List) {
       text = text[random.nextIterable(text)]
     }
-    for (var i = 0; i < interpolations.length; ++i) {
-      text = text.replaceAll('{${i}}', stringify(interpolations[i]));
+    if (interpolations is List) {
+      for (var i = 0; i < interpolations.length; ++i) {
+        text = text.replaceAll('{${i}}', stringify(interpolations[i]));
+      }
     }
     return text
   }

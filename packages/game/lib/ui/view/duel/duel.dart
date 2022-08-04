@@ -113,6 +113,7 @@ class _DuelState extends State<Duel> {
           if (_frames > _data!['frames']) {
             timer.cancel();
             _finished = true;
+            _addDuelResult();
           } else {
             ++_frames;
             if (_char1Action != null) {
@@ -168,6 +169,30 @@ class _DuelState extends State<Duel> {
         });
       },
     );
+  }
+
+  void _addDuelResult() {
+    if (_data!['result']) {
+      _messages.add(
+        engine.locale.getString(
+          'duelVistory',
+          interpolations: [
+            _data!['char1Name'],
+            _data!['char2Name'],
+          ],
+        ),
+      );
+    } else {
+      _messages.add(
+        engine.locale.getString(
+          'duelVistory',
+          interpolations: [
+            _data!['char2Name'],
+            _data!['char1Name'],
+          ],
+        ),
+      );
+    }
   }
 
   void _reset() {
@@ -324,6 +349,7 @@ class _DuelState extends State<Duel> {
                                 _finished = true;
                                 _messages =
                                     List<String>.from(_data!['messages']);
+                                _addDuelResult();
                                 _char1Stats = _char1ResultStats;
                                 _char2Stats = _char2ResultStats;
                               });
