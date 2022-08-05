@@ -2,6 +2,10 @@ import '../common.ht'
 import '../effect.ht'
 import '../character/companion.ht'
 import '../../random.ht'
+import 'money.ht'
+
+const kSilverExchange = 1000
+const kGoldExchange = 1000000
 
 const kItemDefaultIcon = 'assets/images/unknown_item.png'
 // final kDefaultItemDescription = getLocaleString('defaultItemDescription')
@@ -16,12 +20,14 @@ const kEquipTypeCompanion = 'companion'
 // const kEquipTypeBoots = 'boots'
 // const kEquipTypeManeuver = 'maneuver'
 
-final kEquipmentMax = {
-  offense: 5,
-  support: 5,
-  defense: 4,
-  companion: 4,
-}
+// final kEquipmentMax = {
+//   offense: 5,
+//   support: 5,
+//   defense: 4,
+//   companion: 4,
+// }
+
+const kEquipmentMax = 7
 
 final kRarity2ItemLevels = {
   common: 10, // common 白
@@ -37,15 +43,10 @@ fun calculateItemStats(item) {
   item.stats = item.attributes.clone()
 }
 
-fun entityAcquireMoney(entity, count) {
-  if (count < 1) return
-  entity.money += count
-  final incidentContent = getLocaleString('characterAcquireMoney', interpolations: [ entity.name, count ])
-  Incident(
-    content: incidentContent,
-    subjectIds: entity.isMajorCharacter ? [entity.id] : null,
-    isPrivate: true,
-  )
+fun entityAcquireMoney(entity, value, { incidentOccured = true }) {
+  if (value < 1) return
+  final money = Coin(stackSize: value)
+  entityAcquireItem(entity, money, incidentOccured: incidentOccured)
 }
 
 // 角色、场景获得物品，此函数并不会复制该物品，因此物品不能在其他角色的物品栏中
@@ -82,41 +83,44 @@ fun entityAcquireItem(entity, item, { count, incidentOccured = true }) {
   }
 }
 
+// 如果成功支付返回 0，否则返回 欠缺的数量
 fun entityGiveMoney(entity, target, value, { isForced = false, incidentOccured = true }) {
   if (value < 0) {
     engine.error('函数 entityGiveMoney 调用时的金额参数无效（小于 0）。')
     return
   }
   if (value == 0) return
-  assert(entity.money >= value)
-  entity.money -= value
-  target.money += value
-  
-  if (incidentOccured) {
-    final incidentContent = isForced ?
-      getLocaleString('entityGiveMoneyForced', interpolations: [
-        target.name,
-        entity.name,
-        value,
-      ]) :
-      getLocaleString('entityGiveMoney', interpolations: [
-        entity.name,
-        value,
-        target.name,
-      ])
-    Incident(
-      content: incidentContent,
-      subjectIds: entity.isMajorCharacter ? [entity.id] : null,
-      objectIds: target.isMajorCharacter ? [target.id] : null,
-      isPrivate: true,
-    )
+
+  // final goldValue = value ~/ kGoldExchange
+  // var rest = value - goldValue
+  // final restAfterGold = entityGiveItem(entity, target, 'money.goldCoin', count: goldValue)
+  // rest += restAfterGold
+
+  // final silverValue = rest ~/ kSilverExchange
+  // var rest = value - silverValue
+  // final restAfterSilver = entityGiveItem(entity, target, 'money.silverCoint', count: silverValue)
+  // rest += restAfterSilver
+
+  final money = entity.inventory['money.bronzeCoin']
+  if (money != null && money.stackSize >= value) {
+    entityGiveItem(entity, target, money.id, count: value, isForced: isForced, incidentOccured: incidentOccured)
+    return true
   }
+  return false
 }
 
+// 某个对象将其拥有的物品交给另一个对象
 // isForced 如果为 true，表示 target 强行夺取了 entity 的物品
 // 将会立刻移除该物品，不要在物品栏循环中使用这个函数
+// 此函数即便数量不够也会尽量支付
+// 如果成功提供足够数量的指定物品，返回 0，否则返回 欠缺的数量
 fun entityGiveItem(entity, target, itemId, { count, removeItem = true, isForced = false, incidentOccured = true}) {
-  assert(entity.inventory.containsKey(itemId))
+  if (count <= 0) return 0
+  var rest = count ?? 1
+  if (!entity.inventory.containsKey(itemId)) {
+    engine.warning('${entity.name} 没有 ${item.name} ，无法支付。')
+    return rest
+  }
   final item = entity.inventory[itemId]
   count ??= item.stackSize ?? 1
   if (item.equippedPosition) characterUnequip(entity, item)
@@ -134,6 +138,7 @@ fun entityGiveItem(entity, target, itemId, { count, removeItem = true, isForced 
     // 数量刚好
     delete entity.inventory[item.id]
   }
+  rest = count - actualNumber
   if (target.inventory.containsKey(item.id)) {
     target.inventory[item.id].stackSize += actualNumber
   } else {
@@ -188,10 +193,22 @@ fun entityGiveItem(entity, target, itemId, { count, removeItem = true, isForced 
       isPrivate: true,
     )
   }
+
+  return rest
 }
 
 fun characterLearn(character, skill) {
   character.skills[skill.id] = skill
+
+  final incidentContent = getLocaleString('characterLearn', interpolations: [
+    character.name,
+    skill.name,
+  ])
+  Incident(
+    content: incidentContent,
+    subjectIds: character.isMajorCharacter ? [entity.id] : null,
+    isPrivate: true,
+  )
 }
 
 // 使用食物或者丹药
@@ -289,8 +306,9 @@ fun characterConsume(character, item, { forcerCharacter }) {
 // 法宝和技能都可以装备，只要类型符合
 // 返回值代表是否装备成功
 // 如果对一个不在物品栏中的物品调用，会先将其加入物品栏
+// 但并不会检查是否已经在别人的物品栏里了
 // 
-// 装备并非直接将物品数据放在人物上，而是用下面的数据结构
+// 装备并非直接将物品数据保存在人物数据中，而是用下面的数据结构
 // {
 //   id,
 //   entityType,
@@ -301,13 +319,13 @@ fun characterConsume(character, item, { forcerCharacter }) {
 //   supports,
 // }
 fun characterEquip(character, entity, { index }) -> bool {
-  assert(index == null || index > 0)
+  assert(index == null || (index > 0 && index < kEquipmentMax))
   if (!entity.isEquippable) {
-    engine.info('${entity.name} 无法装备。')
+    engine.warning('${entity.name} 无法装备。')
     return false
   }
   if (entity.equippedPosition) {
-    engine.info('${entity.name} 已经在装备中了。')
+    engine.warning('${entity.name} 已经在装备中了。')
     return false
   }
   var equipData = {
@@ -333,6 +351,11 @@ fun characterEquip(character, entity, { index }) -> bool {
     }
     kEntityTypeSkill -> {
       if (!character.skills[entity.id]) characterLearn(character, entity)
+
+      if (entity.level < 1) {
+        engine.warning('技能 ${entity.name} 等级太低（${entity.level}），无法装备。')
+        return
+      }
       
       final incidentContent = getLocaleString('characterEquipSkill', interpolations: [
         character.name,
@@ -368,13 +391,16 @@ fun characterEquip(character, entity, { index }) -> bool {
         isPrivate: true,
       )
     }
+    else -> {
+      engine.warning('${entity.name} 无法装备。equipType: ${entity.equipType}')
+    }
   }
   
   when (entity.equipType) {
     // 剑法、心诀等支持型技能
     kEquipTypeSupport -> {
-      for (final i in range(1, kEquipmentMax.support)) {
-        final oldEquipData = character.equipments[kEquipTypeOffense][i]
+      for (final i in range(1, kEquipmentMax)) {
+        final oldEquipData = character.equipments[i]
         if (oldEquipData && oldEquipData.category == data.category &&
             oldEquipData.kind == data.kind) {
           if (oldEquipData.supports.length < kEquipmentMax.support - 1) {
@@ -393,13 +419,14 @@ fun characterEquip(character, entity, { index }) -> bool {
     }
     // kEquipTypeOffense: 斗技、武器、攻击法宝等
     // kEquipTypeDefense: 内功、轻功、护甲、靴子、辅助法宝等
-    kEquipTypeDefense, kEquipTypeOffense, kEquipTypeCompanion -> {
+    // kEquipTypeDefense, kEquipTypeOffense, kEquipTypeCompanion -> {
+    else -> {
       equipData.supports = []
       // 如果有空位就装备在空位上
       if (index == null) {
-        for (final i in range(1, kEquipmentMax[entity.equipType])) {
-          if (character.equipments[entity.equipType][i] == null) {
-            character.equipments[entity.equipType][i] = equipData
+        for (final i in range(1, kEquipmentMax)) {
+          if (character.equipments[i] == null) {
+            character.equipments[i] = equipData
             entity.equippedPosition = i
             return true
           }
@@ -407,12 +434,12 @@ fun characterEquip(character, entity, { index }) -> bool {
         // 否则替换掉第一个空位
         index = 1
       }
-      final oldEquipData = character.equipments[entity.equipType][index]
+      final oldEquipData = character.equipments[index]
       if (oldEquipData != null) {
         final oldItem = getEquipped(oldEquipData, character)
         delete oldItem.equippedPosition
       }
-      character.equipments[entity.equipType][index] = equipData
+      character.equipments[index] = equipData
       if (equipData.category == oldItem.category && equipData.kind == oldItem.kind) {
         equipData.supports = oldEquipData.supports
       } else {
@@ -438,12 +465,13 @@ fun characterUnequip(character, entity) {
     }
     // 斗技、武器、法宝等
     kEquipTypeDefense, kEquipTypeOffense, kEquipTypeCompanion -> {
-      delete character.equipments[entity.equipType][entity.equippedPosition]
+      delete character.equipments[entity.equippedPosition]
     }
   }
   delete entity.equippedPosition
 }
 
+/// 获取某个装备对应的物品数据 （equipData => itemData）
 fun getEquipped(equipData, character) {
   if (equipData == null) return null
   var entity
@@ -463,26 +491,52 @@ fun getEquipped(equipData, character) {
 }
 
 fun getFirstEquippedOffenseItem(character) {
-  for (final i in range(1, kEquipmentMax.offense)) {
-    final equipData = character.equipments.offense[i]
+  for (final i in range(1, kEquipmentMax)) {
+    final equipData = character.equipments[i]
     if (equipData != null) {
-      return getEquipped(equipData, character)
+      if (equipData.equipType == kEquipTypeOffense) {
+        return getEquipped(equipData, character)
+      }
     }
   }
 }
 
-// 批量获取物品，但不显示从谁那里获得的
+// 找到装备位置在 index 之后的下一个进攻性装备
+fun getNextEquippedOffenseItem(character, index) {
+  assert(index > 0)
+  // 上次的index已经是最后一个了，从头开始找
+  if (index >= (kEquipmentMax - 1)) {
+    return getFirstEquippedOffenseItem(character)
+  } else {
+    // 从index开始找
+    for (final i in range(index + 1, kEquipmentMax)) {
+      final equipData = character.equipments[i]
+      if (equipData != null) {
+        if (equipData.equipType == kEquipTypeOffense) {
+          return getEquipped(equipData, character)
+        }
+      }
+    }
+  }
+  // 没有找到匹配的装备，从头开始找
+  return getFirstEquippedOffenseItem(character)
+}
+
+// 批量获取物品，但不显示从那里获得的，通常用于从箱子或包裹中批量拿取
 fun characterLootBox(character, lootbox, { incidentOccured = true }) {
-  for (final item of lootbox.inventory) {
+  for (final item of lootbox) {
     entityAcquireItem(character, item, count: item.stackSize, incidentOccured: incidentOccured)
   }
-  if (lootbox.money) {
-    entityAcquireMoney(character, lootbox.money, incidentOccured: incidentOccured)
-  }
+  // if (lootbox.money) {
+  //   entityAcquireMoney(character, lootbox.money, incidentOccured: incidentOccured)
+  // }
 
   // 清空箱子
-  lootbox.money = 0
-  lootbox.inventory = {}
+  // lootbox.money = 0
+  final ids = lootbox.keys.toList()
+  for (final id in ids) {
+    delete lootbox[id]
+  }
 }
 
 // 战斗胜利后，根据情况获得战利品

@@ -36,7 +36,7 @@ struct QuestBanditCamp {
     assert(mazeTerrainIndex != null)
     this.category = kQuestCategoryConquestMaze
     this.kind = kind ?? random.nextIterable(kQuestBanditCampKinds)
-    this.id = 'quest_${Hash.uid4(2)}_${locationId}_${this.category}_${this.kind}'
+    this.id = 'quest.${Hash.uid4(2)}.${locationId}.${this.category}.${this.kind}'
 
     final location = game.locations[locationId]
     assert(location.governmentSiteId != null)

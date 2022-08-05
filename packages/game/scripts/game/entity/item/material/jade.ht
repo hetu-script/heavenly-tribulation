@@ -39,6 +39,7 @@ struct Jade {
     
     this.rarity = rarity ?? getRarity().rarity
     this.name = _kElements[this.kind] + getLocaleString('jade')
+    this.color = kRarity[this.rarity].color
 
     this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
     this.category = kEntityCategoryMaterial // 武器、防护、斗技、玄功等等
@@ -46,8 +47,7 @@ struct Jade {
 
     this.description = description
     this.stackSize = stackSize
-    this.color = kRarity[this.rarity].color
-    this.id = this.rarity != kCommon ? 'jade_${Hash.uid4(2)}_${this.kind}' : 'jade_${this.kind}'
+    this.id = this.rarity != kCommon ? 'jade.${Hash.uid4(2)}.${this.kind}' : 'jade.${this.kind}'
     this.icon = icon ?? 'icon/item/material/jade.png'
 
     this.isConsumable = isConsumable

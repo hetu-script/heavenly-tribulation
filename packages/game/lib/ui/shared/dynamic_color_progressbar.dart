@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../../global.dart';
+import 'outlined_text.dart';
 
 class DynamicColorProgressBar extends StatelessWidget {
   DynamicColorProgressBar({
     Key? key,
     this.title,
     required this.width,
-    this.height = 20.0,
+    this.height = 18.0,
     required this.value,
     required this.max,
     this.showNumber = true,
@@ -98,10 +99,11 @@ class DynamicColorProgressBar extends StatelessWidget {
                 if (showNumber)
                   Align(
                     alignment: Alignment.center,
-                    child: Text(
+                    child: OutlinedText(
                       showNumberAsPercentage
                           ? (value / max).toPercentageString()
                           : valueString,
+                      textColor: kForegroundColor,
                       style: const TextStyle(fontSize: 12.0),
                     ),
                   )

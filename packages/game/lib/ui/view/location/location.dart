@@ -219,7 +219,7 @@ class _LocationViewState extends State<LocationView> {
                 children: [
                   Text(
                       '${engine.locale['worldPosition']}: ${_locationData['tilePosition']['left']}, ${_locationData['tilePosition']['top']}'),
-                  Text('${engine.locale['money']}: ${_locationData['money']}'),
+                  // Text('${engine.locale['money']}: ${_locationData['money']}'),
                   Text(
                       '${engine.locale['development']}: ${_locationData['development']}'),
                   Text(

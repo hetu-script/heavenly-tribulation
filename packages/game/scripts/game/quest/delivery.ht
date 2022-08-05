@@ -8,7 +8,7 @@ import '../entity/common.ht'
 import '../reward.ht'
 import '../datetime.ht'
 import '../tile/hexagonal_tile.ht'
-
+import '../entity/item/money.ht'
 
 const _kDelivering = 'delivering'
 
@@ -39,7 +39,9 @@ struct QuestDelivery {
 
     this.difficulty = kQuestDifficultyNormal
     this.category = kQuestCategoryDelivery
-    this.reward = Reward(money: rewardMoney)
+    this.reward = {}
+    final money = Coin(stackSize: rewardMoney)
+    this.reward[money.id] = money
 
     final location = game.locations[locationId]
 
@@ -111,7 +113,7 @@ struct QuestDelivery {
       }
     }
 
-    this.id = 'quest_${Hash.uid4(2)}_${this.category}_${this.kind}'
+    this.id = 'quest.${Hash.uid4(2)}.${this.category}.${this.kind}'
 
     this.stages = {
       delivering: {

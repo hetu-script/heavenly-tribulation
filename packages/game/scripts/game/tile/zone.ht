@@ -16,7 +16,7 @@ struct Zone {
     assert(category != null)
     this.index = index
     this.name = name
-    this.id = 'zone_${this.index}'
+    this.id = 'zone.${this.index}'
     this.category = category
     this.color = random.nextBrightColorHex()
     this.terrainIndexes = []

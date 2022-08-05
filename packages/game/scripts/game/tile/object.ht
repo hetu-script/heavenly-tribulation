@@ -24,15 +24,15 @@ struct TileMapObject {
     spriteSrc,
     srcWidth,
     srcHeight,
-    offsetY,
+    srcOffsetY,
   }) {
-    this.id = id ?? 'tileMapObject_${Hash.uid4(2)}'
+    this.id = id ?? 'tileMapObject.${Hash.uid4(2)}'
     this.left = left
     this.top = top
     this.velocityFactor = velocityFactor
     this.spriteSrc = spriteSrc
     this.srcWidth = srcWidth
     this.srcHeight = srcHeight
-    this.offsetY = offsetY
+    this.srcOffsetY = srcOffsetY
   }
 }

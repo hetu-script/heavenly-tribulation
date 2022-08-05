@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
-import 'package:samsara/tilemap.dart';
 
 import '../avatar.dart';
 import '../view/character/information/character.dart';
@@ -10,57 +9,24 @@ import '../view/character/builds/build.dart';
 import '../shared/dynamic_color_progressbar.dart';
 import '../view/character/stats/stats.dart';
 
+const kStatsBarWidth = 125.0;
+
 class HeroInfoPanel extends StatelessWidget {
   const HeroInfoPanel({
     super.key,
     required this.heroData,
-    this.showTilePosition = true,
-    this.currentTerrain,
-    this.currentNationData,
-    this.currentLocationData,
   });
 
   final HTStruct heroData;
-  final bool showTilePosition;
-  final TileMapTerrain? currentTerrain;
-  final HTStruct? currentNationData;
-  final HTStruct? currentLocationData;
 
   @override
   Widget build(BuildContext context) {
     final charStats =
         engine.invoke('getCharacterStats', positionalArgs: [heroData]);
 
-    final sb = StringBuffer();
-
-    if (currentTerrain != null) {
-      final zoneIndex = currentTerrain!.data!['zoneIndex'];
-      if (zoneIndex != null) {
-        final zoneData =
-            engine.invoke('getZoneByIndex', positionalArgs: [zoneIndex]);
-        sb.write(zoneData['name']);
-      }
-    }
-
-    if (currentNationData != null) {
-      sb.write(', ');
-      sb.write(currentNationData!['name']);
-    }
-
-    if (currentLocationData != null) {
-      sb.write(', ');
-      sb.write(currentLocationData!['name']);
-    } else if (currentTerrain != null) {
-      sb.write(', ');
-      sb.write(engine.locale[currentTerrain!.kind!]);
-    }
-
-    sb.write(
-        ' (${heroData['worldPosition']['left']}, ${heroData['worldPosition']['top']})');
-
     return Container(
       width: 328,
-      height: 160,
+      height: 150,
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
         color: kBackgroundColor,
@@ -73,6 +39,7 @@ class HeroInfoPanel extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 5.0),
             child: Avatar(
+              size: const Size(120, 120),
               name: heroData['name'],
               image: AssetImage('assets/images/${heroData['icon']}'),
             ),
@@ -88,7 +55,7 @@ class HeroInfoPanel extends StatelessWidget {
                     title: '${engine.locale['life']}: ',
                     value: charStats['life'],
                     max: charStats['lifeMax'],
-                    width: 140.0,
+                    width: kStatsBarWidth,
                     showNumberAsPercentage: false,
                     colors: const <Color>[Colors.red, Colors.red],
                   ),
@@ -99,7 +66,7 @@ class HeroInfoPanel extends StatelessWidget {
                     title: '${engine.locale['stamina']}: ',
                     value: charStats['stamina'],
                     max: charStats['staminaMax'],
-                    width: 140.0,
+                    width: kStatsBarWidth,
                     showNumberAsPercentage: false,
                     colors: const <Color>[Colors.blue, Colors.blue],
                   ),
@@ -110,7 +77,7 @@ class HeroInfoPanel extends StatelessWidget {
                     title: '${engine.locale['chi']}: ',
                     value: charStats['chi'],
                     max: charStats['chiMax'],
-                    width: 140.0,
+                    width: kStatsBarWidth,
                     showNumberAsPercentage: false,
                     colors: const <Color>[Colors.yellow, Colors.yellow],
                   ),
@@ -121,79 +88,82 @@ class HeroInfoPanel extends StatelessWidget {
                     title: '${engine.locale['spirit']}: ',
                     value: charStats['spirit'],
                     max: charStats['spiritMax'],
-                    width: 140.0,
+                    width: kStatsBarWidth,
                     showNumberAsPercentage: false,
                     colors: const <Color>[Colors.green, Colors.green],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5.0),
-                  child: Row(
-                    children: [
-                      BorderedIconButton(
-                        padding: const EdgeInsets.only(right: 5.0),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            barrierColor: Colors.transparent,
-                            builder: (context) =>
-                                CharacterView(characterData: heroData),
-                          );
-                        },
-                        tooltip: engine.locale['information'],
-                        icon: const Image(
-                          image:
-                              AssetImage('assets/images/icon/information.png'),
-                        ),
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 5.0),
+                      child: Row(
+                        children: [
+                          BorderedIconButton(
+                            padding: const EdgeInsets.only(right: 5.0),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                barrierColor: Colors.transparent,
+                                builder: (context) =>
+                                    CharacterView(characterData: heroData),
+                              );
+                            },
+                            tooltip: engine.locale['information'],
+                            icon: const Image(
+                              image: AssetImage(
+                                  'assets/images/icon/information.png'),
+                            ),
+                          ),
+                          BorderedIconButton(
+                            padding: const EdgeInsets.only(right: 5.0),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                barrierColor: Colors.transparent,
+                                builder: (context) =>
+                                    StatusView(characterData: heroData),
+                              );
+                            },
+                            tooltip: engine.locale['status'],
+                            icon: const Image(
+                              image:
+                                  AssetImage('assets/images/icon/status.png'),
+                            ),
+                          ),
+                          BorderedIconButton(
+                            padding: const EdgeInsets.only(right: 5.0),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                barrierColor: Colors.transparent,
+                                builder: (context) =>
+                                    BuildView(characterData: heroData),
+                              );
+                            },
+                            tooltip: engine.locale['build'],
+                            icon: const Image(
+                              image: AssetImage(
+                                  'assets/images/icon/inventory.png'),
+                            ),
+                          ),
+                        ],
                       ),
-                      BorderedIconButton(
-                        padding: const EdgeInsets.only(right: 5.0),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            barrierColor: Colors.transparent,
-                            builder: (context) =>
-                                StatusView(characterData: heroData),
-                          );
-                        },
-                        tooltip: engine.locale['status'],
-                        icon: const Image(
-                          image: AssetImage('assets/images/icon/status.png'),
-                        ),
-                      ),
-                      BorderedIconButton(
-                        padding: const EdgeInsets.only(right: 5.0),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            barrierColor: Colors.transparent,
-                            builder: (context) =>
-                                BuildView(characterData: heroData),
-                          );
-                        },
-                        tooltip: engine.locale['build'],
-                        icon: const Image(
-                          image: AssetImage('assets/images/icon/inventory.png'),
-                        ),
-                      ),
-                      const Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 5.0),
-                        child: Text(
-                            '${engine.locale['money']}: ${heroData['money']}'),
-                      ),
-                    ],
-                  ),
-                ),
-                const Spacer(),
-                if (showTilePosition)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 5.0),
-                    child: Text(
-                      sb.toString(),
-                      style: const TextStyle(fontSize: 12.0),
                     ),
-                  ),
+                    // Expanded(
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.all(5.0),
+                    //     child: Row(
+                    //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //       children: [
+                    //         Text('${engine.locale['money']}:'),
+                    //         Text('${heroData['money']}'),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
+                  ],
+                ),
               ],
             ),
           ),

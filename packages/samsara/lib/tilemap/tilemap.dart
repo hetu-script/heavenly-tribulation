@@ -321,7 +321,7 @@ class TileMap extends GameComponent with HandlesGesture {
       srcWidth: data['srcWidth'].toDouble(),
       srcHeight: data['srcHeight'].toDouble(),
       entityId: objectId,
-      offsetY: data['offsetY'],
+      srcOffsetY: data['srcOffsetY'] ?? 0.0,
     );
 
     if (left != null && top != null) {

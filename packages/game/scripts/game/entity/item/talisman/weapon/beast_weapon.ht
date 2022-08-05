@@ -53,7 +53,7 @@ struct BeastWeapon {
     this.rarity = rarity ?? kCommon
     this.name = beastName + getLocaleString(kind)
     this.color = kRarity[this.rarity].color
-    this.id = 'beast_bodypart_${Hash.uid4(2)}_${this.name}'
+    this.id = 'beastWeapon.${Hash.uid4(2)}.${this.name}'
     this.isBodyPart = true
     this.value = value ?? 30
     this.stackSize = 1

@@ -74,31 +74,43 @@ class _MerchantViewState extends State<MerchantView> {
               child: InventoryView(
                 characterName: widget.merchantData['name'],
                 inventoryData: widget.merchantData['inventory'],
-                money: widget.merchantData['money'],
+                // money: widget.merchantData['money'],
                 type: InventoryType.merchant,
                 priceFactor: widget.priceFactor,
                 onBuy: (item, quantity) {
-                  final int restOfMoney = heroData['money'];
+                  // final int restOfMoney =
+                  //     heroData['inventory']['bronzeCoin'] ?? 0;
                   final int payment =
                       (item['value'] * widget.priceFactor).truncate() *
                           quantity;
-                  if (restOfMoney < payment) {
-                    engine.info(
-                        '${heroData['name']} 银两只有 $restOfMoney 不足 $payment，无法购买。');
-                    return;
+                  // if (restOfMoney < payment) {
+                  //   engine.info(
+                  //       '${heroData['name']} 银两只有 $restOfMoney 不足 $payment，无法购买。');
+                  //   return;
+                  // }
+                  final result = engine.invoke(
+                    'entityGiveMoney',
+                    positionalArgs: [
+                      heroData,
+                      widget.merchantData,
+                      payment,
+                    ],
+                  );
+                  if (result) {
+                    engine.invoke(
+                      'entityGiveItem',
+                      positionalArgs: [
+                        widget.merchantData,
+                        heroData,
+                        item['id'],
+                      ],
+                      namedArgs: {
+                        'count': quantity,
+                      },
+                    );
+                  } else {
+                    // TODO: 提示金钱不足
                   }
-                  engine.invoke('entityGiveMoney', positionalArgs: [
-                    heroData,
-                    widget.merchantData,
-                    payment,
-                  ]);
-                  engine.invoke('entityGiveItem', positionalArgs: [
-                    widget.merchantData,
-                    heroData,
-                    item,
-                  ], namedArgs: {
-                    'count': quantity,
-                  });
                   Navigator.of(context).pop();
                   engine.broadcast(const UIEvent.needRebuildUI());
                   setState(() {});
@@ -112,30 +124,37 @@ class _MerchantViewState extends State<MerchantView> {
               child: InventoryView(
                 characterName: heroData['name'],
                 inventoryData: heroData['inventory'],
-                money: heroData['money'],
+                // money: heroData['money'],
                 type: widget.allowSell
                     ? InventoryType.customer
                     : InventoryType.player,
                 priceFactor: widget.priceFactor,
                 onSell: (item, quantity) {
-                  final int restOfMoney = widget.merchantData['money'];
+                  // final int restOfMoney = widget.merchantData['money'];
                   final int payment = item['value'].truncate() * quantity;
-                  if (restOfMoney < payment) {
-                    engine.info('${widget.merchantData['name']} 银钱不足，无法出售。');
-                    return;
+                  // if (restOfMoney < payment) {
+                  //   engine.info('${widget.merchantData['name']} 银钱不足，无法出售。');
+                  //   return;
+                  // }
+                  final result = engine.invoke(
+                    'entityGiveMoney',
+                    positionalArgs: [
+                      widget.merchantData,
+                      heroData,
+                      payment,
+                    ],
+                  );
+                  if (result) {
+                    engine.invoke('entityGiveItem', positionalArgs: [
+                      heroData,
+                      widget.merchantData,
+                      item['id'],
+                    ], namedArgs: {
+                      'count': quantity,
+                    });
+                  } else {
+                    // TODO: 提示金钱不足
                   }
-                  engine.invoke('entityGiveMoney', positionalArgs: [
-                    widget.merchantData,
-                    heroData,
-                    payment,
-                  ]);
-                  engine.invoke('entityGiveItem', positionalArgs: [
-                    heroData,
-                    widget.merchantData,
-                    item,
-                  ], namedArgs: {
-                    'count': quantity,
-                  });
                   Navigator.of(context).pop();
                   engine.broadcast(const UIEvent.needRebuildUI());
                   setState(() {});

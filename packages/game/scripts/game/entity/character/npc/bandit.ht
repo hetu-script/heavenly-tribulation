@@ -76,7 +76,7 @@ struct Bandit {
     // this.icon = 'avatar/general.png'
     this.category = kEntityCategoryCharacter
     this.name = getLocaleString(isPirate ? _kPirateName : _kBanditName) + getLocaleString(this.kind)
-    this.id = 'npc_${Hash.uid4(2)}_${this.name}'
+    this.id = 'npc.${Hash.uid4(2)}.${this.name}'
     this.rarity = rarity ?? kCommon
     this.color = kRarity[this.rarity].color
     this.description = description ?? ''
@@ -85,6 +85,7 @@ struct Bandit {
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
     when (this.kind) {
       'minion' -> {
+        this.icon = 'maze/bandit_minion.png'
         final battleInfo = BattleEntity(
           attributes: attributes ?? _kBeastAttributes.minion,
           attributeSum: _kBanditAttributeSum,
@@ -93,8 +94,7 @@ struct Bandit {
         )
         this.assign(battleInfo)
         // BattleEntity 会初始化银两为0，因此必须在其之后赋值
-        this.money = random.nextInt(50) + 50
-        this.icon = 'maze/bandit_minion.png'
+        entityAcquireMoney(this, random.nextInt(50) + 50)
         characterEquip(this, Weapon())
         // 山贼喽啰可以成为别的山贼的战斗伙伴
         this.isEquippable = true
@@ -102,6 +102,7 @@ struct Bandit {
         this.companionType = kCompanionTypeBattle
       }
       'muscle' -> {
+        this.icon = 'maze/bandit_muscle.png'
         final battleInfo = BattleEntity(
           attributes: attributes ?? _kBeastAttributes.muscle,
           attributeSum: _kBanditAttributeSum,
@@ -110,13 +111,13 @@ struct Bandit {
         )
         this.assign(battleInfo)
         // BattleEntity 会初始化银两为0，因此必须在其之后赋值
-        this.money = random.nextInt(75) + 50
-        this.icon = 'maze/bandit_muscle.png'
+        entityAcquireMoney(this, random.nextInt(75) + 50)
         characterEquip(this, Weapon(kind: 'spear'))
         final minion1 = Bandit(kind: 'minion')
         characterEquip(this, minion1)
       }
       'killer' -> {
+        this.icon = 'maze/bandit_killer.png'
         final battleInfo = BattleEntity(
           attributes: attributes ?? _kBeastAttributes.killer,
           attributeSum: _kBanditAttributeSum,
@@ -125,8 +126,7 @@ struct Bandit {
         )
         this.assign(battleInfo)
         // BattleEntity 会初始化银两为0，因此必须在其之后赋值
-        this.money = random.nextInt(100) + 50
-        this.icon = 'maze/bandit_killer.png'
+        entityAcquireMoney(this, random.nextInt(100) + 50)
         characterEquip(this, Weapon(kind: 'sabre'))
         characterEquip(this, Weapon(kind: 'sabre'))
         final minion1 = Bandit(kind: 'minion')
@@ -141,7 +141,7 @@ struct Bandit {
         )
         this.assign(battleInfo)
         // BattleEntity 会初始化银两为0，因此必须在其之后赋值
-        this.money = random.nextInt(300) + 100
+        entityAcquireItem(this, random.nextInt(300) + 100)
         this.icon = 'maze/bandit_boss.png'
         characterEquip(this, Weapon())
         characterEquip(this, Shield())

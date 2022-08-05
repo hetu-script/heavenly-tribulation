@@ -17,9 +17,10 @@ import 'generation_algorithm.ht'
 final _kLandSprites = [
   kSpriteLand,
   kSpriteGrassLand,
-  kPavedRockTile,
   kRockyTrail,
 ]
+
+const _kPavedProbability = 0.35
 
 const _kBlockWidth = 4
 const _kBlockSize = 4
@@ -35,7 +36,7 @@ struct CultivationRecruitMaze {
     organizationName,
   }) {
     this.name = name
-    this.id = 'maze_${Hash.uid4(4)}_${name}'
+    this.id = 'maze.${Hash.uid4(4)}.${name}'
     engine.info('开始生成副本: [${this.id}]')
 
     this.category = kMazeCategoryCultivatorRecruit
@@ -59,7 +60,7 @@ struct CultivationRecruitMaze {
 
     final currentLevel = TileMap(
       id: '${this.id}',
-      name: getLocaleString('level', interpolations: [1]),
+      name: getLocaleString('mazeLevel', interpolations: [1]),
       width: width,
       height: height,
     )
@@ -237,7 +238,11 @@ struct CultivationRecruitMaze {
     // engine.info('在锚点放置遭遇')
     
     for (final name in routes) {
-      generateRouteByAnchor(name, anchors, currentLevel, spriteIndex: random.nextIterable(_kLandSprites))
+      if (random.nextDouble() < _kPavedProbability) {
+        generateRouteByAnchor(name, anchors, currentLevel, flag: 'isPaved')
+      } else {
+        generateRouteByAnchor(name, anchors, currentLevel)
+      }
     }
 
     // 最后再联通到入口和出口上
@@ -247,9 +252,13 @@ struct CultivationRecruitMaze {
     final blockZone = Zone(index: currentLevel.zones.length, category: 'block')
     currentLevel.zones.add(blockZone)
     for (final tile in currentLevel.terrains) {
-      if (tile.isRoute) {
+      if (tile.flags.isRoute) {
         tile.isSelectable = true
-        tile.spriteIndex ??= random.nextIterable(_kLandSprites)
+        if (tile.flags.isPaved) {
+          tile.spriteIndex = kPavedRockTile
+        } else {
+          tile.spriteIndex = random.nextIterable(_kLandSprites)
+        }
       } else {
         tile.isVoid = true
         tile.isSelectable = false

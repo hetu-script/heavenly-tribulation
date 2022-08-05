@@ -329,7 +329,6 @@ class _MazeOverlayState extends State<MazeOverlay>
                           top: 0,
                           child: HeroInfoPanel(
                             heroData: _heroData!,
-                            showTilePosition: false,
                           ),
                         ),
                       Positioned(
@@ -362,6 +361,7 @@ class _MazeOverlayState extends State<MazeOverlay>
                               '${widget.mazeData['name']} ${widget.mazeData['levels'][_currentLevelIndex]['name']}',
                           heroId: _heroData?['id'],
                           historyData: widget.mazeData['history'],
+                          showTileInfo: false,
                         ),
                       ),
                     ],

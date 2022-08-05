@@ -1,0 +1,35 @@
+import '../common.ht'
+import '../../l10n.ht'
+
+const kBronzeCoin = 'bronzeCoin'
+const kSilverCoin = 'silverCoin'
+const kGoldCoin = 'goldCoin'
+
+struct Coin {
+  construct ({
+    kind = kBronzeCoin,
+    rarity = kCommon,
+    value = 1,
+    icon,
+    description = '',
+    stackSize = 1,
+    isConsumable,
+    effects,
+  }) {
+    this.kind = kind
+    this.rarity = kCommon
+    this.name = getLocaleString(this.kind)
+    this.color = kRarity[this.rarity].color
+
+    this.entityType = kEntityTypeItem
+    this.category = kEntityCategoryMoney // 武器、防护、斗技、玄功等等
+    this.value = value
+
+    this.description = getLocaleString('${this.kind}.description')
+    this.stackSize = stackSize
+    this.id = 'money.${this.kind}'
+    this.icon = icon ?? 'icon/item/money.png'
+
+    this.isUnsellable = true
+  }
+}

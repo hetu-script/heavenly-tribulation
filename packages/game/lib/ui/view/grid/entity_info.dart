@@ -22,6 +22,7 @@ const kEntityCategoryProtect = 'protect';
 const kEntityCategoryTalisman = 'talisman';
 const kEntityCategoryConsumable = 'consumable';
 const kEntityCategoryFightSkill = 'fightSkill';
+const kEntityCategoryMoney = 'money';
 
 const kEntityConsumableKindMedicineIngrident = 'medicineIngrident';
 const kEntityConsumableKindMedicine = 'medicine';
@@ -30,6 +31,7 @@ const kEntityConsumableKindFood = 'food';
 const kEntityConsumableKindBeverage = 'beverage';
 const kEntityConsumableKindAlchemy = 'alchemy';
 
+// 实际上进攻类装备也可能具有防御效果，因此这里的类型仅用于显示而已
 const kEquipTypeOffense = 'offense';
 const kEquipTypeSupport = 'support';
 const kEquipTypeDefense = 'defense';
@@ -186,24 +188,29 @@ class EntityInfo extends StatelessWidget {
                           '${engine.locale['price']}: ${(entityData['value'] * priceFactor).truncate()}'),
                     if (stackSize > 1)
                       Text('${engine.locale['stackSize']}: $stackSize'),
-                    // if (equipType == kEquipTypeCompanion)
-                    //   Text(
-                    //       '${engine.locale['coordination']}: ${stats['coordination']}'),
+                    if (equipType == kEquipTypeCompanion)
+                      Text(
+                          '${engine.locale['coordination']}: ${stats['coordination']}'),
+                    if (entityType == kEntityTypeSkill) ...[
+                      Text(
+                          '${engine.locale['level']}: ${entityData['level']}/${entityData['levelMax']}'),
+                      Text(
+                          '${engine.locale['exp']}: ${entityData['exp']}/${entityData['expForNextLevel']}'),
+                    ],
                     if (equipType == kEquipTypeCompanion)
                       Text(
                           '${engine.locale['life']}: ${stats['life']}/${stats['lifeMax']}'),
-                    if (category == kEntityCategoryWeapon ||
-                        category == kEntityCategoryProtect)
+                    if (entityType == kEntityCategoryWeapon ||
+                        entityType == kEntityCategoryProtect)
                       Text(
                           '${engine.locale['durability']}: ${stats['life']}/${stats['lifeMax']}'),
-                    if (equipType == kEquipTypeOffense)
+                    if (equipType == kEquipTypeOffense) ...[
                       Text(
                           '${engine.locale['damage']}: ${stats['damage'].toStringAsFixed(2)}'),
-                    if (equipType == kEquipTypeOffense)
                       Text(
                           '${engine.locale['damageType']}: ${engine.locale[entityData['damageType']]}'),
-                    if (equipType == kEquipTypeOffense)
                       Text('${engine.locale['speed']}: ${stats['speed']}f'),
+                    ],
                     if (effects.isNotEmpty) const Divider(),
                     ...effects,
                     if (actions.isNotEmpty) const Divider(),

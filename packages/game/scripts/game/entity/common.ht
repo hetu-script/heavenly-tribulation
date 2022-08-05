@@ -135,6 +135,7 @@ const kEntityCategoryTalisman = 'talisman'
 const kEntityCategoryConsumable = 'consumable'
 const kEntityCategoryMaterial = 'material'
 const kEntityCategoryFightSkill = 'fightSkill'
+const kEntityCategoryMoney = 'money'
 
 // 可食用的物品类型，这里的类型只影响文字描述。
 const kEntityConsumableKindMedicine = 'medicine'
@@ -217,3 +218,9 @@ const kDamageTypeLightning = 'lightning'
 const kDamageTypeChi = 'chi'
 const kDamageTypeSpell = 'spell'
 const kDamageTypeCurse = 'curse'
+
+// level up exp function from pokemon
+fun expForLevel(level) {
+  assert(level > 0)
+  return ((4 * (level * level * level)) ~/ 5 + 1) * 100
+}

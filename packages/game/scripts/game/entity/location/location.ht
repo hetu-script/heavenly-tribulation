@@ -55,7 +55,7 @@ struct Location {
       } while (conflict)
     }
     this.category = category
-    this.id = 'location_${this.index}_${this.name}'
+    this.id = 'location.${this.index}.${this.name}'
     game.locations[this.id] = this
 
     // 据点稳定度，最高100，初始随机0-49
@@ -69,7 +69,7 @@ struct Location {
     this.pupulation = maxPopulationOfLocationDevelopment
 
     // 据点和人物类似，也具有金钱和物品栏
-    this.money = 0
+    // this.money = 0
     this.inventory = {}
 
     // 当前处于这个场景的角色

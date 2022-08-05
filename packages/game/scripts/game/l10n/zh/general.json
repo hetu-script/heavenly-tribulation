@@ -42,6 +42,8 @@
   "inputInt": "输入一个数字",
   "selectHero": "选择你要扮演的角色",
 
+  "level": "等级",
+  "exp": "经验值",
   "equip": "装备",
   "unequip": "卸下",
   "consume": "食用",
@@ -153,7 +155,7 @@
 
   "nationPostfix": "国",
 
-  "level": "第 {0} 层",
+  "mazeLevel": "第 {0} 层",
 
   "quest": "任务",
   "work": "打工",
@@ -163,5 +165,15 @@
 
   "leader": "首领",
   "development": "发展度",
-  "recruitMonth": "招募月份"
+  "recruitMonth": "招募月份",
+
+  "coordination": "协同",
+
+  "money": "货币",
+  "bronzeCoin": "铜钱",
+  "bronzeCoin.description": "通行的货币，用来交易各种物品。",
+  "silverCoin": "银币",
+  "silverCoin.description": "通行的货币，用来交易各种物品。每个价值 1000 铜钱",
+  "goldCoin": "金块",
+  "goldCoin.description": "通行的货币，用来交易各种物品。每个价值 1000 银币"
 }

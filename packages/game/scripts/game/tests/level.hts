@@ -1,0 +1,8 @@
+fun expForLevel(level) {
+  assert(level > 0)
+  return ((4 * (level * level * level)) ~/ 5 + 1) * 100
+}
+
+for (final i in range(1, 10)) {
+  print(expForLevel(i))
+}

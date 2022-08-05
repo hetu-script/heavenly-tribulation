@@ -26,10 +26,7 @@ const kQuestConquestMazeKindReturnHostage = 'returnHostage'
 const kQuestConquestMazeKindReturnTreasure = 'returnTreasure'
 
 fun generateQuestReward(difficulty) {
-  final reward = Reward(
-    money: 0,
-    inventory: {},
-  )
+  final reward = {}
   return reward
 }
 
@@ -84,8 +81,7 @@ fun characterTrySubmitQuest(character, target, quest) -> bool {
         final entity = character.companions[data.id]
         characterDismissCompanion(character, entity)
       } else if (data.entityType == kEntityTypeItem) {
-        final entity = character.inventory[data.id]
-        entityGiveItem(character, target, entity, count: data.count)
+        entityGiveItem(character, target, data.id, count: data.count)
       }
     }
   }

@@ -1,9 +1,0 @@
-struct Reward {
-  construct ({
-    money = 0,
-    inventory,
-  }) {
-    this.money = money
-    this.inventory = inventory ?? {}
-  }
-}

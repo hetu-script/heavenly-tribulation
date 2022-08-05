@@ -110,6 +110,7 @@ flutter:
     - scripts/game/l10n/zh/
     - scripts/game/maze/
     - scripts/game/name/
+    - scripts/game/name/book/
     - scripts/game/name/character/
     - scripts/game/name/common/
     - scripts/game/name/consumable/
@@ -118,6 +119,7 @@ flutter:
     - scripts/game/name/organization/
     - scripts/game/name/place/
     - scripts/game/name/skill/
+    - scripts/game/name/spell/
     - scripts/game/name/talisman/
     - scripts/game/name/zone/
     - scripts/game/predefined/
@@ -126,9 +128,7 @@ flutter:
     - scripts/game/world/
 
     - scripts/story/
-    - scripts/story/binding/
     - scripts/story/data/
-    - scripts/story/data/sandbox_story/
     - scripts/story/l10n/
 
   fonts:

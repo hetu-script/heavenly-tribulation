@@ -13,17 +13,19 @@ class WorldMapPopup extends StatelessWidget {
   final VoidCallback? onPanelTapped;
 
   final bool moveToIcon;
-  final bool interactIcon;
   final bool enterIcon;
   final bool talkIcon;
   final bool restIcon;
+  final bool practiceIcon;
+  final bool interactIcon;
   final String description;
 
   final VoidCallback? onMoveTo;
-  final VoidCallback? onInteract;
   final VoidCallback? onEnter;
   final VoidCallback? onTalk;
   final VoidCallback? onRest;
+  final VoidCallback? onPractice;
+  final VoidCallback? onInteract;
 
   const WorldMapPopup({
     super.key,
@@ -32,14 +34,16 @@ class WorldMapPopup extends StatelessWidget {
     this.onPanelTapped,
     this.moveToIcon = false,
     this.onMoveTo,
-    this.interactIcon = false,
-    this.onInteract,
     this.enterIcon = false,
     this.onEnter,
     this.talkIcon = false,
     this.onTalk,
     this.restIcon = false,
     this.onRest,
+    this.practiceIcon = false,
+    this.onPractice,
+    this.interactIcon = false,
+    this.onInteract,
     this.description = '',
   });
 
@@ -178,6 +182,25 @@ class WorldMapPopup extends StatelessWidget {
                       onPressed: () {
                         if (onRest != null) {
                           onRest!();
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              if (practiceIcon)
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: InkImageButton(
+                      width: _kPopupButtonSize,
+                      height: _kPopupButtonSize,
+                      tooltip: engine.locale['practice'],
+                      child: const Image(
+                        image: AssetImage('assets/images/icon/practice.png'),
+                      ),
+                      onPressed: () {
+                        if (onPractice != null) {
+                          onPractice!();
                         }
                       },
                     ),

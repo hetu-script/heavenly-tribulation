@@ -22,11 +22,11 @@ const kEffectHealInjury = 'effectHealInjury'
 const kEffectHealInfection = 'effectHealInfection'
 
 // 食用时触发的效果
-final kEffectCategoryConsume = 'consume'
+const kEffectCategoryConsume = 'consume'
 // 受击时触发的效果
-final kEffectCategoryDefend = 'defend'
+const kEffectCategoryDefend = 'defend'
 // 造成伤害时触发的效果
-final kEffectCategoryDamage = 'damage'
+const kEffectCategoryDamage = 'damage'
 
 // 关于 增加/减少（increased / decreased）和 更多/更少（more / less）
 // 前者是把所有的百分比直接加一起，然后乘以基础值。

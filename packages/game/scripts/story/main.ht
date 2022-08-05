@@ -1,7 +1,6 @@
 import 'module:game' as game
 
 import 'l10n/localizations.ht'
-import 'data/sandbox_story/dialogs.ht'
 import 'module.json' as module
 
 // 这里的函数最终是绑定到游戏对象上执行

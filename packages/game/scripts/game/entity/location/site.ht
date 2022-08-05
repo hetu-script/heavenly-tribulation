@@ -63,7 +63,7 @@ struct Site {
     }
     this.image = image ?? 'location/site/${category}.png'
 
-    this.id = 'site_${locationId}_${category}_${this.name}'
+    this.id = 'site.${locationId}.${category}.${this.name}'
 
     final location = game.locations[locationId]
     engine.info('在 ${location.name} 建立了新建筑 ${this.name}')
@@ -75,8 +75,8 @@ struct Site {
       kSiteReligion -> location.hasReligion = true
     }
     
-    // 建筑和人物类似，也具有金钱和物品栏
-    this.money = 0
+    // 建筑和人物类似，也具有物品栏
+    // this.money = 0
     this.inventory = {}
 
     // 这个建筑可以领的任务

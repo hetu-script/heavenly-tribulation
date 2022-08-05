@@ -1,6 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:samsara/tilemap.dart';
+import 'package:hetu_script/values.dart';
 
 import '../../global.dart';
 
@@ -12,17 +14,24 @@ class HistoryPanel extends StatelessWidget {
     this.retraceMessageCount = 50,
     this.showGlobalIncident = true,
     this.historyData,
+    this.showTileInfo = true,
+    this.heroPosition,
+    this.currentTerrain,
+    this.currentNationData,
+    this.currentLocationData,
   });
 
   final String? title;
-
   final String? heroId;
-
   final int retraceMessageCount;
-
   final bool showGlobalIncident;
-
   final List? historyData;
+
+  final bool showTileInfo;
+  final HTStruct? heroPosition;
+  final TileMapTerrain? currentTerrain;
+  final HTStruct? currentNationData;
+  final HTStruct? currentLocationData;
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +51,36 @@ class HistoryPanel extends StatelessWidget {
       }
     }
 
+    final dateString = engine.invoke('getCurrentDateTimeString');
+
+    final sb = StringBuffer();
+
+    if (currentTerrain != null) {
+      final zoneIndex = currentTerrain!.data!['zoneIndex'];
+      if (zoneIndex != null) {
+        final zoneData =
+            engine.invoke('getZoneByIndex', positionalArgs: [zoneIndex]);
+        sb.write(zoneData['name']);
+      }
+    }
+
+    if (currentNationData != null) {
+      sb.write(', ');
+      sb.write(currentNationData!['name']);
+    }
+
+    if (currentLocationData != null) {
+      sb.write(', ');
+      sb.write(currentLocationData!['name']);
+    } else if (currentTerrain != null) {
+      sb.write(', ');
+      sb.write(engine.locale[currentTerrain!.kind!]);
+    }
+
+    if (heroPosition != null) {
+      sb.write(' (${heroPosition!['left']}, ${heroPosition!['top']})');
+    }
+
     return GestureDetector(
       onTap: () {
         // TODO: open hitstory view.
@@ -49,7 +88,7 @@ class HistoryPanel extends StatelessWidget {
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: Container(
-          width: 290,
+          width: 328,
           height: 120,
           decoration: BoxDecoration(
             color: kBackgroundColor,
@@ -63,7 +102,13 @@ class HistoryPanel extends StatelessWidget {
             children: [
               if (title != null) Text(title!),
               if (title == null)
-                Text(engine.invoke('getCurrentDateTimeString')),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(dateString),
+                    Text(sb.toString()),
+                  ],
+                ),
               const Divider(
                 color: kForegroundColor,
               ),

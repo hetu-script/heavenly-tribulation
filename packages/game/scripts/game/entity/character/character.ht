@@ -129,7 +129,7 @@ struct Baby {
     this.familyName = father.familyName
     this.shortName = randomName.shortName
     this.name = this.familyName + this.shortName
-    this.id = 'character_${this.index}_${this.name}'
+    this.id = 'character.${this.index}.${this.name}'
 
     game.babies[this.id] = this
   }
@@ -184,10 +184,10 @@ struct Character {
     this.encounterType = kEncounterTypeCharacter
     this.category = kEntityCategoryCharacter
     if (isMajorCharacter) {
-      this.id = 'character_${game.characters.length}_${this.name}'
+      this.id = 'character.${game.characters.length}.${this.name}'
       game.characters[this.id] = this
     } else {
-      this.id = 'npc_${Hash.uid4(2)}_${this.name}'
+      this.id = 'npc.${Hash.uid4(2)}.${this.name}'
       game.npcs[this.id] = this
     }
     this.color = kRarity.common.color
@@ -722,8 +722,8 @@ fun rejuvenate(character) {
   character.stats.life = character.attributes.life
   character.stats.stamina = character.attributes.stamina
 
-  for (var i = 1; i < kEquipmentMax.defense; ++i) {
-    final equipData = character.equipments.defense[i]
+  for (final i in range(1, kEquipmentMax)) {
+    final equipData = character.equipments[i]
     if (equipData != null) {
       final item = getEquipped(equipData, character)
       item.stats.life = item.stats.lifeMax
@@ -732,26 +732,26 @@ fun rejuvenate(character) {
       }
     }
   }
-  for (var i = 1; i < kEquipmentMax.offense; ++i) {
-    final equipData = character.equipments.offense[i]
-    if (equipData != null) {
-      final item = getEquipped(equipData, character)
-      item.stats.life = item.stats.lifeMax
-      for (final effect of item.effects) {
-        effect.cooldown = 0
-      }
-    }
-  }
-  for (var i = 1; i < kEquipmentMax.companion; ++i) {
-    final equipData = character.equipments.companion[i]
-    if (equipData != null) {
-      final item = getEquipped(equipData, character)
-      item.stats.life = item.stats.lifeMax
-      for (final effect of item.effects) {
-        effect.cooldown = 0
-      }
-    }
-  }
+  // for (var i = 1; i < kEquipmentMax.offense; ++i) {
+  //   final equipData = character.equipments.offense[i]
+  //   if (equipData != null) {
+  //     final item = getEquipped(equipData, character)
+  //     item.stats.life = item.stats.lifeMax
+  //     for (final effect of item.effects) {
+  //       effect.cooldown = 0
+  //     }
+  //   }
+  // }
+  // for (var i = 1; i < kEquipmentMax.companion; ++i) {
+  //   final equipData = character.equipments.companion[i]
+  //   if (equipData != null) {
+  //     final item = getEquipped(equipData, character)
+  //     item.stats.life = item.stats.lifeMax
+  //     for (final effect of item.effects) {
+  //       effect.cooldown = 0
+  //     }
+  //   }
+  // }
 }
 
 fun handleCharacterTalk(subject, target) {
@@ -830,10 +830,10 @@ fun characterSteal(character, item) {
 //   coordination,
 // }
 fun characterGetCompanion(character, companion) {
-  if (character.companions.length >= kEquipmentMax.companion) {
-    engine.warning('${character.name} 的随从数量已满，无法再添加新的随从。')
-    return false
-  }
+  // if (character.companions.length >= kEquipmentMax) {
+  //   engine.warning('${character.name} 的随从数量已满，无法再添加新的随从。')
+  //   return false
+  // }
   if (character.companions.containsKey(companion.id)) {
     engine.warning('${companion.name} 已经是 ${character.name} 的随从了，无法再次添加。')
     return false

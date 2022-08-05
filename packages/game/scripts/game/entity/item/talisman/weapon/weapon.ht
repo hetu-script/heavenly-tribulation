@@ -127,7 +127,7 @@ struct Weapon {
       this.name = randomName.name
     }
     this.color = kRarity[this.rarity].color
-    this.id = this.rarity != kCommon ? 'weapon_${Hash.uid4(2)}_${this.name}' : 'weapon_${this.name}'
+    this.id = this.rarity != kCommon ? 'weapon.${Hash.uid4(2)}.${this.name}' : 'weapon.${this.name}'
     
     this.icon = kWeaponKinds[this.kind].icon
     this.attributes = {

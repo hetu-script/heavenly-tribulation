@@ -41,6 +41,7 @@ struct Material {
       this.name = randomName.name
       this.rarity ??= randomName.rarity
     }
+    this.color = kRarity[this.rarity].color
 
     this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
     this.category = kEntityCategoryMaterial // 武器、防护、斗技、玄功等等
@@ -48,8 +49,7 @@ struct Material {
 
     this.description = description
     this.stackSize = stackSize
-    this.color = kRarity[this.rarity].color
-    this.id = this.rarity != kCommon ? 'consumable_${Hash.uid4(2)}_${this.name}' : 'consumable_${this.name}'
+    this.id = this.rarity != kCommon ? 'consumable.${Hash.uid4(2)}.${this.name}' : 'consumable.${this.name}'
     this.icon = icon ?? 'icon/item/material/${this.kind}.png'
 
     this.isConsumable = isConsumable

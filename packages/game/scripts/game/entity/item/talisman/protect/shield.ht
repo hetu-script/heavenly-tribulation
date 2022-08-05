@@ -41,7 +41,7 @@ struct Shield {
       this.name = randomName.name
     }
     this.color = kRarity[this.rarity].color
-    this.id = this.rarity != kCommon ? 'shield_${Hash.uid4(2)}_${this.name}' : 'shield_${this.name}'
+    this.id = this.rarity != kCommon ? 'shield.${Hash.uid4(2)}.${this.name}' : 'shield.${this.name}'
     
     this.icon = 'icon/item/shield.png'
     this.attributes = {

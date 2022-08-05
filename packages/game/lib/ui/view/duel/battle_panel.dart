@@ -4,11 +4,17 @@ import 'package:hetu_script/values.dart';
 import '../../../global.dart';
 import 'battle_item_card.dart';
 // import 'defense_card.dart';
+import '../../shared/dynamic_color_progressbar.dart';
+import '../../avatar.dart';
 
-const kEquipmentMaxOffense = 5;
-const kEquipmentMaxSupport = 5;
-const kEquipmentMaxDefense = 4;
-const kEquipmentMaxCompanion = 4;
+const kEquipmentMax = 7;
+
+// const kEquipmentMaxOffense = 5;
+// const kEquipmentMaxSupport = 5;
+// const kEquipmentMaxDefense = 4;
+// const kEquipmentMaxCompanion = 4;
+
+const kStatsBarWidth = 120.0;
 
 class BattlePanel extends StatelessWidget {
   /// [activatedOffenseIndex] 表示目前正在激活的武器/斗技，表现为一个边框。默认是0，表示没有激活。
@@ -38,92 +44,95 @@ class BattlePanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final defenseItems = <Widget>[];
-    for (var i = 1; i < kEquipmentMaxDefense; ++i) {
-      final equipData = characterData['equipments']['defense'][i];
+    final equipments = <Widget>[];
+    for (var i = 1; i < kEquipmentMax; ++i) {
+      final equipData = characterData['equipments'][i];
       final item = equipData != null
           ? engine
               .invoke('getEquipped', positionalArgs: [equipData, characterData])
           : null;
-      defenseItems.add(Padding(
-        padding: const EdgeInsets.all(5.0),
-        child: BattleItemCard(
-          size: const Size(48.0, 64.0),
-          itemData: item,
-          life: statsData['defense'][i]?['life'],
-          lifeMax: statsData['defense'][i]?['lifeMax'],
+      equipments.add(
+        Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: BattleItemCard(
+            size: const Size(40.0, 64.0),
+            itemData: item,
+            isSelected: activatedOffenseIndex == i,
+            life: statsData['equipments'][i]?['life'],
+            lifeMax: statsData['equipments'][i]?['lifeMax'],
+            cooldownValue: cooldownValue,
+            cooldownColor: cooldownColor,
+          ),
         ),
-      ));
-    }
-
-    final companions = <Widget>[];
-    for (var i = 1; i < kEquipmentMaxCompanion; ++i) {
-      final equipData = characterData['equipments']['companion'][i];
-      final compnanion = equipData != null
-          ? engine
-              .invoke('getEquipped', positionalArgs: [equipData, characterData])
-          : null;
-      companions.add(Padding(
-        padding: const EdgeInsets.all(5.0),
-        child: BattleItemCard(
-          size: const Size(48.0, 64.0),
-          itemData: compnanion,
-          life: statsData['companion'][i]?['life'],
-          lifeMax: statsData['companion'][i]?['lifeMax'],
-        ),
-      ));
-    }
-
-    final offenseItems = <Widget>[];
-    for (var i = 1; i < kEquipmentMaxOffense; ++i) {
-      final equipData = characterData['equipments']['offense'][i];
-      final item = equipData != null
-          ? engine
-              .invoke('getEquipped', positionalArgs: [equipData, characterData])
-          : null;
-      offenseItems.add(Padding(
-        padding: const EdgeInsets.all(5.0),
-        child: BattleItemCard(
-          size: const Size(48.0, 120.0),
-          itemData: item,
-          isSelected: activatedOffenseIndex == i,
-          life: statsData['offense'][i]?['life'],
-          lifeMax: statsData['offense'][i]?['lifeMax'],
-          cooldownValue: activatedOffenseIndex == i ? cooldownValue : 0,
-          cooldownColor: cooldownColor,
-        ),
-      ));
+      );
     }
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: BattleItemCard(
-                size: const Size(48.0, 137.0),
-                itemData: characterData,
-                life: statsData['life'],
-                lifeMax: statsData['lifeMax'],
+              padding: const EdgeInsets.only(right: 5.0),
+              child: Avatar(
+                name: characterData['name'],
+                image: AssetImage('assets/images/${characterData['icon']}'),
               ),
             ),
             Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: companions,
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 5.0),
+                  child: DynamicColorProgressBar(
+                    title: '${engine.locale['life']}: ',
+                    value: statsData['life'],
+                    max: statsData['lifeMax'],
+                    width: kStatsBarWidth,
+                    showNumberAsPercentage: false,
+                    colors: const <Color>[Colors.red, Colors.red],
+                  ),
                 ),
-                Row(
-                  children: defenseItems,
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 5.0),
+                  child: DynamicColorProgressBar(
+                    title: '${engine.locale['stamina']}: ',
+                    value: statsData['stamina'],
+                    max: statsData['staminaMax'],
+                    width: kStatsBarWidth,
+                    showNumberAsPercentage: false,
+                    colors: const <Color>[Colors.blue, Colors.blue],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 5.0),
+                  child: DynamicColorProgressBar(
+                    title: '${engine.locale['chi']}: ',
+                    value: statsData['chi'],
+                    max: statsData['chiMax'],
+                    width: kStatsBarWidth,
+                    showNumberAsPercentage: false,
+                    colors: const <Color>[Colors.yellow, Colors.yellow],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 5.0),
+                  child: DynamicColorProgressBar(
+                    title: '${engine.locale['spirit']}: ',
+                    value: statsData['spirit'],
+                    max: statsData['spiritMax'],
+                    width: kStatsBarWidth,
+                    showNumberAsPercentage: false,
+                    colors: const <Color>[Colors.green, Colors.green],
+                  ),
                 ),
               ],
-            )
+            ),
           ],
         ),
         Row(
-          children: offenseItems,
+          children: equipments,
         ),
       ],
     );

@@ -94,10 +94,10 @@ fun testMerchant {
   setRandomSeed(1003)
   resetGame()
   final hero = Character()
-  hero.money += 100
+  entityAcquireMoney(hero, 100)
   setHeroId(hero.id)
   final merchant = Character()
-  merchant.money += 500
+  entityAcquireMoney(merchant, 500)
   entityAcquireItem(merchant, Consumable.medicine(), count: 20)
   entityAcquireItem(merchant, Consumable.beverage(), count: 20)
   showMerchant(merchant)
@@ -111,7 +111,7 @@ fun testMazeMountain {
     name: '测试副本',
   )
   final hero = Character()
-  hero.money += 200
+  entityAcquireMoney(hero, 200)
   characterEquip(hero, Kickboxing())
   // characterEquip(hero, Weapon())
   characterEquip(hero, Shield())

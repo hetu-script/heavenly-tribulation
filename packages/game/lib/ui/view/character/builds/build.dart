@@ -181,28 +181,23 @@ class _BuildViewState extends State<BuildView> {
     //     engine.invoke('getCharacterById', positionalArgs: [charId]);
 
     return ResponsiveWindow(
-      size: const Size(720.0, 420.0),
+      alignment: AlignmentDirectional.topCenter,
+      size: const Size(400.0, 400.0),
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(widget.characterData['name']),
           actions: const [ButtonClose()],
         ),
-        body: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            SizedBox(
-              width: 300.0,
-              height: 390.0,
-              child: EquipmentsView(
-                characterData: widget.characterData,
-                onItemTapped: _onItemTapped,
-              ),
+            EquipmentsView(
+              characterData: widget.characterData,
+              onItemTapped: _onItemTapped,
             ),
-            const VerticalDivider(),
             SizedBox(
-              width: 350.0,
-              height: 390.0,
+              height: 290.0,
               child: DefaultTabController(
                 length: _tabs.length, // 物品栏通过tabs过滤不同种类的物品
                 child: Column(
@@ -212,22 +207,25 @@ class _BuildViewState extends State<BuildView> {
                       tabs: _tabs,
                     ),
                     Expanded(
-                      child: TabBarView(
-                        // controller: _tabController,
-                        children: [
-                          InventoryView(
-                            inventoryData: widget.characterData['inventory'],
-                            onEquipChanged: () => setState(() {}),
-                          ),
-                          InventoryView(
-                            inventoryData: widget.characterData['skills'],
-                            onEquipChanged: () => setState(() {}),
-                          ),
-                          InventoryView(
-                            inventoryData: widget.characterData['companions'],
-                            onEquipChanged: () => setState(() {}),
-                          ),
-                        ],
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 15.0),
+                        child: TabBarView(
+                          // controller: _tabController,
+                          children: [
+                            InventoryView(
+                              inventoryData: widget.characterData['inventory'],
+                              onEquipChanged: () => setState(() {}),
+                            ),
+                            InventoryView(
+                              inventoryData: widget.characterData['skills'],
+                              onEquipChanged: () => setState(() {}),
+                            ),
+                            InventoryView(
+                              inventoryData: widget.characterData['companions'],
+                              onEquipChanged: () => setState(() {}),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],

@@ -145,6 +145,7 @@ class TileMapTerrain extends GameComponent with TileInfo {
     this.gridHeight = gridHeight;
     this.srcWidth = width = srcWidth;
     this.srcHeight = height = srcHeight;
+    srcOffsetY = 0;
     tilePosition = TilePosition(left, top);
     generateRect();
     this.isVisible = isVisible;
@@ -269,7 +270,7 @@ mixin TileInfo on Component {
   late final TileShape tileShape;
   late final double gridWidth, gridHeight;
   late final double srcWidth, srcHeight;
-  late final double offsetY;
+  double? srcOffsetY;
   late TilePosition _tilePosition;
 
   TilePosition get tilePosition => _tilePosition;
@@ -278,7 +279,7 @@ mixin TileInfo on Component {
     _index =
         tilePosition2Index(_tilePosition.left, _tilePosition.top, tileMapWidth);
     final p = tilePosition2RenderPosition(left, top);
-    p.y += offsetY;
+    p.y += srcOffsetY ?? 0;
     _renderPosition = p;
     _worldPosition = tilePosition2TileCenterInWorld(left, top);
   }

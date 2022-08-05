@@ -113,8 +113,8 @@ class ProfileView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                          '${engine.locale['money']}: ${characterData['money']}'),
+                      // Text(
+                      //     '${engine.locale['money']}: ${characterData['money']}'),
                       Text('${engine.locale['fame']}: $fame'),
                       Text('${engine.locale['organization']}: $organization'),
                       Text('${engine.locale['title']}: $title'),

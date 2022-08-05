@@ -11,6 +11,8 @@ import '../../../shared/integer_input_field.dart';
 
 const _kInventorySlotCount = 30;
 
+const _kGridPerLine = 6;
+
 enum InventoryType {
   player,
   npc,
@@ -24,7 +26,7 @@ class InventoryView extends StatefulWidget {
     super.key,
     required this.inventoryData,
     this.characterName,
-    this.money,
+    // this.money,
     this.type = InventoryType.player,
     this.priceFactor = 1.0,
     this.onBuy,
@@ -35,7 +37,7 @@ class InventoryView extends StatefulWidget {
 
   final HTStruct inventoryData;
   final String? characterName;
-  final int? money;
+  // final int? money;
   final InventoryType type;
   final double priceFactor;
   final void Function(HTStruct item, int quantity)? onBuy, onSell;
@@ -51,6 +53,8 @@ class _InventoryViewState extends State<InventoryView> {
   final _textEditingController = TextEditingController();
 
   void _onItemTapped(HTStruct itemData, Offset screenPosition) {
+    final sellable = itemData['isUnsellable'] != true;
+
     showDialog(
       context: context,
       barrierColor: Colors.transparent,
@@ -167,38 +171,40 @@ class _InventoryViewState extends State<InventoryView> {
             );
             break;
           case InventoryType.customer:
-            _textEditingController.text = itemData['stackSize'].toString();
-            actions.addAll(
-              [
-                Material(
-                  type: MaterialType.transparency,
-                  child: SizedBox(
-                    width: 120.0,
-                    child: IntegerInputField(
-                      min: 1,
-                      max: itemData['stackSize'],
-                      controller: _textEditingController,
+            if (sellable) {
+              _textEditingController.text = itemData['stackSize'].toString();
+              actions.addAll(
+                [
+                  Material(
+                    type: MaterialType.transparency,
+                    child: SizedBox(
+                      width: 120.0,
+                      child: IntegerInputField(
+                        min: 1,
+                        max: itemData['stackSize'],
+                        controller: _textEditingController,
+                      ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      var quantity =
-                          int.tryParse(_textEditingController.text) ?? 1;
-                      if (quantity <= 0) {
-                        quantity = 1;
-                      }
-                      if (widget.onSell != null) {
-                        widget.onSell!(itemData, quantity);
-                      }
-                    },
-                    child: Text(engine.locale['sell']),
+                  Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        var quantity =
+                            int.tryParse(_textEditingController.text) ?? 1;
+                        if (quantity <= 0) {
+                          quantity = 1;
+                        }
+                        if (widget.onSell != null) {
+                          widget.onSell!(itemData, quantity);
+                        }
+                      },
+                      child: Text(engine.locale['sell']),
+                    ),
                   ),
-                ),
-              ],
-            );
+                ],
+              );
+            }
             break;
         }
 
@@ -208,8 +214,9 @@ class _InventoryViewState extends State<InventoryView> {
           actions: actions,
           priceFactor:
               widget.type == InventoryType.merchant ? widget.priceFactor : 1.0,
-          showPrice: widget.type == InventoryType.merchant ||
-              widget.type == InventoryType.customer,
+          showPrice: (widget.type == InventoryType.merchant ||
+                  widget.type == InventoryType.customer) &&
+              sellable,
         );
       },
     );
@@ -218,11 +225,33 @@ class _InventoryViewState extends State<InventoryView> {
   @override
   Widget build(BuildContext context) {
     final grids = <Widget>[];
-    for (var i = 0;
-        i < math.max(_kInventorySlotCount, widget.inventoryData.length);
-        ++i) {
-      if (i < widget.inventoryData.length) {
-        final itemData = widget.inventoryData.values.elementAt(i);
+    var index = -1;
+    int maxGridCount;
+    if (_kInventorySlotCount > widget.inventoryData.length) {
+      maxGridCount = _kInventorySlotCount;
+    } else {
+      maxGridCount = widget.inventoryData.length ~/ _kGridPerLine + 1;
+    }
+    do {
+      ++index;
+      if (index < widget.inventoryData.length) {
+        final itemData = widget.inventoryData.values.elementAt(index);
+        if (widget.type == InventoryType.merchant) {
+          if (itemData['category'] == kEntityCategoryMoney) {
+            continue;
+          }
+
+          if (itemData['equippedPosition'] != null) {
+            continue;
+          }
+        }
+
+        if (widget.type == InventoryType.customer) {
+          if (itemData['equippedPosition'] != null) {
+            continue;
+          }
+        }
+
         final isEquipped = itemData['isEquippable'] == true &&
             itemData['equippedPosition'] != null;
 
@@ -235,43 +264,36 @@ class _InventoryViewState extends State<InventoryView> {
           ),
         ));
       } else {
-        grids.add(Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: EntityGrid(
-            onItemTapped: _onItemTapped,
-          ),
+        grids.add(const Padding(
+          padding: EdgeInsets.all(5.0),
+          child: EntityGrid(),
         ));
       }
-    }
+    } while (grids.length < maxGridCount);
 
     return Column(
       children: [
-        if (widget.characterName != null || widget.money != null)
-          Padding(
-            padding:
-                const EdgeInsets.only(left: 25.0, right: 25.0, bottom: 5.0),
-            child: Row(
-              children: [
-                if (widget.characterName != null) Text(widget.characterName!),
-                const Spacer(),
-                if (widget.money != null)
-                  Text('${engine.locale['money']}: ${widget.money}'),
-              ],
-            ),
-          ),
+        // if (widget.characterName != null || widget.money != null)
+        //   Row(
+        //     children: [
+        //       if (widget.characterName != null) Text(widget.characterName!),
+        //       const Spacer(),
+        //       if (widget.money != null)
+        //         Text('${engine.locale['money']}: ${widget.money}'),
+        //     ],
+        //   ),
         Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(left: 15.0, right: 15.0),
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  Wrap(
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                Center(
+                  child: Wrap(
                     children: grids,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

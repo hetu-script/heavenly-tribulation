@@ -110,61 +110,51 @@ class _DuelState extends State<Duel> {
       const Duration(milliseconds: 100),
       (Timer timer) {
         setState(() {
+          ++_frames;
+          if (_char1Action != null) {
+            final char1speed = _char1Action!['speed'];
+            if (_char1Ticks >= char1speed) {
+              _char1Ticks = 0;
+              _char1Cooldown = 0;
+              _messages.add(_char1Action!['message']);
+              _entityTakeDamage(_char2Stats!, _char1Action!['damage']);
+              int? equipmentIndex = _char1Action!['equipmentIndex'];
+              if (equipmentIndex != null) {
+                _entityTakeDamage(_char2Stats!['equipments'][equipmentIndex],
+                    _char1Action!['shareDamage']);
+              }
+              _char1Action = getNextChar1Action();
+            } else {
+              ++_char1Ticks;
+            }
+            _char1Cooldown = char1speed > 0 ? _char1Ticks / char1speed : 1.0;
+          }
+
+          if (_char2Action != null) {
+            final char2speed = _char2Action!['speed'];
+            if (_char2Ticks >= char2speed) {
+              _char2Ticks = 0;
+              _char2Cooldown = 0;
+              _messages.add(_char2Action!['message']);
+              _entityTakeDamage(_char1Stats!, _char2Action!['damage']);
+              int? equipmentIndex = _char2Action!['equipmentIndex'];
+              if (equipmentIndex != null) {
+                _entityTakeDamage(_char1Stats!['equipments'][equipmentIndex],
+                    _char2Action!['shareDamage']);
+              }
+              _char2Action = getNextChar2Action();
+            } else {
+              ++_char2Ticks;
+            }
+            _char2Cooldown = char2speed > 0 ? _char2Ticks / char2speed : 1.0;
+          }
+
           if (_frames > _data!['frames']) {
             timer.cancel();
+            _char1Cooldown = 0;
+            _char2Cooldown = 0;
             _finished = true;
             _addDuelResult();
-          } else {
-            ++_frames;
-            if (_char1Action != null) {
-              final char1speed = _char1Action!['speed'];
-              if (_char1Ticks >= char1speed) {
-                _char1Ticks = 0;
-                _char1Cooldown = 0;
-                _messages.add(_char1Action!['message']);
-                _entityTakeDamage(_char2Stats!, _char1Action!['damage']);
-                int? itemIndex = _char1Action!['itemIndex'];
-                if (itemIndex != null) {
-                  _entityTakeDamage(_char2Stats!['defense'][itemIndex],
-                      _char1Action!['shareDamage']);
-                } else {
-                  int? companionIndex = _char1Action!['companionIndex'];
-                  if (companionIndex != null) {
-                    _entityTakeDamage(_char2Stats!['companion'][companionIndex],
-                        _char1Action!['shareDamage']);
-                  }
-                }
-                _char1Action = getNextChar1Action();
-              } else {
-                ++_char1Ticks;
-              }
-              _char1Cooldown = char1speed > 0 ? _char1Ticks / char1speed : 1.0;
-            }
-
-            if (_char2Action != null) {
-              final char2speed = _char2Action!['speed'];
-              if (_char2Ticks >= char2speed) {
-                _char2Ticks = 0;
-                _char2Cooldown = 0;
-                _messages.add(_char2Action!['message']);
-                _entityTakeDamage(_char1Stats!, _char2Action!['damage']);
-                int? itemIndex = _char2Action!['itemIndex'];
-                if (itemIndex != null) {
-                  _entityTakeDamage(_char1Stats!['defense'][itemIndex],
-                      _char2Action!['shareDamage']);
-                } else {
-                  int? companionIndex = _char2Action!['companionIndex'];
-                  if (companionIndex != null) {
-                    _entityTakeDamage(_char1Stats!['companion'][companionIndex],
-                        _char2Action!['shareDamage']);
-                  }
-                }
-                _char2Action = getNextChar2Action();
-              } else {
-                ++_char2Ticks;
-              }
-              _char2Cooldown = char2speed > 0 ? _char2Ticks / char2speed : 1.0;
-            }
           }
         });
       },

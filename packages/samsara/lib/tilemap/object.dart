@@ -67,7 +67,7 @@ class TileMapObject extends GameComponent with TileInfo {
     required double gridHeight,
     required double srcWidth,
     required double srcHeight,
-    double? offsetY,
+    double srcOffsetY = 0.0,
     this.entityId,
   }) {
     if (animationSpriteSheet != null) {
@@ -104,7 +104,7 @@ class TileMapObject extends GameComponent with TileInfo {
     this.gridHeight = gridHeight;
     this.srcWidth = srcWidth;
     this.srcHeight = srcHeight;
-    this.offsetY = offsetY ?? 0.0;
+    this.srcOffsetY = srcOffsetY;
     tilePosition = TilePosition(left ?? 1, top ?? 1);
   }
 

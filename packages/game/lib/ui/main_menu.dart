@@ -293,14 +293,6 @@ class _MainMenuState extends State<MainMenu> {
                                                         key: UniqueKey(),
                                                         mazeData: mazeData,
                                                       ),
-                                                    ).then(
-                                                      (_) {
-                                                        engine.invoke('build',
-                                                            positionalArgs: [
-                                                              context
-                                                            ]);
-                                                        setState(() {});
-                                                      },
                                                     );
                                                   },
                                                   child: const Text('mountain'),
@@ -320,14 +312,6 @@ class _MainMenuState extends State<MainMenu> {
                                                         key: UniqueKey(),
                                                         mazeData: mazeData,
                                                       ),
-                                                    ).then(
-                                                      (_) {
-                                                        engine.invoke('build',
-                                                            positionalArgs: [
-                                                              context
-                                                            ]);
-                                                        setState(() {});
-                                                      },
                                                     );
                                                   },
                                                   child: const Text(
@@ -347,6 +331,12 @@ class _MainMenuState extends State<MainMenu> {
                                             ],
                                           ),
                                         );
+                                      },
+                                    ).then(
+                                      (_) {
+                                        engine.invoke('build',
+                                            positionalArgs: [context]);
+                                        setState(() {});
                                       },
                                     );
                                   },

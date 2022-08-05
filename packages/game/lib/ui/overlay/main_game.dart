@@ -406,12 +406,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                     Positioned(
                       left: 0,
                       top: 0,
-                      child: HeroInfoPanel(
-                        heroData: _heroData!,
-                        currentTerrain: _currentTerrain,
-                        currentNationData: _currentNation,
-                        currentLocationData: _currentLocation,
-                      ),
+                      child: HeroInfoPanel(heroData: _heroData!),
                     ),
                   if (_questData != null)
                     Positioned(
@@ -467,6 +462,10 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                         children: [
                           HistoryPanel(
                             heroId: _heroData?['id'],
+                            heroPosition: _heroData?['worldPosition'],
+                            currentTerrain: _currentTerrain,
+                            currentNationData: _currentNation,
+                            currentLocationData: _currentLocation,
                           ),
                           // TerrainInfoPanel(
                           //   terrainData: selectedTerrain,
@@ -519,29 +518,29 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                       });
                     }
 
-                    final stringBuffer = StringBuffer();
+                    // final stringBuffer = StringBuffer();
 
-                    stringBuffer.writeln(
-                        '坐标: ${selectedTerrain.left}, ${selectedTerrain.top}');
+                    // stringBuffer.writeln(
+                    //     '坐标: ${selectedTerrain.left}, ${selectedTerrain.top}');
 
-                    final zoneData = engine.invoke('getZoneByIndex',
-                        positionalArgs: [terrainData['zoneIndex']]);
-                    final zoneName = zoneData['name'];
-                    if (zoneName != null) {
-                      stringBuffer.writeln(zoneName);
-                    }
+                    // final zoneData = engine.invoke('getZoneByIndex',
+                    //     positionalArgs: [terrainData['zoneIndex']]);
+                    // final zoneName = zoneData['name'];
+                    // if (zoneName != null) {
+                    //   stringBuffer.writeln(zoneName);
+                    // }
 
-                    if (selectedTerrain.nationId != null) {
-                      final nationData = engine.invoke('getOrganizationById',
-                          positionalArgs: [selectedTerrain.nationId]);
-                      stringBuffer.writeln('${nationData['name']}');
-                    }
+                    // if (selectedTerrain.nationId != null) {
+                    //   final nationData = engine.invoke('getOrganizationById',
+                    //       positionalArgs: [selectedTerrain.nationId]);
+                    //   stringBuffer.writeln('${nationData['name']}');
+                    // }
 
-                    if (selectedTerrain.locationId != null) {
-                      final locationData = engine.invoke('getLocationById',
-                          positionalArgs: [selectedTerrain.locationId]);
-                      stringBuffer.writeln('${locationData['name']}');
-                    }
+                    // if (selectedTerrain.locationId != null) {
+                    //   final locationData = engine.invoke('getLocationById',
+                    //       positionalArgs: [selectedTerrain.locationId]);
+                    //   stringBuffer.writeln('${locationData['name']}');
+                    // }
 
                     screenWidgets.add(
                       WorldMapPopup(
@@ -551,18 +550,6 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                         moveToIcon: route != null,
                         onMoveTo: () {
                           _scene.map.moveHeroToTilePositionByRoute(route!);
-                          closePopup();
-                        },
-                        interactIcon: true,
-                        onInteract: () {
-                          if (route != null) {
-                            _scene.map.moveHeroToTilePositionByRoute(route,
-                                onDestinationCallback: () {
-                              _interactTerrain(selectedTerrain);
-                            });
-                          } else if (isTappingHeroPosition) {
-                            _interactTerrain(selectedTerrain);
-                          }
                           closePopup();
                         },
                         enterIcon: ((route != null &&
@@ -587,7 +574,22 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                         onTalk: closePopup,
                         restIcon: isTappingHeroPosition,
                         onRest: closePopup,
-                        description: stringBuffer.toString(),
+                        practiceIcon: isTappingHeroPosition &&
+                            terrainData?['locationId'] == null,
+                        onPractice: () {},
+                        interactIcon: true,
+                        onInteract: () {
+                          if (route != null) {
+                            _scene.map.moveHeroToTilePositionByRoute(route,
+                                onDestinationCallback: () {
+                              _interactTerrain(selectedTerrain);
+                            });
+                          } else if (isTappingHeroPosition) {
+                            _interactTerrain(selectedTerrain);
+                          }
+                          closePopup();
+                        },
+                        // description: stringBuffer.toString(),
                       ),
                     );
                   }

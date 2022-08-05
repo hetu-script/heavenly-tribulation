@@ -266,15 +266,17 @@ fun createWorldMap({
     // 随机生成的据点，初始发展度是0-3之间随机。
     location.development = random.nextInt(_kLocationInitialDevelopmentMax)
     // 据点所拥有的金钱，和发展度有关
-    for (final i in range(location.development)) {
-      location.money +=  random.nextInt((i + 1) * _kLocationInitialMoney)
-    }
+    // for (final i in range(location.development)) {
+    //   location +=  random.nextInt((i + 1) * _kLocationInitialMoney)
+    // }
 
     // 随机为据点添加一些初始建筑和对应的物品
     // 初始时、根据发展度，可能会有商号（1）、工坊（2）、医馆和酒楼（3）
     if (location.development > 0 && random.nextDouble() < _kSiteTradinghouseProbability) {
       final site = Site(category: kSiteTradinghouse, locationId: location.id)
-      site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
+      // site.money = _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
+      final money = _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
+      entityAcquireMoney(site, money)
       // 商号可能有：谷物、水果、鱼、蔬菜、药材、木料、矿石
       entityAcquireItem(site, Material.grain(), count: 20)
       entityAcquireItem(site, Material.fruit(), count: 20)
@@ -286,7 +288,9 @@ fun createWorldMap({
     }
     if (location.development > 1 && random.nextDouble() < _kSiteWorkshopProbability) {
       final site = Site(category: kSiteWorkshop, locationId: location.id)
-      site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
+      // site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
+      final money = _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
+      entityAcquireMoney(site, money)
       // 工坊可能有：武器、盾牌
       entityAcquireItem(site, Weapon())
       entityAcquireItem(site, Weapon())
@@ -296,14 +300,17 @@ fun createWorldMap({
     }
     if (location.development > 2 && random.nextDouble() < _kSiteRestaurantProbability) {
       final site = Site(category: kSiteRestaurant, locationId: location.id)
-      site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
-      site.money = 
+      // site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
+      final money = _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
+      entityAcquireMoney(site, money)
       // 酒楼可能有：饮料、食物
       entityAcquireItem(site, Consumable.beverage(), count: 20)
     }
     if (location.development > 2 && random.nextDouble() < _kSiteHospitalProbability) {
       final site = Site(category: kSiteHospital, locationId: location.id)
-      site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
+      // site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
+      final money = _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
+      entityAcquireMoney(site, money)
       // 医馆可能有：方剂
       entityAcquireItem(site, Consumable.medicine(), count: 20)
       entityAcquireItem(site, Material.herb(), count: 10)
@@ -323,7 +330,7 @@ fun createWorldMap({
           // routes.add(route)
           for (final index in route) {
             final terrain = game.world.terrains[index]
-            terrain.isRoute = true
+            terrain.flags.isRoute = true
           }
         }
       }
@@ -334,7 +341,7 @@ fun createWorldMap({
           // routes.add(route)
           for (final index in route) {
             final terrain = game.world.terrains[index]
-            terrain.isRoute = true
+            terrain.flags.isRoute = true
           }
         }
       }
@@ -350,7 +357,7 @@ fun createWorldMap({
   engine.info('填充地形装饰贴图：大陆架、平原、森林、山地')
   for (final tile in game.world.terrains) {
     if (tile.spriteIndex == kSpriteLand) {
-      if (!tile.isRoute) {
+      if (!tile.flags.isRoute) {
         final r = random.nextDouble()
         if (r < _kMountainThreshold) {
           tile.spriteIndex = kSpriteMountain
@@ -403,7 +410,7 @@ fun createWorldMap({
         if (tile.locationId) {
           tile.kind = kTerrainKindLocation
         }
-        // else if (tile.isRoute) {
+        // else if (tile.flags.isRoute) {
         //   tile.kind = kTerrainKindRoad
         // }
         else if (tile.spriteIndex == kSpriteMountain) {
