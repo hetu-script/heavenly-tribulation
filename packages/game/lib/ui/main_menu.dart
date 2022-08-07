@@ -50,6 +50,8 @@ class _MainMenuState extends State<MainMenu> {
     engine.registerSceneConstructor('worldmap', ([dynamic args]) async {
       engine.invoke('resetGame');
 
+      var isFirstLoad = false;
+
       // 因为生成世界时会触发一些mod的回调函数，因此需要先载入 mod 数据
       for (final key in _modsInfo.keys) {
         if (_modsInfo[key] == true) {
@@ -71,12 +73,15 @@ class _MainMenuState extends State<MainMenu> {
             positionalArgs: [gameData, historyData]);
       } else {
         worldData = engine.invoke('createWorldMap', namedArgs: args);
+        engine.invoke('enterWorld', positionalArgs: [worldData]);
+        isFirstLoad = true;
       }
 
       return WorldMapScene(
         worldData: worldData,
         controller: engine,
         captionStyle: captionStyle,
+        isFirstLoad: isFirstLoad,
       );
     });
 
@@ -401,7 +406,7 @@ class _MainMenuState extends State<MainMenu> {
     if (saveDirectory.existsSync()) {
       for (final entity in saveDirectory.listSync()) {
         if (entity is File &&
-            path.extension(entity.path) == kWorldSaveFileExtension) {
+            path.extension(entity.path) == kUniverseSaveFileExtension) {
           final worldId = path.basenameWithoutExtension(entity.path);
           final d = entity.lastModifiedSync().toLocal();
           final saveInfo = SaveInfo(

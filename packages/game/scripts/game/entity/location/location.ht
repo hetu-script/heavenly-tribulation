@@ -40,7 +40,7 @@ struct Location {
       left,
       top,
       index: terrainIndex,
-      mapWidth: game.world.width,
+      mapWidth: universe.currentWorld.width,
     )
     this.index = game.locations.length
     if (name) {
@@ -174,7 +174,7 @@ fun getLocations() {
 }
 
 fun getLocationByPosition(left, top) {
-  final tile = game.world.terrains[tilePos2Index(left, top, game.world.width)]
+  final tile = universe.currentWorld.terrains[tilePos2Index(left, top, universe.currentWorld.width)]
   if (tile.locationId)
   return game.locations[tile.locationId]
 }
@@ -189,9 +189,9 @@ fun discoverLocation(location) {
   location.isDiscovered = true
   setWorldMapCaption(location.tilePosition.left, location.tilePosition.top, location.name)
   if (location.category == kLocationCategoryIsland) {
-    final tile = game.world.terrains[location.terrainIndex]
+    final tile = universe.currentWorld.terrains[location.terrainIndex]
     // tile.spriteIndex = kSpriteLand
-    tile.overlaySprite.index = kSpriteCity
+    tile.overlaySprite.spriteIndex = kSpriteCity
     // setWorldMapSprite(location.tilePosition.left, location.tilePosition.top, kSpriteLand)
     setWorldMapOverlaySprite(
       location.tilePosition.left,

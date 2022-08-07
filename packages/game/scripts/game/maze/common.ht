@@ -14,13 +14,11 @@ const kMazeCategoryMountain = 'mountain'
 const kMazeCategoryCultivatorRecruit = 'cultivatorRecruit'
 
 fun enterMaze(maze) {
-  currentMaze = maze
-  currentMazeHistory = maze.history
+  universe.currentMaze = maze
 }
 
 fun leaveMaze(maze) {
-  currentMaze = null
-  currentMazeHistory = null
+  universe.currentMaze = null
   // 移除所有临时npc
   for (final entity of maze.entities) {
     if (entity.entityType == kEntityTypeNpc && !entity.isPermanent) {

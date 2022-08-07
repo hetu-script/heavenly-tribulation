@@ -13,10 +13,13 @@ class WorldMapScene extends Scene {
 
   TextStyle captionStyle;
 
+  final bool isFirstLoad;
+
   WorldMapScene({
     required this.worldData,
     required super.controller,
     required this.captionStyle,
+    this.isFirstLoad = false,
   })  : map = TileMap(
           engine: engine,
           captionStyle: captionStyle,
@@ -42,7 +45,6 @@ class WorldMapScene extends Scene {
     await map.updateData(worldData);
     add(map);
     isMapReady = true;
-    engine
-        .broadcast(MapLoadedEvent(isNewGame: worldData['isNewGame'] ?? false));
+    engine.broadcast(MapLoadedEvent(isFirstLoad: isFirstLoad));
   }
 }

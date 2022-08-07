@@ -49,9 +49,9 @@ struct CultivationRecruitMaze {
       organizationName,
     }
 
-    // 创建副本过程中也会触发事件，因此这里要提前给localHistory赋值
-    final savedLocalHistory = currentMazeHistory
-    currentMazeHistory = this.history
+    // 创建副本过程中也会触发事件，因此这里要提前给 history 赋值
+    final savedCurrentMaze = universe.currentMaze
+    universe.currentMaze = universe.mazes[maze.id] = this
 
     final [ width, height ] = [ _kBlockWidth * _kBlockSize, _kBlockWidth * _kBlockSize ]
     this.width = width
@@ -268,8 +268,8 @@ struct CultivationRecruitMaze {
     
     this.levels.add(currentLevel)
 
-    // 重置临时历史，需要在手动调用enterMaze时再赋值
-    currentMazeHistory = savedLocalHistory
+    // 重置当前副本，需要在手动调用enterMaze时再赋值
+    universe.currentMaze = savedCurrentMaze
   }
 }
 

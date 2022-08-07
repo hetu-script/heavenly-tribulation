@@ -253,7 +253,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
       EventHandler(
         widget.key!,
         (GameEvent event) async {
-          if ((event as MapLoadedEvent).isNewGame) {
+          if ((event as MapLoadedEvent).isFirstLoad) {
             final charactersData = engine.invoke('getCharacters');
             final Iterable filteredCharacters =
                 (charactersData.values as Iterable).where((character) {
@@ -611,12 +611,12 @@ class _MainGameOverlayState extends State<MainGameOverlay>
   }
 
   Future<void> _saveGame() async {
-    var savePath = engine.invoke('getSavePath');
+    String? savePath = engine.invoke('getSavePath');
     if (savePath == null) {
       final worldId = engine.invoke('getWorldId');
       final directory = await path.getApplicationDocumentsDirectory();
       savePath = path.join(directory.path, 'Heavenly Tribulation', 'save',
-          worldId + kWorldSaveFileExtension);
+          worldId + kGameSaveFileExtension);
       engine.invoke('setSavePath', positionalArgs: [savePath]);
     }
     engine.info('保存游戏至：[$savePath]');
@@ -625,16 +625,15 @@ class _MainGameOverlayState extends State<MainGameOverlay>
       saveFile.createSync(recursive: true);
     }
     final gameJsonData = engine.invoke('getGameJsonData');
-    gameJsonData['world']['isNewGame'] = false;
     final gameStringData = jsonEncodeWithIndent(gameJsonData);
     saveFile.writeAsStringSync(gameStringData);
 
-    final saveFile2 = File(savePath + '2');
+    final saveFile2 = File('${savePath}_universe');
     if (!saveFile2.existsSync()) {
       saveFile2.createSync(recursive: true);
     }
-    final historyJsonData = engine.invoke('getHistoryJsonData');
-    final historyStringData = jsonEncodeWithIndent(historyJsonData);
-    saveFile2.writeAsStringSync(historyStringData);
+    final universeJsonData = engine.invoke('getUniverseJsonData');
+    final universeStringData = jsonEncodeWithIndent(universeJsonData);
+    saveFile2.writeAsStringSync(universeStringData);
   }
 }

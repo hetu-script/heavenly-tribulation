@@ -19,7 +19,7 @@ import '../dialog.ht'
 /// 返回布尔值，如果为真，则玩家控制角色会返回上一格，false 则停在这一格，null 则不影响
 fun onHeroMovedOnWorldMap(left, top) {
   engine.info('玩家移动到了: ${left}, ${top}')
-  final tile = game.world.terrains[tilePos2Index(left, top, game.world.width)]
+  final tile = universe.currentWorld.terrains[tilePos2Index(left, top, universe.currentWorld.width)]
   // if (tile.entityId && !tile.hasSearched) {
   //   // TODO: 感知阈值
   //   showDialogByLocaleKeys(['sensedUndiscovered'], character: hero)
@@ -178,8 +178,8 @@ fun handleWorldTerrainInteraction(left, top) {
   // 可用的探索天数
   final availableDays = Math.min(restDaysOfMonth, staminaAvailableDays)
 
-  final terrainIndex = tilePos2Index(left, top, game.world.width)
-  final terrain = game.world.terrains[terrainIndex]
+  final terrainIndex = tilePos2Index(left, top, universe.currentWorld.width)
+  final terrain = universe.currentWorld.terrains[terrainIndex]
 
   final selections = [
     'search',
@@ -639,7 +639,7 @@ fun handleWorldTerrainInteraction(left, top) {
 
 // 返回布尔值，如果为真，则玩家控制角色会停止移动
 fun handleWorldMapEntityInteraction(entityId) -> bool {
-  final entity = game.world.entities[entityId]
+  final entity = universe.currentWorld.entities[entityId]
   assert(entity != null)
 
   when (entity.encounterType) {

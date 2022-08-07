@@ -7,12 +7,11 @@ import '../../tile/tilemap.ht'
 import '../../name/nation.ht'
 
 const kOrganizationRankMax = 6
-
 const kOrganizationDevelopmentMax = 5
-
 const kOrganizationRecruitOtherLocationProbability = 0.2
-
 const kOrganizationRecruitSuccessProbability = 0.4
+
+const kOrganizationSkillRecordLevelMax = 
 
 final kOrganizationCategories = [
   'cultivation',
@@ -221,14 +220,13 @@ struct Organization {
       isGlobal: true,
     )
     addCharacterToOrganization(leader, this)
-    setCharacterRank(leader, this, 0)
+    setCharacterRank(leader, this, kOrganizationRankMax)
 
     // addLocationToOrganization(location, this)
     stationOrganization(
       this,
       headquarters,
       characterIds: [leaderId],
-      isHeadquarters: true,
     )
 
     when (this.category) {
@@ -248,12 +246,33 @@ struct Organization {
         this.rankTitles = rankTitles ?? kBusinessRankTitles
       }
     }
+    
+    // 组织所拥有的功法
+    // 用法类似人物的装备栏
+    // 放入的是可以被学习的技能
+    // 0 等的技能，即便不是本门弟子也可以花费钱财或者灵石学习
+    // 1 等以上，需要本门弟子，并且 rank 小于等于对应等级，以及花费贡献点数，才可以学习
+    // 保存的数据除了技能本身，还包括需要支付的费用和要求
+    // {
+    //   requirement: {
+    //     money: 0,
+    //     spiritStone: 0,
+    //     contribution: 0,
+    //     rank: 0,
+    //   },
+    //   skill: {
+    //     
+    //   }
+    // }
+    this.skillRecords = {
+      '-1': [],
+      '0': [],
+    }
   }
 
-  // 国家是一种特殊的组织，单独有一个生成函数，并且单独保存
-  // 即便不加入国家，角色也有一个国籍
-  // 加入国家组织，含义是在这个国家担任官职
-  // 此时和加入别的组织一样，要求先退出原来的组织
+  /// 国家是一种特殊的组织，单独有一个生成函数，并且单独保存
+  /// 即便不显示调用 addCharacterToOrganization 来加入国家，角色也会有一个所属的国家
+  /// 显示调用的含义其实是在此国家担任官职，此时和加入别的组织一样，要求先退出原来的组织
   construct nation ({
     name,
     capitalId,
@@ -308,7 +327,7 @@ fun setCharacterRank(character, organization, rank) {
   character.titles[titleId] = title
   character.currentTitleId = titleId
   character.organizationRank = rank
-  if (rank == 0) {
+  if (rank == kOrganizationRankMax) {
     organization.leaderId = character.id
   }
   final incidentContent = getLocaleString('characterSetOrganizationRank', interpolations: [
@@ -325,10 +344,9 @@ fun setCharacterRank(character, organization, rank) {
   )
 }
 
-// 类似 equip，将会在 location 上保存一个新的数据对象
+// 类似 equip，将会在 location 上的 organizations 中保存一个新的数据对象
 // {
 //   id,
-//   isHeadquarters
 //   category,
 //   characterIds, // 指在这个地点的该组织的人员，并不一定等于该组织的全部人员
 // }
@@ -336,25 +354,24 @@ fun stationOrganization(
   organization,
   location, {
   characterIds,
-  isHeadquarters = false,
 }) {
   assert(!location.organizations.containsKey(organization.id))
   characterIds ??= organization.characterIds.keys.toList()
+  
+  organization.headquartersId = location.id
+
   final site = Site(
     category: organization.category,
     locationId: location.id,
     organizationId: organization.id,
     name: organization.name,
   )
+  organization.headquartersSiteId = site.id
+
   location.organizations[organization.id] = {
     id: organization.id,
-    isHeadquarters: isHeadquarters,
     category: organization.category,
     characterIds: [],
-  }
-  if (isHeadquarters) {
-    organization.headquartersId = location.id
-    organization.headquartersSiteId = site.id
   }
 
   for (final id in characterIds) {
@@ -368,7 +385,8 @@ fun stationOrganization(
 // 组织中每个等级的人数上限
 // 数字越大，等级越低，0是掌门
 fun maxMemberOfRank(n: int) {
-  return (n + 1) * (n + 1)
+  assert(n >= 0 && n <= kOrganizationRankMax)
+  return ((kOrganizationRankMax - n) + 1) * ((kOrganizationRankMax - n) + 1)
 }
 
 // 组织可以拥有的人数上限取决于组织发展度
@@ -376,7 +394,7 @@ fun maxMemberOfRank(n: int) {
 fun maxMemberOfDevelopment(n: int) {
   var number = 0
   for (final i in range(n + 2)) {
-    number += maxMemberOfRank(i)
+    number += (i + 1) * (i + 1)
   }
   return number
 }
@@ -564,10 +582,19 @@ fun addTerrainToNation(terrain, nation) {
       nation.locationIds.add(location.id)
     }
   }
-  final neighbors = getMapTileNeighbors(terrain.left, terrain.top, game.world)
+  final neighbors = getMapTileNeighbors(terrain.left, terrain.top, universe.currentWorld)
   for (final neighbor in neighbors) {
     if (neighbor.nationId != nation.id) {
       nation.borderIndexes.add(neighbor.index)
     }
   }
+}
+
+/// 将某个功法记录在这个组织的 skillRecords 中
+/// 操作方式类似人物装备道具
+fun organizationRecordSkill(organization, rank, skill, requirement) {
+  assert(organization != null)
+  rank ??= -1
+  assert(skill != null)
+  organization.skillRecords[level] = 
 }

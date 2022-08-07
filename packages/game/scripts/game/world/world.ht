@@ -82,6 +82,10 @@ final _cultivationKinds = [
   'island',
 ]
 
+fun enterWorld(world) {
+  universe.currentWorld = world
+}
+
 fun createWorldMap({
     id,
     seedString,
@@ -114,22 +118,24 @@ fun createWorldMap({
 
   // 生成过程中，引入了一些别的文件中的函数
   // 他们可能会通过game.world访问, 因此这里直接使用全局变量
-  game.world = TileMap(
+  final savedCurrentWorld = universe.currentWorld
+  final world = TileMap(
     id: id,
     width: width,
     height: height,
     scale: scale,
   )
+  universe.currentWorld = universe.worlds[world.id] = world
 
   // 地图上的可互动对象，因为世界地图目前只有一层，所以这个表直接放在map上。
-  game.world.entities = {}
+  universe.currentWorld.entities = {}
 
-  game.world.isNewGame = true
+  universe.currentWorld.history = []
 
   engine.info('生成地块')
   for (var j in range(height)) {
     for (var i in range(width)) {
-      game.world.terrains.add(
+      universe.currentWorld.terrains.add(
         {
           ...Tile(i + 1, j + 1),
           index: tilePos2Index(i + 1, j + 1, width),
@@ -143,16 +149,16 @@ fun createWorldMap({
     }
   }
 
-  game.world.waterTerrainIndexes = Set()
+  universe.currentWorld.waterTerrainIndexes = Set()
 
   // 没有区域，也是一个区域
-  final voidZone = Zone(index: game.world.zones.length, name: null, category: kZoneVoid)
-  game.world.zones.add(voidZone)
+  final voidZone = Zone(index: universe.currentWorld.zones.length, name: null, category: kZoneVoid)
+  universe.currentWorld.zones.add(voidZone)
 
   // 生成地域
   engine.info('准备生成地域')
-  final landZone = Zone(index: game.world.zones.length, category: kZoneLand)
-  game.world.zones.add(landZone)
+  final landZone = Zone(index: universe.currentWorld.zones.length, category: kZoneLand)
+  universe.currentWorld.zones.add(landZone)
   generateContinent(
     seed: seed,
     size: width,
@@ -167,7 +173,7 @@ fun createWorldMap({
     unzonedNeighbors ??= {}
     // engine.info('processing: ${tile.left},${tile.top}, spriteIndex: ${tile.spriteIndex}')
     tile.zoneIndex = -1 // mark this tile is being processed, will skip it when process others
-    final neighbors = getMapTileNeighbors(tile.left, tile.top, game.world)
+    final neighbors = getMapTileNeighbors(tile.left, tile.top, universe.currentWorld)
     var foundAdjacentZone = false
     for (final neighbor in neighbors) {
       // skip tiles that has diffrent spriteIndex and those still being processed
@@ -179,21 +185,21 @@ fun createWorldMap({
         unzonedNeighbors[neighbor.index] = neighbor
         continue
       }
-      addTerrainToZone(tile, neighbor.zoneIndex, game.world)
+      addTerrainToZone(tile, neighbor.zoneIndex, universe.currentWorld)
       foundAdjacentZone = true
       // engine.info('Found neighbor: ${neighbor.left},${neighbor.top}, zoneIndex: ${neighbor.zoneIndex}')
       break
     }
     if (!foundAdjacentZone && willCreateZone) {
       var category = tile.spriteIndex == kSpriteLand ? kZoneLand : kZoneWater
-      final zone = Zone(index: game.world.zones.length, category: category)
-      game.world.zones.add(zone)
+      final zone = Zone(index: universe.currentWorld.zones.length, category: category)
+      universe.currentWorld.zones.add(zone)
       // engine.info('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneIndex: ${zone.index}')
-      addTerrainToZone(tile, zone.index, game.world)
+      addTerrainToZone(tile, zone.index, universe.currentWorld)
       // engine.info('processing previoused stored unzoned tiles: ${unzonedNeighbors}')
       for (final unzonedTile of unzonedNeighbors) {
         if (unzonedTile.zoneIndex == -1) {
-          addTerrainToZone(unzonedTile, zone.index, game.world)
+          addTerrainToZone(unzonedTile, zone.index, universe.currentWorld)
         }
       }
     }
@@ -202,7 +208,7 @@ fun createWorldMap({
   var unzonedTile
   engine.info('开始生成地域')
   while (
-    unzonedTile = game.world.terrains.firstWhere((tile) => tile.zoneIndex == null)
+    unzonedTile = universe.currentWorld.terrains.firstWhere((tile) => tile.zoneIndex == null)
   ) {
     // engine.info('updating unzoned tile')
     updateZone(unzonedTile)
@@ -218,8 +224,8 @@ fun createWorldMap({
       if (location.index == origin.index) {
         continue
       } else {
-        final start = game.world.terrains[origin.terrainIndex]
-        final end = game.world.terrains[location.terrainIndex]
+        final start = universe.currentWorld.terrains[origin.terrainIndex]
+        final end = universe.currentWorld.terrains[location.terrainIndex]
         final distance = getTileDistance(start, end)
         if (!restricted2Zone || location.zoneIndex == origin.zoneIndex) {
           if (nearestDistance == null || distance < nearestDistance) {
@@ -245,8 +251,8 @@ fun createWorldMap({
     var tile
     do {
       // engine.info('generating location index')
-      index = random.nextInt(game.world.terrains.length)
-      tile = game.world.terrains[index]
+      index = random.nextInt(universe.currentWorld.terrains.length)
+      tile = universe.currentWorld.terrains[index]
     } while (locationIndexes.contains(index) || tile.spriteIndex != kSpriteLand)
     // location category 有三种：城市、岛屿和山峰，后两者为隐藏据点
     final location = Location(
@@ -258,7 +264,7 @@ fun createWorldMap({
     tile.locationId = location.id
     // tile.caption = location.name
     // 城市的贴图重叠于地形贴图之上
-    tile.overlaySprite.index = kSpriteCity
+    tile.overlaySprite.spriteIndex = kSpriteCity
     locationIndexes.add(index)
     
     // 随机生成的据点，初始发展度是0-3之间随机。
@@ -317,28 +323,28 @@ fun createWorldMap({
 
   engine.info('确保陆地上的每个城市至少可以链接到另外两个城市')
   for (final location of game.locations) {
-    final start = game.world.terrains[location.terrainIndex]
+    final start = universe.currentWorld.terrains[location.terrainIndex]
     // 确保陆地上的每个城市至少可以链接到另外两个城市
     if (start.zoneCategory == kZoneLand) {
       final searchResult = find2NearestLocation(location, restricted2Zone: true)
       if (searchResult.nearest) {
-        final end = game.world.terrains[searchResult.nearest.terrainIndex]
-        final route = calculateRoute(start, end, game.world)
+        final end = universe.currentWorld.terrains[searchResult.nearest.terrainIndex]
+        final route = calculateRoute(start, end, universe.currentWorld)
         if (route) {
           // routes.add(route)
           for (final index in route) {
-            final terrain = game.world.terrains[index]
+            final terrain = universe.currentWorld.terrains[index]
             terrain.flags.isRoute = true
           }
         }
       }
       if (searchResult.secondNearest) {
-        final end = game.world.terrains[searchResult.secondNearest.terrainIndex]
-        final route = calculateRoute(start, end, game.world)
+        final end = universe.currentWorld.terrains[searchResult.secondNearest.terrainIndex]
+        final route = calculateRoute(start, end, universe.currentWorld)
         if (route) {
           // routes.add(route)
           for (final index in route) {
-            final terrain = game.world.terrains[index]
+            final terrain = universe.currentWorld.terrains[index]
             terrain.flags.isRoute = true
           }
         }
@@ -353,7 +359,7 @@ fun createWorldMap({
   // 将大陆和海洋接触的地方填充为大陆架，将大陆上没有道路的方格，随机填充为平原、森林、山地
   // 这些修改不影响该地块的 category 和 kind
   engine.info('填充地形装饰贴图：大陆架、平原、森林、山地')
-  for (final tile in game.world.terrains) {
+  for (final tile in universe.currentWorld.terrains) {
     if (tile.spriteIndex == kSpriteLand) {
       if (!tile.flags.isRoute) {
         final r = random.nextDouble()
@@ -365,7 +371,7 @@ fun createWorldMap({
         }
       }
     } else if (tile.spriteIndex == kSpriteWater) {
-      final neighbors = getMapTileNeighbors(tile.left, tile.top, game.world)
+      final neighbors = getMapTileNeighbors(tile.left, tile.top, universe.currentWorld)
       var isSea = true
       for (final neighbor in neighbors) {
         if (neighbor.spriteIndex == kSpriteLand) {
@@ -382,7 +388,7 @@ fun createWorldMap({
 
   // 因为 zone 的名字和其大小有关，因此在最后在才命名和赋值 category/kind
   engine.info('为地域命名')
-  for (final zone in game.world.zones) {
+  for (final zone in universe.currentWorld.zones) {
     if (zone.name) {
       continue
     }
@@ -392,9 +398,9 @@ fun createWorldMap({
       
       // 为该地域中所有地块赋值 kind
       for (final terrainIndex in zone.terrainIndexes) {
-        final tile = game.world.terrains[terrainIndex]
+        final tile = universe.currentWorld.terrains[terrainIndex]
         // 将所有水域保存在一个总表中，之后用来计算捕鱼地区
-        game.world.waterTerrainIndexes.add(tile.index)
+        universe.currentWorld.waterTerrainIndexes.add(tile.index)
         tile.isWater = true
         tile.zoneCategory = zone.category
         tile.kind = zone.category
@@ -404,7 +410,7 @@ fun createWorldMap({
       
       // 为该地域中所有地块赋值 kind
       for (final terrainIndex in zone.terrainIndexes) {
-        final tile = game.world.terrains[terrainIndex]
+        final tile = universe.currentWorld.terrains[terrainIndex]
         tile.zoneCategory = zone.category
         
         if (tile.locationId) {
@@ -448,7 +454,7 @@ fun createWorldMap({
       emperorId: emperor.id,
     )
     // Site(category: kSitePalace, locationId: location.id, organizationId: nation.id)
-    final terrain = game.world.terrains[location.terrainIndex]
+    final terrain = universe.currentWorld.terrains[location.terrainIndex]
     addTerrainToNation(terrain, nation)
     nations.add(nation)
   }
@@ -460,7 +466,7 @@ fun createWorldMap({
     assert(nation.borderIndexes != null && nation.borderIndexes.isNotEmpty)
     // avoid editing iterable while iterating
     for (final index in random.shuffle(nation.borderIndexes)) {
-      final terrain = game.world.terrains[index]
+      final terrain = universe.currentWorld.terrains[index]
       if (terrain.nationId == null && !terrain.isWater) {
         addTerrainToNation(terrain, nation)
         return true
@@ -529,13 +535,13 @@ fun createWorldMap({
         // 组织数量不够，在来到下一个组织创建时间时，创建组织
         cultivationOrganizationCreatedDate.removeLast()
 
-        // 修真门派分成三种：入世、洞天、福地。入世是公开的据点。
-        // 洞天是大陆上山峰所在地，福地是大海中的岛屿。
+        // 修真门派根据所处地块可以分成三种：入世、洞天、福地。
+        // 入世是公开的据点。洞天是大陆上山峰所在地，福地是大海中的岛屿。
         // 洞天福地在未被探索之前，对玩家不可见。只是显示为平常的地形。
         // 如果据点生成在海洋之中，就将该地块设定为岛屿
         // 洞天福地的据点都直接以“xx山”, "xx岛"命名。
 
-        // 在生成世界时，两个修真组织不会在同一个据点
+        // 两个修真组织不会在同一个据点
         var headquarters
 
         final cultivationKind = random.nextIterable(_cultivationKinds)
@@ -552,7 +558,7 @@ fun createWorldMap({
             final mountainTile
             do {
               final mountainTileIndex = random.nextIterable(mountains)
-              mountainTile = game.world.terrains[mountainTileIndex]
+              mountainTile = universe.currentWorld.terrains[mountainTileIndex]
             } while (mountainTile.locationId != null)
 
             headquarters = Location(
@@ -570,14 +576,14 @@ fun createWorldMap({
             final islandTile
             do {
               final islandTileIndex = random.nextIterable(seas)
-              islandTile = game.world.terrains[islandTileIndex]
+              islandTile = universe.currentWorld.terrains[islandTileIndex]
             } while (islandTile.locationId != null)
 
-            final islandZone = Zone(index: game.world.zones.length, category: kZoneCategoryIsland)
-            game.world.zones.add(islandZone)
-            addTerrainToZone(islandTile, islandZone.index, game.world)
+            final islandZone = Zone(index: universe.currentWorld.zones.length, category: kZoneCategoryIsland)
+            universe.currentWorld.zones.add(islandZone)
+            addTerrainToZone(islandTile, islandZone.index, universe.currentWorld)
             
-            final neighbors = getMapTileNeighbors(islandTile.left, islandTile.top, game.world)
+            final neighbors = getMapTileNeighbors(islandTile.left, islandTile.top, universe.currentWorld)
             for (final neighbor in neighbors) {
               seas.remove(neighbor.index)
               neighbor.spriteIndex == kSpriteShelf
@@ -597,12 +603,13 @@ fun createWorldMap({
 
         final leader = findLeader()
         // 创建组织
-        Organization(
+        final organization = Organization(
           category: kOrganizationCategoryCultivation,
           nationId: headquarters.nationId,
           headquartersId: headquarters.id,
           leaderId: leader.id,
         )
+
 
         ++createdCultivationOrganizationCount
       }
@@ -641,14 +648,14 @@ fun createWorldMap({
           increaseOrganizationDevelopment(organization)
         } else {
           // 从最低等级开始，尝试提升成员等级
-          for (final rank in range(kOrganizationRankMax, 0, -1)) {
+          for (final rank in range(kOrganizationRankMax)) {
             final membersOfThisRank = getOrganizationMemberIdOfRank(organization, rank)
-            final membersOfHigherRank = getOrganizationMemberIdOfRank(organization, rank - 1)
+            final membersOfHigherRank = getOrganizationMemberIdOfRank(organization, rank + 1)
             if (membersOfThisRank.length >= maxMemberOfRank(rank)) {
-              if (membersOfHigherRank.length < maxMemberOfRank(rank - 1)) {
+              if (membersOfHigherRank.length < maxMemberOfRank(rank + 1)) {
                 final memberId = random.nextIterable(membersOfThisRank)
                 final member = game.characters[memberId]
-                setCharacterRank(member, organization, rank - 1)
+                setCharacterRank(member, organization, rank + 1)
                 break
               }
             }
@@ -792,23 +799,23 @@ fun createWorldMap({
   engine.info('世界生成完毕。重置随机数生成器。')
   setRandomSeed()
 
-  isGameLoaded = true
+  universe.currentWorld = savedCurrentWorld
 
-  return game.world
+  return world
 }
 
 fun loadWorldMap(jsonData) {
   engine.info('载入世界地图数据')
   final data = prototype.fromJson(jsonData)
-  game.world = data
+  universe.currentWorld = data
 }
 
 fun getWorld() {
-  return game.world
+  return universe.currentWorld
 }
 
 fun getZoneByIndex(index: int) {
-  return game.world.zones[index]
+  return universe.currentWorld.zones[index]
 }
 
 /// 刷新地图上色信息
@@ -816,9 +823,9 @@ fun loadColors {
   final colors = []
   final zoneColors = Map()
   final nationColors = Map()
-  for (final tile in game.world.terrains) {
+  for (final tile in universe.currentWorld.terrains) {
     if (tile.zoneIndex) {
-      final zone = game.world.zones[tile.zoneIndex]
+      final zone = universe.currentWorld.zones[tile.zoneIndex]
       zoneColors[tile.index] = zone.color
     }
     if (tile.nationId) {

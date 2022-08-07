@@ -11,7 +11,7 @@ fun generateContinent1({width, height, landProportion, landZone}) {
   // 刷新当前地域的边缘格子坐标
   fun updateShelf(left, top) {
     shelf.remove(tilePos2Index(left, top, width))
-    final neighbors = getMapTileNeighbors(left, top, game.world)
+    final neighbors = getMapTileNeighbors(left, top, universe.currentWorld)
     for (final tile in neighbors) {
       if (tile.spriteIndex == kSpriteWater) {
         shelf.add(tile.index)
@@ -30,19 +30,19 @@ fun generateContinent1({width, height, landProportion, landZone}) {
   final startTop = random.nextInt(maxTop - minTop) + minTop
   // engine.info('start: ${startLeft},${startTop}')
   final startIndex = tilePos2Index(startLeft, startTop, width)
-  final firstTile = game.world.terrains[startIndex]
+  final firstTile = universe.currentWorld.terrains[startIndex]
   firstTile.spriteIndex = kSpriteLand
-  addTerrainToZone(firstTile, landZone.index, game.world)
+  addTerrainToZone(firstTile, landZone.index, universe.currentWorld)
   updateShelf(startLeft, startTop)
 
   var currentLandSize = 1
   while (currentLandSize < landArea) {
     // engine.info('expanding land')
     ++currentLandSize
-    final tile = game.world.terrains[random.nextIterable(shelf)]
+    final tile = universe.currentWorld.terrains[random.nextIterable(shelf)]
     updateShelf(tile.left, tile.top)
     tile.spriteIndex = kSpriteLand
-    addTerrainToZone(tile, landZone.index, game.world)
+    addTerrainToZone(tile, landZone.index, universe.currentWorld)
   }
 
   // 根据相邻的格子的地域，分配地域索引
@@ -57,7 +57,7 @@ fun generateContinent1({width, height, landProportion, landZone}) {
     unzonedNeighbors ??= {}
     // engine.info('processing: ${tile.left},${tile.top}, spriteIndex: ${tile.spriteIndex}')
     tile.zoneIndex = -1 // mark this tile is being processed, will skip it when process others
-    final neighbors = getMapTileNeighbors(tile.left, tile.top, game.world)
+    final neighbors = getMapTileNeighbors(tile.left, tile.top, universe.currentWorld)
     var foundAdjacentZone = false
     for (final neighbor in neighbors) {
       // skip tiles that has diffrent spriteIndex and those still being processed
@@ -69,21 +69,21 @@ fun generateContinent1({width, height, landProportion, landZone}) {
         unzonedNeighbors[neighbor.index] = neighbor
         continue
       }
-      addTerrainToZone(tile, neighbor.zoneIndex, game.world)
+      addTerrainToZone(tile, neighbor.zoneIndex, universe.currentWorld)
       foundAdjacentZone = true
       // engine.info('Found neighbor: ${neighbor.left},${neighbor.top}, zoneIndex: ${neighbor.zoneIndex}')
       break
     }
     if (!foundAdjacentZone && willCreateZone) {
       var category = tile.spriteIndex == kSpriteLand ? kZoneLand : kZoneWater
-      final zone = Zone(index: game.world.zones.length, category: category)
-      game.world.zones.add(zone)
+      final zone = Zone(index: universe.currentWorld.zones.length, category: category)
+      universe.currentWorld.zones.add(zone)
       // engine.info('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneIndex: ${zone.index}')
-      addTerrainToZone(tile, zone.index, game.world)
+      addTerrainToZone(tile, zone.index, universe.currentWorld)
       // engine.info('processing previoused stored unzoned tiles: ${unzonedNeighbors}')
       for (final unzonedTile of unzonedNeighbors) {
         if (unzonedTile.zoneIndex == -1) {
-          addTerrainToZone(unzonedTile, zone.index, game.world)
+          addTerrainToZone(unzonedTile, zone.index, universe.currentWorld)
         }
       }
     }
@@ -92,7 +92,7 @@ fun generateContinent1({width, height, landProportion, landZone}) {
   var unzonedTile
   engine.info('开始生成地域')
   while (
-    unzonedTile = game.world.terrains.firstWhere((tile) => tile.zoneIndex == null)
+    unzonedTile = universe.currentWorld.terrains.firstWhere((tile) => tile.zoneIndex == null)
   ) {
     // engine.info('updating unzoned tile')
     updateZone(unzonedTile)
@@ -101,7 +101,7 @@ fun generateContinent1({width, height, landProportion, landZone}) {
   // 将大陆和海洋接触的地方填充为大陆架
   engine.info('将大陆和海洋接触的地方填充为大陆架')
   for (final index in shelf) {
-    final tile = game.world.terrains[index]
+    final tile = universe.currentWorld.terrains[index]
     tile.spriteIndex = kSpriteShelf
   }
 }
@@ -152,7 +152,7 @@ fun generateContinent({seed, size, style}) {
       final noise = noiseData[x][y]
       final normalize = (noise + 1) / 2;
       if (normalize > threshold) {
-        final tile = game.world.terrains[index]
+        final tile = universe.currentWorld.terrains[index]
         tile.spriteIndex = kSpriteLand
       }
     }

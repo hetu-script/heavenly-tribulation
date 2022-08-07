@@ -6,33 +6,15 @@ var config = {
   debug: true,
 }
 
-/// 当前副本，未进入副本时为 null
-var currentMaze = null
-/// 当前副本临时事件列表，平时此列表为 null
-var currentMazeHistory = null
-
-var history = []
-
 var hero
 
 var game
 
-var isGameLoaded = false
-
-fun getCurrentMazeHistory() {
-  return currentMazeHistory
-}
-
-fun getHistory() {
-  return history
-}
-
-fun getHistoryJsonData() {
-  return jsonify(history)
-}
+var universe
 
 struct Game {
   construct {
+    this.isLoaded = false
     // 本次游戏加载的 module，这里是纯数据，函数保存在另外的地方
     this.modules = {}
 
@@ -43,7 +25,6 @@ struct Game {
     this.babies = {}
     this.locations = {}
     this.organizations = {}
-    this.mazes = {}
 
     // 每个月生成的暴风雨地点
     this.stormTileIndexes = []
@@ -58,10 +39,21 @@ struct Game {
   }
 }
 
+struct Universe {
+  construct {
+    this.currentWorld = null
+    this.worlds = {}
+    /// 当前副本，未进入副本时为 null
+    this.currentMaze = null
+    this.mazes = {}
+  }
+}
+
 fun resetPlayerMonthlyActivities(gameData){
   
-  // 指玩家对某个其他角色、据点、地形进行过的动作，限定每个月一次
-  gameData.flags.playerCharacterMonthly = {
+  // 指玩家对某个其他角色、据点、地形、建筑进行过的动作，限定每个月一次
+  gameData.flags.playerMonthly = {
+    // 对其他角色操作
     talked: [],
     gifted: [],
     practiced: [],
@@ -69,18 +61,23 @@ fun resetPlayerMonthlyActivities(gameData){
     requested: [],
     insulted: [],
     stolen: [],
-  }
 
-  // 指玩家的组织进行过的动作，限定每个月一次
-  gameData.flags.playerOrganizationMonthly = {
+    // 对某个建筑操作
+    worked: [],
+
+    // 对自己组织操作
     recruited: [],
   }
 }
 
 fun resetGame {
   game = Game()
-  history = []
-  isGameLoaded = false
+  universe = Universe()
+}
+
+fun addModInfo(module) {
+  engine.info('[${module.name}] 载入模组数据')
+  game.modules[module.id] = module
 }
 
 fun getModInfo(id) {
@@ -95,24 +92,8 @@ fun getGameJsonData() {
   return game.toJson()
 }
 
-fun loadGameFromJsonData(gameData, historyData) {
-  game = prototype.fromJson(gameData)
-  
-  loadColors()
-  
-  history = []
-  for (final data in historyData) {
-    history.add(
-      prototype.fromJson(data)
-    )
-  }
-
-  isGameLoaded = true
-  return game.world
-}
-
-fun getWorldId {
-  return game.world.id
+fun getUniverseJsonData() {
+  return universe.toJson()
 }
 
 fun getSavePath {
@@ -127,7 +108,26 @@ fun getTimestamp {
   return game.timestamp
 }
 
-fun addModule(module) {
-  engine.info('[${module.name}] 载入模组数据')
-  game.modules[module.id] = module
+fun loadGameFromJsonData(gameData, universeData) {
+  game = prototype.fromJson(gameData)
+  
+  loadColors()
+  
+  universe = prototype.fromJson(universeData)
+
+  game.isLoaded = true
+
+  return universe.currentWorld
+}
+
+fun getCurrentMazeHistory() {
+  return universe.currentMaze.history
+}
+
+fun getCurrentWorldHistory() {
+  return universe.currentWorld.history
+}
+
+fun getWorldId {
+  return universe.currentWorld.id
 }

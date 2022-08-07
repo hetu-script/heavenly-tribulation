@@ -1,2 +1,2 @@
-const kWorldSaveFileExtension = '.tdqjsave';
-const kHistorySaveFileExtension = '.tdqjsave2';
+const kGameSaveFileExtension = '.tdqjgame';
+const kUniverseSaveFileExtension = '.tdqjgame_universe';

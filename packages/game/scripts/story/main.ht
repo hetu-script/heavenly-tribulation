@@ -17,7 +17,7 @@ final eventHandler = {
 }
 
 fun load() {
-  game.addModule(module)
+  game.addModInfo(module)
 }
 
 fun init(arg) {

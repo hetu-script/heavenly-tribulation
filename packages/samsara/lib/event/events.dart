@@ -16,9 +16,9 @@ abstract class Events {
 }
 
 class MapLoadedEvent extends GameEvent {
-  final bool isNewGame;
+  final bool isFirstLoad;
 
-  const MapLoadedEvent({this.isNewGame = false})
+  const MapLoadedEvent({this.isFirstLoad = false})
       : super(name: Events.loadedMap);
 }
 

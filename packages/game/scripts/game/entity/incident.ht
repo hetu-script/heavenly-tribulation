@@ -41,12 +41,11 @@ struct Incident {
     this.isPrivate = isPrivate
     this.isGlobal = isGlobal
 
-    if (!isMazeIncident) {
-      this.index = history.length
-      history.add(this)
-    }
-    if (currentMazeHistory is List) {
-      currentMazeHistory.add(this)
+    if (isMazeIncident) {
+      universe.currentMaze.history.add(this)
+    } else {
+      this.index = universe.currentWorld.history.length
+      universe.currentWorld.history.add(this)
     }
 
     for (final id in subjectIds) {
@@ -98,5 +97,5 @@ struct Incident {
 }
 
 fun getIncidentByIndex(index: int) {
-  return history[index]
+  return universe.currentWorldHistory[index]
 }

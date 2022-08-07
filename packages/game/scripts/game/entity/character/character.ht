@@ -221,8 +221,8 @@ struct Character {
 
     this.description = description ?? ''
 
-    // 职务等级，一开始是-1，表示没有职务，当等级 >= 0 时，越小等级越高
-    // 掌门的等级是 0
+    // 组织中的等级，一开始是 -1，表示没有组织，越大等级越高
+    // 掌门的等级是 6
     this.organizationRank = -1
  
     // 有多少人知道此人的名字
@@ -640,7 +640,7 @@ fun setHeroId(id: str) {
   assert(game.characters.containsKey(id))
   hero = game.characters[id]
   engine.info('设置当前玩家人物为 [${hero.name}]。')
-  game.heroId = id;
+  game.heroId = id
 }
 
 fun getHeroPosition {

@@ -62,10 +62,8 @@ class TileMapTerrain extends GameComponent with TileInfo {
           spritePath,
           srcSize: Vector2(srcWidth, srcHeight),
         );
-      } else {
-        if (spriteIndex != null) {
-          sprite = terrainSpriteSheet.getSpriteById(spriteIndex - 1);
-        }
+      } else if (spriteIndex != null) {
+        sprite = terrainSpriteSheet.getSpriteById(spriteIndex - 1);
       }
     }
     return sprite;
@@ -94,16 +92,14 @@ class TileMapTerrain extends GameComponent with TileInfo {
             loop: loop,
             from: 0,
             to: animationFrameCount ?? sheet.columns);
-      } else {
-        if (animationRow != null) {
-          animation = terrainSpriteSheet.createAnimation(
-            row: animationRow,
-            stepTime: defaultAnimationStepTime,
-            loop: loop,
-            from: animationStart ?? 0,
-            to: animationEnd ?? terrainSpriteSheet.columns,
-          );
-        }
+      } else if (animationRow != null) {
+        animation = terrainSpriteSheet.createAnimation(
+          row: animationRow,
+          stepTime: defaultAnimationStepTime,
+          loop: loop,
+          from: animationStart ?? 0,
+          to: animationEnd ?? terrainSpriteSheet.columns,
+        );
       }
     }
     return animation;
