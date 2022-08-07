@@ -76,8 +76,8 @@ struct Site {
     }
     
     // 建筑和人物类似，也具有物品栏
-    // this.money = 0
     this.inventory = {}
+    this.skills = {}
 
     // 这个建筑可以领的任务
     // 可以在官府，或者在民居的告示栏领任务
@@ -193,7 +193,7 @@ fun _handleTradingHouseInteraction(site) {
           final displayName = getLocaleString('server')
           final message = getLocaleString('delivery.introDialog')
           final description = '${quest.description}${
-            getLocaleString('questRewardMoney', interpolations: [quest.reward.money])
+            getLocaleString('questRewardMoney', interpolations: [quest.rewardMoney])
           }'
           showDialogByStrings([message,description], displayName: displayName).then((_) {
             showSelectionByLocaleKeys([

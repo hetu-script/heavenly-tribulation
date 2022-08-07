@@ -1,7 +1,7 @@
-import 'zone/zone.json' as zoneNames
-import 'place/place.json' as placeNames
-import 'place/prefix.json' as placePrefixes
-import 'common/strange.json' as strangeNames
+import 'zone/zone.json5' as zoneNames
+import 'place/place.json5' as placeNames
+import 'place/prefix.json5' as placePrefixes
+import 'common/strange.json5' as strangeNames
 import 'common.ht'
 
 const _kLinkWord = '之'

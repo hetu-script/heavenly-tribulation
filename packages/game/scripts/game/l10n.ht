@@ -1,12 +1,18 @@
 import 'game.ht'
 
+/// 加载到本次游戏的本地化字符串
+var gLocales = {
+  zh: {},
+  en: {}
+}
+
 fun addLocales(localeList: List, [modName]) {
   var info = '载入本地化字符串'
   if (modName != null) info = '${modName}: ' + info
   engine.info(info)
   for (final locale in localeList) {
     final localeId = locale.languageId
-    final localeData = locales[localeId]
+    final localeData = gLocales[localeId]
     for (final key in locale.keys) {
       localeData[key] = locale[key]
     }
@@ -14,9 +20,9 @@ fun addLocales(localeList: List, [modName]) {
 }
 
 fun setLocale(id: str) {
-  assert(locales.containsKey(id))
-  engine.info('设置当前语言为 [${locales[id].languageName}]')
-  locales.currentLocaleId = id
+  assert(gLocales.containsKey(id))
+  engine.info('设置当前语言为 [${gLocales[id].languageName}]')
+  gLocales.currentLocaleId = id
 }
 
 const _kMissingText = 'missing_text_'
@@ -29,7 +35,7 @@ fun interpolate(text: str, [interpolations: List = []]) {
 }
 
 fun getLocaleString(key: str, { interpolations: List }) {
-  var text = locales[locales.currentLocaleId][key]
+  var text = gLocales[gLocales.currentLocaleId][key]
   if (text) {
     if (text is List) {
       text = text[random.nextIterable(text)]

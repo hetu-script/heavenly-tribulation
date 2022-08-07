@@ -196,7 +196,7 @@ struct Organization {
     this.development = development
     
     // 该组织的历史，保存的是历史事件的 index
-    this.experienced = []
+    this.history = []
     
     if (nationId) {
       assert(game.organizations.containsKey(nationId))
@@ -340,10 +340,7 @@ fun stationOrganization(
 }) {
   assert(!location.organizations.containsKey(organization.id))
   characterIds ??= organization.characterIds.keys.toList()
-  if (isHeadquarters) {
-    organization.headquartersId = location.id
-  }
-  Site(
+  final site = Site(
     category: organization.category,
     locationId: location.id,
     organizationId: organization.id,
@@ -354,6 +351,10 @@ fun stationOrganization(
     isHeadquarters: isHeadquarters,
     category: organization.category,
     characterIds: [],
+  }
+  if (isHeadquarters) {
+    organization.headquartersId = location.id
+    organization.headquartersSiteId = site.id
   }
 
   for (final id in characterIds) {
@@ -498,7 +499,7 @@ fun increaseOrganizationDevelopment(organization) {
 }
 
 fun organizationExperiencedIncident(organization, incident) {
-  organization.experienced.add(incident.index)
+  organization.history.add(incident.index)
 }
 
 // fun getNations(id: str) {

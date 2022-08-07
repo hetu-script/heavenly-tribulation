@@ -1,6 +1,6 @@
-import 'skill/skill.json' as skillNames
-import 'skill/extra.json' as skillExtra
-import 'skill/numfix.json' as skillNumfix
+import 'skill/skill.json5' as skillNames
+import 'skill/extra.json5' as skillExtra
+import 'skill/numfix.json5' as skillNumfix
 import 'common.ht'
 import '../entity/common.ht'
 

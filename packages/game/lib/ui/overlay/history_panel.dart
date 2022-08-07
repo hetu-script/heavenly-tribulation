@@ -89,7 +89,7 @@ class HistoryPanel extends StatelessWidget {
         cursor: SystemMouseCursors.click,
         child: Container(
           width: 328,
-          height: 120,
+          height: 140,
           decoration: BoxDecoration(
             color: kBackgroundColor,
             // borderRadius:
@@ -102,8 +102,7 @@ class HistoryPanel extends StatelessWidget {
             children: [
               if (title != null) Text(title!),
               if (title == null)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Column(
                   children: [
                     Text(dateString),
                     Text(sb.toString()),

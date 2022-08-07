@@ -333,7 +333,9 @@ fun onHeroMovedOnCultivationRecruitMaze({tile, maze, currentLevelIndex}) -> bool
     } else if (!tile.flags.isGlowing) {
       tile.flags.isGlowing = true
 
-      setMazeOverlaySprite(tile.left, tile.top, kPavedRockTileGlowing)
+      setMazeOverlaySprite(tile.left, tile.top, {
+        spriteIndex: kPavedRockTileGlowing
+      })
       // 扣除精神数值
       entitySpiritChange(hero, -18)
     }

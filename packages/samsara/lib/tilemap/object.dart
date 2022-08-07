@@ -18,21 +18,24 @@ enum AnimationDirection {
 }
 
 class TileMapObject extends GameComponent with TileInfo {
+  static const defaultAnimationStepTime = 0.2;
+
   final String sceneKey;
   final bool isHero;
   final double velocityFactor;
 
   Sprite? sprite;
-  bool _isAnimated = false;
-  bool _hasOnWaterAnimation = false;
-  late final SpriteAnimation? characterSouth,
-      characterEast,
-      characterNorth,
-      characterWest,
-      shipSouth,
-      shipEast,
-      shipNorth,
-      shipWest;
+  SpriteAnimation? animation;
+  bool _isMovingObject = false;
+  bool _hasMoveOnWaterAnimation = false;
+  late final SpriteAnimation? moveAnimSouth,
+      moveAnimEast,
+      moveAnimNorth,
+      moveAnimWest,
+      moveOnWaterAnimSouth,
+      moveOnWaterAnimEast,
+      moveOnWaterAnimNorth,
+      moveOnWaterAnimWest;
 
   OrthogonalDirection direction = OrthogonalDirection.south;
 
@@ -59,8 +62,9 @@ class TileMapObject extends GameComponent with TileInfo {
     int? top,
     this.velocityFactor = 0.8,
     Sprite? sprite,
-    SpriteSheet? animationSpriteSheet,
-    SpriteSheet? waterAnimationSpriteSheet,
+    SpriteAnimation? animation,
+    SpriteSheet? moveAnimationSpriteSheet,
+    SpriteSheet? moveOnWaterAnimationSpriteSheet,
     required TileShape tileShape,
     required int tileMapWidth,
     required double gridWidth,
@@ -70,32 +74,37 @@ class TileMapObject extends GameComponent with TileInfo {
     double srcOffsetY = 0.0,
     this.entityId,
   }) {
-    if (animationSpriteSheet != null) {
-      _isAnimated = true;
-      characterSouth =
-          animationSpriteSheet.createAnimation(row: 0, stepTime: 0.2);
-      characterEast =
-          animationSpriteSheet.createAnimation(row: 1, stepTime: 0.2);
-      characterNorth =
-          animationSpriteSheet.createAnimation(row: 2, stepTime: 0.2);
-      characterWest =
-          animationSpriteSheet.createAnimation(row: 3, stepTime: 0.2);
+    if (moveAnimationSpriteSheet != null) {
+      _isMovingObject = true;
+      moveAnimSouth = moveAnimationSpriteSheet.createAnimation(
+          row: 0, stepTime: defaultAnimationStepTime);
+      moveAnimEast = moveAnimationSpriteSheet.createAnimation(
+          row: 1, stepTime: defaultAnimationStepTime);
+      moveAnimNorth = moveAnimationSpriteSheet.createAnimation(
+          row: 2, stepTime: defaultAnimationStepTime);
+      moveAnimWest = moveAnimationSpriteSheet.createAnimation(
+          row: 3, stepTime: defaultAnimationStepTime);
 
-      if (waterAnimationSpriteSheet != null) {
-        _hasOnWaterAnimation = true;
+      if (moveOnWaterAnimationSpriteSheet != null) {
+        _hasMoveOnWaterAnimation = true;
 
-        shipSouth =
-            waterAnimationSpriteSheet.createAnimation(row: 0, stepTime: 0.2);
-        shipEast =
-            waterAnimationSpriteSheet.createAnimation(row: 1, stepTime: 0.2);
-        shipNorth =
-            waterAnimationSpriteSheet.createAnimation(row: 2, stepTime: 0.2);
-        shipWest =
-            waterAnimationSpriteSheet.createAnimation(row: 3, stepTime: 0.2);
+        moveOnWaterAnimSouth = moveOnWaterAnimationSpriteSheet.createAnimation(
+            row: 0, stepTime: defaultAnimationStepTime);
+        moveOnWaterAnimEast = moveOnWaterAnimationSpriteSheet.createAnimation(
+            row: 1, stepTime: defaultAnimationStepTime);
+        moveOnWaterAnimNorth = moveOnWaterAnimationSpriteSheet.createAnimation(
+            row: 2, stepTime: defaultAnimationStepTime);
+        moveOnWaterAnimWest = moveOnWaterAnimationSpriteSheet.createAnimation(
+            row: 3, stepTime: defaultAnimationStepTime);
       }
     } else {
-      assert(sprite != null);
-      this.sprite = sprite;
+      _isMovingObject = false;
+      if (sprite != null) {
+        this.sprite = sprite;
+      } else {
+        assert(animation != null);
+        this.animation = animation;
+      }
     }
 
     this.tileMapWidth = tileMapWidth;
@@ -154,36 +163,40 @@ class TileMapObject extends GameComponent with TileInfo {
   }
 
   SpriteAnimation? get currentAnimation {
-    if (_hasOnWaterAnimation && isOnWater) {
+    if (_hasMoveOnWaterAnimation && isOnWater) {
       switch (direction) {
         case OrthogonalDirection.south:
-          return shipSouth;
+          return moveOnWaterAnimSouth;
         case OrthogonalDirection.east:
-          return shipEast;
+          return moveOnWaterAnimEast;
         case OrthogonalDirection.west:
-          return shipWest;
+          return moveOnWaterAnimWest;
         case OrthogonalDirection.north:
-          return shipNorth;
+          return moveOnWaterAnimNorth;
       }
     } else {
       switch (direction) {
         case OrthogonalDirection.south:
-          return characterSouth;
+          return moveAnimSouth;
         case OrthogonalDirection.east:
-          return characterEast;
+          return moveAnimEast;
         case OrthogonalDirection.west:
-          return characterWest;
+          return moveAnimWest;
         case OrthogonalDirection.north:
-          return characterNorth;
+          return moveAnimNorth;
       }
     }
   }
 
   Sprite getSprite() {
-    if (_isAnimated) {
+    if (_isMovingObject) {
       return currentAnimation!.getSprite();
     } else {
-      return sprite!;
+      if (animation != null) {
+        return animation!.getSprite();
+      } else {
+        return sprite!;
+      }
     }
   }
 

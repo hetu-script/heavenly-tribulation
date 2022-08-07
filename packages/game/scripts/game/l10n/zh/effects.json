@@ -1,16 +1,18 @@
 {
-  "effectRestoreLife": "回复 {0} 生命",
-  "effectRestoreChi": "回复 {0} 元气",
-  "effectRestoreStamina": "回复 {0} 体力",
+  "effect.restoreLife": "回复 {0} 生命",
+  "effect.restoreChi": "回复 {0} 元气",
+  "effect.restoreStamina": "回复 {0} 体力",
 
-  "effectHealInjury": "治疗 {0} 外伤。",
+  "effect.healInjury": "治疗 {0} 外伤。",
 
-  "effectParry": "在出招阶段受击时，{0} 几率免除伤害。",
-  "effectCounter": "命中时 {0} 几率使对方硬直 {1}f。",
+  "effect.parry": "在出招阶段受击时，{0} 几率免除伤害。",
+  "effect.counter": "命中时 {0} 几率使对方硬直 {1}f。",
 
-  "effectDefend": "受击时分担 {1} 伤害。",
+  "effect.defend": "受击时分担 {1} 伤害。",
 
-  "effectDefendWithCooldown": "受击时分担 {0} 伤害。冷却时间：{1}。",
+  "effect.defendOnCooldown": "受击时分担 {0} 伤害。冷却时间：{1}。",
 
-  "effectCompanionIncreaseDamageDescription": "协同攻击伤害：{0} 。冷却时间：{1}"
+  "effect.companionIncreaseDamageOnCooldown": "协同攻击伤害：{0} 。冷却时间：{1}",
+
+  "effect.increaseSkillBaseDamage": "增加技能基础伤害：{0}"
 }

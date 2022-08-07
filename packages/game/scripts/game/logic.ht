@@ -10,7 +10,10 @@ import 'binding/worldmap.ht'
 import 'entity/location/location.ht'
 import 'tile/hexagonal_tile.ht'
 
-const kQuestProbability = 0.35
+const _kQuestProbability = 0.35
+
+const _kMinSizeforFishTile = 16
+const _kMinSizeforStormTile = 8
 
 fun getGovernmentQuestMax(development) -> int {
   if (development > 20) {
@@ -24,6 +27,56 @@ fun updateGame({ticks = 1, timeflow = true, playerEvent = true}) {
   for (final i in range(ticks)) {
     // 每个tick执行的代码
     handleBabies()
+
+    // 每月1日的更新
+    if (game.timestamp % kTicksPerMonth == 0) {
+      // 清空暴风雨区域
+      for (final index in game.stormTileIndexes) {
+        final tile = game.world.terrains[index]
+        delete tile.flags.isInStorm
+      }
+      game.stormTileIndexes = []
+
+      final stormEventsCount = game.world.waterTerrainIndexes.length ~/ _kMinSizeforStormTile + 1
+      for (final i in range(stormEventsCount)) {
+        var stormLocationIndex
+        do {
+          stormLocationIndex = random.nextIterable(game.world.waterTerrainIndexes)
+        } while (stormLocationIndex in game.stormTileIndexes)
+        game.stormTileIndexes.add(stormLocationIndex)
+        final stormTile = game.world.terrains[stormLocationIndex]
+        engine.info('在 ${stormTile.left},${stormTile.top} 生成暴风雨')
+        stormTile.flags.isInStorm = true
+      }
+
+      // 清空鱼类活跃区域
+      for (final index in game.fishTileIndexes) {
+        final tile = game.world.terrains[index]
+        delete tile.flags.isGatheredFish
+        // 清空叠加的鱼跃效果动态贴图
+        setWorldMapOverlaySprite(tile.left, tile.top, null)
+      }
+      game.fishTileIndexes = []
+
+      final fishEventsCount = game.world.waterTerrainIndexes.length ~/ _kMinSizeforFishTile + 1
+      for (final i in range(fishEventsCount)) {
+        var fishLocationIndex
+        do {
+          fishLocationIndex = random.nextIterable(game.world.waterTerrainIndexes)
+        } while (fishLocationIndex in game.fishTileIndexes)
+        game.fishTileIndexes.add(fishLocationIndex)
+        final fishTile = game.world.terrains[fishLocationIndex]
+        engine.info('在 ${fishTile.left},${fishTile.top} 生成鱼类活跃区')
+        final overlay = {
+          row: 3,
+        }
+        fishTile.overlaySprite = overlay
+        if (isGameLoaded) {
+          setWorldMapOverlaySprite(fishTile.left, fishTile.top, overlay)
+        }
+        fishTile   lj.flags.isGatheredFish = true
+      }
+    }
 
     // 对于每个游戏中的单位，每个月执行的代码随机分布在一个月中的某一天，这是为了让游戏不会在某一天集中运算而卡住。
     
@@ -75,10 +128,10 @@ fun updateGame({ticks = 1, timeflow = true, playerEvent = true}) {
         updateOrganizationYearly(organization)
       }
 
-    //   // 月度事件
-    //   if (getCurrentTicksOfMonth() == organization.monthlyUpdateTime) {
-    //     updateOrganizationMonthly(organization)
-    //   }
+      //   // 月度事件
+      //   if (getCurrentTicksOfMonth() == organization.monthlyUpdateTime) {
+      //     updateOrganizationMonthly(organization)
+      //   }
     }
     
     // 触发每个角色的刷新事件
@@ -203,7 +256,7 @@ fun updateSite(site) {
       if (site.quests.length >= getGovernmentQuestMax(location.development)) return
       
       // 生成盗贼副本类悬赏任务，只在有国家的据点上生成
-      if (random.nextDouble() > kQuestProbability) return
+      if (random.nextDouble() > _kQuestProbability) return
       if (!location.nationId) return
       final nation = game.organizations[location.nationId]
       if (nation.hasBanditEvent) return
@@ -287,92 +340,6 @@ fun updateOrganizationMonthly(organization) {
 fun updateCharacter(character) {
   engine.info('触发 ${character.name} 的月度更新事件')
 
-}
-
-// 如果返回值为 true，则英雄的移动会中止在这一格。
-fun onHeroMovedOnWorldMap(left, top) {
-  engine.info('玩家移动到了: ${left}, ${top}')
-  // final tile = game.world.terrains[tilePos2Index(left, top, game.world.width)]
-  // if (tile.entityId && !tile.hasSearched) {
-  //   // TODO: 感知阈值
-  //   showDialogByLocaleKeys(['sensedUndiscovered'], character: hero)
-  //   return true
-  // }
-  return false
-}
-
-// 异步函数，会在显示地点窗口之前执行，执行完毕后才会进入地点
-fun onHeroEnteredLocation(location) async {
-  engine.info('玩家进入了: ${location.name}')
-  if (!location.isDiscovered) {
-    if (location.category == kLocationCategoryCity) {
-      discoverLocation(location)
-      final message = getLocaleString('firstVisitCity', interpolations: [location.name])
-      // TODO: 第一次发现据点事件
-      return showDialogByStrings([message])
-    } else {
-      // TODO: 感知阈值
-      return showDialogByLocaleKeys(['sensedUndiscovered'], character: hero)
-    }
-  }
-
-  if (location.flags.recruitingOrganizationIds.isNotEmpty) {
-    var names = ''
-    for (final id in location.flags.recruitingOrganizationIds) {
-      if (names.isEmpty) {
-        names = game.organizations[id].name
-      } else {
-        final linkWord = getLocaleString('and')
-        names += linkWord + game.organizations[id].name
-      }
-    }
-
-    final villager = getLocaleString('villager')
-
-    showDialogByResourceId('cultivatorRecruitMonth').then((_) {
-      showSelectionByLocaleKeys([
-        'cultivatorRecruitMonth.selection1',
-        'cultivatorRecruitMonth.selection2',
-        'cultivatorRecruitMonth.selection3',
-      ]).then((key) {
-        when (key) {
-          'cultivatorRecruitMonth.selection1' -> {
-            return showDialogByResourceId('cultivatorRecruitMonth.reply1', interpolations: [names])
-          }
-          'cultivatorRecruitMonth.selection2' -> {
-            return showDialogByResourceId('cultivatorRecruitMonth.reply2', interpolations: [names])
-          }
-          'cultivatorRecruitMonth.selection3' -> {
-            return showDialogByResourceId('cultivatorRecruitMonth.reply3', interpolations: [names])
-          }
-        }
-      }).then((_) {
-        if (hero.organizationId == null) {
-          return showDialogByLocaleKeys(['cultivatorRecruitMonth.hint'], character: hero)
-        }
-      })
-    })
-
-  }
-}
-
-// 异步函数，会在显示建筑窗口之前执行，执行完毕后才会进入建筑
-fun onHeroEnteredSite(site) async {
-  engine.info('玩家进入了: ${site.name}')
-
-  // 检查是否有任务满足了提交条件
-  final future
-  for (final quest of hero.quests) {
-    if (site.id == quest.destinationSiteId) {
-      quest.result = characterTrySubmitQuest(hero, site, quest)
-      // modEventId 意味着这是一个 mod 创建的任务，将由 mod 自己的函数处理
-      if (quest.modEventId) {
-        return onGameEvent(quest.modEventId, quest)
-      } else {
-        return handleQuestEnding(quest)
-      }
-    }
-  }
 }
 
 fun handleQuestEnding(quest, result) {

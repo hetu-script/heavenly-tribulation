@@ -1,6 +1,6 @@
-import 'organization/organization.json' as orgNames
+import 'organization/organization.json5' as orgNames
 import 'common.ht'
-import 'common/common.json' as commonNamesData
+import 'common/common.json5' as commonNamesData
 
 final kNonBattleOrganizationNames = [
   ...commonNamesData.emotion,

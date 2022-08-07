@@ -1,6 +1,5 @@
 {
-  "fightSkill": "斗技",
-  "fist": "拳",
-  "kick": "腿",
+  "offenseSkill": "斗技",
+  "boxing": "拳脚",
   "wrestling": "擒拿"
 }

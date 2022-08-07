@@ -2,7 +2,7 @@ import '../global.dart';
 
 String getNameFromId(String? id) {
   if (id != null) {
-    final l = id.split('_');
+    final l = id.split('.');
     return l.last;
   } else {
     return engine.locale['none'];

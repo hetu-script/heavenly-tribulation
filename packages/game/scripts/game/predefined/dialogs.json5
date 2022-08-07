@@ -1,0 +1,54 @@
+[
+  {
+    id: 'cultivatorRecruitMonth',
+    contents: [
+      {
+        localeKeys: ['cultivatorRecruitMonth.intro1'],
+      },
+      {
+        displayNameLocaleKey: 'villager',
+        localeKeys: ['cultivatorRecruitMonth.intro2'],
+      },
+    ],
+  },
+  {
+    id: 'cultivatorRecruitMonth.reply1',
+    contents: [
+      {
+        displayNameLocaleKey: 'villager',
+        localeKeys: ['cultivatorRecruitMonth.selection1.reply'],
+      },
+      {
+        displayNameLocaleKey: 'villager',
+        localeKeys: ['cultivatorRecruitMonth.selection2.reply'],
+      },
+    ],
+  },
+  {
+    id: 'cultivatorRecruitMonth.reply2',
+    contents: [
+      {
+        displayNameLocaleKey: 'villager',
+        localeKeys: ['cultivatorRecruitMonth.selection2.reply'],
+      },
+    ],
+  },
+  {
+    id: 'cultivatorRecruitMonth.reply3',
+    contents: [
+      {
+        displayNameLocaleKey: 'villager',
+        localeKeys: ['cultivatorRecruitMonth.selection3.reply'],
+      },
+    ],
+  },
+  {
+    id: 'cultivatorRecruitMonth.hint',
+    contents: [
+      {
+        isHero: true,
+        localeKeys: ['cultivatorRecruitMonth.hint'],
+      },
+    ],
+  },
+]

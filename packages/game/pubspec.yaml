@@ -96,6 +96,7 @@ flutter:
     - scripts/game/entity/character/
     - scripts/game/entity/character/creature/
     - scripts/game/entity/character/npc/
+    - scripts/game/entity/effect/
     - scripts/game/entity/item/
     - scripts/game/entity/item/consumable/
     - scripts/game/entity/item/material/
@@ -128,7 +129,6 @@ flutter:
     - scripts/game/world/
 
     - scripts/story/
-    - scripts/story/data/
     - scripts/story/l10n/
 
   fonts:

@@ -48,6 +48,8 @@ class _MainMenuState extends State<MainMenu> {
     super.initState();
 
     engine.registerSceneConstructor('worldmap', ([dynamic args]) async {
+      engine.invoke('resetGame');
+
       // 因为生成世界时会触发一些mod的回调函数，因此需要先载入 mod 数据
       for (final key in _modsInfo.keys) {
         if (_modsInfo[key] == true) {

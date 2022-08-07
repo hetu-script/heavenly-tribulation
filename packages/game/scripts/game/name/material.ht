@@ -1,6 +1,6 @@
 import 'common.ht'
-import 'material/material.json' as materialNames
-import 'material/common.json' as commonMaterialNames
+import 'material/material.json5' as materialNames
+import 'material/common.json5' as commonMaterialNames
 import '../entity/common.ht'
 import '../random.ht'
 

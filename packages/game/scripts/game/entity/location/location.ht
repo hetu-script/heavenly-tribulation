@@ -193,7 +193,13 @@ fun discoverLocation(location) {
     // tile.spriteIndex = kSpriteLand
     tile.overlaySprite.index = kSpriteCity
     // setWorldMapSprite(location.tilePosition.left, location.tilePosition.top, kSpriteLand)
-    setWorldMapOverlaySprite(location.tilePosition.left, location.tilePosition.top, kSpriteCity)
+    setWorldMapOverlaySprite(
+      location.tilePosition.left,
+      location.tilePosition.top, 
+      {
+        spriteIndex: kSpriteCity,
+      },
+    )
   }
 }
 

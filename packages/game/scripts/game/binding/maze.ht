@@ -2,9 +2,9 @@ external fun showMazeGameOver
 
 external fun moveHeroToLastRouteNode
 
-external fun setMazeSprite(left, top, spriteIndex)
+external fun setMazeSprite(left, top, data)
 
-external fun setMazeOverlaySprite(left, top, spriteIndex)
+external fun setMazeOverlaySprite(left, top, data)
 
 external fun addMazeObject(data)
 

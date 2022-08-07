@@ -1,6 +1,6 @@
-import 'talisman/talisman.json' as talismanNames
-import 'talisman/material.json' as talismanMaterial
-import 'talisman/postfix.json' as talismanPostfix
+import 'talisman/talisman.json5' as talismanNames
+import 'talisman/material.json5' as talismanMaterial
+import 'talisman/postfix.json5' as talismanPostfix
 import 'common.ht'
 import '../random.ht'
 import '../entity/common.ht'

@@ -143,6 +143,8 @@ fun createWorldMap({
     }
   }
 
+  game.world.waterTerrainIndexes = Set()
+
   // 没有区域，也是一个区域
   final voidZone = Zone(index: game.world.zones.length, name: null, category: kZoneVoid)
   game.world.zones.add(voidZone)
@@ -160,12 +162,8 @@ fun createWorldMap({
   // 根据相邻的格子的地域，分配地域索引
   fun updateZone(tile, [spriteIndex, unzonedNeighbors]) {
     assert(tile.zoneIndex == null)
-    var willCreateZone = true
-    if (spriteIndex != null) {
-      willCreateZone = false
-    } else {
-      spriteIndex = tile.spriteIndex
-    }
+    var willCreateZone = spriteIndex == null
+    spriteIndex ??= tile.spriteIndex
     unzonedNeighbors ??= {}
     // engine.info('processing: ${tile.left},${tile.top}, spriteIndex: ${tile.spriteIndex}')
     tile.zoneIndex = -1 // mark this tile is being processed, will skip it when process others
@@ -395,6 +393,8 @@ fun createWorldMap({
       // 为该地域中所有地块赋值 kind
       for (final terrainIndex in zone.terrainIndexes) {
         final tile = game.world.terrains[terrainIndex]
+        // 将所有水域保存在一个总表中，之后用来计算捕鱼地区
+        game.world.waterTerrainIndexes.add(tile.index)
         tile.isWater = true
         tile.zoneCategory = zone.category
         tile.kind = zone.category
@@ -791,6 +791,8 @@ fun createWorldMap({
 
   engine.info('世界生成完毕。重置随机数生成器。')
   setRandomSeed()
+
+  isGameLoaded = true
 
   return game.world
 }

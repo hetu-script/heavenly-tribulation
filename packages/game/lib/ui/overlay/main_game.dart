@@ -34,8 +34,8 @@ import '../dialog/character_select_dialog.dart';
 // import 'worldmap/location_info.dart';
 import '../dialog/game_over.dart';
 
-const kGridModeZone = 0;
-const kGridModeNation = 1;
+const kColorModeZone = 0;
+const kColorModeNation = 1;
 
 const kTerrainKindLocation = 'location';
 const kTerrainKindLake = 'lake';
@@ -288,8 +288,8 @@ class _MainGameOverlayState extends State<MainGameOverlay>
             engine: engine,
             sceneKey: _scene.key,
             isHero: true,
-            animationSpriteSheet: charSheet,
-            waterAnimationSpriteSheet: shipSheet,
+            moveAnimationSpriteSheet: charSheet,
+            moveOnWaterAnimationSpriteSheet: shipSheet,
             left: _heroData!['worldPosition']['left'],
             top: _heroData!['worldPosition']['top'],
             tileShape: _scene.map.tileShape,
@@ -322,13 +322,17 @@ class _MainGameOverlayState extends State<MainGameOverlay>
 
             engine.invoke('updateGame');
             currentTerrain = _scene.map.getTerrainAtHero();
-            final bool blocked = engine.invoke('onHeroMovedOnWorldMap',
+            final blocked = engine.invoke('onHeroMovedOnWorldMap',
                 positionalArgs: [
                   heroEvent.tilePosition.left,
                   heroEvent.tilePosition.top
                 ]);
-            if (blocked) {
-              _scene.map.hero!.isMovingCanceled = true;
+            if (blocked != null) {
+              if (blocked) {
+                _scene.map.moveHeroToLastRouteNode();
+              } else {
+                _scene.map.hero!.isMovingCanceled = true;
+              }
             }
           }
           setState(() {});
@@ -426,13 +430,13 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                                 builder: (context) => const InformationPanel());
                             break;
                           case WorldMapDropMenuItems.viewNone:
-                            _scene.map.gridMode = kGridModeNone;
+                            _scene.map.colorMode = kColorModeNone;
                             break;
                           case WorldMapDropMenuItems.viewZones:
-                            _scene.map.gridMode = kGridModeZone;
+                            _scene.map.colorMode = kColorModeZone;
                             break;
                           case WorldMapDropMenuItems.viewNations:
-                            _scene.map.gridMode = kGridModeNation;
+                            _scene.map.colorMode = kColorModeNation;
                             break;
                           case WorldMapDropMenuItems.console:
                             showDialog(

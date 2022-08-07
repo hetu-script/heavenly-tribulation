@@ -1,8 +1,8 @@
 import 'common.ht'
-import 'common/common.json' as commonNamesData
-import 'creature/creature.json' as creatureNames
-import 'creature/prefix.json' as creaturePrefix
-import 'common/strange.json' as strangeCreature
+import 'common/common.json5' as commonNamesData
+import 'creature/creature.json5' as creatureNames
+import 'creature/prefix.json5' as creaturePrefix
+import 'common/strange.json5' as strangeCreature
 import '../random.ht'
 import '../entity/common.ht'
 

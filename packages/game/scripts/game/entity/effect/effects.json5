@@ -1,0 +1,82 @@
+{
+  beverage: {
+    restoreStamina: [
+      {
+        category: 'beverage',
+        handlerType: 'consume',
+        id: 'restoreStamina',
+        level: 1,
+        description: 'effect.restoreStamina',
+        values: [
+          {
+            value: 10,
+          },
+        ],
+      },
+    ],
+  },
+  medicine: {
+    restorLife: [
+      {
+        category: 'medicine',
+        handlerType: 'consume',
+        id: 'restorLife',
+        level: 1,
+        description: 'effect.restorLife',
+        values: [
+          {
+            value: 10,
+          },
+        ],
+      },
+    ],
+    healInjury: [
+      {
+        category: 'medicine',
+        handlerType: 'consume',
+        id: 'healInjury',
+        level: 1,
+        description: 'effect.healInjury',
+        values: [
+          {
+            value: 10,
+          },
+        ],
+      },
+    ],
+  },
+  shield: {
+    defendOnCooldown: [
+      {
+        category: 'shield',
+        handlerType: 'defend',
+        id: 'defendOnCooldown',
+        level: 1,
+        description: 'effect.defendOnCooldown',
+        values: [
+          {
+            value: 0.8,
+            type: 'percentage',
+          },
+          { value: 3 },
+        ],
+      },
+    ],
+  },
+  boxing: {
+    increaseSkillBaseDamage: [
+      {
+        category: 'boxing',
+        handlerType: 'damage',
+        id: 'increaseSkillBaseDamage',
+        level: 1,
+        description: 'effect.increaseSkillBaseDamage',
+        values: [
+          {
+            value: 10,
+          },
+        ],
+      },
+    ],
+  },
+}

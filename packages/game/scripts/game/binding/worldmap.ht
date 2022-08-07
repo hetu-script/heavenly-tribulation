@@ -2,8 +2,8 @@ external fun showWorldMapGameOver
 
 external fun setWorldMapCaption(left, top, caption)
 
-external fun setWorldMapSprite(left, top, spriteIndex)
+external fun setWorldMapSprite(left, top, data)
 
-external fun setWorldMapOverlaySprite(left, top, spriteIndex)
+external fun setWorldMapOverlaySprite(left, top, data)
 
 external fun enterLocation(locationId)

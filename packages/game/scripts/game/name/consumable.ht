@@ -1,8 +1,8 @@
-import 'common/common.json' as commonNamesData
-import 'common/spirit.json' as spiritPrefix
-import 'consumable/consumable.json' as consumableNames
-import 'consumable/medicine.json' as medicineNames
-import 'consumable/beverage.json' as beverageNames
+import 'common/common.json5' as commonNamesData
+import 'common/spirit.json5' as spiritPrefix
+import 'consumable/consumable.json5' as consumableNames
+import 'consumable/medicine.json5' as medicineNames
+import 'consumable/beverage.json5' as beverageNames
 import '../random.ht'
 import '../entity/common.ht'
 

@@ -1,7 +1,9 @@
-import 'game.ht'
 import 'entity/character/character.ht'
 import 'l10n.ht'
 import 'binding/dialog.ht'
+
+/// 加载到本次游戏的对话资源
+var gDialogs = {}
 
 struct DialogData {
   construct({
@@ -84,7 +86,7 @@ fun addDialogs(dlgsData: List) {
       final dlgContent = DialogContentData.fromData(contentData)
       dlg.contents.add(dlgContent)
     }
-    dialogs[dlg.id] = dlg
+    gDialogs[dlg.id] = dlg
   }
 }
 
@@ -120,7 +122,7 @@ fun showDialogByStrings(lines, { returnValue, character, displayName }) -> Futur
 }
 
 fun showDialogByResourceId(id: str, { returnValue, interpolations: List }) -> Future {
-  final data = dialogs[id]
+  final data = gDialogs[id]
   // 这里之后是否可以优化一下？
   for (final content in data.contents) {
     if (content.isHero) {

@@ -1,4 +1,4 @@
-import '../effect.ht'
+import '../effect/effect.ht'
 
 const _kCompanionAssistCooldown = 5
 const _kCompanionDefendCooldown = 5
@@ -20,33 +20,26 @@ fun generateBattleCompanionData(companionData, battleEntity) {
   companionData.equipType = kEquipTypeCompanion
 
   final assist = Effect(
-    id: kEffectIncreaseDamageWithCooldown,
-    description: kEffectCompanionIncreaseDamageDescription,
-    category: kEffectCategoryDamage,
+    category: 'companion',
+    handlerType: kEffectCategoryDamage,
+    id: kEffectCompanionIncreaseDamageOnCooldown,
+    level: 1,
     values: [
-      EffectValue(
-        value: companionData.stats.damage,
-        type: kEffectValueTypeInt,
-      ),
-      EffectValue(
-        value: _kCompanionAssistCooldown,
-        type: kEffectValueTypeInt,
-      ),
+      EffectValue(value: companionData.stats.damage),
+      EffectValue(value: _kCompanionAssistCooldown),
     ],
   )
   final defend = Effect(
-    id: kEffectDefendWithCooldown,
-    description: kEffectDefendWithCooldown,
-    category: kEffectCategoryDefend,
+    category: 'companion',
+    handlerType: kEffectCategoryDefend,
+    id: kEffectDefendOnCooldown,
+    level: 1,
     values: [
       EffectValue(
         value: _kCompanionDefendPercentage,
         type: kEffectValueTypePercentage,
       ),
-      EffectValue(
-        value: _kCompanionDefendCooldown,
-        type: kEffectValueTypeInt,
-      ),
+      EffectValue(value: _kCompanionDefendCooldown),
     ],
   )
   if (companionData.effects == null) companionData.effects = {}

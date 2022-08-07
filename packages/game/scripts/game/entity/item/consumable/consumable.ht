@@ -1,7 +1,7 @@
 import '../../../random.ht'
 import '../../common.ht'
 import '../common.ht'
-import '../../effect.ht'
+import '../../effect/effect.ht'
 
 // 饮品的效果
 // final medicineEffects = [

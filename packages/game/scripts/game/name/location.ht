@@ -1,7 +1,7 @@
-import 'place/place.json' as placeNames
-import 'place/postfix.json' as placePostfix
-import 'place/location.json' as locationNames
-import 'common/strange.json' as strangeNames
+import 'place/place.json5' as placeNames
+import 'place/postfix.json5' as placePostfix
+import 'place/location.json5' as locationNames
+import 'common/strange.json5' as strangeNames
 import 'common.ht'
 
 fun generateLocationName({category: str}) {

@@ -1,0 +1,66 @@
+import 'common.ht'
+import '../character/status_effect.ht'
+import '../common.ht'
+
+// 游戏效果的处理函数
+final gEffectHandlers = {
+  // 食用类效果
+  // 回复体力
+  restoreStamina: (effect, character) {
+    entityStaminaChange(character, effect.values[0].value)
+  },
+  // 回复生命
+  restoreLife: (effect, character) {
+    entityLifeChange(character, effect.values[0].value)
+  },
+  // 回复元气
+  restoreChi: (effect, character) {
+    entityChiChange(character, effect.values[0].value)
+  },
+  // 回复精神
+  restoreSpirit: (effect, character) {
+    entitySpiritChange(character, effect.values[0].value)
+  },
+  // 治疗外伤
+  healInjury: (effect, character) {
+    final currentInjury = character.statusEffects[kStatusCategoryInjury]
+    if (currentInjury) {
+      currentInjury.value -= effect.values[0].value
+      if (currentInjury.value <= 0) {
+        delete character.statusEffects[kStatusCategoryInjury]
+      }
+    }
+  },
+  // 治疗感染
+  healInfection: (effect, character) {
+    final currentInfection = character.statusEffects[kStatusCategoryInfection]
+    if (currentInfection) {
+      currentInfection.value -= effect.values[0].value
+      if (currentInfection.value <= 0) {
+        delete character.statusEffects[kStatusCategoryInfection]
+      }
+    }
+  },
+  // 受击类效果
+  defendOnCooldown: (effect, baseDamage) {
+    if (effect.cooldown <= 0) {
+      effect.cooldown = effect.values[1].value
+      return baseDamage * effect.values[0].value
+    } else {
+      --effect.cooldown
+      //这里要明确返回null，否则上面一行的数字就会被返回
+      return null
+    }
+  },
+  // 同伴协同攻击
+  companionIncreaseDamageOnCooldown: (effect, baseDamage) {
+    if (effect.cooldown <= 0) {
+      effect.cooldown = effect.values[1].value
+      return baseDamage + effect.values[0].value
+    } else {
+      --effect.cooldown
+      //这里要明确返回null，否则上面一行的数字就会被返回
+      return null
+    }
+  }
+}

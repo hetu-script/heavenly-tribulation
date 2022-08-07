@@ -5,19 +5,18 @@ import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
-// import 'package:hetu_script/values.dart';
 
 import '../ui/pointer_detector.dart';
 import '../component/game_component.dart';
 import '../gestures/gesture_mixin.dart';
 import '../extensions.dart';
 import 'tile.dart';
-import 'zone.dart';
 import 'object.dart';
 import 'cloud.dart';
 import '../../shared/color.dart';
 import '../engine.dart';
 import '../../event/events.dart';
+import 'terrain.dart';
 
 class TileMapRouteNode {
   final int index;
@@ -37,7 +36,8 @@ class TileMapRouteNode {
 //   check,
 // }
 
-const kGridModeNone = -1;
+const kColorModeNone = -1;
+const _kCaptionOffset = 14.0;
 
 class TileMap extends GameComponent with HandlesGesture {
   static const maxCloudsCout = 16;
@@ -131,20 +131,6 @@ class TileMap extends GameComponent with HandlesGesture {
     tileMapHeight = mapData['height'];
     final terrainsData = mapData['terrains'];
 
-    final zonesData = mapData['zones'];
-    zones = <TileMapZone>[];
-    if (zonesData != null) {
-      for (final zoneData in zonesData) {
-        final int index = zoneData['index'];
-        final String colorHex = zoneData['color'];
-        final color = HexColor.fromHex(colorHex);
-        zones.add(TileMapZone(
-          index: index,
-          color: color,
-        ));
-      }
-    }
-
     terrains = <TileMapTerrain>[];
     for (var j = 0; j < tileMapHeight; ++j) {
       for (var i = 0; i < tileMapWidth; ++i) {
@@ -158,67 +144,6 @@ class TileMap extends GameComponent with HandlesGesture {
         final String? nationId = terrainData['nationId'];
         final String? locationId = terrainData['locationId'];
         final String? caption = terrainData['caption'];
-        Sprite? baseSprite;
-        SpriteAnimation? baseAnimation;
-        final String? baseSpritePath = terrainData['sprite'];
-        final int? baseSpriteIndex = terrainData['spriteIndex'];
-        final String? baseAnimationPath = terrainData['animation'];
-        final int baseAnimationFrameCount =
-            terrainData['animationFrameCount'] ?? 1;
-        if (baseSpritePath != null) {
-          baseSprite = await Sprite.load(
-            baseSpritePath,
-            srcSize: Vector2(tileSpriteSrcWidth, tileSpriteSrcHeight),
-          );
-        } else if (baseSpriteIndex != null) {
-          baseSprite = terrainSpriteSheet.getSpriteById(baseSpriteIndex - 1);
-        }
-        if (baseAnimationPath != null) {
-          final sheet = SpriteSheet(
-              image: await Flame.images.load(baseAnimationPath),
-              srcSize: Vector2(
-                tileSpriteSrcWidth,
-                tileSpriteSrcHeight,
-              ));
-          baseAnimation = sheet.createAnimation(
-              row: 0,
-              stepTime: TileMapTerrain.defaultAnimationStepTime,
-              from: 0,
-              to: baseAnimationFrameCount);
-        }
-        Sprite? overlaySprite;
-        SpriteAnimation? overlayAnimation;
-        final overlaySpriteData = terrainData['overlaySprite'];
-        if (overlaySpriteData != null) {
-          final String? overlaySpritePath = overlaySpriteData['path'];
-          final int? overlaySpriteIndex = overlaySpriteData['index'];
-          final String? overlayAnimationPath = overlaySpriteData['animation'];
-          final int overlayAnimationFrameCount =
-              overlaySpriteData['animationFrameCount'] ?? 1;
-          if (overlaySpritePath != null) {
-            overlaySprite = await Sprite.load(
-              overlaySpritePath,
-              srcSize: Vector2(tileSpriteSrcWidth, tileSpriteSrcHeight),
-            );
-          } else if (overlaySpriteIndex != null) {
-            overlaySprite =
-                terrainSpriteSheet.getSpriteById(overlaySpriteIndex - 1);
-          }
-          if (overlayAnimationPath != null) {
-            final sheet = SpriteSheet(
-                image: await Flame.images.load(overlayAnimationPath),
-                srcSize: Vector2(
-                  tileSpriteSrcWidth,
-                  tileSpriteSrcHeight,
-                ));
-            overlayAnimation = sheet.createAnimation(
-                row: 0,
-                stepTime: TileMapTerrain.defaultAnimationStepTime,
-                from: 0,
-                to: overlayAnimationFrameCount);
-          }
-        }
-        // final String? entityId = terrainData['entityId'];
         final String? objectId = terrainData['objectId'];
         final tile = TileMapTerrain(
           tileShape: tileShape,
@@ -239,14 +164,17 @@ class TileMap extends GameComponent with HandlesGesture {
           locationId: locationId,
           caption: caption,
           captionStyle: captionStyle,
-          sprite: baseSprite,
-          baseAnimation: baseAnimation,
-          overlaySprite: overlaySprite,
-          overlayAnimation: overlayAnimation,
           offsetX: tileOffsetX,
           offsetY: tileOffsetY,
           objectId: objectId,
         );
+
+        tile.loadSprite(terrainData, terrainSpriteSheet);
+
+        final overlaySpriteData = terrainData['overlaySprite'];
+        if (overlaySpriteData != null) {
+          tile.loadOverlaySprite(overlaySpriteData, terrainSpriteSheet);
+        }
 
         terrains.add(tile);
       }
@@ -289,7 +217,7 @@ class TileMap extends GameComponent with HandlesGesture {
   List<TileMapObject>? selectedActors;
 
   List<TileMapTerrain> terrains = [];
-  List<TileMapZone> zones = [];
+  // List<TileMapZone> zones = [];
 
   /// 按id保存的object
   /// 这些object不一定都可以互动
@@ -338,24 +266,16 @@ class TileMap extends GameComponent with HandlesGesture {
     tile!.objectId = objectId;
   }
 
-  void setTerrainSprite(int left, int top, int? spriteIndex) {
+  void setTerrainSprite(int left, int top, dynamic data) {
     final tile = getTerrain(left, top);
     assert(tile != null);
-    if (spriteIndex != null) {
-      tile!.sprite = terrainSpriteSheet.getSpriteById(spriteIndex - 1);
-    } else {
-      tile!.sprite = null;
-    }
+    tile!.loadSprite(data, terrainSpriteSheet);
   }
 
-  void setTerrainOverlaySprite(int left, int top, int? spriteIndex) {
+  void setTerrainOverlaySprite(int left, int top, dynamic data) {
     final tile = getTerrain(left, top);
     assert(tile != null);
-    if (spriteIndex != null) {
-      tile!.overlaySprite = terrainSpriteSheet.getSpriteById(spriteIndex - 1);
-    } else {
-      tile!.overlaySprite = null;
-    }
+    tile!.loadOverlaySprite(data, terrainSpriteSheet);
   }
 
   TileMapObject? _hero;
@@ -384,7 +304,7 @@ class TileMap extends GameComponent with HandlesGesture {
 
   VoidCallback? _currentDestinationCallback;
 
-  int gridMode = kGridModeNone;
+  int colorMode = kColorModeNone;
 
   bool showGrids;
   bool showClouds;
@@ -698,6 +618,10 @@ class TileMap extends GameComponent with HandlesGesture {
   void updateTree(double dt, {bool callOwnUpdate = true}) {
     super.updateTree(dt);
 
+    for (final tile in terrains) {
+      tile.update(dt);
+    }
+
     if (showClouds) {
       for (final cloud in _clouds) {
         cloud.update(dt);
@@ -820,12 +744,12 @@ class TileMap extends GameComponent with HandlesGesture {
     }
 
     for (final tile in terrains) {
-      tile.renderCaption(canvas);
+      tile.renderCaption(canvas, offset: _kCaptionOffset);
     }
 
-    if (gridMode >= 0) {
+    if (colorMode >= 0) {
       for (final tile in terrains) {
-        final color = engine.colors[gridMode][tile.index];
+        final color = engine.colors[colorMode][tile.index];
         if (color != null) {
           final paint = Paint()
             ..style = PaintingStyle.fill

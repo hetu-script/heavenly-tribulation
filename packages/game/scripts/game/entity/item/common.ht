@@ -1,5 +1,5 @@
 import '../common.ht'
-import '../effect.ht'
+import '../effect/effect.ht'
 import '../character/companion.ht'
 import '../../random.ht'
 import 'money.ht'
@@ -206,7 +206,7 @@ fun characterLearn(character, skill) {
   ])
   Incident(
     content: incidentContent,
-    subjectIds: character.isMajorCharacter ? [entity.id] : null,
+    subjectIds: character.isMajorCharacter ? [character.id] : null,
     isPrivate: true,
   )
 }
@@ -524,7 +524,7 @@ fun getNextEquippedOffenseItem(character, index) {
 
 // 批量获取物品，但不显示从那里获得的，通常用于从箱子或包裹中批量拿取
 fun characterLootBox(character, lootbox, { incidentOccured = true }) {
-  for (final item of lootbox) {
+  for (final item of lootbox.inventory) {
     entityAcquireItem(character, item, count: item.stackSize, incidentOccured: incidentOccured)
   }
   // if (lootbox.money) {
@@ -532,11 +532,11 @@ fun characterLootBox(character, lootbox, { incidentOccured = true }) {
   // }
 
   // 清空箱子
-  // lootbox.money = 0
-  final ids = lootbox.keys.toList()
-  for (final id in ids) {
-    delete lootbox[id]
-  }
+  lootbox.inventory = {}
+  // final ids = lootbox.keys.toList()
+  // for (final id in ids) {
+  //   delete lootbox[id]
+  // }
 }
 
 // 战斗胜利后，根据情况获得战利品

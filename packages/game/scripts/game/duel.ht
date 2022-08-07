@@ -3,7 +3,7 @@ import 'l10n.ht'
 import 'entity/common.ht'
 import 'entity/item/common.ht'
 import 'entity/character/character.ht'
-import 'entity/effect.ht'
+import 'entity/effect/effect.ht'
 import 'binding/dialog.ht'
 
 /// 战斗模块
@@ -118,9 +118,9 @@ struct Duel {
           var shareDamage
           var assistDamage
 
-          // 处理分担伤害
+          // 处理道具防御效果
           fun handleDefendEffect({effect, item, index}) {
-            if (effect.category != kEffectCategoryDefend) return false
+            if (effect.handlerType != kEffectCategoryDefend) return false
             final effectHandler = getEffectHandlerById(effect.id)
             if (effectHandler == null) {
               engine.error('找不到效果 ${effect.id} 对应的处理函数。')
@@ -155,9 +155,9 @@ struct Duel {
             return false
           }
 
-          // 战斗伙伴的伤害增强效果，这里会直接修改baseDamage
+          // 处理道具增强伤害
           fun handleAssistEffect({effect, item, index}) {
-            if (effect.category != kEffectCategoryDamage) return false
+            if (effect.handlerType != kEffectCategoryDamage) return false
             final effectHandler = getEffectHandlerById(effect.id)
             if (effectHandler == null) {
               engine.error('找不到效果 ${effect.id} 对应的处理函数。')

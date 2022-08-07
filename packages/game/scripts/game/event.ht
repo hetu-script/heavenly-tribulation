@@ -1,12 +1,12 @@
 import 'game.ht'
 
-// 加载到本次游戏的事件处理模块。
-// 理论上每个游戏Mod都是单独的一个模块，
-// 每个模块都可以处理多种事件，
-// 每个模块内部的key是游戏自己定义的事件名之一，
-// value是一个接受一个arg的函数，
-// 这个arg是一个struct对象，包含不同的事件参数
-var eventHandlers = {}
+/// 加载到本次游戏的事件处理模块。
+/// 理论上每个游戏Mod都是单独的一个模块，
+/// 每个模块都可以处理多种事件，
+/// 每个模块内部的key是游戏自己定义的事件名之一，
+/// value是一个接受一个arg的函数，
+/// 这个arg是一个struct对象，包含不同的事件参数
+var gEventHandlers = {}
 
 // EventHanlder
 // 如果 isDisposable 为 true，则这个时间处理会在第一次触发之后被删除
@@ -22,27 +22,27 @@ var eventHandlers = {}
 // }
 
 fun getEventHandlerById(id: str) {
-  return eventHandlers[id]
+  return gEventHandlers[id]
 }
 
 fun addEventHandler(handler) {
-  eventHandlers[handler.id] = handler
+  gEventHandlers[handler.id] = handler
 }
 
-// 触发 mod 的回调函数
-// 游戏自己的逻辑不用这个
-// 回调函数需要在游戏开始时就读取，不要动态添加
-// 因为函数无法保存，因此一旦读档，回调就会消失
-// 事件处理函数将会收到两个参数
-// 第一个参数module是模组数据，可以保存一些flag之类
-// 第二个是回调本身的一些传入参数，例如执行时的一些情况等等
+/// 触发 mod 的回调函数
+/// 游戏自己的逻辑不用这个
+/// 回调函数需要在游戏开始时就读取，不要动态添加
+/// 因为函数无法保存，因此一旦读档，回调就会消失
+/// 事件处理函数将会收到两个参数
+/// 第一个参数module是模组数据，可以保存一些flag之类
+/// 第二个是回调本身的一些传入参数，例如执行时的一些情况等等
 fun onGameEvent(eventId: str, [ ...args ], { handlerId }) {
   if (handlerId == null) {
-    for (final handler of eventHandlers) {
+    for (final handler of gEventHandlers) {
       _handlerCallback(eventId, handler, ...args)
     }
   } else {
-    final handler = eventHandlers[handlerId]
+    final handler = gEventHandlers[handlerId]
     _handlerCallback(eventId, handler, ...args)
   }
 }

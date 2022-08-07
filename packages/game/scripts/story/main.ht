@@ -1,7 +1,7 @@
 import 'module:game' as game
 
 import 'l10n/localizations.ht'
-import 'module.json' as module
+import 'module.json5' as module
 
 // 这里的函数最终是绑定到游戏对象上执行
 // 是运行时的命名空间，并不是这里的命名空间
@@ -25,7 +25,7 @@ fun init(arg) {
   
   game.engine.info('${modName}: 初始化')
   game.addLocales(localizations, modName)
-  game.engine.updateLocale(game.locales[game.locales.currentLocaleId])
+  game.engine.updateLocale(game.gLocales[game.gLocales.currentLocaleId])
   game.addEventHandler(eventHandler)
   game.engine.info('${modName}: 初始化完毕...')
 }

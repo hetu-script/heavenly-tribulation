@@ -1,7 +1,7 @@
-import 'character/family.json' as familyNames
-import 'character/female.json' as femaleNames
-import 'character/male.json' as maleNames
-import 'character/middle.json' as middleNames
+import 'character/family.json5' as familyNames
+import 'character/female.json5' as femaleNames
+import 'character/male.json5' as maleNames
+import 'character/middle.json5' as middleNames
 import '../random.ht'
 
 fun generateCharacterName({isFemale, familyName, middleCharacter}) {

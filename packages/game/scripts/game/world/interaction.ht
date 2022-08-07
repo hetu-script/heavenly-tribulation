@@ -12,8 +12,100 @@ import '../binding/worldmap.ht'
 import '../tile/common.ht'
 import '../entity/character/npc/bandit.ht'
 import '../entity/character/creature/beast.ht'
-import '../reward.ht'
+import '../lootbox.ht'
 import '../binding/worldmap.ht'
+import '../dialog.ht'
+
+/// 返回布尔值，如果为真，则玩家控制角色会返回上一格，false 则停在这一格，null 则不影响
+fun onHeroMovedOnWorldMap(left, top) {
+  engine.info('玩家移动到了: ${left}, ${top}')
+  final tile = game.world.terrains[tilePos2Index(left, top, game.world.width)]
+  // if (tile.entityId && !tile.hasSearched) {
+  //   // TODO: 感知阈值
+  //   showDialogByLocaleKeys(['sensedUndiscovered'], character: hero)
+  //   return true
+  // }
+  if (tile.flags.isInStorm) {
+    showDialogByLocaleKeys(['metStorm'], character: hero)
+    return true
+  }
+
+  return null
+}
+
+/// 异步函数，会在显示地点窗口之前执行，执行完毕后才会进入地点
+fun onHeroEnteredLocation(location) async {
+  engine.info('玩家进入了: ${location.name}')
+  if (!location.isDiscovered) {
+    if (location.category == kLocationCategoryCity) {
+      discoverLocation(location)
+      final message = getLocaleString('firstVisitCity', interpolations: [location.name])
+      // TODO: 第一次发现据点事件
+      return showDialogByStrings([message])
+    } else {
+      // TODO: 感知阈值
+      return showDialogByLocaleKeys(['sensedUndiscovered'], character: hero)
+    }
+  }
+
+  if (location.flags.recruitingOrganizationIds.isNotEmpty) {
+    var names = ''
+    for (final id in location.flags.recruitingOrganizationIds) {
+      if (names.isEmpty) {
+        names = game.organizations[id].name
+      } else {
+        final linkWord = getLocaleString('and')
+        names += linkWord + game.organizations[id].name
+      }
+    }
+
+    final villager = getLocaleString('villager')
+
+    showDialogByResourceId('cultivatorRecruitMonth').then((_) {
+      showSelectionByLocaleKeys([
+        'cultivatorRecruitMonth.selection1',
+        'cultivatorRecruitMonth.selection2',
+        'cultivatorRecruitMonth.selection3',
+      ]).then((key) {
+        when (key) {
+          'cultivatorRecruitMonth.selection1' -> {
+            return showDialogByResourceId('cultivatorRecruitMonth.reply1', interpolations: [names])
+          }
+          'cultivatorRecruitMonth.selection2' -> {
+            return showDialogByResourceId('cultivatorRecruitMonth.reply2', interpolations: [names])
+          }
+          'cultivatorRecruitMonth.selection3' -> {
+            return showDialogByResourceId('cultivatorRecruitMonth.reply3', interpolations: [names])
+          }
+        }
+      }).then((_) {
+        if (hero.organizationId == null) {
+          return showDialogByLocaleKeys(['cultivatorRecruitMonth.hint'], character: hero)
+        }
+      })
+    })
+
+  }
+}
+
+/// 异步函数，会在显示建筑窗口之前执行，执行完毕后才会进入建筑
+fun onHeroEnteredSite(site) async {
+  engine.info('玩家进入了: ${site.name}')
+
+  // 检查是否有任务满足了提交条件
+  final future
+  for (final quest of hero.quests) {
+    if (site.id == quest.destinationSiteId) {
+      quest.result = characterTrySubmitQuest(hero, site, quest)
+      // modEventId 意味着这是一个 mod 创建的任务，将由 mod 自己的函数处理
+      if (quest.modEventId) {
+        return onGameEvent(quest.modEventId, quest)
+      } else {
+        return handleQuestEnding(quest)
+      }
+    }
+  }
+}
 
 const kSearchSuccessProbability = 0.25
 
@@ -226,7 +318,7 @@ fun handleWorldTerrainInteraction(left, top) {
       // 采集，可能会获得：药材（材料）、水果（材料）
       'gather' -> {
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-          final lootbox = Reward()
+          final lootbox = Lootbox()
           var metBeast = false
           var i = 0
           showProgress(getLocaleString('gather'), () {
@@ -301,7 +393,7 @@ fun handleWorldTerrainInteraction(left, top) {
       // 伐木，可能会获得：木料
       'woodcut' -> {
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-          final lootbox = Reward()
+          final lootbox = Lootbox()
           var metBeast = false
           var i = 0
           showProgress(getLocaleString('woodcut'), () {
@@ -367,7 +459,7 @@ fun handleWorldTerrainInteraction(left, top) {
       // 挖矿，可能会获得：矿石、灵石
       'mine' -> {
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-          final lootbox = Reward()
+          final lootbox = Lootbox()
           var metBeast = false
           var i = 0
           showProgress(getLocaleString('mine'), () {
@@ -502,8 +594,7 @@ fun handleWorldTerrainInteraction(left, top) {
         // game.playerCharacterMonthly.fished.add(terrainIndex)
         
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-          final lootbox = Reward()
-          var metStorm = false
+          final lootbox = Lootbox()
           var i = 0
           showProgress(getLocaleString('fish'), () {
             ++i
@@ -516,10 +607,6 @@ fun handleWorldTerrainInteraction(left, top) {
                 }
               }
               kTerrainKindSea -> {
-                if (random.nextDouble() < kSeaStormProbability) {
-                  metStorm = true
-                  return false
-                }
                 if (random.nextDouble() < kSeaFishProbability) {
                   entityAcquireItem(lootbox, Material.fish(), incidentOccured: false)
                 }
@@ -538,17 +625,11 @@ fun handleWorldTerrainInteraction(left, top) {
               content: incidentContent,
               isPrivate: true,
             )
-            () async {
-              if (metStorm) {
-                return showDialogByLocaleKeys(['metStorm'], character: hero)
-              }
-            } ().then((_) {
-              if (lootbox.inventory.isEmpty) {
-                return showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
-              } else {
-                characterLootBox(hero, lootbox)
-              }
-            })
+            if (lootbox.inventory.isEmpty) {
+              return showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
+            } else {
+              characterLootBox(hero, lootbox)
+            }
           })
         })
       }

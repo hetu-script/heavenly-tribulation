@@ -1,8 +1,8 @@
 import 'common.ht'
-import 'common/strange.json' as strangeNames
+import 'common/strange.json5' as strangeNames
 import '../random.ht'
-import 'place/place.json' as place
-import 'place/prefix.json' as placePrefix
+import 'place/place.json5' as place
+import 'place/prefix.json5' as placePrefix
 
 const _kNationNamePostfix = '国'
 

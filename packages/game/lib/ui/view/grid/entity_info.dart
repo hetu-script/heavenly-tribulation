@@ -21,7 +21,7 @@ const kEntityCategoryWeapon = 'weapon';
 const kEntityCategoryProtect = 'protect';
 const kEntityCategoryTalisman = 'talisman';
 const kEntityCategoryConsumable = 'consumable';
-const kEntityCategoryFightSkill = 'fightSkill';
+const kEntityCategoryOffenseSkill = 'offenseSkill';
 const kEntityCategoryMoney = 'money';
 
 const kEntityConsumableKindMedicineIngrident = 'medicineIngrident';
@@ -190,7 +190,7 @@ class EntityInfo extends StatelessWidget {
                       Text('${engine.locale['stackSize']}: $stackSize'),
                     if (equipType == kEquipTypeCompanion)
                       Text(
-                          '${engine.locale['coordination']}: ${stats['coordination']}'),
+                          '${engine.locale['coordination']}: ${entityData['coordination']}'),
                     if (entityType == kEntityTypeSkill) ...[
                       Text(
                           '${engine.locale['level']}: ${entityData['level']}/${entityData['levelMax']}'),

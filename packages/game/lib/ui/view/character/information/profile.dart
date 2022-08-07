@@ -97,8 +97,8 @@ class ProfileView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                          '${engine.locale['name']}: ${characterData['name']}'),
+                      // Text(
+                      //     '${engine.locale['name']}: ${characterData['name']}'),
                       Text(
                           '${engine.locale['sex']}: ${characterData['isFemale'] ? engine.locale['female'] : engine.locale['male']}'),
                       Text('${engine.locale['age']}: $ageString'),

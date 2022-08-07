@@ -1,0 +1,88 @@
+import '../../name/skill.ht'
+import '../common.ht'
+import '../../game.ht'
+import 'common.ht'
+import '../item/common.ht'
+
+final kKungfuIcons = [
+]
+
+final kKungfuKinds = {
+  // 伤害一般，耐久低，出招速度一般，收招速度快
+  'boxing': {
+    damageType: kDamageTypeBludgeon,
+    icon: 'icon/skill/martial_0.png',
+    attributes: {
+      speed: 6,
+      damage: 30,
+      criticalChance: ,
+      criticalDamageMultiply: 1.5,
+    },
+  },
+  // 伤害一般，耐久低，出招速度一般，收招速度快
+  'wrestling': {
+    damageType: kDamageTypeBludgeon,
+    icon: 'icon/skill/martial_0.png',
+    attributes: {
+      speed: 10,
+      damage: 30,
+      criticalDamageMultiply: 2,
+    },
+  },
+}
+
+struct Kungfu {
+  construct ({
+    name,
+    rarity,
+    icon,
+    creatorId,
+    createdTime,
+    description,
+    kind,
+    level,
+    levelMax = 1,
+    attributes,
+  }) {
+    this.kind = kind ?? random.nextIterable(kKungfuKinds.keys) // 枪、剑、斧等等
+
+    this.name = name
+    this.rarity = rarity ?? kCommon
+    if (!this.name) {
+      final randomName = generateSkillName(category: this.kind, rarity: this.rarity)
+      this.name = randomName.name
+    }
+    this.color = kRarity[this.rarity].color
+
+    this.entityType = kEntityTypeSkill // 人物、地点、物品、技能等等
+    this.category = kEntityCategoryOffenseSkill // 武器、防护、斗技、玄功等等
+
+    this.creatorId = creatorId
+    this.createdTime = createdTime
+    this.description = description ?? ''
+    this.id = 'skill.${Hash.uid4(2)}.${this.name}'
+
+    this.isEquippable = true
+    this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
+
+    this.icon = kKungfuKinds[this.kind].icon
+
+    // 技能等级，0级时无法装备，提升等级需要练习
+    this.level = level ?? 0
+    this.levelMax = levelMax
+    this.exp = 0
+    this.expForNextLevel = expForLevel(this.level + 1)
+
+    this.attributes = {
+      ...kKungfuKinds[this.kind].attributes,
+    }
+    this.damageType = kKungfuKinds[this.kind].damageType
+    this.effects = {}
+
+    if (attributes) {
+      this.attributes.assign(attributes)
+    }
+
+    calculateSkillStats(this)
+  }
+}

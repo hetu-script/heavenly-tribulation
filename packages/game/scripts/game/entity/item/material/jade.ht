@@ -1,4 +1,4 @@
-import '../../effect.ht'
+import '../../effect/effect.ht'
 import '../../../random.ht'
 import '../../common.ht'
 import '../../../l10n.ht'

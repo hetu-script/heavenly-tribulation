@@ -1,5 +1,5 @@
 import '../entity/common.ht'
-import '../reward.ht'
+import '../lootbox.ht'
 
 final kQuestDifficultyNormal = 'normal'
 final kQuestDifficultyHard = 'hard'
@@ -26,7 +26,7 @@ const kQuestConquestMazeKindReturnHostage = 'returnHostage'
 const kQuestConquestMazeKindReturnTreasure = 'returnTreasure'
 
 fun generateQuestReward(difficulty) {
-  final reward = {}
+  final reward = Lootbox()
   return reward
 }
 

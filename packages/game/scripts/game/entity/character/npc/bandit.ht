@@ -141,7 +141,7 @@ struct Bandit {
         )
         this.assign(battleInfo)
         // BattleEntity 会初始化银两为0，因此必须在其之后赋值
-        entityAcquireItem(this, random.nextInt(300) + 100)
+        entityAcquireMoney(this, random.nextInt(300) + 100)
         this.icon = 'maze/bandit_boss.png'
         characterEquip(this, Weapon())
         characterEquip(this, Shield())

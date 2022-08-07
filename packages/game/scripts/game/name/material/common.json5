@@ -1,0 +1,11 @@
+{
+  grain: '谷物',
+  fruit: '水果',
+  fish: '鱼',
+  vegetable: '蔬菜',
+  herb: '草药',
+  wood: '木料',
+  ore: '矿石',
+  jade: '灵玉',
+  water: '水',
+}

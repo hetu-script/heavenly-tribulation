@@ -1,4 +1,4 @@
-import '../../effect.ht'
+import '../../effect/effect.ht'
 import '../../../random.ht'
 import '../../common.ht'
 import '../../../name/material.ht'
@@ -57,7 +57,7 @@ struct Material {
     if (effects is {}) {
       this.effects.assign(effects)
     } else {
-      final predefinedEffects = kEffects[this.kind]
+      final predefinedEffects = gEffects[this.kind]
       if (predefinedEffects is List) {
         final effect = random.nextIterable(predefinedEffects)
         if (effect) {

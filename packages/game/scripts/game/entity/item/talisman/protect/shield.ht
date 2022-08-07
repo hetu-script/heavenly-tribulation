@@ -2,7 +2,7 @@ import '../../../common.ht'
 import '../../common.ht'
 import '../../../../util.ht'
 import '../../../../game.ht'
-import '../../../effect.ht'
+import '../../../effect/effect.ht'
 import '../../../../name/talisman.ht'
 
 const kShieldKind = 'shield'
@@ -54,21 +54,8 @@ struct Shield {
     }
 
     this.effects = {}
-    this.effects[kEffectDefendWithCooldown] = Effect(
-      id: kEffectDefendWithCooldown,
-      description: kEffectDefendWithCooldown,
-      category: kEffectCategoryDefend,
-      values: [
-        EffectValue(
-          value: _kShieldDefendPercentage,
-          type: kEffectValueTypePercentage,
-        ),
-        EffectValue(
-          value: _kShieldDefendCooldown,
-          type: kEffectValueTypeInt,
-        ),
-      ],
-    )
+    final shieldEffect = getEffect(category: 'shield')
+    this.effects[shieldEffect.id] = shieldEffect
 
     calculateItemStats(this)
   }

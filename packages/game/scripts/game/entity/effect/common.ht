@@ -1,0 +1,112 @@
+// 效果id对应一个效果的文字描述，以及触发效果的回调函数。
+// 效果的触发分不同场合，可能在食用时触发，或者在攻击时触发等等\
+// 效果本身有不同数据，例如同样是回复生命的效果，但具体回复的数值可能不同
+// 回调函数的工作就是根据效果的具体数值来修改对应的游戏对象
+// 某些回调函数直接修改游戏对象，因此没有返回值，
+// 也有些回调函数会返回包含执行结果的数值，例如受击减伤效果
+// 效果中的数值以列表形式保存，这是为了在游戏界面显示时可以不用关心具体数值的key。
+// 某些效果会以“第x次攻击后”的形式触发
+// 对于此种效果，回调函数会在该效果对象上临时赋值，计算CD时间。
+import 'effects.ht'
+import 'handlers.ht'
+import '../../random.ht'
+
+const kEffectValueTypeInt = 'int';
+const kEffectValueTypeFloat = 'float';
+const kEffectValueTypePercentage = 'percentage';
+
+const kEffectRestoreLife = 'restoreLife'
+const kEffectRestoreChi = 'restoreChi'
+const kEffectRestoreStamina = 'restoreStamina'
+
+const kEffectHealInjury = 'healInjury'
+const kEffectHealInfection = 'healInfection'
+
+// 食用时触发的效果
+const kEffectCategoryConsume = 'consume'
+// 受击时触发的效果
+const kEffectCategoryDefend = 'defend'
+// 造成伤害时触发的效果
+const kEffectCategoryDamage = 'damage'
+
+// 关于 增加/减少（increased / decreased）和 更多/更少（more / less）
+// 前者是把所有的百分比直接加一起，然后乘以基础值。
+// 后者是把基础值分别乘以百分比，然后加在一起。
+// 参考：https://pathofexile.fandom.com/wiki/Stat#more_vs_increased
+
+const kEffectIncreaseDamage = 'increaseDamage'
+const kEffectDecreaseDamage = 'decreaseDamage'
+
+const kEffectMoreDamage = 'moreDamage'
+const kEffectLessDamage = 'lessDamage'
+
+const kEffectDefend = 'defend'
+const kEffectDefendOnCooldown = 'defendOnCooldown'
+
+const kEffectIncreaseDamageOnCooldown = 'increaseDamageOnCooldown'
+const kEffectCompanionIncreaseDamageOnCooldown = 'companionIncreaseDamageOnCooldown'
+
+struct EffectValue {
+  construct ({
+    value,
+    type,
+  }) {
+    assert(value != null && value > 0)
+    this.value = value
+    this.type = type
+  }
+}
+
+struct Effect {
+  construct ({
+    category,
+    handlerType,
+    id,
+    level,
+    description,
+    values,
+  }) {
+    assert(category != null)
+    assert(handlerType != null)
+    assert(id != null)
+    this.category = category
+    this.handlerType = handlerType
+    this.id = id
+
+    this.level = level ?? 1
+    this.description = description ?? 'effect.${this.id}'
+    this.values = values ?? []
+    this.cooldown = 0
+  }
+}
+
+fun getEffect({category, id, level}) {
+  category ??= random.nextIterable(gEffects.keys)
+  id ??= random.nextIterable(gEffects[category].keys)
+  level ??= 1
+  return gEffects[category][id][level - 1]
+}
+
+fun addEffect({categroy, id, effect}) {
+  assert(category != null)
+  assert(id != null)
+  assert(effect != null)
+  if (gEffects.containsKey(category)) {
+    final c = gEffects[category]
+    assert(!c.containsKey(id))
+    c[id] = effect
+  } else {
+    final c = {}
+    c[id] = effect
+    gEffects[category] = c
+  }
+}
+
+fun getEffectHandlerById(id: str) {
+  return gEffectHandlers[id]
+}
+
+fun addEffectHandler(handler) {
+  engine.info('载入效果处理模块 [${handler.name}]')
+  gEffectHandlers[handler.id] = handler
+}

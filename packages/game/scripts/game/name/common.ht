@@ -1,6 +1,6 @@
-import 'common/common.json' as commonNamesData
-import 'common/color.json' as colorPrefix
-import 'common/spirit.json' as spiritPrefix
+import 'common/common.json5' as commonNamesData
+import 'common/color.json5' as colorPrefix
+import 'common/spirit.json5' as spiritPrefix
 
 final commonNames = [
   ...commonNamesData.dao,
