@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
@@ -9,8 +7,7 @@ import '../../../../global.dart';
 import '../../../../event/events.dart';
 import '../../../shared/integer_input_field.dart';
 
-const _kInventorySlotCount = 30;
-
+const _kMinSlotCount = 30;
 const _kGridPerLine = 6;
 
 enum InventoryType {
@@ -26,6 +23,7 @@ class InventoryView extends StatefulWidget {
     super.key,
     required this.inventoryData,
     this.characterName,
+    this.style = GridStyle.icon,
     // this.money,
     this.type = InventoryType.player,
     this.priceFactor = 1.0,
@@ -36,6 +34,7 @@ class InventoryView extends StatefulWidget {
   }) : filter = List<String>.from(filter);
 
   final HTStruct inventoryData;
+  final GridStyle style;
   final String? characterName;
   // final int? money;
   final InventoryType type;
@@ -227,10 +226,14 @@ class _InventoryViewState extends State<InventoryView> {
     final grids = <Widget>[];
     var index = -1;
     int maxGridCount;
-    if (_kInventorySlotCount > widget.inventoryData.length) {
-      maxGridCount = _kInventorySlotCount;
+    if (widget.inventoryData.length < _kMinSlotCount) {
+      maxGridCount = _kMinSlotCount;
     } else {
-      maxGridCount = widget.inventoryData.length ~/ _kGridPerLine + 1;
+      if (widget.style == GridStyle.icon) {
+        maxGridCount = widget.inventoryData.length ~/ _kGridPerLine + 1;
+      } else {
+        maxGridCount = widget.inventoryData.length;
+      }
     }
     do {
       ++index;
@@ -255,44 +258,54 @@ class _InventoryViewState extends State<InventoryView> {
         final isEquipped = itemData['isEquippable'] == true &&
             itemData['equippedPosition'] != null;
 
-        grids.add(Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: EntityGrid(
-            entityData: itemData,
-            isEquipped: isEquipped,
-            onItemTapped: _onItemTapped,
+        grids.add(
+          Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: EntityGrid(
+              entityData: itemData,
+              style: widget.style,
+              isEquipped: isEquipped,
+              onItemTapped: _onItemTapped,
+            ),
           ),
-        ));
+        );
       } else {
-        grids.add(const Padding(
-          padding: EdgeInsets.all(5.0),
-          child: EntityGrid(),
-        ));
+        grids.add(
+          Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: EntityGrid(
+              style: widget.style,
+            ),
+          ),
+        );
       }
     } while (grids.length < maxGridCount);
 
     return Column(
       children: [
-        // if (widget.characterName != null || widget.money != null)
-        //   Row(
-        //     children: [
-        //       if (widget.characterName != null) Text(widget.characterName!),
-        //       const Spacer(),
-        //       if (widget.money != null)
-        //         Text('${engine.locale['money']}: ${widget.money}'),
-        //     ],
-        //   ),
+        if (widget.characterName != null)
+          Row(
+            children: [
+              if (widget.characterName != null) Text(widget.characterName!),
+            ],
+          ),
         Expanded(
           child: SingleChildScrollView(
             controller: _scrollController,
             child: ListView(
               shrinkWrap: true,
               children: [
-                Center(
-                  child: Wrap(
-                    children: grids,
-                  ),
-                ),
+                widget.style == GridStyle.icon
+                    ? Wrap(
+                        alignment: WrapAlignment.center,
+                        children: grids,
+                      )
+                    : Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Column(
+                          children: grids,
+                        ),
+                      ),
               ],
             ),
           ),

@@ -41,24 +41,24 @@ final gEffectHandlers = {
       }
     }
   },
-  // 受击类效果
+  // 防御效果
   defendOnCooldown: (effect, baseDamage) {
-    if (effect.cooldown <= 0) {
-      effect.cooldown = effect.values[1].value
+    if (effect.cooldown >= effect.values[1].value) {
+      effect.cooldown = 0
       return baseDamage * effect.values[0].value
     } else {
-      --effect.cooldown
+      ++effect.cooldown
       //这里要明确返回null，否则上面一行的数字就会被返回
       return null
     }
   },
-  // 同伴协同攻击
+  // 攻击效果
   companionIncreaseDamageOnCooldown: (effect, baseDamage) {
-    if (effect.cooldown <= 0) {
-      effect.cooldown = effect.values[1].value
+    if (effect.cooldown >= effect.values[1].value) {
+      effect.cooldown = 0
       return baseDamage + effect.values[0].value
     } else {
-      --effect.cooldown
+      ++effect.cooldown
       //这里要明确返回null，否则上面一行的数字就会被返回
       return null
     }

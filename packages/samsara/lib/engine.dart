@@ -138,7 +138,12 @@ class SamsaraEngine with SceneController, EventAggregator {
       {Map<String, Function> externalFunctions = const {}}) async {
     if (debugMode) {
       const root = 'scripts/';
-      final filterConfig = HTFilterConfig(root);
+      final filterConfig = HTFilterConfig(root, extension: [
+        HTResource.hetuModule,
+        HTResource.hetuScript,
+        HTResource.json,
+        HTResource.json5,
+      ]);
       final sourceContext = HTAssetResourceContext(
         root: root,
         includedFilter: [filterConfig],

@@ -44,8 +44,8 @@ struct Incident {
     if (isMazeIncident) {
       universe.currentMaze.history.add(this)
     } else {
-      this.index = universe.currentWorld.history.length
-      universe.currentWorld.history.add(this)
+      this.index = universe.currentWorld?.history.length
+      universe.currentWorld?.history.add(this)
     }
 
     for (final id in subjectIds) {

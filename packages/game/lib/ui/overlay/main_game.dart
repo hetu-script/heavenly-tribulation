@@ -271,7 +271,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
               showCloseButton: false,
             );
             engine.invoke('setHeroId', positionalArgs: [key]);
-            final heroHome = engine.invoke('getHeroHome');
+            final heroHome = engine.invoke('getHeroHomeLocation');
             engine.invoke('discoverLocation', positionalArgs: [heroHome]);
             engine.invoke('onGameEvent', positionalArgs: ['onNewGame']);
           }
@@ -578,9 +578,9 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                         onTalk: closePopup,
                         restIcon: isTappingHeroPosition,
                         onRest: closePopup,
-                        practiceIcon: isTappingHeroPosition &&
-                            terrainData?['locationId'] == null,
-                        onPractice: () {},
+                        // practiceIcon: isTappingHeroPosition &&
+                        //     terrainData?['locationId'] == null,
+                        // onPractice: () {},
                         interactIcon: true,
                         onInteract: () {
                           if (route != null) {

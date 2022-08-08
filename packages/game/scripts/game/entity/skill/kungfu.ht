@@ -3,6 +3,7 @@ import '../common.ht'
 import '../../game.ht'
 import 'common.ht'
 import '../item/common.ht'
+import '../effect/common.ht'
 
 final kKungfuIcons = [
 ]
@@ -14,8 +15,8 @@ final kKungfuKinds = {
     icon: 'icon/skill/martial_0.png',
     attributes: {
       speed: 6,
-      damage: 30,
-      criticalChance: ,
+      damage: 20,
+      criticalCooldown: ,
       criticalDamageMultiply: 1.5,
     },
   },
@@ -25,7 +26,8 @@ final kKungfuKinds = {
     icon: 'icon/skill/martial_0.png',
     attributes: {
       speed: 10,
-      damage: 30,
+      damage: 10,
+      criticalCooldown: ,
       criticalDamageMultiply: 2,
     },
   },
@@ -41,7 +43,7 @@ struct Kungfu {
     description,
     kind,
     level,
-    levelMax = 1,
+    levelMax = 0,
     attributes,
   }) {
     this.kind = kind ?? random.nextIterable(kKungfuKinds.keys) // 枪、剑、斧等等
@@ -67,8 +69,9 @@ struct Kungfu {
 
     this.icon = kKungfuKinds[this.kind].icon
 
-    // 技能等级，0级时无法装备，提升等级需要练习
-    this.level = level ?? 0
+    // 技能等级，提升等级需要练习
+    // 刚学会时是-1级，此时无法装备
+    this.level = level ?? -1
     this.levelMax = levelMax
     this.exp = 0
     this.expForNextLevel = expForLevel(this.level + 1)
@@ -78,6 +81,9 @@ struct Kungfu {
     }
     this.damageType = kKungfuKinds[this.kind].damageType
     this.effects = {}
+    // -1级技能也显示0级技能的效果
+    final effect = getEffect(category: 'boxing', level: this.level >= 0 ? this.level : 0)
+    this.effects[effect.id] = effect
 
     if (attributes) {
       this.attributes.assign(attributes)

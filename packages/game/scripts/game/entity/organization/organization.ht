@@ -11,8 +11,6 @@ const kOrganizationDevelopmentMax = 5
 const kOrganizationRecruitOtherLocationProbability = 0.2
 const kOrganizationRecruitSuccessProbability = 0.4
 
-const kOrganizationSkillRecordLevelMax = 
-
 final kOrganizationCategories = [
   'cultivation',
   'gang',
@@ -250,23 +248,29 @@ struct Organization {
     // 组织所拥有的功法
     // 用法类似人物的装备栏
     // 放入的是可以被学习的技能
-    // 0 等的技能，即便不是本门弟子也可以花费钱财或者灵石学习
-    // 1 等以上，需要本门弟子，并且 rank 小于等于对应等级，以及花费贡献点数，才可以学习
+    // -1 的技能，即便不是本门弟子也可以花费钱财或者灵石学习
+    // 0 等以上，需要本门弟子，并且 rank 小于等于对应等级，以及花费贡献点数，才可以学习
     // 保存的数据除了技能本身，还包括需要支付的费用和要求
     // {
     //   requirement: {
-    //     money: 0,
-    //     spiritStone: 0,
     //     contribution: 0,
-    //     rank: 0,
+    //     money: 0,
+    //     jade: 0,
+    //     organizationRank: 0,
     //   },
     //   skill: {
     //     
     //   }
     // }
-    this.skillRecords = {
+    this.library = {
       '-1': [],
       '0': [],
+      '1': [],
+      '2': [],
+      '3': [],
+      '4': [],
+      '5': [],
+      '6': [],
     }
   }
 
@@ -314,7 +318,7 @@ struct Organization {
 // 必须已经是门派成员，才可以设定职级
 fun setCharacterRank(character, organization, rank) {
   if (character.organizationRank == rank) {
-    engine.warning('将要为角色 ${character.name} 设置的新的组织等级 ${rank} 和角色目前的组织等级相同。')
+    engine.warning('将要为角色 ${character.name} 设置的新的组织等级 ${rank} 和角色目前的组织等级 ${character.organizationRank} 相同。')
     return
   }
   assert(organization.characterIds.keys.contains(character.id))
@@ -443,8 +447,7 @@ fun addCharacterToOrganization(character, organization, { incidentOccured = true
     assert(character.organizationId != organization.id)
     removeCharacterFromOrganization(character)
   }
-  character.organizationRank = kOrganizationRankMax
-  organization.characterIds[character.id] = character.organizationRank
+  organization.characterIds[character.id] = character.organizationRank = 0
   character.organizationId = organization.id
 
   if (incidentOccured) {
@@ -592,9 +595,12 @@ fun addTerrainToNation(terrain, nation) {
 
 /// 将某个功法记录在这个组织的 skillRecords 中
 /// 操作方式类似人物装备道具
-fun organizationRecordSkill(organization, rank, skill, requirement) {
+fun organizationRecordSkill({organization, rank, skill, requirement}) {
   assert(organization != null)
   rank ??= -1
   assert(skill != null)
-  organization.skillRecords[level] = 
+  organization.library[rank].add({
+    requirement,
+    skill: skill.clone(),
+  })
 }

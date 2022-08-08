@@ -7,6 +7,8 @@ namespace Dialog {
 
   external fun showVisitCharacterSelection(context, idList)
 
+  external fun showSkillSelection(context, title, skills, showCloseButton)
+
   external fun showMerchant(
     context,
     merchant,

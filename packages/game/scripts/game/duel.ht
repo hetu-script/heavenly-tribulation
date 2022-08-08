@@ -157,7 +157,7 @@ struct Duel {
 
           // 处理道具增强伤害
           fun handleAssistEffect({effect, item, index}) {
-            if (effect.handlerType != kEffectCategoryDamage) return false
+            if (effect.handlerType != kEffectCategoryHit) return false
             final effectHandler = getEffectHandlerById(effect.id)
             if (effectHandler == null) {
               engine.error('找不到效果 ${effect.id} 对应的处理函数。')

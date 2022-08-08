@@ -8,6 +8,7 @@ import '../../../../global.dart';
 import 'equipments.dart';
 import 'inventory.dart';
 import '../../../shared/responsive_window.dart';
+import '../../grid/entity_grid.dart';
 
 const _kBuildTabNames = [
   'inventory',
@@ -218,10 +219,12 @@ class _BuildViewState extends State<BuildView> {
                             ),
                             InventoryView(
                               inventoryData: widget.characterData['skills'],
+                              style: GridStyle.card,
                               onEquipChanged: () => setState(() {}),
                             ),
                             InventoryView(
                               inventoryData: widget.characterData['companions'],
+                              style: GridStyle.card,
                               onEquipChanged: () => setState(() {}),
                             ),
                           ],

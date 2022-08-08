@@ -22,17 +22,22 @@ const kEffectRestoreStamina = 'restoreStamina'
 const kEffectHealInjury = 'healInjury'
 const kEffectHealInfection = 'healInfection'
 
+// 永久效果
+const kEffectCategoryPersist = 'persist'
 // 食用时触发的效果
 const kEffectCategoryConsume = 'consume'
 // 受击时触发的效果
 const kEffectCategoryDefend = 'defend'
 // 造成伤害时触发的效果
-const kEffectCategoryDamage = 'damage'
+const kEffectCategoryHit = 'hit'
 
-// 关于 增加/减少（increased / decreased）和 更多/更少（more / less）
+// 关于 百分比数值的增加/减少（increased / decreased）和 更多/更少（more / less）
 // 前者是把所有的百分比直接加一起，然后乘以基础值。
 // 后者是把基础值分别乘以百分比，然后加在一起。
 // 参考：https://pathofexile.fandom.com/wiki/Stat#more_vs_increased
+
+const kEffectAddBaseDamage = 'addBaseDamage'
+const kEffectReduceBaseDamage = 'reduceBaseDamage'
 
 const kEffectIncreaseDamage = 'increaseDamage'
 const kEffectDecreaseDamage = 'decreaseDamage'
@@ -62,7 +67,6 @@ struct Effect {
     category,
     handlerType,
     id,
-    level,
     description,
     values,
   }) {
@@ -73,7 +77,6 @@ struct Effect {
     this.handlerType = handlerType
     this.id = id
 
-    this.level = level ?? 1
     this.description = description ?? 'effect.${this.id}'
     this.values = values ?? []
     this.cooldown = 0
@@ -81,10 +84,25 @@ struct Effect {
 }
 
 fun getEffect({category, id, level}) {
-  category ??= random.nextIterable(gEffects.keys)
-  id ??= random.nextIterable(gEffects[category].keys)
-  level ??= 1
-  return gEffects[category][id][level - 1]
+  if (category != null) {
+    assert(gEffects.containsKey(category))
+  } else {
+    category = random.nextIterable(gEffects.keys)
+  }
+  final c = gEffects[category]
+  if (id != null) {
+    assert(c.containsKey(id))
+  } else {
+    id = random.nextIterable(c.keys)
+  }
+  final cl = gEffects[category][id]
+  level ??= 0
+  if (level >= cl.length) {
+    engine.error('技能 ${id} 数据中没有对应的等级 ${level}')
+    return null
+  } else {
+    return gEffects[category][id][level]
+  }
 }
 
 fun addEffect({categroy, id, effect}) {

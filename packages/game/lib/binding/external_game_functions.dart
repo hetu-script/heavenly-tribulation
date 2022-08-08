@@ -11,6 +11,7 @@ import '../ui/view/quest/quests.dart';
 import '../ui/overlay/maze/maze.dart';
 import '../ui/dialog/progress_indicator.dart';
 import '../ui/dialog/integer_input.dart';
+import '../ui/dialog/skill_select_dialog.dart';
 
 final Map<String, Function> externalGameFunctions = {
   r'showGameDialog': (HTEntity object,
@@ -50,6 +51,17 @@ final Map<String, Function> externalGameFunctions = {
     return CharacterVisitDialog.show(
       context: positionalArgs[0],
       characterIds: positionalArgs[1],
+    );
+  },
+  r'showSkillSelection': (HTEntity object,
+      {List<dynamic> positionalArgs = const [],
+      Map<String, dynamic> namedArgs = const {},
+      List<HTType> typeArgs = const []}) {
+    return SkillSelectDialog.show(
+      context: positionalArgs[0],
+      title: positionalArgs[1],
+      skillsData: positionalArgs[2],
+      showCloseButton: positionalArgs[3],
     );
   },
   r'showDuel': (HTEntity object,

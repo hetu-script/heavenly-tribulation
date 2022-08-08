@@ -14,5 +14,5 @@
 
   "effect.companionIncreaseDamageOnCooldown": "协同攻击伤害：{0} 。冷却时间：{1}",
 
-  "effect.increaseSkillBaseDamage": "增加技能基础伤害：{0}"
+  "effect.addBaseDamage": "基础伤害增加：{0}"
 }

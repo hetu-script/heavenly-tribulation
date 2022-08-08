@@ -61,7 +61,7 @@ class Avatar extends StatelessWidget {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(radius)),
-                      color: Colors.white.withOpacity(0.5),
+                      color: kForegroundColor.withOpacity(0.5),
                     ),
                     child: Text(
                       name!,

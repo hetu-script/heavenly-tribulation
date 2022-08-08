@@ -1,9 +1,35 @@
+import '../effect/common.ht'
 
 fun calculateSkillStats(skill) {
   skill.stats = skill.attributes.clone()
-  // for (final i in range(0, skill.level)) {
-  //   skill.stats.
-  // }
+  
+  // 因为涉及到多个步骤的加法和乘法，因此先把基础伤害值单独拿出来
+  var baseDamage = skill.stats.damage
+  for (final effect of skill.effects) {
+    if (effect.handlerType == kEffectCategoryPersist) {
+      when (effect.id) {
+        kEffectAddBaseDamage -> {
+          baseDamage += effect.values[0].value
+        }
+      }
+    }
+  }
+
+  skill.stats.damage = baseDamage
+}
+
+fun characterLearn(character, skill) {
+  character.skills[skill.id] = skill
+
+  final incidentContent = getLocaleString('characterLearn', interpolations: [
+    character.name,
+    skill.name,
+  ])
+  Incident(
+    content: incidentContent,
+    subjectIds: character.isMajorCharacter ? [character.id] : null,
+    isPrivate: true,
+  )
 }
 
 fun skillLevelUp(character, skill) {
@@ -13,5 +39,11 @@ fun skillLevelUp(character, skill) {
     return
   }
   ++skill.level
+  calculateSkillStats(skill)
+}
+
+/// 重置某个技能为 0 级
+fun resetSkillLevel(skill) {
+  skill.level = 0
   calculateSkillStats(skill)
 }

@@ -180,7 +180,7 @@ fun getLocationByPosition(left, top) {
 }
 
 fun getLocationSiteById(location, siteId: str) {
-  assert(location.sites.containsKey(siteId))
+  assert(location.sites.containsKey(siteId) || siteId)
   return location.sites[siteId]
 }
 

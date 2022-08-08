@@ -555,7 +555,7 @@ fun createWorldMap({
           }
           'mountain' -> {
             // 临时生成一个新的隐藏据点
-            final mountainTile
+            var mountainTile
             do {
               final mountainTileIndex = random.nextIterable(mountains)
               mountainTile = universe.currentWorld.terrains[mountainTileIndex]
@@ -573,7 +573,7 @@ fun createWorldMap({
           }
           'island' -> {
             // 临时生成一个新的隐藏据点
-            final islandTile
+            var islandTile
             do {
               final islandTileIndex = random.nextIterable(seas)
               islandTile = universe.currentWorld.terrains[islandTileIndex]
@@ -609,7 +609,11 @@ fun createWorldMap({
           headquartersId: headquarters.id,
           leaderId: leader.id,
         )
-
+        
+        organizationRecordSkill(
+          organization: organization,
+          skill: Kungfu(),
+        )
 
         ++createdCultivationOrganizationCount
       }

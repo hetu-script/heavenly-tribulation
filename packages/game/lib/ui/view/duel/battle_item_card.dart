@@ -54,7 +54,7 @@ class BattleItemCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: kBackgroundColor,
         border: Border.all(
-          color: Colors.white.withOpacity(isSelected ? 1 : 0.25),
+          color: kForegroundColor.withOpacity(isSelected ? 1 : 0.25),
           width: 2,
         ),
         borderRadius: kBorderRadius,

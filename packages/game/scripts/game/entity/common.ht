@@ -221,6 +221,6 @@ const kDamageTypeCurse = 'curse'
 
 // level up exp function from pokemon
 fun expForLevel(level) {
-  assert(level > 0)
+  assert(level >= 0)
   return ((4 * (level * level * level)) ~/ 5 + 1) * 100
 }

@@ -73,6 +73,13 @@ class EntityInfo extends StatelessWidget {
     final category = entityData['category'];
     final equipType = entityData['equipType'];
 
+    String? levelString;
+    if (entityType == kEntityTypeSkill) {
+      final int level = entityData['level'];
+      final int levelMax = entityData['levelMax'];
+      levelString = '${level + 1}/${levelMax + 1}';
+    }
+
     final stats = entityData['stats'];
 
     final effectData = entityData['effects'] ?? {};
@@ -110,121 +117,122 @@ class EntityInfo extends StatelessWidget {
       );
     }
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.of(context).pop();
-      },
-      child: Stack(
-        alignment: AlignmentDirectional.topEnd,
-        children: [
-          Positioned(
-            left: actualLeft,
-            top: 80.0,
-            child: Container(
-              // margin: const EdgeInsets.only(right: 240.0, top: 120.0),
-              padding: const EdgeInsets.all(10.0),
-              width: _kInfoPanelWidth,
-              decoration: BoxDecoration(
-                color: kBackgroundColor,
-                borderRadius: kBorderRadius,
-                border: Border.all(color: kForegroundColor),
-              ),
-              child: ClipRRect(
-                borderRadius: kBorderRadius,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(right: 10.0, bottom: 10.0),
-                          child: RRectIcon(
-                            image: AssetImage(
-                                'assets/images/${entityData['icon']}'),
-                            size: const Size(80.0, 80.0),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5)),
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    entityData['name'],
-                                    style: TextStyle(color: titleColor),
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                      '${engine.locale[category]} - ${engine.locale[entityData['kind']]}'),
-                                  if (entityData['rarity'] != null)
-                                    Text(engine.locale[entityData['rarity']]),
-                                ],
-                              ),
-                              const Divider(),
-                              Text(
-                                entityData['description'],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (showPrice)
-                      Text(
-                          '${engine.locale['price']}: ${(entityData['value'] * priceFactor).truncate()}'),
-                    if (stackSize > 1)
-                      Text('${engine.locale['stackSize']}: $stackSize'),
-                    if (equipType == kEquipTypeCompanion)
-                      Text(
-                          '${engine.locale['coordination']}: ${entityData['coordination']}'),
-                    if (entityType == kEntityTypeSkill) ...[
-                      Text(
-                          '${engine.locale['level']}: ${entityData['level']}/${entityData['levelMax']}'),
-                      Text(
-                          '${engine.locale['exp']}: ${entityData['exp']}/${entityData['expForNextLevel']}'),
-                    ],
-                    if (equipType == kEquipTypeCompanion)
-                      Text(
-                          '${engine.locale['life']}: ${stats['life']}/${stats['lifeMax']}'),
-                    if (entityType == kEntityCategoryWeapon ||
-                        entityType == kEntityCategoryProtect)
-                      Text(
-                          '${engine.locale['durability']}: ${stats['life']}/${stats['lifeMax']}'),
-                    if (equipType == kEquipTypeOffense) ...[
-                      Text(
-                          '${engine.locale['damage']}: ${stats['damage'].toStringAsFixed(2)}'),
-                      Text(
-                          '${engine.locale['damageType']}: ${engine.locale[entityData['damageType']]}'),
-                      Text('${engine.locale['speed']}: ${stats['speed']}f'),
-                    ],
-                    if (effects.isNotEmpty) const Divider(),
-                    ...effects,
-                    if (actions.isNotEmpty) const Divider(),
-                    if (actions.isNotEmpty)
+    return Material(
+      type: MaterialType.transparency,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.of(context).pop();
+        },
+        child: Stack(
+          alignment: AlignmentDirectional.topEnd,
+          children: [
+            Positioned(
+              left: actualLeft,
+              top: 80.0,
+              child: Container(
+                // margin: const EdgeInsets.only(right: 240.0, top: 120.0),
+                padding: const EdgeInsets.all(10.0),
+                width: _kInfoPanelWidth,
+                decoration: BoxDecoration(
+                  color: kBackgroundColor,
+                  borderRadius: kBorderRadius,
+                  border: Border.all(color: kForegroundColor),
+                ),
+                child: ClipRRect(
+                  borderRadius: kBorderRadius,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: actions,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                right: 10.0, bottom: 10.0),
+                            child: RRectIcon(
+                              image: AssetImage(
+                                  'assets/images/${entityData['icon']}'),
+                              size: const Size(80.0, 80.0),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(5)),
+                            ),
+                          ),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      entityData['name'],
+                                      style: TextStyle(color: titleColor),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                        '${engine.locale[category]} - ${engine.locale[entityData['kind']]}'),
+                                    if (entityData['rarity'] != null)
+                                      Text(engine.locale[entityData['rarity']]),
+                                  ],
+                                ),
+                                const Divider(),
+                                Text(
+                                  entityData['description'],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                  ],
+                      if (showPrice)
+                        Text(
+                            '${engine.locale['price']}: ${(entityData['value'] * priceFactor).truncate()}'),
+                      if (stackSize > 1)
+                        Text('${engine.locale['stackSize']}: $stackSize'),
+                      if (equipType == kEquipTypeCompanion)
+                        Text(
+                            '${engine.locale['coordination']}: ${entityData['coordination']}'),
+                      if (entityType == kEntityTypeSkill) ...[
+                        Text('${engine.locale['level']}: $levelString'),
+                        Text(
+                            '${engine.locale['exp']}: ${entityData['exp']}/${entityData['expForNextLevel']}'),
+                      ],
+                      if (equipType == kEquipTypeCompanion)
+                        Text(
+                            '${engine.locale['life']}: ${stats['life']}/${stats['lifeMax']}'),
+                      if (entityType == kEntityCategoryWeapon ||
+                          entityType == kEntityCategoryProtect)
+                        Text(
+                            '${engine.locale['durability']}: ${stats['life']}/${stats['lifeMax']}'),
+                      if (equipType == kEquipTypeOffense) ...[
+                        Text('${engine.locale['damage']}: ${stats['damage']}'),
+                        Text(
+                            '${engine.locale['damageType']}: ${engine.locale[entityData['damageType']]}'),
+                        Text('${engine.locale['speed']}: ${stats['speed']}f'),
+                      ],
+                      if (effects.isNotEmpty) const Divider(),
+                      ...effects,
+                      if (actions.isNotEmpty) const Divider(),
+                      if (actions.isNotEmpty)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: actions,
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

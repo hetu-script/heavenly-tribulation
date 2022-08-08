@@ -16,7 +16,7 @@ class WorldMapPopup extends StatelessWidget {
   final bool enterIcon;
   final bool talkIcon;
   final bool restIcon;
-  final bool practiceIcon;
+  // final bool practiceIcon;
   final bool interactIcon;
   final String description;
 
@@ -24,7 +24,7 @@ class WorldMapPopup extends StatelessWidget {
   final VoidCallback? onEnter;
   final VoidCallback? onTalk;
   final VoidCallback? onRest;
-  final VoidCallback? onPractice;
+  // final VoidCallback? onPractice;
   final VoidCallback? onInteract;
 
   const WorldMapPopup({
@@ -40,8 +40,8 @@ class WorldMapPopup extends StatelessWidget {
     this.onTalk,
     this.restIcon = false,
     this.onRest,
-    this.practiceIcon = false,
-    this.onPractice,
+    // this.practiceIcon = false,
+    // this.onPractice,
     this.interactIcon = false,
     this.onInteract,
     this.description = '',
@@ -187,25 +187,25 @@ class WorldMapPopup extends StatelessWidget {
                     ),
                   ),
                 ),
-              if (practiceIcon)
-                Positioned.fill(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: InkImageButton(
-                      width: _kPopupButtonSize,
-                      height: _kPopupButtonSize,
-                      tooltip: engine.locale['practice'],
-                      child: const Image(
-                        image: AssetImage('assets/images/icon/practice.png'),
-                      ),
-                      onPressed: () {
-                        if (onPractice != null) {
-                          onPractice!();
-                        }
-                      },
-                    ),
-                  ),
-                ),
+              // if (practiceIcon)
+              //   Positioned.fill(
+              //     child: Align(
+              //       alignment: Alignment.centerLeft,
+              //       child: InkImageButton(
+              //         width: _kPopupButtonSize,
+              //         height: _kPopupButtonSize,
+              //         tooltip: engine.locale['practice'],
+              //         child: const Image(
+              //           image: AssetImage('assets/images/icon/practice.png'),
+              //         ),
+              //         onPressed: () {
+              //           if (onPractice != null) {
+              //             onPractice!();
+              //           }
+              //         },
+              //       ),
+              //     ),
+              //   ),
             ],
           ),
         ),

@@ -156,12 +156,16 @@ fun showSelection(selections) -> Future {
   return Dialog.showSelection(buildContext, selections)
 }
 
-fun showCharacterSelection({title, ids, showCloseButton = false}) -> Future {
+fun showCharacterSelection({title, ids, showCloseButton = true}) -> Future {
   return Dialog.showCharacterSelection(buildContext, title, ids, showCloseButton)
 }
 
 fun showVisitCharacterSelection(idList) -> Future {
   return Dialog.showVisitCharacterSelection(buildContext, idList)
+}
+
+fun showSkillSelection({title, skills, showCloseButton = true}) {
+  return Dialog.showSkillSelection(buildContext, title, skills, showCloseButton)
 }
 
 fun showMerchant(merchant, {

@@ -3,6 +3,7 @@ import '../effect/effect.ht'
 import '../character/companion.ht'
 import '../../random.ht'
 import 'money.ht'
+import '../skill/common.ht'
 
 const kSilverExchange = 1000
 const kGoldExchange = 1000000
@@ -195,20 +196,6 @@ fun entityGiveItem(entity, target, itemId, { count, removeItem = true, isForced 
   }
 
   return rest
-}
-
-fun characterLearn(character, skill) {
-  character.skills[skill.id] = skill
-
-  final incidentContent = getLocaleString('characterLearn', interpolations: [
-    character.name,
-    skill.name,
-  ])
-  Incident(
-    content: incidentContent,
-    subjectIds: character.isMajorCharacter ? [character.id] : null,
-    isPrivate: true,
-  )
 }
 
 // 使用食物或者丹药

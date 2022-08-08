@@ -630,6 +630,9 @@ fun setCharacterHome(character, location, { organizationName }) {
     removeCharacterHome(character)
     character.homeId = location.id
   }
+  if (character.id == hero?.id) {
+    game.heroHomeSite.locationId = location.id
+  }
 }
 
 fun getHeroId() {
@@ -640,6 +643,7 @@ fun setHeroId(id: str) {
   assert(game.characters.containsKey(id))
   hero = game.characters[id]
   engine.info('设置当前玩家人物为 [${hero.name}]。')
+  game.heroHomeSite.locationId = hero.homeId
   game.heroId = id
 }
 
@@ -655,8 +659,16 @@ fun getHero {
   return game.characters[game.heroId]
 }
 
-fun getHeroHome {
+fun getHeroHomeLocation {
   return game.locations[hero.homeId]
+}
+
+fun getHeroHomeLocationId {
+  return hero.homeId
+}
+
+fun getHeroHomeSite {
+  return game.heroHomeSite
 }
 
 fun getHeroOrganization {

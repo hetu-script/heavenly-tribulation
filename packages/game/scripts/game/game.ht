@@ -34,6 +34,18 @@ struct Game {
     // 游戏本身逻辑所用到的一些事件检查选项
     // 例如每个月是否进行了某个动作之类
     this.flags = {}
+    
+    // 英雄自宅的数据，直接保存在游戏数据顶层
+    this.heroHomeSite = {
+      category: kSiteHome,
+      name: getLocaleString(kSiteHome),
+      image: 'location/site/home.png',
+      id: 'site.home',
+      // 建筑和人物类似，也具有物品栏
+      inventory: {},
+      // 随从，可以设置为战斗伙伴
+      companions: {},
+    }
 
     resetPlayerMonthlyActivities(this)
   }
@@ -85,7 +97,7 @@ fun getModInfo(id) {
 }
 
 fun getPlayerMonthlyActivities {
-  return game.playerCharacterMonthly
+  return game.flags.playerMonthly
 }
 
 fun getGameJsonData() {
