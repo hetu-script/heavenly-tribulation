@@ -7,16 +7,15 @@ import 'resource.dart';
 import 'resource_manager.dart';
 
 class AssetManager extends ResourceManager {
-  final Set<String> _extentions;
-
   @override
   final Set<String> includedPaths = {};
-
+  final Set<String> extentions;
   final Map<String, Resource> _cached = {};
+  final Map<String, Set<String>> _tags = {};
 
   AssetManager({
-    Set<String> resourceExtensions = ResourceManager.resourceFileExtensions,
-  }) : _extentions = resourceExtensions;
+    this.extentions = const {'.md'},
+  });
 
   @override
   void init() async {
@@ -25,13 +24,25 @@ class AssetManager extends ResourceManager {
     final assetKeys = manifestMap.keys;
     for (final key in assetKeys) {
       final ext = path.extension(key);
-      if (_extentions.contains(ext)) {
+      if (extentions.contains(ext)) {
         includedPaths.add(key);
       }
     }
     for (final key in includedPaths) {
       final content = await rootBundle.loadString(key);
-      final resource = Resource(content: content);
+      final Set<String> tags = {};
+      final resource = Resource(
+        title: key,
+        content: content,
+        tags: tags,
+      );
+      for (final tag in tags) {
+        if (_tags.containsKey(tag)) {
+          _tags[tag]!.add(key);
+        } else {
+          _tags[tag] = {key};
+        }
+      }
       addResource(key, resource);
     }
   }

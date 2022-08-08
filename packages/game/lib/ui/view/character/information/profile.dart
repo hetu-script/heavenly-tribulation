@@ -103,7 +103,7 @@ class ProfileView extends StatelessWidget {
                           '${engine.locale['sex']}: ${characterData['isFemale'] ? engine.locale['female'] : engine.locale['male']}'),
                       Text('${engine.locale['age']}: $ageString'),
                       Text(
-                          '${engine.locale['looks']}: ${characterData['looks'].toStringAsFixed(2)}'),
+                          '${engine.locale['looks']}: ${characterData['looks']}'),
                       Text('${engine.locale['home']}: $home'),
                     ],
                   ),
@@ -236,7 +236,7 @@ class ProfileView extends StatelessWidget {
                     width: 120.0,
                   ),
                   Label(
-                    '${engine.locale['favoredLooks']}: ${characterData['favoredLooks'].toStringAsFixed(2)}',
+                    '${engine.locale['favoredLooks']}: ${characterData['favoredLooks']}',
                     width: 240.0,
                   ),
                   Label(

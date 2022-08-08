@@ -1,25 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:markdown_wiki/markdown_wiki.dart';
+
 import 'noise_test.dart';
 import 'explore.dart';
 
 void main() {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  AssetManager assetManager = AssetManager();
+  runApp(MyApp(assetManager: assetManager));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final AssetManager assetManager;
+
+  const MyApp({Key? key, required this.assetManager}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Heavenly Tribulation Tests',
-      home: MyHomePage(title: 'Heavenly Tribulation Tests'),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const MyHomePage(title: 'Heavenly Tribulation Tests'),
+        'wiki': (context) => MarkdownWiki(
+              resourceManager: assetManager,
+            ),
+      },
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage({
+    Key? key,
+    required this.title,
+  }) : super(key: key);
 
   final String title;
 
@@ -39,6 +54,12 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed('wiki');
+              },
+              child: const Text('markdown_wiki'),
+            ),
             ElevatedButton(
               onPressed: () {
                 showDialog(

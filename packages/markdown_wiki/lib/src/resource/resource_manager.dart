@@ -1,8 +1,6 @@
 import 'resource.dart';
 
 abstract class ResourceManager {
-  static const Set<String> resourceFileExtensions = {'.md'};
-
   Iterable<String> get includedPaths;
 
   void init();
