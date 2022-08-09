@@ -1,7 +1,8 @@
 {
   "effect.restoreLife": "回复 {0} 生命",
-  "effect.restoreChi": "回复 {0} 元气",
+  "effect.restoreMana": "回复 {0} 元气",
   "effect.restoreStamina": "回复 {0} 体力",
+  "effect.restoreSpirit": "回复 {0} 精神",
 
   "effect.healInjury": "治疗 {0} 外伤。",
 

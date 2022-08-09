@@ -44,10 +44,13 @@
   "selectSkill": "选择一个技能",
   "selectSkillToLearn": "选择你要学习的技能",
 
+  "difficulty": "难度",
   "level": "等级",
   "exp": "经验值",
   "equip": "装备",
   "unequip": "卸下",
+  "joinFight": "出战",
+  "bench": "撤下",
   "consume": "食用",
   "steal": "偷取",
   "buy": "购买",
@@ -72,7 +75,7 @@
   "leave": "离开",
   "talk": "闲聊",
   "gift": "赠礼",
-  "practice": "切磋",
+  "practiceDuel": "切磋",
   "consult": "请教",
   "request": "索取",
   "insult": "侮辱",
@@ -179,5 +182,8 @@
   "goldCoin": "金块",
   "goldCoin.description": "通行的货币，用来交易各种物品。每个价值 1000 银币",
 
-  "contribution": "功勋"
+  "contribution": "功勋",
+
+  "levelUp": "升级",
+  "dismiss": "解散"
 }

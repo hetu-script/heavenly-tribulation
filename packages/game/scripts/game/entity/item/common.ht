@@ -219,8 +219,8 @@ fun characterConsume(character, item, { forcerCharacter }) {
     }
   }
 
-  if (item.effects) {
-    for (final effect of item.effects) {
+  if (item.stats.effects) {
+    for (final effect of item.stats.effects) {
       // 即便是可以食用的物品，也可能包含一些非食用效果，因此这里要加以判断
       if (effect.category == kEffectCategoryConsume) {
         final effectHandler = getEffectHandlerById(effect.id)
@@ -354,6 +354,7 @@ fun characterEquip(character, entity, { index }) -> bool {
         isPrivate: true,
       )
     }
+    //不在角色的随从列表中的人物
     kEntityTypeNpc, kEntityTypeCharacter -> {
       if (entity.companionType != kCompanionTypeBattle) {
         engine.warning('${entity.name} 无法设置为战斗伙伴。')
@@ -363,11 +364,29 @@ fun characterEquip(character, entity, { index }) -> bool {
         character.companions.containsKey(entity.id) ?
         character.companions[entity.id] : 
         characterGetCompanion(character, entity)
-      
+
+      final incidentContent = getLocaleString('characterJoinFight', interpolations: [
+        entity.name,
+        character.name,
+      ])
+      Incident(
+        content: incidentContent,
+        subjectIds: entity.isMajorCharacter ? [entity.id] : null,
+        objectIds: character.isMajorCharacter ? [character.id] : null,
+        isPrivate: true,
+      )
       // 战斗伙伴的装备数据中，对象类型和实际的对象类型不同
       equipData.entityType = kEntityTypeCompanion
       
-      final incidentContent = getLocaleString('characterFollow', interpolations: [
+    }
+    // 已经在角色的随从列表中的人物
+    kEntityTypeCompanion -> {
+      if (entity.companionType != kCompanionTypeBattle) {
+        engine.warning('${entity.name} 无法设置为战斗伙伴。')
+        return null
+      }
+      
+      final incidentContent = getLocaleString('characterJoinFight', interpolations: [
         entity.name,
         character.name,
       ])

@@ -61,9 +61,12 @@ struct Consumable {
     this.icon = icon ?? 'icon/item/consumable/${this.kind}.png'
 
     this.isConsumable = true
-    this.effects = {}
+    
+    this.attributes = {
+      effects: {}
+    }
     if (effects is {}) {
-      this.effects.assign(effects)
+      this.attributes.effects.assign(effects)
     }
   }
 

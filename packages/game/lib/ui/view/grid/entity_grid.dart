@@ -3,6 +3,7 @@ import 'package:hetu_script/values.dart';
 
 import '../../../global.dart';
 import '../../shared/rrect_icon.dart';
+import '../../common.dart';
 
 enum GridStyle {
   icon,
@@ -36,6 +37,14 @@ class EntityGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final String? iconAssetKey = entityData?['icon'];
     final int stackSize = entityData?['stackSize'] ?? 1;
+    final entityType = entityData?['entityType'];
+
+    String? levelString;
+    if (entityType == kEntityTypeSkill) {
+      final int level = entityData!['level'];
+      final int levelMax = entityData!['levelMax'];
+      levelString = '${level + 1}/${levelMax + 1}';
+    }
 
     switch (style) {
       case GridStyle.icon:
@@ -187,10 +196,14 @@ class EntityGrid extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(entityData?['name'] ?? ''),
-                          if (stackSize > 1)
+                          if (entityType == kEntityTypeItem && stackSize > 1)
+                            Text('${engine.locale['stackSize']}: $stackSize'),
+                          if (entityType == kEntityTypeSkill)
+                            Text('${engine.locale['level']}: $levelString'),
+                          if (entityType == kEntityTypeCharacter ||
+                              entityType == kEntityTypeNpc)
                             Text(
-                              stackSize.toString(),
-                            ),
+                                '${engine.locale['coordination']}: ${entityData?['coordination']}'),
                         ],
                       ),
                       Text(entityData?['description'] ?? ''),

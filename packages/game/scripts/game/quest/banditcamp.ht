@@ -100,7 +100,7 @@ struct QuestBanditCamp {
 
     // 生成的副本悬赏会随机在本国境内
     for (final index in nation.territoryIndexes) {
-      final tile = universe.currentWorld.terrains[index]
+      final tile = currentWorld.terrains[index]
       if (tile.locationId) continue
       if (tile.mazeId) continue
       
@@ -123,9 +123,9 @@ struct QuestBanditCamp {
       id: maze.id,
       encounterType: 'banditCamp',
     }
-    universe.currentWorld.entities[maze.id] = worldMapEntity
+    currentWorld.entities[maze.id] = worldMapEntity
 
-    final mazeTerrain = universe.currentWorld.terrains[mazeTerrainIndex]
+    final mazeTerrain = currentWorld.terrains[mazeTerrainIndex]
     mazeTerrain.entityId = maze.id
     // if (isGameLoaded) {
     //   setWorldMapEntity(mazeTerrain.left, mazeTerrain.top, maze.id)

@@ -29,7 +29,7 @@ struct BattleEntity {
     majorAttributes: List = [],
     generate = true,
     baseLife = 100,
-    baseChi = 100,
+    baseMana = 100,
     baseStamina = 100,
   }) {
     // 身上携带的金钱数量
@@ -89,7 +89,7 @@ struct BattleEntity {
     generateCharacterStats(
       this,
       baseLife: baseLife,
-      baseChi: baseChi,
+      baseMana: baseMana,
       baseStamina: baseStamina,
     )
     rejuvenate(this)
@@ -138,13 +138,13 @@ fun generateCharacterStats(
     character, {
     baseStamina = 100,
     baseLife = 100,
-    baseChi = 100,
+    baseMana = 100,
     baseSpirit = 100,
   }) {
 
   character.attributes.stamina = baseStamina + (character.attributes.strength ~/ 5) * 5
   character.attributes.life = baseLife + (character.attributes.constitution ~/ 5) * 5
-  character.attributes.chi = baseChi + (character.attributes.spirituality ~/ 5) * 5
+  character.attributes.mana = baseMana + (character.attributes.spirituality ~/ 5) * 5
   character.attributes.spirit = baseSpirit + (character.attributes.willpower ~/ 5) * 5
 
   character.stats = character.attributes.clone()
@@ -153,7 +153,7 @@ fun generateCharacterStats(
 
   character.stats.staminaMax = character.stats.stamina
   character.stats.lifeMax = character.stats.life
-  character.stats.chiMax = character.stats.chi
+  character.stats.manaMax = character.stats.mana
   character.stats.spiritMax = character.stats.spirit
 }
 
@@ -251,9 +251,4 @@ fun heroBattle (
       return false
     }
   })
-}
-
-fun characterCostStamina(character, value) {
-  character.stats.stamina -= value
-  if (character.stats.stamina < 0) character.stats.stamina = 0
 }

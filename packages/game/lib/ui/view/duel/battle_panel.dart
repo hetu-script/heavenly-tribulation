@@ -108,9 +108,9 @@ class BattlePanel extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 5.0),
                   child: DynamicColorProgressBar(
-                    title: '${engine.locale['chi']}: ',
-                    value: statsData['chi'],
-                    max: statsData['chiMax'],
+                    title: '${engine.locale['mana']}: ',
+                    value: statsData['mana'],
+                    max: statsData['manaMax'],
                     width: kStatsBarWidth,
                     showNumberAsPercentage: false,
                     colors: const <Color>[Colors.yellow, Colors.yellow],

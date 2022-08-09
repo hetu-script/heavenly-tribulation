@@ -1,2 +1,2 @@
 const kGameSaveFileExtension = '.tdqjgame';
-const kUniverseSaveFileExtension = '.tdqjgame_universe';
+const kUniverseSaveFilePostfix = '_universe';

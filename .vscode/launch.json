@@ -5,24 +5,33 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Desktop",
+      "name": "Debug Game Desktop",
       "cwd": "packages\\game",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
       "flutterMode": "debug",
       "deviceId": "windows",
-      // "preLaunchTask": "compileGameScript",
+      // "preLaunchTask": "compileAllGameScript",
     },
     {
-      "name": "Debug Android",
+      "name": "Debug Game Android",
       "cwd": "packages\\game",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
       "flutterMode": "debug",
       "deviceId": "M2012K10C",
-      // "preLaunchTask": "compileGameScript",
-    }
+      // "preLaunchTask": "compileAllGameScript",
+    },
+    {
+      "name": "Debug Test",
+      "cwd": "packages\\test",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "flutterMode": "debug",
+      "deviceId": "windows",
+    },
   ]
 }

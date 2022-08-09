@@ -53,9 +53,9 @@ struct Shield {
       this.attributes.assign(attributes)
     }
 
-    this.effects = {}
+    this.attributes.effects = {}
     final shieldEffect = getEffect(category: 'shield')
-    this.effects[shieldEffect.id] = shieldEffect
+    this.attributes.effects[shieldEffect.id] = shieldEffect
 
     calculateItemStats(this)
   }

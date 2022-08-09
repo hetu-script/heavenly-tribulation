@@ -1,25 +1,27 @@
-import '../game.ht'
-import '../l10n.ht'
-import '../tile/hexagonal_tile.ht'
-import '../tile/tilemap.ht'
-import '../logic.ht'
-import '../datetime.ht'
-import '../entity/item/consumable/consumable.ht'
-import '../entity/item/material/material.ht'
-import '../entity/item/material/jade.ht'
-import '../entity/character/battle_entity.ht'
-import '../binding/worldmap.ht'
-import '../tile/common.ht'
-import '../entity/character/npc/bandit.ht'
-import '../entity/character/creature/beast.ht'
-import '../lootbox.ht'
-import '../binding/worldmap.ht'
-import '../dialog.ht'
+import 'game.ht'
+import 'l10n.ht'
+import 'tile/hexagonal_tile.ht'
+import 'tile/tilemap.ht'
+import 'logic.ht'
+import 'datetime.ht'
+import 'entity/item/consumable/consumable.ht'
+import 'entity/item/material/material.ht'
+import 'entity/item/material/jade.ht'
+import 'entity/character/battle_entity.ht'
+import 'binding/worldmap.ht'
+import 'tile/common.ht'
+import 'entity/character/npc/bandit.ht'
+import 'entity/character/creature/beast.ht'
+import 'lootbox.ht'
+import 'binding/worldmap.ht'
+import 'dialog.ht'
+import 'entity/skill/skill.ht'
+import 'entity/common.ht'
 
 /// 返回布尔值，如果为真，则玩家控制角色会返回上一格，false 则停在这一格，null 则不影响
 fun onHeroMovedOnWorldMap(left, top) {
   engine.info('玩家移动到了: ${left}, ${top}')
-  final tile = universe.currentWorld.terrains[tilePos2Index(left, top, universe.currentWorld.width)]
+  final tile = currentWorld.terrains[tilePos2Index(left, top, currentWorld.width)]
   // if (tile.entityId && !tile.hasSearched) {
   //   // TODO: 感知阈值
   //   showDialogByLocaleKeys(['sensedUndiscovered'], character: hero)
@@ -159,6 +161,7 @@ fun handleWorldTerrainInteraction(left, top) {
   //   return
   // }
 
+  // 因为探索时地块上的资源每个月会改变，因此每次探索的时间不能跨过一个月
   // 本月剩余的天数
   final currentDayOfMonth = getCurrentDay()
   if (currentDayOfMonth > 29) {
@@ -178,8 +181,8 @@ fun handleWorldTerrainInteraction(left, top) {
   // 可用的探索天数
   final availableDays = Math.min(restDaysOfMonth, staminaAvailableDays)
 
-  final terrainIndex = tilePos2Index(left, top, universe.currentWorld.width)
-  final terrain = universe.currentWorld.terrains[terrainIndex]
+  final terrainIndex = tilePos2Index(left, top, currentWorld.width)
+  final terrain = currentWorld.terrains[terrainIndex]
 
   final selections = [
     'search',
@@ -225,7 +228,7 @@ fun handleWorldTerrainInteraction(left, top) {
               showProgress(getLocaleString('search'), checkProgress: () {
                 ++i
                 updateGame(ticks: kTicksPerDay)
-                characterCostStamina(hero, kTicksPerDay)
+                entityStaminaChange(hero, -kTicksPerDay)
                 // TODO: 角色感知可以提高成功率
                 if (random.nextDouble() < kSearchSuccessProbability) {
                   found = true
@@ -259,7 +262,7 @@ fun handleWorldTerrainInteraction(left, top) {
               showProgress(getLocaleString('search'), checkProgress: () {
                 ++i
                 updateGame(ticks: kTicksPerDay)
-                characterCostStamina(hero, kTicksPerDay)
+                entityStaminaChange(hero, -kTicksPerDay)
                 // TODO: 角色感知可以提高成功率
                 if (random.nextDouble() < kSearchSuccessProbability) {
                   found = true
@@ -296,7 +299,7 @@ fun handleWorldTerrainInteraction(left, top) {
             showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
               showProgress(getLocaleString('search'), checkProgress: () {
                 updateGame(ticks: kTicksPerDay)
-                characterCostStamina(hero, kTicksPerDay)
+                entityStaminaChange(hero, -kTicksPerDay)
                 return false
               }).then((_) {
                 final incidentContent = getLocaleString('characterExplore', interpolations: [
@@ -324,7 +327,7 @@ fun handleWorldTerrainInteraction(left, top) {
           showProgress(getLocaleString('gather'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
-            characterCostStamina(hero, kTicksPerDay)
+            entityStaminaChange(hero, -kTicksPerDay)
             when (terrain.kind) {
               kTerrainKindMountain -> {
                 if (random.nextDouble() < kMountainBeastProbability) {
@@ -399,7 +402,7 @@ fun handleWorldTerrainInteraction(left, top) {
           showProgress(getLocaleString('woodcut'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
-            characterCostStamina(hero, kTicksPerDay)
+            entityStaminaChange(hero, -kTicksPerDay)
             when (terrain.kind) {
               kTerrainKindMountain -> {
                 if (random.nextDouble() < kMountainBeastProbability) {
@@ -465,7 +468,7 @@ fun handleWorldTerrainInteraction(left, top) {
           showProgress(getLocaleString('mine'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
-            characterCostStamina(hero, kTicksPerDay)
+            entityStaminaChange(hero, -kTicksPerDay)
             when (terrain.kind) {
               kTerrainKindMountain -> {
                 if (random.nextDouble() < kMountainBeastProbability) {
@@ -539,7 +542,7 @@ fun handleWorldTerrainInteraction(left, top) {
           showProgress(getLocaleString('hunt'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
-            characterCostStamina(hero, kTicksPerDay)
+            entityStaminaChange(hero, -kTicksPerDay)
             when (terrain.kind) {
               kTerrainKindMountain -> {
                 if (random.nextDouble() < (kMountainBeastProbability * kHuntBeastProbability)) {
@@ -599,7 +602,7 @@ fun handleWorldTerrainInteraction(left, top) {
           showProgress(getLocaleString('fish'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
-            characterCostStamina(hero, kTicksPerDay)
+            entityStaminaChange(hero, -kTicksPerDay)
             when (terrain.kind) {
               kTerrainKindLake -> {
                 if (random.nextDouble() < kLakeFishProbability) {
@@ -639,7 +642,7 @@ fun handleWorldTerrainInteraction(left, top) {
 
 // 返回布尔值，如果为真，则玩家控制角色会停止移动
 fun handleWorldMapEntityInteraction(entityId) -> bool {
-  final entity = universe.currentWorld.entities[entityId]
+  final entity = currentWorld.entities[entityId]
   assert(entity != null)
 
   when (entity.encounterType) {
@@ -665,4 +668,424 @@ fun handleWorldMapEntityInteraction(entityId) -> bool {
   }
 
   return false
+}
+
+fun handleSiteInteraction(locationId: str, siteId: str) {
+  final location = getLocationById(locationId)
+  final site
+  if (siteId == 'site.home') {
+    site = game.heroHomeSite
+  } else {
+    site = getLocationSiteById(location, siteId)
+  }
+  when (site.category) {
+    'home' -> _handleHomeInteraction(site)
+    'cultivation' -> _handleCultivationInteraction(site)
+    'gang' -> _handleGangInteraction(site)
+    'religion' -> _handleReligionInteraction(site)
+    'tradinghouse' -> _handleTradingHouseInteraction(site)
+    'workshop' -> _handleWorkshopInteraction(site)
+    'restaurant' -> _handleRestaurantInteraction(site)
+    'nation' -> _handlePalaceInteraction(site)
+    'government' -> _handleGovernmentInteraction(site)
+    'residence' -> _handleResidenceInteraction(site)
+    'library' -> _handleLibraryInteraction(site)
+    'academy' -> _handleAcademyInteraction(site)
+    'farmland' -> _handleFarmlandInteraction(site)
+    'mine' -> _handleMineInteraction(site)
+    'timberland' -> _handleTimberInteraction(site)
+    'arena' -> _handleArenaInteraction(site)
+    'hospital' -> _handleHospitalInteraction(site)
+    'nursery' -> _handleNurseryInteraction(site)
+    'alchemylab' -> _handleAlchemylabInteraction(site)
+    'zoo' -> _handleZooInteraction(site)
+    else -> {
+      engine.error('未知的建筑类型 (category)：${site.category}。[${site.id}]')
+    }
+  }
+}
+
+fun _handleHomeInteraction(site) {
+  showSelectionByLocaleKeys([
+    'rest',
+    'practice',
+    'storage',
+    'leave',
+  ]).then((key) {
+    when (key) {
+      'rest' -> {
+        
+      }
+      'practice' -> {
+        if (hero.skills.isEmpty) {
+          showDialogByLocaleKeys(['skillsEmpty'], character: hero)
+        } else {
+          showSkillSelection(
+            title: getLocaleString('selectSkill'),
+            skills: hero.skills,
+          ).then((skill) {
+            // if (skill.level >= skill.levelMax) {
+            //   showDialogByLocaleKeys(['skillLevelReachMax'], character: hero, interpolations: [skill.name])
+            //   return
+            // }
+
+            final cost = skill.cost?.practice
+            
+            // 每天会根据技能本身要求的消耗，减少对应的资源
+            fun practiceCost {
+              if (cost?.stamina) {
+                entityStaminaChange(hero, -kTicksPerDay * cost.stamina)
+              }
+              if (cost?.mana) {
+                entityManaChange(hero, -kTicksPerDay * cost.mana)
+              }
+              if (cost?.spirit) {
+                entitySpiritChange(hero, -kTicksPerDay * cost.spirit)
+              }
+            }
+
+            final availableDays
+            final staminaAvailableDays
+            final manaAvailableDays
+            final spiritAvailableDays
+            if (cost?.stamina) {
+              staminaAvailableDays = hero.stats.stamina ~/ kTicksPerDay
+              if (staminaAvailableDays < 1) {
+                showDialogByLocaleKeys(['notEnoughStamina'], character: hero)
+                return
+              }
+            }
+            if (cost?.mana) {
+              manaAvailableDays = hero.stats.mana ~/ kTicksPerDay
+              if (manaAvailableDays < 1) {
+                showDialogByLocaleKeys(['notEnoughMana'], character: hero)
+                return
+              }
+            }
+            if (cost?.spirit) {
+              spiritAvailableDays = hero.stats.spirit ~/ kTicksPerDay
+              if (spiritAvailableDays < 1) {
+                showDialogByLocaleKeys(['notEnoughSpirit'], character: hero)
+                return
+              }
+            }
+
+            // // 可用的修炼天数
+            if (staminaAvailableDays) availableDays = staminaAvailableDays
+            if (manaAvailableDays) availableDays = Math.min(availableDays, manaAvailableDays)
+            if (spiritAvailableDays) availableDays = Math.min(availableDays, spiritAvailableDays)
+            // 如果修炼本身没有任何消耗，则最多设定为360天
+            availableDays ??= 360
+
+            showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
+              var i = 0
+              var expGained = 0
+              showProgress(getLocaleString('practice'), checkProgress: () {
+                ++i
+                updateGame(ticks: kTicksPerDay)
+                practiceCost()
+                expGained += kTicksPerDay
+                if (i >= days) return false
+                return true
+              }).then((_) {
+                skill.exp += expGained
+                final incidentContent = getLocaleString('characterPracticed', interpolations: [
+                  hero.name,
+                  site.name,
+                  skill.name,
+                  i,
+                  expGained,
+                ])
+                Incident(
+                  subjectIds: [hero.id],
+                  content: incidentContent,
+                  isPrivate: true,
+                )
+              })
+            })
+          })
+        }
+      }
+      'storage' -> {
+        
+      }
+    }
+  })
+}
+
+fun _handleCultivationInteraction(site) {
+  final location = game.locations[site.locationId]
+  showSelectionByLocaleKeys([
+    'practice',
+    'learn',
+    'visit',
+    'leave',
+  ]).then((key) {
+    when (key) {
+      // 如果选择 leave，直接忽略，什么也不做
+      'practice' -> {
+        // 非本门派修士,需要花钱才能训练
+        showDialogByLocaleKeys(['organizationTrainDeny'])
+      }
+      'learn' -> {
+        // 非本门派修士,需要花钱才能学习,而且只能学习二阶或以下的功法
+        showDialogByLocaleKeys(['organizationTrainDeny'])
+      }
+      'visit' -> {
+        // 既然有总部，那就一定有可以拜访的成员
+        final ids = location.organizations[site.organizationId].characterIds.toList()
+        ids.remove(game.heroId)
+        showVisitCharacterSelection(ids).then((key) {
+          if (key != null) {
+            handleCharacterInteraction(key)
+          } else {
+            _handleCultivationInteraction(site)
+          }
+        })
+      }
+    }
+  })
+}
+
+fun _handleGangInteraction(site) {
+
+}
+
+fun _handleReligionInteraction(site) {
+  
+}
+
+fun _handleAcademyInteraction(site) {
+  
+}
+
+// 商号，可以在这里交易大多数物品
+// 打工可以提升本地声望
+// 将指定数量的材料运送到另一个城市，但途中可能会遇到劫匪或风暴，风暴会耽误时间。
+// 没有提交足够数量的材料或者超过时间都会算作失败。
+fun _handleTradingHouseInteraction(site) {
+  final location = game.locations[site.locationId]
+  showSelectionByLocaleKeys([
+    'trade',
+    'work',
+    'leave',
+  ]).then((key) {
+    when (key) {
+      'trade' -> {
+        if (site.organizationId) {
+          final organization = getOrganizationById(site.organizationId)
+          showMerchant(organization, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
+        } else {
+          showMerchant(site, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
+        }
+      }
+      'work' -> {
+        if (site.workedThisMonth) {
+          showDialogByLocaleKeys(['workedThisMonth'])
+        } else if (site.quests.isEmpty) {
+          showDialogByLocaleKeys(['questEmpty'])
+        } else {
+          final quest = site.quests.values.first
+          assert(quest.category == kQuestCategoryDelivery)
+          final displayName = getLocaleString('server')
+          final message = getLocaleString('delivery.introDialog')
+          final description = '${quest.description}${
+            getLocaleString('questRewardMoney', interpolations: [quest.rewardMoney])
+          }'
+          showDialogByStrings([message,description], displayName: displayName).then((_) {
+            showSelectionByLocaleKeys([
+              'accept',
+              'cancel',
+            ]).then((key) {
+              if (key == 'accept') {
+                site.workedThisMonth = true
+                characterAcceptQuest(hero, site, quest)
+              }
+            })
+          })
+        }
+      }
+    }
+  })  
+}
+
+fun _handleWorkshopInteraction(site) {
+}
+
+fun _handleRestaurantInteraction(site) {
+}
+
+fun _handleHospitalInteraction(site) {
+}
+
+fun _handlePalaceInteraction(site) {
+  showDialogByLocaleKeys(['visitPalaceDeny'])
+
+  // final location = game.locations[site.locationId]
+  // showSelection({
+  //   visit: getLocaleString('visit'),
+  //   leave: getLocaleString('leave'),
+  // }).then((key) {
+  //   when (key) {
+  //     // 如果选择 leave，直接忽略，什么也不做
+  //     'visit' -> {
+  //       showDialogByResourceId('visit_palace_deny_entry')
+  //     }
+  //   }
+  // })
+}
+
+fun _handleGovernmentInteraction(site) {
+  final fame = getCharacterFame(hero)
+  final location = game.locations[site.locationId]
+  final selections = [
+    'appeal',
+    'tribute',
+    'noticeBoard',
+    'localExam',
+  ]
+  if (site.isCapital) {
+    selections.add('nationalExam')
+  }
+  selections.add('visitJail')
+  selections.add('leave')
+  
+  showSelectionByLocaleKeys(selections).then((key) {
+    when (key) {
+      'appeal' -> {
+        showSelectionByLocaleKeys([
+          'applyOrganization',
+          'applySite',
+          'complaintSite',
+          'complaintCharacter',
+          'appealCharacter',
+          'setHome',
+          'cancel',
+        ]).then((key) {
+          when (key) {
+            'cancel' -> {
+              _handleGovernmentInteraction(site)
+            }
+            'applyOrganization' -> {
+              
+            }
+            'applySite' -> {
+              
+            }
+            'complaintSite' -> {
+              
+            }
+            'complaintCharacter' -> {
+              
+            }
+            'appealCharacter' -> {
+              
+            }
+            'setHome' -> {
+              
+            }
+          }
+        })
+      }
+      'tribute' -> {
+        // TODO: 进贡金钱或者宝物，之后可以选择是否发起请求
+      }
+      'noticeBoard' -> {
+        if (game.flags.playerMonthly.worked.contains(site.id)) {
+          showDialogByLocaleKeys(['workedThisMonth'])
+        } else if (site.quests.isEmpty) {
+          showDialogByLocaleKeys(['governmentQuestEmpty'])
+        } else {
+          showQuests(site)
+        }
+      }
+      'localExam' -> {
+        showDialogByLocaleKeys(['localExamIntro'])
+      }
+      'nationalExam' -> {
+        showDialogByLocaleKeys(['nationalExamIntro'])
+      }
+      'visitJail' -> {
+        final entry = false
+        () async {
+          if (location.jailedCharacterIds.isEmpty) {
+            return showDialogByLocaleKeys(['visitJailEmpty'])
+          } else {
+            if (fame > kFameCheckThreshold) {
+              final title = getCharacterTitle(hero) ?? ''
+              return showDialogByStrings(
+                [
+                  getLocaleString('visitJailEntryRespect', interpolations: [title + hero.name]),
+                ],
+                returnValue: true,
+              )
+            } else {
+              return showDialogByLocaleKeys(['visitJailDeny'])
+            }
+          }
+        }().then((value) {
+          if (value) {
+            
+          }
+        })
+      }
+    }
+  })
+}
+
+fun _handleResidenceInteraction(site) {
+  final location = game.locations[site.locationId]
+  showSelectionByLocaleKeys([
+    'visit',
+    'leave',
+  ]).then((key) {
+    when (key) {
+      // 如果选择 leave，直接忽略，什么也不做
+      'visit' -> {
+        if (location.residingCharacterIds.isNotEmpty) {
+          final ids = location.residingCharacterIds.toList()
+          ids.remove(game.heroId)
+          showVisitCharacterSelection(ids).then((key) {
+            if (key != null) {
+              handleCharacterInteraction(key)
+            }
+          })
+        } else {
+          showDialogByLocaleKeys(['visitEmptyVillage'], character: hero)
+        }
+      }
+    }
+  })
+}
+
+fun _handleLibraryInteraction(site) {
+
+}
+
+fun _handleFarmlandInteraction(site) {
+
+}
+
+fun _handleMineInteraction(site) {
+
+}
+
+fun _handleTimberInteraction(site) {
+
+}
+
+fun _handleArenaInteraction(site) {
+
+}
+
+fun _handleNurseryInteraction(site) {
+
+}
+
+fun _handleAlchemylabInteraction(site) {
+
+}
+
+fun _handleZooInteraction(site) {
+
 }

@@ -1,12 +1,13 @@
-// 效果id对应一个效果的文字描述，以及触发效果的回调函数。
-// 效果的触发分不同场合，可能在食用时触发，或者在攻击时触发等等\
+// 效果 id 对应一个效果的文字描述，以及触发效果的回调函数。
+// 效果的触发分不同场合，可能在食用时触发，或者在攻击时触发等等
 // 效果本身有不同数据，例如同样是回复生命的效果，但具体回复的数值可能不同
 // 回调函数的工作就是根据效果的具体数值来修改对应的游戏对象
 // 某些回调函数直接修改游戏对象，因此没有返回值，
 // 也有些回调函数会返回包含执行结果的数值，例如受击减伤效果
-// 效果中的数值以列表形式保存，这是为了在游戏界面显示时可以不用关心具体数值的key。
-// 某些效果会以“第x次攻击后”的形式触发
-// 对于此种效果，回调函数会在该效果对象上临时赋值，计算CD时间。
+// 效果中的数值以列表形式保存，这是为了在游戏界面显示时可以不用关心具体数值的 key。
+// 某些效果会以“第 x 次攻击后”的形式触发
+// 对于此种效果，回调函数会在该效果对象上临时赋值，计算 CD 时间。
+
 import 'effects.ht'
 import 'handlers.ht'
 import '../../random.ht'
@@ -16,7 +17,7 @@ const kEffectValueTypeFloat = 'float';
 const kEffectValueTypePercentage = 'percentage';
 
 const kEffectRestoreLife = 'restoreLife'
-const kEffectRestoreChi = 'restoreChi'
+const kEffectRestoreMana = 'restoreMana'
 const kEffectRestoreStamina = 'restoreStamina'
 
 const kEffectHealInjury = 'healInjury'
@@ -67,6 +68,7 @@ struct Effect {
     category,
     handlerType,
     id,
+    level,
     description,
     values,
   }) {
@@ -98,10 +100,10 @@ fun getEffect({category, id, level}) {
   final cl = gEffects[category][id]
   level ??= 0
   if (level >= cl.length) {
-    engine.error('技能 ${id} 数据中没有对应的等级 ${level}')
-    return null
+    engine.warning('技能 ${id} 数据中没有等级 ${level}，getEffect 将会返回可用的最高等级。')
+    return cl.last
   } else {
-    return gEffects[category][id][level]
+    return cl[level]
   }
 }
 

@@ -64,11 +64,12 @@ struct BeastWeapon {
       ...kBeastWeaponKinds[this.kind].attributes,
     }
     this.damageType = kBeastWeaponKinds[this.kind].damageType
-    this.effects = {}
 
     if (attributes) {
       this.attributes.assign(attributes)
     }
+
+    this.attributes.effects = {}
 
     calculateItemStats(this)
   }

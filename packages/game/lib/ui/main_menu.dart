@@ -60,17 +60,17 @@ class _MainMenuState extends State<MainMenu> {
       }
 
       HTStruct worldData;
-      final path = args!['path'];
+      final path = args!['path1'];
       if (path != null) {
         final gameSavePath = File(path);
         final gameDataString = gameSavePath.readAsStringSync();
         final gameData = jsonDecode(gameDataString);
-        final historySavePath = File('${path}2');
-        final historyDataString = historySavePath.readAsStringSync();
-        final historyData = jsonDecode(historyDataString);
+        final mapSavePath = File(args!['path2']);
+        final mapDataString = mapSavePath.readAsStringSync();
+        final mapData = jsonDecode(mapDataString);
         engine.info('从 [$path] 载入游戏存档。');
         worldData = engine.invoke('loadGameFromJsonData',
-            positionalArgs: [gameData, historyData]);
+            positionalArgs: [gameData, mapData]);
       } else {
         worldData = engine.invoke('createWorldMap', namedArgs: args);
         engine.invoke('enterWorld', positionalArgs: [worldData]);
@@ -202,7 +202,8 @@ class _MainMenuState extends State<MainMenu> {
                           key: UniqueKey(),
                           args: {
                             "id": info.worldId,
-                            "path": info.path,
+                            "path1": info.savepath1,
+                            "path2": info.savepath2,
                           },
                         ),
                       ).then((_) {
@@ -406,13 +407,14 @@ class _MainMenuState extends State<MainMenu> {
     if (saveDirectory.existsSync()) {
       for (final entity in saveDirectory.listSync()) {
         if (entity is File &&
-            path.extension(entity.path) == kUniverseSaveFileExtension) {
+            path.extension(entity.path) == kGameSaveFileExtension) {
           final worldId = path.basenameWithoutExtension(entity.path);
           final d = entity.lastModifiedSync().toLocal();
           final saveInfo = SaveInfo(
             worldId: worldId,
             timestamp: d.toMeaningfulString(),
-            path: entity.path,
+            savepath1: entity.path,
+            savepath2: '${entity.path}$kUniverseSaveFilePostfix',
           );
           list.add(saveInfo);
         }

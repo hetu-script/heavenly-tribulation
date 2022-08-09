@@ -14,8 +14,8 @@ final gEffectHandlers = {
     entityLifeChange(character, effect.values[0].value)
   },
   // 回复元气
-  restoreChi: (effect, character) {
-    entityChiChange(character, effect.values[0].value)
+  restoreMana: (effect, character) {
+    entityManaChange(character, effect.values[0].value)
   },
   // 回复精神
   restoreSpirit: (effect, character) {

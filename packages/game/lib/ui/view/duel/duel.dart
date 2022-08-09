@@ -8,7 +8,6 @@ import '../../shared/responsive_window.dart';
 import 'battle_panel.dart';
 import '../../../event/events.dart';
 
-const kEntityTypeCharacter = 'character';
 const kDuelTypePractice = 'practice';
 
 class Duel extends StatefulWidget {

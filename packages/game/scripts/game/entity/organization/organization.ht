@@ -585,7 +585,7 @@ fun addTerrainToNation(terrain, nation) {
       nation.locationIds.add(location.id)
     }
   }
-  final neighbors = getMapTileNeighbors(terrain.left, terrain.top, universe.currentWorld)
+  final neighbors = getMapTileNeighbors(terrain.left, terrain.top, currentWorld)
   for (final neighbor in neighbors) {
     if (neighbor.nationId != nation.id) {
       nation.borderIndexes.add(neighbor.index)

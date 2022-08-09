@@ -42,10 +42,10 @@ struct Incident {
     this.isGlobal = isGlobal
 
     if (isMazeIncident) {
-      universe.currentMaze.history.add(this)
+      currentMaze.history.add(this)
     } else {
-      this.index = universe.currentWorld?.history.length
-      universe.currentWorld?.history.add(this)
+      this.index = currentWorld?.history.length
+      currentWorld?.history.add(this)
     }
 
     for (final id in subjectIds) {
@@ -97,5 +97,5 @@ struct Incident {
 }
 
 fun getIncidentByIndex(index: int) {
-  return universe.currentWorldHistory[index]
+  return currentWorld.history[index]
 }

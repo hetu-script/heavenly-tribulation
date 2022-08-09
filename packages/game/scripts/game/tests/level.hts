@@ -1,8 +1,8 @@
-fun expForLevel(level) {
+fun expForLevel(level, difficulty) {
   assert(level > 0)
-  return ((4 * (level * level * level)) ~/ 5 + 1) * 100
+  return ((difficulty * (level * level * level)) ~/ 5 + 1) * 10
 }
 
 for (final i in range(1, 10)) {
-  print(expForLevel(i))
+  print(expForLevel(i, 1))
 }

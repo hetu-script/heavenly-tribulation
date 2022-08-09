@@ -1,11 +1,12 @@
 import '../effect/common.ht'
+import '../common.ht'
 
 fun calculateSkillStats(skill) {
   skill.stats = skill.attributes.clone()
   
   // 因为涉及到多个步骤的加法和乘法，因此先把基础伤害值单独拿出来
   var baseDamage = skill.stats.damage
-  for (final effect of skill.effects) {
+  for (final effect of skill.stats.effects) {
     if (effect.handlerType == kEffectCategoryPersist) {
       when (effect.id) {
         kEffectAddBaseDamage -> {
@@ -16,6 +17,8 @@ fun calculateSkillStats(skill) {
   }
 
   skill.stats.damage = baseDamage
+
+  // TODO: 计算技能的消耗（练习消耗和实战消耗）
 }
 
 fun characterLearn(character, skill) {
@@ -30,16 +33,32 @@ fun characterLearn(character, skill) {
     subjectIds: character.isMajorCharacter ? [character.id] : null,
     isPrivate: true,
   )
+  return
 }
 
 fun skillLevelUp(character, skill) {
   assert(character.skills.containsKey(skill.id))
+  assert(skill.exp >= skill.expForNextLevel)
   if (skill.level >= skill.levelMax) {
     engine.warning('${character.name} 的技能 ${skill.name} 已经达到最高等级 ${skill.level}，无法再继续提升。')
     return
   }
+  skill.exp -= skill.expForNextLevel
   ++skill.level
+  skill.expForNextLevel = expForLevel(skill.difficulty, skill.level + 1) // 下一等级需要的经验值
   calculateSkillStats(skill)
+  
+  final incidentContent = getLocaleString('characterSkillLevelUp', interpolations: [
+    character.name,
+    skill.name,
+    skill.level + 1,
+  ])
+  Incident(
+    content: incidentContent,
+    subjectIds: character.isMajorCharacter ? [character.id] : null,
+    isPrivate: true,
+  )
+  return
 }
 
 /// 重置某个技能为 0 级

@@ -16,9 +16,9 @@ fun generateSkillName({category, kind}) {
   assert(category in skillNames.keys)
   final l
   final r = getRarity()
-  if (r.rarityLevel > kRarity.epic.rarityLevel) {
+  if (r.level > kRarity.epic.level) {
     l = 3
-  } else if (r.rarityLevel > kRarity.uncommon.rarityLevel) {
+  } else if (r.level > kRarity.uncommon.level) {
     l = 2
   } else {
     l = 1

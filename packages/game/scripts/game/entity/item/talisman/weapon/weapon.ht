@@ -134,7 +134,6 @@ struct Weapon {
       ...kWeaponKinds[this.kind].attributes,
     }
     this.damageType = kWeaponKinds[this.kind].damageType
-    this.effects = {}
       // {
       //   name: effectParry,
       //   description: effectParryDescription,
@@ -149,6 +148,7 @@ struct Weapon {
     if (attributes) {
       this.attributes.assign(attributes)
     }
+    this.attributes.effects = {}
 
     calculateItemStats(this)
   }

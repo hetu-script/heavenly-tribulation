@@ -10,7 +10,7 @@ const _kCharacterVisitTableColumns = [
   'haveMet',
   'talk',
   'gift',
-  'practice',
+  'practiceDuel',
   'consult',
   'request',
   'insult',

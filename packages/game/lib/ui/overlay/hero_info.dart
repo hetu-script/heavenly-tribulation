@@ -74,9 +74,9 @@ class HeroInfoPanel extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 5.0),
                   child: DynamicColorProgressBar(
-                    title: '${engine.locale['chi']}: ',
-                    value: charStats['chi'],
-                    max: charStats['chiMax'],
+                    title: '${engine.locale['mana']}: ',
+                    value: charStats['mana'],
+                    max: charStats['manaMax'],
                     width: kStatsBarWidth,
                     showNumberAsPercentage: false,
                     colors: const <Color>[Colors.yellow, Colors.yellow],

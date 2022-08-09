@@ -4,18 +4,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "compileGameScript",
+      "label": "compileAllGameScript",
       "type": "shell",
-      "command": "hetu compile packages/game/scripts/game/main.ht -o packages/game/assets/game.mod",
-      "group": "build",
-      "presentation": {
-        "reveal": "always",
-      }
-    },
-    {
-      "label": "compileModScript",
-      "type": "shell",
-      "command": "hetu compile packages/game/scripts/story/main.ht -o packages/game/assets/story.mod",
+      "command": "python build.py",
       "group": "build",
       "presentation": {
         "reveal": "always",

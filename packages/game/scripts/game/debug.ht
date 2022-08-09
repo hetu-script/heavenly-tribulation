@@ -15,7 +15,7 @@ namespace debug {
 
   fun terrain {
     final position = getHeroPosition()
-    final terrainIndex = tilePos2Index(position.left, position.top, universe.currentWorld.width)
+    final terrainIndex = tilePos2Index(position.left, position.top, currentWorld.width)
     final terrain
     final zone
     final entity
@@ -29,12 +29,12 @@ namespace debug {
         entity = currentMaze.entities[terrain.entityId]
       }
     } else {
-      terrain = universe.currentWorld.terrains[terrainIndex]
+      terrain = currentWorld.terrains[terrainIndex]
       if (terrain.zoneIndex) {
-        zone = universe.currentWorld.zones[terrain.zoneIndex]
+        zone = currentWorld.zones[terrain.zoneIndex]
       }
       if (terrain.entityId) {
-        entity = universe.currentWorld.entities[terrain.entityId]
+        entity = currentWorld.entities[terrain.entityId]
       }
     }
     engine.info('terrain:', terrain)
@@ -47,10 +47,10 @@ namespace debug {
   }
 
   fun location {
-    if (universe.currentWorld == null) return
+    if (currentWorld == null) return
     final position = getHeroPosition()
-    final terrainIndex = tilePos2Index(position.left, position.top, universe.currentWorld.width)
-    final terrain = universe.currentWorld.terrains[terrainIndex]
+    final terrainIndex = tilePos2Index(position.left, position.top, currentWorld.width)
+    final terrain = currentWorld.terrains[terrainIndex]
     if (terrain.nationId) {
       final nation = game.locations[terrain.nationId]
       engine.info('nation:', nation)
@@ -62,7 +62,7 @@ namespace debug {
   }
 
   fun showAllCaption {
-    for (final tile in universe.currentWorld.terrains) {
+    for (final tile in currentWorld.terrains) {
       if (tile.locationId) {
         final location = game.locations[tile.locationId]
         setWorldMapCaption(location.tilePosition.left, location.tilePosition.top, location.name)

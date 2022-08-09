@@ -18,6 +18,7 @@
   "characterEquip": "{0} 装备了 {1}。",
   "characterLearn": "{0} 学会了 {1}。",
   "characterEquipSkill": "{0} 开始运使 {1}。",
+  "characterJoinFight": "{0} 将与 {1} 一同出战。",
   "characterFollow": "{0} 开始跟随 {1}。",
   "characterAcquireItem": "{0} 得到了 {1}。",
   "characterAcquireMultipleItem": "{0} 得到了 {1} 个 {2}。",
@@ -32,6 +33,8 @@
   "characterDrinkBeverage": "{0} 饮下了 {1}。",
   "characterDrinkBeverageForced": "{0} 喂 {1} 饮下了 {2}。",
 
+  "characterSkillLevelUp": "{0} 将自身功法 {1} 提升到了第 {2} 层。",
+
   "characterAcceptQuest": "{0} 在 {1} 接下了 {2} 的悬赏任务。",
 
   "characterDefeat": "{0} 击败了 {1}。",
@@ -43,6 +46,7 @@
   "characterMined": "{0} 在 {1} 进行了挖矿，花费了 {2} 天。",
   "characterHunted": "{0} 在 {1} 进行了狩猎，花费了 {2} 天。",
   "characterFished": "{0} 在 {1} 进行了捕鱼，花费了 {2} 天。",
+  "characterPracticed": "{0} 在 {1} 修炼 {2}，花费了 {3} 天，获得了 {4} 经验。",
 
   "characterSetOrganizationRank": "{0} 成为了 {1} {2}。"
 }

@@ -51,9 +51,11 @@ struct Jade {
     this.icon = icon ?? 'icon/item/material/jade.png'
 
     this.isConsumable = isConsumable
-    this.effects = {}
+    this.attributes = {
+      effects: {},
+    }
     if (effects is {}) {
-      this.effects.assign(effects)
+      this.attributes.effects.assign(effects)
     }
   }
 }

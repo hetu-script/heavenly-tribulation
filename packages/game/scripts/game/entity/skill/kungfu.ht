@@ -42,8 +42,9 @@ struct Kungfu {
     createdTime,
     description,
     kind,
+    difficulty,
     level,
-    levelMax = 0,
+    levelMax,
     attributes,
   }) {
     this.kind = kind ?? random.nextIterable(kKungfuKinds.keys) // 枪、剑、斧等等
@@ -69,25 +70,40 @@ struct Kungfu {
 
     this.icon = kKungfuKinds[this.kind].icon
 
+    // 难度，升级需要的经验值的数量
+    this.difficulty = difficulty ?? 1
     // 技能等级，提升等级需要练习
     // 刚学会时是-1级，此时无法装备
     this.level = level ?? -1
-    this.levelMax = levelMax
-    this.exp = 0
-    this.expForNextLevel = expForLevel(this.level + 1)
+    this.levelMax = levelMax ?? 0 // 此技能最大经验值
+    this.exp = 0 // 当前经验值
+    this.expForNextLevel = expForLevel(this.difficulty, this.level + 1) // 下一等级需要的经验值
+
+    this.cost = {
+      // 练习时每个tick的消耗
+      practice: {
+        stamina: 1,
+      },
+      // 战斗时每次触发效果的消耗
+      battle: {
+        stamina: 25,
+      },
+      // 装备技能时的资源固定减额
+      equip: {}
+    }
 
     this.attributes = {
       ...kKungfuKinds[this.kind].attributes,
     }
     this.damageType = kKungfuKinds[this.kind].damageType
-    this.effects = {}
-    // -1级技能也显示0级技能的效果
-    final effect = getEffect(category: 'boxing', level: this.level >= 0 ? this.level : 0)
-    this.effects[effect.id] = effect
 
     if (attributes) {
       this.attributes.assign(attributes)
     }
+    // -1级技能也显示0级技能的效果
+    this.attributes.effects = {}
+    final effect = getEffect(category: 'boxing', level: this.level >= 0 ? this.level : 0)
+    this.attributes.effects[effect.id] = effect
 
     calculateSkillStats(this)
   }

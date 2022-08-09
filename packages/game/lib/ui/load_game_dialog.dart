@@ -8,12 +8,14 @@ import 'shared/responsive_window.dart';
 class SaveInfo {
   final String worldId;
   final String timestamp;
-  final String path;
+  final String savepath1;
+  final String savepath2;
 
   SaveInfo({
     required this.worldId,
     required this.timestamp,
-    required this.path,
+    required this.savepath1,
+    required this.savepath2,
   });
 }
 
@@ -103,9 +105,9 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
                                           vertical: 5),
                                       child: ElevatedButton(
                                         onPressed: () {
-                                          final file = File(info.path);
+                                          final file = File(info.savepath1);
                                           file.delete();
-                                          final file2 = File('${info.path}2');
+                                          final file2 = File(info.savepath2);
                                           file2.delete();
                                           setState(() {
                                             widget.list.removeWhere(

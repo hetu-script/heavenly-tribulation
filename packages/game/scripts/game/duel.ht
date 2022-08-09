@@ -191,7 +191,7 @@ struct Duel {
             final equipData = subject.equipments[i]
             if (!equipData) continue
             final item = getEquipped(equipData, subject)
-            for (final effect of item.effects) {
+            for (final effect of item.stats.effects) {
               final assisted = handleAssistEffect(
                 effect: effect,
                 item: item,
@@ -206,7 +206,7 @@ struct Duel {
             final equipData = target.equipments[i]
             if (!equipData) continue
             final item = getEquipped(equipData, target)
-            for (final effect of item.effects) {
+            for (final effect of item.stats.effects) {
               final defended = handleDefendEffect(
                 effect: effect,
                 item: item,

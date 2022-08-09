@@ -23,50 +23,53 @@ fun getGovernmentQuestMax(development) -> int {
   }
 }
 
-fun updateGame({ticks = 1, timeflow = true, playerEvent = true}) {
+/// 更新游戏逻辑，将时间向前推进一帧
+/// 返回值表示是否遇到了中断逻辑的事件，这会影响一些连续进行的动作，例如探索或者修炼等等
+fun updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
   for (final i in range(ticks)) {
     // 每个tick执行的代码
     handleBabies()
 
     // 每月1日的更新
     if (game.timestamp % kTicksPerMonth == 0) {
+
+      engine.info('在水域中生成暴风雨')
       // 清空暴风雨区域
       for (final index in game.stormTileIndexes) {
-        final tile = universe.currentWorld.terrains[index]
+        final tile = currentWorld.terrains[index]
         delete tile.flags.isInStorm
       }
       game.stormTileIndexes = []
-
-      final stormEventsCount = universe.currentWorld.waterTerrainIndexes.length ~/ _kMinSizeforStormTile + 1
+      final stormEventsCount = currentWorld.waterTerrainIndexes.length ~/ _kMinSizeforStormTile + 1
       for (final i in range(stormEventsCount)) {
         var stormLocationIndex
         do {
-          stormLocationIndex = random.nextIterable(universe.currentWorld.waterTerrainIndexes)
+          stormLocationIndex = random.nextIterable(currentWorld.waterTerrainIndexes)
         } while (stormLocationIndex in game.stormTileIndexes)
         game.stormTileIndexes.add(stormLocationIndex)
-        final stormTile = universe.currentWorld.terrains[stormLocationIndex]
-        engine.info('在 ${stormTile.left},${stormTile.top} 生成暴风雨')
+        final stormTile = currentWorld.terrains[stormLocationIndex]
+        // engine.info('在 ${stormTile.left},${stormTile.top} 生成暴风雨')
         stormTile.flags.isInStorm = true
       }
 
+      engine.info('在水域中生成捕鱼区')
       // 清空鱼类活跃区域
       for (final index in game.fishTileIndexes) {
-        final tile = universe.currentWorld.terrains[index]
+        final tile = currentWorld.terrains[index]
         delete tile.flags.isGatheredFish
         // 清空叠加的鱼跃效果动态贴图
         setWorldMapOverlaySprite(tile.left, tile.top, null)
       }
       game.fishTileIndexes = []
-
-      final fishEventsCount = universe.currentWorld.waterTerrainIndexes.length ~/ _kMinSizeforFishTile + 1
+      final fishEventsCount = currentWorld.waterTerrainIndexes.length ~/ _kMinSizeforFishTile + 1
       for (final i in range(fishEventsCount)) {
         var fishLocationIndex
         do {
-          fishLocationIndex = random.nextIterable(universe.currentWorld.waterTerrainIndexes)
+          fishLocationIndex = random.nextIterable(currentWorld.waterTerrainIndexes)
         } while (fishLocationIndex in game.fishTileIndexes)
         game.fishTileIndexes.add(fishLocationIndex)
-        final fishTile = universe.currentWorld.terrains[fishLocationIndex]
-        engine.info('在 ${fishTile.left},${fishTile.top} 生成鱼类活跃区')
+        final fishTile = currentWorld.terrains[fishLocationIndex]
+        // engine.info('在 ${fishTile.left},${fishTile.top} 生成鱼类活跃区')
         final overlay = {
           row: 3,
         }
@@ -82,7 +85,7 @@ fun updateGame({ticks = 1, timeflow = true, playerEvent = true}) {
     
     // 每一个野外地块，每个月固定时间会随机刷新一个野外遭遇
     // 野外遭遇包括NPC事件、随机副本等等
-    // for (final terrain in universe.currentWorld.terrains) {
+    // for (final terrain in currentWorld.terrains) {
     //   if (getCurrentTicksOfMonth() == terrain.monthlyUpdateTime) {
     //     updateTerrain(terrain)
     //   }
@@ -158,6 +161,8 @@ fun updateGame({ticks = 1, timeflow = true, playerEvent = true}) {
 
     if (timeflow) ++game.timestamp
   }
+
+  return false
 }
 
 // 每个tick检查一次当前是否有婴儿出生
@@ -263,7 +268,7 @@ fun updateSite(site) {
       if ((random.nextDouble() < location.stability / 100)) {
         var mazeTerrain
         for (final terrainIndex in nation.territoryIndexes) {
-          final terrain = universe.currentWorld.terrains[terrainIndex]
+          final terrain = currentWorld.terrains[terrainIndex]
           if (terrain.locationId) continue
           if (terrain.spriteIndex == kSpriteLand) {
             mazeTerrain = terrain

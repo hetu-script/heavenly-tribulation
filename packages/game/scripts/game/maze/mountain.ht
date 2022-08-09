@@ -84,8 +84,8 @@ struct MountainMaze {
     this.flags = {} // 本次副本中的一些事件存档，用于脚本的一些逻辑判断，例如是否已经有过某种遭遇之类。
 
     // 创建副本过程中也会触发事件，因此这里要提前给localHistory赋值
-    final savedCurrentMaze = universe.currentMaze
-    universe.currentMaze = universe.mazes[this.id] = this
+    final savedCurrentMaze = currentMaze
+    currentMaze = universe.mazes[this.id] = this
     
     final mazeUniqueEncounters = Set()
 
@@ -458,7 +458,7 @@ struct MountainMaze {
     // engine.info('副本 ${this.id} 生成完毕')
 
     // 重置临时历史，需要在手动调用enterMaze时再赋值
-    universe.currentMaze = savedCurrentMaze
+    currentMaze = savedCurrentMaze
   }
 }
 

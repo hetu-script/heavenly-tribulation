@@ -628,7 +628,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
     final gameStringData = jsonEncodeWithIndent(gameJsonData);
     saveFile.writeAsStringSync(gameStringData);
 
-    final saveFile2 = File('${savePath}_universe');
+    final saveFile2 = File('$savePath$kUniverseSaveFilePostfix');
     if (!saveFile2.existsSync()) {
       saveFile2.createSync(recursive: true);
     }

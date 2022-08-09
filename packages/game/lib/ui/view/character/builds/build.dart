@@ -215,15 +215,24 @@ class _BuildViewState extends State<BuildView> {
                           children: [
                             InventoryView(
                               inventoryData: widget.characterData['inventory'],
+                              type: widget.type == BuildViewType.npc
+                                  ? InventoryType.npc
+                                  : InventoryType.player,
                               onEquipChanged: () => setState(() {}),
                             ),
                             InventoryView(
                               inventoryData: widget.characterData['skills'],
+                              type: widget.type == BuildViewType.npc
+                                  ? InventoryType.npc
+                                  : InventoryType.player,
                               style: GridStyle.card,
                               onEquipChanged: () => setState(() {}),
                             ),
                             InventoryView(
                               inventoryData: widget.characterData['companions'],
+                              type: widget.type == BuildViewType.npc
+                                  ? InventoryType.npc
+                                  : InventoryType.player,
                               style: GridStyle.card,
                               onEquipChanged: () => setState(() {}),
                             ),

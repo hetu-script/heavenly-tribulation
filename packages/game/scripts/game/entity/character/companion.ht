@@ -40,7 +40,7 @@ fun generateBattleCompanionData(companionData, battleEntity) {
       EffectValue(value: _kCompanionDefendCooldown),
     ],
   )
-  if (companionData.effects == null) companionData.effects = {}
-  companionData.effects[assist.id] = assist
-  companionData.effects[defend.id] = defend
+  if (companionData.stats.effects == null) companionData.stats.effects = {}
+  companionData.stats.effects[assist.id] = assist
+  companionData.stats.effects[defend.id] = defend
 }

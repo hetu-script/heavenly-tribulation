@@ -5,37 +5,9 @@ import 'package:samsara/util.dart';
 import '../../../global.dart';
 import '../../shared/rrect_icon.dart';
 // import '../../../shared/close_button.dart';
+import '../../common.dart';
 
 const _kInfoPanelWidth = 300.0;
-
-// entityType决定了该对象的数据结构和保存位置
-const kEntityTypeCharacter = 'character'; //game.characters
-const kEntityTypeNpc = 'npc'; //game.npcs
-const kEntityTypeItem = 'item'; //character.inventory
-const kEntityTypeSkill = 'skill'; //character.skill
-
-// category是界面上显示的对象类型文字
-const kEntityCategoryCharacter = 'character';
-const kEntityCategoryBeast = 'beast';
-const kEntityCategoryWeapon = 'weapon';
-const kEntityCategoryProtect = 'protect';
-const kEntityCategoryTalisman = 'talisman';
-const kEntityCategoryConsumable = 'consumable';
-const kEntityCategoryOffenseSkill = 'offenseSkill';
-const kEntityCategoryMoney = 'money';
-
-const kEntityConsumableKindMedicineIngrident = 'medicineIngrident';
-const kEntityConsumableKindMedicine = 'medicine';
-const kEntityConsumableKindFoodIngrident = 'foodIngrident';
-const kEntityConsumableKindFood = 'food';
-const kEntityConsumableKindBeverage = 'beverage';
-const kEntityConsumableKindAlchemy = 'alchemy';
-
-// 实际上进攻类装备也可能具有防御效果，因此这里的类型仅用于显示而已
-const kEquipTypeOffense = 'offense';
-const kEquipTypeSupport = 'support';
-const kEquipTypeDefense = 'defense';
-const kEquipTypeCompanion = 'companion';
 
 class EntityInfo extends StatelessWidget {
   const EntityInfo({
@@ -82,7 +54,7 @@ class EntityInfo extends StatelessWidget {
 
     final stats = entityData['stats'];
 
-    final effectData = entityData['effects'] ?? {};
+    final effectData = stats['effects'] ?? {};
     final effects = <Widget>[];
     for (final effect in effectData.values) {
       final values = <String>[];
@@ -145,53 +117,30 @@ class EntityInfo extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                right: 10.0, bottom: 10.0),
-                            child: RRectIcon(
-                              image: AssetImage(
-                                  'assets/images/${entityData['icon']}'),
-                              size: const Size(80.0, 80.0),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(5)),
-                            ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      entityData['name'],
-                                      style: TextStyle(color: titleColor),
-                                    ),
-                                  ],
-                                ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                        '${engine.locale[category]} - ${engine.locale[entityData['kind']]}'),
-                                    if (entityData['rarity'] != null)
-                                      Text(engine.locale[entityData['rarity']]),
-                                  ],
-                                ),
-                                const Divider(),
-                                Text(
-                                  entityData['description'],
-                                ),
-                              ],
-                            ),
+                          Text(
+                            entityData['name'],
+                            style: TextStyle(color: titleColor),
                           ),
                         ],
                       ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                              '${engine.locale[category]} - ${engine.locale[entityData['kind']]}'),
+                          if (entityData['rarity'] != null)
+                            Text(engine.locale[entityData['rarity']]),
+                        ],
+                      ),
+                      if (entityData['description'] != null &&
+                          entityData['description'].isNotEmpty)
+                        Text(
+                          entityData['description'],
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                      const Divider(),
                       if (showPrice)
                         Text(
                             '${engine.locale['price']}: ${(entityData['value'] * priceFactor).truncate()}'),
@@ -201,6 +150,8 @@ class EntityInfo extends StatelessWidget {
                         Text(
                             '${engine.locale['coordination']}: ${entityData['coordination']}'),
                       if (entityType == kEntityTypeSkill) ...[
+                        Text(
+                            '${engine.locale['difficulty']}: ${entityData['difficulty']}'),
                         Text('${engine.locale['level']}: $levelString'),
                         Text(
                             '${engine.locale['exp']}: ${entityData['exp']}/${entityData['expForNextLevel']}'),

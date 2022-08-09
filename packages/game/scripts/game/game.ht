@@ -12,6 +12,10 @@ var game
 
 var universe
 
+var currentWorld
+
+var currentMaze
+
 struct Game {
   construct {
     this.isLoaded = false
@@ -35,16 +39,13 @@ struct Game {
     // 例如每个月是否进行了某个动作之类
     this.flags = {}
     
-    // 英雄自宅的数据，直接保存在游戏数据顶层
+    // 英雄的住所，直接保存在顶层
+    // 但其实这里没有任何数据
     this.heroHomeSite = {
       category: kSiteHome,
       name: getLocaleString(kSiteHome),
       image: 'location/site/home.png',
       id: 'site.home',
-      // 建筑和人物类似，也具有物品栏
-      inventory: {},
-      // 随从，可以设置为战斗伙伴
-      companions: {},
     }
 
     resetPlayerMonthlyActivities(this)
@@ -53,10 +54,10 @@ struct Game {
 
 struct Universe {
   construct {
-    this.currentWorld = null
+    this.currentWorldId = null
     this.worlds = {}
     /// 当前副本，未进入副本时为 null
-    this.currentMaze = null
+    this.currentMazeId = null
     this.mazes = {}
   }
 }
@@ -122,24 +123,35 @@ fun getTimestamp {
 
 fun loadGameFromJsonData(gameData, universeData) {
   game = prototype.fromJson(gameData)
-  
-  loadColors()
+
+  assert(game.heroId != null)
+  hero = game.characters[game.heroId]
   
   universe = prototype.fromJson(universeData)
 
+  assert(universe.currentWorldId != null)
+  currentWorld = universe.worlds[universe.currentWorldId]
+  assert(currentWorld != null)
+  
+  loadColors()
+
+  if (universe.currentMazeId) {
+    currentMaze = universe.mazes[universe.currentMazeId]
+  }
+
   game.isLoaded = true
 
-  return universe.currentWorld
+  return currentWorld
 }
 
 fun getCurrentMazeHistory() {
-  return universe.currentMaze.history
+  return currentMaze.history
 }
 
 fun getCurrentWorldHistory() {
-  return universe.currentWorld.history
+  return currentWorld.history
 }
 
 fun getWorldId {
-  return universe.currentWorld.id
+  return currentWorld.id
 }

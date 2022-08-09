@@ -6,6 +6,8 @@ import '../../grid/entity_info.dart';
 import '../../../../global.dart';
 import '../../../../event/events.dart';
 import '../../../shared/integer_input_field.dart';
+import '../../../shared/empty_placeholder.dart';
+import '../../../common.dart';
 
 const _kMinSlotCount = 30;
 const _kGridPerLine = 6;
@@ -51,6 +53,14 @@ class _InventoryViewState extends State<InventoryView> {
   final _scrollController = ScrollController();
   final _textEditingController = TextEditingController();
 
+  late final HTStruct _hero;
+
+  @override
+  void initState() {
+    _hero = engine.fetch('hero');
+    super.initState();
+  }
+
   void _onItemTapped(HTStruct itemData, Offset screenPosition) {
     final sellable = itemData['isUnsellable'] != true;
 
@@ -59,7 +69,6 @@ class _InventoryViewState extends State<InventoryView> {
       barrierColor: Colors.transparent,
       builder: (context) {
         final List<Widget> actions = [];
-        final hero = engine.fetch('hero');
         switch (widget.type) {
           case InventoryType.player:
             if (itemData['isConsumable'] ?? false) {
@@ -69,7 +78,7 @@ class _InventoryViewState extends State<InventoryView> {
                   child: ElevatedButton(
                     onPressed: () {
                       engine.invoke('characterConsume',
-                          positionalArgs: [hero, itemData]);
+                          positionalArgs: [_hero, itemData]);
                       Navigator.of(context).pop();
                       engine.broadcast(const UIEvent.needRebuildUI());
                       setState(() {});
@@ -86,7 +95,7 @@ class _InventoryViewState extends State<InventoryView> {
                     child: ElevatedButton(
                       onPressed: () {
                         engine.invoke('characterEquip',
-                            positionalArgs: [hero, itemData]);
+                            positionalArgs: [_hero, itemData]);
                         Navigator.of(context).pop();
                         engine.broadcast(const UIEvent.needRebuildUI());
                         if (widget.onEquipChanged != null) {
@@ -104,7 +113,7 @@ class _InventoryViewState extends State<InventoryView> {
                     child: ElevatedButton(
                       onPressed: () {
                         engine.invoke('characterUnequip',
-                            positionalArgs: [hero, itemData]);
+                            positionalArgs: [_hero, itemData]);
                         Navigator.of(context).pop();
                         engine.broadcast(const UIEvent.needRebuildUI());
                         if (widget.onEquipChanged != null) {
@@ -125,7 +134,7 @@ class _InventoryViewState extends State<InventoryView> {
                 child: ElevatedButton(
                   onPressed: () {
                     engine.invoke('characterSteal',
-                        positionalArgs: [hero, itemData]);
+                        positionalArgs: [_hero, itemData]);
                     Navigator.of(context).pop();
                     engine.broadcast(const UIEvent.needRebuildUI());
                     setState(() {});
@@ -226,19 +235,21 @@ class _InventoryViewState extends State<InventoryView> {
     final grids = <Widget>[];
     var index = -1;
     int maxGridCount;
-    if (widget.inventoryData.length < _kMinSlotCount) {
-      maxGridCount = _kMinSlotCount;
-    } else {
-      if (widget.style == GridStyle.icon) {
-        maxGridCount = widget.inventoryData.length ~/ _kGridPerLine + 1;
+    if (widget.style == GridStyle.icon) {
+      if (widget.inventoryData.length < _kMinSlotCount) {
+        maxGridCount = _kMinSlotCount;
       } else {
-        maxGridCount = widget.inventoryData.length;
+        maxGridCount = widget.inventoryData.length ~/ _kGridPerLine + 1;
       }
+    } else {
+      maxGridCount = widget.inventoryData.length;
     }
-    do {
+    while (grids.length < maxGridCount) {
       ++index;
       if (index < widget.inventoryData.length) {
         final itemData = widget.inventoryData.values.elementAt(index);
+        final entityType = itemData['entityType'];
+
         if (widget.type == InventoryType.merchant) {
           if (itemData['category'] == kEntityCategoryMoney) {
             continue;
@@ -258,6 +269,91 @@ class _InventoryViewState extends State<InventoryView> {
         final isEquipped = itemData['isEquippable'] == true &&
             itemData['equippedPosition'] != null;
 
+        Widget? action;
+        if (widget.type == InventoryType.player) {
+          if (entityType == kEntityTypeSkill) {
+            final bool canLevelUp =
+                itemData['exp'] >= itemData['expForNextLevel'] &&
+                    itemData['level'] < itemData['levelMax'];
+            action = Column(
+              children: [
+                ElevatedButton(
+                  onPressed: canLevelUp
+                      ? () {
+                          engine.invoke('skillLevelUp',
+                              positionalArgs: [_hero, itemData]);
+                          setState(() {});
+                          engine.broadcast(const UIEvent.needRebuildUI());
+                        }
+                      : null,
+                  child: Text(
+                    engine.locale['levelUp'],
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    final isEquipped = itemData['isEquippable'] == true &&
+                        itemData['equippedPosition'] != null;
+                    if (isEquipped) {
+                      engine.invoke('characterUnequip',
+                          positionalArgs: [_hero, itemData]);
+                      engine.broadcast(const UIEvent.needRebuildUI());
+                      if (widget.onEquipChanged != null) {
+                        widget.onEquipChanged!();
+                      }
+                    } else {
+                      engine.invoke('characterEquip',
+                          positionalArgs: [_hero, itemData]);
+                      engine.broadcast(const UIEvent.needRebuildUI());
+                      if (widget.onEquipChanged != null) {
+                        widget.onEquipChanged!();
+                      }
+                    }
+                  },
+                  child: Text(
+                    engine.locale[isEquipped ? 'bench' : 'equip'],
+                  ),
+                ),
+              ],
+            );
+          } else if (entityType == kEntityTypeCompanion) {
+            action = Column(
+              children: [
+                ElevatedButton(
+                  onPressed: () {},
+                  child: Text(
+                    engine.locale['dismiss'],
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    final isEquipped = itemData['isEquippable'] == true &&
+                        itemData['equippedPosition'] != null;
+                    if (isEquipped) {
+                      engine.invoke('characterUnequip',
+                          positionalArgs: [_hero, itemData]);
+                      engine.broadcast(const UIEvent.needRebuildUI());
+                      if (widget.onEquipChanged != null) {
+                        widget.onEquipChanged!();
+                      }
+                    } else {
+                      engine.invoke('characterEquip',
+                          positionalArgs: [_hero, itemData]);
+                      engine.broadcast(const UIEvent.needRebuildUI());
+                      if (widget.onEquipChanged != null) {
+                        widget.onEquipChanged!();
+                      }
+                    }
+                  },
+                  child: Text(
+                    engine.locale[isEquipped ? 'bench' : 'joinFight'],
+                  ),
+                ),
+              ],
+            );
+          }
+        }
+
         grids.add(
           Padding(
             padding: const EdgeInsets.all(5.0),
@@ -266,6 +362,7 @@ class _InventoryViewState extends State<InventoryView> {
               style: widget.style,
               isEquipped: isEquipped,
               onItemTapped: _onItemTapped,
+              child: action,
             ),
           ),
         );
@@ -279,7 +376,7 @@ class _InventoryViewState extends State<InventoryView> {
           ),
         );
       }
-    } while (grids.length < maxGridCount);
+    }
 
     return Column(
       children: [
@@ -300,12 +397,19 @@ class _InventoryViewState extends State<InventoryView> {
                         alignment: WrapAlignment.center,
                         children: grids,
                       )
-                    : Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Column(
-                          children: grids,
-                        ),
-                      ),
+                    : grids.isEmpty
+                        ? Center(
+                            child: EmptyPlaceholder(
+                              engine.locale['empty'],
+                            ),
+                          )
+                        : Container(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 10.0),
+                            child: Column(
+                              children: grids,
+                            ),
+                          ),
               ],
             ),
           ),

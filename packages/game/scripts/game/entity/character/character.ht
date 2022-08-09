@@ -739,31 +739,11 @@ fun rejuvenate(character) {
     if (equipData != null) {
       final item = getEquipped(equipData, character)
       item.stats.life = item.stats.lifeMax
-      for (final effect of item.effects) {
+      for (final effect of item.stats.effects) {
         effect.cooldown = 0
       }
     }
   }
-  // for (var i = 1; i < kEquipmentMax.offense; ++i) {
-  //   final equipData = character.equipments.offense[i]
-  //   if (equipData != null) {
-  //     final item = getEquipped(equipData, character)
-  //     item.stats.life = item.stats.lifeMax
-  //     for (final effect of item.effects) {
-  //       effect.cooldown = 0
-  //     }
-  //   }
-  // }
-  // for (var i = 1; i < kEquipmentMax.companion; ++i) {
-  //   final equipData = character.equipments.companion[i]
-  //   if (equipData != null) {
-  //     final item = getEquipped(equipData, character)
-  //     item.stats.life = item.stats.lifeMax
-  //     for (final effect of item.effects) {
-  //       effect.cooldown = 0
-  //     }
-  //   }
-  // }
 }
 
 fun handleCharacterTalk(subject, target) {
@@ -784,7 +764,7 @@ fun handleCharacterInteraction(characterId) {
     selections.add('gift')
   }
   if (characterId in! game.playerCharacterMonthly.practiced) {
-    selections.add('practice')
+    selections.add('practiceDuel')
   }
   if (characterId in! game.playerCharacterMonthly.consulted) {
     selections.add('consult')
@@ -808,7 +788,7 @@ fun handleCharacterInteraction(characterId) {
       'gift' -> {
         
       }
-      'practice' -> {
+      'practiceDuel' -> {
         showDuel(hero, character, type: 'practice')
       }
       'consult' -> {
@@ -870,6 +850,17 @@ fun characterGetCompanion(character, companion) {
   }
   
   character.companions[companionData.id] = companionData
+  
+  final incidentContent = getLocaleString('characterFollow', interpolations: [
+    companion.name,
+    character.name,
+  ])
+  Incident(
+    content: incidentContent,
+    subjectIds: companion.isMajorCharacter ? [companion.id] : null,
+    objectIds: character.isMajorCharacter ? [character.id] : null,
+    isPrivate: true,
+  )
   return companionData
 }
 

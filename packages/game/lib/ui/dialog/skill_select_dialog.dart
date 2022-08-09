@@ -60,7 +60,9 @@ class SkillSelectDialog extends StatelessWidget {
               },
             ),
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).pop(data);
+              },
               child: Text(engine.locale['select']),
             ),
           ),
