@@ -2,7 +2,7 @@
   sabre: ['刀'],
   sword: ['剑'],
   spear: ['枪'],
-  staff: ['棍'],
+  staff: ['棍', '棒'],
   axe: ['斧'],
   halberd: ['戟', '钺', '戈', '矛'],
   hammer: ['锤'],

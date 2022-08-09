@@ -5,10 +5,10 @@ import 'common.ht'
 import '../item/common.ht'
 import '../effect/common.ht'
 
-final kKungfuIcons = [
+final kMartialArtsIcons = [
 ]
 
-final kKungfuKinds = {
+final kMartialArtsKinds = {
   // 伤害一般，耐久低，出招速度一般，收招速度快
   'boxing': {
     damageType: kDamageTypeBludgeon,
@@ -33,7 +33,7 @@ final kKungfuKinds = {
   },
 }
 
-struct Kungfu {
+struct MartialArts {
   construct ({
     name,
     rarity,
@@ -47,7 +47,7 @@ struct Kungfu {
     levelMax,
     attributes,
   }) {
-    this.kind = kind ?? random.nextIterable(kKungfuKinds.keys) // 枪、剑、斧等等
+    this.kind = kind ?? random.nextIterable(kMartialArtsKinds.keys) // 枪、剑、斧等等
 
     this.name = name
     this.rarity = rarity ?? kCommon
@@ -58,7 +58,7 @@ struct Kungfu {
     this.color = kRarity[this.rarity].color
 
     this.entityType = kEntityTypeSkill // 人物、地点、物品、技能等等
-    this.category = kEntityCategoryOffenseSkill // 武器、防护、斗技、玄功等等
+    this.category = kEntityCategoryMartialArts // 武器、防护、斗技、玄功等等
 
     this.creatorId = creatorId
     this.createdTime = createdTime
@@ -68,7 +68,7 @@ struct Kungfu {
     this.isEquippable = true
     this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
 
-    this.icon = kKungfuKinds[this.kind].icon
+    this.icon = kMartialArtsKinds[this.kind].icon
 
     // 难度，升级需要的经验值的数量
     this.difficulty = difficulty ?? 1
@@ -93,16 +93,16 @@ struct Kungfu {
     }
 
     this.attributes = {
-      ...kKungfuKinds[this.kind].attributes,
+      ...kMartialArtsKinds[this.kind].attributes,
     }
-    this.damageType = kKungfuKinds[this.kind].damageType
+    this.damageType = kMartialArtsKinds[this.kind].damageType
 
     if (attributes) {
       this.attributes.assign(attributes)
     }
     // -1级技能也显示0级技能的效果
     this.attributes.effects = {}
-    final effect = getEffect(category: 'boxing', level: this.level >= 0 ? this.level : 0)
+    final effect = getEffect(category: this.kind, level: this.level >= 0 ? this.level : 0)
     this.attributes.effects[effect.id] = effect
 
     calculateSkillStats(this)

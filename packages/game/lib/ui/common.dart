@@ -13,7 +13,7 @@ const kEntityCategoryWeapon = 'weapon';
 const kEntityCategoryProtect = 'protect';
 const kEntityCategoryTalisman = 'talisman';
 const kEntityCategoryConsumable = 'consumable';
-const kEntityCategoryOffenseSkill = 'offenseSkill';
+const kEntityCategoryMartialArts = 'martialArts';
 const kEntityCategoryMoney = 'money';
 
 const kEntityConsumableKindMedicineIngrident = 'medicineIngrident';

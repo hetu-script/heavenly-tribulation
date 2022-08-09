@@ -75,7 +75,7 @@ namespace debug {
 fun testDuel {
   setRandomSeed(1002)
   final hero = Character(isMajorCharacter: false)
-  characterEquip(hero, Kungfu())
+  characterEquip(hero, MartialArts())
   // characterEquip(hero, Shield())
   final companion = VillageWarrior()
   characterEquip(companion, Weapon())
@@ -83,7 +83,7 @@ fun testDuel {
 
   // final enemy = Character(isMajorCharacter: false)
   // final enemy = Bandit(kind: 'boss')
-  // characterEquip(enemy, Kungfu())
+  // characterEquip(enemy, MartialArts())
   // characterEquip(enemy, Weapon())
 
   final enemy = Beast()
@@ -112,7 +112,7 @@ fun testMazeMountain {
   )
   final hero = Character()
   entityAcquireMoney(hero, 200)
-  characterEquip(hero, Kungfu())
+  characterEquip(hero, MartialArts())
   // characterEquip(hero, Weapon())
   characterEquip(hero, Shield())
   entityAcquireItem(hero, Consumable.medicine(), count: 5)
@@ -133,7 +133,7 @@ fun testMazeCultivationRecruit {
     organizationName: '天玑堂',
   )
   final hero = Character()
-  characterEquip(hero, Kungfu())
+  characterEquip(hero, MartialArts())
   characterEquip(hero, Weapon())
   characterEquip(hero, Shield())
   entityAcquireItem(hero, Consumable.medicine(), count: 5)

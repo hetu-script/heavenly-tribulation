@@ -1,0 +1,95 @@
+import '../../name/skill.ht'
+import '../common.ht'
+import '../../game.ht'
+import 'common.ht'
+import '../item/common.ht'
+import '../effect/common.ht'
+
+final kWeaponArtsIcons = [
+]
+
+final kWeaponArtsKinds = {
+  'sword': {
+    icon: 'icon/skill/martial_0.png',
+  },
+  'sabre': {
+    icon: 'icon/skill/martial_0.png',
+  },
+  'staff': {
+    icon: 'icon/skill/martial_0.png',
+  },
+  'spear': {
+    icon: 'icon/skill/martial_0.png',
+  },
+}
+
+struct WeaponArts {
+  construct ({
+    name,
+    rarity,
+    icon,
+    creatorId,
+    createdTime,
+    description,
+    kind,
+    difficulty,
+    level,
+    levelMax,
+    attributes,
+  }) {
+    this.kind = kind ?? random.nextIterable(kWeaponArtsKinds.keys) // 枪、剑、斧等等
+
+    this.name = name
+    this.rarity = rarity ?? kCommon
+    if (!this.name) {
+      final randomName = generateSkillName(category: this.kind, rarity: this.rarity)
+      this.name = randomName.name
+    }
+    this.color = kRarity[this.rarity].color
+
+    this.entityType = kEntityTypeSkill // 人物、地点、物品、技能等等
+    this.category = kEntityCategoryWeaponArts // 武器、防护、斗技、玄功等等
+
+    this.creatorId = creatorId
+    this.createdTime = createdTime
+    this.description = description ?? ''
+    this.id = 'skill.${Hash.uid4(2)}.${this.name}'
+
+    this.isEquippable = true
+    this.equipType = kEquipTypeSupport // 装备类型：进攻、如果没有就是不可装备
+
+    this.icon = kWeaponArtsKinds[this.kind].icon
+
+    // 难度，升级需要的经验值的数量
+    this.difficulty = difficulty ?? 1
+    // 技能等级，提升等级需要练习
+    // 刚学会时是-1级，此时无法装备
+    this.level = level ?? -1
+    this.levelMax = levelMax ?? 0 // 此技能最大经验值
+    this.exp = 0 // 当前经验值
+    this.expForNextLevel = expForLevel(this.difficulty, this.level + 1) // 下一等级需要的经验值
+
+    this.cost = {
+      // 练习时每个tick的消耗
+      practice: {
+        stamina: 1,
+      },
+      // 战斗时每次触发效果的消耗
+      battle: {
+        stamina: 5,
+      },
+      // 装备技能时的资源固定减额
+      equip: {}
+    }
+
+    if (attributes) {
+      this.attributes.assign(attributes)
+    }
+    // -1级技能也显示0级技能的效果
+    this.attributes.effects = {}
+    final effect = getEffect(category: this.kind, level: this.level >= 0 ? this.level : 0)
+    this.attributes.effects[effect.id] = effect
+
+    calculateSkillStats(this)
+  }
+}

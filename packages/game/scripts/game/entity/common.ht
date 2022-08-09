@@ -134,7 +134,7 @@ const kEntityCategoryProtect = 'protect'
 const kEntityCategoryTalisman = 'talisman'
 const kEntityCategoryConsumable = 'consumable'
 const kEntityCategoryMaterial = 'material'
-const kEntityCategoryOffenseSkill = 'offenseSkill'
+const kEntityCategoryMartialArts = 'martialArts'
 const kEntityCategoryMoney = 'money'
 
 // 可食用的物品类型，这里的类型只影响文字描述。

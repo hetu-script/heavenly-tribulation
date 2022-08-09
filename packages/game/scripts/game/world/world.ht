@@ -613,7 +613,7 @@ fun createWorldMap({
         
         organizationRecordSkill(
           organization: organization,
-          skill: Kungfu(),
+          skill: MartialArts(),
         )
 
         ++createdCultivationOrganizationCount
@@ -654,8 +654,8 @@ fun createWorldMap({
         } else {
           // 从最低等级开始，尝试提升成员等级
           for (final rank in range(kOrganizationRankMax)) {
-            final membersOfThisRank = getOrganizationMemberIdOfRank(organization, rank)
-            final membersOfHigherRank = getOrganizationMemberIdOfRank(organization, rank + 1)
+            final membersOfThisRank = getOrganizationMemberIdsOfRank(organization, rank)
+            final membersOfHigherRank = getOrganizationMemberIdsOfRank(organization, rank + 1)
             if (membersOfThisRank.length >= maxMemberOfRank(rank)) {
               if (membersOfHigherRank.length < maxMemberOfRank(rank + 1)) {
                 final memberId = random.nextIterable(membersOfThisRank)

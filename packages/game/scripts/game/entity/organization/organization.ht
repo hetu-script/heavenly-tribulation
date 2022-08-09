@@ -324,7 +324,7 @@ fun setCharacterRank(character, organization, rank) {
   assert(organization.characterIds.keys.contains(character.id))
   assert(character.organizationId == organization.id)
   assert(rank >= 0 && rank <= kOrganizationRankMax)
-  final membersOfRank = getOrganizationMemberIdOfRank(organization, rank)
+  final membersOfRank = getOrganizationMemberIdsOfRank(organization, rank)
   assert(membersOfRank.length < maxMemberOfDevelopment(organization.development))
   final titleId = '${organization.category}.titleRank${rank}'
   final title = getLocaleString(titleId)
@@ -411,7 +411,7 @@ fun removeCharacterFromOrganization(character) {
   delete character.organizationId
 }
 
-fun getOrganizationMemberIdOfRank(organization, rank) {
+fun getOrganizationMemberIdsOfRank(organization, rank) {
   assert(rank >= 0 && rank <= kOrganizationRankMax)
   final ids = []
   for (final id in organization.characterIds.keys) {
@@ -424,7 +424,7 @@ fun getOrganizationMemberIdOfRank(organization, rank) {
 }
 
 fun organizationLowestRankMemberReachMax(organization) {
-  final memberIds = getOrganizationMemberIdOfRank(organization, kOrganizationRankMax)
+  final memberIds = getOrganizationMemberIdsOfRank(organization, kOrganizationRankMax)
   return memberIds.length >= maxMemberOfDevelopment(kOrganizationRankMax)
 }
 
