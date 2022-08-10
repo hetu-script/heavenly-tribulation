@@ -3,8 +3,7 @@ import 'package:hetu_script/values.dart';
 
 import '../../grid/entity_grid.dart';
 import '../../../../global.dart';
-
-const kEquipmentMax = 7;
+import '../../../common.dart';
 
 class EquipmentsView extends StatelessWidget {
   const EquipmentsView({
@@ -40,6 +39,7 @@ class EquipmentsView extends StatelessWidget {
             isSelected: selectedIndex == 1,
             backgroundImage:
                 const AssetImage('assets/images/icon/item/bg_arcane.png'),
+            showEquippedIcon: false,
           ),
         ),
       );

@@ -25,7 +25,7 @@ struct VillageWarrior {
     this.category = kEntityCategoryCharacter
     this.kind = kind ?? random.nextIterable(_kCompanionKinds)
     this.name = getLocaleString(this.kind)
-    this.id = 'npc.${Hash.uid4(2)}.${this.kind}.${this.name}'
+    this.id = '${this.entityType}.${Hash.uid4(2)}.${this.kind}.${this.name}'
     this.rarity = rarity ?? kCommon
     this.color = kRarity[this.rarity].color
     this.isPermanent = isPermanent

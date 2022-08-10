@@ -1,3 +1,6 @@
+const kEquipmentMax = 7;
+const kEquipmentSupportMax = 4;
+
 // entityType决定了该对象的数据结构和保存位置
 const kEntityTypeCharacter = 'character'; //game.characters
 const kEntityTypeNpc = 'npc'; //game.npcs

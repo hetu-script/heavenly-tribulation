@@ -29,6 +29,7 @@ const kEquipTypeCompanion = 'companion'
 // }
 
 const kEquipmentMax = 7
+const kEquipmentSupportMax = 4
 
 final kRarity2ItemLevels = {
   common: 10, // common 白
@@ -42,6 +43,16 @@ final kRarity2ItemLevels = {
 
 fun calculateItemStats(item) {
   item.stats = item.attributes.clone()
+}
+
+fun calculateItemSupports(item, character) {
+  calculateItemStats(item)
+  for (final supportItemEquipData in item.equippedSupports) {
+    final supportItem = getEquipped(supportItemEquipData, character)
+    for (final effect of supportItem.stats.effects) {
+      item.stats.effects[effect.id] = effect
+    }
+  }
 }
 
 fun entityAcquireMoney(entity, value, { incidentOccured = true }) {
@@ -94,15 +105,15 @@ fun entityGiveMoney(entity, target, value, { isForced = false, incidentOccured =
 
   // final goldValue = value ~/ kGoldExchange
   // var rest = value - goldValue
-  // final restAfterGold = entityGiveItem(entity, target, 'money.goldCoin', count: goldValue)
+  // final restAfterGold = entityGiveItem(entity, target, 'item.goldCoin', count: goldValue)
   // rest += restAfterGold
 
   // final silverValue = rest ~/ kSilverExchange
   // var rest = value - silverValue
-  // final restAfterSilver = entityGiveItem(entity, target, 'money.silverCoint', count: silverValue)
+  // final restAfterSilver = entityGiveItem(entity, target, 'item.silverCoint', count: silverValue)
   // rest += restAfterSilver
 
-  final money = entity.inventory['money.bronzeCoin']
+  final money = entity.inventory['item.bronzeCoin']
   if (money != null && money.stackSize >= value) {
     entityGiveItem(entity, target, money.id, count: value, isForced: isForced, incidentOccured: incidentOccured)
     return true
@@ -303,7 +314,6 @@ fun characterConsume(character, item, { forcerCharacter }) {
 //   kind,
 //   equipType,
 //   life,
-//   supports,
 // }
 fun characterEquip(character, entity, { index }) -> bool {
   assert(index == null || (index > 0 && index < kEquipmentMax))
@@ -339,7 +349,7 @@ fun characterEquip(character, entity, { index }) -> bool {
     kEntityTypeSkill -> {
       if (!character.skills[entity.id]) characterLearn(character, entity)
 
-      if (entity.level < 1) {
+      if (entity.level < 0) {
         engine.warning('技能 ${entity.name} 等级太低（${entity.level}），无法装备。')
         return
       }
@@ -405,29 +415,39 @@ fun characterEquip(character, entity, { index }) -> bool {
   when (entity.equipType) {
     // 剑法、心诀等支持型技能
     kEquipTypeSupport -> {
-      for (final i in range(1, kEquipmentMax)) {
-        final oldEquipData = character.equipments[i]
-        if (oldEquipData && oldEquipData.category == data.category &&
-            oldEquipData.kind == data.kind) {
-          if (oldEquipData.supports.length < kEquipmentMax.support - 1) {
-            oldEquipData.supports.add(equipData)
+      fun tryEquipSupport(mainItemEquipData) {
+        final mainItem = getEquipped(mainItemEquipData, character)
+        if (equipData.kind == mainItem.kind) {
+          if (mainItem.equippedSupports.length < kEquipmentSupportMax) {
+            mainItem.equippedSupports.add(equipData)
           } else {
             // 移除旧装备
-            final oldEntity = getEquipped(oldEquipData.supports.first, character)
-            delete oldEntity.equippedPosition
-            oldEquipData.supports.first = equipData
+            final oldSupportItem = getEquipped(mainItem.equippedSupports.first, character)
+            delete oldSupportItem.equippedPosition
+            mainItem.equippedSupports.first = equipData
           }
-          entity.equippedPosition = i
+          calculateItemSupports(mainItem, character)
           return true
         }
+        return false
       }
-      return false
+
+      if (index == null) {
+        for (final i in range(1, kEquipmentMax)) {
+          final result = tryEquipSupport(character.equipments[i])
+          if (result) {
+            entity.equippedPosition = i
+            return true
+          }
+        }
+      } else {
+        return tryEquipSupport(character.equipments[index])
+      }
     }
-    // kEquipTypeOffense: 斗技、武器、攻击法宝等
-    // kEquipTypeDefense: 内功、轻功、护甲、靴子、辅助法宝等
+    // 斗技、武器、攻击法宝等
+    // 内功、轻功、护甲、靴子、辅助法宝等
     // kEquipTypeDefense, kEquipTypeOffense, kEquipTypeCompanion -> {
     else -> {
-      equipData.supports = []
       // 如果有空位就装备在空位上
       if (index == null) {
         for (final i in range(1, kEquipmentMax)) {
@@ -444,15 +464,16 @@ fun characterEquip(character, entity, { index }) -> bool {
       if (oldEquipData != null) {
         final oldItem = getEquipped(oldEquipData, character)
         delete oldItem.equippedPosition
-      }
-      character.equipments[index] = equipData
-      if (equipData.category == oldItem.category && equipData.kind == oldItem.kind) {
-        equipData.supports = oldEquipData.supports
-      } else {
-        for (final support in equipData.supports) {
-          delete support.equippedPosition
+        if (equipData.kind == oldItem.kind) {
+          equipData.equippedSupports = oldItem.equippedSupports
+        } else {
+          for (final supportEquipData in oldItem.equippedSupports) {
+            final oldSupportEquipItem = getEquipped(supportEquipData, character)
+            delete oldSupportEquipItem.equippedPosition
+          }
         }
       }
+      character.equipments[index] = equipData
       entity.equippedPosition = index
       return true
     }
@@ -466,8 +487,10 @@ fun characterUnequip(character, entity) {
   when (entity.equipType) {
     // 剑法、心诀等支持型技能
     kEquipTypeSupport -> {
-      character.equipments[kEquipTypeOffense][entity.equippedPosition]
-        .supports.removeWhere((equipData) => equipData.id == entity.id)
+      final equipData = character.equipments[entity.equippedPosition]
+      final mainItem = getEquipped(equipData, character)
+      mainItem.equippedSupports.removeWhere((equipData) => equipData.id == entity.id)
+      calculateItemSupports(mainItem)
     }
     // 斗技、武器、法宝等
     kEquipTypeDefense, kEquipTypeOffense, kEquipTypeCompanion -> {

@@ -15,9 +15,13 @@ final commonNames = [
   ...commonNamesData.target,
 ];
 
-const kStrangeNameProbability = 0.15
-const kXianXiaNameProbability = 0.35
-const kNameWithDirectionProbability = 0.5
+const kStrangeNameProbability = 0.1
+const kXianXiaNameProbability = 0.3
+const kFamilyNameProbability = 0.5
+
+const kFamilyNamePostfix = '家'
+
+const kNameWithDirectionProbability = 0.55
 const kNameWithLinkWordProbability = 0.15
 
 export {

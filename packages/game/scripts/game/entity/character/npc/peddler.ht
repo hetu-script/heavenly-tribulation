@@ -19,7 +19,7 @@ struct Peddler {
     this.category = kEntityCategoryCharacter
     this.kind = 'peddler'
     this.name = getLocaleString(this.kind)
-    this.id = 'npc.${Hash.uid4(2)}.${this.kind}.${this.name}'
+    this.id = '${this.entityType}.${Hash.uid4(2)}.${this.kind}.${this.name}'
     this.rarity = kCommon
     this.color = kRarity[this.rarity].color
     game.npcs[this.id] = this

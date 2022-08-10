@@ -22,6 +22,7 @@ class EntityGrid extends StatelessWidget {
     this.isEquipped = false,
     this.child,
     this.backgroundImage,
+    this.showEquippedIcon = true,
   });
 
   final GridStyle style;
@@ -32,12 +33,19 @@ class EntityGrid extends StatelessWidget {
   final bool isSelected, isEquipped;
   final Widget? child;
   final ImageProvider<Object>? backgroundImage;
+  final bool showEquippedIcon;
 
   @override
   Widget build(BuildContext context) {
     final String? iconAssetKey = entityData?['icon'];
     final int stackSize = entityData?['stackSize'] ?? 1;
     final entityType = entityData?['entityType'];
+
+    final isEquipped = entityData?['isEquippable'] == true &&
+        entityData?['equippedPosition'] != null;
+
+    final List? equippedSupportsData = entityData?['equippedSupports'];
+    var supportedCount = equippedSupportsData?.length ?? 0;
 
     String? levelString;
     if (entityType == kEntityTypeSkill) {
@@ -94,16 +102,44 @@ class EntityGrid extends StatelessWidget {
                           alignment: AlignmentDirectional.bottomEnd,
                           child: Text(stackSize.toString()),
                         ),
-                      if (isEquipped)
+                      if (supportedCount > 0)
+                        Container(
+                          alignment: AlignmentDirectional.bottomEnd,
+                          padding: const EdgeInsets.all(2.5),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              for (var i = 0; i < supportedCount; ++i)
+                                Image(
+                                  width: size.width / 4,
+                                  height: size.height / 4,
+                                  fit: BoxFit.contain,
+                                  image: const AssetImage(
+                                      'assets/images/icon/item/supported.png'),
+                                ),
+                              // const Text(
+                              //   '+',
+                              //   style: TextStyle(
+                              //     fontSize: 16.0,
+                              //     color: Colors.blue,
+                              //   ),
+                              // )
+                            ],
+                          ),
+                        ),
+                      if (showEquippedIcon && isEquipped)
                         Positioned(
-                          right: 0,
+                          left: 0,
                           bottom: 0,
-                          child: Image(
-                            width: size.width / 3,
-                            height: size.height / 3,
-                            fit: BoxFit.contain,
-                            image: const AssetImage(
-                                'assets/images/icon/item/equipped.png'),
+                          child: Padding(
+                            padding: const EdgeInsets.all(2.5),
+                            child: Image(
+                              width: size.width / 3,
+                              height: size.height / 3,
+                              fit: BoxFit.contain,
+                              image: const AssetImage(
+                                  'assets/images/icon/item/equipped.png'),
+                            ),
                           ),
                         )
                     ],
@@ -169,13 +205,13 @@ class EntityGrid extends StatelessWidget {
                               borderColor: Colors.transparent,
                               borderWidth: 0.0,
                             ),
-                          if (isEquipped)
+                          if (showEquippedIcon && isEquipped)
                             Positioned(
-                              right: 0,
+                              left: 0,
                               bottom: 0,
                               child: Image(
-                                width: size.width / 3,
-                                height: size.height / 3,
+                                width: size.width / 4,
+                                height: size.height / 4,
                                 fit: BoxFit.contain,
                                 image: const AssetImage(
                                     'assets/images/icon/item/equipped.png'),

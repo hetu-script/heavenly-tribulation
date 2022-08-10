@@ -50,6 +50,7 @@ struct Site {
     // 该建筑的每月刷新任务的时间
     this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
 
+    this.entityType = kEntityTypeSite
     this.locationId = locationId
     this.category = category
     this.organizationId = organizationId
@@ -64,7 +65,7 @@ struct Site {
     }
     this.image = image ?? 'location/site/${category}.png'
 
-    this.id = 'site.${locationId}.${category}.${this.name}'
+    this.id = '${this.entityType}.${locationId}.${category}.${this.name}'
 
     final location = game.locations[locationId]
     engine.info('在 ${location.name} 建立了新建筑 ${this.name}')

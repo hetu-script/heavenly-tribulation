@@ -8,14 +8,11 @@ const _kNationNamePostfix = '国'
 
 fun generateNationName(number: int) {
   var name = ''
-  var rarity = 'common'
   final r = random.nextDouble()
   if (r < kStrangeNameProbability) {
     name = random.nextIterable(strangeNames)
-    rarity = 'rare'
   } else if (r < kXianXiaNameProbability) {
     name = random.nextIterable(commonNames)
-    rarity = 'uncommon'
   } else {
     var prefix = ''
     if (random.nextDouble() < kNameWithDirectionProbability) {
@@ -23,5 +20,5 @@ fun generateNationName(number: int) {
     }
     name = prefix + random.nextIterable(place)
   }
-  return { name: name + _kNationNamePostfix, rarity }
+  return { name: name + _kNationNamePostfix }
 }

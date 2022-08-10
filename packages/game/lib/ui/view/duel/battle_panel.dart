@@ -6,8 +6,7 @@ import 'battle_item_card.dart';
 // import 'defense_card.dart';
 import '../../shared/dynamic_color_progressbar.dart';
 import '../../avatar.dart';
-
-const kEquipmentMax = 7;
+import '../../common.dart';
 
 // const kEquipmentMaxOffense = 5;
 // const kEquipmentMaxSupport = 5;

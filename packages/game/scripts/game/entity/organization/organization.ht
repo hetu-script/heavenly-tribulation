@@ -178,7 +178,7 @@ struct Organization {
           element.name == this.name).isNotEmpty
       } while (conflict)
     }
-    this.id = 'organization.${this.index}.${this.category}.${this.name}'
+    this.id = '${this.entityType}.${this.index}.${this.category}.${this.name}'
     game.organizations[this.id] = this
     
     // 本门派统治的据点 id 列表

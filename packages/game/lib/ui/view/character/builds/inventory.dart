@@ -360,7 +360,6 @@ class _InventoryViewState extends State<InventoryView> {
             child: EntityGrid(
               entityData: itemData,
               style: widget.style,
-              isEquipped: isEquipped,
               onItemTapped: _onItemTapped,
               child: action,
             ),

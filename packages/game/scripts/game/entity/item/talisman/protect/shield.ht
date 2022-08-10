@@ -57,6 +57,13 @@ struct Shield {
     final shieldEffect = getEffect(category: 'shield')
     this.attributes.effects[shieldEffect.id] = shieldEffect
 
+    // 在此物品上装备的支持性对象
+    // 数据结构：
+    // {
+    //   itemId: [ ...effects ]
+    // }
+    this.equippedSupports = []
+
     calculateItemStats(this)
   }
 }

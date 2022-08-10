@@ -42,7 +42,8 @@ struct WeaponArts {
     this.name = name
     this.rarity = rarity ?? kCommon
     if (!this.name) {
-      final randomName = generateSkillName(category: this.kind, rarity: this.rarity)
+      final nameLength = kRarity[this.rarity].level > 4 ? 3 : kRarity[this.rarity].level > 2 ? 2 : 1
+      final randomName = generateSkillName(category: this.kind, length: nameLength)
       this.name = randomName.name
     }
     this.color = kRarity[this.rarity].color
@@ -53,7 +54,7 @@ struct WeaponArts {
     this.creatorId = creatorId
     this.createdTime = createdTime
     this.description = description ?? ''
-    this.id = 'skill.${Hash.uid4(2)}.${this.name}'
+    this.id = '${this.entityType}.${Hash.uid4(2)}.${this.name}'
 
     this.isEquippable = true
     this.equipType = kEquipTypeSupport // 装备类型：进攻、如果没有就是不可装备
@@ -64,7 +65,7 @@ struct WeaponArts {
     this.difficulty = difficulty ?? 1
     // 技能等级，提升等级需要练习
     // 刚学会时是-1级，此时无法装备
-    this.level = level ?? -1
+    this.level = level != null ? level - 1 : -1
     this.levelMax = levelMax ?? 0 // 此技能最大经验值
     this.exp = 0 // 当前经验值
     this.expForNextLevel = expForLevel(this.difficulty, this.level + 1) // 下一等级需要的经验值
@@ -81,7 +82,8 @@ struct WeaponArts {
       // 装备技能时的资源固定减额
       equip: {}
     }
-
+    
+    this.attributes = {}
     if (attributes) {
       this.attributes.assign(attributes)
     }

@@ -5,7 +5,7 @@
         category: 'beverage',
         handlerType: 'consume',
         id: 'restoreStamina',
-        description: 'effect.restoreStamina',
+        description: 'effect.consume.restoreStamina',
         values: [
           {
             value: 10,
@@ -20,7 +20,7 @@
         category: 'medicine',
         handlerType: 'consume',
         id: 'restorLife',
-        description: 'effect.restorLife',
+        description: 'effect.consume.restorLife',
         values: [
           {
             value: 10,
@@ -33,7 +33,7 @@
         category: 'medicine',
         handlerType: 'consume',
         id: 'healInjury',
-        description: 'effect.healInjury',
+        description: 'effect.consume.healInjury',
         values: [
           {
             value: 10,
@@ -43,15 +43,15 @@
     ],
   },
   shield: {
-    defendOnCooldown: [
+    decreaseDamageOnCooldown: [
       {
         category: 'shield',
         handlerType: 'defend',
-        id: 'defendOnCooldown',
-        description: 'effect.defendOnCooldown',
+        id: 'decreaseDamageOnCooldown',
+        description: 'effect.defend.decreaseDamageOnCooldown',
         values: [
           {
-            value: 0.8,
+            value: 1.0,
             type: 'percentage',
           },
           { value: 3 },
@@ -60,12 +60,12 @@
     ],
   },
   boxing: {
-    addBaseDamage: [
+    addDamage: [
       {
         category: 'boxing',
         handlerType: 'persist',
-        id: 'addBaseDamage',
-        description: 'effect.addBaseDamage',
+        id: 'addDamage',
+        description: 'effect.persist.addDamage',
         values: [
           {
             value: 10,
@@ -75,12 +75,12 @@
     ],
   },
   wrestling: {
-    addBaseDamage: [
+    addDamage: [
       {
         category: 'wrestling',
         handlerType: 'persist',
-        id: 'addBaseDamage',
-        description: 'effect.addBaseDamage',
+        id: 'addDamage',
+        description: 'effect.persist.addDamage',
         values: [
           {
             value: 10,
@@ -89,4 +89,33 @@
       },
     ],
   },
+  sword: {
+    decreaseDamage: [
+      {
+        category: 'sword',
+        handlerType: 'defend',
+        id: 'decreaseDamage',
+        description: 'effect.defend.active.decreaseDamage',
+        values: [
+          {
+            value: 0.4,
+            type: 'percentage',
+          },
+        ],
+      },
+    ],
+  },
+  sabre: {
+    counterOnCooldown: [
+      {
+        category: 'sword',
+        handlerType: 'afterHit',
+        id: 'counterOnCooldown',
+        description: 'effect.afterHit.counterOnCooldown',
+        values: [{ value: 10 }, { value: 3 }],
+      },
+    ],
+  },
+  staff: {},
+  spear: {},
 }

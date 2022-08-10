@@ -102,6 +102,7 @@ struct Baby {
     assert(father != null)
     assert(mother != null)
     assert(conceptionTimestamp != null)
+    this.entityType = kEntityTypeBaby
 
     mother.isPregnant = true
 
@@ -129,7 +130,7 @@ struct Baby {
     this.familyName = father.familyName
     this.shortName = randomName.shortName
     this.name = this.familyName + this.shortName
-    this.id = 'character.${this.index}.${this.name}'
+    this.id = '${this.entityType}.${this.index}.${this.name}'
 
     game.babies[this.id] = this
   }
@@ -144,7 +145,7 @@ struct Character {
     birthTimestamp,
     locationId,
     nationId,
-    isArmed = true,
+    armed = true,
     isNewborn = false, // 是否是新生儿，如果是则会自动为其添加父母关系
     description,
     fatherId,
@@ -183,11 +184,10 @@ struct Character {
     this.entityType = kEntityTypeCharacter
     this.encounterType = kEncounterTypeCharacter
     this.category = kEntityCategoryCharacter
+    this.id = '${this.entityType}.${Hash.uid4(2)}.${this.name}'
     if (isMajorCharacter) {
-      this.id = 'character.${game.characters.length}.${this.name}'
       game.characters[this.id] = this
     } else {
-      this.id = 'npc.${Hash.uid4(2)}.${this.name}'
       game.npcs[this.id] = this
     }
     this.color = kRarity.common.color
@@ -361,7 +361,7 @@ struct Character {
     final battleInfo = BattleEntity(attributes: attributes, attributeSum: attributeSum)
     this.assign(battleInfo)
 
-    if (isArmed) {
+    if (armed) {
       characterEquip(this, Weapon())
     }
 

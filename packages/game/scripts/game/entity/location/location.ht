@@ -34,7 +34,7 @@ struct Location {
       recruitingOrganizationIds: [],
     }
 
-
+    this.entityType = kEntityTypeLocation
     this.terrainIndex = terrainIndex
     this.tilePosition = Tile(
       left,
@@ -55,7 +55,7 @@ struct Location {
       } while (conflict)
     }
     this.category = category
-    this.id = 'location.${this.index}.${this.name}'
+    this.id = '${this.entityType}.${this.index}.${this.name}'
     game.locations[this.id] = this
 
     // 据点稳定度，最高100，初始随机0-49

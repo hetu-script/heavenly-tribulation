@@ -36,7 +36,7 @@ struct ElderCultivator {
     // this.icon = 'avatar/general.png'
     this.category = kEntityCategoryCharacter
     this.name = getLocaleString(_kElderCultivatorName)
-    this.id = 'npc.${Hash.uid4(2)}.${this.name}'
+    this.id = '${this.entityType}.${Hash.uid4(2)}.${this.name}'
     this.rarity = kCommon
     this.color = kRarity[this.rarity].color
     this.description = description ?? ''

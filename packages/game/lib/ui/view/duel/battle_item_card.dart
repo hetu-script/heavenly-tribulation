@@ -78,6 +78,7 @@ class BattleItemCard extends StatelessWidget {
               size: const Size(45.0, 45.0),
               entityData: itemData,
               hasBorder: false,
+              showEquippedIcon: false,
               onItemTapped: (item, screenPosition) =>
                   _onItemTapped(context, item, screenPosition),
               child: CustomPaint(

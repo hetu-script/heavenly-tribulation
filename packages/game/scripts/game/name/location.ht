@@ -2,20 +2,24 @@ import 'place/place.json5' as placeNames
 import 'place/postfix.json5' as placePostfix
 import 'place/location.json5' as locationNames
 import 'common/strange.json5' as strangeNames
+import 'character/family.json5' as familyNames
 import 'common.ht'
+import '../random.ht'
 
 fun generateLocationName({category: str}) {
   var name = ''
   category ??= random.nextIterable(locationNames.keys)
   final kind = random.nextIterable(locationNames[category])
-  var rarity = 'common'
   final r = random.nextDouble()
   if (r < kStrangeNameProbability) {
     name = random.nextIterable(strangeNames)
-    rarity = 'rare'
   } else if (r < kXianXiaNameProbability) {
     name = random.nextIterable(commonNames)
-    rarity = 'uncommon'
+  } else if (r < kFamilyNameProbability) {
+    name = random.nextIterable(familyNames)
+    if (name.length == 1) {
+      name += kFamilyNamePostfix
+    }
   } else {
     var postfix = ''
     if (random.nextDouble() < kNameWithDirectionProbability) {
@@ -23,5 +27,5 @@ fun generateLocationName({category: str}) {
     }
     name = random.nextIterable(placeNames) + postfix
   }
-  return { name: name + kind, category, rarity }
+  return { name: name + kind, category }
 }

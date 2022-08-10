@@ -27,7 +27,7 @@ struct Coin {
 
     this.description = getLocaleString('${this.kind}.description')
     this.stackSize = stackSize
-    this.id = 'money.${this.kind}'
+    this.id = '${this.entityType}.${this.kind}'
     this.icon = icon ?? 'icon/item/money.png'
 
     this.isUnsellable = true

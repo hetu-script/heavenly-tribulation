@@ -21,8 +21,8 @@ fun generateBattleCompanionData(companionData, battleEntity) {
 
   final assist = Effect(
     category: 'companion',
-    handlerType: kEffectCategoryHit,
-    id: kEffectCompanionIncreaseDamageOnCooldown,
+    handlerType: kEffectCategoryDamage,
+    id: kEffectAddDamageOnCooldown,
     values: [
       EffectValue(value: companionData.stats.damage),
       EffectValue(value: _kCompanionAssistCooldown),
@@ -31,7 +31,7 @@ fun generateBattleCompanionData(companionData, battleEntity) {
   final defend = Effect(
     category: 'companion',
     handlerType: kEffectCategoryDefend,
-    id: kEffectDefendOnCooldown,
+    id: kEffectDecreaseDamageOnCooldown,
     values: [
       EffectValue(
         value: _kCompanionDefendPercentage,

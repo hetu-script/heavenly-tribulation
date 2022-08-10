@@ -1,36 +1,51 @@
 import 'skill/skill.json5' as skillNames
 import 'skill/extra.json5' as skillExtra
 import 'skill/numfix.json5' as skillNumfix
+import 'character/family.json5' as familyNames
 import 'common.ht'
-import '../entity/common.ht'
+import '../random.ht'
+
+final _kCouldBeFamilySkillKinds = [
+  'strength',
+  'wrestling',
+  'boxing',
+  'sabre',
+  'spear',
+  'sword',
+  'staff',
+]
 
 const _kNumberBeginSupplement = '路'
 const _kNumberEndSupplement = '式'
 
-const _kSkillExtraProbability = 0.075
-const _kSkillNumfixProbability = 0.075
 const _kSkillWithThreeElementsProbability = 0.15
 const _kSkillWithTwoElementsProbability = 0.35
 
-fun generateSkillName({category, kind}) {
+const _kSkillExtraProbability = 0.075
+const _kSkillNumfixProbability = 0.075
+
+fun generateSkillName({category, kind, length = 1}) {
   assert(category in skillNames.keys)
-  final l
-  final r = getRarity()
-  if (r.level > kRarity.epic.level) {
-    l = 3
-  } else if (r.level > kRarity.uncommon.level) {
-    l = 2
-  } else {
-    l = 1
-  }
-  final rarity = r.rarity
+  kind ??= random.nextIterable(skillNames[category])
+  assert(length > 0 && length < 4)
+  final r = random.nextDouble()
   var name = ''
-  for (var i in range(l)) {
-    name += random.nextIterable(commonNames)
+  if (length > 1) {
+    for (var i in range(length)) {
+      name += random.nextIterable(commonNames)
+    }
+  } else {
+    if (random.nextDouble() < 0.35 && category in _kCouldBeFamilySkillKinds) {
+      name = random.nextIterable(familyNames)
+      if (name.length == 1) {
+        name += kFamilyNamePostfix
+      }
+    } else  {
+      name = random.nextIterable(commonNames)
+    }
   }
   var e = ''
   var n = ''
-  kind ??= random.nextIterable(skillNames[category])
   if (random.nextDouble() < _kSkillExtraProbability) {
     e = random.nextIterable(skillExtra)
   }
@@ -46,5 +61,5 @@ fun generateSkillName({category, kind}) {
       name = e + name + n + kind
     }
   }
-  return { name, category, rarity }
+  return { name, category }
 }

@@ -41,8 +41,11 @@ final gEffectHandlers = {
       }
     }
   },
-  // 防御效果
-  defendOnCooldown: (effect, baseDamage) {
+  // 分担伤害
+  decreaseDamage: (effect, baseDamage) {
+    return baseDamage * effect.values[0].value
+  },
+  decreaseDamageOnCooldown: (effect, baseDamage) {
     if (effect.cooldown >= effect.values[1].value) {
       effect.cooldown = 0
       return baseDamage * effect.values[0].value
@@ -52,15 +55,25 @@ final gEffectHandlers = {
       return null
     }
   },
-  // 攻击效果
-  companionIncreaseDamageOnCooldown: (effect, baseDamage) {
+  // 增加伤害
+  addDamageOnCooldown: (effect) {
     if (effect.cooldown >= effect.values[1].value) {
       effect.cooldown = 0
-      return baseDamage + effect.values[0].value
+      return effect.values[0].value
     } else {
       ++effect.cooldown
       //这里要明确返回null，否则上面一行的数字就会被返回
       return null
     }
+  },
+  // 攻击后
+  counterOnCooldown: (effect, targetInfo) {
+    if (effect.cooldown >= effect.values[1].value) {
+      effect.cooldown = 0
+      targetInfo.ticks -= 10
+    } else {
+      ++effect.cooldown
+    }
+    return
   }
 }

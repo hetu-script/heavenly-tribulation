@@ -9,7 +9,7 @@ fun calculateSkillStats(skill) {
   for (final effect of skill.stats.effects) {
     if (effect.handlerType == kEffectCategoryPersist) {
       when (effect.id) {
-        kEffectAddBaseDamage -> {
+        kEffectAddDamage -> {
           baseDamage += effect.values[0].value
         }
       }

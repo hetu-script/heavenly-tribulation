@@ -38,7 +38,7 @@ struct Action {
     speed,
     damage = 0,
     equipmentIndex,
-    shareDamage = 0,
+    sharedDamage = 0,
   }) {
     assert(message != null)
     this.activatedOffenseIndex = activatedOffenseIndex
@@ -46,7 +46,7 @@ struct Action {
     this.damage = damage
     this.message = message
     this.equipmentIndex = equipmentIndex
-    this.shareDamage = shareDamage
+    this.sharedDamage = sharedDamage
   }
 }
 
@@ -74,7 +74,6 @@ struct Duel {
     }
     final char2info = {
       ticks: 0,
-      activatedOffenseIndex: 1,
       stats: this.initialStats.char2.clone(),
     }
 
@@ -113,13 +112,38 @@ struct Duel {
           final baseDamage = subjectInfo.activatedOffense.stats.damage
 
           // 战斗文字信息
+          var pre = ''
           var message
-          // 是否被某个防御物品或者战斗伙伴分担伤害
-          var shareDamage
-          var assistDamage
+          var post = ''
+          // 是否被某个防御物品或者战斗伙伴分担了伤害
+          var sharedDamage = 0
+          var sharedDamageItemIndex
+          // 是否被某个防御物品或者战斗伙伴增强了伤害
+          var assistedItem
+          // 计算后的最终伤害
+          var finalDamage = baseDamage
+
+          // 处理增强伤害类效果
+          fun handleDamageEffect({effect, item}) {
+            if (effect.handlerType != kEffectCategoryDamage) return false
+            final effectHandler = getEffectHandlerById(effect.id)
+            if (effectHandler == null) {
+              engine.error('找不到效果 ${effect.id} 对应的处理函数。')
+              return false
+            }
+            assert(effectHandler is function)
+            final increasedDamage = effectHandler(effect, baseDamage)
+            if (increasedDamage) {
+              finalDamage = increaseDamage
+              assistedItem = item
+              return true
+            } else {
+              return false
+            }
+          }
 
           // 处理道具防御效果
-          fun handleDefendEffect({effect, item, index}) {
+          fun handleDefendEffect({effect, index}) {
             if (effect.handlerType != kEffectCategoryDefend) return false
             final effectHandler = getEffectHandlerById(effect.id)
             if (effectHandler == null) {
@@ -127,63 +151,25 @@ struct Duel {
               return false
             }
             assert(effectHandler is function)
-            shareDamage = effectHandler(effect, baseDamage)
-            if (shareDamage) {
-              message = getLocaleString(sneakAttack ? 'sneakShareDamageInfo' : 'shareDamageInfo',
-                interpolations: [
-                subject.name,
-                subjectInfo.activatedOffense.name,
-                target.name,
-                (baseDamage - shareDamage).truncate(),
-                item.name,
-                shareDamage.truncate(),
-              ])
-              final action = Action(
-                activatedOffenseIndex: subjectInfo.activatedOffenseIndex,
-                speed: subjectInfo.activatedOffense.stats.speed,
-                damage: baseDamage - shareDamage,
-                message: message,
-                shareDamage: shareDamage,
-              )
-              action.equipmentIndex = index
-              actions.add(action)
-              entityLifeChange(targetInfo, -(baseDamage - shareDamage))
-              final equipItemStats = targetInfo.stats.equipments[index]
-              entityLifeChange(equipItemStats, -shareDamage)
+            sharedDamage = effectHandler(effect, baseDamage)
+            if (sharedDamage > 0) {
+              sharedDamageItemIndex = index
               return true
+            } else {
+              return false
             }
-            return false
           }
 
-          // 处理道具增强伤害
-          fun handleAssistEffect({effect, item, index}) {
-            if (effect.handlerType != kEffectCategoryHit) return false
+          // 处理攻击后的额外效果
+          fun handleAfterHitEffect({effect}) {
+            if (effect.handlerType != kEffectCategoryAfterHit) return false
             final effectHandler = getEffectHandlerById(effect.id)
             if (effectHandler == null) {
               engine.error('找不到效果 ${effect.id} 对应的处理函数。')
               return false
             }
             assert(effectHandler is function)
-            assistDamage = effectHandler(effect, baseDamage)
-            if (assistDamage) {
-              message = getLocaleString('assistDamageInfo',
-                interpolations: [
-                subject.name,
-                subjectInfo.activatedOffense.name,
-                target.name,
-                item.name,
-                assistDamage.truncate(),
-              ])
-              actions.add(Action(
-                activatedOffenseIndex: subjectInfo.activatedOffenseIndex,
-                speed: subjectInfo.activatedOffense.stats.speed,
-                damage: assistDamage,
-                message: message,
-              ))
-              entityLifeChange(targetInfo, -assistDamage)
-              return true
-            }
-            return false
+            effectHandler(effect, targetInfo)
           }
           
           // 遍历进攻方装备，检查是否有增强伤害效果
@@ -192,10 +178,9 @@ struct Duel {
             if (!equipData) continue
             final item = getEquipped(equipData, subject)
             for (final effect of item.stats.effects) {
-              final assisted = handleAssistEffect(
+              final assisted = handleDamageEffect(
                 effect: effect,
                 item: item,
-                index: i,
               )
               if (assisted) break
             }
@@ -204,35 +189,50 @@ struct Duel {
           // 遍历防守方装备，检查是否有分担伤害效果
           for (final i in range(1, kEquipmentMax)) {
             final equipData = target.equipments[i]
-            if (!equipData) continue
+            if (equipData == null) continue
             final item = getEquipped(equipData, target)
             for (final effect of item.stats.effects) {
               final defended = handleDefendEffect(
                 effect: effect,
-                item: item,
                 index: i,
               )
               if (defended) break
             }
           }
 
-          // 没有额外效果的进攻
-          if (!shareDamage && !assistDamage) {
-            message = getLocaleString(sneakAttack ? 'sneakDamageInfo' : 'damageInfo',
-              interpolations: [
-              subject.name,
-              subjectInfo.activatedOffense.name,
-              target.name,
-              baseDamage.truncate(),
+          if (assistedItem) {
+            pre = getLocaleString('assistedDamageInfo', interpolations: [
+              assistedItem.name,
             ])
-            actions.add(Action(
-              activatedOffenseIndex: subjectInfo.activatedOffenseIndex,
-              speed: subjectInfo.activatedOffense.stats.speed,
-              damage: baseDamage,
-              message: message,
-            ))
-            entityLifeChange(targetInfo, -baseDamage)
           }
+          
+          if (sharedDamageItemIndex) {
+            final equipItemInfo = targetInfo.stats.equipments[sharedDamageItemIndex]
+            final equipData = target.equipments[sharedDamageItemIndex]
+            final equipItem = getEquipped(equipData, target)
+            entityLifeChange(equipItemInfo, -sharedDamage)
+            post = getLocaleString('sharedDamageInfo', interpolations: [
+              equipItem.name,
+              sharedDamage.truncate(),
+            ])
+          }
+
+          message = pre + getLocaleString(sneakAttack ? 'sneakDamageInfo' : 'damageInfo',
+            interpolations: [
+            subject.name,
+            subjectInfo.activatedOffense.name,
+            target.name,
+            (finalDamage - sharedDamage).truncate(),
+          ]) + post
+          actions.add(Action(
+            message: message,
+            activatedOffenseIndex: subjectInfo.activatedOffenseIndex,
+            speed: subjectInfo.activatedOffense.stats.speed,
+            damage: finalDamage - sharedDamage,
+            equipmentIndex: sharedDamageItemIndex,
+            sharedDamage: sharedDamage,
+          ))
+          entityLifeChange(targetInfo, -(finalDamage - sharedDamage))
 
           this.messages.add(message)
           // engine.info(message)

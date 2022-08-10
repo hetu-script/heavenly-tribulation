@@ -9,15 +9,12 @@ const _kLinkWord = '之'
 fun generateZoneName({category: str}) {
   assert(category in zoneNames.keys)
   final kind = random.nextIterable(zoneNames[category])
-  var rarity = 'common'
-  final r = random.nextDouble()
   var name
+  final r = random.nextDouble()
   if (r < kStrangeNameProbability) {
     name = random.nextIterable(strangeNames)
-    rarity = 'rare'
   } else if (r < kXianXiaNameProbability) {
     name = random.nextIterable(commonNames)
-    rarity = 'uncommon'
   } else {
     var prefix = ''
     if (random.nextDouble() < kNameWithDirectionProbability) {
@@ -34,5 +31,5 @@ fun generateZoneName({category: str}) {
       }
     }
   }
-  return { name: name + kind, category, rarity }
+  return { name: name + kind, category }
 }

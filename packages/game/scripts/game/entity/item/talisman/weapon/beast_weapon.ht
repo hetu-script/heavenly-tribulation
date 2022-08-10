@@ -53,7 +53,7 @@ struct BeastWeapon {
     this.rarity = rarity ?? kCommon
     this.name = beastName + getLocaleString(kind)
     this.color = kRarity[this.rarity].color
-    this.id = 'beastWeapon.${Hash.uid4(2)}.${this.name}'
+    this.id = '${this.entityType}.${Hash.uid4(2)}.${this.name}'
     this.isBodyPart = true
     this.value = value ?? 30
     this.stackSize = 1
@@ -70,6 +70,9 @@ struct BeastWeapon {
     }
 
     this.attributes.effects = {}
+
+    // 在此物品上装备的支持性对象
+    this.equippedSupports = []
 
     calculateItemStats(this)
   }

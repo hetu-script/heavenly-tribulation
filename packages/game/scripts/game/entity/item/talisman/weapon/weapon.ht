@@ -6,16 +6,16 @@ import '../../../../game.ht'
 import '../../../../name/talisman.ht'
 
 final kWeaponKinds = {
-  'staff': {
-    icon: 'icon/item/staff.png',
-    damageType: kDamageTypeBludgeon,
+  'sword': {
+    icon: 'icon/item/sword.png',
+    damageType: kDamageTypeSlash,
     attributes: {
-      speed: 12,
-      life: 300,
-      lifeMax: 300,
-      damage: 24,
-      criticalDamageHits: 10,
-      criticalDamageMultiply: 1.5,
+      speed: 10,
+      life: 200,
+      lifeMax: 200,
+      damage: 30,
+      criticalDamageHits: 7,
+      criticalDamageMultiply: 3.5,
     },
   },
   'sabre': {
@@ -30,16 +30,16 @@ final kWeaponKinds = {
       criticalDamageMultiply: 4,
     },
   },
-  'sword': {
-    icon: 'icon/item/sword.png',
-    damageType: kDamageTypeSlash,
+  'staff': {
+    icon: 'icon/item/staff.png',
+    damageType: kDamageTypeBludgeon,
     attributes: {
-      speed: 10,
-      life: 200,
-      lifeMax: 200,
-      damage: 30,
-      criticalDamageHits: 7,
-      criticalDamageMultiply: 3.5,
+      speed: 12,
+      life: 300,
+      lifeMax: 300,
+      damage: 24,
+      criticalDamageHits: 10,
+      criticalDamageMultiply: 1.5,
     },
   },
   'spear': {
@@ -54,46 +54,6 @@ final kWeaponKinds = {
       criticalDamageMultiply: 3.5,
     },
   },
-  // 'axe': {
-  //   icon: 'icon/item/axe.png',
-  //   attributes: {
-  //     speed: 10,
-  //     life: 250,
-  //     damage: 40,
-  //     criticalDamageHits: 7,
-  //     criticalDamageMultiply: 5,
-  //   },
-  // },
-  // 'halberd': {
-  //   icon: 'icon/item/halberd.png',
-  //   attributes: {
-  //     speed: 15,
-  //     life: 300,
-  //     damage: 50,
-  //     criticalDamageHits: 5,
-  //     criticalDamageMultiply: 5,
-  //   },
-  // },
-  // 'hammer': {
-  //   icon: 'icon/item/hammer.png',
-  //   attributes: {
-  //     speed: 20,
-  //     life: 400,
-  //     damage: 25,
-  //     criticalDamageHits: 7,
-  //     criticalDamageMultiply: 3.5,
-  //   },
-  // },
-  // 'dagger': {
-  //   icon: 'icon/item/dagger.png',
-  //   attributes: {
-  //     speed: 5,
-  //     life: 100,
-  //     damage: 15,
-  //     criticalDamageHits: 7,
-  //     criticalDamageMultiply: 3.5,
-  //   },
-  // },
 }
 
 struct Weapon {
@@ -149,6 +109,9 @@ struct Weapon {
       this.attributes.assign(attributes)
     }
     this.attributes.effects = {}
+
+    // 在此物品上装备的支持性对象
+    this.equippedSupports = []
 
     calculateItemStats(this)
   }

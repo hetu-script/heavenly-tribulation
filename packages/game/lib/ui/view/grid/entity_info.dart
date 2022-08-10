@@ -54,39 +54,41 @@ class EntityInfo extends StatelessWidget {
 
     final stats = entityData['stats'];
 
-    final effectData = stats['effects'] ?? {};
     final effects = <Widget>[];
-    for (final effect in effectData.values) {
-      final values = <String>[];
-      for (final value in effect['values']) {
-        final v = value['value'] as num;
-        final type = value['type'];
-        if (type == null || type == kValueTypeInt) {
-          values.add(v.toString());
-        } else if (type == kValueTypeFloat) {
-          values.add(v.toStringAsFixed(2));
-        } else if (type == kValueTypePercentage) {
-          values.add(v.toPercentageString());
-        } else {
-          engine.error('未知的效果数据类型：[$type]，效果对象数据：$entityData');
+    if (stats != null) {
+      final effectData = stats['effects'] ?? {};
+      for (final effect in effectData.values) {
+        final values = <String>[];
+        for (final value in effect['values']) {
+          final v = value['value'] as num;
+          final type = value['type'];
+          if (type == null || type == kValueTypeInt) {
+            values.add(v.toString());
+          } else if (type == kValueTypeFloat) {
+            values.add(v.toStringAsFixed(2));
+          } else if (type == kValueTypePercentage) {
+            values.add(v.toPercentageString());
+          } else {
+            engine.error('未知的效果数据类型：[$type]，效果对象数据：$entityData');
+          }
         }
-      }
-      final description = engine.locale
-          .getString(effect['description'], interpolations: values);
-      effects.add(
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.only(top: 2.0),
-                width: 275.0,
-                child: Text(description),
-              ),
-            ],
+        final description = engine.locale
+            .getString(effect['description'], interpolations: values);
+        effects.add(
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.only(top: 2.0),
+                  width: 275.0,
+                  child: Text(description),
+                ),
+              ],
+            ),
           ),
-        ),
-      );
+        );
+      }
     }
 
     return Material(
@@ -159,8 +161,8 @@ class EntityInfo extends StatelessWidget {
                       if (equipType == kEquipTypeCompanion)
                         Text(
                             '${engine.locale['life']}: ${stats['life']}/${stats['lifeMax']}'),
-                      if (entityType == kEntityCategoryWeapon ||
-                          entityType == kEntityCategoryProtect)
+                      if (equipType == kEquipTypeOffense ||
+                          equipType == kEquipTypeDefense)
                         Text(
                             '${engine.locale['durability']}: ${stats['life']}/${stats['lifeMax']}'),
                       if (equipType == kEquipTypeOffense) ...[

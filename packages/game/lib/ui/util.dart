@@ -9,7 +9,7 @@ String getNameFromId(String? id) {
   }
 }
 
-Iterable<String> getNamesFromEntityIds(Iterable ids) {
+Iterable<String> getNamesFromIds(Iterable ids) {
   if (ids.isNotEmpty) {
     return ids.map((id) => getNameFromId(id));
   } else {

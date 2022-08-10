@@ -37,10 +37,10 @@ class ProfileView extends StatelessWidget {
     final mother = getNameFromId(characterData['relationships']['motherId']);
     final spouse = getNameFromId(characterData['relationships']['spouseId']);
     final siblings =
-        getNamesFromEntityIds(characterData['relationships']['siblingIds'])
+        getNamesFromIds(characterData['relationships']['siblingIds'])
             .map((e) => Label(e));
     final childs =
-        getNamesFromEntityIds(characterData['relationships']['childrenIds'])
+        getNamesFromIds(characterData['relationships']['childrenIds'])
             .map((e) => Label(e));
 
     final personality = characterData['personality'];

@@ -120,7 +120,7 @@ class _DuelState extends State<Duel> {
               int? equipmentIndex = _char1Action!['equipmentIndex'];
               if (equipmentIndex != null) {
                 _entityTakeDamage(_char2Stats!['equipments'][equipmentIndex],
-                    _char1Action!['shareDamage']);
+                    _char1Action!['sharedDamage']);
               }
               _char1Action = getNextChar1Action();
             } else {
@@ -139,7 +139,7 @@ class _DuelState extends State<Duel> {
               int? equipmentIndex = _char2Action!['equipmentIndex'];
               if (equipmentIndex != null) {
                 _entityTakeDamage(_char1Stats!['equipments'][equipmentIndex],
-                    _char2Action!['shareDamage']);
+                    _char2Action!['sharedDamage']);
               }
               _char2Action = getNextChar2Action();
             } else {

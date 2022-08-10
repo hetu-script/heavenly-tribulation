@@ -76,7 +76,7 @@ struct Bandit {
     // this.icon = 'avatar/general.png'
     this.category = kEntityCategoryCharacter
     this.name = getLocaleString(isPirate ? _kPirateName : _kBanditName) + getLocaleString(this.kind)
-    this.id = 'npc.${Hash.uid4(2)}.${this.name}'
+    this.id = '${this.entityType}.${Hash.uid4(2)}.${this.name}'
     this.rarity = rarity ?? kCommon
     this.color = kRarity[this.rarity].color
     this.description = description ?? ''

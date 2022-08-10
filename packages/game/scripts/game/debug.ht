@@ -9,6 +9,7 @@ import 'maze/maze.ht'
 import 'entity/character/npc/villager.ht'
 import 'dialog.ht'
 import 'tile/hexagonal_tile.ht'
+import 'entity/skill/skill.ht'
 
 namespace debug {
   external fun setFogOfWar(value: bool)
@@ -74,12 +75,13 @@ namespace debug {
 // 测试战斗：随机生成两个准备好战斗的角色
 fun testDuel {
   setRandomSeed(1002)
-  final hero = Character(isMajorCharacter: false)
-  characterEquip(hero, MartialArts())
+  final hero = Character(isMajorCharacter: false, armed: false)
+  characterEquip(hero, Weapon(kind: 'sword'))
+  characterEquip(hero, WeaponArts(kind: 'sword', level: 1))
   // characterEquip(hero, Shield())
-  final companion = VillageWarrior()
-  characterEquip(companion, Weapon())
-  characterEquip(hero, companion)
+  // final companion = VillageWarrior()
+  // characterEquip(companion, Weapon())
+  // characterEquip(hero, companion)
 
   // final enemy = Character(isMajorCharacter: false)
   // final enemy = Bandit(kind: 'boss')
@@ -110,9 +112,10 @@ fun testMazeMountain {
   final maze = MountainMaze(
     name: '测试副本',
   )
-  final hero = Character()
+  final hero = Character(armed: false)
   entityAcquireMoney(hero, 200)
-  characterEquip(hero, MartialArts())
+  characterEquip(hero, Weapon(kind: 'sword'))
+  characterLearn(hero, WeaponArts(kind: 'sword', level: 1))
   // characterEquip(hero, Weapon())
   characterEquip(hero, Shield())
   entityAcquireItem(hero, Consumable.medicine(), count: 5)
