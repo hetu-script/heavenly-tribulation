@@ -14,9 +14,9 @@ final kCharacterAttributeNames = [
   'constitution',
   'spirituality',
   'willpower',
+  'perception',
   'dexterity',
   'intelligence',
-  'perception',
   'charisma',
 ]
 
@@ -167,27 +167,6 @@ fun getCharacterStats(character) {
       stats.equipments[i] = equipment.stats.clone()
     }
   }
-  // for (final i in range(1, kEquipmentMax.defense)) {
-  //   final equipData = character.equipments.defense[i]
-  //   if (equipData != null) {
-  //     final item = getEquipped(equipData, character)
-  //     stats.defense[i] = {
-  //       life: item.stats.life,
-  //       lifeMax: item.stats.lifeMax,
-  //     }
-  //   }
-  // }
-  // for (final i in range(1, kEquipmentMax.offense)) {
-  //   final equipData = character.equipments.offense[i]
-  //   if (equipData != null) {
-  //     final item = getEquipped(equipData, character)
-  //     stats.offense[i] = {
-  //       life: item.stats.life,
-  //       lifeMax: item.stats.lifeMax,
-  //       damage: item.stats.damage,
-  //     }
-  //   }
-  // }
   return stats
 }
 

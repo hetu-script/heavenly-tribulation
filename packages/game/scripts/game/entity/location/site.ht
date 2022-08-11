@@ -16,8 +16,6 @@ import '../common.ht'
 
 const kSiteHome = 'home'
 const kSiteCultivation = 'cultivation'
-const kSiteGang = 'gang'
-const kSiteReligion = 'religion'
 const kSiteBusiness = 'business'
 const kSiteNation = 'nation'
 const kSiteTradinghouse = 'tradinghouse'

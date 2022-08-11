@@ -10,8 +10,6 @@ import '../../game_entity_listview.dart';
 import '../../util.dart';
 
 const kOrganizationCategoryCultivation = 'cultivation';
-const kOrganizationCategoryGang = 'gang';
-const kOrganizationCategoryReligion = 'religion';
 const kOrganizationCategoryNation = 'nation';
 const kOrganizationCategoryBusiness = 'business';
 
@@ -94,26 +92,9 @@ class _OrganizationViewState extends State<OrganizationView> {
 
   @override
   Widget build(BuildContext context) {
-    String? leaderTitle;
-    switch (_organizationData['category']) {
-      case kOrganizationCategoryCultivation:
-        leaderTitle = engine.locale['cultivation.titleRank0'];
-        break;
-      case kOrganizationCategoryGang:
-        leaderTitle = engine.locale['gang.titleRank0'];
-        break;
-      case kOrganizationCategoryReligion:
-        leaderTitle = engine.locale['religion.titleRank0'];
-        break;
-      case kOrganizationCategoryNation:
-        leaderTitle = engine.locale['nation.titleRank0'];
-        break;
-      case kOrganizationCategoryBusiness:
-        leaderTitle = engine.locale['business.titleRank0'];
-        break;
-    }
+    final leaderTitle = _organizationData['rankTitles'][6];
 
-    assert(leaderTitle != null);
+    final category = _organizationData['category'];
 
     final layout = DefaultTabController(
       length: _tabs.length,
@@ -135,13 +116,21 @@ class _OrganizationViewState extends State<OrganizationView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                      '${engine.locale['headquarters']}: ${getNameFromId(_organizationData['headquartersId'])}'),
+                      '${engine.locale[category != kOrganizationCategoryNation ? 'headquarters' : 'capital']}: ${getNameFromId(_organizationData['headquartersId'])}'),
                   Text(
-                      '$leaderTitle:  ${getNameFromId(_organizationData['leaderId'])}'),
-                  Text(
-                      '${engine.locale['development']}: ${_organizationData['development']}'),
-                  Text(
-                      '${engine.locale['recruitMonth']}: ${_organizationData['yearlyRecruitMonth']}'),
+                      '$leaderTitle: ${getNameFromId(_organizationData['leaderId'])}'),
+                  if (category != kOrganizationCategoryNation) ...[
+                    Text(
+                        '${engine.locale['development']}: ${_organizationData['development']}'),
+                    Text(
+                        '${engine.locale['recruitMonth']}: ${_organizationData['yearlyRecruitMonth']}'),
+                  ],
+                  if (category == kOrganizationCategoryCultivation) ...[
+                    Text(
+                        '${engine.locale['fightSkillGenre']}: ${engine.locale[_organizationData['fightSkillGenre']]}'),
+                    Text(
+                        '${engine.locale['supportSkillGenre']}: ${engine.locale[_organizationData['supportSkillGenre']]}'),
+                  ],
                 ],
               ),
             ),

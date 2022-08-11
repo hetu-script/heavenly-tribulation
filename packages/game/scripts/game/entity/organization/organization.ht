@@ -13,13 +13,27 @@ const kOrganizationRecruitSuccessProbability = 0.4
 
 final kOrganizationCategories = [
   'cultivation',
-  'gang',
-  'religion',
   'nation',
   'business',
 ]
 
-final kEmpireRankTitles = {
+final kCultivationFightSkillGenre = [
+  'cultivation.kungfu',
+  // 'cultivation.arcana',
+  // 'cultivation.animal',
+  // 'cultivation.golem',
+  // 'cultivation.illusion',
+]
+
+final kCultivationSupportSkillGenre = [
+  'cultivation.craftsmanship',
+  'cultivation.alchemy',
+  // 'cultivation.array',
+  // 'cultivation.divination',
+  // "cultivation.scroll",
+]
+
+final kNationRankTitles = {
   '0': getLocaleString('nation.titleRank0'),
   '1': getLocaleString('nation.titleRank1'),
   '2': getLocaleString('nation.titleRank2'),
@@ -86,14 +100,12 @@ final kBusinessRankTitles = {
 }
 
 const kOrganizationCategoryCultivation = 'cultivation'
-const kOrganizationCategoryGang = 'gang'
-const kOrganizationCategoryReligion = 'religion'
 const kOrganizationCategoryBusiness = 'business'
 const kOrganizationCategoryNation = 'nation'
 
 final kOrganizationThinkings = {
   cultivation: [
-    'martialArtsAddiction',
+    'fightSkillAddiction',
     'strengthAdmiration',
     'masterRespect',
     'mentor',
@@ -142,6 +154,11 @@ struct Organization {
     leaderId,
     development = 0,
     rankTitles,
+    isHermit,
+    isReligious,
+    isIllegal,
+    fightSkillGenre,
+    supportSkillGenre,
   }) {
     assert(game.locations.containsKey(headquartersId))
     assert(game.characters.containsKey(leaderId))
@@ -205,7 +222,7 @@ struct Organization {
     final headquarters = game.locations[headquartersId]
     final leader = game.characters[leaderId]
     // 触发创派事件，创派事件和成为掌门是两个事件
-    final incidentContent = getLocaleString('incidentOrganizationCreate', interpolations: [
+    final incidentContent = getLocaleString('organizationCreate', interpolations: [
       leader.name,
       headquarters.name,
       this.name,
@@ -227,18 +244,24 @@ struct Organization {
       characterIds: [leaderId],
     )
 
+    this.isHermit = isHermit
+    this.isReligious = isReligious
+    this.isIllegal = isIllegal
+    this.fightSkillGenre = fightSkillGenre ?? random.nextIterable(kCultivationFightSkillGenre)
+    this.supportSkillGenre = supportSkillGenre ?? random.nextIterable(kCultivationSupportSkillGenre)
+
     when (this.category) {
-      'nation' -> {
-        this.rankTitles = rankTitles ?? kEmpireRankTitles
-      }
       'cultivation' -> {
-        this.rankTitles = rankTitles ?? kCultivationRankTitles
+        if (isReligious) {
+          this.rankTitles = rankTitles ?? kReligionRankTitles
+        } else if (isIllegal) {
+          this.rankTitles = rankTitles ?? kGangRankTitles
+        } else {
+          this.rankTitles = rankTitles ?? kCultivationRankTitles
+        }
       }
-      'gang' -> {
-        this.rankTitles = rankTitles ?? kGangRankTitles
-      }
-      'religion' -> {
-        this.rankTitles = rankTitles ?? kReligionRankTitles
+      'nation' -> {
+        this.rankTitles = rankTitles ?? kNationRankTitles
       }
       'business' -> {
         this.rankTitles = rankTitles ?? kBusinessRankTitles
@@ -262,16 +285,8 @@ struct Organization {
     //     
     //   }
     // }
-    this.library = {
-      '-1': [],
-      '0': [],
-      '1': [],
-      '2': [],
-      '3': [],
-      '4': [],
-      '5': [],
-      '6': [],
-    }
+
+    this.skills = {}
   }
 
   /// 国家是一种特殊的组织，单独有一个生成函数，并且单独保存
@@ -309,6 +324,23 @@ struct Organization {
     // 本国的门派
     this.organizationIds = []
   }
+}
+
+construct business({
+  name,
+  headquartersId,
+  leaderId,
+  development = 0,
+  rankTitles,
+}): this(
+  category: kOrganizationCategoryBusiness,
+  name: name,
+  headquartersId: headquartersId,
+  leaderId: leaderId,
+  development = 0,
+  rankTitles,
+) {
+
 }
 
 // fun getLeaderTitle(organization) {
@@ -451,7 +483,7 @@ fun addCharacterToOrganization(character, organization, { incidentOccured = true
   character.organizationId = organization.id
 
   if (incidentOccured) {
-    final incidentContent = getLocaleString('incidentEnlist', interpolations: [
+    final incidentContent = getLocaleString('organizationEnlist', interpolations: [
       character.name,
       organization.name,
     ])
@@ -595,12 +627,28 @@ fun addTerrainToNation(terrain, nation) {
 
 /// 将某个功法记录在这个组织的 skillRecords 中
 /// 操作方式类似人物装备道具
-fun organizationRecordSkill({organization, rank, skill, requirement}) {
+fun organizationRecordSkill({organization, skill}) {
   assert(organization != null)
-  rank ??= -1
   assert(skill != null)
-  organization.library[rank].add({
-    requirement,
-    skill: skill.clone(),
-  })
+  final clone = skill.clone()
+  resetSkillLevel(clone)
+  organization.skills[clone.id] = clone
+
+  final incidentContent = getLocaleString('organizationRecordSkill', interpolations: [
+    organization.name,
+    skill.name,
+  ])
+  Incident(
+    organizationId: organization.id,
+    content: incidentContent,
+  )
 }
+// fun organizationRecordSkill({organization, rank, skill, requirement}) {
+//   assert(organization != null)
+//   rank ??= -1
+//   assert(skill != null)
+//   organization.skills[rank].add({
+//     requirement,
+//     skill: skill.clone(),
+//   })
+// }

@@ -1,7 +1,7 @@
 import '../effect/effect.ht'
 
-const _kCompanionAssistCooldown = 5
-const _kCompanionDefendCooldown = 5
+const _kCompanionAssistCooldown = 15
+const _kCompanionDefendCooldown = 15
 const _kCompanionDefendPercentage = 1.0
 
 // 单纯的随从
@@ -21,7 +21,7 @@ fun generateBattleCompanionData(companionData, battleEntity) {
 
   final assist = Effect(
     category: 'companion',
-    handlerType: kEffectCategoryDamage,
+    handlerType: kEffectCategoryOffense,
     id: kEffectAddDamageOnCooldown,
     values: [
       EffectValue(value: companionData.stats.damage),

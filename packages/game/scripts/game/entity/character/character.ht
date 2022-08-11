@@ -29,7 +29,7 @@ final kMajorMotivations = [
   'wealth',
   'service',
   'eternity',
-  'arcane',
+  'dao',
   'throne',
   'expert',
 ]
@@ -320,7 +320,7 @@ struct Character {
         final mother = game.characters[motherId]
         this.birthPlaceId = locationId
         // 出生事件会修改自身，需要放在最后处理
-        final incidentContent = getLocaleString('incidentBorn',
+        final incidentContent = getLocaleString('characterBorn',
           interpolations: [
             father.name,
             mother.name,
@@ -462,17 +462,17 @@ fun _characterFirstMet(subject, target, [causeIncident, causeIncidentScore]) {
 
   var incidentContent
   if (metScore < -_kCharacterImpressionCheckpoint) {
-    incidentContent = getLocaleString('incidentFirstMeetHate', interpolations: [
+    incidentContent = getLocaleString('characterFirstMeetHate', interpolations: [
       subject.name,
       target.name,
     ])
   } else if (metScore > _kCharacterImpressionCheckpoint) {
-    incidentContent = getLocaleString('incidentFirstMeetLike', interpolations: [
+    incidentContent = getLocaleString('characterFirstMeetLike', interpolations: [
       subject.name,
       target.name,
     ])
   } else {
-    incidentContent = getLocaleString('incidentFirstMeetNormal', interpolations: [
+    incidentContent = getLocaleString('characterFirstMeetNormal', interpolations: [
       subject.name,
       target.name,
     ])
@@ -503,6 +503,14 @@ fun _calculateIncidentScore(character, incident) {
 fun characterExperiencedIncident(character, incident) {
   assert(character != null)
   assert(incident != null)
+  if (character.memory.witnessed.contains(incident.index)) {
+    engine.warning('角色 ${character.name} 已经见证过事件：[${incident.description}]')
+    return
+  }
+  if (character.memory.experienced.contains(incident.index)) {
+    engine.warning('角色 ${character.name} 已经经历过事件：[${incident.description}]')
+    return
+  }
   character.memory.experienced.add(incident.index)
   if (character.id in incident.subjectIds) {
     character.personality.ideal += character.personality.ideal * incident.ideal / 100
@@ -600,7 +608,7 @@ fun setCharacterHome(character, location, { organizationName }) {
   if (organizationName == null) {
     if (!location.residingCharacterIds.contains(character.id)) {
       location.residingCharacterIds.add(character.id)
-      incidentContent = getLocaleString('incidentSettle', interpolations: [
+      incidentContent = getLocaleString('characterSettle', interpolations: [
         character.name,
         location.name,
       ])
@@ -614,7 +622,7 @@ fun setCharacterHome(character, location, { organizationName }) {
     if (organizationData != null) {
       if (!organizationData.characterIds.contains(character.id)) {
         organizationData.characterIds.add(character.id)
-        incidentContent = getLocaleString('incidentSettleOrganization', interpolations: [
+        incidentContent = getLocaleString('characterSettleOrganization', interpolations: [
           character.name,
           location.name,
           organizationName,

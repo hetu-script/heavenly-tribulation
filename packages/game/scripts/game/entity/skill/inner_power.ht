@@ -5,35 +5,7 @@ import 'common.ht'
 import '../item/common.ht'
 import '../effect/common.ht'
 
-final kMartialArtsIcons = [
-]
-
-final kMartialArtsKinds = {
-  // 伤害一般，耐久低，出招速度一般，收招速度快
-  'boxing': {
-    damageType: kDamageTypeBludgeon,
-    icon: 'icon/skill/martial_0.png',
-    attributes: {
-      speed: 6,
-      damage: 20,
-      criticalCooldown: ,
-      criticalDamageMultiply: 1.5,
-    },
-  },
-  // 伤害一般，耐久低，出招速度一般，收招速度快
-  'wrestling': {
-    damageType: kDamageTypeBludgeon,
-    icon: 'icon/skill/martial_0.png',
-    attributes: {
-      speed: 10,
-      damage: 10,
-      criticalCooldown: ,
-      criticalDamageMultiply: 2,
-    },
-  },
-}
-
-struct MartialArts {
+struct InnerPower {
   construct ({
     name,
     rarity,
@@ -47,19 +19,18 @@ struct MartialArts {
     levelMax,
     attributes,
   }) {
-    this.kind = kind ?? random.nextIterable(kMartialArtsKinds.keys) // 枪、剑、斧等等
-
     this.name = name
     this.rarity = rarity ?? kCommon
     if (!this.name) {
       final nameLength = kRarity[this.rarity].level > 4 ? 3 : kRarity[this.rarity].level > 2 ? 2 : 1
-      final randomName = generateSkillName(category: this.kind, length: nameLength)
+      final randomName = generateSkillName(category: 'arcana', length: nameLength)
       this.name = randomName.name
     }
     this.color = kRarity[this.rarity].color
 
     this.entityType = kEntityTypeSkill // 人物、地点、物品、技能等等
-    this.category = kEntityCategoryMartialArts // 武器、防护、斗技、玄功等等
+    this.category = kEntityCategoryArcana // 武器、防护、斗技、玄功等等
+    this.kind = 'innerPower'
 
     this.creatorId = creatorId
     this.createdTime = createdTime
@@ -67,44 +38,39 @@ struct MartialArts {
     this.id = '${this.entityType}.${Hash.uid4(2)}.${this.name}'
 
     this.isEquippable = true
-    this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
+    this.equipType = kEquipTypeArcana // 装备类型：进攻、如果没有就是不可装备
 
-    this.icon = kMartialArtsKinds[this.kind].icon
+    this.icon = 'icon/skill/arcane_0.png'
 
     // 难度，升级需要的经验值的数量
     this.difficulty = difficulty ?? 1
     // 技能等级，提升等级需要练习
     // 刚学会时是-1级，此时无法装备
     this.level = level ?? -1
-    this.levelMax = levelMax ?? 0 // 此技能最大经验值
+    // 此技能最大等级，注意技能最大等级和其对应的效果的最大等级无关
+    this.levelMax = levelMax ?? 0
     this.exp = 0 // 当前经验值
     this.expForNextLevel = expForLevel(this.difficulty, this.level + 1) // 下一等级需要的经验值
 
     this.cost = {
       // 练习时每个tick的消耗
       practice: {
-        stamina: 1,
       },
       // 战斗时每次触发效果的消耗
       battle: {
-        stamina: 25,
       },
       // 装备技能时的资源固定减额
-      equip: {}
+      equip: {
+      },
     }
-
-    this.attributes = {
-      ...kMartialArtsKinds[this.kind].attributes,
-    }
-    this.damageType = kMartialArtsKinds[this.kind].damageType
 
     if (attributes) {
       this.attributes.assign(attributes)
     }
     // -1级技能也显示0级技能的效果
     this.attributes.effects = {}
-    final effect = getEffect(category: this.kind, level: this.level >= 0 ? this.level : 0)
-    this.attributes.effects[effect.id] = effect
+    // final effect = getEffect(category: 'arcana', level: this.level >= 0 ? this.level : 0)
+    // this.attributes.effects[effect.id] = effect
 
     // 在此物品上装备的支持性对象
     this.equippedSupports = []

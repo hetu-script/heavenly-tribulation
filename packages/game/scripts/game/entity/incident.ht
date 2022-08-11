@@ -54,11 +54,6 @@ struct Incident {
       characterExperiencedIncident(char, this)
     }
 
-    if (organizationId) {
-      final organization = game.organizations[organizationId]
-      organizationExperiencedIncident(organization, this)
-    }
-
     for (final id in objectIds) {
       final char = game.characters[id]
       assert(char != null)
@@ -75,6 +70,11 @@ struct Incident {
     //   final char = game.characters[id]
     //   characterWitnessIncident(char, this)
     // }
+    final organization
+    if (organizationId) {
+      organization = game.organizations[organizationId]
+      organizationExperiencedIncident(organization, this)
+    }
 
     if (isGlobal) {
       for (final char of game.characters) {
@@ -82,6 +82,18 @@ struct Incident {
         characterWitnessIncident(char, this)
       }
     } else if (!isPrivate) {
+      if (organization) {
+        if (!isPrivate) {
+          for (final charId in organization.characterIds.keys) {
+            if (charId in subjectIds) continue
+            if (charId in objectIds) continue
+            if (charId in witnessIds) continue
+            final character = game.characters[charId]
+            characterWitnessIncident(char, this, witnessed: true)
+          }
+        }
+      }
+      
       if (locationId) {
         final location = game.locations[locationId]
         for (final id in location.dwellingCharacterIds) {

@@ -185,8 +185,8 @@ fun getLocationSiteById(location, siteId: str) {
 }
 
 fun discoverLocation(location) {
-  if (location.isDiscovered) return
-  location.isDiscovered = true
+  if (location.flags.isDiscovered) return
+  location.flags.isDiscovered = true
   setWorldMapCaption(location.tilePosition.left, location.tilePosition.top, location.name)
   if (location.category == kLocationCategoryIsland) {
     final tile = currentWorld.terrains[location.terrainIndex]

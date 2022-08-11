@@ -54,7 +54,7 @@
             value: 1.0,
             type: 'percentage',
           },
-          { value: 3 },
+          { value: 10 },
         ],
       },
     ],
@@ -90,17 +90,18 @@
     ],
   },
   sword: {
-    decreaseDamage: [
+    decreaseDamageOnCooldown: [
       {
         category: 'sword',
         handlerType: 'defend',
-        id: 'decreaseDamage',
-        description: 'effect.defend.active.decreaseDamage',
+        id: 'decreaseDamageOnCooldown',
+        description: 'effect.defend.active.decreaseDamageOnCooldown',
         values: [
           {
             value: 0.4,
             type: 'percentage',
           },
+          { value: 12 },
         ],
       },
     ],

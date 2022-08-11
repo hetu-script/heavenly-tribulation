@@ -1,6 +1,6 @@
-import 'common.ht'
 import 'spell/spell.json5' as spellNames
+import '../random.ht'
 
-fun generateSpellName({category: str}) {
-  final name = random.nextIterable(commonNames) + random.nextIterable(spellNames)
+fun generateSpellName() {
+
 }

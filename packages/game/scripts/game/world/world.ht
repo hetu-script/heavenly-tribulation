@@ -459,22 +459,6 @@ fun createWorldMap({
     addTerrainToNation(terrain, nation)
     nations.add(nation)
   }
-  
-  // 一个国家将其疆域扩展到周边的一个格子
-  // 返回值表示是否扩展成功
-  fun expandNation(nation) {
-    // engine.info('processing nation: ${nation}')
-    assert(nation.borderIndexes != null && nation.borderIndexes.isNotEmpty)
-    // avoid editing iterable while iterating
-    for (final index in random.shuffle(nation.borderIndexes)) {
-      final terrain = currentWorld.terrains[index]
-      if (terrain.nationId == null && !terrain.isWater) {
-        addTerrainToNation(terrain, nation)
-        return true
-      }
-    }
-    return false
-  }
 
   // 随机生成每个组织的创建时间，分布在20年的范围内，时间固定为某月1号
 
@@ -546,6 +530,7 @@ fun createWorldMap({
         var headquarters
 
         final cultivationKind = random.nextIterable(_cultivationKinds)
+        var isHermit = false
         when (cultivationKind) {
           'location' -> {
             do {
@@ -555,6 +540,7 @@ fun createWorldMap({
             } while (headquarters.hasCultivation)
           }
           'mountain' -> {
+            isHermit = true
             // 临时生成一个新的隐藏据点
             var mountainTile
             do {
@@ -573,6 +559,7 @@ fun createWorldMap({
             // mountainTile.caption = headquarters.name
           }
           'island' -> {
+            isHermit = true
             // 临时生成一个新的隐藏据点
             var islandTile
             do {
@@ -609,11 +596,7 @@ fun createWorldMap({
           nationId: headquarters.nationId,
           headquartersId: headquarters.id,
           leaderId: leader.id,
-        )
-        
-        organizationRecordSkill(
-          organization: organization,
-          skill: MartialArts(),
+          isHermit: isHermit,
         )
 
         ++createdCultivationOrganizationCount
@@ -625,73 +608,21 @@ fun createWorldMap({
 
     // 每年一次
     if (game.timestamp % kTicksPerYear == 0) {
-      // 国家扩张
-      for (final nation in nations) {
-        expandNation(nation)
-      }
-      
       // 产生新的在野角色
       if (game.characters.length < characterNumber) {
         // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
-        final locationId = random.nextIterable(game.locations.keys)
-        final location = game.locations[locationId]
+        final id = random.nextIterable(game.locations.keys)
+        final location = game.locations[id]
         final character = Character(
           locationId: location.id,
           birthTimestamp: createRandomBirthTimestamp(min: 15, max: 50),
         )
       }
 
-      // 为组织招募新的角色
-      // engine.info('为组织招募新的角色')
+      // 国家和组织扩张
       for (final id in random.shuffle(game.organizations.keys)) {
         final organization = game.organizations[id]
-        // 暂时不为国家组织添加成员
-        if (organization.category == kOrganizationCategoryNation) continue
-
-        if (organizationMemberReachMax(organization) && organization.development < kOrganizationDevelopmentMax) {
-          // engine.info('提升组织发展度')
-          increaseOrganizationDevelopment(organization)
-        } else {
-          // 从最低等级开始，尝试提升成员等级
-          for (final rank in range(kOrganizationRankMax)) {
-            final membersOfThisRank = getOrganizationMemberIdsOfRank(organization, rank)
-            final membersOfHigherRank = getOrganizationMemberIdsOfRank(organization, rank + 1)
-            if (membersOfThisRank.length >= maxMemberOfRank(rank)) {
-              if (membersOfHigherRank.length < maxMemberOfRank(rank + 1)) {
-                final memberId = random.nextIterable(membersOfThisRank)
-                final member = game.characters[memberId]
-                setCharacterRank(member, organization, rank + 1)
-                break
-              }
-            }
-          }
-        }
-        
-        var location = game.locations[organization.headquartersId]
-        if (location.residingCharacterIds.isEmpty) {
-          // 组织据点本身没有可用的人才（一般是因为是隐士据点）
-          if (random.nextDouble() < kOrganizationRecruitOtherLocationProbability) {
-            for (final otherLocation of game.locations) {
-              if (otherLocation.id == location.id) continue
-
-              if (otherLocation.residingCharacterIds.isNotEmpty) {
-                location = otherLocation
-                break
-              }
-            }
-          }
-        }
-
-        if (location.residingCharacterIds.isNotEmpty) {
-          if (random.nextDouble() < kOrganizationRecruitSuccessProbability) {
-            final characterId = random.nextIterable(location.residingCharacterIds)
-            final character = game.characters[characterId]
-            if (character.organizationId != null) {
-              engine.error(character.name, character.organizationId, organization.id)
-            }
-            addCharacterToOrganization(character, organization)
-          }
-        }
+        updateOrganizationYearly(organization)
       }
       
       // 为角色添加家庭关系
@@ -746,7 +677,7 @@ fun createWorldMap({
                   }
                 }
                 characterFirstMet(char, otherChar)
-                final incidentContent = getLocaleString('incidentMarriage', interpolations: [
+                final incidentContent = getLocaleString('characterMarriage', interpolations: [
                     char.name,
                     otherChar.name,
                     home.name,

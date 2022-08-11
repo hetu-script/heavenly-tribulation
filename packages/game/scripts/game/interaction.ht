@@ -22,6 +22,9 @@ import 'entity/common.ht'
 fun onHeroMovedOnWorldMap(left, top) {
   engine.info('玩家移动到了: ${left}, ${top}')
   final tile = currentWorld.terrains[tilePos2Index(left, top, currentWorld.width)]
+  if (!tile.flags.isDiscovered) {
+    
+  }
   // if (tile.entityId && !tile.hasSearched) {
   //   // TODO: 感知阈值
   //   showDialogByLocaleKeys(['sensedUndiscovered'], character: hero)
@@ -38,7 +41,7 @@ fun onHeroMovedOnWorldMap(left, top) {
 /// 异步函数，会在显示地点窗口之前执行，执行完毕后才会进入地点
 fun onHeroEnteredLocation(location) async {
   engine.info('玩家进入了: ${location.name}')
-  if (!location.isDiscovered) {
+  if (!location.flags.isDiscovered) {
     if (location.category == kLocationCategoryCity) {
       discoverLocation(location)
       final message = getLocaleString('firstVisitCity', interpolations: [location.name])
@@ -210,7 +213,7 @@ fun handleWorldTerrainInteraction(left, top) {
         final undiscoveredLocation
         if (locationId) {
           final location = game.locations[locationId]
-          if (!location.isDiscovered) {
+          if (!location.flags.isDiscovered) {
             undiscoveredLocation = location
           }
         }
@@ -681,8 +684,6 @@ fun handleSiteInteraction(locationId: str, siteId: str) {
   when (site.category) {
     'home' -> _handleHomeInteraction(site)
     'cultivation' -> _handleCultivationInteraction(site)
-    'gang' -> _handleGangInteraction(site)
-    'religion' -> _handleReligionInteraction(site)
     'tradinghouse' -> _handleTradingHouseInteraction(site)
     'workshop' -> _handleWorkshopInteraction(site)
     'restaurant' -> _handleRestaurantInteraction(site)

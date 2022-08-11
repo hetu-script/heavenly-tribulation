@@ -111,7 +111,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
         engine.invoke('getLocationById', positionalArgs: [locationId]);
     await engine
         .invoke('onHeroEnteredLocation', positionalArgs: [locationData]);
-    if (locationData['isDiscovered'] == true) {
+    if (locationData['flags']['isDiscovered'] == true) {
       showDialog(
         context: context,
         barrierColor: Colors.transparent,

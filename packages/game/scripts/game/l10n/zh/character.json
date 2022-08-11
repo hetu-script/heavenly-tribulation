@@ -43,7 +43,7 @@
   "knowledgement": "知识",
   "wilderness": "自然",
   "politics": "政治",
-  "martialArts": "拳脚功夫",
+  "kungfu": "拳脚功夫",
   "leadership": "领导",
   "management": "管理",
 
@@ -87,7 +87,7 @@
   "wealth": "金钱",
   "service": "出世",
   "eternity": "长生",
-  "arcane": "悟道",
+  "dao": "悟道",
   "throne": "霸者",
   "expert": "达人",
   "recruitment": "加入组织",
@@ -124,7 +124,7 @@
   "jealousness": "嫉妒",
   "anger": "易怒",
 
-  "martialArtsAddiction": "武痴",
+  "fightSkillAddiction": "武痴",
   "strengthAdmiration": "强者为先",
   "masterRespect": "师门礼仪",
   "mentor": "传道",

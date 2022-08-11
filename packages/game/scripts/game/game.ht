@@ -24,9 +24,10 @@ struct Game {
 
     this.timestamp = 0
 
-    this.characters = {}
     this.npcs = {}
     this.babies = {}
+    
+    this.characters = {}
     this.locations = {}
     this.organizations = {}
 

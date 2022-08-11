@@ -1,5 +1,13 @@
 import '../effect/common.ht'
 import '../common.ht'
+import '../../l10n.ht'
+import '../../game.ht'
+
+final kFightSkills = [
+  'kungfu', // 主技能，拳脚
+  'weapon_arts', // 副技能，武器招法
+  'arcana_arts', // 副技能，内功
+]
 
 fun calculateSkillStats(skill) {
   skill.stats = skill.attributes.clone()

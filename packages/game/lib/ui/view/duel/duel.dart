@@ -54,10 +54,10 @@ class _DuelState extends State<Duel> {
   HTStruct? _data;
   int _frames = 0;
   List<String> _messages = [];
-  int _char1ActionIter = 0, _char2ActionIter = 0;
   int _char1Ticks = 0, _char2Ticks = 0;
   double _char1Cooldown = 0, _char2Cooldown = 0;
-  HTStruct? _char1Action, _char2Action;
+  HTStruct? _action, _char1Action, _char2Action;
+  int _actionIter = 0;
   HTStruct? _char1InitialStats,
       _char1Stats,
       _char1ResultStats,
@@ -101,52 +101,51 @@ class _DuelState extends State<Duel> {
     _char1ResultStats = _data!['resultStats']['char1'];
     _char2ResultStats = _data!['resultStats']['char2'];
     _reset();
-    _char1Action = getNextChar1Action();
-    _char2Action = getNextChar2Action();
+    _action = getNextAction();
     _finished = false;
     _timer?.cancel();
     _timer = Timer.periodic(
       const Duration(milliseconds: 100),
       (Timer timer) {
         setState(() {
-          ++_frames;
-          if (_char1Action != null) {
-            final char1speed = _char1Action!['speed'];
-            if (_char1Ticks >= char1speed) {
-              _char1Ticks = 0;
-              _char1Cooldown = 0;
-              _messages.add(_char1Action!['message']);
-              _entityTakeDamage(_char2Stats!, _char1Action!['damage']);
-              int? equipmentIndex = _char1Action!['equipmentIndex'];
-              if (equipmentIndex != null) {
-                _entityTakeDamage(_char2Stats!['equipments'][equipmentIndex],
-                    _char1Action!['sharedDamage']);
+          if (_action != null) {
+            final int speed = _action!['speed'];
+            if (_action?['isChar1Action'] == true) {
+              _char1Action = _action;
+              if (_char1Ticks >= speed) {
+                _char1Ticks = 0;
+                _char1Cooldown = 0;
+                _messages.add(_action!['message']);
+                _entityTakeDamage(_char2Stats!, _action!['damage']);
+                int? equipmentIndex = _action!['equipmentIndex'];
+                if (equipmentIndex != null) {
+                  _entityTakeDamage(_char2Stats!['equipments'][equipmentIndex],
+                      _action!['sharedDamage']);
+                }
+                _action = getNextAction();
               }
-              _char1Action = getNextChar1Action();
+              _char1Cooldown = speed > 0 ? _char1Ticks / speed : 1.0;
             } else {
-              ++_char1Ticks;
+              _char2Action = _action;
+              if (_char2Ticks >= speed) {
+                _char2Ticks = 0;
+                _char2Cooldown = 0;
+                _messages.add(_action!['message']);
+                _entityTakeDamage(_char1Stats!, _action!['damage']);
+                int? equipmentIndex = _action!['equipmentIndex'];
+                if (equipmentIndex != null) {
+                  _entityTakeDamage(_char1Stats!['equipments'][equipmentIndex],
+                      _action!['sharedDamage']);
+                }
+                _action = getNextAction();
+              }
+              _char2Cooldown = speed > 0 ? _char2Ticks / speed : 1.0;
             }
-            _char1Cooldown = char1speed > 0 ? _char1Ticks / char1speed : 1.0;
           }
 
-          if (_char2Action != null) {
-            final char2speed = _char2Action!['speed'];
-            if (_char2Ticks >= char2speed) {
-              _char2Ticks = 0;
-              _char2Cooldown = 0;
-              _messages.add(_char2Action!['message']);
-              _entityTakeDamage(_char1Stats!, _char2Action!['damage']);
-              int? equipmentIndex = _char2Action!['equipmentIndex'];
-              if (equipmentIndex != null) {
-                _entityTakeDamage(_char1Stats!['equipments'][equipmentIndex],
-                    _char2Action!['sharedDamage']);
-              }
-              _char2Action = getNextChar2Action();
-            } else {
-              ++_char2Ticks;
-            }
-            _char2Cooldown = char2speed > 0 ? _char2Ticks / char2speed : 1.0;
-          }
+          ++_frames;
+          ++_char1Ticks;
+          ++_char2Ticks;
 
           if (_frames > _data!['frames']) {
             timer.cancel();
@@ -186,32 +185,21 @@ class _DuelState extends State<Duel> {
 
   void _reset() {
     _frames = 0;
-    _char1ActionIter = 0;
-    _char2ActionIter = 0;
+    _actionIter = 0;
     _char1Ticks = 0;
     _char2Ticks = 0;
     _char1Cooldown = 0;
     _char2Cooldown = 0;
   }
 
-  HTStruct? getNextChar1Action() {
-    if (_data!['actions']['char1'].isEmpty) return null;
-    if (_char1ActionIter >= _data!['actions']['char1'].length) {
-      _char1ActionIter = 0;
+  HTStruct? getNextAction() {
+    if (_data!['actions'].isEmpty) return null;
+    if (_actionIter >= _data!['actions'].length) {
+      _actionIter = 0;
     }
-    final item = _data!['actions']['char1'][_char1ActionIter];
-    ++_char1ActionIter;
-    return item;
-  }
-
-  HTStruct? getNextChar2Action() {
-    if (_data!['actions']['char2'].isEmpty) return null;
-    if (_char2ActionIter >= _data!['actions']['char2'].length) {
-      _char2ActionIter = 0;
-    }
-    final item = _data!['actions']['char2'][_char2ActionIter];
-    ++_char2ActionIter;
-    return item;
+    final action = _data?['actions'][_actionIter];
+    ++_actionIter;
+    return action;
   }
 
   void _entityTakeDamage(HTStruct data, num damage) {

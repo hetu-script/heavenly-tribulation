@@ -85,7 +85,7 @@ fun testDuel {
 
   // final enemy = Character(isMajorCharacter: false)
   // final enemy = Bandit(kind: 'boss')
-  // characterEquip(enemy, MartialArts())
+  // characterEquip(enemy, Kungfu())
   // characterEquip(enemy, Weapon())
 
   final enemy = Beast()
@@ -136,7 +136,7 @@ fun testMazeCultivationRecruit {
     organizationName: '天玑堂',
   )
   final hero = Character()
-  characterEquip(hero, MartialArts())
+  characterEquip(hero, Kungfu())
   characterEquip(hero, Weapon())
   characterEquip(hero, Shield())
   entityAcquireItem(hero, Consumable.medicine(), count: 5)

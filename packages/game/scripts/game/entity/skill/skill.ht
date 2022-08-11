@@ -1,3 +1,4 @@
-export 'martial_arts.ht'
-export 'weapon_arts.ht'
 export 'common.ht'
+export 'kungfu.ht'
+export 'weapon_arts.ht'
+export 'inner_power.ht'

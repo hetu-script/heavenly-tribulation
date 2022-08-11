@@ -8,13 +8,13 @@
 
   "effect.persist.addDamage": "基础伤害增加：{0}",
 
-  "effect.damage.addDamageOnCooldown": "增加攻击伤害：{0} ，冷却时间：{1}",
+  "effect.damage.addDamageOnCooldown": "增加攻击伤害：{0} ，冷却时间：{1}f",
 
-  "effect.afterHit.counterOnCooldown": "命中时使对方硬直 {0}f，冷却时间：{1}",
+  "effect.afterHit.counterOnCooldown": "命中时使对方硬直 {0}f，冷却时间：{1}f",
 
   "effect.defend.decreaseDamage": "受击时抵御 {0} 的伤害",
+  "effect.defend.decreaseDamageOnCooldown": "受击时抵御 {0} 的伤害，冷却时间：{1}f",
 
   "effect.defend.active.decreaseDamage": "若此单位处于准备阶段，受击时抵御 {0} 的伤害",
-
-  "effect.defend.decreaseDamageOnCooldown": "受击时抵御 {0} 的伤害，冷却时间：{1}"
+  "effect.defend.active.decreaseDamageOnCooldown": "若此单位处于准备阶段，受击时抵御 {0} 的伤害，冷却时间：{1}f"
 }

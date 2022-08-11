@@ -132,14 +132,15 @@ const kEntityTypeSite = 'site'
 // category是界面上显示的对象类型文字
 const kEntityCategoryCharacter = 'character'
 const kEntityCategoryBeast = 'beast'
+const kEntityCategoryMoney = 'money'
 const kEntityCategoryWeapon = 'weapon'
 const kEntityCategoryProtect = 'protect'
 const kEntityCategoryTalisman = 'talisman'
 const kEntityCategoryConsumable = 'consumable'
 const kEntityCategoryMaterial = 'material'
-const kEntityCategoryMartialArts = 'martialArts'
+const kEntityCategoryKungfu = 'kungfu'
 const kEntityCategoryWeaponArts = 'weaponArts'
-const kEntityCategoryMoney = 'money'
+const kEntityCategoryArcana = 'arcana'
 
 // 可食用的物品类型，这里的类型只影响文字描述。
 const kEntityConsumableKindMedicine = 'medicine'

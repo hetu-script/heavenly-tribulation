@@ -5,25 +5,26 @@ import '../item/common.ht'
 import '../effect/common.ht'
 import '../../random.ht'
 
-final kWeaponArtsIcons = [
-]
-
-final kWeaponArtsKinds = {
-  'sword': {
+final kKungfuKinds = {
+  'boxing': {
+    damageType: kDamageTypeBludgeon,
     icon: 'icon/skill/martial_0.png',
+    attributes: {
+      speed: 6,
+      damage: 20,
+    },
   },
-  'sabre': {
+  'wrestling': {
+    damageType: kDamageTypeBludgeon,
     icon: 'icon/skill/martial_0.png',
-  },
-  'staff': {
-    icon: 'icon/skill/martial_0.png',
-  },
-  'spear': {
-    icon: 'icon/skill/martial_0.png',
+    attributes: {
+      speed: 10,
+      damage: 10,
+    },
   },
 }
 
-struct WeaponArts {
+struct Kungfu {
   construct ({
     name,
     rarity,
@@ -37,7 +38,7 @@ struct WeaponArts {
     levelMax,
     attributes,
   }) {
-    this.kind = kind ?? random.nextIterable(kWeaponArtsKinds.keys) // 枪、剑、斧等等
+    this.kind = kind ?? random.nextIterable(kKungfuKinds.keys) // 枪、剑、斧等等
 
     this.name = name
     this.rarity = rarity ?? kCommon
@@ -49,7 +50,7 @@ struct WeaponArts {
     this.color = kRarity[this.rarity].color
 
     this.entityType = kEntityTypeSkill // 人物、地点、物品、技能等等
-    this.category = kEntityCategoryWeaponArts // 武器、防护、斗技、玄功等等
+    this.category = kEntityCategoryKungfu // 武器、防护、斗技、玄功等等
 
     this.creatorId = creatorId
     this.createdTime = createdTime
@@ -57,16 +58,17 @@ struct WeaponArts {
     this.id = '${this.entityType}.${Hash.uid4(2)}.${this.name}'
 
     this.isEquippable = true
-    this.equipType = kEquipTypeSupport // 装备类型：进攻、如果没有就是不可装备
+    this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
 
-    this.icon = kWeaponArtsKinds[this.kind].icon
+    this.icon = kKungfuKinds[this.kind].icon
 
     // 难度，升级需要的经验值的数量
     this.difficulty = difficulty ?? 1
     // 技能等级，提升等级需要练习
     // 刚学会时是-1级，此时无法装备
-    this.level = level != null ? level - 1 : -1
-    this.levelMax = levelMax ?? 0 // 此技能最大经验值
+    this.level = level ?? -1
+    // 此技能最大等级，注意技能最大等级和其对应的效果的最大等级无关
+    this.levelMax = levelMax ?? 0
     this.exp = 0 // 当前经验值
     this.expForNextLevel = expForLevel(this.difficulty, this.level + 1) // 下一等级需要的经验值
 
@@ -77,13 +79,17 @@ struct WeaponArts {
       },
       // 战斗时每次触发效果的消耗
       battle: {
-        stamina: 5,
+        stamina: 25,
       },
       // 装备技能时的资源固定减额
       equip: {}
     }
-    
-    this.attributes = {}
+
+    this.attributes = {
+      ...kKungfuKinds[this.kind].attributes,
+    }
+    this.damageType = kKungfuKinds[this.kind].damageType
+
     if (attributes) {
       this.attributes.assign(attributes)
     }
@@ -91,6 +97,9 @@ struct WeaponArts {
     this.attributes.effects = {}
     final effect = getEffect(category: this.kind, level: this.level >= 0 ? this.level : 0)
     this.attributes.effects[effect.id] = effect
+
+    // 在此物品上装备的支持性对象
+    this.equippedSupports = []
 
     calculateSkillStats(this)
   }

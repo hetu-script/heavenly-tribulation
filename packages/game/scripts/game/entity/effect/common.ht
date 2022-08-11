@@ -30,7 +30,7 @@ const kEffectCategoryConsume = 'consume'
 // 受击时触发的效果
 const kEffectCategoryDefend = 'defend'
 // 造成伤害时触发的改变伤害数值的效果
-const kEffectCategoryDamage = 'damage'
+const kEffectCategoryOffense = 'offense'
 // 造成伤害后触发的效果
 const kEffectCategoryAfterHit = 'afterHit'
 

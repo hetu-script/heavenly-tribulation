@@ -2,18 +2,16 @@
   "experienced": "经历",
   "history": "历史",
   "witnessed": "见闻",
-  "incidentFirstMeetNormal": "{0} 认识了 {1}。",
-  "incidentFirstMeetHate": "{0} 认识了 {1}，对其印象不太好。",
-  "incidentFirstMeetLike": "{0} 认识了 {1}，对其十分喜欢。",
-  "incidentOrganizationCreate": "{0} 在 {1} 创建了 {2}。",
-  "incidentEnlist": "{0} 加入了 {1}。",
-  "incidentSettle": "{0} 在 {1} 安家了。",
-  "incidentSettleOrganization": "{0} 在 {1} 的 {2} 安家了。",
-  "incidentBorn": "{0} 和 {1} 的孩子 {2} 在 {3} 出生了。",
-  "incidentMarriage": "{0} 和 {1} 在 {2} 结婚了。",
 
-  "organizationDeveloped": "{0} 的规模扩大到了 {1}。",
   "locationDeveloped": "{0} 的规模扩大到了 {1}。",
+
+  "characterFirstMeetNormal": "{0} 认识了 {1}。",
+  "characterFirstMeetHate": "{0} 认识了 {1}，对其印象不太好。",
+  "characterFirstMeetLike": "{0} 认识了 {1}，对其十分喜欢。",
+  "characterSettle": "{0} 在 {1} 安家了。",
+  "characterSettleOrganization": "{0} 在 {1} 的 {2} 安家了。",
+  "characterBorn": "{0} 和 {1} 的孩子 {2} 在 {3} 出生了。",
+  "characterMarriage": "{0} 和 {1} 在 {2} 结婚了。",
 
   "characterEquip": "{0} 装备了 {1}。",
   "characterLearn": "{0} 学会了 {1}。",
@@ -48,5 +46,10 @@
   "characterFished": "{0} 在 {1} 进行了捕鱼，花费了 {2} 天。",
   "characterPracticed": "{0} 在 {1} 修炼 {2}，花费了 {3} 天，获得了 {4} 经验。",
 
-  "characterSetOrganizationRank": "{0} 成为了 {1} {2}。"
+  "characterSetOrganizationRank": "{0} 成为了 {1} {2}。",
+
+  "organizationDeveloped": "{0} 的规模扩大到了 {1}。",
+  "organizationCreate": "{0} 在 {1} 创建了 {2}。",
+  "organizationEnlist": "{0} 加入了 {1}。",
+  "organizationRecordSkill": "{0} 获得了新功法 {1}。"
 }

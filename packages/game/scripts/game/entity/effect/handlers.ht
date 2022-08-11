@@ -46,34 +46,26 @@ final gEffectHandlers = {
     return baseDamage * effect.values[0].value
   },
   decreaseDamageOnCooldown: (effect, baseDamage) {
-    if (effect.cooldown >= effect.values[1].value) {
-      effect.cooldown = 0
+    if (!effect.inCooldown) {
+      effect.inCooldown = true
+      effect.cooldown = effect.values[1].value
       return baseDamage * effect.values[0].value
-    } else {
-      ++effect.cooldown
-      //这里要明确返回null，否则上面一行的数字就会被返回
-      return null
     }
   },
   // 增加伤害
   addDamageOnCooldown: (effect) {
-    if (effect.cooldown >= effect.values[1].value) {
-      effect.cooldown = 0
+    if (!effect.inCooldown) {
+      effect.inCooldown = true
+      effect.cooldown = effect.values[1].value
       return effect.values[0].value
-    } else {
-      ++effect.cooldown
-      //这里要明确返回null，否则上面一行的数字就会被返回
-      return null
     }
   },
   // 攻击后
   counterOnCooldown: (effect, targetInfo) {
-    if (effect.cooldown >= effect.values[1].value) {
-      effect.cooldown = 0
+    if (!effect.inCooldown) {
+      effect.inCooldown = true
+      effect.cooldown = effect.values[1].value
       targetInfo.ticks -= 10
-    } else {
-      ++effect.cooldown
     }
-    return
   }
 }

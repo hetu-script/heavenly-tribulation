@@ -12,22 +12,35 @@ const kEntityTypeOrganization = 'organization';
 // category是界面上显示的对象类型文字
 const kEntityCategoryCharacter = 'character';
 const kEntityCategoryBeast = 'beast';
+const kEntityCategoryMoney = 'money';
 const kEntityCategoryWeapon = 'weapon';
 const kEntityCategoryProtect = 'protect';
 const kEntityCategoryTalisman = 'talisman';
 const kEntityCategoryConsumable = 'consumable';
-const kEntityCategoryMartialArts = 'martialArts';
-const kEntityCategoryMoney = 'money';
+const kEntityCategoryKungfu = 'kungfu';
+const kEntityCategoryWeaponArts = 'weaponArts';
+const kEntityCategoryArcana = 'arcana';
 
-const kEntityConsumableKindMedicineIngrident = 'medicineIngrident';
 const kEntityConsumableKindMedicine = 'medicine';
-const kEntityConsumableKindFoodIngrident = 'foodIngrident';
-const kEntityConsumableKindFood = 'food';
 const kEntityConsumableKindBeverage = 'beverage';
 const kEntityConsumableKindAlchemy = 'alchemy';
+const kEntityConsumableKindFood = 'food';
+
+const kEntityMaterialKindGrain = 'grain';
+const kEntityMaterialKindFruit = 'fruit';
+const kEntityMaterialKindFish = 'fish';
+const kEntityMaterialKindVegetable = 'vegetable';
+const kEntityMaterialKindHerb = 'herb';
+const kEntityMaterialKindWood = 'wood';
+const kEntityMaterialKindOre = 'ore';
+const kEntityMaterialKindJade = 'jade';
+const kEntityMaterialKindWater = 'water';
+const kEntityMaterialKindEnergy = 'energy';
+const kEntityMaterialKindSpectre = 'spectre';
 
 // 实际上进攻类装备也可能具有防御效果，因此这里的类型仅用于显示而已
 const kEquipTypeOffense = 'offense';
 const kEquipTypeSupport = 'support';
 const kEquipTypeDefense = 'defense';
+const kEquipTypeArcana = 'arcana';
 const kEquipTypeCompanion = 'companion';
