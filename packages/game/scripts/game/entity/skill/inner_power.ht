@@ -69,7 +69,7 @@ struct InnerPower {
     }
     // -1级技能也显示0级技能的效果
     this.attributes.effects = {}
-    // final effect = getEffect(category: 'arcana', level: this.level >= 0 ? this.level : 0)
+    // final effect = getEffect(category: this.kind, level: this.level >= 0 ? this.level : 0)
     // this.attributes.effects[effect.id] = effect
 
     // 在此物品上装备的支持性对象

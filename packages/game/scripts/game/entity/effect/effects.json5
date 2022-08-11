@@ -119,4 +119,16 @@
   },
   staff: {},
   spear: {},
+  innerPower: {
+    addStrength: [],
+    addConstitution: [],
+    addSpirituality: [],
+    addWillpower: [],
+    addPerception: [],
+    addDexterity: [],
+    addStamina: [],
+    addLife: [],
+    addMana: [],
+    addSpirit: [],
+  },
 }
