@@ -22,15 +22,18 @@ final kCharacterAttributeNames = [
 
 const kMajorAttributeFactor = 0.75
 
+const kBasicResource = 100
+
 struct BattleEntity {
   construct ({
     attributes,
     attributeSum = _kCharacterAttributeSumBase,
     majorAttributes: List = [],
     generate = true,
-    baseLife = 100,
-    baseMana = 100,
-    baseStamina = 100,
+    baseStamina = kBasicResource,
+    baseLife = kBasicResource,
+    baseMana = kBasicResource,
+    baseSpirit = kBasicResource,
   }) {
     // 身上携带的金钱数量
     // this.money = 0
@@ -44,19 +47,11 @@ struct BattleEntity {
     // 随从，可以设置为战斗伙伴
     this.companions = {}
 
-    // 装备栏的位置和数量是固定的
-    // 每个位置都是一个EquipSlot形式的对象
-    // 可以放在攻击位（武器）、防御位（护甲、靴子）、随从位
-    // 武器、斗技、进攻法宝总共可以装备 4 个
-    // 防具、靴子、辅助法宝、内功、轻功总共可以装备 4 个
-    // 随从总共可以装备 4 个
-    // 装备数据的 key  一定是 1-6 的数字，代表第几栏，value是 euqipData
+    // 装备栏的位置和数量是固定的 6 个
+    // 可以是攻击（武器）、防御（护甲、靴子）、斗技、内功、心法、随从等
+    // 装备数据的 key 是 1-6 的数字，代表第几栏，
+    // value 是一个 equipData 对象
     this.equipments = {}
-    // this.equipments = {
-    //   offense: {},
-    //   defense: {},
-    //   companion: {},
-    // }
 
     // 属性点数数值
     if (generate) {
@@ -71,6 +66,10 @@ struct BattleEntity {
         minValue: _kCharacterAttributeMinValue,
         maxValue: _kCharacterAttributeMaxValue,
         majorAttributes: majorAttributes,
+        baseStamina: baseStamina,
+        baseLife: baseLife,
+        baseMana: baseMana,
+        baseSpirit: baseSpirit,
       )
     } else {
       this.attributes = {}
@@ -80,18 +79,10 @@ struct BattleEntity {
       this.attributes.assign(attributes)
     }
 
-    // 当前状态数值，由种族、天赋、属性点数、增益减损、物品、技能等计算得来
-    this.stats = {}
-
     // 当前异常状态，包括 buff debuff 等等。
     this.statusEffects = {}
 
-    generateCharacterStats(
-      this,
-      baseLife: baseLife,
-      baseMana: baseMana,
-      baseStamina: baseStamina,
-    )
+    calculateCharacterStats(this)
     rejuvenate(this)
   }
 }
@@ -101,6 +92,10 @@ fun generateCharacterAttributes({
     minValue,
     maxValue,
     majorAttributes: List = [],
+    baseStamina,
+    baseLife,
+    baseMana,
+    baseSpirit,
   }) {
   assert(attributesSum > 0)
   assert(minValue > 0)
@@ -129,32 +124,88 @@ fun generateCharacterAttributes({
     ).toInt()
     attributes[name] = checkValue(value)
   }
+
+  attributes.stamina = baseStamina ?? kBasicResource
+  attributes.life = baseLife ?? kBasicResource
+  attributes.mana = baseMana ?? kBasicResource
+  attributes.spirit = baseSpirit ?? kBasicResource
+  
   return attributes
 }
 
-// 根据属性、装备、技能计算出当前状态
-// 状态包括：生命、伤害、防御等。
-fun generateCharacterStats(
-    character, {
-    baseStamina = 100,
-    baseLife = 100,
-    baseMana = 100,
-    baseSpirit = 100,
-  }) {
-
-  character.attributes.stamina = baseStamina + (character.attributes.strength ~/ 5) * 5
-  character.attributes.life = baseLife + (character.attributes.constitution ~/ 5) * 5
-  character.attributes.mana = baseMana + (character.attributes.spirituality ~/ 5) * 5
-  character.attributes.spirit = baseSpirit + (character.attributes.willpower ~/ 5) * 5
-
+/// 当前状态数值，由种族、天赋、属性点数、物品、技能、增益减损等计算得来
+/// 状态包括：生命、伤害、防御等。
+fun calculateCharacterStats(character) {
   character.stats = character.attributes.clone()
 
-  character.stats.charisma = (character.attributes.charisma + character.looks) ~/ 2
+  var baseStamina = character.stats.stamina
+  var baseLife = character.stats.life
+  var baseMana = character.stats.mana
+  var baseSpirit = character.stats.spirit
 
-  character.stats.staminaMax = character.stats.stamina
-  character.stats.lifeMax = character.stats.life
-  character.stats.manaMax = character.stats.mana
-  character.stats.spiritMax = character.stats.spirit
+  var baseStrength = character.stats.strength
+  var baseConstitution = character.stats.constitution
+  var baseSpirituality = character.stats.spirituality
+  var baseWillpower = character.stats.willpower
+  var basePerception = character.stats.perception
+  var baseDexterity = character.stats.dexterity
+
+  for (final equipData of character.equipments) {
+    final item = getEquipped(equipData, character)
+    for (final effect of item.stats.effects) {
+      if (effect.handlerType == kEffectCategoryCharacter) {
+        when (effect.id) {
+          'addStamina' -> {
+            baseStamina += effect.values[0].value
+          }
+          'addLife' -> {
+            baseLife += effect.values[0].value
+          }
+          'addMana' -> {
+            baseMana += effect.values[0].value
+          }
+          'addSpirit' -> {
+            baseSpirit += effect.values[0].value
+          }
+          'addStrength' -> {
+            baseStrength += effect.values[0].value
+          }
+          'addConstitution' -> {
+            baseConstitution += effect.values[0].value
+          }
+          'addSpirituality' -> {
+            baseSpirituality += effect.values[0].value
+          }
+          'addPerception' -> {
+            basePerception += effect.values[0].value
+          }
+          'addDexterity' -> {
+            baseDexterity += effect.values[0].value
+          }
+        }
+      }
+    }
+  }
+
+  
+  baseStamina += (baseStrength ~/ 5) * 5
+  baseLife += (baseConstitution ~/ 5) * 5
+  baseMana += (baseSpirituality ~/ 5) * 5
+  baseSpirit += (baseWillpower ~/ 5) * 5
+
+  character.stats.staminaMax = baseStamina
+  character.stats.lifeMax = baseLife
+  character.stats.manaMax = baseMana
+  character.stats.spiritMax = baseSpirit
+  
+  character.stats.strength = baseStrength
+  character.stats.constitution = baseConstitution
+  character.stats.spirituality = baseSpirituality
+  character.stats.willpower = baseWillpower
+  character.stats.perception = basePerception
+  character.stats.dexterity = baseDexterity
+
+  character.stats.charisma = (character.stats.charisma + character.looks) ~/ 2
 }
 
 fun getCharacterStats(character) {

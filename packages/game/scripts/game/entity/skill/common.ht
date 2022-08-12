@@ -14,10 +14,11 @@ fun calculateSkillStats(skill) {
   
   // 因为涉及到多个步骤的加法和乘法，因此先把基础伤害值单独拿出来
   var baseDamage = skill.stats.damage
+
   for (final effect of skill.stats.effects) {
-    if (effect.handlerType == kEffectCategoryPersist) {
+    if (effect.handlerType == kEffectCategoryEquippedEntity) {
       when (effect.id) {
-        kEffectAddDamage -> {
+        'addDamage' -> {
           baseDamage += effect.values[0].value
         }
       }

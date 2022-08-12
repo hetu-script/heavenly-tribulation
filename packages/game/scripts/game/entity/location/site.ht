@@ -71,8 +71,6 @@ struct Site {
 
     when (category) {
       kSiteCultivation -> location.hasCultivation = true
-      kSiteGang -> location.hasGang = true
-      kSiteReligion -> location.hasReligion = true
     }
     
     // 建筑和人物类似，也具有物品栏

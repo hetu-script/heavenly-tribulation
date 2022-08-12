@@ -89,7 +89,7 @@ struct Incident {
             if (charId in objectIds) continue
             if (charId in witnessIds) continue
             final character = game.characters[charId]
-            characterWitnessIncident(char, this, witnessed: true)
+            characterWitnessIncident(character, this, witnessed: true)
           }
         }
       }

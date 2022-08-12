@@ -5,7 +5,8 @@ import 'common.ht'
 import '../item/common.ht'
 import '../effect/common.ht'
 
-struct InnerPower {
+/// 内功，主要包含增强基础属性和资源的效果
+struct Arcana {
   construct ({
     name,
     rarity,
@@ -30,7 +31,7 @@ struct InnerPower {
 
     this.entityType = kEntityTypeSkill // 人物、地点、物品、技能等等
     this.category = kEntityCategoryArcana // 武器、防护、斗技、玄功等等
-    this.kind = 'innerPower'
+    this.kind = 'arcana'
 
     this.creatorId = creatorId
     this.createdTime = createdTime
@@ -55,12 +56,7 @@ struct InnerPower {
     this.cost = {
       // 练习时每个tick的消耗
       practice: {
-      },
-      // 战斗时每次触发效果的消耗
-      battle: {
-      },
-      // 装备技能时的资源固定减额
-      equip: {
+        spirit: 1,
       },
     }
 
@@ -69,8 +65,8 @@ struct InnerPower {
     }
     // -1级技能也显示0级技能的效果
     this.attributes.effects = {}
-    // final effect = getEffect(category: this.kind, level: this.level >= 0 ? this.level : 0)
-    // this.attributes.effects[effect.id] = effect
+    final effect = getEffect(category: this.kind, level: this.level >= 0 ? this.level : 0)
+    this.attributes.effects[effect.id] = effect
 
     // 在此物品上装备的支持性对象
     this.equippedSupports = []

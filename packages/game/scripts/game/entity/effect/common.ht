@@ -16,15 +16,10 @@ const kEffectValueTypeInt = 'int';
 const kEffectValueTypeFloat = 'float';
 const kEffectValueTypePercentage = 'percentage';
 
-const kEffectRestoreLife = 'restoreLife'
-const kEffectRestoreMana = 'restoreMana'
-const kEffectRestoreStamina = 'restoreStamina'
-
-const kEffectHealInjury = 'healInjury'
-const kEffectHealInfection = 'healInfection'
-
-// 永久效果
-const kEffectCategoryPersist = 'persist'
+// 人物永久效果
+const kEffectCategoryCharacter = 'character'
+// 物品永久效果
+const kEffectCategoryEquippedEntity = 'equippedEntity'
 // 食用时触发的效果
 const kEffectCategoryConsume = 'consume'
 // 受击时触发的效果
@@ -39,18 +34,6 @@ const kEffectCategoryAfterHit = 'afterHit'
 // more / less damage: 按照百分比增加和减少伤害，多个百分比时，分别乘基础值，最后加一起
 
 // 参考：https://pathofexile.fandom.com/wiki/Stat#more_vs_increased
-
-const kEffectAddDamage = 'addDamage'
-const kEffectReduceDamage = 'reduceDamage'
-const kEffectAddDamageOnCooldown = 'addDamageOnCooldown'
-
-const kEffectIncreaseDamage = 'increaseDamage'
-const kEffectDecreaseDamage = 'decreaseDamage'
-const kEffectIncreaseDamageOnCooldown = 'increaseDamageOnCooldown'
-const kEffectDecreaseDamageOnCooldown = 'decreaseDamageOnCooldown'
-
-const kEffectMoreDamage = 'moreDamage'
-const kEffectLessDamage = 'lessDamage'
 
 struct EffectValue {
   construct ({
@@ -92,15 +75,17 @@ fun getEffect({category, id, level}) {
     category = random.nextIterable(gEffects.keys)
   }
   final c = gEffects[category]
+  if (c.isEmpty) return null
   if (id != null) {
     assert(c.containsKey(id))
   } else {
     id = random.nextIterable(c.keys)
   }
   final cl = gEffects[category][id]
+  if (cl.isEmpty) return null
   level ??= 0
   if (level >= cl.length) {
-    engine.warning('技能 ${id} 数据中没有等级 ${level}，getEffect 将会返回可用的最高等级。')
+    engine.warning('找不到等级 ${level} 的 技能 ${id}，getEffect 将会返回可用的最高等级。')
     return cl.last
   } else {
     return cl[level]

@@ -1,6 +1,7 @@
 export 'ai/ai.ht'
 export 'binding/worldmap.ht'
 export 'binding/maze.ht'
+export 'entity/common.ht'
 export 'entity/character/character.ht'
 export 'entity/character/battle_entity.ht'
 export 'entity/item/item.ht'

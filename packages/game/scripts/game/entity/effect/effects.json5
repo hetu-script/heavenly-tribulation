@@ -63,9 +63,9 @@
     addDamage: [
       {
         category: 'boxing',
-        handlerType: 'persist',
+        handlerType: 'equippedEntity',
         id: 'addDamage',
-        description: 'effect.persist.addDamage',
+        description: 'effect.equippedEntity.addDamage',
         values: [
           {
             value: 10,
@@ -78,9 +78,9 @@
     addDamage: [
       {
         category: 'wrestling',
-        handlerType: 'persist',
+        handlerType: 'equippedEntity',
         id: 'addDamage',
-        description: 'effect.persist.addDamage',
+        description: 'effect.equippedEntity.addDamage',
         values: [
           {
             value: 10,
@@ -119,16 +119,136 @@
   },
   staff: {},
   spear: {},
-  innerPower: {
-    addStrength: [],
-    addConstitution: [],
-    addSpirituality: [],
-    addWillpower: [],
-    addPerception: [],
-    addDexterity: [],
-    addStamina: [],
-    addLife: [],
-    addMana: [],
-    addSpirit: [],
+  arcana: {
+    addStamina: [
+      {
+        category: 'arcana',
+        handlerType: 'character',
+        id: 'addStamina',
+        description: 'effect.character.addStamina',
+        values: [
+          {
+            value: 5,
+          },
+        ],
+      },
+    ],
+    addLife: [
+      {
+        category: 'arcana',
+        handlerType: 'character',
+        id: 'addLife',
+        description: 'effect.character.addLife',
+        values: [
+          {
+            value: 5,
+          },
+        ],
+      },
+    ],
+    addMana: [
+      {
+        category: 'arcana',
+        handlerType: 'character',
+        id: 'addMana',
+        description: 'effect.character.addMana',
+        values: [
+          {
+            value: 5,
+          },
+        ],
+      },
+    ],
+    addSpirit: [
+      {
+        category: 'arcana',
+        handlerType: 'character',
+        id: 'addSpirit',
+        description: 'effect.character.addSpirit',
+        values: [
+          {
+            value: 5,
+          },
+        ],
+      },
+    ],
+    addStrength: [
+      {
+        category: 'arcana',
+        handlerType: 'character',
+        id: 'addStrength',
+        description: 'effect.character.addStrength',
+        values: [
+          {
+            value: 5,
+          },
+        ],
+      },
+    ],
+    addConstitution: [
+      {
+        category: 'arcana',
+        handlerType: 'character',
+        id: 'addConstitution',
+        description: 'effect.character.addConstitution',
+        values: [
+          {
+            value: 5,
+          },
+        ],
+      },
+    ],
+    addSpirituality: [
+      {
+        category: 'arcana',
+        handlerType: 'character',
+        id: 'addSpirituality',
+        description: 'effect.character.addSpirituality',
+        values: [
+          {
+            value: 5,
+          },
+        ],
+      },
+    ],
+    addWillpower: [
+      {
+        category: 'arcana',
+        handlerType: 'character',
+        id: 'addWillpower',
+        description: 'effect.character.addWillpower',
+        values: [
+          {
+            value: 5,
+          },
+        ],
+      },
+    ],
+    addPerception: [
+      {
+        category: 'arcana',
+        handlerType: 'character',
+        id: 'addPerception',
+        description: 'effect.character.addPerception',
+        values: [
+          {
+            value: 5,
+          },
+        ],
+      },
+    ],
+    addDexterity: [
+      {
+        category: 'arcana',
+        handlerType: 'character',
+        id: 'addDexterity',
+        description: 'effect.character.addDexterity',
+        values: [
+          {
+            value: 5,
+          },
+        ],
+      },
+    ],
   },
 }

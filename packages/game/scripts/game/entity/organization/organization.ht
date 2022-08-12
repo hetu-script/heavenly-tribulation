@@ -627,7 +627,7 @@ fun addTerrainToNation(terrain, nation) {
 
 /// 将某个功法记录在这个组织的 skillRecords 中
 /// 操作方式类似人物装备道具
-fun organizationRecordSkill({organization, skill}) {
+fun organizationRecordSkill(organization, skill) {
   assert(organization != null)
   assert(skill != null)
   final clone = skill.clone()

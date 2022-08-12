@@ -90,10 +90,11 @@ struct Weapon {
     this.id = this.rarity != kCommon ? 'weapon.${Hash.uid4(2)}.${this.name}' : 'weapon.${this.name}'
     
     this.icon = kWeaponKinds[this.kind].icon
-    this.attributes = {
-      ...kWeaponKinds[this.kind].attributes,
-    }
     this.damageType = kWeaponKinds[this.kind].damageType
+
+    this.attributes = {
+      ...kWeaponKinds[this.kind].attributes.clone(),
+    }
       // {
       //   name: effectParry,
       //   description: effectParryDescription,

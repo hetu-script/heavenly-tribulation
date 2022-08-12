@@ -1,4 +1,8 @@
 {
+  "kungfu": "技击",
   "boxing": "拳脚",
-  "wrestling": "擒拿"
+  "wrestling": "擒拿",
+
+  "arcana": "内功",
+  "arcanaArts": "心法"
 }

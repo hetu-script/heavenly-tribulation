@@ -60,10 +60,11 @@ struct BeastWeapon {
     this.description = description ?? ''
 
     this.icon = kBeastWeaponKinds[this.kind].icon
-    this.attributes = {
-      ...kBeastWeaponKinds[this.kind].attributes,
-    }
     this.damageType = kBeastWeaponKinds[this.kind].damageType
+    
+    this.attributes = {
+      ...kBeastWeaponKinds[this.kind].attributes.clone(),
+    }
 
     if (attributes) {
       this.attributes.assign(attributes)

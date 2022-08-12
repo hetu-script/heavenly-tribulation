@@ -23,6 +23,7 @@ final kWeaponArtsKinds = {
   },
 }
 
+// 辅助技能，没有attributes，只有effects
 struct WeaponArts {
   construct ({
     name,
@@ -35,7 +36,7 @@ struct WeaponArts {
     difficulty,
     level,
     levelMax,
-    attributes,
+    effects,
   }) {
     this.kind = kind ?? random.nextIterable(kWeaponArtsKinds.keys) // 枪、剑、斧等等
 
@@ -83,14 +84,14 @@ struct WeaponArts {
       equip: {}
     }
     
-    this.attributes = {}
-    if (attributes) {
-      this.attributes.assign(attributes)
+    this.attributes = {
+      effects: {},
     }
     // -1级技能也显示0级技能的效果
-    this.attributes.effects = {}
     final effect = getEffect(category: this.kind, level: this.level >= 0 ? this.level : 0)
-    this.attributes.effects[effect.id] = effect
+    if (effect != null) {
+      this.attributes.effects[effect.id] = effect
+    }
 
     calculateSkillStats(this)
   }
