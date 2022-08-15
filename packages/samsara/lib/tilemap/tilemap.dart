@@ -136,7 +136,7 @@ class TileMap extends GameComponent with HandlesGesture {
       for (var i = 0; i < tileMapWidth; ++i) {
         final index = tilePosition2Index(i + 1, j + 1, tileMapWidth);
         final terrainData = terrainsData[index];
-        final bool isVisible = terrainData['isVisible'] ?? true;
+        final bool isVisible = terrainData['isVisible'] ?? false;
         final bool isSelectable = terrainData['isSelectable'] ?? false;
         final bool isVoid = terrainData['isVoid'] ?? false;
         final bool isWater = terrainData['isWater'] ?? false;
@@ -759,12 +759,6 @@ class TileMap extends GameComponent with HandlesGesture {
       }
     }
 
-    if (showClouds) {
-      for (final cloud in _clouds) {
-        cloud.render(canvas);
-      }
-    }
-
     if (showFogOfWar) {
       for (final tile in terrains) {
         if (tile.isVisible) {
@@ -778,6 +772,12 @@ class TileMap extends GameComponent with HandlesGesture {
                 MaskFilter.blur(BlurStyle.normal, convertRadiusToSigma(0.5));
           canvas.drawPath(tile.shadowPath, paint);
         }
+      }
+    }
+
+    if (showClouds) {
+      for (final cloud in _clouds) {
+        cloud.render(canvas);
       }
     }
 

@@ -534,7 +534,7 @@ fun getOrganizations() {
 }
 
 fun increaseOrganizationDevelopment(organization) {
-  if (organization.development < kOrganizationDevelopmentMax) {
+  if (organization.development <= kOrganizationDevelopmentMax) {
     ++organization.development
   } else {
     engine.warning('组织 ${organization.name} 的发展度（${organization.development}）已达到或超过最大值。')

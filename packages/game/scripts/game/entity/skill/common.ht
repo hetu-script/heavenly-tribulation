@@ -30,7 +30,7 @@ fun calculateSkillStats(skill) {
   // TODO: 计算技能的消耗（练习消耗和实战消耗）
 }
 
-fun characterLearn(character, skill) {
+fun learn(character, skill) {
   character.skills[skill.id] = skill
 
   final incidentContent = getLocaleString('characterLearn', interpolations: [

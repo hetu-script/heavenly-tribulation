@@ -7,7 +7,7 @@ import '../../global.dart';
 import '../shared/bordered_icon_button.dart';
 import '../view/character/builds/build.dart';
 import '../shared/dynamic_color_progressbar.dart';
-import '../view/character/stats/stats.dart';
+import '../view/character/stats/status.dart';
 
 const kStatsBarWidth = 125.0;
 

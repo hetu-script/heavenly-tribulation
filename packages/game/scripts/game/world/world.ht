@@ -2,7 +2,7 @@ import '../name/zone.ht'
 import '../game.ht'
 import '../entity/location/site.ht'
 import '../entity/location/location.ht'
-import '../entity/character/character.ht'
+import '../entity/character/common.ht'
 import '../entity/organization/organization.ht'
 import '../l10n.ht'
 import '../tile/hexagonal_tile.ht'
@@ -281,44 +281,44 @@ fun createWorldMap({
       final site = Site(category: kSiteTradinghouse, locationId: location.id)
       // site.money = _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
       final money = _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
-      entityAcquireMoney(site, money)
+      acquireMoney(site, money)
       // 商号可能有：谷物、水果、鱼、蔬菜、药材、木料、矿石
-      entityAcquireItem(site, Material.grain(), count: 20)
-      entityAcquireItem(site, Material.fruit(), count: 20)
-      entityAcquireItem(site, Material.fish(), count: 20)
-      entityAcquireItem(site, Material.vegetable(), count: 20)
-      entityAcquireItem(site, Material.herb(), count: 20)
-      entityAcquireItem(site, Material.wood(), count: 20)
-      entityAcquireItem(site, Material.ore(), count: 20)
+      acquire(site, Material.grain(), count: 20)
+      acquire(site, Material.fruit(), count: 20)
+      acquire(site, Material.fish(), count: 20)
+      acquire(site, Material.vegetable(), count: 20)
+      acquire(site, Material.herb(), count: 20)
+      acquire(site, Material.wood(), count: 20)
+      acquire(site, Material.ore(), count: 20)
     }
     if (location.development > 1 && random.nextDouble() < _kSiteWorkshopProbability) {
       final site = Site(category: kSiteWorkshop, locationId: location.id)
       // site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
       final money = _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
-      entityAcquireMoney(site, money)
+      acquireMoney(site, money)
       // 工坊可能有：武器、盾牌
-      entityAcquireItem(site, Weapon())
-      entityAcquireItem(site, Weapon())
-      entityAcquireItem(site, Weapon())
-      entityAcquireItem(site, Shield())
-      entityAcquireItem(site, Shield())
+      acquire(site, Weapon())
+      acquire(site, Weapon())
+      acquire(site, Weapon())
+      acquire(site, Shield())
+      acquire(site, Shield())
     }
     if (location.development > 2 && random.nextDouble() < _kSiteRestaurantProbability) {
       final site = Site(category: kSiteRestaurant, locationId: location.id)
       // site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
       final money = _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
-      entityAcquireMoney(site, money)
+      acquireMoney(site, money)
       // 酒楼可能有：饮料、食物
-      entityAcquireItem(site, Consumable.beverage(), count: 20)
+      acquire(site, Consumable.beverage(), count: 20)
     }
     if (location.development > 2 && random.nextDouble() < _kSiteHospitalProbability) {
       final site = Site(category: kSiteHospital, locationId: location.id)
       // site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
       final money = _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
-      entityAcquireMoney(site, money)
+      acquireMoney(site, money)
       // 医馆可能有：方剂
-      entityAcquireItem(site, Consumable.medicine(), count: 20)
-      entityAcquireItem(site, Material.herb(), count: 10)
+      acquire(site, Consumable.medicine(), count: 20)
+      acquire(site, Material.herb(), count: 10)
     }
   }
 

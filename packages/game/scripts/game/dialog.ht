@@ -1,4 +1,4 @@
-import 'entity/character/character.ht'
+import 'entity/character/common.ht'
 import 'l10n.ht'
 import 'binding/dialog.ht'
 

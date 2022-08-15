@@ -1,5 +1,5 @@
 import '../../game.ht'
-import '../character/character.ht'
+import '../character/common.ht'
 import '../../dialog.ht'
 import '../../name/location.ht'
 import '../../l10n.ht'

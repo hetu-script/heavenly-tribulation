@@ -94,8 +94,8 @@ struct Bandit {
         )
         this.assign(battleInfo)
         // BattleEntity 会初始化银两为0，因此必须在其之后赋值
-        entityAcquireMoney(this, random.nextInt(50) + 50)
-        characterEquip(this, Weapon())
+        acquireMoney(this, random.nextInt(50) + 50)
+        equip(this, Weapon())
         // 山贼喽啰可以成为别的山贼的战斗伙伴
         this.isEquippable = true
         this.equipType = kEquipTypeCompanion
@@ -111,10 +111,10 @@ struct Bandit {
         )
         this.assign(battleInfo)
         // BattleEntity 会初始化银两为0，因此必须在其之后赋值
-        entityAcquireMoney(this, random.nextInt(75) + 50)
-        characterEquip(this, Weapon(kind: 'spear'))
+        acquireMoney(this, random.nextInt(75) + 50)
+        equip(this, Weapon(kind: 'spear'))
         final minion1 = Bandit(kind: 'minion')
-        characterEquip(this, minion1)
+        equip(this, minion1)
       }
       'killer' -> {
         this.icon = 'maze/bandit_killer.png'
@@ -126,11 +126,11 @@ struct Bandit {
         )
         this.assign(battleInfo)
         // BattleEntity 会初始化银两为0，因此必须在其之后赋值
-        entityAcquireMoney(this, random.nextInt(100) + 50)
-        characterEquip(this, Weapon(kind: 'sabre'))
-        characterEquip(this, Weapon(kind: 'sabre'))
+        acquireMoney(this, random.nextInt(100) + 50)
+        equip(this, Weapon(kind: 'sabre'))
+        equip(this, Weapon(kind: 'sabre'))
         final minion1 = Bandit(kind: 'minion')
-        characterEquip(this, minion1)
+        equip(this, minion1)
       }
       'boss' -> {
         final battleInfo = BattleEntity(
@@ -141,19 +141,19 @@ struct Bandit {
         )
         this.assign(battleInfo)
         // BattleEntity 会初始化银两为0，因此必须在其之后赋值
-        entityAcquireMoney(this, random.nextInt(300) + 100)
+        acquireMoney(this, random.nextInt(300) + 100)
         this.icon = 'maze/bandit_boss.png'
-        characterEquip(this, Weapon())
-        characterEquip(this, Shield())
+        equip(this, Weapon())
+        equip(this, Shield())
         final minion1 = Bandit(kind: 'minion')
         final minion2 = Bandit(kind: 'minion')
         final minion3 = Bandit(kind: 'minion')
-        characterEquip(this, minion1)
-        characterEquip(this, minion2)
-        characterEquip(this, minion3)
+        equip(this, minion1)
+        equip(this, minion2)
+        equip(this, minion3)
       }
     }
     
-    generateCharacterStats(this)
+    calculateCharacterStats(this)
   }
 }

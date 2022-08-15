@@ -128,7 +128,7 @@
         description: 'effect.character.addStamina',
         values: [
           {
-            value: 5,
+            value: 10,
           },
         ],
       },
@@ -141,7 +141,7 @@
         description: 'effect.character.addLife',
         values: [
           {
-            value: 5,
+            value: 10,
           },
         ],
       },
@@ -154,7 +154,7 @@
         description: 'effect.character.addMana',
         values: [
           {
-            value: 5,
+            value: 10,
           },
         ],
       },
@@ -167,7 +167,7 @@
         description: 'effect.character.addSpirit',
         values: [
           {
-            value: 5,
+            value: 10,
           },
         ],
       },

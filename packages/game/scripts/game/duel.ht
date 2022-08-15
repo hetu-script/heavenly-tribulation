@@ -2,7 +2,7 @@ import 'game.ht'
 import 'l10n.ht'
 import 'entity/common.ht'
 import 'entity/item/common.ht'
-import 'entity/character/character.ht'
+import 'entity/character/common.ht'
 import 'entity/effect/effect.ht'
 import 'binding/dialog.ht'
 
@@ -195,7 +195,7 @@ struct Duel {
           final equipItemInfo = targetInfo.stats.equipments[sharedDamageItemIndex]
           final equipData = target.equipments[sharedDamageItemIndex]
           final equipItem = getEquipped(equipData, target)
-          entityLifeChange(equipItemInfo, -sharedDamage)
+          changeLife(equipItemInfo, -sharedDamage)
           post = getLocaleString('sharedDamageInfo', interpolations: [
             equipItem.name,
             sharedDamage.truncate(),
@@ -218,7 +218,7 @@ struct Duel {
           equipmentIndex: sharedDamageItemIndex,
           sharedDamage: sharedDamage,
         ))
-        entityLifeChange(targetInfo, -(finalDamage - sharedDamage))
+        changeLife(targetInfo, -(finalDamage - sharedDamage))
 
         this.messages.add(message)
         // engine.info(message)
@@ -227,7 +227,7 @@ struct Duel {
         //   info.targetIndex = setNextActivatedDefenseItem(info, target)
         // }
         // 收招
-        subjectInfo.activatedOffense = getNextEquippedOffenseItem(subject, subjectInfo.activatedOffenseIndex)
+        subjectInfo.activatedOffense = getEquippedOffenseItem(subject, subjectInfo.activatedOffenseIndex)
         subjectInfo.activatedOffenseIndex = subjectInfo.activatedOffense.equippedPosition
 
         subjectInfo.ticks = 0
@@ -252,9 +252,9 @@ struct Duel {
       // 战斗本身的客观时间，不会受任何因素影响
       this.frames = 0
       // 当前激活的进攻手段，1代表第一个武器或斗技
-      char1info.activatedOffense = getFirstEquippedOffenseItem(char1)
+      char1info.activatedOffense = getEquippedOffenseItem(char1)
       char1info.activatedOffenseIndex = char1info.activatedOffense.equippedPosition
-      char2info.activatedOffense = getFirstEquippedOffenseItem(char2)
+      char2info.activatedOffense = getEquippedOffenseItem(char2)
       char2info.activatedOffenseIndex = char1info.activatedOffense.equippedPosition
 
       this.started = true

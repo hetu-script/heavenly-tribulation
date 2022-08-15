@@ -337,7 +337,7 @@ fun onHeroMovedOnCultivationRecruitMaze({tile, maze, currentLevelIndex}) -> bool
         spriteIndex: kPavedRockTileGlowing
       })
       // 扣除精神数值
-      entitySpiritChange(hero, -18)
+      changeSpirit(hero, -18)
     }
 
   } else if (tile.spriteIndex == kRockyTrail) {
@@ -349,7 +349,7 @@ fun onHeroMovedOnCultivationRecruitMaze({tile, maze, currentLevelIndex}) -> bool
     } else {
       
       // 扣除体力数值
-      entityStaminaChange(hero, -18)
+      changeStamina(hero, -18)
     }
   }
 

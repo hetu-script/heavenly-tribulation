@@ -28,6 +28,7 @@ final kKungfuKinds = {
   },
 }
 
+/// 技击，主技能，各种空手战斗的攻击方式
 struct Kungfu {
   construct ({
     name,
@@ -37,7 +38,6 @@ struct Kungfu {
     createdTime,
     description,
     kind,
-    difficulty,
     level,
     levelMax,
     attributeLevels,
@@ -53,6 +53,8 @@ struct Kungfu {
       this.name = randomName.name
     }
     this.color = kRarity[this.rarity].color
+    // 稀有度决定难度，也就是升级需要的经验值的数量，同时也决定最大效果条数
+    this.difficulty = kRarity[this.rarity].level
 
     this.entityType = kEntityTypeSkill // 人物、地点、物品、技能等等
     this.category = kEntityCategoryKungfu // 武器、防护、斗技、玄功等等
@@ -67,8 +69,6 @@ struct Kungfu {
 
     this.icon = kKungfuKinds[this.kind].icon
 
-    // 难度，升级需要的经验值的数量
-    this.difficulty = difficulty ?? 1
     // 技能等级，提升等级需要练习
     // 刚学会时是-1级，此时无法装备
     this.level = level ?? -1

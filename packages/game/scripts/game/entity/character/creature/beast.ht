@@ -74,19 +74,19 @@ struct Beast {
     when (this.kind) {
       'tiger' -> {
         this.icon = 'maze/tiger.png'
-        characterEquip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindClaw, rarity: this.rarity))
-        characterEquip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindFang, rarity: this.rarity))
+        equip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindClaw, rarity: this.rarity))
+        equip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindFang, rarity: this.rarity))
       }
       'monkey' -> {
         this.icon = 'maze/monkey.png'
-        characterEquip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindClaw, rarity: this.rarity))
+        equip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindClaw, rarity: this.rarity))
       }
       'snake' -> {
         this.icon = 'maze/snake.png'
-        characterEquip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindFang, rarity: this.rarity))
+        equip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindFang, rarity: this.rarity))
       }
     }
 
-    generateCharacterStats(this)
+    calculateCharacterStats(this)
   }
 }

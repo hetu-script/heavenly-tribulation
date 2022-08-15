@@ -99,8 +99,8 @@ class _BuildViewState extends State<BuildView> {
                   padding: const EdgeInsets.all(5.0),
                   child: ElevatedButton(
                     onPressed: () {
-                      engine.invoke('characterConsume',
-                          positionalArgs: [hero, itemData]);
+                      engine
+                          .invoke('consume', positionalArgs: [hero, itemData]);
                       Navigator.of(context).pop();
                       engine.broadcast(const UIEvent.needRebuildUI());
                       setState(() {});
@@ -116,8 +116,8 @@ class _BuildViewState extends State<BuildView> {
                     padding: const EdgeInsets.all(5.0),
                     child: ElevatedButton(
                       onPressed: () {
-                        engine.invoke('characterEquip',
-                            positionalArgs: [hero, itemData]);
+                        engine
+                            .invoke('equip', positionalArgs: [hero, itemData]);
                         Navigator.of(context).pop();
                         engine.broadcast(const UIEvent.needRebuildUI());
                         setState(() {});
@@ -132,7 +132,7 @@ class _BuildViewState extends State<BuildView> {
                     padding: const EdgeInsets.all(5.0),
                     child: ElevatedButton(
                       onPressed: () {
-                        engine.invoke('characterUnequip',
+                        engine.invoke('unequip',
                             positionalArgs: [hero, itemData]);
                         Navigator.of(context).pop();
                         engine.broadcast(const UIEvent.needRebuildUI());

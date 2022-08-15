@@ -5,7 +5,7 @@ import 'common.ht'
 import '../item/common.ht'
 import '../effect/common.ht'
 
-/// 内功，主要包含增强基础属性和资源的效果
+/// 内功，主技能，包含各种增强基础属性和资源的效果
 struct Arcana {
   construct ({
     name,
@@ -15,7 +15,6 @@ struct Arcana {
     createdTime,
     description,
     kind,
-    difficulty,
     level,
     levelMax,
     attributes,
@@ -28,6 +27,8 @@ struct Arcana {
       this.name = randomName.name
     }
     this.color = kRarity[this.rarity].color
+    // 稀有度决定难度，也就是升级需要的经验值的数量，同时也决定最大效果条数
+    this.difficulty = kRarity[this.rarity].level
 
     this.entityType = kEntityTypeSkill // 人物、地点、物品、技能等等
     this.category = kEntityCategoryArcana // 武器、防护、斗技、玄功等等
@@ -43,8 +44,6 @@ struct Arcana {
 
     this.icon = 'icon/skill/arcane_0.png'
 
-    // 难度，升级需要的经验值的数量
-    this.difficulty = difficulty ?? 1
     // 技能等级，提升等级需要练习
     // 刚学会时是-1级，此时无法装备
     this.level = level ?? -1
@@ -60,13 +59,14 @@ struct Arcana {
       },
     }
 
+    this.attributes = {
+      effects: {},
+    }
     if (attributes) {
       this.attributes.assign(attributes)
     }
-    // -1级技能也显示0级技能的效果
-    this.attributes.effects = {}
-    final effect = getEffect(category: this.kind, level: this.level >= 0 ? this.level : 0)
-    this.attributes.effects[effect.id] = effect
+
+    this.attributes.effects = getEffects(category: this.kind, count: this.difficulty + 1)
 
     // 在此物品上装备的支持性对象
     this.equippedSupports = []

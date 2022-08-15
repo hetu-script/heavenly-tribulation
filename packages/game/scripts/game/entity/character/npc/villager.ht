@@ -43,10 +43,10 @@ struct VillageWarrior {
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
     when (this.kind) {
       'villager' -> {
-        characterEquip(this, Weapon())
+        equip(this, Weapon())
       }
     }
     
-    generateCharacterStats(this)
+    calculateCharacterStats(this)
   }
 }

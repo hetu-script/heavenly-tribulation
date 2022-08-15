@@ -2,11 +2,7 @@ import 'game.ht'
 import 'entity/character/character.ht'
 import 'entity/item/item.ht'
 import 'duel.ht'
-import 'entity/character/npc/bandit.ht'
-import 'entity/character/creature/beast.ht'
-import 'entity/item/item.ht'
 import 'maze/maze.ht'
-import 'entity/character/npc/villager.ht'
 import 'dialog.ht'
 import 'tile/hexagonal_tile.ht'
 import 'entity/skill/skill.ht'
@@ -76,17 +72,17 @@ namespace debug {
 fun testDuel {
   setRandomSeed(1002)
   final hero = Character(isMajorCharacter: false, armed: false)
-  characterEquip(hero, Weapon(kind: 'sword'))
-  characterEquip(hero, WeaponArts(kind: 'sword', level: 1))
-  // characterEquip(hero, Shield())
+  equip(hero, Weapon(kind: 'sword'))
+  equip(hero, WeaponArts(kind: 'sword', level: 1))
+  // equip(hero, Shield())
   // final companion = VillageWarrior()
-  // characterEquip(companion, Weapon())
-  // characterEquip(hero, companion)
+  // equip(companion, Weapon())
+  // equip(hero, companion)
 
   // final enemy = Character(isMajorCharacter: false)
   // final enemy = Bandit(kind: 'boss')
-  // characterEquip(enemy, Kungfu())
-  // characterEquip(enemy, Weapon())
+  // equip(enemy, Kungfu())
+  // equip(enemy, Weapon())
 
   final enemy = Beast()
   showDuel(hero, enemy, type: kDuelTypePractice)
@@ -96,12 +92,12 @@ fun testMerchant {
   setRandomSeed(1003)
   resetGame()
   final hero = Character()
-  entityAcquireMoney(hero, 100)
+  acquireMoney(hero, 100)
   setHeroId(hero.id)
   final merchant = Character()
-  entityAcquireMoney(merchant, 500)
-  entityAcquireItem(merchant, Consumable.medicine(), count: 20)
-  entityAcquireItem(merchant, Consumable.beverage(), count: 20)
+  acquireMoney(merchant, 500)
+  acquire(merchant, Consumable.medicine(), count: 20)
+  acquire(merchant, Consumable.beverage(), count: 20)
   showMerchant(merchant)
 }
 
@@ -113,16 +109,16 @@ fun testMazeMountain {
     name: '测试副本',
   )
   final hero = Character(armed: false)
-  entityAcquireMoney(hero, 200)
-  characterEquip(hero, Weapon(kind: 'sword'))
-  characterLearn(hero, WeaponArts(kind: 'sword', level: 1))
-  // characterEquip(hero, Weapon())
-  characterEquip(hero, Shield())
-  entityAcquireItem(hero, Consumable.medicine(), count: 5)
-  entityAcquireItem(hero, Consumable.beverage(), count: 5)
+  acquireMoney(hero, 200)
+  equip(hero, Weapon(kind: 'sword'))
+  learn(hero, WeaponArts(kind: 'sword', level: 1))
+  // equip(hero, Weapon())
+  equip(hero, Shield())
+  acquire(hero, Consumable.medicine(), count: 5)
+  acquire(hero, Consumable.beverage(), count: 5)
   final companion = VillageWarrior()
-  characterEquip(companion, Weapon())
-  characterEquip(hero, companion)
+  equip(companion, Weapon())
+  equip(hero, companion)
   setHeroId(hero.id)
   enterMaze(maze)
   return maze
@@ -136,11 +132,11 @@ fun testMazeCultivationRecruit {
     organizationName: '天玑堂',
   )
   final hero = Character()
-  characterEquip(hero, Kungfu())
-  characterEquip(hero, Weapon())
-  characterEquip(hero, Shield())
-  entityAcquireItem(hero, Consumable.medicine(), count: 5)
-  entityAcquireItem(hero, Consumable.beverage(), count: 5)
+  equip(hero, Kungfu())
+  equip(hero, Weapon())
+  equip(hero, Shield())
+  acquire(hero, Consumable.medicine(), count: 5)
+  acquire(hero, Consumable.beverage(), count: 5)
   setHeroId(hero.id)
   enterMaze(maze)
   return maze

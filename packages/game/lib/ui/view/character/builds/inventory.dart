@@ -77,8 +77,8 @@ class _InventoryViewState extends State<InventoryView> {
                   padding: const EdgeInsets.all(5.0),
                   child: ElevatedButton(
                     onPressed: () {
-                      engine.invoke('characterConsume',
-                          positionalArgs: [_hero, itemData]);
+                      engine
+                          .invoke('consume', positionalArgs: [_hero, itemData]);
                       Navigator.of(context).pop();
                       engine.broadcast(const UIEvent.needRebuildUI());
                       setState(() {});
@@ -94,8 +94,8 @@ class _InventoryViewState extends State<InventoryView> {
                     padding: const EdgeInsets.all(5.0),
                     child: ElevatedButton(
                       onPressed: () {
-                        engine.invoke('characterEquip',
-                            positionalArgs: [_hero, itemData]);
+                        engine
+                            .invoke('equip', positionalArgs: [_hero, itemData]);
                         Navigator.of(context).pop();
                         engine.broadcast(const UIEvent.needRebuildUI());
                         if (widget.onEquipChanged != null) {
@@ -112,7 +112,7 @@ class _InventoryViewState extends State<InventoryView> {
                     padding: const EdgeInsets.all(5.0),
                     child: ElevatedButton(
                       onPressed: () {
-                        engine.invoke('characterUnequip',
+                        engine.invoke('unequip',
                             positionalArgs: [_hero, itemData]);
                         Navigator.of(context).pop();
                         engine.broadcast(const UIEvent.needRebuildUI());
@@ -295,15 +295,14 @@ class _InventoryViewState extends State<InventoryView> {
                     final isEquipped = itemData['isEquippable'] == true &&
                         itemData['equippedPosition'] != null;
                     if (isEquipped) {
-                      engine.invoke('characterUnequip',
-                          positionalArgs: [_hero, itemData]);
+                      engine
+                          .invoke('unequip', positionalArgs: [_hero, itemData]);
                       engine.broadcast(const UIEvent.needRebuildUI());
                       if (widget.onEquipChanged != null) {
                         widget.onEquipChanged!();
                       }
                     } else {
-                      engine.invoke('characterEquip',
-                          positionalArgs: [_hero, itemData]);
+                      engine.invoke('equip', positionalArgs: [_hero, itemData]);
                       engine.broadcast(const UIEvent.needRebuildUI());
                       if (widget.onEquipChanged != null) {
                         widget.onEquipChanged!();
@@ -330,15 +329,14 @@ class _InventoryViewState extends State<InventoryView> {
                     final isEquipped = itemData['isEquippable'] == true &&
                         itemData['equippedPosition'] != null;
                     if (isEquipped) {
-                      engine.invoke('characterUnequip',
-                          positionalArgs: [_hero, itemData]);
+                      engine
+                          .invoke('unequip', positionalArgs: [_hero, itemData]);
                       engine.broadcast(const UIEvent.needRebuildUI());
                       if (widget.onEquipChanged != null) {
                         widget.onEquipChanged!();
                       }
                     } else {
-                      engine.invoke('characterEquip',
-                          positionalArgs: [_hero, itemData]);
+                      engine.invoke('equip', positionalArgs: [_hero, itemData]);
                       engine.broadcast(const UIEvent.needRebuildUI());
                       if (widget.onEquipChanged != null) {
                         widget.onEquipChanged!();

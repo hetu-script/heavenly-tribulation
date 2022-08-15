@@ -46,10 +46,14 @@ class EntityInfo extends StatelessWidget {
     final equipType = entityData['equipType'];
 
     String? levelString;
+    String? expString;
     if (entityType == kEntityTypeSkill) {
       final int level = entityData['level'];
       final int levelMax = entityData['levelMax'];
+      final int exp = entityData['exp'];
+      final int expForNextLevel = entityData['expForNextLevel'];
       levelString = '${level + 1}/${levelMax + 1}';
+      expString = '$exp/$expForNextLevel';
     }
 
     final stats = entityData['stats'];
@@ -152,11 +156,8 @@ class EntityInfo extends StatelessWidget {
                         Text(
                             '${engine.locale['coordination']}: ${entityData['coordination']}'),
                       if (entityType == kEntityTypeSkill) ...[
-                        Text(
-                            '${engine.locale['difficulty']}: ${entityData['difficulty']}'),
                         Text('${engine.locale['level']}: $levelString'),
-                        Text(
-                            '${engine.locale['exp']}: ${entityData['exp']}/${entityData['expForNextLevel']}'),
+                        Text('${engine.locale['exp']}: $expString'),
                       ],
                       if (equipType == kEquipTypeCompanion)
                         Text(

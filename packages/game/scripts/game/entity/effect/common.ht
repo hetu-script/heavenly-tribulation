@@ -92,6 +92,21 @@ fun getEffect({category, id, level}) {
   }
 }
 
+fun getEffects({category, count}) {
+  assert(category != null)
+  final c = gEffects[category]
+  final ec = Math.min(c.length, count)
+  final effects = {}
+  for (final i in range(ec)) {
+    var effect
+    do {
+      effect = getEffect(category: category)
+    } while (effects.containsKey(effect.id))
+    effects[effect.id] = effect
+  }
+  return effects
+}
+
 fun addEffect({categroy, id, effect}) {
   assert(category != null)
   assert(id != null)

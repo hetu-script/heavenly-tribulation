@@ -48,10 +48,14 @@ class EntityGrid extends StatelessWidget {
     var supportedCount = equippedSupportsData?.length ?? 0;
 
     String? levelString;
+    String? expString;
     if (entityType == kEntityTypeSkill) {
       final int level = entityData!['level'];
       final int levelMax = entityData!['levelMax'];
+      final int exp = entityData!['exp'];
+      final int expForNextLevel = entityData!['expForNextLevel'];
       levelString = '${level + 1}/${levelMax + 1}';
+      expString = '$exp/$expForNextLevel';
     }
 
     switch (style) {

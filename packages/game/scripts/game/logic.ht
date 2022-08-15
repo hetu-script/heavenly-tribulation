@@ -443,7 +443,7 @@ fun handleQuestEnding(quest, result) {
     kQuestCategoryDelivery -> {
       if (quest.result) {
         return showDialogByLocaleKeys(['delivery.submitSuccessed']).then((_) {
-          characterLootBox(hero, quest.reward)
+          loot(hero, quest.reward)
           quest.isEnded = true
         })
       } else {

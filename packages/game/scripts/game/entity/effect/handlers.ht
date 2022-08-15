@@ -7,19 +7,19 @@ final gEffectHandlers = {
   // 食用类效果
   // 回复体力
   restoreStamina: (effect, character) {
-    entityStaminaChange(character, effect.values[0].value)
+    changeStamina(character, effect.values[0].value)
   },
   // 回复生命
   restoreLife: (effect, character) {
-    entityLifeChange(character, effect.values[0].value)
+    changeLife(character, effect.values[0].value)
   },
   // 回复元气
   restoreMana: (effect, character) {
-    entityManaChange(character, effect.values[0].value)
+    changeMana(character, effect.values[0].value)
   },
   // 回复精神
   restoreSpirit: (effect, character) {
-    entitySpiritChange(character, effect.values[0].value)
+    changeSpirit(character, effect.values[0].value)
   },
   // 治疗外伤
   healInjury: (effect, character) {

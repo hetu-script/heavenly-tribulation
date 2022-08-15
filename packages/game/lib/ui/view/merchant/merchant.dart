@@ -89,7 +89,7 @@ class _MerchantViewState extends State<MerchantView> {
                   //   return;
                   // }
                   final result = engine.invoke(
-                    'entityGiveMoney',
+                    'giveMoney',
                     positionalArgs: [
                       heroData,
                       widget.merchantData,
@@ -98,7 +98,7 @@ class _MerchantViewState extends State<MerchantView> {
                   );
                   if (result) {
                     engine.invoke(
-                      'entityGiveItem',
+                      'give',
                       positionalArgs: [
                         widget.merchantData,
                         heroData,
@@ -137,7 +137,7 @@ class _MerchantViewState extends State<MerchantView> {
                   //   return;
                   // }
                   final result = engine.invoke(
-                    'entityGiveMoney',
+                    'giveMoney',
                     positionalArgs: [
                       widget.merchantData,
                       heroData,
@@ -145,7 +145,7 @@ class _MerchantViewState extends State<MerchantView> {
                     ],
                   );
                   if (result) {
-                    engine.invoke('entityGiveItem', positionalArgs: [
+                    engine.invoke('give', positionalArgs: [
                       heroData,
                       widget.merchantData,
                       item['id'],

@@ -39,7 +39,7 @@ fun characterAcceptQuest(character, site, quest) {
   if (entity.entityType == kEntityTypeCharacter || entity.entityType == kEntityTypeNpc) {
     characterGetCompanion(character, entity)
   } else if (entity.entityType == kEntityTypeItem) {
-    entityAcquireItem(character, entity)
+    acquire(character, entity)
   } else {
     engine.error('获取任务时发生错误，对象类型既不是人员也是物品：${entity.entityType}')
   }
@@ -81,7 +81,7 @@ fun characterTrySubmitQuest(character, target, quest) -> bool {
         final entity = character.companions[data.id]
         characterDismissCompanion(character, entity)
       } else if (data.entityType == kEntityTypeItem) {
-        entityGiveItem(character, target, data.id, count: data.count)
+        give(character, target, data.id, count: data.count)
       }
     }
   }

@@ -1,5 +1,5 @@
 import '../game.ht'
-import 'character/character.ht'
+import 'character/common.ht'
 
 /// 历史事件记录
 struct Incident {

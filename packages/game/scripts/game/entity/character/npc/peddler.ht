@@ -41,6 +41,6 @@ struct Peddler {
       }
     }
     
-    generateCharacterStats(this)
+    calculateCharacterStats(this)
   }
 }

@@ -231,7 +231,7 @@ fun handleWorldTerrainInteraction(left, top) {
               showProgress(getLocaleString('search'), checkProgress: () {
                 ++i
                 updateGame(ticks: kTicksPerDay)
-                entityStaminaChange(hero, -kTicksPerDay)
+                changeStamina(hero, -kTicksPerDay)
                 // TODO: 角色感知可以提高成功率
                 if (random.nextDouble() < kSearchSuccessProbability) {
                   found = true
@@ -265,7 +265,7 @@ fun handleWorldTerrainInteraction(left, top) {
               showProgress(getLocaleString('search'), checkProgress: () {
                 ++i
                 updateGame(ticks: kTicksPerDay)
-                entityStaminaChange(hero, -kTicksPerDay)
+                changeStamina(hero, -kTicksPerDay)
                 // TODO: 角色感知可以提高成功率
                 if (random.nextDouble() < kSearchSuccessProbability) {
                   found = true
@@ -302,7 +302,7 @@ fun handleWorldTerrainInteraction(left, top) {
             showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
               showProgress(getLocaleString('search'), checkProgress: () {
                 updateGame(ticks: kTicksPerDay)
-                entityStaminaChange(hero, -kTicksPerDay)
+                changeStamina(hero, -kTicksPerDay)
                 return false
               }).then((_) {
                 final incidentContent = getLocaleString('characterExplore', interpolations: [
@@ -330,7 +330,7 @@ fun handleWorldTerrainInteraction(left, top) {
           showProgress(getLocaleString('gather'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
-            entityStaminaChange(hero, -kTicksPerDay)
+            changeStamina(hero, -kTicksPerDay)
             when (terrain.kind) {
               kTerrainKindMountain -> {
                 if (random.nextDouble() < kMountainBeastProbability) {
@@ -338,10 +338,10 @@ fun handleWorldTerrainInteraction(left, top) {
                   return false
                 }
                 if (random.nextDouble() < kMountainHerbProbability) {
-                  entityAcquireItem(lootbox, Material.herb(), incidentOccured: false)
+                  acquire(lootbox, Material.herb(), incidentOccured: false)
                 }
                 if (random.nextDouble() < kMountainFruitProbability) {
-                  entityAcquireItem(lootbox, Material.fruit(), incidentOccured: false)
+                  acquire(lootbox, Material.fruit(), incidentOccured: false)
                 }
               }
               kTerrainKindForest -> {
@@ -350,18 +350,18 @@ fun handleWorldTerrainInteraction(left, top) {
                   return false
                 }
                 if (random.nextDouble() < kForestHerbProbability) {
-                  entityAcquireItem(lootbox, Material.herb(), incidentOccured: false)
+                  acquire(lootbox, Material.herb(), incidentOccured: false)
                 }
                 if (random.nextDouble() < kForestFruitProbability) {
-                  entityAcquireItem(lootbox, Material.fruit(), incidentOccured: false)
+                  acquire(lootbox, Material.fruit(), incidentOccured: false)
                 }
               }
               kTerrainKindPlain -> {
                 if (random.nextDouble() < kPlainHerbProbability) {
-                  entityAcquireItem(lootbox, Material.herb(), incidentOccured: false)
+                  acquire(lootbox, Material.herb(), incidentOccured: false)
                 }
                 if (random.nextDouble() < kPlainFruitProbability) {
-                  entityAcquireItem(lootbox, Material.fruit(), incidentOccured: false)
+                  acquire(lootbox, Material.fruit(), incidentOccured: false)
                 }
               }
             }
@@ -382,7 +382,7 @@ fun handleWorldTerrainInteraction(left, top) {
               if (lootbox.inventory.isEmpty) {
                 return showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
               } else {
-                characterLootBox(hero, lootbox)
+                loot(hero, lootbox)
               }
             } ().then((_) {
               if (metBeast) {
@@ -405,7 +405,7 @@ fun handleWorldTerrainInteraction(left, top) {
           showProgress(getLocaleString('woodcut'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
-            entityStaminaChange(hero, -kTicksPerDay)
+            changeStamina(hero, -kTicksPerDay)
             when (terrain.kind) {
               kTerrainKindMountain -> {
                 if (random.nextDouble() < kMountainBeastProbability) {
@@ -413,7 +413,7 @@ fun handleWorldTerrainInteraction(left, top) {
                   return false
                 }
                 if (random.nextDouble() < kMountainWoodProbability) {
-                  entityAcquireItem(lootbox, Material.wood(), incidentOccured: false)
+                  acquire(lootbox, Material.wood(), incidentOccured: false)
                 }
               }
               kTerrainKindForest -> {
@@ -422,12 +422,12 @@ fun handleWorldTerrainInteraction(left, top) {
                   return false
                 }
                 if (random.nextDouble() < kForestWoodProbability) {
-                  entityAcquireItem(lootbox, Material.wood(), incidentOccured: false)
+                  acquire(lootbox, Material.wood(), incidentOccured: false)
                 }
               }
               kTerrainKindPlain -> {
                 if (random.nextDouble() < kPlainWoodProbability) {
-                  entityAcquireItem(lootbox, Material.wood(), incidentOccured: false)
+                  acquire(lootbox, Material.wood(), incidentOccured: false)
                 }
               }
             }
@@ -448,7 +448,7 @@ fun handleWorldTerrainInteraction(left, top) {
               if (lootbox.inventory.isEmpty) {
                 return showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
               } else {
-                characterLootBox(hero, lootbox)
+                loot(hero, lootbox)
               }
             } ().then((_) {
               if (metBeast) {
@@ -471,7 +471,7 @@ fun handleWorldTerrainInteraction(left, top) {
           showProgress(getLocaleString('mine'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
-            entityStaminaChange(hero, -kTicksPerDay)
+            changeStamina(hero, -kTicksPerDay)
             when (terrain.kind) {
               kTerrainKindMountain -> {
                 if (random.nextDouble() < kMountainBeastProbability) {
@@ -479,10 +479,10 @@ fun handleWorldTerrainInteraction(left, top) {
                   return false
                 }
                 if (random.nextDouble() < kMountainOreProbability) {
-                  entityAcquireItem(lootbox, Material.ore(), incidentOccured: false)
+                  acquire(lootbox, Material.ore(), incidentOccured: false)
                 }
                 if (random.nextDouble() < kMountainJadeProbability) {
-                  entityAcquireItem(lootbox, Jade(), incidentOccured: false)
+                  acquire(lootbox, Jade(), incidentOccured: false)
                 }
               }
               kTerrainKindForest -> {
@@ -491,18 +491,18 @@ fun handleWorldTerrainInteraction(left, top) {
                   return false
                 }
                 if (random.nextDouble() < kForestOreProbability) {
-                  entityAcquireItem(lootbox, Material.ore(), incidentOccured: false)
+                  acquire(lootbox, Material.ore(), incidentOccured: false)
                 }
                 if (random.nextDouble() < kForestJadeProbability) {
-                  entityAcquireItem(lootbox, Jade(), incidentOccured: false)
+                  acquire(lootbox, Jade(), incidentOccured: false)
                 }
               }
               kTerrainKindPlain -> {
                 if (random.nextDouble() < kPlainOreProbability) {
-                  entityAcquireItem(lootbox, Material.ore(), incidentOccured: false)
+                  acquire(lootbox, Material.ore(), incidentOccured: false)
                 }
                 if (random.nextDouble() < kPlainJadeProbability) {
-                  entityAcquireItem(lootbox, Jade(), incidentOccured: false)
+                  acquire(lootbox, Jade(), incidentOccured: false)
                 }
               }
             }
@@ -523,7 +523,7 @@ fun handleWorldTerrainInteraction(left, top) {
               if (lootbox.inventory.isEmpty) {
                 return showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
               } else {
-                characterLootBox(hero, lootbox)
+                loot(hero, lootbox)
               }
             } ().then((_) {
               if (metBeast) {
@@ -545,7 +545,7 @@ fun handleWorldTerrainInteraction(left, top) {
           showProgress(getLocaleString('hunt'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
-            entityStaminaChange(hero, -kTicksPerDay)
+            changeStamina(hero, -kTicksPerDay)
             when (terrain.kind) {
               kTerrainKindMountain -> {
                 if (random.nextDouble() < (kMountainBeastProbability * kHuntBeastProbability)) {
@@ -605,16 +605,16 @@ fun handleWorldTerrainInteraction(left, top) {
           showProgress(getLocaleString('fish'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
-            entityStaminaChange(hero, -kTicksPerDay)
+            changeStamina(hero, -kTicksPerDay)
             when (terrain.kind) {
               kTerrainKindLake -> {
                 if (random.nextDouble() < kLakeFishProbability) {
-                  entityAcquireItem(lootbox, Material.fish(), incidentOccured: false)
+                  acquire(lootbox, Material.fish(), incidentOccured: false)
                 }
               }
               kTerrainKindSea -> {
                 if (random.nextDouble() < kSeaFishProbability) {
-                  entityAcquireItem(lootbox, Material.fish(), incidentOccured: false)
+                  acquire(lootbox, Material.fish(), incidentOccured: false)
                 }
               }
             }
@@ -634,7 +634,7 @@ fun handleWorldTerrainInteraction(left, top) {
             if (lootbox.inventory.isEmpty) {
               return showDialogByLocaleKeys(['interactionGotNothing'], character: hero)
             } else {
-              characterLootBox(hero, lootbox)
+              loot(hero, lootbox)
             }
           })
         })
@@ -725,23 +725,23 @@ fun _handleHomeInteraction(site) {
             title: getLocaleString('selectSkill'),
             skills: hero.skills,
           ).then((skill) {
-            // if (skill.level >= skill.levelMax) {
-            //   showDialogByLocaleKeys(['skillLevelReachMax'], character: hero, interpolations: [skill.name])
-            //   return
-            // }
+            if (skill.exp >= skill.expForNextLevel) {
+              showDialogByLocaleKeys(['skillExpReachMax'], character: hero, interpolations: [skill.name])
+              return
+            }
 
             final cost = skill.cost?.practice
             
             // 每天会根据技能本身要求的消耗，减少对应的资源
             fun practiceCost {
               if (cost?.stamina) {
-                entityStaminaChange(hero, -kTicksPerDay * cost.stamina)
+                changeStamina(hero, -kTicksPerDay * cost.stamina)
               }
               if (cost?.mana) {
-                entityManaChange(hero, -kTicksPerDay * cost.mana)
+                changeMana(hero, -kTicksPerDay * cost.mana)
               }
               if (cost?.spirit) {
-                entitySpiritChange(hero, -kTicksPerDay * cost.spirit)
+                changeSpirit(hero, -kTicksPerDay * cost.spirit)
               }
             }
 
@@ -771,7 +771,7 @@ fun _handleHomeInteraction(site) {
               }
             }
 
-            // // 可用的修炼天数
+            // 可用的修炼天数
             if (staminaAvailableDays) availableDays = staminaAvailableDays
             if (manaAvailableDays) availableDays = Math.min(availableDays, manaAvailableDays)
             if (spiritAvailableDays) availableDays = Math.min(availableDays, spiritAvailableDays)
@@ -786,6 +786,7 @@ fun _handleHomeInteraction(site) {
                 updateGame(ticks: kTicksPerDay)
                 practiceCost()
                 expGained += kTicksPerDay
+                if ((skill.exp + expGained) >= skill.expForNextLevel) return false
                 if (i >= days) return false
                 return true
               }).then((_) {
@@ -802,6 +803,9 @@ fun _handleHomeInteraction(site) {
                   content: incidentContent,
                   isPrivate: true,
                 )
+                if ((skill.exp + expGained) >= skill.expForNextLevel) {
+                  showDialogByLocaleKeys(['skillExpReachMax'], character: hero, interpolations: [skill.name])
+                }
               })
             })
           })

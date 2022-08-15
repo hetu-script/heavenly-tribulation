@@ -53,11 +53,11 @@ struct ElderCultivator {
         )
         this.assign(battleInfo)
         this.icon = 'maze/elder_cultivator.png'
-        characterEquip(this, Weapon())
-        characterEquip(this, Kungfu())
+        equip(this, Weapon())
+        equip(this, Kungfu())
       }
     }
     
-    generateCharacterStats(this)
+    calculateCharacterStats(this)
   }
 }

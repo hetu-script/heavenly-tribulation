@@ -301,9 +301,9 @@ struct MountainMaze {
           when (encounterType) {
             'peddler' -> {
               final peddler = Peddler()
-              entityAcquireMoney(peddler, 1000)
-              entityAcquireItem(peddler, Consumable.medicine(), count: 20)
-              entityAcquireItem(peddler, Consumable.beverage(), count: 20)
+              acquireMoney(peddler, 1000)
+              acquire(peddler, Consumable.medicine(), count: 20)
+              acquire(peddler, Consumable.beverage(), count: 20)
               peddler.encounterType = encounterType
               this.entities[peddler.id] = peddler
               currentLevel.terrains[anchor.index].entityId = peddler.id
@@ -505,7 +505,7 @@ fun onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
         when (key) {
           // 现实主义
           'handOver' -> {
-            characterLootOther(entity, hero, takeAll: true)
+            lootCharacter(entity, hero, takeAll: true)
             return false
           }
           // 向盗贼求情，是否成功依赖于
@@ -514,7 +514,7 @@ fun onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
             if (hero.stats.charisma > kCharismaCheckThreshold) {
               showDialogByLocaleKeys(['pleadSuccess'], character: entity)
                 .then((_) {
-                  characterLootOther(entity, hero, takeAll: false)
+                  lootCharacter(entity, hero, takeAll: false)
                 })
               return false
             } else {

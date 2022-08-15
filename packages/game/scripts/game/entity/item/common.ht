@@ -11,9 +11,8 @@ const kUnknownItemIcon = 'icon/unknown_item.png'
 const kEquipTypeOffense = 'offense'
 const kEquipTypeSupport = 'support'
 const kEquipTypeDefense = 'defense'
+const kEquipTypeArcana = 'arcana'
 const kEquipTypeCompanion = 'companion'
-// const kEquipTypeArmor = 'armor'
-// const kEquipTypeBoots = 'boots'
 // const kEquipTypeManeuver = 'maneuver'
 
 // final kEquipmentMax = {

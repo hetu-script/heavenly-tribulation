@@ -18,7 +18,7 @@
   "characterEquipSkill": "{0} 开始运使 {1}。",
   "characterJoinFight": "{0} 将与 {1} 一同出战。",
   "characterFollow": "{0} 开始跟随 {1}。",
-  "characterAcquireItem": "{0} 得到了 {1}。",
+  "characteracquire": "{0} 得到了 {1}。",
   "characterAcquireMultipleItem": "{0} 得到了 {1} 个 {2}。",
   "characterGiveItem": "{0} 将 {1} 给了 {2}。",
   "characterGiveItemForced": "{0} 拿走了 {1} 身上的 {2}。",

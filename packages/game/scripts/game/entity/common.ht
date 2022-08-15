@@ -3,6 +3,7 @@ import 'effect/effect.ht'
 import 'character/companion.ht'
 import 'item/money.ht'
 import 'skill/common.ht'
+import '../dialog.ht'
 
 const kNone = 'none'
 
@@ -165,7 +166,7 @@ const kEntityMaterialKindWater = 'water'
 const kEntityMaterialKindEnergy = 'energy'
 const kEntityMaterialKindSpectre = 'spectre'
 
-fun _entityStatsChange(data, statsName, change, { overflow = false }) {
+fun _statsChange(data, statsName, change, { overflow = false }) {
   assert(data[statsName] != null)
   data[statsName] += change
   if (!overflow) {
@@ -175,35 +176,35 @@ fun _entityStatsChange(data, statsName, change, { overflow = false }) {
   }
 }
 
-fun entityStaminaChange(entity, change, { overflow = false }) {
+fun changeStamina(entity, change, { overflow = false }) {
   if (entity.stats) {
-    _entityStatsChange(entity.stats, 'stamina', change, overflow: overflow)
+    _statsChange(entity.stats, 'stamina', change, overflow: overflow)
   } else {
-    _entityStatsChange(entity, 'stamina', change, overflow: overflow)
+    _statsChange(entity, 'stamina', change, overflow: overflow)
   }
 }
 
-fun entityLifeChange(entity, change, { overflow = false }) {
+fun changeLife(entity, change, { overflow = false }) {
   if (entity.stats) {
-    _entityStatsChange(entity.stats, 'life', change, overflow: overflow)
+    _statsChange(entity.stats, 'life', change, overflow: overflow)
   } else {
-    _entityStatsChange(entity, 'life', change, overflow: overflow)
+    _statsChange(entity, 'life', change, overflow: overflow)
   }
 }
 
-fun entityManaChange(entity, change, { overflow = false }) {
+fun changeMana(entity, change, { overflow = false }) {
   if (entity.stats) {
-    _entityStatsChange(entity.stats, 'mana', change, overflow: overflow)
+    _statsChange(entity.stats, 'mana', change, overflow: overflow)
   } else {
-    _entityStatsChange(entity, 'mana', change, overflow: overflow)
+    _statsChange(entity, 'mana', change, overflow: overflow)
   }
 }
 
-fun entitySpiritChange(entity, change, { overflow = false }) {
+fun changeSpirit(entity, change, { overflow = false }) {
   if (entity.stats) {
-    _entityStatsChange(entity.stats, 'spirit', change, overflow: overflow)
+    _statsChange(entity.stats, 'spirit', change, overflow: overflow)
   } else {
-    _entityStatsChange(entity, 'spirit', change, overflow: overflow)
+    _statsChange(entity, 'spirit', change, overflow: overflow)
   }
 }
 
@@ -230,18 +231,19 @@ const kDamageTypeCurse = 'curse'
 
 // level up exp function from pokemon
 fun expForLevel(difficulty, level) {
+  assert(difficulty >= 0)
   assert(level >= 0)
-  return ((difficulty * (level * level * level)) ~/ 5 + 1) * 10
+  return (((difficulty + 1) * (level * level * level)) ~/ 5 + 1) * 10
 }
 
-fun entityAcquireMoney(entity, value, { incidentOccured = true }) {
+fun acquireMoney(entity, value, { incidentOccured = true }) {
   if (value < 1) return
   final money = Coin(stackSize: value)
-  entityAcquireItem(entity, money, incidentOccured: incidentOccured)
+  acquire(entity, money, incidentOccured: incidentOccured)
 }
 
 // 角色、场景获得物品，此函数并不会复制该物品，因此物品不能在其他角色的物品栏中
-fun entityAcquireItem(entity, item, { count, incidentOccured = true }) {
+fun acquire(entity, item, { count, incidentOccured = true }) {
   // 某些时候会批量生成物品，可能数量会是 0，此时直接跳过，但无需报错
   if (count != null) {
     if (count < 1) return
@@ -272,29 +274,31 @@ fun entityAcquireItem(entity, item, { count, incidentOccured = true }) {
       isPrivate: true,
     )
   }
+
+  return null
 }
 
 // 如果成功支付返回 0，否则返回 欠缺的数量
-fun entityGiveMoney(entity, target, value, { isForced = false, incidentOccured = true }) {
+fun giveMoney(entity, target, value, { isForced = false, incidentOccured = true }) {
   if (value < 0) {
-    engine.error('函数 entityGiveMoney 调用时的金额参数无效（小于 0）。')
+    engine.error('函数 giveMoney 调用时的金额参数无效（小于 0）。')
     return
   }
   if (value == 0) return
 
   // final goldValue = value ~/ kGoldExchange
   // var rest = value - goldValue
-  // final restAfterGold = entityGiveItem(entity, target, 'item.goldCoin', count: goldValue)
+  // final restAfterGold = give(entity, target, 'item.goldCoin', count: goldValue)
   // rest += restAfterGold
 
   // final silverValue = rest ~/ kSilverExchange
   // var rest = value - silverValue
-  // final restAfterSilver = entityGiveItem(entity, target, 'item.silverCoint', count: silverValue)
+  // final restAfterSilver = give(entity, target, 'item.silverCoint', count: silverValue)
   // rest += restAfterSilver
 
   final money = entity.inventory['item.bronzeCoin']
   if (money != null && money.stackSize >= value) {
-    entityGiveItem(entity, target, money.id, count: value, isForced: isForced, incidentOccured: incidentOccured)
+    give(entity, target, money.id, count: value, isForced: isForced, incidentOccured: incidentOccured)
     return true
   }
   return false
@@ -305,7 +309,7 @@ fun entityGiveMoney(entity, target, value, { isForced = false, incidentOccured =
 // 将会立刻移除该物品，不要在物品栏循环中使用这个函数
 // 此函数即便数量不够也会尽量支付
 // 如果成功提供足够数量的指定物品，返回 0，否则返回 欠缺的数量
-fun entityGiveItem(entity, target, itemId, { count, removeItem = true, isForced = false, incidentOccured = true}) {
+fun give(entity, target, itemId, { count, removeItem = true, isForced = false, incidentOccured = true}) {
   if (count <= 0) return 0
   var rest = count ?? 1
   if (!entity.inventory.containsKey(itemId)) {
@@ -314,7 +318,7 @@ fun entityGiveItem(entity, target, itemId, { count, removeItem = true, isForced 
   }
   final item = entity.inventory[itemId]
   count ??= item.stackSize ?? 1
-  if (item.equippedPosition) characterUnequip(entity, item)
+  if (item.equippedPosition) unequip(entity, item)
   var incidentContent
 
   var actualNumber = count
@@ -391,7 +395,7 @@ fun entityGiveItem(entity, target, itemId, { count, removeItem = true, isForced 
 // 使用食物或者丹药
 // 返回值代表是否使用成功
 // 此函数允许对一个不在物品栏中的物品调用
-fun characterConsume(character, item, { forcerCharacter }) {
+fun consume(character, item, { forcerCharacter }) {
   if (!item.isConsumable) {
     engine.warning('${item.name} 无法食用。')
     return false
@@ -494,7 +498,7 @@ fun characterConsume(character, item, { forcerCharacter }) {
 //   equipType,
 //   life,
 // }
-fun characterEquip(character, entity, { index }) -> bool {
+fun equip(character, entity, { index }) -> bool {
   assert(index == null || (index > 0 && index < kEquipmentMax))
   if (!entity.isEquippable) {
     engine.warning('${entity.name} 无法装备。')
@@ -513,7 +517,7 @@ fun characterEquip(character, entity, { index }) -> bool {
   }
   when (entity.entityType) {
     kEntityTypeItem -> {
-      if (!character.inventory[entity.id]) entityAcquireItem(character, entity)
+      if (!character.inventory[entity.id]) acquire(character, entity)
       
       final incidentContent = getLocaleString('characterEquip', interpolations: [
         character.name,
@@ -526,11 +530,11 @@ fun characterEquip(character, entity, { index }) -> bool {
       )
     }
     kEntityTypeSkill -> {
-      if (!character.skills[entity.id]) characterLearn(character, entity)
+      if (!character.skills[entity.id]) learn(character, entity)
 
       if (entity.level < 0) {
-        engine.warning('技能 ${entity.name} 等级太低（${entity.level}），无法装备。')
-        return
+        showDialogByLocaleKeys(['equipSkillFaied'], character: hero, interpolations: [entity.name])
+        return false
       }
       
       final incidentContent = getLocaleString('characterEquipSkill', interpolations: [
@@ -546,8 +550,8 @@ fun characterEquip(character, entity, { index }) -> bool {
     //不在角色的随从列表中的人物
     kEntityTypeNpc, kEntityTypeCharacter -> {
       if (entity.companionType != kCompanionTypeBattle) {
-        engine.warning('${entity.name} 无法设置为战斗伙伴。')
-        return null
+        showDialogByLocaleKeys(['companionCannotBattle'], character: hero, interpolations: [entity.name])
+        return false
       }
       entity =
         character.companions.containsKey(entity.id) ?
@@ -571,8 +575,8 @@ fun characterEquip(character, entity, { index }) -> bool {
     // 已经在角色的随从列表中的人物
     kEntityTypeCompanion -> {
       if (entity.companionType != kCompanionTypeBattle) {
-        engine.warning('${entity.name} 无法设置为战斗伙伴。')
-        return null
+        showDialogByLocaleKeys(['companionCannotBattle'], character: hero, interpolations: [entity.name])
+        return false
       }
       
       final incidentContent = getLocaleString('characterJoinFight', interpolations: [
@@ -672,7 +676,7 @@ fun characterEquip(character, entity, { index }) -> bool {
   return equipped
 }
 
-fun characterUnequip(character, entity) {
+fun unequip(character, entity) {
   assert(entity.equippedPosition != null)
   when (entity.equipType) {
     // 剑法、心诀等支持型技能
@@ -683,11 +687,13 @@ fun characterUnequip(character, entity) {
       calculateItemSupports(mainItem)
     }
     // 斗技、武器、法宝等
-    kEquipTypeDefense, kEquipTypeOffense, kEquipTypeCompanion -> {
+    // kEquipTypeDefense, kEquipTypeOffense, kEquipTypeCompanion -> {
+    else -> {
       delete character.equipments[entity.equippedPosition]
     }
   }
   delete entity.equippedPosition
+  calculateCharacterStats(character)
 }
 
 /// 获取某个装备对应的物品数据 （equipData => itemData）
@@ -709,8 +715,13 @@ fun getEquipped(equipData, character) {
   return entity
 }
 
-fun getFirstEquippedOffenseItem(character) {
-  for (final i in range(1, kEquipmentMax)) {
+// 找到装备位置在 index 之后的下一个进攻性装备
+fun getEquippedOffenseItem(character, [ start = 0, end = kEquipmentMax ]) {
+  assert(start >= 0)
+  assert(end <= kEquipmentMax)
+  assert(start < end)
+  // 从index开始找
+  for (final i in range(start + 1, end)) {
     final equipData = character.equipments[i]
     if (equipData != null) {
       if (equipData.equipType == kEquipTypeOffense) {
@@ -718,36 +729,19 @@ fun getFirstEquippedOffenseItem(character) {
       }
     }
   }
-}
-
-// 找到装备位置在 index 之后的下一个进攻性装备
-fun getNextEquippedOffenseItem(character, index) {
-  assert(index > 0)
-  // 上次的index已经是最后一个了，从头开始找
-  if (index >= (kEquipmentMax - 1)) {
-    return getFirstEquippedOffenseItem(character)
-  } else {
-    // 从index开始找
-    for (final i in range(index + 1, kEquipmentMax)) {
-      final equipData = character.equipments[i]
-      if (equipData != null) {
-        if (equipData.equipType == kEquipTypeOffense) {
-          return getEquipped(equipData, character)
-        }
-      }
-    }
+  if (start > 0) {
+    // 没有找到匹配的装备，从头开始找
+    return getEquippedOffenseItem(character, start: 0, end: start)
   }
-  // 没有找到匹配的装备，从头开始找
-  return getFirstEquippedOffenseItem(character)
 }
 
 // 批量获取物品，但不显示从那里获得的，通常用于从箱子或包裹中批量拿取
-fun characterLootBox(character, lootbox, { incidentOccured = true }) {
+fun loot(character, lootbox, { incidentOccured = true }) {
   for (final item of lootbox.inventory) {
-    entityAcquireItem(character, item, count: item.stackSize, incidentOccured: incidentOccured)
+    acquire(character, item, count: item.stackSize, incidentOccured: incidentOccured)
   }
   // if (lootbox.money) {
-  //   entityAcquireMoney(character, lootbox.money, incidentOccured: incidentOccured)
+  //   acquireMoney(character, lootbox.money, incidentOccured: incidentOccured)
   // }
 
   // 清空箱子
@@ -761,15 +755,15 @@ fun characterLootBox(character, lootbox, { incidentOccured = true }) {
 // 战斗胜利后，根据情况获得战利品
 // 如果对方逃跑，则随机获得对方一部分物品
 // 否则，如果对方活着，则根据我们对其投降的处理方案（杀死活着放走）
-fun characterLootOther(character, target, { takeAll = false, incidentOccured = true }) {
+fun lootCharacter(character, target, { takeAll = false, incidentOccured = true }) {
   if (takeAll) {
     // 为了避免在循环中修改 iterable，先提取出 id 列表
     final itemIds = target.inventory.keys.toList()
     for (final itemId in itemIds) {
-      entityGiveItem(target, character, itemId, isForced: true, incidentOccured: incidentOccured)
+      give(target, character, itemId, isForced: true, incidentOccured: incidentOccured)
     }
     if (target.money) {
-      entityGiveMoney(target, character, target.money, isForced: true, incidentOccured: incidentOccured)
+      giveMoney(target, character, target.money, isForced: true, incidentOccured: incidentOccured)
     }
   } else {
     // 为了避免在循环中修改 iterable，先提取出 id 列表
@@ -778,11 +772,11 @@ fun characterLootOther(character, target, { takeAll = false, incidentOccured = t
       final stackSize = target.inventory[itemId].stackSize
       if (random.nextDouble() < kEscapedLootProbability) {
         var count = stackSize > 1 ? random.nextInt(stackSize) + 1 : 1
-        entityGiveItem(target, character, itemId, count: count, isForced: true, incidentOccured: incidentOccured)
+        give(target, character, itemId, count: count, isForced: true, incidentOccured: incidentOccured)
       }
     }
     if (target.money && random.nextDouble() < kEscapedLootProbability) {
-      entityGiveMoney(target, character, random.nextInt(target.money) + 1, isForced: true, incidentOccured: incidentOccured)
+      giveMoney(target, character, random.nextInt(target.money) + 1, isForced: true, incidentOccured: incidentOccured)
     }
   }
 }
