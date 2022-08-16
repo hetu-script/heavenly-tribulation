@@ -16,8 +16,6 @@ final kCharacterAttributeNames = [
   'willpower',
   'perception',
   'dexterity',
-  'intelligence',
-  'charisma',
 ]
 
 const kMajorAttributeFactor = 0.75

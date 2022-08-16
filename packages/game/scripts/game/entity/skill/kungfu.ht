@@ -9,7 +9,7 @@ final kKungfuKinds = {
   'boxing': {
     damageType: kDamageTypeBludgeon,
     icon: 'icon/skill/martial_0.png',
-    attributeLevels: [
+    attributes: [
       {
         speed: 6,
         damage: 20,
@@ -19,7 +19,7 @@ final kKungfuKinds = {
   'wrestling': {
     damageType: kDamageTypeBludgeon,
     icon: 'icon/skill/martial_0.png',
-    attributeLevels: [
+    attributes: [
       {
         speed: 10,
         damage: 10,
@@ -38,8 +38,6 @@ struct Kungfu {
     createdTime,
     description,
     kind,
-    level,
-    levelMax,
     attributeLevels,
     attributes,
   }) {
@@ -69,15 +67,6 @@ struct Kungfu {
 
     this.icon = kKungfuKinds[this.kind].icon
 
-    // 技能等级，提升等级需要练习
-    // 刚学会时是-1级，此时无法装备
-    this.level = level ?? -1
-    final myLevel = this.level >= 0 ? this.level : 0
-    // 此技能最大等级，注意技能最大等级和其对应的效果的最大等级无关
-    this.levelMax = levelMax ?? 0
-    this.exp = 0 // 当前经验值
-    this.expForNextLevel = expForLevel(this.difficulty, this.level + 1) // 下一等级需要的经验值
-
     this.cost = {
       // 练习时每个tick的消耗
       practice: {
@@ -91,8 +80,7 @@ struct Kungfu {
 
     this.damageType = kKungfuKinds[this.kind].damageType
 
-    this.attributeLevels = kKungfuKinds[this.kind].attributeLevels.clone()
-    this.attributes = this.attributeLevels[myLevel].clone()
+    this.attributes = kKungfuKinds[this.kind].attributes.clone()
 
     if (attributes) {
       this.attributes.assign(attributes)
@@ -100,6 +88,7 @@ struct Kungfu {
     // -1级技能也显示0级技能的效果
     this.attributes.effects = {}
     final effect = getEffect(category: this.kind, level: myLevel)
+    initEffectData(effect, this.difficulty, kSkillInitialEfficiency)
     this.attributes.effects[effect.id] = effect
 
     // 在此物品上装备的支持性对象

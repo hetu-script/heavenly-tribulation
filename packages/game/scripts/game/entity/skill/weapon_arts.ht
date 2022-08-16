@@ -91,6 +91,7 @@ struct WeaponArts {
     // -1级技能也显示0级技能的效果
     final effect = getEffect(category: this.kind, level: this.level >= 0 ? this.level : 0)
     if (effect != null) {
+      initEffectData(effect, this.difficulty, kSkillInitialEfficiency)
       this.attributes.effects[effect.id] = effect
     }
 

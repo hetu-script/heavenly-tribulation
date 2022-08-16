@@ -23,9 +23,7 @@ final _kBeastAttributes = {
     spirituality: 0,
     willpower: 44,
     dexterity: 51,
-    intelligence: 49,
     perception: 63,
-    charisma: 43,
   },
   muscle: {
     strength: 92,
@@ -33,9 +31,7 @@ final _kBeastAttributes = {
     spirituality: 0,
     willpower: 73,
     dexterity: 60,
-    intelligence: 32,
     perception: 47,
-    charisma: 31,
   },
   killer: {
     strength: 80,
@@ -43,9 +39,7 @@ final _kBeastAttributes = {
     spirituality: 0,
     willpower: 77,
     dexterity: 84,
-    intelligence: 76,
     perception: 85,
-    charisma: 60,
   },
   boss: {
     strength: 95,
@@ -53,9 +47,7 @@ final _kBeastAttributes = {
     spirituality: 0,
     willpower: 80,
     dexterity: 72,
-    intelligence: 89,
     perception: 86,
-    charisma: 66,
   },
 }
 

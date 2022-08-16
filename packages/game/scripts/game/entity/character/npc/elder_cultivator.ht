@@ -15,9 +15,7 @@ final _kElderCultivatorAttributes = {
     spirituality: 0,
     willpower: 44,
     dexterity: 51,
-    intelligence: 49,
     perception: 63,
-    charisma: 43,
   }
 }
 

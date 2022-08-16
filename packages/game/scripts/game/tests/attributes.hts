@@ -1,10 +1,11 @@
+
 final kCharacterAttributeNames = [
   'strength',
-  'superpower',
-  'intelligence',
+  'constitution',
+  'spirituality',
+  'willpower',
   'perception',
-  'leadership',
-  'management',
+  'dexterity',
 ]
 
 fun generateCharacterAttributes(maxStats, minValue) {

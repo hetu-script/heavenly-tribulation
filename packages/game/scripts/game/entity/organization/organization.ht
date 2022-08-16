@@ -324,24 +324,25 @@ struct Organization {
     // 本国的门派
     this.organizationIds = []
   }
+  
+  construct business({
+    name,
+    headquartersId,
+    leaderId,
+    development = 0,
+    rankTitles,
+  }): this(
+    category: kOrganizationCategoryBusiness,
+    name: name,
+    headquartersId: headquartersId,
+    leaderId: leaderId,
+    development = 0,
+    rankTitles,
+  ) {
+
+  }
 }
 
-construct business({
-  name,
-  headquartersId,
-  leaderId,
-  development = 0,
-  rankTitles,
-}): this(
-  category: kOrganizationCategoryBusiness,
-  name: name,
-  headquartersId: headquartersId,
-  leaderId: leaderId,
-  development = 0,
-  rankTitles,
-) {
-
-}
 
 // fun getLeaderTitle(organization) {
 //   return organization.name + getLocaleString('${organization.category}LeaderTitle')

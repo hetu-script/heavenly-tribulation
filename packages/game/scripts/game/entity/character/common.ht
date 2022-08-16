@@ -14,10 +14,10 @@ import 'companion.ht'
 const _kMaleAvatarCount = 37
  // number of the female avatar images
 const _kFemaleAvatarCount = 75
-const _kCharacterAverageLooks = 60.0
-const _kCharacterLooksDeviation = 25.0
+const _kCharacterAverage = 60.0
+const _kCharacterDeviation = 25.0
 /// 容貌最大值: 100.0
-const _kCharacterMaxLooks = 100.0
+const _kCharacterMax = 100.0
 const _kCharacterImpressionCheckpoint = 10.0
 const _kCharacterInitialGeneralThinking = 4
 const _kMajorMotivationProbobility = 0.2
@@ -35,7 +35,7 @@ final kMajorMotivations = [
 ]
 
 final kMinorMotivations = [
-  'recruitment'
+  'recruitment',
   'marriage',
   'child',
 ]
@@ -199,18 +199,26 @@ struct Character {
       this.birthTimestamp = createRandomBirthTimestamp()
     }
     this.nationId = nationId
+
+    this.intelligence = Math.gaussianNoise(
+      _kCharacterAverage,
+      _kCharacterDeviation,
+      min: 1,
+      max: _kCharacterMax,
+      randomGenerator: random,
+    )
     this.looks = Math.gaussianNoise(
-      _kCharacterAverageLooks,
-      _kCharacterLooksDeviation,
-      min: 0,
-      max: 100,
+      _kCharacterAverage,
+      _kCharacterDeviation,
+      min: 1,
+      max: _kCharacterMax,
       randomGenerator: random,
     )
     this.favoredLooks =  Math.gaussianNoise(
-      _kCharacterMaxLooks,
-      _kCharacterLooksDeviation,
-      min: 0,
-      max: 100,
+      _kCharacterMax,
+      _kCharacterDeviation,
+      min: 1,
+      max: _kCharacterMax,
       randomGenerator: random,
     )
 
@@ -424,14 +432,14 @@ fun getCharacterFameString(character) {
 /// looks 是对方的容貌，0 <= looks <= 100
 /// favor 是该角色的偏好，0 <= favor <= 100
 fun _calculateLooksScore({looks: float, favor: float}) -> float {
-  assert(0.0 <= looks && looks <= _kCharacterMaxLooks)
+  assert(0.0 <= looks && looks <= _kCharacterMax)
   if (favor != null) {
-    assert(0.0 <= favor && favor <= _kCharacterMaxLooks)
+    assert(0.0 <= favor && favor <= _kCharacterMax)
   }
-  if (looks < ((favor + _kCharacterMaxLooks) / 2)) {
-    return (-(looks - favor) * (looks - favor)) / 20 + _kCharacterMaxLooks
+  if (looks < ((favor + _kCharacterMax) / 2)) {
+    return (-(looks - favor) * (looks - favor)) / 20 + _kCharacterMax
   } else {
-    return (-(looks - _kCharacterMaxLooks) * (looks - _kCharacterMaxLooks)) / 20 + _kCharacterMaxLooks
+    return (-(looks - _kCharacterMax) * (looks - _kCharacterMax)) / 20 + _kCharacterMax
   }
 }
 

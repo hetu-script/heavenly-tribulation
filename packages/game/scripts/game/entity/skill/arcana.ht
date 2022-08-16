@@ -43,15 +43,7 @@ struct Arcana {
     this.equipType = kEquipTypeArcana // 装备类型：进攻、如果没有就是不可装备
 
     this.icon = 'icon/skill/arcane_0.png'
-
-    // 技能等级，提升等级需要练习
-    // 刚学会时是-1级，此时无法装备
-    this.level = level ?? -1
-    // 此技能最大等级，注意技能最大等级和其对应的效果的最大等级无关
-    this.levelMax = levelMax ?? 0
-    this.exp = 0 // 当前经验值
-    this.expForNextLevel = expForLevel(this.difficulty, this.level + 1) // 下一等级需要的经验值
-
+    
     this.cost = {
       // 练习时每个tick的消耗
       practice: {
@@ -67,6 +59,10 @@ struct Arcana {
     }
 
     this.attributes.effects = getEffects(category: this.kind, count: this.difficulty + 1)
+
+    for (final effect of this.attributes.effects) {
+      initEffectData(effect, this.difficulty, kSkillInitialEfficiency)
+    }
 
     // 在此物品上装备的支持性对象
     this.equippedSupports = []

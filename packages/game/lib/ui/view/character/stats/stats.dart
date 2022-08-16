@@ -10,12 +10,10 @@ import '../../../shared/label.dart';
 const kCharacterAttributeNames = [
   'strength',
   'constitution',
+  'dexterity',
   'spirituality',
   'willpower',
-  'dexterity',
   'perception',
-  'intelligence',
-  'charisma',
 ];
 
 class StatsView extends StatelessWidget {

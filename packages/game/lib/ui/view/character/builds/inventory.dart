@@ -272,24 +272,24 @@ class _InventoryViewState extends State<InventoryView> {
         Widget? action;
         if (widget.type == InventoryType.player) {
           if (entityType == kEntityTypeSkill) {
-            final bool canLevelUp =
-                itemData['exp'] >= itemData['expForNextLevel'] &&
-                    itemData['level'] < itemData['levelMax'];
+            // final bool canLevelUp =
+            //     itemData['exp'] >= itemData['expForNextLevel'] &&
+            //         itemData['level'] < itemData['levelMax'];
             action = Column(
               children: [
-                ElevatedButton(
-                  onPressed: canLevelUp
-                      ? () {
-                          engine.invoke('skillLevelUp',
-                              positionalArgs: [_hero, itemData]);
-                          setState(() {});
-                          engine.broadcast(const UIEvent.needRebuildUI());
-                        }
-                      : null,
-                  child: Text(
-                    engine.locale['levelUp'],
-                  ),
-                ),
+                // ElevatedButton(
+                //   onPressed: canLevelUp
+                //       ? () {
+                //           engine.invoke('skillLevelUp',
+                //               positionalArgs: [_hero, itemData]);
+                //           setState(() {});
+                //           engine.broadcast(const UIEvent.needRebuildUI());
+                //         }
+                //       : null,
+                //   child: Text(
+                //     engine.locale['levelUp'],
+                //   ),
+                // ),
                 ElevatedButton(
                   onPressed: () {
                     final isEquipped = itemData['isEquippable'] == true &&

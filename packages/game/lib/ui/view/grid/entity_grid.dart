@@ -47,16 +47,16 @@ class EntityGrid extends StatelessWidget {
     final List? equippedSupportsData = entityData?['equippedSupports'];
     var supportedCount = equippedSupportsData?.length ?? 0;
 
-    String? levelString;
-    String? expString;
-    if (entityType == kEntityTypeSkill) {
-      final int level = entityData!['level'];
-      final int levelMax = entityData!['levelMax'];
-      final int exp = entityData!['exp'];
-      final int expForNextLevel = entityData!['expForNextLevel'];
-      levelString = '${level + 1}/${levelMax + 1}';
-      expString = '$exp/$expForNextLevel';
-    }
+    // String? levelString;
+    // String? expString;
+    // if (entityType == kEntityTypeSkill) {
+    //   final int level = entityData!['level'];
+    //   final int levelMax = entityData!['levelMax'];
+    //   final int exp = entityData!['exp'];
+    //   final int expForNextLevel = entityData!['expForNextLevel'];
+    //   levelString = '${level + 1}/${levelMax + 1}';
+    //   expString = '$exp/$expForNextLevel';
+    // }
 
     switch (style) {
       case GridStyle.icon:
@@ -238,8 +238,8 @@ class EntityGrid extends StatelessWidget {
                           Text(entityData?['name'] ?? ''),
                           if (entityType == kEntityTypeItem && stackSize > 1)
                             Text('${engine.locale['stackSize']}: $stackSize'),
-                          if (entityType == kEntityTypeSkill)
-                            Text('${engine.locale['level']}: $levelString'),
+                          // if (entityType == kEntityTypeSkill)
+                          //   Text('${engine.locale['level']}: $levelString'),
                           if (entityType == kEntityTypeCharacter ||
                               entityType == kEntityTypeNpc)
                             Text(

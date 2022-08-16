@@ -104,7 +104,7 @@ fun onHeroEnteredSite(site) async {
       quest.result = characterTrySubmitQuest(hero, site, quest)
       // modEventId 意味着这是一个 mod 创建的任务，将由 mod 自己的函数处理
       if (quest.modEventId) {
-        return onGameEvent(quest.modEventId, quest)
+        return onGameEvent(quest.modEventId, null, quest)
       } else {
         return handleQuestEnding(quest)
       }

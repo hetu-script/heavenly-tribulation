@@ -31,13 +31,16 @@
   "spirit": "精神",
 
   "attributes": "属性",
+
   "strength": "力量",
   "constitution": "体质",
   "spirituality": "灵性",
+
   "willpower": "念力",
   "dexterity": "敏捷",
-  "intelligence": "智慧",
   "perception": "感知",
+
+  "intelligence": "智慧",
   "charisma": "魅力",
 
   "knowledgement": "知识",

@@ -68,45 +68,6 @@ struct Effect {
   }
 }
 
-fun getEffect({category, id, level}) {
-  if (category != null) {
-    assert(gEffects.containsKey(category))
-  } else {
-    category = random.nextIterable(gEffects.keys)
-  }
-  final c = gEffects[category]
-  if (c.isEmpty) return null
-  if (id != null) {
-    assert(c.containsKey(id))
-  } else {
-    id = random.nextIterable(c.keys)
-  }
-  final cl = gEffects[category][id]
-  if (cl.isEmpty) return null
-  level ??= 0
-  if (level >= cl.length) {
-    engine.warning('找不到等级 ${level} 的 技能 ${id}，getEffect 将会返回可用的最高等级。')
-    return cl.last
-  } else {
-    return cl[level]
-  }
-}
-
-fun getEffects({category, count}) {
-  assert(category != null)
-  final c = gEffects[category]
-  final ec = Math.min(c.length, count)
-  final effects = {}
-  for (final i in range(ec)) {
-    var effect
-    do {
-      effect = getEffect(category: category)
-    } while (effects.containsKey(effect.id))
-    effects[effect.id] = effect
-  }
-  return effects
-}
-
 fun addEffect({categroy, id, effect}) {
   assert(category != null)
   assert(id != null)
@@ -129,4 +90,49 @@ fun getEffectHandlerById(id: str) {
 fun addEffectHandler(handler) {
   engine.info('载入效果处理模块 [${handler.name}]')
   gEffectHandlers[handler.id] = handler
+}
+
+/// 返回一个效果的复制
+fun getEffect({category, id}) {
+  if (category != null) {
+    assert(gEffects.containsKey(category))
+  } else {
+    category = random.nextIterable(gEffects.keys)
+  }
+  final c = gEffects[category]
+  if (c.isEmpty) return null
+  if (id != null) {
+    assert(c.containsKey(id))
+  } else {
+    id = random.nextIterable(c.keys)
+  }
+  return gEffects[category][id].clone()
+}
+
+/// 一次返回某个 category 下的指定数量的效果
+fun getEffects({category, count}) {
+  assert(category != null)
+  final c = gEffects[category]
+  final ec = Math.min(c.length, count)
+  final effects = {}
+  for (final i in range(ec)) {
+    var effect
+    do {
+      effect = getEffect(category: category)
+    } while (effects.containsKey(effect.id))
+    effects[effect.id] = effect
+  }
+  return effects
+}
+
+const kInitialEfficiency = 0.4
+
+/// 初始化一个复制出来的效果数据
+fun initEffectData(effect, difficulty, efficiency ) {
+  // 效果等级，提升等级需要练习
+  effect.level = 0
+  effect.exp = 0 // 当前经验值
+  effect.expForNextLevel = expForLevel(difficulty, effect.level + 1) // 下一等级需要的经验值
+  // 效果初始最小数值默认是 0.4
+  effect.efficiency = efficiency ?? random.nextDouble() * 0.6 + kInitialEfficiency
 }
