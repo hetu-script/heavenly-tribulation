@@ -30,8 +30,13 @@ fun calculateSkillStats(skill) {
   // TODO: 计算技能的消耗（练习消耗和实战消耗）
 }
 
-fun learn(character, skill) {
-  character.skills[skill.id] = skill
+/// 人物从一本书籍中学习技能
+/// 根据其熟练度，数值和技能本身的数值不同。
+/// 人物本身所学到的技能，和保存在物品栏中尚未学习的技能书不同
+/// 书本身所显示的技能数值，是指其修炼满时的最大值
+fun learn(character, book) {
+  final clone = book.skill.clone()
+  character.skills[clone.id] = clone
 
   final incidentContent = getLocaleString('characterLearn', interpolations: [
     character.name,
@@ -63,6 +68,10 @@ fun skillEffectLevelUp(effect) {
     isPrivate: true,
   )
   return
+}
+
+fun generateBookFromSkill(skill) {
+  
 }
 
 /// 重置某个技能为 0 级

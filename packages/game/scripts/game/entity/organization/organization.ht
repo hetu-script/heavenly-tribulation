@@ -627,13 +627,11 @@ fun addTerrainToNation(terrain, nation) {
 }
 
 /// 将某个功法记录在这个组织的 skillRecords 中
-/// 操作方式类似人物装备道具
-fun organizationRecordSkill(organization, skill) {
+/// 根据技能来生成一个道具，也就是技能书
+fun organizationRecordSkill(organization, book) {
   assert(organization != null)
-  assert(skill != null)
-  final clone = skill.clone()
-  resetSkillLevel(clone)
-  organization.skills[clone.id] = clone
+  assert(book != null)
+  organization.skills[book.id] = book
 
   final incidentContent = getLocaleString('organizationRecordSkill', interpolations: [
     organization.name,

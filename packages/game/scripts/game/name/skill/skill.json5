@@ -11,7 +11,11 @@
 
   staff: ['棍', '棍法', '棍术'],
 
-  maneuver: [
+  physicalArcana: ['功'],
+
+  spiritualArcana: ['功'],
+
+  maneuverArcana: [
     '步',
     '步法',
     '遁术',
@@ -22,8 +26,7 @@
     '轻功',
     '纵跃功',
   ],
+  mythicalArcana: ['术', '法'],
 
-  arcana: ['功', '神功', '气功', '内功', '玄功'],
-
-  arcanaArts: ['术', '神术', '诀', '心诀', '法', '心法', '神法'],
+  arcanaArts: ['诀', '心诀', '心法'],
 }

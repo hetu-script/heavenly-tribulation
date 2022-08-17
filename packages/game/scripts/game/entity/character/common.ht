@@ -207,14 +207,14 @@ struct Character {
       max: _kCharacterMax,
       randomGenerator: random,
     )
-    this.looks = Math.gaussianNoise(
+    this.charisma = Math.gaussianNoise(
       _kCharacterAverage,
       _kCharacterDeviation,
       min: 1,
       max: _kCharacterMax,
       randomGenerator: random,
     )
-    this.favoredLooks =  Math.gaussianNoise(
+    this.favoredCharisma =  Math.gaussianNoise(
       _kCharacterMax,
       _kCharacterDeviation,
       min: 1,
@@ -429,17 +429,17 @@ fun getCharacterFameString(character) {
 /// 每个角色自身有一个容貌值，这个数值代表大众眼中的评价
 /// 每个角色都会有一个对特定容貌值的偏好
 /// 本公式会利用这两个数值，计算某个角色对另一个角色的容貌的评价
-/// looks 是对方的容貌，0 <= looks <= 100
+/// charisma 是对方的容貌，0 <= charisma <= 100
 /// favor 是该角色的偏好，0 <= favor <= 100
-fun _calculateLooksScore({looks: float, favor: float}) -> float {
-  assert(0.0 <= looks && looks <= _kCharacterMax)
+fun _calculateCharismaScore({charisma: float, favor: float}) -> float {
+  assert(0.0 <= charisma && charisma <= _kCharacterMax)
   if (favor != null) {
     assert(0.0 <= favor && favor <= _kCharacterMax)
   }
-  if (looks < ((favor + _kCharacterMax) / 2)) {
-    return (-(looks - favor) * (looks - favor)) / 20 + _kCharacterMax
+  if (charisma < ((favor + _kCharacterMax) / 2)) {
+    return (-(charisma - favor) * (charisma - favor)) / 20 + _kCharacterMax
   } else {
-    return (-(looks - _kCharacterMax) * (looks - _kCharacterMax)) / 20 + _kCharacterMax
+    return (-(charisma - _kCharacterMax) * (charisma - _kCharacterMax)) / 20 + _kCharacterMax
   }
 }
 
@@ -456,7 +456,7 @@ fun _characterFirstMet(subject, target, [causeIncident, causeIncidentScore]) {
     subject.bonds.characters[target.id] = bond
   }
   var metScore = 0
-  metScore += _calculateLooksScore(looks: target.looks, favor: subject.favoredLooks) / 10
+  metScore += _calculateCharismaScore(charisma: target.charisma, favor: subject.favoredCharisma) / 10
   if (target.organizationId != null) {
     // TODO: 敌对门派要减分
     metScore += target.organizationId == subject.organizationId ? 10 : 0

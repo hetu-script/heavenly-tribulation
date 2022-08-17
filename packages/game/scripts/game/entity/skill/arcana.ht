@@ -5,9 +5,30 @@ import 'common.ht'
 import '../item/common.ht'
 import '../effect/common.ht'
 
+final kArcanaKinds = [
+  'physicalArcana',
+  'spiritualArcana',
+  // 'maneuverArcana',
+  // 'mythicalArcana',
+]
+
 /// 内功，主技能，包含各种增强基础属性和资源的效果
+
+/// 内功一定包含至少一个主属性（强壮、体质、敏捷、灵性、念力、感知）数值的增加。
+/// 内功最多包含全部6种不同属性的数值。每种属性各自所能增加的具体数值随机分配。
+/// 内功所包含的数值总数上限最大是由内功本身的rarity所决定的。
+/// common: 251 - 300
+/// uncommon: 301 - 350
+/// rare: 351 - 400
+/// epic: 401 - 450
+/// legendary: 451 - 500
+/// mythic: 501 - 550
+/// exotic: 551 - 600
+
+/// 刚学内功时，和其他功法类似，主数值只有40%，需要靠修炼慢慢增加到功法所能提供的最大值。
 struct Arcana {
   construct ({
+    kind,
     name,
     rarity,
     icon,
@@ -19,11 +40,13 @@ struct Arcana {
     levelMax,
     attributes,
   }) {
+    assert(kind in kArcanaKinds)
+
     this.name = name
     this.rarity = rarity ?? kCommon
     if (!this.name) {
       final nameLength = kRarity[this.rarity].level > 4 ? 3 : kRarity[this.rarity].level > 2 ? 2 : 1
-      final randomName = generateSkillName(category: 'arcana', length: nameLength)
+      final randomName = generateSkillName(category: this.kind, length: nameLength)
       this.name = randomName.name
     }
     this.color = kRarity[this.rarity].color
@@ -32,7 +55,7 @@ struct Arcana {
 
     this.entityType = kEntityTypeSkill // 人物、地点、物品、技能等等
     this.category = kEntityCategoryArcana // 武器、防护、斗技、玄功等等
-    this.kind = 'arcana'
+    this.kind = kind
 
     this.creatorId = creatorId
     this.createdTime = createdTime

@@ -203,7 +203,6 @@ fun calculateCharacterStats(character) {
   character.stats.perception = basePerception
   character.stats.dexterity = baseDexterity
 
-  character.stats.charisma = (character.stats.charisma + character.looks) ~/ 2
 }
 
 fun getCharacterStats(character) {

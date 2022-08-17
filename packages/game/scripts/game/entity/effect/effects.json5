@@ -1,4 +1,72 @@
 {
+  general: {
+    addStrength: {
+      category: 'arcana',
+      handlerType: 'character',
+      id: 'addStrength',
+      description: 'effect.character.addStrength',
+      values: [
+        {
+          value: 120,
+        },
+      ],
+    },
+    addConstitution: {
+      category: 'arcana',
+      handlerType: 'character',
+      id: 'addConstitution',
+      description: 'effect.character.addConstitution',
+      values: [
+        {
+          value: 120,
+        },
+      ],
+    },
+    addSpirituality: {
+      category: 'arcana',
+      handlerType: 'character',
+      id: 'addSpirituality',
+      description: 'effect.character.addSpirituality',
+      values: [
+        {
+          value: 120,
+        },
+      ],
+    },
+    addWillpower: {
+      category: 'arcana',
+      handlerType: 'character',
+      id: 'addWillpower',
+      description: 'effect.character.addWillpower',
+      values: [
+        {
+          value: 120,
+        },
+      ],
+    },
+    addPerception: {
+      category: 'arcana',
+      handlerType: 'character',
+      id: 'addPerception',
+      description: 'effect.character.addPerception',
+      values: [
+        {
+          value: 120,
+        },
+      ],
+    },
+    addDexterity: {
+      category: 'arcana',
+      handlerType: 'character',
+      id: 'addDexterity',
+      description: 'effect.character.addDexterity',
+      values: [
+        {
+          value: 120,
+        },
+      ],
+    },
+  },
   beverage: {
     restoreStamina: {
       category: 'beverage',
@@ -104,7 +172,7 @@
   },
   staff: {},
   spear: {},
-  arcana: {
+  physicalArcana: {
     addStamina: {
       category: 'arcana',
       handlerType: 'character',
@@ -127,17 +195,88 @@
         },
       ],
     },
-    addMana: {
+    addPhysicalResource: {
       category: 'arcana',
       handlerType: 'character',
-      id: 'addMana',
-      description: 'effect.character.addMana',
+      id: 'addPhysicalResource',
+      description: 'effect.character.addPhysicalResource',
+      values: [
+        {
+          value: 100,
+        },
+      ],
+    },
+    addStaminaRegeneration: {
+      category: 'arcana',
+      handlerType: 'character',
+      id: 'addStaminaRegeneration',
+      description: 'effect.character.addStaminaRegeneration',
       values: [
         {
           value: 200,
         },
       ],
     },
+    addLifeRegeneration: {
+      category: 'arcana',
+      handlerType: 'character',
+      id: 'addLifeRegeneration',
+      description: 'effect.character.addLifeRegeneration',
+      values: [
+        {
+          value: 200,
+        },
+      ],
+    },
+    addPhysicalRegeneration: {
+      category: 'arcana',
+      handlerType: 'character',
+      id: 'addPhysicalResource',
+      description: 'effect.character.addPhysicalResource',
+      values: [
+        {
+          value: 100,
+        },
+      ],
+    },
+    addBludgeonResistance: {
+      category: 'arcana',
+      handlerType: 'character',
+      id: 'addBludgeonResistance',
+      description: 'effect.character.addBludgeonResistance',
+      values: [
+        {
+          value: 0.25,
+          type: 'percentage',
+        },
+      ],
+    },
+    addPiercingResistance: {
+      category: 'arcana',
+      handlerType: 'character',
+      id: 'addPiercingResistance',
+      description: 'effect.character.addPiercingResistance',
+      values: [
+        {
+          value: 0.25,
+          type: 'percentage',
+        },
+      ],
+    },
+    addSlashingResistance: {
+      category: 'arcana',
+      handlerType: 'character',
+      id: 'addSlashingResistance',
+      description: 'effect.character.addSlashingResistance',
+      values: [
+        {
+          value: 0.25,
+          type: 'percentage',
+        },
+      ],
+    },
+  },
+  spiritualArcana: {
     addSpirit: {
       category: 'arcana',
       handlerType: 'character',
@@ -149,14 +288,14 @@
         },
       ],
     },
-    addPhysicalResource: {
+    addMana: {
       category: 'arcana',
       handlerType: 'character',
-      id: 'addPhysicalResource',
-      description: 'effect.character.addPhysicalResource',
+      id: 'addMana',
+      description: 'effect.character.addMana',
       values: [
         {
-          value: 100,
+          value: 200,
         },
       ],
     },
@@ -171,113 +310,72 @@
         },
       ],
     },
-    addAllResource: {
+    addSpiritRegeneration: {
       category: 'arcana',
       handlerType: 'character',
-      id: 'addAllResource',
-      description: 'effect.character.addAllResource',
+      id: 'addSpiritRegeneration',
+      description: 'effect.character.addSpiritRegeneration',
       values: [
         {
-          value: 50,
+          value: 200,
         },
       ],
     },
-    addStrength: {
+    addManaRegeneration: {
       category: 'arcana',
       handlerType: 'character',
-      id: 'addStrength',
-      description: 'effect.character.addStrength',
+      id: 'addManaRegeneration',
+      description: 'effect.character.addManaRegeneration',
       values: [
         {
-          value: 120,
+          value: 200,
         },
       ],
     },
-    addConstitution: {
+    addSpiritualResourceRegeneration: {
       category: 'arcana',
       handlerType: 'character',
-      id: 'addConstitution',
-      description: 'effect.character.addConstitution',
+      id: 'addSpiritualResourceRegeneration',
+      description: 'effect.character.addSpiritualResourceRegeneration',
       values: [
         {
-          value: 120,
+          value: 100,
         },
       ],
     },
-    addDexterity: {
+    addChiResistance: {
       category: 'arcana',
       handlerType: 'character',
-      id: 'addDexterity',
-      description: 'effect.character.addDexterity',
+      id: 'addBludgeonResistance',
+      description: 'effect.character.addBludgeonResistance',
       values: [
         {
-          value: 120,
+          value: 0.25,
+          type: 'percentage',
         },
       ],
     },
-    addSpirituality: {
+    addPsycheResistance: {
       category: 'arcana',
       handlerType: 'character',
-      id: 'addSpirituality',
-      description: 'effect.character.addSpirituality',
+      id: 'addPsycheResistance',
+      description: 'effect.character.addPsycheResistance',
       values: [
         {
-          value: 120,
+          value: 0.25,
+          type: 'percentage',
         },
       ],
     },
-    addWillpower: {
+    addSpellResistance: {
       category: 'arcana',
       handlerType: 'character',
-      id: 'addWillpower',
-      description: 'effect.character.addWillpower',
+      id: 'addSpellResistance',
+      description: 'effect.character.addSpellResistance',
       values: [
         {
-          value: 120,
-        },
-      ],
-    },
-    addPerception: {
-      category: 'arcana',
-      handlerType: 'character',
-      id: 'addPerception',
-      description: 'effect.character.addPerception',
-      values: [
-        {
-          value: 120,
-        },
-      ],
-    },
-    addPhysicalAttributes: {
-      category: 'arcana',
-      handlerType: 'character',
-      id: 'addPhysicalAttributes',
-      description: 'effect.character.addPhysicalAttributes',
-      values: [
-        {
-          value: 40,
-        },
-      ],
-    },
-    addSpiritualAttributes: {
-      category: 'arcana',
-      handlerType: 'character',
-      id: 'addSpiritualAttributes',
-      description: 'effect.character.addSpiritualAttributes',
-      values: [
-        {
-          value: 40,
-        },
-      ],
-    },
-    addAllAttributes: {
-      category: 'arcana',
-      handlerType: 'character',
-      id: 'addAllAttributes',
-      description: 'effect.character.addAllAttributes',
-      values: [
-        {
-          value: 20,
+          value: 0.25,
+          type: 'percentage',
         },
       ],
     },

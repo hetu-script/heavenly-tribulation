@@ -5,6 +5,8 @@
   "impressionOfThem": "印象",
 
   "sex": "性别",
+  "age": "年龄",
+  "ageMax": "寿命",
   "male": "男",
   "female": "女",
   "title": "称号",
@@ -16,32 +18,33 @@
   "currentLocation": "位置",
   "fame": "知名度",
   "infamy": "恶名",
-  "looks": "容貌",
-  "favoredLooks": "容貌偏好",
+  "charisma": "魅力",
+  "favoredCharisma": "魅力偏好",
   "reputation": "名望",
 
   "stats": "状态",
-  "maxStamina": "最大体力",
+
+  "staminaMax": "最大体力",
   "stamina": "体力",
-  "maxLife": "最大生命",
+  "lifeMax": "最大生命",
   "life": "生命",
-  "maxMana": "最大元气",
+
+  "manaMax": "最大元气",
   "mana": "元气",
-  "maxSpirit": "最大精神",
+  "spiritMax": "最大精神",
   "spirit": "精神",
 
   "attributes": "属性",
 
-  "strength": "力量",
+  "strength": "强壮",
   "constitution": "体质",
-  "spirituality": "灵性",
-
-  "willpower": "念力",
   "dexterity": "敏捷",
+
+  "spirituality": "灵性",
+  "willpower": "念力",
   "perception": "感知",
 
   "intelligence": "智慧",
-  "charisma": "魅力",
 
   "knowledgement": "知识",
   "wilderness": "自然",
