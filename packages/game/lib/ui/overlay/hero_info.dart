@@ -4,9 +4,9 @@ import 'package:hetu_script/values.dart';
 import '../avatar.dart';
 import '../view/character/information/character.dart';
 import '../../global.dart';
-import '../shared/bordered_icon_button.dart';
+import 'package:samsara/ui/shared/bordered_icon_button.dart';
 import '../view/character/builds/build.dart';
-import '../shared/dynamic_color_progressbar.dart';
+import 'package:samsara/ui/shared/dynamic_color_progressbar.dart';
 import '../view/character/stats/status.dart';
 
 const kStatsBarWidth = 125.0;

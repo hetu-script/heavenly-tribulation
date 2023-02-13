@@ -3,7 +3,7 @@ import 'package:hetu_script/values.dart';
 
 import '../../../event/events.dart';
 import '../../../global.dart';
-import '../../shared/label.dart';
+import 'package:samsara/ui/shared/label.dart';
 
 class QuestCard extends StatelessWidget {
   const QuestCard({

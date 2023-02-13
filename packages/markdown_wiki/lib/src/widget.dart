@@ -62,35 +62,33 @@ class _MarkdownWikiState extends State<MarkdownWiki> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Container(
-        child: Row(
-          children: [
-            SizedBox(
-              width: 300.0,
-              height: MediaQuery.of(context).size.height,
-              child: TreeView(
-                controller: _treeViewController,
-                onExpansionChanged: (String key, bool state) {
-                  Node? node = _treeViewController.getNode(key);
-                  if (node != null) {
-                    List<Node> updatedNodes = _treeViewController.updateNode(
-                        key, node.copyWith(expanded: state));
-                    setState(() {
-                      _treeViewController =
-                          _treeViewController.copyWith(children: updatedNodes);
-                    });
-                  }
-                },
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                expandToNode('otis');
+      body: Row(
+        children: [
+          SizedBox(
+            width: 300.0,
+            height: MediaQuery.of(context).size.height,
+            child: TreeView(
+              controller: _treeViewController,
+              onExpansionChanged: (String key, bool state) {
+                Node? node = _treeViewController.getNode(key);
+                if (node != null) {
+                  List<Node> updatedNodes = _treeViewController.updateNode(
+                      key, node.copyWith(expanded: state));
+                  setState(() {
+                    _treeViewController =
+                        _treeViewController.copyWith(children: updatedNodes);
+                  });
+                }
               },
-              child: const Text('expand'),
             ),
-          ],
-        ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              expandToNode('otis');
+            },
+            child: const Text('expand'),
+          ),
+        ],
       ),
     );
   }

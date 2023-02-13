@@ -4,8 +4,8 @@ import 'package:hetu_script/values.dart' show HTStruct;
 import '../character/information/character.dart';
 import '../../../global.dart';
 import '../../game_entity_listview.dart';
-import '../../shared/responsive_window.dart';
-import '../../shared/close_button.dart';
+import 'package:samsara/ui/shared/responsive_window.dart';
+import 'package:samsara/ui/shared/close_button.dart';
 import '../../util.dart';
 import '../location/location.dart';
 import '../organization/organization.dart';
@@ -58,12 +58,14 @@ class _InformationPanelState extends State<InformationPanel>
   @override
   bool get wantKeepAlive => true;
 
-  late final HTStruct _nationsData,
+  late final HTStruct
+      // _nationsData,
       _locationsData,
       _organizationsData,
       _charactersData;
 
-  final List<List<String>> _nationsFieldRow = [],
+  final List<List<String>>
+      // _nationsFieldRow = [],
       _locationsFieldRow = [],
       _organizationsFieldRow = [],
       _charactersFieldRow = [];

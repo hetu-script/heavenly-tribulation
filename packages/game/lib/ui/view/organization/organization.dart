@@ -4,9 +4,9 @@ import 'package:hetu_script/values.dart';
 // import 'package:samsara/event.dart';
 
 import '../../../global.dart';
-import '../../shared/close_button.dart';
-import '../../shared/responsive_window.dart';
-import '../../game_entity_listview.dart';
+import 'package:samsara/ui/shared/close_button.dart';
+import 'package:samsara/ui/shared/responsive_window.dart';
+// import '../../game_entity_listview.dart';
 import '../../util.dart';
 
 const kOrganizationCategoryCultivation = 'cultivation';

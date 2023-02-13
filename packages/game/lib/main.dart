@@ -30,13 +30,13 @@ void main() async {
 
   if (Platform.isAndroid || Platform.isIOS) {
     Global.isOnDesktop = false;
-    Global.orientationMode = OrientationMode.portrait;
+    Global.isPortraitMode = true;
     await Flame.device.setPortraitDownOnly();
     await Flame.device.fullScreen();
     Global.screenSize = window.physicalSize / window.devicePixelRatio;
   } else if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
     Global.isOnDesktop = true;
-    Global.orientationMode = OrientationMode.landscape;
+    Global.isPortraitMode = false;
     await windowManager.ensureInitialized();
     windowManager.addListener(CustomWindowListener());
     WindowOptions windowOptions = const WindowOptions(

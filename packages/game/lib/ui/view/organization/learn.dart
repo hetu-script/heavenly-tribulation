@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import '../../../global.dart';
-import '../../shared/responsive_window.dart';
-import '../../shared/close_button.dart';
+import 'package:samsara/ui/shared/responsive_window.dart';
+import 'package:samsara/ui/shared/close_button.dart';
 import '../grid/entity_grid.dart';
 
-const _kMinSlotCount = 30;
+// const _kGridPerLine = 6;
+// const _kMinSlotCount = 30;
 const _kSkillRankStart = -1;
-const _kGridPerLine = 6;
 
 class OrganizationLearningPanel extends StatelessWidget {
   final int characterRank;

@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import '../../../../global.dart';
-import '../../../shared/constants.dart';
-import '../../../shared/label.dart';
+import 'package:samsara/ui/shared/constants.dart';
+import 'package:samsara/ui/shared/label.dart';
 
 const kCharacterAttributeNames = [
   'strength',

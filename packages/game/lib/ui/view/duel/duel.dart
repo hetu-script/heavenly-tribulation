@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import '../../../global.dart';
-import '../../shared/responsive_window.dart';
+import 'package:samsara/ui/shared/responsive_window.dart';
 import 'battle_panel.dart';
 import '../../../event/events.dart';
 
@@ -162,7 +162,7 @@ class _DuelState extends State<Duel> {
   void _addDuelResult() {
     if (_data!['result']) {
       _messages.add(
-        engine.locale.getString(
+        engine.locale.getLocaleString(
           'duelVistory',
           interpolations: [
             _data!['char1Name'],
@@ -172,7 +172,7 @@ class _DuelState extends State<Duel> {
       );
     } else {
       _messages.add(
-        engine.locale.getString(
+        engine.locale.getLocaleString(
           'duelVistory',
           interpolations: [
             _data!['char2Name'],

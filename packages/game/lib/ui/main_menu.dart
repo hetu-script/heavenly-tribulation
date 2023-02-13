@@ -14,7 +14,7 @@ import 'package:hetu_script/values.dart';
 import 'overlay/maze/maze.dart';
 import 'view/console.dart';
 import '../global.dart';
-import 'shared/loading_screen.dart';
+import 'package:samsara/ui/shared/loading_screen.dart';
 import '../shared/constants.dart';
 import '../../shared/datetime.dart';
 import 'load_game_dialog.dart';
@@ -24,7 +24,7 @@ import '../scene/maze.dart';
 import 'create_game_dialog.dart';
 // import '../event/events.dart';
 import 'overlay/main_game.dart';
-import 'shared/label.dart';
+import 'package:samsara/ui/shared/label.dart';
 
 class MainMenu extends StatefulWidget {
   const MainMenu({super.key});
@@ -256,8 +256,19 @@ class _MainMenuState extends State<MainMenu> {
           ];
 
           return Scaffold(
-            body: Global.orientationMode == OrientationMode.landscape
-                ? Stack(
+            body: Global.isPortraitMode
+                ? Container(
+                    color: Global.appTheme.colorScheme.background,
+                    // decoration: const BoxDecoration(
+                    //   image: DecorationImage(
+                    //     fit: BoxFit.fill,
+                    //     image: AssetImage('assets/images/bg/background_01.jpg'),
+                    //   ),
+                    // ),
+                    alignment: Alignment.center,
+                    child: Column(children: menus),
+                  )
+                : Stack(
                     children: [
                       Positioned(
                         left: 20.0,
@@ -379,17 +390,6 @@ class _MainMenuState extends State<MainMenu> {
                           ),
                         ),
                     ],
-                  )
-                : Container(
-                    color: Global.appTheme.backgroundColor,
-                    // decoration: const BoxDecoration(
-                    //   image: DecorationImage(
-                    //     fit: BoxFit.fill,
-                    //     image: AssetImage('assets/images/bg/background_01.jpg'),
-                    //   ),
-                    // ),
-                    alignment: Alignment.center,
-                    child: Column(children: menus),
                   ),
           );
         }

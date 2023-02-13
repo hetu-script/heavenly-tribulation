@@ -30,7 +30,7 @@ dependencies:
     path: ../../../hetu-script/packages/hetu_script_flutter
 
   samsara:
-    path: ../samsara
+    path: ../../../samsara_engine
 
   code_text_field: ^1.0.2
   highlight: ^0.7.0
@@ -40,7 +40,6 @@ dependencies:
   path_provider: ^2.0.8
   data_table_2: ^2.2.0
   window_manager: ^0.2.5
-  logger: ^1.1.0
   gradient_widgets: ^0.6.0
   path: ^1.8.1
   async: ^2.8.2

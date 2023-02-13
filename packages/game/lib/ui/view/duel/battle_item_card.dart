@@ -5,7 +5,7 @@ import '../grid/entity_grid.dart';
 import 'cooldown.dart';
 import '../../../global.dart';
 import '../grid/entity_info.dart';
-import '../../shared/dynamic_color_progressbar.dart';
+import 'package:samsara/ui/shared/dynamic_color_progressbar.dart';
 
 class BattleItemCard extends StatelessWidget {
   const BattleItemCard({

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import '../../../../global.dart';
-import '../../../shared/constants.dart';
-import '../../../shared/empty_placeholder.dart';
+import 'package:samsara/ui/shared/constants.dart';
+import 'package:samsara/ui/shared/empty_placeholder.dart';
 import '../../history.dart';
 
 class CharacterMemory extends StatelessWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../shared/popup_submenu_item.dart';
+import 'package:samsara/ui/shared/popup_submenu_item.dart';
 import '../../../global.dart';
 
 enum WorldMapDropMenuItems {
@@ -21,7 +21,7 @@ class WorldMapDropMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).backgroundColor,
+        color: Theme.of(context).colorScheme.background,
         borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(5.0)),
         border: Border.all(color: kForegroundColor),
       ),

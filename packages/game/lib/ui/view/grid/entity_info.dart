@@ -3,7 +3,7 @@ import 'package:hetu_script/values.dart';
 import 'package:samsara/util.dart';
 
 import '../../../global.dart';
-import '../../shared/rrect_icon.dart';
+// import '../../shared/rrect_icon.dart';
 // import '../../../shared/close_button.dart';
 import '../../common.dart';
 
@@ -41,7 +41,7 @@ class EntityInfo extends StatelessWidget {
 
     final stackSize = entityData['stackSize'] ?? 1;
 
-    final entityType = entityData['entityType'];
+    // final entityType = entityData['entityType'];
     final category = entityData['category'];
     final equipType = entityData['equipType'];
 
@@ -77,7 +77,7 @@ class EntityInfo extends StatelessWidget {
           }
         }
         final description = engine.locale
-            .getString(effect['description'], interpolations: values);
+            .getLocaleString(effect['description'], interpolations: values);
         effects.add(
           IntrinsicHeight(
             child: Row(

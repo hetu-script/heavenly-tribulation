@@ -4,9 +4,9 @@ import 'package:samsara/util.dart';
 
 import '../../../../global.dart';
 import 'stats.dart';
-import '../../../shared/responsive_window.dart';
-import '../../../shared/close_button.dart';
-import 'status_effects.dart';
+import 'package:samsara/ui/shared/responsive_window.dart';
+import 'package:samsara/ui/shared/close_button.dart';
+// import 'status_effects.dart';
 
 class StatusView extends StatefulWidget {
   const StatusView({

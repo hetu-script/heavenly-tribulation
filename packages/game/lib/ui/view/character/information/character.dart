@@ -5,8 +5,8 @@ import 'package:samsara/util.dart';
 import '../../../../global.dart';
 import 'bonds.dart';
 import 'memory.dart';
-import '../../../shared/responsive_window.dart';
-import '../../../shared/close_button.dart';
+import 'package:samsara/ui/shared/responsive_window.dart';
+import 'package:samsara/ui/shared/close_button.dart';
 import 'profile.dart';
 
 class CharacterView extends StatefulWidget {

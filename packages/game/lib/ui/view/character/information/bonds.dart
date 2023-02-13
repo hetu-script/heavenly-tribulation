@@ -3,8 +3,8 @@ import 'package:hetu_script/values.dart';
 import 'package:data_table_2/data_table_2.dart';
 
 import '../../../../global.dart';
-import '../../../shared/empty_placeholder.dart';
-import '../../../shared/constants.dart';
+import 'package:samsara/ui/shared/empty_placeholder.dart';
+import 'package:samsara/ui/shared/constants.dart';
 
 const _kCharacterBondsTableColumns = [
   'character',

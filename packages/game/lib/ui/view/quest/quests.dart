@@ -3,9 +3,9 @@ import 'package:hetu_script/values.dart';
 import 'package:samsara/event.dart';
 
 import '../../../event/events.dart';
-import '../../shared/close_button.dart';
+import 'package:samsara/ui/shared/close_button.dart';
 import '../../../global.dart';
-import '../../shared/responsive_window.dart';
+import 'package:samsara/ui/shared/responsive_window.dart';
 import 'quest_card.dart';
 
 enum BuildViewType {

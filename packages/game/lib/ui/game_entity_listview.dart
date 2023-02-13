@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'shared/empty_placeholder.dart';
+import 'package:samsara/ui/shared/empty_placeholder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import '../global.dart';
 

@@ -6,8 +6,8 @@ import 'package:hetu_script/values.dart';
 import 'package:flame/sprite.dart';
 import 'package:flame/flame.dart';
 import 'package:hetu_script/types.dart';
+import 'package:samsara/ui/shared/loading_screen.dart';
 
-import '../../shared/loading_screen.dart';
 import '../../../global.dart';
 import '../../../scene/maze.dart';
 import 'drop_menu.dart';

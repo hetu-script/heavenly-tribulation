@@ -31,8 +31,9 @@ const captionStyle = TextStyle(
 final lightTheme = ThemeData(
   brightness: Brightness.dark,
   fontFamily: 'NotoSansMono',
-  colorScheme: const ColorScheme.dark(),
-  backgroundColor: kBackgroundColor,
+  colorScheme: ColorScheme.dark(
+    background: kBackgroundColor,
+  ),
   scaffoldBackgroundColor: kBackgroundColor,
   appBarTheme: const AppBarTheme(
     centerTitle: true,
@@ -52,8 +53,8 @@ final lightTheme = ThemeData(
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      primary: kBackgroundColor,
-      onPrimary: kForegroundColor,
+      backgroundColor: kBackgroundColor,
+      foregroundColor: kForegroundColor,
       shape: RoundedRectangleBorder(
         side: const BorderSide(
           color: kForegroundColor,
@@ -74,16 +75,11 @@ final lightTheme = ThemeData(
   dividerColor: kForegroundColor,
 );
 
-enum OrientationMode {
-  landscape,
-  portrait,
-}
-
 abstract class Global {
   static ThemeData appTheme = lightTheme;
   static bool isDebugMode = true;
   static bool isOnDesktop = false;
-  static OrientationMode orientationMode = OrientationMode.landscape;
+  static bool isPortraitMode = false;
   static Size screenSize = Size.zero;
 }
 

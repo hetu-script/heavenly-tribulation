@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'shared/rrect_icon.dart';
+import 'package:samsara/ui/shared/rrect_icon.dart';
 import '../global.dart';
 
 class Avatar extends StatelessWidget {

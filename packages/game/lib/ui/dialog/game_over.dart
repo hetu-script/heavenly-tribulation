@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../shared/label.dart';
+import 'package:samsara/ui/shared/label.dart';
 import '../../global.dart';
 
 class GameOver extends StatelessWidget {

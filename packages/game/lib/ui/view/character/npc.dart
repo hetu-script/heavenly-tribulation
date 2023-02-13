@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import '../../../global.dart';
-import '../../shared/close_button.dart';
-import '../../shared/responsive_window.dart';
-import '../../shared/label.dart';
+import 'package:samsara/ui/shared/close_button.dart';
+import 'package:samsara/ui/shared/responsive_window.dart';
+// import '../../shared/label.dart';
 import '../../avatar.dart';
-import '../../shared/dynamic_color_progressbar.dart';
+import 'package:samsara/ui/shared/dynamic_color_progressbar.dart';
 
 class NpcView extends StatelessWidget {
   const NpcView({

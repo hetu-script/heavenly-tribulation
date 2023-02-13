@@ -14,7 +14,7 @@ class MazeDropMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).backgroundColor,
+        color: Theme.of(context).colorScheme.background,
         borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(5.0)),
         border: Border.all(color: kForegroundColor),
       ),

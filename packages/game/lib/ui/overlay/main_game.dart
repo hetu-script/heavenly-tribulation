@@ -21,7 +21,7 @@ import 'worldmap/popup.dart';
 import '../../shared/json.dart';
 import '../../shared/constants.dart';
 import 'history_panel.dart';
-import '../shared/loading_screen.dart';
+import 'package:samsara/ui/shared/loading_screen.dart';
 import '../../global.dart';
 import '../../scene/worldmap.dart';
 import 'hero_info.dart';
@@ -109,8 +109,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
   void _tryEnterLocation(String locationId) async {
     final locationData =
         engine.invoke('getLocationById', positionalArgs: [locationId]);
-    await engine
-        .invoke('onHeroEnteredLocation', positionalArgs: [locationData]);
+    if (!context.mounted) return;
     if (locationData['flags']['isDiscovered'] == true) {
       showDialog(
         context: context,
@@ -118,6 +117,8 @@ class _MainGameOverlayState extends State<MainGameOverlay>
         builder: (context) => LocationView(locationData: locationData),
       );
     }
+    await engine
+        .invoke('onHeroEnteredLocation', positionalArgs: [locationData]);
   }
 
   void _mapTapHandler(GameEvent event) {
@@ -486,7 +487,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                 final selectedTerrain = _scene.map.selectedTerrain;
                 if (_menuPosition != null) {
                   if (selectedTerrain != null) {
-                    final terrainData = selectedTerrain.data;
+                    // final terrainData = selectedTerrain.data;
                     final characters = _scene.map.selectedActors;
                     final hero = _scene.map.hero;
                     List<int>? route;

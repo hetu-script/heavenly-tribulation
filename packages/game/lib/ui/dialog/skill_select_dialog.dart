@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import '../../global.dart';
-import '../shared/responsive_window.dart';
-import '../shared/close_button.dart';
+import 'package:samsara/ui/shared/responsive_window.dart';
+import 'package:samsara/ui/shared/close_button.dart';
 import '../view/grid/entity_grid.dart';
 import '../view/grid/entity_info.dart';
 
