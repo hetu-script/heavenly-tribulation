@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 // import '../../../../global.dart';
-import 'package:samsara/ui/shared/constants.dart';
+import 'package:samsara/ui/constants.dart';
 // import '../../../shared/label.dart';
 
 class StatusEffectsView extends StatelessWidget {

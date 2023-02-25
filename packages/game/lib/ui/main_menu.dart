@@ -14,7 +14,7 @@ import 'package:hetu_script/values.dart';
 import 'overlay/maze/maze.dart';
 import 'view/console.dart';
 import '../global.dart';
-import 'package:samsara/ui/shared/loading_screen.dart';
+import 'package:samsara/ui/loading_screen.dart';
 import '../shared/constants.dart';
 import '../../shared/datetime.dart';
 import 'load_game_dialog.dart';
@@ -24,7 +24,7 @@ import '../scene/maze.dart';
 import 'create_game_dialog.dart';
 // import '../event/events.dart';
 import 'overlay/main_game.dart';
-import 'package:samsara/ui/shared/label.dart';
+import 'package:samsara/ui/label.dart';
 
 class MainMenu extends StatefulWidget {
   const MainMenu({super.key});

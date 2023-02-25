@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
-import 'package:samsara/util.dart';
+import 'package:samsara/utils/color.dart';
 
 import '../../../global.dart';
 // import '../../shared/rrect_icon.dart';

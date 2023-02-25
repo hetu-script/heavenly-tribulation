@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/shared/ink_image_button.dart';
+import 'package:samsara/ui/ink_image_button.dart';
 
 import '../../../global.dart';
 

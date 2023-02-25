@@ -21,7 +21,7 @@ import 'worldmap/popup.dart';
 import '../../shared/json.dart';
 import '../../shared/constants.dart';
 import 'history_panel.dart';
-import 'package:samsara/ui/shared/loading_screen.dart';
+import 'package:samsara/ui/loading_screen.dart';
 import '../../global.dart';
 import '../../scene/worldmap.dart';
 import 'hero_info.dart';
@@ -223,7 +223,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
 
     engine.registerListener(
       Events.mapTapped,
-      EventHandler(widget.key!, _mapTapHandler),
+      EventHandler(ownerKey: widget.key!, handle: _mapTapHandler),
     );
 
     // engine.registerListener(
@@ -252,8 +252,8 @@ class _MainGameOverlayState extends State<MainGameOverlay>
     engine.registerListener(
       Events.loadedMap,
       EventHandler(
-        widget.key!,
-        (GameEvent event) async {
+        ownerKey: widget.key!,
+        handle: (GameEvent event) async {
           if ((event as MapLoadedEvent).isFirstLoad) {
             final charactersData = engine.invoke('getCharacters');
             final Iterable filteredCharacters =
@@ -312,8 +312,8 @@ class _MainGameOverlayState extends State<MainGameOverlay>
     engine.registerListener(
       Events.heroMoved,
       EventHandler(
-        widget.key!,
-        (GameEvent event) {
+        ownerKey: widget.key!,
+        handle: (GameEvent event) {
           final heroEvent = event as HeroEvent;
           if (heroEvent.scene == 'worldmap') {
             engine.invoke('setHeroPosition', positionalArgs: [
@@ -344,8 +344,8 @@ class _MainGameOverlayState extends State<MainGameOverlay>
     engine.registerListener(
       CustomEvents.needRebuildUI,
       EventHandler(
-        widget.key!,
-        (GameEvent event) {
+        ownerKey: widget.key!,
+        handle: (GameEvent event) {
           updateInfoPanels();
         },
       ),

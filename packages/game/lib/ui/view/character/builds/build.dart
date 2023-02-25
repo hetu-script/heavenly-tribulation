@@ -3,11 +3,11 @@ import 'package:hetu_script/values.dart';
 
 import '../../grid/entity_info.dart';
 import '../../../../event/events.dart';
-import 'package:samsara/ui/shared/close_button.dart';
+import 'package:samsara/ui/close_button.dart';
 import '../../../../global.dart';
 import 'equipments.dart';
 import 'inventory.dart';
-import 'package:samsara/ui/shared/responsive_window.dart';
+import 'package:samsara/ui/responsive_window.dart';
 import '../../grid/entity_grid.dart';
 
 const _kBuildTabNames = [

@@ -6,7 +6,7 @@ import 'package:hetu_script/values.dart';
 import 'package:flame/sprite.dart';
 import 'package:flame/flame.dart';
 import 'package:hetu_script/types.dart';
-import 'package:samsara/ui/shared/loading_screen.dart';
+import 'package:samsara/ui/loading_screen.dart';
 
 import '../../../global.dart';
 import '../../../scene/maze.dart';
@@ -179,8 +179,8 @@ class _MazeOverlayState extends State<MazeOverlay>
     engine.registerListener(
       Events.mapTapped,
       EventHandler(
-        widget.key!,
-        (event) {
+        ownerKey: widget.key!,
+        handle: (event) {
           final hero = _scene.map.hero;
           if (hero == null) return;
           if (hero.isMoving) return;
@@ -207,8 +207,8 @@ class _MazeOverlayState extends State<MazeOverlay>
     engine.registerListener(
       Events.loadedMap,
       EventHandler(
-        widget.key!,
-        (GameEvent event) async {
+        ownerKey: widget.key!,
+        handle: (GameEvent event) async {
           final charSheet = SpriteSheet(
             image: await Flame.images.load('character/tile_character.png'),
             srcSize: heroSrcSize,
@@ -240,8 +240,8 @@ class _MazeOverlayState extends State<MazeOverlay>
     engine.registerListener(
       Events.heroMoved,
       EventHandler(
-        widget.key!,
-        (GameEvent event) async {
+        ownerKey: widget.key!,
+        handle: (GameEvent event) async {
           final tile = _scene.map.getTerrainAtHero();
           assert(tile != null);
           if (_scene.map.hero != null) {
@@ -270,8 +270,8 @@ class _MazeOverlayState extends State<MazeOverlay>
     engine.registerListener(
       CustomEvents.needRebuildUI,
       EventHandler(
-        widget.key!,
-        (GameEvent event) {
+        ownerKey: widget.key!,
+        handle: (GameEvent event) {
           if (!mounted) return;
           setState(() {});
         },

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
-import 'package:samsara/util.dart';
+import 'package:samsara/utils/color.dart';
 
 import '../../../../global.dart';
 import 'bonds.dart';
 import 'memory.dart';
-import 'package:samsara/ui/shared/responsive_window.dart';
-import 'package:samsara/ui/shared/close_button.dart';
+import 'package:samsara/ui/responsive_window.dart';
+import 'package:samsara/ui/close_button.dart';
 import 'profile.dart';
 
 class CharacterView extends StatefulWidget {

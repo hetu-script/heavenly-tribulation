@@ -15,8 +15,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   fast_noise: ^1.0.1
 
-  markdown_wiki:
-    path: ../markdown_wiki/
+  samsara:
+    path: ../../../samsara_engine/
 
 dev_dependencies:
   flutter_test:

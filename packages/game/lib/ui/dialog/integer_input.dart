@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/shared/responsive_window.dart';
+import 'package:samsara/ui/responsive_window.dart';
 import '../../global.dart';
-import 'package:samsara/ui/shared/integer_input_field.dart';
+import 'package:samsara/ui/integer_input_field.dart';
 
 class IntegerInputDialog extends StatefulWidget {
   static Future<int?> show({

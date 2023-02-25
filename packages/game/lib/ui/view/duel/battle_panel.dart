@@ -4,7 +4,7 @@ import 'package:hetu_script/values.dart';
 import '../../../global.dart';
 import 'battle_item_card.dart';
 // import 'defense_card.dart';
-import 'package:samsara/ui/shared/dynamic_color_progressbar.dart';
+import 'package:samsara/ui/dynamic_color_progressbar.dart';
 import '../../avatar.dart';
 import '../../common.dart';
 
