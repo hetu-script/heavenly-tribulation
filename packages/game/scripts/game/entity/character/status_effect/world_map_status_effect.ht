@@ -1,4 +1,5 @@
-// status effect 指人物身上的特殊状态和效果，例如各种增益、减益
+/// status effect 指人物身上的状态和效果，例如各种增益、减益
+/// 游戏中的状态效果分为世界效果和战斗效果
 
 const kStatusCategoryInjury = 'injury'
 const kStatusCategoryInfection = 'infection'
@@ -7,7 +8,7 @@ const kStatusInjuryKindSlash = 'slash'
 const kStatusInjuryKindBludgeon = 'bludgeon'
 const kStatusInjuryKindPierce = 'pierce'
 
-struct StatusEffect {
+struct WorldMapStatusEffect {
 
   construct injury ({
     kind,

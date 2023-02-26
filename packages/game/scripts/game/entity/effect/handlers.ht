@@ -4,7 +4,6 @@ import '../common.ht'
 
 // 游戏效果的处理函数
 final gEffectHandlers = {
-  // 食用类效果
   // 回复体力
   restoreStamina: (effect, character) {
     changeStamina(character, effect.values[0].value)
@@ -41,31 +40,4 @@ final gEffectHandlers = {
       }
     }
   },
-  // 分担伤害
-  decreaseDamage: (effect, baseDamage) {
-    return baseDamage * effect.values[0].value
-  },
-  decreaseDamageOnCooldown: (effect, baseDamage) {
-    if (!effect.inCooldown) {
-      effect.inCooldown = true
-      effect.cooldown = effect.values[1].value
-      return baseDamage * effect.values[0].value
-    }
-  },
-  // 增加伤害
-  addDamageOnCooldown: (effect) {
-    if (!effect.inCooldown) {
-      effect.inCooldown = true
-      effect.cooldown = effect.values[1].value
-      return effect.values[0].value
-    }
-  },
-  // 攻击后
-  counterOnCooldown: (effect, targetInfo) {
-    if (!effect.inCooldown) {
-      effect.inCooldown = true
-      effect.cooldown = effect.values[1].value
-      targetInfo.ticks -= 10
-    }
-  }
 }

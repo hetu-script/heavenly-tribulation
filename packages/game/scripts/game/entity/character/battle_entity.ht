@@ -1,6 +1,10 @@
+/// battle entity 指一个可以参与战斗的对象。
+/// 此对象拥有一个牌库和一个卡组。
+/// 卡组是战斗中使用的。而牌库可以用来交换卡牌收藏（偷取、学习或者交换）。
+
 import '../common.ht'
 import '../../binding/worldmap.ht'
-import 'status_effect.ht'
+import 'status_effect/world_map_status_effect.ht'
 
 const _kCharacterAttributeMinValue = 1
 const _kCharacterAttributeMaxValue = 100
@@ -45,11 +49,17 @@ struct BattleEntity {
     // 随从，可以设置为战斗伙伴
     this.companions = {}
 
-    // 装备栏的位置和数量是固定的 6 个
-    // 可以是攻击（武器）、防御（护甲、靴子）、斗技、内功、心法、随从等
-    // 装备数据的 key 是 1-6 的数字，代表第几栏，
+    // 装备栏的位置是固定的 8 个
+    // 装备栏只能装备各种法宝，获得其佩戴效果
+    // 装备数据的 key 是 1-8 的数字，代表第几栏，
     // value 是一个 equipData 对象
     this.equipments = {}
+
+    // 战斗卡组的位置是固定的 8 个
+    // 战斗卡组可能包含各种武器、法宝和招式
+    // 装备数据的 key 是 1-8 的数字，代表第几栏，
+    // value 是一个 equipData 对象
+    this.battleDeck = {}
 
     // 属性点数数值
     if (generate) {
@@ -244,7 +254,7 @@ fun heroBattle (
       )
       if (char2Resurrect) {
         if (char2.isMajorCharacter) {
-          final injury = StatusEffect.injury()
+          final injury = WorldMapStatusEffect.injury()
           char2.statusEffects[injury.kind] = injury
           char2.stats.life = 1
         }
@@ -268,7 +278,7 @@ fun heroBattle (
       return true
     } else {
       if (char1Resurrect) {
-        final injury = StatusEffect.injury()
+        final injury = WorldMapStatusEffect.injury()
         char1.statusEffects[injury.kind] = injury
         char1.stats.life = 1
       }
