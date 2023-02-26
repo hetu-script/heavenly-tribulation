@@ -1,4 +1,3 @@
-export 'binding/engine.ht'
 export 'random.ht'
 
 /// 游戏设置，和存档无关，属于载入存档或者开始新游戏之前的全局设置

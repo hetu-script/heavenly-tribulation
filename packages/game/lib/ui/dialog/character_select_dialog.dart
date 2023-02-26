@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:samsara/flutter_ui/responsive_window.dart';
+import 'package:samsara/flutter_ui/close_button.dart';
 
 import '../../global.dart';
-import 'package:samsara/ui/responsive_window.dart';
 import '../util.dart';
-import 'package:samsara/ui/close_button.dart';
 import '../game_entity_listview.dart';
 import '../view/character/information/character.dart';
 

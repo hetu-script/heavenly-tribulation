@@ -45,6 +45,7 @@ dependencies:
   async: ^2.8.2
   fast_noise: ^1.0.1
   flutter_platform_alert: ^0.3.0
+  vector_math: ^2.1.4
 
 dev_dependencies:
   flutter_test:
@@ -69,7 +70,13 @@ flutter:
     - assets/audio/
     - assets/audio/music/
 
+    - assets/cards/
+
     - assets/images/
+    - assets/images/animation/
+    - assets/images/animation/fight/
+    - assets/images/cards/
+    - assets/images/illustrations/
     - assets/images/avatar/
     - assets/images/avatar/female/
     - assets/images/avatar/male/

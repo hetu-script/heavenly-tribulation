@@ -35,7 +35,7 @@ class WorldMapScene extends Scene {
           showSelected: true,
           showFogOfWar: false,
         ),
-        super(id: worldData['id'], key: 'worldmap');
+        super(name: worldData['id'], key: 'worldmap');
 
   bool isMapReady = false;
 

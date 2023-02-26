@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:samsara/flutter_ui/responsive_window.dart';
 
 import '../global.dart';
-import 'package:samsara/ui/responsive_window.dart';
 
 class SaveInfo {
   final String worldId;

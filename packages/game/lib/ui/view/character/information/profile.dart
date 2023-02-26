@@ -5,8 +5,8 @@ import 'package:hetu_script/values.dart';
 
 import '../../../../global.dart';
 import '../../../avatar.dart';
-import 'package:samsara/ui/constants.dart';
-import 'package:samsara/ui/label.dart';
+import 'package:samsara/flutter_ui/constants.dart';
+import 'package:samsara/flutter_ui/label.dart';
 import '../../../util.dart';
 
 class ProfileView extends StatelessWidget {
@@ -227,7 +227,7 @@ class ProfileView extends StatelessWidget {
                   ),
                 ],
               ),
-              if (engine.debugMode) const Divider(),
+              if (engine.config.debugMode) const Divider(),
               Text('---${engine.locale['debug']}---'),
               Wrap(
                 children: [

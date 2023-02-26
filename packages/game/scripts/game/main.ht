@@ -41,7 +41,7 @@ fun init({
   engine.info('初始化游戏')
   
   addLocales(predefinedLocalizations)
-  engine.updateLocale(gLocales[locale])
+  engine.loadLocale(gLocales[locale])
   setLocale(locale)
 
   addDialogs(predefinedDialogs)

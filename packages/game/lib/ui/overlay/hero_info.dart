@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
+import 'package:samsara/flutter_ui/bordered_icon_button.dart';
+import 'package:samsara/flutter_ui/dynamic_color_progressbar.dart';
 
 import '../avatar.dart';
 import '../view/character/information/character.dart';
 import '../../global.dart';
-import 'package:samsara/ui/bordered_icon_button.dart';
 import '../view/character/builds/build.dart';
-import 'package:samsara/ui/dynamic_color_progressbar.dart';
 import '../view/character/stats/status.dart';
 
 const kStatsBarWidth = 125.0;

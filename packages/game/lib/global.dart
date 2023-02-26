@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
-import 'package:flame/components.dart';
 
 extension PercentageString on num {
   String toPercentageString([int fractionDigits = 0]) {
@@ -88,8 +87,10 @@ const kValueTypeFloat = 'float';
 const kValueTypePercentage = 'percentage';
 
 final SamsaraEngine engine = SamsaraEngine(
-  gameName: 'Heavenly Tribulation',
-  debugMode: Global.isDebugMode,
+  config: EngineConfig(
+    name: 'Heavenly Tribulation',
+    debugMode: Global.isDebugMode,
+  ),
 );
 
 final heroSrcSize = Vector2(32.0, 48.0);

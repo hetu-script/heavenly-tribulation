@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import '../../../global.dart';
-import 'package:samsara/ui/responsive_window.dart';
+import 'package:samsara/flutter_ui/responsive_window.dart';
 import 'battle_panel.dart';
 import '../../../event/events.dart';
 

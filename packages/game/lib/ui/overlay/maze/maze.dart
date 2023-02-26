@@ -6,12 +6,12 @@ import 'package:hetu_script/values.dart';
 import 'package:flame/sprite.dart';
 import 'package:flame/flame.dart';
 import 'package:hetu_script/types.dart';
-import 'package:samsara/ui/loading_screen.dart';
+import 'package:samsara/flutter_ui/loading_screen.dart';
+import 'package:samsara/utils/console.dart';
 
 import '../../../global.dart';
 import '../../../scene/maze.dart';
 import 'drop_menu.dart';
-import '../../view/console.dart';
 import '../hero_info.dart';
 import '../history_panel.dart';
 import '../../../event/events.dart';
@@ -341,7 +341,7 @@ class _MazeOverlayState extends State<MazeOverlay>
                                 showDialog(
                                   context: context,
                                   builder: (BuildContext context) =>
-                                      const Console(),
+                                      Console(engine: engine),
                                 ).then((_) => setState(() {}));
                                 break;
                               case MazeDropMenuItems.quit:

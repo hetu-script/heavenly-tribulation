@@ -5,8 +5,8 @@ import 'package:hetu_script/values.dart';
 
 import '../../../global.dart';
 import 'site_card.dart';
-import 'package:samsara/ui/close_button.dart';
-import 'package:samsara/ui/responsive_window.dart';
+import 'package:samsara/flutter_ui/close_button.dart';
+import 'package:samsara/flutter_ui/responsive_window.dart';
 
 class LocationView extends StatefulWidget {
   final bool showSites;

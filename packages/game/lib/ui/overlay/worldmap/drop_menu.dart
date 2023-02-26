@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:samsara/ui/popup_submenu_item.dart';
+import 'package:samsara/flutter_ui/popup_submenu_item.dart';
+
 import '../../../global.dart';
 
 enum WorldMapDropMenuItems {

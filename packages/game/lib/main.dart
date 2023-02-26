@@ -41,7 +41,7 @@ void main() async {
     windowManager.addListener(CustomWindowListener());
     WindowOptions windowOptions = const WindowOptions(
       // fullScreen: true,
-      size: Size(800.0, 600.0),
+      minimumSize: Size(1280.0, 720.0),
     );
     windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:samsara/markdown_wiki/markdown_wiki.dart';
+import 'package:samsara/widget/markdown_wiki.dart';
 
 import 'noise_test.dart';
 import 'explore.dart';

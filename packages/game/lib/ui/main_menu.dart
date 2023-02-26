@@ -10,11 +10,12 @@ import 'package:samsara/samsara.dart';
 // import 'package:samsara/event.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:hetu_script/values.dart';
+import 'package:samsara/flutter_ui/loading_screen.dart';
+import 'package:samsara/flutter_ui/label.dart';
+import 'package:samsara/utils/console.dart';
 
 import 'overlay/maze/maze.dart';
-import 'view/console.dart';
 import '../global.dart';
-import 'package:samsara/ui/loading_screen.dart';
 import '../shared/constants.dart';
 import '../../shared/datetime.dart';
 import 'load_game_dialog.dart';
@@ -23,8 +24,9 @@ import '../scene/worldmap.dart';
 import '../scene/maze.dart';
 import 'create_game_dialog.dart';
 // import '../event/events.dart';
-import 'overlay/main_game.dart';
-import 'package:samsara/ui/label.dart';
+import 'overlay/worldmap/worldmap.dart';
+import 'overlay/cardgame/cardgame.dart';
+import '../scene/cardgame/cardgame.dart';
 
 class MainMenu extends StatefulWidget {
   const MainMenu({super.key});
@@ -90,6 +92,12 @@ class _MainMenuState extends State<MainMenu> {
         mapData: data!,
         controller: engine,
         captionStyle: captionStyle,
+      );
+    });
+
+    engine.registerSceneConstructor('cardGame', ([dynamic data]) async {
+      return CardGameScene(
+        controller: engine,
       );
     });
   }
@@ -171,7 +179,7 @@ class _MainMenuState extends State<MainMenu> {
                     if (value != null) {
                       showDialog(
                         context: context,
-                        builder: (context) => MainGameOverlay(
+                        builder: (context) => WorldMapOverlay(
                           key: UniqueKey(),
                           args: value,
                         ),
@@ -198,7 +206,7 @@ class _MainMenuState extends State<MainMenu> {
                     if (info != null) {
                       showDialog(
                         context: context,
-                        builder: (context) => MainGameOverlay(
+                        builder: (context) => WorldMapOverlay(
                           key: UniqueKey(),
                           args: {
                             "id": info.worldId,
@@ -277,13 +285,29 @@ class _MainMenuState extends State<MainMenu> {
                         width: 120.0,
                         child: Column(children: menus),
                       ),
-                      if (engine.debugMode)
+                      if (engine.config.debugMode)
                         Positioned(
                           right: 20.0,
                           bottom: 20.0,
-                          width: 120.0,
+                          width: 160.0,
                           child: Column(
                             children: [
+                              Padding(
+                                padding: const EdgeInsets.only(top: 20.0),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => CardGameOverlay(),
+                                    );
+                                  },
+                                  child: const Label(
+                                    'Test Cardgame',
+                                    width: 160.0,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
                               Padding(
                                 padding: const EdgeInsets.only(top: 20.0),
                                 child: ElevatedButton(
@@ -361,7 +385,7 @@ class _MainMenuState extends State<MainMenu> {
                                   },
                                   child: const Label(
                                     'Test Maze',
-                                    width: 100.0,
+                                    width: 160.0,
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
@@ -373,7 +397,7 @@ class _MainMenuState extends State<MainMenu> {
                                     showDialog(
                                       context: context,
                                       builder: (BuildContext context) =>
-                                          const Console(),
+                                          Console(engine: engine),
                                     ).then((_) => setState(() {
                                           engine.invoke('build',
                                               positionalArgs: [context]);
@@ -381,7 +405,7 @@ class _MainMenuState extends State<MainMenu> {
                                   },
                                   child: const Label(
                                     'Console',
-                                    width: 100.0,
+                                    width: 160.0,
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
