@@ -2,6 +2,8 @@ import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/paint/paint.dart';
+import 'package:flame/flame.dart';
+import 'package:flame/sprite.dart';
 
 import '../../../global.dart';
 import '../common.dart';
@@ -46,6 +48,8 @@ class PlayGround extends GameComponent with HandlesGesture {
 
     centerGame();
 
+    final cardBack = Sprite(await Flame.images.load('cardback.png'));
+
     final List<PlayingCard> player1Cards = [];
     for (var i = 0; i < 5; ++i) {
       final card = PlayingCard(
@@ -54,6 +58,7 @@ class PlayGround extends GameComponent with HandlesGesture {
         height: kCardHeight,
         focusedPosition: Vector2(20, 100),
         focusedSize: kFocusedCardSize,
+        backSprite: cardBack,
       );
       player1Cards.add(card);
       add(card);

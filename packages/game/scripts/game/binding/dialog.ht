@@ -22,7 +22,7 @@ namespace Dialog {
 
   external fun showMaze(context, maze)
   
-  external fun showDuel(context, char1, char2, type, data)
+  // external fun showDuel(context, char1, char2, type, data)
 
   external fun showProgress(context, titletitle, checkProgress)
 

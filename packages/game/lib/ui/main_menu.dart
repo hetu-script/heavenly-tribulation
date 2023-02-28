@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:heavenly_tribulation/ui/overlay/cardgame/deckbuilding.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:samsara/samsara.dart';
@@ -13,6 +14,7 @@ import 'package:hetu_script/values.dart';
 import 'package:samsara/flutter_ui/loading_screen.dart';
 import 'package:samsara/flutter_ui/label.dart';
 import 'package:samsara/utils/console.dart';
+import 'package:json5/json5.dart';
 
 import 'overlay/maze/maze.dart';
 import '../global.dart';
@@ -27,6 +29,7 @@ import 'create_game_dialog.dart';
 import 'overlay/worldmap/worldmap.dart';
 import 'overlay/cardgame/cardgame.dart';
 import '../scene/cardgame/cardgame.dart';
+import '../scene/cardgame/deckbuilding.dart';
 
 class MainMenu extends StatefulWidget {
   const MainMenu({super.key});
@@ -100,6 +103,13 @@ class _MainMenuState extends State<MainMenu> {
         controller: engine,
       );
     });
+
+    engine.registerSceneConstructor('deckBuilding', ([dynamic data]) async {
+      return DeckBuildingScene(
+        controller: engine,
+        deckData: data,
+      );
+    });
   }
 
   Future<void> refreshSaves() async {
@@ -107,9 +117,14 @@ class _MainMenuState extends State<MainMenu> {
     _savedFiles.addAll(await _getSavedFiles());
   }
 
-  Future<bool> _prepareData() async {
+  // 因为 FutureBuilder根据返回值是否为null来判断，因此这里无论如何要返回一个值
+  Future<bool?> _prepareData() async {
     await refreshSaves();
-    if (engine.isLoaded) return false;
+    if (engine.isLoaded) {
+      engine.invoke('build', positionalArgs: [context]);
+      return false;
+    }
+
     await engine.init(externalFunctions: externalGameFunctions);
     if (kDebugMode) {
       engine.loadModFromAssets(
@@ -145,6 +160,13 @@ class _MainMenuState extends State<MainMenu> {
           );
         }
       }
+    }
+
+    final cardsDataString =
+        await rootBundle.loadString('assets/cards/cards.json5');
+    final data = JSON5.parse(cardsDataString);
+    for (final obj in data) {
+      cardsData[obj['id']] = obj;
     }
 
     engine.invoke('build', positionalArgs: [context]);
@@ -263,6 +285,141 @@ class _MainMenuState extends State<MainMenu> {
             ],
           ];
 
+          final debugMenus = <Widget>[
+            Positioned(
+              right: 20.0,
+              bottom: 20.0,
+              width: 200.0,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => const DeckBuildingOverlay(),
+                        );
+                      },
+                      child: const Label(
+                        'Test Deckbuilding',
+                        width: 200.0,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => CardGameOverlay(),
+                        );
+                      },
+                      child: const Label(
+                        'Test Cardgame',
+                        width: 200.0,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return Material(
+                              type: MaterialType.transparency,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        final mazeData =
+                                            engine.invoke('testMazeMountain');
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => MazeOverlay(
+                                            key: UniqueKey(),
+                                            mazeData: mazeData,
+                                          ),
+                                        );
+                                      },
+                                      child: const Text('mountain'),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        final mazeData = engine.invoke(
+                                            'testMazeCultivationRecruit');
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => MazeOverlay(
+                                            key: UniqueKey(),
+                                            mazeData: mazeData,
+                                          ),
+                                        );
+                                      },
+                                      child: const Text('cultivation recruit'),
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: ElevatedButton(
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(),
+                                      child: const Text('close'),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ).then(
+                          (_) {
+                            engine.invoke('build', positionalArgs: [context]);
+                            setState(() {});
+                          },
+                        );
+                      },
+                      child: const Label(
+                        'Test Maze',
+                        width: 200.0,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) =>
+                              Console(engine: engine),
+                        ).then((_) => setState(() {
+                              engine.invoke('build', positionalArgs: [context]);
+                            }));
+                      },
+                      child: const Label(
+                        'Console',
+                        width: 200.0,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ];
+
           return Scaffold(
             body: Global.isPortraitMode
                 ? Container(
@@ -285,134 +442,7 @@ class _MainMenuState extends State<MainMenu> {
                         width: 120.0,
                         child: Column(children: menus),
                       ),
-                      if (engine.config.debugMode)
-                        Positioned(
-                          right: 20.0,
-                          bottom: 20.0,
-                          width: 160.0,
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(top: 20.0),
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) => CardGameOverlay(),
-                                    );
-                                  },
-                                  child: const Label(
-                                    'Test Cardgame',
-                                    width: 160.0,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 20.0),
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return Material(
-                                          type: MaterialType.transparency,
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(10.0),
-                                                child: ElevatedButton(
-                                                  onPressed: () {
-                                                    final mazeData =
-                                                        engine.invoke(
-                                                            'testMazeMountain');
-                                                    showDialog(
-                                                      context: context,
-                                                      builder: (context) =>
-                                                          MazeOverlay(
-                                                        key: UniqueKey(),
-                                                        mazeData: mazeData,
-                                                      ),
-                                                    );
-                                                  },
-                                                  child: const Text('mountain'),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(10.0),
-                                                child: ElevatedButton(
-                                                  onPressed: () {
-                                                    final mazeData = engine.invoke(
-                                                        'testMazeCultivationRecruit');
-                                                    showDialog(
-                                                      context: context,
-                                                      builder: (context) =>
-                                                          MazeOverlay(
-                                                        key: UniqueKey(),
-                                                        mazeData: mazeData,
-                                                      ),
-                                                    );
-                                                  },
-                                                  child: const Text(
-                                                      'cultivation recruit'),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.all(10.0),
-                                                child: ElevatedButton(
-                                                  onPressed: () =>
-                                                      Navigator.of(context)
-                                                          .pop(),
-                                                  child: const Text('close'),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    ).then(
-                                      (_) {
-                                        engine.invoke('build',
-                                            positionalArgs: [context]);
-                                        setState(() {});
-                                      },
-                                    );
-                                  },
-                                  child: const Label(
-                                    'Test Maze',
-                                    width: 160.0,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 20.0),
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) =>
-                                          Console(engine: engine),
-                                    ).then((_) => setState(() {
-                                          engine.invoke('build',
-                                              positionalArgs: [context]);
-                                        }));
-                                  },
-                                  child: const Label(
-                                    'Console',
-                                    width: 160.0,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                      if (engine.config.debugMode) ...debugMenus,
                     ],
                   ),
           );

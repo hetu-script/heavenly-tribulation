@@ -64,18 +64,18 @@ final Map<String, Function> externalGameFunctions = {
       showCloseButton: positionalArgs[3],
     );
   },
-  r'showDuel': (HTEntity object,
-      {List<dynamic> positionalArgs = const [],
-      Map<String, dynamic> namedArgs = const {},
-      List<HTType> typeArgs = const []}) {
-    return Duel.show(
-      context: positionalArgs[0],
-      char1: positionalArgs[1],
-      char2: positionalArgs[2],
-      type: positionalArgs[3],
-      data: positionalArgs[4],
-    );
-  },
+  // r'showDuel': (HTEntity object,
+  //     {List<dynamic> positionalArgs = const [],
+  //     Map<String, dynamic> namedArgs = const {},
+  //     List<HTType> typeArgs = const []}) {
+  //   return Duel.show(
+  //     context: positionalArgs[0],
+  //     char1: positionalArgs[1],
+  //     char2: positionalArgs[2],
+  //     type: positionalArgs[3],
+  //     data: positionalArgs[4],
+  //   );
+  // },
   r'showMerchant': (HTEntity object,
       {List<dynamic> positionalArgs = const [],
       Map<String, dynamic> namedArgs = const {},

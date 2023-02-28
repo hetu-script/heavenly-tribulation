@@ -2,7 +2,7 @@ import '../../game.ht'
 import '../../l10n.ht'
 import '../../datetime.ht'
 import '../incident.ht'
-import '../../duel.ht'
+// import '../../duel.ht'
 import '../../util.ht'
 import '../common.ht'
 import '../../tile/hexagonal_tile.ht'
@@ -805,7 +805,7 @@ fun handleCharacterInteraction(characterId) {
         
       }
       'practiceDuel' -> {
-        showDuel(hero, character, type: 'practice')
+        // showDuel(hero, character, type: 'practice')
       }
       'consult' -> {
         
@@ -820,7 +820,7 @@ fun handleCharacterInteraction(characterId) {
         
       }
       'sneakAttack' -> {
-        showDuel(hero, character, type: 'sneakAttack')
+        // showDuel(hero, character, type: 'sneakAttack')
       }
     }
   })

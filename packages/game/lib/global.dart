@@ -94,3 +94,5 @@ final SamsaraEngine engine = SamsaraEngine(
 );
 
 final heroSrcSize = Vector2(32.0, 48.0);
+
+Map<String, dynamic> cardsData = {};

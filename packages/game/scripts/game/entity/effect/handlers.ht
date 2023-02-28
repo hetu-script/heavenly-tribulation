@@ -1,5 +1,5 @@
 import 'common.ht'
-import '../character/status_effect.ht'
+import '../character/status_effect/world_map_status_effect.ht'
 import '../common.ht'
 
 // 游戏效果的处理函数

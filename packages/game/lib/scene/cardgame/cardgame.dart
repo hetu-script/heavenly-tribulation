@@ -3,9 +3,9 @@ import 'package:samsara/utils/uid.dart';
 import 'package:flame/sprite.dart';
 import 'package:flame/flame.dart';
 
-import 'components/playground.dart';
+import 'cardgame/playground.dart';
 import 'common.dart';
-import 'components/character.dart';
+import 'cardgame/character.dart';
 
 class CardGameScene extends Scene {
   CardGameScene({

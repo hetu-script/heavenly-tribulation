@@ -46,6 +46,7 @@ dependencies:
   fast_noise: ^1.0.1
   flutter_platform_alert: ^0.3.0
   vector_math: ^2.1.4
+  json5: ^0.8.0
 
 dev_dependencies:
   flutter_test:
@@ -76,6 +77,7 @@ flutter:
     - assets/images/animation/
     - assets/images/animation/fight/
     - assets/images/cards/
+    - assets/images/cards/basic/
     - assets/images/illustrations/
     - assets/images/avatar/
     - assets/images/avatar/female/
@@ -102,6 +104,7 @@ flutter:
     - scripts/game/entity/character/
     - scripts/game/entity/character/creature/
     - scripts/game/entity/character/npc/
+    - scripts/game/entity/character/status_effect/
     - scripts/game/entity/effect/
     - scripts/game/entity/item/
     - scripts/game/entity/item/consumable/

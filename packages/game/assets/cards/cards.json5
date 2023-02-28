@@ -1,5 +1,78 @@
-{
-  '2023SP01-001': {
-    id: '2023SP01-001',
+[
+  {
+    // 每张卡牌唯一的id
+    id: 'basic001',
+    // 每张卡牌的名字，有可能不同id的卡牌的名字相同
+    // 但组牌时，相同名字的卡牌放入的数量共享一个上限
+    name: 'basicBlock',
+    expansion: 'basic',
+    spriteId: 'template',
+    kind: 'defense',
+    faction: 'none',
+    title: {
+      zh: '格挡',
+    },
+    rules: {
+      zh: '格挡：5',
+    },
   },
-}
+  {
+    id: 'basic002',
+    name: 'basicDodge',
+    expansion: 'basic',
+    spriteId: 'template',
+    kind: 'defense',
+    faction: 'none',
+    title: {
+      zh: '闪避',
+    },
+    rules: {
+      zh: '闪避：2',
+    },
+    speed: 2,
+  },
+  {
+    id: 'basic003',
+    name: 'basicLightAttack',
+    expansion: 'basic',
+    spriteId: 'template',
+    kind: 'offense',
+    faction: 'none',
+    title: {
+      zh: '轻击',
+    },
+    rules: {
+      zh: '攻击：3',
+    },
+  },
+  {
+    id: 'basic004',
+    name: 'basicHeavyAttack',
+    expansion: 'basic',
+    spriteId: 'template',
+    kind: 'offense',
+    faction: 'none',
+    title: {
+      zh: '重击',
+    },
+    rules: {
+      zh: '攻击：7',
+    },
+    speed: 1,
+  },
+  {
+    id: 'basic005',
+    name: 'basicMultipleAttack',
+    expansion: 'basic',
+    spriteId: 'template',
+    kind: 'offense',
+    faction: 'none',
+    title: {
+      zh: '连击',
+    },
+    rules: {
+      zh: '攻击：3×2',
+    },
+    speed: 1,
+  },
+]

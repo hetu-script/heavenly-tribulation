@@ -4,10 +4,10 @@ import 'binding/dialog.ht'
 /// 战斗模块
 /// 输入战斗相关角色的对象，自动生成战斗过程
 
-fun showDuel(char1, char2, { type, onCallback, debug }) -> Future {
-  final duelResult = Duel(char1, char2, type: type, debug: debug);
-  return Dialog.showDuel(buildContext, char1, char2, type, duelResult)
-}
+// fun showDuel(char1, char2, { type, onCallback, debug }) -> Future {
+//   final duelResult = Duel(char1, char2, type: type, debug: debug);
+//   return Dialog.showDuel(buildContext, char1, char2, type, duelResult)
+// }
 
 const kDuelTypePractice = 'practice'
 const _kDuelTurnsLimit = 50

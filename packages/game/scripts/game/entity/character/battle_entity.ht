@@ -240,52 +240,52 @@ fun heroBattle (
   onWon,
   onLost,
 }) -> Future async {
-  final char1 = getHero()
-  return showDuel(char1, char2).then((result) {
-    if (result?.result) {
-      if (resolveResult) resolveDuelResult(char1, char2, result)
-      if (loot) lootCharacter(char1, char2, takeAll: takeAll)
-      final incidentContent = getLocaleString('duelVistory', interpolations: [ char1.name, char2.name ] )
-      Incident(
-        content: incidentContent,
-        subjectIds: [char1.id],
-        isPrivate: true,
-        isMazeIncident: isMazeIncident,
-      )
-      if (char2Resurrect) {
-        if (char2.isMajorCharacter) {
-          final injury = WorldMapStatusEffect.injury()
-          char2.statusEffects[injury.kind] = injury
-          char2.stats.life = 1
-        }
-      } else {
-        final incidentContent = getLocaleString('characterKill', interpolations: [ char1.name, char2.name ] )
-        Incident(
-          content: incidentContent,
-          subjectIds: [char1.id],
-          isPrivate: true,
-          isMazeIncident: isMazeIncident,
-        )
-        if (char2.isMajorCharacter) {
-          char2.isDead = true
-        } else {
-          delete game.npcs[char2.id]
-        }
-      }
-      if (onWon is function) {
-        onWon()
-      }
-      return true
-    } else {
-      if (char1Resurrect) {
-        final injury = WorldMapStatusEffect.injury()
-        char1.statusEffects[injury.kind] = injury
-        char1.stats.life = 1
-      }
-      if (onLost is function) {
-        onLost()
-      }
-      return false
-    }
-  })
+  // final char1 = getHero()
+  // return showDuel(char1, char2).then((result) {
+  //   if (result?.result) {
+  //     if (resolveResult) resolveDuelResult(char1, char2, result)
+  //     if (loot) lootCharacter(char1, char2, takeAll: takeAll)
+  //     final incidentContent = getLocaleString('duelVistory', interpolations: [ char1.name, char2.name ] )
+  //     Incident(
+  //       content: incidentContent,
+  //       subjectIds: [char1.id],
+  //       isPrivate: true,
+  //       isMazeIncident: isMazeIncident,
+  //     )
+  //     if (char2Resurrect) {
+  //       if (char2.isMajorCharacter) {
+  //         final injury = WorldMapStatusEffect.injury()
+  //         char2.statusEffects[injury.kind] = injury
+  //         char2.stats.life = 1
+  //       }
+  //     } else {
+  //       final incidentContent = getLocaleString('characterKill', interpolations: [ char1.name, char2.name ] )
+  //       Incident(
+  //         content: incidentContent,
+  //         subjectIds: [char1.id],
+  //         isPrivate: true,
+  //         isMazeIncident: isMazeIncident,
+  //       )
+  //       if (char2.isMajorCharacter) {
+  //         char2.isDead = true
+  //       } else {
+  //         delete game.npcs[char2.id]
+  //       }
+  //     }
+  //     if (onWon is function) {
+  //       onWon()
+  //     }
+  //     return true
+  //   } else {
+  //     if (char1Resurrect) {
+  //       final injury = WorldMapStatusEffect.injury()
+  //       char1.statusEffects[injury.kind] = injury
+  //       char1.stats.life = 1
+  //     }
+  //     if (onLost is function) {
+  //       onLost()
+  //     }
+  //     return false
+  //   }
+  // })
 }
