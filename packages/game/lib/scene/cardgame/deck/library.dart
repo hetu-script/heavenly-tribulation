@@ -9,13 +9,14 @@ class Library extends GameComponent with HandlesGesture {
   final Map<String, PlayingCard> _library = {};
 
   late int cardsLimitInRow;
-  Vector2 currentPosition = Vector2(10, 10);
-  int currentPosInRow = 0, currentPosInColumn = 0;
+  late Vector2 currentCardPosition;
+  int currentCardPosInRow = 0, currentCardPosInColumn = 0;
 
   Library({
     super.position,
     super.size,
   }) {
+    currentCardPosition = Vector2(10, y + 10);
     calculateArray();
   }
 
@@ -46,24 +47,28 @@ class Library extends GameComponent with HandlesGesture {
         width: kLibraryCardWidth,
         height: kLibraryCardHeight,
         frontSpriteId: spriteId,
+        countDecorSpriteId: 'cardcount',
+        showCount: true,
       );
       _library[cardId] = card;
 
       void generateNextPosition() {
-        ++currentPosInRow;
-        if (currentPosInRow > cardsLimitInRow) {
-          currentPosInRow = 0;
-          ++currentPosInColumn;
+        ++currentCardPosInRow;
+        if (currentCardPosInRow > cardsLimitInRow) {
+          currentCardPosInRow = 0;
+          ++currentCardPosInColumn;
         }
 
-        currentPosition.x =
-            10 + (currentPosInRow * kLibraryCardWidth) + (currentPosInRow * 10);
-        currentPosition.y = 10 +
-            (currentPosInColumn * kLibraryCardHeight) +
-            (currentPosInColumn * 10);
+        currentCardPosition.x = 10 +
+            (currentCardPosInRow * kLibraryCardWidth) +
+            (currentCardPosInRow * 10);
+        currentCardPosition.y = y +
+            10 +
+            (currentCardPosInColumn * kLibraryCardHeight) +
+            (currentCardPosInColumn * 10);
       }
 
-      card.position = currentPosition.clone();
+      card.position = currentCardPosition.clone();
       generateNextPosition();
 
       return card;

@@ -147,3 +147,6 @@ flutter:
     - family: UbuntuMono
       fonts:
         - asset: assets/fonts/UbuntuMonoDerivativePowerline.ttf
+    - family: QIJIC
+      fonts:
+        - asset: assets/fonts/qijic.ttf

@@ -14,8 +14,8 @@ final kFocusedCardWidth = kCardWidth * 2;
 final kFocusedCardHeight = kCardHeight * 2;
 final kFocusedCardSize = Vector2(kFocusedCardWidth, kFocusedCardHeight);
 
-final kLibraryCardWidth = kFocusedCardWidth;
-final kLibraryCardHeight = kFocusedCardHeight;
+final kLibraryCardWidth = kGamepadSize.x / 9;
+final kLibraryCardHeight = kLibraryCardWidth * 1.4;
 
 final kDeckZoneWidth = kGamepadSize.x / 2 - 20;
 final kDeckZoneHeight = kCardHeight + 20;

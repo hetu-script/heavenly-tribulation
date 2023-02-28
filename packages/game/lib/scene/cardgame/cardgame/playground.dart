@@ -53,7 +53,7 @@ class PlayGround extends GameComponent with HandlesGesture {
     final List<PlayingCard> player1Cards = [];
     for (var i = 0; i < 5; ++i) {
       final card = PlayingCard(
-        frontSpriteId: 'template',
+        frontSpriteId: 'basic/template',
         width: kCardWidth,
         height: kCardHeight,
         focusedPosition: Vector2(20, 100),
@@ -71,6 +71,7 @@ class PlayGround extends GameComponent with HandlesGesture {
       cards: player1Cards,
     );
     add(player1DeckZone);
+    player1DeckZone.sortCards();
 
     player2DeckZone = DeckZone(
       id: 'player2DeckZone',

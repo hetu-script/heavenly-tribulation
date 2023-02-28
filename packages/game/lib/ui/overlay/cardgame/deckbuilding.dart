@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/flutter_ui/loading_screen.dart';
+import 'package:samsara/flutter_ui/label.dart';
 
 import '../../../global.dart';
 import '../../../scene/cardgame/deckbuilding.dart';
@@ -23,7 +24,7 @@ class _DeckBuildingOverlayState extends State<DeckBuildingOverlay>
 
   @override
   void dispose() {
-    engine.disposeListenders(widget.key!);
+    // engine.disposeListenders(widget.key!);
 
     _scene.detach();
     super.dispose();
@@ -72,6 +73,19 @@ class _DeckBuildingOverlayState extends State<DeckBuildingOverlay>
                       if (_scene.isLoading)
                         LoadingScreen(text: engine.locale['loading']),
                       SceneWidget(scene: _scene),
+                      Positioned(
+                        right: 5,
+                        top: 5,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Label(
+                            engine.locale['exit'],
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 );

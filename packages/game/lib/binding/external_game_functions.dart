@@ -3,7 +3,7 @@ import 'package:hetu_script/value/function/function.dart';
 
 import '../ui/dialog/game_dialog.dart';
 import '../ui/dialog/selection_dialog.dart';
-import '../ui/view/duel/duel.dart';
+// import '../ui/view/duel/duel.dart';
 import '../ui/dialog/character_visit_dialog.dart';
 import '../ui/dialog/character_select_dialog.dart';
 import '../ui/view/merchant/merchant.dart';
