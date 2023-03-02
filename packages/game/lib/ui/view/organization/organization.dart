@@ -103,7 +103,7 @@ class _OrganizationViewState extends State<OrganizationView> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(_organizationData['name']),
-          actions: const [ButtonClose()],
+          actions: const [CloseButton2()],
           bottom: TabBar(
             tabs: _tabs,
           ),

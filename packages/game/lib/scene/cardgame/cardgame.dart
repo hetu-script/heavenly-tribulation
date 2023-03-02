@@ -10,7 +10,7 @@ import 'cardgame/character.dart';
 class CardGameScene extends Scene {
   CardGameScene({
     required super.controller,
-  }) : super(name: 'cardGame', key: 'cardGame${uid4()}');
+  }) : super(name: 'cardGame', key: 'cardGame${uid(4)}');
 
   @override
   Future<void> onLoad() async {

@@ -30,7 +30,7 @@ class NpcView extends StatelessWidget {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(npcData['name']),
-          actions: const [ButtonClose()],
+          actions: const [CloseButton2()],
         ),
         body: Container(
           padding: const EdgeInsets.all(10),

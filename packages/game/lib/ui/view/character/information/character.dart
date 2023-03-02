@@ -128,7 +128,7 @@ class _CharacterViewState extends State<CharacterView>
               color: HexColor.fromHex(_characterData['color']),
             ),
           ),
-          actions: const [ButtonClose()],
+          actions: const [CloseButton2()],
           bottom: TabBar(
             controller: _tabController,
             tabs: _tabs,

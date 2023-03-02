@@ -48,7 +48,7 @@ class OrganizationLearningPanel extends StatelessWidget {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(engine.locale['selectSkillToLearn']),
-          actions: const [ButtonClose()],
+          actions: const [CloseButton2()],
         ),
         body: Container(
           color: Colors.red,

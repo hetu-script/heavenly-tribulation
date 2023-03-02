@@ -122,7 +122,7 @@ class _LocationViewState extends State<LocationView> {
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(_locationData['name']),
-            actions: const [ButtonClose()],
+            actions: const [CloseButton2()],
             bottom: TabBar(
               tabs: _tabs,
             ),

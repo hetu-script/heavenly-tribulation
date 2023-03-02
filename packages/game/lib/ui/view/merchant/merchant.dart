@@ -62,7 +62,7 @@ class _MerchantViewState extends State<MerchantView> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(engine.locale['trade']),
-          actions: const [ButtonClose()],
+          actions: const [CloseButton2()],
         ),
         body: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,

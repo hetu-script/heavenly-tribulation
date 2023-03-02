@@ -48,7 +48,7 @@ class PlayGround extends GameComponent with HandlesGesture {
 
     centerGame();
 
-    final cardBack = Sprite(await Flame.images.load('cardback.png'));
+    // final cardBack = Sprite(await Flame.images.load('cardback.png'));
 
     final List<PlayingCard> player1Cards = [];
     for (var i = 0; i < 5; ++i) {
@@ -58,7 +58,7 @@ class PlayGround extends GameComponent with HandlesGesture {
         height: kCardHeight,
         focusedPosition: Vector2(20, 100),
         focusedSize: kFocusedCardSize,
-        backSprite: cardBack,
+        // backSprite: cardBack,
       );
       player1Cards.add(card);
       add(card);

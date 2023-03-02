@@ -1,5 +1,7 @@
 import 'package:samsara/samsara.dart';
 import 'package:samsara/cardgame/playing_card.dart';
+import 'package:flame/flame.dart';
+import 'package:flame/sprite.dart';
 import 'package:samsara/gestures.dart';
 
 import 'common.dart';
@@ -22,21 +24,28 @@ class DeckBuildingScene extends Scene {
         position: Vector2(0, kLibraryCardHeight * 1.2), size: kGamepadSize);
     add(library);
 
+    library.cardStackBackSprite =
+        Sprite(await Flame.images.load('cardstack_back.png'));
+
     for (final cardId in deckData.keys) {
       for (var i = 0; i < deckData[cardId]!; ++i) {
         // 牌库中每种牌其实只有一个 component
         final card = library.addCard(cardId);
         if (card != null) {
+          card.onPointerDown = () {
+            draggingCard = card;
+          };
+
           add(card);
         }
       }
     }
   }
 
-  // @override
-  // void onDragUpdate(int pointer, int buttons, DragUpdateDetails details) {
-  //   camera.snapTo(camera.position - details.delta.toVector2());
+  @override
+  void onTapUp(int pointer, int buttons, TapUpDetails details) {
+    super.onTapUp(pointer, buttons, details);
 
-  //   super.onDragUpdate(pointer, buttons, details);
-  // }
+    draggingCard = null;
+  }
 }

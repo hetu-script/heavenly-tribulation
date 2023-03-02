@@ -188,7 +188,7 @@ class _BuildViewState extends State<BuildView> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(widget.characterData['name']),
-          actions: const [ButtonClose()],
+          actions: const [CloseButton2()],
         ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,

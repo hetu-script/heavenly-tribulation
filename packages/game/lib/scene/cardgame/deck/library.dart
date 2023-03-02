@@ -1,11 +1,16 @@
+import 'package:flame/sprite.dart';
+import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/cardgame/playing_card.dart';
+import 'package:samsara/paint/paint.dart';
 
 import '../../../global.dart';
 import '../common.dart';
 
 class Library extends GameComponent with HandlesGesture {
+  Sprite? cardStackBackSprite;
+
   final Map<String, PlayingCard> _library = {};
 
   late int cardsLimitInRow;
@@ -28,10 +33,13 @@ class Library extends GameComponent with HandlesGesture {
   bool containsCard(String cardId) => _library.containsKey(cardId);
 
   /// 向牌库中添加卡牌，如果已存在，就返回false
+  /// 调用此方法前，必须先赋值 [cardStackBackSprite]
   PlayingCard? addCard(String cardId) {
+    assert(cardStackBackSprite != null);
+
     PlayingCard? card = _library[cardId];
     if (card != null) {
-      ++card.count;
+      ++card.stack;
       return null;
     } else {
       final cardData = cardsData[cardId];
@@ -44,13 +52,23 @@ class Library extends GameComponent with HandlesGesture {
 
       card = PlayingCard(
         id: cardData['id'],
+        title: cardData['title'][engine.locale.languageId],
+        description: cardData['rules'][engine.locale.languageId],
         width: kLibraryCardWidth,
         height: kLibraryCardHeight,
         frontSpriteId: spriteId,
-        countDecorSpriteId: 'cardcount',
-        showCount: true,
+        showTitle: true,
+        titleStyle: ScreenTextStyle(
+          colorTheme: ScreenTextColorTheme.dark,
+          anchor: Anchor.topLeft,
+          padding: const EdgeInsets.only(left: 12, top: 8),
+        ),
+        showStack: true,
+        stackStyle: ScreenTextStyle(
+          backgroundSprite: cardStackBackSprite,
+        ),
+        showDescription: true,
       );
-      _library[cardId] = card;
 
       void generateNextPosition() {
         ++currentCardPosInRow;
@@ -71,6 +89,7 @@ class Library extends GameComponent with HandlesGesture {
       card.position = currentCardPosition.clone();
       generateNextPosition();
 
+      _library[cardId] = card;
       return card;
     }
   }
@@ -78,8 +97,13 @@ class Library extends GameComponent with HandlesGesture {
   void removeCard(String cardId) {
     PlayingCard? card = _library[cardId];
 
-    if (card != null && card.count > 1) {
-      --card.count;
+    if (card != null && card.stack > 1) {
+      --card.stack;
     }
+  }
+
+  @override
+  void render(Canvas canvas) {
+    canvas.drawRect(border, borderPaint);
   }
 }

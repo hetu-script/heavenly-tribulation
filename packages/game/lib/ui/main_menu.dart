@@ -170,7 +170,6 @@ class _MainMenuState extends State<MainMenu> {
     }
 
     engine.invoke('build', positionalArgs: [context]);
-    engine.isLoaded = true;
     return true;
   }
 

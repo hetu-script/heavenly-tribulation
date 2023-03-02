@@ -90,7 +90,7 @@ class CharacterSelectDialog extends StatelessWidget {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(title),
-          actions: [if (showCloseButton) const ButtonClose()],
+          actions: [if (showCloseButton) const CloseButton()],
         ),
         body: GameEntityListView(
           columns: _kInformationViewCharacterColumns,

@@ -193,7 +193,7 @@ class _InformationPanelState extends State<InformationPanel>
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(engine.locale['info']),
-            actions: const [ButtonClose()],
+            actions: const [CloseButton2()],
             bottom: TabBar(
               tabs: _tabs,
             ),

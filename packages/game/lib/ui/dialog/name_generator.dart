@@ -45,7 +45,7 @@ class _NameGeneratorState extends State<NameGenerator> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(engine.locale['inputName']),
-          actions: [if (widget.showCloseButton) const ButtonClose()],
+          actions: [if (widget.showCloseButton) const CloseButton2()],
         ),
         body: Column(
           children: [

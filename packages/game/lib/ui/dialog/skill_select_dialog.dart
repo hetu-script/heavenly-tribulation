@@ -78,7 +78,7 @@ class SkillSelectDialog extends StatelessWidget {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(engine.locale['selectSkill']),
-          actions: [if (showCloseButton) const ButtonClose()],
+          actions: [if (showCloseButton) const CloseButton2()],
         ),
         body: SingleChildScrollView(
           child: ListView(

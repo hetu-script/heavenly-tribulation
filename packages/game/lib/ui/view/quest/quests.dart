@@ -89,7 +89,7 @@ class _QuestsViewState extends State<QuestsView> {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(engine.locale['quest']),
-          actions: const [ButtonClose()],
+          actions: const [CloseButton2()],
         ),
         body: Container(
           padding: const EdgeInsets.all(20.0),
