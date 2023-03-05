@@ -59,7 +59,7 @@ fun updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
         final tile = currentWorld.terrains[index]
         delete tile.flags.isGatheredFish
         // 清空叠加的鱼跃效果动态贴图
-        setWorldMapOverlaySprite(tile.left, tile.top, null)
+        WorldMap.setWorldMapOverlaySprite(tile.left, tile.top, null)
       }
       game.fishTileIndexes = []
       final fishEventsCount = currentWorld.waterTerrainIndexes.length ~/ _kMinSizeforFishTile + 1
@@ -76,7 +76,7 @@ fun updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
         }
         fishTile.overlaySprite = overlay
         if (game.isLoaded) {
-          setWorldMapOverlaySprite(fishTile.left, fishTile.top, overlay)
+          WorldMap.setWorldMapOverlaySprite(fishTile.left, fishTile.top, overlay)
         }
         fishTile.flags.isGatheredFish = true
       }

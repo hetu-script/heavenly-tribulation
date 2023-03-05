@@ -62,7 +62,7 @@ namespace debug {
     for (final tile in currentWorld.terrains) {
       if (tile.locationId) {
         final location = game.locations[tile.locationId]
-        setWorldMapCaption(location.tilePosition.left, location.tilePosition.top, location.name)
+        WorldMap.setWorldMapCaption(location.tilePosition.left, location.tilePosition.top, location.name)
       }
     }
   }

@@ -1,9 +1,13 @@
-external fun showWorldMapGameOver
+namespace WorldMap {
 
-external fun setWorldMapCaption(left, top, caption)
+  external fun showWorldMapGameOver
 
-external fun setWorldMapSprite(left, top, data)
+  external fun setWorldMapCaption(left, top, caption)
 
-external fun setWorldMapOverlaySprite(left, top, data)
+  external fun setWorldMapSprite(left, top, data)
 
-external fun enterLocation(locationId)
+  external fun setWorldMapOverlaySprite(left, top, data)
+
+  external fun enterLocation(locationId)
+
+}

@@ -218,7 +218,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
     }, override: true);
 
     engine.registerListener(
-      Events.mapTapped,
+      GameEvents.mapTapped,
       EventHandler(ownerKey: widget.key!, handle: _mapTapHandler),
     );
 
@@ -246,7 +246,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
     // );
 
     engine.registerListener(
-      Events.loadedMap,
+      GameEvents.loadedMap,
       EventHandler(
         ownerKey: widget.key!,
         handle: (GameEvent event) async {
@@ -306,7 +306,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
     );
 
     engine.registerListener(
-      Events.heroMoved,
+      GameEvents.heroMoved,
       EventHandler(
         ownerKey: widget.key!,
         handle: (GameEvent event) {

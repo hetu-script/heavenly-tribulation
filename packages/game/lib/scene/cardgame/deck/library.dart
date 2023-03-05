@@ -58,10 +58,10 @@ class Library extends GameComponent with HandlesGesture {
         height: kLibraryCardHeight,
         frontSpriteId: spriteId,
         showTitle: true,
-        titleStyle: ScreenTextStyle(
+        titleStyle: const ScreenTextStyle(
           colorTheme: ScreenTextColorTheme.dark,
           anchor: Anchor.topLeft,
-          padding: const EdgeInsets.only(left: 12, top: 8),
+          padding: EdgeInsets.only(left: 12, top: 8),
         ),
         showStack: true,
         stackStyle: ScreenTextStyle(
@@ -104,6 +104,6 @@ class Library extends GameComponent with HandlesGesture {
 
   @override
   void render(Canvas canvas) {
-    canvas.drawRect(border, borderPaint);
+    canvas.drawRect(border, DefaultBorderPaint.light);
   }
 }

@@ -1,87 +1,83 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
+import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:window_manager/window_manager.dart';
+import 'package:flutter_platform_alert/flutter_platform_alert.dart';
 import 'package:samsara/widget/markdown_wiki.dart';
 
-import 'noise_test.dart';
-import 'explore.dart';
+import 'ui/main_menu.dart';
+import 'global.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  AssetManager assetManager = AssetManager();
-  runApp(MyApp(assetManager: assetManager));
-}
 
-class MyApp extends StatelessWidget {
-  final AssetManager assetManager;
-
-  const MyApp({Key? key, required this.assetManager}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Heavenly Tribulation Tests',
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const MyHomePage(title: 'Heavenly Tribulation Tests'),
-        'wiki': (context) => MarkdownWiki(
-              resourceManager: assetManager,
-            ),
+  if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+    await windowManager.ensureInitialized();
+    windowManager.setTitle(engine.name);
+    windowManager.waitUntilReadyToShow(
+      const WindowOptions(
+        // fullScreen: true,
+        minimumSize: Size(1280.0, 720.0),
+      ),
+      () async {
+        await windowManager.show();
+        await windowManager.focus();
+        final screenSize = await windowManager.getSize();
+        engine.info('系统版本：${Platform.operatingSystemVersion}');
+        engine.info('窗口逻辑大小：${screenSize.width}x${screenSize.height}');
       },
     );
   }
-}
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({
-    Key? key,
-    required this.title,
-  }) : super(key: key);
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Align(
-        alignment: AlignmentDirectional.center,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed('wiki');
-              },
-              child: const Text('markdown_wiki'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => const NoiseTest(),
-                );
-              },
-              child: const Text('perlin noise'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => const ExploreDialog(),
-                );
-              },
-              child: const Text('progress indicator'),
-            ),
-          ],
-        ),
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    if (kDebugMode) {
+      return ErrorWidget(details.exception);
+    }
+    // In release builds, show a yellow-on-blue message instead:
+    return Container(
+      color: Colors.red,
+      alignment: Alignment.center,
+      child: Text(
+        'Error!\n${details.exception}',
+        style: const TextStyle(color: Colors.yellow),
+        textAlign: TextAlign.center,
+        textDirection: TextDirection.ltr,
       ),
     );
-  }
+  };
+
+  runZonedGuarded(() {
+    runApp(
+      MaterialApp(
+        debugShowCheckedModeBanner: false,
+        builder: (BuildContext context, Widget? widget) {
+          Widget error =
+              const Text('an error occurred while rendering this widget...');
+          if (widget is Scaffold || widget is Navigator) {
+            error = Scaffold(body: Center(child: error));
+          }
+          ErrorWidget.builder = (FlutterErrorDetails errorDetails) => error;
+          if (widget != null) return widget;
+          throw ('widget is null');
+        },
+        title: 'Heavenly Tribulation Tests',
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const MainMenu(),
+          'wiki': (context) => MarkdownWiki(
+                resourceManager: AssetManager(),
+              ),
+        },
+      ),
+    );
+  }, (Object error, StackTrace stack) {
+    FlutterPlatformAlert.showAlert(
+      windowTitle: 'An unexpected error happened!',
+      text: '$error\n\n$stack',
+      alertStyle: AlertButtonStyle.ok,
+      iconStyle: IconStyle.error,
+    );
+  });
 }

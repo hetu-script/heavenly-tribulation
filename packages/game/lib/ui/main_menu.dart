@@ -27,7 +27,7 @@ import '../scene/maze.dart';
 import 'create_game_dialog.dart';
 // import '../event/events.dart';
 import 'overlay/worldmap/worldmap.dart';
-import 'overlay/cardgame/cardgame.dart';
+import 'overlay/cardgame/cardgame_autobattler.dart';
 import '../scene/cardgame/cardgame.dart';
 import '../scene/cardgame/deckbuilding.dart';
 
@@ -120,6 +120,7 @@ class _MainMenuState extends State<MainMenu> {
   // 因为 FutureBuilder根据返回值是否为null来判断，因此这里无论如何要返回一个值
   Future<bool?> _prepareData() async {
     await refreshSaves();
+
     if (engine.isLoaded) {
       engine.invoke('build', positionalArgs: [context]);
       return false;
@@ -127,7 +128,7 @@ class _MainMenuState extends State<MainMenu> {
 
     await engine.init(externalFunctions: externalGameFunctions);
     if (kDebugMode) {
-      engine.loadModFromAssets(
+      engine.loadModFromAssetsString(
         'game/main.ht',
         moduleName: 'game',
         namedArgs: {'lang': 'zh', 'gameEngine': engine},
@@ -135,7 +136,7 @@ class _MainMenuState extends State<MainMenu> {
       );
       for (final key in _modsInfo.keys) {
         if (_modsInfo[key] == true) {
-          engine.loadModFromAssets(
+          engine.loadModFromAssetsString(
             '$key/main.ht',
             moduleName: key,
           );
@@ -163,10 +164,12 @@ class _MainMenuState extends State<MainMenu> {
     }
 
     final cardsDataString =
-        await rootBundle.loadString('assets/cards/cards.json5');
+        await rootBundle.loadString('script/game/card/card.json5');
     final data = JSON5.parse(cardsDataString);
     for (final obj in data) {
-      cardsData[obj['id']] = obj;
+      final id = obj['id'];
+      assert(id != null);
+      cardsData[id] = obj;
     }
 
     engine.invoke('build', positionalArgs: [context]);
@@ -313,7 +316,7 @@ class _MainMenuState extends State<MainMenu> {
                       onPressed: () {
                         showDialog(
                           context: context,
-                          builder: (context) => CardGameOverlay(),
+                          builder: (context) => CardGameAutoBattlerOverlay(),
                         );
                       },
                       child: const Label(

@@ -177,7 +177,7 @@ class _MazeOverlayState extends State<MazeOverlay>
     }, override: true);
 
     engine.registerListener(
-      Events.mapTapped,
+      GameEvents.mapTapped,
       EventHandler(
         ownerKey: widget.key!,
         handle: (event) {
@@ -205,7 +205,7 @@ class _MazeOverlayState extends State<MazeOverlay>
     );
 
     engine.registerListener(
-      Events.loadedMap,
+      GameEvents.loadedMap,
       EventHandler(
         ownerKey: widget.key!,
         handle: (GameEvent event) async {
@@ -238,7 +238,7 @@ class _MazeOverlayState extends State<MazeOverlay>
     );
 
     engine.registerListener(
-      Events.heroMoved,
+      GameEvents.heroMoved,
       EventHandler(
         ownerKey: widget.key!,
         handle: (GameEvent event) async {

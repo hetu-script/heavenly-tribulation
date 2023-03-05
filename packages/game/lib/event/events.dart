@@ -1,7 +1,7 @@
 import 'package:samsara/event.dart';
 import 'package:hetu_script/values.dart';
 
-abstract class CustomEvents extends Events {
+abstract class CustomEvents extends GameEvents {
   static const back2menu = 'back_to_menu';
   static const needRebuildUI = 'need_rebuild_UI';
   static const incidentOccurred = 'incident_occurred';

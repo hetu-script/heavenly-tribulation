@@ -289,7 +289,7 @@ fun onHeroMovedOnCultivationRecruitMaze({tile, maze, currentLevelIndex}) -> bool
       char2Resurrect: true,
       onWon: () {
         tile.entityId = null
-        setMazeObject(tile.left, tile.top, null)
+        Maze.setMazeObject(tile.left, tile.top, null)
         delete game.npcs[entity.id]
       },
       onLost: () {
@@ -333,7 +333,7 @@ fun onHeroMovedOnCultivationRecruitMaze({tile, maze, currentLevelIndex}) -> bool
     } else if (!tile.flags.isGlowing) {
       tile.flags.isGlowing = true
 
-      setMazeOverlaySprite(tile.left, tile.top, {
+      Maze.setMazeOverlaySprite(tile.left, tile.top, {
         spriteIndex: kPavedRockTileGlowing
       })
       // 扣除精神数值

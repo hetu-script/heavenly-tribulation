@@ -20,7 +20,8 @@ fun load() {
   game.addModInfo(module)
 }
 
-fun init(arg) {
+// todo 检查config中的游戏版本，对比这个mod的最低版本号
+fun init(config) {
   final modName = '[${module.name}(${module.id}-${module.version})]'
   
   engine.info('${modName}: 初始化')

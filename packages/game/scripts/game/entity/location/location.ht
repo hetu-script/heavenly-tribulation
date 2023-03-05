@@ -187,13 +187,13 @@ fun getLocationSiteById(location, siteId: str) {
 fun discoverLocation(location) {
   if (location.flags.isDiscovered) return
   location.flags.isDiscovered = true
-  setWorldMapCaption(location.tilePosition.left, location.tilePosition.top, location.name)
+  WorldMap.setWorldMapCaption(location.tilePosition.left, location.tilePosition.top, location.name)
   if (location.category == kLocationCategoryIsland) {
     final tile = currentWorld.terrains[location.terrainIndex]
     // tile.spriteIndex = kSpriteLand
     tile.overlaySprite.spriteIndex = kSpriteCity
-    // setWorldMapSprite(location.tilePosition.left, location.tilePosition.top, kSpriteLand)
-    setWorldMapOverlaySprite(
+    // WorldMap.setWorldMapSprite(location.tilePosition.left, location.tilePosition.top, kSpriteLand)
+    WorldMap.setWorldMapOverlaySprite(
       location.tilePosition.left,
       location.tilePosition.top, 
       {

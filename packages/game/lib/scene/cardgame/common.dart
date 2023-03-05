@@ -20,7 +20,10 @@ final kLibraryCardHeight = kLibraryCardWidth * 1.4;
 final kDeckZoneWidth = kGamepadSize.x / 2 - 20;
 final kDeckZoneHeight = kCardHeight + 20;
 
-const kPlayer1DeckZoneLeft = 10.0;
-final kPlayer1DeckZoneTop = kGamepadSize.y - kDeckZoneHeight - 10;
-final kPlayer2DeckZoneLeft = kGamepadSize.x - kDeckZoneWidth - 10;
-final kPlayer2DeckZoneTop = kPlayer1DeckZoneTop;
+const kP1DeckZoneLeft = 10.0;
+final kP1DeckZoneTop = kGamepadSize.y - kDeckZoneHeight - 10;
+final kP2DeckZoneLeft = kGamepadSize.x - kDeckZoneWidth - 10;
+final kP2DeckZoneTop = kP1DeckZoneTop;
+
+const kCharacterWidth = 800.0;
+const kCharacterHeight = 640.0;

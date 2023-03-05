@@ -18,6 +18,12 @@ dependencies:
   samsara:
     path: ../../../samsara_engine/
 
+  flame: ^1.6.0
+  flutter_platform_alert: ^0.3.0
+  json5: ^0.8.0
+  vector_math: ^2.1.4
+  window_manager: ^0.3.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -30,3 +36,14 @@ flutter:
   assets:
     - wiki/
     - wiki/some_folder/
+
+    - assets/images/
+    - assets/locales/
+    - assets/cards/
+
+    - scripts/
+
+  fonts:
+    - family: NotoSansMono
+      fonts:
+        - asset: assets/fonts/NotoSansMonoCJKsc-Regular.otf

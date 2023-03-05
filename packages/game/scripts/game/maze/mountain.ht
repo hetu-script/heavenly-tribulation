@@ -483,7 +483,7 @@ fun onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
       onWon: () {
         tile.entityId = null
         tile.objectId = null
-        setMazeObject(tile.left, tile.top, null)
+        Maze.setMazeObject(tile.left, tile.top, null)
         delete game.npcs[entity.id]
       },
       onLost: () {
@@ -555,7 +555,7 @@ fun onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
           if (result) {
             tile.entityId = levelExit0
             tile.objectId = levelExit0
-            setMazeObject(left, top, 'levelExit0')
+            Maze.setMazeObject(left, top, 'levelExit0')
           }
         })
       }
@@ -565,7 +565,7 @@ fun onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
           if (result) {
             tile.entityId = levelExit0
             tile.objectId = levelExit0
-            setMazeObject(left, top, 'levelExit0')
+            Maze.setMazeObject(left, top, 'levelExit0')
           }
         })
       }
@@ -577,7 +577,7 @@ fun onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
           if (result) {
             tile.entityId = levelExit0
             tile.objectId = levelExit0
-            setMazeObject(left, top, 'levelExit0')
+            Maze.setMazeObject(left, top, 'levelExit0')
           }
         })
       }
@@ -587,7 +587,7 @@ fun onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
           if (result) {
             tile.entityId = levelExit0
             tile.objectId = levelExit0
-            setMazeObject(left, top, 'levelExit0')
+            Maze.setMazeObject(left, top, 'levelExit0')
           }
         })
       }
@@ -599,7 +599,7 @@ fun onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
           if (result) {
             tile.entityId = levelExit0
             tile.objectId = levelExit0
-            setMazeObject(left, top, 'levelExit0')
+            Maze.setMazeObject(left, top, 'levelExit0')
           }
         })
       }
@@ -609,7 +609,7 @@ fun onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
           if (result) {
             tile.entityId = levelExit0
             tile.objectId = levelExit0
-            setMazeObject(left, top, 'levelExit0')
+            Maze.setMazeObject(left, top, 'levelExit0')
           }
         })
       }
@@ -632,7 +632,7 @@ fun onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
         when (key) {
           'leaveMaze' -> leaveMaze(maze)
           'backToPreviousLevel' -> {
-            backToPreviousLevel()
+            Maze.backToPreviousLevel()
             --maze.currentLevelIndex
           }
         }
@@ -654,7 +654,7 @@ fun onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
       showSelectionByLocaleKeys(selections).then((key) =>
         when (key) {
           'proceedToNextLevel' -> {
-            proceedToNextLevel()
+            Maze.proceedToNextLevel()
             ++maze.currentLevelIndex
           }
           'leaveMaze' -> leaveMaze(maze)

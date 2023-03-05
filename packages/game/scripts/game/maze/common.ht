@@ -27,7 +27,7 @@ fun leaveMaze(maze) {
       delete game.npcs[entity.id]
     }
   }
-  disposeMaze()
+  Maze.disposeMaze()
 }
 
 fun setMazeLevelIndex(maze, levelIndex) {
@@ -35,7 +35,7 @@ fun setMazeLevelIndex(maze, levelIndex) {
 }
 
 fun mazeGameOver(maze) {
-  showMazeGameOver().then((_) {
+  Maze.showMazeGameOver().then((_) {
     leaveMaze(maze)
   })
 }

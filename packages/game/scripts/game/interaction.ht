@@ -290,7 +290,7 @@ fun handleWorldTerrainInteraction(left, top) {
                   // TODO: 第一次发现据点事件
                   final message = getLocaleString('firstVisitCity', interpolations: [undiscoveredLocation.name])
                   showDialogByStrings([message]).then((_) {
-                    enterLocation(undiscoveredLocation.id)
+                    WorldMap.enterLocation(undiscoveredLocation.id)
                   })
                 } else {
                   showDialogByLocaleKeys(['sensedUndiscovered'], character: hero)

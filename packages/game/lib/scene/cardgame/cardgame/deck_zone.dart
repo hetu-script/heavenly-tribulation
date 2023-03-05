@@ -13,6 +13,8 @@ class DeckZone extends PiledZone {
     super.cards,
     // super.focusOffset,
     super.titleAnchor = Anchor.topRight,
+    super.pileMargin,
+    super.pileOffset,
   }) : super(
           width: kDeckZoneWidth,
           height: kDeckZoneHeight,
