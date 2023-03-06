@@ -27,7 +27,6 @@ import '../scene/maze.dart';
 import 'create_game_dialog.dart';
 // import '../event/events.dart';
 import 'overlay/worldmap/worldmap.dart';
-import 'overlay/cardgame/cardgame_autobattler.dart';
 import '../scene/cardgame/cardgame.dart';
 import '../scene/cardgame/deckbuilding.dart';
 
@@ -305,22 +304,6 @@ class _MainMenuState extends State<MainMenu> {
                       },
                       child: const Label(
                         'Test Deckbuilding',
-                        width: 200.0,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => CardGameAutoBattlerOverlay(),
-                        );
-                      },
-                      child: const Label(
-                        'Test Cardgame',
                         width: 200.0,
                         textAlign: TextAlign.center,
                       ),

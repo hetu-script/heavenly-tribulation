@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/cardgame/playing_card.dart';
-import 'package:samsara/paint/paint.dart';
 
 import '../../../global.dart';
 import '../common.dart';

@@ -71,8 +71,6 @@ flutter:
     - assets/audio/
     - assets/audio/music/
 
-    - assets/cards/
-
     - assets/images/
     - assets/images/animation/
     - assets/images/animation/fight/

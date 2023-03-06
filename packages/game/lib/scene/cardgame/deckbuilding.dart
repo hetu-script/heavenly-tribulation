@@ -5,7 +5,7 @@ import 'package:flame/sprite.dart';
 import 'package:samsara/gestures.dart';
 
 import 'common.dart';
-import 'deck/library.dart';
+import 'deckbuilding/library.dart';
 
 class DeckBuildingScene extends Scene {
   Map<String, int> deckData;

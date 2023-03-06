@@ -1,6 +1,5 @@
 import 'package:samsara/samsara.dart';
 import 'package:samsara/gestures.dart';
-import 'package:samsara/paint/paint.dart';
 // import 'package:samsara/component/sprite_component.dart';
 // import 'package:samsara/effect/fade_effect.dart';
 // import 'package:flame/effects.dart';

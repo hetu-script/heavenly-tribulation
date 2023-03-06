@@ -3,6 +3,7 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/flutter_ui/loading_screen.dart';
 import 'package:samsara/flutter_ui/label.dart';
 
+import 'cardgame_autobattler.dart';
 import '../../../global.dart';
 import '../../../scene/cardgame/deckbuilding.dart';
 
@@ -74,8 +75,26 @@ class _DeckBuildingOverlayState extends State<DeckBuildingOverlay>
                         LoadingScreen(text: engine.locale['loading']),
                       SceneWidget(scene: _scene),
                       Positioned(
-                        right: 5,
                         top: 5,
+                        right: 200,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) =>
+                                  CardGameAutoBattlerOverlay(),
+                            );
+                          },
+                          child: const Label(
+                            'Test Cardgame',
+                            width: 200.0,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 5,
+                        right: 5,
                         child: ElevatedButton(
                           onPressed: () {
                             Navigator.of(context).pop();
