@@ -219,7 +219,7 @@ class _MazeOverlayState extends State<MazeOverlay>
           );
           _scene.map.hero = TileMapObject(
             engine: engine,
-            sceneKey: _scene.key,
+            sceneId: _scene.id,
             isHero: true,
             moveAnimationSpriteSheet: charSheet,
             moveOnWaterAnimationSpriteSheet: shipSheet,

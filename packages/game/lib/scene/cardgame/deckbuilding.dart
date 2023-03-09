@@ -17,7 +17,7 @@ class DeckBuildingScene extends Scene {
   DeckBuildingScene({
     required super.controller,
     required this.deckData,
-  }) : super(name: 'deckBuilding', key: 'deckBuilding');
+  }) : super(id: 'deckBuilding');
   @override
   Future<void> onLoad() async {
     library = Library(

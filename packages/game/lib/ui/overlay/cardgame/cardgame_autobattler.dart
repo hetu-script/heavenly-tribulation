@@ -125,8 +125,7 @@ class _CardGameAutoBattlerOverlayState extends State<CardGameAutoBattlerOverlay>
                                 ).then((_) => setState(() {}));
                                 break;
                               case CardGameDropMenuItems.quit:
-                                engine.leaveScene(_scene.name,
-                                    clearCache: true);
+                                engine.leaveScene(_scene.id, clearCache: true);
                                 _isDisposing = true;
                                 gameActions.clear();
                                 Navigator.of(context).pop();

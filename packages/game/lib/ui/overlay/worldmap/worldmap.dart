@@ -283,7 +283,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
           );
           _scene.map.hero = TileMapObject(
             engine: engine,
-            sceneKey: _scene.key,
+            sceneId: _scene.id,
             isHero: true,
             moveAnimationSpriteSheet: charSheet,
             moveOnWaterAnimationSpriteSheet: shipSheet,
@@ -444,7 +444,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
                             break;
                           case WorldMapDropMenuItems.exit:
                             _saveGame().then((_) {
-                              engine.leaveScene(_scene.name, clearCache: true);
+                              engine.leaveScene(_scene.id, clearCache: true);
                               _isDisposing = true;
                               engine.invoke('resetGame');
                               Navigator.of(context).pop();

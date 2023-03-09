@@ -6,7 +6,7 @@ import 'components/playground.dart';
 class GameScene extends Scene {
   GameScene({
     required super.controller,
-  }) : super(name: 'game', key: 'game${uid(4)}');
+  }) : super(id: 'game${uid(4)}');
 
   @override
   Future<void> onLoad() async {

@@ -32,7 +32,7 @@ class MazeScene extends Scene {
           showSelected: false,
           showFogOfWar: true,
         ),
-        super(name: mapData['id'], key: 'maze');
+        super(id: mapData['id']);
 
   bool isMapReady = false;
 
