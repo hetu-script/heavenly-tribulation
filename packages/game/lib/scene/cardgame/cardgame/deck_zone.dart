@@ -8,17 +8,15 @@ class DeckZone extends PiledZone {
 
   DeckZone({
     super.id,
-    required super.x,
-    required super.y,
+    required super.position,
     super.cards,
     // super.focusOffset,
     super.titleAnchor = Anchor.topRight,
     super.pileMargin,
     super.pileOffset,
   }) : super(
-          width: kDeckZoneWidth,
-          height: kDeckZoneHeight,
-          piledCardSize: kCardSize,
+          size: kBattleDeckZoneSize,
+          piledCardSize: kBattleCardSize,
         );
 
   void setNextCardFocused() {

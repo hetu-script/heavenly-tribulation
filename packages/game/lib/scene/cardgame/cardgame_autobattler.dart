@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:samsara/event.dart';
 import 'package:samsara/samsara.dart';
-import 'package:samsara/utils/uid.dart';
 import 'package:flame/sprite.dart';
 import 'package:flame/flame.dart';
 import 'package:samsara/cardgame/playing_card.dart';
@@ -14,7 +13,9 @@ import 'cardgame/character.dart';
 import 'cardgame/deck_zone.dart';
 import '../../global.dart';
 
-class CardGameScene extends Scene {
+class CardGameAutoBattlerScene extends Scene {
+  final Map<String, dynamic> arg;
+
   late final FightSceneCharacter p1Char, p2Char;
 
   late final DynamicColorProgressIndicator p1HealthBar, p2HealthBar;
@@ -23,12 +24,15 @@ class CardGameScene extends Scene {
 
   late final DeckZone p1DeckZone, p2DeckZone;
 
-  CardGameScene({
+  CardGameAutoBattlerScene({
     required super.controller,
-  }) : super(id: 'cardGame${uid(4)}');
+    required this.arg,
+  }) : super(id: arg['id']);
 
   @override
   Future<void> onLoad() async {
+    fitScreen(kGamepadSize);
+
     final List<Sprite> charStandAnimSpriteList = [];
     for (var i = 0; i < 2; ++i) {
       final sprite = Sprite(await Flame.images
@@ -110,8 +114,7 @@ class CardGameScene extends Scene {
     for (var i = 0; i < 5; ++i) {
       final card = PlayingCard(
         frontSpriteId: 'basic/template',
-        width: kCardWidth,
-        height: kCardHeight,
+        size: kBattleCardSize,
         focusedPosition: Vector2(20, 100),
         focusedSize: kFocusedCardSize,
         // backSprite: cardBack,
@@ -124,8 +127,7 @@ class CardGameScene extends Scene {
     for (var i = 0; i < 5; ++i) {
       final card = PlayingCard(
         frontSpriteId: 'basic/template',
-        width: kCardWidth,
-        height: kCardHeight,
+        size: kBattleCardSize,
         focusedPosition: Vector2(20, 100),
         focusedSize: kFocusedCardSize,
         // backSprite: cardBack,
@@ -136,8 +138,7 @@ class CardGameScene extends Scene {
 
     p1DeckZone = DeckZone(
       id: 'player1DeckZone',
-      x: kP1DeckZoneLeft,
-      y: kP1DeckZoneTop,
+      position: kP1BattleDeckZonePosition,
       cards: player1Cards,
     );
     add(p1DeckZone);
@@ -145,8 +146,7 @@ class CardGameScene extends Scene {
 
     p2DeckZone = DeckZone(
       id: 'player2DeckZone',
-      x: kP2DeckZoneLeft,
-      y: kP2DeckZoneTop,
+      position: kP2BattleDeckZonePosition,
       cards: player2Cards,
       pileMargin: Vector2(-10.0, 10.0),
       pileOffset: Vector2(-50.0, 0.0),

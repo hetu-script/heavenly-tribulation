@@ -6,9 +6,10 @@ import 'package:samsara/event.dart';
 import 'package:samsara/widgets.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/utils/console.dart';
+import 'package:samsara/utils/uid.dart';
 
 import '../../../global.dart';
-import '../../../scene/cardgame/cardgame.dart';
+import '../../../scene/cardgame/cardgame_autobattler.dart';
 import 'drop_menu.dart';
 
 class CardGameAutoBattlerOverlay extends StatefulWidget {
@@ -24,7 +25,7 @@ class _CardGameAutoBattlerOverlayState extends State<CardGameAutoBattlerOverlay>
   @override
   bool get wantKeepAlive => true;
 
-  late CardGameScene _scene;
+  late CardGameAutoBattlerScene _scene;
 
   bool _isDisposing = false;
 
@@ -67,8 +68,9 @@ class _CardGameAutoBattlerOverlayState extends State<CardGameAutoBattlerOverlay>
 
   Future<Scene?> _getScene() async {
     if (_isDisposing) return null;
-    final scene =
-        await engine.createScene('cardGame', 'cardGame') as CardGameScene;
+    final id = 'cardGame${uid(4)}';
+    final scene = await engine.createScene('cardGame', id, {'id': id})
+        as CardGameAutoBattlerScene;
     return scene;
   }
 
@@ -99,7 +101,7 @@ class _CardGameAutoBattlerOverlayState extends State<CardGameAutoBattlerOverlay>
               if (!snapshot.hasData) {
                 return LoadingScreen(text: engine.locale['loading']);
               } else {
-                _scene = snapshot.data as CardGameScene;
+                _scene = snapshot.data as CardGameAutoBattlerScene;
                 if (_scene.isAttached) {
                   _scene.detach();
                 }

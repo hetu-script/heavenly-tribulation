@@ -32,9 +32,6 @@ dependencies:
   samsara:
     path: ../../../samsara_engine
 
-  code_text_field: ^1.0.2
-  highlight: ^0.7.0
-  flutter_highlight: ^0.7.0
   quiver: ^3.0.1+1
   change_case: ^1.0.1
   path_provider: ^2.0.8
@@ -98,6 +95,7 @@ flutter:
     - scripts/game/
     - scripts/game/ai/
     - scripts/game/binding/
+    - scripts/game/card/
     - scripts/game/entity/
     - scripts/game/entity/character/
     - scripts/game/entity/character/creature/

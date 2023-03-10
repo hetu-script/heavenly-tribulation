@@ -27,7 +27,7 @@ import '../scene/maze.dart';
 import 'create_game_dialog.dart';
 // import '../event/events.dart';
 import 'overlay/worldmap/worldmap.dart';
-import '../scene/cardgame/cardgame.dart';
+import '../scene/cardgame/cardgame_autobattler.dart';
 import '../scene/cardgame/deckbuilding.dart';
 
 class MainMenu extends StatefulWidget {
@@ -98,8 +98,9 @@ class _MainMenuState extends State<MainMenu> {
     });
 
     engine.registerSceneConstructor('cardGame', ([dynamic data]) async {
-      return CardGameScene(
+      return CardGameAutoBattlerScene(
         controller: engine,
+        arg: data,
       );
     });
 
@@ -163,7 +164,7 @@ class _MainMenuState extends State<MainMenu> {
     }
 
     final cardsDataString =
-        await rootBundle.loadString('script/game/card/card.json5');
+        await rootBundle.loadString('scripts/game/card/card.json5');
     final data = JSON5.parse(cardsDataString);
     for (final obj in data) {
       final id = obj['id'];

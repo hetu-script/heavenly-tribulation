@@ -1,5 +1,4 @@
 import 'package:flame/sprite.dart';
-import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/cardgame/playing_card.dart';
@@ -25,7 +24,7 @@ class Library extends GameComponent with HandlesGesture {
   }
 
   void calculateArray() {
-    cardsLimitInRow = (width / kCardWidth).floor();
+    cardsLimitInRow = (width / kBattleCardWidth).floor();
     assert(cardsLimitInRow > 0);
   }
 
@@ -53,8 +52,7 @@ class Library extends GameComponent with HandlesGesture {
         id: cardData['id'],
         title: cardData['title'][engine.locale.languageId],
         description: cardData['rules'][engine.locale.languageId],
-        width: kLibraryCardWidth,
-        height: kLibraryCardHeight,
+        size: kLibraryCardSize,
         frontSpriteId: spriteId,
         showTitle: true,
         titleStyle: const ScreenTextStyle(
