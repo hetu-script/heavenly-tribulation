@@ -1,0 +1,49 @@
+name: test
+description: A new Flutter project.
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=2.17.3 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+  fast_noise: ^1.0.1
+
+  samsara:
+    path: ../../samsara_engine/
+
+  flame: ^1.6.0
+  flutter_platform_alert: ^0.3.0
+  json5: ^0.8.0
+  vector_math: ^2.1.4
+  window_manager: ^0.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - wiki/
+    - wiki/some_folder/
+
+    - assets/images/
+    - assets/locales/
+    - assets/cards/
+
+    - scripts/
+
+  fonts:
+    - family: NotoSansMono
+      fonts:
+        - asset: assets/fonts/NotoSansMonoCJKsc-Regular.otf

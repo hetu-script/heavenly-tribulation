@@ -1,0 +1,34 @@
+import '../binding/cardgame_autobattler.ht'
+
+/// 卡牌脚本
+/// 每张卡牌都有一个绝对唯一的id，以及相对唯一的name
+/// 多个卡牌有可能具有相同的name，此时他们有可能有不同的图画
+/// 但名字和效果是一样的。这些卡牌共享一个加入卡组的上限。
+
+/// 每个name的卡牌，对应一个脚本。
+/// 这个脚本将会在这张牌被打出时invoke
+/// 所有的
+
+namespace Card {
+
+  fun basicBlock(hero, enemy) {
+    
+  }
+
+  fun basicDodge(hero, enemy) {
+    
+  }
+
+  fun basicLightAttack(hero, enemy) {
+    
+  }
+
+  fun basicHeavyAttack(hero, enemy) {
+    
+  }
+
+  fun basicMultipleAttack(hero, enemy) {
+    
+  }
+  
+}

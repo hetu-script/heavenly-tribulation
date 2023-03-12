@@ -1,6 +1,0 @@
-namespace CardgameAutoBattler {
-  
-  external fun characterTakeDamage(damage, { player: int })
-
-  
-}
