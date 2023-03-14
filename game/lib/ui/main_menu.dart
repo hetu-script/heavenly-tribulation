@@ -11,8 +11,8 @@ import 'package:samsara/samsara.dart';
 // import 'package:samsara/event.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:hetu_script/values.dart';
-import 'package:samsara/flutter_ui/loading_screen.dart';
-import 'package:samsara/flutter_ui/label.dart';
+import 'package:samsara/ui/flutter/loading_screen.dart';
+import 'package:samsara/ui/flutter/label.dart';
 import 'package:samsara/utils/console.dart';
 import 'package:json5/json5.dart';
 

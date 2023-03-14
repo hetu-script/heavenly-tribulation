@@ -86,6 +86,7 @@ flutter:
     - assets/images/icon/item/consumable/
     - assets/images/icon/item/material/
     - assets/images/icon/skill/
+    - assets/images/icon/status/
     - assets/images/item/
     - assets/images/location/
     - assets/images/location/site/

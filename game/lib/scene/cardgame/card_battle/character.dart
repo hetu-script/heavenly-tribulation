@@ -4,8 +4,8 @@ import 'package:flame/sprite.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/component/fading_text.dart';
 
+import 'status/status.dart';
 import '../common.dart';
-import 'effect/status.dart';
 
 class BattleCharacter extends GameComponent {
   final SpriteAnimation standAnimation;
@@ -49,6 +49,9 @@ class BattleCharacter extends GameComponent {
 
   @override
   FutureOr<void> onLoad() {
+    status = StatusBar(position: center);
+    add(status);
+
     if (!isHero) {
       flipHorizontally();
       x = kGamepadSize.x - x;
@@ -59,7 +62,7 @@ class BattleCharacter extends GameComponent {
 
   @override
   void render(Canvas canvas) {
-    canvas.drawRect(border, DefaultBorderPaint.danger);
+    // canvas.drawRect(border, DefaultBorderPaint.danger);
 
     if (_isAttacking) {
       attackAnimation.getSprite().renderRect(canvas, border);

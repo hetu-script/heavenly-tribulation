@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:samsara/flutter_ui/responsive_window.dart';
+import 'package:samsara/ui/flutter/responsive_window.dart';
 
 import '../../global.dart';
 

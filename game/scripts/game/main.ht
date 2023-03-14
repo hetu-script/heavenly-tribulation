@@ -26,6 +26,7 @@ export 'game.ht'
 export 'l10n.ht'
 export 'logic.ht'
 export 'util.ht'
+export 'card/card.ht'
 
 import 'l10n/l10n.ht'
 import 'predefined/dialogs.json5' as predefinedDialogs

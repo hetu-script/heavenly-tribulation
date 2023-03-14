@@ -13,7 +13,7 @@ import 'package:hetu_script/hetu_script.dart';
 import 'package:hetu_script/values.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
-import 'package:samsara/flutter_ui/loading_screen.dart';
+import 'package:samsara/ui/flutter/loading_screen.dart';
 import 'package:samsara/utils/console.dart';
 
 import '../../../event/events.dart';

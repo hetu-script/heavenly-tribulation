@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
-import 'package:samsara/flutter_ui/bordered_icon_button.dart';
-import 'package:samsara/flutter_ui/dynamic_color_progressbar.dart';
+import 'package:samsara/ui/flutter/bordered_icon_button.dart';
+import 'package:samsara/ui/flutter/dynamic_color_progressbar.dart';
 
 import '../avatar.dart';
 import '../view/character/information/character.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/flutter_ui/responsive_window.dart';
-import 'package:samsara/flutter_ui/close_button.dart';
+import 'package:samsara/ui/flutter/responsive_window.dart';
+import 'package:samsara/ui/flutter/close_button.dart';
 
 import '../../global.dart';
 

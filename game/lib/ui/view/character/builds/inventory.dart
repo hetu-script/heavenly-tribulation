@@ -5,8 +5,8 @@ import '../../grid/entity_grid.dart';
 import '../../grid/entity_info.dart';
 import '../../../../global.dart';
 import '../../../../event/events.dart';
-import 'package:samsara/flutter_ui/integer_input_field.dart';
-import 'package:samsara/flutter_ui/empty_placeholder.dart';
+import 'package:samsara/ui/flutter/integer_input_field.dart';
+import 'package:samsara/ui/flutter/empty_placeholder.dart';
 import '../../../common.dart';
 
 const _kMinSlotCount = 30;

@@ -5,8 +5,8 @@ import 'package:hetu_script/values.dart';
 
 import '../../../../global.dart';
 import '../../../avatar.dart';
-import 'package:samsara/flutter_ui/constants.dart';
-import 'package:samsara/flutter_ui/label.dart';
+import 'package:samsara/ui/flutter/constants.dart';
+import 'package:samsara/ui/flutter/label.dart';
 import '../../../util.dart';
 
 class ProfileView extends StatelessWidget {

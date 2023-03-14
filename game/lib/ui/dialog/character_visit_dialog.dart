@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
-import 'package:samsara/flutter_ui/empty_placeholder.dart';
-import 'package:samsara/flutter_ui/responsive_window.dart';
+import 'package:samsara/ui/flutter/empty_placeholder.dart';
+import 'package:samsara/ui/flutter/responsive_window.dart';
 
 import '../../global.dart';
 

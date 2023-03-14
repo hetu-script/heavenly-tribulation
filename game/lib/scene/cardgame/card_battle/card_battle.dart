@@ -11,6 +11,7 @@ import '../common.dart';
 import 'character.dart';
 import 'deck_zone.dart';
 import '../../../global.dart';
+import 'status/status.dart';
 
 class CardBattleScene extends Scene {
   final List<String> heroDeck;
@@ -30,6 +31,16 @@ class CardBattleScene extends Scene {
   @override
   Future<void> onLoad() async {
     fitScreen(kGamepadSize);
+
+    StatusEffect.registerEffect('block', (count) {
+      return StatusEffect(
+        id: 'block',
+        title: 'block',
+        description: 'block',
+        spriteId: 'icon/status/block',
+        count: count,
+      );
+    });
 
     final List<Sprite> charStandAnimSpriteList = [];
     for (var i = 0; i < 2; ++i) {
@@ -129,7 +140,7 @@ class CardBattleScene extends Scene {
       pileOffset: Vector2(50.0, 0.0),
     );
     add(heroDeckZone);
-    heroDeckZone.sortCards(pileUp: false);
+    heroDeckZone.sortCards(pileUp: false, animated: false);
 
     opponentDeckZone = DeckZone(
       id: 'player2DeckZone',
@@ -139,7 +150,7 @@ class CardBattleScene extends Scene {
       pileOffset: Vector2(-50.0, 0.0),
     );
     add(opponentDeckZone);
-    opponentDeckZone.sortCards(pileUp: false);
+    opponentDeckZone.sortCards(pileUp: false, animated: false);
   }
 
   void characterTakeDamage(BattleCharacter character, double damage) {
@@ -152,18 +163,18 @@ class CardBattleScene extends Scene {
 
   @override
   void onTapUp(int pointer, int buttons, TapUpDetails details) {
-    // heroDeckZone.setNextCardFocused(hero, opponent);
+    heroDeckZone.nextCard(hero, opponent);
     // characterTakeDamage(p2Char, 7);
 
-    // hero.sta
+    // hero.status.addEffect('block', 5);
 
     super.onTapUp(pointer, buttons, details);
   }
 
-  // @override
-  // void onDragUpdate(int pointer, int buttons, DragUpdateDetails details) {
-  //   camera.snapTo(camera.position - details.delta.toVector2());
+  @override
+  void onDragUpdate(int pointer, int buttons, DragUpdateDetails details) {
+    camera.snapTo(camera.position - details.delta.toVector2());
 
-  //   super.onDragUpdate(pointer, buttons, details);
-  // }
+    super.onDragUpdate(pointer, buttons, details);
+  }
 }

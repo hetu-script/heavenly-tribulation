@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import '../../../global.dart';
-import 'package:samsara/flutter_ui/rrect_icon.dart';
+import 'package:samsara/ui/flutter/rrect_icon.dart';
 import '../../common.dart';
 
 enum GridStyle {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:samsara/flutter_ui/loading_screen.dart';
-import 'package:samsara/flutter_ui/label.dart';
+import 'package:samsara/ui/flutter/loading_screen.dart';
+import 'package:samsara/ui/flutter/label.dart';
 import 'package:flutter/services.dart';
 import 'package:json5/json5.dart';
 

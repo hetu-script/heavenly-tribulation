@@ -21,7 +21,7 @@ class DeckZone extends PiledZone {
           piledCardSize: kBattleCardSize,
         );
 
-  void setNextCardFocused(BattleCharacter hero, BattleCharacter opponent) {
+  void nextCard(BattleCharacter hero, BattleCharacter opponent) {
     ++currentFocusedCardIndex;
     if (currentFocusedCardIndex >= cards.length) {
       currentFocusedCardIndex = 0;
@@ -33,8 +33,10 @@ class DeckZone extends PiledZone {
     if (previousIndex < 0) {
       previousIndex = cards.length - 1;
     }
-    final previousCard = cards[previousIndex];
-    previousCard.setFocused(false);
+    if (previousIndex != currentFocusedCardIndex) {
+      final previousCard = cards[previousIndex];
+      previousCard.setFocused(false);
+    }
 
     engine.invoke(card.data['script'],
         namespace: 'Card', positionalArgs: [hero, opponent]);
