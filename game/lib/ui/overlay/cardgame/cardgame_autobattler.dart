@@ -7,6 +7,7 @@ import 'package:samsara/widgets.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/utils/console.dart';
 import 'package:samsara/utils/uid.dart';
+import 'package:samsara/task.dart';
 
 import '../../../global.dart';
 import '../../../scene/cardgame/card_battle/card_battle.dart';
@@ -136,7 +137,7 @@ class _CardGameAutoBattlerOverlayState extends State<CardGameAutoBattlerOverlay>
                               case CardGameDropMenuItems.quit:
                                 engine.leaveScene(_scene.id, clearCache: true);
                                 _isDisposing = true;
-                                gameActions.clear();
+                                Task.clearAll();
                                 Navigator.of(context).pop();
                                 break;
                               default:

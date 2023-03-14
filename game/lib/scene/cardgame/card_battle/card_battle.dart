@@ -86,6 +86,7 @@ class CardBattleScene extends Scene {
       final card = PlayingCard(
         data: cardData,
         id: cardData['id'],
+        deckId: cardData['name'],
         title: cardData['title'][engine.locale.languageId],
         description: cardData['rules'][engine.locale.languageId],
         frontSpriteId: spriteId,
@@ -109,6 +110,7 @@ class CardBattleScene extends Scene {
     for (var i = 0; i < 5; ++i) {
       final card = PlayingCard(
         id: 'template',
+        deckId: 'template',
         frontSpriteId: 'basic/template',
         size: kBattleCardSize,
         focusedPosition: Vector2(20, 100),
@@ -150,8 +152,10 @@ class CardBattleScene extends Scene {
 
   @override
   void onTapUp(int pointer, int buttons, TapUpDetails details) {
-    heroDeckZone.setNextCardFocused(hero, opponent);
+    // heroDeckZone.setNextCardFocused(hero, opponent);
     // characterTakeDamage(p2Char, 7);
+
+    // hero.sta
 
     super.onTapUp(pointer, buttons, details);
   }

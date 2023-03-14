@@ -69,6 +69,7 @@ class Library extends GameComponent {
 
       card = PlayingCard(
         id: cardData['id'],
+        deckId: cardData['name'],
         title: cardData['title'][engine.locale.languageId],
         description: cardData['rules'][engine.locale.languageId],
         size: kLibraryCardSize,

@@ -5,7 +5,7 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/component/fading_text.dart';
 
 import '../common.dart';
-import 'effect/status_effect_bar.dart';
+import 'effect/status.dart';
 
 class BattleCharacter extends GameComponent {
   final SpriteAnimation standAnimation;
@@ -23,7 +23,7 @@ class BattleCharacter extends GameComponent {
 
   void Function(double life)? onTakeDamage;
 
-  late final StatusEffectBar statusEffectBar;
+  late final StatusBar status;
 
   BattleCharacter({
     super.id,
@@ -43,7 +43,7 @@ class BattleCharacter extends GameComponent {
     };
 
     onTakeDamage = (life) {
-      statusEffectBar.health.value = life;
+      status.health.value = life;
     };
   }
 
@@ -53,7 +53,7 @@ class BattleCharacter extends GameComponent {
       flipHorizontally();
       x = kGamepadSize.x - x;
 
-      statusEffectBar.flipHorizontally();
+      status.flipHorizontally();
     }
   }
 

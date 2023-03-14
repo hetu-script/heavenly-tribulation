@@ -44,8 +44,8 @@ void main() async {
     windowManager.setTitle(engine.name);
     windowManager.waitUntilReadyToShow(
       const WindowOptions(
-        fullScreen: true,
-        // minimumSize: Size(1280.0, 720.0),
+        // fullScreen: true,
+        minimumSize: Size(1280.0, 720.0),
       ),
       () async {
         await windowManager.show();

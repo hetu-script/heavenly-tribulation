@@ -37,6 +37,6 @@ class DeckZone extends PiledZone {
     previousCard.setFocused(false);
 
     engine.invoke(card.data['script'],
-        namespaceName: 'Card', positionalArgs: [hero, opponent]);
+        namespace: 'Card', positionalArgs: [hero, opponent]);
   }
 }

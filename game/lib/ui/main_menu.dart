@@ -60,7 +60,7 @@ class _MainMenuState extends State<MainMenu> {
       // 因为生成世界时会触发一些mod的回调函数，因此需要先载入 mod 数据
       for (final key in _modsInfo.keys) {
         if (_modsInfo[key] == true) {
-          engine.invoke('load', moduleName: key);
+          engine.invoke('load', module: key);
         }
       }
 
@@ -135,7 +135,7 @@ class _MainMenuState extends State<MainMenu> {
     if (kDebugMode) {
       engine.loadModFromAssetsString(
         'game/main.ht',
-        moduleName: 'game',
+        module: 'game',
         namedArgs: {'lang': 'zh', 'gameEngine': engine},
         isMainMod: true,
       );
@@ -143,7 +143,7 @@ class _MainMenuState extends State<MainMenu> {
         if (_modsInfo[key] == true) {
           engine.loadModFromAssetsString(
             '$key/main.ht',
-            moduleName: key,
+            module: key,
           );
         }
       }

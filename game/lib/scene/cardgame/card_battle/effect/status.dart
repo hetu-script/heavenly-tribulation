@@ -4,14 +4,34 @@ import 'package:flame/sprite.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/game_ui/progress_indicator.dart';
 
-class StatusEffectBar extends GameComponent {
+enum StatusTypes {
+  block,
+}
+
+class Status extends GameComponent {
+  @override
+  String get id => super.id!;
+
+  final String description;
+
+  final String spriteId;
+  Sprite? sprite;
+
+  Status({
+    required super.id,
+    required this.description,
+    required this.spriteId,
+  });
+}
+
+class StatusBar extends GameComponent {
   String name;
   String? spriteId;
   late final Sprite sprite;
 
   late final DynamicColorProgressIndicator health;
 
-  StatusEffectBar({
+  StatusBar({
     required this.name,
     this.spriteId,
   });
@@ -19,10 +39,8 @@ class StatusEffectBar extends GameComponent {
   @override
   FutureOr<void> onLoad() {
     health = DynamicColorProgressIndicator(
-      x: center.x,
-      y: center.y - 160,
-      width: 100,
-      height: 10,
+      position: Vector2(center.x, center.y - 160),
+      size: Vector2(100, 10),
       value: 100,
       max: 100,
       colors: [Colors.red, Colors.green],

@@ -17,7 +17,7 @@ class PlayGround extends GameComponent with HandlesGesture {
       // add(c);
 
       final c2 = FadingText(
-        'hit!',
+        'hit!\n100',
         movingUpOffset: 50,
         duration: 0.8,
         fadeOutAfterDuration: 0.3,
