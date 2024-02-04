@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:heavenly_tribulation/ui/overlay/cardgame/deckbuilding.dart';
+import 'package:heavenly_tribulation/ui/overlay/cardgame_autobattler/deckbuilding.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:samsara/samsara.dart';
@@ -27,8 +27,8 @@ import '../scene/maze.dart';
 import 'create_game_dialog.dart';
 // import '../event/events.dart';
 import 'overlay/worldmap/worldmap.dart';
-import '../scene/cardgame/card_battle/card_battle.dart';
-import '../scene/cardgame/deckbuilding/deckbuilding.dart';
+import '../scene/cardgame_autobattler/battle/battle.dart';
+import '../scene/cardgame_autobattler/deckbuilding/deckbuilding.dart';
 import '../binding/class_binding.dart';
 
 class MainMenu extends StatefulWidget {
@@ -106,7 +106,7 @@ class _MainMenuState extends State<MainMenu> {
     });
 
     engine.registerSceneConstructor('cardGame', ([dynamic data]) async {
-      return CardBattleScene(
+      return BattleScene(
         controller: engine,
         id: data['id'],
         heroDeck: data['playerDeck'],

@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flame/flame.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:flutter_platform_alert/flutter_platform_alert.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:samsara/error.dart';
 
@@ -33,19 +32,14 @@ void main() async {
 
   // 对于Flutter没有捕捉到的错误，弹出系统原生对话框
   PlatformDispatcher.instance.onError = (error, stack) {
-    FlutterPlatformAlert.showAlert(
-      windowTitle: 'An unexpected error happened!',
-      text: '$error\n\n$stack',
-      alertStyle: AlertButtonStyle.ok,
-      iconStyle: IconStyle.error,
-    );
+    alertNativeError(error, stack);
     return true;
   };
 
   // 对于Flutter捕捉到的错误，弹出Flutter绘制的自定义对话框
   FlutterError.onError = (details) {
     FlutterError.presentError(details);
-    onError(details);
+    alertFlutterError(details);
   };
 
   // 控件绘制时发生错误，用一个显示错误信息的控件替代
@@ -90,20 +84,26 @@ void main() async {
           key: mainKey,
           body: const MainMenu(),
         ),
-        // routes: {
-        //   'worldmap': (context) => MainGameOverlay(key: UniqueKey()),
-        //   'location': (context) => const LocationView(),
-        //   'information': (context) => const InformationPanel(),
-        //   'character': (context) => const CharacterView(),
-        //   // 'editor': (context) => const GameEditor(),
-        // },
+        // 控件绘制时发生错误，用一个显示错误信息的控件替代
+        builder: (context, widget) {
+          ErrorWidget.builder = (FlutterErrorDetails details) {
+            String stack = '';
+            if (details.stack != null) {
+              stack = trimStackTrace(details.stack!);
+            }
+            final Object exception = details.exception;
+            Widget error = ErrorWidget.withDetails(
+                message: '$exception\n$stack',
+                error: exception is FlutterError ? exception : null);
+            if (widget is Scaffold || widget is Navigator) {
+              error = Scaffold(body: Center(child: error));
+            }
+            return error;
+          };
+          if (widget != null) return widget;
+          throw ('widget is null');
+        },
       ),
     );
-  }, (Object error, StackTrace stack) {
-    engine.error(error.toString());
-    onError(FlutterErrorDetails(
-      exception: error,
-      stack: stack,
-    ));
-  });
+  }, alertNativeError);
 }

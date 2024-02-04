@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/flutter/loading_screen.dart';
@@ -5,7 +6,7 @@ import 'package:samsara/ui/flutter/label.dart';
 
 import 'cardgame_autobattler.dart';
 import '../../../global.dart';
-import '../../../scene/cardgame/deckbuilding/deckbuilding.dart';
+import '../../../scene/cardgame_autobattler/deckbuilding/deckbuilding.dart';
 
 class DeckBuildingOverlay extends StatefulWidget {
   const DeckBuildingOverlay({Key? key}) : super(key: key);

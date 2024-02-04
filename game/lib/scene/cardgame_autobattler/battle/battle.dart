@@ -13,7 +13,7 @@ import 'deck_zone.dart';
 import '../../../global.dart';
 import 'status/status.dart';
 
-class CardBattleScene extends Scene {
+class BattleScene extends Scene {
   final List<String> heroDeck;
 
   late final BattleCharacter hero, opponent;
@@ -22,11 +22,11 @@ class CardBattleScene extends Scene {
 
   late final DeckZone heroDeckZone, opponentDeckZone;
 
-  CardBattleScene({
+  BattleScene({
     required super.controller,
-    required String id,
+    required super.id,
     required this.heroDeck,
-  }) : super(id: id);
+  });
 
   @override
   Future<void> onLoad() async {
