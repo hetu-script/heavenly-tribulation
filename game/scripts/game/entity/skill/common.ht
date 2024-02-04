@@ -3,6 +3,8 @@ import '../common.ht'
 import '../../l10n.ht'
 import '../../game.ht'
 
+const kInitialEfficiency = 0
+
 final kFightSkills = [
   'kungfu', // 主技能，拳脚
   'weapon_arts', // 副技能，武器招法

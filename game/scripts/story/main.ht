@@ -1,6 +1,6 @@
 import 'module:game' as game
 
-import 'l10n/localizations.ht'
+import 'l10n/l10n.ht'
 import 'module.json5' as module
 
 // 这里的函数最终是绑定到游戏对象上执行

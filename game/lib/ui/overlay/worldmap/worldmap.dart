@@ -14,7 +14,7 @@ import 'package:hetu_script/values.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
 import 'package:samsara/ui/flutter/loading_screen.dart';
-import 'package:samsara/utils/console.dart';
+import 'package:samsara/console.dart';
 
 import '../../../event/events.dart';
 import '../../view/information/information.dart';
@@ -286,7 +286,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
             sceneId: _scene.id,
             isHero: true,
             moveAnimationSpriteSheet: charSheet,
-            moveOnWaterAnimationSpriteSheet: shipSheet,
+            swimAnimationSpriteSheet: shipSheet,
             left: _heroData!['worldPosition']['left'],
             top: _heroData!['worldPosition']['top'],
             tileShape: _scene.map.tileShape,
@@ -394,6 +394,10 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
               () => _getScene(widget.args),
             ),
             builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                throw (snapshot.error!);
+              }
+
               if (!snapshot.hasData) {
                 return LoadingScreen(text: engine.locale['loading']);
               } else {

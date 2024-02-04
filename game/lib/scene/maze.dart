@@ -40,7 +40,7 @@ class MazeScene extends Scene {
   Future<void> onLoad() async {
     super.onLoad();
     await map.updateData(mapData);
-    add(map);
+    world.add(map);
     isMapReady = true;
     engine.broadcast(const MapLoadedEvent());
   }

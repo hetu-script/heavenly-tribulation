@@ -27,12 +27,12 @@ class StatusEffectsView extends StatelessWidget {
             PointerDeviceKind.mouse,
           },
         ),
-        child: SingleChildScrollView(
+        child: const SingleChildScrollView(
           child: Column(
             children: [
               // Text('---${engine.locale['attributes']}---'),
               Wrap(),
-              const Divider(),
+              Divider(),
             ],
           ),
         ),

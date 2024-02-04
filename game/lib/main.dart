@@ -26,56 +26,56 @@ class CustomWindowListener extends WindowListener {
   }
 }
 
-void main() async {
-  dataTableShowLogs = false;
-  WidgetsFlutterBinding.ensureInitialized();
+void main() {
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
 
-  // 对于Flutter没有捕捉到的错误，弹出系统原生对话框
-  PlatformDispatcher.instance.onError = (error, stack) {
-    alertNativeError(error, stack);
-    return true;
-  };
+    dataTableShowLogs = false;
+    // 对于Flutter没有捕捉到的错误，弹出系统原生对话框
+    PlatformDispatcher.instance.onError = (error, stack) {
+      alertNativeError(error, stack);
+      return false;
+    };
 
-  // 对于Flutter捕捉到的错误，弹出Flutter绘制的自定义对话框
-  FlutterError.onError = (details) {
-    FlutterError.presentError(details);
-    alertFlutterError(details);
-  };
+    // 对于Flutter捕捉到的错误，弹出Flutter绘制的自定义对话框
+    FlutterError.onError = (details) {
+      FlutterError.presentError(details);
+      alertFlutterError(details);
+    };
 
-  // 控件绘制时发生错误，用一个显示错误信息的控件替代
-  ErrorWidget.builder = (FlutterErrorDetails details) {
-    final Object exception = details.exception;
-    return ErrorWidget.withDetails(
-        message: '$exception\n\n${details.stack}',
-        error: exception is FlutterError ? exception : null);
-  };
+    // 控件绘制时发生错误，用一个显示错误信息的控件替代
+    ErrorWidget.builder = (FlutterErrorDetails details) {
+      final Object exception = details.exception;
+      return ErrorWidget.withDetails(
+          message: '$exception\n\n${details.stack}',
+          error: exception is FlutterError ? exception : null);
+    };
 
-  if (Platform.isAndroid || Platform.isIOS) {
-    Global.isOnDesktop = false;
-    Global.isPortraitMode = true;
-    await Flame.device.setPortraitDownOnly();
-    await Flame.device.fullScreen();
-    Global.screenSize = window.physicalSize / window.devicePixelRatio;
-  } else if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-    Global.isOnDesktop = true;
-    Global.isPortraitMode = false;
-    await windowManager.ensureInitialized();
-    windowManager.addListener(CustomWindowListener());
-    WindowOptions windowOptions = const WindowOptions(
-      // fullScreen: true,
-      minimumSize: Size(1280.0, 720.0),
-    );
-    windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.show();
-      await windowManager.focus();
-      Global.screenSize = await windowManager.getSize();
-      engine.info('系统版本：${Platform.operatingSystemVersion}');
-      engine.info(
-          '窗口逻辑大小：${Global.screenSize.width}x${Global.screenSize.height}');
-    });
-  }
+    if (Platform.isAndroid || Platform.isIOS) {
+      Global.isOnDesktop = false;
+      Global.isPortraitMode = true;
+      await Flame.device.setPortraitDownOnly();
+      await Flame.device.fullScreen();
+      // Global.screenSize = window.physicalSize / window.devicePixelRatio;
+    } else if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+      Global.isOnDesktop = true;
+      Global.isPortraitMode = false;
+      await windowManager.ensureInitialized();
+      windowManager.addListener(CustomWindowListener());
+      WindowOptions windowOptions = const WindowOptions(
+        // fullScreen: true,
+        minimumSize: Size(1280.0, 720.0),
+      );
+      windowManager.waitUntilReadyToShow(windowOptions, () async {
+        await windowManager.show();
+        await windowManager.focus();
+        Global.screenSize = await windowManager.getSize();
+        engine.info('系统版本：${Platform.operatingSystemVersion}');
+        engine.info(
+            '窗口逻辑大小：${Global.screenSize.width}x${Global.screenSize.height}');
+      });
+    }
 
-  runZonedGuarded(() {
     runApp(
       MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -101,7 +101,7 @@ void main() async {
             return error;
           };
           if (widget != null) return widget;
-          throw ('widget is null');
+          throw ('error trying to create error widget!');
         },
       ),
     );

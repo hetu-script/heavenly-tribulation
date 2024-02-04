@@ -2,6 +2,7 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/gestures.dart';
 
 import 'components/playground.dart';
+import '../global.dart';
 
 class GameScene extends Scene {
   GameScene({
@@ -13,16 +14,18 @@ class GameScene extends Scene {
   Future<void> onLoad() async {
     super.onLoad();
 
-    final p = PlayGround(width: 800.0, height: 640.0);
+    camera.snapTo(size / 2);
 
-    add(p);
+    final p = PlayGround(width: 400.0, height: 320.0);
+    world.add(p);
 
-    fitScreen(Vector2(800.0, 640.0));
+    engine.info('游戏界面可视区域大小：${p.size.x}x${p.size.y}');
+    fitScreen(p.size);
   }
 
   @override
   void onDragUpdate(int pointer, int buttons, DragUpdateDetails details) {
-    camera.snapTo(camera.position - details.delta.toVector2());
+    camera.moveBy(-details.delta.toVector2() / camera.viewfinder.zoom);
 
     super.onDragUpdate(pointer, buttons, details);
   }

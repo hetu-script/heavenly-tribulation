@@ -21,11 +21,13 @@ class DeckBuildingScene extends Scene {
   }) : super(id: 'deckBuilding');
   @override
   Future<void> onLoad() async {
+    fitScreen();
+
     deck = DeckBuildingZone();
-    add(deck);
+    world.add(deck);
 
     library = Library(size: kGamepadSize);
-    add(library);
+    world.add(library);
 
     Sprite cardStackBackSprite =
         Sprite(await Flame.images.load('cardstack_back.png'));
@@ -41,7 +43,7 @@ class DeckBuildingScene extends Scene {
           clone.showStack = false;
           clone.enableGesture = false;
           clone.priority = kDraggingCardPriority;
-          add(clone);
+          world.add(clone);
           draggingCard = clone;
           card.stack -= 1;
         };
@@ -62,7 +64,7 @@ class DeckBuildingScene extends Scene {
             release();
           }
         };
-        add(card);
+        world.add(card);
       }
     }
   }

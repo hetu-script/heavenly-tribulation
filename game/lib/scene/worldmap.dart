@@ -43,7 +43,7 @@ class WorldMapScene extends Scene {
   Future<void> onLoad() async {
     super.onLoad();
     await map.updateData(worldData);
-    add(map);
+    world.add(map);
     isMapReady = true;
     engine.broadcast(MapLoadedEvent(isFirstLoad: isFirstLoad));
   }

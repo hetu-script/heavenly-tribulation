@@ -7,7 +7,7 @@ import 'package:flame/sprite.dart';
 import 'package:flame/flame.dart';
 import 'package:hetu_script/types.dart';
 import 'package:samsara/ui/flutter/loading_screen.dart';
-import 'package:samsara/utils/console.dart';
+import 'package:samsara/console.dart';
 
 import '../../../global.dart';
 import '../../../scene/maze.dart';
@@ -222,7 +222,7 @@ class _MazeOverlayState extends State<MazeOverlay>
             sceneId: _scene.id,
             isHero: true,
             moveAnimationSpriteSheet: charSheet,
-            moveOnWaterAnimationSpriteSheet: shipSheet,
+            swimAnimationSpriteSheet: shipSheet,
             left: _scene.mapData['entryX'],
             top: _scene.mapData['entryY'],
             tileShape: _scene.map.tileShape,

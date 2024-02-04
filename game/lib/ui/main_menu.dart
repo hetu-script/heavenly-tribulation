@@ -13,7 +13,7 @@ import 'package:window_manager/window_manager.dart';
 import 'package:hetu_script/values.dart';
 import 'package:samsara/ui/flutter/loading_screen.dart';
 import 'package:samsara/ui/flutter/label.dart';
-import 'package:samsara/utils/console.dart';
+import 'package:samsara/console.dart';
 import 'package:json5/json5.dart';
 
 import 'overlay/maze/maze.dart';
@@ -128,7 +128,10 @@ class _MainMenuState extends State<MainMenu> {
       return false;
     }
 
-    await engine.init(externalFunctions: externalGameFunctions);
+    await engine.init(
+      externalFunctions: externalGameFunctions,
+      loadCardGameBindings: true,
+    );
 
     engine.hetu.interpreter.bindExternalClass(BattleCharacterClassBinding());
 
@@ -183,6 +186,8 @@ class _MainMenuState extends State<MainMenu> {
 
   @override
   Widget build(BuildContext context) {
+    final view = View.of(context);
+    Global.screenSize = view.physicalSize / view.devicePixelRatio;
     return FutureBuilder(
       future: _prepareData(),
       builder: (context, snapshot) {

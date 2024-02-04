@@ -732,8 +732,8 @@ fun createWorldMap({
   engine.info('刷新世界地图上色信息')
   loadColors()
 
-  engine.info('世界生成完毕。重置随机数生成器。')
-  setRandomSeed()
+  // engine.info('世界生成完毕。重置随机数生成器。')
+  // setRandomSeed()
 
   currentWorld = savedCurrentWorld
 

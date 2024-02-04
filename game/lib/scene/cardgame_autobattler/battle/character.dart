@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flame/sprite.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/component/fading_text.dart';
 
@@ -8,8 +7,8 @@ import 'status/status.dart';
 import '../common.dart';
 
 class BattleCharacter extends GameComponent {
-  final SpriteAnimation standAnimation;
-  final SpriteAnimation attackAnimation;
+  final SpriteAnimationWithTicker standAnimation;
+  final SpriteAnimationWithTicker attackAnimation;
 
   final bool isHero;
 
@@ -38,7 +37,7 @@ class BattleCharacter extends GameComponent {
   }) : maxLife = life {
     assert(maxLife > 0);
 
-    attackAnimation.onComplete = () {
+    attackAnimation.ticker.onComplete = () {
       _isAttacking = false;
     };
 
@@ -65,18 +64,18 @@ class BattleCharacter extends GameComponent {
     // canvas.drawRect(border, DefaultBorderPaint.danger);
 
     if (_isAttacking) {
-      attackAnimation.getSprite().renderRect(canvas, border);
+      attackAnimation.currentSprite.renderRect(canvas, border);
     } else {
-      standAnimation.getSprite().renderRect(canvas, border);
+      standAnimation.currentSprite.renderRect(canvas, border);
     }
   }
 
   @override
   void update(double dt) {
     if (_isAttacking) {
-      attackAnimation.update(dt);
+      attackAnimation.ticker.update(dt);
     } else {
-      standAnimation.update(dt);
+      standAnimation.ticker.update(dt);
     }
   }
 
@@ -85,9 +84,9 @@ class BattleCharacter extends GameComponent {
       // TODO: 连续攻击？
       return;
     } else {
-      attackAnimation.onComplete = onComplete;
+      attackAnimation.ticker.onComplete = onComplete;
       _isAttacking = true;
-      attackAnimation.reset();
+      attackAnimation.ticker.reset();
     }
   }
 

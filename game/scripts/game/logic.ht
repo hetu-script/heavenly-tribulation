@@ -371,6 +371,7 @@ fun updateOrganizationYearly(organization) {
       
       when (organization.fightSkillGenre) {
         'cultivation.kungfu' -> {
+
           organizationRecordSkill(organization, WeaponArts())
           organizationRecordSkill(organization, Kungfu())
         }
@@ -388,23 +389,23 @@ fun updateOrganizationYearly(organization) {
         }
       }
       
-      when (organization.supportSkillGenre) {
-        'cultivation.craftsmanship' -> {
+      // when (organization.supportSkillGenre) {
+      //   'cultivation.craftsmanship' -> {
 
-        }
-        'cultivation.alchemy' -> {
+      //   }
+      //   'cultivation.alchemy' -> {
           
-        }
-        'cultivation.array' -> {
+      //   }
+      //   'cultivation.array' -> {
           
-        }
-        'cultivation.divination' -> {
+      //   }
+      //   'cultivation.divination' -> {
           
-        }
-        'cultivation.scroll' -> {
+      //   }
+      //   'cultivation.scroll' -> {
           
-        }
-      }
+      //   }
+      // }
     }
     'nation' -> {
       

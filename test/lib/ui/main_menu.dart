@@ -4,6 +4,7 @@ import 'package:samsara/ui/flutter/loading_screen.dart';
 import 'package:samsara/ui/flutter/label.dart';
 import 'package:flutter/services.dart';
 import 'package:json5/json5.dart';
+import 'package:samsara/widget/markdown_wiki.dart';
 
 import '../global.dart';
 import '../scene/game.dart';
@@ -79,7 +80,12 @@ class _MainMenuState extends State<MainMenu> {
                         padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.of(context).pushNamed('wiki');
+                            showDialog(
+                              context: context,
+                              builder: (context) => MarkdownWiki(
+                                resourceManager: AssetManager(),
+                              ),
+                            );
                           },
                           child: const Text('markdown_wiki'),
                         ),

@@ -48,11 +48,11 @@ class BattleScene extends Scene {
           .load('animation/fight/ns${(i + 1).toString().padLeft(2, '0')}.png'));
       charStandAnimSpriteList.add(sprite);
     }
-    final standAnimation = SpriteAnimation.spriteList(
+    final standAnimation = SpriteAnimationWithTicker(SpriteAnimation.spriteList(
       charStandAnimSpriteList,
       stepTime: 0.7,
       loop: true,
-    );
+    ));
 
     final List<Sprite> charAttackAnimSpriteList = [];
     for (var i = 0; i < 13; ++i) {
@@ -60,11 +60,12 @@ class BattleScene extends Scene {
           .load('animation/fight/nf${(i + 1).toString().padLeft(2, '0')}.png'));
       charAttackAnimSpriteList.add(sprite);
     }
-    final attackAnimation = SpriteAnimation.spriteList(
+    final attackAnimation =
+        SpriteAnimationWithTicker(SpriteAnimation.spriteList(
       charAttackAnimSpriteList,
       stepTime: 0.07,
       loop: false,
-    );
+    ));
 
     hero = BattleCharacter(
       id: 'hero',
@@ -74,7 +75,7 @@ class BattleScene extends Scene {
       life: 100,
       isHero: true,
     );
-    add(hero);
+    world.add(hero);
 
     opponent = BattleCharacter(
       id: 'opponent',
@@ -83,7 +84,7 @@ class BattleScene extends Scene {
       size: kCharacterSize,
       life: 100,
     );
-    add(opponent);
+    world.add(opponent);
 
     final List<PlayingCard> playerCards = [];
     for (final cardId in heroDeck) {
@@ -114,7 +115,7 @@ class BattleScene extends Scene {
         // backSprite: cardBack,
       );
       playerCards.add(card);
-      add(card);
+      world.add(card);
     }
 
     final List<PlayingCard> opponentCards = [];
@@ -129,7 +130,7 @@ class BattleScene extends Scene {
         // backSprite: cardBack,
       );
       opponentCards.add(card);
-      add(card);
+      world.add(card);
     }
 
     heroDeckZone = DeckZone(
@@ -139,7 +140,7 @@ class BattleScene extends Scene {
       pileMargin: Vector2(10.0, 10.0),
       pileOffset: Vector2(50.0, 0.0),
     );
-    add(heroDeckZone);
+    world.add(heroDeckZone);
     heroDeckZone.sortCards(pileUp: false, animated: false);
 
     opponentDeckZone = DeckZone(
@@ -149,7 +150,7 @@ class BattleScene extends Scene {
       pileMargin: Vector2(-10.0, 10.0),
       pileOffset: Vector2(-50.0, 0.0),
     );
-    add(opponentDeckZone);
+    world.add(opponentDeckZone);
     opponentDeckZone.sortCards(pileUp: false, animated: false);
   }
 

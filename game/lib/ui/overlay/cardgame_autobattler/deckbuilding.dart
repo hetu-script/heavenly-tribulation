@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/flutter/loading_screen.dart';
@@ -9,7 +8,7 @@ import '../../../global.dart';
 import '../../../scene/cardgame_autobattler/deckbuilding/deckbuilding.dart';
 
 class DeckBuildingOverlay extends StatefulWidget {
-  const DeckBuildingOverlay({Key? key}) : super(key: key);
+  const DeckBuildingOverlay({super.key});
 
   @override
   State<DeckBuildingOverlay> createState() => _DeckBuildingOverlayState();
@@ -26,6 +25,8 @@ class _DeckBuildingOverlayState extends State<DeckBuildingOverlay>
 
   @override
   void dispose() {
+    _isDisposing = true;
+
     // engine.disposeListenders(widget.key!);
 
     _scene.detach();
