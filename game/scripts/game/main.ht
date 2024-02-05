@@ -24,7 +24,7 @@ export 'event.ht'
 export 'interaction.ht'
 export 'game.ht'
 export 'l10n.ht'
-export 'logic.ht'
+export 'update.ht'
 export 'util.ht'
 export 'card/card.ht'
 

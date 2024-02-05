@@ -3,6 +3,25 @@
   "religion": "宗教",
   "gang": "帮会",
   "business": "商号",
+  "nation": "国家",
+
+  "title.head": "掌门",
+
+  "title.creator": "祖师",
+  "title.elder": "长老",
+  "title.honor": "供奉",
+
+  "title.student4": "亲传弟子",
+  "title.student3": "记名弟子",
+  "title.student2": "内门弟子",
+  "title.student1": "外门弟子",
+
+  "title.guest": "挂单",
+
+  "title.region": "住持",
+  "title.manager": "堂主",
+  "title.leader": "首座",
+  "title.worker": "执事",
 
   "academy.title3.1": "三元及第",
   "academy.title3.2": "状元",
@@ -24,19 +43,6 @@
   "nation.titleCreator": "太上皇",
   "nation.titleElder": "王公",
   "nation.titleDiscipliner": "监察使",
-
-  "cultivation.titleRank6": "掌门",
-  "cultivation.titleRank5": "首座",
-  "cultivation.titleRank4": "执事弟子",
-  "cultivation.titleRank3": "亲传弟子",
-  "cultivation.titleRank2": "记名弟子",
-  "cultivation.titleRank1": "内门弟子",
-  "cultivation.titleRank0": "外门弟子",
-
-  "cultivation.titleCreator": "祖师",
-  "cultivation.titleElder": "长老",
-  "cultivation.titleDiscipliner": "护法",
-  "cultivation.titleGuest": "供奉",
 
   "gang.titleRank6": "帮主",
   "gang.titleRank5": "舵主",

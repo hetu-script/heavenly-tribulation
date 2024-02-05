@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../grid/entity_grid.dart';
+import '../../grid/entity_grid.dart';
 import 'cooldown.dart';
-import '../../../global.dart';
-import '../grid/entity_info.dart';
+import '../../../../global.dart';
+import '../../grid/entity_info.dart';
 import 'package:samsara/ui/flutter/dynamic_color_progressbar.dart';
 
 class BattleItemCard extends StatelessWidget {
@@ -13,7 +13,7 @@ class BattleItemCard extends StatelessWidget {
     this.size = const Size(64.0, 64.0),
     this.itemData,
     this.life,
-    this.lifeMax,
+    this.maxLife,
     this.isSelected = false,
     this.cooldownValue = 0.0,
     this.cooldownColor = Colors.white,
@@ -23,7 +23,7 @@ class BattleItemCard extends StatelessWidget {
 
   final HTStruct? itemData;
 
-  final num? life, lifeMax;
+  final num? life, maxLife;
 
   final bool isSelected;
 
@@ -63,12 +63,12 @@ class BattleItemCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          if (life != null && lifeMax != null)
+          if (life != null && maxLife != null)
             DynamicColorProgressBar(
               width: size.width - 4,
               height: 8.0,
               value: life!.toDouble(),
-              max: lifeMax!.toDouble(),
+              max: maxLife!.toDouble(),
               showNumber: false,
               colors: const <Color>[Colors.red, Colors.green],
             ),

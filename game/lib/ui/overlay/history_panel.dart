@@ -17,7 +17,7 @@ class HistoryPanel extends StatelessWidget {
     this.showTileInfo = true,
     this.heroPosition,
     this.currentTerrain,
-    this.currentNationData,
+    // this.currentNationData,
     this.currentLocationData,
   });
 
@@ -30,7 +30,7 @@ class HistoryPanel extends StatelessWidget {
   final bool showTileInfo;
   final HTStruct? heroPosition;
   final TileMapTerrain? currentTerrain;
-  final HTStruct? currentNationData;
+  // final HTStruct? currentNationData;
   final HTStruct? currentLocationData;
 
   @override
@@ -64,10 +64,10 @@ class HistoryPanel extends StatelessWidget {
       }
     }
 
-    if (currentNationData != null) {
-      sb.write(', ');
-      sb.write(currentNationData!['name']);
-    }
+    // if (currentNationData != null) {
+    //   sb.write(', ');
+    //   sb.write(currentNationData!['name']);
+    // }
 
     if (currentLocationData != null) {
       sb.write(', ');

@@ -107,14 +107,7 @@ struct Location {
     this.banLists = {
       characterIds: [],
       organizationIds: [],
-      nationIds: [],
-    }
-
-    // 敌对名单，遇到后将会直接开始战斗，战败会被投入监牢
-    this.enemyLists = {
-      characterIds: [],
-      organizationIds: [],
-      nationIds: [],
+      // nationIds: [],
     }
   }
 }

@@ -63,7 +63,7 @@ class NpcView extends StatelessWidget {
                               width: 175.0,
                               height: 20.0,
                               value: npcData['life'],
-                              max: npcData['lifeMax'],
+                              max: npcData['maxLife'],
                               showNumberAsPercentage: false,
                               colors: const <Color>[Colors.red, Colors.green],
                             ),

@@ -4,108 +4,49 @@ import '../../name/organization.ht'
 import '../../l10n.ht'
 import '../common.ht'
 import '../../tile/tilemap.ht'
-import '../../name/nation.ht'
+// import '../../name/nation.ht'
 
-const kOrganizationRankMax = 6
+const kOrganizationRankMax = 4
 const kOrganizationDevelopmentMax = 5
 const kOrganizationRecruitOtherLocationProbability = 0.2
 const kOrganizationRecruitSuccessProbability = 0.4
 
 final kOrganizationCategories = [
   'cultivation',
-  'nation',
+  'gang',
+  'religion',
   'business',
+  'nation',
 ]
 
 final kCultivationFightSkillGenre = [
-  'cultivation.kungfu',
-  // 'cultivation.arcana',
-  // 'cultivation.animal',
-  // 'cultivation.golem',
-  // 'cultivation.illusion',
+  'cultivation.blade',
+  'cultivation.element',
+  'cultivation.transform',
+  'cultivation.spirit',
 ]
 
 final kCultivationSupportSkillGenre = [
+  'cultivation.plant',
+  'cultivation.animal',
+  'cultivation.golem',
+  'cultivation.illusion',
   'cultivation.craftsmanship',
   'cultivation.alchemy',
-  // 'cultivation.array',
-  // 'cultivation.divination',
-  // "cultivation.scroll",
+  'cultivation.divination',
+  'cultivation.array',
+  'cultivation.scroll',
 ]
 
-final kNationRankTitles = {
-  '0': getLocaleString('nation.titleRank0'),
-  '1': getLocaleString('nation.titleRank1'),
-  '2': getLocaleString('nation.titleRank2'),
-  '3': getLocaleString('nation.titleRank3'),
-  '4': getLocaleString('nation.titleRank4'),
-  '5': getLocaleString('nation.titleRank5'),
-  '6': getLocaleString('nation.titleRank6'),
-  'creator': getLocaleString('nation.titleCreator'),
-  'elder': getLocaleString('nation.titleElder'),
-  'disipliner': getLocaleString('nation.titleDiscipliner'),
-}
-
-final kCultivationRankTitles = {
-  '0': getLocaleString('cultivation.titleRank0'),
-  '1': getLocaleString('cultivation.titleRank1'),
-  '2': getLocaleString('cultivation.titleRank2'),
-  '3': getLocaleString('cultivation.titleRank3'),
-  '4': getLocaleString('cultivation.titleRank4'),
-  '5': getLocaleString('cultivation.titleRank5'),
-  '6': getLocaleString('cultivation.titleRank6'),
-  'creator': getLocaleString('cultivation.titleCreator'),
-  'elder': getLocaleString('cultivation.titleElder'),
-  'disipliner': getLocaleString('cultivation.titleDiscipliner'),
-  'guest': getLocaleString('cultivation.titleGuest'),
-}
-
-final kGangRankTitles = {
-  '0': getLocaleString('gang.titleRank0'),
-  '1': getLocaleString('gang.titleRank1'),
-  '2': getLocaleString('gang.titleRank2'),
-  '3': getLocaleString('gang.titleRank3'),
-  '4': getLocaleString('gang.titleRank4'),
-  '5': getLocaleString('gang.titleRank5'),
-  '6': getLocaleString('gang.titleRank6'),
-  'counsellor': getLocaleString('gang.titleCounsellor'),
-  'elder': getLocaleString('gang.titleElder'),
-  'disipliner': getLocaleString('gang.titleDiscipliner'),
-}
-
-final kReligionRankTitles = {
-  '0': getLocaleString('religion.titleRank0'),
-  '1': getLocaleString('religion.titleRank1'),
-  '2': getLocaleString('religion.titleRank2'),
-  '3': getLocaleString('religion.titleRank3'),
-  '4': getLocaleString('religion.titleRank4'),
-  '5': getLocaleString('religion.titleRank5'),
-  '6': getLocaleString('religion.titleRank6'),
-  'creator': getLocaleString('religion.titleCreator'),
-  'elder': getLocaleString('religion.titleElder'),
-  'disipliner': getLocaleString('religion.titleDiscipliner'),
-}
-
-final kBusinessRankTitles = {
-  '0': getLocaleString('business.titleRank0'),
-  '1': getLocaleString('business.titleRank1'),
-  '2': getLocaleString('business.titleRank2'),
-  '3': getLocaleString('business.titleRank3'),
-  '4': getLocaleString('business.titleRank4'),
-  '5': getLocaleString('business.titleRank5'),
-  '6': getLocaleString('business.titleRank6'),
-  'creator': getLocaleString('business.titleCreator'),
-  'craftsman': getLocaleString('business.titleCraftsman'),
-  'chef': getLocaleString('business.titleChef'),
-}
-
 const kOrganizationCategoryCultivation = 'cultivation'
+const kOrganizationCategoryGang = 'gang'
+const kOrganizationCategoryReligion = 'religion'
 const kOrganizationCategoryBusiness = 'business'
 const kOrganizationCategoryNation = 'nation'
 
 final kOrganizationThinkings = {
   cultivation: [
-    'fightSkillAddiction',
+    'skillAddiction',
     'strengthAdmiration',
     'masterRespect',
     'mentor',
@@ -125,19 +66,19 @@ final kOrganizationThinkings = {
     'theology',
     'religious',
   ],
+  business: [
+    'everyOneForHimself',
+    'asLongAsProfit',
+    'privateProperty',
+    'spiritOfContract',
+    'monopolism',
+  ],
   nation: [
     'philosopherKing',
     'etiquette',
     'gentlemanship',
     'moderateness',
     'justice',
-  ],
-  business: [
-    'everyOneIsForHimself',
-    'asLongAsProfit',
-    'privateProperty',
-    'spiritOfContract',
-    'monopolism',
   ],
 }
 
@@ -147,22 +88,23 @@ const _kLeaderRank = 80
 
 struct Organization {
   construct ({
-    category,
     name,
-    nationId,
+    category,
+    // nationId,
     headquartersId,
-    leaderId,
+    headId,
     development = 0,
-    rankTitles,
-    isHermit,
-    isReligious,
-    isIllegal,
-    fightSkillGenre,
-    supportSkillGenre,
+    // rankTitles,
+    // fightSkillGenre,
+    // supportSkillGenre,
   }) {
     assert(game.locations.containsKey(headquartersId))
-    assert(game.characters.containsKey(leaderId))
-    assert(kOrganizationCategories.contains(category))
+    assert(game.characters.containsKey(headId))
+    if (category == null) {
+      category = Random.nextIterable(kOrganizationCategories)
+    } else {
+      assert(kOrganizationCategories.contains(category))
+    }
 
     // 该组织的每月刷新事件的时间
     this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
@@ -176,7 +118,7 @@ struct Organization {
     this.yearlyRecruitMonth = month + 1
 
     this.headquartersId = headquartersId
-    this.leaderId = leaderId
+    this.headId = headId
     this.entityType = kEntityTypeOrganization
     this.category = category
 
@@ -186,16 +128,17 @@ struct Organization {
     } else {
       var conflict = false
       do {
-        if (category != kOrganizationCategoryNation) {
-          this.name = generateOrganizationName(category: this.category).name
-        } else {
-          this.name = generateNationName().name
-        }
+        // if (category != kOrganizationCategoryNation) {
+        //   this.name = generateOrganizationName(category: this.category).name
+        // } else {
+        //   this.name = generateNationName().name
+        // }
+        this.name = generateOrganizationName(category: this.category).name
         conflict = game.organizations.values.where((element) =>
           element.name == this.name).isNotEmpty
       } while (conflict)
     }
-    this.id = '${this.entityType}.${this.index}.${this.category}.${this.name}'
+    this.id = '${this.entityType}.${this.index}.${this.name}'
     game.organizations[this.id] = this
     
     // 本门派统治的据点 id 列表
@@ -212,61 +155,40 @@ struct Organization {
     // 该组织的历史，保存的是历史事件的 index
     this.history = []
     
-    if (nationId) {
-      assert(game.organizations.containsKey(nationId))
-      final nation = game.organizations[nationId]
-      nation.organizationIds.add(this.id)
-      this.nationId = nationId
-    }
+    // if (nationId) {
+    //   assert(game.organizations.containsKey(nationId))
+    //   final nation = game.organizations[nationId]
+    //   nation.organizationIds.add(this.id)
+    //   this.nationId = nationId
+    // }
 
     final headquarters = game.locations[headquartersId]
-    final leader = game.characters[leaderId]
+    final head = game.characters[headId]
     // 触发创派事件，创派事件和成为掌门是两个事件
     final incidentContent = getLocaleString('organizationCreate', interpolations: [
-      leader.name,
+      head.name,
       headquarters.name,
       this.name,
     ])
     Incident(
-      subjectIds: [leader.id],
+      subjectIds: [head.id],
       organizationId: this.id,
       content: incidentContent,
       order: 15,
       isGlobal: true,
     )
-    addCharacterToOrganization(leader, this)
-    setCharacterRank(leader, this, kOrganizationRankMax)
+    addCharacterToOrganization(head, this)
+    addTitleForCharacter(head, this, kOrganizationRankMax, 'title.head')
 
     // addLocationToOrganization(location, this)
     stationOrganization(
       this,
       headquarters,
-      characterIds: [leaderId],
+      characterIds: [headId],
     )
 
-    this.isHermit = isHermit
-    this.isReligious = isReligious
-    this.isIllegal = isIllegal
-    this.fightSkillGenre = fightSkillGenre ?? random.nextIterable(kCultivationFightSkillGenre)
-    this.supportSkillGenre = supportSkillGenre ?? random.nextIterable(kCultivationSupportSkillGenre)
-
-    when (this.category) {
-      'cultivation' -> {
-        if (isReligious) {
-          this.rankTitles = rankTitles ?? kReligionRankTitles
-        } else if (isIllegal) {
-          this.rankTitles = rankTitles ?? kGangRankTitles
-        } else {
-          this.rankTitles = rankTitles ?? kCultivationRankTitles
-        }
-      }
-      'nation' -> {
-        this.rankTitles = rankTitles ?? kNationRankTitles
-      }
-      'business' -> {
-        this.rankTitles = rankTitles ?? kBusinessRankTitles
-      }
-    }
+    // this.fightSkillGenre = fightSkillGenre ?? random.nextIterable(kCultivationFightSkillGenre)
+    // this.supportSkillGenre = supportSkillGenre ?? random.nextIterable(kCultivationSupportSkillGenre)
     
     // 组织所拥有的功法
     // 用法类似人物的装备栏
@@ -286,100 +208,81 @@ struct Organization {
     //   }
     // }
 
-    this.skills = {}
-  }
+    // this.skills = {}
 
-  /// 国家是一种特殊的组织，单独有一个生成函数，并且单独保存
-  /// 即便不显示调用 addCharacterToOrganization 来加入国家，角色也会有一个所属的国家
-  /// 显示调用的含义其实是在此国家担任官职，此时和加入别的组织一样，要求先退出原来的组织
-  construct nation ({
-    name,
-    capitalId,
-    emperorId,
-    development = 0,
-    rankTitles,
-  }) : this(
-    category: kOrganizationCategoryNation,
-    name: name,
-    headquartersId: capitalId,
-    leaderId: emperorId,
-    development = 0,
-    rankTitles,
-  ) {
-    assert(capitalId != null)
-    assert(emperorId != null)
-
-    this.capitalId = capitalId
-    final location = game.locations[capitalId]
-    // 设为首都后，免费获得发展度+2，稳定度+50
-    location.development += 2
-    location.stability += 50
-
+    // 国家区块颜色
     this.color = random.nextBrightColorHex()
-    
     // 本国统治的区块
     this.territoryIndexes = []
     // 国界线相邻的外国区块
     this.borderIndexes = []
-    // 本国的门派
-    this.organizationIds = []
-  }
-  
-  construct business({
-    name,
-    headquartersId,
-    leaderId,
-    development = 0,
-    rankTitles,
-  }): this(
-    category: kOrganizationCategoryBusiness,
-    name: name,
-    headquartersId: headquartersId,
-    leaderId: leaderId,
-    development = 0,
-    rankTitles,
-  ) {
 
+    // 敌对名单，遇到后将会直接开始战斗
+    this.enemyLists = {
+      characterIds: [],
+      organizationIds: [],
+      // nationIds: [],
+    }
   }
+
+  // /// 国家是一种特殊的组织，单独有一个生成函数，并且单独保存
+  // /// 即便不显示调用 addCharacterToOrganization 来加入国家，角色也会有一个所属的国家
+  // /// 显示调用的含义其实是在此国家担任官职，此时和加入别的组织一样，要求先退出原来的组织
+  // construct nation ({
+  //   name,
+  //   capitalId,
+  //   emperorId,
+  //   development = 0,
+  //   rankTitles,
+  // }) : this(
+  //   category: kOrganizationCategoryNation,
+  //   name: name,
+  //   headquartersId: capitalId,
+  //   headId: emperorId,
+  //   development = 0,
+  //   rankTitles,
+  // ) {
+  //   assert(capitalId != null)
+  //   assert(emperorId != null)
+
+  //   this.capitalId = capitalId
+  //   final location = game.locations[capitalId]
+  //   // 设为首都后，免费获得发展度+2，稳定度+50
+  //   location.development += 2
+  //   location.stability += 50
+
+  //   this.color = random.nextBrightColorHex()
+    
+  //   // 本国统治的区块
+  //   this.territoryIndexes = []
+  //   // 国界线相邻的外国区块
+  //   this.borderIndexes = []
+  //   // 本国的门派
+  //   this.organizationIds = []
+  // }
+  
+  // construct business({
+  //   name,
+  //   headquartersId,
+  //   headId,
+  //   development = 0,
+  //   rankTitles,
+  // }): this(
+  //   category: kOrganizationCategoryBusiness,
+  //   name: name,
+  //   headquartersId: headquartersId,
+  //   headId: headId,
+  //   development = 0,
+  //   rankTitles,
+  // ) {
+
+  // }
 }
 
 
 // fun getLeaderTitle(organization) {
 //   return organization.name + getLocaleString('${organization.category}LeaderTitle')
 // }
-
-// 必须已经是门派成员，才可以设定职级
-fun setCharacterRank(character, organization, rank) {
-  if (character.organizationRank == rank) {
-    engine.warning('将要为角色 ${character.name} 设置的新的组织等级 ${rank} 和角色目前的组织等级 ${character.organizationRank} 相同。')
-    return
-  }
-  assert(organization.characterIds.keys.contains(character.id))
-  assert(character.organizationId == organization.id)
-  assert(rank >= 0 && rank <= kOrganizationRankMax)
-  final membersOfRank = getOrganizationMemberIdsOfRank(organization, rank)
-  assert(membersOfRank.length < maxMemberOfDevelopment(organization.development))
-  final titleId = '${organization.category}.titleRank${rank}'
-  final title = getLocaleString(titleId)
-  character.titles[titleId] = title
-  character.currentTitleId = titleId
-  character.organizationRank = rank
-  if (rank == kOrganizationRankMax) {
-    organization.leaderId = character.id
-  }
-  final incidentContent = getLocaleString('characterSetOrganizationRank', interpolations: [
-    character.name,
-    organization.name,
-    title,
-  ])
-  Incident(
-    subjectIds: [character.id],
-    organizationId: organization.id,
-    content: incidentContent,
-    order: 15,
-    isGlobal: true,
-  )
-}
 
 // 类似 equip，将会在 location 上的 organizations 中保存一个新的数据对象
 // {
@@ -427,7 +330,7 @@ fun maxMemberOfRank(n: int) {
 }
 
 // 组织可以拥有的人数上限取决于组织发展度
-// 例如发展度 0，可以拥有 掌门 1 人，rank 1：4 人
+// 发展度 0，掌门 1 人，rank 1：4 人
 fun maxMemberOfDevelopment(n: int) {
   var number = 0
   for (final i in range(n + 2)) {
@@ -456,10 +359,6 @@ fun getOrganizationMemberIdsOfRank(organization, rank) {
   return ids
 }
 
-fun organizationLowestRankMemberReachMax(organization) {
-  final memberIds = getOrganizationMemberIdsOfRank(organization, kOrganizationRankMax)
-  return memberIds.length >= maxMemberOfDevelopment(kOrganizationRankMax)
-}
 
 fun organizationMemberReachMax(organization) {
   return organization.characterIds.length >= maxMemberOfDevelopment(organization.development)
@@ -472,7 +371,9 @@ fun addCharacterToOrganization(character, organization, { incidentOccured = true
     engine.warning('组织 ${organization.name} 的成员数量达到上限，在提升发展度之前无法再添加新成员。')
     return false
   }
-  if (organizationLowestRankMemberReachMax(organization)) {
+
+  final memberIds = getOrganizationMemberIdsOfRank(organization, kOrganizationRankMax)
+  if (memberIds.length >= maxMemberOfDevelopment(kOrganizationRankMax)) {
     engine.warning('组织 ${organization.name} 的低阶成员数量达到上限，在提升成员级别之前无法再添加新成员。')
     return false
   }
@@ -508,10 +409,10 @@ fun addCharacterToOrganization(character, organization, { incidentOccured = true
     character.thinkings.add(thinking)
   }
   
-  setCharacterLocationId(character, organization.headquartersId)
-  if (organization.category == kOrganizationCategoryNation) {
-    character.nationId = organization.id
-  }
+  // setCharacterLocationId(character, organization.headquartersId)
+  // if (organization.category == kOrganizationCategoryNation) {
+  //   character.nationId = organization.id
+  // }
   return true
 }
 
@@ -564,84 +465,85 @@ fun organizationExperiencedIncident(organization, incident) {
 //   return game.nations[id]
 // }
 
-fun removeCharacterFromNation(character) {
-  character.nationId = null
-}
+// fun removeCharacterFromNation(character) {
+//   character.nationId = null
+// }
 
-fun addCharacterToNation(character, nation) {
-  assert(nation.category == kOrganizationCategoryNation)
-  character.nationId = nation.id
-}
+// fun addCharacterToNation(character, nation) {
+//   assert(nation.category == kOrganizationCategoryNation)
+//   character.nationId = nation.id
+// }
 
-fun removeTerrainFromNation(terrain) {
+fun removeTerrainFromOrganization(terrain) {
   if (!terrain.locationId) return
 
-  final nation = game.organizations[terrain.nationId]
-  nation.territoryIndexes.remove(terrain.index)
-  nation.borderIndexes.add(terrain.index)
+  final organization = game.organizations[terrain.organizationId]
+  organization.territoryIndexes.remove(terrain.index)
+  organization.borderIndexes.add(terrain.index)
   final location = game.locations[terrain.locationId]
-  delete location.nationId
-  nation.locationIds.remove(location.id)
+  delete location.organizationId
+  organization.locationIds.remove(location.id)
 }
 
-fun addTerrainToNation(terrain, nation) {
-  if (terrain.nationId != null) {
-    assert(terrain.nationId != nation.id)
-    removeTerrainFromNation(terrain)
+fun addTerrainToOrganization(terrain, organization) {
+  if (terrain.organizationId != null) {
+    assert(terrain.organizationId != organization.id)
+    removeTerrainFromOrganization(terrain)
   }
-  assert(nation.territoryIndexes.isEmpty || !nation.territoryIndexes.contains(terrain.index))
-  nation.territoryIndexes.add(terrain.index)
-  assert(nation.borderIndexes.isEmpty || nation.borderIndexes.contains(terrain.index))
-  // print('nation: ${nation.id} expanded to ${terrain.left},${terrain.top}')
-  nation.borderIndexes.remove(terrain.index)
-  terrain.nationId = nation.id
+  assert(organization.territoryIndexes.isEmpty || !organization.territoryIndexes.contains(terrain.index))
+  organization.territoryIndexes.add(terrain.index)
+  assert(organization.borderIndexes.isEmpty || organization.borderIndexes.contains(terrain.index))
+  // print('organization: ${organization.id} expanded to ${terrain.left},${terrain.top}')
+  organization.borderIndexes.remove(terrain.index)
+  terrain.organizationId = organization.id
   if (terrain.locationId) {
     final location = game.locations[terrain.locationId]
     if (location.category == kLocationCategoryCity) {
-      if (location.nationId) {
-        final oldNation = game.organizations[location.nationId]
-        oldNation.locationIds.remove(location.id)
-        final oldGov = location.sites.values.singleWhere((site) => site.category == kSiteGovernment)
-        oldGov.organizationId = nation.id
+      if (location.organizationId) {
+        final oldOrg = game.organizations[location.organizationId]
+        oldOrg.locationIds.remove(location.id)
+        // final oldGov = location.sites.values.singleWhere((site) => site.category == kSiteGovernment)
+        // oldGov.organizationId = nation.id
       } else {
-        final gov = Site(category: kSiteGovernment, locationId: location.id)
-        if (nation.capitalId == location.id) {
-          location.isCapital = true
-          gov.isCapital = true
-        }
-        gov.organizationId = nation.id
-        location.governmentSiteId = gov.id
+        // final gov = Site(category: kSiteGovernment, locationId: location.id)
+        // if (nation.capitalId == location.id) {
+        //   location.isCapital = true
+        //   gov.isCapital = true
+        // }
+        // gov.organizationId = nation.id
+        // location.governmentSiteId = gov.id
       }
     }
-    location.nationId = nation.id
-    if (!nation.locationIds.contains(location.id)) {
-      nation.locationIds.add(location.id)
+    location.organizationId = organization.id
+    if (!organization.locationIds.contains(location.id)) {
+      organization.locationIds.add(location.id)
     }
   }
   final neighbors = getMapTileNeighbors(terrain.left, terrain.top, currentWorld)
   for (final neighbor in neighbors) {
-    if (neighbor.nationId != nation.id) {
-      nation.borderIndexes.add(neighbor.index)
+    if (neighbor.organizationId != organization.id) {
+      organization.borderIndexes.add(neighbor.index)
     }
   }
 }
 
-/// 将某个功法记录在这个组织的 skillRecords 中
-/// 根据技能来生成一个道具，也就是技能书
-fun organizationRecordSkill(organization, book) {
-  assert(organization != null)
-  assert(book != null)
-  organization.skills[book.id] = book
+// /// 将某个功法记录在这个组织的 skillRecords 中
+// /// 根据技能来生成一个道具，也就是技能书
+// fun organizationRecordSkill(organization, skill) {
+//   assert(organization != null)
+//   assert(skill != null)
+//   organization.skills[skill.id] = book
 
-  final incidentContent = getLocaleString('organizationRecordSkill', interpolations: [
-    organization.name,
-    skill.name,
-  ])
-  Incident(
-    organizationId: organization.id,
-    content: incidentContent,
-  )
-}
+//   final incidentContent = getLocaleString('organizationRecordSkill', interpolations: [
+//     organization.name,
+//     skill.name,
+//   ])
+//   Incident(
+//     organizationId: organization.id,
+//     content: incidentContent,
+//   )
+// }
+
 // fun organizationRecordSkill({organization, rank, skill, requirement}) {
 //   assert(organization != null)
 //   rank ??= -1

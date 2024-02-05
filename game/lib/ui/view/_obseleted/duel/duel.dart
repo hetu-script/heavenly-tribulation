@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../../global.dart';
+import '../../../../global.dart';
 import 'package:samsara/ui/flutter/responsive_window.dart';
 import 'battle_panel.dart';
-import '../../../event/events.dart';
+import '../../../../event/events.dart';
 
 const kDuelTypePractice = 'practice';
 

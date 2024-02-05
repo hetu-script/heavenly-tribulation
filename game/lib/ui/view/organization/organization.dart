@@ -10,8 +10,10 @@ import 'package:samsara/ui/flutter/responsive_window.dart';
 import '../../util.dart';
 
 const kOrganizationCategoryCultivation = 'cultivation';
-const kOrganizationCategoryNation = 'nation';
+const kOrganizationCategoryReligion = 'religion';
+const kOrganizationCategoryGang = 'gang';
 const kOrganizationCategoryBusiness = 'business';
+const kOrganizationCategoryNation = 'nation';
 
 class OrganizationView extends StatefulWidget {
   final String? organizationId;
@@ -115,22 +117,23 @@ class _OrganizationViewState extends State<OrganizationView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text('${engine.locale['category']}: $category'),
                   Text(
-                      '${engine.locale[category != kOrganizationCategoryNation ? 'headquarters' : 'capital']}: ${getNameFromId(_organizationData['headquartersId'])}'),
+                      '${engine.locale['headquarters']}: ${getNameFromId(_organizationData['headquartersId'])}'),
                   Text(
-                      '$leaderTitle: ${getNameFromId(_organizationData['leaderId'])}'),
-                  if (category != kOrganizationCategoryNation) ...[
-                    Text(
-                        '${engine.locale['development']}: ${_organizationData['development']}'),
-                    Text(
-                        '${engine.locale['recruitMonth']}: ${_organizationData['yearlyRecruitMonth']}'),
-                  ],
-                  if (category == kOrganizationCategoryCultivation) ...[
-                    Text(
-                        '${engine.locale['fightSkillGenre']}: ${engine.locale[_organizationData['fightSkillGenre']]}'),
-                    Text(
-                        '${engine.locale['supportSkillGenre']}: ${engine.locale[_organizationData['supportSkillGenre']]}'),
-                  ],
+                      '$leaderTitle: ${getNameFromId(_organizationData['headId'])}'),
+                  // if (category != kOrganizationCategoryNation) ...[
+                  Text(
+                      '${engine.locale['development']}: ${_organizationData['development']}'),
+                  Text(
+                      '${engine.locale['recruitMonth']}: ${_organizationData['yearlyRecruitMonth']}'),
+                  // ],
+                  // if (category == kOrganizationCategoryCultivation) ...[
+                  // Text(
+                  //     '${engine.locale['fightSkillGenre']}: ${engine.locale[_organizationData['fightSkillGenre']]}'),
+                  // Text(
+                  //     '${engine.locale['supportSkillGenre']}: ${engine.locale[_organizationData['supportSkillGenre']]}'),
+                  // ],
                 ],
               ),
             ),

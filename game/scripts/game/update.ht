@@ -16,7 +16,7 @@ const _kQuestProbability = 0.35
 const _kMinSizeforFishTile = 16
 const _kMinSizeforStormTile = 8
 
-fun getGovernmentQuestMax(development) -> int {
+fun getBountyhouseQuestMax(development) -> int {
   if (development > 20) {
     return 5
   } else {
@@ -112,20 +112,20 @@ fun updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
     // 触发每个组织的刷新事件
     for (final organization of game.organizations) {
       // 跳过玩家自己控制的组织
-      if (game.heroId != null && game.heroId == organization.leaderId) continue
+      if (game.heroId != null && game.heroId == organization.headId) continue
 
-      if (organization.category != kOrganizationCategoryNation) {
-        final location = game.locations[organization.headquartersId]
-        if (getCurrentMonth() == organization.yearlyRecruitMonth) {
-          if (!location.flags.recruitingOrganizationIds.contains(organization.id)) {
-            location.flags.recruitingOrganizationIds.add(organization.id)
-            engine.info('${organization.name} 的招募大比本月开始。')
-          }
-        } else if (location.flags.recruitingOrganizationIds.contains(organization.id)) {
-          location.flags.recruitingOrganizationIds.remove(organization.id)
-          engine.info('${organization.name} 的招募大比已经结束。')
+      // if (organization.category != kOrganizationCategoryNation) {
+      final location = game.locations[organization.headquartersId]
+      if (getCurrentMonth() == organization.yearlyRecruitMonth) {
+        if (!location.flags.recruitingOrganizationIds.contains(organization.id)) {
+          location.flags.recruitingOrganizationIds.add(organization.id)
+          engine.info('${organization.name} 的招募大比本月开始。')
         }
+      } else if (location.flags.recruitingOrganizationIds.contains(organization.id)) {
+        location.flags.recruitingOrganizationIds.remove(organization.id)
+        engine.info('${organization.name} 的招募大比已经结束。')
       }
+      // }
 
       // 年度事件
       if (getCurrentTicksOfYear() == organization.yearlyUpdateTime) {
@@ -205,9 +205,6 @@ fun updateSite(site) {
   final location = game.locations[site.locationId]
   engine.info('触发 ${location.name} ${site.name} 的月度更新事件')
   when (site.category) {
-    'cultivation' -> {
-
-    }
     'tradinghouse' -> {
       if (site.organizationId) {
 
@@ -233,56 +230,43 @@ fun updateSite(site) {
         site.quests[quest.id] = quest
       }
     }
-    'workshop' -> {
-      if (site.organizationId) {
-        
-      } else {
-        
-      }
-    }
-    'restaurant' -> {
-      if (site.organizationId) {
-        
-      } else {
-        
-      }
-    }
-    'nation' -> {
-      
-    }
-    'government' -> {
+    'bountyhouse' -> {
       site.workedThisMonth = false
 
-      if (site.quests.length >= getGovernmentQuestMax(location.development)) return
+      if (site.quests.length >= getBountyhouseQuestMax(location.development)) return
       
-      // 生成盗贼副本类悬赏任务，只在有国家的据点上生成
+      // 生成盗贼副本类悬赏任务
       if (random.nextDouble() > _kQuestProbability) return
-      if (!location.nationId) return
-      final nation = game.organizations[location.nationId]
-      if (nation.hasBanditEvent) return
-      if ((random.nextDouble() < location.stability / 100)) {
-        var mazeTerrain
-        for (final terrainIndex in nation.territoryIndexes) {
-          final terrain = currentWorld.terrains[terrainIndex]
-          if (terrain.locationId) continue
-          if (terrain.spriteIndex == kSpriteLand) {
-            mazeTerrain = terrain
-            break
-          }
+      // if (!location.nationId) return
+      // final nation = game.organizations[location.nationId]
+      // if (nation.hasBanditEvent) return
+      if ((random.nextDouble() > location.stability / 100)) return
+      
+      var tried = 0
+      var found = false
+      final terrain = currentWorld.terrains[location.terrainIndex]
+      final zone = currentWorld.zones[terrain.zoneIndex]
+      var mazeTerrain
+      do {
+        ++tried
+        var terraIndex = random.nextIterable(zone.terrainIndexes)
+        var mazeTerrain = currentWorld.terrains[terraIndex]
+        if (mazeTerrain.id != terrain.id && !mazeTerrain.locationId && mazeTerrain.spriteIndex == kSpriteLand) {
+          found = true
         }
+      } while (!found && tried < zone.terrainIndexes.length)
 
-        if (mazeTerrain) {
-          nation.hasBanditEvent = true
+      if (found && mazeTerrain) {
+        // nation.hasBanditEvent = true
 
-          final quest = QuestBanditCamp(
-            locationId: location.id,
-            mazeTerrainIndex: mazeTerrain.index,
-            kind: kQuestConquestMazeKindKillBanditBoss,
-            bossName: generateCharacterName(),
-          )
-          engine.info('在 ${location.name} ${site.name} 生成悬赏任务：${quest.id}，副本地点：${mazeTerrain.left}, ${mazeTerrain.top}')
-          site.quests[quest.id] = quest
-        }
+        final quest = QuestBanditCamp(
+          locationId: location.id,
+          mazeTerrainIndex: mazeTerrain.index,
+          kind: kQuestConquestMazeKindKillBanditBoss,
+          bossName: generateCharacterName(),
+        )
+        engine.info('在 ${location.name} ${site.name} 生成悬赏任务：${quest.id}，副本地点：${mazeTerrain.left}, ${mazeTerrain.top}')
+        site.quests[quest.id] = quest
       }
     }
   }
@@ -303,9 +287,9 @@ fun updateOrganizationYearly(organization) {
       final shuffle = random.shuffle(organization.borderIndexes).toList()
       for (final index in shuffle) {
         final terrain = currentWorld.terrains[index]
-        if (terrain.nationId == null && !terrain.isWater) {
+        if (terrain.organizationId == null && !terrain.isWater) {
           engine.info('国家 ${organization.name} 将其疆域扩展到周边的一个未被占领的格子 ${terrain.left},${terrain.top}')
-          addTerrainToNation(terrain, organization)
+          addTerrainToOrganization(terrain, organization)
           return true
         }
       }
@@ -323,18 +307,18 @@ fun updateOrganizationYearly(organization) {
     increaseOrganizationDevelopment(organization)
   } else {
     // 从最低等级开始，尝试提升成员等级
-    for (final rank in range(kOrganizationRankMax)) {
-      final membersOfThisRank = getOrganizationMemberIdsOfRank(organization, rank)
-      final membersOfHigherRank = getOrganizationMemberIdsOfRank(organization, rank + 1)
-      if (membersOfThisRank.length >= maxMemberOfRank(rank)) {
-        if (membersOfHigherRank.length < maxMemberOfRank(rank + 1)) {
-          final memberId = random.nextIterable(membersOfThisRank)
-          final member = game.characters[memberId]
-          setCharacterRank(member, organization, rank + 1)
-          break
-        }
-      }
-    }
+    // for (final rank in range(kOrganizationRankMax)) {
+    //   final membersOfThisRank = getOrganizationMemberIdsOfRank(organization, rank)
+    //   final membersOfHigherRank = getOrganizationMemberIdsOfRank(organization, rank + 1)
+    //   if (membersOfThisRank.length >= maxMemberOfRank(rank)) {
+    //     if (membersOfHigherRank.length < maxMemberOfRank(rank + 1)) {
+    //       final memberId = random.nextIterable(membersOfThisRank)
+    //       final member = game.characters[memberId]
+    //       addTitleForCharacter(member, organization, rank + 1)
+    //       break
+    //     }
+    //   }
+    // }
   }
   
   var location = game.locations[organization.headquartersId]
@@ -369,49 +353,19 @@ fun updateOrganizationYearly(organization) {
   when (organization.category) {
     'cultivation' -> {
       
-      when (organization.fightSkillGenre) {
-        'cultivation.kungfu' -> {
+      // when (organization.fightSkillGenre) {
+      //   'cultivation.kungfu' -> {
 
-          organizationRecordSkill(organization, WeaponArts())
-          organizationRecordSkill(organization, Kungfu())
-        }
-        'cultivation.arcana' -> {
-          
-        }
-        'cultivation.animal' -> {
-          
-        }
-        'cultivation.golem' -> {
-          
-        }
-        'cultivation.illusion' -> {
-          
-        }
-      }
+      //     organizationRecordSkill(organization, WeaponArts())
+      //     organizationRecordSkill(organization, Kungfu())
+      //   }
+      // }
       
       // when (organization.supportSkillGenre) {
       //   'cultivation.craftsmanship' -> {
 
       //   }
-      //   'cultivation.alchemy' -> {
-          
-      //   }
-      //   'cultivation.array' -> {
-          
-      //   }
-      //   'cultivation.divination' -> {
-          
-      //   }
-      //   'cultivation.scroll' -> {
-          
-      //   }
       // }
-    }
-    'nation' -> {
-      
-    }
-    'business' -> {
-      
     }
   }
 

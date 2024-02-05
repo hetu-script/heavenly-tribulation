@@ -144,7 +144,7 @@ struct Character {
     isFemale: bool,
     birthTimestamp,
     locationId,
-    nationId,
+    // nationId,
     armed = true,
     isNewborn = false, // 是否是新生儿，如果是则会自动为其添加父母关系
     description,
@@ -198,7 +198,7 @@ struct Character {
     } else {
       this.birthTimestamp = createRandomBirthTimestamp()
     }
-    this.nationId = nationId
+    // this.nationId = nationId
 
     this.intelligence = Math.gaussianNoise(
       _kCharacterAverage,
@@ -393,6 +393,40 @@ struct Character {
       fished: [],
     }
   }
+}
+
+// 必须已经是门派成员，才可以设定头衔
+fun addTitleForCharacter(character, organization, rank, titleId) {
+  assert(organization.characterIds.keys.contains(character.id))
+  assert(character.organizationId == organization.id)
+  assert(rank >= 0 && rank <= kOrganizationRankMax)
+  final membersOfRank = getOrganizationMemberIdsOfRank(organization, rank)
+  assert(membersOfRank.length < maxMemberOfDevelopment(organization.development))
+  // final titleId = '${organization.category}.titleRank${rank}'
+  final completeTitleId = '${organization.id}${titleId}';
+  if (character.organizationTitleId == completeTitleId) {
+    engine.warning('将要为角色 ${character.name} 设置的新组织头衔 ${titleId} 和角色目前头衔相同。')
+    return
+  }
+  final title = getLocaleString(titleId)
+  character.titles[completeTitleId] = title
+  character.currentTitleId = completeTitleId
+  character.organizationRank = rank
+  if (rank == kOrganizationRankMax) {
+    organization.headId = character.id
+  }
+  final incidentContent = getLocaleString('characterSetOrganizationRank', interpolations: [
+    character.name,
+    organization.name,
+    title,
+  ])
+  Incident(
+    subjectIds: [character.id],
+    organizationId: organization.id,
+    content: incidentContent,
+    order: 15,
+    isGlobal: true,
+  )
 }
 
 fun setCharacterTitle(character, titleId) {

@@ -198,13 +198,9 @@ fun calculateCharacterStats(character) {
   
   baseStamina += (baseStrength ~/ 5) * 5
   baseLife += (baseConstitution ~/ 5) * 5
-  baseMana += (baseSpirituality ~/ 5) * 5
-  baseSpirit += (baseWillpower ~/ 5) * 5
 
-  character.stats.staminaMax = baseStamina
-  character.stats.lifeMax = baseLife
-  character.stats.manaMax = baseMana
-  character.stats.spiritMax = baseSpirit
+  character.stats.maxStamina = baseStamina
+  character.stats.maxLife = baseLife
   
   character.stats.strength = baseStrength
   character.stats.constitution = baseConstitution

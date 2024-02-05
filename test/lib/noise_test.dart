@@ -51,7 +51,7 @@ class NoiseTest extends StatelessWidget {
       dimension,
       seed: math.Random().nextInt(1 << 32),
       frequency: 3.5 / dimension,
-      noiseType: NoiseType.CubicFractal,
+      noiseType: NoiseType.cubicFractal,
     );
 
     return Center(

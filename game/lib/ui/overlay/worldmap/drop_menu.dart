@@ -8,7 +8,7 @@ enum WorldMapDropMenuItems {
   info,
   viewNone,
   viewZones,
-  viewNations,
+  viewOrganizations,
   console,
   exit
 }
@@ -48,7 +48,8 @@ class WorldMapDropMenu extends StatelessWidget {
             items: {
               engine.locale['none']: WorldMapDropMenuItems.viewNone,
               engine.locale['zone']: WorldMapDropMenuItems.viewZones,
-              engine.locale['nation']: WorldMapDropMenuItems.viewNations,
+              engine.locale['oraganization']:
+                  WorldMapDropMenuItems.viewOrganizations,
             },
           ),
           PopupMenuItem<WorldMapDropMenuItems>(

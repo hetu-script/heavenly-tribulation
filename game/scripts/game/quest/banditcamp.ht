@@ -2,7 +2,7 @@ import 'common.ht'
 import '../l10n.ht'
 import { random } from '../game.ht'
 import '../maze/mountain.ht'
-import '../tile/common.ht'
+// import '../tile/common.ht'
 import '../binding/worldmap.ht'
 import '../game.ht'
 
@@ -26,31 +26,31 @@ struct QuestBanditCamp {
     kind,
     difficulty = kQuestDifficultyNormal,
     locationId,
+    siteId,
     mazeTerrainIndex,
     publishingDate,
     expirationDate,
     reward,
     bossName,
   }) {
-    assert(locationId != null)
+    assert(locationId != null && siteId != null)
     assert(mazeTerrainIndex != null)
     this.category = kQuestCategoryConquestMaze
     this.kind = kind ?? random.nextIterable(kQuestBanditCampKinds)
     this.id = 'quest.${Hash.uid4(2)}.${locationId}.${this.category}.${this.kind}'
 
     final location = game.locations[locationId]
-    assert(location.governmentSiteId != null)
-    final gov = location.sites[location.governmentSiteId]
-    gov.quests[this.id] = this
+    final bountyhouse = location.sites[siteId]
+    bountyhouse.quests[this.id] = this
 
-    assert(location.nationId != null)
-    final nation = game.organizations[location.nationId]
+    // assert(location.nationId != null)
+    // final nation = game.organizations[location.nationId]
     when (this.kind) {
       kQuestConquestMazeKindKillBanditBoss -> {
         assert(bossName != null)
         this.description = getLocaleString(
           '${this.category}.${this.kind}.description',
-          interpolations: [nation.name, bossName],
+          // interpolations: [nation.name, bossName],
         )
         this.stages = {
           searching: {
@@ -97,14 +97,6 @@ struct QuestBanditCamp {
     this.publishingDate = publishingDate
     // 任务完成有效时间
     this.expirationDate = expirationDate
-
-    // 生成的副本悬赏会随机在本国境内
-    for (final index in nation.territoryIndexes) {
-      final tile = currentWorld.terrains[index]
-      if (tile.locationId) continue
-      if (tile.mazeId) continue
-      
-    }
     
     // 赏金类似一个物品栏，但可能包含银两、物品、资源这三种不同的对象
     this.reward = reward

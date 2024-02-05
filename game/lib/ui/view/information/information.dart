@@ -30,7 +30,7 @@ const _kInformationViewOrganizationColumns = [
 
 const _kInformationViewLocationColumns = [
   'name',
-  'nation',
+  // 'nation',
   'organization',
   'category',
   'development',
@@ -98,7 +98,7 @@ class _InformationPanelState extends State<InformationPanel>
       final rowData = <String>[];
       rowData.add(loc['name']);
       // 国家名字
-      rowData.add(getNameFromId(loc['nationId']));
+      // rowData.add(getNameFromId(loc['nationId']));
       // 门派名字
       rowData.add(getNameFromId(loc['organizationId']));
       // 类型
@@ -128,7 +128,7 @@ class _InformationPanelState extends State<InformationPanel>
       final rowData = <String>[];
       rowData.add(org['name']);
       // 掌门
-      rowData.add(getNameFromId(org['leaderId']));
+      rowData.add(getNameFromId(org['headId']));
       // 类型
       rowData.add(engine.locale[org['category']]);
       // 总堂

@@ -46,5 +46,6 @@ class WorldMapScene extends Scene {
     world.add(map);
     isMapReady = true;
     engine.broadcast(MapLoadedEvent(isFirstLoad: isFirstLoad));
+    fitScreen();
   }
 }

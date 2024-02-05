@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../../global.dart';
+import '../../../../global.dart';
 import 'battle_item_card.dart';
 // import 'defense_card.dart';
 import 'package:samsara/ui/flutter/dynamic_color_progressbar.dart';
-import '../../avatar.dart';
-import '../../common.dart';
+import '../../../avatar.dart';
+import '../../../common.dart';
 
 // const kEquipmentMaxOffense = 5;
 // const kEquipmentMaxSupport = 5;
@@ -58,7 +58,7 @@ class BattlePanel extends StatelessWidget {
             itemData: item,
             isSelected: activatedOffenseIndex == i,
             life: statsData['equipments'][i]?['life'],
-            lifeMax: statsData['equipments'][i]?['lifeMax'],
+            maxLife: statsData['equipments'][i]?['maxLife'],
             cooldownValue: cooldownValue,
             cooldownColor: cooldownColor,
           ),

@@ -31,7 +31,7 @@ class ProfileView extends StatelessWidget {
         engine.invoke('getCharacterTitle', positionalArgs: [characterData]) ??
             engine.locale['none'];
     final home = getNameFromId(characterData['homeId']);
-    final nation = getNameFromId(characterData['nationId']);
+    // final nation = getNameFromId(characterData['nationId']);
 
     final father = getNameFromId(characterData['relationships']['fatherId']);
     final mother = getNameFromId(characterData['relationships']['motherId']);
@@ -100,7 +100,7 @@ class ProfileView extends StatelessWidget {
                       // Text(
                       //     '${engine.locale['name']}: ${characterData['name']}'),
                       Text(
-                          '${engine.locale['sex']}: ${characterData['isFemale'] ? engine.locale['female'] : engine.locale['male']}'),
+                          '${engine.locale['gender']}: ${characterData['isFemale'] ? engine.locale['female'] : engine.locale['male']}'),
                       Text('${engine.locale['age']}: $ageString'),
                       Text(
                           '${engine.locale['charisma']}: ${characterData['charisma'].truncate()}'),
@@ -118,7 +118,7 @@ class ProfileView extends StatelessWidget {
                       Text('${engine.locale['fame']}: $fame'),
                       Text('${engine.locale['organization']}: $organization'),
                       Text('${engine.locale['title']}: $title'),
-                      Text('${engine.locale['nation']}: $nation'),
+                      // Text('${engine.locale['nation']}: $nation'),
                     ],
                   ),
                 ),

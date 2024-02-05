@@ -54,7 +54,7 @@ class HeroInfoPanel extends StatelessWidget {
                   child: DynamicColorProgressBar(
                     title: '${engine.locale['life']}: ',
                     value: charStats['life'],
-                    max: charStats['lifeMax'],
+                    max: charStats['maxLife'],
                     width: kStatsBarWidth,
                     showNumberAsPercentage: false,
                     colors: const <Color>[Colors.red, Colors.red],
@@ -65,34 +65,34 @@ class HeroInfoPanel extends StatelessWidget {
                   child: DynamicColorProgressBar(
                     title: '${engine.locale['stamina']}: ',
                     value: charStats['stamina'],
-                    max: charStats['staminaMax'],
+                    max: charStats['maxStamina'],
                     width: kStatsBarWidth,
                     showNumberAsPercentage: false,
                     colors: const <Color>[Colors.blue, Colors.blue],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 5.0),
-                  child: DynamicColorProgressBar(
-                    title: '${engine.locale['mana']}: ',
-                    value: charStats['mana'],
-                    max: charStats['manaMax'],
-                    width: kStatsBarWidth,
-                    showNumberAsPercentage: false,
-                    colors: const <Color>[Colors.yellow, Colors.yellow],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 5.0),
-                  child: DynamicColorProgressBar(
-                    title: '${engine.locale['spirit']}: ',
-                    value: charStats['spirit'],
-                    max: charStats['spiritMax'],
-                    width: kStatsBarWidth,
-                    showNumberAsPercentage: false,
-                    colors: const <Color>[Colors.green, Colors.green],
-                  ),
-                ),
+                // Padding(
+                //   padding: const EdgeInsets.only(bottom: 5.0),
+                //   child: DynamicColorProgressBar(
+                //     title: '${engine.locale['mana']}: ',
+                //     value: charStats['mana'],
+                //     max: charStats['manaMax'],
+                //     width: kStatsBarWidth,
+                //     showNumberAsPercentage: false,
+                //     colors: const <Color>[Colors.yellow, Colors.yellow],
+                //   ),
+                // ),
+                // Padding(
+                //   padding: const EdgeInsets.only(bottom: 5.0),
+                //   child: DynamicColorProgressBar(
+                //     title: '${engine.locale['spirit']}: ',
+                //     value: charStats['spirit'],
+                //     max: charStats['spiritMax'],
+                //     width: kStatsBarWidth,
+                //     showNumberAsPercentage: false,
+                //     colors: const <Color>[Colors.green, Colors.green],
+                //   ),
+                // ),
                 Row(
                   children: [
                     Padding(

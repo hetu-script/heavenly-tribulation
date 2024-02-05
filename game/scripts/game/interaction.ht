@@ -2,7 +2,7 @@ import 'game.ht'
 import 'l10n.ht'
 import 'tile/hexagonal_tile.ht'
 import 'tile/tilemap.ht'
-import 'logic.ht'
+import 'update.ht'
 import 'datetime.ht'
 import 'entity/item/consumable/consumable.ht'
 import 'entity/item/material/material.ht'
@@ -683,12 +683,11 @@ fun handleSiteInteraction(locationId: str, siteId: str) {
   }
   when (site.category) {
     'home' -> _handleHomeInteraction(site)
-    'cultivation' -> _handleCultivationInteraction(site)
+    'headquarters' -> _handleHeadquartersInteraction(site)
     'tradinghouse' -> _handleTradingHouseInteraction(site)
     'workshop' -> _handleWorkshopInteraction(site)
     'restaurant' -> _handleRestaurantInteraction(site)
-    'nation' -> _handlePalaceInteraction(site)
-    'government' -> _handleGovernmentInteraction(site)
+    'bountyhouse' -> _handleBountyhouseInteraction(site)
     'residence' -> _handleResidenceInteraction(site)
     'library' -> _handleLibraryInteraction(site)
     'academy' -> _handleAcademyInteraction(site)
@@ -700,6 +699,7 @@ fun handleSiteInteraction(locationId: str, siteId: str) {
     'nursery' -> _handleNurseryInteraction(site)
     'alchemylab' -> _handleAlchemylabInteraction(site)
     'zoo' -> _handleZooInteraction(site)
+    // 'nation' -> _handlePalaceInteraction(site)
     else -> {
       engine.error('未知的建筑类型 (category)：${site.category}。[${site.id}]')
     }
@@ -818,7 +818,7 @@ fun _handleHomeInteraction(site) {
   })
 }
 
-fun _handleCultivationInteraction(site) {
+fun _handleHeadquartersInteraction(site) {
   final location = game.locations[site.locationId]
   showSelectionByLocaleKeys([
     'practice',
@@ -850,18 +850,6 @@ fun _handleCultivationInteraction(site) {
       }
     }
   })
-}
-
-fun _handleGangInteraction(site) {
-
-}
-
-fun _handleReligionInteraction(site) {
-  
-}
-
-fun _handleAcademyInteraction(site) {
-  
 }
 
 // 商号，可以在这里交易大多数物品
@@ -940,102 +928,123 @@ fun _handlePalaceInteraction(site) {
   // })
 }
 
-fun _handleGovernmentInteraction(site) {
+fun _handleBountyhouseInteraction(site) {
   final fame = getCharacterFame(hero)
   final location = game.locations[site.locationId]
+  // final selections = [
+  //   'appeal',
+  //   'tribute',
+  //   'noticeBoard',
+  //   'localExam',
+  // ]
+  // if (site.isCapital) {
+  //   selections.add('nationalExam')
+  // }
+  // selections.add('visitJail')
+
   final selections = [
-    'appeal',
-    'tribute',
-    'noticeBoard',
-    'localExam',
+    'questBrowse',
+    'questPost',
   ]
-  if (site.isCapital) {
-    selections.add('nationalExam')
-  }
-  selections.add('visitJail')
   selections.add('leave')
   
   showSelectionByLocaleKeys(selections).then((key) {
     when (key) {
-      'appeal' -> {
-        showSelectionByLocaleKeys([
-          'applyOrganization',
-          'applySite',
-          'complaintSite',
-          'complaintCharacter',
-          'appealCharacter',
-          'setHome',
-          'cancel',
-        ]).then((key) {
-          when (key) {
-            'cancel' -> {
-              _handleGovernmentInteraction(site)
-            }
-            'applyOrganization' -> {
-              
-            }
-            'applySite' -> {
-              
-            }
-            'complaintSite' -> {
-              
-            }
-            'complaintCharacter' -> {
-              
-            }
-            'appealCharacter' -> {
-              
-            }
-            'setHome' -> {
-              
-            }
-          }
-        })
-      }
-      'tribute' -> {
-        // TODO: 进贡金钱或者宝物，之后可以选择是否发起请求
-      }
-      'noticeBoard' -> {
+      'questBrowse' -> {
         if (game.flags.playerMonthly.worked.contains(site.id)) {
           showDialogByLocaleKeys(['workedThisMonth'])
         } else if (site.quests.isEmpty) {
-          showDialogByLocaleKeys(['governmentQuestEmpty'])
+          showDialogByLocaleKeys(['bountyhouseQuestEmpty'])
         } else {
           showQuests(site)
         }
       }
-      'localExam' -> {
-        showDialogByLocaleKeys(['localExamIntro'])
-      }
-      'nationalExam' -> {
-        showDialogByLocaleKeys(['nationalExamIntro'])
-      }
-      'visitJail' -> {
-        final entry = false
-        () async {
-          if (location.jailedCharacterIds.isEmpty) {
-            return showDialogByLocaleKeys(['visitJailEmpty'])
-          } else {
-            if (fame > kFameCheckThreshold) {
-              final title = getCharacterTitle(hero) ?? ''
-              return showDialogByStrings(
-                [
-                  getLocaleString('visitJailEntryRespect', interpolations: [title + hero.name]),
-                ],
-                returnValue: true,
-              )
-            } else {
-              return showDialogByLocaleKeys(['visitJailDeny'])
-            }
-          }
-        }().then((value) {
-          if (value) {
-            
-          }
-        })
+      'questPost' -> {
       }
     }
   })
+
+  // showSelectionByLocaleKeys(selections).then((key) {
+  //   when (key) {
+  //     'appeal' -> {
+  //       showSelectionByLocaleKeys([
+  //         'applyOrganization',
+  //         'applySite',
+  //         'complaintSite',
+  //         'complaintCharacter',
+  //         'appealCharacter',
+  //         'setHome',
+  //         'cancel',
+  //       ]).then((key) {
+  //         when (key) {
+  //           'cancel' -> {
+  //             _handleBountyhouseInteraction(site)
+  //           }
+  //           'applyOrganization' -> {
+              
+  //           }
+  //           'applySite' -> {
+              
+  //           }
+  //           'complaintSite' -> {
+              
+  //           }
+  //           'complaintCharacter' -> {
+              
+  //           }
+  //           'appealCharacter' -> {
+              
+  //           }
+  //           'setHome' -> {
+              
+  //           }
+  //         }
+  //       })
+  //     }
+  //     'tribute' -> {
+  //       // TODO: 进贡金钱或者宝物，之后可以选择是否发起请求
+  //     }
+  //     'noticeBoard' -> {
+  //       if (game.flags.playerMonthly.worked.contains(site.id)) {
+  //         showDialogByLocaleKeys(['workedThisMonth'])
+  //       } else if (site.quests.isEmpty) {
+  //         showDialogByLocaleKeys(['bountyhouseQuestEmpty'])
+  //       } else {
+  //         showQuests(site)
+  //       }
+  //     }
+  //     'localExam' -> {
+  //       showDialogByLocaleKeys(['localExamIntro'])
+  //     }
+  //     'nationalExam' -> {
+  //       showDialogByLocaleKeys(['nationalExamIntro'])
+  //     }
+  //     'visitJail' -> {
+  //       final entry = false
+  //       () async {
+  //         if (location.jailedCharacterIds.isEmpty) {
+  //           return showDialogByLocaleKeys(['visitJailEmpty'])
+  //         } else {
+  //           if (fame > kFameCheckThreshold) {
+  //             final title = getCharacterTitle(hero) ?? ''
+  //             return showDialogByStrings(
+  //               [
+  //                 getLocaleString('visitJailEntryRespect', interpolations: [title + hero.name]),
+  //               ],
+  //               returnValue: true,
+  //             )
+  //           } else {
+  //             return showDialogByLocaleKeys(['visitJailDeny'])
+  //           }
+  //         }
+  //       }().then((value) {
+  //         if (value) {
+            
+  //         }
+  //       })
+  //     }
+  //   }
+  // })
 }
 
 fun _handleResidenceInteraction(site) {

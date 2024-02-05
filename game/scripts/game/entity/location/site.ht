@@ -16,11 +16,10 @@ import '../common.ht'
 const kSiteHome = 'home'
 const kSiteCultivation = 'cultivation'
 const kSiteBusiness = 'business'
-const kSiteNation = 'nation'
 const kSiteTradinghouse = 'tradinghouse'
 const kSiteWorkshop = 'workshop'
 const kSiteRestaurant = 'restaurant'
-const kSiteGovernment = 'government'
+const kSiteBountyhouse = 'bountyhouse'
 const kSiteResidence = 'residence'
 const kSiteLibrary = 'library'
 const kSiteAcademy = 'academy'
@@ -32,6 +31,7 @@ const kSiteHospital = 'hospital'
 const kSiteNursery = 'nursery'
 const kSiteAlchemylab = 'alchemylab'
 const kSiteZoo = 'zoo'
+// const kSiteNation = 'nation'
 
 struct Site {
   construct ({
@@ -51,15 +51,18 @@ struct Site {
     this.locationId = locationId
     this.category = category
     this.organizationId = organizationId
-    if (category == kSiteNation) {
-      final organization = game.organizations[organizationId]
-      this.name = organization.name + getLocaleString('palace')
-    } else if (category == kSiteGovernment) {
-      final location = game.locations[locationId]
-      this.name = location.name + getLocaleString(kSiteGovernment)
-    } else {
-      this.name = name ?? getLocaleString(category)
-    }
+
+    // if (category == kSiteNation) {
+    //   final organization = game.organizations[organizationId]
+    //   this.name = organization.name + getLocaleString('palace')
+    // } else 
+    // if (category == kSiteGovernment) {
+    //   final location = game.locations[locationId]
+    //   this.name = location.name + getLocaleString(kSiteGovernment)
+    // } else 
+    // {
+    this.name = name ?? getLocaleString(category)
+    // }
     this.image = image ?? 'location/site/${category}.png'
 
     this.id = '${this.entityType}.${locationId}.${category}.${this.name}'

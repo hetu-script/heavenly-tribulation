@@ -103,10 +103,9 @@
   "purgatory": "炼狱",
 
   "zone": "地域",
-  "nation": "国家",
   "location": "据点",
   "site": "建筑",
-  "organization": "组织",
+  "organization": "门派",
   "inventory": "物品",
 
   "character": "人物",
@@ -187,19 +186,27 @@
 
   "fightSkillGenre": "战斗流派",
 
-  "cultivation.kungfu": "斗技",
-  "cultivation.arcana": "法术",
-  "cultivation.animal": "灵兽",
-  "cultivation.golem": "傀儡",
-  "cultivation.illusion": "幻术",
+  "cultivation.blade": "剑修",
+  "cultivation.element": "法术",
+  "cultivation.transform": "化神",
+  "cultivation.spirit": "炼魂",
 
   "supportSkillGenre": "技艺流派",
 
+  "cultivation.plant": "灵植",
+  "cultivation.animal": "灵兽",
+  "cultivation.golem": "傀儡",
+  "cultivation.illusion": "幻术",
   "cultivation.craftsmanship": "炼器",
   "cultivation.alchemy": "炼丹",
   "cultivation.divination": "占卜",
   "cultivation.array": "阵法",
   "cultivation.scroll": "符箓",
+
+  "leisureSkillGenre": "休闲流派",
+
+  "cultivation.music": "音律",
+  "cultivation.painting": "书画",
 
   "equipSkillFaied": "我刚刚学会 {0}，还很生疏，需要通过修炼将其提升到 1 级，才可以开始使用。",
   "companionCannotBattle": "{0} 并没有能力参与战斗。"

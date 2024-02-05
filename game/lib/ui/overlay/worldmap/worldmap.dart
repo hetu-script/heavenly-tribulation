@@ -31,7 +31,7 @@ import '../../dialog/character_select_dialog.dart';
 import '../../dialog/game_over.dart';
 
 const kColorModeZone = 0;
-const kColorModeNation = 1;
+const kColorModeOrganization = 1;
 
 const kTerrainKindLocation = 'location';
 const kTerrainKindLake = 'lake';
@@ -76,26 +76,26 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
     if (_currentTerrain != null) {
       final String? locationId = _currentTerrain!.locationId;
 
-      final nationId = _currentTerrain!.nationId;
-      if (nationId != null) {
-        _currentNation =
-            engine.invoke('getOrganizationById', positionalArgs: [nationId]);
-      } else {
-        _currentNation = null;
-      }
+      // final nationId = _currentTerrain!.nationId;
+      // if (nationId != null) {
+      //   _situatedNation =
+      //       engine.invoke('getOrganizationById', positionalArgs: [nationId]);
+      // } else {
+      //   _situatedNation = null;
+      // }
 
       if (locationId != null) {
-        _currentLocation =
+        _situatedLocation =
             engine.invoke('getLocationById', positionalArgs: [locationId]);
       } else {
-        _currentLocation = null;
+        _situatedLocation = null;
       }
     }
     setState(() {});
   }
 
-  HTStruct? _currentLocation;
-  HTStruct? _currentNation;
+  HTStruct? _situatedLocation;
+  // HTStruct? _situatedNation;
 
   void _interactTerrain(TileMapTerrain terrain) async {
     await engine.invoke('handleWorldTerrainInteraction',
@@ -436,8 +436,8 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
                           case WorldMapDropMenuItems.viewZones:
                             _scene.map.colorMode = kColorModeZone;
                             break;
-                          case WorldMapDropMenuItems.viewNations:
-                            _scene.map.colorMode = kColorModeNation;
+                          case WorldMapDropMenuItems.viewOrganizations:
+                            _scene.map.colorMode = kColorModeOrganization;
                             break;
                           case WorldMapDropMenuItems.console:
                             showDialog(
@@ -469,8 +469,8 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
                             heroId: _heroData?['id'],
                             heroPosition: _heroData?['worldPosition'],
                             currentTerrain: _currentTerrain,
-                            currentNationData: _currentNation,
-                            currentLocationData: _currentLocation,
+                            // currentNationData: _situatedNation,
+                            currentLocationData: _situatedLocation,
                           ),
                           // TerrainInfoPanel(
                           //   terrainData: selectedTerrain,
