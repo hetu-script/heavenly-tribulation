@@ -1,15 +1,15 @@
 namespace Dialog {
-  external fun showGameDialog(context, data, returnValue)
+  external function showGameDialog(context, data, returnValue)
 
-  external fun showSelection(context, selections)
+  external function showSelection(context, selections)
 
-  external fun showCharacterSelection(context, title, ids, showCloseButton)
+  external function showCharacterSelection(context, title, ids, showCloseButton)
 
-  external fun showVisitCharacterSelection(context, idList)
+  external function showVisitCharacterSelection(context, idList)
 
-  external fun showSkillSelection(context, title, skills, showCloseButton)
+  external function showSkillSelection(context, title, skills, showCloseButton)
 
-  external fun showMerchant(
+  external function showMerchant(
     context,
     merchant,
     priceFactor,
@@ -18,13 +18,13 @@ namespace Dialog {
     sellableKind,
   )
 
-  external fun showQuests(context, site)
+  external function showQuests(context, site)
 
-  external fun showMaze(context, maze)
+  external function showMaze(context, maze)
   
-  // external fun showDuel(context, char1, char2, type, data)
+  // external function showDuel(context, char1, char2, type, data)
 
-  external fun showProgress(context, titletitle, checkProgress)
+  external function showProgress(context, titletitle, checkProgress)
 
-  external fun showIntInput(context, title, min, max)
+  external function showIntInput(context, title, min, max)
 }

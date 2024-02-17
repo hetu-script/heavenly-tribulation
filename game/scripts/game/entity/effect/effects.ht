@@ -16,6 +16,6 @@ import 'effects.json5' as effectsData
 ///   },
 ///   [category]: {}
 /// }
-final gEffects = {
+const gEffects = {
   ...effectsData,
 }

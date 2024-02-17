@@ -3,7 +3,7 @@ import 'l10n.ht'
 import 'binding/dialog.ht'
 
 /// 加载到本次游戏的对话资源
-var gDialogs = {}
+let gDialogs = {}
 
 struct DialogData {
   construct({
@@ -32,7 +32,7 @@ struct DialogContentData {
       this.isMajorCharacter = true
       this.icon = hero.icon
     } else if (characterId) {
-      final character = game.characters[characterId]
+      const character = game.characters[characterId]
       assert(character != null)
       this.displayName = character.name
       this.isMajorCharacter = character.isMajorCharacter
@@ -47,7 +47,7 @@ struct DialogContentData {
       this.icon = icon
     }
     
-    final strings
+    let strings
     if (localeKeys is List) {
       assert(localeKeys.isNotEmpty)
       strings = localeKeys.map( (key) => getLocaleString(key, interpolations: interpolations) ).toList()
@@ -56,8 +56,8 @@ struct DialogContentData {
       strings = lines
     }
     this.lines = []
-    for (final message in strings) {
-      final splits = message.split('\n')
+    for (const message in strings) {
+      const splits = message.split('\n')
       this.lines.addAll(splits)
     }
   }
@@ -75,24 +75,24 @@ struct DialogContentData {
 }
 
 // 将预定义的对话数据转化为实际上的对话数据，例如本地化Key会被替换为文本等
-fun addDialogs(dlgsData: List) {
+function addDialogs(dlgsData: List) {
   engine.info('载入预定义对话树数据')
-  for (final dlgData in dlgsData) {
-    final dlg = DialogData(
+  for (const dlgData in dlgsData) {
+    const dlg = DialogData(
       id: dlgData.id,
       contents: [],
     )
-    for (final contentData in dlgData.contents) {
-      final dlgContent = DialogContentData.fromData(contentData)
+    for (const contentData in dlgData.contents) {
+      const dlgContent = DialogContentData.fromData(contentData)
       dlg.contents.add(dlgContent)
     }
     gDialogs[dlg.id] = dlg
   }
 }
 
-fun showDialogByLocaleKeys(localeKeys, { returnValue, character, displayName, interpolations: List }) -> Future {
+function showDialogByLocaleKeys(localeKeys, { returnValue, character, displayName, interpolations: List }) -> Future {
   assert(localeKeys is List)
-  final dlgData = {
+  const dlgData = {
     contents: [
       DialogContentData(
         characterId: character?.isMajorCharacter ? character.id : null,
@@ -106,9 +106,9 @@ fun showDialogByLocaleKeys(localeKeys, { returnValue, character, displayName, in
   return Dialog.showGameDialog(buildContext, dlgData, returnValue)
 }
 
-fun showDialogByStrings(lines, { returnValue, character, displayName }) -> Future {
+function showDialogByStrings(lines, { returnValue, character, displayName }) -> Future {
   assert(lines is List)
-  final dlgData = {
+  const dlgData = {
     contents:[
       DialogContentData(
         characterId: character?.isMajorCharacter ? character.id : null,
@@ -121,10 +121,10 @@ fun showDialogByStrings(lines, { returnValue, character, displayName }) -> Futur
   return Dialog.showGameDialog(buildContext, dlgData, returnValue)
 }
 
-fun showDialogByResourceId(id: str, { returnValue, interpolations: List }) -> Future {
-  final data = gDialogs[id]
+function showDialogByResourceId(id: str, { returnValue, interpolations: List }) -> Future {
+  const data = gDialogs[id]
   // 这里之后是否可以优化一下？
-  for (final content in data.contents) {
+  for (const content in data.contents) {
     if (content.isHero) {
       content.displayName = hero.name
       content.isMajorCharacter = true
@@ -132,7 +132,7 @@ fun showDialogByResourceId(id: str, { returnValue, interpolations: List }) -> Fu
       delete content.isHero
     }
     if (interpolations is List) {
-      for (var i = 0; i < content.lines.length; ++i) {
+      for (const i = 0; i < content.lines.length; ++i) {
         content.lines[i] = interpolate(content.lines[i], interpolations)
       }
     }
@@ -140,35 +140,35 @@ fun showDialogByResourceId(id: str, { returnValue, interpolations: List }) -> Fu
   return Dialog.showGameDialog(buildContext, data, returnValue)
 }
 
-fun showDialog(data, { returnValue }) -> Future {
+function showDialog(data, { returnValue }) -> Future {
   return Dialog.showGameDialog(buildContext, data, returnValue)
 }
 
-fun showSelectionByLocaleKeys(texts: List) -> Future {
-  final selections = {}
-  for (final text in texts) {
+function showSelectionByLocaleKeys(texts: List) -> Future {
+  const selections = {}
+  for (const text in texts) {
     selections[text] = getLocaleString(text)
   }
   return Dialog.showSelection(buildContext, selections)
 }
 
-fun showSelection(selections) -> Future {
+function showSelection(selections) -> Future {
   return Dialog.showSelection(buildContext, selections)
 }
 
-fun showCharacterSelection({title, ids, showCloseButton = true}) -> Future {
+function showCharacterSelection({title, ids, showCloseButton = true}) -> Future {
   return Dialog.showCharacterSelection(buildContext, title, ids, showCloseButton)
 }
 
-fun showVisitCharacterSelection(idList) -> Future {
+function showVisitCharacterSelection(idList) -> Future {
   return Dialog.showVisitCharacterSelection(buildContext, idList)
 }
 
-fun showSkillSelection({title, skills, showCloseButton = true}) {
+function showSkillSelection({title, skills, showCloseButton = true}) {
   return Dialog.showSkillSelection(buildContext, title, skills, showCloseButton)
 }
 
-fun showMerchant(merchant, {
+function showMerchant(merchant, {
   priceFactor = 2.0,
   allowSell = true,
   sellableCategory = [],
@@ -184,21 +184,21 @@ fun showMerchant(merchant, {
   )
 }
 
-fun showQuests(site) -> Future {
+function showQuests(site) -> Future {
   return Dialog.showQuests(buildContext, site)
 }
 
-fun showMaze(maze) -> Future {
+function showMaze(maze) -> Future {
   return Dialog.showMaze(buildContext, maze)
 }
 
 // 显示一个进度窗口，以天为单位显示动画，每天会调用传入的 checkProgress 函数的返回值来判断是否继续下一天
-fun showProgress(title, { checkProgress: function }) {
+function showProgress(title, { checkProgress: function }) {
   return Dialog.showProgress(buildContext, title, checkProgress)
 }
 
-fun showIntInput(title, minOrMax, [max]) {
-  var min = 1
+function showIntInput(title, minOrMax, [max]) {
+  let min = 1
   if (max == null) {
     max = minOrMax
   } else {

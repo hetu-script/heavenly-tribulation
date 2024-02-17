@@ -4,7 +4,7 @@ import '../../item/item.ht'
 import '../companion.ht'
 import '../../../game.ht'
 
-final _kBanditKinds = Set(
+const _kBanditKinds = Set(
   'boss', // level 3 出口的 boss
   'killer', // level 2 出口的 boss
   'muscle', // level 1 出口的 boss
@@ -16,7 +16,7 @@ const _kPirateName = 'pirate'
 
 const _kBanditAttributeSum = 300
 
-final _kBeastAttributes = {
+const _kBeastAttributes = {
   minion: {
     strength: 79,
     constitution: 75,
@@ -75,10 +75,10 @@ struct Bandit {
     game.npcs[this.id] = this
 
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
-    when (this.kind) {
-      'minion' -> {
+    switch (this.kind) {
+      'minion' => {
         this.icon = 'maze/bandit_minion.png'
-        final battleInfo = BattleEntity(
+        const battleInfo = BattleEntity(
           attributes: attributes ?? _kBeastAttributes.minion,
           attributeSum: _kBanditAttributeSum,
           generate: false,
@@ -93,9 +93,9 @@ struct Bandit {
         this.equipType = kEquipTypeCompanion
         this.companionType = kCompanionTypeBattle
       }
-      'muscle' -> {
+      'muscle' => {
         this.icon = 'maze/bandit_muscle.png'
-        final battleInfo = BattleEntity(
+        const battleInfo = BattleEntity(
           attributes: attributes ?? _kBeastAttributes.muscle,
           attributeSum: _kBanditAttributeSum,
           generate: false,
@@ -105,12 +105,12 @@ struct Bandit {
         // BattleEntity 会初始化银两为0，因此必须在其之后赋值
         acquireMoney(this, random.nextInt(75) + 50)
         equip(this, Weapon(kind: 'spear'))
-        final minion1 = Bandit(kind: 'minion')
+        const minion1 = Bandit(kind: 'minion')
         equip(this, minion1)
       }
-      'killer' -> {
+      'killer' => {
         this.icon = 'maze/bandit_killer.png'
-        final battleInfo = BattleEntity(
+        const battleInfo = BattleEntity(
           attributes: attributes ?? _kBeastAttributes.killer,
           attributeSum: _kBanditAttributeSum,
           generate: false,
@@ -121,11 +121,11 @@ struct Bandit {
         acquireMoney(this, random.nextInt(100) + 50)
         equip(this, Weapon(kind: 'sabre'))
         equip(this, Weapon(kind: 'sabre'))
-        final minion1 = Bandit(kind: 'minion')
+        const minion1 = Bandit(kind: 'minion')
         equip(this, minion1)
       }
-      'boss' -> {
-        final battleInfo = BattleEntity(
+      'boss' => {
+        const battleInfo = BattleEntity(
           attributes: attributes ?? _kBeastAttributes.boss,
           attributeSum: _kBanditAttributeSum,
           generate: false,
@@ -137,9 +137,9 @@ struct Bandit {
         this.icon = 'maze/bandit_boss.png'
         equip(this, Weapon())
         equip(this, Shield())
-        final minion1 = Bandit(kind: 'minion')
-        final minion2 = Bandit(kind: 'minion')
-        final minion3 = Bandit(kind: 'minion')
+        const minion1 = Bandit(kind: 'minion')
+        const minion2 = Bandit(kind: 'minion')
+        const minion3 = Bandit(kind: 'minion')
         equip(this, minion1)
         equip(this, minion2)
         equip(this, minion3)

@@ -22,7 +22,7 @@ struct Tile {
 }
 
 // 计算 hexagonal tile 的方向
-fun getDirection(start: {}, end: {}) {
+function getDirection(start: {}, end: {}) {
   assert(start.left != end.left || start.top != end.top)
   if (start.left % 2 != 0) {
     if (end.left == start.left) {
@@ -92,11 +92,11 @@ fun getDirection(start: {}, end: {}) {
 }
 
 // manhattan 距离算法
-fun getTileDistance(start, end) {
+function getTileDistance(start, end) {
   assert(start.slashLeft != null && start.slashTop != null && end.slashLeft != null && end.slashTop != null)
-  var result
-  final dx = end.slashLeft - start.slashLeft
-  final dy = end.slashTop - start.slashTop
+  let result
+  const dx = end.slashLeft - start.slashLeft
+  const dy = end.slashTop - start.slashTop
   if ((dx >= 0 && dy >= 0) || (dx <= 0 && dy <= 0)) {
     result = (dx + dy).abs()
   } else {
@@ -108,12 +108,12 @@ fun getTileDistance(start, end) {
 
 // 获取相邻并且在地图范围内的格子
 // 如果 [zoneIndex] 不为 null，则只会返回和起点所在 tile 具有相同 zoneIndex 的格子
-fun getMapTileNeighbors(left: int, top: int, map, {zoneIndex}) {
+function getMapTileNeighbors(left: int, top: int, map, {zoneIndex}) {
   assert(isPositionWithinMap(left, top, map.width, map.height))
-  final origin = map.terrains[tilePos2Index(left, top, map.width)]
-  final neighbors = []
+  const origin = map.terrains[tilePos2Index(left, top, map.width)]
+  const neighbors = []
 
-  fun addNeighbor(tile) {
+  function addNeighbor(tile) {
     if (!zoneIndex || tile.zoneIndex == zoneIndex ||
       (tile.isHarbor && tile.harborOfZoneIndex == origin.zoneIndex) || 
       (origin.isHarbor && origin.harborOfZoneIndex == tile.zoneIndex)) {
@@ -125,32 +125,32 @@ fun getMapTileNeighbors(left: int, top: int, map, {zoneIndex}) {
   if (left % 2 != 0) {
     // 上面
     if (isPositionWithinMap(left, top - 1, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left, top - 1, map.width)]
+      const tile = map.terrains[tilePos2Index(left, top - 1, map.width)]
       addNeighbor(tile)
     }
     // 下面
     if (isPositionWithinMap(left, top + 1, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left, top + 1, map.width)]
+      const tile = map.terrains[tilePos2Index(left, top + 1, map.width)]
       addNeighbor(tile)
     }
     // 左上
     if (isPositionWithinMap(left - 1, top - 1, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left - 1, top - 1, map.width)]
+      const tile = map.terrains[tilePos2Index(left - 1, top - 1, map.width)]
       addNeighbor(tile)
     }
     // 左下
     if (isPositionWithinMap(left - 1, top, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left - 1, top, map.width)]
+      const tile = map.terrains[tilePos2Index(left - 1, top, map.width)]
       addNeighbor(tile)
     }
     // 右上
     if (isPositionWithinMap(left + 1, top - 1, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left + 1, top - 1, map.width)]
+      const tile = map.terrains[tilePos2Index(left + 1, top - 1, map.width)]
       addNeighbor(tile)
     }
     // 右下
     if (isPositionWithinMap(left + 1, top, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left + 1, top, map.width)]
+      const tile = map.terrains[tilePos2Index(left + 1, top, map.width)]
       addNeighbor(tile)
     }
   }
@@ -158,32 +158,32 @@ fun getMapTileNeighbors(left: int, top: int, map, {zoneIndex}) {
   else {
     // 上面
     if (isPositionWithinMap(left, top - 1, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left, top - 1, map.width)]
+      const tile = map.terrains[tilePos2Index(left, top - 1, map.width)]
       addNeighbor(tile)
     }
     // 下面
     if (isPositionWithinMap(left, top + 1, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left, top + 1, map.width)]
+      const tile = map.terrains[tilePos2Index(left, top + 1, map.width)]
       addNeighbor(tile)
     }
     // 左上
     if (isPositionWithinMap(left - 1, top, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left - 1, top, map.width)]
+      const tile = map.terrains[tilePos2Index(left - 1, top, map.width)]
       addNeighbor(tile)
     }
     // 左下
     if (isPositionWithinMap(left - 1, top + 1, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left - 1, top + 1, map.width)]
+      const tile = map.terrains[tilePos2Index(left - 1, top + 1, map.width)]
       addNeighbor(tile)
     }
     // 右上
     if (isPositionWithinMap(left + 1, top, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left + 1, top, map.width)]
+      const tile = map.terrains[tilePos2Index(left + 1, top, map.width)]
       addNeighbor(tile)
     }
     // 右下
     if (isPositionWithinMap(left + 1, top + 1, map.width, map.height)) {
-      final tile = map.terrains[tilePos2Index(left + 1, top + 1, map.width)]
+      const tile = map.terrains[tilePos2Index(left + 1, top + 1, map.width)]
       addNeighbor(tile)
     }
   }

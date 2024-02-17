@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../../event/events.dart';
+import '../../../event/ui.dart';
 import '../../../global.dart';
 import 'package:samsara/ui/flutter/label.dart';
 
@@ -61,7 +61,7 @@ class QuestCard extends StatelessWidget {
                         questData,
                       ],
                     );
-                    engine.broadcast(const UIEvent.needRebuildUI());
+                    engine.emit(const UIEvent.needRebuildUI());
                   },
                   child: Label(
                     padding: const EdgeInsets.all(0.0),

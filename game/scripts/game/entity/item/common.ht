@@ -4,7 +4,7 @@ const kSilverExchange = 1000
 const kGoldExchange = 1000000
 
 const kItemDefaultIcon = 'assets/images/unknown_item.png'
-// final kDefaultItemDescription = getLocaleString('defaultItemDescription')
+// const kDefaultItemDescription = getLocaleString('defaultItemDescription')
 
 const kUnknownItemIcon = 'icon/unknown_item.png'
 
@@ -15,7 +15,7 @@ const kEquipTypeArcana = 'arcana'
 const kEquipTypeCompanion = 'companion'
 // const kEquipTypeManeuver = 'maneuver'
 
-// final kEquipmentMax = {
+// const kEquipmentMax = {
 //   offense: 5,
 //   support: 5,
 //   defense: 4,
@@ -25,7 +25,7 @@ const kEquipTypeCompanion = 'companion'
 const kEquipmentMax = 7
 const kEquipmentSupportMax = 4
 
-final kRarity2ItemLevels = {
+const kRarity2ItemLevels = {
   common: 10, // common 白
   uncommon: 20, // uncommon 灰
   rare: 30, // rare 蓝
@@ -35,15 +35,15 @@ final kRarity2ItemLevels = {
   exotic: 70, // exotic 虹
 }
 
-fun calculateItemStats(item) {
+function calculateItemStats(item) {
   item.stats = item.attributes.clone()
 }
 
-fun calculateItemSupports(item, character) {
+function calculateItemSupports(item, character) {
   calculateItemStats(item)
-  for (final supportItemEquipData in item.equippedSupports) {
-    final supportItem = getEquipped(supportItemEquipData, character)
-    for (final effect of supportItem.stats.effects) {
+  for (const supportItemEquipData in item.equippedSupports) {
+    const supportItem = getEquipped(supportItemEquipData, character)
+    for (const effect of supportItem.stats.effects) {
       item.stats.effects[effect.id] = effect
     }
   }

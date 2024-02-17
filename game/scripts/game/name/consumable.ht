@@ -6,7 +6,7 @@ import 'consumable/beverage.json5' as beverageNames
 import '../random.ht'
 import '../entity/common.ht'
 
-final commonConsumableNames = [
+const commonConsumableNames = [
   ...commonNamesData.dao,
   ...commonNamesData.budda,
   ...commonNamesData.emotion,
@@ -16,25 +16,25 @@ final commonConsumableNames = [
 ]
 
 // 生成方剂、饮品、灵丹的名字
-fun generateConsumableName({category: str, rarity: str}) {
+function generateConsumableName({category: str, rarity: str}) {
   assert(consumableNames.keys.contains(category))
   rarity ??= getRarity().rarity
-  final kind = random.nextIterable(consumableNames[category])
-  final commonPrefix
+  const kind = random.nextIterable(consumableNames[category])
+  let commonPrefix
   if (category == 'medicine') {
     commonPrefix = random.nextIterable(medicineNames)
   } else if (category == 'beverage') {
     commonPrefix = random.nextIterable(beverageNames)
   }
-  final pre = random.nextIterable(commonConsumableNames)
-  final pre2 = random.nextIterable(commonConsumableNames)
-  final s = random.nextIterable(spiritPrefix)
-  final name
-  when (rarity) {
-    'exotic' -> name = pre + pre2 + kind
-    'mythic', 'legendary' -> name = pre + s + kind
-    'epic', 'rare' -> name = pre + kind
-    'common', 'uncommon' -> {
+  const pre = random.nextIterable(commonConsumableNames)
+  const pre2 = random.nextIterable(commonConsumableNames)
+  const s = random.nextIterable(spiritPrefix)
+  let name
+  switch (rarity) {
+    'exotic' => name = pre + pre2 + kind
+    'mythic', 'legendary' => name = pre + s + kind
+    'epic', 'rare' => name = pre + kind
+    'common', 'uncommon' => {
       if (category == 'alchemy') {
         name = pre + kind
       } else {

@@ -1,5 +1,5 @@
 
-final kCharacterAttributeNames = [
+const kCharacterAttributeNames = [
   'strength',
   'constitution',
   'spirituality',
@@ -8,15 +8,15 @@ final kCharacterAttributeNames = [
   'dexterity',
 ]
 
-fun generateCharacterAttributes(maxStats, minValue) {
+function generateCharacterAttributes(maxStats, minValue) {
   assert(maxStats != null)
   assert(minValue != null)
 
-  final attributes = {}
+  const attributes = {}
   
-  var rest = maxStats
-  for (final name in random.shuffle(kCharacterAttributeNames)) {
-    final value = Random().nextInt(rest)
+  let rest = maxStats
+  for (const name in random.shuffle(kCharacterAttributeNames)) {
+    const value = Random().nextInt(rest)
     attributes[name] = value + minValue
     rest -= value
   }
@@ -24,7 +24,7 @@ fun generateCharacterAttributes(maxStats, minValue) {
   return attributes
 }
 
-for (final i in range(5)) {
-  final attr = generateCharacterAttributes(20, 10)
+for (const i in range(5)) {
+  const attr = generateCharacterAttributes(20, 10)
   print(attr)
 }

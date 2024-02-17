@@ -14,7 +14,7 @@ import 'common.ht'
 import '../binding/maze.ht'
 import 'generation_algorithm.ht'
 
-final _kLandSprites = [
+const _kLandSprites = [
   kSpriteLand,
   kSpriteGrassLand,
   kRockyTrail,
@@ -50,15 +50,15 @@ struct CultivationRecruitMaze {
     }
 
     // 创建副本过程中也会触发事件，因此这里要提前给 history 赋值
-    final savedCurrentMaze = currentMaze
+    const savedCurrentMaze = currentMaze
     currentMaze = universe.mazes[maze.id] = this
 
-    final [ width, height ] = [ _kBlockWidth * _kBlockSize, _kBlockWidth * _kBlockSize ]
+    const [ width, height ] = [ _kBlockWidth * _kBlockSize, _kBlockWidth * _kBlockSize ]
     this.width = width
     this.height = height
     this.currentLevelIndex = 0
 
-    final currentLevel = TileMap(
+    const currentLevel = TileMap(
       id: '${this.id}',
       name: getLocaleString('mazeLevel', interpolations: [1]),
       width: width,
@@ -66,14 +66,14 @@ struct CultivationRecruitMaze {
     )
 
     // 已经被分配了的地块
-    final occupied = Set()
+    const occupied = Set()
 
-    fun randomPosition(xScope, yScope, [offsetX = 0, offsetY = 0]) {
+    function randomPosition(xScope, yScope, [offsetX = 0, offsetY = 0]) {
       assert(xScope >= 2)
       assert(yScope >= 2)
-      var left
-      var top
-      var index
+      let left
+      let top
+      let index
       do {
         left = random.nextInt(xScope) + 1 + offsetX
         top = random.nextInt(yScope) + 1 + offsetY
@@ -84,12 +84,12 @@ struct CultivationRecruitMaze {
     }
 
     // engine.info('生成迷宫地块')
-    final landZone = Zone(index: currentLevel.zones.length, category: kZoneLand)
+    const landZone = Zone(index: currentLevel.zones.length, category: kZoneLand)
     currentLevel.zones.add(landZone)
-    for (var j in range(height)) {
-      for (var i in range(width)) {
-        // final isVoid = (i == 0) || (i == width - 1) || (j == 0) || (j == height - 1)
-        final terrain = {
+    for (const j in range(height)) {
+      for (const i in range(width)) {
+        // const isVoid = (i == 0) || (i == width - 1) || (j == 0) || (j == height - 1)
+        const terrain = {
           ...Tile(i + 1, j + 1, mapWidth: width),
           isVisible: false,
           isSelectable: true,
@@ -100,8 +100,8 @@ struct CultivationRecruitMaze {
     }
     
     // engine.info('计算随机遭遇的位置')
-    final blockSize = (width * height) ~/ 9
-    var isOnCorner = false
+    const blockSize = (width * height) ~/ 9
+    let isOnCorner = false
     // 迷宫中的主要roguelike元素的可能位置锚点，分布在横四竖四的9个区块中
     // 4*4 的区块地图中，每个锚点所连接的路径
     // 链接所有九个锚点的路径一共有 12 个：
@@ -117,8 +117,8 @@ struct CultivationRecruitMaze {
     //     |      |      |      |
     //     13----14-----15-----16
     // 
-    final anchors = {}
-    final randomScope = _kBlockWidth ~/ 2
+    const anchors = {}
+    const randomScope = _kBlockWidth ~/ 2
     anchors[1] = randomPosition(randomScope, randomScope, 0, 0)
     anchors[2] = randomPosition(randomScope, randomScope, _kBlockWidth + randomScope ~/ 2, 0)
     anchors[3] = randomPosition(randomScope, randomScope, _kBlockWidth * 2 + randomScope ~/ 2, 0)
@@ -137,8 +137,8 @@ struct CultivationRecruitMaze {
     anchors[16] = randomPosition(randomScope, randomScope, _kBlockWidth * 4 - randomScope, _kBlockWidth * 4 - randomScope)
 
     // engine.info('计算出入口')
-    final entry
-    final exit
+    let entry
+    let exit
     if (random.nextBool()) {
       entry = Tile(1, height, mapWidth: width)
       entry.nearestAnchor = anchors[13].index
@@ -154,13 +154,13 @@ struct CultivationRecruitMaze {
     occupied.add(entry.index)
     currentLevel.entryX = entry.left
     currentLevel.entryY = entry.top
-    final entryEntity = {
+    const entryEntity = {
       id: 'levelEntry',
       encounterType: 'levelEntry',
     }
     this.entities[entryEntity.id] = entryEntity
     currentLevel.terrains[entry.index].entityId = entryEntity.id
-    final entryObject = TileMapObject(
+    const entryObject = TileMapObject(
       id: entryEntity.id,
       left: entry.left,
       top: entry.top,
@@ -173,13 +173,13 @@ struct CultivationRecruitMaze {
     occupied.add(exit.index)
     currentLevel.exitX = exit.left
     currentLevel.exitX = exit.top
-    final exitEntity = {
+    const exitEntity = {
       id: 'levelExit',
       encounterType: 'levelExit',
     }
     this.entities[exitEntity.id] = exitEntity
     currentLevel.terrains[exit.index].entityId = exitEntity.id
-    final exitObject = TileMapObject(
+    const exitObject = TileMapObject(
       id: exitEntity.id,
       left: exit.left,
       top: exit.top,
@@ -189,7 +189,7 @@ struct CultivationRecruitMaze {
     )
     currentLevel.objects.add(exitObject)
 
-    final routes = [
+    const routes = [
       '1-2',
       '2-3',
       '3-4',
@@ -216,15 +216,15 @@ struct CultivationRecruitMaze {
       '12-16',
     ]
     
-    for (final anchor of anchors) {
+    for (const anchor of anchors) {
       if (anchor.index == entry.index) continue
       if (anchor.index == exit.index) continue
       if (random.nextDouble() > _kElderCultivatorProbability) continue
-      final senior = ElderCultivator()
+      const senior = ElderCultivator()
       senior.encounterType = 'senior'
       this.entities[senior.id] = senior
       currentLevel.terrains[anchor.index].entityId = senior.id
-      final object = TileMapObject(
+      const object = TileMapObject(
         id: senior.id,
         left: anchor.left,
         top: anchor.top,
@@ -237,7 +237,7 @@ struct CultivationRecruitMaze {
 
     // engine.info('在锚点放置遭遇')
     
-    for (final name in routes) {
+    for (const name in routes) {
       if (random.nextDouble() < _kPavedProbability) {
         generateRouteByAnchor(name, anchors, currentLevel, flag: 'isPaved')
       } else {
@@ -249,9 +249,9 @@ struct CultivationRecruitMaze {
     generateRouteByIndex(entry.index, entry.nearestAnchor, currentLevel)
     generateRouteByIndex(exit.index, exit.nearestAnchor, currentLevel)
 
-    final blockZone = Zone(index: currentLevel.zones.length, category: 'block')
+    const blockZone = Zone(index: currentLevel.zones.length, category: 'block')
     currentLevel.zones.add(blockZone)
-    for (final tile in currentLevel.terrains) {
+    for (const tile in currentLevel.terrains) {
       if (tile.flags.isRoute) {
         tile.isSelectable = true
         if (tile.flags.isPaved) {
@@ -274,11 +274,11 @@ struct CultivationRecruitMaze {
 }
 
 // 返回布尔值，如果为真，则玩家控制角色会返回上一格，否则停在这一格
-fun onHeroMovedOnCultivationRecruitMaze({tile, maze, currentLevelIndex}) -> bool {
-  final entity = tile.entityId != null ? maze.entities[tile.entityId] : null
+function onHeroMovedOnCultivationRecruitMaze({tile, maze, currentLevelIndex}) -> bool {
+  const entity = tile.entityId != null ? maze.entities[tile.entityId] : null
 
   // 战斗，异步函数，如果获胜则返回 true
-  fun battle -> Future {
+  function battle -> Future {
     return heroBattle(
       entity,
       resolveResult: true,
@@ -302,8 +302,8 @@ fun onHeroMovedOnCultivationRecruitMaze({tile, maze, currentLevelIndex}) -> bool
   if (entity != null) {
     engine.info('玩家在副本地图 ${maze.id} 第 ${currentLevelIndex + 1} 层 ${tile.left}, ${tile.top} 碰到了 ${entity.id}')
     
-    when (entity.encounterType) {
-      'senior' -> {
+    switch (entity.encounterType) {
+      'senior' => {
         showDialogByLocaleKeys(
           ['elderCultivatorGuard'],
           character: entity,
@@ -313,8 +313,8 @@ fun onHeroMovedOnCultivationRecruitMaze({tile, maze, currentLevelIndex}) -> bool
             'fight',
             'leave',
           ]).then((key) {
-            when (key) {
-              'fight' -> battle()
+            switch (key) {
+              'fight' => battle()
             }
           })
         })

@@ -12,7 +12,7 @@ const _kReturning = 'returning'
 
 const _kBanditCampMaze = 'banditCampMaze'
 
-final kQuestBanditCampKinds = [
+const kQuestBanditCampKinds = [
   'killBanditBoss',
   'wipeBandits',
   'returnHostage',
@@ -39,14 +39,14 @@ struct QuestBanditCamp {
     this.kind = kind ?? random.nextIterable(kQuestBanditCampKinds)
     this.id = 'quest.${Hash.uid4(2)}.${locationId}.${this.category}.${this.kind}'
 
-    final location = game.locations[locationId]
-    final bountyhouse = location.sites[siteId]
+    const location = game.locations[locationId]
+    const bountyhouse = location.sites[siteId]
     bountyhouse.quests[this.id] = this
 
     // assert(location.nationId != null)
-    // final nation = game.organizations[location.nationId]
-    when (this.kind) {
-      kQuestConquestMazeKindKillBanditBoss -> {
+    // const nation = game.organizations[location.nationId]
+    switch (this.kind) {
+      kQuestConquestMazeKindKillBanditBoss => {
         assert(bossName != null)
         this.description = getLocaleString(
           '${this.category}.${this.kind}.description',
@@ -80,13 +80,13 @@ struct QuestBanditCamp {
           },
         }
       }
-      kQuestConquestMazeKindWipeBandits -> {
+      kQuestConquestMazeKindWipeBandits => {
         this.description = getLocaleString('${this.category}.${this.kind}.description')
       }
-      kQuestConquestMazeKindReturnHostage -> {
+      kQuestConquestMazeKindReturnHostage => {
         this.description = getLocaleString('${this.category}.${this.kind}.description')
       }
-      kQuestConquestMazeKindReturnTreasure -> {
+      kQuestConquestMazeKindReturnTreasure => {
         this.description = getLocaleString('${this.category}.${this.kind}.description')
       }
     }
@@ -107,17 +107,17 @@ struct QuestBanditCamp {
     // 是否完成了任务
     this.isFinished = false
 
-    final maze = MountainMaze(
+    const maze = MountainMaze(
       name: getLocaleString(_kBanditCampMaze),
     )
 
-    final worldMapEntity = {
+    const worldMapEntity = {
       id: maze.id,
       encounterType: 'banditCamp',
     }
     currentWorld.entities[maze.id] = worldMapEntity
 
-    final mazeTerrain = currentWorld.terrains[mazeTerrainIndex]
+    const mazeTerrain = currentWorld.terrains[mazeTerrainIndex]
     mazeTerrain.entityId = maze.id
     // if (isGameLoaded) {
     //   setWorldMapEntity(mazeTerrain.left, mazeTerrain.top, maze.id)

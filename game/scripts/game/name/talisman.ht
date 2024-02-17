@@ -5,26 +5,26 @@ import 'common.ht'
 import '../random.ht'
 import '../entity/common.ht'
 
-fun generateTalismanName({category, kind, rarity}) {
+function generateTalismanName({category, kind, rarity}) {
   assert(category in talismanNames.keys)
   kind ??= random.nextIterable(talismanNames[category])
   rarity ??= getRarity().rarity
 
-  final prefix = random.nextIterable(commonNames)
-  final prefix2 = random.nextIterable(commonNames)
-  final cp = random.nextIterable(colorPrefix)
-  final m = random.nextIterable(talismanMaterial)
-  final s = random.nextIterable(spiritPrefix)
+  const prefix = random.nextIterable(commonNames)
+  const prefix2 = random.nextIterable(commonNames)
+  const cp = random.nextIterable(colorPrefix)
+  const m = random.nextIterable(talismanMaterial)
+  const s = random.nextIterable(spiritPrefix)
 
-  final name
-  when (rarity) {
-    'exotic' -> name = prefix + prefix2 + kind
-    'mythic' -> name = prefix + s + kind
-    'legendary' -> name = prefix + cp + m + kind
-    'epic' -> name = prefix + m + kind
-    'rare' -> name = prefix + kind
-    'uncommon' -> name = cp + m + kind
-    'common' -> name = m + kind
+  let name
+  switch (rarity) {
+    'exotic' => name = prefix + prefix2 + kind
+    'mythic' => name = prefix + s + kind
+    'legendary' => name = prefix + cp + m + kind
+    'epic' => name = prefix + m + kind
+    'rare' => name = prefix + kind
+    'uncommon' => name = cp + m + kind
+    'common' => name = m + kind
   }
   return { name, category, rarity }
 }

@@ -6,7 +6,7 @@ import 'package:hetu_script/values.dart';
 
 import '../avatar.dart';
 import '../../global.dart';
-import '../../event/events.dart';
+import '../../event/ui.dart';
 import '../view/character/information/character.dart';
 import '../view/character/npc.dart';
 
@@ -245,7 +245,7 @@ class _GameDialogState extends State<GameDialog> {
   void _finishDialog() {
     // SchedulerBinding.instance.addPostFrameCallback((_) {
     Navigator.pop(context, widget.returnValue);
-    engine.broadcast(const UIEvent.needRebuildUI());
+    engine.emit(const UIEvent.needRebuildUI());
     // });
   }
 }

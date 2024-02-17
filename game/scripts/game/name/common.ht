@@ -2,7 +2,7 @@ import 'common/common.json5' as commonNamesData
 import 'common/color.json5' as colorPrefix
 import 'common/spirit.json5' as spiritPrefix
 
-final commonNames = [
+const commonNames = [
   ...commonNamesData.dao,
   ...commonNamesData.budda,
   ...commonNamesData.emotion,

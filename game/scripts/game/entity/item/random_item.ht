@@ -1,9 +1,9 @@
-final _itemTypes = [
+const _itemTypes = [
   'medicineIngrident',
   'foodIngrident',
   'craftIngrident'
 ]
 
-fun getRandomItem({ count = 1 }) {
+function getRandomItem({ count = 1 }) {
   
 }

@@ -6,7 +6,7 @@ import 'game.ht'
 /// 每个模块内部的key是游戏自己定义的事件名之一，
 /// value是一个接受一个arg的函数，
 /// 这个arg是一个struct对象，包含不同的事件参数
-var gEventHandlers = {}
+let gEventHandlers = {}
 
 // EventHanlder
 // 如果 isDisposable 为 true，则这个时间处理会在第一次触发之后被删除
@@ -21,11 +21,11 @@ var gEventHandlers = {}
 //   },
 // }
 
-fun getEventHandlerById(id: str) {
+function getEventHandlerById(id: str) {
   return gEventHandlers[id]
 }
 
-fun addEventHandler(handler) {
+function addEventHandler(handler) {
   gEventHandlers[handler.id] = handler
 }
 
@@ -36,22 +36,22 @@ fun addEventHandler(handler) {
 /// 事件处理函数将会收到两个参数
 /// 第一个参数module是模组数据，可以保存一些flag之类
 /// 第二个是回调本身的一些传入参数，例如执行时的一些情况等等
-fun onGameEvent(eventId: str, [ handlerId, ...args ]) {
+function onGameEvent(eventId: str, [ handlerId, ...args ]) {
   if (handlerId == null) {
-    for (final handler of gEventHandlers) {
+    for (const handler of gEventHandlers) {
       _handlerCallback(eventId, handler, ...args)
     }
   } else {
-    final handler = gEventHandlers[handlerId]
+    const handler = gEventHandlers[handlerId]
     _handlerCallback(eventId, handler, ...args)
   }
 }
 
-fun _handlerCallback(eventId, handler, [...args]) {
-  final module = game.modules[handler.id]
+function _handlerCallback(eventId, handler, [...args]) {
+  const module = game.modules[handler.id]
   // 确认模组数据已经被加载
   assert(module != null)
-  final callback = handler[eventId];
+  const callback = handler[eventId];
   // callback 可能是 null
   if(callback is function) {
     engine.info('事件处理回调函数：[${handler.id}] - ${eventId}')

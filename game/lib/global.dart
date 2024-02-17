@@ -23,13 +23,13 @@ const iconTheme = IconThemeData(
 );
 
 const captionStyle = TextStyle(
-  fontFamily: 'NotoSansMono',
+  fontFamily: 'RuiZiYunZiKuLiBianTiGBK',
   fontSize: 18.0,
 );
 
-final lightTheme = ThemeData(
+final darkTheme = ThemeData(
   brightness: Brightness.dark,
-  fontFamily: 'NotoSansMono',
+  fontFamily: 'RuiZiYunZiKuLiBianTiGBK',
   colorScheme: ColorScheme.dark(
     background: kBackgroundColor,
   ),
@@ -67,7 +67,7 @@ final lightTheme = ThemeData(
     activeTickMarkColor: kForegroundColor,
     thumbColor: kForegroundColor,
     valueIndicatorTextStyle: TextStyle(
-      fontFamily: 'NotoSansMono',
+      fontFamily: 'RuiZiYunZiKuLiBianTiGBK',
       color: kForegroundColor,
     ),
   ),
@@ -75,7 +75,8 @@ final lightTheme = ThemeData(
 );
 
 abstract class Global {
-  static ThemeData appTheme = lightTheme;
+  static const gameTitle = 'Heavenly Tribulation';
+  static ThemeData appTheme = darkTheme;
   static bool isDebugMode = true;
   static bool isOnDesktop = false;
   static bool isPortraitMode = false;
@@ -88,8 +89,9 @@ const kValueTypePercentage = 'percentage';
 
 final SamsaraEngine engine = SamsaraEngine(
   config: EngineConfig(
-    name: 'Heavenly Tribulation',
     debugMode: Global.isDebugMode,
+    isOnDesktop: Global.isOnDesktop,
+    showMissingLocaleStringPlaceHolder: true,
   ),
 );
 

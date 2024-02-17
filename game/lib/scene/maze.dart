@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:samsara/samsara.dart';
-import 'package:samsara/event.dart';
+import 'package:samsara/event/tilemap.dart';
 import 'package:samsara/tilemap.dart';
 import 'package:hetu_script/values.dart';
 
@@ -42,6 +42,6 @@ class MazeScene extends Scene {
     await map.updateData(mapData);
     world.add(map);
     isMapReady = true;
-    engine.broadcast(const MapLoadedEvent());
+    engine.emit(const MapLoadedEvent());
   }
 }

@@ -6,11 +6,11 @@ import 'character/family.json5' as familyNames
 import 'common.ht'
 import '../random.ht'
 
-fun generateLocationName({category: str}) {
-  var name = ''
+function generateLocationName({category: str}) {
+  let name = ''
   category ??= random.nextIterable(locationNames.keys)
-  final kind = random.nextIterable(locationNames[category])
-  final r = random.nextDouble()
+  const kind = random.nextIterable(locationNames[category])
+  const r = random.nextDouble()
   if (r < kStrangeNameProbability) {
     name = random.nextIterable(strangeNames)
   } else if (r < kXianXiaNameProbability) {
@@ -21,7 +21,7 @@ fun generateLocationName({category: str}) {
       name += kFamilyNamePostfix
     }
   } else {
-    var postfix = ''
+    let postfix = ''
     if (random.nextDouble() < kNameWithDirectionProbability) {
       postfix = random.nextIterable(placePostfix)
     }

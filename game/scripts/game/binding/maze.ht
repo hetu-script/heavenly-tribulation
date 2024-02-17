@@ -1,20 +1,20 @@
 namespace Maze {
-  external fun showMazeGameOver
+  external function showMazeGameOver
 
-  external fun moveHeroToLastRouteNode
+  external function moveHeroToLastRouteNode
 
-  external fun setMazeSprite(left, top, data)
+  external function setMazeSprite(left, top, data)
 
-  external fun setMazeOverlaySprite(left, top, data)
+  external function setMazeOverlaySprite(left, top, data)
 
-  external fun addMazeObject(data)
+  external function addMazeObject(data)
 
   // 删除object，就是设置为null
-  external fun setMazeObject(left, top, objectId)
+  external function setMazeObject(left, top, objectId)
 
-  external fun proceedToNextLevel
+  external function proceedToNextLevel
 
-  external fun backToPreviousLevel
+  external function backToPreviousLevel
 
-  external fun disposeMaze
+  external function disposeMaze
 }

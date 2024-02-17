@@ -1,5 +1,5 @@
-var random = Random()
+let random = Random()
 
-fun setRandomSeed([seed: int]) {
+function setRandomSeed([seed: int]) {
   random = Random(seed)
 }

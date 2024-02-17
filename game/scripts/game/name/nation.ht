@@ -6,15 +6,15 @@ import 'place/prefix.json5' as placePrefix
 
 const _kNationNamePostfix = '国'
 
-fun generateNationName(number: int) {
-  var name = ''
-  final r = random.nextDouble()
+function generateNationName(number: int) {
+  let name = ''
+  const r = random.nextDouble()
   if (r < kStrangeNameProbability) {
     name = random.nextIterable(strangeNames)
   } else if (r < kXianXiaNameProbability) {
     name = random.nextIterable(commonNames)
   } else {
-    var prefix = ''
+    let prefix = ''
     if (random.nextDouble() < kNameWithDirectionProbability) {
       prefix = random.nextIterable(placePrefix)
     }

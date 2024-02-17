@@ -62,11 +62,15 @@ void main() {
       Global.isPortraitMode = false;
       await windowManager.ensureInitialized();
       windowManager.addListener(CustomWindowListener());
-      WindowOptions windowOptions = const WindowOptions(
-        // fullScreen: true,
-        minimumSize: Size(1280.0, 720.0),
-      );
-      windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.setMaximizable(false);
+      await windowManager.setResizable(false);
+      windowManager.waitUntilReadyToShow(
+          const WindowOptions(
+            title: 'Heavenly Tribulation',
+            // fullScreen: true,
+            maximumSize: Size(1440.0, 900.0),
+            minimumSize: Size(1440.0, 900.0),
+          ), () async {
         await windowManager.show();
         await windowManager.focus();
         Global.screenSize = await windowManager.getSize();

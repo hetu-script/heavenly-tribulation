@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:heavenly_tribulation/ui/overlay/cardgame_autobattler/deckbuilding.dart';
+import 'package:heavenly_tribulation/ui/overlay/cardgame/deckbuilding.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:samsara/samsara.dart';
@@ -27,8 +27,8 @@ import '../scene/maze.dart';
 import 'create_game_dialog.dart';
 // import '../event/events.dart';
 import 'overlay/worldmap/worldmap.dart';
-import '../scene/cardgame_autobattler/battle/battle.dart';
-import '../scene/cardgame_autobattler/deckbuilding/deckbuilding.dart';
+import '../scene/cardgame/battle/battle.dart';
+import '../scene/cardgame/deckbuilding/deckbuilding.dart';
 import '../binding/class_binding.dart';
 
 class MainMenu extends StatefulWidget {
@@ -101,7 +101,7 @@ class _MainMenuState extends State<MainMenu> {
     engine.registerSceneConstructor('deckBuilding', ([dynamic data]) async {
       return DeckBuildingScene(
         controller: engine,
-        deckData: data,
+        librayData: data,
       );
     });
 
@@ -109,7 +109,8 @@ class _MainMenuState extends State<MainMenu> {
       return BattleScene(
         controller: engine,
         id: data['id'],
-        heroDeck: data['playerDeck'],
+        heroCards: data['heroCards'],
+        enemyCards: data['enemyCards'],
       );
     });
   }
@@ -191,6 +192,10 @@ class _MainMenuState extends State<MainMenu> {
     return FutureBuilder(
       future: _prepareData(),
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          throw (snapshot.error!);
+        }
+
         if (!snapshot.hasData) {
           return LoadingScreen(
               text: engine.isLoaded ? engine.locale['loading'] : 'Loading...');
@@ -310,7 +315,7 @@ class _MainMenuState extends State<MainMenu> {
                       onPressed: () {
                         showDialog(
                           context: context,
-                          builder: (context) => const DeckBuildingOverlay(),
+                          builder: (context) => DeckBuildingOverlay(),
                         );
                       },
                       child: const Label(
@@ -449,8 +454,7 @@ class _MainMenuState extends State<MainMenu> {
 
   Future<List<SaveInfo>> _getSavedFiles() async {
     final appDirectory = await getApplicationDocumentsDirectory();
-    final saveFolder =
-        path.join(appDirectory.path, 'Heavenly Tribulation', 'save');
+    final saveFolder = path.join(appDirectory.path, Global.gameTitle, 'save');
 
     final list = <SaveInfo>[];
     final saveDirectory = Directory(saveFolder);

@@ -6,7 +6,7 @@ import 'module.json5' as module
 // 这里的函数最终是绑定到游戏对象上执行
 // 是运行时的命名空间，并不是这里的命名空间
 // 因此可以直接使用 engine, game 等 global 上的 对象
-final eventHandler = {
+const eventHandler = {
   id: module.id,
   // onNewGame: (arg) {
   //   engine.info('[${this.id}]: 新游戏事件回调函数')
@@ -16,13 +16,13 @@ final eventHandler = {
   // },
 }
 
-fun load() {
+function load() {
   game.addModInfo(module)
 }
 
 // todo 检查config中的游戏版本，对比这个mod的最低版本号
-fun init(config) {
-  final modName = '[${module.name}(${module.id}-${module.version})]'
+function init(config) {
+  const modName = '[${module.name}(${module.id}-${module.version})]'
   
   engine.info('${modName}: 初始化')
   game.addLocales(localizations, modName)

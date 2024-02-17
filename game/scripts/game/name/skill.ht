@@ -5,7 +5,7 @@ import 'character/family.json5' as familyNames
 import 'common.ht'
 import '../random.ht'
 
-final _kCouldBeFamilySkillKinds = [
+const _kCouldBeFamilySkillKinds = [
   'strength',
   'wrestling',
   'boxing',
@@ -24,14 +24,14 @@ const _kSkillWithTwoElementsProbability = 0.35
 const _kSkillExtraProbability = 0.075
 const _kSkillNumfixProbability = 0.075
 
-fun generateSkillName({category, kind, length = 1}) {
+function generateSkillName({category, kind, length = 1}) {
   assert(category in skillNames.keys)
   kind ??= random.nextIterable(skillNames[category])
   assert(length > 0 && length < 4)
-  final r = random.nextDouble()
-  var name = ''
+  const r = random.nextDouble()
+  let name = ''
   if (length > 1) {
-    for (var i in range(length)) {
+    for (const i in range(length)) {
       name += random.nextIterable(commonNames)
     }
   } else {
@@ -44,8 +44,8 @@ fun generateSkillName({category, kind, length = 1}) {
       name = random.nextIterable(commonNames)
     }
   }
-  var e = ''
-  var n = ''
+  let e = ''
+  let n = ''
   if (random.nextDouble() < _kSkillExtraProbability) {
     e = random.nextIterable(skillExtra)
   }

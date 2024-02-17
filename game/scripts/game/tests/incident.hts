@@ -1,11 +1,11 @@
 
-fun _calculateIncidentScore(character, incident) {
+function _calculateIncidentScore(character, incident) {
   return (character.personality.ideal * incident.ideal +
                  character.personality.order * incident.order +
                  character.personality.good  * incident.good) / 100
 }
 
-fun characterExperiencedIncident(character, incident) {
+function characterExperiencedIncident(character, incident) {
   assert(character != null)
   assert(incident != null)
   if (character.id in incident.subjectIds) {
@@ -13,17 +13,17 @@ fun characterExperiencedIncident(character, incident) {
     character.personality.order += character.personality.order * incident.order / 100
     character.personality.good += character.personality.good * incident.good / 100
   } else if (character.id in incident.objectIds) {
-    final score = _calculateIncidentScore(character, incident)
-    for (final id in incident.subjectIds) {
+    const score = _calculateIncidentScore(character, incident)
+    for (const id in incident.subjectIds) {
       assert(character.bonds.characters.contains(id))
-      final bond = character.bonds.characters[id]
+      const bond = character.bonds.characters[id]
       bond.memory[incident.index] = score
       bond.score += score
     }
   }
 }
 
-final character = {
+const character = {
   id: 'test_001',
   personality: {
     ideal: 10,
@@ -39,7 +39,7 @@ final character = {
   }
 }
 
-final incident = {
+const incident = {
   index: 1,
   // subjectIds: ['test_001'],
   subjectIds: ['test_002'],

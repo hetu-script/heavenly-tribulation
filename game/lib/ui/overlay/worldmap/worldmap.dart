@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart' as path;
 import 'package:path/path.dart' as path;
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
+import 'package:samsara/event/tilemap.dart';
 import 'package:samsara/tilemap.dart';
 // import 'package:flame_audio/flame_audio.dart';
 import 'package:hetu_script/hetu_script.dart';
@@ -16,7 +17,7 @@ import 'package:flame/sprite.dart';
 import 'package:samsara/ui/flutter/loading_screen.dart';
 import 'package:samsara/console.dart';
 
-import '../../../event/events.dart';
+import '../../../event/ui.dart';
 import '../../view/information/information.dart';
 import 'popup.dart';
 import '../../../shared/json.dart';
@@ -124,6 +125,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
         if (_menuPosition != null) {
           _menuPosition = null;
         } else {
+          _scene.map.selectTile(e.tilePosition.left, e.tilePosition.top);
           final hero = _scene.map.hero;
           if (hero == null) return;
           if (hero.isMoving) return;
@@ -157,6 +159,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
         }
       } else if (e.buttons & kSecondaryButton == kSecondaryButton) {
         if (_scene.map.hero?.isMoving ?? false) return;
+        _scene.map.selectTile(e.tilePosition.left, e.tilePosition.top);
         setState(() {
           _menuPosition = _scene.map.tilePosition2TileCenterInScreen(
               e.tilePosition.left, e.tilePosition.top);
@@ -217,17 +220,17 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
       _tryEnterLocation(positionalArgs.first);
     }, override: true);
 
-    engine.registerListener(
-      GameEvents.mapTapped,
+    engine.addEventListener(
+      MapEvents.mapTapped,
       EventHandler(ownerKey: widget.key!, handle: _mapTapHandler),
     );
 
-    // engine.registerListener(
+    // engine.addEventListener(
     //   Events.mapDoubleTapped,
     //   EventHandler(widget.key!, _mapTapHandler),
     // );
 
-    // engine.registerListener(
+    // engine.addEventListener(
     //   Events.mapTapped,
     //   EventHandler(widget.key!, (event) {
     //     final e = event as MapInteractionEvent;
@@ -245,8 +248,8 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
     //   }),
     // );
 
-    engine.registerListener(
-      GameEvents.loadedMap,
+    engine.addEventListener(
+      MapEvents.loadedMap,
       EventHandler(
         ownerKey: widget.key!,
         handle: (GameEvent event) async {
@@ -274,11 +277,11 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
           }
           _heroData = engine.invoke('getHero');
           final charSheet = SpriteSheet(
-            image: await Flame.images.load('character/tile_character.png'),
+            image: await Flame.images.load('animation/hero/tile_character.png'),
             srcSize: heroSrcSize,
           );
           final shipSheet = SpriteSheet(
-            image: await Flame.images.load('character/tile_ship.png'),
+            image: await Flame.images.load('animation/hero/tile_ship.png'),
             srcSize: heroSrcSize,
           );
           _scene.map.hero = TileMapObject(
@@ -305,8 +308,8 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
       ),
     );
 
-    engine.registerListener(
-      GameEvents.heroMoved,
+    engine.addEventListener(
+      MapEvents.heroMoved,
       EventHandler(
         ownerKey: widget.key!,
         handle: (GameEvent event) {
@@ -337,8 +340,8 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
       ),
     );
 
-    engine.registerListener(
-      CustomEvents.needRebuildUI,
+    engine.addEventListener(
+      UIEvents.needRebuildUI,
       EventHandler(
         ownerKey: widget.key!,
         handle: (GameEvent event) {
@@ -352,7 +355,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
 
   @override
   void dispose() {
-    engine.disposeListenders(widget.key!);
+    engine.removeEventListener(widget.key!);
     // FlameAudio.bgm.stop();
     // FlameAudio.bgm.dispose();
 
@@ -370,8 +373,10 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
 
   Future<Scene?> _getScene(Map<String, dynamic> args) async {
     if (_isDisposing) return null;
-    final scene =
-        await engine.createScene('worldmap', args['id'], args) as WorldMapScene;
+    final scene = await engine.createScene(
+        contructorKey: 'worldmap',
+        sceneId: args['id'],
+        arg: args) as WorldMapScene;
     _heroData = engine.invoke('getHero');
     updateInfoPanels();
     return scene;
@@ -616,7 +621,7 @@ class _WorldMapOverlayState extends State<WorldMapOverlay>
     if (savePath == null) {
       final worldId = engine.invoke('getWorldId');
       final directory = await path.getApplicationDocumentsDirectory();
-      savePath = path.join(directory.path, 'Heavenly Tribulation', 'save',
+      savePath = path.join(directory.path, Global.gameTitle, 'save',
           worldId + kGameSaveFileExtension);
       engine.invoke('setSavePath', positionalArgs: [savePath]);
     }

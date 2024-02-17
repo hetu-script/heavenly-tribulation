@@ -11,23 +11,23 @@ import '../binding/cardgame_autobattler.ht'
 
 namespace Card {
 
-  fun basicBlock(hero, enemy) {
+  function basicBlock(hero, enemy) {
     
   }
 
-  fun basicDodge(hero, enemy) {
+  function basicDodge(hero, enemy) {
     
   }
 
-  fun basicLightAttack(hero, enemy) {
+  function basicLightAttack(hero, enemy) {
     
   }
 
-  fun basicHeavyAttack(hero, enemy) {
+  function basicHeavyAttack(hero, enemy) {
     
   }
 
-  fun basicMultipleAttack(hero, enemy) {
+  function basicMultipleAttack(hero, enemy) {
     
   }
   

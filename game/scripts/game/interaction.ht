@@ -19,9 +19,9 @@ import 'entity/skill/skill.ht'
 import 'entity/common.ht'
 
 /// 返回布尔值，如果为真，则玩家控制角色会返回上一格，false 则停在这一格，null 则不影响
-fun onHeroMovedOnWorldMap(left, top) {
+function onHeroMovedOnWorldMap(left, top) {
   engine.info('玩家移动到了: ${left}, ${top}')
-  final tile = currentWorld.terrains[tilePos2Index(left, top, currentWorld.width)]
+  const tile = currentWorld.terrains[tilePos2Index(left, top, currentWorld.width)]
   if (!tile.flags.isDiscovered) {
     
   }
@@ -39,12 +39,12 @@ fun onHeroMovedOnWorldMap(left, top) {
 }
 
 /// 异步函数，会在显示地点窗口之前执行，执行完毕后才会进入地点
-fun onHeroEnteredLocation(location) async {
+function onHeroEnteredLocation(location) async {
   engine.info('玩家进入了: ${location.name}')
   if (!location.flags.isDiscovered) {
     if (location.category == kLocationCategoryCity) {
       discoverLocation(location)
-      final message = getLocaleString('firstVisitCity', interpolations: [location.name])
+      const message = getLocaleString('firstVisitCity', interpolations: [location.name])
       // TODO: 第一次发现据点事件
       return showDialogByStrings([message])
     } else {
@@ -54,17 +54,17 @@ fun onHeroEnteredLocation(location) async {
   }
 
   if (location.flags.recruitingOrganizationIds.isNotEmpty) {
-    var names = ''
-    for (final id in location.flags.recruitingOrganizationIds) {
+    let names = ''
+    for (const id in location.flags.recruitingOrganizationIds) {
       if (names.isEmpty) {
         names = game.organizations[id].name
       } else {
-        final linkWord = getLocaleString('and')
+        const linkWord = getLocaleString('and')
         names += linkWord + game.organizations[id].name
       }
     }
 
-    final villager = getLocaleString('villager')
+    const villager = getLocaleString('villager')
 
     showDialogByResourceId('cultivatorRecruitMonth').then((_) {
       showSelectionByLocaleKeys([
@@ -72,14 +72,14 @@ fun onHeroEnteredLocation(location) async {
         'cultivatorRecruitMonth.selection2',
         'cultivatorRecruitMonth.selection3',
       ]).then((key) {
-        when (key) {
-          'cultivatorRecruitMonth.selection1' -> {
+        switch (key) {
+          'cultivatorRecruitMonth.selection1' => {
             return showDialogByResourceId('cultivatorRecruitMonth.reply1', interpolations: [names])
           }
-          'cultivatorRecruitMonth.selection2' -> {
+          'cultivatorRecruitMonth.selection2' => {
             return showDialogByResourceId('cultivatorRecruitMonth.reply2', interpolations: [names])
           }
-          'cultivatorRecruitMonth.selection3' -> {
+          'cultivatorRecruitMonth.selection3' => {
             return showDialogByResourceId('cultivatorRecruitMonth.reply3', interpolations: [names])
           }
         }
@@ -94,12 +94,12 @@ fun onHeroEnteredLocation(location) async {
 }
 
 /// 异步函数，会在显示建筑窗口之前执行，执行完毕后才会进入建筑
-fun onHeroEnteredSite(site) async {
+function onHeroEnteredSite(site) async {
   engine.info('玩家进入了: ${site.name}')
 
   // 检查是否有任务满足了提交条件
-  final future
-  for (final quest of hero.quests) {
+  let future
+  for (const quest of hero.quests) {
     if (site.id == quest.destinationSiteId) {
       quest.result = characterTrySubmitQuest(hero, site, quest)
       // modEventId 意味着这是一个 mod 创建的任务，将由 mod 自己的函数处理
@@ -152,10 +152,10 @@ const kSeaFishProbability = 0.45
 // 在某个地形块上进行互动操作
 // 山峰或树林产出物品更多，平原产出数量较少
 // 但前者会有几率碰到野兽或者强盗
-fun handleWorldTerrainInteraction(left, top) {
+function handleWorldTerrainInteraction(left, top) {
   
-  // var isInjured = false
-  // for (final status of hero.statusEffects) {
+  // let isInjured = false
+  // for (const status of hero.statusEffects) {
   //   if (status.category == kStatusCategoryInjury)
   //   isInjured = true
   // }
@@ -166,39 +166,39 @@ fun handleWorldTerrainInteraction(left, top) {
 
   // 因为探索时地块上的资源每个月会改变，因此每次探索的时间不能跨过一个月
   // 本月剩余的天数
-  final currentDayOfMonth = getCurrentDay()
+  const currentDayOfMonth = getCurrentDay()
   if (currentDayOfMonth > 29) {
     showDialogByLocaleKeys(['cannotInteractAtEndOfMonth'], character: hero)
     return
   }
-  final restDaysOfMonth = kDaysPerMonth - currentDayOfMonth
+  const restDaysOfMonth = kDaysPerMonth - currentDayOfMonth
 
   // 英雄剩余的体力
   // 采集消耗体力为每天4点（每个tick 1点）。
-  final staminaAvailableDays = hero.stats.stamina ~/ kTicksPerDay
+  const staminaAvailableDays = hero.stats.stamina ~/ kTicksPerDay
   if (staminaAvailableDays < 1) {
     showDialogByLocaleKeys(['notEnoughStamina'], character: hero)
     return
   }
 
   // 可用的探索天数
-  final availableDays = Math.min(restDaysOfMonth, staminaAvailableDays)
+  const availableDays = Math.min(restDaysOfMonth, staminaAvailableDays)
 
-  final terrainIndex = tilePos2Index(left, top, currentWorld.width)
-  final terrain = currentWorld.terrains[terrainIndex]
+  const terrainIndex = tilePos2Index(left, top, currentWorld.width)
+  const terrain = currentWorld.terrains[terrainIndex]
 
-  final selections = [
+  const selections = [
     'search',
   ]
 
-  when (terrain.kind) {
-    kTerrainKindMountain, kTerrainKindForest, kTerrainKindPlain -> {
+  switch (terrain.kind) {
+    kTerrainKindMountain, kTerrainKindForest, kTerrainKindPlain => {
       selections.add('gather')
       selections.add('woodcut')
       selections.add('mine')
       selections.add('hunt')
     }
-    kTerrainKindLake, kTerrainKindSea -> {
+    kTerrainKindLake, kTerrainKindSea => {
       selections.add('fish')
     }
   }
@@ -206,13 +206,13 @@ fun handleWorldTerrainInteraction(left, top) {
   selections.add('cancel')
   
   showSelectionByLocaleKeys(selections).then((key) {
-    when (key) {
-      'search' -> {
-        final entityId = terrain.entityId
-        final locationId = terrain.locationId
-        final undiscoveredLocation
+    switch (key) {
+      'search' => {
+        const entityId = terrain.entityId
+        const locationId = terrain.locationId
+        let undiscoveredLocation
         if (locationId) {
-          final location = game.locations[locationId]
+          const location = game.locations[locationId]
           if (!location.flags.isDiscovered) {
             undiscoveredLocation = location
           }
@@ -226,8 +226,8 @@ fun handleWorldTerrainInteraction(left, top) {
         } else {
           if (entityId) {
             showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-              var i = 0
-              var found = false
+              let i = 0
+              let found = false
               showProgress(getLocaleString('search'), checkProgress: () {
                 ++i
                 updateGame(ticks: kTicksPerDay)
@@ -240,7 +240,7 @@ fun handleWorldTerrainInteraction(left, top) {
                 if (i >= days) return false
                 return true
               }).then((_) {
-                final incidentContent = getLocaleString('characterExplore', interpolations: [
+                const incidentContent = getLocaleString('characterExplore', interpolations: [
                   hero.name,
                   '${terrain.left}, ${terrain.top}',
                   i,
@@ -260,8 +260,8 @@ fun handleWorldTerrainInteraction(left, top) {
             })
           } else if (undiscoveredLocation) {
             showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-              var i = 0
-              var found = false
+              let i = 0
+              let found = false
               showProgress(getLocaleString('search'), checkProgress: () {
                 ++i
                 updateGame(ticks: kTicksPerDay)
@@ -274,7 +274,7 @@ fun handleWorldTerrainInteraction(left, top) {
                 if (i >= days) return false
                 return true
               }).then((_) {
-                final incidentContent = getLocaleString('characterExplore', interpolations: [
+                const incidentContent = getLocaleString('characterExplore', interpolations: [
                   hero.name,
                   '${terrain.left}, ${terrain.top}',
                   i,
@@ -288,7 +288,7 @@ fun handleWorldTerrainInteraction(left, top) {
                   terrain.hasSearched = true
                   discoverLocation(undiscoveredLocation)
                   // TODO: 第一次发现据点事件
-                  final message = getLocaleString('firstVisitCity', interpolations: [undiscoveredLocation.name])
+                  const message = getLocaleString('firstVisitCity', interpolations: [undiscoveredLocation.name])
                   showDialogByStrings([message]).then((_) {
                     WorldMap.enterLocation(undiscoveredLocation.id)
                   })
@@ -305,7 +305,7 @@ fun handleWorldTerrainInteraction(left, top) {
                 changeStamina(hero, -kTicksPerDay)
                 return false
               }).then((_) {
-                final incidentContent = getLocaleString('characterExplore', interpolations: [
+                const incidentContent = getLocaleString('characterExplore', interpolations: [
                   hero.name,
                   '${terrain.left}, ${terrain.top}',
                   1,
@@ -322,17 +322,17 @@ fun handleWorldTerrainInteraction(left, top) {
         }
       }
       // 采集，可能会获得：药材（材料）、水果（材料）
-      'gather' -> {
+      'gather' => {
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-          final lootbox = Lootbox()
-          var metBeast = false
-          var i = 0
+          const lootbox = Lootbox()
+          let metBeast = false
+          let i = 0
           showProgress(getLocaleString('gather'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
             changeStamina(hero, -kTicksPerDay)
-            when (terrain.kind) {
-              kTerrainKindMountain -> {
+            switch (terrain.kind) {
+              kTerrainKindMountain => {
                 if (random.nextDouble() < kMountainBeastProbability) {
                   metBeast = true
                   return false
@@ -344,7 +344,7 @@ fun handleWorldTerrainInteraction(left, top) {
                   acquire(lootbox, Material.fruit(), incidentOccured: false)
                 }
               }
-              kTerrainKindForest -> {
+              kTerrainKindForest => {
                 if (random.nextDouble() < kForestBeastProbability) {
                   metBeast = true
                   return false
@@ -356,7 +356,7 @@ fun handleWorldTerrainInteraction(left, top) {
                   acquire(lootbox, Material.fruit(), incidentOccured: false)
                 }
               }
-              kTerrainKindPlain -> {
+              kTerrainKindPlain => {
                 if (random.nextDouble() < kPlainHerbProbability) {
                   acquire(lootbox, Material.herb(), incidentOccured: false)
                 }
@@ -368,7 +368,7 @@ fun handleWorldTerrainInteraction(left, top) {
             if (i >= days) return false
             return true
           }).then((_) {
-            final incidentContent = getLocaleString('characterExplore', interpolations: [
+            const incidentContent = getLocaleString('characterExplore', interpolations: [
               hero.name,
               '${terrain.left}, ${terrain.top}',
               i,
@@ -386,8 +386,8 @@ fun handleWorldTerrainInteraction(left, top) {
               }
             } ().then((_) {
               if (metBeast) {
-                final beast = Beast()
-                final message = getLocaleString('metBeast', interpolations: [beast.name])
+                const beast = Beast()
+                const message = getLocaleString('metBeast', interpolations: [beast.name])
                 showDialogByStrings([message]).then((_) {
                   heroBattle(beast)
                 })
@@ -397,17 +397,17 @@ fun handleWorldTerrainInteraction(left, top) {
         })
       }
       // 伐木，可能会获得：木料
-      'woodcut' -> {
+      'woodcut' => {
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-          final lootbox = Lootbox()
-          var metBeast = false
-          var i = 0
+          const lootbox = Lootbox()
+          let metBeast = false
+          let i = 0
           showProgress(getLocaleString('woodcut'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
             changeStamina(hero, -kTicksPerDay)
-            when (terrain.kind) {
-              kTerrainKindMountain -> {
+            switch (terrain.kind) {
+              kTerrainKindMountain => {
                 if (random.nextDouble() < kMountainBeastProbability) {
                   metBeast = true
                   return false
@@ -416,7 +416,7 @@ fun handleWorldTerrainInteraction(left, top) {
                   acquire(lootbox, Material.wood(), incidentOccured: false)
                 }
               }
-              kTerrainKindForest -> {
+              kTerrainKindForest => {
                 if (random.nextDouble() < kForestBeastProbability) {
                   metBeast = true
                   return false
@@ -425,7 +425,7 @@ fun handleWorldTerrainInteraction(left, top) {
                   acquire(lootbox, Material.wood(), incidentOccured: false)
                 }
               }
-              kTerrainKindPlain -> {
+              kTerrainKindPlain => {
                 if (random.nextDouble() < kPlainWoodProbability) {
                   acquire(lootbox, Material.wood(), incidentOccured: false)
                 }
@@ -434,7 +434,7 @@ fun handleWorldTerrainInteraction(left, top) {
             if (i >= days) return false
             return true
           }).then((_) {
-            final incidentContent = getLocaleString('characterWoodcutted', interpolations: [
+            const incidentContent = getLocaleString('characterWoodcutted', interpolations: [
               hero.name,
               '${terrain.left}, ${terrain.top}',
               i,
@@ -452,8 +452,8 @@ fun handleWorldTerrainInteraction(left, top) {
               }
             } ().then((_) {
               if (metBeast) {
-                final beast = Beast()
-                final message = getLocaleString('metBeast', interpolations: [beast.name])
+                const beast = Beast()
+                const message = getLocaleString('metBeast', interpolations: [beast.name])
                 showDialogByStrings([message]).then((_) {
                   heroBattle(beast)
                 })
@@ -463,17 +463,17 @@ fun handleWorldTerrainInteraction(left, top) {
         })
       }
       // 挖矿，可能会获得：矿石、灵石
-      'mine' -> {
+      'mine' => {
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-          final lootbox = Lootbox()
-          var metBeast = false
-          var i = 0
+          const lootbox = Lootbox()
+          let metBeast = false
+          let i = 0
           showProgress(getLocaleString('mine'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
             changeStamina(hero, -kTicksPerDay)
-            when (terrain.kind) {
-              kTerrainKindMountain -> {
+            switch (terrain.kind) {
+              kTerrainKindMountain => {
                 if (random.nextDouble() < kMountainBeastProbability) {
                   metBeast = true
                   return false
@@ -485,7 +485,7 @@ fun handleWorldTerrainInteraction(left, top) {
                   acquire(lootbox, Jade(), incidentOccured: false)
                 }
               }
-              kTerrainKindForest -> {
+              kTerrainKindForest => {
                 if (random.nextDouble() < kForestBeastProbability) {
                   metBeast = true
                   return false
@@ -497,7 +497,7 @@ fun handleWorldTerrainInteraction(left, top) {
                   acquire(lootbox, Jade(), incidentOccured: false)
                 }
               }
-              kTerrainKindPlain -> {
+              kTerrainKindPlain => {
                 if (random.nextDouble() < kPlainOreProbability) {
                   acquire(lootbox, Material.ore(), incidentOccured: false)
                 }
@@ -509,7 +509,7 @@ fun handleWorldTerrainInteraction(left, top) {
             if (i >= days) return false
             return true
           }).then((_) {
-            final incidentContent = getLocaleString('characterMined', interpolations: [
+            const incidentContent = getLocaleString('characterMined', interpolations: [
               hero.name,
               '${terrain.left}, ${terrain.top}',
               i,
@@ -527,8 +527,8 @@ fun handleWorldTerrainInteraction(left, top) {
               }
             } ().then((_) {
               if (metBeast) {
-                final beast = Beast()
-                final message = getLocaleString('metBeast', interpolations: [beast.name])
+                const beast = Beast()
+                const message = getLocaleString('metBeast', interpolations: [beast.name])
                 showDialogByStrings([message]).then((_) {
                   heroBattle(beast)
                 })
@@ -538,28 +538,28 @@ fun handleWorldTerrainInteraction(left, top) {
         })
       }
       // 捕猎，增加遇到野兽的概率200%
-      'hunt' -> {
+      'hunt' => {
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-          var metBeast = false
-          var i = 0
+          let metBeast = false
+          let i = 0
           showProgress(getLocaleString('hunt'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
             changeStamina(hero, -kTicksPerDay)
-            when (terrain.kind) {
-              kTerrainKindMountain -> {
+            switch (terrain.kind) {
+              kTerrainKindMountain => {
                 if (random.nextDouble() < (kMountainBeastProbability * kHuntBeastProbability)) {
                   metBeast = true
                   return false
                 }
               }
-              kTerrainKindForest -> {
+              kTerrainKindForest => {
                 if (random.nextDouble() < (kForestBeastProbability * kHuntBeastProbability)) {
                   metBeast = true
                   return false
                 }
               }
-              kTerrainKindPlain -> {
+              kTerrainKindPlain => {
                 if (random.nextDouble() < (kPlainBeastProbability * kHuntBeastProbability)) {
                   metBeast = true
                   return false
@@ -569,7 +569,7 @@ fun handleWorldTerrainInteraction(left, top) {
             if (i >= days) return false
             return true
           }).then((_) {
-            final incidentContent = getLocaleString('characterHunted', interpolations: [
+            const incidentContent = getLocaleString('characterHunted', interpolations: [
               hero.name,
               '${terrain.left}, ${terrain.top}',
               i,
@@ -580,8 +580,8 @@ fun handleWorldTerrainInteraction(left, top) {
               isPrivate: true,
             )
             if (metBeast) {
-              final beast = Beast()
-              final message = getLocaleString('foundBeast', interpolations: [beast.name])
+              const beast = Beast()
+              const message = getLocaleString('foundBeast', interpolations: [beast.name])
               showDialogByStrings([message]).then((_) {
                 heroBattle(beast)
               })
@@ -592,7 +592,7 @@ fun handleWorldTerrainInteraction(left, top) {
         })
       }
       // 捕鱼，可能会获得：河鱼、海鱼、虾、蟹
-      'fish' -> {
+      'fish' => {
         // if (game.playerCharacterMonthly.fished.contains(terrainIndex)) {
         //   showDialogByLocaleKeys(['terrainAlreadyFished'], character: hero)
         //   return
@@ -600,19 +600,19 @@ fun handleWorldTerrainInteraction(left, top) {
         // game.playerCharacterMonthly.fished.add(terrainIndex)
         
         showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-          final lootbox = Lootbox()
-          var i = 0
+          const lootbox = Lootbox()
+          let i = 0
           showProgress(getLocaleString('fish'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
             changeStamina(hero, -kTicksPerDay)
-            when (terrain.kind) {
-              kTerrainKindLake -> {
+            switch (terrain.kind) {
+              kTerrainKindLake => {
                 if (random.nextDouble() < kLakeFishProbability) {
                   acquire(lootbox, Material.fish(), incidentOccured: false)
                 }
               }
-              kTerrainKindSea -> {
+              kTerrainKindSea => {
                 if (random.nextDouble() < kSeaFishProbability) {
                   acquire(lootbox, Material.fish(), incidentOccured: false)
                 }
@@ -621,7 +621,7 @@ fun handleWorldTerrainInteraction(left, top) {
             if (i >= days) return false
             return true
           }).then((_) {
-            final incidentContent = getLocaleString('characterFished', interpolations: [
+            const incidentContent = getLocaleString('characterFished', interpolations: [
               hero.name,
               '${terrain.left}, ${terrain.top}',
               i,
@@ -644,18 +644,18 @@ fun handleWorldTerrainInteraction(left, top) {
 }
 
 // 返回布尔值，如果为真，则玩家控制角色会停止移动
-fun handleWorldMapEntityInteraction(entityId) -> bool {
-  final entity = currentWorld.entities[entityId]
+function handleWorldMapEntityInteraction(entityId) -> bool {
+  const entity = currentWorld.entities[entityId]
   assert(entity != null)
 
-  when (entity.encounterType) {
+  switch (entity.encounterType) {
     // 隐藏的盗贼营地副本
-    'banditCamp' -> {
+    'banditCamp' => {
       showDialogByLocaleKeys(['worldMapEncounterBanditCamp'], character: hero).then((_) {
         showSelectionByLocaleKeys(['exploreMaze', 'cancel']).then((key) {
-          when (key) {
-            'exploreMaze' -> {
-              final maze = game.mazes[entity.id]
+          switch (key) {
+            'exploreMaze' => {
+              const maze = game.mazes[entity.id]
               assert(maze != null)
               enterMaze(maze)
               showMaze(maze)
@@ -665,7 +665,7 @@ fun handleWorldMapEntityInteraction(entityId) -> bool {
       })
     }
     // 隐藏的洞天福地
-    'location' -> {
+    'location' => {
 
     }
   }
@@ -673,51 +673,51 @@ fun handleWorldMapEntityInteraction(entityId) -> bool {
   return false
 }
 
-fun handleSiteInteraction(locationId: str, siteId: str) {
-  final location = getLocationById(locationId)
-  final site
+function handleSiteInteraction(locationId: str, siteId: str) {
+  const location = getLocationById(locationId)
+  let site
   if (siteId == 'site.home') {
     site = game.heroHomeSite
   } else {
     site = getLocationSiteById(location, siteId)
   }
-  when (site.category) {
-    'home' -> _handleHomeInteraction(site)
-    'headquarters' -> _handleHeadquartersInteraction(site)
-    'tradinghouse' -> _handleTradingHouseInteraction(site)
-    'workshop' -> _handleWorkshopInteraction(site)
-    'restaurant' -> _handleRestaurantInteraction(site)
-    'bountyhouse' -> _handleBountyhouseInteraction(site)
-    'residence' -> _handleResidenceInteraction(site)
-    'library' -> _handleLibraryInteraction(site)
-    'academy' -> _handleAcademyInteraction(site)
-    'farmland' -> _handleFarmlandInteraction(site)
-    'mine' -> _handleMineInteraction(site)
-    'timberland' -> _handleTimberInteraction(site)
-    'arena' -> _handleArenaInteraction(site)
-    'hospital' -> _handleHospitalInteraction(site)
-    'nursery' -> _handleNurseryInteraction(site)
-    'alchemylab' -> _handleAlchemylabInteraction(site)
-    'zoo' -> _handleZooInteraction(site)
-    // 'nation' -> _handlePalaceInteraction(site)
-    else -> {
+  switch (site.category) {
+    'home' => _handleHomeInteraction(site)
+    'headquarters' => _handleHeadquartersInteraction(site)
+    'tradinghouse' => _handleTradingHouseInteraction(site)
+    'workshop' => _handleWorkshopInteraction(site)
+    'restaurant' => _handleRestaurantInteraction(site)
+    'bountyhouse' => _handleBountyhouseInteraction(site)
+    'residence' => _handleResidenceInteraction(site)
+    'library' => _handleLibraryInteraction(site)
+    'academy' => _handleAcademyInteraction(site)
+    'farmland' => _handleFarmlandInteraction(site)
+    'mine' => _handleMineInteraction(site)
+    'timberland' => _handleTimberInteraction(site)
+    'arena' => _handleArenaInteraction(site)
+    'hospital' => _handleHospitalInteraction(site)
+    'nursery' => _handleNurseryInteraction(site)
+    'alchemylab' => _handleAlchemylabInteraction(site)
+    'zoo' => _handleZooInteraction(site)
+    // 'nation' => _handlePalaceInteraction(site)
+    else => {
       engine.error('未知的建筑类型 (category)：${site.category}。[${site.id}]')
     }
   }
 }
 
-fun _handleHomeInteraction(site) {
+function _handleHomeInteraction(site) {
   showSelectionByLocaleKeys([
     'rest',
     'practice',
     'storage',
     'leave',
   ]).then((key) {
-    when (key) {
-      'rest' -> {
+    switch (key) {
+      'rest' => {
         
       }
-      'practice' -> {
+      'practice' => {
         if (hero.skills.isEmpty) {
           showDialogByLocaleKeys(['skillsEmpty'], character: hero)
         } else {
@@ -730,10 +730,10 @@ fun _handleHomeInteraction(site) {
               return
             }
 
-            final cost = skill.cost?.practice
+            const cost = skill.cost?.practice
             
             // 每天会根据技能本身要求的消耗，减少对应的资源
-            fun practiceCost {
+            function practiceCost {
               if (cost?.stamina) {
                 changeStamina(hero, -kTicksPerDay * cost.stamina)
               }
@@ -745,10 +745,10 @@ fun _handleHomeInteraction(site) {
               }
             }
 
-            final availableDays
-            final staminaAvailableDays
-            final manaAvailableDays
-            final spiritAvailableDays
+            let availableDays
+            let staminaAvailableDays
+            let manaAvailableDays
+            let spiritAvailableDays
             if (cost?.stamina) {
               staminaAvailableDays = hero.stats.stamina ~/ kTicksPerDay
               if (staminaAvailableDays < 1) {
@@ -779,8 +779,8 @@ fun _handleHomeInteraction(site) {
             availableDays ??= 360
 
             showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-              var i = 0
-              var expGained = 0
+              let i = 0
+              let expGained = 0
               showProgress(getLocaleString('practice'), checkProgress: () {
                 ++i
                 updateGame(ticks: kTicksPerDay)
@@ -791,7 +791,7 @@ fun _handleHomeInteraction(site) {
                 return true
               }).then((_) {
                 skill.exp += expGained
-                final incidentContent = getLocaleString('characterPracticed', interpolations: [
+                const incidentContent = getLocaleString('characterPracticed', interpolations: [
                   hero.name,
                   site.name,
                   skill.name,
@@ -811,34 +811,34 @@ fun _handleHomeInteraction(site) {
           })
         }
       }
-      'storage' -> {
+      'storage' => {
         
       }
     }
   })
 }
 
-fun _handleHeadquartersInteraction(site) {
-  final location = game.locations[site.locationId]
+function _handleHeadquartersInteraction(site) {
+  const location = game.locations[site.locationId]
   showSelectionByLocaleKeys([
     'practice',
     'learn',
     'visit',
     'leave',
   ]).then((key) {
-    when (key) {
+    switch (key) {
       // 如果选择 leave，直接忽略，什么也不做
-      'practice' -> {
+      'practice' => {
         // 非本门派修士,需要花钱才能训练
         showDialogByLocaleKeys(['organizationTrainDeny'])
       }
-      'learn' -> {
+      'learn' => {
         // 非本门派修士,需要花钱才能学习,而且只能学习二阶或以下的功法
         showDialogByLocaleKeys(['organizationTrainDeny'])
       }
-      'visit' -> {
+      'visit' => {
         // 既然有总部，那就一定有可以拜访的成员
-        final ids = location.organizations[site.organizationId].characterIds.toList()
+        const ids = location.organizations[site.organizationId].characterIds.toList()
         ids.remove(game.heroId)
         showVisitCharacterSelection(ids).then((key) {
           if (key != null) {
@@ -856,33 +856,33 @@ fun _handleHeadquartersInteraction(site) {
 // 打工可以提升本地声望
 // 将指定数量的材料运送到另一个城市，但途中可能会遇到劫匪或风暴，风暴会耽误时间。
 // 没有提交足够数量的材料或者超过时间都会算作失败。
-fun _handleTradingHouseInteraction(site) {
-  final location = game.locations[site.locationId]
+function _handleTradingHouseInteraction(site) {
+  const location = game.locations[site.locationId]
   showSelectionByLocaleKeys([
     'trade',
     'work',
     'leave',
   ]).then((key) {
-    when (key) {
-      'trade' -> {
+    switch (key) {
+      'trade' => {
         if (site.organizationId) {
-          final organization = getOrganizationById(site.organizationId)
+          const organization = getOrganizationById(site.organizationId)
           showMerchant(organization, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
         } else {
           showMerchant(site, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
         }
       }
-      'work' -> {
+      'work' => {
         if (site.workedThisMonth) {
           showDialogByLocaleKeys(['workedThisMonth'])
         } else if (site.quests.isEmpty) {
           showDialogByLocaleKeys(['questEmpty'])
         } else {
-          final quest = site.quests.values.first
+          const quest = site.quests.values.first
           assert(quest.category == kQuestCategoryDelivery)
-          final displayName = getLocaleString('server')
-          final message = getLocaleString('delivery.introDialog')
-          final description = '${quest.description}${
+          const displayName = getLocaleString('server')
+          const message = getLocaleString('delivery.introDialog')
+          const description = '${quest.description}${
             getLocaleString('questRewardMoney', interpolations: [quest.rewardMoney])
           }'
           showDialogByStrings([message,description], displayName: displayName).then((_) {
@@ -902,36 +902,36 @@ fun _handleTradingHouseInteraction(site) {
   })  
 }
 
-fun _handleWorkshopInteraction(site) {
+function _handleWorkshopInteraction(site) {
 }
 
-fun _handleRestaurantInteraction(site) {
+function _handleRestaurantInteraction(site) {
 }
 
-fun _handleHospitalInteraction(site) {
+function _handleHospitalInteraction(site) {
 }
 
-fun _handlePalaceInteraction(site) {
+function _handlePalaceInteraction(site) {
   showDialogByLocaleKeys(['visitPalaceDeny'])
 
-  // final location = game.locations[site.locationId]
+  // const location = game.locations[site.locationId]
   // showSelection({
   //   visit: getLocaleString('visit'),
   //   leave: getLocaleString('leave'),
   // }).then((key) {
-  //   when (key) {
+  //   switch (key) {
   //     // 如果选择 leave，直接忽略，什么也不做
-  //     'visit' -> {
+  //     'visit' => {
   //       showDialogByResourceId('visit_palace_deny_entry')
   //     }
   //   }
   // })
 }
 
-fun _handleBountyhouseInteraction(site) {
-  final fame = getCharacterFame(hero)
-  final location = game.locations[site.locationId]
-  // final selections = [
+function _handleBountyhouseInteraction(site) {
+  const fame = getCharacterFame(hero)
+  const location = game.locations[site.locationId]
+  // const selections = [
   //   'appeal',
   //   'tribute',
   //   'noticeBoard',
@@ -942,15 +942,15 @@ fun _handleBountyhouseInteraction(site) {
   // }
   // selections.add('visitJail')
 
-  final selections = [
+  const selections = [
     'questBrowse',
     'questPost',
   ]
   selections.add('leave')
   
   showSelectionByLocaleKeys(selections).then((key) {
-    when (key) {
-      'questBrowse' -> {
+    switch (key) {
+      'questBrowse' => {
         if (game.flags.playerMonthly.worked.contains(site.id)) {
           showDialogByLocaleKeys(['workedThisMonth'])
         } else if (site.quests.isEmpty) {
@@ -959,14 +959,14 @@ fun _handleBountyhouseInteraction(site) {
           showQuests(site)
         }
       }
-      'questPost' -> {
+      'questPost' => {
       }
     }
   })
 
   // showSelectionByLocaleKeys(selections).then((key) {
-  //   when (key) {
-  //     'appeal' -> {
+  //   switch (key) {
+  //     'appeal' => {
   //       showSelectionByLocaleKeys([
   //         'applyOrganization',
   //         'applySite',
@@ -976,35 +976,35 @@ fun _handleBountyhouseInteraction(site) {
   //         'setHome',
   //         'cancel',
   //       ]).then((key) {
-  //         when (key) {
-  //           'cancel' -> {
+  //         switch (key) {
+  //           'cancel' => {
   //             _handleBountyhouseInteraction(site)
   //           }
-  //           'applyOrganization' -> {
+  //           'applyOrganization' => {
               
   //           }
-  //           'applySite' -> {
+  //           'applySite' => {
               
   //           }
-  //           'complaintSite' -> {
+  //           'complaintSite' => {
               
   //           }
-  //           'complaintCharacter' -> {
+  //           'complaintCharacter' => {
               
   //           }
-  //           'appealCharacter' -> {
+  //           'appealCharacter' => {
               
   //           }
-  //           'setHome' -> {
+  //           'setHome' => {
               
   //           }
   //         }
   //       })
   //     }
-  //     'tribute' -> {
+  //     'tribute' => {
   //       // TODO: 进贡金钱或者宝物，之后可以选择是否发起请求
   //     }
-  //     'noticeBoard' -> {
+  //     'noticeBoard' => {
   //       if (game.flags.playerMonthly.worked.contains(site.id)) {
   //         showDialogByLocaleKeys(['workedThisMonth'])
   //       } else if (site.quests.isEmpty) {
@@ -1013,20 +1013,20 @@ fun _handleBountyhouseInteraction(site) {
   //         showQuests(site)
   //       }
   //     }
-  //     'localExam' -> {
+  //     'localExam' => {
   //       showDialogByLocaleKeys(['localExamIntro'])
   //     }
-  //     'nationalExam' -> {
+  //     'nationalExam' => {
   //       showDialogByLocaleKeys(['nationalExamIntro'])
   //     }
-  //     'visitJail' -> {
-  //       final entry = false
+  //     'visitJail' => {
+  //       const entry = false
   //       () async {
   //         if (location.jailedCharacterIds.isEmpty) {
   //           return showDialogByLocaleKeys(['visitJailEmpty'])
   //         } else {
   //           if (fame > kFameCheckThreshold) {
-  //             final title = getCharacterTitle(hero) ?? ''
+  //             const title = getCharacterTitle(hero) ?? ''
   //             return showDialogByStrings(
   //               [
   //                 getLocaleString('visitJailEntryRespect', interpolations: [title + hero.name]),
@@ -1047,17 +1047,17 @@ fun _handleBountyhouseInteraction(site) {
   // })
 }
 
-fun _handleResidenceInteraction(site) {
-  final location = game.locations[site.locationId]
+function _handleResidenceInteraction(site) {
+  const location = game.locations[site.locationId]
   showSelectionByLocaleKeys([
     'visit',
     'leave',
   ]).then((key) {
-    when (key) {
+    switch (key) {
       // 如果选择 leave，直接忽略，什么也不做
-      'visit' -> {
+      'visit' => {
         if (location.residingCharacterIds.isNotEmpty) {
-          final ids = location.residingCharacterIds.toList()
+          const ids = location.residingCharacterIds.toList()
           ids.remove(game.heroId)
           showVisitCharacterSelection(ids).then((key) {
             if (key != null) {
@@ -1072,34 +1072,34 @@ fun _handleResidenceInteraction(site) {
   })
 }
 
-fun _handleLibraryInteraction(site) {
+function _handleLibraryInteraction(site) {
 
 }
 
-fun _handleFarmlandInteraction(site) {
+function _handleFarmlandInteraction(site) {
 
 }
 
-fun _handleMineInteraction(site) {
+function _handleMineInteraction(site) {
 
 }
 
-fun _handleTimberInteraction(site) {
+function _handleTimberInteraction(site) {
 
 }
 
-fun _handleArenaInteraction(site) {
+function _handleArenaInteraction(site) {
 
 }
 
-fun _handleNurseryInteraction(site) {
+function _handleNurseryInteraction(site) {
 
 }
 
-fun _handleAlchemylabInteraction(site) {
+function _handleAlchemylabInteraction(site) {
 
 }
 
-fun _handleZooInteraction(site) {
+function _handleZooInteraction(site) {
 
 }

@@ -1,25 +1,25 @@
 import 'game.ht'
 
 /// 加载到本次游戏的本地化字符串
-var gLocales = {
+let gLocales = {
   zh: {},
   en: {}
 }
 
-fun addLocales(localeList: List, [modName]) {
-  var info = '载入本地化字符串'
+function addLocales(localeList: List, [modName]) {
+  let info = '载入本地化字符串'
   if (modName != null) info = '${modName}: ' + info
   engine.info(info)
-  for (final locale in localeList) {
-    final localeId = locale.languageId
-    final localeData = gLocales[localeId]
-    for (final key in locale.keys) {
+  for (const locale in localeList) {
+    const localeId = locale.languageId
+    const localeData = gLocales[localeId]
+    for (const key in locale.keys) {
       localeData[key] = locale[key]
     }
   }
 }
 
-fun setLocale(id: str) {
+function setLocale(id: str) {
   assert(gLocales.containsKey(id))
   engine.info('设置当前语言为 [${gLocales[id].languageName}]')
   gLocales.currentLocaleId = id
@@ -27,21 +27,21 @@ fun setLocale(id: str) {
 
 const _kMissingText = 'missing_text_'
 
-fun interpolate(text: str, [interpolations: List = []]) {
-  for (var i = 0; i < interpolations.length; ++i) {
+function interpolate(text: str, [interpolations: List = []]) {
+  for (const i = 0; i < interpolations.length; ++i) {
     text = text.replaceAll('{${i}}', stringify(interpolations[i]));
   }
   return text
 }
 
-fun getLocaleString(key: str, { interpolations: List }) {
-  var text = gLocales[gLocales.currentLocaleId][key]
+function getLocaleString(key: str, { interpolations: List }) {
+  let text = gLocales[gLocales.currentLocaleId][key]
   if (text) {
     if (text is List) {
       text = text[random.nextIterable(text)]
     }
     if (interpolations is List) {
-      for (var i = 0; i < interpolations.length; ++i) {
+      for (const i = 0; i < interpolations.length; ++i) {
         text = text.replaceAll('{${i}}', stringify(interpolations[i]));
       }
     }

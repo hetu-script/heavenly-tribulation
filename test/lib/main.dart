@@ -38,6 +38,7 @@ void main() async {
       windowManager.setTitle(engine.name);
       windowManager.waitUntilReadyToShow(
         const WindowOptions(
+          title: 'Heavenly Tribulation Tests',
           // fullScreen: true,
           minimumSize: Size(1280.0, 720.0),
         ),
@@ -54,7 +55,6 @@ void main() async {
     runApp(
       MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Heavenly Tribulation Tests',
         home: Scaffold(
           key: mainKey,
           body: const MainMenu(),

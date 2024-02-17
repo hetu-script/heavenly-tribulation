@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/event/ui.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event.dart';
+import 'package:samsara/event/tilemap.dart';
 import 'package:samsara/tilemap.dart';
 import 'package:hetu_script/values.dart';
 import 'package:flame/sprite.dart';
@@ -14,7 +16,7 @@ import '../../../scene/maze.dart';
 import 'drop_menu.dart';
 import '../hero_info.dart';
 import '../history_panel.dart';
-import '../../../event/events.dart';
+// import '../../../event/ui.dart';
 import '../../dialog/game_over.dart';
 
 class MazeOverlay extends StatefulWidget {
@@ -176,8 +178,8 @@ class _MazeOverlayState extends State<MazeOverlay>
       _isDisposing = true;
     }, override: true);
 
-    engine.registerListener(
-      GameEvents.mapTapped,
+    engine.addEventListener(
+      MapEvents.mapTapped,
       EventHandler(
         ownerKey: widget.key!,
         handle: (event) {
@@ -204,17 +206,17 @@ class _MazeOverlayState extends State<MazeOverlay>
       ),
     );
 
-    engine.registerListener(
-      GameEvents.loadedMap,
+    engine.addEventListener(
+      MapEvents.loadedMap,
       EventHandler(
         ownerKey: widget.key!,
         handle: (GameEvent event) async {
           final charSheet = SpriteSheet(
-            image: await Flame.images.load('character/tile_character.png'),
+            image: await Flame.images.load('animation/hero/tile_character.png'),
             srcSize: heroSrcSize,
           );
           final shipSheet = SpriteSheet(
-            image: await Flame.images.load('character/tile_ship.png'),
+            image: await Flame.images.load('animation/hero/tile_ship.png'),
             srcSize: heroSrcSize,
           );
           _scene.map.hero = TileMapObject(
@@ -237,8 +239,8 @@ class _MazeOverlayState extends State<MazeOverlay>
       ),
     );
 
-    engine.registerListener(
-      GameEvents.heroMoved,
+    engine.addEventListener(
+      MapEvents.heroMoved,
       EventHandler(
         ownerKey: widget.key!,
         handle: (GameEvent event) async {
@@ -267,8 +269,8 @@ class _MazeOverlayState extends State<MazeOverlay>
       ),
     );
 
-    engine.registerListener(
-      CustomEvents.needRebuildUI,
+    engine.addEventListener(
+      UIEvents.needRebuildUI,
       EventHandler(
         ownerKey: widget.key!,
         handle: (GameEvent event) {
@@ -281,7 +283,7 @@ class _MazeOverlayState extends State<MazeOverlay>
 
   @override
   void dispose() {
-    engine.disposeListenders(widget.key!);
+    engine.removeEventListener(widget.key!);
     // FlameAudio.bgm.stop();
     // FlameAudio.bgm.dispose();
 
@@ -291,8 +293,10 @@ class _MazeOverlayState extends State<MazeOverlay>
 
   Future<Scene?> _createLevel(HTStruct levelData) async {
     if (_isDisposing) return null;
-    final scene = await engine.createScene('maze', levelData['id'], levelData)
-        as MazeScene;
+    final scene = await engine.createScene(
+        contructorKey: 'maze',
+        sceneId: levelData['id'],
+        arg: levelData) as MazeScene;
     _heroData = engine.invoke('getHero');
     return scene;
   }
@@ -310,6 +314,10 @@ class _MazeOverlayState extends State<MazeOverlay>
               () => _createLevel(widget.mazeData['levels'][_currentLevelIndex]),
             ),
             builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                throw (snapshot.error!);
+              }
+
               if (!snapshot.hasData) {
                 return LoadingScreen(text: engine.locale['loading']);
               } else {

@@ -11,36 +11,36 @@ const kCompanionTypeBattle = 'battleCompanion'
 // 俘虏
 const kCompanionTypeCapture = 'capture'
 
-// 战斗伙伴是一种特殊的随从，可以“装备”在物品栏，并且带有一些战斗中的效果
-fun generateBattleCompanionData(companionData, battleEntity) {
-  final firstOffenseItem = getEquippedOffenseItem(battleEntity)
-  companionData.stats.damage = firstOffenseItem?.stats.damage
+// // 战斗伙伴是一种特殊的随从，可以“装备”在物品栏，并且带有一些战斗中的效果
+// function generateBattleCompanionData(companionData, battleEntity) {
+  // const firstOffenseItem = getEquippedOffenseItem(battleEntity)
+  // companionData.stats.damage = firstOffenseItem?.stats.damage
 
-  companionData.isEquippable = true
-  companionData.equipType = kEquipTypeCompanion
+  // companionData.isEquippable = true
+  // companionData.equipType = kEquipTypeCompanion
 
-  final assist = Effect(
-    category: 'companion',
-    handlerType: kEffectCategoryOffense,
-    id: 'addDamageOnCooldown',
-    values: [
-      EffectValue(value: companionData.stats.damage),
-      EffectValue(value: _kCompanionAssistCooldown),
-    ],
-  )
-  final defend = Effect(
-    category: 'companion',
-    handlerType: kEffectCategoryDefend,
-    id: 'decreaseDamageOnCooldown',
-    values: [
-      EffectValue(
-        value: _kCompanionDefendPercentage,
-        type: kEffectValueTypePercentage,
-      ),
-      EffectValue(value: _kCompanionDefendCooldown),
-    ],
-  )
-  if (companionData.stats.effects == null) companionData.stats.effects = {}
-  companionData.stats.effects[assist.id] = assist
-  companionData.stats.effects[defend.id] = defend
-}
+  // const assist = Effect(
+  //   category: 'companion',
+  //   handlerType: kEffectCategoryOffense,
+  //   id: 'addDamageOnCooldown',
+  //   values: [
+  //     EffectValue(value: companionData.stats.damage),
+  //     EffectValue(value: _kCompanionAssistCooldown),
+  //   ],
+  // )
+  // const defend = Effect(
+  //   category: 'companion',
+  //   handlerType: kEffectCategoryDefend,
+  //   id: 'decreaseDamageOnCooldown',
+  //   values: [
+  //     EffectValue(
+  //       value: _kCompanionDefendPercentage,
+  //       type: kEffectValueTypePercentage,
+  //     ),
+  //     EffectValue(value: _kCompanionDefendCooldown),
+  //   ],
+  // )
+  // if (companionData.stats.effects == null) companionData.stats.effects = {}
+  // companionData.stats.effects[assist.id] = assist
+  // companionData.stats.effects[defend.id] = defend
+// }

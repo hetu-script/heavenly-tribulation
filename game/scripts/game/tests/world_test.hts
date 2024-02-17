@@ -1,5 +1,5 @@
 import '../worldmap.ht'
 
-final world = createWorldMap()
+const world = createWorldMap()
 
 print(world)

@@ -1,8 +1,8 @@
-fun expForLevel(level, difficulty) {
+function expForLevel(level, difficulty) {
   assert(level > 0)
   return ((difficulty * (level * level * level)) ~/ 5 + 1) * 10
 }
 
-for (final i in range(1, 10)) {
+for (const i in range(1, 10)) {
   print(expForLevel(i, 1))
 }

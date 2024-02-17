@@ -4,7 +4,7 @@ import 'package:hetu_script/values.dart';
 import '../../grid/entity_grid.dart';
 import '../../grid/entity_info.dart';
 import '../../../../global.dart';
-import '../../../../event/events.dart';
+import '../../../../event/ui.dart';
 import 'package:samsara/ui/flutter/integer_input_field.dart';
 import 'package:samsara/ui/flutter/empty_placeholder.dart';
 import '../../../common.dart';
@@ -80,7 +80,7 @@ class _InventoryViewState extends State<InventoryView> {
                       engine
                           .invoke('consume', positionalArgs: [_hero, itemData]);
                       Navigator.of(context).pop();
-                      engine.broadcast(const UIEvent.needRebuildUI());
+                      engine.emit(const UIEvent.needRebuildUI());
                       setState(() {});
                     },
                     child: Text(engine.locale['consume']),
@@ -97,7 +97,7 @@ class _InventoryViewState extends State<InventoryView> {
                         engine
                             .invoke('equip', positionalArgs: [_hero, itemData]);
                         Navigator.of(context).pop();
-                        engine.broadcast(const UIEvent.needRebuildUI());
+                        engine.emit(const UIEvent.needRebuildUI());
                         if (widget.onEquipChanged != null) {
                           widget.onEquipChanged!();
                         }
@@ -115,7 +115,7 @@ class _InventoryViewState extends State<InventoryView> {
                         engine.invoke('unequip',
                             positionalArgs: [_hero, itemData]);
                         Navigator.of(context).pop();
-                        engine.broadcast(const UIEvent.needRebuildUI());
+                        engine.emit(const UIEvent.needRebuildUI());
                         if (widget.onEquipChanged != null) {
                           widget.onEquipChanged!();
                         }
@@ -136,7 +136,7 @@ class _InventoryViewState extends State<InventoryView> {
                     engine.invoke('characterSteal',
                         positionalArgs: [_hero, itemData]);
                     Navigator.of(context).pop();
-                    engine.broadcast(const UIEvent.needRebuildUI());
+                    engine.emit(const UIEvent.needRebuildUI());
                     setState(() {});
                   },
                   child: Text(engine.locale['steal']),
@@ -283,7 +283,7 @@ class _InventoryViewState extends State<InventoryView> {
                 //           engine.invoke('skillLevelUp',
                 //               positionalArgs: [_hero, itemData]);
                 //           setState(() {});
-                //           engine.broadcast(const UIEvent.needRebuildUI());
+                //           engine.emit(const UIEvent.needRebuildUI());
                 //         }
                 //       : null,
                 //   child: Text(
@@ -297,13 +297,13 @@ class _InventoryViewState extends State<InventoryView> {
                     if (isEquipped) {
                       engine
                           .invoke('unequip', positionalArgs: [_hero, itemData]);
-                      engine.broadcast(const UIEvent.needRebuildUI());
+                      engine.emit(const UIEvent.needRebuildUI());
                       if (widget.onEquipChanged != null) {
                         widget.onEquipChanged!();
                       }
                     } else {
                       engine.invoke('equip', positionalArgs: [_hero, itemData]);
-                      engine.broadcast(const UIEvent.needRebuildUI());
+                      engine.emit(const UIEvent.needRebuildUI());
                       if (widget.onEquipChanged != null) {
                         widget.onEquipChanged!();
                       }
@@ -331,13 +331,13 @@ class _InventoryViewState extends State<InventoryView> {
                     if (isEquipped) {
                       engine
                           .invoke('unequip', positionalArgs: [_hero, itemData]);
-                      engine.broadcast(const UIEvent.needRebuildUI());
+                      engine.emit(const UIEvent.needRebuildUI());
                       if (widget.onEquipChanged != null) {
                         widget.onEquipChanged!();
                       }
                     } else {
                       engine.invoke('equip', positionalArgs: [_hero, itemData]);
-                      engine.broadcast(const UIEvent.needRebuildUI());
+                      engine.emit(const UIEvent.needRebuildUI());
                       if (widget.onEquipChanged != null) {
                         widget.onEquipChanged!();
                       }

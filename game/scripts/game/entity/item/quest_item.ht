@@ -1,1 +1,1 @@
-final kLocationJailVisitPermit = 'locationJailVisitPermit'
+const kLocationJailVisitPermit = 'locationJailVisitPermit'

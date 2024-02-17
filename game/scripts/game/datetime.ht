@@ -10,45 +10,45 @@ const kMonthsPerYear = 12 //每年的月数
 const kTicksPerYear = kMonthsPerYear * kTicksPerMonth //每年的回合数 1440
 
 /// 当前年数
-fun toYear(timestamp) => (timestamp ~/ kTicksPerYear)
+function toYear(timestamp) => (timestamp ~/ kTicksPerYear)
 /// 0-11 当前月数
-fun toMonth(timestamp) => (timestamp % kTicksPerYear) ~/ kTicksPerMonth
+function toMonth(timestamp) => (timestamp % kTicksPerYear) ~/ kTicksPerMonth
 /// 0-29 当前月的天数
-fun toDay(timestamp) => (timestamp % kTicksPerMonth) ~/ kTicksPerDay
+function toDay(timestamp) => (timestamp % kTicksPerMonth) ~/ kTicksPerDay
 /// 0-3 当前的时刻（清晨、下午、傍晚、午夜）
-fun toTime(timestamp) => (timestamp % kTicksPerDay)
+function toTime(timestamp) => (timestamp % kTicksPerDay)
 
-fun getCurrentYear => toYear(game.timestamp) + 1
-fun getCurrentMonth => toMonth(game.timestamp) + 1
-fun getCurrentDay => toDay(game.timestamp) + 1
-fun getCurrentTicksOfYear => (game.timestamp % kTicksPerYear)
-fun getCurrentTicksOfMonth => (game.timestamp % kTicksPerMonth)
+function getCurrentYear => toYear(game.timestamp) + 1
+function getCurrentMonth => toMonth(game.timestamp) + 1
+function getCurrentDay => toDay(game.timestamp) + 1
+function getCurrentTicksOfYear => (game.timestamp % kTicksPerYear)
+function getCurrentTicksOfMonth => (game.timestamp % kTicksPerMonth)
 
-final kHourString = {
+const kHourString = {
   '0': 'morning',
   '1': 'afternoon',
   '2': 'evening',
   '3': 'night',
 }
 
-fun getCurrentDateTimeString() {
-  final d = formatDateTimeString(game.timestamp, format: 'date')
-  final h = (game.timestamp % 4).toString()
-  final h2 = getLocaleString(kHourString[h])
+function getCurrentDateTimeString() {
+  const d = formatDateTimeString(game.timestamp, format: 'date')
+  const h = (game.timestamp % 4).toString()
+  const h2 = getLocaleString(kHourString[h])
   return '${d}${h2}'
 }
 
 /// [format] = 'age' | 'date' | 'time' . 'ymd' | 'ym' | 'md' | 'd' | 'auto'
-fun formatDateTimeString(timestamp: int, {format: str}) {
-  var yearN = toYear(timestamp)
-  var monthN = toMonth(timestamp)
-  var dayN = toDay(timestamp)
+function formatDateTimeString(timestamp: int, {format: str}) {
+  let yearN = toYear(timestamp)
+  let monthN = toMonth(timestamp)
+  let dayN = toDay(timestamp)
   
-  var yearC
-  var monthC
-  var dayC
+  let yearC
+  let monthC
+  let dayC
 
-  final t = format?.split('.').first ?? 'date'
+  const t = format?.split('.').first ?? 'date'
   if (t == 'age') {
     yearC = getLocaleString('ageYear')
     monthC = getLocaleString('ageMonth')
@@ -66,31 +66,31 @@ fun formatDateTimeString(timestamp: int, {format: str}) {
     dayC = getLocaleString('timeDay')
   }
 
-  final year = '${yearN}${yearC}'
-  final month = '${monthN}${monthC}'
-  final day = '${dayN}${dayC}'
+  const year = '${yearN}${yearC}'
+  const month = '${monthN}${monthC}'
+  const day = '${dayN}${dayC}'
 
-  final fmt = format?.split('.').last
-  when (fmt) {
-    'y'-> {
+  const fmt = format?.split('.').last
+  switch (fmt) {
+    'y' => {
       return year
     }
-    'm'-> {
+    'm' => {
       return month
     }
-    'd'-> {
+    'd' => {
       return day
     }
-    'ym'-> {
+    'ym' => {
       return '${year}${month}'
     }
-    'md'-> {
+    'md' => {
       return '${month}${day}'
     }
-    'ymd'-> {
+    'ymd' => {
       return '${year}${month}${day}'
     }
-    'age' -> {
+    'age' => {
       if (yearN == 0) {
         if (monthN == 0) {
           return day
@@ -101,37 +101,37 @@ fun formatDateTimeString(timestamp: int, {format: str}) {
         return year
       }
     }
-    else -> {
+    else => {
       return '${year}${month}${day}'
     }
   }
 }
 
-fun toDateString(timestamp) => formatDateTimeString(timestamp)
+function toDateString(timestamp) => formatDateTimeString(timestamp)
 
-fun toTimeString(timestamp) => formatDateTimeString(timestamp, format: 'time.ymd')
+function toTimeString(timestamp) => formatDateTimeString(timestamp, format: 'time.ymd')
 
-fun toAgeString(timestamp) => formatDateTimeString(timestamp, format: 'age')
+function toAgeString(timestamp) => formatDateTimeString(timestamp, format: 'age')
 
-fun getEntityAgeString(entity) {
+function getEntityAgeString(entity) {
   return toAgeString(game.timestamp - entity.birthTimestamp)
 }
 
-fun getEntityBirthDateString(entity) {
+function getEntityBirthDateString(entity) {
   return formatDateTimeString(game.timestamp - entity.birthTimestamp, format: 'date.md')
 }
 
-fun getDayString(count) {
+function getDayString(count) {
   assert(count > 0)
   return '${count} ${getLocaleString('timeDay')}'
 }
 
-fun getMonthString(count) {
+function getMonthString(count) {
   assert(count > 0)
   return '${count} ${getLocaleString('timeMonth')}'
 }
 
-fun getYearString(count) {
+function getYearString(count) {
   assert(count > 0)
   return '${count} ${getLocaleString('timeYear')}'
 }

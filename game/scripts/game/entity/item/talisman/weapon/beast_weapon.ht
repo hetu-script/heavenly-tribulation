@@ -4,10 +4,10 @@ import '../../../../util.ht'
 import '../../../../game.ht'
 import '../../../../l10n.ht'
 
-final kBeastWeaponKindClaw = 'claw'
-final kBeastWeaponKindFang = 'fang'
+const kBeastWeaponKindClaw = 'claw'
+const kBeastWeaponKindFang = 'fang'
 
-final kBeastWeaponKinds = {
+const kBeastWeaponKinds = {
   'claw': {
     icon: 'icon/item/claw.png',
     damageType: kDamageTypeSlash,

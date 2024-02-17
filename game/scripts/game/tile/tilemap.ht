@@ -39,15 +39,15 @@ struct TileMap {
   }
 }
 
-fun getTerrain(left, top, map) {
+function getTerrain(left, top, map) {
   return map.terrains[tilePos2Index(left, top, map.width)]
 }
 
-fun addTerrainToZone(terrain, zoneIndex, map) {
+function addTerrainToZone(terrain, zoneIndex, map) {
   assert(0 <= zoneIndex && zoneIndex < map.zones.length)
-  final zone = map.zones[zoneIndex]
+  const zone = map.zones[zoneIndex]
   if (terrain.zoneIndex != null && terrain.zoneIndex >= 0) {
-    final oldZone = map.zones[terrain.zoneIndex]
+    const oldZone = map.zones[terrain.zoneIndex]
     oldZone.terrainIndexes.remove(terrain.index)
   }
   terrain.zoneIndex = zoneIndex
@@ -56,74 +56,74 @@ fun addTerrainToZone(terrain, zoneIndex, map) {
 }
 
 // 从 hexagonal 坐标得到索引
-fun tilePos2Index(left, top, mapWidth) {
+function tilePos2Index(left, top, mapWidth) {
   return left - 1 + (top - 1) * mapWidth
 }
 
 // 从索引得到 hexagonal 坐标
-fun index2TilePos(index: int, mapWidth) {
-  final left = index % mapWidth + 1
-  final top = index ~/ mapWidth + 1
+function index2TilePos(index: int, mapWidth) {
+  const left = index % mapWidth + 1
+  const top = index ~/ mapWidth + 1
   return Tile(left, top, index: index, mapWidth: mapWidth)
 }
 
 // 坐标是否在地图范围内
-fun isPositionWithinMap(left, top, width, height) {
+function isPositionWithinMap(left, top, width, height) {
   return (left > 0 && top > 0 && left <= width && top <= height)
 }
 
 // hScore(n) 是曼哈顿距离时的 A* 算法
-fun calculateRoute(start, end, map, {restrictedInZoneIndex}) {
+function calculateRoute(start, end, map, {restrictedInZoneIndex}) {
   // print('calculating route: ${start.left},${start.top} to ${end.left},${end.top}')
 
   assert(start.index != null && end.index != null)
   if (start.index == end.index) return null
 
   // g(n): 原点到该点的距离
-  final gScore = Map()
+  const gScore = Map()
   gScore[start.index] = 0
   // h(n): 该点到终点的距离
-  final hScore = Map()
+  const hScore = Map()
   hScore[start.index] = getTileDistance(start, end)
   // f(n) = g(n) + h(n)
-  final fScore = Map()
+  const fScore = Map()
   fScore[start.index] = hScore[start.index]
 
   // 节点返回路径，每个 key 对应的 value 代表了 key 的坐标的上一步骤的坐标
-  final cameFrom = Map()
-  fun reconstructPath(cameFrom, current) {
-    final from = cameFrom[current]
+  const cameFrom = Map()
+  function reconstructPath(cameFrom, current) {
+    const from = cameFrom[current]
     if (from != null) {
-      final path = reconstructPath(cameFrom, from)
+      const path = reconstructPath(cameFrom, from)
       return [ ...path, current ]
     } else {
       return [ current ]
     }
   }
   // 已被计算的坐标
-  final closed = Set()
+  const closed = Set()
   // 将要计算的坐标, key 是 tile index，value 是 离起点的距离
-  final open = []
+  const open = []
   open.add(start.index)
-  final distance = getTileDistance(start, end)
+  const distance = getTileDistance(start, end)
 
   while (open.isNotEmpty) {
     // 找到 f(x) 最小的节点
     open.sort((t1, t2) => fScore[t1].compareTo(fScore[t2]))
-    final nextIndex = open.first
-    final next = index2TilePos(nextIndex, map.width)
+    const nextIndex = open.first
+    const next = index2TilePos(nextIndex, map.width)
     if (nextIndex == end.index) {
       // route.path = reconstructPath(cameFrom, end.index)
-      final route = reconstructPath(cameFrom, end.index)
+      const route = reconstructPath(cameFrom, end.index)
       return route
     }
     open.remove(nextIndex)
     closed.add(nextIndex)
-    final neighbors = getMapTileNeighbors(next.left, next.top, map, zoneIndex: restrictedInZoneIndex)
-    for (final neighbor in neighbors) {
+    const neighbors = getMapTileNeighbors(next.left, next.top, map, zoneIndex: restrictedInZoneIndex)
+    for (const neighbor in neighbors) {
       if (closed.contains(neighbor.index)) continue
-      final tentetiveGScore = gScore[nextIndex] + 1
-      var tentativelyBetter = false
+      const tentetiveGScore = gScore[nextIndex] + 1
+      let tentativelyBetter = false
       if (!open.contains(neighbor.index) || (tentetiveGScore < gScore[neighbor.index])) {
         tentativelyBetter = true
       }
@@ -141,7 +141,7 @@ fun calculateRoute(start, end, map, {restrictedInZoneIndex}) {
   return null
 }
 
-fun generateLabrynth(start, end, map, {restrictedInZoneIndex}) {
+function generateLabrynth(start, end, map, {restrictedInZoneIndex}) {
   
   assert(start.index != null && end.index != null)
   if (start.index == end.index) return null

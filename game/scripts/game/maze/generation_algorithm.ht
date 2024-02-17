@@ -16,7 +16,7 @@ const kDefaultBlockHeight = 4
 //     7-----8-----9
 //
 // 为了保证唯一性，描述字符串一定是从左到右，从上到下
-final kRoutesOfAnchorBySquare3 = {
+const kRoutesOfAnchorBySquare3 = {
   '1': ['1-2', '1-4'],
   '2': ['1-2', '2-5', '2-3'],
   '3': ['2-3', '3-6'],
@@ -44,11 +44,11 @@ final kRoutesOfAnchorBySquare3 = {
 // 
 
 // 根据路径的描述字符串生成路径，描述字符串必须是 1-2 的形式，其中1和2是锚点的index，可以是其他数字
-fun generateRouteByAnchor(achorDescription, anchors, map, { flag }) {
-  final pos = achorDescription.split('-')
+function generateRouteByAnchor(achorDescription, anchors, map, { flag }) {
+  const pos = achorDescription.split('-')
   assert(pos.length > 1)
-  final start = int.parse(pos.first)
-  final end = int.parse(pos.last)
+  const start = int.parse(pos.first)
+  const end = int.parse(pos.last)
   assert(start is int && end is int)
   assert(start < end)
   // print('generateRouteByAnchor', start, end)
@@ -58,25 +58,25 @@ fun generateRouteByAnchor(achorDescription, anchors, map, { flag }) {
 
 // 调用 A* 算法（calculateRoute）来计算路径
 // 执行这个函数时地图尚未生成，因此不需要考虑zone，所以无需使用真正的terrain来计算
-fun generateRouteByIndex(index1, index2, map, { flag }) {
+function generateRouteByIndex(index1, index2, map, { flag }) {
   // print('generateRouteByIndex', index1, index2)
 
-  final tile1 = index2TilePos(index1, map.width)
-  final tile2 = index2TilePos(index2, map.width)
+  const tile1 = index2TilePos(index1, map.width)
+  const tile2 = index2TilePos(index2, map.width)
   // print('tile position', tile1.left, tile1.top, tile2.left, tile2.top)
   // print('generate route from ${tile1} to ${tile2}')
-  final route = calculateRoute(tile1, tile2, map)
+  const route = calculateRoute(tile1, tile2, map)
   // print(route)
   if (route && route.length > 1) {
-    for (final index in route) {
-      final terrain = map.terrains[index]
+    for (const index in route) {
+      const terrain = map.terrains[index]
       terrain.flags.isRoute = true
       if (flag != null) {
         terrain.flags[flag] = true
       }
     }
   } else {
-    final terrain = map.terrains[index1]
+    const terrain = map.terrains[index1]
     terrain.flags.isRoute = true
     if (flag != null) {
       terrain.flags[flag] = true

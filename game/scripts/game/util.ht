@@ -1,15 +1,15 @@
 import 'l10n.ht'
 import 'game.ht'
 
-fun getChance2Hit(accuracy, evasion) {
-  final uncapped = accuracy * 1.15 / (accuracy + Math.pow(evasion * 0.2, 0.9))
+function getChance2Hit(accuracy, evasion) {
+  const uncapped = accuracy * 1.15 / (accuracy + Math.pow(evasion * 0.2, 0.9))
   return Math.min(Math.max(uncapped, 0.05), 1)
 }
 
 /// 双曲线渐近线随机数
 /// 取值离normal越远，随机出的可能性越低
 /// 公式: y=\frac{6x-6}{5x-6}
-fun hyperbola(normal, deviation) {
-  final x = random.nextDouble()
+function hyperbola(normal, deviation) {
+  const x = random.nextDouble()
   return ((x * 6 - 6) / (x * 5 - 6) + deviation) * normal
 }

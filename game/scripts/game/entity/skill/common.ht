@@ -5,22 +5,22 @@ import '../../game.ht'
 
 const kSkillInitialEfficiency = 0
 
-final kFightSkills = [
+const kFightSkills = [
   'kungfu', // 主技能，拳脚
   'weapon_arts', // 副技能，武器招法
   'arcana_arts', // 副技能，内功
 ]
 
-fun calculateSkillStats(skill) {
+function calculateSkillStats(skill) {
   skill.stats = skill.attributes.clone()
   
   // 因为涉及到多个步骤的加法和乘法，因此先把基础伤害值单独拿出来
-  var baseDamage = skill.stats.damage
+  let baseDamage = skill.stats.damage
 
-  for (final effect of skill.stats.effects) {
+  for (const effect of skill.stats.effects) {
     if (effect.handlerType == kEffectCategoryEquippedEntity) {
-      when (effect.id) {
-        'addDamage' -> {
+      switch (effect.id) {
+        'addDamage' => {
           baseDamage += effect.values[0].value
         }
       }
@@ -36,11 +36,11 @@ fun calculateSkillStats(skill) {
 /// 根据其熟练度，数值和技能本身的数值不同。
 /// 人物本身所学到的技能，和保存在物品栏中尚未学习的技能书不同
 /// 书本身所显示的技能数值，是指其修炼满时的最大值
-fun learn(character, book) {
-  final clone = book.skill.clone()
+function learn(character, book) {
+  const clone = book.skill.clone()
   character.skills[clone.id] = clone
 
-  final incidentContent = getLocaleString('characterLearn', interpolations: [
+  const incidentContent = getLocaleString('characterLearn', interpolations: [
     character.name,
     skill.name,
   ])
@@ -52,14 +52,14 @@ fun learn(character, book) {
   return
 }
 
-fun skillEffectLevelUp(effect) {
+function skillEffectLevelUp(effect) {
   assert(effect.exp >= effect.expForNextLevel)
   skill.exp -= skill.expForNextLevel
   ++skill.level
   skill.expForNextLevel = expForLevel(skill.difficulty, skill.level + 1) // 下一等级需要的经验值
   calculateSkillStats(skill)
   
-  final incidentContent = getLocaleString('characterSkillLevelUp', interpolations: [
+  const incidentContent = getLocaleString('characterSkillLevelUp', interpolations: [
     character.name,
     skill.name,
     skill.level + 1,
@@ -72,13 +72,13 @@ fun skillEffectLevelUp(effect) {
   return
 }
 
-fun generateBookFromSkill(skill) {
+function generateBookFromSkill(skill) {
   
 }
 
 /// 重置某个技能为 0 级
-fun resetSkillLevel(skill) {
-  for (final effect of skill.attributes.effects) {
+function resetSkillLevel(skill) {
+  for (const effect of skill.attributes.effects) {
     initEffectData(effect, skill.difficulty, kSkillInitialEfficiency)
   }
   

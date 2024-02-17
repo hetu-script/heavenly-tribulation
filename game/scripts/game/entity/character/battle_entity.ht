@@ -4,7 +4,7 @@
 
 import '../common.ht'
 import '../../binding/worldmap.ht'
-import 'status_effect/world_map_status_effect.ht'
+// import 'status_effect/world_map_status_effect.ht'
 
 const _kCharacterAttributeMinValue = 1
 const _kCharacterAttributeMaxValue = 100
@@ -13,7 +13,7 @@ const _kCharacterAttributeSumDeviation = 300
 
 const kEscapedLootProbability = 0.5
 
-final kCharacterAttributeNames = [
+const kCharacterAttributeNames = [
   'strength',
   'constitution',
   'spirituality',
@@ -34,7 +34,6 @@ struct BattleEntity {
     generate = true,
     baseStamina = kBasicResource,
     baseLife = kBasicResource,
-    baseMana = kBasicResource,
     baseSpirit = kBasicResource,
   }) {
     // 身上携带的金钱数量
@@ -74,10 +73,6 @@ struct BattleEntity {
         minValue: _kCharacterAttributeMinValue,
         maxValue: _kCharacterAttributeMaxValue,
         majorAttributes: majorAttributes,
-        baseStamina: baseStamina,
-        baseLife: baseLife,
-        baseMana: baseMana,
-        baseSpirit: baseSpirit,
       )
     } else {
       this.attributes = {}
@@ -95,33 +90,29 @@ struct BattleEntity {
   }
 }
 
-fun generateCharacterAttributes({
+function generateCharacterAttributes({
     attributesSum,
     minValue,
     maxValue,
     majorAttributes: List = [],
-    baseStamina,
-    baseLife,
-    baseMana,
-    baseSpirit,
   }) {
   assert(attributesSum > 0)
   assert(minValue > 0)
   assert(maxValue > 0 && maxValue > minValue)
 
-  final attributes = {}
+  const attributes = {}
   
-  fun checkValue(value) {
+  function checkValue(value) {
     if (value < minValue) return minValue
     if (value > maxValue) return maxValue
     return value
   }
   
-  for (final name in random.shuffle(kCharacterAttributeNames)) {
+  for (const name in random.shuffle(kCharacterAttributeNames)) {
     if (name in majorAttributes) {
       minValue = attributesSum / kCharacterAttributeNames.length * kMajorAttributeFactor
     }
-    final value = (
+    const value = (
       Math.gaussianNoise(
         attributesSum / kCharacterAttributeNames.length * 0.6,
         20,
@@ -132,76 +123,68 @@ fun generateCharacterAttributes({
     ).toInt()
     attributes[name] = checkValue(value)
   }
-
-  attributes.stamina = baseStamina ?? kBasicResource
-  attributes.life = baseLife ?? kBasicResource
-  attributes.mana = baseMana ?? kBasicResource
-  attributes.spirit = baseSpirit ?? kBasicResource
   
   return attributes
 }
 
 /// 当前状态数值，由种族、天赋、属性点数、物品、技能、增益减损等计算得来
 /// 状态包括：生命、伤害、防御等。
-fun calculateCharacterStats(character) {
+function calculateCharacterStats(character) {
   character.stats = character.attributes.clone()
 
-  var baseStamina = character.stats.stamina
-  var baseLife = character.stats.life
-  var baseMana = character.stats.mana
-  var baseSpirit = character.stats.spirit
+  let baseStrength = character.stats.strength
+  let baseConstitution = character.stats.constitution
+  let baseSpirituality = character.stats.spirituality
+  let baseWillpower = character.stats.willpower
+  let basePerception = character.stats.perception
+  let baseDexterity = character.stats.dexterity
 
-  var baseStrength = character.stats.strength
-  var baseConstitution = character.stats.constitution
-  var baseSpirituality = character.stats.spirituality
-  var baseWillpower = character.stats.willpower
-  var basePerception = character.stats.perception
-  var baseDexterity = character.stats.dexterity
-
-  for (final equipData of character.equipments) {
-    final item = getEquipped(equipData, character)
-    for (final effect of item.stats.effects) {
-      if (effect.handlerType == kEffectCategoryCharacter) {
-        when (effect.id) {
-          'addStamina' -> {
-            baseStamina += effect.values[0].value
-          }
-          'addLife' -> {
-            baseLife += effect.values[0].value
-          }
-          'addMana' -> {
-            baseMana += effect.values[0].value
-          }
-          'addSpirit' -> {
-            baseSpirit += effect.values[0].value
-          }
-          'addStrength' -> {
-            baseStrength += effect.values[0].value
-          }
-          'addConstitution' -> {
-            baseConstitution += effect.values[0].value
-          }
-          'addSpirituality' -> {
-            baseSpirituality += effect.values[0].value
-          }
-          'addPerception' -> {
-            basePerception += effect.values[0].value
-          }
-          'addDexterity' -> {
-            baseDexterity += effect.values[0].value
-          }
-        }
-      }
-    }
-  }
+  // for (const equipData of character.equipments) {
+  //   const item = getEquipped(equipData, character)
+  //   for (const effect of item.stats.effects) {
+  //     if (effect.handlerType == kEffectCategoryCharacter) {
+  //       switch (effect.id) {
+  //         'addStamina' => {
+  //           baseStamina += effect.values[0].value
+  //         }
+  //         'addLife' => {
+  //           baseLife += effect.values[0].value
+  //         }
+  //         'addMana' => {
+  //           baseMana += effect.values[0].value
+  //         }
+  //         'addSpirit' => {
+  //           baseSpirit += effect.values[0].value
+  //         }
+  //         'addStrength' => {
+  //           baseStrength += effect.values[0].value
+  //         }
+  //         'addConstitution' => {
+  //           baseConstitution += effect.values[0].value
+  //         }
+  //         'addSpirituality' => {
+  //           baseSpirituality += effect.values[0].value
+  //         }
+  //         'addPerception' => {
+  //           basePerception += effect.values[0].value
+  //         }
+  //         'addDexterity' => {
+  //           baseDexterity += effect.values[0].value
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
 
   
-  baseStamina += (baseStrength ~/ 5) * 5
-  baseLife += (baseConstitution ~/ 5) * 5
+  baseStamina = (baseStrength ~/ 5) * 5
+  baseLife = (baseConstitution ~/ 5) * 5
+  baseSpirit = (baseSpirituality ~/ 5) * 5
 
-  character.stats.maxStamina = baseStamina
-  character.stats.maxLife = baseLife
-  
+  character.stats.stamina = character.stats.staminaMax = baseStamina
+  character.stats.life = character.stats.lifeMax = baseLife
+  character.stats.spirit = character.stats.spiritMax = baseSpirit
+
   character.stats.strength = baseStrength
   character.stats.constitution = baseConstitution
   character.stats.spirituality = baseSpirituality
@@ -211,13 +194,13 @@ fun calculateCharacterStats(character) {
 
 }
 
-fun getCharacterStats(character) {
-  final stats = character.stats.clone()
+function getCharacterStats(character) {
+  const stats = character.stats.clone()
   stats.equipments = {}
-  for (final i in range(1, kEquipmentMax)) {
-    final equipData = character.equipments[i]
+  for (const i in range(1, kEquipmentMax)) {
+    const equipData = character.equipments[i]
     if (equipData != null) {
-      final equipment = getEquipped(equipData, character)
+      const equipment = getEquipped(equipData, character)
       stats.equipments[i] = equipment.stats.clone()
     }
   }
@@ -225,7 +208,7 @@ fun getCharacterStats(character) {
 }
 
 // 战斗，异步函数，如果获胜则返回 true
-fun heroBattle (
+function heroBattle (
   char2, {
   resolveResult = true,
   loot = true,
@@ -236,12 +219,12 @@ fun heroBattle (
   onWon,
   onLost,
 }) -> Future async {
-  // final char1 = getHero()
+  // const char1 = getHero()
   // return showDuel(char1, char2).then((result) {
   //   if (result?.result) {
   //     if (resolveResult) resolveDuelResult(char1, char2, result)
   //     if (loot) lootCharacter(char1, char2, takeAll: takeAll)
-  //     final incidentContent = getLocaleString('duelVistory', interpolations: [ char1.name, char2.name ] )
+  //     const incidentContent = getLocaleString('duelVistory', interpolations: [ char1.name, char2.name ] )
   //     Incident(
   //       content: incidentContent,
   //       subjectIds: [char1.id],
@@ -250,12 +233,12 @@ fun heroBattle (
   //     )
   //     if (char2Resurrect) {
   //       if (char2.isMajorCharacter) {
-  //         final injury = WorldMapStatusEffect.injury()
+  //         const injury = WorldMapStatusEffect.injury()
   //         char2.statusEffects[injury.kind] = injury
   //         char2.stats.life = 1
   //       }
   //     } else {
-  //       final incidentContent = getLocaleString('characterKill', interpolations: [ char1.name, char2.name ] )
+  //       const incidentContent = getLocaleString('characterKill', interpolations: [ char1.name, char2.name ] )
   //       Incident(
   //         content: incidentContent,
   //         subjectIds: [char1.id],
@@ -274,7 +257,7 @@ fun heroBattle (
   //     return true
   //   } else {
   //     if (char1Resurrect) {
-  //       final injury = WorldMapStatusEffect.injury()
+  //       const injury = WorldMapStatusEffect.injury()
   //       char1.statusEffects[injury.kind] = injury
   //       char1.stats.life = 1
   //     }

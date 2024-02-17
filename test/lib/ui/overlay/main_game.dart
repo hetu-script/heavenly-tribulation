@@ -26,7 +26,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
 
   @override
   void dispose() {
-    engine.disposeListenders(widget.key!);
+    engine.removeEventListener(widget.key!);
 
     _scene.detach();
     super.dispose();
@@ -34,7 +34,10 @@ class _MainGameOverlayState extends State<MainGameOverlay>
 
   Future<Scene?> _getScene() async {
     if (_isDisposing) return null;
-    final scene = await engine.createScene('game', 'game') as GameScene;
+    final scene = await engine.createScene(
+      contructorKey: 'game',
+      sceneId: 'game',
+    ) as GameScene;
     return scene;
   }
 
@@ -55,6 +58,10 @@ class _MainGameOverlayState extends State<MainGameOverlay>
               () => _getScene(),
             ),
             builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                throw (snapshot.error!);
+              }
+
               if (!snapshot.hasData) {
                 return LoadingScreen(text: engine.locale['loading']);
               } else {

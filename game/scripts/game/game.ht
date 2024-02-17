@@ -1,19 +1,19 @@
 export 'random.ht'
 
 /// 游戏设置，和存档无关，属于载入存档或者开始新游戏之前的全局设置
-var config = {
+let config = {
   debug: true,
 }
 
-var hero
+let hero
 
-var game
+let game
 
-var universe
+let universe
 
-var currentWorld
+let currentWorld
 
-var currentMaze
+let currentMaze
 
 struct Game {
   construct {
@@ -62,7 +62,7 @@ struct Universe {
   }
 }
 
-fun resetPlayerMonthlyActivities(gameData){
+function resetPlayerMonthlyActivities(gameData){
   
   // 指玩家对某个其他角色、据点、地形、建筑进行过的动作，限定每个月一次
   gameData.flags.playerMonthly = {
@@ -83,45 +83,45 @@ fun resetPlayerMonthlyActivities(gameData){
   }
 }
 
-fun resetGame {
+function resetGame {
   game = Game()
   universe = Universe()
 }
 
-fun addModInfo(module) {
+function addModInfo(module) {
   engine.info('[${module.name}] 载入模组数据')
   game.modules[module.id] = module
 }
 
-fun getModInfo(id) {
+function getModInfo(id) {
   return game.modules[id]
 }
 
-fun getPlayerMonthlyActivities {
+function getPlayerMonthlyActivities {
   return game.flags.playerMonthly
 }
 
-fun getGameJsonData() {
+function getGameJsonData() {
   return game.toJson()
 }
 
-fun getUniverseJsonData() {
+function getUniverseJsonData() {
   return universe.toJson()
 }
 
-fun getSavePath {
+function getSavePath {
   return game.savePath
 }
 
-fun setSavePath(name: str) {
+function setSavePath(name: str) {
   game.savePath = name
 }
 
-fun getTimestamp {
+function getTimestamp {
   return game.timestamp
 }
 
-fun loadGameFromJsonData(gameData, universeData) {
+function loadGameFromJsonData(gameData, universeData) {
   game = prototype.fromJson(gameData)
 
   assert(game.heroId != null)
@@ -144,14 +144,14 @@ fun loadGameFromJsonData(gameData, universeData) {
   return currentWorld
 }
 
-fun getCurrentMazeHistory() {
+function getCurrentMazeHistory() {
   return currentMaze.history
 }
 
-fun getCurrentWorldHistory() {
+function getCurrentWorldHistory() {
   return currentWorld.history
 }
 
-fun getWorldId {
+function getWorldId {
   return currentWorld.id
 }

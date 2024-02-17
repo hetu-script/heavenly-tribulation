@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 import 'package:samsara/event.dart';
 
-import '../../../event/events.dart';
+import '../../../event/ui.dart';
 import 'package:samsara/ui/flutter/close_button.dart';
 import '../../../global.dart';
 import 'package:samsara/ui/flutter/responsive_window.dart';
@@ -50,8 +50,8 @@ class _QuestsViewState extends State<QuestsView> {
   void initState() {
     super.initState();
 
-    engine.registerListener(
-      CustomEvents.needRebuildUI,
+    engine.addEventListener(
+      UIEvents.needRebuildUI,
       EventHandler(
         ownerKey: widget.key!,
         handle: (GameEvent event) {

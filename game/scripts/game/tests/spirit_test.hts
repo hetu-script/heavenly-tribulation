@@ -2,7 +2,7 @@ import '../util.ht'
 
 struct SpiritOrigin {
   construct {
-    final roots = [
+    const roots = [
       'water',
       'fire',
       'metal',
@@ -10,10 +10,10 @@ struct SpiritOrigin {
       'earth',
     ]
 
-    var n = 10
-    var max = 0
-    for (var root in roots) {
-      final current = n - hyperbola(n)
+    let n = 10
+    let max = 0
+    for (const root in roots) {
+      const current = n - hyperbola(n)
       if (current > max) {
         max = current
       }
@@ -39,15 +39,15 @@ struct SpiritOrigin {
   }
 }
 
-// final count = {}
+// const count = {}
 
-// for (var i in range(1000)) {
-//   final s = SpiritOrigin()
+// for (const i in range(1000)) {
+//   const s = SpiritOrigin()
 //   ++count[s.rarity]
 // }
 
 // print(count)
 
-for (var i in range(10)) {
+for (const i in range(10)) {
   print(SpiritOrigin())
 }

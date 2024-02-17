@@ -1,2 +1,2 @@
 
-final allCards = {}
+const allCards = {}

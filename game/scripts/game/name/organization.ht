@@ -2,7 +2,7 @@ import 'organization/organization.json5' as orgNames
 import 'common.ht'
 import 'common/common.json5' as commonNamesData
 
-final kNonBattleOrganizationNames = [
+const kNonBattleOrganizationNames = [
   ...commonNamesData.emotion,
   ...commonNamesData.object,
   ...commonNamesData.color,
@@ -10,14 +10,14 @@ final kNonBattleOrganizationNames = [
   ...commonNamesData.action,
 ]
 
-fun generateOrganizationName({category: str}) {
+function generateOrganizationName({category: str}) {
   assert(category in orgNames.keys)
-  final name
+  let name
   if (category == kOrganizationCategoryBusiness) {
     name = random.nextIterable(commonNames)
   } else {
     name = random.nextIterable(kNonBattleOrganizationNames)
   }
-  final kind = random.nextIterable(orgNames[category])
+  let kind = random.nextIterable(orgNames[category])
   return { name: name + kind, category }
 }

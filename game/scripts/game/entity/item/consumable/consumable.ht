@@ -4,7 +4,7 @@ import '../common.ht'
 import '../../effect/effect.ht'
 
 // 饮品的效果
-// final medicineEffects = [
+// const medicineEffects = [
 //   Effect(
 //     id: kEffectRestoreLife,
 //     description: kEffectRestoreLife,
@@ -17,7 +17,7 @@ import '../../effect/effect.ht'
 //   ),
 // ]
 
-// final kWeaponKinds = {
+// const kWeaponKinds = {
 //   'staff': {
 //     icon: 'icon/item/staff.png',
 //   }
@@ -42,7 +42,7 @@ struct Consumable {
     this.name = name
     this.rarity = rarity
     if (!name) {
-      final randomName = generateConsumableName(category: this.kind, rarity: this.rarity)
+      const randomName = generateConsumableName(category: this.kind, rarity: this.rarity)
       this.name = randomName.name
       this.rarity ??= randomName.rarity
     }

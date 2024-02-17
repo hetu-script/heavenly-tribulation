@@ -6,17 +6,17 @@ import 'common.ht'
 
 const _kLinkWord = '之'
 
-fun generateZoneName({category: str}) {
+function generateZoneName({category: str}) {
   assert(category in zoneNames.keys)
-  final kind = random.nextIterable(zoneNames[category])
-  var name
-  final r = random.nextDouble()
+  const kind = random.nextIterable(zoneNames[category])
+  let name
+  const r = random.nextDouble()
   if (r < kStrangeNameProbability) {
     name = random.nextIterable(strangeNames)
   } else if (r < kXianXiaNameProbability) {
     name = random.nextIterable(commonNames)
   } else {
-    var prefix = ''
+    let prefix = ''
     if (random.nextDouble() < kNameWithDirectionProbability) {
       prefix = random.nextIterable(placePrefixes)
     }

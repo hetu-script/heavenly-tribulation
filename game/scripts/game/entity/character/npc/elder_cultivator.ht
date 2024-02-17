@@ -8,7 +8,7 @@ const _kElderCultivatorName = 'seniorMateMale'
 
 const _kElderCultivatorAttributeSum = 500
 
-final _kElderCultivatorAttributes = {
+const _kElderCultivatorAttributes = {
   type1: {
     strength: 79,
     constitution: 75,
@@ -41,9 +41,9 @@ struct ElderCultivator {
     game.npcs[this.id] = this
 
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
-    when (this.kind) {
-      'type1' -> {
-        final battleInfo = BattleEntity(
+    switch (this.kind) {
+      'type1' => {
+        const battleInfo = BattleEntity(
           attributes: _kElderCultivatorAttributes[this.kind],
           attributeSum: _kElderCultivatorName,
           generate: false,

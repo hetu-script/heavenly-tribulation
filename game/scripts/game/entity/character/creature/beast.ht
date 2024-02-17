@@ -7,7 +7,7 @@ const _kBeastRandomAgeMax = 150
 
 const _kBeastAttributeSum = 200
 
-final _kBeastTypes = {
+const _kBeastTypes = {
   tiger: {
     strength: 92,
     constitution: 75,
@@ -51,7 +51,7 @@ struct Beast {
     this.entityType = kEntityTypeNpc
     this.birthTimestamp = birthTimestamp ?? createRandomBirthTimestamp(max: _kBeastRandomAgeMax)
     this.kind = kind ?? random.nextIterable(_kBeastTypes.keys)
-    final randomName = generateCreatureName(category: this.kind, rarity: rarity)
+    const randomName = generateCreatureName(category: this.kind, rarity: rarity)
     this.name = randomName.name
     this.category = kEntityCategoryBeast
     this.id = '${this.entityType}.${Hash.uid4(2)}.${this.name}'
@@ -63,7 +63,7 @@ struct Beast {
 
     // 生成战斗单位相关数据，并写入当前对象
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
-    final battleInfo = BattleEntity(
+    const battleInfo = BattleEntity(
       attributes: attributes ?? _kBeastTypes[this.kind],
       attributeSum: _kBeastAttributeSum,
       generate: false,
@@ -71,17 +71,17 @@ struct Beast {
     this.assign(battleInfo)
 
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
-    when (this.kind) {
-      'tiger' -> {
+    switch (this.kind) {
+      'tiger' => {
         this.icon = 'maze/tiger.png'
         equip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindClaw, rarity: this.rarity))
         equip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindFang, rarity: this.rarity))
       }
-      'monkey' -> {
+      'monkey' => {
         this.icon = 'maze/monkey.png'
         equip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindClaw, rarity: this.rarity))
       }
-      'snake' -> {
+      'snake' => {
         this.icon = 'maze/snake.png'
         equip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindFang, rarity: this.rarity))
       }

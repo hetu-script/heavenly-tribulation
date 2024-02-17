@@ -68,38 +68,38 @@ struct Effect {
   }
 }
 
-fun addEffect({categroy, id, effect}) {
+function addEffect({categroy, id, effect}) {
   assert(category != null)
   assert(id != null)
   assert(effect != null)
   if (gEffects.containsKey(category)) {
-    final c = gEffects[category]
+    const c = gEffects[category]
     assert(!c.containsKey(id))
     c[id] = effect
   } else {
-    final c = {}
+    const c = {}
     c[id] = effect
     gEffects[category] = c
   }
 }
 
-fun getEffectHandlerById(id: str) {
+function getEffectHandlerById(id: str) {
   return gEffectHandlers[id]
 }
 
-fun addEffectHandler(handler) {
+function addEffectHandler(handler) {
   engine.info('载入效果处理模块 [${handler.name}]')
   gEffectHandlers[handler.id] = handler
 }
 
 /// 返回一个效果的复制
-fun getEffect({category, id}) {
+function getEffect({category, id}) {
   if (category != null) {
     assert(gEffects.containsKey(category))
   } else {
     category = random.nextIterable(gEffects.keys)
   }
-  final c = gEffects[category]
+  const c = gEffects[category]
   if (c.isEmpty) return null
   if (id != null) {
     assert(c.containsKey(id))
@@ -110,13 +110,13 @@ fun getEffect({category, id}) {
 }
 
 /// 一次返回某个 category 下的指定数量的效果
-fun getEffects({category, count}) {
+function getEffects({category, count}) {
   assert(category != null)
-  final c = gEffects[category]
-  final ec = Math.min(c.length, count)
-  final effects = {}
-  for (final i in range(ec)) {
-    var effect
+  const c = gEffects[category]
+  const ec = Math.min(c.length, count)
+  const effects = {}
+  for (const i in range(ec)) {
+    let effect
     do {
       effect = getEffect(category: category)
     } while (effects.containsKey(effect.id))
@@ -128,7 +128,7 @@ fun getEffects({category, count}) {
 const kInitialEfficiency = 0.4
 
 /// 初始化一个复制出来的效果数据
-fun initEffectData(effect, difficulty, efficiency ) {
+function initEffectData(effect, difficulty, efficiency ) {
   // 效果等级，提升等级需要练习
   effect.level = 0
   effect.exp = 0 // 当前经验值

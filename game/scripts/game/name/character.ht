@@ -4,17 +4,17 @@ import 'character/male.json5' as maleNames
 import 'character/middle.json5' as middleNames
 import '../random.ht'
 
-fun generateCharacterName({isFemale, familyName, middleCharacter}) {
-  var theFamilyName
+function generateCharacterName({isFemale, familyName, middleCharacter}) {
+  let theFamilyName
   if (!familyName) {
     theFamilyName = random.nextIterable(familyNames)
   } else {
     theFamilyName = familyName
   }
-  final f = isFemale ?? random.nextBool()
-  final namesOfASex = f ? femaleNames : maleNames
-  final r = random.nextDouble()
-  var name = ''
+  const f = isFemale ?? random.nextBool()
+  const namesOfASex = f ? femaleNames : maleNames
+  const r = random.nextDouble()
+  let name = ''
   // 单字的名字
   if (r < 0.33333333) {
     if (middleCharacter) {
@@ -25,24 +25,24 @@ fun generateCharacterName({isFemale, familyName, middleCharacter}) {
   }
   // 两个实字
   else if (r < 0.66666666) {
-    final theMiddleCharacter
+    let theMiddleCharacter
     if (middleCharacter) {
       theMiddleCharacter = middleCharacter
     } else {
       theMiddleCharacter = random.nextIterable(namesOfASex)
     }
-    final theLastCharacter = random.nextIterable(namesOfASex)
+    const theLastCharacter = random.nextIterable(namesOfASex)
     name = theMiddleCharacter + theLastCharacter
   }
   // 中间是虚字
   else {
-    final theMiddleCharacter
+    let theMiddleCharacter
     if (middleCharacter) {
       theMiddleCharacter = middleCharacter
     } else {
       theMiddleCharacter = random.nextIterable(middleNames)
     }
-    final theLastCharacter = random.nextIterable(namesOfASex)
+    const theLastCharacter = random.nextIterable(namesOfASex)
     name = theMiddleCharacter + theLastCharacter
   }
   return {

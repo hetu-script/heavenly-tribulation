@@ -1,13 +1,13 @@
 import '../entity/common.ht'
 import '../lootbox.ht'
 
-final kQuestDifficultyNormal = 'normal'
-final kQuestDifficultyHard = 'hard'
-final kQuestDifficultyExpert = 'expert'
-final kQuestDifficultyMaster = 'master'
-final kQuestDifficultyTorment = 'torment'
-final kQuestDifficultyNightmare = 'nightmare'
-final kQuestDifficultyPurgatory = 'purgatory'
+const kQuestDifficultyNormal = 'normal'
+const kQuestDifficultyHard = 'hard'
+const kQuestDifficultyExpert = 'expert'
+const kQuestDifficultyMaster = 'master'
+const kQuestDifficultyTorment = 'torment'
+const kQuestDifficultyNightmare = 'nightmare'
+const kQuestDifficultyPurgatory = 'purgatory'
 
 const kQuestCategoryConquestMaze = 'conquestMaze' // 征讨盗贼营地
 const kQuestCategoryArrest = 'arrest' // 抓捕
@@ -25,17 +25,17 @@ const kQuestConquestMazeKindWipeBandits = 'wipeBandits'
 const kQuestConquestMazeKindReturnHostage = 'returnHostage'
 const kQuestConquestMazeKindReturnTreasure = 'returnTreasure'
 
-fun generateQuestReward(difficulty) {
-  final reward = Lootbox()
+function generateQuestReward(difficulty) {
+  const reward = Lootbox()
   return reward
 }
 
-fun characterAcceptQuest(character, site, quest) {
+function characterAcceptQuest(character, site, quest) {
   // 有可能是临时生成的任务，site可能并没有这个任务，但这里并不影响。
   delete site.quests[quest.id]
   character.quests[quest.id] = quest
   character.activeQuestId ??= quest.id
-  final entity = quest.questEntityAccept
+  const entity = quest.questEntityAccept
   if (entity.entityType == kEntityTypeCharacter || entity.entityType == kEntityTypeNpc) {
     characterGetCompanion(character, entity)
   } else if (entity.entityType == kEntityTypeItem) {
@@ -44,8 +44,8 @@ fun characterAcceptQuest(character, site, quest) {
     engine.error('获取任务时发生错误，对象类型既不是人员也是物品：${entity.entityType}')
   }
 
-  final questName = getLocaleString(quest.kind);
-  final incidentContent = getLocaleString(
+  const questName = getLocaleString(quest.kind);
+  const incidentContent = getLocaleString(
     'characterAcceptQuest',
     interpolations: [character.name, site.name, questName],
   )
@@ -56,16 +56,16 @@ fun characterAcceptQuest(character, site, quest) {
 }
 
 // 尝试完成任务，如果成功返回 true，并扣除任务所要求提交的物品等
-fun characterTrySubmitQuest(character, target, quest) -> bool {
+function characterTrySubmitQuest(character, target, quest) -> bool {
   if (quest.questEntitiesSubmit) {
-    for (final data in quest.questEntitiesSubmit) {
+    for (const data in quest.questEntitiesSubmit) {
       if (data.entityType == kEntityTypeCharacter || data.entityType == kEntityTypeNpc) {
         if (!character.companions.containsKey(data.id)) return false
       } else if (data.entityType == kEntityTypeItem) {
         if (!character.inventory.containsKey(data.id)) {
           return false
         } else {
-          final item = character.inventory[data.id]
+          const item = character.inventory[data.id]
           if (item.stackSize < data.count) {
             return false
           }
@@ -76,9 +76,9 @@ fun characterTrySubmitQuest(character, target, quest) -> bool {
       }
     }
 
-    for (final data in quest.questEntitiesSubmit) {
+    for (const data in quest.questEntitiesSubmit) {
       if (data.entityType == kEntityTypeCharacter || data.entityType == kEntityTypeNpc) {
-        final entity = character.companions[data.id]
+        const entity = character.companions[data.id]
         characterDismissCompanion(character, entity)
       } else if (data.entityType == kEntityTypeItem) {
         give(character, target, data.id, count: data.count)
@@ -88,11 +88,11 @@ fun characterTrySubmitQuest(character, target, quest) -> bool {
   return true
 }
 
-fun setCharacterActiveQuest(character, quest) {
+function setCharacterActiveQuest(character, quest) {
   assert(character.quests.containsKey(quest.id))
   character.activeQuestId = quest.id
 }
 
-fun getCharacterActiveQuest(character) {
+function getCharacterActiveQuest(character) {
   return character.quests[character.activeQuestId]
 }

@@ -1,19 +1,19 @@
-fun maxMemberOfRank(n: int) {
+function maxMemberOfRank(n: int) {
   return n * n
 }
 
 // 组织可以拥有的人数上限取决于组织发展度
 // 最少是 0，可以拥有 掌门 1 人，rank 1：4 人
-fun maxMemberOfDevelopment(n: int) {
-  var list = []
-  for (final i in range(1, n + 3)) {
+function maxMemberOfDevelopment(n: int) {
+  let list = []
+  for (const i in range(1, n + 3)) {
     list.add(maxMemberOfRank(i))
   }
   return list
 }
 
-for (final i in range(7)) {
-  final l = maxMemberOfDevelopment(i)
+for (const i in range(7)) {
+  const l = maxMemberOfDevelopment(i)
   print(l.reduce((value, element) => value + element))
   print(l)
 }

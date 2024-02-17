@@ -5,7 +5,7 @@ import '../item/common.ht'
 import '../effect/common.ht'
 import '../../random.ht'
 
-final kKungfuKinds = {
+const kKungfuKinds = {
   'boxing': {
     damageType: kDamageTypeBludgeon,
     icon: 'icon/skill/martial_0.png',
@@ -46,8 +46,8 @@ struct Kungfu {
     this.name = name
     this.rarity = rarity ?? kCommon
     if (!this.name) {
-      final nameLength = kRarity[this.rarity].level > 4 ? 3 : kRarity[this.rarity].level > 2 ? 2 : 1
-      final randomName = generateSkillName(category: this.kind, length: nameLength)
+      const nameLength = kRarity[this.rarity].level > 4 ? 3 : kRarity[this.rarity].level > 2 ? 2 : 1
+      const randomName = generateSkillName(category: this.kind, length: nameLength)
       this.name = randomName.name
     }
     this.color = kRarity[this.rarity].color
@@ -87,7 +87,7 @@ struct Kungfu {
     }
     // -1级技能也显示0级技能的效果
     this.attributes.effects = {}
-    final effect = getEffect(category: this.kind, level: myLevel)
+    const effect = getEffect(category: this.kind, level: myLevel)
     initEffectData(effect, this.difficulty, kSkillInitialEfficiency)
     this.attributes.effects[effect.id] = effect
 

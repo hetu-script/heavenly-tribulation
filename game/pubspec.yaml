@@ -6,6 +6,7 @@ version: 0.1.0-demo
 
 environment:
   sdk: ^3.0.0
+  flutter: ^3.0.0
 
 dependencies:
   flutter:
@@ -19,7 +20,7 @@ dependencies:
   # hive_flutter: ^1.1.0
 
   flame:
-    ^1.14.0
+    ^1.15.0
     # path: ../../flame/packages/flame
   flame_audio: ^1.2.0
   flame_splash_screen: ^0.2.0
@@ -69,25 +70,27 @@ flutter:
     - assets/audio/music/
 
     - assets/images/
-    - assets/images/animation/
-    - assets/images/animation/fight/
-    - assets/images/cards/
-    - assets/images/cards/basic/
-    - assets/images/cards/poker/
-    - assets/images/illustrations/
+    - assets/images/animation/hero/
     - assets/images/avatar/
     - assets/images/avatar/female/
     - assets/images/avatar/male/
     - assets/images/battle/
-    - assets/images/bg/
-    - assets/images/cg/
-    - assets/images/character/
+    - assets/images/battle/scene/
+    - assets/images/card/
+    - assets/images/card/back/
+    - assets/images/card/deckbuilding/
+    - assets/images/card/frame/
+    - assets/images/card/illustration/
+    - assets/images/card/library/
+    - assets/images/card/poker/
+    - assets/images/clock/
     - assets/images/icon/
     - assets/images/icon/item/
     - assets/images/icon/item/consumable/
     - assets/images/icon/item/material/
     - assets/images/icon/skill/
     - assets/images/icon/status/
+    - assets/images/illustration/
     - assets/images/item/
     - assets/images/location/
     - assets/images/location/site/
@@ -102,7 +105,7 @@ flutter:
     - scripts/game/entity/character/
     - scripts/game/entity/character/creature/
     - scripts/game/entity/character/npc/
-    - scripts/game/entity/character/status_effect/
+    # - scripts/game/entity/character/status_effect/
     - scripts/game/entity/effect/
     - scripts/game/entity/item/
     - scripts/game/entity/item/consumable/
@@ -148,3 +151,6 @@ flutter:
     - family: QIJIC
       fonts:
         - asset: assets/fonts/qijic.ttf
+    - family: RuiZiYunZiKuLiBianTiGBK
+      fonts:
+        - asset: assets/fonts/RuiZiYunZiKuLiBianTiGBK-1.ttf

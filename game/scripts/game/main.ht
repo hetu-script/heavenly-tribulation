@@ -31,9 +31,9 @@ export 'card/card.ht'
 import 'l10n/l10n.ht'
 import 'predefined/dialogs.json5' as predefinedDialogs
 
-final gameVersion = '0.1.0'
+const gameVersion = '0.1.0'
 
-fun init({
+function init({
     locale = 'zh',
     gameEngine: SamsaraEngine,
   }) {

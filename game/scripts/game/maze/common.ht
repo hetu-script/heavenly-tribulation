@@ -13,16 +13,16 @@ const kMazeUniqueEncounterProbability = 0.075
 const kMazeCategoryMountain = 'mountain'
 const kMazeCategoryCultivatorRecruit = 'cultivatorRecruit'
 
-fun enterMaze(maze) {
+function enterMaze(maze) {
   currentMaze = maze
   universe.currentMazeId = maze.id
 }
 
-fun leaveMaze(maze) {
+function leaveMaze(maze) {
   currentMaze = null
   universe.currentMazeId = null
   // 移除所有临时npc
-  for (final entity of maze.entities) {
+  for (const entity of maze.entities) {
     if (entity.entityType == kEntityTypeNpc && !entity.isPermanent) {
       delete game.npcs[entity.id]
     }
@@ -30,34 +30,34 @@ fun leaveMaze(maze) {
   Maze.disposeMaze()
 }
 
-fun setMazeLevelIndex(maze, levelIndex) {
+function setMazeLevelIndex(maze, levelIndex) {
   maze.currentLevelIndex = levelIndex
 }
 
-fun mazeGameOver(maze) {
+function mazeGameOver(maze) {
   Maze.showMazeGameOver().then((_) {
     leaveMaze(maze)
   })
 }
 
 /// 返回布尔值，如果为真，则玩家控制角色会返回上一格，false 则停在这一格，null 则不影响
-fun onHeroMovedOnMazeMap({left, top, maze, currentLevelIndex}) {
+function onHeroMovedOnMazeMap({left, top, maze, currentLevelIndex}) {
   engine.info('玩家在副本地图 ${maze.id} 第 ${currentLevelIndex + 1} 层移动到了: ${left}, ${top}')
   
-  final index = tilePos2Index(left, top, maze.width)
-  final tile = maze.levels[currentLevelIndex].terrains[index]
+  const index = tilePos2Index(left, top, maze.width)
+  const tile = maze.levels[currentLevelIndex].terrains[index]
 
   if (maze.modName == null) {
     // 游戏本体内置的副本
-    when (maze.category) {
-      kMazeCategoryMountain -> {
+    switch (maze.category) {
+      kMazeCategoryMountain => {
         return onHeroMovedOnMountain(
           tile: tile,
           maze: maze,
           currentLevelIndex: currentLevelIndex,
         )
       }
-      kMazeCategoryCultivatorRecruit -> {
+      kMazeCategoryCultivatorRecruit => {
         return onHeroMovedOnCultivationRecruitMaze(
           tile: tile,
           maze: maze,

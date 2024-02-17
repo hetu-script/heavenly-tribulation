@@ -5,7 +5,7 @@ import '../../../name/material.ht'
 
 const _kMedicineIngridentIconCount = 3
 
-final _kMaterialKinds = [
+const _kMaterialKinds = [
   'grain',
   'fruit',
   'fish',
@@ -37,7 +37,7 @@ struct Material {
     this.name = name
     this.rarity = rarity
     if (!name) {
-      final randomName = generateMaterialName(category: this.kind, rarity: this.rarity)
+      const randomName = generateMaterialName(category: this.kind, rarity: this.rarity)
       this.name = randomName.name
       this.rarity ??= randomName.rarity
     }
@@ -59,7 +59,7 @@ struct Material {
     if (effects is {}) {
       this.attributes.effects.assign(effects)
     } else {
-      // final effect = getEffect(category: this.kind, level: kRarity[this.rarity].level)
+      // const effect = getEffect(category: this.kind, level: kRarity[this.rarity].level)
       // this.attributes.effects[effect.id] = effect
     }
   }

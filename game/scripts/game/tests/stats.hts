@@ -1,17 +1,17 @@
-final random = Random()
+const random = Random()
 
-for (var i in range(10)) {
-  final maxStats = random.nextInt(10) + 10
-  final minValue = 10
+for (const i in range(10)) {
+  const maxStats = random.nextInt(10) + 10
+  const minValue = 10
 
-  final strength = random.nextInt(maxStats)
-  final intelligence = random.nextInt(maxStats - strength)
-  final perception = random.nextInt(maxStats - strength - intelligence)
-  final superpower = random.nextInt(maxStats - strength - intelligence - perception)
-  final leadership = random.nextInt(maxStats - strength - intelligence - perception - superpower)
-  final management = maxStats - strength - intelligence - perception - superpower - leadership
+  const strength = random.nextInt(maxStats)
+  const intelligence = random.nextInt(maxStats - strength)
+  const perception = random.nextInt(maxStats - strength - intelligence)
+  const superpower = random.nextInt(maxStats - strength - intelligence - perception)
+  const leadership = random.nextInt(maxStats - strength - intelligence - perception - superpower)
+  const management = maxStats - strength - intelligence - perception - superpower - leadership
 
-  final stats = {
+  const stats = {
     strength: strength + minValue,
     intelligence: intelligence + minValue,
     perception: perception + minValue,

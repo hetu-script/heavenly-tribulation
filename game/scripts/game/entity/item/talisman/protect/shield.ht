@@ -37,7 +37,7 @@ struct Shield {
     this.description = description ?? ''
     this.inscription = inscription ?? ''
     if (!this.name) {
-      final randomName = generateTalismanName(category: this.kind, rarity: this.rarity)
+      const randomName = generateTalismanName(category: this.kind, rarity: this.rarity)
       this.name = randomName.name
     }
     this.color = kRarity[this.rarity].color
@@ -54,7 +54,7 @@ struct Shield {
     }
 
     this.attributes.effects = {}
-    final shieldEffect = getEffect(category: 'shield')
+    const shieldEffect = getEffect(category: 'shield')
     this.attributes.effects[shieldEffect.id] = shieldEffect
 
     // 在此物品上装备的支持性对象

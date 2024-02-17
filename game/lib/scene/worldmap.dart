@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:samsara/samsara.dart';
-import 'package:samsara/event.dart';
+import 'package:samsara/event/tilemap.dart';
 import 'package:samsara/tilemap.dart';
 import 'package:hetu_script/values.dart';
 
@@ -45,7 +45,7 @@ class WorldMapScene extends Scene {
     await map.updateData(worldData);
     world.add(map);
     isMapReady = true;
-    engine.broadcast(MapLoadedEvent(isFirstLoad: isFirstLoad));
+    engine.emit(MapLoadedEvent(isFirstLoad: isFirstLoad));
     fitScreen();
   }
 }

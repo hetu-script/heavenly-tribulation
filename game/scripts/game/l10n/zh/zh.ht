@@ -20,7 +20,7 @@ import 'status_effect.json' as statusEffect
 import 'terrain.json' as terrain
 import 'world_map.json' as worldMap
 
-final zh = {
+const zh = {
   ...character,
   ...creature,
   ...dialog,

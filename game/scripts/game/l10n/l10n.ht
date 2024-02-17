@@ -1,7 +1,7 @@
 import 'zh/zh.ht'
 import 'en/en.ht'
 
-final predefinedLocalizations = [
+const predefinedLocalizations = [
   zh,
   en,
 ]

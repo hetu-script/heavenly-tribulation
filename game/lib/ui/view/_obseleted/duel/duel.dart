@@ -6,7 +6,7 @@ import 'package:hetu_script/values.dart';
 import '../../../../global.dart';
 import 'package:samsara/ui/flutter/responsive_window.dart';
 import 'battle_panel.dart';
-import '../../../../event/events.dart';
+import '../../../../event/ui.dart';
 
 const kDuelTypePractice = 'practice';
 
@@ -318,7 +318,7 @@ class _DuelState extends State<Duel> {
                           onPressed: () {
                             if (_finished) {
                               Navigator.pop(context, _data?['resultStats']);
-                              engine.broadcast(const UIEvent.needRebuildUI());
+                              engine.emit(const UIEvent.needRebuildUI());
                             } else {
                               _timer?.cancel();
                               setState(() {

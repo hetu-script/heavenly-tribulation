@@ -53,11 +53,11 @@ struct Site {
     this.organizationId = organizationId
 
     // if (category == kSiteNation) {
-    //   final organization = game.organizations[organizationId]
+    //   const organization = game.organizations[organizationId]
     //   this.name = organization.name + getLocaleString('palace')
     // } else 
     // if (category == kSiteGovernment) {
-    //   final location = game.locations[locationId]
+    //   const location = game.locations[locationId]
     //   this.name = location.name + getLocaleString(kSiteGovernment)
     // } else 
     // {
@@ -67,12 +67,12 @@ struct Site {
 
     this.id = '${this.entityType}.${locationId}.${category}.${this.name}'
 
-    final location = game.locations[locationId]
+    const location = game.locations[locationId]
     engine.info('在 ${location.name} 建立了新建筑 ${this.name}')
     location.sites[this.id] = this
 
-    when (category) {
-      kSiteCultivation -> location.hasCultivation = true
+    switch (category) {
+      kSiteCultivation => location.hasCultivation = true
     }
     
     // 建筑和人物类似，也具有物品栏

@@ -5,7 +5,7 @@ import '../../../../util.ht'
 import '../../../../game.ht'
 import '../../../../name/talisman.ht'
 
-final kWeaponKinds = {
+const kWeaponKinds = {
   'sword': {
     icon: 'icon/item/sword.png',
     damageType: kDamageTypeSlash,
@@ -83,7 +83,7 @@ struct Weapon {
     this.description = description ?? ''
     this.inscription = inscription ?? ''
     if (!this.name) {
-      final randomName = generateTalismanName(category: this.kind, rarity: this.rarity)
+      const randomName = generateTalismanName(category: this.kind, rarity: this.rarity)
       this.name = randomName.name
     }
     this.color = kRarity[this.rarity].color

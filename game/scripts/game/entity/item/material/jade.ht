@@ -3,7 +3,7 @@ import '../../../random.ht'
 import '../../common.ht'
 import '../../../l10n.ht'
 
-final _kElements = {
+const _kElements = {
   earth: '地',
   air: '气',
   dark: '阴',

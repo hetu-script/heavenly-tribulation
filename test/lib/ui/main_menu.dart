@@ -49,6 +49,10 @@ class _MainMenuState extends State<MainMenu> {
     return FutureBuilder(
       future: _prepareData(),
       builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          throw (snapshot.error!);
+        }
+
         if (!snapshot.hasData) {
           return LoadingScreen(
               text: engine.isLoaded ? engine.locale['loading'] : 'Loading...');

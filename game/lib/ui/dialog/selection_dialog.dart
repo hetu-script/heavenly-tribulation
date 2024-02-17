@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import '../../global.dart';
-import '../../event/events.dart';
+import '../../event/ui.dart';
 
 class SelectionDialog extends StatelessWidget {
   static Future<String?> show({
@@ -36,7 +36,7 @@ class SelectionDialog extends StatelessWidget {
         child: ElevatedButton(
           onPressed: () {
             Navigator.pop(context, key);
-            engine.broadcast(const UIEvent.needRebuildUI());
+            engine.emit(const UIEvent.needRebuildUI());
           },
           child: Text(value.toString()),
         ),

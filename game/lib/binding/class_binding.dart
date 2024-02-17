@@ -1,7 +1,7 @@
 import 'package:hetu_script/hetu_script.dart';
 import 'package:hetu_script/binding.dart';
 
-import '../scene/cardgame_autobattler/battle/character.dart';
+import '../scene/cardgame/battle/character.dart';
 
 extension BattleCharacterBinding on BattleCharacter {
   dynamic htFetch(String varName) {

@@ -16,7 +16,7 @@ const _kQuestProbability = 0.35
 const _kMinSizeforFishTile = 16
 const _kMinSizeforStormTile = 8
 
-fun getBountyhouseQuestMax(development) -> int {
+function getBountyhouseQuestMax(development) -> int {
   if (development > 20) {
     return 5
   } else {
@@ -26,8 +26,8 @@ fun getBountyhouseQuestMax(development) -> int {
 
 /// 更新游戏逻辑，将时间向前推进一帧
 /// 返回值表示是否遇到了中断逻辑的事件，这会影响一些连续进行的动作，例如探索或者修炼等等
-fun updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
-  for (final i in range(ticks)) {
+function updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
+  for (const i in range(ticks)) {
     // 每个tick执行的代码
     handleBabies()
 
@@ -36,42 +36,42 @@ fun updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
 
       engine.info('在水域中生成暴风雨')
       // 清空暴风雨区域
-      for (final index in game.stormTileIndexes) {
-        final tile = currentWorld.terrains[index]
+      for (const index in game.stormTileIndexes) {
+        const tile = currentWorld.terrains[index]
         delete tile.flags.isInStorm
       }
       game.stormTileIndexes = []
-      final stormEventsCount = currentWorld.waterTerrainIndexes.length ~/ _kMinSizeforStormTile + 1
-      for (final i in range(stormEventsCount)) {
-        var stormLocationIndex
+      const stormEventsCount = currentWorld.waterTerrainIndexes.length ~/ _kMinSizeforStormTile + 1
+      for (const i in range(stormEventsCount)) {
+        let stormLocationIndex
         do {
           stormLocationIndex = random.nextIterable(currentWorld.waterTerrainIndexes)
         } while (stormLocationIndex in game.stormTileIndexes)
         game.stormTileIndexes.add(stormLocationIndex)
-        final stormTile = currentWorld.terrains[stormLocationIndex]
+        const stormTile = currentWorld.terrains[stormLocationIndex]
         // engine.info('在 ${stormTile.left},${stormTile.top} 生成暴风雨')
         stormTile.flags.isInStorm = true
       }
 
       engine.info('在水域中生成捕鱼区')
       // 清空鱼类活跃区域
-      for (final index in game.fishTileIndexes) {
-        final tile = currentWorld.terrains[index]
+      for (const index in game.fishTileIndexes) {
+        const tile = currentWorld.terrains[index]
         delete tile.flags.isGatheredFish
         // 清空叠加的鱼跃效果动态贴图
         WorldMap.setWorldMapOverlaySprite(tile.left, tile.top, null)
       }
       game.fishTileIndexes = []
-      final fishEventsCount = currentWorld.waterTerrainIndexes.length ~/ _kMinSizeforFishTile + 1
-      for (final i in range(fishEventsCount)) {
-        var fishLocationIndex
+      const fishEventsCount = currentWorld.waterTerrainIndexes.length ~/ _kMinSizeforFishTile + 1
+      for (const i in range(fishEventsCount)) {
+        let fishLocationIndex
         do {
           fishLocationIndex = random.nextIterable(currentWorld.waterTerrainIndexes)
         } while (fishLocationIndex in game.fishTileIndexes)
         game.fishTileIndexes.add(fishLocationIndex)
-        final fishTile = currentWorld.terrains[fishLocationIndex]
+        const fishTile = currentWorld.terrains[fishLocationIndex]
         // engine.info('在 ${fishTile.left},${fishTile.top} 生成鱼类活跃区')
-        final overlay = {
+        const overlay = {
           row: 3,
         }
         fishTile.overlaySprite = overlay
@@ -86,7 +86,7 @@ fun updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
     
     // 每一个野外地块，每个月固定时间会随机刷新一个野外遭遇
     // 野外遭遇包括NPC事件、随机副本等等
-    // for (final terrain in currentWorld.terrains) {
+    // for (const terrain in currentWorld.terrains) {
     //   if (getCurrentTicksOfMonth() == terrain.monthlyUpdateTime) {
     //     updateTerrain(terrain)
     //   }
@@ -95,8 +95,8 @@ fun updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
     // 每个建筑，每个月会根据其属性而支付费用和获得收入，费用和收入可能是各种资源
     // 商店类建筑会刷新物品和银两
     // 刷新任务，无论之前的任务是否还存在，非组织拥有的第三方建筑每个月只会有一个任务
-    for (final location of game.locations) {
-      for (final site of location.sites) {
+    for (const location of game.locations) {
+      for (const site of location.sites) {
         if (getCurrentTicksOfMonth() == site.monthlyUpdateTime) {
           updateSite(site)
         }
@@ -107,15 +107,15 @@ fun updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
       // }
     }
 
-    // final heroOrganization = getHeroOrganization()
+    // const heroOrganization = getHeroOrganization()
     
     // 触发每个组织的刷新事件
-    for (final organization of game.organizations) {
+    for (const organization of game.organizations) {
       // 跳过玩家自己控制的组织
       if (game.heroId != null && game.heroId == organization.headId) continue
 
       // if (organization.category != kOrganizationCategoryNation) {
-      final location = game.locations[organization.headquartersId]
+      const location = game.locations[organization.headquartersId]
       if (getCurrentMonth() == organization.yearlyRecruitMonth) {
         if (!location.flags.recruitingOrganizationIds.contains(organization.id)) {
           location.flags.recruitingOrganizationIds.add(organization.id)
@@ -139,7 +139,7 @@ fun updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
     }
     
     // 触发每个角色的刷新事件
-    // for (final character of game.characters) {
+    // for (const character of game.characters) {
     //   // 跳过玩家自己控制的角色
     //   if (game.heroId != null && game.heroId == character.id) continue
 
@@ -167,16 +167,16 @@ fun updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
 }
 
 // 每个tick检查一次当前是否有婴儿出生
-fun handleBabies {
-  final pendingRemovedIds = Set()
-  for (final baby of game.babies) {
+function handleBabies {
+  const pendingRemovedIds = Set()
+  for (const baby of game.babies) {
     if (game.timestamp - baby.conceptionTimestamp < baby.pregnancyTime) continue
-    final mother = game.characters[baby.motherId]
+    const mother = game.characters[baby.motherId]
     if (!mother.isDead) {
       mother.isPregnant = false
       assert(mother.locationId != null)
-      final location = game.locations[mother.locationId]
-      final character = Character(
+      const location = game.locations[mother.locationId]
+      const character = Character(
         familyName: baby.familyName,
         shorname: baby.shorname,
         isFemale: baby.isFemale,
@@ -189,23 +189,23 @@ fun handleBabies {
     }
     pendingRemovedIds.add(baby.id)
   }
-  for (final id in pendingRemovedIds) {
+  for (const id in pendingRemovedIds) {
     delete game.babies[id]
   }
 }
 
-fun updateTerrain(terrain) {
+function updateTerrain(terrain) {
 
 }
 
 // 刷新资源、生成每月任务
 // 门派和官府会生成多个可选的任务
 // 但商号、工坊和酒楼只有在是门派开设的情况下才会有多个任务，否则每个月只会提供唯一的一个任务
-fun updateSite(site) {
-  final location = game.locations[site.locationId]
+function updateSite(site) {
+  const location = game.locations[site.locationId]
   engine.info('触发 ${location.name} ${site.name} 的月度更新事件')
-  when (site.category) {
-    'tradinghouse' -> {
+  switch (site.category) {
+    'tradinghouse' => {
       if (site.organizationId) {
 
       } else {
@@ -215,11 +215,11 @@ fun updateSite(site) {
 
         // 非门派商号，这里会临时生成一个任务
         // 商号的运送任务都是普通物品，并且送到指定地点而非人物
-        final destinationId = random.nextIterable(game.locations.keys)
-        final destination = game.locations[destinationId]
-        final destinationSiteId = random.nextIterable(destination.sites.keys)
-        final distance = getTileDistance(location.tilePosition, destination.tilePosition)
-        final quest = QuestDelivery(
+        const destinationId = random.nextIterable(game.locations.keys)
+        const destination = game.locations[destinationId]
+        const destinationSiteId = random.nextIterable(destination.sites.keys)
+        const distance = getTileDistance(location.tilePosition, destination.tilePosition)
+        const quest = QuestDelivery(
           locationId: location.id,
           siteId: site.id,
           destinationLocationId: destinationId,
@@ -230,7 +230,7 @@ fun updateSite(site) {
         site.quests[quest.id] = quest
       }
     }
-    'bountyhouse' -> {
+    'bountyhouse' => {
       site.workedThisMonth = false
 
       if (site.quests.length >= getBountyhouseQuestMax(location.development)) return
@@ -238,19 +238,19 @@ fun updateSite(site) {
       // 生成盗贼副本类悬赏任务
       if (random.nextDouble() > _kQuestProbability) return
       // if (!location.nationId) return
-      // final nation = game.organizations[location.nationId]
+      // const nation = game.organizations[location.nationId]
       // if (nation.hasBanditEvent) return
       if ((random.nextDouble() > location.stability / 100)) return
       
-      var tried = 0
-      var found = false
-      final terrain = currentWorld.terrains[location.terrainIndex]
-      final zone = currentWorld.zones[terrain.zoneIndex]
-      var mazeTerrain
+      let tried = 0
+      let found = false
+      const terrain = currentWorld.terrains[location.terrainIndex]
+      const zone = currentWorld.zones[terrain.zoneIndex]
+      let mazeTerrain
       do {
         ++tried
-        var terraIndex = random.nextIterable(zone.terrainIndexes)
-        var mazeTerrain = currentWorld.terrains[terraIndex]
+        let terraIndex = random.nextIterable(zone.terrainIndexes)
+        let mazeTerrain = currentWorld.terrains[terraIndex]
         if (mazeTerrain.id != terrain.id && !mazeTerrain.locationId && mazeTerrain.spriteIndex == kSpriteLand) {
           found = true
         }
@@ -259,7 +259,7 @@ fun updateSite(site) {
       if (found && mazeTerrain) {
         // nation.hasBanditEvent = true
 
-        final quest = QuestBanditCamp(
+        const quest = QuestBanditCamp(
           locationId: location.id,
           mazeTerrainIndex: mazeTerrain.index,
           kind: kQuestConquestMazeKindKillBanditBoss,
@@ -272,21 +272,21 @@ fun updateSite(site) {
   }
 }
 
-fun updateLocation(location) {
+function updateLocation(location) {
   engine.info('触发 ${location.name} 的月度更新事件')
 
 }
 
 // 年度组织事件
-fun updateOrganizationYearly(organization) {
+function updateOrganizationYearly(organization) {
   engine.info('触发 ${organization.name} 的年度更新事件')
 
   if (organization.category == kOrganizationCategoryNation) {
     // 一个国家
     if (organization.borderIndexes.isNotEmpty) {
-      final shuffle = random.shuffle(organization.borderIndexes).toList()
-      for (final index in shuffle) {
-        final terrain = currentWorld.terrains[index]
+      const shuffle = random.shuffle(organization.borderIndexes).toList()
+      for (const index in shuffle) {
+        const terrain = currentWorld.terrains[index]
         if (terrain.organizationId == null && !terrain.isWater) {
           engine.info('国家 ${organization.name} 将其疆域扩展到周边的一个未被占领的格子 ${terrain.left},${terrain.top}')
           addTerrainToOrganization(terrain, organization)
@@ -307,13 +307,13 @@ fun updateOrganizationYearly(organization) {
     increaseOrganizationDevelopment(organization)
   } else {
     // 从最低等级开始，尝试提升成员等级
-    // for (final rank in range(kOrganizationRankMax)) {
-    //   final membersOfThisRank = getOrganizationMemberIdsOfRank(organization, rank)
-    //   final membersOfHigherRank = getOrganizationMemberIdsOfRank(organization, rank + 1)
+    // for (const rank in range(kOrganizationRankMax)) {
+    //   const membersOfThisRank = getOrganizationMemberIdsOfRank(organization, rank)
+    //   const membersOfHigherRank = getOrganizationMemberIdsOfRank(organization, rank + 1)
     //   if (membersOfThisRank.length >= maxMemberOfRank(rank)) {
     //     if (membersOfHigherRank.length < maxMemberOfRank(rank + 1)) {
-    //       final memberId = random.nextIterable(membersOfThisRank)
-    //       final member = game.characters[memberId]
+    //       const memberId = random.nextIterable(membersOfThisRank)
+    //       const member = game.characters[memberId]
     //       addTitleForCharacter(member, organization, rank + 1)
     //       break
     //     }
@@ -321,11 +321,11 @@ fun updateOrganizationYearly(organization) {
     // }
   }
   
-  var location = game.locations[organization.headquartersId]
+  let location = game.locations[organization.headquartersId]
   if (location.residingCharacterIds.isEmpty) {
     // 组织据点本身没有可用的人才（一般是因为是隐士据点）
     if (random.nextDouble() < kOrganizationRecruitOtherLocationProbability) {
-      for (final otherLocation of game.locations) {
+      for (const otherLocation of game.locations) {
         if (otherLocation.id == location.id) continue
 
         if (otherLocation.residingCharacterIds.isNotEmpty) {
@@ -338,8 +338,8 @@ fun updateOrganizationYearly(organization) {
 
   if (location.residingCharacterIds.isNotEmpty) {
     if (random.nextDouble() < kOrganizationRecruitSuccessProbability) {
-      final characterId = random.nextIterable(location.residingCharacterIds)
-      final character = game.characters[characterId]
+      const characterId = random.nextIterable(location.residingCharacterIds)
+      const character = game.characters[characterId]
       if (character.organizationId != null) {
         engine.error(character.name, character.organizationId, organization.id)
       }
@@ -350,19 +350,19 @@ fun updateOrganizationYearly(organization) {
   // 组织获得新功法
   engine.info('为组织 ${organization.name} 添加新功法')
 
-  when (organization.category) {
-    'cultivation' -> {
+  switch (organization.category) {
+    'cultivation' => {
       
-      // when (organization.fightSkillGenre) {
-      //   'cultivation.kungfu' -> {
+      // switch (organization.fightSkillGenre) {
+      //   'cultivation.kungfu' => {
 
       //     organizationRecordSkill(organization, WeaponArts())
       //     organizationRecordSkill(organization, Kungfu())
       //   }
       // }
       
-      // when (organization.supportSkillGenre) {
-      //   'cultivation.craftsmanship' -> {
+      // switch (organization.supportSkillGenre) {
+      //   'cultivation.craftsmanship' => {
 
       //   }
       // }
@@ -372,30 +372,30 @@ fun updateOrganizationYearly(organization) {
 }
 
 // 月度组织事件
-fun updateOrganizationMonthly(organization) {
+function updateOrganizationMonthly(organization) {
   engine.info('触发 ${organization.name} 的月度更新事件')
-  when (organization.category) {
-    'cultivation' -> {
+  switch (organization.category) {
+    'cultivation' => {
       
     }
-    'nation' -> {
+    'nation' => {
       
     }
-    'business' -> {
+    'business' => {
       
     }
   }
 }
 
-fun updateCharacter(character) {
+function updateCharacter(character) {
   engine.info('触发 ${character.name} 的月度更新事件')
 
 }
 
-fun handleQuestEnding(quest, result) {
+function handleQuestEnding(quest, result) {
   engine.info('完成了 ${quest.description} 的任务。')
-  when (quest.category) {
-    kQuestCategoryDelivery -> {
+  switch (quest.category) {
+    kQuestCategoryDelivery => {
       if (quest.result) {
         return showDialogByLocaleKeys(['delivery.submitSuccessed']).then((_) {
           loot(hero, quest.reward)

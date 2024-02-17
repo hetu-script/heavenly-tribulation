@@ -48,57 +48,57 @@ struct Incident {
       currentWorld?.history.add(this)
     }
 
-    for (final id in subjectIds) {
-      final char = game.characters[id]
+    for (const id in subjectIds) {
+      const char = game.characters[id]
       assert(char != null)
       characterExperiencedIncident(char, this)
     }
 
-    for (final id in objectIds) {
-      final char = game.characters[id]
+    for (const id in objectIds) {
+      const char = game.characters[id]
       assert(char != null)
       characterExperiencedIncident(char, this)
     }
 
-    for (final id in witnessIds) {
-      final char = game.characters[id]
+    for (const id in witnessIds) {
+      const char = game.characters[id]
       assert(char != null)
       characterWitnessIncident(char, this, witnessed: true)
     }
 
-    // for (final id in heardIds) {
-    //   final char = game.characters[id]
+    // for (const id in heardIds) {
+    //   const char = game.characters[id]
     //   characterWitnessIncident(char, this)
     // }
-    final organization
+    let organization
     if (organizationId) {
       organization = game.organizations[organizationId]
       organizationExperiencedIncident(organization, this)
     }
 
     if (isGlobal) {
-      for (final char of game.characters) {
+      for (const char of game.characters) {
         if (char.id in subjectIds || char.id in objectIds || char.id in witnessIds) continue
         characterWitnessIncident(char, this)
       }
     } else if (!isPrivate) {
       if (organization) {
         if (!isPrivate) {
-          for (final charId in organization.characterIds.keys) {
+          for (const charId in organization.characterIds.keys) {
             if (charId in subjectIds) continue
             if (charId in objectIds) continue
             if (charId in witnessIds) continue
-            final character = game.characters[charId]
+            const character = game.characters[charId]
             characterWitnessIncident(character, this, witnessed: true)
           }
         }
       }
       
       if (locationId) {
-        final location = game.locations[locationId]
-        for (final id in location.dwellingCharacterIds) {
+        const location = game.locations[locationId]
+        for (const id in location.dwellingCharacterIds) {
           if (id in subjectIds || id in objectIds || id in witnessIds) continue
-          final char = game.characters[id]
+          const char = game.characters[id]
           characterWitnessIncident(char, this)
         }
       }
@@ -108,6 +108,6 @@ struct Incident {
   }
 }
 
-fun getIncidentByIndex(index: int) {
+function getIncidentByIndex(index: int) {
   return currentWorld.history[index]
 }

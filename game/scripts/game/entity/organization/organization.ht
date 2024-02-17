@@ -11,7 +11,7 @@ const kOrganizationDevelopmentMax = 5
 const kOrganizationRecruitOtherLocationProbability = 0.2
 const kOrganizationRecruitSuccessProbability = 0.4
 
-final kOrganizationCategories = [
+const kOrganizationCategories = [
   'cultivation',
   'gang',
   'religion',
@@ -19,14 +19,14 @@ final kOrganizationCategories = [
   'nation',
 ]
 
-final kCultivationFightSkillGenre = [
+const kCultivationFightSkillGenre = [
   'cultivation.blade',
   'cultivation.element',
   'cultivation.transform',
   'cultivation.spirit',
 ]
 
-final kCultivationSupportSkillGenre = [
+const kCultivationSupportSkillGenre = [
   'cultivation.plant',
   'cultivation.animal',
   'cultivation.golem',
@@ -44,7 +44,7 @@ const kOrganizationCategoryReligion = 'religion'
 const kOrganizationCategoryBusiness = 'business'
 const kOrganizationCategoryNation = 'nation'
 
-final kOrganizationThinkings = {
+const kOrganizationThinkings = {
   cultivation: [
     'skillAddiction',
     'strengthAdmiration',
@@ -113,7 +113,7 @@ struct Organization {
 
     // 该组织每年刷新时间的时间，一般都为 X 月 1 日
     // 例如招募大比时间等等，都发生在这个日期
-    final month = random.nextInt(kMonthsPerYear)
+    const month = random.nextInt(kMonthsPerYear)
     this.yearlyUpdateTime = month * kTicksPerMonth + random.nextInt(kTicksPerMonth)
     this.yearlyRecruitMonth = month + 1
 
@@ -126,14 +126,13 @@ struct Organization {
     if (name) {
       this.name = name
     } else {
-      var conflict = false
+      let conflict = false
       do {
-        // if (category != kOrganizationCategoryNation) {
-        //   this.name = generateOrganizationName(category: this.category).name
-        // } else {
-        //   this.name = generateNationName().name
-        // }
-        this.name = generateOrganizationName(category: this.category).name
+        if (category != kOrganizationCategoryNation) {
+          this.name = generateOrganizationName(category: this.category).name
+        } else {
+          this.name = generateNationName().name
+        }
         conflict = game.organizations.values.where((element) =>
           element.name == this.name).isNotEmpty
       } while (conflict)
@@ -157,15 +156,15 @@ struct Organization {
     
     // if (nationId) {
     //   assert(game.organizations.containsKey(nationId))
-    //   final nation = game.organizations[nationId]
+    //   const nation = game.organizations[nationId]
     //   nation.organizationIds.add(this.id)
     //   this.nationId = nationId
     // }
 
-    final headquarters = game.locations[headquartersId]
-    final head = game.characters[headId]
+    const headquarters = game.locations[headquartersId]
+    const head = game.characters[headId]
     // 触发创派事件，创派事件和成为掌门是两个事件
-    final incidentContent = getLocaleString('organizationCreate', interpolations: [
+    const incidentContent = getLocaleString('organizationCreate', interpolations: [
       head.name,
       headquarters.name,
       this.name,
@@ -246,7 +245,7 @@ struct Organization {
   //   assert(emperorId != null)
 
   //   this.capitalId = capitalId
-  //   final location = game.locations[capitalId]
+  //   const location = game.locations[capitalId]
   //   // 设为首都后，免费获得发展度+2，稳定度+50
   //   location.development += 2
   //   location.stability += 50
@@ -280,7 +279,7 @@ struct Organization {
 }
 
 
-// fun getLeaderTitle(organization) {
+// function getLeaderTitle(organization) {
 //   return organization.name + getLocaleString('${organization.category}LeaderTitle')
 // }
 
@@ -290,7 +289,7 @@ struct Organization {
 //   category,
 //   characterIds, // 指在这个地点的该组织的人员，并不一定等于该组织的全部人员
 // }
-fun stationOrganization(
+function stationOrganization(
   organization,
   location, {
   characterIds,
@@ -300,7 +299,7 @@ fun stationOrganization(
   
   organization.headquartersId = location.id
 
-  final site = Site(
+  const site = Site(
     category: organization.category,
     locationId: location.id,
     organizationId: organization.id,
@@ -314,8 +313,8 @@ fun stationOrganization(
     characterIds: [],
   }
 
-  for (final id in characterIds) {
-    final character = game.characters[id]
+  for (const id in characterIds) {
+    const character = game.characters[id]
     setCharacterHome(character, location, organizationName: organization.name)
   }
 
@@ -324,34 +323,34 @@ fun stationOrganization(
 
 // 组织中每个等级的人数上限
 // 数字越大，等级越低，0是掌门
-fun maxMemberOfRank(n: int) {
+function maxMemberOfRank(n: int) {
   assert(n >= 0 && n <= kOrganizationRankMax)
   return ((kOrganizationRankMax - n) + 1) * ((kOrganizationRankMax - n) + 1)
 }
 
 // 组织可以拥有的人数上限取决于组织发展度
 // 发展度 0，掌门 1 人，rank 1：4 人
-fun maxMemberOfDevelopment(n: int) {
-  var number = 0
-  for (final i in range(n + 2)) {
+function maxMemberOfDevelopment(n: int) {
+  let number = 0
+  for (const i in range(n + 2)) {
     number += (i + 1) * (i + 1)
   }
   return number
 }
 
-fun removeCharacterFromOrganization(character) {
+function removeCharacterFromOrganization(character) {
   if (character.organizationId == null) return
 
-  final organization = game.organizations[character.organizationId]
+  const organization = game.organizations[character.organizationId]
   organization.characterIds.remove(character.id)
   delete character.organizationId
 }
 
-fun getOrganizationMemberIdsOfRank(organization, rank) {
+function getOrganizationMemberIdsOfRank(organization, rank) {
   assert(rank >= 0 && rank <= kOrganizationRankMax)
-  final ids = []
-  for (final id in organization.characterIds.keys) {
-    final idRank = organization.characterIds[id]
+  const ids = []
+  for (const id in organization.characterIds.keys) {
+    const idRank = organization.characterIds[id]
     if (idRank == rank) {
       ids.add(id)
     }
@@ -360,19 +359,19 @@ fun getOrganizationMemberIdsOfRank(organization, rank) {
 }
 
 
-fun organizationMemberReachMax(organization) {
+function organizationMemberReachMax(organization) {
   return organization.characterIds.length >= maxMemberOfDevelopment(organization.development)
 }
 
 // 新加入的成员的等级，是当前的组织发展度 + 1
-fun addCharacterToOrganization(character, organization, { incidentOccured = true }) {
+function addCharacterToOrganization(character, organization, { incidentOccured = true }) {
   assert(!organization.characterIds.contains(character.id))
   if (organizationMemberReachMax(organization)) {
     engine.warning('组织 ${organization.name} 的成员数量达到上限，在提升发展度之前无法再添加新成员。')
     return false
   }
 
-  final memberIds = getOrganizationMemberIdsOfRank(organization, kOrganizationRankMax)
+  const memberIds = getOrganizationMemberIdsOfRank(organization, kOrganizationRankMax)
   if (memberIds.length >= maxMemberOfDevelopment(kOrganizationRankMax)) {
     engine.warning('组织 ${organization.name} 的低阶成员数量达到上限，在提升成员级别之前无法再添加新成员。')
     return false
@@ -385,7 +384,7 @@ fun addCharacterToOrganization(character, organization, { incidentOccured = true
   character.organizationId = organization.id
 
   if (incidentOccured) {
-    final incidentContent = getLocaleString('organizationEnlist', interpolations: [
+    const incidentContent = getLocaleString('organizationEnlist', interpolations: [
       character.name,
       organization.name,
     ])
@@ -398,11 +397,11 @@ fun addCharacterToOrganization(character, organization, { incidentOccured = true
     )
   }
 
-  final location = game.locations[organization.headquartersId]
+  const location = game.locations[organization.headquartersId]
   setCharacterHome(character, location, organizationName: organization.name)
-  final r = random.nextInt(_kOrganizationThinkingsOnRecruit)
-  for (final i in range(r)) {
-    var thinking
+  const r = random.nextInt(_kOrganizationThinkingsOnRecruit)
+  for (const i in range(r)) {
+    let thinking
     do {
       thinking = random.nextIterable(kOrganizationThinkings[organization.category])
     } while (character.thinkings.contains(thinking))
@@ -416,33 +415,33 @@ fun addCharacterToOrganization(character, organization, { incidentOccured = true
   return true
 }
 
-fun addOrganizations(orgs: List) {
+function addOrganizations(orgs: List) {
   engine.info('载入组织数据')
-  for (final org in orgs) {
+  for (const org in orgs) {
     game.organizations[org.id] = org
   }
 }
 
-fun addOrganization(char) {
+function addOrganization(char) {
   game.organizations[char.id] = char
 }
 
-fun getOrganizationById(id: str) {
+function getOrganizationById(id: str) {
   return game.organizations[id]
 }
 
-fun getOrganizations() {
+function getOrganizations() {
   return game.organizations
 }
 
-fun increaseOrganizationDevelopment(organization) {
+function increaseOrganizationDevelopment(organization) {
   if (organization.development <= kOrganizationDevelopmentMax) {
     ++organization.development
   } else {
     engine.warning('组织 ${organization.name} 的发展度（${organization.development}）已达到或超过最大值。')
   }
   
-  final incidentContent = getLocaleString('organizationDeveloped', interpolations: [
+  const incidentContent = getLocaleString('organizationDeveloped', interpolations: [
     organization.name,
     organization.development,
   ])
@@ -453,39 +452,39 @@ fun increaseOrganizationDevelopment(organization) {
   )
 }
 
-fun organizationExperiencedIncident(organization, incident) {
+function organizationExperiencedIncident(organization, incident) {
   organization.history.add(incident.index)
 }
 
-// fun getNations(id: str) {
+// function getNations(id: str) {
 //   return game.nations
 // }
 
-// fun getNationById(id: str) {
+// function getNationById(id: str) {
 //   return game.nations[id]
 // }
 
-// fun removeCharacterFromNation(character) {
+// function removeCharacterFromNation(character) {
 //   character.nationId = null
 // }
 
-// fun addCharacterToNation(character, nation) {
+// function addCharacterToNation(character, nation) {
 //   assert(nation.category == kOrganizationCategoryNation)
 //   character.nationId = nation.id
 // }
 
-fun removeTerrainFromOrganization(terrain) {
+function removeTerrainFromOrganization(terrain) {
   if (!terrain.locationId) return
 
-  final organization = game.organizations[terrain.organizationId]
+  const organization = game.organizations[terrain.organizationId]
   organization.territoryIndexes.remove(terrain.index)
   organization.borderIndexes.add(terrain.index)
-  final location = game.locations[terrain.locationId]
+  const location = game.locations[terrain.locationId]
   delete location.organizationId
   organization.locationIds.remove(location.id)
 }
 
-fun addTerrainToOrganization(terrain, organization) {
+function addTerrainToOrganization(terrain, organization) {
   if (terrain.organizationId != null) {
     assert(terrain.organizationId != organization.id)
     removeTerrainFromOrganization(terrain)
@@ -497,15 +496,15 @@ fun addTerrainToOrganization(terrain, organization) {
   organization.borderIndexes.remove(terrain.index)
   terrain.organizationId = organization.id
   if (terrain.locationId) {
-    final location = game.locations[terrain.locationId]
+    const location = game.locations[terrain.locationId]
     if (location.category == kLocationCategoryCity) {
       if (location.organizationId) {
-        final oldOrg = game.organizations[location.organizationId]
+        const oldOrg = game.organizations[location.organizationId]
         oldOrg.locationIds.remove(location.id)
-        // final oldGov = location.sites.values.singleWhere((site) => site.category == kSiteGovernment)
+        // const oldGov = location.sites.values.singleWhere((site) => site.category == kSiteGovernment)
         // oldGov.organizationId = nation.id
       } else {
-        // final gov = Site(category: kSiteGovernment, locationId: location.id)
+        // const gov = Site(category: kSiteGovernment, locationId: location.id)
         // if (nation.capitalId == location.id) {
         //   location.isCapital = true
         //   gov.isCapital = true
@@ -519,8 +518,8 @@ fun addTerrainToOrganization(terrain, organization) {
       organization.locationIds.add(location.id)
     }
   }
-  final neighbors = getMapTileNeighbors(terrain.left, terrain.top, currentWorld)
-  for (final neighbor in neighbors) {
+  const neighbors = getMapTileNeighbors(terrain.left, terrain.top, currentWorld)
+  for (const neighbor in neighbors) {
     if (neighbor.organizationId != organization.id) {
       organization.borderIndexes.add(neighbor.index)
     }
@@ -529,12 +528,12 @@ fun addTerrainToOrganization(terrain, organization) {
 
 // /// 将某个功法记录在这个组织的 skillRecords 中
 // /// 根据技能来生成一个道具，也就是技能书
-// fun organizationRecordSkill(organization, skill) {
+// function organizationRecordSkill(organization, skill) {
 //   assert(organization != null)
 //   assert(skill != null)
 //   organization.skills[skill.id] = book
 
-//   final incidentContent = getLocaleString('organizationRecordSkill', interpolations: [
+//   const incidentContent = getLocaleString('organizationRecordSkill', interpolations: [
 //     organization.name,
 //     skill.name,
 //   ])
@@ -544,7 +543,7 @@ fun addTerrainToOrganization(terrain, organization) {
 //   )
 // }
 
-// fun organizationRecordSkill({organization, rank, skill, requirement}) {
+// function organizationRecordSkill({organization, rank, skill, requirement}) {
 //   assert(organization != null)
 //   rank ??= -1
 //   assert(skill != null)

@@ -4,34 +4,34 @@ import 'material/common.json5' as commonMaterialNames
 import '../entity/common.ht'
 import '../random.ht'
 
-fun generateMaterialName({category, rarity}) {
+function generateMaterialName({category, rarity}) {
   assert(materialNames.keys.contains(category))
   rarity ??= getRarity().rarity
-  final pre = random.nextIterable(commonNames)
-  final cp = random.nextIterable(colorPrefix)
-  final sp = random.nextIterable(spiritPrefix)
-  final kind = random.nextIterable(materialNames[category])
-  final name
+  const pre = random.nextIterable(commonNames)
+  const cp = random.nextIterable(colorPrefix)
+  const sp = random.nextIterable(spiritPrefix)
+  const kind = random.nextIterable(materialNames[category])
+  let name
   if (category != 'energy' && category != 'spectre') {
-    when (rarity) {
-      'exotic' -> name = pre + cp + sp + kind
-      'mythic' -> name = pre + sp + kind
-      'legendary' -> name = pre + kind
-      'epic' -> name = pre + kind
-      'rare' -> name = cp + sp + kind
-      'uncommon' -> name = cp + kind
-      'common' -> name = commonMaterialNames[category]
+    switch (rarity) {
+      'exotic' => name = pre + cp + sp + kind
+      'mythic' => name = pre + sp + kind
+      'legendary' => name = pre + kind
+      'epic' => name = pre + kind
+      'rare' => name = cp + sp + kind
+      'uncommon' => name = cp + kind
+      'common' => name = commonMaterialNames[category]
     }
   } else {
-    when (rarity) {
-      'exotic' -> name = pre + cp + sp + kind
-      'mythic' -> name = pre + sp + kind
-      'legendary' -> name = pre + sp + kind
-      'epic' -> name = pre + kind
-      'rare' -> name = pre + kind
-      'uncommon' -> name = cp + sp + kind
-      'common' -> name = cp + kind
-      'common' -> name = cp + kind
+    switch (rarity) {
+      'exotic' => name = pre + cp + sp + kind
+      'mythic' => name = pre + sp + kind
+      'legendary' => name = pre + sp + kind
+      'epic' => name = pre + kind
+      'rare' => name = pre + kind
+      'uncommon' => name = cp + sp + kind
+      'common' => name = cp + kind
+      'common' => name = cp + kind
     }
   }
   return { name, category, rarity }

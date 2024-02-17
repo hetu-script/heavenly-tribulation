@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import '../../grid/entity_info.dart';
-import '../../../../event/events.dart';
+import '../../../../event/ui.dart';
 import 'package:samsara/ui/flutter/close_button.dart';
 import '../../../../global.dart';
 import 'equipments.dart';
@@ -102,7 +102,7 @@ class _BuildViewState extends State<BuildView> {
                       engine
                           .invoke('consume', positionalArgs: [hero, itemData]);
                       Navigator.of(context).pop();
-                      engine.broadcast(const UIEvent.needRebuildUI());
+                      engine.emit(const UIEvent.needRebuildUI());
                       setState(() {});
                     },
                     child: Text(engine.locale['consume']),
@@ -119,7 +119,7 @@ class _BuildViewState extends State<BuildView> {
                         engine
                             .invoke('equip', positionalArgs: [hero, itemData]);
                         Navigator.of(context).pop();
-                        engine.broadcast(const UIEvent.needRebuildUI());
+                        engine.emit(const UIEvent.needRebuildUI());
                         setState(() {});
                       },
                       child: Text(engine.locale['equip']),
@@ -135,7 +135,7 @@ class _BuildViewState extends State<BuildView> {
                         engine.invoke('unequip',
                             positionalArgs: [hero, itemData]);
                         Navigator.of(context).pop();
-                        engine.broadcast(const UIEvent.needRebuildUI());
+                        engine.emit(const UIEvent.needRebuildUI());
                         setState(() {});
                       },
                       child: Text(engine.locale['unequip']),
@@ -154,7 +154,7 @@ class _BuildViewState extends State<BuildView> {
                     engine.invoke('characterSteal',
                         positionalArgs: [hero, itemData]);
                     Navigator.of(context).pop();
-                    engine.broadcast(const UIEvent.needRebuildUI());
+                    engine.emit(const UIEvent.needRebuildUI());
                     setState(() {});
                   },
                   child: Text(engine.locale['steal']),

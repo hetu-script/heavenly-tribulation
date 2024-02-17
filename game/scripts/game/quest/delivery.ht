@@ -40,20 +40,20 @@ struct QuestDelivery {
     this.difficulty = kQuestDifficultyNormal
     this.category = kQuestCategoryDelivery
     this.reward = Lootbox()
-    final money = Coin(stackSize: rewardMoney)
+    const money = Coin(stackSize: rewardMoney)
     this.reward.inventory[money.id] = money
 
-    final location = game.locations[locationId]
+    const location = game.locations[locationId]
 
-    final destination = game.locations[destinationLocationId]
-    final destinationSite = destination.sites[destinationSiteId]
-    final destinationCharacter = game.characters[destinationCharacterId]
+    const destination = game.locations[destinationLocationId]
+    const destinationSite = destination.sites[destinationSiteId]
+    const destinationCharacter = game.characters[destinationCharacterId]
 
     this.distance = getTileDistance(location.tilePosition, destination.tilePosition)
 
     // 任务完成有效时间
     this.expirationDate = game.timestamp + expirationDays * kTicksPerDay
-    final expirationDateString = toDateString(this.expirationDate)
+    const expirationDateString = toDateString(this.expirationDate)
 
     if (item != null) {
       this.questEntitiesSubmit.add({

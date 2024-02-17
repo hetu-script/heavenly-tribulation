@@ -5,7 +5,7 @@ import 'package:samsara/ui/flutter/responsive_window.dart';
 import '../../../global.dart';
 import 'package:samsara/ui/flutter/close_button.dart';
 import '../character/builds/inventory.dart';
-import '../../../event/events.dart';
+import '../../../event/ui.dart';
 
 class MerchantView extends StatefulWidget {
   static Future<bool?> show({
@@ -112,7 +112,7 @@ class _MerchantViewState extends State<MerchantView> {
                     // TODO: 提示金钱不足
                   }
                   Navigator.of(context).pop();
-                  engine.broadcast(const UIEvent.needRebuildUI());
+                  engine.emit(const UIEvent.needRebuildUI());
                   setState(() {});
                 },
               ),
@@ -156,7 +156,7 @@ class _MerchantViewState extends State<MerchantView> {
                     // TODO: 提示金钱不足
                   }
                   Navigator.of(context).pop();
-                  engine.broadcast(const UIEvent.needRebuildUI());
+                  engine.emit(const UIEvent.needRebuildUI());
                   setState(() {});
                 },
               ),

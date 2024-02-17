@@ -1,12 +1,12 @@
 
-fun maxPopulationOfLocationDevelopment(n: int) {
+function maxPopulationOfLocationDevelopment(n: int) {
   return ((n - 1) * (n - 1) * (n - 1) * 50 + 100) * 11
 }
 
-fun maxSiteNumberOfLocationDevelopment(n: int) {
+function maxSiteNumberOfLocationDevelopment(n: int) {
   return (n + 1) * n ~/ 2 + 1
 }
 
-for (var i in range(10)) {
+for (const i in range(10)) {
   print(i, maxSiteNumberOfLocationDevelopment(i))
 }
