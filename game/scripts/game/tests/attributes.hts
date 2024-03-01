@@ -1,30 +1,51 @@
 
+const _kMajorAttributeFactor = 0.5
+
 const kCharacterAttributeNames = [
-  'strength',
-  'constitution',
   'spirituality',
+  'dexterity',
+  'strength',
   'willpower',
   'perception',
-  'dexterity',
 ]
 
-function generateCharacterAttributes(maxStats, minValue) {
-  assert(maxStats != null)
-  assert(minValue != null)
+function generateCharacterAttributes({
+    attributesSum,
+    minValue = 0,
+    majorAttributes: List = [],
+  }) {
+  assert(attributesSum > 0)
+  assert(minValue >= 0)
 
   const attributes = {}
+
+  let maxV = attributesSum
+  let residue = (attributesSum * _kMajorAttributeFactor).toInt()
+  if (majorAttributes) {
+    maxV = attributesSum - residue
+  }
   
-  let rest = maxStats
-  for (const name in random.shuffle(kCharacterAttributeNames)) {
+  let rest = attributesSum
+  let list = Random().shuffle(kCharacterAttributeNames).toList()
+  for (var i = 0; i < list.length - 1; ++i) {
     const value = Random().nextInt(rest)
-    attributes[name] = value + minValue
+    attributes[list[i]] = value + minValue
     rest -= value
   }
-  attributes[list.last] = rest + minValue
+  attributes[list.last] = rest
+
+  let majorAttrList = Random().shuffle(majorAttributes).toList()
+  for (var i = 0; i < majorAttrList.length - 1; ++i) {
+    const value = Random().nextInt(residue)
+    attributes[majorAttrList[i]] += value
+    residue -= value
+  }
+  attributes[majorAttrList.last] += residue
+  
   return attributes
 }
 
-for (const i in range(5)) {
-  const attr = generateCharacterAttributes(20, 10)
-  print(attr)
-}
+generateCharacterAttributes(
+  attributesSum: 50,
+  majorAttributes: ['strength', 'spirituality'],
+)

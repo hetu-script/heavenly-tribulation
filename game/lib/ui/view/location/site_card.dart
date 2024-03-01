@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../../global.dart';
+import '../../../config.dart';
 
 class SiteCard extends StatelessWidget {
   const SiteCard({
@@ -37,9 +37,9 @@ class SiteCard extends StatelessWidget {
             child: InkWell(
               borderRadius: kBorderRadius,
               onTap: () async {
-                await engine
+                await engine.hetu
                     .invoke('onHeroEnteredSite', positionalArgs: [siteData]);
-                engine.invoke('handleSiteInteraction', positionalArgs: [
+                engine.hetu.invoke('handleSiteInteraction', positionalArgs: [
                   siteData['locationId'],
                   siteData['id'],
                 ]);

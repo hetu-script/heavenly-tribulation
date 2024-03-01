@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/ui/flutter/responsive_window.dart';
 import 'package:samsara/ui/flutter/integer_input_field.dart';
 
-import '../../global.dart';
+import '../../config.dart';
 
 class IntegerInputDialog extends StatefulWidget {
   static Future<int?> show({

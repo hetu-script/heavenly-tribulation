@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../../global.dart';
+import '../../../config.dart';
 import 'package:samsara/ui/flutter/rrect_icon.dart';
 import '../../common.dart';
 
@@ -94,7 +94,7 @@ class EntityGrid extends StatelessWidget {
                     children: [
                       if (iconAssetKey != null)
                         RRectIcon(
-                          image: AssetImage('assets/images/$iconAssetKey'),
+                          image: AssetImage('assets/images/icon/$iconAssetKey'),
                           size: size,
                           borderRadius: kBorderRadius,
                           borderColor: Colors.transparent,
@@ -203,7 +203,8 @@ class EntityGrid extends StatelessWidget {
                         children: [
                           if (iconAssetKey != null)
                             RRectIcon(
-                              image: AssetImage('assets/images/$iconAssetKey'),
+                              image: AssetImage(
+                                  'assets/images/icon/$iconAssetKey'),
                               size: Size(iconSize, iconSize),
                               borderRadius: kBorderRadius,
                               borderColor: Colors.transparent,

@@ -2,14 +2,14 @@ import '../../../common.ht'
 import '../../common.ht'
 import '../../../../util.ht'
 import '../../../../game.ht'
-import '../../../../l10n.ht'
+// import '../../../../l10n.ht'
 
 const kBeastWeaponKindClaw = 'claw'
 const kBeastWeaponKindFang = 'fang'
 
 const kBeastWeaponKinds = {
   'claw': {
-    icon: 'icon/item/claw.png',
+    icon: 'item/claw.png',
     damageType: kDamageTypeSlash,
     attributes: {
       speed: 7,
@@ -19,7 +19,7 @@ const kBeastWeaponKinds = {
     },
   },
   'fang': {
-    icon: 'icon/item/fang.png',
+    icon: 'item/fang.png',
     damageType: kDamageTypePierce,
     attributes: {
       speed: 10,
@@ -51,9 +51,9 @@ struct BeastWeapon {
     this.isEquippable = true
     this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
     this.rarity = rarity ?? kCommon
-    this.name = beastName + getLocaleString(kind)
+    this.name = beastName + engine.locale(kind)
     this.color = kRarity[this.rarity].color
-    this.id = '${this.entityType}.${Hash.uid4(2)}.${this.name}'
+    this.id = '${this.entityType}.${crypto.randomUID4(2)}.${this.name}'
     this.isBodyPart = true
     this.value = value ?? 30
     this.stackSize = 1
@@ -67,7 +67,7 @@ struct BeastWeapon {
     }
 
     if (attributes) {
-      this.attributes.assign(attributes)
+      Object.assign(this.attributes, attributes)
     }
 
     this.attributes.effects = {}

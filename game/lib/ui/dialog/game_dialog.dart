@@ -2,23 +2,34 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 // import 'package:flutter/scheduler.dart';
-import 'package:hetu_script/values.dart';
+// import 'package:hetu_script/values.dart';
 
 import '../avatar.dart';
-import '../../global.dart';
+import '../../config.dart';
 import '../../event/ui.dart';
 import '../view/character/information/character.dart';
 import '../view/character/npc.dart';
 
+// dialogData: {
+//   "contents": [
+//     {
+//       "lines": [
+//         engine.locale[
+//             'deckbuilding.requiredCardsPrompt']
+//       ],
+//     },
+//   ],
+// },
+
 class GameDialog extends StatefulWidget {
   static Future<void> show({
     required BuildContext context,
-    required HTStruct dialogData,
-    required dynamic returnValue,
+    required dynamic dialogData,
+    dynamic returnValue,
   }) {
     return showDialog<dynamic>(
       context: context,
-      barrierColor: kBackgroundColor.withOpacity(0.5),
+      barrierColor: Colors.transparent,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return GameDialog(dialogData: dialogData, returnValue: returnValue);
@@ -26,7 +37,7 @@ class GameDialog extends StatefulWidget {
     );
   }
 
-  final HTStruct dialogData;
+  final dynamic dialogData;
 
   final dynamic returnValue;
 
@@ -41,39 +52,39 @@ class GameDialog extends StatefulWidget {
 }
 
 class _GameDialogState extends State<GameDialog> {
-  HTStruct get _data => widget.dialogData;
-  Timer? _timer;
-  String? _currentAvatar;
-  String _currentSay = '';
-  int _currentContentIndex = 0;
-  HTStruct? _currentContent;
-  int _currentSayIndex = 0;
-  int _letterCount = 0;
-  bool _finished = false;
+  Timer? timer;
+  String? currentAvatar;
+  String currentSay = '';
+  String? displayName;
+  int currentContentIndex = 0;
+  dynamic currentContent;
+  int currentSayIndex = 0;
+  int letterCount = 0;
+  bool finished = false;
 
-  HTStruct? _characterData;
-  bool _isNpc = false;
+  dynamic characterData;
+  bool isNpc = false;
 
-  final _textShowController = StreamController<String>.broadcast();
+  final textShowController = StreamController<String>.broadcast();
 
   @override
   void initState() {
-    _startTalk();
+    startTalk();
     super.initState();
   }
 
   @override
   void dispose() {
-    _textShowController.close();
-    _timer?.cancel();
+    textShowController.close();
+    timer?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     BoxDecoration? backgroundImage;
-    if (_currentContent != null) {
-      final cg = _currentContent!['background'];
+    if (currentContent != null) {
+      final cg = currentContent!['background'];
       if (cg != null) {
         backgroundImage = BoxDecoration(
           image: DecorationImage(
@@ -84,18 +95,18 @@ class _GameDialogState extends State<GameDialog> {
       }
     }
 
-    final screenSize = MediaQuery.of(context).size;
+    final screenSize = View.of(context).physicalSize;
 
     return GestureDetector(
       onTap: () {
-        if (_finished) {
-          _nextSay();
+        if (finished) {
+          nextSay();
         } else {
-          _finishLine();
+          finishLine();
         }
       },
       child: Material(
-        type: MaterialType.transparency,
+        color: Colors.transparent,
         child: Stack(
           alignment: AlignmentDirectional.bottomCenter,
           children: [
@@ -104,75 +115,83 @@ class _GameDialogState extends State<GameDialog> {
               height: screenSize.height,
               decoration: backgroundImage,
             ),
-            StreamBuilder(
-              stream: _textShowController.stream,
-              builder: (context, AsyncSnapshot<String> snapshot) {
-                return Container(
-                  width: 720,
-                  height: 160,
-                  padding: const EdgeInsets.all(15.0),
-                  decoration: BoxDecoration(
-                    color: kBackgroundColor,
-                    borderRadius: kBorderRadius,
-                    border: Border.all(color: kForegroundColor),
-                  ),
-                  child: Row(
-                    children: [
-                      Avatar(
-                        image: _currentAvatar != null
-                            ? AssetImage('assets/images/$_currentAvatar')
-                            : null,
-                        size: const Size(120.0, 120.0),
-                        onPressed: () {
-                          if (_characterData != null) {
-                            if (_isNpc) {
-                              showDialog(
-                                context: context,
-                                barrierColor: Colors.transparent,
-                                builder: (context) {
-                                  return NpcView(npcData: _characterData!);
-                                },
-                              );
-                            } else {
+            Positioned(
+              bottom: 20.0,
+              child: StreamBuilder(
+                stream: textShowController.stream,
+                builder: (context, AsyncSnapshot<String> snapshot) {
+                  return Container(
+                    width: 880,
+                    height: 160,
+                    padding: const EdgeInsets.only(top: 10.0),
+                    decoration: BoxDecoration(
+                      color: kBackgroundColor,
+                      borderRadius: kBorderRadius,
+                      border: Border.all(color: kForegroundColor),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Avatar(
+                          name: displayName,
+                          preferNameOnTop: true,
+                          image: currentAvatar != null
+                              ? AssetImage(
+                                  'assets/images/avatar/$currentAvatar')
+                              : null,
+                          size: const Size(140.0, 140.0),
+                          onPressed: () {
+                            if (characterData != null) {
+                              if (isNpc) {
+                                showDialog(
+                                  context: context,
+                                  barrierColor: Colors.transparent,
+                                  builder: (context) {
+                                    return NpcView(npcData: characterData!);
+                                  },
+                                );
+                              } else {
+                                showDialog(
+                                  context: context,
+                                  barrierColor: Colors.transparent,
+                                  builder: (context) {
+                                    return CharacterView(
+                                        characterData: characterData);
+                                  },
+                                );
+                              }
+
                               showDialog(
                                 context: context,
                                 barrierColor: Colors.transparent,
                                 builder: (context) {
                                   return CharacterView(
-                                      characterData: _characterData);
+                                      characterData: characterData);
                                 },
                               );
                             }
-
-                            showDialog(
-                              context: context,
-                              barrierColor: Colors.transparent,
-                              builder: (context) {
-                                return CharacterView(
-                                    characterData: _characterData);
-                              },
-                            );
-                          }
-                        },
-                      ),
-                      Container(
-                        width: 520,
-                        padding: const EdgeInsets.only(left: 20.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              snapshot.data ?? '',
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                          ],
+                          },
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
+                        Container(
+                          // color: Colors.blue,
+                          width: 720,
+                          padding: const EdgeInsets.only(left: 20.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                snapshot.data ?? '',
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),
@@ -180,69 +199,69 @@ class _GameDialogState extends State<GameDialog> {
     );
   }
 
-  void _startTalk() {
+  void startTalk() {
     setState(() {
-      _finished = false;
-      _letterCount = 0;
-      _currentContent = _data['contents'][_currentContentIndex];
+      finished = false;
+      letterCount = 0;
+      currentContent = widget.dialogData['contents'][currentContentIndex];
 
-      final characterId = _currentContent!['characterId'];
+      final characterId = currentContent!['characterId'];
       if (characterId != null) {
         if (widget.dialogData['isMajorCharacter'] ?? false) {
-          _characterData =
-              engine.invoke('getCharacterById', positionalArgs: [characterId]);
-          _isNpc = false;
+          characterData = engine.hetu
+              .invoke('getCharacterById', positionalArgs: [characterId]);
+          isNpc = false;
         } else {
-          _characterData =
-              engine.invoke('getNpcById', positionalArgs: [characterId]);
-          _isNpc = true;
+          characterData =
+              engine.hetu.invoke('getNpcById', positionalArgs: [characterId]);
+          isNpc = true;
         }
       }
 
-      _currentAvatar = _currentContent!['icon'];
-      _currentSay = _currentContent!['lines'][_currentSayIndex];
-      final displayName = _currentContent!['displayName'];
-      if (displayName != null) {
-        _currentSay = '$displayName: $_currentSay';
-      }
-      _timer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
-        _letterCount++;
-        if (_letterCount > _currentSay.length) {
-          _finishLine();
+      currentAvatar = currentContent!['icon'];
+      currentSay = currentContent!['lines'][currentSayIndex];
+      displayName = currentContent!['displayName'];
+      // if (displayName != null) {
+      //   _currentSay = '$displayName: $_currentSay';
+      // }
+      timer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
+        letterCount++;
+        if (letterCount > currentSay.length) {
+          finishLine();
         } else {
-          _textShowController.add(_currentSay.substring(0, _letterCount));
+          textShowController.add(currentSay.substring(0, letterCount));
         }
       });
     });
   }
 
-  void _nextSay() {
-    ++_currentSayIndex;
-    if (_currentSayIndex >= _currentContent!['lines'].length) {
-      _nextContent();
+  void nextSay() {
+    ++currentSayIndex;
+    if (currentSayIndex >= currentContent!['lines'].length) {
+      nextContent();
     } else {
-      _startTalk();
+      startTalk();
     }
   }
 
-  void _finishLine() {
-    _timer?.cancel();
-    _textShowController.add(_currentSay);
-    _finished = true;
+  void finishLine() {
+    timer?.cancel();
+    textShowController.add(currentSay);
+    finished = true;
   }
 
-  void _nextContent() {
-    _currentSayIndex = 0;
-    ++_currentContentIndex;
-    if (_currentContentIndex < _data['contents'].length) {
-      _startTalk();
+  void nextContent() {
+    currentSayIndex = 0;
+    ++currentContentIndex;
+    if (currentContentIndex < widget.dialogData['contents'].length) {
+      startTalk();
     } else {
-      _currentContentIndex = 0;
-      _finishDialog();
+      currentContentIndex = 0;
+      finishDialog();
     }
   }
 
-  void _finishDialog() {
+  void finishDialog() {
     // SchedulerBinding.instance.addPostFrameCallback((_) {
     Navigator.pop(context, widget.returnValue);
     engine.emit(const UIEvent.needRebuildUI());

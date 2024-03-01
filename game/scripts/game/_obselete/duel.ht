@@ -1,0 +1,393 @@
+import 'game.ht'
+import 'l10n.ht'
+import 'entity/common.ht'
+import 'entity/item/common.ht'
+import 'entity/character/common.ht'
+import 'entity/effect/effect.ht'
+import 'binding/dialog.ht'
+
+/// 战斗模块
+/// 输入战斗相关角色的对象
+/// 生成战斗过程的文字描述，以及最终结果
+
+function showDuel(char1, char2, { type, onCallback, debug }) -> Future {
+  const duelResult = Duel(char1, char2, type: type, debug: debug);
+  return Dialog.showDuel(buildContext, char1, char2, type, duelResult)
+}
+
+// damage = ((1 / (Math.log((victim.defense + 5) / 100) + 5)) * 2 * attacker._attack)
+
+const kDuelTypePractice = 'practice'
+const kDuelTypeSneakAttack = 'sneakAttack'
+const _kDuelticksLimit = 500
+
+// function _attack(offenseItem, defenseItem, log) {
+  // let offset = 0
+  // const defenseValue = defenseItem.stats.defense ?? 0
+  // if (defenseValue > 0) {
+  //   offset = Math.gaussianNoise(defenseValue, defenseValue * 0.25, min: defenseValue * 0.5 max: defenseValue)
+  // }
+  // const damage = offenseItem.stats.damage - offset
+  // return damage
+// }
+
+struct Action {
+  construct ({
+    isChar1Action,
+    message,
+    activatedOffenseIndex = 0,
+    speed,
+    damage = 0,
+    equipmentIndex,
+    sharedDamage = 0,
+  }) {
+    assert(message != null)
+    this.isChar1Action = isChar1Action
+    this.message = message
+    this.activatedOffenseIndex = activatedOffenseIndex
+    this.speed = speed
+    this.damage = damage
+    this.equipmentIndex = equipmentIndex
+    this.sharedDamage = sharedDamage
+  }
+}
+
+struct Duel {
+  construct(char1, char2, { type, debug }) {
+    this.type = type;
+    this.messages = []
+    this.char1Name = char1.name
+    this.char2Name = char2.name
+    this.actions = []
+
+    // 保存战斗开始时双方的初始状态
+    this.initialStats = {
+      char1: getCharacterStats(char1),
+      char2: getCharacterStats(char2),
+    }
+    
+    const char1info = {
+      ticks: 0,
+      // 复制出来的人物当前状态，包括生命值等
+      stats: this.initialStats.char1.clone(),
+    }
+    const char2info = {
+      ticks: 0,
+      stats: this.initialStats.char2.clone(),
+    }
+
+    const char1EffectsInCooldown = []
+    const char2EffectsInCooldown = []
+
+    // 如果目标声明小于0，返回true
+    function nextTick({ enemyTurn = false, sneakAttack = false }) {
+      const subject = enemyTurn ? char2 : char1
+      const subjectInfo = enemyTurn ? char2info : char1info
+      const target = enemyTurn ? char1 : char2
+      const targetInfo = enemyTurn ? char1info : char2info
+      
+      // 出招等待阶段
+      if (subjectInfo.ticks >= subjectInfo.activatedOffense.stats.speed) {
+        // 出招
+        const baseDamage = subjectInfo.activatedOffense.stats.damage
+
+        // 战斗文字信息
+        let pre = ''
+        let message
+        let post = ''
+        // 是否被某个防御物品或者战斗伙伴分担了伤害
+        let sharedDamage = 0
+        let sharedDamageItemIndex
+        // 是否被某个防御物品或者战斗伙伴增强了伤害
+        let assistedItem
+        // 计算后的最终伤害
+        let finalDamage = baseDamage
+
+        // 处理增强伤害类效果
+        function handleDamageEffect({effect}) {
+          if (effect.handlerType != kEffectCategoryOffense) return false
+          const effectHandler = getEffectHandlerById(effect.id)
+          if (effectHandler == null) {
+            engine.error('找不到效果 ${effect.id} 对应的处理函数。')
+            return false
+          }
+          assert(effectHandler is function)
+          const increasedDamage = effectHandler(effect, baseDamage)
+          if (increasedDamage) {
+            finalDamage = increaseDamage
+            return true
+          } else {
+            return false
+          }
+        }
+
+        // 处理道具防御效果
+        function handleDefendEffect({effect}) {
+          if (effect.handlerType != kEffectCategoryDefend) return false
+          const effectHandler = getEffectHandlerById(effect.id)
+          if (effectHandler == null) {
+            engine.error('找不到效果 ${effect.id} 对应的处理函数。')
+            return false
+          }
+          assert(effectHandler is function)
+          sharedDamage = effectHandler(effect, baseDamage)
+          if (sharedDamage) {
+            return true
+          } else {
+            return false
+          }
+        }
+
+        // 处理攻击后的额外效果
+        function handleAfterHitEffect({effect}) {
+          if (effect.handlerType != kEffectCategoryAfterHit) return false
+          const effectHandler = getEffectHandlerById(effect.id)
+          if (effectHandler == null) {
+            engine.error('找不到效果 ${effect.id} 对应的处理函数。')
+            return false
+          }
+          assert(effectHandler is function)
+          effectHandler(effect, targetInfo)
+        }
+        
+        // 遍历进攻方装备，检查是否有增强伤害效果
+        for (const i in range(1, kEquipmentMax)) {
+          const itemInfo = targetInfo.stats.equipments[i]
+          if (itemInfo) {
+            for (const effect of itemInfo.effects) {
+              const assisted = handleDamageEffect(
+                effect: effect,
+              )
+              if (assisted) {
+                const equipData = subject.equipments[i]
+                if (!equipData) continue
+                const item = getEquipped(equipData, subject)
+                assistedItem = item
+                break
+              }
+            }
+          }
+        }
+        
+        // 遍历防守方装备，检查是否有分担伤害效果
+        for (const i in range(1, kEquipmentMax)) {
+          const itemInfo = targetInfo.stats.equipments[i]
+          if (itemInfo) {
+            for (const effect of itemInfo.effects) {
+              const defended = handleDefendEffect(
+                effect: effect,
+              )
+              if (defended) {
+                sharedDamageItemIndex = i
+                break
+              }
+            }
+          }
+        }
+
+        if (assistedItem) {
+          pre = engine.locale('assistedDamageInfo', interpolations: [
+            assistedItem.name,
+          ])
+        }
+        
+        if (sharedDamageItemIndex) {
+          const equipItemInfo = targetInfo.stats.equipments[sharedDamageItemIndex]
+          const equipData = target.equipments[sharedDamageItemIndex]
+          const equipItem = getEquipped(equipData, target)
+          changeLife(equipItemInfo, -sharedDamage)
+          post = engine.locale('sharedDamageInfo', interpolations: [
+            equipItem.name,
+            sharedDamage.truncate(),
+          ])
+        }
+
+        message = pre + engine.locale(sneakAttack ? 'sneakDamageInfo' : 'damageInfo',
+          interpolations: [
+          subject.name,
+          subjectInfo.activatedOffense.name,
+          target.name,
+          (finalDamage - sharedDamage).truncate(),
+        ]) + post
+        this.actions.add(Action(
+          isChar1Action: enemyTurn ? false : true,
+          message: message,
+          activatedOffenseIndex: subjectInfo.activatedOffenseIndex,
+          speed: subjectInfo.activatedOffense.stats.speed,
+          damage: finalDamage - sharedDamage,
+          equipmentIndex: sharedDamageItemIndex,
+          sharedDamage: sharedDamage,
+        ))
+        changeLife(targetInfo, -(finalDamage - sharedDamage))
+
+        this.messages.add(message)
+        // engine.info(message)
+        
+        // if (info.activatedDefense.stats.life <= 0) {
+        //   info.targetIndex = setNextActivatedDefenseItem(info, target)
+        // }
+        // 收招
+        subjectInfo.activatedOffense = getEquippedOffenseItem(subject, subjectInfo.activatedOffenseIndex)
+        subjectInfo.activatedOffenseIndex = subjectInfo.activatedOffense.equippedPosition
+
+        subjectInfo.ticks = 0
+      }
+
+      if (targetInfo.stats.life <= 0) {
+        return true
+      }
+    }
+
+    this.started = false
+    if (char1.equipments.isEmpty) {
+      // 如果没有装备任何武器或者战斗技能，则直接判负
+      engine.warning(engine.locale('无法开始战斗：${char1.name} 没有装备武器或技能。'))
+      this.result = false
+    } else if (char2.equipments.isEmpty) {
+      engine.warning(engine.locale('无法开始战斗：${char2.name} 没有装备武器或技能。'))
+      this.result = true
+    } else {
+      this.result = false
+      this.tied = false
+      // 战斗本身的客观时间，不会受任何因素影响
+      this.frames = 0
+      // 当前激活的进攻手段，1代表第一个武器或斗技
+      char1info.activatedOffense = getEquippedOffenseItem(char1)
+      char1info.activatedOffenseIndex = char1info.activatedOffense.equippedPosition
+      char2info.activatedOffense = getEquippedOffenseItem(char2)
+      char2info.activatedOffenseIndex = char1info.activatedOffense.equippedPosition
+
+      this.started = true
+
+      // 第一次行动时，会判断是否形成偷袭
+      let firstMove = true
+
+      while (true) {
+        if (this.frames >= _kDuelticksLimit) {
+          engine.warning('${char2.name} 和 ${char1.name} 的战斗超时，强制结束。')
+          this.tied = true
+          break
+        }
+
+        let r
+        if (firstMove) {
+          firstMove = false
+          const initiativeSum = char1.attributes.perception + char2.attributes.perception
+          const initiativeValue = initiativeSum * random.nextDouble()
+          if (char1.attributes.perception > initiativeValue) {
+            this.char1FirstMoved = true
+            r = nextTick(char1info, sneakAttack: type == kDuelTypeSneakAttack)
+          } else {
+            this.char1FirstMoved = false
+          }
+        } else {
+          r = nextTick(char1info)
+        }
+        if (r) {
+          engine.info('${char1.name} 击败了 ${char2.name}。')
+          const incidentContent = engine.locale('characterDefeat', interpolations: [
+            char1.name,
+            char2.name,
+          ])
+          Incident(
+            subjectIds: char1.isMajorCharacter ? [char1.id] : null,
+            objectIds: char2.isMajorCharacter ? [char2.id] : null,
+            content: incidentContent,
+            isPrivate: true,
+          )
+
+          this.result = true
+          break
+        }
+
+        r = nextTick(char2info, enemyTurn: true)
+        if (r) {
+          engine.info('${char2.name} 击败了 ${char1.name}。')
+          const incidentContent = engine.locale('characterDefeat', interpolations: [
+            char2.name,
+            char1.name,
+          ])
+          Incident(
+            subjectIds: char2.isMajorCharacter ? [char2.id] : null,
+            objectIds: char1.isMajorCharacter ? [char1.id] : null,
+            content: incidentContent,
+            isPrivate: true,
+          )
+          
+          break
+        }
+        
+        // 记录当前时间
+        ++this.frames
+        // 攻击单位的攻击冷却时间，从0开始逐渐增加，增加到该单位的speed时发动攻击
+        ++char1info.ticks
+        for (const itemInfo of char1info.stats.equipments) {
+          for (const effect of itemInfo.effects) {
+            if (effect.inCooldown) {
+              ++effect.ticks
+              if (effect.ticks >= effect.cooldown) {
+                effect.ticks = 0
+                effect.inCooldown = false
+              }
+            }
+          }
+        }
+        ++char2info.ticks
+        for (const itemInfo of char2info.stats.equipments) {
+          for (const effect of itemInfo.effects) {
+            if (effect.inCooldown) {
+              ++effect.ticks
+              if (effect.ticks >= effect.cooldown) {
+                effect.ticks = 0
+                effect.inCooldown = false
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // 双方结束时的状态
+    this.resultStats = {
+      result: this.result,
+      // 因为这里的数据用于界面显示，会包括物品、随从等额外的数据
+      // 之后直接赋值给人物时会删掉额外数据
+      char1: char1info.stats,
+      char2: char2info.stats,
+    }
+    
+    if (debug) {
+      engine.info(this)
+    }
+  }
+}
+
+function resolveDuelResult(char1, char2, resultStats) {
+  for (const i in range(1, kEquipmentMax)) {
+    const char1ItemStatsInfo = resultStats.char1.equipments[i]
+    if (char1ItemStatsInfo) {
+      for (const effect of char1ItemStatsInfo.effects) {
+        delete effect.ticks
+        delete effect.inCooldown
+        delete effect.cooldown
+      }
+      const char1EquippedItem = char1.equipments[i]
+      char1EquippedItem.stats = char1ItemStatsInfo
+    }
+    const char2ItemStatsInfo = resultStats.char2.equipments[i]
+    if (char2ItemStatsInfo) {
+      for (const effect of char2ItemStatsInfo.effects) {
+        delete effect.ticks
+        delete effect.inCooldown
+        delete effect.cooldown
+      }
+      const char2EquippedItem = char2.equipments[i]
+      char2EquippedItem.stats = char2ItemStatsInfo
+    }
+  }
+  delete resultStats.char1.equipments
+  delete resultStats.char2.equipments
+
+  char1.stats = resultStats.char1
+  char2.stats = resultStats.char2
+}

@@ -1,0 +1,29 @@
+{
+  "leader": "掌门",
+  "headquarters": "总堂",
+  "territory": "疆域",
+  "memberNumber": "成员数量",
+
+  "cultivation": "修真",
+  "religion": "宗教",
+  "gang": "帮会",
+  "business": "商号",
+  "nation": "国家",
+
+  "cultivation.spirit": "法术",
+  "cultivation.blade": "剑修",
+  "cultivation.physique": "体修",
+  "cultivation.deity": "显圣",
+  "cultivation.vitality": "炼魂",
+
+  "cultivation.array": "阵法",
+  "cultivation.rune": "符咒",
+  "cultivation.alchemy": "炼丹",
+  "cultivation.craft": "炼器",
+  "cultivation.plant": "灵植",
+  "cultivation.animal": "灵兽",
+  "cultivation.illusion": "幻术",
+  "cultivation.psychic": "通灵",
+  "cultivation.divination": "占卜",
+  "cultivation.theurgy": "神通"
+}

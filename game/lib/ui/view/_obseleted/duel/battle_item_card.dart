@@ -3,7 +3,7 @@ import 'package:hetu_script/values.dart';
 
 import '../../grid/entity_grid.dart';
 import 'cooldown.dart';
-import '../../../../global.dart';
+import '../../../../config.dart';
 import '../../grid/entity_info.dart';
 import 'package:samsara/ui/flutter/dynamic_color_progressbar.dart';
 

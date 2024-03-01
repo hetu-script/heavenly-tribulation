@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 import 'package:samsara/utils/color.dart';
 
-import '../../../../global.dart';
+import '../../../../config.dart';
 import 'bonds.dart';
 import 'memory.dart';
 import 'package:samsara/ui/flutter/responsive_window.dart';
@@ -90,7 +90,7 @@ class _CharacterViewState extends State<CharacterView>
       final charId = widget.characterId ??
           ModalRoute.of(context)!.settings.arguments as String;
       _characterData =
-          engine.invoke('getCharacterById', positionalArgs: [charId]);
+          engine.hetu.invoke('getCharacterById', positionalArgs: [charId]);
     }
 
     _tabController = TabController(vsync: this, length: _tabs.length);

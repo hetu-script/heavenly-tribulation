@@ -61,7 +61,7 @@ function tilePos2Index(left, top, mapWidth) {
 }
 
 // 从索引得到 hexagonal 坐标
-function index2TilePos(index: int, mapWidth) {
+function index2TilePos(index: integer, mapWidth) {
   const left = index % mapWidth + 1
   const top = index ~/ mapWidth + 1
   return Tile(left, top, index: index, mapWidth: mapWidth)

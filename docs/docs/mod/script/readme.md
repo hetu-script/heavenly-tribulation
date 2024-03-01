@@ -29,7 +29,7 @@ function createGame() {
       }
     ],
   }
-  return game.toJson()
+  return game.toJSON()
 }
 ```
 

@@ -69,7 +69,7 @@ class _ExploreDialogState extends State<ExploreDialog> {
             child: Scaffold(
               appBar: AppBar(
                 automaticallyImplyLeading: false,
-                title: const Text('search'),
+                title: const Text('explore'),
               ),
               body: Align(
                 alignment: AlignmentDirectional.center,

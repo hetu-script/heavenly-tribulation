@@ -16,7 +16,7 @@ const commonConsumableNames = [
 ]
 
 // 生成方剂、饮品、灵丹的名字
-function generateConsumableName({category: str, rarity: str}) {
+function generateConsumableName({category: string, rarity: string}) {
   assert(consumableNames.keys.contains(category))
   rarity ??= getRarity().rarity
   const kind = random.nextIterable(consumableNames[category])

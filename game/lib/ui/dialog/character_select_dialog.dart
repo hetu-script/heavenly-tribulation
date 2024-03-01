@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/flutter/responsive_window.dart';
 
-import '../../global.dart';
+import '../../config.dart';
 import '../util.dart';
 import '../game_entity_listview.dart';
 import '../view/character/information/character.dart';
@@ -59,7 +59,8 @@ class CharacterSelectDialog extends StatelessWidget {
       chars = charactersData!;
     } else {
       assert(characterIds != null);
-      chars = engine.invoke('getCharacters', positionalArgs: [characterIds]);
+      chars =
+          engine.hetu.invoke('getCharacters', positionalArgs: [characterIds]);
     }
 
     final List<List<String>> data = [];
@@ -67,7 +68,7 @@ class CharacterSelectDialog extends StatelessWidget {
       final row = <String>[];
       row.add(char['name']);
       final age =
-          engine.invoke('getCharacterAgeString', positionalArgs: [char]);
+          engine.hetu.invoke('getCharacterAgeString', positionalArgs: [char]);
       // 年龄
       row.add(age);
       // 当前所在地点
@@ -75,7 +76,7 @@ class CharacterSelectDialog extends StatelessWidget {
       // 门派名字
       row.add(getNameFromId(char['organizationId']));
       final fame =
-          engine.invoke('getCharacterFameString', positionalArgs: [char]);
+          engine.hetu.invoke('getCharacterFameString', positionalArgs: [char]);
       // 名声
       row.add(fame);
       // 多存一个隐藏的 id 信息，用于点击事件

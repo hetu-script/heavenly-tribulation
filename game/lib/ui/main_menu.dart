@@ -4,32 +4,38 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:heavenly_tribulation/ui/overlay/cardgame/deckbuilding.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
-import 'package:samsara/samsara.dart';
+import 'package:samsara/extensions.dart';
+// import 'package:samsara/extensions.dart';
+// import 'package:samsara/samsara.dart';
+// import 'package:flame_audio/flame_audio.dart';
 // import 'package:samsara/event.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:hetu_script/values.dart';
 import 'package:samsara/ui/flutter/loading_screen.dart';
 import 'package:samsara/ui/flutter/label.dart';
 import 'package:samsara/console.dart';
-import 'package:json5/json5.dart';
+// import 'package:video_player_win/video_player_win.dart';
+import 'package:samsara/cardgame/playing_card.dart';
 
-import 'overlay/maze/maze.dart';
-import '../global.dart';
+import '../pages/map/maze/maze.dart';
+import '../config.dart';
 import '../shared/constants.dart';
 import '../../shared/datetime.dart';
 import 'load_game_dialog.dart';
-import '../binding/function_binding.dart';
+import 'dialog/binding/dialog_bindings.dart';
 import '../scene/worldmap.dart';
 import '../scene/maze.dart';
 import 'create_game_dialog.dart';
 // import '../event/events.dart';
-import 'overlay/worldmap/worldmap.dart';
-import '../scene/cardgame/battle/battle.dart';
-import '../scene/cardgame/deckbuilding/deckbuilding.dart';
-import '../binding/class_binding.dart';
+import '../pages/map/world/world.dart';
+import '../pages/battle/scene/battle.dart';
+import '../pages/deckbuilding/scene/deckbuilding.dart';
+import '../pages/battle/binding/character_binding.dart';
+import '../data.dart';
+import '../pages/deckbuilding/deckbuilding.dart';
+import '../ui.dart';
 
 class MainMenu extends StatefulWidget {
   const MainMenu({super.key});
@@ -39,7 +45,10 @@ class MainMenu extends StatefulWidget {
 }
 
 class _MainMenuState extends State<MainMenu> {
-  GameLocalization get locale => engine.locale;
+  // late File _videoFile;
+  // late WinVideoPlayerController _videoController;
+
+  bool _isLoading = false;
 
   // 模组信息，key是模组名字，value代表是否启用
   final _modsInfo = <String, bool>{
@@ -52,15 +61,17 @@ class _MainMenuState extends State<MainMenu> {
   void initState() {
     super.initState();
 
+    // 读取游戏配置
+
     engine.registerSceneConstructor('worldmap', ([dynamic args]) async {
-      engine.invoke('resetGame');
+      engine.hetu.invoke('resetGame');
 
       var isFirstLoad = false;
 
       // 因为生成世界时会触发一些mod的回调函数，因此需要先载入 mod 数据
       for (final key in _modsInfo.keys) {
         if (_modsInfo[key] == true) {
-          engine.invoke('load', module: key);
+          engine.hetu.invoke('load', module: key);
         }
       }
 
@@ -74,11 +85,11 @@ class _MainMenuState extends State<MainMenu> {
         final mapDataString = mapSavePath.readAsStringSync();
         final mapData = jsonDecode(mapDataString);
         engine.info('从 [$path] 载入游戏存档。');
-        worldData = engine.invoke('loadGameFromJsonData',
+        worldData = engine.hetu.invoke('loadGameFromJsonData',
             positionalArgs: [gameData, mapData]);
       } else {
-        worldData = engine.invoke('createWorldMap', namedArgs: args);
-        engine.invoke('enterWorld', positionalArgs: [worldData]);
+        worldData = engine.hetu.invoke('createWorldMap', namedArgs: args);
+        engine.hetu.invoke('enterWorld', positionalArgs: [worldData]);
         isFirstLoad = true;
       }
 
@@ -101,37 +112,52 @@ class _MainMenuState extends State<MainMenu> {
     engine.registerSceneConstructor('deckBuilding', ([dynamic data]) async {
       return DeckBuildingScene(
         controller: engine,
-        librayData: data,
+        libray: data,
       );
     });
 
     engine.registerSceneConstructor('cardGame', ([dynamic data]) async {
       return BattleScene(
-        controller: engine,
-        id: data['id'],
-        heroCards: data['heroCards'],
-        enemyCards: data['enemyCards'],
-      );
+          controller: engine,
+          id: data['id'],
+          heroData: data['heroData'],
+          enemyData: data['enemyData'],
+          heroCards: data['heroCards'],
+          enemyCards: data['enemyCards'],
+          isSneakAttack: data['isSneakAttack']);
     });
+
+    engine.bgm.initialize();
+    // engine.playBGM('music/chinese-oriental-tune-06-12062.mp3',
+    //     volume: GameConfig.musicVolume);
   }
 
-  Future<void> refreshSaves() async {
-    _savedFiles.clear();
-    _savedFiles.addAll(await _getSavedFiles());
+  @override
+  void dispose() {
+    super.dispose();
+    engine.removeEventListener(widget.key!);
+
+    // _videoController.dispose();
+
+    // engine.bgm.stop();
+    // engine.bgm.dispose();
   }
 
   // 因为 FutureBuilder根据返回值是否为null来判断，因此这里无论如何要返回一个值
   Future<bool?> _prepareData() async {
-    await refreshSaves();
-
-    if (engine.isLoaded) {
-      engine.invoke('build', positionalArgs: [context]);
-      return false;
+    if (engine.isInitted) {
+      engine.hetu.invoke('build', positionalArgs: [context]);
+      return true;
     }
+    if (_isLoading) return false;
+    _isLoading = true;
+
+    _savedFiles.clear();
+    _savedFiles.addAll(await _getSavedFiles());
 
     await engine.init(
-      externalFunctions: externalGameFunctions,
-      loadCardGameBindings: true,
+      externalFunctions: dialogFunctions,
+      // modules: {'cardGame'},
     );
 
     engine.hetu.interpreter.bindExternalClass(BattleCharacterClassBinding());
@@ -172,23 +198,36 @@ class _MainMenuState extends State<MainMenu> {
       }
     }
 
-    final cardsDataString =
-        await rootBundle.loadString('scripts/game/card/card.json5');
-    final data = JSON5.parse(cardsDataString);
-    for (final obj in data) {
-      final id = obj['id'];
-      assert(id != null);
-      cardsData[id] = obj;
-    }
+    // 载入动画，卡牌等纯JSON格式的游戏数据
+    await GameData.load();
 
-    engine.invoke('build', positionalArgs: [context]);
+    engine.hetu.invoke('build', positionalArgs: [context]);
+
+    // const videoFilename = 'D:/_dev/heavenly-tribulation/media/video/title2.mp4';
+    // _videoFile = File.fromUri(Uri.file(videoFilename));
+    // _videoController = WinVideoPlayerController.file(_videoFile);
+    // _videoController.initialize().then((_) {
+    //   // Ensure the first frame is shown after the video is initialized.
+    //   setState(() {
+    //     if (_videoController.value.isInitialized) {
+    //       _videoController.play();
+    //     } else {
+    //       engine.error("Failed to load [$videoFilename]!");
+    //     }
+    //   });
+    // });
+    // _videoController.setLooping(true);
+    setState(() {});
     return true;
   }
 
   @override
   Widget build(BuildContext context) {
-    final view = View.of(context);
-    Global.screenSize = view.physicalSize / view.devicePixelRatio;
+    GameConfig.screenSize = MediaQuery.sizeOf(context);
+    engine.info(
+        '游戏画面尺寸：${GameConfig.screenSize.width}x${GameConfig.screenSize.height}');
+    GameUI.init(GameConfig.screenSize.toVector2());
+
     return FutureBuilder(
       future: _prepareData(),
       builder: (context, snapshot) {
@@ -196,17 +235,11 @@ class _MainMenuState extends State<MainMenu> {
           throw (snapshot.error!);
         }
 
-        if (!snapshot.hasData) {
+        if (!snapshot.hasData || snapshot.data == false) {
           return LoadingScreen(
-              text: engine.isLoaded ? engine.locale['loading'] : 'Loading...');
+              text: engine.isInitted ? engine.locale['loading'] : 'Loading...');
         } else {
           final menus = <Widget>[
-            // const Padding(
-            //   padding: EdgeInsets.only(top: 150),
-            //   child: Image(
-            //     image: AssetImage('assets/images/title.png'),
-            //   ),
-            // ),
             Padding(
               padding: const EdgeInsets.only(top: 40.0),
               child: ElevatedButton(
@@ -216,21 +249,22 @@ class _MainMenuState extends State<MainMenu> {
                     builder: (context) => const CreateGameDialog(),
                   ).then((value) {
                     if (value != null) {
+                      // engine.stopBGM();
                       showDialog(
                         context: context,
-                        builder: (context) => WorldMapOverlay(
+                        builder: (context) => WorldOverlay(
                           key: UniqueKey(),
                           args: value,
                         ),
                       ).then((_) {
-                        engine.invoke('build', positionalArgs: [context]);
+                        engine.hetu.invoke('build', positionalArgs: [context]);
                         setState(() {});
                       });
                     }
                   });
                 },
                 child: Label(
-                  locale['sandboxMode'],
+                  engine.locale['sandboxMode'],
                   width: 100.0,
                   textAlign: TextAlign.center,
                 ),
@@ -243,9 +277,10 @@ class _MainMenuState extends State<MainMenu> {
                   LoadGameDialog.show(context, list: _savedFiles)
                       .then((SaveInfo? info) {
                     if (info != null) {
+                      // FlameAudio.bgm.pause();
                       showDialog(
                         context: context,
-                        builder: (context) => WorldMapOverlay(
+                        builder: (context) => WorldOverlay(
                           key: UniqueKey(),
                           args: {
                             "id": info.worldId,
@@ -254,7 +289,7 @@ class _MainMenuState extends State<MainMenu> {
                           },
                         ),
                       ).then((_) {
-                        engine.invoke('build', positionalArgs: [context]);
+                        engine.hetu.invoke('build', positionalArgs: [context]);
                         setState(() {});
                       });
                     } else {
@@ -265,7 +300,7 @@ class _MainMenuState extends State<MainMenu> {
                   });
                 },
                 child: Label(
-                  locale['loadGame'],
+                  engine.locale['loadGame'],
                   width: 100.0,
                   textAlign: TextAlign.center,
                 ),
@@ -278,28 +313,26 @@ class _MainMenuState extends State<MainMenu> {
                   // Navigator.of(context).pushNamed('editor');
                 },
                 child: Label(
-                  locale['gameEditor'],
+                  engine.locale['gameEditor'],
                   width: 100.0,
                   textAlign: TextAlign.center,
                 ),
               ),
             ),
-            if (Global.isOnDesktop) ...[
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    windowManager.close();
-                  },
-                  child: Label(
-                    locale['exit'],
-                    width: 100.0,
-                    textAlign: TextAlign.center,
-                  ),
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  windowManager.close();
+                },
+                child: Label(
+                  engine.locale['exit'],
+                  width: 100.0,
+                  textAlign: TextAlign.center,
                 ),
               ),
-            ],
+            ),
           ];
 
           final debugMenus = <Widget>[
@@ -313,10 +346,57 @@ class _MainMenuState extends State<MainMenu> {
                     padding: const EdgeInsets.only(top: 20.0),
                     child: ElevatedButton(
                       onPressed: () {
+                        // engine.bgm.stop();
+
+                        final hero = engine.hetu.invoke('Character');
+                        final enemy = engine.hetu.invoke('Character');
+                        const heroLibrary = [
+                          'attack_normal',
+                          'defend_normal',
+                          'sword_1',
+                          'sword_2',
+                          'sword_3',
+                          'sword_4',
+                          'sword_5',
+                          'sword_6',
+                          'sword_7',
+                          'sword_8',
+                          'sword_9',
+                          'sword_10',
+                          'sword_11',
+                          'sword_12',
+                          'array_1',
+                          'array_2',
+                          'array_3',
+                          'array_4',
+                          'array_5',
+                          'rune_1',
+                          'rune_2',
+                          'rune_3',
+                          'rune_4',
+                          'alchemy_1',
+                          'alchemy_2',
+                          'craft_1',
+                          'craft_2',
+                        ];
+                        final enemyDeck = <PlayingCard>[];
+                        enemyDeck.add(GameData.getBattleCard('attack_normal'));
+                        enemyDeck.add(GameData.getBattleCard('attack_normal'));
+                        enemyDeck.add(GameData.getBattleCard('attack_normal'));
+                        enemyDeck.add(GameData.getBattleCard('attack_normal'));
+
                         showDialog(
                           context: context,
-                          builder: (context) => DeckBuildingOverlay(),
-                        );
+                          builder: (context) => DeckBuildingOverlay(
+                            deckSize: 4,
+                            heroData: hero,
+                            enemyData: enemy,
+                            heroLibrary: heroLibrary,
+                            enemyDeck: enemyDeck,
+                          ),
+                        ).then((value) {
+                          // FlameAudio.bgm.resume();
+                        });
                       },
                       child: const Label(
                         'Test Deckbuilding',
@@ -329,6 +409,7 @@ class _MainMenuState extends State<MainMenu> {
                     padding: const EdgeInsets.only(top: 20.0),
                     child: ElevatedButton(
                       onPressed: () {
+                        // FlameAudio.bgm.stop();
                         showDialog(
                           context: context,
                           builder: (context) {
@@ -341,8 +422,8 @@ class _MainMenuState extends State<MainMenu> {
                                     padding: const EdgeInsets.all(10.0),
                                     child: ElevatedButton(
                                       onPressed: () {
-                                        final mazeData =
-                                            engine.invoke('testMazeMountain');
+                                        final mazeData = engine.hetu
+                                            .invoke('testMazeMountain');
                                         showDialog(
                                           context: context,
                                           builder: (context) => MazeOverlay(
@@ -358,7 +439,7 @@ class _MainMenuState extends State<MainMenu> {
                                     padding: const EdgeInsets.all(10.0),
                                     child: ElevatedButton(
                                       onPressed: () {
-                                        final mazeData = engine.invoke(
+                                        final mazeData = engine.hetu.invoke(
                                             'testMazeCultivationRecruit');
                                         showDialog(
                                           context: context,
@@ -385,7 +466,8 @@ class _MainMenuState extends State<MainMenu> {
                           },
                         ).then(
                           (_) {
-                            engine.invoke('build', positionalArgs: [context]);
+                            engine.hetu
+                                .invoke('build', positionalArgs: [context]);
                             setState(() {});
                           },
                         );
@@ -406,7 +488,8 @@ class _MainMenuState extends State<MainMenu> {
                           builder: (BuildContext context) =>
                               Console(engine: engine),
                         ).then((_) => setState(() {
-                              engine.invoke('build', positionalArgs: [context]);
+                              engine.hetu
+                                  .invoke('build', positionalArgs: [context]);
                             }));
                       },
                       child: const Label(
@@ -422,30 +505,36 @@ class _MainMenuState extends State<MainMenu> {
           ];
 
           return Scaffold(
-            body: Global.isPortraitMode
-                ? Container(
-                    color: Global.appTheme.colorScheme.background,
-                    // decoration: const BoxDecoration(
-                    //   image: DecorationImage(
-                    //     fit: BoxFit.fill,
-                    //     image: AssetImage('assets/images/bg/background_01.jpg'),
-                    //   ),
-                    // ),
-                    alignment: Alignment.center,
-                    child: Column(children: menus),
-                  )
-                : Stack(
-                    children: [
-                      Positioned(
-                        left: 20.0,
-                        bottom: 20.0,
-                        height: 300.0,
-                        width: 120.0,
-                        child: Column(children: menus),
-                      ),
-                      if (engine.config.debugMode) ...debugMenus,
-                    ],
+            body: Stack(
+              children: [
+                //   Positioned(
+                //     width: GameConfig.screenSize.width,
+                //     height: GameConfig.screenSize.height,
+                //     child: AspectRatio(
+                //       aspectRatio: GameConfig.screenSize.aspectRatio,
+                //       child: WinVideoPlayer(_videoController),
+                //     ),
+                //   ),
+                Positioned(
+                  left: 0.0,
+                  bottom: 0.0,
+                  height: GameConfig.screenSize.height,
+                  width: GameConfig.screenSize.width,
+                  child: const Image(
+                    image: AssetImage('assets/images/title2.gif'),
+                    fit: BoxFit.cover,
                   ),
+                ),
+                Positioned(
+                  left: 20.0,
+                  bottom: 20.0,
+                  height: 300.0,
+                  width: 120.0,
+                  child: Column(children: menus),
+                ),
+                if (engine.config.debugMode) ...debugMenus,
+              ],
+            ),
           );
         }
       },
@@ -454,7 +543,8 @@ class _MainMenuState extends State<MainMenu> {
 
   Future<List<SaveInfo>> _getSavedFiles() async {
     final appDirectory = await getApplicationDocumentsDirectory();
-    final saveFolder = path.join(appDirectory.path, Global.gameTitle, 'save');
+    final saveFolder =
+        path.join(appDirectory.path, GameConfig.gameTitle, 'save');
 
     final list = <SaveInfo>[];
     final saveDirectory = Directory(saveFolder);

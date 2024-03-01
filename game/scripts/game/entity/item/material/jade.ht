@@ -1,7 +1,7 @@
 import '../../effect/effect.ht'
 import '../../../random.ht'
 import '../../common.ht'
-import '../../../l10n.ht'
+// import '../../../l10n.ht'
 
 const _kElements = {
   earth: '地',
@@ -38,7 +38,7 @@ struct Jade {
     this.kind = kind ?? random.nextIterable(_kElements.keys)
     
     this.rarity = rarity ?? getRarity().rarity
-    this.name = _kElements[this.kind] + getLocaleString('jade')
+    this.name = _kElements[this.kind] + engine.locale('jade')
     this.color = kRarity[this.rarity].color
 
     this.entityType = kEntityTypeItem // 人物、地点、物品、技能等等
@@ -47,15 +47,15 @@ struct Jade {
 
     this.description = description
     this.stackSize = stackSize
-    this.id = this.rarity != kCommon ? 'jade.${Hash.uid4(2)}.${this.kind}' : 'jade.${this.kind}'
-    this.icon = icon ?? 'icon/item/material/jade.png'
+    this.id = this.rarity != kCommon ? 'jade.${crypto.randomUID4(2)}.${this.kind}' : 'jade.${this.kind}'
+    this.icon = icon ?? 'item/material/jade.png'
 
     this.isConsumable = isConsumable
     this.attributes = {
       effects: {},
     }
     if (effects is {}) {
-      this.attributes.effects.assign(effects)
+      Object.assign(this.attributes.effects, effects)
     }
   }
 }

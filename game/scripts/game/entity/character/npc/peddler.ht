@@ -15,11 +15,11 @@ struct Peddler {
   }) {
     this.entityType = kEntityTypeNpc
     this.birthTimestamp = birthTimestamp ?? createRandomBirthTimestamp()
-    this.icon = 'avatar/general.png'
+    this.icon = 'general.png'
     this.category = kEntityCategoryCharacter
     this.kind = 'peddler'
-    this.name = getLocaleString(this.kind)
-    this.id = '${this.entityType}.${Hash.uid4(2)}.${this.kind}.${this.name}'
+    this.name = engine.locale(this.kind)
+    this.id = '${this.entityType}.${crypto.randomUID4(2)}.${this.kind}.${this.name}'
     this.rarity = kCommon
     this.color = kRarity[this.rarity].color
     game.npcs[this.id] = this
@@ -32,7 +32,7 @@ struct Peddler {
     // 生成战斗单位相关数据，并写入当前对象
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
     const battleInfo = BattleEntity(attributes: attributes, attributeSum: _kPeddlerAttributeSum)
-    this.assign(battleInfo)
+    Object.assign(this, battleInfo)
 
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
     switch (this.kind) {

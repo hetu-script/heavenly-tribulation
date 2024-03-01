@@ -1,12 +1,12 @@
 import 'package:samsara/samsara.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 
-import 'common.dart';
+import '../../ui.dart';
 
 class CardPreview extends GameComponent {
   final PlayingCard card;
 
-  CardPreview(this.card) : super(size: kGamepadSize);
+  CardPreview(this.card) : super(size: GameUI.size);
 
   @override
   void onLoad() {}

@@ -20,12 +20,12 @@ class PlayGround extends GameComponent with HandlesGesture {
         'hit!\n100',
         movingUpOffset: 50,
         duration: 0.8,
+        position: position,
         fadeOutAfterDuration: 0.3,
         textPaint: DefaultTextPaint.danger.copyWith(
           (textStyle) => textStyle.copyWith(fontSize: 16),
         ),
       );
-      c2.position = position;
       add(c2);
     };
   }

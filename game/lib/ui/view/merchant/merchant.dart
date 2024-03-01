@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import 'package:samsara/ui/flutter/responsive_window.dart';
-import '../../../global.dart';
+import '../../../config.dart';
 import 'package:samsara/ui/flutter/close_button.dart';
 import '../character/builds/inventory.dart';
 import '../../../event/ui.dart';
@@ -54,7 +54,7 @@ class MerchantView extends StatefulWidget {
 class _MerchantViewState extends State<MerchantView> {
   @override
   Widget build(BuildContext context) {
-    final heroData = engine.invoke('getHero');
+    final heroData = engine.hetu.invoke('getHero');
 
     return ResponsiveWindow(
       size: const Size(720.0, 440.0),
@@ -88,7 +88,7 @@ class _MerchantViewState extends State<MerchantView> {
                   //       '${heroData['name']} 银两只有 $restOfMoney 不足 $payment，无法购买。');
                   //   return;
                   // }
-                  final result = engine.invoke(
+                  final result = engine.hetu.invoke(
                     'giveMoney',
                     positionalArgs: [
                       heroData,
@@ -97,7 +97,7 @@ class _MerchantViewState extends State<MerchantView> {
                     ],
                   );
                   if (result) {
-                    engine.invoke(
+                    engine.hetu.invoke(
                       'give',
                       positionalArgs: [
                         widget.merchantData,
@@ -136,7 +136,7 @@ class _MerchantViewState extends State<MerchantView> {
                   //   engine.info('${widget.merchantData['name']} 银钱不足，无法出售。');
                   //   return;
                   // }
-                  final result = engine.invoke(
+                  final result = engine.hetu.invoke(
                     'giveMoney',
                     positionalArgs: [
                       widget.merchantData,
@@ -145,7 +145,7 @@ class _MerchantViewState extends State<MerchantView> {
                     ],
                   );
                   if (result) {
-                    engine.invoke('give', positionalArgs: [
+                    engine.hetu.invoke('give', positionalArgs: [
                       heroData,
                       widget.merchantData,
                       item['id'],

@@ -36,11 +36,16 @@ void main() async {
     if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
       await windowManager.ensureInitialized();
       windowManager.setTitle(engine.name);
+      await windowManager.setMaximizable(false);
+      await windowManager.setResizable(false);
+      const windowSize = Size(1280.0, 720.0);
       windowManager.waitUntilReadyToShow(
         const WindowOptions(
           title: 'Heavenly Tribulation Tests',
           // fullScreen: true,
-          minimumSize: Size(1280.0, 720.0),
+          size: windowSize,
+          minimumSize: windowSize,
+          maximumSize: windowSize,
         ),
         () async {
           await windowManager.show();

@@ -1,10 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:samsara/ui/flutter/loading_screen.dart';
 import 'package:samsara/ui/flutter/label.dart';
-import 'package:flutter/services.dart';
-import 'package:json5/json5.dart';
+// import 'package:flutter/services.dart';
+// import 'package:json5/json5.dart';
 import 'package:samsara/widget/markdown_wiki.dart';
+import 'package:video_player_win/video_player_win.dart';
 
 import '../global.dart';
 import '../scene/game.dart';
@@ -20,6 +23,8 @@ class MainMenu extends StatefulWidget {
 }
 
 class _MainMenuState extends State<MainMenu> {
+  late WinVideoPlayerController _videoController;
+
   @override
   void initState() {
     super.initState();
@@ -29,23 +34,45 @@ class _MainMenuState extends State<MainMenu> {
     });
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+
+    _videoController.dispose();
+  }
+
   Future<bool> _prepareData() async {
-    if (engine.isLoaded) return true;
+    if (engine.isInitted) return true;
     await engine.init();
 
-    final localeStrings =
-        await rootBundle.loadString('assets/locales/chs.json5');
-    final localeData = JSON5.parse(localeStrings);
-    engine.loadLocale(localeData);
+    // final localeStrings =
+    //     await rootBundle.loadString('assets/locale/chs.json5');
+    // final localeData = JSON5.parse(localeStrings);
+    // engine.loadLocale(localeData);
 
     engine.hetu.evalFile('main.ht', globallyImport: true);
 
-    engine.isLoaded = true;
+    const videoFilename = 'D:/_dev/heavenly-tribulation/media/video/title2.mp4';
+    final videoFile = File.fromUri(Uri.file(videoFilename));
+    _videoController = WinVideoPlayerController.file(videoFile);
+    _videoController.initialize().then((_) {
+      // Ensure the first frame is shown after the video is initialized.
+      setState(() {
+        if (_videoController.value.isInitialized) {
+          _videoController.play();
+        } else {
+          engine.error("Failed to load [$videoFilename]!");
+        }
+      });
+    });
+    _videoController.setLooping(true);
     return true;
   }
 
   @override
   Widget build(BuildContext context) {
+    final view = View.of(context);
+    final screenSize = view.physicalSize;
     return FutureBuilder(
       future: _prepareData(),
       builder: (context, snapshot) {
@@ -55,11 +82,21 @@ class _MainMenuState extends State<MainMenu> {
 
         if (!snapshot.hasData) {
           return LoadingScreen(
-              text: engine.isLoaded ? engine.locale['loading'] : 'Loading...');
+              text: engine.isInitted ? engine.locale['loading'] : 'Loading...');
         } else {
           return Scaffold(
             body: Stack(
               children: [
+                Center(
+                  child: SizedBox(
+                    width: screenSize.width,
+                    height: screenSize.height,
+                    child: AspectRatio(
+                      aspectRatio: screenSize.aspectRatio,
+                      child: WinVideoPlayer(_videoController),
+                    ),
+                  ),
+                ),
                 Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,

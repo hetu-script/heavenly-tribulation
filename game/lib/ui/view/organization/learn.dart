@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../../global.dart';
+import '../../../config.dart';
 import 'package:samsara/ui/flutter/responsive_window.dart';
 import 'package:samsara/ui/flutter/close_button.dart';
 import '../grid/entity_grid.dart';

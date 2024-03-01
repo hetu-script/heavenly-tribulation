@@ -93,10 +93,10 @@ packages:
     dependency: transitive
     description:
       name: fast_noise
-      sha256: "271031cebf1602fc064472970e658fa7ff2f3b55a979bb430337b715bd55690b"
+      sha256: "2aa7bbde5599d2b6769750ee23536ec8a0096606fc9d10d29a3855e80715e1c6"
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "1.0.1"
+    version: "2.0.0"
   file:
     dependency: transitive
     description:
@@ -147,10 +147,10 @@ packages:
     dependency: transitive
     description:
       name: http
-      sha256: "5895291c13fa8a3bd82e76d5627f69e0d85ca6a30dcac95c4ea19a5d555879c2"
+      sha256: a2bbf9d017fcced29139daa8ed2bba4ece450ab222871df93ca9eec6f80c34ba
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.13.6"
+    version: "1.2.0"
   http_multi_server:
     dependency: transitive
     description:
@@ -171,10 +171,10 @@ packages:
     dependency: transitive
     description:
       name: intl
-      sha256: "910f85bce16fb5c6f614e117efa303e85a1731bb0081edf3604a2ae6e9a3cc91"
+      sha256: d6f56758b7d3014a48af9701c085700aac781a92a87a62b1333b46d8879661cf
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.17.0"
+    version: "0.19.0"
   io:
     dependency: transitive
     description:

@@ -2,7 +2,7 @@ import '../../game.ht'
 import '../character/common.ht'
 import '../../dialog.ht'
 import '../../name/location.ht'
-import '../../l10n.ht'
+// import '../../l10n.ht'
 import '../common.ht'
 import '../../tile/hexagonal_tile.ht'
 import 'site.ht'
@@ -66,19 +66,18 @@ struct Location {
     // 发展度决定了据点所能拥有的普通居民人口上限，所能拥有建筑的数量，以及能产生的悬赏任务上限等
     // 发展度需要花费银两、矿石和木料来升级
     this.development = 0
-    this.pupulation = maxPopulationOfLocationDevelopment
+    this.pupulation = random.nextInt(maxPopulationOfLocationDevelopment(0))
 
     // 据点和人物类似，也具有金钱和物品栏
     // this.money = 0
     this.inventory = {}
 
     // 当前处于这个场景的角色
-    this.dwellingCharacterIds = []
+    this.stayingCharacterIds = []
 
-    // 居住在这个场景的角色
     // this.residingCharacterIds = Set()
 
-    // 在野角色
+    // 居住在这个场景的角色
     this.residingCharacterIds = []
 
     // 大牢中的角色
@@ -89,8 +88,8 @@ struct Location {
     // 这个据点的建筑
     this.sites = {}
 
-    // 这个地点的组织
-    this.organizations = {}
+    // // 这个地点的组织
+    // this.organizations = {}
 
     // 如果是盗贼营地或者洞天福地，则默认不会显示在地图上，并且也不会默认添加民居
     // 隐藏的洞天会显示为山峰，但隐藏的福地只有被发现后才会出现岛屿，之前就是普通的水面
@@ -118,11 +117,11 @@ function getLocationDistance(loc1, loc2) {
 
 // 每个城市发展度对应的居民上限
 // 居民可以用于充当据点的仆役
-function maxPopulationOfLocationDevelopment(n: int) {
+function maxPopulationOfLocationDevelopment(n: integer) {
   return (n - 1) * (n - 1) * (n - 1) * 50 + 100
 }
 
-function maxSiteNumberOfLocationDevelopment(n: int) {
+function maxSiteNumberOfLocationDevelopment(n: integer) {
   return (n + 1) * n ~/ 2 + 1
 }
 
@@ -140,25 +139,25 @@ function addLocations(locs: List) {
   engine.info('载入地点数据')
   for (const loc in locs) {
     if (loc.nameId) {
-      loc.name = getLocaleString(loc.nameId)
+      loc.name = engine.locale(loc.nameId)
     }
     game.locations[loc.id] = loc
   }
 }
 
-function setCharacterLocationId(character, locationId: str) {
-  assert(game.locations.containsKey(locationId))
+function setCharacterLocationId(character, locationId: string) {
+  assert(game.locations.hasOwnProperty(locationId))
   if (character.locationId != null) {
     const oldLocation = game.locations[character.locationId]
-    oldLocation.dwellingCharacterIds.remove(character.id)
+    oldLocation.stayingCharacterIds.remove(character.id)
   }
   const location = game.locations[locationId]
-  location.dwellingCharacterIds.add(character.id)
+  location.stayingCharacterIds.add(character.id)
   character.locationId = locationId
   character.tilePosition = {}
 }
 
-function getLocationById(id: str) {
+function getLocationById(id: string) {
   return game.locations[id]
 }
 
@@ -172,8 +171,8 @@ function getLocationByPosition(left, top) {
   return game.locations[tile.locationId]
 }
 
-function getLocationSiteById(location, siteId: str) {
-  assert(location.sites.containsKey(siteId) || siteId)
+function getLocationSiteById(location, siteId: string) {
+  assert(location.sites.hasOwnProperty(siteId) || siteId)
   return location.sites[siteId]
 }
 

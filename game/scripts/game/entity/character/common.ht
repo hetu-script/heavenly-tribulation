@@ -1,5 +1,5 @@
 import '../../game.ht'
-import '../../l10n.ht'
+// import '../../l10n.ht'
 import '../../datetime.ht'
 import '../incident.ht'
 // import '../../duel.ht'
@@ -14,30 +14,21 @@ import 'companion.ht'
 const _kMaleAvatarCount = 37
  // number of the female avatar images
 const _kFemaleAvatarCount = 75
-const _kCharacterAverage = 60.0
+const _kCharacterAverage = 50.0
 const _kCharacterDeviation = 25.0
 /// 容貌最大值: 100.0
 const _kCharacterMax = 100.0
 const _kCharacterImpressionCheckpoint = 10.0
 const _kCharacterInitialGeneralThinking = 4
-const _kMajorMotivationProbobility = 0.2
 
 const kMajorMotivations = [
-  'duty',
-  'pleasure',
-  'love',
-  'wealth',
-  'service',
-  'eternity',
+  'immortality',
   'dao',
-  'throne',
-  'expert',
-]
-
-const kMinorMotivations = [
-  'recruitment',
-  'marriage',
-  'child',
+  'domination',
+  'pleasure',
+  'wealth',
+  'spirituality',
+  'physique'
 ]
 
 const kGeneralThinkings = [
@@ -118,10 +109,10 @@ struct Baby {
     this.isFemale = random.nextBool()
     if (this.isFemale) {
       const index = random.nextInt(_kFemaleAvatarCount)
-      this.icon = 'avatar/female/${index}.jpg';
+      this.icon = 'female/${index}.jpg';
     } else {
       const index = random.nextInt(_kMaleAvatarCount)
-      this.icon = 'avatar/male/${index}.jpg';
+      this.icon = 'male/${index}.jpg';
     }
     const randomName = generateCharacterName(
       isFemale: this.isFemale,
@@ -138,6 +129,10 @@ struct Baby {
 
 struct Character {
   construct ({
+    type: string, // 'major' | 'npc'
+    icon,
+    illustration,
+    skin = 'default',
     familyName,
     shortName,
     generateRandomName = true,
@@ -145,14 +140,12 @@ struct Character {
     birthTimestamp,
     locationId,
     // nationId,
-    armed = true,
     isNewborn = false, // 是否是新生儿，如果是则会自动为其添加父母关系
     description,
     fatherId,
     motherId,
     attributes,
     attributeSum,
-    isMajorCharacter = true, // 是否是主要NPC，主要NPC会加入世界人物列表，并会有更多互动
     worldPositionX,
     worldPositionY,
   }) {
@@ -164,10 +157,14 @@ struct Character {
     this.isFemale = isFemale ?? random.nextBool()
     if (this.isFemale) {
       const index = random.nextInt(_kFemaleAvatarCount)
-      this.icon = 'avatar/female/${index}.jpg';
+      this.icon ??= 'female/${index}.jpg'
+      this.illustration ??= illustration
+      this.skin ??= skin
     } else {
       const index = random.nextInt(_kMaleAvatarCount)
-      this.icon = 'avatar/male/${index}.jpg';
+      this.icon ??= 'male/${index}.jpg'
+      this.illustration ??= illustration
+      this.skin ??= skin
     }
     if (familyName != null && shortName != null) {
       this.familyName = familyName
@@ -180,12 +177,12 @@ struct Character {
       this.name = this.familyName + this.shortName
     }
     assert(this.name != null)
-    this.isMajorCharacter = isMajorCharacter
     this.entityType = kEntityTypeCharacter
-    this.encounterType = kEncounterTypeCharacter
+    // this.encounterType = kEncounterTypeCharacter
     this.category = kEntityCategoryCharacter
-    this.id = '${this.entityType}.${Hash.uid4(2)}.${this.name}'
-    if (isMajorCharacter) {
+    this.id = '${this.entityType}.${crypto.randomUID4(2)}.${this.name}'
+    this.type = type
+    if (type == 'major') {
       game.characters[this.id] = this
     } else {
       game.npcs[this.id] = this
@@ -200,6 +197,13 @@ struct Character {
     }
     // this.nationId = nationId
 
+    this.luck =  Math.gaussianNoise(
+      _kCharacterAverage,
+      _kCharacterDeviation,
+      min: 1,
+      max: _kCharacterMax,
+      randomGenerator: random,
+    )
     this.intelligence = Math.gaussianNoise(
       _kCharacterAverage,
       _kCharacterDeviation,
@@ -215,7 +219,7 @@ struct Character {
       randomGenerator: random,
     )
     this.favoredCharisma =  Math.gaussianNoise(
-      _kCharacterMax,
+      _kCharacterAverage,
       _kCharacterDeviation,
       min: 1,
       max: _kCharacterMax,
@@ -267,24 +271,15 @@ struct Character {
       generosity: random.nextDouble() * 100.0 - 50.0,
     }
 
-    // 该角色的动机，主要动机只有一个，次要动机可以有多个
-    // 动机决定了角色的行动
+    // 动机列表，列表第一格为主要动机，次要动机可以有多个
+    // 动机决定了角色如何安排行动
     this.motivations = []
-    // 思想列表，思想决定了角色对于其他事物的看法
+    // 思想列表，列表第一格为主要思想，次要思想可以有多个
+    // 思想决定了角色对事物的看法
     this.thinkings = []
 
-    if (random.nextDouble() < _kMajorMotivationProbobility) {
-      this.motivations.add(random.nextIterable(kMajorMotivations))
-    }
-
-    const r = random.nextInt(_kCharacterInitialGeneralThinking)
-    for (const i in range(r)) {
-      let thinking
-      do {
-        thinking = random.nextIterable(kGeneralThinkings)
-      } while (this.thinkings.contains(thinking))
-      this.thinkings.add(thinking)
-    }
+    this.motivations.add(random.nextIterable(kMajorMotivations))
+    this.thinkings.add(random.nextIterable(kGeneralThinkings))
 
     // 该角色的记忆
     this.memory = {
@@ -306,11 +301,9 @@ struct Character {
       // 代表对某个据点的记忆
       locations: {},
       // 代表对某个法宝的记忆
+      // 法宝特指唯一物品
       talismans: {},
     }
-
-    // 用于遭遇等剧情，判断某个事件是否已经发生过。
-    this.encounterTags = {}
 
     // 该角色当前的任务
     this.quests = {}
@@ -328,7 +321,7 @@ struct Character {
         const mother = game.characters[motherId]
         this.birthPlaceId = locationId
         // 出生事件会修改自身，需要放在最后处理
-        const incidentContent = getLocaleString('characterBorn',
+        const incidentContent = engine.locale('characterBorn',
           interpolations: [
             father.name,
             mother.name,
@@ -367,30 +360,18 @@ struct Character {
     // 生成战斗单位相关数据，并写入当前对象
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
     const battleInfo = BattleEntity(attributes: attributes, attributeSum: attributeSum)
-    this.assign(battleInfo)
-
-    if (armed) {
-      equip(this, Weapon())
-    }
+    Object.assign(this, battleInfo)
 
     // 指某个NPC对其他角色进行过的动作，限定每个月一次
     this.montylyActivities = {
       // 人物互动
       talked: [],
       gifted: [],
+      requested: [],
       practiced: [],
       consulted: [],
-      requested: [],
       insulted: [],
       stolen: [],
-
-      // 采集互动
-      explored: [],
-      gathered: [],
-      woodcutted: [],
-      mined: [],
-      hunted: [],
-      fished: [],
     }
   }
 }
@@ -408,14 +389,14 @@ function addTitleForCharacter(character, organization, rank, titleId) {
     engine.warning('将要为角色 ${character.name} 设置的新组织头衔 ${titleId} 和角色目前头衔相同。')
     return
   }
-  const title = getLocaleString(titleId)
+  const title = engine.locale(titleId)
   character.titles[completeTitleId] = title
   character.currentTitleId = completeTitleId
   character.organizationRank = rank
   if (rank == kOrganizationRankMax) {
     organization.headId = character.id
   }
-  const incidentContent = getLocaleString('characterSetOrganizationRank', interpolations: [
+  const incidentContent = engine.locale('characterSetOrganizationRank', interpolations: [
     character.name,
     organization.name,
     title,
@@ -504,17 +485,17 @@ function _characterFirstMet(subject, target, [causeIncident, causeIncidentScore]
 
   let incidentContent
   if (metScore < -_kCharacterImpressionCheckpoint) {
-    incidentContent = getLocaleString('characterFirstMeetHate', interpolations: [
+    incidentContent = engine.locale('characterFirstMeetHate', interpolations: [
       subject.name,
       target.name,
     ])
   } else if (metScore > _kCharacterImpressionCheckpoint) {
-    incidentContent = getLocaleString('characterFirstMeetLike', interpolations: [
+    incidentContent = engine.locale('characterFirstMeetLike', interpolations: [
       subject.name,
       target.name,
     ])
   } else {
-    incidentContent = getLocaleString('characterFirstMeetNormal', interpolations: [
+    incidentContent = engine.locale('characterFirstMeetNormal', interpolations: [
       subject.name,
       target.name,
     ])
@@ -585,7 +566,7 @@ function characterWitnessIncident(character, incident, { witnessed }) {
     score *= 1.5
   }
   for (const id in incident.subjectIds) {
-    if (character.bonds.characters.containsKey(id)) {
+    if (character.bonds.characters.hasOwnProperty(id)) {
       const bond = character.bonds.characters[id]
       bond.memory[incident.index] = score
       bond.score += score
@@ -609,7 +590,7 @@ function characterWitnessIncident(character, incident, { witnessed }) {
     }
   }
   for (const id in incident.objectIds) {
-    if (!character.bonds.characters.containsKey(id)) {
+    if (!character.bonds.characters.hasOwnProperty(id)) {
       // 名声增加
       const object = game.characters[id]
       ++object.knownByPopulation
@@ -622,7 +603,7 @@ function characterWitnessIncident(character, incident, { witnessed }) {
 }
 
 // function getSpiritRankTitle(spiritRank) {
-//   return getLocaleString('spiritRank${spiritRank}') + getLocaleString('sorcerer')
+//   return engine.locale('spiritRank${spiritRank}') + engine.locale('sorcerer')
 // }
 function removeCharacterHome(character) {
   if (!character.homeId) return
@@ -650,7 +631,7 @@ function setCharacterHome(character, location, { organizationName }) {
   if (organizationName == null) {
     if (!location.residingCharacterIds.contains(character.id)) {
       location.residingCharacterIds.add(character.id)
-      incidentContent = getLocaleString('characterSettle', interpolations: [
+      incidentContent = engine.locale('characterSettle', interpolations: [
         character.name,
         location.name,
       ])
@@ -664,7 +645,7 @@ function setCharacterHome(character, location, { organizationName }) {
     if (organizationData != null) {
       if (!organizationData.characterIds.contains(character.id)) {
         organizationData.characterIds.add(character.id)
-        incidentContent = getLocaleString('characterSettleOrganization', interpolations: [
+        incidentContent = engine.locale('characterSettleOrganization', interpolations: [
           character.name,
           location.name,
           organizationName,
@@ -689,8 +670,8 @@ function getHeroId() {
   return game.heroId
 }
 
-function setHeroId(id: str) {
-  assert(game.characters.containsKey(id))
+function setHeroId(id: string) {
+  assert(game.characters.hasOwnProperty(id))
   hero = game.characters[id]
   engine.info('设置当前玩家人物为 [${hero.name}]。')
   game.heroHomeSite.locationId = hero.homeId
@@ -739,10 +720,10 @@ function setCharacterWorldPosition(character, left, top) {
 
 function addCharacter(char) {
   if (char.nameId) {
-    char.name = getLocaleString(char.nameId)
+    char.name = engine.locale(char.nameId)
   }
   if (char.artNameId) {
-    char.artName = getLocaleString(char.artNameId)
+    char.artName = engine.locale(char.artNameId)
   }
   game.characters[char.id] = char
 }
@@ -763,11 +744,11 @@ function getCharacters([ids]) {
   }
 }
 
-function getCharacterById(id: str) {
+function getCharacterById(id: string) {
   return game.characters[id]
 }
 
-function getNpcById(id: str) {
+function getNpcById(id: string) {
   return game.npcs[id]
 }
 
@@ -781,19 +762,19 @@ function haveMet(subject, target) {
 }
 
 function rejuvenate(character) {
-  character.stats.life = character.attributes.life
-  character.stats.stamina = character.attributes.stamina
+  character.stats.life = character.stats.lifeMax
+  character.stats.stamina = character.stats.staminaMax
 
-  for (const i in range(1, kEquipmentMax)) {
-    const equipData = character.equipments[i]
-    if (equipData != null) {
-      const item = getEquipped(equipData, character)
-      item.stats.life = item.stats.lifeMax
-      for (const effect of item.stats.effects) {
-        effect.cooldown = 0
-      }
-    }
-  }
+  // for (const i in range(1, kEquipmentMax)) {
+  //   const equipData = character.equipments[i]
+  //   if (equipData != null) {
+  //     const item = getEquipped(equipData, character)
+  //     item.stats.life = item.stats.lifeMax
+  //     for (const effect of item.stats.effects) {
+  //       effect.cooldown = 0
+  //     }
+  //   }
+  // }
 }
 
 function handleCharacterTalk(subject, target) {
@@ -804,7 +785,7 @@ function handleCharacterTalk(subject, target) {
 }
 
 function handleCharacterInteraction(characterId) {
-  assert(game.characters.containsKey(characterId))
+  assert(game.characters.hasOwnProperty(characterId))
   const character = game.characters[characterId]
   const selections = []
   if (characterId in! game.playerCharacterMonthly.talked) {
@@ -876,7 +857,7 @@ function characterGetCompanion(character, companion) {
   //   engine.warning('${character.name} 的随从数量已满，无法再添加新的随从。')
   //   return false
   // }
-  if (character.companions.containsKey(companion.id)) {
+  if (character.companions.hasOwnProperty(companion.id)) {
     engine.warning('${companion.name} 已经是 ${character.name} 的随从了，无法再次添加。')
     return false
   }
@@ -903,14 +884,14 @@ function characterGetCompanion(character, companion) {
   
   character.companions[companionData.id] = companionData
   
-  const incidentContent = getLocaleString('characterFollow', interpolations: [
+  const incidentContent = engine.locale('characterFollow', interpolations: [
     companion.name,
     character.name,
   ])
   Incident(
     content: incidentContent,
-    subjectIds: companion.isMajorCharacter ? [companion.id] : null,
-    objectIds: character.isMajorCharacter ? [character.id] : null,
+    subjectIds: companion.type == major ? [companion.id] : null,
+    objectIds: character.type == major ? [character.id] : null,
     isPrivate: true,
   )
   return companionData

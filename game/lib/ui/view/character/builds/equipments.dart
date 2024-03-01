@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import '../../grid/entity_grid.dart';
-import '../../../../global.dart';
+import '../../../../config.dart';
 import '../../../common.dart';
 
 class EquipmentsView extends StatelessWidget {
@@ -26,7 +26,7 @@ class EquipmentsView extends StatelessWidget {
     final equipments = characterData['equipments'];
     final equipmentsGrid = <Widget>[];
     for (var i = 1; i < kEquipmentMax; ++i) {
-      final equipment = engine.invoke('getEquipped', positionalArgs: [
+      final equipment = engine.hetu.invoke('getEquipped', positionalArgs: [
         equipments[i],
         characterData,
       ]);

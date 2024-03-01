@@ -1,0 +1,125 @@
+import '../binding/cardgame.ht'
+
+/// 卡牌脚本
+/// 每张卡牌都有一个绝对唯一的id，以及相对唯一的name
+/// 多个卡牌有可能具有相同的name，此时他们有可能有不同的图画
+/// 但名字和效果是一样的。这些卡牌共享一个加入卡组的上限。
+
+/// 每个name的卡牌，对应一个脚本。
+/// 这个脚本将会在这张牌被打出时invoke
+
+namespace Card {
+
+  /// 普通攻击
+  async function attack_normal(self, opponent) {
+    await self.attack()
+    opponent.takeDamage(5, 'weapon')
+  }
+  /// 普通格挡
+  async function defend_normal(self, opponent) {
+    await self.defend()
+    self.addStatusEffect('block', 10)
+  }
+  /// 飞云剑
+  async function sword_1(self, opponent) {
+    await self.attack('flying_sword')
+    opponent.takeDamage(20, 'weapon')
+  }
+  /// 连云剑
+  async function sword_2(self, opponent) {
+    
+  }
+  /// 月灵斩
+  async function sword_3(self, opponent) {
+    
+  }
+  /// 月影剑诀
+  async function sword_4(self, opponent) {
+    
+  }
+  /// 雨月重剑
+  async function sword_5(self, opponent) {
+    
+  }
+  /// 冷月剑
+  async function sword_6(self, opponent) {
+    
+  }
+  /// 剑气如霜
+  async function sword_7(self, opponent) {
+    
+  }
+  /// 春雨剑
+  async function sword_8(self, opponent) {
+    
+  }
+  /// 引雷剑诀
+  async function sword_9(self, opponent) {
+    
+  }
+  /// 回声剑
+  async function sword_10(self, opponent) {
+
+  }
+  /// 狂风剑
+  async function sword_11(self, opponent) {
+    
+  }
+  /// 清风剑诀
+  async function sword_12(self, opponent) {
+    
+  }
+
+  /// 冲击阵
+  async function array_1(self, opponent) {
+    
+  }
+  /// 圆守阵
+  async function array_2(self, opponent) {
+    
+  }
+  /// 回春阵
+  async function array_3(self, opponent) {
+    
+  }
+  /// 血杀阵
+  async function array_4(self, opponent) {
+    
+  }
+  /// 聚灵阵
+  async function array_5(self, opponent) {
+    
+  }
+  /// 真火符
+  async function rune_1(self, opponent) {
+    
+  }
+  /// 金刚咒
+  async function rune_2(self, opponent) {
+    
+  }
+  /// 蛊毒咒
+  async function rune_3(self, opponent) {
+    
+  }
+  /// 辟邪符
+  async function rune_4(self, opponent) {
+    
+  }
+  /// 养血丸
+  async function alchemy_1(self, opponent) {
+    
+  }
+  /// 紫灵丹
+  async function alchemy_2(self, opponent) {
+    
+  }
+  /// 磨刀石
+  async function craft_1(self, opponent) {
+    
+  }
+  /// 护甲片
+  async function craft_2(self, opponent) {
+    
+  }
+}

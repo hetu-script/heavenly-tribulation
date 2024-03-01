@@ -1,6 +1,6 @@
 import '../effect/common.ht'
 import '../common.ht'
-import '../../l10n.ht'
+// import '../../l10n.ht'
 import '../../game.ht'
 
 const kSkillInitialEfficiency = 0
@@ -40,7 +40,7 @@ function learn(character, book) {
   const clone = book.skill.clone()
   character.skills[clone.id] = clone
 
-  const incidentContent = getLocaleString('characterLearn', interpolations: [
+  const incidentContent = engine.locale('characterLearn', interpolations: [
     character.name,
     skill.name,
   ])
@@ -59,7 +59,7 @@ function skillEffectLevelUp(effect) {
   skill.expForNextLevel = expForLevel(skill.difficulty, skill.level + 1) // 下一等级需要的经验值
   calculateSkillStats(skill)
   
-  const incidentContent = getLocaleString('characterSkillLevelUp', interpolations: [
+  const incidentContent = engine.locale('characterSkillLevelUp', interpolations: [
     character.name,
     skill.name,
     skill.level + 1,

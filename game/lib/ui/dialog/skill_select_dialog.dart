@@ -3,7 +3,7 @@ import 'package:hetu_script/values.dart';
 import 'package:samsara/ui/flutter/responsive_window.dart';
 import 'package:samsara/ui/flutter/close_button.dart';
 
-import '../../global.dart';
+import '../../config.dart';
 import '../view/grid/entity_grid.dart';
 import '../view/grid/entity_info.dart';
 

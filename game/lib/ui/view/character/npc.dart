@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../../global.dart';
+import '../../../config.dart';
 import 'package:samsara/ui/flutter/close_button.dart';
 import 'package:samsara/ui/flutter/responsive_window.dart';
 // import '../../shared/label.dart';
@@ -21,7 +21,7 @@ class NpcView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ageString =
-        engine.invoke('getEntityAgeString', positionalArgs: [npcData]);
+        engine.hetu.invoke('getEntityAgeString', positionalArgs: [npcData]);
 
     return ResponsiveWindow(
       alignment: AlignmentDirectional.topCenter,
@@ -50,7 +50,8 @@ class NpcView extends StatelessWidget {
                       Container(
                         margin: const EdgeInsets.only(left: 10.0, right: 16.0),
                         child: Avatar(
-                          image: AssetImage('assets/images/${npcData['icon']}'),
+                          image: AssetImage(
+                              'assets/images/avatar/${npcData['icon']}'),
                         ),
                       ),
                       Container(

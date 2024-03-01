@@ -10,11 +10,10 @@ const _kElderCultivatorAttributeSum = 500
 
 const _kElderCultivatorAttributes = {
   type1: {
-    strength: 79,
-    constitution: 75,
     spirituality: 0,
-    willpower: 44,
     dexterity: 51,
+    strength: 79,
+    willpower: 44,
     perception: 63,
   }
 }
@@ -31,10 +30,10 @@ struct ElderCultivator {
     this.kind = random.nextIterable(_kElderCultivatorAttributes.keys)
     this.entityType = kEntityTypeNpc
     this.birthTimestamp =  createRandomBirthTimestamp(min: 40, max: 70)
-    // this.icon = 'avatar/general.png'
+    // this.icon = 'general.png'
     this.category = kEntityCategoryCharacter
-    this.name = getLocaleString(_kElderCultivatorName)
-    this.id = '${this.entityType}.${Hash.uid4(2)}.${this.name}'
+    this.name = engine.locale(_kElderCultivatorName)
+    this.id = '${this.entityType}.${crypto.randomUID4(2)}.${this.name}'
     this.rarity = kCommon
     this.color = kRarity[this.rarity].color
     this.description = description ?? ''
@@ -49,7 +48,7 @@ struct ElderCultivator {
           generate: false,
           baseLife: 225,
         )
-        this.assign(battleInfo)
+        Object.assign(this, battleInfo)
         this.icon = 'maze/elder_cultivator.png'
         equip(this, Weapon())
         equip(this, Kungfu())

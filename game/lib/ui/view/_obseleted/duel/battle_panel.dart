@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../../../global.dart';
+import '../../../../config.dart';
 import 'battle_item_card.dart';
 // import 'defense_card.dart';
 import 'package:samsara/ui/flutter/dynamic_color_progressbar.dart';
@@ -47,7 +47,7 @@ class BattlePanel extends StatelessWidget {
     for (var i = 1; i < kEquipmentMax; ++i) {
       final equipData = characterData['equipments'][i];
       final item = equipData != null
-          ? engine
+          ? engine.hetu
               .invoke('getEquipped', positionalArgs: [equipData, characterData])
           : null;
       equipments.add(

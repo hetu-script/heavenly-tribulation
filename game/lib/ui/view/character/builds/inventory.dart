@@ -3,7 +3,7 @@ import 'package:hetu_script/values.dart';
 
 import '../../grid/entity_grid.dart';
 import '../../grid/entity_info.dart';
-import '../../../../global.dart';
+import '../../../../config.dart';
 import '../../../../event/ui.dart';
 import 'package:samsara/ui/flutter/integer_input_field.dart';
 import 'package:samsara/ui/flutter/empty_placeholder.dart';
@@ -57,7 +57,7 @@ class _InventoryViewState extends State<InventoryView> {
 
   @override
   void initState() {
-    _hero = engine.fetch('hero');
+    _hero = engine.hetu.interpreter.fetch('hero');
     super.initState();
   }
 
@@ -77,7 +77,7 @@ class _InventoryViewState extends State<InventoryView> {
                   padding: const EdgeInsets.all(5.0),
                   child: ElevatedButton(
                     onPressed: () {
-                      engine
+                      engine.hetu
                           .invoke('consume', positionalArgs: [_hero, itemData]);
                       Navigator.of(context).pop();
                       engine.emit(const UIEvent.needRebuildUI());
@@ -94,7 +94,7 @@ class _InventoryViewState extends State<InventoryView> {
                     padding: const EdgeInsets.all(5.0),
                     child: ElevatedButton(
                       onPressed: () {
-                        engine
+                        engine.hetu
                             .invoke('equip', positionalArgs: [_hero, itemData]);
                         Navigator.of(context).pop();
                         engine.emit(const UIEvent.needRebuildUI());
@@ -112,7 +112,7 @@ class _InventoryViewState extends State<InventoryView> {
                     padding: const EdgeInsets.all(5.0),
                     child: ElevatedButton(
                       onPressed: () {
-                        engine.invoke('unequip',
+                        engine.hetu.invoke('unequip',
                             positionalArgs: [_hero, itemData]);
                         Navigator.of(context).pop();
                         engine.emit(const UIEvent.needRebuildUI());
@@ -133,7 +133,7 @@ class _InventoryViewState extends State<InventoryView> {
                 padding: const EdgeInsets.all(5.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    engine.invoke('characterSteal',
+                    engine.hetu.invoke('characterSteal',
                         positionalArgs: [_hero, itemData]);
                     Navigator.of(context).pop();
                     engine.emit(const UIEvent.needRebuildUI());
@@ -280,7 +280,7 @@ class _InventoryViewState extends State<InventoryView> {
                 // ElevatedButton(
                 //   onPressed: canLevelUp
                 //       ? () {
-                //           engine.invoke('skillLevelUp',
+                //           engine.hetu.invoke('skillLevelUp',
                 //               positionalArgs: [_hero, itemData]);
                 //           setState(() {});
                 //           engine.emit(const UIEvent.needRebuildUI());
@@ -295,14 +295,15 @@ class _InventoryViewState extends State<InventoryView> {
                     final isEquipped = itemData['isEquippable'] == true &&
                         itemData['equippedPosition'] != null;
                     if (isEquipped) {
-                      engine
+                      engine.hetu
                           .invoke('unequip', positionalArgs: [_hero, itemData]);
                       engine.emit(const UIEvent.needRebuildUI());
                       if (widget.onEquipChanged != null) {
                         widget.onEquipChanged!();
                       }
                     } else {
-                      engine.invoke('equip', positionalArgs: [_hero, itemData]);
+                      engine.hetu
+                          .invoke('equip', positionalArgs: [_hero, itemData]);
                       engine.emit(const UIEvent.needRebuildUI());
                       if (widget.onEquipChanged != null) {
                         widget.onEquipChanged!();
@@ -329,14 +330,15 @@ class _InventoryViewState extends State<InventoryView> {
                     final isEquipped = itemData['isEquippable'] == true &&
                         itemData['equippedPosition'] != null;
                     if (isEquipped) {
-                      engine
+                      engine.hetu
                           .invoke('unequip', positionalArgs: [_hero, itemData]);
                       engine.emit(const UIEvent.needRebuildUI());
                       if (widget.onEquipChanged != null) {
                         widget.onEquipChanged!();
                       }
                     } else {
-                      engine.invoke('equip', positionalArgs: [_hero, itemData]);
+                      engine.hetu
+                          .invoke('equip', positionalArgs: [_hero, itemData]);
                       engine.emit(const UIEvent.needRebuildUI());
                       if (widget.onEquipChanged != null) {
                         widget.onEquipChanged!();

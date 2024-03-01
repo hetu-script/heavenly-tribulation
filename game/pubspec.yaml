@@ -20,10 +20,9 @@ dependencies:
   # hive_flutter: ^1.1.0
 
   flame:
-    ^1.15.0
+    ^1.16.0
     # path: ../../flame/packages/flame
-  flame_audio: ^1.2.0
-  flame_splash_screen: ^0.2.0
+  flame_splash_screen: ^0.3.0
 
   hetu_script:
     path: ../../hetu-script/packages/hetu_script
@@ -45,6 +44,7 @@ dependencies:
   flutter_platform_alert: ^0.5.1
   vector_math: ^2.1.4
   json5: ^0.8.0
+  video_player_win: ^2.3.5
 
 dev_dependencies:
   flutter_test:
@@ -67,17 +67,23 @@ flutter:
     - assets/mods/
 
     - assets/audio/
+    - assets/audio/sound_effect/
     - assets/audio/music/
 
+    - assets/data/
+
     - assets/images/
-    - assets/images/animation/hero/
+    - assets/images/animation/
     - assets/images/avatar/
-    - assets/images/avatar/female/
     - assets/images/avatar/male/
+    - assets/images/avatar/female/
+    - assets/images/avatar/main/
+    - assets/images/avatar/old/
+    - assets/images/avatar/teen/
+    - assets/images/avatar/
     - assets/images/battle/
     - assets/images/battle/scene/
     - assets/images/card/
-    - assets/images/card/back/
     - assets/images/card/deckbuilding/
     - assets/images/card/frame/
     - assets/images/card/illustration/
@@ -90,17 +96,20 @@ flutter:
     - assets/images/icon/item/material/
     - assets/images/icon/skill/
     - assets/images/icon/status/
-    - assets/images/illustration/
     - assets/images/item/
     - assets/images/location/
     - assets/images/location/site/
     - assets/images/maze/
     - assets/images/weather/
 
+    - assets/locale/en/
+    - assets/locale/zh/
+
     - scripts/game/
     - scripts/game/ai/
     - scripts/game/binding/
-    - scripts/game/card/
+    - scripts/game/cardgame/
+    - scripts/game/dialog/
     - scripts/game/entity/
     - scripts/game/entity/character/
     - scripts/game/entity/character/creature/
@@ -117,8 +126,6 @@ flutter:
     - scripts/game/entity/organization/
     - scripts/game/entity/skill/
     - scripts/game/l10n/
-    - scripts/game/l10n/en/
-    - scripts/game/l10n/zh/
     - scripts/game/maze/
     - scripts/game/name/
     - scripts/game/name/book/
@@ -133,7 +140,7 @@ flutter:
     - scripts/game/name/spell/
     - scripts/game/name/talisman/
     - scripts/game/name/zone/
-    - scripts/game/predefined/
+    # - scripts/game/predefined/
     - scripts/game/quest/
     - scripts/game/tile/
     - scripts/game/world/

@@ -1,7 +1,7 @@
-import 'zh/zh.ht'
-import 'en/en.ht'
+import 'zh.ht'
+import 'en.ht'
 
-const predefinedLocalizations = [
+const predefinedLocalizations = {
   zh,
   en,
-]
+}

@@ -12,7 +12,7 @@ import 'effects.ht'
 import 'handlers.ht'
 import '../../random.ht'
 
-const kEffectValueTypeInt = 'int';
+const kEffectValueTypeInt = 'integer';
 const kEffectValueTypeFloat = 'float';
 const kEffectValueTypePercentage = 'percentage';
 
@@ -72,9 +72,9 @@ function addEffect({categroy, id, effect}) {
   assert(category != null)
   assert(id != null)
   assert(effect != null)
-  if (gEffects.containsKey(category)) {
+  if (gEffects.hasOwnProperty(category)) {
     const c = gEffects[category]
-    assert(!c.containsKey(id))
+    assert(!c.hasOwnProperty(id))
     c[id] = effect
   } else {
     const c = {}
@@ -83,7 +83,7 @@ function addEffect({categroy, id, effect}) {
   }
 }
 
-function getEffectHandlerById(id: str) {
+function getEffectHandlerById(id: string) {
   return gEffectHandlers[id]
 }
 
@@ -95,14 +95,14 @@ function addEffectHandler(handler) {
 /// 返回一个效果的复制
 function getEffect({category, id}) {
   if (category != null) {
-    assert(gEffects.containsKey(category))
+    assert(gEffects.hasOwnProperty(category))
   } else {
     category = random.nextIterable(gEffects.keys)
   }
   const c = gEffects[category]
   if (c.isEmpty) return null
   if (id != null) {
-    assert(c.containsKey(id))
+    assert(c.hasOwnProperty(id))
   } else {
     id = random.nextIterable(c.keys)
   }
@@ -119,7 +119,7 @@ function getEffects({category, count}) {
     let effect
     do {
       effect = getEffect(category: category)
-    } while (effects.containsKey(effect.id))
+    } while (effects.hasOwnProperty(effect.id))
     effects[effect.id] = effect
   }
   return effects

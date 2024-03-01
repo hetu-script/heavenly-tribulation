@@ -4,7 +4,7 @@ import 'package:hetu_script/values.dart';
 import '../../grid/entity_info.dart';
 import '../../../../event/ui.dart';
 import 'package:samsara/ui/flutter/close_button.dart';
-import '../../../../global.dart';
+import '../../../../config.dart';
 import 'equipments.dart';
 import 'inventory.dart';
 import 'package:samsara/ui/flutter/responsive_window.dart';
@@ -90,7 +90,7 @@ class _BuildViewState extends State<BuildView> {
       barrierColor: Colors.transparent,
       builder: (context) {
         final List<Widget> actions = [];
-        final hero = engine.invoke('getHero');
+        final hero = engine.hetu.invoke('getHero');
         switch (widget.type) {
           case BuildViewType.player:
             if (itemData['isConsumable'] ?? false) {
@@ -99,7 +99,7 @@ class _BuildViewState extends State<BuildView> {
                   padding: const EdgeInsets.all(5.0),
                   child: ElevatedButton(
                     onPressed: () {
-                      engine
+                      engine.hetu
                           .invoke('consume', positionalArgs: [hero, itemData]);
                       Navigator.of(context).pop();
                       engine.emit(const UIEvent.needRebuildUI());
@@ -116,7 +116,7 @@ class _BuildViewState extends State<BuildView> {
                     padding: const EdgeInsets.all(5.0),
                     child: ElevatedButton(
                       onPressed: () {
-                        engine
+                        engine.hetu
                             .invoke('equip', positionalArgs: [hero, itemData]);
                         Navigator.of(context).pop();
                         engine.emit(const UIEvent.needRebuildUI());
@@ -132,7 +132,7 @@ class _BuildViewState extends State<BuildView> {
                     padding: const EdgeInsets.all(5.0),
                     child: ElevatedButton(
                       onPressed: () {
-                        engine.invoke('unequip',
+                        engine.hetu.invoke('unequip',
                             positionalArgs: [hero, itemData]);
                         Navigator.of(context).pop();
                         engine.emit(const UIEvent.needRebuildUI());
@@ -151,7 +151,7 @@ class _BuildViewState extends State<BuildView> {
                 padding: const EdgeInsets.all(5.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    engine.invoke('characterSteal',
+                    engine.hetu.invoke('characterSteal',
                         positionalArgs: [hero, itemData]);
                     Navigator.of(context).pop();
                     engine.emit(const UIEvent.needRebuildUI());
@@ -179,7 +179,7 @@ class _BuildViewState extends State<BuildView> {
     //     ModalRoute.of(context)!.settings.arguments as String;
 
     // final characterData =
-    //     engine.invoke('getCharacterById', positionalArgs: [charId]);
+    //     engine.hetu.invoke('getCharacterById', positionalArgs: [charId]);
 
     return ResponsiveWindow(
       alignment: AlignmentDirectional.topCenter,

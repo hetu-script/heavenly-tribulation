@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 import 'package:samsara/utils/color.dart';
 
-import '../../../../global.dart';
+import '../../../../config.dart';
 import 'stats.dart';
 import 'package:samsara/ui/flutter/responsive_window.dart';
 import 'package:samsara/ui/flutter/close_button.dart';

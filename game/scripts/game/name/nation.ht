@@ -6,7 +6,7 @@ import 'place/prefix.json5' as placePrefix
 
 const _kNationNamePostfix = '国'
 
-function generateNationName(number: int) {
+function generateNationName(number: integer) {
   let name = ''
   const r = random.nextDouble()
   if (r < kStrangeNameProbability) {

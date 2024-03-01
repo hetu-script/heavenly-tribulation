@@ -2,11 +2,12 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
-
-import '../../../../global.dart';
-import '../../../avatar.dart';
+import 'package:samsara/extensions.dart';
 import 'package:samsara/ui/flutter/constants.dart';
 import 'package:samsara/ui/flutter/label.dart';
+
+import '../../../../config.dart';
+import '../../../avatar.dart';
 import '../../../util.dart';
 
 class ProfileView extends StatelessWidget {
@@ -19,17 +20,17 @@ class ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ageString =
-        engine.invoke('getEntityAgeString', positionalArgs: [characterData]);
-    final fame = engine
+    final ageString = engine.hetu
+        .invoke('getEntityAgeString', positionalArgs: [characterData]);
+    final fame = engine.hetu
         .invoke('getCharacterFameString', positionalArgs: [characterData]);
-    final birthday = engine
+    final birthday = engine.hetu
         .invoke('getEntityBirthDateString', positionalArgs: [characterData]);
     final organizationId = characterData['organizationId'];
     String organization = getNameFromId(organizationId);
-    final title =
-        engine.invoke('getCharacterTitle', positionalArgs: [characterData]) ??
-            engine.locale['none'];
+    final title = engine.hetu
+            .invoke('getCharacterTitle', positionalArgs: [characterData]) ??
+        engine.locale['none'];
     final home = getNameFromId(characterData['homeId']);
     // final nation = getNameFromId(characterData['nationId']);
 
@@ -88,7 +89,8 @@ class ProfileView extends StatelessWidget {
                 Container(
                   margin: const EdgeInsets.only(left: 10.0, right: 16.0),
                   child: Avatar(
-                    image: AssetImage('assets/images/${characterData['icon']}'),
+                    image: AssetImage(
+                        'assets/images/avatar/${characterData['icon']}'),
                   ),
                 ),
                 Container(

@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:hetu_script/utils.dart' as utils;
 
-import '../global.dart';
+import '../config.dart';
 
 const _kWorldScaleLabel = {
   1: 'tiny',
@@ -399,7 +399,7 @@ class _CreateGameDialogState extends State<CreateGameDialog> {
                   onPressed: () {
                     if (_seedStringEditingController.text.isNotEmpty) {
                       Navigator.of(context).pop({
-                        'id': 'world.${utils.uid4(4)}',
+                        'id': 'world.${utils.randomUID4(4)}',
                         'seedString': _seedStringEditingController.text,
                         'style': _worldStyle,
                         'worldScale': _worldScale,

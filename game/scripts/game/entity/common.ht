@@ -5,18 +5,6 @@ import 'item/money.ht'
 import 'skill/common.ht'
 import '../dialog.ht'
 
-const kNone = 'none'
-
-const kStats = 'stats'
-const kStrength = 'strength'
-const kDexterity = 'dexterity'
-const kConstitution = 'constitution'
-const kSuperpower = 'superpower'
-const kPerception = 'perception'
-const kIntelligence = 'intelligence'
-const kLeadership = 'leadership'
-const kManagement = 'management'
-
 // 进行某些互动的时候
 const kFameCheckThreshold = 75
 // 进行某些互动的时候
@@ -87,7 +75,7 @@ const kRarity = {
 
 function getRarity({ name }) {
   if (name) {
-    assert(kRarity.containsKey(name))
+    assert(kRarity.hasOwnProperty(name))
     return kRarity[name]
   } else {
     const r = random.nextDouble()
@@ -217,7 +205,7 @@ function createRandomBirthTimestamp({min = 1, max = _kCharacterRandomAgeMax}) {
   return game.timestamp - (age * kTicksPerYear + randomDateInAYear)
 }
 
-const kEncounterTypeCharacter = 'character'
+// const kEncounterTypeCharacter = 'character'
 
 const kDamageTypeBludgeon = 'bludgeon'
 const kDamageTypeSlash = 'slash'
@@ -229,11 +217,16 @@ const kDamageTypeMana = 'mana'
 const kDamageTypeSpell = 'spell'
 const kDamageTypeCurse = 'curse'
 
-// level up exp function from pokemon
-function expForLevel(difficulty, level) {
-  assert(difficulty >= 0)
-  assert(level >= 0)
-  return (((difficulty + 1) * (level * level * level)) ~/ 5 + 1) * 10
+// level up exp function from pokemon.
+function expForLevel(level,[difficulty = 1]) {
+  assert(level > 0)
+  return ((difficulty * (level * level * level)) ~/ 5 + 1) * 100
+}
+
+// linear level up function for unchanged exp gaining rate.
+function expForLevel2(level) {
+  assert(level > 0)
+  return (level * level + level) ~/ 2 * 100 - (level * 100)
 }
 
 function acquireMoney(entity, value, { incidentOccured = true }) {
@@ -255,13 +248,13 @@ function acquire(entity, item, { count, incidentOccured = true }) {
   }
 
   let incidentContent
-  if (entity.inventory.containsKey(item.id)) {
+  if (entity.inventory.hasOwnProperty(item.id)) {
     entity.inventory[item.id].stackSize += count
   } else {
     entity.inventory[item.id] = item
     item.stackSize = count
   }
-  incidentContent = getLocaleString('characterAcquireMultipleItem', interpolations: [
+  incidentContent = engine.locale('characterAcquireMultipleItem', interpolations: [
     entity.name,
     count,
     item.name,
@@ -312,7 +305,7 @@ function giveMoney(entity, target, value, { isForced = false, incidentOccured = 
 function give(entity, target, itemId, { count, removeItem = true, isForced = false, incidentOccured = true}) {
   if (count <= 0) return 0
   let rest = count ?? 1
-  if (!entity.inventory.containsKey(itemId)) {
+  if (!entity.inventory.hasOwnProperty(itemId)) {
     engine.warning('${entity.name} 没有 ${item.name} ，无法支付。')
     return rest
   }
@@ -334,7 +327,7 @@ function give(entity, target, itemId, { count, removeItem = true, isForced = fal
     delete entity.inventory[item.id]
   }
   rest = count - actualNumber
-  if (target.inventory.containsKey(item.id)) {
+  if (target.inventory.hasOwnProperty(item.id)) {
     target.inventory[item.id].stackSize += actualNumber
   } else {
     const itemCopy = item.clone()
@@ -343,13 +336,13 @@ function give(entity, target, itemId, { count, removeItem = true, isForced = fal
   }
   if (count > 1) {
     incidentContent = isForced ?
-      getLocaleString('characterGiveMultipleItemForced', interpolations: [
+      engine.locale('characterGiveMultipleItemForced', interpolations: [
         target.name,
         entity.name,
         count,
         item.name,
       ]) :
-      getLocaleString('characterGiveMultipleItem', interpolations: [
+      engine.locale('characterGiveMultipleItem', interpolations: [
         entity.name,
         count,
         item.name,
@@ -357,13 +350,13 @@ function give(entity, target, itemId, { count, removeItem = true, isForced = fal
       ])
   } else {
     incidentContent = isForced ?
-      getLocaleString('characterGiveItemForced', interpolations: [
+      engine.locale('characterGiveItemForced', interpolations: [
         target.name,
         entity.name,
         count,
         item.name,
       ]) :
-      getLocaleString('characterGiveItem', interpolations: [
+      engine.locale('characterGiveItem', interpolations: [
         entity.name,
         count,
         item.name,
@@ -401,7 +394,7 @@ function consume(character, item, { forcerCharacter }) {
     return false
   }
 
-  if (character.inventory.containsKey(item.id)) {
+  if (character.inventory.hasOwnProperty(item.id)) {
     if (item.rarity == kCommon) {
       if (item.stackSize > 1) {
         --item.stackSize
@@ -427,36 +420,36 @@ function consume(character, item, { forcerCharacter }) {
   switch (item.kind) {
     kEntityConsumableKindMedicine => {
       incidentContent = forcerCharacter ?
-        getLocaleString('characterTakeMedicineForced', interpolations: [
+        engine.locale('characterTakeMedicineForced', interpolations: [
           forcerCharacter.name,
           character.name,
           item.name,
         ]) :
-        getLocaleString('characterTakeMedicine', interpolations: [
+        engine.locale('characterTakeMedicine', interpolations: [
           character.name,
           item.name,
         ])
     }
     kEntityConsumableKindBeverage => {
       incidentContent = forcerCharacter ?
-        getLocaleString('characterDrinkBeverageForced', interpolations: [
+        engine.locale('characterDrinkBeverageForced', interpolations: [
           forcerCharacter.name,
           character.name,
           item.name,
         ]) :
-        getLocaleString('characterDrinkBeverage', interpolations: [
+        engine.locale('characterDrinkBeverage', interpolations: [
           character.name,
           item.name,
         ])
     }
     else => {
       incidentContent = forcerCharacter ?
-        getLocaleString('characterEatForced', interpolations: [
+        engine.locale('characterEatForced', interpolations: [
           forcerCharacter.name,
           character.name,
           item.name,
         ]) :
-        getLocaleString('characterEat', interpolations: [
+        engine.locale('characterEat', interpolations: [
           character.name,
           item.name,
         ])
@@ -519,7 +512,7 @@ function equip(character, entity, { index }) -> bool {
     kEntityTypeItem => {
       if (!character.inventory[entity.id]) acquire(character, entity)
       
-      const incidentContent = getLocaleString('characterEquip', interpolations: [
+      const incidentContent = engine.locale('characterEquip', interpolations: [
         character.name,
         entity.name,
       ])
@@ -537,7 +530,7 @@ function equip(character, entity, { index }) -> bool {
         return false
       }
       
-      const incidentContent = getLocaleString('characterEquipSkill', interpolations: [
+      const incidentContent = engine.locale('characterEquipSkill', interpolations: [
         character.name,
         entity.name,
       ])
@@ -554,11 +547,11 @@ function equip(character, entity, { index }) -> bool {
     //     return false
     //   }
     //   entity =
-    //     character.companions.containsKey(entity.id) ?
+    //     character.companions.hasOwnProperty(entity.id) ?
     //     character.companions[entity.id] : 
     //     characterGetCompanion(character, entity)
 
-    //   const incidentContent = getLocaleString('characterJoinFight', interpolations: [
+    //   const incidentContent = engine.locale('characterJoinFight', interpolations: [
     //     entity.name,
     //     character.name,
     //   ])
@@ -578,7 +571,7 @@ function equip(character, entity, { index }) -> bool {
     //     return false
     //   }
       
-    //   const incidentContent = getLocaleString('characterJoinFight', interpolations: [
+    //   const incidentContent = engine.locale('characterJoinFight', interpolations: [
     //     entity.name,
     //     character.name,
     //   ])

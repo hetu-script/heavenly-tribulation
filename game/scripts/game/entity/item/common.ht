@@ -4,7 +4,7 @@ const kSilverExchange = 1000
 const kGoldExchange = 1000000
 
 const kItemDefaultIcon = 'assets/images/unknown_item.png'
-// const kDefaultItemDescription = getLocaleString('defaultItemDescription')
+// const kDefaultItemDescription = engine.locale('defaultItemDescription')
 
 const kUnknownItemIcon = 'icon/unknown_item.png'
 

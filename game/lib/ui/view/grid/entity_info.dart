@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
-import 'package:samsara/utils/color.dart';
+import 'package:samsara/extensions.dart';
 
-import '../../../global.dart';
+import '../../../config.dart';
 // import '../../shared/rrect_icon.dart';
 // import '../../../shared/close_button.dart';
 import '../../common.dart';

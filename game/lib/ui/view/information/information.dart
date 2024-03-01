@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart' show HTStruct;
 
 import '../character/information/character.dart';
-import '../../../global.dart';
+import '../../../config.dart';
 import '../../game_entity_listview.dart';
 import 'package:samsara/ui/flutter/responsive_window.dart';
 import 'package:samsara/ui/flutter/close_button.dart';
@@ -76,7 +76,7 @@ class _InformationPanelState extends State<InformationPanel>
 
     // TODO:只显示认识的人物和发现的据点
 
-    // _nationsData = engine.invoke('getNations');
+    // _nationsData = engine.hetu.invoke('getNations');
     // for (final nation in _nationsData.values) {
     //   final rowData = <String>[];
     //   // 国家名字
@@ -93,7 +93,7 @@ class _InformationPanelState extends State<InformationPanel>
     //   _nationsFieldRow.add(rowData);
     // }
 
-    _locationsData = engine.invoke('getLocations');
+    _locationsData = engine.hetu.invoke('getLocations');
     for (final loc in _locationsData.values) {
       final rowData = <String>[];
       rowData.add(loc['name']);
@@ -123,7 +123,7 @@ class _InformationPanelState extends State<InformationPanel>
       _locationsFieldRow.add(rowData);
     }
 
-    _organizationsData = engine.invoke('getOrganizations');
+    _organizationsData = engine.hetu.invoke('getOrganizations');
     for (final org in _organizationsData.values) {
       final rowData = <String>[];
       rowData.add(org['name']);
@@ -144,7 +144,7 @@ class _InformationPanelState extends State<InformationPanel>
       _organizationsFieldRow.add(rowData);
     }
 
-    _charactersData = engine.invoke('getCharacters');
+    _charactersData = engine.hetu.invoke('getCharacters');
     for (final char in _charactersData.values) {
       final rowData = <String>[];
       rowData.add(char['name']);
@@ -154,7 +154,7 @@ class _InformationPanelState extends State<InformationPanel>
       rowData.add(getNameFromId(char['organizationId']));
       // 名声
       final fame =
-          engine.invoke('getCharacterFameString', positionalArgs: [char]);
+          engine.hetu.invoke('getCharacterFameString', positionalArgs: [char]);
       rowData.add(fame);
       // 多存一个隐藏的 id 信息，用于点击事件
       rowData.add(char['id']);

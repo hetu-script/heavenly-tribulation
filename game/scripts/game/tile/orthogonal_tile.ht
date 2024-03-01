@@ -50,7 +50,7 @@ function getTileDistance(start, end) {
 
 // 获取相邻并且在地图范围内的格子
 // 如果 [zoneIndex] 不为 null，则只会返回和起点所在 tile 具有相同 zoneIndex 的格子
-function getMapTileNeighbors(left: int, top: int, map, { zoneIndex, includeDiagonal = false }) {
+function getMapTileNeighbors(left: integer, top: integer, map, { zoneIndex, includeDiagonal = false }) {
   assert(isPositionWithinMap(left, top, map.width, map.height))
   const origin = map.terrains[tilePos2Index(left, top, map.width)]
   const neighbors = []

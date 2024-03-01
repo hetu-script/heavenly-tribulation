@@ -3,7 +3,7 @@ import 'package:hetu_script/values.dart';
 // import 'package:quiver/pattern.dart';
 // import 'package:samsara/event.dart';
 
-import '../../../global.dart';
+import '../../../config.dart';
 import 'package:samsara/ui/flutter/close_button.dart';
 import 'package:samsara/ui/flutter/responsive_window.dart';
 // import '../../game_entity_listview.dart';
@@ -85,7 +85,7 @@ class _OrganizationViewState extends State<OrganizationView> {
     } else {
       final organizationId = widget.organizationId ??
           ModalRoute.of(context)!.settings.arguments as String;
-      _organizationData = engine
+      _organizationData = engine.hetu
           .invoke('getOrganizationById', positionalArgs: [organizationId]);
     }
 

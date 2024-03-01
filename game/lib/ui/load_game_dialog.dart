@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/flutter/responsive_window.dart';
 
-import '../global.dart';
+import '../config.dart';
 
 class SaveInfo {
   final String worldId;

@@ -2,8 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/flutter/responsive_window.dart';
+import 'package:samsara/extensions.dart';
 
-import '../../global.dart';
+import '../../config.dart';
 
 const kProgressIndicatorSpeed = 0.036;
 

@@ -1,0 +1,15 @@
+{
+  "randomSeed": "随机数种子",
+  "worldStyle": "地图风格",
+  "islands": "群岛",
+  "coast": "滨海",
+  "inland": "内陆",
+  "worldSize": "地图大小",
+  "tiny": "微小",
+  "medium": "适中",
+  "huge": "庞大",
+  "massive": "广阔",
+  "locationNumber": "据点数量",
+  "characterNumber": "角色数量",
+  "organizationNumber": "门派数量"
+}

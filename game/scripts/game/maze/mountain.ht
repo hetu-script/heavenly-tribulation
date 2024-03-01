@@ -7,7 +7,7 @@ import '../entity/character/npc/bandit.ht'
 import '../entity/character/creature/beast.ht'
 import '../entity/common.ht'
 import '../entity/character/npc/peddler.ht'
-import '../l10n.ht'
+// import '../l10n.ht'
 import 'common.ht'
 import '../binding/maze.ht'
 import '../tile/common.ht'
@@ -73,7 +73,7 @@ struct MountainMaze {
     bossName,
   }) {
     this.name = name
-    this.id = 'maze.${Hash.uid4(4)}.${name}'
+    this.id = 'maze.${crypto.randomUID4(4)}.${name}'
     engine.info('开始生成副本: [${this.id}]')
 
     this.category = kMazeCategoryMountain
@@ -118,7 +118,7 @@ struct MountainMaze {
 
       const currentLevel = TileMap(
         id: '${this.id}.level.${levelIndex}',
-        name: getLocaleString('mazeLevel', interpolations: [levelIndex + 1]),
+        name: engine.locale('mazeLevel', interpolations: [levelIndex + 1]),
         width: width,
         height: height,
       )
@@ -511,7 +511,7 @@ function onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
           // 向盗贼求情，是否成功依赖于
           // 圆滑
           'plead' => {
-            if (hero.stats.charisma > kCharismaCheckThreshold) {
+            if (hero.attributes.charisma > kCharismaCheckThreshold) {
               showDialogByLocaleKeys(['pleadSuccess'], character: entity)
                 .then((_) {
                   lootCharacter(entity, hero, takeAll: false)
@@ -524,8 +524,8 @@ function onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
           }
           // 懦弱
           'escape' => {
-            if (hero.stats.dexterity > entity.stats.dexterity || hero.stats.strength > entity.stats.strength) {
-              const incidentContent = getLocaleString('incidentEscapeSuccess', [ entity.name ] )
+            if (hero.attributes.dexterity > entity.attributes.dexterity || hero.attributes.strength > entity.attributes.strength) {
+              const incidentContent = engine.locale('incidentEscapeSuccess', [ entity.name ] )
               Incident(
                 content: incidentContent,
                 subjectIds: [hero.id],

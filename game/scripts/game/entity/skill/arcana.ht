@@ -60,7 +60,7 @@ struct Arcana {
     this.creatorId = creatorId
     this.createdTime = createdTime
     this.description = description ?? ''
-    this.id = '${this.entityType}.${Hash.uid4(2)}.${this.name}'
+    this.id = '${this.entityType}.${crypto.randomUID4(2)}.${this.name}'
 
     this.isEquippable = true
     this.equipType = kEquipTypeArcana // 装备类型：进攻、如果没有就是不可装备
@@ -78,7 +78,7 @@ struct Arcana {
       effects: {},
     }
     if (attributes) {
-      this.attributes.assign(attributes)
+      Object.assign(this.attributes, attributes)
     }
 
     this.attributes.effects = getEffects(category: this.kind, count: this.difficulty + 1)

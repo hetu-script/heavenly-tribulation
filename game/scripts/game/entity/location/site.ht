@@ -1,4 +1,4 @@
-import '../../l10n.ht'
+// import '../../l10n.ht'
 import 'location.ht'
 import '../../dialog.ht'
 import '../organization/organization.ht'
@@ -54,14 +54,14 @@ struct Site {
 
     // if (category == kSiteNation) {
     //   const organization = game.organizations[organizationId]
-    //   this.name = organization.name + getLocaleString('palace')
+    //   this.name = organization.name + engine.locale('palace')
     // } else 
     // if (category == kSiteGovernment) {
     //   const location = game.locations[locationId]
-    //   this.name = location.name + getLocaleString(kSiteGovernment)
+    //   this.name = location.name + engine.locale(kSiteGovernment)
     // } else 
     // {
-    this.name = name ?? getLocaleString(category)
+    this.name = name ?? engine.locale(category)
     // }
     this.image = image ?? 'location/site/${category}.png'
 

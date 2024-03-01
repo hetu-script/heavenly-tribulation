@@ -3,87 +3,68 @@
 /// 卡组是战斗中使用的。而牌库可以用来交换卡牌收藏（偷取、学习或者交换）。
 
 import '../common.ht'
-import '../../binding/worldmap.ht'
 // import 'status_effect/world_map_status_effect.ht'
 
-const _kCharacterAttributeMinValue = 1
-const _kCharacterAttributeMaxValue = 100
-const _kCharacterAttributeSumBase = 500
-const _kCharacterAttributeSumDeviation = 300
-
-const kEscapedLootProbability = 0.5
+const _kAttributeSum = 100
+const _kMajorAttributeFactor = 0.5
 
 const kCharacterAttributeNames = [
-  'strength',
-  'constitution',
   'spirituality',
+  'dexterity',
+  'strength',
   'willpower',
   'perception',
-  'dexterity',
 ]
 
-const kMajorAttributeFactor = 0.75
+const kBasicResource = 50
 
-const kBasicResource = 100
-
+// 某些时候，只需要生成一个用于战斗的实体，此时不需要年龄、魅力等属性
 struct BattleEntity {
   construct ({
     attributes,
-    attributeSum = _kCharacterAttributeSumBase,
+    attributeSum,
     majorAttributes: List = [],
-    generate = true,
-    baseStamina = kBasicResource,
-    baseLife = kBasicResource,
-    baseSpirit = kBasicResource,
   }) {
-    // 身上携带的金钱数量
-    // this.money = 0
+    // 身上携带的材料，材料本身没有特殊属性，多个材料只是堆叠数字增加
+    // 材料单独显示在物品栏上方，没有携带的材料不会显示
+    // 金钱也是一种材料，其他材料包括可以用来建筑的木材、石料等
+    this.materials = {}
 
-    // 身上的普通物品，id相同的可以堆叠，宝物，技能，道具都在这里，每一个都是单独生成，无法堆叠
+    // 身上携带的普通物品，每一个都是单独生成，无法堆叠
     this.inventory = {}
 
-    // 技能，可以放在主位（斗技）、辅助位（玄功）、支持位（遁术）
-    this.skills = {}
-
-    // 随从，可以设置为战斗伙伴
+    // 随主角移动的其他角色
     this.companions = {}
 
     // 装备栏的位置是固定的 8 个
-    // 装备栏只能装备各种法宝，获得其佩戴效果
+    // 装备栏只能装备法宝，获得其佩戴效果
     // 装备数据的 key 是 1-8 的数字，代表第几栏，
     // value 是一个 equipData 对象
     this.equipments = {}
 
-    // 战斗卡组的位置是固定的 8 个
-    // 战斗卡组可能包含各种武器、法宝和招式
-    // 装备数据的 key 是 1-8 的数字，代表第几栏，
-    // value 是一个 equipData 对象
+    // 战斗卡组的位置是固定的，根据境界有 4-8 张
+    // TODO: 可以准备多个卡组随时切换
     this.battleDeck = {}
 
-    // 属性点数数值
-    if (generate) {
-      this.attributes = generateCharacterAttributes(
-        attributesSum: Math.gaussianNoise(
-            attributeSum,
-            _kCharacterAttributeSumDeviation,
-            min: kCharacterAttributeNames.length,
-            max: kCharacterAttributeNames.length * 100,
-            randomGenerator: random,
-          ).toInt(),
-        minValue: _kCharacterAttributeMinValue,
-        maxValue: _kCharacterAttributeMaxValue,
-        majorAttributes: majorAttributes,
-      )
-    } else {
-      this.attributes = {}
-    }
+    // 修为点数，其实就是经验值，可以换算为天赋点数
+    this.cultivationPoints = 0
 
-    if (attributes) {
-      this.attributes.assign(attributes)
-    }
+    // 角色的属性
+    // 包括：灵力、身法、体魄、念力、神识
+    this.attributes = attributes ?? {}
+    let generated = generateCharacterAttributes(
+      attributesSum: attributeSum ?? _kAttributeSum,
+      majorAttributes: majorAttributes,
+    )
+    Object.assign(this.attributes, generated)
 
-    // 当前异常状态，包括 buff debuff 等等。
+    // 当前状态，包括增益和减益等等。
     this.statusEffects = {}
+
+    // 角色的数值
+    // 包括经过物品、天赋和状态加成的基本属性值
+    // 通过属性还会计算出：攻击、防御、体力、生命、灵气
+    this.stats = {}
 
     calculateCharacterStats(this)
     rejuvenate(this)
@@ -92,52 +73,52 @@ struct BattleEntity {
 
 function generateCharacterAttributes({
     attributesSum,
-    minValue,
-    maxValue,
+    minValue = 0,
     majorAttributes: List = [],
   }) {
   assert(attributesSum > 0)
-  assert(minValue > 0)
-  assert(maxValue > 0 && maxValue > minValue)
+  assert(minValue >= 0)
 
   const attributes = {}
-  
-  function checkValue(value) {
-    if (value < minValue) return minValue
-    if (value > maxValue) return maxValue
-    return value
+
+  let maxV = attributesSum
+  let residue = (attributesSum * _kMajorAttributeFactor).toInt()
+  if (majorAttributes) {
+    maxV = attributesSum - residue
   }
   
-  for (const name in random.shuffle(kCharacterAttributeNames)) {
-    if (name in majorAttributes) {
-      minValue = attributesSum / kCharacterAttributeNames.length * kMajorAttributeFactor
+  let rest = maxV
+  let attrList = random.shuffle(kCharacterAttributeNames).toList()
+  for (var i = 0; i < attrList.length - 1; ++i) {
+    const value = Random().nextInt(rest)
+    attributes[attrList[i]] = value + minValue
+    rest -= value
+  }
+  attributes[attrList.last] = rest
+
+  if (majorAttributes) {
+    let majorAttrList = random.shuffle(majorAttributes).toList()
+    for (var i = 0; i < majorAttrList.length - 1; ++i) {
+      const value = Random().nextInt(residue)
+      attributes[majorAttrList[i]] += value
+      residue -= value
     }
-    const value = (
-      Math.gaussianNoise(
-        attributesSum / kCharacterAttributeNames.length * 0.6,
-        20,
-        min: minValue,
-        max: maxValue,
-        randomGenerator: random,
-      )
-    ).toInt()
-    attributes[name] = checkValue(value)
+    attributes[majorAttrList.last] += residue
   }
   
   return attributes
 }
 
-/// 当前状态数值，由种族、天赋、属性点数、物品、技能、增益减损等计算得来
+/// 当前状态数值，由特性、属性、物品、天赋、技能、增益减损等计算得来
 /// 状态包括：生命、伤害、防御等。
 function calculateCharacterStats(character) {
-  character.stats = character.attributes.clone()
-
-  let baseStrength = character.stats.strength
-  let baseConstitution = character.stats.constitution
-  let baseSpirituality = character.stats.spirituality
-  let baseWillpower = character.stats.willpower
-  let basePerception = character.stats.perception
-  let baseDexterity = character.stats.dexterity
+  
+  // 基础属性，在此基础上还要加上物品和状态的加成
+  let baseSpirituality = character.attributes.spirituality
+  let baseDexterity = character.attributes.dexterity
+  let baseStrength = character.attributes.strength
+  let baseWillpower = character.attributes.willpower
+  let basePerception = character.attributes.perception
 
   // for (const equipData of character.equipments) {
   //   const item = getEquipped(equipData, character)
@@ -176,55 +157,57 @@ function calculateCharacterStats(character) {
   //   }
   // }
 
+  character.stats.spirituality = baseSpirituality
+  character.stats.dexterity = baseDexterity
+  character.stats.strength = baseStrength
+  character.stats.willpower = baseWillpower
+  character.stats.perception = basePerception
   
-  baseStamina = (baseStrength ~/ 5) * 5
-  baseLife = (baseConstitution ~/ 5) * 5
-  baseSpirit = (baseSpirituality ~/ 5) * 5
+  let baseStamina = (
+    (character.stats.strength + character.stats.dexterity) ~/ 10
+      ) * 5 + kBasicResource
+  let baseLife = (baseStrength ~/ 5) * 5 + kBasicResource
+  let baseSpirit = baseSpirituality ~/ 10
 
   character.stats.stamina = character.stats.staminaMax = baseStamina
   character.stats.life = character.stats.lifeMax = baseLife
   character.stats.spirit = character.stats.spiritMax = baseSpirit
 
-  character.stats.strength = baseStrength
-  character.stats.constitution = baseConstitution
-  character.stats.spirituality = baseSpirituality
-  character.stats.willpower = baseWillpower
-  character.stats.perception = basePerception
-  character.stats.dexterity = baseDexterity
-
+  character.stats.attack = 0
+  character.stats.defense = 0
 }
 
 function getCharacterStats(character) {
   const stats = character.stats.clone()
-  stats.equipments = {}
-  for (const i in range(1, kEquipmentMax)) {
-    const equipData = character.equipments[i]
-    if (equipData != null) {
-      const equipment = getEquipped(equipData, character)
-      stats.equipments[i] = equipment.stats.clone()
-    }
-  }
+  // stats.equipments = {}
+  // for (const i in range(1, kEquipmentMax)) {
+  //   const equipData = character.equipments[i]
+  //   if (equipData != null) {
+  //     const equipment = getEquipped(equipData, character)
+  //     stats.equipments[i] = equipment.stats.clone()
+  //   }
+  // }
   return stats
 }
 
 // 战斗，异步函数，如果获胜则返回 true
-function heroBattle (
-  char2, {
-  resolveResult = true,
-  loot = true,
-  takeAll = true,
-  isMazeIncident = false,
-  char1Resurrect = true,
-  char2Resurrect = false,
-  onWon,
-  onLost,
-}) -> Future async {
+// function heroBattle (
+//   char2, {
+//   resolveResult = true,
+//   loot = true,
+//   takeAll = true,
+//   isMazeIncident = false,
+//   char1Resurrect = true,
+//   char2Resurrect = false,
+//   onWon,
+//   onLost,
+// }) -> Future async {
   // const char1 = getHero()
   // return showDuel(char1, char2).then((result) {
   //   if (result?.result) {
   //     if (resolveResult) resolveDuelResult(char1, char2, result)
   //     if (loot) lootCharacter(char1, char2, takeAll: takeAll)
-  //     const incidentContent = getLocaleString('duelVistory', interpolations: [ char1.name, char2.name ] )
+  //     const incidentContent = engine.locale('duelVistory', interpolations: [ char1.name, char2.name ] )
   //     Incident(
   //       content: incidentContent,
   //       subjectIds: [char1.id],
@@ -238,7 +221,7 @@ function heroBattle (
   //         char2.stats.life = 1
   //       }
   //     } else {
-  //       const incidentContent = getLocaleString('characterKill', interpolations: [ char1.name, char2.name ] )
+  //       const incidentContent = engine.locale('characterKill', interpolations: [ char1.name, char2.name ] )
   //       Incident(
   //         content: incidentContent,
   //         subjectIds: [char1.id],
@@ -267,4 +250,4 @@ function heroBattle (
   //     return false
   //   }
   // })
-}
+// }

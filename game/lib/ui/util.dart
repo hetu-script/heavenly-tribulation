@@ -1,4 +1,4 @@
-import '../global.dart';
+import '../config.dart';
 
 String getNameFromId(String? id) {
   if (id != null) {

@@ -1,5 +1,5 @@
 import 'entity/character/common.ht'
-import 'l10n.ht'
+import 'util.ht'
 import 'binding/dialog.ht'
 
 /// 加载到本次游戏的对话资源
@@ -39,7 +39,7 @@ struct DialogContentData {
       this.icon = character.icon
     } else {
       if (displayNameLocaleKey) {
-        this.displayName = getLocaleString(displayNameLocaleKey)
+        this.displayName = engine.locale(displayNameLocaleKey)
       } else {
         this.displayName = displayName
       }
@@ -50,7 +50,7 @@ struct DialogContentData {
     let strings
     if (localeKeys is List) {
       assert(localeKeys.isNotEmpty)
-      strings = localeKeys.map( (key) => getLocaleString(key, interpolations: interpolations) ).toList()
+      strings = localeKeys.map( (key) => engine.locale(key, interpolations: interpolations) ).toList()
     } else {
       assert(lines is List && lines.isNotEmpty)
       strings = lines
@@ -121,7 +121,7 @@ function showDialogByStrings(lines, { returnValue, character, displayName }) -> 
   return Dialog.showGameDialog(buildContext, dlgData, returnValue)
 }
 
-function showDialogByResourceId(id: str, { returnValue, interpolations: List }) -> Future {
+function showDialogByResourceId(id: string, { returnValue, interpolations: List }) -> Future {
   const data = gDialogs[id]
   // 这里之后是否可以优化一下？
   for (const content in data.contents) {
@@ -147,7 +147,7 @@ function showDialog(data, { returnValue }) -> Future {
 function showSelectionByLocaleKeys(texts: List) -> Future {
   const selections = {}
   for (const text in texts) {
-    selections[text] = getLocaleString(text)
+    selections[text] = engine.locale(text)
   }
   return Dialog.showSelection(buildContext, selections)
 }

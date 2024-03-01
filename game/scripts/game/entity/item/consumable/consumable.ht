@@ -19,7 +19,7 @@ import '../../effect/effect.ht'
 
 // const kWeaponKinds = {
 //   'staff': {
-//     icon: 'icon/item/staff.png',
+//     icon: 'item/staff.png',
 //   }
 // }
 
@@ -57,7 +57,7 @@ struct Consumable {
 
     this.description = description
     this.stackSize = stackSize
-    this.id = this.rarity != kCommon ? 'consumable.${Hash.uid4(2)}.${this.name}' : 'consumable.${this.name}'
+    this.id = this.rarity != kCommon ? 'consumable.${crypto.randomUID4(2)}.${this.name}' : 'consumable.${this.name}'
     this.icon = icon ?? 'icon/item/consumable/${this.kind}.png'
 
     this.isConsumable = true
@@ -66,7 +66,7 @@ struct Consumable {
       effects: {}
     }
     if (effects is {}) {
-      this.attributes.effects.assign(effects)
+      Object.assign(this.attributes.effects, effects)
     }
   }
 

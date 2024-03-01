@@ -1,9 +1,9 @@
 
-function maxPopulationOfLocationDevelopment(n: int) {
+function maxPopulationOfLocationDevelopment(n: integer) {
   return ((n - 1) * (n - 1) * (n - 1) * 50 + 100) * 11
 }
 
-function maxSiteNumberOfLocationDevelopment(n: int) {
+function maxSiteNumberOfLocationDevelopment(n: integer) {
   return (n + 1) * n ~/ 2 + 1
 }
 

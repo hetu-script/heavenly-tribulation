@@ -4,7 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flame/flame.dart';
+// import 'package:flame/flame.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:samsara/error.dart';
@@ -14,15 +14,15 @@ import 'ui/main_menu.dart';
 // import 'ui/editor/editor.dart';
 // import 'ui/view/character/character.dart';
 // import 'ui/view/information/information.dart';
-import 'global.dart';
+import 'config.dart';
 // import 'ui/overlay/main_game.dart';
 
 class CustomWindowListener extends WindowListener {
   @override
   void onWindowResize() async {
-    engine
-        .info('窗口大小修改为：${Global.screenSize.width}x${Global.screenSize.height}');
-    Global.screenSize = await windowManager.getSize();
+    engine.info(
+        '窗口大小修改为：${GameConfig.screenSize.width}x${GameConfig.screenSize.height}');
+    GameConfig.screenSize = await windowManager.getSize();
   }
 }
 
@@ -51,39 +51,29 @@ void main() {
           error: exception is FlutterError ? exception : null);
     };
 
-    if (Platform.isAndroid || Platform.isIOS) {
-      Global.isOnDesktop = false;
-      Global.isPortraitMode = true;
-      await Flame.device.setPortraitDownOnly();
-      await Flame.device.fullScreen();
-      // Global.screenSize = window.physicalSize / window.devicePixelRatio;
-    } else if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-      Global.isOnDesktop = true;
-      Global.isPortraitMode = false;
-      await windowManager.ensureInitialized();
-      windowManager.addListener(CustomWindowListener());
-      await windowManager.setMaximizable(false);
-      await windowManager.setResizable(false);
-      windowManager.waitUntilReadyToShow(
-          const WindowOptions(
-            title: 'Heavenly Tribulation',
-            // fullScreen: true,
-            maximumSize: Size(1440.0, 900.0),
-            minimumSize: Size(1440.0, 900.0),
-          ), () async {
-        await windowManager.show();
-        await windowManager.focus();
-        Global.screenSize = await windowManager.getSize();
-        engine.info('系统版本：${Platform.operatingSystemVersion}');
-        engine.info(
-            '窗口逻辑大小：${Global.screenSize.width}x${Global.screenSize.height}');
-      });
-    }
+    assert(Platform.isLinux || Platform.isWindows || Platform.isMacOS);
+    await windowManager.ensureInitialized();
+    windowManager.addListener(CustomWindowListener());
+    await windowManager.setMaximizable(false);
+    await windowManager.setResizable(false);
+    const windowSize = Size(1440.0, 900.0);
+    windowManager.waitUntilReadyToShow(
+        const WindowOptions(
+          title: 'Heavenly Tribulation',
+          // fullScreen: true,
+          size: windowSize,
+          maximumSize: windowSize,
+          minimumSize: windowSize,
+        ), () async {
+      await windowManager.show();
+      await windowManager.focus();
+      engine.info('系统版本：${Platform.operatingSystemVersion}');
+    });
 
     runApp(
       MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: Global.appTheme,
+        theme: GameConfig.appTheme,
         home: Scaffold(
           key: mainKey,
           body: const MainMenu(),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/flutter/label.dart';
 
-import '../../global.dart';
+import '../../config.dart';
 
 class GameOver extends StatelessWidget {
   const GameOver({

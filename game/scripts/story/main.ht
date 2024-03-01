@@ -25,8 +25,8 @@ function init(config) {
   const modName = '[${module.name}(${module.id}-${module.version})]'
   
   engine.info('${modName}: 初始化')
-  game.addLocales(localizations, modName)
-  engine.loadLocale(game.gLocales[game.gLocales.currentLocaleId])
+  // game.addLocales(localizations, modName)
+  engine.loadLocale(localizations.toJSON())
   game.addEventHandler(eventHandler)
   engine.info('${modName}: 初始化完毕...')
 }

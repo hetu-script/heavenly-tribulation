@@ -6,7 +6,7 @@ import 'character/family.json5' as familyNames
 import 'common.ht'
 import '../random.ht'
 
-function generateLocationName({category: str}) {
+function generateLocationName({category: string}) {
   let name = ''
   category ??= random.nextIterable(locationNames.keys)
   const kind = random.nextIterable(locationNames[category])

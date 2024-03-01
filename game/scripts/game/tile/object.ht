@@ -26,7 +26,7 @@ struct TileMapObject {
     srcHeight,
     srcOffsetY,
   }) {
-    this.id = id ?? 'tileMapObject.${Hash.uid4(2)}'
+    this.id = id ?? 'tileMapObject.${crypto.randomUID4(2)}'
     this.left = left
     this.top = top
     this.velocityFactor = velocityFactor

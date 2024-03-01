@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/ui/flutter/responsive_window.dart';
 import 'package:samsara/ui/flutter/close_button.dart';
 
-import '../../global.dart';
+import '../../config.dart';
 
 class NameGenerator extends StatefulWidget {
   const NameGenerator({

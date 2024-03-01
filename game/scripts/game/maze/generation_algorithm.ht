@@ -47,9 +47,9 @@ const kRoutesOfAnchorBySquare3 = {
 function generateRouteByAnchor(achorDescription, anchors, map, { flag }) {
   const pos = achorDescription.split('-')
   assert(pos.length > 1)
-  const start = int.parse(pos.first)
-  const end = int.parse(pos.last)
-  assert(start is int && end is int)
+  const start = integer.parse(pos.first)
+  const end = integer.parse(pos.last)
+  assert(start is integer && end is integer)
   assert(start < end)
   // print('generateRouteByAnchor', start, end)
   // print('generateRouteByAnchor', anchors[start], anchors[end])

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../global.dart';
+import '../../config.dart';
 import '../../event/ui.dart';
 
 class SelectionDialog extends StatelessWidget {

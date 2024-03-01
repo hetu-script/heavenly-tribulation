@@ -41,16 +41,16 @@ struct Shield {
       this.name = randomName.name
     }
     this.color = kRarity[this.rarity].color
-    this.id = this.rarity != kCommon ? 'shield.${Hash.uid4(2)}.${this.name}' : 'shield.${this.name}'
+    this.id = this.rarity != kCommon ? 'shield.${crypto.randomUID4(2)}.${this.name}' : 'shield.${this.name}'
     
-    this.icon = 'icon/item/shield.png'
+    this.icon = 'item/shield.png'
     this.attributes = {
       life: 50,
       lifeMax: 50,
     }
 
     if (attributes) {
-      this.attributes.assign(attributes)
+      Object.assign(this.attributes, attributes)
     }
 
     this.attributes.effects = {}

@@ -1,5 +1,4 @@
 import 'game.ht'
-import 'l10n.ht'
 
 const kTicksPerDay = 4 //每天的回合数 morning, afternoon, evening, night
 const kDaysPerWeek = 10 //每旬的天数
@@ -34,12 +33,12 @@ const kHourString = {
 function getCurrentDateTimeString() {
   const d = formatDateTimeString(game.timestamp, format: 'date')
   const h = (game.timestamp % 4).toString()
-  const h2 = getLocaleString(kHourString[h])
+  const h2 = engine.locale(kHourString[h])
   return '${d}${h2}'
 }
 
 /// [format] = 'age' | 'date' | 'time' . 'ymd' | 'ym' | 'md' | 'd' | 'auto'
-function formatDateTimeString(timestamp: int, {format: str}) {
+function formatDateTimeString(timestamp: integer, {format: string}) {
   let yearN = toYear(timestamp)
   let monthN = toMonth(timestamp)
   let dayN = toDay(timestamp)
@@ -50,20 +49,20 @@ function formatDateTimeString(timestamp: int, {format: str}) {
 
   const t = format?.split('.').first ?? 'date'
   if (t == 'age') {
-    yearC = getLocaleString('ageYear')
-    monthC = getLocaleString('ageMonth')
-    dayC = getLocaleString('ageDay')
+    yearC = engine.locale('ageYear')
+    monthC = engine.locale('ageMonth')
+    dayC = engine.locale('ageDay')
   } else if (t == 'date') {
-    yearC = getLocaleString('dateYear')
-    monthC = getLocaleString('dateMonth')
-    dayC = getLocaleString('dateDay')
+    yearC = engine.locale('dateYear')
+    monthC = engine.locale('dateMonth')
+    dayC = engine.locale('dateDay')
     ++yearN
     ++monthN
     ++dayN
   } else {
-    yearC = getLocaleString('timeYear')
-    monthC = getLocaleString('timeMonth')
-    dayC = getLocaleString('timeDay')
+    yearC = engine.locale('timeYear')
+    monthC = engine.locale('timeMonth')
+    dayC = engine.locale('timeDay')
   }
 
   const year = '${yearN}${yearC}'
@@ -123,16 +122,16 @@ function getEntityBirthDateString(entity) {
 
 function getDayString(count) {
   assert(count > 0)
-  return '${count} ${getLocaleString('timeDay')}'
+  return '${count} ${engine.locale('timeDay')}'
 }
 
 function getMonthString(count) {
   assert(count > 0)
-  return '${count} ${getLocaleString('timeMonth')}'
+  return '${count} ${engine.locale('timeMonth')}'
 }
 
 function getYearString(count) {
   assert(count > 0)
-  return '${count} ${getLocaleString('timeYear')}'
+  return '${count} ${engine.locale('timeYear')}'
 }
 

@@ -49,15 +49,15 @@ struct Material {
 
     this.description = description
     this.stackSize = stackSize
-    this.id = this.rarity != kCommon ? 'consumable.${Hash.uid4(2)}.${this.name}' : 'consumable.${this.name}'
-    this.icon = icon ?? 'icon/item/material/${this.kind}.png'
+    this.id = this.rarity != kCommon ? 'consumable.${crypto.randomUID4(2)}.${this.name}' : 'consumable.${this.name}'
+    this.icon = icon ?? 'item/material/${this.kind}.png'
 
     this.isConsumable = isConsumable
     this.attributes = {
       effects: {},
     }
     if (effects is {}) {
-      this.attributes.effects.assign(effects)
+      Object.assign(this.attributes.effects, effects)
     } else {
       // const effect = getEffect(category: this.kind, level: kRarity[this.rarity].level)
       // this.attributes.effects[effect.id] = effect

@@ -1,5 +1,5 @@
 import 'common.ht'
-import '../l10n.ht'
+// import '../l10n.ht'
 import { random } from '../game.ht'
 import '../maze/mountain.ht'
 // import '../tile/common.ht'
@@ -37,7 +37,7 @@ struct QuestBanditCamp {
     assert(mazeTerrainIndex != null)
     this.category = kQuestCategoryConquestMaze
     this.kind = kind ?? random.nextIterable(kQuestBanditCampKinds)
-    this.id = 'quest.${Hash.uid4(2)}.${locationId}.${this.category}.${this.kind}'
+    this.id = 'quest.${crypto.randomUID4(2)}.${locationId}.${this.category}.${this.kind}'
 
     const location = game.locations[locationId]
     const bountyhouse = location.sites[siteId]
@@ -48,7 +48,7 @@ struct QuestBanditCamp {
     switch (this.kind) {
       kQuestConquestMazeKindKillBanditBoss => {
         assert(bossName != null)
-        this.description = getLocaleString(
+        this.description = engine.locale(
           '${this.category}.${this.kind}.description',
           // interpolations: [nation.name, bossName],
         )
@@ -81,13 +81,13 @@ struct QuestBanditCamp {
         }
       }
       kQuestConquestMazeKindWipeBandits => {
-        this.description = getLocaleString('${this.category}.${this.kind}.description')
+        this.description = engine.locale('${this.category}.${this.kind}.description')
       }
       kQuestConquestMazeKindReturnHostage => {
-        this.description = getLocaleString('${this.category}.${this.kind}.description')
+        this.description = engine.locale('${this.category}.${this.kind}.description')
       }
       kQuestConquestMazeKindReturnTreasure => {
-        this.description = getLocaleString('${this.category}.${this.kind}.description')
+        this.description = engine.locale('${this.category}.${this.kind}.description')
       }
     }
     this.currentStageId = this.stages.keys.first
@@ -108,7 +108,7 @@ struct QuestBanditCamp {
     this.isFinished = false
 
     const maze = MountainMaze(
-      name: getLocaleString(_kBanditCampMaze),
+      name: engine.locale(_kBanditCampMaze),
     )
 
     const worldMapEntity = {

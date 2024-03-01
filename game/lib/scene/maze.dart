@@ -1,10 +1,9 @@
-import 'package:flutter/widgets.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/event/tilemap.dart';
 import 'package:samsara/tilemap.dart';
 import 'package:hetu_script/values.dart';
 
-import '../global.dart';
+import '../config.dart';
 
 class MazeScene extends Scene {
   late final TileMap map;

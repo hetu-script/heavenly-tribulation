@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import '../../../event/ui.dart';
-import '../../../global.dart';
+import '../../../config.dart';
 import 'package:samsara/ui/flutter/label.dart';
 
 class QuestCard extends StatelessWidget {
@@ -16,7 +16,7 @@ class QuestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final heroData = engine.invoke('getHero');
+    final heroData = engine.hetu.invoke('getHero');
 
     return Container(
       width: 240,
@@ -53,7 +53,7 @@ class QuestCard extends StatelessWidget {
                 alignment: AlignmentDirectional.bottomEnd,
                 child: ElevatedButton(
                   onPressed: () {
-                    engine.invoke(
+                    engine.hetu.invoke(
                       'characterAcceptQuest',
                       positionalArgs: [
                         heroData,

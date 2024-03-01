@@ -3,7 +3,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:samsara/ui/flutter/empty_placeholder.dart';
 import 'package:samsara/ui/flutter/responsive_window.dart';
 
-import '../../global.dart';
+import '../../config.dart';
 
 const _kCharacterVisitTableColumns = [
   'name',
@@ -43,8 +43,8 @@ class CharacterVisitDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hero = engine.fetch('hero');
-    final activitiesData = engine.invoke('getPlayerMonthlyActivities');
+    final hero = engine.hetu.interpreter.fetch('hero');
+    final activitiesData = engine.hetu.invoke('getPlayerMonthlyActivities');
 
     final layout = Scaffold(
       appBar: AppBar(
@@ -66,9 +66,9 @@ class CharacterVisitDialog extends StatelessWidget {
             .toList(),
         rows: characterIds.map((id) {
           final character =
-              engine.invoke('getCharacterById', positionalArgs: [id]);
+              engine.hetu.invoke('getCharacterById', positionalArgs: [id]);
           final haveMet =
-              engine.invoke('haveMet', positionalArgs: [hero, character]);
+              engine.hetu.invoke('haveMet', positionalArgs: [hero, character]);
           return DataRow2(
               onTap: () {
                 Navigator.pop(context, id);

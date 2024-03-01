@@ -1,5 +1,5 @@
 import 'common.ht'
-import '../l10n.ht'
+// import '../l10n.ht'
 import '../maze/mountain.ht'
 import '../tile/common.ht'
 import '../binding/worldmap.ht'
@@ -63,7 +63,7 @@ struct QuestDelivery {
       })
       this.kind = kQuestDeliveryKindConvoy
       if (destinationSite) {
-        this.description = getLocaleString('${this.category}.item.targetSite.description',
+        this.description = engine.locale('${this.category}.item.targetSite.description',
           interpolations: [
             expirationDateString,
             item.stackSize,
@@ -74,7 +74,7 @@ struct QuestDelivery {
         )
       } else {
         assert(destinationCharacter != null)
-        this.description = getLocaleString('${this.category}.item.targetCharacter.description',
+        this.description = engine.locale('${this.category}.item.targetCharacter.description',
           interpolations: [
             expirationDateString,
             item.stackSize,
@@ -92,7 +92,7 @@ struct QuestDelivery {
       })
       this.kind = kQuestDeliveryKindEscort
       if (destinationSite) {
-        this.description = getLocaleString('${this.category}.character.targetSite.description',
+        this.description = engine.locale('${this.category}.character.targetSite.description',
           interpolations: [
             expirationDateString,
             character.name,
@@ -102,7 +102,7 @@ struct QuestDelivery {
         )
       } else {
         assert(destinationCharacter != null)
-        this.description = getLocaleString('${this.category}.character.targetCharacter.description',
+        this.description = engine.locale('${this.category}.character.targetCharacter.description',
           interpolations: [
             expirationDateString,
             character.name,
@@ -113,7 +113,7 @@ struct QuestDelivery {
       }
     }
 
-    this.id = 'quest.${Hash.uid4(2)}.${this.category}.${this.kind}'
+    this.id = 'quest.${crypto.randomUID4(2)}.${this.category}.${this.kind}'
 
     this.stages = {
       delivering: {

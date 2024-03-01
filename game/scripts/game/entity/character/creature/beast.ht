@@ -9,34 +9,25 @@ const _kBeastAttributeSum = 200
 
 const _kBeastTypes = {
   tiger: {
-    strength: 92,
-    constitution: 75,
     spirituality: 0,
-    willpower: 0,
     dexterity: 88,
-    intelligence: 0,
+    strength: 92,
+    willpower: 0,
     perception: 77,
-    charisma: 0,
   },
   monkey: {
-    strength: 55,
-    constitution: 59,
     spirituality: 0,
-    willpower: 0,
     dexterity: 84,
-    intelligence: 0,
+    strength: 55,
+    willpower: 0,
     perception: 85,
-    charisma: 0,
   },
   snake: {
-    strength: 74,
-    constitution: 37,
     spirituality: 0,
-    willpower: 0,
     dexterity: 42,
-    intelligence: 0,
+    strength: 74,
+    willpower: 0,
     perception: 96,
-    charisma: 0,
   },
 }
 
@@ -54,7 +45,7 @@ struct Beast {
     const randomName = generateCreatureName(category: this.kind, rarity: rarity)
     this.name = randomName.name
     this.category = kEntityCategoryBeast
-    this.id = '${this.entityType}.${Hash.uid4(2)}.${this.name}'
+    this.id = '${this.entityType}.${crypto.randomUID4(2)}.${this.name}'
     this.rarity = randomName.rarity ?? kCommon
     this.color = kRarity[this.rarity].color
     game.npcs[this.id] = this
@@ -68,7 +59,7 @@ struct Beast {
       attributeSum: _kBeastAttributeSum,
       generate: false,
     )
-    this.assign(battleInfo)
+    Object.assign(this, battleInfo)
 
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
     switch (this.kind) {

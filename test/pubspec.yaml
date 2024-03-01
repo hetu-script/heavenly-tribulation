@@ -19,11 +19,12 @@ dependencies:
   samsara:
     path: ../../samsara_engine/
 
-  flame: ^1.15.0
+  flame: ^1.16.0
   flutter_platform_alert: ^0.5.1
   json5: ^0.8.0
   vector_math: ^2.1.4
   window_manager: ^0.3.0
+  video_player_win: ^2.3.5
 
 dev_dependencies:
   flutter_test:

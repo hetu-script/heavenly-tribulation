@@ -1,0 +1,43 @@
+{
+  // 战斗状态数据，目前只保存了该状态的id、类型和触发时机
+  // 状态icon和id同名，约定路径为：'assets\images\icon\${id}.png'
+  // 类型包括：'none', 'buff', 'debuff'，某些互动只针对某种特定类型的战斗状态
+  // 触发时机包括：
+  // 自己/对方回合开始时 self_turn_start/opponent_turn_start
+  // 自己/对方回合结束时 self_turn_end/opponent_turn_end
+  // 自己/对方攻击时 self_attacking/opponent_attacking
+  // 自己/对方造成伤害时 self_damaging/opponent_damaging
+  // 自己/对方恢复生命时 self_healing/opponent_healing
+  // 自己/对方恢复灵气时 self_condensing/opponent_healing
+  // 自己/对方获得防时 self_blocking/opponent_blocking
+  // 自己/对方受到攻击时 self_attacked/opponent_attacked
+  // 自己/对方受到伤害时 self_damaged/opponent_damaged
+  // 自己/对方攻击被对方防住时 self_attacking_blocked/opponent_attacking_blocked
+  // 自己/对方获得增益状态时
+  // 自己/对方获得减益状态时
+  // 自己/对方再次行动时
+  // 自己/对方生命减少时
+  // 自己/对方灵气减少时
+  // 自己/对方防减少时
+  // 自己/对方使用法术时
+  // 自己/对方使用剑术时
+  // 自己/对方使用拳术时
+  // 自己/对方使用圣术时
+  // 自己/对方使用魂术时
+  // 自己/对方使用阵法时
+  // 自己/对方使用符咒时
+  // 自己/对方使用丹药时
+  // 自己/对方使用灵器时
+  // 自己/对方使用灵植时
+  // 自己/对方使用灵兽时
+  // 自己/对方使用幻术时
+  // 自己/对方使用通灵时
+  // 自己/对方使用占卜时
+  // 自己/对方使用神通时
+  block: {
+    id: "block",
+    type: "none",
+    callbacks: ["self_turn_start", "self_attacked"],
+    sound: "dagger_drawn2-89025.mp3",
+  },
+}

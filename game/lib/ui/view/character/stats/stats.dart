@@ -3,15 +3,14 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../../../global.dart';
+import '../../../../config.dart';
 import 'package:samsara/ui/flutter/constants.dart';
 import 'package:samsara/ui/flutter/label.dart';
 
 const kCharacterAttributeNames = [
-  'strength',
-  'constitution',
-  'dexterity',
   'spirituality',
+  'dexterity',
+  'strength',
   'willpower',
   'perception',
 ];

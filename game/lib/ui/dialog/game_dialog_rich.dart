@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import '../avatar.dart';
-import '../../global.dart';
+import '../../config.dart';
 import '../../event/ui.dart';
 import '../view/character/information/character.dart';
 import '../view/character/npc.dart';
@@ -189,12 +189,12 @@ class _GameDialogState extends State<GameDialog> {
       final characterId = _currentContent!['characterId'];
       if (characterId != null) {
         if (widget.dialogData['isMajorCharacter'] ?? false) {
-          _characterData =
-              engine.invoke('getCharacterById', positionalArgs: [characterId]);
+          _characterData = engine.hetu
+              .invoke('getCharacterById', positionalArgs: [characterId]);
           _isNpc = false;
         } else {
           _characterData =
-              engine.invoke('getNpcById', positionalArgs: [characterId]);
+              engine.hetu.invoke('getNpcById', positionalArgs: [characterId]);
           _isNpc = true;
         }
       }

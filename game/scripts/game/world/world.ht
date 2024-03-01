@@ -4,7 +4,7 @@ import '../entity/location/site.ht'
 import '../entity/location/location.ht'
 import '../entity/character/common.ht'
 import '../entity/organization/organization.ht'
-import '../l10n.ht'
+// import '../l10n.ht'
 import '../tile/hexagonal_tile.ht'
 import '../tile/zone.ht'
 import '../tile/tilemap.ht'
@@ -84,7 +84,7 @@ function createWorldMap({
     id,
     seedString,
     style = 'coast',
-    terrainSpriteSheet: str,
+    terrainSpriteSheet: string,
     worldScale = _kDefaultWorldScale,
     organizationNumber = _kDefaultOrganizationNumber,
     // nationNumber = _kDefaultNationNumber,
@@ -96,13 +96,13 @@ function createWorldMap({
     scale = 2.0,
   }) {
   assert(id != null)
-  assert(seedString is str && seedString.isNotEmpty)
+  assert(seedString is string && seedString.isNotEmpty)
   // assert(cultivationOrganizationNumber < locationNumber)
   // assert(cultivationOrganizationNumber < characterNumber)
   // assert(tradinghouseOrganizationNumber < locationNumber)
   // assert(tradinghouseOrganizationNumber < characterNumber)
 
-  const seed = Hash.crcInt(seedString)
+  const seed = crypto.crcInt(seedString)
   engine.info('开始生成世界，设置随机数种子为：${seedString}(${seed})')
   setRandomSeed(seed)
 
@@ -669,7 +669,7 @@ function createWorldMap({
                   }
                 }
                 characterFirstMet(char, otherChar)
-                const incidentContent = getLocaleString('characterMarriage', interpolations: [
+                const incidentContent = engine.locale('characterMarriage', interpolations: [
                     char.name,
                     otherChar.name,
                     home.name,
@@ -736,7 +736,7 @@ function getWorld() {
   return currentWorld
 }
 
-function getZoneByIndex(index: int) {
+function getZoneByIndex(index: integer) {
   return currentWorld.zones[index]
 }
 

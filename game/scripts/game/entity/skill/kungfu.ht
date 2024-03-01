@@ -60,7 +60,7 @@ struct Kungfu {
     this.creatorId = creatorId
     this.createdTime = createdTime
     this.description = description ?? ''
-    this.id = '${this.entityType}.${Hash.uid4(2)}.${this.name}'
+    this.id = '${this.entityType}.${crypto.randomUID4(2)}.${this.name}'
 
     this.isEquippable = true
     this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
@@ -83,7 +83,7 @@ struct Kungfu {
     this.attributes = kKungfuKinds[this.kind].attributes.clone()
 
     if (attributes) {
-      this.attributes.assign(attributes)
+      Object.assign(this.attributes, attributes)
     }
     // -1级技能也显示0级技能的效果
     this.attributes.effects = {}

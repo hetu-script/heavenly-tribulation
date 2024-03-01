@@ -43,7 +43,7 @@ struct Game {
     // 但其实这里没有任何数据
     this.heroHomeSite = {
       category: kSiteHome,
-      name: getLocaleString(kSiteHome),
+      name: engine.locale(kSiteHome),
       image: 'location/site/home.png',
       id: 'site.home',
     }
@@ -102,18 +102,18 @@ function getPlayerMonthlyActivities {
 }
 
 function getGameJsonData() {
-  return game.toJson()
+  return game.toJSON()
 }
 
 function getUniverseJsonData() {
-  return universe.toJson()
+  return universe.toJSON()
 }
 
 function getSavePath {
   return game.savePath
 }
 
-function setSavePath(name: str) {
+function setSavePath(name: string) {
   game.savePath = name
 }
 
@@ -122,12 +122,12 @@ function getTimestamp {
 }
 
 function loadGameFromJsonData(gameData, universeData) {
-  game = prototype.fromJson(gameData)
+  game = Object.createFromJSON(gameData)
 
   assert(game.heroId != null)
   hero = game.characters[game.heroId]
   
-  universe = prototype.fromJson(universeData)
+  universe = Object.createFromJSON(universeData)
 
   assert(universe.currentWorldId != null)
   currentWorld = universe.worlds[universe.currentWorldId]

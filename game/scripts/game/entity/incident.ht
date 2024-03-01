@@ -4,7 +4,7 @@ import 'character/common.ht'
 /// 历史事件记录
 struct Incident {
   construct ({
-    content: str,
+    content: string,
     isPrivate: bool = false, // 是否通知当前据点所有人
     isGlobal: bool = false, // 是否记录到全世界的人都记录
     isMazeIncident: bool = false, // 是否只记录在副本自己的历史中
@@ -17,10 +17,10 @@ struct Incident {
     objectIds = [],
     witnessIds = [],
     // heardIds = [],
-    withItem: str,
-    toItem: str,
-    locationId: str,
-    terrainIndex: int,
+    withItem: string,
+    toItem: string,
+    locationId: string,
+    terrainIndex: integer,
   }) {
     assert(content != null && content.isNotEmpty)
 
@@ -96,7 +96,7 @@ struct Incident {
       
       if (locationId) {
         const location = game.locations[locationId]
-        for (const id in location.dwellingCharacterIds) {
+        for (const id in location.stayingCharacterIds) {
           if (id in subjectIds || id in objectIds || id in witnessIds) continue
           const char = game.characters[id]
           characterWitnessIncident(char, this)
@@ -108,6 +108,6 @@ struct Incident {
   }
 }
 
-function getIncidentByIndex(index: int) {
+function getIncidentByIndex(index: integer) {
   return currentWorld.history[index]
 }

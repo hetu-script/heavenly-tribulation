@@ -44,8 +44,8 @@ function characterAcceptQuest(character, site, quest) {
     engine.error('获取任务时发生错误，对象类型既不是人员也是物品：${entity.entityType}')
   }
 
-  const questName = getLocaleString(quest.kind);
-  const incidentContent = getLocaleString(
+  const questName = engine.locale(quest.kind);
+  const incidentContent = engine.locale(
     'characterAcceptQuest',
     interpolations: [character.name, site.name, questName],
   )
@@ -60,9 +60,9 @@ function characterTrySubmitQuest(character, target, quest) -> bool {
   if (quest.questEntitiesSubmit) {
     for (const data in quest.questEntitiesSubmit) {
       if (data.entityType == kEntityTypeCharacter || data.entityType == kEntityTypeNpc) {
-        if (!character.companions.containsKey(data.id)) return false
+        if (!character.companions.hasOwnProperty(data.id)) return false
       } else if (data.entityType == kEntityTypeItem) {
-        if (!character.inventory.containsKey(data.id)) {
+        if (!character.inventory.hasOwnProperty(data.id)) {
           return false
         } else {
           const item = character.inventory[data.id]
@@ -89,7 +89,7 @@ function characterTrySubmitQuest(character, target, quest) -> bool {
 }
 
 function setCharacterActiveQuest(character, quest) {
-  assert(character.quests.containsKey(quest.id))
+  assert(character.quests.hasOwnProperty(quest.id))
   character.activeQuestId = quest.id
 }
 

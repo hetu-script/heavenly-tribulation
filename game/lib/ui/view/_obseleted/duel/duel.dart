@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../../../global.dart';
+import '../../../../config.dart';
 import 'package:samsara/ui/flutter/responsive_window.dart';
 import 'battle_panel.dart';
 import '../../../../event/ui.dart';
@@ -87,7 +87,7 @@ class _DuelState extends State<Duel> {
     _frames = 0;
     _messages = [];
     _data = duelData ??
-        engine.invoke('Duel', positionalArgs: [
+        engine.hetu.invoke('Duel', positionalArgs: [
           widget.char1,
           widget.char2
         ], namedArgs: {
@@ -303,9 +303,9 @@ class _DuelState extends State<Duel> {
                           child: ElevatedButton(
                             onPressed: () {
                               _timer?.cancel();
-                              engine.invoke('rejuvenate',
+                              engine.hetu.invoke('rejuvenate',
                                   positionalArgs: [widget.char1]);
-                              engine.invoke('rejuvenate',
+                              engine.hetu.invoke('rejuvenate',
                                   positionalArgs: [widget.char2]);
                               _startDuel();
                             },

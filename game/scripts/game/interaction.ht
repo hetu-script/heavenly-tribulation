@@ -1,5 +1,5 @@
 import 'game.ht'
-import 'l10n.ht'
+// import 'l10n.ht'
 import 'tile/hexagonal_tile.ht'
 import 'tile/tilemap.ht'
 import 'update.ht'
@@ -44,7 +44,7 @@ function onHeroEnteredLocation(location) async {
   if (!location.flags.isDiscovered) {
     if (location.category == kLocationCategoryCity) {
       discoverLocation(location)
-      const message = getLocaleString('firstVisitCity', interpolations: [location.name])
+      const message = engine.locale('firstVisitCity', interpolations: [location.name])
       // TODO: 第一次发现据点事件
       return showDialogByStrings([message])
     } else {
@@ -59,12 +59,12 @@ function onHeroEnteredLocation(location) async {
       if (names.isEmpty) {
         names = game.organizations[id].name
       } else {
-        const linkWord = getLocaleString('and')
+        const linkWord = engine.locale('and')
         names += linkWord + game.organizations[id].name
       }
     }
 
-    const villager = getLocaleString('villager')
+    const villager = engine.locale('villager')
 
     showDialogByResourceId('cultivatorRecruitMonth').then((_) {
       showSelectionByLocaleKeys([
@@ -175,7 +175,7 @@ function handleWorldTerrainInteraction(left, top) {
 
   // 英雄剩余的体力
   // 采集消耗体力为每天4点（每个tick 1点）。
-  const staminaAvailableDays = hero.stats.stamina ~/ kTicksPerDay
+  const staminaAvailableDays = hero.attributes.stamina ~/ kTicksPerDay
   if (staminaAvailableDays < 1) {
     showDialogByLocaleKeys(['notEnoughStamina'], character: hero)
     return
@@ -188,7 +188,7 @@ function handleWorldTerrainInteraction(left, top) {
   const terrain = currentWorld.terrains[terrainIndex]
 
   const selections = [
-    'search',
+    'explore',
   ]
 
   switch (terrain.kind) {
@@ -207,7 +207,7 @@ function handleWorldTerrainInteraction(left, top) {
   
   showSelectionByLocaleKeys(selections).then((key) {
     switch (key) {
-      'search' => {
+      'explore' => {
         const entityId = terrain.entityId
         const locationId = terrain.locationId
         let undiscoveredLocation
@@ -225,10 +225,10 @@ function handleWorldTerrainInteraction(left, top) {
           }
         } else {
           if (entityId) {
-            showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
+            showIntInput(engine.locale('timeDays'), availableDays).then((days) {
               let i = 0
               let found = false
-              showProgress(getLocaleString('search'), checkProgress: () {
+              showProgress(engine.locale('explore'), checkProgress: () {
                 ++i
                 updateGame(ticks: kTicksPerDay)
                 changeStamina(hero, -kTicksPerDay)
@@ -240,7 +240,7 @@ function handleWorldTerrainInteraction(left, top) {
                 if (i >= days) return false
                 return true
               }).then((_) {
-                const incidentContent = getLocaleString('characterExplore', interpolations: [
+                const incidentContent = engine.locale('characterExplore', interpolations: [
                   hero.name,
                   '${terrain.left}, ${terrain.top}',
                   i,
@@ -259,10 +259,10 @@ function handleWorldTerrainInteraction(left, top) {
               })
             })
           } else if (undiscoveredLocation) {
-            showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
+            showIntInput(engine.locale('timeDays'), availableDays).then((days) {
               let i = 0
               let found = false
-              showProgress(getLocaleString('search'), checkProgress: () {
+              showProgress(engine.locale('explore'), checkProgress: () {
                 ++i
                 updateGame(ticks: kTicksPerDay)
                 changeStamina(hero, -kTicksPerDay)
@@ -274,7 +274,7 @@ function handleWorldTerrainInteraction(left, top) {
                 if (i >= days) return false
                 return true
               }).then((_) {
-                const incidentContent = getLocaleString('characterExplore', interpolations: [
+                const incidentContent = engine.locale('characterExplore', interpolations: [
                   hero.name,
                   '${terrain.left}, ${terrain.top}',
                   i,
@@ -288,7 +288,7 @@ function handleWorldTerrainInteraction(left, top) {
                   terrain.hasSearched = true
                   discoverLocation(undiscoveredLocation)
                   // TODO: 第一次发现据点事件
-                  const message = getLocaleString('firstVisitCity', interpolations: [undiscoveredLocation.name])
+                  const message = engine.locale('firstVisitCity', interpolations: [undiscoveredLocation.name])
                   showDialogByStrings([message]).then((_) {
                     WorldMap.enterLocation(undiscoveredLocation.id)
                   })
@@ -299,13 +299,13 @@ function handleWorldTerrainInteraction(left, top) {
             })
           } else {
             terrain.hasSearched = true
-            showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-              showProgress(getLocaleString('search'), checkProgress: () {
+            showIntInput(engine.locale('timeDays'), availableDays).then((days) {
+              showProgress(engine.locale('explore'), checkProgress: () {
                 updateGame(ticks: kTicksPerDay)
                 changeStamina(hero, -kTicksPerDay)
                 return false
               }).then((_) {
-                const incidentContent = getLocaleString('characterExplore', interpolations: [
+                const incidentContent = engine.locale('characterExplore', interpolations: [
                   hero.name,
                   '${terrain.left}, ${terrain.top}',
                   1,
@@ -323,11 +323,11 @@ function handleWorldTerrainInteraction(left, top) {
       }
       // 采集，可能会获得：药材（材料）、水果（材料）
       'gather' => {
-        showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
+        showIntInput(engine.locale('timeDays'), availableDays).then((days) {
           const lootbox = Lootbox()
           let metBeast = false
           let i = 0
-          showProgress(getLocaleString('gather'), () {
+          showProgress(engine.locale('gather'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
             changeStamina(hero, -kTicksPerDay)
@@ -368,7 +368,7 @@ function handleWorldTerrainInteraction(left, top) {
             if (i >= days) return false
             return true
           }).then((_) {
-            const incidentContent = getLocaleString('characterExplore', interpolations: [
+            const incidentContent = engine.locale('characterExplore', interpolations: [
               hero.name,
               '${terrain.left}, ${terrain.top}',
               i,
@@ -387,7 +387,7 @@ function handleWorldTerrainInteraction(left, top) {
             } ().then((_) {
               if (metBeast) {
                 const beast = Beast()
-                const message = getLocaleString('metBeast', interpolations: [beast.name])
+                const message = engine.locale('metBeast', interpolations: [beast.name])
                 showDialogByStrings([message]).then((_) {
                   heroBattle(beast)
                 })
@@ -398,11 +398,11 @@ function handleWorldTerrainInteraction(left, top) {
       }
       // 伐木，可能会获得：木料
       'woodcut' => {
-        showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
+        showIntInput(engine.locale('timeDays'), availableDays).then((days) {
           const lootbox = Lootbox()
           let metBeast = false
           let i = 0
-          showProgress(getLocaleString('woodcut'), () {
+          showProgress(engine.locale('woodcut'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
             changeStamina(hero, -kTicksPerDay)
@@ -434,7 +434,7 @@ function handleWorldTerrainInteraction(left, top) {
             if (i >= days) return false
             return true
           }).then((_) {
-            const incidentContent = getLocaleString('characterWoodcutted', interpolations: [
+            const incidentContent = engine.locale('characterWoodcutted', interpolations: [
               hero.name,
               '${terrain.left}, ${terrain.top}',
               i,
@@ -453,7 +453,7 @@ function handleWorldTerrainInteraction(left, top) {
             } ().then((_) {
               if (metBeast) {
                 const beast = Beast()
-                const message = getLocaleString('metBeast', interpolations: [beast.name])
+                const message = engine.locale('metBeast', interpolations: [beast.name])
                 showDialogByStrings([message]).then((_) {
                   heroBattle(beast)
                 })
@@ -464,11 +464,11 @@ function handleWorldTerrainInteraction(left, top) {
       }
       // 挖矿，可能会获得：矿石、灵石
       'mine' => {
-        showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
+        showIntInput(engine.locale('timeDays'), availableDays).then((days) {
           const lootbox = Lootbox()
           let metBeast = false
           let i = 0
-          showProgress(getLocaleString('mine'), () {
+          showProgress(engine.locale('mine'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
             changeStamina(hero, -kTicksPerDay)
@@ -509,7 +509,7 @@ function handleWorldTerrainInteraction(left, top) {
             if (i >= days) return false
             return true
           }).then((_) {
-            const incidentContent = getLocaleString('characterMined', interpolations: [
+            const incidentContent = engine.locale('characterMined', interpolations: [
               hero.name,
               '${terrain.left}, ${terrain.top}',
               i,
@@ -528,7 +528,7 @@ function handleWorldTerrainInteraction(left, top) {
             } ().then((_) {
               if (metBeast) {
                 const beast = Beast()
-                const message = getLocaleString('metBeast', interpolations: [beast.name])
+                const message = engine.locale('metBeast', interpolations: [beast.name])
                 showDialogByStrings([message]).then((_) {
                   heroBattle(beast)
                 })
@@ -539,10 +539,10 @@ function handleWorldTerrainInteraction(left, top) {
       }
       // 捕猎，增加遇到野兽的概率200%
       'hunt' => {
-        showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
+        showIntInput(engine.locale('timeDays'), availableDays).then((days) {
           let metBeast = false
           let i = 0
-          showProgress(getLocaleString('hunt'), () {
+          showProgress(engine.locale('hunt'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
             changeStamina(hero, -kTicksPerDay)
@@ -569,7 +569,7 @@ function handleWorldTerrainInteraction(left, top) {
             if (i >= days) return false
             return true
           }).then((_) {
-            const incidentContent = getLocaleString('characterHunted', interpolations: [
+            const incidentContent = engine.locale('characterHunted', interpolations: [
               hero.name,
               '${terrain.left}, ${terrain.top}',
               i,
@@ -581,7 +581,7 @@ function handleWorldTerrainInteraction(left, top) {
             )
             if (metBeast) {
               const beast = Beast()
-              const message = getLocaleString('foundBeast', interpolations: [beast.name])
+              const message = engine.locale('foundBeast', interpolations: [beast.name])
               showDialogByStrings([message]).then((_) {
                 heroBattle(beast)
               })
@@ -599,10 +599,10 @@ function handleWorldTerrainInteraction(left, top) {
         // }
         // game.playerCharacterMonthly.fished.add(terrainIndex)
         
-        showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
+        showIntInput(engine.locale('timeDays'), availableDays).then((days) {
           const lootbox = Lootbox()
           let i = 0
-          showProgress(getLocaleString('fish'), () {
+          showProgress(engine.locale('fish'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
             changeStamina(hero, -kTicksPerDay)
@@ -621,7 +621,7 @@ function handleWorldTerrainInteraction(left, top) {
             if (i >= days) return false
             return true
           }).then((_) {
-            const incidentContent = getLocaleString('characterFished', interpolations: [
+            const incidentContent = engine.locale('characterFished', interpolations: [
               hero.name,
               '${terrain.left}, ${terrain.top}',
               i,
@@ -673,7 +673,7 @@ function handleWorldMapEntityInteraction(entityId) -> bool {
   return false
 }
 
-function handleSiteInteraction(locationId: str, siteId: str) {
+function handleSiteInteraction(locationId: string, siteId: string) {
   const location = getLocationById(locationId)
   let site
   if (siteId == 'site.home') {
@@ -718,98 +718,98 @@ function _handleHomeInteraction(site) {
         
       }
       'practice' => {
-        if (hero.skills.isEmpty) {
-          showDialogByLocaleKeys(['skillsEmpty'], character: hero)
-        } else {
-          showSkillSelection(
-            title: getLocaleString('selectSkill'),
-            skills: hero.skills,
-          ).then((skill) {
-            if (skill.exp >= skill.expForNextLevel) {
-              showDialogByLocaleKeys(['skillExpReachMax'], character: hero, interpolations: [skill.name])
-              return
-            }
+        // if (hero.skills.isEmpty) {
+        //   showDialogByLocaleKeys(['skillsEmpty'], character: hero)
+        // } else {
+        //   showSkillSelection(
+        //     title: engine.locale('selectSkill'),
+        //     skills: hero.skills,
+        //   ).then((skill) {
+        //     if (skill.exp >= skill.expForNextLevel) {
+        //       showDialogByLocaleKeys(['skillExpReachMax'], character: hero, interpolations: [skill.name])
+        //       return
+        //     }
 
-            const cost = skill.cost?.practice
+        //     const cost = skill.cost?.practice
             
-            // 每天会根据技能本身要求的消耗，减少对应的资源
-            function practiceCost {
-              if (cost?.stamina) {
-                changeStamina(hero, -kTicksPerDay * cost.stamina)
-              }
-              if (cost?.mana) {
-                changeMana(hero, -kTicksPerDay * cost.mana)
-              }
-              if (cost?.spirit) {
-                changeSpirit(hero, -kTicksPerDay * cost.spirit)
-              }
-            }
+        //     // 每天会根据技能本身要求的消耗，减少对应的资源
+        //     function practiceCost {
+        //       if (cost?.stamina) {
+        //         changeStamina(hero, -kTicksPerDay * cost.stamina)
+        //       }
+        //       if (cost?.mana) {
+        //         changeMana(hero, -kTicksPerDay * cost.mana)
+        //       }
+        //       if (cost?.spirit) {
+        //         changeSpirit(hero, -kTicksPerDay * cost.spirit)
+        //       }
+        //     }
 
-            let availableDays
-            let staminaAvailableDays
-            let manaAvailableDays
-            let spiritAvailableDays
-            if (cost?.stamina) {
-              staminaAvailableDays = hero.stats.stamina ~/ kTicksPerDay
-              if (staminaAvailableDays < 1) {
-                showDialogByLocaleKeys(['notEnoughStamina'], character: hero)
-                return
-              }
-            }
-            if (cost?.mana) {
-              manaAvailableDays = hero.stats.mana ~/ kTicksPerDay
-              if (manaAvailableDays < 1) {
-                showDialogByLocaleKeys(['notEnoughMana'], character: hero)
-                return
-              }
-            }
-            if (cost?.spirit) {
-              spiritAvailableDays = hero.stats.spirit ~/ kTicksPerDay
-              if (spiritAvailableDays < 1) {
-                showDialogByLocaleKeys(['notEnoughSpirit'], character: hero)
-                return
-              }
-            }
+        //     let availableDays
+        //     let staminaAvailableDays
+        //     let manaAvailableDays
+        //     let spiritAvailableDays
+        //     if (cost?.stamina) {
+        //       staminaAvailableDays = hero.attributes.stamina ~/ kTicksPerDay
+        //       if (staminaAvailableDays < 1) {
+        //         showDialogByLocaleKeys(['notEnoughStamina'], character: hero)
+        //         return
+        //       }
+        //     }
+        //     if (cost?.mana) {
+        //       manaAvailableDays = hero.attributes.mana ~/ kTicksPerDay
+        //       if (manaAvailableDays < 1) {
+        //         showDialogByLocaleKeys(['notEnoughMana'], character: hero)
+        //         return
+        //       }
+        //     }
+        //     if (cost?.spirit) {
+        //       spiritAvailableDays = hero.attributes.spirit ~/ kTicksPerDay
+        //       if (spiritAvailableDays < 1) {
+        //         showDialogByLocaleKeys(['notEnoughSpirit'], character: hero)
+        //         return
+        //       }
+        //     }
 
-            // 可用的修炼天数
-            if (staminaAvailableDays) availableDays = staminaAvailableDays
-            if (manaAvailableDays) availableDays = Math.min(availableDays, manaAvailableDays)
-            if (spiritAvailableDays) availableDays = Math.min(availableDays, spiritAvailableDays)
-            // 如果修炼本身没有任何消耗，则最多设定为360天
-            availableDays ??= 360
+        //     // 可用的修炼天数
+        //     if (staminaAvailableDays) availableDays = staminaAvailableDays
+        //     if (manaAvailableDays) availableDays = Math.min(availableDays, manaAvailableDays)
+        //     if (spiritAvailableDays) availableDays = Math.min(availableDays, spiritAvailableDays)
+        //     // 如果修炼本身没有任何消耗，则最多设定为360天
+        //     availableDays ??= 360
 
-            showIntInput(getLocaleString('timeDays'), availableDays).then((days) {
-              let i = 0
-              let expGained = 0
-              showProgress(getLocaleString('practice'), checkProgress: () {
-                ++i
-                updateGame(ticks: kTicksPerDay)
-                practiceCost()
-                expGained += kTicksPerDay
-                if ((skill.exp + expGained) >= skill.expForNextLevel) return false
-                if (i >= days) return false
-                return true
-              }).then((_) {
-                skill.exp += expGained
-                const incidentContent = getLocaleString('characterPracticed', interpolations: [
-                  hero.name,
-                  site.name,
-                  skill.name,
-                  i,
-                  expGained,
-                ])
-                Incident(
-                  subjectIds: [hero.id],
-                  content: incidentContent,
-                  isPrivate: true,
-                )
-                if ((skill.exp + expGained) >= skill.expForNextLevel) {
-                  showDialogByLocaleKeys(['skillExpReachMax'], character: hero, interpolations: [skill.name])
-                }
-              })
-            })
-          })
-        }
+        //     showIntInput(engine.locale('timeDays'), availableDays).then((days) {
+        //       let i = 0
+        //       let expGained = 0
+        //       showProgress(engine.locale('practice'), checkProgress: () {
+        //         ++i
+        //         updateGame(ticks: kTicksPerDay)
+        //         practiceCost()
+        //         expGained += kTicksPerDay
+        //         if ((skill.exp + expGained) >= skill.expForNextLevel) return false
+        //         if (i >= days) return false
+        //         return true
+        //       }).then((_) {
+        //         skill.exp += expGained
+        //         const incidentContent = engine.locale('characterPracticed', interpolations: [
+        //           hero.name,
+        //           site.name,
+        //           skill.name,
+        //           i,
+        //           expGained,
+        //         ])
+        //         Incident(
+        //           subjectIds: [hero.id],
+        //           content: incidentContent,
+        //           isPrivate: true,
+        //         )
+        //         if ((skill.exp + expGained) >= skill.expForNextLevel) {
+        //           showDialogByLocaleKeys(['skillExpReachMax'], character: hero, interpolations: [skill.name])
+        //         }
+        //       })
+        //     })
+        //   })
+        // }
       }
       'storage' => {
         
@@ -880,10 +880,10 @@ function _handleTradingHouseInteraction(site) {
         } else {
           const quest = site.quests.values.first
           assert(quest.category == kQuestCategoryDelivery)
-          const displayName = getLocaleString('server')
-          const message = getLocaleString('delivery.introDialog')
+          const displayName = engine.locale('server')
+          const message = engine.locale('delivery.introDialog')
           const description = '${quest.description}${
-            getLocaleString('questRewardMoney', interpolations: [quest.rewardMoney])
+            engine.locale('questRewardMoney', interpolations: [quest.rewardMoney])
           }'
           showDialogByStrings([message,description], displayName: displayName).then((_) {
             showSelectionByLocaleKeys([
@@ -916,8 +916,8 @@ function _handlePalaceInteraction(site) {
 
   // const location = game.locations[site.locationId]
   // showSelection({
-  //   visit: getLocaleString('visit'),
-  //   leave: getLocaleString('leave'),
+  //   visit: engine.locale('visit'),
+  //   leave: engine.locale('leave'),
   // }).then((key) {
   //   switch (key) {
   //     // 如果选择 leave，直接忽略，什么也不做
@@ -1029,7 +1029,7 @@ function _handleBountyhouseInteraction(site) {
   //             const title = getCharacterTitle(hero) ?? ''
   //             return showDialogByStrings(
   //               [
-  //                 getLocaleString('visitJailEntryRespect', interpolations: [title + hero.name]),
+  //                 engine.locale('visitJailEntryRespect', interpolations: [title + hero.name]),
   //               ],
   //               returnValue: true,
   //             )

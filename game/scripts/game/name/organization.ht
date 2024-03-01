@@ -10,7 +10,7 @@ const kNonBattleOrganizationNames = [
   ...commonNamesData.action,
 ]
 
-function generateOrganizationName({category: str}) {
+function generateOrganizationName({category: string}) {
   assert(category in orgNames.keys)
   let name
   if (category == kOrganizationCategoryBusiness) {

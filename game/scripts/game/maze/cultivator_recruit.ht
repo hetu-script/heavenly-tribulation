@@ -9,7 +9,7 @@ import '../entity/character/npc/elder_cultivator.ht'
 import '../entity/character/creature/beast.ht'
 import '../entity/common.ht'
 import '../entity/character/npc/peddler.ht'
-import '../l10n.ht'
+// import '../l10n.ht'
 import 'common.ht'
 import '../binding/maze.ht'
 import 'generation_algorithm.ht'
@@ -36,7 +36,7 @@ struct CultivationRecruitMaze {
     organizationName,
   }) {
     this.name = name
-    this.id = 'maze.${Hash.uid4(4)}.${name}'
+    this.id = 'maze.${crypto.randomUID4(4)}.${name}'
     engine.info('开始生成副本: [${this.id}]')
 
     this.category = kMazeCategoryCultivatorRecruit
@@ -60,7 +60,7 @@ struct CultivationRecruitMaze {
 
     const currentLevel = TileMap(
       id: '${this.id}',
-      name: getLocaleString('mazeLevel', interpolations: [1]),
+      name: engine.locale('mazeLevel', interpolations: [1]),
       width: width,
       height: height,
     )

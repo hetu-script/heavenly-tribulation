@@ -3,7 +3,7 @@ import 'package:hetu_script/values.dart';
 // import 'package:quiver/pattern.dart';
 // import 'package:samsara/event.dart';
 
-import '../../../global.dart';
+import '../../../config.dart';
 import 'site_card.dart';
 import 'package:samsara/ui/flutter/close_button.dart';
 import 'package:samsara/ui/flutter/responsive_window.dart';
@@ -83,13 +83,13 @@ class _LocationViewState extends State<LocationView> {
       final locationId = widget.locationId ??
           ModalRoute.of(context)!.settings.arguments as String;
       _locationData =
-          engine.invoke('getLocationById', positionalArgs: [locationId]);
+          engine.hetu.invoke('getLocationById', positionalArgs: [locationId]);
     }
 
     final HTStruct sitesData = _locationData['sites'];
-    final heroHomeId = engine.invoke('getHeroHomeLocationId');
+    final heroHomeId = engine.hetu.invoke('getHeroHomeLocationId');
     if (_locationData['id'] == heroHomeId) {
-      final heroHomeSite = engine.invoke('getHeroHomeSite');
+      final heroHomeSite = engine.hetu.invoke('getHeroHomeSite');
       _siteCards.add(
         SiteCard(
           siteData: heroHomeSite,

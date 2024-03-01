@@ -1,5 +1,5 @@
 import '../common.ht'
-import '../../l10n.ht'
+// import '../../l10n.ht'
 
 const kBronzeCoin = 'bronzeCoin'
 const kSilverCoin = 'silverCoin'
@@ -18,17 +18,17 @@ struct Coin {
   }) {
     this.kind = kind
     this.rarity = kCommon
-    this.name = getLocaleString(this.kind)
+    this.name = engine.locale(this.kind)
     this.color = kRarity[this.rarity].color
 
     this.entityType = kEntityTypeItem
     this.category = kEntityCategoryMoney // 武器、防护、斗技、玄功等等
     this.value = value
 
-    this.description = getLocaleString('${this.kind}.description')
+    this.description = engine.locale('${this.kind}.description')
     this.stackSize = stackSize
     this.id = '${this.entityType}.${this.kind}'
-    this.icon = icon ?? 'icon/item/money.png'
+    this.icon = icon ?? 'item/money.png'
 
     this.isUnsellable = true
   }

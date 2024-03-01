@@ -23,27 +23,26 @@ export 'dialog.ht'
 export 'event.ht'
 export 'interaction.ht'
 export 'game.ht'
-export 'l10n.ht'
+// export 'l10n.ht'
 export 'update.ht'
 export 'util.ht'
-export 'card/card.ht'
+export 'cardgame/card.ht'
+export 'cardgame/status_effect.ht'
 
 import 'l10n/l10n.ht'
-import 'predefined/dialogs.json5' as predefinedDialogs
+import 'dialog/dialog.json5' as predefinedDialogs
 
 const gameVersion = '0.1.0'
 
 function init({
     locale = 'zh',
-    gameEngine: SamsaraEngine,
   }) {
-  engine = gameEngine
   
   engine.info('初始化游戏')
   
-  addLocales(predefinedLocalizations)
-  engine.loadLocale(gLocales[locale])
-  setLocale(locale)
+  // addLocales(predefinedLocalizations)
+  engine.loadLocale(predefinedLocalizations.toJSON())
+  engine.setLocale(locale)
 
   addDialogs(predefinedDialogs)
 
