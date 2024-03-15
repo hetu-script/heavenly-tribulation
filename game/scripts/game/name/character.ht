@@ -4,51 +4,40 @@ import 'character/male.json5' as maleNames
 import 'character/middle.json5' as middleNames
 import '../random.ht'
 
-function generateCharacterName({isFemale, familyName, middleCharacter}) {
-  let theFamilyName
-  if (!familyName) {
-    theFamilyName = random.nextIterable(familyNames)
-  } else {
-    theFamilyName = familyName
-  }
+function generateCharacterName({isFemale, familyName, middleName}) {
+  familyName ??= random.nextIterable(familyNames)
+
   const f = isFemale ?? random.nextBool()
   const namesOfASex = f ? femaleNames : maleNames
+
   const r = random.nextDouble()
-  let name = ''
-  // 单字的名字
-  if (r < 0.33333333) {
-    if (middleCharacter) {
-      name = middleCharacter
-    } else {
-      name = random.nextIterable(namesOfASex)
+  let name
+  let middleName = middleName ?? ''
+  let lastCharacter = ''
+  if (middleName) {
+    name = middleName + random.nextIterable(namesOfASex)
+  } else {
+    const r = random.nextDouble()
+    // 两个实字
+    if (r < 0.33333333) {
+      middleName = random.nextIterable(namesOfASex)
     }
-  }
-  // 两个实字
-  else if (r < 0.66666666) {
-    let theMiddleCharacter
-    if (middleCharacter) {
-      theMiddleCharacter = middleCharacter
-    } else {
-      theMiddleCharacter = random.nextIterable(namesOfASex)
+    // 虚+实
+    else if (r < 0.66666666) {
+      middleName = random.nextIterable(middleNames)
     }
-    const theLastCharacter = random.nextIterable(namesOfASex)
-    name = theMiddleCharacter + theLastCharacter
+    let conflict = false
+    do {
+      lastCharacter = random.nextIterable(namesOfASex)
+      conflict = lastCharacter == middleName
+    } while (conflict)
+    name = middleName + lastCharacter
   }
-  // 中间是虚字
-  else {
-    let theMiddleCharacter
-    if (middleCharacter) {
-      theMiddleCharacter = middleCharacter
-    } else {
-      theMiddleCharacter = random.nextIterable(middleNames)
-    }
-    const theLastCharacter = random.nextIterable(namesOfASex)
-    name = theMiddleCharacter + theLastCharacter
-  }
+
   return {
-    familyName: theFamilyName,
+    familyName: familyName,
     shortName: name,
-    name: theFamilyName + name,
+    name: familyName + name,
     isFemale: f,
   }
 }

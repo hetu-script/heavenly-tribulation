@@ -68,11 +68,11 @@ struct Bandit {
     this.rarity = rarity ?? kCommon
     this.color = kRarity[this.rarity].color
     this.description = description ?? ''
-    game.npcs[this.id] = this
+    game.minorCharacters[this.id] = this
 
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
     switch (this.kind) {
-      'minion' => {
+      'minion' : {
         this.icon = 'maze/bandit_minion.png'
         const battleInfo = BattleEntity(
           attributes: attributes ?? _kBeastAttributes.minion,
@@ -89,7 +89,7 @@ struct Bandit {
         this.equipType = kEquipTypeCompanion
         this.companionType = kCompanionTypeBattle
       }
-      'muscle' => {
+      'muscle' : {
         this.icon = 'maze/bandit_muscle.png'
         const battleInfo = BattleEntity(
           attributes: attributes ?? _kBeastAttributes.muscle,
@@ -104,7 +104,7 @@ struct Bandit {
         const minion1 = Bandit(kind: 'minion')
         equip(this, minion1)
       }
-      'killer' => {
+      'killer' : {
         this.icon = 'maze/bandit_killer.png'
         const battleInfo = BattleEntity(
           attributes: attributes ?? _kBeastAttributes.killer,
@@ -120,7 +120,7 @@ struct Bandit {
         const minion1 = Bandit(kind: 'minion')
         equip(this, minion1)
       }
-      'boss' => {
+      'boss' : {
         const battleInfo = BattleEntity(
           attributes: attributes ?? _kBeastAttributes.boss,
           attributeSum: _kBanditAttributeSum,

@@ -70,14 +70,14 @@ function generateRouteByIndex(index1, index2, map, { flag }) {
   if (route && route.length > 1) {
     for (const index in route) {
       const terrain = map.terrains[index]
-      terrain.flags.isRoute = true
+      terrain.isRoute = true
       if (flag != null) {
         terrain.flags[flag] = true
       }
     }
   } else {
     const terrain = map.terrains[index1]
-    terrain.flags.isRoute = true
+    terrain.isRoute = true
     if (flag != null) {
       terrain.flags[flag] = true
     }

@@ -1,29 +1,35 @@
+import 'tile/tilemap.ht'
+
 export 'random.ht'
 
 /// 游戏设置，和存档无关，属于载入存档或者开始新游戏之前的全局设置
-let config = {
-  debug: true,
-}
-
-let hero
+let isDebugMode
+let isNewGame
 
 let game
-
 let universe
+let history
 
-let currentWorld
-
-let currentMaze
+// game.characters[game.heroId]
+let hero
+// universe.worlds[universe.currentWorldId]
+let world
+// history.worlds[world.id].incidents
+let currentWorldHistory
+let year
+let ticksOfYear
+let month
+let ticksOfMonth
+let day
+let ticksOfDay
 
 struct Game {
   construct {
-    this.isLoaded = false
+    this.isNewGame = true
+
     // 本次游戏加载的 module，这里是纯数据，函数保存在另外的地方
     this.modules = {}
 
-    this.timestamp = 0
-
-    this.npcs = {}
     this.babies = {}
     
     this.characters = {}
@@ -37,18 +43,34 @@ struct Game {
     
     // 游戏本身逻辑所用到的一些事件检查选项
     // 例如每个月是否进行了某个动作之类
-    this.flags = {}
+    this.flags = {
+      playerMonthly: {
+        // 对其他角色操作
+        talked: [],
+        gifted: [],
+        practiced: [],
+        consulted: [],
+        requested: [],
+        insulted: [],
+        stolen: [],
+
+        // 对某个建筑操作
+        worked: [],
+
+        // 对自己组织操作
+        recruited: [],
+      }
+    }
     
     // 英雄的住所，直接保存在顶层
     // 但其实这里没有任何数据
-    this.heroHomeSite = {
-      category: kSiteHome,
-      name: engine.locale(kSiteHome),
-      image: 'location/site/home.png',
-      id: 'site.home',
-    }
-
-    resetPlayerMonthlyActivities(this)
+    // this.heroHomeSite = {
+    //   category: kSiteHome,
+    //   name: engine.locale(kSiteHome),
+    //   background: 'location/site/home.png',
+    //   image: 'location/site/home_card.png',
+    //   id: kSiteHome,
+    // }
   }
 }
 
@@ -56,16 +78,20 @@ struct Universe {
   construct {
     this.currentWorldId = null
     this.worlds = {}
-    /// 当前副本，未进入副本时为 null
-    this.currentMazeId = null
-    this.mazes = {}
   }
 }
 
-function resetPlayerMonthlyActivities(gameData){
+struct History {
+  construct {
+    this.worlds = {}
+  }
+}
+
+function resetPlayerMonthlyActivities(){
   
   // 指玩家对某个其他角色、据点、地形、建筑进行过的动作，限定每个月一次
-  gameData.flags.playerMonthly = {
+
+  game.flags.playerMonthly = {
     // 对其他角色操作
     talked: [],
     gifted: [],
@@ -84,16 +110,69 @@ function resetPlayerMonthlyActivities(gameData){
 }
 
 function resetGame {
+  isNewGame = true
   game = Game()
   universe = Universe()
+  history = History()
+  hero = null
+  world = null
+  currentWorldHistory = null
+  year = 1
+  month = 1
+  day = 1
+  ticksOfYear = 1
+  ticksOfMonth = 1
+  ticksOfDay = 1
 }
 
-function addModInfo(module) {
-  engine.info('[${module.name}] 载入模组数据')
+function addModule(module) {
+  engine.info('载入模组数据: [${module.displayName}]')
+
+  assert(module.id != null)
   game.modules[module.id] = module
 }
 
-function getModInfo(id) {
+function loadGameFromJsonData({
+  gameData,
+  universeData,
+  historyData,
+  isEditorMode,
+}) {
+  game = Object.createFromJSON(gameData)
+  game.isNewGame ??= true
+  isNewGame = game.isNewGame
+
+  if (!isEditorMode) {
+    assert(game.heroId != null)
+  }
+  if (game.heroId != null) {
+    hero = game.characters[game.heroId]
+  }
+  
+  universe = Object.createFromJSON(universeData)
+  assert(universe.currentWorldId != null)
+  world = universe.worlds[universe.currentWorldId]
+  assert(world != null)
+
+  history = Object.createFromJSON(historyData)
+  assert(history.worlds.containsKey(world.id))
+  currentWorldHistory = history.worlds[world.id]
+  assert(currentWorldHistory != null)
+
+  loadTileMapZoneColors()
+
+  return world
+}
+
+function getSaveName() {
+  return game.saveName
+}
+
+function setSaveName(name) {
+  game.saveName = name
+}
+
+function getModule(id) {
   return game.modules[id]
 }
 
@@ -109,49 +188,94 @@ function getUniverseJsonData() {
   return universe.toJSON()
 }
 
-function getSavePath {
-  return game.savePath
-}
-
-function setSavePath(name: string) {
-  game.savePath = name
+function getHistoryJsonData() {
+  return history.toJSON()
 }
 
 function getTimestamp {
-  return game.timestamp
+  return currentWorldHistory.timestamp
 }
 
-function loadGameFromJsonData(gameData, universeData) {
-  game = Object.createFromJSON(gameData)
+function getHeroId() {
+  return game.heroId
+}
 
-  assert(game.heroId != null)
-  hero = game.characters[game.heroId]
-  
-  universe = Object.createFromJSON(universeData)
+function setHeroId(id: string) {
+  assert(game.characters.containsKey(id))
+  hero = game.characters[id]
+  engine.info('设置当前玩家人物为 [${hero.name}]。')
+  // game.heroHomeSite.locationId = hero.homeId
+  game.heroId = id
+}
 
-  assert(universe.currentWorldId != null)
-  currentWorld = universe.worlds[universe.currentWorldId]
-  assert(currentWorld != null)
-  
-  loadColors()
+function getHeroWorldId(worldId) {
+  hero.worldId = worldId
+}
 
-  if (universe.currentMazeId) {
-    currentMaze = universe.mazes[universe.currentMazeId]
+function setHeroWorldPosition(left, top, [ worldId ]) {
+  hero.worldPosition = { left, top }
+  if (worldId != null) {
+    hero.worldId = worldId
   }
-
-  game.isLoaded = true
-
-  return currentWorld
 }
 
-function getCurrentMazeHistory() {
-  return currentMaze.history
+function getHero {
+  return game.characters[game.heroId]
 }
 
-function getCurrentWorldHistory() {
-  return currentWorld.history
+function getHeroHomeLocation {
+  return game.locations[hero.homeId]
+}
+
+function getHeroHomeLocationId {
+  return hero?.homeId
+}
+
+// function getHeroHomeSite {
+//   return game.heroHomeSite
+// }
+
+function getHeroOrganization {
+  if (hero.organizationId) {
+    return game.organizations[hero.organizationId]
+  } else {
+    return null
+  }
+}
+
+function getTerrainByWorldPosition(left, top) {
+  return world.terrains[tilePos2Index(left, top, world.width)]
 }
 
 function getWorldId {
-  return currentWorld.id
+  return world.id
+}
+
+function getWorldSize {
+  return {
+    width: world.width,
+    height: world.height,
+  }
+}
+
+function getZones() {
+  return world.zones.values
+}
+
+function getZoneById(id: string) {
+  assert(id != null)
+  return world.zones[id]
+}
+
+function getNameFromId(id, [orElse = 'null']) {
+  if (id != null) {
+    return id.split('.').last
+  } else {
+    return engine.locale(orElse)
+  }
+}
+
+function onNewGame() {
+  onGameEvent('onNewGame')
+  game.isNewGame = isNewGame = false
 }

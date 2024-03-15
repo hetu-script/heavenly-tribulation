@@ -4,12 +4,26 @@
   "water": "水面",
   "continent": "大陆",
   "island": "岛屿",
+
+  "shelf": "浅海",
+
+  "mountain": "山峰",
+  "shore": "岸边",
+  "forest": "森林",
+  "plain": "平原",
   "lake": "湖泊",
   "sea": "海洋",
-
-  "plain": "平原",
-  "mountain": "山峰",
-  "forest": "森林",
   "river": "河流",
-  "road": "道路"
+  "road": "道路",
+
+  "city": "城镇",
+  "farmfield": "农田",
+  "pond": "池塘",
+
+  "harbor": "港口",
+  "arcana": "洞天",
+  "mirage": "福地",
+
+  "fishZone": "鱼群",
+  "stormZone": "暴风雨"
 }

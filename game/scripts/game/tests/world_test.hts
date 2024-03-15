@@ -1,5 +1,5 @@
 import '../worldmap.ht'
 
-const world = createWorldMap()
+const world = createSandboxWorld()
 
 print(world)

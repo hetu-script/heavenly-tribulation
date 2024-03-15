@@ -11,7 +11,7 @@ function generateContinent1({width, height, landProportion, landZone}) {
   // 刷新当前地域的边缘格子坐标
   function updateShelf(left, top) {
     shelf.remove(tilePos2Index(left, top, width))
-    const neighbors = getMapTileNeighbors(left, top, currentWorld)
+    const neighbors = getMapTileNeighbors(left, top, world)
     for (const tile in neighbors) {
       if (tile.spriteIndex == kSpriteWater) {
         shelf.add(tile.index)
@@ -30,60 +30,59 @@ function generateContinent1({width, height, landProportion, landZone}) {
   const startTop = random.nextInt(maxTop - minTop) + minTop
   // engine.info('start: ${startLeft},${startTop}')
   const startIndex = tilePos2Index(startLeft, startTop, width)
-  const firstTile = currentWorld.terrains[startIndex]
+  const firstTile = world.terrains[startIndex]
   firstTile.spriteIndex = kSpriteLand
-  addTerrainToZone(firstTile, landZone.index, currentWorld)
+  addTerrainToZone(firstTile, landZone)
   updateShelf(startLeft, startTop)
 
   let currentLandSize = 1
   while (currentLandSize < landArea) {
     // engine.info('expanding land')
     ++currentLandSize
-    const tile = currentWorld.terrains[random.nextIterable(shelf)]
+    const tile = world.terrains[random.nextIterable(shelf)]
     updateShelf(tile.left, tile.top)
     tile.spriteIndex = kSpriteLand
-    addTerrainToZone(tile, landZone.index, currentWorld)
+    addTerrainToZone(tile, landZone)
   }
 
   // 根据相邻的格子的地域，分配地域索引
-  function updateZone(tile, [spriteIndex, unzonedNeighbors]) {
-    assert(tile.zoneIndex == null)
-    let willCreateZone = true
-    if (spriteIndex != null) {
-      willCreateZone = false
-    } else {
+  function updateZone(tile, [spriteIndex, unzonedTiles]) {
+    assert(tile.zoneId == null)
+    let willCreateZone = false
+    if (spriteIndex == null) {
+      willCreateZone = true
       spriteIndex = tile.spriteIndex
     }
-    unzonedNeighbors ??= {}
+    unzonedTiles ??= {}
     // engine.info('processing: ${tile.left},${tile.top}, spriteIndex: ${tile.spriteIndex}')
-    tile.zoneIndex = -1 // mark this tile is being processed, will skip it when process others
-    const neighbors = getMapTileNeighbors(tile.left, tile.top, currentWorld)
+    tile.zoneId = -1 // mark this tile is being processed, will skip it when process others
+    const neighbors = getMapTileNeighbors(tile.left, tile.top, world)
     let foundAdjacentZone = false
     for (const neighbor in neighbors) {
       // skip tiles that has diffrent spriteIndex and those still being processed
       if (neighbor.spriteIndex != spriteIndex) continue
-      if (neighbor.zoneIndex == null) {
-        updateZone(neighbor, spriteIndex, unzonedNeighbors)
-      }
-      if (neighbor.zoneIndex == -1) {
-        unzonedNeighbors[neighbor.index] = neighbor
+      if (neighbor.zoneId == null) {
+        updateZone(neighbor, spriteIndex, unzonedTiles)
+      } else if (neighbor.zoneId == -1) {
+        unzonedTiles[neighbor.index] = neighbor
         continue
+      } else {
+        final zone = getZoneById(neighbor.zoneId)
+        addTerrainToZone(tile, zone)
+        foundAdjacentZone = true
+        // engine.info('Found neighbor: ${neighbor.left},${neighbor.top}, zoneId: ${neighbor.zoneId}')
+        break
       }
-      addTerrainToZone(tile, neighbor.zoneIndex, currentWorld)
-      foundAdjacentZone = true
-      // engine.info('Found neighbor: ${neighbor.left},${neighbor.top}, zoneIndex: ${neighbor.zoneIndex}')
-      break
     }
     if (!foundAdjacentZone && willCreateZone) {
       let category = tile.spriteIndex == kSpriteLand ? kZoneLand : kZoneWater
-      const zone = Zone(index: currentWorld.zones.length, category: category)
-      currentWorld.zones.add(zone)
-      // engine.info('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneIndex: ${zone.index}')
-      addTerrainToZone(tile, zone.index, currentWorld)
-      // engine.info('processing previoused stored unzoned tiles: ${unzonedNeighbors}')
-      for (const unzonedTile of unzonedNeighbors) {
-        if (unzonedTile.zoneIndex == -1) {
-          addTerrainToZone(unzonedTile, zone.index, currentWorld)
+      const zone = Zone(category: category)
+      // engine.info('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneId: ${zone.id}')
+      addTerrainToZone(tile, zone)
+      // engine.info('processing previoused stored unzoned tiles: ${unzonedTiles}')
+      for (const unzonedTile of unzonedTiles) {
+        if (unzonedTile.zoneId == -1) {
+          addTerrainToZone(unzonedTile, zone)
         }
       }
     }
@@ -92,7 +91,7 @@ function generateContinent1({width, height, landProportion, landZone}) {
   let unzonedTile
   engine.info('开始生成地域')
   while (
-    unzonedTile = currentWorld.terrains.firstWhere((tile) => tile.zoneIndex == null)
+    unzonedTile = world.terrains.firstWhere((tile) => tile.zoneId == null)
   ) {
     // engine.info('updating unzoned tile')
     updateZone(unzonedTile)
@@ -101,7 +100,7 @@ function generateContinent1({width, height, landProportion, landZone}) {
   // 将大陆和海洋接触的地方填充为大陆架
   engine.info('将大陆和海洋接触的地方填充为大陆架')
   for (const index in shelf) {
-    const tile = currentWorld.terrains[index]
+    const tile = world.terrains[index]
     tile.spriteIndex = kSpriteShelf
   }
 }
@@ -113,46 +112,49 @@ const kMapStyles = Set(
 )
 
 /// 利用 noise 函数生成大陆和海洋的算法
-function generateContinent({seed, size, style}) {
+function generateContinent(width, height, {seed, style}) {
   let noiseData
   let threshold
   assert(style in kMapStyles)
   switch (style) {
-    'islands' => {
+    'islands' : {
       threshold = 0.55
       noiseData = Math.noise2d(
-        size,
+        width,
+        height,
         seed: seed,
         noiseType: 'perlinFractal',
-        frequency: 6 / size,
+        frequency: 6 / ((width + height) / 2),
       )
     }
-    'coast' => {
+    'coast' : {
       threshold = 0.48
       noiseData = Math.noise2d(
-        size,
+        width,
+        height,
         seed: seed,
         noiseType: 'cubicFractal',
-        frequency: 3.5 / size,
+        frequency: 3.5 / ((width + height) / 2),
       )
     }
-    'inland' => {
+    'inland' : {
       threshold = 0.35
       noiseData = Math.noise2d(
-        size,
+        width,
+        height,
         seed: seed,
         noiseType: 'cubicFractal',
-        frequency: 6 / size,
+        frequency: 6 / ((width + height) / 2),
       )
     }
   }
-  for (const x in range(size)) {
-    for (const y in range(size)) {
-      const index = tilePos2Index(x + 1, y + 1, size)
+  for (const x in range(width)) {
+    for (const y in range(height)) {
+      const index = tilePos2Index(x + 1, y + 1, width)
       const noise = noiseData[x][y]
       const normalize = (noise + 1) / 2;
       if (normalize > threshold) {
-        const tile = currentWorld.terrains[index]
+        const tile = world.terrains[index]
         tile.spriteIndex = kSpriteLand
       }
     }

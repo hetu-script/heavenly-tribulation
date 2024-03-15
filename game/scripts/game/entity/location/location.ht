@@ -1,5 +1,5 @@
 import '../../game.ht'
-import '../character/common.ht'
+import '../character/character.ht'
 import '../../dialog.ht'
 import '../../name/location.ht'
 // import '../../l10n.ht'
@@ -7,25 +7,32 @@ import '../common.ht'
 import '../../tile/hexagonal_tile.ht'
 import 'site.ht'
 import '../../tile/common.ht'
+import '../material.ht'
 
 const _kLocationInitialStabilityMax = 50
 
 const kLocationCategoryCity = 'city'
-const kLocationCategoryIsland = 'island'
-const kLocationCategoryMountain = 'mountain'
+const kLocationCategoryHarbor = 'harbor'
+const kLocationCategoryArcana = 'island'
+const kLocationCategoryMirage = 'mountain'
+const kLocationDevelopmentMax = 5
 
-const kLocationDevelopmentMax = 9
+// number of plain city background count
+const _kCityPlainDevelopment1BackgroundCount = 3
+const _kCityPlainDevelopment2BackgroundCount = 8
+const _kCityMountainDevelopment1BackgroundCount = 3
+const _kCityMountainDevelopment2BackgroundCount = 4
+const _kCityShoreDevelopment1BackgroundCount = 3
+const _kCityShoreDevelopment2BackgroundCount = 4
 
 struct Location {
   construct ({
-    terrainIndex,
-    left,
-    top,
-    category,
+    terrain,
+    category, // 'city' | 'harbor' | 'arcana' | 'mirage'
     name,
+    background,
   }) {
-    assert(terrainIndex != null)
-    assert(left != null && top != null)
+    assert(terrain != null)
 
     // 该据点的每月刷新时间
     this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
@@ -35,104 +42,117 @@ struct Location {
     }
 
     this.entityType = kEntityTypeLocation
-    this.terrainIndex = terrainIndex
-    this.tilePosition = Tile(
-      left,
-      top,
-      index: terrainIndex,
-      mapWidth: currentWorld.width,
-    )
-    this.index = game.locations.length
+    this.terrainIndex = terrain.index
+    this.worldPosition = {
+      left: terrain.left,
+      top: terrain.top,
+    }
+
+    this.category = category ?? 'city'
     if (name) {
       this.name = name
     } else {
       let conflict = false
       do {
-        const randomName = generateLocationName(category: category)
+        const randomName = generateLocationName(category: this.category)
         this.name = randomName.name
         conflict = game.locations.values.where((element) =>
           element.name == this.name).isNotEmpty
       } while (conflict)
     }
-    this.category = category
-    this.id = '${this.entityType}.${this.index}.${this.name}'
-    game.locations[this.id] = this
+    // this.id = '${this.entityType}.${this.terrainIndex}.${this.name}'
+    this.id = this.name
 
-    // 据点稳定度，最高100，初始随机0-49
-    // 稳定度决定了盗贼和动乱事件的可能性。
-    this.stability = random.nextInt(_kLocationInitialStabilityMax)
-    
-    // 据点发展度，最高20，初始0
+    // 没有category参数时，不自动添加到当前世界
+    if (category) {
+      game?.locations[this.id] = this
+      terrain.locationId = this.id
+      // terrain.caption = location.name
+      // 城市的贴图重叠于地形贴图之上
+      terrain.overlaySprite.spriteIndex = kSpriteCity
+    }
+
+    // 据点发展度，最高5，初始0
     // 发展度决定了据点所能拥有的普通居民人口上限，所能拥有建筑的数量，以及能产生的悬赏任务上限等
-    // 发展度需要花费银两、矿石和木料来升级
+    // 发展度需要花费钱币、矿石和木材来升级
     this.development = 0
-    this.pupulation = random.nextInt(maxPopulationOfLocationDevelopment(0))
+    this.pupulation = random.nextInt(maxPopulationOfLocationDevelopment(0) / 5)
+    
+    if (background != null) {
+      this.background = background
+    } else {
+      switch (category) {
+        kLocationCategoryHarbor : {
+          const index = random.nextInt(_kCityShoreDevelopment1BackgroundCount)
+          this.background = 'location/city/city_water_${this.development}_${index}.png'
+        }
+        kLocationCategoryArcana : {
+          const index = random.nextInt(_kCityMountainDevelopment1BackgroundCount)
+          this.background = 'location/city/city_mountain_${this.development}_${index}.png'
+        }
+        // kLocationCategoryMirage : {
 
-    // 据点和人物类似，也具有金钱和物品栏
-    // this.money = 0
+        // }
+        else : {
+          const index = random.nextInt(_kCityPlainDevelopment1BackgroundCount)
+          this.background = 'location/city/city_plain_${this.development}_${index}.png'
+        }
+      }
+    }
+
+    // 据点和人物类似，也具有物品栏
     this.inventory = {}
+    this.materials = MaterialStorage()
 
     // 当前处于这个场景的角色
     this.stayingCharacterIds = []
-
-    // this.residingCharacterIds = Set()
 
     // 居住在这个场景的角色
     this.residingCharacterIds = []
 
     // 大牢中的角色
     // 如果主角自己进入了监牢，则要通过监牢副本才能离开，并且离开后会进入本据点的敌对名单。
-    // 另外两种选择是通过诉讼，或者贿赂离开
+    // 另外两种选择是通过说服，或者贿赂离开
     this.jailedCharacterIds = []
     
     // 这个据点的建筑
     this.sites = {}
 
-    // // 这个地点的组织
-    // this.organizations = {}
+    // 为了兼容性，地块的门派没有用organizationId而是用了nationId
+    // this.nationId
 
     // 如果是盗贼营地或者洞天福地，则默认不会显示在地图上，并且也不会默认添加民居
     // 隐藏的洞天会显示为山峰，但隐藏的福地只有被发现后才会出现岛屿，之前就是普通的水面
-    if (this.category == kLocationCategoryCity) {
-      Site(category: kSiteResidence, locationId: this.id)
+    // if (this.category == kLocationCategoryCity) {
+    Site(category: kSiteCityHall, location: this)
+    Site(category: kSiteResidence, location: this)
+    
       // 普通居民决定了税收收入，以及外门弟子的数量
       // const minP = maxPopulationOfLocationDevelopment(this.development - 1)
       // const maxP = maxPopulationOfLocationDevelopment(this.development)
       // this.population = random.nextInt(maxP - minP) + minP
-    }
+    // }
 
     // 被禁止进入的名单，名单可能重叠
     // 一个人本身在名单上，但他的国家也可能在名单上，并且互相独立
-    this.banLists = {
-      characterIds: [],
-      organizationIds: [],
-      // nationIds: [],
-    }
+    // this.banLists = {
+    //   characterIds: [],
+    //   organizationIds: [],
+    //   // nationIds: [],
+    // }
   }
 }
 
-function getLocationDistance(loc1, loc2) {
-  return getTileDistance(loc1.tilePosition, loc2.tilePosition)
-}
-
-// 每个城市发展度对应的居民上限
-// 居民可以用于充当据点的仆役
-function maxPopulationOfLocationDevelopment(n: integer) {
-  return (n - 1) * (n - 1) * (n - 1) * 50 + 100
-}
-
-function maxSiteNumberOfLocationDevelopment(n: integer) {
-  return (n + 1) * n ~/ 2 + 1
-}
-
-// 每个据点，每个月会自然增加人口，直到达到上限
-// 人口上限会受到掌门的技能，门派的发展度和价值观，以及据点的发展度和建筑所影响
-function increaseLocationPopulationPerMonth(location) {
-
-}
-
 function addLocation(loc) {
+  assert(loc?.id != null)
+  engine.info('向当前世界添加新据点：${loc.name}')
   game.locations[loc.id] = loc
+  let terrain = getTerrainByWorldPosition(loc.worldPosition.left, loc.worldPosition.top)
+  terrain.locationId = loc.id
+  // terrain.caption = location.name
+  WorldMap.setTerrainCaption(loc.worldPosition.left, loc.worldPosition.top, loc.name)
+  terrain.overlaySprite.spriteIndex = kSpriteCity
+  WorldMap.refreshTerrainOverlaySprite(loc.worldPosition.left, loc.worldPosition.top)
 }
 
 function addLocations(locs: List) {
@@ -145,8 +165,31 @@ function addLocations(locs: List) {
   }
 }
 
+function getLocationDistance(loc1, loc2) {
+  return getTileDistance(loc1.tilePosition, loc2.tilePosition)
+}
+
+// 每个城市发展度对应的居民上限
+// 居民可以用于充当据点的仆役
+function maxPopulationOfLocationDevelopment(n: integer) {
+  return  (n - 1) * (n - 1) * (n - 1) * 50 + 100
+}
+
+function maxSiteNumberOfLocationDevelopment(n: integer) {
+  return (n + 1) * n ~/ 2 + 1
+}
+
+// 每个据点，每个月会自然增加人口，直到达到上限
+// 人口上限会受到掌门的技能，门派的发展度和价值观，以及据点的发展度和建筑所影响
+function increaseLocationPopulationPerMonth(location) {
+
+}
+
 function setCharacterLocationId(character, locationId: string) {
-  assert(game.locations.hasOwnProperty(locationId))
+  if (!game.locations.containsKey(locationId)) {
+    engine.error('could not find location with id ${locatinId}.')
+    return
+  }
   if (character.locationId != null) {
     const oldLocation = game.locations[character.locationId]
     oldLocation.stayingCharacterIds.remove(character.id)
@@ -157,41 +200,64 @@ function setCharacterLocationId(character, locationId: string) {
   character.tilePosition = {}
 }
 
+function setCharacterSiteId(character, siteId: string) {
+  if (!character.locationId) {
+    engine.error('could not set siteId while character is not at any location.')
+    return
+  }
+  const location = game.locations[character.locationId]
+  assert(location.sites.containsKey(siteId))
+  character.siteId = siteId
+}
+
 function getLocationById(id: string) {
   return game.locations[id]
 }
 
-function getLocations() {
-  return game.locations
+function getLocations([ids]) {
+  if (ids != null) {
+    assert(ids.isNotEmpty)
+    return game.locations.values.where( (value) => value.id in ids )
+  } else {
+    return game.locations.values
+  }
 }
 
-function getLocationByPosition(left, top) {
-  const tile = currentWorld.terrains[tilePos2Index(left, top, currentWorld.width)]
+function getLocationByWorldPosition(left, top) {
+  const tile = world.terrains[tilePos2Index(left, top, world.width)]
   if (tile.locationId)
   return game.locations[tile.locationId]
 }
 
 function getLocationSiteById(location, siteId: string) {
-  assert(location.sites.hasOwnProperty(siteId) || siteId)
+  assert(location.sites.containsKey(siteId) || siteId)
   return location.sites[siteId]
 }
 
+function removeLocationById(locationId: string) {
+  let loc = getLocationById(locationId)
+  if (loc != null) {
+    engine.warn('警告：正在移除ID为 [${locationId}] 的据点。')
+    let terrain = getTerrainByWorldPosition(loc.worldPosition.left, loc.worldPosition.top)
+    delete terrain.locationId
+    WorldMap.setTerrainCaption(loc.worldPosition.left, loc.worldPosition.top, null)
+    delete terrain.overlaySprite.spriteIndex
+    WorldMap.refreshTerrainOverlaySprite(loc.worldPosition.left, loc.worldPosition.top)
+    delete game.locations[locationId]
+  }
+}
+
 function discoverLocation(location) {
-  if (location.flags.isDiscovered) return
-  location.flags.isDiscovered = true
-  WorldMap.setWorldMapCaption(location.tilePosition.left, location.tilePosition.top, location.name)
-  if (location.category == kLocationCategoryIsland) {
-    const tile = currentWorld.terrains[location.terrainIndex]
+  if (location.isDiscovered) return
+  engine.info('发现新据点：${location.name}')
+  location.isDiscovered = true
+  WorldMap.setTerrainCaption(location.worldPosition.left, location.worldPosition.top, location.name)
+  if (location.category == kLocationCategoryArcana || location.category == kLocationCategoryMirage) {
+    const tile = world.terrains[location.terrainIndex]
     // tile.spriteIndex = kSpriteLand
     tile.overlaySprite.spriteIndex = kSpriteCity
-    // WorldMap.setWorldMapSprite(location.tilePosition.left, location.tilePosition.top, kSpriteLand)
-    WorldMap.setWorldMapOverlaySprite(
-      location.tilePosition.left,
-      location.tilePosition.top, 
-      {
-        spriteIndex: kSpriteCity,
-      },
-    )
+    // WorldMap.setWorldMapSprite(location.worldPosition.left, location.worldPosition.top, kSpriteLand)
+    WorldMap.refreshTerrainOverlaySprite(location.worldPosition.left, location.worldPosition.top)
   }
 }
 
@@ -199,6 +265,6 @@ function increaseLocationDevelopment(location) {
   if (location.development < kLocationDevelopmentMax) {
     ++location.development
   } else {
-    engine.warning('据点 ${location.name} 的发展度（${location.development}）已达到或超过最大值。')
+    engine.warn('据点 ${location.name} 的发展度（${location.development}）已达到或超过最大值。')
   }
 }

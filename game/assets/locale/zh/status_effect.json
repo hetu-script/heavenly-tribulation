@@ -1,11 +1,12 @@
 {
-  "injury": "外伤",
-  "slashing": "劈砍",
-  "bludgeon": "重击",
-  "piercing": "贯穿",
-  "cold": "寒冷",
-  "fire": "灼烧",
-  "lightning": "麻痹",
-
-  "infection": "感染"
+  "block.title": "防",
+  "block.description": "当有防时，可以抵消相当于防的数值的武器攻击伤害。\n在你的回合开始时，防的数值减半。",
+  "speed.title": "速度",
+  "speed.description": "在你的回合开始时，如果你的速度>=10，\n则扣除10点速度，你在这个回合可以再次行动。",
+  "cloud_sword.title": "飞云剑",
+  "cloud_sword.description": "每当你使用剑修卡牌时，+3速度。",
+  "ignore_block.title": "无视防御",
+  "ignore_block.description": "你下一次使用武器攻击卡牌时，无视对手的防。",
+  "blade_power.title": "剑气",
+  "blade_power.description": "你下一次使用武器攻击卡牌时，消耗所有剑气，增加等量的攻击力。"
 }

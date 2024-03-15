@@ -18,13 +18,13 @@ function generateTalismanName({category, kind, rarity}) {
 
   let name
   switch (rarity) {
-    'exotic' => name = prefix + prefix2 + kind
-    'mythic' => name = prefix + s + kind
-    'legendary' => name = prefix + cp + m + kind
-    'epic' => name = prefix + m + kind
-    'rare' => name = prefix + kind
-    'uncommon' => name = cp + m + kind
-    'common' => name = m + kind
+    'exotic' : name = prefix + prefix2 + kind
+    'mythic' : name = prefix + s + kind
+    'legendary' : name = prefix + cp + m + kind
+    'epic' : name = prefix + m + kind
+    'rare' : name = prefix + kind
+    'uncommon' : name = cp + m + kind
+    'common' : name = m + kind
   }
   return { name, category, rarity }
 }

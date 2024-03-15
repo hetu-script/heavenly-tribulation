@@ -37,11 +37,11 @@ struct ElderCultivator {
     this.rarity = kCommon
     this.color = kRarity[this.rarity].color
     this.description = description ?? ''
-    game.npcs[this.id] = this
+    game.minorCharacters[this.id] = this
 
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
     switch (this.kind) {
-      'type1' => {
+      'type1' : {
         const battleInfo = BattleEntity(
           attributes: _kElderCultivatorAttributes[this.kind],
           attributeSum: _kElderCultivatorName,

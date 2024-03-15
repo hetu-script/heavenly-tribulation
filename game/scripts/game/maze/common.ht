@@ -1,4 +1,4 @@
-import '../binding/maze.ht'
+// import '../binding/maze.ht'
 import '../game.ht'
 import '../entity/character/battle_entity.ht'
 import '../entity/common.ht'
@@ -24,7 +24,7 @@ function leaveMaze(maze) {
   // 移除所有临时npc
   for (const entity of maze.entities) {
     if (entity.entityType == kEntityTypeNpc && !entity.isPermanent) {
-      delete game.npcs[entity.id]
+      delete game.minorCharacters[entity.id]
     }
   }
   Maze.disposeMaze()
@@ -50,14 +50,14 @@ function onHeroMovedOnMazeMap({left, top, maze, currentLevelIndex}) {
   if (maze.modName == null) {
     // 游戏本体内置的副本
     switch (maze.category) {
-      kMazeCategoryMountain => {
+      kMazeCategoryMountain : {
         return onHeroMovedOnMountain(
           tile: tile,
           maze: maze,
           currentLevelIndex: currentLevelIndex,
         )
       }
-      kMazeCategoryCultivatorRecruit => {
+      kMazeCategoryCultivatorRecruit : {
         return onHeroMovedOnCultivationRecruitMaze(
           tile: tile,
           maze: maze,

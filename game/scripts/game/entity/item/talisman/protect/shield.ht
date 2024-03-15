@@ -33,7 +33,7 @@ struct Shield {
     this.value = value ?? 25
     this.stackSize = 1
     this.creatorId = creatorId
-    this.createdTime = createdTime ?? game.timestamp
+    this.createdTime = createdTime ?? currentWorldHistory.timestamp
     this.description = description ?? ''
     this.inscription = inscription ?? ''
     if (!this.name) {

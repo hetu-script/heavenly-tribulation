@@ -1,6 +1,6 @@
 import '../tile/tilemap.ht'
 import '../tile/hexagonal_tile.ht'
-import '../tile/zone.ht'
+import '../world/zone.ht'
 import '../game.ht'
 import '../tile/object.ht'
 import '../entity/character/npc/bandit.ht'
@@ -9,7 +9,7 @@ import '../entity/common.ht'
 import '../entity/character/npc/peddler.ht'
 // import '../l10n.ht'
 import 'common.ht'
-import '../binding/maze.ht'
+// import '../binding/maze.ht'
 import '../tile/common.ht'
 import 'generation_algorithm.ht'
 
@@ -80,7 +80,7 @@ struct MountainMaze {
     this.levels = [] // 每一层是一个单独的 tilemap
     this.currentLevel = 0
     this.entities = {} // 包含所有显示在地图上的可互动对象，包括NPC、敌人、宝箱、陷阱、机关等等。
-    this.history = [] // 本次副本中发生的事件记录，这些事件不会计入世界历史
+    // this.history = [] // 本次副本中发生的事件记录，这些事件不会计入世界历史
     this.flags = {} // 本次副本中的一些事件存档，用于脚本的一些逻辑判断，例如是否已经有过某种遭遇之类。
 
     // 创建副本过程中也会触发事件，因此这里要提前给localHistory赋值
@@ -124,18 +124,17 @@ struct MountainMaze {
       )
 
       // engine.info('生成迷宫地块')
-      const landZone = Zone(index: currentLevel.zones.length, category: kZoneLand)
-      currentLevel.zones.add(landZone)
+      const landZone = createZone(world: currentLevel, category: kZoneLand)
       for (const j in range(height)) {
         for (const i in range(width)) {
           // const isVoid = (i == 0) || (i == width - 1) || (j == 0) || (j == height - 1)
           const terrain = {
             ...Tile(i + 1, j + 1, mapWidth: width),
             isVisible: false,
-            isSelectable: true,
+            isNonInteractable: true,
           }
           currentLevel.terrains.add(terrain)
-          addTerrainToZone(terrain, landZone.index, currentLevel)
+          addTerrainToZone(terrain, landZone)
         }
       }
       
@@ -187,7 +186,7 @@ struct MountainMaze {
       currentLevel.objects.add(exitObject)
       switch (levelIndex) {
         // 第一层的boss是 山贼打手
-        0 => {
+        0 : {
           const banditMuscle = Bandit(kind: 'muscle')
           banditMuscle.encounterType = 'banditMuscle'
           this.entities[banditMuscle.id] = banditMuscle
@@ -203,7 +202,7 @@ struct MountainMaze {
           currentLevel.objects.add(object)
         }
         // 第一层的boss是 山贼杀手
-        1 => {
+        1 : {
           const banditKiller = Bandit(kind: 'killer')
           banditKiller.encounterType = 'banditKiller'
           this.entities[banditKiller.id] = banditKiller
@@ -219,7 +218,7 @@ struct MountainMaze {
           currentLevel.objects.add(object)
         }
         // 第一层的boss是 山贼头目
-        2 => {
+        2 : {
           const banditBoss = Bandit(kind: 'boss')
           banditBoss.encounterType = 'banditBoss'
           this.entities[banditBoss.id] = banditBoss
@@ -283,7 +282,7 @@ struct MountainMaze {
             }
           }
           switch (encounterType) {
-            'vigilantePeasant' => {
+            'vigilantePeasant' : {
               
             }
           }
@@ -299,7 +298,7 @@ struct MountainMaze {
             }
           }
           switch (encounterType) {
-            'peddler' => {
+            'peddler' : {
               const peddler = Peddler()
               acquireMoney(peddler, 1000)
               acquire(peddler, Consumable.medicine(), count: 20)
@@ -324,7 +323,7 @@ struct MountainMaze {
         if (r < kEncounterProbability) {
           const encounterType = random.nextIterable(_kEncounterTypes)
           switch (encounterType) {
-            'banditMinion' => {
+            'banditMinion' : {
               const bandit = Bandit(kind: 'minion')
               bandit.encounterType = encounterType
               this.entities[bandit.id] = bandit
@@ -339,7 +338,7 @@ struct MountainMaze {
               )
               currentLevel.objects.add(object)
             }
-            'beast' => {
+            'beast' : {
               const beast = Beast(rarity: kCommon)
               beast.encounterType = encounterType
               this.entities[beast.id] = beast
@@ -401,7 +400,7 @@ struct MountainMaze {
       for (const anchor in restAnchors) {
         const index = anchors[anchor].index
         const tile = currentLevel.terrains[index]
-        if (!tile.flags.isRoute) {
+        if (!tile.isRoute) {
           const route = random.nextIterable(kRoutesOfAnchorBySquare3[anchor])
           // print('add name to empty anchor: ${route}')
           generateRouteByAnchor(route, anchors, currentLevel)
@@ -414,20 +413,19 @@ struct MountainMaze {
 
       // 在非路径非锚点非出入点的地块上生成装饰物
       // engine.info('生成装饰物')
-      const blockZone = Zone(index: currentLevel.zones.length, category: 'block')
-      currentLevel.zones.add(blockZone)
+      const blockZone = createZone(world: currentLevel, category: 'block')
       for (const tile in currentLevel.terrains) {
-        if (occupied.contains(tile.index) || tile.flags.isRoute) {
-          tile.isSelectable = true
+        if (occupied.contains(tile.index) || tile.isRoute) {
+          tile.isNonInteractable = true
           tile.spriteIndex = random.nextIterable(_kLandSprites)
         } else {
           // print('adding decor to ${tile.index}')
           // tile.isVoid = true
-          tile.isSelectable = false
-          addTerrainToZone(tile, blockZone.index, currentLevel)
+          tile.isNonInteractable = false
+          addTerrainToZone(tile, blockZone)
           const blockType = random.nextIterable(_kBlockTypes)
           switch (blockType) {
-            'bush' => {
+            'bush' : {
               const bush = TileMapObject(
                 left: tile.left,
                 top: tile.top,
@@ -437,7 +435,7 @@ struct MountainMaze {
               )
               currentLevel.objects.add(bush)
             }
-            'rock' => {
+            'rock' : {
               const rock = TileMapObject(
                 terrainIndex: tile.index,
                 left: tile.left,
@@ -484,7 +482,7 @@ function onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
         tile.entityId = null
         tile.objectId = null
         Maze.setMazeObject(tile.left, tile.top, null)
-        delete game.npcs[entity.id]
+        delete game.minorCharacters[entity.id]
       },
       onLost: () {
         mazeGameOver(maze)
@@ -495,8 +493,8 @@ function onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
   // 盗贼，如果成功击败则返回true，否则返回false
   function banditEncounter async {
     maze.flags.haveMetBandit = true
-    return showDialogByLocaleKeys(['mazeBandit01'], character: entity).then((_) {
-      return showSelectionByLocaleKeys([
+    return dialog.localeLines(['mazeBandit01'], character: entity).then((_) {
+      return dialog.localeSelect([
         'handOver',
         'plead',
         'escape',
@@ -504,26 +502,26 @@ function onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
       ]).then((key) {
         switch (key) {
           // 现实主义
-          'handOver' => {
+          'handOver' : {
             lootCharacter(entity, hero, takeAll: true)
             return false
           }
           // 向盗贼求情，是否成功依赖于
           // 圆滑
-          'plead' => {
+          'plead' : {
             if (hero.attributes.charisma > kCharismaCheckThreshold) {
-              showDialogByLocaleKeys(['pleadSuccess'], character: entity)
+              dialog.localeLines(['pleadSuccess'], character: entity)
                 .then((_) {
                   lootCharacter(entity, hero, takeAll: false)
                 })
               return false
             } else {
-              showDialogByLocaleKeys(['pleadFailed'], character: entity)
+              dialog.localeLines(['pleadFailed'], character: entity)
                 .then( (_) => battle() )
             }
           }
           // 懦弱
-          'escape' => {
+          'escape' : {
             if (hero.attributes.dexterity > entity.attributes.dexterity || hero.attributes.strength > entity.attributes.strength) {
               const incidentContent = engine.locale('incidentEscapeSuccess', [ entity.name ] )
               Incident(
@@ -534,13 +532,13 @@ function onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
               )
               return false
             } else {
-              return showDialogByLocaleKeys(['escapeFailed'], character: entity)
+              return dialog.localeLines(['escapeFailed'], character: entity)
                 .then( (value) => battle() )
             }
           }
           // 自信
-          'fight' => {
-            return showDialogByLocaleKeys(['startFightBandit'], character: hero)
+          'fight' : {
+            return dialog.localeLines(['startFightBandit'], isHero: true)
               .then( (value) => battle() )
           }
         }
@@ -549,7 +547,7 @@ function onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
   }
 
   switch (entity.encounterType) {
-    'banditMuscle' => {
+    'banditMuscle' : {
       if (!maze.flags.haveMetBandit) {
         banditEncounter().then((result) {
           if (result) {
@@ -571,7 +569,7 @@ function onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
       }
       return true
     }
-    'banditKiller' => {
+    'banditKiller' : {
       if (!maze.flags.haveMetBandit) {
         banditEncounter().then((result) {
           if (result) {
@@ -593,7 +591,7 @@ function onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
       }
       return true
     }
-    'banditBoss' => {
+    'banditBoss' : {
       if (!maze.flags.haveMetBandit) {
         banditEncounter().then((result) {
           if (result) {
@@ -615,7 +613,7 @@ function onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
       }
       return true
     }
-    'levelEntry' => {
+    'levelEntry' : {
       let selections
       if (currentLevelIndex == 0) {
         selections = [
@@ -628,17 +626,17 @@ function onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
           'cancel',
         ]
       }
-      showSelectionByLocaleKeys(selections).then((key) =>
+      dialog.localeSelect(selections).then((key) =>
         switch (key) {
-          'leaveMaze' => leaveMaze(maze)
-          'backToPreviousLevel' => {
+          'leaveMaze' : leaveMaze(maze)
+          'backToPreviousLevel' : {
             Maze.backToPreviousLevel()
             --maze.currentLevelIndex
           }
         }
       )
     }
-    'levelExit' => {
+    'levelExit' : {
       let selections
       if (currentLevelIndex == maze.levels.length - 1) {
         selections = [
@@ -651,17 +649,17 @@ function onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
           'cancel',
         ]
       }
-      showSelectionByLocaleKeys(selections).then((key) =>
+      dialog.localeSelect(selections).then((key) =>
         switch (key) {
-          'proceedToNextLevel' => {
+          'proceedToNextLevel' : {
             Maze.proceedToNextLevel()
             ++maze.currentLevelIndex
           }
-          'leaveMaze' => leaveMaze(maze)
+          'leaveMaze' : leaveMaze(maze)
         }
       )
     }
-    'banditMinion' => {
+    'banditMinion' : {
       if (!maze.flags.haveMetBandit) {
         banditEncounter()
       }
@@ -670,13 +668,13 @@ function onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
         battle()
       }
     }
-    'beast' => {
+    'beast' : {
       battle()
     }
-    'peddler' => {
-      showDialogByLocaleKeys(['peddlerDialogIntro'], character: entity)
+    'peddler' : {
+      dialog.localeLines(['peddlerDialogIntro'], character: entity)
       .then((_) {
-        showSelectionByLocaleKeys([
+        dialog.localeSelect([
           'askForDirections',
           'trade',
           'steal',
@@ -687,10 +685,10 @@ function onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
         ])
         .then((key) {
           switch (key) {
-            'trade' => {
-              showMerchant(entity)
+            'trade' : {
+              dialog.merchant(entity)
             }
-            'attack' => {
+            'attack' : {
 
             }
           }

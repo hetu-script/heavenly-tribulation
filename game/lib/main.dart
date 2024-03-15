@@ -8,22 +8,34 @@ import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:samsara/error.dart';
+import 'package:provider/provider.dart';
 
 // import 'ui/view/location/location.dart';
-import 'ui/main_menu.dart';
+import 'mainmenu/main_menu.dart';
 // import 'ui/editor/editor.dart';
 // import 'ui/view/character/character.dart';
 // import 'ui/view/information/information.dart';
 import 'config.dart';
 // import 'ui/overlay/main_game.dart';
+import 'state/states.dart';
 
-class CustomWindowListener extends WindowListener {
+// class CustomWindowListener extends WindowListener {
+//   @override
+//   void onWindowResize() async {
+//     engine.info(
+//         '窗口大小修改为：${GameConfig.screenSize.width}x${GameConfig.screenSize.height}');
+//     GameConfig.screenSize = await windowManager.getSize();
+//   }
+// }
+
+class DesktopScrollBehavior extends MaterialScrollBehavior {
+  // Override behavior methods and getters like dragDevices
   @override
-  void onWindowResize() async {
-    engine.info(
-        '窗口大小修改为：${GameConfig.screenSize.width}x${GameConfig.screenSize.height}');
-    GameConfig.screenSize = await windowManager.getSize();
-  }
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        // etc.
+      };
 }
 
 void main() {
@@ -53,7 +65,7 @@ void main() {
 
     assert(Platform.isLinux || Platform.isWindows || Platform.isMacOS);
     await windowManager.ensureInitialized();
-    windowManager.addListener(CustomWindowListener());
+    // windowManager.addListener(CustomWindowListener());
     await windowManager.setMaximizable(false);
     await windowManager.setResizable(false);
     const windowSize = Size(1440.0, 900.0);
@@ -71,32 +83,45 @@ void main() {
     });
 
     runApp(
-      MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: GameConfig.appTheme,
-        home: Scaffold(
-          key: mainKey,
-          body: const MainMenu(),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => SelectedTileState()),
+          ChangeNotifierProvider(create: (_) => Saves()),
+          ChangeNotifierProvider(create: (_) => MainMenuState()),
+          ChangeNotifierProvider(create: (_) => EditorToolState()),
+          ChangeNotifierProvider(create: (_) => HistoryState()),
+          ChangeNotifierProvider(create: (_) => GameDialogState()),
+          ChangeNotifierProvider(create: (_) => CurrentNpcList()),
+          ChangeNotifierProvider(create: (_) => LocationSiteSceneState()),
+        ],
+        child: MaterialApp(
+          scrollBehavior: DesktopScrollBehavior(),
+          debugShowCheckedModeBanner: false,
+          theme: GameConfig.appTheme,
+          home: Scaffold(
+            key: mainKey,
+            body: const MainMenu(),
+          ),
+          // 控件绘制时发生错误，用一个显示错误信息的控件替代
+          builder: (context, widget) {
+            ErrorWidget.builder = (FlutterErrorDetails details) {
+              String stack = '';
+              if (details.stack != null) {
+                stack = trimStackTrace(details.stack!);
+              }
+              final Object exception = details.exception;
+              Widget error = ErrorWidget.withDetails(
+                  message: '$exception\n$stack',
+                  error: exception is FlutterError ? exception : null);
+              if (widget is Scaffold || widget is Navigator) {
+                error = Scaffold(body: Center(child: error));
+              }
+              return error;
+            };
+            if (widget != null) return widget;
+            throw ('error trying to create error widget!');
+          },
         ),
-        // 控件绘制时发生错误，用一个显示错误信息的控件替代
-        builder: (context, widget) {
-          ErrorWidget.builder = (FlutterErrorDetails details) {
-            String stack = '';
-            if (details.stack != null) {
-              stack = trimStackTrace(details.stack!);
-            }
-            final Object exception = details.exception;
-            Widget error = ErrorWidget.withDetails(
-                message: '$exception\n$stack',
-                error: exception is FlutterError ? exception : null);
-            if (widget is Scaffold || widget is Navigator) {
-              error = Scaffold(body: Center(child: error));
-            }
-            return error;
-          };
-          if (widget != null) return widget;
-          throw ('error trying to create error widget!');
-        },
       ),
     );
   }, alertNativeError);

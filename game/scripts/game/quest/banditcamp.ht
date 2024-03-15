@@ -46,7 +46,7 @@ struct QuestBanditCamp {
     // assert(location.nationId != null)
     // const nation = game.organizations[location.nationId]
     switch (this.kind) {
-      kQuestConquestMazeKindKillBanditBoss => {
+      kQuestConquestMazeKindKillBanditBoss : {
         assert(bossName != null)
         this.description = engine.locale(
           '${this.category}.${this.kind}.description',
@@ -80,13 +80,13 @@ struct QuestBanditCamp {
           },
         }
       }
-      kQuestConquestMazeKindWipeBandits => {
+      kQuestConquestMazeKindWipeBandits : {
         this.description = engine.locale('${this.category}.${this.kind}.description')
       }
-      kQuestConquestMazeKindReturnHostage => {
+      kQuestConquestMazeKindReturnHostage : {
         this.description = engine.locale('${this.category}.${this.kind}.description')
       }
-      kQuestConquestMazeKindReturnTreasure => {
+      kQuestConquestMazeKindReturnTreasure : {
         this.description = engine.locale('${this.category}.${this.kind}.description')
       }
     }
@@ -115,9 +115,9 @@ struct QuestBanditCamp {
       id: maze.id,
       encounterType: 'banditCamp',
     }
-    currentWorld.entities[maze.id] = worldMapEntity
+    world.entities[maze.id] = worldMapEntity
 
-    const mazeTerrain = currentWorld.terrains[mazeTerrainIndex]
+    const mazeTerrain = world.terrains[mazeTerrainIndex]
     mazeTerrain.entityId = maze.id
     // if (isGameLoaded) {
     //   setWorldMapEntity(mazeTerrain.left, mazeTerrain.top, maze.id)

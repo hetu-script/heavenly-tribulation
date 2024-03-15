@@ -79,7 +79,7 @@ struct Weapon {
     this.value = value ?? 50
     this.stackSize = 1
     this.creatorId = creatorId
-    this.createdTime = createdTime ?? game.timestamp
+    this.createdTime = createdTime ?? currentWorldHistory.timestamp
     this.description = description ?? ''
     this.inscription = inscription ?? ''
     if (!this.name) {

@@ -20,63 +20,25 @@ const kOrganizationCategories = [
 ]
 
 const kCultivationGenre = [
-  'cultivation.spirit',
-  'cultivation.blade',
-  'cultivation.physique',
-  'cultivation.deity',
-  'cultivation.vitality',
+  'element',
+  'blade',
+  // 'physique',
+  // 'avatar',
+  // 'vitality',
 ]
 
 const kCultivationSupportGenre = [
-  'cultivation.array',
-  'cultivation.rune',
-  'cultivation.alchemy',
-  'cultivation.craft',
-  'cultivation.plant',
-  'cultivation.animal',
-  'cultivation.illusion',
-  'cultivation.psychic',
-  'cultivation.divination',
-  'cultivation.theurgy',
+  'array',
+  'rune',
+  'alchemy',
+  'craft',
+  'plant',
+  'animal',
+  'illusion',
+  'psychic',
+  'divination',
+  'theurgy',
 ]
-
-const kOrganizationThinkings = {
-  cultivation: [
-    'skillAddiction',
-    'strengthAdmiration',
-    'masterRespect',
-    'mentor',
-    'sectarianism',
-  ],
-  gang: [
-    'swordLover',
-    'brotherhood',
-    'chivalrousness',
-    'promise',
-    'communism',
-  ],
-  religion: [
-    'coreligionist',
-    'missionary',
-    'discipline',
-    'theology',
-    'religious',
-  ],
-  business: [
-    'everyOneForHimself',
-    'asLongAsProfit',
-    'privateProperty',
-    'spiritOfContract',
-    'monopolism',
-  ],
-  nation: [
-    'philosopherKing',
-    'etiquette',
-    'gentlemanship',
-    'moderateness',
-    'justice',
-  ],
-}
 
 const _kOrganizationThinkingsOnRecruit = 3
 
@@ -86,6 +48,7 @@ struct Organization {
   construct ({
     name,
     category,
+    genre,
     // nationId,
     headquartersId,
     headId,
@@ -94,13 +57,12 @@ struct Organization {
     // cultivationGenre,
     // cultivationSupportGenre,
   }) {
-    assert(game.locations.hasOwnProperty(headquartersId))
-    assert(game.characters.hasOwnProperty(headId))
-    if (category == null) {
-      category = Random.nextIterable(kOrganizationCategories)
-    } else {
-      assert(kOrganizationCategories.contains(category))
-    }
+    assert(game.locations.containsKey(headquartersId))
+    assert(game.characters.containsKey(headId))
+    category ??= Random.nextIterable(kOrganizationCategories)
+    assert(kOrganizationCategories.contains(category))
+    genre = Random.nextIterable(kCultivationGenre)
+    assert(kCultivationGenre.contains(genre))
 
     // 该组织的每月刷新事件的时间
     this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
@@ -117,6 +79,7 @@ struct Organization {
     this.headId = headId
     this.entityType = kEntityTypeOrganization
     this.category = category
+    this.genre = genre
 
     this.index = game.organizations.length
     if (name) {
@@ -124,16 +87,17 @@ struct Organization {
     } else {
       let conflict = false
       do {
-        if (category != kOrganizationCategoryNation) {
+        // if (category != 'nation') {
           this.name = generateOrganizationName(category: this.category).name
-        } else {
-          this.name = generateNationName().name
-        }
+        // } else {
+        //   this.name = generateNationName().name
+        // }
         conflict = game.organizations.values.where((element) =>
           element.name == this.name).isNotEmpty
       } while (conflict)
     }
-    this.id = '${this.entityType}.${this.index}.${this.name}'
+    // this.id = '${this.entityType}.${this.index}.${this.name}'
+    this.id = this.name
     game.organizations[this.id] = this
     
     // 本门派统治的据点 id 列表
@@ -147,15 +111,8 @@ struct Organization {
     // 新人加入时的等级为 1
     this.development = development
     
-    // 该组织的历史，保存的是历史事件的 index
+    // 保存的是事件的index
     this.history = []
-    
-    // if (nationId) {
-    //   assert(game.organizations.hasOwnProperty(nationId))
-    //   const nation = game.organizations[nationId]
-    //   nation.organizationIds.add(this.id)
-    //   this.nationId = nationId
-    // }
 
     const headquarters = game.locations[headquartersId]
     const head = game.characters[headId]
@@ -173,9 +130,18 @@ struct Organization {
       isGlobal: true,
     )
     addCharacterToOrganization(head, this)
-    addTitleForCharacter(head, this, kOrganizationRankMax, 'title.head')
+    addTitleForCharacter(head, this, kOrganizationRankMax, 'leader')
 
-    // addLocationToOrganization(location, this)
+    // 国家区块颜色
+    this.color = random.nextBrightColorHex()
+    // 本国统治的区块
+    this.territoryIndexes = []
+    // 与本国国界线相邻的外国区块
+    this.borderIndexes = []
+
+    const terrain = world.terrains[headquarters.terrainIndex]
+    addTerrainToOrganization(terrain, this)
+    headquarters.organizationId = this.id
     stationOrganization(
       this,
       headquarters,
@@ -204,13 +170,6 @@ struct Organization {
     // }
 
     // this.skills = {}
-
-    // 国家区块颜色
-    this.color = random.nextBrightColorHex()
-    // 本国统治的区块
-    this.territoryIndexes = []
-    // 国界线相邻的外国区块
-    this.borderIndexes = []
 
     // 敌对名单，遇到后将会直接开始战斗
     this.enemyLists = {
@@ -290,24 +249,24 @@ function stationOrganization(
   location, {
   characterIds,
 }) {
-  assert(!location.organizations.hasOwnProperty(organization.id))
+  assert(location.organizationId == organization.id)
   characterIds ??= organization.characterIds.keys.toList()
   
   organization.headquartersId = location.id
 
   const site = Site(
-    category: organization.category,
-    locationId: location.id,
-    organizationId: organization.id,
+    category: organization.genre,
+    location: location,
     name: organization.name,
   )
-  organization.headquartersSiteId = site.id
-
-  location.organizations[organization.id] = {
-    id: organization.id,
-    category: organization.category,
-    characterIds: [],
+  let toBeRemoved
+  final cityhall = location.sites.values.where((element) => element.category == kSiteCityHall)
+  if (cityhall.isNotEmpty) {
+    toBeRemoved = cityhall.first.id
   }
+  delete location.sites[toBeRemoved]
+
+  organization.headquartersSiteId = site.id
 
   for (const id in characterIds) {
     const character = game.characters[id]
@@ -363,13 +322,13 @@ function organizationMemberReachMax(organization) {
 function addCharacterToOrganization(character, organization, { incidentOccured = true }) {
   assert(!organization.characterIds.contains(character.id))
   if (organizationMemberReachMax(organization)) {
-    engine.warning('组织 ${organization.name} 的成员数量达到上限，在提升发展度之前无法再添加新成员。')
+    engine.warn('组织 ${organization.name} 的成员数量达到上限，在提升发展度之前无法再添加新成员。')
     return false
   }
 
   const memberIds = getOrganizationMemberIdsOfRank(organization, kOrganizationRankMax)
   if (memberIds.length >= maxMemberOfDevelopment(kOrganizationRankMax)) {
-    engine.warning('组织 ${organization.name} 的低阶成员数量达到上限，在提升成员级别之前无法再添加新成员。')
+    engine.warn('组织 ${organization.name} 的低阶成员数量达到上限，在提升成员级别之前无法再添加新成员。')
     return false
   }
   if (character.organizationId != null) {
@@ -394,47 +353,50 @@ function addCharacterToOrganization(character, organization, { incidentOccured =
   }
 
   const location = game.locations[organization.headquartersId]
-  setCharacterHome(character, location, organizationName: organization.name)
-  const r = random.nextInt(_kOrganizationThinkingsOnRecruit)
-  for (const i in range(r)) {
-    let thinking
-    do {
-      thinking = random.nextIterable(kOrganizationThinkings[organization.category])
-    } while (character.thinkings.contains(thinking))
-    character.thinkings.add(thinking)
-  }
+  setCharacterHome(character, location)
+  
+  // const r = random.nextInt(_kOrganizationThinkingsOnRecruit)
+  // for (const i in range(r)) {
+  //   let thinking
+  //   do {
+  //     thinking = random.nextIterable(kOrganizationThinkings[organization.category])
+  //   } while (character.thinkings.contains(thinking))
+  //   character.thinkings.add(thinking)
+  // }
   
   // setCharacterLocationId(character, organization.headquartersId)
-  // if (organization.category == kOrganizationCategoryNation) {
-  //   character.nationId = organization.id
-  // }
   return true
 }
 
 function addOrganizations(orgs: List) {
-  engine.info('载入组织数据')
   for (const org in orgs) {
-    game.organizations[org.id] = org
+    addOrganization(arg)
   }
 }
 
-function addOrganization(char) {
-  game.organizations[char.id] = char
+function addOrganization(org) {
+  assert(org.id != null)
+  game.organizations[org.id] = org
 }
 
 function getOrganizationById(id: string) {
   return game.organizations[id]
 }
 
-function getOrganizations() {
-  return game.organizations
+function getOrganizations([ids]) {
+  if (ids != null) {
+    assert(ids.isNotEmpty)
+    return game.organizations.values.where( (value) => value.id in ids )
+  } else {
+    return game.organizations.values
+  }
 }
 
 function increaseOrganizationDevelopment(organization) {
   if (organization.development <= kOrganizationDevelopmentMax) {
     ++organization.development
   } else {
-    engine.warning('组织 ${organization.name} 的发展度（${organization.development}）已达到或超过最大值。')
+    engine.warn('组织 ${organization.name} 的发展度（${organization.development}）已达到或超过最大值。')
   }
   
   const incidentContent = engine.locale('organizationDeveloped', interpolations: [
@@ -465,61 +427,75 @@ function organizationExperiencedIncident(organization, incident) {
 // }
 
 // function addCharacterToNation(character, nation) {
-//   assert(nation.category == kOrganizationCategoryNation)
+//   assert(nation.category == 'nation')
 //   character.nationId = nation.id
 // }
 
 function removeTerrainFromOrganization(terrain) {
-  if (!terrain.locationId) return
+  if (terrain.nationId == null) return
 
-  const organization = game.organizations[terrain.organizationId]
+  const organization = game.organizations[terrain.nationId]
   organization.territoryIndexes.remove(terrain.index)
-  organization.borderIndexes.add(terrain.index)
-  const location = game.locations[terrain.locationId]
-  delete location.organizationId
-  organization.locationIds.remove(location.id)
+  organization.borderIndexes.remove(terrain.index)
+
+  final neighbors = getMapTileNeighbors(terrain.left, terrain.top, world)
+  for (final neighbor in neighbors) {
+    if (neighbor.nationId = organization.id &&
+        !organization.borderIndexes.contains(neighbor.index)) {
+      organization.borderIndexes.add(neighbor.index)
+    }
+  }
+
+  if (terrain.locationId != null) {
+    const location = game.locations[terrain.locationId]
+    delete location.organizationId
+    engine.warn('${oldOrg.name} 失去了据点：${location.name}')
+    organization.locationIds.remove(location.id)
+    
+    let toBeRemoved
+    for (let key in location.sites.keys) {
+      const site = location.sites[key]
+      if (site.name == organization.name) {
+        engine.warn('${organization.id} 失去了总堂所在地块！')
+        toBeRemoved = site.id
+        break
+      }
+    }
+    delete location.sites[toBeRemoved]
+  }
 }
 
 function addTerrainToOrganization(terrain, organization) {
-  if (terrain.organizationId != null) {
-    assert(terrain.organizationId != organization.id)
+  if (terrain.nationId == organization.id) {
+    engine.warn('terrain [${terrain.left}, ${terrain.top}] already belongs to organization [${organization.id}]')
+    return
+  }
+  if (terrain.nationId != null) {
     removeTerrainFromOrganization(terrain)
   }
-  assert(organization.territoryIndexes.isEmpty || !organization.territoryIndexes.contains(terrain.index))
+  assert(organization.territoryIndexes.isEmpty ||
+          !organization.territoryIndexes.contains(terrain.index))
   organization.territoryIndexes.add(terrain.index)
-  assert(organization.borderIndexes.isEmpty || organization.borderIndexes.contains(terrain.index))
-  // print('organization: ${organization.id} expanded to ${terrain.left},${terrain.top}')
-  organization.borderIndexes.remove(terrain.index)
-  terrain.organizationId = organization.id
+  if (organization.borderIndexes.contains(terrain.index)) {
+    organization.borderIndexes.remove(terrain.index)
+  }
+  const neighbors = getMapTileNeighbors(terrain.left, terrain.top, world)
+  for (const neighbor in neighbors) {
+    if (neighbor.nationId != organization.id) {
+      organization.borderIndexes.add(neighbor.index)
+    }
+  }
+  terrain.nationId = organization.id
   if (terrain.locationId) {
     const location = game.locations[terrain.locationId]
-    if (location.category == kLocationCategoryCity) {
-      if (location.organizationId) {
-        const oldOrg = game.organizations[location.organizationId]
-        oldOrg.locationIds.remove(location.id)
-        // const oldGov = location.sites.values.singleWhere((site) => site.category == kSiteGovernment)
-        // oldGov.organizationId = nation.id
-      } else {
-        // const gov = Site(category: kSiteGovernment, locationId: location.id)
-        // if (nation.capitalId == location.id) {
-        //   location.isCapital = true
-        //   gov.isCapital = true
-        // }
-        // gov.organizationId = nation.id
-        // location.governmentSiteId = gov.id
-      }
-    }
+    // 应该已经从原本的门派中移除
+    assert(location.organizationId == null)
     location.organizationId = organization.id
     if (!organization.locationIds.contains(location.id)) {
       organization.locationIds.add(location.id)
     }
   }
-  const neighbors = getMapTileNeighbors(terrain.left, terrain.top, currentWorld)
-  for (const neighbor in neighbors) {
-    if (neighbor.organizationId != organization.id) {
-      organization.borderIndexes.add(neighbor.index)
-    }
-  }
+  engine.info('门派 ${organization.name} 将其领土扩展到 [${terrain.left},${terrain.top}]')
 }
 
 // /// 将某个功法记录在这个组织的 skillRecords 中

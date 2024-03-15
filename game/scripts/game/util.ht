@@ -14,9 +14,11 @@ function hyperbola(normal, deviation) {
   return ((x * 6 - 6) / (x * 5 - 6) + deviation) * normal
 }
 
-function interpolate(text: string, [interpolations: List = []]) {
-  for (const i = 0; i < interpolations.length; ++i) {
-    text = text.replaceAll('{${i}}', JSON.parse(interpolations[i]));
+function interpolate(text: string, interpolations: List) {
+  if (interpolations != null && interpolations.isNotEmpty) {
+    for (const i = 0; i < interpolations.length; ++i) {
+      text = text.replaceAll('{${i}}', JSON.parse(interpolations[i]));
+    }
   }
   return text
 }

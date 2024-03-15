@@ -4,12 +4,11 @@ import 'hexagonal_tile.ht'
 struct TileMap {
   construct ({
     id,
-    name,
     width,
     height,
-    entryX,
-    entryY,
-    terrainSpriteSheet = 'fantasyhextiles_v3_borderless.png',
+    heroInitialX,
+    heroInitialY,
+    terrainSpriteSheet,
     tileShape = 'hexagonalVertical',
     gridWidth = 32.0,
     gridHeight = 28.0,
@@ -18,12 +17,16 @@ struct TileMap {
     tileOffsetX = 0.0,
     tileOffsetY = 16.0,
   }) {
+    assert(id != null)
+    assert(width != null)
+    assert(height != null)
+
     this.id = id
-    this.name = name
     this.width = width
     this.height = height
-    this.entryX = entryX
-    this.entryY = entryY
+
+    this.heroInitialX = heroInitialX
+    this.heroInitialY = heroInitialY
     this.terrainSpriteSheet = terrainSpriteSheet
     this.tileShape = tileShape
     this.gridWidth = gridWidth
@@ -33,26 +36,15 @@ struct TileMap {
     this.tileOffsetX = tileOffsetX
     this.tileOffsetY = tileOffsetY
 
-    this.zones = []
     this.terrains = []
     this.objects = []
-  }
-}
+    this.waters = []
 
-function getTerrain(left, top, map) {
-  return map.terrains[tilePos2Index(left, top, map.width)]
-}
-
-function addTerrainToZone(terrain, zoneIndex, map) {
-  assert(0 <= zoneIndex && zoneIndex < map.zones.length)
-  const zone = map.zones[zoneIndex]
-  if (terrain.zoneIndex != null && terrain.zoneIndex >= 0) {
-    const oldZone = map.zones[terrain.zoneIndex]
-    oldZone.terrainIndexes.remove(terrain.index)
+    // 地区上的区域，例如大陆、海洋、国家等
+    this.zones = {}
+    // 地图上的可互动对象，例如npc等
+    this.entities = {}
   }
-  terrain.zoneIndex = zoneIndex
-  terrain.zoneCategory = zone.category
-  zone.terrainIndexes.add(terrain.index)
 }
 
 // 从 hexagonal 坐标得到索引
@@ -73,7 +65,7 @@ function isPositionWithinMap(left, top, width, height) {
 }
 
 // hScore(n) 是曼哈顿距离时的 A* 算法
-function calculateRoute(start, end, map, {restrictedInZoneIndex}) {
+function calculateRoute(start, end, map, {restrictedInZoneId}) {
   // print('calculating route: ${start.left},${start.top} to ${end.left},${end.top}')
 
   assert(start.index != null && end.index != null)
@@ -119,7 +111,7 @@ function calculateRoute(start, end, map, {restrictedInZoneIndex}) {
     }
     open.remove(nextIndex)
     closed.add(nextIndex)
-    const neighbors = getMapTileNeighbors(next.left, next.top, map, zoneIndex: restrictedInZoneIndex)
+    const neighbors = getMapTileNeighbors(next.left, next.top, map, zoneId: restrictedInZoneId)
     for (const neighbor in neighbors) {
       if (closed.contains(neighbor.index)) continue
       const tentetiveGScore = gScore[nextIndex] + 1
@@ -141,7 +133,7 @@ function calculateRoute(start, end, map, {restrictedInZoneIndex}) {
   return null
 }
 
-function generateLabrynth(start, end, map, {restrictedInZoneIndex}) {
+function generateLabrynth(start, end, map, {restrictedInZoneId}) {
   
   assert(start.index != null && end.index != null)
   if (start.index == end.index) return null

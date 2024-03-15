@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 // import 'package:flame_audio/flame_audio.dart';
-import 'package:samsara/ui/flutter/loading_screen.dart';
+import 'package:samsara/ui/loading_screen.dart';
 import 'package:samsara/console.dart';
 
 import '../../global.dart';
@@ -15,11 +15,7 @@ class MainGameOverlay extends StatefulWidget {
   State<MainGameOverlay> createState() => _MainGameOverlayState();
 }
 
-class _MainGameOverlayState extends State<MainGameOverlay>
-    with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
-  @override
-  bool get wantKeepAlive => true;
-
+class _MainGameOverlayState extends State<MainGameOverlay> {
   late GameScene _scene;
 
   bool _isDisposing = false;
@@ -43,14 +39,13 @@ class _MainGameOverlayState extends State<MainGameOverlay>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     // pass the build context to script
     // final screenSize = MediaQuery.of(context).size;
 
     // ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
 
     return _isDisposing
-        ? LoadingScreen(text: engine.locale['loading'])
+        ? LoadingScreen(text: engine.locale('loading'))
         : FutureBuilder(
             // 不知道为啥，这里必须用这种写法才能进入载入界面，否则一定会卡住
             future: Future.delayed(
@@ -58,12 +53,14 @@ class _MainGameOverlayState extends State<MainGameOverlay>
               () => _getScene(),
             ),
             builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                throw (snapshot.error!);
-              }
-
               if (!snapshot.hasData) {
-                return LoadingScreen(text: engine.locale['loading']);
+                if (snapshot.hasError) {
+                  throw Exception('${snapshot.error}\n${snapshot.stackTrace}');
+                }
+                return LoadingScreen(
+                  text: engine.locale('loading'),
+                  showClose: snapshot.hasError,
+                );
               } else {
                 _scene = snapshot.data as GameScene;
                 if (_scene.isAttached) {
@@ -74,7 +71,7 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                   child: Stack(
                     children: [
                       if (_scene.isLoading)
-                        LoadingScreen(text: engine.locale['loading']),
+                        LoadingScreen(text: engine.locale('loading')),
                       SceneWidget(scene: _scene),
                       Positioned(
                         right: 0,
@@ -89,12 +86,10 @@ class _MainGameOverlayState extends State<MainGameOverlay>
                                     engine: engine,
                                   ),
                                 ).then((_) => setState(() {}));
-                                break;
                               case CardGameDropMenuItems.quit:
-                                engine.leaveScene(_scene.id, clearCache: true);
+                                _scene.leave(clearCache: true);
                                 _isDisposing = true;
                                 Navigator.of(context).pop();
-                                break;
                               default:
                             }
                           },

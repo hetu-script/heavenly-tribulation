@@ -1,49 +1,48 @@
-import 'entity/character/common.ht'
+import 'entity/character/character.ht'
 import 'util.ht'
-import 'binding/dialog.ht'
+import 'entity/character/character.ht'
+import 'game.ht'
 
 /// 加载到本次游戏的对话资源
 let gDialogs = {}
 
-struct DialogData {
-  construct({
-    this.id,
-    this.contents,
-  }) {}
-}
-
 struct DialogContentData {
   construct({
+    character,
     isHero,
     characterId,
     displayNameLocaleKey,
     displayName,
-    isMajorCharacter,
     icon,
+    hideName,
+    hideIcon,
     localeKeys,
-    interpolations,
     lines,
+    interpolations,
   }) {
-    // 在游戏刚启动时，载入对话框数据，此时尚未设定玩家角色信息
-    // 因此 hero 有可能是 null
-    if (isHero && hero != null) {
-      this.characterId = hero.id
-      this.displayName = hero.name
-      this.isMajorCharacter = true
-      this.icon = hero.icon
-    } else if (characterId) {
-      const character = game.characters[characterId]
-      assert(character != null)
-      this.displayName = character.name
-      this.isMajorCharacter = character.isMajorCharacter
-      this.icon = character.icon
-    } else {
-      if (displayNameLocaleKey) {
-        this.displayName = engine.locale(displayNameLocaleKey)
+    if (characterId || character) {
+      assert(hero != null)
+      character ??= game.characters[characterId]
+      final heroHaveMetChar = haveMet(hero, character)
+      if (heroHaveMetChar) {
+        this.displayName = hideName ? '???' :
+          (displayNameLocaleKey ? engine.locale(displayNameLocaleKey) :
+            (displayName ?? character.name))
       } else {
-        this.displayName = displayName
+        this.displayName = '???'
       }
-      this.isMajorCharacter = isMajorCharacter
+      
+      this.icon = hideIcon ? null : (icon ?? character.icon)
+    }
+    else if (isHero) {
+      assert(hero != null)
+      this.characterId = hero.id
+      this.displayName = hideName ? '???' :
+        (displayNameLocaleKey ? engine.locale(displayNameLocaleKey) :
+        (displayName ?? engine.locale('me')))
+      this.icon = hideIcon ? null : icon ?? hero.icon
+    } else {
+      this.displayName = displayNameLocaleKey ? engine.locale(displayNameLocaleKey) : displayName
       this.icon = icon
     }
     
@@ -53,7 +52,7 @@ struct DialogContentData {
       strings = localeKeys.map( (key) => engine.locale(key, interpolations: interpolations) ).toList()
     } else {
       assert(lines is List && lines.isNotEmpty)
-      strings = lines
+      strings = interpolate(lines, interpolations)
     }
     this.lines = []
     for (const message in strings) {
@@ -61,149 +60,181 @@ struct DialogContentData {
       this.lines.addAll(splits)
     }
   }
-
-  construct fromData(data) : this(
-    isHero: data.isHero,
-    characterId: data.characterId,
-    displayNameLocaleKey: data.displayNameLocaleKey,
-    displayName: data.displayName,
-    isMajorCharacter: data.isMajorCharacter,
-    icon: data.icon,
-    localeKeys: data.localeKeys,
-    lines: data.lines,
-  ) {}
 }
 
-// 将预定义的对话数据转化为实际上的对话数据，例如本地化Key会被替换为文本等
-function addDialogs(dlgsData: List) {
-  engine.info('载入预定义对话树数据')
-  for (const dlgData in dlgsData) {
-    const dlg = DialogData(
-      id: dlgData.id,
-      contents: [],
+namespace dialog {
+  // 下面这些是需要context的版本，和引擎侧直接绑定
+  // 但我们将其包装了一层，可以省去每次都带上context的麻烦
+  external function _site(context, {site, image})
+
+  external function _start(context)
+
+  external function _say(context, data, returnValue)
+
+  external function _select(context, selections)
+
+  external function _characterSelect(context, title, ids, showCloseButton)
+
+  external function _visitSelect(context, idList, { hideHero: bool })
+
+  external function _merchant(context, merchant, priceFactor, allowSell, sellableCategory, sellableKind)
+
+  external function _quests(context, site)
+
+  external function _maze(context, maze)
+
+  external function _progress(context, titletitle, checkProgress)
+
+  external function _inputInteger(context, title, min, max)
+
+  /// 下面这些只有在调用过 start 之后才能看到效果
+
+  external function pushImage(image: string, [ positionXOffset: float = 0.0 ])
+
+  external function popImage([image: string])
+
+  external function popAllImage()
+
+  external function pushScene(image: string)
+
+  external function popScene()
+
+  external function popAllScene()
+
+  /// 下面这些可以随时使用
+
+  /// 进入场景，场景包含人物列表和一张退出卡牌
+  function site({site, image}) => _site(ctx, site: site, image: image)
+
+  /// 开始对话，此时可以推送场景、角色图到对话背景中
+  /// 必须和 end() 一同使用
+  function start(image) => _start(ctx)
+  
+  /// 结束对话，所有场景和角色都会被清理
+  /// 必须和 start() 一同使用
+  external function end()
+  
+  /// 退出上一个场景或对话框，不管是什么
+  external function pop()
+
+  function localeLines(localeKeys, {
+    isHero,
+    character,
+    characterId,
+    displayNameLocaleKey,
+    displayName,
+    icon,
+    hideName,
+    hideIcon,
+    interpolations,
+    returnValue,
+  }) -> Future {
+    const dlgData = DialogContentData(
+      localeKeys: (localeKeys is List) ? localeKeys : [localeKeys],
+      isHero: isHero,
+      character: character,
+      characterId: characterId,
+      displayNameLocaleKey: displayNameLocaleKey,
+      displayName: displayName,
+      icon: icon,
+      hideName: hideName,
+      hideIcon: hideIcon,
+      interpolations: interpolations,
     )
-    for (const contentData in dlgData.contents) {
-      const dlgContent = DialogContentData.fromData(contentData)
-      dlg.contents.add(dlgContent)
-    }
-    gDialogs[dlg.id] = dlg
+    return _say(ctx, dlgData, returnValue)
   }
-}
 
-function showDialogByLocaleKeys(localeKeys, { returnValue, character, displayName, interpolations: List }) -> Future {
-  assert(localeKeys is List)
-  const dlgData = {
-    contents: [
-      DialogContentData(
-        characterId: character?.isMajorCharacter ? character.id : null,
-        displayName: displayName ?? character?.name,
-        icon: character?.icon,
-        localeKeys: localeKeys,
-        interpolations: interpolations,
-      ),
-    ]
+  function lines(lines, {
+    isHero,
+    character,
+    characterId,
+    displayNameLocaleKey,
+    displayName,
+    icon,
+    hideName,
+    hideIcon,
+    interpolations,
+    returnValue,
+  }) -> Future {
+    const dlgData = DialogContentData(
+      lines: (lines is List) ? lines : [lines],
+      isHero: isHero,
+      character: character,
+      characterId: characterId,
+      displayNameLocaleKey: displayNameLocaleKey,
+      displayName: displayName,
+      icon: icon,
+      hideName: hideName,
+      hideIcon: hideIcon,
+      interpolations: interpolations,
+    )
+    return _say(ctx, dlgData, returnValue)
   }
-  return Dialog.showGameDialog(buildContext, dlgData, returnValue)
-}
 
-function showDialogByStrings(lines, { returnValue, character, displayName }) -> Future {
-  assert(lines is List)
-  const dlgData = {
-    contents:[
-      DialogContentData(
-        characterId: character?.isMajorCharacter ? character.id : null,
-        displayName: displayName ?? character?.name,
-        icon: character?.icon,
-        lines: lines,
-      ),
-    ]
+  function say(data, { returnValue }) -> Future {
+    return _say(ctx, data, returnValue)
   }
-  return Dialog.showGameDialog(buildContext, dlgData, returnValue)
-}
 
-function showDialogByResourceId(id: string, { returnValue, interpolations: List }) -> Future {
-  const data = gDialogs[id]
-  // 这里之后是否可以优化一下？
-  for (const content in data.contents) {
-    if (content.isHero) {
-      content.displayName = hero.name
-      content.isMajorCharacter = true
-      content.icon = hero.icon
-      delete content.isHero
-    }
-    if (interpolations is List) {
-      for (const i = 0; i < content.lines.length; ++i) {
-        content.lines[i] = interpolate(content.lines[i], interpolations)
+  function localeSelect(texts: List) -> Future {
+    assert(texts is List)
+    const selections = {}
+    for (const text in texts) {
+      selections[text] = {
+        'text': engine.locale(text),
       }
     }
+    return _select(ctx, selections)
   }
-  return Dialog.showGameDialog(buildContext, data, returnValue)
-}
 
-function showDialog(data, { returnValue }) -> Future {
-  return Dialog.showGameDialog(buildContext, data, returnValue)
-}
-
-function showSelectionByLocaleKeys(texts: List) -> Future {
-  const selections = {}
-  for (const text in texts) {
-    selections[text] = engine.locale(text)
+  function select(selections) -> Future {
+    return _select(ctx, selections)
   }
-  return Dialog.showSelection(buildContext, selections)
-}
 
-function showSelection(selections) -> Future {
-  return Dialog.showSelection(buildContext, selections)
-}
-
-function showCharacterSelection({title, ids, showCloseButton = true}) -> Future {
-  return Dialog.showCharacterSelection(buildContext, title, ids, showCloseButton)
-}
-
-function showVisitCharacterSelection(idList) -> Future {
-  return Dialog.showVisitCharacterSelection(buildContext, idList)
-}
-
-function showSkillSelection({title, skills, showCloseButton = true}) {
-  return Dialog.showSkillSelection(buildContext, title, skills, showCloseButton)
-}
-
-function showMerchant(merchant, {
-  priceFactor = 2.0,
-  allowSell = true,
-  sellableCategory = [],
-  sellableKind = [],
-}) -> Future {
-  return Dialog.showMerchant(
-    buildContext,
-    merchant,
-    priceFactor,
-    allowSell,
-    sellableCategory,
-    sellableKind,
-  )
-}
-
-function showQuests(site) -> Future {
-  return Dialog.showQuests(buildContext, site)
-}
-
-function showMaze(maze) -> Future {
-  return Dialog.showMaze(buildContext, maze)
-}
-
-// 显示一个进度窗口，以天为单位显示动画，每天会调用传入的 checkProgress 函数的返回值来判断是否继续下一天
-function showProgress(title, { checkProgress: function }) {
-  return Dialog.showProgress(buildContext, title, checkProgress)
-}
-
-function showIntInput(title, minOrMax, [max]) {
-  let min = 1
-  if (max == null) {
-    max = minOrMax
-  } else {
-    min = minOrMax
+  function characterSelect({title, ids, showCloseButton = true}) -> Future {
+    return _characterSelect(ctx, title, ids, showCloseButton)
   }
-  assert(min <= max)
-  return Dialog.showIntInput(buildContext, title, min, max)
+
+  function visitSelect(idList) -> Future {
+    return _visitSelect(ctx, idList)
+  }
+
+  function merchant(merchant, {
+    priceFactor = 2.0,
+    allowSell = true,
+    sellableCategory = [],
+    sellableKind = [],
+  }) -> Future {
+    return _merchant(
+      buildContext,
+      merchant,
+      priceFactor,
+      allowSell,
+      sellableCategory,
+      sellableKind,
+    )
+  }
+
+  function quests(site) -> Future {
+    return _quests(ctx, site)
+  }
+
+  function maze(maze) -> Future {
+    return _maze(ctx, maze)
+  }
+
+  // 显示一个进度窗口，以天为单位显示动画，每天会调用传入的 checkProgress 函数的返回值来判断是否继续下一天
+  function progress(title, { checkProgress: function }) {
+    return _progress(ctx, title, checkProgress)
+  }
+
+  function inputInteger(title, minOrMax, [max]) {
+    let min = 1
+    if (max == null) {
+      max = minOrMax
+    } else {
+      min = minOrMax
+    }
+    assert(min <= max)
+    return _inputInteger(ctx, title, min, max)
+  }
 }

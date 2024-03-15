@@ -33,7 +33,7 @@ struct VillageWarrior {
     this.isEquippable = true
     this.equipType = kEquipTypeCompanion
     this.companionType = kCompanionTypeBattle
-    game.npcs[this.id] = this
+    game.minorCharacters[this.id] = this
 
     // 生成战斗单位相关数据，并写入当前对象
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
@@ -42,7 +42,7 @@ struct VillageWarrior {
 
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
     switch (this.kind) {
-      'villager' => {
+      'villager' : {
         equip(this, Weapon())
       }
     }

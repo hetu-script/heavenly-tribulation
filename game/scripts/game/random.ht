@@ -3,3 +3,7 @@ let random = Random()
 function setRandomSeed([seed: integer]) {
   random = Random(seed)
 }
+
+function getRandomObject() {
+  return random
+}

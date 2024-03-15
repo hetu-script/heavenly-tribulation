@@ -1,13 +1,41 @@
 namespace WorldMap {
 
-  external function showWorldMapGameOver
+  external function setTerrainCaption(left, top, caption)
 
-  external function setWorldMapCaption(left, top, caption)
+  external function refreshTerrainSprite(left, top)
 
-  external function setWorldMapSprite(left, top, data)
+  external function refreshTerrainOverlaySprite(left, top)
 
-  external function setWorldMapOverlaySprite(left, top, data)
+  external function clearTerrainAnimation(left, top)
 
-  external function enterLocation(locationId)
+  external function clearTerrainOverlaySprite(left, top)
 
+  external function clearTerrainOverlayAnimation(left, top)
+
+  external function freezePlayer()
+
+  external function unfreezePlayer()
+
+  /// endDirection: 'north' | 'east' | 'south' | 'west'
+  external async function moveObjectTo(id, toX, toY, {endDirection, onDestionationCallback})
+
+  external async function refreshNpcsInHeroWorldMapPosition()
+
+  external async function refreshNpcsInHeroLocation()
+
+  external async function refreshNpcsInHeroSite()
+
+  external async function enterLocation(locationId)
+
+  external function updateWorldHistory()
+
+  external function updateDungeonHistory()
+
+  external function addStillObject(data)
+
+  external function proceedToNextLevel()
+
+  external function backToPreviousLevel()
+
+  external function leaveDungeon()
 }

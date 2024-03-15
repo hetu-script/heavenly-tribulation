@@ -21,7 +21,7 @@ final darkTheme = ThemeData(
   colorScheme: ColorScheme.dark(
     background: kBackgroundColor,
   ),
-  scaffoldBackgroundColor: kBackgroundColor,
+  scaffoldBackgroundColor: Colors.transparent,
   appBarTheme: const AppBarTheme(
     centerTitle: true,
     color: Colors.transparent,
@@ -69,6 +69,12 @@ abstract class GameConfig {
   static Size screenSize = Size.zero;
   static double musicVolume = 0.5;
   static double soundEffectVolume = 0.5;
+  static Map<String, dynamic> modules = {
+    'tutorial': {
+      'enabled': true,
+      'preinclude': true,
+    }
+  };
 }
 
 const kValueTypeInt = 'int';

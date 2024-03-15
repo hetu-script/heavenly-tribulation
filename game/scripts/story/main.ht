@@ -1,32 +1,48 @@
 import 'module:game' as game
 
 import 'l10n/l10n.ht'
-import 'module.json5' as module
+import 'story.ht'
 
 // 这里的函数最终是绑定到游戏对象上执行
 // 是运行时的命名空间，并不是这里的命名空间
 // 因此可以直接使用 engine, game 等 global 上的 对象
-const eventHandler = {
-  id: module.id,
-  // onNewGame: (arg) {
-  //   engine.info('[${this.id}]: 新游戏事件回调函数')
-  // },
-  // onUpdate: (arg) {
-  //   engine.info('[${this.id}]: 更新世界事件回调函数')
-  // },
+const module = {
+  meta: {
+    id: 'main-story',
+    displayName: '《天道奇劫》主线剧情',
+    description: '《天道奇劫》主线剧情',
+    supportedLocales: ['zh'],
+    version: {
+      major: 0,
+      minor: 0,
+      build: 1,
+    },
+    flags: {
+      
+    }
+  },
 }
 
-function load() {
-  game.addModInfo(module)
-}
-
-// todo 检查config中的游戏版本，对比这个mod的最低版本号
+/// 这个函数只会执行一次
+/// config是一个引擎传过来的JSON，包含游戏版本、所有MOD名等信息
+/// 通常在这里将mod信息加载到游戏数据中
+/// 以及将角色、据点等数据添加到主世界中
+/// 可以在这里检查是否存在版本冲突或者和其他脚本的冲突
 function init(config) {
-  const modName = '[${module.name}(${module.id}-${module.version})]'
-  
-  engine.info('${modName}: 初始化')
-  // game.addLocales(localizations, modName)
-  engine.loadLocale(localizations.toJSON())
-  game.addEventHandler(eventHandler)
-  engine.info('${modName}: 初始化完毕...')
+  engine.info('初始化模组元信息：[${modName}]...')
+  game.addModule(module.meta)
+}
+
+const modName = '${module.meta.displayName}-${module.meta.id}-(${module.meta.version.major}.${module.meta.version.minor}.${module.meta.version.build})';
+
+// main每次启动游戏都会执行
+function main() {
+  // 加载本地化字符串
+  engine.loadLocaleFromJSON(localizations.toJSON())
+  // 向世界添加事件回调函数
+  // addEventHandlers(
+  //   worldId: 'tian_lao_xing', // tian_lao_xing 是世界ID
+  //   moduleId: module.meta.id,
+  //   handlers: tdqjMainStory,
+  // )
 }

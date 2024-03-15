@@ -60,9 +60,9 @@ function characterTrySubmitQuest(character, target, quest) -> bool {
   if (quest.questEntitiesSubmit) {
     for (const data in quest.questEntitiesSubmit) {
       if (data.entityType == kEntityTypeCharacter || data.entityType == kEntityTypeNpc) {
-        if (!character.companions.hasOwnProperty(data.id)) return false
+        if (!character.companions.containsKey(data.id)) return false
       } else if (data.entityType == kEntityTypeItem) {
-        if (!character.inventory.hasOwnProperty(data.id)) {
+        if (!character.inventory.containsKey(data.id)) {
           return false
         } else {
           const item = character.inventory[data.id]
@@ -89,7 +89,7 @@ function characterTrySubmitQuest(character, target, quest) -> bool {
 }
 
 function setCharacterActiveQuest(character, quest) {
-  assert(character.quests.hasOwnProperty(quest.id))
+  assert(character.quests.containsKey(quest.id))
   character.activeQuestId = quest.id
 }
 

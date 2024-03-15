@@ -75,7 +75,7 @@ const kRarity = {
 
 function getRarity({ name }) {
   if (name) {
-    assert(kRarity.hasOwnProperty(name))
+    assert(kRarity.containsKey(name))
     return kRarity[name]
   } else {
     const r = random.nextDouble()
@@ -113,7 +113,6 @@ const kStamina = 'stamina'
 
 // entityType决定了该对象的数据结构和保存位置
 const kEntityTypeCharacter = 'character' //game.characters
-const kEntityTypeNpc = 'npc' //game.npcs
 const kEntityTypeBaby = 'baby'
 const kEntityTypeCompanion = 'companion' //character.companions // 仅用于随从栏数据
 const kEntityTypeItem = 'item' //character.inventory
@@ -153,6 +152,50 @@ const kEntityMaterialKindJade = 'jade'
 const kEntityMaterialKindWater = 'water'
 const kEntityMaterialKindEnergy = 'energy'
 const kEntityMaterialKindSpectre = 'spectre'
+
+function getCultivationRankName(character) {
+  return engine.locale('cultivationRank.${character.cultivationRank}')
+}
+
+const kLifespan = {
+  '0': {
+    min: 75,
+    max: 125,
+  },
+  '1': {
+    min: 100,
+    max: 200,
+  },
+  '2': {
+    min: 150,
+    max: 350,
+  },
+  '3': {
+    min: 250,
+    max: 650,
+  },
+  '4': {
+    min: 450,
+    max: 1250,
+  },
+}
+
+function createRandomLifespan(cultivationRank) {
+  let { min, max } = kLifespan[cultivationRank]
+  let minTick = min * kTicksPerYear
+  let maxTick = max * kTicksPerYear
+  let randomSpan = minTick + random.nextInt(maxTick)
+  return randomSpan
+}
+
+const _kCharacterRandomAgeMax = 40
+
+function createRandomBirthTimestamp({min = 1, max = _kCharacterRandomAgeMax}) {
+  assert(min > 0)
+  const age = random.nextInt(max - min) + min
+  const randomDateInAYear = random.nextInt(kTicksPerYear)
+  return currentWorldHistory.timestamp - (age * kTicksPerYear + randomDateInAYear)
+}
 
 function _statsChange(data, statsName, change, { overflow = false }) {
   assert(data[statsName] != null)
@@ -196,15 +239,6 @@ function changeSpirit(entity, change, { overflow = false }) {
   }
 }
 
-const _kCharacterRandomAgeMax = 40
-
-function createRandomBirthTimestamp({min = 1, max = _kCharacterRandomAgeMax}) {
-  assert(min > 0)
-  const age = random.nextInt(max - min) + min
-  const randomDateInAYear = random.nextInt(kTicksPerYear)
-  return game.timestamp - (age * kTicksPerYear + randomDateInAYear)
-}
-
 // const kEncounterTypeCharacter = 'character'
 
 const kDamageTypeBludgeon = 'bludgeon'
@@ -241,14 +275,14 @@ function acquire(entity, item, { count, incidentOccured = true }) {
   if (count != null) {
     if (count < 1) return
     if (item.stackSize > count) {
-      engine.warning('物品对象的数量[${item.stackSize}]将会被忽略。实际获取数量 ${count}。')
+      engine.warn('物品对象的数量[${item.stackSize}]将会被忽略。实际获取数量 ${count}。')
     }
   } else {
     count = item.stackSize ?? 1
   }
 
   let incidentContent
-  if (entity.inventory.hasOwnProperty(item.id)) {
+  if (entity.inventory.containsKey(item.id)) {
     entity.inventory[item.id].stackSize += count
   } else {
     entity.inventory[item.id] = item
@@ -305,8 +339,8 @@ function giveMoney(entity, target, value, { isForced = false, incidentOccured = 
 function give(entity, target, itemId, { count, removeItem = true, isForced = false, incidentOccured = true}) {
   if (count <= 0) return 0
   let rest = count ?? 1
-  if (!entity.inventory.hasOwnProperty(itemId)) {
-    engine.warning('${entity.name} 没有 ${item.name} ，无法支付。')
+  if (!entity.inventory.containsKey(itemId)) {
+    engine.warn('${entity.name} 没有 ${item.name} ，无法支付。')
     return rest
   }
   const item = entity.inventory[itemId]
@@ -320,14 +354,14 @@ function give(entity, target, itemId, { count, removeItem = true, isForced = fal
   } else if (item.stackSize < count) {
     // char1身上的数量不够支付n
     actualNumber = item.stackSize
-    engine.warning('${entity.name} 身上的 ${item.name} 不够 ${count} 个，实际数量：${actualNumber}。')
+    engine.warn('${entity.name} 身上的 ${item.name} 不够 ${count} 个，实际数量：${actualNumber}。')
     delete entity.inventory[item.id]
   } else {
     // 数量刚好
     delete entity.inventory[item.id]
   }
   rest = count - actualNumber
-  if (target.inventory.hasOwnProperty(item.id)) {
+  if (target.inventory.containsKey(item.id)) {
     target.inventory[item.id].stackSize += actualNumber
   } else {
     const itemCopy = item.clone()
@@ -390,11 +424,11 @@ function give(entity, target, itemId, { count, removeItem = true, isForced = fal
 // 此函数允许对一个不在物品栏中的物品调用
 function consume(character, item, { forcerCharacter }) {
   if (!item.isConsumable) {
-    engine.warning('${item.name} 无法食用。')
+    engine.warn('${item.name} 无法食用。')
     return false
   }
 
-  if (character.inventory.hasOwnProperty(item.id)) {
+  if (character.inventory.containsKey(item.id)) {
     if (item.rarity == kCommon) {
       if (item.stackSize > 1) {
         --item.stackSize
@@ -418,7 +452,7 @@ function consume(character, item, { forcerCharacter }) {
 
   let incidentContent
   switch (item.kind) {
-    kEntityConsumableKindMedicine => {
+    kEntityConsumableKindMedicine : {
       incidentContent = forcerCharacter ?
         engine.locale('characterTakeMedicineForced', interpolations: [
           forcerCharacter.name,
@@ -430,7 +464,7 @@ function consume(character, item, { forcerCharacter }) {
           item.name,
         ])
     }
-    kEntityConsumableKindBeverage => {
+    kEntityConsumableKindBeverage : {
       incidentContent = forcerCharacter ?
         engine.locale('characterDrinkBeverageForced', interpolations: [
           forcerCharacter.name,
@@ -442,7 +476,7 @@ function consume(character, item, { forcerCharacter }) {
           item.name,
         ])
     }
-    else => {
+    else : {
       incidentContent = forcerCharacter ?
         engine.locale('characterEatForced', interpolations: [
           forcerCharacter.name,
@@ -494,11 +528,11 @@ function consume(character, item, { forcerCharacter }) {
 function equip(character, entity, { index }) -> bool {
   assert(index == null || (index > 0 && index < kEquipmentMax))
   if (!entity.isEquippable) {
-    engine.warning('${entity.name} 无法装备。')
+    engine.warn('${entity.name} 无法装备。')
     return false
   }
   if (entity.equippedPosition) {
-    engine.warning('${entity.name} 已经在装备中了。')
+    engine.warn('${entity.name} 已经在装备中了。')
     return false
   }
   let equipData = {
@@ -509,7 +543,7 @@ function equip(character, entity, { index }) -> bool {
     equipType: entity.equipType,
   }
   switch (entity.entityType) {
-    kEntityTypeItem => {
+    kEntityTypeItem : {
       if (!character.inventory[entity.id]) acquire(character, entity)
       
       const incidentContent = engine.locale('characterEquip', interpolations: [
@@ -522,11 +556,11 @@ function equip(character, entity, { index }) -> bool {
         isPrivate: true,
       )
     }
-    kEntityTypeSkill => {
+    kEntityTypeSkill : {
       if (!character.skills[entity.id]) learn(character, entity)
 
       if (entity.level < 0) {
-        showDialogByLocaleKeys(['equipSkillFaied'], character: hero, interpolations: [entity.name])
+        dialog.localeLines(['equipSkillFaied'], isHero: true, interpolations: [entity.name])
         return false
       }
       
@@ -543,11 +577,11 @@ function equip(character, entity, { index }) -> bool {
     // //不在角色的随从列表中的人物
     // kEntityTypeNpc, kEntityTypeCharacter : {
     //   if (entity.companionType != kCompanionTypeBattle) {
-    //     showDialogByLocaleKeys(['companionCannotBattle'], character: hero, interpolations: [entity.name])
+    //     dialog.localeLines(['companionCannotBattle'], isHero: true, interpolations: [entity.name])
     //     return false
     //   }
     //   entity =
-    //     character.companions.hasOwnProperty(entity.id) ?
+    //     character.companions.containsKey(entity.id) ?
     //     character.companions[entity.id] : 
     //     characterGetCompanion(character, entity)
 
@@ -567,7 +601,7 @@ function equip(character, entity, { index }) -> bool {
     // // 已经在角色的随从列表中的人物
     // kEntityTypeCompanion : {
     //   if (entity.companionType != kCompanionTypeBattle) {
-    //     showDialogByLocaleKeys(['companionCannotBattle'], character: hero, interpolations: [entity.name])
+    //     dialog.localeLines(['companionCannotBattle'], isHero: true, interpolations: [entity.name])
     //     return false
     //   }
       
@@ -582,15 +616,15 @@ function equip(character, entity, { index }) -> bool {
     //     isPrivate: true,
     //   )
     // }
-    else => {
-      engine.warning('${entity.name} 无法装备。equipType: ${entity.equipType}')
+    else : {
+      engine.warn('${entity.name} 无法装备。equipType: ${entity.equipType}')
     }
   }
   
   let equipped = false
   switch (entity.equipType) {
     // 剑法、心诀等支持型技能
-    kEquipTypeSupport => {
+    kEquipTypeSupport : {
       function tryEquipSupport(mainItemEquipData) {
         const mainItem = getEquipped(mainItemEquipData, character)
         if (equipData.kind == mainItem.kind) {
@@ -626,7 +660,7 @@ function equip(character, entity, { index }) -> bool {
     // 斗技、武器、攻击法宝等
     // 内功、轻功、护甲、靴子、辅助法宝等
     // kEquipTypeDefense, kEquipTypeOffense, kEquipTypeCompanion : {
-    else => {
+    else : {
       // 如果有空位就装备在空位上
       if (index == null) {
         for (const i in range(1, kEquipmentMax)) {
@@ -672,7 +706,7 @@ function unequip(character, entity) {
   assert(entity.equippedPosition != null)
   switch (entity.equipType) {
     // 剑法、心诀等支持型技能
-    kEquipTypeSupport => {
+    kEquipTypeSupport : {
       const equipData = character.equipments[entity.equippedPosition]
       const mainItem = getEquipped(equipData, character)
       mainItem.equippedSupports.removeWhere((equipData) => equipData.id == entity.id)
@@ -680,7 +714,7 @@ function unequip(character, entity) {
     }
     // 斗技、武器、法宝等
     // kEquipTypeDefense, kEquipTypeOffense, kEquipTypeCompanion : {
-    else => {
+    else : {
       delete character.equipments[entity.equippedPosition]
     }
   }
@@ -693,13 +727,13 @@ function getEquipped(equipData, character) {
   if (equipData == null) return null
   let entity
   switch (equipData.entityType) {
-    kEntityTypeItem => {
+    kEntityTypeItem : {
       entity = character.inventory[equipData.id]
     }
-    kEntityTypeSkill => {
+    kEntityTypeSkill : {
       entity = character.skills[equipData.id]
     }
-    kEntityTypeCompanion => {
+    kEntityTypeCompanion : {
       entity = character.companions[equipData.id]
     }
   }

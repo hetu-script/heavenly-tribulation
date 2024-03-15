@@ -1,6 +1,6 @@
 {
   // 每一个皮肤有一套自己单独的动画
-  defeated_default: {
+  defeat_default: {
     offsetX: 0,
     offsetY: 0,
     width: 80.0,
@@ -73,7 +73,7 @@
     stepTime: 0.09,
     loop: false,
   },
-  conjure_default: {
+  spell_normal_default: {
     offsetX: 0,
     offsetY: 0,
     width: 80.0,
@@ -81,7 +81,7 @@
     stepTime: 0.09,
     loop: false,
   },
-  rejuvenate_default: {
+  restore_life_default: {
     offsetX: 0,
     offsetY: 0,
     width: 80.0,
@@ -89,7 +89,7 @@
     stepTime: 0.09,
     loop: false,
   },
-  condense_spirit_default: {
+  restore_mana_default: {
     offsetX: 0,
     offsetY: 0,
     width: 80.0,
@@ -97,7 +97,7 @@
     stepTime: 0.09,
     loop: false,
   },
-  attack_fireball_default: {
+  spell_fireball_default: {
     offsetX: 0,
     offsetY: 0,
     width: 288.0,

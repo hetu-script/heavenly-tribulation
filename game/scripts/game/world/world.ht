@@ -1,761 +1,152 @@
-import '../name/zone.ht'
+
 import '../game.ht'
-import '../entity/location/site.ht'
-import '../entity/location/location.ht'
-import '../entity/character/common.ht'
-import '../entity/organization/organization.ht'
-// import '../l10n.ht'
 import '../tile/hexagonal_tile.ht'
-import '../tile/zone.ht'
 import '../tile/tilemap.ht'
-import '../entity/common.ht'
-import '../datetime.ht' as datetime
-import '../update.ht'
-import 'generation_algorithm.ht'
 import '../tile/common.ht'
-import '../dialog.ht'
-import '../entity/item/item.ht'
+import '../name/zone.ht'
 
-/// 生成世界地图的算法
-///
-/// spritesheet上不同地形对应的编号：
-/// 0：虚空
-/// 1：浅海
-/// 2：深海
-/// 3：陆地（草原）
-///
-/// 算法思路：
-///
-/// 用噪声算法生成陆地和海洋
-///
-/// 为陆地所属的整个大地块命名，然后找到尚未命名的地块，将所有相连的地块作为一个整体命名，直到所有的地块都有名字，根据地块大小有不同命名方式
-///
-/// 根据城市密度，生成城市，并根据城市位于陆地、海边还是海中，对其进行特殊命名
-///
-/// 对于每个城市，链接最近的另外两个城市，使用 A* 寻路算法，标记经过的地块
-///
-/// 对于没有道路经过的地块，随机填充山脉和树林
+export { createSandboxWorld } from 'sandbox.ht'
 
-const _kDefaultWorldScale = 1
-const _kWorldSizePerWorldScale = {
-  '1': 12,
-  '2': 18,
-  '3': 27,
-  '4': 40,
-}
-// const _kDefaultNationNumber = 4
-const _kDefaultOrganizationNumber = 4
-const _kDefaultLocationNumber = 6
-const _kDefaultCharacterNumber = 20
-// const _kDefaultCultivationOrganizationNumber = 4
-// const _kDefaultTradingHouseOrganizationNumber = 2
-
-const _kMinZoneSizeForSea = 8
-const _kMinZoneSizeForIsland = 8
-const _kForestThreshold = 0.5
-const _kMountainThreshold = 0.2
-
-const _kCharacterMarriageAgeMin = 15
-const _kCharacterMarriageAgeMax = 40
-const _kPregnancyAgeMax = 40
-
-const _kLocationInitialDevelopmentMax = 4
-
-const _kLocationInitialMoney = 2000
-const _kNPCStoreInitialMoney = 2000
-const _kSiteTradinghouseProbability = 0.6
-const _kSiteTradinghouseMoney = 0.6
-const _kSiteWorkshopProbability = 0.6
-const _kSiteHospitalProbability = 0.6
-const _kSiteRestaurantProbability = 0.6
-
-const _cultivationKinds = [
-  'location',
-  'mountain',
-  'island',
-]
-
-function enterWorld(world) {
-  currentWorld = world
-  universe.currentWorldId = world.id
-}
-
-function createWorldMap({
-    id,
-    seedString,
-    style = 'coast',
-    terrainSpriteSheet: string,
-    worldScale = _kDefaultWorldScale,
-    organizationNumber = _kDefaultOrganizationNumber,
-    // nationNumber = _kDefaultNationNumber,
-    locationNumber = _kDefaultLocationNumber,
-    // cultivationOrganizationNumber = _kDefaultCultivationOrganizationNumber,
-    // tradinghouseOrganizationNumber = _kDefaultTradingHouseOrganizationNumber,
-    characterNumber = _kDefaultCharacterNumber,
-    // landProportion = 0.55,
-    scale = 2.0,
-  }) {
-  assert(id != null)
-  assert(seedString is string && seedString.isNotEmpty)
-  // assert(cultivationOrganizationNumber < locationNumber)
-  // assert(cultivationOrganizationNumber < characterNumber)
-  // assert(tradinghouseOrganizationNumber < locationNumber)
-  // assert(tradinghouseOrganizationNumber < characterNumber)
-
-  const seed = crypto.crcInt(seedString)
-  engine.info('开始生成世界，设置随机数种子为：${seedString}(${seed})')
-  setRandomSeed(seed)
-
-  let width
-  let height
-
-  width = height = _kWorldSizePerWorldScale[worldScale.toString()]
-
-  // 生成过程中，引入了一些别的文件中的函数
-  // 他们可能会通过game.world访问, 因此这里直接使用全局变量
-  const savedCurrentWorld = currentWorld
-  const world = TileMap(
-    id: id,
-    width: width,
-    height: height,
-    scale: scale,
-  )
-  currentWorld = universe.worlds[world.id] = world
-
-  // 地图上的可互动对象，因为世界地图目前只有一层，所以这个表直接放在map上。
-  currentWorld.entities = {}
-
-  currentWorld.history = []
-
-  engine.info('生成地块')
-  for (const j in range(height)) {
-    for (const i in range(width)) {
-      currentWorld.terrains.add(
-        {
-          ...Tile(i + 1, j + 1),
-          index: tilePos2Index(i + 1, j + 1, width),
-          spriteIndex: kSpriteWater,
-          overlaySprite: {},
-          isSelectable: true,
-          // 该地块的每月刷新野外事件的时间
-          monthlyUpdateTime: random.nextInt(kTicksPerMonth)
-        }
-      )
+function setWorld(newWorld) {
+  world = universe.worlds[newWorld.id] = newWorld
+  universe.currentWorldId = newWorld.id
+  if (history.worlds[newWorld.id] == null) {
+    currentWorldHistory = history.worlds[newWorld.id] = {
+      timestamp: 0,
+      incidents: [],
     }
+  } else {
+    currentWorldHistory = history.worlds[newWorld.id]
   }
-
-  currentWorld.waterTerrainIndexes = Set()
-
-  // 没有区域，也是一个区域
-  const voidZone = Zone(index: currentWorld.zones.length, name: null, category: kZoneVoid)
-  currentWorld.zones.add(voidZone)
-
-  // 生成地域
-  engine.info('准备生成地域')
-  const landZone = Zone(index: currentWorld.zones.length, category: kZoneLand)
-  currentWorld.zones.add(landZone)
-  generateContinent(
-    seed: seed,
-    size: width,
-    style: style,
-  )
-
-  // 根据相邻的格子的地域，分配地域索引
-  function updateZone(tile, [spriteIndex, unzonedNeighbors]) {
-    assert(tile.zoneIndex == null)
-    let willCreateZone = spriteIndex == null
-    spriteIndex ??= tile.spriteIndex
-    unzonedNeighbors ??= {}
-    // engine.info('processing: ${tile.left},${tile.top}, spriteIndex: ${tile.spriteIndex}')
-    tile.zoneIndex = -1 // mark this tile is being processed, will skip it when process others
-    const neighbors = getMapTileNeighbors(tile.left, tile.top, currentWorld)
-    let foundAdjacentZone = false
-    for (const neighbor in neighbors) {
-      // skip tiles that has diffrent spriteIndex and those still being processed
-      if (neighbor.spriteIndex != spriteIndex) continue
-      if (neighbor.zoneIndex == null) {
-        updateZone(neighbor, spriteIndex, unzonedNeighbors)
-      }
-      if (neighbor.zoneIndex == -1) {
-        unzonedNeighbors[neighbor.index] = neighbor
-        continue
-      }
-      addTerrainToZone(tile, neighbor.zoneIndex, currentWorld)
-      foundAdjacentZone = true
-      // engine.info('Found neighbor: ${neighbor.left},${neighbor.top}, zoneIndex: ${neighbor.zoneIndex}')
-      break
-    }
-    if (!foundAdjacentZone && willCreateZone) {
-      let category = tile.spriteIndex == kSpriteLand ? kZoneLand : kZoneWater
-      const zone = Zone(index: currentWorld.zones.length, category: category)
-      currentWorld.zones.add(zone)
-      // engine.info('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneIndex: ${zone.index}')
-      addTerrainToZone(tile, zone.index, currentWorld)
-      // engine.info('processing previoused stored unzoned tiles: ${unzonedNeighbors}')
-      for (const unzonedTile of unzonedNeighbors) {
-        if (unzonedTile.zoneIndex == -1) {
-          addTerrainToZone(unzonedTile, zone.index, currentWorld)
-        }
-      }
-    }
-  }
-
-  let unzonedTile
-  engine.info('开始生成地域')
-  while (
-    unzonedTile = currentWorld.terrains.firstWhere((tile) => tile.zoneIndex == null)
-  ) {
-    // engine.info('updating unzoned tile')
-    updateZone(unzonedTile)
-  }
-
-  function find2NearestLocation(origin, {restricted2Zone: bool = true}) {
-    assert(game.locations.length > 0)
-    let nearest
-    let nearestDistance
-    let secondNearest
-    let secondNearestDistance
-    for (const location of game.locations) {
-      if (location.index == origin.index) {
-        continue
-      } else {
-        const start = currentWorld.terrains[origin.terrainIndex]
-        const end = currentWorld.terrains[location.terrainIndex]
-        const distance = getTileDistance(start, end)
-        if (!restricted2Zone || location.zoneIndex == origin.zoneIndex) {
-          if (nearestDistance == null || distance < nearestDistance) {
-            nearestDistance = distance
-            nearest = location
-          } else if (secondNearestDistance == null || distance < secondNearestDistance) {
-            secondNearestDistance = distance
-            secondNearest = location
-          } else {
-            continue
-          }
-        }
-      }
-    }
-    return { nearest, secondNearest }
-  }
-
-  // 生成据点
-  engine.info('生成大陆上的据点')
-  const locationIndexes = Set()
-  while (game.locations.length < locationNumber) {
-    let index
-    let tile
-    do {
-      // engine.info('generating location index')
-      index = random.nextInt(currentWorld.terrains.length)
-      tile = currentWorld.terrains[index]
-    } while (locationIndexes.contains(index) || tile.spriteIndex != kSpriteLand)
-    // location category 有三种：城市、岛屿和山峰，后两者为隐藏据点
-    const location = Location(
-      terrainIndex: index,
-      left: tile.left,
-      top: tile.top,
-      category: kLocationCategoryCity,
-    )
-    tile.locationId = location.id
-    // tile.caption = location.name
-    // 城市的贴图重叠于地形贴图之上
-    tile.overlaySprite.spriteIndex = kSpriteCity
-    locationIndexes.add(index)
-    
-    // 随机生成的据点，初始发展度是0-3之间随机。
-    location.development = random.nextInt(_kLocationInitialDevelopmentMax)
-    // 据点所拥有的金钱，和发展度有关
-    // for (const i in range(location.development)) {
-    //   location +=  random.nextInt((i + 1) * _kLocationInitialMoney)
-    // }
-
-    // 随机为据点添加一些初始建筑和对应的物品
-    // 初始时、根据发展度，可能会有商号（1）、工坊（2）、医馆和酒楼（3）
-    if (location.development > 0 && random.nextDouble() < _kSiteTradinghouseProbability) {
-      const site = Site(category: kSiteTradinghouse, locationId: location.id)
-      // site.money = _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
-      const money = _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
-      acquireMoney(site, money)
-      // 商号可能有：谷物、水果、鱼、蔬菜、药材、木料、矿石
-      acquire(site, Material.grain(), count: 20)
-      acquire(site, Material.fruit(), count: 20)
-      acquire(site, Material.fish(), count: 20)
-      acquire(site, Material.vegetable(), count: 20)
-      acquire(site, Material.herb(), count: 20)
-      acquire(site, Material.wood(), count: 20)
-      acquire(site, Material.ore(), count: 20)
-    }
-    if (location.development > 1 && random.nextDouble() < _kSiteWorkshopProbability) {
-      const site = Site(category: kSiteWorkshop, locationId: location.id)
-      // site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
-      const money = _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
-      acquireMoney(site, money)
-      // 工坊可能有：武器、盾牌
-      acquire(site, Weapon())
-      acquire(site, Weapon())
-      acquire(site, Weapon())
-      acquire(site, Shield())
-      acquire(site, Shield())
-    }
-    if (location.development > 2 && random.nextDouble() < _kSiteRestaurantProbability) {
-      const site = Site(category: kSiteRestaurant, locationId: location.id)
-      // site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
-      const money = _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
-      acquireMoney(site, money)
-      // 酒楼可能有：饮料、食物
-      acquire(site, Consumable.beverage(), count: 20)
-    }
-    if (location.development > 2 && random.nextDouble() < _kSiteHospitalProbability) {
-      const site = Site(category: kSiteHospital, locationId: location.id)
-      // site.money += _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
-      const money = _kNPCStoreInitialMoney + random.nextInt(_kNPCStoreInitialMoney)
-      acquireMoney(site, money)
-      // 医馆可能有：方剂
-      acquire(site, Consumable.medicine(), count: 20)
-      acquire(site, Material.herb(), count: 10)
-    }
-  }
-
-  engine.info('确保陆地上的每个城市至少可以链接到另外两个城市')
-  for (const location of game.locations) {
-    const start = currentWorld.terrains[location.terrainIndex]
-    // 确保陆地上的每个城市至少可以链接到另外两个城市
-    if (start.zoneCategory == kZoneLand) {
-      const searchResult = find2NearestLocation(location, restricted2Zone: true)
-      if (searchResult.nearest) {
-        const end = currentWorld.terrains[searchResult.nearest.terrainIndex]
-        const route = calculateRoute(start, end, currentWorld)
-        if (route) {
-          // routes.add(route)
-          for (const index in route) {
-            const terrain = currentWorld.terrains[index]
-            terrain.flags.isRoute = true
-          }
-        }
-      }
-      if (searchResult.secondNearest) {
-        const end = currentWorld.terrains[searchResult.secondNearest.terrainIndex]
-        const route = calculateRoute(start, end, currentWorld)
-        if (route) {
-          // routes.add(route)
-          for (const index in route) {
-            const terrain = currentWorld.terrains[index]
-            terrain.flags.isRoute = true
-          }
-        }
-      }
-    }
-  }
-  
-  const mountains = Set()
-  const seas = Set()
-
-  // 地形装饰贴图
-  // 将大陆和海洋接触的地方填充为大陆架，将大陆上没有道路的方格，随机填充为平原、森林、山地
-  // 这些修改不影响该地块的 category 和 kind
-  engine.info('填充地形装饰贴图：大陆架、平原、森林、山地')
-  for (const tile in currentWorld.terrains) {
-    if (tile.spriteIndex == kSpriteLand) {
-      if (!tile.flags.isRoute) {
-        const r = random.nextDouble()
-        if (r < _kMountainThreshold) {
-          tile.spriteIndex = kSpriteMountain
-          mountains.add(tile.index)
-        } else if (r < _kForestThreshold) {
-          tile.spriteIndex = kSpriteForest
-        }
-      }
-    } else if (tile.spriteIndex == kSpriteWater) {
-      const neighbors = getMapTileNeighbors(tile.left, tile.top, currentWorld)
-      let isSea = true
-      for (const neighbor in neighbors) {
-        if (neighbor.spriteIndex == kSpriteLand) {
-          tile.spriteIndex = kSpriteShelf
-          isSea = false
-          break
-        }
-      }
-      if (isSea) {
-        seas.add(tile.index)
-      }
-    }
-  }
-
-  // 因为 zone 的名字和其大小有关，因此在最后在才命名和赋值 category/kind
-  engine.info('为地域命名')
-  for (const zone in currentWorld.zones) {
-    if (zone.name) {
-      continue
-    }
-    // kZoneWater & kZoneLand 只是临时类型，现在替换为具体的类型
-    if (zone.category == kZoneWater) {
-      zone.category = zone.terrainIndexes.length < _kMinZoneSizeForSea ? kZoneCategoryLake : kZoneCategorySea
-      
-      // 为该地域中所有地块赋值 kind
-      for (const terrainIndex in zone.terrainIndexes) {
-        const tile = currentWorld.terrains[terrainIndex]
-        // 将所有水域保存在一个总表中，之后用来计算捕鱼地区
-        currentWorld.waterTerrainIndexes.add(tile.index)
-        tile.isWater = true
-        tile.zoneCategory = zone.category
-        tile.kind = zone.category
-      }
-    } else {
-      zone.category = zone.terrainIndexes.length < _kMinZoneSizeForIsland ? kZoneCategoryIsland : kZoneCategoryContinent
-      
-      // 为该地域中所有地块赋值 kind
-      for (const terrainIndex in zone.terrainIndexes) {
-        const tile = currentWorld.terrains[terrainIndex]
-        tile.zoneCategory = zone.category
-        
-        if (tile.locationId) {
-          tile.kind = kTerrainKindLocation
-        }
-        // else if (tile.flags.isRoute) {
-        //   tile.kind = kTerrainKindRoad
-        // }
-        else if (tile.spriteIndex == kSpriteMountain) {
-          tile.kind = kTerrainKindMountain
-        } else if (tile.spriteIndex == kSpriteForest) {
-          tile.kind = kTerrainKindForest
-        } else {
-          tile.kind = kTerrainKindPlain
-        }
-        // TODO: river类型和道路类型单独的贴图
-      }
-    }
-
-    const randomName = generateZoneName(category: zone.category)
-    zone.name = randomName.name
-
-  }
-
-  const organizations = []
-  // 随机挑选几个城市，作为各个国家的都城，生成地图上的不同国家
-  engine.info('随机挑选几个城市，作为各个国家的都城，生成地图上的不同国家')
-  while (organizations.length < organizationNumber) {
-    let location
-    do {
-      // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
-      const locationId = random.nextIterable(game.locations.keys)
-      location = game.locations[locationId]
-    } while (location.organizationId != null)
-    // engine.info('picking location for new nation capital: ${location}')
-    const head = Character(
-      birthTimestamp: createRandomBirthTimestamp(min: 40, max: 70), // 年龄至少是20岁
-    )
-    const organization = Organization(
-      headquartersId: location.id,
-      headId: head.id,
-    )
-    // Site(category: kSitePalace, locationId: location.id, organizationId: nation.id)
-    const terrain = currentWorld.terrains[location.terrainIndex]
-    addTerrainToOrganization(terrain, organization)
-    organizations.add(organization)
-  }
-
-  // 随机生成每个组织的创建时间，分布在20年的范围内，时间固定为某月1号
-
-  function findHead {
-    let head
-    if (game.characters.length == 0) {
-      // 人物列表是空的，此时要创造第一个角色
-      head = Character(
-        birthTimestamp: createRandomBirthTimestamp(min: 20) // 年龄至少是20岁
-      )
-    } else {
-      let found = false
-      for (const id in random.shuffle(game.characters.keys)) {
-        const character = game.characters[id]
-        const age = datetime.toYear(game.timestamp - character.birthTimestamp)
-        // 年龄至少是20岁，并且不能担任其他组织职务
-        if (character.organizationRank < 0 && age >= 20) {
-          found = true
-          head = character
-          break
-        }
-      }
-      if (!found) {
-        // 没有找到合适的人，则立刻创建一个
-        head = Character(
-          birthTimestamp: createRandomBirthTimestamp(min: 20), // 年龄至少是20岁
-        )
-      }
-    }
-    return head
-  }
-
-  // 修真门派
-  // let createdCultivationOrganizationCount = 0
-  // let cultivationOrganizationCreatedDate = []
-  // for (const i in range(cultivationOrganizationNumber)) {
-  //   cultivationOrganizationCreatedDate.add(random.nextInt(20 * kMonthsPerYear) * kTicksPerMonth)
-  // }
-  // cultivationOrganizationCreatedDate.sort()
-  // cultivationOrganizationCreatedDate = cultivationOrganizationCreatedDate.reversed.toList()
-  
-  // 商号
-  // let createdTradinghouseOrganizationCount = 0
-  // let tradinghouseOrganizationCreatedDate = []
-  // for (const i in range(tradinghouseOrganizationNumber)) {
-  //   tradinghouseOrganizationCreatedDate.add(random.nextInt(20 * kMonthsPerYear) * kTicksPerMonth)
-  // }
-  // tradinghouseOrganizationCreatedDate.sort()
-  // tradinghouseOrganizationCreatedDate = tradinghouseOrganizationCreatedDate.reversed.toList()
-
-  // 模拟世界演化，按照时间推进并生成人物、组织，并且为期分配人物关系
-  // 在此种演化算法中，人物不会死亡，组织不会被消灭，因此只判断人数是否达到要求
-  // 因为是模拟运行，每个tick接跳过一个月
-  engine.info('快速模拟一段时间的演化，生成人物、组织、国家等信息')
-  // const islands = Set() // 用来保存在这一步骤才生成的隐居岛屿的门派据点
-  do {
-  //   if (createdCultivationOrganizationCount < cultivationOrganizationNumber) {
-  //     if (game.timestamp >= cultivationOrganizationCreatedDate.last) {
-  //       // 组织数量不够，在来到下一个组织创建时间时，创建组织
-  //       cultivationOrganizationCreatedDate.removeLast()
-
-  //       // 修真门派根据所处地块可以分成三种：入世、洞天、福地。
-  //       // 入世是公开的据点。洞天是大陆上秘境所在地，福地是大海中的岛屿。
-  //       // 洞天福地在未被探索之前，对玩家不可见。只是显示为平常的地形。
-  //       // 如果据点生成在海洋之中，就将该地块设定为岛屿
-  //       // 洞天福地的据点都直接以“xx山”, "xx岛"命名。
-
-  //       // 两个修真组织不会在同一个据点
-  //       let headquarters
-
-  //       const cultivationKind = random.nextIterable(_cultivationKinds)
-  //       let isHermit = false
-  //       switch (cultivationKind) {
-  //         'location' => {
-  //           do {
-  //             // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
-  //             const headquartersId = random.nextIterable(game.locations.keys)
-  //             headquarters = game.locations[headquartersId]
-  //           } while (headquarters.hasCultivation)
-  //         }
-  //         'mountain' => {
-  //           isHermit = true
-  //           // 临时生成一个新的隐藏据点
-  //           let mountainTile
-  //           do {
-  //             const mountainTileIndex = random.nextIterable(mountains)
-  //             mountainTile = currentWorld.terrains[mountainTileIndex]
-  //           } while (mountainTile.locationId != null)
-
-  //           headquarters = Location(
-  //             terrainIndex: mountainTile.index,
-  //             left: mountainTile.left,
-  //             top: mountainTile.top,
-  //             category: kLocationCategoryMountain,
-  //           )
-  //           mountainTile.locationId = headquarters.id
-  //           // 隐居门派据点，名字在地图上一开始不可见
-  //           // mountainTile.caption = headquarters.name
-  //         }
-  //         'island' => {
-  //           isHermit = true
-  //           // 临时生成一个新的隐藏据点
-  //           let islandTile
-  //           do {
-  //             const islandTileIndex = random.nextIterable(seas)
-  //             islandTile = currentWorld.terrains[islandTileIndex]
-  //           } while (islandTile.locationId != null)
-
-  //           const islandZone = Zone(index: currentWorld.zones.length, category: kZoneCategoryIsland)
-  //           currentWorld.zones.add(islandZone)
-  //           addTerrainToZone(islandTile, islandZone.index, currentWorld)
-            
-  //           const neighbors = getMapTileNeighbors(islandTile.left, islandTile.top, currentWorld)
-  //           for (const neighbor in neighbors) {
-  //             seas.remove(neighbor.index)
-  //             neighbor.spriteIndex == kSpriteShelf
-  //           }
-
-  //           headquarters = Location(
-  //             terrainIndex: islandTile.index,
-  //             left: islandTile.left,
-  //             top: islandTile.top,
-  //             category: kLocationCategoryIsland,
-  //           )
-  //           islandTile.locationId = headquarters.id
-  //           // 隐居门派据点，名字在地图上一开始不可见
-  //           // islandTile.caption = headquarters.name
-  //         }
-  //       }
-
-  //       const head = findHead()
-  //       // 创建组织
-  //       const organization = Organization(
-  //         category: kOrganizationCategoryCultivation,
-  //         headquartersId: headquarters.id,
-  //         headId: head.id,
-  //       )
-
-  //       ++createdCultivationOrganizationCount
-  //     }
-  //   }
-
-    // 婴儿出生
-    handleBabies()
-
-    // 每年一次
-    if (game.timestamp % kTicksPerYear == 0) {
-      // 产生新的在野角色
-      if (game.characters.length < characterNumber) {
-        // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
-        const id = random.nextIterable(game.locations.keys)
-        const location = game.locations[id]
-        const character = Character(
-          locationId: location.id,
-          birthTimestamp: createRandomBirthTimestamp(min: 15, max: 50),
-        )
-      }
-
-      // 国家和组织扩张
-      for (const id in random.shuffle(game.organizations.keys)) {
-        const organization = game.organizations[id]
-        updateOrganizationYearly(organization)
-      }
-      
-      // 为角色添加家庭关系
-      // engine.info('为角色添加家庭关系')
-      for (const id in random.shuffle(game.characters.keys)) {
-        const char = game.characters[id]
-        const age = getCharacterAge(char)
-        if (char.relationships.spouseId) {
-          if (char.isFemale && !char.isPregnant && age < _kPregnancyAgeMax) {
-            if (char.thinkings.contains('dink')) continue
-            if (char.thinkings.contains('clumsy')) continue
-            if (char.relationships.childrenIds.isNotEmpty) {
-              if (char.personality.social < 10) continue
-              if (char.personality.prudence > 10) continue
-              if (char.personality.frugal > 10) continue
-              if (char.relationships.childrenIds.length > 2) {
-                continue
-              }
-            }
-            const spouse = game.characters[char.relationships.spouseId]
-            if (spouse.thinkings.contains('dink')) continue
-            if (spouse.thinkings.contains('clumsy')) continue
-            Baby(
-              father: spouse,
-              mother: char,
-              conceptionTimestamp: game.timestamp,
-            )
-          }
-        } else {
-          if (age > _kCharacterMarriageAgeMin && age < _kCharacterMarriageAgeMax) {
-            for (const otherId in random.shuffle(game.characters.keys)) {
-              if (id == otherId) continue
-              const otherChar = game.characters[otherId]
-              // TODO: 这里暂时没有允许同性婚姻
-              if (otherChar.isFemale == char.isFemale) continue
-              const otherCharAge = getCharacterAge(otherChar)
-              if (otherCharAge > _kCharacterMarriageAgeMin
-                  && otherCharAge < _kCharacterMarriageAgeMax
-                  && otherChar.relationships.spouseId == null) {
-                char.relationships.spouseId = otherId
-                otherChar.relationships.spouseId = id
-                let home
-                if (char.organizationRank < otherChar.organizationRank) {
-                  home = game.locations[char.homeId]
-                } else if (char.organizationRank > otherChar.organizationRank) {
-                  home = game.locations[otherChar.homeId]
-                } else {
-                  if (otherChar.isFemale) {
-                    home = game.locations[char.homeId]
-                  } else {
-                    home = game.locations[otherChar.homeId]
-                  }
-                }
-                characterFirstMet(char, otherChar)
-                const incidentContent = engine.locale('characterMarriage', interpolations: [
-                    char.name,
-                    otherChar.name,
-                    home.name,
-                  ])
-                Incident(
-                  content: incidentContent,
-                  subjectIds: [char.id, otherChar.id],
-                  locationId: home.id,
-                  order: 20,
-                )
-                char.marriageTimestamp = game.timestamp
-                otherChar.marriageTimestamp = game.timestamp
-                break
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // 因为是模拟运行，时间直接以月为单位流逝
-    game.timestamp += kTicksPerMonth
-  } while (
-    game.characters.length < characterNumber
-    // || createdCultivationOrganizationCount < cultivationOrganizationNumber
-  )
-
-  // 为生成的世界填充一些必要信息
-
-  // 为角色添加次要动机
-  for (const id in random.shuffle(game.characters.keys)) {
-    const char = game.characters[id]
-    if (char.organizationId == null) {
-      char.motivations.add('recruitment')
-    }
-    if (char.relationships.spouseId == null) {
-      const age = getCharacterAge(char)
-      if (age > _kCharacterMarriageAgeMin && age < _kCharacterMarriageAgeMax) {
-        char.motivations.add('marriage')
-      }
-    } else {
-      if (char.relationships.childrenIds.isEmpty) {
-        char.motivations.add('child')
-      }
-    }
-  }
-
-  // 在不改变时间的情况下刷新一下世界事件
-  updateGame(timeflow: false, playerEvent: false)
-
-  // 将地域的上色信息复制到引擎侧
-  engine.info('刷新世界地图上色信息')
-  loadColors()
-
-  // engine.info('世界生成完毕。重置随机数生成器。')
-  // setRandomSeed()
-
-  currentWorld = savedCurrentWorld
-
-  return world
-}
-
-function getWorld() {
-  return currentWorld
-}
-
-function getZoneByIndex(index: integer) {
-  return currentWorld.zones[index]
 }
 
 /// 刷新地图上色信息
-function loadColors {
+function loadTileMapZoneColors {
   const colors = []
   const zoneColors = Map()
   const organizationColors = Map()
-  for (const tile in currentWorld.terrains) {
-    if (tile.zoneIndex) {
-      const zone = currentWorld.zones[tile.zoneIndex]
+  for (const tile in world.terrains) {
+    if (tile.zoneId) {
+      const zone = world.zones[tile.zoneId]
       zoneColors[tile.index] = zone.color
     }
-    if (tile.organizationId) {
-      const organization = game.organizations[tile.organizationId]
+    if (tile.nationId) {
+      const organization = game.organizations[tile.nationId]
       organizationColors[tile.index] = organization.color
     }
   }
   colors.add(zoneColors)
   colors.add(organizationColors)
-  engine.loadColors(colors)
+  engine.loadTileMapZoneColors(colors)
+}
+
+
+function createBlankWorld({
+    id,
+    name,
+    terrainSpriteSheet = 'fantasyhextiles_v3_borderless.png',
+    width,
+    height,
+  }) {
+  assert(width is integer && width >= 12)
+  assert(height is integer && height >= 12)
+
+  let newWorld = TileMap(
+    id: id ?? 'main',
+    name: name,
+    terrainSpriteSheet: terrainSpriteSheet,
+    width: width,
+    height: height,
+  )
+
+  newWorld.name = name ?? generateZoneName(category: 'world').name
+
+  engine.info('生成空白地块，默认为海洋')
+  for (const j in range(height)) {
+    for (const i in range(width)) {
+      newWorld.terrains.add({
+          ...Tile(i + 1, j + 1),
+          index: i + j * mapWidth,
+          spriteIndex: kSpriteWater,
+          overlaySprite: {},
+          kind: kTerrainKindSea,
+          // 该地块的每月刷新野外事件的时间
+          monthlyUpdateTime: random.nextInt(kTicksPerMonth)
+      })
+    }
+  }
+
+  setWorld(newWorld)
+
+  return newWorld
+}
+
+function expandCurrentWorldBySize(width, height, direction) {
+  assert(width > 0 && height > 0)
+
+  switch (direction) {
+    'topLeft': {
+
+    }
+    'topCenter': {
+
+    }
+    'topRight': {
+
+    }
+    'centerLeft': {
+
+    }
+    'center': {
+
+    }
+    'centerRight': {
+
+    }
+    'bottomLeft': {
+
+    }
+    'bottomCenter': {
+
+    }
+    'bottomRight': {
+      
+    }
+  }
+
+  for (const j in range(world.height)) {
+    let row = []
+    for (const i in range(width)) {
+      row.add({
+          ...Tile(world.width + i + 1, j + 1),
+          spriteIndex: kSpriteWater,
+          overlaySprite: {},
+          kind: kTerrainKindSea,
+          // 该地块的每月刷新野外事件的时间
+          monthlyUpdateTime: random.nextInt(kTicksPerMonth)
+        })
+    }
+    world.terrains.insertAll((j + 1) * world.width + j * width, row)
+  }
+
+  for (const j in range(height)) {
+    for (const i in range(world.width + width)) {
+      world.terrains.add({
+          ...Tile(i + 1, j + 1),
+          spriteIndex: kSpriteWater,
+          overlaySprite: {},
+          kind: kTerrainKindSea,
+          // 该地块的每月刷新野外事件的时间
+          monthlyUpdateTime: random.nextInt(kTicksPerMonth)
+        })
+    }
+  }
+
+  world.width += width
+  world.height += height
+
+  for (let i in range(world.terrains.length)) {
+    let terrain = world.terrains[i]
+    terrain.index = i
+  }
 }

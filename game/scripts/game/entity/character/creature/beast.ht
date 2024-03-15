@@ -48,7 +48,7 @@ struct Beast {
     this.id = '${this.entityType}.${crypto.randomUID4(2)}.${this.name}'
     this.rarity = randomName.rarity ?? kCommon
     this.color = kRarity[this.rarity].color
-    game.npcs[this.id] = this
+    game.minorCharacters[this.id] = this
 
     this.description = description ?? ''
 
@@ -63,16 +63,16 @@ struct Beast {
 
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
     switch (this.kind) {
-      'tiger' => {
+      'tiger' : {
         this.icon = 'maze/tiger.png'
         equip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindClaw, rarity: this.rarity))
         equip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindFang, rarity: this.rarity))
       }
-      'monkey' => {
+      'monkey' : {
         this.icon = 'maze/monkey.png'
         equip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindClaw, rarity: this.rarity))
       }
-      'snake' => {
+      'snake' : {
         this.icon = 'maze/snake.png'
         equip(this, BeastWeapon(beastName: this.name, kind: kBeastWeaponKindFang, rarity: this.rarity))
       }

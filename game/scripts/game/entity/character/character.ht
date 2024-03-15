@@ -1,6 +1,1009 @@
+import '../../game.ht'
+// import '../../l10n.ht'
+import '../../datetime.ht'
+import '../incident.ht'
+// import '../../duel.ht'
+import '../../util.ht'
+import '../common.ht'
+import '../../tile/hexagonal_tile.ht'
+import 'battle_entity.ht'
+import '../item/common.ht'
+import 'companion.ht'
+import '../../dialog.ht'
+
 export 'creature/creature.ht'
 export 'npc/npc.ht'
-export 'common.ht'
 export 'battle_entity.ht'
 export 'companion.ht'
 // export 'status_effect/world_map_status_effect.ht'
+
+// number of the male avatar images
+const _kMaleAvatarCount = 37
+ // number of the female avatar images
+const _kFemaleAvatarCount = 75
+
+const _kCharacterAverage = 50.0
+const _kCharacterDeviation = 25.0
+/// 容貌最大值: 100.0
+const _kCharacterMax = 100.0
+const _kCharacterImpressionCheckpoint = 10.0
+const _kCharacterInitialGeneralThinking = 4
+
+const kMajorMotivations = [
+  'immortality', // 境界
+  'dao', // 修为
+  'domination', // 门派领地
+  'wealth', // 财富（法宝和材料）
+  'pleasure', // 快乐
+  'soulmate', // 知己
+  'wuwei', // 无欲无求
+]
+
+const kMinorMotivations = [
+  'recruitment',
+  'friendship',
+  'marriage',
+  'child',
+]
+
+const kCultivationFavor = [
+  'any',
+  'spirituality',
+  'physique',
+  // 'blade',
+  // 'vitality',
+  // 'avatar',
+  'none',
+]
+
+const kOrganizationFavor = [
+  'any',
+  'cultivation',
+  'gang',
+  'religion',
+  'business',
+  'nation',
+  'none',
+]
+
+const kMajorThinkings = [
+  "respectForElders",
+  "malePreference",
+  "exclusionism",
+  "bigFamily",
+  "heritage",
+  'selfDiscipline',
+  'helping',
+  'travelling',
+  'curiosity',
+  'competitiveness',
+  'humor',
+  'enthusiasm',
+  'romance',
+  'modesty',
+  'celibate',
+  'dink',
+  'chatting',
+  'clumsy',
+  'cynicism',
+  'appearanceIsEverything',
+  'bullying',
+  'promiscuousness',
+  'saddist',
+  'backstabbing',
+  'greediness',
+  'arrogance',
+  'jealousness',
+  'anger',
+]
+
+// 羁绊, 人物对其他的某个事物的印象和评价
+struct Bond {
+  let id
+  let name
+  let score
+
+  construct ({
+    id,
+    name,
+    score = 0
+  }) {
+    this.id = id
+    this.name = name
+    // 是否见过此对象
+    this.haveMet = false
+    // 对这个对象的总评分
+    this.score = score
+    // memroy 的key 是incident的id，value是对此事的评分
+    this.memory = {}
+  }
+}
+
+const _kPregnancyTime = kTicksPerMonth * 9
+const _kPregnancyTimeVariable = kTicksPerMonth * 2
+
+struct Baby {
+  construct ({
+    father,
+    mother,
+    conceptionTimestamp,
+    middleName,
+    shortName,
+  }) {
+    assert(father != null)
+    assert(mother != null)
+    assert(conceptionTimestamp != null)
+    this.entityType = kEntityTypeBaby
+
+    mother.isPregnant = true
+
+    this.fatherId = father.id
+    this.motherId = mother.id
+    this.conceptionTimestamp = conceptionTimestamp
+    this.pregnancyTime = Math.gaussianNoise(
+      _kPregnancyTime,
+      _kPregnancyTimeVariable, 
+      randomGenerator: random,
+    )
+    this.isFemale = random.nextBool()
+    this.familyName = father.familyName
+
+    if (shortName) {
+      this.shortName = middleName + shortName
+    } else {
+      let randomName
+      let conflict = false
+      do {
+        randomName = generateCharacterName(
+          isFemale: this.isFemale,
+          familyName: this.familyName,
+          middleName: middleName,
+        )
+        conflict = game.characters.values.where((element) =>
+          element.name == randomName.name).isNotEmpty
+      } while (conflict)
+      this.shortName = randomName.shortName
+    }
+    this.name = this.familyName + this.shortName
+
+    // this.id = 'character.${crypto.randomUID4(2)}.${this.name}'
+    this.id = this.name
+
+    game.babies[this.id] = this
+  }
+}
+
+struct Character {
+  construct ({
+    isMajorCharacter = true,
+    category: string, // 'character' | 'minor'
+    icon,
+    illustration,
+    skin = 'default',
+    familyName,
+    middleName,
+    name,
+    generateRandomName = true,
+    isFemale: bool,
+    birthTimestamp,
+    cultivationRank = 0,
+    worldId,
+    worldPositionX,
+    worldPositionY,
+    locationId,
+    // nationId,
+    isNewborn = false, // 是否是新生儿，如果是则会自动为其添加父母关系
+    description,
+    fatherId,
+    motherId,
+    spouseId,
+    attributes,
+    attributeSum = 50,
+    baseStats,
+  }) {
+    // 该人物的每月刷新事件的时间
+    this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
+    // 该人物的事件触发选项
+    this.flags = {}
+
+    this.isFemale = isFemale ?? random.nextBool()
+    if (this.isFemale) {
+      const index = random.nextInt(_kFemaleAvatarCount)
+      this.icon ??= 'female/${index}.jpg'
+      this.illustration ??= illustration
+      this.skin = skin ?? 'default'
+    } else {
+      const index = random.nextInt(_kMaleAvatarCount)
+      this.icon ??= 'male/${index}.jpg'
+      this.illustration ??= illustration
+      this.skin = skin ?? 'default'
+    }
+    if (name != null) {
+      this.familyName = familyName
+      this.shortName = name
+      this.name = this.familyName ?? '' + this.shortName
+    } else if (generateRandomName) {
+      let randomName
+      let conflict = false
+      do {
+        randomName = generateCharacterName(
+          isFemale: this.isFemale,
+          familyName: familyName,
+          middleName: middleName,
+        )
+        conflict = game.characters.values.where((element) =>
+          element.name == randomName.name).isNotEmpty
+      } while (conflict)
+      this.familyName = familyName ?? randomName.familyName
+      this.shortName = name ?? randomName.shortName
+      this.name = this.familyName + this.shortName
+    } else {
+      this.name = engine.locale('noname')
+    }
+    assert(this.name != null)
+
+    this.entityType = 'character'
+    // 非主角色不参与 update, interact 等逻辑交互，也不会自动显示在地图或场景中。
+    this.isMajorCharacter = isMajorCharacter ?? false
+    this.category = category ?? 'character'
+
+    // this.id = '${this.entityType}.${crypto.randomUID4(2)}.${this.name}'
+
+    // let conflict = false
+    // do {
+    //   this.id = crypto.randomUID4()
+    //   conflict = game.characters.values.where((element) =>
+    //     element.id == this.id).isNotEmpty
+    // } while (conflict)
+    this.id = this.name
+
+    game.characters[this.id] = this
+
+    this.worldId = worldId ?? world?.id
+
+    // 修真境界，一开始是练气
+    this.cultivationRank = cultivationRank ?? 0
+    this.color = kRarity.rare.color
+    
+    // age 的格式是 timestamp, 精确到 tick. 
+    if (birthTimestamp != null) {
+      this.birthTimestamp = birthTimestamp
+    } else {
+      this.birthTimestamp = createRandomBirthTimestamp()
+    }
+    
+    this.deathTimestamp = this.birthTimestamp + createRandomLifespan(this.cultivationRank)
+
+    this.luck =  Math.gaussianNoise(
+      _kCharacterAverage,
+      _kCharacterDeviation,
+      min: 1,
+      max: _kCharacterMax,
+      randomGenerator: random,
+    )
+    this.wisdom = Math.gaussianNoise(
+      _kCharacterAverage,
+      _kCharacterDeviation,
+      min: 1,
+      max: _kCharacterMax,
+      randomGenerator: random,
+    )
+    this.charisma = Math.gaussianNoise(
+      _kCharacterAverage,
+      _kCharacterDeviation,
+      min: 1,
+      max: _kCharacterMax,
+      randomGenerator: random,
+    )
+    this.charismaFavor =  Math.gaussianNoise(
+      _kCharacterAverage,
+      _kCharacterDeviation,
+      min: 1,
+      max: _kCharacterMax,
+      randomGenerator: random,
+    )
+
+    // 该角色的称号
+    this.titles = {}
+    // titles中直接保存了称号字符串
+    this.currentTitleId = null
+
+    this.description = description ?? ''
+
+    // 组织中的等级，一开始是 -1，表示没有组织，越大等级越高
+    // 掌门的等级是 6
+    this.organizationRank = -1
+
+    this.fame = 0
+    this.infamy = 0
+ 
+    // 有多少人知道此人的名字
+    // this.knownByPopulation = 0
+    // // 恶名，知道名字中，对此人差评的人的数量
+    // this.infamy = 0
+
+    // 该角色的人际关系
+    this.relationships = {
+      fatherId,
+      motherId,
+      spouseId,
+      siblingIds: [],
+      childrenIds: [],
+      friendIds: [],
+      // 师父id一般只显示最后一个也就是最新的师父，但在互动时，之前的师父也会有影响
+      shifuIds: [],
+    }
+
+    // 该角色的人格纬度
+    this.personality = {
+      // 三观，最小 -50 最大 +50
+      ideal: random.nextDouble() * 100.0 - 50.0,
+      order: random.nextDouble() * 100.0 - 50.0,
+      good: random.nextDouble() *100.0 - 50.0,
+
+      // 行为逻辑，最小 -50 最大 +50
+      social: random.nextDouble() * 100.0 - 50.0,
+      reason: random.nextDouble() * 100.0 - 50.0,
+      control: random.nextDouble() * 100.0 - 50.0,
+      frugal: random.nextDouble() * 100.0 - 50.0,
+      frank: random.nextDouble() * 100.0 - 50.0,
+      confidence: random.nextDouble() * 100.0 - 50.0,
+      prudence: random.nextDouble() * 100.0 - 50.0,
+      empathy: random.nextDouble() * 100.0 - 50.0,
+      generosity: random.nextDouble() * 100.0 - 50.0,
+    }
+
+    // 动机列表，列表第一格为主要动机，次要动机可以有多个
+    // 动机决定了角色如何安排行动
+    this.motivations = []
+    this.motivations.add(random.nextIterable(kMajorMotivations))
+
+    // 思想列表，列表第一格为主要思想，次要思想可以有多个
+    // 思想决定了角色对事物的看法
+    this.thinkings = []
+    this.thinkings.add(random.nextIterable(kMajorThinkings))
+
+    // 该角色的记忆
+    this.memory = {
+      // conducted: [],
+      experienced: [], // 主动或者被动
+      known: [],
+      // heard: [],
+    }
+
+    // 该角色和世界上其他事物的交互历史
+    // 反过来，这些其他的事物，也保存了一份对应这个人的历史
+    // 例如一个据点保存的这个人所做过事情的历史，决定了此人在此地的声望
+    // 这个声望会影响到和官府的交互。
+    this.bonds = {
+      // 代表对另一个角色的记忆
+      characters: {},
+      // 代表对某个组织的记忆
+      organizations: {},
+      // 代表对某个据点的记忆
+      locations: {},
+      // 代表对某个法宝的记忆
+      // 法宝特指唯一物品
+      talismans: {},
+    }
+
+    // bond数据结构
+    // {
+    //   score: int 对这个人的好感度分数
+    //   memory: {} 对这个人的相关记忆
+    //   promises: {} 对这个人的承诺
+    // }
+
+    // 该角色当前的任务
+    this.quests = {}
+    
+    if (locationId) {
+      const location = game.locations[locationId]
+      setCharacterLocationId(this, locationId)
+
+      this.worldPosition = {
+        left: location.worldPosition.left,
+        top: location.worldPosition.top,
+      }
+
+      if (isNewborn) {
+        assert(fatherId != null)
+        assert(motherId != null)
+        const father = game.characters[fatherId]
+        const mother = game.characters[motherId]
+        this.birthPlaceId = locationId
+        // 出生事件会修改自身，需要放在最后处理
+        const incidentContent = engine.locale('characterBorn',
+          interpolations: [
+            father.name,
+            mother.name,
+            this.name,
+            location.name,
+          ])
+        Incident(
+          content: incidentContent,
+          subjectIds: [father.id, mother.id],
+          objectIds: [this.id],
+          locationId: locationId,
+          isPrivate: false,
+          order: 10,
+          ideal: -10,
+        )
+        // const homeId = mother.homeId ?? mother.locationId
+        // const home = game.locations[homeId]
+        const home = game.locations[mother.homeId]
+        setCharacterHome(this, home)
+        const siblingIds = father.relationships.childrenIds
+        this.relationships.siblingIds.addAll(siblingIds)
+        for (const id in siblingIds) {
+          const sib = game.characters[id]
+          sib.relationships.siblingIds.add(this.id)
+        }
+        father.relationships.childrenIds.add(this.id)
+        mother.relationships.childrenIds.add(this.id)
+      } else {
+        // 设置居住地会触发事件从而修改自身，需要放在最后处理
+        setCharacterHome(this, location)
+      }
+    } else {
+      if (worldPositionX != null && worldPositionY != null) {
+        this.worldPosition = {
+          left: worldPositionX,
+          top: worldPositionY,
+        }
+      }
+    }
+
+    // 生成战斗单位相关数据，并写入当前对象
+    // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
+    const battleInfo = BattleEntity(
+                      attributes: attributes, 
+                      attributeSum: attributeSum,
+                      baseStats: baseStats,
+                    )
+    Object.assign(this, battleInfo)
+
+    this.cultivationFavor = getMajorAttributes(this)
+    this.organizationFavor = random.nextIterable(kOrganizationFavor)
+    
+    // 指某个NPC对其他角色进行过的动作，限定每个月一次
+    this.montylyActivities = {
+      // 人物互动
+      talked: [],
+      gifted: [],
+      requested: [],
+      practiced: [],
+      consulted: [],
+      insulted: [],
+      stolen: [],
+    }
+  }
+}
+
+// 必须已经是门派成员，才可以设定头衔
+function addTitleForCharacter(character, organization, rank, titleId) {
+  assert(organization.characterIds.keys.contains(character.id))
+  assert(character.organizationId == organization.id)
+  assert(rank >= 0 && rank <= kOrganizationRankMax)
+  const membersOfRank = getOrganizationMemberIdsOfRank(organization, rank)
+  assert(membersOfRank.length < maxMemberOfDevelopment(organization.development))
+  // const titleId = '${organization.category}.titleRank${rank}'
+  const completeTitleId = '${organization.id}${titleId}';
+  if (character.organizationTitleId == completeTitleId) {
+    engine.warn('将要为角色 ${character.name} 设置的新组织头衔 ${titleId} 和角色目前头衔相同。')
+    return
+  }
+  const title = engine.locale(titleId)
+  character.titles[completeTitleId] = title
+  character.currentTitleId = completeTitleId
+  character.organizationRank = rank
+  if (rank == kOrganizationRankMax) {
+    organization.headId = character.id
+  }
+  const incidentContent = engine.locale('characterSetOrganizationRank', interpolations: [
+    character.name,
+    organization.name,
+    title,
+  ])
+  Incident(
+    subjectIds: [character.id],
+    organizationId: organization.id,
+    content: incidentContent,
+    order: 15,
+    isGlobal: true,
+  )
+}
+
+function setCharacterTitle(character, titleId) {
+  character.currentTitleId = titleId
+}
+
+// 如果没有称号，会返回 null
+function getCharacterTitle(character) {
+  if (character.currentTitleId != null) {
+    return character.titles[character.currentTitleId]
+  } else {
+    return null
+  }
+}
+
+function getCharacterAge(character) {
+  return (currentWorldHistory.timestamp - character.birthTimestamp) ~/ kTicksPerYear
+}
+
+function getCharacterAgeString(character) {
+  return formatAgeString(currentWorldHistory.timestamp - character.birthTimestamp)
+}
+
+function getCharacterRestLifespanString(character) {
+  return formatAgeString(character.deathTimestamp - currentWorldHistory.timestamp)
+}
+
+function getCharacterFameString(character) {
+  let fame = character.fame
+  if (fame < 20) {
+    return engine.locale('fame.1')
+  } else if (fame < 40) {
+    return engine.locale('fame.2')
+  } else if (fame < 60) {
+    return engine.locale('fame.3')
+  } else if (fame < 80) {
+    return engine.locale('fame.4')
+  } else {
+    return engine.locale('fame.5')
+  }
+  // return (character.knownByPopulation / game.characters.length).toPercentageString(2)
+}
+
+// 名声等于有多少个角色听说过你，是随着世界上的人数变化而动态变化的，取值：0 - 100
+function getCharacterInfamyString(character) {
+  let infamy = character.infamy
+  if (infamy < 20) {
+    return engine.locale('none')
+  }
+  else if (infamy >= 20 && infamy < 40) {
+    return engine.locale('infamy.2')
+  } else if (infamy < 60) {
+    return engine.locale('infamy.3')
+  } else if (infamy < 80) {
+    return engine.locale('infamy.4')
+  } else {
+    return engine.locale('infamy.5')
+  }
+  // return character.knownByPopulation / game.characters.length * 100
+}
+
+function getCharacterShifuId(character) {
+  if (character.relationships.shifuIds.isNotEmpty) {
+    return character.relationships.shifuIds.last
+  }
+}
+
+/// 容貌评价的计算公式
+/// 每个角色自身有一个容貌值，这个数值代表大众眼中的评价
+/// 每个角色都会有一个对特定容貌值的偏好
+/// 本公式会利用这两个数值，计算某个角色对另一个角色的容貌的评价
+/// charisma 是对方的容貌，0 <= charisma <= 100
+/// favor 是该角色的偏好，0 <= favor <= 100
+function _calculateCharismaScore({charisma: float, favor: float}) -> float {
+  assert(0.0 <= charisma && charisma <= _kCharacterMax)
+  if (favor != null) {
+    assert(0.0 <= favor && favor <= _kCharacterMax)
+  }
+  if (charisma < ((favor + _kCharacterMax) / 2)) {
+    return (-(charisma - favor) * (charisma - favor)) / 20 + _kCharacterMax
+  } else {
+    return (-(charisma - _kCharacterMax) * (charisma - _kCharacterMax)) / 20 + _kCharacterMax
+  }
+}
+
+// 第一印象分
+function _characterFirstMet(subject, target, [causeIncident, causeIncidentScore]) {
+  assert(subject != null && target != null)
+  let bond
+  if (subject.bonds.characters[target.id] != null) {
+    // 虽然没见过，但如果以前就听说过的话
+    bond = subject.bonds.characters[target.id]
+    if (bond.haveMet) return
+  } else {
+    // ++target.knownByPopulation // 第一次创建羁绊，target 的知名度增加
+    bond = Bond(id: target.id, name: target.name)
+    subject.bonds.characters[target.id] = bond
+  }
+  let metScore = 0
+  metScore += _calculateCharismaScore(charisma: target.charisma, favor: subject.charismaFavor) / 10
+  if (target.organizationId != null) {
+    // TODO: 敌对门派要减分
+    metScore += target.organizationId == subject.organizationId ? 10 : 0
+  }
+  // TODO: 敌对国家要减分
+  // TODO: 这两个挪到聊天互动之后再计算
+  // bond.scoreOfSameNation = target.nationId == subject.nationId ? 5 : 0
+  // bond.scoreOfSameBirthPlace = target.birthPlaceId == subject.birthPlaceId ? 10 : 0
+  // score += target.familyName == subject.familyName ? 10: 0
+  // TODO: 同名之谊?
+
+  let incidentContent
+  if (metScore < -_kCharacterImpressionCheckpoint) {
+    incidentContent = engine.locale('characterFirstMeetHate', interpolations: [
+      subject.name,
+      target.name,
+    ])
+  } else if (metScore > _kCharacterImpressionCheckpoint) {
+    incidentContent = engine.locale('characterFirstMeetLike', interpolations: [
+      subject.name,
+      target.name,
+    ])
+  } else {
+    incidentContent = engine.locale('characterFirstMeetNormal', interpolations: [
+      subject.name,
+      target.name,
+    ])
+  }
+
+  const metIncident = Incident(
+    content: incidentContent,
+    subjectIds: [subject.id], // 见面是一个单向事件
+    isPrivate: true,
+  )
+
+  bond.memory[metIncident.index] = metScore
+  bond.score += metScore
+  bond.haveMet = true
+}
+
+function characterFirstMet(subject, target, [causeIncident, causeIncidentScore]) {
+  _characterFirstMet(subject, target, causeIncident, causeIncidentScore)
+  _characterFirstMet(target, subject, causeIncident, causeIncidentScore)
+}
+
+function _calculateIncidentScore(character, incident) {
+  return (character.personality.ideal * incident.ideal +
+                 character.personality.order * incident.order +
+                 character.personality.good  * incident.good) / 100
+}
+
+function characterExperiencedIncident(character, incident) {
+  assert(character != null)
+  assert(incident != null && incident.index != null)
+  if (character.memory.known.contains(incident.index)) {
+    engine.warn('角色 ${character.name} 已经知道了事件：[${incident.description}]')
+    return
+  }
+  if (character.memory.experienced.contains(incident.index)) {
+    engine.warn('角色 ${character.name} 已经经历过事件：[${incident.description}]')
+    return
+  }
+  character.memory.experienced.add(incident.index)
+  if (character.id in incident.subjectIds) {
+    character.personality.ideal += character.personality.ideal * incident.ideal / 100
+    character.personality.order += character.personality.order * incident.order / 100
+    character.personality.good += character.personality.good * incident.good / 100
+  } else if (character.id in incident.objectIds) {
+    // 亲身经历者会放大原本的评价
+    const score = _calculateIncidentScore(character, incident) * 1.5 + incident.score
+    for (const id in incident.subjectIds) {
+      let bond
+      if (!character.bonds.characters.contains(id)) {
+        // 如果还不认识行动者
+        const subject = game.characters[id]
+        characterFirstMet(character, subject, incident, score)
+      }
+      bond = character.bonds.characters[id]
+      bond.memory[incident.index] = score
+      bond.score += score
+    }
+  }
+}
+
+function characterKnowIncident(character, incident, { witnessed }) {
+  assert(character != null)
+  assert(incident != null && incident.index != null)
+  character.memory.known.add(incident.index)
+  let score = _calculateIncidentScore(character, incident)
+  if (witnessed) {
+    // 亲身经历者会放大原本的评价
+    score *= 1.5
+  }
+  for (const id in incident.subjectIds) {
+    if (character.bonds.characters.containsKey(id)) {
+      const bond = character.bonds.characters[id]
+      bond.memory[incident.index] = score
+      bond.score += score
+      // 评价发生了改变
+      // if (oldScore < 0 && bond.score >= 0) {
+      //   --subject.infamy
+      // } else if (oldScore >= 0 && bond.score < 0) {
+      //   ++subject.infamy
+      // }
+    } else {
+      // 名声增加
+      const subject = game.characters[id]
+      // ++subject.knownByPopulation
+      const bond = Bond(id: id, name: subject.name)
+      bond.memory[incident.index] = score
+      bond.score += score
+      character.bonds.characters[id] = bond
+      // if (score < 0) {
+      //   ++subject.infamy
+      // }
+    }
+  }
+  for (const id in incident.objectIds) {
+    if (!character.bonds.characters.containsKey(id)) {
+      // 名声增加
+      const object = game.characters[id]
+      // ++object.knownByPopulation
+      const bond = Bond(id: id, name: object.name)
+      bond.memory[incident.index] = score
+      bond.score += score
+      character.bonds.characters[id] = bond
+    }
+  }
+}
+
+// function getSpiritRankTitle(spiritRank) {
+//   return engine.locale('spiritRank${spiritRank}') + engine.locale('sorcerer')
+// }
+function removeCharacterHome(character) {
+  if (!character.homeId) return
+  const oldHomeLoc = game.locations[character.homeId]
+  oldHomeLoc.sites.remove('${kSiteHome}.${character.id}')
+  oldHome.residingCharacterIds.remove(character.id)
+  // let organization = oldHome.organizations[character.organizationId]
+  // if (organizationData != null) {
+  //   organizationData.characterIds.remove(character.id)
+  // }
+}
+
+function setCharacterHome(character, location) {
+  if (character.homeId == location.id) {
+    // engine.warn('character ${character.id} already resides in location ${location.id}')
+    return
+  }
+  if (character.homeId != null) {
+    removeCharacterHome(character)
+  }
+  character.homeId = location.id
+  let homeSiteId = '${kSiteHome}.${character.id}'
+  Site(
+    category: kSiteHome,
+    location: location,
+    ownerId: character.id,
+    isSubSite: true, // 住所在住宅的下一层，默认不直接显示在据点内
+  )
+  let incidentContent
+  // if (organizationName == null) {
+    assert(!location.residingCharacterIds.contains(character.id))
+    location.residingCharacterIds.add(character.id)
+    incidentContent = engine.locale('characterSettle', interpolations: [
+      character.name,
+      location.name,
+    ])
+    Incident(
+      content: incidentContent,
+      subjectIds: [character.id],
+    )
+  // } else {
+  //   let organization = getOrganizationById(character.organizationId)
+  //   if (!organization.characterIds.contains(character.id)) {
+  //     organization.characterIds.add(character.id)
+  //     incidentContent = engine.locale('characterSettleOrganization', interpolations: [
+  //       character.name,
+  //       location.name,
+  //       organizationName,
+  //     ])
+  //     Incident(
+  //       content: incidentContent,
+  //       subjectIds: [character.id],
+  //     )
+  //   }
+  // }
+  // if (character.homeId != location.id) {
+  //   removeCharacterHome(character)
+  //   character.homeId = location.id
+  // }
+  // if (character.id == hero?.id) {
+  //   game.heroHomeSite.locationId = location.id
+  // }
+}
+
+function getCharacterWorldPosition(character) {
+  return character.worldPosition
+}
+
+function setCharacterWorldPosition(character, left, top, [ worldId ]) {
+  character.worldPosition = {
+    left,
+    top,
+  }
+  if (worldId != null) {
+    character.worldId = worldId
+  }
+}
+
+function addCharacter(char) {
+  assert(char?.id != null)
+  assert(char?.entityType == 'character')
+  engine.info('向当前世界添加新角色：${char.name}')
+  game.characters[char.id] = char
+}
+
+function addCharacters(chars: List) {
+  for (const char in chars) {
+    addCharacter(char)
+  }
+}
+
+/// 如果不传 ids，就返回所有的角色
+function getCharacters([ids]) {
+  if (ids != null && ids.isNotEmpty) {
+    return game.characters.values.where( (char) => char.id in ids)
+  } else {
+    return game.characters.values
+  }
+}
+
+function getCharactersOnWorldMap([ worldId ]) {
+  worldId ??= world.id
+  return game.characters.values.where((char) {
+    if (char.worldId != worldId) return false
+    if (char.worldPosition == null) return false
+    if (char.locationId != null || char.siteId != null) return false
+    return true
+  })
+}
+
+/// 如果不传 ids，就返回所有的角色
+function getNpcs() {
+  return game.characters.values.where( (char) => (char.id != game.heroId))
+}
+
+function getNpcsOnWorldMap([ worldId ]) {
+  worldId ??= world?.id
+  return game.characters.values.where((char) {
+    if (char.worldId != worldId) return false
+    if (char.worldPosition == null) return false
+    if (char.locationId != null || char.siteId != null) return false
+    if (char.id == game.heroId) return false
+    return true
+  })
+}
+
+function getNpcsInWorldMapPosition(left, top, [ worldId ]) {
+  worldId ??= world?.id
+  return game.characters.values.where((char) {
+    if (char.worldId != worldId) return false
+    if (char.worldPosition == null) return false
+    if (char.worldPosition.left != left || char.worldPosition.top != top) return false
+    if (char.locationId != null || char.siteId != null) return false
+    if (char.id == game.heroId) return false
+    return true
+  })
+}
+
+function getNpcsInLocation(locationId) {
+  return game.characters.values.where((char) {
+    if (char.locationId == null || char.siteId != null) return false
+    if (char.locationId != locationId) return false
+    if (char.id == game.heroId) return false
+    return true
+  })
+}
+
+function getNpcsInSite(siteId) {
+  return game.characters.values.where((char) {
+    if (char.siteId == null) return false
+    if (char.siteId != siteId) return false
+    if (char.id == game.heroId) return false
+    return true
+  })
+}
+
+function getCharacterById(id: string) {
+  return game.characters[id]
+}
+
+function getCharacterFlagsById(id: string) {
+  return game.characters[id].flags
+}
+
+function removeCharacterById(id: string) {
+  engine.warn('警告：正在移除ID为 [${id}] 的角色。')
+  delete game.characters[id]
+}
+
+function haveMet(subject, target) {
+  const bond = subject.bonds.characters[target.id]
+  if (bond && bond.haveMet) {
+    return true
+  } else {
+    return false
+  }
+}
+
+function rejuvenate(character) {
+  character.stats.life = character.stats.lifeMax
+  character.stats.stamina = character.stats.staminaMax
+
+  // for (const i in range(1, kEquipmentMax)) {
+  //   const equipData = character.equipments[i]
+  //   if (equipData != null) {
+  //     const item = getEquipped(equipData, character)
+  //     item.stats.life = item.stats.lifeMax
+  //     for (const effect of item.stats.effects) {
+  //       effect.cooldown = 0
+  //     }
+  //   }
+  // }
+}
+
+function handleCharacterTalk(subject, target) {
+  if (!haveMet(subject, target)) {
+    characterFirstMet(subject, target)
+  }
+
+}
+
+function characterSteal(character, item) {
+  throw 'steal is not implemented yet'
+}
+
+// 设定人物的随从，返回值是否成功
+// 随从并非直接将人物数据放在人物上，而是用下面的数据结构
+// {
+//   id,
+//   entityType,
+//   coordination,
+// }
+function characterGetCompanion(character, companion) {
+  // if (character.companions.length >= kEquipmentMax) {
+  //   engine.warn('${character.name} 的随从数量已满，无法再添加新的随从。')
+  //   return false
+  // }
+  if (character.companions.containsKey(companion.id)) {
+    engine.warn('${companion.name} 已经是 ${character.name} 的随从了，无法再次添加。')
+    return false
+  }
+  
+  let companionData = {
+    id: companion.id,
+    name: companion.name,
+    category: companion.category,
+    kind: companion.kind,
+    description: companion.description,
+    icon: companion.icon,
+    color: companion.color,
+    entityType: kEntityTypeCompanion,
+    companionType: companion.companionType ?? kCompanionTypeFollower,
+    coordination: 0, // 该随从对于该角色的配合程度，新加入的伙伴从0开始
+    stats: companion.stats.clone(),
+  }
+
+  if (companion.companionType == kCompanionTypeBattle) {
+    // generateBattleCompanionData(companionData, companion)
+    companion.isEquippable = true
+    companion.equipType = kEquipTypeCompanion
+  }
+  
+  character.companions[companionData.id] = companionData
+  
+  const incidentContent = engine.locale('characterFollow', interpolations: [
+    companion.name,
+    character.name,
+  ])
+  Incident(
+    content: incidentContent,
+    subjectIds: companion.type == major ? [companion.id] : null,
+    objectIds: character.type == major ? [character.id] : null,
+    isPrivate: true,
+  )
+  return companionData
+}
+
+function characterDismissCompanion(character, companion) {
+  // delete character.companions[companion.id]
+  // if (companion.entityType == kEntityTypeNpc) {
+  //   delete game.minorCharacters[companion.id]
+  // }
+}

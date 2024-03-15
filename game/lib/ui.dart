@@ -7,6 +7,11 @@ abstract class GameUI {
   static late double indent;
 
   static Vector2? size;
+
+  static const avatarSize = 120.0;
+  static const heroInfoHeight = 130.0;
+  static const npcListArrowHeight = 25.0;
+
   // the ratio of the illustration height relative to the card height
   static late double cardIllustrationHeightRatio;
 
@@ -19,7 +24,7 @@ abstract class GameUI {
       libraryPosition;
 
   static late Vector2 battleCardSize,
-      battleCardFocusedBSize,
+      battleCardFocusedSize,
       battleDeckZoneSize,
       p1BattleDeckZonePosition,
       p2BattleDeckZonePosition,
@@ -28,6 +33,15 @@ abstract class GameUI {
       heroSpriteSize,
       p1HeroSpritePosition,
       p2HeroSpritePosition;
+
+  static late Vector2 statusEffectIconSize, permenantStatusEffectIconSize;
+
+  static late double resourceBarHeight;
+
+  static late Vector2 siteCardSize,
+      siteCardFocusedSize,
+      siteListPosition,
+      siteExitCardPositon;
 
   static void init(Vector2 size) {
     if (GameUI.size == size) return;
@@ -41,7 +55,7 @@ abstract class GameUI {
     final libraryCardHeight = libraryCardWidth * 1.382;
     libraryCardSize = Vector2(libraryCardWidth, libraryCardHeight);
 
-    final deckbuildingCardWidth = (1440.0 - 300) / 8 - indent;
+    final deckbuildingCardWidth = (size.x - 300) / 8 - indent;
     final deckbuildingCardHeight = deckbuildingCardWidth * 1.382;
 
     deckbuildingCardSize =
@@ -57,19 +71,32 @@ abstract class GameUI {
     battleDeckZoneSize =
         Vector2(size.x / 2 - indent * 2, battleCardSize.y + indent);
 
-    battleCardFocusedBSize = libraryCardSize;
+    battleCardFocusedSize = libraryCardSize;
 
     p1BattleDeckZonePosition =
         Vector2(indent / 2, size.y - battleDeckZoneSize.y - indent / 2);
     p2BattleDeckZonePosition = Vector2(
         size.x - battleDeckZoneSize.x - indent / 2, p1BattleDeckZonePosition.y);
 
+    statusEffectIconSize = Vector2(24, 24);
+    permenantStatusEffectIconSize = Vector2(48, 48);
+    resourceBarHeight = 10.0;
+
     p1BattleCardFocusedPosition = Vector2(
-        indent, p1BattleDeckZonePosition.y - indent - battleCardFocusedBSize.y);
+        indent,
+        p1BattleDeckZonePosition.y -
+            indent -
+            permenantStatusEffectIconSize.y -
+            battleCardFocusedSize.y -
+            indent);
 
     p2BattleCardFocusedPosition = Vector2(
-        size.x - indent - battleCardFocusedBSize.x,
-        p2BattleDeckZonePosition.y - indent - battleCardFocusedBSize.y);
+        size.x - indent - battleCardFocusedSize.x,
+        p2BattleDeckZonePosition.y -
+            indent -
+            permenantStatusEffectIconSize.y -
+            battleCardFocusedSize.y -
+            indent);
 
     heroSpriteSize = Vector2(80.0 * 2, 112.0 * 2);
 
@@ -82,6 +109,18 @@ abstract class GameUI {
       size.x / 2 + 208,
       p2BattleDeckZonePosition.y - heroSpriteSize.y,
     );
+
+    final siteCardWidth = (size.x - 300) / 8 - indent;
+    final siteCardHeight = siteCardWidth * 1.714;
+
+    siteCardSize = Vector2(siteCardWidth, siteCardHeight);
+
+    siteCardFocusedSize = siteCardSize * 1.2;
+
+    siteListPosition = Vector2(indent, size.y - indent - siteCardSize.y);
+
+    siteExitCardPositon =
+        Vector2(size.x - indent - siteCardSize.x, siteListPosition.y + 10);
 
     _isInitted = true;
   }

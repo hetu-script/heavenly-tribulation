@@ -1,124 +1,243 @@
-import '../binding/cardgame.ht'
+import '../binding/battle_character.ht'
 
 /// 卡牌脚本
-/// 每张卡牌都有一个绝对唯一的id，以及相对唯一的name
-/// 多个卡牌有可能具有相同的name，此时他们有可能有不同的图画
-/// 但名字和效果是一样的。这些卡牌共享一个加入卡组的上限。
+/// 每张卡牌都有一个唯一的id
+/// 但多个卡牌有可能具有相同的deckbuildingId
+/// 此时他们虽然有可能有不同的图画，但名字和效果是一样的。
+/// 这些卡牌共享一个加入卡组的上限。
 
-/// 每个name的卡牌，对应一个脚本。
+/// 每个deckbuildingId的卡牌，对应一个脚本。
 /// 这个脚本将会在这张牌被打出时invoke
 
 namespace Card {
 
   /// 普通攻击
+  /// 7攻
   async function attack_normal(self, opponent) {
     await self.attack()
-    opponent.takeDamage(5, 'weapon')
+    opponent.takeDamage('weapon', 7)
   }
   /// 普通格挡
+  /// 防+12
   async function defend_normal(self, opponent) {
     await self.defend()
-    self.addStatusEffect('block', 10)
+    self.addStatusEffect('block', 12)
   }
   /// 飞云剑
-  async function sword_1(self, opponent) {
+  /// 12攻
+  /// 每次使用剑法时+3速度
+  async function blade_1(self, opponent) {
     await self.attack('flying_sword')
-    opponent.takeDamage(20, 'weapon')
+    opponent.takeDamage('weapon', 12)
+    self.addStatusEffect('cloud_sword')
   }
-  /// 连云剑
-  async function sword_2(self, opponent) {
+  // ///
+  // async function blade_2(self, opponent) {
+    
+  // }
+  /// 拨云见日
+  /// 15攻
+  /// 恢复击伤值10%的灵气
+  async function blade_3(self, opponent) {
+    await self.attack('flying_sword')
+    let residue = opponent.takeDamage('weapon', 15)
+    print('residue', residue)
+    let mana = (residue * 0.1).truncate()
+    print('restore mana', mana)
+    self.restoreMana(mana)
+  }
+ /// 空灵剑诀
+ /// 灵气+1
+ /// 下一张攻击牌无视防御
+  async function blade_4(self, opponent) {
+    await self.restoreMana(1)
+    self.addStatusEffect('ignore_block')
+  }
+  // ///
+  // async function blade_5(self, opponent) {
+    
+  // }
+ /// 冷月重剑
+ /// 需求：1灵气
+ /// 27攻
+  async function blade_6(self, opponent) {
+    self.consumeMana(1)
+    await self.attack('flying_sword')
+    opponent.takeDamage('weapon', 27)
+  }
+ /// 凌霜剑式
+ /// +20防
+  async function blade_7(self, opponent) {
+    await self.defend()
+    self.addStatusEffect('block', 20)
+  }
+ /// 春雨剑
+ /// 如果有防：+15生命
+  async function blade_8(self, opponent) {
+    if (self.hasStatusEffect('block')) {
+      self.restoreLife(15)
+    } else {
+      Future.delayed(0.8)
+    }
+  }
+ /// 引雷剑诀
+ /// 获得20点剑气
+  async function blade_9(self, opponent) {
+    await self.spell()
+    self.addStatusEffect('blade_power', 20)
+  }
+ /// 回声剑
+ /// 15攻
+ /// 保留此牌触发的剑气
+  async function blade_10(self, opponent) {
+    opponent.setTurnFlag('keepBladePower')
+    await self.attack('flying_sword')
+    opponent.takeDamage('weapon', 15)
+  }
+ /// 双斩
+ /// 7攻×2
+  async function blade_11(self, opponent) {
+    await self.attack('flying_sword')
+    opponent.takeDamage('weapon', [7, 7])
+  }
+ /// 秋风剑意
+ /// 12攻
+ /// 再次使用时追加一次攻击
+  async function blade_12(self, opponent) {
+    await self.attack('flying_sword')
+    if (self.hasGameFlag('blade_12')) {
+      opponent.takeDamage('weapon', [12, 12])
+    } else {
+      self.setGameFlag('blade_12')
+      opponent.takeDamage('weapon', 12)
+    }
+  }
+ /// 共鸣
+ /// 需求：1灵气
+ /// 本场战斗中，你的普通攻击附加11点金属性伤害
+  async function element_1(self, opponent) {
     
   }
-  /// 月灵斩
-  async function sword_3(self, opponent) {
+ /// 护体真气
+ /// 需求：1灵气
+ /// +30防
+  async function element_2(self, opponent) {
     
   }
-  /// 月影剑诀
-  async function sword_4(self, opponent) {
+ /// 荆棘
+ /// 需求：1灵气
+ /// 对方下次进攻时受到其攻击力100%的木属性反伤
+  async function element_4(self, opponent) {
     
   }
-  /// 雨月重剑
-  async function sword_5(self, opponent) {
+ /// 瀑流
+ /// 需求：1灵气
+ /// 持续3回合：对方回合结束时，若进行过任何攻击，就受到12点水属性伤害
+  async function element_5(self, opponent) {
     
   }
-  /// 冷月剑
-  async function sword_6(self, opponent) {
+ /// 甘泉
+ /// 需求：1灵气
+ /// 当你下一次消耗灵气时，每点灵气使你恢复12点生命
+  async function element_6(self, opponent) {
     
   }
-  /// 剑气如霜
-  async function sword_7(self, opponent) {
+ /// 火球术
+ /// 需求：1灵气
+ /// 造成35火属性伤害
+  async function element_7(self, opponent) {
     
   }
-  /// 春雨剑
-  async function sword_8(self, opponent) {
+ /// 烈风刃
+ /// 需求：1灵气
+ /// 造成12点火属性伤害
+ /// 对方有防时伤害加倍
+  async function element_8(self, opponent) {
     
   }
-  /// 引雷剑诀
-  async function sword_9(self, opponent) {
+ /// 泥石陷
+ /// 需求：1灵气
+ /// 造成10点土属性伤害
+ /// 使对方无法行动1个回合
+  async function element_9(self, opponent) {
     
   }
-  /// 回声剑
-  async function sword_10(self, opponent) {
-
-  }
-  /// 狂风剑
-  async function sword_11(self, opponent) {
-    
-  }
-  /// 清风剑诀
-  async function sword_12(self, opponent) {
-    
-  }
-
-  /// 冲击阵
+ /// 冲击阵
+ /// 持续2次：回合结束时造成15
   async function array_1(self, opponent) {
     
   }
-  /// 圆守阵
+ /// 圆守阵
+ /// 持续2次：回合结束时+20防
   async function array_2(self, opponent) {
     
   }
-  /// 回春阵
+ /// 回春阵
+ /// 持续2次：回合结束时+15生命
   async function array_3(self, opponent) {
     
   }
-  /// 血杀阵
+ /// 血杀阵
+ /// 持续2次：回合结束时使对方获得1层内伤
   async function array_4(self, opponent) {
     
   }
-  /// 聚灵阵
+ /// 聚灵阵
+ /// 持续2次：回合结束时+2灵气
   async function array_5(self, opponent) {
     
   }
-  /// 真火符
+ /// 真火符
+ /// 造成5~25伤害
+ /// 消耗
   async function rune_1(self, opponent) {
     
   }
-  /// 金刚咒
+ /// 护身符
+ /// 灵气+2
+ /// 防+15
+ /// 消耗
   async function rune_2(self, opponent) {
     
   }
-  /// 蛊毒咒
+ /// 蛊毒符
+ /// 对方减20生命及上限
+ /// 消耗
   async function rune_3(self, opponent) {
     
   }
-  /// 辟邪符
+ /// 辟邪符
+ /// 灵气+2
+ /// 移除1个异常状态
+ /// 获得2层辟邪
+ /// 消耗
   async function rune_4(self, opponent) {
     
   }
-  /// 养血丸
+ /// 养血丸
+ /// 生命+15
+ /// 生命上限永久+5
+ /// 消耗
   async function alchemy_1(self, opponent) {
     
   }
-  /// 紫灵丹
+ /// 紫灵丹
+ /// 灵气+4
+ /// 消耗
   async function alchemy_2(self, opponent) {
     
   }
-  /// 磨刀石
+ /// 磨刀石
+ /// 攻10
+ /// 武器攻击力永久+1
+ /// 消耗
   async function craft_1(self, opponent) {
     
   }
-  /// 护甲片
+ /// 护甲片
+ /// 防+20
+ /// 防具提供的防永久+2
+ /// 消耗
   async function craft_2(self, opponent) {
     
   }

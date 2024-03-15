@@ -72,9 +72,9 @@ function addEffect({categroy, id, effect}) {
   assert(category != null)
   assert(id != null)
   assert(effect != null)
-  if (gEffects.hasOwnProperty(category)) {
+  if (gEffects.containsKey(category)) {
     const c = gEffects[category]
-    assert(!c.hasOwnProperty(id))
+    assert(!c.containsKey(id))
     c[id] = effect
   } else {
     const c = {}
@@ -95,14 +95,14 @@ function addEffectHandler(handler) {
 /// 返回一个效果的复制
 function getEffect({category, id}) {
   if (category != null) {
-    assert(gEffects.hasOwnProperty(category))
+    assert(gEffects.containsKey(category))
   } else {
     category = random.nextIterable(gEffects.keys)
   }
   const c = gEffects[category]
   if (c.isEmpty) return null
   if (id != null) {
-    assert(c.hasOwnProperty(id))
+    assert(c.containsKey(id))
   } else {
     id = random.nextIterable(c.keys)
   }
@@ -119,7 +119,7 @@ function getEffects({category, count}) {
     let effect
     do {
       effect = getEffect(category: category)
-    } while (effects.hasOwnProperty(effect.id))
+    } while (effects.containsKey(effect.id))
     effects[effect.id] = effect
   }
   return effects

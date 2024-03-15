@@ -1,4 +1,21 @@
 {
+  "exitToDesktop": "退出",
+  "goBack": "返回",
+
+  "settings": "游戏设置",
+
+  "startGame": "开始游戏",
+  "tutorial": "教学模式",
+  "storyMode": "剧情模式",
+  "sandboxMode": "沙盒模式",
+
+  "editors": "游戏编辑器",
+  "createMap": "创建新地图",
+  "characterEditor": "角色编辑器",
+
+  "debugMod": "开发者模式",
+  "debugBattle": "战斗测试",
+
   "randomSeed": "随机数种子",
   "worldStyle": "地图风格",
   "islands": "群岛",
@@ -11,5 +28,32 @@
   "massive": "广阔",
   "locationNumber": "据点数量",
   "characterNumber": "角色数量",
-  "organizationNumber": "门派数量"
+  "organizationNumber": "门派数量",
+
+  "newMap": "创建新地图",
+  "loadMap": "载入地图",
+  "unnamedMap": "未命名地图",
+
+  "fileName": "文件名",
+  "mapSize": "地图大小",
+
+  "create": "新建",
+  "save": "保存",
+  "saveName": "存档",
+  "worldId": "世界",
+  "timestamp": "日期",
+  "saveAs": "另存为",
+  "reload": "重新载入",
+  "saveSuccessed": "保存成功！",
+  "directoryNotEmpty": "保存失败：目录不是空的。",
+
+  "localization": "本地化文本",
+  "code": "代码",
+  "meta": "模组",
+  "script": "脚本",
+  "untitled": "未命名",
+
+  "isFemale": "性别",
+  "characterEditingMustEnterId": "必须填写角色ID！",
+  "characterEditingMustEnterName": "必须填写角色姓名！"
 }

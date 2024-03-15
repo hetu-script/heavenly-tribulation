@@ -22,7 +22,7 @@ struct TrevelingMerchant {
     this.id = '${this.entityType}.${crypto.randomUID4(2)}.${this.kind}.${this.name}'
     this.rarity = kCommon
     this.color = kRarity[this.rarity].color
-    game.npcs[this.id] = this
+    game.minorCharacters[this.id] = this
     
     this.description = description ?? ''
     
@@ -36,7 +36,7 @@ struct TrevelingMerchant {
 
     // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
     switch (this.kind) {
-      'trevelingMerchant' => {
+      'trevelingMerchant' : {
         equip(this, Weapon())
       }
     }

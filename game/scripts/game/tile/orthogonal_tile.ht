@@ -49,16 +49,16 @@ function getTileDistance(start, end) {
 }
 
 // 获取相邻并且在地图范围内的格子
-// 如果 [zoneIndex] 不为 null，则只会返回和起点所在 tile 具有相同 zoneIndex 的格子
-function getMapTileNeighbors(left: integer, top: integer, map, { zoneIndex, includeDiagonal = false }) {
+// 如果 [zoneId] 不为 null，则只会返回和起点所在 tile 具有相同 zoneId 的格子
+function getMapTileNeighbors(left: integer, top: integer, map, { zoneId, includeDiagonal = false }) {
   assert(isPositionWithinMap(left, top, map.width, map.height))
   const origin = map.terrains[tilePos2Index(left, top, map.width)]
   const neighbors = []
 
   function addNeighbor(tile) {
-    if (!zoneIndex || tile.zoneIndex == zoneIndex ||
-      (tile.isHarbor && tile.harborOfZoneIndex == origin.zoneIndex) || 
-      (origin.isHarbor && origin.harborOfZoneIndex == tile.zoneIndex)) {
+    if (!zoneId || tile.zoneId == zoneId ||
+      (tile.isHarbor && tile.harborOfZoneId == origin.zoneId) || 
+      (origin.isHarbor && origin.harborOfZoneId == tile.zoneId)) {
       neighbors.add(tile)
     }
   }

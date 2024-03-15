@@ -1,4 +1,9 @@
+// import 'zh/general.json5' as general
+// import 'zh/dialogs.json5' as dialogs
+
 const zh = {
   languageId: 'zh',
   languageName: '简体中文',
+  // ...general,
+  // ...dialogs,
 }

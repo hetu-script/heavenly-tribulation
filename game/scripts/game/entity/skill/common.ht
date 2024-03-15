@@ -20,7 +20,7 @@ function calculateSkillStats(skill) {
   for (const effect of skill.stats.effects) {
     if (effect.handlerType == kEffectCategoryEquippedEntity) {
       switch (effect.id) {
-        'addDamage' => {
+        'addDamage' : {
           baseDamage += effect.values[0].value
         }
       }

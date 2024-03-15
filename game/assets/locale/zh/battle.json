@@ -1,0 +1,15 @@
+{
+  "ignoreBlock": "无视防御",
+
+  "notEnoughMana": "灵气不足！",
+
+  "sneakAttackFail": "{0} 打算发动偷袭，但却被 {1} 发觉了。",
+  "sneakDamageInfo": "{0} 趁 {2} 不备，使用 {1} 偷袭，造成了 {3} 伤害。",
+  "damageInfo": "{0} 使用 {1} 攻击 {2}，造成了 {3} 伤害。",
+  "sneakShareDamageInfo": "{0} 使用 {1} 偷袭 {2}，造成了 {3} 伤害。",
+  "sharedDamageInfo": "{0} 分担了 {1} 伤害。",
+  "assistedDamageInfo": "在 {0} 的辅助之下，",
+  "drawGame": "{0} 和 {1} 拼尽全力，结果不分胜败，只好暂且停手。",
+  "enemyEmptyHands": "嗨呀呀，我投降了……我可不会打架。",
+  "duelVistory": "{0} 击败了 {1}。"
+}

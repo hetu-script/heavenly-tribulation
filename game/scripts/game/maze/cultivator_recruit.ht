@@ -1,7 +1,7 @@
 import '../tile/tilemap.ht'
 import '../tile/hexagonal_tile.ht'
-import '../tile/orthogonal_tile.ht' as orthogonalTile
-import '../tile/zone.ht'
+// import '../tile/orthogonal_tile.ht' as orthogonalTile
+import '../world/zone.ht'
 import '../tile/common.ht'
 import '../game.ht'
 import '../tile/object.ht'
@@ -11,7 +11,7 @@ import '../entity/common.ht'
 import '../entity/character/npc/peddler.ht'
 // import '../l10n.ht'
 import 'common.ht'
-import '../binding/maze.ht'
+// import '../binding/maze.ht'
 import 'generation_algorithm.ht'
 
 const _kLandSprites = [
@@ -43,7 +43,7 @@ struct CultivationRecruitMaze {
     this.levels = [] // 每一层是一个单独的 tilemap
     this.currentLevel = 0
     this.entities = {} // 包含所有显示在地图上的可互动对象，包括NPC、敌人、宝箱、陷阱、机关等等。
-    this.history = [] // 本次副本中发生的事件记录，这些事件不会计入世界历史
+    // this.history = [] // 本次副本中发生的事件记录，这些事件不会计入世界历史
     // 本次副本中的一些事件存档，用于脚本的一些逻辑判断，例如是否已经有过某种遭遇之类。
     this.flags = {
       organizationName,
@@ -84,18 +84,17 @@ struct CultivationRecruitMaze {
     }
 
     // engine.info('生成迷宫地块')
-    const landZone = Zone(index: currentLevel.zones.length, category: kZoneLand)
-    currentLevel.zones.add(landZone)
+    const landZone = Zone(currentLevel, category: kZoneLand)
     for (const j in range(height)) {
       for (const i in range(width)) {
         // const isVoid = (i == 0) || (i == width - 1) || (j == 0) || (j == height - 1)
         const terrain = {
           ...Tile(i + 1, j + 1, mapWidth: width),
           isVisible: false,
-          isSelectable: true,
+          isNonInteractable: true,
         }
         currentLevel.terrains.add(terrain)
-        addTerrainToZone(terrain, landZone.index, currentLevel)
+        addTerrainToZone(terrain, landZone)
       }
     }
     
@@ -249,11 +248,10 @@ struct CultivationRecruitMaze {
     generateRouteByIndex(entry.index, entry.nearestAnchor, currentLevel)
     generateRouteByIndex(exit.index, exit.nearestAnchor, currentLevel)
 
-    const blockZone = Zone(index: currentLevel.zones.length, category: 'block')
-    currentLevel.zones.add(blockZone)
+    const blockZone = createZone(world: currentLevel, category: 'block')
     for (const tile in currentLevel.terrains) {
       if (tile.flags.isRoute) {
-        tile.isSelectable = true
+        tile.isNonInteractable = true
         if (tile.flags.isPaved) {
           tile.spriteIndex = kPavedRockTile
         } else {
@@ -261,8 +259,8 @@ struct CultivationRecruitMaze {
         }
       } else {
         tile.isVoid = true
-        tile.isSelectable = false
-        addTerrainToZone(tile, blockZone.index, currentLevel)
+        tile.isNonInteractable = false
+        addTerrainToZone(tile, blockZone)
       }
     }
     
@@ -290,7 +288,7 @@ function onHeroMovedOnCultivationRecruitMaze({tile, maze, currentLevelIndex}) ->
       onWon: () {
         tile.entityId = null
         Maze.setMazeObject(tile.left, tile.top, null)
-        delete game.npcs[entity.id]
+        delete game.minorCharacters[entity.id]
       },
       onLost: () {
         // TODO: 闯关失败的对话
@@ -303,18 +301,18 @@ function onHeroMovedOnCultivationRecruitMaze({tile, maze, currentLevelIndex}) ->
     engine.info('玩家在副本地图 ${maze.id} 第 ${currentLevelIndex + 1} 层 ${tile.left}, ${tile.top} 碰到了 ${entity.id}')
     
     switch (entity.encounterType) {
-      'senior' => {
-        showDialogByLocaleKeys(
+      'senior' : {
+        dialog.localeLines(
           ['elderCultivatorGuard'],
           character: entity,
           interpolations: [maze.flags.organizationName]
         ).then((_) {
-          showSelectionByLocaleKeys([
+          dialog.localeSelect([
             'fight',
             'leave',
           ]).then((key) {
             switch (key) {
-              'fight' => battle()
+              'fight' : battle()
             }
           })
         })
@@ -328,7 +326,7 @@ function onHeroMovedOnCultivationRecruitMaze({tile, maze, currentLevelIndex}) ->
     if (!maze.flags.hintedSpirit) {
       maze.flags.hintedSpirit = true
 
-      showDialogByLocaleKeys(['cultivatorRecruitMaze.spiritHint'])
+      dialog.localeLines(['cultivatorRecruitMaze.spiritHint'])
       return true
     } else if (!tile.flags.isGlowing) {
       tile.flags.isGlowing = true
@@ -344,7 +342,7 @@ function onHeroMovedOnCultivationRecruitMaze({tile, maze, currentLevelIndex}) ->
     if (!maze.flags.hintedStamina) {
       maze.flags.hintedStamina = true
 
-      showDialogByLocaleKeys(['cultivatorRecruitMaze.staminaHint'])
+      dialog.localeLines(['cultivatorRecruitMaze.staminaHint'])
       return true
     } else {
       

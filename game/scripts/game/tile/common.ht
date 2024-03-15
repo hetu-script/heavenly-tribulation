@@ -1,20 +1,25 @@
-const kSpriteWater = 1
-const kSpriteShelf = 2
-const kSpriteLand = 3
-const kSpriteCity = 4
-const kSpriteForest = 5
-const kSpriteMountain = 6
-const kSpriteGrassLand = 7
+const kSpriteWater = 0
+const kSpriteLand = 1
+const kSpriteForest = 2
+const kSpriteMountain = 3
+const kSpriteFarmField = 4
+const kSpritePond = 5
+const kSpriteShelf = 6
+const kSpriteCity = 7
 
 const kPavedRockTile = 9
 const kPavedRockTileGlowing = 10
 const kRockyTrail = 11
+const kSpriteGrassLand = 12
 
-const kTerrainKindLocation = 'location'
-const kTerrainKindRoad = 'road'
+const kTerrainKindEmpty = 'empty'
+const kTerrainKindPlain = 'plain'
+const kTerrainKindForest = 'forest'
+const kTerrainKindMountain = 'mountain'
+const kTerrainKindShore = 'shore'
 const kTerrainKindLake = 'lake'
 const kTerrainKindSea = 'sea'
-const kTerrainKindMountain = 'mountain'
-const kTerrainKindForest = 'forest'
-const kTerrainKindPlain = 'plain'
 const kTerrainKindRiver = 'river'
+const kTerrainKindRoad = 'road'
+
+const kWaterTileKinds = Set(kTerrainKindLake, kTerrainKindSea)

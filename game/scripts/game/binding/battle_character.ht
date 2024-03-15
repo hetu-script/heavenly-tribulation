@@ -1,0 +1,42 @@
+external class BattleCharacter {
+  var priority
+
+  // get attack -> integer
+  
+  async function restoreLife(value: integer)
+  
+  async function consumeMana(value: integer) -> bool
+  
+  async function restoreMana(value: integer)
+
+  async function spell(state: string)
+
+  async function defend(state: string)
+
+  async function attack(state: string)
+
+  async function takeDamage(
+    damageType: string,
+    damage //: int | List<int>
+    ) -> integer
+
+  async function setState(state: string, {reset: bool = false})
+
+  function hasStatusEffect(effectId: string) -> bool
+
+  function removeStatusEffect(effectId: string, {amount: integer, percentage: float}) -> integer
+
+  function addStatusEffect(effectId: string, [amount: integer = 1])
+
+  function setTurnFlag(id: string)
+  
+  function hasTurnFlag(id: string)
+
+  function removeTurnFlag(id: string)
+
+  function setGameFlag(id: string)
+  
+  function hasGameFlag(id: string)
+
+  function removeGameFlag(id: string)
+}

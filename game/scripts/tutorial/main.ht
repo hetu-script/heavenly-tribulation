@@ -1,0 +1,53 @@
+import 'module:game' as game
+
+import 'l10n/l10n.ht'
+import 'tutorial1.ht'
+
+// 这里的函数最终是绑定到游戏对象上执行
+// 是运行时的命名空间，并不是这里的命名空间
+// 因此可以直接使用 engine, game 等 global 上的 对象
+const module = {
+  meta: {
+    id: 'tutorial',
+    displayName: '教程模组',
+    description: '包含了一些展示游戏基础操作的关卡。',
+    supportedLocales: ['zh'],
+    version: {
+      major: 0,
+      minor: 0,
+      build: 1,
+    },
+    flags: {
+      ayaState: 0,
+      // 0 尚未对话
+      // 1 对话过，但未接受或者拒绝任务
+      // 2 接受了任务
+      // 3 拒绝了任务
+      afuState: 0, 
+    }
+  },
+}
+
+/// 这个函数只会执行一次
+/// config是一个引擎传过来的JSON，包含游戏版本、所有MOD名等信息
+/// 通常在这里将mod信息加载到游戏数据中
+/// 以及将角色、据点等数据添加到主世界中
+/// 可以在这里检查是否存在版本冲突或者和其他脚本的冲突
+function init(config) {
+  engine.info('初始化模组元信息：[${modName}]...')
+  game.addModule(module.meta)
+}
+
+const modName = '${module.meta.displayName}-${module.meta.id}-(${module.meta.version.major}.${module.meta.version.minor}.${module.meta.version.build})';
+
+// main每次启动游戏都会执行
+function main() {
+  // 加载本地化字符串
+  engine.loadLocaleFromJSON(localizations.toJSON())
+  // 向世界添加事件回调函数
+  addEventHandlers(
+    worldId: 'tutorial1', // tutorial1 是世界ID
+    moduleId: module.meta.id,
+    handlers: tutorial1Handlers,
+  )
+}

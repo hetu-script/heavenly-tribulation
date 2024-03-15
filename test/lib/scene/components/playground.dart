@@ -22,7 +22,7 @@ class PlayGround extends GameComponent with HandlesGesture {
         duration: 0.8,
         position: position,
         fadeOutAfterDuration: 0.3,
-        textPaint: DefaultTextPaint.danger.copyWith(
+        textPaint: PresetTextPaints.danger.copyWith(
           (textStyle) => textStyle.copyWith(fontSize: 16),
         ),
       );
@@ -37,6 +37,6 @@ class PlayGround extends GameComponent with HandlesGesture {
 
   @override
   void render(Canvas canvas) {
-    canvas.drawRect(border, DefaultBorderPaint.light);
+    canvas.drawRect(border, PresetPaints.light);
   }
 }

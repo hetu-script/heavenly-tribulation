@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:samsara/ui/flutter/loading_screen.dart';
-import 'package:samsara/ui/flutter/label.dart';
+import 'package:samsara/ui/loading_screen.dart';
+import 'package:samsara/ui/label.dart';
 // import 'package:flutter/services.dart';
 // import 'package:json5/json5.dart';
 import 'package:samsara/widget/markdown_wiki.dart';
@@ -30,7 +30,7 @@ class _MainMenuState extends State<MainMenu> {
     super.initState();
 
     engine.registerSceneConstructor('game', ([dynamic data]) async {
-      return GameScene(controller: engine, id: 'game');
+      return GameScene(controller: engine, id: 'game', context: context);
     });
   }
 
@@ -76,13 +76,14 @@ class _MainMenuState extends State<MainMenu> {
     return FutureBuilder(
       future: _prepareData(),
       builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          throw (snapshot.error!);
-        }
-
         if (!snapshot.hasData) {
+          if (snapshot.hasError) {
+            throw Exception('${snapshot.error}\n${snapshot.stackTrace}');
+          }
           return LoadingScreen(
-              text: engine.isInitted ? engine.locale['loading'] : 'Loading...');
+            text: engine.isInitted ? engine.locale('loading') : 'Loading...',
+            showClose: snapshot.hasError,
+          );
         } else {
           return Scaffold(
             body: Stack(
@@ -111,7 +112,7 @@ class _MainMenuState extends State<MainMenu> {
                             );
                           },
                           child: Label(
-                            engine.locale['newGame'],
+                            engine.locale('newGame'),
                             width: 100.0,
                             textAlign: TextAlign.center,
                           ),
@@ -163,7 +164,7 @@ class _MainMenuState extends State<MainMenu> {
                             windowManager.close();
                           },
                           child: Label(
-                            engine.locale['exit'],
+                            engine.locale('exit'),
                             width: 100.0,
                             textAlign: TextAlign.center,
                           ),

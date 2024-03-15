@@ -1,0 +1,29 @@
+const kMaterialKindMoney = 'money'
+const kMaterialKindSpiritStone = 'spiritStone'
+const kMaterialKindStone = 'stone'
+const kMaterialKindOre = 'ore'
+const kMaterialKindWoodLog = 'woodLog'
+const kMaterialKindPaper = 'paper'
+const kMaterialKindHerb = 'herb'
+const kMaterialKindFood = 'food'
+const kMaterialKindDrinkWater = 'drinkWater'
+const kMaterialYinQi = 'yinqi'
+const kMaterialShaQi = 'shaqi'
+const kMaterialYuanQi = 'yuanqi'
+
+struct MaterialStorage {
+  constructor {
+    this.money = 0;
+    this.spiritStone = 0;
+    this.food = 0;
+    this.drinkWater = 0;
+    this.stone = 0;
+    this.ore = 0;
+    this.plank = 0;
+    this.paper = 0;
+    this.herb = 0;
+    this.yinqi = 0;
+    this.shaqi = 0;
+    this.yuanqi = 0;
+  }
+}

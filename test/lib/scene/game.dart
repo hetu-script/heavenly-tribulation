@@ -8,6 +8,7 @@ class GameScene extends Scene {
   GameScene({
     required super.id,
     required super.controller,
+    required super.context,
   });
 
   @override

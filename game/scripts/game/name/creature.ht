@@ -22,13 +22,13 @@ function generateCreatureName({category, rarity}) {
   rarity ??= getRarity().rarity
   let name
   switch (rarity) {
-    'exotic' => name = random.nextIterable(strangeCreature)
-    'mythic' => name = pre + cp + s + k
-    'legendary' => name = pre + s + k
-    'epic' => name = pre + cp + k
-    'rare' => name = pre + k
-    'uncommon' => name = cp + s + k
-    'common' => name = cp + k
+    'exotic' : name = random.nextIterable(strangeCreature)
+    'mythic' : name = pre + cp + s + k
+    'legendary' : name = pre + s + k
+    'epic' : name = pre + cp + k
+    'rare' : name = pre + k
+    'uncommon' : name = cp + s + k
+    'common' : name = cp + k
   }
   return { name, rarity, category: c }
 }

@@ -1,32 +1,43 @@
 import 'game.ht'
 
 /// 加载到本次游戏的事件处理模块。
-/// 理论上每个游戏Mod都是单独的一个模块，
-/// 每个模块都可以处理多种事件，
 /// 每个模块内部的key是游戏自己定义的事件名之一，
 /// value是一个接受一个arg的函数，
 /// 这个arg是一个struct对象，包含不同的事件参数
+// count代表此事件的触发次数，
+// isOneTimeEvent 为 true，并且count > 0，则不会再触发
+/// gEventHandlers {
+/// 第一层key是世界名字，每个世界有自己的一套逻辑
+///   worldName1: {
+///     第二层是mod名字
+///     mod1: {
+///       onNewGame: {
+///         
+///         handle: () {
+///           engine.info('[${this.name}]: 新游戏事件回调函数')
+///         }
+///       }
+///     }
+///   }
+/// }
 let gEventHandlers = {}
 
-// EventHanlder
-// 如果 isDisposable 为 true，则这个时间处理会在第一次触发之后被删除
-// EventHandler {
-//   id: 'myname',
-//   isDisposable: false,
-//   onNewGame: (arg) {
-//     engine.info('[${this.name}]: 新游戏事件回调函数')
-//   },
-//   onUpdate: (arg) {
-//     engine.info('[${this.name}]: 更新世界事件回调函数')
-//   },
-// }
-
-function getEventHandlerById(id: string) {
-  return gEventHandlers[id]
+function getEventHandlerById(worldId, id: string) {
+  return gEventHandlers[worldId]?[id]
 }
 
-function addEventHandler(handler) {
-  gEventHandlers[handler.id] = handler
+function addEventHandlers({worldId, moduleId, handlers}) {
+  engine.info('向世界 [${worldId}] 添加模组事件表：[${moduleId}]...')
+
+  if (gEventHandlers[worldId] == null) {
+    gEventHandlers[worldId] = {}
+  }
+  if (gEventHandlers[worldId][moduleId] != null) {
+    engine.warn('事件处理模组 [${moduleId}]上的重复事件将会被覆盖。')
+  } else {
+    gEventHandlers[worldId][moduleId] = {}
+  }
+  Object.assign(gEventHandlers[worldId][moduleId], handlers)
 }
 
 /// 触发 mod 的回调函数
@@ -36,25 +47,19 @@ function addEventHandler(handler) {
 /// 事件处理函数将会收到两个参数
 /// 第一个参数module是模组数据，可以保存一些flag之类
 /// 第二个是回调本身的一些传入参数，例如执行时的一些情况等等
-function onGameEvent(eventId: string, [ handlerId, ...args ]) {
-  if (handlerId == null) {
-    for (const handler of gEventHandlers) {
-      _handlerCallback(eventId, handler, ...args)
-    }
-  } else {
-    const handler = gEventHandlers[handlerId]
-    _handlerCallback(eventId, handler, ...args)
+function onGameEvent(eventId: string, ...args) async {
+  engine.info('触发游戏事件：${eventId}')
+  final currentWorldModules = gEventHandlers[world.id]
+  if (currentWorldModules == null) {
+    engine.info('未发现世界 ${world.id}(${world.id}) 的事件处理模组。')
+    return
   }
-}
-
-function _handlerCallback(eventId, handler, [...args]) {
-  const module = game.modules[handler.id]
-  // 确认模组数据已经被加载
-  assert(module != null)
-  const callback = handler[eventId];
-  // callback 可能是 null
-  if(callback is function) {
-    engine.info('事件处理回调函数：[${handler.id}] - ${eventId}')
-    callback.apply(module, ...args)
+  for (const module in game.modules.values) {
+    let callback = currentWorldModules[module.id]?[eventId]
+    // callback 可能是 null
+    if(callback is function) {
+      engine.info('执行模组：[${module.id}] 的事件处理函数 ${eventId}')
+      async callback.apply(module, ...args)
+    }
   }
 }

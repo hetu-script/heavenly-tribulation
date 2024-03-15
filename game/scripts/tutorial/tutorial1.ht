@@ -1,0 +1,206 @@
+// 模组事件变量：
+// module.flags:
+// storySate - 故事发展阶段，0代表刚开始
+// knownAyaName - 是否知道阿雅的名字
+// selection1Admitted - 肯定或者否定自己为神，如果没有提及，则为null
+// encounteredWorldConfinement - 是否碰到了岛外的封印区域
+
+const tutorial1Handlers = {
+  onNewGame: async () {
+    final aya = getCharacterById('aya')
+    dialog.start()
+    dialog.pushScene('black.png')
+    dialog.pushImage('npc/luzifu.png')
+    await dialog.localeLines('tutorial.ch1.luzifu.line1', displayName: '???')
+    await dialog.localeLines('tutorial.ch1.hero.reply1', isHero: true)
+    await dialog.localeLines('tutorial.ch1.luzifu.line2', displayNameLocaleKey: 'luzifu')
+    await dialog.localeLines('tutorial.ch1.hero.reply2', isHero: true)
+    await dialog.localeLines('tutorial.ch1.luzifu.line3', displayNameLocaleKey: 'luzifu')
+    await dialog.localeLines('tutorial.ch1.hero.reply3', isHero: true)
+    await dialog.localeLines('tutorial.ch1.luzifu.line4', displayNameLocaleKey: 'luzifu')
+    dialog.popImage()
+    dialog.popScene()
+
+    dialog.pushImage(aya.illustration)
+    await dialog.localeLines('tutorial.ch1.aya.line1', character: aya)
+    
+    let selections = [
+      'tutorial.ch1.selection1.look',
+      'tutorial.ch1.selection1.pretend',
+      'tutorial.ch1.selection1.honest',
+      'tutorial.ch1.selection1.leave',
+    ]
+    let selection1End = false
+    do {
+      let selection1 = await dialog.localeSelect(selections);
+      switch(selection1) {
+        'tutorial.ch1.selection1.look' : {
+          await dialog.localeLines('tutorial.ch1.selection1.aya.description')
+          selections.removeFirst()
+        }
+        'tutorial.ch1.selection1.pretend' : {
+          await dialog.localeLines('tutorial.ch1.selection1.aya.pretend.reply', character: aya)
+          this.flags.selection1Admitted = true
+          selection1End = true
+        }
+        'tutorial.ch1.selection1.honest' : {
+          await dialog.localeLines('tutorial.ch1.selection1.aya.honest.reply')
+          this.flags.selection1Admitted = false
+          selection1End = true
+        }
+        'tutorial.ch1.selection1.leave' : {
+          await dialog.localeLines('tutorial.ch1.selection1.aya.honest.reply')
+          selection1End = true
+        }
+      }
+    } while (!selection1End)
+
+    await dialog.localeLines('tutorial.ch1.aya.direction', character: aya)
+    dialog.popImage()
+
+    WorldMap.freezePlayer()
+    await WorldMap.moveObjectTo('aya', 11, 8, endDirection: 'south')
+    await WorldMap.refreshNpcsInHeroWorldMapPosition()
+    WorldMap.unfreezePlayer()
+
+    dialog.pushImage('npc/luzifu.png')
+    await dialog.localeLines('tutorial.ch1.luzifu.hint.move', displayNameLocaleKey: 'luzifu')
+    dialog.end()
+
+  },
+  onMovedToNonInteractableTile: async () {
+    await dialog.localeLines('tutorial.onMovedToNonInteractableTile')
+    this.flags.encounteredWorldConfinement = true
+  },
+  onAfterHeroEnterLocation: async (location) {
+    final afu = getCharacterById('afu')
+    final aya = getCharacterById('aya')
+    if (this.flags.afuState == 0 && location.id == 'village') {
+      dialog.start()
+      dialog.pushImage(afu.illustration)
+
+      await dialog.localeLines('tutorial.ch1.afu.line1', character: afu)
+      
+      let selection2 = await dialog.localeSelect([
+        'tutorial.ch1.selection2.pretend',
+        'tutorial.ch1.selection2.honest',
+      ])
+      switch (selection2) {
+        'tutorial.ch1.selection2.pretend': {
+          await dialog.localeLines('tutorial.ch1.selection2.hero.pretend.reply', isHero: true)
+          await dialog.localeLines('tutorial.ch1.selection2.afu.pretend.reply', character: afu)
+          await dialog.localeLines('tutorial.ch1.selection2.hero.pretend.finish', isHero: true)
+        }
+        'tutorial.ch1.selection2.honest': {
+          await dialog.localeLines('tutorial.ch1.selection2.hero.honest.reply', isHero: true)
+          await dialog.localeLines('tutorial.ch1.selection2.afu.honest.reply', character: afu)
+          await dialog.localeLines('tutorial.ch1.selection2.hero.honest.finish', isHero: true)
+        }
+      }
+
+      let afuSelection
+      let haveKnownAya = haveMet(hero, aya)
+      do {
+        afuSelection = await dialog.localeSelect([
+          'tutorial.ch1.aboutAfu',
+          'tutorial.ch1.aboutOtherImmortal',
+          'tutorial.ch1.aboutLackOfSpirit',
+          'tutorial.ch1.aboutSeal',
+          haveKnownAya ? 'tutorial.ch1.aboutThatGirl' : 'tutorial.ch1.aboutAya',
+          'noreMoreQuertion',
+        ])
+        switch (afuSelection) {
+          'tutorial.ch1.aboutAfu': {
+            await dialog.localeLines('tutorial.ch1.aboutAfu.reply', character: afu)
+            characterFirstMet(hero, afu)
+          }
+          'tutorial.ch1.aboutOtherImmortal': {
+            await dialog.localeLines('tutorial.ch1.aboutOtherImmortal.reply', character: afu)
+          }
+          'tutorial.ch1.aboutLackOfSpirit': {
+            await dialog.localeLines('tutorial.ch1.aboutLackOfSpirit.reply', character: afu)
+          }
+          'tutorial.ch1.aboutSeal': {
+            await dialog.localeLines('tutorial.ch1.aboutSeal.reply', character: afu)
+          }
+          'tutorial.ch1.aboutThatGirl', 'tutorial.ch1.aboutAya': {
+            await dialog.localeLines('tutorial.ch1.aboutAya.reply', character: afu)
+          }
+        }
+      } while (afuSelection != 'noreMoreQuertion')
+
+      await dialog.localeLines('tutorial.ch1.afu.quest', character: afu)
+
+      let afuQuestSelection = await dialog.select({
+        'tutorial.ch1.afu.quest.accept': {
+          text: engine.locale('tutorial.ch1.afu.quest.accept'),
+          color: Colors.lightGreen,
+        },
+        'tutorial.ch1.afu.quest.postpone': {
+          text: engine.locale('tutorial.ch1.afu.quest.postpone'),
+          color: Colors.white,
+        },
+      })
+      switch (afuQuestSelection) {
+        'tutorial.ch1.afu.quest.accept': {
+          await dialog.localeLines('tutorial.ch1.afu.quest.accept.hero.line', isHero: true)
+          await dialog.localeLines('tutorial.ch1.afu.quest.accept.afu.reply', character: afu)
+          this.flags.afuState = 2
+        }
+        'tutorial.ch1.afu.quest.postpone': {
+          await dialog.localeLines('tutorial.ch1.afu.quest.postpone.hero.line', isHero: true)
+          await dialog.localeLines('tutorial.ch1.afu.quest.postpone.afu.reply', character: afu)
+          this.flags.afuState = 1
+        }
+      }
+      dialog.end()
+    }
+  },
+  onInteractCharacter: async (characterId) {
+    let aya = getCharacterById('aya')
+    let afu = getCharacterById('afu')
+    switch (characterId) {
+      'aya': {
+        switch (this.flags.ayaState) {
+          0 : {
+            dialog.start()
+            if (this.flags.selection1Admitted) {
+              await dialog.localeLines('tutorial.ch1.aya.interact.01', character: aya)
+            } else {
+              await dialog.localeLines('tutorial.ch1.aya.interact.02', character: aya)
+            }
+            let s
+            do {
+              s = await dialog.localeSelect([
+                'tutorial.ch1.aboutAya',
+                'tutorial.ch1.aboutSeal',
+                'leave',
+              ]);
+              switch (s) {
+                'tutorial.ch1.aboutAya': {
+                  await dialog.localeLines('tutorial.ch1.aboutAya.reply', character: aya)
+                  characterFirstMet(hero, aya)
+                  await dialog.localeLines('tutorial.ch1.aboutAya.reply2', character: aya)
+                }
+                'tutorial.ch1.aboutSeal': {
+                  await dialog.localeLines('tutorial.ch1.aboutSeal.reply', character: aya)
+                }
+              }
+            } while (s != 'leave')
+            dialog.end()
+          }
+        }
+      }
+      'afu': {
+        switch (this.flags.afuState) {
+          0 : {
+
+          }
+          1: {
+            
+          }
+        }
+      }
+    }
+  },
+}

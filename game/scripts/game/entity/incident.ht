@@ -1,5 +1,6 @@
 import '../game.ht'
-import 'character/common.ht'
+import 'character/character.ht'
+import '../binding/worldmap.ht'
 
 /// 历史事件记录
 struct Incident {
@@ -7,7 +8,6 @@ struct Incident {
     content: string,
     isPrivate: bool = false, // 是否通知当前据点所有人
     isGlobal: bool = false, // 是否记录到全世界的人都记录
-    isMazeIncident: bool = false, // 是否只记录在副本自己的历史中
     order = 0,
     ideal = 0,
     good = 0,
@@ -25,7 +25,7 @@ struct Incident {
     assert(content != null && content.isNotEmpty)
 
     this.content = content
-    this.timestamp = game.timestamp
+    this.timestamp = currentWorldHistory.timestamp
     this.order = order
     this.ideal = ideal
     this.good = good
@@ -41,12 +41,8 @@ struct Incident {
     this.isPrivate = isPrivate
     this.isGlobal = isGlobal
 
-    if (isMazeIncident) {
-      currentMaze.history.add(this)
-    } else {
-      this.index = currentWorld?.history.length
-      currentWorld?.history.add(this)
-    }
+    this.index = currentWorldHistory.incidents.length
+    currentWorldHistory.incidents.add(this)
 
     for (const id in subjectIds) {
       const char = game.characters[id]
@@ -63,12 +59,12 @@ struct Incident {
     for (const id in witnessIds) {
       const char = game.characters[id]
       assert(char != null)
-      characterWitnessIncident(char, this, witnessed: true)
+      characterKnowIncident(char, this, witnessed: true)
     }
 
     // for (const id in heardIds) {
     //   const char = game.characters[id]
-    //   characterWitnessIncident(char, this)
+    //   characterKnowIncident(char, this)
     // }
     let organization
     if (organizationId) {
@@ -79,7 +75,7 @@ struct Incident {
     if (isGlobal) {
       for (const char of game.characters) {
         if (char.id in subjectIds || char.id in objectIds || char.id in witnessIds) continue
-        characterWitnessIncident(char, this)
+        characterKnowIncident(char, this)
       }
     } else if (!isPrivate) {
       if (organization) {
@@ -89,7 +85,7 @@ struct Incident {
             if (charId in objectIds) continue
             if (charId in witnessIds) continue
             const character = game.characters[charId]
-            characterWitnessIncident(character, this, witnessed: true)
+            characterKnowIncident(character, this, witnessed: true)
           }
         }
       }
@@ -99,15 +95,16 @@ struct Incident {
         for (const id in location.stayingCharacterIds) {
           if (id in subjectIds || id in objectIds || id in witnessIds) continue
           const char = game.characters[id]
-          characterWitnessIncident(char, this)
+          characterKnowIncident(char, this)
         }
       }
     }
-
+  
+    WorldMap.updateWorldHistory()
     engine.info(content)
   }
 }
 
 function getIncidentByIndex(index: integer) {
-  return currentWorld.history[index]
+  return currentWorldHistory.incidents[index]
 }

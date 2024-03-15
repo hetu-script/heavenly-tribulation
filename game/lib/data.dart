@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:samsara/cardgame/playing_card.dart';
+import 'package:samsara/cardgame/card.dart';
 import 'package:json5/json5.dart';
+import 'package:samsara/samsara.dart';
 
 import 'ui.dart';
 
@@ -28,7 +29,31 @@ abstract class GameData {
     _isLoaded = true;
   }
 
-  static PlayingCard getBattleCard(String cardId) {
+  static Card getSiteCard(dynamic siteData) {
+    final id = siteData['id'];
+    final card = Card(
+      id: id,
+      deckId: id,
+      data: siteData,
+      anchor: Anchor.center,
+      borderRadius: 15.0,
+      illustrationSpriteId: siteData['image'],
+      spriteId: 'location/site/site_frame.png',
+      title: siteData['name'],
+      titleStyle: ScreenTextStyle(textStyle: const TextStyle(fontSize: 20.0)),
+      showTitle: true,
+      enablePreview: true,
+      focusOnPreviewing: true,
+      focusedPriority: 500,
+      focusedSize: GameUI.siteCardFocusedSize,
+      focusedOffset: Vector2(
+          (GameUI.siteCardFocusedSize.x - GameUI.siteCardSize.x) / 2,
+          (GameUI.siteCardSize.y - GameUI.siteCardFocusedSize.y) / 2),
+    );
+    return card;
+  }
+
+  static Card getBattleCard(String cardId) {
     assert(_isLoaded, 'GameData is not loaded yet!');
     assert(GameUI.isInitted, 'Game UI is not initted yet!');
 
@@ -36,9 +61,9 @@ abstract class GameData {
     assert(data != null, 'Failed to load card data: [$cardId]');
     final String id = data['id'];
 
-    return PlayingCard(
+    return Card(
       id: id,
-      deckbuildingId: id,
+      deckId: id,
       script: id,
       data: data,
       // title: data['title'][engine.locale.languageId],
@@ -62,4 +87,57 @@ abstract class GameData {
       // ),
     );
   }
+}
+
+abstract class PresetDecks {
+  static List<Card> _getCards(List<String> cardIds) {
+    return cardIds.map((e) => GameData.getBattleCard(e)).toList();
+  }
+
+  static const List<String> _basic = [
+    'defend_normal',
+    'attack_normal',
+    'attack_normal',
+    'attack_normal',
+  ];
+
+  static const List<String> _blade_1 = [
+    'defend_normal',
+    'blade_4',
+    'blade_3',
+    'blade_1',
+  ];
+
+  static const List<String> _blade_2 = [
+    'blade_4',
+    'blade_6',
+    'blade_7',
+    'blade_8',
+  ];
+
+  static const List<String> _blade_3 = [
+    'blade_9',
+    'blade_10',
+    'blade_7',
+    'blade_8',
+  ];
+
+  static const _allDecks = [
+    _basic,
+    ..._bladeDecks,
+  ];
+
+  static const _bladeDecks = [
+    _blade_1,
+    _blade_2,
+    _blade_3,
+  ];
+
+  static List<Card> get random => _getCards(_allDecks.random());
+  static List<Card> get randomBlade => _getCards(_bladeDecks.random());
+
+  static List<Card> get basic => _getCards(_basic);
+  static List<Card> get blade1 => _getCards(_blade_1);
+  static List<Card> get blade2 => _getCards(_blade_2);
+  static List<Card> get blade3 => _getCards(_blade_3);
 }

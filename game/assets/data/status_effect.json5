@@ -1,43 +1,81 @@
 {
   // 战斗状态数据，目前只保存了该状态的id、类型和触发时机
   // 状态icon和id同名，约定路径为：'assets\images\icon\${id}.png'
-  // 类型包括：'none', 'buff', 'debuff'，某些互动只针对某种特定类型的战斗状态
+  // 状态title和description，对应本地化字符串格式为：
+  // '${id}.title' 和 '${id}.description'
+  // 类型包括：'none', 'block', 'permenant', 'continuous', 'buff', 'debuff'，某些互动只针对某种特定类型的战斗状态
+  // permenant 类型的状态为永久状态，单独绘制在卡组上方，而非角色血条上
+  // isUnique 代表此状态只能获得一次
+  // priority 代表状态的优先级
   // 触发时机包括：
-  // 自己/对方回合开始时 self_turn_start/opponent_turn_start
-  // 自己/对方回合结束时 self_turn_end/opponent_turn_end
-  // 自己/对方攻击时 self_attacking/opponent_attacking
-  // 自己/对方造成伤害时 self_damaging/opponent_damaging
-  // 自己/对方恢复生命时 self_healing/opponent_healing
-  // 自己/对方恢复灵气时 self_condensing/opponent_healing
-  // 自己/对方获得防时 self_blocking/opponent_blocking
-  // 自己/对方受到攻击时 self_attacked/opponent_attacked
-  // 自己/对方受到伤害时 self_damaged/opponent_damaged
-  // 自己/对方攻击被对方防住时 self_attacking_blocked/opponent_attacking_blocked
-  // 自己/对方获得增益状态时
-  // 自己/对方获得减益状态时
-  // 自己/对方再次行动时
-  // 自己/对方生命减少时
-  // 自己/对方灵气减少时
-  // 自己/对方防减少时
-  // 自己/对方使用法术时
-  // 自己/对方使用剑术时
-  // 自己/对方使用拳术时
-  // 自己/对方使用圣术时
-  // 自己/对方使用魂术时
-  // 自己/对方使用阵法时
-  // 自己/对方使用符咒时
-  // 自己/对方使用丹药时
-  // 自己/对方使用灵器时
-  // 自己/对方使用灵植时
-  // 自己/对方使用灵兽时
-  // 自己/对方使用幻术时
-  // 自己/对方使用通灵时
-  // 自己/对方使用占卜时
-  // 自己/对方使用神通时
+  // 对方/自己回合开始时 opponent/self_turn_start
+  // 对方/自己回合结束时 opponent/self_turn_end
+  // 对方/自己攻击时 opponent/self_attacking
+  // 对方/自己造成伤害时 opponent/self_damaging
+  // 对方/自己恢复生命时 opponent/self_healing
+  // 对方/自己恢复灵气时 opponent/self_condensing
+  // 对方/自己获得防时 opponent/self_blocking
+  // 对方/自己受到攻击时 opponent/self_weapon_attacked
+  // 对方/自己受到伤害时 opponent/self_damaged
+  // 对方/自己攻击被对方防住时 opponent/self_attacking_blocked
+  // 对方/自己获得增益状态时 opponent/self
+  // 对方/自己获得减益状态时 opponent/self
+  // 对方/自己再次行动时 opponent/self
+  // 对方/自己生命减少时 opponent/self
+  // 对方/自己灵气减少时 opponent/self
+  // 对方/自己防减少时 opponent/self
+  // 对方/自己使用武器攻击时 opponent/self_use_card_tag_weapon_attack
+  // 对方/自己使用法术时 opponent/self
+  // 对方/自己使用剑术时 opponent/self_use_card_genre_blade
+  // 对方/自己使用拳术时 opponent/self
+  // 对方/自己使用圣术时 opponent/self
+  // 对方/自己使用魂术时 opponent/self
+  // 对方/自己使用阵法时 opponent/self
+  // 对方/自己使用符咒时 opponent/self
+  // 对方/自己使用丹药时 opponent/self
+  // 对方/自己使用灵器时 opponent/self
+  // 对方/自己使用灵植时 opponent/self
+  // 对方/自己使用灵兽时 opponent/self
+  // 对方/自己使用幻术时 opponent/self
+  // 对方/自己使用通灵时 opponent/self
+  // 对方/自己使用占卜时 opponent/self
+  // 对方/自己使用神通时 opponent/self
+
+  // 防：回合开始时减半，受到攻击时抵消伤害
   block: {
     id: "block",
-    type: "none",
-    callbacks: ["self_turn_start", "self_attacked"],
+    type: "block",
+    callbacks: ["self_turn_start", "self_weapon_attacked"],
     sound: "dagger_drawn2-89025.mp3",
+  },
+  // 速度
+  speed: {
+    id: "speed",
+    callbacks: ["self_turn_start"],
+  },
+  // 飞云剑：每次使用剑法时+3速度
+  cloud_sword: {
+    id: "cloud_sword",
+    type: "permenant",
+    unique: true,
+    callbacks: ["self_use_card_genre_blade"],
+  },
+  // 下一张武器攻击牌无视防御
+  ignore_block: {
+    id: "ignore_block",
+    callbacks: ["self_use_card_tag_weapon_attack"],
+  },
+  // 剑气
+  blade_power: {
+    id: "blade_power",
+    callbacks: ["self_weapon_attacking"],
+    sound: "dagger_drawn2-89025.mp3",
+  },
+  // 共鸣：普通攻击附加金属性伤害
+  element_metal_normal_attack_buff: {
+    id: "element_metal_normal_attack_buff",
+    type: "permenant",
+    unique: true,
+    callbacks: [""],
   },
 }
