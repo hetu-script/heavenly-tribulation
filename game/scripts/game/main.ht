@@ -1,49 +1,45 @@
-export 'ai/ai.ht'
+export 'binding/battle_character.ht'
+export 'binding/player.ht'
 export 'binding/worldmap.ht'
-// export 'binding/maze.ht'
-export 'entity/common.ht'
+export 'cardgame/card.ht'
+export 'cardgame/status_effect.ht'
+export 'entity/entity.ht'
+export 'incident.ht'
 export 'entity/character/character.ht'
 export 'entity/item/item.ht'
-export 'entity/skill/skill.ht'
-export 'entity/effect/effect.ht'
-export 'entity/incident.ht'
 export 'entity/location/site.ht'
 export 'entity/location/location.ht'
 export 'entity/organization/organization.ht'
-// export 'maze/maze.ht'
+export 'interaction/interaction.ht'
+export 'interaction/item.ht'
 export 'name/name.ht'
 export 'quest/quest.ht'
+export 'tile/common.ht'
 export 'tile/tilemap.ht'
 export 'tile/hexagonal_tile.ht'
+export 'world/object.ht'
 export 'world/world.ht'
 export 'world/zone.ht'
+export 'colors.ht'
 export 'datetime.ht'
 export 'debug.ht'
 export 'dialog.ht'
-// export 'duel.ht'
 export 'event.ht'
 export 'game.ht'
-// export 'l10n.ht'
-export 'util.ht'
-export 'cardgame/card.ht'
-export 'cardgame/status_effect.ht'
 export 'random.ht'
-export 'interaction.ht'
 export 'update.ht'
-export 'colors.ht'
+export 'util.ht'
 
-import 'l10n/l10n.ht'
+import 'data/item.json5' as items
 
-const gameVersion = '0.1.0'
+const coreScriptModuleVersion = '0.0.1'
 
-function main({
-    locale = 'zh',
-  }) {
+function init {
+  engine.info('游戏核心脚本(ver-${coreScriptModuleVersion})初始化...')
   
-  engine.info('初始化游戏')
+  addItemsData(items)
+}
+
+function main {
   
-  engine.loadLocaleFromJSON(predefinedLocalizations.toJSON())
-  engine.setLocale(locale)
-  resetGame()
-  engine.info('初始化函数执行完毕')
 }

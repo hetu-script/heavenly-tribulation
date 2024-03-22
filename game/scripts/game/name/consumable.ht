@@ -4,7 +4,7 @@ import 'consumable/consumable.json5' as consumableNames
 import 'consumable/medicine.json5' as medicineNames
 import 'consumable/beverage.json5' as beverageNames
 import '../random.ht'
-import '../entity/common.ht'
+import '../entity/entity.ht'
 
 const commonConsumableNames = [
   ...commonNamesData.dao,

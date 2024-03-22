@@ -1,7 +1,6 @@
 {
   "void": "虚空",
   "land": "土地",
-  "water": "水面",
   "continent": "大陆",
   "island": "岛屿",
 
@@ -24,6 +23,15 @@
   "arcana": "洞天",
   "mirage": "福地",
 
-  "fishZone": "鱼群",
-  "stormZone": "暴风雨"
+  "dungeon": "洞穴",
+  "portalArray": "传送阵",
+  "portal": "传送门",
+  "mapEntry": "地图入口",
+
+  "dungeonStoneGate": "石门",
+  "dungeonStonePavedTile": "石砖地块",
+
+  "fishTile": "鱼群",
+  "stormTile": "暴风雨",
+  "spiritTile": "灵气喷涌"
 }

@@ -1,7 +1,7 @@
 import 'common.ht'
 import 'material/material.json5' as materialNames
 import 'material/common.json5' as commonMaterialNames
-import '../entity/common.ht'
+import '../entity/entity.ht'
 import '../random.ht'
 
 function generateMaterialName({category, rarity}) {

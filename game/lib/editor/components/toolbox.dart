@@ -72,25 +72,49 @@ class _ToolboxState extends State<Toolbox> {
       color: kBackgroundColor,
       size: const Size(640, 160),
       padding: const EdgeInsets.all(10.0),
-      child: Column(
+      child: Row(
         children: [
-          Row(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              buildToolButton(context, item, 'delete'),
-              buildToolButton(context, item, 'sea'),
-              buildToolButton(context, item, 'plain'),
-              buildToolButton(context, item, 'forest'),
-              buildToolButton(context, item, 'mountain'),
+              Row(
+                children: [
+                  buildToolButton(context, item, 'delete'),
+                  buildToolButton(context, item, 'nonInteractable'),
+                  buildToolButton(context, item, 'sea'),
+                  buildToolButton(context, item, 'plain'),
+                  buildToolButton(context, item, 'farmfield'),
+                  buildToolButton(context, item, 'forest'),
+                  buildToolButton(context, item, 'mountain'),
+                  buildToolButton(context, item, 'dungeonStonePavedTile'),
+                ],
+              ),
+              Row(
+                children: [
+                  // buildToolButton(context, item, 'pond'),
+                  // buildToolButton(context, item, 'shelf'),
+                  buildToolButton(context, item, 'fishTile'),
+                  buildToolButton(context, item, 'stormTile'),
+                  buildToolButton(context, item, 'spiritTile'),
+                  buildToolButton(context, item, 'city'),
+                  buildToolButton(context, item, 'portalArray'),
+                  buildToolButton(context, item, 'dungeon'),
+                  buildToolButton(context, item, 'dungeonStoneGate'),
+                  buildToolButton(context, item, 'portal'),
+                  buildToolButton(context, item, 'glowingTile'),
+                  buildToolButton(context, item, 'pressureTile'),
+                  buildToolButton(context, item, 'treasureBox'),
+                ],
+              ),
             ],
           ),
-          Row(
+          const Spacer(),
+          Column(
             children: [
-              buildToolButton(context, item, 'shelf'),
-              buildToolButton(context, item, 'farmfield'),
-              // buildToolButton(context, item, 'pond'),
-              buildToolButton(context, item, 'city'),
-              buildToolButton(context, item, 'fishZone'),
-              buildToolButton(context, item, 'stormZone'),
+              ElevatedButton(
+                onPressed: () {},
+                child: Text(engine.locale('editMapId')),
+              ),
             ],
           ),
         ],

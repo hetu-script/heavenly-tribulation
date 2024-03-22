@@ -95,11 +95,12 @@ class BattleScene extends Scene {
     world.add(heroDeckZone);
 
     final heroSkinId = heroData['skin'];
-    final Set<String> heroCardAnimations = {};
+    final Set<String> heroAnimationStates = {};
     for (final card in heroCards) {
       final states = card.data['animations'];
       for (final state in states) {
-        heroCardAnimations.add('${state}_$heroSkinId');
+        heroAnimationStates.add(state);
+        //   heroAnimationStates.add('${state}_$heroSkinId');
       }
     }
     hero = BattleCharacter(
@@ -107,7 +108,7 @@ class BattleScene extends Scene {
       size: GameUI.heroSpriteSize,
       isHero: true,
       skinId: heroSkinId,
-      cardAnimations: heroCardAnimations,
+      animationStates: heroAnimationStates,
       data: heroData,
       deckZone: heroDeckZone,
     );
@@ -123,18 +124,19 @@ class BattleScene extends Scene {
     world.add(enemyDeckZone);
 
     final enemySkinId = enemyData['skin'];
-    final Set<String> enemyCardAnimations = {};
+    final Set<String> enemyAnimationStates = {};
     for (final card in enemyCards) {
       final states = card.data['animations'];
       for (final state in states) {
-        enemyCardAnimations.add('${state}_$enemySkinId');
+        enemyAnimationStates.add(state);
+        //   enemyAnimationStates.add('${state}_$enemySkinId');
       }
     }
     enemy = BattleCharacter(
       position: GameUI.p2HeroSpritePosition,
       size: GameUI.heroSpriteSize,
       skinId: enemySkinId,
-      cardAnimations: enemyCardAnimations,
+      animationStates: enemyAnimationStates,
       data: enemyData,
       deckZone: enemyDeckZone,
     );

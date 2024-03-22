@@ -1,11 +1,11 @@
 import '../random.ht'
-import '../entity/common.ht'
+import '../entity/entity.ht'
 import '../name/zone.ht'
 import '../game.ht'
 
 const kZoneEmpty = 'empty'
 const kZoneLand = 'land'
-const kZoneWater = 'water'
+const kZoneSea = 'sea'
 const kZoneCategoryContinent = 'continent'
 const kZoneCategoryIsland = 'island'
 const kZoneCategoryLake = 'lake'

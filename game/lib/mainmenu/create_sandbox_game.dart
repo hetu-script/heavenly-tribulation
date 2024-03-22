@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:samsara/extensions.dart';
 
 import '../config.dart';
 // import '../hash.dart';
@@ -24,7 +25,8 @@ class CreateSandboxGameDialog extends StatefulWidget {
 }
 
 class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
-  // final _worldNameEditingController = TextEditingController();
+  final _saveNameEditingController = TextEditingController();
+  final _idEditingController = TextEditingController();
   final _seedEditingController = TextEditingController();
   String _worldStyle = 'coast';
   int _worldScale = 2;
@@ -39,6 +41,8 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
     super.initState();
     _worldScaleLabel = engine.locale(kWorldScaleLabel[_worldScale]!);
 
+    _saveNameEditingController.text = engine.locale('unnamed');
+    _idEditingController.text = 'main';
     _seedEditingController.text = 'Hello, world!';
   }
 
@@ -74,35 +78,40 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                     child: Wrap(
                       alignment: WrapAlignment.start,
                       children: [
-                        // 世界名字
-                        // SizedBox(
-                        //   width: 350,
-                        //   child: Row(
-                        //     children: [
-                        //       SizedBox(
-                        //         width: 100.0,
-                        //         child: Text('${engine.locale('randomSeed')}: '),
-                        //       ),
-                        //       SizedBox(
-                        //         width: 150.0,
-                        //         child: TextField(
-                        //           controller: _worldNameEditingController,
-                        //         ),
-                        //       ),
-                        //       Padding(
-                        //         padding: const EdgeInsets.all(10.0),
-                        //         child: ElevatedButton(
-                        //           onPressed: () {
-                        //             _worldNameEditingController.text =
-                        //                 engine.hetu.invoke('generateZoneName',
-                        //                     namedArgs: {'category': 'empty'});
-                        //           },
-                        //           child: Text(engine.locale('random')),
-                        //         ),
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ),
+                        SizedBox(
+                          width: 350,
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 100.0,
+                                child: Text('${engine.locale('fileName')}: '),
+                              ),
+                              SizedBox(
+                                width: 150.0,
+                                child: TextField(
+                                  controller: _saveNameEditingController,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          width: 350,
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 100.0,
+                                child: Text('${engine.locale('worldId')}: '),
+                              ),
+                              SizedBox(
+                                width: 150.0,
+                                child: TextField(
+                                  controller: _idEditingController,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                         // 随机数种子
                         SizedBox(
                           width: 350,
@@ -143,12 +152,12 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                               ),
                               DropdownButton<String>(
                                 items: <String>['islands', 'coast', 'inland']
-                                    .map((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(engine.locale(value)),
-                                  );
-                                }).toList(),
+                                    .map((String value) =>
+                                        DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(engine.locale(value)),
+                                        ))
+                                    .toList(),
                                 value: _worldStyle,
                                 onChanged: (value) {
                                   setState(() {
@@ -325,9 +334,15 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                   onPressed: () {
                     if (_seedEditingController.text.isNotEmpty) {
                       Navigator.of(context).pop({
-                        'method': 'generate',
                         'id': 'main',
-                        'seedString': _seedEditingController.text,
+                        'method': 'generate',
+                        'isMainWorld': true,
+                        'saveName': _saveNameEditingController.text.isNotBlank
+                            ? _saveNameEditingController.text
+                            : null,
+                        'seedString': _seedEditingController.text.isNotBlank
+                            ? _seedEditingController.text
+                            : null,
                         'style': _worldStyle,
                         'worldScale': _worldScale,
                         'nationNumber': _organizationNumber,

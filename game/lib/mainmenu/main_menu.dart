@@ -1,7 +1,3 @@
-import 'dart:io';
-import 'dart:convert';
-import 'dart:math' as math;
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -36,7 +32,6 @@ import '../ui.dart';
 import '../scene/world/location/components/location_site.dart';
 import 'create_blank_map.dart';
 import '../editor/world_editor.dart';
-import '../common.dart';
 // import '../../dialog/game_dialog/game_dialog.dart';
 import '../dialog/game_dialog/game_dialog_controller.dart';
 import '../state/states.dart';
@@ -54,8 +49,6 @@ class _MainMenuState extends State<MainMenu> {
 
   bool _isLoading = false;
 
-  late math.Random random;
-
   @override
   void initState() {
     super.initState();
@@ -63,7 +56,7 @@ class _MainMenuState extends State<MainMenu> {
     // TODO: 读取游戏配置
 
     // 读取存档列表
-    context.read<Saves>().loadSavesList();
+    context.read<GameSavesState>().loadList();
 
     engine.registerSceneConstructor('locationSite', ([dynamic args]) async {
       return LocationSiteScene(
@@ -76,66 +69,43 @@ class _MainMenuState extends State<MainMenu> {
       );
     });
 
-    engine.registerSceneConstructor('worldmap', ([dynamic args]) async {
-      engine.hetu.invoke('resetGame');
-
-      // 因为生成世界时会触发一些mod的回调函数，因此需要先载入 mod 数据
-      // for (final key in _modsInfo.keys) {
-      //   if (_modsInfo[key] == true) {
-      //     engine.hetu.invoke('load', module: key);
-      //   }
-      // }
-
+    engine.registerSceneConstructor('tilemap', ([dynamic args]) async {
       dynamic worldData;
       final method = args['method'];
       final isEditorMode = args['isEditorMode'] ?? false;
-      if (method == 'load') {
-        final mainPath = args!['path'];
-        final gameSave = await File(mainPath).open();
-        final gameDataString = utf8.decoder
-            .convert((await gameSave.read(await gameSave.length())).toList());
-        await gameSave.close();
-        final gameData = jsonDecode(gameDataString);
-        final universeSave =
-            await File(mainPath + kUniverseSaveFilePostfix).open();
-        final universeDataString = utf8.decoder.convert(
-            (await universeSave.read(await universeSave.length())).toList());
-        await universeSave.close();
-        final universeData = jsonDecode(universeDataString);
-        final historySave =
-            await File(mainPath + kHistorySaveFilePostfix).open();
-        final historyDataString = utf8.decoder.convert(
-            (await historySave.read(await historySave.length())).toList());
-        await historySave.close();
-        final historyData = jsonDecode(historyDataString);
-        engine.info('从 [$mainPath] 载入游戏存档。');
-        worldData = engine.hetu.invoke('loadGameFromJsonData', namedArgs: {
-          'gameData': gameData,
-          'universeData': universeData,
-          'historyData': historyData,
-          'isEditorMode': isEditorMode,
-        });
+      String? worldId;
+      if (method == 'load' || method == 'preset') {
+        worldData =
+            engine.hetu.invoke('switchWorld', positionalArgs: [args['id']]);
       } else if (method == 'generate') {
-        engine.info('创建新的沙盒世界。');
+        engine.info('创建程序生成的随机世界。');
         worldData = engine.hetu.invoke('createSandboxWorld', namedArgs: args);
       } else if (method == 'blank') {
+        engine.info('创建空白世界。');
         worldData = engine.hetu.invoke('createBlankWorld', namedArgs: args);
       }
+      worldId ??= engine.hetu.invoke('getCurrentWorldId');
 
-      random = engine.hetu.invoke('getRandomObject');
+      engine.hetu.invoke('calculateTimestamp');
 
-      return WorldMapScene(
+      final scene = WorldMapScene(
+        isMainWorld: worldData['isMainWorld'],
         worldData: worldData,
         controller: engine,
+        backgroundSpriteId: args['background'],
         // ignore: use_build_context_synchronously
         context: context,
         captionStyle: captionStyle,
-        bgm: isEditorMode
-            ? null
-            : 'chinese-peaceful-heartwarming-harp-asian-emotional-traditional-music-21041.mp3',
+        bgm: isEditorMode ? null : 'ghuzheng-fantasie-23506.mp3',
         showFogOfWar: !isEditorMode,
         showNonInteractableHintColor: isEditorMode,
+        showGrids: isEditorMode,
       );
+
+      final colors = engine.hetu.invoke('getCurrentWorldZoneColors');
+      engine.addTileMapZoneColors(scene.map, worldId!, colors);
+
+      return scene;
     });
 
     engine.registerSceneConstructor('deckBuilding', ([dynamic data]) async {
@@ -160,7 +130,7 @@ class _MainMenuState extends State<MainMenu> {
     });
 
     engine.bgm.initialize();
-    engine.playBGM('music/chinese-oriental-tune-06-12062.mp3',
+    engine.loop('chinese-oriental-tune-06-12062.mp3',
         volume: GameConfig.musicVolume);
   }
 
@@ -176,9 +146,10 @@ class _MainMenuState extends State<MainMenu> {
   }
 
   // 因为 FutureBuilder根据返回值是否为null来判断，因此这里无论如何要返回一个值
-  Future<bool?> _prepareData() async {
+  Future<bool> _prepareData() async {
     if (engine.isInitted) {
       engine.hetu.invoke('build', positionalArgs: [context]);
+      _isLoading = false;
       return true;
     }
     if (_isLoading) return false;
@@ -250,7 +221,7 @@ class _MainMenuState extends State<MainMenu> {
 
     engine.hetu.interpreter.bindExternalClass(BattleCharacterClassBinding());
 
-    final mainConfig = {'locale': engine.languageId, 'gameEngine': engine};
+    final mainConfig = {'locale': engine.languageId};
     if (kDebugMode) {
       engine.loadModFromAssetsString(
         'game/main.ht',
@@ -258,16 +229,6 @@ class _MainMenuState extends State<MainMenu> {
         namedArgs: mainConfig,
         isMainMod: true,
       );
-      for (final key in GameConfig.modules.keys) {
-        if (GameConfig.modules[key]?['enabled'] == true) {
-          if (GameConfig.modules[key]?['preinclude'] == true) {
-            engine.loadModFromAssetsString(
-              '$key/main.ht',
-              module: key,
-            );
-          }
-        }
-      }
     } else {
       final game = await rootBundle.load('assets/mods/game.mod');
       final gameBytes = game.buffer.asUint8List();
@@ -277,18 +238,6 @@ class _MainMenuState extends State<MainMenu> {
         namedArgs: mainConfig,
         isMainMod: true,
       );
-      for (final key in GameConfig.modules.keys) {
-        if (GameConfig.modules[key]?['enabled'] == true) {
-          if (GameConfig.modules[key]?['preinclude'] == true) {
-            final mod = await rootBundle.load('assets/mods/$key.mod');
-            final modBytes = mod.buffer.asUint8List();
-            engine.loadModFromBytes(
-              modBytes,
-              moduleName: key,
-            );
-          }
-        }
-      }
     }
 
     // 载入动画，卡牌等纯JSON格式的游戏数据
@@ -310,6 +259,7 @@ class _MainMenuState extends State<MainMenu> {
     //   });
     // });
     // _videoController.setLooping(true);
+    _isLoading = false;
     setState(() {});
     return true;
   }
@@ -415,7 +365,25 @@ class _MainMenuState extends State<MainMenu> {
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0),
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      context
+                          .read<MainMenuState>()
+                          .setState(MainMenuStates.main);
+                      engine.bgm.pause();
+                      showDialog(
+                        context: context,
+                        builder: (context) => WorldOverlay(
+                          args: const {
+                            'id': 'cave',
+                            'path': 'tutorial',
+                            'method': 'preset',
+                          },
+                        ),
+                      ).then((_) {
+                        GameData.isGameCreated = false;
+                        engine.bgm.resume();
+                      });
+                    },
                     child: Label(
                       engine.locale('tutorial'),
                       width: 150.0,
@@ -423,17 +391,17 @@ class _MainMenuState extends State<MainMenu> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    child: Label(
-                      engine.locale('storyMode'),
-                      width: 150.0,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
+                // Padding(
+                //   padding: const EdgeInsets.only(top: 20.0),
+                //   child: ElevatedButton(
+                //     onPressed: () {},
+                //     child: Label(
+                //       engine.locale('storyMode'),
+                //       width: 150.0,
+                //       textAlign: TextAlign.center,
+                //     ),
+                //   ),
+                // ),
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0),
                   child: ElevatedButton(
@@ -441,16 +409,17 @@ class _MainMenuState extends State<MainMenu> {
                       showDialog(
                         context: context,
                         builder: (context) => const CreateSandboxGameDialog(),
-                      ).then((value) {
-                        if (value == null) return;
+                      ).then((args) {
+                        if (args == null) return;
                         context
                             .read<MainMenuState>()
                             .setState(MainMenuStates.main);
                         engine.bgm.pause();
                         showDialog(
                           context: context,
-                          builder: (context) => WorldOverlay(args: value),
+                          builder: (context) => WorldOverlay(args: args),
                         ).then((_) {
+                          GameData.isGameCreated = false;
                           engine.bgm.resume();
                         });
                       });
@@ -469,7 +438,7 @@ class _MainMenuState extends State<MainMenu> {
                       showDialog<SaveInfo?>(
                         context: context,
                         builder: (context) => const LoadGameDialog(),
-                      ).then((SaveInfo? info) {
+                      ).then((SaveInfo? info) async {
                         if (info == null) return;
                         context
                             .read<MainMenuState>()
@@ -479,12 +448,13 @@ class _MainMenuState extends State<MainMenu> {
                           context: context,
                           builder: (context) => WorldOverlay(
                             args: {
-                              'id': info.worldId,
-                              'method': 'load',
+                              'id': info.currentWorldId,
                               'path': info.savePath,
+                              'method': 'load',
                             },
                           ),
                         ).then((_) {
+                          GameData.isGameCreated = false;
                           engine.bgm.resume();
                         });
                       });
@@ -532,6 +502,7 @@ class _MainMenuState extends State<MainMenu> {
                           context: context,
                           builder: (context) => WorldEditorOverlay(args: value),
                         ).then((_) {
+                          GameData.isGameCreated = false;
                           engine.bgm.resume();
                         });
                       });
@@ -560,13 +531,14 @@ class _MainMenuState extends State<MainMenu> {
                           context: context,
                           builder: (context) => WorldEditorOverlay(
                             args: {
-                              'id': info.worldId,
+                              'id': info.currentWorldId,
                               'method': 'load',
                               'path': info.savePath,
                               'isEditorMode': true,
                             },
                           ),
                         ).then((_) {
+                          GameData.isGameCreated = false;
                           engine.bgm.resume();
                         });
                       });
@@ -609,14 +581,16 @@ class _MainMenuState extends State<MainMenu> {
                       final hero = engine.hetu.invoke('Character', namedArgs: {
                         'isMajorCharacter': false,
                         'baseStats': {
-                          'life': 50,
+                          'life': 40,
                         }
                       });
                       final enemy = engine.hetu.invoke('Character', namedArgs: {
                         'isMajorCharacter': false,
                         'baseStats': {
-                          'life': 50,
-                        }
+                          'life': 80,
+                          'physiqueAttack': 5,
+                        },
+                        'skin': 'boar',
                       });
                       const heroLibrary = [
                         'attack_normal',
@@ -647,7 +621,8 @@ class _MainMenuState extends State<MainMenu> {
                         'craft_1',
                         'craft_2',
                       ];
-                      final enemyDeck = PresetDecks.random;
+                      // final enemyDeck = PresetDecks.random;
+                      final enemyDeck = PresetDecks.basic;
 
                       showDialog(
                         context: context,

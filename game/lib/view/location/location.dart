@@ -8,6 +8,7 @@ import '../../config.dart';
 import 'site_card.dart';
 import '../common.dart';
 import 'edit_location_id_and_image.dart';
+import 'edit_site.dart';
 
 class LocationView extends StatefulWidget {
   final String? locationId;
@@ -36,6 +37,7 @@ class _LocationViewState extends State<LocationView> {
 
   late final dynamic _locationData;
   List<Widget> _siteCards = [];
+  late bool _isDiscovered;
 
   @override
   void initState() {
@@ -57,43 +59,29 @@ class _LocationViewState extends State<LocationView> {
           engine.hetu.invoke('Location', namedArgs: {'terrain': terrain});
     }
 
-    updateData();
+    _isDiscovered = _locationData['isDiscovered'] ?? false;
   }
 
-  void updateData() {
-    // final HTStruct sitesData = _locationData['sites'];
-    // final heroHomeId = engine.hetu.invoke('getHeroHomeLocationId');
-    // if (_locationData['id'] == heroHomeId) {
-    //   final heroHomeSite = engine.hetu.invoke('getHeroHomeSite');
-    //   _siteCards.add(
-    //     SiteCard(
-    //       siteData: heroHomeSite,
-    //       imagePath: heroHomeSite['image'],
-    //     ),
-    //   );
-    // }
+  void _saveData() {
+    _locationData['isDiscovered'] = _isDiscovered;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final sitesData = _locationData['sites']
         .values
         .where((value) => !(value['isSubSite'] ?? false));
 
     _siteCards = List<Widget>.from(sitesData.map(
-      (siteData) {
-        return SiteCard(
-          siteData: siteData,
-          imagePath: siteData['image'],
-        );
-      },
+      (siteData) => SiteCard(
+        siteData: siteData,
+        imagePath: siteData['image'],
+      ),
     ));
-  }
-
-  void _saveData() {}
-
-  @override
-  Widget build(BuildContext context) {
     return ResponsiveWindow(
       color: kBackgroundColor,
       alignment: AlignmentDirectional.center,
-      size: Size(400.0, widget.mode != ViewPanelMode.view ? 440.0 : 400.0),
+      size: Size(600.0, widget.mode != ViewPanelMode.view ? 440.0 : 400.0),
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -103,8 +91,6 @@ class _LocationViewState extends State<LocationView> {
         body: Column(
           children: [
             Container(
-              height: 350,
-              width: 380,
               alignment: Alignment.topLeft,
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
@@ -114,13 +100,58 @@ class _LocationViewState extends State<LocationView> {
                       '${engine.locale('worldPosition')}: ${_locationData['worldPosition']['left']}, ${_locationData['worldPosition']['top']}'),
                   Text(
                       '${engine.locale('development')}: ${_locationData['development']}'),
+                  SizedBox(
+                    width: 300,
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: 100.0,
+                          child: Text('${engine.locale('isDiscovered')}: '),
+                        ),
+                        SizedBox(
+                          width: 150.0,
+                          child: Switch(
+                            value: _isDiscovered,
+                            activeColor: Colors.white,
+                            onChanged: (bool value) {
+                              setState(() {
+                                _isDiscovered = value;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: 600,
+                    height: 300,
+                    child: SingleChildScrollView(
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: [
+                          Align(
+                            alignment: Alignment.topCenter,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Wrap(
+                                spacing: 8.0, // gap between adjacent chips
+                                runSpacing: 4.0, // gap between lines
+                                children: _siteCards,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
             if (widget.mode != ViewPanelMode.view)
               Row(
                 children: [
-                  if (isEditorMode)
+                  if (isEditorMode) ...[
                     Padding(
                       padding: const EdgeInsets.only(left: 10.0),
                       child: ElevatedButton(
@@ -157,6 +188,26 @@ class _LocationViewState extends State<LocationView> {
                         child: Text(engine.locale('editIdAndImage')),
                       ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => const EditSite(),
+                          ).then((value) {
+                            if (value == null) return;
+                            engine.hetu.invoke('Site', namedArgs: {
+                              'location': _locationData,
+                              'category': value,
+                            });
+                            setState(() {});
+                          });
+                        },
+                        child: Text(engine.locale('addSite')),
+                      ),
+                    ),
+                  ],
                   const Spacer(),
                   Padding(
                     padding: const EdgeInsets.only(top: 10.0, right: 10.0),
@@ -175,8 +226,7 @@ class _LocationViewState extends State<LocationView> {
                             Navigator.of(context).pop();
                         }
                       },
-                      child: Text(
-                          engine.locale(isEditorMode ? 'save' : 'confirm')),
+                      child: Text(engine.locale('confirm')),
                     ),
                   ),
                 ],

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/ink_image_button.dart';
+import 'package:samsara/ui/ink_button.dart';
 
 import '../../config.dart';
 
-const _kPopupButtonSize = 40.0;
+const _kPopupButtonSize = Size(40.0, 40.0);
 
 class WorldMapPopup extends StatelessWidget {
   static const defaultSize = 160.0;
@@ -12,20 +12,31 @@ class WorldMapPopup extends StatelessWidget {
 
   final VoidCallback? onPanelTapped;
 
+  // 位置：上
   final bool moveToIcon;
-  final bool enterIcon;
-  final bool talkIcon;
-  final bool restIcon;
-  // final bool practiceIcon;
-  final bool interactIcon;
-  final String description;
+  final bool meditateIcon;
 
-  final VoidCallback? onMoveTo;
-  final VoidCallback? onEnter;
-  final VoidCallback? onTalk;
-  final VoidCallback? onRest;
-  // final VoidCallback? onPractice;
-  final VoidCallback? onInteract;
+  // 位置：左
+  final bool enterIcon;
+  final bool exploreIcon;
+
+  // final bool talkIcon;
+
+  // 位置：下
+  final bool interactIcon;
+
+  // 位置：右
+
+  // final String description;
+
+  final void Function()? onMoveTo;
+  final void Function()? onMeditate;
+
+  final void Function()? onEnter;
+  final void Function()? onExplore;
+
+  // final void Function()? onTalk;
+  final void Function()? onInteract;
 
   const WorldMapPopup({
     super.key,
@@ -34,17 +45,17 @@ class WorldMapPopup extends StatelessWidget {
     this.onPanelTapped,
     this.moveToIcon = false,
     this.onMoveTo,
+    this.meditateIcon = false,
+    this.onMeditate,
     this.enterIcon = false,
     this.onEnter,
-    this.talkIcon = false,
-    this.onTalk,
-    this.restIcon = false,
-    this.onRest,
-    // this.practiceIcon = false,
-    // this.onPractice,
+    this.exploreIcon = false,
+    this.onExplore,
+    // this.talkIcon = false,
+    // this.onTalk,
     this.interactIcon = false,
     this.onInteract,
-    this.description = '',
+    // this.description = '',
   });
 
   @override
@@ -82,32 +93,29 @@ class WorldMapPopup extends StatelessWidget {
                   ],
                 ),
                 padding: const EdgeInsets.all(20),
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    description,
-                    style: const TextStyle(
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
+                // child: Align(
+                //   alignment: Alignment.center,
+                //   child: Text(
+                //     description,
+                //     style: const TextStyle(
+                //       fontSize: 12,
+                //     ),
+                //   ),
+                // ),
               ),
               if (moveToIcon)
                 Positioned.fill(
                   child: Align(
                     alignment: Alignment.topCenter,
-                    child: InkImageButton(
-                      width: _kPopupButtonSize,
-                      height: _kPopupButtonSize,
-                      tooltip: engine.locale('moveTo'),
-                      child: const Image(
-                        image: AssetImage('assets/images/icon/move_to.png'),
+                    child: Tooltip(
+                      message: engine.locale('moveTo'),
+                      child: InkButton(
+                        size: _kPopupButtonSize,
+                        child: const Image(
+                          image: AssetImage('assets/images/icon/move_to.png'),
+                        ),
+                        onPressed: () => onMoveTo?.call(),
                       ),
-                      onPressed: () {
-                        if (onMoveTo != null) {
-                          onMoveTo!();
-                        }
-                      },
                     ),
                   ),
                 ),
@@ -115,18 +123,15 @@ class WorldMapPopup extends StatelessWidget {
                 Positioned.fill(
                   child: Align(
                     alignment: Alignment.bottomCenter,
-                    child: InkImageButton(
-                      width: _kPopupButtonSize,
-                      height: _kPopupButtonSize,
-                      tooltip: engine.locale('interact'),
-                      child: const Image(
-                        image: AssetImage('assets/images/icon/hand.png'),
+                    child: Tooltip(
+                      message: engine.locale('interact'),
+                      child: InkButton(
+                        size: _kPopupButtonSize,
+                        child: const Image(
+                          image: AssetImage('assets/images/icon/hand.png'),
+                        ),
+                        onPressed: () => onInteract?.call(),
                       ),
-                      onPressed: () {
-                        if (onInteract != null) {
-                          onInteract!();
-                        }
-                      },
                     ),
                   ),
                 ),
@@ -134,56 +139,47 @@ class WorldMapPopup extends StatelessWidget {
                 Positioned.fill(
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: InkImageButton(
-                      width: _kPopupButtonSize,
-                      height: _kPopupButtonSize,
-                      tooltip: engine.locale('enter'),
-                      child: const Image(
-                        image: AssetImage('assets/images/icon/enter.png'),
+                    child: Tooltip(
+                      message: engine.locale('enter'),
+                      child: InkButton(
+                        size: _kPopupButtonSize,
+                        child: const Image(
+                          image: AssetImage('assets/images/icon/enter.png'),
+                        ),
+                        onPressed: () => onEnter?.call(),
                       ),
-                      onPressed: () {
-                        if (onEnter != null) {
-                          onEnter!();
-                        }
-                      },
                     ),
                   ),
                 ),
-              if (talkIcon)
+              if (exploreIcon)
                 Positioned.fill(
                   child: Align(
-                    alignment: Alignment.centerRight,
-                    child: InkImageButton(
-                      width: _kPopupButtonSize,
-                      height: _kPopupButtonSize,
-                      tooltip: engine.locale('talk'),
-                      child: const Image(
-                        image: AssetImage('assets/images/icon/talk.png'),
+                    alignment: Alignment.centerLeft,
+                    child: Tooltip(
+                      message: engine.locale('explore'),
+                      child: InkButton(
+                        size: _kPopupButtonSize,
+                        child: const Image(
+                          image: AssetImage('assets/images/icon/search.png'),
+                        ),
+                        onPressed: () => onExplore?.call(),
                       ),
-                      onPressed: () {
-                        if (onTalk != null) {
-                          onTalk!();
-                        }
-                      },
                     ),
                   ),
                 ),
-              if (restIcon)
+              if (meditateIcon)
                 Positioned.fill(
                   child: Align(
                     alignment: Alignment.topCenter,
-                    child: InkImageButton(
-                      width: _kPopupButtonSize,
-                      height: _kPopupButtonSize,
-                      tooltip: engine.locale('rest'),
-                      child: const Image(
-                        image: AssetImage('assets/images/icon/rest.png'),
+                    child: Tooltip(
+                      message: engine.locale('meditate'),
+                      child: InkButton(
+                        size: _kPopupButtonSize,
+                        child: const Image(
+                          image: AssetImage('assets/images/icon/meditate.png'),
+                        ),
+                        onPressed: () => onMeditate?.call(),
                       ),
-                      onPressed: () {
-                        if (onRest != null) {
-                          onRest!();
-                        }
-                      },
                     ),
                   ),
                 ),

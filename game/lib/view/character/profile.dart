@@ -9,6 +9,7 @@ import '../avatar.dart';
 import '../../util.dart';
 import '../common.dart';
 import 'edit_character_id_and_avatar.dart';
+import '../../dialog/input_description.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({
@@ -16,6 +17,11 @@ class ProfileView extends StatefulWidget {
     this.characterId,
     this.characterData,
     this.mode = ViewPanelMode.view,
+    this.showIntimacy = true,
+    this.showRelationships = true,
+    this.showPosition = true,
+    this.showPersonality = true,
+    this.showDescription = true,
   });
 
   final String? characterId;
@@ -23,6 +29,12 @@ class ProfileView extends StatefulWidget {
   final dynamic characterData;
 
   final ViewPanelMode mode;
+
+  final bool showIntimacy,
+      showRelationships,
+      showPosition,
+      showPersonality,
+      showDescription;
 
   @override
   State<ProfileView> createState() => _ProfileViewState();
@@ -130,9 +142,9 @@ class _ProfileViewState extends State<ProfileView> {
         .invoke('getCharacterFameString', positionalArgs: [_characterData]);
     final infamy = engine.hetu
         .invoke('getCharacterInfamyString', positionalArgs: [_characterData]);
-    final shifuId = engine.hetu
-        .invoke('getCharacterShifuId', positionalArgs: [_characterData]);
-    final shifuName = getNameFromId(shifuId, 'none');
+    final masterId = engine.hetu
+        .invoke('getCharacterMasterId', positionalArgs: [_characterData]);
+    final masterName = getNameFromId(masterId, 'none');
     final organizationId =
         getNameFromId(_characterData['organizationId'], 'none');
     final title = engine.hetu
@@ -220,93 +232,14 @@ class _ProfileViewState extends State<ProfileView> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          margin:
-                              const EdgeInsets.only(left: 10.0, right: 20.0),
-                          child: Column(
-                            children: [
-                              Avatar(
-                                displayName: _characterData['name'],
-                                size: const Size(100.0, 100.0),
-                                image: AssetImage(
-                                    'assets/images/avatar/${_characterData['icon']}'),
-                              ),
-                              if (isEditorMode)
-                                Container(
-                                  padding: const EdgeInsets.only(top: 5.0),
-                                  width: 90.0,
-                                  height: 30.0,
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) =>
-                                            EditCharacterIdAndAvatar(
-                                          id: _characterData['id'],
-                                          name: _characterData['shortName'],
-                                          skin: _characterData['skin'],
-                                          familyName:
-                                              _characterData['familyName'],
-                                          iconPath: _characterData['icon'],
-                                          illustrationPath:
-                                              _characterData['illustration'],
-                                        ),
-                                      ).then(
-                                        (value) {
-                                          if (value == null) return;
-                                          final (
-                                            id,
-                                            name,
-                                            familyName,
-                                            skin,
-                                            iconPath,
-                                            illustrationPath,
-                                          ) = value;
-                                          _characterData['familyName'] =
-                                              familyName;
-                                          assert(
-                                              name != null && name.isNotEmpty);
-                                          _characterData['shortName'] = name;
-                                          _characterData['name'] =
-                                              (_characterData['familyName'] ??
-                                                      '') +
-                                                  _characterData['shortName'];
-                                          _characterData['skin'] =
-                                              skin ?? 'default';
-                                          _characterData['icon'] = iconPath;
-                                          _characterData['illustration'] =
-                                              illustrationPath;
-                                          if (id != null &&
-                                              id != _characterData['id']) {
-                                            engine.hetu.invoke(
-                                                'removeCharacterById',
-                                                positionalArgs: [
-                                                  _characterData['id']
-                                                ]);
-                                            final heroId =
-                                                engine.hetu.invoke('getHeroId');
-                                            final originId =
-                                                _characterData['id'];
-                                            _characterData['id'] = id;
-                                            engine.hetu.invoke('addCharacter',
-                                                positionalArgs: [
-                                                  _characterData
-                                                ]);
-                                            if (originId == heroId) {
-                                              engine.hetu.invoke('setHeroId',
-                                                  positionalArgs: [id]);
-                                            }
-                                          }
-                                          setState(() {});
-                                        },
-                                      );
-                                    },
-                                    child: Text(
-                                      engine.locale('edit'),
-                                    ),
-                                  ),
-                                ),
-                            ],
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10.0),
+                          child: Avatar(
+                            displayName: _characterData['name'],
+                            size: const Size(120.0, 120.0),
+                            nameAlignment: AvatarNameAlignment.bottom,
+                            image: AssetImage(
+                                'assets/images/avatar/${_characterData['icon']}'),
                           ),
                         ),
                         SizedBox(
@@ -593,7 +526,7 @@ class _ProfileViewState extends State<ProfileView> {
                               SizedBox(
                                 height: 30.0,
                                 child: Text(
-                                    '${engine.locale('shifu')}: $shifuName'),
+                                    '${engine.locale('master')}: $masterName'),
                               ),
                               SizedBox(
                                 height: 30.0,
@@ -608,190 +541,87 @@ class _ProfileViewState extends State<ProfileView> {
                             ],
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.only(top: 5.0),
-                          width: 125.0,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                height: 30.0,
-                                child: Text(
-                                  '${engine.locale('charismaFavor')}: ${_characterData['charismaFavor'].truncate()}',
+                        if (widget.showIntimacy)
+                          Container(
+                            padding: const EdgeInsets.only(top: 5.0),
+                            width: 125.0,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  height: 30.0,
+                                  child: Text(
+                                    '${engine.locale('charismaFavor')}: ${_characterData['charismaFavor'].truncate()}',
+                                  ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 30.0,
-                                child: Text(
-                                  '${engine.locale('cultivationFavor')}: $cultivationFavor',
+                                SizedBox(
+                                  height: 30.0,
+                                  child: Text(
+                                    '${engine.locale('cultivationFavor')}: $cultivationFavor',
+                                  ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 30.0,
-                                child: Text(
-                                  '${engine.locale('organizationFavor')}: $organizationFavor',
+                                SizedBox(
+                                  height: 30.0,
+                                  child: Text(
+                                    '${engine.locale('organizationFavor')}: $organizationFavor',
+                                  ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 30.0,
-                                child: Text(
-                                    '${engine.locale('birthday')}: $birthday'),
-                              ),
-                              SizedBox(
-                                height: 30.0,
-                                child: Text(
-                                    '${engine.locale('restLifespan')}: $restLifespan'),
-                              ),
-                            ],
+                                SizedBox(
+                                  height: 30.0,
+                                  child: Text(
+                                      '${engine.locale('birthday')}: $birthday'),
+                                ),
+                                SizedBox(
+                                  height: 30.0,
+                                  child: Text(
+                                      '${engine.locale('restLifespan')}: $restLifespan'),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
                       ],
                     ),
-                    const Divider(),
-                    // Text('---${engine.locale('relationship')}---'),
-                    Wrap(
-                      alignment: WrapAlignment.start,
-                      children: [
-                        Label(
-                          '${engine.locale('father')}: $father',
-                          width: 125.0,
-                          height: 30.0,
-                        ),
-                        Label(
-                          '${engine.locale('mother')}: $mother',
-                          width: 125.0,
-                          height: 30.0,
-                        ),
-                        Label(
-                          '${engine.locale('spouse')}: $spouse',
-                          width: 125.0,
-                          height: 30.0,
-                        ),
-                        LabelsWrap(
-                          minWidth: 125.0,
-                          minHeight: 30.0,
-                          '${engine.locale('children')}: ',
-                          children: childs,
-                        ),
-                        LabelsWrap(
-                          minWidth: 125.0,
-                          minHeight: 30.0,
-                          '${engine.locale('siblings')}: ',
-                          children: siblings,
-                        ),
-                        const Divider(
-                          height: 0.0,
-                          color: Colors.transparent,
-                        ),
-                      ],
-                    ),
-                    const Divider(),
-                    // Text('---${engine.locale('personality')}---'),
-                    Wrap(
-                      children: [
-                        Label(
-                          ideal >= 0
-                              ? '${engine.locale('ideal')}: +$ideal'
-                              : '${engine.locale('real')}: $ideal',
-                          width: 125.0,
-                          height: 30.0,
-                        ),
-                        Label(
-                          order >= 0
-                              ? '${engine.locale('order')}: +$order'
-                              : '${engine.locale('chaotic')}: $order',
-                          width: 125.0,
-                          height: 30.0,
-                        ),
-                        Label(
-                          good >= 0
-                              ? '${engine.locale('good')}: +$good'
-                              : '${engine.locale('evil')}: $good',
-                          width: 125.0,
-                          height: 30.0,
-                        ),
-                        Label(
-                          social >= 0
-                              ? '${engine.locale('extraversion')}: +$social'
-                              : '${engine.locale('introspection')}: $social',
-                          width: 125.0,
-                          height: 30.0,
-                        ),
-                        Label(
-                          reason >= 0
-                              ? '${engine.locale('reasoning')}: +$reason'
-                              : '${engine.locale('fealing')}: $reason',
-                          width: 125.0,
-                          height: 30.0,
-                        ),
-                        Label(
-                          control >= 0
-                              ? '${engine.locale('organizing')}: +$control'
-                              : '${engine.locale('relaxing')}: $control',
-                          width: 125.0,
-                          height: 30.0,
-                        ),
-                        Label(
-                          frugal >= 0
-                              ? '${engine.locale('frugality')}: +$frugal'
-                              : '${engine.locale('lavishness')}: $frugal',
-                          width: 125.0,
-                          height: 30.0,
-                        ),
-                        Label(
-                          frank >= 0
-                              ? '${engine.locale('frankness')}: +$frank'
-                              : '${engine.locale('tactness')}: $frank',
-                          width: 125.0,
-                          height: 30.0,
-                        ),
-                        Label(
-                          confidence >= 0
-                              ? '${engine.locale('confidence')}: +$confidence'
-                              : '${engine.locale('cowardness')}: $confidence',
-                          width: 125.0,
-                          height: 30.0,
-                        ),
-                        Label(
-                          prudence >= 0
-                              ? '${engine.locale('prudence')}: +$prudence'
-                              : '${engine.locale('adventurousness')}: $prudence',
-                          width: 125.0,
-                          height: 30.0,
-                        ),
-                        Label(
-                          empathy >= 0
-                              ? '${engine.locale('empathy')}: +$empathy'
-                              : '${engine.locale('indifference')}: $empathy',
-                          width: 125.0,
-                          height: 30.0,
-                        ),
-                        Label(
-                          generosity >= 0
-                              ? '${engine.locale('generosity')}: +$generosity'
-                              : '${engine.locale('stinginess')}: $generosity',
-                          width: 125.0,
-                          height: 30.0,
-                        ),
-                        // const Divider(
-                        //   color: Colors.transparent,
-                        //   height: 0.0,
-                        // ),
-                        LabelsWrap(
-                          '${engine.locale('motivation')}:',
-                          minWidth: 125.0,
-                          minHeight: 30.0,
-                          children: motivations,
-                        ),
-                        LabelsWrap(
-                          '${engine.locale('thinking')}:',
-                          minWidth: 125.0,
-                          minHeight: 30.0,
-                          children: thinkings,
-                        ),
-                      ],
-                    ),
-                    if (engine.config.debugMode) ...[
+                    if (widget.showRelationships) ...[
+                      const Divider(),
+                      // Text('---${engine.locale('relationship')}---'),
+                      Wrap(
+                        alignment: WrapAlignment.start,
+                        children: [
+                          Label(
+                            '${engine.locale('father')}: $father',
+                            width: 125.0,
+                            height: 30.0,
+                          ),
+                          Label(
+                            '${engine.locale('mother')}: $mother',
+                            width: 125.0,
+                            height: 30.0,
+                          ),
+                          Label(
+                            '${engine.locale('spouse')}: $spouse',
+                            width: 125.0,
+                            height: 30.0,
+                          ),
+                          LabelsWrap(
+                            minWidth: 125.0,
+                            minHeight: 30.0,
+                            '${engine.locale('children')}: ',
+                            children: childs,
+                          ),
+                          LabelsWrap(
+                            minWidth: 125.0,
+                            minHeight: 30.0,
+                            '${engine.locale('siblings')}: ',
+                            children: siblings,
+                          ),
+                          const Divider(
+                            height: 0.0,
+                            color: Colors.transparent,
+                          ),
+                        ],
+                      ),
+                    ],
+                    if (widget.showPosition) ...[
                       const Divider(),
                       Wrap(
                         children: [
@@ -801,26 +631,141 @@ class _ProfileViewState extends State<ProfileView> {
                             height: 30.0,
                           ),
                           Label(
-                            '${engine.locale('currentLocation')}: $locationId',
+                            '${engine.locale('location')}: $locationId',
                             width: 125.0,
                             height: 30.0,
                           ),
                           Label(
-                            '${engine.locale('currentLocationSite')}: $siteId',
+                            '${engine.locale('site')}: $siteId',
                             width: 125.0,
                             height: 30.0,
                           ),
                           Label(
-                            '${engine.locale('currentWorldPosition')}: $worldPositionString',
+                            '${engine.locale('worldPosition')}: $worldPositionString',
                             width: 125.0,
                             height: 30.0,
                           ),
                           Label(
-                            '${engine.locale('currentWorld')}: $worldId',
+                            '${engine.locale('world')}: $worldId',
                             width: 125.0,
                             height: 30.0,
                           ),
                         ],
+                      ),
+                    ],
+                    if (widget.showPersonality) ...[
+                      const Divider(),
+                      // Text('---${engine.locale('personality')}---'),
+                      Wrap(
+                        children: [
+                          Label(
+                            ideal >= 0
+                                ? '${engine.locale('ideal')}: $ideal'
+                                : '${engine.locale('real')}: ${-ideal}',
+                            width: 125.0,
+                            height: 30.0,
+                          ),
+                          Label(
+                            order >= 0
+                                ? '${engine.locale('order')}: $order'
+                                : '${engine.locale('chaotic')}: ${-order}',
+                            width: 125.0,
+                            height: 30.0,
+                          ),
+                          Label(
+                            good >= 0
+                                ? '${engine.locale('good')}: $good'
+                                : '${engine.locale('evil')}: ${-good}',
+                            width: 125.0,
+                            height: 30.0,
+                          ),
+                          Label(
+                            social >= 0
+                                ? '${engine.locale('extraversion')}: $social'
+                                : '${engine.locale('introspection')}: ${-social}',
+                            width: 125.0,
+                            height: 30.0,
+                          ),
+                          Label(
+                            reason >= 0
+                                ? '${engine.locale('reasoning')}: $reason'
+                                : '${engine.locale('feeling')}: ${-reason}',
+                            width: 125.0,
+                            height: 30.0,
+                          ),
+                          Label(
+                            control >= 0
+                                ? '${engine.locale('organizing')}: $control'
+                                : '${engine.locale('relaxing')}: ${-control}',
+                            width: 125.0,
+                            height: 30.0,
+                          ),
+                          Label(
+                            frugal >= 0
+                                ? '${engine.locale('frugality')}: $frugal'
+                                : '${engine.locale('lavishness')}: ${-frugal}',
+                            width: 125.0,
+                            height: 30.0,
+                          ),
+                          Label(
+                            frank >= 0
+                                ? '${engine.locale('frankness')}: $frank'
+                                : '${engine.locale('tactness')}: ${-frank}',
+                            width: 125.0,
+                            height: 30.0,
+                          ),
+                          Label(
+                            confidence >= 0
+                                ? '${engine.locale('confidence')}: $confidence'
+                                : '${engine.locale('cowardness')}: ${-confidence}',
+                            width: 125.0,
+                            height: 30.0,
+                          ),
+                          Label(
+                            prudence >= 0
+                                ? '${engine.locale('prudence')}: $prudence'
+                                : '${engine.locale('adventurousness')}: ${-prudence}',
+                            width: 125.0,
+                            height: 30.0,
+                          ),
+                          Label(
+                            empathy >= 0
+                                ? '${engine.locale('empathy')}: $empathy'
+                                : '${engine.locale('indifference')}: ${-empathy}',
+                            width: 125.0,
+                            height: 30.0,
+                          ),
+                          Label(
+                            generosity >= 0
+                                ? '${engine.locale('generosity')}: $generosity'
+                                : '${engine.locale('stinginess')}: ${-generosity}',
+                            width: 125.0,
+                            height: 30.0,
+                          ),
+                          // const Divider(
+                          //   color: Colors.transparent,
+                          //   height: 0.0,
+                          // ),
+                          LabelsWrap(
+                            '${engine.locale('motivation')}:',
+                            minWidth: 125.0,
+                            minHeight: 30.0,
+                            children: motivations,
+                          ),
+                          LabelsWrap(
+                            '${engine.locale('thinking')}:',
+                            minWidth: 125.0,
+                            minHeight: 30.0,
+                            children: thinkings,
+                          ),
+                        ],
+                      ),
+                    ],
+                    if (widget.showDescription) ...[
+                      const Divider(),
+                      SizedBox(
+                        width: 640.0,
+                        child: Text(_characterData['description']),
                       ),
                     ],
                   ],
@@ -829,7 +774,81 @@ class _ProfileViewState extends State<ProfileView> {
             ),
             Row(
               children: [
-                if (widget.mode == ViewPanelMode.create)
+                if (widget.mode != ViewPanelMode.view) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10.0, left: 10.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => EditCharacterIdAndAvatar(
+                            id: _characterData['id'],
+                            name: _characterData['shortName'],
+                            skin: _characterData['skin'],
+                            familyName: _characterData['familyName'],
+                            iconPath: _characterData['icon'],
+                            illustrationPath: _characterData['illustration'],
+                          ),
+                        ).then(
+                          (value) {
+                            if (value == null) return;
+                            final (
+                              id,
+                              name,
+                              familyName,
+                              skin,
+                              iconPath,
+                              illustrationPath,
+                            ) = value;
+                            _characterData['familyName'] = familyName;
+                            assert(name != null && name.isNotEmpty);
+                            _characterData['shortName'] = name;
+                            _characterData['name'] =
+                                (_characterData['familyName'] ?? '') +
+                                    _characterData['shortName'];
+                            _characterData['skin'] = skin ?? 'default';
+                            _characterData['icon'] = iconPath;
+                            _characterData['illustration'] = illustrationPath;
+                            if (id != null && id != _characterData['id']) {
+                              engine.hetu.invoke('removeCharacterById',
+                                  positionalArgs: [_characterData['id']]);
+                              final heroId = engine.hetu.invoke('getHeroId');
+                              final originId = _characterData['id'];
+                              _characterData['id'] = id;
+                              engine.hetu.invoke('addCharacter',
+                                  positionalArgs: [_characterData]);
+                              if (originId == heroId) {
+                                engine.hetu
+                                    .invoke('setHeroId', positionalArgs: [id]);
+                              }
+                            }
+                            setState(() {});
+                          },
+                        );
+                      },
+                      child: Text(
+                        engine.locale('editIdAndImage'),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10.0, left: 10.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) => InputDescriptionDialog(
+                                  description: _characterData['description'],
+                                )).then((value) {
+                          if (value == null) return;
+                          setState(() {
+                            _characterData['description'] = value;
+                          });
+                        });
+                      },
+                      child: Text(engine.locale('editDescription')),
+                    ),
+                  ),
                   Padding(
                     padding: const EdgeInsets.only(top: 10.0, left: 10.0),
                     child: ElevatedButton(
@@ -845,6 +864,7 @@ class _ProfileViewState extends State<ProfileView> {
                       child: Text(engine.locale('random')),
                     ),
                   ),
+                ],
                 const Spacer(),
                 if (widget.mode != ViewPanelMode.view)
                   Padding(
@@ -864,8 +884,7 @@ class _ProfileViewState extends State<ProfileView> {
                             Navigator.of(context).pop();
                         }
                       },
-                      child: Text(
-                          engine.locale(isEditorMode ? 'save' : 'confirm')),
+                      child: Text(engine.locale('confirm')),
                     ),
                   ),
               ],

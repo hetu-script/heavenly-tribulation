@@ -145,6 +145,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "0.0.8"
+  console:
+    dependency: transitive
+    description:
+      name: console
+      sha256: e04e7824384c5b39389acdd6dc7d33f3efe6b232f6f16d7626f194f6a01ad69a
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "4.1.0"
   convert:
     dependency: transitive
     description:
@@ -177,6 +185,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.5.11"
+  dropdown_button2:
+    dependency: "direct main"
+    description:
+      name: dropdown_button2
+      sha256: b0fe8d49a030315e9eef6c7ac84ca964250155a6224d491c1365061bc974a9e1
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.3.9"
   fake_async:
     dependency: transitive
     description:
@@ -288,6 +304,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  get_it:
+    dependency: transitive
+    description:
+      name: get_it
+      sha256: e6017ce7fdeaf218dc51a100344d8cb70134b80e28b760f8bb23c242437bafd7
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "7.6.7"
   gradient_widgets:
     dependency: "direct main"
     description:
@@ -446,6 +470,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.11.0"
+  msix:
+    dependency: "direct dev"
+    description:
+      name: msix
+      sha256: "519b183d15dc9f9c594f247e2d2339d855cf0eaacc30e19b128e14f3ecc62047"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "3.16.7"
   nested:
     dependency: transitive
     description:
@@ -462,6 +494,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "5.0.2"
+  package_config:
+    dependency: transitive
+    description:
+      name: package_config
+      sha256: "1c5b77ccc91e4823a5af61ee74e6b972db1ef98c2ff5a18d3161c982a55448bd"
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.1.0"
   path:
     dependency: "direct main"
     description:

@@ -47,7 +47,7 @@ class _NpcListState extends State<NpcList> {
             // widget.npcs ??
             context.watch<CurrentNpcList>().characters)
         .map((char) {
-      final hero = engine.hetu.invoke('getHero');
+      final hero = engine.hetu.fetch('hero');
       final haveMet =
           engine.hetu.invoke('haveMet', positionalArgs: [hero, char]);
       return Padding(

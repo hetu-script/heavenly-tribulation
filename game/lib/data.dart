@@ -1,21 +1,31 @@
+import 'dart:io';
+import 'dart:convert';
+
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:samsara/cardgame/card.dart';
 import 'package:json5/json5.dart';
 import 'package:samsara/samsara.dart';
 
 import 'ui.dart';
+import 'common.dart';
+import 'config.dart';
 
 abstract class GameData {
   static Map<String, dynamic> cardData = {};
   static Map<String, dynamic> animationData = {};
   static Map<String, dynamic> statusEffectData = {};
 
+  static Map<String, String> organizationCategoryNames = {};
+  static Map<String, String> cultivationGenreNames = {};
+  static Map<String, String> constructableSiteCategoryNames = {};
+
   static bool _isLoaded = false;
   static bool get isLoaded => _isLoaded;
 
   static Future<void> load() async {
     final cardsDataString =
-        await rootBundle.loadString('scripts/game/cardgame/card.json5');
+        await rootBundle.loadString('assets/data/cards.json5');
     cardData = JSON5.parse(cardsDataString);
 
     final animationDataString =
@@ -25,6 +35,16 @@ abstract class GameData {
     final statusEffectDataString =
         await rootBundle.loadString('assets/data/status_effect.json5');
     statusEffectData = JSON5.parse(statusEffectDataString);
+
+    for (final key in kOrganizationCategories) {
+      organizationCategoryNames[key] = engine.locale(key);
+    }
+    for (final key in kCultivationGenres) {
+      cultivationGenreNames[key] = engine.locale(key);
+    }
+    for (final key in kConstructableSiteCategories) {
+      constructableSiteCategoryNames[key] = engine.locale(key);
+    }
 
     _isLoaded = true;
   }
@@ -86,6 +106,123 @@ abstract class GameData {
       //   colorTheme: ScreenTextColorTheme.dark,
       // ),
     );
+  }
+
+  static Future<void> registerModuleEventHandlers() async {
+    if (kDebugMode) {
+      for (final key in GameConfig.modules.keys) {
+        if (GameConfig.modules[key]?['enabled'] == true) {
+          if (GameConfig.modules[key]?['preinclude'] == true) {
+            engine.loadModFromAssetsString(
+              '$key/main.ht',
+              module: key,
+            );
+          }
+        }
+      }
+    } else {
+      for (final key in GameConfig.modules.keys) {
+        if (GameConfig.modules[key]?['enabled'] == true) {
+          if (GameConfig.modules[key]?['preinclude'] == true) {
+            final mod = await rootBundle.load('assets/mods/$key.mod');
+            final modBytes = mod.buffer.asUint8List();
+            engine.loadModFromBytes(
+              modBytes,
+              moduleName: key,
+            );
+          }
+        }
+      }
+    }
+  }
+
+  static bool isGameCreated = false;
+
+  static Future<void> newGame(String worldId, [String? saveName]) async {
+    worldIds.clear();
+    currentWorldId = worldId;
+    worldIds.add(worldId);
+
+    engine.hetu.invoke('resetGame');
+    if (saveName != null) {
+      engine.hetu.invoke('setSaveName', positionalArgs: [saveName]);
+    }
+
+    await registerModuleEventHandlers();
+
+    isGameCreated = true;
+  }
+
+  static String? currentWorldId;
+  static Set<String> worldIds = {};
+
+  static Future<void> loadGame(String savePath,
+      {bool isEditorMode = false}) async {
+    worldIds.clear();
+    currentWorldId = null;
+    engine.info('从 [$savePath] 载入游戏存档。');
+    final gameSave = await File(savePath).open();
+    final gameDataString = utf8.decoder
+        .convert((await gameSave.read(await gameSave.length())).toList());
+    await gameSave.close();
+    final gameData = jsonDecode(gameDataString);
+    final universeSave = await File(savePath + kUniverseSaveFilePostfix).open();
+    final universeDataString = utf8.decoder.convert(
+        (await universeSave.read(await universeSave.length())).toList());
+    await universeSave.close();
+    final universeData = jsonDecode(universeDataString);
+    final historySave = await File(savePath + kHistorySaveFilePostfix).open();
+    final historyDataString = utf8.decoder
+        .convert((await historySave.read(await historySave.length())).toList());
+    await historySave.close();
+    final historyData = jsonDecode(historyDataString);
+
+    final ids = engine.hetu.invoke('loadGameFromJsonData', namedArgs: {
+      'gameData': gameData,
+      'universeData': universeData,
+      'historyData': historyData,
+      'isEditorMode': isEditorMode,
+    });
+
+    currentWorldId = engine.hetu.invoke('getCurrentWorldId');
+
+    for (final id in ids) {
+      worldIds.add(id);
+    }
+
+    await registerModuleEventHandlers();
+
+    isGameCreated = true;
+  }
+
+  static Future<void> loadPreset(String filename) async {
+    final gameSave = 'assets/save/$filename$kGameSaveFileExtension';
+    final gameDataString = await rootBundle.loadString(gameSave);
+    final gameData = jsonDecode(gameDataString);
+
+    final universeSave = '$gameSave$kUniverseSaveFilePostfix';
+    final universeDataString = await rootBundle.loadString(universeSave);
+    final universeData = jsonDecode(universeDataString);
+
+    final historySave = '$gameSave$kHistorySaveFilePostfix';
+    final historyDataString = await rootBundle.loadString(historySave);
+    final historyData = jsonDecode(historyDataString);
+
+    final ids = engine.hetu.invoke('loadGameFromJsonData', namedArgs: {
+      'gameData': gameData,
+      'universeData': universeData,
+      'historyData': historyData,
+    });
+
+    currentWorldId = engine.hetu.invoke('getCurrentWorldId');
+
+    for (final id in ids) {
+      worldIds.add(id);
+    }
+
+    await registerModuleEventHandlers();
+
+    isGameCreated = true;
   }
 }
 

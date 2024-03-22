@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/responsive_window.dart';
 import 'package:samsara/ui/close_button.dart';
+import 'package:flutter/services.dart';
 
 import '../../config.dart';
 
@@ -84,6 +85,9 @@ class _EditCharacterIdAndAvatarState extends State<EditCharacterIdAndAvatar> {
                           height: 40.0,
                           child: TextField(
                             controller: _idEditingController,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.deny(' ')
+                            ],
                           ),
                         ),
                       ],
@@ -190,26 +194,17 @@ class _EditCharacterIdAndAvatarState extends State<EditCharacterIdAndAvatar> {
                 padding: const EdgeInsets.only(top: 20.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    String? id = _idEditingController.text.isBlank
-                        ? null
-                        : _idEditingController.text;
-                    String? name = _nameEditingController.text.isBlank
-                        ? null
-                        : _nameEditingController.text;
-                    String? skin = _skinEditingController.text.isBlank
-                        ? null
-                        : _skinEditingController.text;
+                    String? id = _idEditingController.text.nonEmptyValueOrNull;
+                    String? name =
+                        _nameEditingController.text.nonEmptyValueOrNull;
+                    String? skin =
+                        _skinEditingController.text.nonEmptyValueOrNull;
                     String? familyName =
-                        _familyNameEditingController.text.isBlank
-                            ? null
-                            : _familyNameEditingController.text;
-                    String? icon = _iconEditingController.text.isBlank
-                        ? null
-                        : _iconEditingController.text;
+                        _familyNameEditingController.text.nonEmptyValueOrNull;
+                    String? icon =
+                        _iconEditingController.text.nonEmptyValueOrNull;
                     String? illustration =
-                        _illustrationEditingController.text.isBlank
-                            ? null
-                            : _illustrationEditingController.text;
+                        _illustrationEditingController.text.nonEmptyValueOrNull;
 
                     Navigator.of(context).pop((
                       id,

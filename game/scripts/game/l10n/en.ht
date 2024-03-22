@@ -1,5 +1,0 @@
-const en = {
-  languageId: 'en',
-  languageName: 'English',
-  
-}

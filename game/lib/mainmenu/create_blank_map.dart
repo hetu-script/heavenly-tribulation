@@ -4,16 +4,12 @@ import 'package:flutter/services.dart';
 import '../config.dart';
 
 class CreateBlankMapDialog extends StatefulWidget {
-  static Future<dynamic> show(BuildContext context) {
-    return showDialog(
-      context: context,
-      barrierColor: Colors.transparent,
-      barrierDismissible: false,
-      builder: (context) => const CreateBlankMapDialog(),
-    );
-  }
+  const CreateBlankMapDialog({
+    super.key,
+    this.isCreatingNewGame = true,
+  });
 
-  const CreateBlankMapDialog({super.key});
+  final bool isCreatingNewGame;
 
   @override
   State<CreateBlankMapDialog> createState() => _CreateBlankMapDialogState();
@@ -25,6 +21,8 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
   final _mapWidthEditingController = TextEditingController();
   final _mapHeightEditingController = TextEditingController();
 
+  late bool _isMainWorld;
+
   @override
   void initState() {
     super.initState();
@@ -33,6 +31,8 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
     _idEditingController.text = 'main';
     _mapWidthEditingController.text = '12';
     _mapHeightEditingController.text = '12';
+
+    _isMainWorld = widget.isCreatingNewGame;
   }
 
   @override
@@ -56,35 +56,60 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
                     child: Wrap(
                       alignment: WrapAlignment.start,
                       children: [
+                        if (widget.isCreatingNewGame)
+                          SizedBox(
+                            width: 300,
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 100.0,
+                                  child: Text('${engine.locale('fileName')}: '),
+                                ),
+                                SizedBox(
+                                  width: 150.0,
+                                  child: TextField(
+                                    controller: _filaNameEditingController,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         SizedBox(
-                          width: 250,
+                          width: 300,
                           child: Row(
                             children: [
                               SizedBox(
                                 width: 100.0,
-                                child: Text('${engine.locale('fileName')}: '),
+                                child: Text('${engine.locale('worldId')}: '),
                               ),
                               SizedBox(
                                 width: 150.0,
                                 child: TextField(
-                                  controller: _filaNameEditingController,
+                                  controller: _idEditingController,
                                 ),
                               ),
                             ],
                           ),
                         ),
                         SizedBox(
-                          width: 250,
+                          width: 300,
                           child: Row(
                             children: [
-                              const SizedBox(
+                              SizedBox(
                                 width: 100.0,
-                                child: Text('ID: '),
+                                child:
+                                    Text('${engine.locale('isMainWorld')}: '),
                               ),
                               SizedBox(
                                 width: 150.0,
-                                child: TextField(
-                                  controller: _idEditingController,
+                                child: Switch(
+                                  value: _isMainWorld,
+                                  activeColor: Colors.white,
+                                  onChanged: (bool value) {
+                                    setState(() {
+                                      _isMainWorld = value;
+                                    });
+                                  },
                                 ),
                               ),
                             ],
@@ -148,11 +173,12 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pop({
-                      'fileName': _filaNameEditingController.text,
                       'id': _idEditingController.text,
+                      'method': 'blank',
+                      'isMainWorld': _isMainWorld,
+                      'saveName': _filaNameEditingController.text,
                       'width': int.parse(_mapWidthEditingController.text),
                       'height': int.parse(_mapHeightEditingController.text),
-                      'method': 'blank',
                       'isEditorMode': true,
                     });
                   },

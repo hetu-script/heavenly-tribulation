@@ -5,53 +5,26 @@ import 'entity/item/item.ht'
 // import 'maze/maze.ht'
 import 'dialog.ht'
 import 'tile/hexagonal_tile.ht'
-import 'entity/skill/skill.ht'
+// import 'entity/skill/skill.ht'
 
 namespace debug {
-  external function setFogOfWar(value: bool)
+  external function setFog(value: bool)
 
   function terrain {
-    const position = getHeroPosition()
+    if (world == null) return
+    if (hero == null) return
+    const position = hero.worldPosition
     const terrainIndex = tilePos2Index(position.left, position.top, world.width)
-    let terrain
-    let zone
-    let entity
-    if (currentMaze) {
-      const map = currentMaze.levels[currentMaze.currentLevelIndex]
-      terrain = map.terrains[terrainIndex]
-      if (terrain.zoneId) {
-        zone = map.zones[terrain.zoneId]
-      }
-      if (terrain.entityId) {
-        entity = currentMaze.entities[terrain.entityId]
-      }
-    } else {
-      terrain = world.terrains[terrainIndex]
-      if (terrain.zoneId) {
-        zone = world.zones[terrain.zoneId]
-      }
-      if (terrain.entityId) {
-        entity = world.entities[terrain.entityId]
-      }
-    }
+    let terrain = world.terrains[terrainIndex]
     engine.info('terrain:', terrain)
-    if (zone) {
-      engine.info('zone:', zone)
-    }
-    if (entity) {
-      engine.info('entity:', entity)
-    }
   }
 
   function location {
     if (world == null) return
+    if (hero == null) return
     const position = getHeroPosition()
     const terrainIndex = tilePos2Index(position.left, position.top, world.width)
     const terrain = world.terrains[terrainIndex]
-    if (terrain.nationId) {
-      const organization = game.organizations[terrain.nationId]
-      engine.info('organization:', organization)
-    }
     if (terrain.locationId) {
       const location = game.locations[terrain.locationId]
       engine.info('location:', location)
@@ -67,79 +40,16 @@ namespace debug {
     }
   }
   
-
-  // // 测试战斗：随机生成两个准备好战斗的角色
-  // function testDuel {
-  //   setRandomSeed(1002)
-  //   const hero = Character(isMajorCharacter: false, armed: false)
-  //   equip(hero, Weapon(kind: 'sword'))
-  //   equip(hero, WeaponArts(kind: 'sword', level: 1))
-  //   // equip(hero, Shield())
-  //   // const companion = VillageWarrior()
-  //   // equip(companion, Weapon())
-  //   // equip(hero, companion)
-
-  //   // const enemy = Character(isMajorCharacter: false)
-  //   // const enemy = Bandit(kind: 'boss')
-  //   // equip(enemy, Kungfu())
-  //   // equip(enemy, Weapon())
-
-  //   const enemy = Beast()
-  //   showDuel(hero, enemy, type: kDuelTypePractice)
-  // }
-
   function testMerchant {
-    setRandomSeed(1003)
-    resetGame()
-    const hero = Character()
-    acquireMoney(hero, 100)
-    setHeroId(hero.id)
-    const merchant = Character()
-    acquireMoney(merchant, 500)
-    acquire(merchant, Consumable.medicine(), count: 20)
-    acquire(merchant, Consumable.beverage(), count: 20)
-    dialog.merchant(merchant)
+    // setRandomSeed(1003)
+    // resetGame()
+    // const hero = Character()
+    // acquireMoney(hero, 100)
+    // setHeroId(hero.id)
+    // const merchant = Character()
+    // acquireMoney(merchant, 500)
+    // acquire(merchant, Consumable.medicine(), count: 20)
+    // acquire(merchant, Consumable.beverage(), count: 20)
+    // dialog.merchant(merchant)
   }
-
-  // function testMazeMountain {
-  //   setRandomSeed(1001)
-  //   resetGame()
-  //   // 先创建副本再创建英雄，这样会直接用localHistory替换掉hostory
-  //   const maze = MountainMaze(
-  //     name: '测试副本',
-  //   )
-  //   const hero = Character(armed: false)
-  //   acquireMoney(hero, 200)
-  //   equip(hero, Weapon(kind: 'sword'))
-  //   learn(hero, WeaponArts(kind: 'sword', level: 1))
-  //   // equip(hero, Weapon())
-  //   equip(hero, Shield())
-  //   acquire(hero, Consumable.medicine(), count: 5)
-  //   acquire(hero, Consumable.beverage(), count: 5)
-  //   const companion = VillageWarrior()
-  //   equip(companion, Weapon())
-  //   equip(hero, companion)
-  //   setHeroId(hero.id)
-  //   enterMaze(maze)
-  //   return maze
-  // }
-
-  // function testMazeCultivationRecruit {
-  //   resetGame()
-  //   // 先创建副本再创建英雄，这样会直接用localHistory替换掉hostory
-  //   const maze = CultivationRecruitMaze(
-  //     name: '测试副本',
-  //     organizationName: '天玑堂',
-  //   )
-  //   const hero = Character()
-  //   equip(hero, Kungfu())
-  //   equip(hero, Weapon())
-  //   equip(hero, Shield())
-  //   acquire(hero, Consumable.medicine(), count: 5)
-  //   acquire(hero, Consumable.beverage(), count: 5)
-  //   setHeroId(hero.id)
-  //   enterMaze(maze)
-  //   return maze
-  // }
-
 }

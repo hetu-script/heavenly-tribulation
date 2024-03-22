@@ -1,79 +1,76 @@
 {
-  luzifu: "老陆",
+  luzifu: "陆子桴",
 
   noreMoreQuertion: "我没有问题了。",
 
-  "tutorial.ch1.luzifu.line1": "喂？喂？你在吗？能听到我说话吗？",
-  "tutorial.ch1.hero.reply1": "老陆？是你吗？我能听到……咳咳\n就是之前吃的脑代谢促进剂让我只犯恶心。咳咳。\n话说，你怎么变成这么个鬼样子和我说话。\n还有，我自己的样子怎么也变了？",
+  "tutorial.ch1.luzifu.line1": "萧墨？喂？你在吗？能听见我说话吗？",
+  "tutorial.ch1.hero.reply1": "老陆？……我能听见……咳咳\n就是之前吃的脑代谢促进剂让我只犯恶心。咳咳。\n话说，你怎么变成这么个鬼样子和我说话？",
 
-  "tutorial.ch1.luzifu.line2": "因为……我并没有连接进入……柯娜世界，\n所以其实……我并不能和你……实时通信。\n我现在说的话都是……预先录制好的，\n由算法根据你当前遇到的情况而自动播放而已。\n而且因为数据污染的原因，可能会有些断续或者撕裂的情况。\n至于你自己，你现在等于是穿越进入了另一个世界，\n当然样子也会根据这个世界的设定而改变。\n安心吧，目前一切正常，各项指标都在我们的计划之中。",
-  "tutorial.ch1.hero.reply2": "傻×老陆，也就你能干出这种事情了。\n事先什么都不告诉我，只会说什么一切都在计划之中。",
+  "tutorial.ch1.luzifu.line2": "因为……我现在是通过黑客手法，使用漏洞连接进入……CONNA网络，\n系统本身其实不允许我这么做，所以通信数据会受到污染。会有些撕裂的情况。",
 
-  "tutorial.ch1.luzifu.line3": "虽然我不能听到你的回复，但也请你不要骂我。\n毕竟，要不是我，你现在也不会有「救出梁雅诗」的机会了。",
-  "tutorial.ch1.hero.reply3": "……………………",
+  "tutorial.ch1.hero.reply2": "那我变成这样子又是怎么回事？",
 
-  "tutorial.ch1.luzifu.line4": "检测到前方有NPC出现。\n虽然他应该看不到我，但还是交给你自己应付吧。\n记住，出现选择分支的情况不用慌——\n因为你身上的药物具有标记作用，\n所以柯娜世界会自动用颜色和文字提示告诉你那些重要的分支。\n如果你没有看到任何标记，那么这些选择项就是无关紧要的。\n可以放心选择。",
+  "tutorial.ch1.luzifu.line3": "你现在等于是穿越进入了另一个世界，\n当然样子也会根据这个世界的设定而改变。\n你在这个世界应该是一个拥有超能力的人。好像叫什么修真者之类？\n总之安心吧，目前一切正常，各项指标都在我们的计划之中。",
 
-  "tutorial.ch1.aya.line1": "喂！\n你就是他们说的神仙吗？",
+  "tutorial.ch1.hero.reply3": "你这傻×，在我冒险的时候，自己躲在安全的地方。还有脸说什么一切都在计划之中……",
 
-  "tutorial.ch1.selection1.look": "（观察对方）",
-  "tutorial.ch1.selection1.pretend": "（假冒身份）我就是。",
-  "tutorial.ch1.selection1.honest": "（坦诚以待）我不是什么神仙……",
-  "tutorial.ch1.selection1.leave": "（忽略对方）",
+  "tutorial.ch1.luzifu.line4": "如果我是你，就不会一直抱怨。\n毕竟，要不是我，你现在也不会有「见到梁雅诗」的机会了。",
 
-  "tutorial.ch1.selection1.aya.description": "这是一个看上去大约六七岁的女孩。\n衣着和样貌就是寻常普通人家的样子。\n她看到你的到来，似乎并没有害怕，\n只是用充满期待的眼神上下打量着你，等待着你的回答。",
-  "tutorial.ch1.selection1.aya.pretend.reply": "我天天在这岸边等候，如今可算见到你了！\n快去村里吧，阿福他们正在发愁呢。",
-  "tutorial.ch1.selection1.aya.honest.reply": "她的脸上露出失望的神色，转过身继续向大海身处眺望。\n或许她打算继续在这里等待她口中所说的“仙人”吧……",
-  "tutorial.ch1.aya.direction": "如果你要找村长阿福的话，\n沿着海边的道路，去海岛的另一边，\n就可以看到我们的村子了。",
+  "tutorial.ch1.hero.reply4": "……………………\n别扯这些没用的了，先告诉我在这个世界里怎么移动来着？",
 
-  "tutorial.ch1.luzifu.hint.move": "话说你知道在柯娜世界怎么走路吗？\n先「选择」你要去的目的地，然后再点击「方框」，就可以移动了。\n注意如果选中的是NPC或者城镇，就会自动开始和NPC交互或者进入城镇。\n另外，按住「左键」不动拖动的话，\n你就可以观察周围的世界，这样可以看到你要去的地方。\n不过，尚未被探索的区域将会被黑色笼罩。",
+  "tutorial.ch1.luzifu.line5": "别急，我得先查一下CONNA的使用手册……\n啊哈！找到了！你要先「选择」你要去的目的地，然后再点击「方框」，就可以移动了。\n手册上还说：如果选中的是NPC或者城镇，就会自动开始和NPC交互或者进入城镇。\n只能向已经照亮的格子移动。而且在没有装备好对应的道具时，可能无法通过一些地形。\n另外，按住「左键」不放进行拖动的话，就可以观察周围的世界，这样可以看到你要去的地方。\n不过，尚未被探索的区域将会被黑色笼罩。\n关于移动的说明就是这些了，你可以先试试，有问题我再去看手册。",
 
-  "tutorial.onMovedToNonInteractableTile": "你感到前方有一阵无形的阻力将你推了回来。",
+  "tutorial.ch1.hero.line6": "老陆？那边好像闪烁着一些可疑的蓝紫色光芒。你查查手册是什么情况。",
+
+  "tutorial.ch1.luzifu.reply6": "我刚才就看到手册上提到了这个，\n……………………\n找到了！这是CONNA网络中一个设定：你可以在闪光所在的地方选择「打坐」，然后选择「聚气」来回复「灵气」。\n这好像是来自一些古老的幻想小说的设定，你可能在这方面比我更懂。\n至于CONNA里面的灵气能用来干什么，还要再查查。我建议你先去打坐、聚气一下。然后等我消息。",
+
+  "tutorial.ch1.luzifu.line7": "我查到了，灵气好像是一种重要的战斗资源，而且不会自动回复，只能通过聚气获得。\n如果不是在在这种具有天然灵气的地点之外，聚气时需要消耗对应数量的灵石才行。\n而且在战斗之外，灵气也很有用。\n例如，你可以消耗灵气来进行「神识探查」，可以快速点亮周围的地图。\n既然你已经获得了灵气，那就使用「神识探查」试试看吧。",
+
+  "tutorial.ch1.luzifu.line8": "别忘了你这次的任务——你要尽快找到「梁雅诗」！\n你之前吃的药不能维持你在这个世界一直待下去。\n时间越久，你的身体的负担就越大，最终可能会造成不可逆转的伤害。",
+  "tutorial.ch1.hero.reply8": "我自己的样貌都变了。她也很可能也不是原本的样子了。你叫我从何找起？",
+  "tutorial.ch1.luzifu.line9": "我建议你从这个岛上唯一的定居点开始，然后找到去上面那个岛屿的办法。\n在这个世界，只要你实力够强，就可以视其他人为你的仆役。利用他们来达到自己的目的。\n当然，如果你愿意的话，你也可以选择只靠自己。这样可能效率会更高一些。",
+
+  "tutorial.ch1.aya.intro.line1": "喂！\n你是个修士吧？",
+
+  "tutorial.ch1.aya.intro.selection1.look": "（观察对方）",
+  "tutorial.ch1.aya.intro.selection1.active": "我是。",
+  "tutorial.ch1.aya.intro.selection1.passive": "我不是……",
+  "tutorial.ch1.aya.intro.selection1.leave": "（忽略对方）",
+
+  "tutorial.ch1.aya.intro.selection1.description": "这是一个看上去大约七八岁的女孩。\n衣着和样貌就是寻常普通人家的样子。\n她看到你的到来，似乎并没有害怕，\n只是用充满期待的眼神上下打量着你，等待着你的回答。",
+  "tutorial.ch1.aya.intro.selection1.active.reply": "",
+  "tutorial.ch1.aya.intro.selection1.passive.reply": "她的脸上露出失望的神色，转过身继续向大海身处眺望。\n或许她打算继续在这里等待其他的修真者吧……",
 
   "tutorial.ch1.aya.interact.01": "说起来，你居然能穿过「封印」，这就是传说中神仙所拥有的「灵力」吗？",
   "tutorial.ch1.aya.interact.02": "说起来，你是怎么穿过「封印」的？难道说这会儿「封印」暂时失效了？",
 
-  "tutorial.ch1.aboutAya": "你叫什么名字？",
-  "tutorial.ch1.aboutSeal": "你刚才说的「封印」是什么？",
+  "tutorial.ch1.aya.aboutAya": "你叫什么名字？",
+  "tutorial.ch1.aya.aboutSeal": "你刚才说的「封印」是什么？",
 
-  "tutorial.ch1.aboutAya.reply": "我叫「阿雅」。",
-  "tutorial.ch1.aboutAya.reply2": "我从小在这个海岛上长大。因为「封印」的原因，我从来没离开过这里。\n也从未见过村子之外的人…………当然，你是第一个。",
-  "tutorial.ch1.aboutSeal.reply": "这个岛四周的海面都被某种看不见的东西封住了。\n若你不是仙人的话，恐怕一时半会出不去了。",
+  "tutorial.ch1.aya.aboutAya.reply": "我叫「阿雅」。",
+  "tutorial.ch1.aya.aboutAya.reply2": "我从小在这个海岛上长大。因为「封印」的原因，我从来没离开过这里。\n也从未见过村子之外的人…………当然，你是第一个。",
+  "tutorial.ch1.aya.aboutSeal.reply": "这个岛四周的海面都被某种看不见的东西封住了。\n若你不是仙人的话，恐怕一时半会出不去了。",
 
-  "tutorial.ch1.afu.line1": "这位兄弟暂且留步。我看你甚是面生，\n难道…………难道你是从外界来的？",
+  "tutorial.ch1.afu.intro.line1": "这位兄弟暂且留步。\n我看你甚是面生。难道…………难道你是从外界来的？",
+  "tutorial.ch1.hero.intro.reply1": "我是一介散修，偶然路过这无忧海时被一阵风暴干扰。\n以至于迷失了路径，才不小心进入你们这个小岛。不知你们这里到底是什么所在？",
+  "tutorial.ch1.afu.intro.line2": "原来是外界修士，竟然能穿过封印而毫发无伤，看来阁下必然修为不俗……\n我们迎接不周，还望赎罪。",
+  "tutorial.ch1.hero.intro.reply2": "我初来此地，很多事情还不清楚。有几个问题，还请见教。",
 
-  "tutorial.ch1.selection2.pretend": "（继续假冒）",
-  "tutorial.ch1.selection2.honest": "（坦诚以待）",
+  "tutorial.ch1.afu.aboutAfu": "你是谁？",
+  "tutorial.ch1.afu.aboutIsle": "这里是什么地方？",
+  "tutorial.ch1.afu.aboutOtherImmortal": "此地的修真者？",
+  "tutorial.ch1.afu.aboutSeal": "关于封印",
+  "tutorial.ch1.afu.aboutThatGirl": "关于岸边的女孩",
+  "tutorial.ch1.afu.aboutAya": "关于阿雅",
 
-  "tutorial.ch1.selection2.hero.pretend.reply": "吾乃此地新晋地仙，你们还不快快送上你们这个月的常例祭品？",
-  "tutorial.ch1.selection2.afu.pretend.reply": "恕在下不恭之罪。\n可我们这灵龟岛只是个穷乡僻壤弹丸之地，并无什么灵气。\n仙师就算冒充我们这的地仙，也无什么好处，\n何必要来取笑于我等。\n要知道我们这里原本的仙主也不好惹。\n只怕到时候你们争竞起来，波及到我等还是小事。\n只怕万一仙师也不是他的对手，到时就麻烦了。",
-  "tutorial.ch1.selection2.hero.pretend.finish": "原来你们这里另有主人。\n我刚才只是说笑而已，不必介意。\n不过我还有几个问题要问一下你。",
+  "tutorial.ch1.afu.aboutAfu.reply": "我叫阿福，是这个万福村的村长。\n若是阁下在此地居留期间对我们有什么委托，或者愿意用你的法力交换材料。\n可以来村子里的集会所里找我。",
+  "tutorial.ch1.afu.aboutIsle.reply": "这里叫灵龟岛。\n自二百年前便被一个道士封印。\n从那以后，除了他捉来做仆役之人，再无人能够进入，也无法出去。\n这里只是个穷乡僻壤弹丸之地，并无什么灵气，不知那灵龟岛主有何目的。",
+  "tutorial.ch1.afu.aboutOtherImmortal.reply": "我们这里修为和境界最高的修真者就是那自称灵龟岛主之人。\n他似乎无门无派，除了不让我们出去也对我们没有任何要求。\n只是当有人想要破坏封印时才会受到他的惩罚。\n除此之外，村子里这些年也出了几个新的炼气士。\n不过都只是略懂皮毛而已。",
+  "tutorial.ch1.afu.aboutSeal.reply": "两百年来很多人都尝试过各种方式离开这里。\n但附近的海面上明明没有任何障碍，却无法通过。\n而且若是被那灵龟岛主发现，还会被施以惩罚。\n不过最近一些修真者发现灵龟岛北方的海域似乎并没有封印拦阻。\n除我之外的炼气士都去北边研究破解封印的方法了，如今不在村子里。",
+  "tutorial.ch1.afu.aboutAya.reply": "你是说「阿雅」？\n她经常在岛上四处跑。所以碰到你也不奇怪。\n她是个无父无母的小女孩。我们看她可怜，经常周济她。\n但她具体的身世我也不是很清楚。",
 
-  "tutorial.ch1.selection2.hero.honest.reply": "我原本只是路过这无忧海，却被一阵风暴干扰。\n以至于迷失了路径，才不小心进入你们这个小岛。不知你们这里到底是什么所在？",
-  "tutorial.ch1.selection2.afu.honest.reply": "这地方叫做是灵龟岛。\n自二百年前便被一个自称是灵龟岛主的仙长封印。\n之后，除了他捉来做仆役之人，再无人能够进入，也无法出去。\n这里只是个穷乡僻壤弹丸之地，并无什么灵气，不知那灵龟岛主有何目的。\n幸好他除了封印之外，倒也没有为难我们。",
-  "tutorial.ch1.selection2.hero.honest.finish": "原来你们这里另有主人。\n但我初来此地，很多事情还不清楚，不能贸然答应你什么。\n我有几个问题，不如你先回答我一下。",
-
-  "tutorial.ch1.aboutAfu": "你是谁？",
-  "tutorial.ch1.aboutOtherImmortal": "灵龟岛地仙？",
-  "tutorial.ch1.aboutLackOfSpirit": "缺乏灵气？",
-  "tutorial.ch1.aboutSeal": "关于封印",
-  "tutorial.ch1.aboutThatGirl": "关于岸边的女孩",
-  "tutorial.ch1.aboutAya": "关于阿雅",
-
-  "tutorial.ch1.aboutAfu.reply": "我叫阿福，是这个万福村的村长。\n若是仙师在此地居留期间对我们有什么委托，或者满足村民的要求以换取祭品。\n都可以来找我，我通常都在村子里的集会所里。",
-  "tutorial.ch1.aboutOtherImmortal.reply": "此地确实已经被一个自称灵龟岛主的地仙所掌控。\n他似乎无门无派，也对我们没有任何要求。\n所以我们这两百年来基本都是靠自己才生存下来。\n不过凡是有人想要破坏封印，都会受到他的惩罚，所以他的法力并非虚假。\n他平时并不轻易出现，我也不知道怎么才能找到他。\n不过我听说仙人都能「感知」到周围的其他仙人和法术，\n所以对你而言找到他应该很容易吧。",
-  "tutorial.ch1.aboutLackOfSpirit.reply": "灵龟岛主到这个岛上时，偶尔会提及这里无法凝聚灵气，我也是听说而已。\n我们凡人哪里懂得什么叫「灵气」，又怎么「凝聚」的。",
-  "tutorial.ch1.aboutSeal.reply": "两百年来很多人都尝试过造船离开。\n但附近的海面上明明没有任何障碍，却无法通过。\n",
-  "tutorial.ch1.aboutAya.reply": "你是说「阿雅」？\n她是个无父无母的小女孩。我们看她可怜，经常周济她。\n她经常在岛上四处跑。所以碰到你也不奇怪。",
-
-  "tutorial.ch1.afu.quest": "仙师！说起来，小人还有个不情之请……\n既然你能毫发无伤的冲破封印进入这里，想必法力和现今的灵龟岛主也差相仿佛。\n若是你能击败那人，解除封印，放我们出去，吾等愿改而终生侍奉于您。\n不知仙师可有兴趣？",
-
-  "tutorial.ch1.afu.quest.accept": "接受任务",
-  "tutorial.ch1.afu.quest.postpone": "再考虑考虑",
-
-  "tutorial.ch1.afu.quest.accept.hero.line": "这有何难？\n看我这就去把那所谓的岛主手到擒来。\n你们可要多准备点花红，到时我来找你们收取。",
-  "tutorial.ch1.afu.quest.accept.afu.reply": "我们万福村可算等到一个大救星!\n若是您能成功归来，莫说是花红，\n就是让我们整个村子积累的财富献上，\n加上我们所有人作为您的仆役，我们也愿意。\n我在集会所中等您的好消息。若是您还有什么别的需求，尽管来找我。",
-
-  "tutorial.ch1.afu.quest.postpone.hero.line": "我只是路过这里而已，和你们也不熟悉。\n而且那什么灵龟岛主也不知道行深浅。\n此事还是先容我再考虑考虑。",
-  "tutorial.ch1.afu.quest.postpone.afu.reply": "小人也知这个请求未免有点强人所难。\n仙师若是需要更多时间调查和准备也实属正常。\n我就在村中的集会所中，若是你改变主意，随时可以来找我。",
+  "tutorial.ch1.afu.intro.line3": "说起来，小人还有个不情之请……\n既然你能毫发无伤的冲破封印进入这里，想必法力和现今的灵龟岛主也差相仿佛。\n若是你能解除封印，放我们出去，吾等愿改奉你为此地之主。",
+  "tutorial.ch1.hero.intro.reply3": "可我只是路过这里而已，和你们也不熟悉。\n而且那什么灵龟岛主也不知道行深浅。此事还需从长计议……",
+  "tutorial.ch1.afu.intro.line4": "小人也知这个请求未免有点强人所难。我们已经被困了两百年，倒也不急于这一时。\n这段时间你可以在村子里随意行动，若是你有任何需求，随时可以来集会所，我会尽力满足。",
+  "tutorial.ch1.hero.intro.reply4": "（他毕恭毕敬的行了个礼，便自行离去了）",
 }

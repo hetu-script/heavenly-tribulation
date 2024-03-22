@@ -37,13 +37,10 @@ struct TileMap {
     this.tileOffsetY = tileOffsetY
 
     this.terrains = []
-    this.objects = []
-    this.waters = []
+    this.waterIndexes = []
 
     // 地区上的区域，例如大陆、海洋、国家等
     this.zones = {}
-    // 地图上的可互动对象，例如npc等
-    this.entities = {}
   }
 }
 
@@ -53,7 +50,7 @@ function tilePos2Index(left, top, mapWidth) {
 }
 
 // 从索引得到 hexagonal 坐标
-function index2TilePos(index: integer, mapWidth) {
+function index2TilePosition(index: integer, mapWidth) {
   const left = index % mapWidth + 1
   const top = index ~/ mapWidth + 1
   return Tile(left, top, index: index, mapWidth: mapWidth)
@@ -65,7 +62,7 @@ function isPositionWithinMap(left, top, width, height) {
 }
 
 // hScore(n) 是曼哈顿距离时的 A* 算法
-function calculateRoute(start, end, map, {restrictedInZoneId}) {
+function calculateRoute(start, end, map, { terrainKinds = [] }) {
   // print('calculating route: ${start.left},${start.top} to ${end.left},${end.top}')
 
   assert(start.index != null && end.index != null)
@@ -103,7 +100,7 @@ function calculateRoute(start, end, map, {restrictedInZoneId}) {
     // 找到 f(x) 最小的节点
     open.sort((t1, t2) => fScore[t1].compareTo(fScore[t2]))
     const nextIndex = open.first
-    const next = index2TilePos(nextIndex, map.width)
+    const next = index2TilePosition(nextIndex, map.width)
     if (nextIndex == end.index) {
       // route.path = reconstructPath(cameFrom, end.index)
       const route = reconstructPath(cameFrom, end.index)
@@ -111,7 +108,7 @@ function calculateRoute(start, end, map, {restrictedInZoneId}) {
     }
     open.remove(nextIndex)
     closed.add(nextIndex)
-    const neighbors = getMapTileNeighbors(next.left, next.top, map, zoneId: restrictedInZoneId)
+    const neighbors = getMapTileNeighbors(next.left, next.top, map, terrainKinds: terrainKinds)
     for (const neighbor in neighbors) {
       if (closed.contains(neighbor.index)) continue
       const tentetiveGScore = gScore[nextIndex] + 1
@@ -131,10 +128,4 @@ function calculateRoute(start, end, map, {restrictedInZoneId}) {
     }
   }
   return null
-}
-
-function generateLabrynth(start, end, map, {restrictedInZoneId}) {
-  
-  assert(start.index != null && end.index != null)
-  if (start.index == end.index) return null
 }

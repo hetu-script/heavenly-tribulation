@@ -1,4 +1,3 @@
-// import 'l10n.ht'
 import 'game.ht'
 
 function getChance2Hit(accuracy, evasion) {
@@ -15,7 +14,7 @@ function hyperbola(normal, deviation) {
 }
 
 function interpolate(text: string, interpolations: List) {
-  if (interpolations != null && interpolations.isNotEmpty) {
+  if (interpolations?.isNotEmpty) {
     for (const i = 0; i < interpolations.length; ++i) {
       text = text.replaceAll('{${i}}', JSON.parse(interpolations[i]));
     }

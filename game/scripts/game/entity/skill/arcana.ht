@@ -3,7 +3,7 @@ import '../common.ht'
 import '../../game.ht'
 import 'common.ht'
 import '../item/common.ht'
-import '../effect/common.ht'
+import '../../../_obseleted/effect/common.ht'
 
 const kArcanaKinds = [
   'physicalArcana',

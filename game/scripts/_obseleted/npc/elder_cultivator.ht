@@ -1,0 +1,60 @@
+import '../../game/entity/character/battle_entity.ht'
+import '../../game/entity/common.ht'
+import '../../game/entity/item/item.ht'
+import '../../game/entity/skill/skill.ht'
+import '../../game/game.ht'
+
+const _kElderCultivatorName = 'seniorMateMale'
+
+const _kElderCultivatorAttributeSum = 500
+
+const _kElderCultivatorAttributes = {
+  type1: {
+    spirituality: 0,
+    dexterity: 51,
+    strength: 79,
+    willpower: 44,
+    perception: 63,
+  }
+}
+
+struct ElderCultivator {
+  construct ({
+    isPirate,
+    kind,
+    rarity,
+    description,
+    attributes,
+    attributeSum,
+  }) {
+    this.kind = random.nextIterable(_kElderCultivatorAttributes.keys)
+    this.entityType = kEntityTypeNpc
+    this.birthTimestamp =  createRandomBirthTimestamp(min: 40, max: 70)
+    // this.icon = 'general.png'
+    this.category = kEntityCategoryCharacter
+    this.name = engine.locale(_kElderCultivatorName)
+    this.id = '${this.entityType}.${crypto.randomUID4(2)}.${this.name}'
+    this.rarity = kCommon
+    this.color = kRarity[this.rarity].color
+    this.description = description ?? ''
+    game.minorCharacters[this.id] = this
+
+    // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
+    switch (this.kind) {
+      'type1' : {
+        const battleInfo = BattleEntity(
+          attributes: _kElderCultivatorAttributes[this.kind],
+          attributeSum: _kElderCultivatorName,
+          generate: false,
+          baseLife: 225,
+        )
+        Object.assign(this, battleInfo)
+        this.icon = 'maze/elder_cultivator.png'
+        equip(this, Weapon())
+        equip(this, Kungfu())
+      }
+    }
+    
+    calculateCharacterStats(this)
+  }
+}

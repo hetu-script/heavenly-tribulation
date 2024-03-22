@@ -1,18 +1,33 @@
 import 'package:flutter/foundation.dart';
 
 enum EditorToolItems {
+  none,
+  delete,
+  nonInteractable,
   sea,
   plain,
   forest,
   mountain,
-  city,
-  shelf,
   farmfield,
-  // pond,
-  fishZone,
-  stormZone,
-  delete,
-  none,
+
+  // shelf,
+
+  fishTile,
+  stormTile,
+  spiritTile,
+
+  city,
+  portalArray,
+  dungeon,
+
+  dungeonStoneGate,
+  dungeonStonePavedTile,
+
+  portal,
+  glowingTile,
+  pressureTile,
+
+  treasureBox,
 }
 
 EditorToolItems getEditorToolItem(String? id) {

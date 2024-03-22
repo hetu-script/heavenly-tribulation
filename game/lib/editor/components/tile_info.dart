@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:samsara/ui/responsive_window.dart';
 
 import '../../config.dart';
-import '../../state/tile_info.dart';
+import '../../state/selected_tile.dart';
 // import 'tile_detail.dart';
 
 class TileInfoPanel extends StatefulWidget {
@@ -23,9 +23,10 @@ class _TileInfoPanelState extends State<TileInfoPanel> {
     final currentLocation = context.watch<SelectedTileState>().currentLocation;
     final currentTerrain = context.watch<SelectedTileState>().currentTerrain;
 
-    String? coordinate;
+    String? coordinates;
     if (currentTerrain != null) {
-      coordinate = '${currentTerrain.left}, ${currentTerrain.top}';
+      coordinates =
+          '${currentTerrain.data['left']}, ${currentTerrain.data['top']}';
     }
 
     return ResponsiveWindow(
@@ -50,9 +51,9 @@ class _TileInfoPanelState extends State<TileInfoPanel> {
                 Text(engine.locale('terrainDetail')),
           ),
           if (currentTerrain != null) ...[
-            Text('${engine.locale('coordinate')}: $coordinate'),
+            Text('${engine.locale('coordinates')}: $coordinates'),
             Text(
-                '${engine.locale('kind')}: ${engine.locale(currentTerrain.kind!)}'),
+                '${engine.locale('kind')}: ${engine.locale(currentTerrain.kind)}'),
           ],
           if (currentZone != null)
             Text('${engine.locale('zone')}: ${currentZone['name']}'),
@@ -62,6 +63,8 @@ class _TileInfoPanelState extends State<TileInfoPanel> {
             Text('${engine.locale('location')}: ${currentLocation['name']}'),
           if (currentTerrain?.isNonInteractable == true)
             Text(engine.locale('nonInteractable')),
+          if (currentTerrain?.objectId != null)
+            Text('${engine.locale('mapObject')}: ${currentTerrain!.objectId!}'),
         ],
       ),
     );

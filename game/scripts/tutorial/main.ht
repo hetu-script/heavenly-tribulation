@@ -1,7 +1,8 @@
 import 'module:game' as game
 
 import 'l10n/l10n.ht'
-import 'tutorial1.ht'
+import 'cave.ht'
+import 'tutorial.ht'
 
 // 这里的函数最终是绑定到游戏对象上执行
 // 是运行时的命名空间，并不是这里的命名空间
@@ -12,18 +13,27 @@ const module = {
     displayName: '教程模组',
     description: '包含了一些展示游戏基础操作的关卡。',
     supportedLocales: ['zh'],
-    version: {
-      major: 0,
-      minor: 0,
-      build: 1,
-    },
+    version: '0.0.1',
     flags: {
-      ayaState: 0,
+      storyState: 0,
+      // 收集灵气的教程任务
+      // 0 尚未开始
+      // 1 开始任务，尚未进行聚气
+      // 2 任务完成
+      spiritQuestState: 0, 
       // 0 尚未对话
       // 1 对话过，但未接受或者拒绝任务
       // 2 接受了任务
       // 3 拒绝了任务
-      afuState: 0, 
+      ayaState: 0, 
+      // 阿福，任务是带大家离开灵龟岛
+      // 0 尚未对话
+      // 1 对话过，但未接受或者拒绝任务
+      // 2 接受了任务
+      // 3 拒绝了任务
+      afuState: 0,
+      // 秋霜，任务是前往灵蛇到寻找他的丈夫
+      qiushuangState: 0,
     }
   },
 }
@@ -34,7 +44,6 @@ const module = {
 /// 以及将角色、据点等数据添加到主世界中
 /// 可以在这里检查是否存在版本冲突或者和其他脚本的冲突
 function init(config) {
-  engine.info('初始化模组元信息：[${modName}]...')
   game.addModule(module.meta)
 }
 
@@ -45,9 +54,15 @@ function main() {
   // 加载本地化字符串
   engine.loadLocaleFromJSON(localizations.toJSON())
   // 向世界添加事件回调函数
+  // 每个世界的事件是分开的
   addEventHandlers(
-    worldId: 'tutorial1', // tutorial1 是世界ID
+    worldId: 'cave',
     moduleId: module.meta.id,
-    handlers: tutorial1Handlers,
+    handlers: cave,
+  )
+  addEventHandlers(
+    worldId: 'tutorial',
+    moduleId: module.meta.id,
+    handlers: tutorial,
   )
 }

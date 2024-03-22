@@ -4,11 +4,19 @@ import 'package:samsara/ui/rrect_icon.dart';
 import '../config.dart';
 // import 'character/profile.dart';
 
+enum AvatarNameAlignment {
+  inside,
+  top,
+  bottom,
+}
+
+const kNameHeight = 20.0;
+
 class Avatar extends StatelessWidget {
   const Avatar({
     super.key,
     this.displayName,
-    this.preferNameOnTop = false,
+    this.nameAlignment = AvatarNameAlignment.inside,
     this.margin,
     this.image,
     this.borderImage,
@@ -24,7 +32,7 @@ class Avatar extends StatelessWidget {
     this.onPressed,
   });
 
-  final bool preferNameOnTop;
+  final AvatarNameAlignment nameAlignment;
 
   final String? displayName;
 
@@ -50,7 +58,7 @@ class Avatar extends StatelessWidget {
 
   final dynamic characterData;
 
-  final void Function(String charId)? onPressed;
+  final void Function(String? charId)? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -76,8 +84,8 @@ class Avatar extends StatelessWidget {
       icon = RRectIcon(
         backgroundColor: color,
         image: iconImg,
-        size: (name != null && preferNameOnTop)
-            ? Size(size.width - 30, size.height - 30)
+        size: (name != null && nameAlignment != AvatarNameAlignment.inside)
+            ? Size(size.width - kNameHeight, size.height - kNameHeight)
             : size,
         borderRadius: BorderRadius.all(Radius.circular(radius)),
         // borderColor: borderColor,
@@ -90,8 +98,8 @@ class Avatar extends StatelessWidget {
       border = RRectIcon(
         backgroundColor: Colors.transparent,
         image: borderImg,
-        size: (name != null && preferNameOnTop)
-            ? Size(size.width - 30, size.height - 30)
+        size: (name != null && nameAlignment != AvatarNameAlignment.inside)
+            ? Size(size.width - kNameHeight, size.height - kNameHeight)
             : size,
         borderRadius: BorderRadius.all(Radius.circular(radius)),
         borderColor: borderColor,
@@ -101,29 +109,31 @@ class Avatar extends StatelessWidget {
 
     final widgets = <Widget>[];
 
-    if (preferNameOnTop) {
-      if (name != null) {
-        widgets.add(
-          Align(
-            alignment: Alignment.topCenter,
-            child: Text(
-              name,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        );
+    final outsideNameWidget = Text(
+      name.toString(),
+      textAlign: TextAlign.center,
+      style: const TextStyle(
+        fontSize: 20,
+      ),
+    );
+
+    if (nameAlignment != AvatarNameAlignment.inside) {
+      if (name != null && nameAlignment == AvatarNameAlignment.top) {
+        widgets.add(Container(
+          alignment: Alignment.topCenter,
+          child: outsideNameWidget,
+        ));
       }
       if (icon != null) {
         widgets.add(
           Positioned.fill(
-            top: 30.0,
+            top: nameAlignment == AvatarNameAlignment.top ? kNameHeight : 0.0,
             child: Container(
-              alignment: Alignment.bottomCenter,
-              padding: const EdgeInsets.only(bottom: 10.0),
+              alignment: nameAlignment == AvatarNameAlignment.top
+                  ? Alignment.bottomCenter
+                  : nameAlignment == AvatarNameAlignment.bottom
+                      ? Alignment.topCenter
+                      : Alignment.center,
               child: icon,
             ),
           ),
@@ -132,15 +142,24 @@ class Avatar extends StatelessWidget {
         if (showBorder) {
           widgets.add(
             Positioned.fill(
-              top: 30.0,
+              top: nameAlignment == AvatarNameAlignment.top ? kNameHeight : 0.0,
               child: Container(
-                alignment: Alignment.bottomCenter,
-                padding: const EdgeInsets.only(bottom: 10.0),
+                alignment: nameAlignment == AvatarNameAlignment.top
+                    ? Alignment.bottomCenter
+                    : nameAlignment == AvatarNameAlignment.bottom
+                        ? Alignment.topCenter
+                        : Alignment.center,
                 child: border,
               ),
             ),
           );
         }
+      }
+      if (name != null && nameAlignment == AvatarNameAlignment.bottom) {
+        widgets.add(Container(
+          alignment: Alignment.bottomCenter,
+          child: outsideNameWidget,
+        ));
       }
     } else {
       if (icon != null) {
@@ -177,11 +196,7 @@ class Avatar extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: () {
-        if (onPressed != null) {
-          onPressed!(characterId ?? charData?['id']);
-        }
-      },
+      onTap: () => onPressed?.call(characterId ?? charData?['id']),
       child: MouseRegion(
         cursor: showHandCursor
             ? SystemMouseCursors.click
@@ -189,7 +204,9 @@ class Avatar extends StatelessWidget {
         child: Container(
           margin: margin,
           width: size.width,
-          height: size.height,
+          height: nameAlignment != AvatarNameAlignment.inside
+              ? size.height + kNameHeight
+              : size.height,
           child: Stack(
             children: widgets,
           ),

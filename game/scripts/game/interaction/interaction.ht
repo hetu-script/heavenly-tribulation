@@ -1,0 +1,1404 @@
+import '../game.ht'
+import '../tile/hexagonal_tile.ht'
+import '../tile/tilemap.ht'
+import '../update.ht'
+import '../datetime.ht'
+import '../entity/item/material.ht'
+import '../entity/character/battle_entity.ht'
+// import '../binding/worldmap.ht'
+import '../tile/common.ht'
+// import '../entity/character/npc/bandit.ht'
+// import '../entity/character/creature/beast.ht'
+import '../lootbox.ht'
+import '../binding/worldmap.ht'
+import '../dialog.ht'
+// import '../entity/skill/skill.ht'
+import '../entity/entity.ht'
+import '../entity/organization/organization.ht'
+import '../event.ht'
+import '../colors.ht'
+
+const kSearchSuccessProbability = 0.25
+
+// 打猎会增加遇到野兽的概率200%
+// 这个概率将会和地点本身的野兽概率相乘
+const kHuntBeastProbability = 2.0
+
+// 山峰上可能遇到强盗和野兽，但产出也较高
+const kMountainBeastProbability = 0.15
+const kMountainFruitProbability = 0.4
+const kMountainWoodProbability = 0.3
+const kMountainOreProbability = 0.15
+const kMountainJadeProbability = 0.07
+const kMountainHerbProbability = 0.2
+
+// 森林中可能遇到强盗和野兽，但产出也较高
+const kForestBeastProbability = 0.07
+const kForestFruitProbability = 0.8
+const kForestWoodProbability = 0.6
+const kForestOreProbability = 0.04
+const kForestJadeProbability = 0.02
+const kForestHerbProbability = 0.4
+
+// 平原上几乎不会遇到强盗和野兽，但产出也较低
+const kPlainBeastProbability = 0.02
+const kPlainFruitProbability = 0.3
+const kPlainWoodProbability = 0.1
+const kPlainOreProbability = 0.01
+const kPlainJadeProbability = 0.001
+const kPlainHerbProbability = 0.1
+
+// 湖泊上没有风暴，但产出也较低
+const kLakeFishProbability = 0.25
+
+// 海洋上可能会遇到暴风雨，但产出也较高
+const kSeaStormProbability = 0.3
+const kSeaFishProbability = 0.45
+
+/// 进行打坐、探索、工作时，时间不能跨过一个月，因为每月底会刷新和结算
+/// 取本月剩余的天数和英雄剩余的体力的最小值
+/// 消耗体力为每天4点（每个tick 1点）。
+function getHeroAvaialbeDays() {
+  let maxAvailableDays = 29 - day
+  if (maxAvailableDays < 1) {
+    dialog.localeLines(['cannotInteractAtEndOfMonth'], isHero: true)
+    return 0
+  }
+
+  const staminaAvailableDays = hero.stats.stamina ~/ kTicksPerDay
+  if (staminaAvailableDays < 1) {
+    dialog.localeLines(['notEnoughStaminaMonologue'], isHero: true)
+    return 0
+  }
+
+  const availableDays = Math.min(maxAvailableDays, staminaAvailableDays)
+}
+
+const kCondenseSpiritSuccessProbability = 0.25
+
+const maxSpiritSurgingGain = {
+  '1': {
+    probability: 0.05,
+    max: 2,
+  },
+  '2': {
+    probability: 0.09,
+    max: 5,
+  },
+  '3': {
+    probability: 0.17,
+    max: 9,
+  },
+  '4': {
+    probability: 0.32,
+    max: 15,
+  },
+  '5': {
+    probability: 0.6,
+    max: 23,
+  },
+}
+
+const kExploreLightUpSize = 6
+
+function onHeroExplore(terrain) {
+  if (hero.stats.mana < 1) {
+    dialog.localeLines('notEnoughManaMonologue', isHero: true)
+    return
+  } else {
+    engine.play('wind-blow-141288.mp3')
+    WorldMap.lightUpAroundTile(terrain.left, terrain.top, kExploreLightUpSize)
+  }
+  onGameEvent('onAfterHeroExplore', terrain)
+}
+
+/// 打坐时可以选择进行三种操作：
+/// 
+/// 休息（消耗食物和水，恢复生命和体力）
+/// 聚气 将灵石化为自身灵气，或者直接吸收天地灵气
+/// 凝气 将自身灵气化为灵石
+/// 在灵气喷涌的地方打坐，可以直接获得灵气，最多获取数量和自身境界有关
+/// 理论上限：116（每天4个tick，乘以29天）
+/// 练气（2），筑基（5），金丹（9），元婴（15），化神（23）
+/// 在没有灵气喷涌的地方打坐，可以消耗灵石获得灵气。
+function onHeroMeditate({site, terrain, incurIncident = true}) async {
+  let selection = await dialog.localeSelect([
+    'rest',
+    'gatherSpirit',
+    'condenseSpirit',
+    'cancel',
+  ])
+
+  switch (selection) {
+    'rest': {
+      
+    }
+    'gatherSpirit': {
+      let gathered = false
+      // 灵气已满，无法聚气
+      if (hero.stats.mana >= hero.stats.manaMax) {
+        dialog.localeLines('hint.manaFull', isHero: true)
+        return
+      }
+
+      if (terrain != null) {
+        // 此地灵气喷涌，可以直接聚气
+        if (terrain.flags.isSpiritSurging) {
+          let gainData = maxSpiritSurgingGain[hero.cultivationRank]
+          assert(gainData != null) 
+          // TODO: 角色感知、天赋被动等stats可以提高成功率
+          let probability = gainData.probability + hero.stats.gatherSpiritProbabilityAdd ?? 0
+
+          let availableDays = getHeroAvaialbeDays()
+          let selectedDays = await dialog.inputInteger(engine.locale('timeDays'), 1, availableDays)
+          if (selectedDays <= 0) return
+          let days = 0
+          let found = false
+          let totalMana = 0
+          await dialog.progress(engine.locale('gatherSpirit'), checkProgress: () {
+            ++days
+            if (world.isMainWorld) {
+              updateGame(ticks: kTicksPerDay)
+            }
+            tryChangeStats(hero, 'stamina', -kTicksPerDay)
+            let gatheredSpirit = 0
+            for (let i in range(4)) {
+              if (random.nextDouble() < probability) {
+                ++gatheredSpirit
+              }
+            }
+            totalMana += gatheredSpirit
+            // 灵气已达上限，无法继续
+            if (totalMana >= gainData.max) {
+              return false
+            }
+            // 灵气已满，无法继续
+            if (hero.stats.mana >= hero.stats.manaMax) {
+              dialog.localeLines('hint.manaFull', isHero: true)
+              return false
+            }
+            // 达到预定的天数，无法继续
+            if (days >= selectedDays) {
+              return false
+            }
+            return true
+          })
+          if (totalMana < 1) totalMana = 1
+          let residue = tryChangeStats(hero, 'mana', totalMana)
+          let restoredValue = totalMana - residue
+          Player.updateHero()
+          engine.play('spell-of-healing-876.mp3')
+          WorldMap.addHintText('${engine.locale('mana')} +${restoredValue}', terrain.left, terrain.top, Colors.purple)
+          if (residue != 0) {
+            await dialog.localeLines('hint.wastedSpirit', isHero: true)
+          }
+          await dialog.localeLines('hint.spiritGathered', isHero: true)
+          // 清空这个地块的灵气喷涌状态
+          delete terrain.flags.isSpiritSurging
+          WorldMap.clearTerrainOverlayAnimation(terrain.left, terrain.top)
+
+          const incidentContent = engine.locale('characterMeditate', interpolations: [
+            hero.name,
+            '${terrain.left}, ${terrain.top}',
+            days,
+          ])
+          if (incurIncident) {
+            Incident(
+              subjectId: hero.id,
+              message: incidentContent,
+              isPrivate: true,
+            )
+          } else {
+            engine.info(incidentContent)
+          }
+
+          gathered = true
+        } else {
+          if (hero.materials.jade <= 0) {
+            if (has(hero, 'jade')) {
+              dialog.localeLines('hint.openPackage.jade', isHero: true)
+            } else {
+              dialog.localeLines('hint.notEnoughJade', isHero: true)
+            }
+          } else {
+            // 消耗灵石来聚气
+          }
+        }
+      }
+
+      if (gathered) {
+        onGameEvent('onAfterHeroGatherSpirit')
+      }
+    }
+    'condenseSpirit': {
+
+    }
+  }
+}
+
+/// 返回一个包含可移动的tile kind的列表
+/// 如果不为null且非空，则英雄可以开始尝试向这个格子移动，但中途有可能停下
+/// 否则不会进入移动路径计算
+function onBeforeHeroMove(terrain) {
+  onGameEvent('onBeforeHeroMove', terrain)
+  let movableTerrainKinds = getCharacterMovableTerrainKinds(hero)
+  if (terrain.kind in movableTerrainKinds) {
+    return movableTerrainKinds
+  } else {
+    if ((terrain.kind == 'sea' || terrain.kind == 'lake')) {
+      dialog.localeLines('hint.ship')
+    } else if ((terrain.kind == 'mountain')) {
+      dialog.localeLines('hint.boots')
+    }
+    return null
+  }
+}
+
+function senseTerrain(terrain) -> bool {
+  let interacted = false
+  if (terrain.locationId) {
+    const location = game.locations[terrain.locationId]
+    if (location.isDiscovered) {
+      interacted = true
+      WorldMap.enterLocation(location.id)
+      interacted = true
+    } else {
+      dialog.localeLines('hint.sensedUndiscovered', isHero: true)
+    }
+  } else if (terrain.objectId) {
+    const object = game.objects[terrain.objectId]
+    if (object.isDiscovered) {
+      onInteractMapObject(object)
+      interacted = true
+    } else {
+      dialog.localeLines('hint.sensedUndiscovered', isHero: true)
+    }
+  }
+  return interacted
+}
+
+/// 返回一个表示是否终止移动的布尔值，如果为 true，则玩家控制角色会返回上一格，false 则停止移动并留在在这一格，null 则不影响
+function onAfterHeroMove(left, top) {
+  // engine.info('玩家移动到了: ${left}, ${top}')
+  const terrain = world.terrains[tilePos2Index(left, top, world.width)]
+  if (terrain.isNonInteractable) {
+    dialog.localeLines('hint.nonInteractableTile')
+    return true
+  } else {
+    // TODO: 感知阈值
+    let interacted = senseTerrain(terrain)
+    if (!interacted) {
+      onGameEvent('onAfterHeroMove', left, top)
+    }
+    return null
+  }
+}
+
+/// 异步函数，会在显示地点窗口之前执行，执行完毕后才会进入地点
+function onBeforeHeroEnterLocation(location) async {
+  if (!location.isDiscovered) {
+    // TODO: 第一次发现据点事件
+    if (location.category == kLocationCategoryArcana || location.category == kLocationCategoryMirage) {
+      dialog.localeLines(['sensedUndiscovered'], isHero: true)
+    } else {
+      discoverLocation(location)
+      dialog.localeLines('firstVisitCity', interpolations: [location.name])
+    }
+  }
+}
+
+function onAfterHeroEnterLocation(location) async {
+  onGameEvent('onAfterHeroEnterLocation', location)
+  // if (location.flags.recruitingOrganizationIds.isNotEmpty) {
+  //   let names = ''
+  //   for (const id in location.flags.recruitingOrganizationIds) {
+  //     if (names.isEmpty) {
+  //       names = game.organizations[id].name
+  //     } else {
+  //       const linkWord = engine.locale('and')
+  //       names += linkWord + game.organizations[id].name
+  //     }
+  //   }
+
+  //   const villager = engine.locale('villager')
+
+  //   dialog.recource('cultivatorRecruitMonth').then((_) {
+  //     dialog.localeSelect([
+  //       'cultivatorRecruitMonth.selection1',
+  //       'cultivatorRecruitMonth.selection2',
+  //       'cultivatorRecruitMonth.selection3',
+  //     ]).then((key) {
+  //       switch (key) {
+  //         'cultivatorRecruitMonth.selection1' : {
+  //           return dialog.recource('cultivatorRecruitMonth.reply1', interpolations: [names])
+  //         }
+  //         'cultivatorRecruitMonth.selection2' : {
+  //           return dialog.recource('cultivatorRecruitMonth.reply2', interpolations: [names])
+  //         }
+  //         'cultivatorRecruitMonth.selection3' : {
+  //           return dialog.recource('cultivatorRecruitMonth.reply3', interpolations: [names])
+  //         }
+  //       }
+  //     }).then((_) {
+  //       if (hero.organizationId == null) {
+  //         return dialog.localeLines(['cultivatorRecruitMonth.hint'], isHero: true)
+  //       }
+  //     })
+  //   })
+
+  // }
+}
+
+/// 异步函数，会在显示建筑窗口之前执行，执行完毕后才会进入建筑
+// function onAfterHeroEnterSite(site) async {
+//   engine.info('玩家进入了: ${site.id}')
+
+//   // 检查是否有任务满足了提交条件
+//   let future
+//   for (const quest of hero.quests) {
+//     if (site.id == quest.destinationSiteId) {
+//       quest.result = characterTrySubmitQuest(hero, site, quest)
+//       // modEventId 意味着这是一个 mod 创建的任务，将由 mod 自己的函数处理
+//       if (quest.modEventId) {
+//         return onGameEvent(quest.modEventId, quest)
+//       } else {
+//         return handleQuestEnding(quest)
+//       }
+//     }
+//   }
+// }
+
+function onInteractCharacter(characterId, { exitOnLeave = false }) {
+  engine.info('正在和NPC [${characterId}] 互动。')
+  assert(game.characters.containsKey(characterId))
+  const character = game.characters[characterId]
+  if (character.flags.useCustomInteraction) {
+    // 使用模组定义的交互逻辑
+    engine.info('NPC [${characterId}] 使用自定义交互逻辑')
+    onGameEvent('onInteractCharacter', character.id)
+  } else {
+    // 默认交互逻辑
+    const selections = [
+      'show',
+    ]
+    if (characterId in! game.flags.playerMonthly.talked) {
+      selections.add('talk')
+    }
+    if (characterId in! game.flags.playerMonthly.gifted) {
+      selections.add('gift')
+    }
+    if (characterId in! game.flags.playerMonthly.requested) {
+      selections.add('request')
+    }
+    if (characterId in! game.flags.playerMonthly.practiced) {
+      selections.add('duel')
+    }
+    if (characterId in! game.flags.playerMonthly.consulted) {
+      selections.add('consult')
+    }
+    if (characterId in! game.flags.playerMonthly.insulted) {
+      selections.add('insult')
+    }
+    if (characterId in! game.flags.playerMonthly.stolen) {
+      selections.add('steal')
+    }
+    selections.add('trade')
+    selections.add('attack')
+    selections.add('leave')
+    dialog.localeSelect(selections).then((key) {
+      switch (key) {
+        'leave' : {
+          if (exitOnLeave) {
+            engine.emit('pop_scene')
+          }
+        }
+        'show' : {
+          
+        }
+        'talk' : {
+          handleCharacterTalk(hero, character)
+        }
+        'gift' : {
+          
+        }
+        'request' : {
+          
+        }
+        'duel' : {
+          // showDuel(hero, character, type: 'practice')
+        }
+        'consult' : {
+          
+        }
+        'insult' : {
+          
+        }
+        'steal' : {
+          
+        }
+        'trade' : {
+          // showDuel(hero, character, type: 'sneakAttack')
+        }
+        'attack' : {
+          // showDuel(hero, character, type: 'sneakAttack')
+        }
+      }
+    })
+  }
+}
+
+// 在某个地形块上进行互动操作
+// 山峰或树林产出物品更多，平原产出数量较少
+// 但前者会有几率碰到野兽或者强盗
+function onInteractTerrain(terrain) {
+
+  if (terrain.kind == kTerrainKindRoad) {
+    // TODO: 道路上不能进行互动
+  }
+  
+  // let isInjured = false
+  // for (const status of hero.statusEffects) {
+  //   if (status.category == kStatusCategoryInjury)
+  //   isInjured = true
+  // }
+  // if (isInjured) {
+  //   dialog.localeLines(['cannotInteractWhenInjured'], isHero: true)
+  //   return
+  // }
+
+
+  // 可用的探索天数
+  let availableDays = getHeroAvaialbeDays()
+
+  const selections = [
+    'search',
+  ]
+
+  switch (terrain.kind) {
+    kTerrainKindForest : {
+      selections.add('woodcut')
+      selections.add('gather')
+      selections.add('hunt')
+    }
+    kTerrainKindMountain : {
+      selections.add('excavate')
+      selections.add('gather')
+      selections.add('hunt')
+    }
+    kTerrainKindLake, kTerrainKindSea : {
+      selections.add('fish')
+    }
+  }
+
+  selections.add('cancel')
+  
+  dialog.localeSelect(selections).then((key) {
+    switch (key) {
+      'search' : {
+        let undiscoveredLocation
+        let undiscoveredObject
+        if (terrain.locationId) {
+          const location = game.locations[terrain.locationId]
+          if (!location.isDiscovered) {
+            undiscoveredLocation = location
+          }
+        } else if (terrain.objectId) {
+          const object = game.objects[terrain.objectId]
+          if (!object.isDiscovered) {
+            undiscoveredObject = object
+          }
+        }
+
+        if (undiscoveredObject) {
+          dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+            let i = 0
+            let found = false
+            dialog.progress(engine.locale('search'), checkProgress: () {
+              ++i
+              updateGame(ticks: kTicksPerDay)
+              changeStamina(hero, -kTicksPerDay)
+              // TODO: 角色感知可以提高成功率
+              if (random.nextDouble() < kSearchSuccessProbability) {
+                found = true
+                return false
+              }
+              if (i >= days) return false
+              return true
+            }).then((_) {
+              const incidentContent = engine.locale('characterExplore', interpolations: [
+                hero.name,
+                '${terrain.left}, ${terrain.top}',
+                i,
+              ])
+              engine.info(incidentContent)
+              // Incident(
+              //   subjectId: hero.id,
+              //   message: incidentContent,
+              //   isPrivate: true,
+              // )
+              if (found) {
+                undiscoveredObject.isDiscovered = true
+                // discoverObject(undiscoveredLocation)
+                onInteractMapObject(object)
+              } else {
+                dialog.localeLines(['searchFailed'], isHero: true)
+              }
+            })
+          })
+        } else if (undiscoveredLocation) {
+          dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+            let i = 0
+            let found = false
+            dialog.progress(engine.locale('search'), checkProgress: () {
+              ++i
+              updateGame(ticks: kTicksPerDay)
+              changeStamina(hero, -kTicksPerDay)
+              // TODO: 角色感知可以提高成功率
+              if (random.nextDouble() < kSearchSuccessProbability) {
+                found = true
+                return false
+              }
+              if (i >= days) return false
+              return true
+            }).then((_) {
+              const incidentContent = engine.locale('characterExplore', interpolations: [
+                hero.name,
+                '${terrain.left}, ${terrain.top}',
+                i,
+              ])
+              engine.info(incidentContent)
+              // Incident(
+              //   subjectIds: [hero.id],
+              //   message: incidentContent,
+              //   isPrivate: true,
+              // )
+              if (found) {
+                undiscoveredLocation.isDiscovered = true
+                discoverLocation(undiscoveredLocation)
+                // TODO: 第一次发现据点事件
+                const message = engine.locale('firstVisitCity', interpolations: [undiscoveredLocation.name])
+                dialog.lines([message]).then((_) {
+                  WorldMap.enterLocation(undiscoveredLocation.id)
+                })
+              } else {
+                dialog.localeLines(['searchFailed'], isHero: true)
+              }
+            })
+          })
+        } else {
+          dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+            dialog.progress(engine.locale('search'), checkProgress: () {
+              updateGame(ticks: kTicksPerDay)
+              changeStamina(hero, -kTicksPerDay)
+              return false
+            }).then((_) {
+              const incidentContent = engine.locale('characterExplore', interpolations: [
+                hero.name,
+                '${terrain.left}, ${terrain.top}',
+                1,
+              ])
+              engine.info(incidentContent)
+              // Incident(
+              //   subjectIds: [hero.id],
+              //   message: incidentContent,
+              //   isPrivate: true,
+              // )
+              dialog.localeLines(['exploredEmtpy'], isHero: true)
+            })
+          })
+        }
+      }
+      // 采集，可能会获得：药材（材料）、水果（材料）
+      'gather' : {
+        dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+          const lootbox = Lootbox()
+          let metBeast = false
+          let i = 0
+          dialog.progress(engine.locale('gather'), () {
+            ++i
+            updateGame(ticks: kTicksPerDay)
+            changeStamina(hero, -kTicksPerDay)
+            switch (terrain.kind) {
+              kTerrainKindMountain : {
+                if (random.nextDouble() < kMountainBeastProbability) {
+                  metBeast = true
+                  return false
+                }
+                if (random.nextDouble() < kMountainHerbProbability) {
+                  acquire(lootbox, Material.herb(), incurIncident: false)
+                }
+                if (random.nextDouble() < kMountainFruitProbability) {
+                  acquire(lootbox, Material.fruit(), incurIncident: false)
+                }
+              }
+              kTerrainKindForest : {
+                if (random.nextDouble() < kForestBeastProbability) {
+                  metBeast = true
+                  return false
+                }
+                if (random.nextDouble() < kForestHerbProbability) {
+                  acquire(lootbox, Material.herb(), incurIncident: false)
+                }
+                if (random.nextDouble() < kForestFruitProbability) {
+                  acquire(lootbox, Material.fruit(), incurIncident: false)
+                }
+              }
+              kTerrainKindPlain : {
+                if (random.nextDouble() < kPlainHerbProbability) {
+                  acquire(lootbox, Material.herb(), incurIncident: false)
+                }
+                if (random.nextDouble() < kPlainFruitProbability) {
+                  acquire(lootbox, Material.fruit(), incurIncident: false)
+                }
+              }
+            }
+            if (i >= days) return false
+            return true
+          }).then((_) {
+            const incidentContent = engine.locale('characterExplore', interpolations: [
+              hero.name,
+              '${terrain.left}, ${terrain.top}',
+              i,
+            ])
+                engine.info(incidentContent)
+            // Incident(
+            //   subjectIds: [hero.id],
+            //   message: incidentContent,
+            //   isPrivate: true,
+            // )
+            () async {
+              if (lootbox.inventory.isEmpty) {
+                return dialog.localeLines(['interactionGotNothing'], isHero: true)
+              } else {
+                loot(hero, lootbox)
+              }
+            } ().then((_) {
+              if (metBeast) {
+                const beast = Beast()
+                const message = engine.locale('metBeast', interpolations: [beast.name])
+                dialog.lines([message]).then((_) {
+                  heroBattle(beast)
+                })
+              }
+            })
+          })
+        })
+      }
+      // 伐木，可能会获得：木料
+      'woodcut' : {
+        dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+          const lootbox = Lootbox()
+          let metBeast = false
+          let i = 0
+          dialog.progress(engine.locale('woodcut'), () {
+            ++i
+            updateGame(ticks: kTicksPerDay)
+            changeStamina(hero, -kTicksPerDay)
+            switch (terrain.kind) {
+              kTerrainKindMountain : {
+                if (random.nextDouble() < kMountainBeastProbability) {
+                  metBeast = true
+                  return false
+                }
+                if (random.nextDouble() < kMountainWoodProbability) {
+                  acquire(lootbox, Material.wood(), incurIncident: false)
+                }
+              }
+              kTerrainKindForest : {
+                if (random.nextDouble() < kForestBeastProbability) {
+                  metBeast = true
+                  return false
+                }
+                if (random.nextDouble() < kForestWoodProbability) {
+                  acquire(lootbox, Material.wood(), incurIncident: false)
+                }
+              }
+              kTerrainKindPlain : {
+                if (random.nextDouble() < kPlainWoodProbability) {
+                  acquire(lootbox, Material.wood(), incurIncident: false)
+                }
+              }
+            }
+            if (i >= days) return false
+            return true
+          }).then((_) {
+            const incidentContent = engine.locale('characterWoodcutted', interpolations: [
+              hero.name,
+              '${terrain.left}, ${terrain.top}',
+              i,
+            ])
+            engine.info(incidentContent)
+            // Incident(
+            //   subjectIds: [hero.id],
+            //   message: incidentContent,
+            //   isPrivate: true,
+            // )
+            () async {
+              if (lootbox.inventory.isEmpty) {
+                return dialog.localeLines(['interactionGotNothing'], isHero: true)
+              } else {
+                loot(hero, lootbox)
+              }
+            } ().then((_) {
+              if (metBeast) {
+                const beast = Beast()
+                const message = engine.locale('metBeast', interpolations: [beast.name])
+                dialog.lines([message]).then((_) {
+                  heroBattle(beast)
+                })
+              }
+            })
+          })
+        })
+      }
+      // 挖矿，可能会获得：矿石、灵石
+      'excavate' : {
+        dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+          const lootbox = Lootbox()
+          let metBeast = false
+          let i = 0
+          dialog.progress(engine.locale('excavate'), () {
+            ++i
+            updateGame(ticks: kTicksPerDay)
+            changeStamina(hero, -kTicksPerDay)
+            switch (terrain.kind) {
+              kTerrainKindMountain : {
+                if (random.nextDouble() < kMountainBeastProbability) {
+                  metBeast = true
+                  return false
+                }
+                if (random.nextDouble() < kMountainOreProbability) {
+                  acquire(lootbox, Material.ore(), incurIncident: false)
+                }
+                if (random.nextDouble() < kMountainJadeProbability) {
+                  acquire(lootbox, Jade(), incurIncident: false)
+                }
+              }
+              kTerrainKindForest : {
+                if (random.nextDouble() < kForestBeastProbability) {
+                  metBeast = true
+                  return false
+                }
+                if (random.nextDouble() < kForestOreProbability) {
+                  acquire(lootbox, Material.ore(), incurIncident: false)
+                }
+                if (random.nextDouble() < kForestJadeProbability) {
+                  acquire(lootbox, Jade(), incurIncident: false)
+                }
+              }
+              kTerrainKindPlain : {
+                if (random.nextDouble() < kPlainOreProbability) {
+                  acquire(lootbox, Material.ore(), incurIncident: false)
+                }
+                if (random.nextDouble() < kPlainJadeProbability) {
+                  acquire(lootbox, Jade(), incurIncident: false)
+                }
+              }
+            }
+            if (i >= days) return false
+            return true
+          }).then((_) {
+            const incidentContent = engine.locale('characterMined', interpolations: [
+              hero.name,
+              '${terrain.left}, ${terrain.top}',
+              i,
+            ])
+            engine.info(incidentContent)
+            // Incident(
+            //   subjectIds: [hero.id],
+            //   message: incidentContent,
+            //   isPrivate: true,
+            // )
+            () async {
+              if (lootbox.inventory.isEmpty) {
+                return dialog.localeLines(['interactionGotNothing'], isHero: true)
+              } else {
+                loot(hero, lootbox)
+              }
+            } ().then((_) {
+              if (metBeast) {
+                const beast = Beast()
+                const message = engine.locale('metBeast', interpolations: [beast.name])
+                dialog.lines([message]).then((_) {
+                  heroBattle(beast)
+                })
+              }
+            })
+          })
+        })
+      }
+      // 捕猎，增加遇到野兽的概率200%
+      'hunt' : {
+        dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+          let metBeast = false
+          let i = 0
+          dialog.progress(engine.locale('hunt'), () {
+            ++i
+            updateGame(ticks: kTicksPerDay)
+            changeStamina(hero, -kTicksPerDay)
+            switch (terrain.kind) {
+              kTerrainKindMountain : {
+                if (random.nextDouble() < (kMountainBeastProbability * kHuntBeastProbability)) {
+                  metBeast = true
+                  return false
+                }
+              }
+              kTerrainKindForest : {
+                if (random.nextDouble() < (kForestBeastProbability * kHuntBeastProbability)) {
+                  metBeast = true
+                  return false
+                }
+              }
+              kTerrainKindPlain : {
+                if (random.nextDouble() < (kPlainBeastProbability * kHuntBeastProbability)) {
+                  metBeast = true
+                  return false
+                }
+              }
+            }
+            if (i >= days) return false
+            return true
+          }).then((_) {
+            const incidentContent = engine.locale('characterHunted', interpolations: [
+              hero.name,
+              '${terrain.left}, ${terrain.top}',
+              i,
+            ])
+            engine.info(incidentContent)
+            // Incident(
+            //   subjectIds: [hero.id],
+            //   message: incidentContent,
+            //   isPrivate: true,
+            // )
+            if (metBeast) {
+              const beast = Beast()
+              const message = engine.locale('foundBeast', interpolations: [beast.name])
+              dialog.lines([message]).then((_) {
+                heroBattle(beast)
+              })
+            } else {
+              return dialog.localeLines(['interactionGotNothing'], isHero: true)
+            }
+          })
+        })
+      }
+      // 捕鱼，可能会获得：河鱼、海鱼、虾、蟹
+      'fish' : {
+        // if (game.flags.playerMonthly.fished.contains(terrainIndex)) {
+        //   dialog.localeLines(['terrainAlreadyFished'], isHero: true)
+        //   return
+        // }
+        // game.flags.playerMonthly.fished.add(terrainIndex)
+        
+        dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+          const lootbox = Lootbox()
+          let i = 0
+          dialog.progress(engine.locale('fish'), () {
+            ++i
+            updateGame(ticks: kTicksPerDay)
+            changeStamina(hero, -kTicksPerDay)
+            switch (terrain.kind) {
+              kTerrainKindLake : {
+                if (random.nextDouble() < kLakeFishProbability) {
+                  acquire(lootbox, Material.fish(), incurIncident: false)
+                }
+              }
+              kTerrainKindSea : {
+                if (random.nextDouble() < kSeaFishProbability) {
+                  acquire(lootbox, Material.fish(), incurIncident: false)
+                }
+              }
+            }
+            if (i >= days) return false
+            return true
+          }).then((_) {
+            const incidentContent = engine.locale('characterFished', interpolations: [
+              hero.name,
+              '${terrain.left}, ${terrain.top}',
+              i,
+            ])
+            engine.info(incidentContent)
+            // Incident(
+            //   subjectIds: [hero.id],
+            //   message: incidentContent,
+            //   isPrivate: true,
+            // )
+            if (lootbox.inventory.isEmpty) {
+              return dialog.localeLines(['interactionGotNothing'], isHero: true)
+            } else {
+              loot(hero, lootbox)
+            }
+          })
+        })
+      }
+    }
+  })
+}
+
+function onInteractMapObject(object) async {
+  engine.info('正在和 MapObject [${object.id}] 互动。')
+  if (object.flags.useCustomInteraction) {
+    // 使用模组定义的交互逻辑
+    engine.info('MapObject [${object.id}] 使用自定义交互逻辑')
+    onGameEvent('onInteractMapObject', object)
+  } else {
+    switch (object.category) {
+      'portal': {
+        let {left, top} = object.targetMapPosition
+        setHeroWorldPosition(left, top)
+        await WorldMap.moveCameraToMapPosition(left, top)
+        WorldMap.refreshHeroTileInfo()
+        WorldMap.lightUpAroundTile(left, top, hero.stats.lightRadius)
+      }
+    }
+  }
+}
+
+function onBeforeHeroExitSite(site) async {
+
+}
+
+function onAfterHeroExitSite(site) async {
+
+}
+
+function onBeforeHeroEnterSite(site) async {
+
+}
+
+function onAfterHeroEnterSite(location, site) async {
+  switch (site.category) {
+      in kCultivationGenres : await _handleHeadquartersInteraction(site)
+    // residence 逻辑特殊处理，放在Dart侧
+    // 'residence' : await _handleResidenceInteraction(site)
+    'home' : await _handleHomeInteraction(site)
+    'cityhall' : await _handleCityHallInteraction(site)
+    'library' : await _handleLibraryInteraction(site)
+    'arena' : await _handleArenaInteraction(site)
+    'tradinghouse' : await _handleTradingHouseInteraction(site)
+    'auctionhouse' : await _handleAuctionHouseInteraction(site)
+
+    'mine' : await _handleMineInteraction(site)
+    'timberland' : await _handleTimberlandInteraction(site)
+    'farmland' : await _handleFarmlandInteraction(site)
+    'canal' : await _handleCanalInteraction(site)
+    'fishmarket' : await _handleFishMarketInteraction(site)
+    'arraylab' : await _handleArraylabInteraction(site)
+    'runehouse' : await _handleRunehouseInteraction(site)
+    'alchemylab' : await _handleAlchemyLabInteraction(site)
+    'workshop' : await _handleWorkshopInteraction(site)
+    'nursery' : await _handleNurseryInteraction(site)
+    'zoo' : await _handleZooInteraction(site)
+    'illusionhouse' : await _handleIllusionHouseInteraction(site)
+    'psychichouse' : await _handlePsychicHouseInteraction(site)
+    'divinationhouse' : await _handleDivinationHouseInteraction(site)
+    'theurgyhouse' : await _handleTheurgyHouseInteraction(site)
+    else : engine.error('未知的建筑类型 (category)：${site.category}。[${site.id}]')
+  }
+}
+
+function _handleHomeInteraction(site) {
+  if (site.ownerId == hero.id) {
+    engine.info('玩家进入了自宅。')
+    dialog.localeSelect([
+      'meditate',
+      'practice',
+      'storage',
+      'leave',
+    ]).then((key) {
+      switch (key) {
+        else : {
+          engine.emit('pop_scene')
+        }
+        'meditate' : {
+          // 打坐消耗食物、水、和灵石，恢复生命、体力和灵气
+        }
+        'practice' : {
+          // if (hero.skills.isEmpty) {
+          //   dialog.localeLines(['skillsEmpty'], isHero: true)
+          // } else {
+          //   showSkillSelection(
+          //     title: engine.locale('selectSkill'),
+          //     skills: hero.skills,
+          //   ).then((skill) {
+          //     if (skill.exp >= skill.expForNextLevel) {
+          //       dialog.localeLines(['skillExpReachMax'], isHero: true, interpolations: [skill.name])
+          //       return
+          //     }
+
+          //     const cost = skill.cost?.practice
+              
+          //     // 每天会根据技能本身要求的消耗，减少对应的资源
+          //     function practiceCost {
+          //       if (cost?.stamina) {
+          //         changeStamina(hero, -kTicksPerDay * cost.stamina)
+          //       }
+          //       if (cost?.mana) {
+          //         changeMana(hero, -kTicksPerDay * cost.mana)
+          //       }
+          //       if (cost?.spirit) {
+          //         changeSpirit(hero, -kTicksPerDay * cost.spirit)
+          //       }
+          //     }
+
+          //     let availableDays
+          //     let staminaAvailableDays
+          //     let manaAvailableDays
+          //     let spiritAvailableDays
+          //     if (cost?.stamina) {
+          //       staminaAvailableDays = hero.attributes.stamina ~/ kTicksPerDay
+          //       if (staminaAvailableDays < 1) {
+          //         dialog.localeLines(['notEnoughStamina'], isHero: true)
+          //         return
+          //       }
+          //     }
+          //     if (cost?.mana) {
+          //       manaAvailableDays = hero.attributes.mana ~/ kTicksPerDay
+          //       if (manaAvailableDays < 1) {
+          //         dialog.localeLines(['notEnoughMana'], isHero: true)
+          //         return
+          //       }
+          //     }
+          //     if (cost?.spirit) {
+          //       spiritAvailableDays = hero.attributes.spirit ~/ kTicksPerDay
+          //       if (spiritAvailableDays < 1) {
+          //         dialog.localeLines(['notEnoughSpirit'], isHero: true)
+          //         return
+          //       }
+          //     }
+
+          //     // 可用的修炼天数
+          //     if (staminaAvailableDays) availableDays = staminaAvailableDays
+          //     if (manaAvailableDays) availableDays = Math.min(availableDays, manaAvailableDays)
+          //     if (spiritAvailableDays) availableDays = Math.min(availableDays, spiritAvailableDays)
+          //     // 如果修炼本身没有任何消耗，则最多设定为360天
+          //     availableDays ??= 360
+
+          //     dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+          //       let i = 0
+          //       let expGained = 0
+          //       dialog.progress(engine.locale('practice'), checkProgress: () {
+          //         ++i
+          //         updateGame(ticks: kTicksPerDay)
+          //         practiceCost()
+          //         expGained += kTicksPerDay
+          //         if ((skill.exp + expGained) >= skill.expForNextLevel) return false
+          //         if (i >= days) return false
+          //         return true
+          //       }).then((_) {
+          //         skill.exp += expGained
+          //         const incidentContent = engine.locale('characterPracticed', interpolations: [
+          //           hero.name,
+          //           site.name,
+          //           skill.name,
+          //           i,
+          //           expGained,
+          //         ])
+          //         Incident(
+          //           subjectIds: [hero.id],
+          //           message: incidentContent,
+          //           isPrivate: true,
+          //         )
+          //         if ((skill.exp + expGained) >= skill.expForNextLevel) {
+          //           dialog.localeLines(['skillExpReachMax'], isHero: true, interpolations: [skill.name])
+          //         }
+          //       })
+          //     })
+          //   })
+          // }
+        }
+        'storage' : {
+          
+        }
+      }
+    })
+  } else {
+    engine.info('玩家进入了 ${site.id}。')
+  }
+}
+
+function _handleCityHallInteraction(site) async {
+  
+}
+
+function _handleHeadquartersInteraction(site) {
+  const location = game.locations[site.locationId]
+  dialog.localeSelect([
+    'practice',
+    'learn',
+    'visit',
+    'leave',
+  ]).then((key) {
+    switch (key) {
+      else : {
+        engine.emit('pop_scene')
+      }
+      'practice' : {
+        // 非本门派修士,需要花钱才能训练
+        dialog.localeLines(['organizationTrainDeny'])
+      }
+      'learn' : {
+        // 非本门派修士,需要花钱才能学习,而且只能学习二阶或以下的功法
+        dialog.localeLines(['organizationTrainDeny'])
+      }
+      'visit' : {
+        // 既然有总部，那就一定有可以拜访的成员
+        let organization = getOrganizationById(site.organizationId)
+        const ids = organization.characterIds.toList()
+        ids.remove(game.heroId)
+        final key = dialog.visitSelect(ids)
+        if (key != null) {
+          onInteractCharacter(key)
+        } else {
+          
+        }
+      }
+    }
+  })
+}
+
+function _handleLibraryInteraction(site) {
+
+}
+
+function _handleArenaInteraction(site) {
+
+}
+
+function _handleBountyhouseInteraction(site) {
+  const location = game.locations[site.locationId]
+  // const selections = [
+  //   'appeal',
+  //   'tribute',
+  //   'noticeBoard',
+  //   'localExam',
+  // ]
+  // if (site.isCapital) {
+  //   selections.add('nationalExam')
+  // }
+  // selections.add('visitJail')
+
+  const selections = [
+    'questBrowse',
+    'questPost',
+  ]
+  selections.add('leave')
+  
+  dialog.localeSelect(selections).then((key) {
+    switch (key) {
+      else : {
+        engine.emit('pop_scene')
+      }
+      'questBrowse' : {
+        if (game.flags.playerMonthly.worked.contains(site.id)) {
+          dialog.localeLines(['workedThisMonth'])
+        } else if (site.quests.isEmpty) {
+          dialog.localeLines(['bountyhouseQuestEmpty'])
+        } else {
+          dialog.quests(site)
+        }
+      }
+      'questPost' : {
+      }
+    }
+  })
+
+  // dialog.localeSelect(selections).then((key) {
+  //   switch (key) {
+  //     'appeal' : {
+  //       dialog.localeSelect([
+  //         'applyOrganization',
+  //         'applySite',
+  //         'complaintSite',
+  //         'complaintCharacter',
+  //         'appealCharacter',
+  //         'setHome',
+  //         'cancel',
+  //       ]).then((key) {
+  //         switch (key) {
+  //           'cancel' : {
+  //             _handleBountyhouseInteraction(site)
+  //           }
+  //           'applyOrganization' : {
+              
+  //           }
+  //           'applySite' : {
+              
+  //           }
+  //           'complaintSite' : {
+              
+  //           }
+  //           'complaintCharacter' : {
+              
+  //           }
+  //           'appealCharacter' : {
+              
+  //           }
+  //           'setHome' : {
+              
+  //           }
+  //         }
+  //       })
+  //     }
+  //     'tribute' : {
+  //       // TODO: 进贡金钱或者宝物，之后可以选择是否发起请求
+  //     }
+  //     'noticeBoard' : {
+  //       if (game.flags.playerMonthly.worked.contains(site.id)) {
+  //         dialog.localeLines(['workedThisMonth'])
+  //       } else if (site.quests.isEmpty) {
+  //         dialog.localeLines(['bountyhouseQuestEmpty'])
+  //       } else {
+  //         dialog.quests(site)
+  //       }
+  //     }
+  //     'localExam' : {
+  //       dialog.localeLines(['localExamIntro'])
+  //     }
+  //     'nationalExam' : {
+  //       dialog.localeLines(['nationalExamIntro'])
+  //     }
+  //     'visitJail' : {
+  //       const entry = false
+  //       () async {
+  //         if (location.jailedCharacterIds.isEmpty) {
+  //           return dialog.localeLines(['visitJailEmpty'])
+  //         } else {
+  //           if (hero.fame > kFameCheckThreshold) {
+  //             const title = getCharacterTitle(hero) ?? ''
+  //             return dialog.lines(
+  //               [
+  //                 engine.locale('visitJailEntryRespect', interpolations: [title + hero.name]),
+  //               ],
+  //               returnValue: true,
+  //             )
+  //           } else {
+  //             return dialog.localeLines(['visitJailDeny'])
+  //           }
+  //         }
+  //       }().then((value) {
+  //         if (value) {
+            
+  //         }
+  //       })
+  //     }
+  //   }
+  // })
+}
+
+// 货栈，可以在这里交易材料
+// 打工可以提升本地声望
+// 将指定数量的材料运送到另一个城市，但途中可能会遇到劫匪或风暴，风暴会耽误时间。
+// 没有提交足够数量的材料或者超过时间都会算作失败。
+function _handleTradingHouseInteraction(site) {
+  const location = game.locations[site.locationId]
+  dialog.localeSelect([
+    'trade',
+    'work',
+    'leave',
+  ]).then((key) {
+    switch (key) {
+      else : {
+        engine.emit('pop_scene')
+      }
+      'trade' : {
+        if (site.organizationId) {
+          const organization = getOrganizationById(site.organizationId)
+          dialog.merchant(organization, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
+        } else {
+          dialog.merchant(site, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
+        }
+      }
+      'work' : {
+        if (site.workedThisMonth) {
+          dialog.localeLines(['workedThisMonth'])
+        } else if (site.quests.isEmpty) {
+          dialog.localeLines(['questEmpty'])
+        } else {
+          const quest = site.quests.values.first
+          assert(quest.category == kQuestCategoryDelivery)
+          const displayName = engine.locale('server')
+          const message = engine.locale('delivery.introDialog')
+          const description = '${quest.description}${
+            engine.locale('questRewardMoney', interpolations: [quest.rewardMoney])
+          }'
+          dialog.lines([message,description], displayName: displayName).then((_) {
+            dialog.localeSelect([
+              'accept',
+              'cancel',
+            ]).then((key) {
+              if (key == 'accept') {
+                site.workedThisMonth = true
+                characterAcceptQuest(hero, site, quest)
+              }
+            })
+          })
+        }
+      }
+    }
+  })  
+}
+
+function _handleAuctionHouseInteraction(site) {
+
+}
+
+function _handleMineInteraction(site) {
+
+}
+
+function _handleTimberlandInteraction(site) {
+
+}
+
+function _handleFarmlandInteraction(site) {
+
+}
+
+function _handleCanalInteraction(site) {
+
+}
+
+function _handleFishMarketInteraction(site) {
+
+}
+
+function _handleArraylabInteraction(site) {
+
+}
+
+function _handleRunehouseInteraction(site) {
+
+}
+
+function _handleAlchemyLabInteraction(site) {
+
+}
+
+function _handleWorkshopInteraction(site) {
+
+}
+
+function _handleNurseryInteraction(site) {
+
+}
+
+function _handleZooInteraction(site) {
+
+}
+
+function _handleIllusionHouseInteraction(site) {
+
+}
+
+function _handlePsychicHouseInteraction(site) {
+
+}
+
+function _handleDivinationHouseInteraction(site) {
+
+}
+
+function _handleTheurgyHouseInteraction(site) {
+
+}

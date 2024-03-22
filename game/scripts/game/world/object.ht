@@ -1,0 +1,64 @@
+import '../game.ht'
+
+const kEntityTypeMapObject = 'object'
+
+const kMapObjectPortal = 'portal'
+const kMapObjectDungeonEntry = 'dungeonEntry'
+const kMapObjectDungeonExit = 'dungeonExit'
+const kMapObjectSwitch = 'switch'
+
+struct Portal {
+  constructor ({
+    targetLeft,
+    targetTop,
+  }) {
+    this.entityType = kEntityTypeMapObject
+    this.category = kMapObjectPortal
+    this.id = '${kEntityTypeObject}${game.objects.length}.${this.category}'
+    this.isDiscovered = true
+    game.objects[this.id] = this
+
+    this.targetLeft = targetLeft
+    this.targetTop = targetTop
+  }
+}
+
+struct DungeonEntry {
+  constructor ({
+    dungeonId,
+  }) {
+    this.entityType = kEntityTypeMapObject
+    this.category = kMapObjectDungeonEntry
+    this.id = '${kEntityTypeObject}${game.objects.length}.${this.category}'
+    this.isDiscovered = true
+    game.objects[this.id] = this
+
+    this.dungeonId = dungeonId
+  }
+}
+
+struct DungeonExit {
+  constructor ({
+    mainWorldId,
+  }) {
+    this.entityType = kEntityTypeMapObject
+    this.category = kMapObjectDungeonExit
+    this.id = '${kEntityTypeObject}${game.objects.length}.${this.category}'
+    this.isDiscovered = true
+    game.objects[this.id] = this
+
+    this.mainWorldId = mainWorldId
+  }
+}
+
+struct DungeonSwitch {
+  constructor {
+    this.entityType = kEntityTypeMapObject
+    this.category = kMapObjectSwitch
+    this.id = '${kEntityTypeObject}${game.objects.length}.${this.category}'
+    this.isDiscovered = true
+    game.objects[this.id] = this
+    
+    this.useCustomInteraction = true
+  }
+}

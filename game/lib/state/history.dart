@@ -14,14 +14,14 @@ class HistoryState with ChangeNotifier {
     if (heroId == null && onlyHero) return;
 
     final Iterable history =
-        engine.hetu.fetch('currentWorldHistory')['incidents'].reversed;
+        engine.hetu.fetch('timeline')['incidents'].reversed;
     incidents.clear();
     final iter = history.iterator;
     var i = 0;
     while (iter.moveNext() && i < count) {
       final incident = iter.current;
-      if ((incident['subjectIds'].contains(heroId) ||
-              incident['objectIds'].contains(heroId)) ||
+      if (incident['subjectId'] == heroId ||
+          incident['objectId'] == heroId ||
           incident['isGlobal']) {
         incidents.add(incident);
         ++i;

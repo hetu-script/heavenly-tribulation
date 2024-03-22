@@ -1,5 +1,0 @@
-import '../worldmap.ht'
-
-const world = createSandboxWorld()
-
-print(world)

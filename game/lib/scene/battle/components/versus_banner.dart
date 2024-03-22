@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/gestures/gesture_mixin.dart';
 
 // import '../../../ui.dart';
-import '../../../view/character/equipments.dart';
+import '../../../view/character/equipments_and_stats.dart';
 // import '../../../ui/view/character/npc.dart';
 
 class VersusBanner extends GameComponent with HandlesGesture {
@@ -36,7 +36,7 @@ class VersusBanner extends GameComponent with HandlesGesture {
       context: gameRef.context,
       barrierColor: Colors.transparent,
       builder: (context) {
-        return EquipmentsView(characterData: data);
+        return EquipmentsAndStatsView(characterData: data);
       },
     );
     // } else {

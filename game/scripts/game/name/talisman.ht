@@ -3,7 +3,7 @@ import 'talisman/material.json5' as talismanMaterial
 import 'talisman/postfix.json5' as talismanPostfix
 import 'common.ht'
 import '../random.ht'
-import '../entity/common.ht'
+import '../entity/entity.ht'
 
 function generateTalismanName({category, kind, rarity}) {
   assert(category in talismanNames.keys)

@@ -3,12 +3,31 @@ import 'package:flutter/material.dart';
 // import 'package:samsara/ui/popup_submenu_item.dart';
 
 import '../../config.dart';
-import '../../scene/menu_item_builder.dart';
+import '../../view/menu_item_builder.dart';
 
-enum WorldEditorDropMenuItems { expandWorld, save, saveAs, console, exit }
+enum WorldEditorDropMenuItems {
+  addWorld,
+  switchWorld,
+  expandWorld,
+  save,
+  saveAs,
+  viewNone,
+  viewZones,
+  viewOrganizations,
+  console,
+  exit,
+}
 
 List<PopupMenuEntry<WorldEditorDropMenuItems>> buildWorldEditorDropMenuItems() {
   return [
+    buildMenuItem(
+      item: WorldEditorDropMenuItems.addWorld,
+      name: engine.locale('addWorld'),
+    ),
+    buildMenuItem(
+      item: WorldEditorDropMenuItems.switchWorld,
+      name: engine.locale('switchWorld'),
+    ),
     buildMenuItem(
       item: WorldEditorDropMenuItems.expandWorld,
       name: engine.locale('expandWorld'),
@@ -23,6 +42,17 @@ List<PopupMenuEntry<WorldEditorDropMenuItems>> buildWorldEditorDropMenuItems() {
       name: engine.locale('saveAs'),
     ),
     const PopupMenuDivider(),
+    buildSubMenuItem(
+      items: {
+        engine.locale('none'): WorldEditorDropMenuItems.viewNone,
+        engine.locale('zone'): WorldEditorDropMenuItems.viewZones,
+        engine.locale('organization'):
+            WorldEditorDropMenuItems.viewOrganizations,
+      },
+      name: engine.locale('view'),
+      offset: const Offset(-160, 0),
+    ),
+    const PopupMenuDivider(),
     buildMenuItem(
       item: WorldEditorDropMenuItems.console,
       name: engine.locale('console'),
@@ -35,7 +65,10 @@ List<PopupMenuEntry<WorldEditorDropMenuItems>> buildWorldEditorDropMenuItems() {
 }
 
 class WorldEditorDropMenu extends StatelessWidget {
-  const WorldEditorDropMenu({super.key, required this.onSelected});
+  const WorldEditorDropMenu({
+    super.key,
+    required this.onSelected,
+  });
 
   final void Function(WorldEditorDropMenuItems)? onSelected;
 

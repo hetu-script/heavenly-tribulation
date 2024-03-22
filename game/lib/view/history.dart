@@ -15,7 +15,7 @@ class HistoryView extends StatelessWidget {
     for (final index in historyData) {
       final incident =
           engine.hetu.invoke('getIncidentByIndex', positionalArgs: [index]);
-      widgets.add(Text(incident['content']));
+      widgets.add(Text(incident['message']));
     }
 
     return Container(

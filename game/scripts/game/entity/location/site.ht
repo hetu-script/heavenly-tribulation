@@ -3,12 +3,12 @@ import 'location.ht'
 import '../../dialog.ht'
 import '../organization/organization.ht'
 import '../../game.ht'
-import '../../quest/quest.ht'
+// import '../../quest/quest.ht'
 import '../item/item.ht'
 import '../../tile/hexagonal_tile.ht'
 import '../../datetime.ht'
-import '../common.ht'
-import '../material.ht'
+import '../entity.ht'
+import '../item/material.ht'
 
 // 这三种交易建筑，可能属于某个组织，也可能没有组织。
 // 当没有组织时，属于默认生成的单纯服务性质的建筑。
@@ -25,8 +25,9 @@ const kSiteAuctionHouse = 'auctionhouse'
 const kSiteMine = 'mine'
 const kSiteTimberland = 'timberland'
 const kSiteFarmland = 'farmland'
-const kSiteHuntingGround = 'huntingground'
+const kSiteHuntground = 'huntground'
 const kSiteCanal = 'canal'
+const kSiteFishMarket = 'fishmarket'
 
 const kSiteArrayLab = 'arraylab'
 const kSiteRuneHouse = 'runehouse'
@@ -64,7 +65,6 @@ struct Site {
     // 则意味着这个建筑为非私有，owner只是被任命的管理者而已
     this.ownerId = ownerId
 
-
     // 拥有建筑的门派
     this.organizationId = organizationId
 
@@ -72,34 +72,35 @@ struct Site {
     // }
     this.image = image ?? 'location/site/${category}_card.png'
     // if (category != 'residence') {
-      this.background = background ?? 'location/site/${category}.png'
+    this.background = background ?? 'location/site/${category}.png'
     // } else {
     //   this.background = 'location/site/home.png'
     // }
 
-
     // 住所的owner就是这个住所的主人
     if (this.category == kSiteHome) {
       assert(this.ownerId != null)
-      this.id = '${kSiteHome}.${this.ownerId}'
+      this.id = '${this.name}.${this.ownerId}'
     } else {
       // this.id = '${getNameFromId(this.locationId)}.${this.name}'
-      this.id = this.category
+      this.id = this.name
     }
 
-    engine.info('在 ${location.name} 建立了 ${this.name}')
+    engine.info('在 ${location.id} 建立了 ${this.id}')
     location.sites[this.id] = this
 
     // switch (category) {
     //   kSiteCultivation : location.hasCultivation = true
     // }
 
-
     this.isSubSite = isSubSite ?? false
     
     // 建筑和人物类似，也具有物品栏
     this.inventory = {}
     this.materials = MaterialStorage()
+
+    // 建筑的历史
+    this.experienced = []
 
     // 这个建筑可以领的任务
     // 可以在官府，或者在民居的告示栏领任务

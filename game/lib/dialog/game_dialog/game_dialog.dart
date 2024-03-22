@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../../view/avatar.dart';
 import '../../config.dart';
+import '../../view/character/profile.dart';
 // import '../../event/ui.dart';
 
 // dialogData: {
@@ -24,7 +25,6 @@ class GameDialog extends StatefulWidget {
     return showDialog<dynamic>(
       context: context,
       barrierColor: Colors.transparent,
-      barrierDismissible: false,
       builder: (BuildContext context) {
         return GameDialog(dialogData: dialogData, returnValue: returnValue);
       },
@@ -35,10 +35,13 @@ class GameDialog extends StatefulWidget {
 
   final dynamic returnValue;
 
+  final bool showProfileOnTap;
+
   const GameDialog({
     super.key,
     required this.dialogData,
     this.returnValue,
+    this.showProfileOnTap = true,
   });
 
   @override
@@ -109,13 +112,23 @@ class _GameDialogState extends State<GameDialog> {
                           padding: const EdgeInsets.only(left: 10.0),
                           child: Avatar(
                             displayName: displayName,
-                            preferNameOnTop: true,
+                            nameAlignment: AvatarNameAlignment.top,
                             image: currentAvatar != null
                                 ? AssetImage(
                                     'assets/images/avatar/$currentAvatar')
                                 : null,
                             size: const Size(140.0, 140.0),
                             characterData: characterData,
+                            onPressed: (id) {
+                              if (id != null) {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => ProfileView(
+                                    characterId: id,
+                                  ),
+                                );
+                              }
+                            },
                           ),
                         ),
                         Container(

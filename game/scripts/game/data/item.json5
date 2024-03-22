@@ -1,0 +1,56 @@
+[
+  {
+    prototypeId: "wood_boat",
+    category: "equipments",
+    kind: "ship",
+    price: 200,
+    isEquippable: true,
+    equipType: "ship",
+    equipData: {
+      attributes: {
+        staminaCostOnWaterReduced: 0.2,
+      },
+    },
+    icon: "item/support/boat.png",
+  },
+  {
+    prototypeId: "climb_boots",
+    category: "equipments",
+    kind: "boots",
+    price: 200,
+    isEquippable: true,
+    equipType: "boots",
+    equipData: {
+      attributes: {
+        staminaCostOnHillReduced: 0.2,
+      },
+    },
+    icon: "item/support/climb_boots.png",
+  },
+  {
+    prototypeId: "steel_sword",
+    category: "equipments",
+    kind: "sword",
+    isEquippable: true,
+    equipType: "weapon",
+    equipData: {
+      attributes: {
+        attack: 5,
+      },
+    },
+    icon: "item/sword.png",
+  },
+  {
+    prototypeId: "wood_shield",
+    category: "equipments",
+    kind: "shield",
+    isEquippable: true,
+    equipType: "shield",
+    equipData: {
+      attributes: {
+        armor: 5,
+      },
+    },
+    icon: "item/shield.png",
+  },
+]

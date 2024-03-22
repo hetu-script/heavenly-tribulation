@@ -18,7 +18,7 @@ import 'drop_menu.dart';
 import '../../hero_info.dart';
 import '../npc_list.dart';
 import '../../../events.dart';
-import '../../../state/location_site_scene_state.dart';
+import '../../../state/location_site_scene.dart';
 import '../../../dialog/character_visit_dialog.dart';
 import '../../../dialog/game_dialog/game_dialog.dart';
 import '../../../state/current_npc_list.dart';
@@ -53,8 +53,9 @@ class _LocationSiteSceneOverlayState extends State<LocationSiteSceneOverlay>
 
   void refreshNPCsInHeroSite(String? siteId) {
     if (siteId == null) return;
-    final Iterable<dynamic> npcs =
-        engine.hetu.invoke('getNpcsInSite', positionalArgs: [siteId]);
+    final Iterable<dynamic> npcs = engine.hetu.invoke(
+        'getNpcsByLocationAndSiteId',
+        positionalArgs: [widget.locationData['id'], siteId]);
     context.read<CurrentNpcList>().updated(npcs);
   }
 
@@ -83,8 +84,9 @@ class _LocationSiteSceneOverlayState extends State<LocationSiteSceneOverlay>
           } else {
             if (currentSiteId == locationId) {
               if (mounted) {
-                final Iterable<dynamic> npcs = engine.hetu
-                    .invoke('getNpcsInLocation', positionalArgs: [locationId]);
+                final Iterable<dynamic> npcs = engine.hetu.invoke(
+                    'getNpcsByLocationId',
+                    positionalArgs: [locationId]);
                 context.read<CurrentNpcList>().updated(npcs);
               }
             } else {
@@ -117,8 +119,10 @@ class _LocationSiteSceneOverlayState extends State<LocationSiteSceneOverlay>
       EventHandler(
         widgetKey: widget.key!,
         handle: (eventId, sceneId, scene) async {
-          final residingCharacterIds =
-              widget.locationData['residingCharacterIds'];
+          final residingCharacterIds = engine.hetu.invoke(
+            'getCharactersByHomeId',
+            positionalArgs: [widget.locationData['id']],
+          );
           if (residingCharacterIds.isNotEmpty) {
             final characterIds = residingCharacterIds.toList();
             // final heroId = engine.hetu.invoke('getHeroId');
@@ -183,50 +187,48 @@ class _LocationSiteSceneOverlayState extends State<LocationSiteSceneOverlay>
     final LocationSiteScene? scene =
         context.watch<LocationSiteSceneState>().scene;
 
-    if (_isLoading || scene == null || scene.isLoading) {
-      return LoadingScreen(
-        text: engine.locale('loading'),
-      );
-    } else {
-      return Material(
-        color: Colors.transparent,
-        child: Stack(
-          alignment: Alignment.topCenter,
-          children: [
-            SceneWidget(scene: scene),
-            const Positioned(
-              left: 0,
-              top: 0,
-              child: HeroInfoPanel(),
-            ),
-            const Positioned(
-              left: 5,
-              top: 130,
-              child: NpcList(),
-            ),
-            if (GameConfig.isDebugMode)
-              Positioned(
-                right: 0,
-                top: 0,
-                child: LocationSceneDropMenu(
-                  onSelected: (LocationSceneDropMenuItems item) async {
-                    switch (item) {
-                      case LocationSceneDropMenuItems.console:
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) => Console(
-                            engine: engine,
-                          ),
-                        ).then((_) => setState(() {}));
-                      case LocationSceneDropMenuItems.quit:
-                        close();
-                    }
-                  },
+    return (_isLoading || scene == null || scene.isLoading)
+        ? LoadingScreen(
+            text: engine.locale('loading'),
+          )
+        : Material(
+            color: Colors.transparent,
+            child: Stack(
+              alignment: Alignment.topCenter,
+              children: [
+                SceneWidget(scene: scene),
+                const Positioned(
+                  left: 0,
+                  top: 0,
+                  child: HeroInfoPanel(),
                 ),
-              ),
-          ],
-        ),
-      );
-    }
+                const Positioned(
+                  left: 5,
+                  top: 130,
+                  child: NpcList(),
+                ),
+                if (GameConfig.isDebugMode)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: LocationSceneDropMenu(
+                      onSelected: (LocationSceneDropMenuItems item) async {
+                        switch (item) {
+                          case LocationSceneDropMenuItems.console:
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) => Console(
+                                engine: engine,
+                              ),
+                            ).then((_) => setState(() {}));
+                          case LocationSceneDropMenuItems.quit:
+                            close();
+                        }
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          );
   }
 }

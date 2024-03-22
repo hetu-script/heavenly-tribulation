@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:json5/json5.dart';
 // import 'package:provider/provider.dart';
 import 'package:samsara/ui/responsive_window.dart';
 
@@ -8,10 +9,10 @@ import '../../view/game_entity_listview.dart';
 import '../../view/character/memory.dart';
 import '../../view/location/location.dart';
 import '../../view/organization/organization.dart';
-import '../../scene/menu_item_builder.dart';
-import '../../view/character/equipments.dart';
+import '../../view/menu_item_builder.dart';
+import '../../view/character/equipments_and_stats.dart';
 import '../../view/character/profile.dart';
-import '../../dialog/input_world_location.dart';
+import '../../dialog/input_world_position.dart';
 // import '../../view/zone/zone.dart';
 import '../../view/common.dart';
 // import '../../state/game_data.dart';
@@ -19,6 +20,20 @@ import '../../events.dart';
 import '../../dialog/input_string.dart';
 import '../../dialog/confirm_dialog.dart';
 import '../../view/character/edit_character_event_flags.dart';
+import '../../view/organization/edit_organization_basic.dart';
+// import 'edit_map_object.dart';
+import '../../dialog/input_description.dart';
+
+const kMapObjectCodeTemplate = '''{
+  entityType: 'object',
+  category: 'portal',
+  id: 'id',
+  isDiscovered: true,
+  flags: {
+    useCustomInteraction: true
+  }
+}
+''';
 
 enum CharacterPopUpMenuItems {
   setAsHero,
@@ -31,7 +46,7 @@ enum CharacterPopUpMenuItems {
   checkProfile,
   checkEventFlags,
   checkEquipments,
-  checkHistory,
+  checkMemory,
   delete,
 }
 
@@ -89,13 +104,35 @@ List<PopupMenuEntry<CharacterPopUpMenuItems>> buildCharacterPopUpMenuItems(
       onItemPressed: onItemPressed,
     ),
     buildMenuItem(
-      item: CharacterPopUpMenuItems.checkHistory,
-      name: engine.locale('checkHistory'),
+      item: CharacterPopUpMenuItems.checkMemory,
+      name: engine.locale('checkMemory'),
       onItemPressed: onItemPressed,
     ),
     const PopupMenuDivider(),
     buildMenuItem(
       item: CharacterPopUpMenuItems.delete,
+      name: engine.locale('delete'),
+      onItemPressed: onItemPressed,
+    ),
+  ];
+}
+
+enum LocationPopUpMenuItems {
+  checkInformation,
+  delete,
+}
+
+List<PopupMenuEntry<LocationPopUpMenuItems>> buildLocationPopUpMenuItems(
+    {void Function(LocationPopUpMenuItems item)? onItemPressed}) {
+  return <PopupMenuEntry<LocationPopUpMenuItems>>[
+    buildMenuItem(
+      item: LocationPopUpMenuItems.checkInformation,
+      name: engine.locale('checkInformation'),
+      onItemPressed: onItemPressed,
+    ),
+    const PopupMenuDivider(),
+    buildMenuItem(
+      item: LocationPopUpMenuItems.delete,
       name: engine.locale('delete'),
       onItemPressed: onItemPressed,
     ),
@@ -122,6 +159,11 @@ const _kZoneColumns = [
   'size',
 ];
 
+const _kMapObjectColumns = [
+  'id',
+  'type',
+];
+
 class EntityListPanel extends StatefulWidget {
   const EntityListPanel({
     super.key,
@@ -142,13 +184,18 @@ class _EntityListPanelState extends State<EntityListPanel>
   late List<Widget> _tabs;
 
   late String? _heroId;
-  late int _worldWidth, _worldHeight;
-  late Iterable<dynamic> _characters, _locations, _organizations, _zones;
+  // late int _worldWidth, _worldHeight;
+  late Iterable<dynamic> _characters,
+      _locations,
+      _organizations,
+      _zones,
+      _mapObjects;
 
   final List<List<String>> _charactersTableData = [],
       _locationsTableData = [],
       _organizationsTableData = [],
-      _zonesTableData = [];
+      _zonesTableData = [],
+      _mapObjectsTableData = [];
 
   @override
   void initState() {
@@ -167,19 +214,24 @@ class _EntityListPanelState extends State<EntityListPanel>
         text: engine.locale('organization'),
       ),
       Tab(
-        icon: const Icon(Icons.groups),
+        icon: const Icon(Icons.public),
         text: engine.locale('zone'),
+      ),
+      Tab(
+        icon: const Icon(Icons.place),
+        text: engine.locale('mapObject'),
       ),
     ];
 
-    final worldSizeData = engine.hetu.invoke('getWorldSize');
-    _worldWidth = worldSizeData['width'];
-    _worldHeight = worldSizeData['height'];
+    // final worldSizeData = engine.hetu.invoke('getWorldSize');
+    // _worldWidth = worldSizeData['width'];
+    // _worldHeight = worldSizeData['height'];
 
     updateCharacters();
     updateLocations();
     updateOrganizations();
     updateZones();
+    updateMapObjects();
   }
 
   void updateCharacters() {
@@ -247,6 +299,20 @@ class _EntityListPanelState extends State<EntityListPanel>
     setState(() {});
   }
 
+  void updateMapObjects() {
+    _mapObjectsTableData.clear();
+    _mapObjects = engine.hetu.invoke('getMapObjects');
+    for (final obj in _mapObjects) {
+      final rowData = <String>[];
+      rowData.add(obj['id']);
+      rowData.add(engine.locale(obj['category']));
+      // 多存一个隐藏的 index 信息，用于点击事件
+      rowData.add(obj['id']);
+      _mapObjectsTableData.add(rowData);
+    }
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -301,6 +367,19 @@ class _EntityListPanelState extends State<EntityListPanel>
                       columns: _kCharacterColumns,
                       tableData: _charactersTableData,
                       onItemPressed: (buttons, position, dataId) {
+                        showDialog(
+                          context: context,
+                          builder: (context) => ProfileView(
+                            characterId: dataId,
+                            mode: ViewPanelMode.edit,
+                          ),
+                        ).then((value) {
+                          if (value == true) {
+                            updateCharacters();
+                          }
+                        });
+                      },
+                      onItemSecondaryPressed: (buttons, position, dataId) {
                         final menuPosition = RelativeRect.fromLTRB(
                             position.dx, position.dy, position.dx, 0.0);
                         final items =
@@ -325,22 +404,25 @@ class _EntityListPanelState extends State<EntityListPanel>
                               final charPosData = engine.hetu.invoke(
                                   'getCharacterWorldPosition',
                                   positionalArgs: [charData]);
-                              InputWorldLocationDialog.show(
+                              InputWorldPositionDialog.show(
                                 context: context,
-                                maxX: _worldWidth,
-                                maxY: _worldHeight,
+                                // maxX: _worldWidth,
+                                // maxY: _worldHeight,
                                 defaultX: charPosData?['left'],
                                 defaultY: charPosData?['top'],
-                              ).then(((int, int)? value) {
+                                worldId: charData?['worldId'],
+                              ).then(((int, int, String?)? value) {
                                 if (value == null) return;
                                 if (value.$1 != charPosData?['left'] ||
-                                    value.$2 != charPosData?['top']) {
+                                    value.$2 != charPosData?['top'] ||
+                                    value.$3 != charData?['worldId']) {
                                   engine.hetu.invoke(
                                       'setCharacterWorldPosition',
                                       positionalArgs: [
                                         charData,
                                         value.$1,
-                                        value.$2
+                                        value.$2,
+                                        value.$3,
                                       ]);
                                   engine.emit(
                                       GameEvents.worldmapCharactersUpdated);
@@ -410,16 +492,19 @@ class _EntityListPanelState extends State<EntityListPanel>
                               showDialog(
                                 context: context,
                                 builder: (context) =>
-                                    EquipmentsView(characterId: dataId),
+                                    EquipmentsAndStatsView(characterId: dataId),
                               );
-                            case CharacterPopUpMenuItems.checkHistory:
+                            case CharacterPopUpMenuItems.checkMemory:
                               showDialog(
                                 context: context,
-                                builder: (context) =>
-                                    MemoryView(characterId: dataId),
+                                builder: (context) => MemoryView(
+                                  characterId: dataId,
+                                  mode: ViewPanelMode.edit,
+                                ),
                               );
                             case CharacterPopUpMenuItems.delete:
                               showDialog<bool>(
+                                barrierDismissible: false,
                                 context: context,
                                 builder: (context) => ConfirmDialog(
                                     description:
@@ -449,12 +534,16 @@ class _EntityListPanelState extends State<EntityListPanel>
                     padding: const EdgeInsets.only(top: 5.0),
                     child: ElevatedButton(
                       onPressed: () {
-                        InputWorldLocationDialog.show(
+                        // final worldId = engine.hetu.invoke('getCurrentWorldId');
+                        InputWorldPositionDialog.show(
                           context: context,
-                          maxX: _worldWidth,
-                          maxY: _worldHeight,
+                          // maxX: _worldWidth,
+                          // maxY: _worldHeight,
                           title: engine.locale('createLocation'),
-                        ).then(((int, int)? value) {
+                          defaultX: 1,
+                          defaultY: 1,
+                          enableWorldId: false,
+                        ).then(((int, int, String?)? value) {
                           if (value == null) return;
                           showDialog(
                               context: context,
@@ -492,6 +581,44 @@ class _EntityListPanelState extends State<EntityListPanel>
                               updateLocations();
                             }
                           });
+                        },
+                        onItemSecondaryPressed: (buttons, position, dataId) {
+                          final menuPosition = RelativeRect.fromLTRB(
+                              position.dx, position.dy, position.dx, 0.0);
+                          final items = buildLocationPopUpMenuItems(
+                              onItemPressed: (item) {
+                            switch (item) {
+                              case LocationPopUpMenuItems.checkInformation:
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => LocationView(
+                                    locationId: dataId,
+                                    mode: ViewPanelMode.edit,
+                                  ),
+                                ).then((value) {
+                                  if (value == true) {
+                                    updateLocations();
+                                  }
+                                });
+                              case LocationPopUpMenuItems.delete:
+                                showDialog<bool>(
+                                  barrierDismissible: false,
+                                  context: context,
+                                  builder: (context) => ConfirmDialog(
+                                      description: engine
+                                          .locale('dangerOperationPrompt')),
+                                ).then((bool? value) {
+                                  engine.hetu.invoke('removeLocationById',
+                                      positionalArgs: [dataId]);
+                                  updateLocations();
+                                });
+                            }
+                          });
+                          showMenu(
+                            context: context,
+                            position: menuPosition,
+                            items: items,
+                          );
                         }),
                   ),
                 ],
@@ -502,7 +629,13 @@ class _EntityListPanelState extends State<EntityListPanel>
                   Padding(
                     padding: const EdgeInsets.only(top: 5.0),
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const EditOrganizationBasics();
+                            });
+                      },
                       child: Text(engine.locale('createOrganization')),
                     ),
                   ),
@@ -511,7 +644,8 @@ class _EntityListPanelState extends State<EntityListPanel>
                     child: GameEntityListView(
                       columns: _kOrganizationColumns,
                       tableData: _organizationsTableData,
-                      onItemPressed: (buttons, position, dataId) => showDialog(
+                      onItemSecondaryPressed: (buttons, position, dataId) =>
+                          showDialog(
                         context: context,
                         builder: (context) => OrganizationView(
                           organizationId: dataId,
@@ -536,11 +670,76 @@ class _EntityListPanelState extends State<EntityListPanel>
                     child: GameEntityListView(
                       columns: _kZoneColumns,
                       tableData: _zonesTableData,
-                      onItemPressed: (buttons, position, dataId) {
+                      onItemSecondaryPressed: (buttons, position, dataId) {
                         // showDialog(
                         //   context: context,
                         //   builder: (context) => ZoneView(zoneId: dataId),
                         // );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 5.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => InputDescriptionDialog(
+                            title: engine.locale('inputScriptObject'),
+                            description: kMapObjectCodeTemplate,
+                          ),
+                        ).then((value) {
+                          if (value == null) return;
+                          final jsonData = json5Decode(value);
+                          if (jsonData != null && jsonData['id'] != null) {
+                            final mapObject = engine.hetu.interpreter
+                                .createStructfromJSON(jsonData);
+                            engine.hetu.invoke('addMapObject',
+                                positionalArgs: [mapObject]);
+                            updateMapObjects();
+                          }
+                        });
+                      },
+                      child: Text(engine.locale('createMapObject')),
+                    ),
+                  ),
+                  SizedBox(
+                    height: widget.size.height - 175,
+                    child: GameEntityListView(
+                      columns: _kMapObjectColumns,
+                      tableData: _mapObjectsTableData,
+                      onItemPressed: (buttons, position, dataId) {
+                        final obj = engine.hetu.invoke('getMapObjectById',
+                            positionalArgs: [dataId]);
+                        final originObjId = obj['id'];
+                        assert(obj != null);
+                        final objString = engine.hetu.lexicon.stringify(obj);
+                        showDialog(
+                          context: context,
+                          builder: (context) => InputDescriptionDialog(
+                            title: engine.locale('inputScriptObject'),
+                            description: objString,
+                          ),
+                        ).then((value) {
+                          if (value == null) return;
+                          final jsonData = json5Decode(value);
+                          if (jsonData != null && jsonData['id'] != null) {
+                            if (jsonData['originObjId'] != originObjId) {
+                              engine.hetu.invoke('removeMapObject',
+                                  positionalArgs: [originObjId]);
+                            }
+                            final mapObject = engine.hetu.interpreter
+                                .createStructfromJSON(jsonData);
+                            engine.hetu.invoke('addMapObject',
+                                positionalArgs: [mapObject]);
+                            updateMapObjects();
+                          }
+                        });
                       },
                     ),
                   ),

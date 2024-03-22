@@ -12,7 +12,7 @@ class ProgressIndicator extends StatefulWidget {
   static Future<void> show({
     required BuildContext context,
     required String title,
-    bool Function()? checkProgress,
+    bool? Function()? checkProgress,
   }) {
     return showDialog<void>(
       context: context,
@@ -34,7 +34,7 @@ class ProgressIndicator extends StatefulWidget {
   });
 
   final String title;
-  final bool Function()? checkProgress;
+  final bool? Function()? checkProgress;
 
   @override
   State<ProgressIndicator> createState() => _ProgressIndicatorState();

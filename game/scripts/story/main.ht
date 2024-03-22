@@ -12,11 +12,7 @@ const module = {
     displayName: '《天道奇劫》主线剧情',
     description: '《天道奇劫》主线剧情',
     supportedLocales: ['zh'],
-    version: {
-      major: 0,
-      minor: 0,
-      build: 1,
-    },
+    version: '0.0.1',
     flags: {
       
     }
@@ -29,7 +25,6 @@ const module = {
 /// 以及将角色、据点等数据添加到主世界中
 /// 可以在这里检查是否存在版本冲突或者和其他脚本的冲突
 function init(config) {
-  engine.info('初始化模组元信息：[${modName}]...')
   game.addModule(module.meta)
 }
 

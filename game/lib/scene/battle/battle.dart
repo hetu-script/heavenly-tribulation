@@ -76,7 +76,7 @@ class _BattleSceneOverlayState extends State<BattleSceneOverlay> {
 
   Future<Scene?> _getScene() async {
     if (_isDisposing) return null;
-    final id = 'cardGame${uid(4)}';
+    final id = 'cardgame_${uid(4)}';
     final scene = await engine.createScene(
       contructorKey: 'cardGame',
       sceneId: id,
@@ -123,9 +123,9 @@ class _BattleSceneOverlayState extends State<BattleSceneOverlay> {
                   child: Stack(
                     alignment: Alignment.topCenter,
                     children: [
-                      if (_scene.isLoading)
-                        LoadingScreen(text: engine.locale('loading')),
                       SceneWidget(scene: _scene),
+                      // if (_scene.isLoading)
+                      //   LoadingScreen(text: engine.locale('loading')),
                       // Positioned(
                       //   height: 150,
                       //   child: Row(

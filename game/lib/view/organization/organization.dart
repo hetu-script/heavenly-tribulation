@@ -94,7 +94,7 @@ class _OrganizationViewState extends State<OrganizationView> {
 
   @override
   Widget build(BuildContext context) {
-    // final leaderTitle = _organizationData['rankTitles'][6];
+    // final headTitle = _organizationData['rankTitles'][6];
 
     return ResponsiveWindow(
       alignment: AlignmentDirectional.center,
@@ -123,7 +123,7 @@ class _OrganizationViewState extends State<OrganizationView> {
                     Text(
                         '${engine.locale('headquarters')}: ${getNameFromId(_organizationData['headquartersId'])}'),
                     Text(
-                        '${engine.locale('leader')}: ${getNameFromId(_organizationData['headId'])}'),
+                        '${engine.locale('head')}: ${getNameFromId(_organizationData['headId'])}'),
                     // if (category != kOrganizationCategoryNation) ...[
                     Text(
                         '${engine.locale('development')}: ${_organizationData['development']}'),

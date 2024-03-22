@@ -3,19 +3,20 @@ import 'event.ht'
 import 'entity/character/character.ht'
 // import 'l10n.ht'
 // import 'maze/maze.ht'
-import 'quest/quest.ht'
+// import 'quest/quest.ht'
 import 'tile/common.ht'
 import 'name/character.ht'
 import 'binding/worldmap.ht'
 import 'entity/location/location.ht'
 import 'tile/hexagonal_tile.ht'
-import 'entity/skill/skill.ht'
+// import 'entity/skill/skill.ht'
 import 'datetime.ht'
 
 const _kQuestProbability = 0.35
 
-const _kMinSizeforFishTile = 20
-const _kMinSizeforStormTile = 40
+const _kMinSizeforFishTile = 16
+const _kMinSizeforStormTile = 80
+const _kMinSizeforSpiritTile = 120
 
 function getBountyQuestMax(development) -> integer {
   if (development > 20) {
@@ -25,18 +26,58 @@ function getBountyQuestMax(development) -> integer {
   }
 }
 
-/// 更新游戏逻辑，将时间向前推进一帧
+function setFishTile(fishTile) {
+  engine.info('鱼群正在在 [${fishTile.left},${fishTile.top}] 周围活跃。')
+  fishTile.flags.isFishGathering = true
+  fishTile.overlaySprite = {
+    animation: {
+      row: 3,
+    },
+  }
+  WorldMap.refreshTerrainOverlaySprite(fishTile.left, fishTile.top)
+  game.fishTileIndexes.add(fishTile.index)
+}
+
+function setStormTile(stormTile) {
+  engine.info('暴风雨正在 [${stormTile.left},${stormTile.top}] 周围活跃。')
+  stormTile.flags.isInStorm = true
+  stormTile.overlaySprite = {
+    animation: {
+      row: 4,
+      loop: true,
+    },
+  }
+  WorldMap.refreshTerrainOverlaySprite(stormTile.left, stormTile.top)
+  game.stormTileIndexes.add(stormTile.index)
+}
+
+function setSpiritTile(spiritTile) {
+  engine.info('天地灵气正在 [${spiritTile.left},${spiritTile.top}] 喷涌。')
+  spiritTile.flags.isSpiritSurging = true
+  spiritTile.overlaySprite = {
+    animation: {
+      row: 2,
+      loop: true,
+    },
+  }
+  WorldMap.refreshTerrainOverlaySprite(spiritTile.left, spiritTile.top)
+  game.spiritTileIndexes.add(spiritTile.index)
+}
+
+/// 更新游戏逻辑，将时间向前推进一帧（一个tick）
 /// 返回值表示是否遇到了中断逻辑的事件，这会影响一些连续进行的动作，例如探索或者修炼等等
 function updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
+  if (!world.isMainWorld) return
+
   for (const i in range(ticks)) {
 
     // 每个tick执行的代码
     handleBabies()
 
-    // 每月1日的更新
-    if (currentWorldHistory.timestamp % kTicksPerMonth == 0) {
+    // 每月30日的更新
+    if (day == 30) {
       
-      if (world.waters.length > 0) {
+      if (world.waterIndexes.length > 0) {
         engine.info('在水域中生成捕鱼区')
         // 清空鱼类活跃区域
         for (const index in game.fishTileIndexes) {
@@ -46,22 +87,14 @@ function updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
           WorldMap.clearTerrainOverlayAnimation(tile.left, tile.top)
         }
         game.fishTileIndexes = []
-        const fishEventsCount = world.waters.length ~/ _kMinSizeforFishTile + 1
+        const fishEventsCount = world.waterIndexes.length ~/ _kMinSizeforFishTile + 1
         for (const i in range(fishEventsCount)) {
-          let fishLocationIndex
+          let fishTileIndex
           do {
-            fishLocationIndex = random.nextIterable(world.waters)
-          } while (fishLocationIndex in game.fishTileIndexes)
-          game.fishTileIndexes.add(fishLocationIndex)
-          const fishTile = world.terrains[fishLocationIndex]
-          engine.info('鱼群正在在 [${fishTile.left},${fishTile.top}] 周围活跃。')
-          fishTile.flags.isFishGathering = true
-          fishTile.overlaySprite = {
-            animation: {
-              row: 3,
-            },
-          }
-          WorldMap.refreshTerrainOverlaySprite(fishTile.left, fishTile.top)
+            fishTileIndex = random.nextIterable(world.waterIndexes)
+          } while (fishTileIndex in game.fishTileIndexes)
+          const fishTile = world.terrains[fishTileIndex]
+          setFishTile(fishTile)
         }
       }
 
@@ -76,21 +109,31 @@ function updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
       game.stormTileIndexes = []
       const stormEventsCount = world.terrains.length ~/ _kMinSizeforStormTile + 1
       for (const i in range(stormEventsCount)) {
-        let stormLocationIndex
+        let stormTileIndex
         do {
-          stormLocationIndex = random.nextIterable(world.terrains).index
-        } while (stormLocationIndex in game.stormTileIndexes)
-        game.stormTileIndexes.add(stormLocationIndex)
-        const stormTile = world.terrains[stormLocationIndex]
-        engine.info('暴风雨正在 [${stormTile.left},${stormTile.top}] 周围活跃。')
-        stormTile.flags.isInStorm = true
-        stormTile.overlaySprite = {
-          animation: {
-            row: 4,
-            loop: true,
-          },
-        }
-        WorldMap.refreshTerrainOverlaySprite(stormTile.left, stormTile.top)
+          stormTileIndex = random.nextIterable(world.terrains).index
+        } while (stormTileIndex in game.stormTileIndexes)
+        const stormTile = world.terrains[stormTileIndex]
+        setStormTile(stormTile)
+      }
+
+      engine.info('生成灵气喷涌区域')
+      // 灵气喷涌区域
+      for (const index in game.stormTileIndexes) {
+        const tile = world.terrains[index]
+        delete tile.flags.isSpiritSurging
+        // 清空叠加的灵气喷涌效果动态贴图
+        WorldMap.clearTerrainOverlayAnimation(tile.left, tile.top)
+      }
+      game.spiritTileIndexes = []
+      const spiritEventsCount = world.terrains.length ~/ _kMinSizeforSpiritTile + 1
+      for (const i in range(spiritEventsCount)) {
+        let spiritTileIndex
+        do {
+          spiritTileIndex = random.nextIterable(world.terrains).index
+        } while (spiritTileIndex in game.spiritTileIndexes)
+        const spiritTile = world.terrains[spiritTileIndex]
+        setSpiritTile(spiritTile)
       }
     }
 
@@ -124,20 +167,18 @@ function updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
     // 触发每个组织的刷新事件
     for (const organization of game.organizations) {
       // 跳过玩家自己控制的组织
-      if (game.heroId != null && game.heroId == organization.headId) continue
+      if (game.heroId == organization.headId) continue
 
-      // if (organization.category != 'nation') {
       const location = game.locations[organization.headquartersId]
       if (month == organization.yearlyRecruitMonth) {
-        if (!location.flags.recruitingOrganizationIds.contains(organization.id)) {
-          location.flags.recruitingOrganizationIds.add(organization.id)
-          engine.info('${organization.name} 的招募大比本月开始。')
+        organization.flags.isRecruiting = true
+        engine.info('${organization.id} 的招募大比本月开始。')
+      } else {
+        if (organization.flags.isRecruiting) {
+          organization.flags.isRecruiting = false
+          engine.info('${organization.id} 的招募大比已经结束。')
         }
-      } else if (location.flags.recruitingOrganizationIds.contains(organization.id)) {
-        location.flags.recruitingOrganizationIds.remove(organization.id)
-        engine.info('${organization.name} 的招募大比已经结束。')
       }
-      // }
 
       // 年度事件
       if (ticksOfYear == organization.yearlyUpdateTime) {
@@ -163,23 +204,18 @@ function updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
 
     // if (playerEvent) {
     //   // 触发一些玩家遇到的固定事件
-    //   if (currentWorldHistory.timestamp % kTicksPerMonth == 0) {
+    //   if (timeline.timestamp % kTicksPerMonth == 0) {
     //     // 重置玩家自己的每月行动
     //     resetPlayerMonthlyActivities(game)
     //   }
     // }
 
     // 调用mod上的回调函数
-    onGameEvent('onUpdate')
+    onGameEvent('onUpdateGame')
 
     if (timeflow) {
-      ++currentWorldHistory.timestamp
-      year = toYear(currentWorldHistory.timestamp) + 1
-      month = toMonth(currentWorldHistory.timestamp) + 1
-      day = toDay(currentWorldHistory.timestamp) + 1
-      ticksOfYear = (currentWorldHistory.timestamp % kTicksPerYear) + 1
-      ticksOfMonth = (currentWorldHistory.timestamp % kTicksPerMonth) + 1
-      ticksOfDay = (currentWorldHistory.timestamp % kTicksPerDay) + 1
+      ++timeline.timestamp
+      calculateTimestamp()
     }
   }
 
@@ -190,7 +226,7 @@ function updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
 function handleBabies {
   const pendingRemovedIds = Set()
   for (const baby of game.babies) {
-    if (currentWorldHistory.timestamp - baby.conceptionTimestamp < baby.pregnancyTime) continue
+    if (timeline.timestamp - baby.conceptionTimestamp < baby.pregnancyTime) continue
     const mother = game.characters[baby.motherId]
     if (!mother.isDead) {
       mother.isPregnant = false
@@ -200,7 +236,7 @@ function handleBabies {
         familyName: baby.familyName,
         shorname: baby.shorname,
         isFemale: baby.isFemale,
-        birthTimestamp: currentWorldHistory.timestamp,
+        birthTimestamp: timeline.timestamp,
         locationId: location.id,
         isNewborn: true,
         fatherId: baby.fatherId,
@@ -221,7 +257,7 @@ function updateTerrain(terrain) {
 // 刷新资源、生成每月任务
 function updateSite(site) {
   const location = game.locations[site.locationId]
-  engine.info('触发 ${location.name} ${site.name} 的月度更新事件')
+  engine.info('触发 ${location.id} ${site.id} 的月度更新事件')
   switch (site.category) {
     'tradinghouse' : {
     //   // 清除上个月的数据
@@ -277,7 +313,7 @@ function updateSite(site) {
       //     kind: kQuestConquestMazeKindKillBanditBoss,
       //     bossName: generateCharacterName(),
       //   )
-      //   engine.info('在 ${location.name} ${site.name} 生成悬赏任务：${quest.id}，副本地点：${mazeTerrain.left}, ${mazeTerrain.top}')
+      //   engine.info('在 ${location.id} ${site.id} 生成悬赏任务：${quest.id}，副本地点：${mazeTerrain.left}, ${mazeTerrain.top}')
       //   site.quests[quest.id] = quest
       // }
     }
@@ -285,20 +321,20 @@ function updateSite(site) {
 }
 
 function updateLocation(location) {
-  engine.info('触发 ${location.name} 的月度更新事件')
+  engine.info('触发 ${location.id} 的月度更新事件')
 
 }
 
 // 年度组织事件
 function updateOrganizationYearly(organization) {
-  engine.info('触发 ${organization.name} 的年度更新事件')
+  engine.info('触发 ${organization.id} 的年度更新事件')
 
   if (organization.borderIndexes.isNotEmpty) {
     const shuffle = random.shuffle(organization.borderIndexes).toList()
     for (const index in shuffle) {
       const terrain = world.terrains[index]
       if (terrain.nationId == null && !kWaterTileKinds.contains(terrain.kind)) {
-        engine.info('国家 ${organization.name} 将其疆域扩展到周边的一个未被占领的格子 ${terrain.left},${terrain.top}')
+        engine.info('国家 ${organization.id} 将其疆域扩展到周边的一个未被占领的格子 ${terrain.left},${terrain.top}')
         addTerrainToOrganization(terrain, organization)
         return true
       }
@@ -306,7 +342,7 @@ function updateOrganizationYearly(organization) {
   }
 
   // 为组织招募新的角色
-  engine.info('为组织 ${organization.name} 招募新的角色')
+  engine.info('为组织 ${organization.id} 招募新的角色')
 
   if (organizationMemberReachMax(organization) && organization.development < kOrganizationDevelopmentMax) {
     // engine.info('提升组织发展度')
@@ -320,7 +356,7 @@ function updateOrganizationYearly(organization) {
     //     if (membersOfHigherRank.length < maxMemberOfRank(rank + 1)) {
     //       const memberId = random.nextIterable(membersOfThisRank)
     //       const member = game.characters[memberId]
-    //       addTitleForCharacter(member, organization, rank + 1)
+    //       addOrganizationTitleForCharacter(member, organization, rank + 1)
     //       break
     //     }
     //   }
@@ -328,33 +364,36 @@ function updateOrganizationYearly(organization) {
   }
   
   let location = game.locations[organization.headquartersId]
-  if (location.residingCharacterIds.isEmpty) {
+  let residingCharacters = getCharactersByHomeId(location.id)
+
+  if (residingCharacterIds.isEmpty) {
     // 组织据点本身没有可用的人才（一般是因为是隐士据点）
     if (random.nextDouble() < kOrganizationRecruitOtherLocationProbability) {
       for (const otherLocation of game.locations) {
-        if (otherLocation.id == location.id) continue
-
-        if (otherLocation.residingCharacterIds.isNotEmpty) {
-          location = otherLocation
+        if (otherLocation.id == organization.headquartersId) continue
+        residingCharacters = getCharactersByHomeId(otherLocation.id)
+        if (residingCharacters.isNotEmpty) {
           break
         }
       }
     }
   }
 
-  if (location.residingCharacterIds.isNotEmpty) {
+  // 有可能循环到最后所有的据点都没有人，所以这里的判断没有和上一条合并
+  if (residingCharacters.isNotEmpty) {
     if (random.nextDouble() < kOrganizationRecruitSuccessProbability) {
-      const characterId = random.nextIterable(location.residingCharacterIds)
-      const character = game.characters[characterId]
-      if (character.organizationId != null) {
-        engine.error(character.name, character.organizationId, organization.id)
+      for (let characterId in random.shuffle(residingCharacterIds)) {
+        const character = game.characters[characterId]
+        if (character.organizationId == null) {
+          addCharacterToOrganization(character, organization)
+          break
+        }
       }
-      addCharacterToOrganization(character, organization)
     }
   }
   
   // 组织获得新功法
-  // engine.info('为组织 ${organization.name} 添加新功法')
+  // engine.info('为组织 ${organization.id} 添加新功法')
 
   switch (organization.genre) {
     'blade' : {
@@ -366,7 +405,7 @@ function updateOrganizationYearly(organization) {
 
 // 月度组织事件
 function updateOrganizationMonthly(organization) {
-  engine.info('触发 ${organization.name} 的月度更新事件')
+  engine.info('触发 ${organization.id} 的月度更新事件')
   switch (organization.category) {
     'cultivation' : {
       
@@ -405,7 +444,7 @@ function updateOrganizationMonthly(organization) {
 }
 
 function updateCharacter(character) {
-  engine.info('触发 ${character.name} 的月度更新事件')
+  engine.info('触发 ${character.id} 的月度更新事件')
 
 }
 

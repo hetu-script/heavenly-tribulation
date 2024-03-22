@@ -1,0 +1,213 @@
+import '../random.ht'
+// import 'effect/effect.ht'
+// import 'character/companion.ht'
+// import 'item/money.ht'
+// import 'skill/common.ht'
+import '../dialog.ht'
+
+// 进行某些互动的时候
+const kFameCheckThreshold = 75
+// 进行某些互动的时候
+const kCharismaCheckThreshold = 75
+
+const kDifficulties = [
+  'normal',
+  'hard',
+  'expert',
+  'master',
+  'torment',
+  'nightmare',
+  'purgatory',
+]
+
+const kCommon = 'common' // 凡品：生成数量没有限制
+const kUncommon = 'uncommon' // 良品：每9世界大小只能存在一个同源物品
+const kRare = 'rare' // 上品：每18世界大小只能存在一个
+const kEpic = 'epic' // 极品：每36世界大小只能存在一个
+const kLegendary = 'legendary' // 秘宝：每72世界大小只能存在一个
+const kMythic = 'mythic' // 灵宝：每144世界大小只能存在一个
+const kExotic = 'exotic' // 古宝：每288世界大小只能存在一个
+
+const kRarity = {
+  /// common 白
+  common: {
+    rarity: 0.35,
+    name: 'common',
+    color: '#ffffff',
+    level: 0,
+  },
+  /// uncommon 灰
+  uncommon:{
+    rarity: 0.35,
+    name: 'uncommon',
+    color: '#CCCCCC',
+    level: 1,
+  },
+  /// rare 蓝
+  rare:{
+    rarity: 0.15,
+    name: 'rare',
+    color: '#00A6A9',
+    level: 2,
+  },
+  /// epic 紫
+  epic: {
+    rarity: 0.075,
+    name: 'epic',
+    color: '#804DC8',
+    level: 3,
+  },
+  /// legendary 橙
+  legendary: {
+    rarity: 0.012,
+    name: 'legendary',
+    color: '#C5C660',
+    level: 4,
+  },
+  /// mythic 金
+  mythic: {
+    rarity: 0.003,
+    name: 'mythic',
+    color: '#F28234',
+    level: 5,
+  },
+  /// exotic 虹
+  exotic: {
+    rarity: 0.0005,
+    name: 'exotic',
+    color: '#C65043',
+    level: 6,
+  },
+}
+
+function getRarity({ name }) {
+  if (name) {
+    assert(kRarity.containsKey(name))
+    return kRarity[name]
+  } else {
+    const r = random.nextDouble()
+    if (r > kRarity.common.rarity) {
+      return kRarity.common.name
+    } else if (r > kRarity.uncommon.rarity) {
+      return kRarity.uncommon
+    } else if (r > kRarity.rare.rarity) {
+      return kRarity.rare
+    } else if (r > kRarity.epic.rarity) {
+      return kRarity.epic
+    } else if (r > kRarity.legendary.rarity) {
+      return kRarity.legendary
+    } else if (r > kRarity.mythic.rarity) {
+      return kRarity.mythic
+    } else {
+      return kRarity.exotic
+    }
+  }
+}
+
+// 从一个稀有度和值的对应表中，按照稀有度的概率取出值
+// function getMappedRarityValue(valueMap) {
+//   const r = getRarity()
+//   const v = valueMap[r.rarity]
+//   return (v is Iterable) ? v.random : v
+// }
+
+// entityType决定了该对象的数据结构和保存位置
+const kEntityTypeCharacter = 'character' //game.characters
+const kEntityTypeBaby = 'baby' // game.babies
+const kEntityTypeItem = 'item' //character.inventory
+const kEntityTypeOrganization = 'organization' //game.organizations
+const kEntityTypeLocation = 'location' // game.locations
+const kEntityTypeSite = 'site' // location.sites
+
+const kEntityCategoryMaterial = 'material';
+
+// 材料的类型
+
+// 实际上进攻类装备也可能具有防御效果，因此这里的类型仅用于显示而已
+const kEquipTypeShip = 'ship'
+const kEquipTypeBoots = 'boots'
+const kEquipTypeAircraft = 'aircraft'
+
+function getCultivationRankName(character) {
+  return engine.locale('cultivationRank.${character.cultivationRank}')
+}
+
+const kLifespan = {
+  '0': {
+    min: 75,
+    max: 125,
+  },
+  '1': {
+    min: 100,
+    max: 200,
+  },
+  '2': {
+    min: 150,
+    max: 350,
+  },
+  '3': {
+    min: 250,
+    max: 650,
+  },
+  '4': {
+    min: 450,
+    max: 1250,
+  },
+}
+
+function setEntityWorldPosition(entity, left, top, [ worldId ]) {
+  entity.worldPosition = { left, top }
+  if (worldId != null) {
+    entity.worldId = worldId
+  }
+}
+
+function createRandomLifespan(cultivationRank) {
+  let { min, max } = kLifespan[cultivationRank]
+  let minTick = min * kTicksPerYear
+  let maxTick = max * kTicksPerYear
+  let randomSpan = minTick + random.nextInt(maxTick)
+  return randomSpan
+}
+
+const _kCharacterRandomAgeMax = 40
+
+function createRandomBirthTimestamp({min = 1, max = _kCharacterRandomAgeMax}) {
+  assert(min > 0)
+  const age = random.nextInt(max - min) + min
+  const randomDateInAYear = random.nextInt(kTicksPerYear)
+  return timeline?.timestamp - (age * kTicksPerYear + randomDateInAYear)
+}
+
+function tryChangeStats(entity, statName, change, { overflow = false }) {
+  let data = entity.stats
+  assert(data?[statName] != null)
+  let value = data[statName]
+  value += change
+  let residue = 0
+  if (!overflow) {
+    const max = data['${statName}Max']
+    if (value < 0) {
+      residue = value
+      value = 0
+    }
+    if (value >= max) {
+      residue = max - value
+      value = max
+    }
+  }
+  data[statName] = value
+  return residue
+}
+
+// level up exp function from pokemon.
+function expForLevel(level,[difficulty = 1]) {
+  assert(level > 0)
+  return ((difficulty * (level * level * level)) ~/ 5 + 1) * 100
+}
+
+// linear level up function for unchanged exp gaining rate.
+function expForLevel2(level) {
+  assert(level > 0)
+  return (level * level + level) ~/ 2 * 100 - (level * 100)
+}

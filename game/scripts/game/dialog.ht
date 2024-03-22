@@ -1,6 +1,5 @@
 import 'entity/character/character.ht'
 import 'util.ht'
-import 'entity/character/character.ht'
 import 'game.ht'
 
 /// 加载到本次游戏的对话资源
@@ -57,7 +56,12 @@ struct DialogContentData {
     this.lines = []
     for (const message in strings) {
       const splits = message.split('\n')
-      this.lines.addAll(splits)
+      for (final split in splits) {
+        final trim = split.trim()
+        if (trim.isNotEmpty) {
+          this.lines.add(trim)
+        }
+      }
     }
   }
 }

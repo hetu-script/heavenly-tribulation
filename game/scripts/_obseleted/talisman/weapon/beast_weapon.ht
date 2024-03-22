@@ -1,0 +1,88 @@
+import '../../../game/entity/common.ht'
+import '../../../game/entity/item/common.ht'
+import '../../../game/util.ht'
+import '../../../game/game.ht'
+// import '../../../../l10n.ht'
+
+const kBeastWeaponKindClaw = 'claw'
+const kBeastWeaponKindFang = 'fang'
+
+const kBeastWeaponKinds = {
+  'claw': {
+    icon: 'item/claw.png',
+    damageType: kDamageTypeSlash,
+    attributes: {
+      speed: 7,
+      damage: 18,
+      criticalDamageHits: 4,
+      criticalDamageMultiply: 2,
+    },
+  },
+  'fang': {
+    icon: 'item/fang.png',
+    damageType: kDamageTypePierce,
+    attributes: {
+      speed: 10,
+      damage: 25,
+      criticalDamageHits: 4,
+      criticalDamageMultiply: 3,
+    },
+  },
+}
+
+// 野兽身上的身体部件，在原本的野兽身上时，作为一种无法去掉的装备存在
+// 在击杀野兽之后，以物品形式存在，此时可以重新装备和取下
+struct BeastWeapon {
+  construct ({
+    beastName,
+    kind,
+    rarity,
+    value,
+    icon,
+    description,
+    attributes,
+  }) {
+    assert(beastName != null)
+    assert(kind != null)
+    this.entityType = kEntityTypeItem
+    this.category = kEntityCategoryWeapon
+    this.beastName = beastName
+    this.kind = kind
+    this.isEquippable = true
+    this.equipType = kEquipTypeOffense // 装备类型：进攻、如果没有就是不可装备
+    this.rarity = rarity ?? kCommon
+    this.name = beastName + engine.locale(kind)
+    this.color = kRarity[this.rarity].color
+    this.id = '${this.entityType}.${crypto.randomUID4(2)}.${this.name}'
+    this.isBodyPart = true
+    this.value = value ?? 30
+    this.stackSize = 1
+    this.description = description ?? ''
+
+    this.icon = kBeastWeaponKinds[this.kind].icon
+    this.damageType = kBeastWeaponKinds[this.kind].damageType
+    
+    this.attributes = {
+      ...kBeastWeaponKinds[this.kind].attributes.clone(),
+    }
+
+    if (attributes) {
+      Object.assign(this.attributes, attributes)
+    }
+
+    this.attributes.effects = {}
+
+    // 在此物品上装备的支持性对象
+    this.equippedSupports = []
+
+    calculateItemStats(this)
+  }
+}
+
+// struct BeastArmor {
+//   construct ({
+
+//   }) {
+
+//   }
+// }

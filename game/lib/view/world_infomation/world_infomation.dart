@@ -1,13 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:samsara/ui/responsive_window.dart';
+import 'package:samsara/ui/close_button.dart';
 
 import '../character/memory.dart';
 import '../../config.dart';
 import '../game_entity_listview.dart';
-import 'package:samsara/ui/responsive_window.dart';
-import 'package:samsara/ui/close_button.dart';
 import '../../util.dart';
 import '../location/location.dart';
 import '../organization/organization.dart';
+import '../menu_item_builder.dart';
+import '../character/profile.dart';
+import '../character/equipments_and_stats.dart';
+
+enum WorldInformationCharacterPopUpMenuItems {
+  checkProfile,
+  checkEquipments,
+  checkMemory,
+}
+
+List<PopupMenuEntry<WorldInformationCharacterPopUpMenuItems>>
+    buildWorldInformationCharacterPopUpMenuItems(
+        {void Function(WorldInformationCharacterPopUpMenuItems item)?
+            onItemPressed}) {
+  return <PopupMenuEntry<WorldInformationCharacterPopUpMenuItems>>[
+    buildMenuItem(
+      item: WorldInformationCharacterPopUpMenuItems.checkProfile,
+      name: engine.locale('checkInformation'),
+      onItemPressed: onItemPressed,
+    ),
+    buildMenuItem(
+      item: WorldInformationCharacterPopUpMenuItems.checkEquipments,
+      name: engine.locale('checkEquipments'),
+      onItemPressed: onItemPressed,
+    ),
+    buildMenuItem(
+      item: WorldInformationCharacterPopUpMenuItems.checkMemory,
+      name: engine.locale('checkMemory'),
+      onItemPressed: onItemPressed,
+    ),
+  ];
+}
 
 const _kInformationViewCharacterColumns = [
   'name',
@@ -19,7 +51,7 @@ const _kInformationViewCharacterColumns = [
 
 const _kInformationViewOrganizationColumns = [
   'name',
-  'leader',
+  'head',
   'genre',
   'headquarters',
   'locationNumber',
@@ -95,7 +127,7 @@ class _WorldInformationPanelState extends State<WorldInformationPanel>
       // 国家名字
       // rowData.add(getNameFromId(loc['nationId']));
       // 门派名字
-      rowData.add(getNameFromId(loc['organizationId']));
+      rowData.add(getNameFromId(loc['organizationId'], 'none'));
       // 类型
       final category = loc['category'];
       switch (category) {
@@ -195,10 +227,41 @@ class _WorldInformationPanelState extends State<WorldInformationPanel>
               GameEntityListView(
                 columns: _kInformationViewCharacterColumns,
                 tableData: _charactersTableData,
-                onItemPressed: (buttons, position, dataId) => showDialog(
-                  context: context,
-                  builder: (context) => MemoryView(characterId: dataId),
-                ),
+                onItemPressed: (buttons, position, dataId) {
+                  final menuPosition = RelativeRect.fromLTRB(
+                      position.dx, position.dy, position.dx, 0.0);
+                  final items = buildWorldInformationCharacterPopUpMenuItems(
+                      onItemPressed: (item) {
+                    switch (item) {
+                      case WorldInformationCharacterPopUpMenuItems.checkProfile:
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) =>
+                              ProfileView(characterId: dataId),
+                        );
+                      case WorldInformationCharacterPopUpMenuItems
+                            .checkEquipments:
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) =>
+                              EquipmentsAndStatsView(characterId: dataId),
+                        );
+                      case WorldInformationCharacterPopUpMenuItems.checkMemory:
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => MemoryView(characterId: dataId),
+                        );
+                    }
+                  });
+                  showMenu(
+                    context: context,
+                    position: menuPosition,
+                    items: items,
+                  );
+                },
               ),
               GameEntityListView(
                 columns: _kInformationViewOrganizationColumns,

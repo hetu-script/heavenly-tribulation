@@ -1,5 +1,0 @@
-const zh = {
-  languageId: 'zh',
-  languageName: '简体中文',
-  
-}

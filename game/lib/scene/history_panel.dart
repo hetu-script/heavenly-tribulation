@@ -33,8 +33,7 @@ class _HistoryPanelState extends State<HistoryPanel> {
                 height: 140,
                 decoration: BoxDecoration(
                   color: kBackgroundColor,
-                  // borderRadius:
-                  //     const BorderRadius.only(topRight: Radius.circular(5.0)),
+                  borderRadius: BorderRadius.circular(10.0),
                   border: Border.all(color: kForegroundColor),
                 ),
                 padding: const EdgeInsets.all(10.0),
@@ -46,7 +45,7 @@ class _HistoryPanelState extends State<HistoryPanel> {
                         // controller: _scrollController,
                         reverse: true,
                         children: incidents
-                            .map((incident) => Text(incident['content']))
+                            .map((incident) => Text(incident['message']))
                             .toList(),
                       ),
                     ),

@@ -12,6 +12,7 @@ class GameEntityListView extends StatefulWidget {
     required this.tableData,
     this.onColumnPressed,
     this.onItemPressed,
+    this.onItemSecondaryPressed,
   });
 
   // column名字会转换为本地化字符串
@@ -21,7 +22,8 @@ class GameEntityListView extends StatefulWidget {
 
   final void Function(String id)? onColumnPressed;
 
-  final void Function(int buttons, Offset position, String id)? onItemPressed;
+  final void Function(int buttons, Offset position, String id)? onItemPressed,
+      onItemSecondaryPressed;
 
   @override
   State<GameEntityListView> createState() => _GameEntityListViewState();
@@ -73,10 +75,10 @@ class _GameEntityListViewState extends State<GameEntityListView>
                         )),
                       )
                       .toList(),
-                  onTap: () {
-                    widget.onItemPressed
-                        ?.call(_mouseButtons, _mousePosition, line.last);
-                  },
+                  onTap: () => widget.onItemPressed
+                      ?.call(_mouseButtons, _mousePosition, line.last),
+                  onSecondaryTap: () => widget.onItemSecondaryPressed
+                      ?.call(_mouseButtons, _mousePosition, line.last),
                 ))
             .toList(),
       ),

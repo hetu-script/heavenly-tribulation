@@ -1,4 +1,5 @@
 import 'tile/tilemap.ht'
+import 'datetime.ht'
 
 export 'random.ht'
 
@@ -12,10 +13,10 @@ let history
 
 // game.characters[game.heroId]
 let hero
-// universe.worlds[universe.currentWorldId]
+// universe.worlds[game.currentWorldId]
 let world
-// history.worlds[world.id].incidents
-let currentWorldHistory
+// history.worlds[game.currentWorldId]
+let timeline
 let year
 let ticksOfYear
 let month
@@ -30,16 +31,22 @@ struct Game {
     // 本次游戏加载的 module，这里是纯数据，函数保存在另外的地方
     this.modules = {}
 
+    this.deceased = {}
     this.babies = {}
-    
     this.characters = {}
     this.locations = {}
     this.organizations = {}
+    // 具有唯一性的物品，材料之类不在此列
+    this.items = {}
+    // 地图上的可互动对象，例如npc等
+    this.objects = {}
 
     // 每个月生成的暴风雨地点
     this.stormTileIndexes = []
     // 每个月生成的可捕鱼的地点
     this.fishTileIndexes = []
+    // 每个月生成的可恢复灵气的地点
+    this.spiritTileIndexes = []
     
     // 游戏本身逻辑所用到的一些事件检查选项
     // 例如每个月是否进行了某个动作之类
@@ -76,7 +83,6 @@ struct Game {
 
 struct Universe {
   construct {
-    this.currentWorldId = null
     this.worlds = {}
   }
 }
@@ -95,28 +101,33 @@ function resetPlayerMonthlyActivities(){
     // 对其他角色操作
     talked: [],
     gifted: [],
-    practiced: [],
-    consulted: [],
     requested: [],
+    dueled: [],
+    consulted: [],
     insulted: [],
     stolen: [],
 
-    // 对某个建筑操作
-    worked: [],
-
-    // 对自己组织操作
-    recruited: [],
+    // 对地块操作
+    // gathered: [],
+    // woodcuted: [],
+    // excavated: [],
+    // hunted: [],
+    // fished: [],
   }
 }
 
-function resetGame {
+function resetGame(worldId) {
+  engine.info('重置并准备开始新游戏')
   isNewGame = true
   game = Game()
+
   universe = Universe()
   history = History()
+
   hero = null
   world = null
-  currentWorldHistory = null
+  timeline = null
+
   year = 1
   month = 1
   day = 1
@@ -125,19 +136,31 @@ function resetGame {
   ticksOfDay = 1
 }
 
-function addModule(module) {
-  engine.info('载入模组数据: [${module.displayName}]')
-
-  assert(module.id != null)
-  game.modules[module.id] = module
+function calculateTimestamp() {
+  year = toYear(timeline.timestamp) + 1
+  month = toMonth(timeline.timestamp) + 1
+  day = toDay(timeline.timestamp) + 1
+  ticksOfYear = (timeline.timestamp % kTicksPerYear) + 1
+  ticksOfMonth = (timeline.timestamp % kTicksPerMonth) + 1
+  ticksOfDay = (timeline.timestamp % kTicksPerDay) + 1
 }
 
+function addModule(module) {
+  engine.info('添加模组元信息 [${module.id}(ver-${module.version})]...')
+
+  assert(module.id != null)
+  // 因为绑定事件处理函数在前，所以模组列表中应该已经有这个id
+  assert(game.modules.containsKey(module.id))
+  Object.assign(game.modules[module.id], module)
+}
+
+/// 载入游戏数据，返回世界列表
 function loadGameFromJsonData({
   gameData,
   universeData,
   historyData,
   isEditorMode,
-}) {
+}) -> List {
   game = Object.createFromJSON(gameData)
   game.isNewGame ??= true
   isNewGame = game.isNewGame
@@ -150,16 +173,34 @@ function loadGameFromJsonData({
   }
   
   universe = Object.createFromJSON(universeData)
-  assert(universe.currentWorldId != null)
-  world = universe.worlds[universe.currentWorldId]
-  assert(world != null)
 
   history = Object.createFromJSON(historyData)
-  assert(history.worlds.containsKey(world.id))
-  currentWorldHistory = history.worlds[world.id]
-  assert(currentWorldHistory != null)
+  
+  assert(game.currentWorldId != null)
+  assert(universe.worlds.containsKey(game.currentWorldId))
+  assert(history.worlds.containsKey(game.currentWorldId))
 
-  loadTileMapZoneColors()
+  world = universe.worlds[game.currentWorldId]
+  timeline = history.worlds[game.currentWorldId]
+
+  return universe.worlds.keys
+}
+
+function addWorld(newWorld) {
+  world = universe.worlds[newWorld.id] = newWorld
+  timeline = history.worlds[newWorld.id] = { timestamp: 0, incidents: [] }
+
+  game.currentWorldId = newWorld.id
+}
+
+function switchWorld(worldId) {
+  assert(universe.worlds.containsKey(worldId))
+  world = universe.worlds[worldId]
+
+  assert(history.worlds.containsKey(world.id))
+  timeline = history.worlds[world.id]
+  
+  game.currentWorldId = world.id
 
   return world
 }
@@ -169,6 +210,7 @@ function getSaveName() {
 }
 
 function setSaveName(name) {
+  engine.info('存档名设置为：${name}')
   game.saveName = name
 }
 
@@ -193,7 +235,7 @@ function getHistoryJsonData() {
 }
 
 function getTimestamp {
-  return currentWorldHistory.timestamp
+  return timeline.timestamp
 }
 
 function getHeroId() {
@@ -203,7 +245,7 @@ function getHeroId() {
 function setHeroId(id: string) {
   assert(game.characters.containsKey(id))
   hero = game.characters[id]
-  engine.info('设置当前玩家人物为 [${hero.name}]。')
+  engine.info('设置当前玩家人物为 [${hero.id}]。')
   // game.heroHomeSite.locationId = hero.homeId
   game.heroId = id
 }
@@ -219,15 +261,11 @@ function setHeroWorldPosition(left, top, [ worldId ]) {
   }
 }
 
-function getHero {
-  return game.characters[game.heroId]
+function getHeroHome {
+  return game?.locations[hero?.homeId]
 }
 
-function getHeroHomeLocation {
-  return game.locations[hero.homeId]
-}
-
-function getHeroHomeLocationId {
+function getHeroHomeId {
   return hero?.homeId
 }
 
@@ -243,18 +281,24 @@ function getHeroOrganization {
   }
 }
 
+function getHeroLightedArea {
+  return hero.stats.lightRadius
+}
+
 function getTerrainByWorldPosition(left, top) {
   return world.terrains[tilePos2Index(left, top, world.width)]
 }
 
-function getWorldId {
-  return world.id
+function getCurrentWorldId {
+  return game.currentWorldId
 }
 
 function getWorldSize {
-  return {
-    width: world.width,
-    height: world.height,
+  if (world != null) {
+    return {
+      width: world.width,
+      height: world.height,
+    }
   }
 }
 
@@ -265,6 +309,23 @@ function getZones() {
 function getZoneById(id: string) {
   assert(id != null)
   return world.zones[id]
+}
+
+function addMapObject(object) {
+  game.objects[object.id] = object
+}
+
+function removeMapObject(id) {
+  delete game.objects[id]
+}
+
+function getMapObjects() {
+  return game.objects.values
+}
+
+function getMapObjectById(id: string) {
+  assert(id != null)
+  return game.objects[id]
 }
 
 function getNameFromId(id, [orElse = 'null']) {

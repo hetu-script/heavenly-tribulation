@@ -1,0 +1,60 @@
+
+const cave = {
+  
+  onNewGame: async () {
+    let luzifu = getCharacterById('luzifu')
+    dialog.start()
+    dialog.pushScene('black.png')
+    let skipSelection = await dialog.localeSelect(['watchScene', 'skipScene'])
+    if (skipSelection == 'watchScene') {
+      final aya = getCharacterById('aya')
+      dialog.pushImage('npc/luzifu.png')
+      await dialog.localeLines('tutorial.ch1.luzifu.line1', displayName: '???')
+      await dialog.localeLines('tutorial.ch1.hero.reply1', isHero: true)
+      await dialog.localeLines('tutorial.ch1.luzifu.line2', character: luzifu)
+      await dialog.localeLines('tutorial.ch1.hero.reply2', isHero: true)
+      await dialog.localeLines('tutorial.ch1.luzifu.line3', character: luzifu)
+      await dialog.localeLines('tutorial.ch1.hero.reply3', isHero: true)
+      await dialog.localeLines('tutorial.ch1.luzifu.line4', character: luzifu)
+      await dialog.localeLines('tutorial.ch1.hero.reply4', isHero: true)
+      dialog.popScene()
+
+      await dialog.localeLines('tutorial.ch1.luzifu.line5', character: luzifu)
+
+      // WorldMap.freezePlayer()
+      // await WorldMap.moveObjectTo('aya', 11, 8, endDirection: 'south')
+      // await WorldMap.refreshNpcsInHeroWorldMapPosition()
+      // WorldMap.unfreezePlayer()
+
+      // await dialog.localeLines('tutorial.ch1.luzifu.line5', character: luzifu)
+      // await dialog.localeLines('tutorial.ch1.hero.reply5', isHero: true)
+      // await dialog.localeLines('tutorial.ch1.luzifu.line6', character: luzifu)
+      dialog.end()
+
+    } else {
+      dialog.end()
+      // await WorldMap.setObjectTo('aya', 11, 8)
+      // await WorldMap.refreshNpcsInHeroWorldMapPosition()
+    }
+  },
+
+  onInteractMapObject: (object) {
+    switch (object.id) {
+      'switch1': {
+        if (!object.flags.isOn) {
+          object.flags.isOn = true
+          engine.play('stone-push-37412.mp3')
+          dialog.localeLines('hint.switch', isHero: true)
+          final switchTile = getTerrainByWorldPosition(3,19)
+          switchTile.overlaySprite = {spriteIndex: kSpriteDungeonPressedTile} 
+          WorldMap.refreshTerrainOverlaySprite(3,19)
+          
+          final openedRoadTile = getTerrainByWorldPosition(10,18)
+          openedRoadTile.kind = 'plain'
+          openedRoadTile.spriteIndex = kSpriteDungeonStonePavedTile
+          WorldMap.refreshTerrainSprite(10,18)
+        }
+      }
+    }
+  },
+}

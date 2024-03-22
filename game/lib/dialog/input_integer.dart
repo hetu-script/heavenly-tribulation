@@ -10,14 +10,13 @@ import '../config.dart';
 class InputIntegerDialog extends StatefulWidget {
   static Future<int?> show({
     required BuildContext context,
-    required int min,
-    required int max,
+    int? min,
+    int? max,
     String? title,
   }) {
     return showDialog<int?>(
       context: context,
       barrierColor: Colors.transparent,
-      barrierDismissible: false,
       builder: (context) {
         return InputIntegerDialog(
           min: min,
@@ -30,13 +29,13 @@ class InputIntegerDialog extends StatefulWidget {
 
   const InputIntegerDialog({
     super.key,
-    required this.min,
-    required this.max,
+    this.min,
+    this.max,
     this.title,
   });
 
-  final int min;
-  final int max;
+  final int? min;
+  final int? max;
   final String? title;
 
   @override
@@ -62,8 +61,8 @@ class _InputIntegerDialogState extends State<InputIntegerDialog> {
     return ResponsiveWindow(
       alignment: AlignmentDirectional.center,
       child: SizedBox(
-        width: 140,
-        height: 140,
+        width: 200,
+        height: 160,
         child: Scaffold(
           backgroundColor: kBackgroundColor,
           appBar: AppBar(
@@ -79,8 +78,10 @@ class _InputIntegerDialogState extends State<InputIntegerDialog> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 10.0, vertical: 20.0),
                   child: IntegerInputField(
-                    min: widget.min,
+                    autofocus: true,
+                    min: widget.min ?? 0,
                     max: widget.max,
+                    showSuffixButtons: widget.max != null,
                     controller: _textEditingController,
                   ),
                 ),
@@ -89,7 +90,7 @@ class _InputIntegerDialogState extends State<InputIntegerDialog> {
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).pop(
-                        int.tryParse(_textEditingController.text),
+                        int.tryParse(_textEditingController.text) ?? 0,
                       );
                     },
                     child: Text(

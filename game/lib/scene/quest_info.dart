@@ -1,47 +1,110 @@
 import 'package:flutter/material.dart';
-import 'package:hetu_script/values.dart';
+import 'package:provider/provider.dart';
 
 import '../config.dart';
+import '../state/quest.dart';
 
-class QuestInfoPanel extends StatelessWidget {
-  const QuestInfoPanel({
-    super.key,
-    this.characterData,
-  });
+const double _kTextShadowOffset = 0.5;
 
-  final HTStruct? characterData;
+const List<Shadow> kTextShadow = [
+  Shadow(
+    // bottomLeft
+    offset: Offset(-_kTextShadowOffset, -_kTextShadowOffset),
+    color: Colors.black,
+    blurRadius: 2.5,
+  ),
+  Shadow(
+    // bottomRight
+    offset: Offset(_kTextShadowOffset, -_kTextShadowOffset),
+    color: Colors.black,
+    blurRadius: 2.5,
+  ),
+  Shadow(
+    // topRight
+    offset: Offset(_kTextShadowOffset, _kTextShadowOffset),
+    color: Colors.black,
+    blurRadius: 2.5,
+  ),
+  Shadow(
+    // topLeft
+    offset: Offset(-_kTextShadowOffset, _kTextShadowOffset),
+    color: Colors.black,
+    blurRadius: 2.5,
+  ),
+];
+
+class QuestInfoPanel extends StatefulWidget {
+  const QuestInfoPanel({super.key});
+
+  @override
+  State<QuestInfoPanel> createState() => _QuestInfoPanelState();
+}
+
+class _QuestInfoPanelState extends State<QuestInfoPanel> {
+  bool _showBorder = false;
 
   @override
   Widget build(BuildContext context) {
-    final heroData = characterData ?? engine.hetu.invoke('getHero');
-    final questData = engine.hetu
-        .invoke('getCharacterActiveQuest', positionalArgs: [heroData]);
+    final questsData = context.watch<QuestState>().questsData;
 
-    return Container(
-      width: 300,
-      height: 130,
-      padding: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        color: kBackgroundColor,
-        // borderRadius:
-        //     const BorderRadius.only(bottomRight: Radius.circular(5.0)),
-        border: Border.all(color: kForegroundColor),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            engine.locale(questData['category']),
-            style: const TextStyle(fontSize: 16.0),
-          ),
-          const Divider(),
-          Text(
-            questData['description'],
-            style: const TextStyle(fontSize: 12.0),
-          ),
-        ],
-      ),
-    );
+    return (questsData != null)
+        ? Column(
+            children: questsData
+                .map(
+                  (quest) => MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    onEnter: (_) {
+                      setState(() {
+                        _showBorder = true;
+                      });
+                    },
+                    onExit: (_) {
+                      setState(() {
+                        _showBorder = false;
+                      });
+                    },
+                    child: Container(
+                      width: 300,
+                      height: 130,
+                      margin: const EdgeInsets.all(8.0),
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(10.0),
+                        border: Border.all(
+                            color: _showBorder
+                                ? kForegroundColor
+                                : Colors.transparent),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            quest['name'],
+                            style: const TextStyle(
+                              fontSize: 20.0,
+                              color: Colors.yellow,
+                              shadows: kTextShadow,
+                            ),
+                          ),
+                          const Divider(),
+                          Text(
+                            quest['stages'][quest['currentStageIndex']]
+                                ['description'],
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.yellow,
+                              shadows: kTextShadow,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
+          )
+        : Container();
   }
 }

@@ -38,6 +38,12 @@ final darkTheme = ThemeData(
       borderRadius: kBorderRadius,
     ),
   ),
+  textButtonTheme: TextButtonThemeData(
+    style: TextButton.styleFrom(
+      foregroundColor: kForegroundColor,
+      shape: const RoundedRectangleBorder(),
+    ),
+  ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: kBackgroundColor,
@@ -49,6 +55,22 @@ final darkTheme = ThemeData(
         borderRadius: BorderRadius.circular(5.0),
       ),
     ),
+  ),
+  segmentedButtonTheme: SegmentedButtonThemeData(
+    style: SegmentedButton.styleFrom(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(5.0),
+          topRight: Radius.circular(5.0),
+        ),
+      ),
+    ),
+  ),
+  popupMenuTheme: PopupMenuThemeData(
+    color: kBackgroundColor,
+    shape: RoundedRectangleBorder(
+        side: const BorderSide(color: kForegroundColor),
+        borderRadius: BorderRadius.circular(8)),
   ),
   sliderTheme: const SliderThemeData(
     activeTrackColor: kForegroundColor,
@@ -83,7 +105,10 @@ const kValueTypePercentage = 'percentage';
 
 final SamsaraEngine engine = SamsaraEngine(
   config: EngineConfig(
-    debugMode: GameConfig.isDebugMode,
+    name: GameConfig.gameTitle,
     isOnDesktop: true,
+    debugMode: GameConfig.isDebugMode,
+    musicVolume: GameConfig.musicVolume,
+    soundEffectVolume: GameConfig.soundEffectVolume,
   ),
 );

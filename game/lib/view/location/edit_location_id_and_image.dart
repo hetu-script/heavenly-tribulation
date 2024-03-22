@@ -122,16 +122,11 @@ class _EditLocationIdAndBackgroundState
                 padding: const EdgeInsets.only(top: 20.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    String? id = _idEditingController.text.isBlank
-                        ? null
-                        : _idEditingController.text;
-                    String? name = _nameEditingController.text.isBlank
-                        ? null
-                        : _nameEditingController.text;
+                    String? id = _idEditingController.text.nonEmptyValueOrNull;
+                    String? name =
+                        _nameEditingController.text.nonEmptyValueOrNull;
                     String? background =
-                        _backgroundEditingController.text.isBlank
-                            ? null
-                            : _backgroundEditingController.text;
+                        _backgroundEditingController.text.nonEmptyValueOrNull;
 
                     Navigator.of(context).pop((
                       id,

@@ -7,21 +7,8 @@ import '../name/zone.ht'
 
 export { createSandboxWorld } from 'sandbox.ht'
 
-function setWorld(newWorld) {
-  world = universe.worlds[newWorld.id] = newWorld
-  universe.currentWorldId = newWorld.id
-  if (history.worlds[newWorld.id] == null) {
-    currentWorldHistory = history.worlds[newWorld.id] = {
-      timestamp: 0,
-      incidents: [],
-    }
-  } else {
-    currentWorldHistory = history.worlds[newWorld.id]
-  }
-}
-
-/// 刷新地图上色信息
-function loadTileMapZoneColors {
+/// 获得当前地图的区域上色信息
+function getCurrentWorldZoneColors {
   const colors = []
   const zoneColors = Map()
   const organizationColors = Map()
@@ -37,19 +24,55 @@ function loadTileMapZoneColors {
   }
   colors.add(zoneColors)
   colors.add(organizationColors)
-  engine.loadTileMapZoneColors(colors)
-}
 
+  return colors
+}
+struct TileMapTerrain {
+  constructor ({
+    left,
+    top,
+    index,
+    mapWidth,
+  }) {
+    this.index = index
+    if (left != null && top != null) {
+      Object.assign(this, 
+        Tile(
+          left, top,
+          index: index,
+          mapWidth: mapWidth
+        )
+      )
+    }
+    this.spriteIndex = kSpriteWater
+    this.overlaySprite = {}
+    this.kind = kTerrainKindSea
+    this.flags = {}
+    this.experienced = []
+    this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
+    // 地形互动
+    this.montylyActivities = {
+      explored: [],
+      gathered: [],
+      woodcutted: [],
+      mined: [],
+      hunted: [],
+      fished: [],
+    }
+  }
+}
 
 function createBlankWorld({
     id,
+    isMainWorld,
+    saveName,
     name,
     terrainSpriteSheet = 'fantasyhextiles_v3_borderless.png',
     width,
     height,
   }) {
-  assert(width is integer && width >= 12)
-  assert(height is integer && height >= 12)
+  assert(width is integer && width > 0)
+  assert(height is integer && height > 0)
 
   let newWorld = TileMap(
     id: id ?? 'main',
@@ -58,95 +81,139 @@ function createBlankWorld({
     width: width,
     height: height,
   )
-
+  
+  newWorld.isMainWorld = isMainWorld
   newWorld.name = name ?? generateZoneName(category: 'world').name
+
+  addWorld(newWorld)
 
   engine.info('生成空白地块，默认为海洋')
   for (const j in range(height)) {
     for (const i in range(width)) {
-      newWorld.terrains.add({
-          ...Tile(i + 1, j + 1),
-          index: i + j * mapWidth,
-          spriteIndex: kSpriteWater,
-          overlaySprite: {},
-          kind: kTerrainKindSea,
-          // 该地块的每月刷新野外事件的时间
-          monthlyUpdateTime: random.nextInt(kTicksPerMonth)
-      })
+      newWorld.terrains.add(
+        TileMapTerrain(
+          left: i + 1,
+          top: j + 1,
+          index: tilePos2Index(i + 1, j + 1, width),
+        )
+      )
     }
   }
 
-  setWorld(newWorld)
+  game.saveName = saveName
 
   return newWorld
 }
 
-function expandCurrentWorldBySize(width, height, direction) {
-  assert(width > 0 && height > 0)
+function expandCurrentWorldBySize(width, height, [direction = 'center']) {
+  assert(width >= 0 && height >= 0)
 
   switch (direction) {
     'topLeft': {
-
+      throw 'expand toward `topLeft` is not supported yet!'
     }
     'topCenter': {
-
+      let topTerrains = []
+      for (let j in range(height)) {
+        for (let i in range(width + world.width)) {
+          topTerrains.add(TileMapTerrain())
+        }
+      }
+      world.terrains.insertAll(0, topTerrains)
+      
+      let leftOffset = width ~/ 2
+      for (let j in range(world.height)) {
+        let leftTerrains = []
+        let rightTerrains = []
+        for (let i in range(width)) {
+          if (i < leftOffset) {
+            leftTerrains.add(TileMapTerrain())
+          } else {
+            rightTerrains.add(TileMapTerrain())
+          }
+        }
+        world.terrains.insertAll(topTerrains.length + j * (width + world.width), leftTerrains)
+        world.terrains.insertAll(topTerrains.length + (j + 1) * (leftTerrains.length + world.width)
+                                 + j * (rightTerrains.length), rightTerrains)
+      }
     }
     'topRight': {
-
+      throw 'expand toward `topRight` is not supported yet!'
     }
     'centerLeft': {
-
+      throw 'expand toward `centerLeft` is not supported yet!'
     }
     'center': {
+      let leftOffset = width ~/ 2
+      let topOffset = height ~/ 2
 
+      // let topTerrains = []
+      // for (let j in range(topOffset)) {
+      //   for (let i in range(width + world.width)) {
+      //     topTerrains.add(TileMapTerrain())
+      //   }
+      // }
+      // world.terrains.insertAll(0, topTerrains)
+
+      for (let j in range(world.height)) {
+        let leftTerrains = []
+        let rightTerrains = []
+        for (let i in range(width)) {
+          if (i < leftOffset) {
+            leftTerrains.add(TileMapTerrain())
+          } else {
+            rightTerrains.add(TileMapTerrain())
+          }
+        }
+        world.terrains.insertAll(topTerrains.length + j * (width + world.width), leftTerrains)
+        world.terrains.insertAll(topTerrains.length + (j + 1) * (leftTerrains.length + world.width)
+                                 + j * (rightTerrains.length), rightTerrains)
+      }
+
+      for (let j in range(height - topOffset)) {
+        for (let i in range(width + world.width)) {
+          world.terrains.add(TileMapTerrain())
+        }
+      }
     }
     'centerRight': {
-
+      throw 'expand toward `centerRight` is not supported yet!'
     }
     'bottomLeft': {
-
+      throw 'expand toward `bottomLeft` is not supported yet!'
     }
     'bottomCenter': {
-
+      throw 'expand toward `bottomCenter` is not supported yet!'
     }
     'bottomRight': {
-      
-    }
-  }
+      for (let j in range(world.height)) {
+        let row = []
+        for (let i in range(width)) {
+          row.add(TileMapTerrain())
+        }
+        world.terrains.insertAll((j + 1) * world.width + j * width, row)
+      }
 
-  for (const j in range(world.height)) {
-    let row = []
-    for (const i in range(width)) {
-      row.add({
-          ...Tile(world.width + i + 1, j + 1),
-          spriteIndex: kSpriteWater,
-          overlaySprite: {},
-          kind: kTerrainKindSea,
-          // 该地块的每月刷新野外事件的时间
-          monthlyUpdateTime: random.nextInt(kTicksPerMonth)
-        })
-    }
-    world.terrains.insertAll((j + 1) * world.width + j * width, row)
-  }
-
-  for (const j in range(height)) {
-    for (const i in range(world.width + width)) {
-      world.terrains.add({
-          ...Tile(i + 1, j + 1),
-          spriteIndex: kSpriteWater,
-          overlaySprite: {},
-          kind: kTerrainKindSea,
-          // 该地块的每月刷新野外事件的时间
-          monthlyUpdateTime: random.nextInt(kTicksPerMonth)
-        })
+      for (let j in range(height)) {
+        for (let i in range(world.width + width)) {
+          world.terrains.add(TileMapTerrain())
+        }
+      }
     }
   }
 
   world.width += width
   world.height += height
 
-  for (let i in range(world.terrains.length)) {
-    let terrain = world.terrains[i]
-    terrain.index = i
+  correctTerrainIndexAndPosition()
+}
+
+function correctTerrainIndexAndPosition([map]) {
+  map ??= world
+  for (let i in range(map.terrains.length)) {
+    let terrain = map.terrains[i]
+    let tilePosition = index2TilePosition(i, map.width)
+    Object.assign(terrain, Tile(tilePosition.left, tilePosition.top, index: i))
   }
+  engine.info('corrected terrain indexes and tile position!')
 }

@@ -54,7 +54,7 @@ class MerchantView extends StatefulWidget {
 class _MerchantViewState extends State<MerchantView> {
   @override
   Widget build(BuildContext context) {
-    final heroData = engine.hetu.invoke('getHero');
+    final heroData = engine.hetu.fetch('hero');
 
     return ResponsiveWindow(
       size: const Size(720.0, 440.0),

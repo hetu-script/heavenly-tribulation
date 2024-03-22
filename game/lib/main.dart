@@ -86,13 +86,16 @@ void main() {
       MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => SelectedTileState()),
-          ChangeNotifierProvider(create: (_) => Saves()),
+          ChangeNotifierProvider(create: (_) => GameSavesState()),
           ChangeNotifierProvider(create: (_) => MainMenuState()),
           ChangeNotifierProvider(create: (_) => EditorToolState()),
           ChangeNotifierProvider(create: (_) => HistoryState()),
           ChangeNotifierProvider(create: (_) => GameDialogState()),
           ChangeNotifierProvider(create: (_) => CurrentNpcList()),
           ChangeNotifierProvider(create: (_) => LocationSiteSceneState()),
+          ChangeNotifierProvider(create: (_) => WorldMapSceneState()),
+          ChangeNotifierProvider(create: (_) => QuestState()),
+          ChangeNotifierProvider(create: (_) => HeroState()),
         ],
         child: MaterialApp(
           scrollBehavior: DesktopScrollBehavior(),

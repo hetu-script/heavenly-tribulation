@@ -21,10 +21,15 @@ class BattleDeck extends PiledZone {
           pileMargin: Vector2(10, 10),
           pileOffset: Vector2(GameUI.battleCardSize.x / 3 * 2, 0),
           focusedSize: GameUI.battleCardFocusedSize,
-        ) {
+        );
+
+  @override
+  void onLoad() {
     for (final card in cards) {
       card.enablePreview = true;
-      gameRef.world.add(card);
+      if (!card.isMounted) {
+        gameRef.world.add(card);
+      }
     }
   }
 

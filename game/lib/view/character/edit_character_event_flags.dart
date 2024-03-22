@@ -69,7 +69,7 @@ class _EditCharacterEventFlagsState extends State<EditCharacterEventFlags> {
                                   }
                                 },
                               ),
-                              Text(engine.locale(flag))
+                              Text(flag),
                             ],
                           ),
                         ),

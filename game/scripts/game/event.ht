@@ -14,30 +14,25 @@ import 'game.ht'
 ///       onNewGame: {
 ///         
 ///         handle: () {
-///           engine.info('[${this.name}]: 新游戏事件回调函数')
+///           engine.info('[${this.id}]: 新游戏事件回调函数')
 ///         }
 ///       }
 ///     }
 ///   }
 /// }
-let gEventHandlers = {}
 
-function getEventHandlerById(worldId, id: string) {
-  return gEventHandlers[worldId]?[id]
-}
-
+/// 将自定义时间处理函数绑定到module对象上，
+/// 因为函数不会被序列化，因此每次启动游戏都会执行一次绑定
+/// 此时模组元数据尚未加载
 function addEventHandlers({worldId, moduleId, handlers}) {
-  engine.info('向世界 [${worldId}] 添加模组事件表：[${moduleId}]...')
-
-  if (gEventHandlers[worldId] == null) {
-    gEventHandlers[worldId] = {}
+  engine.info('添加模组事件处理函数 [${moduleId}] ...')
+  let module = {}
+  module[worldId] = {}
+  Object.assign(module[worldId], handlers)
+  if (game.modules[moduleId] == null){
+    game.modules[moduleId] = {}
   }
-  if (gEventHandlers[worldId][moduleId] != null) {
-    engine.warn('事件处理模组 [${moduleId}]上的重复事件将会被覆盖。')
-  } else {
-    gEventHandlers[worldId][moduleId] = {}
-  }
-  Object.assign(gEventHandlers[worldId][moduleId], handlers)
+  Object.assign(game.modules[moduleId], module)
 }
 
 /// 触发 mod 的回调函数
@@ -47,19 +42,15 @@ function addEventHandlers({worldId, moduleId, handlers}) {
 /// 事件处理函数将会收到两个参数
 /// 第一个参数module是模组数据，可以保存一些flag之类
 /// 第二个是回调本身的一些传入参数，例如执行时的一些情况等等
+
 function onGameEvent(eventId: string, ...args) async {
-  engine.info('触发游戏事件：${eventId}')
-  final currentWorldModules = gEventHandlers[world.id]
-  if (currentWorldModules == null) {
-    engine.info('未发现世界 ${world.id}(${world.id}) 的事件处理模组。')
-    return
-  }
+  // engine.info('触发游戏事件 [${eventId}]')
   for (const module in game.modules.values) {
-    let callback = currentWorldModules[module.id]?[eventId]
+    let callback = module[world.id]?[eventId]
     // callback 可能是 null
     if(callback is function) {
-      engine.info('执行模组：[${module.id}] 的事件处理函数 ${eventId}')
-      async callback.apply(module, ...args)
+      engine.info('执行模组 [${module.id}] 的事件处理函数 [${eventId}]')
+      await callback.apply(module, ...args)
     }
   }
 }

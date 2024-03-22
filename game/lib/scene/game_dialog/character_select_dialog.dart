@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/view/character/profile.dart';
+import 'package:heavenly_tribulation/view/common.dart';
 import 'package:samsara/ui/responsive_window.dart';
 
 import '../../config.dart';
 import '../../util.dart';
 import '../../view/game_entity_listview.dart';
-import '../../view/character/memory.dart';
 
 const _kInformationViewCharacterColumns = [
   'name',
@@ -25,7 +26,6 @@ class CharacterSelectDialog extends StatelessWidget {
   }) async {
     return await showDialog<dynamic>(
       context: context,
-      barrierDismissible: false,
       builder: (BuildContext context) {
         return CharacterSelectDialog(
           title: title,
@@ -98,9 +98,9 @@ class CharacterSelectDialog extends StatelessWidget {
           onItemPressed: (buttons, position, dataId) => showDialog(
             context: context,
             barrierDismissible: false,
-            builder: (context) => MemoryView(
+            builder: (context) => ProfileView(
               characterId: dataId,
-              showConfirmButton: true,
+              mode: ViewPanelMode.select,
             ),
           ).then((value) {
             if (value != null) {

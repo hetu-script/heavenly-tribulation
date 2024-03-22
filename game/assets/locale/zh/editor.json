@@ -1,16 +1,28 @@
 {
   "file": "文件",
   "edit": "编辑",
-  "expandWorld": "扩大世界",
+  "addWorld": "添加新地图",
+  "addSite": "添加建筑",
+  "switchWorld": "切换地图",
+  "expandWorld": "扩大地图",
+
+  "isDiscovered": "是否已被发现",
+  "isMainWorld": "是否是主世界",
 
   "checkInformation": "查看信息",
+  "editDescription": "编辑人物故事",
   "editIdAndImage": "编辑id和图像",
 
+  "addBond": "添加羁绊",
+
   "gameEntity": "游戏对象",
-  "createCharacter": "创建角色",
+  "createCharacter": "创建人物",
   "createLocation": "创建据点",
   "createOrganization": "创建门派",
   "createZone": "创建区域",
+  "createMapObject": "创建地图对象",
+  "bindMapObject": "绑定地图对象",
+  "clearMapObject": "清除地图对象",
 
   "setAsHero": "设置为主角",
   "clearWorldMapPosition": "清除大地图位置",
@@ -22,7 +34,7 @@
   "checkProfile": "查看详情",
   "checkEventFlags": "查看自定义事件标记",
   "checkEquipments": "查看装备",
-  "checkHistory": "查看历史",
+  "checkMemory": "查看记忆",
 
   "terrainDetail": "地块信息",
   "setTerrainKind": "设置地块类型",
@@ -30,5 +42,7 @@
   "clearTerrainOverlaySprite": "清除地块附加贴图",
   "clearTerrainOverlayAnimation": "清除地块附加动画",
   "setInteractable": "设置可否进入",
-  "nonInteractable": "不可到达"
+  "nonInteractable": "不可到达",
+
+  "useCustomInteraction": "使用自定义事件处理函数"
 }

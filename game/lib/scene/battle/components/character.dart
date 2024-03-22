@@ -220,17 +220,20 @@ class BattleCharacter extends GameComponent {
     super.size,
     this.isHero = false,
     required this.skinId,
-    required Set<String> cardAnimations,
+    required Set<String> animationStates,
     required this.data,
     required this.deckZone,
   }) : super(anchor: Anchor.topCenter, flipH: isHero ? false : true) {
-    _currentState = '${kStandState}_$skinId';
-    cardAnimations.addAll(kPreloadAnimationStates.map((e) => '${e}_$skinId'));
-    for (final state in cardAnimations) {
-      assert(GameData.animationData.containsKey(state));
-      final data = GameData.animationData[state];
+    // _currentState = '${kStandState}_$skinId';
+    _currentState = kStandState;
+    // cardAnimations.addAll(kPreloadAnimationStates.map((e) => '${e}_$skinId'));
+    animationStates.addAll(kPreloadAnimationStates);
+    for (final state in animationStates) {
+      assert(GameData.animationData.containsKey(skinId));
+      final data = GameData.animationData[skinId][state];
+      assert(data != null);
       _animations[state] = SpriteAnimationWithTicker(
-        animationId: state,
+        animationId: '$skinId/$state.png',
         srcSize: Vector2(data['width'], data['height']),
         stepTime: data['stepTime'],
         loop: data['loop'],
@@ -390,8 +393,7 @@ class BattleCharacter extends GameComponent {
       effect.amount += count;
 
       if (effect.soundId != null) {
-        engine.playSound('sound_effect/${effect.soundId}',
-            volume: GameConfig.soundEffectVolume);
+        engine.play('${effect.soundId}', volume: GameConfig.soundEffectVolume);
       }
 
       return;
@@ -406,8 +408,7 @@ class BattleCharacter extends GameComponent {
       _statusEffects[id] = effect;
 
       if (effect.soundId != null) {
-        engine.playSound('sound_effect/${effect.soundId}',
-            volume: GameConfig.soundEffectVolume);
+        engine.play('${effect.soundId}', volume: GameConfig.soundEffectVolume);
       }
     }
 
@@ -500,7 +501,7 @@ class BattleCharacter extends GameComponent {
     );
 
     if (diff > 0) {
-      engine.playSound('sound_effect/spell-of-healing-876.mp3',
+      engine.play('spell-of-healing-876.mp3',
           volume: GameConfig.soundEffectVolume);
       life = hp;
     }
@@ -544,23 +545,24 @@ class BattleCharacter extends GameComponent {
     );
 
     if (diff > 0) {
-      engine.playSound('sound_effect/spell-of-healing-876.mp3',
+      engine.play('spell-of-healing-876.mp3',
           volume: GameConfig.soundEffectVolume);
       mana = mp;
     }
   }
 
   bool containsState(String stateId) {
-    return _animations.containsKey('${stateId}_$skinId');
+    // return _animations.containsKey('${stateId}_$skinId');
+    return _animations.containsKey(stateId);
   }
 
   Future<void> setState(
-    String stateId, {
+    String state, {
     bool resetOnComplete = false,
     void Function()? onComplete,
   }) {
-    // engine.info('${isHero ? 'hero' : 'enemy'} new state: $stateId');
-    final state = '${stateId}_$skinId';
+    // engine.info('${isHero ? 'hero' : 'enemy'} new state: $state');
+    // state = '${state}_$skinId';
     if (_currentState != state) {
       _currentState = state;
     }
@@ -622,10 +624,10 @@ class BattleCharacter extends GameComponent {
     _handleDamageCallback(damageType, damage, args);
 
     if (args['blocked'] ?? false) {
-      engine.playSound('sound_effect/shield-block-shortsword-143940.mp3',
+      engine.play('shield-block-shortsword-143940.mp3',
           volume: GameConfig.soundEffectVolume);
     } else {
-      engine.playSound('sound_effect/sword-sound-2-36274.mp3',
+      engine.play('sword-sound-2-36274.mp3',
           volume: GameConfig.soundEffectVolume);
     }
 

@@ -1,8 +1,531 @@
-export 'consumable/consumable.ht'
-export 'common.ht'
-export 'material/material.ht'
-export 'talisman/protect/shield.ht'
-export 'talisman/weapon/weapon.ht'
-export 'quest_item.ht'
-export 'random_item.ht'
-export 'money.ht'
+import '../entity.ht'
+import '../../game.ht'
+import '../../random.ht'
+import '../../incident.ht'
+
+export 'material.ht'
+
+const kUnknownItemIcon = 'icon/unknown_item.png'
+const kUnknownItemDescriptionLocaleKey = 'defaultItemDescription'
+
+function addItemsData(items: List) {
+  for (let item in items) {
+    game.items[item.prototypeId] = item
+  }
+  engine.info('预定义物品数量：[${items.length}]')
+}
+
+function has(entity, itemKindName) {
+  assert(entity.inventory != null && itemKindName != null) 
+  for (let item in entity.inventory.values) {
+    if (item.kind == itemKindName) {
+      return true
+    }
+  }
+  return false
+}
+
+/// 直接获得资源
+function collect(entity, materialId: string, count, { incurIncident = true }) {
+  assert(count > 0)
+  entity.materials[materialId] += count
+
+  let incidentContent = engine.locale('characterAcquireMultipleItem', interpolations: [
+    entity.name,
+    count,
+    engine.locale(materialId),
+  ])
+  if (incurIncident) {
+    Incident(
+      message: incidentContent,
+      subjectId: entity.id,
+      isPrivate: true,
+    )
+  } else {
+    engine.info(incidentContent)
+  }
+}
+
+/// 直接失去资源
+function drop(entity, materialId: string, count, { incurIncident = true }) {
+  assert(count > 0)
+  entity.materials[materialId] -= count
+
+  let incidentContent = engine.locale('characterLoseMultipleItem', interpolations: [
+    entity.name,
+    count,
+    engine.locale(materialId),
+  ])
+  if (incurIncident) {
+    Incident(
+      message: incidentContent,
+      subjectId: entity.id,
+      isPrivate: true,
+    )
+  } else {
+    engine.info(incidentContent)
+  }
+}
+
+function discard(entity, item) {
+
+}
+
+function destroy(character, item, { incurIncident = true }) {
+  assert(character.inventory.containsKey(item.id))
+  
+  delete character.inventory[item.id]
+
+  let incidentContent
+  incidentContent = engine.locale('characterDestroy', interpolations: [
+    character.name,
+    item.name,
+  ])
+  if (incurIncident) {
+    Incident(
+      message: incidentContent,
+      subjectId: character.id,
+      // itemId: item.id, // 物品已经销毁了，无需再在物品上面记录历史
+      isPrivate: true,
+    )
+  } else {
+    engine.info(incidentContent)
+  }
+}
+
+/// 从物品库中直接复制并获取一个物品
+function acquireById(entity, itemId, { count = 1, incurIncident = true }) {
+  // TODO: 如果id不存在，则获得一个「未知物品」
+  assert(game.items.containsKey(itemId))
+  let item = game.items[itemId].clone()
+  // TODO: 根据稀有度和地图大小决定物品允许存在的数量
+  // if (item.isUnique) {
+  //   if (item.isCreated) {
+  //     engine.info('唯一物品${item.id}已经被创造过一次，无法再次获得。')
+  //     return
+  //   } else {
+  //     item.isCreated = true
+  //   }
+  // }
+  item.id = '${item.prototypeId}.${crypto.randomUID4()}'
+  item.name = engine.locale(item.prototypeId)
+  item.description = engine.locale('${item.prototypeId}.description')
+  item.stackSize = count
+  item.color ??= kRarity[item.rarity ?? kCommon].color
+  item.experienced = []
+  item.hint = ''
+  if (item.isUsable) {
+    item.hint += engine.locale('usableHint')
+  }
+  if (item.isEquippable) {
+    item.hint += engine.locale('equippableHint')
+  }
+
+  entity.inventory[item.id] = item
+  item.ownerId = entity.id
+  
+  let incidentContent
+  incidentContent = engine.locale('characterAcquire', interpolations: [
+    entity.name,
+    item.name,
+  ])
+  if (incurIncident) {
+    Incident(
+      message: incidentContent,
+      subjectId: entity.id,
+      item: item,
+      isPrivate: true,
+    )
+  } else {
+    engine.info(incidentContent)
+  }
+}
+
+/// 对象（人物、据点等）获得一个已经存在与世界上的物品
+function acquire(entity, item, { incurIncident = true }) {
+  if (item.ownerId != null) {
+    lose(entity, item)
+  }
+
+  entity.inventory[item.id] = item
+  item.ownerId = entity.id
+
+  let incidentContent
+  incidentContent = engine.locale('characterAcquire', interpolations: [
+    entity.name,
+    item.name,
+  ])
+  if (incurIncident) {
+    Incident(
+      message: incidentContent,
+      subjectId: entity.id,
+      item: item,
+      isPrivate: true,
+    )
+  } else {
+    engine.info(incidentContent)
+  }
+}
+
+function lose(entity, item, { incurIncident = true }) {
+  entity.inventory.remove(item.id)
+  delete item.ownerId
+
+  let incidentContent
+  incidentContent = engine.locale('characterLose', interpolations: [
+    entity.name,
+    item.name,
+  ])
+  if (incurIncident) {
+    Incident(
+      message: incidentContent,
+      subjectId: entity.id,
+      item: item,
+      isPrivate: true,
+    )
+  } else {
+    engine.info(incidentContent)
+  }
+}
+
+// 如果成功支付返回 0，否则返回 欠缺的数量
+// 支付身上的材料作为货币
+function pay(entity, target, value, { isForced = false, incurIncident = true }) {
+  if (value < 0) {
+    engine.error('函数 giveMoney 调用时的金额参数无效（小于 0）。')
+    return
+  }
+  if (value == 0) return
+
+  // const goldValue = value ~/ kGoldExchange
+  // let rest = value - goldValue
+  // const restAfterGold = give(entity, target, 'item.goldCoin', count: goldValue)
+  // rest += restAfterGold
+
+  // const silverValue = rest ~/ kSilverExchange
+  // let rest = value - silverValue
+  // const restAfterSilver = give(entity, target, 'item.silverCoint', count: silverValue)
+  // rest += restAfterSilver
+
+  const money = entity.inventory['item.bronzeCoin']
+  if (money != null && money.stackSize >= value) {
+    give(entity, target, money.id, count: value, isForced: isForced, incurIncident: incurIncident)
+    return true
+  }
+  return false
+}
+
+// 某个对象将其拥有的物品交给另一个对象
+// isForced 如果为 true，表示 target 强行夺取了 entity 的物品
+// 将会立刻移除该物品，不要在物品栏循环中使用这个函数
+// 此函数即便数量不够也会尽量支付
+// 如果成功提供足够数量的指定物品，返回 0，否则返回 欠缺的数量
+function give(entity, target, itemId, { count, removeItem = true, isForced = false, incurIncident = true}) {
+  if (count <= 0) return 0
+  let rest = count ?? 1
+  if (!entity.inventory.containsKey(itemId)) {
+    engine.warn('${entity.id} 没有 ${item.id} ，无法支付。')
+    return rest
+  }
+  const item = entity.inventory[itemId]
+  count ??= item.stackSize ?? 1
+  if (item.equippedPosition) unequip(entity, item)
+  let incidentContent
+
+  let actualNumber = count
+  if (item.stackSize > count) {
+    item.stackSize -= count
+  } else if (item.stackSize < count) {
+    // char1身上的数量不够支付n
+    actualNumber = item.stackSize
+    engine.warn('${entity.id} 身上的 ${item.id} 不够 ${count} 个，实际数量：${actualNumber}。')
+    delete entity.inventory[item.id]
+  } else {
+    // 数量刚好
+    delete entity.inventory[item.id]
+  }
+  rest = count - actualNumber
+  if (target.inventory.containsKey(item.id)) {
+    target.inventory[item.id].stackSize += actualNumber
+  } else {
+    const itemCopy = item.clone()
+    itemCopy.stackSize = actualNumber
+    target.inventory[itemCopy.id] = itemCopy
+  }
+  if (count > 1) {
+    incidentContent = isForced ?
+      engine.locale('characterGiveMultipleItemForced', interpolations: [
+        target.name,
+        entity.name,
+        count,
+        item.name,
+      ]) :
+      engine.locale('characterGiveMultipleItem', interpolations: [
+        entity.name,
+        count,
+        item.name,
+        target.name,
+      ])
+  } else {
+    incidentContent = isForced ?
+      engine.locale('characterGiveItemForced', interpolations: [
+        target.name,
+        entity.name,
+        count,
+        item.name,
+      ]) :
+      engine.locale('characterGiveItem', interpolations: [
+        entity.name,
+        count,
+        item.name,
+        target.name,
+      ])
+  }
+
+  if (incurIncident) {
+    let subjectIds
+    let objectIds
+    if (isForced) {
+      subjectIds = entity.isMajorCharacter ? [entity.id] : null
+      objectIds = target.isMajorCharacter ? [target.id] : null
+    } else {
+      subjectIds = target.isMajorCharacter ? [target.id] : null
+      objectIds = entity.isMajorCharacter ? [entity.id] : null
+    }
+    Incident(
+      message: incidentContent,
+      subjectIds: subjectIds,
+      objectIds: objectIds,
+      isPrivate: true,
+    )
+  }
+
+  return rest
+}
+
+// 使用食物或者丹药
+// 返回值代表是否使用成功
+// 此函数允许对一个不在物品栏中的物品调用
+function consume(character, item, { forcerCharacter }) {
+  if (!item.isConsumable) {
+    engine.warn('${item.id} 无法食用。')
+    return false
+  }
+
+  if (character.inventory.containsKey(item.id)) {
+    if (item.rarity == kCommon) {
+      if (item.stackSize > 1) {
+        --item.stackSize
+      } else {
+        delete character.inventory[item.id]
+      }
+    } else {
+      delete character.inventory[item.id]
+    }
+  }
+
+  if (item.stats.effects) {
+    for (const effect of item.stats.effects) {
+      // 即便是可以食用的物品，也可能包含一些非食用效果，因此这里要加以判断
+      if (effect.category == kEffectCategoryConsume) {
+        const effectHandler = getEffectHandlerById(effect.id)
+        if (effectHandler is function) effectHandler(effect, character)
+      }
+    }
+  }
+
+  let incidentContent
+  switch (item.kind) {
+    kEntityConsumableKindMedicine : {
+      incidentContent = forcerCharacter ?
+        engine.locale('characterTakeMedicineForced', interpolations: [
+          forcerCharacter.name,
+          character.name,
+          item.name,
+        ]) :
+        engine.locale('characterTakeMedicine', interpolations: [
+          character.name,
+          item.name,
+        ])
+    }
+    kEntityConsumableKindBeverage : {
+      incidentContent = forcerCharacter ?
+        engine.locale('characterDrinkBeverageForced', interpolations: [
+          forcerCharacter.name,
+          character.name,
+          item.name,
+        ]) :
+        engine.locale('characterDrinkBeverage', interpolations: [
+          character.name,
+          item.name,
+        ])
+    }
+    else : {
+      incidentContent = forcerCharacter ?
+        engine.locale('characterEatForced', interpolations: [
+          forcerCharacter.name,
+          character.name,
+          item.name,
+        ]) :
+        engine.locale('characterEat', interpolations: [
+          character.name,
+          item.name,
+        ])
+    }
+  }
+
+  let subjectIds
+  let objectIds
+  if (forcerCharacter && forcerCharacter.isMajorCharacter) {
+    subjectIds = [forcerCharacter.id]
+    if (character.isMajorCharacter) {
+      objectIds = [character.id]
+    }
+  } else if (character.isMajorCharacter) {
+    subjectIds = [character.id]
+  }
+
+  Incident(
+    message: incidentContent,
+    subjectIds: subjectIds,
+    objectIds: objectIds,
+    isPrivate: true,
+  )
+  
+  return true
+}
+
+// 法宝和技能都可以装备，只要类型符合
+// 返回值代表是否装备成功
+// 如果对一个不在物品栏中的物品调用，会先将其加入物品栏
+// 但并不会检查是否已经在别人的物品栏里了
+// 
+// 装备并非直接将物品数据保存在人物数据中，而是用下面的数据结构
+// {
+//   id,
+//   entityType,
+//   category,
+//   kind,
+//   equipType,
+//   life,
+// }
+function equip(character, item, { index }) -> bool {
+  assert(index == null || (index > 0 && index < kEquipmentMax))
+  if (!item.isEquippable) {
+    engine.warn('${item.id} 无法装备。')
+    return false
+  }
+  if (item.equippedPosition) {
+    engine.warn('${item.id} 已经在装备中了。')
+    return false
+  }
+
+  let equipped = false
+  // 如果有空位就装备在空位上
+  if (index == null) {
+    for (const i in range(1, kEquipmentMax)) {
+      if (character.equipments[i] == null) {
+        character.equipments[i] = item.id
+        item.equippedPosition = i
+        equipped = true
+        break
+      }
+    }
+    // 否则替换掉第一个空位
+    index = 1
+  }
+
+  if (!equipped) {
+    assert(index != null)
+
+    const oldEquipId = character.equipments[index]
+    if (oldEquipId != null) {
+      const oldItem = character.inventory[oldEquipId]
+      delete oldItem.equippedPosition
+    }
+    character.equipments[index] = item.id
+    item.equippedPosition = index
+    equipped = true
+  }
+
+  if (equipped) {
+    const incidentContent = engine.locale('characterEquip', interpolations: [
+      character.name,
+      item.name,
+    ])
+    Incident(
+      message: incidentContent,
+      subjectId: character.id,
+      isPrivate: true,
+    )
+
+    // 重新计算角色状态值
+    calculateCharacterStats(character)
+  }
+
+  return equipped
+}
+
+function unequip(character, item) {
+  assert(item.equippedPosition != null)
+  delete character.equipments[item.equippedPosition]
+  delete item.equippedPosition
+  calculateCharacterStats(character)
+
+  const incidentContent = engine.locale('characterUnequip', interpolations: [
+    character.name,
+    item.name,
+  ])
+  Incident(
+    message: incidentContent,
+    subjectId: character.id,
+    isPrivate: true,
+  )
+}
+
+// 批量获取物品，但不显示从那里获得的，通常用于从箱子或包裹中批量拿取
+function loot(character, lootbox, { incurIncident = true }) {
+  for (const item of lootbox.inventory) {
+    acquire(character, item, incurIncident: incurIncident)
+  }
+  // if (lootbox.money) {
+  //   acquireMoney(character, lootbox.money, incurIncident: incurIncident)
+  // }
+
+  // 清空箱子
+  lootbox.inventory.clear()
+
+  // const ids = lootbox.keys.toList()
+  // for (const id in ids) {
+  //   delete lootbox[id]
+  // }
+}
+
+// 战斗胜利后，根据情况获得战利品
+// 如果对方逃跑，则随机获得对方一部分物品
+// 否则，如果对方活着，则根据我们对其投降的处理方案（杀死活着放走）
+function lootCharacter(character, target, { takeAll = false, incurIncident = true }) {
+  if (takeAll) {
+    // 为了避免在循环中修改 iterable，先提取出 id 列表
+    const itemIds = target.inventory.keys.toList()
+    for (const itemId in itemIds) {
+      give(target, character, itemId, isForced: true, incurIncident: incurIncident)
+    }
+    if (target.money) {
+      giveMoney(target, character, target.money, isForced: true, incurIncident: incurIncident)
+    }
+  } else {
+    // 为了避免在循环中修改 iterable，先提取出 id 列表
+    const itemIds = target.inventory.keys.toList()
+    for (const itemId in itemIds) {
+      const stackSize = target.inventory[itemId].stackSize
+      if (random.nextDouble() < kEscapedLootProbability) {
+        let count = stackSize > 1 ? random.nextInt(stackSize) + 1 : 1
+        give(target, character, itemId, count: count, isForced: true, incurIncident: incurIncident)
+      }
+    }
+    if (target.money && random.nextDouble() < kEscapedLootProbability) {
+      giveMoney(target, character, random.nextInt(target.money) + 1, isForced: true, incurIncident: incurIncident)
+    }
+  }
+}

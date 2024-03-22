@@ -11,7 +11,7 @@
 
   "editors": "游戏编辑器",
   "createMap": "创建新地图",
-  "characterEditor": "角色编辑器",
+  "characterEditor": "人物编辑器",
 
   "debugMod": "开发者模式",
   "debugBattle": "战斗测试",
@@ -34,13 +34,11 @@
   "loadMap": "载入地图",
   "unnamedMap": "未命名地图",
 
-  "fileName": "文件名",
-  "mapSize": "地图大小",
-
   "create": "新建",
   "save": "保存",
+  "fileName": "文件名",
   "saveName": "存档",
-  "worldId": "世界",
+  "mapSize": "地图大小",
   "timestamp": "日期",
   "saveAs": "另存为",
   "reload": "重新载入",

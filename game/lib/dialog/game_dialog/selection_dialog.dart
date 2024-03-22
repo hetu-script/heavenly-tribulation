@@ -14,7 +14,6 @@ class SelectionDialog extends StatelessWidget {
     return await showDialog<String>(
       context: context,
       barrierColor: Colors.transparent,
-      barrierDismissible: false,
       builder: (BuildContext context) {
         return SelectionDialog(selectionsData: selectionsData);
       },

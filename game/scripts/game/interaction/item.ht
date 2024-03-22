@@ -1,0 +1,16 @@
+import '../entity/entity.ht'
+
+function onAfterHeroAcquireMaterial(materialId, count) {
+  
+}
+
+function onAfterHeroAcquireItem(item) {
+  
+}
+
+function onConsumeItem(item) {
+  assert(item.entityType == kEntityTypeItem)
+  // switch (item.category) {
+
+  // }
+}

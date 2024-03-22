@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/responsive_window.dart';
 import 'package:samsara/ui/close_button.dart';
@@ -15,7 +16,6 @@ class InputStringDialog extends StatefulWidget {
     return showDialog<String?>(
       context: context,
       barrierColor: Colors.transparent,
-      barrierDismissible: false,
       builder: (context) {
         return InputStringDialog(title: title);
       },
@@ -71,6 +71,8 @@ class _InputStringDialogState extends State<InputStringDialog> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 10.0, vertical: 20.0),
                   child: TextField(
+                    inputFormatters: [FilteringTextInputFormatter.deny(' ')],
+                    autofocus: true,
                     controller: _textEditingController,
                   ),
                 ),
@@ -78,9 +80,8 @@ class _InputStringDialogState extends State<InputStringDialog> {
                   padding: const EdgeInsets.all(5.0),
                   child: ElevatedButton(
                     onPressed: () {
-                      final result = _textEditingController.text.isBlank
-                          ? null
-                          : _textEditingController.text;
+                      final result =
+                          _textEditingController.text.nonEmptyValueOrNull;
                       Navigator.of(context).pop(result);
                     },
                     child: Text(

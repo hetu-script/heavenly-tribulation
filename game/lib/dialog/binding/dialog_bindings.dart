@@ -10,7 +10,6 @@ import '../../view/quest/quests.dart';
 // import '../../scene/map/maze/maze_overlay.dart';
 import '../progress_indicator.dart';
 import '../input_integer.dart';
-import '../../scene/world/location/site.dart';
 
 final Map<String, Function> dialogFunctions = {
   r'_say': ({positionalArgs, namedArgs}) {
@@ -58,7 +57,7 @@ final Map<String, Function> dialogFunctions = {
     );
   },
   r'_progress': ({positionalArgs, namedArgs}) {
-    bool Function()? func;
+    bool? Function()? func;
     if (positionalArgs[2] is HTFunction) {
       func = () => (positionalArgs[2] as HTFunction).call();
     }
@@ -74,13 +73,6 @@ final Map<String, Function> dialogFunctions = {
       title: positionalArgs[1],
       min: positionalArgs[2],
       max: positionalArgs[3],
-    );
-  },
-  r'_site': ({positionalArgs, namedArgs}) {
-    return SiteView.show(
-      context: positionalArgs[0],
-      siteData: namedArgs['site'],
-      image: namedArgs['image'],
     );
   },
 };

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/responsive_window.dart';
 
-import '../state/saves.dart';
+import '../state/game_save.dart';
 import '../config.dart';
 import '../common.dart';
 
@@ -20,7 +20,7 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final saves = context.watch<Saves>().saves;
+    final saves = context.watch<GameSavesState>().saves;
     final layout = Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -57,7 +57,7 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(engine.locale('saveName')),
-                                      Text(engine.locale('worldId')),
+                                      Text(engine.locale('world')),
                                       Text(
                                         engine.locale('timestamp'),
                                         softWrap: false,
@@ -75,7 +75,7 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
                                         info.saveName,
                                       ),
                                       Text(
-                                        info.worldId,
+                                        info.currentWorldId,
                                       ),
                                       Text(
                                         info.timestamp!,

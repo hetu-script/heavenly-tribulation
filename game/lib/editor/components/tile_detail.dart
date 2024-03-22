@@ -4,7 +4,7 @@ import 'package:samsara/ui/responsive_window.dart';
 import 'package:samsara/ui/close_button.dart';
 
 import '../../config.dart';
-import '../../state/tile_info.dart';
+import '../../state/selected_tile.dart';
 
 class TileDetailPanel extends StatefulWidget {
   const TileDetailPanel({super.key});
@@ -21,9 +21,9 @@ class _TileDetailPanelState extends State<TileDetailPanel> {
     final currentLocation = context.watch<SelectedTileState>().currentLocation;
     final currentTerrain = context.watch<SelectedTileState>().currentTerrain;
 
-    String? coordinate;
+    String? coordinates;
     if (currentTerrain != null) {
-      coordinate = '${currentTerrain.left}, ${currentTerrain.top}';
+      coordinates = '${currentTerrain.left}, ${currentTerrain.top}';
     }
 
     return ResponsiveWindow(
@@ -42,7 +42,7 @@ class _TileDetailPanelState extends State<TileDetailPanel> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (currentTerrain != null) ...[
-                Text('${engine.locale('coordinate')}: $coordinate'),
+                Text('${engine.locale('coordinates')}: $coordinates'),
                 Text(
                     '${engine.locale('kind')}: ${engine.locale(currentTerrain.kind!)}'),
               ],

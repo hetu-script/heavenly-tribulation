@@ -4,17 +4,17 @@ import '../entity/location/site.ht'
 import '../entity/location/location.ht'
 import '../entity/character/character.ht'
 import '../entity/organization/organization.ht'
-// import '../l10n.ht'
 import '../tile/hexagonal_tile.ht'
 import '../world/zone.ht'
 import '../tile/tilemap.ht'
-import '../entity/common.ht'
+import '../entity/entity.ht'
 import '../datetime.ht' as datetime
 import '../update.ht'
 import 'generation_algorithm.ht'
 import '../tile/common.ht'
 import '../dialog.ht'
 import '../entity/item/item.ht'
+import 'world.ht'
 
 
 import 'world.ht'
@@ -26,8 +26,8 @@ const _kWorldSizePerWorldScale = {
   '3': 27,
   '4': 40,
 }
-// const _kDefaultNationNumber = 4
-const _kDefaultOrganizationNumber = 4
+
+const _kDefaultNationNumber = 4
 const _kDefaultLocationNumber = 6
 const _kDefaultCharacterNumber = 20
 // const _kDefaultCultivationOrganizationNumber = 4
@@ -79,18 +79,16 @@ const _cultivationKinds = [
 
 function createSandboxWorld({
     id,
+    isMainWorld,
     name,
     seedString,
     style = 'coast',
     terrainSpriteSheet = 'fantasyhextiles_v3_borderless.png',
     worldScale = _kDefaultWorldScale,
-    organizationNumber = _kDefaultOrganizationNumber,
-    // nationNumber = _kDefaultNationNumber,
-    locationNumber = _kDefaultLocationNumber,
-    // cultivationOrganizationNumber = _kDefaultCultivationOrganizationNumber,
-    // tradinghouseOrganizationNumber = _kDefaultTradingHouseOrganizationNumber,
-    characterNumber = _kDefaultCharacterNumber,
+    nationNumber = _kDefaultNationNumber,
+    locationNumber = _kDefaultLocationNumber,    characterNumber = _kDefaultCharacterNumber,
     // landProportion = 0.55,
+    saveName,
   }) {
   assert(id != null)
   assert(seedString is string && seedString.isNotEmpty)
@@ -117,22 +115,20 @@ function createSandboxWorld({
     height: height,
   )
 
+  newWorld.isMainWorld = isMainWorld
   newWorld.name = name ?? generateZoneName(category: 'world').name
   
-  setWorld(newWorld)
+  addWorld(newWorld)
 
   engine.info('生成地块')
   for (const j in range(height)) {
     for (const i in range(width)) {
       world.terrains.add(
-        {
-          ...Tile(i + 1, j + 1),
-          index: tilePos2Index(i + 1, j + 1, width),
-          spriteIndex: kSpriteWater,
-          overlaySprite: {},
-          // 该地块的每月刷新野外事件的时间
-          monthlyUpdateTime: random.nextInt(kTicksPerMonth)
-        }
+        TileMapTerrain(
+          left: i + 1,
+          top: j + 1,
+          mapWidth: width
+        )
       )
     }
   }
@@ -167,12 +163,12 @@ function createSandboxWorld({
         final zone = getZoneById(neighbor.zoneId)
         addTerrainToZone(tile, zone)
         foundAdjacentZone = true
-        // engine.info('Found neighbor: ${neighbor.left},${neighbor.top}, zoneId: ${neighbor.zoneId}')
+        // engine.info('found neighbor: ${neighbor.left},${neighbor.top}, zoneId: ${neighbor.zoneId}')
         break
       }
     }
     if (!foundAdjacentZone && willCreateZone) {
-      let category = tile.spriteIndex == kSpriteLand ? kZoneLand : kZoneWater
+      let category = tile.spriteIndex == kSpriteLand ? kZoneLand : kZoneSea
       const zone = Zone(category: category)
       // engine.info('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneId: ${zone.id}')
       // engine.info('processing previoused stored unzoned tiles: ${unzonedNeighbors}')
@@ -249,14 +245,15 @@ function createSandboxWorld({
       for (const neighbor in neighbors) {
         if (neighbor.spriteIndex == kSpriteLand) {
           neighbor.isShore = true
-          tile.spriteIndex = kSpriteShelf
           isSea = false
-          break
         }
       }
       if (isSea) {
         seas.add(tile.index)
-      }
+      }      
+      // else {
+      //   tile.spriteIndex = kSpriteShelf
+      // }
     }
   }
 
@@ -294,28 +291,28 @@ function createSandboxWorld({
       // const money = _kNpcStoreInitialMoney + random.nextInt(_kNpcStoreInitialMoney)
       // acquireMoney(site, money)
       // 货栈可能有：谷物、水果、鱼、蔬菜、药材、木料、矿石
-      acquire(site, Material.grain(), count: 20)
-      acquire(site, Material.fruit(), count: 20)
-      acquire(site, Material.fish(), count: 20)
-      acquire(site, Material.vegetable(), count: 20)
-      acquire(site, Material.herb(), count: 20)
-      acquire(site, Material.wood(), count: 20)
-      acquire(site, Material.ore(), count: 20)
+      // acquire(site, Material.grain(), count: 20)
+      // acquire(site, Material.fruit(), count: 20)
+      // acquire(site, Material.fish(), count: 20)
+      // acquire(site, Material.vegetable(), count: 20)
+      // acquire(site, Material.herb(), count: 20)
+      // acquire(site, Material.wood(), count: 20)
+      // acquire(site, Material.ore(), count: 20)
     }
     if (location.development > 1 && random.nextDouble() < _kSiteWorkshopProbability) {
       const site = Site(category: kSiteAuctionHouse, location: location)
       // site.money += _kNpcStoreInitialMoney + random.nextInt(_kNpcStoreInitialMoney)
-      // 武器、盾牌
-      acquire(site, Weapon())
-      acquire(site, Weapon())
-      acquire(site, Weapon())
-      acquire(site, Shield())
-      acquire(site, Shield())
-      // 饮料、食物
-      acquire(site, Consumable.beverage(), count: 20)
-      // 方剂
-      acquire(site, Consumable.medicine(), count: 20)
-      acquire(site, Material.herb(), count: 10)
+      // // 武器、盾牌
+      // acquire(site, Weapon())
+      // acquire(site, Weapon())
+      // acquire(site, Weapon())
+      // acquire(site, Shield())
+      // acquire(site, Shield())
+      // // 饮料、食物
+      // acquire(site, Consumable.beverage(), count: 20)
+      // // 方剂
+      // acquire(site, Consumable.medicine(), count: 20)
+      // acquire(site, Material.herb(), count: 10)
     }
   }
 
@@ -354,22 +351,22 @@ function createSandboxWorld({
   engine.info('为地域命名')
   for (const zone in world.zones.values) {
     assert(zone.name == 'unnamed')
-    // kZoneWater & kZoneLand 只是临时类型，现在替换为具体的类型
-    if (zone.category == kZoneWater) {
+    // kZoneSea & kZoneLand 只是临时类型，现在替换为具体的类型
+    if (zone.category == kZoneSea) {
       // 将临时类型water根据情况替换为lake和sea
       zone.category = zone.terrainIndexes.length < _kMinZoneSizeOfSea ? kZoneCategoryLake : kZoneCategorySea
       // 为该地域中所有地块赋值 kind
       for (const terrainIndex in zone.terrainIndexes) {
         const terrain = world.terrains[terrainIndex]
         // 将所有水域保存在一个总表中，之后用来计算捕鱼地区
-        world.waters.add(terrain.index)
+        world.waterIndexes.add(terrain.index)
         terrain.isWater = true
         terrain.zoneCategory = zone.category
         terrain.kind = zone.category
         // 所有的湖泊都是浅水贴图
-        if (terrain.kind == kZoneCategoryLake) {
-          terrain.spriteIndex = kSpriteShelf
-        }
+        // if (terrain.kind == kZoneCategoryLake) {
+        //   terrain.spriteIndex = kSpriteShelf
+        // }
       }
     } else {
       zone.category = zone.terrainIndexes.length < _kMinZoneSizeOfIsland ? kZoneCategoryIsland : kZoneCategoryContinent
@@ -385,16 +382,23 @@ function createSandboxWorld({
         // else if (terrain.isRoute) {
         //   terrain.kind = kTerrainKindRoad
         // }
-
+        // print('processing terrain: ', terrain.left, ',', terrain.top)
+        // if (terrain.isRoute) {
+        //   terrain.kind = kTerrainKindRoad
+        // } else
+        
         if (terrain.spriteIndex == kSpriteMountain) {
           terrain.kind = kTerrainKindMountain
         } else if (terrain.spriteIndex == kSpriteForest) {
           terrain.kind = kTerrainKindForest
-        } else if (terrain.isShore) {
-          terrain.kind = kTerrainKindShore
-        } else {
+        }
+        // else if (terrain.isShore) {
+        //   terrain.kind = kTerrainKindShore
+        // }
+        else {
           terrain.kind = kTerrainKindPlain
         }
+        // print('terrain kind: ${terrain.kind}')
 
         // TODO: river类型和道路类型单独的贴图
       }
@@ -404,10 +408,10 @@ function createSandboxWorld({
     zone.name = randomName.name
   }
 
-  const organizations = []
+  const nations = []
   // 随机挑选几个城市，作为各个国家的都城，生成地图上的不同国家
   engine.info('随机挑选几个城市，作为各个国家的都城，生成地图上的不同国家')
-  while (organizations.length < organizationNumber) {
+  while (nations.length < nationNumber) {
     let location
     do {
       // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
@@ -425,7 +429,7 @@ function createSandboxWorld({
       headId: head.id,
       category: 'nation',
     )
-    organizations.add(organization)
+    nations.add(organization)
   }
 
   // 随机生成每个组织的创建时间，分布在20年的范围内，时间固定为某月1号
@@ -441,7 +445,7 @@ function createSandboxWorld({
       let found = false
       for (const id in random.shuffle(game.characters.keys)) {
         const character = game.characters[id]
-        const age = datetime.toYear(currentWorldHistory.timestamp - character.birthTimestamp)
+        const age = datetime.toYear(timeline.timestamp - character.birthTimestamp)
         // 年龄至少是20岁，并且不能担任其他组织职务
         if (character.organizationRank < 0 && age >= 20) {
           found = true
@@ -484,7 +488,7 @@ function createSandboxWorld({
   // const islands = Set() // 用来保存在这一步骤才生成的隐居岛屿的门派据点
   do {
   //   if (createdCultivationOrganizationCount < cultivationOrganizationNumber) {
-  //     if (currentWorldHistory.timestamp >= cultivationOrganizationCreatedDate.last) {
+  //     if (timeline.timestamp >= cultivationOrganizationCreatedDate.last) {
   //       // 组织数量不够，在来到下一个组织创建时间时，创建组织
   //       cultivationOrganizationCreatedDate.removeLast()
 
@@ -572,7 +576,7 @@ function createSandboxWorld({
     handleBabies()
 
     // 每年一次
-    if (currentWorldHistory.timestamp % kTicksPerYear == 0) {
+    if (timeline.timestamp % kTicksPerYear == 0) {
       // 产生新的在野角色
       if (game.characters.length < characterNumber) {
         // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
@@ -613,7 +617,7 @@ function createSandboxWorld({
             Baby(
               father: spouse,
               mother: char,
-              conceptionTimestamp: currentWorldHistory.timestamp,
+              conceptionTimestamp: timeline.timestamp,
             )
           }
         } else {
@@ -621,13 +625,11 @@ function createSandboxWorld({
             for (const otherId in random.shuffle(game.characters.keys)) {
               if (id == otherId) continue
               const otherChar = game.characters[otherId]
-              // TODO: 这里暂时没有允许同性婚姻
               if (otherChar.isFemale == char.isFemale) continue
               const otherCharAge = getCharacterAge(otherChar)
               if (otherCharAge > _kCharacterMarriageAgeMin
                   && otherChar.relationships.spouseId == null) {
-                char.relationships.spouseId = otherId
-                otherChar.relationships.spouseId = id
+                characterFirstMet(char, otherChar)
                 let home
                 if (char.organizationRank < otherChar.organizationRank) {
                   home = game.locations[char.homeId]
@@ -640,20 +642,23 @@ function createSandboxWorld({
                     home = game.locations[otherChar.homeId]
                   }
                 }
-                characterFirstMet(char, otherChar)
+                char.relationships.spouseId = otherId
+                otherChar.relationships.spouseId = id
+                refreshCharacterRelationship(char, otherChar)
                 const incidentContent = engine.locale('characterMarriage', interpolations: [
                     char.name,
                     otherChar.name,
                     home.name,
                   ])
                 Incident(
-                  content: incidentContent,
-                  subjectIds: [char.id, otherChar.id],
+                  message: incidentContent,
+                  subjectId: char.isFemale ? otherChar.id : char.id,
+                  objectId: char.isFemale ? char.id : otherChar.id,
                   locationId: home.id,
                   order: 20,
                 )
-                char.marriageTimestamp = currentWorldHistory.timestamp
-                otherChar.marriageTimestamp = currentWorldHistory.timestamp
+                char.marriageTimestamp = timeline.timestamp
+                otherChar.marriageTimestamp = timeline.timestamp
                 break
               }
             }
@@ -663,7 +668,7 @@ function createSandboxWorld({
     }
 
     // 因为是模拟运行，时间直接以月为单位流逝
-    currentWorldHistory.timestamp += kTicksPerMonth
+    timeline.timestamp += kTicksPerMonth
   } while (
     game.characters.length < characterNumber
     // || createdCultivationOrganizationCount < cultivationOrganizationNumber
@@ -691,7 +696,6 @@ function createSandboxWorld({
 
   // 将地域的上色信息复制到引擎侧
   engine.info('刷新世界地图上色信息')
-  loadTileMapZoneColors()
 
   // engine.info('世界生成完毕。重置随机数生成器。')
   // setRandomSeed()

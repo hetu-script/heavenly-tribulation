@@ -2,12 +2,22 @@
 /// 此对象拥有一个牌库和一个卡组。
 /// 卡组是战斗中使用的。而牌库可以用来交换卡牌收藏（偷取、学习或者交换）。
 
-import '../common.ht'
-import '../material.ht'
+import '../entity.ht'
+import '../item/material.ht'
 // import 'status_effect/world_map_status_effect.ht'
 
 const _kAttributeSum = 50
 const _kMajorAttributeFactor = 0.5
+
+const kEquipmentMax = 7
+
+const _kBaseStaminaCostForMoveOnWater = 12
+const _kBaseStaminaCostForMoveOnHill = 12
+
+const kBasicLife = 25
+const kBasicStamina = 10
+const kBasicManaMax = 1
+const kBasicLightedArea = 1
 
 const kCharacterAttributeNames = [
   'spirituality',
@@ -16,11 +26,6 @@ const kCharacterAttributeNames = [
   'willpower',
   'perception',
 ]
-
-const kBasicLife = 25
-const kBasicStamina = 10
-const kBasicManaMax = 1
-const kBasicLightedArea = 1
 
 function getMajorAttributes(character) {
   let attr = character.attributes
@@ -54,6 +59,7 @@ struct BattleEntity {
     attributeSum,
     majorAttributes: List = [],
     baseStats,
+    battleDeck,
   }) {
     // 身上携带的材料，材料本身没有特殊属性，多个材料只是堆叠数字增加
     // 材料单独显示在物品栏上方，没有携带的材料不会显示
@@ -66,7 +72,7 @@ struct BattleEntity {
     // 装备栏的位置是固定的 8 个
     // 装备栏只能装备法宝，获得其佩戴效果
     // 装备数据的 key 是 1-8 的数字，代表第几栏，
-    // value 是一个 equipData 对象
+    // value 是 物品的 id
     this.equipments = {}
 
     // 随主角移动的其他角色
@@ -75,12 +81,7 @@ struct BattleEntity {
     // 战斗卡组的位置是固定的，根据境界有 4-8 张
     // TODO: 可以准备多个卡组随时切换
     // key 是 1-8 的数字，代表第几栏
-    this.battleDeck = {}
-
-    // 角色卡牌库，每张牌只有一张，取等级最高者保存，重复获得时会进入备用牌库
-    this.cardLibrary = {}
-    // 备用牌库
-    this.reservedCardLibrary = []
+    this.battleDeck = battleDeck ?? {}
 
     // 修为点数，其实就是经验值，可以换算为天赋点数
     this.cultivationPoints = 0
@@ -103,9 +104,13 @@ struct BattleEntity {
     // 角色的数值
     // 包括经过物品、天赋和状态加成的基本属性值
     // 通过属性还会计算出：攻击、防御、体力、生命、灵气
-    this.stats = {}
+    this.stats = {
+      life: 0,
+      stamina: 0,
+      mana: 0,
+    }
 
-    calculateCharacterStats(this, baseStats)
+    calculateCharacterStats(this, baseStats: baseStats)
     rejuvenate(this)
   }
 }
@@ -150,7 +155,7 @@ function generateCharacterAttributes({
 
 /// 当前状态数值，由特性、属性、物品、天赋、技能、增益减损等计算得来
 /// 状态包括：生命、伤害、防御等。
-function calculateCharacterStats(character, [ baseStats ]) {
+function calculateCharacterStats(character, { baseStats, rejuvenate = false }) {
   
   // 基础属性，在此基础上还要加上物品和状态的加成
   // baseStas可能是从Dart传过来的map，所以这里用了特殊写法取属性
@@ -197,7 +202,7 @@ function calculateCharacterStats(character, [ baseStats ]) {
   let stamina = (strength + dexterity) ~/ 4 + kBasicStamina
   let life = baseStats?['life'] + strength ~/ 2 + kBasicLife
   let mana = baseStats?['mana'] + spirituality ~/ 25 + kBasicManaMax
-  let lightedArea = perception ~/ 25 + kBasicLightedArea
+  let lightRadius = perception ~/ 25 + kBasicLightedArea
 
   character.stats.spirituality = spirituality
   character.stats.dexterity = dexterity
@@ -205,88 +210,62 @@ function calculateCharacterStats(character, [ baseStats ]) {
   character.stats.willpower = willpower
   character.stats.perception = perception
 
-  character.stats.stamina = character.stats.staminaMax = stamina
-  character.stats.life = character.stats.lifeMax = life
-  character.stats.mana = 0
+  character.stats.staminaMax = stamina
+  character.stats.lifeMax = life
   character.stats.manaMax = mana
 
-  character.stats.armor = 0
-  character.stats.weaponAttack = 0
+  character.stats.armor = baseStats?['armor'] ?? 0
+  character.stats.weaponAttack = baseStats?['weaponAttack'] ?? 0
+  character.stats.spellAttack = baseStats?['spellAttack'] ?? 0
+  character.stats.physiqueAttack = baseStats?['physiqueAttack'] ?? 0
+  character.stats.incarnationAttack = baseStats?['incarnationAttack'] ?? 0
+  character.stats.willpowerAttack = baseStats?['willpowerAttack'] ?? 0
 
-  character.stats.lightedArea = lightedArea
+  character.stats.lightRadius ??= lightRadius
+}
+
+function rejuvenate(character) {
+  character.stats.life = character.stats.lifeMax
+  character.stats.stamina = character.stats.staminaMax
 }
 
 function getCharacterStats(character) {
   const stats = character.stats.clone()
-  // stats.equipments = {}
-  // for (const i in range(1, kEquipmentMax)) {
-  //   const equipData = character.equipments[i]
-  //   if (equipData != null) {
-  //     const equipment = getEquipped(equipData, character)
-  //     stats.equipments[i] = equipment.stats.clone()
-  //   }
-  // }
   return stats
 }
 
-// 战斗，异步函数，如果获胜则返回 true
-// function heroBattle (
-//   char2, {
-//   resolveResult = true,
-//   loot = true,
-//   takeAll = true,
-//   isMazeIncident = false,
-//   char1Resurrect = true,
-//   char2Resurrect = false,
-//   onWon,
-//   onLost,
-// }) -> Future async {
-  // const char1 = getHero()
-  // return showDuel(char1, char2).then((result) {
-  //   if (result?.result) {
-  //     if (resolveResult) resolveDuelResult(char1, char2, result)
-  //     if (loot) lootCharacter(char1, char2, takeAll: takeAll)
-  //     const incidentContent = engine.locale('duelVistory', interpolations: [ char1.name, char2.name ] )
-  //     Incident(
-  //       content: incidentContent,
-  //       subjectIds: [char1.id],
-  //       isPrivate: true,
-  //       isMazeIncident: isMazeIncident,
-  //     )
-  //     if (char2Resurrect) {
-  //       if (char2.isMajorCharacter) {
-  //         const injury = WorldMapStatusEffect.injury()
-  //         char2.statusEffects[injury.kind] = injury
-  //         char2.stats.life = 1
-  //       }
-  //     } else {
-  //       const incidentContent = engine.locale('characterKill', interpolations: [ char1.name, char2.name ] )
-  //       Incident(
-  //         content: incidentContent,
-  //         subjectIds: [char1.id],
-  //         isPrivate: true,
-  //         isMazeIncident: isMazeIncident,
-  //       )
-  //       if (char2.isMajorCharacter) {
-  //         char2.isDead = true
-  //       } else {
-  //         delete game.minorCharacters[char2.id]
-  //       }
-  //     }
-  //     if (onWon is function) {
-  //       onWon()
-  //     }
-  //     return true
-  //   } else {
-  //     if (char1Resurrect) {
-  //       const injury = WorldMapStatusEffect.injury()
-  //       char1.statusEffects[injury.kind] = injury
-  //       char1.stats.life = 1
-  //     }
-  //     if (onLost is function) {
-  //       onLost()
-  //     }
-  //     return false
-  //   }
-  // })
-// }
+function getCharacterMovableTerrainKinds(character) {
+  let kinds = ['plain', 'forest']
+  let movableOnWater = getCharacterMoveCostOnWater(character)
+  if (movableOnWater) kinds.addAll(['sea', 'lake'])
+  let movableOnHill = getCharacterMoveCostOnHill(character)
+  if (movableOnHill) kinds.addAll(['mountain'])
+  return kinds
+}
+
+/// 获取角色水上移动体力消耗，如果返回null表示不可水上移动
+/// 消耗以tick为单位，在角色进入该地块之后扣减相应数值
+function getCharacterMoveCostOnWater(character) {
+  // TODO: 金丹境可以直接飞行，因此无需船只
+  for (let i = 1; i < kEquipmentMax; ++i) {
+    let itemId = character.equipments[i]
+    let item = character.inventory[itemId]
+    if (item != null && item.equipType == kEquipTypeShip) {
+      return _kBaseStaminaCostForMoveOnWater
+    }
+  }
+  return null
+}
+
+/// 获取角色山地移动体力消耗，如果返回null表示不可山上移动
+/// 消耗以tick为单位，在角色进入该地块之后扣减相应数值
+function getCharacterMoveCostOnHill(character) {
+  for (let i = 1; i < kEquipmentMax; ++i) {
+    let itemId = character.equipments[i]
+    let item = character.inventory[itemId]
+    if (item != null && item.equipType == kEquipTypeBoots) {
+      return _kBaseStaminaCostForMoveOnHill
+    }
+  }
+  return null
+}

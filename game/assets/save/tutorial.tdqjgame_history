@@ -1,0 +1,12 @@
+{
+  "worlds": {
+    "tutorial": {
+      "timestamp": 0,
+      "incidents": []
+    },
+    "cave": {
+      "timestamp": 0,
+      "incidents": []
+    }
+  }
+}

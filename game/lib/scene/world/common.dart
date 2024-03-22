@@ -7,15 +7,24 @@ const kSpriteLand = 1;
 const kSpriteForest = 2;
 const kSpriteMountain = 3;
 const kSpriteFarmField = 4;
-const kSpritePond = 5;
-const kSpriteShelf = 6;
-const kSpriteCity = 7;
+const kSpriteDungeonStonePavedTile = 5;
+
+const kSpriteCity = 8;
+const kSpriteCave = 9;
+const kSpriteArray = 10;
+const kSpriteDungeonStoneGate = 11;
+const kSpriteDungeonUnpressedTile = 12;
+const kSpriteDungeonPressedTile = 13;
+const kSpriteTreasureBox = 14;
+const kSpriteTreasureBoxOpened = 15;
+
+const kSpriteDungeonGlowingTile = 44;
 
 const kTerrainKindEmpty = 'empty';
-const kTerrainKindMountain = 'mountain';
-const kTerrainKindShore = 'shore';
-const kTerrainKindForest = 'forest';
 const kTerrainKindPlain = 'plain';
+const kTerrainKindMountain = 'mountain';
+const kTerrainKindForest = 'forest';
+const kTerrainKindShore = 'shore';
 const kTerrainKindLake = 'lake';
 const kTerrainKindSea = 'sea';
 const kTerrainKindRiver = 'river';

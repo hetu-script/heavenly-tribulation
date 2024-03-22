@@ -2,7 +2,7 @@ import '../../name/skill.ht'
 import '../common.ht'
 import 'common.ht'
 import '../item/common.ht'
-import '../effect/common.ht'
+import '../../../_obseleted/effect/common.ht'
 import '../../random.ht'
 
 const kWeaponArtsIcons = [

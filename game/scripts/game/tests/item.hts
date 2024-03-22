@@ -1,6 +1,0 @@
-import '../entity/item/talisman/weapon/weapon.ht'
-
-for (const i in range(3)) {
-  const i = Weapon()
-  print(i)
-}

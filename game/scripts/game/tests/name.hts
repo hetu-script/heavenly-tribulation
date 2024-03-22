@@ -1,4 +1,0 @@
-import '../common.ht'
-import '../name/name.ht'
-
-print(random.nextInt(10))

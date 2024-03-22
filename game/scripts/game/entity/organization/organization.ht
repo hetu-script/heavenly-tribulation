@@ -2,9 +2,10 @@ import '../../game.ht'
 import '../location/site.ht'
 import '../../name/organization.ht'
 // import '../../l10n.ht'
-import '../common.ht'
+import '../entity.ht'
 import '../../tile/tilemap.ht'
 // import '../../name/nation.ht'
+import '../item/material.ht'
 
 const kOrganizationRankMax = 4
 const kOrganizationDevelopmentMax = 5
@@ -19,7 +20,7 @@ const kOrganizationCategories = [
   'nation',
 ]
 
-const kCultivationGenre = [
+const kCultivationGenres = [
   'element',
   'blade',
   // 'physique',
@@ -42,27 +43,20 @@ const kCultivationSupportGenre = [
 
 const _kOrganizationThinkingsOnRecruit = 3
 
-const _kLeaderRank = 80
+const _kHeadRank = 80
 
 struct Organization {
   construct ({
     name,
-    category,
-    genre,
-    // nationId,
+    category, // 扩张类型：'cultivation' | 'gang' | 'religion' | 'business' | 'nation'
+    genre, // 修炼类型：'element' | 'blade' | 'physique' | 'avatar' | 'vitality'
     headquartersId,
     headId,
     development = 0,
-    // rankTitles,
-    // cultivationGenre,
-    // cultivationSupportGenre,
+    incurIncident = true, // 是否触发历史事件
   }) {
     assert(game.locations.containsKey(headquartersId))
     assert(game.characters.containsKey(headId))
-    category ??= Random.nextIterable(kOrganizationCategories)
-    assert(kOrganizationCategories.contains(category))
-    genre = Random.nextIterable(kCultivationGenre)
-    assert(kCultivationGenre.contains(genre))
 
     // 该组织的每月刷新事件的时间
     this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
@@ -71,15 +65,17 @@ struct Organization {
 
     // 该组织每年刷新时间的时间，一般都为 X 月 1 日
     // 例如招募大比时间等等，都发生在这个日期
-    const month = random.nextInt(kMonthsPerYear)
-    this.yearlyUpdateTime = month * kTicksPerMonth + random.nextInt(kTicksPerMonth)
-    this.yearlyRecruitMonth = month + 1
+    const randomMonth = random.nextInt(kMonthsPerYear)
+    this.yearlyUpdateTime = randomMonth * kTicksPerMonth + random.nextInt(kTicksPerMonth)
+    this.yearlyRecruitMonth = randomMonth + 1
 
     this.headquartersId = headquartersId
     this.headId = headId
     this.entityType = kEntityTypeOrganization
-    this.category = category
-    this.genre = genre
+    this.category = category ?? random.nextIterable(kOrganizationCategories)
+    this.genre = genre ?? random.nextIterable(kCultivationGenres)
+    assert(kOrganizationCategories.contains(this.category))
+    assert(kCultivationGenres.contains(this.genre))
 
     this.index = game.organizations.length
     if (name) {
@@ -96,7 +92,7 @@ struct Organization {
           element.name == this.name).isNotEmpty
       } while (conflict)
     }
-    // this.id = '${this.entityType}.${this.index}.${this.name}'
+    // this.id = '${this.entityType}.${this.index}.${this.id}'
     this.id = this.name
     game.organizations[this.id] = this
     
@@ -110,27 +106,31 @@ struct Organization {
     // 例如当前规模0，那么总人数限制为 5
     // 新人加入时的等级为 1
     this.development = development
-    
-    // 保存的是事件的index
-    this.history = []
+
+    // 门派的历史
+    this.experienced = []
 
     const headquarters = game.locations[headquartersId]
     const head = game.characters[headId]
-    // 触发创派事件，创派事件和成为掌门是两个事件
     const incidentContent = engine.locale('organizationCreate', interpolations: [
       head.name,
       headquarters.name,
       this.name,
     ])
-    Incident(
-      subjectIds: [head.id],
-      organizationId: this.id,
-      content: incidentContent,
-      order: 15,
-      isGlobal: true,
-    )
-    addCharacterToOrganization(head, this)
-    addTitleForCharacter(head, this, kOrganizationRankMax, 'leader')
+    if (incurIncident) {
+      // 触发创派事件，创派事件和成为掌门是两个事件
+      Incident(
+        subjectId: head.id,
+        organizationId: this.id,
+        message: incidentContent,
+        order: 15,
+        isGlobal: true,
+      )
+    } else {
+      engine.info(incidentContent)
+    }
+    addCharacterToOrganization(head, this, incurIncident: incurIncident)
+    addOrganizationTitleForCharacter(head, this, kOrganizationRankMax, 'head', incurIncident: incurIncident)
 
     // 国家区块颜色
     this.color = random.nextBrightColorHex()
@@ -142,15 +142,10 @@ struct Organization {
     const terrain = world.terrains[headquarters.terrainIndex]
     addTerrainToOrganization(terrain, this)
     headquarters.organizationId = this.id
-    stationOrganization(
-      this,
-      headquarters,
-      characterIds: [headId],
-    )
+    stationOrganization(this, headquarters, characterIds: [headId])
 
-    // this.cultivationGenre = cultivationGenre ?? random.nextIterable(kCultivationGenre)
-    // this.cultivationSupportGenre = cultivationSupportGenre ?? random.nextIterable(kCultivationSupportGenre)
-    
+    this.materials = MaterialStorage()
+
     // 组织所拥有的功法
     // 用法类似人物的装备栏
     // 放入的是可以被学习的技能
@@ -234,8 +229,8 @@ struct Organization {
 }
 
 
-// function getLeaderTitle(organization) {
-//   return organization.name + engine.locale('${organization.category}LeaderTitle')
+// function getHeadTitle(organization) {
+//   return organization.name + engine.locale('${organization.category}HeadTitle')
 // }
 
 // 类似 equip，将会在 location 上的 organizations 中保存一个新的数据对象
@@ -244,11 +239,9 @@ struct Organization {
 //   category,
 //   characterIds, // 指在这个地点的该组织的人员，并不一定等于该组织的全部人员
 // }
-function stationOrganization(
-  organization,
-  location, {
-  characterIds,
-}) {
+
+// TODO: 添加incident
+function stationOrganization(organization, location, { characterIds, incurIncident: bool }) {
   assert(location.organizationId == organization.id)
   characterIds ??= organization.characterIds.keys.toList()
   
@@ -319,16 +312,16 @@ function organizationMemberReachMax(organization) {
 }
 
 // 新加入的成员的等级，是当前的组织发展度 + 1
-function addCharacterToOrganization(character, organization, { incidentOccured = true }) {
+function addCharacterToOrganization(character, organization, { incurIncident = true }) {
   assert(!organization.characterIds.contains(character.id))
   if (organizationMemberReachMax(organization)) {
-    engine.warn('组织 ${organization.name} 的成员数量达到上限，在提升发展度之前无法再添加新成员。')
+    engine.warn('组织 ${organization.id} 的成员数量达到上限，在提升发展度之前无法再添加新成员。')
     return false
   }
 
   const memberIds = getOrganizationMemberIdsOfRank(organization, kOrganizationRankMax)
   if (memberIds.length >= maxMemberOfDevelopment(kOrganizationRankMax)) {
-    engine.warn('组织 ${organization.name} 的低阶成员数量达到上限，在提升成员级别之前无法再添加新成员。')
+    engine.warn('组织 ${organization.id} 的低阶成员数量达到上限，在提升成员级别之前无法再添加新成员。')
     return false
   }
   if (character.organizationId != null) {
@@ -338,15 +331,15 @@ function addCharacterToOrganization(character, organization, { incidentOccured =
   organization.characterIds[character.id] = character.organizationRank = 0
   character.organizationId = organization.id
 
-  if (incidentOccured) {
+  if (incurIncident) {
     const incidentContent = engine.locale('organizationEnlist', interpolations: [
       character.name,
       organization.name,
     ])
     Incident(
-      subjectIds: [character.id],
+      subjectId: character.id,
       organizationId: organization.id,
-      content: incidentContent,
+      message: incidentContent,
       order: 10,
       isPrivate: false,
     )
@@ -392,11 +385,11 @@ function getOrganizations([ids]) {
   }
 }
 
-function increaseOrganizationDevelopment(organization) {
+function increaseOrganizationDevelopment(organization, { incurIncident = true }) {
   if (organization.development <= kOrganizationDevelopmentMax) {
     ++organization.development
   } else {
-    engine.warn('组织 ${organization.name} 的发展度（${organization.development}）已达到或超过最大值。')
+    engine.warn('组织 ${organization.id} 的发展度（${organization.development}）已达到或超过最大值。')
   }
   
   const incidentContent = engine.locale('organizationDeveloped', interpolations: [
@@ -405,13 +398,9 @@ function increaseOrganizationDevelopment(organization) {
   ])
   Incident(
     organizationId: organization.id,
-    content: incidentContent,
+    message: incidentContent,
     isGlobal: true,
   )
-}
-
-function organizationExperiencedIncident(organization, incident) {
-  organization.history.add(incident.index)
 }
 
 // function getNations(id: string) {
@@ -431,7 +420,7 @@ function organizationExperiencedIncident(organization, incident) {
 //   character.nationId = nation.id
 // }
 
-function removeTerrainFromOrganization(terrain) {
+function removeTerrainFromOrganization(terrain, { incurIncident = true }) {
   if (terrain.nationId == null) return
 
   const organization = game.organizations[terrain.nationId]
@@ -449,7 +438,7 @@ function removeTerrainFromOrganization(terrain) {
   if (terrain.locationId != null) {
     const location = game.locations[terrain.locationId]
     delete location.organizationId
-    engine.warn('${oldOrg.name} 失去了据点：${location.name}')
+    engine.warn('${oldOrg.id} 失去了据点：${location.id}')
     organization.locationIds.remove(location.id)
     
     let toBeRemoved
@@ -465,7 +454,8 @@ function removeTerrainFromOrganization(terrain) {
   }
 }
 
-function addTerrainToOrganization(terrain, organization) {
+// TODO: 添加incident
+function addTerrainToOrganization(terrain, organization, { incurIncident = true }) {
   if (terrain.nationId == organization.id) {
     engine.warn('terrain [${terrain.left}, ${terrain.top}] already belongs to organization [${organization.id}]')
     return
@@ -495,7 +485,7 @@ function addTerrainToOrganization(terrain, organization) {
       organization.locationIds.add(location.id)
     }
   }
-  engine.info('门派 ${organization.name} 将其领土扩展到 [${terrain.left},${terrain.top}]')
+  engine.info('门派 ${organization.id} 将其领土扩展到 [${terrain.left},${terrain.top}]')
 }
 
 // /// 将某个功法记录在这个组织的 skillRecords 中
@@ -511,7 +501,7 @@ function addTerrainToOrganization(terrain, organization) {
 //   ])
 //   Incident(
 //     organizationId: organization.id,
-//     content: incidentContent,
+//     message: incidentContent,
 //   )
 // }
 

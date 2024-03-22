@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 // import 'package:samsara/gestures/gesture_mixin.dart';
+import 'package:flutter/gestures.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/tilemap.dart';
 import 'package:hetu_script/values.dart';
@@ -15,26 +16,31 @@ import 'common.dart';
 const kMaxCloudsCount = 16;
 
 class WorldMapScene extends Scene {
-  late final Sprite backgroundSprite;
+  Sprite? backgroundSprite;
+
+  final String? backgroundSpriteId;
 
   final TileMap map;
 
-  HTStruct worldData;
+  final HTStruct worldData;
 
-  TextStyle captionStyle;
+  final TextStyle captionStyle;
 
-  math.Random random = math.Random();
+  final math.Random random = math.Random();
 
-  int cloudCount = 0;
+  final bool isMainWorld;
 
   WorldMapScene({
     required this.worldData,
     required super.controller,
     required super.context,
     required this.captionStyle,
+    required this.isMainWorld,
+    this.backgroundSpriteId,
     String? bgm,
     bool showFogOfWar = true,
     bool showNonInteractableHintColor = false,
+    bool showGrids = false,
   })  : map = TileMap(
           id: worldData['id'],
           data: worldData,
@@ -51,6 +57,7 @@ class WorldMapScene extends Scene {
           scaleFactor: 2.0,
           showSelected: true,
           showHover: true,
+          showGrids: showGrids,
           // backgroundSpriteId: 'universe.png',
           showFogOfWar: showFogOfWar,
           showNonInteractableHintColor: showNonInteractableHintColor,
@@ -66,28 +73,40 @@ class WorldMapScene extends Scene {
   Future<void> onLoad() async {
     super.onLoad();
 
-    backgroundSprite = Sprite(await Flame.images.load('universe.png'));
+    if (backgroundSpriteId != null) {
+      backgroundSprite = Sprite(await Flame.images.load(backgroundSpriteId!));
+    }
 
     await map.loadData();
     world.add(map);
 
+    map.onDragUpdate = (int buttons, Vector2 dragPosition, Vector2 dragOffset) {
+      if (buttons == kSecondaryButton) {
+        camera.moveBy(-dragOffset / camera.viewfinder.zoom);
+      }
+    };
+
+    map.onMouseHover = (Vector2 position) {
+      final tilePosition = map.worldPosition2Tile(position);
+      map.hoverTerrain = map.getTerrainByPosition(tilePosition);
+    };
+
     map.moveCameraToTilePosition(map.tileMapWidth ~/ 2, map.tileMapHeight ~/ 2,
         animated: false);
-
-    engine.emit(GameEvents.mapLoaded);
 
     map.customRender = renderWeather;
 
     for (var i = 0; i < kMaxCloudsCount ~/ 2; ++i) {
       addCloud();
     }
+
+    engine.emit(GameEvents.mapLoaded);
   }
 
   void addCloud() {
     final cloud = AnimatedCloud();
     cloud.position = map.getRandomTerrainPosition();
     map.add(cloud);
-    ++cloudCount;
   }
 
   @override
@@ -105,7 +124,7 @@ class WorldMapScene extends Scene {
 
   @override
   void render(Canvas canvas) {
-    backgroundSprite.render(canvas, size: size);
+    backgroundSprite?.render(canvas, size: size);
 
     super.render(canvas);
   }

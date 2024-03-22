@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 // import '../../config.dart';
-import '../../state/game_dialog_state.dart';
+import '../../state/game_dialog.dart';
 
 class GameDialogController extends StatefulWidget {
   static Future<void> show({
@@ -11,7 +11,6 @@ class GameDialogController extends StatefulWidget {
     return showDialog<dynamic>(
       context: context,
       barrierColor: Colors.transparent,
-      barrierDismissible: false,
       builder: (BuildContext context) {
         return const GameDialogController();
       },

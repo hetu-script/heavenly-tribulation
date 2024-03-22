@@ -1,3 +1,185 @@
-export 'common.ht'
-export 'banditcamp.ht'
-export 'delivery.ht'
+import '../entity/entity.ht'
+import '../lootbox.ht'
+
+const kQuestDifficultyNormal = 'normal'
+const kQuestDifficultyHard = 'hard'
+const kQuestDifficultyExpert = 'expert'
+const kQuestDifficultyMaster = 'master'
+const kQuestDifficultyTorment = 'torment'
+const kQuestDifficultyNightmare = 'nightmare'
+const kQuestDifficultyPurgatory = 'purgatory'
+
+const kQuestCategoryConquestMaze = 'conquestMaze' // 征讨盗贼营地
+const kQuestCategoryArrest = 'arrest' // 抓捕
+const kQuestCategoryTraining = 'training' // 演武
+const kQuestCategoryRitual = 'ritual' // 法事
+const kQuestCategoryCatering = 'catering' // 招待
+const kQuestCategoryDelivery = 'delivery' // 运送人员或物品
+const kQuestCategoryCraft = 'craft' // 定制
+
+const kQuestDeliveryKindEscort = 'escort'
+const kQuestDeliveryKindConvoy = 'convoy'
+
+const kQuestConquestMazeKindKillBanditBoss = 'killBanditBoss'
+const kQuestConquestMazeKindWipeBandits = 'wipeBandits'
+const kQuestConquestMazeKindReturnHostage = 'returnHostage'
+const kQuestConquestMazeKindReturnTreasure = 'returnTreasure'
+
+
+const kQuestCatergoryVisitCharacter = 'character'
+const kQuestCatergoryVisitTerrain = 'terrain'
+const kQuestCatergoryVisitLocation = 'location'
+const kQuestCatergoryVisitSite = 'site'
+const kQuestCatergoryVisitZone = 'zone'
+const kQuestCatergoryDefeat = 'defeat'
+const kQuestCatergoryClearDungeon = 'clear'
+const kQuestCatergoryCollect = 'collect'
+const kQuestCatergoryAcquire = 'acquire'
+const kQuestCatergoryDelivery = 'delivery'
+const kQuestCatergoryEscort = 'escort'
+
+struct Quest {
+  constructor({
+    name,
+    publisherId,
+    stages: List,
+  }) {
+    this.id = 'quest.${crypto.randomUID4()}'
+    this.name = name
+    this.publisherId = publisherId
+    assert(stages is List && stages.isNotEmpty)
+    //   stages: {
+    //     category,
+    //     objective,
+    //     expirationTimestamp,
+    //     description,
+    //   }
+    this.stages = stages
+    this.currentStageIndex = 0
+
+    // 结束不代表任务成功
+    this.isFinished = false
+    this.isSuccessed = false
+  }
+}
+
+function acceptQuest(character, quest, { incurIncident = true }) {
+  character.quests[quest.id] = quest
+  character.activeQuestIds.add(quest.id)
+  
+  const title = quest.stages[quest.currentStageIndex].title;
+  const incidentContent = engine.locale(
+    'characterAcceptQuest',
+    interpolations: [character.name, quest.name],
+  )
+  if (incurIncident) {
+    Incident(
+      message: incidentContent,
+      subjectId: character.id,
+    )
+  } else {
+    engine.info(incidentContent)
+  }
+}
+
+function finishQuest(character, quest, { isSuccess = true, incurIncident = true }) {
+  assert(character.quests.containsKey(quest.id))
+  character.activeQuestIds.remove(quest.id)
+  quest.isFinished = true
+  quest.isSuccess = isSuccess
+
+  let incidentContent
+  if (isSuccess) {
+    incidentContent = engine.locale(
+      'characterFinishQuestSuccess',
+      interpolations: [character.name, quest.name],
+    )
+  } else {
+    incidentContent = engine.locale(
+      'characterFinishQuestFailed',
+      interpolations: [character.name, quest.name],
+    )
+  }
+
+  if (incurIncident) {
+    Incident(
+      message: incidentContent,
+      subjectId: character.id,
+    )
+  } else {
+    engine.info(incidentContent)
+  }
+}
+
+function setCharacterActiveQuest(character, quest) {
+  assert(character.quests.containsKey(quest.id))
+  character.activeQuestIds.addIfAbsent(quest.id)
+}
+
+function getCharacterActiveQuest(character) {
+  return character.quests[character.activeQuestId]
+}
+
+// function generateQuestReward(difficulty) {
+//   const reward = Lootbox()
+//   return reward
+// }
+
+// function characterAcceptQuest(character, site, quest) {
+//   // 有可能是临时生成的任务，site可能并没有这个任务，但这里并不影响。
+//   delete site.quests[quest.id]
+//   character.quests[quest.id] = quest
+//   character.activeQuestId ??= quest.id
+//   const entity = quest.questEntityAccept
+//   if (entity.entityType == kEntityTypeCharacter) {
+//     characterGetCompanion(character, entity)
+//   } else if (entity.entityType == kEntityTypeItem) {
+//     acquire(character, entity)
+//   } else {
+//     engine.error('获取任务时发生错误，对象类型既不是人员也是物品：${entity.entityType}')
+//   }
+
+//   const questName = engine.locale(quest.kind);
+//   const incidentContent = engine.locale(
+//     'characterAcceptQuest',
+//     interpolations: [character.name, site.name, questName],
+//   )
+//   Incident(
+//     message: incidentContent,
+//     subjectIds: [character.id],
+//   )
+// }
+
+// // 尝试完成任务，如果成功返回 true，并扣除任务所要求提交的物品等
+// function characterTrySubmitQuest(character, target, quest) -> bool {
+//   if (quest.questEntitiesSubmit) {
+//     for (const data in quest.questEntitiesSubmit) {
+//       if (data.entityType == kEntityTypeCharacter || data.entityType == kEntityTypeNpc) {
+//         if (!character.companions.containsKey(data.id)) return false
+//       } else if (data.entityType == kEntityTypeItem) {
+//         if (!character.inventory.containsKey(data.id)) {
+//           return false
+//         } else {
+//           const item = character.inventory[data.id]
+//           if (item.stackSize < data.count) {
+//             return false
+//           }
+//         }
+//       } else {
+//         print(data)
+//         engine.error('提交任务时发生错误，对象类型既不是人员也是物品：${data.entityType}')
+//       }
+//     }
+
+//     for (const data in quest.questEntitiesSubmit) {
+//       if (data.entityType == kEntityTypeCharacter || data.entityType == kEntityTypeNpc) {
+//         const entity = character.companions[data.id]
+//         characterDismissCompanion(character, entity)
+//       } else if (data.entityType == kEntityTypeItem) {
+//         give(character, target, data.id, count: data.count)
+//       }
+//     }
+//   }
+//   return true
+// }
+

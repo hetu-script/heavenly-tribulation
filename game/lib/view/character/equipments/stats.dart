@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hetu_script/values.dart';
 import 'package:samsara/ui/label.dart';
 // import 'package:samsara/ui/dynamic_color_progressbar.dart';
 
@@ -12,7 +11,7 @@ class StatsView extends StatelessWidget {
     this.useColumn = false,
   });
 
-  final HTStruct characterData;
+  final dynamic characterData;
   final bool useColumn;
 
   @override

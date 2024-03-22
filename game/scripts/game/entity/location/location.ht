@@ -3,11 +3,11 @@ import '../character/character.ht'
 import '../../dialog.ht'
 import '../../name/location.ht'
 // import '../../l10n.ht'
-import '../common.ht'
+import '../entity.ht'
 import '../../tile/hexagonal_tile.ht'
 import 'site.ht'
 import '../../tile/common.ht'
-import '../material.ht'
+import '../item/material.ht'
 
 const _kLocationInitialStabilityMax = 50
 
@@ -30,6 +30,7 @@ struct Location {
     terrain,
     category, // 'city' | 'harbor' | 'arcana' | 'mirage'
     name,
+    isDiscovered = true,
     background,
   }) {
     assert(terrain != null)
@@ -62,6 +63,7 @@ struct Location {
     }
     // this.id = '${this.entityType}.${this.terrainIndex}.${this.name}'
     this.id = this.name
+    this.isDiscovered = isDiscovered
 
     // 没有category参数时，不自动添加到当前世界
     if (category) {
@@ -104,11 +106,8 @@ struct Location {
     this.inventory = {}
     this.materials = MaterialStorage()
 
-    // 当前处于这个场景的角色
-    this.stayingCharacterIds = []
-
-    // 居住在这个场景的角色
-    this.residingCharacterIds = []
+    // 据点的历史
+    this.experienced = []
 
     // 大牢中的角色
     // 如果主角自己进入了监牢，则要通过监牢副本才能离开，并且离开后会进入本据点的敌对名单。
@@ -165,6 +164,19 @@ function addLocations(locs: List) {
   }
 }
 
+function removeLocationById(locationId: string) {
+  let loc = getLocationById(locationId)
+  if (loc != null) {
+    engine.warn('警告：正在移除ID为 [${locationId}] 的据点。')
+    let terrain = getTerrainByWorldPosition(loc.worldPosition.left, loc.worldPosition.top)
+    delete terrain.locationId
+    WorldMap.setTerrainCaption(loc.worldPosition.left, loc.worldPosition.top, null)
+    delete terrain.overlaySprite.spriteIndex
+    WorldMap.refreshTerrainOverlaySprite(loc.worldPosition.left, loc.worldPosition.top)
+    delete game.locations[locationId]
+  }
+}
+
 function getLocationDistance(loc1, loc2) {
   return getTileDistance(loc1.tilePosition, loc2.tilePosition)
 }
@@ -186,18 +198,9 @@ function increaseLocationPopulationPerMonth(location) {
 }
 
 function setCharacterLocationId(character, locationId: string) {
-  if (!game.locations.containsKey(locationId)) {
-    engine.error('could not find location with id ${locatinId}.')
-    return
-  }
-  if (character.locationId != null) {
-    const oldLocation = game.locations[character.locationId]
-    oldLocation.stayingCharacterIds.remove(character.id)
-  }
-  const location = game.locations[locationId]
-  location.stayingCharacterIds.add(character.id)
+  assert(game.locations.containsKey(locationId))
+  // clearCharacterLocation(character)
   character.locationId = locationId
-  character.tilePosition = {}
 }
 
 function setCharacterSiteId(character, siteId: string) {
@@ -232,19 +235,6 @@ function getLocationByWorldPosition(left, top) {
 function getLocationSiteById(location, siteId: string) {
   assert(location.sites.containsKey(siteId) || siteId)
   return location.sites[siteId]
-}
-
-function removeLocationById(locationId: string) {
-  let loc = getLocationById(locationId)
-  if (loc != null) {
-    engine.warn('警告：正在移除ID为 [${locationId}] 的据点。')
-    let terrain = getTerrainByWorldPosition(loc.worldPosition.left, loc.worldPosition.top)
-    delete terrain.locationId
-    WorldMap.setTerrainCaption(loc.worldPosition.left, loc.worldPosition.top, null)
-    delete terrain.overlaySprite.spriteIndex
-    WorldMap.refreshTerrainOverlaySprite(loc.worldPosition.left, loc.worldPosition.top)
-    delete game.locations[locationId]
-  }
 }
 
 function discoverLocation(location) {

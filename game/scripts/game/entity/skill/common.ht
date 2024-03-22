@@ -1,4 +1,4 @@
-import '../effect/common.ht'
+import '../../../_obseleted/effect/common.ht'
 import '../common.ht'
 // import '../../l10n.ht'
 import '../../game.ht'
@@ -36,41 +36,41 @@ function calculateSkillStats(skill) {
 /// 根据其熟练度，数值和技能本身的数值不同。
 /// 人物本身所学到的技能，和保存在物品栏中尚未学习的技能书不同
 /// 书本身所显示的技能数值，是指其修炼满时的最大值
-function learn(character, book) {
-  const clone = book.skill.clone()
-  character.skills[clone.id] = clone
+// function learn(character, book) {
+//   const clone = book.skill.clone()
+//   character.skills[clone.id] = clone
 
-  const incidentContent = engine.locale('characterLearn', interpolations: [
-    character.name,
-    skill.name,
-  ])
-  Incident(
-    content: incidentContent,
-    subjectIds: character.isMajorCharacter ? [character.id] : null,
-    isPrivate: true,
-  )
-  return
-}
+//   const incidentContent = engine.locale('characterLearn', interpolations: [
+//     character.name,
+//     skill.name,
+//   ])
+//   Incident(
+//     message: incidentContent,
+//     subjectId: character.id,
+//     isPrivate: true,
+//   )
+//   return
+// }
 
-function skillEffectLevelUp(effect) {
-  assert(effect.exp >= effect.expForNextLevel)
-  skill.exp -= skill.expForNextLevel
-  ++skill.level
-  skill.expForNextLevel = expForLevel(skill.difficulty, skill.level + 1) // 下一等级需要的经验值
-  calculateSkillStats(skill)
+// function skillEffectLevelUp(effect) {
+//   assert(effect.exp >= effect.expForNextLevel)
+//   skill.exp -= skill.expForNextLevel
+//   ++skill.level
+//   skill.expForNextLevel = expForLevel(skill.difficulty, skill.level + 1) // 下一等级需要的经验值
+//   calculateSkillStats(skill)
   
-  const incidentContent = engine.locale('characterSkillLevelUp', interpolations: [
-    character.name,
-    skill.name,
-    skill.level + 1,
-  ])
-  Incident(
-    content: incidentContent,
-    subjectIds: character.isMajorCharacter ? [character.id] : null,
-    isPrivate: true,
-  )
-  return
-}
+//   const incidentContent = engine.locale('characterSkillLevelUp', interpolations: [
+//     character.name,
+//     skill.name,
+//     skill.level + 1,
+//   ])
+//   Incident(
+//     message: incidentContent,
+//     subjectId: character.id,
+//     isPrivate: true,
+//   )
+//   return
+// }
 
 function generateBookFromSkill(skill) {
   
