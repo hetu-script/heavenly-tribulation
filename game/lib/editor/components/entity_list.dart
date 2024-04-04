@@ -24,14 +24,12 @@ import '../../view/organization/edit_organization_basic.dart';
 // import 'edit_map_object.dart';
 import '../../dialog/input_description.dart';
 
-const kMapObjectCodeTemplate = '''{
+const kObjectCodeTemplate = '''{
   entityType: 'object',
-  category: 'portal',
+  category: 'custom',
   id: 'id',
   isDiscovered: true,
-  flags: {
-    useCustomInteraction: true
-  }
+  flags: {}
 }
 ''';
 
@@ -159,7 +157,7 @@ const _kZoneColumns = [
   'size',
 ];
 
-const _kMapObjectColumns = [
+const _kObjectColumns = [
   'id',
   'type',
 ];
@@ -231,7 +229,7 @@ class _EntityListPanelState extends State<EntityListPanel>
     updateLocations();
     updateOrganizations();
     updateZones();
-    updateMapObjects();
+    updateObjects();
   }
 
   void updateCharacters() {
@@ -299,9 +297,9 @@ class _EntityListPanelState extends State<EntityListPanel>
     setState(() {});
   }
 
-  void updateMapObjects() {
+  void updateObjects() {
     _mapObjectsTableData.clear();
-    _mapObjects = engine.hetu.invoke('getMapObjects');
+    _mapObjects = engine.hetu.invoke('getObjects');
     for (final obj in _mapObjects) {
       final rowData = <String>[];
       rowData.add(obj['id']);
@@ -504,7 +502,6 @@ class _EntityListPanelState extends State<EntityListPanel>
                               );
                             case CharacterPopUpMenuItems.delete:
                               showDialog<bool>(
-                                barrierDismissible: false,
                                 context: context,
                                 builder: (context) => ConfirmDialog(
                                     description:
@@ -602,7 +599,6 @@ class _EntityListPanelState extends State<EntityListPanel>
                                 });
                               case LocationPopUpMenuItems.delete:
                                 showDialog<bool>(
-                                  barrierDismissible: false,
                                   context: context,
                                   builder: (context) => ConfirmDialog(
                                       description: engine
@@ -691,7 +687,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                           context: context,
                           builder: (context) => InputDescriptionDialog(
                             title: engine.locale('inputScriptObject'),
-                            description: kMapObjectCodeTemplate,
+                            description: kObjectCodeTemplate,
                           ),
                         ).then((value) {
                           if (value == null) return;
@@ -699,23 +695,23 @@ class _EntityListPanelState extends State<EntityListPanel>
                           if (jsonData != null && jsonData['id'] != null) {
                             final mapObject = engine.hetu.interpreter
                                 .createStructfromJSON(jsonData);
-                            engine.hetu.invoke('addMapObject',
+                            engine.hetu.invoke('addObject',
                                 positionalArgs: [mapObject]);
-                            updateMapObjects();
+                            updateObjects();
                           }
                         });
                       },
-                      child: Text(engine.locale('createMapObject')),
+                      child: Text(engine.locale('createObject')),
                     ),
                   ),
                   SizedBox(
                     height: widget.size.height - 175,
                     child: GameEntityListView(
-                      columns: _kMapObjectColumns,
+                      columns: _kObjectColumns,
                       tableData: _mapObjectsTableData,
                       onItemPressed: (buttons, position, dataId) {
-                        final obj = engine.hetu.invoke('getMapObjectById',
-                            positionalArgs: [dataId]);
+                        final obj = engine.hetu
+                            .invoke('getObjectById', positionalArgs: [dataId]);
                         final originObjId = obj['id'];
                         assert(obj != null);
                         final objString = engine.hetu.lexicon.stringify(obj);
@@ -730,14 +726,14 @@ class _EntityListPanelState extends State<EntityListPanel>
                           final jsonData = json5Decode(value);
                           if (jsonData != null && jsonData['id'] != null) {
                             if (jsonData['originObjId'] != originObjId) {
-                              engine.hetu.invoke('removeMapObject',
+                              engine.hetu.invoke('removeObject',
                                   positionalArgs: [originObjId]);
                             }
                             final mapObject = engine.hetu.interpreter
                                 .createStructfromJSON(jsonData);
-                            engine.hetu.invoke('addMapObject',
+                            engine.hetu.invoke('addObject',
                                 positionalArgs: [mapObject]);
-                            updateMapObjects();
+                            updateObjects();
                           }
                         });
                       },

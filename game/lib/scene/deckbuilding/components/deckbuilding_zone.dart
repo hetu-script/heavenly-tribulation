@@ -9,14 +9,14 @@ import 'package:flame/flame.dart';
 
 import '../../../ui.dart';
 // import '../../../global.dart';
-import 'card_library.dart';
+import 'cardlibrary_zone.dart';
 
 class DeckBuildingZone extends PiledZone with HandlesGesture {
   static const _indent = 20.0;
 
   late final SpriteComponent background;
 
-  CardLibrary? library;
+  CardLibraryZone? library;
 
   DeckBuildingZone({
     super.limit = 8,
@@ -28,18 +28,18 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
           priority: 1000,
           borderRadius: 20.0,
         ) {
-    onDragIn = (int buttons, Vector2 position, GameComponent card) {
-      if (card is! Card) return;
-      if (cards.contains(card)) return;
+    onDragIn = (int buttons, Vector2 position, GameComponent? component) {
+      if (component is! Card) return;
+      if (cards.contains(component)) return;
 
       final index =
           ((position.x - _indent) / (GameUI.deckbuildingCardSize.y + _indent))
               .truncate();
 
-      gameRef.world.add(card);
-      if (addCard(card, index: index)) {
-        if (!unlimitedCardIds.contains(card.deckId)) {
-          library!.setCardEnabledById(card.id);
+      gameRef.world.add(component);
+      if (addCard(component, index: index)) {
+        if (!unlimitedCardIds.contains(component.deckId)) {
+          library!.setCardEnabledById(component.id);
         }
       }
     };
@@ -48,8 +48,8 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
   @override
   void onLoad() async {
     background = SpriteComponent(
-      sprite:
-          Sprite(await Flame.images.load('card/deckbuilding/deckbuilding.png')),
+      sprite: Sprite(
+          await Flame.images.load('cultivation/deckbuilding/deckbuilding.png')),
       size: size,
     );
     add(background);
@@ -75,13 +75,13 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
         card.removeFromPile();
       }
     };
-    card.onDragUpdate = (buttons, dragPosition, dragOffset) {
-      card.position += dragOffset;
+    card.onDragUpdate = (buttons, offset) {
+      card.position += offset;
     };
-    card.onDragEnd = (buttons, dragPosition, worldPosition) {
-      int dragToIndex = ((worldPosition.x - _indent) /
-              (GameUI.deckbuildingCardSize.x + _indent))
-          .truncate();
+    card.onDragEnd = (buttons, position) {
+      int dragToIndex =
+          ((position.x - _indent) / (GameUI.deckbuildingCardSize.x + _indent))
+              .truncate();
 
       reorderCard(card.index, dragToIndex);
     };

@@ -165,6 +165,7 @@ class _EntityInfoState extends State<EntityInfo> {
                   ),
                 if (widget.showHint &&
                     widget.entityData['hint'] != null &&
+                    (widget.entityData['hint'] as String).isNotBlank &&
                     widget.entityData['equippedPosition'] == null)
                   Text(
                     widget.entityData['hint'],

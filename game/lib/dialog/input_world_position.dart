@@ -23,7 +23,6 @@ class InputWorldPositionDialog extends StatefulWidget {
     return showDialog<(int, int, String?)>(
       context: context,
       barrierColor: Colors.transparent,
-      barrierDismissible: false,
       builder: (context) {
         return InputWorldPositionDialog(
           defaultX: defaultX,

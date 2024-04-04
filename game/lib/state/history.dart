@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:samsara/samsara.dart';
 
 import '../config.dart';
 
@@ -7,7 +6,7 @@ class HistoryState with ChangeNotifier {
   List<dynamic> incidents = [];
 
   void update({
-    int count = 20,
+    int limit = 20,
     bool onlyHero = true,
   }) {
     final String? heroId = engine.hetu.invoke('getHeroId');
@@ -18,7 +17,7 @@ class HistoryState with ChangeNotifier {
     incidents.clear();
     final iter = history.iterator;
     var i = 0;
-    while (iter.moveNext() && i < count) {
+    while (iter.moveNext() && i < limit) {
       final incident = iter.current;
       if (incident['subjectId'] == heroId ||
           incident['objectId'] == heroId ||
@@ -27,7 +26,6 @@ class HistoryState with ChangeNotifier {
         ++i;
       }
     }
-    incidents.reverse();
     notifyListeners();
   }
 }

@@ -13,7 +13,6 @@ class ConfirmDialog extends StatelessWidget {
     return showDialog<bool>(
       context: context,
       barrierColor: Colors.transparent,
-      barrierDismissible: false,
       builder: (context) {
         return ConfirmDialog(description: description);
       },

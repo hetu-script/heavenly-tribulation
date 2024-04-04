@@ -1,8 +1,7 @@
 import 'package:samsara/samsara.dart';
 import 'package:samsara/gestures.dart';
 
-import 'components/playground.dart';
-import '../global.dart';
+import 'package:samsara/components/fading_text.dart';
 
 class GameScene extends Scene {
   GameScene({
@@ -14,14 +13,29 @@ class GameScene extends Scene {
   @override
   Future<void> onLoad() async {
     super.onLoad();
+    fitScreen();
+  }
 
-    camera.snapTo(size / 2);
+  @override
+  void onTapUp(int pointer, int buttons, TapUpDetails details) {
+    super.onTapUp(pointer, buttons, details);
 
-    final p = PlayGround(width: 400.0, height: 320.0);
-    world.add(p);
+    // final c = SpriteComponent2(spriteId: 'pepe.png', anchor: Anchor.center);
+    // c.position = details.globalPosition.toVector2();
+    // c.add(FadeEffect(target: c, controller: EffectController(duration: 1.0)));
+    // add(c);
 
-    engine.info('游戏界面可视区域大小：${p.size.x}x${p.size.y}');
-    fitScreen(p.size);
+    final c2 = FadingText(
+      'hit!\n100',
+      movingUpOffset: 50,
+      duration: 0.8,
+      position: details.globalPosition.toVector2(),
+      fadeOutAfterDuration: 0.3,
+      textPaint: PresetTextPaints.danger.copyWith(
+        (textStyle) => textStyle.copyWith(fontSize: 16),
+      ),
+    );
+    add(c2);
   }
 
   @override

@@ -1,19 +1,31 @@
+import 'package:samsara/samsara.dart';
 import 'package:vector_math/vector_math_64.dart';
 
 abstract class GameUI {
   static bool _isInitted = false;
   static bool get isInitted => _isInitted;
 
-  static late double indent;
+  static const indent = 20.0;
+  static const smallIndent = 10.0;
 
-  static Vector2? size;
+  static Vector2 size = Vector2.zero();
 
+  static Vector2 get center => size / 2;
+
+  // general ui
   static const avatarSize = 120.0;
   static const heroInfoHeight = 130.0;
+  static final Vector2 historyPanelSize = Vector2(328, 140);
+
+  // location site scene ui
+  static late Vector2 siteCardSize,
+      siteCardFocusedSize,
+      siteListPosition,
+      siteExitCardPositon;
   static const npcListArrowHeight = 25.0;
 
   // the ratio of the illustration height relative to the card height
-  static late double cardIllustrationHeightRatio;
+  static const cardIllustrationHeightRatio = 0.592;
 
   // deckbuilding ui
   static late Vector2 libraryCardSize,
@@ -23,6 +35,7 @@ abstract class GameUI {
       librarySize,
       libraryPosition;
 
+  // battle ui
   static late Vector2 battleCardSize,
       battleCardFocusedSize,
       battleDeckZoneSize,
@@ -30,26 +43,42 @@ abstract class GameUI {
       p2BattleDeckZonePosition,
       p1BattleCardFocusedPosition,
       p2BattleCardFocusedPosition,
-      heroSpriteSize,
       p1HeroSpritePosition,
       p2HeroSpritePosition;
+  static final heroSpriteSize = Vector2(80.0 * 2, 112.0 * 2);
+  static final statusEffectIconSize = Vector2(24, 24);
+  static final permenantStatusEffectIconSize = Vector2(48, 48);
+  static const resourceBarHeight = 10.0;
 
-  static late Vector2 statusEffectIconSize, permenantStatusEffectIconSize;
+  // cultivation ui
+  static late Vector2 cultivatorPosition,
+      condensedPosition,
+      expBarPosition,
+      levelDescriptionPosition;
+  static final cultivatorSize = Vector2(200, 200);
+  static final maxCondenseSize = Vector2(250, 250);
+  static final expBarSize = Vector2(600, 25);
 
-  static late double resourceBarHeight;
+  static late Vector2 cardLibraryButtonPosition,
+      cardPacksButtonPosition,
+      meditateButtonPosition,
+      // introspectionButtonPosition,
+      enlightenmentButtonPosition;
+  static final cardLibraryButtonSize = Vector2(120, 120);
+  static final cardPacksButtonSize = Vector2(120, 120);
+  static final stateButtonSize = Vector2(140, 40);
 
-  static late Vector2 siteCardSize,
-      siteCardFocusedSize,
-      siteListPosition,
-      siteExitCardPositon;
+  static final cultivationRankButtonSize = Vector2(120, 120);
+
+  // talent tree ui
+  static final talentTreeButtonSizeS = Vector2(40, 40);
+  static final talentTreeButtonSizeM = Vector2(60, 60);
+  static final talentTreeButtonSizeL = Vector2(80, 80);
 
   static void init(Vector2 size) {
     if (GameUI.size == size) return;
 
     GameUI.size = size;
-
-    indent = 20.0;
-    cardIllustrationHeightRatio = 0.592;
 
     final libraryCardWidth = size.x / 6 - indent * 2;
     final libraryCardHeight = libraryCardWidth * 1.382;
@@ -78,10 +107,6 @@ abstract class GameUI {
     p2BattleDeckZonePosition = Vector2(
         size.x - battleDeckZoneSize.x - indent / 2, p1BattleDeckZonePosition.y);
 
-    statusEffectIconSize = Vector2(24, 24);
-    permenantStatusEffectIconSize = Vector2(48, 48);
-    resourceBarHeight = 10.0;
-
     p1BattleCardFocusedPosition = Vector2(
         indent,
         p1BattleDeckZonePosition.y -
@@ -97,8 +122,6 @@ abstract class GameUI {
             permenantStatusEffectIconSize.y -
             battleCardFocusedSize.y -
             indent);
-
-    heroSpriteSize = Vector2(80.0 * 2, 112.0 * 2);
 
     p1HeroSpritePosition = Vector2(
       size.x / 2 - 208,
@@ -121,6 +144,33 @@ abstract class GameUI {
 
     siteExitCardPositon =
         Vector2(size.x - indent - siteCardSize.x, siteListPosition.y + 10);
+
+    cultivatorPosition = Vector2(center.x, center.y);
+
+    condensedPosition = Vector2(center.x, center.y + 20.0);
+
+    expBarPosition = Vector2(center.x, center.y + 350.0);
+
+    levelDescriptionPosition =
+        Vector2(center.x, expBarPosition.y + expBarSize.y + indent);
+
+    meditateButtonPosition =
+        Vector2(center.x - 70 - smallIndent, expBarPosition.y - 50);
+    // introspectionButtonPosition =
+    //     Vector2(center.x - 140 - indent, meditateButtonPosition.y);
+    enlightenmentButtonPosition =
+        Vector2(center.x + 70 + smallIndent, meditateButtonPosition.y);
+
+    cardLibraryButtonPosition = Vector2(
+        size.x - indent - cardLibraryButtonSize.x / 2, expBarPosition.y);
+
+    cardPacksButtonPosition = Vector2(
+        size.x -
+            indent -
+            cardLibraryButtonSize.x -
+            smallIndent -
+            cardPacksButtonSize.x / 2,
+        expBarPosition.y);
 
     _isInitted = true;
   }

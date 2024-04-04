@@ -17,7 +17,7 @@ class Toolbox extends StatefulWidget {
     required this.onItemClicked,
   });
 
-  final void Function(EditorToolItems item) onItemClicked;
+  final void Function(String item) onItemClicked;
 
   @override
   State<Toolbox> createState() => _ToolboxState();
@@ -43,19 +43,17 @@ class _ToolboxState extends State<Toolbox> {
   }
 
   Widget buildToolButton(
-      BuildContext context, EditorToolItems item, String id) {
-    final me = getEditorToolItem(id);
-
+      BuildContext context, String? selectedItem, String me) {
     return Tooltip(
-      message: engine.locale(id),
+      message: engine.locale(me),
       child: InkButton(
         size: kTileSize,
         padding: const EdgeInsets.only(right: 5.0),
         borderRadius: BorderRadius.circular(5.0),
         image: AssetImage(
-          'assets/images/editor/$id.png',
+          'assets/images/object/$me.png',
         ),
-        isSelected: item == me,
+        isSelected: selectedItem == me,
         onPressed: () {
           context.read<EditorToolState>().selectItem(me);
           widget.onItemClicked(me);
@@ -70,43 +68,62 @@ class _ToolboxState extends State<Toolbox> {
 
     return ResponsiveWindow(
       color: kBackgroundColor,
-      size: const Size(640, 160),
+      size: const Size(640, 170),
       padding: const EdgeInsets.all(10.0),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+          SizedBox(
+            width: 420,
+            height: 150,
+            child: SingleChildScrollView(
+              child: ListView(
+                shrinkWrap: true,
                 children: [
-                  buildToolButton(context, item, 'delete'),
-                  buildToolButton(context, item, 'nonInteractable'),
-                  buildToolButton(context, item, 'sea'),
-                  buildToolButton(context, item, 'plain'),
-                  buildToolButton(context, item, 'farmfield'),
-                  buildToolButton(context, item, 'forest'),
-                  buildToolButton(context, item, 'mountain'),
-                  buildToolButton(context, item, 'dungeonStonePavedTile'),
+                  Row(
+                    children: [
+                      buildToolButton(context, item, 'delete'),
+                      buildToolButton(context, item, 'nonInteractable'),
+                      buildToolButton(context, item, 'sea'),
+                      buildToolButton(context, item, 'plain'),
+                      buildToolButton(context, item, 'farmfield'),
+                      buildToolButton(context, item, 'forest'),
+                      buildToolButton(context, item, 'mountain'),
+                      buildToolButton(context, item, 'dungeonStonePavedTile'),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      // buildToolButton(context, item, 'pond'),
+                      // buildToolButton(context, item, 'shelf'),
+                      buildToolButton(context, item, 'fishTile'),
+                      buildToolButton(context, item, 'stormTile'),
+                      buildToolButton(context, item, 'spiritTile'),
+                      buildToolButton(context, item, 'city'),
+                      buildToolButton(context, item, 'portalArray'),
+                      buildToolButton(context, item, 'dungeon'),
+                      buildToolButton(context, item, 'dungeonStoneGate'),
+                      buildToolButton(context, item, 'portal'),
+                      buildToolButton(context, item, 'glowingTile'),
+                      buildToolButton(context, item, 'lever'),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      buildToolButton(context, item, 'statue'),
+                      buildToolButton(context, item, 'treasureBox'),
+                      buildToolButton(context, item, 'coffin'),
+                      buildToolButton(context, item, 'stoneStairs'),
+                      buildToolButton(context, item, 'stoneStairsDebris'),
+                      buildToolButton(context, item, 'characterDefault'),
+                      buildToolButton(context, item, 'characterMan'),
+                      buildToolButton(context, item, 'characterOld'),
+                      buildToolButton(context, item, 'characterGirl'),
+                    ],
+                  ),
                 ],
               ),
-              Row(
-                children: [
-                  // buildToolButton(context, item, 'pond'),
-                  // buildToolButton(context, item, 'shelf'),
-                  buildToolButton(context, item, 'fishTile'),
-                  buildToolButton(context, item, 'stormTile'),
-                  buildToolButton(context, item, 'spiritTile'),
-                  buildToolButton(context, item, 'city'),
-                  buildToolButton(context, item, 'portalArray'),
-                  buildToolButton(context, item, 'dungeon'),
-                  buildToolButton(context, item, 'dungeonStoneGate'),
-                  buildToolButton(context, item, 'portal'),
-                  buildToolButton(context, item, 'glowingTile'),
-                  buildToolButton(context, item, 'pressureTile'),
-                  buildToolButton(context, item, 'treasureBox'),
-                ],
-              ),
-            ],
+            ),
           ),
           const Spacer(),
           Column(

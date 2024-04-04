@@ -27,7 +27,6 @@ class CharacterVisitDialog extends StatelessWidget {
     assert(characterIds.isNotEmpty);
     return await showDialog<String?>(
       context: context,
-      barrierDismissible: false,
       builder: (BuildContext context) {
         return CharacterVisitDialog(
           characterIds: characterIds,

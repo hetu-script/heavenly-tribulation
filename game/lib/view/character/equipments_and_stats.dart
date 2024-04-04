@@ -208,16 +208,13 @@ class _EquipmentsAndStatsViewState extends State<EquipmentsAndStatsView>
         switch (item) {
           case ItemPopUpMenuItems.use:
           case ItemPopUpMenuItems.equip:
-            engine.hetu
-                .invoke('equip', positionalArgs: [_characterData, entityData]);
+            engine.hetu.invoke('equip', positionalArgs: [entityData]);
             setState(() {});
           case ItemPopUpMenuItems.unequip:
-            engine.hetu.invoke('unequip',
-                positionalArgs: [_characterData, entityData]);
+            engine.hetu.invoke('unequip', positionalArgs: [entityData]);
             setState(() {});
           case ItemPopUpMenuItems.destroy:
-            engine.hetu.invoke('destroy',
-                positionalArgs: [_characterData, entityData]);
+            engine.hetu.invoke('destroy', positionalArgs: [entityData]);
             setState(() {});
         }
       },

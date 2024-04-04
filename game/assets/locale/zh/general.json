@@ -90,7 +90,6 @@
 
   "difficulty": "难度",
   "level": "等级",
-  "exp": "经验值",
   "use": "使用",
   "equip": "装备",
   "unequip": "卸下",
@@ -238,32 +237,33 @@
   "levelUp": "升级",
   "dismiss": "解散",
 
-  "cultivationRank.1": "练气",
-  "cultivationRank.2": "筑基",
-  "cultivationRank.3": "金丹",
-  "cultivationRank.4": "元婴",
-  "cultivationRank.5": "化神",
+  "cultivationRank0": "无",
+  "cultivationRank1": "练气",
+  "cultivationRank2": "筑基",
+  "cultivationRank3": "金丹",
+  "cultivationRank4": "元婴",
+  "cultivationRank5": "化神",
 
   "fightSkillGenre": "战斗流派",
 
   "element": "法术",
-  "blade": "剑修",
   "physique": "体修",
   "avatar": "化身",
   "vitality": "炼魂",
+  "blade": "剑修",
 
   "supportSkillGenre": "技艺流派",
 
   "array": "阵法",
-  "rune": "符咒",
-  "alchemy": "丹药",
-  "craft": "炼器",
-  "animal": "灵兽",
+  "rune": "符法",
   "plant": "灵植",
+  "animal": "灵兽",
+  "divination": "占卜",
+  "theurgy": "通神",
   "psychic": "通灵",
   "illusion": "幻术",
-  "theurgy": "神通",
-  "divination": "占卜",
+  "craft": "炼器",
+  "alchemy": "炼丹",
 
   "leisureSkillGenre": "休闲流派",
 
@@ -281,6 +281,7 @@
   "equippableHint": "点击右键装备。",
   "unequippableHint": "点击右键卸下。",
   "materialPackageHint": "点击右键使用后转化为材料。",
+  "cardpackHint": "在打坐界面开启，可以获得战斗卡牌。",
 
   "hint.ship": "需要先装备船只才可以在水面上移动……",
   "hint.boots": "需要先装备登山靴才可以在山地中移动……",
@@ -293,5 +294,18 @@
   "hint.notEnoughJade": "聚气需要消耗灵石，或者要找到灵气喷涌的地方才行……",
   "hint.openPackage.jade": "聚气需要消耗灵石……可以在物品栏中打开灵石包裹获得灵石。",
 
-  "hint.switch": "好像有什么地方的机关打开了……"
+  "hint.switch": "好像有什么地方的机关打开了……",
+  "hint.deadend": "这里看样子无法前进了，看来得想想别的办法……",
+
+  "cultivationLevel": "修为",
+  "exp": "修为经验",
+  "cultivationPointsNeededForNextLevel": "升级需求",
+  "cultivationRank": "境界",
+  "rankUp!": "境界提升!",
+
+  "availableCultivationPoints": "可用点数",
+
+  "condenseAll": "自动收集",
+  "introspection": "内观",
+  "enlightenment": "悟道"
 }

@@ -25,37 +25,26 @@ void main() async {
       alertFlutterError(details);
     };
 
-    // 控件绘制时发生错误，用一个显示错误信息的控件替代
-    ErrorWidget.builder = (FlutterErrorDetails details) {
-      final Object exception = details.exception;
-      return ErrorWidget.withDetails(
-          message: '$exception\n\n${details.stack}',
-          error: exception is FlutterError ? exception : null);
-    };
-
-    if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-      await windowManager.ensureInitialized();
-      windowManager.setTitle(engine.name);
-      await windowManager.setMaximizable(false);
-      await windowManager.setResizable(false);
-      const windowSize = Size(1280.0, 720.0);
-      windowManager.waitUntilReadyToShow(
-        const WindowOptions(
-          title: 'Heavenly Tribulation Tests',
-          // fullScreen: true,
-          size: windowSize,
-          minimumSize: windowSize,
-          maximumSize: windowSize,
-        ),
-        () async {
-          await windowManager.show();
-          await windowManager.focus();
-          final screenSize = await windowManager.getSize();
-          engine.info('系统版本：${Platform.operatingSystemVersion}');
-          engine.info('窗口逻辑大小：${screenSize.width}x${screenSize.height}');
-        },
-      );
-    }
+    assert(Platform.isLinux || Platform.isWindows || Platform.isMacOS);
+    await windowManager.ensureInitialized();
+    windowManager.setTitle(engine.name);
+    await windowManager.setMaximizable(false);
+    await windowManager.setResizable(false);
+    const windowSize = Size(1440.0, 900.0);
+    windowManager.waitUntilReadyToShow(
+      const WindowOptions(
+        title: 'Heavenly Tribulation Tests',
+        // fullScreen: true,
+        size: windowSize,
+        minimumSize: windowSize,
+        maximumSize: windowSize,
+      ),
+      () async {
+        await windowManager.show();
+        await windowManager.focus();
+        engine.info('系统版本：${Platform.operatingSystemVersion}');
+      },
+    );
 
     runApp(
       MaterialApp(
@@ -81,7 +70,7 @@ void main() async {
             return error;
           };
           if (widget != null) return widget;
-          throw ('widget is null');
+          throw ('error trying to create error widget!');
         },
       ),
     );

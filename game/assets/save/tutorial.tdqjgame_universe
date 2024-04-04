@@ -6,8 +6,6 @@
       "isMainWorld": true,
       "width": 27,
       "height": 25,
-      "heroInitialX": null,
-      "heroInitialY": null,
       "terrainSpriteSheet": "fantasyhextiles_v3_borderless.png",
       "tileShape": "hexagonalVertical",
       "gridWidth": 32.0,
@@ -13827,7 +13825,7 @@
         {
           "index": 1,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 10,
@@ -13842,7 +13840,8 @@
           "left": 2,
           "top": 1,
           "slashLeft": 0,
-          "slashTop": 1
+          "slashTop": 1,
+          "spriteIndex": 5
         },
         {
           "index": 2,
@@ -13906,7 +13905,9 @@
         },
         {
           "index": 5,
-          "overlaySprite": {},
+          "overlaySprite": {
+            "sprite": "object/stoneStairs.png"
+          },
           "kind": "plain",
           "flags": {},
           "experienced": [],
@@ -14008,7 +14009,7 @@
         {
           "index": 10,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 85,
@@ -14023,12 +14024,13 @@
           "left": 11,
           "top": 1,
           "slashLeft": 5,
-          "slashTop": 5
+          "slashTop": 5,
+          "spriteIndex": 5
         },
         {
           "index": 11,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 41,
@@ -14043,7 +14045,8 @@
           "left": 12,
           "top": 1,
           "slashLeft": 5,
-          "slashTop": 6
+          "slashTop": 6,
+          "spriteIndex": 5
         },
         {
           "index": 12,
@@ -14269,7 +14272,7 @@
         {
           "index": 23,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 52,
@@ -14284,7 +14287,8 @@
           "left": 12,
           "top": 2,
           "slashLeft": 4,
-          "slashTop": 7
+          "slashTop": 7,
+          "spriteIndex": 5
         },
         {
           "index": 24,
@@ -14309,7 +14313,7 @@
         {
           "index": 25,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 8,
@@ -14324,7 +14328,8 @@
           "left": 2,
           "top": 3,
           "slashLeft": -2,
-          "slashTop": 3
+          "slashTop": 3,
+          "spriteIndex": 5
         },
         {
           "index": 26,
@@ -14510,7 +14515,7 @@
         {
           "index": 35,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 79,
@@ -14525,12 +14530,13 @@
           "left": 12,
           "top": 3,
           "slashLeft": 3,
-          "slashTop": 8
+          "slashTop": 8,
+          "spriteIndex": 5
         },
         {
           "index": 36,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 92,
@@ -14545,12 +14551,13 @@
           "left": 1,
           "top": 4,
           "slashLeft": -3,
-          "slashTop": 3
+          "slashTop": 3,
+          "spriteIndex": 5
         },
         {
           "index": 37,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 3,
@@ -14565,12 +14572,13 @@
           "left": 2,
           "top": 4,
           "slashLeft": -3,
-          "slashTop": 4
+          "slashTop": 4,
+          "spriteIndex": 5
         },
         {
           "index": 38,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 117,
@@ -14585,7 +14593,8 @@
           "left": 3,
           "top": 4,
           "slashLeft": -2,
-          "slashTop": 4
+          "slashTop": 4,
+          "spriteIndex": 5
         },
         {
           "index": 39,
@@ -14731,7 +14740,7 @@
         {
           "index": 46,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 93,
@@ -14746,12 +14755,13 @@
           "left": 11,
           "top": 4,
           "slashLeft": 2,
-          "slashTop": 8
+          "slashTop": 8,
+          "spriteIndex": 5
         },
         {
           "index": 47,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 29,
@@ -14766,12 +14776,13 @@
           "left": 12,
           "top": 4,
           "slashLeft": 2,
-          "slashTop": 9
+          "slashTop": 9,
+          "spriteIndex": 5
         },
         {
           "index": 48,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 70,
@@ -14786,12 +14797,13 @@
           "left": 1,
           "top": 5,
           "slashLeft": -4,
-          "slashTop": 4
+          "slashTop": 4,
+          "spriteIndex": 5
         },
         {
           "index": 49,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 86,
@@ -14806,12 +14818,13 @@
           "left": 2,
           "top": 5,
           "slashLeft": -4,
-          "slashTop": 5
+          "slashTop": 5,
+          "spriteIndex": 5
         },
         {
           "index": 50,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 31,
@@ -14826,7 +14839,8 @@
           "left": 3,
           "top": 5,
           "slashLeft": -3,
-          "slashTop": 5
+          "slashTop": 5,
+          "spriteIndex": 5
         },
         {
           "index": 51,
@@ -14870,7 +14884,9 @@
         },
         {
           "index": 53,
-          "overlaySprite": {},
+          "overlaySprite": {
+            "sprite": "object/dungeonStoneGate.png"
+          },
           "kind": "plain",
           "flags": {},
           "experienced": [],
@@ -14992,7 +15008,7 @@
         {
           "index": 59,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 119,
@@ -15007,7 +15023,8 @@
           "left": 12,
           "top": 5,
           "slashLeft": 1,
-          "slashTop": 10
+          "slashTop": 10,
+          "spriteIndex": 5
         },
         {
           "index": 60,
@@ -15032,7 +15049,7 @@
         {
           "index": 61,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 26,
@@ -15047,7 +15064,8 @@
           "left": 2,
           "top": 6,
           "slashLeft": -5,
-          "slashTop": 6
+          "slashTop": 6,
+          "spriteIndex": 5
         },
         {
           "index": 62,
@@ -15232,7 +15250,7 @@
         {
           "index": 71,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 1,
@@ -15247,7 +15265,8 @@
           "left": 12,
           "top": 6,
           "slashLeft": 0,
-          "slashTop": 11
+          "slashTop": 11,
+          "spriteIndex": 5
         },
         {
           "index": 72,
@@ -15272,7 +15291,7 @@
         {
           "index": 73,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 31,
@@ -15287,7 +15306,8 @@
           "left": 2,
           "top": 7,
           "slashLeft": -6,
-          "slashTop": 7
+          "slashTop": 7,
+          "spriteIndex": 5
         },
         {
           "index": 74,
@@ -15452,7 +15472,7 @@
         {
           "index": 82,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 115,
@@ -15467,12 +15487,13 @@
           "left": 11,
           "top": 7,
           "slashLeft": -1,
-          "slashTop": 11
+          "slashTop": 11,
+          "spriteIndex": 5
         },
         {
           "index": 83,
           "overlaySprite": {},
-          "kind": "void",
+          "kind": "plain",
           "flags": {},
           "experienced": [],
           "monthlyUpdateTime": 99,
@@ -15487,7 +15508,8 @@
           "left": 12,
           "top": 7,
           "slashLeft": -1,
-          "slashTop": 12
+          "slashTop": 12,
+          "spriteIndex": 5
         },
         {
           "index": 84,
@@ -15592,7 +15614,8 @@
         {
           "index": 89,
           "overlaySprite": {
-            "spriteIndex": 11
+            "spriteIndex": 11,
+            "sprite": "object/dungeonStoneGate.png"
           },
           "kind": "plain",
           "flags": {},
@@ -15795,7 +15818,8 @@
         {
           "index": 99,
           "overlaySprite": {
-            "spriteIndex": 12
+            "spriteIndex": 12,
+            "sprite": "object/pressurePlate.png"
           },
           "kind": "plain",
           "flags": {},
@@ -15881,7 +15905,8 @@
         {
           "index": 103,
           "overlaySprite": {
-            "spriteIndex": 12
+            "spriteIndex": 12,
+            "sprite": "object/pressurePlate.png"
           },
           "kind": "plain",
           "flags": {},
@@ -16929,7 +16954,9 @@
             "fished": []
           },
           "index": 154,
-          "overlaySprite": {},
+          "overlaySprite": {
+            "sprite": "object/treasureBox.png"
+          },
           "kind": "plain",
           "flags": {},
           "monthlyUpdateTime": 115,
@@ -17320,9 +17347,9 @@
           "overlaySprite": {
             "spriteIndex": 11,
             "animation": {
-              "row": 6,
-              "to": 3
-            }
+              "path": "object/animation/portal.png"
+            },
+            "sprite": "object/dungeonStoneGate.png"
           },
           "kind": "plain",
           "flags": {},
@@ -18154,9 +18181,9 @@
           "overlaySprite": {
             "spriteIndex": 11,
             "animation": {
-              "row": 6,
-              "to": 3
-            }
+              "path": "object/animation/portal.png"
+            },
+            "sprite": "object/dungeonStoneGate.png"
           },
           "kind": "plain",
           "flags": {},
@@ -18241,7 +18268,8 @@
           "index": 218,
           "spriteIndex": 5,
           "overlaySprite": {
-            "spriteIndex": 12
+            "spriteIndex": 12,
+            "sprite": "object/pressurePlate.png"
           },
           "kind": "plain",
           "flags": {},
@@ -19036,7 +19064,9 @@
           },
           "index": 257,
           "spriteIndex": 5,
-          "overlaySprite": {},
+          "overlaySprite": {
+            "sprite": "object/coffin.png"
+          },
           "kind": "plain",
           "flags": {},
           "monthlyUpdateTime": 72,

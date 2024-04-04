@@ -31,11 +31,13 @@ namespace debug {
     }
   }
 
-  function showAllCaptions {
+  function refreshAllCaptions {
     for (const tile in world.terrains) {
       if (tile.locationId) {
         const location = game.locations[tile.locationId]
-        WorldMap.setTerrainCaption(location.worldPosition.left, location.worldPosition.top, location.name)
+        WorldMap.setTerrainCaption(tile.left, tile.top, location.name)
+      } else if (tile.objectId) {
+        WorldMap.setTerrainCaption(tile.left, tile.top, tile.objectId)
       }
     }
   }

@@ -68,7 +68,7 @@ class VersusBanner extends GameComponent with HandlesGesture {
       size: Vector2(100.0, 100.0),
       borderRadius: 12.0,
       paint: paint,
-      onPressed: () => showCharacterInfo(heroData),
+      onTap: (_, __) => showCharacterInfo(heroData),
     ));
     add(SpriteButton(
       // position: Vector2(center.x + 80.0 + 10.0, center.y - 50.0),
@@ -78,7 +78,7 @@ class VersusBanner extends GameComponent with HandlesGesture {
       size: Vector2(100.0, 100.0),
       borderRadius: 12.0,
       paint: paint,
-      onPressed: () => showCharacterInfo(enemyData),
+      onTap: (_, __) => showCharacterInfo(enemyData),
     ));
   }
 

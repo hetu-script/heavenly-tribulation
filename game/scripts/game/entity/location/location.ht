@@ -71,7 +71,7 @@ struct Location {
       terrain.locationId = this.id
       // terrain.caption = location.name
       // 城市的贴图重叠于地形贴图之上
-      terrain.overlaySprite.spriteIndex = kSpriteCity
+      terrain.overlaySprite.sprite = kSpriteCity
     }
 
     // 据点发展度，最高5，初始0
@@ -150,7 +150,7 @@ function addLocation(loc) {
   terrain.locationId = loc.id
   // terrain.caption = location.name
   WorldMap.setTerrainCaption(loc.worldPosition.left, loc.worldPosition.top, loc.name)
-  terrain.overlaySprite.spriteIndex = kSpriteCity
+  terrain.overlaySprite.sprite = kSpriteCity
   WorldMap.refreshTerrainOverlaySprite(loc.worldPosition.left, loc.worldPosition.top)
 }
 
@@ -245,7 +245,7 @@ function discoverLocation(location) {
   if (location.category == kLocationCategoryArcana || location.category == kLocationCategoryMirage) {
     const tile = world.terrains[location.terrainIndex]
     // tile.spriteIndex = kSpriteLand
-    tile.overlaySprite.spriteIndex = kSpriteCity
+    tile.overlaySprite.sprite = kSpriteCity
     // WorldMap.setWorldMapSprite(location.worldPosition.left, location.worldPosition.top, kSpriteLand)
     WorldMap.refreshTerrainOverlaySprite(location.worldPosition.left, location.worldPosition.top)
   }

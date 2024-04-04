@@ -236,7 +236,6 @@ class _WorldInformationPanelState extends State<WorldInformationPanel>
                       case WorldInformationCharacterPopUpMenuItems.checkProfile:
                         showDialog(
                           context: context,
-                          barrierDismissible: false,
                           builder: (context) =>
                               ProfileView(characterId: dataId),
                         );
@@ -244,14 +243,12 @@ class _WorldInformationPanelState extends State<WorldInformationPanel>
                             .checkEquipments:
                         showDialog(
                           context: context,
-                          barrierDismissible: false,
                           builder: (context) =>
                               EquipmentsAndStatsView(characterId: dataId),
                         );
                       case WorldInformationCharacterPopUpMenuItems.checkMemory:
                         showDialog(
                           context: context,
-                          barrierDismissible: false,
                           builder: (context) => MemoryView(characterId: dataId),
                         );
                     }

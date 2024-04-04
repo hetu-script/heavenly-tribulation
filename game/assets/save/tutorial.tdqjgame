@@ -108,7 +108,7 @@
       "battleDeck": {},
       "cardLibrary": {},
       "reservedCardLibrary": [],
-      "cultivationPoints": 0,
+      "exp": 0,
       "attributes": {
         "spirituality": 45,
         "dexterity": 2,
@@ -231,7 +231,7 @@
       "battleDeck": {},
       "cardLibrary": {},
       "reservedCardLibrary": [],
-      "cultivationPoints": 0,
+      "exp": 0,
       "attributes": {
         "strength": 48,
         "willpower": 1,
@@ -344,7 +344,7 @@
       "activeQuestIds": [],
       "worldPosition": {
         "left": 6,
-        "top": 22
+        "top": 21
       },
       "materials": {
         "money": 0,
@@ -366,7 +366,7 @@
       "battleDeck": {},
       "cardLibrary": {},
       "reservedCardLibrary": [],
-      "cultivationPoints": 0,
+      "exp": 0,
       "attributes": {
         "dexterity": 13,
         "spirituality": 30,
@@ -483,7 +483,7 @@
       "battleDeck": {},
       "cardLibrary": {},
       "reservedCardLibrary": [],
-      "cultivationPoints": 0,
+      "exp": 0,
       "attributes": {
         "strength": 22,
         "dexterity": 22,
@@ -1175,8 +1175,6 @@
         "shaqi": 0,
         "yuanqi": 0
       },
-      "stayingCharacterIds": [],
-      "residingCharacterIds": [],
       "jailedCharacterIds": [],
       "sites": {
         "cityhall": {

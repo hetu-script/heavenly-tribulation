@@ -30,7 +30,7 @@ class _NpcListState extends State<NpcList> {
     // TODO: implement initState
     super.initState();
 
-    availableSpaceY = GameUI.size!.y -
+    availableSpaceY = GameUI.size.y -
         GameUI.heroInfoHeight -
         GameUI.siteCardSize.y -
         GameUI.indent * 2 -
@@ -43,11 +43,11 @@ class _NpcListState extends State<NpcList> {
 
   @override
   Widget build(BuildContext context) {
+    final hero = engine.hetu.fetch('hero');
     final characters = (
             // widget.npcs ??
             context.watch<CurrentNpcList>().characters)
         .map((char) {
-      final hero = engine.hetu.fetch('hero');
       final haveMet =
           engine.hetu.invoke('haveMet', positionalArgs: [hero, char]);
       return Padding(

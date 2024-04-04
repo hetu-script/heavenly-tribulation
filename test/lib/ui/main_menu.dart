@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:samsara/ui/loading_screen.dart';
@@ -38,7 +36,7 @@ class _MainMenuState extends State<MainMenu> {
   void dispose() {
     super.dispose();
 
-    _videoController.dispose();
+    // _videoController.dispose();
   }
 
   Future<bool> _prepareData() async {
@@ -52,20 +50,20 @@ class _MainMenuState extends State<MainMenu> {
 
     engine.hetu.evalFile('main.ht', globallyImport: true);
 
-    const videoFilename = 'D:/_dev/heavenly-tribulation/media/video/title2.mp4';
-    final videoFile = File.fromUri(Uri.file(videoFilename));
-    _videoController = WinVideoPlayerController.file(videoFile);
-    _videoController.initialize().then((_) {
-      // Ensure the first frame is shown after the video is initialized.
-      setState(() {
-        if (_videoController.value.isInitialized) {
-          _videoController.play();
-        } else {
-          engine.error("Failed to load [$videoFilename]!");
-        }
-      });
-    });
-    _videoController.setLooping(true);
+    // const videoFilename = 'D:/_dev/heavenly-tribulation/media/video/title2.mp4';
+    // final videoFile = File.fromUri(Uri.file(videoFilename));
+    // _videoController = WinVideoPlayerController.file(videoFile);
+    // _videoController.initialize().then((_) {
+    //   // Ensure the first frame is shown after the video is initialized.
+    //   setState(() {
+    //     if (_videoController.value.isInitialized) {
+    //       _videoController.play();
+    //     } else {
+    //       engine.error("Failed to load [$videoFilename]!");
+    //     }
+    //   });
+    // });
+    // _videoController.setLooping(true);
     return true;
   }
 

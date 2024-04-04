@@ -22,7 +22,6 @@ class QuestsView extends StatefulWidget {
     return showDialog<bool>(
       context: context,
       barrierColor: Colors.transparent,
-      barrierDismissible: false,
       builder: (context) {
         return QuestsView(
           key: UniqueKey(),

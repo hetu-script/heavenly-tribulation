@@ -11,7 +11,7 @@
     tags: ["weapon_attack"],
     animations: ["attack_normal", "attack_normal_recovery"],
     title: {
-      zh: "普通攻击",
+      zh: "基础攻击",
     },
     rules: {
       zh: "7攻",
@@ -24,10 +24,23 @@
     tags: ["defense"],
     animations: ["defend_normal"],
     title: {
-      zh: "普通格挡",
+      zh: "基础格挡",
     },
     rules: {
       zh: "防+10",
+    },
+  },
+  dodge_normal: {
+    id: "dodge_normal",
+    deckId: "dodge_normal",
+    genre: ["general"],
+    tags: [],
+    animations: ["dodge_normal", "dodge_normal_recovery"],
+    title: {
+      zh: "基础闪避",
+    },
+    rules: {
+      zh: "闪避对方下个回合\n10点或以下的攻",
     },
   },
   // 剑修卡牌

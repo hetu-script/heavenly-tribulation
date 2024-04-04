@@ -129,30 +129,7 @@ const kEquipTypeBoots = 'boots'
 const kEquipTypeAircraft = 'aircraft'
 
 function getCultivationRankName(character) {
-  return engine.locale('cultivationRank.${character.cultivationRank}')
-}
-
-const kLifespan = {
-  '0': {
-    min: 75,
-    max: 125,
-  },
-  '1': {
-    min: 100,
-    max: 200,
-  },
-  '2': {
-    min: 150,
-    max: 350,
-  },
-  '3': {
-    min: 250,
-    max: 650,
-  },
-  '4': {
-    min: 450,
-    max: 1250,
-  },
+  return engine.locale('cultivationRank${character.cultivationRank}')
 }
 
 function setEntityWorldPosition(entity, left, top, [ worldId ]) {
@@ -160,14 +137,6 @@ function setEntityWorldPosition(entity, left, top, [ worldId ]) {
   if (worldId != null) {
     entity.worldId = worldId
   }
-}
-
-function createRandomLifespan(cultivationRank) {
-  let { min, max } = kLifespan[cultivationRank]
-  let minTick = min * kTicksPerYear
-  let maxTick = max * kTicksPerYear
-  let randomSpan = minTick + random.nextInt(maxTick)
-  return randomSpan
 }
 
 const _kCharacterRandomAgeMax = 40
@@ -200,14 +169,7 @@ function tryChangeStats(entity, statName, change, { overflow = false }) {
   return residue
 }
 
-// level up exp function from pokemon.
-function expForLevel(level,[difficulty = 1]) {
-  assert(level > 0)
-  return ((difficulty * (level * level * level)) ~/ 5 + 1) * 100
-}
-
-// linear level up function for unchanged exp gaining rate.
-function expForLevel2(level) {
-  assert(level > 0)
-  return (level * level + level) ~/ 2 * 100 - (level * 100)
+// level up exp function.
+function expForLevel(level, [difficulty = 1]) {
+  return (difficulty * (level) * (level)) * 5 + level * 100 + 25
 }

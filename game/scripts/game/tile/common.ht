@@ -5,14 +5,18 @@ const kSpriteMountain = 3;
 const kSpriteFarmField = 4;
 const kSpriteDungeonStonePavedTile = 5;
 
-const kSpriteCity = 8;
-const kSpriteCave = 9;
-const kSpriteArray = 10;
-const kSpriteDungeonStoneGate = 11;
-const kSpriteDungeonUnpressedTile = 12;
-const kSpriteDungeonPressedTile = 13;
-const kSpriteTreasureBox = 14;
-const kSpriteTreasureBoxOpened = 15;
+const kSpriteCity = 'object/city.png';
+const kSpriteDungeon = 'object/dungeon.png';
+const kSpriteArray = 'object/portalArray.png';
+const kSpriteDungeonStoneGate = 'object/dungeonStoneGate.png';
+const kSpriteDungeonLever = 'object/lever.png';
+const kSpriteDungeonLeverOn = 'object/leverOn.png';
+const kSpriteTreasureBox = 'object/treasureBox.png';
+const kSpriteTreasureBoxOpened = 'object/treasureBoxOpened.png';
+const kSpriteDungeonGlowingTile = 'object/glowingTile.png';
+const kSpriteDungeonCoffin = 'object/coffin.png';
+const kSpriteDungeonStoneStairs = 'object/stoneStairs.png';
+const kSpriteDungeonStoneStairsDebris = 'object/stoneStairsDebris.png';
 
 const kTerrainKindEmpty = 'empty';
 const kTerrainKindMountain = 'mountain';

@@ -20,9 +20,9 @@
   "createLocation": "创建据点",
   "createOrganization": "创建门派",
   "createZone": "创建区域",
-  "createMapObject": "创建地图对象",
-  "bindMapObject": "绑定地图对象",
-  "clearMapObject": "清除地图对象",
+  "createObject": "创建对象",
+  "bindObject": "绑定对象",
+  "clearObject": "清除对象",
 
   "setAsHero": "设置为主角",
   "clearWorldMapPosition": "清除大地图位置",
@@ -44,5 +44,23 @@
   "setInteractable": "设置可否进入",
   "nonInteractable": "不可到达",
 
-  "useCustomInteraction": "使用自定义事件处理函数"
+  "useCustomInteraction": "使用自定义事件处理函数",
+
+  "custom": "自定义",
+  "portal": "传送门",
+  "mapEntry": "地图入口",
+  "glowingTile": "发光地板",
+  "switch": "机关",
+  "lever": "拉杆",
+  "treasureBox": "宝箱",
+  "coffin": "棺材",
+  "statue": "雕像",
+
+  "dungeonStoneGate": "石门",
+  "dungeonStonePavedTile": "石砖",
+
+  "characterDefault": "默认角色",
+  "characterMan": "中年男",
+  "characterOld": "老人",
+  "characterGirl": "女孩"
 }

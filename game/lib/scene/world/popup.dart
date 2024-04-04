@@ -12,22 +12,23 @@ class WorldMapPopup extends StatelessWidget {
 
   final VoidCallback? onPanelTapped;
 
-  // 位置：上
+  /// 显示`移动`图标（位置：上，条件：点击非英雄所在位置）
   final bool moveToIcon;
+
+  /// 显示`打坐`图标（位置：上，条件：点击英雄所在位置）
   final bool meditateIcon;
 
-  // 位置：左
+  /// 显示`进入`图标（位置：左，条件：有据点的地块）
   final bool enterIcon;
+
+  /// 显示`神识探查`图标（位置：左，条件：无据点的地块）
   final bool exploreIcon;
 
-  // final bool talkIcon;
-
-  // 位置：下
+  /// 显示`交互`图标（位置：下，条件：点击英雄所在位置）
   final bool interactIcon;
 
-  // 位置：右
-
-  // final String description;
+  /// 显示`技能`图标（位置：右，条件：点击非英雄所在位置）
+  final bool skillIcon;
 
   final void Function()? onMoveTo;
   final void Function()? onMeditate;
@@ -35,8 +36,9 @@ class WorldMapPopup extends StatelessWidget {
   final void Function()? onEnter;
   final void Function()? onExplore;
 
-  // final void Function()? onTalk;
   final void Function()? onInteract;
+
+  final void Function()? onSkill;
 
   const WorldMapPopup({
     super.key,
@@ -51,8 +53,8 @@ class WorldMapPopup extends StatelessWidget {
     this.onEnter,
     this.exploreIcon = false,
     this.onExplore,
-    // this.talkIcon = false,
-    // this.onTalk,
+    this.skillIcon = false,
+    this.onSkill,
     this.interactIcon = false,
     this.onInteract,
     // this.description = '',
@@ -93,15 +95,6 @@ class WorldMapPopup extends StatelessWidget {
                   ],
                 ),
                 padding: const EdgeInsets.all(20),
-                // child: Align(
-                //   alignment: Alignment.center,
-                //   child: Text(
-                //     description,
-                //     style: const TextStyle(
-                //       fontSize: 12,
-                //     ),
-                //   ),
-                // ),
               ),
               if (moveToIcon)
                 Positioned.fill(
@@ -110,11 +103,16 @@ class WorldMapPopup extends StatelessWidget {
                     child: Tooltip(
                       message: engine.locale('moveTo'),
                       child: InkButton(
+                        color: kForegroundColor.withOpacity(0.5),
+                        border: Border.all(
+                          color: kForegroundColor,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
                         size: _kPopupButtonSize,
+                        onPressed: onMoveTo,
                         child: const Image(
                           image: AssetImage('assets/images/icon/move_to.png'),
                         ),
-                        onPressed: () => onMoveTo?.call(),
                       ),
                     ),
                   ),
@@ -126,11 +124,16 @@ class WorldMapPopup extends StatelessWidget {
                     child: Tooltip(
                       message: engine.locale('interact'),
                       child: InkButton(
+                        color: kForegroundColor.withOpacity(0.5),
+                        border: Border.all(
+                          color: kForegroundColor,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
                         size: _kPopupButtonSize,
+                        onPressed: onInteract,
                         child: const Image(
                           image: AssetImage('assets/images/icon/hand.png'),
                         ),
-                        onPressed: () => onInteract?.call(),
                       ),
                     ),
                   ),
@@ -142,11 +145,16 @@ class WorldMapPopup extends StatelessWidget {
                     child: Tooltip(
                       message: engine.locale('enter'),
                       child: InkButton(
+                        color: kForegroundColor.withOpacity(0.5),
+                        border: Border.all(
+                          color: kForegroundColor,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
                         size: _kPopupButtonSize,
+                        onPressed: onEnter,
                         child: const Image(
                           image: AssetImage('assets/images/icon/enter.png'),
                         ),
-                        onPressed: () => onEnter?.call(),
                       ),
                     ),
                   ),
@@ -158,11 +166,16 @@ class WorldMapPopup extends StatelessWidget {
                     child: Tooltip(
                       message: engine.locale('explore'),
                       child: InkButton(
+                        color: kForegroundColor.withOpacity(0.5),
+                        border: Border.all(
+                          color: kForegroundColor,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
                         size: _kPopupButtonSize,
+                        onPressed: onExplore,
                         child: const Image(
                           image: AssetImage('assets/images/icon/search.png'),
                         ),
-                        onPressed: () => onExplore?.call(),
                       ),
                     ),
                   ),
@@ -174,6 +187,11 @@ class WorldMapPopup extends StatelessWidget {
                     child: Tooltip(
                       message: engine.locale('meditate'),
                       child: InkButton(
+                        color: kForegroundColor.withOpacity(0.5),
+                        border: Border.all(
+                          color: kForegroundColor,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
                         size: _kPopupButtonSize,
                         child: const Image(
                           image: AssetImage('assets/images/icon/meditate.png'),
@@ -183,25 +201,27 @@ class WorldMapPopup extends StatelessWidget {
                     ),
                   ),
                 ),
-              // if (practiceIcon)
-              //   Positioned.fill(
-              //     child: Align(
-              //       alignment: Alignment.centerLeft,
-              //       child: InkImageButton(
-              //         width: _kPopupButtonSize,
-              //         height: _kPopupButtonSize,
-              //         tooltip: engine.locale('practice'],
-              //         child: const Image(
-              //           image: AssetImage('assets/images/icon/practice.png'),
-              //         ),
-              //         onPressed: () {
-              //           if (onPractice != null) {
-              //             onPractice!();
-              //           }
-              //         },
-              //       ),
-              //     ),
-              //   ),
+              if (skillIcon)
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Tooltip(
+                      message: engine.locale('useMapSkill'),
+                      child: InkButton(
+                        color: kForegroundColor.withOpacity(0.5),
+                        border: Border.all(
+                          color: kForegroundColor,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        size: _kPopupButtonSize,
+                        onPressed: onSkill,
+                        child: const Image(
+                          image: AssetImage('assets/images/icon/skill.png'),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

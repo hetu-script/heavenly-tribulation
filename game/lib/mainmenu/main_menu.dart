@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:provider/provider.dart';
 import 'package:samsara/extensions.dart';
-// import 'package:samsara/extensions.dart';
 // import 'package:samsara/samsara.dart';
 // import 'package:flame_audio/flame_audio.dart';
 // import 'package:samsara/event.dart';
@@ -14,6 +13,7 @@ import 'package:samsara/ui/label.dart';
 import 'package:samsara/console.dart';
 // import 'package:video_player_win/video_player_win.dart';
 
+import '../dialog/game_dialog/game_dialog.dart';
 // import '../pages/map/maze/maze_overlay.dart';
 import '../config.dart';
 import 'load_game.dart';
@@ -35,6 +35,8 @@ import '../editor/world_editor.dart';
 // import '../../dialog/game_dialog/game_dialog.dart';
 import '../dialog/game_dialog/game_dialog_controller.dart';
 import '../state/states.dart';
+import '../scene/cultivation/cultivation.dart';
+import '../scene/cultivation/components/cultivation.dart';
 
 class MainMenu extends StatefulWidget {
   const MainMenu({super.key});
@@ -108,10 +110,18 @@ class _MainMenuState extends State<MainMenu> {
       return scene;
     });
 
+    engine.registerSceneConstructor('cultivation', ([dynamic data]) async {
+      return CultivationScene(
+        controller: engine,
+        context: context,
+        heroData: data,
+      );
+    });
+
     engine.registerSceneConstructor('deckBuilding', ([dynamic data]) async {
       return DeckBuildingScene(
         controller: engine,
-        libray: data,
+        library: data,
         context: context,
       );
     });
@@ -145,10 +155,10 @@ class _MainMenuState extends State<MainMenu> {
     engine.bgm.dispose();
   }
 
-  // 因为 FutureBuilder根据返回值是否为null来判断，因此这里无论如何要返回一个值
+  // 因为 FutureBuilder 根据返回值是否为null来判断，因此这里无论如何要返回一个值
   Future<bool> _prepareData() async {
-    if (engine.isInitted) {
-      engine.hetu.invoke('build', positionalArgs: [context]);
+    if (GameData.isInitted) {
+      assert(engine.isInitted);
       _isLoading = false;
       return true;
     }
@@ -219,11 +229,26 @@ class _MainMenuState extends State<MainMenu> {
       context.read<GameDialogState>().popAllScene();
     }, override: true);
 
+    engine.hetu.interpreter.bindExternalFunction('updateHero', (
+        {positionalArgs, namedArgs}) {
+      context.read<HeroState>().update();
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('updateHistory', (
+        {positionalArgs, namedArgs}) {
+      context.read<HistoryState>().update();
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('updateQuest', (
+        {positionalArgs, namedArgs}) {
+      context.read<QuestState>().update();
+    }, override: true);
+
     engine.hetu.interpreter.bindExternalClass(BattleCharacterClassBinding());
 
     final mainConfig = {'locale': engine.languageId};
     if (kDebugMode) {
-      engine.loadModFromAssetsString(
+      await engine.loadModFromAssetsString(
         'game/main.ht',
         module: 'game',
         namedArgs: mainConfig,
@@ -232,7 +257,7 @@ class _MainMenuState extends State<MainMenu> {
     } else {
       final game = await rootBundle.load('assets/mods/game.mod');
       final gameBytes = game.buffer.asUint8List();
-      engine.loadModFromBytes(
+      await engine.loadModFromBytes(
         gameBytes,
         moduleName: 'game',
         namedArgs: mainConfig,
@@ -241,9 +266,8 @@ class _MainMenuState extends State<MainMenu> {
     }
 
     // 载入动画，卡牌等纯JSON格式的游戏数据
-    await GameData.load();
-
-    engine.hetu.invoke('build', positionalArgs: [context]);
+    // ignore: use_build_context_synchronously
+    await GameData.init(context);
 
     // const videoFilename = 'D:/_dev/heavenly-tribulation/media/video/title2.mp4';
     // _videoFile = File.fromUri(Uri.file(videoFilename));
@@ -259,6 +283,10 @@ class _MainMenuState extends State<MainMenu> {
     //   });
     // });
     // _videoController.setLooping(true);
+
+    // 创建一个空游戏数据，这主要是为了主菜单的测试游戏和debug相关功能，并不会保存
+    engine.hetu.invoke('newGame');
+
     _isLoading = false;
     setState(() {});
     return true;
@@ -579,6 +607,39 @@ class _MainMenuState extends State<MainMenu> {
                       engine.bgm.pause();
 
                       final hero = engine.hetu.invoke('Character', namedArgs: {
+                        'unconvertedExp': 500,
+                        'majorAttributes': ['dexterity'],
+                      });
+
+                      engine.hetu
+                          .invoke('setHeroId', positionalArgs: [hero['id']]);
+                      context.read<HeroState>().update();
+
+                      showDialog(
+                        context: context,
+                        builder: (context) =>
+                            CultivationOverlay(heroData: hero),
+                      ).then((value) {
+                        engine.bgm.resume();
+                      });
+                    },
+                    child: Label(
+                      engine.locale('debugCultivation'),
+                      width: 150.0,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context
+                          .read<MainMenuState>()
+                          .setState(MainMenuStates.main);
+                      engine.bgm.pause();
+
+                      final hero = engine.hetu.invoke('Character', namedArgs: {
                         'isMajorCharacter': false,
                         'baseStats': {
                           'life': 40,
@@ -622,7 +683,7 @@ class _MainMenuState extends State<MainMenu> {
                         'craft_2',
                       ];
                       // final enemyDeck = PresetDecks.random;
-                      final enemyDeck = PresetDecks.basic;
+                      final enemyDeck = PrebuildDecks.basic;
 
                       showDialog(
                         context: context,
@@ -633,11 +694,26 @@ class _MainMenuState extends State<MainMenu> {
                           heroLibrary: heroLibrary,
                           enemyDeck: enemyDeck,
                         ),
-                      ).then((value) {
-                        engine.bgm.resume();
-                      });
+                      );
                     },
                     child: Label(engine.locale('debugBattle'),
+                        width: 200.0, textAlign: TextAlign.center),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      GameDialog.show(
+                        context: context,
+                        dialogData: {
+                          'lines': [
+                            "你好！这是一个带有<bold blue>格式化</>文本的<color='#F28234' link='test'>测试</>对话！"
+                          ],
+                        },
+                      );
+                    },
+                    child: Label(engine.locale('debugGameDialog'),
                         width: 200.0, textAlign: TextAlign.center),
                   ),
                 ),
@@ -649,10 +725,7 @@ class _MainMenuState extends State<MainMenu> {
                         context: context,
                         builder: (BuildContext context) =>
                             Console(engine: engine),
-                      ).then((_) => setState(() {
-                            engine.hetu
-                                .invoke('build', positionalArgs: [context]);
-                          }));
+                      );
                     },
                     child: Label(engine.locale('console'),
                         width: 200.0, textAlign: TextAlign.center),

@@ -19,7 +19,6 @@ class MerchantView extends StatefulWidget {
     return showDialog<bool>(
       context: context,
       barrierColor: Colors.transparent,
-      barrierDismissible: false,
       builder: (context) {
         return MerchantView(
           merchantData: merchantData,

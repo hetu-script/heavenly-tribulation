@@ -33,6 +33,7 @@ struct TileMapTerrain {
     top,
     index,
     mapWidth,
+    spriteIndex,
   }) {
     this.index = index
     if (left != null && top != null) {
@@ -44,7 +45,9 @@ struct TileMapTerrain {
         )
       )
     }
-    this.spriteIndex = kSpriteWater
+    if (spriteIndex != null) {
+      this.spriteIndex = spriteIndex
+    }
     this.overlaySprite = {}
     this.kind = kTerrainKindSea
     this.flags = {}
@@ -65,7 +68,6 @@ struct TileMapTerrain {
 function createBlankWorld({
     id,
     isMainWorld,
-    saveName,
     name,
     terrainSpriteSheet = 'fantasyhextiles_v3_borderless.png',
     width,
@@ -95,12 +97,11 @@ function createBlankWorld({
           left: i + 1,
           top: j + 1,
           index: tilePos2Index(i + 1, j + 1, width),
+          spriteIndex: kSpriteWater,
         )
       )
     }
   }
-
-  game.saveName = saveName
 
   return newWorld
 }

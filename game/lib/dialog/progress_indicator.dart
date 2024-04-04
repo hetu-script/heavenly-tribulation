@@ -17,7 +17,6 @@ class ProgressIndicator extends StatefulWidget {
     return showDialog<void>(
       context: context,
       barrierColor: Colors.transparent,
-      barrierDismissible: false,
       builder: (context) {
         return ProgressIndicator(
           title: title,

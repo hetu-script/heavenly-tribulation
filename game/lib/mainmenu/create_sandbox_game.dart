@@ -12,7 +12,6 @@ class CreateSandboxGameDialog extends StatefulWidget {
     return showDialog(
       context: context,
       barrierColor: Colors.transparent,
-      barrierDismissible: false,
       builder: (context) => const CreateSandboxGameDialog(),
     );
   }

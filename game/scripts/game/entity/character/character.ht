@@ -97,6 +97,45 @@ const kMajorThinkings = [
   'anger',
 ]
 
+const kLifespan = {
+  '0': {
+    min: 62,
+    max: 87,
+  },
+  '1': {
+    min: 75,
+    max: 125,
+  },
+  '2': {
+    min: 100, // 前一等级的中心点
+    max: 200, // min + 前一等级跨度的两倍
+  },
+  '3': {
+    min: 150,
+    max: 350,
+  },
+  '4': {
+    min: 250,
+    max: 650,
+  },
+  '5': {
+    min: 450,
+    max: 1250,
+  },
+  '6': {
+    min: 850,
+    max: 2450,
+  }
+}
+
+function createRandomLifespan(cultivationRank) {
+  let { min, max } = kLifespan[cultivationRank]
+  let minTick = min * kTicksPerYear
+  let maxTick = max * kTicksPerYear
+  let randomSpan = minTick + random.nextInt(maxTick)
+  return randomSpan
+}
+
 // 羁绊, 人物对其他的某个事物的印象和评价
 struct Bond {
   construct ({
@@ -174,6 +213,31 @@ const basicLibrary = [
   'attack_normal',
 ]
 
+function getMajorAttribute(character) {
+  let attr = character.attributes
+  assert(attr != null)
+  let major = attr.spirituality
+  let majorName = 'spirituality'
+
+  if (attr.dexterity > major) {
+    major = attr.dexterity
+    majorName = 'dexterity'
+  }
+  if (attr.strength > major) {
+    major = attr.strength
+    majorName = 'strength'
+  }
+  if (attr.willpower > major) {
+    major = attr.willpower
+    majorName = 'willpower'
+  }
+  if (attr.perception > major) {
+    majorName = 'perception'
+  }
+
+  return majorName
+}
+
 struct Character {
   construct ({
     isMajorCharacter = true,
@@ -187,7 +251,11 @@ struct Character {
     generateRandomName = true,
     isFemale: bool,
     birthTimestamp,
-    cultivationRank = 1,
+    unconvertedExp,
+    exp,
+    cultivationLevel,
+    cultivationRank,
+    availableCultivationPoints,
     worldId,
     worldPositionX,
     worldPositionY,
@@ -200,8 +268,11 @@ struct Character {
     spouseId,
     attributes,
     attributeSum = 50,
+    majorAttributes: List = [],
     baseStats,
+    cultivationGenre,
     cardLibrary,
+    battleDeck,
   }) {
     // 该人物的每月刷新事件的时间
     this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
@@ -265,8 +336,11 @@ struct Character {
 
     this.worldId = worldId ?? world?.id
 
-    // 修真境界，一开始是练气
-    this.cultivationRank = cultivationRank ?? 1
+    // 修真境界，练气期是1
+    // 境界决定了升级时能获得卡牌的最高稀有度，但具体获得的卡牌是随机的
+    // 在所有流派中，只有修为等级最高的那个流派决定了境界
+    this.cultivationRank = cultivationRank ?? 0
+    
     this.color = kRarity.rare.color
     
     // age 的格式是 timestamp, 精确到 tick. 
@@ -275,8 +349,6 @@ struct Character {
     } else {
       this.birthTimestamp = createRandomBirthTimestamp()
     }
-    
-    this.deathTimestamp = this.birthTimestamp + createRandomLifespan(this.cultivationRank)
 
     this.luck =  Math.gaussianNoise(
       _kCharacterAverage,
@@ -320,6 +392,9 @@ struct Character {
 
     this.fame = 0
     this.infamy = 0
+    
+    /// 寿命必须在已知境界之后计算
+    this.deathTimestamp = this.birthTimestamp + createRandomLifespan(this.cultivationRank)
  
     // 有多少人知道此人的名字
     // this.knownByPopulation = 0
@@ -379,21 +454,37 @@ struct Character {
     // 生成战斗单位相关数据，并写入当前对象
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
     const battleInfo = BattleEntity(
-                      attributes: attributes, 
-                      attributeSum: attributeSum,
-                      baseStats: baseStats,
-                    )
+      attributes: attributes, 
+      attributeSum: attributeSum,
+      majorAttributes: majorAttributes,
+      baseStats: baseStats,
+      cultivationGenre: cultivationGenre,
+      battleDeck: battleDeck,
+    )
     Object.assign(this, battleInfo)
 
-    this.cultivationFavor = getMajorAttributes(this)
+    this.cultivationFavor = getMajorAttribute(this)
     this.organizationFavor = random.nextIterable(kOrganizationFavor)
 
-    // 备用战斗卡组
-    this.reservedBattleDecks = []
-    // 角色卡牌库，每张牌只有一张，取等级最高者保存，重复获得时会进入备用牌库
-    this.cardLibrary = cardLibrary ?? basicLibrary
-    // 备用牌库
-    this.reservedCardLibrary = []
+    // 经验值，获取后会体现为修炼界面的光点，点击或者划过光点才会转化为真正的修为经验
+    this.unconvertedExp = unconvertedExp ?? 0
+    // 转换后的修为经验值，经验值达到下一等级需求后，自动扣除并提升修为能级
+    this.exp = exp ?? 0
+    // 修为等级，每次提升修为等级可以获得1点天赋点，和1个技能卡牌包，每个卡牌包内包含3张卡牌
+    this.cultivationLevel = cultivationLevel ?? 0
+    // 未分配的修为点数，修为点数可以用来在天赋盘上升级天赋
+    this.availableCultivationPoints = availableCultivationPoints ?? 0
+    // 已分配的修为点数，key是技能名字，value是当前等级，value等于null或者0时，意味着尚未分配该技能。
+    this.cultivationSkills = {}
+    // 角色当前卡牌库，可能包含重复的卡牌
+    this.cardLibrary = cardLibrary ?? []
+    // 战斗卡组的数组，数组的值是一个结构体，包含卡组的命名（可修改）和卡组内容
+    this.battleDecks = []
+    // 当前使用的战斗卡组，记录的是战斗卡组数组的index
+    this.currentBattleDeckIndex = -1
+
+    // 一同行动的角色
+    this.companions = []
 
     // 该角色经历过的事情
     // 保存的是incident的index
@@ -424,6 +515,7 @@ struct Character {
       insulted: [],
       stolen: [],
     }
+
     
     if (locationId) {
       const location = game.locations[locationId]
@@ -485,6 +577,7 @@ struct Character {
         }
       }
     }
+    
   }
 }
 
@@ -1008,54 +1101,114 @@ function characterSteal(character, item) {
 //   entityType,
 //   coordination,
 // }
-function characterGetCompanion(character, companion) {
-  // if (character.companions.length >= kEquipmentMax) {
-  //   engine.warn('${character.id} 的随从数量已满，无法再添加新的随从。')
-  //   return false
-  // }
-  if (character.companions.containsKey(companion.id)) {
+function characterGetCompanion(character, companion, { incurIncident = true }) {
+  if (character.companions.contains(companion.id)) {
     engine.warn('${companion.id} 已经是 ${character.id} 的随从了，无法再次添加。')
-    return false
+    return
   }
+  print(character.id)
+  print(companion.id)
+  character.companions.add(companion.id)
   
-  let companionData = {
-    id: companion.id,
-    name: companion.name,
-    category: companion.category,
-    kind: companion.kind,
-    description: companion.description,
-    icon: companion.icon,
-    color: companion.color,
-    entityType: kEntityTypeCompanion,
-    companionType: companion.companionType ?? kCompanionTypeFollower,
-    coordination: 0, // 该随从对于该角色的配合程度，新加入的伙伴从0开始
-    stats: companion.stats.clone(),
-  }
-
-  if (companion.companionType == kCompanionTypeBattle) {
-    // generateBattleCompanionData(companionData, companion)
-    companion.isEquippable = true
-    companion.equipType = kEquipTypeCompanion
-  }
-  
-  character.companions[companionData.id] = companionData
-  
-  const incidentContent = engine.locale('characterFollow', interpolations: [
+  const incidentContent = engine.locale('characterGetCompanion', interpolations: [
     companion.name,
     character.name,
   ])
-  Incident(
-    message: incidentContent,
-    subjectId: companion.id,
-    objectId: character.id,
-    isPrivate: true,
-  )
-  return companionData
+  if (incurIncident) {
+    Incident(
+      message: incidentContent,
+      subjectId: companion.id,
+      objectId: character.id,
+      isPrivate: true,
+    )
+  } else {
+    engine.info(incidentContent)
+  }
 }
 
-function characterDismissCompanion(character, companion) {
-  // delete character.companions[companion.id]
-  // if (companion.entityType == kEntityTypeNpc) {
-  //   delete game.minorCharacters[companion.id]
-  // }
+function characterDismissCompanion(character, companion, { incurIncident = true }) {
+  assert(character.companions.contains(companion.id))
+
+  character.companions.remove(companion.id)
+  
+  const incidentContent = engine.locale('characterLoseCompanion', interpolations: [
+    companion.name,
+    character.name,
+  ])
+  if (incurIncident) {
+    Incident(
+      message: incidentContent,
+      subjectId: companion.id,
+      objectId: character.id,
+      isPrivate: true,
+    )
+  } else {
+    engine.info(incidentContent)
+  }
 }
+
+function characterCultivationLevelUp(character, { incurIncident = true }) {
+  let expRequirement = expForLevel(character.cultivationLevel)
+  assert(character.exp >= expRequirement)
+
+  character.exp -= expRequirement
+  ++character.cultivationLevel
+
+  character.availableCultivationPoints += 1
+
+  const incidentContent = engine.locale('characterCultivationLevelUp', interpolations: [
+    character.name,
+    character.cultivationLevel,
+  ])
+  if (incurIncident) {
+    Incident(
+      message: incidentContent,
+      subjectId: character.id,
+      isPrivate: true,
+    )
+  } else {
+    engine.info(incidentContent)
+  }
+}
+
+function characterCultivationRankUp(character, { incurIncident = true }) {
+  ++character.cultivationRank
+
+  const incidentContent = engine.locale('characterCultivationRankUp', interpolations: [
+    character.name,
+    getCultivationRankName(character),
+  ])
+  if (incurIncident) {
+    Incident(
+      message: incidentContent,
+      subjectId: character.id,
+      isPrivate: true,
+    )
+  } else {
+    engine.info(incidentContent)
+  }
+
+  return character.cultivationRank
+}
+
+// function changeCharacterCultivationSkillLevel(character, skillLevels, { incurIncident = true }) {
+//   for (let skillId in skillLevels.keys) {
+//     let level = skillLevels[skillId]
+//     character.cultivationSkills[skillId] = level
+
+//     const incidentContent = engine.locale('characterCultivationSkillLevel', interpolations: [
+//       character.name,
+//       engine.locale(skillId),
+//       level,
+//     ])
+//     if (incurIncident) {
+//       Incident(
+//         message: incidentContent,
+//         subjectId: character.id,
+//         isPrivate: true,
+//       )
+//     } else {
+//       engine.info(incidentContent)
+//     }
+//   }
+// }

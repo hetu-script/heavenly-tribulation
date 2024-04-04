@@ -9,13 +9,13 @@ import 'package:samsara/ui/integer_input_field.dart';
 import '../../config.dart';
 import '../../view/dropdown_menu_button.dart';
 
-const kMapObjectTypes = {
+const kObjectTypes = {
   "portal",
   "mapEntry",
 };
 
-class EditMapObject extends StatefulWidget {
-  const EditMapObject({
+class EditObject extends StatefulWidget {
+  const EditObject({
     super.key,
     this.worldId,
     this.id,
@@ -25,7 +25,6 @@ class EditMapObject extends StatefulWidget {
     this.mapHeight,
     this.entityType,
     this.spriteSrc,
-    this.srcOffsetY,
     this.useCustomInteraction,
   });
 
@@ -34,25 +33,23 @@ class EditMapObject extends StatefulWidget {
   final int? mapWidth, mapHeight;
   final String? entityType;
   final String? spriteSrc;
-  final double? srcOffsetY;
   final bool? useCustomInteraction;
 
   @override
-  State<EditMapObject> createState() => _EditCharacterIdAndAvatarState();
+  State<EditObject> createState() => _EditObjectState();
 }
 
-class _EditCharacterIdAndAvatarState extends State<EditMapObject> {
+class _EditObjectState extends State<EditObject> {
   final _worldIdEditingController = TextEditingController();
   final _idEditingController = TextEditingController();
   final _posXController = TextEditingController();
   final _posYController = TextEditingController();
   final _entityTypeEditingController = TextEditingController();
   final _spriteSrcEditingController = TextEditingController();
-  final _srcOffsetYEditingController = TextEditingController();
 
   bool _useCustomInteraction = false;
 
-  String? _selectedMapObjectType = kMapObjectTypes.first;
+  String? _selectedObjectType = kObjectTypes.first;
 
   @override
   void initState() {
@@ -64,8 +61,6 @@ class _EditCharacterIdAndAvatarState extends State<EditMapObject> {
     _posYController.text = widget.top?.toString() ?? '1';
     _entityTypeEditingController.text = widget.entityType ?? '';
     _spriteSrcEditingController.text = widget.spriteSrc ?? '';
-    _srcOffsetYEditingController.text = widget.srcOffsetY?.toString() ?? '';
-
     _useCustomInteraction = widget.useCustomInteraction ?? false;
   }
 
@@ -185,13 +180,13 @@ class _EditCharacterIdAndAvatarState extends State<EditMapObject> {
                         height: 40.0,
                         child: DropdownMenuButton(
                           selections: {
-                            for (final element in kMapObjectTypes)
+                            for (final element in kObjectTypes)
                               engine.locale(element): element
                           },
-                          selected: _selectedMapObjectType,
+                          selected: _selectedObjectType,
                           onChanged: (newValue) {
                             setState(() {
-                              _selectedMapObjectType = newValue;
+                              _selectedObjectType = newValue;
                             });
                           },
                         )),
@@ -213,29 +208,6 @@ class _EditCharacterIdAndAvatarState extends State<EditMapObject> {
                       height: 40.0,
                       child: TextField(
                         controller: _spriteSrcEditingController,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                width: 280,
-                height: 40,
-                padding: const EdgeInsets.only(top: 20),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 90.0,
-                      child: Text('${engine.locale('offsetY')}:'),
-                    ),
-                    SizedBox(
-                      width: 190.0,
-                      height: 40.0,
-                      child: TextField(
-                        controller: _srcOffsetYEditingController,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
                       ),
                     ),
                   ],

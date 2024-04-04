@@ -25,6 +25,14 @@ const kEquipTypeDefense = 'defense';
 const kEquipTypeArcana = 'arcana';
 const kEquipTypeCompanion = 'companion';
 
+const kMajorAttributes = [
+  'spirituality',
+  'dexterity',
+  'strength',
+  'willpower',
+  'perception',
+];
+
 const kOrganizationCategories = {
   'cultivation',
   'gang',
@@ -33,13 +41,26 @@ const kOrganizationCategories = {
   'nation',
 };
 
-const kCultivationGenres = {
+const kMainCultivationGenres = [
   'element',
+  'physique',
+  'avatar',
+  'vitality',
   'blade',
-  // 'physique',
-  // 'avatar',
-  // 'vitality',
-};
+];
+
+const kSupportCultivationGenres = [
+  'array',
+  'rune',
+  'plant',
+  'animal',
+  'divination',
+  'theurgy',
+  'psychic',
+  'illusion',
+  'craft',
+  'alchemy',
+];
 
 const kConstructableSiteCategories = {
   'library',
@@ -76,3 +97,29 @@ const kMaterialHerb = 'herb';
 const kMaterialYinQi = 'yinqi';
 const kMaterialShaQi = 'shaqi';
 const kMaterialYuanQi = 'yuanqi';
+
+const kGenres = {
+  'element',
+  'blade',
+  'physique',
+  'avatar',
+  'vitality',
+  'array',
+  'rune',
+  'alchemy',
+  'craft',
+  'animal',
+  'plant',
+  'psychic',
+  'illusion',
+  'theurgy',
+  'divination',
+};
+
+const kAttributesToGenre = {
+  'spirituality': 'spirituality',
+  'dexterity': 'blade',
+  'strength': 'physique',
+  'willpower': 'vitality',
+  'perception': 'avatar',
+};

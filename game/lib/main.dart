@@ -39,10 +39,11 @@ class DesktopScrollBehavior extends MaterialScrollBehavior {
 }
 
 void main() {
+  dataTableShowLogs = false;
+
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    dataTableShowLogs = false;
     // 对于Flutter没有捕捉到的错误，弹出系统原生对话框
     PlatformDispatcher.instance.onError = (error, stack) {
       alertNativeError(error, stack);

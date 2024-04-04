@@ -63,7 +63,6 @@ class CharacterSelectDialog extends StatelessWidget {
   }) async {
     return await showDialog<dynamic>(
       context: context,
-      barrierDismissible: false,
       builder: (BuildContext context) {
         return CharacterSelectDialog(
           title: title,
@@ -144,20 +143,17 @@ class CharacterSelectDialog extends StatelessWidget {
                 case SelectCharacterPopUpMenuItems.checkProfile:
                   showDialog(
                     context: context,
-                    barrierDismissible: false,
                     builder: (context) => ProfileView(characterId: dataId),
                   );
                 case SelectCharacterPopUpMenuItems.checkEquipments:
                   showDialog(
                     context: context,
-                    barrierDismissible: false,
                     builder: (context) =>
                         EquipmentsAndStatsView(characterId: dataId),
                   );
                 case SelectCharacterPopUpMenuItems.checkMemory:
                   showDialog(
                     context: context,
-                    barrierDismissible: false,
                     builder: (context) => MemoryView(characterId: dataId),
                   );
               }

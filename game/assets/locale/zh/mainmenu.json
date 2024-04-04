@@ -14,7 +14,9 @@
   "characterEditor": "人物编辑器",
 
   "debugMod": "开发者模式",
+  "debugCultivation": "修真界面测试",
   "debugBattle": "战斗测试",
+  "debugGameDialog": "对话框测试",
 
   "randomSeed": "随机数种子",
   "worldStyle": "地图风格",

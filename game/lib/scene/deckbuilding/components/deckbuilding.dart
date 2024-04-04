@@ -4,19 +4,19 @@ import 'package:samsara/samsara.dart';
 // import 'package:samsara/gestures.dart';
 
 // import '../../../global.dart';
-import 'card_library.dart';
+import 'cardlibrary_zone.dart';
 import 'deckbuilding_zone.dart';
 // import '../../../ui.dart';
 
 class DeckBuildingScene extends Scene {
-  late final CardLibrary library;
+  late final CardLibraryZone libraryZone;
   late final DeckBuildingZone buildingZone;
 
-  final List<String> libray;
+  final List<String> library;
 
   DeckBuildingScene({
     required super.controller,
-    required this.libray,
+    required this.library,
     required super.context,
   }) : super(id: 'deckBuilding');
 
@@ -24,17 +24,17 @@ class DeckBuildingScene extends Scene {
   Future<void> onLoad() async {
     super.onLoad();
 
-    library = CardLibrary();
-    world.add(library);
+    libraryZone = CardLibraryZone();
+    world.add(libraryZone);
 
     buildingZone = DeckBuildingZone(limit: 4);
     world.add(buildingZone);
 
-    library.buildingZone = buildingZone;
-    buildingZone.library = library;
+    libraryZone.buildingZone = buildingZone;
+    buildingZone.library = libraryZone;
 
-    for (final cardId in libray) {
-      final card = library.addCardById(cardId);
+    for (final cardId in library) {
+      final card = libraryZone.addCardById(cardId);
       // 如果卡牌已经存在，则library.addCard会返回null，下面就不用处理。
       if (card == null) continue;
       // 这里要直接加到世界上而非library管理，因为卡牌会被拖动

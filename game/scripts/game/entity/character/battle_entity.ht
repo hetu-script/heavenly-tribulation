@@ -7,7 +7,7 @@ import '../item/material.ht'
 // import 'status_effect/world_map_status_effect.ht'
 
 const _kAttributeSum = 50
-const _kMajorAttributeFactor = 0.5
+const _kMajorAttributeFactor = 0.55
 
 const kEquipmentMax = 7
 
@@ -27,31 +27,6 @@ const kCharacterAttributeNames = [
   'perception',
 ]
 
-function getMajorAttributes(character) {
-  let attr = character.attributes
-  assert(attr != null)
-  let major = attr.spirituality
-  let majorName = 'spirituality'
-
-  if (attr.dexterity > major) {
-    major = attr.dexterity
-    majorName = 'dexterity'
-  }
-  if (attr.strength > major) {
-    major = attr.strength
-    majorName = 'strength'
-  }
-  if (attr.willpower > major) {
-    major = attr.willpower
-    majorName = 'willpower'
-  }
-  if (attr.perception > major) {
-    majorName = 'perception'
-  }
-
-  return majorName
-}
-
 // 某些时候，只需要生成一个用于战斗的实体，此时不需要年龄、魅力等属性
 struct BattleEntity {
   construct ({
@@ -59,6 +34,7 @@ struct BattleEntity {
     attributeSum,
     majorAttributes: List = [],
     baseStats,
+    cultivationGenre,
     battleDeck,
   }) {
     // 身上携带的材料，材料本身没有特殊属性，多个材料只是堆叠数字增加
@@ -78,13 +54,9 @@ struct BattleEntity {
     // 随主角移动的其他角色
     this.companions = {}
 
-    // 战斗卡组的位置是固定的，根据境界有 4-8 张
-    // TODO: 可以准备多个卡组随时切换
-    // key 是 1-8 的数字，代表第几栏
-    this.battleDeck = battleDeck ?? {}
-
-    // 修为点数，其实就是经验值，可以换算为天赋点数
-    this.cultivationPoints = 0
+    // 战斗卡组根据境界有 4-8 张
+    // 数组的值就是一个代表卡牌id的字符串
+    this.battleDeck = battleDeck ?? []
 
     // 角色的属性
     // 包括：灵力、身法、体魄、念力、神识
@@ -112,6 +84,10 @@ struct BattleEntity {
 
     calculateCharacterStats(this, baseStats: baseStats)
     rejuvenate(this)
+
+    // 主流派：剑修、法术、体修、炼魂、化身
+    // 副流派：炼丹、炼器、阵法、符咒、灵植、灵兽、通灵、幻术、占卜、神通
+    this.cultivationGenre = cultivationGenre
   }
 }
 

@@ -19,7 +19,6 @@ class InputVector2Dialog extends StatefulWidget {
     return showDialog<(int, int)>(
       context: context,
       barrierColor: Colors.transparent,
-      barrierDismissible: false,
       builder: (context) {
         return InputVector2Dialog(
           defaultX: defaultX,

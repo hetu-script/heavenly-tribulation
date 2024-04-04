@@ -8,7 +8,7 @@ import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/cardgame/card.dart';
 // import 'package:samsara/gestures.dart';
-import 'package:samsara/component/sprite_button.dart';
+import 'package:samsara/components/sprite_button.dart';
 import 'package:flame/flame.dart';
 
 import '../../../ui.dart';
@@ -43,7 +43,7 @@ class BattleScene extends Scene {
 
   bool? battleResult;
 
-  late final SpriteButton _nextTurnButton;
+  late final SpriteButton nextTurnButton;
 
   bool battleStarted = false;
   bool battleEnded = false;
@@ -154,8 +154,8 @@ class BattleScene extends Scene {
 
     showStartPrompt();
 
-    final heroCP = heroData['cultivationPoints'];
-    final enemyCP = enemyData['cultivationPoints'];
+    final heroCP = heroData['exp'];
+    final enemyCP = enemyData['exp'];
 
     if (heroCP > enemyCP) {
       initialMove = true;
@@ -173,15 +173,16 @@ class BattleScene extends Scene {
   Future<void> showStartPrompt() async {
     await versusBanner.fadeIn(duration: 1.2);
 
-    _nextTurnButton = SpriteButton(
-      title: engine.locale('start'),
+    nextTurnButton = SpriteButton(
+      useSimpleStyle: true,
+      text: engine.locale('start'),
       priority: 5000,
       anchor: Anchor.center,
       position: Vector2(center.x, center.y + 50),
       size: Vector2(100.0, 40.0),
-      onPressed: GameConfig.isDebugMode ? nextTurn : startAutoBattle,
+      onTap: (_, __) => GameConfig.isDebugMode ? nextTurn() : startAutoBattle(),
     );
-    world.add(_nextTurnButton);
+    world.add(nextTurnButton);
   }
 
   void _prepareBattle() async {
@@ -200,7 +201,7 @@ class BattleScene extends Scene {
     assert(card.script != null);
     await engine.hetu.invoke(
       card.script!,
-      namespace: 'Card',
+      namespace: 'CardScripts',
       positionalArgs: [heroMove ? hero : enemy, heroMove ? enemy : hero],
     );
     await card.setFocused(false);
@@ -230,7 +231,7 @@ class BattleScene extends Scene {
       battleResult = false;
     }
 
-    _nextTurnButton.enableGesture = true;
+    nextTurnButton.enableGesture = true;
   }
 
   void _endScene() {
@@ -252,15 +253,15 @@ class BattleScene extends Scene {
 
     battleEnded = true;
 
-    if (!_nextTurnButton.isMounted) {
-      world.add(_nextTurnButton);
+    if (!nextTurnButton.isMounted) {
+      world.add(nextTurnButton);
     }
-    _nextTurnButton.title = engine.locale('end');
-    _nextTurnButton.onPressed = _endScene;
+    nextTurnButton.text = engine.locale('end');
+    nextTurnButton.onTap = (_, __) => _endScene();
   }
 
   Future<void> startAutoBattle() async {
-    _nextTurnButton.removeFromParent();
+    nextTurnButton.removeFromParent();
 
     await versusBanner.moveTo(
       duration: 0.3,
@@ -283,36 +284,37 @@ class BattleScene extends Scene {
           toPosition: Vector2(center.x, center.y - 350),
         );
         _prepareBattle();
-        _nextTurnButton.title = engine.locale('nextTurn');
+        nextTurnButton.text = engine.locale('nextTurn');
         battleStarted = true;
 
         final restartButton = SpriteButton(
-          title: engine.locale('restart'),
+          useSimpleStyle: true,
+          text: engine.locale('restart'),
           priority: 5000,
           anchor: Anchor.center,
           position: center,
           size: Vector2(100.0, 40.0),
         );
-        restartButton.onPressed = () {
+        restartButton.onTap = (_, __) {
           _victoryPrompt.removeFromParent();
           _defeatPrompt.removeFromParent();
           battleEnded = false;
           battleResult = null;
-          _nextTurnButton.enableGesture = true;
-          _nextTurnButton.title = engine.locale('nextTurn');
+          nextTurnButton.enableGesture = true;
+          nextTurnButton.text = engine.locale('nextTurn');
           hero.reset();
           heroDeckZone.reset();
           enemy.reset();
           enemyDeckZone.reset();
           _prepareBattle();
-          _nextTurnButton.title = engine.locale('nextTurn');
-          _nextTurnButton.onPressed = nextTurn;
+          nextTurnButton.text = engine.locale('nextTurn');
+          nextTurnButton.onTap = (_, __) => nextTurn();
           battleStarted = true;
         };
 
         world.add(restartButton);
       } else if (battleResult == null) {
-        _nextTurnButton.enableGesture = false;
+        nextTurnButton.enableGesture = false;
         _nextTurn();
       } else {
         _endBattle();

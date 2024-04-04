@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-// import 'package:flutter/scheduler.dart';
+import 'package:flutter/scheduler.dart';
 // import 'package:hetu_script/values.dart';
+import 'package:samsara/widget/rich_text_builder.dart';
 
 import '../../view/avatar.dart';
 import '../../config.dart';
@@ -51,22 +52,27 @@ class GameDialog extends StatefulWidget {
 class _GameDialogState extends State<GameDialog> {
   Timer? timer;
   String? currentAvatar;
-  String currentSay = '';
+  String currentLine = '';
+  List<String> nodes = [];
   String? displayName;
   int currentSayIndex = 0;
-  int letterCount = 0;
+  int progress = 0;
   bool finished = false;
 
   dynamic characterData;
   bool isNpc = false;
 
-  final textShowController = StreamController<String>.broadcast();
+  final textShowController = StreamController<TextSpan>.broadcast();
+
+  late TextStyle style;
 
   @override
   void initState() {
     super.initState();
 
-    startTalk();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      startTalk();
+    });
   }
 
   @override
@@ -95,7 +101,7 @@ class _GameDialogState extends State<GameDialog> {
               bottom: 20.0,
               child: StreamBuilder(
                 stream: textShowController.stream,
-                builder: (context, AsyncSnapshot<String> snapshot) {
+                builder: (context, AsyncSnapshot<TextSpan> snapshot) {
                   return Container(
                     width: 880,
                     height: 160,
@@ -139,9 +145,8 @@ class _GameDialogState extends State<GameDialog> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                snapshot.data ?? '',
-                                style: const TextStyle(fontSize: 24),
+                              RichText(
+                                text: snapshot.data ?? const TextSpan(),
                               ),
                             ],
                           ),
@@ -159,31 +164,35 @@ class _GameDialogState extends State<GameDialog> {
   }
 
   void startTalk() {
-    setState(() {
-      finished = false;
-      letterCount = 0;
+    style = DefaultTextStyle.of(context)
+        .style
+        .merge(const TextStyle(fontSize: 24, letterSpacing: 2));
+    finished = false;
+    progress = 0;
 
-      final characterId = widget.dialogData['characterId'];
-      if (characterId != null) {
-        characterData = engine.hetu
-            .invoke('getCharacterById', positionalArgs: [characterId]);
+    final characterId = widget.dialogData['characterId'];
+    if (characterId != null) {
+      characterData =
+          engine.hetu.invoke('getCharacterById', positionalArgs: [characterId]);
+    }
+
+    currentAvatar = widget.dialogData['icon'];
+    currentLine = widget.dialogData['lines'][currentSayIndex];
+
+    nodes = getRichTextStream(currentLine);
+
+    displayName = widget.dialogData['displayName'];
+    timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      progress++;
+      if (progress >= nodes.length) {
+        finishLine();
+      } else {
+        textShowController.add(TextSpan(
+            children: buildRichText(nodes.sublist(0, progress).join(),
+                style: style)));
       }
-
-      currentAvatar = widget.dialogData['icon'];
-      currentSay = widget.dialogData['lines'][currentSayIndex];
-      displayName = widget.dialogData['displayName'];
-      // if (displayName != null) {
-      //   _currentSay = '$displayName: $_currentSay';
-      // }
-      timer = Timer.periodic(const Duration(milliseconds: 80), (timer) {
-        letterCount++;
-        if (letterCount > currentSay.length) {
-          finishLine();
-        } else {
-          textShowController.add(currentSay.substring(0, letterCount));
-        }
-      });
     });
+    setState(() {});
   }
 
   void nextSay() {
@@ -197,7 +206,8 @@ class _GameDialogState extends State<GameDialog> {
 
   void finishLine() {
     timer?.cancel();
-    textShowController.add(currentSay);
+    textShowController
+        .add(TextSpan(children: buildRichText(currentLine, style: style)));
     finished = true;
   }
 

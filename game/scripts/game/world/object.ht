@@ -1,19 +1,19 @@
 import '../game.ht'
 
-const kEntityTypeMapObject = 'object'
+const kEntityTypeObject = 'object'
 
-const kMapObjectPortal = 'portal'
-const kMapObjectDungeonEntry = 'dungeonEntry'
-const kMapObjectDungeonExit = 'dungeonExit'
-const kMapObjectSwitch = 'switch'
+const kObjectPortal = 'portal'
+const kObjectDungeonEntry = 'dungeonEntry'
+const kObjectDungeonExit = 'dungeonExit'
+const kObjectSwitch = 'switch'
 
 struct Portal {
   constructor ({
     targetLeft,
     targetTop,
   }) {
-    this.entityType = kEntityTypeMapObject
-    this.category = kMapObjectPortal
+    this.entityType = kEntityTypeObject
+    this.category = kObjectPortal
     this.id = '${kEntityTypeObject}${game.objects.length}.${this.category}'
     this.isDiscovered = true
     game.objects[this.id] = this
@@ -27,8 +27,8 @@ struct DungeonEntry {
   constructor ({
     dungeonId,
   }) {
-    this.entityType = kEntityTypeMapObject
-    this.category = kMapObjectDungeonEntry
+    this.entityType = kEntityTypeObject
+    this.category = kObjectDungeonEntry
     this.id = '${kEntityTypeObject}${game.objects.length}.${this.category}'
     this.isDiscovered = true
     game.objects[this.id] = this
@@ -41,8 +41,8 @@ struct DungeonExit {
   constructor ({
     mainWorldId,
   }) {
-    this.entityType = kEntityTypeMapObject
-    this.category = kMapObjectDungeonExit
+    this.entityType = kEntityTypeObject
+    this.category = kObjectDungeonExit
     this.id = '${kEntityTypeObject}${game.objects.length}.${this.category}'
     this.isDiscovered = true
     game.objects[this.id] = this
@@ -53,8 +53,8 @@ struct DungeonExit {
 
 struct DungeonSwitch {
   constructor {
-    this.entityType = kEntityTypeMapObject
-    this.category = kMapObjectSwitch
+    this.entityType = kEntityTypeObject
+    this.category = kObjectSwitch
     this.id = '${kEntityTypeObject}${game.objects.length}.${this.category}'
     this.isDiscovered = true
     game.objects[this.id] = this

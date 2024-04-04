@@ -4,19 +4,20 @@ import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
 import 'package:samsara/gestures/gesture_mixin.dart';
 import 'package:samsara/samsara.dart';
-import 'package:samsara/component/progress_indicator.dart';
-import 'package:samsara/component/fading_text.dart';
+import 'package:samsara/components/progress_indicator.dart';
+import 'package:samsara/components/fading_text.dart';
 import 'package:samsara/cardgame/card.dart';
-import 'package:samsara/component/tooltip.dart';
+import 'package:samsara/components/tooltip.dart';
+import 'package:samsara/animation/animation_state_controller.dart';
 
 import '../../../config.dart';
 import '../../../data.dart';
 import 'common.dart';
 import 'deck_zone.dart';
 import '../../../ui.dart';
+import '../../common.dart';
 
 const kTopLayerAnimationPriority = 200;
-const kHintTextPriority = 500;
 
 const String kDefeatState = 'defeat';
 const String kStandState = 'stand';
@@ -48,7 +49,7 @@ StatusEffectType getStatusEffectType(String? id) {
       orElse: () => StatusEffectType.none);
 }
 
-class StatusEffect extends GameComponent with HandlesGesture {
+class StatusEffect extends BorderComponent with HandlesGesture {
   static ScreenTextStyle defaultEffectCountStyle = ScreenTextStyle(
     anchor: Anchor.bottomRight,
     outlined: true,
@@ -90,8 +91,8 @@ class StatusEffect extends GameComponent with HandlesGesture {
     super.anchor,
     super.priority,
   }) {
-    assert(GameData.statusEffectData.containsKey(id));
-    final data = GameData.statusEffectData[id];
+    assert(GameData.statusEffectsData.containsKey(id));
+    final data = GameData.statusEffectsData[id];
     type = getStatusEffectType(data['type']);
     isUnique = data['unique'] ?? false;
     effectPriority = data['priority'] ?? 0;
@@ -137,17 +138,8 @@ class StatusEffect extends GameComponent with HandlesGesture {
   }
 }
 
-class BattleCharacter extends GameComponent {
+class BattleCharacter extends GameComponent with AnimationStateController {
   final String skinId;
-
-  final Map<String, SpriteAnimationWithTicker> _animations = {};
-  late String _currentState;
-
-  SpriteAnimationWithTicker get currentAnimation {
-    assert(_animations.containsKey(_currentState),
-        'Could not find animation state: [$_currentState]');
-    return _animations[_currentState]!;
-  }
 
   final bool isHero;
 
@@ -159,26 +151,26 @@ class BattleCharacter extends GameComponent {
   set life(int value) {
     assert(value <= _hpBar.max);
     data['stats']['life'] = value;
-    _hpBar.value = value.toDouble();
+    _hpBar.value = value;
   }
 
   int get lifeMax => data['stats']['lifeMax'];
   set lifeMax(int value) {
     data['stats']['lifeMax'] = value;
-    _hpBar.max = value.toDouble();
+    _hpBar.max = value;
   }
 
   int get mana => data['stats']['mana'];
   set mana(int value) {
     assert(value <= _mpBar.max);
     data['stats']['mana'] = value;
-    _mpBar.value = value.toDouble();
+    _mpBar.value = value;
   }
 
   int get manaMax => data['stats']['manaMax'];
   set manaMax(int value) {
     data['stats']['manaMax'] = value;
-    _mpBar.max = value.toDouble();
+    _mpBar.max = value;
   }
 
   int get weaponAttack => data['stats']['weaponAttack'];
@@ -223,16 +215,20 @@ class BattleCharacter extends GameComponent {
     required Set<String> animationStates,
     required this.data,
     required this.deckZone,
-  }) : super(anchor: Anchor.topCenter, flipH: isHero ? false : true) {
+  }) : super(anchor: Anchor.topCenter) {
+    if (!isHero) {
+      flipHorizontally();
+    }
+
     // _currentState = '${kStandState}_$skinId';
-    _currentState = kStandState;
+    currentState = kStandState;
     // cardAnimations.addAll(kPreloadAnimationStates.map((e) => '${e}_$skinId'));
     animationStates.addAll(kPreloadAnimationStates);
     for (final state in animationStates) {
-      assert(GameData.animationData.containsKey(skinId));
-      final data = GameData.animationData[skinId][state];
+      assert(GameData.animationsData.containsKey(skinId));
+      final data = GameData.animationsData[skinId][state];
       assert(data != null);
-      _animations[state] = SpriteAnimationWithTicker(
+      final anim = SpriteAnimationWithTicker(
         animationId: '$skinId/$state.png',
         srcSize: Vector2(data['width'], data['height']),
         stepTime: data['stepTime'],
@@ -244,37 +240,40 @@ class BattleCharacter extends GameComponent {
           data['height'].toDouble() * 2,
         ),
       );
+      addState(state, anim);
     }
   }
 
   @override
   Future<void> onLoad() async {
-    for (final anim in _animations.values) {
-      await anim.load();
-    }
+    await loadStates();
 
     _hpBar = DynamicColorProgressIndicator(
       anchor: isHero ? Anchor.topLeft : Anchor.topRight,
       position: Vector2(0, -GameUI.resourceBarHeight),
       size: Vector2(width, GameUI.resourceBarHeight),
-      value: life.toDouble(),
-      max: lifeMax.toDouble(),
+      value: life,
+      max: lifeMax,
       colors: [Colors.red, Colors.green],
       showNumber: true,
-      flipH: isHero ? false : true,
     );
+    if (!isHero) {
+      _hpBar.flipHorizontally();
+    }
     add(_hpBar);
 
     _mpBar = DynamicColorProgressIndicator(
       anchor: isHero ? Anchor.topLeft : Anchor.topRight,
       position: Vector2(0, -GameUI.resourceBarHeight * 2),
       size: Vector2(width, GameUI.resourceBarHeight),
-      value: mana.toDouble(),
-      max: manaMax.toDouble(),
+      value: mana,
+      max: manaMax,
       colors: [Colors.lightBlue, Colors.blue],
       showNumber: true,
-      flipH: isHero ? false : true,
     );
+    if (!isHero) {
+      _mpBar.flipHorizontally();
+    }
     add(_mpBar);
   }
 
@@ -302,7 +301,7 @@ class BattleCharacter extends GameComponent {
                 GameUI.permenantStatusEffectIconSize.y);
       } else {
         effect.position = Vector2(
-            GameUI.size!.x -
+            GameUI.size.x -
                 GameUI.indent -
                 i * (GameUI.permenantStatusEffectIconSize.x + 5),
             GameUI.p2BattleDeckZonePosition.y -
@@ -485,7 +484,7 @@ class BattleCharacter extends GameComponent {
   Future<void> restoreLife(int value) async {
     assert(value >= 0);
 
-    await setState('restore_life', resetOnComplete: true);
+    await setState('restore_life', resetOnComplete: kStandState);
 
     int hp = life;
     int hpMax = lifeMax;
@@ -529,7 +528,7 @@ class BattleCharacter extends GameComponent {
   Future<void> restoreMana(int value) async {
     assert(value >= 0);
 
-    await setState('restore_mana', resetOnComplete: true);
+    await setState('restore_mana', resetOnComplete: kStandState);
 
     int mp = mana;
     int mpMax = manaMax;
@@ -551,40 +550,14 @@ class BattleCharacter extends GameComponent {
     }
   }
 
-  bool containsState(String stateId) {
-    // return _animations.containsKey('${stateId}_$skinId');
-    return _animations.containsKey(stateId);
-  }
-
-  Future<void> setState(
-    String state, {
-    bool resetOnComplete = false,
-    void Function()? onComplete,
-  }) {
-    // engine.info('${isHero ? 'hero' : 'enemy'} new state: $state');
-    // state = '${state}_$skinId';
-    if (_currentState != state) {
-      _currentState = state;
-    }
-    final anim = currentAnimation;
-    anim.ticker.reset();
-    anim.ticker.onComplete = () {
-      onComplete?.call();
-      if (resetOnComplete) {
-        setState(kStandState);
-      }
-    };
-    return anim.ticker.completed;
-  }
-
   Future<void> setSpellState({String? state}) async {
     state ??= 'normal';
-    await setState('spell_$state', resetOnComplete: true);
+    await setState('spell_$state', resetOnComplete: kStandState);
   }
 
   Future<void> setDefendState({String? state}) async {
     state ??= 'normal';
-    await setState('defend_$state', resetOnComplete: true);
+    await setState('defend_$state', resetOnComplete: kStandState);
   }
 
   Future<void> setAttackState({String? state}) async {
@@ -597,7 +570,7 @@ class BattleCharacter extends GameComponent {
       'attack_$state',
       onComplete: () {
         if (containsState(recoveryAnimationId)) {
-          setState(recoveryAnimationId, resetOnComplete: true);
+          setState(recoveryAnimationId, resetOnComplete: kStandState);
         } else {
           setState(kStandState);
         }
@@ -674,12 +647,13 @@ class BattleCharacter extends GameComponent {
       // 这里不能用await，动画会卡住
       setState(
         kNormalDefendState,
-        resetOnComplete: true,
+        resetOnComplete: kStandState,
       );
     } else {
       setState(
         kHitState,
-        onComplete: () => setState(kHitRecoveryState, resetOnComplete: true),
+        onComplete: () =>
+            setState(kHitRecoveryState, resetOnComplete: kStandState),
       );
     }
 

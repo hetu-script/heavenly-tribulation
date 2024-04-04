@@ -4,7 +4,7 @@ import 'package:flame/flame.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/samsara.dart';
 
-const kCouldKindsCount = 12;
+import '../../common.dart';
 
 class AnimatedCloud extends GameComponent {
   Sprite? sprite;
@@ -18,11 +18,14 @@ class AnimatedCloud extends GameComponent {
 
   final random = math.Random();
 
-  AnimatedCloud({super.scale}) {
+  AnimatedCloud({
+    super.scale,
+  }) {
     velocity = 0.5 + random.nextDouble() * 2;
     duration = 20 + random.nextDouble() * 10;
     opacity = 0.4 + random.nextDouble() * 0.4;
     paint = Paint()..color = Colors.white.withOpacity(opacity);
+    priority = kCloudPriority;
   }
 
   @override

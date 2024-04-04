@@ -7,7 +7,6 @@ import 'package:samsara/tilemap.dart';
 // import 'package:hetu_script/values.dart';
 // import 'package:flame/flame.dart';
 // import 'package:flame/sprite.dart';
-import 'package:samsara/console.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/event.dart';
 
@@ -23,7 +22,7 @@ import 'components/drop_menu.dart';
 // import '../common.dart';
 // import 'location/location.dart';
 import '../state/selected_tile.dart';
-import '../scene/world/common.dart';
+import '../scene/common.dart';
 import 'components/toolbox.dart';
 import '../state/game_save.dart';
 import '../dialog/game_dialog/game_dialog.dart';
@@ -45,8 +44,8 @@ import '../dialog/select_dialog.dart';
 enum TerrainPopUpMenuItems {
   checkInformation,
   createLocation,
-  bindMapObject,
-  clearMapObject,
+  bindObject,
+  clearObject,
   empty,
   plain,
   forest,
@@ -75,13 +74,13 @@ List<PopupMenuEntry<TerrainPopUpMenuItems>> buildTerrainPopUpMenuItems(
       onItemPressed: onItemPressed,
     ),
     buildMenuItem(
-      item: TerrainPopUpMenuItems.bindMapObject,
-      name: engine.locale('bindMapObject'),
+      item: TerrainPopUpMenuItems.bindObject,
+      name: engine.locale('bindObject'),
       onItemPressed: onItemPressed,
     ),
     buildMenuItem(
-      item: TerrainPopUpMenuItems.clearMapObject,
-      name: engine.locale('clearMapObject'),
+      item: TerrainPopUpMenuItems.clearObject,
+      name: engine.locale('clearObject'),
       onItemPressed: onItemPressed,
     ),
     const PopupMenuDivider(height: 12.0),
@@ -226,13 +225,13 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
     }
 
     for (final id in toBeRemoved) {
-      scene.map.movingObjects.remove(id);
+      scene.map.removeMovingObject(id);
     }
 
     for (final char in charsOnWorldMap) {
       final charId = char['id'];
       if (!scene.map.movingObjects.containsKey(charId)) {
-        scene.map.loadMovingObject(char);
+        scene.map.loadMovingObjectFromData(char);
       } else {
         assert(char['worldPosition'] != null);
         final object = scene.map.movingObjects[charId]!;
@@ -253,84 +252,29 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
         if (scene.map.trySelectTile(tilePosition.left, tilePosition.top)) {
           currentTerrain = scene.map.selectedTerrain;
           switch (toolItem) {
-            case EditorToolItems.delete:
+            case 'delete':
               _currentTerrain!.clearAllSprite();
               _currentTerrain!.kind = 'void';
-            case EditorToolItems.nonInteractable:
+            case 'nonInteractable':
               _currentTerrain!.isNonInteractable =
                   !_currentTerrain!.isNonInteractable;
-            case EditorToolItems.sea:
-              _currentTerrain!.spriteIndex = kSpriteWater;
-              _currentTerrain?.kind = kTerrainKindSea;
-            case EditorToolItems.plain:
-              _currentTerrain!.spriteIndex = kSpriteLand;
-              _currentTerrain?.kind = kTerrainKindPlain;
-            case EditorToolItems.farmfield:
-              _currentTerrain!.spriteIndex = kSpriteFarmField;
-            case EditorToolItems.forest:
-              _currentTerrain!.spriteIndex = kSpriteForest;
-              _currentTerrain?.kind = kTerrainKindForest;
-            case EditorToolItems.mountain:
-              _currentTerrain!.spriteIndex = kSpriteMountain;
-              _currentTerrain?.kind = kTerrainKindMountain;
-            // case EditorToolItems.pond:
-            //   _currentTerrain!.spriteIndex = kSpritePond;
-            case EditorToolItems.fishTile:
-              engine.hetu.invoke('setFishTile',
-                  positionalArgs: [_currentTerrain!.data]);
-            case EditorToolItems.stormTile:
-              engine.hetu.invoke('setStormTile',
-                  positionalArgs: [_currentTerrain!.data]);
-            case EditorToolItems.spiritTile:
-              engine.hetu.invoke('setSpiritTile',
-                  positionalArgs: [_currentTerrain!.data]);
-            case EditorToolItems.city:
-              final data = engine.hetu.interpreter.createStructfromJSON(
-                {"spriteIndex": kSpriteCity},
-              );
-              _currentTerrain!.overlaySprite = data;
-            case EditorToolItems.portalArray:
-              final data = engine.hetu.interpreter.createStructfromJSON(
-                {"spriteIndex": kSpriteArray},
-              );
-              _currentTerrain!.overlaySprite = data;
-            case EditorToolItems.dungeon:
-              final data = engine.hetu.interpreter.createStructfromJSON(
-                {"spriteIndex": kSpriteCave},
-              );
-              _currentTerrain!.overlaySprite = data;
-            case EditorToolItems.dungeonStonePavedTile:
-              _currentTerrain!.spriteIndex = kSpriteDungeonStonePavedTile;
-              _currentTerrain!.kind = kTerrainKindPlain;
-            case EditorToolItems.dungeonStoneGate:
-              final data = engine.hetu.interpreter.createStructfromJSON(
-                {"spriteIndex": kSpriteDungeonStoneGate},
-              );
-              _currentTerrain!.overlaySprite = data;
-            case EditorToolItems.portal:
-              final data = engine.hetu.interpreter.createStructfromJSON({
-                "animation": {
-                  "row": 6,
-                  "to": 3,
-                },
-              });
-              _currentTerrain!.overlaySprite = data;
-            case EditorToolItems.glowingTile:
-              final data = engine.hetu.interpreter.createStructfromJSON(
-                {"spriteIndex": kSpriteDungeonGlowingTile},
-              );
-              _currentTerrain!.overlaySprite = data;
-            case EditorToolItems.pressureTile:
-              final data = engine.hetu.interpreter.createStructfromJSON(
-                {"spriteIndex": kSpriteDungeonUnpressedTile},
-              );
-              _currentTerrain!.overlaySprite = data;
-            case EditorToolItems.treasureBox:
-              final data = engine.hetu.interpreter.createStructfromJSON(
-                {"spriteIndex": kSpriteTreasureBox},
-              );
-              _currentTerrain!.overlaySprite = data;
-            case EditorToolItems.none:
+            default:
+              final toolItemData = GameData.editorToolItemsData[toolItem];
+              if (toolItemData != null) {
+                final toolType = toolItemData['type'];
+                switch (toolType) {
+                  case 'terrain':
+                    _currentTerrain!.spriteIndex =
+                        toolItemData['spriteIndex'] as int?;
+                    _currentTerrain!.kind = toolItemData['kind'] as String?;
+                  case 'script':
+                    engine.hetu.invoke(toolItemData['invoke'] as String,
+                        positionalArgs: [_currentTerrain!.data]);
+                  case 'overlaySprite':
+                    _currentTerrain!.overlaySprite = engine.hetu.interpreter
+                        .createStructfromJSON(toolItemData['overlay'] as Map);
+                }
+              }
           }
         }
       }
@@ -368,16 +312,18 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
                       );
                     });
               });
-            case TerrainPopUpMenuItems.bindMapObject:
+            case TerrainPopUpMenuItems.bindObject:
               showDialog(
                 context: context,
                 builder: (context) => const InputStringDialog(),
               ).then((value) {
                 if (value == null) return;
                 _currentTerrain!.objectId = value;
+                _currentTerrain!.caption = value;
               });
-            case TerrainPopUpMenuItems.clearMapObject:
+            case TerrainPopUpMenuItems.clearObject:
               _currentTerrain!.objectId = null;
+              _currentTerrain!.caption = null;
             case TerrainPopUpMenuItems.empty:
               _currentTerrain!.kind = kTerrainKindEmpty;
             case TerrainPopUpMenuItems.plain:
@@ -424,7 +370,6 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
   @override
   void initState() {
     super.initState();
-    engine.hetu.invoke('build', positionalArgs: [context]);
 
     engine.hetu.interpreter.bindExternalFunction('setTerrainCaption', (
         {positionalArgs, namedArgs}) {
@@ -479,11 +424,10 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
       EventHandler(
         widgetKey: widget.key!,
         handle: (eventId, args, scene) async {
-          engine.hetu.invoke('showAllCaptions', namespace: 'debug');
+          _isLoading = false;
+          engine.hetu.invoke('refreshAllCaptions', namespace: 'debug');
           await _refreshWorldmapCharacters();
-          setState(() {
-            _isLoading = false;
-          });
+          setState(() {});
         },
       ),
     );
@@ -694,7 +638,6 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
                           for (final scn in _maps.values) {
                             scn.leave(clearCache: true);
                           }
-                          // engine.hetu.invoke('resetGame');
                           Navigator.of(context).pop();
                       }
                     },

@@ -33,7 +33,7 @@ const modName = '${module.meta.displayName}-${module.meta.id}-(${module.meta.ver
 // main每次启动游戏都会执行
 function main() {
   // 加载本地化字符串
-  engine.loadLocaleFromJSON(localizations.toJSON())
+  engine.loadLocaleDataFromJSON(localizations.toJSON())
   // 向世界添加事件回调函数
   // addEventHandlers(
   //   worldId: 'tian_lao_xing', // tian_lao_xing 是世界ID

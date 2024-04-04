@@ -13,7 +13,7 @@ import '../common.dart';
 
 Future<SaveInfo> createSaveInfo(String currentWorldId,
     [String? saveName]) async {
-  saveName ??= randomUID4(2);
+  saveName ??= randomUID();
   final directory = await path.getApplicationDocumentsDirectory();
   final savePath = path.join(directory.path, GameConfig.gameTitle, 'save',
       '$saveName$kGameSaveFileExtension');

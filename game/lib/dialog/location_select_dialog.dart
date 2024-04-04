@@ -26,7 +26,6 @@ class LocationSelectDialog extends StatelessWidget {
   }) async {
     return await showDialog<dynamic>(
       context: context,
-      barrierDismissible: false,
       builder: (BuildContext context) {
         return LocationSelectDialog(
           title: title,
@@ -98,7 +97,6 @@ class LocationSelectDialog extends StatelessWidget {
           tableData: data,
           onItemPressed: (buttons, position, dataId) => showDialog(
             context: context,
-            barrierDismissible: false,
             builder: (context) => ProfileView(
               characterId: dataId,
               mode: ViewPanelMode.select,

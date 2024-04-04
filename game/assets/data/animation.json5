@@ -18,6 +18,22 @@
       stepTime: 0.09,
       loop: false,
     },
+    dodge_normal: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.15,
+      loop: false,
+    },
+    dodge_normal_recovery: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.15,
+      loop: false,
+    },
     attack_normal: {
       offsetX: 0,
       offsetY: 0,

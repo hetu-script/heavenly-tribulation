@@ -2,16 +2,18 @@ import 'dart:math' as math;
 
 // import 'package:samsara/gestures/gesture_mixin.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flame/components.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/tilemap.dart';
 import 'package:hetu_script/values.dart';
-import 'package:flame/sprite.dart';
 import 'package:flame/flame.dart';
 
 import '../../config.dart';
 import 'weather/cloud.dart';
 import '../../events.dart';
-import 'common.dart';
+import '../common.dart';
+import '../../ui.dart';
+import 'animation/flying_sword.dart';
 
 const kMaxCloudsCount = 16;
 
@@ -30,6 +32,8 @@ class WorldMapScene extends Scene {
 
   final bool isMainWorld;
 
+  late FpsComponent fps;
+
   WorldMapScene({
     required this.worldData,
     required super.controller,
@@ -43,18 +47,17 @@ class WorldMapScene extends Scene {
     bool showGrids = false,
   })  : map = TileMap(
           id: worldData['id'],
+          tileMapWidth: worldData['width'],
+          tileMapHeight: worldData['height'],
           data: worldData,
           captionStyle: captionStyle,
           tileShape: TileShape.hexagonalVertical,
-          gridWidth: 32.0,
-          gridHeight: 28.0,
-          tileSpriteSrcWidth: 32.0,
-          tileSpriteSrcHeight: 64.0,
-          tileOffsetX: 0.0,
-          tileOffsetY: 16.0,
-          tileObjectSpriteSrcWidth: kTileMapObjectSpriteSrcSize.x,
-          tileObjectSpriteSrcHeight: kTileMapObjectSpriteSrcSize.y,
-          scaleFactor: 2.0,
+          gridSize: kGridSize,
+          tileSpriteSrcSize: kTileSpriteSrcSize,
+          tileOffset: kTileOffset,
+          tileObjectSpriteSrcSize: kTileMapObjectSpriteSrcSize,
+          scaleFactor: 1.0,
+          // isCameraFollowHero: false,
           showSelected: true,
           showHover: true,
           showGrids: showGrids,
@@ -62,6 +65,7 @@ class WorldMapScene extends Scene {
           showFogOfWar: showFogOfWar,
           showNonInteractableHintColor: showNonInteractableHintColor,
           autoUpdateMovingObject: false,
+          shadowSpriteId: 'shadow.png',
         ),
         super(
           id: worldData['id'],
@@ -73,34 +77,42 @@ class WorldMapScene extends Scene {
   Future<void> onLoad() async {
     super.onLoad();
 
+    camera.zoom = 2.0;
+
     if (backgroundSpriteId != null) {
       backgroundSprite = Sprite(await Flame.images.load(backgroundSpriteId!));
     }
-
-    await map.loadData();
     world.add(map);
 
-    map.onDragUpdate = (int buttons, Vector2 dragPosition, Vector2 dragOffset) {
+    map.onLoadComplete = () {
+      engine.emit(GameEvents.mapLoaded);
+    };
+
+    map.onDragUpdate = (int buttons, Vector2 offset) {
       if (buttons == kSecondaryButton) {
-        camera.moveBy(-dragOffset / camera.viewfinder.zoom);
+        camera.moveBy(-offset);
       }
     };
 
-    map.onMouseHover = (Vector2 position) {
-      final tilePosition = map.worldPosition2Tile(position);
-      map.hoverTerrain = map.getTerrainByPosition(tilePosition);
+    map.onMouseScrollUp = () {
+      if (camera.zoom < 4) {
+        camera.zoom += 0.2;
+      }
     };
 
-    map.moveCameraToTilePosition(map.tileMapWidth ~/ 2, map.tileMapHeight ~/ 2,
-        animated: false);
+    map.onMouseScrollDown = () {
+      if (camera.zoom > 0.5) {
+        camera.zoom -= 0.2;
+      }
+    };
 
-    map.customRender = renderWeather;
-
-    for (var i = 0; i < kMaxCloudsCount ~/ 2; ++i) {
-      addCloud();
+    if (isMainWorld) {
+      for (var i = 0; i < kMaxCloudsCount ~/ 2; ++i) {
+        addCloud();
+      }
     }
 
-    engine.emit(GameEvents.mapLoaded);
+    fps = FpsComponent();
   }
 
   void addCloud() {
@@ -109,16 +121,27 @@ class WorldMapScene extends Scene {
     map.add(cloud);
   }
 
+  /// start & end are flame game canvas world position.
+  void useMapSkillBlade(Vector2 start, Vector2 end) {
+    final bladeAnim = FlyingSword(start: start, end: end);
+    map.add(bladeAnim);
+  }
+
   @override
   void update(double dt) {
     super.update(dt);
 
+    fps.update(dt);
+
     // for (final cloud in _clouds) {
     //   cloud.update(dt);
     // }
-    final r = math.Random().nextDouble();
-    if (r < 0.01) {
-      addCloud();
+
+    if (isMainWorld) {
+      final r = math.Random().nextDouble();
+      if (r < 0.01) {
+        addCloud();
+      }
     }
   }
 
@@ -127,9 +150,16 @@ class WorldMapScene extends Scene {
     backgroundSprite?.render(canvas, size: size);
 
     super.render(canvas);
-  }
 
-  void renderWeather(Canvas canvas) {
-    // canvas.drawColor(Colors.blue, BlendMode.color);
+    if (GameConfig.isDebugMode) {
+      drawScreenText(
+        canvas,
+        'FPS: ${fps.fps.toStringAsFixed(0)}',
+        style: ScreenTextStyle(
+            textStyle: const TextStyle(fontSize: 20),
+            rect: Rect.fromLTWH(0, 0, GameUI.size.x, GameUI.size.y),
+            anchor: Anchor.topCenter),
+      );
+    }
   }
 }

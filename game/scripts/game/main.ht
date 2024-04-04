@@ -30,16 +30,18 @@ export 'random.ht'
 export 'update.ht'
 export 'util.ht'
 
-import 'data/item.json5' as items
-
 const coreScriptModuleVersion = '0.0.1'
 
-function init {
+/// Initialize the core script module.
+/// Only run once when game is created.
+function init({itemsData}) {
   engine.info('游戏核心脚本(ver-${coreScriptModuleVersion})初始化...')
   
-  addItemsData(items)
+  loadPredefinedItems()
+  addItemsData(itemsData)
 }
 
+/// Run every time the game is loaded.
 function main {
   
 }

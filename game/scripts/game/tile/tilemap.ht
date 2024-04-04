@@ -6,8 +6,6 @@ struct TileMap {
     id,
     width,
     height,
-    heroInitialX,
-    heroInitialY,
     terrainSpriteSheet,
     tileShape = 'hexagonalVertical',
     gridWidth = 32.0,
@@ -25,8 +23,6 @@ struct TileMap {
     this.width = width
     this.height = height
 
-    this.heroInitialX = heroInitialX
-    this.heroInitialY = heroInitialY
     this.terrainSpriteSheet = terrainSpriteSheet
     this.tileShape = tileShape
     this.gridWidth = gridWidth

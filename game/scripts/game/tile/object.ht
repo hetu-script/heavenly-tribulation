@@ -1,3 +1,7 @@
+const kObjectCharacter = 'character'
+const kObjectPortal = 'portal'
+const kObjectTreasureBox = 'treasureBox'
+
 // 地图显示对象，包含了一些用于UI侧的数据
 // 但显示对象实际上也不一定都会显示，可能是隐藏的
 // 使用 addMazeObject 可以动态添加物品
@@ -6,17 +10,14 @@ struct TileMapObject {
   construct ({
     id, // 这个id和对应的entity的id必须一致
     entityType,
-    spriteSrc,
-    srcOffsetY,
-    worldId,
+    category,
     isDiscovered = true,
     useCustomInteraction,
   }) {
     assert(id != null)
     this.id = id
     this.entityType = entityType
-    this.spriteSrc = spriteSrc
-    this.srcOffsetY = srcOffsetY
+    this.category = category
     this.isDiscovered = isDiscovered
     this.useCustomInteraction = useCustomInteraction
     

@@ -135,7 +135,7 @@ packages:
       path: "../hetu-script/packages/hetu_script"
       relative: true
     source: path
-    version: "0.5.0"
+    version: "0.6.0"
   hetu_script_dev_tools:
     dependency: "direct main"
     description:

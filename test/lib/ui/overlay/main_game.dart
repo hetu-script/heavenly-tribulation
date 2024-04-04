@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 // import 'package:flame_audio/flame_audio.dart';
 import 'package:samsara/ui/loading_screen.dart';
-import 'package:samsara/console.dart';
 
 import '../../global.dart';
 import '../../scene/game.dart';
@@ -18,8 +17,6 @@ class MainGameOverlay extends StatefulWidget {
 class _MainGameOverlayState extends State<MainGameOverlay> {
   late GameScene _scene;
 
-  bool _isDisposing = false;
-
   @override
   void dispose() {
     engine.removeEventListener(widget.key!);
@@ -29,7 +26,6 @@ class _MainGameOverlayState extends State<MainGameOverlay> {
   }
 
   Future<Scene?> _getScene() async {
-    if (_isDisposing) return null;
     final scene = await engine.createScene(
       contructorKey: 'game',
       sceneId: 'game',
@@ -44,62 +40,59 @@ class _MainGameOverlayState extends State<MainGameOverlay> {
 
     // ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
 
-    return _isDisposing
-        ? LoadingScreen(text: engine.locale('loading'))
-        : FutureBuilder(
-            // 不知道为啥，这里必须用这种写法才能进入载入界面，否则一定会卡住
-            future: Future.delayed(
-              const Duration(milliseconds: 100),
-              () => _getScene(),
-            ),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                if (snapshot.hasError) {
-                  throw Exception('${snapshot.error}\n${snapshot.stackTrace}');
-                }
-                return LoadingScreen(
-                  text: engine.locale('loading'),
-                  showClose: snapshot.hasError,
-                );
-              } else {
-                _scene = snapshot.data as GameScene;
-                if (_scene.isAttached) {
-                  _scene.detach();
-                }
-                return Material(
-                  color: Colors.transparent,
-                  child: Stack(
-                    children: [
-                      if (_scene.isLoading)
-                        LoadingScreen(text: engine.locale('loading')),
-                      SceneWidget(scene: _scene),
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: CardGameDropMenu(
-                          onSelected: (CardGameDropMenuItems item) async {
-                            switch (item) {
-                              case CardGameDropMenuItems.console:
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) => Console(
-                                    engine: engine,
-                                  ),
-                                ).then((_) => setState(() {}));
-                              case CardGameDropMenuItems.quit:
-                                _scene.leave(clearCache: true);
-                                _isDisposing = true;
-                                Navigator.of(context).pop();
-                              default:
-                            }
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }
-            },
+    return FutureBuilder(
+      // 不知道为啥，这里必须用这种写法才能进入载入界面，否则一定会卡住
+      future: Future.delayed(
+        const Duration(milliseconds: 100),
+        () => _getScene(),
+      ),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          if (snapshot.hasError) {
+            throw Exception('${snapshot.error}\n${snapshot.stackTrace}');
+          }
+          return LoadingScreen(
+            text: engine.locale('loading'),
+            showClose: snapshot.hasError,
           );
+        } else {
+          _scene = snapshot.data as GameScene;
+          if (_scene.isAttached) {
+            _scene.detach();
+          }
+          return Material(
+            color: Colors.transparent,
+            child: Stack(
+              children: [
+                if (_scene.isLoading)
+                  LoadingScreen(text: engine.locale('loading')),
+                SceneWidget(scene: _scene),
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  child: CardGameDropMenu(
+                    onSelected: (CardGameDropMenuItems item) async {
+                      switch (item) {
+                        case CardGameDropMenuItems.console:
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) => Console(
+                              engine: engine,
+                            ),
+                          ).then((_) => setState(() {}));
+                        case CardGameDropMenuItems.quit:
+                          _scene.leave(clearCache: true);
+                          Navigator.of(context).pop();
+                        default:
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+      },
+    );
   }
 }

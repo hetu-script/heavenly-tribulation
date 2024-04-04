@@ -1,11 +1,12 @@
 {
   "moveTo": "移动",
   "enter": "进入",
-  "meditate": "打坐",
+  "": "",
   "rest": "休息",
+  "meditate": "打坐",
   "gatherSpirit": "聚气",
   "condenseSpirit": "凝气",
-
+  "useMapSkill": "地图技能",
   "explore": "神识探查",
 
   "interact": "互动",

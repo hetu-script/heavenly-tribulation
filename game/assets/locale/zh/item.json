@@ -4,6 +4,9 @@
   "material": "材料",
   "package": "包",
 
+  "book": "秘籍",
+  "cardpack": "技能卡包",
+
   "price": "价格",
   "stackSize": "数量",
   "damage": "伤害",

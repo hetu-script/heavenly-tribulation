@@ -15,6 +15,8 @@ const module = {
     supportedLocales: ['zh'],
     version: '0.0.1',
     flags: {
+      // 0 刚刚进入这个世界，通过传送门来到地宫中的众人面前
+      // 1 和众人对话之后，但尚未选择流派
       storyState: 0,
       // 收集灵气的教程任务
       // 0 尚未开始
@@ -52,7 +54,7 @@ const modName = '${module.meta.displayName}-${module.meta.id}-(${module.meta.ver
 // main每次启动游戏都会执行
 function main() {
   // 加载本地化字符串
-  engine.loadLocaleFromJSON(localizations.toJSON())
+  engine.loadLocaleDataFromJSON(localizations.toJSON())
   // 向世界添加事件回调函数
   // 每个世界的事件是分开的
   addEventHandlers(

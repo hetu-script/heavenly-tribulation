@@ -14,7 +14,7 @@ function init()
 function main()
 ```
 
-## 事件回调函数
+## 自定义事件的回调函数
 
 ```javascript
 function onNewGame()
@@ -39,5 +39,5 @@ function onAfterHeroEnterSite(site)
 function onBeforeHeroExitSite(site)
 function onAfterHeroExitSite(site)
 function onInteractCharacter(characterId)
-function onInteractMapObject(object)
+function onInteractObject(object, terrain)
 ```

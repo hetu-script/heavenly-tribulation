@@ -9,7 +9,7 @@ import '../binding/battle_character.ht'
 /// 每个deckbuildingId的卡牌，对应一个脚本。
 /// 这个脚本将会在这张牌被打出时invoke
 
-namespace Card {
+namespace CardScripts {
 
   /// 普通攻击
   /// 7攻

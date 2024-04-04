@@ -72,7 +72,7 @@ class HeroInfoPanel extends StatelessWidget {
                         AssetImage('assets/images/avatar/${heroData['icon']}'),
                   ),
                   Container(
-                    width: 380,
+                    width: 420,
                     height: 80,
                     decoration: BoxDecoration(
                       color: kBackgroundColor,

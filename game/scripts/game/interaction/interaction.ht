@@ -215,7 +215,7 @@ function onHeroMeditate({site, terrain, incurIncident = true}) async {
           gathered = true
         } else {
           if (hero.materials.jade <= 0) {
-            if (has(hero, 'jade')) {
+            if (hasItemKind('jade')) {
               dialog.localeLines('hint.openPackage.jade', isHero: true)
             } else {
               dialog.localeLines('hint.notEnoughJade', isHero: true)
@@ -268,7 +268,7 @@ function senseTerrain(terrain) -> bool {
   } else if (terrain.objectId) {
     const object = game.objects[terrain.objectId]
     if (object.isDiscovered) {
-      onInteractMapObject(object)
+      onInteractObject(object, terrain)
       interacted = true
     } else {
       dialog.localeLines('hint.sensedUndiscovered', isHero: true)
@@ -277,21 +277,13 @@ function senseTerrain(terrain) -> bool {
   return interacted
 }
 
-/// 返回一个表示是否终止移动的布尔值，如果为 true，则玩家控制角色会返回上一格，false 则停止移动并留在在这一格，null 则不影响
-function onAfterHeroMove(left, top) {
-  // engine.info('玩家移动到了: ${left}, ${top}')
-  const terrain = world.terrains[tilePos2Index(left, top, world.width)]
-  if (terrain.isNonInteractable) {
-    dialog.localeLines('hint.nonInteractableTile')
-    return true
-  } else {
-    // TODO: 感知阈值
-    let interacted = senseTerrain(terrain)
-    if (!interacted) {
-      onGameEvent('onAfterHeroMove', left, top)
-    }
-    return null
+function onAfterHeroMove(terrain) {
+  // TODO: 感知阈值
+  let interacted = senseTerrain(terrain)
+  if (!interacted) {
+    onGameEvent('onAfterHeroMove', terrain.left, terrain.top)
   }
+  return null
 }
 
 /// 异步函数，会在显示地点窗口之前执行，执行完毕后才会进入地点
@@ -447,9 +439,9 @@ function onInteractCharacter(characterId, { exitOnLeave = false }) {
   }
 }
 
-// 在某个地形块上进行互动操作
-// 山峰或树林产出物品更多，平原产出数量较少
-// 但前者会有几率碰到野兽或者强盗
+/// 在某个地形块上进行互动操作
+/// 山峰或树林产出物品更多，平原产出数量较少
+/// 但前者会有几率碰到野兽或者强盗
 function onInteractTerrain(terrain) {
 
   if (terrain.kind == kTerrainKindRoad) {
@@ -539,7 +531,7 @@ function onInteractTerrain(terrain) {
               if (found) {
                 undiscoveredObject.isDiscovered = true
                 // discoverObject(undiscoveredLocation)
-                onInteractMapObject(object)
+                onInteractObject(object, terrain)
               } else {
                 dialog.localeLines(['searchFailed'], isHero: true)
               }
@@ -935,20 +927,37 @@ function onInteractTerrain(terrain) {
   })
 }
 
-function onInteractMapObject(object) async {
-  engine.info('正在和 MapObject [${object.id}] 互动。')
-  if (object.flags.useCustomInteraction) {
-    // 使用模组定义的交互逻辑
-    engine.info('MapObject [${object.id}] 使用自定义交互逻辑')
-    onGameEvent('onInteractMapObject', object)
-  } else {
-    switch (object.category) {
-      'portal': {
-        let {left, top} = object.targetMapPosition
-        setHeroWorldPosition(left, top)
-        await WorldMap.moveCameraToMapPosition(left, top)
-        WorldMap.refreshHeroTileInfo()
-        WorldMap.lightUpAroundTile(left, top, hero.stats.lightRadius)
+function onInteractObject(object, terrain) async {
+  engine.info('正在和 Object [${object.id}] 互动。')
+  switch (object.category) {
+    'custom': {
+      // 使用模组定义的交互逻辑
+      engine.info('Object [${object.id}] 使用自定义交互逻辑')
+      onGameEvent('onInteractObject', object, terrain)
+    }
+    'character': {
+      onInteractCharacter(object.characterId)
+    }
+    'portal': {
+      let {left, top} = object.targetMapPosition
+      setHeroWorldPosition(left, top)
+      engine.play('transform-103819.mp3')
+      await WorldMap.moveCameraToMapPosition(left, top)
+      WorldMap.refreshHeroTileInfo()
+      WorldMap.lightUpAroundTile(left, top, hero.stats.lightRadius)
+      onGameEvent('onAfterHeroMove', left, top)
+    }
+    'treasureBox': {
+      if (!object.isLocked) {
+        if (!object.isOpened) {
+          object.isOpened = true
+          for (let id in object.itemIds) {
+            acquireById(hero, id)
+          }
+          engine.play('dooropened-103851.mp3')
+          terrain.overlaySprite = {sprite: kSpriteTreasureBoxOpened}
+          WorldMap.refreshTerrainSprite(terrain.left, terrain.top)
+        }
       }
     }
   }

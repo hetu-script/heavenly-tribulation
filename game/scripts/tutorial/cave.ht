@@ -7,54 +7,97 @@ const cave = {
     dialog.pushScene('black.png')
     let skipSelection = await dialog.localeSelect(['watchScene', 'skipScene'])
     if (skipSelection == 'watchScene') {
-      final aya = getCharacterById('aya')
-      dialog.pushImage('npc/luzifu.png')
-      await dialog.localeLines('tutorial.ch1.luzifu.line1', displayName: '???')
-      await dialog.localeLines('tutorial.ch1.hero.reply1', isHero: true)
-      await dialog.localeLines('tutorial.ch1.luzifu.line2', character: luzifu)
-      await dialog.localeLines('tutorial.ch1.hero.reply2', isHero: true)
-      await dialog.localeLines('tutorial.ch1.luzifu.line3', character: luzifu)
-      await dialog.localeLines('tutorial.ch1.hero.reply3', isHero: true)
-      await dialog.localeLines('tutorial.ch1.luzifu.line4', character: luzifu)
-      await dialog.localeLines('tutorial.ch1.hero.reply4', isHero: true)
+      dialog.pushImage('story/luzifu.png')
+      await dialog.localeLines('t1a1b1l1_luzifu', displayName: '???')
+      await dialog.localeLines('t1a1b1l2_hero', isHero: true)
+      await dialog.localeLines('t1a1b1l3_luzifu', character: luzifu)
+      await dialog.localeLines('t1a1b1l4_hero', isHero: true)
+      await dialog.localeLines('t1a1b1l5_luzifu', character: luzifu)
+      await dialog.localeLines('t1a1b1l6_hero', isHero: true)
+      await dialog.localeLines('t1a1b1l7_luzifu', character: luzifu)
+      await dialog.localeLines('silenceReply', isHero: true)
       dialog.popScene()
+      await dialog.localeLines('t1a1b1l8_hero', isHero: true)
+      await dialog.localeLines('t1a1b1l9_luzifu', character: luzifu)
+    }
 
-      await dialog.localeLines('tutorial.ch1.luzifu.line5', character: luzifu)
+    dialog.end()
+  },
+  onAfterHeroMove: async (left, top)  {
+    let rennan = getCharacterById('rennan')
+    let luzifu = getCharacterById('luzifu')
+    // 没有触碰开关时走到死路
+    if (left == 9 && top == 19 && !this.flags.switch1IsOn) {
+      dialog.localeLines('hint.deadend', isHero: true)
+    }
 
-      // WorldMap.freezePlayer()
-      // await WorldMap.moveObjectTo('aya', 11, 8, endDirection: 'south')
-      // await WorldMap.refreshNpcsInHeroWorldMapPosition()
-      // WorldMap.unfreezePlayer()
-
-      // await dialog.localeLines('tutorial.ch1.luzifu.line5', character: luzifu)
-      // await dialog.localeLines('tutorial.ch1.hero.reply5', isHero: true)
-      // await dialog.localeLines('tutorial.ch1.luzifu.line6', character: luzifu)
+    // 任南加入队伍的对话
+    if (left == 6 && top == 12 && this.flags.storyState == 0) {
+      this.flags.storyState = 1
+      
+      dialog.start()
+      dialog.pushImage('story/rennan2.png')
+      await dialog.localeLines('t1a1b2l1_rennan', character: rennan)
+      dialog.popImage()
+      dialog.pushScene('black.png')
+      dialog.pushImage('story/luzifu.png')
+      await dialog.localeLines('t1a1b2l2_luzifu', character: luzifu)
+      let s1 = await dialog.localeSelect([
+        't1a1b2l2_s_question',
+        't1a1b2l2_s_confirm',
+      ])
+      if (s1 == 't1a1b2l2_s_question') {
+        await dialog.localeLines('t1a1b2l2_s_question_luzifu', character: luzifu)
+      }
+      await dialog.localeLines('t1a1b2l3_luzifu', character: luzifu)
+      dialog.popImage()
+      dialog.popScene()
+      dialog.pushImage('story/rennan2.png')
+      let s2 = await dialog.localeSelect([
+        't1a1b2l1_s_look',
+        't1a1b2l1_s_question',
+      ])
+      if (s2 == 't1a1b2l1_s_look') {
+        await dialog.localeLines('t1a1b2l2_narrator', character: luzifu)
+      }
+      await dialog.localeLines('t1a1b2l3_rennan', character: rennan)
+      characterFirstMet(hero, rennan)
+      await dialog.localeLines('t1a1b2l4_hero', isHero: true)
+      await dialog.localeLines('t1a1b2l5_rennan', character: rennan)
+      await dialog.localeLines('t1a1b2l6_hero', isHero: true)
+      characterGetCompanion(hero, rennan)
       dialog.end()
-
-    } else {
-      dialog.end()
-      // await WorldMap.setObjectTo('aya', 11, 8)
-      // await WorldMap.refreshNpcsInHeroWorldMapPosition()
     }
   },
-
-  onInteractMapObject: (object) {
+  onInteractObject: async (object, terrain) {
     switch (object.id) {
       'switch1': {
-        if (!object.flags.isOn) {
-          object.flags.isOn = true
-          engine.play('stone-push-37412.mp3')
-          dialog.localeLines('hint.switch', isHero: true)
-          final switchTile = getTerrainByWorldPosition(3,19)
-          switchTile.overlaySprite = {spriteIndex: kSpriteDungeonPressedTile} 
-          WorldMap.refreshTerrainOverlaySprite(3,19)
-          
-          final openedRoadTile = getTerrainByWorldPosition(10,18)
-          openedRoadTile.kind = 'plain'
-          openedRoadTile.spriteIndex = kSpriteDungeonStonePavedTile
-          WorldMap.refreshTerrainSprite(10,18)
+        if (!object?.flags.isOn) {
+          let s = await dialog.localeSelect([
+            'flipSwitch',
+            'cancel',
+          ])
+          if (s == 'flipSwitch') {
+            object.flags.isOn = true
+            this.flags.switch1IsOn = true
+            engine.play('stone-push-37412.mp3')
+            dialog.localeLines('hint.switch', isHero: true)
+            final switchTile = getTerrainByWorldPosition(3,19)
+            switchTile.overlaySprite = {sprite: kSpriteDungeonLeverOn} 
+            WorldMap.refreshTerrainOverlaySprite(3,19)
+            
+            final openedRoadTile = getTerrainByWorldPosition(10,18)
+            openedRoadTile.kind = 'plain'
+            openedRoadTile.spriteIndex = kSpriteDungeonStonePavedTile
+            WorldMap.refreshTerrainSprite(10,18)
+          }
         }
       }
-    }
+      'statue1': {
+        if (!this.flags.selectedGenre) {
+
+        }
+      }
+    } 
   },
 }

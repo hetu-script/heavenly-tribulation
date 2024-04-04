@@ -72,7 +72,7 @@ class LocationSiteScene extends Scene {
       borderRadius: 15.0,
       illustrationSpriteId: 'location/site/exit_card.png',
       spriteId: 'location/site/site_frame.png',
-      title: engine.locale('exit'),
+      text: engine.locale('exit'),
       titleStyle: ScreenTextStyle(textStyle: const TextStyle(fontSize: 20.0)),
       showTitle: true,
       position: GameUI.siteExitCardPositon,

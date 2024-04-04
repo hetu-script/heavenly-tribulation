@@ -1,0 +1,142 @@
+{
+  sea: {
+    type: "terrain",
+    spriteIndex: 0,
+    kind: "sea",
+  },
+  plain: {
+    type: "terrain",
+    spriteIndex: 1,
+    kind: "plain",
+  },
+  farmfield: {
+    type: "terrain",
+    spriteIndex: 4,
+    kind: "plain",
+  },
+  forest: {
+    type: "terrain",
+    spriteIndex: 2,
+    kind: "forest",
+  },
+  mountain: {
+    type: "terrain",
+    spriteIndex: 3,
+    kind: "mountain",
+  },
+  dungeonStonePavedTile: {
+    type: "terrain",
+    spriteIndex: 5,
+    kind: "plain",
+  },
+  fishTile: {
+    type: "script",
+    invoke: "setFishTile",
+  },
+  stormTile: {
+    type: "script",
+    invoke: "setStormTile",
+  },
+  spiritTile: {
+    type: "script",
+    invoke: "setSpiritTile",
+  },
+  city: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/city.png",
+    },
+  },
+  portalArray: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/portalArray.png",
+    },
+  },
+  dungeon: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/dungeon.png",
+    },
+  },
+  dungeonStoneGate: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/dungeonStoneGate.png",
+    },
+  },
+  portal: {
+    type: "overlaySprite",
+    overlay: {
+      animation: {
+        path: "object/animation/portal.png",
+      },
+    },
+  },
+  glowingTile: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/glowingTile.png",
+    },
+  },
+  lever: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/lever.png",
+    },
+  },
+  statue: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/statue.png",
+    },
+  },
+  treasureBox: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/treasureBox.png",
+    },
+  },
+  coffin: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/coffin.png",
+    },
+  },
+  stoneStairs: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/stoneStairs.png",
+    },
+  },
+  stoneStairsDebris: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/stoneStairsDebris.png",
+    },
+  },
+  characterDefault: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/characterDefault.png",
+    },
+  },
+  characterMan: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/characterMan.png",
+    },
+  },
+  characterOld: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/characterOld.png",
+    },
+  },
+  characterGirl: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/characterGirl.png",
+    },
+  },
+}
