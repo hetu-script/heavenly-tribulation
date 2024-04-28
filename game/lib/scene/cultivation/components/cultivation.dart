@@ -21,6 +21,7 @@ import '../../../logic/algorithm.dart';
 import '../../../ui.dart';
 import '../../../common.dart';
 import '../../common.dart';
+import '../../../events.dart';
 
 const _kLightPointMoveSpeed = 450.0;
 // const _kButtonAnimationDuration = 1.2;
@@ -346,6 +347,9 @@ class CultivationScene extends Scene {
       // opacity: rank > 0 ? 1 : 0,
       spriteId: 'cultivation/cardpack.png',
       hoverSpriteId: 'cultivation/cardpack_hover.png',
+      onTap: (buttons, position) {
+        engine.emit(UIEvents.cardPacksButtonClicked);
+      },
     );
     camera.viewport.add(cardPacksButton);
 

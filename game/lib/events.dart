@@ -5,3 +5,7 @@ abstract class GameEvents {
   static const residenceSiteScene = 'residence_scene';
   static const worldmapCharactersUpdated = 'worldmap_characters_updated';
 }
+
+abstract class UIEvents {
+  static const cardPacksButtonClicked = 'card_packs_button_clicked';
+}

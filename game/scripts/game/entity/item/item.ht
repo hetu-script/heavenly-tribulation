@@ -104,58 +104,65 @@ function destroy(item, character, { incurIncident = true }) {
 
 /// 从物品库中直接复制并获取一个物品
 function acquireById(itemId, entity, { count = 1, incurIncident = true }) {
-  entity ??= hero
-  // TODO: 如果id不存在，则获得一个「未知物品」
-  assert(game.items.containsKey(itemId))
-  let item = game.items[itemId].clone()
-  // TODO: 根据稀有度和地图大小决定物品允许存在的数量
-  // if (item.isUnique) {
-  //   if (item.isCreated) {
-  //     engine.info('唯一物品${item.id}已经被创造过一次，无法再次获得。')
-  //     return
-  //   } else {
-  //     item.isCreated = true
-  //   }
-  // }
-  item.id = '${item.prototypeId}.${crypto.randomUID()}'
-  item.name = engine.locale(item.prototypeId)
-  item.description = engine.locale('${item.prototypeId}.description')
-  item.stackSize = count
-  item.color ??= kRarity[item.rarity ?? kCommon].color
-  item.experienced = []
-  if (engine.hasLocaleKey('${item.prototypeId}.hint')) {
-    item.hint = engine.locale('${item.prototypeId}.hint')
+  if (itemId is List) {
+    for (let id in itemId) {
+      acquireById(id, entity, incurIncident: incurIncident)
+    }
   } else {
-    if (item.kind == 'cardpack') {
-      item.hint = engine.locale('cardpackHint')
+    entity ??= hero
+    // TODO: 如果id不存在，则获得一个「未知物品」
+    assert(game.items.containsKey(itemId))
+
+    let item = game.items[itemId].clone()
+    // TODO: 根据稀有度和地图大小决定物品允许存在的数量
+    // if (item.isUnique) {
+    //   if (item.isCreated) {
+    //     engine.info('唯一物品${item.id}已经被创造过一次，无法再次获得。')
+    //     return
+    //   } else {
+    //     item.isCreated = true
+    //   }
+    // }
+    item.id = '${item.prototypeId}.${crypto.randomUID()}'
+    item.name = engine.locale(item.prototypeId)
+    item.description = engine.locale('${item.prototypeId}.description')
+    item.stackSize = count
+    item.color ??= kRarity[item.rarity ?? kCommon].color
+    item.experienced = []
+    if (engine.hasLocaleKey('${item.prototypeId}.hint')) {
+      item.hint = engine.locale('${item.prototypeId}.hint')
     } else {
-      item.hint = ''
-      if (item.isUsable) {
-        item.hint += engine.locale('usableHint')
-      }
-      if (item.isEquippable) {
-        item.hint += engine.locale('equippableHint')
+      if (item.kind == 'cardpack') {
+        item.hint = engine.locale('cardpackHint')
+      } else {
+        item.hint = ''
+        if (item.isUsable) {
+          item.hint += engine.locale('usableHint')
+        }
+        if (item.isEquippable) {
+          item.hint += engine.locale('equippableHint')
+        }
       }
     }
-  }
 
-  entity.inventory[item.id] = item
-  item.ownerId = entity.id
-  
-  let incidentContent
-  incidentContent = engine.locale('characterAcquire', interpolations: [
-    entity.name,
-    item.name,
-  ])
-  if (incurIncident) {
-    Incident(
-      message: incidentContent,
-      subjectId: entity.id,
-      item: item,
-      isPrivate: true,
-    )
-  } else {
-    engine.info(incidentContent)
+    entity.inventory[item.id] = item
+    item.ownerId = entity.id
+    
+    let incidentContent
+    incidentContent = engine.locale('characterAcquire', interpolations: [
+      entity.name,
+      item.name,
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: entity.id,
+        item: item,
+        isPrivate: true,
+      )
+    } else {
+      engine.info(incidentContent)
+    }
   }
 }
 

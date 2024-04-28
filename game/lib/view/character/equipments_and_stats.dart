@@ -11,9 +11,7 @@ import 'equipments/equipments.dart';
 import 'equipments/inventory.dart';
 import 'equipments/entity_info.dart';
 import '../../view/menu_item_builder.dart';
-
-const kEntityInfoIndent = 10.0;
-const kEntityInfoWidth = 300.0;
+import '../common.dart';
 
 const Set<String> kMaterials = {
   // 'money',
@@ -110,37 +108,38 @@ class EquipmentsAndStatsView extends StatefulWidget {
 }
 
 class _EquipmentsAndStatsViewState extends State<EquipmentsAndStatsView>
-    with SingleTickerProviderStateMixin {
-  static final List<Tab> _tabs = <Tab>[
-    Tab(
-      height: 40,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
-            child: Icon(Icons.inventory),
-          ),
-          Text(engine.locale('build')),
-        ],
-      ),
-    ),
-    Tab(
-      height: 40,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
-            child: Icon(Icons.summarize),
-          ),
-          Text(engine.locale('stats')),
-        ],
-      ),
-    ),
-  ];
+// with SingleTickerProviderStateMixin
+{
+  // static final List<Tab> _tabs = <Tab>[
+  //   Tab(
+  //     height: 40,
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.center,
+  //       children: [
+  //         const Padding(
+  //           padding: EdgeInsets.symmetric(horizontal: 8.0),
+  //           child: Icon(Icons.inventory),
+  //         ),
+  //         Text(engine.locale('build')),
+  //       ],
+  //     ),
+  //   ),
+  //   Tab(
+  //     height: 40,
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.center,
+  //       children: [
+  //         const Padding(
+  //           padding: EdgeInsets.symmetric(horizontal: 8.0),
+  //           child: Icon(Icons.summarize),
+  //         ),
+  //         Text(engine.locale('stats')),
+  //       ],
+  //     ),
+  //   ),
+  // ];
 
-  late TabController _tabController;
+  // late TabController _tabController;
 
   late final dynamic _characterData;
 
@@ -150,7 +149,7 @@ class _EquipmentsAndStatsViewState extends State<EquipmentsAndStatsView>
   void initState() {
     super.initState();
 
-    _tabController = TabController(vsync: this, length: _tabs.length);
+    // _tabController = TabController(vsync: this, length: _tabs.length);
     // _tabController.addListener(() {
     //   setState(() {
     //     if (_tabController.index == 0) {
@@ -162,7 +161,7 @@ class _EquipmentsAndStatsViewState extends State<EquipmentsAndStatsView>
     //     }
     //   });
     // });
-    _tabController.index = widget.tabIndex;
+    // _tabController.index = widget.tabIndex;
 
     if (widget.characterData != null) {
       _characterData = widget.characterData!;
@@ -174,7 +173,7 @@ class _EquipmentsAndStatsViewState extends State<EquipmentsAndStatsView>
 
   @override
   void dispose() {
-    _tabController.dispose();
+    // _tabController.dispose();
     super.dispose();
   }
 

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart' hide Card;
+import 'package:heavenly_tribulation/events.dart';
+import 'package:samsara/event.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/loading_screen.dart';
 // import 'package:samsara/ui/label.dart';
@@ -11,6 +13,7 @@ import 'components/cultivation.dart';
 import 'drop_menu.dart';
 import '../history_info.dart';
 import '../hero_info.dart';
+import '../../view/character/cardpacks.dart';
 
 class CultivationOverlay extends StatefulWidget {
   final dynamic heroData;
@@ -35,6 +38,21 @@ class _CultivationOverlayState extends State<CultivationOverlay> {
   @override
   void initState() {
     super.initState();
+
+    engine.addEventListener(
+      UIEvents.cardPacksButtonClicked,
+      EventHandler(
+        widgetKey: widget.key!,
+        handle: (id, args, scene) {
+          showDialog(
+            context: context,
+            builder: (context) => CardpacksView(
+              characterData: widget.heroData,
+            ),
+          );
+        },
+      ),
+    );
   }
 
   Future<Scene?> _getScene() async {
