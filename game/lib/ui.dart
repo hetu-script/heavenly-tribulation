@@ -1,5 +1,4 @@
 import 'package:samsara/samsara.dart';
-import 'package:vector_math/vector_math_64.dart';
 
 abstract class GameUI {
   static bool _isInitted = false;
@@ -24,8 +23,37 @@ abstract class GameUI {
       siteExitCardPositon;
   static const npcListArrowHeight = 25.0;
 
-  // the ratio of the illustration height relative to the card height
-  static const cardIllustrationHeightRatio = 0.592;
+  // the relative paddings of the illustration rect
+  static const cardIllustrationRelativePaddings =
+      Rect.fromLTRB(0.06, 0.04, 0.06, 0.42);
+
+  static final battleCardPreferredSize = Vector2(250, 250 * 1.382);
+
+  static const battleCardTitlePaddings = EdgeInsets.fromLTRB(0, 0.585, 0, 0);
+
+  static final ScreenTextConfig battleCardTitleStyle = const ScreenTextConfig(
+        anchor: Anchor.topCenter,
+        outlined: true,
+        textStyle: TextStyle(fontSize: 18.0),
+      ),
+      battleCardDescriptionStyle = ScreenTextConfig(
+        anchor: Anchor.center,
+        colorTheme: ScreenTextColorTheme.dark,
+        outlined: true,
+      ),
+      battleCardStackStyle = const ScreenTextConfig(
+        textStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 24.0,
+          fontWeight: FontWeight.bold,
+        ),
+        anchor: Anchor.bottomCenter,
+        padding: EdgeInsets.only(bottom: -20),
+        outlined: true,
+      );
+
+  // ratio = height / width
+  static const cardSizeRatio = 1.382;
 
   // deckbuilding ui
   static late Vector2 libraryCardSize,
@@ -81,7 +109,7 @@ abstract class GameUI {
     GameUI.size = size;
 
     final libraryCardWidth = size.x / 6 - indent * 2;
-    final libraryCardHeight = libraryCardWidth * 1.382;
+    final libraryCardHeight = libraryCardWidth * cardSizeRatio;
     libraryCardSize = Vector2(libraryCardWidth, libraryCardHeight);
 
     final deckbuildingCardWidth = (size.x - 300) / 8 - indent;

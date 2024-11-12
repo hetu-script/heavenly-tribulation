@@ -615,7 +615,7 @@ class _MainMenuState extends State<MainMenu> {
                           .invoke('setHeroId', positionalArgs: [hero['id']]);
                       context.read<HeroState>().update();
 
-                      engine.hetu.invoke('acquireByIds')
+                      // engine.hetu.invoke('acquireByIds');
 
                       showDialog(
                         context: context,

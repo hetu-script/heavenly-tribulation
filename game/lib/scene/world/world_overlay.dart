@@ -456,8 +456,8 @@ class _WorldOverlayState extends State<WorldOverlay>
           Vector2(position.x + math.Random().nextDouble() * 10 - 5, position.y),
       movingUpOffset: 20,
       duration: duration,
-      textPaint: TextPaint(
-        style: TextStyle(
+      config: ScreenTextConfig(
+        textStyle: TextStyle(
           color: color ?? Colors.white,
           fontSize: 28,
           fontWeight: FontWeight.bold,

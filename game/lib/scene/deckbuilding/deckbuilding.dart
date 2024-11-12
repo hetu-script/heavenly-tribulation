@@ -17,7 +17,7 @@ class DeckBuildingOverlay extends StatefulWidget {
   final dynamic heroData, enemyData;
 
   final Iterable<String> heroLibrary;
-  final List<Card>? enemyDeck;
+  final List<GameCard>? enemyDeck;
 
   DeckBuildingOverlay({
     this.deckSize = 4,

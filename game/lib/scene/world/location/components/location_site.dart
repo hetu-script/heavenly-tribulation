@@ -2,7 +2,7 @@
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
-import 'package:samsara/cardgame/card.dart';
+import 'package:samsara/cardgame/custom_card.dart';
 
 import '../../../../config.dart';
 import '../../../../data.dart';
@@ -38,7 +38,7 @@ class LocationSiteScene extends Scene {
     );
     world.add(_backgroundComponent);
 
-    final List<Card> siteCards = [];
+    final List<CustomGameCard> siteCards = [];
 
     // final heroHomeId = engine.hetu.invoke('getHeroHomeLocationId');
     // if (id == heroHomeId) {
@@ -66,14 +66,14 @@ class LocationSiteScene extends Scene {
     final siteList = SitesCards(cards: siteCards);
     world.add(siteList);
 
-    final exit = Card(
+    final exit = CustomGameCard(
       id: 'exit',
       deckId: 'exit',
       borderRadius: 15.0,
       illustrationSpriteId: 'location/site/exit_card.png',
       spriteId: 'location/site/site_frame.png',
-      text: engine.locale('exit'),
-      titleStyle: ScreenTextStyle(textStyle: const TextStyle(fontSize: 20.0)),
+      title: engine.locale('exit'),
+      titleConfig: const ScreenTextConfig(textStyle: TextStyle(fontSize: 20.0)),
       showTitle: true,
       position: GameUI.siteExitCardPositon,
       size: GameUI.siteCardSize,

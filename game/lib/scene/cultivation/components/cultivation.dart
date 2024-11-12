@@ -219,7 +219,7 @@ class CultivationScene extends Scene {
     levelDescription = TextComponent2(
       position: GameUI.levelDescriptionPosition,
       anchor: Anchor.center,
-      style: ScreenTextStyle(
+      style: ScreenTextConfig(
         textStyle: const TextStyle(
           color: Colors.white,
           fontSize: 16,
@@ -531,7 +531,7 @@ class CultivationScene extends Scene {
         }
       },
       text: _skillLevels[genre]?.toString(),
-      textStyle: ScreenTextStyle(
+      textStyle: ScreenTextConfig(
         anchor: Anchor.bottomCenter,
         textStyle: const TextStyle(fontSize: 18),
       ),

@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 // import 'package:hetu_script/values.dart';
-import 'package:samsara/widget/rich_text_builder.dart';
+import 'package:samsara/rich_text_builder.dart';
 
 import '../../view/avatar.dart';
 import '../../config.dart';

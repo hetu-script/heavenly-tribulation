@@ -33,7 +33,7 @@ class BattleDeck extends PiledZone {
     }
   }
 
-  Future<Card> nextCard() async {
+  Future<GameCard> nextCard() async {
     ++_currentFocusedCardIndex;
     if (_currentFocusedCardIndex >= cards.length) {
       _currentFocusedCardIndex = 0;

@@ -25,7 +25,7 @@ class BattleSceneOverlay extends StatefulWidget {
   });
 
   final dynamic heroData, enemyData;
-  final List<Card> heroCards, enemyCards;
+  final List<GameCard> heroCards, enemyCards;
 
   final bool isSneakAttack;
 

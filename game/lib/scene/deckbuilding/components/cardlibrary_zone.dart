@@ -34,9 +34,9 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
 
   Sprite? stackSprite;
 
-  Card? draggingCard;
+  GameCard? draggingCard;
 
-  final Map<String, Card> _library = {};
+  final Map<String, GameCard> _library = {};
 
   void setCardEnabledById(String deckId, [bool isEnabled = true]) {
     assert(_library.containsKey(deckId));
@@ -78,7 +78,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     assert(_cardsLimitInRow > 0);
 
     onDragIn = (int buttons, Vector2 position, GameComponent? component) {
-      if (component is Card) {
+      if (component is GameCard) {
         if (buildingZone != null &&
             buildingZone!.containsCard(component.deckId)) {
           setCardEnabledById(component.deckId, false);
@@ -157,8 +157,8 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
   }
 
   /// 向牌库中添加卡牌，如果已存在，就返回false
-  Card? addCardById(String cardId) {
-    Card? card = _library[cardId];
+  GameCard? addCardById(String cardId) {
+    GameCard? card = _library[cardId];
     if (card == null) {
       card = GameData.getBattleCard(cardId);
 
@@ -173,7 +173,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
       }
 
       card.onTapDown = (int buttons, Vector2 position) {
-        final Card clone = card!.clone();
+        final GameCard clone = card!.clone();
         clone.enableGesture = false;
         clone.priority = kDraggingCardPriority;
         gameRef.world.add(clone);

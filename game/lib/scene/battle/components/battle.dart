@@ -29,7 +29,7 @@ class BattleScene extends Scene {
   late final BattleCharacter hero, enemy;
   late final BattleDeck heroDeckZone, enemyDeckZone;
   final dynamic heroData, enemyData;
-  final List<Card> heroCards, enemyCards;
+  final List<GameCard> heroCards, enemyCards;
 
   final bool isSneakAttack;
 

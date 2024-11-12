@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart' show BuildContext;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/foundation.dart' show kDebugMode;
-import 'package:samsara/cardgame/card.dart';
+import 'package:samsara/cardgame/cardgame.dart';
 import 'package:json5/json5.dart';
 import 'package:samsara/samsara.dart';
 
@@ -192,9 +192,9 @@ abstract class GameData {
     );
   }
 
-  static Card getSiteCard(dynamic siteData) {
+  static CustomGameCard getSiteCard(dynamic siteData) {
     final id = siteData['id'];
-    final card = Card(
+    final card = CustomGameCard(
       id: id,
       deckId: id,
       data: siteData,
@@ -202,8 +202,8 @@ abstract class GameData {
       borderRadius: 15.0,
       illustrationSpriteId: siteData['image'],
       spriteId: 'location/site/site_frame.png',
-      text: siteData['name'],
-      titleStyle: ScreenTextStyle(textStyle: const TextStyle(fontSize: 20.0)),
+      title: siteData['name'],
+      titleConfig: const ScreenTextConfig(textStyle: TextStyle(fontSize: 20.0)),
       showTitle: true,
       enablePreview: true,
       focusOnPreviewing: true,
@@ -216,7 +216,7 @@ abstract class GameData {
     return card;
   }
 
-  static Card getBattleCard(String cardId) {
+  static GameCard getBattleCard(String cardId) {
     assert(_isInitted, 'GameData is not loaded yet!');
     assert(GameUI.isInitted, 'Game UI is not initted yet!');
 
@@ -224,7 +224,7 @@ abstract class GameData {
     assert(data != null, 'Failed to load card data: [$cardId]');
     final String id = data['id'];
 
-    return Card(
+    return GameCard(
       id: id,
       deckId: id,
       script: id,
@@ -237,7 +237,7 @@ abstract class GameData {
       // illustrationSpriteId: 'cards/illustration/$id.png',
       // illustrationHeightRatio: kCardIllustrationHeightRatio,
       // showTitle: true,
-      // titleStyle: const ScreenTextStyle(
+      // titleStyle: const ScreenTextConfig(
       //   colorTheme: ScreenTextColorTheme.light,
       //   anchor: Anchor.topCenter,
       //   padding: EdgeInsets.only(
@@ -245,7 +245,7 @@ abstract class GameData {
       //   textStyle: TextStyle(fontSize: 16),
       // ),
       // showDescription: true,
-      // descriptionStyle: const ScreenTextStyle(
+      // descriptionStyle: const ScreenTextConfig(
       //   colorTheme: ScreenTextColorTheme.dark,
       // ),
     );
@@ -253,7 +253,7 @@ abstract class GameData {
 }
 
 abstract class PrebuildDecks {
-  static List<Card> _getCards(List<String> cardIds) {
+  static List<GameCard> _getCards(List<String> cardIds) {
     return cardIds.map((e) => GameData.getBattleCard(e)).toList();
   }
 
@@ -296,11 +296,11 @@ abstract class PrebuildDecks {
     _blade_3,
   ];
 
-  static List<Card> get random => _getCards(_allDecks.random());
-  static List<Card> get randomBlade => _getCards(_bladeDecks.random());
+  static List<GameCard> get random => _getCards(_allDecks.random());
+  static List<GameCard> get randomBlade => _getCards(_bladeDecks.random());
 
-  static List<Card> get basic => _getCards(_basic);
-  static List<Card> get blade1 => _getCards(_blade_1);
-  static List<Card> get blade2 => _getCards(_blade_2);
-  static List<Card> get blade3 => _getCards(_blade_3);
+  static List<GameCard> get basic => _getCards(_basic);
+  static List<GameCard> get blade1 => _getCards(_blade_1);
+  static List<GameCard> get blade2 => _getCards(_blade_2);
+  static List<GameCard> get blade3 => _getCards(_blade_3);
 }

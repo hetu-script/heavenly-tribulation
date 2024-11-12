@@ -50,15 +50,13 @@ StatusEffectType getStatusEffectType(String? id) {
 }
 
 class StatusEffect extends BorderComponent with HandlesGesture {
-  static ScreenTextStyle defaultEffectCountStyle = ScreenTextStyle(
+  static ScreenTextConfig defaultEffectCountStyle = const ScreenTextConfig(
     anchor: Anchor.bottomRight,
     outlined: true,
-    textPaint: TextPaint(
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 12.0,
-        fontWeight: FontWeight.bold,
-      ),
+    textStyle: TextStyle(
+      color: Colors.white,
+      fontSize: 12.0,
+      fontWeight: FontWeight.bold,
     ),
   );
 
@@ -80,7 +78,7 @@ class StatusEffect extends BorderComponent with HandlesGesture {
 
   String? soundId;
 
-  late ScreenTextStyle countTextStyle;
+  late ScreenTextConfig countTextConfig;
 
   late final String title, description;
 
@@ -103,7 +101,7 @@ class StatusEffect extends BorderComponent with HandlesGesture {
       callbacks.add(callbackId);
     }
     soundId = data['sound'];
-    countTextStyle = defaultEffectCountStyle.copyWith(rect: border);
+    countTextConfig = defaultEffectCountStyle.copyWith(rect: border);
 
     title = engine.locale('$id.title');
     description = engine.locale('$id.description');
@@ -671,7 +669,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     clearTurnFlag();
   }
 
-  void onBeforeUseCard(Card card) {
+  void onBeforeUseCard(GameCard card) {
     final genres = card.data['genre'];
     assert(genres is List);
     for (final genre in genres) {

@@ -155,7 +155,7 @@ class WorldMapScene extends Scene {
       drawScreenText(
         canvas,
         'FPS: ${fps.fps.toStringAsFixed(0)}',
-        style: ScreenTextStyle(
+        config: ScreenTextConfig(
             textStyle: const TextStyle(fontSize: 20),
             rect: Rect.fromLTWH(0, 0, GameUI.size.x, GameUI.size.y),
             anchor: Anchor.topCenter),

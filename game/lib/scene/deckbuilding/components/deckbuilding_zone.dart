@@ -29,7 +29,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
           borderRadius: 20.0,
         ) {
     onDragIn = (int buttons, Vector2 position, GameComponent? component) {
-      if (component is! Card) return;
+      if (component is! GameCard) return;
       if (cards.contains(component)) return;
 
       final index =
@@ -55,7 +55,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     add(background);
   }
 
-  bool addCard(Card card, {int? index}) {
+  bool addCard(GameCard card, {int? index}) {
     if (!unlimitedCardIds.contains(card.deckId) && containsCard(card.deckId)) {
       return false;
     }
