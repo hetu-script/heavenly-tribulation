@@ -38,7 +38,6 @@ abstract class GameUI {
       ),
       battleCardDescriptionStyle = ScreenTextConfig(
         anchor: Anchor.center,
-        colorTheme: ScreenTextColorTheme.dark,
         outlined: true,
       ),
       battleCardStackStyle = const ScreenTextConfig(
@@ -60,8 +59,8 @@ abstract class GameUI {
       deckbuildingCardSize,
       deckbuildingZoneSize,
       deckbuildingZonePileOffset,
-      librarySize,
-      libraryPosition;
+      libraryZoneSize,
+      libraryZonePosition;
 
   // battle ui
   static late Vector2 battleCardSize,
@@ -108,21 +107,21 @@ abstract class GameUI {
 
     GameUI.size = size;
 
-    final libraryCardWidth = size.x / 6 - indent * 2;
-    final libraryCardHeight = libraryCardWidth * cardSizeRatio;
-    libraryCardSize = Vector2(libraryCardWidth, libraryCardHeight);
-
     final deckbuildingCardWidth = (size.x - 300) / 8 - indent;
     final deckbuildingCardHeight = deckbuildingCardWidth * 1.382;
-
     deckbuildingCardSize =
         Vector2(deckbuildingCardWidth, deckbuildingCardHeight);
 
     deckbuildingZoneSize = Vector2(size.x, deckbuildingCardHeight + indent * 4);
     deckbuildingZonePileOffset = Vector2(deckbuildingCardWidth + indent, 0);
 
-    librarySize = Vector2(size.x, size.y - deckbuildingZoneSize.y);
-    libraryPosition = Vector2(0, deckbuildingZoneSize.y);
+    // final libraryCardWidth = size.x / 6 - indent * 2;
+    // final libraryCardHeight = libraryCardWidth * cardSizeRatio;
+    // libraryCardSize = Vector2(libraryCardWidth, libraryCardHeight);
+    libraryCardSize = deckbuildingCardSize;
+
+    libraryZoneSize = Vector2(size.x, size.y - deckbuildingZoneSize.y);
+    libraryZonePosition = Vector2(0, deckbuildingZoneSize.y);
 
     battleCardSize = deckbuildingCardSize;
     battleDeckZoneSize =

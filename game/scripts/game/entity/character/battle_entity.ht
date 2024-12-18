@@ -85,7 +85,7 @@ struct BattleEntity {
     calculateCharacterStats(this, baseStats: baseStats)
     rejuvenate(this)
 
-    // 主流派：剑修、法术、体修、炼魂、化身
+    // 主流派：剑修、法术、体修、炼魂、化神
     // 副流派：炼丹、炼器、阵法、符咒、灵植、灵兽、通灵、幻术、占卜、神通
     this.cultivationGenre = cultivationGenre
   }
@@ -131,15 +131,15 @@ function generateCharacterAttributes({
 
 /// 当前状态数值，由特性、属性、物品、天赋、技能、增益减损等计算得来
 /// 状态包括：生命、伤害、防御等。
-function calculateCharacterStats(character, { baseStats, rejuvenate = false }) {
+function calculateCharacterStats(character, { baseStats = {}, rejuvenate = false }) {
   
   // 基础属性，在此基础上还要加上物品和状态的加成
   // baseStas可能是从Dart传过来的map，所以这里用了特殊写法取属性
-  let spirituality = baseStats?['spirituality'] + character.attributes.spirituality
-  let dexterity = baseStats?['dexterity'] + character.attributes.dexterity
-  let strength = baseStats?['strength'] + character.attributes.strength
-  let willpower = baseStats?['willpower'] + character.attributes.willpower
-  let perception = baseStats?['perception'] + character.attributes.perception
+  let spirituality = baseStats['spirituality'] + character.attributes.spirituality
+  let dexterity = baseStats['dexterity'] + character.attributes.dexterity
+  let strength = baseStats['strength'] + character.attributes.strength
+  let willpower = baseStats['willpower'] + character.attributes.willpower
+  let perception = baseStats['perception'] + character.attributes.perception
 
   // for (const equipData of character.equipments) {
   //   const item = getEquipped(equipData, character)
@@ -222,7 +222,7 @@ function getCharacterMovableTerrainKinds(character) {
 /// 获取角色水上移动体力消耗，如果返回null表示不可水上移动
 /// 消耗以tick为单位，在角色进入该地块之后扣减相应数值
 function getCharacterMoveCostOnWater(character) {
-  // TODO: 金丹境可以直接飞行，因此无需船只
+  // TODO: 结丹境可以直接飞行，因此无需船只
   for (let i = 1; i < kEquipmentMax; ++i) {
     let itemId = character.equipments[i]
     let item = character.inventory[itemId]

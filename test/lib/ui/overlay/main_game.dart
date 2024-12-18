@@ -83,7 +83,6 @@ class _MainGameOverlayState extends State<MainGameOverlay> {
                         case CardGameDropMenuItems.quit:
                           _scene.leave(clearCache: true);
                           Navigator.of(context).pop();
-                        default:
                       }
                     },
                   ),

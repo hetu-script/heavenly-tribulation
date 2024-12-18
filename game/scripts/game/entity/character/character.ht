@@ -336,7 +336,7 @@ struct Character {
 
     this.worldId = worldId ?? world?.id
 
-    // 修真境界，练气期是1
+    // 修真境界，凝气期是1
     // 境界决定了升级时能获得卡牌的最高稀有度，但具体获得的卡牌是随机的
     // 在所有流派中，只有修为等级最高的那个流派决定了境界
     this.cultivationRank = cultivationRank ?? 0
@@ -1106,8 +1106,8 @@ function characterGetCompanion(character, companion, { incurIncident = true }) {
     engine.warn('${companion.id} 已经是 ${character.id} 的随从了，无法再次添加。')
     return
   }
-  print(character.id)
-  print(companion.id)
+  // print(character.id)
+  // print(companion.id)
   character.companions.add(companion.id)
   
   const incidentContent = engine.locale('characterGetCompanion', interpolations: [

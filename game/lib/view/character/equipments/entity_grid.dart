@@ -2,7 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
 import 'package:samsara/ui/rrect_icon.dart';
-import 'package:samsara/widget/pointer_detector.dart';
+import 'package:samsara/widgets/pointer_detector.dart';
 
 import '../../../config.dart';
 import '../../../common.dart';
@@ -108,7 +108,7 @@ class EntityGrid extends StatelessWidget {
                       color: kBackgroundColor,
                       border: Border.all(
                         color:
-                            kForegroundColor.withOpacity(isSelected ? 1 : 0.25),
+                            kForegroundColor.withAlpha(isSelected ? 255 : 64),
                       ),
                       image: backgroundImage != null
                           ? DecorationImage(
@@ -164,7 +164,7 @@ class EntityGrid extends StatelessWidget {
               ? BoxDecoration(
                   color: kBackgroundColor,
                   border: Border.all(
-                    color: kForegroundColor.withOpacity(0.75),
+                    color: kForegroundColor.withAlpha(180),
                   ),
                   image: backgroundImage != null
                       ? DecorationImage(
@@ -227,7 +227,7 @@ class EntityGrid extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: kBackgroundColor,
                         border: Border.all(
-                          color: kForegroundColor.withOpacity(0.5),
+                          color: kForegroundColor.withAlpha(128),
                         ),
                         image: backgroundImage != null
                             ? DecorationImage(

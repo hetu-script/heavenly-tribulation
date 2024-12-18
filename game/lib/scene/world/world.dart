@@ -157,7 +157,7 @@ class WorldMapScene extends Scene {
         'FPS: ${fps.fps.toStringAsFixed(0)}',
         config: ScreenTextConfig(
             textStyle: const TextStyle(fontSize: 20),
-            rect: Rect.fromLTWH(0, 0, GameUI.size.x, GameUI.size.y),
+            size: GameUI.size,
             anchor: Anchor.topCenter),
       );
     }

@@ -163,7 +163,6 @@ class _BattleSceneOverlayState extends State<BattleSceneOverlay> {
                           ).then((_) => setState(() {}));
                         case BattleDropMenuItems.quit:
                           close();
-                        default:
                       }
                     },
                   ),

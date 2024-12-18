@@ -3,10 +3,10 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/loading_screen.dart';
 import 'package:samsara/ui/label.dart';
 // import 'package:samsara/event.dart';
-import 'package:samsara/cardgame/card.dart';
+// import 'package:samsara/cardgame/card.dart';
 
 import '../../dialog/game_dialog/game_dialog.dart';
-import '../battle/battle.dart';
+// import '../battle/battle.dart';
 import '../../config.dart';
 import 'components/deckbuilding.dart';
 import 'drop_menu.dart';
@@ -14,17 +14,14 @@ import 'drop_menu.dart';
 class DeckBuildingOverlay extends StatefulWidget {
   final int deckSize;
 
-  final dynamic heroData, enemyData;
+  final dynamic heroData;
 
-  final Iterable<String> heroLibrary;
-  final List<GameCard>? enemyDeck;
+  final Iterable<dynamic> heroLibrary;
 
   DeckBuildingOverlay({
     this.deckSize = 4,
     this.heroData,
-    this.enemyData,
     required this.heroLibrary,
-    this.enemyDeck,
   }) : super(key: UniqueKey());
 
   @override
@@ -93,50 +90,34 @@ class _DeckBuildingOverlayState extends State<DeckBuildingOverlay> {
                 if (_scene.isLoading)
                   LoadingScreen(text: engine.locale('loading')),
                 SceneWidget(scene: _scene),
-                if (widget.enemyDeck != null)
-                  Positioned(
-                    top: 5,
-                    right: 100,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_scene.buildingZone.cards.length <
-                            widget.deckSize) {
-                          GameDialog.show(
-                            context: context,
-                            dialogData: {
-                              'lines': [
-                                engine
-                                    .locale('deckbuilding.requiredCardsPrompt')
-                              ],
-                            },
-                          );
-                        } else {
-                          _scene.leave(clearCache: true);
-                          Navigator.of(context).pop();
-                          showDialog(
-                            context: context,
-                            builder: (context) => BattleSceneOverlay(
-                              key: UniqueKey(),
-                              heroData: widget.heroData,
-                              enemyData: widget.enemyData,
-                              heroCards: _scene.buildingZone.cards
-                                  .map((c) => c.clone())
-                                  .toList(),
-                              enemyCards: widget.enemyDeck!,
-                              isSneakAttack: false,
-                            ),
-                          ).then((value) {
-                            engine.bgm.resume();
-                          });
-                        }
-                      },
-                      child: const Label(
-                        'Battle!',
-                        width: 120.0,
-                        textAlign: TextAlign.center,
-                      ),
+                Positioned(
+                  top: 5,
+                  right: 100,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_scene.buildingZone.cards.length < widget.deckSize) {
+                        GameDialog.show(
+                          context: context,
+                          dialogData: {
+                            'lines': [
+                              engine.locale('deckbuilding.requiredCardsPrompt')
+                            ],
+                          },
+                        );
+                      } else {
+                        _scene.leave(clearCache: true);
+                        Navigator.of(context).pop(_scene.buildingZone.cards
+                            .map((c) => c.clone())
+                            .toList());
+                      }
+                    },
+                    child: const Label(
+                      'Battle!',
+                      width: 120.0,
+                      textAlign: TextAlign.center,
                     ),
                   ),
+                ),
                 Positioned(
                   right: 0,
                   top: 0,
@@ -153,7 +134,6 @@ class _DeckBuildingOverlayState extends State<DeckBuildingOverlay> {
                         case DeckbuildingDropMenuItems.quit:
                           _scene.leave(clearCache: true);
                           Navigator.of(context).pop();
-                        default:
                       }
                     },
                   ),

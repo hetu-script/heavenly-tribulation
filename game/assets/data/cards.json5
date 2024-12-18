@@ -1,5 +1,4 @@
 {
-  // 每张卡牌的id，唯一
   attack_normal: {
     id: "attack_normal",
     // 组牌id，不唯一。

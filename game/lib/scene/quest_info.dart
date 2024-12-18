@@ -69,7 +69,7 @@ class _QuestInfoPanelState extends State<QuestInfoPanel> {
                       margin: const EdgeInsets.all(8.0),
                       padding: const EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withAlpha(50),
                         borderRadius: BorderRadius.circular(10.0),
                         border: Border.all(
                             color: _showBorder

@@ -6,11 +6,37 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:fast_noise/fast_noise.dart';
 
-int argbToABGR(int argbColor) {
-  int r = (argbColor >> 16) & 0xFF;
-  int b = argbColor & 0xFF;
-  return (argbColor & 0xFF00FF00) | (b << 16) | r;
+int _floatToInt8(double x) {
+  return (x * 255.0).round() & 0xff;
 }
+
+/// A 32 bit value representing this color.
+///
+/// The bits are assigned as follows:
+///
+/// * Bits 24-31 are the alpha value.
+/// * Bits 16-23 are the red value.
+/// * Bits 8-15 are the green value.
+/// * Bits 0-7 are the blue value.
+int getARGB(double a, double r, double g, double b) {
+  return _floatToInt8((a / 255)) << 24 |
+      _floatToInt8(r) << 16 |
+      _floatToInt8(g) << 8 |
+      _floatToInt8(b) << 0;
+}
+
+int getABGR(double a, double b, double g, double r) {
+  return _floatToInt8((a / 255)) << 24 |
+      _floatToInt8(b) << 16 |
+      _floatToInt8(g) << 8 |
+      _floatToInt8(r) << 0;
+}
+
+// int ARGBToABGR(int argbColor) {
+//   int r = (argbColor >> 16) & 0xFF;
+//   int b = argbColor & 0xFF;
+//   return (argbColor & 0xFF00FF00) | (b << 16) | r;
+// }
 
 Future<ui.Image> makeImage(List<List<double>> noiseData) {
   final dimension = noiseData.length;
@@ -24,8 +50,7 @@ Future<ui.Image> makeImage(List<List<double>> noiseData) {
       // 滨海 coast：normalize > 0.48，frequency： 3.5 /, type: CubicFractal
       // 内陆 inland：normalize > 0.35，frequency： 6 /, type: CubicFractal
       final alpha = normalize > 0.48 ? 255 : 0;
-      final argb = Color.fromARGB(alpha, 0, 0, 0).value;
-      final abgr = argbToABGR(argb);
+      final abgr = getABGR(alpha.toDouble(), 0, 0, 0);
       pixels[y * dimension + x] = abgr;
     }
   }

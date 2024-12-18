@@ -95,17 +95,18 @@ class LocationSelectDialog extends StatelessWidget {
         body: GameEntityListView(
           columns: _kInformationViewLocationColumns,
           tableData: data,
-          onItemPressed: (buttons, position, dataId) => showDialog(
-            context: context,
-            builder: (context) => ProfileView(
-              characterId: dataId,
-              mode: ViewPanelMode.select,
-            ),
-          ).then((value) {
-            if (value != null) {
+          onItemPressed: (buttons, position, dataId) async {
+            final value = await showDialog(
+              context: context,
+              builder: (context) => ProfileView(
+                characterId: dataId,
+                mode: ViewPanelMode.select,
+              ),
+            );
+            if (context.mounted && value != null) {
               Navigator.of(context).pop(value);
             }
-          }),
+          },
         ),
       ),
     );

@@ -1,0 +1,15 @@
+{
+  support_general_after_attack_1: {
+    // 同一个属性id只会在一张卡牌上出现一次。
+    id: "support_general_after_attack_1",
+    genre: ["general"],
+    // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
+    type: "attack",
+    tags: ["attack", "after_attack", "buff", "life"],
+    // 是否是主词条
+    mainAffix: false,
+    name_suffix: {
+      zh: "剑",
+    },
+  },
+}

@@ -101,20 +101,19 @@ class StatusEffect extends BorderComponent with HandlesGesture {
       callbacks.add(callbackId);
     }
     soundId = data['sound'];
-    countTextConfig = defaultEffectCountStyle.copyWith(rect: border);
+    countTextConfig = defaultEffectCountStyle.copyWith(size: size);
 
-    title = engine.locale('$id.title');
-    description = engine.locale('$id.description');
+    description =
+        '${engine.locale('$id.title')}\n${engine.locale('$id.description')}';
 
     onMouseEnter = () {
       Tooltip.show(
         scene: gameRef,
         target: this,
-        preferredDirection: anchor.x == 0
+        direction: anchor.x == 0
             ? TooltipDirection.topLeft
             : TooltipDirection.topRight,
-        title: title,
-        description: description,
+        content: description,
       );
     };
     onMouseExit = () {
@@ -131,7 +130,7 @@ class StatusEffect extends BorderComponent with HandlesGesture {
   void render(Canvas canvas) {
     sprite.render(canvas, size: size);
     if (amount > 1) {
-      drawScreenText(canvas, '$amount', style: countTextStyle);
+      drawScreenText(canvas, '$amount', config: countTextConfig);
     }
   }
 }
@@ -443,8 +442,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       position: Vector2(center.x + Random().nextDouble() * 40 - 20, center.y),
       movingUpOffset: 100,
       duration: duration,
-      textPaint: TextPaint(
-        style: TextStyle(
+      config: ScreenTextConfig(
+        textStyle: TextStyle(
           color: textColor ?? Colors.white,
           fontSize: 28,
           fontWeight: FontWeight.bold,

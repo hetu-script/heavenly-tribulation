@@ -51,7 +51,7 @@ class SiteCard extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(2),
-                      color: Theme.of(context).primaryColor.withOpacity(0.5),
+                      color: Theme.of(context).primaryColor.withAlpha(128),
                       child: Text(
                         siteData['name'],
                       ),

@@ -10,7 +10,7 @@
       stepTime: 0.09,
       loop: false,
     },
-    defend_normal: {
+    defend_sword: {
       offsetX: 0,
       offsetY: 0,
       width: 80.0,
@@ -34,7 +34,7 @@
       stepTime: 0.15,
       loop: false,
     },
-    attack_normal: {
+    attack_sword: {
       offsetX: 0,
       offsetY: 0,
       width: 288.0,
@@ -42,7 +42,7 @@
       stepTime: 0.07,
       loop: false,
     },
-    attack_normal_recovery: {
+    attack_sword_recovery: {
       offsetX: 0,
       offsetY: 0,
       width: 288.0,

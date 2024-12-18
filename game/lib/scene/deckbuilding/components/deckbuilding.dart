@@ -12,7 +12,7 @@ class DeckBuildingScene extends Scene {
   late final CardLibraryZone libraryZone;
   late final DeckBuildingZone buildingZone;
 
-  final List<String> library;
+  final List<dynamic> library;
 
   DeckBuildingScene({
     required super.controller,
@@ -33,10 +33,11 @@ class DeckBuildingScene extends Scene {
     libraryZone.buildingZone = buildingZone;
     buildingZone.library = libraryZone;
 
-    for (final cardId in library) {
-      final card = libraryZone.addCardById(cardId);
+    for (final data in library) {
+      final card = libraryZone.addCardByData(data);
       // 如果卡牌已经存在，则library.addCard会返回null，下面就不用处理。
-      if (card == null) continue;
+      // 已经改为随机生成卡牌的系统，这里不可能再返回null
+      // if (card == null) continue;
       // 这里要直接加到世界上而非library管理，因为卡牌会被拖动
       world.add(card);
     }

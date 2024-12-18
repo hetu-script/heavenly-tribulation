@@ -238,17 +238,18 @@
   "dismiss": "解散",
 
   "cultivationRank0": "无",
-  "cultivationRank1": "练气",
+  "cultivationRank1": "凝气",
   "cultivationRank2": "筑基",
-  "cultivationRank3": "金丹",
-  "cultivationRank4": "元婴",
+  "cultivationRank3": "结丹",
+  "cultivationRank4": "还婴",
   "cultivationRank5": "化神",
 
   "fightSkillGenre": "战斗流派",
 
+  "general": "通用",
   "element": "法术",
   "physique": "体修",
-  "avatar": "化身",
+  "avatar": "化神",
   "vitality": "炼魂",
   "blade": "剑修",
 

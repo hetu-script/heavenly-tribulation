@@ -31,8 +31,11 @@ class GameScene extends Scene {
       duration: 0.8,
       position: details.globalPosition.toVector2(),
       fadeOutAfterDuration: 0.3,
-      textPaint: PresetTextPaints.danger.copyWith(
-        (textStyle) => textStyle.copyWith(fontSize: 16),
+      config: ScreenTextConfig(
+        textStyle: TextStyle(
+          color: Colors.red,
+          fontSize: 16,
+        ),
       ),
     );
     add(c2);

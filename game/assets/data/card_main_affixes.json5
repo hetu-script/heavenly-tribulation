@@ -1,0 +1,91 @@
+{
+  attack_sword_1: {
+    // 同一个属性id只会在一张卡牌上出现一次。
+    id: "attack_sword_1",
+    genre: ["general"],
+    // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
+    type: "attack",
+    tags: ["attack", "weapon_attack"],
+    // 是否是主词条
+    mainAffix: true,
+    image: "attack_sword_1.png",
+    animations: ["attack_sword", "attack_sword_recovery"],
+    script: "attack_sword_1",
+    level: 0,
+    value: [
+      {
+        // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
+        random: 0,
+        min: 5,
+        max: 13,
+        increment: 2,
+      },
+    ],
+  },
+  defend_sword_1: {
+    // 同一个属性id只会在一张卡牌上出现一次。
+    id: "defend_sword_1",
+    genre: ["general"],
+    // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
+    type: "buff",
+    tags: ["buff", "defence"],
+    // 是否是主词条
+    mainAffix: true,
+    image: "defend_sword_1.png",
+    animations: ["defend_sword"],
+    level: 0,
+    value: [
+      {
+        // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
+        random: 0,
+        min: 10,
+        max: 18,
+        increment: 2,
+      },
+    ],
+  },
+  restore_life_1: {
+    // 同一个属性id只会在一张卡牌上出现一次。
+    id: "restore_life_1",
+    genre: ["general"],
+    // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
+    type: "buff",
+    tags: ["buff", "life"],
+    // 是否是主词条
+    mainAffix: true,
+    image: "restore_life.png",
+    animations: ["spell_normal", "restore_life"],
+    level: 0,
+    value: [
+      {
+        // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
+        random: 0,
+        min: 7,
+        max: 15,
+        increment: 2,
+      },
+    ],
+  },
+  restore_mana_1: {
+    // 同一个属性id只会在一张卡牌上出现一次。
+    id: "restore_mana_1",
+    genre: ["general"],
+    // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
+    type: "buff",
+    tags: ["buff", "mana"],
+    // 是否是主词条
+    mainAffix: true,
+    image: "restore_mana.png",
+    animations: ["spell_normal", "restore_mana"],
+    level: 0,
+    value: [
+      {
+        // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
+        random: 0,
+        min: 7,
+        max: 15,
+        increment: 2,
+      },
+    ],
+  },
+}

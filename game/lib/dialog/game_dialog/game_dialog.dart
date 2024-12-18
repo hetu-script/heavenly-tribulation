@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 // import 'package:hetu_script/values.dart';
-import 'package:samsara/rich_text_builder.dart';
+import 'package:samsara/richtext.dart';
 
 import '../../view/avatar.dart';
 import '../../config.dart';
@@ -188,7 +188,7 @@ class _GameDialogState extends State<GameDialog> {
         finishLine();
       } else {
         textShowController.add(TextSpan(
-            children: buildRichText(nodes.sublist(0, progress).join(),
+            children: buildFlutterRichText(nodes.sublist(0, progress).join(),
                 style: style)));
       }
     });
@@ -206,8 +206,8 @@ class _GameDialogState extends State<GameDialog> {
 
   void finishLine() {
     timer?.cancel();
-    textShowController
-        .add(TextSpan(children: buildRichText(currentLine, style: style)));
+    textShowController.add(
+        TextSpan(children: buildFlutterRichText(currentLine, style: style)));
     finished = true;
   }
 

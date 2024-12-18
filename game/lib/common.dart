@@ -42,11 +42,11 @@ const kOrganizationCategories = {
 };
 
 const kMainCultivationGenres = [
+  'blade',
   'element',
   'physique',
   'avatar',
   'vitality',
-  'blade',
 ];
 
 const kSupportCultivationGenres = [

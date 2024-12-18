@@ -301,7 +301,7 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
                 title: engine.locale('createLocation'),
                 enableWorldId: false,
               ).then(((int, int, String?)? value) {
-                if (value == null) return;
+                if (!mounted || value == null) return;
                 showDialog(
                     context: context,
                     builder: (context) {
@@ -581,15 +581,17 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
                               .read<GameSavesState>()
                               .saveGame(worldId, saveName)
                               .then((saveInfo) {
-                            GameDialog.show(
-                              context: context,
-                              dialogData: {
-                                'lines': [
-                                  engine.locale('savedSuccessfully',
-                                      interpolations: [saveInfo.savePath]),
-                                ],
-                              },
-                            );
+                            if (context.mounted) {
+                              GameDialog.show(
+                                context: context,
+                                dialogData: {
+                                  'lines': [
+                                    engine.locale('savedSuccessfully',
+                                        interpolations: [saveInfo.savePath]),
+                                  ],
+                                },
+                              );
+                            }
                           });
                         case WorldEditorDropMenuItems.saveAs:
                           showDialog(
@@ -605,20 +607,26 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
                                 positionalArgs: [saveName]);
                             String worldId =
                                 engine.hetu.invoke('getCurrentWorldId');
-                            context
-                                .read<GameSavesState>()
-                                .saveGame(worldId, saveName)
-                                .then((saveInfo) {
-                              GameDialog.show(
-                                context: context,
-                                dialogData: {
-                                  'lines': [
-                                    engine.locale('savedSuccessfully',
-                                        interpolations: [saveInfo.savePath]),
-                                  ],
-                                },
-                              );
-                            });
+                            if (context.mounted) {
+                              context
+                                  .read<GameSavesState>()
+                                  .saveGame(worldId, saveName)
+                                  .then((saveInfo) {
+                                if (context.mounted) {
+                                  GameDialog.show(
+                                    context: context,
+                                    dialogData: {
+                                      'lines': [
+                                        engine.locale('savedSuccessfully',
+                                            interpolations: [
+                                              saveInfo.savePath
+                                            ]),
+                                      ],
+                                    },
+                                  );
+                                }
+                              });
+                            }
                           });
                         case WorldEditorDropMenuItems.viewNone:
                           scene.map.colorMode = kColorModeNone;

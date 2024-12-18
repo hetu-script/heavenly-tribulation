@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 
 const kForegroundColor = Colors.white;
-final kBackgroundColor = Colors.black.withOpacity(0.75);
-final kBarrierColor = Colors.black.withOpacity(0.5);
+final kBackgroundColor = Colors.black.withAlpha(180);
+final kBarrierColor = Colors.black.withAlpha(128);
 final kBorderRadius = BorderRadius.circular(5.0);
 
 const iconTheme = IconThemeData(
@@ -19,7 +19,7 @@ final darkTheme = ThemeData(
   brightness: Brightness.dark,
   fontFamily: 'RuiZiYunZiKuLiBianTiGBK',
   colorScheme: ColorScheme.dark(
-    background: kBackgroundColor,
+    surface: kBackgroundColor,
   ),
   scaffoldBackgroundColor: Colors.transparent,
   appBarTheme: const AppBarTheme(

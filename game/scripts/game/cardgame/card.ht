@@ -13,7 +13,7 @@ namespace CardScripts {
 
   /// 普通攻击
   /// 7攻
-  async function attack_normal(self, opponent) {
+  async function attack_sword_1(self, opponent) {
     await self.attack()
     opponent.takeDamage('weapon', 7)
   }

@@ -119,7 +119,7 @@ function onHeroExplore(terrain) {
 /// 凝气 将自身灵气化为灵石
 /// 在灵气喷涌的地方打坐，可以直接获得灵气，最多获取数量和自身境界有关
 /// 理论上限：116（每天4个tick，乘以29天）
-/// 练气（2），筑基（5），金丹（9），元婴（15），化神（23）
+/// 凝气（2），筑基（5），结丹（9），还婴（15），化神（23）
 /// 在没有灵气喷涌的地方打坐，可以消耗灵石获得灵气。
 function onHeroMeditate({site, terrain, incurIncident = true}) async {
   let selection = await dialog.localeSelect([

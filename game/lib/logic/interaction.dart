@@ -9,9 +9,7 @@ bool? movableTest(left, top) {
       .invoke('getTerrainByWorldPosition', positionalArgs: [left, top]);
   if (terrain['isNonInteractable'] == true) {
     GameDialog.show(context: GameData.ctx!, dialogData: {
-      'lines': [
-        engine.locale('hint.nonInteractableTile'),
-      ]
+      'lines': [engine.locale('hint.nonInteractableTile')]
     });
     return true;
   }

@@ -4,8 +4,8 @@ import 'package:samsara/ui/loading_screen.dart';
 import 'package:samsara/ui/label.dart';
 // import 'package:flutter/services.dart';
 // import 'package:json5/json5.dart';
-import 'package:samsara/widget/markdown_wiki.dart';
-import 'package:video_player_win/video_player_win.dart';
+import 'package:samsara/widgets/markdown_wiki.dart';
+// import 'package:video_player_win/video_player_win.dart';
 
 import '../global.dart';
 import '../scene/game.dart';
@@ -21,7 +21,7 @@ class MainMenu extends StatefulWidget {
 }
 
 class _MainMenuState extends State<MainMenu> {
-  late WinVideoPlayerController _videoController;
+  // late WinVideoPlayerController _videoController;
 
   @override
   void initState() {
@@ -92,7 +92,7 @@ class _MainMenuState extends State<MainMenu> {
                     height: screenSize.height,
                     child: AspectRatio(
                       aspectRatio: screenSize.aspectRatio,
-                      child: WinVideoPlayer(_videoController),
+                      // child: WinVideoPlayer(_videoController),
                     ),
                   ),
                 ),

@@ -750,15 +750,17 @@ class _WorldOverlayState extends State<WorldOverlay>
                           .read<GameSavesState>()
                           .saveGame(worldId, saveName)
                           .then((saveInfo) {
-                        GameDialog.show(
-                          context: context,
-                          dialogData: {
-                            'lines': [
-                              engine.locale('savedSuccessfully',
-                                  interpolations: [saveInfo.savePath]),
-                            ],
-                          },
-                        );
+                        if (context.mounted) {
+                          GameDialog.show(
+                            context: context,
+                            dialogData: {
+                              'lines': [
+                                engine.locale('savedSuccessfully',
+                                    interpolations: [saveInfo.savePath]),
+                              ],
+                            },
+                          );
+                        }
                       });
 
                     case WorldMapDropMenuItems.saveAs:
@@ -776,20 +778,24 @@ class _WorldOverlayState extends State<WorldOverlay>
                             .invoke('setSaveName', positionalArgs: [saveName]);
                         String worldId =
                             engine.hetu.invoke('getCurrentWorldId');
-                        context
-                            .read<GameSavesState>()
-                            .saveGame(worldId, saveName)
-                            .then((saveInfo) {
-                          GameDialog.show(
-                            context: context,
-                            dialogData: {
-                              'lines': [
-                                engine.locale('savedSuccessfully',
-                                    interpolations: [saveInfo.savePath]),
-                              ],
-                            },
-                          );
-                        });
+                        if (context.mounted) {
+                          context
+                              .read<GameSavesState>()
+                              .saveGame(worldId, saveName)
+                              .then((saveInfo) {
+                            if (context.mounted) {
+                              GameDialog.show(
+                                context: context,
+                                dialogData: {
+                                  'lines': [
+                                    engine.locale('savedSuccessfully',
+                                        interpolations: [saveInfo.savePath]),
+                                  ],
+                                },
+                              );
+                            }
+                          });
+                        }
                       });
                     case WorldMapDropMenuItems.info:
                       showDialog(

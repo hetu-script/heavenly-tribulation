@@ -12,6 +12,7 @@ import 'package:samsara/ui/loading_screen.dart';
 import 'package:samsara/ui/label.dart';
 import 'package:samsara/console.dart';
 // import 'package:video_player_win/video_player_win.dart';
+// import 'package:samsara/cardgame/card.dart';
 
 import '../dialog/game_dialog/game_dialog.dart';
 // import '../pages/map/maze/maze_overlay.dart';
@@ -439,17 +440,19 @@ class _MainMenuState extends State<MainMenu> {
                         builder: (context) => const CreateSandboxGameDialog(),
                       ).then((args) {
                         if (args == null) return;
-                        context
-                            .read<MainMenuState>()
-                            .setState(MainMenuStates.main);
-                        engine.bgm.pause();
-                        showDialog(
-                          context: context,
-                          builder: (context) => WorldOverlay(args: args),
-                        ).then((_) {
-                          GameData.isGameCreated = false;
-                          engine.bgm.resume();
-                        });
+                        if (context.mounted) {
+                          context
+                              .read<MainMenuState>()
+                              .setState(MainMenuStates.main);
+                          engine.bgm.pause();
+                          showDialog(
+                            context: context,
+                            builder: (context) => WorldOverlay(args: args),
+                          ).then((_) {
+                            GameData.isGameCreated = false;
+                            engine.bgm.resume();
+                          });
+                        }
                       });
                     },
                     child: Label(
@@ -468,23 +471,25 @@ class _MainMenuState extends State<MainMenu> {
                         builder: (context) => const LoadGameDialog(),
                       ).then((SaveInfo? info) async {
                         if (info == null) return;
-                        context
-                            .read<MainMenuState>()
-                            .setState(MainMenuStates.main);
-                        engine.bgm.pause();
-                        showDialog(
-                          context: context,
-                          builder: (context) => WorldOverlay(
-                            args: {
-                              'id': info.currentWorldId,
-                              'path': info.savePath,
-                              'method': 'load',
-                            },
-                          ),
-                        ).then((_) {
-                          GameData.isGameCreated = false;
-                          engine.bgm.resume();
-                        });
+                        if (context.mounted) {
+                          context
+                              .read<MainMenuState>()
+                              .setState(MainMenuStates.main);
+                          engine.bgm.pause();
+                          showDialog(
+                            context: context,
+                            builder: (context) => WorldOverlay(
+                              args: {
+                                'id': info.currentWorldId,
+                                'path': info.savePath,
+                                'method': 'load',
+                              },
+                            ),
+                          ).then((_) {
+                            GameData.isGameCreated = false;
+                            engine.bgm.resume();
+                          });
+                        }
                       });
                     },
                     child: Label(
@@ -522,17 +527,20 @@ class _MainMenuState extends State<MainMenu> {
                         builder: (context) => const CreateBlankMapDialog(),
                       ).then((value) {
                         if (value == null) return;
-                        context
-                            .read<MainMenuState>()
-                            .setState(MainMenuStates.main);
-                        engine.bgm.pause();
-                        showDialog(
-                          context: context,
-                          builder: (context) => WorldEditorOverlay(args: value),
-                        ).then((_) {
-                          GameData.isGameCreated = false;
-                          engine.bgm.resume();
-                        });
+                        if (context.mounted) {
+                          context
+                              .read<MainMenuState>()
+                              .setState(MainMenuStates.main);
+                          engine.bgm.pause();
+                          showDialog(
+                            context: context,
+                            builder: (context) =>
+                                WorldEditorOverlay(args: value),
+                          ).then((_) {
+                            GameData.isGameCreated = false;
+                            engine.bgm.resume();
+                          });
+                        }
                       });
                     },
                     child: Label(
@@ -551,24 +559,26 @@ class _MainMenuState extends State<MainMenu> {
                         builder: (context) => const LoadGameDialog(),
                       ).then((SaveInfo? info) {
                         if (info == null) return;
-                        context
-                            .read<MainMenuState>()
-                            .setState(MainMenuStates.main);
-                        engine.bgm.pause();
-                        showDialog(
-                          context: context,
-                          builder: (context) => WorldEditorOverlay(
-                            args: {
-                              'id': info.currentWorldId,
-                              'method': 'load',
-                              'path': info.savePath,
-                              'isEditorMode': true,
-                            },
-                          ),
-                        ).then((_) {
-                          GameData.isGameCreated = false;
-                          engine.bgm.resume();
-                        });
+                        if (context.mounted) {
+                          context
+                              .read<MainMenuState>()
+                              .setState(MainMenuStates.main);
+                          engine.bgm.pause();
+                          showDialog(
+                            context: context,
+                            builder: (context) => WorldEditorOverlay(
+                              args: {
+                                'id': info.currentWorldId,
+                                'method': 'load',
+                                'path': info.savePath,
+                                'isEditorMode': true,
+                              },
+                            ),
+                          ).then((_) {
+                            GameData.isGameCreated = false;
+                            engine.bgm.resume();
+                          });
+                        }
                       });
                     },
                     child: Label(
@@ -635,7 +645,7 @@ class _MainMenuState extends State<MainMenu> {
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0),
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       context
                           .read<MainMenuState>()
                           .setState(MainMenuStates.main);
@@ -643,60 +653,43 @@ class _MainMenuState extends State<MainMenu> {
 
                       final hero = engine.hetu.invoke('Character', namedArgs: {
                         'isMajorCharacter': false,
-                        'baseStats': {
-                          'life': 40,
-                        }
+                        // 'baseStats': {
+                        //   'life': 40,
+                        // }
                       });
                       final enemy = engine.hetu.invoke('Character', namedArgs: {
                         'isMajorCharacter': false,
-                        'baseStats': {
-                          'life': 80,
-                          'physiqueAttack': 5,
-                        },
-                        'skin': 'boar',
+                        // 'baseStats': {
+                        //   'life': 80,
+                        //   'physiqueAttack': 5,
+                        // },
+                        // 'skin': 'boar',
                       });
-                      const heroLibrary = [
-                        'attack_normal',
-                        'defend_normal',
-                        'blade_1',
-                        // 'blade_2',
-                        'blade_3',
-                        'blade_4',
-                        // 'blade_5',
-                        'blade_6',
-                        'blade_7',
-                        'blade_8',
-                        'blade_9',
-                        'blade_10',
-                        'blade_11',
-                        'blade_12',
-                        'array_1',
-                        'array_2',
-                        'array_3',
-                        'array_4',
-                        'array_5',
-                        'rune_1',
-                        'rune_2',
-                        'rune_3',
-                        'rune_4',
-                        'alchemy_1',
-                        'alchemy_2',
-                        'craft_1',
-                        'craft_2',
-                      ];
-                      // final enemyDeck = PresetDecks.random;
-                      final enemyDeck = PrebuildDecks.basic;
+                      final heroLibrary = [];
+                      for (var i = 0; i < 8; ++i) {
+                        final affixData = GameData.generateBattleCardData();
+                        heroLibrary.add(affixData);
+                      }
 
-                      showDialog(
+                      // final enemyDeck = PresetDecks.random;
+                      // final enemyDeck = PrebuildDecks.basic;
+
+                      final List? heroDeck = await showDialog(
                         context: context,
                         builder: (context) => DeckBuildingOverlay(
                           deckSize: 4,
                           heroData: hero,
-                          enemyData: enemy,
                           heroLibrary: heroLibrary,
-                          enemyDeck: enemyDeck,
                         ),
                       );
+                      if (heroDeck != null) {
+                        final enemyDeck = [];
+                        for (var i = 0; i < 4; ++i) {
+                          final affixData = GameData.generateBattleCardData();
+                          final enemyBattleCard =
+                              GameData.createBattleCardByData(affixData);
+                        }
+                      }
                     },
                     child: Label(engine.locale('debugBattle'),
                         width: 200.0, textAlign: TextAlign.center),

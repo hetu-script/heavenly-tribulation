@@ -93,7 +93,7 @@ class CultivationScene extends Scene {
     _skillLevels[id] = current;
     final button = _skillButtons[id]!;
     _skillButtons[id]!.text = current.toString();
-    button.isDarkened = false;
+    button.isEnabled = false;
     // final current = _skillLevels[id];
     // if (current == null) {
     //   if (offset > 0) {
@@ -141,8 +141,8 @@ class CultivationScene extends Scene {
       position: Vector2(cultivator.center.x, cultivator.center.y - offset),
       movingUpOffset: 100,
       duration: duration,
-      textPaint: TextPaint(
-        style: TextStyle(
+      config: ScreenTextConfig(
+        textStyle: TextStyle(
           color: textColor ?? Colors.white,
           fontSize: 28,
           fontWeight: FontWeight.bold,
@@ -219,7 +219,7 @@ class CultivationScene extends Scene {
     levelDescription = TextComponent2(
       position: GameUI.levelDescriptionPosition,
       anchor: Anchor.center,
-      style: ScreenTextConfig(
+      config: ScreenTextConfig(
         textStyle: const TextStyle(
           color: Colors.white,
           fontSize: 16,
@@ -252,8 +252,8 @@ class CultivationScene extends Scene {
       Tooltip.show(
         scene: this,
         target: expBar,
-        preferredDirection: TooltipDirection.topLeft,
-        description: '${engine.locale('exp')}: ${heroData['exp']}\n'
+        direction: TooltipDirection.topLeft,
+        content: '${engine.locale('exp')}: ${heroData['exp']}\n'
             '${engine.locale('cultivationPointsNeededForNextLevel')}: ${expForLevel(level)}',
       );
     };
@@ -520,7 +520,7 @@ class CultivationScene extends Scene {
       hoverSpriteId: 'cultivation/deckbuilding/${genre}_hover.png',
       borderSpriteId: 'cultivation/talent_background.png',
       isVisible: false,
-      isEnabled: isEnabled,
+      isEnabled: _skillLevels[genre] == null || _skillLevels[genre] == 0,
       priority: 20,
       lightConfig: LightConfig(radius: 25),
       onTap: (buttons, position) {
@@ -531,11 +531,10 @@ class CultivationScene extends Scene {
         }
       },
       text: _skillLevels[genre]?.toString(),
-      textStyle: ScreenTextConfig(
+      textConfig: ScreenTextConfig(
         anchor: Anchor.bottomCenter,
         textStyle: const TextStyle(fontSize: 18),
       ),
-      isDarkened: _skillLevels[genre] == null || _skillLevels[genre] == 0,
     );
     _skillButtons[genre] = button;
     world.add(button);

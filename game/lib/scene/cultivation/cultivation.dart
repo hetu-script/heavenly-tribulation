@@ -120,7 +120,6 @@ class _CultivationOverlayState extends State<CultivationOverlay> {
                           _scene.leave(clearCache: true);
                           Navigator.of(context).pop();
                           engine.bgm.resume();
-                        default:
                       }
                     },
                   ),

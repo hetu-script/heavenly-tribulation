@@ -530,9 +530,10 @@ class _EntityListPanelState extends State<EntityListPanel>
                   Padding(
                     padding: const EdgeInsets.only(top: 5.0),
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         // final worldId = engine.hetu.invoke('getCurrentWorldId');
-                        InputWorldPositionDialog.show(
+                        final (int, int, String?)? value =
+                            await InputWorldPositionDialog.show(
                           context: context,
                           // maxX: _worldWidth,
                           // maxY: _worldHeight,
@@ -540,23 +541,21 @@ class _EntityListPanelState extends State<EntityListPanel>
                           defaultX: 1,
                           defaultY: 1,
                           enableWorldId: false,
-                        ).then(((int, int, String?)? value) {
-                          if (value == null) return;
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return LocationView(
-                                  mode: ViewPanelMode.create,
-                                  left: value.$1,
-                                  top: value.$2,
-                                );
-                              }).then((value) {
-                            if (value == null) return;
-                            engine.hetu
-                                .invoke('addLocation', positionalArgs: [value]);
-                            updateLocations();
-                          });
-                        });
+                        );
+                        if (!context.mounted || value == null) return;
+                        final loc = await showDialog(
+                            context: context,
+                            builder: (context) {
+                              return LocationView(
+                                mode: ViewPanelMode.create,
+                                left: value.$1,
+                                top: value.$2,
+                              );
+                            });
+                        if (loc == null) return;
+                        engine.hetu
+                            .invoke('addLocation', positionalArgs: [value]);
+                        updateLocations();
                       },
                       child: Text(engine.locale('createLocation')),
                     ),

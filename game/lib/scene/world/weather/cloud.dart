@@ -24,7 +24,7 @@ class AnimatedCloud extends GameComponent {
     velocity = 0.5 + random.nextDouble() * 2;
     duration = 20 + random.nextDouble() * 10;
     opacity = 0.4 + random.nextDouble() * 0.4;
-    paint = Paint()..color = Colors.white.withOpacity(opacity);
+    paint = Paint()..color = Colors.white.withAlpha((opacity * 255).round());
     priority = kCloudPriority;
   }
 

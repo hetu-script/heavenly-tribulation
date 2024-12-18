@@ -108,8 +108,8 @@ class _CardpacksViewState extends State<CardpacksView> {
               decoration: BoxDecoration(
                 color: kBackgroundColor,
                 borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-                border: Border.all(
-                    color: Theme.of(context).colorScheme.onBackground),
+                border:
+                    Border.all(color: Theme.of(context).colorScheme.onSurface),
               ),
               child: Scaffold(
                 appBar: AppBar(

@@ -119,7 +119,7 @@ function resetPlayerMonthlyActivities(){
 
 /// 创建新游戏，重置所有状态，返回game
 function newGame(saveName) {
-  engine.info('重置并准备开始新游戏')
+  engine.info('准备开始新游戏')
   game = Game(saveName: saveName)
 
   universe = Universe()

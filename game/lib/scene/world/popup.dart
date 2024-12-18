@@ -82,12 +82,12 @@ class WorldMapPopup extends StatelessWidget {
                 width: 120,
                 height: 120,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor.withOpacity(0.2),
+                  color: Theme.of(context).primaryColor.withAlpha(50),
                   border: Border.all(color: kForegroundColor),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
+                      color: Colors.grey.withAlpha(128),
                       spreadRadius: 3,
                       blurRadius: 6,
                       offset: const Offset(0, 2), // changes position of shadow
@@ -103,7 +103,7 @@ class WorldMapPopup extends StatelessWidget {
                     child: Tooltip(
                       message: engine.locale('moveTo'),
                       child: InkButton(
-                        color: kForegroundColor.withOpacity(0.5),
+                        color: kForegroundColor.withAlpha(128),
                         border: Border.all(
                           color: kForegroundColor,
                         ),
@@ -124,7 +124,7 @@ class WorldMapPopup extends StatelessWidget {
                     child: Tooltip(
                       message: engine.locale('interact'),
                       child: InkButton(
-                        color: kForegroundColor.withOpacity(0.5),
+                        color: kForegroundColor.withAlpha(128),
                         border: Border.all(
                           color: kForegroundColor,
                         ),
@@ -145,7 +145,7 @@ class WorldMapPopup extends StatelessWidget {
                     child: Tooltip(
                       message: engine.locale('enter'),
                       child: InkButton(
-                        color: kForegroundColor.withOpacity(0.5),
+                        color: kForegroundColor.withAlpha(128),
                         border: Border.all(
                           color: kForegroundColor,
                         ),
@@ -166,7 +166,7 @@ class WorldMapPopup extends StatelessWidget {
                     child: Tooltip(
                       message: engine.locale('explore'),
                       child: InkButton(
-                        color: kForegroundColor.withOpacity(0.5),
+                        color: kForegroundColor.withAlpha(128),
                         border: Border.all(
                           color: kForegroundColor,
                         ),
@@ -187,7 +187,7 @@ class WorldMapPopup extends StatelessWidget {
                     child: Tooltip(
                       message: engine.locale('meditate'),
                       child: InkButton(
-                        color: kForegroundColor.withOpacity(0.5),
+                        color: kForegroundColor.withAlpha(128),
                         border: Border.all(
                           color: kForegroundColor,
                         ),
@@ -208,7 +208,7 @@ class WorldMapPopup extends StatelessWidget {
                     child: Tooltip(
                       message: engine.locale('useMapSkill'),
                       child: InkButton(
-                        color: kForegroundColor.withOpacity(0.5),
+                        color: kForegroundColor.withAlpha(128),
                         border: Border.all(
                           color: kForegroundColor,
                         ),

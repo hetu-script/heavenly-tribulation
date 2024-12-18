@@ -103,7 +103,9 @@ class CharacterSelectDialog extends StatelessWidget {
             ),
           ).then((value) {
             if (value != null) {
-              Navigator.of(context).pop(value);
+              if (context.mounted) {
+                Navigator.of(context).pop(value);
+              }
             }
           }),
         ),

@@ -1,11 +1,11 @@
 import 'package:flutter/gestures.dart';
-import 'package:samsara/cardgame/zones/piled_zone.dart';
-import 'package:samsara/cardgame/card.dart';
+import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/gestures/gesture_mixin.dart';
 // import 'package:samsara/samsara.dart';
 import 'package:samsara/components.dart';
 import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
+import 'package:samsara/paint/paint.dart';
 
 import '../../../ui.dart';
 // import '../../../global.dart';
@@ -29,18 +29,18 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
           borderRadius: 20.0,
         ) {
     onDragIn = (int buttons, Vector2 position, GameComponent? component) {
-      if (component is! GameCard) return;
+      if (component is! CustomGameCard) return;
       if (cards.contains(component)) return;
 
       final index =
           ((position.x - _indent) / (GameUI.deckbuildingCardSize.y + _indent))
               .truncate();
 
-      gameRef.world.add(component);
+      // gameRef.world.add(component);
       if (addCard(component, index: index)) {
-        if (!unlimitedCardIds.contains(component.deckId)) {
-          library!.setCardEnabledById(component.id);
-        }
+        // if (!unlimitedCardIds.contains(component.deckId)) {
+        library!.setCardEnabledById(component.id, false);
+        // }
       }
     };
   }
@@ -55,10 +55,9 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     add(background);
   }
 
-  bool addCard(GameCard card, {int? index}) {
-    if (!unlimitedCardIds.contains(card.deckId) && containsCard(card.deckId)) {
-      return false;
-    }
+  bool addCard(CustomGameCard card, {int? index}) {
+    // if (!unlimitedCardIds.contains(card.deckId) && containsCard(card.deckId)) {
+    if (containsCard(card.deckId)) return false;
     if (cards.length >= limit) return false;
 
     // final card = c.clone();
@@ -67,6 +66,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
 
     card.enableGesture = true;
     card.onTapDown = (buttons, position) {
+      Tooltip.hide();
       card.priority = kDraggingCardPriority;
     };
     card.onTapUp = (buttons, position) {
@@ -75,6 +75,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
         card.removeFromPile();
       }
     };
+    card.onDragStart = (buttons, dragPosition) => card;
     card.onDragUpdate = (buttons, offset) {
       card.position += offset;
     };
@@ -84,6 +85,20 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
               .truncate();
 
       reorderCard(card.index, dragToIndex);
+    };
+
+    card.onMouseEnter = () {
+      Tooltip.show(
+        scene: game,
+        target: card,
+        direction: TooltipDirection.rightTop,
+        content: card.extraDescription,
+        config: ScreenTextConfig(anchor: Anchor.topCenter),
+      );
+    };
+
+    card.onMouseExit = () {
+      Tooltip.hide();
     };
 
     placeCard(card, index: index);
