@@ -119,7 +119,6 @@ class _CultivationOverlayState extends State<CultivationOverlay> {
                         case CultivationDropMenuItems.quit:
                           _scene.leave(clearCache: true);
                           Navigator.of(context).pop();
-                          engine.bgm.resume();
                       }
                     },
                   ),

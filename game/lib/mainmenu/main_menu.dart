@@ -12,7 +12,7 @@ import 'package:samsara/ui/loading_screen.dart';
 import 'package:samsara/ui/label.dart';
 import 'package:samsara/console.dart';
 // import 'package:video_player_win/video_player_win.dart';
-// import 'package:samsara/cardgame/card.dart';
+import 'package:samsara/cardgame/card.dart';
 
 import '../dialog/game_dialog/game_dialog.dart';
 // import '../pages/map/maze/maze_overlay.dart';
@@ -38,6 +38,9 @@ import '../dialog/game_dialog/game_dialog_controller.dart';
 import '../state/states.dart';
 import '../scene/cultivation/cultivation.dart';
 import '../scene/cultivation/components/cultivation.dart';
+import '../scene/battle/battle.dart';
+
+const kMainMenuBGM = 'chinese-oriental-tune-06-12062.mp3';
 
 class MainMenu extends StatefulWidget {
   const MainMenu({super.key});
@@ -46,15 +49,67 @@ class MainMenu extends StatefulWidget {
   State<MainMenu> createState() => _MainMenuState();
 }
 
-class _MainMenuState extends State<MainMenu> {
+class _MainMenuState extends State<MainMenu> with RouteAware {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
+  }
   // late File _videoFile;
   // late WinVideoPlayerController _videoController;
 
   bool _isLoading = false;
 
+  void _playBGM() {
+    if (engine.isBGMPlaying) {
+      engine.stopBGM();
+    }
+    if (engine.currentBGMName == kMainMenuBGM) {
+      engine.resumeBGM();
+    } else {
+      engine.playBGM(kMainMenuBGM, volume: GameConfig.musicVolume);
+    }
+  }
+
+  // Route was pushed onto navigator and is now topmost route.
+  @override
+  void didPush() {
+    _playBGM();
+  }
+
+  // Covering route was popped off the navigator.
+  @override
+  void didPopNext() {
+    _playBGM();
+  }
+
+  /// Called when the current route has been popped off.
+  @override
+  void didPop() {
+    engine.pauseBGM();
+  }
+
+  /// Called when a new route has been pushed, and the current route is no
+  /// longer visible.
+  @override
+  void didPushNext() {
+    engine.pauseBGM();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    engine.removeEventListener(widget.key!);
+    routeObserver.unsubscribe(this);
+    // _videoController.dispose();
+    engine.disposeBGM();
+  }
+
   @override
   void initState() {
     super.initState();
+
+    engine.initBGM();
 
     // TODO: 读取游戏配置
 
@@ -127,33 +182,18 @@ class _MainMenuState extends State<MainMenu> {
       );
     });
 
-    engine.registerSceneConstructor('cardGame', ([dynamic data]) async {
+    engine.registerSceneConstructor('cardBattle', ([dynamic data]) async {
       return BattleScene(
         context: context,
         controller: engine,
         id: data['id'],
         heroData: data['heroData'],
         enemyData: data['enemyData'],
-        heroCards: data['heroCards'],
-        enemyCards: data['enemyCards'],
+        heroDeck: data['heroDeck'],
+        enemyDeck: data['enemyDeck'],
         isSneakAttack: data['isSneakAttack'],
       );
     });
-
-    engine.bgm.initialize();
-    engine.loop('chinese-oriental-tune-06-12062.mp3',
-        volume: GameConfig.musicVolume);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    engine.removeEventListener(widget.key!);
-
-    // _videoController.dispose();
-
-    // engine.bgm.stop();
-    engine.bgm.dispose();
   }
 
   // 因为 FutureBuilder 根据返回值是否为null来判断，因此这里无论如何要返回一个值
@@ -255,6 +295,17 @@ class _MainMenuState extends State<MainMenu> {
         namedArgs: mainConfig,
         isMainMod: true,
       );
+
+      for (final key in GameConfig.modules.keys) {
+        if (GameConfig.modules[key]?['enabled'] == true) {
+          if (GameConfig.modules[key]?['preinclude'] == true) {
+            engine.loadModFromAssetsString(
+              '$key/main.ht',
+              module: key,
+            );
+          }
+        }
+      }
     } else {
       final game = await rootBundle.load('assets/mods/game.mod');
       final gameBytes = game.buffer.asUint8List();
@@ -264,6 +315,19 @@ class _MainMenuState extends State<MainMenu> {
         namedArgs: mainConfig,
         isMainMod: true,
       );
+
+      for (final key in GameConfig.modules.keys) {
+        if (GameConfig.modules[key]?['enabled'] == true) {
+          if (GameConfig.modules[key]?['preinclude'] == true) {
+            final mod = await rootBundle.load('assets/mods/$key.mod');
+            final modBytes = mod.buffer.asUint8List();
+            engine.loadModFromBytes(
+              modBytes,
+              moduleName: key,
+            );
+          }
+        }
+      }
     }
 
     // 载入动画，卡牌等纯JSON格式的游戏数据
@@ -285,8 +349,9 @@ class _MainMenuState extends State<MainMenu> {
     // });
     // _videoController.setLooping(true);
 
-    // 创建一个空游戏数据，这主要是为了主菜单的测试游戏和debug相关功能，并不会保存
-    engine.hetu.invoke('newGame');
+    // 创建一个空游戏存档并初始化一些数据，这主要是为了主菜单的测试游戏和debug相关功能，并不会保存
+    // 真正开始游戏后还会在执行一遍，因为每次newGame都会清空Game上的数据
+    await GameData.newGame('mainmenu_temp');
 
     _isLoading = false;
     setState(() {});
@@ -305,13 +370,11 @@ class _MainMenuState extends State<MainMenu> {
     return FutureBuilder(
       future: _prepareData(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data == false) {
-          if (snapshot.hasError) {
-            throw Exception('${snapshot.error}\n${snapshot.stackTrace}');
-          }
+        if (snapshot.hasError) {
+          throw Exception('${snapshot.error}\n${snapshot.stackTrace}');
+        } else if (!snapshot.hasData || snapshot.data == false) {
           return LoadingScreen(
             text: engine.isInitted ? engine.locale('loading') : 'Loading...',
-            showClose: snapshot.hasError,
           );
         } else {
           final menus = <Widget>[];
@@ -398,19 +461,20 @@ class _MainMenuState extends State<MainMenu> {
                       context
                           .read<MainMenuState>()
                           .setState(MainMenuStates.main);
-                      engine.bgm.pause();
-                      showDialog(
-                        context: context,
-                        builder: (context) => WorldOverlay(
-                          args: const {
-                            'id': 'cave',
-                            'path': 'tutorial',
-                            'method': 'preset',
-                          },
+                      Navigator.of(context)
+                          .push(
+                        MaterialPageRoute(
+                          builder: (context) => WorldOverlay(
+                            args: const {
+                              'id': 'cave',
+                              'path': 'tutorial',
+                              'method': 'preset',
+                            },
+                          ),
                         ),
-                      ).then((_) {
+                      )
+                          .then((_) {
                         GameData.isGameCreated = false;
-                        engine.bgm.resume();
                       });
                     },
                     child: Label(
@@ -444,13 +508,15 @@ class _MainMenuState extends State<MainMenu> {
                           context
                               .read<MainMenuState>()
                               .setState(MainMenuStates.main);
-                          engine.bgm.pause();
-                          showDialog(
-                            context: context,
-                            builder: (context) => WorldOverlay(args: args),
-                          ).then((_) {
+
+                          Navigator.of(context)
+                              .push(
+                            MaterialPageRoute(
+                              builder: (context) => WorldOverlay(args: args),
+                            ),
+                          )
+                              .then((_) {
                             GameData.isGameCreated = false;
-                            engine.bgm.resume();
                           });
                         }
                       });
@@ -475,19 +541,21 @@ class _MainMenuState extends State<MainMenu> {
                           context
                               .read<MainMenuState>()
                               .setState(MainMenuStates.main);
-                          engine.bgm.pause();
-                          showDialog(
-                            context: context,
-                            builder: (context) => WorldOverlay(
-                              args: {
-                                'id': info.currentWorldId,
-                                'path': info.savePath,
-                                'method': 'load',
-                              },
+
+                          Navigator.of(context)
+                              .push(
+                            MaterialPageRoute(
+                              builder: (context) => WorldOverlay(
+                                args: {
+                                  'id': info.currentWorldId,
+                                  'path': info.savePath,
+                                  'method': 'load',
+                                },
+                              ),
                             ),
-                          ).then((_) {
+                          )
+                              .then((_) {
                             GameData.isGameCreated = false;
-                            engine.bgm.resume();
                           });
                         }
                       });
@@ -531,14 +599,16 @@ class _MainMenuState extends State<MainMenu> {
                           context
                               .read<MainMenuState>()
                               .setState(MainMenuStates.main);
-                          engine.bgm.pause();
-                          showDialog(
-                            context: context,
-                            builder: (context) =>
-                                WorldEditorOverlay(args: value),
-                          ).then((_) {
+
+                          Navigator.of(context)
+                              .push(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  WorldEditorOverlay(args: value),
+                            ),
+                          )
+                              .then((_) {
                             GameData.isGameCreated = false;
-                            engine.bgm.resume();
                           });
                         }
                       });
@@ -563,20 +633,22 @@ class _MainMenuState extends State<MainMenu> {
                           context
                               .read<MainMenuState>()
                               .setState(MainMenuStates.main);
-                          engine.bgm.pause();
-                          showDialog(
-                            context: context,
-                            builder: (context) => WorldEditorOverlay(
-                              args: {
-                                'id': info.currentWorldId,
-                                'method': 'load',
-                                'path': info.savePath,
-                                'isEditorMode': true,
-                              },
+
+                          Navigator.of(context)
+                              .push(
+                            MaterialPageRoute(
+                              builder: (context) => WorldEditorOverlay(
+                                args: {
+                                  'id': info.currentWorldId,
+                                  'method': 'load',
+                                  'path': info.savePath,
+                                  'isEditorMode': true,
+                                },
+                              ),
                             ),
-                          ).then((_) {
+                          )
+                              .then((_) {
                             GameData.isGameCreated = false;
-                            engine.bgm.resume();
                           });
                         }
                       });
@@ -614,7 +686,6 @@ class _MainMenuState extends State<MainMenu> {
                       context
                           .read<MainMenuState>()
                           .setState(MainMenuStates.main);
-                      engine.bgm.pause();
 
                       final hero = engine.hetu.invoke('Character', namedArgs: {
                         'unconvertedExp': 500,
@@ -627,13 +698,12 @@ class _MainMenuState extends State<MainMenu> {
 
                       // engine.hetu.invoke('acquireByIds');
 
-                      showDialog(
-                        context: context,
-                        builder: (context) =>
-                            CultivationOverlay(heroData: hero),
-                      ).then((value) {
-                        engine.bgm.resume();
-                      });
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              CultivationOverlay(heroData: hero),
+                        ),
+                      );
                     },
                     child: Label(
                       engine.locale('debugCultivation'),
@@ -649,7 +719,6 @@ class _MainMenuState extends State<MainMenu> {
                       context
                           .read<MainMenuState>()
                           .setState(MainMenuStates.main);
-                      engine.bgm.pause();
 
                       final hero = engine.hetu.invoke('Character', namedArgs: {
                         'isMajorCharacter': false,
@@ -666,28 +735,46 @@ class _MainMenuState extends State<MainMenu> {
                         // 'skin': 'boar',
                       });
                       final heroLibrary = [];
-                      for (var i = 0; i < 8; ++i) {
-                        final affixData = GameData.generateBattleCardData();
-                        heroLibrary.add(affixData);
+                      for (var i = 0; i < 16; ++i) {
+                        final cardData = engine.hetu.invoke('BattleCard');
+                        heroLibrary.add(cardData);
+                      }
+                      final enemyDeck = <GameCard>[];
+                      for (var i = 0; i < 4; ++i) {
+                        final cardData = engine.hetu.invoke('BattleCard');
+                        final enemyBattleCard =
+                            GameData.createBattleCardByData(cardData);
+                        enemyDeck.add(enemyBattleCard);
                       }
 
                       // final enemyDeck = PresetDecks.random;
                       // final enemyDeck = PrebuildDecks.basic;
 
-                      final List? heroDeck = await showDialog(
-                        context: context,
-                        builder: (context) => DeckBuildingOverlay(
-                          deckSize: 4,
-                          heroData: hero,
-                          heroLibrary: heroLibrary,
+                      final List<GameCard>? heroDeck =
+                          await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => DeckBuildingOverlay(
+                            deckSize: 4,
+                            heroData: hero,
+                            heroLibrary: heroLibrary,
+                          ),
                         ),
                       );
+
                       if (heroDeck != null) {
-                        final enemyDeck = [];
-                        for (var i = 0; i < 4; ++i) {
-                          final affixData = GameData.generateBattleCardData();
-                          final enemyBattleCard =
-                              GameData.createBattleCardByData(affixData);
+                        if (context.mounted) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => BattleSceneOverlay(
+                                key: UniqueKey(),
+                                heroData: hero,
+                                enemyData: enemy,
+                                heroDeck: heroDeck,
+                                enemyDeck: enemyDeck,
+                                isSneakAttack: false,
+                              ),
+                            ),
+                          );
                         }
                       }
                     },

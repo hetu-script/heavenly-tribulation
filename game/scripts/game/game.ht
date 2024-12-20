@@ -152,8 +152,8 @@ function addModule(module) {
   engine.info('添加模组元信息 [${module.id}(ver-${module.version})]...')
 
   assert(module.id != null)
-  // 因为绑定事件处理函数在前，所以模组列表中应该已经有这个id
-  assert(game.modules.containsKey(module.id))
+  // assert(game.modules.containsKey(module.id))
+  game.modules[module.id] ??= {}
   Object.assign(game.modules[module.id], module)
 }
 

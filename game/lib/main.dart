@@ -70,7 +70,7 @@ void main() {
     await windowManager.setMaximizable(false);
     await windowManager.setResizable(false);
     const windowSize = Size(1440.0, 900.0);
-    windowManager.waitUntilReadyToShow(
+    await windowManager.waitUntilReadyToShow(
         const WindowOptions(
           title: 'Heavenly Tribulation',
           // fullScreen: true,
@@ -99,6 +99,7 @@ void main() {
           ChangeNotifierProvider(create: (_) => HeroState()),
         ],
         child: MaterialApp(
+          navigatorObservers: [routeObserver],
           scrollBehavior: DesktopScrollBehavior(),
           debugShowCheckedModeBanner: false,
           theme: GameConfig.appTheme,

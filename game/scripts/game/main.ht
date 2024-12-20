@@ -1,8 +1,9 @@
 export 'binding/battle_character.ht'
 export 'binding/player.ht'
 export 'binding/worldmap.ht'
-export 'cardgame/card.ht'
-export 'cardgame/status_effect.ht'
+export 'cardbattle/card.ht'
+export 'cardbattle/card_script.ht'
+export 'cardbattle/status_script.ht'
 export 'entity/entity.ht'
 export 'incident.ht'
 export 'entity/character/character.ht'
@@ -29,19 +30,23 @@ export 'game.ht'
 export 'random.ht'
 export 'update.ht'
 export 'util.ht'
+export 'common.ht'
 
 const coreScriptModuleVersion = '0.0.1'
 
 /// Initialize the core script module.
-/// Only run once when game is created.
-function init({itemsData}) {
-  engine.info('游戏核心脚本(ver-${coreScriptModuleVersion})初始化...')
-  
+/// Only run once when a new game is created
+function init({
+  itemsData,
+  battleCardMainAffixesData,
+  battleCardSupportAffixesData,
+}) {
   loadPredefinedItems()
   addItemsData(itemsData)
+  addBattleCardAffixesData(battleCardMainAffixesData, battleCardSupportAffixesData)
 }
 
-/// Run every time the game is loaded.
-function main {
-  
+/// Run every time game starts
+function main() {
+  engine.info('[核心]游戏脚本(ver-${coreScriptModuleVersion})初始化...')
 }

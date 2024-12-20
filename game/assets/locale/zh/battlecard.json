@@ -1,14 +1,26 @@
 {
-  "battleCardType.attack": "攻击",
-  "battleCardType.buff": "加持",
-  "battleCardType.special": "特殊",
+  "extraAffix": "额外词条",
 
-  "battleCard.attack_sword_1.name": "无名剑法·攻",
-  "battleCard.attack_sword_1.description": "普通攻击：造成 {0} 点伤害",
-  "battleCard.defend_sword_1.name": "无名剑法·守",
-  "battleCard.defend_sword_1.description": "防御 + {0}",
-  "battleCard.restore_life_1.name": "疗伤术",
-  "battleCard.restore_life_1.description": "生命 + {0}",
-  "battleCard.restore_mana_1.name": "基础气功",
-  "battleCard.restore_mana_1.description": "灵气 + {0}"
+  "battleCardKind.wrestling": "擒拿",
+  "battleCardKind.fist": "拳法",
+  "battleCardKind.leg": "腿法",
+  "battleCardKind.sword": "剑法",
+  "battleCardKind.sabre": "刀法",
+  "battleCardKind.spear": "枪法",
+  "battleCardKind.staff": "棍法",
+  "battleCardKind.swift": "轻功",
+  "battleCardKind.qi": "内功",
+  "battleCardKind.buff": "心法",
+  "battleCardKind.spell": "法术",
+
+  "battleCard.attack_sword.description": "剑攻击：造成 {0} 点伤害",
+  "battleCard.attack_fist.description": "拳头攻击：造成 {0} 点伤害",
+  "battleCard.defend_sword.description": "防御 + {0}",
+  "battleCard.defend_fist.description": "防御 + {0}",
+  "battleCard.swift.description": "速度 + {0}\n闪避 + {1}",
+
+  "battleCard.extra_damage_after_attack.description": "攻击后额外造成{0}点伤害",
+  "battleCard.defend.description": "防御 + {0}",
+  "battleCard.speed.description": "速度 + {0}",
+  "battleCard.dodge.description": "闪避 + {0}"
 }

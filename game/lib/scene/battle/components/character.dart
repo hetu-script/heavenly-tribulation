@@ -23,17 +23,22 @@ const String kDefeatState = 'defeat';
 const String kStandState = 'stand';
 const String kHitState = 'hit';
 const String kHitRecoveryState = 'hit_recovery';
-const String kNormalAttackState = 'attack_normal';
-const String kNormalAttackRecoveryState = 'attack_normal_recovery';
-const String kNormalDefendState = 'defend_normal';
+const String kDodgeState = 'dodge';
+const String kDodgeRecoveryState = 'dodge_recovery';
+const String kAttackSwordState = 'attack_sword';
+const String kAttackSwordRecoveryState = 'attack_sword_recovery';
+const String kDefendSwordState = 'defend_sword';
+const String kAttackFistState = 'attack_fist';
+const String kAttackFistRecoveryState = 'attack_fist_recovery';
+const String kDefendFistState = 'defend_fist';
 const Set<String> kPreloadAnimationStates = {
   kDefeatState,
   kStandState,
   kHitState,
   kHitRecoveryState,
-  kNormalAttackState,
-  kNormalAttackRecoveryState,
-  kNormalDefendState,
+  kAttackFistState,
+  kAttackFistRecoveryState,
+  kDefendFistState,
 };
 
 enum StatusEffectType {
@@ -55,7 +60,7 @@ class StatusEffect extends BorderComponent with HandlesGesture {
     outlined: true,
     textStyle: TextStyle(
       color: Colors.white,
-      fontSize: 12.0,
+      fontSize: 10.0,
       fontWeight: FontWeight.bold,
     ),
   );
@@ -65,6 +70,8 @@ class StatusEffect extends BorderComponent with HandlesGesture {
   late final Sprite sprite;
 
   int amount;
+
+  late bool allowNegative;
 
   late final int effectPriority;
 
@@ -89,10 +96,12 @@ class StatusEffect extends BorderComponent with HandlesGesture {
     super.anchor,
     super.priority,
   }) {
+    assert(amount >= 1);
     assert(GameData.statusEffectsData.containsKey(id));
     final data = GameData.statusEffectsData[id];
     type = getStatusEffectType(data['type']);
     isUnique = data['unique'] ?? false;
+    allowNegative = data['allowNegative'] ?? false;
     effectPriority = data['priority'] ?? 0;
     size = isPermenant
         ? GameUI.permenantStatusEffectIconSize
@@ -129,9 +138,7 @@ class StatusEffect extends BorderComponent with HandlesGesture {
   @override
   void render(Canvas canvas) {
     sprite.render(canvas, size: size);
-    if (amount > 1) {
-      drawScreenText(canvas, '$amount', config: countTextConfig);
-    }
+    drawScreenText(canvas, '$amount', config: countTextConfig);
   }
 }
 
@@ -190,19 +197,19 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     return els;
   }
 
-  final BattleDeck deckZone;
+  final BattleDeckZone deckZone;
 
   final Set<String> _turnFlags = {};
   setTurnFlag(String id) => _turnFlags.add(id);
   hasTurnFlag(String id) => _turnFlags.contains(id);
   removeTurnFlag(String id) => _turnFlags.remove(id);
-  clearTurnFlag() => _turnFlags.clear();
+  clearAllTurnFlags() => _turnFlags.clear();
 
   final Set<String> _gameFlags = {};
   setGameFlag(String id) => _gameFlags.add(id);
   hasGameFlag(String id) => _gameFlags.contains(id);
   removeGameFlag(String id) => _gameFlags.remove(id);
-  clearGameFlag() => _gameFlags.clear();
+  clearAllGameFlags() => _gameFlags.clear();
 
   BattleCharacter({
     super.position,
@@ -284,7 +291,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     currentAnimation.update(dt);
   }
 
-  bool hasStatusEffect(String id) => _statusEffects.containsKey(id);
+  int hasStatusEffect(String id) {
+    if (_statusEffects.containsKey(id)) {
+      return _statusEffects[id]!.amount;
+    } else {
+      return 0;
+    }
+  }
 
   /// 永久效果位置在卡组上方
   void reArrangePermenantEffects() {
@@ -330,7 +343,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
   }
 
-  void clearStatusEffects() {
+  void clearAllStatusEffects() {
     for (final effect in _statusEffects.values) {
       effect.removeFromParent();
     }
@@ -338,21 +351,21 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     _statusEffects.clear();
   }
 
+  void removeEffect(StatusEffect effect) {
+    effect.removeFromParent();
+    _statusEffects.remove(effect.id);
+
+    if (effect.isPermenant) {
+      reArrangePermenantEffects();
+    } else {
+      reArrangeNonPermenantEffects();
+    }
+  }
+
   /// 返回要移除的数量大于效果数量的差额
   /// 例如10攻打在5防上，差额5，意味着移除全部防之后，还有5点伤害需要处理
   int removeStatusEffect(String id, {int? amount, double? percentage}) {
     int diff = 0;
-
-    void removeAll(StatusEffect effect) {
-      effect.removeFromParent();
-      _statusEffects.remove(effect.id);
-
-      if (effect.isPermenant) {
-        reArrangePermenantEffects();
-      } else {
-        reArrangeNonPermenantEffects();
-      }
-    }
 
     if (_statusEffects.containsKey(id)) {
       final effect = _statusEffects[id]!;
@@ -362,37 +375,58 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         diff = amount - effect.amount;
         if (diff < 0) {
           effect.amount = -diff;
+        } else if (diff == 0) {
+          removeEffect(effect);
         } else {
-          removeAll(effect);
+          if (effect.allowNegative) {
+            // 某些效果允许负值存在
+            effect.amount = -diff;
+          } else {
+            removeEffect(effect);
+          }
         }
       } else if (percentage != null) {
         assert(!effect.isPermenant);
         assert(percentage > 0 && percentage < 1);
         effect.amount -= (effect.amount * percentage).truncate();
         if (effect.amount == 0) {
-          removeAll(effect);
+          removeEffect(effect);
         }
       } else {
-        removeAll(effect);
+        removeEffect(effect);
       }
     }
-    return diff > 0 ? diff : 0;
+    return diff;
   }
 
-  void addStatusEffect(String id, {int count = 1}) {
-    assert(count > 0);
+  void addStatusEffect(String id, {int count = 1, bool playSound = true}) {
+    // 数量可以是大于0或者小于0
+    assert(count != 0);
     StatusEffect effect;
     if (_statusEffects.containsKey(id)) {
+      int newVal = 0;
+
       effect = _statusEffects[id]!;
       if (effect.isUnique) return;
 
-      effect.amount += count;
+      newVal = effect.amount + count;
 
-      if (effect.soundId != null) {
-        engine.play('${effect.soundId}', volume: GameConfig.soundEffectVolume);
+      if (newVal > 0) {
+        effect.amount = newVal;
+      } else if (newVal == 0) {
+        removeEffect(effect);
+      } else {
+        if (effect.allowNegative) {
+          // 某些效果允许负值存在
+          effect.amount = newVal;
+        } else {
+          removeEffect(effect);
+        }
       }
 
-      return;
+      if (playSound && effect.soundId != null) {
+        engine.play('${effect.soundId}', volume: GameConfig.soundEffectVolume);
+      }
     } else {
       effect = StatusEffect(
         priority: 4000,
@@ -403,7 +437,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       gameRef.world.add(effect);
       _statusEffects[id] = effect;
 
-      if (effect.soundId != null) {
+      if (playSound && effect.soundId != null) {
         engine.play('${effect.soundId}', volume: GameConfig.soundEffectVolume);
       }
     }
@@ -420,8 +454,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     void invokeScript(StatusEffect effect) {
       args!['amount'] = effect.amount;
       engine.hetu.invoke(
-        '${effect.id}_$callbackId',
-        namespace: 'StatusEffect',
+        'status_script_${effect.id}_$callbackId',
         positionalArgs: [this, opponent, args],
         ignoreUndefined: true, // 如果不存在对应callback就跳过
       );
@@ -459,7 +492,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     life = lifeMax;
     mana = 0;
     setState('stand');
-    clearStatusEffects();
+    clearAllStatusEffects();
     _turnFlags.clear();
   }
 
@@ -547,18 +580,16 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
   }
 
-  Future<void> setSpellState({String? state}) async {
-    state ??= 'normal';
+  Future<void> setSpellState([String? state]) async {
+    state ??= 'default';
     await setState('spell_$state', resetOnComplete: kStandState);
   }
 
-  Future<void> setDefendState({String? state}) async {
-    state ??= 'normal';
+  Future<void> setDefendState(String state) async {
     await setState('defend_$state', resetOnComplete: kStandState);
   }
 
-  Future<void> setAttackState({String? state}) async {
-    state ??= 'normal';
+  Future<void> setAttackState(String state) async {
     final savedPriority = priority;
     priority = kTopLayerAnimationPriority;
     final recoveryAnimationId = 'attack_${state}_recovery';
@@ -576,29 +607,31 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     priority = savedPriority;
   }
 
-  void _handleDamageCallback(
-      String damageType, int damage, Map<String, dynamic> args) {
+  int _handleDamage(String damageType, int damage, Map<String, dynamic> args) {
     assert(damage > 0);
     switch (damageType) {
-      case DamageType.weapon:
+      case DamageType.blade:
         args['damage'] += opponent!.weaponAttack;
-        // 触发对方发动武器攻击的效果
-        opponent!.handleEffectCallback('self_weapon_attacking', args);
-        // 触发自己被武器攻击的效果
-        handleEffectCallback('self_weapon_attacked', args);
       default:
     }
-  }
 
-  int _handleDamage(String damageType, int damage, Map<String, dynamic> args) {
-    _handleDamageCallback(damageType, damage, args);
+    // 触发自己受到伤害时的效果
+    handleEffectCallback('self_taking_damage', args);
+    // 触发对方造成伤害时的效果
+    opponent!.handleEffectCallback('self_damaging', args);
 
     if (args['blocked'] ?? false) {
       engine.play('shield-block-shortsword-143940.mp3',
           volume: GameConfig.soundEffectVolume);
     } else {
-      engine.play('sword-sound-2-36274.mp3',
-          volume: GameConfig.soundEffectVolume);
+      switch (damageType) {
+        case 'blade':
+          engine.play('sword-sound-2-36274.mp3',
+              volume: GameConfig.soundEffectVolume);
+        case 'punchkick':
+          engine.play('punch-or-kick-sound-effect-1-239696.mp3',
+              volume: GameConfig.soundEffectVolume);
+      }
     }
 
     int d = args['damage'];
@@ -625,17 +658,17 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     assert(damage != null ||
         (multipleDamages != null && multipleDamages.isNotEmpty));
 
-    int d = 0;
+    int finalDamage = 0;
     Map<String, dynamic> args = {};
     if (damage != null) {
       args['damage'] = damage;
-      d = _handleDamage(damageType, damage, args);
+      finalDamage = _handleDamage(damageType, damage, args);
     } else if (multipleDamages != null) {
       for (var i = 0; i < multipleDamages.length; ++i) {
         final curDmg = multipleDamages[i];
         Future.delayed(Duration(milliseconds: 500 * i), () {
           args['damage'] = curDmg;
-          d = _handleDamage(damageType, curDmg, args);
+          finalDamage = _handleDamage(damageType, curDmg, args);
         });
       }
     }
@@ -643,7 +676,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     if (args['blocked'] ?? false) {
       // 这里不能用await，动画会卡住
       setState(
-        kNormalDefendState,
+        kDefendFistState,
         resetOnComplete: kStandState,
       );
     } else {
@@ -654,30 +687,59 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       );
     }
 
-    return d;
+    return finalDamage;
   }
 
-  void onTurnStart() {
+  Future<void> onTurnStart(GameCard card) async {
     handleEffectCallback('self_turn_start');
+
     opponent!.handleEffectCallback('opponent_turn_start');
+
+    final affixes = card.data['affixes'];
+    assert(affixes is List && affixes.isNotEmpty);
+    final mainAffix = affixes[0];
+
+    final genre = mainAffix['genre'];
+    handleEffectCallback('self_use_card_genre_$genre');
+    // final tags = mainAffix['tags'];
+    // assert(tags is List);
+    // for (final tag in tags) {
+    //   handleEffectCallback('self_use_card_tag_$tag');
+    // }
+
+    if (mainAffix['category'] == 'attack') {
+      // 触发自己发动攻击时的效果
+      handleEffectCallback('self_attacking');
+      // 触发对方被发动攻击时的效果
+      opponent!.handleEffectCallback('self_being_attack');
+    }
+
+    // 先处理额外词条，其中可能包含一些当前回合就立即起作用的效果
+    for (var i = 1; i < affixes.length; ++i) {
+      final affix = affixes[i];
+      await engine.hetu.invoke(
+        'card_script_${affix['script']}',
+        positionalArgs: [this, opponent, affix],
+      );
+    }
+
+    // 最后再处理主词条
+    await engine.hetu.invoke(
+      'card_script_${affixes[0]['script']}',
+      positionalArgs: [this, opponent, affixes[0]],
+    );
+
+    if (mainAffix['category'] == 'attack') {
+      // 触发自己发动攻击后的效果
+      handleEffectCallback('self_attacked');
+      // 触发对方被发动攻击后的效果
+      opponent!.handleEffectCallback('self_be_attacked');
+    }
   }
 
-  void onTurnEnd() {
+  void onTurnEnd(GameCard card) {
     handleEffectCallback('self_turn_end');
     opponent!.handleEffectCallback('opponent_turn_end');
-    clearTurnFlag();
-  }
-
-  void onBeforeUseCard(GameCard card) {
-    final genres = card.data['genre'];
-    assert(genres is List);
-    for (final genre in genres) {
-      handleEffectCallback('self_use_card_genre_$genre');
-    }
-    final tags = card.data['tags'];
-    assert(tags is List);
-    for (final tag in tags) {
-      handleEffectCallback('self_use_card_tag_$tag');
-    }
+    clearAllTurnFlags();
   }
 }

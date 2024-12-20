@@ -1,8 +1,40 @@
 {
   // 每一个皮肤有一套自己单独的动画
   default: {
+    stand: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.7,
+      loop: true,
+    },
     defeat: {
       // offset：代表绘制时的位置。(0,0)代表英雄默认图片的位置
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.09,
+      loop: false,
+    },
+    dodge: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.15,
+      loop: false,
+    },
+    dodge_recovery: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.15,
+      loop: false,
+    },
+    defend_fist: {
       offsetX: 0,
       offsetY: 0,
       width: 80.0,
@@ -16,22 +48,6 @@
       width: 80.0,
       height: 112.0,
       stepTime: 0.09,
-      loop: false,
-    },
-    dodge_normal: {
-      offsetX: 0,
-      offsetY: 0,
-      width: 80.0,
-      height: 112.0,
-      stepTime: 0.15,
-      loop: false,
-    },
-    dodge_normal_recovery: {
-      offsetX: 0,
-      offsetY: 0,
-      width: 80.0,
-      height: 112.0,
-      stepTime: 0.15,
       loop: false,
     },
     attack_sword: {
@@ -50,13 +66,21 @@
       stepTime: 0.09,
       loop: false,
     },
-    stand: {
+    attack_fist: {
       offsetX: 0,
       offsetY: 0,
-      width: 80.0,
+      width: 288.0,
       height: 112.0,
-      stepTime: 0.7,
-      loop: true,
+      stepTime: 0.07,
+      loop: false,
+    },
+    attack_fist_recovery: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 288.0,
+      height: 112.0,
+      stepTime: 0.09,
+      loop: false,
     },
     hit: {
       offsetX: 0,
@@ -90,7 +114,7 @@
       stepTime: 0.09,
       loop: false,
     },
-    spell_normal: {
+    spell_default: {
       offsetX: 0,
       offsetY: 0,
       width: 80.0,

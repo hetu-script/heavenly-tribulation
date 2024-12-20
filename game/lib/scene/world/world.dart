@@ -122,9 +122,9 @@ class WorldMapScene extends Scene {
   }
 
   /// start & end are flame game canvas world position.
-  void useMapSkillBlade(Vector2 start, Vector2 end) {
-    final bladeAnim = FlyingSword(start: start, end: end);
-    map.add(bladeAnim);
+  void useMapSkillFlyingSword(Vector2 start, Vector2 end) {
+    final swordAnim = FlyingSword(start: start, end: end);
+    map.add(swordAnim);
   }
 
   @override

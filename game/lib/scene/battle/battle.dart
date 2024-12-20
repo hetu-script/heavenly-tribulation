@@ -19,13 +19,13 @@ class BattleSceneOverlay extends StatefulWidget {
     required super.key,
     required this.heroData,
     required this.enemyData,
-    required this.heroCards,
-    required this.enemyCards,
+    required this.heroDeck,
+    required this.enemyDeck,
     required this.isSneakAttack,
   });
 
   final dynamic heroData, enemyData;
-  final List<GameCard> heroCards, enemyCards;
+  final List<GameCard> heroDeck, enemyDeck;
 
   final bool isSneakAttack;
 
@@ -73,14 +73,14 @@ class _BattleSceneOverlayState extends State<BattleSceneOverlay> {
   Future<Scene?> _getScene() async {
     final id = 'cardgame_${randomUID()}';
     final scene = await engine.createScene(
-      contructorKey: 'cardGame',
+      contructorKey: 'cardBattle',
       sceneId: id,
       arg: {
         'id': id,
         'heroData': widget.heroData,
         'enemyData': widget.enemyData,
-        'heroCards': widget.heroCards,
-        'enemyCards': widget.enemyCards,
+        'heroDeck': widget.heroDeck,
+        'enemyDeck': widget.enemyDeck,
         'isSneakAttack': widget.isSneakAttack,
       },
     );
@@ -163,6 +163,7 @@ class _BattleSceneOverlayState extends State<BattleSceneOverlay> {
                           ).then((_) => setState(() {}));
                         case BattleDropMenuItems.quit:
                           close();
+                          engine.stopBGM();
                       }
                     },
                   ),

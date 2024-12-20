@@ -10,12 +10,12 @@ import 'battle_entity.ht'
 import '../item/item.ht'
 // import 'companion.ht'
 import '../../dialog.ht'
+import '../../random.ht'
 
 // export '../../../_obseleted/creature/creature.ht'
 // export '../../../_obseleted/npc/npc.ht'
 export 'battle_entity.ht'
 // export 'companion.ht'
-// export 'status_effect/world_map_status_effect.ht'
 
 // number of the male avatar images
 const _kMaleAvatarCount = 37
@@ -48,9 +48,9 @@ const kMinorMotivations = [
 
 const kCultivationFavor = [
   'any',
-  'spirituality',
-  'physique',
-  // 'blade',
+  'flying_sword',
+  'dao',
+  // 'physique',
   // 'vitality',
   // 'avatar',
   'none',

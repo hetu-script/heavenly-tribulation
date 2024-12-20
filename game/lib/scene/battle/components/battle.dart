@@ -10,6 +10,8 @@ import 'package:samsara/cardgame/card.dart';
 // import 'package:samsara/gestures.dart';
 import 'package:samsara/components/sprite_button.dart';
 import 'package:flame/flame.dart';
+import 'package:samsara/components/tooltip.dart';
+import 'package:samsara/cardgame/custom_card.dart';
 
 import '../../../ui.dart';
 import 'character.dart';
@@ -27,9 +29,9 @@ class BattleScene extends Scene {
   late final VersusBanner versusBanner;
 
   late final BattleCharacter hero, enemy;
-  late final BattleDeck heroDeckZone, enemyDeckZone;
+  late final BattleDeckZone heroDeckZone, enemyDeckZone;
   final dynamic heroData, enemyData;
-  final List<GameCard> heroCards, enemyCards;
+  final List<GameCard> heroDeck, enemyDeck;
 
   final bool isSneakAttack;
 
@@ -37,9 +39,9 @@ class BattleScene extends Scene {
 
   // 先手角色
   late final bool initialMove;
-  // 玩家是否先手
-  late bool heroMove;
-  late BattleCharacter currectCharacter;
+  // 当前是否是玩家回合
+  late bool heroTurn;
+  late BattleCharacter currentCharacter, currentOpponent;
 
   bool? battleResult;
 
@@ -53,8 +55,8 @@ class BattleScene extends Scene {
     required super.id,
     required this.heroData,
     required this.enemyData,
-    required this.heroCards,
-    required this.enemyCards,
+    required this.heroDeck,
+    required this.enemyDeck,
     required this.isSneakAttack,
     required super.context,
   }) : super(
@@ -85,9 +87,9 @@ class BattleScene extends Scene {
       size: Vector2(480.0, 240.0),
     );
 
-    heroDeckZone = BattleDeck(
+    heroDeckZone = BattleDeckZone(
       position: GameUI.p1BattleDeckZonePosition,
-      cards: heroCards,
+      cards: heroDeck,
       focusedPosition: GameUI.p1BattleCardFocusedPosition,
       pileStructure: PileStructure.queue,
       reverseX: false,
@@ -96,11 +98,16 @@ class BattleScene extends Scene {
 
     final heroSkinId = heroData['skin'];
     final Set<String> heroAnimationStates = {};
-    for (final card in heroCards) {
-      final states = card.data['animations'];
-      for (final state in states) {
-        heroAnimationStates.add(state);
-        //   heroAnimationStates.add('${state}_$heroSkinId');
+    for (final card in heroDeck) {
+      final affixes = card.data['affixes'];
+      for (final affix in affixes) {
+        final states = affix['animations'];
+        if (states is List) {
+          for (final state in states) {
+            heroAnimationStates.add(state);
+            //   heroAnimationStates.add('${state}_$heroSkinId');
+          }
+        }
       }
     }
     hero = BattleCharacter(
@@ -114,9 +121,9 @@ class BattleScene extends Scene {
     );
     world.add(hero);
 
-    enemyDeckZone = BattleDeck(
+    enemyDeckZone = BattleDeckZone(
       position: GameUI.p2BattleDeckZonePosition,
-      cards: enemyCards,
+      cards: enemyDeck,
       focusedPosition: GameUI.p2BattleCardFocusedPosition,
       pileStructure: PileStructure.queue,
       reverseX: true,
@@ -125,11 +132,16 @@ class BattleScene extends Scene {
 
     final enemySkinId = enemyData['skin'];
     final Set<String> enemyAnimationStates = {};
-    for (final card in enemyCards) {
-      final states = card.data['animations'];
-      for (final state in states) {
-        enemyAnimationStates.add(state);
-        //   enemyAnimationStates.add('${state}_$enemySkinId');
+    for (final card in enemyDeck) {
+      final affixes = card.data['affixes'];
+      for (final afix in affixes) {
+        final states = afix['animations'];
+        if (states is List) {
+          for (final state in states) {
+            enemyAnimationStates.add(state);
+            //   enemyAnimationStates.add('${state}_$enemySkinId');
+          }
+        }
       }
     }
     enemy = BattleCharacter(
@@ -186,32 +198,40 @@ class BattleScene extends Scene {
   }
 
   void _prepareBattle() async {
-    heroMove = initialMove;
-    currectCharacter = heroMove ? hero : enemy;
-    currectCharacter.addHintText('${engine.locale('attackFirstInBattle')}!');
+    heroTurn = initialMove;
+    currentCharacter = heroTurn ? hero : enemy;
+    currentOpponent = heroTurn ? enemy : hero;
+    currentCharacter.addHintText('${engine.locale('attackFirstInBattle')}!');
   }
 
-  Future<void> _nextTurn() async {
-    currectCharacter.onTurnStart();
+  Future<void> _startTurn() async {
+    final card = await currentCharacter.deckZone.nextCard();
 
-    final card = await currectCharacter.deckZone.nextCard();
-
-    currectCharacter.onBeforeUseCard(card);
-
-    assert(card.script != null);
-    await engine.hetu.invoke(
-      card.script!,
-      namespace: 'CardScripts',
-      positionalArgs: [heroMove ? hero : enemy, heroMove ? enemy : hero],
+    card.enablePreview = false;
+    await card.setFocused(true);
+    Tooltip.show(
+      scene: this,
+      target: card,
+      direction:
+          heroTurn ? TooltipDirection.rightTop : TooltipDirection.leftTop,
+      content: (card as CustomGameCard).extraDescription,
+      config: ScreenTextConfig(anchor: Anchor.topCenter),
     );
+
+    await currentCharacter.onTurnStart(card);
+
     await card.setFocused(false);
+    card.isEnabled = false;
+    Tooltip.hide();
+    card.enablePreview = true;
 
-    currectCharacter.onTurnEnd();
+    currentCharacter.onTurnEnd(card);
 
-    heroMove = !heroMove;
-    currectCharacter = heroMove ? hero : enemy;
+    heroTurn = !heroTurn;
+    currentCharacter = heroTurn ? hero : enemy;
+    currentOpponent = heroTurn ? enemy : hero;
 
-    if (heroMove == initialMove) {
+    if (heroTurn == initialMove) {
       ++turn;
     }
 
@@ -270,7 +290,7 @@ class BattleScene extends Scene {
     _prepareBattle();
 
     do {
-      await _nextTurn();
+      await _startTurn();
     } while (battleResult == null);
 
     _endBattle();
@@ -315,7 +335,7 @@ class BattleScene extends Scene {
         world.add(restartButton);
       } else if (battleResult == null) {
         nextTurnButton.enableGesture = false;
-        _nextTurn();
+        _startTurn();
       } else {
         _endBattle();
       }

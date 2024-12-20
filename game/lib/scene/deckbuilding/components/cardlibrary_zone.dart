@@ -198,15 +198,14 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
 
     // 返回实际被拖动的卡牌，以覆盖这个scene上的dragging component
     card.onDragStart = (buttons, dragPosition) => draggingCard;
-    card.onDragUpdate = (int buttons, Vector2 offset) {
-      draggingCard!.position += offset;
-    };
+    card.onDragUpdate =
+        (int buttons, Vector2 offset) => draggingCard?.position += offset;
 
     card.onDragEnd = (_, __) {
       release();
     };
 
-    card.onMouseEnter = () {
+    card.onPreviewed = () {
       Tooltip.show(
         scene: game,
         target: card,
@@ -216,7 +215,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
       );
     };
 
-    card.onMouseExit = () {
+    card.onUnpreviewed = () {
       Tooltip.hide();
     };
 

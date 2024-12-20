@@ -37,7 +37,7 @@ import 'location/location_site.dart';
 import '../../state/states.dart';
 import '../common.dart';
 import '../../events.dart';
-import '../../common.dart';
+// import '../../common.dart';
 import 'npc_list.dart';
 import '../../dialog/input_string.dart';
 // import '../../extensions.dart';
@@ -394,17 +394,6 @@ class _WorldOverlayState extends State<WorldOverlay>
         final heroHome = engine.hetu.invoke('getHeroHome');
         engine.hetu.invoke('discoverLocation', positionalArgs: [heroHome]);
         _heroData = engine.hetu.fetch('hero');
-      }
-
-      engine.hetu
-          .invoke('init', namedArgs: {'itemsData': GameData.itemsData.values});
-
-      for (final id in GameConfig.modules.keys) {
-        if (GameConfig.modules[id]?['enabled'] == true) {
-          final moduleConfig = {'version': kGameVersion};
-          engine.hetu
-              .invoke('init', module: id, positionalArgs: [moduleConfig]);
-        }
       }
 
       engine.hetu.invoke('onNewGame');
@@ -935,10 +924,10 @@ class _WorldOverlayState extends State<WorldOverlay>
                   onSkill: () {
                     closePopup();
                     switch (genre) {
-                      case 'blade':
+                      case 'flying_sword':
                         final start = scene.map.hero!.centerPosition;
                         final end = _currentTerrain!.centerPosition;
-                        scene.useMapSkillBlade(start, end);
+                        scene.useMapSkillFlyingSword(start, end);
                       case 'element':
                       case 'physique':
                       case 'vitality':

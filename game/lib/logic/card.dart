@@ -32,8 +32,8 @@ List<String> obtainCultivationCardsForHero(dynamic heroData) {
   /// genreLevels 是一个数组，代表每个流派的等级
   /// 内容示例：
   /// [
-  ///   { genreId: 'blade', probability: 0.7 },
-  ///   { genreId: 'element', probability: 0.2 },
+  ///   { genreId: 'flying_sword', probability: 0.7 },
+  ///   { genreId: 'dao', probability: 0.2 },
   ///   { genreId: 'avatar', probability: 0.1 },
   ///   ...
   /// ]

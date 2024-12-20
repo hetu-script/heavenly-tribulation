@@ -57,7 +57,7 @@
 
   "weaponAttack": "武器攻击力",
   "spellAttack": "法术攻击力",
-  "physiqueAttack": "体术攻击力",
+  "physiqueAttack": "拳脚攻击力",
   "incarnationAttack": "化身攻击力",
   "willpowerAttack": "念力攻击力",
 
@@ -122,7 +122,7 @@
 
   "motivation": "动机",
   "immortality": "长生",
-  "dao": "悟道",
+  "daoism": "悟道",
   "domination": "霸者",
   "wealth": "嗜财如命",
   "pleasure": "快乐至上",

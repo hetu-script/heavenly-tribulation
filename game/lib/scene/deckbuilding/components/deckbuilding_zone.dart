@@ -87,7 +87,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
       reorderCard(card.index, dragToIndex);
     };
 
-    card.onMouseEnter = () {
+    card.onPreviewed = () {
       Tooltip.show(
         scene: game,
         target: card,
@@ -97,7 +97,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
       );
     };
 
-    card.onMouseExit = () {
+    card.onUnpreviewed = () {
       Tooltip.hide();
     };
 

@@ -381,7 +381,7 @@ function updateOrganizationYearly(organization) {
   // engine.info('为组织 ${organization.id} 添加新功法')
 
   switch (organization.genre) {
-    'blade' : {
+    'flying_sword' : {
       
     }
   }
@@ -410,10 +410,10 @@ function updateOrganizationMonthly(organization) {
   }
 
   switch (organization.genre) {
-    'blade' : {
+    'flying_sword' : {
 
     }
-    'element' : {
+    'dao' : {
       
     }
     'physique' : {

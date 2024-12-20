@@ -1,15 +1,18 @@
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:flame/components.dart';
 // import 'package:samsara/paint.dart';
+import 'package:samsara/components/tooltip.dart';
+import 'package:samsara/gestures.dart';
+import 'package:samsara/paint/paint.dart';
 
 import '../../../ui.dart';
 // import '../../../global.dart';
 // import 'character.dart';
 
-class BattleDeck extends PiledZone {
+class BattleDeckZone extends PiledZone with HandlesGesture {
   int _currentFocusedCardIndex = -1;
 
-  BattleDeck({
+  BattleDeckZone({
     required super.position,
     super.cards,
     super.focusedPosition,
@@ -26,10 +29,25 @@ class BattleDeck extends PiledZone {
   @override
   void onLoad() {
     for (final card in cards) {
-      card.enablePreview = true;
       if (!card.isMounted) {
         gameRef.world.add(card);
       }
+
+      card.onPreviewed = () {
+        Tooltip.show(
+          scene: game,
+          target: card,
+          direction: TooltipDirection.topLeft,
+          content: (card as CustomGameCard).extraDescription,
+          config: ScreenTextConfig(anchor: Anchor.topCenter),
+        );
+      };
+
+      card.onUnpreviewed = () {
+        if (!card.isFocused) {
+          Tooltip.hide();
+        }
+      };
     }
   }
 
@@ -37,11 +55,12 @@ class BattleDeck extends PiledZone {
     ++_currentFocusedCardIndex;
     if (_currentFocusedCardIndex >= cards.length) {
       _currentFocusedCardIndex = 0;
+      for (final card in cards) {
+        card.isEnabled = true;
+      }
     }
-    final card = cards[_currentFocusedCardIndex];
-    await card.setFocused(true);
 
-    return card;
+    return cards[_currentFocusedCardIndex];
   }
 
   void reset() {

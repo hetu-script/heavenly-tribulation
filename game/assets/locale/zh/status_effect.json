@@ -1,12 +1,10 @@
 {
   "block.title": "防",
-  "block.description": "当有防时，可以抵消相当于防的数值的武器攻击伤害。\n在你的回合开始时，防的数值减半。",
+  "block.description": "当有防时，可以抵消同等数量的普通攻击伤害。\n在你的回合开始时，防的数值减半。",
   "speed.title": "速度",
-  "speed.description": "在你的回合开始时，如果你的速度>=10，\n则扣除10点速度，你在这个回合可以再次行动。",
-  "cloud_sword.title": "飞云剑",
-  "cloud_sword.description": "每当你使用剑修卡牌时，+3速度。",
-  "ignore_block.title": "无视防御",
-  "ignore_block.description": "你下一次使用武器攻击卡牌时，无视对手的防。",
-  "blade_power.title": "剑气",
-  "blade_power.description": "你下一次使用武器攻击卡牌时，消耗所有剑气，增加等量的攻击力。"
+  "speed.description": "回合结束时，如果速度>=10，扣除10点速度，获得一个额外回合。\n回合开始时，如果速度<=-10，增加10点速度，跳过这个回合。",
+  "dodge.title": "闪避",
+  "dodge.description": "回合结束时，如果闪避>=10，扣除10点闪避，此回合不会受到伤害。",
+  "extra_damage_after_attack.title": "攻击后额外造成伤害",
+  "extra_damage_after_attack.description": "当你下一次攻击后，额外造成一次伤害。"
 }

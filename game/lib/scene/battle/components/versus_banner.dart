@@ -5,13 +5,12 @@ import 'package:samsara/components.dart';
 import 'package:flame/flame.dart';
 // import 'package:samsara/gestures/gesture_mixin.dart';
 import 'package:flutter/material.dart';
-import 'package:samsara/gestures/gesture_mixin.dart';
 
 // import '../../../ui.dart';
 import '../../../view/character/equipments_and_stats.dart';
 // import '../../../ui/view/character/npc.dart';
 
-class VersusBanner extends GameComponent with HandlesGesture {
+class VersusBanner extends GameComponent {
   // late final SpriteComponent2 versus;
   // late final Rect versusBannerRect;
 
@@ -26,9 +25,7 @@ class VersusBanner extends GameComponent with HandlesGesture {
   }) : super(
           anchor: Anchor.center,
           size: Vector2(520.0, 180.0),
-        ) {
-    enableGesture = false;
-  }
+        );
 
   void showCharacterInfo(dynamic data) {
     // if (data['entityType'] == 'character') {
@@ -52,15 +49,16 @@ class VersusBanner extends GameComponent with HandlesGesture {
 
   @override
   void onLoad() async {
-    add(SpriteComponent(
+    final versusIcon = SpriteComponent(
       // position: Vector2(center.x - 80.0, center.y - 90.0),
       position: Vector2(180.0, 0),
       sprite: Sprite(await Flame.images.load('battle/versus.png')),
       size: Vector2(160.0, 180.0),
       paint: paint,
-    ));
+    );
+    add(versusIcon);
 
-    add(SpriteButton(
+    final heorIcon = SpriteButton(
       // position: Vector2(center.x - 80.0 - 10.0 - 100.0, center.y - 50.0),
       position: Vector2(0, 40.0),
       image: await Flame.images.load('avatar/${heroData['icon']}'),
@@ -68,9 +66,13 @@ class VersusBanner extends GameComponent with HandlesGesture {
       size: Vector2(100.0, 100.0),
       borderRadius: 12.0,
       paint: paint,
-      onTap: (_, __) => showCharacterInfo(heroData),
-    ));
-    add(SpriteButton(
+    );
+    heorIcon.onTap = (_, __) {
+      showCharacterInfo(heroData);
+    };
+    add(heorIcon);
+
+    final enemyIcon = SpriteButton(
       // position: Vector2(center.x + 80.0 + 10.0, center.y - 50.0),
       position: Vector2(420.0, 40.0),
       image: await Flame.images.load('avatar/${enemyData['icon']}'),
@@ -78,8 +80,11 @@ class VersusBanner extends GameComponent with HandlesGesture {
       size: Vector2(100.0, 100.0),
       borderRadius: 12.0,
       paint: paint,
-      onTap: (_, __) => showCharacterInfo(enemyData),
-    ));
+    );
+    enemyIcon.onTap = (_, __) {
+      showCharacterInfo(enemyData);
+    };
+    add(enemyIcon);
   }
 
   // @override

@@ -115,12 +115,12 @@ abstract class GameUI {
     deckbuildingZoneSize = Vector2(size.x, deckbuildingCardHeight + indent * 4);
     deckbuildingZonePileOffset = Vector2(deckbuildingCardWidth + indent, 0);
 
-    // final libraryCardWidth = size.x / 6 - indent * 2;
-    // final libraryCardHeight = libraryCardWidth * cardSizeRatio;
-    // libraryCardSize = Vector2(libraryCardWidth, libraryCardHeight);
-    libraryCardSize = deckbuildingCardSize;
+    final libraryCardWidth = size.x / 6 - indent * 2;
+    final libraryCardHeight = libraryCardWidth * cardSizeRatio;
+    libraryCardSize = Vector2(libraryCardWidth, libraryCardHeight);
+    // libraryCardSize = deckbuildingCardSize;
 
-    libraryZoneSize = Vector2(size.x, size.y - deckbuildingZoneSize.y);
+    libraryZoneSize = Vector2(size.x, size.y - deckbuildingZoneSize.y + indent);
     libraryZonePosition = Vector2(0, deckbuildingZoneSize.y);
 
     battleCardSize = deckbuildingCardSize;

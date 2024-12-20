@@ -164,9 +164,14 @@ class _GameDialogState extends State<GameDialog> {
   }
 
   void startTalk() {
-    style = DefaultTextStyle.of(context)
-        .style
-        .merge(const TextStyle(fontSize: 24, letterSpacing: 2));
+    style = DefaultTextStyle.of(context).style.merge(const TextStyle(
+          fontSize: 24,
+          letterSpacing: 2,
+          fontWeight: FontWeight.normal,
+          color: Colors.white,
+          fontFamily: 'RuiZiYunZiKuLiBianTiGBK',
+          decoration: TextDecoration.none,
+        ));
     finished = false;
     progress = 0;
 

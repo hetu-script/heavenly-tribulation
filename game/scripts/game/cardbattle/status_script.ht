@@ -1,0 +1,50 @@
+import '../binding/battle_character.ht'
+
+/// 战斗状态脚本
+/// 每张状态都对应一个脚本
+/// 这个脚本将会根据该状态在例如回合开始时等时机触发
+/// 状态脚本必须是非阻塞，不能是async
+
+/// 所有的卡牌词条脚本按照约定都以 `status_script_${effectId}_${callbackId}` 的形式命名
+
+function status_script_block_self_turn_start(self, opponent) {
+  self.removeStatusEffect('block', percentage: 0.5)
+}
+
+function status_script_block_self_taking_damage(self, opponent, args) {
+  if (!opponent.hasTurnFlag('ignoreBlock')) {
+    let damage = args['damage']
+    let residue = self.removeStatusEffect('block', amount: damage)
+    args['damage'] = residue
+    args['blocked'] = true
+  }
+}
+
+function status_script_speed_self_turn_start(self, opponent) {
+
+}
+
+function status_script_speed_self_turn_end(self, opponent) {
+  
+}
+
+// function cloud_sword_self_use_card_genre_blade(self, opponent) {
+//   self.addStatusEffect('speed', 3)
+// }
+
+// function ignore_block_self_use_card_tag_weapon_attack(self, opponent, args) {
+//   self.setTurnFlag('ignoreBlock')
+//   self.removeStatusEffect('ignore_block')
+// }
+
+// function blade_power_self_weapon_attacking(self, opponent, args) {
+//   args['damage'] += args['amount']
+//   opponent.setTurnFlag('attackedBybladePower')
+// }
+
+// function blade_power_opponent_turn_end(self, opponent, args) {
+//   if (opponent.hasTurnFlag('attackedBybladePower') &&
+//       !opponent.hasTurnFlag('keepBladePower')) {
+//     self.removeStatusEffect('blade_power')
+//   }
+// }

@@ -1,0 +1,164 @@
+import '../binding/battle_character.ht'
+
+/// 卡牌的每个词条都对应一个脚本。
+/// 这个脚本将会在这张牌被打出时invoke
+
+/// 所有的卡牌词条脚本按照约定都以 `card_script_${affix_id}` 的形式命名
+
+/// 主词条（包含动画，异步async）：
+/// 攻击
+async function card_script_attack_main(self, opponent, affix) {
+  await self.attack(affix.kind)
+  final value = affix.value[0]
+  let damageType = 'none'
+  if (affix.kind == 'sword') {
+    damageType = 'blade'
+  } else if (affix.kind == 'fist') {
+    damageType = 'punchkick'
+  }
+  opponent.takeDamage(damageType, value)
+}
+/// 格挡
+async function card_script_defend_main(self, opponent, affix) {
+  await self.defend(affix.kind)
+  await Future.delayed(0.4)
+  final value = affix.value[0]
+  self.addStatusEffect('block', value)
+}
+/// 轻功
+async function card_script_swift(self, opponent, affix) {
+  await Future.delayed(0.8)
+  final [speed, dodge] = affix.value
+  self.addStatusEffect('speed', speed)
+  self.addStatusEffect('dodge', dodge, playSound: false)
+}
+/// 回复生命
+async function card_script_restore_life(self, opponent, affix) {
+  final value = affix.value[0]
+  await self.restoreLife(value)
+}
+/// 回复灵气
+async function card_script_restore_mana(self, opponent, affix) {
+  final value = affix.value[0]
+  await self.restoreMana(value)
+}
+
+/// 额外词条（不播放动画和音效，同步非阻塞函数）：
+/// 攻击后额外造成伤害
+function card_script_extra_damage_after_attack(self, opponent, affix) {
+  final value = affix.value[0]
+  self.addStatusEffect('extra_damage_after_attack', value, playSound: false)
+}
+/// 防御
+function card_script_defend(self, opponent, affix) {
+  final value = affix.value[0]
+  self.addStatusEffect('block', value, playSound: false)
+}
+/// 速度
+function card_script_speed(self, opponent, affix) {
+  final value = affix.value[0]
+  self.addStatusEffect('speed', value, playSound: false)
+}
+/// 闪避
+function card_script_dodge(self, opponent, affix) {
+  final value = affix.value[0]
+  self.addStatusEffect('dodge', value, playSound: false)
+}
+
+// async function blade_8(self, opponent) {
+//   if (self.hasStatusEffect('block')) {
+//     self.restoreLife(15)
+//   } else {
+//     Future.delayed(0.8)
+//   }
+// }
+// /// 飞云剑
+// /// 12攻
+// /// 每次使用剑法时+3速度
+// async function blade_1(self, opponent) {
+//   await self.attack('flying_sword')
+//   opponent.takeDamage('weapon', 12)
+//   self.addStatusEffect('cloud_sword')
+// }
+// // ///
+// // async function blade_2(self, opponent) {
+  
+// // }
+// /// 拨云见日
+// /// 15攻
+// /// 恢复击伤值10%的灵气
+// async function blade_3(self, opponent) {
+//   await self.attack('flying_sword')
+//   let residue = opponent.takeDamage('weapon', 15)
+//   print('residue', residue)
+//   let mana = (residue * 0.1).truncate()
+//   print('restore mana', mana)
+//   self.restoreMana(mana)
+// }
+// /// 空灵剑诀
+// /// 灵气+1
+// /// 下一张攻击牌无视防御
+// async function blade_4(self, opponent) {
+//   await self.restoreMana(1)
+//   self.addStatusEffect('ignore_block')
+// }
+// // ///
+// // async function blade_5(self, opponent) {
+  
+// // }
+// /// 冷月重剑
+// /// 需求：1灵气
+// /// 27攻
+// async function blade_6(self, opponent) {
+//   self.consumeMana(1)
+//   await self.attack('flying_sword')
+//   opponent.takeDamage('weapon', 27)
+// }
+// /// 凌霜剑式
+// /// +20防
+// async function blade_7(self, opponent) {
+//   await self.defend()
+//   self.addStatusEffect('block', 20)
+// }
+// /// 春雨剑
+// /// 如果有防：+15生命
+// async function blade_8(self, opponent) {
+//   if (self.hasStatusEffect('block')) {
+//     self.restoreLife(15)
+//   } else {
+//     Future.delayed(0.8)
+//   }
+// }
+// /// 引雷剑诀
+// /// 获得20点剑气
+// async function blade_9(self, opponent) {
+//   await self.spell()
+//   self.addStatusEffect('blade_power', 20)
+// }
+// /// 回声剑
+// /// 15攻
+// /// 保留此牌触发的剑气
+// async function blade_10(self, opponent) {
+//   opponent.setTurnFlag('keepBladePower')
+//   await self.attack('flying_sword')
+//   opponent.takeDamage('weapon', 15)
+// }
+// /// 双斩
+// /// 7攻×2
+// async function blade_11(self, opponent) {
+//   await self.attack('flying_sword')
+//   opponent.takeDamage('weapon', [7, 7])
+// }
+// /// 秋风剑意
+// /// 12攻
+// /// 再次使用时追加一次攻击
+// async function blade_12(self, opponent) {
+//   await self.attack('flying_sword')
+//   if (self.hasGameFlag('blade_12')) {
+//     opponent.takeDamage('weapon', [12, 12])
+//   } else {
+//     self.setGameFlag('blade_12')
+//     opponent.takeDamage('weapon', 12)
+//   }
+// }
+

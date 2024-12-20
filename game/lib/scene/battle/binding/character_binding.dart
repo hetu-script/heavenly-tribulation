@@ -32,13 +32,13 @@ class BattleCharacterClassBinding extends HTExternalClass {
             character.restoreMana(positionalArgs.first);
       case 'spell':
         return ({positionalArgs, namedArgs}) =>
-            character.setSpellState(state: positionalArgs.first);
+            character.setSpellState(positionalArgs.first);
       case 'defend':
         return ({positionalArgs, namedArgs}) =>
-            character.setDefendState(state: positionalArgs.first);
+            character.setDefendState(positionalArgs.first);
       case 'attack':
         return ({positionalArgs, namedArgs}) =>
-            character.setAttackState(state: positionalArgs.first);
+            character.setAttackState(positionalArgs.first);
       case 'takeDamage':
         return ({positionalArgs, namedArgs}) {
           dynamic v = positionalArgs[1];
@@ -63,8 +63,10 @@ class BattleCharacterClassBinding extends HTExternalClass {
               percentage: namedArgs['percentage'],
             );
       case 'addStatusEffect':
-        return ({positionalArgs, namedArgs}) => character
-            .addStatusEffect(positionalArgs[0], count: positionalArgs[1]);
+        return ({positionalArgs, namedArgs}) => character.addStatusEffect(
+            positionalArgs[0],
+            count: positionalArgs[1],
+            playSound: namedArgs['playSound']);
       case 'setTurnFlag':
         return ({positionalArgs, namedArgs}) =>
             character.setTurnFlag(positionalArgs[0]);

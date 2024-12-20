@@ -247,11 +247,11 @@
   "fightSkillGenre": "战斗流派",
 
   "general": "通用",
-  "element": "法术",
+  "dao": "道法",
   "physique": "体修",
   "avatar": "化神",
   "vitality": "炼魂",
-  "blade": "剑修",
+  "flying_sword": "御剑",
 
   "supportSkillGenre": "技艺流派",
 
@@ -307,6 +307,6 @@
   "availableCultivationPoints": "可用点数",
 
   "condenseAll": "自动收集",
-  "introspection": "内观",
+  "innerspection": "内观",
   "enlightenment": "悟道"
 }

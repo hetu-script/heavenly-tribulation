@@ -6,12 +6,11 @@ import 'common.ht'
 import '../random.ht'
 
 const _kCouldBeFamilySkillKinds = [
-  'strength',
   'wrestling',
-  'boxing',
+  'fist',
   'sabre',
-  'spear',
   'sword',
+  'spear',
   'staff',
 ]
 
@@ -35,7 +34,7 @@ function generateSkillName({category, kind, length = 1}) {
       name += random.nextIterable(commonNames)
     }
   } else {
-    if (random.nextDouble() < 0.35 && category in _kCouldBeFamilySkillKinds) {
+    if (random.nextDouble() < 0.125 && category in _kCouldBeFamilySkillKinds) {
       name = random.nextIterable(familyNames)
       if (name.length == 1) {
         name += kFamilyNamePostfix

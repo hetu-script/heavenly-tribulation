@@ -1,3 +1,4 @@
 abstract class DamageType {
-  static const weapon = 'weapon';
+  static const punchkick = 'punchkick';
+  static const blade = 'blade';
 }

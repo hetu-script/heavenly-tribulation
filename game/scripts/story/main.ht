@@ -32,6 +32,7 @@ const modName = '${module.meta.displayName}-${module.meta.id}-(${module.meta.ver
 
 // main每次启动游戏都会执行
 function main() {
+  engine.info('游戏: [故事]脚本(ver-${coreScriptModuleVersion})初始化...')
   // 加载本地化字符串
   engine.loadLocaleDataFromJSON(localizations.toJSON())
   // 向世界添加事件回调函数

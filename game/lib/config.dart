@@ -103,6 +103,8 @@ const kValueTypeInt = 'int';
 const kValueTypeFloat = 'float';
 const kValueTypePercentage = 'percentage';
 
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
 final SamsaraEngine engine = SamsaraEngine(
   config: EngineConfig(
     name: GameConfig.gameTitle,

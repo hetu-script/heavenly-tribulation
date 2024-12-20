@@ -1,91 +1,196 @@
 {
-  attack_sword_1: {
-    // 同一个属性id只会在一张卡牌上出现一次。
-    id: "attack_sword_1",
-    genre: ["general"],
+  attack_sword: {
+    id: "attack_sword",
+    // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
+    affixId: null,
+    // 是否是主词条，在执行词条脚本时需要判断这个参数
+    isMain: true,
+    genre: "general",
     // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
-    type: "attack",
-    tags: ["attack", "weapon_attack"],
-    // 是否是主词条
-    mainAffix: true,
-    image: "attack_sword_1.png",
+    category: "attack",
+    kind: "sword",
+    tags: ["attack", "weapon", "sword"],
+    image: "attack_sword.png",
     animations: ["attack_sword", "attack_sword_recovery"],
-    script: "attack_sword_1",
-    level: 0,
+    script: "attack_main",
+    // 实际的数值会在游戏中实际创建时才添加到这里
+    // level: 0,
+    // values: [0]
+    value: [
+      {
+        // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
+        random: 0,
+        min: 6,
+        max: 15,
+        increment: 2,
+      },
+    ],
+  },
+  defend_sword: {
+    // 同一个属性id只会在一张卡牌上出现一次。
+    id: "defend_sword",
+    // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
+    affixId: ["defend"],
+    // 是否是主词条，在执行词条脚本时需要判断这个参数
+    isMain: true,
+    genre: "general",
+    // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
+    category: "buff",
+    kind: "sword",
+    tags: ["defend", "weapon"],
+    image: "defend_sword.png",
+    animations: ["defend_sword"],
+    script: "defend_main",
+    // 实际的数值会在游戏中实际创建时才添加到这里
+    // level: 0,
+    // values: [0]
     value: [
       {
         // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
         random: 0,
         min: 5,
-        max: 13,
-        increment: 2,
+        max: 11,
+        increment: 1,
       },
     ],
   },
-  defend_sword_1: {
+  attack_fist: {
     // 同一个属性id只会在一张卡牌上出现一次。
-    id: "defend_sword_1",
-    genre: ["general"],
+    id: "attack_fist",
+    // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
+    affixId: null,
+    // 是否是主词条，在执行词条脚本时需要判断这个参数
+    isMain: true,
+    genre: "general",
     // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
-    type: "buff",
-    tags: ["buff", "defence"],
-    // 是否是主词条
-    mainAffix: true,
-    image: "defend_sword_1.png",
-    animations: ["defend_sword"],
-    level: 0,
+    category: "attack",
+    kind: "fist",
+    tags: ["attack", "fist"],
+    image: "attack_fist.png",
+    animations: ["attack_fist", "attack_fist_recovery"],
+    script: "attack_main",
+    // 实际的数值会在游戏中实际创建时才添加到这里
+    // level: 0,
+    // values: [0]
     value: [
       {
         // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
         random: 0,
-        min: 10,
-        max: 18,
-        increment: 2,
+        min: 4,
+        max: 9,
+        increment: 1,
       },
     ],
   },
-  restore_life_1: {
+  defend_fist: {
     // 同一个属性id只会在一张卡牌上出现一次。
-    id: "restore_life_1",
-    genre: ["general"],
+    id: "defend_fist",
+    // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
+    affixId: ["defend"],
+    // 是否是主词条，在执行词条脚本时需要判断这个参数
+    isMain: true,
+    genre: "general",
     // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
-    type: "buff",
-    tags: ["buff", "life"],
-    // 是否是主词条
-    mainAffix: true,
-    image: "restore_life.png",
-    animations: ["spell_normal", "restore_life"],
-    level: 0,
+    category: "buff",
+    kind: "fist",
+    tags: ["buff", "defend", "fist"],
+    image: "defend_fist.png",
+    animations: ["defend_fist"],
+    script: "defend_main",
+    // 实际的数值会在游戏中实际创建时才添加到这里
+    // level: 0,
+    // values: [0]
     value: [
       {
         // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
         random: 0,
-        min: 7,
-        max: 15,
-        increment: 2,
+        min: 3,
+        max: 8,
+        increment: 1,
       },
     ],
   },
-  restore_mana_1: {
+  swift: {
     // 同一个属性id只会在一张卡牌上出现一次。
-    id: "restore_mana_1",
-    genre: ["general"],
+    id: "swift",
+    // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
+    affixId: ["speed", "dodge"],
+    // 是否是主词条，在执行词条脚本时需要判断这个参数
+    isMain: true,
+    genre: "general",
     // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
-    type: "buff",
-    tags: ["buff", "mana"],
-    // 是否是主词条
-    mainAffix: true,
-    image: "restore_mana.png",
-    animations: ["spell_normal", "restore_mana"],
-    level: 0,
+    category: "buff",
+    kind: "swift",
+    tags: ["buff", "swift", "dodge", "speed"],
+    image: "swift.png",
+    animations: ["defend_fist"],
+    script: "swift",
+    // 实际的数值会在游戏中实际创建时才添加到这里
+    // level: 0,
+    // values: [0]
     value: [
       {
         // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
         random: 0,
-        min: 7,
-        max: 15,
-        increment: 2,
+        min: 2,
+        max: 5,
+        increment: 0.5,
+      },
+      {
+        // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
+        random: 0,
+        min: 2,
+        max: 5,
+        increment: 0.5,
       },
     ],
   },
+  // restore_life_1: {
+  //   // 同一个属性id只会在一张卡牌上出现一次。
+  //   id: "restore_life_1",
+  //   genre: ["general"],
+  //   // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
+  //   type: "buff",
+  //   kind: "heal",
+  //   tags: ["buff", "life"],
+  //   // 是否是主词条
+  //   mainAffix: true,
+  //   image: "restore_life.png",
+  //   animations: ["restore_life"],
+  //   script: "restore_life_1",
+  //   level: 0,
+  //   value: [
+  //     {
+  //       // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
+  //       random: 0,
+  //       min: 7,
+  //       max: 15,
+  //       increment: 2,
+  //     },
+  //   ],
+  // },
+  // restore_mana_1: {
+  //   // 同一个属性id只会在一张卡牌上出现一次。
+  //   id: "restore_mana_1",
+  //   genre: ["general"],
+  //   // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
+  //   type: "buff",
+  //   kind: "qi",
+  //   tags: ["buff", "mana"],
+  //   // 是否是主词条
+  //   mainAffix: true,
+  //   image: "restore_mana.png",
+  //   animations: ["restore_mana"],
+  //   script: "restore_mana_1",
+  //   level: 0,
+  //   value: [
+  //     {
+  //       // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
+  //       random: 0,
+  //       min: 7,
+  //       max: 15,
+  //       increment: 2,
+  //     },
+  //   ],
+  // },
 }

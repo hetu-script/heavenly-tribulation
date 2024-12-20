@@ -60,7 +60,7 @@ class CharacterVisitDialog extends StatelessWidget {
     if (!hideHero) {
       tableData.add(DataRow2(
           onTap: () {
-            Navigator.pop(context, heroId);
+            Navigator.of(context).pop(heroId);
           },
           cells: [
             DataCell(
@@ -84,7 +84,7 @@ class CharacterVisitDialog extends StatelessWidget {
           engine.hetu.invoke('haveMet', positionalArgs: [hero, character]);
       return DataRow2(
           onTap: () {
-            Navigator.pop(context, id);
+            Navigator.of(context).pop(id);
           },
           cells: [
             DataCell(

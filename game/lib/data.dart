@@ -4,12 +4,12 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart' show BuildContext;
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:flutter/foundation.dart' show kDebugMode;
+// import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:json5/json5.dart';
 import 'package:samsara/samsara.dart';
-import 'package:samsara/utils/json.dart';
-import 'package:hetu_script/utils/uid.dart';
+// import 'package:samsara/utils/json.dart';
+// import 'package:hetu_script/utils/uid.dart';
 
 import 'ui.dart';
 import 'common.dart';
@@ -21,8 +21,8 @@ import 'config.dart';
 abstract class GameData {
   static Map<String, dynamic> editorToolItemsData = {};
   static Map<String, dynamic> cardsData = {};
-  static Map<String, dynamic> cardsMainAffixData = {};
-  static Map<String, dynamic> cardsSupportAffixData = {};
+  static Map<String, dynamic> battleCardMainAffixesData = {};
+  static Map<String, dynamic> battleCardSupportAffixesData = {};
   static Map<String, dynamic> animationsData = {};
   static Map<String, dynamic> statusEffectsData = {};
   static Map<String, dynamic> itemsData = {};
@@ -49,7 +49,11 @@ abstract class GameData {
 
     final cardsMainAffixDataString =
         await rootBundle.loadString('assets/data/card_main_affixes.json5');
-    cardsMainAffixData = JSON5.parse(cardsMainAffixDataString);
+    battleCardMainAffixesData = JSON5.parse(cardsMainAffixDataString);
+
+    final cardsSupportAffixDataString =
+        await rootBundle.loadString('assets/data/card_support_affixes.json5');
+    battleCardSupportAffixesData = JSON5.parse(cardsSupportAffixDataString);
 
     final animationDataString =
         await rootBundle.loadString('assets/data/animation.json5');
@@ -80,29 +84,12 @@ abstract class GameData {
   }
 
   static Future<void> registerModuleEventHandlers() async {
-    if (kDebugMode) {
-      for (final key in GameConfig.modules.keys) {
-        if (GameConfig.modules[key]?['enabled'] == true) {
-          if (GameConfig.modules[key]?['preinclude'] == true) {
-            engine.loadModFromAssetsString(
-              '$key/main.ht',
-              module: key,
-            );
-          }
-        }
-      }
-    } else {
-      for (final key in GameConfig.modules.keys) {
-        if (GameConfig.modules[key]?['enabled'] == true) {
-          if (GameConfig.modules[key]?['preinclude'] == true) {
-            final mod = await rootBundle.load('assets/mods/$key.mod');
-            final modBytes = mod.buffer.asUint8List();
-            engine.loadModFromBytes(
-              modBytes,
-              moduleName: key,
-            );
-          }
-        }
+    engine.hetu.invoke('main');
+
+    for (final id in GameConfig.modules.keys) {
+      if (GameConfig.modules[id]?['enabled'] == true) {
+        final moduleConfig = {'version': kGameVersion};
+        engine.hetu.invoke('main', module: id, positionalArgs: [moduleConfig]);
       }
     }
   }
@@ -117,9 +104,22 @@ abstract class GameData {
 
     data = engine.hetu.invoke('newGame', positionalArgs: [saveName]);
 
-    await registerModuleEventHandlers();
-
     isGameCreated = true;
+
+    engine.hetu.invoke('init', namedArgs: {
+      'itemsData': GameData.itemsData.values,
+      'battleCardMainAffixesData': GameData.battleCardMainAffixesData,
+      'battleCardSupportAffixesData': GameData.battleCardSupportAffixesData,
+    });
+
+    for (final id in GameConfig.modules.keys) {
+      if (GameConfig.modules[id]?['enabled'] == true) {
+        final moduleConfig = {'version': kGameVersion};
+        engine.hetu.invoke('init', module: id, positionalArgs: [moduleConfig]);
+      }
+    }
+
+    await registerModuleEventHandlers();
   }
 
   static String? currentWorldId;
@@ -225,42 +225,6 @@ abstract class GameData {
     return card;
   }
 
-  static dynamic generateBattleCardData({
-    String? genre,
-    int level = 1, // 卡牌等级最小是1，最大是40
-  }) {
-    assert(_isInitted, 'Game data is not loaded yet!');
-
-    if (genre != null) {
-      assert(
-          kMainCultivationGenres.contains(genre) ||
-              kSupportCultivationGenres.contains(genre) ||
-              genre == 'general',
-          'Unknown cultivation genre: $genre');
-    }
-
-    final mainAffixes = cardsMainAffixData.values.where((affix) {
-      final List genres = affix['genre'];
-
-      if (genre != null) {
-        return genres.contains(genre);
-      } else {
-        return true;
-      }
-    });
-
-    assert(mainAffixes.isNotEmpty);
-
-    final mainAffix = jsonCopy(mainAffixes.random);
-
-    return {
-      'id': '${DateTime.now().toYMDHHMMSS2()}_${randomUID()}',
-      'level': level,
-      'main': mainAffix,
-      'support': [],
-    };
-  }
-
   static CustomGameCard createBattleCardByData(dynamic data) {
     assert(data != null, 'Invalid battle card data!');
     assert(_isInitted, 'Game data is not loaded yet!');
@@ -269,22 +233,21 @@ abstract class GameData {
     // final data = generateBattleCardAffixes(genre: genre);
     // assert(data != null, 'Failed to generate card data! (genre: $genre)');
 
-    final String image = data['main']['image'];
-
     final String id = data['id'];
-    final String title = engine.locale('battleCard.${data['main']['id']}.name');
-    final int level = data['level'];
+    final List affixes = data['affixes'];
+    assert(affixes.isNotEmpty);
+    final mainAffix = affixes[0];
+    final String image = mainAffix['image'];
+    final int cardLevel = mainAffix['level'];
+    String title = data['name'];
+
+    final genreString =
+        '${engine.locale('genre')}: ${engine.locale(mainAffix['genre'])}';
+    final typeString =
+        '${engine.locale('type')}: ${engine.locale('battleCardKind.${mainAffix['kind']}')}';
+    final levelString = '${engine.locale('level')}: $cardLevel';
 
     final description = StringBuffer();
-    final genreString =
-        '${engine.locale('genre')}: ${engine.locale(data['main']['genre'])}';
-    description.writeln(genreString);
-    final typeString =
-        '${engine.locale('type')}: ${engine.locale('battleCardType.${data['main']['type']}')}';
-    description.writeln(typeString);
-    final levelString = '${engine.locale('level')}: $level';
-    description.writeln(levelString);
-
     final extraDescription = StringBuffer();
     extraDescription.writeln('<bold>$title</>');
     extraDescription.writeln('<grey>$genreString</>');
@@ -292,24 +255,39 @@ abstract class GameData {
     extraDescription.writeln('<grey>$levelString</>');
     extraDescription.writeln('——————————————');
 
-    final String affixId = data['main']['id'];
-    final mainAffixDescriptionRaw =
-        engine.locale('battleCard.$affixId.description');
-    final List<String> values = [];
-    final mainAffixValues = data['main']['value'];
-    final r = math.Random();
-    for (final value in mainAffixValues) {
-      final random = value['random'] = r.nextDouble();
-      final int min = value['min'];
-      final int max = value['max'];
-      final int increment = value['increment'];
-      final double finalValue =
-          min + (max - min) * random + r.nextInt(level) * increment;
-      values.add(finalValue.round().toString());
+    for (final affix in affixes) {
+      final affixDescriptionRaw =
+          engine.locale('battleCard.${affix['id']}.description');
+      final values = affix['value'];
+      final r = math.Random();
+      final finalValues = <int>[];
+      final int affixLevel = affix['level'] = r.nextInt(cardLevel) + 1;
+      for (final value in values) {
+        final random = value['random'] = r.nextDouble();
+        final int min = value['min'];
+        final int max = value['max'];
+        final num increment = value['increment']; // 升级增长有可能是小数
+        // 这里不用round()，因为round()会使第一次增加的0.5就直接进位
+        final int finalValue =
+            (min + (max - min) * random + (affixLevel - 1) * increment)
+                .truncate();
+        finalValues.add(finalValue);
+      }
+      affix['value'] = finalValues;
+      final affixDescription =
+          affixDescriptionRaw.interpolate(finalValues).split(RegExp('\n'));
+      for (final line in affixDescription) {
+        if (affix['isMain'] == true) {
+          description.writeln(line);
+        }
+        extraDescription.writeln('<lightBlue>$line</>');
+      }
     }
-    final mainAffixLine =
-        '<lightBlue>${mainAffixDescriptionRaw.interpolate(values)}</>';
-    extraDescription.writeln(mainAffixLine);
+
+    if (affixes.length > 1) {
+      description.writeln(
+          '<lightBlue>+ ${affixes.length - 1} ${engine.locale('extraAffix')}</>');
+    }
 
     return CustomGameCard(
       id: id,
@@ -328,7 +306,7 @@ abstract class GameData {
         outlined: true,
         textStyle: TextStyle(
           fontFamily: 'RuiZiYunZiKuLiBianTiGBK',
-          fontSize: 12.0,
+          fontSize: 16.0,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -338,13 +316,14 @@ abstract class GameData {
         anchor: Anchor.center,
         textStyle: TextStyle(
           fontFamily: 'NotoSansMono',
-          fontSize: 11.0,
+          fontSize: 14.0,
           color: Colors.black,
         ),
         overflow: ScreenTextOverflow.wordwrap,
       ),
-      description: mainAffixLine,
+      description: description.toString(),
       extraDescription: extraDescription.toString(),
+      enablePreview: true,
     );
   }
 

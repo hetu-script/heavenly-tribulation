@@ -10,8 +10,8 @@ import 'package:samsara/components/tooltip.dart';
 import 'package:samsara/components/sprite_button.dart';
 import 'package:samsara/components/fading_text.dart';
 import 'package:samsara/utils/math.dart';
-import 'package:samsara/utils/json.dart';
 import 'package:samsara/components/text_component2.dart';
+import 'package:hetu_script/utils.dart';
 
 // import 'cultivator.dart';
 import 'light_trail.dart';
@@ -131,7 +131,7 @@ class CultivationScene extends Scene {
     _isFirstCultivation = heroData['cultivationRank'] == 0;
 
     _skillLevels =
-        Map<String, int>.from(jsonCopy(heroData['cultivationSkills']));
+        Map<String, int>.from(jsonify(deepCopy(heroData['cultivationSkills'])));
   }
 
   void addHintText(String text,
