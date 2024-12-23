@@ -1,5 +1,5 @@
-import 'zh/quests.json5' as quests
-import 'zh/dialogs.json5' as dialogs
+import 'zh/quests.json' as quests
+import 'zh/dialogs.json' as dialogs
 
 const zh = {
   languageId: 'zh',

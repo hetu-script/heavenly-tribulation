@@ -1,5 +1,7 @@
 namespace WorldMap {
 
+  external function showHeroInfo(value)
+
   external function setTerrainCaption(left, top, caption)
 
   external function refreshTerrainSprite(left, top)
@@ -21,7 +23,7 @@ namespace WorldMap {
   external function setObjectTo(id, toX, toY)
 
   /// endDirection: 'north' | 'east' | 'south' | 'west'
-  external async function moveObjectTo(id, toX, toY, {endDirection, onDestionationCallback})
+  external async function moveObjectTo(id, toX, toY, {endDirection, onAfterMoveCallback})
 
   external async function refreshNpcsInHeroWorldMapPosition()
 

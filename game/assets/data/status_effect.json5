@@ -12,16 +12,17 @@
   // 对方/自己回合开始时 opponent/self_turn_start
   // 对方/自己回合结束时 opponent/self_turn_end
   // 对方/自己攻击时 opponent/self_attacking
-  // 对方/自己攻击被对方防住时 opponent/self_attacking_blocked
   // 对方/自己攻击后 opponent/self_attacked
-  // 对方/自己造成伤害时 opponent/self_damaging
-  // 对方/自己造成伤害后 opponent/self_damaged
+  // 对方/自己攻击被对方防住时 opponent/self_attacking_blocked
+  // 对方/自己造成伤害时 opponent/self_doing_damage
+  // 对方/自己造成伤害后 opponent/self_done_damage
   // 对方/自己恢复生命时 opponent/self_healing
   // 对方/自己恢复灵气时 opponent/self_condensing
   // 对方/自己获得防时 opponent/self_blocking
   // 对方/自己受到攻击时 opponent/self_being_attacked
   // 对方/自己受到攻击后 opponent/self_been_attacked
   // 对方/自己受到伤害时 opponent/self_taking_damage
+  // 对方/自己受到伤害后 opponent/self_taken_damage
   // 对方/自己获得增益状态时 opponent/self
   // 对方/自己获得减益状态时 opponent/self
   // 对方/自己再次行动时 opponent/self
@@ -63,6 +64,10 @@
     callbacks: ["self_turn_start", "self_taking_damage"],
     sound: "dagger_drawn2-89025.mp3",
   },
+  extra_damage: {
+    id: "extra_damage",
+    callbacks: ["self_attacked"],
+  },
   // 速度
   speed: {
     id: "speed",
@@ -70,15 +75,17 @@
     sound: "buffer-spell-88994.mp3",
     allowNegative: true,
   },
-  // 闪避
+  // 闪避（计数）
   dodge: {
     id: "dodge",
     callbacks: ["self_turn_end"],
     sound: "buffer-spell-88994.mp3",
   },
-  extra_damage_after_attack: {
-    id: "extra_damage_after_attack",
-    callbacks: ["self_attacked"],
+  // 闪避（本回合免伤）
+  invincible: {
+    id: "invincible",
+    callbacks: ["self_turn_start"],
+    sound: "buffer-spell-88994.mp3",
   },
   // // 飞云剑：每次使用剑法时+3速度
   // cloud_sword: {

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show BuildContext;
 import 'package:flutter/services.dart' show rootBundle;
 // import 'package:flutter/foundation.dart' show kDebugMode;
@@ -104,8 +105,6 @@ abstract class GameData {
 
     data = engine.hetu.invoke('newGame', positionalArgs: [saveName]);
 
-    isGameCreated = true;
-
     engine.hetu.invoke('init', namedArgs: {
       'itemsData': GameData.itemsData.values,
       'battleCardMainAffixesData': GameData.battleCardMainAffixesData,
@@ -120,6 +119,8 @@ abstract class GameData {
     }
 
     await registerModuleEventHandlers();
+
+    isGameCreated = true;
   }
 
   static String? currentWorldId;
@@ -235,24 +236,32 @@ abstract class GameData {
 
     final String id = data['id'];
     final List affixes = data['affixes'];
+    final int cardLevel = data['level'];
+    final int cardRank = data['rank'];
+    final title = data['name'];
+
     assert(affixes.isNotEmpty);
     final mainAffix = affixes[0];
     final String image = mainAffix['image'];
-    final int cardLevel = mainAffix['level'];
-    String title = data['name'];
 
     final genreString =
         '${engine.locale('genre')}: ${engine.locale(mainAffix['genre'])}';
     final typeString =
         '${engine.locale('type')}: ${engine.locale('battleCardKind.${mainAffix['kind']}')}';
-    final levelString = '${engine.locale('level')}: $cardLevel';
+    // final levelString = '${engine.locale('level')}: $cardLevel';
+    final rankString =
+        '${engine.locale('cultivationRank')}: ${engine.locale('cultivationRank.$cardRank')}';
 
     final description = StringBuffer();
     final extraDescription = StringBuffer();
-    extraDescription.writeln('<bold>$title</>');
+    String finalTitle = title;
+    if (kDebugMode) {
+      finalTitle += ' (lvl. ${data['level']})';
+    }
+    extraDescription.writeln('<bold>$finalTitle</>');
     extraDescription.writeln('<grey>$genreString</>');
     extraDescription.writeln('<grey>$typeString</>');
-    extraDescription.writeln('<grey>$levelString</>');
+    extraDescription.writeln('<grey>$rankString</>');
     extraDescription.writeln('——————————————');
 
     for (final affix in affixes) {
@@ -261,7 +270,8 @@ abstract class GameData {
       final values = affix['value'];
       final r = math.Random();
       final finalValues = <int>[];
-      final int affixLevel = affix['level'] = r.nextInt(cardLevel) + 1;
+      final affixLevel =
+          affix['level'] = cardLevel > 0 ? r.nextInt(cardLevel) + 1 : 0;
       for (final value in values) {
         final random = value['random'] = r.nextDouble();
         final int min = value['min'];
@@ -276,9 +286,12 @@ abstract class GameData {
       affix['value'] = finalValues;
       final affixDescription =
           affixDescriptionRaw.interpolate(finalValues).split(RegExp('\n'));
-      for (final line in affixDescription) {
+      for (var line in affixDescription) {
         if (affix['isMain'] == true) {
           description.writeln(line);
+        }
+        if (kDebugMode) {
+          line += ' (lvl. $affixLevel)';
         }
         extraDescription.writeln('<lightBlue>$line</>');
       }

@@ -21,6 +21,7 @@ import '../../../state/location_site_scene.dart';
 import '../../../dialog/character_visit_dialog.dart';
 import '../../../dialog/game_dialog/game_dialog.dart';
 import '../../../state/current_npc_list.dart';
+import '../../../state/hero.dart';
 
 class LocationSiteSceneOverlay extends StatefulWidget {
   const LocationSiteSceneOverlay({
@@ -170,6 +171,8 @@ class _LocationSiteSceneOverlayState extends State<LocationSiteSceneOverlay>
   }
 
   Future<void> _prepareData() async {
+    context.read<HeroState>().showHeroInfo(true);
+
     await context
         .read<LocationSiteSceneState>()
         .pushScene(locationData: widget.locationData);

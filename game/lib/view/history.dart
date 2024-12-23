@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../config.dart';
-import 'package:samsara/ui/constants.dart';
+import 'common.dart';
 
 class HistoryView extends StatelessWidget {
   const HistoryView({super.key, required this.historyData});

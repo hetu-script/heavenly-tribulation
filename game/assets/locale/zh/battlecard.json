@@ -19,7 +19,7 @@
   "battleCard.defend_fist.description": "防御 + {0}",
   "battleCard.swift.description": "速度 + {0}\n闪避 + {1}",
 
-  "battleCard.extra_damage_after_attack.description": "攻击后额外造成{0}点伤害",
+  "battleCard.extra_damage.description": "攻击额外造成 {0} 点伤害",
   "battleCard.defend.description": "防御 + {0}",
   "battleCard.speed.description": "速度 + {0}",
   "battleCard.dodge.description": "闪避 + {0}"

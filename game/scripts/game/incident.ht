@@ -1,6 +1,6 @@
 import 'game.ht'
 import 'entity/character/character.ht'
-import 'binding/player.ht'
+import 'player.ht'
 
 /// 历史事件记录
 struct Incident {

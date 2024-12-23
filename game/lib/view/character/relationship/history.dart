@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/constants.dart';
 import 'package:samsara/ui/empty_placeholder.dart';
 
 import '../../../config.dart';
 import '../../history.dart';
+import '../../common.dart';
 
 class CharacterHistoryView extends StatelessWidget {
   const CharacterHistoryView({

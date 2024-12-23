@@ -14,6 +14,8 @@ struct TileMap {
     tileSpriteSrcHeight = 64.0,
     tileOffsetX = 0.0,
     tileOffsetY = 16.0,
+    tileFogOffsetX = 0.0,
+    tileFogOffsetY = 0.0,
   }) {
     assert(id != null)
     assert(width != null)
@@ -52,12 +54,12 @@ function index2TilePosition(index: integer, mapWidth) {
   return Tile(left, top, index: index, mapWidth: mapWidth)
 }
 
-// 坐标是否在地图范围内
+/// 坐标是否在地图范围内
 function isPositionWithinMap(left, top, width, height) {
   return (left > 0 && top > 0 && left <= width && top <= height)
 }
 
-// hScore(n) 是曼哈顿距离时的 A* 算法
+/// hScore(n) 是曼哈顿距离时的 A* 算法
 function calculateRoute(start, end, map, { terrainKinds = [] }) {
   // print('calculating route: ${start.left},${start.top} to ${end.left},${end.top}')
 
@@ -106,6 +108,7 @@ function calculateRoute(start, end, map, { terrainKinds = [] }) {
     closed.add(nextIndex)
     const neighbors = getMapTileNeighbors(next.left, next.top, map, terrainKinds: terrainKinds)
     for (const neighbor in neighbors) {
+      if (neighbor.isNonEnterable && neighbor.index != end.index) continue
       if (closed.contains(neighbor.index)) continue
       const tentetiveGScore = gScore[nextIndex] + 1
       let tentativelyBetter = false

@@ -5,6 +5,8 @@
   "speed.description": "回合结束时，如果速度>=10，扣除10点速度，获得一个额外回合。\n回合开始时，如果速度<=-10，增加10点速度，跳过这个回合。",
   "dodge.title": "闪避",
   "dodge.description": "回合结束时，如果闪避>=10，扣除10点闪避，此回合不会受到伤害。",
-  "extra_damage_after_attack.title": "攻击后额外造成伤害",
-  "extra_damage_after_attack.description": "当你下一次攻击后，额外造成一次伤害。"
+  "extra_damage.title": "攻击后额外造成伤害",
+  "extra_damage.description": "你攻击后，额外造成一次伤害，然后移除此状态。",
+  "invincible.title": "免疫本回合攻击伤害",
+  "invincible.description": "免疫本回合攻击伤害，但不包括咒术造成的伤害。"
 }

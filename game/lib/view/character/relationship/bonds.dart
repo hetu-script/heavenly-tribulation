@@ -34,7 +34,6 @@ class CharacterBondsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DataTable2(
-      scrollController: ScrollController(),
       empty: EmptyPlaceholder(engine.locale('empty')),
       columns: (isHero
               ? _kHeroBondsSubTableColumns

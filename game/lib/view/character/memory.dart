@@ -100,6 +100,7 @@ class _MemoryViewState extends State<MemoryView>
         bond['id'] = key;
         final targetCharacterData = engine.hetu
             .invoke('getCharacterById', positionalArgs: [bond['id']]);
+        assert(targetCharacterData != null);
         final heroId = engine.hetu.invoke('getHeroId');
         bond['name'] = bondData['name'];
         bond['relationship'] = bondData['relationship'];

@@ -1,14 +1,14 @@
 {
-  extra_damage_after_attack: {
-    id: "extra_damage_after_attack",
+  extra_damage: {
+    id: "extra_damage",
     // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
-    affixId: "extra_damage_after_attack",
+    affixId: "extra_damage",
     genre: ["general"],
     // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
     // 额外词条有可能出现在多种类型的卡牌上
     category: ["attack"],
     tags: ["after_attack"],
-    script: "extra_damage_after_attack",
+    script: "extra_damage",
     // 实际的数值会在游戏中实际创建时才添加到这里
     // level: 0,
     // values: [0]
@@ -31,7 +31,7 @@
     // 额外词条有可能出现在多种类型的卡牌上
     category: ["buff", "attack"],
     tags: ["defend"],
-    script: "defend",
+    script: "defend_extra",
     // 实际的数值会在游戏中实际创建时才添加到这里
     // level: 0,
     // values: [0]

@@ -270,7 +270,7 @@ struct Character {
     attributeSum = 50,
     majorAttributes: List = [],
     baseStats,
-    cultivationGenre,
+    // cultivationGenre,
     cardLibrary,
     battleDeck,
   }) {
@@ -458,7 +458,7 @@ struct Character {
       attributeSum: attributeSum,
       majorAttributes: majorAttributes,
       baseStats: baseStats,
-      cultivationGenre: cultivationGenre,
+      // cultivationGenre: cultivationGenre,
       battleDeck: battleDeck,
     )
     Object.assign(this, battleInfo)

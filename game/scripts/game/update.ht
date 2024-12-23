@@ -6,7 +6,7 @@ import 'entity/character/character.ht'
 // import 'quest/quest.ht'
 import 'tile/common.ht'
 import 'name/character.ht'
-import 'binding/worldmap.ht'
+import 'worldmap.ht'
 import 'entity/location/location.ht'
 import 'tile/hexagonal_tile.ht'
 // import 'entity/skill/skill.ht'
@@ -29,7 +29,7 @@ function getBountyQuestMax(development) -> integer {
 function setFishTile(fishTile) {
   engine.info('鱼群正在在 [${fishTile.left},${fishTile.top}] 周围活跃。')
   fishTile.flags.isFishGathering = true
-  fishTile.overlaySprite = {animation: {path: 'object/animation/fishZone.png'}}
+  Object.assign(fishTile.overlaySprite, {animation: {path: 'object/animation/fishZone.png'}})
   WorldMap.refreshTerrainOverlaySprite(fishTile.left, fishTile.top)
   game.fishTileIndexes.add(fishTile.index)
 }
@@ -37,7 +37,7 @@ function setFishTile(fishTile) {
 function setStormTile(stormTile) {
   engine.info('暴风雨正在 [${stormTile.left},${stormTile.top}] 周围活跃。')
   stormTile.flags.isInStorm = true
-  stormTile.overlaySprite = {animation: {path: 'object/animation/stormZone.png'}}
+  Object.assign(stormTile.overlaySprite, {animation: {path: 'object/animation/stormZone.png'}})
   WorldMap.refreshTerrainOverlaySprite(stormTile.left, stormTile.top)
   game.stormTileIndexes.add(stormTile.index)
 }
@@ -45,7 +45,7 @@ function setStormTile(stormTile) {
 function setSpiritTile(spiritTile) {
   engine.info('天地灵气正在 [${spiritTile.left},${spiritTile.top}] 喷涌。')
   spiritTile.flags.isSpiritSurging = true
-  spiritTile.overlaySprite = {animation: {path: 'object/animation/spirit.png'}}
+  Object.assign(spiritTile.overlaySprite, {animation: {path: 'object/animation/spirit.png'}})
   WorldMap.refreshTerrainOverlaySprite(spiritTile.left, spiritTile.top)
   game.spiritTileIndexes.add(spiritTile.index)
 }

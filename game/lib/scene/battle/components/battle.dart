@@ -10,8 +10,8 @@ import 'package:samsara/cardgame/card.dart';
 // import 'package:samsara/gestures.dart';
 import 'package:samsara/components/sprite_button.dart';
 import 'package:flame/flame.dart';
-import 'package:samsara/components/tooltip.dart';
-import 'package:samsara/cardgame/custom_card.dart';
+// import 'package:samsara/components/tooltip.dart';
+// import 'package:samsara/cardgame/custom_card.dart';
 
 import '../../../ui.dart';
 import 'character.dart';
@@ -90,7 +90,7 @@ class BattleScene extends Scene {
     heroDeckZone = BattleDeckZone(
       position: GameUI.p1BattleDeckZonePosition,
       cards: heroDeck,
-      focusedPosition: GameUI.p1BattleCardFocusedPosition,
+      focusedOffset: GameUI.battleCardFocusedOffset,
       pileStructure: PileStructure.queue,
       reverseX: false,
     );
@@ -124,7 +124,7 @@ class BattleScene extends Scene {
     enemyDeckZone = BattleDeckZone(
       position: GameUI.p2BattleDeckZonePosition,
       cards: enemyDeck,
-      focusedPosition: GameUI.p2BattleCardFocusedPosition,
+      focusedOffset: GameUI.battleCardFocusedOffset,
       pileStructure: PileStructure.queue,
       reverseX: true,
     );
@@ -204,98 +204,6 @@ class BattleScene extends Scene {
     currentCharacter.addHintText('${engine.locale('attackFirstInBattle')}!');
   }
 
-  Future<void> _startTurn() async {
-    final card = await currentCharacter.deckZone.nextCard();
-
-    card.enablePreview = false;
-    await card.setFocused(true);
-    Tooltip.show(
-      scene: this,
-      target: card,
-      direction:
-          heroTurn ? TooltipDirection.rightTop : TooltipDirection.leftTop,
-      content: (card as CustomGameCard).extraDescription,
-      config: ScreenTextConfig(anchor: Anchor.topCenter),
-    );
-
-    await currentCharacter.onTurnStart(card);
-
-    await card.setFocused(false);
-    card.isEnabled = false;
-    Tooltip.hide();
-    card.enablePreview = true;
-
-    currentCharacter.onTurnEnd(card);
-
-    heroTurn = !heroTurn;
-    currentCharacter = heroTurn ? hero : enemy;
-    currentOpponent = heroTurn ? enemy : hero;
-
-    if (heroTurn == initialMove) {
-      ++turn;
-    }
-
-    // true表示英雄胜利，false表示英雄失败，null表示战斗未结束
-
-    if (turn >= kTurnLimit) {
-      if (hero.life >= enemy.life) {
-        battleResult = true;
-      } else {
-        battleResult = false;
-      }
-    }
-
-    if (enemy.life <= 0) {
-      battleResult = true;
-    } else if (hero.life <= 0) {
-      battleResult = false;
-    }
-
-    nextTurnButton.enableGesture = true;
-  }
-
-  void _endScene() {
-    engine.emit('battleEnded', args: {'battleResult': battleResult});
-  }
-
-  void _endBattle() {
-    if (battleResult == true) {
-      world.add(_victoryPrompt);
-    } else {
-      world.add(_defeatPrompt);
-    }
-
-    final heroName = '${hero.data['name']}(hero)';
-    final enemyName = '${enemy.data['name']}(enemy)';
-
-    engine.info(
-        'battle between $heroName and $enemyName ended. ${battleResult! ? heroName : enemyName} won!');
-
-    battleEnded = true;
-
-    if (!nextTurnButton.isMounted) {
-      world.add(nextTurnButton);
-    }
-    nextTurnButton.text = engine.locale('end');
-    nextTurnButton.onTap = (_, __) => _endScene();
-  }
-
-  Future<void> startAutoBattle() async {
-    nextTurnButton.removeFromParent();
-
-    await versusBanner.moveTo(
-      duration: 0.3,
-      toPosition: Vector2(center.x, center.y - 275),
-    );
-    _prepareBattle();
-
-    do {
-      await _startTurn();
-    } while (battleResult == null);
-
-    _endBattle();
-  }
-
   Future<void> nextTurn() async {
     if (!battleEnded) {
       if (!battleStarted) {
@@ -340,5 +248,88 @@ class BattleScene extends Scene {
         _endBattle();
       }
     }
+  }
+
+  Future<void> _startTurn() async {
+    GameCard card = currentCharacter.deckZone.current;
+
+    bool extraTurn = false;
+    do {
+      final turnStartDetails =
+          await currentCharacter.onTurnStart(card, isExtra: extraTurn);
+      bool skipTurn = turnStartDetails['skipTurn'] ?? false;
+      if (skipTurn) break;
+      final turnEndDetails = await currentCharacter.onTurnEnd(card);
+      extraTurn = turnEndDetails['extraTurn'] ?? false;
+      card = currentCharacter.deckZone.nextCard();
+    } while (extraTurn);
+
+    heroTurn = !heroTurn;
+    currentCharacter = heroTurn ? hero : enemy;
+    currentOpponent = heroTurn ? enemy : hero;
+
+    if (heroTurn == initialMove) {
+      ++turn;
+    }
+
+    // true表示英雄胜利，false表示英雄失败，null表示战斗未结束
+
+    if (turn >= kTurnLimit) {
+      if (hero.life >= enemy.life) {
+        battleResult = true;
+      } else {
+        battleResult = false;
+      }
+    }
+
+    if (enemy.life <= 0) {
+      battleResult = true;
+    } else if (hero.life <= 0) {
+      battleResult = false;
+    }
+
+    nextTurnButton.enableGesture = true;
+  }
+
+  void _endScene() {
+    engine.emit('battleEnded', args: {'battleResult': battleResult});
+  }
+
+  void _endBattle() {
+    if (battleResult == true) {
+      world.add(_victoryPrompt);
+    } else {
+      world.add(_defeatPrompt);
+    }
+
+    // final heroName = '${hero.data['name']}(hero)';
+    // final enemyName = '${enemy.data['name']}(enemy)';
+
+    // engine.info(
+    //     'battle between $heroName and $enemyName ended. ${battleResult! ? heroName : enemyName} won!');
+
+    battleEnded = true;
+
+    if (!nextTurnButton.isMounted) {
+      world.add(nextTurnButton);
+    }
+    nextTurnButton.text = engine.locale('end');
+    nextTurnButton.onTap = (_, __) => _endScene();
+  }
+
+  Future<void> startAutoBattle() async {
+    nextTurnButton.removeFromParent();
+
+    await versusBanner.moveTo(
+      duration: 0.3,
+      toPosition: Vector2(center.x, center.y - 275),
+    );
+    _prepareBattle();
+
+    do {
+      await _startTurn();
+    } while (battleResult == null);
+
+    _endBattle();
   }
 }

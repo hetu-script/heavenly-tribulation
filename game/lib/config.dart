@@ -17,6 +17,7 @@ const captionStyle = TextStyle(
 
 final darkTheme = ThemeData(
   brightness: Brightness.dark,
+  textTheme: TextTheme(),
   fontFamily: 'RuiZiYunZiKuLiBianTiGBK',
   colorScheme: ColorScheme.dark(
     surface: kBackgroundColor,

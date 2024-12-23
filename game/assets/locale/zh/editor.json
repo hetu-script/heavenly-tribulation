@@ -46,21 +46,35 @@
 
   "useCustomInteraction": "使用自定义事件处理函数",
 
+  "terrainTiles": "地形区块",
+  "decorationTiles": "地面贴图",
+  "objectTiles": "物体和NPC",
+
   "custom": "自定义",
   "portal": "传送门",
   "mapEntry": "地图入口",
   "glowingTile": "发光地板",
   "switch": "机关",
   "lever": "拉杆",
+  "pressurePlate": "压力机关",
   "treasureBox": "宝箱",
   "coffin": "棺材",
   "statue": "雕像",
+  "stoneStairs": "石阶",
+  "stoneStairsDebris": "石阶废墟",
+  "oldWell": "古井",
 
   "dungeonStoneGate": "石门",
   "dungeonStonePavedTile": "石砖",
 
-  "characterDefault": "默认角色",
+  "characterBoy": "少年男",
+  "characterYoungMan": "青年男",
   "characterMan": "中年男",
-  "characterOld": "老人",
-  "characterGirl": "女孩"
+  "characterOldMan": "老年男",
+  "characterGirl": "少年女",
+  "characterYoungWoman": "青年女",
+  "characterWoman": "中年女",
+  "characterOldWoman": "老年女",
+
+  "python": "怪蟒"
 }

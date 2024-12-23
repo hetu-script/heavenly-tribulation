@@ -8,6 +8,7 @@ import 'package:samsara/ui/close_button.dart';
 import 'package:samsara/ui/responsive_window.dart';
 // import '../../game_entity_listview.dart';
 import '../../util.dart';
+import '../common.dart';
 
 const kOrganizationCategoryCultivation = 'cultivation';
 const kOrganizationCategoryReligion = 'religion';
@@ -18,11 +19,13 @@ const kOrganizationCategoryNation = 'nation';
 class OrganizationView extends StatefulWidget {
   final String? organizationId;
   final HTStruct? organizationData;
+  final ViewPanelMode mode;
 
   const OrganizationView({
     super.key,
     this.organizationId,
     this.organizationData,
+    this.mode = ViewPanelMode.view,
   });
 
   @override

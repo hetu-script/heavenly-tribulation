@@ -18,6 +18,8 @@ import '../../view/character/profile.dart';
 // },
 
 class GameDialog extends StatefulWidget {
+  static bool isGameDialogOpened = false;
+
   static Future<void> show({
     required BuildContext context,
     required dynamic dialogData,
@@ -121,7 +123,7 @@ class _GameDialogState extends State<GameDialog> {
                             nameAlignment: AvatarNameAlignment.top,
                             image: currentAvatar != null
                                 ? AssetImage(
-                                    'assets/images/avatar/$currentAvatar')
+                                    'assets/images/illustration/$currentAvatar')
                                 : null,
                             size: const Size(140.0, 140.0),
                             characterData: characterData,
@@ -164,14 +166,7 @@ class _GameDialogState extends State<GameDialog> {
   }
 
   void startTalk() {
-    style = DefaultTextStyle.of(context).style.merge(const TextStyle(
-          fontSize: 24,
-          letterSpacing: 2,
-          fontWeight: FontWeight.normal,
-          color: Colors.white,
-          fontFamily: 'RuiZiYunZiKuLiBianTiGBK',
-          decoration: TextDecoration.none,
-        ));
+    GameDialog.isGameDialogOpened = true;
     finished = false;
     progress = 0;
 
@@ -187,6 +182,18 @@ class _GameDialogState extends State<GameDialog> {
     nodes = getRichTextStream(currentLine);
 
     displayName = widget.dialogData['displayName'];
+
+    style = DefaultTextStyle.of(context).style.merge(TextStyle(
+          fontSize: 20,
+          letterSpacing: 2,
+          fontWeight: FontWeight.normal,
+          color: (displayName != null || characterId != null)
+              ? Colors.lightGreen
+              : Colors.white70,
+          fontFamily: 'RuiZiYunZiKuLiBianTiGBK',
+          decoration: TextDecoration.none,
+        ));
+
     timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
       progress++;
       if (progress >= nodes.length) {
@@ -217,6 +224,7 @@ class _GameDialogState extends State<GameDialog> {
   }
 
   void finishDialog() {
+    GameDialog.isGameDialogOpened = false;
     // SchedulerBinding.instance.addPostFrameCallback((_) {
     Navigator.pop(context, widget.returnValue);
   }

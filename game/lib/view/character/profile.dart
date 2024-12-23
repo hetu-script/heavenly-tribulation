@@ -233,13 +233,14 @@ class _ProfileViewState extends State<ProfileView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.only(right: 10.0),
+                          padding:
+                              const EdgeInsets.only(right: 10.0, top: 10.0),
                           child: Avatar(
                             displayName: _characterData['name'],
                             size: const Size(120.0, 120.0),
                             nameAlignment: AvatarNameAlignment.bottom,
                             image: AssetImage(
-                                'assets/images/avatar/${_characterData['icon']}'),
+                                'assets/images/illustration/${_characterData['icon']}'),
                           ),
                         ),
                         SizedBox(
@@ -248,38 +249,43 @@ class _ProfileViewState extends State<ProfileView> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               SizedBox(
-                                height: 30.0,
-                                child: Row(children: [
-                                  Text('${engine.locale('gender')}: '),
-                                  isEditorMode
-                                      ? DropdownButton<String>(
-                                          items: <String>['male', 'female']
-                                              .map((String value) {
-                                            return DropdownMenuItem<String>(
-                                              value: value,
-                                              child: Text(engine.locale(value)),
-                                            );
-                                          }).toList(),
-                                          value: sex,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              sex = value!;
-                                            });
-                                          },
-                                        )
-                                      : Text(engine.locale(sex)),
-                                ]),
+                                height: 35.0,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text('${engine.locale('gender')}: '),
+                                    isEditorMode
+                                        ? DropdownButton<String>(
+                                            items: <String>['male', 'female']
+                                                .map((String value) {
+                                              return DropdownMenuItem<String>(
+                                                value: value,
+                                                child:
+                                                    Text(engine.locale(value)),
+                                              );
+                                            }).toList(),
+                                            value: sex,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                sex = value!;
+                                              });
+                                            },
+                                          )
+                                        : Text(engine.locale(sex)),
+                                  ],
+                                ),
                               ),
                               SizedBox(
-                                height: 30.0,
+                                height: 35.0,
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text('${engine.locale('age')}: '),
                                     isEditorMode
                                         ? Container(
                                             alignment: Alignment.topCenter,
                                             width: 40.0,
-                                            height: 10.0,
+                                            height: 40.0,
                                             child: TextField(
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
@@ -297,15 +303,16 @@ class _ProfileViewState extends State<ProfileView> {
                                 ),
                               ),
                               SizedBox(
-                                height: 30.0,
+                                height: 35.0,
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text('${engine.locale('charisma')}: '),
                                     isEditorMode
                                         ? Container(
                                             alignment: Alignment.topCenter,
                                             width: 40.0,
-                                            height: 10.0,
+                                            height: 40.0,
                                             child: TextField(
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
@@ -322,15 +329,16 @@ class _ProfileViewState extends State<ProfileView> {
                                 ),
                               ),
                               SizedBox(
-                                height: 30.0,
+                                height: 35.0,
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text('${engine.locale('wisdom')}: '),
                                     isEditorMode
                                         ? Container(
                                             alignment: Alignment.topCenter,
                                             width: 40.0,
-                                            height: 10.0,
+                                            height: 40.0,
                                             child: TextField(
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
@@ -347,15 +355,16 @@ class _ProfileViewState extends State<ProfileView> {
                                 ),
                               ),
                               SizedBox(
-                                height: 30.0,
+                                height: 35.0,
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text('${engine.locale('luck')}: '),
                                     isEditorMode
                                         ? Container(
                                             alignment: Alignment.topCenter,
                                             width: 40.0,
-                                            height: 10.0,
+                                            height: 40.0,
                                             child: TextField(
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
@@ -380,15 +389,16 @@ class _ProfileViewState extends State<ProfileView> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               SizedBox(
-                                height: 30.0,
+                                height: 35.0,
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text('${engine.locale('spirituality')}: '),
                                     isEditorMode
                                         ? Container(
                                             alignment: Alignment.topCenter,
                                             width: 40.0,
-                                            height: 10.0,
+                                            height: 40.0,
                                             child: TextField(
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
@@ -406,15 +416,16 @@ class _ProfileViewState extends State<ProfileView> {
                                 ),
                               ),
                               SizedBox(
-                                height: 30.0,
+                                height: 35.0,
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text('${engine.locale('dexterity')}: '),
                                     isEditorMode
                                         ? Container(
                                             alignment: Alignment.topCenter,
                                             width: 40.0,
-                                            height: 10.0,
+                                            height: 40.0,
                                             child: TextField(
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
@@ -431,15 +442,16 @@ class _ProfileViewState extends State<ProfileView> {
                                 ),
                               ),
                               SizedBox(
-                                height: 30.0,
+                                height: 35.0,
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text('${engine.locale('strength')}: '),
                                     isEditorMode
                                         ? Container(
                                             alignment: Alignment.topCenter,
                                             width: 40.0,
-                                            height: 10.0,
+                                            height: 40.0,
                                             child: TextField(
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
@@ -456,15 +468,16 @@ class _ProfileViewState extends State<ProfileView> {
                                 ),
                               ),
                               SizedBox(
-                                height: 30.0,
+                                height: 35.0,
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text('${engine.locale('willpower')}: '),
                                     isEditorMode
                                         ? Container(
                                             alignment: Alignment.topCenter,
                                             width: 40.0,
-                                            height: 10.0,
+                                            height: 40.0,
                                             child: TextField(
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
@@ -481,15 +494,16 @@ class _ProfileViewState extends State<ProfileView> {
                                 ),
                               ),
                               SizedBox(
-                                height: 30.0,
+                                height: 35.0,
                                 child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text('${engine.locale('perception')}: '),
                                     isEditorMode
                                         ? Container(
                                             alignment: Alignment.topCenter,
                                             width: 40.0,
-                                            height: 10.0,
+                                            height: 40.0,
                                             child: TextField(
                                               inputFormatters: [
                                                 LengthLimitingTextInputFormatter(
@@ -511,30 +525,32 @@ class _ProfileViewState extends State<ProfileView> {
                         Container(
                           padding: const EdgeInsets.only(top: 5.0),
                           width: 125.0,
+                          height: 190.0,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               SizedBox(
-                                height: 30.0,
+                                height: 35.0,
                                 child: Text('${engine.locale('fame')}: $fame'),
                               ),
                               SizedBox(
-                                height: 30.0,
+                                height: 35.0,
                                 child:
                                     Text('${engine.locale('infamy')}: $infamy'),
                               ),
                               SizedBox(
-                                height: 30.0,
+                                height: 35.0,
                                 child: Text(
                                     '${engine.locale('master')}: $masterName'),
                               ),
                               SizedBox(
-                                height: 30.0,
+                                height: 35.0,
                                 child: Text(
                                     '${engine.locale('organization')}: $organizationId'),
                               ),
                               SizedBox(
-                                height: 30.0,
+                                height: 35.0,
                                 child:
                                     Text('${engine.locale('title')}: $title'),
                               ),
@@ -545,34 +561,36 @@ class _ProfileViewState extends State<ProfileView> {
                           Container(
                             padding: const EdgeInsets.only(top: 5.0),
                             width: 125.0,
+                            height: 190.0,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 SizedBox(
-                                  height: 30.0,
+                                  height: 35.0,
                                   child: Text(
                                     '${engine.locale('charismaFavor')}: ${_characterData['charismaFavor'].truncate()}',
                                   ),
                                 ),
                                 SizedBox(
-                                  height: 30.0,
+                                  height: 35.0,
                                   child: Text(
                                     '${engine.locale('cultivationFavor')}: $cultivationFavor',
                                   ),
                                 ),
                                 SizedBox(
-                                  height: 30.0,
+                                  height: 35.0,
                                   child: Text(
                                     '${engine.locale('organizationFavor')}: $organizationFavor',
                                   ),
                                 ),
                                 SizedBox(
-                                  height: 30.0,
+                                  height: 35.0,
                                   child: Text(
                                       '${engine.locale('birthday')}: $birthday'),
                                 ),
                                 SizedBox(
-                                  height: 30.0,
+                                  height: 35.0,
                                   child: Text(
                                       '${engine.locale('restLifespan')}: $restLifespan'),
                                 ),
@@ -590,27 +608,22 @@ class _ProfileViewState extends State<ProfileView> {
                           Label(
                             '${engine.locale('father')}: $father',
                             width: 125.0,
-                            height: 30.0,
                           ),
                           Label(
                             '${engine.locale('mother')}: $mother',
                             width: 125.0,
-                            height: 30.0,
                           ),
                           Label(
                             '${engine.locale('spouse')}: $spouse',
                             width: 125.0,
-                            height: 30.0,
                           ),
                           LabelsWrap(
                             minWidth: 125.0,
-                            minHeight: 30.0,
                             '${engine.locale('children')}: ',
                             children: childs,
                           ),
                           LabelsWrap(
                             minWidth: 125.0,
-                            minHeight: 30.0,
                             '${engine.locale('siblings')}: ',
                             children: siblings,
                           ),
@@ -628,27 +641,22 @@ class _ProfileViewState extends State<ProfileView> {
                           Label(
                             '${engine.locale('home')}: $home',
                             width: 125.0,
-                            height: 30.0,
                           ),
                           Label(
                             '${engine.locale('location')}: $locationId',
                             width: 125.0,
-                            height: 30.0,
                           ),
                           Label(
                             '${engine.locale('site')}: $siteId',
                             width: 125.0,
-                            height: 30.0,
                           ),
                           Label(
                             '${engine.locale('worldPosition')}: $worldPositionString',
                             width: 125.0,
-                            height: 30.0,
                           ),
                           Label(
                             '${engine.locale('world')}: $worldId',
                             width: 125.0,
-                            height: 30.0,
                           ),
                         ],
                       ),
@@ -663,84 +671,72 @@ class _ProfileViewState extends State<ProfileView> {
                                 ? '${engine.locale('ideal')}: $ideal'
                                 : '${engine.locale('real')}: ${-ideal}',
                             width: 125.0,
-                            height: 30.0,
                           ),
                           Label(
                             order >= 0
                                 ? '${engine.locale('order')}: $order'
                                 : '${engine.locale('chaotic')}: ${-order}',
                             width: 125.0,
-                            height: 30.0,
                           ),
                           Label(
                             good >= 0
                                 ? '${engine.locale('good')}: $good'
                                 : '${engine.locale('evil')}: ${-good}',
                             width: 125.0,
-                            height: 30.0,
                           ),
                           Label(
                             social >= 0
                                 ? '${engine.locale('extraversion')}: $social'
                                 : '${engine.locale('introspection')}: ${-social}',
                             width: 125.0,
-                            height: 30.0,
                           ),
                           Label(
                             reason >= 0
                                 ? '${engine.locale('reasoning')}: $reason'
                                 : '${engine.locale('feeling')}: ${-reason}',
                             width: 125.0,
-                            height: 30.0,
                           ),
                           Label(
                             control >= 0
                                 ? '${engine.locale('organizing')}: $control'
                                 : '${engine.locale('relaxing')}: ${-control}',
                             width: 125.0,
-                            height: 30.0,
                           ),
                           Label(
                             frugal >= 0
                                 ? '${engine.locale('frugality')}: $frugal'
                                 : '${engine.locale('lavishness')}: ${-frugal}',
                             width: 125.0,
-                            height: 30.0,
                           ),
                           Label(
                             frank >= 0
                                 ? '${engine.locale('frankness')}: $frank'
                                 : '${engine.locale('tactness')}: ${-frank}',
                             width: 125.0,
-                            height: 30.0,
                           ),
                           Label(
                             confidence >= 0
                                 ? '${engine.locale('confidence')}: $confidence'
                                 : '${engine.locale('cowardness')}: ${-confidence}',
                             width: 125.0,
-                            height: 30.0,
                           ),
                           Label(
                             prudence >= 0
                                 ? '${engine.locale('prudence')}: $prudence'
                                 : '${engine.locale('adventurousness')}: ${-prudence}',
                             width: 125.0,
-                            height: 30.0,
                           ),
                           Label(
                             empathy >= 0
                                 ? '${engine.locale('empathy')}: $empathy'
                                 : '${engine.locale('indifference')}: ${-empathy}',
                             width: 125.0,
-                            height: 30.0,
                           ),
                           Label(
                             generosity >= 0
                                 ? '${engine.locale('generosity')}: $generosity'
                                 : '${engine.locale('stinginess')}: ${-generosity}',
                             width: 125.0,
-                            height: 30.0,
                           ),
                           // const Divider(
                           //   color: Colors.transparent,
@@ -749,13 +745,11 @@ class _ProfileViewState extends State<ProfileView> {
                           LabelsWrap(
                             '${engine.locale('motivation')}:',
                             minWidth: 125.0,
-                            minHeight: 30.0,
                             children: motivations,
                           ),
                           LabelsWrap(
                             '${engine.locale('thinking')}:',
                             minWidth: 125.0,
-                            minHeight: 30.0,
                             children: thinkings,
                           ),
                         ],

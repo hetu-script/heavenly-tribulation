@@ -10,12 +10,12 @@ import '../../../ui.dart';
 // import 'character.dart';
 
 class BattleDeckZone extends PiledZone with HandlesGesture {
-  int _currentFocusedCardIndex = -1;
+  late GameCard current;
 
   BattleDeckZone({
     required super.position,
     super.cards,
-    super.focusedPosition,
+    super.focusedOffset,
     super.pileStructure,
     required super.reverseX,
   }) : super(
@@ -28,7 +28,16 @@ class BattleDeckZone extends PiledZone with HandlesGesture {
 
   @override
   void onLoad() {
-    for (final card in cards) {
+    assert(cards.isNotEmpty && cards.length >= 3);
+
+    current = cards.first;
+    for (var i = 0; i < cards.length; ++i) {
+      final card = cards[i];
+      card.prev = i == 0 ? cards.last : cards[i - 1];
+      card.next = i == (cards.length - 1) ? cards.first : cards[i + 1];
+      card.index = i;
+      card.previewPriority = card.focusedPriority = 200;
+
       if (!card.isMounted) {
         gameRef.world.add(card);
       }
@@ -49,27 +58,28 @@ class BattleDeckZone extends PiledZone with HandlesGesture {
         }
       };
     }
+
+    super.onLoad();
   }
 
-  Future<GameCard> nextCard() async {
-    ++_currentFocusedCardIndex;
-    if (_currentFocusedCardIndex >= cards.length) {
-      _currentFocusedCardIndex = 0;
+  GameCard nextCard() {
+    current = current.next!;
+    if (current.index == 0) {
       for (final card in cards) {
         card.isEnabled = true;
       }
     }
-
-    return cards[_currentFocusedCardIndex];
+    return current;
   }
 
   void reset() {
-    _currentFocusedCardIndex = -1;
-
+    current = cards.first;
     for (final card in cards) {
+      card.isEnabled = true;
       if (card.isFocused) {
         card.setFocused(false);
       }
+      card.enablePreview = true;
     }
   }
 

@@ -61,8 +61,8 @@ class VersusBanner extends GameComponent {
     final heorIcon = SpriteButton(
       // position: Vector2(center.x - 80.0 - 10.0 - 100.0, center.y - 50.0),
       position: Vector2(0, 40.0),
-      image: await Flame.images.load('avatar/${heroData['icon']}'),
-      // image2: await Flame.images.load('avatar/border.png'),
+      image: await Flame.images.load('illustration/${heroData['icon']}'),
+      // image2: await Flame.images.load('illustration/border.png'),
       size: Vector2(100.0, 100.0),
       borderRadius: 12.0,
       paint: paint,
@@ -75,8 +75,8 @@ class VersusBanner extends GameComponent {
     final enemyIcon = SpriteButton(
       // position: Vector2(center.x + 80.0 + 10.0, center.y - 50.0),
       position: Vector2(420.0, 40.0),
-      image: await Flame.images.load('avatar/${enemyData['icon']}'),
-      // image2: await Flame.images.load('avatar/border.png'),
+      image: await Flame.images.load('illustration/${enemyData['icon']}'),
+      // image2: await Flame.images.load('illustration/border.png'),
       size: Vector2(100.0, 100.0),
       borderRadius: 12.0,
       paint: paint,

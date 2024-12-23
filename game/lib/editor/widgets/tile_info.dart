@@ -61,7 +61,7 @@ class _TileInfoPanelState extends State<TileInfoPanel> {
             Text('${engine.locale('organization')}: ${currentNation['name']}'),
           if (currentLocation != null)
             Text('${engine.locale('location')}: ${currentLocation['name']}'),
-          if (currentTerrain?.isNonInteractable == true)
+          if (currentTerrain?.isNonEnterable == true)
             Text(engine.locale('nonInteractable')),
           if (currentTerrain?.objectId != null)
             Text('${engine.locale('mapObject')}: ${currentTerrain!.objectId!}'),

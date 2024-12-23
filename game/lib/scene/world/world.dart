@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 // import 'package:samsara/gestures/gesture_mixin.dart';
-import 'package:flutter/gestures.dart';
+// import 'package:flutter/gestures.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/tilemap.dart';
@@ -55,8 +55,8 @@ class WorldMapScene extends Scene {
           gridSize: kGridSize,
           tileSpriteSrcSize: kTileSpriteSrcSize,
           tileOffset: kTileOffset,
+          tileFogOffset: kTileFogOffset,
           tileObjectSpriteSrcSize: kTileMapObjectSpriteSrcSize,
-          scaleFactor: 1.0,
           // isCameraFollowHero: false,
           showSelected: true,
           showHover: true,
@@ -65,7 +65,7 @@ class WorldMapScene extends Scene {
           showFogOfWar: showFogOfWar,
           showNonInteractableHintColor: showNonInteractableHintColor,
           autoUpdateMovingObject: false,
-          shadowSpriteId: 'shadow.png',
+          fogSpriteId: 'shadow.png',
         ),
         super(
           id: worldData['id'],
@@ -86,12 +86,6 @@ class WorldMapScene extends Scene {
 
     map.onLoadComplete = () {
       engine.emit(GameEvents.mapLoaded);
-    };
-
-    map.onDragUpdate = (int buttons, Vector2 offset) {
-      if (buttons == kSecondaryButton) {
-        camera.moveBy(-offset);
-      }
     };
 
     map.onMouseScrollUp = () {

@@ -91,7 +91,7 @@ struct CultivationRecruitMaze {
         const terrain = {
           ...Tile(i + 1, j + 1, mapWidth: width),
           isVisible: false,
-          isNonInteractable: true,
+          isNonEnterable: true,
         }
         currentLevel.terrains.add(terrain)
         addTerrainToZone(terrain, landZone)
@@ -251,7 +251,7 @@ struct CultivationRecruitMaze {
     const blockZone = createZone(world: currentLevel, category: 'block')
     for (const tile in currentLevel.terrains) {
       if (tile.flags.isRoute) {
-        tile.isNonInteractable = true
+        tile.isNonEnterable = true
         if (tile.flags.isPaved) {
           tile.spriteIndex = kPavedRockTile
         } else {
@@ -259,7 +259,7 @@ struct CultivationRecruitMaze {
         }
       } else {
         tile.isVoid = true
-        tile.isNonInteractable = false
+        tile.isNonEnterable = false
         addTerrainToZone(tile, blockZone)
       }
     }

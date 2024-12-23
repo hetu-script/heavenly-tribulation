@@ -85,15 +85,15 @@ flutter:
     - assets/images/animation/girl/
     - assets/images/animation/snake/
     - assets/images/animation/tiger/
-    - assets/images/avatar/
-    - assets/images/avatar/male/
-    - assets/images/avatar/female/
-    - assets/images/avatar/main/
-    - assets/images/avatar/npc/
-    - assets/images/avatar/old/
-    - assets/images/avatar/story/
-    - assets/images/avatar/young/
-    - assets/images/avatar/
+    - assets/images/illustration/
+    - assets/images/illustration/male/
+    - assets/images/illustration/female/
+    - assets/images/illustration/main/
+    - assets/images/illustration/npc/
+    - assets/images/illustration/old/
+    - assets/images/illustration/story/
+    - assets/images/illustration/young/
+    - assets/images/illustration/
     - assets/images/battle/
     - assets/images/battle/scene/
     - assets/images/cultivation/

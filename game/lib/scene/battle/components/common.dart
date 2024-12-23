@@ -1,4 +1,9 @@
 abstract class DamageType {
-  static const punchkick = 'punchkick';
-  static const blade = 'blade';
+  static const fist = 'fist';
+  static const sword = 'sword';
 }
+
+const Set<String> kPhysicalDamageTypes = {
+  DamageType.fist,
+  DamageType.sword,
+};

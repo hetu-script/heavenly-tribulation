@@ -6,26 +6,109 @@ import '../binding/battle_character.ht'
 /// 状态脚本必须是非阻塞，不能是async
 
 /// 所有的卡牌词条脚本按照约定都以 `status_script_${effectId}_${callbackId}` 的形式命名
+/// 触发时机包括：
+/// 对方/自己回合开始时 opponent/self_turn_start
+/// 对方/自己回合结束时 opponent/self_turn_end
+/// 对方/自己攻击时 opponent/self_attacking
+/// 对方/自己攻击后 opponent/self_attacked
+/// 对方/自己攻击被对方防住时 opponent/self_attacking_blocked
+/// 对方/自己造成伤害时 opponent/self_doing_damage
+/// 对方/自己造成伤害后 opponent/self_done_damage
+/// 对方/自己恢复生命时 opponent/self_healing
+/// 对方/自己恢复灵气时 opponent/self_condensing
+/// 对方/自己获得防时 opponent/self_blocking
+/// 对方/自己受到攻击时 opponent/self_being_attacked
+/// 对方/自己受到攻击后 opponent/self_been_attacked
+/// 对方/自己受到伤害时 opponent/self_taking_damage
+/// 对方/自己受到伤害后 opponent/self_taken_damage
+/// 对方/自己获得增益状态时 opponent/self
+/// 对方/自己获得减益状态时 opponent/self
+/// 对方/自己再次行动时 opponent/self
+/// 对方/自己生命减少时 opponent/self
+/// 对方/自己灵气减少时 opponent/self
+/// 对方/自己防减少时 opponent/self
+/// 对方/自己使用擒拿时 opponent/self
+/// 对方/自己使用拳法时 opponent/self
+/// 对方/自己使用腿法时 opponent/self
+/// 对方/自己使用剑法时 opponent/self
+/// 对方/自己使用刀法时 opponent/self
+/// 对方/自己使用枪法时 opponent/self
+/// 对方/自己使用棍法时 opponent/self
+/// 对方/自己使用轻功时 opponent/self
+/// 对方/自己使用内功时 opponent/self
+/// 对方/自己使用心法时 opponent/self
+/// 对方/自己使用咒语时 opponent/self
+/// 对方/自己使用道法流派招式时 opponent/self
+/// 对方/自己使用御剑流派招式时 opponent/self_use_card_genre_flying_sword
+/// 对方/自己使用锻体流派招式时 opponent/self
+/// 对方/自己使用化神流派招式时 opponent/self
+/// 对方/自己使用炼魂流派招式时 opponent/self
+/// 对方/自己使用阵法时 opponent/self
+/// 对方/自己使用符咒时 opponent/self
+/// 对方/自己使用丹药时 opponent/self
+/// 对方/自己使用灵器时 opponent/self
+/// 对方/自己使用灵植时 opponent/self
+/// 对方/自己使用灵兽时 opponent/self
+/// 对方/自己使用幻术时 opponent/self
+/// 对方/自己使用通灵时 opponent/self
+/// 对方/自己使用占卜时 opponent/self
+/// 对方/自己使用神通时 opponent/self
 
-function status_script_block_self_turn_start(self, opponent) {
+const kSpeedThreshold = 10
+const kDodgeThreshold = 10
+
+/// details既是入参也是出参，脚本可能会获取或修改details中的内容
+
+function status_script_block_self_turn_start(self, opponent, details) {
   self.removeStatusEffect('block', percentage: 0.5)
 }
 
-function status_script_block_self_taking_damage(self, opponent, args) {
+function status_script_block_self_taking_damage(self, opponent, details) {
   if (!opponent.hasTurnFlag('ignoreBlock')) {
-    let damage = args['damage']
+    let damage = details.damage
     let residue = self.removeStatusEffect('block', amount: damage)
-    args['damage'] = residue
-    args['blocked'] = true
+    details.damage = residue
+    details.blocked = true
   }
 }
 
-function status_script_speed_self_turn_start(self, opponent) {
-
+function status_script_extra_damage_self_attacked(self, opponent, details) {
+  final value = self.hasStatusEffect('extra_damage')
+  assert(value > 0)
+  opponent.takeDamage(details.damageType, value)
+  self.removeStatusEffect('extra_damage')
 }
 
-function status_script_speed_self_turn_end(self, opponent) {
-  
+function status_script_speed_self_turn_start(self, opponent, details) {
+  final existedSpeed = self.hasStatusEffect('speed')
+  if (existedSpeed <= -kSpeedThreshold) {
+    self.addStatusEffect('speed', amount: kSpeedThreshold)
+    details.skipTurn = true
+  }
+}
+
+function status_script_speed_self_turn_end(self, opponent, details) {
+  final existedSpeed = self.hasStatusEffect('speed')
+  if (existedSpeed >= kSpeedThreshold) {
+    self.removeStatusEffect('speed', amount: kSpeedThreshold)
+    details.extraTurn = true
+  }
+}
+
+function status_script_dodge_self_turn_end(self, opponent, details) {
+  final existedDodge = self.hasStatusEffect('dodge')
+  if (existedDodge >= kDodgeThreshold) {
+    self.removeStatusEffect('dodge', kDodgeThreshold)
+    self.addStatusEffect('invincible')
+    details.dodgeTurn = true
+  }
+}
+
+function status_script_invincible_self_turn_start(self, opponent, details) {
+  if (!details.isExtra) {
+    // 如果是再次行动的回合，不会移除无敌状态
+    self.removeStatusEffect('invincible')
+  }
 }
 
 // function cloud_sword_self_use_card_genre_blade(self, opponent) {

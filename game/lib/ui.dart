@@ -68,10 +68,13 @@ abstract class GameUI {
       battleDeckZoneSize,
       p1BattleDeckZonePosition,
       p2BattleDeckZonePosition,
-      p1BattleCardFocusedPosition,
-      p2BattleCardFocusedPosition,
+      // p1BattleCardFocusedPosition,
+      // p2BattleCardFocusedPosition,
       p1HeroSpritePosition,
       p2HeroSpritePosition;
+
+  static late Vector2 battleCardFocusedOffset;
+
   static final heroSpriteSize = Vector2(80.0 * 2, 112.0 * 2);
   static final statusEffectIconSize = Vector2(24, 24);
   static final permenantStatusEffectIconSize = Vector2(48, 48);
@@ -127,28 +130,33 @@ abstract class GameUI {
     battleDeckZoneSize =
         Vector2(size.x / 2 - indent * 2, battleCardSize.y + indent);
 
-    battleCardFocusedSize = libraryCardSize;
+    battleCardFocusedSize =
+        Vector2(battleCardSize.x + indent * 2, battleCardSize.y + indent * 2);
 
     p1BattleDeckZonePosition =
         Vector2(indent / 2, size.y - battleDeckZoneSize.y - indent / 2);
     p2BattleDeckZonePosition = Vector2(
         size.x - battleDeckZoneSize.x - indent / 2, p1BattleDeckZonePosition.y);
 
-    p1BattleCardFocusedPosition = Vector2(
-        indent,
-        p1BattleDeckZonePosition.y -
-            indent -
-            permenantStatusEffectIconSize.y -
-            battleCardFocusedSize.y -
-            indent);
+    // p1BattleCardFocusedPosition = Vector2(
+    //     indent,
+    //     p1BattleDeckZonePosition.y -
+    //         indent -
+    //         permenantStatusEffectIconSize.y -
+    //         battleCardFocusedSize.y -
+    //         indent);
 
-    p2BattleCardFocusedPosition = Vector2(
-        size.x - indent - battleCardFocusedSize.x,
-        p2BattleDeckZonePosition.y -
-            indent -
-            permenantStatusEffectIconSize.y -
-            battleCardFocusedSize.y -
-            indent);
+    // p2BattleCardFocusedPosition = Vector2(
+    //     size.x - indent - battleCardFocusedSize.x,
+    //     p2BattleDeckZonePosition.y -
+    //         indent -
+    //         permenantStatusEffectIconSize.y -
+    //         battleCardFocusedSize.y -
+    //         indent);
+
+    battleCardFocusedOffset = Vector2(
+        -(battleCardFocusedSize.x - battleCardSize.x) / 2,
+        -(battleCardFocusedSize.y - battleCardSize.y));
 
     p1HeroSpritePosition = Vector2(
       size.x / 2 - 208,

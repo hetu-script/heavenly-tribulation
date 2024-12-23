@@ -28,6 +28,9 @@
   "characterConsume": "{0}吃下了{1}。",
   "characterForceToConsume": "{0}喂{1}吃下了{2}。",
 
+  "characterStaminaRestored": "{0}的体力恢复了{1}点。",
+  "characterManaCondensed": "{0}获得了{1}点灵气。",
+
   "characterCultivationLevelUp": "{0}的修为提升到了{1}",
   "characterCultivationRankUp": "{0}的境界提升到了{1}",
   "characterCultivationSkillLevel": "{0}的功法“{1}”等级变为{2}",

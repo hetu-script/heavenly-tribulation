@@ -130,7 +130,7 @@ class _BattleSceneOverlayState extends State<BattleSceneOverlay> {
                 //           size: const Size(120, 120),
                 //           // name: widget.heroData['name'],
                 //           image: AssetImage(
-                //               'assets/images/avatar/${widget.heroData['icon']}'),
+                //               'assets/images/illustration/${widget.heroData['icon']}'),
                 //           borderColor: kBackgroundColor,
                 //         ),
                 //       ),
@@ -141,7 +141,7 @@ class _BattleSceneOverlayState extends State<BattleSceneOverlay> {
                 //           size: const Size(120, 120),
                 //           // name: widget.enemyData['name'],
                 //           image: AssetImage(
-                //               'assets/images/avatar/${widget.enemyData['icon']}'),
+                //               'assets/images/illustration/${widget.enemyData['icon']}'),
                 //           borderColor: kBackgroundColor,
                 //         ),
                 //       ),

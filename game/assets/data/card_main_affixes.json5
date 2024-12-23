@@ -12,7 +12,7 @@
     tags: ["attack", "weapon", "sword"],
     image: "attack_sword.png",
     animations: ["attack_sword", "attack_sword_recovery"],
-    script: "attack_main",
+    script: "attack",
     // 实际的数值会在游戏中实际创建时才添加到这里
     // level: 0,
     // values: [0]
@@ -40,7 +40,7 @@
     tags: ["defend", "weapon"],
     image: "defend_sword.png",
     animations: ["defend_sword"],
-    script: "defend_main",
+    script: "defend",
     // 实际的数值会在游戏中实际创建时才添加到这里
     // level: 0,
     // values: [0]
@@ -68,7 +68,7 @@
     tags: ["attack", "fist"],
     image: "attack_fist.png",
     animations: ["attack_fist", "attack_fist_recovery"],
-    script: "attack_main",
+    script: "attack",
     // 实际的数值会在游戏中实际创建时才添加到这里
     // level: 0,
     // values: [0]
@@ -96,7 +96,7 @@
     tags: ["buff", "defend", "fist"],
     image: "defend_fist.png",
     animations: ["defend_fist"],
-    script: "defend_main",
+    script: "defend",
     // 实际的数值会在游戏中实际创建时才添加到这里
     // level: 0,
     // values: [0]

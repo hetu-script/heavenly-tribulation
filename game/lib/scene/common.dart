@@ -3,8 +3,8 @@ import 'package:flame/components.dart' show Vector2;
 final kGridSize = Vector2(32.0, 28.0);
 final kTileSpriteSrcSize = Vector2(32.0, 64.0);
 final kTileOffset = Vector2(0.0, 16.0);
+final kTileFogOffset = Vector2(-8.0, 0.0);
 final kTileMapObjectSpriteSrcSize = Vector2(32.0, 48.0);
-final kTileMapShadowOffset = Vector2(-8.0, 0.0);
 
 const kSpriteWater = 0;
 const kSpriteLand = 1;
@@ -23,15 +23,17 @@ const kSpriteTreasureBox = 'object/treasureBox.png';
 const kSpriteTreasureBoxOpened = 'object/treasureBoxOpened.png';
 const kSpriteDungeonGlowingTile = 'object/glowingTile.png';
 const kSpriteDungeonCoffin = 'object/coffin.png';
+const kSpriteDungeonStatue = 'object/statue.png';
+const kSpriteDungeonOldWell = 'object/oldWell.png';
 const kSpriteDungeonStoneStairs = 'object/stoneStairs.png';
 const kSpriteDungeonStoneStairsDebris = 'object/stoneStairsDebris.png';
 
-const kSpriteCharacterDefault = 'object/characterDefault.png';
+const kSpriteCharacterYoungMan = 'object/characterYoungMan.png';
 const kSpriteCharacterMan = 'object/characterMan.png';
-const kSpriteCharacterOld = 'object/characterOld.png';
-const kSpriteCharacterGirl = 'object/characterGirl.png';
+const kSpriteCharacterOldMan = 'object/characterOldMan.png';
+const kSpriteCharacterYoungWoman = 'object/characterYoungWoman.png';
 
-const kTerrainKindEmpty = 'empty';
+const kTerrainKindVoid = 'void';
 const kTerrainKindPlain = 'plain';
 const kTerrainKindMountain = 'mountain';
 const kTerrainKindForest = 'forest';

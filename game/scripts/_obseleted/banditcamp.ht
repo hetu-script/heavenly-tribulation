@@ -3,7 +3,7 @@ import 'quest.ht'
 import { random } from '../game.ht'
 import '../maze/mountain.ht'
 // import '../tile/common.ht'
-import '../binding/worldmap.ht'
+import '../worldmap.ht'
 import '../game.ht'
 
 const _kSearching = 'searching'

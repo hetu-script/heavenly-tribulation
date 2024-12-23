@@ -28,6 +28,10 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
           priority: 1000,
           borderRadius: 20.0,
         ) {
+    onMouseEnter = () {
+      Tooltip.hide();
+    };
+
     onDragIn = (int buttons, Vector2 position, GameComponent? component) {
       if (component is! CustomGameCard) return;
       if (cards.contains(component)) return;

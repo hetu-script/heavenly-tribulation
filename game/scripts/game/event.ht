@@ -25,7 +25,7 @@ import 'game.ht'
 /// 因为函数不会被序列化，因此每次启动游戏都会执行一次绑定
 /// 此时模组元数据尚未加载
 function addEventHandlers({worldId, moduleId, handlers}) {
-  engine.info('添加模组事件处理函数 [${moduleId}] ...')
+  engine.info('在世界 [${worldId}] 上添加模组事件处理函数 [${moduleId}] ...')
   let module = {}
   module[worldId] = {}
   Object.assign(module[worldId], handlers)
@@ -44,9 +44,9 @@ function addEventHandlers({worldId, moduleId, handlers}) {
 /// 第二个是回调本身的一些传入参数，例如执行时的一些情况等等
 
 function onGameEvent(eventId: string, ...args) async {
-  // engine.info('触发游戏事件 [${eventId}]')
+  engine.info('触发游戏事件 [${eventId}]')
   for (const module in game.modules.values) {
-    let callback = module[world.id]?[eventId]
+    let callback = module[world.id][eventId]
     // callback 可能是 null
     if(callback is function) {
       engine.info('执行模组 [${module.id}] 的事件处理函数 [${eventId}]')

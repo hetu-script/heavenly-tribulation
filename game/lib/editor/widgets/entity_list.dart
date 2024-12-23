@@ -25,11 +25,12 @@ import '../../view/organization/edit_organization_basic.dart';
 import '../../dialog/input_description.dart';
 
 const kObjectCodeTemplate = '''{
+  id: 'id',
   entityType: 'object',
   category: 'custom',
-  id: 'id',
   isDiscovered: true,
-  flags: {}
+  useCustomInteraction: true,
+  blockHeroMove: true
 }
 ''';
 
@@ -51,6 +52,27 @@ enum CharacterPopUpMenuItems {
 List<PopupMenuEntry<CharacterPopUpMenuItems>> buildCharacterPopUpMenuItems(
     {void Function(CharacterPopUpMenuItems item)? onItemPressed}) {
   return <PopupMenuEntry<CharacterPopUpMenuItems>>[
+    buildMenuItem(
+      item: CharacterPopUpMenuItems.checkProfile,
+      name: engine.locale('checkProfile'),
+      onItemPressed: onItemPressed,
+    ),
+    buildMenuItem(
+      item: CharacterPopUpMenuItems.checkEventFlags,
+      name: engine.locale('checkEventFlags'),
+      onItemPressed: onItemPressed,
+    ),
+    buildMenuItem(
+      item: CharacterPopUpMenuItems.checkEquipments,
+      name: engine.locale('checkEquipments'),
+      onItemPressed: onItemPressed,
+    ),
+    buildMenuItem(
+      item: CharacterPopUpMenuItems.checkMemory,
+      name: engine.locale('checkMemory'),
+      onItemPressed: onItemPressed,
+    ),
+    const PopupMenuDivider(),
     buildMenuItem(
       item: CharacterPopUpMenuItems.setAsHero,
       name: engine.locale('setAsHero'),
@@ -86,26 +108,6 @@ List<PopupMenuEntry<CharacterPopUpMenuItems>> buildCharacterPopUpMenuItems(
       name: engine.locale('setLocationSite'),
       onItemPressed: onItemPressed,
     ),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.checkProfile,
-      name: engine.locale('checkProfile'),
-      onItemPressed: onItemPressed,
-    ),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.checkEventFlags,
-      name: engine.locale('checkEventFlags'),
-      onItemPressed: onItemPressed,
-    ),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.checkEquipments,
-      name: engine.locale('checkEquipments'),
-      onItemPressed: onItemPressed,
-    ),
-    buildMenuItem(
-      item: CharacterPopUpMenuItems.checkMemory,
-      name: engine.locale('checkMemory'),
-      onItemPressed: onItemPressed,
-    ),
     const PopupMenuDivider(),
     buildMenuItem(
       item: CharacterPopUpMenuItems.delete,
@@ -131,6 +133,28 @@ List<PopupMenuEntry<LocationPopUpMenuItems>> buildLocationPopUpMenuItems(
     const PopupMenuDivider(),
     buildMenuItem(
       item: LocationPopUpMenuItems.delete,
+      name: engine.locale('delete'),
+      onItemPressed: onItemPressed,
+    ),
+  ];
+}
+
+enum ObjectPopUpMenuItems {
+  edit,
+  delete,
+}
+
+List<PopupMenuEntry<ObjectPopUpMenuItems>> buildObjectPopUpMenuItems(
+    {void Function(ObjectPopUpMenuItems item)? onItemPressed}) {
+  return <PopupMenuEntry<ObjectPopUpMenuItems>>[
+    buildMenuItem(
+      item: ObjectPopUpMenuItems.edit,
+      name: engine.locale('edit'),
+      onItemPressed: onItemPressed,
+    ),
+    const PopupMenuDivider(),
+    buildMenuItem(
+      item: ObjectPopUpMenuItems.delete,
       name: engine.locale('delete'),
       onItemPressed: onItemPressed,
     ),
@@ -225,14 +249,14 @@ class _EntityListPanelState extends State<EntityListPanel>
     // _worldWidth = worldSizeData['width'];
     // _worldHeight = worldSizeData['height'];
 
-    updateCharacters();
-    updateLocations();
+    _updateCharacters();
+    _updateLocations();
     updateOrganizations();
     updateZones();
-    updateObjects();
+    _updateObjects();
   }
 
-  void updateCharacters() {
+  void _updateCharacters() {
     _heroId = engine.hetu.invoke('getHeroId');
 
     _charactersTableData.clear();
@@ -255,7 +279,21 @@ class _EntityListPanelState extends State<EntityListPanel>
     setState(() {});
   }
 
-  void updateLocations() {
+  void _editCharacter(String dataId) {
+    showDialog(
+      context: context,
+      builder: (context) => ProfileView(
+        characterId: dataId,
+        mode: ViewPanelMode.edit,
+      ),
+    ).then((value) {
+      if (value == true) {
+        _updateCharacters();
+      }
+    });
+  }
+
+  void _updateLocations() {
     _locationsTableData.clear();
     _locations = engine.hetu.invoke('getLocations');
     for (final loc in _locations) {
@@ -267,6 +305,20 @@ class _EntityListPanelState extends State<EntityListPanel>
       _locationsTableData.add(rowData);
     }
     setState(() {});
+  }
+
+  void _editLocation(String dataId) {
+    showDialog(
+      context: context,
+      builder: (context) => LocationView(
+        locationId: dataId,
+        mode: ViewPanelMode.edit,
+      ),
+    ).then((value) {
+      if (value == true) {
+        _updateLocations();
+      }
+    });
   }
 
   void updateOrganizations() {
@@ -283,6 +335,20 @@ class _EntityListPanelState extends State<EntityListPanel>
     setState(() {});
   }
 
+  void _editOrganization(String dataId) {
+    showDialog(
+      context: context,
+      builder: (context) => OrganizationView(
+        organizationId: dataId,
+        mode: ViewPanelMode.edit,
+      ),
+    ).then((value) {
+      if (value == true) {
+        updateOrganizations();
+      }
+    });
+  }
+
   void updateZones() {
     _zonesTableData.clear();
     _zones = engine.hetu.invoke('getZones');
@@ -297,7 +363,7 @@ class _EntityListPanelState extends State<EntityListPanel>
     setState(() {});
   }
 
-  void updateObjects() {
+  void _updateObjects() {
     _mapObjectsTableData.clear();
     _mapObjects = engine.hetu.invoke('getObjects');
     for (final obj in _mapObjects) {
@@ -309,6 +375,32 @@ class _EntityListPanelState extends State<EntityListPanel>
       _mapObjectsTableData.add(rowData);
     }
     setState(() {});
+  }
+
+  void _editObject(String dataId) {
+    final obj = engine.hetu.invoke('getObjectById', positionalArgs: [dataId]);
+    final originObjId = obj['id'];
+    assert(obj != null);
+    final objString = engine.hetu.lexicon.stringify(obj);
+    showDialog(
+      context: context,
+      builder: (context) => InputDescriptionDialog(
+        title: engine.locale('inputScriptObject'),
+        description: objString,
+      ),
+    ).then((value) {
+      if (value == null) return;
+      final jsonData = json5Decode(value);
+      if (jsonData != null && jsonData['id'] != null) {
+        if (jsonData['originObjId'] != originObjId) {
+          engine.hetu.invoke('removeObjectById', positionalArgs: [originObjId]);
+        }
+        final mapObject =
+            engine.hetu.interpreter.createStructfromJSON(jsonData);
+        engine.hetu.invoke('addObject', positionalArgs: [mapObject]);
+        _updateObjects();
+      }
+    });
   }
 
   @override
@@ -348,7 +440,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                           if (value != null) {
                             engine.hetu.invoke('addCharacter',
                                 positionalArgs: [value]);
-                            updateCharacters();
+                            _updateCharacters();
 
                             if (value['worldPosition'] != null) {
                               engine.emit(GameEvents.worldmapCharactersUpdated);
@@ -365,17 +457,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                       columns: _kCharacterColumns,
                       tableData: _charactersTableData,
                       onItemPressed: (buttons, position, dataId) {
-                        showDialog(
-                          context: context,
-                          builder: (context) => ProfileView(
-                            characterId: dataId,
-                            mode: ViewPanelMode.edit,
-                          ),
-                        ).then((value) {
-                          if (value == true) {
-                            updateCharacters();
-                          }
-                        });
+                        _editCharacter(dataId);
                       },
                       onItemSecondaryPressed: (buttons, position, dataId) {
                         final menuPosition = RelativeRect.fromLTRB(
@@ -383,6 +465,37 @@ class _EntityListPanelState extends State<EntityListPanel>
                         final items =
                             buildCharacterPopUpMenuItems(onItemPressed: (item) {
                           switch (item) {
+                            case CharacterPopUpMenuItems.checkProfile:
+                            case CharacterPopUpMenuItems.checkEventFlags:
+                              final charData = engine.hetu.invoke(
+                                  'getCharacterById',
+                                  positionalArgs: [dataId]);
+                              showDialog<Map<String, bool>>(
+                                context: context,
+                                builder: (context) => EditCharacterEventFlags(
+                                  flagsData: charData['flags'],
+                                ),
+                              ).then((value) {
+                                if (value != null) {
+                                  for (final key in value.keys) {
+                                    charData['flags'][key] = value[key];
+                                  }
+                                }
+                              });
+                            case CharacterPopUpMenuItems.checkEquipments:
+                              showDialog(
+                                context: context,
+                                builder: (context) =>
+                                    EquipmentsAndStatsView(characterId: dataId),
+                              );
+                            case CharacterPopUpMenuItems.checkMemory:
+                              showDialog(
+                                context: context,
+                                builder: (context) => MemoryView(
+                                  characterId: dataId,
+                                  mode: ViewPanelMode.edit,
+                                ),
+                              );
                             case CharacterPopUpMenuItems.setAsHero:
                               engine.hetu.invoke('setHeroId',
                                   positionalArgs: [dataId]);
@@ -458,48 +571,6 @@ class _EntityListPanelState extends State<EntityListPanel>
                                       positionalArgs: [charData, value]);
                                 }
                               });
-                            case CharacterPopUpMenuItems.checkProfile:
-                              showDialog(
-                                context: context,
-                                builder: (context) => ProfileView(
-                                  characterId: dataId,
-                                  mode: ViewPanelMode.edit,
-                                ),
-                              ).then((value) {
-                                if (value == true) {
-                                  updateCharacters();
-                                }
-                              });
-                            case CharacterPopUpMenuItems.checkEventFlags:
-                              final charData = engine.hetu.invoke(
-                                  'getCharacterById',
-                                  positionalArgs: [dataId]);
-                              showDialog<Map<String, bool>>(
-                                context: context,
-                                builder: (context) => EditCharacterEventFlags(
-                                  flagsData: charData['flags'],
-                                ),
-                              ).then((value) {
-                                if (value != null) {
-                                  for (final key in value.keys) {
-                                    charData['flags'][key] = value[key];
-                                  }
-                                }
-                              });
-                            case CharacterPopUpMenuItems.checkEquipments:
-                              showDialog(
-                                context: context,
-                                builder: (context) =>
-                                    EquipmentsAndStatsView(characterId: dataId),
-                              );
-                            case CharacterPopUpMenuItems.checkMemory:
-                              showDialog(
-                                context: context,
-                                builder: (context) => MemoryView(
-                                  characterId: dataId,
-                                  mode: ViewPanelMode.edit,
-                                ),
-                              );
                             case CharacterPopUpMenuItems.delete:
                               showDialog<bool>(
                                 context: context,
@@ -555,7 +626,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                         if (loc == null) return;
                         engine.hetu
                             .invoke('addLocation', positionalArgs: [value]);
-                        updateLocations();
+                        _updateLocations();
                       },
                       child: Text(engine.locale('createLocation')),
                     ),
@@ -563,58 +634,39 @@ class _EntityListPanelState extends State<EntityListPanel>
                   SizedBox(
                     height: widget.size.height - 175,
                     child: GameEntityListView(
-                        columns: _kLocationColumns,
-                        tableData: _locationsTableData,
-                        onItemPressed: (buttons, position, dataId) {
-                          showDialog(
-                            context: context,
-                            builder: (context) => LocationView(
-                              locationId: dataId,
-                              mode: ViewPanelMode.edit,
-                            ),
-                          ).then((value) {
-                            if (value == true) {
-                              updateLocations();
-                            }
-                          });
-                        },
-                        onItemSecondaryPressed: (buttons, position, dataId) {
-                          final menuPosition = RelativeRect.fromLTRB(
-                              position.dx, position.dy, position.dx, 0.0);
-                          final items = buildLocationPopUpMenuItems(
-                              onItemPressed: (item) {
-                            switch (item) {
-                              case LocationPopUpMenuItems.checkInformation:
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => LocationView(
-                                    locationId: dataId,
-                                    mode: ViewPanelMode.edit,
-                                  ),
-                                ).then((value) {
-                                  if (value == true) {
-                                    updateLocations();
-                                  }
-                                });
-                              case LocationPopUpMenuItems.delete:
-                                showDialog<bool>(
-                                  context: context,
-                                  builder: (context) => ConfirmDialog(
-                                      description: engine
-                                          .locale('dangerOperationPrompt')),
-                                ).then((bool? value) {
-                                  engine.hetu.invoke('removeLocationById',
-                                      positionalArgs: [dataId]);
-                                  updateLocations();
-                                });
-                            }
-                          });
-                          showMenu(
-                            context: context,
-                            position: menuPosition,
-                            items: items,
-                          );
-                        }),
+                      columns: _kLocationColumns,
+                      tableData: _locationsTableData,
+                      onItemPressed: (buttons, position, dataId) {
+                        _editLocation(dataId);
+                      },
+                      onItemSecondaryPressed: (buttons, position, dataId) {
+                        final menuPosition = RelativeRect.fromLTRB(
+                            position.dx, position.dy, position.dx, 0.0);
+                        final items =
+                            buildLocationPopUpMenuItems(onItemPressed: (item) {
+                          switch (item) {
+                            case LocationPopUpMenuItems.checkInformation:
+                              _editLocation(dataId);
+                            case LocationPopUpMenuItems.delete:
+                              showDialog<bool>(
+                                context: context,
+                                builder: (context) => ConfirmDialog(
+                                    description:
+                                        engine.locale('dangerOperationPrompt')),
+                              ).then((bool? value) {
+                                engine.hetu.invoke('removeLocationById',
+                                    positionalArgs: [dataId]);
+                                _updateLocations();
+                              });
+                          }
+                        });
+                        showMenu(
+                          context: context,
+                          position: menuPosition,
+                          items: items,
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -637,16 +689,9 @@ class _EntityListPanelState extends State<EntityListPanel>
                   SizedBox(
                     height: widget.size.height - 175,
                     child: GameEntityListView(
-                      columns: _kOrganizationColumns,
-                      tableData: _organizationsTableData,
-                      onItemSecondaryPressed: (buttons, position, dataId) =>
-                          showDialog(
-                        context: context,
-                        builder: (context) => OrganizationView(
-                          organizationId: dataId,
-                        ),
-                      ),
-                    ),
+                        columns: _kOrganizationColumns,
+                        tableData: _organizationsTableData,
+                        onItemSecondaryPressed: (buttons, position, dataId) {}),
                   ),
                 ],
               ),
@@ -681,11 +726,12 @@ class _EntityListPanelState extends State<EntityListPanel>
                   Padding(
                     padding: const EdgeInsets.only(top: 5.0),
                     child: ElevatedButton(
+                      child: Text(engine.locale('createObject')),
                       onPressed: () {
                         showDialog(
                           context: context,
                           builder: (context) => InputDescriptionDialog(
-                            title: engine.locale('inputScriptObject'),
+                            title: engine.locale('createObject'),
                             description: kObjectCodeTemplate,
                           ),
                         ).then((value) {
@@ -696,11 +742,10 @@ class _EntityListPanelState extends State<EntityListPanel>
                                 .createStructfromJSON(jsonData);
                             engine.hetu.invoke('addObject',
                                 positionalArgs: [mapObject]);
-                            updateObjects();
+                            _updateObjects();
                           }
                         });
                       },
-                      child: Text(engine.locale('createObject')),
                     ),
                   ),
                   SizedBox(
@@ -709,32 +754,34 @@ class _EntityListPanelState extends State<EntityListPanel>
                       columns: _kObjectColumns,
                       tableData: _mapObjectsTableData,
                       onItemPressed: (buttons, position, dataId) {
-                        final obj = engine.hetu
-                            .invoke('getObjectById', positionalArgs: [dataId]);
-                        final originObjId = obj['id'];
-                        assert(obj != null);
-                        final objString = engine.hetu.lexicon.stringify(obj);
-                        showDialog(
-                          context: context,
-                          builder: (context) => InputDescriptionDialog(
-                            title: engine.locale('inputScriptObject'),
-                            description: objString,
-                          ),
-                        ).then((value) {
-                          if (value == null) return;
-                          final jsonData = json5Decode(value);
-                          if (jsonData != null && jsonData['id'] != null) {
-                            if (jsonData['originObjId'] != originObjId) {
-                              engine.hetu.invoke('removeObject',
-                                  positionalArgs: [originObjId]);
-                            }
-                            final mapObject = engine.hetu.interpreter
-                                .createStructfromJSON(jsonData);
-                            engine.hetu.invoke('addObject',
-                                positionalArgs: [mapObject]);
-                            updateObjects();
+                        _editObject(dataId);
+                      },
+                      onItemSecondaryPressed: (buttons, position, dataId) {
+                        final menuPosition = RelativeRect.fromLTRB(
+                            position.dx, position.dy, position.dx, 0.0);
+                        final items =
+                            buildObjectPopUpMenuItems(onItemPressed: (item) {
+                          switch (item) {
+                            case ObjectPopUpMenuItems.edit:
+                              _editObject(dataId);
+                            case ObjectPopUpMenuItems.delete:
+                              showDialog<bool>(
+                                context: context,
+                                builder: (context) => ConfirmDialog(
+                                    description:
+                                        engine.locale('dangerOperationPrompt')),
+                              ).then((bool? value) {
+                                engine.hetu.invoke('removeObjectById',
+                                    positionalArgs: [dataId]);
+                                _updateObjects();
+                              });
                           }
                         });
+                        showMenu(
+                          context: context,
+                          position: menuPosition,
+                          items: items,
+                        );
                       },
                     ),
                   ),

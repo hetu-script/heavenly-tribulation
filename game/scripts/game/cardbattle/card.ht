@@ -24,15 +24,21 @@ struct BattleCard {
     category, // 'attack', 'buff'
     kind, // 'sword',
     level,
-    rank = 1, // 境界决定了额外词条数量
+    rank = 0, // 境界决定了额外词条数量
   }) {
-    if (level != null) {
-      assert(level >= 1 && level <= (rank * 5))
+    if (level == null) {
+      if (rank > 0) {
+        level = random.nextInt(rank * 5) + 1
+      } else {
+        level = 0
+      }
     } else {
-      level = random.nextInt(rank * 5) + 1
+      assert(rank != null)
+      assert(level >= 0 && level <= (rank * 5))
     }
 
     this.id = crypto.randomNID(5, true)
+    this.rank = rank
 
     final mainAffixes = game.battleCardMainAffixes.values.where( (affix) {
       if (genre != null && !affix['genre'].contains(genre)) {
@@ -48,7 +54,7 @@ struct BattleCard {
     })
     assert(mainAffixes.isNotEmpty)
     const mainAffix = JSON.deepcopy(random.nextIterable(mainAffixes))
-    mainAffix.level = level
+    this.level = mainAffix.level = level
     this.name = generateSkillName(category: mainAffix.kind).name
 
     final affixUniqueIds = []
@@ -58,12 +64,11 @@ struct BattleCard {
       affixUniqueIds.add(mainAffix.affixId)
     }
 
-    let minExtraAffixCount = rank - 1
-    let maxExtraAffixCount = rank
+    let minExtraAffixCount = rank > 0 ? (rank - 1) : 0
     let minGreaterAffixCount = 0
     let maxGreaterAffixCount = 0
     if (rank >= 5) {
-      minExtraAffixCount = maxExtraAffixCount = 4
+      minExtraAffixCount = 4
       minGreaterAffixCount = rank - 5
       maxGreaterAffixCount = rank - 4
     }
@@ -82,9 +87,14 @@ struct BattleCard {
     })
     assert(supportAffixes.isNotEmpty)
 
-    final extraAffixCount = minExtraAffixCount + random.nextInt(maxExtraAffixCount - minExtraAffixCount + 1)
+    if (rank < 5 && rank > 0) {
+      let r = random.nextDouble()
+      if (r >= 0.15) {
+        ++minExtraAffixCount
+      }
+    }
     final extraAffixes = []
-    for (var i = 0; i < extraAffixCount; ++i) {
+    for (var i = 0; i < minExtraAffixCount; ++i) {
       let existed = false
       let supportAffix
       do {

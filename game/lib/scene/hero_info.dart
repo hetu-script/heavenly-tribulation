@@ -68,8 +68,8 @@ class HeroInfoPanel extends StatelessWidget {
                   Avatar(
                     color: kBackgroundColor,
                     size: const Size(120, 120),
-                    image:
-                        AssetImage('assets/images/avatar/${heroData['icon']}'),
+                    image: AssetImage(
+                        'assets/images/illustration/${heroData['icon']}'),
                   ),
                   Container(
                     width: 420,

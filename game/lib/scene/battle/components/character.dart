@@ -1,14 +1,12 @@
 import 'dart:math' show Random;
 
-import 'package:flame/flame.dart';
-import 'package:flame/sprite.dart';
-import 'package:samsara/gestures/gesture_mixin.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/progress_indicator.dart';
 import 'package:samsara/components/fading_text.dart';
 import 'package:samsara/cardgame/card.dart';
 import 'package:samsara/components/tooltip.dart';
 import 'package:samsara/animation/animation_state_controller.dart';
+import 'package:samsara/cardgame/custom_card.dart';
 
 import '../../../config.dart';
 import '../../../data.dart';
@@ -16,6 +14,7 @@ import 'common.dart';
 import 'deck_zone.dart';
 import '../../../ui.dart';
 import '../../common.dart';
+import 'status_effect.dart';
 
 const kTopLayerAnimationPriority = 200;
 
@@ -39,108 +38,9 @@ const Set<String> kPreloadAnimationStates = {
   kAttackFistState,
   kAttackFistRecoveryState,
   kDefendFistState,
+  kDodgeState,
+  kDodgeRecoveryState,
 };
-
-enum StatusEffectType {
-  permenant,
-  block,
-  buff,
-  debuff,
-  none,
-}
-
-StatusEffectType getStatusEffectType(String? id) {
-  return StatusEffectType.values.firstWhere((element) => element.name == id,
-      orElse: () => StatusEffectType.none);
-}
-
-class StatusEffect extends BorderComponent with HandlesGesture {
-  static ScreenTextConfig defaultEffectCountStyle = const ScreenTextConfig(
-    anchor: Anchor.bottomRight,
-    outlined: true,
-    textStyle: TextStyle(
-      color: Colors.white,
-      fontSize: 10.0,
-      fontWeight: FontWeight.bold,
-    ),
-  );
-
-  final String id;
-
-  late final Sprite sprite;
-
-  int amount;
-
-  late bool allowNegative;
-
-  late final int effectPriority;
-
-  late final StatusEffectType type;
-
-  bool get isPermenant => type == StatusEffectType.permenant;
-
-  late final bool isUnique;
-
-  final List<String> callbacks = [];
-
-  String? soundId;
-
-  late ScreenTextConfig countTextConfig;
-
-  late final String title, description;
-
-  StatusEffect({
-    required this.id,
-    required this.amount,
-    super.position,
-    super.anchor,
-    super.priority,
-  }) {
-    assert(amount >= 1);
-    assert(GameData.statusEffectsData.containsKey(id));
-    final data = GameData.statusEffectsData[id];
-    type = getStatusEffectType(data['type']);
-    isUnique = data['unique'] ?? false;
-    allowNegative = data['allowNegative'] ?? false;
-    effectPriority = data['priority'] ?? 0;
-    size = isPermenant
-        ? GameUI.permenantStatusEffectIconSize
-        : GameUI.statusEffectIconSize;
-    for (final callbackId in data['callbacks']) {
-      callbacks.add(callbackId);
-    }
-    soundId = data['sound'];
-    countTextConfig = defaultEffectCountStyle.copyWith(size: size);
-
-    description =
-        '${engine.locale('$id.title')}\n${engine.locale('$id.description')}';
-
-    onMouseEnter = () {
-      Tooltip.show(
-        scene: gameRef,
-        target: this,
-        direction: anchor.x == 0
-            ? TooltipDirection.topLeft
-            : TooltipDirection.topRight,
-        content: description,
-      );
-    };
-    onMouseExit = () {
-      Tooltip.hide();
-    };
-  }
-
-  @override
-  Future<void> onLoad() async {
-    sprite = Sprite(await Flame.images.load('icon/status/$id.png'));
-  }
-
-  @override
-  void render(Canvas canvas) {
-    sprite.render(canvas, size: size);
-    drawScreenText(canvas, '$amount', config: countTextConfig);
-  }
-}
 
 class BattleCharacter extends GameComponent with AnimationStateController {
   final String skinId;
@@ -152,10 +52,10 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   late final DynamicColorProgressIndicator _hpBar, _mpBar;
 
   int get life => data['stats']['life'];
-  set life(int value) {
+  setLife(int value, {bool animated = true}) {
     assert(value <= _hpBar.max);
     data['stats']['life'] = value;
-    _hpBar.value = value;
+    _hpBar.setValue(value, animated: animated);
   }
 
   int get lifeMax => data['stats']['lifeMax'];
@@ -165,10 +65,10 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   int get mana => data['stats']['mana'];
-  set mana(int value) {
+  setMana(int value, {bool animated = true}) {
     assert(value <= _mpBar.max);
     data['stats']['mana'] = value;
-    _mpBar.value = value;
+    _mpBar.setValue(value, animated: animated);
   }
 
   int get manaMax => data['stats']['manaMax'];
@@ -291,6 +191,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     currentAnimation.update(dt);
   }
 
+  /// 返回拥有的该 id 的状态的数值，如果不存在该状态，返回 0
   int hasStatusEffect(String id) {
     if (_statusEffects.containsKey(id)) {
       return _statusEffects[id]!.amount;
@@ -362,8 +263,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
   }
 
-  /// 返回要移除的数量大于效果数量的差额
+  /// 返回要移除的数量和效果数量的差额，最小是0
   /// 例如10攻打在5防上，差额5，意味着移除全部防之后，还有5点伤害需要处理
+  /// 如果是5攻打在10防上，意味着5攻消耗完毕，剩下的攻的数值是0
   int removeStatusEffect(String id, {int? amount, double? percentage}) {
     int diff = 0;
 
@@ -396,12 +298,15 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         removeEffect(effect);
       }
     }
-    return diff;
+
+    // amount 比状态数值小，这里返回0表示amount全部消耗完毕了。
+    return diff > 0 ? diff : 0;
   }
 
-  void addStatusEffect(String id, {int count = 1, bool playSound = true}) {
-    // 数量可以是大于0或者小于0
-    assert(count != 0);
+  void addStatusEffect(String id, {int? amount, bool playSound = false}) {
+    // 数量可以是大于 0 或者小于 0，但不能等于 0
+    amount ??= 1;
+    assert(amount != 0);
     StatusEffect effect;
     if (_statusEffects.containsKey(id)) {
       int newVal = 0;
@@ -409,7 +314,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       effect = _statusEffects[id]!;
       if (effect.isUnique) return;
 
-      newVal = effect.amount + count;
+      newVal = effect.amount + amount;
 
       if (newVal > 0) {
         effect.amount = newVal;
@@ -431,7 +336,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       effect = StatusEffect(
         priority: 4000,
         id: id,
-        amount: count,
+        amount: amount,
         anchor: isHero ? Anchor.topLeft : Anchor.topRight,
       );
       gameRef.world.add(effect);
@@ -449,13 +354,14 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
   }
 
-  void handleEffectCallback(String callbackId, [Map<String, dynamic>? args]) {
-    args ??= {};
+  /// details既是入参也是出参，脚本可能会获取或修改details中的内容
+  void handleEffectCallback(String callbackId,
+      [Map<String, dynamic>? details]) {
+    details ??= {};
     void invokeScript(StatusEffect effect) {
-      args!['amount'] = effect.amount;
       engine.hetu.invoke(
         'status_script_${effect.id}_$callbackId',
-        positionalArgs: [this, opponent, args],
+        positionalArgs: [this, opponent, details],
         ignoreUndefined: true, // 如果不存在对应callback就跳过
       );
     }
@@ -472,7 +378,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   void addHintText(String text, {double duration = 2, Color? textColor}) {
     final c2 = FadingText(
       text,
-      position: Vector2(center.x + Random().nextDouble() * 40 - 20, center.y),
+      position: Vector2(center.x + Random().nextDouble() * 40 - 20,
+          center.y + Random().nextDouble() * 40 - 20),
       movingUpOffset: 100,
       duration: duration,
       config: ScreenTextConfig(
@@ -489,11 +396,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   void reset() {
-    life = lifeMax;
-    mana = 0;
+    setLife(lifeMax, animated: false);
+    setMana(0, animated: false);
     setState('stand');
     clearAllStatusEffects();
     _turnFlags.clear();
+    // TODO: resetGameFlags
   }
 
   bool consumeLife(int value) {
@@ -504,7 +412,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         '${engine.locale('life')}-$value',
         textColor: Colors.red,
       );
-      life -= value;
+      setLife(life - value);
       return true;
     } else {
       return false;
@@ -532,7 +440,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     if (diff > 0) {
       engine.play('spell-of-healing-876.mp3',
           volume: GameConfig.soundEffectVolume);
-      life = hp;
+      setLife(hp);
     }
   }
 
@@ -544,7 +452,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         '${engine.locale('mana')}-$value',
         textColor: Colors.red,
       );
-      mana -= value;
+      setMana(mana - value);
       return true;
     } else {
       addHintText(
@@ -576,7 +484,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     if (diff > 0) {
       engine.play('spell-of-healing-876.mp3',
           volume: GameConfig.soundEffectVolume);
-      mana = mp;
+      setMana(mana);
     }
   }
 
@@ -607,50 +515,59 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     priority = savedPriority;
   }
 
-  int _handleDamage(String damageType, int damage, Map<String, dynamic> args) {
-    assert(damage > 0);
-    switch (damageType) {
-      case DamageType.blade:
-        args['damage'] += opponent!.weaponAttack;
-      default:
-    }
-
-    // 触发自己受到伤害时的效果
-    handleEffectCallback('self_taking_damage', args);
-    // 触发对方造成伤害时的效果
-    opponent!.handleEffectCallback('self_damaging', args);
-
-    if (args['blocked'] ?? false) {
-      engine.play('shield-block-shortsword-143940.mp3',
-          volume: GameConfig.soundEffectVolume);
+  int _handleDamage(String damageType, Map<String, dynamic> details) {
+    assert(details['damage'] > 0);
+    if (hasStatusEffect('invincible') > 0) {
+      // 拥有无敌状态的时候，不会触发格挡，也不会触发“造成伤害时”的效果
+      details['damage'] = 0;
     } else {
       switch (damageType) {
-        case 'blade':
-          engine.play('sword-sound-2-36274.mp3',
-              volume: GameConfig.soundEffectVolume);
-        case 'punchkick':
-          engine.play('punch-or-kick-sound-effect-1-239696.mp3',
-              volume: GameConfig.soundEffectVolume);
+        case DamageType.sword:
+          details['damage'] += opponent!.weaponAttack;
+        default:
+      }
+      // 触发自己受到伤害时的效果，此时的伤害还未作用于角色身上，最终可能会被减免
+      handleEffectCallback('self_taking_damage', details);
+      // 触发对方造成伤害时的效果
+      opponent!.handleEffectCallback('self_doing_damage', details);
+
+      if (details['blocked'] ?? false) {
+        engine.play('shield-block-shortsword-143940.mp3',
+            volume: GameConfig.soundEffectVolume);
+      } else {
+        switch (damageType) {
+          case 'sword':
+            engine.play('sword-sound-2-36274.mp3',
+                volume: GameConfig.soundEffectVolume);
+          case 'fist':
+            engine.play('punch-or-kick-sound-effect-1-239696.mp3',
+                volume: GameConfig.soundEffectVolume);
+        }
       }
     }
 
-    int d = args['damage'];
-    String damageString = d > 0 ? '-$d' : '$d';
+    int finalDamage = details['damage'];
+    String damageString = finalDamage > 0 ? '-$finalDamage' : '$finalDamage';
     if (opponent!.hasTurnFlag('ignoreBlock')) {
       damageString = '${engine.locale('ignoreBlock')}: $damageString';
     }
     addHintText(damageString);
 
-    if (d > 0) {
+    if (finalDamage > 0) {
       int hp = life;
-      hp -= d;
+      hp -= finalDamage;
       if (hp < 0) {
         hp = 0;
       }
-      life = hp;
+      setLife(hp);
+
+      // 触发自己受到伤害后的效果
+      handleEffectCallback('self_taken_damage', details);
+      // 触发对方造成伤害后的效果
+      opponent!.handleEffectCallback('self_done_damage', details);
     }
 
-    return d;
+    return finalDamage;
   }
 
   /// 人物受到伤害，返回实际伤害值（有可能是0）
@@ -658,25 +575,29 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     assert(damage != null ||
         (multipleDamages != null && multipleDamages.isNotEmpty));
 
+    Map<String, dynamic> damageDetails = {
+      "damageType": damageType,
+    };
     int finalDamage = 0;
-    Map<String, dynamic> args = {};
     if (damage != null) {
-      args['damage'] = damage;
-      finalDamage = _handleDamage(damageType, damage, args);
+      damageDetails['damage'] = damage;
+      finalDamage = _handleDamage(damageType, damageDetails);
     } else if (multipleDamages != null) {
       for (var i = 0; i < multipleDamages.length; ++i) {
         final curDmg = multipleDamages[i];
-        Future.delayed(Duration(milliseconds: 500 * i), () {
-          args['damage'] = curDmg;
-          finalDamage = _handleDamage(damageType, curDmg, args);
+        Future.delayed(Duration(milliseconds: 250 * i), () {
+          final thisDetails = {...damageDetails, 'damage': curDmg};
+          finalDamage = _handleDamage(damageType, thisDetails);
         });
       }
     }
 
-    if (args['blocked'] ?? false) {
+    bool blocked = damageDetails['blocked'] ?? false;
+
+    if (blocked || damage == 0) {
       // 这里不能用await，动画会卡住
       setState(
-        kDefendFistState,
+        kDodgeState,
         resetOnComplete: kStandState,
       );
     } else {
@@ -690,10 +611,34 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     return finalDamage;
   }
 
-  Future<void> onTurnStart(GameCard card) async {
-    handleEffectCallback('self_turn_start');
+  /// 返回值是一个map，若map中 skipTurn 的key对应值为true表示跳过此回合
+  Future<Map<String, dynamic>> onTurnStart(GameCard card,
+      {bool isExtra = false}) async {
+    final Map<String, dynamic> details = {
+      "isExtra": isExtra,
+    };
 
-    opponent!.handleEffectCallback('opponent_turn_start');
+    opponent!.handleEffectCallback('opponent_turn_start', details);
+
+    handleEffectCallback('self_turn_start', details);
+
+    if (details['skipTurn'] ?? false) {
+      addHintText(engine.locale('skipTurn'));
+      await Future.delayed(Duration(milliseconds: 500));
+      return details;
+    }
+
+    // 展示当前卡牌及其详情
+    card.enablePreview = false;
+    await card.setFocused(true);
+    Tooltip.show(
+      scene: game,
+      target: card,
+      direction: TooltipDirection.topCenter,
+      // direction: isHero ? TooltipDirection.rightTop : TooltipDirection.leftTop,
+      content: (card as CustomGameCard).extraDescription,
+      config: ScreenTextConfig(anchor: Anchor.topCenter),
+    );
 
     final affixes = card.data['affixes'];
     assert(affixes is List && affixes.isNotEmpty);
@@ -708,10 +653,11 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // }
 
     if (mainAffix['category'] == 'attack') {
+      details['damageType'] = mainAffix['kind'];
       // 触发自己发动攻击时的效果
-      handleEffectCallback('self_attacking');
+      handleEffectCallback('self_attacking', details);
       // 触发对方被发动攻击时的效果
-      opponent!.handleEffectCallback('self_being_attack');
+      opponent!.handleEffectCallback('self_being_attack', details);
     }
 
     // 先处理额外词条，其中可能包含一些当前回合就立即起作用的效果
@@ -730,16 +676,38 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     );
 
     if (mainAffix['category'] == 'attack') {
+      assert(details['damageType'] != null);
       // 触发自己发动攻击后的效果
-      handleEffectCallback('self_attacked');
+      handleEffectCallback('self_attacked', details);
       // 触发对方被发动攻击后的效果
-      opponent!.handleEffectCallback('self_be_attacked');
+      opponent!.handleEffectCallback('self_be_attacked', details);
     }
+
+    return details;
   }
 
-  void onTurnEnd(GameCard card) {
-    handleEffectCallback('self_turn_end');
+  /// 返回值true表示获得一个额外回合
+  Future<Map<String, dynamic>> onTurnEnd(GameCard card) async {
+    final details = <String, dynamic>{};
+    handleEffectCallback('self_turn_end', details);
+
+    await card.setFocused(false);
+    card.isEnabled = false;
+    Tooltip.hide();
+    card.enablePreview = true;
+
+    if (details['dodgeTurn'] ?? false) {
+      addHintText(engine.locale('dodgeTurn'));
+      await Future.delayed(Duration(milliseconds: 350));
+    }
+
+    if (details['extraTurn'] ?? false) {
+      addHintText(engine.locale('extraTurn'));
+      return details;
+    }
+
     opponent!.handleEffectCallback('opponent_turn_end');
     clearAllTurnFlags();
+    return details;
   }
 }

@@ -16,7 +16,7 @@ const _kBaseStaminaCostForMoveOnHill = 12
 const kBasicLife = 25
 const kBasicStamina = 10
 const kBasicManaMax = 1
-const kBasicLightedArea = 1
+const kBasicLightedArea = 3
 
 const kCharacterAttributeNames = [
   'spirituality',
@@ -33,7 +33,7 @@ struct BattleEntity {
     attributeSum,
     majorAttributes: List = [],
     baseStats,
-    cultivationGenre,
+    // cultivationGenre,
     battleDeck,
   }) {
     // 身上携带的材料，材料本身没有特殊属性，多个材料只是堆叠数字增加
@@ -86,7 +86,7 @@ struct BattleEntity {
 
     // 主流派：御剑、道法、锻体、炼魂、化神
     // 副流派：炼丹、炼器、阵法、符咒、灵植、灵兽、通灵、幻术、占卜、神通
-    this.cultivationGenre = cultivationGenre
+    // this.cultivationGenre = cultivationGenre
   }
 }
 

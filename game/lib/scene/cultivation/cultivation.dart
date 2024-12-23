@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Card;
 import 'package:heavenly_tribulation/events.dart';
+import 'package:provider/provider.dart';
 import 'package:samsara/event.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/loading_screen.dart';
@@ -14,6 +15,7 @@ import 'drop_menu.dart';
 import '../history_info.dart';
 import '../hero_info.dart';
 import '../../view/character/cardpacks.dart';
+import '../../state/hero.dart';
 
 class CultivationOverlay extends StatefulWidget {
   final dynamic heroData;
@@ -56,6 +58,8 @@ class _CultivationOverlayState extends State<CultivationOverlay> {
   }
 
   Future<Scene?> _getScene() async {
+    context.read<HeroState>().showHeroInfo(true);
+
     final scene = await engine.createScene(
       contructorKey: 'cultivation',
       sceneId: 'cultivation',

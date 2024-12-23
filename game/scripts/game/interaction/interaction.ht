@@ -5,12 +5,11 @@ import '../update.ht'
 import '../datetime.ht'
 import '../entity/item/material.ht'
 import '../entity/character/battle_entity.ht'
-// import '../binding/worldmap.ht'
 import '../tile/common.ht'
 // import '../entity/character/npc/bandit.ht'
 // import '../entity/character/creature/beast.ht'
 import '../lootbox.ht'
-import '../binding/worldmap.ht'
+import '../worldmap.ht'
 import '../dialog.ht'
 // import '../entity/skill/skill.ht'
 import '../entity/entity.ht'
@@ -255,13 +254,10 @@ function onBeforeHeroMove(terrain) {
 }
 
 function senseTerrain(terrain) -> bool {
-  let interacted = false
   if (terrain.locationId) {
     const location = game.locations[terrain.locationId]
     if (location.isDiscovered) {
-      interacted = true
       WorldMap.enterLocation(location.id)
-      interacted = true
     } else {
       dialog.localeLines('hint.sensedUndiscovered', isHero: true)
     }
@@ -269,21 +265,21 @@ function senseTerrain(terrain) -> bool {
     const object = game.objects[terrain.objectId]
     if (object.isDiscovered) {
       onInteractObject(object, terrain)
-      interacted = true
     } else {
       dialog.localeLines('hint.sensedUndiscovered', isHero: true)
     }
   }
-  return interacted
 }
 
-function onAfterHeroMove(terrain) {
+// 如果最终目的地不可到达，但角色停在了目的地旁边一格，则仍会探测该目的地
+function onAfterHeroMove(terrain, nonEnterableDestination) {
   // TODO: 感知阈值
-  let interacted = senseTerrain(terrain)
-  if (!interacted) {
-    onGameEvent('onAfterHeroMove', terrain.left, terrain.top)
+  senseTerrain(terrain)
+  if (nonEnterableDestination != null) {
+    senseTerrain(nonEnterableDestination)
   }
-  return null
+  onGameEvent('onAfterHeroMove', hero.worldPosition.left, hero.worldPosition.top)  
+  WorldMap.lightUpAroundTile(hero.worldPosition.left, hero.worldPosition.top, hero.stats.lightRadius)
 }
 
 /// 异步函数，会在显示地点窗口之前执行，执行完毕后才会进入地点
@@ -929,34 +925,34 @@ function onInteractTerrain(terrain) {
 
 function onInteractObject(object, terrain) async {
   engine.info('正在和 Object [${object.id}] 互动。')
-  switch (object.category) {
-    'custom': {
-      // 使用模组定义的交互逻辑
-      engine.info('Object [${object.id}] 使用自定义交互逻辑')
-      onGameEvent('onInteractObject', object, terrain)
-    }
-    'character': {
-      onInteractCharacter(object.characterId)
-    }
-    'portal': {
-      let {left, top} = object.targetMapPosition
-      setHeroWorldPosition(left, top)
-      engine.play('transform-103819.mp3')
-      await WorldMap.moveCameraToMapPosition(left, top)
-      WorldMap.refreshHeroTileInfo()
-      WorldMap.lightUpAroundTile(left, top, hero.stats.lightRadius)
-      onGameEvent('onAfterHeroMove', left, top)
-    }
-    'treasureBox': {
-      if (!object.isLocked) {
-        if (!object.isOpened) {
-          object.isOpened = true
-          for (let id in object.itemIds) {
-            acquireById(hero, id)
+  if (object.useCustomInteraction) {
+    engine.info('Object [${object.id}] 使用自定义交互逻辑')
+    onGameEvent('onInteractObject', object, terrain)
+  } else {
+    switch (object.category) {
+      'character': {
+        onInteractCharacter(object.characterId)
+      }
+      'portal': {
+        let {left, top} = object.targetMapPosition
+        setHeroWorldPosition(left, top)
+        engine.play('transform-103819.mp3')
+        await WorldMap.moveCameraToMapPosition(left, top)
+        WorldMap.refreshHeroTileInfo()
+        WorldMap.lightUpAroundTile(left, top, hero.stats.lightRadius)
+        onGameEvent('onAfterHeroMove', left, top)
+      }
+      'treasureBox': {
+        if (!object.isLocked) {
+          if (!object.isOpened) {
+            object.isOpened = true
+            for (let id in object.itemIds) {
+              acquireById(hero, id)
+            }
+            engine.play('dooropened-103851.mp3')
+            terrain.overlaySprite = {sprite: kSpriteTreasureBoxOpened}
+            WorldMap.refreshTerrainSprite(terrain.left, terrain.top)
           }
-          engine.play('dooropened-103851.mp3')
-          terrain.overlaySprite = {sprite: kSpriteTreasureBoxOpened}
-          WorldMap.refreshTerrainSprite(terrain.left, terrain.top)
         }
       }
     }

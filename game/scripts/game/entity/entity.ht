@@ -129,7 +129,7 @@ const kEquipTypeBoots = 'boots'
 const kEquipTypeAircraft = 'aircraft'
 
 function getCultivationRankName(character) {
-  return engine.locale('cultivationRank${character.cultivationRank}')
+  return engine.locale('cultivationRank.${character.cultivationRank}')
 }
 
 function setEntityWorldPosition(entity, left, top, [ worldId ]) {

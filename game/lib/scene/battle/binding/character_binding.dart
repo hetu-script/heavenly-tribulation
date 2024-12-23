@@ -65,7 +65,7 @@ class BattleCharacterClassBinding extends HTExternalClass {
       case 'addStatusEffect':
         return ({positionalArgs, namedArgs}) => character.addStatusEffect(
             positionalArgs[0],
-            count: positionalArgs[1],
+            amount: namedArgs['amount'],
             playSound: namedArgs['playSound']);
       case 'setTurnFlag':
         return ({positionalArgs, namedArgs}) =>

@@ -7,6 +7,29 @@ const kObjectDungeonEntry = 'dungeonEntry'
 const kObjectDungeonExit = 'dungeonExit'
 const kObjectSwitch = 'switch'
 
+const kObjectCharacter = 'character'
+const kObjectTreasureBox = 'treasureBox'
+
+/// 地图上的对象，例如机关，宝箱，固定NPC等，但对象可能是隐藏的
+struct TileMapObject {
+  construct ({
+    id, // 这个id和对应的entity的id必须一致
+    entityType,
+    category,
+    isDiscovered = true,
+    useCustomInteraction,
+  }) {
+    assert(id != null)
+    this.id = id
+    this.entityType = entityType
+    this.category = category
+    this.isDiscovered = isDiscovered
+    this.useCustomInteraction = useCustomInteraction
+    
+    game.objects[id] = this
+  }
+}
+
 struct Portal {
   constructor ({
     targetLeft,

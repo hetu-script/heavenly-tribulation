@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/tilemap.dart';
 // import 'package:flame_audio/flame_audio.dart';
@@ -10,26 +11,26 @@ import 'package:samsara/tilemap.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/event.dart';
 
-import 'components/expand_world_dialog.dart';
+import 'widgets/expand_world_dialog.dart';
 import '../data.dart';
 // import '../../../event/ui.dart';
 // import '../../../ui/view/information/information.dart';
 // import '../../../shared/constants.dart';
 import '../config.dart';
 import '../scene/world/world.dart';
-import 'components/drop_menu.dart';
+import 'widgets/drop_menu.dart';
 // import '../../../ui/view/location/location.dart';
 // import '../common.dart';
 // import 'location/location.dart';
 import '../state/selected_tile.dart';
 import '../scene/common.dart';
-import 'components/toolbox.dart';
+import 'widgets/toolbox.dart';
 import '../state/game_save.dart';
 import '../dialog/game_dialog/game_dialog.dart';
-import 'components/entity_list.dart';
-import 'components/tile_info.dart';
+import 'widgets/entity_list.dart';
+import 'widgets/tile_info.dart';
 import '../view/menu_item_builder.dart';
-import 'components/tile_detail.dart';
+import 'widgets/tile_detail.dart';
 import '../view/location/location.dart';
 import '../dialog/input_world_position.dart';
 import '../view/common.dart';
@@ -68,22 +69,6 @@ List<PopupMenuEntry<TerrainPopUpMenuItems>> buildTerrainPopUpMenuItems(
       name: engine.locale('checkInformation'),
       onItemPressed: onItemPressed,
     ),
-    buildMenuItem(
-      item: TerrainPopUpMenuItems.createLocation,
-      name: engine.locale('createLocation'),
-      onItemPressed: onItemPressed,
-    ),
-    buildMenuItem(
-      item: TerrainPopUpMenuItems.bindObject,
-      name: engine.locale('bindObject'),
-      onItemPressed: onItemPressed,
-    ),
-    buildMenuItem(
-      item: TerrainPopUpMenuItems.clearObject,
-      name: engine.locale('clearObject'),
-      onItemPressed: onItemPressed,
-    ),
-    const PopupMenuDivider(height: 12.0),
     buildSubMenuItem(
       items: {
         engine.locale('void'): TerrainPopUpMenuItems.empty,
@@ -100,6 +85,11 @@ List<PopupMenuEntry<TerrainPopUpMenuItems>> buildTerrainPopUpMenuItems(
       offset: const Offset(120, 0),
       onItemPressed: onItemPressed,
     ),
+    buildMenuItem(
+      item: TerrainPopUpMenuItems.createLocation,
+      name: engine.locale('createLocation'),
+      onItemPressed: onItemPressed,
+    ),
     const PopupMenuDivider(height: 12.0),
     buildMenuItem(
       item: TerrainPopUpMenuItems.clearTerrainAnimation,
@@ -114,6 +104,17 @@ List<PopupMenuEntry<TerrainPopUpMenuItems>> buildTerrainPopUpMenuItems(
     buildMenuItem(
       item: TerrainPopUpMenuItems.clearTerrainOverlayAnimation,
       name: engine.locale('clearTerrainOverlayAnimation'),
+      onItemPressed: onItemPressed,
+    ),
+    const PopupMenuDivider(height: 12.0),
+    buildMenuItem(
+      item: TerrainPopUpMenuItems.bindObject,
+      name: engine.locale('bindObject'),
+      onItemPressed: onItemPressed,
+    ),
+    buildMenuItem(
+      item: TerrainPopUpMenuItems.clearObject,
+      name: engine.locale('clearObject'),
       onItemPressed: onItemPressed,
     ),
   ];
@@ -133,14 +134,15 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
   @override
   bool get wantKeepAlive => true;
 
+  final _toolBoxfocusNode = FocusNode();
+  // late final FocusAttachment _nodeAttachment;
+
   final Map<String, WorldMapScene> _maps = {};
 
   WorldMapScene get scene {
     assert(_maps.containsKey(GameData.currentWorldId));
     return _maps[GameData.currentWorldId]!;
   }
-
-  Vector2? _menuPosition;
 
   bool _isLoading = false;
   bool _isLoaded = false;
@@ -242,49 +244,67 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
     }
   }
 
-  void _mapTapHandler(int buttons, Vector2 position) {
+  bool _dragged = false;
+
+  void _onMapTapDown(int buttons, Vector2 position) {
+    _dragged = false;
+
     final tilePosition = scene.map.worldPosition2Tile(position);
-    final toolItem = context.read<EditorToolState>().item;
+    if (tilePosition != scene.map.selectedTerrain?.tilePosition) {
+      if (scene.map.trySelectTile(tilePosition.left, tilePosition.top)) {
+        currentTerrain = scene.map.selectedTerrain;
+      }
+    }
+  }
+
+  void _onMapTapUp(int buttons, Vector2 position) {
+    final tilePosition = scene.map.worldPosition2Tile(position);
     if (buttons == kPrimaryButton) {
-      if (_menuPosition != null) {
-        _menuPosition = null;
-      } else {
-        if (scene.map.trySelectTile(tilePosition.left, tilePosition.top)) {
-          currentTerrain = scene.map.selectedTerrain;
-          switch (toolItem) {
-            case 'delete':
-              _currentTerrain!.clearAllSprite();
-              _currentTerrain!.kind = 'void';
-            case 'nonInteractable':
-              _currentTerrain!.isNonInteractable =
-                  !_currentTerrain!.isNonInteractable;
-            default:
-              final toolItemData = GameData.editorToolItemsData[toolItem];
-              if (toolItemData != null) {
-                final toolType = toolItemData['type'];
-                switch (toolType) {
-                  case 'terrain':
-                    _currentTerrain!.spriteIndex =
-                        toolItemData['spriteIndex'] as int?;
-                    _currentTerrain!.kind = toolItemData['kind'] as String?;
-                  case 'script':
-                    engine.hetu.invoke(toolItemData['invoke'] as String,
-                        positionalArgs: [_currentTerrain!.data]);
-                  case 'overlaySprite':
-                    _currentTerrain!.overlaySprite = engine.hetu.interpreter
-                        .createStructfromJSON(toolItemData['overlay'] as Map);
-                }
+      // print('zoom: ${scene.camera.zoom}');
+      // print('position: $position');
+      // print('cemara positon: ${scene.camera.viewfinder.position}');
+      // print((position - scene.camera.viewfinder.position) *
+      //         scene.camera.viewfinder.zoom +
+      //     scene.size / 2);
+      // print(scene.map.worldPosition2Screen(position));
+      if (tilePosition == scene.map.selectedTerrain?.tilePosition) {
+        final toolItem = context.read<EditorToolState>().item;
+        switch (toolItem) {
+          case 'delete':
+            _currentTerrain!.clearAllSprite();
+            _currentTerrain!.kind = 'void';
+          case 'nonInteractable':
+            _currentTerrain!.isNonEnterable = !_currentTerrain!.isNonEnterable;
+          default:
+            final toolItemData = GameData.editorToolItemsData[toolItem];
+            if (toolItemData != null) {
+              final toolType = toolItemData['type'];
+              switch (toolType) {
+                case 'terrain':
+                  _currentTerrain!.spriteIndex =
+                      toolItemData['spriteIndex'] as int?;
+                  _currentTerrain!.kind = toolItemData['kind'] as String?;
+                case 'script':
+                  engine.hetu.invoke(toolItemData['invoke'] as String,
+                      positionalArgs: [_currentTerrain!.data]);
+                case 'overlaySprite':
+                  _currentTerrain!.overlaySprite = engine.hetu.interpreter
+                      .createStructfromJSON(toolItemData['overlay'] as Map);
               }
-          }
+            }
         }
       }
     } else if (buttons == kSecondaryButton) {
-      context.read<EditorToolState>().reset();
+      if (_dragged == true) {
+        return;
+      }
       if (tilePosition == scene.map.selectedTerrain?.tilePosition) {
-        final screenPosition = scene.map
-            .worldPosition2Screen(position, GameConfig.screenSize.toVector2());
+        final screenPosition = scene.map.worldPosition2Screen(position);
         final popUpMenuPosition = RelativeRect.fromLTRB(
-            screenPosition.x, screenPosition.y, screenPosition.x, 0.0);
+            screenPosition.x,
+            screenPosition.y + scene.map.gridSize.y * scene.camera.zoom,
+            screenPosition.x + scene.map.gridSize.x * scene.camera.zoom,
+            0.0);
         final items = buildTerrainPopUpMenuItems(onItemPressed: (item) {
           switch (item) {
             case TerrainPopUpMenuItems.checkInformation:
@@ -325,7 +345,7 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
               _currentTerrain!.objectId = null;
               _currentTerrain!.caption = null;
             case TerrainPopUpMenuItems.empty:
-              _currentTerrain!.kind = kTerrainKindEmpty;
+              _currentTerrain!.kind = kTerrainKindVoid;
             case TerrainPopUpMenuItems.plain:
               _currentTerrain!.kind = kTerrainKindPlain;
             case TerrainPopUpMenuItems.forest:
@@ -358,13 +378,6 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
         );
       }
     }
-  }
-
-  void closePopup() {
-    setState(() {
-      _menuPosition = null;
-      scene.map.selectedTerrain = null;
-    });
   }
 
   @override
@@ -441,6 +454,17 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
         },
       ),
     );
+
+    // _nodeAttachment =
+    //     _toolBoxfocusNode.attach(context, on: (node, event) {
+    //   if (event.physicalKey == PhysicalKeyboardKey.escape) {
+    //     context.read<EditorToolState>().reset();
+    //   }
+
+    //   return KeyEventResult.handled;
+    // });
+
+    // _toolBoxfocusNode.requestFocus();
   }
 
   Future<bool> _prepareData() async {
@@ -457,22 +481,23 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
     }
     await loadMap();
     _isLoaded = true;
+
     return true;
   }
 
   @override
   void dispose() {
     engine.removeEventListener(widget.key!);
-
+    _toolBoxfocusNode.dispose();
     super.dispose();
   }
 
-  void switchMap(String id) async {
+  Future<WorldMapScene> switchMap(String id) async {
     setState(() {
       GameData.currentWorldId = id;
     });
     if (!_maps.containsKey(id)) {
-      await loadMap({
+      return await loadMap({
         'id': id,
         'method': 'load',
         'isEditorMode': true,
@@ -481,10 +506,12 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
       GameData.currentWorldId = id;
       engine.hetu.invoke('switchWorld', positionalArgs: [id]);
       _refreshWorldmapCharacters();
+
+      return _maps[id]!;
     }
   }
 
-  Future<void> loadMap([Map<String, dynamic>? args]) async {
+  Future<WorldMapScene> loadMap([Map<String, dynamic>? args]) async {
     final id = args?['id'] ?? GameData.currentWorldId ?? widget.args['id'];
     if (engine.containsScene(id)) {
       setState(() {
@@ -500,12 +527,23 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
     GameData.worldIds.add(scn.id);
     _maps[scn.id] = scn;
     GameData.currentWorldId = scn.id;
-    scn.map.onTap = _mapTapHandler;
+    scn.map.onDragUpdate = (int buttons, Vector2 offset) {
+      if (buttons == kSecondaryButton) {
+        _dragged = true;
+        scn.camera.moveBy(-offset);
+      }
+    };
+    scn.map.onTapDown = _onMapTapDown;
+    scn.map.onTapUp = _onMapTapUp;
+    return scn;
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    // _nodeAttachment.reparent();
+    _toolBoxfocusNode.requestFocus();
+
     final screenSize = MediaQuery.sizeOf(context);
 
     return FutureBuilder(
@@ -526,150 +564,173 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
             return const LoadingScreen();
           }
 
-          return Material(
-            color: Colors.transparent,
-            child: Stack(
-              children: [
-                SceneWidget(scene: currentMap),
-                if (_isLoading || (currentMap.isLoading)) const LoadingScreen(),
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: WorldEditorDropMenu(
-                    onSelected: (WorldEditorDropMenuItems item) async {
-                      switch (item) {
-                        case WorldEditorDropMenuItems.addWorld:
-                          showDialog(
-                            context: context,
-                            builder: (context) => const CreateBlankMapDialog(
-                                isCreatingNewGame: false),
-                          ).then((value) {
-                            if (value == null) return;
-                            loadMap(value);
-                          });
-                        case WorldEditorDropMenuItems.switchWorld:
-                          showDialog(
-                            context: context,
-                            builder: (context) => SelectDialog(
-                                selections: {
-                                  for (var element in GameData.worldIds)
-                                    element: element
-                                },
-                                selectedValue: GameData.worldIds.firstWhere(
-                                    (element) =>
-                                        element != GameData.currentWorldId)),
-                          ).then((value) {
-                            if (value == null) return;
-                            switchMap(value);
-                          });
-                        case WorldEditorDropMenuItems.expandWorld:
-                          showDialog<(int, int, String)>(
-                                  context: context,
-                                  builder: (context) =>
-                                      const ExpandWorldDialog())
-                              .then(((int, int, String)? value) {
-                            if (value == null) return;
-                            engine.hetu.invoke('expandCurrentWorldBySize',
-                                positionalArgs: [value.$1, value.$2, value.$3]);
-                            scene.map.updateData();
-                          });
-                        case WorldEditorDropMenuItems.save:
-                          String worldId =
-                              engine.hetu.invoke('getCurrentWorldId');
-                          String? saveName = engine.hetu.invoke('getSaveName');
-                          context
-                              .read<GameSavesState>()
-                              .saveGame(worldId, saveName)
-                              .then((saveInfo) {
-                            if (context.mounted) {
-                              GameDialog.show(
-                                context: context,
-                                dialogData: {
-                                  'lines': [
-                                    engine.locale('savedSuccessfully',
-                                        interpolations: [saveInfo.savePath]),
-                                  ],
-                                },
-                              );
-                            }
-                          });
-                        case WorldEditorDropMenuItems.saveAs:
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return InputStringDialog(
-                                title: engine.locale('inputName'),
-                              );
-                            },
-                          ).then((saveName) {
-                            if (saveName == null) return;
-                            engine.hetu.invoke('setSaveName',
-                                positionalArgs: [saveName]);
+          return KeyboardListener(
+            autofocus: true,
+            focusNode: _toolBoxfocusNode,
+            onKeyEvent: (event) {
+              if (event is KeyDownEvent) {
+                switch (event.logicalKey) {
+                  case LogicalKeyboardKey.space:
+                    if (_isLoaded) {
+                      scene.camera.zoom = 2.0;
+                    }
+                  case LogicalKeyboardKey.escape:
+                    context.read<EditorToolState>().reset();
+                  default:
+                }
+              }
+            },
+            child: Material(
+              color: Colors.transparent,
+              child: Stack(
+                children: [
+                  SceneWidget(scene: currentMap),
+                  if (_isLoading || (currentMap.isLoading))
+                    const LoadingScreen(),
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: WorldEditorDropMenu(
+                      onSelected: (WorldEditorDropMenuItems item) async {
+                        switch (item) {
+                          case WorldEditorDropMenuItems.addWorld:
+                            showDialog(
+                              context: context,
+                              builder: (context) => const CreateBlankMapDialog(
+                                  isCreatingNewGame: false),
+                            ).then((value) {
+                              if (value == null) return;
+                              loadMap(value);
+                            });
+                          case WorldEditorDropMenuItems.switchWorld:
+                            showDialog(
+                              context: context,
+                              builder: (context) => SelectDialog(
+                                  selections: {
+                                    for (var element in GameData.worldIds)
+                                      element: element
+                                  },
+                                  selectedValue: GameData.worldIds.firstWhere(
+                                      (element) =>
+                                          element != GameData.currentWorldId)),
+                            ).then((value) {
+                              if (value == null) return;
+                              switchMap(value);
+                            });
+                          case WorldEditorDropMenuItems.expandWorld:
+                            showDialog<(int, int, String)>(
+                                    context: context,
+                                    builder: (context) =>
+                                        const ExpandWorldDialog())
+                                .then(((int, int, String)? value) {
+                              if (value == null) return;
+                              engine.hetu.invoke('expandCurrentWorldBySize',
+                                  positionalArgs: [
+                                    value.$1,
+                                    value.$2,
+                                    value.$3
+                                  ]);
+                              scene.map.updateData();
+                            });
+                          case WorldEditorDropMenuItems.save:
                             String worldId =
                                 engine.hetu.invoke('getCurrentWorldId');
-                            if (context.mounted) {
-                              context
-                                  .read<GameSavesState>()
-                                  .saveGame(worldId, saveName)
-                                  .then((saveInfo) {
-                                if (context.mounted) {
-                                  GameDialog.show(
-                                    context: context,
-                                    dialogData: {
-                                      'lines': [
-                                        engine.locale('savedSuccessfully',
-                                            interpolations: [
-                                              saveInfo.savePath
-                                            ]),
-                                      ],
-                                    },
-                                  );
-                                }
-                              });
+                            String? saveName =
+                                engine.hetu.invoke('getSaveName');
+                            context
+                                .read<GameSavesState>()
+                                .saveGame(worldId, saveName)
+                                .then((saveInfo) {
+                              if (context.mounted) {
+                                GameDialog.show(
+                                  context: context,
+                                  dialogData: {
+                                    'lines': [
+                                      engine.locale('savedSuccessfully',
+                                          interpolations: [saveInfo.savePath]),
+                                    ],
+                                  },
+                                );
+                              }
+                            });
+                          case WorldEditorDropMenuItems.saveAs:
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return InputStringDialog(
+                                  title: engine.locale('inputName'),
+                                );
+                              },
+                            ).then((saveName) {
+                              if (saveName == null) return;
+                              engine.hetu.invoke('setSaveName',
+                                  positionalArgs: [saveName]);
+                              String worldId =
+                                  engine.hetu.invoke('getCurrentWorldId');
+                              if (context.mounted) {
+                                context
+                                    .read<GameSavesState>()
+                                    .saveGame(worldId, saveName)
+                                    .then((saveInfo) {
+                                  if (context.mounted) {
+                                    GameDialog.show(
+                                      context: context,
+                                      dialogData: {
+                                        'lines': [
+                                          engine.locale('savedSuccessfully',
+                                              interpolations: [
+                                                saveInfo.savePath
+                                              ]),
+                                        ],
+                                      },
+                                    );
+                                  }
+                                });
+                              }
+                            });
+                          case WorldEditorDropMenuItems.viewNone:
+                            scene.map.colorMode = kColorModeNone;
+                          case WorldEditorDropMenuItems.viewZones:
+                            scene.map.colorMode = kColorModeZone;
+                          case WorldEditorDropMenuItems.viewOrganizations:
+                            scene.map.colorMode = kColorModeOrganization;
+                          case WorldEditorDropMenuItems.console:
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) =>
+                                  Console(engine: engine),
+                            ).then((_) => setState(() {}));
+                          case WorldEditorDropMenuItems.exit:
+                            context.read<SelectedTileState>().clear();
+                            context.read<EditorToolState>().reset();
+                            for (final scn in _maps.values) {
+                              scn.leave(clearCache: true);
                             }
-                          });
-                        case WorldEditorDropMenuItems.viewNone:
-                          scene.map.colorMode = kColorModeNone;
-                        case WorldEditorDropMenuItems.viewZones:
-                          scene.map.colorMode = kColorModeZone;
-                        case WorldEditorDropMenuItems.viewOrganizations:
-                          scene.map.colorMode = kColorModeOrganization;
-                        case WorldEditorDropMenuItems.console:
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) =>
-                                Console(engine: engine),
-                          ).then((_) => setState(() {}));
-                        case WorldEditorDropMenuItems.exit:
-                          context.read<SelectedTileState>().clear();
-                          context.read<EditorToolState>().reset();
-                          for (final scn in _maps.values) {
-                            scn.leave(clearCache: true);
-                          }
-                          Navigator.of(context).pop();
-                      }
-                    },
-                  ),
-                ),
-                Positioned(
-                  child: EntityListPanel(
-                    size: Size(320, screenSize.height),
-                  ),
-                ),
-                const Positioned(
-                  right: 0,
-                  bottom: 0,
-                  child: TileInfoPanel(),
-                ),
-                Positioned.fill(
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Toolbox(
-                      onItemClicked: (item) {},
+                            Navigator.of(context).pop();
+                        }
+                      },
                     ),
                   ),
-                ),
-              ],
+                  Positioned(
+                    child: EntityListPanel(
+                      size: Size(320, screenSize.height),
+                    ),
+                  ),
+                  const Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: TileInfoPanel(),
+                  ),
+                  Positioned.fill(
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Toolbox(
+                        onItemClicked: (item) {},
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         }

@@ -288,9 +288,9 @@ function getHeroLightedArea {
   return hero.stats.lightRadius
 }
 
-function getHeroCultivationGenre {
-  return hero.cultivationGenre
-}
+// function getHeroCultivationGenre {
+//   return hero.cultivationGenre
+// }
 
 function getTerrainByWorldPosition(left, top) {
   return world.terrains[tilePos2Index(left, top, world.width)]
@@ -326,7 +326,7 @@ function addObject(object) {
   game.objects[object.id] = object
 }
 
-function removeObject(id) {
+function removeObjectById(id) {
   delete game.objects[id]
 }
 

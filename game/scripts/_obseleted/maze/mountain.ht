@@ -131,7 +131,7 @@ struct MountainMaze {
           const terrain = {
             ...Tile(i + 1, j + 1, mapWidth: width),
             isVisible: false,
-            isNonInteractable: true,
+            isNonEnterable: true,
           }
           currentLevel.terrains.add(terrain)
           addTerrainToZone(terrain, landZone)
@@ -416,12 +416,12 @@ struct MountainMaze {
       const blockZone = createZone(world: currentLevel, category: 'block')
       for (const tile in currentLevel.terrains) {
         if (occupied.contains(tile.index) || tile.isRoute) {
-          tile.isNonInteractable = true
+          tile.isNonEnterable = true
           tile.spriteIndex = random.nextIterable(_kLandSprites)
         } else {
           // print('adding decor to ${tile.index}')
           // tile.isVoid = true
-          tile.isNonInteractable = false
+          tile.isNonEnterable = false
           addTerrainToZone(tile, blockZone)
           const blockType = random.nextIterable(_kBlockTypes)
           switch (blockType) {

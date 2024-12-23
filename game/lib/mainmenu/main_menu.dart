@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/extensions.dart';
 // import 'package:samsara/samsara.dart';
@@ -60,15 +60,10 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
 
   bool _isLoading = false;
 
+  final _menuFocusNode = FocusNode();
+
   void _playBGM() {
-    if (engine.isBGMPlaying) {
-      engine.stopBGM();
-    }
-    if (engine.currentBGMName == kMainMenuBGM) {
-      engine.resumeBGM();
-    } else {
-      engine.playBGM(kMainMenuBGM, volume: GameConfig.musicVolume);
-    }
+    engine.playBGM(kMainMenuBGM, volume: GameConfig.musicVolume);
   }
 
   // Route was pushed onto navigator and is now topmost route.
@@ -154,7 +149,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
         // ignore: use_build_context_synchronously
         context: context,
         captionStyle: captionStyle,
-        bgm: isEditorMode ? null : 'ghuzheng-fantasie-23506.mp3',
+        // bgm: isEditorMode ? null : 'ghuzheng-fantasie-23506.mp3',
         showFogOfWar: !isEditorMode,
         showNonInteractableHintColor: isEditorMode,
         showGrids: isEditorMode,
@@ -236,13 +231,18 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
         {positionalArgs, namedArgs}) {
       context.read<GameDialogState>().pushImage(
             positionalArgs[0],
-            positionXOffset: positionalArgs[1],
+            positionXOffset: namedArgs['positionXOffset'],
+            positionYOffset: namedArgs['positionYOffset'],
+            fadeIn: namedArgs['fadeIn'],
           );
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('popImage', (
         {positionalArgs, namedArgs}) {
-      context.read<GameDialogState>().popImage(positionalArgs.first);
+      context.read<GameDialogState>().popImage(
+            imageId: namedArgs['image'],
+            fadeOut: namedArgs['fadeOut'],
+          );
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('popAllImage', (
@@ -252,17 +252,14 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
 
     engine.hetu.interpreter.bindExternalFunction('pushScene', (
         {positionalArgs, namedArgs}) {
-      context.read<GameDialogState>().pushScene(positionalArgs.first);
+      context
+          .read<GameDialogState>()
+          .pushScene(positionalArgs.first, fadeIn: namedArgs['fadeIn']);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('popScene', (
         {positionalArgs, namedArgs}) {
-      context.read<GameDialogState>().popScene();
-    }, override: true);
-
-    engine.hetu.interpreter.bindExternalFunction('popAllScene', (
-        {positionalArgs, namedArgs}) {
-      context.read<GameDialogState>().popAllScene();
+      context.read<GameDialogState>().popScene(fadeOut: namedArgs['fadeOut']);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('popAllScene', (
@@ -352,6 +349,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
     // 创建一个空游戏存档并初始化一些数据，这主要是为了主菜单的测试游戏和debug相关功能，并不会保存
     // 真正开始游戏后还会在执行一遍，因为每次newGame都会清空Game上的数据
     await GameData.newGame('mainmenu_temp');
+    GameData.isGameCreated = false;
 
     _isLoading = false;
     setState(() {});
@@ -829,31 +827,38 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
               ]);
           }
 
-          return Scaffold(
-            body: Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                SizedBox(
-                  height: GameConfig.screenSize.height,
-                  width: GameConfig.screenSize.width,
-                  child: const Image(
-                    image: AssetImage('assets/images/title2.gif'),
-                    fit: BoxFit.cover,
+          return KeyboardListener(
+            autofocus: true,
+            focusNode: _menuFocusNode,
+            onKeyEvent: (event) {
+              if (event is KeyDownEvent) {}
+            },
+            child: Scaffold(
+              body: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  SizedBox(
+                    height: GameConfig.screenSize.height,
+                    width: GameConfig.screenSize.width,
+                    child: const Image(
+                      image: AssetImage('assets/images/title2.gif'),
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
-                const Positioned(
-                  top: 200.0,
-                  child: Image(
-                    image: AssetImage('assets/images/title.png'),
+                  const Positioned(
+                    top: 200.0,
+                    child: Image(
+                      image: AssetImage('assets/images/title.png'),
+                    ),
                   ),
-                ),
-                Positioned(
-                  bottom: 20.0,
-                  height: 280.0,
-                  width: 150.0,
-                  child: Column(children: menus),
-                ),
-              ],
+                  Positioned(
+                    bottom: 20.0,
+                    height: 280.0,
+                    width: 150.0,
+                    child: Column(children: menus),
+                  ),
+                ],
+              ),
             ),
           );
         }

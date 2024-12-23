@@ -15,10 +15,12 @@ const kSpriteTreasureBox = 'object/treasureBox.png';
 const kSpriteTreasureBoxOpened = 'object/treasureBoxOpened.png';
 const kSpriteDungeonGlowingTile = 'object/glowingTile.png';
 const kSpriteDungeonCoffin = 'object/coffin.png';
+const kSpriteDungeonStatue = 'object/statue.png';
+const kSpriteDungeonOldWell = 'object/oldWell.png';
 const kSpriteDungeonStoneStairs = 'object/stoneStairs.png';
 const kSpriteDungeonStoneStairsDebris = 'object/stoneStairsDebris.png';
 
-const kTerrainKindEmpty = 'empty';
+const kTerrainKindVoid = 'void';
 const kTerrainKindMountain = 'mountain';
 const kTerrainKindShore = 'shore';
 const kTerrainKindForest = 'forest';

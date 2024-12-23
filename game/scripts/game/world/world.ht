@@ -49,7 +49,7 @@ struct TileMapTerrain {
       this.spriteIndex = spriteIndex
     }
     this.overlaySprite = {}
-    this.kind = kTerrainKindSea
+    this.kind = kTerrainKindVoid
     this.flags = {}
     this.experienced = []
     this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
@@ -106,7 +106,7 @@ function createBlankWorld({
   return newWorld
 }
 
-function expandCurrentWorldBySize(width, height, [direction = 'center']) {
+function expandCurrentWorldBySize(width, height, [direction = 'bottomRight']) {
   assert(width >= 0 && height >= 0)
 
   switch (direction) {
@@ -114,29 +114,30 @@ function expandCurrentWorldBySize(width, height, [direction = 'center']) {
       throw 'expand toward `topLeft` is not supported yet!'
     }
     'topCenter': {
-      let topTerrains = []
-      for (let j in range(height)) {
-        for (let i in range(width + world.width)) {
-          topTerrains.add(TileMapTerrain())
-        }
-      }
-      world.terrains.insertAll(0, topTerrains)
+      throw 'expand toward `topCenter` is not supported yet!'
+      // let topTerrains = []
+      // for (let j in range(height)) {
+      //   for (let i in range(width + world.width)) {
+      //     topTerrains.add(TileMapTerrain())
+      //   }
+      // }
+      // world.terrains.insertAll(0, topTerrains)
       
-      let leftOffset = width ~/ 2
-      for (let j in range(world.height)) {
-        let leftTerrains = []
-        let rightTerrains = []
-        for (let i in range(width)) {
-          if (i < leftOffset) {
-            leftTerrains.add(TileMapTerrain())
-          } else {
-            rightTerrains.add(TileMapTerrain())
-          }
-        }
-        world.terrains.insertAll(topTerrains.length + j * (width + world.width), leftTerrains)
-        world.terrains.insertAll(topTerrains.length + (j + 1) * (leftTerrains.length + world.width)
-                                 + j * (rightTerrains.length), rightTerrains)
-      }
+      // let leftOffset = width ~/ 2
+      // for (let j in range(world.height)) {
+      //   let leftTerrains = []
+      //   let rightTerrains = []
+      //   for (let i in range(width)) {
+      //     if (i < leftOffset) {
+      //       leftTerrains.add(TileMapTerrain())
+      //     } else {
+      //       rightTerrains.add(TileMapTerrain())
+      //     }
+      //   }
+      //   world.terrains.insertAll(topTerrains.length + j * (width + world.width), leftTerrains)
+      //   world.terrains.insertAll(topTerrains.length + (j + 1) * (leftTerrains.length + world.width)
+      //                            + j * (rightTerrains.length), rightTerrains)
+      // }
     }
     'topRight': {
       throw 'expand toward `topRight` is not supported yet!'
@@ -145,8 +146,13 @@ function expandCurrentWorldBySize(width, height, [direction = 'center']) {
       throw 'expand toward `centerLeft` is not supported yet!'
     }
     'center': {
-      let leftOffset = width ~/ 2
-      let topOffset = height ~/ 2
+      throw 'expand toward `center` is not supported yet!'
+      // let leftOffset = width ~/ 2
+      // let topOffset = height ~/ 2
+      // let rightOffset = width - leftOffset
+      // let bottomOffset = height - topOffset
+
+      // // print('leftOffset: ${leftOffset}, topOffset: ${topOffset}, rightOffset: ${rightOffset}, bottomOffset: ${bottomOffset}')
 
       // let topTerrains = []
       // for (let j in range(topOffset)) {
@@ -156,26 +162,28 @@ function expandCurrentWorldBySize(width, height, [direction = 'center']) {
       // }
       // world.terrains.insertAll(0, topTerrains)
 
-      for (let j in range(world.height)) {
-        let leftTerrains = []
-        let rightTerrains = []
-        for (let i in range(width)) {
-          if (i < leftOffset) {
-            leftTerrains.add(TileMapTerrain())
-          } else {
-            rightTerrains.add(TileMapTerrain())
-          }
-        }
-        world.terrains.insertAll(topTerrains.length + j * (width + world.width), leftTerrains)
-        world.terrains.insertAll(topTerrains.length + (j + 1) * (leftTerrains.length + world.width)
-                                 + j * (rightTerrains.length), rightTerrains)
-      }
+      // for (let j in range(world.height)) {
+      //   // print('adding row ${j}')
+      //   let leftTerrains = []
+      //   let rightTerrains = []
+      //   for (let i in range(width)) {
+      //     if (i < leftOffset) {
+      //       leftTerrains.add(TileMapTerrain())
+      //     } else {
+      //       rightTerrains.add(TileMapTerrain())
+      //     }
+      //   }
+      //   // print('leftTerrains: ${leftTerrains.length}, rightTerrains: ${rightTerrains.length}')
+      //   world.terrains.insertAll(topTerrains.length + j * (width + world.width), leftTerrains)
+      //   world.terrains.insertAll(topTerrains.length + (j + 1) * (leftTerrains.length + world.width)
+      //                            + j * (rightTerrains.length), rightTerrains)
+      // }
 
-      for (let j in range(height - topOffset)) {
-        for (let i in range(width + world.width)) {
-          world.terrains.add(TileMapTerrain())
-        }
-      }
+      // for (let j in range(bottomOffset)) {
+      //   for (let i in range(width + world.width)) {
+      //     world.terrains.add(TileMapTerrain())
+      //   }
+      // }
     }
     'centerRight': {
       throw 'expand toward `centerRight` is not supported yet!'

@@ -4,18 +4,18 @@ import '../../game/tile/tilemap.ht'
 const kDefaultBlockWidth = 4
 const kDefaultBlockHeight = 4
 
-// 3*3 的区块地图中，每个锚点所连接的路径
-// 链接所有九个锚点的路径一共有 12 个：
-//
-//     1-----2-----3
-//     |     |     |
-//     |     |     |
-//     4-----5-----6
-//     |     |     |
-//     |     |     |
-//     7-----8-----9
-//
-// 为了保证唯一性，描述字符串一定是从左到右，从上到下
+/// 3*3 的区块地图中，每个锚点所连接的路径
+/// 链接所有九个锚点的路径一共有 12 个：
+///
+///     1-----2-----3
+///     |     |     |
+///     |     |     |
+///     4-----5-----6
+///     |     |     |
+///     |     |     |
+///     7-----8-----9
+///
+/// 为了保证唯一性，描述字符串一定是从左到右，从上到下
 const kRoutesOfAnchorBySquare3 = {
   '1': ['1-2', '1-4'],
   '2': ['1-2', '2-5', '2-3'],
@@ -43,7 +43,7 @@ const kRoutesOfAnchorBySquare3 = {
 //     13----14-----15-----16
 // 
 
-// 根据路径的描述字符串生成路径，描述字符串必须是 1-2 的形式，其中1和2是锚点的index，可以是其他数字
+/// 根据路径的描述字符串生成路径，描述字符串必须是 1-2 的形式，其中1和2是锚点的index，可以是其他数字
 function generateRouteByAnchor(achorDescription, anchors, map, { flag }) {
   const pos = achorDescription.split('-')
   assert(pos.length > 1)
@@ -56,8 +56,8 @@ function generateRouteByAnchor(achorDescription, anchors, map, { flag }) {
   generateRouteByIndex(anchors[start].index, anchors[end].index, map, flag: flag)
 }
 
-// 调用 A* 算法（calculateRoute）来计算路径
-// 执行这个函数时地图尚未生成，因此不需要考虑zone，所以无需使用真正的terrain来计算
+/// 使用 A* 算法（calculateRoute），计算最短路径
+/// 若是在地图生成时执行这个函数时，不需要考虑zone，因为不是用的真正的terrain来计算
 function generateRouteByIndex(index1, index2, map, { flag }) {
   // print('generateRouteByIndex', index1, index2)
 

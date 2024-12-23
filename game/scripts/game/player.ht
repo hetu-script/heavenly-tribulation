@@ -1,0 +1,42 @@
+import 'game.ht'
+import 'colors.ht'
+import 'worldmap.ht'
+
+namespace Player {
+  
+  external function updateHero()
+
+  external function updateHistory()
+
+  external function updateQuest()
+
+  function restoreMana(value: integer) {
+    assert(value > 0)
+    if (hero.stats.mana < hero.stats.manaMax) {
+      hero.stats.mana += value
+      if (hero.stats.mana >= hero.stats.manaMax) {
+        hero.stats.mana = hero.stats.manaMax
+      }
+
+      engine.play('spell-of-healing-876.mp3')
+
+      const incidentContent = engine.locale('characterManaCondensed', interpolations: [
+        hero.name,
+        value,
+      ])
+      Incident(
+        message: incidentContent,
+        subjectId: hero.id,
+        isPrivate: true,
+      )
+
+      WorldMap.addHintText(
+        '+1 ${engine.locale('mana')}',
+        hero.worldPosition.left,
+        hero.worldPosition.top,
+        Colors.blue,
+      )
+    }
+  }
+
+}

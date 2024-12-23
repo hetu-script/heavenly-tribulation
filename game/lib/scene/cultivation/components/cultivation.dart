@@ -542,7 +542,7 @@ class CultivationScene extends Scene {
 
   void setLevelDescription() {
     levelDescription.text =
-        '${engine.locale('cultivationRank')}: ${engine.locale('cultivationRank${heroData['cultivationRank']}')} '
+        '${engine.locale('cultivationRank')}: ${engine.locale('cultivationRank.${heroData['cultivationRank']}')} '
         '${engine.locale('cultivationLevel')}: ${heroData['cultivationLevel']} '
         '${engine.locale('availableCultivationPoints')}: ${heroData['availableCultivationPoints']}';
   }
@@ -593,7 +593,7 @@ class CultivationScene extends Scene {
       setLevelDescription();
     }
 
-    expBar.value = points;
+    expBar.setValue(points);
     expBar.max = expForNextLevel;
   }
 
@@ -605,7 +605,7 @@ class CultivationScene extends Scene {
     //     'cultivation/cultivation${newRank}_hover.png';
     // cultivationRankButton.tryLoadSprite();
 
-    final rankName = engine.locale('cultivationRank$newRank');
+    final rankName = engine.locale('cultivationRank.$newRank');
     addHintText('${engine.locale('rankUp!')} $rankName',
         offset: 30, duration: 6, textColor: Colors.lightBlue);
 
@@ -636,7 +636,7 @@ class CultivationScene extends Scene {
 
         heroData['unconvertedExp'] -= _kExpPerLightPoint;
         heroData['exp'] += _kExpPerLightPoint;
-        expBar.value += _kExpPerLightPoint;
+        expBar.setValue(expBar.value + _kExpPerLightPoint);
 
         onComplete?.call();
 

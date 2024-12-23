@@ -1,7 +1,0 @@
-namespace Player {
-  external function updateHero()
-
-  external function updateHistory()
-
-  external function updateQuest()
-}

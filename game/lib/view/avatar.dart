@@ -77,7 +77,7 @@ class Avatar extends StatelessWidget {
 
     if (charData != null) {
       name ??= charData['name'];
-      iconImg ??= AssetImage('assets/images/avatar/${charData['icon']}');
+      iconImg ??= AssetImage('assets/images/illustration/${charData['icon']}');
     }
 
     if (iconImg != null) {
@@ -94,7 +94,7 @@ class Avatar extends StatelessWidget {
     }
 
     if (showBorder && iconImg != null) {
-      borderImg ??= const AssetImage('assets/images/avatar/border.png');
+      borderImg ??= const AssetImage('assets/images/illustration/border.png');
       border = RRectIcon(
         backgroundColor: Colors.transparent,
         image: borderImg,

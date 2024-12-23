@@ -16,7 +16,7 @@ function hyperbola(normal, deviation) {
 function interpolate(text: string, interpolations: List) {
   if (interpolations?.isNotEmpty) {
     for (const i = 0; i < interpolations.length; ++i) {
-      text = text.replaceAll('{${i}}', JSON.parse(interpolations[i]));
+      text = text.replaceAll('{${i}}', JSON.stringify(interpolations[i]));
     }
   }
   return text

@@ -7,62 +7,56 @@ import '../binding/battle_character.ht'
 
 /// 主词条（包含动画，异步async）：
 /// 攻击
-async function card_script_attack_main(self, opponent, affix) {
+async function card_script_attack(self, opponent, affix) {
   await self.attack(affix.kind)
   final value = affix.value[0]
-  let damageType = 'none'
-  if (affix.kind == 'sword') {
-    damageType = 'blade'
-  } else if (affix.kind == 'fist') {
-    damageType = 'punchkick'
-  }
-  opponent.takeDamage(damageType, value)
+  opponent.takeDamage(affix.kind, value)
 }
 /// 格挡
-async function card_script_defend_main(self, opponent, affix) {
+async function card_script_defend(self, opponent, affix) {
   await self.defend(affix.kind)
   await Future.delayed(0.4)
   final value = affix.value[0]
-  self.addStatusEffect('block', value)
+  self.addStatusEffect('block', amount: value, playSound: true)
 }
 /// 轻功
 async function card_script_swift(self, opponent, affix) {
   await Future.delayed(0.8)
   final [speed, dodge] = affix.value
-  self.addStatusEffect('speed', speed)
-  self.addStatusEffect('dodge', dodge, playSound: false)
+  self.addStatusEffect('speed', amount: speed, playSound: true)
+  self.addStatusEffect('dodge', amount: dodge)
 }
 /// 回复生命
 async function card_script_restore_life(self, opponent, affix) {
   final value = affix.value[0]
-  await self.restoreLife(value)
+  await self.restoreLife(value, playSound: true)
 }
 /// 回复灵气
 async function card_script_restore_mana(self, opponent, affix) {
   final value = affix.value[0]
-  await self.restoreMana(value)
+  await self.restoreMana(value, playSound: true)
 }
 
 /// 额外词条（不播放动画和音效，同步非阻塞函数）：
 /// 攻击后额外造成伤害
-function card_script_extra_damage_after_attack(self, opponent, affix) {
+function card_script_extra_damage(self, opponent, affix) {
   final value = affix.value[0]
-  self.addStatusEffect('extra_damage_after_attack', value, playSound: false)
+  self.addStatusEffect('extra_damage', amount: value)
 }
 /// 防御
-function card_script_defend(self, opponent, affix) {
+function card_script_defend_extra(self, opponent, affix) {
   final value = affix.value[0]
-  self.addStatusEffect('block', value, playSound: false)
+  self.addStatusEffect('block', amount: value)
 }
 /// 速度
 function card_script_speed(self, opponent, affix) {
   final value = affix.value[0]
-  self.addStatusEffect('speed', value, playSound: false)
+  self.addStatusEffect('speed', amount: value)
 }
 /// 闪避
 function card_script_dodge(self, opponent, affix) {
   final value = affix.value[0]
-  self.addStatusEffect('dodge', value, playSound: false)
+  self.addStatusEffect('dodge', amount: value)
 }
 
 // async function blade_8(self, opponent) {

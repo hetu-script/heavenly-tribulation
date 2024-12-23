@@ -115,10 +115,22 @@
       sprite: "object/stoneStairsDebris.png",
     },
   },
-  characterDefault: {
+  oldWell: {
     type: "overlaySprite",
     overlay: {
-      sprite: "object/characterDefault.png",
+      sprite: "object/oldWell.png",
+    },
+  },
+  characterBoy: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/characterBoy.png",
+    },
+  },
+  characterYoungMan: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/characterYoungMan.png",
     },
   },
   characterMan: {
@@ -127,16 +139,40 @@
       sprite: "object/characterMan.png",
     },
   },
-  characterOld: {
+  characterOldMan: {
     type: "overlaySprite",
     overlay: {
-      sprite: "object/characterOld.png",
+      sprite: "object/characterOldMan.png",
     },
   },
   characterGirl: {
     type: "overlaySprite",
     overlay: {
       sprite: "object/characterGirl.png",
+    },
+  },
+  characterYoungWoan: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/characterYoungWoan.png",
+    },
+  },
+  characterWoman: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/characterWoman.png",
+    },
+  },
+  characterOldWoman: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/characterOldWoman.png",
+    },
+  },
+  python: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/python.png",
     },
   },
 }

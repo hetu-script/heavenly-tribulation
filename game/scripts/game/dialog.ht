@@ -8,13 +8,13 @@ let gDialogs = {}
 struct DialogContentData {
   construct({
     character,
-    isHero,
     characterId,
     displayNameLocaleKey,
     displayName,
     icon,
-    hideName,
-    hideIcon,
+    isHero: bool,
+    hideName: bool,
+    hideIcon: bool,
     localeKeys,
     lines,
     interpolations,
@@ -49,9 +49,14 @@ struct DialogContentData {
     if (localeKeys is List) {
       assert(localeKeys.isNotEmpty)
       strings = localeKeys.map( (key) => engine.locale(key, interpolations: interpolations) ).toList()
-    } else {
+    } else if (localeKeys is string) {
+      strings = [engine.locale(localeKeys, interpolations: interpolations)]
+    } else if (lines is List) {
       assert(lines is List && lines.isNotEmpty)
-      strings = interpolate(lines, interpolations)
+      strings = lines.map( (line) => interpolate(line, interpolations) ).toList()
+    } else {
+      assert(lines is string)
+      strings = [lines]
     }
     this.lines = []
     for (const message in strings) {
@@ -93,15 +98,15 @@ namespace dialog {
 
   /// 下面这些只有在调用过 start 之后才能看到效果
 
-  external function pushImage(image: string, [ positionXOffset: float = 0.0 ])
+  external function pushImage(image: string, { positionXOffset: float = 0.0, positionYOffset: float = 0.0, fadeIn: bool = false })
 
-  external function popImage([image: string])
+  external function popImage({ image: string, fadeOut: bool = false })
 
   external function popAllImage()
 
-  external function pushScene(image: string)
+  external function pushScene(image: string, {fadeIn: bool = false})
 
-  external function popScene()
+  external function popScene({fadeOut: bool = false})
 
   external function popAllScene()
 
@@ -122,25 +127,25 @@ namespace dialog {
   external function pop()
 
   function localeLines(localeKeys, {
-    isHero,
     character,
     characterId,
     displayNameLocaleKey,
     displayName,
     icon,
-    hideName,
-    hideIcon,
+    isHero: bool,
+    hideName: bool,
+    hideIcon: bool,
     interpolations,
     returnValue,
   }) -> Future {
     const dlgData = DialogContentData(
-      localeKeys: (localeKeys is List) ? localeKeys : [localeKeys],
-      isHero: isHero,
+      localeKeys: localeKeys,
       character: character,
       characterId: characterId,
       displayNameLocaleKey: displayNameLocaleKey,
       displayName: displayName,
       icon: icon,
+      isHero: isHero,
       hideName: hideName,
       hideIcon: hideIcon,
       interpolations: interpolations,
@@ -161,7 +166,7 @@ namespace dialog {
     returnValue,
   }) -> Future {
     const dlgData = DialogContentData(
-      lines: (lines is List) ? lines : [lines],
+      lines: lines,
       isHero: isHero,
       character: character,
       characterId: characterId,
