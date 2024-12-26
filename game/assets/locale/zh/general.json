@@ -144,9 +144,10 @@
   "uncommon": "良品",
   "rare": "上品",
   "epic": "极品",
-  "legendary": "秘宝",
+  "legendary": "神品",
+  "unique": "秘宝",
   "mythic": "灵宝",
-  "exotic": "古宝",
+  "arcane": "古宝",
 
   "normal": "普通",
   "hard": "困难",
@@ -169,6 +170,7 @@
   "kind": "类型",
   "genre": "流派",
 
+  "you": "你",
   "me": "我",
   "familyName": "姓",
   "shortName": "名",
@@ -208,7 +210,6 @@
   "status": "属性",
   "build": "装备",
   "stats": "属性",
-  "cultivate": "修炼",
   "bonds": "羁绊",
   "history": "历史",
   "experienced": "经历",
@@ -246,24 +247,23 @@
   "cultivationRank.5": "化神",
 
   "fightSkillGenre": "战斗流派",
+  "supportSkillGenre": "辅助流派",
 
   "general": "通用",
-  "dao": "道法",
-  "physique": "体修",
-  "avatar": "化神",
+  "daoism": "悟道",
+  "physique": "锻体",
+  "avatar": "化身",
   "vitality": "炼魂",
-  "flying_sword": "御剑",
-
-  "supportSkillGenre": "技艺流派",
+  "swordcraft": "御剑",
 
   "array": "阵法",
   "rune": "符法",
   "plant": "灵植",
   "animal": "灵兽",
-  "divination": "占卜",
+  "divination": "卜术",
+  "illusion": "幻术",
   "theurgy": "通神",
   "psychic": "通灵",
-  "illusion": "幻术",
   "craft": "炼器",
   "alchemy": "炼丹",
 
@@ -299,15 +299,15 @@
   "hint.switch": "好像有什么地方的机关打开了……",
   "hint.deadend": "这里看样子无法前进了，看来得想想别的办法……",
 
+  "exp": "经验值",
   "cultivationLevel": "修为",
-  "exp": "修为经验",
-  "cultivationPointsNeededForNextLevel": "升级需求",
   "cultivationRank": "境界",
   "rankUp!": "境界提升!",
 
-  "availableCultivationPoints": "可用点数",
+  "availableSkillPoints": "可分配天赋点数",
 
   "condenseAll": "自动收集",
-  "innerspection": "内观",
-  "enlightenment": "悟道"
+
+  "cultivationSkills": "修炼",
+  "supportSkills": "技艺"
 }

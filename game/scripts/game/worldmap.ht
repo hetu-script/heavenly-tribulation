@@ -1,7 +1,5 @@
 namespace WorldMap {
 
-  external function showHeroInfo(value)
-
   external function setTerrainCaption(left, top, caption)
 
   external function refreshTerrainSprite(left, top)
@@ -37,7 +35,7 @@ namespace WorldMap {
 
   external function lightUpAroundTile(left, top, [ size = 1 ])
 
-  external async function enterLocation(locationId)
+  external async function enterLocation(location)
 
   external function addStillObject(data)
 

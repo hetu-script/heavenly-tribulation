@@ -4,6 +4,7 @@ abstract class GameEvents {
   static const pushLocationSiteScene = 'push_scene';
   static const residenceSiteScene = 'residence_scene';
   static const worldmapCharactersUpdated = 'worldmap_characters_updated';
+  static const leaveCultivationScene = 'leave_cultivation_scene';
 }
 
 abstract class UIEvents {

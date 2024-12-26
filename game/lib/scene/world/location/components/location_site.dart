@@ -6,8 +6,8 @@ import 'package:samsara/cardgame/custom_card.dart';
 
 import '../../../../config.dart';
 import '../../../../data.dart';
-import 'site_cards.dart';
-import '../../../../ui.dart';
+import 'site_zone.dart';
+// import '../../../../ui.dart';
 import '../../../../events.dart';
 
 class LocationSiteScene extends Scene {
@@ -66,25 +66,7 @@ class LocationSiteScene extends Scene {
     final siteList = SitesCards(cards: siteCards);
     world.add(siteList);
 
-    final exit = CustomGameCard(
-      id: 'exit',
-      deckId: 'exit',
-      borderRadius: 15.0,
-      illustrationSpriteId: 'location/site/exit_card.png',
-      spriteId: 'location/site/site_frame.png',
-      title: engine.locale('exit'),
-      titleConfig: const ScreenTextConfig(textStyle: TextStyle(fontSize: 20.0)),
-      showTitle: true,
-      position: GameUI.siteExitCardPositon,
-      size: GameUI.siteCardSize,
-      enablePreview: true,
-      focusOnPreviewing: true,
-      focusedPriority: 500,
-      focusedSize: GameUI.siteCardFocusedSize,
-      focusedOffset: Vector2(
-          -(GameUI.siteCardFocusedSize.x - GameUI.siteCardSize.x) / 2,
-          GameUI.siteCardSize.y - GameUI.siteCardFocusedSize.y),
-    );
+    final exit = GameData.getExitSiteCard();
     exit.onTap =
         (_, __) => engine.emit(GameEvents.popLocationSiteScene, args: id);
     world.add(exit);

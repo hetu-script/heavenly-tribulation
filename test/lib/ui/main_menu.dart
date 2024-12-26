@@ -23,6 +23,8 @@ class MainMenu extends StatefulWidget {
 class _MainMenuState extends State<MainMenu> {
   // late WinVideoPlayerController _videoController;
 
+  bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -39,8 +41,12 @@ class _MainMenuState extends State<MainMenu> {
     // _videoController.dispose();
   }
 
-  Future<bool> _prepareData() async {
+  Future<bool> _loadData() async {
     if (engine.isInitted) return true;
+    if (_isLoading) return false;
+
+    _isLoading = true;
+
     await engine.init();
 
     // final localeStrings =
@@ -64,6 +70,7 @@ class _MainMenuState extends State<MainMenu> {
     //   });
     // });
     // _videoController.setLooping(true);
+    _isLoading = false;
     return true;
   }
 
@@ -72,9 +79,9 @@ class _MainMenuState extends State<MainMenu> {
     final view = View.of(context);
     final screenSize = view.physicalSize;
     return FutureBuilder(
-      future: _prepareData(),
+      future: _loadData(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (!snapshot.hasData || snapshot.data == false) {
           if (snapshot.hasError) {
             throw Exception('${snapshot.error}\n${snapshot.stackTrace}');
           }

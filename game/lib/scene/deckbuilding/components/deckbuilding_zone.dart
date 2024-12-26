@@ -52,8 +52,8 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
   @override
   void onLoad() async {
     background = SpriteComponent(
-      sprite: Sprite(
-          await Flame.images.load('cultivation/deckbuilding/deckbuilding.png')),
+      sprite:
+          Sprite(await Flame.images.load('cultivation/skill/deckbuilding.png')),
       size: size,
     );
     add(background);

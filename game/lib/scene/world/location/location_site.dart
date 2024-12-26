@@ -12,7 +12,7 @@ import 'package:samsara/event.dart';
 
 import '../../../config.dart';
 // import '../../avatar.dart';
-import 'components/location_site.dart';
+// import 'components/location_site.dart';
 import 'drop_menu.dart';
 import '../../hero_info.dart';
 import '../npc_list.dart';
@@ -21,7 +21,7 @@ import '../../../state/location_site_scene.dart';
 import '../../../dialog/character_visit_dialog.dart';
 import '../../../dialog/game_dialog/game_dialog.dart';
 import '../../../state/current_npc_list.dart';
-import '../../../state/hero.dart';
+// import '../../../state/hero.dart';
 
 class LocationSiteSceneOverlay extends StatefulWidget {
   const LocationSiteSceneOverlay({
@@ -39,7 +39,7 @@ class LocationSiteSceneOverlay extends StatefulWidget {
 }
 
 class _LocationSiteSceneOverlayState extends State<LocationSiteSceneOverlay>
-    with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin {
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -75,22 +75,24 @@ class _LocationSiteSceneOverlayState extends State<LocationSiteSceneOverlay>
       EventHandler(
         widgetKey: widget.key!,
         handle: (eventId, sceneId, scene) async {
-          final currentSiteId =
-              await context.read<LocationSiteSceneState>().popScene();
-          if (sceneId == locationId) {
-            if (mounted) {
-              close();
-            }
-          } else {
-            if (currentSiteId == locationId) {
+          final currentSite =
+              await context.read<LocationSiteSceneState>().pop();
+          if (currentSite != null) {
+            if (sceneId == currentSite.id) {
               if (mounted) {
-                final Iterable<dynamic> npcs = engine.hetu.invoke(
-                    'getNpcsByLocationId',
-                    positionalArgs: [locationId]);
-                context.read<CurrentNpcList>().updated(npcs);
+                close();
               }
             } else {
-              refreshNPCsInHeroSite(currentSiteId);
+              if (currentSite.id == locationId) {
+                if (mounted) {
+                  final Iterable<dynamic> npcs = engine.hetu.invoke(
+                      'getNpcsByLocationId',
+                      positionalArgs: [locationId]);
+                  context.read<CurrentNpcList>().updated(npcs);
+                }
+              } else {
+                refreshNPCsInHeroSite(currentSite.id);
+              }
             }
           }
         },
@@ -102,9 +104,7 @@ class _LocationSiteSceneOverlayState extends State<LocationSiteSceneOverlay>
       EventHandler(
         widgetKey: widget.key!,
         handle: (eventId, sceneId, scene) async {
-          await context
-              .read<LocationSiteSceneState>()
-              .pushScene(siteId: sceneId);
+          await context.read<LocationSiteSceneState>().push(siteId: sceneId);
           refreshNPCsInHeroSite(sceneId);
           await engine.hetu.invoke('onAfterHeroEnterSite', positionalArgs: [
             widget.locationData,
@@ -138,7 +138,7 @@ class _LocationSiteSceneOverlayState extends State<LocationSiteSceneOverlay>
                 final homeSiteData = widget.locationData['sites'][homeSiteId];
                 await context
                     .read<LocationSiteSceneState>()
-                    .pushScene(siteId: homeSiteId);
+                    .push(siteId: homeSiteId);
                 refreshNPCsInHeroSite(homeSiteId);
                 await engine.hetu.invoke('onAfterHeroEnterSite',
                     positionalArgs: [widget.locationData, homeSiteData]);
@@ -154,7 +154,7 @@ class _LocationSiteSceneOverlayState extends State<LocationSiteSceneOverlay>
       ),
     );
 
-    _prepareData();
+    _loadData();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       engine.hetu.invoke('onAfterHeroEnterLocation',
@@ -170,26 +170,19 @@ class _LocationSiteSceneOverlayState extends State<LocationSiteSceneOverlay>
     super.dispose();
   }
 
-  Future<void> _prepareData() async {
-    context.read<HeroState>().showHeroInfo(true);
-
-    await context
+  Future<void> _loadData() async {
+    context
         .read<LocationSiteSceneState>()
-        .pushScene(locationData: widget.locationData);
-
-    setState(() {
-      _isLoading = false;
-    });
+        .push(locationData: widget.locationData);
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
 
-    final LocationSiteScene? scene =
-        context.watch<LocationSiteSceneState>().scene;
+    final scene = context.watch<LocationSiteSceneState>().scene;
 
-    return (_isLoading || scene == null || scene.isLoading)
+    return (_isLoading || scene == null)
         ? LoadingScreen(
             text: engine.locale('loading'),
           )

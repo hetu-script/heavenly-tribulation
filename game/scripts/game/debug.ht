@@ -10,6 +10,8 @@ import 'tile/hexagonal_tile.ht'
 namespace debug {
   external function setFog(value: bool)
 
+  external function injectGameData()
+
   function terrain {
     if (world == null) return
     if (hero == null) return

@@ -14,23 +14,24 @@ function generateMaterialName({category, rarity}) {
   let name
   if (category != 'energy' && category != 'spectre') {
     switch (rarity) {
-      'exotic' : name = pre + cp + sp + kind
+      'arcane' : name = pre + cp + sp + kind
       'mythic' : name = pre + sp + kind
+      'unique' : name = pre + cp + kind
       'legendary' : name = pre + kind
-      'epic' : name = pre + kind
-      'rare' : name = cp + sp + kind
+      'epic' : name = cp + sp + kind
+      'rare' : name = sp + kind
       'uncommon' : name = cp + kind
       'common' : name = commonMaterialNames[category]
     }
   } else {
     switch (rarity) {
-      'exotic' : name = pre + cp + sp + kind
-      'mythic' : name = pre + sp + kind
-      'legendary' : name = pre + sp + kind
+      'arcane' : name = pre + cp + sp + kind
+      'mythic' : name = pre + cp + sp + kind
+      'unique' : name = pre + sp + kind
+      'legendary' : name = pre + cp + kind
       'epic' : name = pre + kind
-      'rare' : name = pre + kind
-      'uncommon' : name = cp + sp + kind
-      'common' : name = cp + kind
+      'rare' : name = cp + sp + kind
+      'uncommon' : name = sp + kind
       'common' : name = cp + kind
     }
   }

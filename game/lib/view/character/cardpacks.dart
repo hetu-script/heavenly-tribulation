@@ -7,7 +7,7 @@ import 'package:samsara/ui/close_button.dart';
 import '../../config.dart';
 // import 'status_effects.dart';
 import 'equipments/inventory.dart';
-import 'equipments/entity_info.dart';
+import 'equipments/item_info.dart';
 import '../common.dart';
 
 class CardpacksView extends StatefulWidget {

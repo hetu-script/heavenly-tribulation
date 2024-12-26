@@ -1,4 +1,12 @@
 {
+  quest_jade: {
+    prototypeId: "quest_jade",
+    category: "equipments",
+    kind: "quest",
+    price: -1,
+    isQuestItem: true,
+    icon: "item/story/jade.png",
+  },
   wood_boat: {
     prototypeId: "wood_boat",
     category: "equipments",

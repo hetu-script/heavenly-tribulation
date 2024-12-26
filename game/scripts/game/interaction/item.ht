@@ -12,7 +12,7 @@ function onUseItem(item) {
   if (item.flags.useCustomInteraction) {
     // 使用模组定义的交互逻辑
     engine.info('Item [${item.id}] 使用自定义交互逻辑')
-    onGameEvent('onUseItem', item)
+    onWorldEvent('onUseItem', item)
   } else {
     switch(item.category) {
       'cardpack': {

@@ -3,12 +3,13 @@
 | 稀有度         |
 | :------------- |
 | 凡品 common    |
-| 罕见 uncommon  |
-| 稀有 rare      |
+| 良品 uncommon  |
+| 上品 rare      |
 | 极品 epic      |
-| 秘宝 legendary |
+| 神品 legendary |
+| 秘宝 unique    |
+| 古宝 arcane    |
 | 灵宝 mythic    |
-| 古宝 exotic    |
 
 物品，技能等对象有稀有度的概念。
 

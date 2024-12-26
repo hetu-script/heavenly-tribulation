@@ -15,23 +15,28 @@ import 'package:samsara/samsara.dart';
 import 'ui.dart';
 import 'common.dart';
 import 'config.dart';
+import 'scene/common.dart';
 
 /// 游戏数据，大部分以JSON或者Hetu Struct形式保存
 /// 这个类是纯静态类，方法都是有关读取和保存的
 /// 游戏逻辑等操作这些数据的代码另外写在logic目录下的文件中
 abstract class GameData {
   static Map<String, dynamic> editorToolItemsData = {};
-  static Map<String, dynamic> cardsData = {};
+  static Map<String, dynamic> animationsData = {};
   static Map<String, dynamic> battleCardMainAffixesData = {};
   static Map<String, dynamic> battleCardSupportAffixesData = {};
-  static Map<String, dynamic> animationsData = {};
   static Map<String, dynamic> statusEffectsData = {};
   static Map<String, dynamic> itemsData = {};
+  static Map<String, dynamic> cultivationSkillTreeData = {};
+  static Map<String, dynamic> supportSkillTreeData = {};
+  static Map<String, dynamic> cultivationSkillData = {};
+  static Map<String, dynamic> supportSkillData = {};
 
   static Map<String, String> organizationCategoryNames = {};
   static Map<String, String> cultivationGenreNames = {};
   static Map<String, String> constructableSiteCategoryNames = {};
 
+  /// 游戏本身的数据，包含角色，对象，等等。但这里不包括地图数据。
   static dynamic data;
 
   static BuildContext? ctx;
@@ -44,9 +49,9 @@ abstract class GameData {
         await rootBundle.loadString('assets/data/editor_tools.json5');
     editorToolItemsData = JSON5.parse(editorToolItemsString);
 
-    final cardsDataString =
-        await rootBundle.loadString('assets/data/cards.json5');
-    cardsData = JSON5.parse(cardsDataString);
+    // final cardsDataString =
+    //     await rootBundle.loadString('assets/data/cards.json5');
+    // cardsData = JSON5.parse(cardsDataString);
 
     final cardsMainAffixDataString =
         await rootBundle.loadString('assets/data/card_main_affixes.json5');
@@ -67,6 +72,22 @@ abstract class GameData {
     final itemsDataString =
         await rootBundle.loadString('assets/data/items.json5');
     itemsData = JSON5.parse(itemsDataString);
+
+    final cultivationSkillTreeDataString =
+        await rootBundle.loadString('assets/data/skilltree_cultivation.json5');
+    cultivationSkillTreeData = JSON5.parse(cultivationSkillTreeDataString);
+
+    final supportSkillTreeDataString =
+        await rootBundle.loadString('assets/data/skilltree_support.json5');
+    supportSkillTreeData = JSON5.parse(supportSkillTreeDataString);
+
+    final cultivationSkillDataString =
+        await rootBundle.loadString('assets/data/skill_cultivation.json5');
+    cultivationSkillData = JSON5.parse(cultivationSkillDataString);
+
+    final supportSkillDataString =
+        await rootBundle.loadString('assets/data/skill_support.json5');
+    supportSkillData = JSON5.parse(supportSkillDataString);
 
     for (final key in kOrganizationCategories) {
       organizationCategoryNames[key] = engine.locale(key);
@@ -98,6 +119,18 @@ abstract class GameData {
   /// wether started a new game or load from a save.
   static bool isGameCreated = false;
 
+  static void injectGameData() {
+    engine.hetu.invoke('init', namedArgs: {
+      'itemsData': GameData.itemsData.values,
+      'battleCardMainAffixesData': GameData.battleCardMainAffixesData,
+      'battleCardSupportAffixesData': GameData.battleCardSupportAffixesData,
+      'cultivationSkillTreeData': GameData.cultivationSkillTreeData,
+      'supportSkillTreeData': GameData.supportSkillTreeData,
+      'cultivationSkillData': GameData.cultivationSkillData,
+      'supportSkillData': GameData.supportSkillData,
+    });
+  }
+
   static Future<void> newGame(String worldId, [String? saveName]) async {
     worldIds.clear();
     currentWorldId = worldId;
@@ -105,11 +138,7 @@ abstract class GameData {
 
     data = engine.hetu.invoke('newGame', positionalArgs: [saveName]);
 
-    engine.hetu.invoke('init', namedArgs: {
-      'itemsData': GameData.itemsData.values,
-      'battleCardMainAffixesData': GameData.battleCardMainAffixesData,
-      'battleCardSupportAffixesData': GameData.battleCardSupportAffixesData,
-    });
+    injectGameData();
 
     for (final id in GameConfig.modules.keys) {
       if (GameConfig.modules[id]?['enabled'] == true) {
@@ -130,13 +159,11 @@ abstract class GameData {
     required dynamic gameData,
     required dynamic universeData,
     required dynamic historyData,
-    bool isEditorMode = false,
   }) async {
     data = engine.hetu.invoke('loadGameFromJsonData', namedArgs: {
       'gameData': gameData,
       'universeData': universeData,
       'historyData': historyData,
-      'isEditorMode': isEditorMode,
     });
 
     currentWorldId = engine.hetu.invoke('getCurrentWorldId');
@@ -177,7 +204,6 @@ abstract class GameData {
       gameData: gameData,
       universeData: universeData,
       historyData: historyData,
-      isEditorMode: isEditorMode,
     );
   }
 
@@ -198,7 +224,6 @@ abstract class GameData {
       gameData: gameData,
       universeData: universeData,
       historyData: historyData,
-      isEditorMode: false,
     );
   }
 
@@ -213,17 +238,41 @@ abstract class GameData {
       illustrationSpriteId: siteData['image'],
       spriteId: 'location/site/site_frame.png',
       title: siteData['name'],
-      titleConfig: const ScreenTextConfig(textStyle: TextStyle(fontSize: 20.0)),
+      titleConfig: GameUI.siteTitleConfig,
       showTitle: true,
       enablePreview: true,
       focusOnPreviewing: true,
-      focusedPriority: 500,
+      focusedPriority: kSiteCardPriority,
       focusedSize: GameUI.siteCardFocusedSize,
       focusedOffset: Vector2(
           (GameUI.siteCardFocusedSize.x - GameUI.siteCardSize.x) / 2,
           (GameUI.siteCardSize.y - GameUI.siteCardFocusedSize.y) / 2),
     );
     return card;
+  }
+
+  static CustomGameCard getExitSiteCard({String? spriteId}) {
+    spriteId ??= 'exit_card';
+    final exit = CustomGameCard(
+      id: 'exit',
+      deckId: 'exit',
+      borderRadius: 20.0,
+      illustrationSpriteId: 'location/site/$spriteId.png',
+      spriteId: 'location/site/site_frame.png',
+      title: engine.locale('exit'),
+      titleConfig: GameUI.siteTitleConfig,
+      showTitle: true,
+      position: GameUI.siteExitCardPositon,
+      size: GameUI.siteCardSize,
+      enablePreview: true,
+      focusOnPreviewing: true,
+      focusedPriority: kSiteCardPriority,
+      focusedSize: GameUI.siteCardFocusedSize,
+      focusedOffset: Vector2(
+          -(GameUI.siteCardFocusedSize.x - GameUI.siteCardSize.x) / 2,
+          GameUI.siteCardSize.y - GameUI.siteCardFocusedSize.y),
+    );
+    return exit;
   }
 
   static CustomGameCard createBattleCardByData(dynamic data) {
@@ -318,7 +367,7 @@ abstract class GameData {
         anchor: Anchor.topCenter,
         outlined: true,
         textStyle: TextStyle(
-          fontFamily: 'RuiZiYunZiKuLiBianTiGBK',
+          fontFamily: GameUI.fontFamily,
           fontSize: 16.0,
           fontWeight: FontWeight.bold,
         ),
@@ -340,40 +389,40 @@ abstract class GameData {
     );
   }
 
-  static GameCard getBattleCardById(String cardId) {
-    assert(_isInitted, 'Game data is not loaded yet!');
-    assert(GameUI.isInitted, 'Game UI is not initted yet!');
+  // static GameCard getBattleCardById(String cardId) {
+  //   assert(_isInitted, 'Game data is not loaded yet!');
+  //   assert(GameUI.isInitted, 'Game UI is not initted yet!');
 
-    final data = cardsData[cardId];
-    assert(data != null, 'Failed to load card data: [$cardId]');
-    final String id = data['id'];
+  //   final data = cardsData[cardId];
+  //   assert(data != null, 'Failed to load card data: [$cardId]');
+  //   final String id = data['id'];
 
-    return GameCard(
-      id: id,
-      deckId: id,
-      script: id,
-      data: data,
-      // title: data['title'][engine.locale.languageId],
-      // description: data['rules'][engine.locale.languageId],
-      size: GameUI.libraryCardSize,
-      spriteId: 'cultivation/library/$id.png',
-      // focusedPriority: 1000,
-      // illustrationSpriteId: 'cards/illustration/$id.png',
-      // illustrationHeightRatio: kCardIllustrationHeightRatio,
-      // showTitle: true,
-      // titleStyle: const ScreenTextConfig(
-      //   colorTheme: ScreenTextColorTheme.light,
-      //   anchor: Anchor.topCenter,
-      //   padding: EdgeInsets.only(
-      //       top: kLibraryCardHeight * kCardIllustrationHeightRatio),
-      //   textStyle: TextStyle(fontSize: 16),
-      // ),
-      // showDescription: true,
-      // descriptionStyle: const ScreenTextConfig(
-      //   colorTheme: ScreenTextColorTheme.dark,
-      // ),
-    );
-  }
+  //   return GameCard(
+  //     id: id,
+  //     deckId: id,
+  //     script: id,
+  //     data: data,
+  //     // title: data['title'][engine.locale.languageId],
+  //     // description: data['rules'][engine.locale.languageId],
+  //     size: GameUI.libraryCardSize,
+  //     spriteId: 'cultivation/library/$id.png',
+  //     // focusedPriority: 1000,
+  //     // illustrationSpriteId: 'cards/illustration/$id.png',
+  //     // illustrationHeightRatio: kCardIllustrationHeightRatio,
+  //     // showTitle: true,
+  //     // titleStyle: const ScreenTextConfig(
+  //     //   colorTheme: ScreenTextColorTheme.light,
+  //     //   anchor: Anchor.topCenter,
+  //     //   padding: EdgeInsets.only(
+  //     //       top: kLibraryCardHeight * kCardIllustrationHeightRatio),
+  //     //   textStyle: TextStyle(fontSize: 16),
+  //     // ),
+  //     // showDescription: true,
+  //     // descriptionStyle: const ScreenTextConfig(
+  //     //   colorTheme: ScreenTextColorTheme.dark,
+  //     // ),
+  //   );
+  // }
 }
 
 abstract class PrebuildDecks {

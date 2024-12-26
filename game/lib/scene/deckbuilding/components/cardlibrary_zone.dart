@@ -118,8 +118,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     stackSprite ??= Sprite(await Flame.images.load('cardstack_back.png'));
 
     background = SpriteComponent(
-      sprite: Sprite(
-          await Flame.images.load('cultivation/deckbuilding/library.png')),
+      sprite: Sprite(await Flame.images.load('cultivation/skill/library.png')),
       size: size,
     );
     add(background);

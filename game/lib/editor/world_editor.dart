@@ -39,7 +39,7 @@ import '../state/editor_tool.dart';
 import '../dialog/input_string.dart';
 import '../scene/loading_screen.dart';
 import '../mainmenu/create_blank_map.dart';
-import '../dialog/select_dialog.dart';
+import '../dialog/select_menu_dialog.dart';
 // import '../common.dart';
 
 enum TerrainPopUpMenuItems {
@@ -120,6 +120,12 @@ List<PopupMenuEntry<TerrainPopUpMenuItems>> buildTerrainPopUpMenuItems(
   ];
 }
 
+/// {
+///   'id': id,
+///   'method': 'load',
+///   'savePath': info.savePath,
+///   'isEditorMode': true,
+/// }
 class WorldEditorOverlay extends StatefulWidget {
   WorldEditorOverlay({required this.args}) : super(key: UniqueKey());
 
@@ -137,12 +143,7 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
   final _toolBoxfocusNode = FocusNode();
   // late final FocusAttachment _nodeAttachment;
 
-  final Map<String, WorldMapScene> _maps = {};
-
-  WorldMapScene get scene {
-    assert(_maps.containsKey(GameData.currentWorldId));
-    return _maps[GameData.currentWorldId]!;
-  }
+  late WorldMapScene scene;
 
   bool _isLoading = false;
   bool _isLoaded = false;
@@ -386,7 +387,7 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
 
     engine.hetu.interpreter.bindExternalFunction('setTerrainCaption', (
         {positionalArgs, namedArgs}) {
-      if (!_isLoading) {
+      if (_isLoaded) {
         scene.map.setTerrainCaption(
             positionalArgs[0], positionalArgs[1], positionalArgs[2]);
       }
@@ -394,7 +395,7 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
 
     engine.hetu.interpreter.bindExternalFunction('refreshTerrainSprite', (
         {positionalArgs, namedArgs}) {
-      if (!_isLoading) {
+      if (_isLoaded) {
         final tile = scene.map.getTerrain(positionalArgs[0], positionalArgs[1]);
         tile?.tryLoadSprite();
       }
@@ -402,34 +403,26 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
 
     engine.hetu.interpreter.bindExternalFunction('refreshTerrainOverlaySprite',
         ({positionalArgs, namedArgs}) {
-      if (!_isLoading) {
-        final tile = scene.map.getTerrain(positionalArgs[0], positionalArgs[1]);
-        tile?.tryLoadSprite(overlay: true);
-      }
+      final tile = scene.map.getTerrain(positionalArgs[0], positionalArgs[1]);
+      tile?.tryLoadSprite(overlay: true);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('clearTerrainAnimation', (
         {positionalArgs, namedArgs}) {
-      if (!_isLoading) {
-        final tile = scene.map.getTerrain(positionalArgs[0], positionalArgs[1]);
-        tile?.clearAnimation();
-      }
+      final tile = scene.map.getTerrain(positionalArgs[0], positionalArgs[1]);
+      tile?.clearAnimation();
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('clearTerrainOverlaySprite', (
         {positionalArgs, namedArgs}) {
-      if (!_isLoading) {
-        final tile = scene.map.getTerrain(positionalArgs[0], positionalArgs[1]);
-        tile?.clearOverlaySprite();
-      }
+      final tile = scene.map.getTerrain(positionalArgs[0], positionalArgs[1]);
+      tile?.clearOverlaySprite();
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('clearTerrainOverlayAnimation',
         ({positionalArgs, namedArgs}) {
-      if (!_isLoading) {
-        final tile = scene.map.getTerrain(positionalArgs[0], positionalArgs[1]);
-        tile?.clearOverlayAnimation();
-      }
+      final tile = scene.map.getTerrain(positionalArgs[0], positionalArgs[1]);
+      tile?.clearOverlayAnimation();
     }, override: true);
 
     engine.addEventListener(
@@ -437,7 +430,6 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
       EventHandler(
         widgetKey: widget.key!,
         handle: (eventId, args, scene) async {
-          _isLoading = false;
           engine.hetu.invoke('refreshAllCaptions', namespace: 'debug');
           await _refreshWorldmapCharacters();
           setState(() {});
@@ -467,24 +459,6 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
     // _toolBoxfocusNode.requestFocus();
   }
 
-  Future<bool> _prepareData() async {
-    if (_isLoaded) return true;
-    if (_isLoading) return false;
-    _isLoading = true;
-
-    if (!GameData.isGameCreated) {
-      if (widget.args['method'] == 'load') {
-        await GameData.loadGame(widget.args['path'], isEditorMode: true);
-      } else {
-        await GameData.newGame(widget.args['id'], widget.args['saveName']);
-      }
-    }
-    await loadMap();
-    _isLoaded = true;
-
-    return true;
-  }
-
   @override
   void dispose() {
     engine.removeEventListener(widget.key!);
@@ -492,64 +466,67 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
     super.dispose();
   }
 
-  Future<WorldMapScene> switchMap(String id) async {
-    setState(() {
-      GameData.currentWorldId = id;
-    });
-    if (!_maps.containsKey(id)) {
-      return await loadMap({
-        'id': id,
-        'method': 'load',
-        'isEditorMode': true,
-      });
-    } else {
-      GameData.currentWorldId = id;
-      engine.hetu.invoke('switchWorld', positionalArgs: [id]);
-      _refreshWorldmapCharacters();
-
-      return _maps[id]!;
+  Future<bool> loadMap([Map<String, dynamic>? args]) async {
+    if (_isLoading) return false;
+    if (args == null) {
+      if (_isLoaded) return true;
     }
-  }
+    _isLoading = true;
 
-  Future<WorldMapScene> loadMap([Map<String, dynamic>? args]) async {
-    final id = args?['id'] ?? GameData.currentWorldId ?? widget.args['id'];
-    if (engine.containsScene(id)) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-    final scn = await engine.createScene(
-      contructorKey: 'tilemap',
-      sceneId: id,
-      arg: args ?? widget.args,
-    ) as WorldMapScene;
-    // worldIds是set，所以这里添加重复值也不会有问题
-    GameData.worldIds.add(scn.id);
-    _maps[scn.id] = scn;
-    GameData.currentWorldId = scn.id;
-    scn.map.onDragUpdate = (int buttons, Vector2 offset) {
-      if (buttons == kSecondaryButton) {
-        _dragged = true;
-        scn.camera.moveBy(-offset);
+    args ??= widget.args;
+
+    // 创建或读取游戏存档
+    if (!GameData.isGameCreated) {
+      if (args['method'] == 'load') {
+        await GameData.loadGame(args['savePath'], isEditorMode: true);
+      } else {
+        await GameData.newGame(args['id'], widget.args['saveName']);
       }
-    };
-    scn.map.onTapDown = _onMapTapDown;
-    scn.map.onTapUp = _onMapTapUp;
-    return scn;
+    }
+
+    final id = args['id'];
+
+    if (engine.containsScene(id)) {
+      scene = engine.switchScene(id)!;
+    } else {
+      scene = await engine.createScene(
+        contructorKey: 'tilemap',
+        sceneId: id,
+        arg: args,
+      ) as WorldMapScene;
+      scene.map.onDragUpdate = (int buttons, Vector2 offset) {
+        if (buttons == kSecondaryButton) {
+          _dragged = true;
+          scene.camera.moveBy(-offset);
+        }
+      };
+      scene.map.onTapDown = _onMapTapDown;
+      scene.map.onTapUp = _onMapTapUp;
+    }
+
+    GameData.currentWorldId = scene.id;
+
+    _refreshWorldmapCharacters();
+
+    setState(() {
+      _isLoaded = true;
+      _isLoading = false;
+    });
+
+    return _isLoaded;
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     // _nodeAttachment.reparent();
-    _toolBoxfocusNode.requestFocus();
 
     final screenSize = MediaQuery.sizeOf(context);
 
     return FutureBuilder(
       future: Future.delayed(
-        const Duration(milliseconds: 100),
-        () => _prepareData(),
+        const Duration(milliseconds: 200),
+        () => loadMap(),
       ),
       builder: (context, snapshot) {
         if (!snapshot.hasData || snapshot.data == false) {
@@ -558,12 +535,7 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
           }
           return const LoadingScreen();
         } else {
-          WorldMapScene? currentMap = _maps[GameData.currentWorldId];
-
-          if (currentMap == null) {
-            return const LoadingScreen();
-          }
-
+          _toolBoxfocusNode.requestFocus();
           return KeyboardListener(
             autofocus: true,
             focusNode: _toolBoxfocusNode,
@@ -584,9 +556,7 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
               color: Colors.transparent,
               child: Stack(
                 children: [
-                  SceneWidget(scene: currentMap),
-                  if (_isLoading || (currentMap.isLoading))
-                    const LoadingScreen(),
+                  SceneWidget(scene: scene),
                   Positioned(
                     right: 0,
                     top: 0,
@@ -605,7 +575,7 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
                           case WorldEditorDropMenuItems.switchWorld:
                             showDialog(
                               context: context,
-                              builder: (context) => SelectDialog(
+                              builder: (context) => SelectMenuDialog(
                                   selections: {
                                     for (var element in GameData.worldIds)
                                       element: element
@@ -615,7 +585,11 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
                                           element != GameData.currentWorldId)),
                             ).then((value) {
                               if (value == null) return;
-                              switchMap(value);
+                              loadMap({
+                                'id': value,
+                                'method': 'load',
+                                'isEditorMode': true,
+                              });
                             });
                           case WorldEditorDropMenuItems.expandWorld:
                             showDialog<(int, int, String)>(
@@ -703,9 +677,7 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
                           case WorldEditorDropMenuItems.exit:
                             context.read<SelectedTileState>().clear();
                             context.read<EditorToolState>().reset();
-                            for (final scn in _maps.values) {
-                              scn.leave(clearCache: true);
-                            }
+                            engine.clearAllCache();
                             Navigator.of(context).pop();
                         }
                       },

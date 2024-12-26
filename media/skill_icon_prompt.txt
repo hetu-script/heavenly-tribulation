@@ -1,0 +1,28 @@
+Speed Icon:
+"A swift, flowing contour of a runner in motion, capturing the essence of speed and quickness for a game's movement or reaction-based skills."
+
+Attack Icon:
+"A straightforward depiction of a warrior in the act of striking with a sword, conveying aggression and offensive capabilities for a combat skill."
+
+Magic Icon:
+"A stylized, elegant silhouette of a mage casting a spell, with stars or magical symbols around, indicating magical abilities or powers."
+
+Stealth Icon:
+"A subtle, shadowy outline of a figure crouching or blending into darkness, suggesting stealth and covert operations for a game's sneaking or espionage skills."
+
+Strength Icon:
+"A simple, bold silhouette of a muscular figure lifting weights, symbolizing strength and power for a game skill icon."
+
+
+Defense Icon:
+"An easily recognizable silhouette of a shield held by a figure, embodying defense and protection for a tactical game attribute."
+
+Intelligence Icon:
+"A clear, minimalist outline of a figure with a glowing light bulb or book above its head, symbolizing intelligence or knowledge-based skills."
+
+Endurance Icon:
+"A robust, steady figure standing firm, possibly with a mountain backdrop, signifying endurance and resilience for a game's stamina or health-related feature."
+
+Healing Icon:
+"A gentle, soothing outline of hands holding a heart or a cross, representing healing and restorative skills within a game."
+

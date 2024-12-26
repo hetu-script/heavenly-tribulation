@@ -1,0 +1,112 @@
+
+const cave = {
+  onInteractObject: async (object, terrain) {
+    switch (object.id) {
+      'coffin1': {
+        dialog.localeLines('cave.coffin1.description')
+      }
+      'coffin2': {
+        dialog.localeLines('cave.coffin2.description')
+      }
+      'coffin3': {
+        dialog.localeLines('cave.coffin3.description')
+      }
+      'checkPoint1': {
+        if (!this.flags.checkPoint1) {
+          this.flags.checkPoint1 = true
+          object.blockHeroMove = false
+          await WorldMap.moveCameraToMapPosition(6, 15)
+          WorldMap.lightUpAroundTile(6, 15, 2)
+          dialog.localeLines('cave.oldWell.descriptionBeforeInteract1')
+        }
+      }
+      'oldWell': {
+        dialog.start()
+        if (!this.flags.checkPoint2) {
+          await dialog.localeLines('cave.oldWell.descriptionBeforeInteract2')
+          dialog.pushImage('story/jade_avatar', fadeIn: true)
+          await Future.delayed(1)
+          await dialog.localeLines('cave.oldWell.descriptionBeforeInteract3')
+          await dialog.localeLines('cave.hero.line11', isHero: true)
+          let selected = await dialog.localeSelect([
+            'cave.oldWell.takeJade',
+            'forgetIt',
+          ])
+          if (selected == 'cave.oldWell.takeJade') {
+            await dialog.localeLines('cave.oldWell.descriptionBeforeInteract4')
+            this.flags.checkPoint2 = true
+            Player.acquireItemById('quest_jade')
+            Player.gainExp(40)
+            delete terrain.overlaySprite.animation
+            WorldMap.refreshTerrainOverlaySprite(terrain.left, terrain.top)
+          }
+          dialog.popImage()
+        } else {
+          await dialog.localeLines('cave.oldWell.descriptionAfterDrink')
+        }
+        dialog.end()
+      }
+      'statue': {
+        if (!this.flags.checkPoint3) {
+          await dialog.localeLines([
+            'cave.statue.description1',
+            'cave.statue.description2',
+          ])
+          if (hero.cultivationSkills.length > 0) {
+            dialog.localeLines('cave.statue.description3')
+            final card1 = BattleCard(
+              genre: "general",
+              category: "attack",
+              kind: "fist",
+            )
+            final card2 = BattleCard(
+              genre: "general", 
+              category: "attack",
+              kind: "fist",
+            )
+            final card3 = BattleCard(
+              genre: "general",
+              category: "defend",
+              kind: "fist",
+            )
+            Player.acquireBattleCardByData(card1)
+            Player.acquireBattleCardByData(card2)
+            Player.acquireBattleCardByData(card3)
+          }
+        }
+      }
+      'cushion': {
+        await dialog.localeLines('cave.cushion.description1')
+        let selected = await dialog.localeSelect([
+          'cave.cushion.meditate',
+          'forgetIt',
+        ])
+        if (selected == 'cave.cushion.meditate') {
+          Player.showCultivation()
+        }
+      }
+      // 'switch1': {
+      //   if (!object?.flags.isOn) {
+      //     let s = await dialog.localeSelect([
+      //       'flipSwitch',
+      //       'cancel',
+      //     ])
+      //     if (s == 'flipSwitch') {
+      //       object.flags.isOn = true
+      //       this.flags.switch1IsOn = true
+      //       engine.play('stone-push-37412.mp3')
+      //       dialog.localeLines('hint.switch', isHero: true)
+      //       final switchTile = getTerrainByWorldPosition(3,19)
+      //       switchTile.overlaySprite = {sprite: kSpriteDungeonLeverOn} 
+      //       WorldMap.refreshTerrainOverlaySprite(3,19)
+            
+      //       final openedRoadTile = getTerrainByWorldPosition(10,18)
+      //       openedRoadTile.kind = 'plain'
+      //       openedRoadTile.spriteIndex = kSpriteDungeonStonePavedTile
+      //       WorldMap.refreshTerrainSprite(10,18)
+      //     }
+      //   }
+      // }
+    } 
+  },
+}

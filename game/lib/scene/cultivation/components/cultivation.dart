@@ -1,17 +1,20 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' hide Tooltip;
 import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
 import 'package:samsara/components/progress_indicator.dart';
-import 'package:samsara/components/tooltip.dart';
 import 'package:samsara/components/sprite_button.dart';
-import 'package:samsara/components/fading_text.dart';
 import 'package:samsara/utils/math.dart';
 import 'package:samsara/components/text_component2.dart';
 import 'package:hetu_script/utils.dart';
+import 'package:samsara/components/tooltip.dart';
+import 'package:samsara/components/sprite_component2.dart';
+import 'package:hetu_script/values.dart';
 
 // import 'cultivator.dart';
 import 'light_trail.dart';
@@ -19,18 +22,23 @@ import 'light_point.dart';
 import '../../../config.dart';
 import '../../../logic/algorithm.dart';
 import '../../../ui.dart';
-import '../../../common.dart';
-import '../../common.dart';
+// import '../../../common.dart';
 import '../../../events.dart';
+import '../../../data.dart';
+import '../../../dialog/game_dialog/selection_dialog.dart';
+import '../../../dialog/game_dialog/game_dialog.dart';
 
 const _kLightPointMoveSpeed = 450.0;
 // const _kButtonAnimationDuration = 1.2;
 const _kExpPerLightPoint = 20;
 
+const _kSkillTreePriority = 10;
+const _kSkillButtonPriority = 20;
+
 enum CultivationSceneState {
-  meditate, // 内观，可以通过时间流逝产生新的经验球，可以点击收集经验球，可以组合经验球来获得卡包
+  expCollection, // 内观，可以通过时间流逝产生新的经验球，可以点击收集经验球
   // introspection,
-  enlightenment, // 悟道，技能模式，显示天赋树
+  skillTree, // 悟道，技能模式，显示天赋树
 }
 
 class CultivationScene extends Scene {
@@ -38,7 +46,9 @@ class CultivationScene extends Scene {
 
   late final SpriteComponent backgroundSprite;
 
-  final dynamic heroData;
+  late final SpriteComponent2 skillTreeTracksSprite;
+
+  dynamic _heroData;
 
   late final SpriteButton cultivator;
 
@@ -55,103 +65,331 @@ class CultivationScene extends Scene {
   late final SpriteButton //cultivationRankButton,
       cardPacksButton,
       cardLibraryButton,
-      meditateButton,
+      expCollectionPageButton,
       // introspectionButton,
-      enlightenmentButton;
+      cultivationSkillPageButton;
 
   late bool _isFirstCultivation;
 
   final Map<String, SpriteButton> _skillButtons = {};
 
-  CultivationSceneState state = CultivationSceneState.meditate;
+  CultivationSceneState state = CultivationSceneState.expCollection;
 
   void setState(CultivationSceneState state) {
     this.state = state;
 
+    skillTreeTracksSprite.isVisible =
+        (this.state == CultivationSceneState.skillTree);
+
     for (final trail in _lightTrails) {
-      trail.isVisible = state == CultivationSceneState.meditate;
+      trail.isVisible = (this.state == CultivationSceneState.expCollection);
     }
 
     for (final light in _lightPoints) {
-      light.isVisible = state == CultivationSceneState.meditate;
+      light.isVisible = (this.state == CultivationSceneState.expCollection);
     }
 
     for (final button in _skillButtons.values) {
-      button.isVisible = state == CultivationSceneState.enlightenment;
+      button.isVisible = (this.state == CultivationSceneState.skillTree);
     }
   }
 
-  Map<String, int> _skillLevels = {};
-
-  void characterSkillLevelUp(String id) {
-    int availablePoints = heroData['availableCultivationPoints'];
-    if (availablePoints <= 0) return;
-
-    heroData['availableCultivationPoints'] = --availablePoints;
-
-    final current = (_skillLevels[id] ?? 0) + 1;
-    _skillLevels[id] = current;
-    final button = _skillButtons[id]!;
-    _skillButtons[id]!.text = current.toString();
-    button.isEnabled = false;
-    // final current = _skillLevels[id];
-    // if (current == null) {
-    //   if (offset > 0) {
-    //     _skillLevels[id] = offset;
-    //     final button = _skillButtons[id]!;
-    //     button.text = offset.toString();
-    //     button.isDarkened = false;
-    //   }
-    // } else {
-    //   final result = current + offset;
-    //   if (result >= 0) {
-    //     _skillLevels[id] = current + offset;
-    //     final button = _skillButtons[id]!;
-    //     if (result > 0) {
-    //       button.text = _skillLevels[id].toString();
-    //       button.isDarkened = false;
-    //     } else {
-    //       _skillButtons[id]!.text = null;
-    //       button.isDarkened = true;
-    //     }
-    //   }
-    // }
-
-    setLevelDescription();
-  }
+  dynamic _heroSkillsData = {};
 
   CultivationScene({
     required super.controller,
     required super.context,
-    required this.heroData,
     bool talentTreeMode = false,
   }) : super(id: 'cultivation', enableLighting: true) {
     // selectedGenre = heroData['cultivationGenre'];
 
-    _isFirstCultivation = heroData['cultivationRank'] == 0;
+    _heroData = engine.hetu.fetch('hero');
 
-    _skillLevels =
-        Map<String, int>.from(jsonify(deepCopy(heroData['cultivationSkills'])));
+    _isFirstCultivation = _heroData['cultivationRank'] == 0;
+
+    _heroSkillsData = deepCopy(_heroData['cultivationSkills']);
   }
 
-  void addHintText(String text,
-      {required double offset, double duration = 1.2, Color? textColor}) {
-    final c2 = FadingText(
+  void udpateLevelDescription() {
+    levelDescription.text =
+        '${engine.locale('cultivationRank')}: ${engine.locale('cultivationRank.${_heroData['cultivationRank']}')} '
+        '${engine.locale('availableSkillPoints')}: ${_heroData['availableSkillPoints']}';
+    expBar.label =
+        '${engine.locale('cultivationLevel')}: ${_heroData['cultivationLevel']} ${engine.locale('exp')}: ';
+  }
+
+  void hint(
+    String text, {
+    double positionOffsetY = 0.0,
+    double duration = 4,
+    Color? color,
+  }) {
+    addHintText(
       text,
-      position: Vector2(cultivator.center.x, cultivator.center.y - offset),
-      movingUpOffset: 100,
+      position:
+          Vector2(cultivator.center.x, cultivator.center.y + positionOffsetY),
       duration: duration,
-      config: ScreenTextConfig(
-        textStyle: TextStyle(
-          color: textColor ?? Colors.white,
-          fontSize: 28,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'RuiZiYunZiKuLiBianTiGBK',
-        ),
+      textStyle: TextStyle(
+        fontSize: 20,
+        fontFamily: GameUI.fontFamily,
+        color: color,
       ),
-      priority: kHintTextPriority,
     );
-    world.add(c2);
+  }
+
+  void _addGenreSkillButton(
+      {required String positionId, required Vector2 position}) {
+    final skillTreeNodeData = GameData.cultivationSkillTreeData[positionId];
+    final String? skillId = skillTreeNodeData?['skillId'];
+    final skillData = GameData.cultivationSkillData[skillId];
+
+    SpriteButton? button;
+
+    if (skillTreeNodeData == null) {
+      // 还未开放的技能，在debug模式下显示为占位符
+      if (kDebugMode) {
+        button = SpriteButton(
+          anchor: Anchor.center,
+          position: position,
+          size: positionId.startsWith('major')
+              ? GameUI.skillButtonSizeMedium
+              : GameUI.skillButtonSizeSmall,
+          spriteId: 'cultivation/skill/wip.png',
+          isVisible: false,
+          priority: _kSkillButtonPriority,
+          // lightConfig: LightConfig(radius: 25),
+        );
+        button.onMouseEnter = () {
+          Tooltip.show(
+            scene: this,
+            target: button!,
+            direction: TooltipDirection.rightTop,
+            content:
+                '$positionId\nx:${button.position.x},\ny:${button.position.y}',
+          );
+        };
+      } else {
+        return;
+      }
+    } else {
+      // 已经开发完毕，写好数据的技能
+      final unlockedNodes = _heroData['skillTreeUnlockedNodes'] as HTStruct;
+      final isLearned = unlockedNodes.contains(positionId);
+      // 可以学的技能，如果邻近的上一个节点还未解锁，则无法学习
+      bool isOpen = skillTreeNodeData['isMain'] ?? false;
+      if (!isOpen) {
+        for (final parent in skillTreeNodeData['parentNodes']) {
+          if (unlockedNodes.contains(parent)) {
+            isOpen = true;
+            break;
+          }
+        }
+      }
+      // 是否是属性点天赋
+      bool isAttribute = skillTreeNodeData['isAttribute'] ?? false;
+
+      final buttonSize = switch (skillTreeNodeData['size']) {
+        'large' => GameUI.skillButtonSizeLarge,
+        'medium' => GameUI.skillButtonSizeMedium,
+        _ => GameUI.skillButtonSizeSmall,
+      };
+
+      if (!isAttribute) {
+        button = SpriteButton(
+          anchor: Anchor.center,
+          position: position,
+          size: buttonSize,
+          spriteId: skillData['icon'],
+          unselectedSpriteId: skillData['unselectedIcon'],
+          isVisible: false,
+          isSelectable: true,
+          isSelected: isLearned,
+          priority: _kSkillButtonPriority,
+          // isEnabled: isOpen,
+          lightConfig: (isLearned || isOpen) ? LightConfig(radius: 25) : null,
+        );
+
+        button.onTapUp = (buttons, position) {
+          if (buttons == kPrimaryButton) {
+            if (!isLearned && isOpen) {
+              if (_heroData['availableSkillPoints'] > 0) {
+                --_heroData['availableSkillPoints'];
+
+                button!.isSelected = true;
+                unlockedNodes[positionId] = true;
+
+                engine.hetu.invoke(
+                  'characterCultivationSkillLevelUp',
+                  positionalArgs: [
+                    _heroData,
+                    skillId,
+                  ],
+                  namedArgs: {
+                    'incurIncident': false,
+                  },
+                );
+
+                udpateLevelDescription();
+              } else {
+                // GameDialog.show(
+                //   context: context,
+                //   dialogData: {
+                //     'lines': [engine.locale('noSkillPoints.prompt')],
+                //   },
+                // );
+              }
+            }
+          } else if (buttons == kSecondaryButton) {
+            if (isLearned) {
+              // TODO:检查节点链接，如果有其他节点依赖于该节点，则不能退点
+              ++_heroData['availableSkillPoints'];
+
+              button!.isSelected = false;
+              unlockedNodes.remove(positionId);
+
+              engine.hetu.invoke(
+                'characterCultivationSkillRefund',
+                positionalArgs: [
+                  _heroData,
+                  skillId,
+                ],
+                namedArgs: {
+                  'incurIncident': false,
+                },
+              );
+            }
+          }
+        };
+      } else {
+        // 属性天赋点需要特殊处理
+        // 分配新的属性天赋点时，从五种属性中选择一种，并获得3点该属性值
+        // 分配后，按钮也会相应变成对应该属性的颜色
+        // 身法：绿
+        // 灵力：蓝
+        // 体魄：红
+        // 意志：白
+        // 神识：黄
+
+        button = SpriteButton(
+          anchor: Anchor.center,
+          position: position,
+          size: buttonSize,
+          spriteId: 'cultivation/skill/attribute_any_unselected.png',
+          unselectedSpriteId: 'cultivation/skill/attribute_any_unselected.png',
+          isVisible: false,
+          isSelectable: true,
+          isSelected: isLearned,
+          priority: _kSkillButtonPriority,
+          // isEnabled: isOpen,
+          lightConfig: (isLearned || isOpen) ? LightConfig(radius: 25) : null,
+        );
+
+        final attributeId = unlockedNodes[positionId];
+        final attributeSkillData = GameData.cultivationSkillData[attributeId];
+
+        if (isLearned) {
+          assert(attributeSkillData != null);
+          button.spriteId = attributeSkillData['icon'];
+        }
+
+        button.onTapUp = (buttons, position) async {
+          if (buttons == kPrimaryButton) {
+            if (!isLearned && isOpen) {
+              if (_heroData['availableSkillPoints'] > 0) {
+                --_heroData['availableSkillPoints'];
+
+                final selectedAttributeId = await SelectionDialog.show(
+                    context: context,
+                    selectionsData: {
+                      'dexterity': engine.locale('dexterity'),
+                      'spirituality': engine.locale('spirituality'),
+                      'strength': engine.locale('strength'),
+                      'willpower': engine.locale('willpower'),
+                      'perception': engine.locale('perception'),
+                      'cancel': engine.locale('cancel'),
+                    });
+
+                if (selectedAttributeId == 'cancel') return;
+
+                // 属性点类的node，记录的是选择的具体属性的名字
+                unlockedNodes[positionId] = selectedAttributeId;
+
+                engine.hetu.invoke(
+                  'characterCultivationSkillLevelUp',
+                  positionalArgs: [
+                    _heroData,
+                    skillId,
+                  ],
+                  namedArgs: {
+                    'incurIncident': false,
+                  },
+                );
+
+                udpateLevelDescription();
+              } else {
+                // GameDialog.show(
+                //   context: context,
+                //   dialogData: {
+                //     'lines': [engine.locale('noSkillPoints.prompt')],
+                //   },
+                // );
+              }
+            }
+          } else if (buttons == kSecondaryButton) {
+            if (isLearned) {
+              button!.isSelected = false;
+              assert(attributeId != null);
+
+              ++_heroData['availableSkillPoints'];
+
+              button.isSelected = false;
+              unlockedNodes.remove(positionId);
+
+              engine.hetu.invoke(
+                'characterCultivationSkillRefund',
+                positionalArgs: [
+                  _heroData,
+                  attributeId,
+                ],
+                namedArgs: {
+                  'incurIncident': false,
+                },
+              );
+            }
+          }
+        };
+      }
+      button.onMouseEnter = () {
+        StringBuffer skillDescription = StringBuffer();
+        skillDescription.writeln('<bold yellow>${engine.locale(skillId)}</>');
+        skillDescription.writeln(' ');
+        skillDescription.writeln(engine.locale('skill.$skillId.description'));
+        skillDescription.writeln(' ');
+        if (isLearned) {
+          skillDescription.writeln(engine.locale('refund.hint'));
+        } else if (isOpen) {
+          if (_heroData['availableSkillPoints'] > 0) {
+            skillDescription.writeln(engine.locale('unlock.hint'));
+          } else {
+            skillDescription.writeln(engine.locale('noPoints.hint'));
+          }
+        } else {
+          skillDescription.writeln(engine.locale('locked.hint'));
+        }
+        Tooltip.show(
+          scene: this,
+          target: button!,
+          direction: TooltipDirection.rightTop,
+          content: skillDescription.toString(),
+        );
+      };
+    }
+
+    button.onMouseExit = () {
+      Tooltip.hide();
+    };
+    _skillButtons[positionId] = button;
+    world.add(button);
   }
 
   @override
@@ -165,13 +403,22 @@ class CultivationScene extends Scene {
     );
     world.add(backgroundSprite);
 
+    skillTreeTracksSprite = SpriteComponent2(
+      position: GameUI.cultivatorPosition,
+      sprite:
+          Sprite(await Flame.images.load('cultivation/skill_tree_tracks.png')),
+      anchor: Anchor.center,
+      priority: _kSkillTreePriority,
+    );
+    world.add(skillTreeTracksSprite);
+
     cultivator = SpriteButton(
       anchor: Anchor.center,
       sprite: Sprite(await Flame.images.load('cultivation/cultivator.png')),
       position: GameUI.cultivatorPosition,
       size: GameUI.cultivatorSize,
       onTap: (buttons, position) {
-        if (state == CultivationSceneState.meditate) {
+        if (state == CultivationSceneState.expCollection) {
           condenseAll();
         }
       },
@@ -182,9 +429,15 @@ class CultivationScene extends Scene {
         lightCenter: GameUI.condensedPosition,
       ),
     );
+    cultivator.onMouseEnter = () {};
     world.add(cultivator);
 
-    final exp = heroData['unconvertedExp'];
+    // String generateSkillStats() {
+    //   StringBuffer sb = StringBuffer();
+    //   return sb.toString();
+    // }
+
+    final exp = _heroData['unconvertedExp'];
     final lightPointCount = exp ~/ _kExpPerLightPoint;
     for (var i = 0; i < lightPointCount; ++i) {
       Vector2 randomPosition;
@@ -198,13 +451,15 @@ class CultivationScene extends Scene {
         flickerRate: 8,
         condensedPosition: GameUI.condensedPosition,
       );
-      lightPoint.onTapDown = (_, __) {
+      lightPoint.onTapDown = (int buttons, __) {
+        if (buttons != kPrimaryButton) return;
         condenseOne(lightPoint, () {
           checkEXP();
           checkRank();
         });
       };
-      lightPoint.onDragOver = (_, __) {
+      lightPoint.onDragOver = (int buttons, __) {
+        if (buttons != kPrimaryButton) return;
         condenseOne(lightPoint, () {
           checkEXP();
           checkRank();
@@ -223,15 +478,14 @@ class CultivationScene extends Scene {
         textStyle: const TextStyle(
           color: Colors.white,
           fontSize: 16,
-          fontFamily: 'RuiZiYunZiKuLiBianTiGBK',
+          fontFamily: GameUI.fontFamily,
         ),
       ),
     );
-    setLevelDescription();
     camera.viewport.add(levelDescription);
 
-    int level = heroData['cultivationLevel'];
-    int points = heroData['exp'];
+    int level = _heroData['cultivationLevel'];
+    int points = _heroData['exp'];
     int expForNextLevel = expForLevel(level);
     expBar = DynamicColorProgressIndicator(
       anchor: Anchor.center,
@@ -246,321 +500,434 @@ class CultivationScene extends Scene {
         ..color = Colors.white
         ..strokeWidth = 1
         ..style = PaintingStyle.stroke,
+      labelConfig: ScreenTextConfig(
+        textStyle: TextStyle(fontFamily: GameUI.fontFamily),
+      ),
     );
-    expBar.onMouseEnter = () {
-      final level = heroData['cultivationLevel'];
-      Tooltip.show(
-        scene: this,
-        target: expBar,
-        direction: TooltipDirection.topLeft,
-        content: '${engine.locale('exp')}: ${heroData['exp']}\n'
-            '${engine.locale('cultivationPointsNeededForNextLevel')}: ${expForLevel(level)}',
-      );
-    };
-    expBar.onMouseExit = () {
-      Tooltip.hide();
-    };
+    // expBar.onMouseEnter = () {
+    //   final level = heroData['cultivationLevel'];
+    //   Tooltip.show(
+    //     scene: this,
+    //     target: expBar,
+    //     direction: TooltipDirection.topCenter,
+    //     width: 120,
+    //     config: ScreenTextConfig(anchor: Anchor.topCenter),
+    //     content: '${engine.locale('exp')}: ${heroData['exp']}\n'
+    //         '${engine.locale('expForNextLevel')}: ${expForLevel(level)}',
+    //   );
+    // };
+    // expBar.onMouseExit = () {
+    //   Tooltip.hide();
+    // };
     camera.viewport.add(expBar);
 
-    meditateButton = SpriteButton(
+    expCollectionPageButton = SpriteButton(
       text: engine.locale('meditate'),
       anchor: Anchor.center,
-      position: GameUI.meditateButtonPosition,
-      size: GameUI.stateButtonSize,
-      spriteId: 'ui/button2.png',
-      onTap: (buttons, position) {
-        meditateButton.spriteId = 'ui/button2.png';
-        meditateButton.tryLoadSprite();
-        // introspectionButton.spriteId = 'ui/button.png';
-        // introspectionButton.tryLoadSprite();
-        enlightenmentButton.spriteId = 'ui/button.png';
-        enlightenmentButton.tryLoadSprite();
-        setState(CultivationSceneState.meditate);
-      },
-    );
-    camera.viewport.add(meditateButton);
-
-    // introspectionButton = SpriteButton(
-    //   text: engine.locale('introspection'),
-    //   anchor: Anchor.center,
-    //   position: GameUI.introspectionButtonPosition,
-    //   size: GameUI.stateButtonSize,
-    //   spriteId: 'ui/button.png',
-    //   onTap: (buttons, position) {
-    //     meditateButton.spriteId = 'ui/button.png';
-    //     meditateButton.tryLoadSprite();
-    //     introspectionButton.spriteId = 'ui/button2.png';
-    //     introspectionButton.tryLoadSprite();
-    //     enlightenmentButton.spriteId = 'ui/button.png';
-    //     enlightenmentButton.tryLoadSprite();
-    //     setState(CultivationSceneState.introspection);
-    //   },
-    // );
-    // camera.viewport.add(introspectionButton);
-
-    enlightenmentButton = SpriteButton(
-      text: engine.locale('enlightenment'),
-      anchor: Anchor.center,
-      position: GameUI.enlightenmentButtonPosition,
+      position: GameUI.expCollectionPageButtonPosition,
       size: GameUI.stateButtonSize,
       spriteId: 'ui/button.png',
-      onTap: (buttons, position) {
-        meditateButton.spriteId = 'ui/button.png';
-        meditateButton.tryLoadSprite();
-        // introspectionButton.spriteId = 'ui/button.png';
-        // introspectionButton.tryLoadSprite();
-        enlightenmentButton.spriteId = 'ui/button2.png';
-        enlightenmentButton.tryLoadSprite();
-        setState(CultivationSceneState.enlightenment);
-      },
+      textConfig: ScreenTextConfig(
+        textStyle: TextStyle(fontFamily: GameUI.fontFamily),
+      ),
     );
-    camera.viewport.add(enlightenmentButton);
+    expCollectionPageButton.onTapUp = (buttons, position) {
+      if (buttons != kPrimaryButton) return;
+      setState(CultivationSceneState.expCollection);
+      expCollectionPageButton.removeFromParent();
+      cultivator.enableGesture = true;
+      camera.viewport.add(cultivationSkillPageButton);
+      cultivationSkillPageButton.isHovering = true;
+    };
 
-    cardLibraryButton = SpriteButton(
-        anchor: Anchor.center,
-        position:
-            // _isFirstCultivation
-            //   ? GameUI.condensedPosition
-            //   :
-            GameUI.cardLibraryButtonPosition,
-        size: GameUI.cardLibraryButtonSize,
-        // isEnabled: selectedGenre != null,
-        // opacity: selectedGenre != null ? 1 : 0,
-        spriteId: 'cultivation/library.png',
-        // selectedGenre != null ? '$selectedGenre.png' : null,
-        hoverSpriteId: 'cultivation/library_hover.png'
-        // selectedGenre != null
-        //     ? 'cultivation/deckbuilding/${selectedGenre}_hover.png'
-        //     : null,
-        );
-    camera.viewport.add(cardLibraryButton);
-
-    cardPacksButton = SpriteButton(
+    cultivationSkillPageButton = SpriteButton(
+      text: engine.locale('cultivationSkills'),
       anchor: Anchor.center,
-      position:
-          // _isFirstCultivation
-          //     ? GameUI.condensedPosition
-          //     :
-          GameUI.cardPacksButtonPosition,
-      size: GameUI.cardPacksButtonSize,
-      // isEnabled: rank > 0,
-      // opacity: rank > 0 ? 1 : 0,
-      spriteId: 'cultivation/cardpack.png',
-      hoverSpriteId: 'cultivation/cardpack_hover.png',
-      onTap: (buttons, position) {
-        engine.emit(UIEvents.cardPacksButtonClicked);
-      },
+      position: GameUI.talentTreePageButtonPosition,
+      size: GameUI.stateButtonSize,
+      spriteId: 'ui/button2.png',
+      textConfig: ScreenTextConfig(
+        textStyle: TextStyle(fontFamily: GameUI.fontFamily),
+      ),
     );
-    camera.viewport.add(cardPacksButton);
-
-    final mainGenrePositions = getDividingPointsFromCircle(
-        cultivator.center.x, cultivator.center.y, 140, 5);
-    final mainGenreEnalbed = {
-      0: true,
-      1: false,
-      2: false,
-      3: false,
-      4: true,
+    cultivationSkillPageButton.onTapUp = (buttons, position) {
+      if (buttons != kPrimaryButton) return;
+      setState(CultivationSceneState.skillTree);
+      cultivationSkillPageButton.removeFromParent();
+      cultivator.enableGesture = false;
+      camera.viewport.add(expCollectionPageButton);
+      expCollectionPageButton.isHovering = true;
     };
-    for (var i = 0; i < kMainCultivationGenres.length; ++i) {
-      final genre = kMainCultivationGenres[i];
-      final p = mainGenrePositions[i];
-      final position = p.position;
+    camera.viewport.add(cultivationSkillPageButton);
 
-      addGenreSkillButton(
-        genre: genre,
-        position: position,
-        size: GameUI.talentTreeButtonSizeL,
-        isEnabled: mainGenreEnalbed[i]!,
+    final exit = GameData.getExitSiteCard(spriteId: 'exit_card2');
+    exit.onTap =
+        (_, __) => engine.emit(GameEvents.leaveCultivationScene, args: id);
+    camera.viewport.add(exit);
+
+    // cardLibraryButton = SpriteButton(
+    //     anchor: Anchor.center,
+    //     position:
+    //         // _isFirstCultivation
+    //         //   ? GameUI.condensedPosition
+    //         //   :
+    //         GameUI.cardLibraryButtonPosition,
+    //     size: GameUI.cardLibraryButtonSize,
+    //     // isEnabled: selectedGenre != null,
+    //     // opacity: selectedGenre != null ? 1 : 0,
+    //     spriteId: 'cultivation/library.png',
+    //     // selectedGenre != null ? '$selectedGenre.png' : null,
+    //     hoverSpriteId: 'cultivation/library_hover.png'
+    //     // selectedGenre != null
+    //     //     ? 'cultivation/deckbuilding/${selectedGenre}_hover.png'
+    //     //     : null,
+    //     );
+    // camera.viewport.add(cardLibraryButton);
+
+    // cardPacksButton = SpriteButton(
+    //   anchor: Anchor.center,
+    //   position:
+    //       // _isFirstCultivation
+    //       //     ? GameUI.condensedPosition
+    //       //     :
+    //       GameUI.cardPacksButtonPosition,
+    //   size: GameUI.cardPacksButtonSize,
+    //   // isEnabled: rank > 0,
+    //   // opacity: rank > 0 ? 1 : 0,
+    //   spriteId: 'cultivation/cardpack.png',
+    //   hoverSpriteId: 'cultivation/cardpack_hover.png',
+    //   onTap: (buttons, position) {
+    //     engine.emit(UIEvents.cardPacksButtonClicked);
+    //   },
+    // );
+    // camera.viewport.add(cardPacksButton);
+
+    // 天赋树轨道半径：#128, 213, 298, #384, 469, 554, #640, 725, 810, #896, 981, 1066, #1152
+
+    final majorSkillTrack1 =
+        getDividingPointsFromCircle(center.x, center.y, 128, 5);
+    for (var i = 0; i < majorSkillTrack1.length; i++) {
+      final id = 'majorSkillTrack1_$i';
+      _addGenreSkillButton(
+        positionId: id,
+        position: majorSkillTrack1[i].position,
+      );
+    }
+    final minorSkillTrack1 =
+        getDividingPointsFromCircle(center.x, center.y, 213, 10);
+    for (var i = 0; i < minorSkillTrack1.length; i++) {
+      final id = 'minorSkillTrack1_$i';
+      _addGenreSkillButton(
+        positionId: id,
+        position: minorSkillTrack1[i].position,
+      );
+    }
+    final minorSkillTrack2 =
+        getDividingPointsFromCircle(center.x, center.y, 298, 10);
+    for (var i = 0; i < minorSkillTrack2.length; i++) {
+      final id = 'minorSkillTrack2_$i';
+      _addGenreSkillButton(
+        positionId: id,
+        position: minorSkillTrack2[i].position,
       );
     }
 
-    final supportGenrePositions = getDividingPointsFromCircle(
-        cultivator.center.x, cultivator.center.y, 200, 10,
+    final majorSkillTrack2 =
+        getDividingPointsFromCircle(center.x, center.y, 384, 5);
+    for (var i = 0; i < majorSkillTrack2.length; i++) {
+      final id = 'majorSkillTrack2_$i';
+      _addGenreSkillButton(
+        positionId: id,
+        position: majorSkillTrack2[i].position,
+      );
+    }
+
+    final minorSkillTrack3 =
+        getDividingPointsFromCircle(center.x, center.y, 384, 20);
+    for (var i = 0; i < minorSkillTrack3.length; i++) {
+      if (i % 4 == 0) continue;
+      final id = 'minorSkillTrack3_$i';
+      _addGenreSkillButton(
+        positionId: id,
+        position: minorSkillTrack3[i].position,
+      );
+    }
+    final minorSkillTrack4 =
+        getDividingPointsFromCircle(center.x, center.y, 469, 20);
+    for (var i = 0; i < minorSkillTrack4.length; i++) {
+      final id = 'minorSkillTrack4_$i';
+      _addGenreSkillButton(
+        positionId: id,
+        position: minorSkillTrack4[i].position,
+      );
+    }
+    final minorSkillTrack5 =
+        getDividingPointsFromCircle(center.x, center.y, 554, 20);
+    for (var i = 0; i < minorSkillTrack5.length; i++) {
+      final id = 'minorSkillTrack5_$i';
+      _addGenreSkillButton(
+        positionId: id,
+        position: minorSkillTrack5[i].position,
+      );
+    }
+
+    // final coordinates12b =
+    //     getDividingPointsFromCircle(center.x, center.y, 384, 10);
+    // for (var i = 0; i < coordinates12b.length; i++) {
+    //   _addGenreSkillButton(
+    //     id: 'circle2b_$i',
+    //     skillId: skillId2,
+    //     position: coordinates12b[i].position,
+    //     size: GameUI.skillButtonSizeSmall,
+    //     isEnabled: true,
+    //   );
+    // }
+
+    final majorSkillTrack3 = getDividingPointsFromCircle(
+        center.x, center.y, 640, 10,
         angleOffset: -18);
-    final supportGenreEnalbed = {
-      0: true,
-      1: true,
-      2: false,
-      3: false,
-      4: false,
-      5: false,
-      6: false,
-      7: false,
-      8: true,
-      9: true,
-    };
-    for (var i = 0; i < kSupportCultivationGenres.length; ++i) {
-      final genre = kSupportCultivationGenres[i];
-      final position = supportGenrePositions[i].position;
-      addGenreSkillButton(
-        genre: genre,
-        position: position,
-        size: GameUI.talentTreeButtonSizeM,
-        isEnabled: supportGenreEnalbed[i]!,
+    for (var i = 0; i < majorSkillTrack3.length; i++) {
+      final id = 'majorSkillTrack3_$i';
+      _addGenreSkillButton(
+        positionId: id,
+        position: majorSkillTrack3[i].position,
       );
     }
 
-    final coordinates1 =
+    final minorSkillTrack6 =
+        getDividingPointsFromCircle(center.x, center.y, 640, 40);
+    for (var i = 0; i < minorSkillTrack6.length; i++) {
+      if ((i - 2) % 4 == 0) continue;
+      final id = 'minorSkillTrack6_$i';
+      _addGenreSkillButton(
+        positionId: id,
+        position: minorSkillTrack6[i].position,
+      );
+    }
+
+    final minorSkillTrack7 =
+        getDividingPointsFromCircle(center.x, center.y, 725, 40);
+    for (var i = 0; i < minorSkillTrack7.length; i++) {
+      final id = 'minorSkillTrack7_$i';
+      _addGenreSkillButton(
+        positionId: id,
+        position: minorSkillTrack7[i].position,
+      );
+    }
+
+    final minorSkillTrack8 =
+        getDividingPointsFromCircle(center.x, center.y, 810, 40);
+    for (var i = 0; i < minorSkillTrack8.length; i++) {
+      final id = 'minorSkillTrack8_$i';
+      _addGenreSkillButton(
+        positionId: id,
+        position: minorSkillTrack8[i].position,
+      );
+    }
+
+    final majorSkillTrack4 =
+        getDividingPointsFromCircle(center.x, center.y, 896, 20);
+    for (var i = 0; i < majorSkillTrack4.length; i++) {
+      if ((i - 2) % 4 == 0) continue;
+      final id = 'majorSkillTrack4_$i';
+      _addGenreSkillButton(
+        positionId: id,
+        position: majorSkillTrack4[i].position,
+      );
+    }
+
+    final minorSkillTrack9 =
+        getDividingPointsFromCircle(center.x, center.y, 896, 40);
+    for (var i = 0; i < minorSkillTrack9.length; i++) {
+      if (i % 2 == 0) continue;
+      final id = 'minorSkillTrack9_$i';
+      _addGenreSkillButton(
+        positionId: id,
+        position: minorSkillTrack9[i].position,
+      );
+    }
+
+    final minorSkillTrack10 =
+        getDividingPointsFromCircle(center.x, center.y, 981, 40);
+    for (var i = 0; i < minorSkillTrack10.length; i++) {
+      final id = 'minorSkillTrack10_$i';
+      _addGenreSkillButton(
+        positionId: id,
+        position: minorSkillTrack10[i].position,
+      );
+    }
+
+    final minorSkillTrack11 =
+        getDividingPointsFromCircle(center.x, center.y, 1066, 40);
+    for (var i = 0; i < minorSkillTrack11.length; i++) {
+      final id = 'minorSkillTrack11_$i';
+      _addGenreSkillButton(
+        positionId: id,
+        position: minorSkillTrack11[i].position,
+      );
+    }
+
+    final majorSkillTrack5 = getDividingPointsFromCircle(
+        center.x, center.y, 1152, 20,
+        angleOffset: -9);
+    for (var i = 0; i < majorSkillTrack5.length; i++) {
+      final id = 'majorSkillTrack5_$i';
+      _addGenreSkillButton(
+        positionId: id,
+        position: majorSkillTrack5[i].position,
+      );
+    }
+
+    final minorSkillTrack12 =
+        getDividingPointsFromCircle(center.x, center.y, 1152, 80);
+    for (var i = 0; i < minorSkillTrack12.length; i++) {
+      if ((i - 2) % 4 == 0) continue;
+      final id = 'minorSkillTrack12_$i';
+      _addGenreSkillButton(
+        positionId: id,
+        position: minorSkillTrack12[i].position,
+      );
+    }
+
+    // for (final skillData in GameData.cultivationSkillData.values) {
+    //   final p = skillData['relativePosition'];
+    //   if (p != null) {
+    //     final String sizeDescriptor = skillData['size'];
+
+    //     _addGenreSkillButton(
+    //       skillId: skillData['skillId'],
+    //       positionOffset: Vector2(p['x'], p['y']),
+    //       size: size,
+    //       isEnabled: skillData['isEnabled'] ?? false,
+    //       isAttribute: skillData['isAttribute'] ?? false,
+    //     );
+    //   }
+    // }
+
+    final lightTrailCoordinates1 =
         getDividingPointsFromCircle(center.x, center.y, 200, 24);
     _lightTrails.addAll([
       LightTrail(
         radius: 200,
         index: 0,
-        points: coordinates1,
+        points: lightTrailCoordinates1,
       ),
       LightTrail(
         radius: 200,
         index: 8,
-        points: coordinates1,
+        points: lightTrailCoordinates1,
       ),
       LightTrail(
         radius: 200,
         index: 16,
-        points: coordinates1,
+        points: lightTrailCoordinates1,
       ),
     ]);
 
-    final coordinates2 =
+    final lightTrailCoordinates2 =
         getDividingPointsFromCircle(center.x, center.y, 350, 30);
     _lightTrails.addAll([
       LightTrail(
         radius: 350,
         index: 0,
-        points: coordinates2,
+        points: lightTrailCoordinates2,
       ),
       LightTrail(
         radius: 350,
         index: 6,
-        points: coordinates2,
+        points: lightTrailCoordinates2,
       ),
       LightTrail(
         radius: 350,
         index: 12,
-        points: coordinates2,
+        points: lightTrailCoordinates2,
       ),
       LightTrail(
         radius: 350,
         index: 18,
-        points: coordinates2,
+        points: lightTrailCoordinates2,
       ),
       LightTrail(
         radius: 350,
         index: 24,
-        points: coordinates2,
+        points: lightTrailCoordinates2,
       ),
     ]);
 
-    final coordinates3 =
+    final lightTrailCoordinates3 =
         getDividingPointsFromCircle(center.x, center.y, 500, 36);
     _lightTrails.addAll([
       LightTrail(
         radius: 500,
         index: 0,
-        points: coordinates3,
+        points: lightTrailCoordinates3,
       ),
       LightTrail(
         radius: 500,
         index: 4,
-        points: coordinates3,
+        points: lightTrailCoordinates3,
       ),
       LightTrail(
         radius: 500,
         index: 8,
-        points: coordinates3,
+        points: lightTrailCoordinates3,
       ),
       LightTrail(
         radius: 500,
         index: 12,
-        points: coordinates3,
+        points: lightTrailCoordinates3,
       ),
       LightTrail(
         radius: 500,
         index: 16,
-        points: coordinates3,
+        points: lightTrailCoordinates3,
       ),
       LightTrail(
         radius: 500,
         index: 20,
-        points: coordinates3,
+        points: lightTrailCoordinates3,
       ),
       LightTrail(
         radius: 500,
         index: 24,
-        points: coordinates3,
+        points: lightTrailCoordinates3,
       ),
       LightTrail(
         radius: 500,
         index: 28,
-        points: coordinates3,
+        points: lightTrailCoordinates3,
       ),
       LightTrail(
         radius: 500,
         index: 32,
-        points: coordinates3,
+        points: lightTrailCoordinates3,
       ),
     ]);
 
     for (final lightTrail in _lightTrails) {
       world.add(lightTrail);
     }
-  }
 
-  void addGenreSkillButton({
-    required String genre,
-    required Vector2 position,
-    required Vector2 size,
-    bool isEnabled = true,
-  }) {
-    final button = SpriteButton(
-      anchor: Anchor.center,
-      position: position,
-      size: size,
-      spriteId: 'cultivation/deckbuilding/$genre.png',
-      hoverSpriteId: 'cultivation/deckbuilding/${genre}_hover.png',
-      borderSpriteId: 'cultivation/talent_background.png',
-      isVisible: false,
-      isEnabled: _skillLevels[genre] == null || _skillLevels[genre] == 0,
-      priority: 20,
-      lightConfig: LightConfig(radius: 25),
-      onTap: (buttons, position) {
-        if (buttons == kPrimaryButton) {
-          characterSkillLevelUp(genre);
-        } else if (buttons == kSecondaryButton) {
-          // characterSkillLevelUp(genre, -1);
-        }
-      },
-      text: _skillLevels[genre]?.toString(),
-      textConfig: ScreenTextConfig(
-        anchor: Anchor.bottomCenter,
-        textStyle: const TextStyle(fontSize: 18),
-      ),
-    );
-    _skillButtons[genre] = button;
-    world.add(button);
-  }
-
-  void setLevelDescription() {
-    levelDescription.text =
-        '${engine.locale('cultivationRank')}: ${engine.locale('cultivationRank.${heroData['cultivationRank']}')} '
-        '${engine.locale('cultivationLevel')}: ${heroData['cultivationLevel']} '
-        '${engine.locale('availableCultivationPoints')}: ${heroData['availableCultivationPoints']}';
+    udpateLevelDescription();
   }
 
   Future<void> checkEXP() async {
-    int level = heroData['cultivationLevel'];
+    int level = _heroData['cultivationLevel'];
     int expForNextLevel = expForLevel(level);
-    int points = heroData['exp'];
+    int exp = _heroData['exp'];
 
-    while (points >= expForNextLevel) {
-      points -= expForNextLevel;
+    while (exp >= expForNextLevel) {
+      exp -= expForNextLevel;
       expForNextLevel = expForLevel(++level);
 
       engine.hetu
-          .invoke('characterCultivationLevelUp', positionalArgs: [heroData]);
+          .invoke('characterCultivationLevelUp', positionalArgs: [_heroData]);
 
-      addHintText('${engine.locale('cultivationLevel')}+1',
-          offset: 60, duration: 4, textColor: Colors.yellow);
+      hint(
+        '${engine.locale('cultivationLevel')} + 1',
+        positionOffsetY: 60,
+        color: Colors.yellow,
+      );
 
       if (_isFirstCultivation) {
         _isFirstCultivation = false;
@@ -590,24 +957,28 @@ class CultivationScene extends Scene {
         promoteRank();
       }
 
-      setLevelDescription();
+      udpateLevelDescription();
     }
 
-    expBar.setValue(points);
+    expBar.setValue(exp);
     expBar.max = expForNextLevel;
   }
 
   int promoteRank() {
     final newRank = engine.hetu
-        .invoke('characterCultivationRankUp', positionalArgs: [heroData]);
+        .invoke('characterCultivationRankUp', positionalArgs: [_heroData]);
     // cultivationRankButton.spriteId = 'cultivation/cultivation$newRank.png';
     // cultivationRankButton.hoverSpriteId =
     //     'cultivation/cultivation${newRank}_hover.png';
     // cultivationRankButton.tryLoadSprite();
 
     final rankName = engine.locale('cultivationRank.$newRank');
-    addHintText('${engine.locale('rankUp!')} $rankName',
-        offset: 30, duration: 6, textColor: Colors.lightBlue);
+    hint(
+      '${engine.locale('rankUp!')} $rankName',
+      positionOffsetY: 30,
+      duration: 6,
+      color: Colors.lightBlue,
+    );
 
     return newRank;
   }
@@ -634,13 +1005,13 @@ class CultivationScene extends Scene {
         _lightPoints.remove(light);
         light.removeFromParent();
 
-        heroData['unconvertedExp'] -= _kExpPerLightPoint;
-        heroData['exp'] += _kExpPerLightPoint;
+        _heroData['unconvertedExp'] -= _kExpPerLightPoint;
+        _heroData['exp'] += _kExpPerLightPoint;
         expBar.setValue(expBar.value + _kExpPerLightPoint);
 
         onComplete?.call();
 
-        addHintText('${engine.locale('exp')}+$_kExpPerLightPoint', offset: 0);
+        hint('${engine.locale('exp')} + $_kExpPerLightPoint');
       },
     );
   }
@@ -648,10 +1019,10 @@ class CultivationScene extends Scene {
   FutureOr<void> condenseAll() async {
     if (_lightPoints.isEmpty) return;
 
-    int level = heroData['cultivationLevel'];
+    int level = _heroData['cultivationLevel'];
     int expForNextLevel = expForLevel(level);
-    int points = heroData['exp'];
-    int exp = heroData['unconvertedExp'];
+    int points = _heroData['exp'];
+    int exp = _heroData['unconvertedExp'];
 
     int number;
     if (exp >= expForNextLevel - points) {
@@ -681,8 +1052,24 @@ class CultivationScene extends Scene {
   void onDragUpdate(int pointer, int buttons, DragUpdateDetails details) {
     super.onDragUpdate(pointer, buttons, details);
 
-    if (buttons == kSecondaryButton) {
-      camera.moveBy(-details.delta.toVector2());
+    // if (buttons == kSecondaryButton) {
+    camera.moveBy(-details.delta.toVector2() / camera.zoom);
+    // }
+  }
+
+  @override
+  void onMouseScroll(MouseScrollDetails details) {
+    super.onMouseScroll(details);
+
+    final delta = details.scrollDelta.dy;
+    if (delta > 0) {
+      if (camera.zoom > 0.5) {
+        camera.zoom -= 0.2;
+      }
+    } else if (delta < 0) {
+      if (camera.zoom < 4) {
+        camera.zoom += 0.2;
+      }
     }
   }
 }

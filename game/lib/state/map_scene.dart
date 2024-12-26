@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../scene/world/world.dart';
 import '../config.dart';
+import '../data.dart';
 
 class WorldMapSceneState with ChangeNotifier {
   WorldMapScene? scene;
@@ -15,7 +16,7 @@ class WorldMapSceneState with ChangeNotifier {
     _sceneIds.clear();
   }
 
-  Future<String?> popScene() async {
+  Future<String?> pop() async {
     engine.leaveScene(_sceneIds.last);
     _sceneIds.removeLast();
     String? currentSceneId;
@@ -30,19 +31,21 @@ class WorldMapSceneState with ChangeNotifier {
     return currentSceneId;
   }
 
-  Future<bool> pushScene({dynamic args}) async {
-    bool isReload = true;
+  Future<WorldMapScene> push({dynamic args}) async {
     final id = args['id'];
-    scene = await engine.createScene(
-      contructorKey: 'tilemap',
-      sceneId: id,
-      arg: args,
-    ) as WorldMapScene;
-    if (!engine.containsScene(id)) {
+    if (engine.containsScene(id)) {
+      assert(_sceneIds.contains(id));
+      scene = engine.switchScene(id)!;
+    } else {
+      scene = await engine.createScene(
+        contructorKey: 'tilemap',
+        sceneId: id,
+        arg: args,
+      ) as WorldMapScene;
       _sceneIds.add(id);
-      isReload = false;
     }
+    GameData.currentWorldId = scene!.id;
     notifyListeners();
-    return isReload;
+    return scene!;
   }
 }

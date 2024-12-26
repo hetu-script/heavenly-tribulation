@@ -48,8 +48,8 @@ const kMinorMotivations = [
 
 const kCultivationFavor = [
   'any',
-  'flying_sword',
-  'dao',
+  'swordcraft',
+  'daoism',
   // 'physique',
   // 'vitality',
   // 'avatar',
@@ -255,7 +255,7 @@ struct Character {
     exp,
     cultivationLevel,
     cultivationRank,
-    availableCultivationPoints,
+    availableSkillPoints,
     worldId,
     worldPositionX,
     worldPositionY,
@@ -473,10 +473,12 @@ struct Character {
     // 修为等级，每次提升修为等级可以获得1点天赋点，和1个技能卡牌包，每个卡牌包内包含3张卡牌
     this.cultivationLevel = cultivationLevel ?? 0
     // 未分配的修为点数，修为点数可以用来在天赋盘上升级天赋
-    this.availableCultivationPoints = availableCultivationPoints ?? 0
-    // 已分配的修为点数，key是技能名字，value是当前等级，value等于null或者0时，意味着尚未分配该技能。
+    this.availableSkillPoints = availableSkillPoints ?? 0
+    // 已解锁的天赋盘节点，保存的是posiitonId，代表天赋盘上某个位置的坐标。如果存在意味着该位置已经被解锁
+    this.skillTreeUnlockedNodes = {}
+    // 已分配的天赋盘技能，key是技能id，可能有多个技能拥有相同id
     this.cultivationSkills = {}
-    // 角色当前卡牌库，可能包含重复的卡牌
+    // 角色当前卡牌库，关于战斗卡牌的具体信息另行参阅文档
     this.cardLibrary = cardLibrary ?? []
     // 战斗卡组的数组，数组的值是一个结构体，包含卡组的命名（可修改）和卡组内容
     this.battleDecks = []
@@ -1094,67 +1096,10 @@ function characterSteal(character, item) {
   throw 'steal is not implemented yet'
 }
 
-// 设定人物的随从，返回值是否成功
-// 随从并非直接将人物数据放在人物上，而是用下面的数据结构
-// {
-//   id,
-//   entityType,
-//   coordination,
-// }
-function characterGetCompanion(character, companion, { incurIncident = true }) {
-  if (character.companions.contains(companion.id)) {
-    engine.warn('${companion.id} 已经是 ${character.id} 的随从了，无法再次添加。')
-    return
-  }
-  // print(character.id)
-  // print(companion.id)
-  character.companions.add(companion.id)
-  
-  const incidentContent = engine.locale('characterGetCompanion', interpolations: [
-    companion.name,
-    character.name,
-  ])
-  if (incurIncident) {
-    Incident(
-      message: incidentContent,
-      subjectId: companion.id,
-      objectId: character.id,
-      isPrivate: true,
-    )
-  } else {
-    engine.info(incidentContent)
-  }
-}
-
-function characterDismissCompanion(character, companion, { incurIncident = true }) {
-  assert(character.companions.contains(companion.id))
-
-  character.companions.remove(companion.id)
-  
-  const incidentContent = engine.locale('characterLoseCompanion', interpolations: [
-    companion.name,
-    character.name,
-  ])
-  if (incurIncident) {
-    Incident(
-      message: incidentContent,
-      subjectId: companion.id,
-      objectId: character.id,
-      isPrivate: true,
-    )
-  } else {
-    engine.info(incidentContent)
-  }
-}
-
-function characterCultivationLevelUp(character, { incurIncident = true }) {
-  let expRequirement = expForLevel(character.cultivationLevel)
-  assert(character.exp >= expRequirement)
-
-  character.exp -= expRequirement
-  ++character.cultivationLevel
-
-  character.availableCultivationPoints += 1
+/// 提升NPC的修为等级，NPC不会有天赋盘，所以这里不处理经验值和天赋点数等问题
+function characterCultivationLevelUp(character, {level = 1, incurIncident = true }) {
+  assert(level > 0)
+  character.cultivationLevel += level
 
   const incidentContent = engine.locale('characterCultivationLevelUp', interpolations: [
     character.name,
@@ -1169,10 +1114,19 @@ function characterCultivationLevelUp(character, { incurIncident = true }) {
   } else {
     engine.info(incidentContent)
   }
+
+  return character.cultivationLevel
 }
 
-function characterCultivationRankUp(character, { incurIncident = true }) {
-  ++character.cultivationRank
+/// 提升NPC的境界
+/// 和玩家只能一级一级提升不同，NPC可以直接指定提升到哪一个境界
+function characterCultivationRankUp(character, {rank, incurIncident = true }) {
+  if (rank != null) {
+    assert(rank > character.cultivationRank)
+    character.cultivationRank = rank
+  } else {
+    ++character.cultivationRank
+  }
 
   const incidentContent = engine.locale('characterCultivationRankUp', interpolations: [
     character.name,
@@ -1191,24 +1145,51 @@ function characterCultivationRankUp(character, { incurIncident = true }) {
   return character.cultivationRank
 }
 
-// function changeCharacterCultivationSkillLevel(character, skillLevels, { incurIncident = true }) {
-//   for (let skillId in skillLevels.keys) {
-//     let level = skillLevels[skillId]
-//     character.cultivationSkills[skillId] = level
+/// 提升角色天赋技能等级
+/// 此函数只用于提升NPC的天赋技能，玩家的技能因为需要考虑确认和取消的流程，是将整个技能数组直接全部赋值的
+/// 注意此函数调用时并不会检测天赋树节点位置和链接情况，也不会检查角色是否有足够的技能点
+/// 也就是说，游戏中的NPC的天赋技能可以任意选择升级，但是玩家的天赋技能必须按照天赋树的规则升级
+/// 这个函数的第一个参数并非和其他函数一样是角色data，而只是角色data中的技能数组
+/// 这是为了方便让flame组件调用，后者在天赋盘界面复制了一份技能数据，用于确认和取消
+function characterCultivationSkillLevelUp(entitySkillsData, skillId, { level, incurIncident = true }) {
+  if (entitySkillsData[skillId] == null) {
+    if (level != null) {
+      assert(level > 0)
+    } else {
+      level = 1
+    }
+    final skillPrototypeData = game.cultivationSkills[skillId]
+    assert(skillPrototypeData != null)
+    final skillData = {
+      id: skillId,
+      level: level,
+      value: skillPrototypeData.value * level,
+      increment: skillPrototypeData.value,
+    }
+    entitySkillsData[skillId] = skillData
+  } else {
+    final skillData = entitySkillsData[skillId]
+    if (level == null) {
+      ++skillData.level
+      skillData.value += skillData.increment
+    } else {
+      assert(level > 0)
+      skillData.level += level
+      skillData.value += skillData.increment * level
+    }
+  }
+}
 
-//     const incidentContent = engine.locale('characterCultivationSkillLevel', interpolations: [
-//       character.name,
-//       engine.locale(skillId),
-//       level,
-//     ])
-//     if (incurIncident) {
-//       Incident(
-//         message: incidentContent,
-//         subjectId: character.id,
-//         isPrivate: true,
-//       )
-//     } else {
-//       engine.info(incidentContent)
-//     }
-//   }
-// }
+function characterCultivationSkillRefund(entitySkillsData, skillId) {
+  if (entitySkillsData[skillId] == null) {
+    engine.warn('角色没有这个技能：${skillId}')
+    return
+  }
+  final skillData = entitySkillsData[skillId]
+  --skillData.level
+  skillData.value -= skillData.increment
+
+  if (skillData.level == 0) {
+    entitySkillsData.remove(skillId)
+  }
+}

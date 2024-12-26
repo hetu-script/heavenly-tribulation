@@ -42,8 +42,8 @@ const kOrganizationCategories = {
 };
 
 const kMainCultivationGenres = [
-  'flying_sword',
-  'dao',
+  'swordcraft',
+  'daoism',
   'physique',
   'avatar',
   'vitality',
@@ -99,8 +99,8 @@ const kMaterialShaQi = 'shaqi';
 const kMaterialYuanQi = 'yuanqi';
 
 const kGenres = {
-  'dao',
-  'flying_sword',
+  'daoism',
+  'swordcraft',
   'physique',
   'avatar',
   'vitality',
@@ -117,8 +117,8 @@ const kGenres = {
 };
 
 const kAttributesToGenre = {
-  'spirituality': 'dao',
-  'dexterity': 'flying_sword',
+  'spirituality': 'daoism',
+  'dexterity': 'swordcraft',
   'strength': 'physique',
   'willpower': 'vitality',
   'perception': 'avatar',

@@ -21,60 +21,68 @@ const kDifficulties = [
 ]
 
 const kCommon = 'common' // 凡品：生成数量没有限制
-const kUncommon = 'uncommon' // 良品：每9世界大小只能存在一个同源物品
-const kRare = 'rare' // 上品：每18世界大小只能存在一个
-const kEpic = 'epic' // 极品：每36世界大小只能存在一个
-const kLegendary = 'legendary' // 秘宝：每72世界大小只能存在一个
-const kMythic = 'mythic' // 灵宝：每144世界大小只能存在一个
-const kExotic = 'exotic' // 古宝：每288世界大小只能存在一个
+const kUncommon = 'uncommon' // 良品：每9世界大小
+const kRare = 'rare' // 上品：每18世界大小
+const kEpic = 'epic' // 极品：每36世界大小
+const kLegendary = 'legendary' // 神品：每72世界大小
+const kUnique = 'unique' // 秘宝：每144世界大小
+const kMythic = 'mythic' // 灵宝：每288世界大小
+const kArcane = 'arcane' // 古宝：每576世界大小
 
 const kRarity = {
-  /// common 白
+  /// 凡品
   common: {
-    rarity: 0.35,
+    rarity: 0.51,
     name: 'common',
-    color: '#ffffff',
+    color: '#CCCCCC',
     level: 0,
   },
-  /// uncommon 灰
+  /// 良品
   uncommon:{
-    rarity: 0.35,
+    rarity: 0.255,
     name: 'uncommon',
-    color: '#CCCCCC',
+    color: '#FFFFFF',
     level: 1,
   },
-  /// rare 蓝
+  /// 上品
   rare:{
-    rarity: 0.15,
+    rarity: 0.12,
     name: 'rare',
     color: '#00A6A9',
     level: 2,
   },
-  /// epic 紫
+  /// 极品
   epic: {
-    rarity: 0.075,
+    rarity: 0.06,
     name: 'epic',
     color: '#804DC8',
     level: 3,
   },
-  /// legendary 橙
+  /// 神品
   legendary: {
-    rarity: 0.012,
+    rarity: 0.03,
     name: 'legendary',
     color: '#C5C660',
     level: 4,
   },
-  /// mythic 金
+  /// 秘宝
+  unique: {
+    rarity: 0.015,
+    name: 'unique',
+    color: '#62CC39',
+    level: 4,
+  },
+  /// 古宝
   mythic: {
-    rarity: 0.003,
+    rarity: 0.007,
     name: 'mythic',
     color: '#F28234',
     level: 5,
   },
-  /// exotic 虹
-  exotic: {
-    rarity: 0.0005,
-    name: 'exotic',
+  /// 灵宝
+  arcane: {
+    rarity: 0.003,
+    name: 'arcane',
     color: '#C65043',
     level: 6,
   },
@@ -96,10 +104,12 @@ function getRarity({ name }) {
       return kRarity.epic
     } else if (r > kRarity.legendary.rarity) {
       return kRarity.legendary
+    } else if (r > kRarity.unique.rarity) {
+      return kRarity.unique
     } else if (r > kRarity.mythic.rarity) {
       return kRarity.mythic
     } else {
-      return kRarity.exotic
+      return kRarity.arcane
     }
   }
 }

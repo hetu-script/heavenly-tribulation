@@ -17,7 +17,7 @@ class LocationSiteSceneState with ChangeNotifier {
     _sceneIds.clear();
   }
 
-  Future<String?> popScene() async {
+  Future<LocationSiteScene?> pop() async {
     engine.leaveScene(_sceneIds.last);
     _sceneIds.removeLast();
     String? currentSceneId;
@@ -29,10 +29,11 @@ class LocationSiteSceneState with ChangeNotifier {
       scene = null;
     }
     notifyListeners();
-    return currentSceneId;
+    return scene;
   }
 
-  Future<void> pushScene({
+  // TODO: 检查重复进入场景？
+  Future<LocationSiteScene> push({
     dynamic locationData,
     String? siteId,
   }) async {
@@ -72,5 +73,6 @@ class LocationSiteSceneState with ChangeNotifier {
       ) as LocationSiteScene;
     }
     notifyListeners();
+    return scene!;
   }
 }

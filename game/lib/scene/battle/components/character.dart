@@ -1,8 +1,7 @@
-import 'dart:math' show Random;
+// import 'dart:math' show Random;
 
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/progress_indicator.dart';
-import 'package:samsara/components/fading_text.dart';
 import 'package:samsara/cardgame/card.dart';
 import 'package:samsara/components/tooltip.dart';
 import 'package:samsara/animation/animation_state_controller.dart';
@@ -13,7 +12,7 @@ import '../../../data.dart';
 import 'common.dart';
 import 'deck_zone.dart';
 import '../../../ui.dart';
-import '../../common.dart';
+// import '../../common.dart';
 import 'status_effect.dart';
 
 const kTopLayerAnimationPriority = 200;
@@ -375,24 +374,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
   }
 
-  void addHintText(String text, {double duration = 2, Color? textColor}) {
-    final c2 = FadingText(
-      text,
-      position: Vector2(center.x + Random().nextDouble() * 40 - 20,
-          center.y + Random().nextDouble() * 40 - 20),
-      movingUpOffset: 100,
-      duration: duration,
-      config: ScreenTextConfig(
-        textStyle: TextStyle(
-          color: textColor ?? Colors.white,
-          fontSize: 28,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'RuiZiYunZiKuLiBianTiGBK',
-        ),
-      ),
-      priority: kHintTextPriority,
-    );
-    gameRef.world.add(c2);
+  void addHintText(String text, {Color? color}) {
+    game.addHintText(text, position: center, color: color);
   }
 
   void reset() {
@@ -410,7 +393,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     if (value < life) {
       addHintText(
         '${engine.locale('life')}-$value',
-        textColor: Colors.red,
+        color: Colors.red,
       );
       setLife(life - value);
       return true;
@@ -434,7 +417,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     final diff = hp - life;
     addHintText(
       '${engine.locale('life')}+$diff',
-      textColor: Colors.lightGreen,
+      color: Colors.lightGreen,
     );
 
     if (diff > 0) {
@@ -450,14 +433,14 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     if (value <= mana) {
       addHintText(
         '${engine.locale('mana')}-$value',
-        textColor: Colors.red,
+        color: Colors.red,
       );
       setMana(mana - value);
       return true;
     } else {
       addHintText(
         engine.locale('notEnoughMana'),
-        textColor: Colors.deepPurple,
+        color: Colors.deepPurple,
       );
       return false;
     }
@@ -478,7 +461,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     final diff = mp - mana;
     addHintText(
       '${engine.locale('mana')}+$diff',
-      textColor: Colors.lightGreen,
+      color: Colors.lightGreen,
     );
 
     if (diff > 0) {

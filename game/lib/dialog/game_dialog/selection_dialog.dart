@@ -6,7 +6,7 @@ import 'package:samsara/extensions.dart';
 /// selectionData
 
 class SelectionDialog extends StatelessWidget {
-  static Future<String?> show({
+  static Future<String> show({
     required BuildContext context,
     required dynamic selectionsData,
   }) async {
@@ -17,7 +17,8 @@ class SelectionDialog extends StatelessWidget {
       builder: (BuildContext context) {
         return SelectionDialog(selectionsData: selectionsData);
       },
-    );
+      barrierDismissible: false,
+    ) as String;
   }
 
   final dynamic selectionsData;
@@ -29,27 +30,6 @@ class SelectionDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selections = List<Widget>.from(selectionsData.keys.map((key) {
-      final data = selectionsData[key];
-      final String? colorString = selectionsData[key]['color'];
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10.0),
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context, key);
-          },
-          child: Text(
-            data['text'].toString(),
-            style: TextStyle(
-              fontSize: 24,
-              color:
-                  colorString != null ? HexColor.fromString(colorString) : null,
-            ),
-          ),
-        ),
-      );
-    }));
-
     return Material(
       color: Colors.transparent,
       child: Stack(
@@ -58,7 +38,29 @@ class SelectionDialog extends StatelessWidget {
           Positioned.fill(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: selections,
+              children: selectionsData.keys.map(
+                (key) {
+                  final data = selectionsData[key];
+                  final String? colorString = selectionsData[key]['color'];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context, key);
+                      },
+                      child: Text(
+                        data['text'].toString(),
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: colorString != null
+                              ? HexColor.fromString(colorString)
+                              : null,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ],

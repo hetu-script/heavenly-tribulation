@@ -81,7 +81,7 @@ class _LocationViewState extends State<LocationView> {
     return ResponsiveWindow(
       color: kBackgroundColor,
       alignment: AlignmentDirectional.center,
-      size: Size(600.0, widget.mode != ViewPanelMode.view ? 440.0 : 400.0),
+      size: Size(640.0, widget.mode != ViewPanelMode.view ? 440.0 : 400.0),
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -125,7 +125,7 @@ class _LocationViewState extends State<LocationView> {
                   ),
                   SizedBox(
                     width: 600,
-                    height: 300,
+                    height: 280,
                     child: SingleChildScrollView(
                       child: ListView(
                         shrinkWrap: true,

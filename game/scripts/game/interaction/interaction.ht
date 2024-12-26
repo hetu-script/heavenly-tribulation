@@ -108,7 +108,7 @@ function onHeroExplore(terrain) {
     engine.play('wind-blow-141288.mp3')
     WorldMap.lightUpAroundTile(terrain.left, terrain.top, kExploreLightUpSize)
   }
-  onGameEvent('onAfterHeroExplore', terrain)
+  onWorldEvent('onAfterHeroExplore', terrain)
 }
 
 /// 打坐时可以选择进行三种操作：
@@ -226,7 +226,7 @@ function onHeroMeditate({site, terrain, incurIncident = true}) async {
       }
 
       if (gathered) {
-        onGameEvent('onAfterHeroGatherSpirit')
+        onWorldEvent('onAfterHeroGatherSpirit')
       }
     }
     'condenseSpirit': {
@@ -239,7 +239,7 @@ function onHeroMeditate({site, terrain, incurIncident = true}) async {
 /// 如果不为null且非空，则英雄可以开始尝试向这个格子移动，但中途有可能停下
 /// 否则不会进入移动路径计算
 function onBeforeHeroMove(terrain) {
-  onGameEvent('onBeforeHeroMove', terrain)
+  onWorldEvent('onBeforeHeroMove', terrain)
   let movableTerrainKinds = getCharacterMovableTerrainKinds(hero)
   if (terrain.kind in movableTerrainKinds) {
     return movableTerrainKinds
@@ -257,7 +257,7 @@ function senseTerrain(terrain) -> bool {
   if (terrain.locationId) {
     const location = game.locations[terrain.locationId]
     if (location.isDiscovered) {
-      WorldMap.enterLocation(location.id)
+      WorldMap.enterLocation(location)
     } else {
       dialog.localeLines('hint.sensedUndiscovered', isHero: true)
     }
@@ -278,7 +278,7 @@ function onAfterHeroMove(terrain, nonEnterableDestination) {
   if (nonEnterableDestination != null) {
     senseTerrain(nonEnterableDestination)
   }
-  onGameEvent('onAfterHeroMove', hero.worldPosition.left, hero.worldPosition.top)  
+  onWorldEvent('onAfterHeroMove', hero.worldPosition.left, hero.worldPosition.top)  
   WorldMap.lightUpAroundTile(hero.worldPosition.left, hero.worldPosition.top, hero.stats.lightRadius)
 }
 
@@ -296,7 +296,7 @@ function onBeforeHeroEnterLocation(location) async {
 }
 
 function onAfterHeroEnterLocation(location) async {
-  onGameEvent('onAfterHeroEnterLocation', location)
+  onWorldEvent('onAfterHeroEnterLocation', location)
   // if (location.flags.recruitingOrganizationIds.isNotEmpty) {
   //   let names = ''
   //   for (const id in location.flags.recruitingOrganizationIds) {
@@ -363,7 +363,7 @@ function onInteractCharacter(characterId, { exitOnLeave = false }) {
   if (character.flags.useCustomInteraction) {
     // 使用模组定义的交互逻辑
     engine.info('NPC [${characterId}] 使用自定义交互逻辑')
-    onGameEvent('onInteractCharacter', character.id)
+    onWorldEvent('onInteractCharacter', character.id)
   } else {
     // 默认交互逻辑
     const selections = [
@@ -566,7 +566,7 @@ function onInteractTerrain(terrain) {
                 // TODO: 第一次发现据点事件
                 const message = engine.locale('firstVisitCity', interpolations: [undiscoveredLocation.name])
                 dialog.lines([message]).then((_) {
-                  WorldMap.enterLocation(undiscoveredLocation.id)
+                  WorldMap.enterLocation(undiscoveredLocation)
                 })
               } else {
                 dialog.localeLines(['searchFailed'], isHero: true)
@@ -927,7 +927,7 @@ function onInteractObject(object, terrain) async {
   engine.info('正在和 Object [${object.id}] 互动。')
   if (object.useCustomInteraction) {
     engine.info('Object [${object.id}] 使用自定义交互逻辑')
-    onGameEvent('onInteractObject', object, terrain)
+    onWorldEvent('onInteractObject', object, terrain)
   } else {
     switch (object.category) {
       'character': {
@@ -940,14 +940,14 @@ function onInteractObject(object, terrain) async {
         await WorldMap.moveCameraToMapPosition(left, top)
         WorldMap.refreshHeroTileInfo()
         WorldMap.lightUpAroundTile(left, top, hero.stats.lightRadius)
-        onGameEvent('onAfterHeroMove', left, top)
+        onWorldEvent('onAfterHeroMove', left, top)
       }
       'treasureBox': {
         if (!object.isLocked) {
           if (!object.isOpened) {
             object.isOpened = true
             for (let id in object.itemIds) {
-              acquireById(hero, id)
+              Player.acquireItemById(id)
             }
             engine.play('dooropened-103851.mp3')
             terrain.overlaySprite = {sprite: kSpriteTreasureBoxOpened}

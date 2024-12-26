@@ -5,6 +5,7 @@
     affixId: null,
     // 是否是主词条，在执行词条脚本时需要判断这个参数
     isMain: true,
+    // 注意：主词条数据的genre和category是字符串，但额外词条的genre和category是字符串数组
     genre: "general",
     // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
     category: "attack",
@@ -25,6 +26,15 @@
         increment: 2,
       },
     ],
+    // 该词条的属性需求，一张卡牌的属性需求是所有词条的需求的最大值的集合
+    // 例如两个词条，其中一个需求20身法，另一个需求40身法，则这张牌需要的身法就是40
+    // 词条升级时，需求也会增加
+    requirement: {
+      dexterity: {
+        value: 2,
+        increment: 2,
+      },
+    },
   },
   defend_sword: {
     // 同一个属性id只会在一张卡牌上出现一次。
@@ -33,6 +43,7 @@
     affixId: ["defend"],
     // 是否是主词条，在执行词条脚本时需要判断这个参数
     isMain: true,
+    // 注意：主词条数据的genre和category是字符串，但额外词条的genre和category是字符串数组
     genre: "general",
     // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
     category: "buff",
@@ -61,6 +72,7 @@
     affixId: null,
     // 是否是主词条，在执行词条脚本时需要判断这个参数
     isMain: true,
+    // 注意：主词条数据的genre和category是字符串，但额外词条的genre和category是字符串数组
     genre: "general",
     // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
     category: "attack",
@@ -89,6 +101,7 @@
     affixId: ["defend"],
     // 是否是主词条，在执行词条脚本时需要判断这个参数
     isMain: true,
+    // 注意：主词条数据的genre和category是字符串，但额外词条的genre和category是字符串数组
     genre: "general",
     // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
     category: "buff",
@@ -117,6 +130,7 @@
     affixId: ["speed", "dodge"],
     // 是否是主词条，在执行词条脚本时需要判断这个参数
     isMain: true,
+    // 注意：主词条数据的genre和category是字符串，但额外词条的genre和category是字符串数组
     genre: "general",
     // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
     category: "buff",

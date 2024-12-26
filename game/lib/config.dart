@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
+import 'ui.dart';
 
 const kForegroundColor = Colors.white;
 final kBackgroundColor = Colors.black.withAlpha(180);
@@ -11,14 +12,14 @@ const iconTheme = IconThemeData(
 );
 
 const captionStyle = TextStyle(
-  fontFamily: 'RuiZiYunZiKuLiBianTiGBK',
+  fontFamily: GameUI.fontFamily,
   fontSize: 18.0,
 );
 
 final darkTheme = ThemeData(
   brightness: Brightness.dark,
   textTheme: TextTheme(),
-  fontFamily: 'RuiZiYunZiKuLiBianTiGBK',
+  fontFamily: GameUI.fontFamily,
   colorScheme: ColorScheme.dark(
     surface: kBackgroundColor,
   ),
@@ -78,7 +79,7 @@ final darkTheme = ThemeData(
     activeTickMarkColor: kForegroundColor,
     thumbColor: kForegroundColor,
     valueIndicatorTextStyle: TextStyle(
-      fontFamily: 'RuiZiYunZiKuLiBianTiGBK',
+      fontFamily: GameUI.fontFamily,
       color: kForegroundColor,
     ),
   ),

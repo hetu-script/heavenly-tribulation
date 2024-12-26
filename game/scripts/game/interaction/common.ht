@@ -1,0 +1,4 @@
+
+function onEnterCultivation() {
+  onGameEvent('onEnterCultivation')  
+}

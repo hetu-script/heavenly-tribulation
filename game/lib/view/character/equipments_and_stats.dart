@@ -9,7 +9,7 @@ import 'equipments/stats.dart';
 import 'equipments/equipments.dart';
 // import 'status_effects.dart';
 import 'equipments/inventory.dart';
-import 'equipments/entity_info.dart';
+import 'equipments/item_info.dart';
 import '../../view/menu_item_builder.dart';
 import '../common.dart';
 

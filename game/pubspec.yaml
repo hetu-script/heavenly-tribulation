@@ -85,6 +85,20 @@ flutter:
     - assets/images/animation/girl/
     - assets/images/animation/snake/
     - assets/images/animation/tiger/
+    - assets/images/battle/
+    - assets/images/battle/scene/
+    - assets/images/cultivation/
+    - assets/images/cultivation/battlecard/
+    - assets/images/cultivation/battlecard/illustration/
+    - assets/images/cultivation/library/
+    - assets/images/cultivation/skill/
+    - assets/images/cultivation/time/
+    - assets/images/cg/
+    - assets/images/cg/ch01/
+    - assets/images/icon/
+    - assets/images/icon/skill/
+    - assets/images/icon/status/
+    - assets/images/illustration/
     - assets/images/illustration/
     - assets/images/illustration/male/
     - assets/images/illustration/female/
@@ -94,29 +108,16 @@ flutter:
     - assets/images/illustration/story/
     - assets/images/illustration/young/
     - assets/images/illustration/
-    - assets/images/battle/
-    - assets/images/battle/scene/
-    - assets/images/cultivation/
-    - assets/images/cultivation/battlecard/
-    - assets/images/cultivation/battlecard/illustration/
-    - assets/images/cultivation/deckbuilding/
-    - assets/images/cultivation/library/
-    - assets/images/cultivation/time/
-    - assets/images/cg/
-    - assets/images/cg/ch01/
-    - assets/images/icon/
-    - assets/images/icon/skill/
-    - assets/images/icon/status/
     - assets/images/item/
     - assets/images/item/consumable/
     - assets/images/item/material/
+    - assets/images/item/story/
     - assets/images/item/support/
     - assets/images/location/
     - assets/images/location/city/
     - assets/images/location/site/
     - assets/images/object/
     - assets/images/object/animation/
-    - assets/images/talent_tree/
     - assets/images/ui/
     - assets/images/weather/
 
@@ -156,6 +157,7 @@ flutter:
     - scripts/tutorial/l10n/
     # - scripts/tutorial/l10n/en/
     - scripts/tutorial/l10n/zh/
+    - scripts/tutorial/events/
 
   fonts:
     - family: NotoSansMono

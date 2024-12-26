@@ -31,9 +31,9 @@ function generateConsumableName({category: string, rarity: string}) {
   const s = random.nextIterable(spiritPrefix)
   let name
   switch (rarity) {
-    'exotic' : name = pre + pre2 + kind
-    'mythic', 'legendary' : name = pre + s + kind
-    'epic', 'rare' : name = pre + kind
+    'mythic', 'arcane' : name = pre + pre2 + kind
+    'legendary', 'unique' : name = pre + s + kind
+    'rare', 'epic' : name = pre + kind
     'common', 'uncommon' : {
       if (category == 'alchemy') {
         name = pre + kind

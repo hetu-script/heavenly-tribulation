@@ -16,17 +16,11 @@ const kSpriteDungeonStonePavedTile = 5;
 const kSpriteCity = 'object/city.png';
 const kSpriteDungeon = 'object/dungeon.png';
 const kSpriteArray = 'object/portalArray.png';
-const kSpriteDungeonStoneGate = 'object/dungeonStoneGate.png';
 const kSpriteDungeonLever = 'object/lever.png';
 const kSpriteDungeonLeverOn = 'object/leverOn.png';
 const kSpriteTreasureBox = 'object/treasureBox.png';
 const kSpriteTreasureBoxOpened = 'object/treasureBoxOpened.png';
 const kSpriteDungeonGlowingTile = 'object/glowingTile.png';
-const kSpriteDungeonCoffin = 'object/coffin.png';
-const kSpriteDungeonStatue = 'object/statue.png';
-const kSpriteDungeonOldWell = 'object/oldWell.png';
-const kSpriteDungeonStoneStairs = 'object/stoneStairs.png';
-const kSpriteDungeonStoneStairsDebris = 'object/stoneStairsDebris.png';
 
 const kSpriteCharacterYoungMan = 'object/characterYoungMan.png';
 const kSpriteCharacterMan = 'object/characterMan.png';
@@ -54,6 +48,6 @@ const kWorldMapAnimationPriority = 15000;
 const kCloudPriority = 20000;
 const kCouldKindsCount = 12;
 
-const kHintTextPriority = 50000;
+const kSiteCardPriority = 500;
 
 const kMouseCursorEffectPriority = 99999999;

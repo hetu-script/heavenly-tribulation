@@ -1,0 +1,55 @@
+{
+  /// 天赋技能数据，这里只保存技能本身的数据，具体技能的数据在skilltree.json5里面
+  /// 流派解锁对应的技能
+  swordcraft: {
+    id: "swordcraft",
+    icon: "cultivation/skill/swordcraft_selected.png",
+    unselectedIcon: "cultivation/skill/swordcraft_unselected.png",
+  },
+  daoism: {
+    skillId: "daoism",
+    icon: "cultivation/skill/daoism.png",
+    unselectedIcon: "cultivation/skill/daoism_unselected.png",
+  },
+  physique: {
+    skillId: "physique",
+    icon: "cultivation/skill/physique.png",
+    unselectedIcon: "cultivation/skill/physique_unselected.png",
+  },
+  avatar: {
+    skillId: "avatar",
+    icon: "cultivation/skill/avatar.png",
+    unselectedIcon: "cultivation/skill/avatar_unselected.png",
+  },
+  vitality: {
+    skillId: "vitality",
+    icon: "cultivation/skill/vitality.png",
+    unselectedIcon: "cultivation/skill/vitality_unselected.png",
+  },
+  /// 属性点
+  dexterity: {
+    id: "dexterity",
+    icon: "cultivation/skill/attribute_dexterity_selected.png",
+    value: 3,
+  },
+  spirituality: {
+    id: "spirituality",
+    icon: "cultivation/skill/attribute_spirituality_selected.png",
+    value: 3,
+  },
+  strength: {
+    id: "strength",
+    icon: "cultivation/skill/attribute_strength_selected.png",
+    value: 3,
+  },
+  willpower: {
+    id: "willpower",
+    icon: "cultivation/skill/attribute_willpower_selected.png",
+    value: 3,
+  },
+  perception: {
+    id: "perception",
+    icon: "cultivation/skill/attribute_perception_selected.png",
+    value: 3,
+  },
+}

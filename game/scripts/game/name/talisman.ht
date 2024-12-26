@@ -13,18 +13,19 @@ function generateTalismanName({category, kind, rarity}) {
   const prefix = random.nextIterable(commonNames)
   const prefix2 = random.nextIterable(commonNames)
   const cp = random.nextIterable(colorPrefix)
-  const m = random.nextIterable(talismanMaterial)
-  const s = random.nextIterable(spiritPrefix)
+  const mp = random.nextIterable(talismanMaterial)
+  const sp = random.nextIterable(spiritPrefix)
 
   let name
   switch (rarity) {
-    'exotic' : name = prefix + prefix2 + kind
-    'mythic' : name = prefix + s + kind
-    'legendary' : name = prefix + cp + m + kind
-    'epic' : name = prefix + m + kind
-    'rare' : name = prefix + kind
-    'uncommon' : name = cp + m + kind
-    'common' : name = m + kind
+    'arcane' : name = prefix + prefix2 + kind
+    'mythic' : name = prefix + sp + cp + mp + kind
+    'unique' : name = prefix + cp + mp + kind
+    'legendary' : name = prefix + mp + kind
+    'epic' : name = prefix + kind
+    'rare' : name = cp + mp + sp + kind
+    'uncommon' : name = cp + mp + kind
+    'common' : name = mp + kind
   }
   return { name, category, rarity }
 }

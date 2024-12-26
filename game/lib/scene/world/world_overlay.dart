@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:math' as math;
+// import 'dart:math' as math;
 
 // import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -14,7 +14,6 @@ import 'package:hetu_script/values.dart';
 // import 'package:flame/flame.dart';
 // import 'package:flame/sprite.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/components/fading_text.dart';
 
 import '../../data.dart';
 import '../../../scene/loading_screen.dart';
@@ -22,7 +21,7 @@ import '../../../dialog/game_dialog/game_dialog.dart';
 import '../quest_info.dart';
 // import '../../../event/ui.dart';
 import '../../view/world_infomation/world_infomation.dart';
-import 'popup.dart';
+// import 'popup.dart';
 // import '../../../shared/constants.dart';
 import '../history_info.dart';
 import '../../config.dart';
@@ -42,7 +41,8 @@ import 'npc_list.dart';
 import '../../dialog/input_string.dart';
 // import '../../extensions.dart';
 // import '../../state/quest.dart';
-import '../../logic/interaction.dart';
+// import '../../logic/interaction.dart';
+import '../../ui.dart';
 
 const kExcludeTerrainKindsOnLighting = ['void', 'mountain'];
 
@@ -203,72 +203,69 @@ class _WorldOverlayState extends State<WorldOverlay>
     }
   }
 
-  void _heroMoveTo(TilePosition tilePosition) {
-    if (!scene.map.isTileVisible(tilePosition.left, tilePosition.top)) return;
+  void _heroMoveTo(TileMapTerrain terrain) {
+    if (!scene.map.isTileVisible(terrain.left, terrain.top)) return;
     final hero = scene.map.hero!;
     if (hero.isWalking) return;
-    final terrain = scene.map.selectedTerrain;
-    if (terrain!.terrainKind == TileMapTerrainKind.empty) return;
+    if (terrain.terrainKind == TileMapTerrainKind.empty) return;
 
     final neighbors = scene.map.getNeighborTilePositions(hero.left, hero.top);
     if (terrain.isNonEnterable && neighbors.contains(terrain.tilePosition)) {
       engine.hetu.invoke('senseTerrain', positionalArgs: [terrain.data]);
       return;
     } else {
-      if (terrain.tilePosition != hero.tilePosition) {
-        final movableTerrainKinds = engine.hetu
-            .invoke('onBeforeHeroMove', positionalArgs: [terrain.data]);
-        if (movableTerrainKinds == null || movableTerrainKinds.isEmpty) {
-          return;
-        }
-        final calculatedRoute = _calculateRoute(
-          fromX: hero.left,
-          fromY: hero.top,
-          toTile: terrain.data,
-          terrainKinds: movableTerrainKinds,
+      final movableTerrainKinds = engine.hetu
+          .invoke('onBeforeHeroMove', positionalArgs: [terrain.data]);
+      if (movableTerrainKinds == null || movableTerrainKinds.isEmpty) {
+        return;
+      }
+      final calculatedRoute = _calculateRoute(
+        fromX: hero.left,
+        fromY: hero.top,
+        toTile: terrain.data,
+        terrainKinds: movableTerrainKinds,
+      );
+      if (calculatedRoute != null) {
+        final route = List<int>.from(calculatedRoute);
+        scene.map.moveObjectToTilePositionByRoute(
+          scene.map.hero!,
+          route,
+          onAfterMoveCallback: (tile, [nonEnterableDestination]) {
+            if (tile.objectId != null) {
+              final object = engine.hetu
+                  .invoke('getObjectById', positionalArgs: [tile.objectId]);
+              if (object['blockHeroMove'] == true) {
+                scene.map.hero!.isMovingCanceled = true;
+              }
+            }
+            // TODO: 某些情况下，让英雄返回上一格
+            // scene.map.moveObjectToPreviousTile(scene.map.hero!);
+            if (scene.isMainWorld) {
+              engine.hetu.invoke('updateGame');
+            }
+            engine.hetu.invoke('onAfterHeroMove',
+                positionalArgs: [tile.data, nonEnterableDestination?.data]);
+          },
+          onFinishMoveCallback: () async {
+            // final lightedAreaSize = _heroData!['stats']['lightRadius'];
+            scene.map.lightUpAroundTile(
+              scene.map.hero!.tilePosition,
+              size: scene.map.hero!.data['stats']['lightRadius'],
+              // excludeTerrainKinds: kExcludeTerrainKindsOnLighting,
+            );
+            engine.hetu.invoke('setHeroWorldPosition', positionalArgs: [
+              hero.tilePosition.left,
+              hero.tilePosition.top
+            ]);
+            currentTerrain = scene.map.getTerrainAtHero();
+            await _refreshMap();
+            // 如果英雄所在格子只有一个npc，则默认直接和该npc互动
+            // if (_npcsInHeroPosition.length == 1) {
+            //   final npcId = _npcsInHeroPosition.first['id'];
+            //   engine.hetu.invoke('onInteractCharacter', positionalArgs: [npcId]);
+            // }
+          },
         );
-        if (calculatedRoute != null) {
-          final route = List<int>.from(calculatedRoute);
-          scene.map.moveObjectToTilePositionByRoute(
-            scene.map.hero!,
-            route,
-            onAfterMoveCallback: (tile, [nonEnterableDestination]) {
-              if (tile.objectId != null) {
-                final object = engine.hetu
-                    .invoke('getObjectById', positionalArgs: [tile.objectId]);
-                if (object['blockHeroMove'] == true) {
-                  scene.map.hero!.isMovingCanceled = true;
-                }
-              }
-              // TODO: 某些情况下，让英雄返回上一格
-              // scene.map.moveObjectToPreviousTile(scene.map.hero!);
-              if (scene.isMainWorld) {
-                engine.hetu.invoke('updateGame');
-              }
-              engine.hetu.invoke('onAfterHeroMove',
-                  positionalArgs: [tile.data, nonEnterableDestination?.data]);
-            },
-            onFinishMoveCallback: () async {
-              // final lightedAreaSize = _heroData!['stats']['lightRadius'];
-              scene.map.lightUpAroundTile(
-                scene.map.hero!.tilePosition,
-                size: scene.map.hero!.data['stats']['lightRadius'],
-                // excludeTerrainKinds: kExcludeTerrainKindsOnLighting,
-              );
-              engine.hetu.invoke('setHeroWorldPosition', positionalArgs: [
-                hero.tilePosition.left,
-                hero.tilePosition.top
-              ]);
-              currentTerrain = scene.map.getTerrainAtHero();
-              await _refreshMap();
-              // 如果英雄所在格子只有一个npc，则默认直接和该npc互动
-              // if (_npcsInHeroPosition.length == 1) {
-              //   final npcId = _npcsInHeroPosition.first['id'];
-              //   engine.hetu.invoke('onInteractCharacter', positionalArgs: [npcId]);
-              // }
-            },
-          );
-        }
       }
     }
   }
@@ -278,10 +275,7 @@ class _WorldOverlayState extends State<WorldOverlay>
         .invoke('onInteractTerrain', positionalArgs: [terrain.data]);
   }
 
-  Future<void> _tryEnterLocation(String locationId) async {
-    final locationData =
-        engine.hetu.invoke('getLocationById', positionalArgs: [locationId]);
-
+  Future<void> tryEnterLocation(dynamic locationData) async {
     if (!(locationData['isDiscovered'] ?? false)) {
       engine.warn('location ${locationData['id']} is not discovered yet.');
       return;
@@ -290,26 +284,26 @@ class _WorldOverlayState extends State<WorldOverlay>
     await engine.hetu
         .invoke('onBeforeHeroEnterLocation', positionalArgs: [locationData]);
 
+    final terrain = scene.map.getTerrain(locationData['worldPosition']['left'],
+        locationData['worldPosition']['top']);
+
     // if (!context.mounted) return;
     if (locationData['isDiscovered'] == true) {
       if (mounted) {
-        scene.bgm.pause();
         final Iterable<dynamic> npcs = engine.hetu.invoke('getNpcsByLocationId',
             positionalArgs: [locationData['id']]);
+        // _refreshNpcsInHeroWorldMapPosition();
         context.read<CurrentNpcList>().updated(npcs);
-
-        await showDialog(
-          context: context,
-          builder: (context) => LocationSiteSceneOverlay(
-            key: UniqueKey(),
-            terrainObject: _heroAtTerrain,
-            locationData: locationData,
+        context.read<HeroState>().update(showHeroInfo: true);
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => LocationSiteSceneOverlay(
+              key: UniqueKey(),
+              terrainObject: terrain,
+              locationData: locationData,
+            ),
           ),
         );
-
-        scene.bgm.resume();
-
-        _refreshNpcsInHeroWorldMapPosition();
       }
     }
   }
@@ -367,7 +361,25 @@ class _WorldOverlayState extends State<WorldOverlay>
     } else {
       if (buttons == kPrimaryButton) {
         if (tilePosition == scene.map.selectedTerrain?.tilePosition) {
-          _heroMoveTo(tilePosition);
+          final terrain = scene.map.selectedTerrain!;
+          if (terrain.tilePosition != hero.tilePosition) {
+            _heroMoveTo(terrain);
+          } else {
+            if (terrain.locationId != null) {
+              final locationData = engine.hetu.invoke('getLocationById',
+                  positionalArgs: [terrain.locationId]);
+              if (locationData['isDiscovered']) {
+                tryEnterLocation(locationData);
+              }
+            } else if (terrain.objectId != null) {
+              final objectData = engine.hetu
+                  .invoke('getObjectById', positionalArgs: [terrain.objectId]);
+              if (objectData['isDiscovered']) {
+                engine.hetu.invoke('onInteractObject',
+                    positionalArgs: [objectData, terrain.data]);
+              }
+            }
+          }
         }
       } else if (buttons == kSecondaryButton) {
         if (_dragged) return;
@@ -419,7 +431,7 @@ class _WorldOverlayState extends State<WorldOverlay>
     assert(_heroData != null);
     await scene.map.loadHeroFromData(_heroData);
     if (mounted) {
-      context.read<HeroState>().update();
+      context.read<HeroState>().update(showHeroInfo: false);
     }
 
     engine.hetu.invoke('refreshWorldMapCaptions');
@@ -456,24 +468,20 @@ class _WorldOverlayState extends State<WorldOverlay>
     final worldPosition = scene.map.tilePosition2TileCenter(left, top);
     // final screenPosition = scene.map.worldPosition2Screen(worldPosition);
 
-    final c2 = FadingText(
+    scene.addHintText(
       text,
-      position: Vector2(worldPosition.x + math.Random().nextDouble() * 10 - 5,
-          worldPosition.y + math.Random().nextDouble() * 10 - 5),
-      movingUpOffset: 20,
+      position: worldPosition,
+      horizontalVariation: 10.0,
+      verticalVariation: 10.0,
+      offsetY: 20.0,
       duration: duration,
-      config: ScreenTextConfig(
-        // outlined: true,
-        textStyle: TextStyle(
-          color: color ?? Colors.white,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          fontFamily: 'RuiZiYunZiKuLiBianTiGBK',
-        ),
+      textStyle: TextStyle(
+        color: color ?? Colors.white,
+        fontSize: 12,
+        fontWeight: FontWeight.bold,
+        fontFamily: GameUI.fontFamily,
       ),
-      priority: kHintTextPriority,
     );
-    scene.world.add(c2);
   }
 
   @override
@@ -487,11 +495,6 @@ class _WorldOverlayState extends State<WorldOverlay>
     //     builder: (BuildContext context) => const GameOver(),
     //   );
     // }, override: true);
-
-    engine.hetu.interpreter.bindExternalFunction('showHeroInfo', (
-        {positionalArgs, namedArgs}) {
-      context.read<HeroState>().showHeroInfo(positionalArgs.first);
-    }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('setTerrainCaption', (
         {positionalArgs, namedArgs}) {
@@ -644,10 +647,8 @@ class _WorldOverlayState extends State<WorldOverlay>
       );
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction(
-        'enterLocation',
-        ({positionalArgs, namedArgs}) =>
-            _tryEnterLocation(positionalArgs.first),
+    engine.hetu.interpreter.bindExternalFunction('enterLocation',
+        ({positionalArgs, namedArgs}) => tryEnterLocation(positionalArgs.first),
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction('setFog', (
@@ -666,38 +667,43 @@ class _WorldOverlayState extends State<WorldOverlay>
     );
   }
 
-  Future<bool> _prepareData() async {
-    if (_isLoaded) return true;
+  Future<bool> _loadMap([Map<String, dynamic>? args]) async {
     if (_isLoading) return false;
+    if (_isLoaded) return true;
+
     _isLoading = true;
+
+    args ??= widget.args;
 
     // context.read<GameDialogState>().start();
     // context.read<GameDialogState>().pushImage('black');
 
     if (!GameData.isGameCreated) {
-      if (widget.args['method'] == 'preset') {
-        await GameData.loadPreset(widget.args['path']);
-      } else if (widget.args['method'] == 'load') {
-        await GameData.loadGame(widget.args['path']);
+      if (args['method'] == 'preset') {
+        await GameData.loadPreset(args['savePath']);
+      } else if (args['method'] == 'load') {
+        await GameData.loadGame(args['savePath']);
       } else {
-        await GameData.newGame(widget.args['id'], widget.args['saveName']);
+        await GameData.newGame(args['id'], args['saveName']);
       }
     }
+
     if (mounted) {
-      final isReload =
-          await context.read<WorldMapSceneState>().pushScene(args: widget.args);
-      if (isReload) {
-        _isLoading = false;
-      }
+      await context.read<WorldMapSceneState>().push(args: widget.args);
     }
-    _isLoaded = true;
+
+    setState(() {
+      _isLoading = false;
+      _isLoaded = true;
+    });
+
     return true;
   }
 
   @override
   void dispose() {
     engine.removeEventListener(widget.key!);
-
+    _mapFocusNode.dispose();
     super.dispose();
   }
 
@@ -705,24 +711,25 @@ class _WorldOverlayState extends State<WorldOverlay>
   Widget build(BuildContext context) {
     super.build(context);
 
+    _mapFocusNode.requestFocus();
+
+    _scene = context.watch<WorldMapSceneState>().scene;
+
     return FutureBuilder(
       future: Future.delayed(
         const Duration(milliseconds: 100),
-        () => _prepareData(),
+        () => _loadMap(),
       ),
       builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data == false) {
+        if (!snapshot.hasData ||
+            snapshot.data == false ||
+            _scene == null ||
+            (_scene?.isLoading == true)) {
           if (snapshot.hasError) {
             throw Exception('${snapshot.error}\n${snapshot.stackTrace}');
           }
           return const LoadingScreen();
         } else {
-          _scene = context.watch<WorldMapSceneState>().scene;
-
-          if (_scene == null) {
-            return const LoadingScreen();
-          }
-
           scene.map.onDragUpdate = (int buttons, Vector2 offset) {
             if (buttons == kSecondaryButton) {
               _dragged = true;
@@ -732,7 +739,7 @@ class _WorldOverlayState extends State<WorldOverlay>
           scene.map.onTapDown = _onMapTapDown;
           scene.map.onTap = _onMapTapUp;
 
-          final showHeroInfo = context.watch<HeroState>().isShowHeroInfo;
+          final showHeroInfo = context.watch<HeroState>().showHeroInfo;
 
           final screenWidgets = [
             SceneWidget(scene: scene),
@@ -981,6 +988,7 @@ class _WorldOverlayState extends State<WorldOverlay>
                 switch (event.logicalKey) {
                   case LogicalKeyboardKey.space:
                     _scene?.camera.zoom = 2.0;
+                    _scene?.map.moveCameraToHero();
                 }
               }
             },

@@ -1,3 +1,3 @@
 {
-  "deckbuilding.requiredCardsPrompt": "上阵卡牌数量不足！"
+  "deckbuilding.requiredCardsPrompt": "<red>上阵卡牌数量不足！</>"
 }

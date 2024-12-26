@@ -112,7 +112,7 @@ class WorldMapScene extends Scene {
   void addCloud() {
     final cloud = AnimatedCloud();
     cloud.position = map.getRandomTerrainPosition();
-    map.add(cloud);
+    world.add(cloud);
   }
 
   /// start & end are flame game canvas world position.

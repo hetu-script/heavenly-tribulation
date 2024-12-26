@@ -1,6 +1,6 @@
 ## 游戏创建
 
-只会在生成新游戏世界时运行一次的初始化脚本，通常在这里将一些游戏对象添加到数据中。
+只会在第一次创建游戏世界时运行的初始化脚本，通常在这里将一些游戏数据和游戏对象添加到游戏的存档中。之后再次读取存档时这些数据会保留。
 
 ```javascript
 function init()
@@ -14,11 +14,20 @@ function init()
 function main()
 ```
 
-## 自定义事件的回调函数
+## 模组事件回调函数列表
+
+### 通用事件
+
+和地图无关的事件
 
 ```javascript
 function onNewGame()
-function onUpdateGame()
+function onEnterCultivation()
+```
+
+```javascript
+function onEnterMap()
+function onAfterWorldUpdate()
 function onAfterHeroRest({site, terrain})
 function onAfterHeroGatherSpirit({site, terrain})
 function onAfterHeroCondenseSpirit({site, terrain})

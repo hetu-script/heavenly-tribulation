@@ -1,9 +1,0 @@
-{
-  "basic_cardpack": "《战斗入门》",
-  "basic_cardpack.description": "包含「基础攻击」、「基础格挡」和「基础闪避」三张技能卡牌。",
-
-  "cardKeyword.attack": "对敌人造成 X 点伤害。",
-  "cardKeyword.multipleHit": "对敌人造成 X 点伤害，重复 Y 次。",
-  "cardKeyword.block": "本回合第一次受到敌人攻击时，每消耗 1 点格挡，可以减免 1 点伤害。每个回合开始时，格挡值减半。",
-  "cardKeyword.dodge": "本回合第一次受到敌人攻击时，若对方的攻击卡牌的速度小于或等于闪避值，则免除全部伤害。每个回合开始时，清除全部闪避值。"
-}

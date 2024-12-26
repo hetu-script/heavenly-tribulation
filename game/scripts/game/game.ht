@@ -150,11 +150,11 @@ function calculateTimestamp() {
 
 function addModule(module) {
   engine.info('添加模组元信息 [${module.id}(ver-${module.version})]...')
-
   assert(module.id != null)
   // assert(game.modules.containsKey(module.id))
-  game.modules[module.id] ??= {}
-  Object.assign(game.modules[module.id], module)
+  // game.modules[module.id] ??= {}
+  // Object.assign(game.modules[module.id], module)
+  game.modules[module.id] = module
 }
 
 /// 载入游戏数据，返回game
@@ -162,7 +162,7 @@ function loadGameFromJsonData({
   gameData,
   universeData,
   historyData,
-  isEditorMode,
+  // isEditorMode,
 }) -> List {
   game = Object.fromJSON(gameData)
   game.isNewGame ??= true
@@ -176,9 +176,9 @@ function loadGameFromJsonData({
   history = Object.fromJSON(historyData)
   
   assert(game.currentWorldId != null)
-  if (!isEditorMode) {
-    assert(game.heroId != null)
-  }
+  // if (!isEditorMode) {
+  //   assert(game.heroId != null)
+  // }
 
   assert(game.currentWorldId != null)
   world = universe.worlds[game.currentWorldId]

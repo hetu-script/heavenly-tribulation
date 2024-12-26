@@ -19,7 +19,7 @@ class BattleCharacterClassBinding extends HTExternalClass {
           final color = switch (namedArgs['color']) {
             _ => Colors.white,
           };
-          character.addHintText(positionalArgs.first, textColor: color);
+          character.addHintText(positionalArgs.first, color: color);
         };
       case 'restoreLife':
         return ({positionalArgs, namedArgs}) =>

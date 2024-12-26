@@ -1,6 +1,19 @@
 import 'package:samsara/samsara.dart';
 
 abstract class GameUI {
+  static const String fontFamily = 'RuiZiYunZiKuLiBianTiGBK';
+
+  static const ScreenTextConfig siteTitleConfig = ScreenTextConfig(
+    outlined: true,
+    padding: EdgeInsets.only(top: 10),
+    anchor: Anchor.topCenter,
+    textStyle: TextStyle(
+      color: Colors.white,
+      fontSize: 24.0,
+      fontFamily: GameUI.fontFamily,
+    ),
+  );
+
   static bool _isInitted = false;
   static bool get isInitted => _isInitted;
 
@@ -91,19 +104,19 @@ abstract class GameUI {
 
   static late Vector2 cardLibraryButtonPosition,
       cardPacksButtonPosition,
-      meditateButtonPosition,
+      expCollectionPageButtonPosition,
       // introspectionButtonPosition,
-      enlightenmentButtonPosition;
+      talentTreePageButtonPosition;
   static final cardLibraryButtonSize = Vector2(120, 120);
   static final cardPacksButtonSize = Vector2(120, 120);
   static final stateButtonSize = Vector2(140, 40);
 
   static final cultivationRankButtonSize = Vector2(120, 120);
 
-  // talent tree ui
-  static final talentTreeButtonSizeS = Vector2(40, 40);
-  static final talentTreeButtonSizeM = Vector2(60, 60);
-  static final talentTreeButtonSizeL = Vector2(80, 80);
+  // // talent tree ui
+  static final skillButtonSizeSmall = Vector2(40, 40);
+  static final skillButtonSizeMedium = Vector2(60, 60);
+  static final skillButtonSizeLarge = Vector2(80, 80);
 
   static void init(Vector2 size) {
     if (GameUI.size == size) return;
@@ -184,28 +197,30 @@ abstract class GameUI {
 
     condensedPosition = Vector2(center.x, center.y + 20.0);
 
-    expBarPosition = Vector2(center.x, center.y + 350.0);
+    expBarPosition = Vector2(center.x, center.y + 300.0);
 
     levelDescriptionPosition =
-        Vector2(center.x, expBarPosition.y + expBarSize.y + indent);
+        Vector2(center.x, expBarPosition.y - expBarSize.y - indent);
 
-    meditateButtonPosition =
-        Vector2(center.x - 70 - smallIndent, expBarPosition.y - 50);
+    expCollectionPageButtonPosition = Vector2(center.x, expBarPosition.y + 50);
+    // meditateButtonPosition =
+    //     Vector2(center.x - 70 - smallIndent, expBarPosition.y - 50);
     // introspectionButtonPosition =
     //     Vector2(center.x - 140 - indent, meditateButtonPosition.y);
-    enlightenmentButtonPosition =
-        Vector2(center.x + 70 + smallIndent, meditateButtonPosition.y);
+    // enlightenmentButtonPosition =
+    //     Vector2(center.x + 70 + smallIndent, meditateButtonPosition.y);
+    talentTreePageButtonPosition = expCollectionPageButtonPosition;
 
     cardLibraryButtonPosition = Vector2(
-        size.x - indent - cardLibraryButtonSize.x / 2, expBarPosition.y);
+        size.x - indent - cardLibraryButtonSize.x / 2,
+        size.y - indent - cardLibraryButtonSize.y / 2);
 
     cardPacksButtonPosition = Vector2(
-        size.x -
-            indent -
-            cardLibraryButtonSize.x -
+        cardLibraryButtonPosition.x -
+            cardLibraryButtonSize.x / 2 -
             smallIndent -
             cardPacksButtonSize.x / 2,
-        expBarPosition.y);
+        cardLibraryButtonPosition.y);
 
     _isInitted = true;
   }

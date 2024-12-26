@@ -62,6 +62,15 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
 
   final _menuFocusNode = FocusNode();
 
+  void showCultivation() {
+    context.read<HeroState>().update();
+    context.read<HistoryState>().update();
+    // engine.hetu.invoke('acquireByIds');
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context) => CultivationOverlay()),
+    );
+  }
+
   void _playBGM() {
     engine.playBGM(kMainMenuBGM, volume: GameConfig.musicVolume);
   }
@@ -165,7 +174,6 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
       return CultivationScene(
         controller: engine,
         context: context,
-        heroData: data,
       );
     });
 
@@ -192,7 +200,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
   }
 
   // 因为 FutureBuilder 根据返回值是否为null来判断，因此这里无论如何要返回一个值
-  Future<bool> _prepareData() async {
+  Future<bool> _loadData() async {
     if (GameData.isInitted) {
       assert(engine.isInitted);
       _isLoading = false;
@@ -269,7 +277,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
 
     engine.hetu.interpreter.bindExternalFunction('updateHero', (
         {positionalArgs, namedArgs}) {
-      context.read<HeroState>().update();
+      context.read<HeroState>().update(showHeroInfo: namedArgs['showHeroInfo']);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('updateHistory', (
@@ -281,6 +289,15 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
         {positionalArgs, namedArgs}) {
       context.read<QuestState>().update();
     }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('injectGameData', (
+        {positionalArgs, namedArgs}) {
+      GameData.injectGameData();
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'showCultivation', ({positionalArgs, namedArgs}) => showCultivation(),
+        override: true);
 
     engine.hetu.interpreter.bindExternalClass(BattleCharacterClassBinding());
 
@@ -366,11 +383,12 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
     }
 
     return FutureBuilder(
-      future: _prepareData(),
+      future: _loadData(),
       builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          throw Exception('${snapshot.error}\n${snapshot.stackTrace}');
-        } else if (!snapshot.hasData || snapshot.data == false) {
+        if (!snapshot.hasData || snapshot.data == false) {
+          if (snapshot.hasError) {
+            throw Exception('${snapshot.error}\n${snapshot.stackTrace}');
+          }
           return LoadingScreen(
             text: engine.isInitted ? engine.locale('loading') : 'Loading...',
           );
@@ -465,7 +483,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                           builder: (context) => WorldOverlay(
                             args: const {
                               'id': 'cave',
-                              'path': 'tutorial',
+                              'savePath': 'tutorial',
                               'method': 'preset',
                             },
                           ),
@@ -546,7 +564,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                               builder: (context) => WorldOverlay(
                                 args: {
                                   'id': info.currentWorldId,
-                                  'path': info.savePath,
+                                  'savePath': info.savePath,
                                   'method': 'load',
                                 },
                               ),
@@ -639,7 +657,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                                 args: {
                                   'id': info.currentWorldId,
                                   'method': 'load',
-                                  'path': info.savePath,
+                                  'savePath': info.savePath,
                                   'isEditorMode': true,
                                 },
                               ),
@@ -689,19 +707,10 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                         'unconvertedExp': 500,
                         'majorAttributes': ['dexterity'],
                       });
-
                       engine.hetu
                           .invoke('setHeroId', positionalArgs: [hero['id']]);
-                      context.read<HeroState>().update();
 
-                      // engine.hetu.invoke('acquireByIds');
-
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              CultivationOverlay(heroData: hero),
-                        ),
-                      );
+                      showCultivation();
                     },
                     child: Label(
                       engine.locale('debugCultivation'),

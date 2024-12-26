@@ -16,19 +16,20 @@ const commonCreatureNames = [
 function generateCreatureName({category, rarity}) {
   const pre = random.nextIterable(commonCreatureNames)
   const cp = random.nextIterable(colorPrefix)
-  const s = random.nextIterable(creaturePrefix)
-  const c = category ?? random.nextIterable(creatureNames.keys)
-  const k = random.nextIterable(creatureNames[c])
+  const sp = random.nextIterable(creaturePrefix)
+  category ??= random.nextIterable(creatureNames.keys)
+  const k = random.nextIterable(creatureNames[category])
   rarity ??= getRarity().rarity
   let name
   switch (rarity) {
-    'exotic' : name = random.nextIterable(strangeCreature)
-    'mythic' : name = pre + cp + s + k
-    'legendary' : name = pre + s + k
-    'epic' : name = pre + cp + k
-    'rare' : name = pre + k
-    'uncommon' : name = cp + s + k
+    'arcane' : name = random.nextIterable(strangeCreature)
+    'mythic' : name = pre + cp + sp + k
+    'unique' : name = pre + sp + k
+    'legendary' : name = pre + cp + k
+    'epic' : name = pre + k
+    'rare' : name = cp + sp + k
+    'uncommon' : name = sp + k
     'common' : name = cp + k
   }
-  return { name, rarity, category: c }
+  return { name, rarity, category }
 }

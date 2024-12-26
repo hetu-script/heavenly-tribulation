@@ -44,7 +44,7 @@ struct Quest {
     publisherId,
     stages: List,
   }) {
-    this.id = 'quest.${crypto.randomUID4()}'
+    this.id = 'quest.${crypto.randomUID(length: 6)}'
     this.name = name
     this.publisherId = publisherId
     assert(stages is List && stages.isNotEmpty)

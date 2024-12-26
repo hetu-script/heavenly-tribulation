@@ -10,6 +10,7 @@ export 'entity/location/site.ht'
 export 'entity/location/location.ht'
 export 'entity/organization/organization.ht'
 export 'entity/object.ht'
+export 'interaction/common.ht'
 export 'interaction/interaction.ht'
 export 'interaction/item.ht'
 export 'name/name.ht'
@@ -30,8 +31,22 @@ export 'update.ht'
 export 'util.ht'
 export 'worldmap.ht'
 export 'player.ht'
+export 'common.ht'
 
 const coreScriptModuleVersion = '0.0.1'
+
+const module = {
+  meta: {
+    id: 'main',
+    displayName: '《天道奇劫》核心脚本',
+    description: '《天道奇劫》核心脚本',
+    supportedLocales: ['zh'],
+    version: '0.0.1',
+    flags: {
+      
+    }
+  },
+}
 
 /// Initialize the core script module.
 /// Only run once when a new game is created
@@ -39,13 +54,39 @@ function init({
   itemsData,
   battleCardMainAffixesData,
   battleCardSupportAffixesData,
+  cultivationSkillTreeData,
+  supportSkillTreeData,
+  cultivationSkillData,
+  supportSkillData,
 }) {
-  loadPredefinedItems()
-  addItemsData(itemsData)
-  addBattleCardAffixesData(battleCardMainAffixesData, battleCardSupportAffixesData)
+  addModule(module.meta)
+  
+  // 添加材料类物品信息
+  for (let kind in kMaterialKinds) {
+    game.items[kind] = Material(kind)
+  }
+
+  game.items = itemsData
+  engine.info('载入预定义物品：[${itemsData.length}]')
+  
+  game.battleCardMainAffixes = battleCardMainAffixesData
+  game.battleCardSupportAffixes = battleCardSupportAffixesData
+  engine.info('载入战斗卡牌词条：主词条 [${battleCardMainAffixesData.length}]，额外词条 [${battleCardSupportAffixesData.length}]')
+
+  game.cultivationSkillTree = cultivationSkillTreeData
+  game.cultivationSkills = cultivationSkillData
+  game.supportSkillTree = supportSkillTreeData
+  game.supportSkills = supportSkillData
+  engine.info('载入天赋树数据和天赋技能数据...')
 }
 
 /// Run every time game starts
 function main() {
   engine.info('[核心]游戏脚本(ver-${coreScriptModuleVersion})初始化...')
+
+  addEventHandlers(
+    moduleId: module.meta.id,
+    worldId: null,
+    handlers: mainEvents,
+  )
 }

@@ -21,8 +21,8 @@ const kOrganizationCategories = [
 ]
 
 const kCultivationGenres = [
-  'dao',
-  'flying_sword',
+  'daoism',
+  'swordcraft',
   // 'physique',
   // 'avatar',
   // 'vitality',
@@ -49,7 +49,7 @@ struct Organization {
   construct ({
     name,
     category, // 扩张类型：'cultivation' | 'gang' | 'religion' | 'business' | 'nation'
-    genre, // 修炼类型：'dao' | 'flying_sword' | 'physique' | 'avatar' | 'vitality'
+    genre, // 修炼类型：'dao' | 'swordcraft' | 'physique' | 'avatar' | 'vitality'
     headquartersId,
     headId,
     development = 0,

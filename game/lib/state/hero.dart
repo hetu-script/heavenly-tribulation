@@ -3,16 +3,12 @@ import 'package:flutter/foundation.dart';
 import '../config.dart';
 
 class HeroState with ChangeNotifier {
-  bool isShowHeroInfo = false;
+  bool showHeroInfo = false;
 
   dynamic heroData;
 
-  void showHeroInfo(bool value) {
-    isShowHeroInfo = value;
-    notifyListeners();
-  }
-
-  void update() {
+  void update({bool showHeroInfo = true}) {
+    this.showHeroInfo = showHeroInfo;
     heroData = engine.hetu.fetch('hero');
     notifyListeners();
   }

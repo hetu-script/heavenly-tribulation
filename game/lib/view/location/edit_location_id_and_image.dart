@@ -88,7 +88,7 @@ class _EditLocationIdAndBackgroundState
                           child: Text('${engine.locale('name')}: '),
                         ),
                         SizedBox(
-                          width: 60.0,
+                          width: 190.0,
                           height: 40.0,
                           child: TextField(
                             controller: _nameEditingController,

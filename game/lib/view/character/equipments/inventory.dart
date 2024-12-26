@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
 
-import 'entity_grid.dart';
+import 'item_grid.dart';
 // import 'entity_info.dart';
 import '../../../config.dart';
 // import '../../../../event/ui.dart';

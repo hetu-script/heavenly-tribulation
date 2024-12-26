@@ -164,6 +164,8 @@ class _ToolboxState extends State<Toolbox> {
                                   buildToolButton(context, item, 'treasureBox'),
                                   buildToolButton(context, item, 'coffin'),
                                   buildToolButton(context, item, 'oldWell'),
+                                  buildToolButton(
+                                      context, item, 'meditationCushion'),
                                   buildToolButton(context, item, 'stoneStairs'),
                                   buildToolButton(
                                       context, item, 'stoneStairsDebris'),

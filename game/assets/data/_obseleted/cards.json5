@@ -1,0 +1,470 @@
+{
+  attack_normal: {
+    id: "attack_normal",
+    // 组牌id，不唯一。
+    // 组牌时，相同deckbuildingId的卡牌放入的数量共享一个上限
+    deckId: "attack_normal",
+    // 所属流派，这些流派可能在研究中获得这个招式
+    genre: ["general"],
+    // 卡牌类型，某些效果可能会和卡牌类型产生互动
+    tags: ["weapon_attack"],
+    animations: ["attack_normal", "attack_normal_recovery"],
+    title: {
+      zh: "基础攻击",
+    },
+    rules: {
+      zh: "7攻",
+    },
+  },
+  defend_normal: {
+    id: "defend_normal",
+    deckId: "defend_normal",
+    genre: ["general"],
+    tags: ["defense"],
+    animations: ["defend_normal"],
+    title: {
+      zh: "基础格挡",
+    },
+    rules: {
+      zh: "防+10",
+    },
+  },
+  dodge_normal: {
+    id: "dodge_normal",
+    deckId: "dodge_normal",
+    genre: ["general"],
+    tags: [],
+    animations: ["dodge_normal", "dodge_normal_recovery"],
+    title: {
+      zh: "基础闪避",
+    },
+    rules: {
+      zh: "闪避对方下个回合\n10点或以下的攻",
+    },
+  },
+  // 御剑卡牌
+  // 武器攻击受到装备加成
+  blade_1: {
+    id: "blade_1",
+    deckId: "blade_1",
+    genre: ["blade"],
+    tags: ["weapon_attack"],
+    animations: ["attack_flying_sword", "attack_flying_sword_recovery"],
+
+    title: {
+      zh: "飞云剑",
+    },
+    rules: {
+      zh: "12攻\n每次使用御剑牌时+3速度",
+    },
+  },
+  blade_3: {
+    id: "blade_3",
+    deckId: "blade_3",
+    genre: ["blade"],
+    tags: ["weapon_attack", "restore_mana"],
+    animations: [
+      "attack_flying_sword",
+      "attack_flying_sword_recovery",
+      "restore_mana",
+    ],
+    title: {
+      zh: "拨云见日",
+    },
+    rules: {
+      zh: "15攻\n恢复击伤值10%的灵气",
+    },
+  },
+  blade_4: {
+    id: "blade_4",
+    deckId: "blade_4",
+    genre: ["blade"],
+    tags: ["restore_mana"],
+    animations: ["restore_mana"],
+    title: {
+      zh: "空灵剑诀",
+    },
+    rules: {
+      zh: "灵气+1\n下一张攻击牌无视防御",
+    },
+  },
+  blade_6: {
+    id: "blade_6",
+    deckId: "blade_6",
+    genre: ["blade"],
+    tags: ["weapon_attack"],
+    animations: ["attack_flying_sword", "attack_flying_sword_recovery"],
+    title: {
+      zh: "冷月重剑",
+    },
+    consume: {
+      mana: 1,
+    },
+    rules: {
+      zh: "27攻",
+    },
+  },
+  blade_7: {
+    id: "blade_7",
+    deckId: "blade_7",
+    genre: ["blade"],
+    tags: ["defense"],
+    animations: ["defend_normal"],
+    title: {
+      zh: "凌霜剑式",
+    },
+    rules: {
+      zh: "防+20",
+    },
+  },
+  blade_8: {
+    id: "blade_8",
+    deckId: "blade_8",
+    genre: ["blade"],
+    tags: ["restore_life"],
+    animations: ["restore_life"],
+    title: {
+      zh: "春雨剑",
+    },
+    rules: {
+      zh: "如果有防：+15生命",
+    },
+  },
+  blade_9: {
+    id: "blade_9",
+    deckId: "blade_9",
+    genre: ["blade"],
+    tags: [],
+    animations: ["spell_normal"],
+    title: {
+      zh: "引雷剑诀",
+    },
+    rules: {
+      zh: "获得20点剑气",
+    },
+  },
+  blade_10: {
+    id: "blade_10",
+    deckId: "blade_10",
+    genre: ["blade"],
+    tags: ["weapon_attack"],
+    animations: ["attack_flying_sword", "attack_flying_sword_recovery"],
+    title: {
+      zh: "回声剑",
+    },
+    rules: {
+      zh: "10攻\n保留此牌触发的剑气",
+    },
+  },
+  blade_11: {
+    id: "blade_11",
+    deckId: "blade_11",
+    genre: ["blade"],
+    tags: ["weapon_attack"],
+    animations: ["attack_flying_sword", "attack_flying_sword_recovery"],
+    title: {
+      zh: "双斩",
+    },
+    rules: {
+      zh: "7攻×2",
+    },
+  },
+  blade_12: {
+    id: "blade_12",
+    deckId: "blade_12",
+    genre: ["blade"],
+    tags: ["weapon_attack"],
+    animations: ["attack_flying_sword", "attack_flying_sword_recovery"],
+    title: {
+      zh: "清风剑诀",
+    },
+    rules: {
+      zh: "12攻\n再次使用时追加一次攻击",
+    },
+  },
+  // 道法卡牌
+  element_1: {
+    id: "element_1",
+    deckId: "element_1",
+    genre: ["element"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "无为心法",
+    },
+    rules: {
+      zh: "灵气+1",
+    },
+  },
+  element_2: {
+    id: "element_2",
+    deckId: "element_2",
+    genre: ["element"],
+    tags: ["element_attack"],
+    animation: [],
+    title: {
+      zh: "火弹术",
+    },
+    consume: {
+      mana: 1,
+    },
+    rules: {
+      zh: "造成30点火焰伤害",
+    },
+  },
+  // 锻体卡牌
+  physique_1: {
+    id: "physique_1",
+    deckId: "physique_1",
+    genre: ["physique"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "基础闪避",
+    },
+    rules: {
+      zh: "闪避",
+    },
+  },
+  physique_2: {
+    id: "physique_2",
+    deckId: "physique_2",
+    genre: ["physique"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "空明拳",
+    },
+    rules: {
+      zh: "15攻",
+    },
+    script: "dodge01",
+  },
+  // 显圣卡牌
+  avatar_1: {
+    id: "avatar_1",
+    deckId: "avatar_1",
+    genre: ["avatar"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "清心咒",
+    },
+    rules: {
+      zh: "回复20点生命",
+    },
+  },
+  avatar_2: {
+    id: "avatar_2",
+    deckId: "avatar_2",
+    genre: ["avatar"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "多心经",
+    },
+    rules: {
+      zh: "持续3回合：在回合开始时获得10格挡。",
+    },
+  },
+  // 炼魂卡牌
+  vitality_1: {
+    id: "vitality_1",
+    deckId: "vitality_1",
+    genre: ["vitality"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "枯木毒",
+    },
+    rules: {
+      zh: "使对方受到12点中毒伤害",
+    },
+  },
+  vitality_2: {
+    id: "vitality_2",
+    deckId: "vitality_2",
+    genre: ["vitality"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "穿心咒",
+    },
+    rules: {
+      zh: "造成5伤害。\n使对方获得3点内伤",
+    },
+  },
+  // 阵法卡牌
+  array_1: {
+    id: "array_1",
+    deckId: "array_1",
+    genre: ["array"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "冲击阵",
+    },
+    rules: {
+      zh: "持续2次：回合结束时造成10点伤害",
+    },
+  },
+  array_2: {
+    id: "array_2",
+    deckId: "array_2",
+    genre: ["array"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "圆守阵",
+    },
+    rules: {
+      zh: "持续2次：回合结束时+10防",
+    },
+  },
+  array_3: {
+    id: "array_3",
+    deckId: "array_3",
+    genre: ["array"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "回春阵",
+    },
+    rules: {
+      zh: "持续2次：回合结束时+10生命",
+    },
+  },
+  array_4: {
+    id: "array_4",
+    deckId: "array_4",
+    genre: ["array"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "血杀阵",
+    },
+    rules: {
+      zh: "持续2次：回合结束时对方获得1层内伤",
+    },
+  },
+  array_5: {
+    id: "array_5",
+    deckId: "array_5",
+    genre: ["array"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "聚灵阵",
+    },
+    rules: {
+      zh: "持续2次：回合结束时+2灵气",
+    },
+  },
+  // 符咒卡牌
+  rune_1: {
+    id: "rune_1",
+    deckId: "rune_1",
+    genre: ["rune"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "真火符",
+    },
+    rules: {
+      zh: "造成5~25伤害\n消耗",
+    },
+  },
+  rune_2: {
+    id: "rune_2",
+    deckId: "rune_2",
+    genre: ["rune"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "护身符",
+    },
+    rules: {
+      zh: "灵气+3\n防+15\n消耗",
+    },
+  },
+  rune_3: {
+    id: "rune_3",
+    deckId: "rune_3",
+    genre: ["rune"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "灵蛊符",
+    },
+    rules: {
+      zh: "对方减20生命及上限\n消耗",
+    },
+  },
+  rune_4: {
+    id: "rune_4",
+    deckId: "rune_4",
+    genre: ["rune"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "辟邪符",
+    },
+    rules: {
+      zh: "灵气+2\n移除1个异常状态\n获得2层辟邪\n消耗",
+    },
+  },
+  // 炼丹卡牌
+  alchemy_1: {
+    id: "alchemy_1",
+    deckId: "alchemy_1",
+    genre: ["alchemy"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "养血丸",
+    },
+    rules: {
+      zh: "生命+15\n生命上限永久+5\n消耗",
+    },
+  },
+  alchemy_2: {
+    id: "alchemy_2",
+    deckId: "alchemy_2",
+    genre: ["alchemy"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "紫灵丹",
+    },
+    rules: {
+      zh: "灵气+1\n灵气上限永久+1\n消耗",
+    },
+  },
+  // 炼器卡牌
+  craft_1: {
+    id: "craft_1",
+    deckId: "craft_1",
+    genre: ["craft"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "磨刀石",
+    },
+    rules: {
+      zh: "攻10\n武器攻击力永久+1\n消耗",
+    },
+  },
+  craft_2: {
+    id: "craft_2",
+    deckId: "craft_2",
+    genre: ["craft"],
+    tags: [],
+    animation: [],
+    title: {
+      zh: "护甲片",
+    },
+    rules: {
+      zh: "防+20\n防具提供的防永久+2\n消耗",
+    },
+  },
+}

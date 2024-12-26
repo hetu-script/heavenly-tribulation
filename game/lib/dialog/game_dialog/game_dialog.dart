@@ -9,6 +9,7 @@ import '../../view/avatar.dart';
 import '../../config.dart';
 import '../../view/character/profile.dart';
 // import '../../event/ui.dart';
+import '../../ui.dart';
 
 // dialogData: {
 //   "lines": [
@@ -106,7 +107,7 @@ class _GameDialogState extends State<GameDialog> {
                 builder: (context, AsyncSnapshot<TextSpan> snapshot) {
                   return Container(
                     width: 880,
-                    height: 160,
+                    height: 190,
                     padding: const EdgeInsets.only(top: 10.0),
                     decoration: BoxDecoration(
                       color: kBackgroundColor,
@@ -190,7 +191,7 @@ class _GameDialogState extends State<GameDialog> {
           color: (displayName != null || characterId != null)
               ? Colors.lightGreen
               : Colors.white70,
-          fontFamily: 'RuiZiYunZiKuLiBianTiGBK',
+          fontFamily: GameUI.fontFamily,
           decoration: TextDecoration.none,
         ));
 

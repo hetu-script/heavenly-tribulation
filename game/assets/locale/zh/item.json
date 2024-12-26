@@ -23,6 +23,9 @@
   "weapon": "武器",
   "armorpiece": "护甲",
 
+  "quest_jade": "玉佩",
+  "quest_jade.description": "一块青色的玉佩，上面刻着两个古代文字。这两个字给你一种非常奇怪的似曾相识的感觉。",
+
   "wood_boat": "舢板",
   "wood_boat.description": "用三块木板简单拼凑成的木船。可以用它进行短距离的水上航行。",
   "climb_boots": "登山靴",

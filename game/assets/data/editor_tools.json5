@@ -103,6 +103,18 @@
       sprite: "object/coffin.png",
     },
   },
+  oldWell: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/oldWell.png",
+    },
+  },
+  meditationCushion: {
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/meditationCushion.png",
+    },
+  },
   stoneStairs: {
     type: "overlaySprite",
     overlay: {
@@ -113,12 +125,6 @@
     type: "overlaySprite",
     overlay: {
       sprite: "object/stoneStairsDebris.png",
-    },
-  },
-  oldWell: {
-    type: "overlaySprite",
-    overlay: {
-      sprite: "object/oldWell.png",
     },
   },
   characterBoy: {

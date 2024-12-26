@@ -3,5 +3,7 @@
   "notEnoughMana": "灵气不足！",
   "skipTurn": "跳过回合！",
   "extraTurn": "再次行动！",
-  "dodgeTurn": "开始闪避！"
+  "dodgeTurn": "开始闪避！",
+
+  "attackFirstInBattle": "先手！"
 }

@@ -1,0 +1,86 @@
+import '../effect/common.ht'
+import '../../game/entity/common.ht'
+// import '../../l10n.ht'
+import '../../game/game.ht'
+
+const kSkillInitialEfficiency = 0
+
+const kFightSkills = [
+  'kungfu', // 主技能，拳脚
+  'weapon_arts', // 副技能，武器招法
+  'arcana_arts', // 副技能，内功
+]
+
+function calculateSkillStats(skill) {
+  skill.stats = skill.attributes.clone()
+  
+  // 因为涉及到多个步骤的加法和乘法，因此先把基础伤害值单独拿出来
+  let baseDamage = skill.stats.damage
+
+  for (const effect of skill.stats.effects) {
+    if (effect.handlerType == kEffectCategoryEquippedEntity) {
+      switch (effect.id) {
+        'addDamage' : {
+          baseDamage += effect.values[0].value
+        }
+      }
+    }
+  }
+
+  skill.stats.damage = baseDamage
+
+  // TODO: 计算技能的消耗（练习消耗和实战消耗）
+}
+
+/// 人物从一本书籍中学习技能
+/// 根据其熟练度，数值和技能本身的数值不同。
+/// 人物本身所学到的技能，和保存在物品栏中尚未学习的技能书不同
+/// 书本身所显示的技能数值，是指其修炼满时的最大值
+// function learn(character, book) {
+//   const clone = book.skill.clone()
+//   character.skills[clone.id] = clone
+
+//   const incidentContent = engine.locale('characterLearn', interpolations: [
+//     character.name,
+//     skill.name,
+//   ])
+//   Incident(
+//     message: incidentContent,
+//     subjectId: character.id,
+//     isPrivate: true,
+//   )
+//   return
+// }
+
+// function skillEffectLevelUp(effect) {
+//   assert(effect.exp >= effect.expForNextLevel)
+//   skill.exp -= skill.expForNextLevel
+//   ++skill.level
+//   skill.expForNextLevel = expForLevel(skill.difficulty, skill.level + 1) // 下一等级需要的经验值
+//   calculateSkillStats(skill)
+  
+//   const incidentContent = engine.locale('characterSkillLevelUp', interpolations: [
+//     character.name,
+//     skill.name,
+//     skill.level + 1,
+//   ])
+//   Incident(
+//     message: incidentContent,
+//     subjectId: character.id,
+//     isPrivate: true,
+//   )
+//   return
+// }
+
+function generateBookFromSkill(skill) {
+  
+}
+
+/// 重置某个技能为 0 级
+function resetSkillLevel(skill) {
+  for (const effect of skill.attributes.effects) {
+    initEffectData(effect, skill.difficulty, kSkillInitialEfficiency)
+  }
+  
+  calculateSkillStats(skill)
+}

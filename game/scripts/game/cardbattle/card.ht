@@ -1,26 +1,10 @@
 import '../random.ht'
 import '../name/skill.ht'
-
-const kBattleCardGenres = [
-  'general',
-  'flying_sword',
-  'dao',
-]
-
-const kBattleCardCategories = [
-  'attack',
-  'buff',
-]
-
-function addBattleCardAffixesData(mainAffixes, supportAffixes) {
-  game.battleCardMainAffixes = mainAffixes
-  game.battleCardSupportAffixes = supportAffixes
-  engine.info('载入战斗卡牌词条：主词条 [${mainAffixes.length}]，额外词条 [${supportAffixes.length}]')
-}
+import '../common.ht'
 
 struct BattleCard {
   construct ({
-    genre, // 'general', 'dao', 'flying_sword'
+    genre, // 'general', 'daoism', 'swordcraft'
     category, // 'attack', 'buff'
     kind, // 'sword',
     level,
@@ -28,20 +12,21 @@ struct BattleCard {
   }) {
     if (level == null) {
       if (rank > 0) {
-        level = random.nextInt(rank * 5) + 1
+        level = random.nextInt(rank * kLevelPerRank) + 1
       } else {
         level = 0
       }
     } else {
       assert(rank != null)
-      assert(level >= 0 && level <= (rank * 5))
+      assert(level >= 0 && level <= (rank * kLevelPerRank))
     }
 
-    this.id = crypto.randomNID(5, true)
+    this.id = crypto.randomNID(length: 6, withTime: true)
     this.rank = rank
 
+    // 注意：主词条数据的genre是字符串，但额外词条的genre是字符串数组
     final mainAffixes = game.battleCardMainAffixes.values.where( (affix) {
-      if (genre != null && !affix['genre'].contains(genre)) {
+      if (genre != null && affix['genre'] != genre) {
         return false
       }
       if (category != null && affix['category'] != category) {

@@ -1,0 +1,26 @@
+{
+  "unlock.hint": "<yellow>点击鼠标左键解锁天赋技能。</>",
+  "refund.hint": "<yellow>点击鼠标右键退回技能点数。</>",
+  "locked.hint": "<red>不可用：前置节点尚未解锁。</>",
+  "noPoints.hint": "<red>不可用：可分配天赋点数不足。</>",
+
+  "attribute_any": "任意属性",
+  "skill.attribute_any.description": "使一个你的主要属性 + 3。",
+
+  "skill.swordcraft.description": "可以使用御剑流派的战斗卡牌。",
+  "skill.daoism.description": "可以使用悟道流派的战斗卡牌。",
+  "skill.physique.description": "锻体",
+  "skill.vitality.description": "炼魂",
+  "skill.avatar.description": "化身",
+
+  "skill.array.description": "阵法",
+  "skill.rune.description": "符法",
+  "skill.plant.description": "灵植",
+  "skill.animal.description": "灵兽",
+  "skill.divination.description": "卜术",
+  "skill.illusion.description": "幻术",
+  "skill.theurgy.description": "通神",
+  "skill.psychic.description": "通灵",
+  "skill.craft.description": "炼器",
+  "skill.alchemy.description": "炼丹"
+}

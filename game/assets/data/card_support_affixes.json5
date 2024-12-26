@@ -21,6 +21,8 @@
         increment: 1,
       },
     ],
+    // 该词条是否已经被鉴定
+    // identified: false,
   },
   defend: {
     id: "defend",
@@ -44,6 +46,8 @@
         increment: 1,
       },
     ],
+    // 该词条是否已经被鉴定
+    // identified: false,
   },
   speed: {
     id: "speed",
@@ -67,6 +71,8 @@
         increment: 0.5,
       },
     ],
+    // 该词条是否已经被鉴定
+    // identified: false,
   },
   dodge: {
     id: "dodge",
@@ -90,5 +96,7 @@
         increment: 0.5,
       },
     ],
+    // 该词条是否已经被鉴定
+    // identified: false,
   },
 }
