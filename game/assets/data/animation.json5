@@ -1,16 +1,23 @@
 {
   // 每一个皮肤有一套自己单独的动画
-  default: {
-    stand: {
+  characterMan1: {
+    attack_fist: {
       offsetX: 0,
       offsetY: 0,
-      width: 80.0,
+      width: 288.0,
       height: 112.0,
-      stepTime: 0.7,
-      loop: true,
+      stepTime: 0.07,
+      loop: false,
     },
-    defeat: {
-      // offset：代表绘制时的位置。(0,0)代表英雄默认图片的位置
+    attack_fist_recovery: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 288.0,
+      height: 112.0,
+      stepTime: 0.09,
+      loop: false,
+    },
+    attack_spell: {
       offsetX: 0,
       offsetY: 0,
       width: 80.0,
@@ -18,31 +25,7 @@
       stepTime: 0.09,
       loop: false,
     },
-    dodge: {
-      offsetX: 0,
-      offsetY: 0,
-      width: 80.0,
-      height: 112.0,
-      stepTime: 0.15,
-      loop: false,
-    },
-    dodge_recovery: {
-      offsetX: 0,
-      offsetY: 0,
-      width: 80.0,
-      height: 112.0,
-      stepTime: 0.15,
-      loop: false,
-    },
-    defend_fist: {
-      offsetX: 0,
-      offsetY: 0,
-      width: 80.0,
-      height: 112.0,
-      stepTime: 0.09,
-      loop: false,
-    },
-    defend_sword: {
+    attack_spell_recovery: {
       offsetX: 0,
       offsetY: 0,
       width: 80.0,
@@ -66,20 +49,52 @@
       stepTime: 0.09,
       loop: false,
     },
-    attack_fist: {
+    buff_fist: {
       offsetX: 0,
       offsetY: 0,
-      width: 288.0,
-      height: 112.0,
-      stepTime: 0.07,
-      loop: false,
-    },
-    attack_fist_recovery: {
-      offsetX: 0,
-      offsetY: 0,
-      width: 288.0,
+      width: 80.0,
       height: 112.0,
       stepTime: 0.09,
+      loop: false,
+    },
+    buff_spell: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.09,
+      loop: false,
+    },
+    buff_sword: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.09,
+      loop: false,
+    },
+    defeat: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.09,
+      loop: false,
+    },
+    dodge: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.15,
+      loop: false,
+    },
+    dodge_recovery: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.15,
       loop: false,
     },
     hit: {
@@ -98,7 +113,7 @@
       stepTime: 0.15,
       loop: false,
     },
-    attack_flying_sword: {
+    overlay_fireball: {
       offsetX: 0,
       offsetY: 0,
       width: 288.0,
@@ -106,7 +121,7 @@
       stepTime: 0.09,
       loop: false,
     },
-    attack_flying_sword_recovery: {
+    overlay_flying_sword: {
       offsetX: 0,
       offsetY: 0,
       width: 288.0,
@@ -114,31 +129,7 @@
       stepTime: 0.09,
       loop: false,
     },
-    spell_default: {
-      offsetX: 0,
-      offsetY: 0,
-      width: 80.0,
-      height: 112.0,
-      stepTime: 0.09,
-      loop: false,
-    },
-    restore_life: {
-      offsetX: 0,
-      offsetY: 0,
-      width: 80.0,
-      height: 112.0,
-      stepTime: 0.09,
-      loop: false,
-    },
-    restore_mana: {
-      offsetX: 0,
-      offsetY: 0,
-      width: 80.0,
-      height: 112.0,
-      stepTime: 0.09,
-      loop: false,
-    },
-    spell_fireball: {
+    overlay_restore_life: {
       offsetX: 0,
       offsetY: 0,
       width: 288.0,
@@ -146,33 +137,7 @@
       stepTime: 0.09,
       loop: false,
     },
-  },
-  boar: {
-    defeat: {
-      offsetX: 0,
-      offsetY: 0,
-      width: 144.0,
-      height: 112.0,
-      stepTime: 0.09,
-      loop: false,
-    },
-    defend_normal: {
-      offsetX: 0,
-      offsetY: 0,
-      width: 112.0,
-      height: 112.0,
-      stepTime: 0.09,
-      loop: false,
-    },
-    attack_normal: {
-      offsetX: 0,
-      offsetY: 0,
-      width: 288.0,
-      height: 112.0,
-      stepTime: 0.09,
-      loop: false,
-    },
-    attack_normal_recovery: {
+    overlay_restore_mana: {
       offsetX: 0,
       offsetY: 0,
       width: 288.0,
@@ -183,26 +148,10 @@
     stand: {
       offsetX: 0,
       offsetY: 0,
-      width: 112.0,
+      width: 80.0,
       height: 112.0,
-      stepTime: 0.5,
+      stepTime: 0.7,
       loop: true,
-    },
-    hit: {
-      offsetX: 0,
-      offsetY: 0,
-      width: 112.0,
-      height: 112.0,
-      stepTime: 0.15,
-      loop: false,
-    },
-    hit_recovery: {
-      offsetX: 0,
-      offsetY: 0,
-      width: 112.0,
-      height: 112.0,
-      stepTime: 0.15,
-      loop: false,
     },
   },
 }

@@ -2,101 +2,75 @@
   extra_damage: {
     id: "extra_damage",
     // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
-    affixId: "extra_damage",
-    genre: ["general"],
-    // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
-    // 额外词条有可能出现在多种类型的卡牌上
-    category: ["attack"],
+    // 同一个额外词条有可能出现在多种流派和效果类型的卡牌上
+    // 和main_affix不同，额外词条的 uniqueId [不是] 数组，genre 和 category [是] 数组
+    uniqueId: "extra_damage",
+    genres: ["general", "swordcraft"],
+    categories: ["attack"],
+    // 境界要求，生成卡牌的境界参数大于等于此值时才会出现
+    rank: 0,
     tags: ["after_attack"],
     script: "extra_damage",
-    // 实际的数值会在游戏中实际创建时才添加到这里
-    // level: 0,
-    // values: [0]
-    value: [
+    valueData: [
       {
-        // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
         random: 0,
         min: 3,
         max: 8,
         increment: 1,
       },
     ],
-    // 该词条是否已经被鉴定
+    // 该词条是否已经被鉴定，未鉴定的词条不会生效且显示为???
     // identified: false,
   },
   defend: {
     id: "defend",
-    // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
-    affixId: "defend",
-    genre: ["general"],
-    // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
-    // 额外词条有可能出现在多种类型的卡牌上
-    category: ["buff", "attack"],
+    uniqueId: "defend",
+    genres: ["general", "swordcraft"],
+    categories: ["buff", "attack"],
+    rank: 0,
     tags: ["defend"],
     script: "defend_extra",
-    // 实际的数值会在游戏中实际创建时才添加到这里
-    // level: 0,
-    // values: [0]
-    value: [
+    valueData: [
       {
-        // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
         random: 0,
         min: 3,
         max: 8,
         increment: 1,
       },
     ],
-    // 该词条是否已经被鉴定
-    // identified: false,
   },
   speed: {
     id: "speed",
-    // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
-    affixId: "speed",
-    genre: ["general"],
-    // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
-    // 额外词条有可能出现在多种类型的卡牌上
-    category: ["buff", "attack"],
+    uniqueId: "speed",
+    genres: ["general", "swordcraft"],
+    categories: ["buff", "attack"],
+    rank: 0,
     tags: ["speed"],
     script: "speed",
-    // 实际的数值会在游戏中实际创建时才添加到这里
-    // level: 0,
-    // values: [0]
-    value: [
+    valueData: [
       {
-        // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
         random: 0,
         min: 1,
         max: 4,
         increment: 0.5,
       },
     ],
-    // 该词条是否已经被鉴定
-    // identified: false,
   },
   dodge: {
     id: "dodge",
-    // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
-    affixId: "dodge",
-    genre: ["general"],
-    // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
-    // 额外词条有可能出现在多种类型的卡牌上
-    category: ["buff", "attack"],
+    uniqueId: "dodge",
+    genres: ["general", "swordcraft"],
+    categories: ["buff", "attack"],
+    rank: 0,
     tags: ["dodge"],
     script: "dodge",
-    // 实际的数值会在游戏中实际创建时才添加到这里
-    // level: 0,
-    // values: [0]
-    value: [
+    valueData: [
       {
-        // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
         random: 0,
         min: 1,
         max: 4,
         increment: 0.5,
       },
     ],
-    // 该词条是否已经被鉴定
-    // identified: false,
   },
 }

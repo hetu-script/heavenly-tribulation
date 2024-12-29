@@ -21,11 +21,11 @@ function main()
 和地图无关的事件
 
 ```javascript
-function onNewGame()
 function onEnterCultivation()
 ```
 
 ```javascript
+function onNewGame()
 function onEnterMap()
 function onAfterWorldUpdate()
 function onAfterHeroRest({site, terrain})

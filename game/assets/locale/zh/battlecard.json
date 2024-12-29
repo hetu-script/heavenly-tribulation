@@ -9,15 +9,17 @@
   "battleCardKind.spear": "枪法",
   "battleCardKind.staff": "棍法",
   "battleCardKind.swift": "轻功",
-  "battleCardKind.qi": "内功",
-  "battleCardKind.buff": "心法",
+  "battleCardKind.neigong": "内功",
+  "battleCardKind.xinfa": "心法",
   "battleCardKind.spell": "法术",
 
   "battleCard.attack_sword.description": "剑攻击：造成 {0} 点伤害",
-  "battleCard.attack_fist.description": "拳头攻击：造成 {0} 点伤害",
   "battleCard.defend_sword.description": "防御 + {0}",
+  "battleCard.attack_fist.description": "徒手攻击：造成 {0} 点伤害",
   "battleCard.defend_fist.description": "防御 + {0}",
   "battleCard.swift.description": "速度 + {0}\n闪避 + {1}",
+
+  "battleCard.attack_flying_sword_1.description": "飞剑攻击：造成 {0} 点伤害",
 
   "battleCard.extra_damage.description": "攻击额外造成 {0} 点伤害",
   "battleCard.defend.description": "防御 + {0}",

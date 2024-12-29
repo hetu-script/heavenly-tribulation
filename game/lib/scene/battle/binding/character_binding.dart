@@ -30,9 +30,9 @@ class BattleCharacterClassBinding extends HTExternalClass {
       case 'restoreMana':
         return ({positionalArgs, namedArgs}) =>
             character.restoreMana(positionalArgs.first);
-      case 'spell':
-        return ({positionalArgs, namedArgs}) =>
-            character.setSpellState(positionalArgs.first);
+      // case 'spell':
+      //   return ({positionalArgs, namedArgs}) =>
+      //       character.setSpellState(positionalArgs.first);
       case 'defend':
         return ({positionalArgs, namedArgs}) =>
             character.setDefendState(positionalArgs.first);

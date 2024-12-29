@@ -1,5 +1,28 @@
 
 const cave = {
+  onNewGame: async () {
+    dialog.start()
+    dialog.pushScene('black')
+    await dialog.localeLines([
+      'cave.intro.line1',
+      'cave.intro.line2',
+      'cave.intro.line3',
+      'cave.intro.line4',
+      'cave.intro.line5',
+      'cave.intro.line6',
+    ])
+    engine.play('stone-push-37412.mp3')
+    dialog.popScene('black', fadeOut: true)
+    WorldMap.lightUpAroundTile(hero.worldPosition.left, hero.worldPosition.top, hero.stats.lightRadius)
+    Player.updateHero(showHeroInfo: true)
+    await Future.delayed(2)
+    dialog.pushImage('story/xiaomo', fadeIn: true)
+    await dialog.localeLines(['cave.hero.line1'], isHero: true)
+    dialog.popImage()
+    await dialog.localeLines(['intro.movement'])
+    dialog.end()
+  },
+
   onInteractObject: async (object, terrain) {
     switch (object.id) {
       'coffin1': {
@@ -12,68 +35,72 @@ const cave = {
         dialog.localeLines('cave.coffin3.description')
       }
       'checkPoint1': {
-        if (!this.flags.checkPoint1) {
-          this.flags.checkPoint1 = true
-          object.blockHeroMove = false
-          await WorldMap.moveCameraToMapPosition(6, 15)
-          WorldMap.lightUpAroundTile(6, 15, 2)
-          dialog.localeLines('cave.oldWell.descriptionBeforeInteract1')
-        }
-      }
-      'oldWell': {
+        if (this.flags.checkPoint1) return
+
+        this.flags.checkPoint1 = true
+        object.blockHeroMove = false
+        await WorldMap.moveCameraToMapPosition(6, 15)
+        WorldMap.lightUpAroundTile(6, 15, 2)
+        
+        await dialog.localeLines('cave.checkpoint.line1')
+
+        final card1 = BattleCard(
+          genre: "general",
+          category: "attack",
+          kind: "fist",
+        )
+        final card2 = BattleCard(
+          genre: "general", 
+          category: "attack",
+          kind: "fist",
+        )
+        final card3 = BattleCard(
+          genre: "general",
+          category: "buff",
+          kind: "fist",
+        )
+        Player.acquireBattleCardByData(card1)
+        Player.acquireBattleCardByData(card2)
+        Player.acquireBattleCardByData(card3)
+        
+        await dialog.localeLines('cave.hero.line2', isHero: true)
+        
         dialog.start()
-        if (!this.flags.checkPoint2) {
-          await dialog.localeLines('cave.oldWell.descriptionBeforeInteract2')
-          dialog.pushImage('story/jade_avatar', fadeIn: true)
-          await Future.delayed(1)
-          await dialog.localeLines('cave.oldWell.descriptionBeforeInteract3')
-          await dialog.localeLines('cave.hero.line11', isHero: true)
-          let selected = await dialog.localeSelect([
-            'cave.oldWell.takeJade',
-            'forgetIt',
-          ])
-          if (selected == 'cave.oldWell.takeJade') {
-            await dialog.localeLines('cave.oldWell.descriptionBeforeInteract4')
-            this.flags.checkPoint2 = true
-            Player.acquireItemById('quest_jade')
-            Player.gainExp(40)
-            delete terrain.overlaySprite.animation
-            WorldMap.refreshTerrainOverlaySprite(terrain.left, terrain.top)
-          }
-          dialog.popImage()
-        } else {
-          await dialog.localeLines('cave.oldWell.descriptionAfterDrink')
-        }
+        dialog.pushImage('story/jade_soul_dagger', fadeIn: true)
+        await Future.delayed(0.8)
+        await dialog.localeLines('cave.jade.line1')
+        await dialog.localeLines('cave.hero.line3', isHero: true)
+        
         dialog.end()
       }
+      // 'oldWell': {
+      //   dialog.start()
+      //   if (!this.flags.checkPoint2) {
+      //     await dialog.localeLines('cave.oldWell.descriptionBeforeInteract2')
+      //     dialog.pushImage('story/jade_soul_dagger', fadeIn: true)
+      //     await Future.delayed(1)
+      //     await dialog.localeLines('cave.oldWell.descriptionBeforeInteract3')
+      //     await dialog.localeLines('cave.hero.line11', isHero: true)
+      //     let selected = await dialog.localeSelect([
+      //       'cave.oldWell.takeJade',
+      //       'forgetIt',
+      //     ])
+      //     if (selected == 'cave.oldWell.takeJade') {
+      //       await dialog.localeLines('cave.oldWell.descriptionBeforeInteract4')
+      //       this.flags.checkPoint2 = true
+      //       Player.acquireItemById('quest_jade')
+      //       Player.gainExp(40)
+      //       delete terrain.overlaySprite.animation
+      //       WorldMap.refreshTerrainOverlaySprite(terrain.left, terrain.top)
+      //     }
+      //     dialog.popImage()
+      //   } else {
+      //     await dialog.localeLines('cave.oldWell.descriptionAfterDrink')
+      //   }
+      //   dialog.end()
+      // }
       'statue': {
-        if (!this.flags.checkPoint3) {
-          await dialog.localeLines([
-            'cave.statue.description1',
-            'cave.statue.description2',
-          ])
-          if (hero.cultivationSkills.length > 0) {
-            dialog.localeLines('cave.statue.description3')
-            final card1 = BattleCard(
-              genre: "general",
-              category: "attack",
-              kind: "fist",
-            )
-            final card2 = BattleCard(
-              genre: "general", 
-              category: "attack",
-              kind: "fist",
-            )
-            final card3 = BattleCard(
-              genre: "general",
-              category: "defend",
-              kind: "fist",
-            )
-            Player.acquireBattleCardByData(card1)
-            Player.acquireBattleCardByData(card2)
-            Player.acquireBattleCardByData(card3)
-          }
-        }
+        await dialog.localeLines('cave.statue.description')
       }
       'cushion': {
         await dialog.localeLines('cave.cushion.description1')

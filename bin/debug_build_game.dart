@@ -6,7 +6,7 @@ import 'package:pub_semver/pub_semver.dart';
 
 final version = '0.1.0-pre29';
 
-const source1Path = 'game/main.ht';
+const source1Path = 'main/main.ht';
 const source2Path = 'story/main.ht';
 const out1Path = 'packages/game/assets/mods/game.mod';
 const out2Path = 'packages/game/assets/mods/story.mod';

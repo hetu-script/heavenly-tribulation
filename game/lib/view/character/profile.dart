@@ -778,7 +778,7 @@ class _ProfileViewState extends State<ProfileView> {
                           builder: (context) => EditCharacterIdAndAvatar(
                             id: _characterData['id'],
                             name: _characterData['shortName'],
-                            skin: _characterData['skin'],
+                            skin: _characterData['characterSkin'],
                             familyName: _characterData['familyName'],
                             iconPath: _characterData['icon'],
                             illustrationPath: _characterData['illustration'],
@@ -800,7 +800,7 @@ class _ProfileViewState extends State<ProfileView> {
                             _characterData['name'] =
                                 (_characterData['familyName'] ?? '') +
                                     _characterData['shortName'];
-                            _characterData['skin'] = skin ?? 'default';
+                            _characterData['characterSkin'] = skin;
                             _characterData['icon'] = iconPath;
                             _characterData['illustration'] = illustrationPath;
                             if (id != null && id != _characterData['id']) {

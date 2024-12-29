@@ -47,7 +47,7 @@ class _LocationSiteSceneOverlayState extends State<LocationSiteSceneOverlay>
   // late AnimationController battleStartBannerAnimationController,
   //     battleEndBannerAnimationController;
 
-  bool _isLoading = true;
+  bool _isLoaded = false;
 
   late String locationId;
 
@@ -171,9 +171,15 @@ class _LocationSiteSceneOverlayState extends State<LocationSiteSceneOverlay>
   }
 
   Future<void> _loadData() async {
-    context
+    if (_isLoaded) return;
+
+    await context
         .read<LocationSiteSceneState>()
         .push(locationData: widget.locationData);
+
+    setState(() {
+      _isLoaded = true;
+    });
   }
 
   @override
@@ -182,7 +188,7 @@ class _LocationSiteSceneOverlayState extends State<LocationSiteSceneOverlay>
 
     final scene = context.watch<LocationSiteSceneState>().scene;
 
-    return (_isLoading || scene == null)
+    return (!_isLoaded || scene == null)
         ? LoadingScreen(
             text: engine.locale('loading'),
           )

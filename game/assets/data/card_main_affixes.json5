@@ -2,22 +2,34 @@
   attack_sword: {
     id: "attack_sword",
     // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
-    affixId: null,
-    // 是否是主词条，在执行词条脚本时需要判断这个参数
-    isMain: true,
-    // 注意：主词条数据的genre和category是字符串，但额外词条的genre和category是字符串数组
+    uniqueIds: [],
+    // 和 support_affix 不同，主词条的 uniqueIds [是]数组，genre和category [不是] 数组
+    // 流派，流派分为通用，以及御剑，悟道，炼魂等
     genre: "general",
-    // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
+    // 效果类型，分为攻击（attack），加持（buff）和特殊（special）三种
     category: "attack",
+    // 卡牌名字类型，例如剑法，咒语，法术等等
     kind: "sword",
+    // 境界要求，生成卡牌的境界参数大于等于此值时才会出现
+    rank: 0,
     tags: ["attack", "weapon", "sword"],
+    // 卡牌插画
     image: "attack_sword.png",
-    animations: ["attack_sword", "attack_sword_recovery"],
+    // 前摇动画
+    animation: "attack_sword",
+    // 后摇动画（可选）
+    recoveryAnimation: "attack_sword_recovery",
+    // 叠加动画（爆炸效果等）
+    // overlayAnimation: null,
+    // 调用的脚本函数的id
     script: "attack",
+    // 是否是主词条，主词条会直接写在卡面上，额外词条会在光标浮窗中显示
+    // 主词条不需要鉴定，额外词条签订前没有效果并且显示为问号
+    isMain: true,
     // 实际的数值会在游戏中实际创建时才添加到这里
     // level: 0,
-    // values: [0]
-    value: [
+    // value: [0]
+    valueData: [
       {
         // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
         random: 0,
@@ -37,27 +49,19 @@
     },
   },
   defend_sword: {
-    // 同一个属性id只会在一张卡牌上出现一次。
     id: "defend_sword",
-    // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
-    affixId: ["defend"],
-    // 是否是主词条，在执行词条脚本时需要判断这个参数
-    isMain: true,
-    // 注意：主词条数据的genre和category是字符串，但额外词条的genre和category是字符串数组
+    uniqueIds: ["defend"],
     genre: "general",
-    // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
     category: "buff",
     kind: "sword",
+    rank: 0,
     tags: ["defend", "weapon"],
     image: "defend_sword.png",
-    animations: ["defend_sword"],
+    animation: "buff_sword",
     script: "defend",
-    // 实际的数值会在游戏中实际创建时才添加到这里
-    // level: 0,
-    // values: [0]
-    value: [
+    isMain: true,
+    valueData: [
       {
-        // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
         random: 0,
         min: 5,
         max: 11,
@@ -66,27 +70,20 @@
     ],
   },
   attack_fist: {
-    // 同一个属性id只会在一张卡牌上出现一次。
     id: "attack_fist",
-    // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
-    affixId: null,
-    // 是否是主词条，在执行词条脚本时需要判断这个参数
-    isMain: true,
-    // 注意：主词条数据的genre和category是字符串，但额外词条的genre和category是字符串数组
+    uniqueIds: [],
     genre: "general",
-    // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
     category: "attack",
     kind: "fist",
+    rank: 0,
     tags: ["attack", "fist"],
     image: "attack_fist.png",
-    animations: ["attack_fist", "attack_fist_recovery"],
+    animation: "attack_fist",
+    recoveryAnimation: "attack_fist_recovery",
     script: "attack",
-    // 实际的数值会在游戏中实际创建时才添加到这里
-    // level: 0,
-    // values: [0]
-    value: [
+    isMain: true,
+    valueData: [
       {
-        // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
         random: 0,
         min: 4,
         max: 9,
@@ -95,27 +92,19 @@
     ],
   },
   defend_fist: {
-    // 同一个属性id只会在一张卡牌上出现一次。
     id: "defend_fist",
-    // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
-    affixId: ["defend"],
-    // 是否是主词条，在执行词条脚本时需要判断这个参数
-    isMain: true,
-    // 注意：主词条数据的genre和category是字符串，但额外词条的genre和category是字符串数组
+    uniqueIds: ["defend"],
     genre: "general",
-    // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
     category: "buff",
     kind: "fist",
-    tags: ["buff", "defend", "fist"],
+    rank: 0,
+    tags: ["defend", "fist"],
     image: "defend_fist.png",
-    animations: ["defend_fist"],
+    animation: "buff_fist",
     script: "defend",
-    // 实际的数值会在游戏中实际创建时才添加到这里
-    // level: 0,
-    // values: [0]
-    value: [
+    isMain: true,
+    valueData: [
       {
-        // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
         random: 0,
         min: 3,
         max: 8,
@@ -124,40 +113,61 @@
     ],
   },
   swift: {
-    // 同一个属性id只会在一张卡牌上出现一次。
     id: "swift",
-    // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
-    affixId: ["speed", "dodge"],
-    // 是否是主词条，在执行词条脚本时需要判断这个参数
-    isMain: true,
-    // 注意：主词条数据的genre和category是字符串，但额外词条的genre和category是字符串数组
+    uniqueIds: ["speed", "dodge"],
     genre: "general",
-    // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
     category: "buff",
     kind: "swift",
-    tags: ["buff", "swift", "dodge", "speed"],
+    rank: 0,
+    tags: ["dodge", "speed"],
     image: "swift.png",
-    animations: ["defend_fist"],
+    animation: "buff_fist",
     script: "swift",
-    // 实际的数值会在游戏中实际创建时才添加到这里
-    // level: 0,
-    // values: [0]
-    value: [
+    isMain: true,
+    valueData: [
       {
-        // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
         random: 0,
         min: 2,
         max: 5,
         increment: 0.5,
       },
       {
-        // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
         random: 0,
         min: 2,
         max: 5,
         increment: 0.5,
       },
     ],
+  },
+
+  attack_flying_sword_1: {
+    id: "attack_flying_sword_1",
+    uniqueIds: [],
+    genre: "swordcraft",
+    category: "attack",
+    kind: "sword",
+    rank: 1,
+    tags: ["attack", "weapon", "sword", "flying_sword"],
+    image: "attack_flying_sword_1.png",
+    animation: "attack_spell",
+    recoveryAnimation: "attack_spell_recovery",
+    overlayAnimation: "flying_sword",
+    script: "attack",
+    isMain: true,
+    valueData: [
+      {
+        random: 0,
+        min: 9,
+        max: 11,
+        increment: 2,
+      },
+    ],
+    requirement: {
+      dexterity: {
+        value: 2,
+        increment: 2,
+      },
+    },
   },
   // restore_life_1: {
   //   // 同一个属性id只会在一张卡牌上出现一次。
@@ -173,7 +183,7 @@
   //   animations: ["restore_life"],
   //   script: "restore_life_1",
   //   level: 0,
-  //   value: [
+  //   valueData: [
   //     {
   //       // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
   //       random: 0,
@@ -197,7 +207,7 @@
   //   animations: ["restore_mana"],
   //   script: "restore_mana_1",
   //   level: 0,
-  //   value: [
+  //   valueData: [
   //     {
   //       // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
   //       random: 0,

@@ -96,7 +96,7 @@ class BattleScene extends Scene {
     );
     world.add(heroDeckZone);
 
-    final heroSkinId = heroData['skin'];
+    final heroSkinId = heroData['characterSkin'];
     final Set<String> heroAnimationStates = {};
     for (final card in heroDeck) {
       final affixes = card.data['affixes'];
@@ -130,7 +130,7 @@ class BattleScene extends Scene {
     );
     world.add(enemyDeckZone);
 
-    final enemySkinId = enemyData['skin'];
+    final enemySkinId = enemyData['characterSkin'];
     final Set<String> enemyAnimationStates = {};
     for (final card in enemyDeck) {
       final affixes = card.data['affixes'];

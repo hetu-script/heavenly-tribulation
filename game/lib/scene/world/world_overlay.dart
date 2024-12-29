@@ -669,7 +669,9 @@ class _WorldOverlayState extends State<WorldOverlay>
 
   Future<bool> _loadMap([Map<String, dynamic>? args]) async {
     if (_isLoading) return false;
-    if (_isLoaded) return true;
+    if (args == null) {
+      if (_isLoaded) return true;
+    }
 
     _isLoading = true;
 

@@ -25,10 +25,10 @@ import 'create_sandbox_game.dart';
 // import '../event/events.dart';
 import '../scene/world/world_overlay.dart';
 import '../scene/battle/components/battle.dart';
-import '../scene/deckbuilding/components/deckbuilding.dart';
+import '../scene/card_library/components/library.dart';
 import '../scene/battle/binding/character_binding.dart';
 import '../data.dart';
-import '../scene/deckbuilding/deckbuilding.dart';
+import '../scene/card_library/card_library.dart';
 import '../ui.dart';
 import '../scene/world/location/components/location_site.dart';
 import 'create_blank_map.dart';
@@ -39,6 +39,7 @@ import '../state/states.dart';
 import '../scene/cultivation/cultivation.dart';
 import '../scene/cultivation/components/cultivation.dart';
 import '../scene/battle/battle.dart';
+import '../logic/algorithm.dart';
 
 const kMainMenuBGM = 'chinese-oriental-tune-06-12062.mp3';
 
@@ -178,7 +179,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
     });
 
     engine.registerSceneConstructor('deckBuilding', ([dynamic data]) async {
-      return DeckBuildingScene(
+      return CardLibraryScene(
         controller: engine,
         library: data,
         context: context,
@@ -290,13 +291,17 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
       context.read<QuestState>().update();
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('injectGameData', (
+    engine.hetu.interpreter.bindExternalFunction('reloadGameData', (
         {positionalArgs, namedArgs}) {
-      GameData.injectGameData();
+      GameData.loadGameData();
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
         'showCultivation', ({positionalArgs, namedArgs}) => showCultivation(),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('expForLevel',
+        ({positionalArgs, namedArgs}) => expForLevel(positionalArgs.first),
         override: true);
 
     engine.hetu.interpreter.bindExternalClass(BattleCharacterClassBinding());
@@ -304,8 +309,8 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
     final mainConfig = {'locale': engine.languageId};
     if (kDebugMode) {
       await engine.loadModFromAssetsString(
-        'game/main.ht',
-        module: 'game',
+        'main/main.ht',
+        module: 'main',
         namedArgs: mainConfig,
         isMainMod: true,
       );
@@ -321,11 +326,11 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
         }
       }
     } else {
-      final game = await rootBundle.load('assets/mods/game.mod');
-      final gameBytes = game.buffer.asUint8List();
+      final main = await rootBundle.load('assets/mods/main.mod');
+      final gameBytes = main.buffer.asUint8List();
       await engine.loadModFromBytes(
         gameBytes,
-        moduleName: 'game',
+        moduleName: 'main',
         namedArgs: mainConfig,
         isMainMod: true,
       );
@@ -704,7 +709,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                           .setState(MainMenuStates.main);
 
                       final hero = engine.hetu.invoke('Character', namedArgs: {
-                        'unconvertedExp': 500,
+                        'unconvertedExp': 1000000,
                         'majorAttributes': ['dexterity'],
                       });
                       engine.hetu
@@ -743,7 +748,12 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                       });
                       final heroLibrary = [];
                       for (var i = 0; i < 16; ++i) {
-                        final cardData = engine.hetu.invoke('BattleCard');
+                        final cardData = engine.hetu.invoke(
+                          'BattleCard',
+                          namedArgs: {
+                            'maxRank': 1,
+                          },
+                        );
                         heroLibrary.add(cardData);
                       }
                       final enemyDeck = <GameCard>[];
@@ -760,7 +770,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                       final List<GameCard>? heroDeck =
                           await Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => DeckBuildingOverlay(
+                          builder: (context) => CardLibraryOverlay(
                             deckSize: 4,
                             heroData: hero,
                             heroLibrary: heroLibrary,

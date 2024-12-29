@@ -11,7 +11,7 @@ class EditCharacterIdAndAvatar extends StatefulWidget {
     super.key,
     required this.id,
     required this.name,
-    this.skin = 'default',
+    required this.skin,
     this.familyName,
     this.iconPath,
     this.illustrationPath,

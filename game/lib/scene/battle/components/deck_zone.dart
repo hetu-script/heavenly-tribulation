@@ -54,7 +54,7 @@ class BattleDeckZone extends PiledZone with HandlesGesture {
 
       card.onUnpreviewed = () {
         if (!card.isFocused) {
-          Tooltip.hide();
+          Tooltip.hide(card);
         }
       };
     }

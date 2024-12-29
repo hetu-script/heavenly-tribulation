@@ -142,10 +142,10 @@
         <mxCell id="SqnKiE-Mk17VoA1t4yWk-1834" value="属性点" style="rounded=1;whiteSpace=wrap;html=1;shadow=0;labelBackgroundColor=none;strokeColor=none;strokeWidth=3;fillColor=#f5af58;fontFamily=Helvetica;fontSize=14;fontColor=#FFFFFF;align=center;spacing=5;arcSize=7;perimeterSpacing=2;" vertex="1" parent="1">
           <mxGeometry x="505" y="-40" width="150" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="SqnKiE-Mk17VoA1t4yWk-1836" value="还婴&lt;div&gt;你在战斗中获得的所有闪避都会转化为防御&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;shadow=0;labelBackgroundColor=none;strokeColor=#2D7600;strokeWidth=3;fillColor=#60a917;fontFamily=Helvetica;fontSize=14;fontColor=#ffffff;align=center;spacing=5;arcSize=7;perimeterSpacing=2;" vertex="1" parent="1">
+        <mxCell id="SqnKiE-Mk17VoA1t4yWk-1836" value="元婴&lt;div&gt;你在战斗中获得的所有闪避都会转化为防御&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;shadow=0;labelBackgroundColor=none;strokeColor=#2D7600;strokeWidth=3;fillColor=#60a917;fontFamily=Helvetica;fontSize=14;fontColor=#ffffff;align=center;spacing=5;arcSize=7;perimeterSpacing=2;" vertex="1" parent="1">
           <mxGeometry x="-730" y="-860" width="205" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="SqnKiE-Mk17VoA1t4yWk-1837" value="还婴&lt;div&gt;你在战斗中获得的所有灵气都会转化为剑气&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;shadow=0;labelBackgroundColor=none;strokeColor=#2D7600;strokeWidth=3;fillColor=#60a917;fontFamily=Helvetica;fontSize=14;fontColor=#ffffff;align=center;spacing=5;arcSize=7;perimeterSpacing=2;" vertex="1" parent="1">
+        <mxCell id="SqnKiE-Mk17VoA1t4yWk-1837" value="元婴&lt;div&gt;你在战斗中获得的所有灵气都会转化为剑气&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;shadow=0;labelBackgroundColor=none;strokeColor=#2D7600;strokeWidth=3;fillColor=#60a917;fontFamily=Helvetica;fontSize=14;fontColor=#ffffff;align=center;spacing=5;arcSize=7;perimeterSpacing=2;" vertex="1" parent="1">
           <mxGeometry x="1730" y="-860" width="205" height="100" as="geometry" />
         </mxCell>
         <mxCell id="SqnKiE-Mk17VoA1t4yWk-1838" value="化神&lt;div&gt;剑气的效果修改为使你受到的伤害减少&lt;br&gt;&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;shadow=0;labelBackgroundColor=none;strokeColor=#2D7600;strokeWidth=3;fillColor=#60a917;fontFamily=Helvetica;fontSize=14;fontColor=#ffffff;align=center;spacing=5;arcSize=7;perimeterSpacing=2;" vertex="1" parent="1">
@@ -214,7 +214,7 @@
         <mxCell id="SqnKiE-Mk17VoA1t4yWk-1963" value="" style="edgeStyle=none;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#ffffff;strokeWidth=4;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;" edge="1" parent="1" source="SqnKiE-Mk17VoA1t4yWk-1907" target="SqnKiE-Mk17VoA1t4yWk-1902">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="SqnKiE-Mk17VoA1t4yWk-1907" value="&lt;div&gt;还婴&lt;/div&gt;&lt;div&gt;再次行动的速度上限要求减 3&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;shadow=0;labelBackgroundColor=none;strokeColor=#2D7600;strokeWidth=3;fillColor=#60a917;fontFamily=Helvetica;fontSize=14;fontColor=#ffffff;align=center;spacing=5;arcSize=7;perimeterSpacing=2;" vertex="1" parent="1">
+        <mxCell id="SqnKiE-Mk17VoA1t4yWk-1907" value="&lt;div&gt;元婴&lt;/div&gt;&lt;div&gt;再次行动的速度上限要求减 3&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;shadow=0;labelBackgroundColor=none;strokeColor=#2D7600;strokeWidth=3;fillColor=#60a917;fontFamily=Helvetica;fontSize=14;fontColor=#ffffff;align=center;spacing=5;arcSize=7;perimeterSpacing=2;" vertex="1" parent="1">
           <mxGeometry x="482.5" y="-860" width="205" height="100" as="geometry" />
         </mxCell>
         <mxCell id="SqnKiE-Mk17VoA1t4yWk-1984" value="" style="edgeStyle=none;shape=connector;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#ffffff;strokeWidth=4;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;endArrow=classic;" edge="1" parent="1" source="SqnKiE-Mk17VoA1t4yWk-1909" target="SqnKiE-Mk17VoA1t4yWk-1960">

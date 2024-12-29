@@ -1,9 +1,8 @@
-import 'module:game' as game
+import 'module:main' as game
 
 import 'l10n/l10n.ht'
 import 'events/cave.ht'
 import 'events/tutorial.ht'
-import 'events/common.ht'
 
 // 这里的函数最终是绑定到游戏对象上执行
 // 是运行时的命名空间，并不是这里的命名空间
@@ -57,12 +56,6 @@ function main() {
   engine.info('游戏脚本: [tutorial](ver-${coreScriptModuleVersion})初始化...')
   // 加载本地化字符串
   engine.loadLocaleDataFromJSON(localizations.toJSON())
-  // 添加通用事件回调函数，这些事件和具体世界无关
-  addEventHandlers(
-    moduleId: module.meta.id,
-    worldId: null,
-    handlers: commonEvents,
-  )
   // 向世界添加事件回调函数
   // 每个世界的事件是分开的
   addEventHandlers(

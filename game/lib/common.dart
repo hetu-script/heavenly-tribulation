@@ -1,3 +1,5 @@
+import 'package:samsara/extensions.dart';
+
 const kGameVersion = '0.0.1';
 
 const kGameSaveFileExtension = '.tdqjgame';
@@ -24,6 +26,70 @@ const kEquipTypeSupport = 'support';
 const kEquipTypeDefense = 'defense';
 const kEquipTypeArcana = 'arcana';
 const kEquipTypeCompanion = 'companion';
+
+const kLevelPerRank = 10;
+
+Color getColorFromRarity(String rarity) {
+  return switch (rarity) {
+    /// 凡品
+    'common' => HexColor.fromString('#CCCCCC'),
+
+    /// 良品
+    'uncommon' => HexColor.fromString('#FFFFFF'),
+
+    /// 上品
+    'rare' => HexColor.fromString('#00A6A9'),
+
+    /// 极品
+    'epic' => HexColor.fromString('#804DC8'),
+
+    /// 神品
+    'legendary' => HexColor.fromString('#C5C660'),
+
+    /// 秘宝
+    'unique' => HexColor.fromString('#62CC39'),
+
+    /// 古宝
+    'mythic' => HexColor.fromString('#F28234'),
+
+    /// 灵宝
+    'arcane' => HexColor.fromString('#C65043'),
+
+    /// 其他
+    _ => HexColor.fromString('#A3A3A3'),
+  };
+}
+
+Color getColorFromRank(int rank) {
+  return switch (rank) {
+    /// 未修炼 黑
+    0 => HexColor.fromString('#A3A3A3'),
+
+    /// 凝气 灰
+    1 => HexColor.fromString('#CCCCCC'),
+
+    /// 筑基 白
+    2 => HexColor.fromString('#FFFFFF'),
+
+    /// 结丹 蓝
+    3 => HexColor.fromString('#00A6A9'),
+
+    /// 元婴 紫
+    4 => HexColor.fromString('#804DC8'),
+
+    /// 化神 橙
+    5 => HexColor.fromString('#C5C660'),
+
+    /// 炼虚 金
+    6 => HexColor.fromString('#62CC39'),
+
+    /// 合体 暗金
+    7 => HexColor.fromString('#F28234'),
+
+    /// 大乘 红
+    _ => HexColor.fromString('#C65043'),
+  };
+}
 
 const kMajorAttributes = [
   'spirituality',

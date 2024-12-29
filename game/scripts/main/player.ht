@@ -1,0 +1,186 @@
+import 'game.ht'
+import 'colors.ht'
+import 'worldmap.ht'
+
+external function expForLevel(level: integer) -> integer
+
+namespace Player {
+  
+  external function updateHero({showHeroInfo = true})
+
+  external function updateHistory()
+
+  external function updateQuest()
+  
+  external function showCultivation()
+
+  // 设定人物的随从，返回值是否成功
+  // 随从并非直接将人物数据放在人物上，而是用下面的数据结构
+  // {
+  //   id,
+  //   entityType,
+  //   coordination,
+  // }
+  function acquireCompanion(companion, { incurIncident = true }) {
+    if (hero.companions.contains(companion.id)) {
+      engine.warn('${companion.id} 已经是随从了，无法再次添加。')
+      return
+    }
+    hero.companions.add(companion.id)
+    
+    const incidentContent = engine.locale('heroAcquireCompanion', interpolations: [
+      companion.name,
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: companion.id,
+        objectId: hero.id,
+        isPrivate: true,
+      )
+    } else {
+      engine.info(incidentContent)
+    }
+  }
+
+  function dismissCompanion(companion, { incurIncident = true }) {
+    assert(hero.companions.contains(companion.id))
+
+    hero.companions.remove(companion.id)
+    
+    const incidentContent = engine.locale('heroLoseCompanion', interpolations: [
+      companion.name,
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: companion.id,
+        objectId: hero.id,
+        isPrivate: true,
+      )
+    } else {
+      engine.info(incidentContent)
+    }
+  }
+
+  function cultivationLevelUp({ incurIncident = true }) {
+    let expRequirement = expForLevel(hero.cultivationLevel)
+    if (hero.exp < expRequirement) {
+      engine.warn('经验值不足以升级！当前等级：${hero.cultivationLevel}，需要经验：${expRequirement}')
+      return
+    }
+
+    hero.exp -= expRequirement
+    ++hero.cultivationLevel
+
+    hero.availableSkillPoints += 1
+
+    const incidentContent = engine.locale('heroCultivationLevelUp', interpolations: [
+      hero.cultivationLevel,
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: hero.id,
+        isPrivate: true,
+      )
+    } else {
+      engine.info(incidentContent)
+    }
+
+    return hero.cultivationLevel
+  }
+
+  function cultivationRankUp({ incurIncident = true }) {
+    if ( hero.cultivationRank >= 8 ) {
+      engine.warn('无法继续提升境界：玩家角色已经达到最高境界。')
+      return
+    }
+
+    ++hero.cultivationRank
+
+    const incidentContent = engine.locale('heroCultivationRankUp', interpolations: [
+      getCultivationRankName(character),
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: hero.id,
+        isPrivate: true,
+      )
+    } else {
+      engine.info(incidentContent)
+    }
+
+    return hero.cultivationRank
+  }
+
+
+  function acquireBattleCardByData(cardData, { incurIncident = true }) {
+    hero.cardLibrary.add(cardData)
+
+    let incidentContent
+    incidentContent = engine.locale('heroAcquireItem', interpolations: [
+      cardData.name,
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: hero.id,
+        item: cardData,
+        isPrivate: true,
+      )
+    } else {
+      engine.info(incidentContent)
+    }
+  }
+
+  function acquireItemById(itemId, {count = 1, incurIncident = true }) {
+    entityAcquireItemById(hero, itemId, count: count, incurIncident: incurIncident)
+  }
+
+  function gainExp(value: integer) {
+    assert(value > 0)
+    hero.unconvertedExp += value
+
+    const incidentContent = engine.locale('heroExpGained', interpolations: [value])
+    Incident(
+      message: incidentContent,
+      subjectId: hero.id,
+      isPrivate: true,
+    )
+
+    WorldMap.addHintText(
+      '${engine.locale('exp')} + ${value}',
+      hero.worldPosition.left,
+      hero.worldPosition.top,
+      Colors.blue,
+    )
+  }
+
+  function restoreMana(value: integer) {
+    assert(value > 0)
+    if (hero.stats.mana >= hero.stats.manaMax) return
+  
+    hero.stats.mana += value
+    if (hero.stats.mana >= hero.stats.manaMax) {
+      hero.stats.mana = hero.stats.manaMax
+    }
+
+    engine.play('spell-of-healing-876.mp3')
+
+    const incidentContent = engine.locale('heroManaRestored', interpolations: [ value ])
+    Incident(
+      message: incidentContent,
+      subjectId: hero.id,
+      isPrivate: true,
+    )
+
+    WorldMap.addHintText(
+      '${engine.locale('mana')} + ${value}',
+      hero.worldPosition.left,
+      hero.worldPosition.top,
+      Colors.blue,
+    )
+  }
+}

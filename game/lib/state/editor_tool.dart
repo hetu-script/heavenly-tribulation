@@ -1,15 +1,15 @@
 import 'package:flutter/foundation.dart';
 
 class EditorToolState with ChangeNotifier {
-  String? item;
+  String? selectedId;
 
   void reset() {
-    item = null;
+    selectedId = null;
     notifyListeners();
   }
 
   void selectItem(String item) {
-    this.item = item;
+    this.selectedId = item;
     notifyListeners();
   }
 }

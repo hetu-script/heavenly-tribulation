@@ -38,7 +38,7 @@ class SelectionDialog extends StatelessWidget {
           Positioned.fill(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: selectionsData.keys.map(
+              children: List<Widget>.from(selectionsData.keys.map(
                 (key) {
                   final data = selectionsData[key];
                   final String? colorString = selectionsData[key]['color'];
@@ -60,7 +60,7 @@ class SelectionDialog extends StatelessWidget {
                     ),
                   );
                 },
-              ),
+              )),
             ),
           ),
         ],

@@ -1,0 +1,59 @@
+import 'game.ht'
+import 'entity/character/character.ht'
+import 'entity/item/item.ht'
+// import 'duel.ht'
+// import 'maze/maze.ht'
+import 'dialog.ht'
+import 'tile/hexagonal_tile.ht'
+// import 'entity/skill/skill.ht'
+
+namespace debug {
+  external function setFog(value: bool)
+
+  external function reloadGameData()
+
+  function terrain {
+    if (world == null) return
+    if (hero == null) return
+    const position = hero.worldPosition
+    const terrainIndex = tilePos2Index(position.left, position.top, world.width)
+    let terrain = world.terrains[terrainIndex]
+    engine.info('terrain:', terrain)
+  }
+
+  function location {
+    if (world == null) return
+    if (hero == null) return
+    const position = getHeroPosition()
+    const terrainIndex = tilePos2Index(position.left, position.top, world.width)
+    const terrain = world.terrains[terrainIndex]
+    if (terrain.locationId) {
+      const location = game.locations[terrain.locationId]
+      engine.info('location:', location)
+    }
+  }
+
+  function refreshAllCaptions {
+    for (const tile in world.terrains) {
+      if (tile.locationId) {
+        const location = game.locations[tile.locationId]
+        WorldMap.setTerrainCaption(tile.left, tile.top, location.name)
+      } else if (tile.objectId) {
+        WorldMap.setTerrainCaption(tile.left, tile.top, tile.objectId)
+      }
+    }
+  }
+  
+  function testMerchant {
+    // setRandomSeed(1003)
+    // resetGame()
+    // const hero = Character()
+    // acquireMoney(hero, 100)
+    // setHeroId(hero.id)
+    // const merchant = Character()
+    // acquireMoney(merchant, 500)
+    // acquire(merchant, Consumable.medicine(), count: 20)
+    // acquire(merchant, Consumable.beverage(), count: 20)
+    // dialog.merchant(merchant)
+  }
+}

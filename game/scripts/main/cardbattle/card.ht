@@ -1,0 +1,116 @@
+import '../random.ht'
+import '../name/skill.ht'
+import '../common.ht'
+
+struct BattleCard {
+  construct ({
+    genre, // 'general', 'daoism', 'swordcraft'
+    category, // 'attack', 'buff'
+    kind, // 'sword',
+    level,
+    rank, // 境界决定了额外词条数量
+    maxRank = 0,
+  }) {
+    assert(maxRank != null)
+    if (rank == null) {
+      rank = random.nextInt(maxRank + 1)
+    }
+    if (level == null) {
+      if (rank != null && rank > 0) {
+        level = random.nextInt(rank * kLevelPerRank) + 1
+      } else {
+        level = 0
+      }
+    } else {
+      assert(level >= 0 && level <= (rank * kLevelPerRank))
+    }
+
+    this.id = crypto.randomNID(length: 6, withTime: true)
+    this.rank = rank
+
+    // 注意：主词条数据的genre是字符串，但额外词条的genre是字符串数组
+    final mainAffixes = game.battleCardMainAffixes.values.where( (affix) {
+      if (genre != null && affix.genre != genre) {
+        return false
+      }
+      if (category != null && affix.category != category) {
+        return false
+      }
+      if (kind != null && affix.kind != kind) {
+        return false
+      }
+      if (affix.rank > rank) {
+        return false
+      }
+      return true
+    })
+    assert(mainAffixes.isNotEmpty)
+    const mainAffix = JSON.deepcopy(random.nextIterable(mainAffixes))
+    this.level = mainAffix.level = level
+    this.name = generateSkillName(category: mainAffix.kind).name
+
+    final affixUniqueIds = []
+    if (mainAffix.uniqueIds is List) {
+      affixUniqueIds.addAll(mainAffix.uniqueIds)
+    } else if (mainAffix.uniqueIds is string) {
+      affixUniqueIds.add(mainAffix.uniqueIds)
+    }
+
+    let minExtraAffixCount = rank > 0 ? (rank - 1) : 0
+    let minGreaterAffixCount = 0
+    let maxGreaterAffixCount = 0
+    if (rank >= 5) {
+      minExtraAffixCount = 4
+      minGreaterAffixCount = rank - 5
+      maxGreaterAffixCount = rank - 4
+    }
+
+    let supportAffixes = []
+    for (final affix in game.battleCardSupportAffixes.values) {
+      if (!affix.genres.contains(mainAffix.genre)) {
+        continue
+      }
+      if (!affix.categories.contains(mainAffix.category)) {
+        continue
+      }
+      if (affixUniqueIds.contains(affix.uniqueId)) {
+        continue
+      }
+      if (affix.rank > rank) {
+        continue
+      }
+      affixUniqueIds.add(affix.uniqueId)
+      supportAffixes.add(affix)
+    }
+
+    if (supportAffixes.isEmpty) {
+      engine.error('Found no support affixes for main affix: ${mainAffix}')
+    }
+
+    assert(supportAffixes.isNotEmpty)
+
+    if (rank < 5 && rank > 0) {
+      let r = random.nextDouble()
+      if (r >= 0.15) {
+        ++minExtraAffixCount
+      }
+    }
+    final extraAffixes = []
+    for (var i = 0; i < minExtraAffixCount; ++i) {
+      let existed = false
+      let supportAffix
+      do {
+        supportAffix = JSON.deepcopy(random.nextIterable(supportAffixes))
+        for (final existedAffix in extraAffixes) {
+          if (extraAffixes.id == supportAffix.id) {
+            existed = true
+            break
+          }
+        }
+      } while (existed)
+      extraAffixes.add(supportAffix)
+    }
+
+    this.affixes = [mainAffix, ...extraAffixes]
+  }
+}

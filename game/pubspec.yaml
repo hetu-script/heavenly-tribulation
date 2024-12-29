@@ -81,7 +81,7 @@ flutter:
     - assets/images/animation/bear/
     # - assets/images/animation/beard/
     - assets/images/animation/boar/
-    - assets/images/animation/default/
+    - assets/images/animation/characterMan1/
     - assets/images/animation/girl/
     - assets/images/animation/snake/
     - assets/images/animation/tiger/
@@ -126,32 +126,32 @@ flutter:
 
     - assets/save/
 
-    - scripts/game/
-    - scripts/game/ai/
-    - scripts/game/binding/
-    - scripts/game/cardbattle/
-    - scripts/game/entity/
-    - scripts/game/entity/character/
-    - scripts/game/entity/item/
-    - scripts/game/entity/location/
-    - scripts/game/entity/organization/
-    - scripts/game/interaction/
-    - scripts/game/name/
-    - scripts/game/name/book/
-    - scripts/game/name/character/
-    - scripts/game/name/common/
-    - scripts/game/name/consumable/
-    - scripts/game/name/creature/
-    - scripts/game/name/material/
-    - scripts/game/name/organization/
-    - scripts/game/name/place/
-    - scripts/game/name/skill/
-    - scripts/game/name/spell/
-    - scripts/game/name/talisman/
-    - scripts/game/name/zone/
-    - scripts/game/quest/
-    - scripts/game/tile/
-    - scripts/game/world/
+    - scripts/main/
+    - scripts/main/ai/
+    - scripts/main/binding/
+    - scripts/main/cardbattle/
+    - scripts/main/entity/
+    - scripts/main/entity/character/
+    - scripts/main/entity/item/
+    - scripts/main/entity/location/
+    - scripts/main/entity/organization/
+    - scripts/main/interaction/
+    - scripts/main/name/
+    - scripts/main/name/book/
+    - scripts/main/name/character/
+    - scripts/main/name/common/
+    - scripts/main/name/consumable/
+    - scripts/main/name/creature/
+    - scripts/main/name/material/
+    - scripts/main/name/organization/
+    - scripts/main/name/place/
+    - scripts/main/name/skill/
+    - scripts/main/name/spell/
+    - scripts/main/name/talisman/
+    - scripts/main/name/zone/
+    - scripts/main/quest/
+    - scripts/main/tile/
+    - scripts/main/world/
 
     - scripts/tutorial/
     - scripts/tutorial/l10n/

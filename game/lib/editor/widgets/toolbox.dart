@@ -8,6 +8,7 @@ import 'package:flame/extensions.dart';
 
 import '../../config.dart';
 import '../../state/editor_tool.dart';
+import '../../data.dart';
 
 const double kToolbarTabBarHeight = 30.0;
 
@@ -16,10 +17,10 @@ const Size kTileSize = Size(32, 64);
 class Toolbox extends StatefulWidget {
   const Toolbox({
     super.key,
-    required this.onItemClicked,
+    required this.onToolClicked,
   });
 
-  final void Function(String item) onItemClicked;
+  final void Function(String toolId) onToolClicked;
 
   @override
   State<Toolbox> createState() => _ToolboxState();
@@ -66,20 +67,21 @@ class _ToolboxState extends State<Toolbox> {
   }
 
   Widget buildToolButton(
-      BuildContext context, String? selectedItem, String me) {
+      BuildContext context, String? selectedItem, String toolId) {
+    final toolItemData = GameData.editorToolItemsData[toolId];
     return Tooltip(
-      message: engine.locale(me),
+      message: engine.locale(toolItemData['name']),
       child: InkButton(
         size: kTileSize,
         padding: const EdgeInsets.only(right: 5.0),
         borderRadius: BorderRadius.circular(5.0),
         image: AssetImage(
-          'assets/images/object/$me.png',
+          'assets/images/object/$toolId.png',
         ),
-        isSelected: selectedItem == me,
+        isSelected: selectedItem == toolId,
         onPressed: () {
-          context.read<EditorToolState>().selectItem(me);
-          widget.onItemClicked(me);
+          context.read<EditorToolState>().selectItem(toolId);
+          widget.onToolClicked(toolId);
         },
       ),
     );
@@ -87,7 +89,7 @@ class _ToolboxState extends State<Toolbox> {
 
   @override
   Widget build(BuildContext context) {
-    final item = context.watch<EditorToolState>().item;
+    final item = context.watch<EditorToolState>().selectedId;
 
     return ResponsiveWindow(
       color: kBackgroundColor,

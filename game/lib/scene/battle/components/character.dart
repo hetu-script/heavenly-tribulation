@@ -17,28 +17,25 @@ import 'status_effect.dart';
 
 const kTopLayerAnimationPriority = 200;
 
-const String kDefeatState = 'defeat';
-const String kStandState = 'stand';
-const String kHitState = 'hit';
-const String kHitRecoveryState = 'hit_recovery';
-const String kDodgeState = 'dodge';
-const String kDodgeRecoveryState = 'dodge_recovery';
-const String kAttackSwordState = 'attack_sword';
-const String kAttackSwordRecoveryState = 'attack_sword_recovery';
-const String kDefendSwordState = 'defend_sword';
 const String kAttackFistState = 'attack_fist';
 const String kAttackFistRecoveryState = 'attack_fist_recovery';
-const String kDefendFistState = 'defend_fist';
+const String kBuffFistState = 'buff_fist';
+const String kDefeatState = 'defeat';
+const String kDodgeState = 'dodge';
+const String kDodgeRecoveryState = 'dodge_recovery';
+const String kHitState = 'hit';
+const String kHitRecoveryState = 'hit_recovery';
+const String kStandState = 'stand';
 const Set<String> kPreloadAnimationStates = {
-  kDefeatState,
-  kStandState,
-  kHitState,
-  kHitRecoveryState,
   kAttackFistState,
   kAttackFistRecoveryState,
-  kDefendFistState,
+  kBuffFistState,
+  kDefeatState,
   kDodgeState,
   kDodgeRecoveryState,
+  kHitState,
+  kHitRecoveryState,
+  kStandState,
 };
 
 class BattleCharacter extends GameComponent with AnimationStateController {
@@ -471,11 +468,6 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
   }
 
-  Future<void> setSpellState([String? state]) async {
-    state ??= 'default';
-    await setState('spell_$state', resetOnComplete: kStandState);
-  }
-
   Future<void> setDefendState(String state) async {
     await setState('defend_$state', resetOnComplete: kStandState);
   }
@@ -676,7 +668,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     await card.setFocused(false);
     card.isEnabled = false;
-    Tooltip.hide();
+    Tooltip.hide(card);
     card.enablePreview = true;
 
     if (details['dodgeTurn'] ?? false) {

@@ -1,71 +1,85 @@
 {
   sea: {
+    name: "sea",
     type: "terrain",
     spriteIndex: 0,
     kind: "sea",
   },
   plain: {
+    name: "plain",
     type: "terrain",
     spriteIndex: 1,
     kind: "plain",
   },
   farmfield: {
+    name: "farmfield",
     type: "terrain",
     spriteIndex: 4,
     kind: "plain",
   },
   forest: {
+    name: "forest",
     type: "terrain",
     spriteIndex: 2,
     kind: "forest",
   },
   mountain: {
+    name: "mountain",
     type: "terrain",
     spriteIndex: 3,
     kind: "mountain",
   },
   dungeonStonePavedTile: {
+    name: "dungeonStonePavedTile",
     type: "terrain",
     spriteIndex: 5,
     kind: "plain",
   },
   fishTile: {
+    name: "fishTile",
     type: "script",
     invoke: "setFishTile",
   },
   stormTile: {
+    name: "stormTile",
     type: "script",
     invoke: "setStormTile",
   },
   spiritTile: {
+    name: "spiritTile",
     type: "script",
     invoke: "setSpiritTile",
   },
   city: {
+    name: "city",
     type: "overlaySprite",
     overlay: {
       sprite: "object/city.png",
     },
   },
   portalArray: {
+    name: "portalArray",
     type: "overlaySprite",
     overlay: {
       sprite: "object/portalArray.png",
     },
   },
   dungeon: {
+    name: "dungeon",
     type: "overlaySprite",
     overlay: {
       sprite: "object/dungeon.png",
     },
   },
   dungeonStoneGate: {
+    name: "dungeonStoneGate",
     type: "overlaySprite",
     overlay: {
       sprite: "object/dungeonStoneGate.png",
     },
   },
   portal: {
+    name: "portal",
     type: "overlaySprite",
     overlay: {
       animation: {
@@ -74,108 +88,140 @@
     },
   },
   glowingTile: {
+    name: "glowingTile",
     type: "overlaySprite",
     overlay: {
       sprite: "object/glowingTile.png",
     },
   },
   lever: {
+    name: "lever",
     type: "overlaySprite",
     overlay: {
       sprite: "object/lever.png",
     },
   },
   statue: {
+    name: "statue",
     type: "overlaySprite",
     overlay: {
       sprite: "object/statue.png",
     },
   },
   treasureBox: {
+    name: "treasureBox",
     type: "overlaySprite",
     overlay: {
       sprite: "object/treasureBox.png",
     },
   },
   coffin: {
+    name: "coffin",
     type: "overlaySprite",
     overlay: {
       sprite: "object/coffin.png",
     },
   },
   oldWell: {
+    name: "oldWell",
     type: "overlaySprite",
     overlay: {
       sprite: "object/oldWell.png",
     },
   },
   meditationCushion: {
+    name: "meditationCushion",
     type: "overlaySprite",
     overlay: {
       sprite: "object/meditationCushion.png",
     },
   },
   stoneStairs: {
+    name: "stoneStairs",
     type: "overlaySprite",
     overlay: {
       sprite: "object/stoneStairs.png",
     },
   },
   stoneStairsDebris: {
+    name: "stoneStairsDebris",
     type: "overlaySprite",
     overlay: {
       sprite: "object/stoneStairsDebris.png",
     },
   },
-  characterBoy: {
+  characterBoy1: {
+    name: "characterBoy",
     type: "overlaySprite",
     overlay: {
-      sprite: "object/characterBoy.png",
+      sprite: "object/characterBoy1.png",
     },
   },
-  characterYoungMan: {
+  characterMan1: {
+    name: "characterMan",
     type: "overlaySprite",
     overlay: {
-      sprite: "object/characterYoungMan.png",
+      sprite: "object/characterMan1.png",
     },
   },
-  characterMan: {
+  characterMan11: {
+    name: "characterMan",
     type: "overlaySprite",
     overlay: {
-      sprite: "object/characterMan.png",
+      sprite: "object/characterMan11.png",
     },
   },
-  characterOldMan: {
+  characterMan12: {
+    name: "characterMan",
     type: "overlaySprite",
     overlay: {
-      sprite: "object/characterOldMan.png",
+      sprite: "object/characterMan12.png",
     },
   },
-  characterGirl: {
+  characterOldMan1: {
+    name: "characterOldMan",
     type: "overlaySprite",
     overlay: {
-      sprite: "object/characterGirl.png",
+      sprite: "object/characterOldMan1.png",
     },
   },
-  characterYoungWoan: {
+  characterGirl1: {
+    name: "characterGirl",
     type: "overlaySprite",
     overlay: {
-      sprite: "object/characterYoungWoan.png",
+      sprite: "object/characterGirl1.png",
     },
   },
-  characterWoman: {
+  characterWoman1: {
+    name: "characterWoman",
     type: "overlaySprite",
     overlay: {
-      sprite: "object/characterWoman.png",
+      sprite: "object/characterWoman1.png",
     },
   },
-  characterOldWoman: {
+  characterWoman11: {
+    name: "characterWoman",
     type: "overlaySprite",
     overlay: {
-      sprite: "object/characterOldWoman.png",
+      sprite: "object/characterWoman11.png",
+    },
+  },
+  characterWoman12: {
+    name: "characterWoman",
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/characterWoman12.png",
+    },
+  },
+  characterOldWoman1: {
+    name: "characterOldWoman",
+    type: "overlaySprite",
+    overlay: {
+      sprite: "object/characterOldWoman1.png",
     },
   },
   python: {
+    name: "python",
     type: "overlaySprite",
     overlay: {
       sprite: "object/python.png",

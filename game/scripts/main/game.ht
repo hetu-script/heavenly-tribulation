@@ -1,0 +1,364 @@
+import 'tile/tilemap.ht'
+import 'datetime.ht'
+
+export 'random.ht'
+
+/// 游戏设置，和存档无关，属于载入存档或者开始新游戏之前的全局设置
+let isDebugMode
+let isNewGame
+
+let game
+let universe
+let history
+
+// game.characters[game.heroId]
+let hero
+// universe.worlds[game.currentWorldId]
+let world
+// history.worlds[game.currentWorldId]
+let timeline
+let year
+let ticksOfYear
+let month
+let ticksOfMonth
+let day
+let ticksOfDay
+
+struct Game {
+  construct ({saveName}) {
+    this.isNewGame = true
+    this.saveName = saveName
+
+    // 本次游戏加载的 module，这里是纯数据，函数保存在另外的地方
+    this.modules = {}
+
+    this.deceased = {}
+    this.babies = {}
+    this.characters = {}
+    this.locations = {}
+    this.organizations = {}
+    // 具有唯一性的物品，材料之类不在此列
+    this.items = {}
+    // 地图上的可互动对象，例如npc等
+    this.objects = {}
+
+    // 每个月生成的暴风雨地点
+    this.stormTileIndexes = []
+    // 每个月生成的可捕鱼的地点
+    this.fishTileIndexes = []
+    // 每个月生成的可恢复灵气的地点
+    this.spiritTileIndexes = []
+    
+    // 游戏本身逻辑所用到的一些事件检查选项
+    // 例如每个月是否进行了某个动作之类
+    this.flags = {
+      playerMonthly: {
+        // 对其他角色操作
+        talked: [],
+        gifted: [],
+        practiced: [],
+        consulted: [],
+        requested: [],
+        insulted: [],
+        stolen: [],
+
+        // 对某个建筑操作
+        worked: [],
+
+        // 对自己组织操作
+        recruited: [],
+      }
+    }
+    
+    // 英雄的住所，直接保存在顶层
+    // 但其实这里没有任何数据
+    // this.heroHomeSite = {
+    //   category: kSiteHome,
+    //   name: engine.locale(kSiteHome),
+    //   background: 'location/site/home.png',
+    //   image: 'location/site/home_card.png',
+    //   id: kSiteHome,
+    // }
+  }
+}
+
+struct Universe {
+  construct {
+    this.worlds = {}
+  }
+}
+
+struct History {
+  construct {
+    this.worlds = {}
+  }
+}
+
+function resetPlayerMonthlyActivities(){
+  
+  // 指玩家对某个其他角色、据点、地形、建筑进行过的动作，限定每个月一次
+
+  game.flags.playerMonthly = {
+    // 对其他角色操作
+    talked: [],
+    gifted: [],
+    requested: [],
+    dueled: [],
+    consulted: [],
+    insulted: [],
+    stolen: [],
+
+    // 对地块操作
+    // gathered: [],
+    // woodcuted: [],
+    // excavated: [],
+    // hunted: [],
+    // fished: [],
+  }
+}
+
+/// 创建新游戏，重置所有状态，返回game
+function newGame(saveName) {
+  engine.info('准备开始新游戏')
+  game = Game(saveName: saveName)
+
+  universe = Universe()
+  history = History()
+
+  hero = null
+  world = null
+  timeline = { timestamp: 0, incidents: [] }
+
+  year = 1
+  month = 1
+  day = 1
+  ticksOfYear = 1
+  ticksOfMonth = 1
+  ticksOfDay = 1
+
+  return game
+}
+
+function calculateTimestamp() {
+  year = toYear(timeline.timestamp) + 1
+  month = toMonth(timeline.timestamp) + 1
+  day = toDay(timeline.timestamp) + 1
+  ticksOfYear = (timeline.timestamp % kTicksPerYear) + 1
+  ticksOfMonth = (timeline.timestamp % kTicksPerMonth) + 1
+  ticksOfDay = (timeline.timestamp % kTicksPerDay) + 1
+}
+
+function addModule(module) {
+  engine.info('添加模组元信息 [${module.id}(ver-${module.version})]...')
+  assert(module.id != null)
+  // assert(game.modules.containsKey(module.id))
+  // game.modules[module.id] ??= {}
+  // Object.assign(game.modules[module.id], module)
+  game.modules[module.id] = module
+}
+
+/// 载入游戏数据，返回game
+function loadGameFromJsonData({
+  gameData,
+  universeData,
+  historyData,
+  // isEditorMode,
+}) -> List {
+  game = Object.fromJSON(gameData)
+  game.isNewGame ??= true
+
+  if (game.heroId != null) {
+    hero = game.characters[game.heroId]
+  }
+  
+  universe = Object.fromJSON(universeData)
+
+  history = Object.fromJSON(historyData)
+  
+  assert(game.currentWorldId != null)
+  // if (!isEditorMode) {
+  //   assert(game.heroId != null)
+  // }
+
+  assert(game.currentWorldId != null)
+  world = universe.worlds[game.currentWorldId]
+  timeline = history.worlds[game.currentWorldId]
+  assert(world != null)
+  assert(timeline != null)
+
+  return game
+}
+
+function addWorld(newWorld) {
+  world = universe.worlds[newWorld.id] = newWorld
+  timeline = history.worlds[newWorld.id] = { timestamp: 0, incidents: [] }
+
+  game.currentWorldId = newWorld.id
+}
+
+function switchWorld(worldId) {
+  assert(universe.worlds.containsKey(worldId))
+  world = universe.worlds[worldId]
+
+  assert(history.worlds.containsKey(world.id))
+  timeline = history.worlds[world.id]
+  
+  game.currentWorldId = world.id
+
+  return world
+}
+
+function getSaveName() {
+  return game.saveName
+}
+
+function setSaveName(name) {
+  engine.info('存档名设置为：${name}')
+  game.saveName = name
+}
+
+function getModule(id) {
+  return game.modules[id]
+}
+
+function getPlayerMonthlyActivities {
+  return game.flags.playerMonthly
+}
+
+function getGameJsonData() {
+  return game.toJSON()
+}
+
+function getUniverseJsonData() {
+  return universe.toJSON()
+}
+
+function getHistoryJsonData() {
+  return history.toJSON()
+}
+
+function getTimestamp {
+  return timeline.timestamp
+}
+
+function getHeroId() {
+  return game.heroId
+}
+
+function setHeroId(id: string) {
+  assert(game.characters.containsKey(id))
+  hero = game.characters[id]
+  engine.info('设置当前玩家人物为 [${hero.id}]。')
+  // game.heroHomeSite.locationId = hero.homeId
+  game.heroId = id
+}
+
+function getHeroWorldId(worldId) {
+  hero.worldId = worldId
+}
+
+function setHeroWorldPosition(left, top, [ worldId ]) {
+  hero.worldPosition = { left, top }
+  if (worldId != null) {
+    hero.worldId = worldId
+  }
+}
+
+function getHeroHome {
+  return game?.locations[hero?.homeId]
+}
+
+function getHeroHomeId {
+  return hero?.homeId
+}
+
+// function getHeroHomeSite {
+//   return game.heroHomeSite
+// }
+
+function getHeroOrganization {
+  if (hero.organizationId) {
+    return game.organizations[hero.organizationId]
+  } else {
+    return null
+  }
+}
+
+function getHeroLightedArea {
+  return hero.stats.lightRadius
+}
+
+// function getHeroCultivationGenre {
+//   return hero.cultivationGenre
+// }
+
+function getTerrainByWorldPosition(left, top) {
+  return world.terrains[tilePos2Index(left, top, world.width)]
+}
+
+function getWorldIds {
+  return universe.worlds.keys
+}
+
+function getCurrentWorldId {
+  return game.currentWorldId
+}
+
+function getWorldSize {
+  if (world != null) {
+    return {
+      width: world.width,
+      height: world.height,
+    }
+  }
+}
+
+function getZones() {
+  return world.zones.values
+}
+
+function getZoneById(id: string) {
+  assert(id != null)
+  return world.zones[id]
+}
+
+function addObject(object) {
+  game.objects[object.id] = object
+}
+
+function removeObjectById(id) {
+  delete game.objects[id]
+}
+
+function getObjects() {
+  return game.objects.values
+}
+
+function getObjectById(id: string) {
+  assert(id != null)
+  return game.objects[id]
+}
+
+function getNameFromId(id, [orElse = 'null']) {
+  if (id != null) {
+    return id.split('.').last
+  } else {
+    return engine.locale(orElse)
+  }
+}
+
+function onNewGame() {
+  onWorldEvent('onNewGame')
+  game.isNewGame = false
+}
+
+function refreshWorldMapCaptions {
+  for (const tile in world.terrains) {
+    if (tile.locationId) {
+      const location = game.locations[tile.locationId]
+      if (location.isDiscovered) {
+        WorldMap.setTerrainCaption(tile.left, tile.top, location.name)
+      }
+    }
+  }
+}

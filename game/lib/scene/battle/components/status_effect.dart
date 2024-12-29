@@ -96,7 +96,7 @@ class StatusEffect extends BorderComponent with HandlesGesture {
       );
     };
     onMouseExit = () {
-      Tooltip.hide();
+      Tooltip.hide(this);
     };
   }
 

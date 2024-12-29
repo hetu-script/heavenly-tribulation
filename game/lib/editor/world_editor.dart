@@ -269,15 +269,15 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
       //     scene.size / 2);
       // print(scene.map.worldPosition2Screen(position));
       if (tilePosition == scene.map.selectedTerrain?.tilePosition) {
-        final toolItem = context.read<EditorToolState>().item;
-        switch (toolItem) {
+        final toolId = context.read<EditorToolState>().selectedId;
+        switch (toolId) {
           case 'delete':
             _currentTerrain!.clearAllSprite();
             _currentTerrain!.kind = 'void';
           case 'nonInteractable':
             _currentTerrain!.isNonEnterable = !_currentTerrain!.isNonEnterable;
           default:
-            final toolItemData = GameData.editorToolItemsData[toolItem];
+            final toolItemData = GameData.editorToolItemsData[toolId];
             if (toolItemData != null) {
               final toolType = toolItemData['type'];
               switch (toolType) {
@@ -697,7 +697,7 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
                     child: Align(
                       alignment: Alignment.bottomCenter,
                       child: Toolbox(
-                        onItemClicked: (item) {},
+                        onToolClicked: (item) {},
                       ),
                     ),
                   ),

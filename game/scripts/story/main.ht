@@ -1,4 +1,4 @@
-import 'module:game' as game
+import 'module:main' as game
 
 import 'l10n/l10n.ht'
 import 'story.ht'

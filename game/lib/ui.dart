@@ -19,6 +19,8 @@ abstract class GameUI {
 
   static const indent = 20.0;
   static const smallIndent = 10.0;
+  static const pileZoneIndent = 30.0;
+  static const pileZoneMargin = 60.0;
 
   static Vector2 size = Vector2.zero();
 
@@ -70,8 +72,15 @@ abstract class GameUI {
   // deckbuilding ui
   static late Vector2 libraryCardSize,
       deckbuildingCardSize,
-      deckbuildingZoneSize,
+      deckCoverSize,
       deckbuildingZonePileOffset,
+      // deckbuildingZoneSize,
+      decksZoneBackgroundSize,
+      decksZoneBackgroundPosition,
+      decksZoneCloseButtonPosition,
+      deckCoverPosition,
+      deckPileInitialPosition,
+      libraryZoneBackgroundSize,
       libraryZoneSize,
       libraryZonePosition;
 
@@ -99,17 +108,20 @@ abstract class GameUI {
       expBarPosition,
       levelDescriptionPosition;
   static final cultivatorSize = Vector2(200, 200);
+  static final cultivationRankButton = Vector2(80, 80);
   static final maxCondenseSize = Vector2(250, 250);
+  static final levelDescriptionSize = Vector2(300, 25);
   static final expBarSize = Vector2(600, 25);
 
-  static late Vector2 cardLibraryButtonPosition,
-      cardPacksButtonPosition,
+  static late Vector2
+      // cardLibraryButtonPosition,
+      //     cardPacksButtonPosition,
       expCollectionPageButtonPosition,
       // introspectionButtonPosition,
       talentTreePageButtonPosition;
-  static final cardLibraryButtonSize = Vector2(120, 120);
-  static final cardPacksButtonSize = Vector2(120, 120);
-  static final stateButtonSize = Vector2(140, 40);
+  // static final cardLibraryButtonSize = Vector2(120, 120);
+  // static final cardPacksButtonSize = Vector2(120, 120);
+  static final buttonSizeMedium = Vector2(140, 40);
 
   static final cultivationRankButtonSize = Vector2(120, 120);
 
@@ -123,21 +135,41 @@ abstract class GameUI {
 
     GameUI.size = size;
 
-    final deckbuildingCardWidth = (size.x - 300) / 8 - indent;
+    libraryZoneBackgroundSize = Vector2(1190 / 1440 * size.x, size.y);
+    libraryZonePosition = Vector2(120 / 1440 * size.x, 180 / 810 * size.y);
+    libraryZoneSize = Vector2(960 / 1440 * size.x, 450 / 810 * size.y);
+
+    decksZoneBackgroundSize = Vector2(
+        size.x - libraryZoneBackgroundSize.x, libraryZoneBackgroundSize.y);
+    decksZoneBackgroundPosition =
+        Vector2(libraryZoneBackgroundSize.x, libraryZonePosition.y);
+
+    final deckbuildingCardWidth = (170 / 270 * decksZoneBackgroundSize.x);
     final deckbuildingCardHeight = deckbuildingCardWidth * 1.382;
     deckbuildingCardSize =
         Vector2(deckbuildingCardWidth, deckbuildingCardHeight);
 
-    deckbuildingZoneSize = Vector2(size.x, deckbuildingCardHeight + indent * 4);
-    deckbuildingZonePileOffset = Vector2(deckbuildingCardWidth + indent, 0);
+    final deckCoverWidth = deckbuildingCardWidth * 1.2166;
+    final deckCoverHeight = deckbuildingCardHeight * 1.0612;
+    deckCoverSize = Vector2(deckCoverWidth, deckCoverHeight);
 
-    final libraryCardWidth = size.x / 6 - indent * 2;
-    final libraryCardHeight = libraryCardWidth * cardSizeRatio;
-    libraryCardSize = Vector2(libraryCardWidth, libraryCardHeight);
-    // libraryCardSize = deckbuildingCardSize;
+    deckPileInitialPosition =
+        Vector2(decksZoneBackgroundPosition.x, decksZoneBackgroundPosition.y);
 
-    libraryZoneSize = Vector2(size.x, size.y - deckbuildingZoneSize.y + indent);
-    libraryZonePosition = Vector2(0, deckbuildingZoneSize.y);
+    deckCoverPosition =
+        Vector2(decksZoneBackgroundPosition.x, decksZoneBackgroundPosition.y);
+
+    decksZoneCloseButtonPosition = Vector2(
+        decksZoneBackgroundPosition.x + indent,
+        decksZoneBackgroundPosition.y + libraryZoneSize.y + indent);
+
+    // deckbuildingZoneSize = Vector2(size.x, deckbuildingCardHeight + indent * 4);
+    deckbuildingZonePileOffset = Vector2(0, 30);
+
+    // final libraryCardWidth = size.x / 6 - indent * 2;
+    // final libraryCardHeight = libraryCardWidth * cardSizeRatio;
+    // libraryCardSize = Vector2(libraryCardWidth, libraryCardHeight);
+    libraryCardSize = deckbuildingCardSize;
 
     battleCardSize = deckbuildingCardSize;
     battleDeckZoneSize =
@@ -195,7 +227,7 @@ abstract class GameUI {
 
     cultivatorPosition = Vector2(center.x, center.y);
 
-    condensedPosition = Vector2(center.x, center.y + 20.0);
+    condensedPosition = Vector2(center.x, center.y + 40.0);
 
     expBarPosition = Vector2(center.x, center.y + 300.0);
 
@@ -211,16 +243,16 @@ abstract class GameUI {
     //     Vector2(center.x + 70 + smallIndent, meditateButtonPosition.y);
     talentTreePageButtonPosition = expCollectionPageButtonPosition;
 
-    cardLibraryButtonPosition = Vector2(
-        size.x - indent - cardLibraryButtonSize.x / 2,
-        size.y - indent - cardLibraryButtonSize.y / 2);
+    // cardLibraryButtonPosition = Vector2(
+    //     size.x - indent - cardLibraryButtonSize.x / 2,
+    //     size.y - indent - cardLibraryButtonSize.y / 2);
 
-    cardPacksButtonPosition = Vector2(
-        cardLibraryButtonPosition.x -
-            cardLibraryButtonSize.x / 2 -
-            smallIndent -
-            cardPacksButtonSize.x / 2,
-        cardLibraryButtonPosition.y);
+    // cardPacksButtonPosition = Vector2(
+    //     cardLibraryButtonPosition.x -
+    //         cardLibraryButtonSize.x / 2 -
+    //         smallIndent -
+    //         cardPacksButtonSize.x / 2,
+    //     cardLibraryButtonPosition.y);
 
     _isInitted = true;
   }

@@ -119,9 +119,10 @@ abstract class GameData {
   /// wether started a new game or load from a save.
   static bool isGameCreated = false;
 
-  static void injectGameData() {
+  /// 将dart侧从json5载入的游戏数据保存到游戏存档中
+  static void loadGameData() {
     engine.hetu.invoke('init', namedArgs: {
-      'itemsData': GameData.itemsData.values,
+      'itemsData': GameData.itemsData,
       'battleCardMainAffixesData': GameData.battleCardMainAffixesData,
       'battleCardSupportAffixesData': GameData.battleCardSupportAffixesData,
       'cultivationSkillTreeData': GameData.cultivationSkillTreeData,
@@ -138,7 +139,7 @@ abstract class GameData {
 
     data = engine.hetu.invoke('newGame', positionalArgs: [saveName]);
 
-    injectGameData();
+    loadGameData();
 
     for (final id in GameConfig.modules.keys) {
       if (GameConfig.modules[id]?['enabled'] == true) {
@@ -307,42 +308,54 @@ abstract class GameData {
     if (kDebugMode) {
       finalTitle += ' (lvl. ${data['level']})';
     }
-    extraDescription.writeln('<bold>$finalTitle</>');
+    extraDescription.writeln('<bold rank$cardRank>$finalTitle</>');
     extraDescription.writeln('<grey>$genreString</>');
     extraDescription.writeln('<grey>$typeString</>');
     extraDescription.writeln('<grey>$rankString</>');
     extraDescription.writeln('——————————————');
 
+    final r = math.Random();
     for (final affix in affixes) {
       final affixDescriptionRaw =
           engine.locale('battleCard.${affix['id']}.description');
-      final values = affix['value'];
-      final r = math.Random();
-      final finalValues = <int>[];
-      final affixLevel =
-          affix['level'] = cardLevel > 0 ? r.nextInt(cardLevel) + 1 : 0;
-      for (final value in values) {
-        final random = value['random'] = r.nextDouble();
-        final int min = value['min'];
-        final int max = value['max'];
-        final num increment = value['increment']; // 升级增长有可能是小数
-        // 这里不用round()，因为round()会使第一次增加的0.5就直接进位
-        final int finalValue =
-            (min + (max - min) * random + (affixLevel - 1) * increment)
-                .truncate();
-        finalValues.add(finalValue);
+      List finalValues;
+      affix['level'] ??= cardLevel > 0 ? r.nextInt(cardLevel) + 1 : 0;
+      final int affixLevel = affix['level'];
+      if (affix['value'] == null) {
+        finalValues = [];
+        assert(affix['valueData'] is List);
+        for (final value in affix['valueData']) {
+          final random = value['random'] = r.nextInt(20) + 1;
+          final int min = value['min'];
+          final int max = value['max'];
+          final num increment = value['increment']; // 升级增长有可能是小数
+          // 这里不用round()，因为round()会使第一次增加的0.5就直接进位
+          final int finalValue =
+              (min + (max - min) * (random / 20) + (affixLevel - 1) * increment)
+                  .truncate();
+          finalValues.add(finalValue);
+        }
+        affix['value'] = finalValues;
+      } else {
+        finalValues = affix['value'];
       }
-      affix['value'] = finalValues;
       final affixDescription =
           affixDescriptionRaw.interpolate(finalValues).split(RegExp('\n'));
+
       for (var line in affixDescription) {
         if (affix['isMain'] == true) {
           description.writeln(line);
+          extraDescription.writeln('<lightBlue>$line</>');
+        } else {
+          if (affix['isIdentified'] == true) {
+            if (kDebugMode) {
+              line += ' (lvl. $affixLevel)';
+            }
+            extraDescription.writeln('<lightBlue>$line</>');
+          } else {
+            extraDescription.writeln('<lightBlue>???</>');
+          }
         }
-        if (kDebugMode) {
-          line += ' (lvl. $affixLevel)';
-        }
-        extraDescription.writeln('<lightBlue>$line</>');
       }
     }
 
@@ -356,20 +369,20 @@ abstract class GameData {
       // deckId: id,
       data: data,
       preferredSize: GameUI.libraryCardSize,
-      spriteId: 'cultivation/battlecard/border3.png',
+      spriteId: 'cultivation/battlecard/border4.png',
       illustrationRelativePaddings:
-          const EdgeInsets.fromLTRB(0.06, 0.04, 0.06, 0.388),
+          const EdgeInsets.fromLTRB(0.046, 0.1225, 0.046, 0.214),
       illustrationSpriteId: 'cultivation/battlecard/illustration/$image',
       title: title,
       titleRelativePaddings:
-          const EdgeInsets.fromLTRB(0.08, 0.625, 0.08, 0.469),
-      titleConfig: const ScreenTextConfig(
-        anchor: Anchor.topCenter,
+          const EdgeInsets.fromLTRB(0.16, 0.046, 0.16, 0.8775),
+      titleConfig: ScreenTextConfig(
+        anchor: Anchor.center,
         outlined: true,
         textStyle: TextStyle(
+          color: getColorFromRank(cardRank),
           fontFamily: GameUI.fontFamily,
-          fontSize: 16.0,
-          fontWeight: FontWeight.bold,
+          fontSize: 15.0,
         ),
       ),
       descriptionRelativePaddings:
@@ -378,7 +391,7 @@ abstract class GameData {
         anchor: Anchor.center,
         textStyle: TextStyle(
           fontFamily: 'NotoSansMono',
-          fontSize: 14.0,
+          fontSize: 12.0,
           color: Colors.black,
         ),
         overflow: ScreenTextOverflow.wordwrap,
