@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../config.dart';
+import '../engine.dart';
 import '../state/history.dart';
 import '../ui.dart';
 

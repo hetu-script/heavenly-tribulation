@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:samsara/ui/close_button.dart';
 import 'package:samsara/ui/responsive_window.dart';
 
-import '../../config.dart';
+import '../../engine.dart';
+import '../../ui.dart';
 import 'site_card.dart';
 import '../common.dart';
 import 'edit_location_id_and_image.dart';
@@ -60,24 +61,30 @@ class _LocationViewState extends State<LocationView> {
     }
 
     _isDiscovered = _locationData['isDiscovered'] ?? false;
+
+    _loadData();
   }
 
   void _saveData() {
     _locationData['isDiscovered'] = _isDiscovered;
   }
 
+  void _loadData() {
+    _siteCards = List<Widget>.from(
+      (_locationData['sites'] as Map)
+          .values
+          .where((value) => !(value['isSubSite'] ?? false))
+          .map(
+            (siteData) => SiteCard(
+              siteData: siteData,
+              imagePath: siteData['image'],
+            ),
+          ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final sitesData = _locationData['sites']
-        .values
-        .where((value) => !(value['isSubSite'] ?? false));
-
-    _siteCards = List<Widget>.from(sitesData.map(
-      (siteData) => SiteCard(
-        siteData: siteData,
-        imagePath: siteData['image'],
-      ),
-    ));
     return ResponsiveWindow(
       color: kBackgroundColor,
       alignment: AlignmentDirectional.center,

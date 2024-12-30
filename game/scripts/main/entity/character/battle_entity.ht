@@ -34,7 +34,8 @@ struct BattleEntity {
     majorAttributes: List = [],
     baseStats,
     // cultivationGenre,
-    battleDeck,
+    cardLibrary,
+    battleDecks,
   }) {
     // 身上携带的材料，材料本身没有特殊属性，多个材料只是堆叠数字增加
     // 材料单独显示在物品栏上方，没有携带的材料不会显示
@@ -53,9 +54,23 @@ struct BattleEntity {
     // 随主角移动的其他角色
     this.companions = {}
 
-    // 战斗卡组根据境界有 4-8 张
-    // 数组的值就是一个代表卡牌id的字符串
-    this.battleDeck = battleDeck ?? []
+    // 角色当前卡牌库，关于战斗卡牌的具体信息另行参阅文档
+    // 卡牌库是一个 map，key 是卡牌的 id，value 是卡牌数据
+    this.cardLibrary = cardLibrary ?? {}
+    // 战斗卡组的数组，数组的值是一个结构体，包含卡组的命名（可修改）和卡组内容
+    // [
+    //   {
+    //     title: 'deck name',
+    //     isBattleDeck: false, // 是否是当前使用的战斗卡组
+    //     cards: [
+    //       'card id 1', // 卡组中只保存卡牌id，实际数据在角色的library中
+    //       'card id 2',
+    //     ]
+    //   }
+    // ]
+    this.battleDecks = battleDecks ?? []
+    // 当前使用的战斗卡组，记录的是战斗卡组数组的index
+    this.battleDeckIndex = this.battleDecks.isNotEmpty ? 0 : null
 
     // 角色的属性
     // 包括：灵力、身法、体魄、念力、神识
@@ -84,7 +99,7 @@ struct BattleEntity {
     calculateCharacterStats(this, baseStats: baseStats)
     rejuvenate(this)
 
-    // 主流派：御剑、悟道、锻体、炼魂、化神
+    // 主流派：御剑、道术、锻体、炼魂、法身
     // 副流派：炼丹、炼器、阵法、符法、灵植、灵兽、幻术、卜术、通灵、通神
     // this.cultivationGenre = cultivationGenre
   }
@@ -189,12 +204,12 @@ function calculateCharacterStats(character, { baseStats = {}, rejuvenate = false
   character.stats.lifeMax = life
   character.stats.manaMax = mana
 
-  character.stats.armor = baseStats['armor'] ?? 0
-  character.stats.weaponAttack = baseStats['weaponAttack'] ?? 0
-  character.stats.spellAttack = baseStats['spellAttack'] ?? 0
-  character.stats.physiqueAttack = baseStats['physiqueAttack'] ?? 0
-  character.stats.incarnationAttack = baseStats['incarnationAttack'] ?? 0
-  character.stats.willpowerAttack = baseStats['willpowerAttack'] ?? 0
+  character.stats.block = baseStats['block'] ?? 0
+  
+  character.stats.physicalDamage = baseStats['physicalDamage'] ?? 0
+  character.stats.elementDamage = baseStats['elementDamage'] ?? 0
+  character.stats.spellDamage = baseStats['spellDamage'] ?? 0
+  character.stats.spiritDamage = baseStats['spiritDamage'] ?? 0
 
   character.stats.lightRadius ??= lightRadius
 }

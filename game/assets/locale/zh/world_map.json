@@ -21,6 +21,10 @@
   "view": "视图",
   "saveAndExitGame": "保存并退出",
 
+  "firstVisitCity": "你发现了据点：{0}。",
+  "exploredEmtpy": "这里好像并没什么值得搜索的对象。",
+  "alreadyExplored": "你已经搜索过这里了。",
+
   "notEnoughStaminaMonologue": "体力已经耗尽了……看来要先想办法休息一下才行。",
   "notEnoughManaMonologue": "灵气已经耗尽了……看来要先想办法补充一下才行。",
   "cannotInteractWhenInjured": "现在正身负重伤，要赶紧疗伤休息一下……",

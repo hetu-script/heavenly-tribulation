@@ -1,27 +1,19 @@
 import 'package:flutter/material.dart' hide Card;
 import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/loading_screen.dart';
-import 'package:samsara/ui/label.dart';
 // import 'package:samsara/event.dart';
 // import 'package:samsara/cardgame/card.dart';
 
-import '../../dialog/game_dialog/game_dialog.dart';
 // import '../battle/battle.dart';
-import '../../config.dart';
+import '../../engine.dart';
 import 'components/library.dart';
 import 'drop_menu.dart';
 
 class CardLibraryOverlay extends StatefulWidget {
   final int deckSize;
 
-  final dynamic heroData;
-
-  final Iterable<dynamic> heroLibrary;
-
   CardLibraryOverlay({
     this.deckSize = 4,
-    this.heroData,
-    required this.heroLibrary,
   }) : super(key: UniqueKey());
 
   @override
@@ -56,7 +48,6 @@ class _CardLibraryOverlayState extends State<CardLibraryOverlay> {
     final scene = await engine.createScene(
       contructorKey: 'deckBuilding',
       sceneId: 'deckBuilding',
-      arg: widget.heroLibrary,
     ) as CardLibraryScene;
     return scene;
   }
@@ -90,34 +81,34 @@ class _CardLibraryOverlayState extends State<CardLibraryOverlay> {
                 if (_scene.isLoading)
                   LoadingScreen(text: engine.locale('loading')),
                 SceneWidget(scene: _scene),
-                Positioned(
-                  top: 50,
-                  right: 25,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // if (_scene.buildingZone.cards.length < widget.deckSize) {
-                      //   GameDialog.show(
-                      //     context: context,
-                      //     dialogData: {
-                      //       'lines': [
-                      //         engine.locale('deckbuilding.requiredCardsPrompt')
-                      //       ],
-                      //     },
-                      //   );
-                      // } else {
-                      //   _scene.leave(clearCache: true);
-                      //   Navigator.of(context).pop(_scene.buildingZone.cards
-                      //       .map((c) => c.clone())
-                      //       .toList());
-                      // }
-                    },
-                    child: const Label(
-                      'Battle!',
-                      width: 120.0,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
+                // Positioned(
+                //   top: 50,
+                //   right: 25,
+                //   child: ElevatedButton(
+                //     onPressed: () {
+                //       // if (_scene.buildingZone.cards.length < widget.deckSize) {
+                //       //   GameDialog.show(
+                //       //     context: context,
+                //       //     dialogData: {
+                //       //       'lines': [
+                //       //         engine.locale('deckbuilding.requiredCardsPrompt')
+                //       //       ],
+                //       //     },
+                //       //   );
+                //       // } else {
+                //       //   _scene.leave(clearCache: true);
+                //       //   Navigator.of(context).pop(_scene.buildingZone.cards
+                //       //       .map((c) => c.clone())
+                //       //       .toList());
+                //       // }
+                //     },
+                //     child: const Label(
+                //       'Battle!',
+                //       width: 120.0,
+                //       textAlign: TextAlign.center,
+                //     ),
+                //   ),
+                // ),
                 Positioned(
                   right: 0,
                   top: 0,

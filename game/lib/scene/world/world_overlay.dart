@@ -24,7 +24,7 @@ import '../../view/world_infomation/world_infomation.dart';
 // import 'popup.dart';
 // import '../../../shared/constants.dart';
 import '../history_info.dart';
-import '../../config.dart';
+import '../../engine.dart';
 import 'world.dart';
 import '../hero_info.dart';
 import 'drop_menu.dart';

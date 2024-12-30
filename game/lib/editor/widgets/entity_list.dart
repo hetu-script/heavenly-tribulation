@@ -4,7 +4,8 @@ import 'package:json5/json5.dart';
 import 'package:samsara/ui/responsive_window.dart';
 
 // import '../../../../ui/game_entity_listview.dart';
-import '../../config.dart';
+import '../../engine.dart';
+import '../../ui.dart';
 import '../../view/game_entity_listview.dart';
 import '../../view/character/memory.dart';
 import '../../view/location/location.dart';

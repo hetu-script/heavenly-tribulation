@@ -8,10 +8,10 @@
   "skill.attribute_any.description": "使一个你的主要属性 + 3。",
 
   "skill.swordcraft.description": "可以使用御剑流派的战斗卡牌。",
-  "skill.daoism.description": "可以使用悟道流派的战斗卡牌。",
+  "skill.daoism.description": "可以使用道术流派的战斗卡牌。",
   "skill.physique.description": "锻体",
   "skill.vitality.description": "炼魂",
-  "skill.avatar.description": "化身",
+  "skill.avatar.description": "法身",
 
   "skill.array.description": "阵法",
   "skill.rune.description": "符法",

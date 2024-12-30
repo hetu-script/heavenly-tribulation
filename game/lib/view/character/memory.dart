@@ -5,7 +5,7 @@ import 'relationship/history.dart';
 import 'package:samsara/ui/responsive_window.dart';
 import 'package:samsara/ui/close_button.dart';
 
-import '../../config.dart';
+import '../../engine.dart';
 import '../common.dart';
 import 'edit_character_bond.dart';
 import 'profile.dart';

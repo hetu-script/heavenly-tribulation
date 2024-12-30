@@ -4,7 +4,8 @@ import 'package:samsara/ui/responsive_window.dart';
 import 'package:samsara/ui/close_button.dart';
 import 'package:flutter/services.dart';
 
-import '../../config.dart';
+import '../../engine.dart';
+import '../../ui.dart';
 
 class EditCharacterIdAndAvatar extends StatefulWidget {
   const EditCharacterIdAndAvatar({

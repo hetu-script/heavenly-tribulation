@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../config.dart';
+import '../engine.dart';
 
 class QuestState with ChangeNotifier {
   Iterable<dynamic>? questsData = [];

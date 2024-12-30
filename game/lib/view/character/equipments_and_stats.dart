@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/common.dart';
 import 'package:samsara/ui/close_button.dart';
 
-import '../../config.dart';
+import '../../engine.dart';
+import '../../ui.dart';
 import 'equipments/stats.dart';
 import 'equipments/equipments.dart';
 // import 'status_effects.dart';
@@ -187,7 +188,7 @@ class _EquipmentsAndStatsViewState extends State<EquipmentsAndStatsView>
     });
   }
 
-  void onMouseExitItemGrid(dynamic entityData, Rect gridRenderBox) {
+  void onMouseExitItemGrid() {
     setState(() {
       _hoverEntityData = null;
       _hoverGridRect = null;

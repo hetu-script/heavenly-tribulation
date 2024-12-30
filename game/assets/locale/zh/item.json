@@ -9,11 +9,8 @@
 
   "price": "价格",
   "stackSize": "数量",
-  "damage": "伤害",
   "damageType": "伤害类型",
   "durability": "耐久",
-  "speed": "速度",
-  "block": "防",
 
   "sword": "剑",
   "shield": "盾",

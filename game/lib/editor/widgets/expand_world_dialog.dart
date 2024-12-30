@@ -4,7 +4,8 @@ import 'package:samsara/ui/responsive_window.dart';
 import 'package:samsara/ui/integer_input_field.dart';
 import 'package:samsara/ui/close_button.dart';
 
-import '../../config.dart';
+import '../../engine.dart';
+import '../../ui.dart';
 
 const kDirections = {
   'topLeft',

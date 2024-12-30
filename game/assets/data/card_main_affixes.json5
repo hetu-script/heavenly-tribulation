@@ -4,7 +4,7 @@
     // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
     uniqueIds: [],
     // 和 support_affix 不同，主词条的 uniqueIds [是]数组，genre和category [不是] 数组
-    // 流派，流派分为通用，以及御剑，悟道，炼魂等
+    // 流派，流派分为通用，以及御剑，道术，炼魂等
     genre: "general",
     // 效果类型，分为攻击（attack），加持（buff）和特殊（special）三种
     category: "attack",

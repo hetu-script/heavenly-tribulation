@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
-import '../config.dart';
+import '../ui.dart';
 
 enum DropdownMenuButtonStyle {
   normal,

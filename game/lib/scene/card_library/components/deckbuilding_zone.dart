@@ -4,42 +4,80 @@ import 'package:samsara/gestures/gesture_mixin.dart';
 // import 'package:samsara/samsara.dart';
 import 'package:samsara/components.dart';
 // import 'package:flame/flame.dart';
-import 'package:samsara/paint/paint.dart';
+// import 'package:samsara/paint/paint.dart';
+import 'package:samsara/samsara.dart';
 
 import '../../../ui.dart';
-import '../../../config.dart';
+import '../../../engine.dart';
 import 'library_zone.dart';
+import 'common.dart';
 
-const kDeckCoverPriority = 10000;
+enum PlaceHolderState {
+  newDeck,
+  editDeck,
+  deckCover,
+}
 
 class DeckBuildingZone extends PiledZone with HandlesGesture {
   static const _indent = 20.0;
 
   // late final SpriteComponent background;
 
-  late final SpriteButton placeHolder, deckCover;
+  bool _isBattleDeck;
+  bool get isBattleDeck => _isBattleDeck;
+
+  /// 返回是否设置为true
+  void setBattleDeck([bool? value]) {
+    _isBattleDeck = value ?? !_isBattleDeck;
+    setTitle();
+  }
+
+  late final SpriteButton placeholder;
+  late final RichTextComponent deckInfo;
 
   CardLibraryZone? library;
 
   void Function(DeckBuildingZone zone) onEditDeck;
 
+  void Function(DeckBuildingZone zone) onOpenDeckMenu;
+
   bool get isFull => cards.length >= limit;
+
+  PlaceHolderState placeholderState = PlaceHolderState.newDeck;
 
   // bool isNewDeck;
 
+  @override
+  set isVisible(bool value) {
+    super.isVisible = value;
+    placeholder.isVisible = value;
+    for (final card in cards) {
+      card.isVisible = value;
+    }
+  }
+
+  void Function(DeckBuildingZone zone)? onDeckEdited;
+
   DeckBuildingZone({
+    super.title,
+    bool? isBattleDeck,
     super.position,
-    super.limit = 8,
+    required super.limit,
     required this.onEditDeck,
+    required this.onOpenDeckMenu,
     // this.isNewDeck = true,
     super.priority,
-  }) : super(
+    this.onDeckEdited,
+  })  : _isBattleDeck = isBattleDeck ?? false,
+        super(
           size: GameUI.deckbuildingCardSize,
           piledCardSize: GameUI.deckbuildingCardSize,
-          pileMargin: Vector2(GameUI.indent, 0),
+          pileMargin: Vector2(0, 0),
           pileOffset: GameUI.deckbuildingZonePileOffset,
           borderRadius: 20.0,
         ) {
+    title ??= engine.locale('untitled');
+
     onDragIn = (int buttons, Vector2 position, GameComponent? component) {
       if (component is! CustomGameCard) return;
       if (cards.contains(component)) return;
@@ -57,27 +95,94 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     };
 
     onPileChanged = () {
-      placeHolder.isVisible = cards.isEmpty;
+      placeholder.isVisible = cards.isEmpty;
+      onDeckEdited?.call(this);
     };
+
+    position.addListener(() {
+      placeholder.position = position;
+      sortCards(animated: false);
+    });
   }
 
-  void collapse() async {
+  @override
+  set priority(int value) {
+    super.priority = value;
+
+    sortCards(animated: false);
+  }
+
+  void dispose() {
+    for (final card in cards) {
+      card.removeFromParent();
+    }
+    placeholder.removeFromParent();
+    removeFromParent();
+  }
+
+  Future<void> expand() async {
+    position = GameUI.decksZoneBackgroundPosition;
+    priority = kDeckPilesZonePriority;
+    pileOffset = GameUI.deckbuildingZonePileOffset;
+    placeholder.text = null;
+    deckInfo.isVisible = false;
+    for (final card in cards) {
+      card.enableGesture = true;
+    }
+    setState(PlaceHolderState.editDeck);
+
+    if (cards.isNotEmpty) {
+      placeholder.isVisible = false;
+      await sortCards();
+    }
+  }
+
+  void setTitle() {
+    deckInfo.text =
+        '${_isBattleDeck ? '<yellow bold>${engine.locale('deckbuilding.battleDeck')}</>' : ''}\n'
+        '$title\n'
+        '${engine.locale('deckbuilding.cardCount')}: ${cards.length}/$limit';
+  }
+
+  Future<void> collapse() async {
+    priority = 0;
     pileOffset = Vector2(0, 0);
+    if (cards.isNotEmpty) {
+      setTitle();
+    }
     for (final card in cards) {
       card.enableGesture = false;
     }
 
-    if (cards.isNotEmpty) {
+    if (cards.isEmpty) {
+      setState(PlaceHolderState.newDeck);
+    } else {
       await sortCards();
-      deckCover.isVisible = true;
+      setState(PlaceHolderState.deckCover);
+      placeholder.isVisible = true;
+      deckInfo.isVisible = true;
     }
   }
 
-  void setCardPlaceholder() {
-    placeHolder.spriteId = 'cultivation/card_placeholder.png';
-    placeHolder.hoverSpriteId = 'cultivation/card_placeholder_hover.png';
-    placeHolder.tryLoadSprite();
-    placeHolder.enableGesture = false;
+  void setState(PlaceHolderState state) {
+    placeholderState = state;
+    switch (state) {
+      case PlaceHolderState.newDeck:
+        placeholder.priority = priority;
+        placeholder.spriteId = 'cultivation/deck_placeholder.png';
+        placeholder.hoverSpriteId = 'cultivation/deck_placeholder_hover.png';
+        placeholder.tryLoadSprite();
+      case PlaceHolderState.editDeck:
+        placeholder.priority = priority;
+        placeholder.spriteId = 'cultivation/card_placeholder.png';
+        placeholder.hoverSpriteId = 'cultivation/card_placeholder_hover.png';
+        placeholder.tryLoadSprite();
+      case PlaceHolderState.deckCover:
+        placeholder.priority = kDeckCoverPriority;
+        placeholder.spriteId = 'cultivation/deck_cover.png';
+        placeholder.hoverSpriteId = 'cultivation/deck_cover_hover.png';
+        placeholder.tryLoadSprite();
+    }
   }
 
   @override
@@ -89,49 +194,82 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     // );
     // add(background);
 
-    placeHolder = SpriteButton(
+    placeholder = SpriteButton(
       spriteId: 'cultivation/deck_placeholder.png',
       hoverSpriteId: 'cultivation/deck_placeholder_hover.png',
       size: piledCardSize,
-      position: Vector2(GameUI.indent, 0),
-      onTap: (buttons, position) {},
+      position: position,
+      // priority: kDeckCoverPriority,
     );
-    placeHolder.onMouseEnter = () {
-      Tooltip.show(
-        scene: game,
-        target: placeHolder,
-        direction: TooltipDirection.topCenter,
-        content: engine.locale('deckbuilding.createNewDeck'),
-        width: 90,
-      );
-    };
-    placeHolder.onMouseExit = () {
-      Tooltip.hide(placeHolder);
-    };
-    placeHolder.onTapUp = (buttons, position) {
-      if (cards.isEmpty) {
-        setCardPlaceholder();
+    placeholder.onMouseEnter = () {
+      switch (placeholderState) {
+        case PlaceHolderState.newDeck:
+          Hovertip.show(
+            scene: game,
+            target: placeholder,
+            direction: HovertipDirection.topCenter,
+            content: engine.locale('deckbuilding.newDeck'),
+            config: ScreenTextConfig(anchor: Anchor.center),
+          );
+        case PlaceHolderState.editDeck:
+          Hovertip.show(
+            scene: game,
+            target: placeholder,
+            direction: HovertipDirection.topCenter,
+            content: engine.locale('deckbuilding.addCard'),
+            config: ScreenTextConfig(anchor: Anchor.center),
+          );
+        case PlaceHolderState.deckCover:
+        // Hovertip.show(
+        //   scene: game,
+        //   target: placeholder,
+        //   direction: HovertipDirection.topCenter,
+        //   content: engine.locale('deckbuilding.editDeck'),
+        //   config: ScreenTextConfig(anchor: Anchor.center),
+        // );
       }
-      onEditDeck(this);
-      // onCreateDeck(this);
-      // isNewDeck = false;
-      if (cards.isNotEmpty) {
-        placeHolder.isVisible = false;
+    };
+    placeholder.onMouseExit = () {
+      Hovertip.hide(placeholder);
+    };
+    placeholder.onTapUp = (buttons, position) {
+      if (buttons == kPrimaryButton) {
+        switch (placeholderState) {
+          case PlaceHolderState.newDeck:
+            setState(PlaceHolderState.editDeck);
+            onEditDeck(this);
+            Hovertip.hide(placeholder);
+            Hovertip.show(
+              scene: game,
+              target: placeholder,
+              direction: HovertipDirection.topCenter,
+              content: engine.locale('deckbuilding.addCard'),
+              config: ScreenTextConfig(anchor: Anchor.center),
+            );
+          case PlaceHolderState.deckCover:
+            placeholder.isVisible = false;
+            onEditDeck(this);
+          case PlaceHolderState.editDeck:
+        }
+      } else if (buttons == kSecondaryButton &&
+          placeholderState == PlaceHolderState.deckCover) {
+        onOpenDeckMenu(this);
       }
     };
-    add(placeHolder);
+    game.world.add(placeholder);
 
-    deckCover = SpriteButton(
-      spriteId: 'cultivation/battlecard/card_sleeve.png',
-      hoverSpriteId: 'cultivation/battlecard/card_sleeve_hover.png',
-      size: GameUI.deckCoverSize,
-      onTap: (buttons, position) {},
-      priority: kDeckCoverPriority,
-      isVisible: false,
-      position: GameUI.deckCoverPosition,
+    deckInfo = RichTextComponent(
+      size: placeholder.size,
+      config: ScreenTextConfig(
+        outlined: true,
+        textStyle: TextStyle(
+          fontFamily: GameUI.fontFamily,
+        ),
+        anchor: Anchor.bottomCenter,
+        padding: EdgeInsets.only(bottom: 120),
+      ),
     );
-
-    game.camera.viewport.add(deckCover);
+    placeholder.add(deckInfo);
   }
 
   bool addCard(CustomGameCard card, {int? index}) {
@@ -145,7 +283,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
 
     card.enableGesture = true;
     card.onTapDown = (buttons, position) {
-      Tooltip.hide(card);
+      Hovertip.hide(card);
       card.priority = kDraggingCardPriority;
     };
     card.onTapUp = (buttons, position) {
@@ -169,17 +307,17 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     // card.previewPriority = 100;
 
     card.onPreviewed = () {
-      Tooltip.show(
+      Hovertip.show(
         scene: game,
         target: card,
-        direction: TooltipDirection.leftCenter,
+        direction: HovertipDirection.leftCenter,
         content: card.extraDescription,
         config: ScreenTextConfig(anchor: Anchor.topCenter),
       );
     };
 
     card.onUnpreviewed = () {
-      Tooltip.hide(card);
+      Hovertip.hide(card);
     };
 
     placeCard(card, index: index);
@@ -189,6 +327,6 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
 
   // @override
   // void render(Canvas canvas) {
-  //   // canvas.drawRect(border, DefaultBorderPaint.light);
+  //   canvas.drawRect(border, PresetPaints.light);
   // }
 }

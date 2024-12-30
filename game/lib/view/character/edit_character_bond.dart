@@ -5,7 +5,8 @@ import 'package:samsara/ui/close_button.dart';
 import 'package:flutter/services.dart';
 
 import '../../dialog/character_select_dialog.dart';
-import '../../config.dart';
+import '../../engine.dart';
+import '../../ui.dart';
 
 class EditCharacterBond extends StatefulWidget {
   const EditCharacterBond({

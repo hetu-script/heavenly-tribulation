@@ -17,8 +17,7 @@ class EquipmentsView extends StatelessWidget {
   final dynamic equipmentsData;
   final void Function(dynamic entityData, Rect gridRenderBox)?
       onMouseEnterItemGrid;
-  final void Function(dynamic entityData, Rect gridRenderBox)?
-      onMouseExitItemGrid;
+  final void Function()? onMouseExitItemGrid;
   final void Function(dynamic entityData, Offset screenPosition)? onItemTapped;
   final void Function(dynamic entityData, Offset screenPosition)?
       onItemSecondaryTapped;

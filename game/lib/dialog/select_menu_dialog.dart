@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_window.dart';
 import 'package:samsara/ui/close_button.dart';
 
-import '../config.dart';
+import '../engine.dart';
 import '../view/dropdown_menu_button.dart';
+import '../ui.dart';
 
 class SelectMenuDialog extends StatefulWidget {
   static Future<String?> show({

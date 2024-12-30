@@ -1,4 +1,90 @@
 import 'package:samsara/samsara.dart';
+import 'package:flutter/material.dart';
+
+const kForegroundColor = Colors.white;
+final kBackgroundColor = Colors.black.withAlpha(180);
+final kBarrierColor = Colors.black.withAlpha(128);
+final kBorderRadius = BorderRadius.circular(5.0);
+
+const iconTheme = IconThemeData(
+  color: kForegroundColor,
+);
+
+const captionStyle = TextStyle(
+  fontFamily: GameUI.fontFamily,
+  fontSize: 18.0,
+);
+
+final darkTheme = ThemeData(
+  brightness: Brightness.dark,
+  textTheme: TextTheme(),
+  fontFamily: GameUI.fontFamily,
+  colorScheme: ColorScheme.dark(
+    surface: kBackgroundColor,
+  ),
+  scaffoldBackgroundColor: Colors.transparent,
+  appBarTheme: const AppBarTheme(
+    centerTitle: true,
+    color: Colors.transparent,
+    toolbarHeight: 36,
+    iconTheme: iconTheme,
+    actionsIconTheme: iconTheme,
+    titleTextStyle: captionStyle,
+  ),
+  dialogBackgroundColor: kBarrierColor,
+  iconTheme: iconTheme,
+  cardTheme: CardTheme(
+    elevation: 0.5,
+    shape: RoundedRectangleBorder(
+      borderRadius: kBorderRadius,
+    ),
+  ),
+  textButtonTheme: TextButtonThemeData(
+    style: TextButton.styleFrom(
+      foregroundColor: kForegroundColor,
+      shape: const RoundedRectangleBorder(),
+    ),
+  ),
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: kBackgroundColor,
+      foregroundColor: kForegroundColor,
+      shape: RoundedRectangleBorder(
+        side: const BorderSide(
+          color: kForegroundColor,
+        ),
+        borderRadius: kBorderRadius,
+      ),
+    ),
+  ),
+  segmentedButtonTheme: SegmentedButtonThemeData(
+    style: SegmentedButton.styleFrom(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(5.0),
+          topRight: Radius.circular(5.0),
+        ),
+      ),
+    ),
+  ),
+  popupMenuTheme: PopupMenuThemeData(
+    color: kBackgroundColor,
+    shape: RoundedRectangleBorder(
+      side: const BorderSide(color: kForegroundColor),
+      borderRadius: kBorderRadius,
+    ),
+  ),
+  sliderTheme: const SliderThemeData(
+    activeTrackColor: kForegroundColor,
+    activeTickMarkColor: kForegroundColor,
+    thumbColor: kForegroundColor,
+    valueIndicatorTextStyle: TextStyle(
+      fontFamily: GameUI.fontFamily,
+      color: kForegroundColor,
+    ),
+  ),
+  dividerColor: kForegroundColor,
+);
 
 abstract class GameUI {
   static const String fontFamily = 'RuiZiYunZiKuLiBianTiGBK';
@@ -17,6 +103,7 @@ abstract class GameUI {
   static bool _isInitted = false;
   static bool get isInitted => _isInitted;
 
+  static const largeIndent = 40.0;
   static const indent = 20.0;
   static const smallIndent = 10.0;
   static const pileZoneIndent = 30.0;
@@ -72,15 +159,16 @@ abstract class GameUI {
   // deckbuilding ui
   static late Vector2 libraryCardSize,
       deckbuildingCardSize,
-      deckCoverSize,
+      // deckCoverSize,
       deckbuildingZonePileOffset,
       // deckbuildingZoneSize,
       decksZoneBackgroundSize,
       decksZoneBackgroundPosition,
       decksZoneCloseButtonPosition,
-      deckCoverPosition,
-      deckPileInitialPosition,
+      // deckCoverPosition,
+      // deckPileInitialPosition,
       libraryZoneBackgroundSize,
+      libraryZoneBackgroundPosition,
       libraryZoneSize,
       libraryZonePosition;
 
@@ -135,9 +223,12 @@ abstract class GameUI {
 
     GameUI.size = size;
 
-    libraryZoneBackgroundSize = Vector2(1190 / 1440 * size.x, size.y);
     libraryZonePosition = Vector2(120 / 1440 * size.x, 180 / 810 * size.y);
     libraryZoneSize = Vector2(960 / 1440 * size.x, 450 / 810 * size.y);
+
+    libraryZoneBackgroundPosition = Vector2(0, libraryZonePosition.y);
+    libraryZoneBackgroundSize =
+        Vector2(1190 / 1440 * size.x, libraryZoneSize.y);
 
     decksZoneBackgroundSize = Vector2(
         size.x - libraryZoneBackgroundSize.x, libraryZoneBackgroundSize.y);
@@ -149,34 +240,34 @@ abstract class GameUI {
     deckbuildingCardSize =
         Vector2(deckbuildingCardWidth, deckbuildingCardHeight);
 
-    final deckCoverWidth = deckbuildingCardWidth * 1.2166;
-    final deckCoverHeight = deckbuildingCardHeight * 1.0612;
-    deckCoverSize = Vector2(deckCoverWidth, deckCoverHeight);
+    // final deckCoverWidth = deckbuildingCardWidth * 1.2166;
+    // final deckCoverHeight = deckbuildingCardHeight * 1.0612;
+    // deckCoverSize = Vector2(deckCoverWidth, deckCoverHeight);
 
-    deckPileInitialPosition =
-        Vector2(decksZoneBackgroundPosition.x, decksZoneBackgroundPosition.y);
+    // deckPileInitialPosition =
+    //     Vector2(decksZoneBackgroundPosition.x, decksZoneBackgroundPosition.y);
 
-    deckCoverPosition =
-        Vector2(decksZoneBackgroundPosition.x, decksZoneBackgroundPosition.y);
+    // deckCoverPosition =
+    //     Vector2(decksZoneBackgroundPosition.x, decksZoneBackgroundPosition.y);
 
     decksZoneCloseButtonPosition = Vector2(
         decksZoneBackgroundPosition.x + indent,
-        decksZoneBackgroundPosition.y + libraryZoneSize.y + indent);
+        size.y - largeIndent - buttonSizeMedium.y);
 
     // deckbuildingZoneSize = Vector2(size.x, deckbuildingCardHeight + indent * 4);
     deckbuildingZonePileOffset = Vector2(0, 30);
 
-    // final libraryCardWidth = size.x / 6 - indent * 2;
+    // final libraryCardWidth = size.x / 6 - largeIndent;
     // final libraryCardHeight = libraryCardWidth * cardSizeRatio;
     // libraryCardSize = Vector2(libraryCardWidth, libraryCardHeight);
     libraryCardSize = deckbuildingCardSize;
 
     battleCardSize = deckbuildingCardSize;
     battleDeckZoneSize =
-        Vector2(size.x / 2 - indent * 2, battleCardSize.y + indent);
+        Vector2(size.x / 2 - largeIndent, battleCardSize.y + indent);
 
     battleCardFocusedSize =
-        Vector2(battleCardSize.x + indent * 2, battleCardSize.y + indent * 2);
+        Vector2(battleCardSize.x + largeIndent, battleCardSize.y + largeIndent);
 
     p1BattleDeckZonePosition =
         Vector2(indent / 2, size.y - battleDeckZoneSize.y - indent / 2);
@@ -256,4 +347,14 @@ abstract class GameUI {
 
     _isInitted = true;
   }
+}
+
+Rect getWidgetRenderRect(GlobalKey key) {
+  final renderBox = key.currentContext!.findRenderObject() as RenderBox;
+  final Size size = renderBox.size;
+  final Offset offset = renderBox.localToGlobal(Offset.zero);
+  final Rect rect =
+      Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height);
+
+  return rect;
 }

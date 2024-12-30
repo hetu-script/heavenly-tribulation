@@ -3,7 +3,8 @@ import 'package:samsara/ui/responsive_window.dart';
 import 'package:samsara/ui/close_button.dart';
 import 'package:samsara/extensions.dart' show StringEx;
 
-import '../../config.dart';
+import '../../engine.dart';
+import '../../ui.dart';
 
 class EditLocationIdAndBackground extends StatefulWidget {
   const EditLocationIdAndBackground({

@@ -115,9 +115,9 @@ namespace Player {
     return hero.cultivationRank
   }
 
-
   function acquireBattleCardByData(cardData, { incurIncident = true }) {
-    hero.cardLibrary.add(cardData)
+    assert(cardData != null && cardData.id != null)
+    hero.cardLibrary[cardData.id] = cardData
 
     let incidentContent
     incidentContent = engine.locale('heroAcquireItem', interpolations: [

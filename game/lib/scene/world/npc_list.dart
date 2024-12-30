@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/config.dart';
+import 'package:heavenly_tribulation/engine.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/ink_button.dart';
 

@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:samsara/extensions.dart';
 
-import '../config.dart';
+import '../engine.dart';
 // import '../hash.dart';
 import 'create_config.dart';
 

@@ -53,13 +53,14 @@
   "willpower": "念力",
   "perception": "神识",
 
-  "armor": "护甲",
+  "block": "防御",
+  "speed": "速度",
+  "dodge": "闪避",
 
-  "weaponAttack": "武器攻击力",
-  "spellAttack": "法术攻击力",
-  "physiqueAttack": "拳脚攻击力",
-  "incarnationAttack": "化身攻击力",
-  "willpowerAttack": "念力攻击力",
+  "physicalDamage": "物理攻击伤害",
+  "elementDamage": "元素攻击伤害",
+  "spellDamage": "咒术攻击伤害",
+  "spiritDamage": "精神攻击伤害",
 
   "lightRadius": "视野范围",
 

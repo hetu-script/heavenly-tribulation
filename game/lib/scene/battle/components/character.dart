@@ -3,11 +3,11 @@
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/progress_indicator.dart';
 import 'package:samsara/cardgame/card.dart';
-import 'package:samsara/components/tooltip.dart';
+import 'package:samsara/components/hovertip.dart';
 import 'package:samsara/animation/animation_state_controller.dart';
 import 'package:samsara/cardgame/custom_card.dart';
 
-import '../../../config.dart';
+import '../../../engine.dart';
 import '../../../data.dart';
 import 'common.dart';
 import 'deck_zone.dart';
@@ -73,7 +73,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     _mpBar.max = value;
   }
 
-  int get weaponAttack => data['stats']['weaponAttack'];
+  int get weaponDamage => data['stats']['weaponDamage'];
 
   BattleCharacter? opponent;
 
@@ -498,7 +498,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     } else {
       switch (damageType) {
         case DamageType.sword:
-          details['damage'] += opponent!.weaponAttack;
+          details['damage'] += opponent!.weaponDamage;
         default:
       }
       // 触发自己受到伤害时的效果，此时的伤害还未作用于角色身上，最终可能会被减免
@@ -606,11 +606,11 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // 展示当前卡牌及其详情
     card.enablePreview = false;
     await card.setFocused(true);
-    Tooltip.show(
+    Hovertip.show(
       scene: game,
       target: card,
-      direction: TooltipDirection.topCenter,
-      // direction: isHero ? TooltipDirection.rightTop : TooltipDirection.leftTop,
+      direction: HovertipDirection.topCenter,
+      // direction: isHero ? HovertipDirection.rightTop : HovertipDirection.leftTop,
       content: (card as CustomGameCard).extraDescription,
       config: ScreenTextConfig(anchor: Anchor.topCenter),
     );
@@ -668,7 +668,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     await card.setFocused(false);
     card.isEnabled = false;
-    Tooltip.hide(card);
+    Hovertip.hide(card);
     card.enablePreview = true;
 
     if (details['dodgeTurn'] ?? false) {

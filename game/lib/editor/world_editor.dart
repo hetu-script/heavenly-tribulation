@@ -16,7 +16,7 @@ import '../data.dart';
 // import '../../../event/ui.dart';
 // import '../../../ui/view/information/information.dart';
 // import '../../../shared/constants.dart';
-import '../config.dart';
+import '../engine.dart';
 import '../scene/world/world.dart';
 import 'widgets/drop_menu.dart';
 // import '../../../ui/view/location/location.dart';

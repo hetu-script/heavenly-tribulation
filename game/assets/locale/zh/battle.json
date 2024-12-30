@@ -1,4 +1,9 @@
 {
+  "prebattle": "战斗准备",
+  "prebattle.checkStats": "查看属性",
+  "prebattle.selectDeck": "选择卡组",
+  "prebattle.editDeck": "编辑卡组",
+
   "ignoreBlock": "无视防御！",
   "notEnoughMana": "灵气不足！",
   "skipTurn": "跳过回合！",

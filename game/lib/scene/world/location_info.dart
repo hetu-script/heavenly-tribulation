@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../config.dart';
+import '../../ui.dart';
 
 class LocationInfoPanel extends StatelessWidget {
   const LocationInfoPanel({

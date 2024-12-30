@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../config.dart';
+import '../engine.dart';
 import 'common.dart';
 
 class HistoryView extends StatelessWidget {

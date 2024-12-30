@@ -14,7 +14,7 @@ import 'package:samsara/samsara.dart';
 
 import 'ui.dart';
 import 'common.dart';
-import 'config.dart';
+import 'engine.dart';
 import 'scene/common.dart';
 
 /// 游戏数据，大部分以JSON或者Hetu Struct形式保存
@@ -288,11 +288,11 @@ abstract class GameData {
     final List affixes = data['affixes'];
     final int cardLevel = data['level'];
     final int cardRank = data['rank'];
-    final title = data['name'];
+    final String title = data['name'];
+    final String image = data['image'];
 
     assert(affixes.isNotEmpty);
     final mainAffix = affixes[0];
-    final String image = mainAffix['image'];
 
     final genreString =
         '${engine.locale('genre')}: ${engine.locale(mainAffix['genre'])}';

@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_window.dart';
 
-import '../config.dart';
+import '../engine.dart';
+import '../ui.dart';
 
 class ConfirmDialog extends StatelessWidget {
   static Future<bool?> show({
@@ -37,7 +38,7 @@ class ConfirmDialog extends StatelessWidget {
           backgroundColor: kBackgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
-            title: Text(engine.locale('confirm')),
+            title: Text(engine.locale('confirmOperation')),
           ),
           body: Container(
             alignment: AlignmentDirectional.center,

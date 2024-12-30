@@ -3,7 +3,7 @@ import 'package:samsara/ui/empty_placeholder.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/gestures.dart';
 
-import '../config.dart';
+import '../engine.dart';
 
 class GameEntityListView extends StatefulWidget {
   const GameEntityListView({

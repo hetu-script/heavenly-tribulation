@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/loading_screen.dart' as samsara;
 
-import '../config.dart';
+import '../engine.dart';
 
 class LoadingScreen extends StatefulWidget {
   const LoadingScreen({super.key});

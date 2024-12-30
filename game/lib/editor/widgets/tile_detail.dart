@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:samsara/ui/responsive_window.dart';
 import 'package:samsara/ui/close_button.dart';
 
-import '../../config.dart';
+import '../../engine.dart';
+import '../../ui.dart';
 import '../../state/selected_tile.dart';
 
 class TileDetailPanel extends StatefulWidget {

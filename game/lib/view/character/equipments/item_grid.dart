@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:samsara/ui/rrect_icon.dart';
 import 'package:samsara/widgets/pointer_detector.dart';
 
-import '../../../config.dart';
+import '../../../engine.dart';
+import '../../../ui.dart';
 import '../../../common.dart';
 
 enum GridStyle {
@@ -34,8 +35,7 @@ class EntityGrid extends StatelessWidget {
   final dynamic entityData;
   final void Function(dynamic entityData, Rect gridRenderBox)?
       onMouseEnterItemGrid;
-  final void Function(dynamic entityData, Rect gridRenderBox)?
-      onMouseExitItemGrid;
+  final void Function()? onMouseExitItemGrid;
   final void Function(dynamic entityData, Offset screenPosition)? onTapped;
   final void Function(dynamic entityData, Offset screenPosition)?
       onSecondaryTapped;
@@ -90,15 +90,15 @@ class EntityGrid extends StatelessWidget {
                 return;
               }
 
-              final renderBox = (key as GlobalKey)
-                  .currentContext!
-                  .findRenderObject() as RenderBox;
-              final Size size = renderBox.size;
-              final Offset offset = renderBox.localToGlobal(Offset.zero);
-              final Rect rect =
-                  Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height);
+              // final renderBox = (key as GlobalKey)
+              //     .currentContext!
+              //     .findRenderObject() as RenderBox;
+              // final Size size = renderBox.size;
+              // final Offset offset = renderBox.localToGlobal(Offset.zero);
+              // final Rect rect =
+              //     Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height);
 
-              onMouseExitItemGrid?.call(entityData, rect);
+              onMouseExitItemGrid?.call();
             },
             child: Container(
               width: size.width,
@@ -210,15 +210,15 @@ class EntityGrid extends StatelessWidget {
                       return;
                     }
 
-                    final renderBox = (key as GlobalKey)
-                        .currentContext!
-                        .findRenderObject() as RenderBox;
-                    final Size size = renderBox.size;
-                    final Offset offset = renderBox.localToGlobal(Offset.zero);
-                    final Rect rect = Rect.fromLTWH(
-                        offset.dx, offset.dy, size.width, size.height);
+                    // final renderBox = (key as GlobalKey)
+                    //     .currentContext!
+                    //     .findRenderObject() as RenderBox;
+                    // final Size size = renderBox.size;
+                    // final Offset offset = renderBox.localToGlobal(Offset.zero);
+                    // final Rect rect = Rect.fromLTWH(
+                    //     offset.dx, offset.dy, size.width, size.height);
 
-                    onMouseExitItemGrid?.call(entityData, rect);
+                    onMouseExitItemGrid?.call();
                   },
                   child: Container(
                       width: size.height,

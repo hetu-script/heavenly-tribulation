@@ -11,7 +11,7 @@ import 'package:samsara/ui/loading_screen.dart';
 import 'package:provider/provider.dart';
 
 // import '../../dialog/game_dialog/game_dialog.dart';
-import '../../config.dart';
+import '../../engine.dart';
 import 'components/cultivation.dart';
 import 'drop_menu.dart';
 import '../history_info.dart';

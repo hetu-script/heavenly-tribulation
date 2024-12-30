@@ -8,7 +8,7 @@ import 'package:samsara/tilemap.dart';
 import 'package:hetu_script/values.dart';
 import 'package:flame/flame.dart';
 
-import '../../config.dart';
+import '../../engine.dart';
 import 'weather/cloud.dart';
 import '../../events.dart';
 import '../common.dart';

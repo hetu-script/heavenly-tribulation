@@ -5,6 +5,7 @@
   "debug": "DEBUG信息",
   "console": "控制台",
   "confirm": "确定",
+  "confirmOperation": "确认操作",
   "okay": "好的",
   "cancel": "取消",
   "forgetIt": "算了",
@@ -17,6 +18,7 @@
   "void": "虚无",
   "loading": "载入中...",
   "menu": "菜单",
+  "untitled": "未命名",
 
   "id": "ID",
   "characterId": "角色ID",
@@ -84,8 +86,7 @@
   "selectOrganization": "选择一个门派",
   "selectItem": "选择一个物品",
 
-  "confirmOperation": "这是一个危险操作，确认继续吗？",
-  "dangerOperationPrompt": "这是一个危险操作，确认继续吗？",
+  "dangerOperationPrompt": "这个操作无法撤销，确认继续吗？",
 
   "savedSuccessfully": "成功保存游戏至：\n{0}",
 
@@ -250,9 +251,9 @@
   "supportSkillGenre": "辅助流派",
 
   "general": "通用",
-  "daoism": "悟道",
+  "daoism": "道术",
   "physique": "锻体",
-  "avatar": "化身",
+  "avatar": "法身",
   "vitality": "炼魂",
   "swordcraft": "御剑",
 

@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/common.dart';
 import 'package:samsara/ui/close_button.dart';
 
-import '../../config.dart';
+import '../../engine.dart';
+import '../../ui.dart';
 // import 'status_effects.dart';
 import 'equipments/inventory.dart';
 import 'equipments/item_info.dart';
@@ -63,7 +64,7 @@ class _CardpacksViewState extends State<CardpacksView> {
     });
   }
 
-  void onMouseExitItemGrid(dynamic entityData, Rect gridRenderBox) {
+  void onMouseExitItemGrid() {
     setState(() {
       _hoverEntityData = null;
       _hoverGridRect = null;

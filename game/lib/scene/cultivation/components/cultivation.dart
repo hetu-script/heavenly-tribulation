@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' hide Tooltip;
+import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/common.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
@@ -13,14 +13,14 @@ import 'package:samsara/components/sprite_button.dart';
 import 'package:samsara/utils/math.dart';
 import 'package:samsara/components/rich_text_component.dart';
 import 'package:hetu_script/utils.dart';
-import 'package:samsara/components/tooltip.dart';
+import 'package:samsara/components/hovertip.dart';
 import 'package:samsara/components/sprite_component2.dart';
 import 'package:hetu_script/values.dart';
 
 // import 'cultivator.dart';
 // import 'light_trail.dart';
 import 'exp_light_point.dart';
-import '../../../config.dart';
+import '../../../engine.dart';
 import '../../../logic/algorithm.dart';
 import '../../../ui.dart';
 // import '../../../common.dart';
@@ -53,7 +53,7 @@ class CultivationScene extends Scene {
 
   late final SpriteComponent2 skillTreeTracksSprite;
 
-  dynamic _heroData;
+  late final dynamic _heroData;
 
   late final SpriteComponent2 cultivator;
 
@@ -97,19 +97,13 @@ class CultivationScene extends Scene {
     }
   }
 
-  dynamic _heroSkillsData = {};
+  late final dynamic _heroSkillsData;
 
   CultivationScene({
     required super.controller,
     required super.context,
     bool talentTreeMode = false,
-  }) : super(id: 'cultivation', enableLighting: true) {
-    // selectedGenre = heroData['cultivationGenre'];
-
-    _heroData = engine.hetu.fetch('hero');
-
-    _heroSkillsData = deepCopy(_heroData['cultivationSkills']);
-  }
+  }) : super(id: 'cultivation', enableLighting: true);
 
   void udpateLevelDescription() {
     final rank = _heroData['cultivationRank'];
@@ -245,10 +239,10 @@ class CultivationScene extends Scene {
           // lightConfig: LightConfig(radius: 25),
         );
         button.onMouseEnter = () {
-          Tooltip.show(
+          Hovertip.show(
             scene: this,
             target: button!,
-            direction: TooltipDirection.rightTop,
+            direction: HovertipDirection.rightTop,
             content:
                 '$positionId\nx:${button.position.x},\ny:${button.position.y}',
           );
@@ -457,17 +451,17 @@ class CultivationScene extends Scene {
         } else {
           skillDescription.writeln(engine.locale('locked.hint'));
         }
-        Tooltip.show(
+        Hovertip.show(
           scene: this,
           target: button!,
-          direction: TooltipDirection.rightTop,
+          direction: HovertipDirection.rightTop,
           content: skillDescription.toString(),
         );
       };
     }
 
     button.onMouseExit = () {
-      Tooltip.hide(button!);
+      Hovertip.hide(button!);
     };
     _skillButtons[positionId] = button;
     world.add(button);
@@ -476,6 +470,10 @@ class CultivationScene extends Scene {
   @override
   Future<void> onLoad() async {
     super.onLoad();
+
+    _heroData = engine.hetu.fetch('hero');
+
+    _heroSkillsData = deepCopy(_heroData['cultivationSkills']);
 
     backgroundSprite = SpriteComponent(
       position: Vector2(center.x, center.y - 130),

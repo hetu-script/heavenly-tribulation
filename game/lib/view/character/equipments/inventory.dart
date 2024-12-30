@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'item_grid.dart';
 // import 'entity_info.dart';
-import '../../../config.dart';
+import '../../../engine.dart';
 // import '../../../../event/ui.dart';
 // import 'package:samsara/ui/integer_input_field.dart';
 import 'package:samsara/ui/empty_placeholder.dart';
@@ -52,8 +52,7 @@ class InventoryView extends StatelessWidget {
   final int minSlotCount, gridCountPerLine;
   final void Function(dynamic entityData, Rect gridRenderBox)?
       onMouseEnterItemGrid;
-  final void Function(dynamic entityData, Rect gridRenderBox)?
-      onMouseExitItemGrid;
+  final void Function()? onMouseExitItemGrid;
   final void Function(dynamic entityData, Offset screenPosition)? onItemTapped;
   final void Function(dynamic entityData, Offset screenPosition)?
       onItemSecondaryTapped;

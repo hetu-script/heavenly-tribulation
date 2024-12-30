@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:samsara/ui/rrect_icon.dart';
-import '../config.dart';
+import '../engine.dart';
+import '../ui.dart';
 // import 'character/profile.dart';
 
 enum AvatarNameAlignment {
@@ -20,9 +21,8 @@ class Avatar extends StatelessWidget {
     this.margin,
     this.image,
     this.borderImage,
-    this.showBorder = true,
+    this.showBorder = false,
     this.color = Colors.transparent,
-    this.showHandCursor = true,
     this.size = const Size(100.0, 100.0),
     this.radius = 15.0,
     this.borderColor = Colors.transparent,
@@ -30,7 +30,7 @@ class Avatar extends StatelessWidget {
     this.characterId,
     this.characterData,
     this.onPressed,
-  });
+  }) : showHandCursor = onPressed != null;
 
   final AvatarNameAlignment nameAlignment;
 
@@ -171,12 +171,11 @@ class Avatar extends StatelessWidget {
           alignment: Alignment.bottomCenter,
           child: Container(
             width: size.width,
-            padding: const EdgeInsets.only(bottom: 5.0),
             decoration: BoxDecoration(
-              color: Colors.white54,
+              color: Colors.white70,
               borderRadius: BorderRadius.only(bottomLeft: br, bottomRight: br),
-              border: Border.symmetric(
-                  horizontal: BorderSide(color: Colors.grey.shade400)),
+              border:
+                  Border.symmetric(horizontal: BorderSide(color: Colors.grey)),
             ),
             child: Text(
               name,

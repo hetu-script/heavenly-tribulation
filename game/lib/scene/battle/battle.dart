@@ -9,7 +9,7 @@ import 'package:hetu_script/utils/uid.dart';
 // import 'package:samsara/task.dart';
 import 'package:samsara/cardgame/card.dart';
 
-import '../../config.dart';
+import '../../engine.dart';
 import 'components/battle.dart';
 import 'drop_menu.dart';
 // import '../../avatar.dart';

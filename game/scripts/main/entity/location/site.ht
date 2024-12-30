@@ -49,7 +49,7 @@ struct Site {
     image,
     ownerId,
     organizationId,
-    isSubSite,
+    isSubSite, // 某个场景的子场景
   }) {
     assert(location != null)
     assert(category != null)

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 // import '../../../event/ui.dart';
-import '../../config.dart';
+import '../../engine.dart';
+import '../../ui.dart';
 import 'package:samsara/ui/label.dart';
 
 class QuestCard extends StatelessWidget {

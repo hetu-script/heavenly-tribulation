@@ -41,10 +41,10 @@
   // 对方/自己使用心法时 opponent/self
   // 对方/自己使用咒语时 opponent/self
   // 对方/自己使用术法时 opponent/self
-  // 对方/自己使用悟道流派招式时 opponent/self
+  // 对方/自己使用道术流派招式时 opponent/self
   // 对方/自己使用御剑流派招式时 opponent/self_use_card_genre_flying_sword
   // 对方/自己使用锻体流派招式时 opponent/self
-  // 对方/自己使用化神流派招式时 opponent/self
+  // 对方/自己使用法身流派招式时 opponent/self
   // 对方/自己使用炼魂流派招式时 opponent/self
   // 对方/自己使用阵法时 opponent/self
   // 对方/自己使用符咒时 opponent/self

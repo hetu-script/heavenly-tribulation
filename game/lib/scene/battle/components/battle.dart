@@ -16,7 +16,7 @@ import 'package:flame/flame.dart';
 import '../../../ui.dart';
 import 'character.dart';
 import 'deck_zone.dart';
-import '../../../config.dart';
+import '../../../engine.dart';
 // import 'status/status.dart';
 import 'versus_banner.dart';
 

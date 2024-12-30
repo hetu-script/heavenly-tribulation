@@ -1,5 +1,13 @@
 {
   "deckbuilding.requiredCardsPrompt": "<red>上阵卡牌数量不足！</>",
 
-  "deckbuilding.createNewDeck": "创建新卡组"
+  "deckbuilding.setAsBattleDeck": "设置出战卡组",
+  "deckbuilding.battleDeck": "出战卡组",
+  "deckbuilding.cardCount": "卡牌数量",
+
+  "deckbuilding.deckIsNotFull": "<red>无法设置为出战卡组：</>卡牌数量不足！",
+
+  "deckbuilding.newDeck": "创建新卡组",
+  "deckbuilding.addCard": "将卡牌拖动至此来加入卡组",
+  "deckbuilding.editDeck": "点击鼠标左键：编辑卡组\n点击鼠标右键：打开菜单"
 }

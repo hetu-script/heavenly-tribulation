@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
 import 'package:samsara/ui/responsive_window.dart';
-import '../../config.dart';
+import '../../engine.dart';
 import 'package:samsara/ui/close_button.dart';
 import '../character/equipments/inventory.dart';
 // import '../../../event/ui.dart';

@@ -2,9 +2,9 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/gestures.dart';
 import 'package:flame/sprite.dart';
 import 'package:flame/flame.dart';
-import 'package:samsara/components/tooltip.dart';
+import 'package:samsara/components/hovertip.dart';
 
-import '../../../config.dart';
+import '../../../engine.dart';
 import '../../../data.dart';
 import '../../../ui.dart';
 
@@ -86,17 +86,17 @@ class StatusEffect extends BorderComponent with HandlesGesture {
         '${engine.locale('$id.title')}\n${engine.locale('$id.description')}';
 
     onMouseEnter = () {
-      Tooltip.show(
+      Hovertip.show(
         scene: gameRef,
         target: this,
         direction: anchor.x == 0
-            ? TooltipDirection.topLeft
-            : TooltipDirection.topRight,
+            ? HovertipDirection.topLeft
+            : HovertipDirection.topRight,
         content: description,
       );
     };
     onMouseExit = () {
-      Tooltip.hide(this);
+      Hovertip.hide(this);
     };
   }
 

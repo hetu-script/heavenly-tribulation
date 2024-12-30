@@ -8,11 +8,12 @@ import 'package:provider/provider.dart';
 import '../view/avatar.dart';
 import '../view/character/profile.dart';
 import '../view/character/memory.dart';
-import '../config.dart';
+import '../engine.dart';
 import '../view/character/equipments_and_stats.dart';
 import '../state/selected_tile.dart';
 import '../state/hero.dart';
 import '../view/quest.dart';
+import '../ui.dart';
 
 const tickName = {
   1: 'morning.jpg',

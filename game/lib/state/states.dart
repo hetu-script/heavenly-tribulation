@@ -4,7 +4,6 @@ export 'game_dialog.dart';
 export 'hero.dart';
 export 'history.dart';
 export 'location_site_scene.dart';
-export 'mainmenu.dart';
 export 'map_scene.dart';
 export 'quest.dart';
 export 'game_save.dart';

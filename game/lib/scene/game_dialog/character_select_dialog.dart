@@ -3,7 +3,7 @@ import 'package:heavenly_tribulation/view/character/profile.dart';
 import 'package:heavenly_tribulation/view/common.dart';
 import 'package:samsara/ui/responsive_window.dart';
 
-import '../../config.dart';
+import '../../engine.dart';
 import '../../util.dart';
 import '../../view/game_entity_listview.dart';
 

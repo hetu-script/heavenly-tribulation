@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../scene/world/location/components/location_site.dart';
-import '../config.dart';
+import '../engine.dart';
 
 class LocationSiteSceneState with ChangeNotifier {
   LocationSiteScene? scene;

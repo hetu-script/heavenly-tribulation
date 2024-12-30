@@ -1,7 +1,7 @@
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:flame/components.dart';
 // import 'package:samsara/paint.dart';
-import 'package:samsara/components/tooltip.dart';
+import 'package:samsara/components/hovertip.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/paint/paint.dart';
 
@@ -43,10 +43,10 @@ class BattleDeckZone extends PiledZone with HandlesGesture {
       }
 
       card.onPreviewed = () {
-        Tooltip.show(
+        Hovertip.show(
           scene: game,
           target: card,
-          direction: TooltipDirection.topLeft,
+          direction: HovertipDirection.topLeft,
           content: (card as CustomGameCard).extraDescription,
           config: ScreenTextConfig(anchor: Anchor.topCenter),
         );
@@ -54,7 +54,7 @@ class BattleDeckZone extends PiledZone with HandlesGesture {
 
       card.onUnpreviewed = () {
         if (!card.isFocused) {
-          Tooltip.hide(card);
+          Hovertip.hide(card);
         }
       };
     }

@@ -5,7 +5,8 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/responsive_window.dart';
 import 'package:samsara/ui/close_button.dart';
 
-import '../config.dart';
+import '../engine.dart';
+import '../ui.dart';
 
 class InputDescriptionDialog extends StatefulWidget {
   static Future<String?> show({

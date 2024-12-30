@@ -273,8 +273,8 @@ struct Character {
     majorAttributes: List = [],
     baseStats,
     // cultivationGenre,
-    cardLibrary,
-    battleDeck,
+    cardLibrary: {},
+    battleDecks: List = [],
   }) {
     // 该人物的每月刷新事件的时间
     this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
@@ -461,7 +461,8 @@ struct Character {
       majorAttributes: majorAttributes,
       baseStats: baseStats,
       // cultivationGenre: cultivationGenre,
-      battleDeck: battleDeck,
+      cardLibrary: cardLibrary,
+      battleDecks: battleDecks,
     )
     Object.assign(this, battleInfo)
 
@@ -480,12 +481,6 @@ struct Character {
     this.skillTreeUnlockedNodes = {}
     // 已分配的天赋盘技能，key是技能id，可能有多个技能拥有相同id
     this.cultivationSkills = {}
-    // 角色当前卡牌库，关于战斗卡牌的具体信息另行参阅文档
-    this.cardLibrary = cardLibrary ?? []
-    // 战斗卡组的数组，数组的值是一个结构体，包含卡组的命名（可修改）和卡组内容
-    this.battleDecks = []
-    // 当前使用的战斗卡组，记录的是战斗卡组数组的index
-    this.currentBattleDeckIndex = -1
 
     // 一同行动的角色
     this.companions = []

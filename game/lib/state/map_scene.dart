@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../scene/world/world.dart';
-import '../config.dart';
+import '../engine.dart';
 import '../data.dart';
 
 class WorldMapSceneState with ChangeNotifier {

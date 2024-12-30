@@ -6,7 +6,8 @@ import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
 import 'package:flame/extensions.dart';
 
-import '../../config.dart';
+import '../../engine.dart';
+import '../../ui.dart';
 import '../../state/editor_tool.dart';
 import '../../data.dart';
 

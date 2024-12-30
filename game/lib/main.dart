@@ -15,7 +15,7 @@ import 'mainmenu/main_menu.dart';
 // import 'ui/editor/editor.dart';
 // import 'ui/view/character/character.dart';
 // import 'ui/view/information/information.dart';
-import 'config.dart';
+import 'engine.dart';
 // import 'ui/overlay/main_game.dart';
 import 'state/states.dart';
 
@@ -88,7 +88,7 @@ void main() {
         providers: [
           ChangeNotifierProvider(create: (_) => SelectedTileState()),
           ChangeNotifierProvider(create: (_) => GameSavesState()),
-          ChangeNotifierProvider(create: (_) => MainMenuState()),
+          // ChangeNotifierProvider(create: (_) => MainMenuState()),
           ChangeNotifierProvider(create: (_) => EditorToolState()),
           ChangeNotifierProvider(create: (_) => HistoryState()),
           ChangeNotifierProvider(create: (_) => GameDialogState()),

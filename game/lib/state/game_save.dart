@@ -7,7 +7,7 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart' as path;
 import 'package:samsara/utils/json.dart';
 
-import '../config.dart';
+import '../engine.dart';
 import '../datetime.dart';
 import '../common.dart';
 

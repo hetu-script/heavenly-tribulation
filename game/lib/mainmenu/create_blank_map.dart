@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../config.dart';
+import '../engine.dart';
 
 class CreateBlankMapDialog extends StatefulWidget {
   const CreateBlankMapDialog({

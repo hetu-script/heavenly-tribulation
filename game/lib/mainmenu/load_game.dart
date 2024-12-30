@@ -5,8 +5,9 @@ import 'package:provider/provider.dart';
 import 'package:samsara/ui/responsive_window.dart';
 
 import '../state/game_save.dart';
-import '../config.dart';
+import '../engine.dart';
 import '../common.dart';
+import '../ui.dart';
 
 class LoadGameDialog extends StatefulWidget {
   const LoadGameDialog({super.key});

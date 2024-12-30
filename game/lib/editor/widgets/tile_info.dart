@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/responsive_window.dart';
 
-import '../../config.dart';
+import '../../engine.dart';
+import '../../ui.dart';
 import '../../state/selected_tile.dart';
 // import 'tile_detail.dart';
 

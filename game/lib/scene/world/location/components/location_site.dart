@@ -4,7 +4,7 @@ import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
 import 'package:samsara/cardgame/custom_card.dart';
 
-import '../../../../config.dart';
+import '../../../../engine.dart';
 import '../../../../data.dart';
 import 'site_zone.dart';
 // import '../../../../ui.dart';

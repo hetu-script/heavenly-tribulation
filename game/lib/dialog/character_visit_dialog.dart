@@ -4,7 +4,7 @@ import 'package:samsara/ui/empty_placeholder.dart';
 import 'package:samsara/ui/responsive_window.dart';
 import 'package:samsara/ui/close_button.dart';
 
-import '../config.dart';
+import '../engine.dart';
 
 const _kCharacterVisitTableColumns = [
   'name',

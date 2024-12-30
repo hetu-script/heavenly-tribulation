@@ -6,8 +6,9 @@ import 'package:samsara/ui/responsive_window.dart';
 import 'package:samsara/ui/close_button.dart';
 import 'package:samsara/ui/integer_input_field.dart';
 
-import '../../config.dart';
+import '../../engine.dart';
 import '../../view/dropdown_menu_button.dart';
+import '../../ui.dart';
 
 const kObjectTypes = {
   "portal",

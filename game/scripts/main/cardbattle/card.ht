@@ -48,6 +48,7 @@ struct BattleCard {
     const mainAffix = JSON.deepcopy(random.nextIterable(mainAffixes))
     this.level = mainAffix.level = level
     this.name = generateSkillName(category: mainAffix.kind).name
+    this.image = mainAffix.image
 
     final affixUniqueIds = []
     if (mainAffix.uniqueIds is List) {

@@ -3,7 +3,7 @@ import 'package:samsara/ui/responsive_window.dart';
 import 'package:samsara/ui/close_button.dart';
 
 import '../character/memory.dart';
-import '../../config.dart';
+import '../../engine.dart';
 import '../game_entity_listview.dart';
 import '../../util.dart';
 import '../location/location.dart';

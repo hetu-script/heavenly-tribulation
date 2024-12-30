@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/ui/label.dart';
 // import 'package:samsara/ui/dynamic_color_progressbar.dart';
 
-import '../../../config.dart';
+import '../../../engine.dart';
 
 class StatsView extends StatelessWidget {
   const StatsView({
@@ -25,8 +25,8 @@ class StatsView extends StatelessWidget {
     final int strength = stats['strength'];
     final int willpower = stats['willpower'];
     final int perception = stats['perception'];
-    final int armor = stats['armor'];
-    final int weaponAttack = stats['weaponAttack'];
+    final int block = stats['block'];
+    final int physicalDamage = stats['physicalDamage'];
 
     final labels = <Widget>[
       Label(
@@ -62,11 +62,11 @@ class StatsView extends StatelessWidget {
         width: 120.0,
       ),
       Label(
-        '${engine.locale('armor')}: $armor',
+        '${engine.locale('block')}: $block',
         width: 120.0,
       ),
       Label(
-        '${engine.locale('weaponAttack')}: $weaponAttack',
+        '${engine.locale('physicalDamage')}: $physicalDamage',
         width: 120.0,
       ),
     ];

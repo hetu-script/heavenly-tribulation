@@ -6,6 +6,10 @@ const kGameSaveFileExtension = '.tdqjgame';
 const kUniverseSaveFilePostfix = '_universe';
 const kHistorySaveFilePostfix = '_history';
 
+const kValueTypeInt = 'int';
+const kValueTypeFloat = 'float';
+const kValueTypePercentage = 'percentage';
+
 const kEquipmentMax = 7;
 const kEquipmentSupportMax = 4;
 

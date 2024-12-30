@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_window.dart';
 
-import '../config.dart';
+import '../engine.dart';
 import '../util.dart';
 import '../view/game_entity_listview.dart';
 import '../view/character/profile.dart';

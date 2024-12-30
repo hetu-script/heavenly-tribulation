@@ -4,7 +4,8 @@ import 'package:samsara/ui/close_button.dart';
 import 'package:samsara/ui/empty_placeholder.dart';
 // import 'package:flutter/services.dart';
 
-import '../config.dart';
+import '../engine.dart';
+import '../ui.dart';
 import 'common.dart';
 
 enum QuestViewMode { all, ongoing, finished }
