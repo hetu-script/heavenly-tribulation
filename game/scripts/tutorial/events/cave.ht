@@ -47,17 +47,17 @@ const cave = {
         final card1 = BattleCard(
           genre: "general",
           category: "attack",
-          kind: "fist",
+          kind: "punch",
         )
         final card2 = BattleCard(
           genre: "general", 
           category: "attack",
-          kind: "fist",
+          kind: "punch",
         )
         final card3 = BattleCard(
           genre: "general",
           category: "buff",
-          kind: "fist",
+          kind: "punch",
         )
         Player.acquireBattleCardByData(card1)
         Player.acquireBattleCardByData(card2)

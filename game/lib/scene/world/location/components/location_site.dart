@@ -8,7 +8,7 @@ import '../../../../engine.dart';
 import '../../../../data.dart';
 import 'site_zone.dart';
 // import '../../../../ui.dart';
-import '../../../../events.dart';
+import '../../../events.dart';
 
 class LocationSiteScene extends Scene {
   late final SpriteComponent _backgroundComponent;

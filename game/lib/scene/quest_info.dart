@@ -33,6 +33,7 @@ const List<Shadow> kTextShadow = [
   ),
 ];
 
+/// 右上角悬浮文字面板
 class QuestInfoPanel extends StatefulWidget {
   const QuestInfoPanel({super.key});
 
@@ -73,7 +74,7 @@ class _QuestInfoPanelState extends State<QuestInfoPanel> {
                         borderRadius: BorderRadius.circular(10.0),
                         border: Border.all(
                             color: _showBorder
-                                ? kForegroundColor
+                                ? GameUI.foregroundColor
                                 : Colors.transparent),
                       ),
                       child: Column(

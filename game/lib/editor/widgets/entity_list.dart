@@ -11,13 +11,13 @@ import '../../view/character/memory.dart';
 import '../../view/location/location.dart';
 import '../../view/organization/organization.dart';
 import '../../view/menu_item_builder.dart';
-import '../../view/character/equipments_and_stats.dart';
+import '../../view/character/details.dart';
 import '../../view/character/profile.dart';
 import '../../dialog/input_world_position.dart';
 // import '../../view/zone/zone.dart';
 import '../../view/common.dart';
 // import '../../state/game_data.dart';
-import '../../events.dart';
+import '../../scene/events.dart';
 import '../../dialog/input_string.dart';
 import '../../dialog/confirm_dialog.dart';
 import '../../view/character/edit_character_event_flags.dart';
@@ -51,69 +51,69 @@ enum CharacterPopUpMenuItems {
 }
 
 List<PopupMenuEntry<CharacterPopUpMenuItems>> buildCharacterPopUpMenuItems(
-    {void Function(CharacterPopUpMenuItems item)? onItemPressed}) {
+    {void Function(CharacterPopUpMenuItems item)? onSelectedItem}) {
   return <PopupMenuEntry<CharacterPopUpMenuItems>>[
     buildMenuItem(
       item: CharacterPopUpMenuItems.checkProfile,
       name: engine.locale('checkProfile'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: CharacterPopUpMenuItems.checkEventFlags,
       name: engine.locale('checkEventFlags'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: CharacterPopUpMenuItems.checkEquipments,
       name: engine.locale('checkEquipments'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: CharacterPopUpMenuItems.checkMemory,
       name: engine.locale('checkMemory'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     const PopupMenuDivider(),
     buildMenuItem(
       item: CharacterPopUpMenuItems.setAsHero,
       name: engine.locale('setAsHero'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: CharacterPopUpMenuItems.clearWorldMapPosition,
       name: engine.locale('clearWorldMapPosition'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: CharacterPopUpMenuItems.setWorldMapPosition,
       name: engine.locale('setWorldMapPosition'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: CharacterPopUpMenuItems.clearLocation,
       name: engine.locale('clearLocation'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: CharacterPopUpMenuItems.setLocation,
       name: engine.locale('setLocation'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: CharacterPopUpMenuItems.clearLocationSite,
       name: engine.locale('clearLocationSite'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: CharacterPopUpMenuItems.setLocationSite,
       name: engine.locale('setLocationSite'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     const PopupMenuDivider(),
     buildMenuItem(
       item: CharacterPopUpMenuItems.delete,
       name: engine.locale('delete'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
   ];
 }
@@ -124,18 +124,18 @@ enum LocationPopUpMenuItems {
 }
 
 List<PopupMenuEntry<LocationPopUpMenuItems>> buildLocationPopUpMenuItems(
-    {void Function(LocationPopUpMenuItems item)? onItemPressed}) {
+    {void Function(LocationPopUpMenuItems item)? onSelectedItem}) {
   return <PopupMenuEntry<LocationPopUpMenuItems>>[
     buildMenuItem(
       item: LocationPopUpMenuItems.checkInformation,
       name: engine.locale('checkInformation'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     const PopupMenuDivider(),
     buildMenuItem(
       item: LocationPopUpMenuItems.delete,
       name: engine.locale('delete'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
   ];
 }
@@ -146,18 +146,18 @@ enum ObjectPopUpMenuItems {
 }
 
 List<PopupMenuEntry<ObjectPopUpMenuItems>> buildObjectPopUpMenuItems(
-    {void Function(ObjectPopUpMenuItems item)? onItemPressed}) {
+    {void Function(ObjectPopUpMenuItems item)? onSelectedItem}) {
   return <PopupMenuEntry<ObjectPopUpMenuItems>>[
     buildMenuItem(
       item: ObjectPopUpMenuItems.edit,
       name: engine.locale('edit'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     const PopupMenuDivider(),
     buildMenuItem(
       item: ObjectPopUpMenuItems.delete,
       name: engine.locale('delete'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
   ];
 }
@@ -283,7 +283,7 @@ class _EntityListPanelState extends State<EntityListPanel>
   void _editCharacter(String dataId) {
     showDialog(
       context: context,
-      builder: (context) => ProfileView(
+      builder: (context) => CharacterProfileView(
         characterId: dataId,
         mode: ViewPanelMode.edit,
       ),
@@ -408,7 +408,7 @@ class _EntityListPanelState extends State<EntityListPanel>
   Widget build(BuildContext context) {
     super.build(context);
     return ResponsiveWindow(
-      color: kBackgroundColor,
+      color: GameUI.backgroundColor,
       size: widget.size,
       alignment: AlignmentDirectional.bottomCenter,
       child: DefaultTabController(
@@ -434,7 +434,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                         showDialog(
                             context: context,
                             builder: (context) {
-                              return const ProfileView(
+                              return const CharacterProfileView(
                                 mode: ViewPanelMode.create,
                               );
                             }).then((value) {
@@ -463,8 +463,8 @@ class _EntityListPanelState extends State<EntityListPanel>
                       onItemSecondaryPressed: (buttons, position, dataId) {
                         final menuPosition = RelativeRect.fromLTRB(
                             position.dx, position.dy, position.dx, 0.0);
-                        final items =
-                            buildCharacterPopUpMenuItems(onItemPressed: (item) {
+                        final items = buildCharacterPopUpMenuItems(
+                            onSelectedItem: (item) {
                           switch (item) {
                             case CharacterPopUpMenuItems.checkProfile:
                             case CharacterPopUpMenuItems.checkEventFlags:
@@ -487,12 +487,12 @@ class _EntityListPanelState extends State<EntityListPanel>
                               showDialog(
                                 context: context,
                                 builder: (context) =>
-                                    EquipmentsAndStatsView(characterId: dataId),
+                                    CharacterDetailsView(characterId: dataId),
                               );
                             case CharacterPopUpMenuItems.checkMemory:
                               showDialog(
                                 context: context,
-                                builder: (context) => MemoryView(
+                                builder: (context) => CharacterMemoryView(
                                   characterId: dataId,
                                   mode: ViewPanelMode.edit,
                                 ),
@@ -644,7 +644,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                         final menuPosition = RelativeRect.fromLTRB(
                             position.dx, position.dy, position.dx, 0.0);
                         final items =
-                            buildLocationPopUpMenuItems(onItemPressed: (item) {
+                            buildLocationPopUpMenuItems(onSelectedItem: (item) {
                           switch (item) {
                             case LocationPopUpMenuItems.checkInformation:
                               _editLocation(dataId);
@@ -761,7 +761,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                         final menuPosition = RelativeRect.fromLTRB(
                             position.dx, position.dy, position.dx, 0.0);
                         final items =
-                            buildObjectPopUpMenuItems(onItemPressed: (item) {
+                            buildObjectPopUpMenuItems(onSelectedItem: (item) {
                           switch (item) {
                             case ObjectPopUpMenuItems.edit:
                               _editObject(dataId);

@@ -79,17 +79,15 @@ flutter:
     - assets/images/
     - assets/images/animation/
     - assets/images/animation/bear/
-    # - assets/images/animation/beard/
-    - assets/images/animation/boar/
     - assets/images/animation/characterMan1/
-    - assets/images/animation/girl/
-    - assets/images/animation/snake/
-    - assets/images/animation/tiger/
+    - assets/images/animation/characterMan2/
+    - assets/images/animation/characterWoman1/
+    - assets/images/animation/overlay/
     - assets/images/battle/
     - assets/images/battle/scene/
+    - assets/images/battlecard/
+    - assets/images/battlecard/illustration/
     - assets/images/cultivation/
-    - assets/images/cultivation/battlecard/
-    - assets/images/cultivation/battlecard/illustration/
     - assets/images/cultivation/library/
     - assets/images/cultivation/skill/
     - assets/images/cultivation/time/

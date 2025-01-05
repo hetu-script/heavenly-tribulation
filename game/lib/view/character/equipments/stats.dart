@@ -19,22 +19,22 @@ class StatsView extends StatelessWidget {
     final stats = characterData['stats'];
     final int lifeMax = stats['lifeMax'];
     final int staminaMax = stats['staminaMax'];
-    final int manaMax = stats['manaMax'];
+    // final int manaMax = stats['manaMax'];
     final int spirituality = stats['spirituality'];
     final int dexterity = stats['dexterity'];
     final int strength = stats['strength'];
     final int willpower = stats['willpower'];
     final int perception = stats['perception'];
-    final int block = stats['block'];
-    final int physicalDamage = stats['physicalDamage'];
+    // final int block = stats['block'];
+    // final int physicalDamage = stats['physicalDamage'];
 
     final labels = <Widget>[
       Label(
-        '${engine.locale('spirituality')}: $spirituality',
+        '${engine.locale('dexterity')}: $dexterity',
         width: 120.0,
       ),
       Label(
-        '${engine.locale('dexterity')}: $dexterity',
+        '${engine.locale('spirituality')}: $spirituality',
         width: 120.0,
       ),
       Label(
@@ -42,33 +42,33 @@ class StatsView extends StatelessWidget {
         width: 120.0,
       ),
       Label(
-        '${engine.locale('willpower')}: $willpower',
+        '${engine.locale('perception')}: $perception',
         width: 120.0,
       ),
       Label(
-        '${engine.locale('perception')}: $perception',
+        '${engine.locale('willpower')}: $willpower',
         width: 120.0,
       ),
       Label(
         '${engine.locale('lifeMax')}: $lifeMax',
         width: 120.0,
       ),
-      Label(
-        '${engine.locale('manaMax')}: $manaMax',
-        width: 120.0,
-      ),
+      // Label(
+      //   '${engine.locale('manaMax')}: $manaMax',
+      //   width: 120.0,
+      // ),
       Label(
         '${engine.locale('staminaMax')}: $staminaMax',
         width: 120.0,
       ),
-      Label(
-        '${engine.locale('block')}: $block',
-        width: 120.0,
-      ),
-      Label(
-        '${engine.locale('physicalDamage')}: $physicalDamage',
-        width: 120.0,
-      ),
+      // Label(
+      //   '${engine.locale('block')}: $block',
+      //   width: 120.0,
+      // ),
+      // Label(
+      //   '${engine.locale('physicalDamage')}: $physicalDamage',
+      //   width: 120.0,
+      // ),
     ];
 
     return SingleChildScrollView(

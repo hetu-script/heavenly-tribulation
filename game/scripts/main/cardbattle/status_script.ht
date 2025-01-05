@@ -4,29 +4,31 @@ import '../binding/battle_character.ht'
 /// 每张状态都对应一个脚本
 /// 这个脚本将会根据该状态在例如回合开始时等时机触发
 /// 状态脚本必须是非阻塞，不能是async
-
 /// 所有的卡牌词条脚本按照约定都以 `status_script_${effectId}_${callbackId}` 的形式命名
+/// 函数的类型固定为：function (self, opponent, effect, details)
+
 /// 触发时机包括：
 /// 对方/自己回合开始时 opponent/self_turn_start
 /// 对方/自己回合结束时 opponent/self_turn_end
-/// 对方/自己攻击时 opponent/self_attacking
-/// 对方/自己攻击后 opponent/self_attacked
-/// 对方/自己攻击被对方防住时 opponent/self_attacking_blocked
+/// 对方/自己卡组第一张牌时 opponent/self_deck_start
+/// 对方/自己卡组最后一张时 opponent/self_deck_end
+
+/// 对方/自己发动攻击时 opponent/self_attacking
+/// 对方/自己发动攻击后 opponent/self_attacked
 /// 对方/自己造成伤害时 opponent/self_doing_damage
 /// 对方/自己造成伤害后 opponent/self_done_damage
-/// 对方/自己恢复生命时 opponent/self_healing
-/// 对方/自己恢复灵气时 opponent/self_condensing
-/// 对方/自己获得防时 opponent/self_blocking
 /// 对方/自己受到攻击时 opponent/self_being_attacked
 /// 对方/自己受到攻击后 opponent/self_been_attacked
 /// 对方/自己受到伤害时 opponent/self_taking_damage
 /// 对方/自己受到伤害后 opponent/self_taken_damage
-/// 对方/自己获得增益状态时 opponent/self
-/// 对方/自己获得减益状态时 opponent/self
-/// 对方/自己再次行动时 opponent/self
-/// 对方/自己生命减少时 opponent/self
-/// 对方/自己灵气减少时 opponent/self
-/// 对方/自己防减少时 opponent/self
+
+/// 对方/自己使用加持时 opponent/self
+/// 对方/自己获得状态时 opponent/self
+
+/// 对方/自己使用持续牌时 opponent/self
+
+/// 对方/自己使用消耗牌时 opponent/self
+
 /// 对方/自己使用擒拿时 opponent/self
 /// 对方/自己使用拳法时 opponent/self
 /// 对方/自己使用腿法时 opponent/self
@@ -38,77 +40,132 @@ import '../binding/battle_character.ht'
 /// 对方/自己使用内功时 opponent/self
 /// 对方/自己使用心法时 opponent/self
 /// 对方/自己使用咒语时 opponent/self
-/// 对方/自己使用道术流派招式时 opponent/self
-/// 对方/自己使用御剑流派招式时 opponent/self_use_card_genre_flying_sword
-/// 对方/自己使用锻体流派招式时 opponent/self
-/// 对方/自己使用化神流派招式时 opponent/self
-/// 对方/自己使用炼魂流派招式时 opponent/self
-/// 对方/自己使用阵法时 opponent/self
-/// 对方/自己使用符咒时 opponent/self
-/// 对方/自己使用丹药时 opponent/self
-/// 对方/自己使用灵器时 opponent/self
-/// 对方/自己使用灵植时 opponent/self
-/// 对方/自己使用灵兽时 opponent/self
-/// 对方/自己使用幻术时 opponent/self
-/// 对方/自己使用通灵时 opponent/self
-/// 对方/自己使用占卜时 opponent/self
-/// 对方/自己使用神通时 opponent/self
 
-const kSpeedThreshold = 10
-const kDodgeThreshold = 10
+/// 对方/自己使用御剑时 opponent/self_use_card_genre_swordcraft
+/// 对方/自己使用悟道时 opponent/self
+/// 对方/自己使用锻体时 opponent/self
+/// 对方/自己使用化神时 opponent/self
+/// 对方/自己使用炼魂时 opponent/self
+/// 对方/自己使用丹药时 opponent/self
+/// 对方/自己使用符咒时 opponent/self
+/// 对方/自己使用阵法时 opponent/self
+/// 对方/自己使用幻术时 opponent/self
+
+/// 对方/自己再次行动时 opponent/self
 
 /// details既是入参也是出参，脚本可能会获取或修改details中的内容
 
-function status_script_block_self_turn_start(self, opponent, details) {
-  self.removeStatusEffect('block', percentage: 0.5)
-}
-
-function status_script_block_self_taking_damage(self, opponent, details) {
-  if (!opponent.hasTurnFlag('ignoreBlock')) {
-    let damage = details.damage
-    let residue = self.removeStatusEffect('block', amount: damage)
-    details.damage = residue
-    details.blocked = true
-  }
-}
-
-function status_script_extra_damage_self_attacked(self, opponent, details) {
-  final value = self.hasStatusEffect('extra_damage')
-  assert(value > 0)
-  opponent.takeDamage(details.damageType, value)
-  self.removeStatusEffect('extra_damage')
-}
-
-function status_script_speed_self_turn_start(self, opponent, details) {
-  final existedSpeed = self.hasStatusEffect('speed')
-  if (existedSpeed <= -kSpeedThreshold) {
-    self.addStatusEffect('speed', amount: kSpeedThreshold)
-    details.skipTurn = true
-  }
-}
-
-function status_script_speed_self_turn_end(self, opponent, details) {
-  final existedSpeed = self.hasStatusEffect('speed')
-  if (existedSpeed >= kSpeedThreshold) {
-    self.removeStatusEffect('speed', amount: kSpeedThreshold)
+function status_script_speed_quick_self_turn_end(self, opponent, effect, details) {
+  final existed = self.hasStatusEffect('speed_quick')
+  final threshold = self.data.stats.quickThreshold
+  if (existed >= threshold) {
+    self.removeStatusEffect('speed_quick', amount: threshold)
     details.extraTurn = true
   }
 }
 
-function status_script_dodge_self_turn_end(self, opponent, details) {
-  final existedDodge = self.hasStatusEffect('dodge')
-  if (existedDodge >= kDodgeThreshold) {
-    self.removeStatusEffect('dodge', kDodgeThreshold)
-    self.addStatusEffect('invincible')
-    details.dodgeTurn = true
+function status_script_speed_slow_self_turn_start(self, opponent, effect, details) {
+  final existed = self.hasStatusEffect('speed_slow')
+  final threshold = self.data.stats.slowThreshold
+  if (existed >= -threshold) {
+    self.removeStatusEffect('speed_slow', amount: threshold)
+    details.skipTurn = true
   }
 }
 
-function status_script_invincible_self_turn_start(self, opponent, details) {
-  if (!details.isExtra) {
-    // 如果是再次行动的回合，不会移除无敌状态
-    self.removeStatusEffect('invincible')
+function status_script_dodge_nimble_self_turn_end(self, opponent, effect, details) {
+  final existed = self.hasStatusEffect('nimble')
+  final threshold = self.data.stats.nimbleThreshold
+  if (existed >= threshold) {
+    self.removeStatusEffect('dodge_nimble', amount: threshold)
+    self.addStatusEffect('dodge_invincible')
   }
+}
+
+function status_script_dodge_clumnsy_self_turn_end(self, opponent, effect, details) {
+  final existed = self.hasStatusEffect('dodge_clumnsy')
+  final threshold = self.data.stats.clumnsyThreshold
+  if (existed >= threshold) {
+    self.removeStatusEffect('dodge_clumnsy', amount: threshold)
+    self.addStatusEffect('dodge_staggering')
+  }
+}
+
+function status_script_dodge_invincible_opponent_turn_end(self, opponent, effect, details) {
+  self.removeStatusEffect('dodge_invincible')
+}
+
+function status_script_dodge_staggering_opponent_turn_end(self, opponent, effect, details) {
+  self.removeStatusEffect('dodge_staggering')
+}
+
+function status_script_enhance_self_doing_damage(self, opponent, effect, details) {
+  if (effect.attackType != details.attackType) return
+  
+  details.damage *= 1 + 0.05 * effect.amount
+}
+
+function status_script_weaken_self_doing_damage(self, opponent, effect, details) {
+  if (effect.attackType != details.attackType) return
+  
+  let percentage = 1 - 0.05 * effect.amount
+  if (percentage < 0.05) percentage = 0.05
+  details.damage *= percentage
+}
+
+function status_script_defense_self_turn_start(self, opponent, effect, details) {
+  self.removeStatusEffect('defense_${effect.damageType}', percentage: 0.5)
+}
+
+function status_script_defense_self_taking_damage(self, opponent, effect, details) {
+  // if (opponent.hasTurnFlag('ignoreBlock')) return
+  if (effect.damageType != details.damageType) return
+  
+  let blocked = self.removeStatusEffect('defense_${details.damageType}', amount: details.damage)
+  details.damage -= blocked
+  details.blocked = true
+}
+
+function status_script_vulnerable_self_turn_start(self, opponent, effect, details) {
+  self.removeStatusEffect('vulnerable_${effect.damageType}', percentage: 0.5)
+}
+
+function status_script_vulnerable_self_taking_damage(self, opponent, effect, details) {
+  if (effect.damageType != details.damageType) return
+  
+  let added = self.removeStatusEffect('defense_${details.damageType}', amount: details.damage)
+  details.damage += added
+}
+
+const kLifeEnergeRegenPercentage = 20
+
+function status_script_energy_life_self_turn_start(self, opponent, effect, details) {
+  let unit = (self.lifeMax / kLifeEnergeRegenPercentage).truncate()
+  if (effect.isNegative) {
+    self.changeLife(-unit * effect.amount)
+  } else {
+    let diff = self.lifeMax - self.life
+    if (diff <= 0) return
+    
+    let a = (diff / unit).ceil()
+    let amount = Math.min(a, effect.amount)
+    self.removeStatusEffect(effect.id, amount: amount)
+    
+    let life = amount * unit
+    print(unit, diff, a, life)
+    self.changeLife(life)
+  }
+}
+
+function status_script_extra_damage_self_attacked(self, opponent, effect, details) {
+  final value = self.hasStatusEffect('extra_damage')
+  opponent.takeDamage({
+    attackType: effect.attackType ?? details.attackType,
+    damageType: effect.damageType ?? details.damageType,
+    initialDamage: value,
+    damage: value,
+  })
+  self.removeStatusEffect('extra_damage')
 }
 
 // function cloud_sword_self_use_card_genre_blade(self, opponent) {

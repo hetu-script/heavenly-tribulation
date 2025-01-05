@@ -6,11 +6,12 @@ import 'common.ht'
 import '../random.ht'
 
 const _kCouldBeFamilySkillKinds = [
+  'punch',
+  'kick',
   'wrestling',
-  'fist',
   'sabre',
-  'sword',
   'spear',
+  'sword',
   'staff',
 ]
 

@@ -5,20 +5,18 @@ import '../random.ht'
 // import 'skill/common.ht'
 import '../dialog.ht'
 
+const kAttributes = [
+  'dexterity',
+  'strength',
+  'spirituality',
+  'willpower',
+  'perception',
+]
+
 // 进行某些互动的时候
 const kFameCheckThreshold = 75
 // 进行某些互动的时候
 const kCharismaCheckThreshold = 75
-
-const kDifficulties = [
-  'normal',
-  'hard',
-  'expert',
-  'master',
-  'torment',
-  'nightmare',
-  'purgatory',
-]
 
 const kCommon = 'common' // 凡品：生成数量没有限制
 const kUncommon = 'uncommon' // 良品：每9世界大小
@@ -31,9 +29,11 @@ const kArcane = 'arcane' // 古宝：每576世界大小
 
 const kRarity = {
   /// 未分类 黑
-  /// other: {
-  ///   color: '#A3A3A3',
-  /// },
+  basic: {
+    color: '#A3A3A3',
+    name: 'basic',
+    color: '#A3A3A3',
+  },
   /// 凡品 灰
   common: {
     rarity: 0.51,
@@ -135,7 +135,7 @@ const kEquipTypeBoots = 'boots'
 const kEquipTypeAircraft = 'aircraft'
 
 function getCultivationRankName(character) {
-  return engine.locale('cultivationRank.${character.cultivationRank}')
+  return engine.locale('cultivationRank_${character.cultivationRank}')
 }
 
 function setEntityWorldPosition(entity, left, top, [ worldId ]) {

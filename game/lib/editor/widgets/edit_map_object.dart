@@ -68,7 +68,7 @@ class _EditObjectState extends State<EditObject> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveWindow(
-      color: kBackgroundColor,
+      color: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       size: const Size(350.0, 550.0),
       child: Scaffold(

@@ -27,7 +27,7 @@ class _BattleCardState extends State<BattleCard> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _renderRect = getWidgetRenderRect(widget.key as GlobalKey);
+      _renderRect = getRenderRect(widget.key as GlobalKey);
     });
   }
 
@@ -45,7 +45,7 @@ class _BattleCardState extends State<BattleCard> {
                 width: 1.0,
               ),
             ),
-            borderRadius: kBorderRadius,
+            borderRadius: GameUI.borderRadius,
             // image: DecorationImage(
             //   image: AssetImage(
             //       'assets/images/cultivation/battlecard/illustration/${cardData['image']}'),
@@ -63,7 +63,7 @@ class _BattleCardState extends State<BattleCard> {
                   widget.onMouseExit?.call();
                 }
               },
-              borderRadius: kBorderRadius,
+              borderRadius: GameUI.borderRadius,
               child: Container(
                 alignment: Alignment.centerLeft,
                 padding: EdgeInsets.only(left: 5),

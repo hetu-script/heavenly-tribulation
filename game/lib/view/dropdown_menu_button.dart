@@ -37,7 +37,7 @@ class DropdownMenuButton<T> extends StatelessWidget {
       menuItemStyleData: const MenuItemStyleData(height: 35.0),
       dropdownStyleData: DropdownStyleData(
         decoration: BoxDecoration(
-          border: Border.all(color: kForegroundColor),
+          border: Border.all(color: GameUI.foregroundColor),
           borderRadius: BorderRadius.circular(5.0),
         ),
       ),

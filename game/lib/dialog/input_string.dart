@@ -56,7 +56,7 @@ class _InputStringDialogState extends State<InputStringDialog> {
         width: 240,
         height: 170,
         child: Scaffold(
-          backgroundColor: kBackgroundColor,
+          backgroundColor: GameUI.backgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(widget.title ?? engine.locale('inputID')),

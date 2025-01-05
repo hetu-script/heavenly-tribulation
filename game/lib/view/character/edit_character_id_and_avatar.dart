@@ -53,7 +53,7 @@ class _EditCharacterIdAndAvatarState extends State<EditCharacterIdAndAvatar> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveWindow(
-      color: kBackgroundColor,
+      color: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       size: const Size(350.0, 400.0),
       child: Scaffold(

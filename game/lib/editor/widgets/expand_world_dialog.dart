@@ -57,7 +57,7 @@ class _ExpandWorldDialogState extends State<ExpandWorldDialog> {
       alignment: AlignmentDirectional.center,
       child: SizedBox(
         child: Scaffold(
-          backgroundColor: kBackgroundColor,
+          backgroundColor: GameUI.backgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(widget.title ?? engine.locale('input')),

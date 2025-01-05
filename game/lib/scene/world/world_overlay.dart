@@ -35,7 +35,7 @@ import '../../dialog/character_select_dialog.dart';
 import 'location/location_site.dart';
 import '../../state/states.dart';
 import '../common.dart';
-import '../../events.dart';
+import '../events.dart';
 // import '../../common.dart';
 import 'npc_list.dart';
 import '../../dialog/input_string.dart';

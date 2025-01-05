@@ -53,7 +53,7 @@ class _NpcListState extends State<NpcList> {
       return Padding(
         padding: const EdgeInsets.only(bottom: 5.0),
         child: Avatar(
-            color: kBackgroundColor,
+            color: GameUI.backgroundColor,
             displayName: haveMet ? char['name'] : '???',
             size: const Size(120, 120),
             characterData: char,

@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/cardgame/cardgame.dart';
+// import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/extensions.dart';
 // import 'package:samsara/samsara.dart';
 // import 'package:flame_audio/flame_audio.dart';
@@ -25,7 +25,7 @@ import 'create_sandbox_game.dart';
 // import '../event/events.dart';
 import '../scene/world/world_overlay.dart';
 import '../scene/battle/components/battle.dart';
-import '../scene/card_library/components/library.dart';
+import '../scene/card_library/components/card_library.dart';
 import '../scene/battle/binding/character_binding.dart';
 import '../data.dart';
 import '../scene/card_library/card_library.dart';
@@ -181,7 +181,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
         backgroundSpriteId: args['background'],
         // ignore: use_build_context_synchronously
         context: context,
-        captionStyle: captionStyle,
+        captionStyle: GameUI.captionStyle,
         // bgm: isEditorMode ? null : 'ghuzheng-fantasie-23506.mp3',
         showFogOfWar: !isEditorMode,
         showNonInteractableHintColor: isEditorMode,
@@ -406,14 +406,19 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
   void resetHero() {
     _heroData = engine.hetu.invoke('Character', namedArgs: {
       'unconvertedExp': 1000000,
+      // 'isFemale': false,
+      'cultivationLevel': 10,
+      'cultivationRank': 0,
+      'availableSkillPoints': 10,
     });
     engine.hetu.invoke('setHeroId', positionalArgs: [_heroData['id']]);
     final heroLibrary = {};
-    for (var i = 0; i < 16; ++i) {
+    for (var i = 0; i < 24; ++i) {
       final cardData = engine.hetu.invoke(
         'BattleCard',
         namedArgs: {
-          'maxRank': 1,
+          // 'level': _heroData['cultivationLevel'],
+          'rank': _heroData['cultivationRank'],
         },
       );
       heroLibrary[cardData['id']] = cardData;
@@ -782,13 +787,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                                 padding: const EdgeInsets.only(top: 20.0),
                                 child: ElevatedButton(
                                   onPressed: () async {
-                                    final hero = engine.hetu
-                                        .invoke('Character', namedArgs: {
-                                      'unconvertedExp': 1000000,
-                                      // 'majorAttributes': ['dexterity'],
-                                    });
-                                    engine.hetu.invoke('setHeroId',
-                                        positionalArgs: [hero['id']]);
+                                    resetHero();
                                   },
                                   child: Label(
                                     engine.locale('debug.resetHero'),
@@ -814,6 +813,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                                 padding: const EdgeInsets.only(top: 20.0),
                                 child: ElevatedButton(
                                   onPressed: () {
+                                    context.read<HeroState>().update();
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (context) =>
@@ -832,7 +832,10 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                                   onPressed: () {
                                     final enemy = engine.hetu
                                         .invoke('Character', namedArgs: {
+                                      // 'isFemale': false,
                                       'isMajorCharacter': false,
+                                      'cultivationLevel': 10,
+                                      'cultivationRank': 1,
                                       // 'baseStats': {
                                       //   'life': 80,
                                       //   'physiqueAttack': 5,
@@ -840,9 +843,41 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                                       // 'skin': 'boar',
                                     });
                                     final enemyLibrary = {};
-                                    for (var i = 0; i < 3; ++i) {
-                                      final cardData =
-                                          engine.hetu.invoke('BattleCard');
+                                    final List cards = [];
+                                    cards.add(engine.hetu.invoke(
+                                      'BattleCard',
+                                      namedArgs: {
+                                        'isIdentified': true,
+                                        'genre': "general",
+                                        'category': "attack",
+                                        'kind': "punch",
+                                        'level': enemy['cultivationLevel'],
+                                        'rank': enemy['cultivationRank'],
+                                      },
+                                    ));
+                                    cards.add(engine.hetu.invoke(
+                                      'BattleCard',
+                                      namedArgs: {
+                                        'isIdentified': true,
+                                        'genre': "general",
+                                        'category': "attack",
+                                        'kind': "sword",
+                                        'level': enemy['cultivationLevel'],
+                                        'rank': enemy['cultivationRank'],
+                                      },
+                                    ));
+                                    cards.add(engine.hetu.invoke(
+                                      'BattleCard',
+                                      namedArgs: {
+                                        'isIdentified': true,
+                                        'genre': "swordcraft",
+                                        'category': "attack",
+                                        'kind': "flying_sword",
+                                        'level': enemy['cultivationLevel'],
+                                        'rank': enemy['cultivationRank'],
+                                      },
+                                    ));
+                                    for (final cardData in cards) {
                                       enemyLibrary[cardData['id']] = cardData;
                                     }
                                     enemy['cardLibrary'] = enemyLibrary;

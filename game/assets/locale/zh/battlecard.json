@@ -1,28 +1,20 @@
 {
   "extraAffix": "额外词条",
 
-  "battleCardKind.wrestling": "擒拿",
-  "battleCardKind.fist": "拳法",
-  "battleCardKind.leg": "腿法",
-  "battleCardKind.sword": "剑法",
-  "battleCardKind.sabre": "刀法",
-  "battleCardKind.spear": "枪法",
-  "battleCardKind.staff": "棍法",
-  "battleCardKind.swift": "轻功",
-  "battleCardKind.neigong": "内功",
-  "battleCardKind.xinfa": "心法",
-  "battleCardKind.spell": "法术",
+  "affix_description_attack_punch": "徒手攻击：{0} 点物理伤害",
+  "affix_description_attack_sword": "剑攻击：{0} 点物理伤害",
+  "affix_description_defend_sword": "物理防御 + {0}",
+  "affix_description_defend_punch": "物理防御 + {0}",
+  "affix_description_restore_life": "生命 + {0}",
+  "affix_description_life_energy": "获得 {0} 点<bold>元气</>",
+  "affix_description_spell_energy": "获得 {0} 点<bold>灵气</>",
 
-  "battleCard.attack_sword.description": "剑攻击：造成 {0} 点伤害",
-  "battleCard.defend_sword.description": "防御 + {0}",
-  "battleCard.attack_fist.description": "徒手攻击：造成 {0} 点伤害",
-  "battleCard.defend_fist.description": "防御 + {0}",
-  "battleCard.swift.description": "速度 + {0}\n闪避 + {1}",
+  "affix_description_defend_physical": "物理防御 + {0}",
+  "affix_description_speed": "速度 + {0}",
+  "affix_description_dodge": "闪避 + {0}",
+  "affix_description_extra_damage": "攻击额外造成 {0} 点伤害",
 
-  "battleCard.attack_flying_sword_1.description": "飞剑攻击：造成 {0} 点伤害",
+  "affix_description_attack_flying_sword_1": "飞剑攻击：{0} 点物理伤害",
 
-  "battleCard.extra_damage.description": "攻击额外造成 {0} 点伤害",
-  "battleCard.defend.description": "防御 + {0}",
-  "battleCard.speed.description": "速度 + {0}",
-  "battleCard.dodge.description": "闪避 + {0}"
+  "affix_description_swift": "速度 + {0}\n闪避 + {1}"
 }

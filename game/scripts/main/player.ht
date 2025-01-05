@@ -158,29 +158,29 @@ namespace Player {
     )
   }
 
-  function restoreMana(value: integer) {
-    assert(value > 0)
-    if (hero.stats.mana >= hero.stats.manaMax) return
+  // function restoreMana(value: integer) {
+  //   assert(value > 0)
+  //   if (hero.stats.mana >= hero.stats.manaMax) return
   
-    hero.stats.mana += value
-    if (hero.stats.mana >= hero.stats.manaMax) {
-      hero.stats.mana = hero.stats.manaMax
-    }
+  //   hero.stats.mana += value
+  //   if (hero.stats.mana >= hero.stats.manaMax) {
+  //     hero.stats.mana = hero.stats.manaMax
+  //   }
 
-    engine.play('spell-of-healing-876.mp3')
+  //   engine.play('spell-of-healing-876.mp3')
 
-    const incidentContent = engine.locale('heroManaRestored', interpolations: [ value ])
-    Incident(
-      message: incidentContent,
-      subjectId: hero.id,
-      isPrivate: true,
-    )
+  //   const incidentContent = engine.locale('heroManaRestored', interpolations: [ value ])
+  //   Incident(
+  //     message: incidentContent,
+  //     subjectId: hero.id,
+  //     isPrivate: true,
+  //   )
 
-    WorldMap.addHintText(
-      '${engine.locale('mana')} + ${value}',
-      hero.worldPosition.left,
-      hero.worldPosition.top,
-      Colors.blue,
-    )
-  }
+  //   WorldMap.addHintText(
+  //     '${engine.locale('mana')} + ${value}',
+  //     hero.worldPosition.left,
+  //     hero.worldPosition.top,
+  //     Colors.blue,
+  //   )
+  // }
 }

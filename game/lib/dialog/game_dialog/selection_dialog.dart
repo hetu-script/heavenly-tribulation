@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/extensions.dart';
+// import 'package:samsara/extensions.dart';
+import 'package:samsara/richtext.dart';
 
 // import '../../event/ui.dart';
 
-/// selectionData
+import '../../ui.dart';
 
 class SelectionDialog extends StatelessWidget {
-  static Future<String> show({
+  static Future<String?> show({
     required BuildContext context,
     required dynamic selectionsData,
   }) async {
@@ -14,11 +15,11 @@ class SelectionDialog extends StatelessWidget {
     return await showDialog<String>(
       context: context,
       barrierColor: Colors.transparent,
+      barrierDismissible: true,
       builder: (BuildContext context) {
         return SelectionDialog(selectionsData: selectionsData);
       },
-      barrierDismissible: false,
-    ) as String;
+    );
   }
 
   final dynamic selectionsData;
@@ -40,21 +41,20 @@ class SelectionDialog extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: List<Widget>.from(selectionsData.keys.map(
                 (key) {
-                  final data = selectionsData[key];
-                  final String? colorString = selectionsData[key]['color'];
+                  final text = selectionsData[key];
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10.0),
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context, key);
                       },
-                      child: Text(
-                        data['text'].toString(),
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: colorString != null
-                              ? HexColor.fromString(colorString)
-                              : null,
+                      child: RichText(
+                        text: TextSpan(
+                          children: buildFlutterRichText(text),
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontFamily: GameUI.fontFamily,
+                          ),
                         ),
                       ),
                     ),

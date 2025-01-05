@@ -9,7 +9,7 @@ class EditorToolState with ChangeNotifier {
   }
 
   void selectItem(String item) {
-    this.selectedId = item;
+    selectedId = item;
     notifyListeners();
   }
 }

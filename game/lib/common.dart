@@ -64,6 +64,11 @@ Color getColorFromRarity(String rarity) {
   };
 }
 
+int getDeckCardLimitFromRank(int rank) {
+  assert(rank >= 0);
+  return rank == 0 ? 3 : rank + 2;
+}
+
 Color getColorFromRank(int rank) {
   return switch (rank) {
     /// 未修炼 黑
@@ -192,4 +197,27 @@ const kAttributesToGenre = {
   'strength': 'physique',
   'willpower': 'vitality',
   'perception': 'avatar',
+};
+
+const kRequirementKeys = [
+  'equipment',
+  'dexterity',
+  'strength',
+  'spirituality',
+  'willpower',
+  'perception',
+];
+
+abstract class DamageType {
+  static const physical = 'physical';
+  static const chi = 'chi';
+  static const elemental = 'elemental';
+  static const psychic = 'psychic';
+}
+
+const Set<String> kDamageTypes = {
+  DamageType.physical,
+  DamageType.chi,
+  DamageType.elemental,
+  DamageType.psychic,
 };

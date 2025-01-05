@@ -10,7 +10,7 @@ import '../location/location.dart';
 import '../organization/organization.dart';
 import '../menu_item_builder.dart';
 import '../character/profile.dart';
-import '../character/equipments_and_stats.dart';
+import '../character/details.dart';
 
 enum WorldInformationCharacterPopUpMenuItems {
   checkProfile,
@@ -21,22 +21,22 @@ enum WorldInformationCharacterPopUpMenuItems {
 List<PopupMenuEntry<WorldInformationCharacterPopUpMenuItems>>
     buildWorldInformationCharacterPopUpMenuItems(
         {void Function(WorldInformationCharacterPopUpMenuItems item)?
-            onItemPressed}) {
+            onSelectedItem}) {
   return <PopupMenuEntry<WorldInformationCharacterPopUpMenuItems>>[
     buildMenuItem(
       item: WorldInformationCharacterPopUpMenuItems.checkProfile,
       name: engine.locale('checkInformation'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: WorldInformationCharacterPopUpMenuItems.checkEquipments,
       name: engine.locale('checkEquipments'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: WorldInformationCharacterPopUpMenuItems.checkMemory,
       name: engine.locale('checkMemory'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
   ];
 }
@@ -231,25 +231,26 @@ class _WorldInformationPanelState extends State<WorldInformationPanel>
                   final menuPosition = RelativeRect.fromLTRB(
                       position.dx, position.dy, position.dx, 0.0);
                   final items = buildWorldInformationCharacterPopUpMenuItems(
-                      onItemPressed: (item) {
+                      onSelectedItem: (item) {
                     switch (item) {
                       case WorldInformationCharacterPopUpMenuItems.checkProfile:
                         showDialog(
                           context: context,
                           builder: (context) =>
-                              ProfileView(characterId: dataId),
+                              CharacterProfileView(characterId: dataId),
                         );
                       case WorldInformationCharacterPopUpMenuItems
                             .checkEquipments:
                         showDialog(
                           context: context,
                           builder: (context) =>
-                              EquipmentsAndStatsView(characterId: dataId),
+                              CharacterDetailsView(characterId: dataId),
                         );
                       case WorldInformationCharacterPopUpMenuItems.checkMemory:
                         showDialog(
                           context: context,
-                          builder: (context) => MemoryView(characterId: dataId),
+                          builder: (context) =>
+                              CharacterMemoryView(characterId: dataId),
                         );
                     }
                   });

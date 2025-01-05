@@ -86,7 +86,7 @@ class _LocationViewState extends State<LocationView> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveWindow(
-      color: kBackgroundColor,
+      color: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       size: Size(640.0, widget.mode != ViewPanelMode.view ? 440.0 : 400.0),
       child: Scaffold(

@@ -12,12 +12,19 @@
   "damageType": "伤害类型",
   "durability": "耐久",
 
+  "requirement": "需求",
+
   "sword": "剑",
+  "sabre": "刀",
+  "spear": "枪",
+  "staff": "棍",
+  "bow": "弓",
+  "dart": "暗器",
+
   "shield": "盾",
   "ship": "船",
   "boots": "靴",
   "aircraft": "飞行器",
-  "weapon": "武器",
   "armorpiece": "护甲",
 
   "quest_jade": "玉佩",

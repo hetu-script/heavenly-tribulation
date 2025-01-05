@@ -24,7 +24,7 @@ class SiteCard extends StatelessWidget {
         shadowColor: Colors.black26,
         child: Ink(
           decoration: BoxDecoration(
-            borderRadius: kBorderRadius,
+            borderRadius: GameUI.borderRadius,
             image: imagePath != null
                 ? DecorationImage(
                     image: AssetImage('assets/images/$imagePath'),
@@ -35,7 +35,7 @@ class SiteCard extends StatelessWidget {
           child: Material(
             type: MaterialType.transparency,
             child: InkWell(
-              borderRadius: kBorderRadius,
+              borderRadius: GameUI.borderRadius,
               onTap: () async {
                 // await engine.hetu
                 //     .invoke('onAfterHeroEnterSite', positionalArgs: [siteData]);

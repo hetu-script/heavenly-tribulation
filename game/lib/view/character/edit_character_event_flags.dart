@@ -37,7 +37,7 @@ class _EditCharacterEventFlagsState extends State<EditCharacterEventFlags> {
   Widget build(BuildContext context) {
     return ResponsiveWindow(
       alignment: Alignment.center,
-      color: kBackgroundColor,
+      color: GameUI.backgroundColor,
       size: const Size(400, 400),
       child: Scaffold(
         appBar: AppBar(

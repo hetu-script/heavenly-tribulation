@@ -106,7 +106,7 @@ class _OrganizationViewState extends State<OrganizationView> {
       child: DefaultTabController(
         length: _tabs.length,
         child: Scaffold(
-          backgroundColor: kBackgroundColor,
+          backgroundColor: GameUI.backgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(_organizationData['name']),

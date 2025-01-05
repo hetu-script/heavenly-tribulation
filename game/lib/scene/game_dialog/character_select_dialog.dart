@@ -97,7 +97,7 @@ class CharacterSelectDialog extends StatelessWidget {
           tableData: data,
           onItemPressed: (buttons, position, dataId) => showDialog(
             context: context,
-            builder: (context) => ProfileView(
+            builder: (context) => CharacterProfileView(
               characterId: dataId,
               mode: ViewPanelMode.select,
             ),

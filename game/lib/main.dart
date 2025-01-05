@@ -45,24 +45,27 @@ void main() {
     WidgetsFlutterBinding.ensureInitialized();
 
     // 对于Flutter没有捕捉到的错误，弹出系统原生对话框
-    PlatformDispatcher.instance.onError = (error, stack) {
-      alertNativeError(error, stack);
+    PlatformDispatcher.instance.onError = (error, stackTrace) {
+      final statck = trimStackTrace(stackTrace);
+      engine.error('$error\n$statck');
+      alertNativeError(error, statck);
       return false;
     };
 
     // 对于Flutter捕捉到的错误，弹出Flutter绘制的自定义对话框
     FlutterError.onError = (details) {
+      engine.error(details.toString());
       FlutterError.presentError(details);
       alertFlutterError(details);
     };
 
     // 控件绘制时发生错误，用一个显示错误信息的控件替代
-    ErrorWidget.builder = (FlutterErrorDetails details) {
-      final Object exception = details.exception;
-      return ErrorWidget.withDetails(
-          message: '$exception\n\n${details.stack}',
-          error: exception is FlutterError ? exception : null);
-    };
+    // ErrorWidget.builder = (FlutterErrorDetails details) {
+    //   final Object exception = details.exception;
+    //   return ErrorWidget.withDetails(
+    //       message: '$exception\n\n${details.stack}',
+    //       error: exception is FlutterError ? exception : null);
+    // };
 
     assert(Platform.isLinux || Platform.isWindows || Platform.isMacOS);
     await windowManager.ensureInitialized();
@@ -97,6 +100,8 @@ void main() {
           ChangeNotifierProvider(create: (_) => WorldMapSceneState()),
           ChangeNotifierProvider(create: (_) => QuestState()),
           ChangeNotifierProvider(create: (_) => HeroState()),
+          ChangeNotifierProvider(create: (_) => WindowPriorityState()),
+          ChangeNotifierProvider(create: (_) => WindowPositionState()),
         ],
         child: MaterialApp(
           navigatorObservers: [routeObserver],

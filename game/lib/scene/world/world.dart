@@ -10,7 +10,7 @@ import 'package:flame/flame.dart';
 
 import '../../engine.dart';
 import 'weather/cloud.dart';
-import '../../events.dart';
+import '../events.dart';
 import '../common.dart';
 import '../../ui.dart';
 import 'animation/flying_sword.dart';

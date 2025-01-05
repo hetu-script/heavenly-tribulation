@@ -181,7 +181,7 @@ class Avatar extends StatelessWidget {
               name,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: kBackgroundColor,
+                color: GameUI.backgroundColor,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),

@@ -1,25 +1,27 @@
+// import 'package:flutter/foundation.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/gestures.dart';
 import 'package:flame/sprite.dart';
 import 'package:flame/flame.dart';
 import 'package:samsara/components/hovertip.dart';
+import 'package:hetu_script/utils/collection.dart';
 
 import '../../../engine.dart';
 import '../../../data.dart';
 import '../../../ui.dart';
 
-enum StatusEffectType {
-  permenant,
-  block,
-  buff,
-  debuff,
-  none,
-}
+// enum StatusEffectType {
+//   permenant,
+//   block,
+//   buff,
+//   debuff,
+//   none,
+// }
 
-StatusEffectType getStatusEffectType(String? id) {
-  return StatusEffectType.values.firstWhere((element) => element.name == id,
-      orElse: () => StatusEffectType.none);
-}
+// StatusEffectType getStatusEffectType(String? id) {
+//   return StatusEffectType.values.firstWhere((element) => element.name == id,
+//       orElse: () => StatusEffectType.none);
+// }
 
 class StatusEffect extends BorderComponent with HandlesGesture {
   static ScreenTextConfig defaultEffectCountStyle = const ScreenTextConfig(
@@ -32,66 +34,80 @@ class StatusEffect extends BorderComponent with HandlesGesture {
     ),
   );
 
-  final String id;
-
   dynamic data;
 
   late final Sprite sprite;
 
-  int amount;
+  late final String? spriteId;
 
-  late bool allowNegative;
+  int _amount;
 
-  late final int effectPriority;
+  int get amount => _amount;
 
-  late final StatusEffectType type;
+  set amount(int value) {
+    if (value < 0) {
+      value = 0;
+    }
+    _amount = value;
+    data['amount'] = value;
+  }
 
-  bool get isPermenant => type == StatusEffectType.permenant;
+  late final String id;
 
-  late final bool isUnique;
+  String? get oppositeEffectId => data['opposite'];
 
-  final List<String> callbacks = [];
+  String? get attackType => data['attackType'];
 
-  String? soundId;
+  String? get damageType => data['damageType'];
+
+  String get script => data['script'] as String;
+
+  bool get isHidden => spriteId == null;
+
+  bool get isPermenant => data['isPermenant'] ?? false;
+
+  bool get isOngoing => data['isOngoing'] ?? false;
+
+  bool get isUnique => data['isUnique'] ?? false;
+
+  int get effectPriority => data['priority'] ?? 0;
+
+  List get callbacks => data['callbacks'] ?? [];
+
+  String? get soundId => data['sound'];
 
   late ScreenTextConfig countTextConfig;
 
-  late final String title, description;
+  late final String description;
 
   StatusEffect({
     required this.id,
-    required this.amount,
+    int amount = 1,
     super.position,
     super.anchor,
     super.priority,
-  }) {
+  }) : _amount = amount {
     assert(amount >= 1);
     assert(GameData.statusEffectsData.containsKey(id));
-    data = GameData.statusEffectsData[id];
+    data = deepCopy(GameData.statusEffectsData[id]);
     assert(data != null);
-    type = getStatusEffectType(data['type']);
-    isUnique = data['unique'] ?? false;
-    allowNegative = data['allowNegative'] ?? false;
-    effectPriority = data['priority'] ?? 0;
+    data['amount'] = amount;
+
+    spriteId = data['icon'];
+
     size = isPermenant
         ? GameUI.permenantStatusEffectIconSize
         : GameUI.statusEffectIconSize;
-    for (final callbackId in data['callbacks']) {
-      callbacks.add(callbackId);
-    }
-    soundId = data['sound'];
     countTextConfig = defaultEffectCountStyle.copyWith(size: size);
 
     description =
-        '${engine.locale('$id.title')}\n${engine.locale('$id.description')}';
+        '${engine.locale(data['title'])}\n${engine.locale(data['description'])}';
 
     onMouseEnter = () {
       Hovertip.show(
-        scene: gameRef,
+        scene: game,
         target: this,
-        direction: anchor.x == 0
-            ? HovertipDirection.topLeft
-            : HovertipDirection.topRight,
+        direction: HovertipDirection.topLeft,
         content: description,
       );
     };
@@ -102,7 +118,12 @@ class StatusEffect extends BorderComponent with HandlesGesture {
 
   @override
   Future<void> onLoad() async {
-    sprite = Sprite(await Flame.images.load('icon/status/$id.png'));
+    if (spriteId != null) {
+      sprite = Sprite(await Flame.images.load(spriteId!));
+    }
+    // else {
+    //   sprite = Sprite(await Flame.images.load('icon/status/placeholder.png'));
+    // }
   }
 
   @override

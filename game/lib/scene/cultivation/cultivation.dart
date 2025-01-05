@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
-import 'package:heavenly_tribulation/events.dart';
+import 'package:heavenly_tribulation/scene/events.dart';
 // import 'package:provider/provider.dart';
 import 'package:samsara/event.dart';
 import 'package:samsara/samsara.dart';
@@ -13,7 +13,7 @@ import 'package:provider/provider.dart';
 // import '../../dialog/game_dialog/game_dialog.dart';
 import '../../engine.dart';
 import 'components/cultivation.dart';
-import 'drop_menu.dart';
+// import 'drop_menu.dart';
 import '../history_info.dart';
 import '../hero_info.dart';
 // import '../../view/character/cardpacks.dart';
@@ -63,7 +63,7 @@ class _CultivationOverlayState extends State<CultivationOverlay>
     // );
 
     engine.addEventListener(
-      GameEvents.leaveCultivationScene,
+      GameEvents.leaveScene,
       EventHandler(
         widgetKey: widget.key!,
         handle: (eventId, sceneId, scene) async {
@@ -142,26 +142,26 @@ class _CultivationOverlayState extends State<CultivationOverlay>
                     bottom: 0.0,
                     child: HistoryInfoPanel(),
                   ),
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: CultivationDropMenu(
-                      onSelected: (CultivationDropMenuItems item) async {
-                        switch (item) {
-                          case CultivationDropMenuItems.console:
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) => Console(
-                                engine: engine,
-                              ),
-                            ).then((_) => setState(() {}));
-                          case CultivationDropMenuItems.quit:
-                            _scene.leave(clearCache: true);
-                            Navigator.of(context).pop();
-                        }
-                      },
-                    ),
-                  ),
+                  // Positioned(
+                  //   right: 0,
+                  //   top: 0,
+                  //   child: CultivationDropMenu(
+                  //     onSelected: (CultivationDropMenuItems item) async {
+                  //       switch (item) {
+                  //         case CultivationDropMenuItems.console:
+                  //           showDialog(
+                  //             context: context,
+                  //             builder: (BuildContext context) => Console(
+                  //               engine: engine,
+                  //             ),
+                  //           ).then((_) => setState(() {}));
+                  //         case CultivationDropMenuItems.quit:
+                  //           _scene.leave(clearCache: true);
+                  //           Navigator.of(context).pop();
+                  //       }
+                  //     },
+                  //   ),
+                  // ),
                 ],
               ),
             ),

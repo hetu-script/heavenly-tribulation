@@ -1,0 +1,70 @@
+{
+  /// 天赋技能数据
+  /// 外面的key指技能点在天赋盘上的位置，每个位置固定在圆等分点上，通过算法计算出来准确的坐标
+  /// 技能数据里面的skillId有可能相同
+  /// 如果获得了多个skillId相同的技能，最终他们会累加到一起，累加后的value会合并
+
+  /// 属性点，这是个需要特殊处理的天赋技能
+  /// 这个技能点在选择之后，会变成五种具体属性的其中一种
+  skilltrack_0_0: {
+    size: "small",
+    parentNodes: [],
+    unselectedIcon: "cultivation/skill/attribute_any_unselected.png",
+    isAttribute: true,
+    title: "skilltree_attribute_any",
+    description: "skilltree_attribute_any_description",
+  },
+  skilltrack_1_0: {
+    size: "small",
+    parentNodes: ["skilltrack_0_0"],
+    unselectedIcon: "cultivation/skill/attribute_any_unselected.png",
+    isAttribute: true,
+    title: "skilltree_attribute_any",
+    description: "skilltree_attribute_any_description",
+  },
+  skilltrack_2_0: {
+    size: "small",
+    parentNodes: ["skilltrack_1_0"],
+    unselectedIcon: "cultivation/skill/attribute_any_unselected.png",
+    isAttribute: true,
+    title: "skilltree_attribute_any",
+    description: "skilltree_attribute_any_description",
+  },
+  /// 流派解锁对应的技能
+  /// 获得这些技能后才可以使用对应流派的卡牌
+  /// 主流派
+  skilltrack_3_0: {
+    size: "large",
+    parentNodes: ["skilltrack_2_0"],
+    icon: "cultivation/skill/swordcraft_selected.png",
+    unselectedIcon: "cultivation/skill/swordcraft_unselected.png",
+    title: "skilltree_swordcraft_main",
+    comment: "skilltree_swordcraft_main_comment",
+    // description在载入游戏时才被计算出来
+    // description: null,
+    skills: [
+      {
+        id: "swordcraft",
+        level: 1,
+      },
+      {
+        id: "dexterity",
+        level: 4,
+      },
+    ],
+    // 境界需求
+    rank: 1,
+  },
+  // gain_speed_before_battle: {
+  //   skillId: "gain_speed_before_battle",
+  //   icon: "cultivation/skill/gain_speed_before_battle.png",
+  //   // 相对于屏幕中心点的差值
+  //   relativePosition: {
+  //     x: 0,
+  //     y: 0,
+  //   },
+  //   width: 60,
+  //   height: 60,
+  //   value: 1,
+  // },
+}

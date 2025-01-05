@@ -55,7 +55,7 @@ class _SelectMenuDialogState extends State<SelectMenuDialog> {
         width: 240,
         height: 200,
         child: Scaffold(
-          backgroundColor: kBackgroundColor,
+          backgroundColor: GameUI.backgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(engine.locale('selectOne')),

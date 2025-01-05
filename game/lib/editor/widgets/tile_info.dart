@@ -31,7 +31,7 @@ class _TileInfoPanelState extends State<TileInfoPanel> {
     }
 
     return ResponsiveWindow(
-      color: kBackgroundColor,
+      color: GameUI.backgroundColor,
       size: const Size(220, 160),
       padding: const EdgeInsets.all(10.0),
       child: Column(

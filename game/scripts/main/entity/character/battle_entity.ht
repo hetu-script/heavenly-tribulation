@@ -5,20 +5,19 @@
 import '../entity.ht'
 import '../item/material.ht'
 
-const _kAttributeSum = 50
-const _kMajorAttributeFactor = 0.55
+const _kAttributesBase = 50
 
-const kEquipmentMax = 7
+const _kEquipmentMax = 7
 
-const _kBaseStaminaCostForMoveOnWater = 12
-const _kBaseStaminaCostForMoveOnHill = 12
+const kBaseStaminaCostForMoveOnWater = 12
+const kBaseStaminaCostForMoveOnHill = 12
 
-const kBasicLife = 25
-const kBasicStamina = 10
-const kBasicManaMax = 1
-const kBasicLightedArea = 3
+const kBaseLife = 75
+const kBaseStamina = 10
+const kBaseMana = 1
+const kBaseLightedArea = 3
 
-const kCharacterAttributeNames = [
+const kAttributeNames = [
   'spirituality',
   'dexterity',
   'strength',
@@ -31,7 +30,8 @@ struct BattleEntity {
   construct ({
     attributes,
     attributeSum,
-    majorAttributes: List = [],
+    baseAttribute,
+    majorAttribute,
     baseStats,
     // cultivationGenre,
     cardLibrary,
@@ -70,15 +70,12 @@ struct BattleEntity {
     // ]
     this.battleDecks = battleDecks ?? []
     // 当前使用的战斗卡组，记录的是战斗卡组数组的index
-    this.battleDeckIndex = this.battleDecks.isNotEmpty ? 0 : null
+    this.battleDeckIndex = this.battleDecks.isNotEmpty ? 0 : -1
 
     // 角色的属性
     // 包括：灵力、身法、体魄、念力、神识
     this.attributes = attributes ?? {}
-    let generated = generateCharacterAttributes(
-      attributesSum: attributeSum ?? _kAttributeSum,
-      majorAttributes: majorAttributes,
-    )
+    let generated = generateCharacterAttributes(base: baseAttribute, major: majorAttribute)
     Object.assign(this.attributes, generated)
 
     // 当前状态，包括增益和减益等等。
@@ -105,41 +102,70 @@ struct BattleEntity {
   }
 }
 
-function generateCharacterAttributes({
-    attributesSum,
-    minValue = 0,
-    majorAttributes: List = [],
-  }) {
-  assert(attributesSum > 0)
-  assert(minValue >= 0)
+// function generateCharacterAttributes({
+//     sum,
+//     base,
+//     major,
+//     // majorAttributes: List = [],
+//   }) {
+//   if (sum != null) {
+//     assert(sum > 0)
+//   } else {
+//     sum = _kAttributesSum + random.distantInt(_kAttributesSumExtra - _kAttributesSum)
+//   }
+//   if (base != null) {
+//     assert(base >= 0 && base * kAttributeNames.length <= sum)
+//   } else {
+//     base = _kAttributesBase + random.distantInt(_kAttributesBaseExtra - _kAttributesBase)
+//   }
+//   if (major != null) {
+//     assert(kAttributeNames.contains(major))
+//   }
 
-  const attributes = {}
+//   sum = sum - base * kAttributeNames.length
 
-  let maxV = attributesSum
-  let residue = (attributesSum * _kMajorAttributeFactor).toInt()
-  if (majorAttributes) {
-    maxV = attributesSum - residue
-  }
+//   const attributes = {}
+
+//   let reserved = (sum * _kMajorAttributeFactor).toInt()
+//   let rest = major ? sum - reserved : sum
   
-  let rest = maxV
-  let attrList = random.shuffle(kCharacterAttributeNames).toList()
-  for (var i = 0; i < attrList.length - 1; ++i) {
-    const value = Random().nextInt(rest)
-    attributes[attrList[i]] = value + minValue
-    rest -= value
-  }
-  attributes[attrList.last] = rest
+//   let attrList = random.shuffle(kAttributeNames).toList()
+//   for (var i = 0; i < attrList.length - 1; ++i) {
+//     let value = 0
+//     if (rest > 0) {
+//       value = random.nextInt(rest)
+//       rest -= value
+//     }
+//     attributes[attrList[i]] = base + value
+//   }
+//   attributes[attrList.last] = rest
 
-  if (majorAttributes) {
-    let majorAttrList = random.shuffle(majorAttributes).toList()
-    for (var i = 0; i < majorAttrList.length - 1; ++i) {
-      const value = Random().nextInt(residue)
-      attributes[majorAttrList[i]] += value
-      residue -= value
+//   if (major) {
+//     attributes[major] +=reserved
+
+    // let majorAttrList = random.shuffle(major).toList()
+    // for (var i = 0; i < majorAttrList.length - 1; ++i) {
+    //   const value = random.nextInt(reserved)
+    //   attributes[majorAttrList[i]] += value
+    //   reserved -= value
+    // }
+    // attributes[majorAttrList.last] += reserved
+//   }
+  
+//   return attributes
+// }
+
+function generateCharacterAttributes({base, major}) {
+  base ??= _kAttributesBase
+  let attributes = {}
+  for (var i = 0; i < kAttributeNames.length; ++i) {
+    final attrName = kAttributeNames[i]
+    if (attrName == major) {
+      attributes[attrName] = random.nearInt(base)
+    } else {
+      attributes[attrName] = random.distantInt(base)
     }
-    attributes[majorAttrList.last] += residue
   }
-  
   return attributes
 }
 
@@ -189,10 +215,10 @@ function calculateCharacterStats(character, { baseStats = {}, rejuvenate = false
   //   }
   // }
   
-  let stamina = (strength + dexterity) ~/ 4 + kBasicStamina
-  let life = baseStats['life'] + strength ~/ 2 + kBasicLife
-  let mana = baseStats['mana'] + spirituality ~/ 25 + kBasicManaMax
-  let lightRadius = perception ~/ 25 + kBasicLightedArea
+  let stamina = (strength + dexterity) ~/ 4 + kBaseStamina
+  let life = baseStats['life'] + strength ~/ 2 + kBaseLife
+  // let mana = baseStats['mana'] + spirituality ~/ 25 + kBaseMana
+  let lightRadius = perception ~/ 25 + kBaseLightedArea
 
   character.stats.spirituality = spirituality
   character.stats.dexterity = dexterity
@@ -202,14 +228,23 @@ function calculateCharacterStats(character, { baseStats = {}, rejuvenate = false
 
   character.stats.staminaMax = stamina
   character.stats.lifeMax = life
-  character.stats.manaMax = mana
-
-  character.stats.block = baseStats['block'] ?? 0
+  // character.stats.manaMax = mana
   
-  character.stats.physicalDamage = baseStats['physicalDamage'] ?? 0
-  character.stats.elementDamage = baseStats['elementDamage'] ?? 0
-  character.stats.spellDamage = baseStats['spellDamage'] ?? 0
-  character.stats.spiritDamage = baseStats['spiritDamage'] ?? 0
+  character.stats.unarmedAttack = baseStats['unarmedAttack'] ?? 0
+  character.stats.weaponAttack = baseStats['weaponAttack'] ?? 0
+  character.stats.spellAttack = baseStats['spellAttack'] ?? 0
+  character.stats.curseAttack = baseStats['curseAttack'] ?? 0
+  character.stats.poisonAttack = baseStats['poisonAttack'] ?? 0
+  
+  character.stats.physicalDefense = baseStats['physicalDefense'] ?? 0
+  character.stats.chiDefense = baseStats['chiDefense'] ?? 0
+  character.stats.elementalDefense = baseStats['elementalDefense'] ?? 0
+  character.stats.psychicDefense = baseStats['psychicDefense'] ?? 0
+
+  character.stats.quickThreshold = baseStats['quickThreshold'] ?? 10
+  character.stats.slowThreshold = baseStats['slowThreshold'] ?? 10
+  character.stats.nimbleThreshold = baseStats['nimbleThreshold'] ?? 10
+  character.stats.clumnsyThreshold = baseStats['clumnsyThreshold'] ?? 10
 
   character.stats.lightRadius ??= lightRadius
 }
@@ -237,11 +272,11 @@ function getCharacterMovableTerrainKinds(character) {
 /// 消耗以tick为单位，在角色进入该地块之后扣减相应数值
 function getCharacterMoveCostOnWater(character) {
   // TODO: 结丹境可以直接飞行，因此无需船只
-  for (let i = 1; i < kEquipmentMax; ++i) {
+  for (let i = 1; i < _kEquipmentMax; ++i) {
     let itemId = character.equipments[i]
     let item = character.inventory[itemId]
     if (item != null && item.equipType == kEquipTypeShip) {
-      return _kBaseStaminaCostForMoveOnWater
+      return kBaseStaminaCostForMoveOnWater
     }
   }
   return null
@@ -250,11 +285,11 @@ function getCharacterMoveCostOnWater(character) {
 /// 获取角色山地移动体力消耗，如果返回null表示不可山上移动
 /// 消耗以tick为单位，在角色进入该地块之后扣减相应数值
 function getCharacterMoveCostOnHill(character) {
-  for (let i = 1; i < kEquipmentMax; ++i) {
+  for (let i = 1; i < _kEquipmentMax; ++i) {
     let itemId = character.equipments[i]
     let item = character.inventory[itemId]
     if (item != null && item.equipType == kEquipTypeBoots) {
-      return _kBaseStaminaCostForMoveOnHill
+      return kBaseStaminaCostForMoveOnHill
     }
   }
   return null

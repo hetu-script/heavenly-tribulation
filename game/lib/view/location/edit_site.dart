@@ -34,7 +34,7 @@ class _EditSiteState extends State<EditSite> {
         width: 240,
         height: 170,
         child: Scaffold(
-          backgroundColor: kBackgroundColor,
+          backgroundColor: GameUI.backgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(engine.locale('selectOne')),

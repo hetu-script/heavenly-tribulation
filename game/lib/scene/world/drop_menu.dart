@@ -63,7 +63,7 @@ class WorldMapDropMenu extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(5.0)),
-        border: Border.all(color: kForegroundColor),
+        border: Border.all(color: GameUI.foregroundColor),
       ),
       child: PopupMenuButton<WorldMapDropMenuItems>(
         offset: const Offset(0, 45),

@@ -4,7 +4,7 @@ import 'ui.dart';
 
 abstract class GameConfig {
   static String gameTitle = 'Heavenly Tribulation';
-  static ThemeData appTheme = darkTheme;
+  static ThemeData appTheme = GameUI.darkTheme;
   static bool isDebugMode = true;
   static Size screenSize = Size.zero;
   static double musicVolume = 0.5;

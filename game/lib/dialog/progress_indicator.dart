@@ -89,7 +89,7 @@ class _ProgressIndicatorState extends State<ProgressIndicator> {
         width: 140,
         height: 140,
         child: Scaffold(
-          backgroundColor: kBackgroundColor,
+          backgroundColor: GameUI.backgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(widget.title),

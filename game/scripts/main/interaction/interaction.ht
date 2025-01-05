@@ -101,13 +101,13 @@ const maxSpiritSurgingGain = {
 const kExploreLightUpSize = 6
 
 function onHeroExplore(terrain) {
-  if (hero.stats.mana < 1) {
-    dialog.localeLines('notEnoughManaMonologue', isHero: true)
-    return
-  } else {
-    engine.play('wind-blow-141288.mp3')
-    WorldMap.lightUpAroundTile(terrain.left, terrain.top, kExploreLightUpSize)
-  }
+  // if (hero.stats.mana < 1) {
+  //   dialog.localeLines('notEnoughManaMonologue', isHero: true)
+  //   return
+  // } else {
+  //   engine.play('wind-blow-141288.mp3')
+  //   WorldMap.lightUpAroundTile(terrain.left, terrain.top, kExploreLightUpSize)
+  // }
   onWorldEvent('onAfterHeroExplore', terrain)
 }
 
@@ -133,101 +133,101 @@ function onHeroMeditate({site, terrain, incurIncident = true}) async {
       
     }
     'gatherSpirit': {
-      let gathered = false
-      // 灵气已满，无法聚气
-      if (hero.stats.mana >= hero.stats.manaMax) {
-        dialog.localeLines('hint.manaFull', isHero: true)
-        return
-      }
+      // let gathered = false
+      // // 灵气已满，无法聚气
+      // if (hero.stats.mana >= hero.stats.manaMax) {
+      //   dialog.localeLines('hint.manaFull', isHero: true)
+      //   return
+      // }
 
-      if (terrain != null) {
-        // 此地灵气喷涌，可以直接聚气
-        if (terrain.flags.isSpiritSurging) {
-          let gainData = maxSpiritSurgingGain[hero.cultivationRank]
-          assert(gainData != null) 
-          // TODO: 角色感知、天赋被动等stats可以提高成功率
-          let probability = gainData.probability + hero.stats.gatherSpiritProbabilityAdd ?? 0
+      // if (terrain != null) {
+      //   // 此地灵气喷涌，可以直接聚气
+      //   if (terrain.flags.isSpiritSurging) {
+      //     let gainData = maxSpiritSurgingGain[hero.cultivationRank]
+      //     assert(gainData != null) 
+      //     // TODO: 角色感知、天赋被动等stats可以提高成功率
+      //     let probability = gainData.probability + hero.stats.gatherSpiritProbabilityAdd ?? 0
 
-          let availableDays = getHeroAvaialbeDays()
-          let selectedDays = await dialog.inputInteger(engine.locale('timeDays'), 1, availableDays)
-          if (selectedDays <= 0) return
-          let days = 0
-          let found = false
-          let totalMana = 0
-          await dialog.progress(engine.locale('gatherSpirit'), checkProgress: () {
-            ++days
-            if (world.isMainWorld) {
-              updateGame(ticks: kTicksPerDay)
-            }
-            tryChangeStats(hero, 'stamina', -kTicksPerDay)
-            let gatheredSpirit = 0
-            for (let i in range(4)) {
-              if (random.nextDouble() < probability) {
-                ++gatheredSpirit
-              }
-            }
-            totalMana += gatheredSpirit
-            // 灵气已达上限，无法继续
-            if (totalMana >= gainData.max) {
-              return false
-            }
-            // 灵气已满，无法继续
-            if (hero.stats.mana >= hero.stats.manaMax) {
-              dialog.localeLines('hint.manaFull', isHero: true)
-              return false
-            }
-            // 达到预定的天数，无法继续
-            if (days >= selectedDays) {
-              return false
-            }
-            return true
-          })
-          if (totalMana < 1) totalMana = 1
-          let residue = tryChangeStats(hero, 'mana', totalMana)
-          let restoredValue = totalMana - residue
-          Player.updateHero()
-          engine.play('spell-of-healing-876.mp3')
-          WorldMap.addHintText('${engine.locale('mana')} +${restoredValue}', terrain.left, terrain.top, Colors.purple)
-          if (residue != 0) {
-            await dialog.localeLines('hint.wastedSpirit', isHero: true)
-          }
-          await dialog.localeLines('hint.spiritGathered', isHero: true)
-          // 清空这个地块的灵气喷涌状态
-          delete terrain.flags.isSpiritSurging
-          WorldMap.clearTerrainOverlayAnimation(terrain.left, terrain.top)
+      //     let availableDays = getHeroAvaialbeDays()
+      //     let selectedDays = await dialog.inputInteger(engine.locale('timeDays'), 1, availableDays)
+      //     if (selectedDays <= 0) return
+      //     let days = 0
+      //     let found = false
+      //     let totalMana = 0
+      //     await dialog.progress(engine.locale('gatherSpirit'), checkProgress: () {
+      //       ++days
+      //       if (world.isMainWorld) {
+      //         updateGame(ticks: kTicksPerDay)
+      //       }
+      //       tryChangeStats(hero, 'stamina', -kTicksPerDay)
+      //       let gatheredSpirit = 0
+      //       for (let i in range(4)) {
+      //         if (random.nextDouble() < probability) {
+      //           ++gatheredSpirit
+      //         }
+      //       }
+      //       totalMana += gatheredSpirit
+      //       // 灵气已达上限，无法继续
+      //       if (totalMana >= gainData.max) {
+      //         return false
+      //       }
+      //       // 灵气已满，无法继续
+      //       if (hero.stats.mana >= hero.stats.manaMax) {
+      //         dialog.localeLines('hint.manaFull', isHero: true)
+      //         return false
+      //       }
+      //       // 达到预定的天数，无法继续
+      //       if (days >= selectedDays) {
+      //         return false
+      //       }
+      //       return true
+      //     })
+      //     if (totalMana < 1) totalMana = 1
+      //     let residue = tryChangeStats(hero, 'mana', totalMana)
+      //     let restoredValue = totalMana - residue
+      //     Player.updateHero()
+      //     engine.play('spell-of-healing-876.mp3')
+      //     WorldMap.addHintText('${engine.locale('mana')} +${restoredValue}', terrain.left, terrain.top, Colors.purple)
+      //     if (residue != 0) {
+      //       await dialog.localeLines('hint.wastedSpirit', isHero: true)
+      //     }
+      //     await dialog.localeLines('hint.spiritGathered', isHero: true)
+      //     // 清空这个地块的灵气喷涌状态
+      //     delete terrain.flags.isSpiritSurging
+      //     WorldMap.clearTerrainOverlayAnimation(terrain.left, terrain.top)
 
-          const incidentContent = engine.locale('characterMeditate', interpolations: [
-            hero.name,
-            '${terrain.left}, ${terrain.top}',
-            days,
-          ])
-          if (incurIncident) {
-            Incident(
-              subjectId: hero.id,
-              message: incidentContent,
-              isPrivate: true,
-            )
-          } else {
-            engine.info(incidentContent)
-          }
+      //     const incidentContent = engine.locale('characterMeditate', interpolations: [
+      //       hero.name,
+      //       '${terrain.left}, ${terrain.top}',
+      //       days,
+      //     ])
+      //     if (incurIncident) {
+      //       Incident(
+      //         subjectId: hero.id,
+      //         message: incidentContent,
+      //         isPrivate: true,
+      //       )
+      //     } else {
+      //       engine.info(incidentContent)
+      //     }
 
-          gathered = true
-        } else {
-          if (hero.materials.jade <= 0) {
-            if (hasItemKind('jade')) {
-              dialog.localeLines('hint.openPackage.jade', isHero: true)
-            } else {
-              dialog.localeLines('hint.notEnoughJade', isHero: true)
-            }
-          } else {
-            // 消耗灵石来聚气
-          }
-        }
-      }
+      //     gathered = true
+      //   } else {
+      //     if (hero.materials.jade <= 0) {
+      //       if (hasItemKind('jade')) {
+      //         dialog.localeLines('hint.openPackage.jade', isHero: true)
+      //       } else {
+      //         dialog.localeLines('hint.notEnoughJade', isHero: true)
+      //       }
+      //     } else {
+      //       // 消耗灵石来聚气
+      //     }
+      //   }
+      // }
 
-      if (gathered) {
-        onWorldEvent('onAfterHeroGatherSpirit')
-      }
+      // if (gathered) {
+      //   onWorldEvent('onAfterHeroGatherSpirit')
+      // }
     }
     'condenseSpirit': {
 
@@ -336,25 +336,6 @@ function onAfterHeroEnterLocation(location) async {
 
   // }
 }
-
-/// 异步函数，会在显示建筑窗口之前执行，执行完毕后才会进入建筑
-// function onAfterHeroEnterSite(site) async {
-//   engine.info('玩家进入了: ${site.id}')
-
-//   // 检查是否有任务满足了提交条件
-//   let future
-//   for (const quest of hero.quests) {
-//     if (site.id == quest.destinationSiteId) {
-//       quest.result = characterTrySubmitQuest(hero, site, quest)
-//       // modEventId 意味着这是一个 mod 创建的任务，将由 mod 自己的函数处理
-//       if (quest.modEventId) {
-//         return onGameEvent(quest.modEventId, quest)
-//       } else {
-//         return handleQuestEnding(quest)
-//       }
-//     }
-//   }
-// }
 
 function onInteractCharacter(characterId, { exitOnLeave = false }) {
   engine.info('正在和NPC [${characterId}] 互动。')
@@ -970,6 +951,25 @@ function onAfterHeroExitSite(site) async {
 function onBeforeHeroEnterSite(site) async {
 
 }
+
+/// 异步函数，会在显示建筑窗口之前执行，执行完毕后才会进入建筑
+// function onAfterHeroEnterSite(site) async {
+//   engine.info('玩家进入了: ${site.id}')
+
+//   // 检查是否有任务满足了提交条件
+//   let future
+//   for (const quest of hero.quests) {
+//     if (site.id == quest.destinationSiteId) {
+//       quest.result = characterTrySubmitQuest(hero, site, quest)
+//       // modEventId 意味着这是一个 mod 创建的任务，将由 mod 自己的函数处理
+//       if (quest.modEventId) {
+//         return onGameEvent(quest.modEventId, quest)
+//       } else {
+//         return handleQuestEnding(quest)
+//       }
+//     }
+//   }
+// }
 
 function onAfterHeroEnterSite(location, site) async {
   switch (site.category) {

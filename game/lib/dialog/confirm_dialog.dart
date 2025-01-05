@@ -35,7 +35,7 @@ class ConfirmDialog extends StatelessWidget {
         width: 300,
         height: 240,
         child: Scaffold(
-          backgroundColor: kBackgroundColor,
+          backgroundColor: GameUI.backgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(engine.locale('confirmOperation')),

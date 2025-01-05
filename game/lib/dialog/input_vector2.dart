@@ -74,7 +74,7 @@ class _InputVector2DialogState extends State<InputVector2Dialog> {
       alignment: AlignmentDirectional.center,
       child: SizedBox(
         child: Scaffold(
-          backgroundColor: kBackgroundColor,
+          backgroundColor: GameUI.backgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(widget.title ?? engine.locale('input')),

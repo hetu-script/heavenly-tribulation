@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/label.dart';
-import 'package:samsara/ui/responsive_window.dart';
-import 'package:samsara/ui/close_button.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 import '../../engine.dart';
-import '../../ui.dart';
 import '../avatar.dart';
 import '../../util.dart';
 import '../common.dart';
 import 'edit_character_id_and_avatar.dart';
 import '../../dialog/input_description.dart';
+import '../../ui.dart';
+import '../../state/windows.dart';
+import '../draggable_panel.dart';
 
-class ProfileView extends StatefulWidget {
-  const ProfileView({
+class CharacterProfileView extends StatefulWidget {
+  const CharacterProfileView({
     super.key,
     this.characterId,
     this.characterData,
@@ -23,6 +24,9 @@ class ProfileView extends StatefulWidget {
     this.showPosition = true,
     this.showPersonality = true,
     this.showDescription = true,
+    this.onClose,
+    this.onDragUpdate,
+    this.onTapDown,
   });
 
   final String? characterId;
@@ -37,11 +41,15 @@ class ProfileView extends StatefulWidget {
       showPersonality,
       showDescription;
 
+  final Function()? onClose;
+  final Function(DragUpdateDetails details)? onDragUpdate;
+  final Function(Offset tapPosition)? onTapDown;
+
   @override
-  State<ProfileView> createState() => _ProfileViewState();
+  State<CharacterProfileView> createState() => _CharacterProfileViewState();
 }
 
-class _ProfileViewState extends State<ProfileView> {
+class _CharacterProfileViewState extends State<CharacterProfileView> {
   bool get isEditorMode =>
       widget.mode == ViewPanelMode.edit || widget.mode == ViewPanelMode.create;
 
@@ -139,6 +147,10 @@ class _ProfileViewState extends State<ProfileView> {
 
   @override
   Widget build(BuildContext context) {
+    final windowPositions =
+        context.watch<WindowPositionState>().windowPositions;
+    final position = windowPositions['profile'] ?? GameUI.profileWindowPosition;
+
     final fame = engine.hetu
         .invoke('getCharacterFameString', positionalArgs: [_characterData]);
     final infamy = engine.hetu
@@ -209,320 +221,339 @@ class _ProfileViewState extends State<ProfileView> {
         ? thinkingNames.map((e) => Label(engine.locale(e))).toList()
         : [Text(engine.locale('none'))];
 
-    return ResponsiveWindow(
-      color: kBackgroundColor,
-      alignment: AlignmentDirectional.center,
-      size: Size(680.0, widget.mode != ViewPanelMode.view ? 450.0 : 400.0),
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: Text(
-            engine.locale('information'),
-          ),
-          actions: const [CloseButton2()],
-        ),
-        body: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              height: 360.0,
-              child: SingleChildScrollView(
-                child: ListView(
-                  shrinkWrap: true,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(right: 10.0, top: 10.0),
-                          child: Avatar(
-                            displayName: _characterData['name'],
-                            size: const Size(120.0, 120.0),
-                            nameAlignment: AvatarNameAlignment.bottom,
-                            image: AssetImage(
-                                'assets/images/illustration/${_characterData['icon']}'),
-                          ),
+    return DraggablePanel(
+      title: engine.locale('information'),
+      position: position,
+      width: GameUI.profileWindowWidth,
+      height: widget.mode != ViewPanelMode.view ? 450.0 : 400.0,
+      onTapDown: widget.onTapDown,
+      onDragUpdate: widget.onDragUpdate,
+      onClose: widget.onClose,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            height: 340.0,
+            child: SingleChildScrollView(
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 10.0, top: 10.0),
+                        child: Avatar(
+                          displayName: _characterData['name'],
+                          size: const Size(120.0, 120.0),
+                          nameAlignment: AvatarNameAlignment.bottom,
+                          image: AssetImage(
+                              'assets/images/illustration/${_characterData['icon']}'),
                         ),
-                        SizedBox(
-                          width: 125.0,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                height: 35.0,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text('${engine.locale('gender')}: '),
-                                    isEditorMode
-                                        ? DropdownButton<String>(
-                                            items: <String>['male', 'female']
-                                                .map((String value) {
-                                              return DropdownMenuItem<String>(
-                                                value: value,
-                                                child:
-                                                    Text(engine.locale(value)),
-                                              );
-                                            }).toList(),
-                                            value: sex,
-                                            onChanged: (value) {
-                                              setState(() {
-                                                sex = value!;
-                                              });
-                                            },
-                                          )
-                                        : Text(engine.locale(sex)),
-                                  ],
-                                ),
+                      ),
+                      SizedBox(
+                        width: 125.0,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              height: 35.0,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text('${engine.locale('gender')}: '),
+                                  isEditorMode
+                                      ? DropdownButton<String>(
+                                          items: <String>['male', 'female']
+                                              .map((String value) {
+                                            return DropdownMenuItem<String>(
+                                              value: value,
+                                              child: Text(engine.locale(value)),
+                                            );
+                                          }).toList(),
+                                          value: sex,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              sex = value!;
+                                            });
+                                          },
+                                        )
+                                      : Text(engine.locale(sex)),
+                                ],
                               ),
-                              SizedBox(
-                                height: 35.0,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text('${engine.locale('age')}: '),
-                                    isEditorMode
-                                        ? Container(
-                                            alignment: Alignment.topCenter,
-                                            width: 40.0,
-                                            height: 40.0,
-                                            child: TextField(
-                                              inputFormatters: [
-                                                LengthLimitingTextInputFormatter(
-                                                    4),
-                                              ],
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              textAlign: TextAlign.center,
-                                              controller: _ageController,
-                                            ),
-                                          )
-                                        : Text(age),
-                                    Text(engine.locale('ageYear')),
-                                  ],
-                                ),
+                            ),
+                            SizedBox(
+                              height: 35.0,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text('${engine.locale('age')}: '),
+                                  isEditorMode
+                                      ? Container(
+                                          alignment: Alignment.topCenter,
+                                          width: 40.0,
+                                          height: 40.0,
+                                          child: TextField(
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(
+                                                  4),
+                                            ],
+                                            keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
+                                            controller: _ageController,
+                                          ),
+                                        )
+                                      : Text(age),
+                                  Text(engine.locale('ageYear')),
+                                ],
                               ),
-                              SizedBox(
-                                height: 35.0,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text('${engine.locale('charisma')}: '),
-                                    isEditorMode
-                                        ? Container(
-                                            alignment: Alignment.topCenter,
-                                            width: 40.0,
-                                            height: 40.0,
-                                            child: TextField(
-                                              inputFormatters: [
-                                                LengthLimitingTextInputFormatter(
-                                                    3),
-                                              ],
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              textAlign: TextAlign.center,
-                                              controller: _charismaController,
-                                            ),
-                                          )
-                                        : Text('$charisma'),
-                                  ],
-                                ),
+                            ),
+                            SizedBox(
+                              height: 35.0,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text('${engine.locale('charisma')}: '),
+                                  isEditorMode
+                                      ? Container(
+                                          alignment: Alignment.topCenter,
+                                          width: 40.0,
+                                          height: 40.0,
+                                          child: TextField(
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(
+                                                  3),
+                                            ],
+                                            keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
+                                            controller: _charismaController,
+                                          ),
+                                        )
+                                      : Text('$charisma'),
+                                ],
                               ),
-                              SizedBox(
-                                height: 35.0,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text('${engine.locale('wisdom')}: '),
-                                    isEditorMode
-                                        ? Container(
-                                            alignment: Alignment.topCenter,
-                                            width: 40.0,
-                                            height: 40.0,
-                                            child: TextField(
-                                              inputFormatters: [
-                                                LengthLimitingTextInputFormatter(
-                                                    3),
-                                              ],
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              textAlign: TextAlign.center,
-                                              controller: _wisdomController,
-                                            ),
-                                          )
-                                        : Text('$wisdom'),
-                                  ],
-                                ),
+                            ),
+                            SizedBox(
+                              height: 35.0,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text('${engine.locale('wisdom')}: '),
+                                  isEditorMode
+                                      ? Container(
+                                          alignment: Alignment.topCenter,
+                                          width: 40.0,
+                                          height: 40.0,
+                                          child: TextField(
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(
+                                                  3),
+                                            ],
+                                            keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
+                                            controller: _wisdomController,
+                                          ),
+                                        )
+                                      : Text('$wisdom'),
+                                ],
                               ),
-                              SizedBox(
-                                height: 35.0,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text('${engine.locale('luck')}: '),
-                                    isEditorMode
-                                        ? Container(
-                                            alignment: Alignment.topCenter,
-                                            width: 40.0,
-                                            height: 40.0,
-                                            child: TextField(
-                                              inputFormatters: [
-                                                LengthLimitingTextInputFormatter(
-                                                    3),
-                                              ],
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              textAlign: TextAlign.center,
-                                              controller: _luckController,
-                                            ),
-                                          )
-                                        : Text('$luck'),
-                                  ],
-                                ),
+                            ),
+                            SizedBox(
+                              height: 35.0,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text('${engine.locale('luck')}: '),
+                                  isEditorMode
+                                      ? Container(
+                                          alignment: Alignment.topCenter,
+                                          width: 40.0,
+                                          height: 40.0,
+                                          child: TextField(
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(
+                                                  3),
+                                            ],
+                                            keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
+                                            controller: _luckController,
+                                          ),
+                                        )
+                                      : Text('$luck'),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                        SizedBox(
-                          width: 125.0,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                height: 35.0,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text('${engine.locale('spirituality')}: '),
-                                    isEditorMode
-                                        ? Container(
-                                            alignment: Alignment.topCenter,
-                                            width: 40.0,
-                                            height: 40.0,
-                                            child: TextField(
-                                              inputFormatters: [
-                                                LengthLimitingTextInputFormatter(
-                                                    3),
-                                              ],
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              textAlign: TextAlign.center,
-                                              controller:
-                                                  _spiritualityController,
-                                            ),
-                                          )
-                                        : Text('$spirituality'),
-                                  ],
-                                ),
+                      ),
+                      SizedBox(
+                        width: 125.0,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              height: 35.0,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text('${engine.locale('spirituality')}: '),
+                                  isEditorMode
+                                      ? Container(
+                                          alignment: Alignment.topCenter,
+                                          width: 40.0,
+                                          height: 40.0,
+                                          child: TextField(
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(
+                                                  3),
+                                            ],
+                                            keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
+                                            controller: _spiritualityController,
+                                          ),
+                                        )
+                                      : Text('$spirituality'),
+                                ],
                               ),
-                              SizedBox(
-                                height: 35.0,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text('${engine.locale('dexterity')}: '),
-                                    isEditorMode
-                                        ? Container(
-                                            alignment: Alignment.topCenter,
-                                            width: 40.0,
-                                            height: 40.0,
-                                            child: TextField(
-                                              inputFormatters: [
-                                                LengthLimitingTextInputFormatter(
-                                                    3),
-                                              ],
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              textAlign: TextAlign.center,
-                                              controller: _dexterityController,
-                                            ),
-                                          )
-                                        : Text('$dexterity'),
-                                  ],
-                                ),
+                            ),
+                            SizedBox(
+                              height: 35.0,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text('${engine.locale('dexterity')}: '),
+                                  isEditorMode
+                                      ? Container(
+                                          alignment: Alignment.topCenter,
+                                          width: 40.0,
+                                          height: 40.0,
+                                          child: TextField(
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(
+                                                  3),
+                                            ],
+                                            keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
+                                            controller: _dexterityController,
+                                          ),
+                                        )
+                                      : Text('$dexterity'),
+                                ],
                               ),
-                              SizedBox(
-                                height: 35.0,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text('${engine.locale('strength')}: '),
-                                    isEditorMode
-                                        ? Container(
-                                            alignment: Alignment.topCenter,
-                                            width: 40.0,
-                                            height: 40.0,
-                                            child: TextField(
-                                              inputFormatters: [
-                                                LengthLimitingTextInputFormatter(
-                                                    3),
-                                              ],
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              textAlign: TextAlign.center,
-                                              controller: _strengthController,
-                                            ),
-                                          )
-                                        : Text('$strength'),
-                                  ],
-                                ),
+                            ),
+                            SizedBox(
+                              height: 35.0,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text('${engine.locale('strength')}: '),
+                                  isEditorMode
+                                      ? Container(
+                                          alignment: Alignment.topCenter,
+                                          width: 40.0,
+                                          height: 40.0,
+                                          child: TextField(
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(
+                                                  3),
+                                            ],
+                                            keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
+                                            controller: _strengthController,
+                                          ),
+                                        )
+                                      : Text('$strength'),
+                                ],
                               ),
-                              SizedBox(
-                                height: 35.0,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text('${engine.locale('willpower')}: '),
-                                    isEditorMode
-                                        ? Container(
-                                            alignment: Alignment.topCenter,
-                                            width: 40.0,
-                                            height: 40.0,
-                                            child: TextField(
-                                              inputFormatters: [
-                                                LengthLimitingTextInputFormatter(
-                                                    3),
-                                              ],
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              textAlign: TextAlign.center,
-                                              controller: _willpowerController,
-                                            ),
-                                          )
-                                        : Text('$willpower'),
-                                  ],
-                                ),
+                            ),
+                            SizedBox(
+                              height: 35.0,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text('${engine.locale('willpower')}: '),
+                                  isEditorMode
+                                      ? Container(
+                                          alignment: Alignment.topCenter,
+                                          width: 40.0,
+                                          height: 40.0,
+                                          child: TextField(
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(
+                                                  3),
+                                            ],
+                                            keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
+                                            controller: _willpowerController,
+                                          ),
+                                        )
+                                      : Text('$willpower'),
+                                ],
                               ),
-                              SizedBox(
-                                height: 35.0,
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text('${engine.locale('perception')}: '),
-                                    isEditorMode
-                                        ? Container(
-                                            alignment: Alignment.topCenter,
-                                            width: 40.0,
-                                            height: 40.0,
-                                            child: TextField(
-                                              inputFormatters: [
-                                                LengthLimitingTextInputFormatter(
-                                                    3),
-                                              ],
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              textAlign: TextAlign.center,
-                                              controller: _perceptionController,
-                                            ),
-                                          )
-                                        : Text('$perception'),
-                                  ],
-                                ),
+                            ),
+                            SizedBox(
+                              height: 35.0,
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text('${engine.locale('perception')}: '),
+                                  isEditorMode
+                                      ? Container(
+                                          alignment: Alignment.topCenter,
+                                          width: 40.0,
+                                          height: 40.0,
+                                          child: TextField(
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(
+                                                  3),
+                                            ],
+                                            keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
+                                            controller: _perceptionController,
+                                          ),
+                                        )
+                                      : Text('$perception'),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.only(top: 5.0),
+                        width: 125.0,
+                        height: 190.0,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            SizedBox(
+                              height: 35.0,
+                              child: Text('${engine.locale('fame')}: $fame'),
+                            ),
+                            SizedBox(
+                              height: 35.0,
+                              child:
+                                  Text('${engine.locale('infamy')}: $infamy'),
+                            ),
+                            SizedBox(
+                              height: 35.0,
+                              child: Text(
+                                  '${engine.locale('master')}: $masterName'),
+                            ),
+                            SizedBox(
+                              height: 35.0,
+                              child: Text(
+                                  '${engine.locale('organization')}: $organizationId'),
+                            ),
+                            SizedBox(
+                              height: 35.0,
+                              child: Text('${engine.locale('title')}: $title'),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (widget.showIntimacy)
                         Container(
                           padding: const EdgeInsets.only(top: 5.0),
                           width: 125.0,
@@ -533,359 +564,322 @@ class _ProfileViewState extends State<ProfileView> {
                             children: [
                               SizedBox(
                                 height: 35.0,
-                                child: Text('${engine.locale('fame')}: $fame'),
-                              ),
-                              SizedBox(
-                                height: 35.0,
-                                child:
-                                    Text('${engine.locale('infamy')}: $infamy'),
+                                child: Text(
+                                  '${engine.locale('charismaFavor')}: ${_characterData['charismaFavor'].truncate()}',
+                                ),
                               ),
                               SizedBox(
                                 height: 35.0,
                                 child: Text(
-                                    '${engine.locale('master')}: $masterName'),
+                                  '${engine.locale('cultivationFavor')}: $cultivationFavor',
+                                ),
                               ),
                               SizedBox(
                                 height: 35.0,
                                 child: Text(
-                                    '${engine.locale('organization')}: $organizationId'),
+                                  '${engine.locale('organizationFavor')}: $organizationFavor',
+                                ),
                               ),
                               SizedBox(
                                 height: 35.0,
-                                child:
-                                    Text('${engine.locale('title')}: $title'),
+                                child: Text(
+                                    '${engine.locale('birthday')}: $birthday'),
+                              ),
+                              SizedBox(
+                                height: 35.0,
+                                child: Text(
+                                    '${engine.locale('restLifespan')}: $restLifespan'),
                               ),
                             ],
                           ),
                         ),
-                        if (widget.showIntimacy)
-                          Container(
-                            padding: const EdgeInsets.only(top: 5.0),
-                            width: 125.0,
-                            height: 190.0,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                SizedBox(
-                                  height: 35.0,
-                                  child: Text(
-                                    '${engine.locale('charismaFavor')}: ${_characterData['charismaFavor'].truncate()}',
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 35.0,
-                                  child: Text(
-                                    '${engine.locale('cultivationFavor')}: $cultivationFavor',
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 35.0,
-                                  child: Text(
-                                    '${engine.locale('organizationFavor')}: $organizationFavor',
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 35.0,
-                                  child: Text(
-                                      '${engine.locale('birthday')}: $birthday'),
-                                ),
-                                SizedBox(
-                                  height: 35.0,
-                                  child: Text(
-                                      '${engine.locale('restLifespan')}: $restLifespan'),
-                                ),
-                              ],
-                            ),
-                          ),
+                    ],
+                  ),
+                  if (widget.showRelationships) ...[
+                    const Divider(),
+                    // Text('---${engine.locale('relationship')}---'),
+                    Wrap(
+                      alignment: WrapAlignment.start,
+                      children: [
+                        Label(
+                          '${engine.locale('father')}: $father',
+                          width: 125.0,
+                        ),
+                        Label(
+                          '${engine.locale('mother')}: $mother',
+                          width: 125.0,
+                        ),
+                        Label(
+                          '${engine.locale('spouse')}: $spouse',
+                          width: 125.0,
+                        ),
+                        LabelsWrap(
+                          minWidth: 125.0,
+                          '${engine.locale('children')}: ',
+                          children: childs,
+                        ),
+                        LabelsWrap(
+                          minWidth: 125.0,
+                          '${engine.locale('siblings')}: ',
+                          children: siblings,
+                        ),
+                        const Divider(
+                          height: 0.0,
+                          color: Colors.transparent,
+                        ),
                       ],
                     ),
-                    if (widget.showRelationships) ...[
-                      const Divider(),
-                      // Text('---${engine.locale('relationship')}---'),
-                      Wrap(
-                        alignment: WrapAlignment.start,
-                        children: [
-                          Label(
-                            '${engine.locale('father')}: $father',
-                            width: 125.0,
-                          ),
-                          Label(
-                            '${engine.locale('mother')}: $mother',
-                            width: 125.0,
-                          ),
-                          Label(
-                            '${engine.locale('spouse')}: $spouse',
-                            width: 125.0,
-                          ),
-                          LabelsWrap(
-                            minWidth: 125.0,
-                            '${engine.locale('children')}: ',
-                            children: childs,
-                          ),
-                          LabelsWrap(
-                            minWidth: 125.0,
-                            '${engine.locale('siblings')}: ',
-                            children: siblings,
-                          ),
-                          const Divider(
-                            height: 0.0,
-                            color: Colors.transparent,
-                          ),
-                        ],
-                      ),
-                    ],
-                    if (widget.showPosition) ...[
-                      const Divider(),
-                      Wrap(
-                        children: [
-                          Label(
-                            '${engine.locale('home')}: $home',
-                            width: 125.0,
-                          ),
-                          Label(
-                            '${engine.locale('location')}: $locationId',
-                            width: 125.0,
-                          ),
-                          Label(
-                            '${engine.locale('site')}: $siteId',
-                            width: 125.0,
-                          ),
-                          Label(
-                            '${engine.locale('worldPosition')}: $worldPositionString',
-                            width: 125.0,
-                          ),
-                          Label(
-                            '${engine.locale('world')}: $worldId',
-                            width: 125.0,
-                          ),
-                        ],
-                      ),
-                    ],
-                    if (widget.showPersonality) ...[
-                      const Divider(),
-                      // Text('---${engine.locale('personality')}---'),
-                      Wrap(
-                        children: [
-                          Label(
-                            ideal >= 0
-                                ? '${engine.locale('ideal')}: $ideal'
-                                : '${engine.locale('real')}: ${-ideal}',
-                            width: 125.0,
-                          ),
-                          Label(
-                            order >= 0
-                                ? '${engine.locale('order')}: $order'
-                                : '${engine.locale('chaotic')}: ${-order}',
-                            width: 125.0,
-                          ),
-                          Label(
-                            good >= 0
-                                ? '${engine.locale('good')}: $good'
-                                : '${engine.locale('evil')}: ${-good}',
-                            width: 125.0,
-                          ),
-                          Label(
-                            social >= 0
-                                ? '${engine.locale('extraversion')}: $social'
-                                : '${engine.locale('introspection')}: ${-social}',
-                            width: 125.0,
-                          ),
-                          Label(
-                            reason >= 0
-                                ? '${engine.locale('reasoning')}: $reason'
-                                : '${engine.locale('feeling')}: ${-reason}',
-                            width: 125.0,
-                          ),
-                          Label(
-                            control >= 0
-                                ? '${engine.locale('organizing')}: $control'
-                                : '${engine.locale('relaxing')}: ${-control}',
-                            width: 125.0,
-                          ),
-                          Label(
-                            frugal >= 0
-                                ? '${engine.locale('frugality')}: $frugal'
-                                : '${engine.locale('lavishness')}: ${-frugal}',
-                            width: 125.0,
-                          ),
-                          Label(
-                            frank >= 0
-                                ? '${engine.locale('frankness')}: $frank'
-                                : '${engine.locale('tactness')}: ${-frank}',
-                            width: 125.0,
-                          ),
-                          Label(
-                            confidence >= 0
-                                ? '${engine.locale('confidence')}: $confidence'
-                                : '${engine.locale('cowardness')}: ${-confidence}',
-                            width: 125.0,
-                          ),
-                          Label(
-                            prudence >= 0
-                                ? '${engine.locale('prudence')}: $prudence'
-                                : '${engine.locale('adventurousness')}: ${-prudence}',
-                            width: 125.0,
-                          ),
-                          Label(
-                            empathy >= 0
-                                ? '${engine.locale('empathy')}: $empathy'
-                                : '${engine.locale('indifference')}: ${-empathy}',
-                            width: 125.0,
-                          ),
-                          Label(
-                            generosity >= 0
-                                ? '${engine.locale('generosity')}: $generosity'
-                                : '${engine.locale('stinginess')}: ${-generosity}',
-                            width: 125.0,
-                          ),
-                          // const Divider(
-                          //   color: Colors.transparent,
-                          //   height: 0.0,
-                          // ),
-                          LabelsWrap(
-                            '${engine.locale('motivation')}:',
-                            minWidth: 125.0,
-                            children: motivations,
-                          ),
-                          LabelsWrap(
-                            '${engine.locale('thinking')}:',
-                            minWidth: 125.0,
-                            children: thinkings,
-                          ),
-                        ],
-                      ),
-                    ],
-                    if (widget.showDescription) ...[
-                      const Divider(),
-                      SizedBox(
-                        width: 640.0,
-                        child: Text(_characterData['description']),
-                      ),
-                    ],
                   ],
-                ),
+                  if (widget.showPosition) ...[
+                    const Divider(),
+                    Wrap(
+                      children: [
+                        Label(
+                          '${engine.locale('home')}: $home',
+                          width: 125.0,
+                        ),
+                        Label(
+                          '${engine.locale('location')}: $locationId',
+                          width: 125.0,
+                        ),
+                        Label(
+                          '${engine.locale('site')}: $siteId',
+                          width: 125.0,
+                        ),
+                        Label(
+                          '${engine.locale('worldPosition')}: $worldPositionString',
+                          width: 125.0,
+                        ),
+                        Label(
+                          '${engine.locale('world')}: $worldId',
+                          width: 125.0,
+                        ),
+                      ],
+                    ),
+                  ],
+                  if (widget.showPersonality) ...[
+                    const Divider(),
+                    // Text('---${engine.locale('personality')}---'),
+                    Wrap(
+                      children: [
+                        Label(
+                          ideal >= 0
+                              ? '${engine.locale('ideal')}: $ideal'
+                              : '${engine.locale('real')}: ${-ideal}',
+                          width: 125.0,
+                        ),
+                        Label(
+                          order >= 0
+                              ? '${engine.locale('order')}: $order'
+                              : '${engine.locale('chaotic')}: ${-order}',
+                          width: 125.0,
+                        ),
+                        Label(
+                          good >= 0
+                              ? '${engine.locale('good')}: $good'
+                              : '${engine.locale('evil')}: ${-good}',
+                          width: 125.0,
+                        ),
+                        Label(
+                          social >= 0
+                              ? '${engine.locale('extraversion')}: $social'
+                              : '${engine.locale('introspection')}: ${-social}',
+                          width: 125.0,
+                        ),
+                        Label(
+                          reason >= 0
+                              ? '${engine.locale('reasoning')}: $reason'
+                              : '${engine.locale('feeling')}: ${-reason}',
+                          width: 125.0,
+                        ),
+                        Label(
+                          control >= 0
+                              ? '${engine.locale('organizing')}: $control'
+                              : '${engine.locale('relaxing')}: ${-control}',
+                          width: 125.0,
+                        ),
+                        Label(
+                          frugal >= 0
+                              ? '${engine.locale('frugality')}: $frugal'
+                              : '${engine.locale('lavishness')}: ${-frugal}',
+                          width: 125.0,
+                        ),
+                        Label(
+                          frank >= 0
+                              ? '${engine.locale('frankness')}: $frank'
+                              : '${engine.locale('tactness')}: ${-frank}',
+                          width: 125.0,
+                        ),
+                        Label(
+                          confidence >= 0
+                              ? '${engine.locale('confidence')}: $confidence'
+                              : '${engine.locale('cowardness')}: ${-confidence}',
+                          width: 125.0,
+                        ),
+                        Label(
+                          prudence >= 0
+                              ? '${engine.locale('prudence')}: $prudence'
+                              : '${engine.locale('adventurousness')}: ${-prudence}',
+                          width: 125.0,
+                        ),
+                        Label(
+                          empathy >= 0
+                              ? '${engine.locale('empathy')}: $empathy'
+                              : '${engine.locale('indifference')}: ${-empathy}',
+                          width: 125.0,
+                        ),
+                        Label(
+                          generosity >= 0
+                              ? '${engine.locale('generosity')}: $generosity'
+                              : '${engine.locale('stinginess')}: ${-generosity}',
+                          width: 125.0,
+                        ),
+                        // const Divider(
+                        //   color: Colors.transparent,
+                        //   height: 0.0,
+                        // ),
+                        LabelsWrap(
+                          '${engine.locale('motivation')}:',
+                          minWidth: 125.0,
+                          children: motivations,
+                        ),
+                        LabelsWrap(
+                          '${engine.locale('thinking')}:',
+                          minWidth: 125.0,
+                          children: thinkings,
+                        ),
+                      ],
+                    ),
+                  ],
+                  if (widget.showDescription) ...[
+                    const Divider(),
+                    SizedBox(
+                      width: 640.0,
+                      child: Text(_characterData['description']),
+                    ),
+                  ],
+                ],
               ),
             ),
-            Row(
-              children: [
-                if (widget.mode != ViewPanelMode.view) ...[
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10.0, left: 10.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => EditCharacterIdAndAvatar(
-                            id: _characterData['id'],
-                            name: _characterData['shortName'],
-                            skin: _characterData['characterSkin'],
-                            familyName: _characterData['familyName'],
-                            iconPath: _characterData['icon'],
-                            illustrationPath: _characterData['illustration'],
-                          ),
-                        ).then(
-                          (value) {
-                            if (value == null) return;
-                            final (
-                              id,
-                              name,
-                              familyName,
-                              skin,
-                              iconPath,
-                              illustrationPath,
-                            ) = value;
-                            _characterData['familyName'] = familyName;
-                            assert(name != null && name.isNotEmpty);
-                            _characterData['shortName'] = name;
-                            _characterData['name'] =
-                                (_characterData['familyName'] ?? '') +
-                                    _characterData['shortName'];
-                            _characterData['characterSkin'] = skin;
-                            _characterData['icon'] = iconPath;
-                            _characterData['illustration'] = illustrationPath;
-                            if (id != null && id != _characterData['id']) {
-                              engine.hetu.invoke('removeCharacterById',
-                                  positionalArgs: [_characterData['id']]);
-                              final heroId = engine.hetu.invoke('getHeroId');
-                              final originId = _characterData['id'];
-                              _characterData['id'] = id;
-                              engine.hetu.invoke('addCharacter',
-                                  positionalArgs: [_characterData]);
-                              if (originId == heroId) {
-                                engine.hetu
-                                    .invoke('setHeroId', positionalArgs: [id]);
-                              }
-                            }
-                            setState(() {});
-                          },
-                        );
-                      },
-                      child: Text(
-                        engine.locale('editIdAndImage'),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10.0, left: 10.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        showDialog(
-                            context: context,
-                            builder: (context) => InputDescriptionDialog(
-                                  description: _characterData['description'],
-                                )).then((value) {
+          ),
+          Row(
+            children: [
+              if (widget.mode != ViewPanelMode.view) ...[
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0, left: 10.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => EditCharacterIdAndAvatar(
+                          id: _characterData['id'],
+                          name: _characterData['shortName'],
+                          skin: _characterData['characterSkin'],
+                          familyName: _characterData['familyName'],
+                          iconPath: _characterData['icon'],
+                          illustrationPath: _characterData['illustration'],
+                        ),
+                      ).then(
+                        (value) {
                           if (value == null) return;
-                          setState(() {
-                            _characterData['description'] = value;
-                          });
-                        });
-                      },
-                      child: Text(engine.locale('editDescription')),
+                          final (
+                            id,
+                            name,
+                            familyName,
+                            skin,
+                            iconPath,
+                            illustrationPath,
+                          ) = value;
+                          _characterData['familyName'] = familyName;
+                          assert(name != null && name.isNotEmpty);
+                          _characterData['shortName'] = name;
+                          _characterData['name'] =
+                              (_characterData['familyName'] ?? '') +
+                                  _characterData['shortName'];
+                          _characterData['characterSkin'] = skin;
+                          _characterData['icon'] = iconPath;
+                          _characterData['illustration'] = illustrationPath;
+                          if (id != null && id != _characterData['id']) {
+                            engine.hetu.invoke('removeCharacterById',
+                                positionalArgs: [_characterData['id']]);
+                            final heroId = engine.hetu.invoke('getHeroId');
+                            final originId = _characterData['id'];
+                            _characterData['id'] = id;
+                            engine.hetu.invoke('addCharacter',
+                                positionalArgs: [_characterData]);
+                            if (originId == heroId) {
+                              engine.hetu
+                                  .invoke('setHeroId', positionalArgs: [id]);
+                            }
+                          }
+                          setState(() {});
+                        },
+                      );
+                    },
+                    child: Text(
+                      engine.locale('editIdAndImage'),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10.0, left: 10.0),
-                    child: ElevatedButton(
-                      onPressed: () {
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0, left: 10.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          builder: (context) => InputDescriptionDialog(
+                                description: _characterData['description'],
+                              )).then((value) {
+                        if (value == null) return;
                         setState(() {
-                          _characterData =
-                              engine.hetu.invoke('Character', namedArgs: {
-                            'isMajorCharacter': false,
-                          });
-                          updateData();
+                          _characterData['description'] = value;
                         });
-                      },
-                      child: Text(engine.locale('random')),
-                    ),
+                      });
+                    },
+                    child: Text(engine.locale('editDescription')),
                   ),
-                ],
-                const Spacer(),
-                if (widget.mode != ViewPanelMode.view)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10.0, right: 10.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        switch (widget.mode) {
-                          case ViewPanelMode.select:
-                            Navigator.of(context).pop(_characterData['id']);
-                          case ViewPanelMode.edit:
-                            _saveData();
-                            Navigator.of(context).pop(true);
-                          case ViewPanelMode.create:
-                            _saveData();
-                            Navigator.of(context).pop(_characterData);
-                          case ViewPanelMode.view:
-                            Navigator.of(context).pop();
-                        }
-                      },
-                      child: Text(engine.locale('confirm')),
-                    ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0, left: 10.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _characterData =
+                            engine.hetu.invoke('Character', namedArgs: {
+                          'isMajorCharacter': false,
+                        });
+                        updateData();
+                      });
+                    },
+                    child: Text(engine.locale('random')),
                   ),
+                ),
               ],
-            )
-          ],
-        ),
+              const Spacer(),
+              if (widget.mode != ViewPanelMode.view)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0, right: 10.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      switch (widget.mode) {
+                        case ViewPanelMode.select:
+                          Navigator.of(context).pop(_characterData['id']);
+                        case ViewPanelMode.edit:
+                          _saveData();
+                          Navigator.of(context).pop(true);
+                        case ViewPanelMode.create:
+                          _saveData();
+                          Navigator.of(context).pop(_characterData);
+                        case ViewPanelMode.view:
+                          Navigator.of(context).pop();
+                      }
+                    },
+                    child: Text(engine.locale('confirm')),
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -65,7 +65,7 @@ class _InputIntegerDialogState extends State<InputIntegerDialog> {
         width: 200,
         height: 160,
         child: Scaffold(
-          backgroundColor: kBackgroundColor,
+          backgroundColor: GameUI.backgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(widget.title ?? engine.locale('inputInteger')),

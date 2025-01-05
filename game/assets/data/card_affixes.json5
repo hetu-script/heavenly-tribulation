@@ -1,0 +1,78 @@
+{
+  extra_damage: {
+    id: "extra_damage",
+    // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
+    // 同一个额外词条有可能出现在多种流派和效果类型的卡牌上
+    // 和main_affix不同，额外词条的 uniqueId [不是] 数组
+    // category [是] 数组，表示该词条可以出现在多个类型的卡牌上
+    // genre 可能是 'general'，或者是包含多个流派的数组
+    uniqueId: "extra_damage",
+    genre: "general",
+    category: ["attack"],
+    // 境界要求，生成卡牌的境界参数大于等于此值时才会出现
+    rank: 1,
+    description: "affix_description_extra_damage",
+    tags: [],
+    script: "extra_damage",
+    // 额外词条等级在当前境界允许的最小等级和最大等级之间随机
+    valueData: [
+      {
+        base: 3,
+        increment: 0.5,
+      },
+    ],
+    // 该词条是否已经被鉴定，未鉴定的词条不会生效且显示为???
+    // identified: false,
+  },
+  defend_physical: {
+    id: "defend_physical",
+    uniqueId: "defend_physical",
+    genre: "general",
+    category: ["buff", "attack"],
+    damageType: "physical",
+    rank: 1,
+    description: "affix_description_defend_physical",
+    tags: [],
+    script: "defend",
+    valueData: [
+      {
+        base: 3,
+        increment: 0.75,
+      },
+    ],
+  },
+  speed: {
+    id: "speed",
+    uniqueId: "speed",
+    genre: "general",
+    category: ["buff", "attack"],
+    rank: 1,
+    description: "affix_description_speed",
+    tags: [],
+    script: "speed",
+    valueData: [
+      {
+        base: 1,
+        increment: 0.2,
+        maxLevel: 40,
+      },
+    ],
+  },
+  dodge: {
+    id: "dodge",
+    uniqueId: "dodge",
+    genre: "general",
+    category: ["buff", "attack"],
+    rank: 1,
+    description: "affix_description_dodge",
+    tags: [],
+    script: "dodge",
+    valueData: [
+      {
+        base: 1,
+        increment: 0.2,
+        maxLevel: 40,
+      },
+    ],
+  },
+}

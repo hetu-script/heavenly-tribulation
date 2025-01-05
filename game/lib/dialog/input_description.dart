@@ -60,7 +60,7 @@ class _InputDescriptionDialogState extends State<InputDescriptionDialog> {
         width: 400.0,
         height: 400.0,
         child: Scaffold(
-          backgroundColor: kBackgroundColor,
+          backgroundColor: GameUI.backgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(widget.title ?? engine.locale('inputDescription')),
@@ -76,7 +76,7 @@ class _InputDescriptionDialogState extends State<InputDescriptionDialog> {
                   padding: const EdgeInsets.symmetric(horizontal: 15.0),
                   margin: const EdgeInsets.all(15.0),
                   decoration: BoxDecoration(
-                      border: Border.all(color: kForegroundColor)),
+                      border: Border.all(color: GameUI.foregroundColor)),
                   child: SingleChildScrollView(
                     child: TextField(
                       autofocus: true,

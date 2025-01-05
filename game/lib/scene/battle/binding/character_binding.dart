@@ -12,8 +12,12 @@ class BattleCharacterClassBinding extends HTExternalClass {
       {bool ignoreUndefined = false}) {
     var character = instance as BattleCharacter;
     switch (varName) {
-      case 'priority':
-        return character.priority;
+      case 'data':
+        return character.data;
+      case 'life':
+        return character.life;
+      case 'lifeMax':
+        return character.lifeMax;
       case 'addHintText':
         return ({positionalArgs, namedArgs}) {
           final color = switch (namedArgs['color']) {
@@ -21,38 +25,38 @@ class BattleCharacterClassBinding extends HTExternalClass {
           };
           character.addHintText(positionalArgs.first, color: color);
         };
-      case 'restoreLife':
-        return ({positionalArgs, namedArgs}) =>
-            character.restoreLife(positionalArgs.first);
-      case 'consumeMana':
-        return ({positionalArgs, namedArgs}) =>
-            character.consumeMana(positionalArgs.first);
-      case 'restoreMana':
-        return ({positionalArgs, namedArgs}) =>
-            character.restoreMana(positionalArgs.first);
+      case 'changeLife':
+        return ({positionalArgs, namedArgs}) => character
+            .changeLife(positionalArgs[0], playSound: namedArgs['playSound']);
+      // case 'consumeMana':
+      //   return ({positionalArgs, namedArgs}) =>
+      //       character.consumeMana(positionalArgs.first);
+      // case 'restoreMana':
+      //   return ({positionalArgs, namedArgs}) =>
+      //       character.restoreMana(positionalArgs.first);
       // case 'spell':
       //   return ({positionalArgs, namedArgs}) =>
       //       character.setSpellState(positionalArgs.first);
-      case 'defend':
-        return ({positionalArgs, namedArgs}) =>
-            character.setDefendState(positionalArgs.first);
-      case 'attack':
-        return ({positionalArgs, namedArgs}) =>
-            character.setAttackState(positionalArgs.first);
       case 'takeDamage':
         return ({positionalArgs, namedArgs}) {
-          dynamic v = positionalArgs[1];
-          if (v is int) {
-            return character.takeDamage(positionalArgs[0], damage: v);
-          } else if (v is List) {
-            return character.takeDamage(positionalArgs[0],
-                multipleDamages: List<int>.from(v));
-          }
+          return character.takeDamage(positionalArgs.first);
+          // dynamic v = positionalArgs[1];
+          // if (v is int) {
+          //   return character.takeDamage(positionalArgs[0], damage: v);
+          // } else if (v is List) {
+          //   return character.takeDamage(positionalArgs[0],
+          //       multipleDamages: List<int>.from(v));
+          // }
         };
       case 'setState':
         return ({positionalArgs, namedArgs}) => character.setState(
-            positionalArgs.first,
-            resetOnComplete: namedArgs['reset']);
+              positionalArgs.first,
+              // type: namedArgs['type'],
+              overlay: namedArgs['overlay'],
+              recovery: namedArgs['recovery'],
+              complete: namedArgs['complete'],
+              // recovery: namedArgs['recovery'] ?? false,
+            );
       case 'hasStatusEffect':
         return ({positionalArgs, namedArgs}) =>
             character.hasStatusEffect(positionalArgs.first);
@@ -86,18 +90,6 @@ class BattleCharacterClassBinding extends HTExternalClass {
         return ({positionalArgs, namedArgs}) =>
             character.removeGameFlag(positionalArgs[0]);
 
-      default:
-        if (!ignoreUndefined) throw HTError.undefined(varName);
-    }
-  }
-
-  @override
-  dynamic instanceMemberSet(dynamic instance, String varName, dynamic value,
-      {bool ignoreUndefined = false}) {
-    var character = instance as BattleCharacter;
-    switch (varName) {
-      case 'priority':
-        character.priority = value;
       default:
         if (!ignoreUndefined) throw HTError.undefined(varName);
     }

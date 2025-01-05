@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart' hide Card;
+import 'package:heavenly_tribulation/scene/events.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/loading_screen.dart';
-// import 'package:samsara/event.dart';
+import 'package:samsara/event.dart';
 // import 'package:samsara/cardgame/card.dart';
+// import 'package:provider/provider.dart';
 
 // import '../battle/battle.dart';
 import '../../engine.dart';
-import 'components/library.dart';
-import 'drop_menu.dart';
+import 'components/card_library.dart';
+// import 'drop_menu.dart';
+import '../hero_info.dart';
+// import '../../state/hero.dart';
 
 class CardLibraryOverlay extends StatefulWidget {
   final int deckSize;
@@ -31,18 +35,21 @@ class _CardLibraryOverlayState extends State<CardLibraryOverlay> {
     super.dispose();
   }
 
-  // @override
-  // void initState() {
-  //   super.initState();
+  @override
+  void initState() {
+    super.initState();
 
-  // engine.addEventListener(
-  //   'cardFocused',
-  //   EventHandler(
-  //     widgetKey: widget.key!,
-  //     handle: (eventId, args, scene) {},
-  //   ),
-  // );
-  // }
+    engine.addEventListener(
+      GameEvents.leaveScene,
+      EventHandler(
+        widgetKey: widget.key!,
+        handle: (eventId, args, scene) {
+          _scene.leave();
+          Navigator.of(context).pop();
+        },
+      ),
+    );
+  }
 
   Future<Scene?> _getScene() async {
     final scene = await engine.createScene(
@@ -81,54 +88,31 @@ class _CardLibraryOverlayState extends State<CardLibraryOverlay> {
                 if (_scene.isLoading)
                   LoadingScreen(text: engine.locale('loading')),
                 SceneWidget(scene: _scene),
+                const Positioned(
+                  left: 0,
+                  top: 0,
+                  child: HeroInfoPanel(),
+                ),
                 // Positioned(
-                //   top: 50,
-                //   right: 25,
-                //   child: ElevatedButton(
-                //     onPressed: () {
-                //       // if (_scene.buildingZone.cards.length < widget.deckSize) {
-                //       //   GameDialog.show(
-                //       //     context: context,
-                //       //     dialogData: {
-                //       //       'lines': [
-                //       //         engine.locale('deckbuilding.requiredCardsPrompt')
-                //       //       ],
-                //       //     },
-                //       //   );
-                //       // } else {
-                //       //   _scene.leave(clearCache: true);
-                //       //   Navigator.of(context).pop(_scene.buildingZone.cards
-                //       //       .map((c) => c.clone())
-                //       //       .toList());
-                //       // }
+                //   right: 0,
+                //   top: 0,
+                //   child: DeckbuildingDropMenu(
+                //     onSelected: (DeckbuildingDropMenuItems item) async {
+                //       switch (item) {
+                //         case DeckbuildingDropMenuItems.console:
+                //           showDialog(
+                //             context: context,
+                //             builder: (BuildContext context) => Console(
+                //               engine: engine,
+                //             ),
+                //           ).then((_) => setState(() {}));
+                //         case DeckbuildingDropMenuItems.quit:
+                //           _scene.leave();
+                //           Navigator.of(context).pop();
+                //       }
                 //     },
-                //     child: const Label(
-                //       'Battle!',
-                //       width: 120.0,
-                //       textAlign: TextAlign.center,
-                //     ),
                 //   ),
                 // ),
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: DeckbuildingDropMenu(
-                    onSelected: (DeckbuildingDropMenuItems item) async {
-                      switch (item) {
-                        case DeckbuildingDropMenuItems.console:
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) => Console(
-                              engine: engine,
-                            ),
-                          ).then((_) => setState(() {}));
-                        case DeckbuildingDropMenuItems.quit:
-                          _scene.leave(clearCache: true);
-                          Navigator.of(context).pop();
-                      }
-                    },
-                  ),
-                ),
               ],
             ),
           );

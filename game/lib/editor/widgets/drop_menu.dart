@@ -79,7 +79,7 @@ class WorldEditorDropMenu extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(5.0),
-        border: Border.all(color: kForegroundColor),
+        border: Border.all(color: GameUI.foregroundColor),
       ),
       child: PopupMenuButton<WorldEditorDropMenuItems>(
         offset: const Offset(0, 45),

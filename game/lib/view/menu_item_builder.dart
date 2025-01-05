@@ -4,7 +4,7 @@ import 'package:samsara/ui/popup_submenu_item.dart';
 PopupMenuItem<T> buildMenuItem<T>({
   required T item,
   required String name,
-  void Function(T item)? onItemPressed,
+  void Function(T item)? onSelectedItem,
   double height = 24.0,
   double width = 140.0,
   bool enabled = true,
@@ -18,7 +18,7 @@ PopupMenuItem<T> buildMenuItem<T>({
       width: width,
       child: Text(name),
     ),
-    onTap: () => onItemPressed?.call(item),
+    onTap: () => onSelectedItem?.call(item),
   );
 }
 
@@ -26,7 +26,7 @@ PopupSubMenuItem<T> buildSubMenuItem<T>({
   required Map<String, T> items,
   required String name,
   required Offset offset,
-  void Function(T item)? onItemPressed,
+  void Function(T item)? onSelectedItem,
   double height = 24.0,
   double width = 120.0,
   Map<String, bool> enabled = const {},
@@ -38,6 +38,6 @@ PopupSubMenuItem<T> buildSubMenuItem<T>({
     offset: offset,
     items: items,
     enabled: enabled,
-    onSelected: onItemPressed,
+    onSelected: onSelectedItem,
   );
 }

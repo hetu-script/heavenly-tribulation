@@ -93,7 +93,7 @@ class _ToolboxState extends State<Toolbox> {
     final item = context.watch<EditorToolState>().selectedId;
 
     return ResponsiveWindow(
-      color: kBackgroundColor,
+      color: GameUI.backgroundColor,
       size: const Size(640, 200),
       padding: const EdgeInsets.all(10.0),
       child: Row(

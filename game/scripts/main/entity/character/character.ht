@@ -269,8 +269,7 @@ struct Character {
     motherId,
     spouseId,
     attributes,
-    attributeSum = 50,
-    majorAttributes: List = [],
+    majorAttribute,
     baseStats,
     // cultivationGenre,
     cardLibrary: {},
@@ -286,12 +285,12 @@ struct Character {
       const index = random.nextInt(_kFemaleAvatarCount)
       this.icon ??= 'female/${index}.jpg'
       this.illustration ??= illustration
-      this.characterSkin = skin ?? 'characterMan1'
+      this.characterSkin = skin ?? 'characterWoman1'
     } else {
       const index = random.nextInt(_kMaleAvatarCount)
       this.icon ??= 'male/${index}.jpg'
       this.illustration ??= illustration
-      this.characterSkin = skin ?? 'characterWoman1'
+      this.characterSkin = skin ?? 'characterMan1'
     }
     if (name != null) {
       this.familyName = familyName
@@ -456,9 +455,8 @@ struct Character {
     // 生成战斗单位相关数据，并写入当前对象
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
     const battleInfo = BattleEntity(
-      attributes: attributes, 
-      attributeSum: attributeSum,
-      majorAttributes: majorAttributes,
+      attributes: attributes,
+      majorAttribute: majorAttribute,
       baseStats: baseStats,
       // cultivationGenre: cultivationGenre,
       cardLibrary: cardLibrary,
@@ -480,7 +478,11 @@ struct Character {
     // 已解锁的天赋盘节点，保存的是posiitonId，代表天赋盘上某个位置的坐标。如果存在意味着该位置已经被解锁
     this.skillTreeUnlockedNodes = {}
     // 已分配的天赋盘技能，key是技能id，可能有多个技能拥有相同id
-    this.cultivationSkills = {}
+    this.skills = {}
+    // 已解锁的辅助技能天赋盘节点，保存的是posiitonId，代表天赋盘上某个位置的坐标。如果存在意味着该位置已经被解锁
+    this.supportSkillTreeUnlockedNodes = {}
+    // 已分配的辅助天赋盘技能，key是技能id，可能有多个技能拥有相同id
+    this.supportSkills = {}
 
     // 一同行动的角色
     this.companions = []
@@ -1159,59 +1161,43 @@ function characterCultivationRankUp(character, {rank, incurIncident = true }) {
 /// 这个函数的第一个参数并非和其他函数一样是角色data，而只是角色data中的技能数组
 /// 这是为了方便让flame组件调用
 /// 玩家升级天赋时，其实在天赋盘界面复制了一份技能数据，最终确认后才合并到人物数据
-function characterCultivationSkillLevelUp(entitySkillsData, skillId, { level, incurIncident = true }) {
+function characterSkillLevelUp(entitySkillsData, skillId, {level = 1}) {
   if (entitySkillsData.id != null) {
-    throw 'characterCultivationSkillLevelUp is not for character data, use character.cultivationSkills instead.'
+    throw '`characterSkillLevelUp` is using directly on character data, use character.skills instead.'
   }
-  final skillPrototypeData = game.cultivationSkills[skillId]
-  assert(skillPrototypeData != null)
+  assert(level > 0)
   if (entitySkillsData[skillId] == null) {
-    if (level != null) {
-      assert(level > 0)
-    } else {
-      level = 1
-    }
+    final skillRawData = game.skills[skillId]
+    assert(skillRawData != null)
     final skillData = {
       id: skillId,
+      priority: skillRawData.priority ?? 0,
       level: level,
-    }
-    if (skillPrototypeData.value != null) {
-      skillData.value = skillPrototypeData.value * level
-      skillData.increment = skillPrototypeData.value
+      value: skillRawData.increment * level,
+      increment: skillRawData.increment,
+      description: skillRawData.description,
     }
     entitySkillsData[skillId] = skillData
   } else {
     final skillData = entitySkillsData[skillId]
-    if (level != null) {
-      assert(level > skillData.level)
-    }
-    level ??= 1
-    if (level == null) {
-      ++skillData.level
-      skillData.value += skillData.increment
-    } else {
-      assert(level > 0)
-      skillData.level += level
-      skillData.value += skillData.increment * level
-    }
+    skillData.level += level
+    skillData.value += skillData.increment * level
   }
 }
 
-function characterCultivationSkillRefund(entitySkillsData, skillId) {
+function characterSkillRefund(entitySkillsData, skillId, {level = 1}) {
   if (entitySkillsData.id != null) {
-    throw 'characterCultivationSkillRefund is not for character data, use character.cultivationSkills instead.'
+    throw '`characterSkillRefund` is using directly on character data, use character.skills instead.'
   }
   if (entitySkillsData[skillId] == null) {
-    engine.warn('角色没有这个技能：${skillId}')
+    engine.warn('skillId [${skillId}] not found on entity skills data for refund!')
     return
   }
   final skillData = entitySkillsData[skillId]
-  if (skillData != null) {
-    --skillData.level
-    if (skillData.level <= 0) {
-      entitySkillsData.remove(skillId)
-    } else if (skillData.value != null) {
-      skillData.value = skillData.increment * skillData.level
-    }
+  skillData.level -= level
+  if (skillData.level <= 0) {
+    entitySkillsData[skillId] = null
+  } else if (skillData.value != null) {
+    skillData.value = skillData.increment * skillData.level
   }
 }

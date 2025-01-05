@@ -98,7 +98,7 @@ class LocationSelectDialog extends StatelessWidget {
           onItemPressed: (buttons, position, dataId) async {
             final value = await showDialog(
               context: context,
-              builder: (context) => ProfileView(
+              builder: (context) => CharacterProfileView(
                 characterId: dataId,
                 mode: ViewPanelMode.select,
               ),

@@ -1,7 +1,7 @@
 {
   // 每一个皮肤有一套自己单独的动画
   characterMan1: {
-    attack_fist: {
+    attack_punch: {
       offsetX: 0,
       offsetY: 0,
       width: 288.0,
@@ -9,7 +9,7 @@
       stepTime: 0.07,
       loop: false,
     },
-    attack_fist_recovery: {
+    attack_punch_recovery: {
       offsetX: 0,
       offsetY: 0,
       width: 288.0,
@@ -49,7 +49,7 @@
       stepTime: 0.09,
       loop: false,
     },
-    buff_fist: {
+    buff_punch: {
       offsetX: 0,
       offsetY: 0,
       width: 80.0,
@@ -113,7 +113,15 @@
       stepTime: 0.15,
       loop: false,
     },
-    overlay_fireball: {
+    stand: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.7,
+      loop: true,
+    },
+    fireball: {
       offsetX: 0,
       offsetY: 0,
       width: 288.0,
@@ -121,7 +129,7 @@
       stepTime: 0.09,
       loop: false,
     },
-    overlay_flying_sword: {
+    flying_sword: {
       offsetX: 0,
       offsetY: 0,
       width: 288.0,
@@ -129,7 +137,25 @@
       stepTime: 0.09,
       loop: false,
     },
-    overlay_restore_life: {
+    buff: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.09,
+      loop: false,
+    },
+  },
+  characterWoman1: {
+    attack_punch: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 288.0,
+      height: 112.0,
+      stepTime: 0.07,
+      loop: false,
+    },
+    attack_punch_recovery: {
       offsetX: 0,
       offsetY: 0,
       width: 288.0,
@@ -137,12 +163,100 @@
       stepTime: 0.09,
       loop: false,
     },
-    overlay_restore_mana: {
+    attack_spell: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.09,
+      loop: false,
+    },
+    attack_spell_recovery: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.09,
+      loop: false,
+    },
+    attack_sword: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 288.0,
+      height: 112.0,
+      stepTime: 0.07,
+      loop: false,
+    },
+    attack_sword_recovery: {
       offsetX: 0,
       offsetY: 0,
       width: 288.0,
       height: 112.0,
       stepTime: 0.09,
+      loop: false,
+    },
+    buff_punch: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.09,
+      loop: false,
+    },
+    buff_spell: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.09,
+      loop: false,
+    },
+    buff_sword: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.09,
+      loop: false,
+    },
+    defeat: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.09,
+      loop: false,
+    },
+    dodge: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.15,
+      loop: false,
+    },
+    dodge_recovery: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.15,
+      loop: false,
+    },
+    hit: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.15,
+      loop: false,
+    },
+    hit_recovery: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.15,
       loop: false,
     },
     stand: {
@@ -152,6 +266,30 @@
       height: 112.0,
       stepTime: 0.7,
       loop: true,
+    },
+    fireball: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 288.0,
+      height: 112.0,
+      stepTime: 0.09,
+      loop: false,
+    },
+    flying_sword: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 288.0,
+      height: 112.0,
+      stepTime: 0.09,
+      loop: false,
+    },
+    buff: {
+      offsetX: 0,
+      offsetY: 0,
+      width: 80.0,
+      height: 112.0,
+      stepTime: 0.09,
+      loop: false,
     },
   },
 }

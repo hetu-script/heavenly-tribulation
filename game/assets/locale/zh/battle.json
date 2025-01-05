@@ -3,12 +3,14 @@
   "prebattle.checkStats": "查看属性",
   "prebattle.selectDeck": "选择卡组",
   "prebattle.editDeck": "编辑卡组",
+  "prebattle.noDecks": "（当前无可用卡组）",
 
-  "ignoreBlock": "无视防御！",
   "notEnoughMana": "灵气不足！",
+
   "skipTurn": "跳过回合！",
   "extraTurn": "再次行动！",
-  "dodgeTurn": "开始闪避！",
+  "invincibleTurn": "免伤！",
+  "staggeringTurn": "踉跄！",
 
   "attackFirstInBattle": "先手！"
 }

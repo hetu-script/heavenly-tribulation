@@ -2,11 +2,10 @@ import 'dart:async';
 
 // import 'package:samsara/event.dart';
 // import 'package:flame_audio/flame_audio.dart';
-import 'package:samsara/cardgame/zones/piled_zone.dart';
 // import 'package:samsara/event/event.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
-import 'package:samsara/cardgame/card.dart';
+import 'package:samsara/cardgame/cardgame.dart';
 // import 'package:samsara/gestures.dart';
 import 'package:samsara/components/sprite_button.dart';
 import 'package:flame/flame.dart';
@@ -15,7 +14,7 @@ import 'package:flame/flame.dart';
 
 import '../../../ui.dart';
 import 'character.dart';
-import 'deck_zone.dart';
+import 'battledeck_zone.dart';
 import '../../../engine.dart';
 // import 'status/status.dart';
 import 'versus_banner.dart';
@@ -31,7 +30,7 @@ class BattleScene extends Scene {
   late final BattleCharacter hero, enemy;
   late final BattleDeckZone heroDeckZone, enemyDeckZone;
   final dynamic heroData, enemyData;
-  final List<GameCard> heroDeck, enemyDeck;
+  final List<CustomGameCard> heroDeck, enemyDeck;
 
   final bool isSneakAttack;
 
@@ -98,24 +97,24 @@ class BattleScene extends Scene {
 
     final heroSkinId = heroData['characterSkin'];
     final Set<String> heroAnimationStates = {};
+    final Set<String> heroOverlayAnimationStates = {};
     for (final card in heroDeck) {
       final affixes = card.data['affixes'];
       for (final affix in affixes) {
-        final states = affix['animations'];
-        if (states is List) {
-          for (final state in states) {
-            heroAnimationStates.add(state);
-            //   heroAnimationStates.add('${state}_$heroSkinId');
-          }
-        }
+        heroAnimationStates.add(affix['animation'] ?? '');
+        heroAnimationStates.add(affix['recoveryAnimation'] ?? '');
+        heroOverlayAnimationStates.add(affix['overlayAnimation'] ?? '');
       }
     }
+    heroAnimationStates.remove('');
+    heroOverlayAnimationStates.remove('');
     hero = BattleCharacter(
       position: GameUI.p1HeroSpritePosition,
       size: GameUI.heroSpriteSize,
       isHero: true,
       skinId: heroSkinId,
       animationStates: heroAnimationStates,
+      overlayAnimationStates: heroOverlayAnimationStates,
       data: heroData,
       deckZone: heroDeckZone,
     );
@@ -132,23 +131,23 @@ class BattleScene extends Scene {
 
     final enemySkinId = enemyData['characterSkin'];
     final Set<String> enemyAnimationStates = {};
+    final Set<String> enemyOverlayAnimationStates = {};
     for (final card in enemyDeck) {
       final affixes = card.data['affixes'];
-      for (final afix in affixes) {
-        final states = afix['animations'];
-        if (states is List) {
-          for (final state in states) {
-            enemyAnimationStates.add(state);
-            //   enemyAnimationStates.add('${state}_$enemySkinId');
-          }
-        }
+      for (final affix in affixes) {
+        enemyAnimationStates.add(affix['animation'] ?? '');
+        enemyAnimationStates.add(affix['recoveryAnimation'] ?? '');
+        enemyOverlayAnimationStates.add(affix['overlayAnimation'] ?? '');
       }
     }
+    enemyAnimationStates.remove('');
+    enemyOverlayAnimationStates.remove('');
     enemy = BattleCharacter(
       position: GameUI.p2HeroSpritePosition,
       size: GameUI.heroSpriteSize,
       skinId: enemySkinId,
       animationStates: enemyAnimationStates,
+      overlayAnimationStates: enemyOverlayAnimationStates,
       data: enemyData,
       deckZone: enemyDeckZone,
     );
@@ -158,11 +157,11 @@ class BattleScene extends Scene {
     enemy.opponent = hero;
 
     versusBanner = VersusBanner(
-      position: Vector2(center.x, center.y - 75),
+      position: Vector2(center.x, center.y - 120),
       heroData: heroData,
       enemyData: enemyData,
     );
-    world.add(versusBanner);
+    camera.viewport.add(versusBanner);
 
     showStartPrompt();
 
@@ -186,15 +185,16 @@ class BattleScene extends Scene {
     await versusBanner.fadeIn(duration: 1.2);
 
     nextTurnButton = SpriteButton(
-      useSimpleStyle: true,
+      spriteId: 'ui/button.png',
       text: engine.locale('start'),
       priority: 5000,
       anchor: Anchor.center,
-      position: Vector2(center.x, center.y + 50),
+      position: Vector2(
+          center.x, heroDeckZone.position.y - GameUI.buttonSizeMedium.y),
       size: Vector2(100.0, 40.0),
       onTap: (_, __) => GameConfig.isDebugMode ? nextTurn() : startAutoBattle(),
     );
-    world.add(nextTurnButton);
+    camera.viewport.add(nextTurnButton);
   }
 
   void _prepareBattle() async {
@@ -216,11 +216,15 @@ class BattleScene extends Scene {
         battleStarted = true;
 
         final restartButton = SpriteButton(
-          useSimpleStyle: true,
+          spriteId: 'ui/button2.png',
           text: engine.locale('restart'),
           priority: 5000,
           anchor: Anchor.center,
-          position: center,
+          position: Vector2(
+              center.x,
+              heroDeckZone.position.y -
+                  GameUI.buttonSizeMedium.y * 2 -
+                  GameUI.indent),
           size: Vector2(100.0, 40.0),
         );
         restartButton.onTap = (_, __) {

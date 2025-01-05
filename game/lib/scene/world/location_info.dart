@@ -18,8 +18,8 @@ class LocationInfoPanel extends StatelessWidget {
       height: 120,
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        color: kBackgroundColor,
-        border: Border.all(color: kForegroundColor),
+        color: GameUI.backgroundColor,
+        border: Border.all(color: GameUI.foregroundColor),
       ),
       child: locationData != null
           ? Column(

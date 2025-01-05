@@ -130,12 +130,12 @@ class _EntityInfoState extends State<EntityInfo> {
           padding: const EdgeInsets.all(10.0),
           width: widget.width,
           decoration: BoxDecoration(
-            color: kBackgroundColor,
-            borderRadius: kBorderRadius,
-            border: Border.all(color: kForegroundColor),
+            color: GameUI.backgroundColor,
+            borderRadius: GameUI.borderRadius,
+            border: Border.all(color: GameUI.foregroundColor),
           ),
           child: ClipRRect(
-            borderRadius: kBorderRadius,
+            borderRadius: GameUI.borderRadius,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,

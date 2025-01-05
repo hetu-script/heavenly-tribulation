@@ -52,11 +52,11 @@ const module = {
 /// Only run once when a new game is created
 function init({
   itemsData,
-  battleCardMainAffixesData,
-  battleCardSupportAffixesData,
-  cultivationSkillTreeData,
-  supportSkillTreeData,
-  cultivationSkillData,
+  battleCardMainData,
+  battleCardAffixesData,
+  // skillTreeData,
+  // supportSkillTreeData,
+  skillData,
   supportSkillData,
 }) {
   addModule(module.meta)
@@ -69,15 +69,15 @@ function init({
   game.items = itemsData
   engine.info('载入预定义物品：[${itemsData.length}]')
   
-  game.battleCardMainAffixes = battleCardMainAffixesData
-  game.battleCardSupportAffixes = battleCardSupportAffixesData
-  engine.info('载入战斗卡牌词条：主词条 [${battleCardMainAffixesData.length}]，额外词条 [${battleCardSupportAffixesData.length}]')
+  game.battleCardMain = battleCardMainData
+  game.battleCardAffixes = battleCardAffixesData
+  engine.info('载入战斗卡牌词条：主词条 [${battleCardMainData.length}]，额外词条 [${battleCardAffixesData.length}]')
 
-  game.cultivationSkillTree = cultivationSkillTreeData
-  game.cultivationSkills = cultivationSkillData
-  game.supportSkillTree = supportSkillTreeData
+  // game.skillTree = skillTreeData
+  // game.supportSkillTree = supportSkillTreeData
+  game.skills = skillData
   game.supportSkills = supportSkillData
-  engine.info('载入天赋树数据和天赋技能数据...')
+  engine.info('载入天赋树数据和天赋技能数据:：主天赋 [${skillData.length}]，辅助天赋 [${supportSkillData.length}]')
 }
 
 /// Run every time game starts

@@ -16,7 +16,7 @@ import '../../../engine.dart';
 import 'drop_menu.dart';
 import '../../hero_info.dart';
 import '../npc_list.dart';
-import '../../../events.dart';
+import '../../events.dart';
 import '../../../state/location_site_scene.dart';
 import '../../../dialog/character_visit_dialog.dart';
 import '../../../dialog/game_dialog/game_dialog.dart';

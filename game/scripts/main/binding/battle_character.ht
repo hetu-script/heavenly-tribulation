@@ -1,26 +1,27 @@
 external class BattleCharacter {
-  var priority
-
-  // get attack -> integer
+  get data
   
-  async function restoreLife(value: integer)
+  get life
+
+  get lifeMax
+
+  async function changeLife(value: integer, {playSound: bool = false})
   
-  async function consumeMana(value: integer) -> bool
+  // async function consumeMana(value: integer) -> bool
   
-  async function restoreMana(value: integer)
+  // async function restoreMana(value: integer)
 
-  // async function spell([state: string])
+  async function takeDamage(details) -> integer
 
-  async function defend([state: string])
-
-  async function attack([state: string])
-
-  async function takeDamage(
-    damageType: string,
-    damage //: int | List<int>
-    ) -> integer
-
-  async function setState(state: string, {reset: bool = false})
+  async function setState(
+    state: string, {
+    // type: string,
+    overlay: string,
+    complete: string = 'stand',
+    // recovery: bool = false,
+    recovery: string,
+    }
+  )
 
   function hasStatusEffect(effectId: string) -> int
 

@@ -1,7 +1,7 @@
 {
   "deckbuilding.requiredCardsPrompt": "<red>上阵卡牌数量不足！</>",
 
-  "deckbuilding.setAsBattleDeck": "设置出战卡组",
+  "deckbuilding.setAsBattleDeck": "设为出战卡组",
   "deckbuilding.battleDeck": "出战卡组",
   "deckbuilding.cardCount": "卡牌数量",
 
@@ -9,5 +9,39 @@
 
   "deckbuilding.newDeck": "创建新卡组",
   "deckbuilding.addCard": "将卡牌拖动至此来加入卡组",
-  "deckbuilding.editDeck": "点击鼠标左键：编辑卡组\n点击鼠标右键：打开菜单"
+  "deckbuilding.editDeck": "点击鼠标左键：编辑卡组\n点击鼠标右键：打开菜单",
+
+  "deckbuilding.crafingCard": "卡牌精炼",
+  "deckbuilding.crafingCardHint": "将卡牌拖动至此来进行精炼",
+
+  "deckbuilding_no_card_hint": "请先在工作台上放置要精炼的卡牌。",
+
+  "deckbuilding_identifyAffix": "精炼·洞幽",
+  "deckbuilding_addAffix": "精炼·灵宝",
+  "deckbuilding_rerollAffix": "精炼·混元",
+  "deckbuilding_replaceAffix": "精炼·神照",
+  "deckbuilding_upgradeCard": "精炼·灵悟",
+  "deckbuilding_upgradeRank": "精炼·破境",
+
+  "deckbuilding_identifyAffix_description": "鉴定一个随机的未知额外词条。",
+  "deckbuilding_addAffix_description": "增加一个随机的额外词条。\n不能超过当前卡牌境界所允许的额外词条数量上限。",
+  "deckbuilding_rerollAffix_description": "重置一个随机额外词条的等级。",
+  "deckbuilding_replaceAffix_description": "替换一个随机额外词条。",
+  "deckbuilding_upgradeCard_description": "提升卡牌等级，同时提升基础词条等级。\n等级不能超过当前境界上限。",
+  "deckbuilding_upgradeRank_description": "提升卡牌境界。\n必须满足境界最低等级要求。\n提升境界后会随机化所有词条。",
+
+  "deckbuilding_identifyAffix_warning": "目前没有尚未鉴定的额外词条。",
+  "deckbuilding_addAffix_warning": "当前卡牌已经拥有最大数量的额外词条。",
+  "deckbuilding_rerollAffix_warning": "当前卡牌没有额外词条，或者额外词条尚未被鉴定。",
+  "deckbuilding_replaceAffix_warning": "当前卡牌没有额外词条，或者额外词条尚未被鉴定。",
+  "deckbuilding_upgradeCard_warning": "当前卡牌已经达到最高等级。",
+  "deckbuilding_upgradeRank_warning": "当前卡牌未达到下一境界最低等级要求。",
+  "deckbuilding_upgradeRank_warning_maxRank": "当前卡牌已达到最高境界。",
+
+  "deckbuilding_identifyAffix_hint": "鉴定成功！",
+  "deckbuilding_addAffix_hint": "添加成功！",
+  "deckbuilding_rerollAffix_hint": "重置成功！",
+  "deckbuilding_replaceAffix_hint": "替换成功！",
+  "deckbuilding_upgradeCard_hint": "等级提升！",
+  "deckbuilding_upgradeRank_hint": "境界提升！"
 }

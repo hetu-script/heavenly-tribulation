@@ -7,7 +7,7 @@ import 'package:samsara/event.dart';
 // import 'package:samsara/cardgame/cardgame.dart';
 import 'package:hetu_script/utils/uid.dart';
 // import 'package:samsara/task.dart';
-import 'package:samsara/cardgame/card.dart';
+import 'package:samsara/cardgame/custom_card.dart';
 
 import '../../engine.dart';
 import 'components/battle.dart';
@@ -21,11 +21,11 @@ class BattleSceneOverlay extends StatefulWidget {
     required this.enemyData,
     required this.heroDeck,
     required this.enemyDeck,
-    required this.isSneakAttack,
+    this.isSneakAttack = false,
   });
 
   final dynamic heroData, enemyData;
-  final List<GameCard> heroDeck, enemyDeck;
+  final List<CustomGameCard> heroDeck, enemyDeck;
 
   final bool isSneakAttack;
 
@@ -131,7 +131,7 @@ class _BattleSceneOverlayState extends State<BattleSceneOverlay> {
                 //           // name: widget.heroData['name'],
                 //           image: AssetImage(
                 //               'assets/images/illustration/${widget.heroData['icon']}'),
-                //           borderColor: kBackgroundColor,
+                //           borderColor: GameUI.backgroundColor,
                 //         ),
                 //       ),
                 //       Image.asset('assets/images/battle/versus.png'),
@@ -142,7 +142,7 @@ class _BattleSceneOverlayState extends State<BattleSceneOverlay> {
                 //           // name: widget.enemyData['name'],
                 //           image: AssetImage(
                 //               'assets/images/illustration/${widget.enemyData['icon']}'),
-                //           borderColor: kBackgroundColor,
+                //           borderColor: GameUI.backgroundColor,
                 //         ),
                 //       ),
                 //     ],

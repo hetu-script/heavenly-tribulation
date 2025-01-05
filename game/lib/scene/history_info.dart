@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../engine.dart';
+// import '../engine.dart';
 import '../state/history.dart';
 import '../ui.dart';
 
@@ -33,9 +33,9 @@ class _HistoryInfoPanelState extends State<HistoryInfoPanel> {
                 width: GameUI.historyPanelSize.x,
                 height: GameUI.historyPanelSize.y,
                 decoration: BoxDecoration(
-                  color: kBackgroundColor,
+                  color: GameUI.backgroundColor,
                   borderRadius: BorderRadius.circular(10.0),
-                  border: Border.all(color: kForegroundColor),
+                  border: Border.all(color: GameUI.foregroundColor),
                 ),
                 padding: const EdgeInsets.all(10.0),
                 child: Column(

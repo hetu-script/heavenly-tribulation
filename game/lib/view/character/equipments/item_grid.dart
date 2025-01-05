@@ -75,14 +75,7 @@ class EntityGrid extends StatelessWidget {
                 return;
               }
 
-              final renderBox = (key as GlobalKey)
-                  .currentContext!
-                  .findRenderObject() as RenderBox;
-              final Size size = renderBox.size;
-              final Offset offset = renderBox.localToGlobal(Offset.zero);
-              final Rect rect =
-                  Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height);
-
+              final Rect rect = getRenderRect(key as GlobalKey);
               onMouseEnterItemGrid?.call(entityData, rect);
             },
             onExit: (event) {
@@ -105,10 +98,10 @@ class EntityGrid extends StatelessWidget {
               height: size.height,
               decoration: hasBorder
                   ? BoxDecoration(
-                      color: kBackgroundColor,
+                      color: GameUI.backgroundColor,
                       border: Border.all(
-                        color:
-                            kForegroundColor.withAlpha(isSelected ? 255 : 64),
+                        color: GameUI.foregroundColor
+                            .withAlpha(isSelected ? 255 : 64),
                       ),
                       image: backgroundImage != null
                           ? DecorationImage(
@@ -117,7 +110,7 @@ class EntityGrid extends StatelessWidget {
                               opacity: 0.2,
                             )
                           : null,
-                      borderRadius: kBorderRadius,
+                      borderRadius: GameUI.borderRadius,
                     )
                   : null,
               child: Stack(
@@ -126,7 +119,7 @@ class EntityGrid extends StatelessWidget {
                     RRectIcon(
                       image: AssetImage('assets/images/$iconAssetKey'),
                       size: size,
-                      borderRadius: kBorderRadius,
+                      borderRadius: GameUI.borderRadius,
                       borderColor: Colors.transparent,
                       borderWidth: 0.0,
                     ),
@@ -162,9 +155,9 @@ class EntityGrid extends StatelessWidget {
           padding: const EdgeInsets.all(10.0),
           decoration: hasBorder
               ? BoxDecoration(
-                  color: kBackgroundColor,
+                  color: GameUI.backgroundColor,
                   border: Border.all(
-                    color: kForegroundColor.withAlpha(180),
+                    color: GameUI.foregroundColor.withAlpha(180),
                   ),
                   image: backgroundImage != null
                       ? DecorationImage(
@@ -173,7 +166,7 @@ class EntityGrid extends StatelessWidget {
                           opacity: 0.2,
                         )
                       : null,
-                  borderRadius: kBorderRadius,
+                  borderRadius: GameUI.borderRadius,
                 )
               : null,
           child: Row(
@@ -194,15 +187,7 @@ class EntityGrid extends StatelessWidget {
                     if (entityData == null || onMouseEnterItemGrid == null) {
                       return;
                     }
-
-                    final renderBox = (key as GlobalKey)
-                        .currentContext!
-                        .findRenderObject() as RenderBox;
-                    final Size size = renderBox.size;
-                    final Offset offset = renderBox.localToGlobal(Offset.zero);
-                    final Rect rect = Rect.fromLTWH(
-                        offset.dx, offset.dy, size.width, size.height);
-
+                    final Rect rect = getRenderRect(key as GlobalKey);
                     onMouseEnterItemGrid?.call(entityData, rect);
                   },
                   onExit: (event) {
@@ -225,9 +210,9 @@ class EntityGrid extends StatelessWidget {
                       height: size.height,
                       padding: const EdgeInsets.all(5.0),
                       decoration: BoxDecoration(
-                        color: kBackgroundColor,
+                        color: GameUI.backgroundColor,
                         border: Border.all(
-                          color: kForegroundColor.withAlpha(128),
+                          color: GameUI.foregroundColor.withAlpha(128),
                         ),
                         image: backgroundImage != null
                             ? DecorationImage(
@@ -236,7 +221,7 @@ class EntityGrid extends StatelessWidget {
                                 opacity: 0.2,
                               )
                             : null,
-                        borderRadius: kBorderRadius,
+                        borderRadius: GameUI.borderRadius,
                       ),
                       child: Stack(
                         children: [
@@ -245,7 +230,7 @@ class EntityGrid extends StatelessWidget {
                               image: AssetImage(
                                   'assets/images/icon/$iconAssetKey'),
                               size: Size(iconSize, iconSize),
-                              borderRadius: kBorderRadius,
+                              borderRadius: GameUI.borderRadius,
                               borderColor: Colors.transparent,
                               borderWidth: 0.0,
                             ),

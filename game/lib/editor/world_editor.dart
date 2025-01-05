@@ -34,7 +34,7 @@ import 'widgets/tile_detail.dart';
 import '../view/location/location.dart';
 import '../dialog/input_world_position.dart';
 import '../view/common.dart';
-import '../events.dart';
+import '../scene/events.dart';
 import '../state/editor_tool.dart';
 import '../dialog/input_string.dart';
 import '../scene/loading_screen.dart';
@@ -62,12 +62,12 @@ enum TerrainPopUpMenuItems {
 }
 
 List<PopupMenuEntry<TerrainPopUpMenuItems>> buildTerrainPopUpMenuItems(
-    {void Function(TerrainPopUpMenuItems item)? onItemPressed}) {
+    {void Function(TerrainPopUpMenuItems item)? onSelectedItem}) {
   return <PopupMenuEntry<TerrainPopUpMenuItems>>[
     buildMenuItem(
       item: TerrainPopUpMenuItems.checkInformation,
       name: engine.locale('checkInformation'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     buildSubMenuItem(
       items: {
@@ -83,39 +83,39 @@ List<PopupMenuEntry<TerrainPopUpMenuItems>> buildTerrainPopUpMenuItems(
       },
       name: engine.locale('setTerrainKind'),
       offset: const Offset(120, 0),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: TerrainPopUpMenuItems.createLocation,
       name: engine.locale('createLocation'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     const PopupMenuDivider(height: 12.0),
     buildMenuItem(
       item: TerrainPopUpMenuItems.clearTerrainAnimation,
       name: engine.locale('clearTerrainAnimation'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: TerrainPopUpMenuItems.clearTerrainOverlaySprite,
       name: engine.locale('clearTerrainOverlaySprite'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: TerrainPopUpMenuItems.clearTerrainOverlayAnimation,
       name: engine.locale('clearTerrainOverlayAnimation'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     const PopupMenuDivider(height: 12.0),
     buildMenuItem(
       item: TerrainPopUpMenuItems.bindObject,
       name: engine.locale('bindObject'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: TerrainPopUpMenuItems.clearObject,
       name: engine.locale('clearObject'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
   ];
 }
@@ -306,7 +306,7 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
             screenPosition.y + scene.map.gridSize.y * scene.camera.zoom,
             screenPosition.x + scene.map.gridSize.x * scene.camera.zoom,
             0.0);
-        final items = buildTerrainPopUpMenuItems(onItemPressed: (item) {
+        final items = buildTerrainPopUpMenuItems(onSelectedItem: (item) {
           switch (item) {
             case TerrainPopUpMenuItems.checkInformation:
               showDialog(

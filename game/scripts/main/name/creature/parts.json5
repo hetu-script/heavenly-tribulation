@@ -1,23 +1,37 @@
 {
-  general: ['皮', '肉', '骨', '血', '筋', '须', '眼珠'],
+  skin: ["皮"],
 
-  beard: ['须'],
+  meat: ["肉"],
 
-  hoof: ['蹄'],
+  bone: ["骨"],
 
-  antlers: ['角'],
+  tendon: ["筋"],
 
-  claw: ['爪'],
+  blodd: ["血"],
 
-  fur: ['毛'],
+  beard: ["须"],
 
-  fang: ['牙'],
+  fang: ["牙"],
 
-  tail: ['尾'],
+  antler: ["角"],
 
-  scale: ['鳞'],
+  claw: ["爪"],
 
-  fin: ['鳍'],
+  fur: ["毛"],
 
-  wings: ['羽'],
+  hoof: ["蹄"],
+
+  eye: ["目", "眼珠"],
+
+  tail: ["尾"],
+
+  fin: ["鳍"],
+
+  scale: ["鳞"],
+
+  bird: ["禽"],
+
+  feather: ["羽"],
+
+  wing: ["翅"],
 }

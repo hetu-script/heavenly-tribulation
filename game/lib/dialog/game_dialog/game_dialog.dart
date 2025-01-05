@@ -110,9 +110,9 @@ class _GameDialogState extends State<GameDialog> {
                     height: 190,
                     padding: const EdgeInsets.only(top: 10.0),
                     decoration: BoxDecoration(
-                      color: kBackgroundColor,
-                      borderRadius: kBorderRadius,
-                      border: Border.all(color: kForegroundColor),
+                      color: GameUI.backgroundColor,
+                      borderRadius: GameUI.borderRadius,
+                      border: Border.all(color: GameUI.foregroundColor),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,7 +132,7 @@ class _GameDialogState extends State<GameDialog> {
                               if (id != null) {
                                 showDialog(
                                   context: context,
-                                  builder: (context) => ProfileView(
+                                  builder: (context) => CharacterProfileView(
                                     characterId: id,
                                   ),
                                 );
@@ -197,16 +197,24 @@ class _GameDialogState extends State<GameDialog> {
           decoration: TextDecoration.none,
         ));
 
-    timer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
-      progress++;
-      if (progress >= nodes.length) {
-        finishLine();
-      } else {
-        textShowController.add(TextSpan(
-            children: buildFlutterRichText(nodes.sublist(0, progress).join(),
-                style: style)));
-      }
-    });
+    timer = Timer.periodic(
+      const Duration(milliseconds: 100),
+      (timer) {
+        progress++;
+        if (progress >= nodes.length) {
+          finishLine();
+        } else {
+          textShowController.add(
+            TextSpan(
+              children: buildFlutterRichText(
+                nodes.sublist(0, progress).join(),
+                style: style,
+              ),
+            ),
+          );
+        }
+      },
+    );
     setState(() {});
   }
 

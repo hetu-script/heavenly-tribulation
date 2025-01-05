@@ -12,16 +12,16 @@ class HoverInfo extends StatefulWidget {
   HoverInfo({
     this.left,
     this.top,
-    this.width = 200.0,
+    // this.width = 280.0,
     required this.onSizeChanged,
     required this.text,
     required this.hoveringRect,
   }) : super(key: GlobalKey());
 
   final double? left, top;
-  final double width;
+  // final double width;
   final void Function() onSizeChanged;
-  final InlineSpan text;
+  final List<TextSpan> text;
   final Rect hoveringRect;
 
   @override
@@ -29,7 +29,7 @@ class HoverInfo extends StatefulWidget {
 }
 
 class _HoverInfoState extends State<HoverInfo> {
-  double? _left, _top;
+  double? _left, _top, _height;
 
   bool _isVisible = false;
 
@@ -49,9 +49,12 @@ class _HoverInfoState extends State<HoverInfo> {
 
   void _onSizeDetermined(Size infoSize, Size screenSize) {
     setState(() {
-      if (infoSize.height < screenSize.height) {
+      if (infoSize.height <= screenSize.height) {
         _top = math.min(
             screenSize.height - infoSize.height, widget.hoveringRect.top);
+        // _height = infoSize.height;
+      } else {
+        // _height = screenSize.height;
       }
 
       double preferredX = widget.hoveringRect.right + kEntityInfoIndent;
@@ -70,24 +73,36 @@ class _HoverInfoState extends State<HoverInfo> {
     return Positioned(
       left: _left ?? widget.left,
       top: _top ?? widget.top,
+      height: _height,
       child: Visibility(
         visible: _isVisible,
         child: SingleChildScrollView(
           child: Container(
             // margin: const EdgeInsets.only(right: 240.0, top: 120.0),
             padding: const EdgeInsets.all(10.0),
-            width: widget.width,
+            // width: widget.width,
             decoration: BoxDecoration(
-              color: kBackgroundColor,
-              borderRadius: kBorderRadius,
-              border: Border.all(color: kForegroundColor),
+              color: GameUI.backgroundColor,
+              borderRadius: GameUI.borderRadius,
+              border: Border.all(color: GameUI.foregroundColor),
             ),
             child: ClipRRect(
-              borderRadius: kBorderRadius,
+              borderRadius: GameUI.borderRadius,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [RichText(text: widget.text)],
+                children: [
+                  RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      children: widget.text,
+                      style: TextStyle(
+                        fontFamily: 'NotoSansMono',
+                        // fontFamily: GameUI.fontFamily,
+                      ),
+                    ),
+                  )
+                ],
               ),
             ),
           ),

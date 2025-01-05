@@ -6,7 +6,7 @@ import '../util.dart';
 import '../view/game_entity_listview.dart';
 import '../view/character/profile.dart';
 import '../view/menu_item_builder.dart';
-import '../view/character/equipments_and_stats.dart';
+import '../view/character/details.dart';
 import '../view/character/memory.dart';
 
 enum SelectCharacterPopUpMenuItems {
@@ -18,28 +18,28 @@ enum SelectCharacterPopUpMenuItems {
 
 List<PopupMenuEntry<SelectCharacterPopUpMenuItems>>
     buildSelectCharacterPopUpMenuItems(
-        {void Function(SelectCharacterPopUpMenuItems item)? onItemPressed}) {
+        {void Function(SelectCharacterPopUpMenuItems item)? onSelectedItem}) {
   return <PopupMenuEntry<SelectCharacterPopUpMenuItems>>[
     buildMenuItem(
       item: SelectCharacterPopUpMenuItems.select,
       name: engine.locale('select'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     const PopupMenuDivider(),
     buildMenuItem(
       item: SelectCharacterPopUpMenuItems.checkProfile,
       name: engine.locale('checkInformation'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: SelectCharacterPopUpMenuItems.checkEquipments,
       name: engine.locale('checkEquipments'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: SelectCharacterPopUpMenuItems.checkMemory,
       name: engine.locale('checkMemory'),
-      onItemPressed: onItemPressed,
+      onSelectedItem: onSelectedItem,
     ),
   ];
 }
@@ -136,25 +136,27 @@ class CharacterSelectDialog extends StatelessWidget {
             final menuPosition = RelativeRect.fromLTRB(
                 position.dx, position.dy, position.dx, 0.0);
             final items =
-                buildSelectCharacterPopUpMenuItems(onItemPressed: (item) {
+                buildSelectCharacterPopUpMenuItems(onSelectedItem: (item) {
               switch (item) {
                 case SelectCharacterPopUpMenuItems.select:
                   Navigator.of(context).pop(dataId);
                 case SelectCharacterPopUpMenuItems.checkProfile:
                   showDialog(
                     context: context,
-                    builder: (context) => ProfileView(characterId: dataId),
+                    builder: (context) =>
+                        CharacterProfileView(characterId: dataId),
                   );
                 case SelectCharacterPopUpMenuItems.checkEquipments:
                   showDialog(
                     context: context,
                     builder: (context) =>
-                        EquipmentsAndStatsView(characterId: dataId),
+                        CharacterDetailsView(characterId: dataId),
                   );
                 case SelectCharacterPopUpMenuItems.checkMemory:
                   showDialog(
                     context: context,
-                    builder: (context) => MemoryView(characterId: dataId),
+                    builder: (context) =>
+                        CharacterMemoryView(characterId: dataId),
                   );
               }
             });

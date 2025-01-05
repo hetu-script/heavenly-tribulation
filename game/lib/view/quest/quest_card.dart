@@ -23,11 +23,11 @@ class QuestCard extends StatelessWidget {
       width: 240,
       height: 150,
       decoration: BoxDecoration(
-        borderRadius: kBorderRadius,
-        border: Border.all(color: kForegroundColor),
+        borderRadius: GameUI.borderRadius,
+        border: Border.all(color: GameUI.foregroundColor),
       ),
       child: ClipRRect(
-        borderRadius: kBorderRadius,
+        borderRadius: GameUI.borderRadius,
         child: Container(
           padding: const EdgeInsets.all(10.0),
           child: Column(

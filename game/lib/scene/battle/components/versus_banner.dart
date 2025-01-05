@@ -7,7 +7,7 @@ import 'package:flame/flame.dart';
 import 'package:flutter/material.dart';
 
 // import '../../../ui.dart';
-import '../../../view/character/equipments_and_stats.dart';
+import '../../../view/character/details.dart';
 // import '../../../ui/view/character/npc.dart';
 
 class VersusBanner extends GameComponent {
@@ -33,7 +33,7 @@ class VersusBanner extends GameComponent {
       context: gameRef.context,
       barrierColor: Colors.transparent,
       builder: (context) {
-        return EquipmentsAndStatsView(characterData: data);
+        return CharacterDetailsView(characterData: data);
       },
     );
     // } else {

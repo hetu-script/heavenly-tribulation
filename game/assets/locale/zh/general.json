@@ -94,6 +94,7 @@
   "level": "等级",
   "use": "使用",
   "equip": "装备",
+  "equipment": "装备",
   "unequip": "卸下",
   "discard": "丢弃",
   "destroy": "销毁",
@@ -240,12 +241,12 @@
   "levelUp": "升级",
   "dismiss": "解散",
 
-  "cultivationRank.0": "无",
-  "cultivationRank.1": "凝气",
-  "cultivationRank.2": "筑基",
-  "cultivationRank.3": "结丹",
-  "cultivationRank.4": "元婴",
-  "cultivationRank.5": "化神",
+  "cultivationRank_0": "无",
+  "cultivationRank_1": "凝气",
+  "cultivationRank_2": "筑基",
+  "cultivationRank_3": "结丹",
+  "cultivationRank_4": "元婴",
+  "cultivationRank_5": "化神",
 
   "fightSkillGenre": "战斗流派",
   "supportSkillGenre": "辅助流派",
@@ -264,13 +265,12 @@
   "divination": "卜术",
   "illusion": "幻术",
   "theurgy": "通神",
-  "psychic": "通灵",
+  "psyche": "通灵",
   "craft": "炼器",
   "alchemy": "炼丹",
 
   "leisureSkillGenre": "休闲流派",
 
-  "music": "音律",
   "painting": "书画",
   "story": "小说",
 

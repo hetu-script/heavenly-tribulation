@@ -1,0 +1,67 @@
+{
+  /// 天赋技能数据，这里只保存技能词条，具体天赋树节点可能是多个词条的组合
+  /// 天赋树节点在skilltree.json5里面
+  /// 流派解锁对应的技能
+  swordcraft: {
+    id: "swordcraft",
+    description: "skilltree_swordcraft_main_description",
+    priority: 500,
+  },
+  daoism: {
+    id: "daoism",
+    description: "skilltree_daoism_main_description",
+    priority: 500,
+  },
+  physique: {
+    id: "physique",
+    description: "skilltree_physique_main_description",
+    priority: 500,
+  },
+  avatar: {
+    id: "avatar",
+    description: "skilltree_avatar_main_description",
+    priority: 500,
+  },
+  vitality: {
+    id: "vitality",
+    description: "skilltree_vitality_main_description",
+    priority: 500,
+  },
+
+  /// 属性点
+  dexterity: {
+    id: "dexterity",
+    icon: "cultivation/skill/attribute_dexterity_selected.png",
+    description: "skilltree_attribute_dexterity_description",
+    priority: 200,
+    increment: 3,
+  },
+  spirituality: {
+    id: "spirituality",
+    icon: "cultivation/skill/attribute_spirituality_selected.png",
+    description: "skilltree_attribute_spirituality_description",
+    priority: 200,
+    increment: 3,
+  },
+  strength: {
+    id: "strength",
+    icon: "cultivation/skill/attribute_strength_selected.png",
+    description: "skilltree_attribute_strength_description",
+    priority: 200,
+    increment: 3,
+  },
+  willpower: {
+    id: "willpower",
+    icon: "cultivation/skill/attribute_willpower_selected.png",
+    description: "skilltree_attribute_willpower_description",
+    priority: 200,
+    increment: 3,
+  },
+  perception: {
+    id: "perception",
+    icon: "cultivation/skill/attribute_perception_selected.png",
+    description: "skilltree_attribute_perception_description",
+    priority: 200,
+    increment: 3,
+  },
+}

@@ -39,13 +39,13 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
                   children: saves.values
                       .map(
                         (info) => Card(
-                          color: kBackgroundColor,
+                          color: GameUI.backgroundColor,
                           shape: RoundedRectangleBorder(
                             side: const BorderSide(
-                              color: kForegroundColor,
+                              color: GameUI.foregroundColor,
                               width: 1,
                             ),
-                            borderRadius: kBorderRadius,
+                            borderRadius: GameUI.borderRadius,
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(10),

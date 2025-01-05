@@ -1,93 +1,122 @@
 import 'package:samsara/samsara.dart';
 import 'package:flutter/material.dart';
-
-const kForegroundColor = Colors.white;
-final kBackgroundColor = Colors.black.withAlpha(180);
-final kBarrierColor = Colors.black.withAlpha(128);
-final kBorderRadius = BorderRadius.circular(5.0);
-
-const iconTheme = IconThemeData(
-  color: kForegroundColor,
-);
-
-const captionStyle = TextStyle(
-  fontFamily: GameUI.fontFamily,
-  fontSize: 18.0,
-);
-
-final darkTheme = ThemeData(
-  brightness: Brightness.dark,
-  textTheme: TextTheme(),
-  fontFamily: GameUI.fontFamily,
-  colorScheme: ColorScheme.dark(
-    surface: kBackgroundColor,
-  ),
-  scaffoldBackgroundColor: Colors.transparent,
-  appBarTheme: const AppBarTheme(
-    centerTitle: true,
-    color: Colors.transparent,
-    toolbarHeight: 36,
-    iconTheme: iconTheme,
-    actionsIconTheme: iconTheme,
-    titleTextStyle: captionStyle,
-  ),
-  dialogBackgroundColor: kBarrierColor,
-  iconTheme: iconTheme,
-  cardTheme: CardTheme(
-    elevation: 0.5,
-    shape: RoundedRectangleBorder(
-      borderRadius: kBorderRadius,
-    ),
-  ),
-  textButtonTheme: TextButtonThemeData(
-    style: TextButton.styleFrom(
-      foregroundColor: kForegroundColor,
-      shape: const RoundedRectangleBorder(),
-    ),
-  ),
-  elevatedButtonTheme: ElevatedButtonThemeData(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: kBackgroundColor,
-      foregroundColor: kForegroundColor,
-      shape: RoundedRectangleBorder(
-        side: const BorderSide(
-          color: kForegroundColor,
-        ),
-        borderRadius: kBorderRadius,
-      ),
-    ),
-  ),
-  segmentedButtonTheme: SegmentedButtonThemeData(
-    style: SegmentedButton.styleFrom(
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(5.0),
-          topRight: Radius.circular(5.0),
-        ),
-      ),
-    ),
-  ),
-  popupMenuTheme: PopupMenuThemeData(
-    color: kBackgroundColor,
-    shape: RoundedRectangleBorder(
-      side: const BorderSide(color: kForegroundColor),
-      borderRadius: kBorderRadius,
-    ),
-  ),
-  sliderTheme: const SliderThemeData(
-    activeTrackColor: kForegroundColor,
-    activeTickMarkColor: kForegroundColor,
-    thumbColor: kForegroundColor,
-    valueIndicatorTextStyle: TextStyle(
-      fontFamily: GameUI.fontFamily,
-      color: kForegroundColor,
-    ),
-  ),
-  dividerColor: kForegroundColor,
-);
+// import 'package:samsara/components/hovertip.dart';
 
 abstract class GameUI {
+  static Vector2 size = Vector2.zero();
+
+  static Vector2 get center => size / 2;
+
+  static bool _isInitted = false;
+  static bool get isInitted => _isInitted;
+
+  static const largeIndent = 40.0;
+  static const indent = 20.0;
+  static const smallIndent = 10.0;
+  // general ui
+  static const avatarSize = 120.0;
+  static const heroInfoHeight = 130.0;
+  static const infoButtonSize = Size(30.0, 30.0);
+
   static const String fontFamily = 'RuiZiYunZiKuLiBianTiGBK';
+
+  static const pileZoneIndent = 30.0;
+  static const pileZoneMargin = 60.0;
+
+  static const foregroundColor = Colors.white;
+  static final backgroundColor = Colors.black.withAlpha(180);
+  static final barrierColor = Colors.black.withAlpha(128);
+  static final borderRadius = BorderRadius.circular(5.0);
+
+  static const profileWindowPosition =
+      Offset(largeIndent, heroInfoHeight + smallIndent);
+  static const profileWindowWidth = 640.0;
+
+  static final Vector2 historyPanelSize = Vector2(328, 140);
+
+  static final detailsWindowPosition = Offset(
+      profileWindowPosition.dx + profileWindowWidth + largeIndent,
+      profileWindowPosition.dy);
+
+  static const iconTheme = IconThemeData(
+    color: foregroundColor,
+  );
+
+  static const captionStyle = TextStyle(
+    fontFamily: GameUI.fontFamily,
+    fontSize: 18.0,
+  );
+
+  static final darkTheme = ThemeData(
+    brightness: Brightness.dark,
+    textTheme: TextTheme(),
+    fontFamily: GameUI.fontFamily,
+    colorScheme: ColorScheme.dark(
+      surface: backgroundColor,
+    ),
+    scaffoldBackgroundColor: Colors.transparent,
+    appBarTheme: const AppBarTheme(
+      centerTitle: true,
+      color: Colors.transparent,
+      toolbarHeight: 36,
+      iconTheme: iconTheme,
+      actionsIconTheme: iconTheme,
+      titleTextStyle: captionStyle,
+    ),
+    dialogBackgroundColor: barrierColor,
+    iconTheme: iconTheme,
+    cardTheme: CardTheme(
+      elevation: 0.5,
+      shape: RoundedRectangleBorder(
+        borderRadius: borderRadius,
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: foregroundColor,
+        shape: const RoundedRectangleBorder(),
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
+        shape: RoundedRectangleBorder(
+          side: const BorderSide(
+            color: foregroundColor,
+          ),
+          borderRadius: borderRadius,
+        ),
+      ),
+    ),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: SegmentedButton.styleFrom(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(5.0),
+            topRight: Radius.circular(5.0),
+          ),
+        ),
+      ),
+    ),
+    popupMenuTheme: PopupMenuThemeData(
+      color: backgroundColor,
+      shape: RoundedRectangleBorder(
+        side: const BorderSide(color: foregroundColor),
+        borderRadius: borderRadius,
+      ),
+    ),
+    sliderTheme: const SliderThemeData(
+      activeTrackColor: foregroundColor,
+      activeTickMarkColor: foregroundColor,
+      thumbColor: foregroundColor,
+      valueIndicatorTextStyle: TextStyle(
+        fontFamily: GameUI.fontFamily,
+        color: foregroundColor,
+      ),
+    ),
+    dividerColor: foregroundColor,
+  );
 
   static const ScreenTextConfig siteTitleConfig = ScreenTextConfig(
     outlined: true,
@@ -99,24 +128,6 @@ abstract class GameUI {
       fontFamily: GameUI.fontFamily,
     ),
   );
-
-  static bool _isInitted = false;
-  static bool get isInitted => _isInitted;
-
-  static const largeIndent = 40.0;
-  static const indent = 20.0;
-  static const smallIndent = 10.0;
-  static const pileZoneIndent = 30.0;
-  static const pileZoneMargin = 60.0;
-
-  static Vector2 size = Vector2.zero();
-
-  static Vector2 get center => size / 2;
-
-  // general ui
-  static const avatarSize = 120.0;
-  static const heroInfoHeight = 130.0;
-  static final Vector2 historyPanelSize = Vector2(328, 140);
 
   // location site scene ui
   static late Vector2 siteCardSize,
@@ -165,12 +176,16 @@ abstract class GameUI {
       decksZoneBackgroundSize,
       decksZoneBackgroundPosition,
       decksZoneCloseButtonPosition,
+      setAsBattleDeckButtonPosition,
       // deckCoverPosition,
       // deckPileInitialPosition,
       libraryZoneBackgroundSize,
       libraryZoneBackgroundPosition,
       libraryZoneSize,
-      libraryZonePosition;
+      libraryZonePosition,
+      cardCraftingZoneSize,
+      cardCraftingZoneInitialPosition,
+      cardCraftingZonePosition;
 
   // battle ui
   static late Vector2 battleCardSize,
@@ -209,7 +224,9 @@ abstract class GameUI {
       talentTreePageButtonPosition;
   // static final cardLibraryButtonSize = Vector2(120, 120);
   // static final cardPacksButtonSize = Vector2(120, 120);
+  static final buttonSizeSmall = Vector2(90, 28);
   static final buttonSizeMedium = Vector2(140, 40);
+  static final buttonSizeLarge = Vector2(240, 75);
 
   static final cultivationRankButtonSize = Vector2(120, 120);
 
@@ -220,6 +237,10 @@ abstract class GameUI {
 
   static void init(Vector2 size) {
     if (GameUI.size == size) return;
+
+    // Hovertip.defaultContentConfig = Hovertip.defaultContentConfig.copyWith(
+    //   textStyle: TextStyle(fontFamily: GameUI.fontFamily),
+    // );
 
     GameUI.size = size;
 
@@ -250,9 +271,14 @@ abstract class GameUI {
     // deckCoverPosition =
     //     Vector2(decksZoneBackgroundPosition.x, decksZoneBackgroundPosition.y);
 
+    setAsBattleDeckButtonPosition = Vector2(
+        decksZoneBackgroundPosition.x + smallIndent,
+        decksZoneBackgroundPosition.y - 100);
+
     decksZoneCloseButtonPosition = Vector2(
-        decksZoneBackgroundPosition.x + indent,
-        size.y - largeIndent - buttonSizeMedium.y);
+      setAsBattleDeckButtonPosition.x,
+      setAsBattleDeckButtonPosition.y - buttonSizeMedium.y - indent,
+    );
 
     // deckbuildingZoneSize = Vector2(size.x, deckbuildingCardHeight + indent * 4);
     deckbuildingZonePileOffset = Vector2(0, 30);
@@ -261,6 +287,13 @@ abstract class GameUI {
     // final libraryCardHeight = libraryCardWidth * cardSizeRatio;
     // libraryCardSize = Vector2(libraryCardWidth, libraryCardHeight);
     libraryCardSize = deckbuildingCardSize;
+
+    cardCraftingZoneSize = Vector2(190 / 1440 * size.x, 290 / 810 * size.y);
+
+    cardCraftingZoneInitialPosition = Vector2(decksZoneBackgroundPosition.x,
+        decksZoneBackgroundPosition.y + decksZoneBackgroundSize.y);
+
+    cardCraftingZonePosition = decksZoneBackgroundPosition - Vector2(0, 100);
 
     battleCardSize = deckbuildingCardSize;
     battleDeckZoneSize =
@@ -349,7 +382,7 @@ abstract class GameUI {
   }
 }
 
-Rect getWidgetRenderRect(GlobalKey key) {
+Rect getRenderRect(GlobalKey key) {
   final renderBox = key.currentContext!.findRenderObject() as RenderBox;
   final Size size = renderBox.size;
   final Offset offset = renderBox.localToGlobal(Offset.zero);

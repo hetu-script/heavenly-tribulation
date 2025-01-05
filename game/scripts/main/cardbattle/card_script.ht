@@ -3,60 +3,100 @@ import '../binding/battle_character.ht'
 /// 卡牌的每个词条都对应一个脚本。
 /// 这个脚本将会在这张牌被打出时invoke
 
-/// 所有的卡牌词条脚本按照约定都以 `card_script_${affix_id}` 的形式命名
+/// 按照约定，主词条以 `card_script_main_${affix_id}` 的形式命名
+/// 额外词条以 `card_script_${affix_id}` 的形式命名
 
+/// ------------------------------
 /// 主词条（包含动画，异步async）：
+/// ------------------------------
+/// 无流派，无境界
 /// 攻击
-async function card_script_attack(self, opponent, affix) {
-  await self.attack(affix.kind)
-  final value = affix.value[0]
-  opponent.takeDamage(affix.kind, value)
+async function card_script_main_attack(self, opponent, affix) {
+  await self.setState(
+    affix.animation,
+    overlay: affix.overlayAnimation,
+    recovery: affix.recoveryAnimation,
+  )
+  final damage = affix.value[0]
+  opponent.takeDamage({
+    kind: affix.kind,
+    attackType: affix.attackType,
+    damageType: affix.damageType,
+    initialDamage: damage,
+    damage: damage,
+  })
 }
-/// 格挡
-async function card_script_defend(self, opponent, affix) {
-  await self.defend(affix.kind)
+/// 防御
+async function card_script_main_defend(self, opponent, affix) {
+  await self.setState(affix.animation)
   await Future.delayed(0.4)
   final value = affix.value[0]
-  self.addStatusEffect('block', amount: value, playSound: true)
-}
-/// 轻功
-async function card_script_swift(self, opponent, affix) {
-  await Future.delayed(0.8)
-  final [speed, dodge] = affix.value
-  self.addStatusEffect('speed', amount: speed, playSound: true)
-  self.addStatusEffect('dodge', amount: dodge)
-}
-/// 回复生命
-async function card_script_restore_life(self, opponent, affix) {
-  final value = affix.value[0]
-  await self.restoreLife(value, playSound: true)
-}
-/// 回复灵气
-async function card_script_restore_mana(self, opponent, affix) {
-  final value = affix.value[0]
-  await self.restoreMana(value, playSound: true)
+  self.addStatusEffect('defense_${affix.damageType}', amount: value, playSound: true)
 }
 
+/// 无流派，凝气
+/// 获得生命
+async function card_script_main_restore_life(self, opponent, affix) {
+  await self.setState(affix.animation, overlay: affix.overlayAnimation)
+  final value = affix.value[0]
+  await self.changeLife(value, playSound: true)
+}
+/// 获得元气
+async function card_script_main_life_energy(self, opponent, affix) {
+  await self.setState(affix.animation)
+  final value = affix.value[0]
+  self.addStatusEffect('energy_p_life', amount: value, playSound: true)
+}
+/// 获得灵气
+async function card_script_main_spell_energy(self, opponent, affix) {
+  await self.setState(affix.animation)
+  final value = affix.value[0]
+  self.addStatusEffect('energy_p_spell', amount: value, playSound: true)
+}
+/// 迅捷
+async function card_script_main_speed(self, opponent, affix) {
+  await self.setState(affix.animation)
+  final value = affix.value[0]
+  self.addStatusEffect('speed_quick', amount: value, playSound: true)
+}
+/// 闪避
+async function card_script_main_dodge(self, opponent, affix) {
+  await self.setState(affix.animation)
+  final value = affix.value[0]
+  self.addStatusEffect('dodge_nimble', amount: value, playSound: true)
+}
+
+/// 锻体，凝气
+/// 轻功
+async function card_script_main_swift(self, opponent, affix) {
+  await Future.delayed(0.8)
+  final [quick, nimble] = affix.value
+  self.addStatusEffect('speed_quick', amount: quick, playSound: true)
+  self.addStatusEffect('dodge_nimble', amount: nimble)
+}
+
+/// ------------------------------
 /// 额外词条（不播放动画和音效，同步非阻塞函数）：
+/// ------------------------------
 /// 攻击后额外造成伤害
 function card_script_extra_damage(self, opponent, affix) {
   final value = affix.value[0]
   self.addStatusEffect('extra_damage', amount: value)
 }
 /// 防御
-function card_script_defend_extra(self, opponent, affix) {
+function card_script_defend(self, opponent, affix) {
   final value = affix.value[0]
-  self.addStatusEffect('block', amount: value)
+  self.addStatusEffect('defense_${affix.damageType}', amount: value)
 }
-/// 速度
+/// 迅捷
 function card_script_speed(self, opponent, affix) {
   final value = affix.value[0]
-  self.addStatusEffect('speed', amount: value)
+  self.addStatusEffect('speed_quick', amount: value)
 }
 /// 闪避
 function card_script_dodge(self, opponent, affix) {
   final value = affix.value[0]
-  self.addStatusEffect('dodge', amount: value)
+  self.addStatusEffect('dodge_nimble', amount: value)
 }
 
 // async function blade_8(self, opponent) {

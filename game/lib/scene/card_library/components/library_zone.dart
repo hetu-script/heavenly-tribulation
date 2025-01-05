@@ -16,6 +16,7 @@ import '../../../ui.dart';
 import 'deckbuilding_zone.dart';
 import 'common.dart';
 import '../../../engine.dart';
+import 'cardcrafting_area.dart';
 
 // 可以无限制使用的卡牌
 // const Set<String> unlimitedCardIds = {
@@ -43,6 +44,8 @@ class CardLibraryZone extends BorderComponent with HandlesGesture {
     }
   }
 
+  CardCraftingArea? craftingArea;
+
   DeckBuildingZone? get buildingZone => _buildingZone;
 
   Sprite? stackSprite;
@@ -58,6 +61,24 @@ class CardLibraryZone extends BorderComponent with HandlesGesture {
   double _virtualHeight = 0;
 
   double _curYOffset = 0;
+
+  List<DeckBuildingZone> preloadBuildingZones = [];
+
+  @override
+  void onMount() {
+    super.onMount();
+
+    for (final zone in preloadBuildingZones) {
+      for (final cardId in zone.preloadCardIds) {
+        final card = library[cardId];
+        assert(card != null, 'Card $cardId not found in library');
+        final clone = card!.clone();
+        game.world.add(clone);
+        zone.addCard(clone, animated: false);
+      }
+      zone.collapse(animated: false);
+    }
+  }
 
   CardLibraryZone({
     Sprite? stackSprite,
@@ -143,7 +164,7 @@ class CardLibraryZone extends BorderComponent with HandlesGesture {
     // );
     // add(background);
     final hero = engine.hetu.fetch('hero');
-    final Map libraryData = hero['cardLibrary'];
+    final libraryData = hero['cardLibrary'];
 
     for (final cardData in libraryData.values) {
       final card = addCardByData(cardData);
@@ -178,7 +199,7 @@ class CardLibraryZone extends BorderComponent with HandlesGesture {
   }
 
   CustomGameCard addCardByData(dynamic data) {
-    final card = GameData.createBattleCardByData(data);
+    final card = GameData.createBattleCardFromData(data);
     // add(card);
     card.size = GameUI.libraryCardSize;
 
@@ -193,31 +214,42 @@ class CardLibraryZone extends BorderComponent with HandlesGesture {
     }
 
     card.onTapDown = (int buttons, Vector2 position) {
+      void cloneCard() {
+        final CustomGameCard clone = card.clone();
+        clone.enableGesture = false;
+        clone.priority = kDraggingCardPriority;
+        game.world.add(clone);
+        draggingCard = clone;
+      }
+
       Hovertip.hide(card);
       if (buttons == kPrimaryButton) {
         if (!card.isEnabled) return;
         if (buildingZone != null) {
           if (buildingZone!.isFull) return;
-          final CustomGameCard clone = card.clone();
-          clone.enableGesture = false;
-          clone.priority = kDraggingCardPriority;
-          game.world.add(clone);
-          draggingCard = clone;
+          cloneCard();
+        } else if (craftingArea != null) {
+          if (craftingArea!.isFull) return;
+          cloneCard();
         }
       }
     };
-    card.onTapUp = (int buttons, __) {
+    card.onTapUp = (int buttons, __) async {
+      if (!card.isEnabled) return;
       if (buttons == kPrimaryButton) {
-        if (!card.isEnabled) return;
         if (buildingZone != null) {
           release();
           if (buildingZone!.isFull) return;
           final c = card.clone();
           game.world.add(c);
           buildingZone!.addCard(c);
-          // if (!unlimitedCardIds.contains(card.deckId)) {
           card.isEnabled = false;
-          // }
+        } else if (craftingArea != null) {
+          release();
+          final c = card.clone();
+          game.world.add(c);
+          craftingArea!.addCard(c);
+          card.isEnabled = false;
         }
       }
     };
@@ -231,37 +263,24 @@ class CardLibraryZone extends BorderComponent with HandlesGesture {
       release();
     };
 
-    card.onPreviewed = () {
+    card.onPreviewed = (component) {
       Hovertip.show(
         scene: game,
-        target: card,
+        target: component,
         direction: HovertipDirection.rightTop,
         content: card.extraDescription,
         config: ScreenTextConfig(anchor: Anchor.topCenter),
       );
     };
 
-    card.onUnpreviewed = () {
-      Hovertip.hide(card);
+    card.onUnpreviewed = (component) {
+      Hovertip.hide(component);
     };
 
     library[card.id] = card;
 
     return card;
   }
-
-  // @override
-  // void render(Canvas canvas) {
-  //   super.render(canvas);
-
-  //   canvas.drawRect(
-  //     border,
-  //     Paint()
-  //       ..style = PaintingStyle.stroke
-  //       ..color = Colors.blue.withAlpha(180)
-  //       ..strokeWidth = 2.0,
-  //   );
-  // }
 
   /// 向牌库中添加卡牌，如果已存在，就返回false
   // GameCard? addCardById(String cardId) {
@@ -313,10 +332,5 @@ class CardLibraryZone extends BorderComponent with HandlesGesture {
   //     ++card.stack;
   //     return null;
   //   }
-  // }
-
-  // @override
-  // void render(Canvas canvas) {
-  //   canvas.drawRect(border, PredefinedPaints.light);
   // }
 }

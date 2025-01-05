@@ -29,7 +29,7 @@ class _TileDetailPanelState extends State<TileDetailPanel> {
 
     return ResponsiveWindow(
       alignment: Alignment.center,
-      color: kBackgroundColor,
+      color: GameUI.backgroundColor,
       size: const Size(400, 400),
       child: Scaffold(
         appBar: AppBar(
