@@ -27,13 +27,12 @@
   "itemId": "物品ID",
   "worldId": "世界ID",
   "all": "全部",
-  "ongoing": "进行中",
   "finished": "已完成",
   "questFinished": "任务完成",
   "successed": "成功",
   "failed": "失败",
   "any": "任意",
-  "null": "不可用",
+  "unusable": "不可用",
   "none": "无",
   "unknown": "未知",
   "random": "随机",
@@ -148,8 +147,8 @@
   "epic": "极品",
   "legendary": "神品",
   "unique": "秘宝",
-  "mythic": "灵宝",
-  "arcane": "古宝",
+  "mythic": "古宝",
+  "arcane": "灵宝",
 
   "normal": "普通",
   "hard": "困难",
@@ -167,9 +166,9 @@
 
   "skill": "技能",
   "dialog": "对话",
-  "type": "类别",
-  "category": "门类",
-  "kind": "类型",
+  "type": "类型",
+  "category": "类别",
+  "kind": "种类",
   "genre": "流派",
 
   "you": "你",
@@ -216,8 +215,9 @@
   "history": "历史",
   "experienced": "经历",
   "known": "见闻",
-
   "quest": "任务",
+  "card_library": "卡牌库",
+  "decks": "卡组",
 
   "mapLevel": "第 {0} 层",
 
@@ -245,7 +245,7 @@
   "cultivationRank_1": "凝气",
   "cultivationRank_2": "筑基",
   "cultivationRank_3": "结丹",
-  "cultivationRank_4": "元婴",
+  "cultivationRank_4": "还婴",
   "cultivationRank_5": "化神",
 
   "fightSkillGenre": "战斗流派",
@@ -280,12 +280,6 @@
   "watchScene": "观看剧情",
   "skipScene": "跳过剧情",
 
-  "usableHint": "点击右键使用。",
-  "equippableHint": "点击右键装备。",
-  "unequippableHint": "点击右键卸下。",
-  "materialPackageHint": "点击右键使用后转化为材料。",
-  "cardpackHint": "在打坐界面开启，可以获得战斗卡牌。",
-
   "hint.ship": "需要先装备船只才可以在水面上移动……",
   "hint.boots": "需要先装备登山靴才可以在山地中移动……",
   "hint.nonEnterableTile": "前方被一阵无形的阻力挡住了。",
@@ -301,8 +295,6 @@
   "hint.deadend": "这里看样子无法前进了，看来得想想别的办法……",
 
   "exp": "经验值",
-  "cultivationLevel": "修为",
-  "cultivationRank": "境界",
   "rankUp!": "境界提升!",
 
   "availableSkillPoints": "可分配天赋点数",

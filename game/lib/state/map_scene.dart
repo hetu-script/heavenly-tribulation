@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../scene/common.dart';
 import '../scene/world/world.dart';
 import '../engine.dart';
 import '../data.dart';
@@ -11,19 +12,19 @@ class WorldMapSceneState with ChangeNotifier {
 
   void clear() {
     for (final id in _sceneIds) {
-      engine.leaveScene(id);
+      engine.clearCache(id);
     }
     _sceneIds.clear();
   }
 
   Future<String?> pop() async {
-    engine.leaveScene(_sceneIds.last);
+    // engine.clearCache(_sceneIds.last);
     _sceneIds.removeLast();
     String? currentSceneId;
     if (_sceneIds.isNotEmpty) {
       currentSceneId = _sceneIds.last;
       scene = await (engine.createScene<WorldMapScene>(
-          contructorKey: 'locationSite', sceneId: currentSceneId));
+          contructorKey: kSceneLocationSite, sceneId: currentSceneId));
     } else {
       scene = null;
     }
@@ -38,7 +39,7 @@ class WorldMapSceneState with ChangeNotifier {
       scene = engine.switchScene(id)!;
     } else {
       scene = await engine.createScene(
-        contructorKey: 'tilemap',
+        contructorKey: kSceneTilemap,
         sceneId: id,
         arg: args,
       ) as WorldMapScene;

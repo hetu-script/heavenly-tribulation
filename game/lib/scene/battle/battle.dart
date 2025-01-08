@@ -11,8 +11,10 @@ import 'package:samsara/cardgame/custom_card.dart';
 
 import '../../engine.dart';
 import 'components/battle.dart';
-import 'drop_menu.dart';
+// import 'drop_menu.dart';
 // import '../../avatar.dart';
+import '../common.dart';
+import '../events.dart';
 
 class BattleSceneOverlay extends StatefulWidget {
   const BattleSceneOverlay({
@@ -40,11 +42,6 @@ class _BattleSceneOverlayState extends State<BattleSceneOverlay> {
 
   late BattleScene _scene;
 
-  void close() {
-    _scene.leave(clearCache: true);
-    Navigator.of(context).pop();
-  }
-
   @override
   void initState() {
     super.initState();
@@ -52,10 +49,13 @@ class _BattleSceneOverlayState extends State<BattleSceneOverlay> {
     // FlameAudio.bgm.initialize();
 
     engine.addEventListener(
-      'battleEnded',
+      GameEvents.leaveCardBattle,
       EventHandler(
         widgetKey: widget.key!,
-        handle: (eventId, args, scene) => close(),
+        callback: (eventId, args, scene) {
+          _scene.leave(clearCache: true);
+          Navigator.of(context).pop();
+        },
       ),
     );
 
@@ -73,7 +73,7 @@ class _BattleSceneOverlayState extends State<BattleSceneOverlay> {
   Future<Scene?> _getScene() async {
     final id = 'cardgame_${randomUID()}';
     final scene = await engine.createScene(
-      contructorKey: 'cardBattle',
+      contructorKey: kSceneCardBattle,
       sceneId: id,
       arg: {
         'id': id,
@@ -147,27 +147,27 @@ class _BattleSceneOverlayState extends State<BattleSceneOverlay> {
                 //       ),
                 //     ],
                 //   ),
+                // // ),
+                // Positioned(
+                //   right: 0,
+                //   top: 0,
+                //   child: BattleDropMenu(
+                //     onSelected: (BattleDropMenuItems item) async {
+                //       switch (item) {
+                //         case BattleDropMenuItems.console:
+                //           showDialog(
+                //             context: context,
+                //             builder: (BuildContext context) => Console(
+                //               engine: engine,
+                //             ),
+                //           ).then((_) => setState(() {}));
+                //         case BattleDropMenuItems.quit:
+                //           close();
+                //           engine.stopBGM();
+                //       }
+                //     },
+                //   ),
                 // ),
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: BattleDropMenu(
-                    onSelected: (BattleDropMenuItems item) async {
-                      switch (item) {
-                        case BattleDropMenuItems.console:
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) => Console(
-                              engine: engine,
-                            ),
-                          ).then((_) => setState(() {}));
-                        case BattleDropMenuItems.quit:
-                          close();
-                          engine.stopBGM();
-                      }
-                    },
-                  ),
-                ),
               ],
             ),
           );

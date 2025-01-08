@@ -37,9 +37,6 @@ struct MaterialStorage {
     this.plank = 0;
     this.paper = 0;
     this.herb = 0;
-    this.yinqi = 0;
-    this.shaqi = 0;
-    this.yuanqi = 0;
   }
 }
 

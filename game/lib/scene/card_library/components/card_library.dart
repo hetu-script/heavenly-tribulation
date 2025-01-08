@@ -1,5 +1,7 @@
 import 'package:flame/components.dart';
-import 'package:heavenly_tribulation/common.dart';
+import 'package:heavenly_tribulation/scene/common.dart';
+// import 'package:heavenly_tribulation/common.dart';
+// import 'package:heavenly_tribulation/logic/battlecard.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/sprite_component2.dart';
@@ -9,7 +11,7 @@ import 'package:samsara/components/sprite_component2.dart';
 import 'package:samsara/components.dart';
 import 'package:flutter/material.dart';
 
-import '../../../dialog/confirm_dialog.dart';
+import '../../../game_dialog/confirm_dialog.dart';
 import '../../../view/menu_item_builder.dart';
 // import '../../../global.dart';
 import 'library_zone.dart';
@@ -17,7 +19,7 @@ import 'deckbuilding_zone.dart';
 import '../../../ui.dart';
 import '../../../engine.dart';
 import 'common.dart';
-import '../../../dialog/game_dialog/game_dialog.dart';
+import '../../../game_dialog/game_dialog/game_dialog.dart';
 // import '../../../data.dart';
 import '../../events.dart';
 import 'cardcrafting_area.dart';
@@ -73,7 +75,6 @@ class CardLibraryScene extends Scene {
   double _deckPilesZoneVirtualHeight = 0, _curYOffset = 0;
 
   late final dynamic _heroData;
-  late final int _cardLimit;
 
   int _currentDeckIndex = -1;
 
@@ -82,7 +83,7 @@ class CardLibraryScene extends Scene {
   CardLibraryScene({
     required super.controller,
     required super.context,
-  }) : super(id: 'deckBuilding');
+  }) : super(id: kSceneCardLibrary);
 
   void calculateVirtualHeight() {
     _deckPilesZoneVirtualHeight =
@@ -90,28 +91,39 @@ class CardLibraryScene extends Scene {
   }
 
   void _setAsBattleDeck(DeckBuildingZone zone) {
-    if (!zone.isFull) {
+    if (!zone.isCardsEnough) {
       GameDialog.show(
         context: context,
         dialogData: {
-          'lines': [engine.locale('deckbuilding.deckIsNotFull')],
+          'lines': [engine.locale('deckbuilding_cards_not_enough')],
         },
       );
-    } else {
-      if (!zone.isBattleDeck) {
-        zone.setBattleDeck();
-        for (final otherZone in deckPiles) {
-          if (otherZone != zone && otherZone.isBattleDeck) {
-            otherZone.setBattleDeck(false);
-          }
+      return;
+    }
+
+    if (!zone.isRequirementMet) {
+      GameDialog.show(
+        context: context,
+        dialogData: {
+          'lines': [engine.locale('deckbuilding_card_invalid')],
+        },
+      );
+      return;
+    }
+
+    if (!zone.isBattleDeck) {
+      zone.setBattleDeck();
+      for (final otherZone in deckPiles) {
+        if (otherZone != zone && otherZone.isBattleDeck) {
+          otherZone.setBattleDeck(false);
         }
-        _heroData['battleDeckIndex'] = deckPiles.indexOf(zone);
-      } else {
-        _heroData['battleDeckIndex'] = -1;
       }
-      for (var i = 0; i < deckPiles.length - 1; ++i) {
-        _heroDecks[i]['isBattleDeck'] = deckPiles[i].isBattleDeck;
-      }
+      _heroData['battleDeckIndex'] = deckPiles.indexOf(zone);
+    } else {
+      _heroData['battleDeckIndex'] = -1;
+    }
+    for (var i = 0; i < deckPiles.length - 1; ++i) {
+      _heroDecks[i]['isBattleDeck'] = deckPiles[i].isBattleDeck;
     }
   }
 
@@ -137,7 +149,7 @@ class CardLibraryScene extends Scene {
 
   void _refreshCardCount(DeckBuildingZone zone) {
     cardCount.text =
-        '${engine.locale('deckbuilding.cardCount')}: ${zone.cards.length}/${zone.limit}';
+        '${engine.locale('deckbuilding_count')}: ${zone.cards.length}';
   }
 
   void onEditDeck(DeckBuildingZone zone) {
@@ -207,12 +219,7 @@ class CardLibraryScene extends Scene {
 
       final List decks = _heroData['battleDecks'];
 
-      final deckInfo = {
-        'title': _currentBuildingZone!.title,
-        'isBattleDeck': _currentBuildingZone!.isBattleDeck,
-        'cards':
-            _currentBuildingZone!.cards.map((card) => card.deckId).toList(),
-      };
+      final deckInfo = _currentBuildingZone!.createDeckInfo();
 
       if (_currentDeckIndex >= decks.length) {
         decks.add(deckInfo);
@@ -240,7 +247,6 @@ class CardLibraryScene extends Scene {
       isBattleDeck: isBattleDeck,
       preloadCardIds: cardIds,
       library: libraryZone,
-      limit: _cardLimit,
       position: Vector2(
           GameUI.decksZoneBackgroundPosition.x,
           GameUI.decksZoneBackgroundPosition.y +
@@ -297,7 +303,7 @@ class CardLibraryScene extends Scene {
 
   void onEndCraft() async {
     if (cardCraftingArea.isFull) {
-      final card = cardCraftingArea.craftingZone.cards.first as CustomGameCard;
+      final card = cardCraftingArea.cards.first as CustomGameCard;
       refreshCardData(card);
     }
 
@@ -314,9 +320,7 @@ class CardLibraryScene extends Scene {
     final libraryCard = libraryZone.library[card.id];
     assert(libraryCard != null);
 
-    // libraryCard!.data = card.data;
     libraryCard!.description = card.description;
-    libraryCard.extraDescription = card.extraDescription;
 
     for (final zone in deckPiles) {
       if (zone.cards.isNotEmpty) {
@@ -326,7 +330,6 @@ class CardLibraryScene extends Scene {
         if (cards.isNotEmpty) {
           final deckCard = cards.first as CustomGameCard;
           deckCard.description = libraryCard.description;
-          deckCard.extraDescription = libraryCard.extraDescription;
         }
       }
     }
@@ -337,8 +340,7 @@ class CardLibraryScene extends Scene {
     super.onLoad();
 
     _heroData = engine.hetu.fetch('hero');
-    final int rank = _heroData['cultivationRank'];
-    _cardLimit = getDeckCardLimitFromRank(rank);
+
     _heroDecks = _heroData['battleDecks'];
 
     cardCount = RichTextComponent(
@@ -375,7 +377,7 @@ class CardLibraryScene extends Scene {
         _heroData['cardLibrary'] = libraryZone.library.map((key, value) {
           return MapEntry(key, value.data);
         });
-        engine.emit(GameEvents.leaveScene);
+        engine.emit(GameEvents.leaveCardLibrary);
       }
     };
     camera.viewport.add(closeButton);
@@ -407,6 +409,7 @@ class CardLibraryScene extends Scene {
       spriteId: 'cultivation/cardlibrary_background_top.png',
       size: Vector2(size.x, GameUI.libraryZonePosition.y),
       priority: kBarPriority,
+      enableGesture: true,
     );
     world.add(topBar);
 
@@ -417,6 +420,7 @@ class CardLibraryScene extends Scene {
       position:
           Vector2(0, GameUI.libraryZonePosition.y + GameUI.libraryZoneSize.y),
       priority: kBarPriority,
+      enableGesture: true,
     );
     world.add(bottomBar);
 
@@ -426,6 +430,7 @@ class CardLibraryScene extends Scene {
           GameUI.libraryZoneBackgroundSize.y),
       position: Vector2(GameUI.libraryZoneBackgroundSize.x,
           GameUI.libraryZoneBackgroundPosition.y),
+      enableGesture: true,
     );
     deckPilesZone.onMouseScrollUp = () => _repositionDeckPiles(100);
     deckPilesZone.onMouseScrollDown = () => _repositionDeckPiles(-100);
@@ -447,7 +452,7 @@ class CardLibraryScene extends Scene {
     createNewDeckBuildingZone();
 
     cardCraftingArea = CardCraftingArea(
-      priority: kBarPriority,
+      // priority: kBarPriority,
       onStartCraft: onStartCraft,
       onRemoveCard: (card) {
         libraryZone.setCardEnabledById(card.deckId);

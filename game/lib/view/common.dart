@@ -5,8 +5,8 @@ enum ViewPanelMode {
   create,
 }
 
-const kEntityInfoIndent = 10.0;
-const kEntityInfoWidth = 300.0;
+const kHoverInfoIndent = 10.0;
+const kHoverInfoWidth = 320.0;
 
 const kTabBarHeight = 72.0;
 const kNestedTabBarHeight = 178.0;

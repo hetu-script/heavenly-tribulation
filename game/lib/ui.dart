@@ -19,6 +19,7 @@ abstract class GameUI {
   static const infoButtonSize = Size(30.0, 30.0);
 
   static const String fontFamily = 'RuiZiYunZiKuLiBianTiGBK';
+  static const String fontFamily2 = 'NotoSansMono';
 
   static const pileZoneIndent = 30.0;
   static const pileZoneMargin = 60.0;
@@ -49,7 +50,20 @@ abstract class GameUI {
 
   static final darkTheme = ThemeData(
     brightness: Brightness.dark,
-    textTheme: TextTheme(),
+    textTheme: TextTheme(
+      titleMedium: TextStyle(
+        fontFamily: GameUI.fontFamily,
+        fontSize: 24.0,
+      ),
+      bodySmall: TextStyle(
+        fontFamily: GameUI.fontFamily2,
+        fontSize: 14.0,
+      ),
+      bodyMedium: TextStyle(
+        fontFamily: GameUI.fontFamily,
+        fontSize: 16.0,
+      ),
+    ),
     fontFamily: GameUI.fontFamily,
     colorScheme: ColorScheme.dark(
       surface: backgroundColor,
@@ -382,8 +396,8 @@ abstract class GameUI {
   }
 }
 
-Rect getRenderRect(GlobalKey key) {
-  final renderBox = key.currentContext!.findRenderObject() as RenderBox;
+Rect getRenderRect(BuildContext context) {
+  final renderBox = context.findRenderObject() as RenderBox;
   final Size size = renderBox.size;
   final Offset offset = renderBox.localToGlobal(Offset.zero);
   final Rect rect =

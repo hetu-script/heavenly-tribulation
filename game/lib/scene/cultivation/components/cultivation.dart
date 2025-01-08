@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/common.dart';
+import 'package:heavenly_tribulation/scene/common.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
@@ -27,7 +28,7 @@ import '../../../ui.dart';
 // import '../../../common.dart';
 import '../../events.dart';
 import '../../../data.dart';
-import '../../../dialog/game_dialog/selection_dialog.dart';
+import '../../../game_dialog/game_dialog/selection_dialog.dart';
 // import '../../../dialog/game_dialog/game_dialog.dart';
 
 const _kLightPointMoveSpeed = 450.0;
@@ -75,7 +76,7 @@ class CultivationScene extends Scene {
 
   late final dynamic _heroData;
 
-  late final dynamic _heroSkillsData;
+  late final dynamic _heroPassiveData;
 
   String _heroSkillsDescription = '';
 
@@ -135,7 +136,7 @@ class CultivationScene extends Scene {
     required super.controller,
     required super.context,
     bool talentTreeMode = false,
-  }) : super(id: 'cultivation', enableLighting: true);
+  }) : super(id: kSceneCultivation, enableLighting: true);
 
   void udpateLevelDescription() {
     final int rank = _heroData['cultivationRank'];
@@ -195,13 +196,15 @@ class CultivationScene extends Scene {
     StringBuffer builder = StringBuffer();
     builder.writeln(engine.locale('skilltree_hero_skills_description_title'));
     builder.writeln(' ');
-    if (_heroSkillsData.isEmpty) {
+    if (_heroPassiveData.isEmpty) {
       builder.writeln('<grey>${engine.locale('none')}</>');
     } else {
-      final List skillList = (_heroSkillsData.values as Iterable).toList();
+      final List skillList = (_heroPassiveData.values as Iterable)
+          .where((value) => value != null)
+          .toList();
       skillList.sort((data1, data2) {
-        return ((data1['priority'] ?? 0) as int)
-            .compareTo((data2['priority'] ?? 0) as int);
+        return ((data2['priority'] ?? 0) as int)
+            .compareTo((data1['priority'] ?? 0) as int);
       });
       for (final skillData in skillList) {
         final skillDescription = engine.locale(skillData['description']);
@@ -312,7 +315,7 @@ class CultivationScene extends Scene {
       }
     } else {
       // 已经开发完毕，写好数据的技能
-      final List? nodeSkillData = skillTreeNodeData['skills'];
+      final List? nodePassiveData = skillTreeNodeData['passives'];
 
       final buttonSize = switch (skillTreeNodeData['size']) {
         'large' => GameUI.skillButtonSizeLarge,
@@ -344,7 +347,7 @@ class CultivationScene extends Scene {
         // 身法：绿 灵力：蓝 体魄：红 意志：白 神识：黄
         final attributeId = _heroData['skillTreeUnlockedNodes'][positionId];
         assert(attributeId is String);
-        final attributeSkillData = GameData.skillData[attributeId];
+        final attributeSkillData = GameData.passiveData[attributeId];
         assert(attributeSkillData != null);
         button.spriteId = attributeSkillData['icon'];
       }
@@ -381,25 +384,25 @@ class CultivationScene extends Scene {
               // 属性点类的node，记录的是选择的具体属性的名字
               unlockedNodes[positionId] = selectedAttributeId;
 
-              engine.hetu.invoke(
-                'characterSkillLevelUp',
-                positionalArgs: [_heroSkillsData, selectedAttributeId],
-              );
+              engine.hetu.invoke('gainPassive',
+                  namespace: 'Player', positionalArgs: [selectedAttributeId]);
 
               refreshHeroSkillsDescription();
 
-              button.spriteId = GameData.skillData[selectedAttributeId]['icon'];
+              button.spriteId =
+                  GameData.passiveData[selectedAttributeId]['icon'];
               button.tryLoadSprite();
             } else {
               --_heroData['availableSkillPoints'];
               button.isSelected = true;
               unlockedNodes[positionId] = true;
 
-              assert(nodeSkillData != null);
-              for (final data in nodeSkillData!) {
+              assert(nodePassiveData != null);
+              for (final data in nodePassiveData!) {
                 engine.hetu.invoke(
-                  'characterSkillLevelUp',
-                  positionalArgs: [_heroSkillsData, data['id']],
+                  'gainPassive',
+                  namespace: 'Player',
+                  positionalArgs: [data['id']],
                   namedArgs: {'level': data['level']},
                 );
               }
@@ -433,18 +436,15 @@ class CultivationScene extends Scene {
 
             unlockedNodes.remove(positionId);
 
-            engine.hetu.invoke(
-              'characterSkillRefund',
-              positionalArgs: [_heroSkillsData, attributeId],
-            );
+            engine.hetu.invoke('refundPassive', positionalArgs: [attributeId]);
           } else {
             unlockedNodes.remove(positionId);
 
-            assert(nodeSkillData != null);
-            for (final data in nodeSkillData!) {
+            assert(nodePassiveData != null);
+            for (final data in nodePassiveData!) {
               engine.hetu.invoke(
-                'characterSkillRefund',
-                positionalArgs: [_heroSkillsData, data['id']],
+                'refundPassive',
+                positionalArgs: [data['id']],
                 namedArgs: {'level': data['level']},
               );
             }
@@ -466,7 +466,7 @@ class CultivationScene extends Scene {
 
           final attributeId = _heroData['skillTreeUnlockedNodes'][positionId];
           assert(attributeId is String);
-          final attributeSkillData = GameData.skillData[attributeId];
+          final attributeSkillData = GameData.passiveData[attributeId];
           assert(attributeSkillData != null);
           String attributeDescription =
               engine.locale(attributeSkillData['description']);
@@ -522,8 +522,8 @@ class CultivationScene extends Scene {
 
     _heroData = engine.hetu.fetch('hero');
 
-    // _heroSkillsData = deepCopy(_heroData['skills']);
-    _heroSkillsData = _heroData['skills'];
+    // _heroSkillsData = deepCopy(_heroData['passives']);
+    _heroPassiveData = _heroData['passives'];
 
     refreshHeroSkillsDescription();
 
@@ -693,7 +693,7 @@ class CultivationScene extends Scene {
     camera.viewport.add(cultivationSkillPageButton);
 
     final exit = GameData.getExitSiteCard(spriteId: 'exit_card2');
-    exit.onTap = (_, __) => engine.emit(GameEvents.leaveScene, args: id);
+    exit.onTap = (_, __) => engine.emit(GameEvents.leaveCultivation, args: id);
     camera.viewport.add(exit);
 
     // cardLibraryButton = SpriteButton(

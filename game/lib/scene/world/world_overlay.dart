@@ -17,19 +17,19 @@ import 'package:provider/provider.dart';
 
 import '../../data.dart';
 import '../../../scene/loading_screen.dart';
-import '../../../dialog/game_dialog/game_dialog.dart';
+import '../../game_dialog/game_dialog/game_dialog.dart';
 import '../quest_info.dart';
 // import '../../../event/ui.dart';
 import '../../view/world_infomation/world_infomation.dart';
 // import 'popup.dart';
 // import '../../../shared/constants.dart';
-import '../history_info.dart';
+import '../../view/history_info.dart';
 import '../../engine.dart';
 import 'world.dart';
-import '../hero_info.dart';
+import '../../view/game_overlay.dart';
 import 'drop_menu.dart';
 // import '../../../ui/view/location/location.dart';
-import '../../dialog/character_select_dialog.dart';
+import '../../game_dialog/character_select_dialog.dart';
 // import '../../../dialog/game_over.dart';
 // import '../common.dart';
 import 'location/location_site.dart';
@@ -38,7 +38,7 @@ import '../common.dart';
 import '../events.dart';
 // import '../../common.dart';
 import 'npc_list.dart';
-import '../../dialog/input_string.dart';
+import '../../game_dialog/input_string.dart';
 // import '../../extensions.dart';
 // import '../../state/quest.dart';
 // import '../../logic/interaction.dart';
@@ -64,7 +64,7 @@ class _WorldOverlayState extends State<WorldOverlay>
   @override
   bool get wantKeepAlive => true;
 
-  final _mapFocusNode = FocusNode();
+  final _focusNode = FocusNode();
 
   WorldMapScene? _scene;
 
@@ -294,7 +294,6 @@ class _WorldOverlayState extends State<WorldOverlay>
             positionalArgs: [locationData['id']]);
         // _refreshNpcsInHeroWorldMapPosition();
         context.read<CurrentNpcList>().updated(npcs);
-        context.read<HeroState>().update(showHeroInfo: true);
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => LocationSiteSceneOverlay(
@@ -431,7 +430,8 @@ class _WorldOverlayState extends State<WorldOverlay>
     assert(_heroData != null);
     await scene.map.loadHeroFromData(_heroData);
     if (mounted) {
-      context.read<HeroState>().update(showHeroInfo: false);
+      context.read<GameOverlayVisibilityState>().show();
+      context.read<HeroState>().update();
     }
 
     engine.hetu.invoke('refreshWorldMapCaptions');
@@ -660,7 +660,7 @@ class _WorldOverlayState extends State<WorldOverlay>
       GameEvents.mapLoaded,
       EventHandler(
         widgetKey: widget.key!,
-        handle: (id, args, scene) {
+        callback: (id, args, scene) {
           _onMapLoaded();
         },
       ),
@@ -682,7 +682,7 @@ class _WorldOverlayState extends State<WorldOverlay>
 
     if (!GameData.isGameCreated) {
       if (args['method'] == 'preset') {
-        await GameData.loadPreset(args['savePath']);
+        await GameData.loadPresetSave(args['savePath']);
       } else if (args['method'] == 'load') {
         await GameData.loadGame(args['savePath']);
       } else {
@@ -705,7 +705,7 @@ class _WorldOverlayState extends State<WorldOverlay>
   @override
   void dispose() {
     engine.removeEventListener(widget.key!);
-    _mapFocusNode.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -713,7 +713,7 @@ class _WorldOverlayState extends State<WorldOverlay>
   Widget build(BuildContext context) {
     super.build(context);
 
-    _mapFocusNode.requestFocus();
+    _focusNode.requestFocus();
 
     _scene = context.watch<WorldMapSceneState>().scene;
 
@@ -728,7 +728,7 @@ class _WorldOverlayState extends State<WorldOverlay>
             _scene == null ||
             (_scene?.isLoading == true)) {
           if (snapshot.hasError) {
-            throw Exception('${snapshot.error}\n${snapshot.stackTrace}');
+            // throw Exception('${snapshot.error}\n${snapshot.stackTrace}');
           }
           return const LoadingScreen();
         } else {
@@ -741,17 +741,14 @@ class _WorldOverlayState extends State<WorldOverlay>
           scene.map.onTapDown = _onMapTapDown;
           scene.map.onTap = _onMapTapUp;
 
-          final showHeroInfo = context.watch<HeroState>().showHeroInfo;
-
           final screenWidgets = [
             SceneWidget(scene: scene),
             if (_isLoading || scene.isLoading) const LoadingScreen(),
-            if (showHeroInfo)
-              Positioned(
-                left: 0,
-                top: 0,
-                child: HeroInfoPanel(),
-              ),
+            Positioned(
+              left: 0,
+              top: 0,
+              child: GameOverlay(sceneId: kSceneTilemap),
+            ),
             const Positioned(
               right: 0,
               top: 100,
@@ -768,7 +765,7 @@ class _WorldOverlayState extends State<WorldOverlay>
             const Positioned(
               left: 0.0,
               bottom: 0.0,
-              child: HistoryInfoPanel(),
+              child: HistoryPanel(),
             ),
             Positioned(
               right: 0,
@@ -984,7 +981,7 @@ class _WorldOverlayState extends State<WorldOverlay>
 
           return KeyboardListener(
             autofocus: true,
-            focusNode: _mapFocusNode,
+            focusNode: _focusNode,
             onKeyEvent: (event) {
               if (event is KeyDownEvent) {
                 switch (event.logicalKey) {

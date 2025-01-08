@@ -1,22 +1,12 @@
 import 'game.ht'
 
 /// 加载到本次游戏的事件处理模块。
-/// 每个模块内部的key是游戏自己定义的事件名之一，
-/// value是一个接受一个arg的函数，
-/// 这个arg是一个struct对象，包含不同的事件参数
-/// count代表此事件的触发次数，
-/// isOneTimeEvent 为 true，并且count > 0，则不会再触发
-/// gEventHandlers {
-/// 第一层key是世界名字，每个世界有自己的一套逻辑
+/// module {
+///   // 第一层key是世界名字，每个世界有自己的一套逻辑
 ///   worldName1: {
-///     第二层是mod名字
-///     mod1: {
-///       onNewGame: {
-///         
-///         handle: () {
-///           engine.info('[${this.id}]: 新游戏事件回调函数')
-///         }
-///       }
+///     // 第二层是事件名字
+///     onNewGame: () {
+///       engine.info('[${this.id}]: 新游戏事件回调函数')
 ///     }
 ///   }
 /// }

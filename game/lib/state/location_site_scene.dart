@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../scene/common.dart';
 import '../scene/world/location/components/location_site.dart';
 import '../engine.dart';
 
@@ -12,13 +13,13 @@ class LocationSiteSceneState with ChangeNotifier {
 
   void clear() {
     for (final id in _sceneIds) {
-      engine.leaveScene(id);
+      engine.clearCache(id);
     }
     _sceneIds.clear();
   }
 
   Future<LocationSiteScene?> pop() async {
-    engine.leaveScene(_sceneIds.last);
+    // engine.clearCache(_sceneIds.last);
     _sceneIds.removeLast();
     String? currentSceneId;
     if (_sceneIds.isNotEmpty) {
@@ -47,7 +48,7 @@ class LocationSiteSceneState with ChangeNotifier {
           .where((value) => !(value['isSubSite'] ?? false))
           .map((value) => value['id']);
       scene = await engine.createScene(
-        contructorKey: 'locationSite',
+        contructorKey: kSceneLocationSite,
         sceneId: id,
         arg: {
           'id': id,
@@ -62,7 +63,7 @@ class LocationSiteSceneState with ChangeNotifier {
       _sceneIds.add(siteId!);
       dynamic siteData = _locationData['sites'][siteId];
       scene = await engine.createScene(
-        contructorKey: 'locationSite',
+        contructorKey: kSceneLocationSite,
         sceneId: siteId,
         arg: {
           'id': siteId,

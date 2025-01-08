@@ -1,20 +1,29 @@
 {
   "defaultItemDescription": "未知来历的神秘物品。",
 
+  "questItem": "任务物品",
+  "usableHint": "点击右键使用",
+  "equippableHint": "点击右键装备",
+  "unequippableHint": "点击右键卸下",
+  "materialPackageHint": "点击右键使用后转化为材料",
+
+  "resource": "资源",
   "material": "材料",
   "package": "包",
 
   "book": "秘籍",
-  "cardpack": "技能卡包",
 
   "price": "价格",
   "stackSize": "数量",
   "damageType": "伤害类型",
   "durability": "耐久",
 
+  "equipment_requirement": "装备需求",
   "requirement": "需求",
 
   "sword": "剑",
+  "item_sword_flavor_text": "在凡人和修真者中都很流行的一种兵器。",
+
   "sabre": "刀",
   "spear": "枪",
   "staff": "棍",
@@ -22,10 +31,9 @@
   "dart": "暗器",
 
   "shield": "盾",
-  "ship": "船",
+  "vehicle": "载具",
   "boots": "靴",
-  "aircraft": "飞行器",
-  "armorpiece": "护甲",
+  "armor": "护甲",
 
   "quest_jade": "玉佩",
   "quest_jade.description": "一块青色的玉佩，上面刻着两个古代文字。这两个字给你一种非常奇怪的似曾相识的感觉。",
@@ -33,5 +41,14 @@
   "wood_boat": "舢板",
   "wood_boat.description": "用三块木板简单拼凑成的木船。可以用它进行短距离的水上航行。",
   "climb_boots": "登山靴",
-  "climb_boots.description": "为了在山峦间攀爬行走而特意打造的靴子。"
+  "climb_boots.description": "为了在山峦间攀爬行走而特意打造的靴子。",
+
+  "energy_curse": "煞气",
+  "energy_curse_description": "煞气：伴随杀戮而形成的一种气息，吸收后可以增强你在战斗中的攻击。",
+
+  "energy_poison": "瘴气",
+  "energy_poison_description": "瘴气：包含可以对生物造成巨大伤害性的物质的气体，吸收后可以增强你在战斗中的攻击。",
+
+  "energy_chaotic": "混沌之气",
+  "energy_chaotic_description": "混沌之气：在天地形成之初便已存在的一种远古气息，吸收后可以增强你在战斗中的攻击。"
 }

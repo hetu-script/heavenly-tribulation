@@ -6,6 +6,7 @@ import 'package:samsara/gestures.dart';
 import 'package:samsara/paint/paint.dart';
 
 import '../../../ui.dart';
+import '../../../data.dart';
 // import '../../../global.dart';
 // import 'character.dart';
 
@@ -43,11 +44,13 @@ class BattleDeckZone extends PiledZone with HandlesGesture {
       }
 
       card.onPreviewed = (component) {
+        final (_, description) =
+            GameData.getDescriptionFromCardData((card as CustomGameCard).data);
         Hovertip.show(
           scene: game,
           target: component,
           direction: HovertipDirection.topLeft,
-          content: (card as CustomGameCard).extraDescription,
+          content: description,
           config: ScreenTextConfig(anchor: Anchor.topCenter),
         );
       };

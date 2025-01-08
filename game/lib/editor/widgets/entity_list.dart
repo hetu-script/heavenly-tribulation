@@ -13,17 +13,17 @@ import '../../view/organization/organization.dart';
 import '../../view/menu_item_builder.dart';
 import '../../view/character/details.dart';
 import '../../view/character/profile.dart';
-import '../../dialog/input_world_position.dart';
+import '../../game_dialog/input_world_position.dart';
 // import '../../view/zone/zone.dart';
 import '../../view/common.dart';
 // import '../../state/game_data.dart';
 import '../../scene/events.dart';
-import '../../dialog/input_string.dart';
-import '../../dialog/confirm_dialog.dart';
+import '../../game_dialog/input_string.dart';
+import '../../game_dialog/confirm_dialog.dart';
 import '../../view/character/edit_character_event_flags.dart';
 import '../../view/organization/edit_organization_basic.dart';
 // import 'edit_map_object.dart';
-import '../../dialog/input_description.dart';
+import '../../game_dialog/input_description.dart';
 
 const kObjectCodeTemplate = '''{
   id: 'id',

@@ -11,10 +11,10 @@ import 'package:samsara/samsara.dart';
 import '../../../ui.dart';
 import '../../../engine.dart';
 import 'common.dart';
-import '../../../dialog/game_dialog/game_dialog.dart';
+import '../../../game_dialog/game_dialog/game_dialog.dart';
 import '../../../data.dart';
 
-class CardCraftingArea extends GameComponent {
+class CardCraftingArea extends PiledZone {
   bool _isCrafting = false;
   bool get isCrafting => _isCrafting;
 
@@ -24,12 +24,10 @@ class CardCraftingArea extends GameComponent {
 
   final List<SpriteButton> craftOptionButtons = [];
 
-  late final Function() onStartCraft;
-  late final Function(GameCard card) onRemoveCard;
+  late final void Function() onStartCraft;
+  late final void Function(GameCard card) onRemoveCard;
 
-  late final PiledZone craftingZone;
-
-  bool get isFull => craftingZone.isFull;
+  void hide() async {}
 
   Future<void> startCraft() async {
     onStartCraft.call();
@@ -40,7 +38,7 @@ class CardCraftingArea extends GameComponent {
       toPosition: GameUI.cardCraftingZonePosition,
     );
 
-    game.world.add(craftingZone);
+    // game.world.add(craftingZone);
     game.camera.viewport.add(buttonContainer);
   }
 
@@ -56,46 +54,63 @@ class CardCraftingArea extends GameComponent {
       toPosition: GameUI.cardCraftingZoneInitialPosition,
     );
 
-    craftingZone.removeFromParent();
+    // craftingZone.removeFromParent();
     buttonContainer.removeFromParent();
   }
 
   void removeCard() {
-    if (craftingZone.isFull) {
+    if (isFull) {
       Hovertip.hide(craftButton);
-      final c = craftingZone.removeCardByIndex(0) as GameCard;
+      final c = removeCardByIndex(0) as GameCard;
       onRemoveCard(c);
     }
   }
 
   void showCardInfo() {
+    final (_, description) = GameData.getDescriptionFromCardData(
+        (cards.first as CustomGameCard).data,
+        isDetailed: true);
     Hovertip.show(
       scene: game,
       target: craftButton,
       direction: HovertipDirection.leftCenter,
-      content: (craftingZone.cards.first as CustomGameCard).extraDescription,
+      content: description,
       config: ScreenTextConfig(anchor: Anchor.topCenter),
     );
   }
 
-  void addCard(GameCard card) async {
-    if (craftingZone.isFull) {
+  @override
+  String? tryAddCard(GameCard card,
+      {int? index, bool animated = true, bool clone = false}) {
+    if (clone) {
+      card = card.clone();
+      game.world.add(card);
+    }
+
+    if (isFull) {
       removeCard();
     }
     card.enableGesture = false;
-    await craftingZone.placeCard(card);
+    placeCard(card).then((_) {
+      showCardInfo();
+    });
 
-    showCardInfo();
+    return null;
   }
 
   CardCraftingArea({
-    super.priority,
     required this.onStartCraft,
     required this.onRemoveCard,
   }) : super(
-          position: GameUI.cardCraftingZoneInitialPosition,
+          position: GameUI.cardCraftingZonePosition,
           size: GameUI.cardCraftingZoneSize,
+          pileMargin: Vector2(15, 35),
+          limit: 1,
+          priority: kCardCraftingZonePriority,
+          piledCardSize: GameUI.deckbuildingCardSize,
         );
+
+  // position: GameUI.cardCraftingZonePosition,
 
   @override
   void onLoad() async {
@@ -110,7 +125,7 @@ class CardCraftingArea extends GameComponent {
 
     craftButton.onTapUp = (buttons, position) {
       if (isCrafting) {
-        if (craftingZone.isFull) {
+        if (isFull) {
           if (buttons == kPrimaryButton) {
             Hovertip.toogle(craftButton, scene: game);
           } else if (buttons == kSecondaryButton) {
@@ -127,7 +142,7 @@ class CardCraftingArea extends GameComponent {
 
     craftButton.onMouseEnter = () {
       if (isCrafting) {
-        if (craftingZone.isFull) {
+        if (isFull) {
           if (Hovertip.hastip(craftButton)) {
             Hovertip.toogle(craftButton, scene: game, justShow: true);
           }
@@ -153,19 +168,11 @@ class CardCraftingArea extends GameComponent {
       }
     };
     craftButton.onMouseExit = () {
-      if (!craftingZone.isFull) {
+      if (!isFull) {
         Hovertip.hide(craftButton);
       }
     };
     game.world.add(craftButton);
-
-    craftingZone = PiledZone(
-      position: GameUI.cardCraftingZonePosition,
-      pileMargin: Vector2(15, 35),
-      piledCardSize: GameUI.deckbuildingCardSize,
-      limit: 1,
-      priority: kCardCraftingZonePriority,
-    );
 
     buttonContainer = BorderComponent(
       position: GameUI.cardCraftingZonePosition +
@@ -173,7 +180,7 @@ class CardCraftingArea extends GameComponent {
               GameUI.cardCraftingZoneSize.y + GameUI.largeIndent),
     );
 
-    _getAffixOperationButton('identifyAffix');
+    _getAffixOperationButton('identifyCard');
     _getAffixOperationButton('addAffix');
     _getAffixOperationButton('rerollAffix');
     _getAffixOperationButton('replaceAffix');
@@ -195,7 +202,7 @@ class CardCraftingArea extends GameComponent {
     );
     button.onTapUp = (buttons, position) {
       Hovertip.hide(button);
-      _affixOperation(craftingZone.cards.firstOrNull as CustomGameCard?, id);
+      _affixOperation(cards.firstOrNull as CustomGameCard?, id);
     };
     button.onMouseEnter = () {
       Hovertip.show(
@@ -250,10 +257,8 @@ class CardCraftingArea extends GameComponent {
         verticalVariation: 0.0,
       );
 
-      final (description, extraDescription) =
-          GameData.getDescriptionFromCardData(card.data);
+      final (description, _) = GameData.getDescriptionFromCardData(card.data);
       card.description = description;
-      card.extraDescription = extraDescription;
       showCardInfo();
     }
   }

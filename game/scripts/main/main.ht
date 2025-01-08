@@ -32,6 +32,7 @@ export 'util.ht'
 export 'worldmap.ht'
 export 'player.ht'
 export 'common.ht'
+export 'ui.ht'
 
 const coreScriptModuleVersion = '0.0.1'
 
@@ -52,12 +53,9 @@ const module = {
 /// Only run once when a new game is created
 function init({
   itemsData,
-  battleCardMainData,
+  battleCardData,
   battleCardAffixesData,
-  // skillTreeData,
-  // supportSkillTreeData,
-  skillData,
-  supportSkillData,
+  passiveData,
 }) {
   addModule(module.meta)
   
@@ -69,15 +67,14 @@ function init({
   game.items = itemsData
   engine.info('载入预定义物品：[${itemsData.length}]')
   
-  game.battleCardMain = battleCardMainData
+  game.battleCardData = battleCardData
   game.battleCardAffixes = battleCardAffixesData
-  engine.info('载入战斗卡牌词条：主词条 [${battleCardMainData.length}]，额外词条 [${battleCardAffixesData.length}]')
+  engine.info('载入战斗卡牌词条：主词条 [${battleCardData.length}]，额外词条 [${battleCardAffixesData.length}]')
 
   // game.skillTree = skillTreeData
   // game.supportSkillTree = supportSkillTreeData
-  game.skills = skillData
-  game.supportSkills = supportSkillData
-  engine.info('载入天赋树数据和天赋技能数据:：主天赋 [${skillData.length}]，辅助天赋 [${supportSkillData.length}]')
+  game.passives = passiveData
+  engine.info('载入被动技能词条数据：词条 [${passiveData.length}]')
 }
 
 /// Run every time game starts

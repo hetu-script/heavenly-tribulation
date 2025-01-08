@@ -1,20 +1,17 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/common.dart';
 import 'package:provider/provider.dart';
 
 import '../../engine.dart';
 import '../../ui.dart';
 import 'equipments/stats.dart';
-import 'equipments/equipments.dart';
+import 'equipments/equipment_bar.dart';
 // import 'status_effects.dart';
 import 'equipments/inventory.dart';
-import 'equipments/item_info.dart';
 import '../../view/menu_item_builder.dart';
-import '../common.dart';
 import '../../state/windows.dart';
 import '../draggable_panel.dart';
+import '../../game_dialog/confirm_dialog.dart';
+import '../../state/hero.dart';
 
 const Set<String> kMaterials = {
   // 'money',
@@ -54,8 +51,8 @@ List<PopupMenuEntry<ItemPopUpMenuItems>> buildItemPopUpMenuItems({
         name: engine.locale('unequip'),
         onSelectedItem: onSelectedItem,
         width: 80.0,
-      ),
-    if (!showUnequip) ...[
+      )
+    else ...[
       buildMenuItem(
         item: ItemPopUpMenuItems.use,
         name: engine.locale('use'),
@@ -109,9 +106,9 @@ class CharacterDetailsView extends StatefulWidget {
 
   final InventoryType type;
 
-  final Function()? onClose;
-  final Function(DragUpdateDetails details)? onDragUpdate;
-  final Function(Offset tapPosition)? onTapDown;
+  final void Function()? onClose;
+  final void Function(DragUpdateDetails details)? onDragUpdate;
+  final void Function(Offset tapPosition)? onTapDown;
 
   @override
   State<CharacterDetailsView> createState() => _CharacterDetailsViewState();
@@ -153,8 +150,6 @@ class _CharacterDetailsViewState extends State<CharacterDetailsView>
 
   late final dynamic _characterData;
 
-  double? _infoPosX, _infoPosY;
-
   @override
   void initState() {
     super.initState();
@@ -187,44 +182,42 @@ class _CharacterDetailsViewState extends State<CharacterDetailsView>
     super.dispose();
   }
 
-  dynamic _hoverEntityData;
-  Rect? _hoverGridRect;
-
-  void onMouseEnterItemGrid(dynamic entityData, Rect gridRenderBox) {
-    setState(() {
-      _hoverEntityData = entityData;
-      _hoverGridRect = gridRenderBox;
-    });
-  }
-
-  void onMouseExitItemGrid() {
-    setState(() {
-      _hoverEntityData = null;
-      _hoverGridRect = null;
-    });
-  }
-
-  void onItemSecondaryTapped(dynamic entityData, Offset screenPosition) {
-    _hoverEntityData = null;
+  void onItemSecondaryTapped(dynamic itemData, Offset screenPosition) {
+    // widget.onMouseExitItem?.call();
+    // _hoverEntityData = null;
 
     final menuPosition = RelativeRect.fromLTRB(
         screenPosition.dx, screenPosition.dy, screenPosition.dx, 0.0);
     final items = buildItemPopUpMenuItems(
-      showUnequip: entityData['equippedPosition'] != null,
-      showEquip: entityData['isEquippable'] ?? false,
-      enableUse: entityData['isUsable'] ?? false,
+      showUnequip: itemData['equippedPosition'] != null,
+      showEquip: itemData['category'] == 'equipment',
+      enableUse: itemData['category'] == 'consumable',
       onSelectedItem: (item) {
         switch (item) {
           case ItemPopUpMenuItems.use:
           case ItemPopUpMenuItems.equip:
-            engine.hetu.invoke('equip', positionalArgs: [entityData]);
-            setState(() {});
+            engine.hetu.invoke('equip',
+                namespace: 'Player', positionalArgs: [itemData]);
+            setState(() {
+              context.read<HeroState>().update();
+            });
           case ItemPopUpMenuItems.unequip:
-            engine.hetu.invoke('unequip', positionalArgs: [entityData]);
-            setState(() {});
+            engine.hetu.invoke('unequip',
+                namespace: 'Player', positionalArgs: [itemData]);
+            setState(() {
+              context.read<HeroState>().update();
+            });
           case ItemPopUpMenuItems.destroy:
-            engine.hetu.invoke('destroy', positionalArgs: [entityData]);
-            setState(() {});
+            showDialog<bool>(
+              context: context,
+              builder: (context) => ConfirmDialog(
+                  description: engine.locale('dangerOperationPrompt')),
+            ).then((bool? value) {
+              if (value == true) {
+                engine.hetu.invoke('destroy', positionalArgs: [itemData]);
+                setState(() {});
+              }
+            });
         }
       },
     );
@@ -232,23 +225,8 @@ class _CharacterDetailsViewState extends State<CharacterDetailsView>
       context: context,
       position: menuPosition,
       items: items,
+      requestFocus: false,
     );
-  }
-
-  void onInfoHeightCalculated(Size infoSize, Size screenSize) {
-    setState(() {
-      if (infoSize.height < screenSize.height) {
-        _infoPosY =
-            math.min(screenSize.height - infoSize.height, _hoverGridRect!.top);
-      }
-
-      double preferredX = _hoverGridRect!.right + kEntityInfoIndent;
-      if (preferredX > (screenSize.width - infoSize.width)) {
-        _infoPosX = _hoverGridRect!.left - kEntityInfoIndent - infoSize.width;
-      } else {
-        _infoPosX = preferredX;
-      }
-    });
   }
 
   @override
@@ -256,13 +234,6 @@ class _CharacterDetailsViewState extends State<CharacterDetailsView>
     final windowPositions =
         context.watch<WindowPositionState>().windowPositions;
     final position = windowPositions['details'] ?? GameUI.detailsWindowPosition;
-
-    final equipmentsData = [];
-    for (var i = 1; i < kEquipmentMax; ++i) {
-      final equipmentId = _characterData['equipments'][i];
-      final equipment = _characterData['inventory'][equipmentId];
-      equipmentsData.add(equipment);
-    }
 
     return DraggablePanel(
       title: engine.locale('build'),
@@ -281,26 +252,22 @@ class _CharacterDetailsViewState extends State<CharacterDetailsView>
               children: [
                 StatsView(
                   characterData: _characterData,
-                  useColumn: true,
+                  isHero: true,
                 ),
                 SizedBox(
                   width: 360,
                   height: 380,
                   child: Column(
                     children: [
-                      EquipmentsView(
-                        equipmentsData: equipmentsData,
-                        onMouseEnterItemGrid: onMouseEnterItemGrid,
-                        onMouseExitItemGrid: onMouseExitItemGrid,
+                      EquipmentBar(
+                        characterData: _characterData,
                         onItemSecondaryTapped: onItemSecondaryTapped,
                       ),
-                      InventoryView(
+                      Inventory(
                         height: 280,
                         inventoryData: _characterData['inventory'],
                         type: widget.type,
                         minSlotCount: 36,
-                        onMouseEnterItemGrid: onMouseEnterItemGrid,
-                        onMouseExitItemGrid: onMouseExitItemGrid,
                         onItemSecondaryTapped: onItemSecondaryTapped,
                       ),
                     ],
@@ -309,14 +276,6 @@ class _CharacterDetailsViewState extends State<CharacterDetailsView>
               ],
             ),
           ),
-          if (_hoverEntityData != null)
-            EntityInfo(
-              entityData: _hoverEntityData,
-              width: kEntityInfoWidth,
-              onHeightCalculated: onInfoHeightCalculated,
-              left: _infoPosX,
-              top: _infoPosY,
-            ),
         ],
       ),
     );

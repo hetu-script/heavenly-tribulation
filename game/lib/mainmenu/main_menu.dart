@@ -14,11 +14,11 @@ import 'package:samsara/ui/label.dart';
 import 'package:samsara/console.dart';
 // import 'package:video_player_win/video_player_win.dart';
 
-import '../dialog/game_dialog/game_dialog.dart';
+import '../game_dialog/game_dialog/game_dialog.dart';
 // import '../pages/map/maze/maze_overlay.dart';
 import '../engine.dart';
 import 'load_game.dart';
-import '../dialog/binding/dialog_bindings.dart';
+import '../game_dialog/binding/dialog_bindings.dart';
 import '../scene/world/world.dart';
 // import '../map/maze/maze.dart';
 import 'create_sandbox_game.dart';
@@ -34,12 +34,15 @@ import '../scene/world/location/components/location_site.dart';
 import 'create_blank_map.dart';
 import '../editor/world_editor.dart';
 // import '../../dialog/game_dialog/game_dialog.dart';
-import '../dialog/game_dialog/game_dialog_controller.dart';
+import '../game_dialog/game_dialog/game_dialog_controller.dart';
 import '../state/states.dart';
 import '../scene/cultivation/cultivation.dart';
 import '../scene/cultivation/components/cultivation.dart';
 import '../logic/algorithm.dart';
 import '../scene/battle/prebattle.dart';
+import '../common.dart';
+import '../scene/common.dart';
+import '../view/game_overlay.dart';
 
 const kMainMenuBGM = 'chinese-oriental-tune-06-12062.mp3';
 
@@ -72,7 +75,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
 
   bool _isLoading = false;
 
-  final _menuFocusNode = FocusNode();
+  final _focusNode = FocusNode();
 
   MainMenuStates _state = MainMenuStates.main;
   void setMenuState(MainMenuStates state) {
@@ -87,7 +90,6 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
   }
 
   void showCultivation() {
-    context.read<HeroState>().update();
     context.read<HistoryState>().update();
     // engine.hetu.invoke('acquireByIds');
     Navigator.of(context).push(
@@ -127,6 +129,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
   @override
   void dispose() {
     super.dispose();
+    _focusNode.dispose();
     engine.removeEventListener(widget.key!);
     routeObserver.unsubscribe(this);
     // _videoController.dispose();
@@ -144,7 +147,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
     // 读取存档列表
     context.read<GameSavesState>().loadList();
 
-    engine.registerSceneConstructor('locationSite', ([dynamic args]) async {
+    engine.registerSceneConstructor(kSceneLocationSite, ([dynamic args]) async {
       return LocationSiteScene(
         controller: engine,
         context: context,
@@ -155,7 +158,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
       );
     });
 
-    engine.registerSceneConstructor('tilemap', ([dynamic args]) async {
+    engine.registerSceneConstructor(kSceneTilemap, ([dynamic args]) async {
       dynamic worldData;
       final method = args['method'];
       final isEditorMode = args['isEditorMode'] ?? false;
@@ -194,25 +197,24 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
       return scene;
     });
 
-    engine.registerSceneConstructor('cultivation', ([dynamic data]) async {
+    engine.registerSceneConstructor(kSceneCultivation, ([dynamic data]) async {
       return CultivationScene(
         controller: engine,
         context: context,
       );
     });
 
-    engine.registerSceneConstructor('deckBuilding', ([dynamic data]) async {
+    engine.registerSceneConstructor(kSceneCardLibrary, ([dynamic data]) async {
       return CardLibraryScene(
         controller: engine,
         context: context,
       );
     });
 
-    engine.registerSceneConstructor('cardBattle', ([dynamic data]) async {
+    engine.registerSceneConstructor(kSceneCardBattle, ([dynamic data]) async {
       return BattleScene(
         context: context,
         controller: engine,
-        id: data['id'],
         heroData: data['heroData'],
         enemyData: data['enemyData'],
         heroDeck: data['heroDeck'],
@@ -298,9 +300,11 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
       context.read<GameDialogState>().popAllScene();
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('updateHero', (
+    engine.hetu.interpreter.bindExternalFunction('showGameOverlay', (
         {positionalArgs, namedArgs}) {
-      context.read<HeroState>().update(showHeroInfo: namedArgs['showHeroInfo']);
+      context
+          .read<GameOverlayVisibilityState>()
+          .show(positionalArgs.first ?? true);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('updateHistory', (
@@ -390,11 +394,16 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
     // });
     // _videoController.setLooping(true);
 
-    // 创建一个空游戏存档并初始化一些数据，这主要是为了主菜单的测试游戏和debug相关功能，并不会保存
-    // 真正开始游戏后还会在执行一遍，因为每次newGame都会清空Game上的数据
-    await GameData.newGame('debug');
-    GameData.isGameCreated = false;
-    resetHero();
+    if (kDebugMode) {
+      // 创建一个空游戏存档并初始化一些数据，这主要是为了主菜单的测试游戏和debug相关功能，并不会保存
+      // 真正开始游戏后还会在执行一遍，因为每次newGame都会清空Game上的数据
+      await GameData.newGame('debug');
+      GameData.isGameCreated = false;
+      resetHero();
+      if (mounted) {
+        context.read<GameOverlayVisibilityState>().show();
+      }
+    }
 
     _isLoading = false;
     setState(() {});
@@ -408,16 +417,20 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
       'unconvertedExp': 1000000,
       // 'isFemale': false,
       'cultivationLevel': 10,
-      'cultivationRank': 0,
+      'cultivationRank': 1,
       'availableSkillPoints': 10,
     });
+
     engine.hetu.invoke('setHeroId', positionalArgs: [_heroData['id']]);
+
+    context.read<HeroState>().update();
+
     final heroLibrary = {};
     for (var i = 0; i < 24; ++i) {
       final cardData = engine.hetu.invoke(
         'BattleCard',
         namedArgs: {
-          // 'level': _heroData['cultivationLevel'],
+          'level': _heroData['cultivationLevel'],
           'rank': _heroData['cultivationRank'],
         },
       );
@@ -425,6 +438,19 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
     }
 
     _heroData['cardLibrary'] = heroLibrary;
+
+    for (var i = 0; i < 6; ++i) {
+      final kind = kWeaponKind.random();
+      final itemData = engine.hetu.invoke('Equipment', namedArgs: {
+        'kind': kind,
+        'level': _heroData['cultivationLevel'],
+        'rank': _heroData['cultivationRank'],
+      });
+
+      engine.hetu.invoke('acquire', namespace: 'Player', positionalArgs: [
+        itemData,
+      ]);
+    }
   }
 
   @override
@@ -449,9 +475,13 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
         } else {
           return KeyboardListener(
             autofocus: true,
-            focusNode: _menuFocusNode,
+            focusNode: _focusNode,
             onKeyEvent: (event) {
-              if (event is KeyDownEvent) {}
+              if (event is KeyDownEvent) {
+                if (kDebugMode) {
+                  print('keydown: ${event.logicalKey.keyLabel}');
+                }
+              }
             },
             child: Scaffold(
               body: Stack(
@@ -625,6 +655,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                                         Navigator.of(context)
                                             .push(
                                           MaterialPageRoute(
+                                            requestFocus: true,
                                             builder: (context) => WorldOverlay(
                                               args: {
                                                 'id': info.currentWorldId,
@@ -677,12 +708,11 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                                         setMenuState(MainMenuStates.main);
 
                                         Navigator.of(context)
-                                            .push(
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                WorldEditorOverlay(args: value),
-                                          ),
-                                        )
+                                            .push(MaterialPageRoute(
+                                          requestFocus: true,
+                                          builder: (context) =>
+                                              WorldEditorOverlay(args: value),
+                                        ))
                                             .then((_) {
                                           GameData.isGameCreated = false;
                                         });
@@ -712,6 +742,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                                         Navigator.of(context)
                                             .push(
                                           MaterialPageRoute(
+                                            requestFocus: true,
                                             builder: (context) =>
                                                 WorldEditorOverlay(
                                               args: {
@@ -813,11 +844,11 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                                 padding: const EdgeInsets.only(top: 20.0),
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    context.read<HeroState>().update();
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
+                                        requestFocus: true,
                                         builder: (context) =>
-                                            CardLibraryOverlay(deckSize: 4),
+                                            CardLibraryOverlay(),
                                       ),
                                     );
                                   },
@@ -847,7 +878,6 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                                     cards.add(engine.hetu.invoke(
                                       'BattleCard',
                                       namedArgs: {
-                                        'isIdentified': true,
                                         'genre': "general",
                                         'category': "attack",
                                         'kind': "punch",
@@ -858,7 +888,6 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                                     cards.add(engine.hetu.invoke(
                                       'BattleCard',
                                       namedArgs: {
-                                        'isIdentified': true,
                                         'genre': "general",
                                         'category': "attack",
                                         'kind': "sword",
@@ -869,7 +898,6 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                                     cards.add(engine.hetu.invoke(
                                       'BattleCard',
                                       namedArgs: {
-                                        'isIdentified': true,
                                         'genre': "swordcraft",
                                         'category': "attack",
                                         'kind': "flying_sword",
@@ -889,15 +917,7 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                                     enemy['battleDecks'] = [enemyDeck];
                                     enemy['battleDeckIndex'] = 0;
 
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return PreBattleDialog(
-                                          heroData: _heroData,
-                                          enemyData: enemy,
-                                        );
-                                      },
-                                    );
+                                    context.read<EnemyState>().update(enemy);
                                   },
                                   child: Label(engine.locale('debug.battle'),
                                       width: 200.0,
@@ -927,11 +947,12 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                                 padding: const EdgeInsets.only(top: 20.0),
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) =>
+                                    Navigator.of(context)
+                                        .push(MaterialPageRoute(
+                                      requestFocus: true,
+                                      builder: (context) =>
                                           Console(engine: engine),
-                                    );
+                                    ));
                                   },
                                   child: Label(engine.locale('console'),
                                       width: 200.0,
@@ -954,6 +975,11 @@ class _MainMenuState extends State<MainMenu> with RouteAware {
                         },
                       ),
                     ),
+                  ),
+                  const Positioned(
+                    left: 0,
+                    top: 0,
+                    child: GameOverlay(sceneId: kSceneMainmenu),
                   ),
                 ],
               ),

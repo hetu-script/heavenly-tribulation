@@ -2,15 +2,15 @@
   "heroExpGained": "你获得了 {0} 点经验。",
   "heroStaminaRestored": "你恢复了 {0} 点体力。",
   "heroManaRestored": "你获得了 {0} 点灵气。",
-  "heroAcquireItem": "你得到了{0}。",
-
-  "heroAcquireCompanion": "{0}加入了你的队伍。",
-  "heroLoseCompanion": "{0}离开了你的队伍。",
-
+  "heroAcquire": "你得到了{0}。",
+  "heroEquip": "你装备了{0}。",
+  "heroUnequip": "你卸下了{0}。",
   "heroCultivationLevelUp": "你的修为提升到了{0}",
   "heroCultivationRankUp": "你的境界提升到了{0}",
-
-  "locationDeveloped": "{0}的规模扩大到了{1}。",
+  "heroEnlist": "你加入了{0}。",
+  "heroGainOrganizationRank": "你成为了{0}的{1}。",
+  "heroAcquireCompanion": "{0}加入了你的队伍。",
+  "heroLoseCompanion": "{0}离开了你的队伍。",
 
   "characterFirstMeetNormal": "{0}认识了{1}。",
   "characterFirstMeetHate": "{0}认识了{1}，对其印象较差。",
@@ -20,13 +20,12 @@
   "characterBorn": "{0}和{1}的孩子{2}在{3}出生了。",
   "characterMarriage": "{0}和{1}在{2}结婚了。",
 
-  "characterEquip": "{0}装备了{1}。",
-  "characterUnequip": "{0}卸下了{1}。",
+  "entityAcquire": "{0}得到了{1}。",
+  "entityLose": "{0}失去了{1}。",
+  "entityDestroy": "{0}销毁了{1}。",
+
   "characterLearn": "{0}学会了{1}。",
-  "characterAcquireItem": "{0}得到了{1}。",
   "characterAcquireMultipleItem": "{0}得到了 {1} 个{2}。",
-  "characterLose": "{0}失去了{1}。",
-  "characterDestroy": "{0}销毁了{1}。",
   "characterLoseMultipleItem": "{0}失去了 {1} 个{2}。",
   "characterGiveItem": "{0}将{1}给了{2}。",
   "characterForceToGiveItem": "{0}拿走了{1}身上的{2}。",
@@ -55,9 +54,10 @@
   "characterFished": "{0}在{1}进行了捕鱼，花费了 {2} 天。",
   "characterPracticed": "{0}在{1}修炼{2}，花费了 {3} 天，获得了 {4} 点经验。",
 
-  "characterSetOrganizationRank": "{0}成为了{1}的{2}。",
+  "locationDeveloped": "{0}的规模扩大到了{1}。",
 
   "organizationDeveloped": "{0}的规模扩大到了{1}。",
   "organizationCreate": "{0}在{1}创建了{2}。",
-  "organizationEnlist": "{0}加入了{1}。"
+  "organizationEnlist": "{0}加入了{1}。",
+  "characterGainOrganizationRank": "{0}成为了{1}的{2}。"
 }

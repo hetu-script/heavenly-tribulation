@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/scene/common.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/tilemap.dart';
@@ -14,12 +15,12 @@ import '../../../engine.dart';
 // import '../../avatar.dart';
 // import 'components/location_site.dart';
 import 'drop_menu.dart';
-import '../../hero_info.dart';
+import '../../../view/game_overlay.dart';
 import '../npc_list.dart';
 import '../../events.dart';
 import '../../../state/location_site_scene.dart';
-import '../../../dialog/character_visit_dialog.dart';
-import '../../../dialog/game_dialog/game_dialog.dart';
+import '../../../game_dialog/character_visit_dialog.dart';
+import '../../../game_dialog/game_dialog/game_dialog.dart';
 import '../../../state/current_npc_list.dart';
 // import '../../../state/hero.dart';
 
@@ -74,7 +75,7 @@ class _LocationSiteSceneOverlayState extends State<LocationSiteSceneOverlay>
       GameEvents.popLocationSiteScene,
       EventHandler(
         widgetKey: widget.key!,
-        handle: (eventId, sceneId, scene) async {
+        callback: (eventId, sceneId, scene) async {
           final currentSite =
               await context.read<LocationSiteSceneState>().pop();
           if (currentSite != null) {
@@ -103,7 +104,7 @@ class _LocationSiteSceneOverlayState extends State<LocationSiteSceneOverlay>
       GameEvents.pushLocationSiteScene,
       EventHandler(
         widgetKey: widget.key!,
-        handle: (eventId, sceneId, scene) async {
+        callback: (eventId, sceneId, scene) async {
           await context.read<LocationSiteSceneState>().push(siteId: sceneId);
           refreshNPCsInHeroSite(sceneId);
           await engine.hetu.invoke('onAfterHeroEnterSite', positionalArgs: [
@@ -118,7 +119,7 @@ class _LocationSiteSceneOverlayState extends State<LocationSiteSceneOverlay>
       GameEvents.residenceSiteScene,
       EventHandler(
         widgetKey: widget.key!,
-        handle: (eventId, sceneId, scene) async {
+        callback: (eventId, sceneId, scene) async {
           final residingCharacterIds = engine.hetu.invoke(
             'getCharactersByHomeId',
             positionalArgs: [widget.locationData['id']],
@@ -201,7 +202,7 @@ class _LocationSiteSceneOverlayState extends State<LocationSiteSceneOverlay>
                 const Positioned(
                   left: 0,
                   top: 0,
-                  child: HeroInfoPanel(),
+                  child: GameOverlay(sceneId: kSceneLocationSite),
                 ),
                 const Positioned(
                   left: 5,

@@ -1,31 +1,96 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Card;
-import 'package:heavenly_tribulation/scene/events.dart';
+// import 'package:samsara/lighting/camera2.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/loading_screen.dart';
 import 'package:samsara/event.dart';
 // import 'package:samsara/cardgame/card.dart';
-// import 'package:provider/provider.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
+// import 'package:samsara/components/hovertip.dart';
+import 'package:samsara/cardgame/custom_card.dart';
 
+import '../../scene/common.dart';
+import '../../scene/events.dart';
 // import '../battle/battle.dart';
 import '../../engine.dart';
+import '../../data.dart';
 import 'components/card_library.dart';
 // import 'drop_menu.dart';
-import '../hero_info.dart';
-// import '../../state/hero.dart';
+import '../../view/game_overlay.dart';
+import '../../state/windows.dart';
+import '../../state/hover_info.dart';
+import '../../state/hero.dart';
 
 class CardLibraryOverlay extends StatefulWidget {
-  final int deckSize;
-
-  CardLibraryOverlay({
-    this.deckSize = 4,
-  }) : super(key: UniqueKey());
+  CardLibraryOverlay() : super(key: UniqueKey());
 
   @override
   State<CardLibraryOverlay> createState() => _CardLibraryOverlayState();
 }
 
-class _CardLibraryOverlayState extends State<CardLibraryOverlay> {
+class _CardLibraryOverlayState extends State<CardLibraryOverlay>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  final _focusNode = FocusNode();
+  // late FocusAttachment _focusAttachment;
+
   late CardLibraryScene _scene;
+
+  CustomGameCard? _previewingCard;
+
+  dynamic _heroData;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // _focusAttachment = _focusNode.attach(context);
+
+    _heroData = engine.hetu.fetch('hero');
+    assert(_heroData != null);
+
+    engine.addEventListener(
+      GameEvents.leaveCardLibrary,
+      EventHandler(
+        widgetKey: widget.key!,
+        callback: (eventId, args, scene) {
+          final enemyData = context.read<EnemyState>().enemyData;
+          if (enemyData != null) {
+            context.read<EnemyState>().show(true);
+          }
+
+          context.read<WindowPriorityState>().clearAll();
+          _scene.leave();
+          Navigator.of(context).pop();
+        },
+      ),
+    );
+
+    engine.addEventListener(
+      CardEvents.cardPreview,
+      EventHandler(
+        widgetKey: widget.key!,
+        callback: (eventId, args, scene) {
+          _previewingCard = args as CustomGameCard;
+          showCardInformation();
+        },
+      ),
+    );
+
+    engine.addEventListener(
+      CardEvents.cardUnpreview,
+      EventHandler(
+        widgetKey: widget.key!,
+        callback: (eventId, args, scene) {
+          hideCardInformation();
+          _previewingCard = null;
+        },
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -36,31 +101,57 @@ class _CardLibraryOverlayState extends State<CardLibraryOverlay> {
   }
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    // _focusAttachment.reparent();
+    super.didChangeDependencies();
+  }
 
-    engine.addEventListener(
-      GameEvents.leaveScene,
-      EventHandler(
-        widgetKey: widget.key!,
-        handle: (eventId, args, scene) {
-          _scene.leave();
-          Navigator.of(context).pop();
-        },
-      ),
+  void showCardInformation({bool isDetailed = false}) {
+    if (_previewingCard == null) return;
+
+    _focusNode.requestFocus();
+
+    final (_, description) = GameData.getDescriptionFromCardData(
+      _previewingCard!.data,
+      isDetailed: isDetailed,
+      characterData: _heroData,
     );
+
+    final position = _scene.camera.localToGlobal(_previewingCard!.position);
+    final size = _scene.camera.localToGlobal(_previewingCard!.size);
+
+    context.read<HoverInfoContentState>().set(
+        description, Rect.fromLTWH(position.x, position.y, size.x, size.y));
+
+    // Hovertip.show(
+    //   scene: _scene,
+    //   target: _previewingCard!,
+    //   direction: HovertipDirection.rightTop,
+    //   content: description,
+    //   config: ScreenTextConfig(anchor: Anchor.topCenter),
+    // );
+  }
+
+  void hideCardInformation() {
+    if (_previewingCard == null) return;
+    // if (_scene.hoveringComponent is CustomGameCard) return;
+
+    context.read<HoverInfoContentState>().hide();
+    // Hovertip.hide(_previewingCard!);
   }
 
   Future<Scene?> _getScene() async {
     final scene = await engine.createScene(
-      contructorKey: 'deckBuilding',
-      sceneId: 'deckBuilding',
+      contructorKey: kSceneCardLibrary,
+      sceneId: kSceneCardLibrary,
     ) as CardLibraryScene;
     return scene;
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return FutureBuilder(
       // 不知道为啥，这里必须用这种写法才能进入载入界面，否则一定会卡住
       future: Future.delayed(
@@ -87,32 +178,28 @@ class _CardLibraryOverlayState extends State<CardLibraryOverlay> {
               children: [
                 if (_scene.isLoading)
                   LoadingScreen(text: engine.locale('loading')),
-                SceneWidget(scene: _scene),
+                KeyboardListener(
+                  autofocus: true,
+                  focusNode: _focusNode,
+                  onKeyEvent: (event) {
+                    if (event is KeyDownEvent) {
+                      if (kDebugMode) {
+                        print('keydown: ${event.logicalKey.keyLabel}');
+                      }
+                      switch (event.logicalKey) {
+                        case LogicalKeyboardKey.controlLeft:
+                        case LogicalKeyboardKey.controlRight:
+                          showCardInformation(isDetailed: true);
+                      }
+                    }
+                  },
+                  child: SceneWidget(scene: _scene),
+                ),
                 const Positioned(
                   left: 0,
                   top: 0,
-                  child: HeroInfoPanel(),
+                  child: GameOverlay(sceneId: kSceneCardLibrary),
                 ),
-                // Positioned(
-                //   right: 0,
-                //   top: 0,
-                //   child: DeckbuildingDropMenu(
-                //     onSelected: (DeckbuildingDropMenuItems item) async {
-                //       switch (item) {
-                //         case DeckbuildingDropMenuItems.console:
-                //           showDialog(
-                //             context: context,
-                //             builder: (BuildContext context) => Console(
-                //               engine: engine,
-                //             ),
-                //           ).then((_) => setState(() {}));
-                //         case DeckbuildingDropMenuItems.quit:
-                //           _scene.leave();
-                //           Navigator.of(context).pop();
-                //       }
-                //     },
-                //   ),
-                // ),
               ],
             ),
           );

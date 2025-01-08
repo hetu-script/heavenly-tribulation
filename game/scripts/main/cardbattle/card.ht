@@ -1,42 +1,7 @@
 import '../random.ht'
 import '../name/skill.ht'
 import '../common.ht'
-
-const kMaxRank = 3
-
-function minLevelPerRank(rank) {
-  assert(rank >= 0)
-  return rank == 0 ? 0 : (rank - 1) * 10
-}
-
-function maxLevelPerRank(rank) {
-  assert(rank >= 0)
-  return rank == 0 ? 10 : (rank * 10 + 20)
-}
-
-function getRandomLevel(min, max) {
-  if (min >= max) return max
-  return  min + random.nextInt(max - min + 1)
-}
-
-function getMinMaxExtraAffixCount(rank) {
-  assert(rank >= 0 && rank <= kMaxRank)
-  let minExtra = 0
-  let maxExtra = 0
-  let minGreater = 0
-  let maxGreater = 0
-  if (rank > 0) {
-    if (rank < 5) {
-      minExtra = rank - 1
-      maxExtra = rank
-    } else {
-      minExtra = maxExtra = 4
-      minGreater = rank - 5
-      maxGreater = rank - 4
-    }
-  }
-  return { minExtra, maxExtra, minGreater, maxGreater }
-}
+import '../entity/entity.ht'
 
 function getSupportAffixes(card) {
   let affixes = []
@@ -91,9 +56,12 @@ struct BattleCard {
     this.id = crypto.randomNID(length: 6, withTime: true)
     this.rank = rank
     this.level = level
+    this.isIdentified = isIdentified
+
+    this.tags = Set()
 
     // 注意：主词条数据的genre是字符串，但额外词条的genre是字符串数组
-    final mainAffixes = game.battleCardMain.values.where( (affix) {
+    final mainAffixes = game.battleCardData.values.where( (affix) {
       if (genre != null && (affix.genre != genre && affix.genre != 'general')) {
         return false
       }
@@ -118,10 +86,11 @@ struct BattleCard {
     } else {
       mainAffix.level = level
     }
+
     this.affixes = [mainAffix]
     _updateMainAffixValue(this)
 
-    this.name = generateSkillName(category: mainAffix.kind).name
+    this.name = generateSkillName(kind: mainAffix.kind)
     this.image = mainAffix.image
     this.genre = mainAffix.genre
     this.category = mainAffix.category
@@ -140,7 +109,8 @@ struct BattleCard {
 
     _addExtraAffixes(this)
 
-    _updateRequirementsOfCard(this)
+    // _updateRequirementsOfCard(this)
+    // _updateCardTags(this)
   }
 }
 
@@ -156,6 +126,10 @@ function calculateRequirementsOfCard(card) {
     }
   }
   return requirements
+}
+
+function _checkRequirementForCard(character, card) {
+
 }
 
 function _updateMainAffixValue(card) {
@@ -192,18 +166,17 @@ function _randomizeAffixLevel(card, affix) {
     let value = valueData.base + valueData.increment * valueLevel
     values.add(value.round())
   }
-  if (affix.requirement && affix.requirement.isNotEmpty) {
-    for (final reqData in affix.requirement.values) {
-      let value = reqData.base + reqData.increment * affix.level
-      reqData.value = value.round()
-    }
-  }
+  // if (affix.requirement && affix.requirement.isNotEmpty) {
+  //   for (final reqData in affix.requirement.values) {
+  //     let value = reqData.base + reqData.increment * affix.level
+  //     reqData.value = value.round()
+  //   }
+  // }
   affix.value = values
 }
 
-function _addAffixToCard(card, affix, { isIdentified = true }) {
-  affix.isIdentified = isIdentified
-  
+function _addAffixToCard(card, affix) {
+
   _randomizeAffixLevel(card, affix)
 
   card.affixUniqueIds.add(affix.uniqueId)
@@ -229,7 +202,7 @@ function _addExtraAffixes(card) {
   let affixCount = getMinMaxExtraAffixCount(card.rank)
 
   let extraAffixCount = affixCount.minExtra
-  if (extraAffixCount == 0) return
+  if (affixCount.maxExtra == 0) return
   if (extraAffixCount < affixCount.maxExtra) {
     let r = random.nextDouble()
     if (r >= 0.15) {
@@ -255,46 +228,55 @@ function _addExtraAffixes(card) {
     }
     affix = JSON.deepcopy(random.nextIterable(supportAffixes))
 
-    _addAffixToCard(card, affix, isIdentified: false)
+    _addAffixToCard(card, affix)
   }
 }
 
-/// 返回类似下面的对象：
-/// {
-///   equipment: "sword",
-///   dexterity: 5,
-///   strength: 5,
-///   spirituality: 5,
-///   willpower: 5,
-///   perception: 5,
-/// }
-///
-function _updateRequirementsOfCard(card) {
-  card.requirement = {}
+// function _updateRequirementsOfCard(card) {
+//   card.requirement = {}
 
-  for (final affix in card.affixes) {
-    if (affix.equipment) {
-      card.requirement.equipment = affix.equipment
-    }
-    for (final attr in kAttributes) {
-      card.requirement[attr] += affix?.requirement[attr]['value'] ?? 0
-    }
+//   for (final affix in card.affixes) {
+//     if (affix.equipment) {
+//       card.requirement.equipment = affix.equipment
+//     }
+//     for (final attr in kAttributes) {
+//       card.requirement[attr] += affix?.requirement[attr]['value'] ?? 0
+//     }
+//   }
+// }
+
+// function _updateCardTags(card) {
+//   card.tags = Set()
+//   for (final affix in card.affixes) {
+//     assert(affix.tags is List)
+//     card.tags.addAll(affix.tags)
+//   }
+// }
+
+// function identifyAffix(card) {
+//   final unidentifiedAffixes = card.affixes.where( (affix) {
+//     return !(affix.isIdentified == true)
+//   })
+
+//   if (unidentifiedAffixes.isEmpty) {
+//     return 'deckbuilding_identifyAffix_warning'
+//   }
+
+//   final affix = unidentifiedAffixes.first
+//   affix.isIdentified = true
+
+//   // 这里显式返回空值表明成功执行
+//   return null
+// }
+
+function identifyCard(card) {
+  if (card.isIdentified == true) {
+    return 'deckbuilding_identifyCard_warning'
   }
-}
 
-function identifyAffix(card) {
-  final unidentifiedAffixes = card.affixes.where( (affix) {
-    if (affix.isMain) return false
-    return !(affix.isIdentified == true)
-  })
+  card.isIdentified = true
 
-  if (unidentifiedAffixes.isEmpty) {
-    return 'deckbuilding_identifyAffix_warning'
-  }
-
-  final affix = random.nextIterable(unidentifiedAffixes)
-  affix.isIdentified = true
-
+  // 这里显式返回空值表明成功执行
   return null
 }
 
@@ -312,16 +294,18 @@ function addAffix(card) {
 
   final affix = random.nextIterable(supportAffixes)
 
-  _addAffixToCard(card, affix, isIdentified: true)
+  _addAffixToCard(card, affix)
 
-  _updateRequirementsOfCard(card)
+  // _updateRequirementsOfCard(card)
+  // _updateCardTags(card)
 
+  // 这里显式返回空值表明成功执行
   return null
 }
 
 function rerollAffix(card) {
   final extraAffixes = card.affixes.where( (affix) {
-    return (!affix.isMain && affix.isIdentified)
+    return (!affix.isMain)
   })
 
   if (extraAffixes.isEmpty) {
@@ -332,14 +316,16 @@ function rerollAffix(card) {
 
   _randomizeAffixLevel(card, affix)
 
-  _updateRequirementsOfCard(card)
+  // _updateRequirementsOfCard(card)
+  // _updateCardTags(card)
 
+  // 这里显式返回空值表明成功执行
   return null
 }
 
 function replaceAffix(card) {
   final extraAffixes = card.affixes.where( (affix) {
-    return (!affix.isMain && affix.isIdentified)
+    return (!affix.isMain)
   })
 
   if (extraAffixes.isEmpty) {
@@ -354,8 +340,10 @@ function replaceAffix(card) {
   
   addAffix(card)
 
-  _updateRequirementsOfCard(card)
+  // _updateRequirementsOfCard(card)
+  // _updateCardTags(card)
 
+  // 这里显式返回空值表明成功执行
   return null
 }
 
@@ -368,24 +356,25 @@ function upgradeCard(card) {
 
   _updateMainAffixValue(card)
 
-  _updateRequirementsOfCard(card)
+  // _updateRequirementsOfCard(card)
   
+  // 这里显式返回空值表明成功执行
   return null
 }
 
 function upgradeRank(card) {
-  if (card.rank == kMaxRank) {
+  if (card.rank == kRankMax) {
     return 'deckbuilding_upgradeRank_warning_maxRank'
   }
   
-  final nextRankMaxLevel = minLevelPerRank(card.rank + 1)
-  if (card.level < nextRankMaxLevel) {
+  final nextRankMinLevel = minLevelPerRank(card.rank + 1)
+  if (card.level < nextRankMinLevel) {
     return 'deckbuilding_upgradeRank_warning'
   }
 
   card.rank += 1
   card.minLevel = minLevelPerRank(card.rank)
-  card.maxLevel = nextRankMaxLevel
+  card.maxLevel = maxLevelPerRank(card.rank)
 
   final mainAffix = card.affixes.first
 
@@ -399,7 +388,9 @@ function upgradeRank(card) {
 
   _addExtraAffixes(card)
 
-  _updateRequirementsOfCard(card)
+  // _updateRequirementsOfCard(card)
+  // _updateCardTags(card)
 
+  // 这里显式返回空值表明成功执行
   return null
 }

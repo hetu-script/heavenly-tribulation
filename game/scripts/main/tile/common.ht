@@ -25,4 +25,4 @@ const kTerrainKindSea = 'sea';
 const kTerrainKindRiver = 'river';
 const kTerrainKindRoad = 'road';
 
-const kWaterTileKinds = Set(kTerrainKindLake, kTerrainKindSea)
+const kWaterTileKinds = Set([kTerrainKindLake, kTerrainKindSea])

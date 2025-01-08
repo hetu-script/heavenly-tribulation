@@ -17,11 +17,6 @@ import '../../random.ht'
 export 'battle_entity.ht'
 // export 'companion.ht'
 
-// number of the male avatar images
-const _kMaleAvatarCount = 37
- // number of the female avatar images
-const _kFemaleAvatarCount = 75
-
 const _kCharacterAverage = 50.0
 const _kCharacterDeviation = 25.0
 /// 容貌最大值: 100.0
@@ -216,24 +211,22 @@ const basicLibrary = [
 ]
 
 function getMajorAttribute(character) {
-  let attr = character.attributes
-  assert(attr != null)
-  let major = attr.spirituality
+  let major = character.spirituality
   let majorName = 'spirituality'
 
-  if (attr.dexterity > major) {
-    major = attr.dexterity
+  if (character.dexterity > major) {
+    major = character.dexterity
     majorName = 'dexterity'
   }
-  if (attr.strength > major) {
-    major = attr.strength
+  if (character.strength > major) {
+    major = character.strength
     majorName = 'strength'
   }
-  if (attr.willpower > major) {
-    major = attr.willpower
+  if (character.willpower > major) {
+    major = character.willpower
     majorName = 'willpower'
   }
-  if (attr.perception > major) {
+  if (character.perception > major) {
     majorName = 'perception'
   }
 
@@ -243,20 +236,27 @@ function getMajorAttribute(character) {
 struct Character {
   construct ({
     isMajorCharacter = true,
-    category: string, // 'character' | 'minor'
+    isFemale,
     icon,
     illustration,
-    skin,
+    characterSkin,
+    shipSkin,
     familyName,
     middleName,
+    shortName,
     name,
-    generateRandomName = true,
-    isFemale: bool,
+    generateName = true,
+    description,
+    cultivationLevel,
+    cultivationRank,
+    attributes,
+    majorAttribute,
+    stats,
+    cardLibrary: {},
+    battleDecks: List = [],
     birthTimestamp,
     unconvertedExp,
     exp,
-    cultivationLevel,
-    cultivationRank,
     availableSkillPoints,
     worldId,
     worldPositionX,
@@ -264,84 +264,63 @@ struct Character {
     locationId,
     // nationId,
     isNewborn = false, // 是否是新生儿，如果是则会自动为其添加父母关系
-    description,
     fatherId,
     motherId,
     spouseId,
-    attributes,
-    majorAttribute,
-    baseStats,
-    // cultivationGenre,
-    cardLibrary: {},
-    battleDecks: List = [],
   }) {
-    // 该人物的每月刷新事件的时间
-    this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
-    // 该人物的事件触发选项
-    this.flags = {}
+    // 生成战斗单位相关数据，并写入当前对象
+    // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
+    const battleInfo = BattleEntity(
+      isMajorCharacter: isMajorCharacter,
+      isFemale: isFemale,
+      icon: icon,
+      illustration: illustration,
+      characterSkin: characterSkin,
+      familyName: familyName,
+      middleName: middleName,
+      shortName: shortName,
+      name: name,
+      generateName: generateName,
+      description: description,
+      cultivationLevel: cultivationLevel,
+      cultivationRank: cultivationRank,
+      attributes: attributes,
+      majorAttribute: majorAttribute,
+      stats: stats,
+      cardLibrary: cardLibrary,
+      battleDecks: battleDecks,
+    )
+    Object.assign(this, battleInfo)
 
-    this.isFemale = isFemale ?? random.nextBool()
-    if (this.isFemale) {
-      const index = random.nextInt(_kFemaleAvatarCount)
-      this.icon ??= 'female/${index}.jpg'
-      this.illustration ??= illustration
-      this.characterSkin = skin ?? 'characterWoman1'
-    } else {
-      const index = random.nextInt(_kMaleAvatarCount)
-      this.icon ??= 'male/${index}.jpg'
-      this.illustration ??= illustration
-      this.characterSkin = skin ?? 'characterMan1'
-    }
-    if (name != null) {
-      this.familyName = familyName
-      this.shortName = name
-      this.name = this.familyName ?? '' + this.shortName
-    } else if (generateRandomName) {
-      let randomName
-      let conflict = false
-      do {
-        randomName = generateCharacterName(
-          isFemale: this.isFemale,
-          familyName: familyName,
-          middleName: middleName,
-        )
-        conflict = game?.characters.values.where((element) =>
-          element.name == randomName.name).isNotEmpty
-      } while (conflict)
-      this.familyName = familyName ?? randomName.familyName
-      this.shortName = name ?? randomName.shortName
-      this.name = this.familyName + this.shortName
-    } else {
-      this.name = engine.locale('noname')
-    }
-    assert(this.name != null)
+    // 需要在passives赋值之后执行
+    updateCharacterStats(this)
 
-    this.entityType = 'character'
-    // 非主角色不参与 update, interact 等逻辑交互，也不会自动显示在地图或场景中。
-    this.isMajorCharacter = isMajorCharacter ?? false
-    this.category = category ?? 'character'
-
-    // this.id = '${this.entityType}.${crypto.randomUID4(2)}.${this.name}'
-
-    // let conflict = false
-    // do {
-    //   this.id = crypto.randomUID4()
-    //   conflict = game.characters.values.where((element) =>
-    //     element.id == this.id).isNotEmpty
-    // } while (conflict)
-    this.id = this.name
+    // this.entityType = 'character'
+    // this.category = category ?? 'character'
 
     if (this.isMajorCharacter) {
       game?.characters[this.id] = this
     }
 
+    this.shipSkin = shipSkin ?? 'ship1'
+
+    /// 寿命必须在已知境界之后计算
+    this.deathTimestamp = this.birthTimestamp + createRandomLifespan(this.cultivationRank)
+    
+    this.cultivationFavor = getMajorAttribute(this)
+    this.organizationFavor = random.nextIterable(kOrganizationFavor)
+
+    // 经验值，获取后会体现为修炼界面的光点，点击或者划过光点才会转化为真正的修为经验
+    this.unconvertedExp = unconvertedExp ?? 0
+    // 转换后的修为经验值，经验值达到下一等级需求后，自动扣除并提升修为能级
+    this.exp = exp ?? 0
+    // 未分配的修为点数，修为点数可以用来在天赋盘上升级天赋
+    this.availableSkillPoints = availableSkillPoints ?? 0
+    // 已解锁的天赋盘节点，保存的是posiitonId，代表天赋盘上某个位置的坐标。如果存在意味着该位置已经被解锁
+    this.skillTreeUnlockedNodes = {}
+
     this.worldId = worldId ?? world?.id
 
-    // 修真境界，凝气期是1
-    // 境界决定了升级时能获得卡牌的最高稀有度，但具体获得的卡牌是随机的
-    // 在所有流派中，只有修为等级最高的那个流派决定了境界
-    this.cultivationRank = cultivationRank ?? 0
-    
     this.color = kRarity.rare.color
     
     // age 的格式是 timestamp, 精确到 tick. 
@@ -380,12 +359,16 @@ struct Character {
       randomGenerator: random,
     ).toInt()
 
+    // 该人物的每月刷新事件的时间
+    this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
+
+    // 该人物的事件触发选项
+    this.flags = {}
+
     // 该角色的称号
     this.titles = {}
     // titles中直接保存了称号字符串
     this.currentTitleId = null
-
-    this.description = description ?? ''
 
     // 组织中的等级，一开始是 -1，表示没有组织，越大等级越高
     // 掌门的等级是 6
@@ -393,10 +376,7 @@ struct Character {
 
     this.fame = 0
     this.infamy = 0
-    
-    /// 寿命必须在已知境界之后计算
-    this.deathTimestamp = this.birthTimestamp + createRandomLifespan(this.cultivationRank)
- 
+
     // 有多少人知道此人的名字
     // this.knownByPopulation = 0
     // // 恶名，知道名字中，对此人差评的人的数量
@@ -451,39 +431,6 @@ struct Character {
     // 该角色当前的任务
     this.quests = {}
     this.activeQuestIds = []
-
-    // 生成战斗单位相关数据，并写入当前对象
-    // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
-    const battleInfo = BattleEntity(
-      attributes: attributes,
-      majorAttribute: majorAttribute,
-      baseStats: baseStats,
-      // cultivationGenre: cultivationGenre,
-      cardLibrary: cardLibrary,
-      battleDecks: battleDecks,
-    )
-    Object.assign(this, battleInfo)
-
-    this.cultivationFavor = getMajorAttribute(this)
-    this.organizationFavor = random.nextIterable(kOrganizationFavor)
-
-    // 经验值，获取后会体现为修炼界面的光点，点击或者划过光点才会转化为真正的修为经验
-    this.unconvertedExp = unconvertedExp ?? 0
-    // 转换后的修为经验值，经验值达到下一等级需求后，自动扣除并提升修为能级
-    this.exp = exp ?? 0
-    // 修为等级，每次提升修为等级可以获得1点天赋点，和1个技能卡牌包，每个卡牌包内包含3张卡牌
-    this.cultivationLevel = cultivationLevel ?? 0
-    // 未分配的修为点数，修为点数可以用来在天赋盘上升级天赋
-    this.availableSkillPoints = availableSkillPoints ?? 0
-    // 已解锁的天赋盘节点，保存的是posiitonId，代表天赋盘上某个位置的坐标。如果存在意味着该位置已经被解锁
-    this.skillTreeUnlockedNodes = {}
-    // 已分配的天赋盘技能，key是技能id，可能有多个技能拥有相同id
-    this.skills = {}
-    // 已解锁的辅助技能天赋盘节点，保存的是posiitonId，代表天赋盘上某个位置的坐标。如果存在意味着该位置已经被解锁
-    this.supportSkillTreeUnlockedNodes = {}
-    // 已分配的辅助天赋盘技能，key是技能id，可能有多个技能拥有相同id
-    this.supportSkills = {}
-
     // 一同行动的角色
     this.companions = []
 
@@ -528,16 +475,16 @@ struct Character {
       }
 
       if (isNewborn) {
-        assert(fatherId != null)
         assert(motherId != null)
-        const father = game.characters[fatherId]
+        assert(fatherId != null)
         const mother = game.characters[motherId]
+        const father = game.characters[fatherId]
         this.birthPlaceId = locationId
         // 出生事件会修改自身，需要放在最后处理
         const incidentContent = engine.locale('characterBorn',
           interpolations: [
-            father.name,
             mother.name,
+            father.name,
             this.name,
             location.name,
           ])
@@ -550,6 +497,7 @@ struct Character {
           order: 10,
           ideal: -10,
         )
+        characterFirstMet(mother, this)
         characterFirstMet(father, this)
         // const homeId = mother.homeId ?? mother.locationId
         // const home = game.locations[homeId]
@@ -562,10 +510,10 @@ struct Character {
           sib.relationships.siblingIds.add(this.id)
           characterFirstMet(sib, this)
         }
-        father.relationships.childrenIds.add(this.id)
         mother.relationships.childrenIds.add(this.id)
-        refreshCharacterRelationship(father, this)
+        father.relationships.childrenIds.add(this.id)
         refreshCharacterRelationship(mother, this)
+        refreshCharacterRelationship(father, this)
       } else {
         // 设置居住地会触发事件从而修改自身，需要放在最后处理
         setCharacterHome(this, location)
@@ -578,8 +526,48 @@ struct Character {
         }
       }
     }
-    
   }
+}
+
+/// 当前状态数值，由特性、属性、物品、天赋、技能、增益减损等计算得来
+/// 状态包括：生命、伤害、防御等。
+function updateCharacterStats(character, { reset = true }) {
+
+  character.lifeMax = kBaseLife + (character.strength + character.dexterity) ~/ 4
+  
+  // 基础属性，在此基础上还要加上物品和状态的加成
+  character.stats.dexterity = character.dexterity + character.passives.dexterity?.value
+  character.stats.spirituality = character.spirituality + character.passives.spirituality?.value
+  character.stats.strength = character.strength + character.passives.strength?.value
+  character.stats.perception = character.perception + character.passives.perception?.value
+  character.stats.willpower = character.willpower + character.passives.willpower?.value
+  
+  character.stats.lifeMax = character.lifeMax + character.passives.lifeMax?.value
+  character.stats.lightRadius = kBaseLightedArea + (character.stats.perception ~/ 25) * 2
+  
+  character.stats.unarmedAttack = character.passives.unarmedAttack?.value ?? 0
+  character.stats.weaponAttack = character.passives.weaponAttack?.value ?? 0
+  character.stats.spellAttack = character.passives.spellAttack?.value ?? 0
+  character.stats.curseAttack = character.passives.curseAttack?.value ?? 0
+  character.stats.poisonAttack = character.passives.poisonAttack?.value ?? 0
+  
+  character.stats.physicalResist = character.passives.physicalResist?.value ?? 0
+  character.stats.chiResist = character.passives.chiResist?.value ?? 0
+  character.stats.elementalResist = character.passives.elementalResist?.value ?? 0
+  character.stats.spiritualResist = character.passives.spiritualResist?.value ?? 0
+
+  character.stats.quickThreshold = kQuickThreshold + character.passives.quickThresholdModifier?.value
+  character.stats.slowThreshold = kQuickThreshold + character.passives.slowThresholdModifier?.value
+  character.stats.nimbleThreshold = kQuickThreshold + character.passives.nimbleThresholdModifier?.value
+  character.stats.clumsyThreshold = kClumsyThreshold + character.passives.clumsyThresholdModifier?.value
+  
+  if (reset) {
+    rejuvenateCharacter(character)
+  }
+}
+
+function rejuvenateCharacter(character) {
+  character.stats.life = character.stats.lifeMax
 }
 
 // 必须已经是门派成员，才可以设定头衔
@@ -602,7 +590,7 @@ function addOrganizationTitleForCharacter(character, organization, rank, titleId
   if (rank == kOrganizationRankMax) {
     organization.headId = character.id
   }
-  const incidentContent = engine.locale('characterSetOrganizationRank', interpolations: [
+  const incidentContent = engine.locale('characterGainOrganizationRank', interpolations: [
     character.name,
     organization.name,
     title,
@@ -1151,53 +1139,4 @@ function characterCultivationRankUp(character, {rank, incurIncident = true }) {
   }
 
   return character.cultivationRank
-}
-
-/// 提升角色天赋技能等级
-/// 此函数只用于提升NPC的天赋技能，或暂时提升玩家的天赋技能（不应用于人物数据）
-/// 注意此函数调用时并不会检测天赋树节点位置和链接情况，也不会检查角色是否有足够的技能点
-/// 也就是说，游戏中的NPC的天赋技能可以任意选择升级
-/// 但是玩家的天赋技能必须按照天赋树的规则升级
-/// 这个函数的第一个参数并非和其他函数一样是角色data，而只是角色data中的技能数组
-/// 这是为了方便让flame组件调用
-/// 玩家升级天赋时，其实在天赋盘界面复制了一份技能数据，最终确认后才合并到人物数据
-function characterSkillLevelUp(entitySkillsData, skillId, {level = 1}) {
-  if (entitySkillsData.id != null) {
-    throw '`characterSkillLevelUp` is using directly on character data, use character.skills instead.'
-  }
-  assert(level > 0)
-  if (entitySkillsData[skillId] == null) {
-    final skillRawData = game.skills[skillId]
-    assert(skillRawData != null)
-    final skillData = {
-      id: skillId,
-      priority: skillRawData.priority ?? 0,
-      level: level,
-      value: skillRawData.increment * level,
-      increment: skillRawData.increment,
-      description: skillRawData.description,
-    }
-    entitySkillsData[skillId] = skillData
-  } else {
-    final skillData = entitySkillsData[skillId]
-    skillData.level += level
-    skillData.value += skillData.increment * level
-  }
-}
-
-function characterSkillRefund(entitySkillsData, skillId, {level = 1}) {
-  if (entitySkillsData.id != null) {
-    throw '`characterSkillRefund` is using directly on character data, use character.skills instead.'
-  }
-  if (entitySkillsData[skillId] == null) {
-    engine.warn('skillId [${skillId}] not found on entity skills data for refund!')
-    return
-  }
-  final skillData = entitySkillsData[skillId]
-  skillData.level -= level
-  if (skillData.level <= 0) {
-    entitySkillsData[skillId] = null
-  } else if (skillData.value != null) {
-    skillData.value = skillData.increment * skillData.level
-  }
 }

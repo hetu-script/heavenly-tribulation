@@ -5,14 +5,17 @@ import 'character/family.json5' as familyNames
 import 'common.ht'
 import '../random.ht'
 
-const _kCouldBeFamilySkillKinds = [
+const _kMartialArtsKinds = [
   'punch',
   'kick',
   'wrestling',
+  'dianxue',
   'sabre',
   'spear',
   'sword',
   'staff',
+  'dart',
+  'swift',
 ]
 
 const _kNumberBeginSupplement = '路'
@@ -24,42 +27,39 @@ const _kSkillWithTwoElementsProbability = 0.35
 const _kSkillExtraProbability = 0.075
 const _kSkillNumfixProbability = 0.075
 
-function generateSkillName({category, kind, length = 1}) {
-  assert(category in skillNames.keys)
-  kind ??= random.nextIterable(skillNames[category])
-  assert(length > 0 && length < 4)
+function generateSkillName({kind}) {
+  kind ??= random.nextIterable(skillNames.keys)
+  let end = random.nextIterable(skillNames[kind])
+
   const r = random.nextDouble()
   let name = ''
-  if (length > 1) {
-    for (const i in range(length)) {
-      name += random.nextIterable(commonNames)
+  if (random.nextDouble() < 0.125 && (kind in _kMartialArtsKinds)) {
+    name = random.nextIterable(familyNames)
+    if (name.length == 1) {
+      name += random.nextIterable(kFamilyNamePostfixes)
     }
-  } else {
-    if (random.nextDouble() < 0.125 && category in _kCouldBeFamilySkillKinds) {
-      name = random.nextIterable(familyNames)
-      if (name.length == 1) {
-        name += random.nextIterable(kFamilyNamePostfixes)
-      }
-    } else  {
-      name = random.nextIterable(commonNames)
-    }
+  } else  {
+    name = random.nextIterable(commonNames)
   }
+
   let e = ''
   let n = ''
+  let n2 = ''
   if (random.nextDouble() < _kSkillExtraProbability) {
     e = random.nextIterable(skillExtra)
   }
-  if (random.nextDouble() < _kSkillNumfixProbability) {
+  if (random.nextDouble() < _kSkillNumfixProbability && (kind in _kMartialArtsKinds)) {
     n = random.nextIterable(skillNumfix)
+    n2 = n + _kNumberEndSupplement
   }
   if (random.nextDouble() < 0.5) {
-    name = (n != '' ? n + _kNumberBeginSupplement : '') + e + name + kind
+    name = n2 + e + name + end
   } else {
-    if (kind.length > 1) {
-      name = e + name + kind + (n != '' ? n + _kNumberEndSupplement : '')
+    if (end.length > 1) {
+      name = e + name + end + n2
     } else {
-      name = e + name + n + kind
+      name = e + name + n + end
     }
   }
-  return { name, category }
+  return name
 }

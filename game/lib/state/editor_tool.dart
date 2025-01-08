@@ -8,7 +8,7 @@ class EditorToolState with ChangeNotifier {
     notifyListeners();
   }
 
-  void selectItem(String item) {
+  void select(String item) {
     selectedId = item;
     notifyListeners();
   }

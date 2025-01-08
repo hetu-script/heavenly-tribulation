@@ -36,8 +36,9 @@ function generateCharacterName({isFemale, familyName, middleName}) {
 
   return {
     familyName: familyName,
+    middleName: middleName ?? name,
     shortName: name,
-    name: familyName + name,
+    fullName: familyName + name,
     isFemale: f,
   }
 }

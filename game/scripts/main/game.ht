@@ -1,5 +1,6 @@
 import 'tile/tilemap.ht'
 import 'datetime.ht'
+import 'player.ht'
 
 export 'random.ht'
 
@@ -248,6 +249,7 @@ function getHeroId() {
 function setHeroId(id: string) {
   assert(game.characters.containsKey(id))
   hero = game.characters[id]
+  Player.updateStats()
   engine.info('设置当前玩家人物为 [${hero.id}]。')
   // game.heroHomeSite.locationId = hero.homeId
   game.heroId = id

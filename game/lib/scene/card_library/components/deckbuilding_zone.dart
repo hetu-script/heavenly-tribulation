@@ -8,9 +8,14 @@ import 'package:samsara/components.dart';
 import 'package:samsara/samsara.dart';
 
 import '../../../ui.dart';
+// import '../../../data.dart';
 import '../../../engine.dart';
 import 'library_zone.dart';
 import 'common.dart';
+import '../../events.dart';
+// import '../../../common.dart';
+import '../../../game_dialog/game_dialog/game_dialog.dart';
+import '../../../logic/battlecard.dart';
 
 enum PlaceHolderState {
   newDeck,
@@ -20,6 +25,8 @@ enum PlaceHolderState {
 
 class DeckBuildingZone extends PiledZone with HandlesGesture {
   static const _indent = 20.0;
+
+  dynamic _heroData;
 
   // late final SpriteComponent background;
 
@@ -43,8 +50,6 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
 
   PlaceHolderState placeholderState = PlaceHolderState.newDeck;
 
-  // bool isNewDeck;
-
   @override
   set isVisible(bool value) {
     super.isVisible = value;
@@ -59,12 +64,44 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
 
   final List<dynamic> preloadCardIds;
 
+  late final int limitMin, limitEphemeralMax, limitOngoingMax;
+
+  bool get isCardsEnough {
+    if (cards.length < limitMin) return false;
+    return true;
+  }
+
+  int get ongoingCount {
+    return cards.where((card) {
+      final cardData = (card as CustomGameCard).data;
+      return cardData['category'] == 'ongoing';
+    }).length;
+  }
+
+  int get ephemeralCount {
+    return cards.where((card) {
+      final cardData = (card as CustomGameCard).data;
+      return cardData['category'] == 'ephemeral';
+    }).length;
+  }
+
+  bool get isRequirementMet {
+    bool valid = true;
+
+    if (cards.length < limitMin) valid = false;
+
+    for (final card in cards) {
+      valid = checkCardRequirement(_heroData, (card as CustomGameCard).data);
+    }
+
+    return valid;
+  }
+
   DeckBuildingZone({
     super.title,
     bool? isBattleDeck,
     List<dynamic>? preloadCardIds,
     super.position,
-    required super.limit,
     required this.onEditDeck,
     required this.onOpenDeckMenu,
     required this.library,
@@ -90,11 +127,16 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
           ((position.x - _indent) / (GameUI.deckbuildingCardSize.y + _indent))
               .truncate();
 
-      // gameRef.world.add(component);
-      if (addCard(component, index: index)) {
-        // if (!unlimitedCardIds.contains(component.deckId)) {
+      final result = tryAddCard(component, index: index, clone: false);
+      if (result == null) {
         library.setCardEnabledById(component.id, false);
-        // }
+      } else {
+        GameDialog.show(
+          context: game.context,
+          dialogData: {
+            'lines': [engine.locale(result)],
+          },
+        );
       }
     };
 
@@ -145,7 +187,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     deckInfo.text =
         '${_isBattleDeck ? '<yellow bold>${engine.locale('deckbuilding.battleDeck')}</>' : ''}\n'
         '$title\n'
-        '${engine.locale('deckbuilding.cardCount')}: ${cards.length}/$limit';
+        '${engine.locale('deckbuilding_count')}: ${cards.length}';
   }
 
   Future<void> collapse({bool animated = true}) async {
@@ -198,6 +240,18 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     // );
     // add(background);
 
+    _heroData = engine.hetu.fetch('hero');
+    assert(_heroData != null);
+    final deckLimit = getDeckLimitFromRank(_heroData['cultivationRank']);
+    limitMin = deckLimit.$1;
+    limit = deckLimit.$2;
+    limitEphemeralMax = deckLimit.$3;
+    limitOngoingMax = deckLimit.$4;
+    assert(limitMin > 0);
+    assert(limit >= limitMin);
+    assert(limitEphemeralMax >= 0);
+    assert(limitOngoingMax >= 0);
+
     placeholder = SpriteButton(
       spriteId: 'cultivation/deck_placeholder.png',
       hoverSpriteId: 'cultivation/deck_placeholder_hover.png',
@@ -212,7 +266,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
             scene: game,
             target: placeholder,
             direction: HovertipDirection.topCenter,
-            content: engine.locale('deckbuilding.newDeck'),
+            content: engine.locale('deckbuilding_new_deck_hint'),
             config: ScreenTextConfig(anchor: Anchor.topCenter),
           );
         case PlaceHolderState.editDeck:
@@ -220,7 +274,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
             scene: game,
             target: placeholder,
             direction: HovertipDirection.topCenter,
-            content: engine.locale('deckbuilding.addCard'),
+            content: engine.locale('deckbuilding_add_card_hint'),
             config: ScreenTextConfig(anchor: Anchor.topCenter),
           );
         case PlaceHolderState.deckCover:
@@ -228,7 +282,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
         //   scene: game,
         //   target: placeholder,
         //   direction: HovertipDirection.topCenter,
-        //   content: engine.locale('deckbuilding.editDeck'),
+        //   content: engine.locale('deckbuilding_edit_deck_hint'),
         //   config: ScreenTextConfig(anchor: Anchor.center),
         // );
       }
@@ -247,7 +301,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
               scene: game,
               target: placeholder,
               direction: HovertipDirection.topCenter,
-              content: engine.locale('deckbuilding.addCard'),
+              content: engine.locale('deckbuilding_add_card_hint'),
               config: ScreenTextConfig(anchor: Anchor.center),
             );
           case PlaceHolderState.deckCover:
@@ -277,16 +331,34 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     game.world.add(placeholder);
   }
 
-  bool addCard(CustomGameCard card, {int? index, bool animated = true}) {
+  /// 尝试加入卡牌，如果不能加入，返回的是表示原因的字符串
+  @override
+  String? tryAddCard(GameCard card,
+      {int? index, bool animated = true, bool clone = false}) {
     // if (!unlimitedCardIds.contains(card.deckId) && containsCard(card.deckId)) {
-    if (containsCard(card.deckId)) return false;
-    if (cards.length >= limit) return false;
+    if (isFull) {
+      return 'deckbuilding_deck_is_full';
+    }
+    if (containsCard(card.deckId)) {
+      return 'deckbuilding_already_in_battle_deck';
+    }
+    final cardData = (card as CustomGameCard).data;
+    if (cardData['isIdentified'] != true) {
+      return 'deckbuilding_card_unidentified';
+    }
+    if (ongoingCount >= limitOngoingMax && cardData['category'] == 'ongoing') {
+      return 'deckbuilding_ongoing_card_limit';
+    }
+    if (ephemeralCount >= limitEphemeralMax &&
+        cardData['category'] == 'ephemeral') {
+      return 'deckbuilding_ephemeral_card_limit';
+    }
 
-    // final card = c.clone();
-    // gameRef.world.add(card);
-    // card.size = GameUI.deckbuildingCardSize;
+    if (clone) {
+      card = card.clone();
+      game.world.add(card);
+    }
 
-    card.enableGesture = true;
     card.onTapDown = (buttons, position) {
       Hovertip.hide(card);
       card.priority = kDraggingCardPriority;
@@ -312,22 +384,27 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     // card.previewPriority = 100;
 
     card.onPreviewed = (component) {
-      Hovertip.show(
-        scene: game,
-        target: component,
-        direction: HovertipDirection.leftCenter,
-        content: card.extraDescription,
-        config: ScreenTextConfig(anchor: Anchor.topCenter),
-      );
+      engine.emit(CardEvents.cardPreview, args: component, scene: game.id);
     };
 
     card.onUnpreviewed = (component) {
-      Hovertip.hide(component);
+      engine.emit(CardEvents.cardUnpreview, args: component, scene: game.id);
     };
 
     placeCard(card, index: index, animated: animated);
 
-    return true;
+    return null;
+  }
+
+  dynamic createDeckInfo() {
+    final info = {
+      'title': title,
+      'isBattleDeck': isBattleDeck,
+      'isValid': isCardsEnough && isRequirementMet,
+      'cards': cards.map((card) => card.deckId).toList(),
+    };
+
+    return info;
   }
 
   // @override

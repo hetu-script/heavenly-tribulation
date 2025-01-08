@@ -105,11 +105,7 @@ function generateContinent1({width, height, landProportion, landZone}) {
   // }
 }
 
-const kMapStyles = Set(
-  'islands',
-  'coast',
-  'inland',
-)
+const kMapStyles = Set(['islands', 'coast', 'inland'])
 
 /// 利用 noise 函数生成大陆和海洋的算法
 function generateContinent(width, height, {seed, style}) {

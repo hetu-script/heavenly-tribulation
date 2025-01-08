@@ -1,5 +1,6 @@
 import 'common/common.json5' as commonNamesData
 import 'common/color.json5' as colorPrefix
+import 'common/material.json5' as materialPrefix
 import 'common/spirit.json5' as spiritPrefix
 
 const commonNames = [
@@ -27,6 +28,7 @@ const kNameWithLinkWordProbability = 0.15
 export {
   commonNames,
   colorPrefix,
+  materialPrefix,
   spiritPrefix,
   kStrangeNameProbability,
   kXianXiaNameProbability,

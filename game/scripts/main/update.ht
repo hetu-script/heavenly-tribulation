@@ -320,7 +320,7 @@ function updateOrganizationYearly(organization) {
     for (const index in shuffle) {
       const terrain = world.terrains[index]
       if (terrain.nationId == null && !kWaterTileKinds.contains(terrain.kind)) {
-        engine.info('国家 ${organization.id} 将其疆域扩展到周边的一个未被占领的格子 ${terrain.left},${terrain.top}')
+        // engine.info('国家 ${organization.id} 将其疆域扩展到周边的一个未被占领的格子 ${terrain.left},${terrain.top}')
         addTerrainToOrganization(terrain, organization)
         return true
       }

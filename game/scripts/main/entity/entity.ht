@@ -18,6 +18,7 @@ const kFameCheckThreshold = 75
 // 进行某些互动的时候
 const kCharismaCheckThreshold = 75
 
+const kBasic = 'basic' // 未知
 const kCommon = 'common' // 凡品：生成数量没有限制
 const kUncommon = 'uncommon' // 良品：每9世界大小
 const kRare = 'rare' // 上品：每18世界大小
@@ -30,7 +31,6 @@ const kArcane = 'arcane' // 古宝：每576世界大小
 const kRarity = {
   /// 未分类 黑
   basic: {
-    color: '#A3A3A3',
     name: 'basic',
     color: '#A3A3A3',
   },
@@ -127,12 +127,63 @@ const kEntityTypeSite = 'site' // location.sites
 
 const kEntityCategoryMaterial = 'material';
 
+const kEquipmentMax = 6
+
 // 材料的类型
 
 // 实际上进攻类装备也可能具有防御效果，因此这里的类型仅用于显示而已
 const kEquipTypeShip = 'ship'
 const kEquipTypeBoots = 'boots'
 const kEquipTypeAircraft = 'aircraft'
+
+const kRankMax = 8
+
+const kRankRarity = {
+  '0': 'basic',
+  '1': 'common',
+  '2': 'uncommon',
+  '3': 'rare',
+  '4': 'epic',
+  '5': 'legendary',
+  '6': 'unique',
+  '7': 'mythic',
+  '8': 'arcane',
+}
+
+function getRandomLevel(min, max) {
+  if (min >= max) return max
+  return  min + random.nextInt(max - min + 1)
+}
+
+function minLevelPerRank(rank) {
+  assert(rank >= 0)
+  return rank < 2 ? rank : (rank - 1) * 10
+}
+
+function maxLevelPerRank(rank) {
+  assert(rank >= 0)
+  return rank == 0 ? 10 : (rank * 10 + 20)
+}
+
+// 额外词条数量，卡牌和装备共用一个算法
+function getMinMaxExtraAffixCount(rank) {
+  assert(rank >= 0 && rank <= kRankMax)
+  let minExtra = 0
+  let maxExtra = 0
+  let minGreater = 0
+  let maxGreater = 0
+  if (rank > 0) {
+    if (rank < 5) {
+      minExtra = rank - 1
+      maxExtra = rank
+    } else {
+      minExtra = maxExtra = 4
+      minGreater = rank - 5
+      maxGreater = rank - 4
+    }
+  }
+  return { minExtra, maxExtra, minGreater, maxGreater }
+}
 
 function getCultivationRankName(character) {
   return engine.locale('cultivationRank_${character.cultivationRank}')

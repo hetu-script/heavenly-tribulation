@@ -3,7 +3,7 @@ import 'dart:math' as math;
 
 // import 'package:flutter/material.dart';
 // import 'package:flame/rendering.dart';
-import 'package:samsara/cardgame/cardgame.dart';
+import 'package:samsara/cardgame.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/components.dart';
@@ -17,6 +17,8 @@ import 'deckbuilding_zone.dart';
 import 'common.dart';
 import '../../../engine.dart';
 import 'cardcrafting_area.dart';
+import '../../events.dart';
+import '../../../game_dialog/game_dialog/game_dialog.dart';
 
 // 可以无限制使用的卡牌
 // const Set<String> unlimitedCardIds = {
@@ -72,9 +74,7 @@ class CardLibraryZone extends BorderComponent with HandlesGesture {
       for (final cardId in zone.preloadCardIds) {
         final card = library[cardId];
         assert(card != null, 'Card $cardId not found in library');
-        final clone = card!.clone();
-        game.world.add(clone);
-        zone.addCard(clone, animated: false);
+        zone.tryAddCard(card!, animated: false, clone: true);
       }
       zone.collapse(animated: false);
     }
@@ -132,6 +132,8 @@ class CardLibraryZone extends BorderComponent with HandlesGesture {
   }
 
   void _reposition(double offsetY) {
+    // Hovertip.clearAll();
+
     if (_virtualHeight <= GameUI.libraryZoneSize.y) return;
     if (offsetY == 0) return;
 
@@ -198,6 +200,11 @@ class CardLibraryZone extends BorderComponent with HandlesGesture {
     }
   }
 
+  void _release() {
+    draggingCard?.removeFromParent();
+    draggingCard = null;
+  }
+
   CustomGameCard addCardByData(dynamic data) {
     final card = GameData.createBattleCardFromData(data);
     // add(card);
@@ -207,11 +214,6 @@ class CardLibraryZone extends BorderComponent with HandlesGesture {
         _cardPositions.length == library.length + 1);
     card.position = _cardPositions.last.clone();
     _generateNextCardPosition();
-
-    void release() {
-      draggingCard?.removeFromParent();
-      draggingCard = null;
-    }
 
     card.onTapDown = (int buttons, Vector2 position) {
       void cloneCard() {
@@ -234,23 +236,29 @@ class CardLibraryZone extends BorderComponent with HandlesGesture {
         }
       }
     };
+
     card.onTapUp = (int buttons, __) async {
       if (!card.isEnabled) return;
       if (buttons == kPrimaryButton) {
-        if (buildingZone != null) {
-          release();
-          if (buildingZone!.isFull) return;
-          final c = card.clone();
-          game.world.add(c);
-          buildingZone!.addCard(c);
-          card.isEnabled = false;
-        } else if (craftingArea != null) {
-          release();
-          final c = card.clone();
-          game.world.add(c);
-          craftingArea!.addCard(c);
-          card.isEnabled = false;
+        if (buildingZone != null || craftingArea != null) {
+          String? result;
+          if (buildingZone != null) {
+            result = buildingZone!.tryAddCard(card, clone: true);
+          } else if (craftingArea != null) {
+            result = craftingArea!.tryAddCard(card, clone: true);
+          }
+          if (result != null) {
+            GameDialog.show(
+              context: game.context,
+              dialogData: {
+                'lines': [engine.locale(result)],
+              },
+            );
+          } else {
+            card.isEnabled = false;
+          }
         }
+        _release();
       }
     };
 
@@ -260,21 +268,15 @@ class CardLibraryZone extends BorderComponent with HandlesGesture {
         (int buttons, Vector2 offset) => draggingCard?.position += offset;
 
     card.onDragEnd = (_, __) {
-      release();
+      _release();
     };
 
     card.onPreviewed = (component) {
-      Hovertip.show(
-        scene: game,
-        target: component,
-        direction: HovertipDirection.rightTop,
-        content: card.extraDescription,
-        config: ScreenTextConfig(anchor: Anchor.topCenter),
-      );
+      engine.emit(CardEvents.cardPreview, args: component, scene: game.id);
     };
 
     card.onUnpreviewed = (component) {
-      Hovertip.hide(component);
+      engine.emit(CardEvents.cardUnpreview, args: component, scene: game.id);
     };
 
     library[card.id] = card;

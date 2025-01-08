@@ -1,27 +1,24 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
+import 'package:samsara/richtext/richtext_builder.dart';
+import 'package:provider/provider.dart';
 
 import '../../../ui.dart';
 // import '../../shared/rrect_icon.dart';
 // import '../../../shared/close_button.dart';
 // import '../../../common.dart';
 import 'common.dart';
+import '../state/hover_info.dart';
 
 class HoverInfo extends StatefulWidget {
   HoverInfo({
-    this.left,
-    this.top,
-    // this.width = 280.0,
-    required this.onSizeChanged,
-    required this.text,
+    this.maxWidth = kHoverInfoWidth,
+    required this.content,
     required this.hoveringRect,
   }) : super(key: GlobalKey());
 
-  final double? left, top;
-  // final double width;
-  final void Function() onSizeChanged;
-  final List<TextSpan> text;
+  // final double left, top;
+  final double maxWidth;
+  final String content;
   final Rect hoveringRect;
 
   @override
@@ -29,80 +26,70 @@ class HoverInfo extends StatefulWidget {
 }
 
 class _HoverInfoState extends State<HoverInfo> {
-  double? _left, _top, _height;
-
-  bool _isVisible = false;
-
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final screenSize = MediaQuery.sizeOf(context);
-      final renderBox = (widget.key as GlobalKey)
-          .currentContext!
-          .findRenderObject() as RenderBox;
+      final renderObject =
+          (widget.key as GlobalKey).currentContext!.findRenderObject();
+      final renderBox = renderObject as RenderBox;
       final Size size = renderBox.size;
-      _onSizeDetermined(size, screenSize);
-    });
-  }
 
-  void _onSizeDetermined(Size infoSize, Size screenSize) {
-    setState(() {
-      if (infoSize.height <= screenSize.height) {
-        _top = math.min(
-            screenSize.height - infoSize.height, widget.hoveringRect.top);
-        // _height = infoSize.height;
+      late double left, top, width, height;
+
+      if (size.width > widget.maxWidth) {
+        width = widget.maxWidth;
       } else {
-        // _height = screenSize.height;
+        width = size.width;
       }
 
-      double preferredX = widget.hoveringRect.right + kEntityInfoIndent;
-      if (preferredX > (screenSize.width - infoSize.width)) {
-        _left = widget.hoveringRect.left - kEntityInfoIndent - infoSize.width;
-      } else {
-        _left = preferredX;
-      }
+      height = size.height;
 
-      _isVisible = true;
+      double preferredX = widget.hoveringRect.right + kHoverInfoIndent;
+      double maxX = screenSize.width - size.width - kHoverInfoIndent;
+      left = preferredX > maxX ? maxX : preferredX;
+
+      double preferredY = widget.hoveringRect.top + kHoverInfoIndent;
+      double maxY = screenSize.height - size.height - kHoverInfoIndent;
+      top = preferredY > maxY ? maxY : preferredY;
+
+      context
+          .read<HoverInfoDeterminedRectState>()
+          .set(Rect.fromLTWH(left, top, width, height));
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.sizeOf(context);
+
+    final rect = context.watch<HoverInfoDeterminedRectState>().rect;
+
     return Positioned(
-      left: _left ?? widget.left,
-      top: _top ?? widget.top,
-      height: _height,
-      child: Visibility(
-        visible: _isVisible,
-        child: SingleChildScrollView(
-          child: Container(
-            // margin: const EdgeInsets.only(right: 240.0, top: 120.0),
-            padding: const EdgeInsets.all(10.0),
-            // width: widget.width,
-            decoration: BoxDecoration(
-              color: GameUI.backgroundColor,
-              borderRadius: GameUI.borderRadius,
-              border: Border.all(color: GameUI.foregroundColor),
-            ),
-            child: ClipRRect(
-              borderRadius: GameUI.borderRadius,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  RichText(
-                    textAlign: TextAlign.center,
-                    text: TextSpan(
-                      children: widget.text,
-                      style: TextStyle(
-                        fontFamily: 'NotoSansMono',
-                        // fontFamily: GameUI.fontFamily,
-                      ),
-                    ),
-                  )
-                ],
+      left: rect?.left ?? screenSize.width,
+      top: rect?.top ?? screenSize.height,
+      // height: _height,
+      child: IgnorePointer(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+          constraints: BoxConstraints(maxWidth: widget.maxWidth),
+          decoration: BoxDecoration(
+            color: GameUI.backgroundColor,
+            borderRadius: GameUI.borderRadius,
+            border: Border.all(color: GameUI.foregroundColor),
+          ),
+          child: ClipRRect(
+            borderRadius: GameUI.borderRadius,
+            child: RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                children: buildFlutterRichText(widget.content),
+                style: TextStyle(
+                  fontFamily: 'NotoSansMono',
+                  // fontFamily: GameUI.fontFamily,
+                ),
               ),
             ),
           ),

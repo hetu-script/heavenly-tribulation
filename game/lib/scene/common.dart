@@ -51,3 +51,10 @@ const kCouldKindsCount = 12;
 const kSiteCardPriority = 500;
 
 const kMouseCursorEffectPriority = 99999999;
+
+const kSceneMainmenu = 'mainmenu';
+const kSceneCardLibrary = 'card_library';
+const kSceneCultivation = 'cultivation';
+const kSceneTilemap = 'tilemap';
+const kSceneLocationSite = 'location_site';
+const kSceneCardBattle = 'card_battle';

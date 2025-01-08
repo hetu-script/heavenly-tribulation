@@ -35,9 +35,9 @@ class CharacterMemoryView extends StatefulWidget {
 
   final bool isHero;
 
-  final Function()? onClose;
-  final Function(DragUpdateDetails details)? onDragUpdate;
-  final Function(Offset tapPosition)? onTapDown;
+  final void Function()? onClose;
+  final void Function(DragUpdateDetails details)? onDragUpdate;
+  final void Function(Offset tapPosition)? onTapDown;
 
   @override
   State<CharacterMemoryView> createState() => _CharacterMemoryViewState();

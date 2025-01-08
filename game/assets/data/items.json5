@@ -1,58 +1,35 @@
 {
   quest_jade: {
     prototypeId: "quest_jade",
-    category: "equipments",
-    kind: "quest",
-    price: -1,
-    isQuestItem: true,
+    category: "quest",
+    level: 1,
+    rank: 6,
     icon: "item/story/jade.png",
   },
-  wood_boat: {
-    prototypeId: "wood_boat",
-    category: "equipments",
-    kind: "ship",
-    price: 200,
-    isEquippable: true,
-    equipType: "ship",
-    equipData: {
-      attributes: {
-        staminaCostOnWaterReduced: 0.2,
-      },
-    },
-    icon: "item/support/boat.png",
-  },
-  climb_boots: {
-    prototypeId: "climb_boots",
-    category: "equipments",
-    kind: "boots",
-    price: 200,
-    isEquippable: true,
-    equipType: "boots",
-    equipData: {
-      attributes: {
-        staminaCostOnHillReduced: 0.2,
-      },
-    },
-    icon: "item/support/climb_boots.png",
-  },
-  steel_sword: {
-    prototypeId: "steel_sword",
-    category: "equipments",
-    kind: "sword",
-    isEquippable: true,
-    equipType: "weapon",
-    equipData: {
-      attributes: {
-        attack: 5,
-      },
-    },
-    icon: "item/sword.png",
-  },
-  basic_cardpack: {
-    prototypeId: "basic_cardpack",
-    category: "book",
-    kind: "cardpack",
-    cardIds: ["attack_normal", "defend_normal", "dodge_normal"],
-    icon: "item/cardpack.png",
-  },
+  // wood_boat: {
+  //   prototypeId: "wood_boat",
+  //   category: "equipment",
+  //   kind: "ship",
+  //   price: 200,
+  //   equipType: "ship",
+  //   equipData: {
+  //     attributes: {
+  //       staminaCostOnWaterReduced: 0.2,
+  //     },
+  //   },
+  //   icon: "item/support/boat.png",
+  // },
+  // climb_boots: {
+  //   prototypeId: "climb_boots",
+  //   category: "equipment",
+  //   kind: "boots",
+  //   price: 200,
+  //   equipType: "boots",
+  //   equipData: {
+  //     attributes: {
+  //       staminaCostOnHillReduced: 0.2,
+  //     },
+  //   },
+  //   icon: "item/support/climb_boots.png",
+  // },
 }

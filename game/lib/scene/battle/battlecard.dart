@@ -1,40 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:hetu_script/values.dart';
 import 'package:samsara/ui/label.dart';
+import 'package:provider/provider.dart';
 
 import '../../ui.dart';
+// import '../../engine.dart';
+import '../../data.dart';
+import '../../state/hover_info.dart';
+import '../../logic/battlecard.dart';
 
-class BattleCard extends StatefulWidget {
+class BattleCard extends StatelessWidget {
   BattleCard({
     required this.cardData,
-    this.onMouseEnter,
-    this.onMouseExit,
+    this.characterData,
+    this.isHero = false,
   }) : super(key: GlobalKey());
 
-  final HTStruct cardData;
-  final Function(dynamic cardData, Rect? widgetRect)? onMouseEnter;
-  final Function()? onMouseExit;
-
-  @override
-  State<BattleCard> createState() => _BattleCardState();
-}
-
-class _BattleCardState extends State<BattleCard> {
-  Rect? _renderRect;
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _renderRect = getRenderRect(widget.key as GlobalKey);
-    });
-  }
+  final dynamic cardData;
+  final dynamic characterData;
+  final bool isHero;
 
   @override
   Widget build(BuildContext context) {
+    bool isUsable = true;
+
+    if (isHero) {
+      isUsable = checkCardRequirement(characterData, cardData);
+    }
+
     return SizedBox(
       height: 40,
+      width: 195,
       child: Card(
         shadowColor: Colors.black26,
         child: Ink(
@@ -58,9 +53,13 @@ class _BattleCardState extends State<BattleCard> {
               onTap: () {}, // 必须有这个，否则无法触发onHover
               onHover: (bool entered) {
                 if (entered) {
-                  widget.onMouseEnter?.call(widget.cardData, _renderRect);
+                  final rect = getRenderRect(context);
+                  final (_, description) = GameData.getDescriptionFromCardData(
+                      cardData,
+                      characterData: isHero ? characterData : null);
+                  context.read<HoverInfoContentState>().set(description, rect);
                 } else {
-                  widget.onMouseExit?.call();
+                  context.read<HoverInfoContentState>().hide();
                 }
               },
               borderRadius: GameUI.borderRadius,
@@ -68,8 +67,10 @@ class _BattleCardState extends State<BattleCard> {
                 alignment: Alignment.centerLeft,
                 padding: EdgeInsets.only(left: 5),
                 child: Label(
+                  cardData['name'],
                   height: 20,
-                  widget.cardData['name'],
+                  textAlign: TextAlign.left,
+                  textStyle: isUsable ? null : TextStyle(color: Colors.red),
                 ),
               ),
             ),

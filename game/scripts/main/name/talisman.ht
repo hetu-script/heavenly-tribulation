@@ -1,31 +1,22 @@
 import 'talisman/talisman.json5' as talismanNames
-import 'talisman/material.json5' as talismanMaterial
 import 'talisman/postfix.json5' as talismanPostfix
 import 'common.ht'
 import '../random.ht'
-import '../entity/entity.ht'
 
-function generateTalismanName({category, kind, rarity}) {
-  assert(category in talismanNames.keys)
-  kind ??= random.nextIterable(talismanNames[category])
-  rarity ??= getRarity().rarity
+function generateTalismanName({kind, isRare = false}) {
+  kind ??= random.nextIterable(talismanNames.keys)
+  let end = random.nextIterable(talismanNames[kind])
 
-  const prefix = random.nextIterable(commonNames)
-  const prefix2 = random.nextIterable(commonNames)
   const cp = random.nextIterable(colorPrefix)
-  const mp = random.nextIterable(talismanMaterial)
+  const mp = random.nextIterable(materialPrefix)
   const sp = random.nextIterable(spiritPrefix)
 
-  let name
-  switch (rarity) {
-    'arcane' : name = prefix + prefix2 + kind
-    'mythic' : name = prefix + sp + cp + mp + kind
-    'unique' : name = prefix + cp + mp + kind
-    'legendary' : name = prefix + mp + kind
-    'epic' : name = prefix + kind
-    'rare' : name = cp + mp + sp + kind
-    'uncommon' : name = cp + mp + kind
-    'common' : name = mp + kind
+  let name = ''
+  if (isRare) {
+    name = cp + sp + mp
+  } else {
+    name = cp + mp
   }
-  return { name, category, rarity }
+  name += end
+  return name
 }

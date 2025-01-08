@@ -1,3 +1,0 @@
-export 'effects.ht'
-export 'handlers.ht'
-export 'common.ht'

@@ -91,7 +91,6 @@ void main() {
         providers: [
           ChangeNotifierProvider(create: (_) => SelectedTileState()),
           ChangeNotifierProvider(create: (_) => GameSavesState()),
-          // ChangeNotifierProvider(create: (_) => MainMenuState()),
           ChangeNotifierProvider(create: (_) => EditorToolState()),
           ChangeNotifierProvider(create: (_) => HistoryState()),
           ChangeNotifierProvider(create: (_) => GameDialogState()),
@@ -99,9 +98,13 @@ void main() {
           ChangeNotifierProvider(create: (_) => LocationSiteSceneState()),
           ChangeNotifierProvider(create: (_) => WorldMapSceneState()),
           ChangeNotifierProvider(create: (_) => QuestState()),
+          ChangeNotifierProvider(create: (_) => GameOverlayVisibilityState()),
           ChangeNotifierProvider(create: (_) => HeroState()),
+          ChangeNotifierProvider(create: (_) => EnemyState()),
           ChangeNotifierProvider(create: (_) => WindowPriorityState()),
           ChangeNotifierProvider(create: (_) => WindowPositionState()),
+          ChangeNotifierProvider(create: (_) => HoverInfoContentState()),
+          ChangeNotifierProvider(create: (_) => HoverInfoDeterminedRectState()),
         ],
         child: MaterialApp(
           navigatorObservers: [routeObserver],

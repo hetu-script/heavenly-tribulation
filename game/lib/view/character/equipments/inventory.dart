@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 
 import 'item_grid.dart';
 // import 'entity_info.dart';
-import '../../../engine.dart';
+// import '../../../engine.dart';
 // import '../../../../event/ui.dart';
 // import 'package:samsara/ui/integer_input_field.dart';
-import 'package:samsara/ui/empty_placeholder.dart';
+// import 'package:samsara/ui/empty_placeholder.dart';
 // import '../../../common.dart';
 
 enum InventoryType {
@@ -17,14 +17,14 @@ enum InventoryType {
 }
 
 /// 如果是玩家自己的物品栏，则传入characterData
-class InventoryView extends StatelessWidget {
-  InventoryView({
+class Inventory extends StatelessWidget {
+  Inventory({
     super.key,
     required this.type,
     required this.inventoryData,
     required this.height,
     this.characterName,
-    this.style = GridStyle.icon,
+    // this.style = GridStyle.icon,
     // this.money,
     this.priceFactor = 1.0,
     this.onBuy,
@@ -41,7 +41,7 @@ class InventoryView extends StatelessWidget {
 
   final double height;
   final dynamic inventoryData;
-  final GridStyle style;
+  // final GridStyle style;
   final String? characterName;
   // final int? money;
   final InventoryType type;
@@ -50,11 +50,11 @@ class InventoryView extends StatelessWidget {
   // final VoidCallback? onEquipChanged;
   final List<String> filter;
   final int minSlotCount, gridCountPerLine;
-  final void Function(dynamic entityData, Rect gridRenderBox)?
+  final void Function(dynamic itemData, Rect gridRenderBox)?
       onMouseEnterItemGrid;
   final void Function()? onMouseExitItemGrid;
-  final void Function(dynamic entityData, Offset screenPosition)? onItemTapped;
-  final void Function(dynamic entityData, Offset screenPosition)?
+  final void Function(dynamic itemData, Offset screenPosition)? onItemTapped;
+  final void Function(dynamic itemData, Offset screenPosition)?
       onItemSecondaryTapped;
 
 //   @override
@@ -245,15 +245,15 @@ class InventoryView extends StatelessWidget {
     final grids = <Widget>[];
     var index = -1;
     int maxGridCount;
-    if (style == GridStyle.icon) {
-      if (inventoryData.length < minSlotCount) {
-        maxGridCount = minSlotCount;
-      } else {
-        maxGridCount = inventoryData.length ~/ gridCountPerLine + 1;
-      }
+    // if (style == GridStyle.icon) {
+    if (inventoryData.length < minSlotCount) {
+      maxGridCount = minSlotCount;
     } else {
-      maxGridCount = inventoryData.length;
+      maxGridCount = inventoryData.length ~/ gridCountPerLine + 1;
     }
+    // } else {
+    //   maxGridCount = inventoryData.length;
+    // }
     while (grids.length < maxGridCount) {
       ++index;
       if (index < inventoryData.length) {
@@ -313,11 +313,9 @@ class InventoryView extends StatelessWidget {
         grids.add(
           Padding(
             padding: const EdgeInsets.all(5.0),
-            child: EntityGrid(
-              entityData: itemData,
-              style: style,
-              onMouseEnterItemGrid: onMouseEnterItemGrid,
-              onMouseExitItemGrid: onMouseExitItemGrid,
+            child: ItemGrid(
+              itemData: itemData,
+              // style: style,
               onTapped: onItemTapped,
               onSecondaryTapped: onItemSecondaryTapped,
             ),
@@ -327,9 +325,9 @@ class InventoryView extends StatelessWidget {
         grids.add(
           Padding(
             padding: const EdgeInsets.all(5.0),
-            child: EntityGrid(
-              style: style,
-            ),
+            child: ItemGrid(
+                // style: style,
+                ),
           ),
         );
       }
@@ -345,23 +343,24 @@ class InventoryView extends StatelessWidget {
         child: ListView(
           shrinkWrap: true,
           children: [
-            style == GridStyle.icon
-                ? Wrap(
-                    alignment: WrapAlignment.center,
-                    children: grids,
-                  )
-                : grids.isEmpty
-                    ? Center(
-                        child: EmptyPlaceholder(
-                          engine.locale('empty'),
-                        ),
-                      )
-                    : Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                        child: Column(
-                          children: grids,
-                        ),
-                      ),
+            // style == GridStyle.icon
+            //     ?
+            Wrap(
+              alignment: WrapAlignment.center,
+              children: grids,
+            )
+            // : grids.isEmpty
+            //     ? Center(
+            //         child: EmptyPlaceholder(
+            //           engine.locale('empty'),
+            //         ),
+            //       )
+            //     : Container(
+            //         padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            //         child: Column(
+            //           children: grids,
+            //         ),
+            //       ),
           ],
         ),
       ),

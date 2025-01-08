@@ -62,7 +62,7 @@ class StatusEffect extends BorderComponent with HandlesGesture {
 
   String get script => data['script'] as String;
 
-  bool get isHidden => spriteId == null;
+  bool get isHidden => data['isHidden'] ?? false;
 
   bool get isPermenant => data['isPermenant'] ?? false;
 

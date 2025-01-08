@@ -11,74 +11,8 @@
   // 当获得或失去状态时，如果存在反状态，数值会抵消
   // priority 表示状态结算优先级，游戏中会根据这个值对状态进行排序
 
-  // 速度
-  speed_quick: {
-    id: "speed_quick",
-    title: "status_speed_quick",
-    description: "status_description_speed_quick",
-    icon: "icon/status/speed_quick.png",
-    opposite: "speed_slow",
-    script: "speed_quick",
-    callbacks: ["self_turn_end"],
-    sound: "buffer-spell-88994.mp3",
-  },
-  // 缓慢
-  speed_slow: {
-    id: "speed_slow",
-    title: "status_speed_slow",
-    description: "status_description_speed_slow",
-    icon: "icon/status/speed_slow.png",
-    opposite: "speed_quick",
-    isNegative: true,
-    script: "speed_slow",
-    callbacks: ["self_turn_start"],
-    sound: "buffer-spell-88994.mp3",
-  },
-  // 闪避
-  dodge_nimble: {
-    id: "dodge_nimble",
-    title: "status_dodge_nimble",
-    description: "status_description_dodge_nimble",
-    icon: "icon/status/dodge_nimble.png",
-    opposite: "dodge_clumsy",
-    script: "dodge_nimble",
-    callbacks: ["self_turn_end"],
-    sound: "buffer-spell-88994.mp3",
-  },
-  // 迟钝
-  dodge_clumsy: {
-    id: "dodge_clumsy",
-    title: "status_dodge_clumsy",
-    description: "status_description_dodge_clumsy",
-    icon: "icon/status/dodge_clumsy.png",
-    opposite: "dodge_nimble",
-    isNegative: true,
-    script: "dodge_clumsy",
-    callbacks: ["self_turn_start"],
-    sound: "buffer-spell-88994.mp3",
-  },
-  // 免伤，本回合受到的所有伤害减免90%
-  dodge_invincible: {
-    id: "dodge_invincible",
-    title: "status_dodge_invincible",
-    description: "status_description_dodge_invincible",
-    icon: "icon/status/dodge_invincible.png",
-    script: "dodge_invincible",
-    callbacks: ["self_turn_start", "self_turn_end"],
-    sound: "buffer-spell-88994.mp3",
-  },
-  // 踉跄，本回合受到的所有伤害增加90%
-  dodge_staggering: {
-    id: "dodge_staggering",
-    title: "status_dodge_staggering",
-    description: "status_description_dodge_staggering",
-    icon: "icon/status/dodge_staggering.png",
-    script: "dodge_staggering",
-    callbacks: ["self_turn_start", "self_turn_end"],
-    sound: "buffer-spell-88994.mp3",
-  },
-
-  // 所有类型的攻击增强，每有一点，造成的伤害增加 5%
+  // 所有类型的攻击增强，每有一点，造成的伤害增加 1%
+  // 攻击增强是永久效果，并且可以从装备、天赋等场合获得
   enhance_unarmed: {
     id: "enhance_unarmed",
     title: "status_enhance_unarmed",
@@ -87,6 +21,7 @@
     opposite: "weaken_unarmed",
     attackType: "unarmed",
     script: "enhance",
+    isPermenant: true,
     callbacks: ["self_doing_damage"],
     sound: "dagger_drawn2-89025.mp3",
   },
@@ -98,6 +33,7 @@
     opposite: "weaken_weapon",
     attackType: "weapon",
     script: "enhance",
+    isPermenant: true,
     callbacks: ["self_doing_damage"],
     sound: "dagger_drawn2-89025.mp3",
   },
@@ -109,6 +45,7 @@
     opposite: "weaken_spell",
     attackType: "spell",
     script: "enhance",
+    isPermenant: true,
     callbacks: ["self_doing_damage"],
     sound: "dagger_drawn2-89025.mp3",
   },
@@ -120,6 +57,7 @@
     opposite: "weaken_curse",
     attackType: "curse",
     script: "enhance",
+    isPermenant: true,
     callbacks: ["self_doing_damage"],
     sound: "dagger_drawn2-89025.mp3",
   },
@@ -131,20 +69,22 @@
     opposite: "weaken_poison",
     attackType: "poison",
     script: "enhance",
+    isPermenant: true,
     callbacks: ["self_doing_damage"],
     sound: "dagger_drawn2-89025.mp3",
   },
 
-  // 所有类型的攻击削弱，每有一点，造成的伤害减少 5%
+  // 所有类型的攻击削弱，每有一点，造成的伤害减少 1%
   weaken_unarmed: {
     id: "weaken_unarmed",
     title: "status_weaken_unarmed",
     description: "status_description_weaken",
     icon: "icon/status/weaken_unarmed.png",
     opposite: "enhance_unarmed",
-    isNegative: true,
     attackType: "unarmed",
     script: "weaken",
+    isNegative: true,
+    isPermenant: true,
     callbacks: ["self_doing_damage"],
     sound: "bone-break-8-218516.mp3",
   },
@@ -154,9 +94,10 @@
     description: "status_description_weaken",
     icon: "icon/status/weaken_weapon.png",
     opposite: "enhance_weapon",
-    isNegative: true,
     attackType: "weapon",
     script: "weaken",
+    isNegative: true,
+    isPermenant: true,
     callbacks: ["self_doing_damage"],
     sound: "bone-break-8-218516.mp3",
   },
@@ -166,9 +107,10 @@
     description: "status_description_weaken",
     icon: "icon/status/weaken_spell.png",
     opposite: "enhance_spell",
-    isNegative: true,
     attackType: "spell",
     script: "weaken",
+    isNegative: true,
+    isPermenant: true,
     callbacks: ["self_doing_damage"],
     sound: "bone-break-8-218516.mp3",
   },
@@ -178,9 +120,10 @@
     description: "status_description_weaken",
     icon: "icon/status/weaken_curse.png",
     opposite: "enhance_curse",
-    isNegative: true,
     attackType: "curse",
     script: "weaken",
+    isNegative: true,
+    isPermenant: true,
     callbacks: ["self_doing_damage"],
     sound: "bone-break-8-218516.mp3",
   },
@@ -190,19 +133,86 @@
     description: "status_description_weaken",
     icon: "icon/status/weaken_poison.png",
     opposite: "enhance_poison",
-    isNegative: true,
     attackType: "poison",
     script: "weaken",
+    isNegative: true,
+    isPermenant: true,
     callbacks: ["self_doing_damage"],
     sound: "bone-break-8-218516.mp3",
   },
 
-  // 拥有者在回合开始时，消耗 1 层元气，恢复 2% 的生命值。
-  // 若生命值满则不会消耗。
+  // 速度
+  speed_quick: {
+    id: "speed_quick",
+    title: "status_speed_quick",
+    description: "status_speed_quick_description",
+    icon: "icon/status/speed_quick.png",
+    opposite: "speed_slow",
+    script: "speed_quick",
+    callbacks: ["self_turn_end"],
+    sound: "buffer-spell-88994.mp3",
+  },
+  // 缓慢
+  speed_slow: {
+    id: "speed_slow",
+    title: "status_speed_slow",
+    description: "status_speed_slow_description",
+    icon: "icon/status/speed_slow.png",
+    opposite: "speed_quick",
+    isNegative: true,
+    script: "speed_slow",
+    callbacks: ["self_turn_start"],
+    sound: "buffer-spell-88994.mp3",
+  },
+  // 闪避
+  dodge_nimble: {
+    id: "dodge_nimble",
+    title: "status_dodge_nimble",
+    description: "status_dodge_nimble_description",
+    icon: "icon/status/dodge_nimble.png",
+    opposite: "dodge_clumsy",
+    script: "dodge_nimble",
+    callbacks: ["self_turn_end"],
+    sound: "buffer-spell-88994.mp3",
+  },
+  // 迟钝
+  dodge_clumsy: {
+    id: "dodge_clumsy",
+    title: "status_dodge_clumsy",
+    description: "status_dodge_clumsy_description",
+    icon: "icon/status/dodge_clumsy.png",
+    opposite: "dodge_nimble",
+    isNegative: true,
+    script: "dodge_clumsy",
+    callbacks: ["self_turn_start"],
+    sound: "buffer-spell-88994.mp3",
+  },
+  // 免伤，本回合受到的所有伤害减免90%
+  dodge_invincible: {
+    id: "dodge_invincible",
+    title: "status_dodge_invincible",
+    description: "status_dodge_invincible_description",
+    icon: "icon/status/dodge_invincible.png",
+    script: "dodge_invincible",
+    callbacks: ["self_turn_start", "self_turn_end"],
+    sound: "buffer-spell-88994.mp3",
+  },
+  // 踉跄，本回合受到的所有伤害增加90%
+  dodge_staggering: {
+    id: "dodge_staggering",
+    title: "status_dodge_staggering",
+    description: "status_dodge_staggering_description",
+    icon: "icon/status/dodge_staggering.png",
+    script: "dodge_staggering",
+    callbacks: ["self_turn_start", "self_turn_end"],
+    sound: "buffer-spell-88994.mp3",
+  },
+
+  // 拥有者在回合开始时，每层元气恢复 2% 的生命值。在使用加持时消失。
   energy_p_life: {
     id: "energy_p_life",
     title: "status_energy_p_life",
-    description: "status_description_energy_p_life",
+    description: "status_energy_p_life_description",
     icon: "icon/status/energy_p_life.png",
     opposite: "status_energy_n_life",
     script: "energy_life",
@@ -212,7 +222,7 @@
   energy_p_spell: {
     id: "energy_p_spell",
     title: "status_energy_p_spell",
-    description: "status_description_energy_p_spell",
+    description: "status_energy_p_spell_description",
     icon: "icon/status/energy_p_spell.png",
     opposite: "status_energy_n_spell",
     script: "energy_spell",
@@ -220,10 +230,11 @@
     sound: "lighting-a-fire-14421.mp3",
   },
 
+  // 拥有者在回合开始时，每层死气失去 2% 的生命值。在使用加持时消失。
   energy_n_life: {
     id: "energy_n_life",
     title: "status_energy_n_life",
-    description: "status_description_energy_n_life",
+    description: "status_energy_n_life_description",
     icon: "icon/status/energy_n_life.png",
     opposite: "status_energy_n_life",
     isNegative: true,
@@ -234,7 +245,7 @@
   energy_n_spell: {
     id: "energy_n_spell",
     title: "status_energy_n_spell",
-    description: "status_description_energy_n_spell",
+    description: "status_energy_n_spell_description",
     icon: "icon/status/energy_n_spell.png",
     opposite: "status_energy_p_spell",
     script: "energy_spell",
@@ -248,7 +259,7 @@
   defense_physical: {
     id: "defense_physical",
     title: "status_defense_physical",
-    description: "status_description_defense",
+    description: "status_defense_description",
     icon: "icon/status/defense_physical.png",
     opposite: "vulnerable_physical",
     damageType: "physical",
@@ -259,7 +270,7 @@
   defense_chi: {
     id: "defense_chi",
     title: "status_defense_chi",
-    description: "status_description_defense",
+    description: "status_defense_description",
     icon: "icon/status/defense_chi.png",
     opposite: "vulnerable_chi",
     damageType: "chi",
@@ -270,7 +281,7 @@
   defense_elemental: {
     id: "defense_elemental",
     title: "status_defense_elemental",
-    description: "status_description_defense",
+    description: "status_defense_description",
     icon: "icon/status/defense_elemental.png",
     opposite: "vulnerable_elemental",
     damageType: "elemental",
@@ -278,13 +289,13 @@
     callbacks: ["self_turn_start", "self_taking_damage"],
     sound: "dagger_drawn2-89025.mp3",
   },
-  defense_psychic: {
-    id: "defense_psychic",
-    title: "status_defense_psychic",
-    description: "status_description_defense",
-    icon: "icon/status/defense_psychic.png",
-    opposite: "vulnerable_psychic",
-    damageType: "psychic",
+  defense_spiritual: {
+    id: "defense_spiritual",
+    title: "status_defense_spiritual",
+    description: "status_defense_description",
+    icon: "icon/status/defense_spiritual.png",
+    opposite: "vulnerable_spiritual",
+    damageType: "spiritual",
     script: "defense",
     callbacks: ["self_turn_start", "self_taking_damage"],
     sound: "dagger_drawn2-89025.mp3",
@@ -294,7 +305,7 @@
   vulnerable_physical: {
     id: "vulnerable_physical",
     title: "status_vulnerable_physical",
-    description: "status_description_vulnerable",
+    description: "status_vulnerable_description",
     icon: "icon/status/vulnerable_physical.png",
     opposite: "defense_physical",
     isNegative: true,
@@ -306,7 +317,7 @@
   vulnerable_chi: {
     id: "vulnerable_chi",
     title: "status_vulnerable_chi",
-    description: "status_description_vulnerable",
+    description: "status_vulnerable_description",
     icon: "icon/status/vulnerable_chi.png",
     opposite: "defense_chi",
     isNegative: true,
@@ -318,7 +329,7 @@
   vulnerable_elemental: {
     id: "vulnerable_elemental",
     title: "status_vulnerable_elemental",
-    description: "status_description_vulnerable",
+    description: "status_vulnerable_description",
     icon: "icon/status/vulnerable_elemental.png",
     opposite: "defense_elemental",
     isNegative: true,
@@ -327,25 +338,25 @@
     callbacks: ["self_turn_start", "self_taking_damage"],
     sound: "bone-break-8-218516.mp3",
   },
-  vulnerable_psychic: {
-    id: "vulnerable_psychic",
-    title: "status_vulnerable_psychic",
-    description: "status_description_vulnerable",
-    icon: "icon/status/vulnerable_psychic.png",
-    opposite: "defense_psychic",
+  vulnerable_spiritual: {
+    id: "vulnerable_spiritual",
+    title: "status_vulnerable_spiritual",
+    description: "status_vulnerable_description",
+    icon: "icon/status/vulnerable_spiritual.png",
+    opposite: "defense_spiritual",
     isNegative: true,
-    damageType: "psychic",
+    damageType: "spiritual",
     script: "vulnerable",
     callbacks: ["self_turn_start", "self_taking_damage"],
     sound: "bone-break-8-218516.mp3",
   },
 
+  // 隐藏的状态，不会显示在状态栏中
   extra_damage: {
     id: "extra_damage",
-    title: "status_extra_damage",
-    description: "status_description_extra_damage",
     // icon: "icon/status/extra_damage.png",
     script: "extra_damage",
+    isHidden: true,
     callbacks: ["self_attacked"],
   },
   // // 飞云剑：每次使用剑法时+3速度

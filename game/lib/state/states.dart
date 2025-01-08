@@ -9,3 +9,4 @@ export 'quest.dart';
 export 'game_save.dart';
 export 'selected_tile.dart';
 export 'windows.dart';
+export 'hover_info.dart';

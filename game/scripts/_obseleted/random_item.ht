@@ -1,9 +1,0 @@
-const _itemTypes = [
-  'medicineIngrident',
-  'foodIngrident',
-  'craftIngrident'
-]
-
-function getRandomItem({ count = 1 }) {
-  
-}

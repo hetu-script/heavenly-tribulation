@@ -1,5 +1,0 @@
-staminaCostOnWaterReduced
-staminaCostOnHillReduced
-attack
-armor
-gatherSpiritProbabilityAdd

@@ -616,12 +616,14 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // 展示当前卡牌及其详情
     card.enablePreview = false;
     await card.setFocused(true);
+    final (_, description) =
+        GameData.getDescriptionFromCardData((card as CustomGameCard).data);
     Hovertip.show(
       scene: game,
       target: card,
       direction: HovertipDirection.topCenter,
       // direction: isHero ? HovertipDirection.rightTop : HovertipDirection.leftTop,
-      content: (card as CustomGameCard).extraDescription,
+      content: description,
       config: ScreenTextConfig(anchor: Anchor.topCenter),
     );
 
@@ -648,12 +650,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       // 对于攻击类卡牌，先处理额外词条，其中可能包含一些当前回合就立即起作用的buff
       for (var i = 1; i < affixes.length; ++i) {
         final affix = affixes[i];
-        if (affix['isIdentified'] == true) {
-          await engine.hetu.invoke(
-            'card_script_${affix['script']}',
-            positionalArgs: [this, opponent, affix],
-          );
-        }
+        // if (affix['isIdentified'] == true) {
+        await engine.hetu.invoke(
+          'card_script_${affix['script']}',
+          positionalArgs: [this, opponent, affix],
+        );
+        // }
       }
 
       // 最后再处理主词条
@@ -676,12 +678,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       // 最后再处理额外词条，这样某些额外效果可以当回合立即使用刚刚获得的资源
       for (var i = 1; i < affixes.length; ++i) {
         final affix = affixes[i];
-        if (affix['isIdentified'] == true) {
-          await engine.hetu.invoke(
-            'card_script_${affix['script']}',
-            positionalArgs: [this, opponent, affix],
-          );
-        }
+        // if (affix['isIdentified'] == true) {
+        await engine.hetu.invoke(
+          'card_script_${affix['script']}',
+          positionalArgs: [this, opponent, affix],
+        );
+        // }
       }
     }
 

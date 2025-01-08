@@ -1,4 +1,5 @@
 import 'package:samsara/extensions.dart';
+// import 'package:samsara/cardgame.dart';
 
 const kGameVersion = '0.0.1';
 
@@ -10,31 +11,36 @@ const kValueTypeInt = 'int';
 const kValueTypeFloat = 'float';
 const kValueTypePercentage = 'percentage';
 
-const kEquipmentMax = 7;
-const kEquipmentSupportMax = 4;
-
-// entityType决定了该对象的数据结构和保存位置
-const kEntityTypeCharacter = 'character'; //game.characters
-const kEntityTypeBaby = 'baby'; // game.babies
-const kEntityTypeItem = 'item'; //character.inventory
-const kEntityTypeOrganization = 'organization'; //game.organizations
-const kEntityTypeLocation = 'location'; // game.locations
-const kEntityTypeSite = 'site'; // location.sites
-
-// category是物品栏界面上显示的对象类型文字
-const kEntityCategoryMaterial = 'material';
-
-// 实际上进攻类装备也可能具有防御效果，因此这里的类型仅用于显示而已
-const kEquipTypeOffense = 'offense';
-const kEquipTypeSupport = 'support';
-const kEquipTypeDefense = 'defense';
-const kEquipTypeArcana = 'arcana';
-const kEquipTypeCompanion = 'companion';
-
+const kEquipmentMax = 6;
 const kLevelPerRank = 10;
+const kRankMax = 8;
+
+const kWeaponKind = [
+  // 'sabre',
+  'sword',
+  // 'spear',
+  // 'staff',
+  // 'dart',
+];
+
+const kWearingKind = [
+  'armor',
+  'boots',
+  'amulet',
+  'vehicle',
+];
+
+const kOtherTalismanKind = [
+  'buff',
+  'ongoing',
+  'consume',
+];
 
 Color getColorFromRarity(String rarity) {
   return switch (rarity) {
+    /// 基础
+    'basic' => HexColor.fromString('#A3A3A3'),
+
     /// 凡品
     'common' => HexColor.fromString('#CCCCCC'),
 
@@ -64,11 +70,6 @@ Color getColorFromRarity(String rarity) {
   };
 }
 
-int getDeckCardLimitFromRank(int rank) {
-  assert(rank >= 0);
-  return rank == 0 ? 3 : rank + 2;
-}
-
 Color getColorFromRank(int rank) {
   return switch (rank) {
     /// 未修炼 黑
@@ -83,7 +84,7 @@ Color getColorFromRank(int rank) {
     /// 结丹 蓝
     3 => HexColor.fromString('#00A6A9'),
 
-    /// 元婴 紫
+    /// 还婴 紫
     4 => HexColor.fromString('#804DC8'),
 
     /// 化神 橙
@@ -208,16 +209,32 @@ const kRequirementKeys = [
   'perception',
 ];
 
+abstract class AttackType {
+  static const unarmed = 'unarmed';
+  static const weapon = 'weapon';
+  static const spell = 'spell';
+  static const curse = 'curse';
+  static const poison = 'poison';
+}
+
+const Set<String> kAttackTypes = {
+  AttackType.unarmed,
+  AttackType.weapon,
+  AttackType.spell,
+  AttackType.curse,
+  AttackType.poison,
+};
+
 abstract class DamageType {
   static const physical = 'physical';
   static const chi = 'chi';
   static const elemental = 'elemental';
-  static const psychic = 'psychic';
+  static const spiritual = 'spiritual';
 }
 
 const Set<String> kDamageTypes = {
   DamageType.physical,
   DamageType.chi,
   DamageType.elemental,
-  DamageType.psychic,
+  DamageType.spiritual,
 };

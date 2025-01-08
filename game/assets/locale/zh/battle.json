@@ -1,11 +1,13 @@
 {
   "prebattle": "战斗准备",
-  "prebattle.checkStats": "查看属性",
-  "prebattle.selectDeck": "选择卡组",
-  "prebattle.editDeck": "编辑卡组",
-  "prebattle.noDecks": "（当前无可用卡组）",
+  "prebattle_check_stats": "查看属性",
+  "prebattle_no_decks": "（当前无可用卡组）",
 
-  "notEnoughMana": "灵气不足！",
+  "energy_unarmed_lacking": "怒气不足！",
+  "energy_weapon_lacking": "剑气不足！",
+  "energy_spell_lacking": "灵气不足！",
+  "energy_curse_lacking": "煞气不足！",
+  "energy_poison_lacking": "瘴气不足！",
 
   "skipTurn": "跳过回合！",
   "extraTurn": "再次行动！",

@@ -1,5 +1,0 @@
-export 'common.ht'
-export 'kungfu.ht'
-export 'weapon_arts.ht'
-export 'arcana.ht'
-export 'arcana_arts.ht'

@@ -1,0 +1,304 @@
+{
+  // 通用卡牌
+  attack_punch: {
+    // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
+    id: "attack_punch",
+    // 和 support_affix 不同，主词条的 uniqueId [是]数组，genre和category [不是] 数组
+    uniqueId: null,
+    // 流派，流派分为通用，以及御剑，道术，炼魂等
+    genre: "general",
+    // 效果类型，分为攻击（attack），加持（buff），持续（ongoing），消耗（ephemeral）等
+    category: "attack",
+    // kind决定了卡牌名字类型，例如剑法，咒语等等
+    // 虽然并非强制，但多数时候kind和战斗动画也是对应的
+    kind: "punch",
+    // 攻击类型，一共五种，徒手，武器，法术，咒语，毒术
+    attackType: "unarmed",
+    // 伤害类型，一共五种，物理，真气，元素，精神，纯粹
+    damageType: "physical",
+    // 境界要求，生成卡牌的境界参数大于等于此值时才会出现
+    rank: 0,
+    description: "affix_description_attack_punch",
+    tags: [],
+    // 卡牌插画
+    image: "battlecard/illustration/attack_punch.png",
+    // 前摇动画
+    animation: "attack_punch",
+    // 后摇动画（可选）
+    recoveryAnimation: "attack_punch_recovery",
+    // 叠加动画（爆炸效果等）
+    // overlayAnimation: null,
+    // 调用的脚本函数的id
+    script: "attack",
+    // 是否是主词条，主词条会直接写在卡面上，额外词条会在光标浮窗中显示
+    // 主词条不需要鉴定，额外词条签订前没有效果并且显示为问号
+    isMain: true,
+    // 只有主词条上会出现装备需求
+    equipment: null,
+    // 实际的数值会在游戏中实际创建时才添加到这里
+    // 主词条等级始终和卡牌等级一致
+    // level: 0,
+    // value: [0]
+    valueData: [
+      {
+        // 实际值=base+level*increment
+        // 每个值可能有自己的maxLevel，大多数速度，闪避类的加成最高40级
+        base: 6,
+        increment: 0.75,
+      },
+    ],
+  },
+  attack_sword: {
+    id: "attack_sword",
+    uniqueId: null,
+    genre: "general",
+    category: "attack",
+    kind: "sword",
+    attackType: "weapon",
+    damageType: "physical",
+    rank: 0,
+    description: "affix_description_attack_sword",
+    tags: [],
+    image: "battlecard/illustration/attack_sword.png",
+    animation: "attack_sword",
+    recoveryAnimation: "attack_sword_recovery",
+    script: "attack",
+    isMain: true,
+    equipment: "sword",
+    valueData: [{ base: 7, increment: 0.75 }],
+  },
+  defend_punch: {
+    id: "defend_punch",
+    uniqueId: ["defend_physical"],
+    genre: "general",
+    category: "buff",
+    kind: "punch",
+    damageType: "physical",
+    rank: 0,
+    description: "affix_description_defend_punch",
+    tags: ["status_defense"],
+    image: "battlecard/illustration/defend_punch.png",
+    animation: "buff_punch",
+    script: "defend",
+    isMain: true,
+    valueData: [
+      {
+        base: 4,
+        increment: 0.75,
+      },
+    ],
+  },
+  defend_sword: {
+    id: "defend_sword",
+    uniqueId: ["defend_physical"],
+    genre: "general",
+    category: "buff",
+    kind: "sword",
+    // 防御类型，等同于伤害类型，但纯粹伤害没有对应的防御
+    damageType: "physical",
+    rank: 0,
+    description: "affix_description_defend_sword",
+    tags: ["status_defense"],
+    image: "battlecard/illustration/defend_sword.png",
+    animation: "buff_sword",
+    script: "defend",
+    isMain: true,
+    equipment: "sword",
+    valueData: [
+      {
+        base: 5,
+        increment: 0.75,
+      },
+    ],
+  },
+  // 直接回复生命
+  restore_life: {
+    id: "restore_life",
+    uniqueId: ["restore_life"],
+    genre: "general",
+    category: "buff",
+    kind: "xinfa",
+    rank: 0,
+    description: "affix_description_restore_life",
+    tags: [],
+    image: "battlecard/illustration/xinfa.png",
+    animation: "buff_spell",
+    overlayAnimation: "buff",
+    script: "restore_life",
+    isMain: true,
+    valueData: [
+      {
+        base: 7,
+        increment: 0.5,
+      },
+    ],
+  },
+  speed: {
+    id: "speed",
+    uniqueId: ["speed"],
+    genre: "general",
+    category: "buff",
+    kind: "swift",
+    rank: 0,
+    description: "affix_description_speed",
+    tags: ["status_speed_quick"],
+    image: "battlecard/illustration/swift.png",
+    animation: "buff_punch",
+    script: "speed",
+    isMain: true,
+    valueData: [
+      {
+        base: 3,
+        increment: 0.25,
+        maxLevel: 40,
+      },
+    ],
+  },
+  dodge: {
+    id: "dodge",
+    uniqueId: ["dodge"],
+    genre: "general",
+    category: "buff",
+    kind: "swift",
+    rank: 0,
+    description: "affix_description_dodge",
+    tags: ["status_dodge_nimble"],
+    image: "battlecard/illustration/swift.png",
+    animation: "buff_punch",
+    script: "dodge",
+    isMain: true,
+    valueData: [
+      {
+        base: 3,
+        increment: 0.25,
+        maxLevel: 40,
+      },
+    ],
+  },
+
+  // 获得生命元气
+  life_energy: {
+    id: "life_energy",
+    uniqueId: ["life_energy"],
+    genre: "general",
+    category: "buff",
+    kind: "xinfa",
+    rank: 1,
+    description: "affix_description_life_energy",
+    tags: ["status_energy_p_life"],
+    image: "battlecard/illustration/xinfa.png",
+    animation: "buff_spell",
+    script: "life_energy",
+    isMain: true,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.25,
+        maxLevel: 40,
+      },
+    ],
+  },
+  // 获得灵气
+  spell_energy: {
+    id: "spell_energy",
+    uniqueId: ["spell_energy"],
+    genre: "general",
+    category: "buff",
+    kind: "xinfa",
+    rank: 1,
+    description: "affix_description_spell_energy",
+    tags: ["status_energy_p_spell"],
+    image: "battlecard/illustration/xinfa.png",
+    animation: "buff_spell",
+    overlayAnimation: "buff",
+    script: "spell_energy",
+    isMain: true,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+        maxLevel: 40,
+      },
+    ],
+  },
+
+  // 御剑流派卡牌
+  attack_flying_sword_1: {
+    id: "attack_flying_sword_1",
+    uniqueId: null,
+    genre: "swordcraft",
+    category: "attack",
+    kind: "flying_sword",
+    attackType: "weapon",
+    damageType: "physical",
+    rank: 1,
+    description: "affix_description_attack_flying_sword_1",
+    tags: [],
+    image: "battlecard/illustration/swordcraft1.png",
+    animation: "attack_spell",
+    recoveryAnimation: "attack_spell_recovery",
+    overlayAnimation: "flying_sword",
+    script: "attack",
+    isMain: true,
+    equipment: "sword",
+    valueData: [
+      {
+        base: 10,
+        increment: 1,
+      },
+    ],
+  },
+
+  // 锻体流派卡牌
+  swift: {
+    id: "swift",
+    uniqueId: ["speed", "dodge"],
+    genre: "physique",
+    category: "buff",
+    kind: "swift",
+    rank: 1,
+    description: "affix_description_swift",
+    tags: ["status_speed_quick", "status_dodge_nimble"],
+    image: "battlecard/illustration/physique1.png",
+    animation: "buff_punch",
+    script: "swift",
+    isMain: true,
+    valueData: [
+      {
+        base: 2,
+        increment: 0.35,
+        maxLevel: 40,
+      },
+      {
+        base: 2,
+        increment: 0.35,
+        maxLevel: 40,
+      },
+    ],
+  },
+
+  // restore_mana_1: {
+  //   // 同一个属性id只会在一张卡牌上出现一次。
+  //   id: "restore_mana_1",
+  //   genre: ["general"],
+  //   // 卡牌类型分为攻击（attack），加持（buff）和特殊（special）三种
+  //   type: "buff",
+  //   kind: "qi",
+  //   tags: ["buff", "mana"],
+  //   // 是否是主词条
+  //   mainAffix: true,
+  //   image: "restore_mana.png",
+  //   animations: ["restore_mana"],
+  //   script: "restore_mana_1",
+  //   level: 0,
+  //   valueData: [
+  //     {
+  //       // 随机数位于0-1之间，实际值=min+(max-min)*random+level*increment
+  //       random: 0,
+  //       min: 7,
+  //       max: 15,
+  //       increment: 2,
+  //     },
+  //   ],
+  // },
+}

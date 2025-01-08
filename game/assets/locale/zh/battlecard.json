@@ -1,6 +1,14 @@
 {
   "extraAffix": "额外词条",
 
+  "identify_hint": "未鉴定",
+  "requirement_hint": "未满足",
+  "explanation_hint": "按 Ctrl 键查看详细信息",
+
+  "buff": "加持",
+  "ongoing": "持续",
+  "ephemeral": "消耗",
+
   "affix_description_attack_punch": "徒手攻击：{0} 点物理伤害",
   "affix_description_attack_sword": "剑攻击：{0} 点物理伤害",
   "affix_description_defend_sword": "物理防御 + {0}",

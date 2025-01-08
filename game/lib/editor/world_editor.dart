@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,20 +27,20 @@ import '../state/selected_tile.dart';
 import '../scene/common.dart';
 import 'widgets/toolbox.dart';
 import '../state/game_save.dart';
-import '../dialog/game_dialog/game_dialog.dart';
+import '../game_dialog/game_dialog/game_dialog.dart';
 import 'widgets/entity_list.dart';
 import 'widgets/tile_info.dart';
 import '../view/menu_item_builder.dart';
 import 'widgets/tile_detail.dart';
 import '../view/location/location.dart';
-import '../dialog/input_world_position.dart';
+import '../game_dialog/input_world_position.dart';
 import '../view/common.dart';
 import '../scene/events.dart';
 import '../state/editor_tool.dart';
-import '../dialog/input_string.dart';
+import '../game_dialog/input_string.dart';
 import '../scene/loading_screen.dart';
 import '../mainmenu/create_blank_map.dart';
-import '../dialog/select_menu_dialog.dart';
+import '../game_dialog/select_menu_dialog.dart';
 // import '../common.dart';
 
 enum TerrainPopUpMenuItems {
@@ -140,7 +141,7 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
   @override
   bool get wantKeepAlive => true;
 
-  final _toolBoxfocusNode = FocusNode();
+  final _focusNode = FocusNode();
   // late final FocusAttachment _nodeAttachment;
 
   late WorldMapScene scene;
@@ -429,7 +430,7 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
       GameEvents.mapLoaded,
       EventHandler(
         widgetKey: widget.key!,
-        handle: (eventId, args, scene) async {
+        callback: (eventId, args, scene) async {
           engine.hetu.invoke('refreshAllCaptions', namespace: 'debug');
           await _refreshWorldmapCharacters();
           setState(() {});
@@ -441,7 +442,7 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
       GameEvents.worldmapCharactersUpdated,
       EventHandler(
         widgetKey: widget.key!,
-        handle: (eventId, args, scene) async {
+        callback: (eventId, args, scene) async {
           _refreshWorldmapCharacters();
         },
       ),
@@ -462,7 +463,7 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
   @override
   void dispose() {
     engine.removeEventListener(widget.key!);
-    _toolBoxfocusNode.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -490,7 +491,7 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
       scene = engine.switchScene(id)!;
     } else {
       scene = await engine.createScene(
-        contructorKey: 'tilemap',
+        contructorKey: kSceneTilemap,
         sceneId: id,
         arg: args,
       ) as WorldMapScene;
@@ -535,12 +536,15 @@ class _WorldEditorOverlayState extends State<WorldEditorOverlay>
           }
           return const LoadingScreen();
         } else {
-          _toolBoxfocusNode.requestFocus();
+          _focusNode.requestFocus();
           return KeyboardListener(
             autofocus: true,
-            focusNode: _toolBoxfocusNode,
+            focusNode: _focusNode,
             onKeyEvent: (event) {
               if (event is KeyDownEvent) {
+                if (kDebugMode) {
+                  print('keydown: ${event.logicalKey.keyLabel}');
+                }
                 switch (event.logicalKey) {
                   case LogicalKeyboardKey.space:
                     if (_isLoaded) {

@@ -12,9 +12,9 @@ class DraggablePanel extends StatelessWidget {
 
   final String? title;
 
-  final Function()? onClose;
-  final Function(DragUpdateDetails details)? onDragUpdate;
-  final Function(Offset tapPosition)? onTapDown;
+  final void Function()? onClose;
+  final void Function(DragUpdateDetails details)? onDragUpdate;
+  final void Function(Offset tapPosition)? onTapDown;
 
   final Widget? child;
   final Widget? titleBottomBar;

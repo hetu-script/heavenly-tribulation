@@ -70,7 +70,7 @@ class _MerchantViewState extends State<MerchantView> {
             SizedBox(
               width: 320.0,
               height: 390.0,
-              child: InventoryView(
+              child: Inventory(
                 height: 350,
                 characterName: widget.merchantData['name'],
                 inventoryData: widget.merchantData['inventory'],
@@ -121,7 +121,7 @@ class _MerchantViewState extends State<MerchantView> {
             SizedBox(
               width: 320.0,
               height: 390.0,
-              child: InventoryView(
+              child: Inventory(
                 height: 350,
                 characterName: heroData['name'],
                 inventoryData: heroData['inventory'],

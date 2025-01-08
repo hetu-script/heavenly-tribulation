@@ -9,7 +9,7 @@ import 'package:flame/extensions.dart';
 import '../../engine.dart';
 import '../../ui.dart';
 import '../../state/editor_tool.dart';
-import '../../data.dart';
+// import '../../data.dart';
 
 const double kToolbarTabBarHeight = 30.0;
 
@@ -69,9 +69,9 @@ class _ToolboxState extends State<Toolbox> {
 
   Widget buildToolButton(
       BuildContext context, String? selectedItem, String toolId) {
-    final toolItemData = GameData.editorToolItemsData[toolId];
+    // final toolItemData = GameData.editorToolItemsData[toolId];
     return Tooltip(
-      message: engine.locale(toolItemData['name']),
+      message: engine.locale(toolId),
       child: InkButton(
         size: kTileSize,
         padding: const EdgeInsets.only(right: 5.0),
@@ -81,7 +81,7 @@ class _ToolboxState extends State<Toolbox> {
         ),
         isSelected: selectedItem == toolId,
         onPressed: () {
-          context.read<EditorToolState>().selectItem(toolId);
+          context.read<EditorToolState>().select(toolId);
           widget.onToolClicked(toolId);
         },
       ),

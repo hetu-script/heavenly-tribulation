@@ -8,7 +8,7 @@ import '../avatar.dart';
 import '../../util.dart';
 import '../common.dart';
 import 'edit_character_id_and_avatar.dart';
-import '../../dialog/input_description.dart';
+import '../../game_dialog/input_description.dart';
 import '../../ui.dart';
 import '../../state/windows.dart';
 import '../draggable_panel.dart';
@@ -41,9 +41,9 @@ class CharacterProfileView extends StatefulWidget {
       showPersonality,
       showDescription;
 
-  final Function()? onClose;
-  final Function(DragUpdateDetails details)? onDragUpdate;
-  final Function(Offset tapPosition)? onTapDown;
+  final void Function()? onClose;
+  final void Function(DragUpdateDetails details)? onDragUpdate;
+  final void Function(Offset tapPosition)? onTapDown;
 
   @override
   State<CharacterProfileView> createState() => _CharacterProfileViewState();
@@ -114,11 +114,11 @@ class _CharacterProfileViewState extends State<CharacterProfileView> {
     _wisdomController.text = wisdom.toString();
     _luckController.text = luck.toString();
 
-    spirituality = _characterData['attributes']['spirituality'].toInt();
-    dexterity = _characterData['attributes']['dexterity'].toInt();
-    strength = _characterData['attributes']['strength'].toInt();
-    willpower = _characterData['attributes']['willpower'].toInt();
-    perception = _characterData['attributes']['perception'].toInt();
+    spirituality = _characterData['stats']['spirituality'].toInt();
+    dexterity = _characterData['stats']['dexterity'].toInt();
+    strength = _characterData['stats']['strength'].toInt();
+    willpower = _characterData['stats']['willpower'].toInt();
+    perception = _characterData['stats']['perception'].toInt();
 
     _spiritualityController.text = spirituality.toString();
     _dexterityController.text = dexterity.toString();

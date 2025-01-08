@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
-import 'package:heavenly_tribulation/scene/events.dart';
+import 'package:heavenly_tribulation/scene/common.dart';
 // import 'package:provider/provider.dart';
 import 'package:samsara/event.dart';
 import 'package:samsara/samsara.dart';
@@ -10,15 +10,17 @@ import 'package:samsara/ui/loading_screen.dart';
 // import 'package:samsara/cardgame/card.dart';
 import 'package:provider/provider.dart';
 
+import '../../scene/events.dart';
+import '../../state/windows.dart';
 // import '../../dialog/game_dialog/game_dialog.dart';
 import '../../engine.dart';
 import 'components/cultivation.dart';
 // import 'drop_menu.dart';
-import '../history_info.dart';
-import '../hero_info.dart';
+import '../../view/history_info.dart';
+import '../../view/game_overlay.dart';
 // import '../../view/character/cardpacks.dart';
-import '../../state/hero.dart';
-import '../../state/history.dart';
+// import '../../state/hero.dart';
+// import '../../state/history.dart';
 
 class CultivationOverlay extends StatefulWidget {
   CultivationOverlay() : super(key: UniqueKey());
@@ -63,10 +65,11 @@ class _CultivationOverlayState extends State<CultivationOverlay>
     // );
 
     engine.addEventListener(
-      GameEvents.leaveScene,
+      GameEvents.leaveCultivation,
       EventHandler(
         widgetKey: widget.key!,
-        handle: (eventId, sceneId, scene) async {
+        callback: (eventId, sceneId, scene) async {
+          context.read<WindowPriorityState>().clearAll();
           _scene.leave();
           Navigator.of(context).pop();
         },
@@ -80,8 +83,8 @@ class _CultivationOverlayState extends State<CultivationOverlay>
 
   Future<Scene?> _getScene() async {
     final scene = await engine.createScene(
-      contructorKey: 'cultivation',
-      sceneId: 'cultivation',
+      contructorKey: kSceneCultivation,
+      sceneId: kSceneCultivation,
     ) as CultivationScene;
 
     return scene;
@@ -90,9 +93,6 @@ class _CultivationOverlayState extends State<CultivationOverlay>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
-    context.watch<HeroState>().heroData;
-    context.read<HistoryState>().incidents;
 
     _focusNode.requestFocus();
     return FutureBuilder(
@@ -115,11 +115,13 @@ class _CultivationOverlayState extends State<CultivationOverlay>
           if (_scene.isAttached) {
             _scene.detach();
           }
+          _focusNode.requestFocus();
           return KeyboardListener(
             autofocus: true,
             focusNode: _focusNode,
             onKeyEvent: (event) {
               if (event is KeyDownEvent) {
+                print(event);
                 if (event.logicalKey == LogicalKeyboardKey.space) {
                   _scene.camera.snapTo(Vector2.zero());
                 }
@@ -135,12 +137,12 @@ class _CultivationOverlayState extends State<CultivationOverlay>
                   const Positioned(
                     left: 0,
                     top: 0,
-                    child: HeroInfoPanel(),
+                    child: GameOverlay(sceneId: kSceneCultivation),
                   ),
                   const Positioned(
                     left: 0.0,
                     bottom: 0.0,
-                    child: HistoryInfoPanel(),
+                    child: HistoryPanel(),
                   ),
                   // Positioned(
                   //   right: 0,

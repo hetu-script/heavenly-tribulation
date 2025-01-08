@@ -18,6 +18,9 @@ import 'battledeck_zone.dart';
 import '../../../engine.dart';
 // import 'status/status.dart';
 import 'versus_banner.dart';
+import '../../common.dart';
+// import '../../../logic/algorithm.dart';
+import '../../events.dart';
 
 const kTurnLimit = 80;
 
@@ -51,7 +54,6 @@ class BattleScene extends Scene {
 
   BattleScene({
     required super.controller,
-    required super.id,
     required this.heroData,
     required this.enemyData,
     required this.heroDeck,
@@ -59,6 +61,7 @@ class BattleScene extends Scene {
     required this.isSneakAttack,
     required super.context,
   }) : super(
+          id: kSceneCardBattle,
           bgmFile: 'war-drums-173853.mp3',
           bgmVolume: GameConfig.musicVolume,
         );
@@ -296,7 +299,7 @@ class BattleScene extends Scene {
   }
 
   void _endScene() {
-    engine.emit('battleEnded', args: {'battleResult': battleResult});
+    engine.emit(GameEvents.leaveCardBattle, args: {'result': battleResult});
   }
 
   void _endBattle() {

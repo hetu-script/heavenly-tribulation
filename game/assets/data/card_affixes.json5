@@ -32,7 +32,7 @@
     damageType: "physical",
     rank: 1,
     description: "affix_description_defend_physical",
-    tags: [],
+    tags: ["status_defense"],
     script: "defend",
     valueData: [
       {
@@ -48,7 +48,7 @@
     category: ["buff", "attack"],
     rank: 1,
     description: "affix_description_speed",
-    tags: [],
+    tags: ["status_speed_quick"],
     script: "speed",
     valueData: [
       {
@@ -65,7 +65,7 @@
     category: ["buff", "attack"],
     rank: 1,
     description: "affix_description_dodge",
-    tags: [],
+    tags: ["status_dodge_nimble"],
     script: "dodge",
     valueData: [
       {

@@ -82,11 +82,11 @@ function status_script_dodge_nimble_self_turn_end(self, opponent, effect, detail
   }
 }
 
-function status_script_dodge_clumnsy_self_turn_end(self, opponent, effect, details) {
-  final existed = self.hasStatusEffect('dodge_clumnsy')
-  final threshold = self.data.stats.clumnsyThreshold
+function status_script_dodge_clumsy_self_turn_end(self, opponent, effect, details) {
+  final existed = self.hasStatusEffect('dodge_clumsy')
+  final threshold = self.data.stats.clumsyThreshold
   if (existed >= threshold) {
-    self.removeStatusEffect('dodge_clumnsy', amount: threshold)
+    self.removeStatusEffect('dodge_clumsy', amount: threshold)
     self.addStatusEffect('dodge_staggering')
   }
 }

@@ -4,6 +4,30 @@ import 'worldmap.ht'
 
 external function expForLevel(level: integer) -> integer
 
+const kQuickThreshold = 10
+const kSlowThreshold = 10
+const kNimbleThreshold = 10
+const kClumsyThreshold = 10
+
+struct PassiveData {
+  construct ({
+    id,
+    priority,
+    level,
+    value,
+    increment,
+    description,
+  }) {
+    assert(id != null && description != null)
+    this.id = id
+    this.priority = priority ?? 0
+    this.level = level ?? 0
+    this.value = value
+    this.increment = increment
+    this.description = description
+  }
+}
+
 namespace Player {
   
   external function updateHero({showHeroInfo = true})
@@ -13,6 +37,256 @@ namespace Player {
   external function updateQuest()
   
   external function showCultivation()
+
+  /// 从物品库中复制并获取一个物品
+  function acquireItemById(itemId, { incurIncident = true}) {
+    final item = createItemById(itemId)
+
+    hero.inventory[item.id] = item
+    item.ownerId = hero.id
+    
+    let incidentContent
+    incidentContent = engine.locale('heroAcquire', interpolations: [
+      item.name,
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: hero.id,
+        item: item,
+        isPrivate: true,
+      )
+    } else {
+      engine.info(incidentContent)
+    }
+  }
+
+  /// 直接获取一个已经被创造出来的物品
+  function acquire(item, { incurIncident = true }) {
+
+    hero.inventory[item.id] = item
+    item.ownerId = hero.id
+    
+    let incidentContent
+    incidentContent = engine.locale('heroAcquire', interpolations: [
+      item.name,
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: hero.id,
+        item: item,
+        isPrivate: true,
+      )
+    } else {
+      engine.info(incidentContent)
+    }
+  }
+
+  // 使用食物或者丹药
+  // 返回值代表是否使用成功
+  // 此函数允许对一个不在物品栏中的物品调用
+  // function consume(item, { forcerCharacter }) {
+  //   if (!item.isConsumable) {
+  //     engine.warn('${item.id} 无法食用。')
+  //     return false
+  //   }
+
+  //   if (hero.inventory.containsKey(item.id)) {
+  //     if (item.rarity == kCommon) {
+  //       if (item.stackSize > 1) {
+  //         --item.stackSize
+  //       } else {
+  //         delete hero.inventory[item.id]
+  //       }
+  //     } else {
+  //       delete hero.inventory[item.id]
+  //     }
+  //   }
+
+  //   // if (item.stats.effects) {
+  //   //   for (const effect of item.stats.effects) {
+  //   //     // 即便是可以食用的物品，也可能包含一些非食用效果，因此这里要加以判断
+  //   //     if (effect.category == kEffectCategoryConsume) {
+  //   //       const effectHandler = getEffectHandlerById(effect.id)
+  //   //       if (effectHandler is function) effectHandler(effect, character)
+  //   //     }
+  //   //   }
+  //   // }
+
+  //   let incidentContent
+  //   switch (item.kind) {
+  //     kEntityConsumableKindMedicine : {
+  //       incidentContent = forcerCharacter ?
+  //         engine.locale('characterTakeMedicineForced', interpolations: [
+  //           forcerCharacter.name,
+  //           character.name,
+  //           item.name,
+  //         ]) :
+  //         engine.locale('characterTakeMedicine', interpolations: [
+  //           character.name,
+  //           item.name,
+  //         ])
+  //     }
+  //     kEntityConsumableKindBeverage : {
+  //       incidentContent = forcerCharacter ?
+  //         engine.locale('characterDrinkBeverageForced', interpolations: [
+  //           forcerCharacter.name,
+  //           character.name,
+  //           item.name,
+  //         ]) :
+  //         engine.locale('characterDrinkBeverage', interpolations: [
+  //           character.name,
+  //           item.name,
+  //         ])
+  //     }
+  //     else : {
+  //       incidentContent = forcerCharacter ?
+  //         engine.locale('characterEatForced', interpolations: [
+  //           forcerCharacter.name,
+  //           character.name,
+  //           item.name,
+  //         ]) :
+  //         engine.locale('characterEat', interpolations: [
+  //           character.name,
+  //           item.name,
+  //         ])
+  //     }
+  //   }
+
+  //   let subjectIds
+  //   let objectIds
+  //   if (forcerCharacter && forcerCharacter.isMajorCharacter) {
+  //     subjectIds = [forcerCharacter.id]
+  //     if (character.isMajorCharacter) {
+  //       objectIds = [character.id]
+  //     }
+  //   } else if (character.isMajorCharacter) {
+  //     subjectIds = [character.id]
+  //   }
+
+  //   Incident(
+  //     message: incidentContent,
+  //     subjectIds: subjectIds,
+  //     objectIds: objectIds,
+  //     isPrivate: true,
+  //   )
+    
+  //   return true
+  // }
+
+  // 法宝和技能都可以装备，只要类型符合
+  // 返回值代表是否装备成功
+  // 如果对一个不在物品栏中的物品调用，会先将其加入物品栏
+  // 但并不会检查是否已经在别人的物品栏里了
+  // 
+  // 装备并非直接将物品数据保存在人物数据中，而是用下面的数据结构
+  // {
+  //   id,
+  //   entityType,
+  //   category,
+  //   kind,
+  //   equipType,
+  //   life,
+  // }
+  function equip(item, { index }) -> bool {
+    assert(index == null || (index >= 0 && index < kEquipmentMax))
+    if (item.category != 'equipment') {
+      engine.warn('${item.id} 无法装备。')
+      return false
+    }
+    if (item.equippedPosition) {
+      engine.warn('${item.id} 已经在装备中了。')
+      return false
+    }
+
+    let equipped = false
+    // 如果有空位就装备在空位上
+    if (index == null) {
+      for (const i in range(kEquipmentMax)) {
+        if (hero.equipments[i] == null) {
+          hero.equipments[i] = item.id
+          item.equippedPosition = i
+          equipped = true
+          break
+        }
+      }
+      // 否则替换掉第一个空位
+      index = 0
+    }
+
+    if (!equipped) {
+      assert(index != null)
+
+      const oldEquipId = hero.equipments[index]
+      if (oldEquipId != null) {
+        const oldItem = hero.inventory[oldEquipId]
+        delete oldItem.equippedPosition
+      }
+      hero.equipments[index] = item.id
+      item.equippedPosition = index
+      equipped = true
+    }
+
+    if (equipped) {
+      const incidentContent = engine.locale('heroEquip', interpolations: [
+        item.name,
+      ])
+      Incident(
+        message: incidentContent,
+        subjectId: hero.id,
+        isPrivate: true,
+      )
+
+      for (final passiveData in item.affixes) {
+        gainPassive(passiveData.id, level: passiveData.level)
+      }
+
+      // 重新计算角色状态值
+      updateStats(hero)
+    }
+
+    return equipped
+  }
+
+  function unequip(item) {
+    assert(item.equippedPosition != null)
+    hero.equipments[item.equippedPosition] = null
+    delete item.equippedPosition
+
+    for (final passiveData in item.affixes) {
+      refundPassive(passiveData.id, level: passiveData.level)
+    }
+
+    updateStats(hero)
+
+    const incidentContent = engine.locale('heroUnequip', interpolations: [
+      item.name,
+    ])
+    Incident(
+      message: incidentContent,
+      subjectId: hero.id,
+      isPrivate: true,
+    )
+  }
+
+  // 批量获取物品，但不显示从那里获得的，通常用于从箱子或包裹中批量拿取
+  function loot(lootbox, { incurIncident = true }) {
+    for (const item of lootbox.inventory) {
+      acquire(item, incurIncident: incurIncident)
+    }
+    // if (lootbox.money) {
+    //   acquireMoney(character, lootbox.money, incurIncident: incurIncident)
+    // }
+
+    // 清空箱子
+    lootbox.inventory.clear()
+
+    // const ids = lootbox.keys.toList()
+    // for (const id in ids) {
+    //   delete lootbox[id]
+    // }
+  }
 
   // 设定人物的随从，返回值是否成功
   // 随从并非直接将人物数据放在人物上，而是用下面的数据结构
@@ -66,7 +340,12 @@ namespace Player {
   function cultivationLevelUp({ incurIncident = true }) {
     let expRequirement = expForLevel(hero.cultivationLevel)
     if (hero.exp < expRequirement) {
-      engine.warn('经验值不足以升级！当前等级：${hero.cultivationLevel}，需要经验：${expRequirement}')
+      engine.warn('not enough exp for level up! current level: [${hero.cultivationLevel}], exp needed: [${expRequirement}]')
+      return
+    }
+
+    if (hero.cultivationLevel == hero.cultivationLevelMax) {
+      engine.warn('character reached max level for current rank! current level: [${hero.cultivationLevel}], current rank: [${hero.cultivationRank}]')
       return
     }
 
@@ -92,12 +371,14 @@ namespace Player {
   }
 
   function cultivationRankUp({ incurIncident = true }) {
-    if ( hero.cultivationRank >= 8 ) {
-      engine.warn('无法继续提升境界：玩家角色已经达到最高境界。')
+    if ( hero.cultivationRank >= kRankMax ) {
+      engine.warn('character reached max rank! current rank: [${hero.cultivationRank}]')
       return
     }
 
     ++hero.cultivationRank
+    
+    hero.cultivationLevelMax = maxLevelPerRank(hero.cultivationRank)
 
     const incidentContent = engine.locale('heroCultivationRankUp', interpolations: [
       getCultivationRankName(character),
@@ -135,10 +416,6 @@ namespace Player {
     }
   }
 
-  function acquireItemById(itemId, {count = 1, incurIncident = true }) {
-    entityAcquireItemById(hero, itemId, count: count, incurIncident: incurIncident)
-  }
-
   function gainExp(value: integer) {
     assert(value > 0)
     hero.unconvertedExp += value
@@ -158,29 +435,52 @@ namespace Player {
     )
   }
 
-  // function restoreMana(value: integer) {
-  //   assert(value > 0)
-  //   if (hero.stats.mana >= hero.stats.manaMax) return
-  
-  //   hero.stats.mana += value
-  //   if (hero.stats.mana >= hero.stats.manaMax) {
-  //     hero.stats.mana = hero.stats.manaMax
-  //   }
+  /// 提升玩家的天赋技能
+  /// 注意此函数调用时并不会检测天赋树节点位置和链接情况，也不会检查角色是否有足够的技能点
+  /// 玩家升级天赋时，并不会立刻影响角色数据，
+  /// 只有在执行 updateStats() 之后，人物数据才会最终计算出来
+  function gainPassive(dataId, {level = 1}) {
+    assert(level > 0)
+    if (hero.passives[dataId] == null) {
+      final passiveRawData = game.passives[dataId]
+      assert(passiveRawData != null)
+      final passiveData = PassiveData(
+        id: dataId,
+        priority: passiveRawData.priority ?? 0,
+        level: level,
+        description: passiveRawData.description,
+      )
+      if (passiveRawData.increment != null) {
+        passiveData.increment = passiveRawData.increment
+        passiveData.value = (passiveData.increment * level).round()
+      }
+      hero.passives[dataId] = passiveData
+    } else {
+      final passiveData = hero.passives[dataId]
+      passiveData.level += level
+      passiveData.value = (passiveData.increment * passiveData.level).round()
+    }
+  }
 
-  //   engine.play('spell-of-healing-876.mp3')
+  function refundPassive(dataId, {level = 1}) {
+    if (hero.passives[dataId] == null) {
+      engine.warn('dataId [${dataId}] not found on hero passives data for refund!')
+      return
+    }
+    final passiveData = hero.passives[dataId]
+    passiveData.level -= level
+    if (passiveData.level <= 0) {
+      hero.passives[dataId] = null
+    } else if (passiveData.value != null) {
+        passiveData.value = (passiveData.increment * passiveData.level).round()
+    }
+  }
 
-  //   const incidentContent = engine.locale('heroManaRestored', interpolations: [ value ])
-  //   Incident(
-  //     message: incidentContent,
-  //     subjectId: hero.id,
-  //     isPrivate: true,
-  //   )
+  function updateStats() {
+    updateCharacterStats(hero)
+  }
 
-  //   WorldMap.addHintText(
-  //     '${engine.locale('mana')} + ${value}',
-  //     hero.worldPosition.left,
-  //     hero.worldPosition.top,
-  //     Colors.blue,
-  //   )
-  // }
+  function rejuvenate() {
+    rejuvenateCharacter(hero)
+  }
 }

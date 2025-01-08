@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 // import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
+// import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show BuildContext;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:hetu_script/utils/collection.dart';
@@ -18,7 +18,7 @@ import 'common.dart';
 import 'engine.dart';
 import 'scene/common.dart';
 
-const kSepareteLine = '————————————————';
+const kSepareteLine = '——————————————————';
 
 /// 游戏数据，大部分以JSON或者Hetu Struct形式保存
 /// 这个类是纯静态类，方法都是有关读取和保存的
@@ -26,14 +26,14 @@ const kSepareteLine = '————————————————';
 abstract class GameData {
   static Map<String, dynamic> editorToolItemsData = {};
   static Map<String, dynamic> animationsData = {};
-  static Map<String, dynamic> battleCardMainData = {};
+  static Map<String, dynamic> battleCardData = {};
   static Map<String, dynamic> battleCardAffixesData = {};
   static Map<String, dynamic> statusEffectsData = {};
   static Map<String, dynamic> itemsData = {};
-  static Map<String, dynamic> skillData = {};
-  static Map<String, dynamic> supportSkillData = {};
+  static Map<String, dynamic> passiveData = {};
+  // static Map<String, dynamic> supportSkillData = {};
   static Map<String, dynamic> skillTreeData = {};
-  static Map<String, dynamic> supportSkillTreeData = {};
+  // static Map<String, dynamic> supportSkillTreeData = {};
 
   static Map<String, String> organizationCategoryNames = {};
   static Map<String, String> cultivationGenreNames = {};
@@ -56,13 +56,13 @@ abstract class GameData {
     //     await rootBundle.loadString('assets/data/cards.json5');
     // cardsData = JSON5.parse(cardsDataString);
 
-    final cardsMainDataString =
-        await rootBundle.loadString('assets/data/card_main.json5');
-    battleCardMainData = JSON5.parse(cardsMainDataString);
+    final battleCardDataString =
+        await rootBundle.loadString('assets/data/cards.json5');
+    battleCardData = JSON5.parse(battleCardDataString);
 
-    final cardsSupportAffixDataString =
+    final battleCardAffixDataString =
         await rootBundle.loadString('assets/data/card_affixes.json5');
-    battleCardAffixesData = JSON5.parse(cardsSupportAffixDataString);
+    battleCardAffixesData = JSON5.parse(battleCardAffixDataString);
 
     final animationDataString =
         await rootBundle.loadString('assets/data/animation.json5');
@@ -76,13 +76,13 @@ abstract class GameData {
         await rootBundle.loadString('assets/data/items.json5');
     itemsData = JSON5.parse(itemsDataString);
 
-    final skillDataString =
-        await rootBundle.loadString('assets/data/skills.json5');
-    skillData = JSON5.parse(skillDataString);
+    final passiveDataString =
+        await rootBundle.loadString('assets/data/passives.json5');
+    passiveData = JSON5.parse(passiveDataString);
 
-    final supportSkillDataString =
-        await rootBundle.loadString('assets/data/skills_support.json5');
-    supportSkillData = JSON5.parse(supportSkillDataString);
+    // final supportSkillDataString =
+    //     await rootBundle.loadString('assets/data/skills_support.json5');
+    // supportSkillData = JSON5.parse(supportSkillDataString);
 
     final skillTreeDataString =
         await rootBundle.loadString('assets/data/skilltree.json5');
@@ -107,15 +107,15 @@ abstract class GameData {
         String description = engine.locale(skillTreeNodeData['description']);
         nodeDescription.writeln('<lightBlue>$description</>');
       } else {
-        final List nodeSkillData = skillTreeNodeData['skills'];
-        for (final skillData in nodeSkillData) {
-          final skillId = skillData['id'];
-          final skillRawData = GameData.skillData[skillId];
-          assert(skillRawData != null);
-          String description = engine.locale(skillRawData['description']);
-          if (skillRawData['increment'] != null) {
-            final level = skillData['level'];
-            final increment = skillRawData['increment'];
+        final List nodeData = skillTreeNodeData['passives'];
+        for (final passiveData in nodeData) {
+          final dataId = passiveData['id'];
+          final passiveRawData = GameData.passiveData[dataId];
+          assert(passiveRawData != null);
+          String description = engine.locale(passiveRawData['description']);
+          if (passiveRawData['increment'] != null) {
+            final level = passiveData['level'];
+            final increment = passiveRawData['increment'];
             description = description.interpolate([level * increment]);
           }
           nodeDescription.writeln('<lightBlue>$description</>');
@@ -132,9 +132,9 @@ abstract class GameData {
       skillTreeNodeData['description'] = nodeDescription.toString();
     }
 
-    final supportSkillTreeDataString =
-        await rootBundle.loadString('assets/data/skilltree_support.json5');
-    supportSkillTreeData = JSON5.parse(supportSkillTreeDataString);
+    // final supportSkillTreeDataString =
+    //     await rootBundle.loadString('assets/data/skilltree_support.json5');
+    // supportSkillTreeData = JSON5.parse(supportSkillTreeDataString);
 
     for (final key in kOrganizationCategories) {
       organizationCategoryNames[key] = engine.locale(key);
@@ -170,12 +170,12 @@ abstract class GameData {
   static void loadGameData() {
     engine.hetu.invoke('init', namedArgs: {
       'itemsData': GameData.itemsData,
-      'battleCardMainData': GameData.battleCardMainData,
+      'battleCardData': GameData.battleCardData,
       'battleCardAffixesData': GameData.battleCardAffixesData,
       // 'skillTreeData': GameData.skillTreeData,
       // 'supportSkillTreeData': GameData.supportSkillTreeData,
-      'skillData': GameData.skillData,
-      'supportSkillData': GameData.supportSkillData,
+      'passiveData': GameData.passiveData,
+      // 'supportSkillData': GameData.supportSkillData,
     });
   }
 
@@ -255,7 +255,7 @@ abstract class GameData {
     );
   }
 
-  static Future<void> loadPreset(String filename) async {
+  static Future<void> loadPresetSave(String filename) async {
     final gameSave = 'assets/save/$filename$kGameSaveFileExtension';
     final gameDataString = await rootBundle.loadString(gameSave);
     final gameData = jsonDecode(gameDataString);
@@ -323,93 +323,163 @@ abstract class GameData {
     return exit;
   }
 
-  static (String, String) getDescriptionFromCardData(dynamic cardData) {
+  static String getDescriptiomFromItemData(dynamic itemData,
+      {bool isDetailed = false}) {
+    final description = StringBuffer();
+    final title = itemData['name'];
+    final rarity = itemData['rarity'];
+    final category = itemData['category'];
+    final level = itemData['level'];
+
+    final titleString = '<bold $rarity t5>$title</>';
+    final rarityString =
+        '<grey>${engine.locale('rarity')}: </><$rarity>${engine.locale(rarity)}, </>';
+    final categoryString =
+        '<grey>${engine.locale('category')}: ${engine.locale(category)}, </>';
+    final levelString = '<grey>${engine.locale('level')}: $level</>';
+
+    description.writeln(titleString);
+    description.writeln('$rarityString$categoryString$levelString');
+
+    final affixList = itemData['affixes'];
+    if (affixList is List) {
+      assert(affixList.isNotEmpty);
+      description.writeln(kSepareteLine);
+      for (var i = 0; i < affixList.length; i++) {
+        final passiveData = affixList[i];
+        String descriptionString = engine.locale(passiveData['description']);
+        num? value = passiveData['value'];
+        if (value != null) {
+          descriptionString = descriptionString.interpolate([value]);
+        }
+        if (i == 0) {
+          description.writeln(descriptionString);
+          // if (affixList.length > 1) {
+          //   description.writeln(kSepareteLine);
+          // }
+        } else {
+          description.writeln('<lightBlue>$descriptionString</>');
+        }
+      }
+    }
+
+    description.writeln(kSepareteLine);
+    final flavorText = itemData['flavorText'];
+    if (flavorText != null) {
+      description.writeln('<grey>${engine.locale(flavorText)}</>');
+    }
+    final out = description.toString().trim();
+    return out;
+  }
+
+  /// 返回值是一个元祖，第一个字符串是卡面描述，第二个是详细描述，第三个bool是角色是否可用此卡牌
+  /// 如果没有传递characterData，则永远返回true
+  static (String, String) getDescriptionFromCardData(dynamic cardData,
+      {bool isDetailed = false, dynamic characterData}) {
     final List affixes = cardData['affixes'];
     final int cardLevel = cardData['level'];
     final int cardRank = cardData['rank'];
     final String title = cardData['name'];
-    final requirementData = cardData['requirement'];
+    final bool isIdentified = cardData['isIdentified'] == true;
 
     assert(affixes.isNotEmpty);
     final mainAffix = affixes[0];
 
     final description = StringBuffer();
     final extraDescription = StringBuffer();
-    // String finalTitle = title;
-    // if (kDebugMode) {
-    //   finalTitle += ' (lvl. ${cardData['level']})';
-    // }
 
-    final titleString = '<bold rank$cardRank t5>$title</>';
-    final genreString =
-        '<grey>${engine.locale('genre')}: ${engine.locale(mainAffix['genre'])}, </>';
+    final levelPrefix = engine.locale('level');
+
+    String? requirementString;
+
+    final titleString = isDetailed
+        ? '<bold rank$cardRank t5>$title ($levelPrefix $cardLevel)</>'
+        : '<bold rank$cardRank t5>$title</>';
     final rankString =
         '<grey>${engine.locale('cultivationRank')}:</> <rank$cardRank>${engine.locale('cultivationRank_$cardRank')}, </>';
-    final levelString = '<grey>${engine.locale('level')}: $cardLevel</>';
+    final genreString =
+        '<grey>${engine.locale('genre')}: ${engine.locale(mainAffix['genre'])}, </>';
+    final categoryString =
+        '<grey>${engine.locale('category')}: ${engine.locale(cardData['category'])}</>';
 
     extraDescription.writeln(titleString);
-    // extraDescription.writeln(' ');
-    extraDescription.writeln('$genreString$rankString$levelString');
-
-    final requirementsDescription = <String>[];
-    if (requirementData != null) {
-      for (var i = 0; i < kRequirementKeys.length; i++) {
-        final key = kRequirementKeys[i];
-        final value = requirementData[key];
-        if (value == null || value == 0) {
-          continue;
-        }
-        final keyString = engine.locale(key);
-        final String valueString =
-            value is String ? engine.locale(value) : value.toString();
-        value.toString();
-        requirementsDescription.add('$keyString $valueString');
-      }
-    }
-    if (requirementsDescription.isNotEmpty) {
-      extraDescription.write('${engine.locale('requirement')}: ');
-      extraDescription.writeln(requirementsDescription.join(', '));
-    }
-
+    extraDescription.writeln('$rankString$genreString$categoryString');
     extraDescription.writeln(kSepareteLine);
 
-    bool needSeparateLine = true;
+    final Map<String, String> explanations = {};
     for (final affix in affixes) {
-      if (affix['isMain'] != true) {
-        if (needSeparateLine) {
-          extraDescription.writeln(kSepareteLine);
-          needSeparateLine = false;
-        }
-      }
-
       final affixDescriptionRaw = engine.locale(affix['description']);
       assert(affix['value'] is List);
       final affixDescription =
           affixDescriptionRaw.interpolate(affix['value']).split(RegExp('\n'));
 
-      for (var line in affixDescription) {
-        if (affix['isMain'] == true) {
-          description.writeln(line);
-          extraDescription.writeln(line);
-        } else {
-          if (affix['isIdentified'] == true) {
-            if (kDebugMode) {
-              line += ' (lvl. ${affix['level']})';
+      if (isIdentified) {
+        final bool isMainAffix = affix['isMain'] ?? false;
+
+        if (isMainAffix && characterData != null) {
+          final String? equipment = affix['equipment'];
+          if (equipment != null) {
+            if (characterData['passives']['equipment_$equipment'] == null) {
+              requirementString =
+                  '<red>${engine.locale('equipment_requirement')}: ${engine.locale(equipment)}</>';
             }
-            extraDescription.writeln('<lightBlue>$line</>');
-          } else {
-            extraDescription.writeln('<lightBlue>???</>');
           }
         }
+
+        for (var line in affixDescription) {
+          if (isMainAffix) {
+            description.writeln(line);
+            extraDescription.writeln(line);
+          } else {
+            if (isDetailed) {
+              line += ' ($levelPrefix ${affix['level']})';
+            }
+            extraDescription.writeln('<lightBlue>$line</>');
+          }
+        }
+
+        final Iterable tags = affix['tags'];
+        if (tags.isNotEmpty) {
+          for (final tag in tags) {
+            explanations[tag] =
+                '<grey>「${engine.locale(tag)}」- ${engine.locale('${tag}_description')}</>';
+          }
+        }
+      } else {
+        continue;
       }
     }
 
-    if (affixes.length > 1) {
+    if (!isIdentified) {
+      description.writeln('<red>${engine.locale('identify_hint')}</>');
+      extraDescription.writeln('<red>${engine.locale('identify_hint')}</>');
+    }
+
+    if (explanations.isNotEmpty) {
+      extraDescription.writeln(kSepareteLine);
+      if (isDetailed) {
+        for (final tag in explanations.keys) {
+          extraDescription.writeln(explanations[tag]);
+        }
+      } else {
+        extraDescription
+            .writeln('<grey>${engine.locale('explanation_hint')}</>');
+      }
+    }
+
+    if (isIdentified && requirementString != null) {
+      extraDescription.writeln(requirementString);
+    }
+
+    if (isIdentified && affixes.length > 1) {
       description.writeln(
           '<lightBlue>+ ${affixes.length - 1} ${engine.locale('extraAffix')}</>');
     }
 
-    return (description.toString(), extraDescription.toString());
+    return (
+      description.toString().trim(),
+      extraDescription.toString().trim(),
+    );
   }
 
   static CustomGameCard createBattleCardFromData(dynamic data,
@@ -462,7 +532,6 @@ abstract class GameData {
         overflow: ScreenTextOverflow.wordwrap,
       ),
       description: description.toString(),
-      extraDescription: extraDescription.toString(),
       enablePreview: true,
     );
   }

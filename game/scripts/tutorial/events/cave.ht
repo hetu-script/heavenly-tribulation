@@ -14,7 +14,7 @@ const cave = {
     engine.play('stone-push-37412.mp3')
     dialog.popScene('black', fadeOut: true)
     WorldMap.lightUpAroundTile(hero.worldPosition.left, hero.worldPosition.top, hero.stats.lightRadius)
-    Player.updateHero(showHeroInfo: true)
+    GameUI.showGameOverlay(true)
     await Future.delayed(2)
     dialog.pushImage('story/xiaomo', fadeIn: true)
     await dialog.localeLines(['cave.hero.line1'], isHero: true)

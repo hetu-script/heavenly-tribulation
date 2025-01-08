@@ -1,6 +1,39 @@
 {
   "hero": "英雄",
 
+  "cultivationLevel": "修为",
+  "cultivationLevel_description": "通过战斗，游历，冥想获取修为经验后，在修炼界面可以花费经验提升修为等级。每次升级可以获得一个天赋技能点，用来提升人物属性或者购买关键被动。提升境界可以增加修为等级上限。",
+  "cultivationRank": "境界",
+  "cultivationRank_description": "提升境界可以提升修为等级上限，还可以让你使用更多法宝和战斗卡牌，以及解锁更多关键天赋。",
+  "lightRadius": "视野范围",
+  "lightRadius_description": "视野范围决定了你在世界大地图上以及地牢探险时所能照亮的范围。",
+  "lifeMax": "最大生命",
+  "lifeMax_description": "最大生命值决定了你在战斗中所能承受的伤害上限。在战斗之外的大地图游历时，最大生命同时也是你的最大体力值。",
+
+  "dexterity": "身法",
+  "dexterity_description": "御剑流派的主属性。\n每 25 点身法：战斗开始时获得 1 点速度。",
+  "spirituality": "灵力",
+  "spirituality_description": "悟道流派的主属性。\n每 25 点灵力：战斗开始时获得 1 点灵气。",
+  "strength": "体魄",
+  "strength_description": "锻体流派的主属性。\n每 2 点体魄：增加 1 点体力和生命上限。",
+  "perception": "神识",
+  "perception_description": "法身流派的主属性。\n每 25 点神识：视野范围 + 2，战斗前可以探查的对手属性 + 2，战斗前可以探查的对手手牌 + 2。",
+  "willpower": "念力",
+  "willpower_description": "炼魂流派的主属性。\n每 2 点念力：战斗后体力恢复增加 1 %。",
+
+  "unarmedAttack": "徒手攻击",
+  "weaponAttack": "武器攻击",
+  "spellAttack": "法术攻击",
+  "curseAttack": "咒术攻击",
+  "poisonAttack": "毒术攻击",
+  "attack_description": "每点攻击力使你发动该类型攻击时造成的伤害增加 1%。",
+
+  "physicalResist": "物理抗性",
+  "chiResist": "真气抗性",
+  "elementalResist": "元素抗性",
+  "spiritualResist": "精神抗性",
+  "resist_description": "每点抗性使你受到的该类型伤害减少 1%。最多减少 75%。",
+
   "favorScoreToHero": "对自己的好感度",
   "relationshipOfTarget": "与角色关系",
   "favorScoreToTarget": "对其好感度",
@@ -40,18 +73,11 @@
   "cultivationFavor": "修炼偏好",
   "organizationFavor": "门派偏好",
 
-  "staminaMax": "最大体力",
   "stamina": "体力",
-  "lifeMax": "最大生命",
-  "life": "生命",
-  "manaMax": "最大灵气",
-  "mana": "灵气",
 
-  "spirituality": "灵力",
-  "dexterity": "身法",
-  "strength": "体魄",
-  "willpower": "念力",
-  "perception": "神识",
+  "levelMax": "当前境界修为等级上限",
+
+  "life": "生命",
 
   "unarmed": "徒手",
   "weapon": "武器",
@@ -62,21 +88,8 @@
   "physical": "物理",
   "chi": "真气",
   "elemental": "元素",
-  "psychic": "精神",
-  "absolute": "纯粹",
-
-  "unarmedAttack": "徒手攻击",
-  "weaponAttack": "武器攻击",
-  "spellAttack": "法术攻击",
-  "curseAttack": "咒术攻击",
-  "poisonAttack": "毒术攻击",
-
-  "physicalDefense": "物理防御",
-  "chiDefense": "真气防御",
-  "elementDefense": "元素防御",
-  "psychicDefense": "精神防御",
-
-  "lightRadius": "视野范围",
+  "spiritual": "精神",
+  "pure": "纯粹",
 
   "charisma": "魅力",
   "wisdom": "悟性",

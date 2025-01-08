@@ -3,12 +3,17 @@ import 'package:flutter/material.dart';
 class WindowPriorityState with ChangeNotifier {
   final Set<String> visibleWindows = {};
 
-  void toogleWindow(String id) {
+  void toogle(String id) {
     if (visibleWindows.contains(id)) {
       visibleWindows.remove(id);
     } else {
       visibleWindows.add(id);
     }
+    notifyListeners();
+  }
+
+  void clearAll() {
+    visibleWindows.clear();
     notifyListeners();
   }
 
@@ -18,7 +23,7 @@ class WindowPriorityState with ChangeNotifier {
     notifyListeners();
   }
 
-  void hideWindow(String id) {
+  void hide(String id) {
     visibleWindows.remove(id);
     notifyListeners();
   }
