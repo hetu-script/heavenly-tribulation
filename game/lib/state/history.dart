@@ -12,8 +12,7 @@ class HistoryState with ChangeNotifier {
     final String? heroId = engine.hetu.invoke('getHeroId');
     if (heroId == null && onlyHero) return;
 
-    final Iterable history =
-        engine.hetu.fetch('timeline')['incidents'].reversed;
+    final Iterable history = (engine.hetu.fetch('timeline') as List).reversed;
     incidents.clear();
     final iter = history.iterator;
     var i = 0;

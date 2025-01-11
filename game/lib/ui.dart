@@ -1,5 +1,6 @@
 import 'package:samsara/samsara.dart';
 import 'package:flutter/material.dart';
+import 'package:samsara/components.dart';
 // import 'package:samsara/components/hovertip.dart';
 
 abstract class GameUI {
@@ -25,7 +26,7 @@ abstract class GameUI {
   static const pileZoneMargin = 60.0;
 
   static const foregroundColor = Colors.white;
-  static final backgroundColor = Colors.black.withAlpha(180);
+  static final backgroundColor = Colors.black.withAlpha(220);
   static final barrierColor = Colors.black.withAlpha(128);
   static final borderRadius = BorderRadius.circular(5.0);
 
@@ -48,22 +49,24 @@ abstract class GameUI {
     fontSize: 18.0,
   );
 
+  static const textTheme = TextTheme(
+    titleMedium: TextStyle(
+      fontFamily: GameUI.fontFamily,
+      fontSize: 24.0,
+    ),
+    bodySmall: TextStyle(
+      fontFamily: GameUI.fontFamily2,
+      fontSize: 14.0,
+    ),
+    bodyMedium: TextStyle(
+      fontFamily: GameUI.fontFamily,
+      fontSize: 16.0,
+    ),
+  );
+
   static final darkTheme = ThemeData(
     brightness: Brightness.dark,
-    textTheme: TextTheme(
-      titleMedium: TextStyle(
-        fontFamily: GameUI.fontFamily,
-        fontSize: 24.0,
-      ),
-      bodySmall: TextStyle(
-        fontFamily: GameUI.fontFamily2,
-        fontSize: 14.0,
-      ),
-      bodyMedium: TextStyle(
-        fontFamily: GameUI.fontFamily,
-        fontSize: 16.0,
-      ),
-    ),
+    textTheme: textTheme,
     fontFamily: GameUI.fontFamily,
     colorScheme: ColorScheme.dark(
       surface: backgroundColor,
@@ -120,27 +123,39 @@ abstract class GameUI {
         borderRadius: borderRadius,
       ),
     ),
-    sliderTheme: const SliderThemeData(
+    sliderTheme: SliderThemeData(
       activeTrackColor: foregroundColor,
       activeTickMarkColor: foregroundColor,
       thumbColor: foregroundColor,
-      valueIndicatorTextStyle: TextStyle(
-        fontFamily: GameUI.fontFamily,
-        color: foregroundColor,
-      ),
+      valueIndicatorTextStyle: textTheme.bodyMedium,
     ),
     dividerColor: foregroundColor,
   );
 
-  static const ScreenTextConfig siteTitleConfig = ScreenTextConfig(
+  static final spriteButtonTextConfig = ScreenTextConfig(
+    anchor: Anchor.center,
+    textStyle: textTheme.bodyMedium,
+    outlined: true,
+  );
+
+  static final hovertipContentConfig = ScreenTextConfig(
+    anchor: Anchor.topLeft,
+    padding: EdgeInsets.only(bottom: 10.0, left: 10.0, right: 10.0),
+    overflow: ScreenTextOverflow.wordwrap,
+    textStyle: textTheme.bodyMedium,
+  );
+
+  static const fadingTextStyle = TextStyle(
+    color: Colors.white,
+    fontSize: 24,
+    fontWeight: FontWeight.bold,
+  );
+
+  static final siteTitleConfig = ScreenTextConfig(
     outlined: true,
     padding: EdgeInsets.only(top: 10),
     anchor: Anchor.topCenter,
-    textStyle: TextStyle(
-      color: Colors.white,
-      fontSize: 24.0,
-      fontFamily: GameUI.fontFamily,
-    ),
+    textStyle: textTheme.titleMedium,
   );
 
   // location site scene ui
@@ -158,59 +173,53 @@ abstract class GameUI {
 
   static const battleCardTitlePaddings = EdgeInsets.fromLTRB(0, 0.585, 0, 0);
 
-  static final ScreenTextConfig battleCardTitleStyle = const ScreenTextConfig(
-        anchor: Anchor.topCenter,
-        outlined: true,
-        textStyle: TextStyle(fontSize: 18.0),
-      ),
-      battleCardDescriptionStyle = ScreenTextConfig(
-        anchor: Anchor.center,
-        outlined: true,
-      ),
-      battleCardStackStyle = const ScreenTextConfig(
-        textStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 24.0,
-          fontWeight: FontWeight.bold,
-        ),
-        anchor: Anchor.bottomCenter,
-        padding: EdgeInsets.only(bottom: -20),
-        outlined: true,
-      );
-
   // ratio = height / width
   static const cardSizeRatio = 1.382;
 
   // deckbuilding ui
-  static late Vector2 libraryCardSize,
-      deckbuildingCardSize,
-      // deckCoverSize,
-      deckbuildingZonePileOffset,
-      // deckbuildingZoneSize,
-      decksZoneBackgroundSize,
-      decksZoneBackgroundPosition,
-      decksZoneCloseButtonPosition,
-      setAsBattleDeckButtonPosition,
-      // deckCoverPosition,
-      // deckPileInitialPosition,
-      libraryZoneBackgroundSize,
-      libraryZoneBackgroundPosition,
-      libraryZoneSize,
-      libraryZonePosition,
-      cardCraftingZoneSize,
-      cardCraftingZoneInitialPosition,
-      cardCraftingZonePosition;
+  static late Vector2 libraryCardSize;
+  static late Vector2 deckbuildingCardSize;
+  // static late Vector2    // deckCoverSize;
+  static late Vector2 deckbuildingZonePileOffset;
+  // static late Vector2    // deckbuildingZoneSize;
+  static late Vector2 decksZoneBackgroundSize;
+  static late Vector2 decksZoneBackgroundPosition;
+  static late Vector2 decksZoneCloseButtonPosition;
+  static late Vector2 setBattleDeckButtonPosition;
+  // static late Vector2    // deckCoverPosition;
+  // static late Vector2    // deckPileInitialPosition;
+
+  /// 卡牌库背景区域位置，指背景图的位置，大于实际的卡牌排列可用区域。
+  static late Vector2 libraryZoneBackgroundPosition;
+
+  /// 卡牌库背景区域大小
+  static late Vector2 libraryZoneBackgroundSize;
+
+  /// 卡牌库区域位置
+  static late Vector2 libraryZonePosition;
+
+  /// 卡牌库区域大小，这里是实际的卡牌排列可用区域，小于卡牌库背景区域
+  static late Vector2 libraryZoneSize;
+
+  /// 卡牌精炼区域背景大小
+  static late Vector2 cardCraftingZoneSize;
+
+  /// 卡牌精炼区域初始位置在游戏场景外
+  static late Vector2 cardCraftingZoneInitialPosition;
+
+  /// 打开精炼功能后的卡牌精炼区域
+  static late Vector2 cardCraftingZonePosition;
 
   // battle ui
-  static late Vector2 battleCardSize,
-      battleCardFocusedSize,
-      battleDeckZoneSize,
-      p1BattleDeckZonePosition,
-      p2BattleDeckZonePosition,
-      // p1BattleCardFocusedPosition,
-      // p2BattleCardFocusedPosition,
-      p1HeroSpritePosition,
-      p2HeroSpritePosition;
+  static late Vector2 battleCardSize;
+  static late Vector2 battleCardFocusedSize;
+  static late Vector2 battleDeckZoneSize;
+  static late Vector2 p1BattleDeckZonePosition;
+  static late Vector2 p2BattleDeckZonePosition;
+  //  static late Vector2    // p1BattleCardFocusedPosition;
+  //  static late Vector2    // p2BattleCardFocusedPosition;
+  static late Vector2 p1HeroSpritePosition;
+  static late Vector2 p2HeroSpritePosition;
 
   static late Vector2 battleCardFocusedOffset;
 
@@ -220,27 +229,28 @@ abstract class GameUI {
   static const resourceBarHeight = 10.0;
 
   // cultivation ui
-  static late Vector2 cultivatorPosition,
-      condensedPosition,
-      expBarPosition,
-      levelDescriptionPosition;
+  static late Vector2 cultivatorPosition;
+  static late Vector2 condensedPosition;
+  static late Vector2 expBarPosition;
+  static late Vector2 levelDescriptionPosition;
   static final cultivatorSize = Vector2(200, 200);
   static final cultivationRankButton = Vector2(80, 80);
   static final maxCondenseSize = Vector2(250, 250);
   static final levelDescriptionSize = Vector2(300, 25);
   static final expBarSize = Vector2(600, 25);
 
-  static late Vector2
-      // cardLibraryButtonPosition,
-      //     cardPacksButtonPosition,
-      expCollectionPageButtonPosition,
-      // introspectionButtonPosition,
-      talentTreePageButtonPosition;
+  // static late Vector2 cardLibraryButtonPosition,
+  // static late Vector2 cardPacksButtonPosition,
+  static late Vector2 expCollectionPageButtonPosition;
+  // static late Vector2 introspectionButtonPosition;
+  static late Vector2 talentTreePageButtonPosition;
   // static final cardLibraryButtonSize = Vector2(120, 120);
   // static final cardPacksButtonSize = Vector2(120, 120);
   static final buttonSizeSmall = Vector2(90, 28);
   static final buttonSizeMedium = Vector2(140, 40);
   static final buttonSizeLarge = Vector2(240, 75);
+  static final buttonSizeSquare = Vector2(40, 40);
+  static final buttonSizeLong = Vector2(180, 40);
 
   static final cultivationRankButtonSize = Vector2(120, 120);
 
@@ -249,7 +259,7 @@ abstract class GameUI {
   static final skillButtonSizeMedium = Vector2(60, 60);
   static final skillButtonSizeLarge = Vector2(80, 80);
 
-  static void init(Vector2 size) {
+  static void resizeTo(Vector2 size) {
     if (GameUI.size == size) return;
 
     // Hovertip.defaultContentConfig = Hovertip.defaultContentConfig.copyWith(
@@ -257,6 +267,12 @@ abstract class GameUI {
     // );
 
     GameUI.size = size;
+
+    SpriteButton.defaultTextConfig = spriteButtonTextConfig;
+
+    Hovertip.defaultContentConfig = hovertipContentConfig;
+
+    FadingText.defaultTextStyle = fadingTextStyle;
 
     libraryZonePosition = Vector2(120 / 1440 * size.x, 180 / 810 * size.y);
     libraryZoneSize = Vector2(960 / 1440 * size.x, 450 / 810 * size.y);
@@ -268,7 +284,7 @@ abstract class GameUI {
     decksZoneBackgroundSize = Vector2(
         size.x - libraryZoneBackgroundSize.x, libraryZoneBackgroundSize.y);
     decksZoneBackgroundPosition =
-        Vector2(libraryZoneBackgroundSize.x, libraryZonePosition.y);
+        Vector2(libraryZoneBackgroundSize.x, libraryZoneBackgroundPosition.y);
 
     final deckbuildingCardWidth = (170 / 270 * decksZoneBackgroundSize.x);
     final deckbuildingCardHeight = deckbuildingCardWidth * 1.382;
@@ -285,13 +301,14 @@ abstract class GameUI {
     // deckCoverPosition =
     //     Vector2(decksZoneBackgroundPosition.x, decksZoneBackgroundPosition.y);
 
-    setAsBattleDeckButtonPosition = Vector2(
-        decksZoneBackgroundPosition.x + smallIndent,
-        decksZoneBackgroundPosition.y - 100);
+    setBattleDeckButtonPosition = Vector2(
+      decksZoneBackgroundPosition.x + smallIndent,
+      decksZoneBackgroundPosition.y + decksZoneBackgroundSize.y,
+    );
 
     decksZoneCloseButtonPosition = Vector2(
-      setAsBattleDeckButtonPosition.x,
-      setAsBattleDeckButtonPosition.y - buttonSizeMedium.y - indent,
+      setBattleDeckButtonPosition.x,
+      setBattleDeckButtonPosition.y + buttonSizeMedium.y + indent,
     );
 
     // deckbuildingZoneSize = Vector2(size.x, deckbuildingCardHeight + indent * 4);
@@ -302,10 +319,10 @@ abstract class GameUI {
     // libraryCardSize = Vector2(libraryCardWidth, libraryCardHeight);
     libraryCardSize = deckbuildingCardSize;
 
-    cardCraftingZoneSize = Vector2(190 / 1440 * size.x, 290 / 810 * size.y);
+    cardCraftingZoneSize = Vector2(270 / 1440 * size.x, 270 / 810 * size.y);
 
-    cardCraftingZoneInitialPosition = Vector2(decksZoneBackgroundPosition.x,
-        decksZoneBackgroundPosition.y + decksZoneBackgroundSize.y);
+    cardCraftingZoneInitialPosition =
+        Vector2(decksZoneBackgroundPosition.x, -150.0);
 
     cardCraftingZonePosition = decksZoneBackgroundPosition - Vector2(0, 100);
 

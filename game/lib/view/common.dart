@@ -1,4 +1,4 @@
-enum ViewPanelMode {
+enum InformationViewMode {
   view,
   select,
   edit,
@@ -10,3 +10,11 @@ const kHoverInfoWidth = 320.0;
 
 const kTabBarHeight = 72.0;
 const kNestedTabBarHeight = 178.0;
+
+enum InventoryType {
+  player,
+  npc,
+  merchant,
+  customer,
+  select,
+}

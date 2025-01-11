@@ -1,3 +1,5 @@
+import '../entity.ht'
+
 const kMaterialMoney = 'money'
 const kMaterialJade =  'jade'
 const kMaterialFood =  'food'
@@ -7,9 +9,6 @@ const kMaterialOre =   'ore'
 const kMaterialPlank = 'plank'
 const kMaterialPaper = 'paper'
 const kMaterialHerb =  'herb'
-const kMaterialYinQi = 'yinqi'
-const kMaterialShaQi = 'shaqi'
-const kMaterialYuanQi ='yuanqi'
 
 const kMaterialKinds = [
   'money',
@@ -21,9 +20,6 @@ const kMaterialKinds = [
   'plank',
   'paper',
   'herb',
-  'yinqi',
-  'shaqi',
-  'yuanqi',
 ]
 
 struct MaterialStorage {
@@ -41,26 +37,24 @@ struct MaterialStorage {
 }
 
 /// 材料包类物品在获得后，可以通过「使用」转化为材料数值
-struct Material {
+struct MaterialPack {
   constructor (kind, { count, rarity, price }) {
     assert(kind != null)
 
     this.prototypeId = kind
     this.entityType = kEntityTypeItem
     this.rarity = rarity ?? kCommon
-    this.name = engine.locale('${kind}.package')
     this.color = kRarity[this.rarity].color
+    this.name = engine.locale('${kind}_package')
     this.icon = 'item/material/${kind}.png'
 
     this.category = kEntityCategoryMaterial
     this.kind = kind
-    // 河图处理嵌套字符串插值有bug，暂时如此写
-    this.description = engine.locale('${kind}.description')
-    this.hint = engine.locale('materialPackageHint')
+    this.description = engine.locale('${kind}_description')
+    this.flavorText = engine.locale('item_material_pack_flavor_text')
     this.stackSize = count ?? 1
 
     this.isUsable = true
-    this.price = price ?? 100
     
     // 材料包
     // this.experienced = null

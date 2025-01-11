@@ -1,0 +1,405 @@
+import '../random.ht'
+import '../name/skill.ht'
+import '../common.ht'
+import '../entity/entity.ht'
+
+struct BattleCard {
+  construct ({
+    category, // 'attack', 'buff'
+    kind, // 'sword',
+    genre, // 'general', 'daoism', 'swordcraft'
+    level,
+    rank, // 境界决定了额外词条数量
+    maxRank,
+    isIdentified = false,
+  }) {
+    this.entityType = kEntityTypeBattleCard
+    assert(rank != null || maxRank != null)
+    if (rank != null) {
+      assert(rank >= 0 && rank <= kRankMax)
+      this.rank = rank
+    } else if (maxRank != null) {
+      assert(maxRank >= 0 && maxRank <= kRankMax)
+      this.rank = random.nextInt(maxRank + 1)
+    } else {
+      this.rank = 0
+    }
+    
+    final minLevel = minLevelPerRank(rank)
+    final maxLevel = maxLevelPerRank(rank)
+    if (level == null) {
+      level = getRandomLevel(minLevel, maxLevel)
+    } else {
+      if (level < minLevel) level = minLevel
+      if (level > maxLevel) level = maxLevel
+    }
+
+    this.minLevel = minLevel
+    this.maxLevel = maxLevel
+
+    this.id = crypto.randomNID(length: 6, withTime: true)
+    this.level = level
+    this.isIdentified = isIdentified
+
+    this.tags = Set()
+
+    // 注意：主词条数据的genre是字符串，但额外词条的genre是字符串数组
+    final mainAffixes = game.battleCardsData.values.where( (affix) {
+      if (genre != null && (affix.genre != genre && affix.genre != 'general')) {
+        
+        return false
+      }
+      if (category != null && affix.category != category) {
+        return false
+      }
+      if (kind != null && affix.kind != kind) {
+        return false
+      }
+      if (affix.rank > this.rank) {
+        return false
+      }
+      return true
+    })
+
+    if (mainAffixes.isEmpty) {
+      throw('Found no main affix for: genre: ${genre}, category: ${category}, kind: ${kind}, rank: ${rank}')
+    }
+
+    const mainAffix = JSON.deepcopy(random.nextIterable(mainAffixes))
+    if (mainAffix.maxLevel) {
+      mainAffix.level = Math.min(level, mainAffix.maxLevel)
+    } else {
+      mainAffix.level = level
+    }
+
+    this.affixes = [mainAffix]
+    _updateMainAffixValue(this)
+
+    this.name = generateSkillName(kind: mainAffix.kind)
+    this.image = mainAffix.image
+    this.genre = mainAffix.genre
+    this.category = mainAffix.category
+    this.kind = mainAffix.kind
+
+    final affixUniqueIds = []
+    if (mainAffix.uniqueId) {
+      if (mainAffix.uniqueId is List) {
+        affixUniqueIds.addAll(mainAffix.uniqueId)
+      } else if (mainAffix.uniqueId is string) {
+        affixUniqueIds.add(mainAffix.uniqueId)
+      }
+    }
+
+    this.affixUniqueIds = affixUniqueIds
+
+    _addExtraAffixes(this)
+
+    // _updateRequirementsOfCard(this)
+    // _updateCardTags(this)
+  }
+}
+
+function _getSupportAffixes(card) {
+  let affixes = []
+  for (final affix in game.battleCardAffixes.values) {
+    assert(affix.uniqueId != null)
+    assert(affix.category is List)
+    if ((affix.genre != 'general') || (affix.genre is List && !affix.genre.contains(card.genre))) {
+      continue
+    }
+    if (!affix.category.contains(card.category)) {
+      continue
+    }
+    if (card.affixUniqueIds.contains(affix.uniqueId)) {
+      continue
+    }
+    if (affix.rank > card.rank) {
+      continue
+    }
+    affixes.add(affix)
+  }
+
+  if (affixes.isEmpty) {
+    engine.warn('Found no support affixes for card: [id: ${card.id}, genre: ${card.genre}, category: ${card.category}, kind: ${card.kind}, rank: ${card.rank}]')  
+  }
+
+  return affixes
+}
+
+function calculateRequirementsOfCard(card) {
+  let requirementData = Requirement()
+
+  for (final affix in card.affixes) {
+    for (final key in affix.requirement.keys) {
+      if (!requirements.containsKey(key)) {
+        requirements[key] = 0
+      }
+      requirements[key] += affix.requirement[key].base + affix.requirement[key].increment * affix.level
+    }
+  }
+  return requirements
+}
+
+function _checkRequirementForCard(character, card) {
+
+}
+
+function _updateMainAffixValue(card) {
+  let mainAffix = card.affixes.first
+  assert(mainAffix.valueData is List)
+  mainAffix.level = card.level
+  let values = []
+  for (final valueData in mainAffix.valueData) {
+    let valueLevel = valueData.maxLevel ? Math.min(valueData.maxLevel, mainAffix.level) : mainAffix.level
+    final value = valueData.base + valueData.increment * valueLevel
+    values.add(value.round())
+  }
+  if (mainAffix.requirement && mainAffix.requirement.isNotEmpty) {
+    for (final reqData in mainAffix.requirement.values) {
+      final value = reqData.base + reqData.increment * mainAffix.level
+      reqData.value = value.round()
+    }
+  }
+  mainAffix.value = values
+}
+
+function _randomizeAffixLevel(card, affix) {
+  if (affix.maxLevel) {
+    let affixMaxLevel = Math.min(card.level, affix.maxLevel)
+    affix.level = getRandomLevel(card.minLevel, affixMaxLevel)
+  } else {
+    affix.level = getRandomLevel(card.minLevel, card.level)
+  }
+
+  let values = []
+  assert(affix.valueData is List)
+  for (final valueData in affix.valueData) {
+    let valueLevel = valueData.maxLevel ? Math.min(valueData.maxLevel, affix.level) : affix.level
+    let value = valueData.base + valueData.increment * valueLevel
+    values.add(value.round())
+  }
+  // if (affix.requirement && affix.requirement.isNotEmpty) {
+  //   for (final reqData in affix.requirement.values) {
+  //     let value = reqData.base + reqData.increment * affix.level
+  //     reqData.value = value.round()
+  //   }
+  // }
+  affix.value = values
+}
+
+function _addAffixToCard(card, affix) {
+
+  _randomizeAffixLevel(card, affix)
+
+  card.affixUniqueIds.add(affix.uniqueId)
+  card.affixes.add(affix)
+}
+
+function _resetAffixUniqueIds(card) {
+  card.affixUniqueIds.clear()
+  for (final affix in card.affixes) {
+    if (affix.isMain) {
+      if (affix.uniqueId is List) {
+        card.affixUniqueIds.addAll(affix.uniqueId)
+      } else if (affix.uniqueId is string) {
+        card.affixUniqueIds.add(affix.uniqueId)
+      }
+    } else if (affix.uniqueId is string) {
+      card.affixUniqueIds.add(affix.uniqueId)
+    }
+  }
+}
+
+function _addExtraAffixes(card) {
+  let affixCount = getMinMaxExtraAffixCount(card.rank)
+
+  let extraAffixCount = affixCount.minExtra
+  if (affixCount.maxExtra == 0) return
+  if (extraAffixCount < affixCount.maxExtra) {
+    let r = random.nextDouble()
+    if (r >= 0.15) {
+      ++extraAffixCount
+    }
+  }
+  
+  let supportAffixes = _getSupportAffixes(card)
+
+  if (supportAffixes.isEmpty) {
+    throw('Found no extra affix for: genre: ${card.genre}, category: ${card.category}, kind: ${card.kind}, rank: ${card.rank}')
+  }
+  
+  for (var i = 0; i < extraAffixCount; ++i) {
+    let existed = false
+    let affix
+    let affixes = supportAffixes.where( (affix) {
+      return !(card.affixUniqueIds.contains(affix.uniqueId))
+    })
+    if (affixes.isEmpty) {
+      engine.warn('Lacking affix for card: [id: ${card.id}, genre: ${card.genre}, category: ${card.category}, kind: ${card.kind}, rank: ${card.rank}]')
+      break
+    }
+    affix = JSON.deepcopy(random.nextIterable(supportAffixes))
+
+    _addAffixToCard(card, affix)
+  }
+}
+
+function identifyCard(card) {
+  if (card.isIdentified == true) {
+    return 'deckbuilding_identifyCard_warning'
+  }
+
+  card.isIdentified = true
+
+  // 这里显式返回空值表明成功执行
+  return null
+}
+
+function addAffix(card) {
+  let extraAffixCount = getMinMaxExtraAffixCount(card.rank)
+  if (card.affixes.length >= extraAffixCount.maxExtra + 1) {
+    return 'deckbuilding_addAffix_warning'
+  }
+
+  let supportAffixes = _getSupportAffixes(card)
+
+  if (supportAffixes.isEmpty) {
+    throw('Found no support affixes for card: [id: ${card.id}, genre: ${card.genre}, category: ${card.category}, kind: ${card.kind}, rank: ${card.rank}]')  
+  }
+
+  final affix = random.nextIterable(supportAffixes)
+
+  _addAffixToCard(card, affix)
+
+  // _updateRequirementsOfCard(card)
+  // _updateCardTags(card)
+
+  // 这里显式返回空值表明成功执行
+  return null
+}
+
+function rerollAffix(card) {
+  final extraAffixes = card.affixes.where( (affix) {
+    return (!affix.isMain)
+  })
+
+  if (extraAffixes.isEmpty) {
+    return 'deckbuilding_rerollAffix_warning'
+  }
+
+  final affix = random.nextIterable(extraAffixes)
+
+  _randomizeAffixLevel(card, affix)
+
+  // _updateRequirementsOfCard(card)
+  // _updateCardTags(card)
+
+  // 这里显式返回空值表明成功执行
+  return null
+}
+
+function replaceAffix(card) {
+  final extraAffixes = card.affixes.where( (affix) {
+    return (!affix.isMain)
+  })
+
+  if (extraAffixes.isEmpty) {
+    return 'deckbuilding_replaceAffix_warning'
+  }
+
+  final affix = random.nextIterable(extraAffixes)
+
+  card.affixes.remove(affix)
+
+  _resetAffixUniqueIds(card)
+  
+  addAffix(card)
+
+  // _updateRequirementsOfCard(card)
+  // _updateCardTags(card)
+
+  // 这里显式返回空值表明成功执行
+  return null
+}
+
+function upgradeCard(card) {
+  if (card.level >= card.maxLevel) {
+    return 'deckbuilding_upgradeCard_warning'
+  }
+
+  card.level += 1
+
+  _updateMainAffixValue(card)
+
+  // _updateRequirementsOfCard(card)
+  
+  // 这里显式返回空值表明成功执行
+  return null
+}
+
+function upgradeRank(card) {
+  if (card.rank == kRankMax) {
+    return 'deckbuilding_upgradeRank_warning_maxRank'
+  }
+  
+  final nextRankMinLevel = minLevelPerRank(card.rank + 1)
+  if (card.level < nextRankMinLevel) {
+    return 'deckbuilding_upgradeRank_warning'
+  }
+
+  card.rank += 1
+  card.minLevel = minLevelPerRank(card.rank)
+  card.maxLevel = maxLevelPerRank(card.rank)
+
+  final mainAffix = card.affixes.first
+
+  if (card.level < card.minLevel) {
+    card.level = card.minLevel
+    mainAffix.level = card.level
+    _updateMainAffixValue(card)
+  }
+
+  card.affixes = [mainAffix]
+
+  _addExtraAffixes(card)
+
+  // _updateRequirementsOfCard(card)
+  // _updateCardTags(card)
+
+  // 这里显式返回空值表明成功执行
+  return null
+}
+
+/// 卡牌包是一种物品，每个卡牌包包含3张牌
+/// 其中一张必然是指定的境界、流派的卡牌，且卡牌等级和角色等级相同
+/// 另外两张则是随机境界、流派和等级的卡牌
+struct CardPack {
+  construct ({
+    genre = 'general',
+    rank,
+    kind,
+  }) {
+    assert(genre == 'general' || kCultivationGenres.contains[genre])
+    assert(rank == null || (rank >= 0 && rank <= kRankMax))
+    assert(kind == null || kBattleCardKind.contains[kind])
+    this.entityType = kEntityTypeItem
+    this.createdTimestamp = history.timestamp
+    this.category = kItemCategoryCardpack;
+
+    this.genre = genre
+    this.rank = rank ?? 0
+    this.kind = kind
+
+    this.id = crypto.randomNID(length: 6, withTime: true)
+    this.name = engine.locale(genre) + engine.locale('genre') +
+                engine.locale('cultivationRank_${this.rank}') + engine.locale('rank')
+    if (kind != null) {
+      this.name += engine.locale('card_${kind}')
+    }
+    this.name += engine.locale('cardpack')
+    this.icon = 'item/cardpack.png'
+    
+    this.flavorText = engine.locale('item_cardpack_flavor_text')
+    this.rarity = kRankRarity[this.rank]
+  }
+}

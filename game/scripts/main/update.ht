@@ -30,7 +30,7 @@ function setFishTile(terrain) {
   engine.info('鱼群正在在 [${terrain.left},${terrain.top}] 周围活跃。')
   terrain.flags.isFishGathering = true
   Object.assign(terrain.overlaySprite, {animation: {path: 'object/animation/fishZone.png'}})
-  WorldMap.refreshTerrainOverlaySprite(terrain.left, terrain.top)
+  WorldMap.updateTerrainOverlaySprite(terrain.left, terrain.top)
   game.fishTileIndexes.add(terrain.index)
 }
 
@@ -38,7 +38,7 @@ function setStormTile(terrain) {
   engine.info('暴风雨正在 [${terrain.left},${terrain.top}] 周围活跃。')
   terrain.flags.isInStorm = true
   Object.assign(terrain.overlaySprite, {animation: {path: 'object/animation/stormZone.png'}})
-  WorldMap.refreshTerrainOverlaySprite(terrain.left, terrain.top)
+  WorldMap.updateTerrainOverlaySprite(terrain.left, terrain.top)
   game.stormTileIndexes.add(terrain.index)
 }
 
@@ -46,7 +46,7 @@ function setSpiritTile(terrain) {
   engine.info('天地灵气正在 [${terrain.left},${terrain.top}] 喷涌。')
   terrain.flags.isSpiritSurging = true
   Object.assign(terrain.overlaySprite, {animation: {path: 'object/animation/spirit.png'}})
-  WorldMap.refreshTerrainOverlaySprite(terrain.left, terrain.top)
+  WorldMap.updateTerrainOverlaySprite(terrain.left, terrain.top)
   game.spiritTileIndexes.add(terrain.index)
 }
 
@@ -190,7 +190,7 @@ function updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
 
     // if (playerEvent) {
     //   // 触发一些玩家遇到的固定事件
-    //   if (timeline.timestamp % kTicksPerMonth == 0) {
+    //   if (history.timestamp % kTicksPerMonth == 0) {
     //     // 重置玩家自己的每月行动
     //     resetPlayerMonthlyActivities(game)
     //   }
@@ -200,7 +200,7 @@ function updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
     onWorldEvent('onAfterWorldUpdate')
 
     if (timeflow) {
-      ++timeline.timestamp
+      ++history.timestamp
       calculateTimestamp()
     }
   }
@@ -212,7 +212,7 @@ function updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
 function handleBabies {
   const pendingRemovedIds = Set()
   for (const baby of game.babies) {
-    if (timeline.timestamp - baby.conceptionTimestamp < baby.pregnancyTime) continue
+    if (history.timestamp - baby.conceptionTimestamp < baby.pregnancyTime) continue
     const mother = game.characters[baby.motherId]
     if (!mother.isDead) {
       mother.isPregnant = false
@@ -222,7 +222,7 @@ function handleBabies {
         familyName: baby.familyName,
         shorname: baby.shorname,
         isFemale: baby.isFemale,
-        birthTimestamp: timeline.timestamp,
+        birthTimestamp: history.timestamp,
         locationId: location.id,
         isNewborn: true,
         fatherId: baby.fatherId,

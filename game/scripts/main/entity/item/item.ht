@@ -4,8 +4,6 @@ import '../../random.ht'
 import '../../incident.ht'
 import '../../name/talisman.ht'
 
-export 'material.ht'
-
 const _kWeaponKind = [
   'sabre',
   'sword',
@@ -57,12 +55,14 @@ function getItemExtraAffixes(item) {
 
 struct Equipment {
   construct({
-    kind,
-    level,
     rank,
+    level,
+    kind,
     owner,
   }) {
-    this.category = 'equipment';
+    this.entityType = kEntityTypeItem
+    this.createdTimestamp = history.timestamp
+    this.category = kItemCategoryEquipment;
 
     // kind 决定了物品名字的生成方式
     // weapon具体分为：sabre, sword, spear, staff, bow, dart, music
@@ -73,7 +73,7 @@ struct Equipment {
 
     this.id = crypto.randomNID(length: 6, withTime: true)
     this.name = generateTalismanName(kind: this.kind)
-    this.flavorText = 'item_${this.kind}_flavor_text'
+    this.flavorText = engine.locale('item_${this.kind}_flavor_text')
     if (owner) {
       this.ownerId = owner.id
     }
@@ -87,8 +87,8 @@ struct Equipment {
     level ??= getRandomLevel(this.minLevel, this.maxLevel)
     assert(level >= this.minLevel && level <= this.maxLevel)
     this.level = level
-
     this.experienced = []
+
     this.affixes = []
 
     // equipUniqueId 决定了能装备的数量
@@ -141,6 +141,16 @@ struct Equipment {
   }
 }
 
+function countItem(entity, category) {
+  let count = 0
+  for (let item in entity.inventory.values) {
+    if (item.category == category) {
+      ++count
+    }
+  }
+  return count
+}
+
 function createItemById(itemId) {
   // print('acquiring: ${itemId}')
   // TODO: 如果id不存在，则获得一个「未知物品」
@@ -160,7 +170,7 @@ function createItemById(itemId) {
   item.name = engine.locale(item.name)
   // item.name = generateTalismanName(kind: item.kind)
   item.color ??= kRarity[item.rarity ?? kCommon].color
-  item.rarity ??= 'unknown'
+  item.rarity ??= 'basic'
   item.level ??= 1
   item.ownerId = entity.id
   item.experienced = []

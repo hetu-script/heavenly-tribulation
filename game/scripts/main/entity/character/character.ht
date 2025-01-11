@@ -303,9 +303,6 @@ struct Character {
     }
 
     this.shipSkin = shipSkin ?? 'ship1'
-
-    /// 寿命必须在已知境界之后计算
-    this.deathTimestamp = this.birthTimestamp + createRandomLifespan(this.cultivationRank)
     
     this.cultivationFavor = getMajorAttribute(this)
     this.organizationFavor = random.nextIterable(kOrganizationFavor)
@@ -322,13 +319,6 @@ struct Character {
     this.worldId = worldId ?? world?.id
 
     this.color = kRarity.rare.color
-    
-    // age 的格式是 timestamp, 精确到 tick. 
-    if (birthTimestamp != null) {
-      this.birthTimestamp = birthTimestamp
-    } else {
-      this.birthTimestamp = createRandomBirthTimestamp()
-    }
 
     this.luck =  Math.gaussianNoise(
       _kCharacterAverage,
@@ -475,6 +465,7 @@ struct Character {
       }
 
       if (isNewborn) {
+        this.birthTimestamp = history.timestamp
         assert(motherId != null)
         assert(fatherId != null)
         const mother = game.characters[motherId]
@@ -512,8 +503,8 @@ struct Character {
         }
         mother.relationships.childrenIds.add(this.id)
         father.relationships.childrenIds.add(this.id)
-        refreshCharacterRelationship(mother, this)
-        refreshCharacterRelationship(father, this)
+        updateCharacterRelationship(mother, this)
+        updateCharacterRelationship(father, this)
       } else {
         // 设置居住地会触发事件从而修改自身，需要放在最后处理
         setCharacterHome(this, location)
@@ -525,6 +516,19 @@ struct Character {
           top: worldPositionY,
         }
       }
+    }
+    
+    // age 的格式是 timestamp, 精确到 tick. 
+    if (this.birthTimestamp == null) {
+      this.birthTimestamp = createRandomBirthTimestamp()
+    }
+
+    /// 寿命必须在已知境界之后计算
+    this.deathTimestamp = this.birthTimestamp + createRandomLifespan(this.cultivationRank)
+    
+    this.achievements = {
+      acquiredItems: 0,
+      acquiredBattleCards: 0,
     }
   }
 }
@@ -622,15 +626,23 @@ function getCharacterTitle(character) {
 }
 
 function getCharacterAge(character) {
-  return (timeline.timestamp - character.birthTimestamp) ~/ kTicksPerYear
+  return (history.timestamp - character.birthTimestamp) ~/ kTicksPerYear
 }
 
 function getCharacterAgeString(character) {
-  return formatAgeString(timeline.timestamp - character.birthTimestamp)
+  return formatAgeString(history.timestamp - character.birthTimestamp)
 }
 
 function getCharacterRestLifespanString(character) {
-  return formatAgeString(character.deathTimestamp - timeline.timestamp)
+  return formatAgeString(character.deathTimestamp - history.timestamp)
+}
+
+function getCharacterBirthDayString(character) {
+  return formatDateTimeString(character.birthTimestamp, format: 'date.md')
+}
+
+function getCharacterBirthDateString(character) {
+  return formatDateTimeString(character.birthTimestamp, format: 'date.ymd')
 }
 
 function getCharacterFameString(character) {
@@ -711,7 +723,7 @@ function getCharacterRelationshipOfTarget(character, target) {
   return 'none'
 }
 
-function refreshCharacterRelationship(character, target) {
+function updateCharacterRelationship(character, target) {
   let bond1 = character.bonds[target.id]
   assert(bond1 != null)
   bond1.relationship = getCharacterRelationshipOfTarget(character, target)
@@ -882,11 +894,11 @@ function setCharacterHome(character, location) {
   }
   character.homeId = location.id
   let homeSiteId = '${kSiteHome}.${character.id}'
-  Site(
-    category: kSiteHome,
+  Location(
+    category: 'building',
+    kind: kSiteHome,
     location: location,
     ownerId: character.id,
-    isSubSite: true, // 住所在住宅的下一层，默认不直接显示在据点内
   )
   let incidentContent
   // // if (organizationName == null) {
@@ -1032,18 +1044,9 @@ function getNpcsByWorldMapPosition(left, top, [ worldId ]) {
 }
 
 function getNpcsByLocationId(locationId) {
+  assert(locationId != null)
   return game.characters.values.where((char) {
-    if (char.locationId == null || char.siteId != null) return false
     if (char.locationId != locationId) return false
-    if (char.id == game.heroId) return false
-    return true
-  })
-}
-
-function getNpcsByLocationAndSiteId(locationId, siteId) {
-  return game.characters.values.where((char) {
-    if (char.locationId == null || char.siteId == null) return false
-    if (char.locationId != locationId || char.siteId != siteId) return false
     if (char.id == game.heroId) return false
     return true
   })

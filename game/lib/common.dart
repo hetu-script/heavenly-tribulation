@@ -11,11 +11,46 @@ const kValueTypeInt = 'int';
 const kValueTypeFloat = 'float';
 const kValueTypePercentage = 'percentage';
 
+enum SceneStates {
+  mainmenu,
+  world,
+  locationSite,
+  battle,
+  cultivation,
+  cardLibrary,
+}
+
 const kEquipmentMax = 6;
 const kLevelPerRank = 10;
 const kRankMax = 8;
 
-const kWeaponKind = [
+const kCardKinds = [
+  'punch',
+  // 'kick',
+  // 'wrestling',
+  // 'dianxue',
+  // 'sabre',
+  // 'spear',
+  'sword',
+  // 'staff',
+  // 'bow',
+  'flying_sword',
+  'swift',
+  'xinfa',
+  // 'firebend',
+  // 'waterbend',
+  // 'lightning',
+  // 'windbend',
+  // 'earthbend',
+  // 'wood_control',
+  // 'scripture',
+  // 'dart',
+  // 'poison',
+  // 'curse',
+  // 'music',
+];
+
+const kWeaponKinds = [
   // 'sabre',
   'sword',
   // 'spear',
@@ -23,18 +58,30 @@ const kWeaponKind = [
   // 'dart',
 ];
 
-const kWearingKind = [
+const kWearingKinds = [
   'armor',
   'boots',
   'amulet',
   'vehicle',
 ];
 
-const kOtherTalismanKind = [
+const kOtherTalismanKinds = [
   'buff',
   'ongoing',
   'consume',
 ];
+
+const kCityKinds = [
+  'inland',
+  'harbor',
+  'island',
+  'mountain',
+];
+
+const kCityKindInland = 'inland';
+const kCityKindHarbor = 'harbor';
+const kCityKindIsland = 'island';
+const kCityKindMountain = 'mountain';
 
 Color getColorFromRarity(String rarity) {
   return switch (rarity) {
@@ -192,7 +239,7 @@ const kGenres = {
   'divination',
 };
 
-const kAttributesToGenre = {
+const kAttributeToGenre = {
   'spirituality': 'daoism',
   'dexterity': 'swordcraft',
   'strength': 'physique',
@@ -200,14 +247,13 @@ const kAttributesToGenre = {
   'perception': 'avatar',
 };
 
-const kRequirementKeys = [
-  'equipment',
-  'dexterity',
-  'strength',
-  'spirituality',
-  'willpower',
-  'perception',
-];
+const kGenreToAttribute = {
+  'spirituality': 'daoism',
+  'dexterity': 'swordcraft',
+  'strength': 'physique',
+  'willpower': 'vitality',
+  'perception': 'avatar',
+};
 
 abstract class AttackType {
   static const unarmed = 'unarmed';
@@ -230,6 +276,7 @@ abstract class DamageType {
   static const chi = 'chi';
   static const elemental = 'elemental';
   static const spiritual = 'spiritual';
+  static const pure = 'pure';
 }
 
 const Set<String> kDamageTypes = {
@@ -237,4 +284,5 @@ const Set<String> kDamageTypes = {
   DamageType.chi,
   DamageType.elemental,
   DamageType.spiritual,
+  DamageType.pure,
 };

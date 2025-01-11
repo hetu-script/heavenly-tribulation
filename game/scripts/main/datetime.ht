@@ -26,8 +26,8 @@ const kHourString = {
 
 function getCurrentDateTimeString() {
   if (timeline == null) return ''
-  const d = formatDateTimeString(timeline.timestamp, format: 'date')
-  const h = (timeline.timestamp % 4).toString()
+  const d = formatDateTimeString(history.timestamp, format: 'date')
+  const h = (history.timestamp % 4).toString()
   const h2 = engine.locale(kHourString[h])
   return '${d}${h2}'
 }
@@ -107,22 +107,6 @@ function formatAgeString(timestamp) => formatDateTimeString(timestamp, format: '
 
 function formatAge(timestamp) => formatDateTimeString(timestamp, format: 'number.y')
 
-function getEntityAgeString(entity) {
-  return formatAgeString(timeline.timestamp - entity.birthTimestamp)
-}
-
-function getEntityAge(entity) {
-  return formatAge(timeline.timestamp - entity.birthTimestamp)
-}
-
-function getEntityBirthDayString(entity) {
-  return formatDateTimeString(entity.birthTimestamp, format: 'date.md')
-}
-
-function getEntityBirthDateString(entity) {
-  return formatDateTimeString(entity.birthTimestamp, format: 'date.ymd')
-}
-
 function getDayString(count) {
   assert(count > 0)
   return '${count} ${engine.locale('timeDay')}'
@@ -140,5 +124,5 @@ function getYearString(count) {
 
 function ageToBirthTimestamp(age) {
   let time = age * kTicksPerYear + random.nextInt(kTicksPerYear)
-  return timeline.timestamp - time
+  return history.timestamp - time
 }

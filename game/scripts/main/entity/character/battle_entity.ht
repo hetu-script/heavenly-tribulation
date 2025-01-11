@@ -50,6 +50,7 @@ struct BattleEntity {
     cardLibrary,
     battleDecks,
   }) {
+    this.entityType = kEntityTypeCharacter
     this.isFemale = isFemale ?? random.nextBool()
     if (this.isFemale) {
       const index = random.nextInt(_kFemaleAvatarCount)

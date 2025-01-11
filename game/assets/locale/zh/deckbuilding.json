@@ -1,9 +1,23 @@
 {
-  "deckbuilding.requiredCardsPrompt": "<red>上阵卡牌数量不足！</>",
-
-  "deckbuilding.setAsBattleDeck": "设为出战",
+  "deckbuilding_set_battle_deck": "设为出战",
   "deckbuilding.battleDeck": "出战卡组",
-  "deckbuilding_count": "卡牌数量",
+  "deckbuilding_deck_count": "卡组数量",
+  "deckbuilding_card_count": "卡牌数量",
+
+  "deckbuilding_cardpack_hint": "打开秘籍可以获取新的技能卡牌。",
+
+  "byAcquiredTimeDescending": "获得时间 - 降序",
+  "byAcquiredTimeAscending": "获得时间 - 升序",
+  "byLevelDescending": "卡牌等级 - 降序",
+  "byLevelAscending": "卡牌等级 - 升序",
+  "byRankDescending": "卡牌境界 - 降序",
+  "byRankAscending": "卡牌境界 - 升序",
+
+  "deckbuilding_limit_min": "最少卡牌数",
+  "deckbuilding_limit": "最大卡牌数",
+  "deckbuilding_limit_ephemeral": "消耗牌数量",
+  "deckbuilding_limit_ongoing": "持续牌数量",
+  "deckbuilding_limit_hint": "提升境界会增加允许的最大卡牌数，以及消耗牌和持续牌的数量。",
 
   "deckbuilding_requirement_not_met": "不可用",
   "deckbuilding_already_in_battle_deck": "该卡牌已在出战卡组中！",
@@ -12,7 +26,7 @@
   "deckbuilding_ongoing_card_limit": "持续牌数量已达到当前境界允许上限！",
   "deckbuilding_ephemeral_card_limit": "消耗牌数量已达到当前境界允许上限！",
 
-  "deckbuilding_emtpy": "<red>无法设为出战：</>卡组是空的！",
+  "deckbuilding_emtpy": "卡组是空的！",
   "deckbuilding_cards_not_enough": "卡组未满足卡牌数量需求！",
   "deckbuilding_card_invalid": "未满足卡牌装备需求！",
 
@@ -20,8 +34,8 @@
   "deckbuilding_add_card_hint": "将卡牌拖动至此来加入卡组",
   "deckbuilding_edit_deck_hint": "点击鼠标左键：编辑卡组\n点击鼠标右键：打开菜单",
 
-  "deckbuilding.crafingCard": "卡牌精炼",
-  "deckbuilding.crafingCardHint": "将卡牌拖动至此来进行精炼",
+  "deckbuilding_crafing": "卡牌精炼",
+  "deckbuilding_crafing_hint": "将卡牌拖动至此来进行精炼",
 
   "deckbuilding_no_card_hint": "请先在工作台上放置要精炼的卡牌。",
 

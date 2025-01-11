@@ -6,7 +6,6 @@ import 'package:samsara/components/fading_text.dart';
 class GameScene extends Scene {
   GameScene({
     required super.id,
-    required super.controller,
     required super.context,
   });
 
@@ -31,11 +30,9 @@ class GameScene extends Scene {
       duration: 0.8,
       position: details.globalPosition.toVector2(),
       fadeOutAfterDuration: 0.3,
-      config: ScreenTextConfig(
-        textStyle: TextStyle(
-          color: Colors.red,
-          fontSize: 16,
-        ),
+      textStyle: TextStyle(
+        color: Colors.red,
+        fontSize: 16,
       ),
     );
     add(c2);

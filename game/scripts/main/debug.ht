@@ -33,7 +33,7 @@ namespace debug {
     }
   }
 
-  function refreshAllCaptions {
+  function updateAllCaptions {
     for (const tile in world.terrains) {
       if (tile.locationId) {
         const location = game.locations[tile.locationId]

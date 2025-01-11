@@ -1,5 +1,4 @@
 import '../../game.ht'
-import '../location/site.ht'
 import '../../name/organization.ht'
 // import '../../l10n.ht'
 import '../entity.ht'
@@ -18,14 +17,6 @@ const kOrganizationCategories = [
   'religion',
   'business',
   'nation',
-]
-
-const kCultivationGenres = [
-  'daoism',
-  'swordcraft',
-  // 'physique',
-  // 'avatar',
-  // 'vitality',
 ]
 
 const kCultivationSupportGenre = [
@@ -55,9 +46,11 @@ struct Organization {
     development = 0,
     incurIncident = true, // 是否触发历史事件
   }) {
+    this.entityType = kEntityTypeOrganization
     assert(game.locations.containsKey(headquartersId))
     assert(game.characters.containsKey(headId))
 
+    this.createdTimestamp = history.timestamp
     // 该组织的每月刷新事件的时间
     this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
     // 该组织的事件触发选项
@@ -71,7 +64,6 @@ struct Organization {
 
     this.headquartersId = headquartersId
     this.headId = headId
-    this.entityType = kEntityTypeOrganization
     this.category = category ?? random.nextIterable(kOrganizationCategories)
     this.genre = genre ?? random.nextIterable(kCultivationGenres)
     assert(kOrganizationCategories.contains(this.category))
@@ -247,8 +239,9 @@ function stationOrganization(organization, location, { characterIds, incurIncide
   
   organization.headquartersId = location.id
 
-  const site = Site(
-    category: organization.genre,
+  const headquarters = Location(
+    category: 'building',
+    kind: organization.genre,
     location: location,
     name: organization.name,
   )

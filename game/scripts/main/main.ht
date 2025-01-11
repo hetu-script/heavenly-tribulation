@@ -1,12 +1,12 @@
 export 'binding/battle_character.ht'
-export 'cardbattle/card.ht'
-export 'cardbattle/card_script.ht'
-export 'cardbattle/status_script.ht'
-export 'entity/entity.ht'
+export 'cardgame/card.ht'
+export 'cardgame/card_script.ht'
+export 'cardgame/status_script.ht'
 export 'incident.ht'
+export 'entity/entity.ht'
 export 'entity/character/character.ht'
 export 'entity/item/item.ht'
-export 'entity/location/site.ht'
+export 'entity/item/material.ht'
 export 'entity/location/location.ht'
 export 'entity/organization/organization.ht'
 export 'entity/object.ht'
@@ -53,28 +53,29 @@ const module = {
 /// Only run once when a new game is created
 function init({
   itemsData,
-  battleCardData,
+  battleCardsData,
   battleCardAffixesData,
-  passiveData,
+  passivesData,
 }) {
   addModule(module.meta)
   
   // 添加材料类物品信息
-  for (let kind in kMaterialKinds) {
-    game.items[kind] = Material(kind)
-  }
+  // for (let kind in kMaterialKinds) {
+  //   game.items[kind] = MaterialPack(kind)
+  // }
+  // print(kEntityTypeItem)
 
   game.items = itemsData
   engine.info('载入预定义物品：[${itemsData.length}]')
   
-  game.battleCardData = battleCardData
+  game.battleCardsData = battleCardsData
   game.battleCardAffixes = battleCardAffixesData
-  engine.info('载入战斗卡牌词条：主词条 [${battleCardData.length}]，额外词条 [${battleCardAffixesData.length}]')
+  engine.info('载入战斗卡牌词条：主词条 [${battleCardsData.length}]，额外词条 [${battleCardAffixesData.length}]')
 
   // game.skillTree = skillTreeData
   // game.supportSkillTree = supportSkillTreeData
-  game.passives = passiveData
-  engine.info('载入被动技能词条数据：词条 [${passiveData.length}]')
+  game.passives = passivesData
+  engine.info('载入被动技能词条数据：词条 [${passivesData.length}]')
 }
 
 /// Run every time game starts

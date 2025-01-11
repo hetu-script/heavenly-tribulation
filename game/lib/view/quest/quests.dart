@@ -49,7 +49,7 @@ class _QuestsViewState extends State<QuestsView> {
   void initState() {
     super.initState();
 
-    // engine.addEventListener(
+    // engine.setEventListener(
     //   UIEvents.needRebuildUI,
     //   EventHandler(
     //     widgetKey: widget.key!,

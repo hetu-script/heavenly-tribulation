@@ -6,6 +6,7 @@
   "console": "控制台",
   "confirm": "确定",
   "confirmOperation": "确认操作",
+  "ok": "好的",
   "okay": "好的",
   "cancel": "取消",
   "forgetIt": "算了",
@@ -44,6 +45,15 @@
   "character": "人物",
   "mapObject": "对象",
 
+  "sort": "排序",
+  "acquiredTime": "获得时间",
+
+  "ascending": "升序",
+  "descending": "降序",
+
+  "filter": "筛选",
+  "search": "搜索",
+
   "topLeft": "↖",
   "topCenter": "↑",
   "topRight": "↗",
@@ -71,6 +81,10 @@
   "continue": "继续",
   "gameOver": "游戏失败",
 
+  "error": "错误",
+  "invalid": "无效",
+  "invalidData": "无效数据",
+
   "input": "输入",
   "inputInteger": "输入一个数字",
   "inputName": "输入一个名字",
@@ -78,12 +92,13 @@
   "inputScriptCode": "输入脚本代码",
   "inputDescription": "输入一段文字",
   "select": "选择",
-  "selectOne": "选择一项",
+  "selectOne": "选择一个",
   "selectHero": "选择你要扮演的人物",
   "selectCharacter": "选择一个人物",
   "selectLocation": "选择一个据点",
   "selectOrganization": "选择一个门派",
   "selectItem": "选择一个物品",
+  "selectCardpack": "选择一个秘籍",
 
   "dangerOperationPrompt": "这个操作无法撤销，确认继续吗？",
 
@@ -93,7 +108,6 @@
   "level": "等级",
   "use": "使用",
   "equip": "装备",
-  "equipment": "装备",
   "unequip": "卸下",
   "discard": "丢弃",
   "destroy": "销毁",
@@ -170,6 +184,7 @@
   "category": "类别",
   "kind": "种类",
   "genre": "流派",
+  "genre2": "流",
 
   "you": "你",
   "me": "我",
@@ -295,6 +310,8 @@
   "hint.deadend": "这里看样子无法前进了，看来得想想别的办法……",
 
   "exp": "经验值",
+  "rank": "境界",
+  "rank2": "境",
   "rankUp!": "境界提升!",
 
   "availableSkillPoints": "可分配天赋点数",

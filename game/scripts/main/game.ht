@@ -9,15 +9,17 @@ let isDebugMode
 let isNewGame
 
 let game
-let universe
-let history
-
 // game.characters[game.heroId]
 let hero
+
+let universe
 // universe.worlds[game.currentWorldId]
 let world
+
+let history
 // history.worlds[game.currentWorldId]
 let timeline
+
 let year
 let ticksOfYear
 let month
@@ -91,8 +93,30 @@ struct Universe {
 
 struct History {
   construct {
+    this.timestamp = 1
     this.worlds = {}
   }
+}
+
+/// 创建新游戏，重置所有状态，返回game
+function createGame(saveName) {
+  engine.info('准备开始新游戏')
+  game = Game(saveName: saveName)
+  universe = Universe()
+  history = History()
+
+  hero = null
+  world = null
+  timeline = []
+
+  year = 1
+  month = 1
+  day = 1
+  ticksOfYear = 1
+  ticksOfMonth = 1
+  ticksOfDay = 1
+
+  return game
 }
 
 function resetPlayerMonthlyActivities(){
@@ -118,35 +142,13 @@ function resetPlayerMonthlyActivities(){
   }
 }
 
-/// 创建新游戏，重置所有状态，返回game
-function newGame(saveName) {
-  engine.info('准备开始新游戏')
-  game = Game(saveName: saveName)
-
-  universe = Universe()
-  history = History()
-
-  hero = null
-  world = null
-  timeline = { timestamp: 0, incidents: [] }
-
-  year = 1
-  month = 1
-  day = 1
-  ticksOfYear = 1
-  ticksOfMonth = 1
-  ticksOfDay = 1
-
-  return game
-}
-
 function calculateTimestamp() {
-  year = toYear(timeline.timestamp) + 1
-  month = toMonth(timeline.timestamp) + 1
-  day = toDay(timeline.timestamp) + 1
-  ticksOfYear = (timeline.timestamp % kTicksPerYear) + 1
-  ticksOfMonth = (timeline.timestamp % kTicksPerMonth) + 1
-  ticksOfDay = (timeline.timestamp % kTicksPerDay) + 1
+  year = toYear(history.timestamp) + 1
+  month = toMonth(history.timestamp) + 1
+  day = toDay(history.timestamp) + 1
+  ticksOfYear = (history.timestamp % kTicksPerYear) + 1
+  ticksOfMonth = (history.timestamp % kTicksPerMonth) + 1
+  ticksOfDay = (history.timestamp % kTicksPerDay) + 1
 }
 
 function addModule(module) {
@@ -185,14 +187,14 @@ function loadGameFromJsonData({
   world = universe.worlds[game.currentWorldId]
   timeline = history.worlds[game.currentWorldId]
   assert(world != null)
-  assert(timeline != null)
+  assert(timeline is List)
 
   return game
 }
 
 function addWorld(newWorld) {
   world = universe.worlds[newWorld.id] = newWorld
-  timeline = history.worlds[newWorld.id] = { timestamp: 0, incidents: [] }
+  timeline = history.worlds[newWorld.id] = []
 
   game.currentWorldId = newWorld.id
 }
@@ -239,7 +241,7 @@ function getHistoryJsonData() {
 }
 
 function getTimestamp {
-  return timeline.timestamp
+  return history.timestamp
 }
 
 function getHeroId() {
@@ -249,6 +251,7 @@ function getHeroId() {
 function setHeroId(id: string) {
   assert(game.characters.containsKey(id))
   hero = game.characters[id]
+
   Player.updateStats()
   engine.info('设置当前玩家人物为 [${hero.id}]。')
   // game.heroHomeSite.locationId = hero.homeId
@@ -354,7 +357,7 @@ function onNewGame() {
   game.isNewGame = false
 }
 
-function refreshWorldMapCaptions {
+function updateWorldMapCaptions {
   for (const tile in world.terrains) {
     if (tile.locationId) {
       const location = game.locations[tile.locationId]

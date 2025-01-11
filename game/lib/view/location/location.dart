@@ -16,7 +16,7 @@ class LocationView extends StatefulWidget {
   final dynamic locationData;
   final int? left, top;
   final String? category;
-  final ViewPanelMode mode;
+  final InformationViewMode mode;
 
   const LocationView({
     super.key,
@@ -25,7 +25,7 @@ class LocationView extends StatefulWidget {
     this.left,
     this.top,
     this.category,
-    this.mode = ViewPanelMode.view,
+    this.mode = InformationViewMode.view,
   });
 
   @override
@@ -34,7 +34,8 @@ class LocationView extends StatefulWidget {
 
 class _LocationViewState extends State<LocationView> {
   bool get isEditorMode =>
-      widget.mode == ViewPanelMode.edit || widget.mode == ViewPanelMode.create;
+      widget.mode == InformationViewMode.edit ||
+      widget.mode == InformationViewMode.create;
 
   late final dynamic _locationData;
   List<Widget> _siteCards = [];
@@ -70,16 +71,17 @@ class _LocationViewState extends State<LocationView> {
   }
 
   void _loadData() {
+    final locations = engine.hetu.invoke('getLocations');
     _siteCards = List<Widget>.from(
-      (_locationData['sites'] as Map)
-          .values
-          .where((value) => !(value['isSubSite'] ?? false))
-          .map(
-            (siteData) => SiteCard(
-              siteData: siteData,
-              imagePath: siteData['image'],
-            ),
-          ),
+      (_locationData['buildings'] as Map).values.map(
+        (buildingId) {
+          final siteData = locations[buildingId];
+          return SiteCard(
+            siteData: siteData,
+            imagePath: siteData['image'],
+          );
+        },
+      ),
     );
   }
 
@@ -88,7 +90,8 @@ class _LocationViewState extends State<LocationView> {
     return ResponsiveWindow(
       color: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
-      size: Size(640.0, widget.mode != ViewPanelMode.view ? 440.0 : 400.0),
+      size:
+          Size(640.0, widget.mode != InformationViewMode.view ? 440.0 : 400.0),
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -155,7 +158,7 @@ class _LocationViewState extends State<LocationView> {
                 ],
               ),
             ),
-            if (widget.mode != ViewPanelMode.view)
+            if (widget.mode != InformationViewMode.view)
               Row(
                 children: [
                   if (isEditorMode) ...[
@@ -204,9 +207,10 @@ class _LocationViewState extends State<LocationView> {
                             builder: (context) => const EditSite(),
                           ).then((value) {
                             if (value == null) return;
-                            engine.hetu.invoke('Site', namedArgs: {
+                            engine.hetu.invoke('Location', namedArgs: {
+                              'category': 'building',
+                              'kind': value,
                               'location': _locationData,
-                              'category': value,
                             });
                             setState(() {});
                           });
@@ -221,15 +225,15 @@ class _LocationViewState extends State<LocationView> {
                     child: ElevatedButton(
                       onPressed: () {
                         switch (widget.mode) {
-                          case ViewPanelMode.select:
+                          case InformationViewMode.select:
                             Navigator.of(context).pop(_locationData['id']);
-                          case ViewPanelMode.edit:
+                          case InformationViewMode.edit:
                             _saveData();
                             Navigator.of(context).pop(true);
-                          case ViewPanelMode.create:
+                          case InformationViewMode.create:
                             _saveData();
                             Navigator.of(context).pop(_locationData);
-                          case ViewPanelMode.view:
+                          case InformationViewMode.view:
                             Navigator.of(context).pop();
                         }
                       },

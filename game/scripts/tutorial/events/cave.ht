@@ -59,9 +59,9 @@ const cave = {
           category: "buff",
           kind: "punch",
         )
-        Player.acquireBattleCardByData(card1)
-        Player.acquireBattleCardByData(card2)
-        Player.acquireBattleCardByData(card3)
+        Player.acquire(card1)
+        Player.acquire(card2)
+        Player.acquire(card3)
         
         await dialog.localeLines('cave.hero.line2', isHero: true)
         
@@ -91,7 +91,7 @@ const cave = {
       //       Player.acquireItemById('quest_jade')
       //       Player.gainExp(40)
       //       delete terrain.overlaySprite.animation
-      //       WorldMap.refreshTerrainOverlaySprite(terrain.left, terrain.top)
+      //       WorldMap.updateTerrainOverlaySprite(terrain.left, terrain.top)
       //     }
       //     dialog.popImage()
       //   } else {
@@ -125,12 +125,12 @@ const cave = {
       //       dialog.localeLines('hint.switch', isHero: true)
       //       final switchTile = getTerrainByWorldPosition(3,19)
       //       switchTile.overlaySprite = {sprite: kSpriteDungeonLeverOn} 
-      //       WorldMap.refreshTerrainOverlaySprite(3,19)
+      //       WorldMap.updateTerrainOverlaySprite(3,19)
             
       //       final openedRoadTile = getTerrainByWorldPosition(10,18)
       //       openedRoadTile.kind = 'plain'
       //       openedRoadTile.spriteIndex = kSpriteDungeonStonePavedTile
-      //       WorldMap.refreshTerrainSprite(10,18)
+      //       WorldMap.updateTerrainSprite(10,18)
       //     }
       //   }
       // }

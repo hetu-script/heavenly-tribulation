@@ -18,7 +18,7 @@ import 'common.dart';
 import 'engine.dart';
 import 'scene/common.dart';
 
-const kSepareteLine = '——————————————————';
+const kSeparateLine = '————————————————';
 
 /// 游戏数据，大部分以JSON或者Hetu Struct形式保存
 /// 这个类是纯静态类，方法都是有关读取和保存的
@@ -26,11 +26,11 @@ const kSepareteLine = '——————————————————';
 abstract class GameData {
   static Map<String, dynamic> editorToolItemsData = {};
   static Map<String, dynamic> animationsData = {};
-  static Map<String, dynamic> battleCardData = {};
+  static Map<String, dynamic> battleCardsData = {};
   static Map<String, dynamic> battleCardAffixesData = {};
   static Map<String, dynamic> statusEffectsData = {};
   static Map<String, dynamic> itemsData = {};
-  static Map<String, dynamic> passiveData = {};
+  static Map<String, dynamic> passivesData = {};
   // static Map<String, dynamic> supportSkillData = {};
   static Map<String, dynamic> skillTreeData = {};
   // static Map<String, dynamic> supportSkillTreeData = {};
@@ -42,12 +42,12 @@ abstract class GameData {
   /// 游戏本身的数据，包含角色，对象，等等。但这里不包括地图数据。
   static dynamic data;
 
-  static BuildContext? ctx;
+  static late BuildContext context;
 
   static bool _isInitted = false;
   static bool get isInitted => _isInitted;
 
-  static Future<void> init(BuildContext context) async {
+  static Future<void> init({required BuildContext flutterContext}) async {
     final editorToolItemsString =
         await rootBundle.loadString('assets/data/editor_tools.json5');
     editorToolItemsData = JSON5.parse(editorToolItemsString);
@@ -58,7 +58,7 @@ abstract class GameData {
 
     final battleCardDataString =
         await rootBundle.loadString('assets/data/cards.json5');
-    battleCardData = JSON5.parse(battleCardDataString);
+    battleCardsData = JSON5.parse(battleCardDataString);
 
     final battleCardAffixDataString =
         await rootBundle.loadString('assets/data/card_affixes.json5');
@@ -78,7 +78,7 @@ abstract class GameData {
 
     final passiveDataString =
         await rootBundle.loadString('assets/data/passives.json5');
-    passiveData = JSON5.parse(passiveDataString);
+    passivesData = JSON5.parse(passiveDataString);
 
     // final supportSkillDataString =
     //     await rootBundle.loadString('assets/data/skills_support.json5');
@@ -110,7 +110,7 @@ abstract class GameData {
         final List nodeData = skillTreeNodeData['passives'];
         for (final passiveData in nodeData) {
           final dataId = passiveData['id'];
-          final passiveRawData = GameData.passiveData[dataId];
+          final passiveRawData = GameData.passivesData[dataId];
           assert(passiveRawData != null);
           String description = engine.locale(passiveRawData['description']);
           if (passiveRawData['increment'] != null) {
@@ -146,8 +146,8 @@ abstract class GameData {
       constructableSiteCategoryNames[key] = engine.locale(key);
     }
 
-    ctx = context;
-    engine.hetu.invoke('build', positionalArgs: [context]);
+    context = flutterContext;
+    engine.hetu.invoke('build', positionalArgs: [flutterContext]);
 
     _isInitted = true;
   }
@@ -167,26 +167,26 @@ abstract class GameData {
   static bool isGameCreated = false;
 
   /// 将dart侧从json5载入的游戏数据保存到游戏存档中
-  static void loadGameData() {
+  static void initGameData() {
     engine.hetu.invoke('init', namedArgs: {
       'itemsData': GameData.itemsData,
-      'battleCardData': GameData.battleCardData,
+      'battleCardsData': GameData.battleCardsData,
       'battleCardAffixesData': GameData.battleCardAffixesData,
-      // 'skillTreeData': GameData.skillTreeData,
-      // 'supportSkillTreeData': GameData.supportSkillTreeData,
-      'passiveData': GameData.passiveData,
-      // 'supportSkillData': GameData.supportSkillData,
+      'passivesData': GameData.passivesData,
     });
   }
 
-  static Future<void> newGame(String worldId, [String? saveName]) async {
+  /// 每次执行 createGame 都会重置游戏内的 game 对象上的数据
+  static Future<void> createGame(String worldId, [String? saveName]) async {
+    engine.info('创建新游戏：[$worldId]');
+
     worldIds.clear();
     currentWorldId = worldId;
     worldIds.add(worldId);
 
-    data = engine.hetu.invoke('newGame', positionalArgs: [saveName]);
+    data = engine.hetu.invoke('createGame', positionalArgs: [saveName]);
 
-    loadGameData();
+    initGameData();
 
     for (final id in GameConfig.modules.keys) {
       if (GameConfig.modules[id]?['enabled'] == true) {
@@ -227,10 +227,10 @@ abstract class GameData {
     isGameCreated = true;
   }
 
-  static Future<void> loadGame(String savePath,
-      {bool isEditorMode = false}) async {
+  /// 从存档中读取游戏数据
+  /// 在这一步中，并不会创建地图对应的场景
+  static Future<void> loadGame(String savePath) async {
     worldIds.clear();
-    currentWorldId = null;
     engine.info('从 [$savePath] 载入游戏存档。');
     final gameSave = await File(savePath).open();
     final gameDataString = utf8.decoder
@@ -255,7 +255,7 @@ abstract class GameData {
     );
   }
 
-  static Future<void> loadPresetSave(String filename) async {
+  static Future<void> loadPreset(String filename) async {
     final gameSave = 'assets/save/$filename$kGameSaveFileExtension';
     final gameDataString = await rootBundle.loadString(gameSave);
     final gameData = jsonDecode(gameDataString);
@@ -324,27 +324,31 @@ abstract class GameData {
   }
 
   static String getDescriptiomFromItemData(dynamic itemData,
-      {bool isDetailed = false}) {
+      {bool isDetailed = false, dynamic characterData}) {
     final description = StringBuffer();
     final title = itemData['name'];
     final rarity = itemData['rarity'];
     final category = itemData['category'];
-    final level = itemData['level'];
 
-    final titleString = '<bold $rarity t5>$title</>';
+    final level = itemData['level'];
+    final levelString =
+        level != null ? '(${engine.locale('level')}: $level)' : '';
+
+    final titleString = isDetailed
+        ? '<bold $rarity t7>$title $levelString</>'
+        : '<bold $rarity t7>$title</>';
     final rarityString =
         '<grey>${engine.locale('rarity')}: </><$rarity>${engine.locale(rarity)}, </>';
     final categoryString =
-        '<grey>${engine.locale('category')}: ${engine.locale(category)}, </>';
-    final levelString = '<grey>${engine.locale('level')}: $level</>';
+        '<grey>${engine.locale('category')}: ${engine.locale(category)}</>';
 
     description.writeln(titleString);
-    description.writeln('$rarityString$categoryString$levelString');
+    description.writeln('$rarityString$categoryString');
 
     final affixList = itemData['affixes'];
     if (affixList is List) {
       assert(affixList.isNotEmpty);
-      description.writeln(kSepareteLine);
+      description.writeln(kSeparateLine);
       for (var i = 0; i < affixList.length; i++) {
         final passiveData = affixList[i];
         String descriptionString = engine.locale(passiveData['description']);
@@ -352,28 +356,47 @@ abstract class GameData {
         if (value != null) {
           descriptionString = descriptionString.interpolate([value]);
         }
+        final level = passiveData['level'];
+        final levelString =
+            level != null ? ' (${engine.locale('level')}: $level)' : '';
         if (i == 0) {
           description.writeln(descriptionString);
           // if (affixList.length > 1) {
           //   description.writeln(kSepareteLine);
           // }
         } else {
-          description.writeln('<lightBlue>$descriptionString</>');
+          if (isDetailed) {
+            description
+                .writeln('<lightBlue>$descriptionString $levelString</>');
+          } else {
+            description.writeln('<lightBlue>$descriptionString</>');
+          }
         }
       }
     }
 
-    description.writeln(kSepareteLine);
+    description.writeln(kSeparateLine);
     final flavorText = itemData['flavorText'];
     if (flavorText != null) {
-      description.writeln('<grey>${engine.locale(flavorText)}</>');
+      description.writeln('<grey>$flavorText</>');
     }
+
+    if (itemData['equippedPosition'] == null) {
+      switch (category) {
+        case 'equipment':
+          description.writeln('<green>${engine.locale('equippableHint')}</>');
+        case 'consumable':
+          description.writeln('<green>${engine.locale('usableHint')}</>');
+        case 'quest':
+          description.writeln('<yellow>${engine.locale('questItem')}</>');
+      }
+    }
+
     final out = description.toString().trim();
     return out;
   }
 
-  /// 返回值是一个元祖，第一个字符串是卡面描述，第二个是详细描述，第三个bool是角色是否可用此卡牌
-  /// 如果没有传递characterData，则永远返回true
+  /// 返回值是一个元祖，第一个字符串是卡面描述，第二个是详细描述
   static (String, String) getDescriptionFromCardData(dynamic cardData,
       {bool isDetailed = false, dynamic characterData}) {
     final List affixes = cardData['affixes'];
@@ -393,8 +416,8 @@ abstract class GameData {
     String? requirementString;
 
     final titleString = isDetailed
-        ? '<bold rank$cardRank t5>$title ($levelPrefix $cardLevel)</>'
-        : '<bold rank$cardRank t5>$title</>';
+        ? '<bold rank$cardRank t7>$title ($levelPrefix $cardLevel)</>'
+        : '<bold rank$cardRank t7>$title</>';
     final rankString =
         '<grey>${engine.locale('cultivationRank')}:</> <rank$cardRank>${engine.locale('cultivationRank_$cardRank')}, </>';
     final genreString =
@@ -404,7 +427,7 @@ abstract class GameData {
 
     extraDescription.writeln(titleString);
     extraDescription.writeln('$rankString$genreString$categoryString');
-    extraDescription.writeln(kSepareteLine);
+    extraDescription.writeln(kSeparateLine);
 
     final Map<String, String> explanations = {};
     for (final affix in affixes) {
@@ -456,7 +479,7 @@ abstract class GameData {
     }
 
     if (explanations.isNotEmpty) {
-      extraDescription.writeln(kSepareteLine);
+      extraDescription.writeln(kSeparateLine);
       if (isDetailed) {
         for (final tag in explanations.keys) {
           extraDescription.writeln(explanations[tag]);
@@ -535,92 +558,4 @@ abstract class GameData {
       enablePreview: true,
     );
   }
-
-  // static GameCard getBattleCardById(String cardId) {
-  //   assert(_isInitted, 'Game data is not loaded yet!');
-  //   assert(GameUI.isInitted, 'Game UI is not initted yet!');
-
-  //   final data = cardsData[cardId];
-  //   assert(data != null, 'Failed to load card data: [$cardId]');
-  //   final String id = data['id'];
-
-  //   return GameCard(
-  //     id: id,
-  //     deckId: id,
-  //     script: id,
-  //     data: data,
-  //     // title: data['title'][engine.locale.languageId],
-  //     // description: data['rules'][engine.locale.languageId],
-  //     size: GameUI.libraryCardSize,
-  //     spriteId: 'cultivation/library/$id.png',
-  //     // focusedPriority: 1000,
-  //     // illustrationSpriteId: 'cards/illustration/$id.png',
-  //     // illustrationHeightRatio: kCardIllustrationHeightRatio,
-  //     // showTitle: true,
-  //     // titleStyle: const ScreenTextConfig(
-  //     //   colorTheme: ScreenTextColorTheme.light,
-  //     //   anchor: Anchor.topCenter,
-  //     //   padding: EdgeInsets.only(
-  //     //       top: kLibraryCardHeight * kCardIllustrationHeightRatio),
-  //     //   textStyle: TextStyle(fontSize: 16),
-  //     // ),
-  //     // showDescription: true,
-  //     // descriptionStyle: const ScreenTextConfig(
-  //     //   colorTheme: ScreenTextColorTheme.dark,
-  //     // ),
-  //   );
-  // }
-}
-
-abstract class PrebuildDecks {
-  // static List<GameCard> _getCards(List<String> cardIds) {
-  //   return cardIds.map((e) => GameData.getBattleCard(e)).toList();
-  // }
-
-  // static const List<String> _basic = [
-  //   'defend_normal',
-  //   'attack_normal',
-  //   'attack_normal',
-  //   'attack_normal',
-  // ];
-
-  // static const List<String> _blade_1 = [
-  //   'defend_normal',
-  //   'blade_4',
-  //   'blade_3',
-  //   'blade_1',
-  // ];
-
-  // static const List<String> _blade_2 = [
-  //   'blade_4',
-  //   'blade_6',
-  //   'blade_7',
-  //   'blade_8',
-  // ];
-
-  // static const List<String> _blade_3 = [
-  //   'blade_9',
-  //   'blade_10',
-  //   'blade_7',
-  //   'blade_8',
-  // ];
-
-  // static const _allDecks = [
-  //   _basic,
-  //   ..._bladeDecks,
-  // ];
-
-  // static const _bladeDecks = [
-  //   _blade_1,
-  //   _blade_2,
-  //   _blade_3,
-  // ];
-
-  // static List<GameCard> get random => _getCards(_allDecks.random());
-  // static List<GameCard> get randomBlade => _getCards(_bladeDecks.random());
-
-  // static List<GameCard> get basic => _getCards(_basic);
-  // static List<GameCard> get blade1 => _getCards(_blade_1);
-  // static List<GameCard> get blade2 => _getCards(_blade_2);
-  // static List<GameCard> get blade3 => _getCards(_blade_3);
 }

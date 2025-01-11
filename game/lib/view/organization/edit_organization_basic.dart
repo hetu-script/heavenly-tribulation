@@ -3,7 +3,7 @@ import 'package:samsara/samsara.dart';
 import 'package:samsara/ui/responsive_window.dart';
 import 'package:samsara/ui/close_button.dart';
 
-import '../../game_dialog/character_select_dialog.dart';
+import '../dialog/character_select_dialog.dart';
 import '../../engine.dart';
 import '../../data.dart';
 import '../../ui.dart';

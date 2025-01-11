@@ -3,15 +3,16 @@ import 'package:provider/provider.dart';
 
 import '../../engine.dart';
 import '../../ui.dart';
-import 'equipments/stats.dart';
-import 'equipments/equipment_bar.dart';
+import 'inventory/stats.dart';
+import 'inventory/equipment_bar.dart';
 // import 'status_effects.dart';
-import 'equipments/inventory.dart';
+import 'inventory/inventory.dart';
 import '../../view/menu_item_builder.dart';
-import '../../state/windows.dart';
+import '../../state/view_panels.dart';
 import '../draggable_panel.dart';
-import '../../game_dialog/confirm_dialog.dart';
+import '../dialog/confirm_dialog.dart';
 import '../../state/hero.dart';
+import '../common.dart';
 
 const Set<String> kMaterials = {
   // 'money',
@@ -93,9 +94,6 @@ class CharacterDetailsView extends StatefulWidget {
     this.characterData,
     this.tabIndex = 0,
     this.type = InventoryType.player,
-    this.onClose,
-    this.onDragUpdate,
-    this.onTapDown,
   }) : assert(characterId != null || characterData != null);
 
   final String? characterId;
@@ -105,10 +103,6 @@ class CharacterDetailsView extends StatefulWidget {
   final int tabIndex;
 
   final InventoryType type;
-
-  final void Function()? onClose;
-  final void Function(DragUpdateDetails details)? onDragUpdate;
-  final void Function(Offset tapPosition)? onTapDown;
 
   @override
   State<CharacterDetailsView> createState() => _CharacterDetailsViewState();
@@ -225,24 +219,32 @@ class _CharacterDetailsViewState extends State<CharacterDetailsView>
       context: context,
       position: menuPosition,
       items: items,
-      requestFocus: false,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final windowPositions =
-        context.watch<WindowPositionState>().windowPositions;
-    final position = windowPositions['details'] ?? GameUI.detailsWindowPosition;
+    final windowPositions = context.watch<PanelPositionState>().panelPositions;
+    final position = windowPositions[ViewPanels.characterDetails] ??
+        GameUI.detailsWindowPosition;
 
     return DraggablePanel(
       title: engine.locale('build'),
       position: position,
       width: GameUI.profileWindowWidth,
       height: 400.0,
-      onTapDown: widget.onTapDown,
-      onDragUpdate: widget.onDragUpdate,
-      onClose: widget.onClose,
+      onTapDown: (offset) {
+        context.read<ViewPanelState>().setUpFront(ViewPanels.characterDetails);
+      },
+      onDragUpdate: (details) {
+        context.read<PanelPositionState>().updatePosition(
+              ViewPanels.characterDetails,
+              details.delta,
+            );
+      },
+      onClose: () {
+        context.read<ViewPanelState>().hide(ViewPanels.characterDetails);
+      },
       child: Stack(
         children: [
           Padding(

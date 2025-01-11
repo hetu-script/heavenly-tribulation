@@ -122,6 +122,7 @@ class _WorldInformationPanelState extends State<WorldInformationPanel>
 
     _locationsData = engine.hetu.invoke('getLocations');
     for (final loc in _locationsData) {
+      if (loc['category'] != 'city') continue;
       final rowData = <String>[];
       rowData.add(loc['name']);
       // 国家名字
@@ -129,17 +130,7 @@ class _WorldInformationPanelState extends State<WorldInformationPanel>
       // 门派名字
       rowData.add(getNameFromId(loc['organizationId'], 'none'));
       // 类型
-      final category = loc['category'];
-      switch (category) {
-        case 'city':
-          rowData.add(engine.locale('city'));
-        case 'arcana':
-          rowData.add(engine.locale('arcana'));
-        case 'mirage':
-          rowData.add(engine.locale('mirage'));
-        default:
-          rowData.add(engine.locale('unknown'));
-      }
+      rowData.add(engine.locale(loc['kind']));
       // 发展度
       rowData.add(loc['development'].toString());
       // 多存一个隐藏的 id 信息，用于点击事件

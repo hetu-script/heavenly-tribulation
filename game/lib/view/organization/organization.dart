@@ -20,13 +20,13 @@ const kOrganizationCategoryNation = 'nation';
 class OrganizationView extends StatefulWidget {
   final String? organizationId;
   final HTStruct? organizationData;
-  final ViewPanelMode mode;
+  final InformationViewMode mode;
 
   const OrganizationView({
     super.key,
     this.organizationId,
     this.organizationData,
-    this.mode = ViewPanelMode.view,
+    this.mode = InformationViewMode.view,
   });
 
   @override

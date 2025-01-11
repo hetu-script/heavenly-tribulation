@@ -2,9 +2,9 @@ namespace WorldMap {
 
   external function setTerrainCaption(left, top, caption)
 
-  external function refreshTerrainSprite(left, top)
+  external function updateTerrainSprite(left, top)
 
-  external function refreshTerrainOverlaySprite(left, top)
+  external function updateTerrainOverlaySprite(left, top)
 
   external function clearTerrainAnimation(left, top)
 
@@ -12,22 +12,18 @@ namespace WorldMap {
 
   external function clearTerrainOverlayAnimation(left, top)
 
-  external function freezePlayer()
+  external function setPlayerFreeze(value: bool)
 
-  external function unfreezePlayer()
-
-  external function refreshHeroTileInfo()
+  external function updateHeroTileInfo()
 
   external function setObjectTo(id, toX, toY)
 
   /// endDirection: 'north' | 'east' | 'south' | 'west'
   external async function moveObjectTo(id, toX, toY, {endDirection, onAfterMoveCallback})
 
-  external async function refreshNpcsInHeroWorldMapPosition()
+  external async function updateNpcsInHeroWorldMapPosition()
 
-  external async function refreshNpcsInHeroLocation()
-
-  external async function refreshNpcsInHeroSite()
+  external async function updateNpcsInHeroLocation()
 
   external function addHintText(text, left, top, [color])
 

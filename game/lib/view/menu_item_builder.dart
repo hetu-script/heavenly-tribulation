@@ -25,7 +25,7 @@ PopupMenuItem<T> buildMenuItem<T>({
 PopupSubMenuItem<T> buildSubMenuItem<T>({
   required Map<String, T> items,
   required String name,
-  required Offset offset,
+  offset = const Offset(120, 0),
   void Function(T item)? onSelectedItem,
   double height = 24.0,
   double width = 120.0,

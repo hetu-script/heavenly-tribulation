@@ -11,7 +11,7 @@ import 'package:samsara/error.dart';
 import 'package:provider/provider.dart';
 
 // import 'ui/view/location/location.dart';
-import 'mainmenu/main_menu.dart';
+import 'app.dart';
 // import 'ui/editor/editor.dart';
 // import 'ui/view/character/character.dart';
 // import 'ui/view/information/information.dart';
@@ -95,14 +95,13 @@ void main() {
           ChangeNotifierProvider(create: (_) => HistoryState()),
           ChangeNotifierProvider(create: (_) => GameDialogState()),
           ChangeNotifierProvider(create: (_) => CurrentNpcList()),
-          ChangeNotifierProvider(create: (_) => LocationSiteSceneState()),
-          ChangeNotifierProvider(create: (_) => WorldMapSceneState()),
+          ChangeNotifierProvider(create: (_) => SceneControllerState()),
           ChangeNotifierProvider(create: (_) => QuestState()),
-          ChangeNotifierProvider(create: (_) => GameOverlayVisibilityState()),
+          ChangeNotifierProvider(create: (_) => GameUIOverlayVisibilityState()),
           ChangeNotifierProvider(create: (_) => HeroState()),
           ChangeNotifierProvider(create: (_) => EnemyState()),
-          ChangeNotifierProvider(create: (_) => WindowPriorityState()),
-          ChangeNotifierProvider(create: (_) => WindowPositionState()),
+          ChangeNotifierProvider(create: (_) => ViewPanelState()),
+          ChangeNotifierProvider(create: (_) => PanelPositionState()),
           ChangeNotifierProvider(create: (_) => HoverInfoContentState()),
           ChangeNotifierProvider(create: (_) => HoverInfoDeterminedRectState()),
         ],
@@ -111,10 +110,7 @@ void main() {
           scrollBehavior: DesktopScrollBehavior(),
           debugShowCheckedModeBanner: false,
           theme: GameConfig.appTheme,
-          home: Scaffold(
-            key: mainKey,
-            body: const MainMenu(),
-          ),
+          home: GameApp(key: mainKey),
           // 控件绘制时发生错误，用一个显示错误信息的控件替代
           builder: (context, widget) {
             ErrorWidget.builder = (FlutterErrorDetails details) {

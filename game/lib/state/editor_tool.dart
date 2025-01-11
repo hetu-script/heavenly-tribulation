@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 class EditorToolState with ChangeNotifier {
   String? selectedId;
 
-  void reset() {
+  void clear() {
     selectedId = null;
     notifyListeners();
   }

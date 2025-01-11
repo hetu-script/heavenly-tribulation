@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../../engine.dart';
 import '../../ui.dart';
 import '../common.dart';
-import '../../state/windows.dart';
+import '../../state/view_panels.dart';
 import '../draggable_panel.dart';
 
 enum QuestViewMode { all, ongoing, finished }
@@ -16,21 +16,14 @@ class CharacterQuestView extends StatefulWidget {
     super.key,
     this.characterId,
     this.characterData,
-    this.mode = ViewPanelMode.view,
-    this.onClose,
-    this.onDragUpdate,
-    this.onTapDown,
+    this.mode = InformationViewMode.view,
   }) : assert(characterId != null || characterData != null);
-
-  final void Function()? onClose;
-  final void Function(DragUpdateDetails details)? onDragUpdate;
-  final void Function(Offset tapPosition)? onTapDown;
 
   final String? characterId;
 
   final dynamic characterData;
 
-  final ViewPanelMode mode;
+  final InformationViewMode mode;
 
   @override
   State<CharacterQuestView> createState() => _CharacterQuestViewState();
@@ -38,7 +31,8 @@ class CharacterQuestView extends StatefulWidget {
 
 class _CharacterQuestViewState extends State<CharacterQuestView> {
   bool get isEditorMode =>
-      widget.mode == ViewPanelMode.edit || widget.mode == ViewPanelMode.create;
+      widget.mode == InformationViewMode.edit ||
+      widget.mode == InformationViewMode.create;
 
   dynamic _characterData, _questsData;
 
@@ -95,18 +89,27 @@ class _CharacterQuestViewState extends State<CharacterQuestView> {
 
   @override
   Widget build(BuildContext context) {
-    final windowPositions =
-        context.watch<WindowPositionState>().windowPositions;
-    final position = windowPositions['quest'] ?? GameUI.detailsWindowPosition;
+    final windowPositions = context.watch<PanelPositionState>().panelPositions;
+    final position = windowPositions[ViewPanels.characterQuest] ??
+        GameUI.detailsWindowPosition;
 
     return DraggablePanel(
       title: engine.locale('quest'),
       position: position,
       width: GameUI.profileWindowWidth,
       height: 400.0,
-      onTapDown: widget.onTapDown,
-      onDragUpdate: widget.onDragUpdate,
-      onClose: widget.onClose,
+      onTapDown: (offset) {
+        context.read<ViewPanelState>().setUpFront(ViewPanels.characterQuest);
+      },
+      onDragUpdate: (details) {
+        context.read<PanelPositionState>().updatePosition(
+              ViewPanels.characterQuest,
+              details.delta,
+            );
+      },
+      onClose: () {
+        context.read<ViewPanelState>().hide(ViewPanels.characterQuest);
+      },
       child: Container(
         width: 630.0,
         height: 350.0,

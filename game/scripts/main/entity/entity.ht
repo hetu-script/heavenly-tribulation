@@ -1,9 +1,6 @@
 import '../random.ht'
-// import 'effect/effect.ht'
-// import 'character/companion.ht'
-// import 'item/money.ht'
-// import 'skill/common.ht'
 import '../dialog.ht'
+import '../name/skill/skill.json5' as skillData
 
 const kAttributes = [
   'dexterity',
@@ -12,6 +9,16 @@ const kAttributes = [
   'willpower',
   'perception',
 ]
+
+const kCultivationGenres = [
+  'daoism',
+  'swordcraft',
+  'physique',
+  'avatar',
+  'vitality',
+]
+
+final kBattleCardKind = skillData.keys.toList()
 
 // 进行某些互动的时候
 const kFameCheckThreshold = 75
@@ -123,7 +130,7 @@ const kEntityTypeBaby = 'baby' // game.babies
 const kEntityTypeItem = 'item' //character.inventory
 const kEntityTypeOrganization = 'organization' //game.organizations
 const kEntityTypeLocation = 'location' // game.locations
-const kEntityTypeSite = 'site' // location.sites
+const kEntityTypeBattleCard = 'battle_card' // character.cardLibrary
 
 const kEntityCategoryMaterial = 'material';
 
@@ -135,6 +142,10 @@ const kEquipmentMax = 6
 const kEquipTypeShip = 'ship'
 const kEquipTypeBoots = 'boots'
 const kEquipTypeAircraft = 'aircraft'
+
+const kItemCategoryMaterialPack = 'materialpack'
+const kItemCategoryEquipment = 'equipment'
+const kItemCategoryCardpack = 'cardpack'
 
 const kRankMax = 8
 
@@ -152,7 +163,7 @@ const kRankRarity = {
 
 function getRandomLevel(min, max) {
   if (min >= max) return max
-  return  min + random.nextInt(max - min + 1)
+  return  min + random.distantInt(max - min + 1)
 }
 
 function minLevelPerRank(rank) {
@@ -202,7 +213,7 @@ function createRandomBirthTimestamp({min = 1, max = _kCharacterRandomAgeMax}) {
   assert(min > 0)
   const age = random.nextInt(max - min) + min
   const randomDateInAYear = random.nextInt(kTicksPerYear)
-  return timeline?.timestamp - (age * kTicksPerYear + randomDateInAYear)
+  return history.timestamp - (age * kTicksPerYear + randomDateInAYear)
 }
 
 function tryChangeStats(entity, statName, change, { overflow = false }) {

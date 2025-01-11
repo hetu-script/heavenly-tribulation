@@ -127,7 +127,7 @@ flutter:
     - scripts/main/
     - scripts/main/ai/
     - scripts/main/binding/
-    - scripts/main/cardbattle/
+    - scripts/main/cardgame/
     - scripts/main/entity/
     - scripts/main/entity/character/
     - scripts/main/entity/item/

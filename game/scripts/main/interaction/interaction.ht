@@ -286,7 +286,7 @@ function onAfterHeroMove(terrain, nonEnterableDestination) {
 function onBeforeHeroEnterLocation(location) async {
   if (!location.isDiscovered) {
     // TODO: 第一次发现据点事件
-    if (location.category == kLocationCategoryArcana || location.category == kLocationCategoryMirage) {
+    if (location.category == kLocationKindArcana || location.category == kLocationKindMirage) {
       dialog.localeLines(['sensedUndiscovered'], isHero: true)
     } else {
       discoverLocation(location)
@@ -919,7 +919,7 @@ function onInteractObject(object, terrain) async {
         setHeroWorldPosition(left, top)
         engine.play('transform-103819.mp3')
         await WorldMap.moveCameraToMapPosition(left, top)
-        WorldMap.refreshHeroTileInfo()
+        WorldMap.updateHeroTileInfo()
         WorldMap.lightUpAroundTile(left, top, hero.stats.lightRadius)
         onWorldEvent('onAfterHeroMove', left, top)
       }
@@ -932,7 +932,7 @@ function onInteractObject(object, terrain) async {
             }
             engine.play('dooropened-103851.mp3')
             terrain.overlaySprite = {sprite: kSpriteTreasureBoxOpened}
-            WorldMap.refreshTerrainSprite(terrain.left, terrain.top)
+            WorldMap.updateTerrainSprite(terrain.left, terrain.top)
           }
         }
       }

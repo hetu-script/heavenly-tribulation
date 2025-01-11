@@ -5,13 +5,16 @@
   "usableHint": "点击右键使用",
   "equippableHint": "点击右键装备",
   "unequippableHint": "点击右键卸下",
-  "materialPackageHint": "点击右键使用后转化为材料",
+  "item_material_pack_flavor_text": "点击右键使用后转化为材料",
 
   "resource": "资源",
   "material": "材料",
   "package": "包",
 
-  "book": "秘籍",
+  "materialpack": "材料包",
+  "equipment": "装备",
+  "cardpack": "秘籍",
+  "item_cardpack_flavor_text": "打开后可以获得一张该流派与境界的卡牌，以及另外两张随机卡牌。卡牌最大等级不会超过角色等级。",
 
   "price": "价格",
   "stackSize": "数量",

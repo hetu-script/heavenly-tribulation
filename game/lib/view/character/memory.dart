@@ -9,7 +9,7 @@ import '../common.dart';
 import 'edit_character_bond.dart';
 import 'profile.dart';
 import '../../ui.dart';
-import '../../state/windows.dart';
+import '../../state/view_panels.dart';
 import '../draggable_panel.dart';
 
 class CharacterMemoryView extends StatefulWidget {
@@ -18,12 +18,9 @@ class CharacterMemoryView extends StatefulWidget {
     this.characterId,
     this.characterData,
     this.tabIndex = 0,
-    this.mode = ViewPanelMode.view,
+    this.mode = InformationViewMode.view,
     this.isHero = false,
-    this.onClose,
-    this.onDragUpdate,
-    this.onTapDown,
-  }) : assert(isHero == (mode == ViewPanelMode.view));
+  }) : assert(isHero == (mode == InformationViewMode.view));
 
   final String? characterId;
 
@@ -31,13 +28,9 @@ class CharacterMemoryView extends StatefulWidget {
 
   final int tabIndex;
 
-  final ViewPanelMode mode;
+  final InformationViewMode mode;
 
   final bool isHero;
-
-  final void Function()? onClose;
-  final void Function(DragUpdateDetails details)? onDragUpdate;
-  final void Function(Offset tapPosition)? onTapDown;
 
   @override
   State<CharacterMemoryView> createState() => _CharacterMemoryViewState();
@@ -46,7 +39,8 @@ class CharacterMemoryView extends StatefulWidget {
 class _CharacterMemoryViewState extends State<CharacterMemoryView>
     with SingleTickerProviderStateMixin {
   bool get isEditorMode =>
-      widget.mode == ViewPanelMode.edit || widget.mode == ViewPanelMode.create;
+      widget.mode == InformationViewMode.edit ||
+      widget.mode == InformationViewMode.create;
 
   static final List<Tab> _tabs = <Tab>[
     Tab(
@@ -142,19 +136,28 @@ class _CharacterMemoryViewState extends State<CharacterMemoryView>
 
   @override
   Widget build(BuildContext context) {
-    final windowPositions =
-        context.watch<WindowPositionState>().windowPositions;
-    final position = windowPositions['memory'] ?? GameUI.profileWindowPosition;
+    final windowPositions = context.watch<PanelPositionState>().panelPositions;
+    final position = windowPositions[ViewPanels.characterMemory] ??
+        GameUI.profileWindowPosition;
 
     return DraggablePanel(
       title: engine.locale('memory'),
       position: position,
       width: GameUI.profileWindowWidth,
-      height: widget.mode != ViewPanelMode.view ? 450.0 : 400.0,
+      height: widget.mode != InformationViewMode.view ? 450.0 : 400.0,
       titleHeight: 100,
-      onTapDown: widget.onTapDown,
-      onDragUpdate: widget.onDragUpdate,
-      onClose: widget.onClose,
+      onTapDown: (offset) {
+        context.read<ViewPanelState>().setUpFront(ViewPanels.characterMemory);
+      },
+      onDragUpdate: (details) {
+        context.read<PanelPositionState>().updatePosition(
+              ViewPanels.characterMemory,
+              details.delta,
+            );
+      },
+      onClose: () {
+        context.read<ViewPanelState>().hide(ViewPanels.characterMemory);
+      },
       titleBottomBar: TabBar(
         controller: _tabController,
         tabs: _tabs,
@@ -210,7 +213,7 @@ class _CharacterMemoryViewState extends State<CharacterMemoryView>
               ],
             ),
           ),
-          if (widget.mode != ViewPanelMode.view)
+          if (widget.mode != InformationViewMode.view)
             Row(
               children: [
                 if (_tabController.index == 0)

@@ -19,17 +19,14 @@ class _MainGameOverlayState extends State<MainGameOverlay> {
 
   @override
   void dispose() {
-    engine.removeEventListener(widget.key!);
+    engine.removeEventListener('game');
 
     _scene.detach();
     super.dispose();
   }
 
   Future<Scene?> _getScene() async {
-    final scene = await engine.createScene(
-      contructorKey: 'game',
-      sceneId: 'game',
-    ) as GameScene;
+    final scene = await engine.createScene('game') as GameScene;
     return scene;
   }
 
@@ -81,7 +78,7 @@ class _MainGameOverlayState extends State<MainGameOverlay> {
                             ),
                           ).then((_) => setState(() {}));
                         case CardGameDropMenuItems.quit:
-                          _scene.leave(clearCache: true);
+                          _scene.onEnd();
                           Navigator.of(context).pop();
                       }
                     },

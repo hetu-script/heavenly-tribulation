@@ -1,6 +1,7 @@
 import 'game.ht'
 import 'colors.ht'
 import 'worldmap.ht'
+import 'entity/entity.ht'
 
 external function expForLevel(level: integer) -> integer
 
@@ -39,7 +40,7 @@ namespace Player {
   external function showCultivation()
 
   /// 从物品库中复制并获取一个物品
-  function acquireItemById(itemId, { incurIncident = true}) {
+  function acquireItemById(itemId, { incurIncident = true }) {
     final item = createItemById(itemId)
 
     hero.inventory[item.id] = item
@@ -63,9 +64,18 @@ namespace Player {
 
   /// 直接获取一个已经被创造出来的物品
   function acquire(item, { incurIncident = true }) {
-
-    hero.inventory[item.id] = item
-    item.ownerId = hero.id
+    switch(item.entityType) {
+      case kEntityTypeItem: {
+        hero.inventory[item.id] = item
+        item.acquiredSequence = hero.achievements.acquiredItems
+        item.ownerId = hero.id
+      }
+      case kEntityTypeBattleCard: {
+        hero.cardLibrary[card.id] = card
+        card.acquiredSequence = hero.achievements.acquiredBattleCards
+        ++hero.achievements.acquiredBattleCards
+      }
+    }
     
     let incidentContent
     incidentContent = engine.locale('heroAcquire', interpolations: [
@@ -191,7 +201,7 @@ namespace Player {
   // }
   function equip(item, { index }) -> bool {
     assert(index == null || (index >= 0 && index < kEquipmentMax))
-    if (item.category != 'equipment') {
+    if (item.category != kItemCategoryEquipment) {
       engine.warn('${item.id} 无法装备。')
       return false
     }
@@ -394,26 +404,6 @@ namespace Player {
     }
 
     return hero.cultivationRank
-  }
-
-  function acquireBattleCardByData(cardData, { incurIncident = true }) {
-    assert(cardData != null && cardData.id != null)
-    hero.cardLibrary[cardData.id] = cardData
-
-    let incidentContent
-    incidentContent = engine.locale('heroAcquireItem', interpolations: [
-      cardData.name,
-    ])
-    if (incurIncident) {
-      Incident(
-        message: incidentContent,
-        subjectId: hero.id,
-        item: cardData,
-        isPrivate: true,
-      )
-    } else {
-      engine.info(incidentContent)
-    }
   }
 
   function gainExp(value: integer) {

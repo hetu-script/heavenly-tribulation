@@ -1,178 +1,344 @@
-import 'package:flutter/material.dart' hide Card;
-import 'package:samsara/samsara.dart';
+import 'dart:async';
+
+// import 'package:samsara/event.dart';
 // import 'package:flame_audio/flame_audio.dart';
-import 'package:samsara/ui/loading_screen.dart';
-import 'package:samsara/event.dart';
-// import 'package:samsara/widgets.dart';
-// import 'package:samsara/cardgame/cardgame.dart';
-import 'package:hetu_script/utils/uid.dart';
-// import 'package:samsara/task.dart';
-import 'package:samsara/cardgame/custom_card.dart';
+// import 'package:samsara/event/event.dart';
+import 'package:samsara/samsara.dart';
+import 'package:flame/components.dart';
+import 'package:samsara/cardgame/cardgame.dart';
+// import 'package:samsara/gestures.dart';
+import 'package:samsara/components/sprite_button.dart';
+import 'package:flame/flame.dart';
+// import 'package:samsara/components/tooltip.dart';
+// import 'package:samsara/cardgame/custom_card.dart';
 
+import '../../ui.dart';
+import 'character.dart';
+import 'battledeck_zone.dart';
 import '../../engine.dart';
-import 'components/battle.dart';
-// import 'drop_menu.dart';
-// import '../../avatar.dart';
+// import 'status/status.dart';
+import 'versus_banner.dart';
 import '../common.dart';
-import '../events.dart';
+// import '../../../logic/algorithm.dart';
+import '../../events.dart';
+import '../../data.dart';
 
-class BattleSceneOverlay extends StatefulWidget {
-  const BattleSceneOverlay({
-    required super.key,
-    required this.heroData,
-    required this.enemyData,
-    required this.heroDeck,
-    required this.enemyDeck,
-    this.isSneakAttack = false,
-  });
+const kTurnLimit = 80;
 
+class BattleScene extends Scene {
+  late final SpriteComponent background;
+  late final SpriteComponent _victoryPrompt, _defeatPrompt;
+
+  late final VersusBanner versusBanner;
+
+  late final BattleCharacter hero, enemy;
+  late final BattleDeckZone heroDeckZone, enemyDeckZone;
   final dynamic heroData, enemyData;
   final List<CustomGameCard> heroDeck, enemyDeck;
 
   final bool isSneakAttack;
 
+  int turn = 0;
+
+  // 先手角色
+  late final bool initialMove;
+  // 当前是否是玩家回合
+  late bool heroTurn;
+  late BattleCharacter currentCharacter, currentOpponent;
+
+  bool? battleResult;
+
+  late final SpriteButton nextTurnButton;
+
+  bool battleStarted = false;
+  bool battleEnded = false;
+
+  BattleScene({
+    required this.heroData,
+    required this.enemyData,
+    required this.heroDeck,
+    required this.enemyDeck,
+    required this.isSneakAttack,
+  }) : super(
+          context: GameData.context,
+          id: Scenes.battle,
+          bgm: engine.bgm,
+          bgmFile: 'war-drums-173853.mp3',
+          bgmVolume: GameConfig.musicVolume,
+        );
+
   @override
-  State<BattleSceneOverlay> createState() => _BattleSceneOverlayState();
-}
+  void onLoad() async {
+    super.onLoad();
 
-class _BattleSceneOverlayState extends State<BattleSceneOverlay> {
-  // late Animation<double> battleStartBannerAnimation, battleEndBannerAnimation;
-  // late AnimationController battleStartBannerAnimationController,
-  //     battleEndBannerAnimationController;
+    background = SpriteComponent(
+      sprite: Sprite(await Flame.images.load('battle/scene/bamboo.png')),
+      size: size,
+    );
+    world.add(background);
 
-  late BattleScene _scene;
-
-  @override
-  void initState() {
-    super.initState();
-
-    // FlameAudio.bgm.initialize();
-
-    engine.addEventListener(
-      GameEvents.leaveCardBattle,
-      EventHandler(
-        widgetKey: widget.key!,
-        callback: (eventId, args, scene) {
-          _scene.leave(clearCache: true);
-          Navigator.of(context).pop();
-        },
-      ),
+    _victoryPrompt = SpriteComponent(
+      anchor: Anchor.center,
+      position: Vector2(center.x, center.y - 125),
+      sprite: Sprite(await Flame.images.load('battle/victory.png')),
+      size: Vector2(480.0, 240.0),
+    );
+    _defeatPrompt = SpriteComponent(
+      anchor: Anchor.center,
+      position: Vector2(center.x, center.y - 125),
+      sprite: Sprite(await Flame.images.load('battle/defeat.png')),
+      size: Vector2(480.0, 240.0),
     );
 
-    // engine.bgm.initialize();
-  }
-
-  @override
-  void dispose() {
-    engine.removeEventListener(widget.key!);
-
-    _scene.detach();
-    super.dispose();
-  }
-
-  Future<Scene?> _getScene() async {
-    final id = 'cardgame_${randomUID()}';
-    final scene = await engine.createScene(
-      contructorKey: kSceneCardBattle,
-      sceneId: id,
-      arg: {
-        'id': id,
-        'heroData': widget.heroData,
-        'enemyData': widget.enemyData,
-        'heroDeck': widget.heroDeck,
-        'enemyDeck': widget.enemyDeck,
-        'isSneakAttack': widget.isSneakAttack,
-      },
+    heroDeckZone = BattleDeckZone(
+      position: GameUI.p1BattleDeckZonePosition,
+      cards: heroDeck,
+      focusedOffset: GameUI.battleCardFocusedOffset,
+      pileStructure: PileStructure.queue,
+      reverseX: false,
     );
-    return scene;
+    world.add(heroDeckZone);
+
+    final heroSkinId = heroData['characterSkin'];
+    final Set<String> heroAnimationStates = {};
+    final Set<String> heroOverlayAnimationStates = {};
+    for (final card in heroDeck) {
+      final affixes = card.data['affixes'];
+      for (final affix in affixes) {
+        heroAnimationStates.add(affix['animation'] ?? '');
+        heroAnimationStates.add(affix['recoveryAnimation'] ?? '');
+        heroOverlayAnimationStates.add(affix['overlayAnimation'] ?? '');
+      }
+    }
+    heroAnimationStates.remove('');
+    heroOverlayAnimationStates.remove('');
+    hero = BattleCharacter(
+      position: GameUI.p1HeroSpritePosition,
+      size: GameUI.heroSpriteSize,
+      isHero: true,
+      skinId: heroSkinId,
+      animationStates: heroAnimationStates,
+      overlayAnimationStates: heroOverlayAnimationStates,
+      data: heroData,
+      deckZone: heroDeckZone,
+    );
+    world.add(hero);
+
+    enemyDeckZone = BattleDeckZone(
+      position: GameUI.p2BattleDeckZonePosition,
+      cards: enemyDeck,
+      focusedOffset: GameUI.battleCardFocusedOffset,
+      pileStructure: PileStructure.queue,
+      reverseX: true,
+    );
+    world.add(enemyDeckZone);
+
+    final enemySkinId = enemyData['characterSkin'];
+    final Set<String> enemyAnimationStates = {};
+    final Set<String> enemyOverlayAnimationStates = {};
+    for (final card in enemyDeck) {
+      final affixes = card.data['affixes'];
+      for (final affix in affixes) {
+        enemyAnimationStates.add(affix['animation'] ?? '');
+        enemyAnimationStates.add(affix['recoveryAnimation'] ?? '');
+        enemyOverlayAnimationStates.add(affix['overlayAnimation'] ?? '');
+      }
+    }
+    enemyAnimationStates.remove('');
+    enemyOverlayAnimationStates.remove('');
+    enemy = BattleCharacter(
+      position: GameUI.p2HeroSpritePosition,
+      size: GameUI.heroSpriteSize,
+      skinId: enemySkinId,
+      animationStates: enemyAnimationStates,
+      overlayAnimationStates: enemyOverlayAnimationStates,
+      data: enemyData,
+      deckZone: enemyDeckZone,
+    );
+    world.add(enemy);
+
+    hero.opponent = enemy;
+    enemy.opponent = hero;
+
+    versusBanner = VersusBanner(
+      position: Vector2(center.x, center.y - 120),
+      heroData: heroData,
+      enemyData: enemyData,
+    );
+    camera.viewport.add(versusBanner);
+
+    showStartPrompt();
+
+    final heroCP = heroData['exp'];
+    final enemyCP = enemyData['exp'];
+
+    if (heroCP > enemyCP) {
+      initialMove = true;
+    } else if (heroCP < enemyCP) {
+      initialMove = false;
+    } else {
+      if (heroData['stats']['dexterity'] >= enemyData['stats']['dexterity']) {
+        initialMove = true;
+      } else {
+        initialMove = false;
+      }
+    }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+  Future<void> showStartPrompt() async {
+    await versusBanner.fadeIn(duration: 1.2);
 
-    return FutureBuilder(
-      // 不知道为啥，这里必须用这种写法才能进入载入界面，否则一定会卡住
-      future: Future.delayed(
-        const Duration(milliseconds: 100),
-        () => _getScene(),
-      ),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          if (snapshot.hasError) {
-            throw Exception('${snapshot.error}\n${snapshot.stackTrace}');
-          }
-          return LoadingScreen(
-            text: engine.locale('loading'),
-            showClose: snapshot.hasError,
-          );
-        } else {
-          _scene = snapshot.data as BattleScene;
-          if (_scene.isAttached) {
-            _scene.detach();
-          }
-          return Material(
-            color: Colors.transparent,
-            child: Stack(
-              alignment: Alignment.topCenter,
-              children: [
-                SceneWidget(scene: _scene),
-                // if (_scene.isLoading)
-                //   LoadingScreen(text: engine.locale('loading')),
-                // Positioned(
-                //   height: 150,
-                //   child: Row(
-                //     mainAxisAlignment: MainAxisAlignment.center,
-                //     children: [
-                //       Padding(
-                //         padding: const EdgeInsets.only(right: 5.0),
-                //         child: Avatar(
-                //           size: const Size(120, 120),
-                //           // name: widget.heroData['name'],
-                //           image: AssetImage(
-                //               'assets/images/illustration/${widget.heroData['icon']}'),
-                //           borderColor: GameUI.backgroundColor,
-                //         ),
-                //       ),
-                //       Image.asset('assets/images/battle/versus.png'),
-                //       Padding(
-                //         padding: const EdgeInsets.only(left: 5.0),
-                //         child: Avatar(
-                //           size: const Size(120, 120),
-                //           // name: widget.enemyData['name'],
-                //           image: AssetImage(
-                //               'assets/images/illustration/${widget.enemyData['icon']}'),
-                //           borderColor: GameUI.backgroundColor,
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // // ),
-                // Positioned(
-                //   right: 0,
-                //   top: 0,
-                //   child: BattleDropMenu(
-                //     onSelected: (BattleDropMenuItems item) async {
-                //       switch (item) {
-                //         case BattleDropMenuItems.console:
-                //           showDialog(
-                //             context: context,
-                //             builder: (BuildContext context) => Console(
-                //               engine: engine,
-                //             ),
-                //           ).then((_) => setState(() {}));
-                //         case BattleDropMenuItems.quit:
-                //           close();
-                //           engine.stopBGM();
-                //       }
-                //     },
-                //   ),
-                // ),
-              ],
-            ),
-          );
-        }
-      },
+    nextTurnButton = SpriteButton(
+      spriteId: 'ui/button.png',
+      text: engine.locale('start'),
+      priority: 5000,
+      anchor: Anchor.center,
+      position: Vector2(
+          center.x, heroDeckZone.position.y - GameUI.buttonSizeMedium.y),
+      size: Vector2(100.0, 40.0),
+      onTap: (_, __) => GameConfig.isDebugMode ? nextTurn() : startAutoBattle(),
     );
+    camera.viewport.add(nextTurnButton);
+  }
+
+  void _prepareBattle() async {
+    heroTurn = initialMove;
+    currentCharacter = heroTurn ? hero : enemy;
+    currentOpponent = heroTurn ? enemy : hero;
+    currentCharacter.addHintText('${engine.locale('attackFirstInBattle')}!');
+  }
+
+  Future<void> nextTurn() async {
+    if (!battleEnded) {
+      if (!battleStarted) {
+        versusBanner.moveTo(
+          duration: 0.3,
+          toPosition: Vector2(center.x, center.y - 350),
+        );
+        _prepareBattle();
+        nextTurnButton.text = engine.locale('nextTurn');
+        battleStarted = true;
+
+        final restartButton = SpriteButton(
+          spriteId: 'ui/button2.png',
+          text: engine.locale('restart'),
+          priority: 5000,
+          anchor: Anchor.center,
+          position: Vector2(
+              center.x,
+              heroDeckZone.position.y -
+                  GameUI.buttonSizeMedium.y * 2 -
+                  GameUI.indent),
+          size: Vector2(100.0, 40.0),
+        );
+        restartButton.onTap = (_, __) {
+          _victoryPrompt.removeFromParent();
+          _defeatPrompt.removeFromParent();
+          battleEnded = false;
+          battleResult = null;
+          nextTurnButton.enableGesture = true;
+          nextTurnButton.text = engine.locale('nextTurn');
+          hero.reset();
+          heroDeckZone.reset();
+          enemy.reset();
+          enemyDeckZone.reset();
+          _prepareBattle();
+          nextTurnButton.text = engine.locale('nextTurn');
+          nextTurnButton.onTap = (_, __) => nextTurn();
+          battleStarted = true;
+        };
+
+        world.add(restartButton);
+      } else if (battleResult == null) {
+        nextTurnButton.enableGesture = false;
+        _startTurn();
+      } else {
+        _endBattle();
+      }
+    }
+  }
+
+  Future<void> _startTurn() async {
+    GameCard card = currentCharacter.deckZone.current;
+
+    bool extraTurn = false;
+    do {
+      final turnStartDetails =
+          await currentCharacter.onTurnStart(card, isExtra: extraTurn);
+      bool skipTurn = turnStartDetails['skipTurn'] ?? false;
+      if (skipTurn) break;
+      final turnEndDetails = await currentCharacter.onTurnEnd(card);
+      extraTurn = turnEndDetails['extraTurn'] ?? false;
+      card = currentCharacter.deckZone.nextCard();
+    } while (extraTurn);
+
+    heroTurn = !heroTurn;
+    currentCharacter = heroTurn ? hero : enemy;
+    currentOpponent = heroTurn ? enemy : hero;
+
+    if (heroTurn == initialMove) {
+      ++turn;
+    }
+
+    // true表示英雄胜利，false表示英雄失败，null表示战斗未结束
+
+    if (turn >= kTurnLimit) {
+      if (hero.life >= enemy.life) {
+        battleResult = true;
+      } else {
+        battleResult = false;
+      }
+    }
+
+    if (enemy.life <= 0) {
+      battleResult = true;
+    } else if (hero.life <= 0) {
+      battleResult = false;
+    }
+
+    nextTurnButton.enableGesture = true;
+  }
+
+  void _endScene() {
+    engine.emit(GameEvents.leaveScene);
+    engine.emit(GameEvents.battleResult, battleResult);
+  }
+
+  void _endBattle() {
+    if (battleResult == true) {
+      world.add(_victoryPrompt);
+    } else {
+      world.add(_defeatPrompt);
+    }
+
+    // final heroName = '${hero.data['name']}(hero)';
+    // final enemyName = '${enemy.data['name']}(enemy)';
+
+    // engine.info(
+    //     'battle between $heroName and $enemyName ended. ${battleResult! ? heroName : enemyName} won!');
+
+    battleEnded = true;
+
+    if (!nextTurnButton.isMounted) {
+      world.add(nextTurnButton);
+    }
+    nextTurnButton.text = engine.locale('end');
+    nextTurnButton.onTap = (_, __) => _endScene();
+  }
+
+  Future<void> startAutoBattle() async {
+    nextTurnButton.removeFromParent();
+
+    await versusBanner.moveTo(
+      duration: 0.3,
+      toPosition: Vector2(center.x, center.y - 275),
+    );
+    _prepareBattle();
+
+    do {
+      await _startTurn();
+    } while (battleResult == null);
+
+    _endBattle();
   }
 }

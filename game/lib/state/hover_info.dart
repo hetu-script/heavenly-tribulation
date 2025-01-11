@@ -2,26 +2,49 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 
+enum HoverInfoDirection {
+  topLeft,
+  topCenter,
+  topRight,
+  centerLeft,
+  center,
+  centerRight,
+  bottomLeft,
+  bottomCenter,
+  bottomRight,
+}
+
 class HoverInfoContentState extends ChangeNotifier {
-  String? info;
+  bool isDetailed = false;
+  dynamic data;
   Rect? targetRect;
+  HoverInfoDirection direction = HoverInfoDirection.bottomCenter;
 
-  void set(String? text, Rect? renderRect) {
-    if (info != text || targetRect != renderRect) {
-      info = text;
-      targetRect = renderRect;
-      notifyListeners();
+  void set(dynamic data, Rect? targetRect, {HoverInfoDirection? direction}) {
+    if (this.data == data && this.targetRect == targetRect) return;
+
+    this.data = data;
+    this.targetRect = targetRect;
+    if (direction != null) {
+      this.direction = direction;
     }
-  }
-
-  void hide() {
-    info = null;
-    targetRect = null;
     notifyListeners();
   }
 
-  (dynamic, Rect?) get() {
-    return (info, targetRect);
+  void switchDetailed() {
+    isDetailed = !isDetailed;
+    notifyListeners();
+  }
+
+  void hide() {
+    data = null;
+    targetRect = null;
+    // isDetailed = false;
+    notifyListeners();
+  }
+
+  (dynamic, Rect?, HoverInfoDirection) get() {
+    return (data, targetRect, direction);
   }
 }
 

@@ -52,9 +52,14 @@ const kSiteCardPriority = 500;
 
 const kMouseCursorEffectPriority = 99999999;
 
-const kSceneMainmenu = 'mainmenu';
-const kSceneCardLibrary = 'card_library';
-const kSceneCultivation = 'cultivation';
-const kSceneTilemap = 'tilemap';
-const kSceneLocationSite = 'location_site';
-const kSceneCardBattle = 'card_battle';
+abstract class Scenes {
+  static const mainmenu = 'mainmenu';
+  static const library = 'library';
+  static const cultivation = 'cultivation';
+  static const worldmap = 'worldmap';
+  static const location = 'location';
+  static const battle = 'battle';
+
+  /// 这个 id 仅用于事件注册，在创建场景时，editor 使用 worldmap 作为 id
+  static const editor = 'editor';
+}

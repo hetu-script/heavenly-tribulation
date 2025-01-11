@@ -8,9 +8,9 @@ import '../avatar.dart';
 import '../../util.dart';
 import '../common.dart';
 import 'edit_character_id_and_avatar.dart';
-import '../../game_dialog/input_description.dart';
+import '../dialog/input_description.dart';
 import '../../ui.dart';
-import '../../state/windows.dart';
+import '../../state/view_panels.dart';
 import '../draggable_panel.dart';
 
 class CharacterProfileView extends StatefulWidget {
@@ -18,22 +18,19 @@ class CharacterProfileView extends StatefulWidget {
     super.key,
     this.characterId,
     this.characterData,
-    this.mode = ViewPanelMode.view,
+    this.mode = InformationViewMode.view,
     this.showIntimacy = true,
     this.showRelationships = true,
     this.showPosition = true,
     this.showPersonality = true,
     this.showDescription = true,
-    this.onClose,
-    this.onDragUpdate,
-    this.onTapDown,
   });
 
   final String? characterId;
 
   final dynamic characterData;
 
-  final ViewPanelMode mode;
+  final InformationViewMode mode;
 
   final bool showIntimacy,
       showRelationships,
@@ -41,17 +38,14 @@ class CharacterProfileView extends StatefulWidget {
       showPersonality,
       showDescription;
 
-  final void Function()? onClose;
-  final void Function(DragUpdateDetails details)? onDragUpdate;
-  final void Function(Offset tapPosition)? onTapDown;
-
   @override
   State<CharacterProfileView> createState() => _CharacterProfileViewState();
 }
 
 class _CharacterProfileViewState extends State<CharacterProfileView> {
   bool get isEditorMode =>
-      widget.mode == ViewPanelMode.edit || widget.mode == ViewPanelMode.create;
+      widget.mode == InformationViewMode.edit ||
+      widget.mode == InformationViewMode.create;
 
   dynamic _characterData;
 
@@ -100,7 +94,8 @@ class _CharacterProfileViewState extends State<CharacterProfileView> {
   }
 
   void updateData() {
-    age = engine.hetu.invoke('getEntityAge', positionalArgs: [_characterData]);
+    age = engine.hetu
+        .invoke('getCharacterAgeString', positionalArgs: [_characterData]);
 
     _ageController.text = age;
 
@@ -147,9 +142,9 @@ class _CharacterProfileViewState extends State<CharacterProfileView> {
 
   @override
   Widget build(BuildContext context) {
-    final windowPositions =
-        context.watch<WindowPositionState>().windowPositions;
-    final position = windowPositions['profile'] ?? GameUI.profileWindowPosition;
+    final windowPositions = context.watch<PanelPositionState>().panelPositions;
+    final position = windowPositions[ViewPanels.characterProfile] ??
+        GameUI.profileWindowPosition;
 
     final fame = engine.hetu
         .invoke('getCharacterFameString', positionalArgs: [_characterData]);
@@ -193,7 +188,7 @@ class _CharacterProfileViewState extends State<CharacterProfileView> {
     final generosity = personality['generosity'].toInt();
 
     final birthday = engine.hetu
-        .invoke('getEntityBirthDayString', positionalArgs: [_characterData]);
+        .invoke('getCharacterBirthDayString', positionalArgs: [_characterData]);
     // final birthPlace = getNameFromId(_characterData['birthPlaceId']);
     final restLifespan = engine.hetu.invoke('getCharacterRestLifespanString',
         positionalArgs: [_characterData]);
@@ -225,10 +220,19 @@ class _CharacterProfileViewState extends State<CharacterProfileView> {
       title: engine.locale('information'),
       position: position,
       width: GameUI.profileWindowWidth,
-      height: widget.mode != ViewPanelMode.view ? 450.0 : 400.0,
-      onTapDown: widget.onTapDown,
-      onDragUpdate: widget.onDragUpdate,
-      onClose: widget.onClose,
+      height: widget.mode != InformationViewMode.view ? 450.0 : 400.0,
+      onTapDown: (offset) {
+        context.read<ViewPanelState>().setUpFront(ViewPanels.characterProfile);
+      },
+      onDragUpdate: (details) {
+        context.read<PanelPositionState>().updatePosition(
+              ViewPanels.characterQuest,
+              details.delta,
+            );
+      },
+      onClose: () {
+        context.read<ViewPanelState>().hide(ViewPanels.characterQuest);
+      },
       child: Column(
         children: [
           Container(
@@ -764,7 +768,7 @@ class _CharacterProfileViewState extends State<CharacterProfileView> {
           ),
           Row(
             children: [
-              if (widget.mode != ViewPanelMode.view) ...[
+              if (widget.mode != InformationViewMode.view) ...[
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0, left: 10.0),
                   child: ElevatedButton(
@@ -856,21 +860,21 @@ class _CharacterProfileViewState extends State<CharacterProfileView> {
                 ),
               ],
               const Spacer(),
-              if (widget.mode != ViewPanelMode.view)
+              if (widget.mode != InformationViewMode.view)
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0, right: 10.0),
                   child: ElevatedButton(
                     onPressed: () {
                       switch (widget.mode) {
-                        case ViewPanelMode.select:
+                        case InformationViewMode.select:
                           Navigator.of(context).pop(_characterData['id']);
-                        case ViewPanelMode.edit:
+                        case InformationViewMode.edit:
                           _saveData();
                           Navigator.of(context).pop(true);
-                        case ViewPanelMode.create:
+                        case InformationViewMode.create:
                           _saveData();
                           Navigator.of(context).pop(_characterData);
-                        case ViewPanelMode.view:
+                        case InformationViewMode.view:
                           Navigator.of(context).pop();
                       }
                     },

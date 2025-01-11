@@ -2,15 +2,6 @@ import 'package:flutter/foundation.dart';
 
 import '../engine.dart';
 
-class GameOverlayVisibilityState with ChangeNotifier {
-  bool isVisible = false;
-
-  void show([bool value = true]) {
-    isVisible = value;
-    notifyListeners();
-  }
-}
-
 class HeroState with ChangeNotifier {
   dynamic heroData;
 
@@ -31,13 +22,13 @@ class EnemyState with ChangeNotifier {
     notifyListeners();
   }
 
-  void show(bool value) {
+  void setPrebattleVisible(bool value) {
     showPrebattle = value;
+    notifyListeners();
   }
 
   void clear() {
     enemyData = null;
-    showPrebattle = false;
     notifyListeners();
   }
 }

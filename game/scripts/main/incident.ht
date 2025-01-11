@@ -24,7 +24,7 @@ struct Incident {
     this.message = message
     this.isGlobal = isGlobal
     this.isPrivate = isPrivate
-    this.timestamp = timestamp ?? timeline.timestamp
+    this.timestamp = timestamp ?? history.timestamp
     this.values = values ?? {}
     this.subjectId = subjectId
     if (objectId) this.objectId = objectId
@@ -35,8 +35,8 @@ struct Incident {
     if (siteId) this.siteId = siteId
     if (terrainIndex) this.terrainIndex = terrainIndex
 
-    this.index = timeline.incidents.length
-    timeline.incidents.add(this)
+    this.index = timeline.length
+    timeline.add(this)
     
     const subject = game.characters[subjectId]
     assert(subject != null)
@@ -123,7 +123,7 @@ struct Incident {
 }
 
 function getIncidentByIndex(index: integer) {
-  return timeline.incidents[index]
+  return timeline[index]
 }
 
 function calculateCharacterScoreOfIncident(character, incident) {
@@ -135,7 +135,7 @@ function calculateCharacterScoreOfIncident(character, incident) {
 function entityExperiencedIncident(entity, incident) {
   // 不是major character直接跳过
   if (entity?.experienced == null) {
-    engine.warn('${entity.id} is not a entity that can experience incidents.')
+    engine.warn('${entity.name} is not a entity that can experience incidents.')
     return
   }
 

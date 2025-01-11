@@ -4,8 +4,8 @@ import 'package:hetu_script/values.dart';
 import 'package:samsara/ui/responsive_window.dart';
 import '../../engine.dart';
 import 'package:samsara/ui/close_button.dart';
-import '../character/equipments/inventory.dart';
-// import '../../../event/ui.dart';
+import '../character/inventory/inventory.dart';
+import '../common.dart';
 
 class MerchantView extends StatefulWidget {
   static Future<bool?> show({
@@ -72,49 +72,49 @@ class _MerchantViewState extends State<MerchantView> {
               height: 390.0,
               child: Inventory(
                 height: 350,
-                characterName: widget.merchantData['name'],
+                // characterName: widget.merchantData['name'],
                 inventoryData: widget.merchantData['inventory'],
                 // money: widget.merchantData['money'],
                 type: InventoryType.merchant,
                 priceFactor: widget.priceFactor,
-                onBuy: (item, quantity) {
-                  // final int restOfMoney =
-                  //     heroData['inventory']['bronzeCoin'] ?? 0;
-                  final int payment =
-                      (item['value'] * widget.priceFactor).truncate() *
-                          quantity;
-                  // if (restOfMoney < payment) {
-                  //   engine.info(
-                  //       '${heroData['name']} 银两只有 $restOfMoney 不足 $payment，无法购买。');
-                  //   return;
-                  // }
-                  final result = engine.hetu.invoke(
-                    'giveMoney',
-                    positionalArgs: [
-                      heroData,
-                      widget.merchantData,
-                      payment,
-                    ],
-                  );
-                  if (result) {
-                    engine.hetu.invoke(
-                      'give',
-                      positionalArgs: [
-                        widget.merchantData,
-                        heroData,
-                        item['id'],
-                      ],
-                      namedArgs: {
-                        'count': quantity,
-                      },
-                    );
-                  } else {
-                    // TODO: 提示金钱不足
-                  }
-                  Navigator.of(context).pop();
-                  // engine.emit(const UIEvent.needRebuildUI());
-                  setState(() {});
-                },
+                // onBuy: (item, quantity) {
+                //   // final int restOfMoney =
+                //   //     heroData['inventory']['bronzeCoin'] ?? 0;
+                //   final int payment =
+                //       (item['value'] * widget.priceFactor).truncate() *
+                //           quantity;
+                //   // if (restOfMoney < payment) {
+                //   //   engine.info(
+                //   //       '${heroData['name']} 银两只有 $restOfMoney 不足 $payment，无法购买。');
+                //   //   return;
+                //   // }
+                //   final result = engine.hetu.invoke(
+                //     'giveMoney',
+                //     positionalArgs: [
+                //       heroData,
+                //       widget.merchantData,
+                //       payment,
+                //     ],
+                //   );
+                //   if (result) {
+                //     engine.hetu.invoke(
+                //       'give',
+                //       positionalArgs: [
+                //         widget.merchantData,
+                //         heroData,
+                //         item['id'],
+                //       ],
+                //       namedArgs: {
+                //         'count': quantity,
+                //       },
+                //     );
+                //   } else {
+                //     // TODO: 提示金钱不足
+                //   }
+                //   Navigator.of(context).pop();
+                //   // engine.emit(const UIEvent.needRebuildUI());
+                //   setState(() {});
+                // },
               ),
             ),
             const VerticalDivider(),
@@ -123,43 +123,43 @@ class _MerchantViewState extends State<MerchantView> {
               height: 390.0,
               child: Inventory(
                 height: 350,
-                characterName: heroData['name'],
+                // characterName: heroData['name'],
                 inventoryData: heroData['inventory'],
                 // money: heroData['money'],
                 type: widget.allowSell
                     ? InventoryType.customer
                     : InventoryType.player,
                 priceFactor: widget.priceFactor,
-                onSell: (item, quantity) {
-                  // final int restOfMoney = widget.merchantData['money'];
-                  final int payment = item['value'].truncate() * quantity;
-                  // if (restOfMoney < payment) {
-                  //   engine.info('${widget.merchantData['name']} 银钱不足，无法出售。');
-                  //   return;
-                  // }
-                  final result = engine.hetu.invoke(
-                    'giveMoney',
-                    positionalArgs: [
-                      widget.merchantData,
-                      heroData,
-                      payment,
-                    ],
-                  );
-                  if (result) {
-                    engine.hetu.invoke('give', positionalArgs: [
-                      heroData,
-                      widget.merchantData,
-                      item['id'],
-                    ], namedArgs: {
-                      'count': quantity,
-                    });
-                  } else {
-                    // TODO: 提示金钱不足
-                  }
-                  Navigator.of(context).pop();
-                  // engine.emit(const UIEvent.needRebuildUI());
-                  setState(() {});
-                },
+                // onSell: (item, quantity) {
+                //   // final int restOfMoney = widget.merchantData['money'];
+                //   final int payment = item['value'].truncate() * quantity;
+                //   // if (restOfMoney < payment) {
+                //   //   engine.info('${widget.merchantData['name']} 银钱不足，无法出售。');
+                //   //   return;
+                //   // }
+                //   final result = engine.hetu.invoke(
+                //     'giveMoney',
+                //     positionalArgs: [
+                //       widget.merchantData,
+                //       heroData,
+                //       payment,
+                //     ],
+                //   );
+                //   if (result) {
+                //     engine.hetu.invoke('give', positionalArgs: [
+                //       heroData,
+                //       widget.merchantData,
+                //       item['id'],
+                //     ], namedArgs: {
+                //       'count': quantity,
+                //     });
+                //   } else {
+                //     // TODO: 提示金钱不足
+                //   }
+                //   Navigator.of(context).pop();
+                //   // engine.emit(const UIEvent.needRebuildUI());
+                //   setState(() {});
+                // },
               ),
             ),
           ],
