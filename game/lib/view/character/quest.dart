@@ -89,9 +89,9 @@ class _CharacterQuestViewState extends State<CharacterQuestView> {
 
   @override
   Widget build(BuildContext context) {
-    final windowPositions = context.watch<PanelPositionState>().panelPositions;
-    final position = windowPositions[ViewPanels.characterQuest] ??
-        GameUI.detailsWindowPosition;
+    final position =
+        context.watch<PanelPositionState>().get(ViewPanels.characterQuest) ??
+            GameUI.detailsWindowPosition;
 
     return DraggablePanel(
       title: engine.locale('quest'),
@@ -102,7 +102,7 @@ class _CharacterQuestViewState extends State<CharacterQuestView> {
         context.read<ViewPanelState>().setUpFront(ViewPanels.characterQuest);
       },
       onDragUpdate: (details) {
-        context.read<PanelPositionState>().updatePosition(
+        context.read<PanelPositionState>().update(
               ViewPanels.characterQuest,
               details.delta,
             );

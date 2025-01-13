@@ -152,7 +152,7 @@ function status_script_energy_life_self_turn_start(self, opponent, effect, detai
     self.removeStatusEffect(effect.id, amount: amount)
     
     let life = amount * unit
-    print(unit, diff, a, life)
+    // print(unit, diff, a, life)
     self.changeLife(life)
   }
 }

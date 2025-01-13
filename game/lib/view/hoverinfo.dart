@@ -63,37 +63,44 @@ class _HoverInfoState extends State<HoverInfo> {
 
       switch (widget.direction) {
         case HoverInfoDirection.topLeft:
-          preferredX = widget.hoveringRect.left - width - kHoverInfoIndent;
+          preferredX = widget.hoveringRect.left;
           preferredY = widget.hoveringRect.top - height - kHoverInfoIndent;
         case HoverInfoDirection.topCenter:
           preferredX = widget.hoveringRect.left +
               (widget.hoveringRect.width - width) / 2;
           preferredY = widget.hoveringRect.top - height - kHoverInfoIndent;
         case HoverInfoDirection.topRight:
-          preferredX = widget.hoveringRect.right + kHoverInfoIndent;
+          preferredX = widget.hoveringRect.right - width;
           preferredY = widget.hoveringRect.top - height - kHoverInfoIndent;
-        case HoverInfoDirection.centerLeft:
+        case HoverInfoDirection.leftTop:
+          preferredX = widget.hoveringRect.left - width - kHoverInfoIndent;
+          preferredY = widget.hoveringRect.top;
+        case HoverInfoDirection.leftCenter:
           preferredX = widget.hoveringRect.left - width - kHoverInfoIndent;
           preferredY = widget.hoveringRect.top +
               (widget.hoveringRect.height - height) / 2;
-        case HoverInfoDirection.center:
-          preferredX = widget.hoveringRect.left +
-              (widget.hoveringRect.width - width) / 2;
-          preferredY = widget.hoveringRect.top +
-              (widget.hoveringRect.height - height) / 2;
-        case HoverInfoDirection.centerRight:
+        case HoverInfoDirection.leftBottom:
+          preferredX = widget.hoveringRect.left - width - kHoverInfoIndent;
+          preferredY = widget.hoveringRect.bottom - height - kHoverInfoIndent;
+        case HoverInfoDirection.rightTop:
+          preferredX = widget.hoveringRect.right + kHoverInfoIndent;
+          preferredY = widget.hoveringRect.top;
+        case HoverInfoDirection.rightCenter:
           preferredX = widget.hoveringRect.right + kHoverInfoIndent;
           preferredY = widget.hoveringRect.top +
               (widget.hoveringRect.height - height) / 2;
+        case HoverInfoDirection.rightBottom:
+          preferredX = widget.hoveringRect.right + kHoverInfoIndent;
+          preferredY = widget.hoveringRect.bottom - height - kHoverInfoIndent;
         case HoverInfoDirection.bottomLeft:
-          preferredX = widget.hoveringRect.left - width - kHoverInfoIndent;
+          preferredX = widget.hoveringRect.left;
           preferredY = widget.hoveringRect.bottom + kHoverInfoIndent;
         case HoverInfoDirection.bottomCenter:
           preferredX = widget.hoveringRect.left +
               (widget.hoveringRect.width - width) / 2;
           preferredY = widget.hoveringRect.bottom + kHoverInfoIndent;
         case HoverInfoDirection.bottomRight:
-          preferredX = widget.hoveringRect.right + kHoverInfoIndent;
+          preferredX = widget.hoveringRect.right - width - kHoverInfoIndent;
           preferredY = widget.hoveringRect.bottom + kHoverInfoIndent;
       }
 

@@ -5,6 +5,10 @@
   "deckbuilding_card_count": "卡牌数量",
 
   "deckbuilding_cardpack_hint": "打开秘籍可以获取新的技能卡牌。",
+  "deckbuilding_identify_hint": "<yellow>点击鼠标左键鉴定卡牌</>",
+
+  "deckbuilding_identify_all": "全部鉴定",
+  "deckbuilding_collect_all": "全部收下",
 
   "byAcquiredTimeDescending": "获得时间 - 降序",
   "byAcquiredTimeAscending": "获得时间 - 升序",
@@ -50,7 +54,7 @@
   "deckbuilding_addAffix_description": "增加一个随机的额外词条。\n不能超过当前卡牌境界所允许的额外词条数量上限。",
   "deckbuilding_rerollAffix_description": "重置一个随机额外词条的等级。",
   "deckbuilding_replaceAffix_description": "替换一个随机额外词条。",
-  "deckbuilding_upgradeCard_description": "提升卡牌等级，同时提升基础词条等级。\n等级不能超过当前境界上限。",
+  "deckbuilding_upgradeCard_description": "提升卡牌等级和基础词条等级。\n等级不能超过当前境界上限。",
   "deckbuilding_upgradeRank_description": "提升卡牌境界。\n必须满足境界最低等级要求。\n提升境界后会随机化所有词条。",
 
   "deckbuilding_identifyCard_warning": "卡牌已被鉴定。",

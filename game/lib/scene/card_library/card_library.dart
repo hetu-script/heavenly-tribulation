@@ -1,4 +1,5 @@
 import 'package:flame/components.dart';
+import 'package:flutter/gestures.dart';
 import 'package:heavenly_tribulation/scene/common.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/samsara.dart';
@@ -14,15 +15,24 @@ import '../../ui.dart';
 import '../../engine.dart';
 import 'common.dart';
 import '../game_dialog/game_dialog.dart';
-import 'cardcrafting_area.dart';
+// import 'cardcrafting_area.dart';
 import '../../state/states.dart';
 import '../../data.dart';
 import '../../view/ui_overlay.dart';
 import 'menus.dart';
 
+const kAffixOperations = [
+  'addAffix',
+  'rerollAffix',
+  'replaceAffix',
+  'upgradeCard',
+  'upgradeRank',
+];
+
 class CardLibraryScene extends Scene {
   late final SpriteComponent background;
   late final SpriteComponent2 topBar, bottomBar, deckPilesZone;
+  late final SpriteComponent cardCraftingArea;
 
   late final CardLibraryZone libraryZone;
 
@@ -32,18 +42,48 @@ class CardLibraryScene extends Scene {
 
   late final SpriteButton orderBy;
 
-  late final SpriteButton skillBook;
-
   final List<DeckBuildingZone> deckPiles = [];
   DeckBuildingZone? _currentBuildingZone;
 
   late final PositionComponent deckPilesContainer;
 
-  late final CardCraftingArea cardCraftingArea;
+  // late final CardCraftingArea cardCraftingArea;
 
   late final dynamic _heroData;
 
   late final List<dynamic> _heroDecks;
+
+  final List<CustomGameCard> _cardpackCards = [];
+
+  late final SpriteButton skillBook;
+
+  late final SpriteComponent2 barrier;
+
+  bool _isPrebattle = false;
+
+  late final SpriteButton collectButton;
+
+  late final SpriteButton closeCraftButton;
+
+  CustomGameCard? draggingCard;
+
+  CustomGameCard? _craftingCard;
+
+  final List<SpriteButton> _craftOptionButtons = [];
+
+  void cardDragStart(CustomGameCard card) {
+    final CustomGameCard clone = card.clone();
+    clone.enableGesture = false;
+    clone.position = card.absolutePosition.clone();
+    clone.priority = kDraggingCardPriority;
+    camera.viewport.add(clone);
+    draggingCard = clone;
+  }
+
+  void cardDragRelease() {
+    draggingCard?.removeFromParent();
+    draggingCard = null;
+  }
 
   CardLibraryScene({required super.context}) : super(id: Scenes.library);
 
@@ -136,7 +176,7 @@ class CardLibraryScene extends Scene {
     cardCount.isVisible = true;
     setBattleDeckButton.isVisible = true;
     closeButton.isVisible = true;
-    cardCraftingArea.craftButton.isVisible = false;
+    // cardCraftingArea.craftButton.isVisible = false;
 
     for (final existedZone in deckPiles) {
       if (existedZone != zone) {
@@ -201,7 +241,7 @@ class CardLibraryScene extends Scene {
     cardCount.isVisible = false;
     setBattleDeckButton.isVisible = false;
     closeButton.isVisible = false;
-    cardCraftingArea.craftButton.isVisible = true;
+    // cardCraftingArea.craftButton.isVisible = true;
 
     assert(_currentBuildingZone != null);
     await _currentBuildingZone!.collapse();
@@ -295,31 +335,144 @@ class CardLibraryScene extends Scene {
     _checkDeckPilesContainerPosition();
   }
 
-  void onStartCraft() {
-    exit.isVisible = false;
-    closeButton.isVisible = true;
-    libraryZone.craftingArea = cardCraftingArea;
+  void _showCraftingCardInfo() {
+    assert(_craftingCard != null);
+    final (_, description) = GameData.getDescriptionFromCardData(
+        _craftingCard!.data,
+        isDetailed: true);
+    Hovertip.show(
+      scene: this,
+      target: _craftingCard!,
+      direction: HovertipDirection.rightTop,
+      content: description,
+      config: ScreenTextConfig(anchor: Anchor.topCenter),
+    );
+  }
 
-    for (final zone in deckPiles) {
-      zone.isVisible = false;
+  void _affixOperation(CustomGameCard? card, String id) {
+    if (card == null) {
+      GameDialog.show(
+        context: context,
+        dialogData: {
+          'lines': [engine.locale('deckbuilding_no_card_hint')],
+        },
+      );
+      return;
+    }
+
+    final result = engine.hetu.invoke(id, positionalArgs: [card.data]);
+
+    if (result != null) {
+      // 如果不能进行精炼，返回的是错误信息的本地化字符串key
+      GameDialog.show(
+        context: context,
+        dialogData: {
+          'lines': [engine.locale(result)],
+        },
+      );
+    } else {
+      engine.play('hammer-hitting-an-anvil-25390.mp3');
+
+      addHintText(
+        engine.locale('deckbuilding_${id}_hint'),
+        position: card.center,
+        offsetY: 30.0,
+        textStyle: TextStyle(
+          fontFamily: GameUI.fontFamily,
+        ),
+        horizontalVariation: 0.0,
+        verticalVariation: 0.0,
+      );
+
+      final (description, _) = GameData.getDescriptionFromCardData(card.data);
+      card.description = description;
+      _showCraftingCardInfo();
     }
   }
 
+  void _addAffixOperationButton(String id, Vector2 position) {
+    final SpriteButton button = SpriteButton(
+      position: position,
+      spriteId: 'ui/button10.png',
+      size: Vector2(140, 30),
+      text: engine.locale('deckbuilding_$id'),
+      priority: kBarrierPriority + 100,
+      isVisible: false,
+    );
+    button.onTapUp = (buttons, position) {
+      assert(_craftingCard != null);
+      Hovertip.hide(button);
+      _affixOperation(_craftingCard, id);
+    };
+    button.onMouseEnter = () {
+      Hovertip.show(
+        scene: this,
+        target: button,
+        direction: HovertipDirection.rightCenter,
+        content: engine.locale('deckbuilding_${id}_description'),
+        config: ScreenTextConfig(anchor: Anchor.topCenter),
+      );
+    };
+    button.onMouseExit = () {
+      Hovertip.hide(button);
+    };
+    camera.viewport.add(button);
+    _craftOptionButtons.add(button);
+  }
+
+  void onStartCraft(CustomGameCard card) {
+    // exit.isVisible = false;
+    // closeButton.isVisible = true;
+    // libraryZone.craftingArea = cardCraftingArea;
+
+    // for (final zone in deckPiles) {
+    //   zone.isVisible = false;
+    // }
+
+    skillBook.enableGesture = false;
+    barrier.isVisible = true;
+    closeCraftButton.isVisible = true;
+    for (final button in _craftOptionButtons) {
+      button.isVisible = true;
+    }
+
+    final clone = card.clone();
+    _craftingCard = clone;
+    clone.enableGesture = false;
+    clone.size = GameUI.cardpackCardSize;
+    clone.position = GameUI.cardpackCardPositions[0];
+    clone.priority = kBarrierPriority;
+    camera.viewport.add(clone);
+
+    _showCraftingCardInfo();
+  }
+
   void onEndCraft() async {
-    exit.isVisible = true;
-    closeButton.isVisible = false;
-    if (cardCraftingArea.isFull) {
-      final card = cardCraftingArea.cards.first as CustomGameCard;
-      updateCardData(card);
+    // exit.isVisible = true;
+    // closeButton.isVisible = false;
+    // if (cardCraftingArea.isFull) {
+    //   final card = cardCraftingArea.cards.first as CustomGameCard;
+    //   updateCardData(card);
+    // }
+
+    // libraryZone.craftingArea = null;
+
+    // await cardCraftingArea.endCraft();
+
+    // for (final zone in deckPiles) {
+    //   zone.isVisible = true;
+    // }
+
+    skillBook.enableGesture = true;
+    barrier.isVisible = false;
+    closeCraftButton.isVisible = false;
+    for (final button in _craftOptionButtons) {
+      button.isVisible = false;
     }
 
-    libraryZone.craftingArea = null;
-
-    await cardCraftingArea.endCraft();
-
-    for (final zone in deckPiles) {
-      zone.isVisible = true;
-    }
+    Hovertip.hide(_craftingCard!);
+    _craftingCard!.removeFromParent();
+    _craftingCard = null;
   }
 
   void updateCardData(CustomGameCard card) {
@@ -345,9 +498,132 @@ class CardLibraryScene extends Scene {
     orderBy.text = engine.locale(libraryZone.orderByOption.name);
   }
 
+  void onOpenAllCardpack() {
+    final cardpacks = _heroData['inventory'].values.where((itemData) {
+      return itemData['category'] == 'cardpack';
+    }).toList();
+
+    engine.play(GameSound.cardDealt2);
+    for (final cardpackData in cardpacks) {
+      engine.hetu.invoke('lose', namespace: 'Player', positionalArgs: [
+        cardpackData,
+      ]);
+      for (var i = 0; i < 3; ++i) {
+        final cardData = engine.hetu.invoke(
+          'BattleCard',
+          namedArgs: {
+            'maxRank': _heroData['cultivationRank'],
+            'rank': i == 0 ? cardpackData['rank'] : null,
+            'genre': i == 0 ? cardpackData['genre'] : null,
+            'kind': i == 0 ? cardpackData['kind'] : null,
+            'isIdentified': true,
+          },
+        );
+
+        engine.hetu.invoke('acquire', namespace: 'Player', positionalArgs: [
+          cardData,
+        ]);
+      }
+    }
+
+    libraryZone.updateHeroLibrary();
+  }
+
+  void onOpenCardpack(dynamic cardpackData) {
+    if (cardpackData == null) return;
+
+    skillBook.enableGesture = false;
+    barrier.isVisible = true;
+
+    collectButton.text = engine.locale('deckbuilding_identify_all');
+
+    engine.play(GameSound.cardDealt2);
+    for (var i = 0; i < 3; ++i) {
+      final cardData = engine.hetu.invoke(
+        'BattleCard',
+        namedArgs: {
+          'maxRank': i == 0 ? null : cardpackData['rank'],
+          'rank': i == 0 ? cardpackData['rank'] : null,
+          'genre': i == 0 ? cardpackData['genre'] : null,
+          'kind': i == 0 ? cardpackData['kind'] : null,
+        },
+      );
+      final card = GameData.createBattleCardFromData(cardData);
+      _cardpackCards.add(card);
+
+      card.showGlow = true;
+      card.preferredPriority = kBarrierPriority;
+      card.resetPriority();
+      card.size = Vector2.zero();
+      card.position = skillBook.center;
+
+      card.onTapUp = (int buttons, Vector2 position) {
+        if (card.data['isIdentified'] != true) {
+          engine.play(GameSound.craft);
+          card.data['isIdentified'] = true;
+          final (description, _) =
+              GameData.getDescriptionFromCardData(card.data);
+          card.description = description;
+          previewCard(this, card);
+        }
+        final unidentifiedCards = _cardpackCards.where((card) {
+          return card.data['isIdentified'] != true;
+        });
+        if (unidentifiedCards.isEmpty) {
+          collectButton.text = engine.locale('deckbuilding_collect_all');
+        }
+      };
+
+      card.onPreviewed = () {
+        if (card.data['isIdentified'] == true) {
+          previewCard(this, card);
+        } else {
+          final position = card.absolutePosition;
+          final size = card.absoluteScaledSize;
+          context.read<HoverInfoContentState>().set(
+                engine.locale('deckbuilding_identify_hint'),
+                Rect.fromLTWH(position.x, position.y, size.x, size.y),
+                direction: HoverInfoDirection.bottomCenter,
+              );
+        }
+      };
+      card.onUnpreviewed = () => unpreviewCard(this, card);
+
+      camera.viewport.add(card);
+
+      final index = i;
+      card
+          .moveTo(
+        duration: 0.35,
+        toPosition: GameUI.cardpackCardPositions[0],
+        toSize: GameUI.cardpackCardSize,
+      )
+          .then((_) {
+        if (index == 0) {
+          engine.play(GameSound.cardFlipping);
+          collectButton.isVisible = true;
+        } else {
+          card.moveTo(
+            duration: 0.55,
+            toPosition: GameUI.cardpackCardPositions[index],
+            toSize: GameUI.cardpackCardSize,
+          );
+        }
+      });
+    }
+
+    engine.hetu.invoke(
+      'lose',
+      namespace: 'Player',
+      positionalArgs: [cardpackData],
+    );
+  }
+
   @override
-  void onStart(arguments) {
+  void onStart([Map<String, dynamic> arguments = const {}]) {
     super.onStart(arguments);
+
+    _isPrebattle = arguments['isPrebattle'] == true;
 
     if (isLoaded) {
       libraryZone.repositionToTop();
@@ -360,8 +636,23 @@ class CardLibraryScene extends Scene {
     super.onLoad();
 
     _heroData = engine.hetu.fetch('hero');
-
     _heroDecks = _heroData['battleDecks'];
+
+    barrier = SpriteComponent2(
+      size: size,
+      color: GameUI.barrierColor,
+      priority: kBarrierPriority,
+      isVisible: false,
+      enableGesture: true,
+    );
+    barrier.onTapUp = (buttons, position) {
+      if (buttons == kSecondaryButton) {
+        if (_craftingCard != null) {
+          onEndCraft();
+        }
+      }
+    };
+    camera.viewport.add(barrier);
 
     background = SpriteComponent(
       sprite: await Sprite.load('cultivation/cardlibrary_background.png'),
@@ -379,10 +670,15 @@ class CardLibraryScene extends Scene {
 
     bottomBar = SpriteComponent2(
       spriteId: 'cultivation/cardlibrary_background_bottom.png',
-      size: Vector2(size.x,
-          size.y - GameUI.libraryZonePosition.y - GameUI.libraryZoneSize.y),
-      position:
-          Vector2(0, GameUI.libraryZonePosition.y + GameUI.libraryZoneSize.y),
+      size: Vector2(
+          size.x,
+          size.y -
+              GameUI.libraryZoneBackgroundPosition.y -
+              GameUI.libraryZoneBackgroundSize.y),
+      position: Vector2(
+          0,
+          GameUI.libraryZoneBackgroundPosition.y +
+              GameUI.libraryZoneBackgroundSize.y),
       priority: kBottomBarPriority,
       enableGesture: true,
     );
@@ -393,6 +689,7 @@ class CardLibraryScene extends Scene {
       position: GameUI.decksZoneBackgroundPosition,
       size: GameUI.decksZoneBackgroundSize,
       enableGesture: true,
+      priority: kDeckPilesZonePriority,
     );
     deckPilesZone.onMouseScrollUp = () => _repositionDeckPiles(100);
     deckPilesZone.onMouseScrollDown = () => _repositionDeckPiles(-100);
@@ -466,22 +763,11 @@ class CardLibraryScene extends Scene {
       isVisible: false,
     );
     closeButton.onTapUp = (buttons, position) {
-      if (_currentBuildingZone != null) {
-        onCloseDeck();
-      } else if (cardCraftingArea.isCrafting) {
-        onEndCraft();
-      } else {
-        _heroData['cardLibrary'] = libraryZone.library.map((key, value) {
-          return MapEntry(key, value.data);
-        });
-
-        final enemyData = context.read<EnemyState>().enemyData;
-        if (enemyData != null) {
-          context.read<EnemyState>().setPrebattleVisible(true);
-        }
-        context.read<ViewPanelState>().clearAll();
-        context.read<SceneControllerState>().pop();
-      }
+      assert(_currentBuildingZone != null);
+      onCloseDeck();
+      // else if (cardCraftingArea.isCrafting) {
+      //   onEndCraft();
+      // }
     };
     camera.viewport.add(closeButton);
 
@@ -509,20 +795,34 @@ class CardLibraryScene extends Scene {
     createNewDeckBuildingZone();
     _updateDeckCount();
 
-    cardCraftingArea = CardCraftingArea(
-      // priority: kBarPriority,
-      onStartCraft: onStartCraft,
-      onRemoveCard: (card) {
-        libraryZone.setCardEnabledById(card.deckId);
-        updateCardData(card as CustomGameCard);
-      },
+    cardCraftingArea = SpriteComponent(
+      sprite: await Sprite.load('cultivation/cardlibrary_cardcraft.png'),
+      size: GameUI.cardCraftingZoneSize,
+      position: GameUI.cardCraftingZoneInitialPosition,
+      priority: kTopBarPriority + 10,
     );
+    world.add(cardCraftingArea);
 
-    camera.viewport.add(cardCraftingArea);
+    // cardCraftingArea = CardCraftingArea(
+    //   // priority: kBarPriority,
+    //   onStartCraft: onStartCraft,
+    //   onRemoveCard: (card) {
+    //     libraryZone.setCardEnabledById(card.deckId);
+    //     updateCardData(card);
+    //   },
+    // );
+    // camera.viewport.add(cardCraftingArea);
 
     exit = GameData.getExitSiteCard(spriteId: 'exit_card');
     exit.onTap = (_, __) {
+      // _heroData['cardLibrary'] = libraryZone.library.map((key, value) {
+      //   return MapEntry(key, value.data);
+      // });
+
       context.read<SceneControllerState>().pop();
+      if (_isPrebattle) {
+        context.read<EnemyState>().setPrebattleVisible(true);
+      }
     };
     camera.viewport.add(exit);
 
@@ -557,15 +857,19 @@ class CardLibraryScene extends Scene {
       size: Vector2(360, 360),
       spriteId: 'cultivation/battlebook.png',
       hoverSpriteId: 'cultivation/battlebook_hover.png',
-      priority: kBottomBarPriority + 5,
+      priority: kBarrierPriority,
     );
     skillBook.onTapUp = (buttons, position) {
-      context.read<ViewPanelState>().toogle(ViewPanels.itemSelect, {
-        'inventoryData': _heroData['inventory'],
-        'title': engine.locale('selectCardpack'),
-        'type': 'select',
-        'filter': 'cardpack',
-      });
+      context.read<ViewPanelState>().toogle(
+        ViewPanels.itemSelect,
+        arguments: {
+          'inventoryData': _heroData['inventory'],
+          'title': engine.locale('selectCardpack'),
+          'filter': 'cardpack',
+          'onSelect': onOpenCardpack,
+          'onSelectAll': onOpenAllCardpack,
+        },
+      );
     };
     skillBook.onMouseEnter = () {
       final cardpackCount = engine.hetu.invoke('countItem', positionalArgs: [
@@ -574,7 +878,7 @@ class CardLibraryScene extends Scene {
       ]);
 
       final cardpackHint =
-          '${engine.locale('cardpack')}: <bold ${cardpackCount > 0 ? 'yellow' : ''}>${cardpackCount.toString().padLeft(10)}</>\n'
+          '${engine.locale('owenedCardpack')}: <bold ${cardpackCount > 0 ? 'yellow' : ''}>${cardpackCount.toString().padLeft(10)}</>\n'
           '<grey>${engine.locale('deckbuilding_cardpack_hint')}</>';
       Hovertip.show(
         scene: this,
@@ -589,13 +893,92 @@ class CardLibraryScene extends Scene {
       Hovertip.hide(skillBook);
     };
     camera.viewport.add(skillBook);
-  }
 
-  @override
-  void onEnd() {
-    super.onEnd();
+    collectButton = SpriteButton(
+      text: engine.locale('deckbuilding_identify_all'),
+      anchor: Anchor.center,
+      position: GameUI.cardpackCardPositions[1] +
+          Vector2(GameUI.cardpackCardSize.x / 2,
+              GameUI.cardpackCardSize.y + GameUI.hugeIndent),
+      size: GameUI.buttonSizeMedium,
+      spriteId: 'ui/button2.png',
+      priority: kBarrierPriority,
+      isVisible: false,
+    );
+    collectButton.onTapUp = (buttons, position) {
+      final unidentifiedCards = _cardpackCards.where((card) {
+        return card.data['isIdentified'] != true;
+      });
 
-    engine.removeEventListener(Scenes.library);
+      if (unidentifiedCards.isNotEmpty) {
+        engine.play(GameSound.craft);
+        for (final card in unidentifiedCards) {
+          card.data['isIdentified'] = true;
+          final (description, _) =
+              GameData.getDescriptionFromCardData(card.data);
+          card.description = description;
+        }
+        collectButton.text = engine.locale('deckbuilding_collect_all');
+      } else {
+        engine.play(GameSound.cardDealt2);
+
+        barrier.isVisible = false;
+        collectButton.isVisible = false;
+
+        for (final card in _cardpackCards) {
+          engine.hetu.invoke(
+            'acquire',
+            namespace: 'Player',
+            positionalArgs: [card.data],
+          );
+          card
+              .moveTo(
+            duration: 0.35,
+            toPosition: skillBook.center,
+            toSize: Vector2.zero(),
+          )
+              .then((_) {
+            card.removeFromParent();
+          });
+        }
+        _cardpackCards.clear();
+        libraryZone.updateHeroLibrary();
+        skillBook.enableGesture = true;
+      }
+    };
+    camera.viewport.add(collectButton);
+
+    // craftOptionButtonsContainer = BorderComponent(
+    //   position: displayCardSize +
+    //       Vector2(displayCardSize.x + 300 + GameUI.hugeIndent, 0),
+    //   isVisible: false,
+    // );
+    // camera.viewport.add(craftOptionButtonsContainer);
+
+    for (var i = 0; i < kAffixOperations.length; i++) {
+      final operation = kAffixOperations[i];
+      _addAffixOperationButton(
+          operation,
+          GameUI.cardpackCardPositions[0] +
+              Vector2(GameUI.cardpackCardSize.x + GameUI.indent * 2 + 300,
+                  (GameUI.buttonSizeSmall.y + 10) * i));
+    }
+
+    closeCraftButton = SpriteButton(
+      text: engine.locale('close'),
+      anchor: Anchor.center,
+      position: GameUI.cardpackCardPositions[0] +
+          Vector2(GameUI.cardpackCardSize.x / 2,
+              GameUI.cardpackCardSize.y + GameUI.hugeIndent),
+      size: GameUI.buttonSizeMedium,
+      spriteId: 'ui/button2.png',
+      priority: kBarrierPriority,
+      isVisible: false,
+    );
+    closeCraftButton.onTapUp = (buttons, position) {
+      onEndCraft();
+    };
+    camera.viewport.add(closeCraftButton);
   }
 
   @override

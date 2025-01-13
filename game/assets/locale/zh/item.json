@@ -14,7 +14,9 @@
   "materialpack": "材料包",
   "equipment": "装备",
   "cardpack": "秘籍",
-  "item_cardpack_flavor_text": "打开后可以获得一张该流派与境界的卡牌，以及另外两张随机卡牌。卡牌最大等级不会超过角色等级。",
+  "owenedCardpack": "拥有的秘籍",
+
+  "item_cardpack_flavor_text": "打开后可以获得一张该境界和流派的卡牌以及两张随机卡牌。卡牌最大等级不会超过角色等级。",
 
   "price": "价格",
   "stackSize": "数量",
@@ -26,17 +28,26 @@
 
   "sword": "剑",
   "item_sword_flavor_text": "在凡人和修真者中都很流行的一种兵器。",
-
   "sabre": "刀",
+  "item_sabre_flavor_text": "在凡人和修真者中都很流行的一种兵器。",
   "spear": "枪",
+  "item_spear_flavor_text": "在凡人和修真者中都很流行的一种兵器。",
   "staff": "棍",
+  "item_staff_flavor_text": "在凡人和修真者中都很流行的一种兵器。",
   "bow": "弓",
+  "item_bow_flavor_text": "在凡人和修真者中都很流行的一种兵器。",
   "dart": "暗器",
+  "item_dart_flavor_text": "在凡人和修真者中都很流行的一种兵器。",
 
-  "shield": "盾",
-  "vehicle": "载具",
-  "boots": "靴",
+  "shield": "盾牌",
+  "item_dart_flavor_text": "在凡人和修真者中都很流行的一种兵器。",
+  "boots": "鞋子",
+  "item_dart_flavor_text": "在凡人和修真者中都很流行的一种兵器。",
   "armor": "护甲",
+  "item_dart_flavor_text": "在凡人和修真者中都很流行的一种兵器。",
+
+  "vehicle": "载具",
+  "item_dart_flavor_text": "在凡人和修真者中都很流行的一种兵器。",
 
   "quest_jade": "玉佩",
   "quest_jade.description": "一块青色的玉佩，上面刻着两个古代文字。这两个字给你一种非常奇怪的似曾相识的感觉。",
@@ -47,10 +58,10 @@
   "climb_boots.description": "为了在山峦间攀爬行走而特意打造的靴子。",
 
   "energy_curse": "煞气",
-  "energy_curse_description": "煞气：伴随杀戮而形成的一种气息，吸收后可以增强你在战斗中的攻击。",
+  "energy_curse_description": "煞气：伴随杀戮而形成的一种气息，吸收后可以增强你在战斗中的咒术攻击。",
 
   "energy_poison": "瘴气",
-  "energy_poison_description": "瘴气：包含可以对生物造成巨大伤害性的物质的气体，吸收后可以增强你在战斗中的攻击。",
+  "energy_poison_description": "瘴气：包含可以对生物造成巨大伤害性的物质的气体，吸收后可以增强你在战斗中的毒术攻击。",
 
   "energy_chaotic": "混沌之气",
   "energy_chaotic_description": "混沌之气：在天地形成之初便已存在的一种远古气息，吸收后可以增强你在战斗中的攻击。"

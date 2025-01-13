@@ -21,6 +21,9 @@
   "menu": "菜单",
   "untitled": "未命名",
 
+  "openAll": "全部打开",
+  "selectAll": "选择全部",
+
   "id": "ID",
   "characterId": "角色ID",
   "locationId": "据点ID",
@@ -268,7 +271,7 @@
 
   "general": "通用",
   "daoism": "道术",
-  "physique": "锻体",
+  "bodyforge": "锻体",
   "avatar": "法身",
   "vitality": "炼魂",
   "swordcraft": "御剑",

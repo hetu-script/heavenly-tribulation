@@ -15,7 +15,7 @@ const _kMartialArtsKinds = [
   'sword',
   'staff',
   'dart',
-  'swift',
+  'qinggong',
 ]
 
 const _kNumberBeginSupplement = '路'

@@ -11,6 +11,7 @@ abstract class GameUI {
   static bool _isInitted = false;
   static bool get isInitted => _isInitted;
 
+  static const hugeIndent = 80.0;
   static const largeIndent = 40.0;
   static const indent = 20.0;
   static const smallIndent = 10.0;
@@ -27,7 +28,7 @@ abstract class GameUI {
 
   static const foregroundColor = Colors.white;
   static final backgroundColor = Colors.black.withAlpha(220);
-  static final barrierColor = Colors.black.withAlpha(128);
+  static final barrierColor = Colors.black.withAlpha(160);
   static final borderRadius = BorderRadius.circular(5.0);
 
   static const profileWindowPosition =
@@ -201,6 +202,12 @@ abstract class GameUI {
   /// 卡牌库区域大小，这里是实际的卡牌排列可用区域，小于卡牌库背景区域
   static late Vector2 libraryZoneSize;
 
+  /// 卡包展示卡牌的大小
+  static late Vector2 cardpackCardSize;
+
+  /// 卡包中1，2，3号卡牌的位置
+  static late final List<Vector2> cardpackCardPositions;
+
   /// 卡牌精炼区域背景大小
   static late Vector2 cardCraftingZoneSize;
 
@@ -274,20 +281,23 @@ abstract class GameUI {
 
     FadingText.defaultTextStyle = fadingTextStyle;
 
-    libraryZonePosition = Vector2(120 / 1440 * size.x, 180 / 810 * size.y);
-    libraryZoneSize = Vector2(960 / 1440 * size.x, 450 / 810 * size.y);
+    libraryZonePosition = Vector2((120 / 1440 * size.x).roundToDouble(),
+        (180 / 810 * size.y).roundToDouble());
+    libraryZoneSize = Vector2((960 / 1440 * size.x).roundToDouble(),
+        (450 / 810 * size.y).roundToDouble());
 
     libraryZoneBackgroundPosition = Vector2(0, libraryZonePosition.y);
-    libraryZoneBackgroundSize =
-        Vector2(1190 / 1440 * size.x, libraryZoneSize.y);
+    libraryZoneBackgroundSize = Vector2((1190 / 1440 * size.x).roundToDouble(),
+        (libraryZoneSize.y).roundToDouble());
 
     decksZoneBackgroundSize = Vector2(
         size.x - libraryZoneBackgroundSize.x, libraryZoneBackgroundSize.y);
     decksZoneBackgroundPosition =
         Vector2(libraryZoneBackgroundSize.x, libraryZoneBackgroundPosition.y);
 
-    final deckbuildingCardWidth = (170 / 270 * decksZoneBackgroundSize.x);
-    final deckbuildingCardHeight = deckbuildingCardWidth * 1.382;
+    final deckbuildingCardWidth = ((130 / 1440 * size.x).roundToDouble());
+    final deckbuildingCardHeight =
+        (deckbuildingCardWidth * 1.351351).roundToDouble();
     deckbuildingCardSize =
         Vector2(deckbuildingCardWidth, deckbuildingCardHeight);
 
@@ -319,7 +329,21 @@ abstract class GameUI {
     // libraryCardSize = Vector2(libraryCardWidth, libraryCardHeight);
     libraryCardSize = deckbuildingCardSize;
 
-    cardCraftingZoneSize = Vector2(270 / 1440 * size.x, 270 / 810 * size.y);
+    cardpackCardSize = libraryCardSize * 1.5;
+
+    final position2 = Vector2(
+      size.x / 2 - cardpackCardSize.x / 2,
+      size.y * 0.2,
+    );
+
+    final position1 = position2 - Vector2(cardpackCardSize.x + hugeIndent, 0);
+
+    final position3 = position2 + Vector2(cardpackCardSize.x + hugeIndent, 0);
+
+    cardpackCardPositions = [position1, position2, position3];
+
+    cardCraftingZoneSize = Vector2((270 / 1440 * size.x).roundToDouble(),
+        (270 / 810 * size.y).roundToDouble());
 
     cardCraftingZoneInitialPosition =
         Vector2(decksZoneBackgroundPosition.x, -150.0);
@@ -369,7 +393,7 @@ abstract class GameUI {
     );
 
     final siteCardWidth = (size.x - 300) / 8 - indent;
-    final siteCardHeight = siteCardWidth * 1.714;
+    final siteCardHeight = (siteCardWidth * 1.714).roundToDouble();
 
     siteCardSize = Vector2(siteCardWidth, siteCardHeight);
 

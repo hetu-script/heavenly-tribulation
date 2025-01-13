@@ -9,4 +9,3 @@ export 'game_save.dart';
 export 'selected_tile.dart';
 export 'view_panels.dart';
 export 'hover_info.dart';
-export 'scene_controller.dart';

@@ -25,7 +25,7 @@ class CardCraftingArea extends PiledZone {
   final List<SpriteButton> craftOptionButtons = [];
 
   late final void Function() onStartCraft;
-  late final void Function(GameCard card) onRemoveCard;
+  late final void Function(CustomGameCard card) onRemoveCard;
 
   void hide() async {}
 
@@ -61,7 +61,7 @@ class CardCraftingArea extends PiledZone {
   void removeCard() {
     if (isFull) {
       Hovertip.hide(craftButton);
-      final c = removeCardByIndex(0) as GameCard;
+      final c = removeCardByIndex(0) as CustomGameCard;
       onRemoveCard(c);
     }
   }
@@ -177,7 +177,7 @@ class CardCraftingArea extends PiledZone {
               GameUI.cardCraftingZoneSize.y + GameUI.largeIndent),
     );
 
-    _getAffixOperationButton('identifyCard');
+    // _getAffixOperationButton('identifyCard');
     _getAffixOperationButton('addAffix');
     _getAffixOperationButton('rerollAffix');
     _getAffixOperationButton('replaceAffix');

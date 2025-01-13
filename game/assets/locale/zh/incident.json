@@ -11,6 +11,7 @@
   "heroGainOrganizationRank": "你成为了{0}的{1}。",
   "heroAcquireCompanion": "{0}加入了你的队伍。",
   "heroLoseCompanion": "{0}离开了你的队伍。",
+  "heroOpen": "你打开了{0}。",
 
   "characterFirstMeetNormal": "{0}认识了{1}。",
   "characterFirstMeetHate": "{0}认识了{1}，对其印象较差。",

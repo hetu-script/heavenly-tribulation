@@ -11,7 +11,7 @@ import '../../data.dart';
 // import 'character.dart';
 
 class BattleDeckZone extends PiledZone with HandlesGesture {
-  late GameCard current;
+  late CustomGameCard current;
 
   BattleDeckZone({
     required super.position,
@@ -31,7 +31,7 @@ class BattleDeckZone extends PiledZone with HandlesGesture {
   void onLoad() {
     assert(cards.isNotEmpty && cards.length >= 3);
 
-    current = cards.first;
+    current = cards.first as CustomGameCard;
     for (var i = 0; i < cards.length; ++i) {
       final card = cards[i];
       card.prev = i == 0 ? cards.last : cards[i - 1];
@@ -43,21 +43,21 @@ class BattleDeckZone extends PiledZone with HandlesGesture {
         game.world.add(card);
       }
 
-      card.onPreviewed = (component) {
+      card.onPreviewed = () {
         final (_, description) =
             GameData.getDescriptionFromCardData((card as CustomGameCard).data);
         Hovertip.show(
           scene: game,
-          target: component,
+          target: card,
           direction: HovertipDirection.topLeft,
           content: description,
           config: ScreenTextConfig(anchor: Anchor.topCenter),
         );
       };
 
-      card.onUnpreviewed = (component) {
+      card.onUnpreviewed = () {
         if (!card.isFocused) {
-          Hovertip.hide(component);
+          Hovertip.hide(card);
         }
       };
     }
@@ -65,8 +65,8 @@ class BattleDeckZone extends PiledZone with HandlesGesture {
     super.onLoad();
   }
 
-  GameCard nextCard() {
-    current = current.next!;
+  CustomGameCard nextCard() {
+    current = current.next as CustomGameCard;
     if (current.index == 0) {
       for (final card in cards) {
         card.isEnabled = true;
@@ -76,7 +76,7 @@ class BattleDeckZone extends PiledZone with HandlesGesture {
   }
 
   void reset() {
-    current = cards.first;
+    current = cards.first as CustomGameCard;
     for (final card in cards) {
       card.isEnabled = true;
       if (card.isFocused) {

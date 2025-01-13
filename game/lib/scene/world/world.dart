@@ -330,7 +330,7 @@ class WorldMapScene extends Scene {
   }
 
   @override
-  void onStart(dynamic arguments) {
+  void onStart([Map<String, dynamic> arguments = const {}]) {
     super.onStart(arguments);
 
     map.onTapDown =
@@ -868,9 +868,10 @@ class WorldMapScene extends Scene {
 
     assert(context.mounted);
     if (context.mounted) {
-      context
-          .read<SceneControllerState>()
-          .push(Scenes.location, arguments: locationData);
+      context.read<SceneControllerState>().push(
+        Scenes.location,
+        arguments: {'location': locationData},
+      );
     }
   }
 

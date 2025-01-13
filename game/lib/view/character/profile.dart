@@ -142,9 +142,9 @@ class _CharacterProfileViewState extends State<CharacterProfileView> {
 
   @override
   Widget build(BuildContext context) {
-    final windowPositions = context.watch<PanelPositionState>().panelPositions;
-    final position = windowPositions[ViewPanels.characterProfile] ??
-        GameUI.profileWindowPosition;
+    final position =
+        context.watch<PanelPositionState>().get(ViewPanels.characterProfile) ??
+            GameUI.profileWindowPosition;
 
     final fame = engine.hetu
         .invoke('getCharacterFameString', positionalArgs: [_characterData]);
@@ -225,7 +225,7 @@ class _CharacterProfileViewState extends State<CharacterProfileView> {
         context.read<ViewPanelState>().setUpFront(ViewPanels.characterProfile);
       },
       onDragUpdate: (details) {
-        context.read<PanelPositionState>().updatePosition(
+        context.read<PanelPositionState>().update(
               ViewPanels.characterQuest,
               details.delta,
             );

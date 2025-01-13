@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:heavenly_tribulation/scene/mainmenu/mainmenu.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/loading_screen.dart';
 import 'package:samsara/samsara.dart';
 
+import 'scene/mainmenu/mainmenu.dart';
 import 'engine.dart';
 import 'binding/dialog_bindings.dart';
 import 'scene/world/world.dart';
@@ -50,30 +50,35 @@ class _GameAppState extends State<GameApp> {
     // 读取存档列表
     context.read<GameSavesState>().loadList();
 
-    engine.registerSceneConstructor(Scenes.mainmenu, ([dynamic args]) async {
+    engine.registerSceneConstructor(Scenes.mainmenu, (
+        [Map<String, dynamic> arguments = const {}]) async {
       return MainMenuScene(context: context);
     });
 
-    engine.registerSceneConstructor(Scenes.cultivation, ([dynamic data]) async {
+    engine.registerSceneConstructor(Scenes.cultivation, (
+        [Map<String, dynamic> arguments = const {}]) async {
       return CultivationScene(context: context);
     });
 
-    engine.registerSceneConstructor(Scenes.library, ([dynamic data]) async {
+    engine.registerSceneConstructor(Scenes.library, (
+        [Map<String, dynamic> arguments = const {}]) async {
       return CardLibraryScene(context: context);
     });
 
-    engine.registerSceneConstructor(Scenes.battle, ([dynamic data]) async {
+    engine.registerSceneConstructor(Scenes.battle, (
+        [Map<String, dynamic> arguments = const {}]) async {
       return BattleScene(
-        heroData: data['heroData'],
-        enemyData: data['enemyData'],
-        heroDeck: data['heroDeck'],
-        enemyDeck: data['enemyDeck'],
-        isSneakAttack: data['isSneakAttack'],
+        heroData: arguments['heroData'],
+        enemyData: arguments['enemyData'],
+        heroDeck: arguments['heroDeck'],
+        enemyDeck: arguments['enemyDeck'],
+        isSneakAttack: arguments['isSneakAttack'] ?? false,
       );
     });
 
     engine.registerSceneConstructor(Scenes.location, (
-        [dynamic locationData]) async {
+        [Map<String, dynamic> arguments = const {}]) async {
+      final locationData = arguments['location'];
       assert(locationData != null);
       return LocationScene(
         context: context,
@@ -286,6 +291,7 @@ class _GameAppState extends State<GameApp> {
       await _initGame();
       _isInitted = true;
 
+      assert(mounted);
       if (mounted) {
         context
             .read<SceneControllerState>()

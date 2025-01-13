@@ -114,7 +114,7 @@
                     //     final end = _currentTerrain!.centerPosition;
                     //     scene.useMapSkillFlyingSword(start, end);
                     //   case 'element':
-                    //   case 'physique':
+                    //   case 'bodyforge':
                     //   case 'vitality':
                     //   case 'avatar':
                     // }

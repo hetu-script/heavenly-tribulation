@@ -88,7 +88,6 @@ flutter:
     - assets/images/battlecard/
     - assets/images/battlecard/illustration/
     - assets/images/cultivation/
-    - assets/images/cultivation/library/
     - assets/images/cultivation/skill/
     - assets/images/cultivation/time/
     - assets/images/cg/
@@ -96,6 +95,7 @@ flutter:
     - assets/images/icon/
     - assets/images/icon/skill/
     - assets/images/icon/status/
+    - assets/images/icon/status/permenant/
     - assets/images/illustration/
     - assets/images/illustration/
     - assets/images/illustration/male/

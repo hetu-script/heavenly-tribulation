@@ -1,27 +1,65 @@
 import 'game.ht'
 import 'entity/character/character.ht'
 import 'entity/item/item.ht'
-// import 'duel.ht'
-// import 'maze/maze.ht'
 import 'dialog.ht'
 import 'tile/hexagonal_tile.ht'
-// import 'entity/skill/skill.ht'
+import 'random.ht'
 
-namespace debug {
+namespace Debug {
   external function setFog(value: bool)
 
   external function reloadGameData()
 
-  function terrain {
+  function generateHero() {
+    final hero = Character(
+      unconvertedExp: 1000000,
+      isFemale: false,
+      cultivationLevel: 10,
+      cultivationRank: 1,
+      availableSkillPoints: 10,
+    )
+    setHeroId(hero.id)
+    return hero
+  }
+
+  function testCardpack() {
+    assert(hero != null)
+    for (var i in range(12)) {
+      final cardPack = Cardpack(
+        rank: hero.cultivationRank,
+      )
+      Player.acquire(cardPack)
+    }
+  }
+
+  const kDebugEquipments = [
+    'sword',
+    'sabre',
+    'staff',
+    'dart',
+  ]
+
+  function testEquipment() {
+    assert(hero != null)
+    for (var i in range(12)) {
+      final item = Equipment(
+        kind: kDebugEquipments.random,
+        rank: hero.cultivationRank,
+      )
+      Player.acquire(item)
+    }
+  }
+ 
+  function getCurrentTerrain() {
     if (world == null) return
     if (hero == null) return
     const position = hero.worldPosition
     const terrainIndex = tilePos2Index(position.left, position.top, world.width)
     let terrain = world.terrains[terrainIndex]
-    engine.info('terrain:', terrain)
+    return terrain
   }
 
-  function location {
+  function getCurrentLocation() {
     if (world == null) return
     if (hero == null) return
     const position = getHeroPosition()
@@ -29,11 +67,11 @@ namespace debug {
     const terrain = world.terrains[terrainIndex]
     if (terrain.locationId) {
       const location = game.locations[terrain.locationId]
-      engine.info('location:', location)
+      return location
     }
   }
 
-  function updateAllCaptions {
+  function updateAllCaptions() {
     for (const tile in world.terrains) {
       if (tile.locationId) {
         const location = game.locations[tile.locationId]
@@ -44,7 +82,7 @@ namespace debug {
     }
   }
   
-  function testMerchant {
+  function testMerchant() {
     // setRandomSeed(1003)
     // resetGame()
     // const hero = Character()

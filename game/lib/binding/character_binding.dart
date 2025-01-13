@@ -28,34 +28,16 @@ class BattleCharacterClassBinding extends HTExternalClass {
       case 'changeLife':
         return ({positionalArgs, namedArgs}) => character
             .changeLife(positionalArgs[0], playSound: namedArgs['playSound']);
-      // case 'consumeMana':
-      //   return ({positionalArgs, namedArgs}) =>
-      //       character.consumeMana(positionalArgs.first);
-      // case 'restoreMana':
-      //   return ({positionalArgs, namedArgs}) =>
-      //       character.restoreMana(positionalArgs.first);
-      // case 'spell':
-      //   return ({positionalArgs, namedArgs}) =>
-      //       character.setSpellState(positionalArgs.first);
       case 'takeDamage':
         return ({positionalArgs, namedArgs}) {
           return character.takeDamage(positionalArgs.first);
-          // dynamic v = positionalArgs[1];
-          // if (v is int) {
-          //   return character.takeDamage(positionalArgs[0], damage: v);
-          // } else if (v is List) {
-          //   return character.takeDamage(positionalArgs[0],
-          //       multipleDamages: List<int>.from(v));
-          // }
         };
       case 'setState':
         return ({positionalArgs, namedArgs}) => character.setState(
               positionalArgs.first,
-              // type: namedArgs['type'],
               overlay: namedArgs['overlay'],
               recovery: namedArgs['recovery'],
               complete: namedArgs['complete'],
-              // recovery: namedArgs['recovery'] ?? false,
             );
       case 'hasStatusEffect':
         return ({positionalArgs, namedArgs}) =>

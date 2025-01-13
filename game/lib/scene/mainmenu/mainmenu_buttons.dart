@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:samsara/ui/label.dart';
 import 'package:provider/provider.dart';
+import 'package:samsara/samsara.dart';
 
 import '../../ui.dart';
 import '../../data.dart';
@@ -363,7 +364,9 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                       padding: const EdgeInsets.only(top: 20.0),
                       child: ElevatedButton(
                         onPressed: () async {
-                          _heroData = resetHero(context);
+                          _heroData = engine.hetu
+                              .invoke('generateHero', namespace: 'Debug');
+                          context.read<HeroState>().update();
                           context
                               .read<SceneControllerState>()
                               .clearAll(except: Scenes.mainmenu);
@@ -394,62 +397,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                       padding: const EdgeInsets.only(top: 20.0),
                       child: ElevatedButton(
                         onPressed: () {
-                          final enemy =
-                              engine.hetu.invoke('Character', namedArgs: {
-                            // 'isFemale': false,
-                            'isMajorCharacter': false,
-                            'cultivationLevel': 10,
-                            'cultivationRank': 1,
-                            // 'baseStats': {
-                            //   'life': 80,
-                            //   'physiqueAttack': 5,
-                            // },
-                            // 'skin': 'boar',
-                          });
-                          final enemyLibrary = {};
-                          final List cards = [];
-                          cards.add(engine.hetu.invoke(
-                            'BattleCard',
-                            namedArgs: {
-                              'genre': "general",
-                              'category': "attack",
-                              'kind': "punch",
-                              'level': enemy['cultivationLevel'],
-                              'rank': enemy['cultivationRank'],
-                            },
-                          ));
-                          cards.add(engine.hetu.invoke(
-                            'BattleCard',
-                            namedArgs: {
-                              'genre': "general",
-                              'category': "attack",
-                              'kind': "sword",
-                              'level': enemy['cultivationLevel'],
-                              'rank': enemy['cultivationRank'],
-                            },
-                          ));
-                          cards.add(engine.hetu.invoke(
-                            'BattleCard',
-                            namedArgs: {
-                              'genre': "swordcraft",
-                              'category': "attack",
-                              'kind': "flying_sword",
-                              'level': enemy['cultivationLevel'],
-                              'rank': enemy['cultivationRank'],
-                            },
-                          ));
-                          for (final cardData in cards) {
-                            enemyLibrary[cardData['id']] = cardData;
-                          }
-                          enemy['cardLibrary'] = enemyLibrary;
-                          final enemyDeck = {
-                            'title': 'battleDeck',
-                            'isBattleDeck': true,
-                            'cards': enemyLibrary.keys.toList(),
-                          };
-                          enemy['battleDecks'] = [enemyDeck];
-                          enemy['battleDeckIndex'] = 0;
-
+                          final enemy = Debug.generateEnemy();
                           context.read<EnemyState>().update(enemy);
                         },
                         child: Label(engine.locale('debug_battle'),

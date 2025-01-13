@@ -13,7 +13,6 @@ import '../../../events.dart';
 import '../../npc_list.dart';
 import '../../../view/ui_overlay.dart';
 import '../../../view/dialog/character_visit_dialog.dart';
-import '../../../state/scene_controller.dart';
 import '../../../state/current_npc_list.dart';
 import '../../common.dart';
 import '../../game_dialog/game_dialog.dart';
@@ -59,7 +58,7 @@ class LocationScene extends Scene {
           final homeSiteData = locationData['sites'][homeSiteId];
           await context
               .read<SceneControllerState>()
-              .push(Scenes.location, arguments: homeSiteData);
+              .push(Scenes.location, arguments: {'location': homeSiteData});
           updateNPCsInHeroSite(homeSiteId);
           await engine.hetu.invoke('onAfterHeroEnterSite',
               positionalArgs: [locationData, homeSiteData]);
@@ -96,17 +95,18 @@ class LocationScene extends Scene {
       siteCards.add(GameData.getSiteCard(siteData));
     }
 
-    for (final card in siteCards) {
-      card.onTap = (buttons, position) async {
-        if (card.data['category'] != 'residence') {
+    for (final siteCard in siteCards) {
+      siteCard.onTap = (buttons, position) async {
+        if (siteCard.data['category'] != 'residence') {
           openResidenceList();
         } else {
-          await context
-              .read<SceneControllerState>()
-              .push(Scenes.location, arguments: card.data);
+          await context.read<SceneControllerState>().push(
+            Scenes.location,
+            arguments: {'location': siteCard.data},
+          );
         }
       };
-      world.add(card);
+      world.add(siteCard);
     }
 
     final siteList = PiledZone(

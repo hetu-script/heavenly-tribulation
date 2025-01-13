@@ -190,18 +190,21 @@ class _CharacterDetailsViewState extends State<CharacterDetailsView>
         switch (item) {
           case ItemPopUpMenuItems.use:
           case ItemPopUpMenuItems.equip:
+            engine.play('sword-sheathed-178549.mp3');
             engine.hetu.invoke('equip',
                 namespace: 'Player', positionalArgs: [itemData]);
             setState(() {
               context.read<HeroState>().update();
             });
           case ItemPopUpMenuItems.unequip:
+            engine.play('put_item-83043.mp3');
             engine.hetu.invoke('unequip',
                 namespace: 'Player', positionalArgs: [itemData]);
             setState(() {
               context.read<HeroState>().update();
             });
           case ItemPopUpMenuItems.destroy:
+            engine.play('break06-36414.mp3');
             showDialog<bool>(
               context: context,
               builder: (context) => ConfirmDialog(
@@ -224,9 +227,9 @@ class _CharacterDetailsViewState extends State<CharacterDetailsView>
 
   @override
   Widget build(BuildContext context) {
-    final windowPositions = context.watch<PanelPositionState>().panelPositions;
-    final position = windowPositions[ViewPanels.characterDetails] ??
-        GameUI.detailsWindowPosition;
+    Offset position =
+        context.watch<PanelPositionState>().get(ViewPanels.characterDetails) ??
+            GameUI.detailsWindowPosition;
 
     return DraggablePanel(
       title: engine.locale('build'),
@@ -237,7 +240,7 @@ class _CharacterDetailsViewState extends State<CharacterDetailsView>
         context.read<ViewPanelState>().setUpFront(ViewPanels.characterDetails);
       },
       onDragUpdate: (details) {
-        context.read<PanelPositionState>().updatePosition(
+        context.read<PanelPositionState>().update(
               ViewPanels.characterDetails,
               details.delta,
             );
@@ -270,7 +273,7 @@ class _CharacterDetailsViewState extends State<CharacterDetailsView>
                         inventoryData: _characterData['inventory'],
                         type: widget.type,
                         minSlotCount: 36,
-                        onItemSecondaryTapped: onItemSecondaryTapped,
+                        onSecondaryTapped: onItemSecondaryTapped,
                       ),
                     ],
                   ),

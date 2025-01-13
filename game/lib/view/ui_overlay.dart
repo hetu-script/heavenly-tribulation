@@ -3,7 +3,7 @@ import 'package:samsara/ui/bordered_icon_button.dart';
 import 'package:samsara/ui/dynamic_color_progressbar.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/mouse_region2.dart';
-import 'package:samsara/console.dart';
+import 'package:samsara/samsara.dart';
 
 import 'avatar.dart';
 import 'character/profile.dart';
@@ -17,7 +17,6 @@ import 'prebatle/prebattle.dart';
 import '../state/states.dart';
 import '../scene/common.dart';
 import '../view/dialog/item_select_dialog.dart';
-import '../view/common.dart';
 
 const tickName = {
   1: 'morning.jpg',
@@ -121,13 +120,13 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
             characterData: heroData,
           ));
         case ViewPanels.itemSelect:
-          final args = visiblePanels[panel] as Map<String, dynamic>;
+          final arguments = visiblePanels[panel]!;
           panels.add(ItemSelectDialog(
-            inventoryData: args['inventoryData'],
-            title: args['title'],
-            type:
-                InventoryType.values.singleWhere((v) => v.name == args['type']),
-            filter: args['filter'],
+            inventoryData: arguments['inventoryData'],
+            title: arguments['title'],
+            filter: arguments['filter'],
+            onSelect: arguments['onSelect'],
+            onSelectAll: arguments['onSelectAll'],
           ));
       }
     }
@@ -280,6 +279,9 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                       padding:
                                           const EdgeInsets.only(right: 5.0),
                                       onTapUp: () {
+                                        context
+                                            .read<HoverInfoContentState>()
+                                            .hide();
                                         context
                                             .read<ViewPanelState>()
                                             .clearAll();

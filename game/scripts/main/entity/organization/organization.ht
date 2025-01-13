@@ -40,7 +40,7 @@ struct Organization {
   construct ({
     name,
     category, // 扩张类型：'cultivation' | 'gang' | 'religion' | 'business' | 'nation'
-    genre, // 修炼类型：'dao' | 'swordcraft' | 'physique' | 'avatar' | 'vitality'
+    genre, // 修炼类型：'dao' | 'swordcraft' | 'bodyforge' | 'avatar' | 'vitality'
     headquartersId,
     headId,
     development = 0,

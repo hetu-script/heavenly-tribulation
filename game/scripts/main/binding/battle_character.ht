@@ -5,23 +5,11 @@ external class BattleCharacter {
 
   get lifeMax
 
-  async function changeLife(value: integer, {playSound: bool = false})
-  
-  // async function consumeMana(value: integer) -> bool
-  
-  // async function restoreMana(value: integer)
+  function changeLife(value: integer, {playSound: bool = false})
 
-  async function takeDamage(details) -> integer
+  function takeDamage(details) -> integer
 
-  async function setState(
-    state: string, {
-    // type: string,
-    overlay: string,
-    complete: string = 'stand',
-    // recovery: bool = false,
-    recovery: string,
-    }
-  )
+  async function setState(state: string, { overlay: string, complete: string = 'stand', recovery: string })
 
   function hasStatusEffect(effectId: string) -> int
 

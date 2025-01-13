@@ -8,7 +8,6 @@ import '../common.dart';
 import 'mainmenu_buttons.dart';
 import '../../view/ui_overlay.dart';
 import '../../data.dart';
-import '../../debug.dart';
 import '../../engine.dart';
 
 class MainMenuScene extends Scene {
@@ -19,20 +18,24 @@ class MainMenuScene extends Scene {
           id: Scenes.mainmenu,
           bgm: engine.bgm,
           bgmFile: 'chinese-oriental-tune-06-12062.mp3',
+          bgmVolume: GameConfig.musicVolume,
         );
 
   @override
-  void onStart(dynamic arguments) async {
+  void onStart([Map<String, dynamic> arguments = const {}]) async {
     super.onStart(arguments);
 
-    if (kDebugMode && arguments is Map && arguments['reset'] == true) {
+    if (kDebugMode && arguments['reset'] == true) {
       // 创建一个空游戏存档并初始化一些数据，这主要是为了在主菜单快速测试和debug相关功能，并不会保存
       // 真正开始游戏后还会再执行一遍，
       await GameData.createGame('debug');
       GameData.isGameCreated = false;
       assert(context.mounted);
       if (context.mounted) {
-        resetHero(context);
+        engine.hetu.invoke('generateHero', namespace: 'Debug');
+        engine.hetu.invoke('testCardpack', namespace: 'Debug');
+        engine.hetu.invoke('testEquipment', namespace: 'Debug');
+        context.read<HeroState>().update();
         context.read<GameUIOverlayVisibilityState>().setVisible();
       }
     }

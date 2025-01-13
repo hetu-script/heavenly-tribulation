@@ -1,7 +1,7 @@
 {
   "extraAffix": "额外词条",
 
-  "identify_hint": "未鉴定",
+  "unidentified": "未知",
   "requirement_hint": "未满足",
   "explanation_hint": "按 Ctrl 键查看详细信息",
 
@@ -19,7 +19,7 @@
   "card_staff": "棍法",
   "card_bow": "弓术",
   "card_flying_sword": "御剑术",
-  "card_swift": "轻功",
+  "card_qinggong": "轻功",
   "card_xinfa": "心法",
   "card_firebend": "御火术",
   "card_waterbend": "御水术",
@@ -33,20 +33,22 @@
   "card_curse": "咒术",
   "card_music": "曲谱",
 
-  "affix_description_attack_punch": "徒手攻击：{0} 点物理伤害",
-  "affix_description_attack_sword": "剑攻击：{0} 点物理伤害",
-  "affix_description_defend_sword": "物理防御 + {0}",
-  "affix_description_defend_punch": "物理防御 + {0}",
+  "affix_description_attack_unarmed": "徒手攻击：{0} 点物理伤害",
+  "affix_description_attack_wrestling": "徒手攻击：{0} 点物理伤害\n对手缓慢 + {1}",
+  "affix_description_attack_dianxue": "徒手攻击：{0} 点真气伤害\n对手迟钝 + {1}",
+  "affix_description_attack_weapon": "武器攻击：{0} 点物理伤害",
+  "affix_description_attack_weapon_multiple": "武器攻击：{0}×{1} 点物理伤害",
+
+  "affix_description_attack_flying_sword_1": "法术攻击：{0} 点物理伤害",
+  "affix_description_attack_wind_blade": "法术攻击：{0} 点元素伤害\n对手迟钝 + {1}\n对手缓慢 + {2}",
+
+  "affix_description_defend_physical": "物理防御 + {0}",
   "affix_description_restore_life": "生命 + {0}",
   "affix_description_life_energy": "获得 {0} 点<bold>元气</>",
   "affix_description_spell_energy": "获得 {0} 点<bold>灵气</>",
-
-  "affix_description_defend_physical": "物理防御 + {0}",
   "affix_description_speed": "速度 + {0}",
   "affix_description_dodge": "闪避 + {0}",
-  "affix_description_extra_damage": "攻击额外造成 {0} 点伤害",
+  "affix_description_qinggong": "速度 + {0}\n闪避 + {1}",
 
-  "affix_description_attack_flying_sword_1": "飞剑攻击：{0} 点物理伤害",
-
-  "affix_description_swift": "速度 + {0}\n闪避 + {1}"
+  "affix_description_extra_damage": "攻击额外造成 {0} 点伤害"
 }

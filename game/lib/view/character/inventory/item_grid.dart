@@ -64,7 +64,9 @@ class ItemGrid extends StatelessWidget {
         },
         onTapUp: (pointer, buttons, details) {
           if (itemData == null) return;
-          if (buttons == kSecondaryButton) {
+          if (buttons == kPrimaryButton) {
+            onTapped?.call(itemData, details.globalPosition);
+          } else if (buttons == kSecondaryButton) {
             onSecondaryTapped?.call(itemData, details.globalPosition);
           }
         },
@@ -75,8 +77,9 @@ class ItemGrid extends StatelessWidget {
               ? BoxDecoration(
                   color: GameUI.backgroundColor,
                   border: Border.all(
-                    color:
-                        GameUI.foregroundColor.withAlpha(isSelected ? 255 : 64),
+                    color: isSelected
+                        ? Colors.yellow
+                        : GameUI.foregroundColor.withAlpha(64),
                   ),
                   image: backgroundImage != null
                       ? DecorationImage(

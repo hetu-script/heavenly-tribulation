@@ -44,23 +44,21 @@ const kMinorMotivations = [
 ]
 
 const kCultivationFavor = [
+  'none',
   'any',
   'swordcraft',
   'daoism',
-  // 'physique',
-  // 'vitality',
-  // 'avatar',
-  'none',
+  'bodyforge',
+  'vitality',
+  'avatar',
 ]
 
 const kOrganizationFavor = [
-  'any',
   'cultivation',
   'gang',
   'religion',
   'business',
   'nation',
-  'none',
 ]
 
 const kMajorThinkings = [

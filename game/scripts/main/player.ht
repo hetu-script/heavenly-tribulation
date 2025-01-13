@@ -66,13 +66,16 @@ namespace Player {
   function acquire(item, { incurIncident = true }) {
     switch(item.entityType) {
       case kEntityTypeItem: {
+        item.ownerId = hero.id
         hero.inventory[item.id] = item
         item.acquiredSequence = hero.achievements.acquiredItems
-        item.ownerId = hero.id
+        ++hero.achievements.acquiredBattleCards
       }
       case kEntityTypeBattleCard: {
-        hero.cardLibrary[card.id] = card
-        card.acquiredSequence = hero.achievements.acquiredBattleCards
+        // 刚获得的卡牌会显示发光特效，第一次鼠标移上去之后会移除
+        item.showGlow = true
+        hero.cardLibrary[item.id] = item
+        item.acquiredSequence = hero.achievements.acquiredBattleCards
         ++hero.achievements.acquiredBattleCards
       }
     }
@@ -91,6 +94,10 @@ namespace Player {
     } else {
       engine.info(incidentContent)
     }
+  }
+
+  function lose(item) {
+    entityLose(hero, item)
   }
 
   // 使用食物或者丹药

@@ -6,18 +6,17 @@ import 'package:samsara/samsara.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/gestures.dart';
-import 'package:samsara/components/hovertip.dart';
-import 'package:provider/provider.dart';
+// import 'package:samsara/components/hovertip.dart';
 
 import '../../data.dart';
 import '../../ui.dart';
 import 'deckbuilding_zone.dart';
 import 'common.dart';
 import '../../engine.dart';
-import 'cardcrafting_area.dart';
+// import 'cardcrafting_area.dart';
 import '../game_dialog/game_dialog.dart';
-import '../../state/hover_info.dart';
 import 'menus.dart';
+import 'card_library.dart';
 
 /// 卡牌收藏界面，和普通的 PiledZone 不同，
 /// 这里的卡牌是多行显示，并且带有翻页功能。
@@ -29,7 +28,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
 
   double _leftIndent = 0.0;
 
-  late final PositionComponent libraryCardContainer;
+  late final PositionComponent container;
 
   DeckBuildingZone? _buildingZone;
   set buildingZone(DeckBuildingZone? zone) {
@@ -42,13 +41,11 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     }
   }
 
-  CardCraftingArea? craftingArea;
+  // CardCraftingArea? craftingArea;
 
   DeckBuildingZone? get buildingZone => _buildingZone;
 
   Sprite? stackSprite;
-
-  CustomGameCard? draggingCard;
 
   // 卡库，key是 id（不是deckID），value是component
   final Map<String, CustomGameCard> library = {};
@@ -127,36 +124,36 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     // card.enableGesture = isEnabled;
   }
 
-  void _calculateVirtualHeight() {
-    libraryCardContainer.height = math.max(
+  void _calculateContainerHeight() {
+    container.height = math.max(
         _curRows * (GameUI.libraryCardSize.y + GameUI.indent) + GameUI.indent,
         GameUI.libraryZoneSize.y);
   }
 
   void repositionToTop() {
-    libraryCardContainer.position.y = GameUI.libraryZonePosition.y;
+    container.position.y = GameUI.libraryZonePosition.y;
   }
 
   void _reposition(double offsetY) {
-    final originalPosition = libraryCardContainer.position.y;
+    final originalPosition = container.position.y;
 
-    if (libraryCardContainer.height <= GameUI.libraryZoneSize.y) return;
+    if (container.height <= GameUI.libraryZoneSize.y) return;
     if (offsetY == 0) return;
 
-    double curYOffset = libraryCardContainer.position.y;
+    double curYOffset = container.position.y;
     curYOffset += offsetY;
     final maxValue = GameUI.libraryZonePosition.y +
         GameUI.libraryZoneSize.y -
-        libraryCardContainer.height;
+        container.height;
     if (curYOffset < maxValue) {
       curYOffset = maxValue;
     }
     if (curYOffset >= GameUI.libraryZonePosition.y) {
       curYOffset = GameUI.libraryZonePosition.y;
     }
-    libraryCardContainer.position.y = curYOffset;
+    container.position.y = curYOffset;
 
-    if (libraryCardContainer.position.y == originalPosition) return;
+    if (container.position.y == originalPosition) return;
 
     // _sortCards(reset: true);
   }
@@ -173,11 +170,11 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
       case OrderByOptions.byAcquiredTimeDescending:
         orderedList = library.values.toList()
           ..sort((a, b) =>
-              a.data['acquiredSequence'].compareTo(b.data['acquiredSequence']));
+              b.data['acquiredSequence'].compareTo(a.data['acquiredSequence']));
       case OrderByOptions.byAcquiredTimeAscending:
         orderedList = library.values.toList()
           ..sort((a, b) =>
-              b.data['acquiredSequence'].compareTo(a.data['acquiredSequence']));
+              a.data['acquiredSequence'].compareTo(b.data['acquiredSequence']));
       case OrderByOptions.byLevelDescending:
         orderedList = library.values.toList()
           ..sort((a, b) {
@@ -229,29 +226,28 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     }
   }
 
+  void updateHeroLibrary() {
+    final hero = engine.hetu.fetch('hero');
+    final libraryData = hero['cardLibrary'];
+    for (final cardData in libraryData.values) {
+      if (library.containsKey(cardData['id'])) continue;
+      addCardByData(cardData);
+    }
+    _calculateContainerHeight();
+    sortCards();
+  }
+
   @override
   Future<void> onLoad() async {
     stackSprite ??= Sprite(await Flame.images.load('cardstack_back.png'));
 
-    libraryCardContainer = PositionComponent(
+    container = PositionComponent(
       position: GameUI.libraryZonePosition,
       size: GameUI.libraryZoneSize,
     );
-    game.world.add(libraryCardContainer);
+    game.world.add(container);
 
-    // background = SpriteComponent(
-    //   sprite: Sprite(await Flame.images.load('cultivation/bg_library.png')),
-    //   size: size,
-    // );
-    // add(background);
-    final hero = engine.hetu.fetch('hero');
-    final libraryData = hero['cardLibrary'];
-
-    for (final cardData in libraryData.values) {
-      addCardByData(cardData);
-    }
-
-    _calculateVirtualHeight();
+    updateHeroLibrary();
   }
 
   bool containsCard(String cardId) => library.containsKey(cardId);
@@ -269,7 +265,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
       _curCardPosX = 0;
       ++_curCardPosY;
       ++_curRows;
-      _calculateVirtualHeight();
+      _calculateContainerHeight();
     }
 
     final pos = Vector2(posX, posY);
@@ -278,14 +274,9 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     return pos.clone();
   }
 
-  void _release() {
-    draggingCard?.removeFromParent();
-    draggingCard = null;
-  }
-
   CustomGameCard addCardByData(dynamic data) {
     final card = GameData.createBattleCardFromData(data);
-    libraryCardContainer.add(card);
+    container.add(card);
     // add(card);
     card.size = GameUI.libraryCardSize;
 
@@ -294,38 +285,28 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     card.position = _generateNextCardPosition();
 
     card.onTapDown = (int buttons, Vector2 position) {
-      void cloneCard() {
-        final CustomGameCard clone = card.clone();
-        clone.enableGesture = false;
-        clone.position = card.absolutePosition.clone();
-        clone.priority = kDraggingCardPriority;
-        game.world.add(clone);
-        draggingCard = clone;
-      }
-
-      Hovertip.hide(card);
       if (buttons == kPrimaryButton) {
         if (!card.isEnabled) return;
         if (buildingZone != null) {
           if (buildingZone!.isFull) return;
-          cloneCard();
-        } else if (craftingArea != null) {
-          if (craftingArea!.isFull) return;
-          cloneCard();
+          (game as CardLibraryScene).cardDragStart(card);
         }
+        // else if (craftingArea != null) {
+        //   if (craftingArea!.isFull) return;
+        //   (game as CardLibraryScene).cardDragStart(card);
+        // }
       }
     };
 
     card.onTapUp = (int buttons, __) async {
       if (!card.isEnabled) return;
       if (buttons == kPrimaryButton) {
-        if (buildingZone != null || craftingArea != null) {
-          String? result;
-          if (buildingZone != null) {
-            result = buildingZone!.tryAddCard(card, clone: true);
-          } else if (craftingArea != null) {
-            result = craftingArea!.tryAddCard(card, clone: true);
-          }
+        if (buildingZone != null) {
+          // || craftingArea != null) {
+          String? result = buildingZone!.tryAddCard(card, clone: true);
+          // else if (craftingArea != null) {
+          //   result = craftingArea!.tryAddCard(card, clone: true);
+          // }
           if (result != null) {
             GameDialog.show(
               context: game.context,
@@ -334,35 +315,26 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
               },
             );
           } else {
+            engine.play(GameSound.cardDealt);
             card.isEnabled = false;
           }
         }
-        _release();
+        (game as CardLibraryScene).cardDragRelease();
+      } else if (buttons == kSecondaryButton) {
+        (game as CardLibraryScene).onStartCraft(card);
       }
     };
 
     // 返回实际被拖动的卡牌，以覆盖这个scene上的dragging component
-    card.onDragStart = (buttons, dragPosition) => draggingCard;
-    card.onDragUpdate =
-        (int buttons, Vector2 offset) => draggingCard?.position += offset;
-
+    card.onDragStart =
+        (buttons, dragPosition) => (game as CardLibraryScene).draggingCard;
+    card.onDragUpdate = (int buttons, Vector2 offset) =>
+        (game as CardLibraryScene).draggingCard?.position += offset;
     card.onDragEnd = (_, __) {
-      _release();
+      (game as CardLibraryScene).cardDragRelease();
     };
-
-    card.onPreviewed = (component) {
-      final position = card.absolutePosition;
-      final size = card.absoluteScaledSize;
-      game.context.read<HoverInfoContentState>().set(
-            card.data,
-            Rect.fromLTWH(position.x, position.y, size.x, size.y),
-            direction: HoverInfoDirection.centerRight,
-          );
-    };
-
-    card.onUnpreviewed = (component) {
-      game.context.read<HoverInfoContentState>().hide();
-    };
+    card.onPreviewed = () => previewCard(game, card);
+    card.onUnpreviewed = () => unpreviewCard(game, card);
 
     library[card.id] = card;
 

@@ -1,4 +1,3 @@
-import 'package:flame/components.dart';
 import 'package:flutter/gestures.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/gestures/gesture_mixin.dart';
@@ -7,13 +6,12 @@ import 'package:samsara/samsara.dart';
 import 'package:provider/provider.dart';
 
 import '../../ui.dart';
-// import '../../../data.dart';
 import '../../engine.dart';
 import 'library_zone.dart';
 import 'common.dart';
-// import '../../../common.dart';
 import '../game_dialog/game_dialog.dart';
 import '../../logic/battlecard.dart';
+import 'card_library.dart';
 import '../../state/hover_info.dart';
 
 enum PlaceHolderState {
@@ -144,6 +142,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     onDragIn = (int buttons, Vector2 position, GameComponent? component) {
       if (component is! CustomGameCard) return;
       if (cards.contains(component)) return;
+      if (containsCard(component.deckId)) return;
 
       final index =
           ((position.x - _indent) / (GameUI.deckbuildingCardSize.y + _indent))
@@ -357,12 +356,11 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
   @override
   String? tryAddCard(GameCard c,
       {int? index, bool animated = true, bool clone = false}) {
-    // if (!unlimitedCardIds.contains(card.deckId) && containsCard(card.deckId)) {
-    if (isFull) {
-      return 'deckbuilding_deck_is_full';
-    }
     if (containsCard(c.deckId)) {
       return 'deckbuilding_already_in_battle_deck';
+    }
+    if (isFull) {
+      return 'deckbuilding_deck_is_full';
     }
     final cardData = (c as CustomGameCard).data;
     if (cardData['isIdentified'] != true) {
@@ -385,42 +383,38 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     }
 
     card.onTapDown = (buttons, position) {
-      Hovertip.hide(card);
-      card.priority = kDraggingCardPriority;
+      if (buttons == kPrimaryButton) {
+        game.context.read<HoverInfoContentState>().hide();
+        (game as CardLibraryScene).cardDragStart(card);
+      }
     };
     card.onTapUp = (buttons, position) {
-      if (buttons == kSecondaryButton) {
+      if (buttons == kPrimaryButton) {
+        (game as CardLibraryScene).cardDragRelease();
+      } else if (buttons == kSecondaryButton) {
         library.setCardEnabledById(card.deckId, true);
         card.removeFromPile();
       }
     };
-    card.onDragStart = (buttons, dragPosition) => card;
-    card.onDragUpdate = (buttons, offset) {
-      card.position += offset;
-    };
+
+    // 返回实际被拖动的卡牌，以覆盖这个scene上的dragging component
+    card.onDragStart =
+        (buttons, dragPosition) => (game as CardLibraryScene).draggingCard;
+    card.onDragUpdate = (int buttons, Vector2 offset) =>
+        // TODO: 这里为什么要除以 2 才能正确的得到位置???
+        (game as CardLibraryScene).draggingCard?.position += offset / 2;
     card.onDragEnd = (buttons, position) {
-      int dragToIndex = ((position.y - GameUI.decksZoneBackgroundPosition.y) /
-              GameUI.pileZoneIndent)
-          .truncate();
+      int dragToIndex = (((game as CardLibraryScene).draggingCard!.position.y -
+              GameUI.decksZoneBackgroundPosition.y) ~/
+          GameUI.deckbuildingZonePileOffset.y);
+
+      (game as CardLibraryScene).cardDragRelease();
 
       reorderCard(card.index, dragToIndex);
     };
-
-    // card.previewPriority = 100;
-
-    card.onPreviewed = (component) {
-      final position = card.absolutePosition;
-      final size = card.absoluteScaledSize;
-      game.context.read<HoverInfoContentState>().set(
-            card.data,
-            Rect.fromLTWH(position.x, position.y, size.x, size.y),
-            direction: HoverInfoDirection.centerLeft,
-          );
-    };
-
-    card.onUnpreviewed = (component) {
-      game.context.read<HoverInfoContentState>().hide();
-    };
+    card.onPreviewed =
+        () => previewCard(game, card, direction: HoverInfoDirection.leftTop);
+    card.onUnpreviewed = () => unpreviewCard(game, card);
 
     placeCard(card, index: index, animated: animated);
 

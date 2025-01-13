@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 // import 'package:flame/flame.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:data_table_2/data_table_2.dart';
-import 'package:samsara/error.dart';
 import 'package:provider/provider.dart';
+import 'package:samsara/samsara.dart';
 
 // import 'ui/view/location/location.dart';
 import 'app.dart';
@@ -89,13 +89,13 @@ void main() {
     runApp(
       MultiProvider(
         providers: [
+          ChangeNotifierProvider(create: (_) => SceneControllerState(engine)),
           ChangeNotifierProvider(create: (_) => SelectedTileState()),
           ChangeNotifierProvider(create: (_) => GameSavesState()),
           ChangeNotifierProvider(create: (_) => EditorToolState()),
           ChangeNotifierProvider(create: (_) => HistoryState()),
           ChangeNotifierProvider(create: (_) => GameDialogState()),
           ChangeNotifierProvider(create: (_) => CurrentNpcList()),
-          ChangeNotifierProvider(create: (_) => SceneControllerState()),
           ChangeNotifierProvider(create: (_) => QuestState()),
           ChangeNotifierProvider(create: (_) => GameUIOverlayVisibilityState()),
           ChangeNotifierProvider(create: (_) => HeroState()),
@@ -106,7 +106,6 @@ void main() {
           ChangeNotifierProvider(create: (_) => HoverInfoDeterminedRectState()),
         ],
         child: MaterialApp(
-          navigatorObservers: [routeObserver],
           scrollBehavior: DesktopScrollBehavior(),
           debugShowCheckedModeBanner: false,
           theme: GameConfig.appTheme,

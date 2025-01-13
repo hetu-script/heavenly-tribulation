@@ -3,10 +3,10 @@ import 'package:samsara/ui/empty_placeholder.dart';
 import 'package:samsara/ui/responsive_window.dart';
 import 'package:samsara/ui/close_button.dart';
 import 'package:samsara/ui/label.dart';
-// import 'package:samsara/richtext.dart';
 import 'package:samsara/widgets/rich_text_builder2.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/bordered_icon_button.dart';
+import 'package:samsara/samsara.dart';
 
 import '../avatar.dart';
 import '../../engine.dart';
@@ -87,22 +87,27 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
     final library = characterData['cardLibrary'];
     final List decks = characterData['battleDecks'];
     final int battleDeckIndex = characterData['battleDeckIndex'];
-    if (battleDeckIndex >= 0) {
-      final dynamic battleDeckData = decks[battleDeckIndex];
-      final List deck = battleDeckData['cards'];
-      widgetCards = List<BattleCard>.from(
-        deck.map(
-          (cardId) {
-            final cardData = library[cardId];
-            assert(cardData != null);
-            return BattleCard(
-              cardData: cardData,
-              characterData: characterData,
-              isHero: isHero,
-            );
-          },
-        ),
-      );
+    if (battleDeckIndex != -1) {
+      if (battleDeckIndex < decks.length) {
+        final dynamic battleDeckData = decks[battleDeckIndex];
+        final List deck = battleDeckData['cards'];
+        widgetCards = List<BattleCard>.from(
+          deck.map(
+            (cardId) {
+              final cardData = library[cardId];
+              assert(cardData != null);
+              return BattleCard(
+                cardData: cardData,
+                characterData: characterData,
+                isHero: isHero,
+              );
+            },
+          ),
+        );
+      } else {
+        engine.warn('Invalid battle deck index: $battleDeckIndex');
+        characterData['battleDeckIndex'] = -1;
+      }
     }
     return widgetCards;
   }
@@ -205,10 +210,12 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                         size: GameUI.infoButtonSize,
                         padding: const EdgeInsets.only(right: 5.0),
                         onTapUp: () {
+                          context.read<HoverInfoContentState>().hide();
                           context.read<EnemyState>().setPrebattleVisible(false);
-                          context
-                              .read<SceneControllerState>()
-                              .push(Scenes.library);
+                          context.read<SceneControllerState>().push(
+                            Scenes.library,
+                            arguments: {'isPrebattle': true},
+                          );
                         },
                         onMouseEnter: (rect) {
                           context

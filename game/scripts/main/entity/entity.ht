@@ -13,7 +13,7 @@ const kAttributes = [
 const kCultivationGenres = [
   'daoism',
   'swordcraft',
-  'physique',
+  'bodyforge',
   'avatar',
   'vitality',
 ]

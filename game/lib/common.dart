@@ -27,24 +27,24 @@ const kRankMax = 8;
 const kCardKinds = [
   'punch',
   // 'kick',
-  // 'wrestling',
-  // 'dianxue',
-  // 'sabre',
+  'wrestling',
+  'dianxue',
+  'sabre',
   // 'spear',
   'sword',
-  // 'staff',
+  'staff',
   // 'bow',
+  'dart',
   'flying_sword',
-  'swift',
+  'qinggong',
   'xinfa',
-  // 'firebend',
+  'windbend',
+  'firebend',
+  'lightning',
   // 'waterbend',
-  // 'lightning',
-  // 'windbend',
   // 'earthbend',
   // 'wood_control',
   // 'scripture',
-  // 'dart',
   // 'poison',
   // 'curse',
   // 'music',
@@ -167,7 +167,7 @@ const kOrganizationCategories = {
 const kMainCultivationGenres = [
   'swordcraft',
   'daoism',
-  'physique',
+  'bodyforge',
   'avatar',
   'vitality',
 ];
@@ -224,7 +224,7 @@ const kMaterialYuanQi = 'yuanqi';
 const kGenres = {
   'daoism',
   'swordcraft',
-  'physique',
+  'bodyforge',
   'avatar',
   'vitality',
   'array',
@@ -242,17 +242,17 @@ const kGenres = {
 const kAttributeToGenre = {
   'spirituality': 'daoism',
   'dexterity': 'swordcraft',
-  'strength': 'physique',
+  'strength': 'bodyforge',
   'willpower': 'vitality',
   'perception': 'avatar',
 };
 
 const kGenreToAttribute = {
-  'spirituality': 'daoism',
-  'dexterity': 'swordcraft',
-  'strength': 'physique',
-  'willpower': 'vitality',
-  'perception': 'avatar',
+  'daoism': 'spirituality',
+  'swordcraft': 'dexterity',
+  'bodyforge': 'strength',
+  'vitality': 'willpower',
+  'avatar': 'perception',
 };
 
 abstract class AttackType {

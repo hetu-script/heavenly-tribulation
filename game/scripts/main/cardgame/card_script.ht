@@ -26,10 +26,103 @@ async function card_script_main_attack(self, opponent, affix) {
     damage: damage,
   })
 }
+/// 多次攻击
+async function card_script_main_attack_multiple(self, opponent, affix) {
+  await self.setState(
+    affix.animation,
+    overlay: affix.overlayAnimation,
+    recovery: affix.recoveryAnimation,
+  )
+  final damage = affix.value[0]
+  final times = affix.value[1]
+  for (final i in range(times)) {
+    opponent.takeDamage({
+      kind: affix.kind,
+      attackType: affix.attackType,
+      damageType: affix.damageType,
+      initialDamage: damage,
+      damage: damage,
+    })
+  }
+}
+/// 风刃攻击
+async function card_script_main_wind_blade(self, opponent, affix) {
+  await self.setState(
+    affix.animation,
+    overlay: affix.overlayAnimation,
+    recovery: affix.recoveryAnimation,
+  )
+  final damage = affix.value[0]
+  opponent.takeDamage({
+    kind: affix.kind,
+    attackType: affix.attackType,
+    damageType: affix.damageType,
+    initialDamage: damage,
+    damage: damage,
+  })
+  final slow = affix.value[1]
+  opponent.addStatusEffect('speed_slow', amount: slow)
+  final clumsy = affix.value[2]
+  opponent.addStatusEffect('dodge_clumsy', amount: clumsy)
+}
+/// 雷法
+async function card_script_main_wind_lightning(self, opponent, affix) {
+  await self.setState(
+    affix.animation,
+    overlay: affix.overlayAnimation,
+    recovery: affix.recoveryAnimation,
+  )
+  final damage = affix.value[0]
+  opponent.takeDamage({
+    kind: affix.kind,
+    attackType: affix.attackType,
+    damageType: affix.damageType,
+    initialDamage: damage,
+    damage: damage,
+  })
+  final clumsy = affix.value[2]
+  opponent.addStatusEffect('dodge_clumsy', amount: clumsy)
+}
+/// 擒拿术
+async function card_script_main_attack_wrestling(self, opponent, affix) {
+  await self.setState(
+    affix.animation,
+    overlay: affix.overlayAnimation,
+    recovery: affix.recoveryAnimation,
+  )
+  final damage = affix.value[0]
+  opponent.takeDamage({
+    kind: affix.kind,
+    attackType: affix.attackType,
+    damageType: affix.damageType,
+    initialDamage: damage,
+    damage: damage,
+  })
+  final slow = affix.value[1]
+  opponent.addStatusEffect('speed_slow', amount: slow)
+}
+/// 点穴手
+async function card_script_main_attack_dianxue(self, opponent, affix) {
+  await self.setState(
+    affix.animation,
+    overlay: affix.overlayAnimation,
+    recovery: affix.recoveryAnimation,
+  )
+  final damage = affix.value[0]
+  opponent.takeDamage({
+    kind: affix.kind,
+    attackType: affix.attackType,
+    damageType: affix.damageType,
+    initialDamage: damage,
+    damage: damage,
+  })
+  final clumsy = affix.value[1]
+  opponent.addStatusEffect('dodge_clumsy', amount: clumsy)
+}
 /// 防御
 async function card_script_main_defend(self, opponent, affix) {
   await self.setState(affix.animation)
-  await Future.delayed(0.4)
+  await Future.delayed(0.75)
   final value = affix.value[0]
   self.addStatusEffect('defense_${affix.damageType}', amount: value, playSound: true)
 }
@@ -68,7 +161,7 @@ async function card_script_main_dodge(self, opponent, affix) {
 
 /// 锻体，凝气
 /// 轻功
-async function card_script_main_swift(self, opponent, affix) {
+async function card_script_main_qinggong(self, opponent, affix) {
   await Future.delayed(0.8)
   final [quick, nimble] = affix.value
   self.addStatusEffect('speed_quick', amount: quick, playSound: true)

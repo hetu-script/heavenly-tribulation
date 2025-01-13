@@ -50,19 +50,19 @@
   "status_defense_elemental": "元素防御",
   "status_defense_spiritual": "精神防御",
 
-  "status_vulnerable": "防御",
+  "status_vulnerable": "易伤",
   "status_vulnerable_description": "拥有者受到伤害时，每消耗 1 层增加 1 点伤害。回合开始时减少一半。",
   "status_vulnerable_physical": "物理易伤",
   "status_vulnerable_chi": "真气易伤",
   "status_vulnerable_elemental": "元素易伤",
   "status_vulnerable_spiritual": "精神易伤",
 
-  "status_damage_ward": "防御",
-  "status_damage_ward_description": "拥有者在下一次受到该类型伤害时，免疫所有伤害，并消耗一层加护。",
-  "status_damage_ward_physical": "物理加护",
-  "status_damage_ward_chi": "真气加护",
-  "status_damage_ward_elemental": "元素加护",
-  "status_damage_ward_spiritual": "精神加护",
+  "status_ward": "加护",
+  "status_ward_description": "拥有者在下一次受到该类型伤害时，免疫所有伤害，并消耗一层加护。",
+  "status_ward_physical": "物理加护",
+  "status_ward_chi": "真气加护",
+  "status_ward_elemental": "元素加护",
+  "status_ward_spiritual": "精神加护",
 
   "status_effect_ward": "辟邪",
   "status_effect_ward_description": "拥有者在下一次获得负面效果时，移除该效果，并消耗一层加护。",
@@ -72,7 +72,7 @@
   "status_energy_p_life": "元气",
   "status_energy_p_life_description": "在回合开始时，每有一层恢复 2% 的生命。在使用加持时消失。",
   "status_energy_n_leech": "正气",
-  "status_energy_n_attack_description": "每层使拥有者攻击后恢复 5% 伤害的生命。在卡组最后一张牌后消失。",
+  "status_energy_n_leech_description": "每层使拥有者攻击后恢复 5% 伤害的生命。在卡组最后一张牌后消失。",
   "status_energy_n_pure": "豪气",
   "status_energy_n_pure_description": "每层使拥有者攻击伤害的 5% 转化为纯粹伤害。在卡组最后一张牌后消失。",
   "status_energy_p_spell": "灵气",
@@ -113,8 +113,8 @@
   "status_injury_when_attack_description": "每 1 层流血使拥有者在使用攻击牌时受到 1 点伤害。在恢复生命时减少 1 层内伤。",
   "status_injury_when_buff": "内伤",
   "status_injury_when_buff_description": "每 1 层内伤使拥有者在使用加持牌时受到 1 点伤害。每获得 1 层阳气减少 1 层内伤。",
-  "status_injury_when_ongoing": "眩晕",
-  "status_injury_when_ongoing_description": "每 1 层眩晕使拥有者在回合开始时获得 1 点缓慢和迟钝。在受到伤害时减少 1 层眩晕。",
   "status_injury_when_consume": "中毒",
-  "status_injury_when_consume_description": "每 1 层中毒使拥有者在回合开始时受到 1 点伤害。每获得 1 层阴气减少 1 层中毒。"
+  "status_injury_when_consume_description": "每 1 层中毒使拥有者在回合开始时受到 1 点伤害。每获得 1 层阴气减少 1 层中毒。",
+  "status_injury_when_ongoing": "眩晕",
+  "status_injury_when_ongoing_description": "每 1 层眩晕使拥有者在回合开始时获得 1 点缓慢和迟钝。在受到伤害时减少 1 层眩晕。"
 }

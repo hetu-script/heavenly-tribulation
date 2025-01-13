@@ -136,9 +136,9 @@ class _CharacterMemoryViewState extends State<CharacterMemoryView>
 
   @override
   Widget build(BuildContext context) {
-    final windowPositions = context.watch<PanelPositionState>().panelPositions;
-    final position = windowPositions[ViewPanels.characterMemory] ??
-        GameUI.profileWindowPosition;
+    final position =
+        context.watch<PanelPositionState>().get(ViewPanels.characterMemory) ??
+            GameUI.profileWindowPosition;
 
     return DraggablePanel(
       title: engine.locale('memory'),
@@ -150,7 +150,7 @@ class _CharacterMemoryViewState extends State<CharacterMemoryView>
         context.read<ViewPanelState>().setUpFront(ViewPanels.characterMemory);
       },
       onDragUpdate: (details) {
-        context.read<PanelPositionState>().updatePosition(
+        context.read<PanelPositionState>().update(
               ViewPanels.characterMemory,
               details.delta,
             );

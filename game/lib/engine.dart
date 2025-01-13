@@ -18,8 +18,6 @@ abstract class GameConfig {
   };
 }
 
-final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
-
 final SamsaraEngine engine = SamsaraEngine(
   config: EngineConfig(
     name: GameConfig.gameTitle,

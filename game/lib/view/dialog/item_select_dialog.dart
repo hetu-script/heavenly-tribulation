@@ -8,33 +8,42 @@ import '../../engine.dart';
 import '../draggable_panel.dart';
 import '../../state/view_panels.dart';
 
-class ItemSelectDialog extends StatelessWidget {
+class ItemSelectDialog extends StatefulWidget {
   const ItemSelectDialog({
     super.key,
     this.args = const {},
     required this.title,
     required this.inventoryData,
-    required this.type,
     this.height = 360.0,
     this.filter,
+    this.onSelect,
+    this.onSelectAll,
   });
 
   final Map<String, dynamic> args;
 
   final String title;
   final dynamic inventoryData;
-  final InventoryType type;
   final double height;
   final String? filter;
+  final void Function(dynamic itemData)? onSelect;
+  final void Function()? onSelectAll;
+
+  @override
+  State<ItemSelectDialog> createState() => _ItemSelectDialogState();
+}
+
+class _ItemSelectDialogState extends State<ItemSelectDialog> {
+  dynamic _selectedItemData;
 
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
 
     return DraggablePanel(
-      title: title,
-      position: Offset(
-          screenSize.width / 2 - 450 / 2, screenSize.height / 2 - height / 2),
+      title: widget.title,
+      position: Offset(screenSize.width / 2 - 450 / 2,
+          screenSize.height / 2 - widget.height / 2),
       width: 450,
       height: 500,
       onClose: () {
@@ -45,10 +54,13 @@ class ItemSelectDialog extends StatelessWidget {
         child: Column(
           children: [
             Inventory(
-              type: type,
-              inventoryData: inventoryData,
-              height: height,
-              filter: filter,
+              type: InventoryType.select,
+              inventoryData: widget.inventoryData,
+              height: widget.height,
+              filter: widget.filter,
+              onSelect: (data) {
+                _selectedItemData = data;
+              },
             ),
             const Spacer(),
             Row(
@@ -71,7 +83,27 @@ class ItemSelectDialog extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      context
+                          .read<ViewPanelState>()
+                          .hide(ViewPanels.itemSelect);
+                      widget.onSelectAll?.call();
+                    },
+                    child: Label(
+                      engine.locale('selectAll'),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context
+                          .read<ViewPanelState>()
+                          .hide(ViewPanels.itemSelect);
+                      widget.onSelect?.call(_selectedItemData);
+                    },
                     child: Label(
                       engine.locale('confirm'),
                       textAlign: TextAlign.center,

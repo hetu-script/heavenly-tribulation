@@ -20,6 +20,26 @@ import 'scene/common.dart';
 
 const kSeparateLine = '————————————————';
 
+abstract class GameMusic {
+  static const menu = 'chinese-oriental-tune-06-12062.mp3';
+  static const worldmap = 'ghuzheng-fantasie-23506.mp3';
+  static const location = 'vietnam-bamboo-flute-143601.mp3';
+  static const battle = 'war-drums-173853.mp3';
+}
+
+abstract class GameSound {
+  static const buff = 'buffer-spell-88994.mp3';
+  static const debuff = 'bone-break-8-218516.mp3';
+  static const block = 'shield-block-shortsword-143940.mp3';
+  static const enhance = 'dagger_drawn2-89025.mp3';
+  static const fire = 'lighting-a-fire-14421.mp3';
+
+  static const craft = 'hammer-hitting-an-anvil-25390.mp3';
+  static const cardDealt = 'playing-cards-being-delt-29099.mp3';
+  static const cardDealt2 = 'card-sounds-35956.mp3';
+  static const cardFlipping = 'card-flipping-75622.mp3';
+}
+
 /// 游戏数据，大部分以JSON或者Hetu Struct形式保存
 /// 这个类是纯静态类，方法都是有关读取和保存的
 /// 游戏逻辑等操作这些数据的代码另外写在logic目录下的文件中
@@ -474,8 +494,8 @@ abstract class GameData {
     }
 
     if (!isIdentified) {
-      description.writeln('<red>${engine.locale('identify_hint')}</>');
-      extraDescription.writeln('<red>${engine.locale('identify_hint')}</>');
+      description.writeln('<red>${engine.locale('unidentified')}</>');
+      extraDescription.writeln('<red>${engine.locale('unidentified')}</>');
     }
 
     if (explanations.isNotEmpty) {
@@ -525,36 +545,36 @@ abstract class GameData {
       id: id,
       // deckId: id,
       data: cardData,
-      preferredSize: GameUI.libraryCardSize,
+      preferredSize: GameUI.deckbuildingCardSize,
       spriteId: 'battlecard/border4.png',
       illustrationRelativePaddings:
-          const EdgeInsets.fromLTRB(0.046, 0.1225, 0.046, 0.214),
+          const EdgeInsets.fromLTRB(0.074, 0.135, 0.074, 0.235),
       illustrationSpriteId: image,
       title: title,
-      titleRelativePaddings:
-          const EdgeInsets.fromLTRB(0.16, 0.046, 0.16, 0.8775),
+      titleRelativePaddings: const EdgeInsets.fromLTRB(0.2, 0.05, 0.2, 0.865),
       titleConfig: ScreenTextConfig(
         anchor: Anchor.center,
         outlined: true,
         textStyle: TextStyle(
           color: getColorFromRank(cardRank),
           fontFamily: GameUI.fontFamily,
-          fontSize: 15.0,
+          fontSize: 14.0,
         ),
       ),
       descriptionRelativePaddings:
-          const EdgeInsets.fromLTRB(0.08, 0.735, 0.08, 0.08),
+          const EdgeInsets.fromLTRB(0.108, 0.735, 0.108, 0.08),
       descriptionConfig: const ScreenTextConfig(
         anchor: Anchor.center,
         textStyle: TextStyle(
           fontFamily: 'NotoSansMono',
           // fontFamily: GameUI.fontFamily,
-          fontSize: 11.0,
+          fontSize: 8.0,
           color: Colors.black,
         ),
         overflow: ScreenTextOverflow.wordwrap,
       ),
       description: description.toString(),
+      glowSpriteId: 'battlecard/glow.png',
       enablePreview: true,
     );
   }

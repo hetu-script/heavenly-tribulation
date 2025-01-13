@@ -6,7 +6,7 @@ import 'item_grid.dart';
 import '../../common.dart';
 
 /// 如果是玩家自己的物品栏，则传入characterData
-class Inventory extends StatelessWidget {
+class Inventory extends StatefulWidget {
   const Inventory({
     super.key,
     required this.inventoryData,
@@ -16,8 +16,9 @@ class Inventory extends StatelessWidget {
     this.priceFactor = 1.0,
     this.minSlotCount = 36,
     this.gridsPerLine = 6,
-    this.onItemTapped,
-    this.onItemSecondaryTapped,
+    this.onTapped,
+    this.onSecondaryTapped,
+    this.onSelect,
   });
 
   final dynamic inventoryData;
@@ -26,36 +27,56 @@ class Inventory extends StatelessWidget {
   final double height;
   final double priceFactor;
   final int minSlotCount, gridsPerLine;
-  final void Function(dynamic itemData, Offset screenPosition)? onItemTapped;
+  final void Function(dynamic itemData, Offset screenPosition)? onTapped;
   final void Function(dynamic itemData, Offset screenPosition)?
-      onItemSecondaryTapped;
+      onSecondaryTapped;
+  final void Function(dynamic itemData)? onSelect;
+
+  @override
+  State<Inventory> createState() => _InventoryState();
+}
+
+class _InventoryState extends State<Inventory> {
+  int _selectedGrid = -1;
 
   @override
   Widget build(BuildContext context) {
     final grids = <Widget>[];
 
-    for (final itemData in inventoryData.values) {
+    for (var i = 0; i < widget.inventoryData.length; ++i) {
+      final itemData = (widget.inventoryData.values as Iterable).elementAt(i);
       if (itemData['equippedPosition'] != null) {
         continue;
       }
-      if (filter != null && itemData['category'] != filter) {
+      if (widget.filter != null && itemData['category'] != widget.filter) {
         continue;
       }
 
+      final index = i;
       grids.add(
         Padding(
           padding: const EdgeInsets.all(5.0),
           child: ItemGrid(
             itemData: itemData,
-            onTapped: onItemTapped,
-            onSecondaryTapped: onItemSecondaryTapped,
+            onTapped: (data, position) {
+              if (widget.type == InventoryType.select) {
+                setState(() {
+                  _selectedGrid = index;
+                });
+                widget.onSelect?.call(data);
+              }
+              widget.onTapped?.call(data, position);
+            },
+            onSecondaryTapped: widget.onSecondaryTapped,
+            isSelected: _selectedGrid == index,
           ),
         ),
       );
     }
 
     int gridCount = math.max(
-        (grids.length ~/ gridsPerLine + 1) * gridsPerLine, minSlotCount);
+        (grids.length ~/ widget.gridsPerLine + 1) * widget.gridsPerLine,
+        widget.minSlotCount);
 
     while (grids.length < gridCount) {
       grids.add(
@@ -70,8 +91,8 @@ class Inventory extends StatelessWidget {
       child: Container(
         alignment: Alignment.topLeft,
         padding: const EdgeInsets.only(left: 5.0, top: 5.0, right: 5.0),
-        width: 60.0 * gridsPerLine,
-        height: height,
+        width: 60.0 * widget.gridsPerLine,
+        height: widget.height,
         child: ListView(
           shrinkWrap: true,
           children: [

@@ -3,7 +3,6 @@ import 'dart:math' as math;
 // import 'package:flutter/foundation.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/progress_indicator.dart';
-import 'package:samsara/cardgame/card.dart';
 import 'package:samsara/components/hovertip.dart';
 import 'package:samsara/animation/animation_state_controller.dart';
 import 'package:samsara/cardgame/custom_card.dart';
@@ -14,6 +13,42 @@ import '../../data.dart';
 import 'battledeck_zone.dart';
 import '../../ui.dart';
 import 'status_effect.dart';
+
+const kOppositeEffect = {
+  'enhance_unarmed': 'weaken_unarmed',
+  'enhance_weapon': 'weaken_weapon',
+  'enhance_spell': 'weaken_spell',
+  'enhance_curse': 'weaken_curse',
+  'enhance_poison': 'weaken_poison',
+  'weaken_unarmed': 'enhance_unarmed',
+  'weaken_weapon': 'enhance_weapon',
+  'weaken_spell': 'enhance_spell',
+  'weaken_curse': 'enhance_curse',
+  'weaken_poison': 'enhance_poison',
+  'speed_quick': 'speed_slow',
+  'speed_slow': 'speed_quick',
+  'dodge_nimble': 'dodge_clumsy',
+  'dodge_clumsy': 'dodge_nimble',
+  'dodge_invincible': 'dodge_staggering',
+  'dodge_staggering': 'dodge_invincible',
+  'energy_p_life': 'energy_n_life',
+  'energy_p_leech': 'energy_n_leech',
+  'energy_p_pure': 'energy_n_pure',
+  'energy_n_spell': 'energy_n_spell',
+  'energy_p_weapon': 'energy_n_weapon',
+  'energy_p_unarmed': 'energy_n_unarmed',
+  'energy_p_curse': 'energy_n_curse',
+  'energy_p_poison': 'energy_n_poison',
+  'energy_p_chaotic': 'energy_n_chaotic',
+  'defense_physical': 'vulnerable_physical',
+  'defense_chi': 'vulnerable_chi',
+  'defense_elemental': 'vulnerable_elemental',
+  'defense_spiritual': 'vulnerable_spiritual',
+  'vulnerable_physical': 'defense_physical',
+  'vulnerable_chi': 'defense_chi',
+  'vulnerable_elemental': 'defense_elemental',
+  'vulnerable_spiritual': 'defense_spiritual',
+};
 
 const Set<String> kCardTypes = {
   'attack',
@@ -155,10 +190,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     currentAnimationState = kStandState;
     animationStates.addAll(kPreloadAnimationStates);
 
-    final data = GameData.animationsData[skinId];
-    _loadAnimFromData(data: data, states: animationStates, directory: skinId);
     _loadAnimFromData(
-      data: data,
+      data: GameData.animationsData[skinId],
+      states: animationStates,
+      directory: skinId,
+    );
+    _loadAnimFromData(
+      data: GameData.animationsData['overlay'],
       states: overlayAnimationStates,
       directory: 'overlay',
       isOverlay: true,
@@ -289,7 +327,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// 如果提供了amount，则返回要移除的数量和效果数量的差额，最小是0
   /// 例如10攻打在5防上，差额5，意味着移除全部防之后，还有5点伤害需要处理
   /// 如果是5攻打在10防上，意味着5攻消耗完毕，剩下的攻的数值是0
-  /// 返回的是移除的数量
+  /// 返回的是移除的实际数量
   int removeStatusEffect(String id, {int? amount, double? percentage}) {
     assert(_statusEffects.containsKey(id));
     final effect = _statusEffects[id]!;
@@ -307,7 +345,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
 
     effect.amount -= removedAmount;
-    if (effect.amount == 0) {
+    if (effect.amount <= 0) {
       _removeStatusEffect(effect);
     }
 
@@ -328,26 +366,40 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         engine.play('${effect.soundId}', volume: GameConfig.soundEffectVolume);
       }
     } else {
-      effect = StatusEffect(
-        priority: kStatusEffectIconPriority,
-        id: id,
-        amount: amount,
-        anchor: isHero ? Anchor.topLeft : Anchor.topRight,
-      );
-      if (!effect.isHidden) {
-        gameRef.world.add(effect);
+      if (kOppositeEffect.containsKey(id)) {
+        final oppositeId = kOppositeEffect[id]!;
+        final oppositeAmount = hasStatusEffect(oppositeId);
+        if (oppositeAmount > 0) {
+          if (amount > oppositeAmount) {
+            removeStatusEffect(oppositeId, amount: oppositeAmount);
+          } else {
+            removeStatusEffect(oppositeId, amount: amount);
+          }
+          amount -= oppositeAmount;
+        }
       }
-      _statusEffects[id] = effect;
 
-      if (playSound && effect.soundId != null) {
-        engine.play('${effect.soundId}', volume: GameConfig.soundEffectVolume);
+      if (amount > 0) {
+        effect = StatusEffect(
+          priority: kStatusEffectIconPriority,
+          id: id,
+          amount: amount,
+          anchor: isHero ? Anchor.topLeft : Anchor.topRight,
+        );
+        _statusEffects[id] = effect;
+        if (!effect.isHidden) {
+          gameRef.world.add(effect);
+        }
+        if (playSound && effect.soundId != null) {
+          engine.play('${effect.soundId}',
+              volume: GameConfig.soundEffectVolume);
+        }
+        if (effect.isPermenant) {
+          reArrangePermenantEffects();
+        } else {
+          reArrangeNonPermenantEffects();
+        }
       }
-    }
-
-    if (effect.isPermenant) {
-      reArrangePermenantEffects();
-    } else {
-      reArrangeNonPermenantEffects();
     }
   }
 
@@ -490,14 +542,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // String? type,
     String? overlay,
     String? recovery,
-    String? complete = kStandState,
+    String? complete,
   }) async {
-    // if (type != null) {
-    //   assert(kCardTypes.contains(type));
-    //   state = '${type}_$state';
-    // }
-
-    // String? recoveryState = recovery ? '${state}_recovery' : null;
+    complete ??= kStandState;
 
     await setAnimationState(
       state,
@@ -531,10 +578,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
           volume: GameConfig.soundEffectVolume);
     } else {
       switch (details['kind']) {
+        case 'sabre':
         case 'sword':
         case 'flying_sword':
           engine.play('sword-sound-2-36274.mp3',
               volume: GameConfig.soundEffectVolume);
+        case 'staff':
         case 'punch':
           engine.play('punch-or-kick-sound-effect-1-239696.mp3',
               volume: GameConfig.soundEffectVolume);
@@ -597,7 +646,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   /// 返回值是一个map，若map中 skipTurn 的key对应值为true表示跳过此回合
-  Future<Map<String, dynamic>> onTurnStart(GameCard card,
+  Future<Map<String, dynamic>> onTurnStart(CustomGameCard card,
       {bool isExtra = false}) async {
     final Map<String, dynamic> details = {
       "isExtra": isExtra,
@@ -614,10 +663,15 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
 
     // 展示当前卡牌及其详情
+    if (card.data['isIdentified'] != true) {
+      card.data['isIdentified'] = true;
+      final (description, _) = GameData.getDescriptionFromCardData(card.data);
+      card.description = description;
+    }
+
     card.enablePreview = false;
     await card.setFocused(true);
-    final (_, description) =
-        GameData.getDescriptionFromCardData((card as CustomGameCard).data);
+    final (_, description) = GameData.getDescriptionFromCardData(card.data);
     Hovertip.show(
       scene: game,
       target: card,
@@ -691,7 +745,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   /// 返回值true表示获得一个额外回合
-  Future<Map<String, dynamic>> onTurnEnd(GameCard card) async {
+  Future<Map<String, dynamic>> onTurnEnd(CustomGameCard card) async {
     final details = <String, dynamic>{};
     handleStatusEffectCallback('self_turn_end', details);
 

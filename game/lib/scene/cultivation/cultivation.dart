@@ -27,7 +27,6 @@ import '../../data.dart';
 import '../game_dialog/selection_dialog.dart';
 import '../../view/history_panel.dart';
 import '../../view/ui_overlay.dart';
-import '../../state/scene_controller.dart';
 
 const _kLightPointMoveSpeed = 450.0;
 // const _kButtonAnimationDuration = 1.2;

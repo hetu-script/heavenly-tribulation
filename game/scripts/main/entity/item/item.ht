@@ -5,37 +5,21 @@ import '../../incident.ht'
 import '../../name/talisman.ht'
 
 const _kWeaponKind = [
-  'sabre',
-  'sword',
-  'spear',
-  'staff',
-  'bow',
-  'dart',
-  'music',
-]
-
-const _kWearingKind = [
-  'armor',
-  'boots',
-  'amulet',
-  'vehicle',
-]
-
-const _kOtherTalismanKind = [
-  'buff',
-  'ongoing',
-  'consume',
-]
-
-const _kItemWithDirectIcon = [
   'sword',
   'sabre',
-  'spear',
   'staff',
+  'spear',
   'bow',
   'dart',
+  'guqin',
+  'flute',
+]
+
+const _kArmorKind = [
   'armor',
   'boots',
+  'helmet',
+  'shield',
 ]
 
 function getItemExtraAffixes(item) {
@@ -68,8 +52,8 @@ struct Equipment {
     // weapon具体分为：sabre, sword, spear, staff, bow, dart, music
     // talisman具体分为：buff, ongoing, consume
     // 其他情况下 kind == type
+    assert(kind != null)
     this.kind = kind;
-    assert(this.kind != null)
 
     this.id = crypto.randomNID(length: 6, withTime: true)
     this.name = generateTalismanName(kind: this.kind)
@@ -91,20 +75,20 @@ struct Equipment {
 
     this.affixes = []
 
-    // equipUniqueId 决定了能装备的数量
+    // equipType 决定了能装备的数量
     // weapon, armor, vehicle, boots 每种只能装备一个
     // amulet和talisman，这项是null，表示数量无限制
     if (_kWeaponKind.contains(this.kind)) {
-      this.equipUniqueId = 'weapon'
+      this.equipType = 'weapon'
 
       // 武器的固定词条是允许使用该类卡牌
       final passiveRawData = game.passives['equipment_${this.kind}']
       assert(passiveRawData != null)
       this.affixes.add(Object.create(passiveRawData))
-    }
-
-    if (_kWearingKind.contains(this.kind)) {
-      this.equipUniqueId = this.kind
+    } else if (_kArmorKind.contains(this.kind)) {
+      this.equipType = this.kind
+    } else {
+      this.equipType = 'talisman'
     }
 
     // 根据境界，生成额外词条
@@ -133,11 +117,7 @@ struct Equipment {
       }
     }
 
-    if (_kItemWithDirectIcon.contains(this.kind)) {
-      this.icon = 'item/${this.kind}.png'
-    } else {
-      
-    }
+    this.icon = 'item/${this.kind}.png'
   }
 }
 
@@ -244,9 +224,8 @@ function entityDiscard(entity, item) {
 }
 
 function entityDestroy(entity, item, { incurIncident = true }) {
-  assert(entity.inventory.containsKey(item.id))
-  
-  delete entity.inventory[item.id]
+
+  entityLose(entity, item)
 
   // let incidentContent
   // incidentContent = engine.locale('characterDestroy', interpolations: [
@@ -292,7 +271,7 @@ function entityAcquire(entity, item, { incurIncident = true }) {
 }
 
 function entityLose(entity, item, { incurIncident = true }) {
-  entity.inventory.remove(item.id)
+  delete entity.inventory[item.id]
   delete item.ownerId
 
   let incidentContent

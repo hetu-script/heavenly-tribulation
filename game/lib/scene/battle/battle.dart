@@ -1,26 +1,18 @@
 import 'dart:async';
 
-// import 'package:samsara/event.dart';
-// import 'package:flame_audio/flame_audio.dart';
-// import 'package:samsara/event/event.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/cardgame/cardgame.dart';
-// import 'package:samsara/gestures.dart';
 import 'package:samsara/components/sprite_button.dart';
 import 'package:flame/flame.dart';
-// import 'package:samsara/components/tooltip.dart';
-// import 'package:samsara/cardgame/custom_card.dart';
+import 'package:provider/provider.dart';
 
 import '../../ui.dart';
 import 'character.dart';
 import 'battledeck_zone.dart';
 import '../../engine.dart';
-// import 'status/status.dart';
 import 'versus_banner.dart';
 import '../common.dart';
-// import '../../../logic/algorithm.dart';
-import '../../events.dart';
 import '../../data.dart';
 
 const kTurnLimit = 80;
@@ -259,7 +251,7 @@ class BattleScene extends Scene {
   }
 
   Future<void> _startTurn() async {
-    GameCard card = currentCharacter.deckZone.current;
+    CustomGameCard card = currentCharacter.deckZone.current;
 
     bool extraTurn = false;
     do {
@@ -300,8 +292,7 @@ class BattleScene extends Scene {
   }
 
   void _endScene() {
-    engine.emit(GameEvents.leaveScene);
-    engine.emit(GameEvents.battleResult, battleResult);
+    context.read<SceneControllerState>().pop();
   }
 
   void _endBattle() {
