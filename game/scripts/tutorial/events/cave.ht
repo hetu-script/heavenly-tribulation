@@ -26,7 +26,28 @@ const cave = {
   onInteractObject: async (object, terrain) {
     switch (object.id) {
       'coffin1': {
-        dialog.localeLines('cave.coffin1.description')
+        if (this.flags.checkPoint1) {
+          await dialog.localeLines('cave.coffin1.description2')
+          return
+        }
+        this.flags.checkPoint1 = true
+
+        await dialog.localeLines('cave.coffin1.description1')
+        final nail = createItemById('hunguding')
+        
+        dialog.start()
+        dialog.pushImage('story/jade_soul_dagger', fadeIn: true)
+        await Future.delayed(0.8)
+        await dialog.localeLines('cave.nail.description')
+        await dialog.localeLines('cave.hero.line2', isHero: true)
+        dialog.end()
+
+        WorldMap.clearTerrainOverlayAnimation(6, 23)
+        Player.acquire(nail)
+
+        final portal1 = game.objects['portal1']
+        assert(portal1 != null)
+        portal1.useCustomInteraction = false
       }
       'coffin2': {
         dialog.localeLines('cave.coffin2.description')
@@ -34,44 +55,8 @@ const cave = {
       'coffin3': {
         dialog.localeLines('cave.coffin3.description')
       }
-      'checkPoint1': {
-        if (this.flags.checkPoint1) return
-
-        this.flags.checkPoint1 = true
-        object.blockHeroMove = false
-        await WorldMap.moveCameraToMapPosition(6, 15)
-        WorldMap.lightUpAroundTile(6, 15, 2)
-        
-        await dialog.localeLines('cave.checkpoint.line1')
-
-        final card1 = BattleCard(
-          genre: "general",
-          category: "attack",
-          kind: "punch",
-        )
-        final card2 = BattleCard(
-          genre: "general", 
-          category: "attack",
-          kind: "punch",
-        )
-        final card3 = BattleCard(
-          genre: "general",
-          category: "buff",
-          kind: "punch",
-        )
-        Player.acquire(card1)
-        Player.acquire(card2)
-        Player.acquire(card3)
-        
-        await dialog.localeLines('cave.hero.line2', isHero: true)
-        
-        dialog.start()
-        dialog.pushImage('story/jade_soul_dagger', fadeIn: true)
-        await Future.delayed(0.8)
-        await dialog.localeLines('cave.jade.line1')
-        await dialog.localeLines('cave.hero.line3', isHero: true)
-        
-        dialog.end()
+      'portal1': {
+        dialog.localeLines('cave.portal1.description')
       }
       // 'oldWell': {
       //   dialog.start()
@@ -99,19 +84,6 @@ const cave = {
       //   }
       //   dialog.end()
       // }
-      'statue': {
-        await dialog.localeLines('cave.statue.description')
-      }
-      'cushion': {
-        await dialog.localeLines('cave.cushion.description1')
-        let selected = await dialog.localeSelect([
-          'cave.cushion.meditate',
-          'forgetIt',
-        ])
-        if (selected == 'cave.cushion.meditate') {
-          Player.showCultivation()
-        }
-      }
       // 'switch1': {
       //   if (!object?.flags.isOn) {
       //     let s = await dialog.localeSelect([

@@ -3,7 +3,7 @@ import 'package:heavenly_tribulation/engine.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/ink_button.dart';
 
-import '../view/avatar.dart';
+import '../widgets/avatar.dart';
 import '../state/current_npc_list.dart';
 // import '../../state/game_dialog_state.dart';
 import '../ui.dart';

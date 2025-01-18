@@ -5,9 +5,9 @@ import 'package:flutter/scheduler.dart';
 // import 'package:hetu_script/values.dart';
 import 'package:samsara/richtext.dart';
 
-import '../../view/avatar.dart';
+import '../../widgets/avatar.dart';
 import '../../engine.dart';
-import '../../view/character/profile.dart';
+import '../../widgets/character/profile.dart';
 // import '../../event/ui.dart';
 import '../../ui.dart';
 
@@ -125,9 +125,8 @@ class _GameDialogState extends State<GameDialog> {
                               if (id != null) {
                                 showDialog(
                                   context: context,
-                                  builder: (context) => CharacterProfileView(
-                                    characterId: id,
-                                  ),
+                                  builder: (context) =>
+                                      CharacterProfilePanel(characterId: id),
                                 );
                               }
                             },

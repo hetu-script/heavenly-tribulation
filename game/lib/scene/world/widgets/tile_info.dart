@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/ui/responsive_window.dart';
+import 'package:samsara/ui/responsive_panel.dart';
 
 import '../../../engine.dart';
 import '../../../ui.dart';
@@ -30,9 +30,10 @@ class _TileInfoPanelState extends State<TileInfoPanel> {
           '${currentTerrain.data['left']}, ${currentTerrain.data['top']}';
     }
 
-    return ResponsiveWindow(
+    return ResponsivePanel(
       color: GameUI.backgroundColor,
-      size: const Size(220, 160),
+      width: 220,
+      height: 160,
       margin: const EdgeInsets.all(10.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

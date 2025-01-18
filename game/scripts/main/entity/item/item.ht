@@ -4,22 +4,30 @@ import '../../random.ht'
 import '../../incident.ht'
 import '../../name/talisman.ht'
 
-const _kWeaponKind = [
+const kWeaponKind = [
   'sword',
   'sabre',
   'staff',
   'spear',
   'bow',
   'dart',
-  'guqin',
+  'pipa',
   'flute',
 ]
 
-const _kArmorKind = [
+const kArmorKind = [
   'armor',
+  'gloves',
   'boots',
   'helmet',
   'shield',
+]
+
+const _kTalismanKind = [
+  'amulet',
+  'ring',
+  'pearl',
+  'bracelet',
 ]
 
 function getItemExtraAffixes(item) {
@@ -27,6 +35,7 @@ function getItemExtraAffixes(item) {
 
   final itemExtraAffixes = game.passives.values.where((data){
     if (!data.isItemExtraAffix) return false
+    if (data.kind is List && !data.kind.contains(item.kind)) return false
     if (data.rank > item.rank) return false
     if (item.affixUniqueIds.contains(data.id)) return false
     return true
@@ -38,14 +47,15 @@ function getItemExtraAffixes(item) {
 }
 
 struct Equipment {
-  construct({
+  constructor({
+    rarity,
     rank,
     level,
     kind,
     owner,
   }) {
     this.entityType = kEntityTypeItem
-    this.createdTimestamp = history.timestamp
+    this.createdTimestamp = game.timestamp
     this.category = kItemCategoryEquipment;
 
     // kind 决定了物品名字的生成方式
@@ -57,13 +67,20 @@ struct Equipment {
 
     this.id = crypto.randomNID(length: 6, withTime: true)
     this.name = generateTalismanName(kind: this.kind)
-    this.flavorText = engine.locale('item_${this.kind}_flavor_text')
+    this.flavortext = engine.locale('item_${this.kind}_flavortext')
     if (owner) {
       this.ownerId = owner.id
     }
-    this.rank = rank ?? 0
-    assert(rank >= 0 && rank <= kRankMax)
-    this.rarity = kRankRarity[rank]
+    if (rarity != null) {
+      assert(kRarity.containsKey(rarity))
+      this.rarity = rarity
+      this.rank = kRarity[rarity].rank
+    } else if (rank != null) {
+      assert(rank >= 0 && rank <= kRankMax)
+      this.rank = rank
+      this.rarity = kRankRarity[rank]
+    }
+    this.icon = 'item/${this.kind}.png'
     
     this.minLevel = minLevelPerRank(rank)
     this.maxLevel = maxLevelPerRank(rank)
@@ -76,16 +93,15 @@ struct Equipment {
     this.affixes = []
 
     // equipType 决定了能装备的数量
-    // weapon, armor, vehicle, boots 每种只能装备一个
-    // amulet和talisman，这项是null，表示数量无限制
-    if (_kWeaponKind.contains(this.kind)) {
+    // weapon, armor, helmet, boots, vehicle，talisman
+    if (kWeaponKind.contains(this.kind)) {
       this.equipType = 'weapon'
 
       // 武器的固定词条是允许使用该类卡牌
       final passiveRawData = game.passives['equipment_${this.kind}']
       assert(passiveRawData != null)
       this.affixes.add(Object.create(passiveRawData))
-    } else if (_kArmorKind.contains(this.kind)) {
+    } else if (kArmorKind.contains(this.kind)) {
       this.equipType = this.kind
     } else {
       this.equipType = 'talisman'
@@ -116,8 +132,6 @@ struct Equipment {
         this.affixUniqueIds.add(affix.id)
       }
     }
-
-    this.icon = 'item/${this.kind}.png'
   }
 }
 
@@ -140,19 +154,20 @@ function createItemById(itemId) {
   // TODO: 根据稀有度和地图大小决定物品允许存在的数量
   // if (item.isUnique) {
   //   if (item.isCreated) {
-  //     engine.info('唯一物品${item.id}已经被创造过一次，无法再次获得。')
+  //     engine.debug('唯一物品${item.id}已经被创造过一次，无法再次获得。')
   //     return
   //   } else {
   //     item.isCreated = true
   //   }
   // }
   item.id = crypto.randomNID(length: 6, withTime: true)
+  item.entityType = kEntityTypeItem
   item.name = engine.locale(item.name)
+  item.flavortext = engine.locale('item_${itemId}_flavortext')
   // item.name = generateTalismanName(kind: item.kind)
-  item.color ??= kRarity[item.rarity ?? kCommon].color
   item.rarity ??= 'basic'
+  item.color ??= kRarity[item.rarity].color
   item.level ??= 1
-  item.ownerId = entity.id
   item.experienced = []
 
   return item
@@ -187,15 +202,14 @@ function entityCollectMaterialById(entity, materialId: string, { count = 1, incu
     count,
     engine.locale(materialId),
   ])
-  if (incurIncident) {
+  if (entity.isMajorCharacter && incurIncident) {
     Incident(
       message: incidentContent,
       subjectId: entity.id,
       isPrivate: true,
     )
-  } else {
-    engine.info(incidentContent)
   }
+  engine.debug(incidentContent)
 }
 
 /// 直接失去资源
@@ -207,15 +221,14 @@ function entityDropMaterialById(entity, materialId: string, { count = 1, incurIn
     count,
     engine.locale(materialId),
   ])
-  if (incurIncident) {
+  if (entity.isMajorCharacter && incurIncident) {
     Incident(
       message: incidentContent,
       subjectId: entity.id,
       isPrivate: true,
     )
-  } else {
-    engine.info(incidentContent)
   }
+  engine.debug(incidentContent)
 }
 
 /// TODO: 丢在地上
@@ -240,7 +253,7 @@ function entityDestroy(entity, item, { incurIncident = true }) {
   //     isPrivate: true,
   //   )
   // } else {
-  //   engine.info(incidentContent)
+  //   engine.debug(incidentContent)
   // }
 }
 
@@ -249,25 +262,31 @@ function entityAcquire(entity, item, { incurIncident = true }) {
   if (item.ownerId != null) {
     entityLose(entity, item)
   }
-
-  entity.inventory[item.id] = item
-  item.ownerId = entity.id
+  
+  switch(item.entityType) {
+    case kEntityTypeItem: {
+      item.ownerId = hero.id
+      entity.inventory[item.id] = item
+    }
+    case kEntityTypeBattleCard: {
+      entity.cardLibrary[item.id] = item
+    }
+  }
 
   let incidentContent
   incidentContent = engine.locale('entityAcquire', interpolations: [
     entity.name,
     item.name,
   ])
-  if (incurIncident) {
+  if (entity.isMajorCharacter && incurIncident) {
     Incident(
       message: incidentContent,
       subjectId: entity.id,
       item: item,
       isPrivate: true,
     )
-  } else {
-    engine.info(incidentContent)
   }
+  engine.debug(incidentContent)
 }
 
 function entityLose(entity, item, { incurIncident = true }) {
@@ -279,16 +298,15 @@ function entityLose(entity, item, { incurIncident = true }) {
     entity.name,
     item.name,
   ])
-  if (incurIncident) {
+  if (entity.isMajorCharacter && incurIncident) {
     Incident(
       message: incidentContent,
       subjectId: entity.id,
       item: item,
       isPrivate: true,
     )
-  } else {
-    engine.info(incidentContent)
   }
+  engine.debug(incidentContent)
 }
 
 // 如果成功支付返回 0，否则返回 欠缺的数量

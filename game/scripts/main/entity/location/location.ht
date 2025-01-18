@@ -3,11 +3,10 @@ import '../character/character.ht'
 import '../../dialog.ht'
 import '../../name/location.ht'
 import '../entity.ht'
-import '../../tile/hexagonal_tile.ht'
-import '../../tile/common.ht'
+import '../../world/tile/hexagonal_tile.ht'
+import '../../world/tile/common.ht'
 import '../item/material.ht'
 import '../item/item.ht'
-import '../../tile/hexagonal_tile.ht'
 import '../../datetime.ht'
 import '../entity.ht'
 import '../organization/organization.ht'
@@ -55,7 +54,7 @@ const _kCityShoreDevelopment1BackgroundCount = 3
 const _kCityShoreDevelopment2BackgroundCount = 4
 
 struct Location {
-  construct ({
+  constructor ({
     category, // 'city', 'building'
     kind, // 'inland' | 'harbor' | 'island' | 'mountain'
     terrain,
@@ -71,7 +70,7 @@ struct Location {
     assert(category != null && kind != null)
     this.category = category
 
-    this.createdTimestamp = history.timestamp
+    this.createdTimestamp = game.timestamp
     this.id = crypto.randomNID(length: 6, withTime: true)
 
     // 没有category参数时，不自动添加到当前世界
@@ -136,7 +135,7 @@ struct Location {
       this.development = 0
       this.pupulation = random.nextInt(maxPopulationOfLocationDevelopment(0) / 5)
       
-      engine.info('在 ${terrain.left}, ${terrain.top} 建立了 ${this.name}')
+      engine.debug('在 ${terrain.left}, ${terrain.top} 建立了 ${this.name}')
 
       // 如果是盗贼营地或者洞天福地，则默认不会显示在地图上，并且也不会默认添加民居
       // 隐藏的洞天会显示为山峰，但隐藏的福地只有被发现后才会出现岛屿，之前就是普通的水面
@@ -151,7 +150,7 @@ struct Location {
       this.background = background ?? 'location/site/${category}.png'
       this.image = image ?? 'location/site/${category}_card.png'
 
-      engine.info('在 ${location.name} 建立了 ${this.name}')
+      engine.debug('在 ${location.name} 建立了 ${this.name}')
     } else {
       throw 'Invalid location category: [${category}]'
     }
@@ -204,7 +203,7 @@ struct Location {
 
 function addLocation(loc) {
   assert(loc?.id != null)
-  engine.info('向当前世界添加新据点：${loc.name}')
+  engine.debug('向当前世界添加新据点：${loc.name}')
   game.locations[loc.id] = loc
   let terrain = getTerrainByWorldPosition(loc.worldPosition.left, loc.worldPosition.top)
   terrain.locationId = loc.id
@@ -215,7 +214,7 @@ function addLocation(loc) {
 }
 
 function addLocations(locs: List) {
-  engine.info('载入地点数据')
+  engine.debug('载入地点数据')
   for (const loc in locs) {
     if (loc.nameId) {
       loc.name = engine.locale(loc.nameId)
@@ -299,7 +298,7 @@ function getLocationSiteById(location, siteId: string) {
 
 function discoverLocation(location) {
   if (location.isDiscovered) return
-  engine.info('发现新据点：${location.name}')
+  engine.debug('发现新据点：${location.name}')
   location.isDiscovered = true
   WorldMap.setTerrainCaption(location.worldPosition.left, location.worldPosition.top, location.name)
   if (location.category == kLocationKindArcana || location.category == kLocationKindMirage) {

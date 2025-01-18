@@ -1,4 +1,5 @@
 export 'binding/battle_character.ht'
+export 'binding/worldmap.ht'
 export 'cardgame/card.ht'
 export 'cardgame/card_script.ht'
 export 'cardgame/status_script.ht'
@@ -9,17 +10,17 @@ export 'entity/item/item.ht'
 export 'entity/item/material.ht'
 export 'entity/location/location.ht'
 export 'entity/organization/organization.ht'
-export 'entity/object.ht'
 export 'interaction/common.ht'
 export 'interaction/interaction.ht'
 export 'interaction/item.ht'
 export 'name/name.ht'
 export 'quest/quest.ht'
-export 'tile/common.ht'
-export 'tile/tilemap.ht'
-export 'tile/hexagonal_tile.ht'
+export 'world/tile/common.ht'
+export 'world/tile/tilemap.ht'
+export 'world/tile/hexagonal_tile.ht'
 export 'world/world.ht'
 export 'world/zone.ht'
+export 'world/object.ht'
 export 'colors.ht'
 export 'datetime.ht'
 export 'debug.ht'
@@ -29,7 +30,6 @@ export 'game.ht'
 export 'random.ht'
 export 'update.ht'
 export 'util.ht'
-export 'worldmap.ht'
 export 'player.ht'
 export 'common.ht'
 export 'ui.ht'
@@ -66,21 +66,21 @@ function init({
   // print(kEntityTypeItem)
 
   game.items = itemsData
-  engine.info('载入预定义物品：[${itemsData.length}]')
+  engine.debug('载入预定义物品：[${itemsData.length}]')
   
   game.battleCardsData = battleCardsData
   game.battleCardAffixes = battleCardAffixesData
-  engine.info('载入战斗卡牌词条：主词条 [${battleCardsData.length}]，额外词条 [${battleCardAffixesData.length}]')
+  engine.debug('载入战斗卡牌词条：主词条 [${battleCardsData.length}]，额外词条 [${battleCardAffixesData.length}]')
 
   // game.skillTree = skillTreeData
   // game.supportSkillTree = supportSkillTreeData
   game.passives = passivesData
-  engine.info('载入被动技能词条数据：词条 [${passivesData.length}]')
+  engine.debug('载入被动技能词条数据：词条 [${passivesData.length}]')
 }
 
 /// Run every time game starts
 function main() {
-  engine.info('[核心]游戏脚本(ver-${coreScriptModuleVersion})初始化...')
+  engine.debug('游戏脚本内核(ver-${coreScriptModuleVersion})初始化...')
 
   addEventHandlers(
     moduleId: module.meta.id,

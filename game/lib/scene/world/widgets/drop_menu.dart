@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../engine.dart';
 import '../../../ui.dart';
-import '../../../view/menu_item_builder.dart';
+import '../../../widgets/menu_item_builder.dart';
 
 enum WorldMapDropMenuItems {
   save,

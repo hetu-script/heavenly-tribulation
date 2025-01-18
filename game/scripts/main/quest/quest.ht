@@ -78,7 +78,7 @@ function acceptQuest(character, quest, { incurIncident = true }) {
       subjectId: character.id,
     )
   } else {
-    engine.info(incidentContent)
+    engine.debug(incidentContent)
   }
 }
 
@@ -107,7 +107,7 @@ function finishQuest(character, quest, { isSuccess = true, incurIncident = true 
       subjectId: character.id,
     )
   } else {
-    engine.info(incidentContent)
+    engine.debug(incidentContent)
   }
 }
 

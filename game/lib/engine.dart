@@ -25,5 +25,6 @@ final SamsaraEngine engine = SamsaraEngine(
     debugMode: GameConfig.isDebugMode,
     musicVolume: GameConfig.musicVolume,
     soundEffectVolume: GameConfig.soundEffectVolume,
+    // cursorAssetPath: 'assets/images/sword.png',
   ),
 );

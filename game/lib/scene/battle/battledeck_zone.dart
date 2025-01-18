@@ -34,8 +34,7 @@ class BattleDeckZone extends PiledZone with HandlesGesture {
     current = cards.first as CustomGameCard;
     for (var i = 0; i < cards.length; ++i) {
       final card = cards[i];
-      card.prev = i == 0 ? cards.last : cards[i - 1];
-      card.next = i == (cards.length - 1) ? cards.first : cards[i + 1];
+      card.next = i < (cards.length - 1) ? cards[i + 1] : null;
       card.index = i;
       card.previewPriority = card.focusedPriority = 200;
 
@@ -63,16 +62,6 @@ class BattleDeckZone extends PiledZone with HandlesGesture {
     }
 
     super.onLoad();
-  }
-
-  CustomGameCard nextCard() {
-    current = current.next as CustomGameCard;
-    if (current.index == 0) {
-      for (final card in cards) {
-        card.isEnabled = true;
-      }
-    }
-    return current;
   }
 
   void reset() {

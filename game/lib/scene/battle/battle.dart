@@ -14,8 +14,20 @@ import '../../engine.dart';
 import 'versus_banner.dart';
 import '../common.dart';
 import '../../data.dart';
+import 'common.dart';
 
-const kTurnLimit = 80;
+/// 属性效果对应的永久状态，值是正面状态和负面状态的元组
+const kStatsToPermenantEffects = {
+  'unarmedAttack': ('enhance_unarmed', 'weaken_unarmed'),
+  'weaponAttack': ('enhance_weapon', 'weaken_weapon'),
+  'spellAttack': ('enhance_spell', 'weaken_spell'),
+  'curseAttack': ('enhance_curse', 'weaken_curse'),
+  'poisonAttack': ('enhance_poison', 'weaken_poison'),
+  'physicalResist': ('resistant_physical', 'weakness_physical'),
+  'chiResist': ('resistant_chi', 'weakness_chi'),
+  'elementalResist': ('resistant_elemental', 'weakness_elemental'),
+  'spiritualResist': ('resistant_spiritual', 'weakness_spiritual'),
+};
 
 class BattleScene extends Scene {
   late final SpriteComponent background;
@@ -33,7 +45,7 @@ class BattleScene extends Scene {
   int turn = 0;
 
   // 先手角色
-  late final bool initialMove;
+  late final bool isFirsthand;
   // 当前是否是玩家回合
   late bool heroTurn;
   late BattleCharacter currentCharacter, currentOpponent;
@@ -44,6 +56,8 @@ class BattleScene extends Scene {
 
   bool battleStarted = false;
   bool battleEnded = false;
+
+  final Map<String, dynamic> gameDetails = {};
 
   BattleScene({
     required this.heroData,
@@ -58,6 +72,22 @@ class BattleScene extends Scene {
           bgmFile: 'war-drums-173853.mp3',
           bgmVolume: GameConfig.musicVolume,
         );
+
+  void _addPermenantStatus(BattleCharacter character) {
+    final stats = character.data['stats'];
+    for (final statName in kStatsToPermenantEffects.keys) {
+      final int? value = stats[statName];
+      if (value != null) {
+        final (positiveEffectId, negativeEffectId) =
+            kStatsToPermenantEffects[statName]!;
+        if (value > 0) {
+          character.addStatusEffect(positiveEffectId, amount: value);
+        } else if (value < 0) {
+          character.addStatusEffect(negativeEffectId, amount: value);
+        }
+      }
+    }
+  }
 
   @override
   void onLoad() async {
@@ -105,7 +135,7 @@ class BattleScene extends Scene {
     heroAnimationStates.remove('');
     heroOverlayAnimationStates.remove('');
     hero = BattleCharacter(
-      position: GameUI.p1HeroSpritePosition,
+      position: GameUI.p1CharacterAnimationPosition,
       size: GameUI.heroSpriteSize,
       isHero: true,
       skinId: heroSkinId,
@@ -139,7 +169,7 @@ class BattleScene extends Scene {
     enemyAnimationStates.remove('');
     enemyOverlayAnimationStates.remove('');
     enemy = BattleCharacter(
-      position: GameUI.p2HeroSpritePosition,
+      position: GameUI.p2CharacterAnimationPosition,
       size: GameUI.heroSpriteSize,
       skinId: enemySkinId,
       animationStates: enemyAnimationStates,
@@ -159,31 +189,34 @@ class BattleScene extends Scene {
     );
     camera.viewport.add(versusBanner);
 
-    showStartPrompt();
+    final heroRank = heroData['cultivationRank'];
+    final enemyRank = enemyData['cultivationRank'];
 
-    final heroCP = heroData['exp'];
-    final enemyCP = enemyData['exp'];
-
-    if (heroCP > enemyCP) {
-      initialMove = true;
-    } else if (heroCP < enemyCP) {
-      initialMove = false;
-    } else {
-      if (heroData['stats']['dexterity'] >= enemyData['stats']['dexterity']) {
-        initialMove = true;
+    if (heroRank == enemyRank) {
+      final heroLevel = heroData['cultivationLevel'];
+      final enemyLevel = enemyData['cultivationLevel'];
+      if (heroLevel == enemyLevel) {
+        isFirsthand =
+            heroData['stats']['dexterity'] >= enemyData['stats']['dexterity'];
       } else {
-        initialMove = false;
+        isFirsthand = heroLevel > enemyLevel;
       }
+    } else {
+      isFirsthand = heroRank > enemyRank;
     }
+
+    showStartPrompt();
   }
 
   Future<void> showStartPrompt() async {
     await versusBanner.fadeIn(duration: 1.2);
 
+    _addPermenantStatus(hero);
+    _addPermenantStatus(enemy);
+
     nextTurnButton = SpriteButton(
       spriteId: 'ui/button.png',
       text: engine.locale('start'),
-      priority: 5000,
       anchor: Anchor.center,
       position: Vector2(
           center.x, heroDeckZone.position.y - GameUI.buttonSizeMedium.y),
@@ -194,7 +227,7 @@ class BattleScene extends Scene {
   }
 
   void _prepareBattle() async {
-    heroTurn = initialMove;
+    heroTurn = isFirsthand;
     currentCharacter = heroTurn ? hero : enemy;
     currentOpponent = heroTurn ? enemy : hero;
     currentCharacter.addHintText('${engine.locale('attackFirstInBattle')}!');
@@ -205,7 +238,7 @@ class BattleScene extends Scene {
       if (!battleStarted) {
         versusBanner.moveTo(
           duration: 0.3,
-          toPosition: Vector2(center.x, center.y - 350),
+          toPosition: Vector2(center.x, GameUI.hugeIndent),
         );
         _prepareBattle();
         nextTurnButton.text = engine.locale('nextTurn');
@@ -214,7 +247,6 @@ class BattleScene extends Scene {
         final restartButton = SpriteButton(
           spriteId: 'ui/button2.png',
           text: engine.locale('restart'),
-          priority: 5000,
           anchor: Anchor.center,
           position: Vector2(
               center.x,
@@ -231,16 +263,18 @@ class BattleScene extends Scene {
           nextTurnButton.enableGesture = true;
           nextTurnButton.text = engine.locale('nextTurn');
           hero.reset();
-          heroDeckZone.reset();
           enemy.reset();
+          heroDeckZone.reset();
           enemyDeckZone.reset();
+          _addPermenantStatus(hero);
+          _addPermenantStatus(enemy);
           _prepareBattle();
           nextTurnButton.text = engine.locale('nextTurn');
           nextTurnButton.onTap = (_, __) => nextTurn();
           battleStarted = true;
         };
 
-        world.add(restartButton);
+        camera.viewport.add(restartButton);
       } else if (battleResult == null) {
         nextTurnButton.enableGesture = false;
         _startTurn();
@@ -250,25 +284,48 @@ class BattleScene extends Scene {
     }
   }
 
-  Future<void> _startTurn() async {
-    CustomGameCard card = currentCharacter.deckZone.current;
+  CustomGameCard nextCard() {
+    CustomGameCard card;
+    if (currentCharacter.deckZone.current.next == null) {
+      for (final card in currentCharacter.deckZone.cards) {
+        card.isEnabled = true;
+      }
 
+      currentCharacter.handleStatusEffectCallback('self_deck_end');
+      currentCharacter.opponent!
+          .handleStatusEffectCallback('opponent_deck_end');
+
+      card = currentCharacter.deckZone.cards.first as CustomGameCard;
+    } else {
+      card = currentCharacter.deckZone.current.next as CustomGameCard;
+    }
+    return card;
+  }
+
+  Future<void> _startTurn() async {
     bool extraTurn = false;
+    CustomGameCard card = currentCharacter.deckZone.current;
     do {
       final turnStartDetails =
           await currentCharacter.onTurnStart(card, isExtra: extraTurn);
       bool skipTurn = turnStartDetails['skipTurn'] ?? false;
-      if (skipTurn) break;
+      if (skipTurn) {
+        break;
+      }
       final turnEndDetails = await currentCharacter.onTurnEnd(card);
+      card.isEnabled = false;
+      card = currentCharacter.deckZone.current = nextCard();
       extraTurn = turnEndDetails['extraTurn'] ?? false;
-      card = currentCharacter.deckZone.nextCard();
     } while (extraTurn);
 
     heroTurn = !heroTurn;
     currentCharacter = heroTurn ? hero : enemy;
     currentOpponent = heroTurn ? enemy : hero;
 
-    if (heroTurn == initialMove) {
+    currentCharacter.priority = kTopLayerAnimationPriority;
+    currentOpponent.priority = 0;
+
+    if (heroTurn == isFirsthand) {
       ++turn;
     }
 
@@ -292,26 +349,25 @@ class BattleScene extends Scene {
   }
 
   void _endScene() {
-    context.read<SceneControllerState>().pop();
+    context.read<SceneControllerState>().pop(clearCache: true);
   }
 
   void _endBattle() {
     if (battleResult == true) {
-      world.add(_victoryPrompt);
+      camera.viewport.add(_victoryPrompt);
     } else {
-      world.add(_defeatPrompt);
+      camera.viewport.add(_defeatPrompt);
     }
 
-    // final heroName = '${hero.data['name']}(hero)';
-    // final enemyName = '${enemy.data['name']}(enemy)';
-
-    // engine.info(
-    //     'battle between $heroName and $enemyName ended. ${battleResult! ? heroName : enemyName} won!');
+    final heroName = '${hero.data['name']}(hero)';
+    final enemyName = '${enemy.data['name']}(enemy)';
+    engine.debug(
+        'Battle between $heroName and $enemyName ended. ${battleResult! ? heroName : enemyName} won!');
 
     battleEnded = true;
 
     if (!nextTurnButton.isMounted) {
-      world.add(nextTurnButton);
+      camera.viewport.add(nextTurnButton);
     }
     nextTurnButton.text = engine.locale('end');
     nextTurnButton.onTap = (_, __) => _endScene();
@@ -322,7 +378,7 @@ class BattleScene extends Scene {
 
     await versusBanner.moveTo(
       duration: 0.3,
-      toPosition: Vector2(center.x, center.y - 275),
+      toPosition: Vector2(center.x, GameUI.hugeIndent),
     );
     _prepareBattle();
 

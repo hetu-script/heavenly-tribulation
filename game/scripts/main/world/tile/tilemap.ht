@@ -1,0 +1,130 @@
+import '../../game.ht'
+import 'hexagonal_tile.ht'
+
+struct TileMap {
+  constructor ({
+    id,
+    width,
+    height,
+    terrainSpriteSheet,
+    tileShape = 'hexagonalVertical',
+    gridWidth = 32.0,
+    gridHeight = 28.0,
+    tileSpriteSrcWidth = 32.0,
+    tileSpriteSrcHeight = 64.0,
+    tileOffsetX = 0.0,
+    tileOffsetY = 16.0,
+    tileFogOffsetX = 0.0,
+    tileFogOffsetY = 0.0,
+  }) {
+    assert(id != null)
+    assert(width != null)
+    assert(height != null)
+
+    this.id = id
+    this.width = width
+    this.height = height
+
+    this.terrainSpriteSheet = terrainSpriteSheet
+    this.tileShape = tileShape
+    this.gridWidth = gridWidth
+    this.gridHeight = gridHeight
+    this.tileSpriteSrcWidth = tileSpriteSrcWidth
+    this.tileSpriteSrcHeight = tileSpriteSrcHeight
+    this.tileOffsetX = tileOffsetX
+    this.tileOffsetY = tileOffsetY
+
+    this.terrains = []
+    this.waterIndexes = []
+
+    // 地区上的区域，例如大陆、海洋、国家等
+    this.zones = {}
+  }
+}
+
+// 从 hexagonal 坐标得到索引
+function tilePos2Index(left, top, mapWidth) {
+  return left - 1 + (top - 1) * mapWidth
+}
+
+// 从索引得到 hexagonal 坐标
+function index2TilePosition(index: integer, mapWidth) {
+  const left = index % mapWidth + 1
+  const top = index ~/ mapWidth + 1
+  return Tile(left, top, index: index, mapWidth: mapWidth)
+}
+
+/// 坐标是否在地图范围内
+function isPositionWithinMap(left, top, width, height) {
+  return (left > 0 && top > 0 && left <= width && top <= height)
+}
+
+/// hScore(n) 是曼哈顿距离时的 A* 算法
+function calculateRoute(start, end, map, { terrainKinds = [] }) {
+  // print('calculating route: ${start.left},${start.top} to ${end.left},${end.top}')
+
+  assert(start.index != null && end.index != null)
+  if (start.index == end.index) return null
+
+  // g(n): 原点到该点的距离
+  const gScore = Map()
+  gScore[start.index] = 0
+  // h(n): 该点到终点的距离
+  const hScore = Map()
+  hScore[start.index] = getTileDistance(start, end)
+  // f(n) = g(n) + h(n)
+  const fScore = Map()
+  fScore[start.index] = hScore[start.index]
+
+  // 节点返回路径，每个 key 对应的 value 代表了 key 的坐标的上一步骤的坐标
+  const cameFrom = Map()
+  function reconstructPath(cameFrom, current) {
+    const from = cameFrom[current]
+    if (from != null) {
+      const path = reconstructPath(cameFrom, from)
+      return [ ...path, current ]
+    } else {
+      return [ current ]
+    }
+  }
+  // 已被计算的坐标
+  const closed = Set()
+  // 将要计算的坐标, key 是 tile index，value 是 离起点的距离
+  const open = []
+  open.add(start.index)
+  const distance = getTileDistance(start, end)
+
+  while (open.isNotEmpty) {
+    // 找到 f(x) 最小的节点
+    open.sort((t1, t2) => fScore[t1].compareTo(fScore[t2]))
+    const nextIndex = open.first
+    const next = index2TilePosition(nextIndex, map.width)
+    if (nextIndex == end.index) {
+      // route.path = reconstructPath(cameFrom, end.index)
+      const route = reconstructPath(cameFrom, end.index)
+      return route
+    }
+    open.remove(nextIndex)
+    closed.add(nextIndex)
+    const neighbors = getMapTileNeighbors(next.left, next.top, map, terrainKinds: terrainKinds)
+    for (const neighbor in neighbors) {
+      if (neighbor.isNonEnterable && neighbor.index != end.index) continue
+      if (closed.contains(neighbor.index)) continue
+      const tentetiveGScore = gScore[nextIndex] + 1
+      let tentativelyBetter = false
+      if (!open.contains(neighbor.index) || (tentetiveGScore < gScore[neighbor.index])) {
+        tentativelyBetter = true
+      }
+      if (tentativelyBetter) {
+        cameFrom[neighbor.index] = nextIndex
+        gScore[neighbor.index] = tentetiveGScore
+        hScore[neighbor.index] = getTileDistance(neighbor, end)
+        fScore[neighbor.index] = gScore[neighbor.index] + hScore[neighbor.index]
+        if (!open.contains(neighbor.index)) {
+          open.add(neighbor.index)
+        }
+      }
+    }
+  }
+  return null
+}

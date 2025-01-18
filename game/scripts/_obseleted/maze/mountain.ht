@@ -74,7 +74,7 @@ struct MountainMaze {
   }) {
     this.name = name
     this.id = 'maze.${crypto.randomUID4(4)}.${name}'
-    engine.info('开始生成副本: [${this.id}]')
+    engine.debug('开始生成副本: [${this.id}]')
 
     this.category = kMazeCategoryMountain
     this.levels = [] // 每一层是一个单独的 tilemap

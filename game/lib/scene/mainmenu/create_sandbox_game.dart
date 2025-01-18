@@ -367,7 +367,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
       ),
     );
 
-    // return ResponsiveWindow(
+    // return ResponsivePanel(
     //   alignment: AlignmentDirectional.center,
     //   child: layout,
     // );

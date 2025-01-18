@@ -7,9 +7,11 @@ class CreateBlankMapDialog extends StatefulWidget {
   const CreateBlankMapDialog({
     super.key,
     this.isCreatingNewGame = true,
+    this.isEditorMode = false,
   });
 
   final bool isCreatingNewGame;
+  final bool isEditorMode;
 
   @override
   State<CreateBlankMapDialog> createState() => _CreateBlankMapDialogState();
@@ -28,7 +30,8 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
     super.initState();
 
     _filaNameEditingController.text = engine.locale('unnamedMap');
-    _idEditingController.text = 'main';
+    _idEditingController.text =
+        widget.isCreatingNewGame ? 'main' : 'custom_map';
     _mapWidthEditingController.text = '12';
     _mapHeightEditingController.text = '12';
 
@@ -179,6 +182,7 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
                       'saveName': _filaNameEditingController.text,
                       'width': int.parse(_mapWidthEditingController.text),
                       'height': int.parse(_mapHeightEditingController.text),
+                      'isEditorMode': widget.isEditorMode,
                     });
                   },
                   child: Text(engine.locale('continue')),
@@ -190,7 +194,7 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
       ),
     );
 
-    // return ResponsiveWindow(
+    // return ResponsivePanel(
     //   alignment: AlignmentDirectional.center,
     //   child: layout,
     // );

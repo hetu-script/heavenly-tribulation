@@ -39,7 +39,7 @@ class ViewPanelState with ChangeNotifier {
   }
 }
 
-class PanelPositionState with ChangeNotifier {
+class ViewPanelPositionState with ChangeNotifier {
   final Map<ViewPanels, Offset> panelPositions = {};
 
   Offset? get(ViewPanels panel) {
@@ -47,7 +47,7 @@ class PanelPositionState with ChangeNotifier {
   }
 
   void update(ViewPanels panel, Offset offset) {
-    assert(panelPositions.containsKey(panel));
+    if (!panelPositions.containsKey(panel)) return;
     final current = panelPositions[panel]!;
     panelPositions[panel] = current + offset;
     notifyListeners();

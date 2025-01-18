@@ -38,53 +38,62 @@ const kArcane = 'arcane' // 古宝：每576世界大小
 const kRarity = {
   /// 未分类 黑
   basic: {
+    rank: 0,
     name: 'basic',
     color: '#A3A3A3',
   },
   /// 凡品 灰
   common: {
+    rank: 1,
     rarity: 0.51,
     name: 'common',
     color: '#CCCCCC',
   },
-  /// 良品 白
+  /// 良品 浅黄
   uncommon:{
+    rank: 2,
     rarity: 0.255,
     name: 'uncommon',
-    color: '#FFFFFF',
+    color: '#FFFFD4',
   },
   /// 上品 蓝
   rare:{
+    rank: 3,
     rarity: 0.12,
     name: 'rare',
-    color: '#00A6A9',
+    color: '#9D9DFF',
   },
   /// 极品 紫
   epic: {
+    rank: 4,
     rarity: 0.06,
     name: 'epic',
     color: '#804DC8',
   },
   /// 神品 橙
   legendary: {
+    rank: 5,
     rarity: 0.03,
     name: 'legendary',
     color: '#C5C660',
   },
   /// 秘宝 金
   unique: {
+    rank: 6,
     rarity: 0.015,
     name: 'unique',
     color: '#62CC39',
   },
   /// 古宝 暗金
   mythic: {
+    rank: 7,
     rarity: 0.007,
     name: 'mythic',
     color: '#F28234',
   },
   /// 灵宝 红
   arcane: {
+    rank: 8,
     rarity: 0.003,
     name: 'arcane',
     color: '#C65043',
@@ -213,7 +222,7 @@ function createRandomBirthTimestamp({min = 1, max = _kCharacterRandomAgeMax}) {
   assert(min > 0)
   const age = random.nextInt(max - min) + min
   const randomDateInAYear = random.nextInt(kTicksPerYear)
-  return history.timestamp - (age * kTicksPerYear + randomDateInAYear)
+  return game.timestamp - (age * kTicksPerYear + randomDateInAYear)
 }
 
 function tryChangeStats(entity, statName, change, { overflow = false }) {

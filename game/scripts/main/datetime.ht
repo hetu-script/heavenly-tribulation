@@ -26,8 +26,8 @@ const kHourString = {
 
 function getCurrentDateTimeString() {
   if (timeline == null) return ''
-  const d = formatDateTimeString(history.timestamp, format: 'date')
-  const h = (history.timestamp % 4).toString()
+  const d = formatDateTimeString(game.timestamp, format: 'date')
+  const h = (game.timestamp % 4).toString()
   const h2 = engine.locale(kHourString[h])
   return '${d}${h2}'
 }
@@ -124,5 +124,5 @@ function getYearString(count) {
 
 function ageToBirthTimestamp(age) {
   let time = age * kTicksPerYear + random.nextInt(kTicksPerYear)
-  return history.timestamp - time
+  return game.timestamp - time
 }

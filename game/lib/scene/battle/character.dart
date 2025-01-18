@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 
 // import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
+import 'package:heavenly_tribulation/scene/battle/battle.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/progress_indicator.dart';
 import 'package:samsara/components/hovertip.dart';
@@ -13,65 +15,9 @@ import '../../data.dart';
 import 'battledeck_zone.dart';
 import '../../ui.dart';
 import 'status_effect.dart';
+import 'common.dart';
 
-const kOppositeEffect = {
-  'enhance_unarmed': 'weaken_unarmed',
-  'enhance_weapon': 'weaken_weapon',
-  'enhance_spell': 'weaken_spell',
-  'enhance_curse': 'weaken_curse',
-  'enhance_poison': 'weaken_poison',
-  'weaken_unarmed': 'enhance_unarmed',
-  'weaken_weapon': 'enhance_weapon',
-  'weaken_spell': 'enhance_spell',
-  'weaken_curse': 'enhance_curse',
-  'weaken_poison': 'enhance_poison',
-  'speed_quick': 'speed_slow',
-  'speed_slow': 'speed_quick',
-  'dodge_nimble': 'dodge_clumsy',
-  'dodge_clumsy': 'dodge_nimble',
-  'dodge_invincible': 'dodge_staggering',
-  'dodge_staggering': 'dodge_invincible',
-  'energy_p_life': 'energy_n_life',
-  'energy_p_leech': 'energy_n_leech',
-  'energy_p_pure': 'energy_n_pure',
-  'energy_n_spell': 'energy_n_spell',
-  'energy_p_weapon': 'energy_n_weapon',
-  'energy_p_unarmed': 'energy_n_unarmed',
-  'energy_p_curse': 'energy_n_curse',
-  'energy_p_poison': 'energy_n_poison',
-  'energy_p_chaotic': 'energy_n_chaotic',
-  'defense_physical': 'vulnerable_physical',
-  'defense_chi': 'vulnerable_chi',
-  'defense_elemental': 'vulnerable_elemental',
-  'defense_spiritual': 'vulnerable_spiritual',
-  'vulnerable_physical': 'defense_physical',
-  'vulnerable_chi': 'defense_chi',
-  'vulnerable_elemental': 'defense_elemental',
-  'vulnerable_spiritual': 'defense_spiritual',
-};
-
-const Set<String> kCardTypes = {
-  'attack',
-  'buff',
-};
-
-const kTopLayerAnimationPriority = 500;
-const kStatusEffectIconPriority = 1000;
-
-const String kDefeatState = 'defeat';
-const String kDodgeState = 'dodge';
-const String kDodgeRecoveryState = 'dodge_recovery';
-const String kHitState = 'hit';
-const String kHitRecoveryState = 'hit_recovery';
-const String kStandState = 'stand';
-const Set<String> kPreloadAnimationStates = {
-  kDefeatState,
-  kDodgeState,
-  kDodgeRecoveryState,
-  kHitState,
-  kHitRecoveryState,
-  kStandState,
-};
+const kSpriteScale = 2.0;
 
 class BattleCharacter extends GameComponent with AnimationStateController {
   final String skinId;
@@ -82,65 +28,62 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   late final DynamicColorProgressIndicator _hpBar; //, _mpBar;
 
-  int get life => data['stats']['life'];
-  setLife(int value, {bool animated = true}) {
-    assert(value <= _hpBar.max);
-    data['stats']['life'] = value;
+  late int _life;
+  int get life => _life;
+
+  /// 将生命设为指定值，如果animated为true，则会有动画效果
+  void setLife(int value, {bool animated = true}) {
+    assert(value >= 0 && value <= _lifeMax);
+    _life = value;
     _hpBar.setValue(value, animated: animated);
   }
 
-  int get lifeMax => data['stats']['lifeMax'];
-  set lifeMax(int value) {
-    data['stats']['lifeMax'] = value;
-    _hpBar.max = value;
+  late int _lifeMax;
+  int get lifeMax => _lifeMax;
+  void setLifeMax(int value) {
+    final characterLifeMax = data['stats']['lifeMax'];
+    if (value > characterLifeMax) {
+      _hpBar.labelColor = Colors.yellow;
+    } else if (value < characterLifeMax) {
+      _hpBar.labelColor = Colors.grey;
+    }
+    _lifeMax = _hpBar.max = value;
   }
-
-  // int get mana => data['stats']['mana'];
-  // setMana(int value, {bool animated = true}) {
-  //   assert(value <= _mpBar.max);
-  //   data['stats']['mana'] = value;
-  //   _mpBar.setValue(value, animated: animated);
-  // }
-
-  // int get manaMax => data['stats']['manaMax'];
-  // set manaMax(int value) {
-  //   data['stats']['manaMax'] = value;
-  //   _mpBar.max = value;
-  // }
-
-  // int get weaponDamage => data['stats']['weaponDamage'];
 
   BattleCharacter? opponent;
 
   final Map<String, StatusEffect> _statusEffects = {};
 
+  List<StatusEffect> get effects {
+    final list = _statusEffects.values.toList();
+    list.sort((e1, e2) => e2.effectPriority.compareTo(e1.effectPriority));
+    return list;
+  }
+
   List<StatusEffect> get nonPermenantEffects {
-    final els =
+    final list =
         _statusEffects.values.where((element) => !element.isPermenant).toList();
-    els.sort((e1, e2) => -e1.effectPriority.compareTo(e2.effectPriority));
-    return els;
+    list.sort((e1, e2) => e2.effectPriority.compareTo(e1.effectPriority));
+    return list;
   }
 
   List<StatusEffect> get permenantEffects {
-    final els =
+    final list =
         _statusEffects.values.where((element) => element.isPermenant).toList();
-    els.sort((e1, e2) => -e1.effectPriority.compareTo(e2.effectPriority));
-    return els;
+    list.sort((e1, e2) => e2.effectPriority.compareTo(e1.effectPriority));
+    return list;
   }
 
   final BattleDeckZone deckZone;
 
-  final Set<String> _turnFlags = {};
-  setTurnFlag(String id) => _turnFlags.add(id);
-  hasTurnFlag(String id) => _turnFlags.contains(id);
-  removeTurnFlag(String id) => _turnFlags.remove(id);
-  clearAllTurnFlags() => _turnFlags.clear();
+  final Map<String, dynamic> turnDetails = {};
 
-  final Set<String> _gameFlags = {};
-  setGameFlag(String id) => _gameFlags.add(id);
-  hasGameFlag(String id) => _gameFlags.contains(id);
-  removeGameFlag(String id) => _gameFlags.remove(id);
-  clearAllGameFlags() => _gameFlags.clear();
+  // 这些是让脚本操作的接口
+  setTurnFlag(String id, dynamic value) => turnDetails[id] = value;
+  getTurnFlag(String id) => turnDetails[id];
+  removeTurnFlag(String id) => turnDetails.remove(id);
+  clearAllTurnFlags() => turnDetails.clear();
+  getGameFlag(String id) => (game as BattleScene).gameDetails[id];
 
   void _loadAnimFromData({
     required dynamic data,
@@ -151,17 +94,22 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     assert(data != null);
     for (final state in states) {
       final animData = data[state];
-      assert(animData != null);
+      if (animData == null) {
+        final err =
+            'Animation state data for [$state] not found in directory [$directory]';
+        engine.error(err);
+        throw err;
+      }
       final anim = SpriteAnimationWithTicker(
         animationId: '$directory/$state.png',
         srcSize: Vector2(animData['width'], animData['height']),
         stepTime: animData['stepTime'],
         loop: animData['loop'],
         renderRect: Rect.fromLTWH(
-          animData['offsetX'].toDouble(),
-          animData['offsetY'].toDouble(),
-          animData['width'].toDouble() * 2,
-          animData['height'].toDouble() * 2,
+          animData['offsetX'] * kSpriteScale,
+          animData['offsetY'] * kSpriteScale,
+          animData['width'] * kSpriteScale,
+          animData['height'] * kSpriteScale,
         ),
       );
       addState(state, anim, isOverlay: isOverlay);
@@ -177,11 +125,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     required Set<String> overlayAnimationStates,
     required this.data,
     required this.deckZone,
-  }) : super(
-          anchor: Anchor.topCenter,
-          priority: kTopLayerAnimationPriority,
-        ) {
+  }) : super(anchor: Anchor.topCenter) {
     assert(GameData.animationsData.containsKey(skinId));
+    this.engine = engine;
 
     if (!isHero) {
       flipHorizontally();
@@ -207,6 +153,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   Future<void> onLoad() async {
     await loadStates();
 
+    _life = _lifeMax = data['stats']['life'];
+
     _hpBar = DynamicColorProgressIndicator(
       anchor: isHero ? Anchor.topLeft : Anchor.topRight,
       position: Vector2(0, -GameUI.resourceBarHeight),
@@ -215,6 +163,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       max: lifeMax,
       colors: [Colors.red, Colors.green],
       showNumber: true,
+      labelFontSize: 10.0,
     );
     if (!isHero) {
       _hpBar.flipHorizontally();
@@ -261,46 +210,73 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
   }
 
-  /// 永久效果位置在卡组上方
+  /// 永久效果位置在角色头像下方
   void reArrangePermenantEffects() {
+    final centerPoint = Vector2(
+        GameUI.size.x / 2, GameUI.hugeIndent * 2 + GameUI.versusBannerSize.y);
     for (var i = 0; i < permenantEffects.length; ++i) {
       final effect = permenantEffects.elementAt(i);
       if (isHero) {
         effect.position = Vector2(
-            GameUI.indent + i * (GameUI.permenantStatusEffectIconSize.x + 5),
-            GameUI.p1BattleDeckZonePosition.y -
-                GameUI.indent -
-                GameUI.permenantStatusEffectIconSize.y);
+          centerPoint.x -
+              GameUI.versusIconSize.x / 2 -
+              GameUI.indent -
+              i * (GameUI.permenantStatusEffectIconSize.x + GameUI.smallIndent),
+          GameUI.indent + GameUI.versusBannerSize.y,
+        );
       } else {
         effect.position = Vector2(
-            GameUI.size.x -
-                GameUI.indent -
-                i * (GameUI.permenantStatusEffectIconSize.x + 5),
-            GameUI.p2BattleDeckZonePosition.y -
-                GameUI.indent -
-                GameUI.permenantStatusEffectIconSize.y);
+          centerPoint.x +
+              GameUI.versusIconSize.x / 2 +
+              GameUI.indent +
+              i * (GameUI.permenantStatusEffectIconSize.x + GameUI.smallIndent),
+          GameUI.indent + GameUI.versusBannerSize.y,
+        );
       }
     }
   }
 
   /// 非永久效果位置在血条上方
-  void reArrangeNonPermenantEffects() {
-    for (var i = 0; i < nonPermenantEffects.length; ++i) {
-      final effect = nonPermenantEffects.elementAt(i);
+  void reArrangeNonresourceEffects() {
+    final nonResourceEffects =
+        nonPermenantEffects.where((e1) => !e1.isResource);
+    for (var i = 0; i < nonResourceEffects.length; ++i) {
+      final effect = nonResourceEffects.elementAt(i);
       if (isHero) {
         effect.position = Vector2(
-            GameUI.p1HeroSpritePosition.x -
+            GameUI.p1CharacterAnimationPosition.x -
                 GameUI.heroSpriteSize.x / 2 +
                 i * GameUI.statusEffectIconSize.x,
-            GameUI.p1HeroSpritePosition.y -
-                (GameUI.statusEffectIconSize.y + GameUI.resourceBarHeight * 2));
+            GameUI.p1CharacterAnimationPosition.y -
+                (GameUI.statusEffectIconSize.y + GameUI.resourceBarHeight));
       } else {
         effect.position = Vector2(
-            GameUI.p2HeroSpritePosition.x -
+            GameUI.p2CharacterAnimationPosition.x -
                 GameUI.heroSpriteSize.x / 2 +
                 (i + 1) * GameUI.statusEffectIconSize.x,
-            GameUI.p2HeroSpritePosition.y -
-                (GameUI.statusEffectIconSize.y + GameUI.resourceBarHeight * 2));
+            GameUI.p2CharacterAnimationPosition.y -
+                (GameUI.statusEffectIconSize.y + GameUI.resourceBarHeight));
+      }
+    }
+  }
+
+  /// 资源位于血条下方
+  void reArrangeResourceEffects() {
+    final resourceEffects = nonPermenantEffects.where((e1) => e1.isResource);
+    for (var i = 0; i < resourceEffects.length; ++i) {
+      final effect = resourceEffects.elementAt(i);
+      if (isHero) {
+        effect.position = Vector2(
+            GameUI.p1CharacterAnimationPosition.x -
+                GameUI.heroSpriteSize.x / 2 +
+                i * GameUI.statusEffectIconSize.x,
+            GameUI.p1CharacterAnimationPosition.y);
+      } else {
+        effect.position = Vector2(
+            GameUI.p2CharacterAnimationPosition.x -
+                GameUI.heroSpriteSize.x / 2 +
+                (i + 1) * GameUI.statusEffectIconSize.x,
+            GameUI.p2CharacterAnimationPosition.y);
       }
     }
   }
@@ -313,58 +289,100 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     _statusEffects.clear();
   }
 
-  void _removeStatusEffect(StatusEffect effect) {
-    effect.removeFromParent();
-    _statusEffects.remove(effect.id);
-
-    if (effect.isPermenant) {
-      reArrangePermenantEffects();
-    } else {
-      reArrangeNonPermenantEffects();
-    }
-  }
-
   /// 如果提供了amount，则返回要移除的数量和效果数量的差额，最小是0
   /// 例如10攻打在5防上，差额5，意味着移除全部防之后，还有5点伤害需要处理
   /// 如果是5攻打在10防上，意味着5攻消耗完毕，剩下的攻的数值是0
   /// 返回的是移除的实际数量
-  int removeStatusEffect(String id, {int? amount, double? percentage}) {
-    assert(_statusEffects.containsKey(id));
-    final effect = _statusEffects[id]!;
-    assert(!effect.isPermenant);
+  int removeStatusEffect(
+    String id, {
+    int? amount,
+    double? percentage,
+    bool hintLacking = true,
+  }) {
+    if (_statusEffects.containsKey(id)) {
+      final effect = _statusEffects[id]!;
+      assert(!effect.isPermenant);
+      assert(effect.amount > 0);
 
-    int removedAmount = 0;
-    if (amount != null) {
-      assert(amount > 0);
-      removedAmount = math.min(effect.amount, amount);
-    } else if (percentage != null) {
-      assert(percentage > 0 && percentage < 1);
-      removedAmount = (effect.amount * percentage).truncate();
+      int removedAmount = 0;
+      if (amount != null) {
+        assert(amount > 0);
+        removedAmount = math.min(effect.amount, amount);
+      } else if (percentage != null) {
+        assert(percentage > 0 && percentage < 1);
+        removedAmount = (effect.amount * percentage).round();
+      } else {
+        removedAmount = effect.amount;
+      }
+
+      effect.amount -= removedAmount;
+      if (effect.amount <= 0) {
+        _statusEffects.remove(effect.id);
+        effect.removeFromParent();
+
+        if (effect.isPermenant) {
+          reArrangePermenantEffects();
+        } else {
+          if (effect.isResource) {
+            reArrangeResourceEffects();
+          } else {
+            reArrangeNonresourceEffects();
+          }
+        }
+      }
+
+      return removedAmount;
     } else {
-      removedAmount = effect.amount;
+      if (hintLacking) {
+        final hint = engine.locale('resourceLacking',
+            interpolations: [engine.locale('status_$id')]);
+        addHintText(hint, color: Colors.grey);
+      }
+      return 0;
     }
-
-    effect.amount -= removedAmount;
-    if (effect.amount <= 0) {
-      _removeStatusEffect(effect);
-    }
-
-    return removedAmount;
   }
 
-  void addStatusEffect(String id, {int? amount, bool playSound = false}) {
-    amount ??= 1;
+  void addStatusEffect(String id, {int? amount}) {
+    if (amount == 0) return;
+    if (amount == null) {
+      if (kDebugMode) {
+        engine.info(
+            'Status effect [$id] added without a specific amount, set to 1');
+      }
+      amount = 1;
+    }
     assert(amount > 0);
+    if (!GameData.statusEffectsData.containsKey(id)) {
+      engine.error('Status effect [$id] not found!');
+      return;
+    }
+    final data = GameData.statusEffectsData[id];
+
+    if (data['isPermenant'] != true) {
+      if (id.startsWith('energy_positive')) {
+        // 触发自己获得阳气时的效果
+        handleStatusEffectCallback('self_gain_positive_energy');
+        // 触发对方获得阳气时的效果
+        opponent!.handleStatusEffectCallback('opponent_gain_positive_energy');
+      } else if (id.startsWith('energy_negative')) {
+        // 触发自己获得阴气时的效果
+        handleStatusEffectCallback('self_gain_negative_energy');
+        // 触发对方获得阴气时的效果
+        opponent!.handleStatusEffectCallback('opponent_gain_negative_energy');
+      } else if (id.startsWith('injury')) {
+        // 触发自己获得伤势时的效果
+        handleStatusEffectCallback('self_gain_injury');
+        // 触发对方获得伤势时的效果
+        opponent!.handleStatusEffectCallback('opponent_gain_injury');
+      }
+    }
+
     StatusEffect effect;
     if (_statusEffects.containsKey(id)) {
       effect = _statusEffects[id]!;
       if (effect.isUnique) return;
 
       effect.amount += amount;
-
-      if (playSound && effect.soundId != null) {
-        engine.play('${effect.soundId}', volume: GameConfig.soundEffectVolume);
-      }
     } else {
       if (kOppositeEffect.containsKey(id)) {
         final oppositeId = kOppositeEffect[id]!;
@@ -381,7 +399,6 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
       if (amount > 0) {
         effect = StatusEffect(
-          priority: kStatusEffectIconPriority,
           id: id,
           amount: amount,
           anchor: isHero ? Anchor.topLeft : Anchor.topRight,
@@ -390,36 +407,42 @@ class BattleCharacter extends GameComponent with AnimationStateController {
         if (!effect.isHidden) {
           gameRef.world.add(effect);
         }
-        if (playSound && effect.soundId != null) {
-          engine.play('${effect.soundId}',
-              volume: GameConfig.soundEffectVolume);
-        }
         if (effect.isPermenant) {
           reArrangePermenantEffects();
         } else {
-          reArrangeNonPermenantEffects();
+          if (effect.isResource) {
+            reArrangeResourceEffects();
+          } else {
+            reArrangeNonresourceEffects();
+          }
         }
       }
     }
   }
 
+  void _invokeScript(
+      StatusEffect effect, String callbackId, dynamic details) async {
+    if (effect.script != null) {
+      final funcId = 'status_script_${effect.script}_$callbackId';
+      engine.debug('invoke effect callback: [$funcId]');
+      engine.hetu.invoke(funcId,
+          positionalArgs: [this, opponent, effect.data, details]);
+    }
+  }
+
   /// details既是入参也是出参，脚本可能会获取或修改details中的内容
-  void handleStatusEffectCallback(String callbackId, [dynamic details]) {
-    void invokeScript(StatusEffect effect) {
-      engine.hetu.invoke(
-        'status_script_${effect.script}_$callbackId',
-        positionalArgs: [this, opponent, effect.data, details],
-        ignoreUndefined: true, // 如果不存在对应callback就跳过
-      );
+  void handleStatusEffectCallback(String callbackId, [dynamic details]) async {
+    // 永久效果的执行优先级更高
+    for (final effect in permenantEffects) {
+      if (effect.callbacks.contains(callbackId)) {
+        _invokeScript(effect, callbackId, details);
+      }
     }
 
-    // 复制一份列表，因为在执行脚本过程中可能会修改这个列表
-    for (final effect in permenantEffects.toList()) {
-      invokeScript(effect);
-    }
-
-    for (final effect in nonPermenantEffects.toList()) {
-      invokeScript(effect);
+    for (final effect in nonPermenantEffects) {
+      if (effect.callbacks.contains(callbackId)) {
+        _invokeScript(effect, callbackId, details);
+      }
     }
   }
 
@@ -439,29 +462,21 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // setMana(0, animated: false);
     setState(kStandState);
     clearAllStatusEffects();
-    _turnFlags.clear();
+    clearAllTurnFlags();
     // TODO: resetGameFlags
   }
 
+  /// 尝试消耗指定的生命，如果消耗值大于生命，返回 false
   bool consumeLife(int value) {
     assert(value > 0);
-
-    if (value < life) {
-      addHintText(
-        '${engine.locale('life')}-$value',
-        color: Colors.red,
-      );
-      setLife(life - value);
-      return true;
-    } else {
-      return false;
-    }
+    if (life < value) return false;
+    changeLife(life - value);
+    return true;
   }
 
+  /// 增加或减少指定的生命
   Future<void> changeLife(int value, {bool playSound = false}) async {
     if (value == 0) return;
-
-    // await setState('restore_life');
 
     int hp = life;
     hp += value;
@@ -470,22 +485,26 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     } else if (hp < 0) {
       hp = 0;
     }
+    if (hp == life) return;
 
-    final diff = hp - life;
+    if (hp > life) {
+      // 触发自己恢复生命时的效果，可能会改变伤害值
+      handleStatusEffectCallback('self_heal');
+      // 触发对方恢复生命时的效果，可能会改变伤害值
+      opponent!.handleStatusEffectCallback('opponent_heal');
 
-    if (diff > 0) {
       addHintText(
-        '${engine.locale('life')} +$diff',
+        '${engine.locale('life')} +${hp - life}',
         color: Colors.lightGreen,
       );
-
-      if (playSound) {
-        engine.play('spell-of-healing-876.mp3',
-            volume: GameConfig.soundEffectVolume);
-      }
     } else {
+      // 触发自己失去生命时的效果，可能会改变伤害值
+      handleStatusEffectCallback('self_lose_life');
+      // 触发对方失去生命时的效果，可能会改变伤害值
+      opponent!.handleStatusEffectCallback('opponent_lose_life');
+
       addHintText(
-        '${engine.locale('life')} -$diff',
+        '${engine.locale('life')} -${life - hp}',
         color: Colors.pink,
       );
     }
@@ -493,110 +512,84 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     setLife(hp);
   }
 
-  // bool consumeMana(int value) {
-  //   assert(value > 0);
-
-  //   if (value <= mana) {
-  //     addHintText(
-  //       '${engine.locale('mana')}-$value',
-  //       color: Colors.red,
-  //     );
-  //     setMana(mana - value);
-  //     return true;
-  //   } else {
-  //     addHintText(
-  //       engine.locale('notEnoughMana'),
-  //       color: Colors.deepPurple,
-  //     );
-  //     return false;
-  //   }
-  // }
-
-  // Future<void> restoreMana(int value) async {
-  //   assert(value >= 0);
-
-  //   // await setState('restore_mana');
-
-  //   int mp = mana;
-  //   int mpMax = manaMax;
-  //   mp += value;
-  //   if (mp > mpMax) {
-  //     mp = mpMax;
-  //   }
-
-  //   final diff = mp - mana;
-  //   addHintText(
-  //     '${engine.locale('mana')}+$diff',
-  //     color: Colors.lightGreen,
-  //   );
-
-  //   if (diff > 0) {
-  //     engine.play('spell-of-healing-876.mp3',
-  //         volume: GameConfig.soundEffectVolume);
-  //     setMana(mana);
-  //   }
-  // }
-
   Future<void> setState(
     String state, {
-    // String? type,
+    String? sound,
     String? overlay,
     String? recovery,
     String? complete,
-  }) async {
-    complete ??= kStandState;
+  }) =>
+      setAnimationState(
+        state,
+        sound: sound,
+        overlayState: overlay,
+        recoveryState: recovery,
+        completeState: complete ?? kStandState,
+      );
 
-    await setAnimationState(
-      state,
-      overlayState: overlay,
-      recoveryState: recovery,
-      completeState: complete,
-    );
-  }
+  /// 人物受到伤害，返回实际伤害值（有可能是0）
+  /// 出发伤害时和伤害后的状态效果，并最终结算伤害数值
+  /// details 是脚本发过来的数据对象，内容如下：
+  /// {
+  ///   kind: affix.kind,
+  ///   attackType: affix.attackType,
+  ///   damageType: affix.damageType,
+  ///   baseValue: damage, // 伤害基础值
+  ///   baseChange: 0, // 伤害基础值修正
+  ///   percentageChange1: 0.0, // 伤害百分比修正，乘区1
+  ///   percentageChange2: 0.0, // 伤害百分比修正，乘区2
+  ///   percentageChange3: 0.0, // 伤害百分比修正，乘区3
+  /// }
+  /// 状态效果修改伤害时，并非直接在基础值上修改，
+  /// 而是对 baseValueChange 和 percentageChange 进行修改
+  /// 最终伤害计算方法
+  /// (baseValue + baseValueChange) * (1 + percentageChange1) * (1 + percentageChange2) * (1 + percentageChange3)
+  /// 乘区1：攻击增强，攻击削弱，抗性，弱点
+  /// 乘区2：从闪避中获得的免疫，从迟钝中获得的踉跄
+  int takeDamage(dynamic details) {
+    assert(details['baseValue'] > 0);
 
-  int _handleDamage(dynamic details) {
-    assert(details['initialDamage'] > 0);
-    if (hasStatusEffect('invincible') > 0) {
-      // 伤害免疫效果
-      details['damage'] = (details['initialDamage'] * 0.5).truncate();
+    // isMain 为 true 表示伤害来源来自主词条的攻击
+    // 否则的话意味着是某些状态效果或者额外词条造成的伤害
+    if (details['isMain'] == true) {
+      // 触发对方造成伤害时的效果，可能会改变伤害值
+      handleStatusEffectCallback('opponent_doing_damage', details);
+      // 触发自己造成伤害时的效果，可能会改变伤害值
+      opponent!.handleStatusEffectCallback('self_doing_damage', details);
     }
-    //
-    //else {
-    // switch (damageType) {
-    //   case DamageType.physical:
-    //     details['damage'] += opponent!.weaponDamage;
-    //   default:
-    // }
 
-    // 触发对方造成伤害时的效果，可能会增加伤害值
-    opponent!.handleStatusEffectCallback('self_doing_damage', details);
-    // 触发自己受到伤害时的效果，可能会减少伤害值
+    // 触发自己受到伤害时的效果
     handleStatusEffectCallback('self_taking_damage', details);
+    // 触发对方受到伤害时的效果
+    opponent!.handleStatusEffectCallback('oponent_taking_damage', details);
+
+    final int baseDamage = details['baseValue'] + (details['baseChange'] ?? 0);
+    int finalDamage = (baseDamage *
+            (1 + (details['percentageChange1'] ?? 0)) *
+            (1 + (details['percentageChange2'] ?? 0)) *
+            (1 + (details['percentageChange3'] ?? 0)))
+        .round();
+    if (finalDamage < 0) {
+      engine.error('calculated damage < 0 on details: \n$details');
+      finalDamage = 0;
+    }
+    String damageString = finalDamage > 0 ? '-$finalDamage' : '$finalDamage';
+    Color color = switch (details['damageType']) {
+      'chi' => Colors.purple,
+      'elemental' => Colors.yellow,
+      'spiritual' => Colors.green,
+      'pure' => Colors.red,
+      _ => Colors.white,
+    };
+    addHintText(damageString, color: color);
 
     if (details['blocked'] ?? false) {
       engine.play('shield-block-shortsword-143940.mp3',
           volume: GameConfig.soundEffectVolume);
     } else {
-      switch (details['kind']) {
-        case 'sabre':
-        case 'sword':
-        case 'flying_sword':
-          engine.play('sword-sound-2-36274.mp3',
-              volume: GameConfig.soundEffectVolume);
-        case 'staff':
-        case 'punch':
-          engine.play('punch-or-kick-sound-effect-1-239696.mp3',
-              volume: GameConfig.soundEffectVolume);
-      }
+      engine.play('hit-flesh-02-266309.mp3',
+          volume: GameConfig.soundEffectVolume);
     }
-    // }
-
-    int finalDamage = details['damage'];
-    String damageString = finalDamage > 0 ? '-$finalDamage' : '$finalDamage';
-    // if (opponent!.hasTurnFlag('ignoreBlock')) {
-    //   damageString = '${engine.locale('ignoreBlock')}: $damageString';
-    // }
-    addHintText(damageString);
 
     if (finalDamage > 0) {
       int hp = life;
@@ -606,32 +599,24 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       }
       setLife(hp);
 
+      details['finalDamage'] = finalDamage;
+
+      // isMain 为 true 表示伤害来源来自主词条的攻击
+      // 否则的话意味着是某些状态效果或者额外词条造成的伤害
+      if (details['isMain'] == true) {
+        // 触发对方造成伤害后的效果
+        handleStatusEffectCallback('opponent_done_damage', details);
+        // 触发自己造成伤害后的效果
+        opponent!.handleStatusEffectCallback('self_done_damage', details);
+
+        opponent!.turnDetails['turnDamage'] += finalDamage;
+      }
+
       // 触发自己受到伤害后的效果
       handleStatusEffectCallback('self_taken_damage', details);
-      // 触发对方造成伤害后的效果
-      opponent!.handleStatusEffectCallback('self_done_damage', details);
+      // 触发对方受到伤害后的效果
+      opponent!.handleStatusEffectCallback('opponent_taken_damage', details);
     }
-
-    return finalDamage;
-  }
-
-  /// 人物受到伤害，返回实际伤害值（有可能是0）
-  int takeDamage(dynamic details) {
-    int finalDamage = _handleDamage(details);
-
-    // else if (multipleDamages != null) {
-    //   for (var i = 0; i < multipleDamages.length; ++i) {
-    //     final curDmg = multipleDamages[i];
-    //     Future.delayed(Duration(milliseconds: 250 * i), () {
-    //       final thisDetails = {
-    //         ...damageDetails,
-    //         'initialDamage': curDmg,
-    //         'damage': curDmg,
-    //       };
-    //       finalDamage = _handleDamage(damageType, thisDetails);
-    //     });
-    //   }
-    // }
 
     bool blocked = details['blocked'] ?? false;
 
@@ -648,18 +633,19 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// 返回值是一个map，若map中 skipTurn 的key对应值为true表示跳过此回合
   Future<Map<String, dynamic>> onTurnStart(CustomGameCard card,
       {bool isExtra = false}) async {
-    final Map<String, dynamic> details = {
-      "isExtra": isExtra,
-    };
+    turnDetails.clear();
+    // turn flag 是词条 callback 调用使用的出入参
+    turnDetails["isExtra"] = isExtra;
+    // 重置主词条本回合累计伤害计数
+    turnDetails['turnDamage'] = 0;
 
-    opponent!.handleStatusEffectCallback('opponent_turn_start', details);
+    opponent!.handleStatusEffectCallback('opponent_turn_start', turnDetails);
+    handleStatusEffectCallback('self_turn_start', turnDetails);
 
-    handleStatusEffectCallback('self_turn_start', details);
-
-    if (details['skipTurn'] ?? false) {
+    if (turnDetails['skipTurn'] ?? false) {
       addHintText(engine.locale('skipTurn'));
       await Future.delayed(Duration(milliseconds: 500));
-      return details;
+      return turnDetails;
     }
 
     // 展示当前卡牌及其详情
@@ -681,8 +667,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       config: ScreenTextConfig(anchor: Anchor.topCenter),
     );
 
-    final affixes = card.data['affixes'];
-    assert(affixes is List && affixes.isNotEmpty);
+    final List affixes = card.data['affixes'];
+    assert(affixes.isNotEmpty);
     final mainAffix = affixes[0];
 
     final genre = mainAffix['genre'];
@@ -693,79 +679,112 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     //   handleEffectCallback('self_use_card_tag_$tag');
     // }
 
-    if (mainAffix['category'] == 'attack') {
-      details['attackType'] = mainAffix['attackType'];
-      details['damageType'] = mainAffix['damageType'];
-      // 触发自己发动攻击时的效果
-      handleStatusEffectCallback('self_attacking', details);
-      // 触发对方被发动攻击时的效果
-      opponent!.handleStatusEffectCallback('self_being_attack', details);
-
-      // 对于攻击类卡牌，先处理额外词条，其中可能包含一些当前回合就立即起作用的buff
-      for (var i = 1; i < affixes.length; ++i) {
-        final affix = affixes[i];
-        // if (affix['isIdentified'] == true) {
-        await engine.hetu.invoke(
-          'card_script_${affix['script']}',
-          positionalArgs: [this, opponent, affix],
-        );
-        // }
-      }
-
-      // 最后再处理主词条
-      await engine.hetu.invoke(
-        'card_script_main_${mainAffix['script']}',
-        positionalArgs: [this, opponent, affixes[0]],
-      );
-
-      // 触发自己发动攻击后的效果
-      handleStatusEffectCallback('self_attacked', details);
-      // 触发对方被发动攻击后的效果
-      opponent!.handleStatusEffectCallback('self_be_attacked', details);
-    } else {
-      // 先处理主词条
-      await engine.hetu.invoke(
-        'card_script_main_${mainAffix['script']}',
-        positionalArgs: [this, opponent, affixes[0]],
-      );
-
-      // 最后再处理额外词条，这样某些额外效果可以当回合立即使用刚刚获得的资源
-      for (var i = 1; i < affixes.length; ++i) {
-        final affix = affixes[i];
-        // if (affix['isIdentified'] == true) {
-        await engine.hetu.invoke(
-          'card_script_${affix['script']}',
-          positionalArgs: [this, opponent, affix],
-        );
-        // }
-      }
+    switch (mainAffix['category']) {
+      case 'attack':
+        turnDetails['attackType'] = mainAffix['attackType'];
+        turnDetails['damageType'] = mainAffix['damageType'];
+        // 触发自己发动攻击时的效果
+        handleStatusEffectCallback('self_attacking', turnDetails);
+        // 触发对方被发动攻击时的效果
+        opponent!.handleStatusEffectCallback('opponent_attacking', turnDetails);
+      case 'buff':
+        // 触发自己发动加持时的效果
+        handleStatusEffectCallback('self_buffing', turnDetails);
+        // 触发对方发动加持时的效果
+        opponent!.handleStatusEffectCallback('opponent_buffing', turnDetails);
+      case 'ongoing':
+        // 触发自己发动持续牌时的效果
+        handleStatusEffectCallback('self_ongoing', turnDetails);
+        // 触发对方发动持续牌时的效果
+        opponent!.handleStatusEffectCallback('opponent_ongoing', turnDetails);
     }
 
-    return details;
+    // 先处理优先级高于主词条的额外词条
+    // 其中可能包含一些当前回合就立即起作用的buff
+    final beforeMain = affixes.where((affix) {
+      return affix['isMain'] != true && affix['isBeforeMain'] == true;
+    }).toList();
+    // 多个词条时，按照优先级排序
+    beforeMain.sort((a, b) {
+      return ((b['priority'] ?? 0) as int).compareTo(a['priority'] ?? 0);
+    });
+    for (final affix in beforeMain) {
+      final scriptId = affix['script'];
+      assert(scriptId != null);
+      await engine.hetu.invoke(
+        'card_script_$scriptId',
+        positionalArgs: [this, opponent, affix, mainAffix],
+      );
+    }
+
+    // 处理主词条
+    final mainScriptId = mainAffix['script'];
+    assert(mainScriptId != null);
+    await engine.hetu.invoke(
+      'card_script_main_$mainScriptId',
+      positionalArgs: [this, opponent, mainAffix],
+    );
+
+    // 最后处理其他词条
+    // 其中可能包含一些需求资源或有关主词条造成的伤害等情况的词条
+    // 这样可能会当回合就触发一些联动
+    final afterMain = affixes.where((affix) {
+      return affix['isMain'] != true && affix['isBeforeMain'] != true;
+    }).toList();
+    // 多个词条时，按照优先级排序
+    afterMain.sort((a, b) {
+      return ((b['priority'] ?? 0) as int).compareTo(a['priority'] ?? 0);
+    });
+    for (final affix in afterMain) {
+      final scriptId = affix['script'];
+      assert(scriptId != null);
+      await engine.hetu.invoke(
+        'card_script_$scriptId',
+        positionalArgs: [this, opponent, affix, mainAffix],
+      );
+    }
+
+    if (mainAffix['category'] == 'attack') {
+      // 触发自己发动攻击后的效果
+      handleStatusEffectCallback('self_attacked', turnDetails);
+      // 触发对方被发动攻击后的效果
+      opponent!.handleStatusEffectCallback('opponent_attacked', turnDetails);
+    }
+
+    if (mainAffix['isEphemeral'] == true) {
+      // 触发自己使用消耗牌后的效果
+      handleStatusEffectCallback('self_consumed', turnDetails);
+      // 触发对方使用消耗牌后的效果
+      opponent!.handleStatusEffectCallback('opponent_consumed', turnDetails);
+    }
+
+    return turnDetails;
   }
 
   /// 返回值true表示获得一个额外回合
   Future<Map<String, dynamic>> onTurnEnd(CustomGameCard card) async {
-    final details = <String, dynamic>{};
-    handleStatusEffectCallback('self_turn_end', details);
+    handleStatusEffectCallback('self_turn_end', turnDetails);
+    opponent!.handleStatusEffectCallback('opponent_turn_end', turnDetails);
 
     await card.setFocused(false);
-    card.isEnabled = false;
     Hovertip.hide(card);
     card.enablePreview = true;
 
-    if (details['dodgeTurn'] ?? false) {
-      addHintText(engine.locale('dodgeTurn'));
+    if (turnDetails['staggeringTurn'] == true) {
+      addHintText(engine.locale('staggeringTurn'));
       await Future.delayed(Duration(milliseconds: 350));
     }
 
-    if (details['extraTurn'] ?? false) {
-      addHintText(engine.locale('extraTurn'));
-      return details;
+    if (turnDetails['invincibleTurn'] == true) {
+      addHintText(engine.locale('invincibleTurn'));
+      await Future.delayed(Duration(milliseconds: 350));
     }
 
-    opponent!.handleStatusEffectCallback('opponent_turn_end');
-    clearAllTurnFlags();
-    return details;
+    if (turnDetails['extraTurn'] == true) {
+      addHintText(engine.locale('extraTurn'));
+      await Future.delayed(Duration(milliseconds: 350));
+    }
+
+    return turnDetails;
   }
 }

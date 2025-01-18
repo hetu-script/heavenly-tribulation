@@ -59,8 +59,8 @@
 
   "deckbuilding_identifyCard_warning": "卡牌已被鉴定。",
   "deckbuilding_addAffix_warning": "当前卡牌已经拥有最大数量的额外词条。",
-  "deckbuilding_rerollAffix_warning": "当前卡牌没有额外词条，或者额外词条尚未被鉴定。",
-  "deckbuilding_replaceAffix_warning": "当前卡牌没有额外词条，或者额外词条尚未被鉴定。",
+  "deckbuilding_rerollAffix_warning": "当前卡牌没有可以重置数值的额外词条。",
+  "deckbuilding_replaceAffix_warning": "当前卡牌没有额外词条。",
   "deckbuilding_upgradeCard_warning": "当前卡牌已经达到最高等级。",
   "deckbuilding_upgradeRank_warning": "当前卡牌未达到下一境界最低等级要求。",
   "deckbuilding_upgradeRank_warning_maxRank": "当前卡牌已达到最高境界。",

@@ -3,13 +3,13 @@ import 'package:hetu_script/value/function/function.dart';
 import '../scene/game_dialog/game_dialog.dart';
 import '../scene/game_dialog/selection_dialog.dart';
 // import '../ui/view/duel/duel.dart';
-import '../view/dialog/character_visit_dialog.dart';
-import '../view/dialog/character_select_dialog.dart';
-import '../view/merchant/merchant.dart';
-import '../view/quest/quests.dart';
+import '../widgets/dialog/character_visit_dialog.dart';
+import '../widgets/dialog/character_select_dialog.dart';
+import '../widgets/merchant/merchant.dart';
+import '../widgets/quest/quests.dart';
 // import '../../scene/map/maze/maze_overlay.dart';
-import '../view/dialog/progress_indicator.dart';
-import '../view/dialog/input_integer.dart';
+import '../widgets/dialog/progress_indicator.dart';
+import '../widgets/dialog/input_integer.dart';
 
 final Map<String, Function> dialogFunctions = {
   r'_say': ({positionalArgs, namedArgs}) {

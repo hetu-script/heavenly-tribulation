@@ -1,9 +1,9 @@
 {
-  quest_jade: {
-    prototypeId: "quest_jade",
+  hunguding: {
+    prototypeId: "hunguding",
+    name: "hunguding",
     category: "quest",
-    level: 1,
-    rank: 6,
+    rarity: "unique",
     icon: "item/story/jade.png",
   },
   // wood_boat: {

@@ -38,6 +38,7 @@ class BattleCharacterClassBinding extends HTExternalClass {
               overlay: namedArgs['overlay'],
               recovery: namedArgs['recovery'],
               complete: namedArgs['complete'],
+              sound: namedArgs['sound'],
             );
       case 'hasStatusEffect':
         return ({positionalArgs, namedArgs}) =>
@@ -47,30 +48,23 @@ class BattleCharacterClassBinding extends HTExternalClass {
               positionalArgs[0],
               amount: namedArgs['amount'],
               percentage: namedArgs['percentage'],
+              hintLacking: namedArgs['hintLacking'],
             );
       case 'addStatusEffect':
-        return ({positionalArgs, namedArgs}) => character.addStatusEffect(
-            positionalArgs[0],
-            amount: namedArgs['amount'],
-            playSound: namedArgs['playSound']);
+        return ({positionalArgs, namedArgs}) => character
+            .addStatusEffect(positionalArgs[0], amount: namedArgs['amount']);
       case 'setTurnFlag':
         return ({positionalArgs, namedArgs}) =>
-            character.setTurnFlag(positionalArgs[0]);
-      case 'hasTurnFlag':
+            character.setTurnFlag(positionalArgs[0], positionalArgs[1]);
+      case 'getTurnFlag':
         return ({positionalArgs, namedArgs}) =>
-            character.hasTurnFlag(positionalArgs[0]);
+            character.getTurnFlag(positionalArgs[0]);
       case 'removeTurnFlag':
         return ({positionalArgs, namedArgs}) =>
             character.removeTurnFlag(positionalArgs[0]);
-      case 'setGameFlag':
+      case 'getGameFlag':
         return ({positionalArgs, namedArgs}) =>
-            character.setGameFlag(positionalArgs[0]);
-      case 'hasGameFlag':
-        return ({positionalArgs, namedArgs}) =>
-            character.hasGameFlag(positionalArgs[0]);
-      case 'removeGameFlag':
-        return ({positionalArgs, namedArgs}) =>
-            character.removeGameFlag(positionalArgs[0]);
+            character.getGameFlag(positionalArgs[0]);
 
       default:
         if (!ignoreUndefined) throw HTError.undefined(varName);

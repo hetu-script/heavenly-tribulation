@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/ink_button.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/ui/responsive_window.dart';
+import 'package:samsara/ui/responsive_panel.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
 import 'package:flame/extensions.dart';
@@ -9,7 +9,7 @@ import 'package:flame/extensions.dart';
 import '../../../engine.dart';
 import '../../../ui.dart';
 import '../../../state/editor_tool.dart';
-// import '../../data.dart';
+import '../../../data.dart';
 
 const double kToolbarTabBarHeight = 30.0;
 
@@ -18,10 +18,10 @@ const Size kTileSize = Size(32, 64);
 class Toolbox extends StatefulWidget {
   const Toolbox({
     super.key,
-    required this.onToolClicked,
+    this.onToolClicked,
   });
 
-  final void Function(String toolId) onToolClicked;
+  final void Function(String toolId)? onToolClicked;
 
   @override
   State<Toolbox> createState() => _ToolboxState();
@@ -68,21 +68,25 @@ class _ToolboxState extends State<Toolbox> {
   }
 
   Widget buildToolButton(
-      BuildContext context, String? selectedItem, String toolId) {
-    // final toolItemData = GameData.editorToolItemsData[toolId];
+    BuildContext context,
+    String toolId, {
+    bool isTile = true,
+    required String? selectedItem,
+  }) {
+    final toolItemData = GameData.tilesData[toolId];
+    final name = toolItemData?['name'] ?? toolId;
+    final icon = toolItemData?['icon'] ?? 'assets/images/object/$toolId.png';
     return Tooltip(
-      message: engine.locale(toolId),
+      message: engine.locale(name),
       child: InkButton(
         size: kTileSize,
         padding: const EdgeInsets.only(right: 5.0),
         borderRadius: BorderRadius.circular(5.0),
-        image: AssetImage(
-          'assets/images/object/$toolId.png',
-        ),
+        image: AssetImage(icon),
         isSelected: selectedItem == toolId,
         onPressed: () {
           context.read<EditorToolState>().select(toolId);
-          widget.onToolClicked(toolId);
+          widget.onToolClicked?.call(toolId);
         },
       ),
     );
@@ -92,9 +96,10 @@ class _ToolboxState extends State<Toolbox> {
   Widget build(BuildContext context) {
     final item = context.watch<EditorToolState>().selectedId;
 
-    return ResponsiveWindow(
+    return ResponsivePanel(
       color: GameUI.backgroundColor,
-      size: const Size(640, 200),
+      width: 640,
+      height: 200,
       margin: const EdgeInsets.all(10.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -122,28 +127,82 @@ class _ToolboxState extends State<Toolbox> {
                             children: [
                               Wrap(
                                 children: [
-                                  buildToolButton(context, item, 'delete'),
                                   buildToolButton(
-                                      context, item, 'nonInteractable'),
-                                  buildToolButton(context, item, 'sea'),
-                                  buildToolButton(context, item, 'plain'),
-                                  buildToolButton(context, item, 'farmfield'),
-                                  buildToolButton(context, item, 'forest'),
-                                  buildToolButton(context, item, 'mountain'),
+                                    context,
+                                    'delete',
+                                    selectedItem: item,
+                                  ),
                                   buildToolButton(
-                                      context, item, 'dungeonStonePavedTile'),
+                                    context,
+                                    'nonInteractable',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'sea',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'plain',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'farmfield',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'forest',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'mountain',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'dungeonStonePavedTile',
+                                    selectedItem: item,
+                                  ),
                                 ],
                               ),
                               Wrap(
                                 children: [
                                   // buildToolButton(context, item, 'pond'),
                                   // buildToolButton(context, item, 'shelf'),
-                                  buildToolButton(context, item, 'fishTile'),
-                                  buildToolButton(context, item, 'stormTile'),
-                                  buildToolButton(context, item, 'spiritTile'),
-                                  buildToolButton(context, item, 'city'),
-                                  buildToolButton(context, item, 'portalArray'),
-                                  buildToolButton(context, item, 'dungeon'),
+                                  buildToolButton(
+                                    context,
+                                    'fishTile',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'stormTile',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'spiritTile',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'city',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'portalArray',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'dungeon',
+                                    selectedItem: item,
+                                  ),
                                 ],
                               ),
                             ],
@@ -157,21 +216,65 @@ class _ToolboxState extends State<Toolbox> {
                               Wrap(
                                 children: [
                                   buildToolButton(
-                                      context, item, 'dungeonStoneGate'),
-                                  buildToolButton(context, item, 'portal'),
-                                  buildToolButton(context, item, 'glowingTile'),
-                                  buildToolButton(context, item, 'lever'),
+                                    context,
+                                    'dungeonStoneGate',
+                                    selectedItem: item,
+                                  ),
                                   buildToolButton(
-                                      context, item, 'pressurePlate'),
-                                  buildToolButton(context, item, 'statue'),
-                                  buildToolButton(context, item, 'treasureBox'),
-                                  buildToolButton(context, item, 'coffin'),
-                                  buildToolButton(context, item, 'oldWell'),
+                                    context,
+                                    'portal',
+                                    selectedItem: item,
+                                  ),
                                   buildToolButton(
-                                      context, item, 'meditationCushion'),
-                                  buildToolButton(context, item, 'stoneStairs'),
+                                    context,
+                                    'glowingTile',
+                                    selectedItem: item,
+                                  ),
                                   buildToolButton(
-                                      context, item, 'stoneStairsDebris'),
+                                    context,
+                                    'lever',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'pressurePlate',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'statue',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'treasureBox',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'coffin',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'oldWell',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'meditationCushion',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'stoneStairs',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'stoneStairsDebris',
+                                    selectedItem: item,
+                                  ),
                                 ],
                               ),
                             ],
@@ -185,22 +288,55 @@ class _ToolboxState extends State<Toolbox> {
                               Wrap(
                                 children: [
                                   buildToolButton(
-                                      context, item, 'characterBoy'),
+                                    context,
+                                    'characterBoy1',
+                                    selectedItem: item,
+                                  ),
                                   buildToolButton(
-                                      context, item, 'characterYoungMan'),
+                                    context,
+                                    'characterMan1',
+                                    selectedItem: item,
+                                  ),
                                   buildToolButton(
-                                      context, item, 'characterMan'),
+                                    context,
+                                    'characterMan11',
+                                    selectedItem: item,
+                                  ),
                                   buildToolButton(
-                                      context, item, 'characterOldMan'),
+                                    context,
+                                    'characterMan12',
+                                    selectedItem: item,
+                                  ),
                                   buildToolButton(
-                                      context, item, 'characterGirl'),
+                                    context,
+                                    'characterMan31',
+                                    selectedItem: item,
+                                  ),
                                   buildToolButton(
-                                      context, item, 'characterYoungWoman'),
+                                    context,
+                                    'characterGirl1',
+                                    selectedItem: item,
+                                  ),
                                   buildToolButton(
-                                      context, item, 'characterWoman'),
+                                    context,
+                                    'characterWoman1',
+                                    selectedItem: item,
+                                  ),
                                   buildToolButton(
-                                      context, item, 'characterOldWoman'),
-                                  buildToolButton(context, item, 'python'),
+                                    context,
+                                    'characterWoman11',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'characterWoman31',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'python',
+                                    selectedItem: item,
+                                  ),
                                 ],
                               ),
                             ],

@@ -86,7 +86,7 @@ class GameSavesState with ChangeNotifier {
       saves[info.saveName] = info;
     }
 
-    engine.info('保存游戏至：[${info.savePath}]');
+    engine.debug('保存游戏至：[${info.savePath}]');
 
     IOSink sink;
     final saveFile1 = File(info.savePath);

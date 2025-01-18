@@ -95,10 +95,10 @@ class _GameAppState extends State<GameApp> {
         worldData =
             engine.hetu.invoke('switchWorld', positionalArgs: [args['id']]);
       } else if (method == 'generate') {
-        engine.info('创建程序生成的随机世界。');
+        engine.debug('创建程序生成的随机世界。');
         worldData = engine.hetu.invoke('createSandboxWorld', namedArgs: args);
       } else if (method == 'blank') {
-        engine.info('创建空白世界。');
+        engine.debug('创建空白世界。');
         worldData = engine.hetu.invoke('createBlankWorld', namedArgs: args);
       }
       worldId ??= engine.hetu.invoke('getCurrentWorldId');
@@ -207,6 +207,11 @@ class _GameAppState extends State<GameApp> {
       GameData.initGameData();
     }, override: true);
 
+    engine.hetu.interpreter.bindExternalFunction('showLibrary', (
+        {positionalArgs, namedArgs}) {
+      context.read<SceneControllerState>().push(Scenes.library);
+    }, override: true);
+
     engine.hetu.interpreter.bindExternalFunction('showCultivation', (
         {positionalArgs, namedArgs}) {
       context.read<SceneControllerState>().push(Scenes.cultivation);
@@ -312,7 +317,7 @@ class _GameAppState extends State<GameApp> {
   Widget build(BuildContext context) {
     GameConfig.screenSize = MediaQuery.sizeOf(context);
     if (GameUI.size != GameConfig.screenSize.toVector2()) {
-      engine.info(
+      engine.debug(
           '画面尺寸修改为：${GameConfig.screenSize.width}x${GameConfig.screenSize.height}');
       GameUI.resizeTo(GameConfig.screenSize.toVector2());
     }

@@ -5,7 +5,7 @@ import '../../incident.ht'
 // import '../../duel.ht'
 import '../../util.ht'
 import '../entity.ht'
-import '../../tile/hexagonal_tile.ht'
+import '../../world/tile/hexagonal_tile.ht'
 import 'battle_entity.ht'
 import '../item/item.ht'
 // import 'companion.ht'
@@ -27,9 +27,9 @@ const _kCharacterInitialGeneralThinking = 4
 const kCultivationRankMax = 8
 
 const kMajorMotivations = [
-  'immortality', // 境界
-  'dao', // 修为
-  'domination', // 门派领地
+  'immortality', // 等级，境界
+  'cultivation', // 功法，战斗
+  'domination', // 国家领地
   'wealth', // 财富（法宝和材料）
   'pleasure', // 快乐
   'soulmate', // 知己
@@ -37,7 +37,7 @@ const kMajorMotivations = [
 ]
 
 const kMinorMotivations = [
-  'recruitment',
+  'entrepreneur',
   'friendship',
   'marriage',
   'child',
@@ -79,7 +79,7 @@ const kMajorThinkings = [
   'celibate',
   'dink',
   'chatting',
-  'clumsy',
+  'heavyhanded',
   'cynicism',
   'appearanceIsEverything',
   'bullying',
@@ -133,7 +133,7 @@ function createRandomLifespan(cultivationRank) {
 
 // 羁绊, 人物对其他的某个事物的印象和评价
 struct Bond {
-  construct ({
+  constructor ({
     character,
     target,
     score = 0,
@@ -154,7 +154,7 @@ const _kPregnancyTime = kTicksPerMonth * 9
 const _kPregnancyTimeVariable = kTicksPerMonth * 2
 
 struct Baby {
-  construct ({
+  constructor ({
     father,
     mother,
     conceptionTimestamp,
@@ -232,7 +232,7 @@ function getMajorAttribute(character) {
 }
 
 struct Character {
-  construct ({
+  constructor ({
     isMajorCharacter = true,
     isFemale,
     icon,
@@ -290,14 +290,11 @@ struct Character {
     )
     Object.assign(this, battleInfo)
 
-    // 需要在passives赋值之后执行
-    updateCharacterStats(this)
-
     // this.entityType = 'character'
     // this.category = category ?? 'character'
 
     if (this.isMajorCharacter) {
-      game?.characters[this.id] = this
+      game.characters[this.id] = this
     }
 
     this.shipSkin = shipSkin ?? 'ship1'
@@ -354,7 +351,7 @@ struct Character {
     this.flags = {}
 
     // 该角色的称号
-    this.titles = {}
+    this.titles = []
     // titles中直接保存了称号字符串
     this.currentTitleId = null
 
@@ -419,8 +416,6 @@ struct Character {
     // 该角色当前的任务
     this.quests = {}
     this.activeQuestIds = []
-    // 一同行动的角色
-    this.companions = []
 
     // 该角色经历过的事情
     // 保存的是incident的index
@@ -463,12 +458,13 @@ struct Character {
       }
 
       if (isNewborn) {
-        this.birthTimestamp = history.timestamp
+        this.birthTimestamp = game.timestamp
         assert(motherId != null)
         assert(fatherId != null)
         const mother = game.characters[motherId]
         const father = game.characters[fatherId]
         this.birthPlaceId = locationId
+        assert(isMajorCharacter == true)
         // 出生事件会修改自身，需要放在最后处理
         const incidentContent = engine.locale('characterBorn',
           interpolations: [
@@ -531,63 +527,21 @@ struct Character {
   }
 }
 
-/// 当前状态数值，由特性、属性、物品、天赋、技能、增益减损等计算得来
-/// 状态包括：生命、伤害、防御等。
-function updateCharacterStats(character, { reset = true }) {
-
-  character.lifeMax = kBaseLife + (character.strength + character.dexterity) ~/ 4
-  
-  // 基础属性，在此基础上还要加上物品和状态的加成
-  character.stats.dexterity = character.dexterity + character.passives.dexterity?.value
-  character.stats.spirituality = character.spirituality + character.passives.spirituality?.value
-  character.stats.strength = character.strength + character.passives.strength?.value
-  character.stats.perception = character.perception + character.passives.perception?.value
-  character.stats.willpower = character.willpower + character.passives.willpower?.value
-  
-  character.stats.lifeMax = character.lifeMax + character.passives.lifeMax?.value
-  character.stats.lightRadius = kBaseLightedArea + (character.stats.perception ~/ 25) * 2
-  
-  character.stats.unarmedAttack = character.passives.unarmedAttack?.value ?? 0
-  character.stats.weaponAttack = character.passives.weaponAttack?.value ?? 0
-  character.stats.spellAttack = character.passives.spellAttack?.value ?? 0
-  character.stats.curseAttack = character.passives.curseAttack?.value ?? 0
-  character.stats.poisonAttack = character.passives.poisonAttack?.value ?? 0
-  
-  character.stats.physicalResist = character.passives.physicalResist?.value ?? 0
-  character.stats.chiResist = character.passives.chiResist?.value ?? 0
-  character.stats.elementalResist = character.passives.elementalResist?.value ?? 0
-  character.stats.spiritualResist = character.passives.spiritualResist?.value ?? 0
-
-  character.stats.quickThreshold = kQuickThreshold + character.passives.quickThresholdModifier?.value
-  character.stats.slowThreshold = kQuickThreshold + character.passives.slowThresholdModifier?.value
-  character.stats.nimbleThreshold = kQuickThreshold + character.passives.nimbleThresholdModifier?.value
-  character.stats.clumsyThreshold = kClumsyThreshold + character.passives.clumsyThresholdModifier?.value
-  
-  if (reset) {
-    rejuvenateCharacter(character)
-  }
-}
-
-function rejuvenateCharacter(character) {
-  character.stats.life = character.stats.lifeMax
-}
-
 // 必须已经是门派成员，才可以设定头衔
 function addOrganizationTitleForCharacter(character, organization, rank, titleId, { incurIncident = true }) {
+  assert(character.isMajorCharacter == true)
   assert(organization.characterIds.keys.contains(character.id))
   assert(character.organizationId == organization.id)
   assert(rank >= 0 && rank <= kOrganizationRankMax)
   const membersOfRank = getOrganizationMemberIdsOfRank(organization, rank)
   assert(membersOfRank.length < maxMemberOfDevelopment(organization.development))
-  // const titleId = '${organization.category}.titleRank${rank}'
-  const completeTitleId = '${organization.id}${titleId}';
-  if (character.organizationTitleId == completeTitleId) {
-    engine.warn('将要为角色 ${character.id} 设置的新组织头衔 ${titleId} 和角色目前头衔相同。')
+  const title = engine.locale('${organization.category}_titleRank${rank}')
+  if (character.titles.contains(title)) {
+    engine.warn('角色 ${character.name} 已经拥有组织头衔 ${title}，不能再次添加。')
     return
   }
-  const title = engine.locale(titleId)
-  character.titles[completeTitleId] = title
-  character.currentTitleId = completeTitleId
+  character.currentTitleIndex = character.titles.length
+  character.titles.add(title)
   character.organizationRank = rank
   if (rank == kOrganizationRankMax) {
     organization.headId = character.id
@@ -605,9 +559,8 @@ function addOrganizationTitleForCharacter(character, organization, rank, titleId
       order: 15,
       isGlobal: true,
     )
-  } else {
-    engine.info(incidentContent)
   }
+  engine.debug(incidentContent)
 }
 
 function setCharacterTitle(character, titleId) {
@@ -624,15 +577,15 @@ function getCharacterTitle(character) {
 }
 
 function getCharacterAge(character) {
-  return (history.timestamp - character.birthTimestamp) ~/ kTicksPerYear
+  return (game.timestamp - character.birthTimestamp) ~/ kTicksPerYear
 }
 
 function getCharacterAgeString(character) {
-  return formatAgeString(history.timestamp - character.birthTimestamp)
+  return formatAgeString(game.timestamp - character.birthTimestamp)
 }
 
 function getCharacterRestLifespanString(character) {
-  return formatAgeString(character.deathTimestamp - history.timestamp)
+  return formatAgeString(character.deathTimestamp - game.timestamp)
 }
 
 function getCharacterBirthDayString(character) {
@@ -758,6 +711,7 @@ function _calculateCharismaScore({charisma: float, favor: float}) -> float {
 // 第一印象分
 function _characterFirstMet(subject, target, [causeIncident, causeIncidentScore]) {
   assert(subject != null && target != null)
+  assert(subject.isMajorCharacter == true && target.isMajorCharacter == true)
   let bond
   if (subject.bonds[target.id] != null) {
     // 虽然没见过，但如果以前就听说过的话
@@ -804,7 +758,7 @@ function _characterFirstMet(subject, target, [causeIncident, causeIncidentScore]
     isPrivate: true,
   )
 
-  engine.info('${subject.id} 对 ${target.id} 的第一印象 [${metScore}]')
+  engine.debug('${subject.id} 对 ${target.id} 的第一印象 [${metScore}]')
   bond.score += metScore
   bond.haveMet = true
 }
@@ -815,6 +769,7 @@ function characterFirstMet(subject, target, [causeIncident, causeIncidentScore])
 }
 
 function characterKnowIncident(character, incident, { witnessed }) {
+  assert(character.isMajorCharacter == true)
   // 不是major character直接跳过
   if (character?.known == null) {
     engine.warn('${character.id} is not a entity that can know incidents.')
@@ -825,11 +780,11 @@ function characterKnowIncident(character, incident, { witnessed }) {
   assert(incident != null && incident.index != null)
   
   if (character.known.contains(incident.index)) {
-    engine.warn('${entity.id} 已经知道了事件：[${incident.index}]')
+    engine.warn('${entity.id} 已经知道了事件：[${incident.index}]，不能再次添加。')
     return
   }
 
-  engine.info('${character.id} 知道了事件 \'${incident.message}\'')
+  engine.debug('${character.id} 知道了事件 \'${incident.message}\'')
   character.known.add(incident.index)
 
   let score = calculateCharacterScoreOfIncident(character, incident)
@@ -856,7 +811,7 @@ function characterKnowIncident(character, incident, { witnessed }) {
     // }
   }
   if (score != 0) {
-    engine.info('${character.id} 对 ${subject.id} 的好感度改变了 [${score}]')
+    engine.debug('${character.id} 对 ${subject.id} 的好感度改变了 [${score}]')
   }
   
   // if (!character.bonds.containsKey(id)) {
@@ -864,7 +819,7 @@ function characterKnowIncident(character, incident, { witnessed }) {
   //   // 名声增加
   //   // ++object.knownByPopulation
   //   Bond(character: character, target: object, score: score)
-  //   engine.info('${character.id} 对 ${object.id} 的好感度改变了 [${score}]')
+  //   engine.debug('${character.id} 对 ${object.id} 的好感度改变了 [${score}]')
   // }
 }
 
@@ -883,6 +838,7 @@ function removeCharacterHome(character) {
 }
 
 function setCharacterHome(character, location) {
+  assert(character.isMajorCharacter == true)
   if (character.homeId == location.id) {
     engine.warn('character ${character.id} already resides in location ${location.id}')
     return
@@ -938,21 +894,27 @@ function getCharacterWorldPosition(character) {
   return character.worldPosition
 }
 
-function setCharacterWorldPosition(character, left, top, [ worldId ]) {
-  character.worldPosition = {
-    left,
-    top,
-  }
-  if (worldId != null) {
-    character.worldId = worldId
+function setCharacterWorldPosition(character, left, top, [worldId]) {
+  if (character.worldPosition == null) {
+    character.worldPosition = {
+      worldId: worldId ?? game.currentWorldId,
+      left,
+      top,
+    }
+  } else {
+    if (worldId != null) {
+      character.worldPosition.worldId = worldId
+    }
+    character.worldPosition.left = left
+    character.worldPosition.top = top
   }
 }
 
-function addCharacter(char) {
-  assert(char?.id != null)
-  assert(char?.entityType == 'character')
-  engine.info('向当前世界添加新角色：${char.id}')
-  game.characters[char.id] = char
+function addCharacter(character) {
+  assert(character != null)
+  character.isMajorCharacter == true
+  engine.debug('向当前世界添加新角色：${character.id}')
+  game.characters[character.id] = character
 }
 
 function addCharacters(chars: List) {
@@ -1059,7 +1021,7 @@ function getCharacterFlagsById(id: string) {
 }
 
 function removeCharacterById(id: string) {
-  engine.warn('警告：正在移除ID为 [${id}] 的角色。')
+  engine.warn('正在移除ID为 [${id}] 的角色。')
   // TODO: 角色相关的信息，例如门派首领，拥有的建筑等等需要一并清除才行
   delete game.characters[id]
 }
@@ -1077,7 +1039,6 @@ function handleCharacterTalk(subject, target) {
   if (!haveMet(subject, target)) {
     characterFirstMet(subject, target)
   }
-
 }
 
 function characterSteal(character, item) {
@@ -1093,16 +1054,14 @@ function characterCultivationLevelUp(character, {level = 1, incurIncident = true
     character.name,
     character.cultivationLevel,
   ])
-  if (incurIncident) {
+  if (character.isMajorCharacter && incurIncident) {
     Incident(
       message: incidentContent,
       subjectId: character.id,
       isPrivate: true,
     )
-  } else {
-    engine.info(incidentContent)
   }
-
+  engine.debug(incidentContent)
   return character.cultivationLevel
 }
 
@@ -1129,15 +1088,14 @@ function characterCultivationRankUp(character, {rank, incurIncident = true }) {
     character.name,
     getCultivationRankName(character),
   ])
-  if (incurIncident) {
+  if (character.isMajorCharacter && incurIncident) {
     Incident(
       message: incidentContent,
       subjectId: character.id,
       isPrivate: true,
     )
-  } else {
-    engine.info(incidentContent)
   }
+  engine.debug(incidentContent)
 
   return character.cultivationRank
 }

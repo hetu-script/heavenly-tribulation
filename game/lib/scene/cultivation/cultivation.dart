@@ -25,8 +25,8 @@ import '../../logic/algorithm.dart';
 import '../../ui.dart';
 import '../../data.dart';
 import '../game_dialog/selection_dialog.dart';
-import '../../view/history_panel.dart';
-import '../../view/ui_overlay.dart';
+import '../../widgets/history_panel.dart';
+import '../../widgets/ui_overlay.dart';
 
 const _kLightPointMoveSpeed = 450.0;
 // const _kButtonAnimationDuration = 1.2;
@@ -628,9 +628,7 @@ class CultivationScene extends Scene {
         ..color = Colors.white
         ..strokeWidth = 1
         ..style = PaintingStyle.stroke,
-      labelConfig: ScreenTextConfig(
-        textStyle: TextStyle(fontFamily: GameUI.fontFamily),
-      ),
+      labelFontFamily: GameUI.fontFamily,
     );
     // expBar.onMouseEnter = () {
     //   final level = heroData['cultivationLevel'];
@@ -1031,7 +1029,7 @@ class CultivationScene extends Scene {
       focusNode: _focusNode,
       onKeyEvent: (event) {
         if (event is KeyDownEvent) {
-          print(event);
+          engine.debug('keydown: ${event.logicalKey.keyLabel}');
           if (event.logicalKey == LogicalKeyboardKey.space) {
             camera.snapTo(Vector2.zero());
           }

@@ -42,7 +42,7 @@ void main() async {
       () async {
         await windowManager.show();
         await windowManager.focus();
-        engine.info('系统版本：${Platform.operatingSystemVersion}');
+        engine.debug('系统版本：${Platform.operatingSystemVersion}');
       },
     );
 

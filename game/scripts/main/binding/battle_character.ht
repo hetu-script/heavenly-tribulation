@@ -9,23 +9,24 @@ external class BattleCharacter {
 
   function takeDamage(details) -> integer
 
-  async function setState(state: string, { overlay: string, complete: string = 'stand', recovery: string })
+  async function setState(state: string, {
+    sound: string,
+    overlay: string,
+    complete: string = 'stand',
+    recovery: string,
+  })
 
   function hasStatusEffect(effectId: string) -> int
 
-  function removeStatusEffect(effectId: string, {amount: integer, percentage: float}) -> integer
+  function removeStatusEffect(effectId: string, {amount: integer, percentage: float, hintLacking: bool = true}) -> integer
 
-  function addStatusEffect(effectId: string, {amount: integer, playSound: bool = false})
+  function addStatusEffect(effectId: string, {amount: integer})
 
-  function setTurnFlag(id: string)
-  
-  function hasTurnFlag(id: string)
+  function setTurnFlag(id: string, value)
+
+  function getTurnFlag(id: string)
 
   function removeTurnFlag(id: string)
 
-  function setGameFlag(id: string)
-  
-  function hasGameFlag(id: string)
-
-  function removeGameFlag(id: string)
+  function getGameFlag(id: string)
 }

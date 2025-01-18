@@ -1,4 +1,4 @@
-import 'tile/tilemap.ht'
+import 'world/tile/tilemap.ht'
 import 'datetime.ht'
 import 'player.ht'
 
@@ -13,11 +13,11 @@ let game
 let hero
 
 let universe
-// universe.worlds[game.currentWorldId]
+// universe[game.currentWorldId]
 let world
 
 let history
-// history.worlds[game.currentWorldId]
+// history[game.currentWorldId]
 let timeline
 
 let year
@@ -28,7 +28,7 @@ let day
 let ticksOfDay
 
 struct Game {
-  construct ({saveName}) {
+  constructor ({saveName}) {
     this.isNewGame = true
     this.saveName = saveName
 
@@ -85,25 +85,12 @@ struct Game {
   }
 }
 
-struct Universe {
-  construct {
-    this.worlds = {}
-  }
-}
-
-struct History {
-  construct {
-    this.timestamp = 1
-    this.worlds = {}
-  }
-}
-
 /// 创建新游戏，重置所有状态，返回game
 function createGame(saveName) {
-  engine.info('准备开始新游戏')
+  engine.debug('准备开始新游戏')
   game = Game(saveName: saveName)
-  universe = Universe()
-  history = History()
+  universe = {}
+  history = {}
 
   hero = null
   world = null
@@ -143,16 +130,16 @@ function resetPlayerMonthlyActivities(){
 }
 
 function calculateTimestamp() {
-  year = toYear(history.timestamp) + 1
-  month = toMonth(history.timestamp) + 1
-  day = toDay(history.timestamp) + 1
-  ticksOfYear = (history.timestamp % kTicksPerYear) + 1
-  ticksOfMonth = (history.timestamp % kTicksPerMonth) + 1
-  ticksOfDay = (history.timestamp % kTicksPerDay) + 1
+  year = toYear(game.timestamp) + 1
+  month = toMonth(game.timestamp) + 1
+  day = toDay(game.timestamp) + 1
+  ticksOfYear = (game.timestamp % kTicksPerYear) + 1
+  ticksOfMonth = (game.timestamp % kTicksPerMonth) + 1
+  ticksOfDay = (game.timestamp % kTicksPerDay) + 1
 }
 
 function addModule(module) {
-  engine.info('添加模组元信息 [${module.id}(ver-${module.version})]...')
+  engine.debug('添加模组元信息 [${module.id}(ver-${module.version})]...')
   assert(module.id != null)
   // assert(game.modules.containsKey(module.id))
   // game.modules[module.id] ??= {}
@@ -169,13 +156,8 @@ function loadGameFromJsonData({
 }) -> List {
   game = Object.fromJSON(gameData)
   game.isNewGame ??= true
-
-  if (game.heroId != null) {
-    hero = game.characters[game.heroId]
-  }
   
   universe = Object.fromJSON(universeData)
-
   history = Object.fromJSON(historyData)
   
   assert(game.currentWorldId != null)
@@ -183,28 +165,34 @@ function loadGameFromJsonData({
   //   assert(game.heroId != null)
   // }
 
-  assert(game.currentWorldId != null)
-  world = universe.worlds[game.currentWorldId]
-  timeline = history.worlds[game.currentWorldId]
+  world = universe[game.currentWorldId]
+  timeline = history[game.currentWorldId]
   assert(world != null)
   assert(timeline is List)
+  
+  engine.debug('当前世界为: [${world.id}]')
+
+  if (game.heroId != null) {
+    hero = game.characters[game.heroId]
+    engine.debug('当前英雄为: [${hero.name}]')
+  }
 
   return game
 }
 
 function addWorld(newWorld) {
-  world = universe.worlds[newWorld.id] = newWorld
-  timeline = history.worlds[newWorld.id] = []
+  world = universe[newWorld.id] = newWorld
+  timeline = history[newWorld.id] = []
 
   game.currentWorldId = newWorld.id
 }
 
 function switchWorld(worldId) {
-  assert(universe.worlds.containsKey(worldId))
-  world = universe.worlds[worldId]
+  assert(universe.containsKey(worldId))
+  world = universe[worldId]
 
-  assert(history.worlds.containsKey(world.id))
-  timeline = history.worlds[world.id]
+  assert(history.containsKey(world.id))
+  timeline = history[world.id]
   
   game.currentWorldId = world.id
 
@@ -216,7 +204,7 @@ function getSaveName() {
 }
 
 function setSaveName(name) {
-  engine.info('存档名设置为：${name}')
+  engine.debug('存档名设置为：${name}')
   game.saveName = name
 }
 
@@ -241,7 +229,7 @@ function getHistoryJsonData() {
 }
 
 function getTimestamp {
-  return history.timestamp
+  return game.timestamp
 }
 
 function getHeroId() {
@@ -253,7 +241,7 @@ function setHeroId(id: string) {
   hero = game.characters[id]
 
   Player.updateStats()
-  engine.info('设置当前玩家人物为 [${hero.id}]。')
+  engine.debug('设置当前玩家人物为 [${hero.id}]。')
   // game.heroHomeSite.locationId = hero.homeId
   game.heroId = id
 }
@@ -263,9 +251,10 @@ function getHeroWorldId(worldId) {
 }
 
 function setHeroWorldPosition(left, top, [ worldId ]) {
-  hero.worldPosition = { left, top }
-  if (worldId != null) {
-    hero.worldId = worldId
+  hero.worldPosition = {
+    worldId: worldId ?? game.currentWorldId,
+    left,
+    top
   }
 }
 
@@ -302,7 +291,12 @@ function getTerrainByWorldPosition(left, top) {
 }
 
 function getWorldIds {
-  return universe.worlds.keys
+  return universe.keys
+}
+
+function setCurrentWorldId(id) {
+  engine.debug('设置当前世界为：[${id}]')
+  game.currentWorldId = id
 }
 
 function getCurrentWorldId {
@@ -353,8 +347,8 @@ function getNameFromId(id, [orElse = 'null']) {
 }
 
 function onNewGame() {
-  onWorldEvent('onNewGame')
   game.isNewGame = false
+  onWorldEvent('onNewGame')
 }
 
 function updateWorldMapCaptions {

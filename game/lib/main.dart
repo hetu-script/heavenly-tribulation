@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+// import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 // import 'package:flame/flame.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:data_table_2/data_table_2.dart';
@@ -28,13 +29,13 @@ import 'state/states.dart';
 //   }
 // }
 
-class DesktopScrollBehavior extends MaterialScrollBehavior {
-  // Override behavior methods and getters like dragDevices
+class NoThumbScrollBehavior extends ScrollBehavior {
   @override
   Set<PointerDeviceKind> get dragDevices => {
         PointerDeviceKind.touch,
         PointerDeviceKind.mouse,
-        // etc.
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.trackpad,
       };
 }
 
@@ -59,14 +60,6 @@ void main() {
       alertFlutterError(details);
     };
 
-    // 控件绘制时发生错误，用一个显示错误信息的控件替代
-    // ErrorWidget.builder = (FlutterErrorDetails details) {
-    //   final Object exception = details.exception;
-    //   return ErrorWidget.withDetails(
-    //       message: '$exception\n\n${details.stack}',
-    //       error: exception is FlutterError ? exception : null);
-    // };
-
     assert(Platform.isLinux || Platform.isWindows || Platform.isMacOS);
     await windowManager.ensureInitialized();
     // windowManager.addListener(CustomWindowListener());
@@ -83,7 +76,7 @@ void main() {
         ), () async {
       await windowManager.show();
       await windowManager.focus();
-      engine.info('系统版本：${Platform.operatingSystemVersion}');
+      engine.debug('系统版本：${Platform.operatingSystemVersion}');
     });
 
     runApp(
@@ -101,12 +94,12 @@ void main() {
           ChangeNotifierProvider(create: (_) => HeroState()),
           ChangeNotifierProvider(create: (_) => EnemyState()),
           ChangeNotifierProvider(create: (_) => ViewPanelState()),
-          ChangeNotifierProvider(create: (_) => PanelPositionState()),
+          ChangeNotifierProvider(create: (_) => ViewPanelPositionState()),
           ChangeNotifierProvider(create: (_) => HoverInfoContentState()),
           ChangeNotifierProvider(create: (_) => HoverInfoDeterminedRectState()),
         ],
         child: MaterialApp(
-          scrollBehavior: DesktopScrollBehavior(),
+          scrollBehavior: NoThumbScrollBehavior().copyWith(scrollbars: false),
           debugShowCheckedModeBanner: false,
           theme: GameConfig.appTheme,
           home: GameApp(key: mainKey),

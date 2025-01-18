@@ -254,6 +254,7 @@
     priority: 350,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["gloves"],
     rank: 2,
   },
   passive_punch_extra_elemental_damage: {
@@ -262,6 +263,7 @@
     priority: 345,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["gloves"],
     rank: 2,
   },
   passive_kick_extra_chi_damage: {
@@ -270,6 +272,7 @@
     priority: 340,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["boots"],
     rank: 2,
   },
   passive_kick_extra_elemental_damage: {
@@ -278,6 +281,7 @@
     priority: 335,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["boots"],
     rank: 2,
   },
   passive_wrestling_extra_chi_damage: {
@@ -286,6 +290,7 @@
     priority: 330,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["gloves"],
     rank: 2,
   },
   passive_wrestling_extra_elemental_damage: {
@@ -294,6 +299,7 @@
     priority: 325,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["gloves"],
     rank: 2,
   },
   passive_dianxue_extra_chi_damage: {
@@ -302,6 +308,7 @@
     priority: 320,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["gloves"],
     rank: 2,
   },
   passive_dianxue_extra_elemental_damage: {
@@ -310,6 +317,7 @@
     priority: 315,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["gloves"],
     rank: 2,
   },
   passive_sword_extra_chi_damage: {
@@ -318,6 +326,7 @@
     priority: 310,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["sword"],
     rank: 2,
   },
   passive_sword_extra_elemental_damage: {
@@ -326,6 +335,7 @@
     priority: 305,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["sword"],
     rank: 2,
   },
   passive_sabre_extra_chi_damage: {
@@ -334,6 +344,7 @@
     priority: 300,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["sabre"],
     rank: 2,
   },
   passive_sabre_extra_elemental_damage: {
@@ -342,6 +353,7 @@
     priority: 295,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["sabre"],
     rank: 2,
   },
   passive_spear_extra_chi_damage: {
@@ -350,6 +362,7 @@
     priority: 290,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["spear"],
     rank: 2,
   },
   passive_spear_extra_elemental_damage: {
@@ -358,6 +371,7 @@
     priority: 285,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["spear"],
     rank: 2,
   },
   passive_staff_extra_chi_damage: {
@@ -366,6 +380,7 @@
     priority: 280,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["staff"],
     rank: 2,
   },
   passive_staff_extra_elemental_damage: {
@@ -374,6 +389,7 @@
     priority: 275,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["staff"],
     rank: 2,
   },
   passive_bow_extra_chi_damage: {
@@ -382,6 +398,7 @@
     priority: 270,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["bow"],
     rank: 2,
   },
   passive_bow_extra_elemental_damage: {
@@ -390,6 +407,7 @@
     priority: 265,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["bow"],
     rank: 2,
   },
   passive_dart_extra_chi_damage: {
@@ -398,6 +416,7 @@
     priority: 260,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["dart"],
     rank: 2,
   },
   passive_dart_extra_elemental_damage: {
@@ -406,6 +425,7 @@
     priority: 255,
     increment: 2,
     isItemExtraAffix: true,
+    kind: ["dart"],
     rank: 2,
   },
 
@@ -416,6 +436,7 @@
     priority: 220,
     increment: 1,
     isItemExtraAffix: true,
+    kind: ["gloves", "boots"],
     rank: 1,
   },
   weaponAttack: {
@@ -424,6 +445,7 @@
     priority: 215,
     increment: 1,
     isItemExtraAffix: true,
+    kind: ["sword", "sabre", "staff", "spear", "bow", "dart", "pipa", "flute"],
     rank: 1,
   },
   spellAttack: {
@@ -432,6 +454,7 @@
     priority: 210,
     increment: 1,
     isItemExtraAffix: true,
+    kind: ["amulet", "ring", "pearl", "bracelet"],
     rank: 1,
   },
   curseAttack: {
@@ -440,6 +463,7 @@
     priority: 205,
     increment: 1,
     isItemExtraAffix: true,
+    kind: ["amulet", "ring", "pearl", "bracelet"],
     rank: 1,
   },
   poisonAttack: {
@@ -448,6 +472,7 @@
     priority: 200,
     increment: 1,
     isItemExtraAffix: true,
+    kind: ["poinson_bag"],
     rank: 1,
   },
 
@@ -458,6 +483,7 @@
     priority: 165,
     increment: 1,
     isItemExtraAffix: true,
+    kind: ["armor", "gloves", "boots", "helmet", "shield"],
     rank: 1,
   },
   chiResist: {
@@ -466,6 +492,7 @@
     priority: 160,
     increment: 1,
     isItemExtraAffix: true,
+    kind: ["armor", "gloves", "boots", "helmet", "shield"],
     rank: 1,
   },
   elementalResist: {
@@ -474,6 +501,7 @@
     priority: 155,
     increment: 1,
     isItemExtraAffix: true,
+    kind: ["armor", "gloves", "boots", "helmet", "shield"],
     rank: 1,
   },
   spiritualResist: {
@@ -482,6 +510,7 @@
     priority: 150,
     increment: 1,
     isItemExtraAffix: true,
+    kind: ["armor", "gloves", "boots", "helmet", "shield"],
     rank: 1,
   },
 
@@ -543,7 +572,7 @@
   },
 
   // 速度和闪避
-  passive_start_battle_with_quick_description: {
+  passive_start_battle_with_quick: {
     id: "passive_start_battle_with_quick",
     description: "passive_start_battle_with_quick_description",
     priority: 85,
@@ -551,7 +580,7 @@
     isItemExtraAffix: true,
     rank: 2,
   },
-  passive_start_battle_with_nimble_description: {
+  passive_start_battle_with_nimble: {
     id: "passive_start_battle_with_nimble",
     description: "passive_start_battle_with_nimble_description",
     priority: 80,
@@ -561,7 +590,7 @@
   },
 
   // 气
-  passive_start_battle_with_energy_life_description: {
+  passive_start_battle_with_energy_life: {
     id: "passive_start_battle_with_energy_life",
     description: "passive_start_battle_with_energy_life_description",
     priority: 65,
@@ -569,7 +598,7 @@
     isItemExtraAffix: true,
     rank: 2,
   },
-  passive_start_battle_with_energy_leech_description: {
+  passive_start_battle_with_energy_leech: {
     id: "passive_start_battle_with_energy_leech",
     description: "passive_start_battle_with_energy_leech_description",
     priority: 60,
@@ -577,7 +606,7 @@
     isItemExtraAffix: true,
     rank: 2,
   },
-  passive_start_battle_with_energy_pure_description: {
+  passive_start_battle_with_energy_pure: {
     id: "passive_start_battle_with_energy_pure",
     description: "passive_start_battle_with_energy_pure_description",
     priority: 55,
@@ -585,7 +614,7 @@
     isItemExtraAffix: true,
     rank: 2,
   },
-  passive_start_battle_with_energy_spell_description: {
+  passive_start_battle_with_energy_spell: {
     id: "passive_start_battle_with_energy_spell",
     description: "passive_start_battle_with_energy_spell_description",
     priority: 50,
@@ -593,7 +622,7 @@
     isItemExtraAffix: true,
     rank: 2,
   },
-  passive_start_battle_with_energy_weapon_description: {
+  passive_start_battle_with_energy_weapon: {
     id: "passive_start_battle_with_energy_weapon",
     description: "passive_start_battle_with_energy_weapon_description",
     priority: 45,
@@ -601,7 +630,7 @@
     isItemExtraAffix: true,
     rank: 2,
   },
-  passive_start_battle_with_energy_unarmed_description: {
+  passive_start_battle_with_energy_unarmed: {
     id: "passive_start_battle_with_energy_unarmed",
     description: "passive_start_battle_with_energy_unarmed_description",
     priority: 40,
@@ -609,7 +638,7 @@
     isItemExtraAffix: true,
     rank: 2,
   },
-  passive_start_battle_with_energy_curse_description: {
+  passive_start_battle_with_energy_curse: {
     id: "passive_start_battle_with_energy_curse",
     description: "passive_start_battle_with_energy_curse_description",
     priority: 35,
@@ -617,20 +646,20 @@
     isItemExtraAffix: true,
     rank: 2,
   },
-  passive_start_battle_with_energy_poison_description: {
-    id: "passive_start_battle_with_energy_poison",
-    description: "passive_start_battle_with_energy_poison_description",
-    priority: 30,
-    increment: 0.1,
-    isItemExtraAffix: true,
-    rank: 2,
-  },
-  passive_start_battle_with_energy_chaotic_description: {
+  // passive_start_battle_with_energy_poison: {
+  //   id: "passive_start_battle_with_energy_poison",
+  //   description: "passive_start_battle_with_energy_poison_description",
+  //   priority: 30,
+  //   increment: 0.1,
+  //   isItemExtraAffix: true,
+  //   rank: 2,
+  // },
+  passive_start_battle_with_energy_chaotic: {
     id: "passive_start_battle_with_energy_chaotic",
     description: "passive_start_battle_with_energy_chaotic_description",
     priority: 25,
     increment: 0.1,
     isItemExtraAffix: true,
-    rank: 2,
+    rank: 3,
   },
 }

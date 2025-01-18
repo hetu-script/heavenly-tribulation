@@ -53,7 +53,6 @@ class _QuestInfoPanelState extends State<QuestInfoPanel> {
             children: questsData
                 .map(
                   (quest) => MouseRegion(
-                    cursor: SystemMouseCursors.click,
                     onEnter: (_) {
                       setState(() {
                         _showBorder = true;

@@ -17,11 +17,11 @@ import 'game.ht'
 function addEventHandlers({moduleId, worldId, handlers}) {
   let module = {}
   if (worldId != null) {
-    engine.info('为模组 [${moduleId}] 在世界 [${worldId}] 上添加事件处理...')
+    engine.debug('为模组 [${moduleId}] 在世界 [${worldId}] 上添加事件处理...')
     module[worldId] = {}
     Object.assign(module[worldId], handlers)
   } else {
-    engine.info('为模组 [${moduleId}] 添加通用事件处理...')
+    engine.debug('为模组 [${moduleId}] 添加通用事件处理...')
     module = handlers
   }
   if (game.modules[moduleId] == null){
@@ -46,7 +46,7 @@ function onWorldEvent(eventId: string, ...args) async {
     }
     // callback 可能是 null
     if(callback is function) {
-      engine.info('执行模组 [${module.id}] 在世界 [${world.id}] 上的事件处理函数 [${eventId}]')
+      engine.debug('执行模组 [${module.id}] 在世界 [${world.id}] 上的事件处理函数 [${eventId}]')
       await callback.apply(module, ...args)
     }
   }
@@ -57,7 +57,7 @@ function onGameEvent(eventId: string, ...args) async {
     let callback = module[eventId]
     // callback 可能是 null
     if(callback is function) {
-      engine.info('执行模组 [${module.id}] 的通用事件处理函数 [${eventId}]')
+      engine.debug('执行模组 [${module.id}] 的通用事件处理函数 [${eventId}]')
       await callback.apply(module, ...args)
     }
   }

@@ -1,8 +1,7 @@
-
+import 'tile/hexagonal_tile.ht'
+import 'tile/tilemap.ht'
+import 'tile/common.ht'
 import '../game.ht'
-import '../tile/hexagonal_tile.ht'
-import '../tile/tilemap.ht'
-import '../tile/common.ht'
 import '../name/zone.ht'
 
 export { createSandboxWorld } from 'sandbox.ht'
@@ -89,7 +88,7 @@ function createBlankWorld({
 
   addWorld(newWorld)
 
-  engine.info('生成空白地块，默认为海洋')
+  engine.debug('生成空白地块，默认为海洋')
   for (const j in range(height)) {
     for (const i in range(width)) {
       newWorld.terrains.add(
@@ -224,5 +223,5 @@ function correctTerrainIndexAndPosition([map]) {
     let tilePosition = index2TilePosition(i, map.width)
     Object.assign(terrain, Tile(tilePosition.left, tilePosition.top, index: i))
   }
-  engine.info('corrected terrain indexes and tile position!')
+  engine.debug('corrected terrain indexes and tile position!')
 }

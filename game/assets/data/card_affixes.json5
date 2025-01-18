@@ -1,33 +1,83 @@
 {
-  extra_damage: {
-    id: "extra_damage",
+  // 通用额外词条
+  // 回复生命
+  heal: {
+    id: "heal",
     // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
     // 同一个额外词条有可能出现在多种流派和效果类型的卡牌上
     // 和main_affix不同，额外词条的 uniqueId [不是] 数组
     // category [是] 数组，表示该词条可以出现在多个类型的卡牌上
-    // genre 可能是 'general'，或者是包含多个流派的数组
-    uniqueId: "extra_damage",
-    genre: "general",
-    category: ["attack"],
+    uniqueId: "heal",
+    genre: null,
+    category: ["buff", "attack"],
     // 境界要求，生成卡牌的境界参数大于等于此值时才会出现
     rank: 1,
-    description: "affix_description_extra_damage",
+    // 词条出现的几率，数值越大，出现的几率越大
+    // probability: 500,
+    // 脚本执行的优先级，数值越大，越早执行
+    // priority: 0,
+    // 某些额外属性也会有攻击类型和伤害类型
+    // attackType: null,
+    // damageType: null,
+    description: "affix_description_heal",
     tags: [],
-    script: "extra_damage",
+    // 脚本执行优先级否高于主词条
+    // isBeforeMain: false,
+    script: "heal",
     // 额外词条等级在当前境界允许的最小等级和最大等级之间随机
     valueData: [
       {
         base: 3,
-        increment: 0.5,
+        increment: 0.35,
       },
     ],
-    // 该词条是否已经被鉴定，未鉴定的词条不会生效且显示为???
-    // identified: false,
   },
+  // 获得生命元气
+  // 优先级高于主词条
+  life_energy: {
+    id: "life_energy",
+    uniqueId: "life_energy",
+    genre: null,
+    category: ["buff", "attack"],
+    rank: 1,
+    priority: 550,
+    description: "affix_description_life_energy",
+    tags: ["status_energy_positive_life"],
+    script: "life_energy",
+    isBeforeMain: true,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+        maxLevel: 50,
+      },
+    ],
+  },
+  // 获得灵气
+  // 优先级高于主词条
+  spell_energy: {
+    id: "spell_energy",
+    uniqueId: "spell_energy",
+    genre: null,
+    category: ["buff", "attack"],
+    rank: 1,
+    description: "affix_description_spell_energy",
+    tags: ["status_energy_positive_spell"],
+    script: "spell_energy",
+    isBeforeMain: true,
+    valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+        maxLevel: 50,
+      },
+    ],
+  },
+
   defend_physical: {
     id: "defend_physical",
     uniqueId: "defend_physical",
-    genre: "general",
+    genre: null,
     category: ["buff", "attack"],
     damageType: "physical",
     rank: 1,
@@ -37,14 +87,66 @@
     valueData: [
       {
         base: 3,
-        increment: 0.75,
+        increment: 0.35,
       },
     ],
   },
+  defend_chi: {
+    id: "defend_chi",
+    uniqueId: "defend_chi",
+    genre: null,
+    category: ["buff", "attack"],
+    damageType: "chi",
+    rank: 1,
+    description: "affix_description_defend_chi",
+    tags: ["status_defense"],
+    script: "defend",
+    valueData: [
+      {
+        base: 3,
+        increment: 0.35,
+      },
+    ],
+  },
+  defend_elemental: {
+    id: "defend_elemental",
+    uniqueId: "defend_elemental",
+    genre: null,
+    category: ["buff", "attack"],
+    damageType: "elemental",
+    rank: 1,
+    description: "affix_description_defend_elemental",
+    tags: ["status_defense"],
+    script: "defend",
+    valueData: [
+      {
+        base: 3,
+        increment: 0.35,
+      },
+    ],
+  },
+  defend_spiritual: {
+    id: "defend_spiritual",
+    uniqueId: "defend_spiritual",
+    genre: null,
+    category: ["buff", "attack"],
+    damageType: "spiritual",
+    rank: 2,
+    description: "affix_description_defend_spiritual",
+    tags: ["status_defense"],
+    script: "defend",
+    valueData: [
+      {
+        base: 3,
+        increment: 0.35,
+      },
+    ],
+  },
+
   speed: {
     id: "speed",
     uniqueId: "speed",
-    genre: "general",
+    genre: null,
     category: ["buff", "attack"],
     rank: 1,
     description: "affix_description_speed",
@@ -54,14 +156,14 @@
       {
         base: 1,
         increment: 0.2,
-        maxLevel: 40,
+        maxLevel: 50,
       },
     ],
   },
   dodge: {
     id: "dodge",
     uniqueId: "dodge",
-    genre: "general",
+    genre: null,
     category: ["buff", "attack"],
     rank: 1,
     description: "affix_description_dodge",
@@ -71,7 +173,307 @@
       {
         base: 1,
         increment: 0.2,
-        maxLevel: 40,
+        maxLevel: 50,
+      },
+    ],
+  },
+
+  cost_1_life_energy_gain_defense_physical: {
+    id: "cost_1_life_energy_gain_defense_physical",
+    uniqueId: "cost_1_life_energy",
+    genre: null,
+    category: ["buff", "attack"],
+    rank: 1,
+    description: "affix_description_cost_1_life_energy_gain_defense_physical",
+    tags: ["status_defense"],
+    damageType: "physical",
+    script: "cost_1_life_energy_gain_defense",
+    valueData: [
+      {
+        base: 5,
+        increment: 0.5,
+      },
+    ],
+  },
+  cost_1_life_energy_gain_defense_chi: {
+    id: "cost_1_life_energy_gain_defense_chi",
+    uniqueId: "cost_1_life_energy",
+    genre: null,
+    category: ["buff", "attack"],
+    rank: 2,
+    description: "affix_description_cost_1_life_energy_gain_defense_chi",
+    tags: ["status_defense"],
+    damageType: "chi",
+    script: "cost_1_life_energy_gain_defense",
+    valueData: [
+      {
+        base: 5,
+        increment: 0.5,
+      },
+    ],
+  },
+  cost_1_life_energy_gain_defense_elemental: {
+    id: "cost_1_life_energy_gain_defense_elemental",
+    uniqueId: "cost_1_life_energy",
+    genre: null,
+    category: ["buff", "attack"],
+    rank: 2,
+    description: "affix_description_cost_1_life_energy_gain_defense_elemental",
+    tags: ["status_defense"],
+    damageType: "elemental",
+    script: "cost_1_life_energy_gain_defense",
+    valueData: [
+      {
+        base: 5,
+        increment: 0.5,
+      },
+    ],
+  },
+  cost_1_life_energy_gain_defense_spiritual: {
+    id: "cost_1_life_energy_gain_defense_spiritual",
+    uniqueId: "cost_1_life_energy",
+    genre: null,
+    category: ["buff", "attack"],
+    rank: 3,
+    description: "affix_description_cost_1_life_energy_gain_defense_spiritual",
+    tags: ["status_defense"],
+    damageType: "spiritual",
+    script: "cost_1_life_energy_gain_defense",
+    valueData: [
+      {
+        base: 5,
+        increment: 0.5,
+      },
+    ],
+  },
+
+  // 攻击额外词条
+  extra_damage_physical_after_attacked: {
+    id: "extra_damage_physical_after_attacked",
+    uniqueId: "extra_damage_after_attacked",
+    genre: "swordcraft",
+    category: ["attack"],
+    rank: 1,
+    description: "affix_description_extra_damage_physical_after_attacked",
+    tags: [],
+    damageType: "physical",
+    script: "extra_damage_after_attacked",
+    valueData: [
+      {
+        base: 5,
+        increment: 0.25,
+      },
+    ],
+  },
+  extra_damage_chi_after_attacked: {
+    id: "extra_damage_chi_after_attacked",
+    uniqueId: "extra_damage_after_attacked",
+    genre: "bodyforge",
+    category: ["attack"],
+    rank: 1,
+    description: "affix_description_extra_damage_chi_after_attacked",
+    tags: [],
+    damageType: "chi",
+    script: "extra_damage_after_attacked",
+    valueData: [
+      {
+        base: 5,
+        increment: 0.25,
+      },
+    ],
+  },
+  extra_damage_elemental_after_attacked: {
+    id: "extra_damage_elemental_after_attacked",
+    uniqueId: "extra_damage_after_attacked",
+    genre: "daoism",
+    category: ["attack"],
+    rank: 1,
+    description: "affix_description_extra_damage_elemental_after_attacked",
+    tags: [],
+    damageType: "elemental",
+    script: "extra_damage_after_attacked",
+    valueData: [
+      {
+        base: 5,
+        increment: 0.25,
+      },
+    ],
+  },
+  extra_damage_spiritual_after_attacked: {
+    id: "extra_damage_spiritual_after_attacked",
+    uniqueId: "extra_damage_after_attacked",
+    genre: "avatar",
+    category: ["attack"],
+    rank: 1,
+    description: "affix_description_extra_damage_spiritual_after_attacked",
+    tags: [],
+    damageType: "spiritual",
+    script: "extra_damage_after_attacked",
+    valueData: [
+      {
+        base: 5,
+        increment: 0.25,
+      },
+    ],
+  },
+  extra_damage_pure_after_attacked: {
+    id: "extra_damage_pure_after_attacked",
+    uniqueId: "extra_damage_after_attacked",
+    genre: "vitality",
+    category: ["attack"],
+    rank: 1,
+    description: "affix_description_extra_damage_pure_after_attacked",
+    tags: [],
+    damageType: "pure",
+    script: "extra_damage_after_attacked",
+    valueData: [
+      {
+        base: 5,
+        increment: 0.25,
+      },
+    ],
+  },
+
+  per_10hp_damage_heal: {
+    id: "per_10hp_damage_heal",
+    uniqueId: "per_10hp_damage_heal",
+    genre: null,
+    category: ["attack"],
+    rank: 1,
+    description: "affix_description_per_10hp_damage_heal",
+    tags: [],
+    damageType: "pure",
+    script: "per_10hp_damage_heal",
+    valueData: [
+      {
+        base: 3,
+        increment: 0.5,
+      },
+    ],
+  },
+  per_10hp_damage_gain_defense_physical: {
+    id: "per_10hp_damage_gain_defense_physical",
+    uniqueId: "per_10hp_damage_gain_defense_physical",
+    genre: null,
+    category: ["attack"],
+    rank: 1,
+    description: "affix_description_per_10hp_damage_gain_defense_physical",
+    tags: ["status_defense"],
+    damageType: "physical",
+    script: "per_10hp_damage_gain_defense",
+    valueData: [
+      {
+        base: 3,
+        increment: 0.5,
+      },
+    ],
+  },
+  per_10hp_damage_gain_defense_chi: {
+    id: "per_10hp_damage_gain_defense_chi",
+    uniqueId: "per_10hp_damage_gain_defense_chi",
+    genre: null,
+    category: ["attack"],
+    rank: 1,
+    description: "affix_description_per_10hp_damage_gain_defense_chi",
+    tags: ["status_defense"],
+    damageType: "chi",
+    script: "per_10hp_damage_gain_defense",
+    valueData: [
+      {
+        base: 3,
+        increment: 0.5,
+      },
+    ],
+  },
+  per_10hp_damage_gain_defense_elemental: {
+    id: "per_10hp_damage_gain_defense_elemental",
+    uniqueId: "per_10hp_damage_gain_defense_elemental",
+    genre: null,
+    category: ["attack"],
+    rank: 1,
+    description: "affix_description_per_10hp_damage_gain_defense_elemental",
+    tags: ["status_defense"],
+    damageType: "elemental",
+    script: "per_10hp_damage_gain_defense",
+    valueData: [
+      {
+        base: 3,
+        increment: 0.5,
+      },
+    ],
+  },
+  per_10hp_damage_gain_defense_spiritual: {
+    id: "per_10hp_damage_gain_defense_spiritual",
+    uniqueId: "per_10hp_damage_gain_defense_spiritual",
+    genre: null,
+    category: ["attack"],
+    rank: 2,
+    description: "affix_description_per_10hp_damage_gain_defense_spiritual",
+    tags: ["status_defense"],
+    damageType: "spiritual",
+    script: "per_10hp_damage_gain_defense",
+    valueData: [
+      {
+        base: 3,
+        increment: 0.5,
+      },
+    ],
+  },
+
+  per_10hp_damage_gain_energy_unarmed: {
+    id: "per_10hp_damage_gain_energy_unarmed",
+    uniqueId: "per_10hp_damage_gain_energy_unarmed",
+    genre: "bodyforge",
+    category: ["attack"],
+    rank: 1,
+    description: "affix_description_per_10hp_damage_gain_energy_unarmed",
+    tags: ["status_energy_positive_unarmed"],
+    priority: 1050,
+    attackType: "unarmed",
+    script: "per_10hp_damage_gain_energy",
+  },
+
+  cost_weapon_energy_extra_damage_physical: {
+    id: "cost_weapon_energy_extra_damage_physical",
+    uniqueId: "cost_weapon_energy_extra_damage",
+    genre: "swordcraft",
+    category: ["attack"],
+    rank: 2,
+    description: "affix_description_cost_weapon_energy_extra_damage_physical",
+    tags: [],
+    priority: 250,
+    damageType: "physical",
+    script: "cost_weapon_energy_extra_damage",
+    valueData: [
+      {
+        base: 1,
+        increment: 0.08,
+      },
+      {
+        base: 7,
+        increment: 0.35,
+      },
+    ],
+  },
+  cost_weapon_energy_extra_damage_elemental: {
+    id: "cost_weapon_energy_extra_damage_elemental",
+    uniqueId: "cost_weapon_energy_extra_damage",
+    genre: "swordcraft",
+    category: ["attack"],
+    rank: 2,
+    description: "affix_description_cost_weapon_energy_extra_damage_elemental",
+    tags: [],
+    priority: 250,
+    damageType: "elemental",
+    script: "cost_weapon_energy_extra_damage",
+    valueData: [
+      {
+        base: 1,
+        increment: 0.08,
+      },
+      {
+        base: 7,
+        increment: 0.35,
       },
     ],
   },

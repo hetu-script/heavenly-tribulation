@@ -52,7 +52,7 @@ struct QuestDelivery {
     this.distance = getTileDistance(location.tilePosition, destination.tilePosition)
 
     // 任务完成有效时间
-    this.expirationDate = history.timestamp + expirationDays * kTicksPerDay
+    this.expirationDate = game.timestamp + expirationDays * kTicksPerDay
     const expirationDateString = formatDateTimeString(this.expirationDate)
 
     if (item != null) {

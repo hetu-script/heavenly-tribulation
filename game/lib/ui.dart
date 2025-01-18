@@ -73,6 +73,9 @@ abstract class GameUI {
       surface: backgroundColor,
     ),
     scaffoldBackgroundColor: Colors.transparent,
+    dropdownMenuTheme: DropdownMenuThemeData(
+      textStyle: textTheme.bodyMedium,
+    ),
     appBarTheme: const AppBarTheme(
       centerTitle: true,
       color: Colors.transparent,
@@ -223,10 +226,12 @@ abstract class GameUI {
   static late Vector2 battleDeckZoneSize;
   static late Vector2 p1BattleDeckZonePosition;
   static late Vector2 p2BattleDeckZonePosition;
-  //  static late Vector2    // p1BattleCardFocusedPosition;
-  //  static late Vector2    // p2BattleCardFocusedPosition;
-  static late Vector2 p1HeroSpritePosition;
-  static late Vector2 p2HeroSpritePosition;
+  static late Vector2 p1CharacterAnimationPosition;
+  static late Vector2 p2CharacterAnimationPosition;
+
+  static late Vector2 versusBannerSize;
+  static late Vector2 versusIconSize;
+  static late Vector2 battleCharacterAvatarSize;
 
   static late Vector2 battleCardFocusedOffset;
 
@@ -382,15 +387,19 @@ abstract class GameUI {
         -(battleCardFocusedSize.x - battleCardSize.x) / 2,
         -(battleCardFocusedSize.y - battleCardSize.y));
 
-    p1HeroSpritePosition = Vector2(
+    p1CharacterAnimationPosition = Vector2(
       size.x / 2 - 208,
       p1BattleDeckZonePosition.y - heroSpriteSize.y,
     );
 
-    p2HeroSpritePosition = Vector2(
+    p2CharacterAnimationPosition = Vector2(
       size.x / 2 + 208,
       p2BattleDeckZonePosition.y - heroSpriteSize.y,
     );
+
+    versusBannerSize = Vector2(520.0, 180.0);
+    versusIconSize = Vector2(160.0, 180.0);
+    battleCharacterAvatarSize = Vector2(100.0, 100.0);
 
     final siteCardWidth = (size.x - 300) / 8 - indent;
     final siteCardHeight = (siteCardWidth * 1.714).roundToDouble();

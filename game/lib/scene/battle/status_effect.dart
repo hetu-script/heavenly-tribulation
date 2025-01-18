@@ -9,19 +9,7 @@ import 'package:hetu_script/utils/collection.dart';
 import '../../engine.dart';
 import '../../data.dart';
 import '../../ui.dart';
-
-// enum StatusEffectType {
-//   permenant,
-//   block,
-//   buff,
-//   debuff,
-//   none,
-// }
-
-// StatusEffectType getStatusEffectType(String? id) {
-//   return StatusEffectType.values.firstWhere((element) => element.name == id,
-//       orElse: () => StatusEffectType.none);
-// }
+import 'common.dart';
 
 class StatusEffect extends BorderComponent with HandlesGesture {
   static ScreenTextConfig defaultEffectCountStyle = const ScreenTextConfig(
@@ -60,9 +48,13 @@ class StatusEffect extends BorderComponent with HandlesGesture {
 
   String? get damageType => data['damageType'];
 
-  String get script => data['script'] as String;
+  String? get script => data['script'];
+
+  String? get soundId => data['sound'];
 
   bool get isHidden => data['isHidden'] ?? false;
+
+  bool get isResource => data['isResource'] ?? false;
 
   bool get isPermenant => data['isPermenant'] ?? false;
 
@@ -74,8 +66,6 @@ class StatusEffect extends BorderComponent with HandlesGesture {
 
   List get callbacks => data['callbacks'] ?? [];
 
-  String? get soundId => data['sound'];
-
   late ScreenTextConfig countTextConfig;
 
   late final String description;
@@ -85,8 +75,10 @@ class StatusEffect extends BorderComponent with HandlesGesture {
     int amount = 1,
     super.position,
     super.anchor,
-    super.priority,
-  }) : _amount = amount {
+  })  : _amount = amount,
+        super(
+          priority: kStatusEffectIconPriority,
+        ) {
     assert(amount >= 1);
     assert(GameData.statusEffectsData.containsKey(id));
     data = deepCopy(GameData.statusEffectsData[id]);

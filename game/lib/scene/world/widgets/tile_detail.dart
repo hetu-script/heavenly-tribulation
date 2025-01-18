@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/ui/responsive_window.dart';
-import 'package:samsara/ui/close_button.dart';
+import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/close_button2.dart';
 
 import '../../../engine.dart';
 import '../../../ui.dart';
@@ -27,10 +27,11 @@ class _TileDetailPanelState extends State<TileDetailPanel> {
       coordinates = '${currentTerrain.left}, ${currentTerrain.top}';
     }
 
-    return ResponsiveWindow(
+    return ResponsivePanel(
       alignment: Alignment.center,
       color: GameUI.backgroundColor,
-      size: const Size(400, 400),
+      width: 400,
+      height: 400,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,

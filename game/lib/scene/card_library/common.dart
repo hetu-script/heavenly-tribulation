@@ -18,6 +18,8 @@ const kCardCraftingZonePriority = 3010;
 
 const kBottomBarPriority = 4000;
 
+const kCraftingCardInfoWidth = 400.0;
+
 void previewCard(Scene game, CustomGameCard card,
     {HoverInfoDirection? direction}) {
   final position = card.absolutePosition;

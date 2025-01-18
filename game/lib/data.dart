@@ -44,7 +44,7 @@ abstract class GameSound {
 /// 这个类是纯静态类，方法都是有关读取和保存的
 /// 游戏逻辑等操作这些数据的代码另外写在logic目录下的文件中
 abstract class GameData {
-  static Map<String, dynamic> editorToolItemsData = {};
+  static Map<String, dynamic> tilesData = {};
   static Map<String, dynamic> animationsData = {};
   static Map<String, dynamic> battleCardsData = {};
   static Map<String, dynamic> battleCardAffixesData = {};
@@ -68,9 +68,9 @@ abstract class GameData {
   static bool get isInitted => _isInitted;
 
   static Future<void> init({required BuildContext flutterContext}) async {
-    final editorToolItemsString =
-        await rootBundle.loadString('assets/data/editor_tools.json5');
-    editorToolItemsData = JSON5.parse(editorToolItemsString);
+    final tilesDataString =
+        await rootBundle.loadString('assets/data/tiles.json5');
+    tilesData = JSON5.parse(tilesDataString);
 
     // final cardsDataString =
     //     await rootBundle.loadString('assets/data/cards.json5');
@@ -197,8 +197,12 @@ abstract class GameData {
   }
 
   /// 每次执行 createGame 都会重置游戏内的 game 对象上的数据
-  static Future<void> createGame(String worldId, [String? saveName]) async {
-    engine.info('创建新游戏：[$worldId]');
+  static Future<void> createGame(
+    String worldId, {
+    String? saveName,
+    bool isEditorMode = false,
+  }) async {
+    engine.debug('创建新游戏：[$worldId]');
 
     worldIds.clear();
     currentWorldId = worldId;
@@ -215,7 +219,9 @@ abstract class GameData {
       }
     }
 
-    await registerModuleEventHandlers();
+    if (!isEditorMode) {
+      await registerModuleEventHandlers();
+    }
 
     isGameCreated = true;
   }
@@ -227,6 +233,7 @@ abstract class GameData {
     required dynamic gameData,
     required dynamic universeData,
     required dynamic historyData,
+    bool isEditorMode = false,
   }) async {
     data = engine.hetu.invoke('loadGameFromJsonData', namedArgs: {
       'gameData': gameData,
@@ -242,26 +249,31 @@ abstract class GameData {
       worldIds.add(id);
     }
 
-    await registerModuleEventHandlers();
+    if (!isEditorMode) {
+      await registerModuleEventHandlers();
+    }
 
     isGameCreated = true;
   }
 
   /// 从存档中读取游戏数据
   /// 在这一步中，并不会创建地图对应的场景
-  static Future<void> loadGame(String savePath) async {
+  static Future<void> loadGame(String savePath,
+      {bool isEditorMode = false}) async {
     worldIds.clear();
-    engine.info('从 [$savePath] 载入游戏存档。');
+    engine.debug('从 [$savePath] 载入游戏存档。');
     final gameSave = await File(savePath).open();
     final gameDataString = utf8.decoder
         .convert((await gameSave.read(await gameSave.length())).toList());
     await gameSave.close();
     final gameData = jsonDecode(gameDataString);
+
     final universeSave = await File(savePath + kUniverseSaveFilePostfix).open();
     final universeDataString = utf8.decoder.convert(
         (await universeSave.read(await universeSave.length())).toList());
     await universeSave.close();
     final universeData = jsonDecode(universeDataString);
+
     final historySave = await File(savePath + kHistorySaveFilePostfix).open();
     final historyDataString = utf8.decoder
         .convert((await historySave.read(await historySave.length())).toList());
@@ -272,10 +284,14 @@ abstract class GameData {
       gameData: gameData,
       universeData: universeData,
       historyData: historyData,
+      isEditorMode: isEditorMode,
     );
   }
 
-  static Future<void> loadPreset(String filename) async {
+  static Future<void> loadPreset(String filename,
+      {bool isEditorMode = false}) async {
+    engine.debug('从 [$filename] 载入游戏预设。');
+
     final gameSave = 'assets/save/$filename$kGameSaveFileExtension';
     final gameDataString = await rootBundle.loadString(gameSave);
     final gameData = jsonDecode(gameDataString);
@@ -292,6 +308,7 @@ abstract class GameData {
       gameData: gameData,
       universeData: universeData,
       historyData: historyData,
+      isEditorMode: isEditorMode,
     );
   }
 
@@ -396,9 +413,9 @@ abstract class GameData {
     }
 
     description.writeln(kSeparateLine);
-    final flavorText = itemData['flavorText'];
-    if (flavorText != null) {
-      description.writeln('<grey>$flavorText</>');
+    final flavortext = itemData['flavortext'];
+    if (flavortext != null) {
+      description.writeln('<grey>$flavortext</>');
     }
 
     if (itemData['equippedPosition'] == null) {
@@ -452,7 +469,6 @@ abstract class GameData {
     final Map<String, String> explanations = {};
     for (final affix in affixes) {
       final affixDescriptionRaw = engine.locale(affix['description']);
-      assert(affix['value'] is List);
       final affixDescription =
           affixDescriptionRaw.interpolate(affix['value']).split(RegExp('\n'));
 
@@ -474,7 +490,8 @@ abstract class GameData {
             description.writeln(line);
             extraDescription.writeln(line);
           } else {
-            if (isDetailed) {
+            // 某些词条没有数值变化，也没有等级，不需要显示
+            if (affix['value'] != null && isDetailed) {
               line += ' ($levelPrefix ${affix['level']})';
             }
             extraDescription.writeln('<lightBlue>$line</>');

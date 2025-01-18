@@ -3,6 +3,7 @@
   "heroStaminaRestored": "你恢复了 {0} 点体力。",
   "heroManaRestored": "你获得了 {0} 点灵气。",
   "heroAcquire": "你得到了{0}。",
+  "heroLose": "你失去了{0}。",
   "heroEquip": "你装备了{0}。",
   "heroUnequip": "你卸下了{0}。",
   "heroCultivationLevelUp": "你的修为提升到了{0}",

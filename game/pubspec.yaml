@@ -19,9 +19,7 @@ dependencies:
   # hive: ^2.0.4
   # hive_flutter: ^1.1.0
 
-  flame:
-    ^1.22.0
-    # path: ../../flame/packages/flame
+  flame: ^1.23.0
   flame_splash_screen: ^0.3.0
 
   hetu_script:
@@ -47,6 +45,7 @@ dependencies:
   video_player_win: ^3.1.1
   provider: ^6.1.2
   dropdown_button2: ^2.3.9
+  flutter_custom_cursor: ^0.0.4
 
 dev_dependencies:
   flutter_test:
@@ -148,8 +147,8 @@ flutter:
     - scripts/main/name/talisman/
     - scripts/main/name/zone/
     - scripts/main/quest/
-    - scripts/main/tile/
     - scripts/main/world/
+    - scripts/main/world/tile/
 
     - scripts/tutorial/
     - scripts/tutorial/l10n/

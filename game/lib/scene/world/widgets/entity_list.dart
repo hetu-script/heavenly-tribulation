@@ -1,37 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:json5/json5.dart';
 // import 'package:provider/provider.dart';
-import 'package:samsara/ui/responsive_window.dart';
+import 'package:samsara/ui/responsive_panel.dart';
 
 // import '../../../../ui/game_entity_listview.dart';
 import '../../../engine.dart';
 import '../../../ui.dart';
-import '../../../view/game_entity_listview.dart';
-import '../../../view/character/memory.dart';
-import '../../../view/location/location.dart';
-import '../../../view/organization/organization.dart';
-import '../../../view/menu_item_builder.dart';
-import '../../../view/character/details.dart';
-import '../../../view/character/profile.dart';
-import '../../../view/dialog/input_world_position.dart';
+import '../../../widgets/game_entity_listview.dart';
+import '../../../widgets/character/memory.dart';
+import '../../../widgets/location/location.dart';
+import '../../../widgets/organization/organization.dart';
+import '../../../widgets/menu_item_builder.dart';
+import '../../../widgets/character/details.dart';
+import '../../../widgets/character/profile.dart';
+import '../../../widgets/dialog/input_world_position.dart';
 // import '../../view/zone/zone.dart';
-import '../../../view/common.dart';
+import '../../../widgets/common.dart';
 // import '../../state/game_data.dart';
 import '../../../events.dart';
-import '../../../view/dialog/input_string.dart';
-import '../../../view/dialog/confirm_dialog.dart';
-import '../../../view/character/edit_character_event_flags.dart';
-import '../../../view/organization/edit_organization_basic.dart';
+import '../../../widgets/dialog/input_string.dart';
+import '../../../widgets/dialog/confirm_dialog.dart';
+import '../../../widgets/character/edit_character_event_flags.dart';
+import '../../../widgets/organization/edit_organization_basic.dart';
 // import 'edit_map_object.dart';
-import '../../../view/dialog/input_description.dart';
+import '../../../widgets/dialog/input_description.dart';
 
-const kObjectCodeTemplate = '''{
-  id: 'id',
+const kObjectSourceTemplate = '''{
+  id: 'object_id',
   entityType: 'object',
   category: 'custom',
   isDiscovered: true,
   useCustomInteraction: true,
-  blockHeroMove: true
+  blockHeroMove: true,
+}
+''';
+
+const kPortalObjectSourceTemplate = '''{
+  id: 'object_id',
+  entityType: 'object',
+  category: 'portal',
+  isDiscovered: true,
+  useCustomInteraction: false,
+  blockHeroMove: false,
+  targetLeft: 1,
+  targetTop: 1,
+}
+''';
+
+const kWorldGateObjectSourceTemplate = '''{
+  id: 'object_id',
+  entityType: 'object',
+  category: 'world_gate',
+  isDiscovered: true,
+  useCustomInteraction: false,
+  blockHeroMove: false,
+  worldId: 'main',
+}
+''';
+
+const kCharacterGateObjectSourceTemplate = '''{
+  id: 'object_id',
+  entityType: 'object',
+  category: 'world_gate',
+  isDiscovered: true,
+  useCustomInteraction: false,
+  blockHeroMove: true,
+  characterId: 'character_id',
 }
 ''';
 
@@ -140,6 +174,35 @@ List<PopupMenuEntry<LocationPopUpMenuItems>> buildLocationPopUpMenuItems(
   ];
 }
 
+enum CreateObjectPopUpMenuItems {
+  portal,
+  worldGate,
+  character,
+  custom,
+}
+
+List<PopupMenuEntry<CreateObjectPopUpMenuItems>>
+    buildCreateObjectPopUpMenuItems(
+        {void Function(CreateObjectPopUpMenuItems item)? onSelectedItem}) {
+  return <PopupMenuEntry<CreateObjectPopUpMenuItems>>[
+    buildSubMenuItem(
+      items: {
+        engine.locale('portal'): CreateObjectPopUpMenuItems.portal,
+        engine.locale('worldGate'): CreateObjectPopUpMenuItems.worldGate,
+        engine.locale('character'): CreateObjectPopUpMenuItems.character,
+      },
+      name: engine.locale('preset'),
+      onSelectedItem: onSelectedItem,
+    ),
+    const PopupMenuDivider(),
+    buildMenuItem(
+      item: CreateObjectPopUpMenuItems.custom,
+      name: engine.locale('custom'),
+      onSelectedItem: onSelectedItem,
+    ),
+  ];
+}
+
 enum ObjectPopUpMenuItems {
   edit,
   delete,
@@ -206,6 +269,8 @@ class _EntityListPanelState extends State<EntityListPanel>
 
   late List<Widget> _tabs;
 
+  final GlobalKey _createObjectButtonKey = GlobalKey();
+
   late String? _heroId;
   // late int _worldWidth, _worldHeight;
   late Iterable<dynamic> _characters,
@@ -271,7 +336,7 @@ class _EntityListPanelState extends State<EntityListPanel>
       // 多存一个隐藏的 id 信息，用于点击事件
       rowData.add(char['id']);
       if (char['id'] == _heroId) {
-        rowData.first = '${char['name']}★';
+        rowData.first = '${char['name']}';
         _charactersTableData.insert(0, rowData);
       } else {
         _charactersTableData.add(rowData);
@@ -283,7 +348,7 @@ class _EntityListPanelState extends State<EntityListPanel>
   void _editCharacter(String dataId) {
     showDialog(
       context: context,
-      builder: (context) => CharacterProfileView(
+      builder: (context) => CharacterProfilePanel(
         characterId: dataId,
         mode: InformationViewMode.edit,
       ),
@@ -386,7 +451,7 @@ class _EntityListPanelState extends State<EntityListPanel>
     showDialog(
       context: context,
       builder: (context) => InputDescriptionDialog(
-        title: engine.locale('inputScriptObject'),
+        title: engine.locale('inputObjectSource'),
         description: objString,
       ),
     ).then((value) {
@@ -407,9 +472,10 @@ class _EntityListPanelState extends State<EntityListPanel>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return ResponsiveWindow(
+    return ResponsivePanel(
       color: GameUI.backgroundColor,
-      size: widget.size,
+      width: widget.size.width,
+      height: widget.size.height,
       alignment: AlignmentDirectional.bottomCenter,
       child: DefaultTabController(
         length: _tabs.length,
@@ -434,7 +500,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                         showDialog(
                             context: context,
                             builder: (context) {
-                              return const CharacterProfileView(
+                              return CharacterProfilePanel(
                                 mode: InformationViewMode.create,
                               );
                             }).then((value) {
@@ -467,6 +533,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                             onSelectedItem: (item) {
                           switch (item) {
                             case CharacterPopUpMenuItems.checkProfile:
+                              _editCharacter(dataId);
                             case CharacterPopUpMenuItems.checkEventFlags:
                               final charData = engine.hetu.invoke(
                                   'getCharacterById',
@@ -727,25 +794,51 @@ class _EntityListPanelState extends State<EntityListPanel>
                   Padding(
                     padding: const EdgeInsets.only(top: 5.0),
                     child: ElevatedButton(
+                      key: _createObjectButtonKey,
                       child: Text(engine.locale('createObject')),
                       onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => InputDescriptionDialog(
-                            title: engine.locale('createObject'),
-                            description: kObjectCodeTemplate,
-                          ),
-                        ).then((value) {
-                          if (value == null) return;
-                          final jsonData = json5Decode(value);
-                          if (jsonData != null && jsonData['id'] != null) {
-                            final mapObject = engine.hetu.interpreter
-                                .createStructfromJSON(jsonData);
-                            engine.hetu.invoke('addObject',
-                                positionalArgs: [mapObject]);
-                            _updateObjects();
-                          }
+                        final renderRect = getRenderRect(
+                            _createObjectButtonKey.currentContext!);
+                        final menuPosition = RelativeRect.fromLTRB(
+                            renderRect.right,
+                            renderRect.top,
+                            renderRect.right,
+                            0.0);
+                        final items = buildCreateObjectPopUpMenuItems(
+                            onSelectedItem: (item) {
+                          final source = switch (item) {
+                            CreateObjectPopUpMenuItems.custom =>
+                              kObjectSourceTemplate,
+                            CreateObjectPopUpMenuItems.portal =>
+                              kPortalObjectSourceTemplate,
+                            CreateObjectPopUpMenuItems.worldGate =>
+                              kWorldGateObjectSourceTemplate,
+                            CreateObjectPopUpMenuItems.character =>
+                              kCharacterGateObjectSourceTemplate,
+                          };
+                          showDialog(
+                            context: context,
+                            builder: (context) => InputDescriptionDialog(
+                              title: engine.locale('createObject'),
+                              description: source,
+                            ),
+                          ).then((value) {
+                            if (value == null) return;
+                            final jsonData = json5Decode(value);
+                            if (jsonData != null && jsonData['id'] != null) {
+                              final mapObject = engine.hetu.interpreter
+                                  .createStructfromJSON(jsonData);
+                              engine.hetu.invoke('addObject',
+                                  positionalArgs: [mapObject]);
+                              _updateObjects();
+                            }
+                          });
                         });
+                        showMenu(
+                          context: context,
+                          position: menuPosition,
+                          items: items,
+                        );
                       },
                     ),
                   ),

@@ -8,7 +8,7 @@ import 'package:samsara/components.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../view/dialog/confirm_dialog.dart';
+import '../../widgets/dialog/confirm_dialog.dart';
 import 'library_zone.dart';
 import 'deckbuilding_zone.dart';
 import '../../ui.dart';
@@ -18,7 +18,7 @@ import '../game_dialog/game_dialog.dart';
 // import 'cardcrafting_area.dart';
 import '../../state/states.dart';
 import '../../data.dart';
-import '../../view/ui_overlay.dart';
+import '../../widgets/ui_overlay.dart';
 import 'menus.dart';
 
 const kAffixOperations = [
@@ -244,7 +244,7 @@ class CardLibraryScene extends Scene {
     // cardCraftingArea.craftButton.isVisible = true;
 
     assert(_currentBuildingZone != null);
-    await _currentBuildingZone!.collapse();
+    await _currentBuildingZone!.collapse(animated: false);
 
     if (_currentBuildingZone!.cards.isEmpty) {
       if (_currentBuildingZone != deckPiles.last && deckPiles.length > 1) {
@@ -346,6 +346,7 @@ class CardLibraryScene extends Scene {
       direction: HovertipDirection.rightTop,
       content: description,
       config: ScreenTextConfig(anchor: Anchor.topCenter),
+      width: kCraftingCardInfoWidth,
     );
   }
 
@@ -469,6 +470,9 @@ class CardLibraryScene extends Scene {
     for (final button in _craftOptionButtons) {
       button.isVisible = false;
     }
+
+    assert(_craftingCard != null);
+    updateCardData(_craftingCard!);
 
     Hovertip.hide(_craftingCard!);
     _craftingCard!.removeFromParent();
@@ -878,7 +882,7 @@ class CardLibraryScene extends Scene {
       ]);
 
       final cardpackHint =
-          '${engine.locale('owenedCardpack')}: <bold ${cardpackCount > 0 ? 'yellow' : ''}>${cardpackCount.toString().padLeft(10)}</>\n'
+          '${engine.locale('ownedCardpack')}: <bold ${cardpackCount > 0 ? 'yellow' : ''}>${cardpackCount.toString().padLeft(10)}</>\n'
           '<grey>${engine.locale('deckbuilding_cardpack_hint')}</>';
       Hovertip.show(
         scene: this,
@@ -886,7 +890,7 @@ class CardLibraryScene extends Scene {
         direction: HovertipDirection.topRight,
         content: cardpackHint,
         config: ScreenTextConfig(anchor: Anchor.topLeft),
-        width: 160,
+        width: 200,
       );
     };
     skillBook.onMouseExit = () {
@@ -960,7 +964,10 @@ class CardLibraryScene extends Scene {
       _addAffixOperationButton(
           operation,
           GameUI.cardpackCardPositions[0] +
-              Vector2(GameUI.cardpackCardSize.x + GameUI.indent * 2 + 300,
+              Vector2(
+                  GameUI.cardpackCardSize.x +
+                      GameUI.indent * 2 +
+                      kCraftingCardInfoWidth,
                   (GameUI.buttonSizeSmall.y + 10) * i));
     }
 

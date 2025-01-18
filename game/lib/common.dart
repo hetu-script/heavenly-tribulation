@@ -95,7 +95,7 @@ Color getColorFromRarity(String rarity) {
     'uncommon' => HexColor.fromString('#FFFFFF'),
 
     /// 上品
-    'rare' => HexColor.fromString('#00A6A9'),
+    'rare' => HexColor.fromString('#9D9DFF'),
 
     /// 极品
     'epic' => HexColor.fromString('#804DC8'),
@@ -129,7 +129,7 @@ Color getColorFromRank(int rank) {
     2 => HexColor.fromString('#FFFFFF'),
 
     /// 结丹 蓝
-    3 => HexColor.fromString('#00A6A9'),
+    3 => HexColor.fromString('#9D9DFF'),
 
     /// 还婴 紫
     4 => HexColor.fromString('#804DC8'),

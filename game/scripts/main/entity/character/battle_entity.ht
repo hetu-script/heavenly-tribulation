@@ -29,7 +29,7 @@ const kAttributeNames = [
 
 // 某些时候，只需要生成一个用于战斗的实体，此时不需要年龄、魅力等属性
 struct BattleEntity {
-  construct ({
+  constructor ({
     isMajorCharacter = true,
     isFemale,
     icon,
@@ -126,7 +126,7 @@ struct BattleEntity {
       '5': null,
     }
 
-    // 随主角移动的其他角色
+    // 随角色移动的其他角色
     this.companions = {}
 
     // 角色当前卡牌库，关于战斗卡牌的具体信息另行参阅文档
@@ -166,65 +166,14 @@ struct BattleEntity {
       lifeMax: kBaseLife,
       ...generated,
     }
+    
+    updateCharacterStats(this)
 
     // 主流派：御剑、道术、锻体、炼魂、法身
     // 副流派：炼丹、炼器、阵法、符法、灵植、灵兽、幻术、卜术、通灵、通神
     // this.cultivationGenre = cultivationGenre
   }
 }
-
-// function generateCharacterAttributes({
-//     sum,
-//     base,
-//     major,
-//     // majorAttributes: List = [],
-//   }) {
-//   if (sum != null) {
-//     assert(sum > 0)
-//   } else {
-//     sum = _kAttributesSum + random.distantInt(_kAttributesSumExtra - _kAttributesSum)
-//   }
-//   if (base != null) {
-//     assert(base >= 0 && base * kAttributeNames.length <= sum)
-//   } else {
-//     base = _kAttributesBase + random.distantInt(_kAttributesBaseExtra - _kAttributesBase)
-//   }
-//   if (major != null) {
-//     assert(kAttributeNames.contains(major))
-//   }
-
-//   sum = sum - base * kAttributeNames.length
-
-//   const attributes = {}
-
-//   let reserved = (sum * _kMajorAttributeFactor).toInt()
-//   let rest = major ? sum - reserved : sum
-  
-//   let attrList = random.shuffle(kAttributeNames).toList()
-//   for (var i = 0; i < attrList.length - 1; ++i) {
-//     let value = 0
-//     if (rest > 0) {
-//       value = random.nextInt(rest)
-//       rest -= value
-//     }
-//     attributes[attrList[i]] = base + value
-//   }
-//   attributes[attrList.last] = rest
-
-//   if (major) {
-//     attributes[major] +=reserved
-
-    // let majorAttrList = random.shuffle(major).toList()
-    // for (var i = 0; i < majorAttrList.length - 1; ++i) {
-    //   const value = random.nextInt(reserved)
-    //   attributes[majorAttrList[i]] += value
-    //   reserved -= value
-    // }
-    // attributes[majorAttrList.last] += reserved
-//   }
-  
-//   return attributes
-// }
 
 function generateCharacterAttributes({base, major}) {
   base ??= _kAttributesBase
@@ -238,6 +187,47 @@ function generateCharacterAttributes({base, major}) {
     }
   }
   return attributes
+}
+
+/// 当前状态数值，由特性、属性、物品、天赋、技能、增益减损等计算得来
+/// 状态包括：生命、伤害、防御等。
+function updateCharacterStats(character, { reset = true }) {
+
+  character.lifeMax = kBaseLife + (character.strength + character.dexterity) ~/ 4
+  
+  // 基础属性，在此基础上还要加上物品和状态的加成
+  character.stats.dexterity = character.dexterity + character.passives.dexterity?.value
+  character.stats.spirituality = character.spirituality + character.passives.spirituality?.value
+  character.stats.strength = character.strength + character.passives.strength?.value
+  character.stats.perception = character.perception + character.passives.perception?.value
+  character.stats.willpower = character.willpower + character.passives.willpower?.value
+  
+  character.stats.lifeMax = character.lifeMax + character.passives.lifeMax?.value
+  character.stats.lightRadius = kBaseLightedArea + (character.stats.perception ~/ 25) * 2
+  
+  character.stats.unarmedAttack = character.passives.unarmedAttack?.value ?? 0
+  character.stats.weaponAttack = character.passives.weaponAttack?.value ?? 0
+  character.stats.spellAttack = character.passives.spellAttack?.value ?? 0
+  character.stats.curseAttack = character.passives.curseAttack?.value ?? 0
+  character.stats.poisonAttack = character.passives.poisonAttack?.value ?? 0
+  
+  character.stats.physicalResist = character.passives.physicalResist?.value ?? 0
+  character.stats.chiResist = character.passives.chiResist?.value ?? 0
+  character.stats.elementalResist = character.passives.elementalResist?.value ?? 0
+  character.stats.spiritualResist = character.passives.spiritualResist?.value ?? 0
+
+  character.stats.quickThreshold = kQuickThreshold + character.passives.quickThresholdModifier?.value
+  character.stats.slowThreshold = kQuickThreshold + character.passives.slowThresholdModifier?.value
+  character.stats.nimbleThreshold = kQuickThreshold + character.passives.nimbleThresholdModifier?.value
+  character.stats.clumsyThreshold = kClumsyThreshold + character.passives.clumsyThresholdModifier?.value
+  
+  if (reset) {
+    rejuvenateCharacter(character)
+  }
+}
+
+function rejuvenateCharacter(character) {
+  character.stats.life = character.stats.lifeMax
 }
 
 function getCharacterStats(character) {

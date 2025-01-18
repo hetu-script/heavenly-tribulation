@@ -12,7 +12,6 @@ import 'load_game.dart';
 import 'create_sandbox_game.dart';
 import 'create_blank_map.dart';
 import '../../state/states.dart';
-import '../../debug.dart';
 import '../common.dart';
 
 enum MenuStates {
@@ -188,7 +187,9 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           setMenuState(MenuStates.main);
 
                           await GameData.createGame(
-                              args['id'], args['saveName']);
+                            args['id'],
+                            saveName: args['saveName'],
+                          );
                           assert(context.mounted);
                           if (context.mounted) {
                             context.read<SceneControllerState>().push(
@@ -264,7 +265,10 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           if (args == null) return;
                           setMenuState(MenuStates.main);
                           await GameData.createGame(
-                              args['id'], args['saveName']);
+                            args['id'],
+                            saveName: args['saveName'],
+                            isEditorMode: true,
+                          );
                           assert(context.mounted);
                           if (context.mounted) {
                             context.read<SceneControllerState>().push(
@@ -291,7 +295,10 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           );
                           if (info == null) return;
                           setMenuState(MenuStates.main);
-                          await GameData.loadGame(info.savePath);
+                          await GameData.loadGame(
+                            info.savePath,
+                            isEditorMode: true,
+                          );
                           assert(context.mounted);
                           if (context.mounted) {
                             context.read<SceneControllerState>().push(
@@ -397,7 +404,8 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                       padding: const EdgeInsets.only(top: 20.0),
                       child: ElevatedButton(
                         onPressed: () {
-                          final enemy = Debug.generateEnemy();
+                          final enemy = engine.hetu
+                              .invoke('generateEnemey', namespace: 'Debug');
                           context.read<EnemyState>().update(enemy);
                         },
                         child: Label(engine.locale('debug_battle'),

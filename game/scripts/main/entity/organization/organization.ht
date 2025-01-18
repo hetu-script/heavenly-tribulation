@@ -1,9 +1,7 @@
 import '../../game.ht'
 import '../../name/organization.ht'
-// import '../../l10n.ht'
 import '../entity.ht'
-import '../../tile/tilemap.ht'
-// import '../../name/nation.ht'
+import '../../world/tile/tilemap.ht'
 import '../item/material.ht'
 
 const kOrganizationRankMax = 4
@@ -37,7 +35,7 @@ const _kOrganizationThinkingsOnRecruit = 3
 const _kHeadRank = 80
 
 struct Organization {
-  construct ({
+  constructor ({
     name,
     category, // 扩张类型：'cultivation' | 'gang' | 'religion' | 'business' | 'nation'
     genre, // 修炼类型：'dao' | 'swordcraft' | 'bodyforge' | 'avatar' | 'vitality'
@@ -50,7 +48,7 @@ struct Organization {
     assert(game.locations.containsKey(headquartersId))
     assert(game.characters.containsKey(headId))
 
-    this.createdTimestamp = history.timestamp
+    this.createdTimestamp = game.timestamp
     // 该组织的每月刷新事件的时间
     this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
     // 该组织的事件触发选项
@@ -119,7 +117,7 @@ struct Organization {
         isGlobal: true,
       )
     } else {
-      engine.info(incidentContent)
+      engine.debug(incidentContent)
     }
     addCharacterToOrganization(head, this, incurIncident: incurIncident)
     addOrganizationTitleForCharacter(head, this, kOrganizationRankMax, 'head', incurIncident: incurIncident)
@@ -169,7 +167,7 @@ struct Organization {
   // /// 国家是一种特殊的组织，单独有一个生成函数，并且单独保存
   // /// 即便不显示调用 addCharacterToOrganization 来加入国家，角色也会有一个所属的国家
   // /// 显示调用的含义其实是在此国家担任官职，此时和加入别的组织一样，要求先退出原来的组织
-  // construct nation ({
+  // constructor nation ({
   //   name,
   //   capitalId,
   //   emperorId,
@@ -202,7 +200,7 @@ struct Organization {
   //   this.organizationIds = []
   // }
   
-  // construct business({
+  // constructor business({
   //   name,
   //   headquartersId,
   //   headId,
@@ -431,14 +429,14 @@ function removeTerrainFromOrganization(terrain, { incurIncident = true }) {
   if (terrain.locationId != null) {
     const location = game.locations[terrain.locationId]
     delete location.organizationId
-    engine.warn('${oldOrg.id} 失去了据点：${location.id}')
+    engine.info('${oldOrg.id} 失去了据点：${location.id}')
     organization.locationIds.remove(location.id)
     
     let toBeRemoved
     for (let key in location.sites.keys) {
       const site = location.sites[key]
       if (site.name == organization.name) {
-        engine.warn('${organization.id} 失去了总堂所在地块！')
+        engine.info('${organization.id} 失去了总堂所在地块！')
         toBeRemoved = site.id
         break
       }
@@ -478,7 +476,7 @@ function addTerrainToOrganization(terrain, organization, { incurIncident = true 
       organization.locationIds.add(location.id)
     }
   }
-  engine.info('门派 ${organization.id} 将其领土扩展到 [${terrain.left},${terrain.top}]')
+  engine.debug('门派 ${organization.id} 将其领土扩展到 [${terrain.left},${terrain.top}]')
 }
 
 // /// 将某个功法记录在这个组织的 skillRecords 中

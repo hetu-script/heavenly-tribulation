@@ -1,0 +1,41 @@
+namespace WorldMap {
+
+  external function setTerrainCaption(left, top, caption)
+
+  external function updateTerrainSprite(left, top)
+
+  external function updateTerrainOverlaySprite(left, top)
+
+  external function clearTerrainSprite(left, top)
+
+  external function clearTerrainAnimation(left, top)
+
+  external function clearTerrainOverlaySprite(left, top)
+
+  external function clearTerrainOverlayAnimation(left, top)
+
+  external function setPlayerFreeze(value: bool)
+
+  external function updateHeroTileInfo()
+
+  external function setObjectTo(id, toX, toY)
+
+  /// endDirection: 'north' | 'east' | 'south' | 'west'
+  external async function moveObjectTo(id, toX, toY, {endDirection, onAfterMoveCallback})
+
+  external async function updateNpcsInHeroWorldMapPosition()
+
+  external async function updateNpcsInHeroLocation()
+
+  external function addHintText(text, left, top, [color])
+
+  external async function moveCameraToMapPosition(left, top)
+
+  external function lightUpAroundTile(left, top, [ size = 1 ])
+
+  external async function enterLocation(location)
+
+  external async function showFog(value: bool)
+
+  external async function switchWorld(worldId)
+}

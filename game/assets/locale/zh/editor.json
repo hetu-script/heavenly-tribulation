@@ -1,6 +1,7 @@
 {
   "file": "文件",
   "edit": "编辑",
+  "setAsFirstWorld": "设为初始地图",
   "addWorld": "添加新地图",
   "addSite": "添加建筑",
   "switchWorld": "切换地图",
@@ -24,6 +25,8 @@
   "bindObject": "绑定对象",
   "clearObject": "清除对象",
 
+  "inputObjectSource": "输入脚本对象 (JSON5)",
+
   "setAsHero": "设置为主角",
   "clearWorldMapPosition": "清除大地图位置",
   "setWorldMapPosition": "设置大地图位置",
@@ -38,6 +41,7 @@
 
   "terrainDetail": "地块信息",
   "setTerrainKind": "设置地块类型",
+  "clearTerrainSprite": "清除地块贴图",
   "clearTerrainAnimation": "清除地块动画",
   "clearTerrainOverlaySprite": "清除地块附加贴图",
   "clearTerrainOverlayAnimation": "清除地块附加动画",
@@ -51,8 +55,9 @@
   "objectTiles": "物体和NPC",
 
   "custom": "自定义",
+  "preset": "预设",
   "portal": "传送门",
-  "mapEntry": "地图入口",
+  "worldGate": "地图入口",
   "glowingTile": "发光地板",
   "switch": "机关",
   "lever": "拉杆",

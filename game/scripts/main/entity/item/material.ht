@@ -51,7 +51,7 @@ struct MaterialPack {
     this.category = kEntityCategoryMaterial
     this.kind = kind
     this.description = engine.locale('${kind}_description')
-    this.flavorText = engine.locale('item_material_pack_flavor_text')
+    this.flavortext = engine.locale('item_material_pack_flavortext')
     this.stackSize = count ?? 1
 
     this.isUsable = true

@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../common.dart';
 import 'mainmenu_buttons.dart';
-import '../../view/ui_overlay.dart';
+import '../../widgets/ui_overlay.dart';
 import '../../data.dart';
 import '../../engine.dart';
 
@@ -32,9 +32,16 @@ class MainMenuScene extends Scene {
       GameData.isGameCreated = false;
       assert(context.mounted);
       if (context.mounted) {
-        engine.hetu.invoke('generateHero', namespace: 'Debug');
-        engine.hetu.invoke('testCardpack', namespace: 'Debug');
-        engine.hetu.invoke('testEquipment', namespace: 'Debug');
+        engine.hetu.invoke('generateHero', namespace: 'Debug', namedArgs: {
+          'rank': 2,
+          'level': 10,
+        });
+        engine.hetu.invoke('testCardpack', namespace: 'Debug', namedArgs: {
+          'amount': 24,
+        });
+        engine.hetu.invoke('testEquipment', namespace: 'Debug', namedArgs: {
+          'amount': 24,
+        });
         context.read<HeroState>().update();
         context.read<GameUIOverlayVisibilityState>().setVisible();
       }

@@ -6,8 +6,8 @@ import 'package:flame/flame.dart';
 // import 'package:samsara/gestures/gesture_mixin.dart';
 import 'package:flutter/material.dart';
 
-// import '../../../ui.dart';
-import '../../view/character/details.dart';
+import '../../../ui.dart';
+import '../../widgets/character/details.dart';
 // import '../../../ui/view/character/npc.dart';
 
 class VersusBanner extends GameComponent {
@@ -24,7 +24,7 @@ class VersusBanner extends GameComponent {
     required this.enemyData,
   }) : super(
           anchor: Anchor.center,
-          size: Vector2(520.0, 180.0),
+          size: GameUI.versusBannerSize,
         );
 
   void showCharacterInfo(dynamic data) {
@@ -51,9 +51,10 @@ class VersusBanner extends GameComponent {
   void onLoad() async {
     final versusIcon = SpriteComponent(
       // position: Vector2(center.x - 80.0, center.y - 90.0),
-      position: Vector2(180.0, 0),
+      position:
+          Vector2(GameUI.battleCharacterAvatarSize.x + GameUI.hugeIndent, 0),
       sprite: Sprite(await Flame.images.load('battle/versus.png')),
-      size: Vector2(160.0, 180.0),
+      size: GameUI.versusIconSize,
       paint: paint,
     );
     add(versusIcon);
@@ -64,7 +65,7 @@ class VersusBanner extends GameComponent {
       sprite:
           Sprite(await Flame.images.load('illustration/${heroData['icon']}')),
       // image2: await Flame.images.load('illustration/border.png'),
-      size: Vector2(100.0, 100.0),
+      size: GameUI.battleCharacterAvatarSize,
       borderRadius: 12.0,
       paint: paint,
     );
@@ -75,10 +76,14 @@ class VersusBanner extends GameComponent {
 
     final enemyIcon = SpriteButton(
       // position: Vector2(center.x + 80.0 + 10.0, center.y - 50.0),
-      position: Vector2(420.0, 40.0),
+      position: Vector2(
+          GameUI.battleCharacterAvatarSize.x +
+              GameUI.hugeIndent * 2 +
+              GameUI.versusIconSize.x,
+          40.0),
       image: await Flame.images.load('illustration/${enemyData['icon']}'),
       // image2: await Flame.images.load('illustration/border.png'),
-      size: Vector2(100.0, 100.0),
+      size: GameUI.battleCharacterAvatarSize,
       borderRadius: 12.0,
       paint: paint,
     );

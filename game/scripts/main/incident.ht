@@ -4,7 +4,7 @@ import 'player.ht'
 
 /// 历史事件记录
 struct Incident {
-  construct ({
+  constructor ({
     message: string,
     isGlobal: bool = false, // 为真则全世界的人都知道
     isPrivate: bool = false, // 为真则不通知当前据点或地块上的所有人
@@ -24,7 +24,7 @@ struct Incident {
     this.message = message
     this.isGlobal = isGlobal
     this.isPrivate = isPrivate
-    this.timestamp = timestamp ?? history.timestamp
+    this.timestamp = timestamp ?? game.timestamp
     this.values = values ?? {}
     this.subjectId = subjectId
     if (objectId) this.objectId = objectId
@@ -118,7 +118,6 @@ struct Incident {
     }
   
     Player.updateHistory()
-    engine.info(message)
   }
 }
 
@@ -133,14 +132,12 @@ function calculateCharacterScoreOfIncident(character, incident) {
 }
 
 function entityExperiencedIncident(entity, incident) {
+  assert(entity != null && incident != null)
   // 不是major character直接跳过
-  if (entity?.experienced == null) {
-    engine.warn('${entity.name} is not a entity that can experience incidents.')
+  if (entity.experienced == null) {
+    // engine.warn('${entity.name} is not a entity that can experience incidents.')
     return
   }
-
-  assert(entity != null)
-  assert(incident != null && incident.index != null)
 
   if (entity.experienced.contains(incident.index)) {
     engine.warn('${entity.id} 已经经历过事件：[${incident.index}]')
@@ -159,17 +156,17 @@ function entityExperiencedIncident(entity, incident) {
       let idealChange = entity.personality.ideal * incident.values.ideal / 100
       if (idealChange != 0) {
         entity.personality.ideal += idealChange
-        engine.info('角色 ${entity.id} 的 ideal 改变了  [${idealChange}]。')
+        engine.debug('角色 ${entity.id} 的 ideal 改变了  [${idealChange}]。')
       }
       let orderChange = entity.personality.order * incident.values.order / 100
       if (idealChange != 0) {
         entity.personality.order += orderChange
-        engine.info('角色 ${entity.id} 的 order 改变了  [${orderChange}]。')
+        engine.debug('角色 ${entity.id} 的 order 改变了  [${orderChange}]。')
       }
       let goodChange = entity.personality.good * incident.values.good / 100
       if (idealChange != 0) {
         entity.personality.good += goodChange
-        engine.info('角色 ${entity.id} 的 good 改变了  [${goodChange}]。')
+        engine.debug('角色 ${entity.id} 的 good 改变了  [${goodChange}]。')
       }
     } else if (entity.id == incident.objectId) {
       // 亲身经历者会放大原本的评价
@@ -181,7 +178,7 @@ function entityExperiencedIncident(entity, incident) {
       }
       if (score != 0) {
         let bond = entity.bonds[incident.subjectId]
-        engine.info('${entity.id} 对 ${subject.id} 的好感度改变了 [${score}]')
+        engine.debug('${entity.id} 对 ${subject.id} 的好感度改变了 [${score}]')
         bond.score += score
       }
     }
