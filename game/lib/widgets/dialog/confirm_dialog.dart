@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 
 import '../../engine.dart';
 import '../../ui.dart';
@@ -29,7 +29,7 @@ class ConfirmDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsivePanel(
+    return ResponsiveView(
       alignment: AlignmentDirectional.center,
       child: SizedBox(
         width: 300,

@@ -515,6 +515,14 @@
   },
 
   /// 通用属性
+  lightRadius: {
+    id: "lightRadius",
+    description: "passive_light_radius_description",
+    priority: 130,
+    increment: 1,
+    isItemExtraAffix: true,
+    rank: 1,
+  },
   lifeMax: {
     id: "lifeMax",
     description: "passive_life_max_description",

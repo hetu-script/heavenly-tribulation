@@ -17,7 +17,6 @@ import 'package:samsara/components/rich_text_component.dart';
 import 'package:samsara/components/hovertip.dart';
 import 'package:samsara/components/sprite_component2.dart';
 import 'package:hetu_script/values.dart';
-import 'package:provider/provider.dart';
 
 import 'exp_light_point.dart';
 import '../../engine.dart';
@@ -684,7 +683,7 @@ class CultivationScene extends Scene {
 
     final exit = GameData.getExitSiteCard(spriteId: 'exit_card2');
     exit.onTap = (_, __) {
-      context.read<SceneControllerState>().pop();
+      engine.popScene();
     };
     camera.viewport.add(exit);
 

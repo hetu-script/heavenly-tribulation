@@ -18,11 +18,11 @@ const kObjectTreasureBox = 'treasureBox'
 ///   blockHeroMove: true
 /// }
 
-struct Portal {
+struct ObjectPortal {
   constructor ({
     id,
     isDiscovered = true,
-    isEnabled = true,
+    useCustomInteraction = false,
     targetLeft,
     targetTop,
   }) {
@@ -31,7 +31,7 @@ struct Portal {
     this.entityType = kEntityTypeObject
     this.category = kObjectPortal
     this.isDiscovered = isDiscovered
-    this.isEnabled = isEnabled
+    this.useCustomInteraction = useCustomInteraction
     game.objects[this.id] = this
 
     this.targetLeft = targetLeft
@@ -39,11 +39,11 @@ struct Portal {
   }
 }
 
-struct WorldGate {
+struct ObjectWorldGate {
   constructor ({
     id,
     isDiscovered = true,
-    isEnabled = true,
+    useCustomInteraction = false,
     worldId,
     worldPositionLeft,
     worldPositionTop,
@@ -53,14 +53,14 @@ struct WorldGate {
     this.entityType = kEntityTypeObject
     this.category = kObjectWorldGate
     this.isDiscovered = isDiscovered
-    this.isEnabled = isEnabled
+    this.useCustomInteraction = useCustomInteraction
     game.objects[this.id] = this
 
     this.worldId = worldId
   }
 }
 
-struct CharacterObject {
+struct ObjectCharacter {
   constructor ({
     id,
     characterId,
@@ -72,5 +72,51 @@ struct CharacterObject {
     game.objects[this.id] = this
 
     this.characterId = characterId
+  }
+}
+
+/// 宝箱内的物品
+/// 分为四种：材料，原型道具，装备，卡包
+/// category: ['material', 'prototype', 'equipment', 'cardpack']
+/// items = [
+///   {
+///     category: 'material',
+///     kind: 'money',
+///     amount: 100,
+///   },
+///   {
+///     category: 'prototype',
+///     kind: 'jade',
+///   },
+///   {
+///     category: 'equipment',
+///     kind: 'sword',
+///     rarity: 'basic',
+///     rank: 0,
+///     level: 0,
+///   },
+///   {
+///     category: 'cardpack',
+///     kind: 'punch',
+///     genre: null,
+///     rank: 0,
+///   },
+/// ]
+struct ObjectTreasureBox {
+  constructor ({
+    id,
+    isDiscovered = true,
+    useCustomInteraction = false,
+    items: List,
+  }) {
+    assert(id != null)
+    this.id = id
+    this.entityType = kEntityTypeObject
+    this.category = kObjectTreasureBox
+    this.isDiscovered = isDiscovered
+    this.useCustomInteraction = useCustomInteraction
+    game.objects[this.id] = this
+
+    this.items = items
   }
 }

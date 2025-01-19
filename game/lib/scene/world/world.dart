@@ -356,214 +356,173 @@ class WorldMapScene extends Scene {
       }
     };
 
-    if (isEditorMode) {
-      engine.hetu.interpreter.bindExternalFunction('setTerrainCaption', (
-          {positionalArgs, namedArgs}) {
-        map.setTerrainCaption(
-            positionalArgs[0], positionalArgs[1], positionalArgs[2]);
-      }, override: true);
+    engine.setEventListener(
+      Scenes.editor,
+      GameEvents.worldmapCharactersUpdated,
+      (eventId, args) async {
+        _updateCharactersOnWorldMap();
+      },
+    );
 
-      engine.hetu.interpreter.bindExternalFunction('updateTerrainSprite', (
-          {positionalArgs, namedArgs}) {
-        final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
-        tile?.tryLoadSprite();
-      }, override: true);
+    engine.hetu.interpreter.bindExternalFunction('setTerrainCaption', (
+        {positionalArgs, namedArgs}) {
+      map.setTerrainCaption(
+          positionalArgs[0], positionalArgs[1], positionalArgs[2]);
+    }, override: true);
 
-      engine.hetu.interpreter.bindExternalFunction('updateTerrainOverlaySprite',
-          ({positionalArgs, namedArgs}) {
-        final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
-        tile?.tryLoadSprite(isOverlay: true);
-      }, override: true);
+    engine.hetu.interpreter.bindExternalFunction('updateTerrainSprite', (
+        {positionalArgs, namedArgs}) {
+      final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
+      tile?.tryLoadSprite();
+    }, override: true);
 
-      engine.hetu.interpreter.bindExternalFunction('clearTerrainSprite', (
-          {positionalArgs, namedArgs}) {
-        final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
-        tile?.clearSprite();
-      }, override: true);
+    engine.hetu.interpreter.bindExternalFunction('updateTerrainOverlaySprite', (
+        {positionalArgs, namedArgs}) {
+      final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
+      tile?.tryLoadSprite(isOverlay: true);
+    }, override: true);
 
-      engine.hetu.interpreter.bindExternalFunction('clearTerrainAnimation', (
-          {positionalArgs, namedArgs}) {
-        final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
-        tile?.clearAnimation();
-      }, override: true);
+    engine.hetu.interpreter.bindExternalFunction('clearTerrainSprite', (
+        {positionalArgs, namedArgs}) {
+      final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
+      tile?.clearSprite();
+    }, override: true);
 
-      engine.hetu.interpreter.bindExternalFunction('clearTerrainOverlaySprite',
-          ({positionalArgs, namedArgs}) {
-        final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
-        tile?.clearOverlaySprite();
-      }, override: true);
+    engine.hetu.interpreter.bindExternalFunction('clearTerrainAnimation', (
+        {positionalArgs, namedArgs}) {
+      final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
+      tile?.clearAnimation();
+    }, override: true);
 
-      engine.hetu.interpreter.bindExternalFunction(
-          'clearTerrainOverlayAnimation', ({positionalArgs, namedArgs}) {
-        final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
-        tile?.clearOverlayAnimation();
-      }, override: true);
+    engine.hetu.interpreter.bindExternalFunction('clearTerrainOverlaySprite', (
+        {positionalArgs, namedArgs}) {
+      final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
+      tile?.clearOverlaySprite();
+    }, override: true);
 
-      engine.setEventListener(
-        Scenes.editor,
-        GameEvents.worldmapCharactersUpdated,
-        (eventId, args) async {
-          _updateCharactersOnWorldMap();
-        },
+    engine.hetu.interpreter.bindExternalFunction('clearTerrainOverlayAnimation',
+        ({positionalArgs, namedArgs}) {
+      final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
+      tile?.clearOverlayAnimation();
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('setPlayerFreeze', (
+        {positionalArgs, namedArgs}) {
+      playerFreezed = positionalArgs.first;
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('updateHeroTileInfo', (
+        {positionalArgs, namedArgs}) {
+      map.hero!.tilePosition = TilePosition(_heroData['worldPosition']['left'],
+          _heroData['worldPosition']['top']);
+      map.updateTileInfo(map.hero!);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('setObjectTo', (
+        {positionalArgs, namedArgs}) {
+      assert(map.movingObjects.containsKey(positionalArgs[0]));
+      final object = map.movingObjects[positionalArgs[0]]!;
+      object.tilePosition = TilePosition(positionalArgs[1], positionalArgs[2]);
+      map.updateTileInfo(object);
+      engine.hetu.invoke('setEntityWorldPosition',
+          positionalArgs: [object.data, positionalArgs[1], positionalArgs[2]]);
+    });
+
+    engine.hetu.interpreter.bindExternalFunction('moveObjectTo', (
+        {positionalArgs, namedArgs}) {
+      assert(map.movingObjects.containsKey(positionalArgs[0]));
+      final completer = Completer();
+      final int toX = positionalArgs[1];
+      final int toY = positionalArgs[2];
+      final String? endDirString = namedArgs['endDirection'];
+      OrthogonalDirection? finishMoveDirection;
+      if (endDirString != null) {
+        finishMoveDirection = OrthogonalDirection.values
+            .singleWhere((element) => element.name == endDirString);
+      }
+      final HTFunction? onAfterMoveCallback = namedArgs['onAfterMoveCallback'];
+      final object = map.movingObjects[positionalArgs[0]]!;
+      final route = _calculateRoute(
+          fromX: object.left, fromY: object.top, toX: toX, toY: toY);
+      if (route != null) {
+        map.moveObjectToTilePositionByRoute(
+          object,
+          List<int>.from(route),
+          finishMoveDirection: finishMoveDirection,
+          onAfterMoveCallback: (tile, [nonEnterableDestination]) {
+            onAfterMoveCallback?.call(
+                positionalArgs: [tile.data, nonEnterableDestination?.data]);
+            completer.complete();
+          },
+        );
+      } else {
+        engine.error(
+            'cannot move ${object.id} from position [${object.tilePosition}] to [$toX, $toY]}');
+        completer.complete();
+      }
+      return completer.future;
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'updateNpcsInHeroWorldMapPosition',
+        ({positionalArgs, namedArgs}) => _updateNpcsInHeroWorldMapPosition(),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('updateNpcsInHeroLocation',
+        ({positionalArgs, namedArgs}) => _updateNpcsInHeroLocation(),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('addHintText', (
+        {positionalArgs, namedArgs}) {
+      final hexString = positionalArgs[3];
+      Color? color;
+      if (hexString != null) {
+        color = HexColor.fromString(hexString);
+      }
+      addHintTextByTilePosition(
+        positionalArgs[0],
+        positionalArgs[1],
+        positionalArgs[2],
+        color: color,
       );
-    } else {
-      engine.hetu.interpreter.bindExternalFunction('setTerrainCaption', (
-          {positionalArgs, namedArgs}) {
-        map.setTerrainCaption(
-            positionalArgs[0], positionalArgs[1], positionalArgs[2]);
-      }, override: true);
+    }, override: true);
 
-      engine.hetu.interpreter.bindExternalFunction('updateTerrainSprite', (
-          {positionalArgs, namedArgs}) {
-        final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
-        tile?.tryLoadSprite();
-      }, override: true);
+    engine.hetu.interpreter.bindExternalFunction(
+        'moveCameraToMapPosition',
+        ({positionalArgs, namedArgs}) => map.moveCameraToTilePosition(
+              positionalArgs[0],
+              positionalArgs[1],
+              animated: namedArgs['animated'],
+            ),
+        override: true);
 
-      engine.hetu.interpreter.bindExternalFunction('updateTerrainOverlaySprite',
-          ({positionalArgs, namedArgs}) {
-        final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
-        tile?.tryLoadSprite(isOverlay: true);
-      }, override: true);
+    engine.hetu.interpreter.bindExternalFunction('lightUpAroundTile', (
+        {positionalArgs, namedArgs}) {
+      map.lightUpAroundTile(
+        TilePosition(positionalArgs[0], positionalArgs[1]),
+        size: positionalArgs[2],
+      );
+    }, override: true);
 
-      engine.hetu.interpreter.bindExternalFunction('clearTerrainAnimation', (
-          {positionalArgs, namedArgs}) {
-        final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
-        tile?.clearAnimation();
-      }, override: true);
+    engine.hetu.interpreter.bindExternalFunction(
+        'enterLocation',
+        ({positionalArgs, namedArgs}) =>
+            _tryEnterLocation(positionalArgs.first),
+        override: true);
 
-      engine.hetu.interpreter.bindExternalFunction('clearTerrainOverlaySprite',
-          ({positionalArgs, namedArgs}) {
-        final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
-        tile?.clearOverlaySprite();
-      }, override: true);
+    engine.hetu.interpreter.bindExternalFunction('showFog', (
+        {positionalArgs, namedArgs}) {
+      map.showFogOfWar = positionalArgs.first;
+    }, override: true);
 
-      engine.hetu.interpreter.bindExternalFunction(
-          'clearTerrainOverlayAnimation', ({positionalArgs, namedArgs}) {
-        final tile = map.getTerrain(positionalArgs[0], positionalArgs[1]);
-        tile?.clearOverlayAnimation();
-      }, override: true);
-
-      engine.hetu.interpreter.bindExternalFunction('setPlayerFreeze', (
-          {positionalArgs, namedArgs}) {
-        playerFreezed = positionalArgs.first;
-      }, override: true);
-
-      engine.hetu.interpreter.bindExternalFunction('updateHeroTileInfo', (
-          {positionalArgs, namedArgs}) {
-        map.hero!.tilePosition = TilePosition(
-            _heroData['worldPosition']['left'],
-            _heroData['worldPosition']['top']);
-        map.updateTileInfo(map.hero!);
-      }, override: true);
-
-      engine.hetu.interpreter.bindExternalFunction('setObjectTo', (
-          {positionalArgs, namedArgs}) {
-        assert(map.movingObjects.containsKey(positionalArgs[0]));
-        final object = map.movingObjects[positionalArgs[0]]!;
-        object.tilePosition =
-            TilePosition(positionalArgs[1], positionalArgs[2]);
-        map.updateTileInfo(object);
-        engine.hetu.invoke('setEntityWorldPosition', positionalArgs: [
-          object.data,
-          positionalArgs[1],
-          positionalArgs[2]
-        ]);
-      });
-
-      engine.hetu.interpreter.bindExternalFunction('moveObjectTo', (
-          {positionalArgs, namedArgs}) {
-        assert(map.movingObjects.containsKey(positionalArgs[0]));
-        final completer = Completer();
-        final int toX = positionalArgs[1];
-        final int toY = positionalArgs[2];
-        final String? endDirString = namedArgs['endDirection'];
-        OrthogonalDirection? finishMoveDirection;
-        if (endDirString != null) {
-          finishMoveDirection = OrthogonalDirection.values
-              .singleWhere((element) => element.name == endDirString);
-        }
-        final HTFunction? onAfterMoveCallback =
-            namedArgs['onAfterMoveCallback'];
-        final object = map.movingObjects[positionalArgs[0]]!;
-        final route = _calculateRoute(
-            fromX: object.left, fromY: object.top, toX: toX, toY: toY);
-        if (route != null) {
-          map.moveObjectToTilePositionByRoute(
-            object,
-            List<int>.from(route),
-            finishMoveDirection: finishMoveDirection,
-            onAfterMoveCallback: (tile, [nonEnterableDestination]) {
-              onAfterMoveCallback?.call(
-                  positionalArgs: [tile.data, nonEnterableDestination?.data]);
-              completer.complete();
-            },
-          );
-        } else {
-          engine.error(
-              'cannot move ${object.id} from position [${object.tilePosition}] to [$toX, $toY]}');
-          completer.complete();
-        }
-        return completer.future;
-      }, override: true);
-
-      engine.hetu.interpreter.bindExternalFunction(
-          'updateNpcsInHeroWorldMapPosition',
-          ({positionalArgs, namedArgs}) => _updateNpcsInHeroWorldMapPosition(),
-          override: true);
-
-      engine.hetu.interpreter.bindExternalFunction('updateNpcsInHeroLocation',
-          ({positionalArgs, namedArgs}) => _updateNpcsInHeroLocation(),
-          override: true);
-
-      engine.hetu.interpreter.bindExternalFunction('addHintText', (
-          {positionalArgs, namedArgs}) {
-        final hexString = positionalArgs[3];
-        Color? color;
-        if (hexString != null) {
-          color = HexColor.fromString(hexString);
-        }
-        addHintTextByTilePosition(
-          positionalArgs[0],
-          positionalArgs[1],
-          positionalArgs[2],
-          color: color,
-        );
-      }, override: true);
-
-      engine.hetu.interpreter.bindExternalFunction(
-          'moveCameraToMapPosition',
-          ({positionalArgs, namedArgs}) => map.moveCameraToTilePosition(
-              positionalArgs[0], positionalArgs[1]),
-          override: true);
-
-      engine.hetu.interpreter.bindExternalFunction('lightUpAroundTile', (
-          {positionalArgs, namedArgs}) {
-        map.lightUpAroundTile(
-          TilePosition(positionalArgs[0], positionalArgs[1]),
-          size: positionalArgs[2],
-        );
-      }, override: true);
-
-      engine.hetu.interpreter.bindExternalFunction(
-          'enterLocation',
-          ({positionalArgs, namedArgs}) =>
-              _tryEnterLocation(positionalArgs.first),
-          override: true);
-
-      engine.hetu.interpreter.bindExternalFunction('showFog', (
-          {positionalArgs, namedArgs}) {
-        map.showFogOfWar = positionalArgs.first;
-      }, override: true);
-
-      engine.hetu.interpreter.bindExternalFunction('switchWorld', (
-          {positionalArgs, namedArgs}) {
-        return context.read<SceneControllerState>().push(
-          positionalArgs.first,
-          constructorId: Scenes.worldmap,
-          arguments: {'id': positionalArgs.first, 'method': 'load'},
-        );
-      }, override: true);
-    }
+    engine.hetu.interpreter.bindExternalFunction('switchWorld', (
+        {positionalArgs, namedArgs}) {
+      return engine.pushScene(
+        positionalArgs.first,
+        constructorId: Scenes.worldmap,
+        arguments: {'id': positionalArgs.first, 'method': 'load'},
+      );
+    }, override: true);
   }
 
   void _addCloud() {
@@ -818,7 +777,7 @@ class WorldMapScene extends Scene {
   }
 
   void _heroMoveTo(TileMapTerrain terrain) {
-    if (!map.isTileVisible(terrain.left, terrain.top)) return;
+    if (!terrain.isLighted) return;
     final hero = map.hero!;
     if (hero.isWalking) return;
     if (terrain.terrainKind == TileMapTerrainKind.empty) return;
@@ -852,6 +811,11 @@ class WorldMapScene extends Scene {
                 map.hero!.isMovingCanceled = true;
               }
             }
+            map.lightUpAroundTile(
+              tile.tilePosition,
+              size: map.hero!.data['stats']['lightRadius'],
+              // excludeTerrainKinds: kExcludeTerrainKindsOnLighting,
+            );
             // TODO: 某些情况下，让英雄返回上一格
             // map.moveObjectToPreviousTile(map.hero!);
             if (isMainWorld) {
@@ -862,11 +826,6 @@ class WorldMapScene extends Scene {
           },
           onFinishMoveCallback: () async {
             // final lightedAreaSize = _heroData!['stats']['lightRadius'];
-            map.lightUpAroundTile(
-              map.hero!.tilePosition,
-              size: map.hero!.data['stats']['lightRadius'],
-              // excludeTerrainKinds: kExcludeTerrainKindsOnLighting,
-            );
             engine.hetu.invoke('setHeroWorldPosition', positionalArgs: [
               hero.tilePosition.left,
               hero.tilePosition.top
@@ -898,13 +857,10 @@ class WorldMapScene extends Scene {
     await engine.hetu
         .invoke('onBeforeHeroEnterLocation', positionalArgs: [locationData]);
 
-    assert(context.mounted);
-    if (context.mounted) {
-      context.read<SceneControllerState>().push(
-        Scenes.location,
-        arguments: {'location': locationData},
-      );
-    }
+    engine.pushScene(
+      Scenes.location,
+      arguments: {'location': locationData},
+    );
   }
 
   List? _calculateRoute({
@@ -974,11 +930,8 @@ class WorldMapScene extends Scene {
         }
       } else if (buttons == kSecondaryButton) {
         if (_isDragging) return;
-        if (tilePosition == map.selectedTerrain?.tilePosition &&
-            _heroAtTerrain != null) {
-          if (!map.isTileVisible(_heroAtTerrain!.left, _heroAtTerrain!.top)) {
-            return;
-          }
+        if (_heroAtTerrain != null &&
+            tilePosition == _heroAtTerrain!.tilePosition) {
           _menuPosition = map.tilePosition2TileCenterInScreen(
               _heroAtTerrain!.left, _heroAtTerrain!.top);
         }
@@ -1018,6 +971,7 @@ class WorldMapScene extends Scene {
 
     assert(_heroData != null);
     await map.loadHeroFromData(_heroData);
+
     assert(context.mounted);
     if (context.mounted) {
       context.read<GameUIOverlayVisibilityState>().setVisible();
@@ -1026,17 +980,15 @@ class WorldMapScene extends Scene {
 
     engine.hetu.invoke('updateWorldMapCaptions');
 
-    // final lightedAreaSize = _heroData!['stats']['lightRadius'];
-    // map.lightUpAroundTile(
-    //   map.hero!.tilePosition,
-    //   size: _heroData!['stats']['lightRadius'],
-    //   // excludeTerrainKinds: kExcludeTerrainKindsOnLighting,
-    // );
-
     if (_heroData['worldPosition']?['worldId'] == map.id) {
       _setHeroTerrain(map.getTerrainAtHero());
       map.moveCameraToTilePosition(map.hero!.left, map.hero!.top,
           animated: false);
+      // 刚进入游戏时可能会有黑屏对话，因此这里不点亮地图
+      // map.lightUpAroundTile(
+      //   map.hero!.tilePosition,
+      //   size: _heroData!['stats']['lightRadius'],
+      // );
     }
 
     await _updateMap();
@@ -1197,7 +1149,7 @@ class WorldMapScene extends Scene {
                       );
                     case WorldMapDropMenuItems.exit:
                       context.read<SelectedTileState>().clear();
-                      context.read<SceneControllerState>().clearAll(
+                      engine.clearAllCachedScene(
                           except: Scenes.mainmenu, arguments: {'reset': true});
                   }
                 },
@@ -1220,11 +1172,8 @@ class WorldMapScene extends Scene {
                       );
                       if (args == null) return;
 
-                      assert(context.mounted);
-                      if (context.mounted) {
-                        context.read<SceneControllerState>().push(args['id'],
-                            constructorId: Scenes.worldmap, arguments: args);
-                      }
+                      engine.pushScene(args['id'],
+                          constructorId: Scenes.worldmap, arguments: args);
                     case WorldEditorDropMenuItems.switchWorld:
                       final worldId = await showDialog(
                         context: context,
@@ -1243,23 +1192,18 @@ class WorldMapScene extends Scene {
                       engine.hetu.invoke('setCurrentWorldId',
                           positionalArgs: [worldId]);
 
-                      assert(context.mounted);
-                      if (context.mounted) {
-                        if (engine.hasScene(worldId)) {
-                          context
-                              .read<SceneControllerState>()
-                              .switchTo(worldId);
-                        } else {
-                          context.read<SceneControllerState>().push(
-                            worldId,
-                            constructorId: Scenes.worldmap,
-                            arguments: {
-                              'id': worldId,
-                              'method': 'load',
-                              'isEditorMode': true,
-                            },
-                          );
-                        }
+                      if (engine.hasScene(worldId)) {
+                        engine.switchScene(worldId);
+                      } else {
+                        engine.pushScene(
+                          worldId,
+                          constructorId: Scenes.worldmap,
+                          arguments: {
+                            'id': worldId,
+                            'method': 'load',
+                            'isEditorMode': true,
+                          },
+                        );
                       }
                     case WorldEditorDropMenuItems.expandWorld:
                       showDialog<(int, int, String)>(
@@ -1338,7 +1282,7 @@ class WorldMapScene extends Scene {
                     case WorldEditorDropMenuItems.exit:
                       context.read<SelectedTileState>().clear();
                       context.read<EditorToolState>().clear();
-                      context.read<SceneControllerState>().clearAll(
+                      engine.clearAllCachedScene(
                           except: Scenes.mainmenu, arguments: {'reset': true});
                   }
                 },

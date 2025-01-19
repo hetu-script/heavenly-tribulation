@@ -6,12 +6,9 @@ import '../datetime.ht'
 import '../entity/item/material.ht'
 import '../entity/character/battle_entity.ht'
 import '../world/tile/common.ht'
-// import '../entity/character/npc/bandit.ht'
-// import '../entity/character/creature/beast.ht'
 import '../lootbox.ht'
 import '../binding/worldmap.ht'
 import '../dialog.ht'
-// import '../entity/skill/skill.ht'
 import '../entity/entity.ht'
 import '../entity/organization/organization.ht'
 import '../event.ht'
@@ -279,7 +276,7 @@ function onAfterHeroMove(terrain, nonEnterableDestination) {
     senseTerrain(nonEnterableDestination)
   }
   onWorldEvent('onAfterHeroMove', hero.worldPosition.left, hero.worldPosition.top)  
-  WorldMap.lightUpAroundTile(hero.worldPosition.left, hero.worldPosition.top, hero.stats.lightRadius)
+  // WorldMap.lightUpAroundTile(hero.worldPosition.left, hero.worldPosition.top, hero.stats.lightRadius)
 }
 
 /// 异步函数，会在显示地点窗口之前执行，执行完毕后才会进入地点
@@ -917,7 +914,7 @@ function onInteractObject(object, terrain) async {
       'portal': {
         setHeroWorldPosition(object.targetLeft, object.targetTop)
         // engine.play('transform-103819.mp3')
-        await WorldMap.moveCameraToMapPosition(object.targetLeft, object.targetTop)
+        await WorldMap.moveCameraToMapPosition(object.targetLeft, object.targetTop, animated: false)
         WorldMap.updateHeroTileInfo()
         WorldMap.lightUpAroundTile(object.targetLeft, object.targetTop, hero.stats.lightRadius)
         onWorldEvent('onAfterHeroMove', object.targetLeft, object.targetTop)
@@ -926,17 +923,42 @@ function onInteractObject(object, terrain) async {
         WorldMap.switchWorld(object.worldId)
       }
       'treasureBox': {
-        if (!object.isLocked) {
-          if (!object.isOpened) {
-            object.isOpened = true
-            for (let id in object.itemIds) {
-              Player.acquireItemById(id)
+        if (object.isOpened) return
+
+        object.isOpened = true
+        for (final itemInfo in object.items) {
+          switch (itemInfo.category) {
+            'material': {
+              assert(kMaterialKinds.contains(itemInfo.kind))
+              Player.collectById(itemInfo.kind, amount: itemInfo.amount ?? 1)
             }
-            engine.play('dooropened-103851.mp3')
-            terrain.overlaySprite = {sprite: kSpriteTreasureBoxOpened}
-            WorldMap.updateTerrainSprite(terrain.left, terrain.top)
+            'prototype': {
+              assert(game.items.contains(itemInfo.kind))
+              Player.acquireItemById(itemInfo.kind)
+            }
+            'equipment': {
+              assert(kEquipmentKinds.contains(itemInfo.kind))
+              final equipment = Equipment(
+                kind: itemInfo.kind,
+                rarity: itemInfo.rarity,
+                rank: itemInfo.rank,
+                level: itemInfo.level,
+              )
+              Player.acquire(equipment)
+            }
+            'cardpack': {
+              final cardpack = Cardpack(
+                kind: itemInfo.kind,
+                genre: itemInfo.genre,
+                rank: itemInfo.rank,
+              )
+              Player.acquire(cardpack)
+            }
           }
         }
+        engine.play('dooropened-103851.mp3')
+        Object.assign(terrain.overlaySprite, {sprite: kSpriteTreasureBoxOpened})
+        WorldMap.updateTerrainOverlaySprite(terrain.left, terrain.top)
       }
     }
   }

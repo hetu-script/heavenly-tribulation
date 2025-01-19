@@ -1,4 +1,12 @@
 {
+  "identifyStats": "识别属性",
+  "identifyDeck": "识别卡牌",
+
+  "identify_deck_hint": "识别对手卡牌可以在战斗前得知对手卡牌的详情。识别效果永久保留。每个月可以识别的对手卡牌有数量限制。神识可以提高上限。",
+
+  "identify_deck_reach_limit": "本月识别卡牌数量已达上限。",
+  "identify_deck_identifed_all": "对手已经没有未识别的卡牌。",
+
   "prebattle": "战斗准备",
   "prebattle_check_stats": "查看属性",
   "prebattle_no_decks": "（当前无可用卡组）",

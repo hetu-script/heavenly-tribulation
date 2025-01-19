@@ -23,9 +23,9 @@
   "ore_description": "矿物：包含金属元素的矿物，是炼器和炼丹需要的材料。",
   "ore_package": "一堆矿石",
 
-  "plank": "木材",
-  "plank_package": "一堆木材",
-  "plank_description": "木材：粗略加工过的圆木，用作建筑材料和部分打造材料。",
+  "timber": "木材",
+  "timber_package": "一堆木材",
+  "timber_description": "木材：粗略加工过的圆木，用作建筑材料和部分打造材料。",
 
   "paper": "纸张",
   "paper_package": "一捆纸张",

@@ -70,8 +70,8 @@ class _GameAppState extends State<GameApp> {
       return BattleScene(
         heroData: arguments['heroData'],
         enemyData: arguments['enemyData'],
-        heroDeck: arguments['heroDeck'],
-        enemyDeck: arguments['enemyDeck'],
+        // heroDeck: arguments['heroDeck'],
+        // enemyDeck: arguments['enemyDeck'],
         isSneakAttack: arguments['isSneakAttack'] ?? false,
       );
     });
@@ -209,12 +209,12 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('showLibrary', (
         {positionalArgs, namedArgs}) {
-      context.read<SceneControllerState>().push(Scenes.library);
+      engine.pushScene(Scenes.library);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('showCultivation', (
         {positionalArgs, namedArgs}) {
-      context.read<SceneControllerState>().push(Scenes.cultivation);
+      engine.pushScene(Scenes.cultivation);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('expForLevel',
@@ -296,12 +296,7 @@ class _GameAppState extends State<GameApp> {
       await _initGame();
       _isInitted = true;
 
-      assert(mounted);
-      if (mounted) {
-        context
-            .read<SceneControllerState>()
-            .push(Scenes.mainmenu, arguments: {'reset': true});
-      }
+      engine.pushScene(Scenes.mainmenu, arguments: {'reset': true});
     } else {
       // 游戏已经初始化完毕，此时根据当前状态读取或切换场景
       assert(engine.isInitted);
@@ -333,7 +328,7 @@ class _GameAppState extends State<GameApp> {
             text: engine.isInitted ? engine.locale('loading') : 'Loading...',
           );
         } else {
-          final scene = context.watch<SceneControllerState>().scene;
+          final scene = context.watch<SamsaraEngine>().scene;
           return Scaffold(body: scene?.build(context));
         }
       },

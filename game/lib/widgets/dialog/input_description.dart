@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 
 import '../../engine.dart';
@@ -54,7 +54,7 @@ class _InputDescriptionDialogState extends State<InputDescriptionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsivePanel(
+    return ResponsiveView(
       alignment: AlignmentDirectional.center,
       child: SizedBox(
         width: 600.0,

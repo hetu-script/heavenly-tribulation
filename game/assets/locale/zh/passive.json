@@ -87,6 +87,7 @@
   "passive_elemental_resist_description": "元素抗性 +{0}",
   "passive_spiritual_resist_description": "精神抗性 +{0}",
 
+  "passive_light_radius_description": "大地图视野范围 +{0}",
   "passive_life_max_description": "生命上限 +{0}",
 
   "passive_dexterity_description": "身法 +{0}",

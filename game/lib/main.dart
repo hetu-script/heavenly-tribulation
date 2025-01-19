@@ -82,7 +82,7 @@ void main() {
     runApp(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (_) => SceneControllerState(engine)),
+          ChangeNotifierProvider(create: (_) => engine),
           ChangeNotifierProvider(create: (_) => SelectedTileState()),
           ChangeNotifierProvider(create: (_) => GameSavesState()),
           ChangeNotifierProvider(create: (_) => EditorToolState()),

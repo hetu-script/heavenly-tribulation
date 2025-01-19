@@ -53,16 +53,13 @@ class LocationScene extends Scene {
       );
       // 这里不知为何flutter命名Pop的是Null，传过来却变成了bool，只好用类型判断是否选择了角色
       if (selectedId is String) {
-        if (context.mounted) {
-          final homeSiteId = 'home.$selectedId';
-          final homeSiteData = locationData['sites'][homeSiteId];
-          await context
-              .read<SceneControllerState>()
-              .push(Scenes.location, arguments: {'location': homeSiteData});
-          updateNPCsInHeroSite(homeSiteId);
-          await engine.hetu.invoke('onAfterHeroEnterSite',
-              positionalArgs: [locationData, homeSiteData]);
-        }
+        final homeSiteId = 'home.$selectedId';
+        final homeSiteData = locationData['sites'][homeSiteId];
+        await engine
+            .pushScene(Scenes.location, arguments: {'location': homeSiteData});
+        updateNPCsInHeroSite(homeSiteId);
+        await engine.hetu.invoke('onAfterHeroEnterSite',
+            positionalArgs: [locationData, homeSiteData]);
       }
     } else {
       GameDialog.show(context: context, dialogData: {
@@ -100,7 +97,7 @@ class LocationScene extends Scene {
         if (siteCard.data['category'] != 'residence') {
           openResidenceList();
         } else {
-          await context.read<SceneControllerState>().push(
+          await engine.pushScene(
             Scenes.location,
             arguments: {'location': siteCard.data},
           );

@@ -435,19 +435,6 @@ struct Character {
     // }
     this.bonds = {}
     
-    // 指此角色对其他角色进行过的动作，限定每个月一次
-    this.montylyActivities = {
-      // 人物互动
-      talked: [],
-      gifted: [],
-      requested: [],
-      practiced: [],
-      consulted: [],
-      insulted: [],
-      stolen: [],
-    }
-
-    
     if (locationId) {
       const location = game.locations[locationId]
       setCharacterLocationId(this, locationId)

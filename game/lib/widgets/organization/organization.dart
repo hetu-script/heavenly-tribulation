@@ -6,7 +6,7 @@ import 'package:hetu_script/values.dart';
 import '../../engine.dart';
 import '../../ui.dart';
 import 'package:samsara/ui/close_button2.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 // import '../../game_entity_listview.dart';
 import '../../util.dart';
 import '../common.dart';
@@ -100,7 +100,7 @@ class _OrganizationViewState extends State<OrganizationView> {
   Widget build(BuildContext context) {
     // final headTitle = _organizationData['rankTitles'][6];
 
-    return ResponsivePanel(
+    return ResponsiveView(
       alignment: AlignmentDirectional.center,
       width: 400.0,
       height: 400.0,

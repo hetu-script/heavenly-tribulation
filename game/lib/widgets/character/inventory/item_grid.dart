@@ -6,14 +6,15 @@ import 'package:samsara/ui/rrect_icon.dart';
 import 'package:samsara/pointer_detector.dart';
 
 import '../../../ui.dart';
-// import '../../../common.dart';
-import '../../../state/hover_info.dart';
+import '../../../data.dart';
+import '../../../state/hoverinfo.dart';
 
 const kDefaultItemGridSize = Size(48.0, 48.0);
 
 class ItemGrid extends StatelessWidget {
   const ItemGrid({
     super.key,
+    this.characterData,
     this.size = kDefaultItemGridSize,
     this.itemData,
     this.onTapped,
@@ -22,10 +23,10 @@ class ItemGrid extends StatelessWidget {
     this.isSelected = false,
     this.isEquipped = false,
     this.child,
-    this.backgroundImage,
     this.showEquippedIcon = true,
   });
 
+  final dynamic characterData;
   final Size size;
   final dynamic itemData;
   final void Function(dynamic itemData, Offset screenPosition)? onTapped;
@@ -34,7 +35,6 @@ class ItemGrid extends StatelessWidget {
   final bool hasBorder;
   final bool isSelected, isEquipped;
   final Widget? child;
-  final ImageProvider<Object>? backgroundImage;
   final bool showEquippedIcon;
 
   @override
@@ -54,7 +54,16 @@ class ItemGrid extends StatelessWidget {
             return;
           }
           final Rect rect = getRenderRect(context);
-          context.read<HoverInfoContentState>().set(itemData, rect);
+          final isDetailed = context.read<HoverInfoContentState>().isDetailed;
+          final description = GameData.getDescriptiomFromItemData(
+            itemData,
+            isDetailed: isDetailed,
+            characterData: characterData,
+          );
+          context.read<HoverInfoContentState>().set(
+                description,
+                rect,
+              );
         },
         onMouseExit: (event) {
           context.read<HoverInfoContentState>().hide();
@@ -72,19 +81,17 @@ class ItemGrid extends StatelessWidget {
           height: size.height,
           decoration: hasBorder
               ? BoxDecoration(
-                  color: GameUI.backgroundColor,
+                  // color: GameUI.backgroundColor,
                   border: Border.all(
                     color: isSelected
                         ? Colors.yellow
                         : GameUI.foregroundColor.withAlpha(64),
                   ),
-                  image: backgroundImage != null
-                      ? DecorationImage(
-                          fit: BoxFit.contain,
-                          image: backgroundImage!,
-                          opacity: 0.2,
-                        )
-                      : null,
+                  image: DecorationImage(
+                    fit: BoxFit.contain,
+                    image: const AssetImage('assets/images/item/grid.png'),
+                    opacity: 0.2,
+                  ),
                   borderRadius: GameUI.borderRadius,
                 )
               : null,

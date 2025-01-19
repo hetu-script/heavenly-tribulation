@@ -1,17 +1,12 @@
 import 'dart:io';
 import 'dart:convert';
-// import 'dart:math' as math;
 
-// import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show BuildContext;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:hetu_script/utils/collection.dart';
-// import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:json5/json5.dart';
 import 'package:samsara/samsara.dart';
-// import 'package:samsara/utils/json.dart';
-// import 'package:hetu_script/utils/uid.dart';
 
 import 'ui.dart';
 import 'common.dart';

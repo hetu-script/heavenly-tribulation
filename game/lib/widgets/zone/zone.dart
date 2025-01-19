@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../engine.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 
 class ZoneView extends StatelessWidget {
   final String? zoneId;
@@ -20,7 +20,7 @@ class ZoneView extends StatelessWidget {
       engine.hetu.invoke('getZoneById', positionalArgs: [zoneId!]);
     }
 
-    return ResponsivePanel(
+    return ResponsiveView(
       alignment: AlignmentDirectional.center,
       width: 400.0,
       height: 400.0,

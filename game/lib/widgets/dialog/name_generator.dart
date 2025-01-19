@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 
 import '../../engine.dart';
@@ -38,7 +38,7 @@ class _NameGeneratorState extends State<NameGenerator> {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsivePanel(
+    return ResponsiveView(
       alignment: AlignmentDirectional.center,
       width: 220.0,
       height: 100.0,

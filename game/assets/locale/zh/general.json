@@ -25,6 +25,8 @@
   "openAll": "全部打开",
   "selectAll": "选择全部",
 
+  "available_count": "剩余次数",
+
   "id": "ID",
   "characterId": "角色ID",
   "locationId": "据点ID",

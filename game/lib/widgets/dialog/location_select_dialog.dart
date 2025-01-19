@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 
 import '../../engine.dart';
 import '../../util.dart';
@@ -85,7 +85,7 @@ class LocationSelectDialog extends StatelessWidget {
       data.add(row);
     }
 
-    return ResponsivePanel(
+    return ResponsiveView(
       alignment: AlignmentDirectional.center,
       child: Scaffold(
         appBar: AppBar(
@@ -99,7 +99,7 @@ class LocationSelectDialog extends StatelessWidget {
           onItemPressed: (buttons, position, dataId) async {
             final value = await showDialog(
               context: context,
-              builder: (context) => ResponsivePanel(
+              builder: (context) => ResponsiveView(
                 alignment: AlignmentDirectional.center,
                 width: GameUI.profileWindowWidth,
                 height: 400.0,

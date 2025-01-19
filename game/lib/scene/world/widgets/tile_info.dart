@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 
 import '../../../engine.dart';
 import '../../../ui.dart';
@@ -30,7 +30,7 @@ class _TileInfoPanelState extends State<TileInfoPanel> {
           '${currentTerrain.data['left']}, ${currentTerrain.data['top']}';
     }
 
-    return ResponsivePanel(
+    return ResponsiveView(
       color: GameUI.backgroundColor,
       width: 220,
       height: 160,

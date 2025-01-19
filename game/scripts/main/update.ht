@@ -188,13 +188,13 @@ function updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
     //   }
     // }
 
-    // if (playerEvent) {
-    //   // 触发一些玩家遇到的固定事件
-    //   if (game.timestamp % kTicksPerMonth == 0) {
-    //     // 重置玩家自己的每月行动
-    //     resetPlayerMonthlyActivities(game)
-    //   }
-    // }
+    if (playerEvent) {
+      // 触发一些玩家遇到的固定事件
+      if (game.timestamp % kTicksPerMonth == 0) {
+        // 重置玩家自己的每月行动
+        resetPlayerMonthlyActivities()
+      }
+    }
 
     // 调用mod上的回调函数
     onWorldEvent('onAfterWorldUpdate')

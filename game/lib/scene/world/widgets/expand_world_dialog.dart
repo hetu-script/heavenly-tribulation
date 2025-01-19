@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 // import 'package:samsara/ui/ink_button.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/integer_input_field.dart';
 import 'package:samsara/ui/close_button2.dart';
 
@@ -52,7 +52,7 @@ class _ExpandWorldDialogState extends State<ExpandWorldDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsivePanel(
+    return ResponsiveView(
       width: 250.0,
       height: 160.0,
       alignment: AlignmentDirectional.center,

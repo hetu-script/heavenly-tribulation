@@ -29,7 +29,7 @@ namespace WorldMap {
 
   external function addHintText(text, left, top, [color])
 
-  external async function moveCameraToMapPosition(left, top)
+  external async function moveCameraToMapPosition(left, top, {animated = true})
 
   external function lightUpAroundTile(left, top, [ size = 1 ])
 

@@ -12,7 +12,8 @@ import 'common.dart';
 import '../game_dialog/game_dialog.dart';
 import '../../logic/battlecard.dart';
 import 'card_library.dart';
-import '../../state/hover_info.dart';
+import '../../state/hoverinfo.dart';
+import '../common.dart';
 
 enum PlaceHolderState {
   newDeck,
@@ -23,7 +24,7 @@ enum PlaceHolderState {
 class DeckBuildingZone extends PiledZone with HandlesGesture {
   static const _indent = 20.0;
 
-  dynamic _heroData;
+  final dynamic heroData;
 
   // late final SpriteComponent background;
 
@@ -37,7 +38,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
   void save() {
     _saved = true;
 
-    final List decks = _heroData['battleDecks'];
+    final List decks = heroData['battleDecks'];
     final deckInfo = createDeckInfo();
 
     if (index >= decks.length) {
@@ -105,7 +106,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     if (cards.length < limitMin) valid = false;
 
     for (final card in cards) {
-      valid = checkCardRequirement(_heroData, (card as CustomGameCard).data);
+      valid = checkCardRequirement(heroData, (card as CustomGameCard).data);
     }
 
     return valid;
@@ -115,6 +116,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
   void Function()? onCardUnpreviewed;
 
   DeckBuildingZone({
+    this.heroData,
     super.title,
     bool? isBattleDeck,
     List<dynamic>? preloadCardIds,
@@ -261,9 +263,8 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     // );
     // add(background);
 
-    _heroData = engine.hetu.fetch('hero');
-    assert(_heroData != null);
-    final deckLimit = getDeckLimitFromRank(_heroData['cultivationRank']);
+    assert(heroData != null);
+    final deckLimit = getDeckLimitFromRank(heroData['cultivationRank']);
     limitMin = deckLimit.$1;
     limit = deckLimit.$2;
     limitEphemeralMax = deckLimit.$3;
@@ -412,9 +413,15 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
 
       reorderCard(card.index, dragToIndex);
     };
-    card.onPreviewed =
-        () => previewCard(game, card, direction: HoverInfoDirection.leftTop);
-    card.onUnpreviewed = () => unpreviewCard(game, card);
+    card.onPreviewed = () => previewCard(
+          game.context,
+          'deckbuilding_card_${card.id}',
+          card.data,
+          card.toAbsoluteRect(),
+          direction: HoverInfoDirection.leftTop,
+          characterData: heroData,
+        );
+    card.onUnpreviewed = () => unpreviewCard(game.context);
 
     placeCard(card, index: index, animated: animated);
 

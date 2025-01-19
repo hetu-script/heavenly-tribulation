@@ -11,7 +11,7 @@ import 'package:samsara/gestures.dart';
 import '../../data.dart';
 import '../../ui.dart';
 import 'deckbuilding_zone.dart';
-import 'common.dart';
+import '../common.dart';
 import '../../engine.dart';
 // import 'cardcrafting_area.dart';
 import '../game_dialog/game_dialog.dart';
@@ -62,6 +62,8 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
   void Function(CustomGameCard card)? onCardPreviewed;
   void Function()? onCardUnpreviewed;
 
+  final dynamic heroData;
+
   @override
   void onMount() {
     super.onMount();
@@ -77,6 +79,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
   }
 
   CardLibraryZone({
+    this.heroData,
     Sprite? stackSprite,
     super.priority,
     this.onCardPreviewed,
@@ -333,8 +336,14 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     card.onDragEnd = (_, __) {
       (game as CardLibraryScene).cardDragRelease();
     };
-    card.onPreviewed = () => previewCard(game, card);
-    card.onUnpreviewed = () => unpreviewCard(game, card);
+    card.onPreviewed = () => previewCard(
+          game.context,
+          'library_card_${card.id}',
+          card.data,
+          card.toAbsoluteRect(),
+          characterData: heroData,
+        );
+    card.onUnpreviewed = () => unpreviewCard(game.context);
 
     library[card.id] = card;
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:samsara/ui/empty_placeholder.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 
 import '../../engine.dart';
@@ -133,7 +133,7 @@ class CharacterVisitDialog extends StatelessWidget {
           ]);
     }));
 
-    return ResponsivePanel(
+    return ResponsiveView(
       alignment: AlignmentDirectional.center,
       margin: const EdgeInsets.fromLTRB(50.0, 50.0, 50.0, 50.0),
       child: Scaffold(

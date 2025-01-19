@@ -1,11 +1,12 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/components/sprite_button.dart';
 import 'package:flame/flame.dart';
-import 'package:provider/provider.dart';
 
 import '../../ui.dart';
 import 'character.dart';
@@ -15,6 +16,7 @@ import 'versus_banner.dart';
 import '../common.dart';
 import '../../data.dart';
 import 'common.dart';
+import 'drop_menu.dart';
 
 /// 属性效果对应的永久状态，值是正面状态和负面状态的元组
 const kStatsToPermenantEffects = {
@@ -38,7 +40,7 @@ class BattleScene extends Scene {
   late final BattleCharacter hero, enemy;
   late final BattleDeckZone heroDeckZone, enemyDeckZone;
   final dynamic heroData, enemyData;
-  final List<CustomGameCard> heroDeck, enemyDeck;
+  late final List<CustomGameCard> heroDeck, enemyDeck;
 
   final bool isSneakAttack;
 
@@ -52,7 +54,7 @@ class BattleScene extends Scene {
 
   bool? battleResult;
 
-  late final SpriteButton nextTurnButton;
+  late final SpriteButton nextTurnButton, restartButton;
 
   bool battleStarted = false;
   bool battleEnded = false;
@@ -62,8 +64,6 @@ class BattleScene extends Scene {
   BattleScene({
     required this.heroData,
     required this.enemyData,
-    required this.heroDeck,
-    required this.enemyDeck,
     required this.isSneakAttack,
   }) : super(
           context: GameData.context,
@@ -89,9 +89,28 @@ class BattleScene extends Scene {
     }
   }
 
+  List<CustomGameCard> getDeck(dynamic characterData) {
+    final List decks = characterData['battleDecks'];
+    final index = characterData['battleDeckIndex'];
+    if (decks.isNotEmpty && index < decks.length) {
+      final deckInfo = decks[index];
+      final List cardIds = deckInfo['cards'];
+      return cardIds.map((id) {
+        final data = characterData['cardLibrary'][id];
+        assert(data != null);
+        return GameData.createBattleCardFromData(data, deepCopyData: true);
+      }).toList();
+    } else {
+      return [];
+    }
+  }
+
   @override
   void onLoad() async {
     super.onLoad();
+
+    heroDeck = getDeck(heroData);
+    enemyDeck = getDeck(enemyData);
 
     background = SpriteComponent(
       sprite: Sprite(await Flame.images.load('battle/scene/bamboo.png')),
@@ -127,9 +146,15 @@ class BattleScene extends Scene {
     for (final card in heroDeck) {
       final affixes = card.data['affixes'];
       for (final affix in affixes) {
-        heroAnimationStates.add(affix['animation'] ?? '');
-        heroAnimationStates.add(affix['recoveryAnimation'] ?? '');
-        heroOverlayAnimationStates.add(affix['overlayAnimation'] ?? '');
+        if (affix['animation'] != null) {
+          heroAnimationStates.add(affix['animation']);
+        }
+        if (affix['recoveryAnimation'] != null) {
+          heroAnimationStates.add(affix['recoveryAnimation']);
+        }
+        if (affix['overlayAnimation'] != null) {
+          heroOverlayAnimationStates.add(affix['overlayAnimation']);
+        }
       }
     }
     heroAnimationStates.remove('');
@@ -161,13 +186,17 @@ class BattleScene extends Scene {
     for (final card in enemyDeck) {
       final affixes = card.data['affixes'];
       for (final affix in affixes) {
-        enemyAnimationStates.add(affix['animation'] ?? '');
-        enemyAnimationStates.add(affix['recoveryAnimation'] ?? '');
-        enemyOverlayAnimationStates.add(affix['overlayAnimation'] ?? '');
+        if (affix['animation'] != null) {
+          enemyAnimationStates.add(affix['animation']);
+        }
+        if (affix['recoveryAnimation'] != null) {
+          enemyAnimationStates.add(affix['recoveryAnimation']);
+        }
+        if (affix['overlayAnimation'] != null) {
+          enemyOverlayAnimationStates.add(affix['overlayAnimation']);
+        }
       }
     }
-    enemyAnimationStates.remove('');
-    enemyOverlayAnimationStates.remove('');
     enemy = BattleCharacter(
       position: GameUI.p2CharacterAnimationPosition,
       size: GameUI.heroSpriteSize,
@@ -205,6 +234,27 @@ class BattleScene extends Scene {
       isFirsthand = heroRank > enemyRank;
     }
 
+    restartButton = SpriteButton(
+      spriteId: 'ui/button2.png',
+      text: engine.locale('restart'),
+      anchor: Anchor.center,
+      position: Vector2(
+          center.x,
+          heroDeckZone.position.y -
+              GameUI.buttonSizeMedium.y * 2 -
+              GameUI.indent),
+      size: Vector2(100.0, 40.0),
+    );
+    restartButton.onTap = (_, __) {
+      _victoryPrompt.removeFromParent();
+      _defeatPrompt.removeFromParent();
+      nextTurnButton.isVisible = true;
+      nextTurnButton.text = engine.locale('start');
+      nextTurnButton.onTap =
+          (_, __) => GameConfig.isDebugMode ? nextTurn() : startAutoBattle();
+      _prepareBattle();
+    };
+
     showStartPrompt();
   }
 
@@ -227,57 +277,36 @@ class BattleScene extends Scene {
   }
 
   void _prepareBattle() async {
+    battleEnded = false;
+    battleResult = null;
+    hero.reset();
+    enemy.reset();
+    heroDeckZone.reset();
+    enemyDeckZone.reset();
+    _addPermenantStatus(hero);
+    _addPermenantStatus(enemy);
     heroTurn = isFirsthand;
     currentCharacter = heroTurn ? hero : enemy;
     currentOpponent = heroTurn ? enemy : hero;
     currentCharacter.addHintText('${engine.locale('attackFirstInBattle')}!');
+    nextTurnButton.text = engine.locale('nextTurn');
   }
 
   Future<void> nextTurn() async {
     if (!battleEnded) {
       if (!battleStarted) {
+        battleStarted = true;
         versusBanner.moveTo(
           duration: 0.3,
           toPosition: Vector2(center.x, GameUI.hugeIndent),
         );
-        _prepareBattle();
-        nextTurnButton.text = engine.locale('nextTurn');
-        battleStarted = true;
-
-        final restartButton = SpriteButton(
-          spriteId: 'ui/button2.png',
-          text: engine.locale('restart'),
-          anchor: Anchor.center,
-          position: Vector2(
-              center.x,
-              heroDeckZone.position.y -
-                  GameUI.buttonSizeMedium.y * 2 -
-                  GameUI.indent),
-          size: Vector2(100.0, 40.0),
-        );
-        restartButton.onTap = (_, __) {
-          _victoryPrompt.removeFromParent();
-          _defeatPrompt.removeFromParent();
-          battleEnded = false;
-          battleResult = null;
-          nextTurnButton.enableGesture = true;
-          nextTurnButton.text = engine.locale('nextTurn');
-          hero.reset();
-          enemy.reset();
-          heroDeckZone.reset();
-          enemyDeckZone.reset();
-          _addPermenantStatus(hero);
-          _addPermenantStatus(enemy);
-          _prepareBattle();
-          nextTurnButton.text = engine.locale('nextTurn');
-          nextTurnButton.onTap = (_, __) => nextTurn();
-          battleStarted = true;
-        };
-
         camera.viewport.add(restartButton);
+        _prepareBattle();
       } else if (battleResult == null) {
-        nextTurnButton.enableGesture = false;
-        _startTurn();
+        final skipped = await _startTurn();
+        if (skipped) {
+          _startTurn();
+        }
       } else {
         _endBattle();
       }
@@ -285,8 +314,10 @@ class BattleScene extends Scene {
   }
 
   CustomGameCard nextCard() {
+    assert(currentCharacter.deckZone.cards.isNotEmpty);
+    assert(currentCharacter.deckZone.current != null);
     CustomGameCard card;
-    if (currentCharacter.deckZone.current.next == null) {
+    if (currentCharacter.deckZone.current!.next == null) {
       for (final card in currentCharacter.deckZone.cards) {
         card.isEnabled = true;
       }
@@ -297,26 +328,33 @@ class BattleScene extends Scene {
 
       card = currentCharacter.deckZone.cards.first as CustomGameCard;
     } else {
-      card = currentCharacter.deckZone.current.next as CustomGameCard;
+      card = currentCharacter.deckZone.current!.next as CustomGameCard;
     }
     return card;
   }
 
-  Future<void> _startTurn() async {
+  Future<bool> _startTurn() async {
+    restartButton.isVisible = false;
+    nextTurnButton.isVisible = false;
     bool extraTurn = false;
-    CustomGameCard card = currentCharacter.deckZone.current;
-    do {
-      final turnStartDetails =
-          await currentCharacter.onTurnStart(card, isExtra: extraTurn);
-      bool skipTurn = turnStartDetails['skipTurn'] ?? false;
-      if (skipTurn) {
-        break;
-      }
-      final turnEndDetails = await currentCharacter.onTurnEnd(card);
-      card.isEnabled = false;
-      card = currentCharacter.deckZone.current = nextCard();
-      extraTurn = turnEndDetails['extraTurn'] ?? false;
-    } while (extraTurn);
+    bool skipTurn = false;
+    if (currentCharacter.deckZone.cards.isNotEmpty) {
+      CustomGameCard card = currentCharacter.deckZone.current!;
+      do {
+        final turnStartDetails =
+            await currentCharacter.onTurnStart(card, isExtra: extraTurn);
+        bool skipTurn = turnStartDetails['skipTurn'] ?? false;
+        if (skipTurn) {
+          break;
+        }
+        final turnEndDetails = await currentCharacter.onTurnEnd(card);
+        card.isEnabled = false;
+        card = currentCharacter.deckZone.current = nextCard();
+        extraTurn = turnEndDetails['extraTurn'] ?? false;
+      } while (extraTurn);
+    } else {
+      skipTurn = true;
+    }
 
     heroTurn = !heroTurn;
     currentCharacter = heroTurn ? hero : enemy;
@@ -345,11 +383,14 @@ class BattleScene extends Scene {
       battleResult = false;
     }
 
-    nextTurnButton.enableGesture = true;
+    nextTurnButton.isVisible = true;
+    restartButton.isVisible = true;
+
+    return skipTurn;
   }
 
   void _endScene() {
-    context.read<SceneControllerState>().pop(clearCache: true);
+    engine.popScene(clearCache: true);
   }
 
   void _endBattle() {
@@ -387,5 +428,33 @@ class BattleScene extends Scene {
     } while (battleResult == null);
 
     _endBattle();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        SceneWidget(scene: this),
+        if (kDebugMode || GameConfig.isDebugMode)
+          Positioned(
+            right: 0,
+            top: 0,
+            child: BattleDropMenu(
+              onSelected: (item) {
+                switch (item) {
+                  case BattleDropMenuItems.console:
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) =>
+                          Console(engine: engine),
+                    );
+                  case BattleDropMenuItems.exit:
+                    _endScene();
+                }
+              },
+            ),
+          ),
+      ],
+    );
   }
 }

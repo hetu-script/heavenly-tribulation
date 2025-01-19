@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 
 import '../character/memory.dart';
@@ -201,7 +201,7 @@ class _WorldInformationPanelState extends State<WorldInformationPanel>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return ResponsivePanel(
+    return ResponsiveView(
       alignment: AlignmentDirectional.bottomCenter,
       child: DefaultTabController(
         length: _tabs.length,
@@ -228,7 +228,7 @@ class _WorldInformationPanelState extends State<WorldInformationPanel>
                       case WorldInformationCharacterPopUpMenuItems.checkProfile:
                         showDialog(
                           context: context,
-                          builder: (context) => ResponsivePanel(
+                          builder: (context) => ResponsiveView(
                             alignment: AlignmentDirectional.center,
                             width: GameUI.profileWindowWidth,
                             height: 400.0,
@@ -240,7 +240,7 @@ class _WorldInformationPanelState extends State<WorldInformationPanel>
                         showDialog(
                           context: context,
                           builder: (context) =>
-                              CharacterDetailsView(characterId: dataId),
+                              CharacterDetails(characterId: dataId),
                         );
                       case WorldInformationCharacterPopUpMenuItems.checkMemory:
                         showDialog(

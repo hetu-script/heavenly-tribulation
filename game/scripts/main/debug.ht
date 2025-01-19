@@ -19,6 +19,10 @@ namespace Debug {
       availableSkillPoints: level,
     )
     setHeroId(hero.id)
+
+    testCardpack()
+    testEquipment()
+
     return hero
   }
 
@@ -48,6 +52,44 @@ namespace Debug {
       )
       Player.acquire(item)
     }
+  }
+
+  function generateEnemey({
+    isFemale,
+    level,
+    rank,
+  }) {
+    final enemy = BattleEntity(
+      isFemale: isFemale,
+      isMajorCharacter: false,
+      cultivationLevel: level,
+      cultivationRank: rank,
+    )
+    engine.debug('generated enemy: ${enemy.name}')
+    entityAcquire(enemy, BattleCard(
+      category: 'buff',
+      level: enemy.cultivationLevel,
+      rank: enemy.cultivationRank,
+    ))
+    entityAcquire(enemy, BattleCard(
+      category: 'attack',
+      level: enemy.cultivationLevel,
+      rank: enemy.cultivationRank,
+    ))
+    entityAcquire(enemy, BattleCard(
+      category: 'attack',
+      level: enemy.cultivationLevel,
+      rank: enemy.cultivationRank,
+    ))
+    final enemyDeck = {
+      title: 'battleDeck',
+      isBattleDeck: true,
+      cards: enemy.cardLibrary.values.map((card) => card.id).toList(),
+    }
+    enemy.battleDecks = [enemyDeck]
+    enemy.battleDeckIndex = 0
+
+    return enemy
   }
  
   function getCurrentTerrain() {
@@ -80,45 +122,6 @@ namespace Debug {
         WorldMap.setTerrainCaption(tile.left, tile.top, tile.objectId)
       }
     }
-  }
-
-  function generateEnemey() {
-    final enemy = BattleEntity(
-      isFemale: false,
-      isMajorCharacter: false,
-      cultivationLevel: 10,
-      cultivationRank: 1,
-      // 'baseStats': {
-      //   'life': 80,
-      //   'physiqueAttack': 5,
-      // },
-      // 'skin': 'boar',
-    )
-    engine.debug('generated enemy: ${enemy.name}')
-    entityAcquire(enemy, BattleCard(
-      mainAffixId: 'spell_energy',
-      level: enemy.cultivationLevel,
-      rank: enemy.cultivationRank,
-    ))
-    entityAcquire(enemy, BattleCard(
-      mainAffixId: 'attack_flying_sword_1',
-      level: enemy.cultivationLevel,
-      rank: enemy.cultivationRank,
-    ))
-    entityAcquire(enemy, BattleCard(
-      mainAffixId: 'lightning',
-      level: enemy.cultivationLevel,
-      rank: enemy.cultivationRank,
-    ))
-    final enemyDeck = {
-      title: 'battleDeck',
-      isBattleDeck: true,
-      cards: enemy.cardLibrary.values.map((card) => card.id).toList(),
-    }
-    enemy.battleDecks = [enemyDeck]
-    enemy.battleDeckIndex = 0
-
-    return enemy
   }
   
   function testMerchant() {

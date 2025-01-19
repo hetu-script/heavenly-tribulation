@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/ink_button.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
 import 'package:flame/extensions.dart';
@@ -96,7 +96,7 @@ class _ToolboxState extends State<Toolbox> {
   Widget build(BuildContext context) {
     final item = context.watch<EditorToolState>().selectedId;
 
-    return ResponsivePanel(
+    return ResponsiveView(
       color: GameUI.backgroundColor,
       width: 640,
       height: 200,

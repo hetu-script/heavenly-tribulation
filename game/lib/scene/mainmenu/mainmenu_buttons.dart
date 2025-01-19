@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:samsara/ui/label.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/samsara.dart';
 
 import '../../ui.dart';
 import '../../data.dart';
@@ -143,18 +142,15 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           setMenuState(MenuStates.main);
 
                           await GameData.loadPreset('tutorial');
-                          assert(context.mounted);
-                          if (context.mounted) {
-                            context.read<SceneControllerState>().push(
-                              'cave',
-                              constructorId: Scenes.worldmap,
-                              arguments: const {
-                                'id': 'cave',
-                                'savePath': 'tutorial',
-                                'method': 'preset',
-                              },
-                            );
-                          }
+                          engine.pushScene(
+                            'cave',
+                            constructorId: Scenes.worldmap,
+                            arguments: const {
+                              'id': 'cave',
+                              'savePath': 'tutorial',
+                              'method': 'preset',
+                            },
+                          );
                         },
                         child: Label(
                           engine.locale('tutorial'),
@@ -190,14 +186,11 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                             args['id'],
                             saveName: args['saveName'],
                           );
-                          assert(context.mounted);
-                          if (context.mounted) {
-                            context.read<SceneControllerState>().push(
-                                  args['id'],
-                                  constructorId: Scenes.worldmap,
-                                  arguments: args,
-                                );
-                          }
+                          engine.pushScene(
+                            args['id'],
+                            constructorId: Scenes.worldmap,
+                            arguments: args,
+                          );
                         },
                         child: Label(
                           engine.locale('sandboxMode'),
@@ -218,18 +211,15 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           setMenuState(MenuStates.main);
 
                           await GameData.loadGame(info.savePath);
-                          assert(context.mounted);
-                          if (context.mounted) {
-                            context.read<SceneControllerState>().push(
-                              info.currentWorldId,
-                              constructorId: Scenes.worldmap,
-                              arguments: {
-                                'id': info.currentWorldId,
-                                'savePath': info.savePath,
-                                'method': 'load',
-                              },
-                            );
-                          }
+                          engine.pushScene(
+                            info.currentWorldId,
+                            constructorId: Scenes.worldmap,
+                            arguments: {
+                              'id': info.currentWorldId,
+                              'savePath': info.savePath,
+                              'method': 'load',
+                            },
+                          );
                         },
                         child: Label(
                           engine.locale('load'),
@@ -269,14 +259,11 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                             saveName: args['saveName'],
                             isEditorMode: true,
                           );
-                          assert(context.mounted);
-                          if (context.mounted) {
-                            context.read<SceneControllerState>().push(
-                                  args['id'],
-                                  constructorId: Scenes.worldmap,
-                                  arguments: args,
-                                );
-                          }
+                          engine.pushScene(
+                            args['id'],
+                            constructorId: Scenes.worldmap,
+                            arguments: args,
+                          );
                         },
                         child: Label(
                           engine.locale('createMap'),
@@ -299,19 +286,16 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                             info.savePath,
                             isEditorMode: true,
                           );
-                          assert(context.mounted);
-                          if (context.mounted) {
-                            context.read<SceneControllerState>().push(
-                              info.currentWorldId,
-                              constructorId: Scenes.worldmap,
-                              arguments: {
-                                'id': info.currentWorldId,
-                                'method': 'load',
-                                'savePath': info.savePath,
-                                'isEditorMode': true,
-                              },
-                            );
-                          }
+                          engine.pushScene(
+                            info.currentWorldId,
+                            constructorId: Scenes.worldmap,
+                            arguments: {
+                              'id': info.currentWorldId,
+                              'method': 'load',
+                              'savePath': info.savePath,
+                              'isEditorMode': true,
+                            },
+                          );
                         },
                         child: Label(
                           engine.locale('load'),
@@ -374,9 +358,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           _heroData = engine.hetu
                               .invoke('generateHero', namespace: 'Debug');
                           context.read<HeroState>().update();
-                          context
-                              .read<SceneControllerState>()
-                              .clearAll(except: Scenes.mainmenu);
+                          engine.clearAllCachedScene(except: Scenes.mainmenu);
                         },
                         child: Label(
                           engine.locale('debug_reset_hero'),
@@ -389,9 +371,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                       padding: const EdgeInsets.only(top: 20.0),
                       child: ElevatedButton(
                         onPressed: () {
-                          context
-                              .read<SceneControllerState>()
-                              .push(Scenes.cultivation);
+                          engine.pushScene(Scenes.cultivation);
                         },
                         child: Label(
                           engine.locale('debug_cultivation'),
@@ -404,8 +384,13 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                       padding: const EdgeInsets.only(top: 20.0),
                       child: ElevatedButton(
                         onPressed: () {
-                          final enemy = engine.hetu
-                              .invoke('generateEnemey', namespace: 'Debug');
+                          final enemy = engine.hetu.invoke('generateEnemey',
+                              namespace: 'Debug',
+                              namedArgs: {
+                                'isFemale': false,
+                                'level': 0,
+                                'rank': 0,
+                              });
                           context.read<EnemyState>().update(enemy);
                         },
                         child: Label(engine.locale('debug_battle'),

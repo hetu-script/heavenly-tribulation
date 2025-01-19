@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 import '../../engine.dart';
 import 'package:samsara/ui/close_button2.dart';
 import '../character/inventory/inventory.dart';
@@ -55,7 +55,7 @@ class _MerchantViewState extends State<MerchantView> {
   Widget build(BuildContext context) {
     final heroData = engine.hetu.fetch('hero');
 
-    return ResponsivePanel(
+    return ResponsiveView(
       width: 720.0,
       height: 440.0,
       child: Scaffold(
@@ -74,7 +74,7 @@ class _MerchantViewState extends State<MerchantView> {
               child: Inventory(
                 height: 350,
                 // characterName: widget.merchantData['name'],
-                inventoryData: widget.merchantData['inventory'],
+                characterData: widget.merchantData,
                 // money: widget.merchantData['money'],
                 type: InventoryType.merchant,
                 priceFactor: widget.priceFactor,
@@ -125,7 +125,7 @@ class _MerchantViewState extends State<MerchantView> {
               child: Inventory(
                 height: 350,
                 // characterName: heroData['name'],
-                inventoryData: heroData['inventory'],
+                characterData: heroData,
                 // money: heroData['money'],
                 type: widget.allowSell
                     ? InventoryType.customer

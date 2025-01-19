@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/label.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 
 import '../../engine.dart';
@@ -811,8 +811,8 @@ class _CharacterProfileState extends State<CharacterProfile> {
   }
 }
 
-class CharacterProfilePanel extends StatelessWidget {
-  const CharacterProfilePanel({
+class CharacterProfileView extends StatelessWidget {
+  const CharacterProfileView({
     super.key,
     this.characterId,
     this.characterData,
@@ -838,7 +838,7 @@ class CharacterProfilePanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsivePanel(
+    return ResponsiveView(
       alignment: AlignmentDirectional.center,
       width: 700,
       height: 480.0,

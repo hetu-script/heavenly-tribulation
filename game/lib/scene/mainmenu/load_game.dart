@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 
 import '../../state/game_save.dart';
 import '../../engine.dart';
@@ -153,7 +153,7 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
       ),
     );
 
-    return ResponsivePanel(
+    return ResponsiveView(
       alignment: AlignmentDirectional.center,
       child: layout,
     );

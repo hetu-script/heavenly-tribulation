@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:json5/json5.dart';
 // import 'package:provider/provider.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 
 // import '../../../../ui/game_entity_listview.dart';
 import '../../../engine.dart';
@@ -26,7 +26,7 @@ import '../../../widgets/organization/edit_organization_basic.dart';
 import '../../../widgets/dialog/input_description.dart';
 
 const kObjectSourceTemplate = '''{
-  id: 'object_id',
+  id: 'object1',
   entityType: 'object',
   category: 'custom',
   isDiscovered: true,
@@ -36,7 +36,7 @@ const kObjectSourceTemplate = '''{
 ''';
 
 const kPortalObjectSourceTemplate = '''{
-  id: 'object_id',
+  id: 'portal1',
   entityType: 'object',
   category: 'portal',
   isDiscovered: true,
@@ -48,9 +48,9 @@ const kPortalObjectSourceTemplate = '''{
 ''';
 
 const kWorldGateObjectSourceTemplate = '''{
-  id: 'object_id',
+  id: 'worldGate1',
   entityType: 'object',
-  category: 'world_gate',
+  category: 'worldGate',
   isDiscovered: true,
   useCustomInteraction: false,
   blockHeroMove: false,
@@ -58,14 +58,48 @@ const kWorldGateObjectSourceTemplate = '''{
 }
 ''';
 
-const kCharacterGateObjectSourceTemplate = '''{
-  id: 'object_id',
+const kCharacterObjectSourceTemplate = '''{
+  id: 'characterObject1',
   entityType: 'object',
-  category: 'world_gate',
+  category: 'character',
   isDiscovered: true,
   useCustomInteraction: false,
   blockHeroMove: true,
   characterId: 'character_id',
+}
+''';
+
+const kTreasureBoxSourceTemplate = '''{
+  id: 'treasureBox1',
+  entityType: 'object',
+  category: 'treasureBox',
+  isDiscovered: true,
+  useCustomInteraction: false,
+  blockHeroMove: false,
+  items: [
+    {
+      category: 'material',
+      kind: 'money',
+      amount: 100,
+    },
+    {
+      category: 'prototype',
+      kind: 'jade',
+    },
+    {
+      category: 'equipment',
+      kind: 'sword',
+      rarity: 'basic',
+      rank: 0,
+      level: 0,
+    },
+    {
+      category: 'cardpack',
+      kind: 'punch',
+      genre: null,
+      rank: 0,
+    },
+  ]
 }
 ''';
 
@@ -175,10 +209,11 @@ List<PopupMenuEntry<LocationPopUpMenuItems>> buildLocationPopUpMenuItems(
 }
 
 enum CreateObjectPopUpMenuItems {
+  custom,
   portal,
   worldGate,
   character,
-  custom,
+  treasureBox,
 }
 
 List<PopupMenuEntry<CreateObjectPopUpMenuItems>>
@@ -190,6 +225,7 @@ List<PopupMenuEntry<CreateObjectPopUpMenuItems>>
         engine.locale('portal'): CreateObjectPopUpMenuItems.portal,
         engine.locale('worldGate'): CreateObjectPopUpMenuItems.worldGate,
         engine.locale('character'): CreateObjectPopUpMenuItems.character,
+        engine.locale('treasureBox'): CreateObjectPopUpMenuItems.treasureBox,
       },
       name: engine.locale('preset'),
       onSelectedItem: onSelectedItem,
@@ -348,7 +384,7 @@ class _EntityListPanelState extends State<EntityListPanel>
   void _editCharacter(String dataId) {
     showDialog(
       context: context,
-      builder: (context) => CharacterProfilePanel(
+      builder: (context) => CharacterProfileView(
         characterId: dataId,
         mode: InformationViewMode.edit,
       ),
@@ -472,7 +508,7 @@ class _EntityListPanelState extends State<EntityListPanel>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return ResponsivePanel(
+    return ResponsiveView(
       color: GameUI.backgroundColor,
       width: widget.size.width,
       height: widget.size.height,
@@ -500,7 +536,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                         showDialog(
                             context: context,
                             builder: (context) {
-                              return CharacterProfilePanel(
+                              return CharacterProfileView(
                                 mode: InformationViewMode.create,
                               );
                             }).then((value) {
@@ -554,7 +590,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                               showDialog(
                                 context: context,
                                 builder: (context) =>
-                                    CharacterDetailsView(characterId: dataId),
+                                    CharacterDetails(characterId: dataId),
                               );
                             case CharacterPopUpMenuItems.checkMemory:
                               showDialog(
@@ -814,7 +850,9 @@ class _EntityListPanelState extends State<EntityListPanel>
                             CreateObjectPopUpMenuItems.worldGate =>
                               kWorldGateObjectSourceTemplate,
                             CreateObjectPopUpMenuItems.character =>
-                              kCharacterGateObjectSourceTemplate,
+                              kCharacterObjectSourceTemplate,
+                            CreateObjectPopUpMenuItems.treasureBox =>
+                              kTreasureBoxSourceTemplate,
                           };
                           showDialog(
                             context: context,

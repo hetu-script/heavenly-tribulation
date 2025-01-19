@@ -27,6 +27,36 @@ let ticksOfMonth
 let day
 let ticksOfDay
 
+function getMonthlyIdentifiedCards() {
+  return game.playerMonthly.identifiedEnemyCards
+}
+
+function useIdentifyCard() {
+  ++game.playerMonthly.identifiedEnemyCards
+}
+
+struct MonthlyActivity {
+  constructor {
+      // 战斗操作
+    this.identifiedEnemyCards = 0
+
+    // 对其他角色操作
+    this.talked = []
+    this.gifted = []
+    this.practiced = []
+    this.consulted = []
+    this.requested = []
+    this.insulted = []
+    this.stolen = []
+
+    // 对某个建筑操作
+    this.worked = []
+
+    // 对自己组织操作
+    this.recruited = []
+  }
+}
+
 struct Game {
   constructor ({saveName}) {
     this.isNewGame = true
@@ -50,28 +80,11 @@ struct Game {
     // 每个月生成的可捕鱼的地点
     this.fishTileIndexes = []
     // 每个月生成的可恢复灵气的地点
-    this.spiritTileIndexes = []
+    // this.spiritTileIndexes = []
     
     // 游戏本身逻辑所用到的一些事件检查选项
     // 例如每个月是否进行了某个动作之类
-    this.flags = {
-      playerMonthly: {
-        // 对其他角色操作
-        talked: [],
-        gifted: [],
-        practiced: [],
-        consulted: [],
-        requested: [],
-        insulted: [],
-        stolen: [],
-
-        // 对某个建筑操作
-        worked: [],
-
-        // 对自己组织操作
-        recruited: [],
-      }
-    }
+    this.playerMonthly = MonthlyActivity()
     
     // 英雄的住所，直接保存在顶层
     // 但其实这里没有任何数据
@@ -110,7 +123,7 @@ function resetPlayerMonthlyActivities(){
   
   // 指玩家对某个其他角色、据点、地形、建筑进行过的动作，限定每个月一次
 
-  game.flags.playerMonthly = {
+  game.playerMonthly = {
     // 对其他角色操作
     talked: [],
     gifted: [],
@@ -238,6 +251,10 @@ function getHeroId() {
 
 function setHeroId(id: string) {
   assert(game.characters.containsKey(id))
+  if (hero != null) {
+    game.playerMonthly = MonthlyActivity()
+  }
+
   hero = game.characters[id]
 
   Player.updateStats()

@@ -13,7 +13,7 @@ class ItemSelectDialog extends StatefulWidget {
     super.key,
     this.args = const {},
     required this.title,
-    required this.inventoryData,
+    required this.characterData,
     this.height = 360.0,
     this.filter,
     this.onSelect,
@@ -23,7 +23,7 @@ class ItemSelectDialog extends StatefulWidget {
   final Map<String, dynamic> args;
 
   final String title;
-  final dynamic inventoryData;
+  final dynamic characterData;
   final double height;
   final String? filter;
   final void Function(dynamic itemData)? onSelect;
@@ -55,7 +55,7 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
           children: [
             Inventory(
               type: InventoryType.select,
-              inventoryData: widget.inventoryData,
+              characterData: widget.characterData,
               height: widget.height,
               filter: widget.filter,
               onSelect: (data) {

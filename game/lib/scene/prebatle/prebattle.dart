@@ -1,30 +1,27 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/empty_placeholder.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 import 'package:samsara/ui/label.dart';
 import 'package:samsara/widgets/rich_text_builder2.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/bordered_icon_button.dart';
-import 'package:samsara/samsara.dart';
 
 import '../../widgets/avatar.dart';
 import '../../engine.dart';
 import '../../ui.dart';
-import '../../data.dart';
 import 'battlecard.dart';
-// import '../../view/hoverinfo.dart';
 import '../../widgets/menu_item_builder.dart';
-// import '../../common.dart';
-// import '../../dialog/game_dialog/game_dialog.dart';
 import '../../widgets/character/inventory/equipment_bar.dart';
 import '../common.dart';
 import '../../logic/battlecard.dart';
 import '../../state/states.dart';
+import '../../widgets/character/inventory/stats.dart';
+import '../game_dialog/game_dialog.dart';
 
 class PreBattleDialog extends StatefulWidget {
   final dynamic heroData, enemyData;
-
   final void Function()? onClose;
 
   PreBattleDialog({
@@ -38,6 +35,10 @@ class PreBattleDialog extends StatefulWidget {
 }
 
 class _PreBattleDialogState extends State<PreBattleDialog> {
+  final GlobalKey
+      // _identifyStatsButtonKey = GlobalKey(),
+      _identifyDeckButtonKey = GlobalKey();
+
   List<dynamic> _heroDecks = [];
 
   List<Widget> _heroDeck = [], _enemyDeck = [];
@@ -45,6 +46,8 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
   List heroBattleDeckCards = [], enemyBattleDeckCards = [];
 
   String? _warning;
+
+  int _availableIdentifyCount = 0;
 
   @override
   void initState() {
@@ -100,6 +103,9 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                 cardData: cardData,
                 characterData: characterData,
                 isHero: isHero,
+                cardInfoDirection: isHero
+                    ? HoverInfoDirection.rightTop
+                    : HoverInfoDirection.leftTop,
               );
             },
           ),
@@ -132,6 +138,14 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
   }
 
   void loadData() {
+    final playerMonthlyIdentifiedCards =
+        engine.hetu.invoke('getMonthlyIdentifiedCards');
+    final playerMonthlyIdentifiedCardsCount =
+        widget.heroData['stats']['identifyEnemyCardMonthlyCount'];
+    _availableIdentifyCount =
+        playerMonthlyIdentifiedCardsCount - playerMonthlyIdentifiedCards;
+    if (_availableIdentifyCount < 0) _availableIdentifyCount = 0;
+
     _heroDecks = widget.heroData['battleDecks'];
     _heroDeck = _createDeckCardWidgets(widget.heroData, isHero: true);
     heroBattleDeckCards =
@@ -148,10 +162,10 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
   Widget build(BuildContext context) {
     // final buttonKey = GlobalKey();
 
-    return ResponsivePanel(
+    return ResponsiveView(
       color: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
-      width: 800.0,
+      width: 1080.0,
       height: 640.0,
       child: Scaffold(
         appBar: AppBar(
@@ -170,112 +184,138 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
         body: Container(
           padding: const EdgeInsets.all(20.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Column(
                 children: [
                   Avatar(
+                    margin: const EdgeInsets.only(right: 10.0, bottom: 10.0),
                     characterData: widget.heroData,
                   ),
-                  Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: EquipmentBar(
-                      characterData: widget.heroData,
-                      gridSize: const Size(32.0, 32.0),
-                    ),
+                  Avatar(
+                    margin: const EdgeInsets.only(right: 10.0, bottom: 10.0),
+                    showPlaceholder: true,
                   ),
-                  const Spacer(),
-                  Row(
-                    children: [
-                      BorderedIconButton(
-                        size: GameUI.infoButtonSize,
-                        padding: const EdgeInsets.only(right: 5.0),
-                        onTapUp: () {
-                          context
-                              .read<ViewPanelState>()
-                              .toogle(ViewPanels.characterDetails);
-                        },
-                        onMouseEnter: (rect) {
-                          context
-                              .read<HoverInfoContentState>()
-                              .set(engine.locale('build'), rect);
-                        },
-                        onMouseExit: () {
-                          context.read<HoverInfoContentState>().hide();
-                        },
-                        child: const Image(
-                          image: AssetImage('assets/images/icon/inventory.png'),
-                        ),
-                      ),
-                      BorderedIconButton(
-                        size: GameUI.infoButtonSize,
-                        padding: const EdgeInsets.only(right: 5.0),
-                        onTapUp: () {
-                          context.read<HoverInfoContentState>().hide();
-                          context.read<EnemyState>().setPrebattleVisible(false);
-                          context.read<SceneControllerState>().push(
-                            Scenes.library,
-                            arguments: {'isPrebattle': true},
-                          );
-                        },
-                        onMouseEnter: (rect) {
-                          context
-                              .read<HoverInfoContentState>()
-                              .set(engine.locale('card_library'), rect);
-                        },
-                        onMouseExit: () {
-                          context.read<HoverInfoContentState>().hide();
-                        },
-                        child: const Image(
-                          image: AssetImage('assets/images/icon/library.png'),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            top: 10.0, left: 10.0, bottom: 10.0),
-                        child: Container(
-                          height: 32.0,
-                          width: 110.0,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.surface,
-                            borderRadius: BorderRadius.circular(5.0),
-                            border: Border.all(color: Colors.white),
+                  Avatar(
+                    margin: const EdgeInsets.only(right: 10.0, bottom: 10.0),
+                    showPlaceholder: true,
+                  ),
+                  Avatar(
+                    margin: const EdgeInsets.only(right: 10.0, bottom: 10.0),
+                    showPlaceholder: true,
+                  ),
+                  Avatar(
+                    margin: const EdgeInsets.only(right: 10.0, bottom: 10.0),
+                    showPlaceholder: true,
+                  ),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  EquipmentBar(
+                    characterData: widget.heroData,
+                    gridSize: const Size(30.0, 30.0),
+                  ),
+                  Container(
+                    padding: EdgeInsets.all(5.0),
+                    width: 280.0,
+                    child: Row(
+                      children: [
+                        BorderedIconButton(
+                          size: GameUI.infoButtonSize,
+                          padding: const EdgeInsets.only(right: 10.0),
+                          onTapUp: () {
+                            context
+                                .read<ViewPanelState>()
+                                .toogle(ViewPanels.characterDetails);
+                          },
+                          onMouseEnter: (rect) {
+                            context.read<HoverInfoContentState>().set(
+                                  engine.locale('build'),
+                                  rect,
+                                );
+                          },
+                          onMouseExit: () {
+                            context.read<HoverInfoContentState>().hide();
+                          },
+                          child: const Image(
+                            image:
+                                AssetImage('assets/images/icon/inventory.png'),
                           ),
-                          child: Align(
-                            alignment: Alignment.center,
-                            child: PopupMenuButton<int>(
-                              tooltip: '',
-                              offset: const Offset(-8.0, 32.0),
-                              onSelected: (int index) {
-                                setState(() {
-                                  widget.heroData['battleDeckIndex'] = index;
-                                  _heroDeck = _createDeckCardWidgets(
-                                      widget.heroData,
-                                      isHero: true);
-                                  heroBattleDeckCards = _getBattleDeckCardsData(
-                                      widget.heroData,
-                                      isHero: true);
-                                });
-                              },
-                              itemBuilder: buildDeckSelectionPopUpMenuItems,
-                              child: Label(
-                                engine.locale('decks'),
-                                width: 150.0,
-                                textAlign: TextAlign.center,
+                        ),
+                        BorderedIconButton(
+                          size: GameUI.infoButtonSize,
+                          padding: const EdgeInsets.only(right: 10.0),
+                          onTapUp: () {
+                            context.read<HoverInfoContentState>().hide();
+                            context
+                                .read<EnemyState>()
+                                .setPrebattleVisible(false);
+                            engine.pushScene(Scenes.library);
+                          },
+                          onMouseEnter: (rect) {
+                            context.read<HoverInfoContentState>().set(
+                                  engine.locale('card_library'),
+                                  rect,
+                                );
+                          },
+                          onMouseExit: () {
+                            context.read<HoverInfoContentState>().hide();
+                          },
+                          child: const Image(
+                            image: AssetImage('assets/images/icon/library.png'),
+                          ),
+                        ),
+                        const Spacer(),
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                          child: Container(
+                            height: 32.0,
+                            width: 110.0,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface,
+                              borderRadius: BorderRadius.circular(5.0),
+                              border: Border.all(color: Colors.white),
+                            ),
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: PopupMenuButton<int>(
+                                tooltip: '',
+                                offset: const Offset(-8.0, 32.0),
+                                onSelected: (int index) {
+                                  setState(() {
+                                    widget.heroData['battleDeckIndex'] = index;
+                                    _heroDeck = _createDeckCardWidgets(
+                                        widget.heroData,
+                                        isHero: true);
+                                    heroBattleDeckCards =
+                                        _getBattleDeckCardsData(widget.heroData,
+                                            isHero: true);
+                                  });
+                                },
+                                itemBuilder: buildDeckSelectionPopUpMenuItems,
+                                child: Label(
+                                  engine.locale('decks'),
+                                  width: 150.0,
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   Container(
+                    margin: const EdgeInsets.all(5.0),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.white, width: 2.0),
                       borderRadius: GameUI.borderRadius,
                     ),
-                    height: 320.0,
-                    width: 240.0,
+                    height: 435.0,
+                    width: 270.0,
                     child: _heroDeck.isNotEmpty
                         ? ListView(
                             shrinkWrap: true,
@@ -306,32 +346,17 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                       height: 50.0,
                       child: ElevatedButton(
                         onPressed: () {
-                          if (_warning != null) return;
+                          if (_warning != null && !kDebugMode) return;
 
                           assert(enemyBattleDeckCards.isNotEmpty);
                           context.read<EnemyState>().setPrebattleVisible(false);
-                          final heroDeck = heroBattleDeckCards
-                              .map((data) => GameData.createBattleCardFromData(
-                                  data,
-                                  deepCopyData: true))
-                              .toList();
-                          final enemyDeck = enemyBattleDeckCards
-                              .map((data) => GameData.createBattleCardFromData(
-                                  data,
-                                  deepCopyData: true))
-                              .toList();
-
                           final arg = {
                             'id': Scenes.battle,
                             'heroData': widget.heroData,
                             'enemyData': widget.enemyData,
-                            'heroDeck': heroDeck,
-                            'enemyDeck': enemyDeck,
                           };
 
-                          context
-                              .read<SceneControllerState>()
-                              .push(Scenes.battle, arguments: arg);
+                          engine.pushScene(Scenes.battle, arguments: arg);
                         },
                         child: Label(
                           engine.locale('start'),
@@ -349,25 +374,132 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                 ],
               ),
               Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Avatar(
+                  EquipmentBar(
                     characterData: widget.enemyData,
+                    gridSize: const Size(30.0, 30.0),
                   ),
-                  Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: EquipmentBar(
-                      characterData: widget.enemyData,
-                      gridSize: const Size(32.0, 32.0),
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 15.0),
+                    width: 280.0,
+                    child: Row(
+                      children: [
+                        BorderedIconButton(
+                          size: GameUI.infoButtonSize,
+                          padding: const EdgeInsets.only(left: 5.0),
+                          onMouseEnter: (rect) {
+                            final Widget statsView = StatsView(
+                              characterData: widget.enemyData,
+                              isHero: false,
+                              showNonBattleStats: false,
+                            );
+                            context.read<HoverInfoContentState>().set(
+                                  statsView,
+                                  rect,
+                                  direction: HoverInfoDirection.leftTop,
+                                );
+                          },
+                          onMouseExit: () {
+                            context.read<HoverInfoContentState>().hide();
+                          },
+                          child: const Image(
+                            image: AssetImage('assets/images/icon/stats.png'),
+                          ),
+                        ),
+                        const Spacer(),
+                        // Padding(
+                        //   padding: EdgeInsets.only(right: 15.0),
+                        //   child: ElevatedButton(
+                        //     key: _identifyStatsButtonKey,
+                        //     onPressed: () {},
+                        //     onHover: (entered) {
+                        //       if (entered) {
+                        //         final hint = engine.locale('identifyStats');
+                        //         final rect = getRenderRect(
+                        //             _identifyStatsButtonKey.currentContext!);
+                        //         context
+                        //             .read<HoverInfoContentState>()
+                        //             .set(hint, rect);
+                        //       } else {
+                        //         context.read<HoverInfoContentState>().hide();
+                        //       }
+                        //     },
+                        //     child: Text(engine.locale('identifyStats')),
+                        //   ),
+                        // ),
+                        Padding(
+                          padding: EdgeInsets.only(right: 5.0),
+                          child: ElevatedButton(
+                            key: _identifyDeckButtonKey,
+                            onPressed: () {
+                              if (_availableIdentifyCount > 0) {
+                                setState(() {
+                                  bool identified = false;
+                                  for (final card in enemyBattleDeckCards) {
+                                    if (card['isIdentified'] != true) {
+                                      card['isIdentified'] = true;
+                                      identified = true;
+                                      engine.hetu.invoke('useIdentifyCard');
+                                      break;
+                                    }
+                                  }
+                                  if (!identified) {
+                                    GameDialog.show(
+                                      context: context,
+                                      dialogData: {
+                                        'lines': [
+                                          engine.locale(
+                                              'identify_deck_identifed_all')
+                                        ],
+                                      },
+                                    );
+                                  }
+                                  context.read<HoverInfoContentState>().hide();
+                                });
+                              } else {
+                                GameDialog.show(
+                                  context: context,
+                                  dialogData: {
+                                    'lines': [
+                                      engine.locale('identify_deck_reach_limit')
+                                    ],
+                                  },
+                                );
+                              }
+                            },
+                            onHover: (entered) {
+                              if (entered) {
+                                final hint =
+                                    '${engine.locale('identifyDeck')}\n'
+                                    '${engine.locale('available_count')}: <bold ${_availableIdentifyCount > 0 ? 'yellow' : 'grey'}>${_availableIdentifyCount.toString().padLeft(4)}</>\n'
+                                    '<grey>${engine.locale('identify_deck_hint')}</>';
+                                final rect = getRenderRect(
+                                    _identifyDeckButtonKey.currentContext!);
+                                context.read<HoverInfoContentState>().set(
+                                      hint,
+                                      rect,
+                                      textAlign: TextAlign.left,
+                                      direction: HoverInfoDirection.topCenter,
+                                    );
+                              } else {
+                                context.read<HoverInfoContentState>().hide();
+                              }
+                            },
+                            child: Text(engine.locale('identifyDeck')),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const Spacer(),
                   Container(
+                    margin: const EdgeInsets.all(5.0),
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.white, width: 2.0),
                       borderRadius: GameUI.borderRadius,
                     ),
-                    height: 320.0,
-                    width: 240.0,
+                    height: 435.0,
+                    width: 270.0,
                     child: _enemyDeck.isNotEmpty
                         ? ListView(
                             shrinkWrap: true,
@@ -375,6 +507,30 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                             children: _enemyDeck,
                           )
                         : EmptyPlaceholder(engine.locale('empty')),
+                  ),
+                ],
+              ),
+              Column(
+                children: [
+                  Avatar(
+                    margin: const EdgeInsets.only(left: 10.0, bottom: 10.0),
+                    characterData: widget.enemyData,
+                  ),
+                  Avatar(
+                    margin: const EdgeInsets.only(left: 10.0, bottom: 10.0),
+                    showPlaceholder: true,
+                  ),
+                  Avatar(
+                    margin: const EdgeInsets.only(left: 10.0, bottom: 10.0),
+                    showPlaceholder: true,
+                  ),
+                  Avatar(
+                    margin: const EdgeInsets.only(left: 10.0, bottom: 10.0),
+                    showPlaceholder: true,
+                  ),
+                  Avatar(
+                    margin: const EdgeInsets.only(left: 10.0, bottom: 10.0),
+                    showPlaceholder: true,
                   ),
                 ],
               ),

@@ -1,27 +1,5 @@
 import '../entity.ht'
 
-const kMaterialMoney = 'money'
-const kMaterialJade =  'jade'
-const kMaterialFood =  'food'
-const kMaterialWater = 'water'
-const kMaterialStone = 'stone'
-const kMaterialOre =   'ore'
-const kMaterialPlank = 'plank'
-const kMaterialPaper = 'paper'
-const kMaterialHerb =  'herb'
-
-const kMaterialKinds = [
-  'money',
-  'jade',
-  'food',
-  'water',
-  'stone',
-  'ore',
-  'plank',
-  'paper',
-  'herb',
-]
-
 struct MaterialStorage {
   constructor {
     this.money = 0;
@@ -30,7 +8,7 @@ struct MaterialStorage {
     this.water = 0;
     this.stone = 0;
     this.ore = 0;
-    this.plank = 0;
+    this.timber = 0;
     this.paper = 0;
     this.herb = 0;
   }

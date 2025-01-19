@@ -36,12 +36,6 @@ class MainMenuScene extends Scene {
           'rank': 2,
           'level': 10,
         });
-        engine.hetu.invoke('testCardpack', namespace: 'Debug', namedArgs: {
-          'amount': 24,
-        });
-        engine.hetu.invoke('testEquipment', namespace: 'Debug', namedArgs: {
-          'amount': 24,
-        });
         context.read<HeroState>().update();
         context.read<GameUIOverlayVisibilityState>().setVisible();
       }

@@ -11,7 +11,7 @@ import '../../data.dart';
 // import 'character.dart';
 
 class BattleDeckZone extends PiledZone with HandlesGesture {
-  late CustomGameCard current;
+  CustomGameCard? current;
 
   BattleDeckZone({
     required super.position,
@@ -29,43 +29,45 @@ class BattleDeckZone extends PiledZone with HandlesGesture {
 
   @override
   void onLoad() {
-    assert(cards.isNotEmpty && cards.length >= 3);
-
-    current = cards.first as CustomGameCard;
-    for (var i = 0; i < cards.length; ++i) {
-      final card = cards[i];
-      card.next = i < (cards.length - 1) ? cards[i + 1] : null;
-      card.index = i;
-      card.previewPriority = card.focusedPriority = 200;
-
-      if (!card.isMounted) {
-        game.world.add(card);
-      }
-
-      card.onPreviewed = () {
-        final (_, description) =
-            GameData.getDescriptionFromCardData((card as CustomGameCard).data);
-        Hovertip.show(
-          scene: game,
-          target: card,
-          direction: HovertipDirection.topLeft,
-          content: description,
-          config: ScreenTextConfig(anchor: Anchor.topCenter),
-        );
-      };
-
-      card.onUnpreviewed = () {
-        if (!card.isFocused) {
-          Hovertip.hide(card);
-        }
-      };
-    }
-
     super.onLoad();
+
+    // assert(cards.isNotEmpty && cards.length >= 3);
+
+    if (cards.isNotEmpty) {
+      current = cards.first as CustomGameCard;
+      for (var i = 0; i < cards.length; ++i) {
+        final card = cards[i];
+        card.next = i < (cards.length - 1) ? cards[i + 1] : null;
+        card.index = i;
+        card.previewPriority = card.focusedPriority = 200;
+
+        if (!card.isMounted) {
+          game.world.add(card);
+        }
+
+        card.onPreviewed = () {
+          final (_, description) = GameData.getDescriptionFromCardData(
+              (card as CustomGameCard).data);
+          Hovertip.show(
+            scene: game,
+            target: card,
+            direction: HovertipDirection.topLeft,
+            content: description,
+            config: ScreenTextConfig(anchor: Anchor.topCenter),
+          );
+        };
+
+        card.onUnpreviewed = () {
+          if (!card.isFocused) {
+            Hovertip.hide(card);
+          }
+        };
+      }
+    }
   }
 
   void reset() {
-    current = cards.first as CustomGameCard;
+    current = cards.firstOrNull as CustomGameCard?;
     for (final card in cards) {
       card.isEnabled = true;
       if (card.isFocused) {

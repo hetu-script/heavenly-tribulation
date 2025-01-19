@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:samsara/ui/responsive_view.dart';
+import 'package:samsara/ui/close_button2.dart';
 
 import '../../engine.dart';
-import '../../ui.dart';
 import 'inventory/stats.dart';
 import 'inventory/equipment_bar.dart';
-// import 'status_effects.dart';
 import 'inventory/inventory.dart';
 import '../menu_item_builder.dart';
-import '../../state/view_panels.dart';
-import '../draggable_panel.dart';
 import '../dialog/confirm_dialog.dart';
 import '../../state/hero.dart';
 import '../common.dart';
@@ -21,12 +19,9 @@ const Set<String> kMaterials = {
   'water',
   'stone',
   'ore',
-  'plank',
+  'timber',
   'paper',
   'herb',
-  'yinqi',
-  'shaqi',
-  'yuanqi',
 };
 
 enum ItemPopUpMenuItems {
@@ -87,80 +82,28 @@ List<PopupMenuEntry<ItemPopUpMenuItems>> buildItemPopUpMenuItems({
   ];
 }
 
-class CharacterDetailsView extends StatefulWidget {
-  const CharacterDetailsView({
+class CharacterDetails extends StatefulWidget {
+  const CharacterDetails({
     super.key,
     this.characterId,
     this.characterData,
-    this.tabIndex = 0,
-    this.type = InventoryType.player,
+    this.showInventory = true,
   }) : assert(characterId != null || characterData != null);
 
   final String? characterId;
-
   final dynamic characterData;
-
-  final int tabIndex;
-
-  final InventoryType type;
+  final bool showInventory;
 
   @override
-  State<CharacterDetailsView> createState() => _CharacterDetailsViewState();
+  State<CharacterDetails> createState() => _CharacterDetailsState();
 }
 
-class _CharacterDetailsViewState extends State<CharacterDetailsView>
-// with SingleTickerProviderStateMixin
-{
-  // static final List<Tab> _tabs = <Tab>[
-  //   Tab(
-  //     height: 40,
-  //     child: Row(
-  //       mainAxisAlignment: MainAxisAlignment.center,
-  //       children: [
-  //         const Padding(
-  //           padding: EdgeInsets.symmetric(horizontal: 8.0),
-  //           child: Icon(Icons.inventory),
-  //         ),
-  //         Text(engine.locale('build')),
-  //       ],
-  //     ),
-  //   ),
-  //   Tab(
-  //     height: 40,
-  //     child: Row(
-  //       mainAxisAlignment: MainAxisAlignment.center,
-  //       children: [
-  //         const Padding(
-  //           padding: EdgeInsets.symmetric(horizontal: 8.0),
-  //           child: Icon(Icons.summarize),
-  //         ),
-  //         Text(engine.locale('stats')),
-  //       ],
-  //     ),
-  //   ),
-  // ];
-
-  // late TabController _tabController;
-
+class _CharacterDetailsState extends State<CharacterDetails> {
   late final dynamic _characterData;
 
   @override
   void initState() {
     super.initState();
-
-    // _tabController = TabController(vsync: this, length: _tabs.length);
-    // _tabController.addListener(() {
-    //   setState(() {
-    //     if (_tabController.index == 0) {
-    //       _title = engine.locale('information'];
-    //     } else if (_tabController.index == 1) {
-    //       _title = engine.locale('bonds'];
-    //     } else if (_tabController.index == 1) {
-    //       _title = engine.locale('history'];
-    //     }
-    //   });
-    // });
-    // _tabController.index = widget.tabIndex;
 
     if (widget.characterData != null) {
       _characterData = widget.characterData!;
@@ -170,16 +113,7 @@ class _CharacterDetailsViewState extends State<CharacterDetailsView>
     }
   }
 
-  @override
-  void dispose() {
-    // _tabController.dispose();
-    super.dispose();
-  }
-
   void onItemSecondaryTapped(dynamic itemData, Offset screenPosition) {
-    // widget.onMouseExitItem?.call();
-    // _hoverEntityData = null;
-
     final menuPosition = RelativeRect.fromLTRB(
         screenPosition.dx, screenPosition.dy, screenPosition.dx, 0.0);
     final items = buildItemPopUpMenuItems(
@@ -227,62 +161,73 @@ class _CharacterDetailsViewState extends State<CharacterDetailsView>
 
   @override
   Widget build(BuildContext context) {
-    Offset position = context
-            .watch<ViewPanelPositionState>()
-            .get(ViewPanels.characterDetails) ??
-        GameUI.detailsWindowPosition;
-
-    return DraggablePanel(
-      title: engine.locale('build'),
-      position: position,
-      width: GameUI.profileWindowWidth,
-      height: 400.0,
-      onTapDown: (offset) {
-        context.read<ViewPanelState>().setUpFront(ViewPanels.characterDetails);
-      },
-      onDragUpdate: (details) {
-        context.read<ViewPanelPositionState>().update(
-              ViewPanels.characterDetails,
-              details.delta,
-            );
-      },
-      onClose: () {
-        context.read<ViewPanelState>().hide(ViewPanels.characterDetails);
-      },
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                StatsView(
-                  characterData: _characterData,
-                  isHero: true,
-                ),
-                SizedBox(
-                  width: 360,
-                  height: 380,
-                  child: Column(
-                    children: [
-                      EquipmentBar(
-                        characterData: _characterData,
-                        onItemSecondaryTapped: onItemSecondaryTapped,
-                      ),
-                      Inventory(
-                        height: 280,
-                        inventoryData: _characterData['inventory'],
-                        type: widget.type,
-                        minSlotCount: 36,
-                        onSecondaryTapped: onItemSecondaryTapped,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+    return Stack(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            EquipmentBar(
+              characterData: _characterData,
+              onItemSecondaryTapped: onItemSecondaryTapped,
+              isVertical: true,
             ),
-          ),
-        ],
+            StatsView(
+              characterData: _characterData,
+              isHero: true,
+            ),
+            if (widget.showInventory)
+              Inventory(
+                height: 406,
+                characterData: _characterData,
+                type: InventoryType.player,
+                minSlotCount: 60,
+                gridsPerLine: 5,
+                onSecondaryTapped: onItemSecondaryTapped,
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class CharacterDetailsView extends StatelessWidget {
+  const CharacterDetailsView({
+    super.key,
+    this.characterId,
+    this.characterData,
+  }) : assert(characterId != null || characterData != null);
+
+  final String? characterId;
+  final dynamic characterData;
+
+  @override
+  Widget build(BuildContext context) {
+    return ResponsiveView(
+      alignment: AlignmentDirectional.center,
+      width: 400,
+      height: 480.0,
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Text(engine.locale('information')),
+          actions: [CloseButton2()],
+        ),
+        body: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            StatsView(
+              characterData: characterData,
+              isHero: true,
+            ),
+            EquipmentBar(
+              characterData: characterData,
+              isVertical: true,
+            ),
+          ],
+        ),
       ),
     );
   }

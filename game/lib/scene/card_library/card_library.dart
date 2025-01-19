@@ -59,8 +59,6 @@ class CardLibraryScene extends Scene {
 
   late final SpriteComponent2 barrier;
 
-  bool _isPrebattle = false;
-
   late final SpriteButton collectButton;
 
   late final SpriteButton closeCraftButton;
@@ -283,6 +281,7 @@ class CardLibraryScene extends Scene {
     bool? isBattleDeck = deckData?['isBattleDeck'];
     List? cardIds = deckData?['cards'];
     final zone = DeckBuildingZone(
+      heroData: _heroData,
       title: title,
       isBattleDeck: isBattleDeck,
       preloadCardIds: cardIds,
@@ -568,7 +567,13 @@ class CardLibraryScene extends Scene {
           final (description, _) =
               GameData.getDescriptionFromCardData(card.data);
           card.description = description;
-          previewCard(this, card);
+          previewCard(
+            context,
+            'cardpack_card_${card.id}',
+            card.data,
+            card.toAbsoluteRect(),
+            characterData: _heroData,
+          );
         }
         final unidentifiedCards = _cardpackCards.where((card) {
           return card.data['isIdentified'] != true;
@@ -578,20 +583,14 @@ class CardLibraryScene extends Scene {
         }
       };
 
-      card.onPreviewed = () {
-        if (card.data['isIdentified'] == true) {
-          previewCard(this, card);
-        } else {
-          final position = card.absolutePosition;
-          final size = card.absoluteScaledSize;
-          context.read<HoverInfoContentState>().set(
-                engine.locale('deckbuilding_identify_hint'),
-                Rect.fromLTWH(position.x, position.y, size.x, size.y),
-                direction: HoverInfoDirection.bottomCenter,
-              );
-        }
-      };
-      card.onUnpreviewed = () => unpreviewCard(this, card);
+      card.onPreviewed = () => previewCard(
+            context,
+            'cardpack_card_${card.id}',
+            card.data,
+            card.toAbsoluteRect(),
+            characterData: _heroData,
+          );
+      card.onUnpreviewed = () => unpreviewCard(context);
 
       camera.viewport.add(card);
 
@@ -626,8 +625,6 @@ class CardLibraryScene extends Scene {
   @override
   void onStart([Map<String, dynamic> arguments = const {}]) {
     super.onStart(arguments);
-
-    _isPrebattle = arguments['isPrebattle'] == true;
 
     if (isLoaded) {
       libraryZone.repositionToTop();
@@ -789,7 +786,7 @@ class CardLibraryScene extends Scene {
     };
     camera.viewport.add(setBattleDeckButton);
 
-    libraryZone = CardLibraryZone();
+    libraryZone = CardLibraryZone(heroData: _heroData);
     world.add(libraryZone);
 
     for (final deckData in _heroDecks) {
@@ -823,10 +820,8 @@ class CardLibraryScene extends Scene {
       //   return MapEntry(key, value.data);
       // });
 
-      context.read<SceneControllerState>().pop();
-      if (_isPrebattle) {
-        context.read<EnemyState>().setPrebattleVisible(true);
-      }
+      engine.popScene();
+      context.read<EnemyState>().setPrebattleVisible();
     };
     camera.viewport.add(exit);
 
@@ -867,7 +862,7 @@ class CardLibraryScene extends Scene {
       context.read<ViewPanelState>().toogle(
         ViewPanels.itemSelect,
         arguments: {
-          'inventoryData': _heroData['inventory'],
+          'characterData': _heroData,
           'title': engine.locale('selectCardpack'),
           'filter': 'cardpack',
           'onSelect': onOpenCardpack,
@@ -882,7 +877,7 @@ class CardLibraryScene extends Scene {
       ]);
 
       final cardpackHint =
-          '${engine.locale('ownedCardpack')}: <bold ${cardpackCount > 0 ? 'yellow' : ''}>${cardpackCount.toString().padLeft(10)}</>\n'
+          '${engine.locale('ownedCardpack')}: <bold ${cardpackCount > 0 ? 'yellow' : 'grey'}>${cardpackCount.toString().padLeft(10)}</>\n'
           '<grey>${engine.locale('deckbuilding_cardpack_hint')}</>';
       Hovertip.show(
         scene: this,

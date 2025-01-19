@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/integer_input_field.dart';
 import 'package:samsara/ui/close_button2.dart';
 
@@ -83,7 +83,7 @@ class _InputWorldPositionDialogState extends State<InputWorldPositionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsivePanel(
+    return ResponsiveView(
       width: 240.0,
       height: 210.0,
       alignment: AlignmentDirectional.center,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 import 'package:flutter/services.dart';
 
@@ -52,7 +52,7 @@ class _EditCharacterIdAndAvatarState extends State<EditCharacterIdAndAvatar> {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsivePanel(
+    return ResponsiveView(
       color: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       width: 350.0,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 
 import '../../engine.dart';
 import '../../util.dart';
@@ -122,7 +122,7 @@ class CharacterSelectDialog extends StatelessWidget {
       data.add(row);
     }
 
-    return ResponsivePanel(
+    return ResponsiveView(
       alignment: AlignmentDirectional.center,
       child: Scaffold(
         appBar: AppBar(
@@ -144,7 +144,7 @@ class CharacterSelectDialog extends StatelessWidget {
                 case SelectCharacterPopUpMenuItems.checkProfile:
                   showDialog(
                     context: context,
-                    builder: (context) => ResponsivePanel(
+                    builder: (context) => ResponsiveView(
                       alignment: AlignmentDirectional.center,
                       width: GameUI.profileWindowWidth,
                       height: 400.0,
@@ -154,8 +154,7 @@ class CharacterSelectDialog extends StatelessWidget {
                 case SelectCharacterPopUpMenuItems.checkEquipments:
                   showDialog(
                     context: context,
-                    builder: (context) =>
-                        CharacterDetailsView(characterId: dataId),
+                    builder: (context) => CharacterDetails(characterId: dataId),
                   );
                 case SelectCharacterPopUpMenuItems.checkMemory:
                   showDialog(

@@ -12,12 +12,13 @@ const _kFemaleAvatarCount = 75
 
 const _kAttributesBase = 50
 
-const kBaseStaminaCostForMoveOnWater = 12
-const kBaseStaminaCostForMoveOnHill = 12
+const kBaseStaminaCostForMoveOnWater = 2
+const kBaseStaminaCostForMoveOnHill = 2
 
-const kBaseLife = 75 
-const kBaseMana = 1
-const kBaseLightedArea = 3
+const kBaseLife = 10
+const kBaseLightedRadius = 2
+
+const kBaseIdentifyEnemyCardMonthlyCount = 12
 
 const kAttributeNames = [
   'spirituality',
@@ -113,9 +114,9 @@ struct BattleEntity {
     // 身上携带的普通物品，每一个都是单独生成，无法堆叠
     this.inventory = {}
 
-    // 装备栏的位置是固定的 8 个
+    // 装备栏的位置是固定的 7 个
     // 装备栏只能装备法宝，获得其佩戴效果
-    // key 是 0-5 的数字，代表第几栏，
+    // key 是 0-6 的数字，代表第几栏，
     // value 是 物品的 id，物品的具体数据在角色的 inventory 中
     this.equipments = {
       '0': null,
@@ -124,6 +125,7 @@ struct BattleEntity {
       '3': null,
       '4': null,
       '5': null,
+      '6': null,
     }
 
     // 随角色移动的其他角色
@@ -193,17 +195,20 @@ function generateCharacterAttributes({base, major}) {
 /// 状态包括：生命、伤害、防御等。
 function updateCharacterStats(character, { reset = true }) {
 
-  character.lifeMax = kBaseLife + (character.strength + character.dexterity) ~/ 4
+  character.lifeMax = kBaseLife + character.strength ~/ 2
+  character.lightRadius = kBaseLightedRadius + character.perception ~/ 10
+  character.identifyEnemyCardMonthlyCount = kBaseIdentifyEnemyCardMonthlyCount + character.perception ~/ 10
   
+  character.stats.lifeMax = character.lifeMax + character.passives.lifeMax?.value
+  character.stats.lightRadius = character.lightRadius + character.passives.lightRadius?.value
+  character.stats.identifyEnemyCardMonthlyCount = character.identifyEnemyCardMonthlyCount + character.passives.identifyEnemyCardMonthlyCount?.value
+
   // 基础属性，在此基础上还要加上物品和状态的加成
   character.stats.dexterity = character.dexterity + character.passives.dexterity?.value
   character.stats.spirituality = character.spirituality + character.passives.spirituality?.value
   character.stats.strength = character.strength + character.passives.strength?.value
   character.stats.perception = character.perception + character.passives.perception?.value
   character.stats.willpower = character.willpower + character.passives.willpower?.value
-  
-  character.stats.lifeMax = character.lifeMax + character.passives.lifeMax?.value
-  character.stats.lightRadius = kBaseLightedArea + (character.stats.perception ~/ 25) * 2
   
   character.stats.unarmedAttack = character.passives.unarmedAttack?.value ?? 0
   character.stats.weaponAttack = character.passives.weaponAttack?.value ?? 0

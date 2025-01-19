@@ -22,8 +22,12 @@ class EnemyState with ChangeNotifier {
     notifyListeners();
   }
 
-  void setPrebattleVisible(bool value) {
-    showPrebattle = value;
+  void setPrebattleVisible([bool? value]) {
+    if (value != null) {
+      showPrebattle = value;
+    } else {
+      showPrebattle = enemyData != null;
+    }
     notifyListeners();
   }
 

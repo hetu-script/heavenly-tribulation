@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/extensions.dart';
 
 import '../../ui.dart';
@@ -83,7 +83,7 @@ class _ProgressIndicatorState extends State<ProgressIndicator> {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsivePanel(
+    return ResponsiveView(
       alignment: AlignmentDirectional.center,
       child: SizedBox(
         width: 140,

@@ -4,32 +4,6 @@ import '../../random.ht'
 import '../../incident.ht'
 import '../../name/talisman.ht'
 
-const kWeaponKind = [
-  'sword',
-  'sabre',
-  'staff',
-  'spear',
-  'bow',
-  'dart',
-  'pipa',
-  'flute',
-]
-
-const kArmorKind = [
-  'armor',
-  'gloves',
-  'boots',
-  'helmet',
-  'shield',
-]
-
-const _kTalismanKind = [
-  'amulet',
-  'ring',
-  'pearl',
-  'bracelet',
-]
-
 function getItemExtraAffixes(item) {
   assert(game.passives != null)
 
@@ -48,11 +22,10 @@ function getItemExtraAffixes(item) {
 
 struct Equipment {
   constructor({
+    kind,
     rarity,
     rank,
     level,
-    kind,
-    owner,
   }) {
     this.entityType = kEntityTypeItem
     this.createdTimestamp = game.timestamp
@@ -68,9 +41,7 @@ struct Equipment {
     this.id = crypto.randomNID(length: 6, withTime: true)
     this.name = generateTalismanName(kind: this.kind)
     this.flavortext = engine.locale('item_${this.kind}_flavortext')
-    if (owner) {
-      this.ownerId = owner.id
-    }
+
     if (rarity != null) {
       assert(kRarity.containsKey(rarity))
       this.rarity = rarity
@@ -94,14 +65,14 @@ struct Equipment {
 
     // equipType 决定了能装备的数量
     // weapon, armor, helmet, boots, vehicle，talisman
-    if (kWeaponKind.contains(this.kind)) {
+    if (kWeaponKinds.contains(this.kind)) {
       this.equipType = 'weapon'
 
       // 武器的固定词条是允许使用该类卡牌
       final passiveRawData = game.passives['equipment_${this.kind}']
       assert(passiveRawData != null)
       this.affixes.add(Object.create(passiveRawData))
-    } else if (kArmorKind.contains(this.kind)) {
+    } else if (kArmorKinds.contains(this.kind)) {
       this.equipType = this.kind
     } else {
       this.equipType = 'talisman'
@@ -136,13 +107,13 @@ struct Equipment {
 }
 
 function countItem(entity, category) {
-  let count = 0
+  let amount = 0
   for (let item in entity.inventory.values) {
     if (item.category == category) {
-      ++count
+      ++amount
     }
   }
-  return count
+  return amount
 }
 
 function createItemById(itemId) {
@@ -194,12 +165,13 @@ function entityHasItemKind(entity, itemKind) {
 }
 
 /// 直接获得资源
-function entityCollectMaterialById(entity, materialId: string, { count = 1, incurIncident = true }) {
-  entity.materials[materialId] += count
+function entityCollectById(entity, materialId: string, { amount = 1, incurIncident = true }) {
+  assert(amount is int && amount > 0)
+  entity.materials[materialId] += amount
 
-  let incidentContent = engine.locale('characterAcquireMultipleItem', interpolations: [
+  let incidentContent = engine.locale('characterAcquireMultiple', interpolations: [
     entity.name,
-    count,
+    amount,
     engine.locale(materialId),
   ])
   if (entity.isMajorCharacter && incurIncident) {
@@ -212,13 +184,18 @@ function entityCollectMaterialById(entity, materialId: string, { count = 1, incu
   engine.debug(incidentContent)
 }
 
-/// 直接失去资源
-function entityDropMaterialById(entity, materialId: string, { count = 1, incurIncident = true }) {
-  entity.materials[materialId] -= count
+/// 失去资源
+function entityDropById(entity, materialId: string, { amount = 1, incurIncident = true }) {
+  final existed = entity.materials[materialId]
+  if (amount > existed) {
+    amount = existed
+  }
+  entity.materials[materialId] -= amount
+  assert(entity.materials[materialId] >= 0)
 
   let incidentContent = engine.locale('characterLoseMultipleItem', interpolations: [
     entity.name,
-    count,
+    amount,
     engine.locale(materialId),
   ])
   if (entity.isMajorCharacter && incurIncident) {
@@ -231,11 +208,12 @@ function entityDropMaterialById(entity, materialId: string, { count = 1, incurIn
   engine.debug(incidentContent)
 }
 
-/// TODO: 丢在地上
+/// TODO: 丢下物品
 function entityDiscard(entity, item) {
 
 }
 
+/// TODO: 摧毁物品
 function entityDestroy(entity, item, { incurIncident = true }) {
 
   entityLose(entity, item)
@@ -289,6 +267,7 @@ function entityAcquire(entity, item, { incurIncident = true }) {
   engine.debug(incidentContent)
 }
 
+/// 失去物品
 function entityLose(entity, item, { incurIncident = true }) {
   delete entity.inventory[item.id]
   delete item.ownerId
@@ -311,7 +290,7 @@ function entityLose(entity, item, { incurIncident = true }) {
 
 // 如果成功支付返回 0，否则返回 欠缺的数量
 // 支付身上的材料作为货币
-// function pay(target, materialId, count, entity, { isForced = false, incurIncident = true }) {
+// function pay(target, materialId, amount, entity, { isForced = false, incurIncident = true }) {
 //   if (value < 0) {
 //     engine.error('函数 giveMoney 调用时的金额参数无效（小于 0）。')
 //     return
@@ -320,17 +299,17 @@ function entityLose(entity, item, { incurIncident = true }) {
 
   // const goldValue = value ~/ kGoldExchange
   // let rest = value - goldValue
-  // const restAfterGold = give(entity, target, 'item.goldCoin', count: goldValue)
+  // const restAfterGold = give(entity, target, 'item.goldCoin', amount: goldValue)
   // rest += restAfterGold
 
   // const silverValue = rest ~/ kSilverExchange
   // let rest = value - silverValue
-  // const restAfterSilver = give(entity, target, 'item.silverCoint', count: silverValue)
+  // const restAfterSilver = give(entity, target, 'item.silverCoint', amount: silverValue)
   // rest += restAfterSilver
 
   // const money = entity.materialId
   // if (money != null && money.stackSize >= value) {
-  //   give(entity, target, money.id, count: value, isForced: isForced, incurIncident: incurIncident)
+  //   give(entity, target, money.id, amount: value, isForced: isForced, incurIncident: incurIncident)
   //   return true
   // }
   // return false
@@ -341,31 +320,31 @@ function entityLose(entity, item, { incurIncident = true }) {
 // 将会立刻移除该物品，不要在物品栏循环中使用这个函数
 // 此函数即便数量不够也会尽量支付
 // 如果成功提供足够数量的指定物品，返回 0，否则返回 欠缺的数量
-// function give(entity, target, itemId, { count, removeItem = true, isForced = false, incurIncident = true}) {
-//   if (count <= 0) return 0
-//   let rest = count ?? 1
+// function give(entity, target, itemId, { amount, removeItem = true, isForced = false, incurIncident = true}) {
+//   if (amount <= 0) return 0
+//   let rest = amount ?? 1
 //   if (!entity.inventory.containsKey(itemId)) {
 //     engine.warn('${entity.id} 没有 ${item.id} ，无法支付。')
 //     return rest
 //   }
 //   const item = entity.inventory[itemId]
-//   count ??= item.stackSize ?? 1
+//   amount ??= item.stackSize ?? 1
 //   if (item.equippedPosition) unequip(entity, item)
 //   let incidentContent
 
-//   let actualNumber = count
-//   if (item.stackSize > count) {
-//     item.stackSize -= count
-//   } else if (item.stackSize < count) {
+//   let actualNumber = amount
+//   if (item.stackSize > amount) {
+//     item.stackSize -= amount
+//   } else if (item.stackSize < amount) {
 //     // char1身上的数量不够支付n
 //     actualNumber = item.stackSize
-//     engine.warn('${entity.id} 身上的 ${item.id} 不够 ${count} 个，实际数量：${actualNumber}。')
+//     engine.warn('${entity.id} 身上的 ${item.id} 不够 ${amount} 个，实际数量：${actualNumber}。')
 //     delete entity.inventory[item.id]
 //   } else {
 //     // 数量刚好
 //     delete entity.inventory[item.id]
 //   }
-//   rest = count - actualNumber
+//   rest = amount - actualNumber
 //   if (target.inventory.containsKey(item.id)) {
 //     target.inventory[item.id].stackSize += actualNumber
 //   } else {
@@ -373,17 +352,17 @@ function entityLose(entity, item, { incurIncident = true }) {
 //     itemCopy.stackSize = actualNumber
 //     target.inventory[itemCopy.id] = itemCopy
 //   }
-//   if (count > 1) {
+//   if (amount > 1) {
 //     incidentContent = isForced ?
 //       engine.locale('characterGiveMultipleItemForced', interpolations: [
 //         target.name,
 //         entity.name,
-//         count,
+//         amount,
 //         item.name,
 //       ]) :
 //       engine.locale('characterGiveMultipleItem', interpolations: [
 //         entity.name,
-//         count,
+//         amount,
 //         item.name,
 //         target.name,
 //       ])
@@ -392,12 +371,12 @@ function entityLose(entity, item, { incurIncident = true }) {
 //       engine.locale('characterGiveItemForced', interpolations: [
 //         target.name,
 //         entity.name,
-//         count,
+//         amount,
 //         item.name,
 //       ]) :
 //       engine.locale('characterGiveItem', interpolations: [
 //         entity.name,
-//         count,
+//         amount,
 //         item.name,
 //         target.name,
 //       ])
@@ -444,8 +423,8 @@ function entityLose(entity, item, { incurIncident = true }) {
 //     for (const itemId in itemIds) {
 //       const stackSize = target.inventory[itemId].stackSize
 //       if (random.nextDouble() < kEscapedLootProbability) {
-//         let count = stackSize > 1 ? random.nextInt(stackSize) + 1 : 1
-//         give(target, character, itemId, count: count, isForced: true, incurIncident: incurIncident)
+//         let amount = stackSize > 1 ? random.nextInt(stackSize) + 1 : 1
+//         give(target, character, itemId, amount: amount, isForced: true, incurIncident: incurIncident)
 //       }
 //     }
 //     if (target.money && random.nextDouble() < kEscapedLootProbability) {

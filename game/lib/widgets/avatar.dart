@@ -21,6 +21,7 @@ class Avatar extends StatelessWidget {
     this.margin,
     this.image,
     this.borderImage,
+    this.showPlaceholder = false,
     this.showBorder = false,
     this.color = Colors.transparent,
     this.size = const Size(100.0, 100.0),
@@ -39,6 +40,8 @@ class Avatar extends StatelessWidget {
   final EdgeInsetsGeometry? margin;
 
   final ImageProvider<Object>? image, borderImage;
+
+  final bool showPlaceholder;
 
   final bool showBorder;
 
@@ -71,11 +74,13 @@ class Avatar extends StatelessWidget {
     if (characterId != null) {
       charData =
           engine.hetu.invoke('getCharacterById', positionalArgs: [characterId]);
+      name ??= charData['name'];
     }
 
     if (charData != null) {
-      name ??= charData['name'];
       iconImg ??= AssetImage('assets/images/illustration/${charData['icon']}');
+    } else if (showPlaceholder) {
+      iconImg ??= AssetImage('assets/images/illustration/placeholder.png');
     }
 
     if (iconImg != null) {
@@ -91,7 +96,7 @@ class Avatar extends StatelessWidget {
       );
     }
 
-    if (showBorder && iconImg != null) {
+    if (showBorder) {
       borderImg ??= const AssetImage('assets/images/illustration/border.png');
       border = RRectIcon(
         backgroundColor: Colors.transparent,
@@ -122,7 +127,21 @@ class Avatar extends StatelessWidget {
           child: outsideNameWidget,
         ));
       }
-      if (icon != null) {
+      widgets.add(
+        Positioned.fill(
+          top: nameAlignment == AvatarNameAlignment.top ? kNameHeight : 0.0,
+          child: Container(
+            alignment: nameAlignment == AvatarNameAlignment.top
+                ? Alignment.bottomCenter
+                : nameAlignment == AvatarNameAlignment.bottom
+                    ? Alignment.topCenter
+                    : Alignment.center,
+            child: icon,
+          ),
+        ),
+      );
+
+      if (showBorder) {
         widgets.add(
           Positioned.fill(
             top: nameAlignment == AvatarNameAlignment.top ? kNameHeight : 0.0,
@@ -132,26 +151,10 @@ class Avatar extends StatelessWidget {
                   : nameAlignment == AvatarNameAlignment.bottom
                       ? Alignment.topCenter
                       : Alignment.center,
-              child: icon,
+              child: border,
             ),
           ),
         );
-
-        if (showBorder) {
-          widgets.add(
-            Positioned.fill(
-              top: nameAlignment == AvatarNameAlignment.top ? kNameHeight : 0.0,
-              child: Container(
-                alignment: nameAlignment == AvatarNameAlignment.top
-                    ? Alignment.bottomCenter
-                    : nameAlignment == AvatarNameAlignment.bottom
-                        ? Alignment.topCenter
-                        : Alignment.center,
-                child: border,
-              ),
-            ),
-          );
-        }
       }
       if (name != null && nameAlignment == AvatarNameAlignment.bottom) {
         widgets.add(Container(

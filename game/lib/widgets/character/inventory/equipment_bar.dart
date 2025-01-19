@@ -11,6 +11,7 @@ class EquipmentBar extends StatelessWidget {
     this.gridSize = kDefaultItemGridSize,
     this.onItemTapped,
     this.onItemSecondaryTapped,
+    this.isVertical = false,
   }) : assert(characterData != null);
 
   final dynamic characterData;
@@ -18,33 +19,38 @@ class EquipmentBar extends StatelessWidget {
   final void Function(dynamic itemData, Offset screenPosition)? onItemTapped;
   final void Function(dynamic itemData, Offset screenPosition)?
       onItemSecondaryTapped;
+  final bool isVertical;
 
   @override
   Widget build(BuildContext context) {
+    final children = List<Widget>.from(
+      (characterData['equipments'].values as Iterable).map(
+        (itemId) => Padding(
+          padding: const EdgeInsets.all(5.0),
+          child: ItemGrid(
+            characterData: characterData,
+            itemData:
+                itemId != null ? characterData['inventory'][itemId] : null,
+            size: gridSize,
+            showEquippedIcon: false,
+            onTapped: onItemTapped,
+            onSecondaryTapped: onItemSecondaryTapped,
+          ),
+        ),
+      ),
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List<Widget>.from(
-            (characterData['equipments'].values as Iterable).map(
-              (itemId) => Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: ItemGrid(
-                  itemData: itemId != null
-                      ? characterData['inventory'][itemId]
-                      : null,
-                  size: gridSize,
-                  backgroundImage:
-                      const AssetImage('assets/images/item/grid.png'),
-                  showEquippedIcon: false,
-                  onTapped: onItemTapped,
-                  onSecondaryTapped: onItemSecondaryTapped,
-                ),
+        isVertical
+            ? Column(
+                children: children,
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: children,
               ),
-            ),
-          ),
-        ),
       ],
     );
   }

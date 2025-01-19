@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/integer_input_field.dart';
 import 'package:samsara/ui/close_button2.dart';
 
@@ -69,7 +69,7 @@ class _InputVector2DialogState extends State<InputVector2Dialog> {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsivePanel(
+    return ResponsiveView(
       width: 240.0,
       height: 210.0,
       alignment: AlignmentDirectional.center,

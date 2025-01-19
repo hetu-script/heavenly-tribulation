@@ -5,7 +5,7 @@ import 'package:hetu_script/values.dart';
 // import '../../../event/ui.dart';
 import 'package:samsara/ui/close_button2.dart';
 import '../../engine.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 import 'quest_card.dart';
 
 enum BuildViewType {
@@ -82,7 +82,7 @@ class _QuestsViewState extends State<QuestsView> {
       );
     }).toList();
 
-    return ResponsivePanel(
+    return ResponsiveView(
       width: 720.0,
       height: 420.0,
       child: Scaffold(

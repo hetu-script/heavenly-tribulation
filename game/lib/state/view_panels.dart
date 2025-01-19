@@ -5,6 +5,7 @@ enum ViewPanels {
   characterMemory,
   characterQuest,
   characterDetails,
+  // enemyDetails,
   itemSelect,
 }
 
@@ -44,6 +45,10 @@ class ViewPanelPositionState with ChangeNotifier {
 
   Offset? get(ViewPanels panel) {
     return panelPositions[panel];
+  }
+
+  void set(ViewPanels panel, Offset offset) {
+    panelPositions[panel] = offset;
   }
 
   void update(ViewPanels panel, Offset offset) {

@@ -88,8 +88,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
       locationDetails.write('${currentTerrain.left}, ${currentTerrain.top}');
     }
 
-    final (data, rect, direction) =
-        context.watch<HoverInfoContentState>().get();
+    final content = context.watch<HoverInfoContentState>().content;
 
     final enemyData = context.watch<EnemyState>().enemyData;
     final showPrebattle = context.watch<EnemyState>().showPrebattle;
@@ -101,22 +100,26 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     for (final panel in visiblePanels.keys) {
       switch (panel) {
         case ViewPanels.characterProfile:
+          final position =
+              panelPositions[panel] ?? GameUI.profileWindowPosition;
           panels.add(
             DraggablePanel(
               title: engine.locale('information'),
-              position: panelPositions[panel] ?? GameUI.profileWindowPosition,
+              position: position,
               width: GameUI.profileWindowWidth,
               height: 400.0,
               onTapDown: (offset) {
                 context
                     .read<ViewPanelState>()
                     .setUpFront(ViewPanels.characterProfile);
+                context
+                    .read<ViewPanelPositionState>()
+                    .set(ViewPanels.characterProfile, position);
               },
               onDragUpdate: (details) {
-                context.read<ViewPanelPositionState>().update(
-                      ViewPanels.characterQuest,
-                      details.delta,
-                    );
+                context
+                    .read<ViewPanelPositionState>()
+                    .update(ViewPanels.characterProfile, details.delta);
               },
               onClose: () {
                 context
@@ -134,22 +137,83 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
             ),
           );
         case ViewPanels.characterMemory:
-          panels.add(CharacterMemoryView(
-            characterData: heroData,
-            isHero: true,
-          ));
+          panels.add(
+            CharacterMemoryView(
+              characterData: heroData,
+              isHero: true,
+            ),
+          );
         case ViewPanels.characterQuest:
           panels.add(CharacterQuestView(
             characterData: heroData,
           ));
         case ViewPanels.characterDetails:
-          panels.add(CharacterDetailsView(
-            characterData: heroData,
-          ));
+          final position =
+              panelPositions[panel] ?? GameUI.detailsWindowPosition;
+          panels.add(
+            DraggablePanel(
+              title: engine.locale('build'),
+              position: position,
+              width: GameUI.profileWindowWidth,
+              height: 510.0,
+              onTapDown: (offset) {
+                context
+                    .read<ViewPanelState>()
+                    .setUpFront(ViewPanels.characterDetails);
+                context
+                    .read<ViewPanelPositionState>()
+                    .set(ViewPanels.characterDetails, position);
+              },
+              onDragUpdate: (details) {
+                context
+                    .read<ViewPanelPositionState>()
+                    .update(ViewPanels.characterDetails, details.delta);
+              },
+              onClose: () {
+                context
+                    .read<ViewPanelState>()
+                    .hide(ViewPanels.characterDetails);
+              },
+              child: CharacterDetails(
+                characterData: heroData,
+              ),
+            ),
+          );
+        // case ViewPanels.enemyDetails:
+        //   final position =
+        //       panelPositions[panel] ?? GameUI.detailsWindowPosition;
+        //   panels.add(
+        //     DraggablePanel(
+        //       title: engine.locale('stats'),
+        //       position: position,
+        //       width: 400.0,
+        //       height: 510.0,
+        //       onTapDown: (offset) {
+        //         context
+        //             .read<ViewPanelState>()
+        //             .setUpFront(ViewPanels.enemyDetails);
+        //         context
+        //             .read<ViewPanelPositionState>()
+        //             .set(ViewPanels.enemyDetails, position);
+        //       },
+        //       onDragUpdate: (details) {
+        //         context
+        //             .read<ViewPanelPositionState>()
+        //             .update(ViewPanels.enemyDetails, details.delta);
+        //       },
+        //       onClose: () {
+        //         context.read<ViewPanelState>().hide(ViewPanels.enemyDetails);
+        //       },
+        //       child: CharacterDetails(
+        //         characterData: enemyData,
+        //         showInventory: false,
+        //       ),
+        //     ),
+        //   );
         case ViewPanels.itemSelect:
           final arguments = visiblePanels[panel]!;
           panels.add(ItemSelectDialog(
-            inventoryData: arguments['inventoryData'],
+            characterData: arguments['characterData'],
             title: arguments['title'],
             filter: arguments['filter'],
             onSelect: arguments['onSelect'],
@@ -157,6 +221,9 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
           ));
       }
     }
+
+    final life = heroData['stats']['life'];
+    final lifeMax = heroData['stats']['lifeMax'];
 
     return SizedBox(
       width: screenSize.width,
@@ -194,9 +261,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               Padding(
                                 padding: const EdgeInsets.only(bottom: 10),
                                 child: DynamicColorProgressBar(
-                                  title: '${engine.locale('stamina')}:',
-                                  value: heroData['stats']['life'],
-                                  max: heroData['stats']['lifeMax'],
+                                  value: life,
+                                  max: lifeMax,
                                   height: 25.0,
                                   width: 170.0,
                                   showNumber: false,
@@ -205,6 +271,18 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                     Colors.yellow.shade400,
                                     Colors.yellow.shade900,
                                   ],
+                                  onMouseEnter: (rect) {
+                                    final content =
+                                        '${engine.locale('stamina')}: $life/$lifeMax';
+                                    context
+                                        .read<HoverInfoContentState>()
+                                        .set(content, rect);
+                                  },
+                                  onMouseExit: () {
+                                    context
+                                        .read<HoverInfoContentState>()
+                                        .hide();
+                                  },
                                 ),
                               ),
                               Row(
@@ -307,14 +385,15 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                           const EdgeInsets.only(right: 5.0),
                                       onTapUp: () {
                                         context
+                                            .read<EnemyState>()
+                                            .setPrebattleVisible(false);
+                                        context
                                             .read<HoverInfoContentState>()
                                             .hide();
                                         context
                                             .read<ViewPanelState>()
                                             .clearAll();
-                                        context
-                                            .read<SceneControllerState>()
-                                            .push(Scenes.library);
+                                        engine.pushScene(Scenes.library);
                                       },
                                       onMouseEnter: (rect) {
                                         context
@@ -421,7 +500,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                       materials.writeln(
                                           '${engine.locale('ore')}: ${(data['ore'] as int).toString().padLeft(10)}');
                                       materials.writeln(
-                                          '${engine.locale('plank')}: ${(data['plank'] as int).toString().padLeft(10)}');
+                                          '${engine.locale('timber')}: ${(data['timber'] as int).toString().padLeft(10)}');
                                       materials.writeln(
                                           '${engine.locale('paper')}: ${(data['paper'] as int).toString().padLeft(10)}');
                                       materials.write(
@@ -489,7 +568,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                           context.read<HoverInfoContentState>().hide();
                         },
                         child: const Image(
-                          image: AssetImage('assets/images/icon/status.png'),
+                          image: AssetImage('assets/images/icon/console.png'),
                         ),
                       ),
                     ],
@@ -503,8 +582,14 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               child: PreBattleDialog(heroData: heroData, enemyData: enemyData),
             ),
           ...panels,
-          if (data != null && rect != null)
-            HoverInfo(data: data, hoveringRect: rect, direction: direction),
+          if (content != null)
+            HoverInfo(
+              data: content.data,
+              hoveringRect: content.rect,
+              maxWidth: content.maxWidth,
+              direction: content.direction,
+              textAlign: content.textAlign,
+            ),
         ],
       ),
     );

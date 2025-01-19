@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 
 import 'relationship/bonds.dart';
 import 'relationship/history.dart';
@@ -198,7 +198,7 @@ class _CharacterMemoryViewState extends State<CharacterMemoryView>
                     } else {
                       showDialog(
                         context: context,
-                        builder: (context) => ResponsivePanel(
+                        builder: (context) => ResponsiveView(
                           alignment: AlignmentDirectional.center,
                           width: GameUI.profileWindowWidth,
                           height: 400.0,

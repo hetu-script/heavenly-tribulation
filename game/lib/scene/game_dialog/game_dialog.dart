@@ -126,7 +126,7 @@ class _GameDialogState extends State<GameDialog> {
                                 showDialog(
                                   context: context,
                                   builder: (context) =>
-                                      CharacterProfilePanel(characterId: id),
+                                      CharacterProfileView(characterId: id),
                                 );
                               }
                             },

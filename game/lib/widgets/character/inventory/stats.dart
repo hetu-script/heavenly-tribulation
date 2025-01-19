@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../engine.dart';
 import '../../../state/hero.dart';
-import '../../../state/hover_info.dart';
+import '../../../state/hoverinfo.dart';
 
 const kLabelWidth = 120.0;
 
@@ -14,10 +14,12 @@ class StatsView extends StatelessWidget {
     super.key,
     required this.characterData,
     this.isHero = false,
+    this.showNonBattleStats = true,
   });
 
   final dynamic characterData;
   final bool isHero;
+  final bool showNonBattleStats;
 
   @override
   Widget build(BuildContext context) {
@@ -25,13 +27,20 @@ class StatsView extends StatelessWidget {
       context.watch<HeroState>().heroData;
     }
 
-    final stats = characterData['stats'];
     final int level = characterData['cultivationLevel'];
     final int rank = characterData['cultivationRank'];
     final int levelMax = characterData['cultivationLevelMax'];
     final String rankString =
         '<rank$rank>${engine.locale('cultivationRank_$rank')}</>';
+    final stats = characterData['stats'];
+    // final identifedStats = characterData['identifiedStats'];
     final int baseLifeMax = characterData['lifeMax'];
+    final int baseLightRadius = characterData['lightRadius'];
+    final int baseSpirituality = characterData['spirituality'];
+    final int baseDexterity = characterData['dexterity'];
+    final int baseStrength = characterData['strength'];
+    final int baseWillpower = characterData['willpower'];
+    final int basePerception = characterData['perception'];
     final int lifeMax = stats['lifeMax'];
     final int lightRadius = stats['lightRadius'];
     final int spirituality = stats['spirituality'];
@@ -52,6 +61,21 @@ class StatsView extends StatelessWidget {
     // final int slowThreshold = stats['slowThreshold'];
     // final int nimbleThreshold = stats['nimbleThreshold'];
     // final int clumsyThreshold = stats['clumsyThreshold'];
+    // final bool isUnarmedAttackIdentified =
+    //     identifedStats['unarmedAttack'] ?? false;
+    // final bool isWeaponAttackIdentified =
+    //     identifedStats['weaponAttack'] ?? false;
+    // final bool isSpellAttackIdentified = identifedStats['spellAttack'] ?? false;
+    // final bool isCurseAttackIdentified = identifedStats['curseAttack'] ?? false;
+    // final bool isPoisonAttackIdentified =
+    //     identifedStats['poisonAttack'] ?? false;
+    // final bool isPhysicalResistIdentified =
+    //     identifedStats['physicalResist'] ?? false;
+    // final bool isChiResistIdentified = identifedStats['chiResist'] ?? false;
+    // final bool isElementalResistIdentified =
+    //     identifedStats['elementalResist'] ?? false;
+    // final bool isSpiritualResistIdentified =
+    //     identifedStats['spiritualResist'] ?? false;
 
     final labels = <Widget>[
       Label(
@@ -61,7 +85,10 @@ class StatsView extends StatelessWidget {
         onMouseEnter: (rect) {
           final text =
               '${engine.locale('levelMax')}: $levelMax\n${engine.locale('cultivationLevel_description')}';
-          context.read<HoverInfoContentState>().set(text, rect);
+          context.read<HoverInfoContentState>().set(
+                text,
+                rect,
+              );
         },
         onMouseExit: () {
           context.read<HoverInfoContentState>().hide();
@@ -91,21 +118,9 @@ class StatsView extends StatelessWidget {
           context.read<HoverInfoContentState>().hide();
         },
       ),
-      Label(
-        '${engine.locale('lightRadius')}: $lightRadius',
-        width: kLabelWidth,
-        textAlign: TextAlign.left,
-        onMouseEnter: (rect) {
-          final text = engine.locale('lightRadius_description');
-          context.read<HoverInfoContentState>().set(text, rect);
-        },
-        onMouseExit: () {
-          context.read<HoverInfoContentState>().hide();
-        },
-      ),
       const Divider(),
       Label(
-        '${engine.locale('dexterity')}: $dexterity',
+        '${engine.locale('dexterity')}: ${dexterity > baseDexterity ? '<yellow>$dexterity</>' : dexterity}',
         width: kLabelWidth,
         textAlign: TextAlign.left,
         onMouseEnter: (rect) {
@@ -117,7 +132,7 @@ class StatsView extends StatelessWidget {
         },
       ),
       Label(
-        '${engine.locale('spirituality')}: $spirituality',
+        '${engine.locale('spirituality')}: ${spirituality > baseSpirituality ? '<yellow>$spirituality</>' : spirituality}',
         width: kLabelWidth,
         textAlign: TextAlign.left,
         onMouseEnter: (rect) {
@@ -129,7 +144,7 @@ class StatsView extends StatelessWidget {
         },
       ),
       Label(
-        '${engine.locale('strength')}: $strength',
+        '${engine.locale('strength')}: ${strength > baseStrength ? '<yellow>$strength</>' : strength}',
         width: kLabelWidth,
         textAlign: TextAlign.left,
         onMouseEnter: (rect) {
@@ -141,7 +156,7 @@ class StatsView extends StatelessWidget {
         },
       ),
       Label(
-        '${engine.locale('perception')}: $perception',
+        '${engine.locale('perception')}: ${perception > basePerception ? '<yellow>$perception</>' : perception}',
         width: kLabelWidth,
         textAlign: TextAlign.left,
         onMouseEnter: (rect) {
@@ -153,7 +168,7 @@ class StatsView extends StatelessWidget {
         },
       ),
       Label(
-        '${engine.locale('willpower')}: $willpower',
+        '${engine.locale('willpower')}: ${willpower > baseWillpower ? '<yellow>$willpower</>' : willpower}',
         width: kLabelWidth,
         textAlign: TextAlign.left,
         onMouseEnter: (rect) {
@@ -166,7 +181,10 @@ class StatsView extends StatelessWidget {
       ),
       const Divider(),
       Label(
+        // (isHero) // || isUnarmedAttackIdentified)
+        // ?
         '${engine.locale('unarmedAttack')}: ${unarmedAttack > 0 ? '<yellow>$unarmedAttack</>' : unarmedAttack}',
+        // : '???',
         width: kLabelWidth,
         textAlign: TextAlign.left,
         onMouseEnter: (rect) {
@@ -178,7 +196,10 @@ class StatsView extends StatelessWidget {
         },
       ),
       Label(
+        // (isHero) // || isWeaponAttackIdentified)
+        // ?
         '${engine.locale('weaponAttack')}: ${weaponAttack > 0 ? '<yellow>$weaponAttack</>' : weaponAttack}',
+        // : '???',
         width: kLabelWidth,
         textAlign: TextAlign.left,
         onMouseEnter: (rect) {
@@ -190,7 +211,10 @@ class StatsView extends StatelessWidget {
         },
       ),
       Label(
+        // (isHero) // || isSpellAttackIdentified)
+        // ?
         '${engine.locale('spellAttack')}: ${spellAttack > 0 ? '<yellow>$spellAttack</>' : spellAttack}',
+        // : '???',
         width: kLabelWidth,
         textAlign: TextAlign.left,
         onMouseEnter: (rect) {
@@ -202,7 +226,10 @@ class StatsView extends StatelessWidget {
         },
       ),
       Label(
+        // (isHero) // || isCurseAttackIdentified)
+        // ?
         '${engine.locale('curseAttack')}: ${curseAttack > 0 ? '<yellow>$curseAttack</>' : curseAttack}',
+        // : '???',
         width: kLabelWidth,
         textAlign: TextAlign.left,
         onMouseEnter: (rect) {
@@ -214,7 +241,10 @@ class StatsView extends StatelessWidget {
         },
       ),
       Label(
+        // (isHero) // || isPoisonAttackIdentified)
+        // ?
         '${engine.locale('poisonAttack')}: ${poisonAttack > 0 ? '<yellow>$poisonAttack</>' : poisonAttack}',
+        // : '???',
         width: kLabelWidth,
         textAlign: TextAlign.left,
         onMouseEnter: (rect) {
@@ -226,7 +256,10 @@ class StatsView extends StatelessWidget {
         },
       ),
       Label(
+        // (isHero) // || isPhysicalResistIdentified)
+        // ?
         '${engine.locale('physicalResist')}: ${physicalResist > 0 ? '<yellow>$physicalResist</>' : physicalResist}',
+        // : '???',
         width: kLabelWidth,
         textAlign: TextAlign.left,
         onMouseEnter: (rect) {
@@ -238,7 +271,10 @@ class StatsView extends StatelessWidget {
         },
       ),
       Label(
+        // (isHero) // || isChiResistIdentified)
+        // ?
         '${engine.locale('chiResist')}: ${chiResist > 0 ? '<yellow>$chiResist</>' : chiResist}',
+        // : '???',
         width: kLabelWidth,
         textAlign: TextAlign.left,
         onMouseEnter: (rect) {
@@ -250,7 +286,11 @@ class StatsView extends StatelessWidget {
         },
       ),
       Label(
+        // (isHero) // || isElementalResistIdentified)
+        // ?
+
         '${engine.locale('elementalResist')}: ${elementalResist > 0 ? '<yellow>$elementalResist</>' : elementalResist}',
+        // : '???',
         width: kLabelWidth,
         textAlign: TextAlign.left,
         onMouseEnter: (rect) {
@@ -262,7 +302,10 @@ class StatsView extends StatelessWidget {
         },
       ),
       Label(
+        // (isHero) // || isSpiritualResistIdentified)
+        // ?
         '${engine.locale('spiritualResist')}: ${spiritualResist > 0 ? '<yellow>$spiritualResist</>' : spiritualResist}',
+        // : '???',
         width: kLabelWidth,
         textAlign: TextAlign.left,
         onMouseEnter: (rect) {
@@ -273,12 +316,27 @@ class StatsView extends StatelessWidget {
           context.read<HoverInfoContentState>().hide();
         },
       ),
+      if (showNonBattleStats) ...[
+        const Divider(),
+        Label(
+          '${engine.locale('lightRadius')}: ${lightRadius > baseLightRadius ? '<yellow>$lightRadius</>' : lightRadius}',
+          width: kLabelWidth,
+          textAlign: TextAlign.left,
+          onMouseEnter: (rect) {
+            final text = engine.locale('lightRadius_description');
+            context.read<HoverInfoContentState>().set(text, rect);
+          },
+          onMouseExit: () {
+            context.read<HoverInfoContentState>().hide();
+          },
+        ),
+      ]
     ];
 
     return SingleChildScrollView(
       child: Container(
         alignment: Alignment.topLeft,
-        padding: const EdgeInsets.only(left: 10.0, top: 5.0, right: 5.0),
+        padding: const EdgeInsets.all(5.0),
         width: 240,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

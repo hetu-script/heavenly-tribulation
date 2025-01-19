@@ -146,6 +146,59 @@ const kEntityCategoryMaterial = 'material';
 const kEquipmentMax = 6
 
 // 材料的类型
+const kMaterialMoney = 'money'
+const kMaterialJade =  'jade'
+const kMaterialFood =  'food'
+const kMaterialWater = 'water'
+const kMaterialStone = 'stone'
+const kMaterialOre =   'ore'
+const kMaterialTimber = 'timber'
+const kMaterialPaper = 'paper'
+const kMaterialHerb =  'herb'
+
+const kMaterialKinds = [
+  'money',
+  'jade',
+  'food',
+  'water',
+  'stone',
+  'ore',
+  'timber',
+  'paper',
+  'herb',
+]
+
+const kWeaponKinds = [
+  'sword',
+  'sabre',
+  'staff',
+  'spear',
+  'bow',
+  'dart',
+  'pipa',
+  'flute',
+]
+
+const kArmorKinds = [
+  'armor',
+  'gloves',
+  'boots',
+  'helmet',
+  'shield',
+]
+
+const kTalismanKinds = [
+  'amulet',
+  'ring',
+  'pearl',
+  'bracelet',
+]
+
+const kEquipmentKinds = [
+  ...kWeaponKinds,
+  ...kArmorKinds,
+  ...kTalismanKinds,
+]
 
 // 实际上进攻类装备也可能具有防御效果，因此这里的类型仅用于显示而已
 const kEquipTypeShip = 'ship'

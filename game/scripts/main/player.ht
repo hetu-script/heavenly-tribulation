@@ -41,6 +41,24 @@ namespace Player {
   
   external function showCultivation()
 
+  function collectById(materialId, { amount = 1, incurIncident = true }) {
+    assert(amount is integer && amount > 0)
+    hero.materials[materialId] += amount
+    
+    let incidentContent = engine.locale('heroAcquireMultiple', interpolations: [
+      amount,
+      engine.locale(materialId),
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: hero.id,
+        isPrivate: true,
+      )
+    }
+    engine.debug(incidentContent)
+  }
+
   /// 从物品库中复制并获取一个物品
   function acquireItemById(itemId, { incurIncident = true }) {
     final item = createItemById(itemId)

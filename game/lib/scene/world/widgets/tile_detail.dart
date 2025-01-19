@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 
 import '../../../engine.dart';
@@ -27,7 +27,7 @@ class _TileDetailPanelState extends State<TileDetailPanel> {
       coordinates = '${currentTerrain.left}, ${currentTerrain.top}';
     }
 
-    return ResponsivePanel(
+    return ResponsiveView(
       alignment: Alignment.center,
       color: GameUI.backgroundColor,
       width: 400,

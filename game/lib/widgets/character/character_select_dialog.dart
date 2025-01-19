@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/widgets/character/profile.dart';
 import 'package:heavenly_tribulation/widgets/common.dart';
-import 'package:samsara/ui/responsive_panel.dart';
+import 'package:samsara/ui/responsive_view.dart';
 
 import '../../engine.dart';
 import '../../util.dart';
@@ -85,7 +85,7 @@ class CharacterSelectDialog extends StatelessWidget {
       data.add(row);
     }
 
-    return ResponsivePanel(
+    return ResponsiveView(
       alignment: AlignmentDirectional.center,
       child: Scaffold(
         appBar: AppBar(
@@ -98,7 +98,7 @@ class CharacterSelectDialog extends StatelessWidget {
           tableData: data,
           onItemPressed: (buttons, position, dataId) => showDialog(
             context: context,
-            builder: (context) => ResponsivePanel(
+            builder: (context) => ResponsiveView(
               alignment: AlignmentDirectional.center,
               width: GameUI.profileWindowWidth,
               height: 400.0,

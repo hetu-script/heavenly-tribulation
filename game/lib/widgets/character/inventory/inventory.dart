@@ -9,19 +9,19 @@ import '../../common.dart';
 class Inventory extends StatefulWidget {
   const Inventory({
     super.key,
-    required this.inventoryData,
+    required this.characterData,
     required this.type,
     this.filter,
     required this.height,
     this.priceFactor = 1.0,
-    this.minSlotCount = 36,
-    this.gridsPerLine = 6,
+    this.minSlotCount = 35,
+    this.gridsPerLine = 5,
     this.onTapped,
     this.onSecondaryTapped,
     this.onSelect,
   });
 
-  final dynamic inventoryData;
+  final dynamic characterData;
   final InventoryType type;
   final String? filter;
   final double height;
@@ -43,8 +43,10 @@ class _InventoryState extends State<Inventory> {
   Widget build(BuildContext context) {
     final grids = <Widget>[];
 
-    for (var i = 0; i < widget.inventoryData.length; ++i) {
-      final itemData = (widget.inventoryData.values as Iterable).elementAt(i);
+    final inventoryData = widget.characterData['inventory'];
+
+    for (var i = 0; i < inventoryData.length; ++i) {
+      final itemData = (inventoryData.values as Iterable).elementAt(i);
       if (itemData['equippedPosition'] != null) {
         continue;
       }
@@ -57,6 +59,7 @@ class _InventoryState extends State<Inventory> {
         Padding(
           padding: const EdgeInsets.all(5.0),
           child: ItemGrid(
+            characterData: widget.characterData,
             itemData: itemData,
             onTapped: (data, position) {
               if (widget.type == InventoryType.select) {
@@ -88,9 +91,7 @@ class _InventoryState extends State<Inventory> {
     }
 
     return SingleChildScrollView(
-      child: Container(
-        alignment: Alignment.topLeft,
-        padding: const EdgeInsets.only(left: 5.0, top: 5.0, right: 5.0),
+      child: SizedBox(
         width: 60.0 * widget.gridsPerLine,
         height: widget.height,
         child: ListView(

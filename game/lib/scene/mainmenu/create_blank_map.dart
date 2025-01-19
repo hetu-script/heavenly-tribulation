@@ -194,7 +194,7 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
       ),
     );
 
-    // return ResponsivePanel(
+    // return ResponsiveView(
     //   alignment: AlignmentDirectional.center,
     //   child: layout,
     // );

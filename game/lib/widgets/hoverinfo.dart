@@ -3,29 +3,25 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:samsara/richtext/richtext_builder.dart';
 import 'package:provider/provider.dart';
-import 'package:hetu_script/values.dart';
 
-import '../../../data.dart';
 import '../../../ui.dart';
 import '../../../engine.dart';
-// import '../../shared/rrect_icon.dart';
-// import '../../../shared/close_button.dart';
-// import '../../../common.dart';
 import 'common.dart';
-import '../state/hover_info.dart';
+import '../state/hoverinfo.dart';
 
 class HoverInfo extends StatefulWidget {
   HoverInfo({
-    this.maxWidth = kHoverInfoWidth,
     required this.data,
     required this.hoveringRect,
+    this.maxWidth = kHoverInfoMaxWidth,
+    this.textAlign = TextAlign.center,
     this.direction = HoverInfoDirection.bottomCenter,
   }) : super(key: GlobalKey());
 
-  // final double left, top;
-  final double maxWidth;
   final dynamic data;
   final Rect hoveringRect;
+  final double maxWidth;
+  final TextAlign textAlign;
   final HoverInfoDirection direction;
 
   @override
@@ -35,13 +31,11 @@ class HoverInfo extends StatefulWidget {
 class _HoverInfoState extends State<HoverInfo> {
   final _focusNode = FocusNode();
 
-  dynamic _heroData;
+  Rect? _rect;
 
   @override
   void initState() {
     super.initState();
-
-    _heroData = engine.hetu.fetch('hero');
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final screenSize = MediaQuery.sizeOf(context);
@@ -110,45 +104,47 @@ class _HoverInfoState extends State<HoverInfo> {
       double maxY = screenSize.height - size.height - kHoverInfoIndent;
       top = preferredY > maxY ? maxY : preferredY;
 
-      context
-          .read<HoverInfoDeterminedRectState>()
-          .set(Rect.fromLTWH(left, top, width, height));
+      setState(() {
+        _rect = Rect.fromLTWH(left, top, width, height);
+      });
+      // context
+      //     .read<HoverInfoDeterminedRectState>()
+      //     .set();
     });
   }
 
-  String _decode(dynamic data, {bool isDetailed = false}) {
-    if (data is HTStruct) {
-      if (data['entityType'] == 'item') {
-        final description =
-            GameData.getDescriptiomFromItemData(data, isDetailed: isDetailed);
-
-        return description;
-      } else if (data['entityType'] == 'battle_card') {
-        final (_, description) = GameData.getDescriptionFromCardData(
-          data,
-          isDetailed: isDetailed,
-          characterData: _heroData,
-        );
-
-        return description;
-      }
+  Widget? _decode(dynamic data, {bool isDetailed = false}) {
+    Widget? content;
+    if (data is String) {
+      content = RichText(
+        textAlign: widget.textAlign,
+        text: TextSpan(
+          children: buildFlutterRichText(data),
+          style: TextStyle(
+            fontFamily: GameUI.fontFamily,
+            fontSize: 16.0,
+          ),
+        ),
+      );
+    } else if (data is Widget) {
+      content = data;
     }
 
-    return data.toString();
+    return content;
   }
 
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.sizeOf(context);
-    final rect = context.watch<HoverInfoDeterminedRectState>().rect;
+
     final isDetailed = context.watch<HoverInfoContentState>().isDetailed;
     final content = _decode(widget.data, isDetailed: isDetailed);
 
     _focusNode.requestFocus();
 
     return Positioned(
-      left: rect?.left ?? screenSize.width,
-      top: rect?.top ?? screenSize.height,
+      left: _rect?.left ?? screenSize.width,
+      top: _rect?.top ?? screenSize.height,
       // height: _height,
       child: IgnorePointer(
         child: KeyboardListener(
@@ -177,17 +173,7 @@ class _HoverInfoState extends State<HoverInfo> {
             ),
             child: ClipRRect(
               borderRadius: GameUI.borderRadius,
-              child: RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  children: buildFlutterRichText(content),
-                  style: TextStyle(
-                    // fontFamily: 'NotoSansMono',
-                    fontFamily: GameUI.fontFamily,
-                    fontSize: 16.0,
-                  ),
-                ),
-              ),
+              child: content,
             ),
           ),
         ),

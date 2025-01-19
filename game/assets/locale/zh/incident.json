@@ -3,6 +3,7 @@
   "heroStaminaRestored": "你恢复了 {0} 点体力。",
   "heroManaRestored": "你获得了 {0} 点灵气。",
   "heroAcquire": "你得到了{0}。",
+  "heroAcquireMultiple": "你得到了 {0} 个{1}。",
   "heroLose": "你失去了{0}。",
   "heroEquip": "你装备了{0}。",
   "heroUnequip": "你卸下了{0}。",
@@ -27,7 +28,7 @@
   "entityDestroy": "{0}销毁了{1}。",
 
   "characterLearn": "{0}学会了{1}。",
-  "characterAcquireMultipleItem": "{0}得到了 {1} 个{2}。",
+  "characterAcquireMultiple": "{0}得到了 {1} 个{2}。",
   "characterLoseMultipleItem": "{0}失去了 {1} 个{2}。",
   "characterGiveItem": "{0}将{1}给了{2}。",
   "characterForceToGiveItem": "{0}拿走了{1}身上的{2}。",
