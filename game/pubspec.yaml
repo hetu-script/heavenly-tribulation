@@ -79,7 +79,6 @@ flutter:
     - assets/images/animation/
     - assets/images/animation/bear/
     - assets/images/animation/characterMan1/
-    - assets/images/animation/characterMan2/
     - assets/images/animation/characterWoman1/
     - assets/images/animation/overlay/
     - assets/images/battle/
@@ -120,8 +119,6 @@ flutter:
 
     # - assets/locale/en/
     - assets/locale/zh/
-
-    - assets/save/
 
     - scripts/main/
     - scripts/main/ai/

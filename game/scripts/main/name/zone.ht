@@ -31,5 +31,5 @@ function generateZoneName({category: string}) {
       }
     }
   }
-  return { name: name + kind, category }
+  return name + kind
 }

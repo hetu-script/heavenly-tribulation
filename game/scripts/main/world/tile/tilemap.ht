@@ -1,9 +1,12 @@
 import '../../game.ht'
 import 'hexagonal_tile.ht'
+import '../../name/zone.ht'
 
 struct TileMap {
   constructor ({
     id,
+    name,
+    isMainWorld,
     width,
     height,
     terrainSpriteSheet,
@@ -22,6 +25,9 @@ struct TileMap {
     assert(height != null)
 
     this.id = id
+    this.isMainWorld = isMainWorld ?? false
+    this.name = name ?? generateZoneName(category: 'world')
+
     this.width = width
     this.height = height
 

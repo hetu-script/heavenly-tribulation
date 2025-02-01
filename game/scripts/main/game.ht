@@ -59,8 +59,10 @@ struct MonthlyActivity {
 
 struct Game {
   constructor ({saveName}) {
-    this.isNewGame = true
     this.saveName = saveName
+    this.isNewGame = true
+    this.currentWorldId = null
+    this.heroId = null
 
     // 本次游戏加载的 module，这里是纯数据，函数保存在另外的地方
     this.modules = {}
@@ -76,9 +78,9 @@ struct Game {
     this.objects = {}
 
     // 每个月生成的暴风雨地点
-    this.stormTileIndexes = []
+    // this.stormTileIndexes = []
     // 每个月生成的可捕鱼的地点
-    this.fishTileIndexes = []
+    // this.fishTileIndexes = []
     // 每个月生成的可恢复灵气的地点
     // this.spiritTileIndexes = []
     

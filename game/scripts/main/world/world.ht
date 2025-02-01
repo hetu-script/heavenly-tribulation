@@ -2,7 +2,6 @@ import 'tile/hexagonal_tile.ht'
 import 'tile/tilemap.ht'
 import 'tile/common.ht'
 import '../game.ht'
-import '../name/zone.ht'
 
 export { createSandboxWorld } from 'sandbox.ht'
 
@@ -65,9 +64,9 @@ struct TileMapTerrain {
 }
 
 function createBlankWorld({
-    id,
-    isMainWorld,
+    id = 'main',
     name,
+    isMainWorld,
     terrainSpriteSheet = 'fantasyhextiles_v3_borderless.png',
     width,
     height,
@@ -76,15 +75,13 @@ function createBlankWorld({
   assert(height is integer && height > 0)
 
   let newWorld = TileMap(
-    id: id ?? 'main',
+    id: id,
     name: name,
-    terrainSpriteSheet: terrainSpriteSheet,
+    isMainWorld: isMainWorld,
     width: width,
     height: height,
+    terrainSpriteSheet: terrainSpriteSheet,
   )
-  
-  newWorld.isMainWorld = isMainWorld
-  newWorld.name = name ?? generateZoneName(category: 'world').name
 
   addWorld(newWorld)
 
