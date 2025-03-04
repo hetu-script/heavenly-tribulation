@@ -8,8 +8,8 @@
 const tutorial = {
   onAfterHeroMove: async (left, top) {
     // if (left == 9 && top == 7 && this.flags.spiritQuestState == 0) {
-    //   await dialog.localeLines('tutorial.ch1.hero.line6', isHero: true)
-    //   await dialog.localeLines('tutorial.ch1.luzifu.reply6', characterId: 'luzifu')
+    //   await Dialog.localeLines('tutorial.ch1.hero.line6', isHero: true)
+    //   await Dialog.localeLines('tutorial.ch1.luzifu.reply6', characterId: 'luzifu')
 
     //   let quest = Quest(
     //     name: engine.locale('tutorial.quest1.gatherSpirit'),
@@ -32,7 +32,7 @@ const tutorial = {
   onAfterHeroGatherSpirit: async () {
     // if (this.flags.spiritQuestState = 1) {
     //   this.flags.spiritQuestState = 2
-    //   await dialog.localeLines('tutorial.ch1.luzifu.line7', characterId: 'luzifu')
+    //   await Dialog.localeLines('tutorial.ch1.luzifu.line7', characterId: 'luzifu')
       
     //   assert(this.flags.spiritQuestId != null)
     //   final quest = hero.quests[this.flags.spiritQuestId]
@@ -46,11 +46,11 @@ const tutorial = {
     //   final quest = hero.quests[this.flags.spiritQuestId]
     //   finishQuest(hero, quest)
     //   Player.updateQuest()
-    //   WorldMap.addHintText(engine.locale('questFinished'), terrain.left, terrain.top)
+    //   World.addHintText(engine.locale('questFinished'), terrain.left, terrain.top)
 
-    //   await dialog.localeLines('tutorial.ch1.luzifu.line8', characterId: 'luzifu')
-    //   await dialog.localeLines('tutorial.ch1.hero.reply8', isHero: true)
-    //   await dialog.localeLines('tutorial.ch1.luzifu.line9', characterId: 'luzifu')
+    //   await Dialog.localeLines('tutorial.ch1.luzifu.line8', characterId: 'luzifu')
+    //   await Dialog.localeLines('tutorial.ch1.hero.reply8', isHero: true)
+    //   await Dialog.localeLines('tutorial.ch1.luzifu.line9', characterId: 'luzifu')
     // }
   },
   handleAfuQuestions: async () {
@@ -59,7 +59,7 @@ const tutorial = {
     let haveKnownAya = haveMet(hero, aya)
     let afuSelection
     do {
-      afuSelection = await dialog.localeSelect([
+      afuSelection = await Dialog.localeSelect([
         'tutorial.ch1.afu.aboutAfu',
         'tutorial.ch1.afu.aboutIsle',
         'tutorial.ch1.afu.aboutOtherImmortal',
@@ -69,20 +69,20 @@ const tutorial = {
       ])
       switch (afuSelection) {
         'tutorial.ch1.afu.aboutAfu': {
-          await dialog.localeLines('tutorial.ch1.afu.aboutAfu.reply', character: afu)
+          await Dialog.localeLines('tutorial.ch1.afu.aboutAfu.reply', character: afu)
           characterFirstMet(hero, afu)
         }
         'tutorial.ch1.afu.aboutIsle': {
-          await dialog.localeLines('tutorial.ch1.afu.aboutIsle.reply', character: afu)
+          await Dialog.localeLines('tutorial.ch1.afu.aboutIsle.reply', character: afu)
         }
         'tutorial.ch1.afu.aboutOtherImmortal': {
-          await dialog.localeLines('tutorial.ch1.afu.aboutOtherImmortal.reply', character: afu)
+          await Dialog.localeLines('tutorial.ch1.afu.aboutOtherImmortal.reply', character: afu)
         }
         'tutorial.ch1.afu.aboutSeal': {
-          await dialog.localeLines('tutorial.ch1.afu.aboutSeal.reply', character: afu)
+          await Dialog.localeLines('tutorial.ch1.afu.aboutSeal.reply', character: afu)
         }
         'tutorial.ch1.afu.aboutThatGirl', 'tutorial.ch1.afu.aboutAya': {
-          await dialog.localeLines('tutorial.ch1.afu.aboutAya.reply', character: afu)
+          await Dialog.localeLines('tutorial.ch1.afu.aboutAya.reply', character: afu)
         }
       }
     } while (afuSelection != 'noreMoreQuertion')
@@ -92,21 +92,21 @@ const tutorial = {
     final afu = getCharacterById('afu')
     final aya = getCharacterById('aya')
     if (this.flags.afuState == 0 && location.id == '万福村') {
-      dialog.start()
-      dialog.pushImage(afu.illustration)
+      Dialog.start()
+      Dialog.pushImage(afu.illustration)
 
-      await dialog.localeLines('tutorial.ch1.afu.intro.line1', character: afu)
-      await dialog.localeLines('tutorial.ch1.hero.intro.reply1', isHero: true)
-      await dialog.localeLines('tutorial.ch1.afu.intro.line2', character: afu)
-      await dialog.localeLines('tutorial.ch1.hero.intro.reply2', isHero: true)
+      await Dialog.localeLines('tutorial.ch1.afu.intro.line1', character: afu)
+      await Dialog.localeLines('tutorial.ch1.hero.intro.reply1', isHero: true)
+      await Dialog.localeLines('tutorial.ch1.afu.intro.line2', character: afu)
+      await Dialog.localeLines('tutorial.ch1.hero.intro.reply2', isHero: true)
 
       await this[world.id].handleAfuQuestions()
 
-      await dialog.localeLines('tutorial.ch1.afu.intro.line3', character: afu)
-      await dialog.localeLines('tutorial.ch1.hero.intro.reply3', isHero: true)
-      await dialog.localeLines('tutorial.ch1.afu.intro.line4', character: afu)
-      await dialog.localeLines('tutorial.ch1.hero.intro.reply4', isHero: true)
-      dialog.end()
+      await Dialog.localeLines('tutorial.ch1.afu.intro.line3', character: afu)
+      await Dialog.localeLines('tutorial.ch1.hero.intro.reply3', isHero: true)
+      await Dialog.localeLines('tutorial.ch1.afu.intro.line4', character: afu)
+      await Dialog.localeLines('tutorial.ch1.hero.intro.reply4', isHero: true)
+      Dialog.end()
 
       this.flags.afuState = 1
     }
@@ -118,8 +118,8 @@ const tutorial = {
       'aya': {
         switch (this.flags.ayaState) {
           0 : {
-            dialog.pushImage(aya.illustration)
-            await dialog.localeLines('tutorial.ch1.aya.intro.line1', character: aya)
+            Dialog.pushImage(aya.illustration)
+            await Dialog.localeLines('tutorial.ch1.aya.intro.line1', character: aya)
             
             let selections = [
               'tutorial.ch1.aya.intro.selection1.look',
@@ -129,59 +129,59 @@ const tutorial = {
             ]
             let selection1End = false
             do {
-              let selection1 = await dialog.localeSelect(selections);
+              let selection1 = await Dialog.localeSelect(selections);
               switch(selection1) {
                 'tutorial.ch1.aya.intro.selection1.look' : {
-                  await dialog.localeLines('tutorial.ch1.aya.intro.selection1.description')
+                  await Dialog.localeLines('tutorial.ch1.aya.intro.selection1.description')
                   selections.removeFirst()
                 }
                 'tutorial.ch1.aya.intro.selection1.active' : {
-                  await dialog.localeLines('tutorial.ch1.aya.intro.selection1.active.reply', character: aya)
+                  await Dialog.localeLines('tutorial.ch1.aya.intro.selection1.active.reply', character: aya)
                   this.flags.selection1Admitted = true
                   selection1End = true
                 }
                 'tutorial.ch1.aya.intro.selection1.passive' : {
-                  await dialog.localeLines('tutorial.ch1.aya.intro.selection1.passive.reply')
+                  await Dialog.localeLines('tutorial.ch1.aya.intro.selection1.passive.reply')
                   this.flags.selection1Admitted = false
                   selection1End = true
                 }
                 'tutorial.ch1.aya.intro.selection1.leave' : {
-                  await dialog.localeLines('tutorial.ch1.aya.intro.selection1.passive.reply')
+                  await Dialog.localeLines('tutorial.ch1.aya.intro.selection1.passive.reply')
                   selection1End = true
                 }
               }
             } while (!selection1End)
 
-            // await dialog.localeLines('tutorial.ch1.aya.intro.direction', character: aya)
-            dialog.popImage()
+            // await Dialog.localeLines('tutorial.ch1.aya.intro.direction', character: aya)
+            Dialog.popImage()
             this.flags.ayaState = 1
           }
           1: {
-            dialog.start()
+            Dialog.start()
             if (this.flags.selection1Admitted) {
-              await dialog.localeLines('tutorial.ch1.aya.interact.01', character: aya)
+              await Dialog.localeLines('tutorial.ch1.aya.interact.01', character: aya)
             } else {
-              await dialog.localeLines('tutorial.ch1.aya.interact.02', character: aya)
+              await Dialog.localeLines('tutorial.ch1.aya.interact.02', character: aya)
             }
             let s
             do {
-              s = await dialog.localeSelect([
+              s = await Dialog.localeSelect([
                 'tutorial.ch1.aya.aboutAya',
                 'tutorial.ch1.aya.aboutSeal',
                 'leave',
               ]);
               switch (s) {
                 'tutorial.ch1.aya.aboutAya': {
-                  await dialog.localeLines('tutorial.ch1.aya.aboutAya.reply', character: aya)
+                  await Dialog.localeLines('tutorial.ch1.aya.aboutAya.reply', character: aya)
                   characterFirstMet(hero, aya)
-                  await dialog.localeLines('tutorial.ch1.aya.aboutAya.reply2', character: aya)
+                  await Dialog.localeLines('tutorial.ch1.aya.aboutAya.reply2', character: aya)
                 }
                 'tutorial.ch1.aya.aboutSeal': {
-                  await dialog.localeLines('tutorial.ch1.aya.aboutSeal.reply', character: aya)
+                  await Dialog.localeLines('tutorial.ch1.aya.aboutSeal.reply', character: aya)
                 }
               }
             } while (s != 'leave')
-            dialog.end()
+            Dialog.end()
           }
         }
       }

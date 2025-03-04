@@ -46,6 +46,10 @@ class _ToolboxState extends State<Toolbox> {
       ),
       Tab(
         height: kToolbarTabBarHeight,
+        text: engine.locale('tileMapDecoration'),
+      ),
+      Tab(
+        height: kToolbarTabBarHeight,
         text: engine.locale('objectTiles'),
       ),
     ];
@@ -73,7 +77,7 @@ class _ToolboxState extends State<Toolbox> {
     bool isTile = true,
     required String? selectedItem,
   }) {
-    final toolItemData = GameData.tilesData[toolId];
+    final toolItemData = GameData.tiles[toolId];
     final name = toolItemData?['name'] ?? toolId;
     final icon = toolItemData?['icon'] ?? 'assets/images/object/$toolId.png';
     return Tooltip(
@@ -171,23 +175,6 @@ class _ToolboxState extends State<Toolbox> {
                               ),
                               Wrap(
                                 children: [
-                                  // buildToolButton(context, item, 'pond'),
-                                  // buildToolButton(context, item, 'shelf'),
-                                  buildToolButton(
-                                    context,
-                                    'fishTile',
-                                    selectedItem: item,
-                                  ),
-                                  buildToolButton(
-                                    context,
-                                    'stormTile',
-                                    selectedItem: item,
-                                  ),
-                                  buildToolButton(
-                                    context,
-                                    'spiritTile',
-                                    selectedItem: item,
-                                  ),
                                   buildToolButton(
                                     context,
                                     'city',
@@ -217,12 +204,27 @@ class _ToolboxState extends State<Toolbox> {
                                 children: [
                                   buildToolButton(
                                     context,
-                                    'dungeonStoneGate',
+                                    'fishTile',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'stormTile',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'spiritTile',
                                     selectedItem: item,
                                   ),
                                   buildToolButton(
                                     context,
                                     'portal',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'dungeonStoneGate',
                                     selectedItem: item,
                                   ),
                                   buildToolButton(
@@ -273,6 +275,23 @@ class _ToolboxState extends State<Toolbox> {
                                   buildToolButton(
                                     context,
                                     'stoneStairsDebris',
+                                    selectedItem: item,
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Wrap(
+                                children: [
+                                  buildToolButton(
+                                    context,
+                                    'meteorCrater',
                                     selectedItem: item,
                                   ),
                                 ],

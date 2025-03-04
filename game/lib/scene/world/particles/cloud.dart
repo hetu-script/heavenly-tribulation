@@ -4,9 +4,10 @@ import 'package:flame/flame.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/samsara.dart';
 
-import '../../common.dart';
+const kCloudPriority = 20000;
+const kCouldKindCount = 12;
 
-class AnimatedCloud extends GameComponent {
+class ParticleCloud extends GameComponent {
   Sprite? sprite;
 
   double _timeElasped = 0;
@@ -18,20 +19,18 @@ class AnimatedCloud extends GameComponent {
 
   final random = math.Random();
 
-  AnimatedCloud({
-    super.scale,
-  }) {
+  ParticleCloud() : super(priority: kCloudPriority) {
     velocity = 0.5 + random.nextDouble() * 2;
     duration = 20 + random.nextDouble() * 10;
     opacity = 0.4 + random.nextDouble() * 0.4;
-    paint = Paint()..color = Colors.white.withAlpha((opacity * 255).round());
-    priority = kCloudPriority;
+    // paint = Paint()..color = Colors.white.withAlpha((opacity * 255).round());
   }
 
   @override
   Future<void> onLoad() async {
-    final randomIndex = random.nextInt(kCouldKindsCount).toString();
-    sprite = Sprite(await Flame.images.load('weather/cloud$randomIndex.png'));
+    final randomIndex = random.nextInt(kCouldKindCount).toString();
+    sprite = Sprite(
+        await Flame.images.load('particles/clouds/cloud$randomIndex.png'));
   }
 
   @override

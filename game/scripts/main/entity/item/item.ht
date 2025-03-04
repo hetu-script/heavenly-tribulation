@@ -7,7 +7,7 @@ import '../../name/talisman.ht'
 function getItemExtraAffixes(item) {
   assert(game.passives != null)
 
-  final itemExtraAffixes = game.passives.values.where((data){
+  final itemExtraAffixes = game.passives.values.where((data) {
     if (!data.isItemExtraAffix) return false
     if (data.kind is List && !data.kind.contains(item.kind)) return false
     if (data.rank > item.rank) return false

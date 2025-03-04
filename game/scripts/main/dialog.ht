@@ -56,7 +56,7 @@ struct DialogContentData {
       strings = lines.map( (line) => interpolate(line, interpolations) ).toList()
     } else {
       assert(lines is string)
-      strings = [lines]
+      strings = [interpolate(line, interpolations)]
     }
     this.lines = []
     for (const message in strings) {
@@ -71,12 +71,9 @@ struct DialogContentData {
   }
 }
 
-namespace dialog {
+namespace Dialog {
   // 下面这些是需要context的版本，和引擎侧直接绑定
   // 但我们将其包装了一层，可以省去每次都带上context的麻烦
-  external function _site(context, {site, image})
-
-  external function _start(context)
 
   external function _say(context, data, returnValue)
 
@@ -96,19 +93,21 @@ namespace dialog {
 
   external function _inputInteger(context, title, min, max)
 
+  external function _start(context)
+  
   /// 下面这些只有在调用过 start 之后才能看到效果
 
-  external function pushImage(image: string, { positionXOffset: float = 0.0, positionYOffset: float = 0.0, fadeIn: bool = false })
+  external function pushImage(image: string, { offsetX: float = 0.0, offsetY: float = 0.0, fadeIn: bool = false })
 
-  external function popImage({ image: string, fadeOut: bool = false })
+  external function popImage({image: string})
 
-  external function popAllImage()
+  external function popAllImages()
 
-  external function pushScene(image: string, {fadeIn: bool = false})
+  external function pushBackground(image: string, {fadeIn: bool = false})
 
-  external function popScene({fadeOut: bool = false})
+  external function popBackground()
 
-  external function popAllScene()
+  external function popAllBackgrounds()
 
   /// 下面这些可以随时使用
 

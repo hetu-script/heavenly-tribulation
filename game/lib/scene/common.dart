@@ -9,7 +9,7 @@ final kGridSize = Vector2(32.0, 28.0);
 final kTileSpriteSrcSize = Vector2(32.0, 64.0);
 final kTileOffset = Vector2(0.0, 16.0);
 final kTileFogOffset = Vector2(-6.0, 0.0);
-final kTileMapObjectSpriteSrcSize = Vector2(32.0, 48.0);
+final kWorldMapCharacterSpriteSrcSize = Vector2(32.0, 48.0);
 
 const kSpriteWater = 0;
 const kSpriteLand = 1;
@@ -49,9 +49,6 @@ const kMinHeroAge = 10;
 const kMaxHeroAge = 20;
 
 const kWorldMapAnimationPriority = 15000;
-
-const kCloudPriority = 20000;
-const kCouldKindsCount = 12;
 
 const kSiteCardPriority = 500;
 

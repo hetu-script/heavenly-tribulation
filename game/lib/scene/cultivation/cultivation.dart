@@ -24,7 +24,6 @@ import '../../logic/algorithm.dart';
 import '../../ui.dart';
 import '../../data.dart';
 import '../game_dialog/selection_dialog.dart';
-import '../../widgets/history_panel.dart';
 import '../../widgets/ui_overlay.dart';
 
 const _kLightPointMoveSpeed = 450.0;
@@ -170,8 +169,9 @@ class CultivationScene extends Scene {
     );
   }
 
+  /// 返回的两个bool值分别表示技能是否已经学习，以及技能是否可以学习
   (bool, bool) checkSkillStatus(String positionId) {
-    final skillTreeNodeData = GameData.skillTreeData[positionId];
+    final skillTreeNodeData = GameData.skillTree[positionId];
     final unlockedNodes = _heroData['skillTreeUnlockedNodes'] as HTStruct;
     final isLearned = unlockedNodes.contains(positionId);
     // 可以学的技能，如果邻近的父节点无一解锁，则无法学习
@@ -277,7 +277,7 @@ class CultivationScene extends Scene {
 
   void _addGenreSkillButton(
       {required String positionId, required Vector2 position}) {
-    final skillTreeNodeData = GameData.skillTreeData[positionId];
+    final skillTreeNodeData = GameData.skillTree[positionId];
 
     late SpriteButton button;
 
@@ -344,7 +344,7 @@ class CultivationScene extends Scene {
         // 身法：绿 灵力：蓝 体魄：红 意志：白 神识：黄
         final attributeId = _heroData['skillTreeUnlockedNodes'][positionId];
         assert(attributeId is String);
-        final attributeSkillData = GameData.passivesData[attributeId];
+        final attributeSkillData = GameData.passives[attributeId];
         assert(attributeSkillData != null);
         button.spriteId = attributeSkillData['icon'];
       }
@@ -386,8 +386,7 @@ class CultivationScene extends Scene {
 
               updateHeroSkillsDescription();
 
-              button.spriteId =
-                  GameData.passivesData[selectedAttributeId]['icon'];
+              button.spriteId = GameData.passives[selectedAttributeId]['icon'];
               button.tryLoadSprite();
             } else {
               --_heroData['availableSkillPoints'];
@@ -463,7 +462,7 @@ class CultivationScene extends Scene {
 
           final attributeId = _heroData['skillTreeUnlockedNodes'][positionId];
           assert(attributeId is String);
-          final attributeSkillData = GameData.passivesData[attributeId];
+          final attributeSkillData = GameData.passives[attributeId];
           assert(attributeSkillData != null);
           String attributeDescription =
               engine.locale(attributeSkillData['description']);
@@ -739,7 +738,7 @@ class CultivationScene extends Scene {
     }
 
     for (final positionId in _skillButtons.keys) {
-      final skillTreeNodeData = GameData.skillTreeData[positionId];
+      final skillTreeNodeData = GameData.skillTree[positionId];
 
       if (skillTreeNodeData != null) {
         final button = _skillButtons[positionId]!;
@@ -1041,11 +1040,6 @@ class CultivationScene extends Scene {
             left: 0,
             top: 0,
             child: GameUIOverlay(),
-          ),
-          const Positioned(
-            left: 0.0,
-            bottom: 0.0,
-            child: HistoryPanel(),
           ),
         ],
       ),

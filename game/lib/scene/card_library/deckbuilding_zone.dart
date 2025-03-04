@@ -154,12 +154,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
       if (result == null) {
         library.setCardEnabledById(component.id, false);
       } else {
-        GameDialog.show(
-          context: game.context,
-          dialogData: {
-            'lines': [engine.locale(result)],
-          },
-        );
+        GameDialog.show(game.context, engine.locale(result));
       }
     };
 

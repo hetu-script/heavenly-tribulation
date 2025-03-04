@@ -41,7 +41,8 @@ class SelectionDialog extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: List<Widget>.from(selectionsData.keys.map(
                 (key) {
-                  final text = selectionsData[key];
+                  final text = selectionsData[key]['text'];
+                  assert(text is String);
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10.0),
                     child: ElevatedButton(

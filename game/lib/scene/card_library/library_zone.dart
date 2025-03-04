@@ -311,12 +311,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
           //   result = craftingArea!.tryAddCard(card, clone: true);
           // }
           if (result != null) {
-            GameDialog.show(
-              context: game.context,
-              dialogData: {
-                'lines': [engine.locale(result)],
-              },
-            );
+            GameDialog.show(game.context, engine.locale(result));
           } else {
             engine.play(GameSound.cardDealt);
             card.isEnabled = false;

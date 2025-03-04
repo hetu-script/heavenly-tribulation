@@ -39,15 +39,16 @@ abstract class GameSound {
 /// 这个类是纯静态类，方法都是有关读取和保存的
 /// 游戏逻辑等操作这些数据的代码另外写在logic目录下的文件中
 abstract class GameData {
-  static Map<String, dynamic> tilesData = {};
-  static Map<String, dynamic> animationsData = {};
-  static Map<String, dynamic> battleCardsData = {};
-  static Map<String, dynamic> battleCardAffixesData = {};
-  static Map<String, dynamic> statusEffectsData = {};
-  static Map<String, dynamic> itemsData = {};
-  static Map<String, dynamic> passivesData = {};
+  static Map<String, dynamic> tiles = {};
+  static Map<String, dynamic> mapComponents = {};
+  static Map<String, dynamic> animations = {};
+  static Map<String, dynamic> battleCards = {};
+  static Map<String, dynamic> battleCardAffixes = {};
+  static Map<String, dynamic> statusEffects = {};
+  static Map<String, dynamic> items = {};
+  static Map<String, dynamic> passives = {};
   // static Map<String, dynamic> supportSkillData = {};
-  static Map<String, dynamic> skillTreeData = {};
+  static Map<String, dynamic> skillTree = {};
   // static Map<String, dynamic> supportSkillTreeData = {};
 
   static Map<String, String> organizationCategoryNames = {};
@@ -65,7 +66,11 @@ abstract class GameData {
   static Future<void> init({required BuildContext flutterContext}) async {
     final tilesDataString =
         await rootBundle.loadString('assets/data/tiles.json5');
-    tilesData = JSON5.parse(tilesDataString);
+    tiles = JSON5.parse(tilesDataString);
+
+    final mapComponentsDataString =
+        await rootBundle.loadString('assets/data/map_components.json5');
+    mapComponents = JSON5.parse(mapComponentsDataString);
 
     // final cardsDataString =
     //     await rootBundle.loadString('assets/data/cards.json5');
@@ -73,27 +78,27 @@ abstract class GameData {
 
     final battleCardDataString =
         await rootBundle.loadString('assets/data/cards.json5');
-    battleCardsData = JSON5.parse(battleCardDataString);
+    battleCards = JSON5.parse(battleCardDataString);
 
     final battleCardAffixDataString =
         await rootBundle.loadString('assets/data/card_affixes.json5');
-    battleCardAffixesData = JSON5.parse(battleCardAffixDataString);
+    battleCardAffixes = JSON5.parse(battleCardAffixDataString);
 
     final animationDataString =
         await rootBundle.loadString('assets/data/animation.json5');
-    animationsData = JSON5.parse(animationDataString);
+    animations = JSON5.parse(animationDataString);
 
     final statusEffectDataString =
         await rootBundle.loadString('assets/data/status_effect.json5');
-    statusEffectsData = JSON5.parse(statusEffectDataString);
+    statusEffects = JSON5.parse(statusEffectDataString);
 
     final itemsDataString =
         await rootBundle.loadString('assets/data/items.json5');
-    itemsData = JSON5.parse(itemsDataString);
+    items = JSON5.parse(itemsDataString);
 
     final passiveDataString =
         await rootBundle.loadString('assets/data/passives.json5');
-    passivesData = JSON5.parse(passiveDataString);
+    passives = JSON5.parse(passiveDataString);
 
     // final supportSkillDataString =
     //     await rootBundle.loadString('assets/data/skills_support.json5');
@@ -101,10 +106,10 @@ abstract class GameData {
 
     final skillTreeDataString =
         await rootBundle.loadString('assets/data/skilltree.json5');
-    skillTreeData = JSON5.parse(skillTreeDataString);
+    skillTree = JSON5.parse(skillTreeDataString);
 
     // 拼接技能树节点的描述
-    for (final skillTreeNodeData in skillTreeData.values) {
+    for (final skillTreeNodeData in skillTree.values) {
       final bool isAttribute = skillTreeNodeData['isAttribute'] == true;
 
       StringBuffer nodeDescription = StringBuffer();
@@ -125,7 +130,7 @@ abstract class GameData {
         final List nodeData = skillTreeNodeData['passives'];
         for (final passiveData in nodeData) {
           final dataId = passiveData['id'];
-          final passiveRawData = GameData.passivesData[dataId];
+          final passiveRawData = GameData.passives[dataId];
           assert(passiveRawData != null);
           String description = engine.locale(passiveRawData['description']);
           if (passiveRawData['increment'] != null) {
@@ -184,11 +189,22 @@ abstract class GameData {
   /// 将dart侧从json5载入的游戏数据保存到游戏存档中
   static void initGameData() {
     engine.hetu.invoke('init', namedArgs: {
-      'itemsData': GameData.itemsData,
-      'battleCardsData': GameData.battleCardsData,
-      'battleCardAffixesData': GameData.battleCardAffixesData,
-      'passivesData': GameData.passivesData,
+      'itemsData': GameData.items,
+      'battleCardsData': GameData.battleCards,
+      'battleCardAffixesData': GameData.battleCardAffixes,
+      'passivesData': GameData.passives,
     });
+  }
+
+  static initModules() {
+    engine.warn('重置当前载入的模组，重新执行初始化过程...');
+
+    for (final id in GameConfig.modules.keys) {
+      if (GameConfig.modules[id]?['enabled'] == true) {
+        final moduleConfig = {'version': kGameVersion};
+        engine.hetu.invoke('init', module: id, positionalArgs: [moduleConfig]);
+      }
+    }
   }
 
   /// 每次执行 createGame 都会重置游戏内的 game 对象上的数据
@@ -207,12 +223,7 @@ abstract class GameData {
 
     initGameData();
 
-    for (final id in GameConfig.modules.keys) {
-      if (GameConfig.modules[id]?['enabled'] == true) {
-        final moduleConfig = {'version': kGameVersion};
-        engine.hetu.invoke('init', module: id, positionalArgs: [moduleConfig]);
-      }
-    }
+    initModules();
 
     if (!isEditorMode) {
       await registerModuleEventHandlers();

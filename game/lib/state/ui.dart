@@ -1,10 +1,13 @@
 import 'package:flutter/foundation.dart';
 
-class GameUIOverlayVisibilityState with ChangeNotifier {
+class GameUIVisibilityState with ChangeNotifier {
   bool isVisible = false;
 
-  void setVisible([bool value = true]) {
-    isVisible = value;
-    notifyListeners();
+  void setVisible([bool? value]) {
+    final newValue = value ?? false;
+    if (isVisible != newValue) {
+      isVisible = newValue;
+      notifyListeners();
+    }
   }
 }

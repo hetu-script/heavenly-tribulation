@@ -7,7 +7,7 @@ import '../entity/item/material.ht'
 import '../entity/character/battle_entity.ht'
 import '../world/tile/common.ht'
 import '../lootbox.ht'
-import '../binding/worldmap.ht'
+import '../binding/world.ht'
 import '../dialog.ht'
 import '../entity/entity.ht'
 import '../entity/organization/organization.ht'
@@ -57,13 +57,13 @@ const kSeaFishProbability = 0.45
 function getHeroAvaialbeDays() {
   let maxAvailableDays = 29 - day
   if (maxAvailableDays < 1) {
-    dialog.localeLines(['cannotInteractAtEndOfMonth'], isHero: true)
+    Dialog.localeLines(['cannotInteractAtEndOfMonth'], isHero: true)
     return 0
   }
 
   const staminaAvailableDays = hero.stats.life ~/ kTicksPerDay
   if (staminaAvailableDays < 1) {
-    dialog.localeLines(['notEnoughStaminaMonologue'], isHero: true)
+    Dialog.localeLines(['notEnoughStaminaMonologue'], isHero: true)
     return 0
   }
 
@@ -99,11 +99,11 @@ const kExploreLightUpSize = 6
 
 function onHeroExplore(terrain) {
   // if (hero.stats.mana < 1) {
-  //   dialog.localeLines('notEnoughManaMonologue', isHero: true)
+  //   Dialog.localeLines('notEnoughManaMonologue', isHero: true)
   //   return
   // } else {
   //   engine.play('wind-blow-141288.mp3')
-  //   WorldMap.lightUpAroundTile(terrain.left, terrain.top, kExploreLightUpSize)
+  //   World.lightUpAroundTile(terrain.left, terrain.top, kExploreLightUpSize)
   // }
   onWorldEvent('onAfterHeroExplore', terrain)
 }
@@ -118,7 +118,7 @@ function onHeroExplore(terrain) {
 /// 凝气（2），筑基（5），结丹（9），还婴（15），化神（23）
 /// 在没有灵气喷涌的地方打坐，可以消耗灵石获得灵气。
 function onHeroMeditate({site, terrain, incurIncident = true}) async {
-  let selection = await dialog.localeSelect([
+  let selection = await Dialog.localeSelect([
     'rest',
     'gatherSpirit',
     'condenseSpirit',
@@ -133,7 +133,7 @@ function onHeroMeditate({site, terrain, incurIncident = true}) async {
       // let gathered = false
       // // 灵气已满，无法聚气
       // if (hero.stats.mana >= hero.stats.manaMax) {
-      //   dialog.localeLines('hint.manaFull', isHero: true)
+      //   Dialog.localeLines('hint.manaFull', isHero: true)
       //   return
       // }
 
@@ -146,12 +146,12 @@ function onHeroMeditate({site, terrain, incurIncident = true}) async {
       //     let probability = gainData.probability + hero.stats.gatherSpiritProbabilityAdd ?? 0
 
       //     let availableDays = getHeroAvaialbeDays()
-      //     let selectedDays = await dialog.inputInteger(engine.locale('timeDays'), 1, availableDays)
+      //     let selectedDays = await Dialog.inputInteger(engine.locale('timeDays'), 1, availableDays)
       //     if (selectedDays <= 0) return
       //     let days = 0
       //     let found = false
       //     let totalMana = 0
-      //     await dialog.progress(engine.locale('gatherSpirit'), checkProgress: () {
+      //     await Dialog.progress(engine.locale('gatherSpirit'), checkProgress: () {
       //       ++days
       //       if (world.isMainWorld) {
       //         updateGame(ticks: kTicksPerDay)
@@ -170,7 +170,7 @@ function onHeroMeditate({site, terrain, incurIncident = true}) async {
       //       }
       //       // 灵气已满，无法继续
       //       if (hero.stats.mana >= hero.stats.manaMax) {
-      //         dialog.localeLines('hint.manaFull', isHero: true)
+      //         Dialog.localeLines('hint.manaFull', isHero: true)
       //         return false
       //       }
       //       // 达到预定的天数，无法继续
@@ -184,14 +184,14 @@ function onHeroMeditate({site, terrain, incurIncident = true}) async {
       //     let restoredValue = totalMana - residue
       //     Player.updateHero()
       //     engine.play('spell-of-healing-876.mp3')
-      //     WorldMap.addHintText('${engine.locale('mana')} +${restoredValue}', terrain.left, terrain.top, Colors.purple)
+      //     World.addHintText('${engine.locale('mana')} +${restoredValue}', terrain.left, terrain.top, Colors.purple)
       //     if (residue != 0) {
-      //       await dialog.localeLines('hint.wastedSpirit', isHero: true)
+      //       await Dialog.localeLines('hint.wastedSpirit', isHero: true)
       //     }
-      //     await dialog.localeLines('hint.spiritGathered', isHero: true)
+      //     await Dialog.localeLines('hint.spiritGathered', isHero: true)
       //     // 清空这个地块的灵气喷涌状态
       //     delete terrain.flags.isSpiritSurging
-      //     WorldMap.clearTerrainOverlayAnimation(terrain.left, terrain.top)
+      //     World.clearTerrainOverlayAnimation(terrain.left, terrain.top)
 
       //     const incidentContent = engine.locale('characterMeditate', interpolations: [
       //       hero.name,
@@ -212,9 +212,9 @@ function onHeroMeditate({site, terrain, incurIncident = true}) async {
       //   } else {
       //     if (hero.materials.jade <= 0) {
       //       if (hasItemKind('jade')) {
-      //         dialog.localeLines('hint.openPackage.jade', isHero: true)
+      //         Dialog.localeLines('hint.openPackage.jade', isHero: true)
       //       } else {
-      //         dialog.localeLines('hint.notEnoughJade', isHero: true)
+      //         Dialog.localeLines('hint.notEnoughJade', isHero: true)
       //       }
       //     } else {
       //       // 消耗灵石来聚气
@@ -242,9 +242,9 @@ function onBeforeHeroMove(terrain) {
     return movableTerrainKinds
   } else {
     if ((terrain.kind == 'sea' || terrain.kind == 'lake')) {
-      dialog.localeLines('hint.ship')
+      Dialog.localeLines('hint.ship')
     } else if ((terrain.kind == 'mountain')) {
-      dialog.localeLines('hint.boots')
+      Dialog.localeLines('hint.boots')
     }
     return null
   }
@@ -254,16 +254,16 @@ function senseTerrain(terrain) -> bool {
   if (terrain.locationId) {
     const location = game.locations[terrain.locationId]
     if (location.isDiscovered) {
-      WorldMap.enterLocation(location)
+      World.enterLocation(location)
     } else {
-      dialog.localeLines('hint.sensedUndiscovered', isHero: true)
+      Dialog.localeLines('hint.sensedUndiscovered', isHero: true)
     }
   } else if (terrain.objectId) {
     const object = game.objects[terrain.objectId]
     if (object.isDiscovered) {
       onInteractObject(object, terrain)
     } else {
-      dialog.localeLines('hint.sensedUndiscovered', isHero: true)
+      Dialog.localeLines('hint.sensedUndiscovered', isHero: true)
     }
   }
 }
@@ -276,7 +276,7 @@ function onAfterHeroMove(terrain, nonEnterableDestination) {
     senseTerrain(nonEnterableDestination)
   }
   onWorldEvent('onAfterHeroMove', hero.worldPosition.left, hero.worldPosition.top)  
-  // WorldMap.lightUpAroundTile(hero.worldPosition.left, hero.worldPosition.top, hero.stats.lightRadius)
+  // World.lightUpAroundTile(hero.worldPosition.left, hero.worldPosition.top, hero.stats.lightRadius)
 }
 
 /// 异步函数，会在显示地点窗口之前执行，执行完毕后才会进入地点
@@ -284,10 +284,10 @@ function onBeforeHeroEnterLocation(location) async {
   if (!location.isDiscovered) {
     // TODO: 第一次发现据点事件
     if (location.category == kLocationKindArcana || location.category == kLocationKindMirage) {
-      dialog.localeLines(['sensedUndiscovered'], isHero: true)
+      Dialog.localeLines(['sensedUndiscovered'], isHero: true)
     } else {
       discoverLocation(location)
-      dialog.localeLines('firstVisitCity', interpolations: [location.name])
+      Dialog.localeLines('firstVisitCity', interpolations: [location.name])
     }
   }
 }
@@ -307,26 +307,26 @@ function onAfterHeroEnterLocation(location) async {
 
   //   const villager = engine.locale('villager')
 
-  //   dialog.recource('cultivatorRecruitMonth').then((_) {
-  //     dialog.localeSelect([
+  //   Dialog.recource('cultivatorRecruitMonth').then((_) {
+  //     Dialog.localeSelect([
   //       'cultivatorRecruitMonth.selection1',
   //       'cultivatorRecruitMonth.selection2',
   //       'cultivatorRecruitMonth.selection3',
   //     ]).then((key) {
   //       switch (key) {
   //         'cultivatorRecruitMonth.selection1' : {
-  //           return dialog.recource('cultivatorRecruitMonth.reply1', interpolations: [names])
+  //           return Dialog.recource('cultivatorRecruitMonth.reply1', interpolations: [names])
   //         }
   //         'cultivatorRecruitMonth.selection2' : {
-  //           return dialog.recource('cultivatorRecruitMonth.reply2', interpolations: [names])
+  //           return Dialog.recource('cultivatorRecruitMonth.reply2', interpolations: [names])
   //         }
   //         'cultivatorRecruitMonth.selection3' : {
-  //           return dialog.recource('cultivatorRecruitMonth.reply3', interpolations: [names])
+  //           return Dialog.recource('cultivatorRecruitMonth.reply3', interpolations: [names])
   //         }
   //       }
   //     }).then((_) {
   //       if (hero.organizationId == null) {
-  //         return dialog.localeLines(['cultivatorRecruitMonth.hint'], isHero: true)
+  //         return Dialog.localeLines(['cultivatorRecruitMonth.hint'], isHero: true)
   //       }
   //     })
   //   })
@@ -371,7 +371,7 @@ function onInteractCharacter(characterId, { exitOnLeave = false }) {
     selections.add('trade')
     selections.add('attack')
     selections.add('leave')
-    dialog.localeSelect(selections).then((key) {
+    Dialog.localeSelect(selections).then((key) {
       switch (key) {
         'leave' : {
           if (exitOnLeave) {
@@ -428,7 +428,7 @@ function onInteractTerrain(terrain) {
   //   isInjured = true
   // }
   // if (isInjured) {
-  //   dialog.localeLines(['cannotInteractWhenInjured'], isHero: true)
+  //   Dialog.localeLines(['cannotInteractWhenInjured'], isHero: true)
   //   return
   // }
 
@@ -458,7 +458,7 @@ function onInteractTerrain(terrain) {
 
   selections.add('cancel')
   
-  dialog.localeSelect(selections).then((key) {
+  Dialog.localeSelect(selections).then((key) {
     switch (key) {
       'search' : {
         let undiscoveredLocation
@@ -476,10 +476,10 @@ function onInteractTerrain(terrain) {
         }
 
         if (undiscoveredObject) {
-          dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+          Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
             let i = 0
             let found = false
-            dialog.progress(engine.locale('search'), checkProgress: () {
+            Dialog.progress(engine.locale('search'), checkProgress: () {
               ++i
               updateGame(ticks: kTicksPerDay)
               changeStamina(hero, -kTicksPerDay)
@@ -507,15 +507,15 @@ function onInteractTerrain(terrain) {
                 // discoverObject(undiscoveredLocation)
                 onInteractObject(object, terrain)
               } else {
-                dialog.localeLines(['searchFailed'], isHero: true)
+                Dialog.localeLines(['searchFailed'], isHero: true)
               }
             })
           })
         } else if (undiscoveredLocation) {
-          dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+          Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
             let i = 0
             let found = false
-            dialog.progress(engine.locale('search'), checkProgress: () {
+            Dialog.progress(engine.locale('search'), checkProgress: () {
               ++i
               updateGame(ticks: kTicksPerDay)
               changeStamina(hero, -kTicksPerDay)
@@ -543,17 +543,17 @@ function onInteractTerrain(terrain) {
                 discoverLocation(undiscoveredLocation)
                 // TODO: 第一次发现据点事件
                 const message = engine.locale('firstVisitCity', interpolations: [undiscoveredLocation.name])
-                dialog.lines([message]).then((_) {
-                  WorldMap.enterLocation(undiscoveredLocation)
+                Dialog.lines([message]).then((_) {
+                  World.enterLocation(undiscoveredLocation)
                 })
               } else {
-                dialog.localeLines(['searchFailed'], isHero: true)
+                Dialog.localeLines(['searchFailed'], isHero: true)
               }
             })
           })
         } else {
-          dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
-            dialog.progress(engine.locale('search'), checkProgress: () {
+          Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+            Dialog.progress(engine.locale('search'), checkProgress: () {
               updateGame(ticks: kTicksPerDay)
               changeStamina(hero, -kTicksPerDay)
               return false
@@ -569,18 +569,18 @@ function onInteractTerrain(terrain) {
               //   message: incidentContent,
               //   isPrivate: true,
               // )
-              dialog.localeLines(['exploredEmtpy'], isHero: true)
+              Dialog.localeLines(['exploredEmtpy'], isHero: true)
             })
           })
         }
       }
       // 采集，可能会获得：药材（材料）、水果（材料）
       'gather' : {
-        dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+        Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
           const lootbox = Lootbox()
           let metBeast = false
           let i = 0
-          dialog.progress(engine.locale('gather'), () {
+          Dialog.progress(engine.locale('gather'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
             changeStamina(hero, -kTicksPerDay)
@@ -634,7 +634,7 @@ function onInteractTerrain(terrain) {
             // )
             () async {
               if (lootbox.inventory.isEmpty) {
-                return dialog.localeLines(['interactionGotNothing'], isHero: true)
+                return Dialog.localeLines(['interactionGotNothing'], isHero: true)
               } else {
                 loot(hero, lootbox)
               }
@@ -642,7 +642,7 @@ function onInteractTerrain(terrain) {
               if (metBeast) {
                 const beast = Beast()
                 const message = engine.locale('metBeast', interpolations: [beast.name])
-                dialog.lines([message]).then((_) {
+                Dialog.lines([message]).then((_) {
                   heroBattle(beast)
                 })
               }
@@ -652,11 +652,11 @@ function onInteractTerrain(terrain) {
       }
       // 伐木，可能会获得：木料
       'woodcut' : {
-        dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+        Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
           const lootbox = Lootbox()
           let metBeast = false
           let i = 0
-          dialog.progress(engine.locale('woodcut'), () {
+          Dialog.progress(engine.locale('woodcut'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
             changeStamina(hero, -kTicksPerDay)
@@ -701,7 +701,7 @@ function onInteractTerrain(terrain) {
             // )
             () async {
               if (lootbox.inventory.isEmpty) {
-                return dialog.localeLines(['interactionGotNothing'], isHero: true)
+                return Dialog.localeLines(['interactionGotNothing'], isHero: true)
               } else {
                 loot(hero, lootbox)
               }
@@ -709,7 +709,7 @@ function onInteractTerrain(terrain) {
               if (metBeast) {
                 const beast = Beast()
                 const message = engine.locale('metBeast', interpolations: [beast.name])
-                dialog.lines([message]).then((_) {
+                Dialog.lines([message]).then((_) {
                   heroBattle(beast)
                 })
               }
@@ -719,11 +719,11 @@ function onInteractTerrain(terrain) {
       }
       // 挖矿，可能会获得：矿石、灵石
       'excavate' : {
-        dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+        Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
           const lootbox = Lootbox()
           let metBeast = false
           let i = 0
-          dialog.progress(engine.locale('excavate'), () {
+          Dialog.progress(engine.locale('excavate'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
             changeStamina(hero, -kTicksPerDay)
@@ -777,7 +777,7 @@ function onInteractTerrain(terrain) {
             // )
             () async {
               if (lootbox.inventory.isEmpty) {
-                return dialog.localeLines(['interactionGotNothing'], isHero: true)
+                return Dialog.localeLines(['interactionGotNothing'], isHero: true)
               } else {
                 loot(hero, lootbox)
               }
@@ -785,7 +785,7 @@ function onInteractTerrain(terrain) {
               if (metBeast) {
                 const beast = Beast()
                 const message = engine.locale('metBeast', interpolations: [beast.name])
-                dialog.lines([message]).then((_) {
+                Dialog.lines([message]).then((_) {
                   heroBattle(beast)
                 })
               }
@@ -795,10 +795,10 @@ function onInteractTerrain(terrain) {
       }
       // 捕猎，增加遇到野兽的概率200%
       'hunt' : {
-        dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+        Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
           let metBeast = false
           let i = 0
-          dialog.progress(engine.locale('hunt'), () {
+          Dialog.progress(engine.locale('hunt'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
             changeStamina(hero, -kTicksPerDay)
@@ -839,11 +839,11 @@ function onInteractTerrain(terrain) {
             if (metBeast) {
               const beast = Beast()
               const message = engine.locale('foundBeast', interpolations: [beast.name])
-              dialog.lines([message]).then((_) {
+              Dialog.lines([message]).then((_) {
                 heroBattle(beast)
               })
             } else {
-              return dialog.localeLines(['interactionGotNothing'], isHero: true)
+              return Dialog.localeLines(['interactionGotNothing'], isHero: true)
             }
           })
         })
@@ -851,15 +851,15 @@ function onInteractTerrain(terrain) {
       // 捕鱼，可能会获得：河鱼、海鱼、虾、蟹
       'fish' : {
         // if (game.flags.playerMonthly.fished.contains(terrainIndex)) {
-        //   dialog.localeLines(['terrainAlreadyFished'], isHero: true)
+        //   Dialog.localeLines(['terrainAlreadyFished'], isHero: true)
         //   return
         // }
         // game.flags.playerMonthly.fished.add(terrainIndex)
         
-        dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+        Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
           const lootbox = Lootbox()
           let i = 0
-          dialog.progress(engine.locale('fish'), () {
+          Dialog.progress(engine.locale('fish'), () {
             ++i
             updateGame(ticks: kTicksPerDay)
             changeStamina(hero, -kTicksPerDay)
@@ -890,7 +890,7 @@ function onInteractTerrain(terrain) {
             //   isPrivate: true,
             // )
             if (lootbox.inventory.isEmpty) {
-              return dialog.localeLines(['interactionGotNothing'], isHero: true)
+              return Dialog.localeLines(['interactionGotNothing'], isHero: true)
             } else {
               loot(hero, lootbox)
             }
@@ -901,67 +901,64 @@ function onInteractTerrain(terrain) {
   })
 }
 
-function onInteractObject(object, terrain) async {
-  engine.debug('正在和 Object [${object.id}] 互动。')
-  if (object.useCustomInteraction) {
-    engine.debug('Object [${object.id}] 使用自定义交互逻辑')
-    onWorldEvent('onInteractObject', object, terrain)
-  } else {
-    switch (object.category) {
-      'character': {
-        onInteractCharacter(object.characterId)
-      }
-      'portal': {
-        setHeroWorldPosition(object.targetLeft, object.targetTop)
-        // engine.play('transform-103819.mp3')
-        await WorldMap.moveCameraToMapPosition(object.targetLeft, object.targetTop, animated: false)
-        WorldMap.updateHeroTileInfo()
-        WorldMap.lightUpAroundTile(object.targetLeft, object.targetTop, hero.stats.lightRadius)
-        onWorldEvent('onAfterHeroMove', object.targetLeft, object.targetTop)
-      }
-      'worldGate': {
-        WorldMap.switchWorld(object.worldId)
-      }
-      'treasureBox': {
-        if (object.isOpened) return
+async function onInteractPortal(object) {
+  World.moveCameraToMapPosition(object.targetTilePosition.left, object.targetTilePosition.top, animated: false)
+  engine.play('magic-smite-6012.mp3')
+  await Future.delayed(0.4)
+  Player.setTo(object.targetTilePosition.left, object.targetTilePosition.top)
+  onWorldEvent('onAfterHeroMove', object.targetTilePosition.left, object.targetTilePosition.top)
+}
 
-        object.isOpened = true
-        for (final itemInfo in object.items) {
-          switch (itemInfo.category) {
-            'material': {
-              assert(kMaterialKinds.contains(itemInfo.kind))
-              Player.collectById(itemInfo.kind, amount: itemInfo.amount ?? 1)
-            }
-            'prototype': {
-              assert(game.items.contains(itemInfo.kind))
-              Player.acquireItemById(itemInfo.kind)
-            }
-            'equipment': {
-              assert(kEquipmentKinds.contains(itemInfo.kind))
-              final equipment = Equipment(
-                kind: itemInfo.kind,
-                rarity: itemInfo.rarity,
-                rank: itemInfo.rank,
-                level: itemInfo.level,
-              )
-              Player.acquire(equipment)
-            }
-            'cardpack': {
-              final cardpack = Cardpack(
-                kind: itemInfo.kind,
-                genre: itemInfo.genre,
-                rank: itemInfo.rank,
-              )
-              Player.acquire(cardpack)
-            }
-          }
-        }
-        engine.play('dooropened-103851.mp3')
-        Object.assign(terrain.overlaySprite, {sprite: kSpriteTreasureBoxOpened})
-        WorldMap.updateTerrainOverlaySprite(terrain.left, terrain.top)
+function onInteractWorldPortal(object) {
+  World.switchWorld(object.worldId)
+  Player.setTo(object.targetTilePosition.left, object.targetTilePosition.top, worldId: object.worldId, direction: 'south')
+}
+
+async function onInteractTreasureBox(object, terrain) {
+  if (object.isOpened) return
+
+  object.isOpened = true
+  engine.play('dooropened-103851.mp3')
+  Object.assign(terrain.overlaySprite, {sprite: kSpriteTreasureBoxOpened})
+  World.updateTerrainOverlaySprite(terrain.left, terrain.top)
+  await Future.delayed(0.5)
+  for (final itemInfo in object.items) {
+    switch (itemInfo.category) {
+      'material': {
+        assert(kMaterialKinds.contains(itemInfo.kind))
+        Player.collectById(itemInfo.kind, amount: itemInfo.amount ?? 1)
+      }
+      'prototype': {
+        assert(game.items.contains(itemInfo.kind))
+        Player.acquireItemById(itemInfo.kind)
+      }
+      'equipment': {
+        assert(kEquipmentKinds.contains(itemInfo.kind))
+        final equipment = Equipment(
+          kind: itemInfo.kind,
+          rarity: itemInfo.rarity,
+          rank: itemInfo.rank,
+          level: itemInfo.level,
+        )
+        Player.acquire(equipment)
+      }
+      'cardpack': {
+        final cardpack = Cardpack(
+          kind: itemInfo.kind,
+          genre: itemInfo.genre,
+          rank: itemInfo.rank,
+        )
+        Player.acquire(cardpack)
       }
     }
   }
+  engine.play('pickup_item-64282.mp3')
+}
+
+function onInteractObject(object, terrain) async {
+  engine.debug('正在和 Object [${object.id}] 互动。')
+  // engine.debug('Object [${object.id}] 使用自定义交互逻辑')
+  onWorldEvent('onInteractObject', object, terrain)
 }
 
 function onBeforeHeroExitSite(site) async {
@@ -1029,7 +1026,7 @@ function onAfterHeroEnterSite(location, site) async {
 function _handleHomeInteraction(site) {
   if (site.ownerId == hero.id) {
     engine.debug('玩家进入了自宅。')
-    dialog.localeSelect([
+    Dialog.localeSelect([
       'meditate',
       'practice',
       'storage',
@@ -1044,14 +1041,14 @@ function _handleHomeInteraction(site) {
         }
         'practice' : {
           // if (hero.skills.isEmpty) {
-          //   dialog.localeLines(['skillsEmpty'], isHero: true)
+          //   Dialog.localeLines(['skillsEmpty'], isHero: true)
           // } else {
           //   showSkillSelection(
           //     title: engine.locale('selectSkill'),
           //     skills: hero.skills,
           //   ).then((skill) {
           //     if (skill.exp >= skill.expForNextLevel) {
-          //       dialog.localeLines(['skillExpReachMax'], isHero: true, interpolations: [skill.name])
+          //       Dialog.localeLines(['skillExpReachMax'], isHero: true, interpolations: [skill.name])
           //       return
           //     }
 
@@ -1077,21 +1074,21 @@ function _handleHomeInteraction(site) {
           //     if (cost?.stamina) {
           //       staminaAvailableDays = hero.attributes.stamina ~/ kTicksPerDay
           //       if (staminaAvailableDays < 1) {
-          //         dialog.localeLines(['notEnoughStamina'], isHero: true)
+          //         Dialog.localeLines(['notEnoughStamina'], isHero: true)
           //         return
           //       }
           //     }
           //     if (cost?.mana) {
           //       manaAvailableDays = hero.attributes.mana ~/ kTicksPerDay
           //       if (manaAvailableDays < 1) {
-          //         dialog.localeLines(['notEnoughMana'], isHero: true)
+          //         Dialog.localeLines(['notEnoughMana'], isHero: true)
           //         return
           //       }
           //     }
           //     if (cost?.spirit) {
           //       spiritAvailableDays = hero.attributes.spirit ~/ kTicksPerDay
           //       if (spiritAvailableDays < 1) {
-          //         dialog.localeLines(['notEnoughSpirit'], isHero: true)
+          //         Dialog.localeLines(['notEnoughSpirit'], isHero: true)
           //         return
           //       }
           //     }
@@ -1103,10 +1100,10 @@ function _handleHomeInteraction(site) {
           //     // 如果修炼本身没有任何消耗，则最多设定为360天
           //     availableDays ??= 360
 
-          //     dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+          //     Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
           //       let i = 0
           //       let expGained = 0
-          //       dialog.progress(engine.locale('practice'), checkProgress: () {
+          //       Dialog.progress(engine.locale('practice'), checkProgress: () {
           //         ++i
           //         updateGame(ticks: kTicksPerDay)
           //         practiceCost()
@@ -1129,7 +1126,7 @@ function _handleHomeInteraction(site) {
           //           isPrivate: true,
           //         )
           //         if ((skill.exp + expGained) >= skill.expForNextLevel) {
-          //           dialog.localeLines(['skillExpReachMax'], isHero: true, interpolations: [skill.name])
+          //           Dialog.localeLines(['skillExpReachMax'], isHero: true, interpolations: [skill.name])
           //         }
           //       })
           //     })
@@ -1152,7 +1149,7 @@ function _handleCityHallInteraction(site) async {
 
 function _handleHeadquartersInteraction(site) {
   const location = game.locations[site.locationId]
-  dialog.localeSelect([
+  Dialog.localeSelect([
     'practice',
     'learn',
     'visit',
@@ -1164,18 +1161,18 @@ function _handleHeadquartersInteraction(site) {
       }
       'practice' : {
         // 非本门派修士,需要花钱才能训练
-        dialog.localeLines(['organizationTrainDeny'])
+        Dialog.localeLines(['organizationTrainDeny'])
       }
       'learn' : {
         // 非本门派修士,需要花钱才能学习,而且只能学习二阶或以下的功法
-        dialog.localeLines(['organizationTrainDeny'])
+        Dialog.localeLines(['organizationTrainDeny'])
       }
       'visit' : {
         // 既然有总部，那就一定有可以拜访的成员
         let organization = getOrganizationById(site.organizationId)
         const ids = organization.characterIds.toList()
         ids.remove(game.heroId)
-        final key = dialog.visitSelect(ids)
+        final key = Dialog.visitSelect(ids)
         if (key != null) {
           onInteractCharacter(key)
         } else {
@@ -1213,18 +1210,18 @@ function _handleBountyhouseInteraction(site) {
   ]
   selections.add('leave')
   
-  dialog.localeSelect(selections).then((key) {
+  Dialog.localeSelect(selections).then((key) {
     switch (key) {
       else : {
         engine.emit('pop_scene')
       }
       'questBrowse' : {
         if (game.flags.playerMonthly.worked.contains(site.id)) {
-          dialog.localeLines(['workedThisMonth'])
+          Dialog.localeLines(['workedThisMonth'])
         } else if (site.quests.isEmpty) {
-          dialog.localeLines(['bountyhouseQuestEmpty'])
+          Dialog.localeLines(['bountyhouseQuestEmpty'])
         } else {
-          dialog.quests(site)
+          Dialog.quests(site)
         }
       }
       'questPost' : {
@@ -1232,10 +1229,10 @@ function _handleBountyhouseInteraction(site) {
     }
   })
 
-  // dialog.localeSelect(selections).then((key) {
+  // Dialog.localeSelect(selections).then((key) {
   //   switch (key) {
   //     'appeal' : {
-  //       dialog.localeSelect([
+  //       Dialog.localeSelect([
   //         'applyOrganization',
   //         'applySite',
   //         'complaintSite',
@@ -1274,35 +1271,35 @@ function _handleBountyhouseInteraction(site) {
   //     }
   //     'noticeBoard' : {
   //       if (game.flags.playerMonthly.worked.contains(site.id)) {
-  //         dialog.localeLines(['workedThisMonth'])
+  //         Dialog.localeLines(['workedThisMonth'])
   //       } else if (site.quests.isEmpty) {
-  //         dialog.localeLines(['bountyhouseQuestEmpty'])
+  //         Dialog.localeLines(['bountyhouseQuestEmpty'])
   //       } else {
-  //         dialog.quests(site)
+  //         Dialog.quests(site)
   //       }
   //     }
   //     'localExam' : {
-  //       dialog.localeLines(['localExamIntro'])
+  //       Dialog.localeLines(['localExamIntro'])
   //     }
   //     'nationalExam' : {
-  //       dialog.localeLines(['nationalExamIntro'])
+  //       Dialog.localeLines(['nationalExamIntro'])
   //     }
   //     'visitJail' : {
   //       const entry = false
   //       () async {
   //         if (location.jailedCharacterIds.isEmpty) {
-  //           return dialog.localeLines(['visitJailEmpty'])
+  //           return Dialog.localeLines(['visitJailEmpty'])
   //         } else {
   //           if (hero.fame > kFameCheckThreshold) {
   //             const title = getCharacterTitle(hero) ?? ''
-  //             return dialog.lines(
+  //             return Dialog.lines(
   //               [
   //                 engine.locale('visitJailEntryRespect', interpolations: [title + hero.name]),
   //               ],
   //               returnValue: true,
   //             )
   //           } else {
-  //             return dialog.localeLines(['visitJailDeny'])
+  //             return Dialog.localeLines(['visitJailDeny'])
   //           }
   //         }
   //       }().then((value) {
@@ -1321,7 +1318,7 @@ function _handleBountyhouseInteraction(site) {
 // 没有提交足够数量的材料或者超过时间都会算作失败。
 function _handleTradingHouseInteraction(site) {
   const location = game.locations[site.locationId]
-  dialog.localeSelect([
+  Dialog.localeSelect([
     'trade',
     'work',
     'leave',
@@ -1333,16 +1330,16 @@ function _handleTradingHouseInteraction(site) {
       'trade' : {
         if (site.organizationId) {
           const organization = getOrganizationById(site.organizationId)
-          dialog.merchant(organization, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
+          Dialog.merchant(organization, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
         } else {
-          dialog.merchant(site, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
+          Dialog.merchant(site, allowSell: false, sellableCategory: [kEntityCategoryMaterial])
         }
       }
       'work' : {
         if (site.workedThisMonth) {
-          dialog.localeLines(['workedThisMonth'])
+          Dialog.localeLines(['workedThisMonth'])
         } else if (site.quests.isEmpty) {
-          dialog.localeLines(['questEmpty'])
+          Dialog.localeLines(['questEmpty'])
         } else {
           const quest = site.quests.values.first
           assert(quest.category == kQuestCategoryDelivery)
@@ -1351,8 +1348,8 @@ function _handleTradingHouseInteraction(site) {
           const description = '${quest.description}${
             engine.locale('questRewardMoney', interpolations: [quest.rewardMoney])
           }'
-          dialog.lines([message,description], displayName: displayName).then((_) {
-            dialog.localeSelect([
+          Dialog.lines([message,description], displayName: displayName).then((_) {
+            Dialog.localeSelect([
               'accept',
               'cancel',
             ]).then((key) {

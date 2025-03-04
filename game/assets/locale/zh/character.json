@@ -95,6 +95,11 @@
   "wisdom": "悟性",
   "luck": "运气",
 
+  "race": "种族",
+  "xianzu": "仙族",
+  "fanzu": "凡族",
+  "yaozu": "妖族",
+
   "relationship": "关系",
   "father": "父亲",
   "mother": "母亲",

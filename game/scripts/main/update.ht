@@ -6,7 +6,7 @@ import 'entity/character/character.ht'
 // import 'quest/quest.ht'
 import 'world/tile/common.ht'
 import 'name/character.ht'
-import 'binding/worldmap.ht'
+import 'binding/world.ht'
 import 'entity/location/location.ht'
 import 'world/tile/hexagonal_tile.ht'
 // import 'entity/skill/skill.ht'
@@ -30,7 +30,7 @@ function setFishTile(terrain) {
   engine.debug('鱼群正在在 [${terrain.left},${terrain.top}] 周围活跃。')
   terrain.flags.isFishGathering = true
   Object.assign(terrain.overlaySprite, {animation: {path: 'object/animation/fishZone.png'}})
-  WorldMap.updateTerrainOverlaySprite(terrain.left, terrain.top)
+  World.updateTerrainOverlaySprite(terrain.left, terrain.top)
   game.fishTileIndexes.add(terrain.index)
 }
 
@@ -38,7 +38,7 @@ function setStormTile(terrain) {
   engine.debug('暴风雨正在 [${terrain.left},${terrain.top}] 周围活跃。')
   terrain.flags.isInStorm = true
   Object.assign(terrain.overlaySprite, {animation: {path: 'object/animation/stormZone.png'}})
-  WorldMap.updateTerrainOverlaySprite(terrain.left, terrain.top)
+  World.updateTerrainOverlaySprite(terrain.left, terrain.top)
   game.stormTileIndexes.add(terrain.index)
 }
 
@@ -46,7 +46,7 @@ function setStormTile(terrain) {
   // engine.debug('天地灵气正在 [${terrain.left},${terrain.top}] 喷涌。')
   // terrain.flags.isSpiritSurging = true
   // Object.assign(terrain.overlaySprite, {animation: {path: 'object/animation/spirit.png'}})
-  // WorldMap.updateTerrainOverlaySprite(terrain.left, terrain.top)
+  // World.updateTerrainOverlaySprite(terrain.left, terrain.top)
   // game.spiritTileIndexes.add(terrain.index)
 // }
 
@@ -70,7 +70,7 @@ function updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
           const tile = world.terrains[index]
           delete tile.flags.isFishGathering
           // 清空叠加的鱼跃效果动态贴图
-          WorldMap.clearTerrainOverlayAnimation(tile.left, tile.top)
+          World.clearTerrainOverlayAnimation(tile.left, tile.top)
         }
         game.fishTileIndexes = []
         const fishEventsCount = world.waterIndexes.length ~/ _kMinSizeforFishTile + 1
@@ -90,7 +90,7 @@ function updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
         const tile = world.terrains[index]
         delete tile.flags.isInStorm
         // 清空叠加的暴风雨效果动态贴图
-        WorldMap.clearTerrainOverlayAnimation(tile.left, tile.top)
+        World.clearTerrainOverlayAnimation(tile.left, tile.top)
       }
       game.stormTileIndexes = []
       const stormEventsCount = world.terrains.length ~/ _kMinSizeforStormTile + 1
@@ -109,7 +109,7 @@ function updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
       //   const tile = world.terrains[index]
       //   delete tile.flags.isSpiritSurging
       //   // 清空叠加的灵气喷涌效果动态贴图
-      //   WorldMap.clearTerrainOverlayAnimation(tile.left, tile.top)
+      //   World.clearTerrainOverlayAnimation(tile.left, tile.top)
       // }
       // game.spiritTileIndexes = []
       // const spiritEventsCount = world.terrains.length ~/ _kMinSizeforSpiritTile + 1
@@ -438,12 +438,12 @@ function handleQuestEnding(quest, result) {
   switch (quest.category) {
     kQuestCategoryDelivery : {
       if (quest.result) {
-        return dialog.localeLines(['delivery.submitSuccessed']).then((_) {
+        return Dialog.localeLines(['delivery.submitSuccessed']).then((_) {
           loot(hero, quest.reward)
           quest.isEnded = true
         })
       } else {
-        return dialog.localeLines(['delivery.submitFailed'])
+        return Dialog.localeLines(['delivery.submitFailed'])
       }
     }
   }

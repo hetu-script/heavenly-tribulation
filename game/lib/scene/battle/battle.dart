@@ -43,6 +43,7 @@ class BattleScene extends Scene {
   late final List<CustomGameCard> heroDeck, enemyDeck;
 
   final bool isSneakAttack;
+  final bool isAutoBattle;
 
   int turn = 0;
 
@@ -61,10 +62,16 @@ class BattleScene extends Scene {
 
   final Map<String, dynamic> gameDetails = {};
 
+  FutureOr<void> Function()? onBattleStart;
+  FutureOr<void> Function()? onBattleEnd;
+
   BattleScene({
     required this.heroData,
     required this.enemyData,
     required this.isSneakAttack,
+    this.isAutoBattle = false,
+    this.onBattleStart,
+    this.onBattleEnd,
   }) : super(
           context: GameData.context,
           id: Scenes.battle,
@@ -108,6 +115,8 @@ class BattleScene extends Scene {
   @override
   void onLoad() async {
     super.onLoad();
+
+    engine.hetu.assign('enemy', enemyData);
 
     heroDeck = getDeck(heroData);
     enemyDeck = getDeck(enemyData);
@@ -245,14 +254,16 @@ class BattleScene extends Scene {
               GameUI.indent),
       size: Vector2(100.0, 40.0),
     );
-    restartButton.onTap = (_, __) {
+    restartButton.onTap = (_, __) async {
       _victoryPrompt.removeFromParent();
       _defeatPrompt.removeFromParent();
       nextTurnButton.isVisible = true;
       nextTurnButton.text = engine.locale('start');
-      nextTurnButton.onTap =
-          (_, __) => GameConfig.isDebugMode ? nextTurn() : startAutoBattle();
-      _prepareBattle();
+      nextTurnButton.onTap = (_, __) =>
+          (!GameConfig.isDebugMode || isAutoBattle)
+              ? startAutoBattle()
+              : nextTurn();
+      await _onBattleStart();
     };
 
     showStartPrompt();
@@ -271,12 +282,14 @@ class BattleScene extends Scene {
       position: Vector2(
           center.x, heroDeckZone.position.y - GameUI.buttonSizeMedium.y),
       size: Vector2(100.0, 40.0),
-      onTap: (_, __) => GameConfig.isDebugMode ? nextTurn() : startAutoBattle(),
+      onTap: (_, __) => (!GameConfig.isDebugMode || isAutoBattle)
+          ? startAutoBattle()
+          : nextTurn(),
     );
     camera.viewport.add(nextTurnButton);
   }
 
-  void _prepareBattle() async {
+  Future<void> _onBattleStart() async {
     battleEnded = false;
     battleResult = null;
     hero.reset();
@@ -290,6 +303,8 @@ class BattleScene extends Scene {
     currentOpponent = heroTurn ? enemy : hero;
     currentCharacter.addHintText('${engine.locale('attackFirstInBattle')}!');
     nextTurnButton.text = engine.locale('nextTurn');
+
+    await onBattleStart?.call();
   }
 
   Future<void> nextTurn() async {
@@ -301,14 +316,14 @@ class BattleScene extends Scene {
           toPosition: Vector2(center.x, GameUI.hugeIndent),
         );
         camera.viewport.add(restartButton);
-        _prepareBattle();
+        await _onBattleStart();
       } else if (battleResult == null) {
         final skipped = await _startTurn();
         if (skipped) {
           _startTurn();
         }
       } else {
-        _endBattle();
+        _onBattleEnd();
       }
     }
   }
@@ -390,10 +405,11 @@ class BattleScene extends Scene {
   }
 
   void _endScene() {
+    engine.hetu.assign('enemy', null);
     engine.popScene(clearCache: true);
   }
 
-  void _endBattle() {
+  Future<void> _onBattleEnd() async {
     if (battleResult == true) {
       camera.viewport.add(_victoryPrompt);
     } else {
@@ -412,6 +428,8 @@ class BattleScene extends Scene {
     }
     nextTurnButton.text = engine.locale('end');
     nextTurnButton.onTap = (_, __) => _endScene();
+
+    await onBattleEnd?.call();
   }
 
   Future<void> startAutoBattle() async {
@@ -421,13 +439,13 @@ class BattleScene extends Scene {
       duration: 0.3,
       toPosition: Vector2(center.x, GameUI.hugeIndent),
     );
-    _prepareBattle();
+    await _onBattleStart();
 
     do {
       await _startTurn();
     } while (battleResult == null);
 
-    _endBattle();
+    await _onBattleEnd();
   }
 
   @override

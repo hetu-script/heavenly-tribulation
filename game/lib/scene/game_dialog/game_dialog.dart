@@ -14,16 +14,22 @@ import '../../ui.dart';
 class GameDialog extends StatefulWidget {
   static bool isGameDialogOpened = false;
 
-  static Future<void> show({
-    required BuildContext context,
-    required dynamic dialogData,
+  static Future<void> show(
+    BuildContext context,
+    dynamic dialogData, {
     dynamic returnValue,
   }) {
     return showDialog<dynamic>(
       context: context,
       barrierColor: Colors.transparent,
       builder: (BuildContext context) {
-        return GameDialog(dialogData: dialogData, returnValue: returnValue);
+        return GameDialog(
+            dialogData: dialogData is String
+                ? {
+                    'lines': [dialogData],
+                  }
+                : dialogData,
+            returnValue: returnValue);
       },
     );
   }
@@ -182,9 +188,7 @@ class _GameDialogState extends State<GameDialog> {
           fontSize: 20,
           letterSpacing: 2,
           fontWeight: FontWeight.normal,
-          color: (displayName != null || characterId != null)
-              ? Colors.lightGreen
-              : Colors.white70,
+          color: Colors.white,
           fontFamily: GameUI.fontFamily,
           decoration: TextDecoration.none,
         ));

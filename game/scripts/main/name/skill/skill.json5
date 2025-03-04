@@ -39,7 +39,7 @@
 
   waterbend: ["冰", "御水术"],
 
-  lightning: ["雷", "雷法"],
+  lightning_control: ["雷", "雷法"],
 
   earthbend: ["土遁术", "搬山术"],
 

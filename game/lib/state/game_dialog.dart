@@ -1,34 +1,45 @@
+// ignore_for_file: prefer_collection_literals
+
 import 'dart:collection';
 // import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-class ImageInfo {
-  String imagePath;
-  double positionXOffset, positionYOffset;
+class IllustrationInfo {
+  final String path;
+  final bool isFadeIn;
+  final double offsetX, offsetY;
 
-  ImageInfo(
-    this.imagePath, {
-    this.positionXOffset = 0.0,
-    this.positionYOffset = 0.0,
+  const IllustrationInfo(
+    this.path, {
+    this.isFadeIn = false,
+    this.offsetX = 0.0,
+    this.offsetY = 0.0,
+  });
+}
+
+class SceneInfo {
+  final String path;
+  final bool isFadeIn;
+
+  const SceneInfo(
+    this.path, {
+    this.isFadeIn = false,
   });
 }
 
 class GameDialogState with ChangeNotifier {
   bool isStarted = false;
 
-  bool isFadeIn = false;
-  bool isFadeOut = false;
-  bool isImageFadeIn = false;
-  bool isImageFadeOut = false;
-
-  /// 图片的asset路径
-  List<String> scenes = [];
   String? prevScene;
 
+  /// key是图片的asset路径
+  final scenes = LinkedHashSet<SceneInfo>();
+
   /// key是图片的asset路径，value是图片x坐标的偏移值
-  LinkedHashMap<String, ImageInfo> illustrations =
-      LinkedHashMap<String, ImageInfo>();
+  final illustrations = LinkedHashSet<IllustrationInfo>();
+
+  SceneInfo? get currentSceneInfo => scenes.lastOrNull;
 
   void start() {
     isStarted = true;
@@ -42,61 +53,62 @@ class GameDialogState with ChangeNotifier {
     notifyListeners();
   }
 
-  void pushImage(String imageId,
-      {double positionXOffset = 0.0,
-      double positionYOffset = 0.0,
-      bool fadeIn = false}) {
-    isImageFadeIn = fadeIn;
-    illustrations[imageId] = ImageInfo(
-      'assets/images/illustration/$imageId.png',
-      positionXOffset: positionXOffset,
-      positionYOffset: positionYOffset,
-    );
+  void pushImage(
+    String imageId, {
+    bool fadeIn = false,
+    bool fadeOut = false,
+    double offsetX = 0.0,
+    double offsetY = 0.0,
+  }) {
+    assert(illustrations.any((c) => c.path == imageId) == false);
+
+    illustrations.add(IllustrationInfo(
+      'assets/images/illustration/$imageId',
+      offsetX: offsetX,
+      offsetY: offsetY,
+      isFadeIn: fadeIn,
+    ));
     notifyListeners();
   }
 
-  void popImage({String? imageId, bool fadeOut = false}) {
-    isImageFadeOut = fadeOut;
+  void popImage({String? imageId}) {
     if (imageId != null) {
-      illustrations.remove(imageId);
+      illustrations.removeWhere((img) => img.path == imageId);
     } else if (illustrations.isNotEmpty) {
-      illustrations.remove(illustrations.keys.last);
+      illustrations.remove(illustrations.last);
     }
     notifyListeners();
   }
 
-  void popAllImage() {
+  void popAllImages() {
     illustrations.clear();
     notifyListeners();
   }
 
-  void pushScene(String imageId, {bool fadeIn = false}) {
-    isFadeIn = fadeIn;
-    scenes.add('assets/images/cg/$imageId.png');
+  void pushBackground(
+    String imageId, {
+    bool fadeIn = false,
+  }) {
+    assert(scenes.any((c) => c.path == imageId) == false);
+
+    if (scenes.isNotEmpty) {
+      prevScene = scenes.last.path;
+    }
+
+    scenes.add(SceneInfo('assets/images/cg/$imageId', isFadeIn: fadeIn));
     notifyListeners();
   }
 
-  void popScene({bool fadeOut = false}) {
-    prevScene = scenes.last;
-    isFadeOut = fadeOut;
-    scenes.removeLast();
-    notifyListeners();
+  void popBackground() {
+    if (scenes.isNotEmpty) {
+      prevScene = scenes.last.path;
+      scenes.remove(scenes.last);
+      notifyListeners();
+    }
   }
 
-  void popAllScene() {
+  void popAllBackgrounds() {
     scenes.clear();
     notifyListeners();
-  }
-
-  (String?, String?, bool, bool) get currentSceneInfo {
-    return (scenes.lastOrNull, prevScene, isFadeIn, isFadeOut);
-  }
-
-  void clearFadeInfo() {
-    isFadeIn = false;
-    isFadeOut = false;
-    isImageFadeIn = false;
-    isImageFadeOut = false;
-    prevScene = null;
   }
 }

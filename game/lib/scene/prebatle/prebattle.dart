@@ -352,10 +352,9 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                           context.read<EnemyState>().setPrebattleVisible(false);
                           final arg = {
                             'id': Scenes.battle,
-                            'heroData': widget.heroData,
-                            'enemyData': widget.enemyData,
+                            'hero': widget.heroData,
+                            'enemy': widget.enemyData,
                           };
-
                           engine.pushScene(Scenes.battle, arguments: arg);
                         },
                         child: Label(
@@ -446,25 +445,17 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                   }
                                   if (!identified) {
                                     GameDialog.show(
-                                      context: context,
-                                      dialogData: {
-                                        'lines': [
-                                          engine.locale(
-                                              'identify_deck_identifed_all')
-                                        ],
-                                      },
+                                      context,
+                                      engine.locale(
+                                          'identify_deck_identifed_all'),
                                     );
                                   }
                                   context.read<HoverInfoContentState>().hide();
                                 });
                               } else {
                                 GameDialog.show(
-                                  context: context,
-                                  dialogData: {
-                                    'lines': [
-                                      engine.locale('identify_deck_reach_limit')
-                                    ],
-                                  },
+                                  context,
+                                  engine.locale('identify_deck_reach_limit'),
                                 );
                               }
                             },

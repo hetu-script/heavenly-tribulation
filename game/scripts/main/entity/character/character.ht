@@ -970,10 +970,10 @@ function getNpcs() {
 function getNpcsOnWorldMap([ worldId ]) {
   worldId ??= world?.id
   return game.characters.values.where((char) {
+    if (char.id == game.heroId) return false
     if (char.worldId != worldId) return false
     if (char.worldPosition == null) return false
     if (char.locationId != null || char.siteId != null) return false
-    if (char.id == game.heroId) return false
     return true
   })
 }
@@ -981,11 +981,11 @@ function getNpcsOnWorldMap([ worldId ]) {
 function getNpcsByWorldMapPosition(left, top, [ worldId ]) {
   worldId ??= world?.id
   return game.characters.values.where((char) {
+    if (char.id == game.heroId) return false
     if (char.worldId != worldId) return false
     if (char.worldPosition == null) return false
     if (char.worldPosition.left != left || char.worldPosition.top != top) return false
     if (char.locationId != null || char.siteId != null) return false
-    if (char.id == game.heroId) return false
     return true
   })
 }
@@ -993,8 +993,8 @@ function getNpcsByWorldMapPosition(left, top, [ worldId ]) {
 function getNpcsByLocationId(locationId) {
   assert(locationId != null)
   return game.characters.values.where((char) {
-    if (char.locationId != locationId) return false
     if (char.id == game.heroId) return false
+    if (char.locationId != locationId) return false
     return true
   })
 }

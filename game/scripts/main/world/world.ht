@@ -25,6 +25,7 @@ function getCurrentWorldZoneColors {
 
   return colors
 }
+
 struct TileMapTerrain {
   constructor ({
     left,

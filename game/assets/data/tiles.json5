@@ -298,4 +298,10 @@
       sprite: "object/python.png",
     },
   },
+  meteorCrater: {
+    id: "meteorCrater",
+    name: "meteorCrater",
+    icon: "assets/images/object/meteorCrater.png",
+    type: "component",
+  },
 }

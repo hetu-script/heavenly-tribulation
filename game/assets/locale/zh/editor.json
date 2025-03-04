@@ -7,6 +7,8 @@
   "switchWorld": "切换地图",
   "expandWorld": "扩大地图",
 
+  "objectIdNonExist": "对象 [{0}] 不存在！",
+
   "isDiscovered": "是否已被发现",
   "isMainWorld": "是否是主世界",
 
@@ -24,6 +26,7 @@
   "createObject": "创建对象",
   "bindObject": "绑定对象",
   "clearObject": "清除对象",
+  "clearDecoration": "清除装饰",
 
   "inputObjectSource": "输入脚本对象 (JSON5)",
 
@@ -52,12 +55,13 @@
 
   "terrainTiles": "地形区块",
   "decorationTiles": "地面贴图",
+  "tileMapDecoration": "地面装饰",
   "objectTiles": "物体和NPC",
 
   "custom": "自定义",
   "preset": "预设",
   "portal": "传送门",
-  "worldGate": "地图入口",
+  "worldPortal": "地图传送门",
   "glowingTile": "发光地板",
   "switch": "机关",
   "lever": "拉杆",
@@ -82,5 +86,7 @@
   "characterWoman": "中年女",
   "characterOldWoman": "老年女",
 
-  "python": "怪蟒"
+  "python": "怪蟒",
+
+  "meteorCrater": "陨石坑"
 }

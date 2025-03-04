@@ -11,6 +11,8 @@ let isNewGame
 let game
 // game.characters[game.heroId]
 let hero
+/// 这个值仅在战斗场景中会被赋值，用于保存当前战斗的敌人
+let enemy
 
 let universe
 // universe[game.currentWorldId]
@@ -77,13 +79,6 @@ struct Game {
     // 地图上的可互动对象，例如npc等
     this.objects = {}
 
-    // 每个月生成的暴风雨地点
-    // this.stormTileIndexes = []
-    // 每个月生成的可捕鱼的地点
-    // this.fishTileIndexes = []
-    // 每个月生成的可恢复灵气的地点
-    // this.spiritTileIndexes = []
-    
     // 游戏本身逻辑所用到的一些事件检查选项
     // 例如每个月是否进行了某个动作之类
     this.playerMonthly = MonthlyActivity()
@@ -121,27 +116,8 @@ function createGame(saveName) {
   return game
 }
 
-function resetPlayerMonthlyActivities(){
-  
-  // 指玩家对某个其他角色、据点、地形、建筑进行过的动作，限定每个月一次
-
-  game.playerMonthly = {
-    // 对其他角色操作
-    talked: [],
-    gifted: [],
-    requested: [],
-    dueled: [],
-    consulted: [],
-    insulted: [],
-    stolen: [],
-
-    // 对地块操作
-    // gathered: [],
-    // woodcuted: [],
-    // excavated: [],
-    // hunted: [],
-    // fished: [],
-  }
+function resetPlayerMonthlyActivities() {
+  game.playerMonthly = MonthlyActivity()
 }
 
 function calculateTimestamp() {
@@ -151,6 +127,10 @@ function calculateTimestamp() {
   ticksOfYear = (game.timestamp % kTicksPerYear) + 1
   ticksOfMonth = (game.timestamp % kTicksPerMonth) + 1
   ticksOfDay = (game.timestamp % kTicksPerDay) + 1
+}
+
+function clearAllModules() {
+  game.modules.clear()
 }
 
 function addModule(module) {
@@ -214,6 +194,30 @@ function switchWorld(worldId) {
   return world
 }
 
+function getMapComponents() {
+  return world.components
+}
+
+/// 为地图创建显示组件，注意这里仅限非角色类装饰性数据
+function createMapComponent(data, left, top) {
+  assert(data.entityType == null)
+  final component = Object.fromJSON(data)
+  engine.info('添加显示组件：[${component.id}]')
+  component.worldPosition = { left, top }
+  world.components.add(component)
+  return component
+}
+
+function removeMapComponentByPosition(left, top) {
+  engine.info('移除显示组件，位于: [${left}, ${top}]')
+  world.components.removeWhere((c) => c.worldPosition.left == left && c.worldPosition.top == top)
+}
+
+function removeMapComponentById(id) {
+  engine.info('移除显示组件，id: [${id}]')
+  world.components.removeWhere((c) => c.id == id)
+}
+
 function getSaveName() {
   return game.saveName
 }
@@ -267,14 +271,6 @@ function setHeroId(id: string) {
 
 function getHeroWorldId(worldId) {
   hero.worldId = worldId
-}
-
-function setHeroWorldPosition(left, top, [ worldId ]) {
-  hero.worldPosition = {
-    worldId: worldId ?? game.currentWorldId,
-    left,
-    top
-  }
 }
 
 function getHeroHome {
@@ -357,6 +353,10 @@ function getObjectById(id: string) {
   return game.objects[id]
 }
 
+function hasObject(id: string) {
+  return game.objects[id] != null
+}
+
 function getNameFromId(id, [orElse = 'null']) {
   if (id != null) {
     return id.split('.').last
@@ -375,7 +375,7 @@ function updateWorldMapCaptions {
     if (tile.locationId) {
       const location = game.locations[tile.locationId]
       if (location.isDiscovered) {
-        WorldMap.setTerrainCaption(tile.left, tile.top, location.name)
+        World.setTerrainCaption(tile.left, tile.top, location.name)
       }
     }
   }

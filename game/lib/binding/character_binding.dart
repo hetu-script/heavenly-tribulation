@@ -19,21 +19,21 @@ class BattleCharacterClassBinding extends HTExternalClass {
       case 'lifeMax':
         return character.lifeMax;
       case 'addHintText':
-        return ({positionalArgs, namedArgs}) {
+        return ({object, positionalArgs, namedArgs}) {
           final color = switch (namedArgs['color']) {
             _ => Colors.white,
           };
           character.addHintText(positionalArgs.first, color: color);
         };
       case 'changeLife':
-        return ({positionalArgs, namedArgs}) => character
+        return ({object, positionalArgs, namedArgs}) => character
             .changeLife(positionalArgs[0], playSound: namedArgs['playSound']);
       case 'takeDamage':
-        return ({positionalArgs, namedArgs}) {
+        return ({object, positionalArgs, namedArgs}) {
           return character.takeDamage(positionalArgs.first);
         };
       case 'setState':
-        return ({positionalArgs, namedArgs}) => character.setState(
+        return ({object, positionalArgs, namedArgs}) => character.setState(
               positionalArgs.first,
               overlay: namedArgs['overlay'],
               recovery: namedArgs['recovery'],
@@ -41,29 +41,30 @@ class BattleCharacterClassBinding extends HTExternalClass {
               sound: namedArgs['sound'],
             );
       case 'hasStatusEffect':
-        return ({positionalArgs, namedArgs}) =>
+        return ({object, positionalArgs, namedArgs}) =>
             character.hasStatusEffect(positionalArgs.first);
       case 'removeStatusEffect':
-        return ({positionalArgs, namedArgs}) => character.removeStatusEffect(
+        return ({object, positionalArgs, namedArgs}) =>
+            character.removeStatusEffect(
               positionalArgs[0],
               amount: namedArgs['amount'],
               percentage: namedArgs['percentage'],
               hintLacking: namedArgs['hintLacking'],
             );
       case 'addStatusEffect':
-        return ({positionalArgs, namedArgs}) => character
+        return ({object, positionalArgs, namedArgs}) => character
             .addStatusEffect(positionalArgs[0], amount: namedArgs['amount']);
       case 'setTurnFlag':
-        return ({positionalArgs, namedArgs}) =>
+        return ({object, positionalArgs, namedArgs}) =>
             character.setTurnFlag(positionalArgs[0], positionalArgs[1]);
       case 'getTurnFlag':
-        return ({positionalArgs, namedArgs}) =>
+        return ({object, positionalArgs, namedArgs}) =>
             character.getTurnFlag(positionalArgs[0]);
       case 'removeTurnFlag':
-        return ({positionalArgs, namedArgs}) =>
+        return ({object, positionalArgs, namedArgs}) =>
             character.removeTurnFlag(positionalArgs[0]);
       case 'getGameFlag':
-        return ({positionalArgs, namedArgs}) =>
+        return ({object, positionalArgs, namedArgs}) =>
             character.getGameFlag(positionalArgs[0]);
 
       default:

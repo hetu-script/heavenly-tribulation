@@ -20,7 +20,7 @@ async function card_script_main_attack(self, opponent, affix) {
     overlay: affix.overlayAnimation,
     recovery: affix.recoveryAnimation,
   )
-  opponent.takeDamage({
+  await opponent.takeDamage({
     isMain: true,
     kind: affix.kind,
     attackType: affix.attackType,
@@ -59,7 +59,7 @@ async function card_script_main_attack_cost_1_energy(self, opponent, affix) {
     overlay: affix.overlayAnimation,
     recovery: affix.recoveryAnimation,
   )
-  opponent.takeDamage({
+  await opponent.takeDamage({
     isMain: true,
     kind: affix.kind,
     attackType: affix.attackType,

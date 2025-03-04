@@ -1,2 +1,4 @@
 
 const kLevelPerRank = 10
+
+const kOrthogonalDirections = ['north', 'east', 'south', 'west']

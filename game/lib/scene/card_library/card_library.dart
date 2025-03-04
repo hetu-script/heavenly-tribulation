@@ -92,22 +92,12 @@ class CardLibraryScene extends Scene {
 
   void _setBattleDeck(DeckBuildingZone zone) {
     if (!zone.isCardsEnough) {
-      GameDialog.show(
-        context: context,
-        dialogData: {
-          'lines': [engine.locale('deckbuilding_cards_not_enough')],
-        },
-      );
+      GameDialog.show(context, engine.locale('deckbuilding_cards_not_enough'));
       return;
     }
 
     if (!zone.isRequirementMet) {
-      GameDialog.show(
-        context: context,
-        dialogData: {
-          'lines': [engine.locale('deckbuilding_card_invalid')],
-        },
-      );
+      GameDialog.show(context, engine.locale('deckbuilding_card_invalid'));
       return;
     }
 
@@ -351,12 +341,7 @@ class CardLibraryScene extends Scene {
 
   void _affixOperation(CustomGameCard? card, String id) {
     if (card == null) {
-      GameDialog.show(
-        context: context,
-        dialogData: {
-          'lines': [engine.locale('deckbuilding_no_card_hint')],
-        },
-      );
+      GameDialog.show(context, engine.locale('deckbuilding_no_card_hint'));
       return;
     }
 
@@ -364,12 +349,7 @@ class CardLibraryScene extends Scene {
 
     if (result != null) {
       // 如果不能进行精炼，返回的是错误信息的本地化字符串key
-      GameDialog.show(
-        context: context,
-        dialogData: {
-          'lines': [engine.locale(result)],
-        },
-      );
+      GameDialog.show(context, engine.locale(result));
     } else {
       engine.play('hammer-hitting-an-anvil-25390.mp3');
 

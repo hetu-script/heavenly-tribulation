@@ -25,7 +25,9 @@ function onEnterCultivation()
 ```
 
 ```javascript
+/// 只会在第一次进入游戏时触发一次
 function onNewGame()
+/// 每当进入该地图场景时会触发，注意在进入其他界面返回地图时同样会触发
 function onEnterMap()
 function onAfterWorldUpdate()
 function onAfterHeroRest({site, terrain})

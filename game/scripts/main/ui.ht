@@ -1,3 +1,0 @@
-namespace GameUI {
-  external function showGameOverlay([value: bool = true]) 
-}

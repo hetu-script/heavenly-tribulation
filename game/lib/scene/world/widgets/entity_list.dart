@@ -42,19 +42,25 @@ const kPortalObjectSourceTemplate = '''{
   isDiscovered: true,
   useCustomInteraction: false,
   blockHeroMove: false,
-  targetLeft: 1,
-  targetTop: 1,
+  targetTilePosition: {
+    left: 1,
+    top: 1,
+  },
 }
 ''';
 
-const kWorldGateObjectSourceTemplate = '''{
-  id: 'worldGate1',
+const kWorldPortalObjectSourceTemplate = '''{
+  id: 'worldPortal1',
   entityType: 'object',
-  category: 'worldGate',
+  category: 'worldPortal',
   isDiscovered: true,
   useCustomInteraction: false,
   blockHeroMove: false,
   worldId: 'main',
+  targetTilePosition: {
+    left: 1,
+    top: 1,
+  },
 }
 ''';
 
@@ -211,7 +217,7 @@ List<PopupMenuEntry<LocationPopUpMenuItems>> buildLocationPopUpMenuItems(
 enum CreateObjectPopUpMenuItems {
   custom,
   portal,
-  worldGate,
+  worldPortal,
   character,
   treasureBox,
 }
@@ -223,7 +229,7 @@ List<PopupMenuEntry<CreateObjectPopUpMenuItems>>
     buildSubMenuItem(
       items: {
         engine.locale('portal'): CreateObjectPopUpMenuItems.portal,
-        engine.locale('worldGate'): CreateObjectPopUpMenuItems.worldGate,
+        engine.locale('worldPortal'): CreateObjectPopUpMenuItems.worldPortal,
         engine.locale('character'): CreateObjectPopUpMenuItems.character,
         engine.locale('treasureBox'): CreateObjectPopUpMenuItems.treasureBox,
       },
@@ -631,8 +637,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                                 if (value.$1 != charPosData?['left'] ||
                                     value.$2 != charPosData?['top'] ||
                                     value.$3 != charData?['worldId']) {
-                                  engine.hetu.invoke(
-                                      'setCharacterWorldPosition',
+                                  engine.hetu.invoke('setCharacterTo',
                                       positionalArgs: [
                                         charData,
                                         value.$1,
@@ -847,8 +852,8 @@ class _EntityListPanelState extends State<EntityListPanel>
                               kObjectSourceTemplate,
                             CreateObjectPopUpMenuItems.portal =>
                               kPortalObjectSourceTemplate,
-                            CreateObjectPopUpMenuItems.worldGate =>
-                              kWorldGateObjectSourceTemplate,
+                            CreateObjectPopUpMenuItems.worldPortal =>
+                              kWorldPortalObjectSourceTemplate,
                             CreateObjectPopUpMenuItems.character =>
                               kCharacterObjectSourceTemplate,
                             CreateObjectPopUpMenuItems.treasureBox =>

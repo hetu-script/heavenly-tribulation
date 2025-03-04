@@ -22,6 +22,11 @@
   "menu": "菜单",
   "untitled": "未命名",
 
+  "reloadGameData": "重新载入游戏数据",
+  "reloadGameDataPrompt": "已重置所有游戏数据和核心脚本模块。",
+  "reloadModules": "重新载入MOD数据",
+  "reloadModulesPrompt": "已重置当前MOD数据。",
+
   "openAll": "全部打开",
   "selectAll": "选择全部",
 

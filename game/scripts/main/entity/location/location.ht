@@ -208,9 +208,9 @@ function addLocation(loc) {
   let terrain = getTerrainByWorldPosition(loc.worldPosition.left, loc.worldPosition.top)
   terrain.locationId = loc.id
   // terrain.caption = location.name
-  WorldMap.setTerrainCaption(loc.worldPosition.left, loc.worldPosition.top, loc.name)
+  World.setTerrainCaption(loc.worldPosition.left, loc.worldPosition.top, loc.name)
   terrain.overlaySprite.sprite = kSpriteCity
-  WorldMap.updateTerrainOverlaySprite(loc.worldPosition.left, loc.worldPosition.top)
+  World.updateTerrainOverlaySprite(loc.worldPosition.left, loc.worldPosition.top)
 }
 
 function addLocations(locs: List) {
@@ -229,9 +229,9 @@ function removeLocationById(locationId: string) {
     engine.warn('警告：正在移除ID为 [${locationId}] 的据点。')
     let terrain = getTerrainByWorldPosition(loc.worldPosition.left, loc.worldPosition.top)
     delete terrain.locationId
-    WorldMap.setTerrainCaption(loc.worldPosition.left, loc.worldPosition.top, null)
+    World.setTerrainCaption(loc.worldPosition.left, loc.worldPosition.top, null)
     delete terrain.overlaySprite.spriteIndex
-    WorldMap.updateTerrainOverlaySprite(loc.worldPosition.left, loc.worldPosition.top)
+    World.updateTerrainOverlaySprite(loc.worldPosition.left, loc.worldPosition.top)
     delete game.locations[locationId]
   }
 }
@@ -300,13 +300,13 @@ function discoverLocation(location) {
   if (location.isDiscovered) return
   engine.debug('发现新据点：${location.name}')
   location.isDiscovered = true
-  WorldMap.setTerrainCaption(location.worldPosition.left, location.worldPosition.top, location.name)
+  World.setTerrainCaption(location.worldPosition.left, location.worldPosition.top, location.name)
   if (location.category == kLocationKindArcana || location.category == kLocationKindMirage) {
     const tile = world.terrains[location.terrainIndex]
     // tile.spriteIndex = kSpriteLand
     tile.overlaySprite.sprite = kSpriteCity
-    // WorldMap.setWorldMapSprite(location.worldPosition.left, location.worldPosition.top, kSpriteLand)
-    WorldMap.updateTerrainOverlaySprite(location.worldPosition.left, location.worldPosition.top)
+    // World.setWorldMapSprite(location.worldPosition.left, location.worldPosition.top, kSpriteLand)
+    World.updateTerrainOverlaySprite(location.worldPosition.left, location.worldPosition.top)
   }
 }
 

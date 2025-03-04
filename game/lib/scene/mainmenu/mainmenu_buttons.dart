@@ -139,6 +139,9 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                       padding: const EdgeInsets.only(top: 20.0),
                       child: ElevatedButton(
                         onPressed: () async {
+                          context
+                              .read<GameUIVisibilityState>()
+                              .setVisible(false);
                           setMenuState(MenuStates.main);
 
                           await GameData.loadPreset('tutorial');
@@ -159,17 +162,17 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                         ),
                       ),
                     ),
-                    // Padding(
-                    //   padding: const EdgeInsets.only(top: 20.0),
-                    //   child: ElevatedButton(
-                    //     onPressed: () {},
-                    //     child: Label(
-                    //       engine.locale('storyMode'),
-                    //       width: 150.0,
-                    //       textAlign: TextAlign.center,
-                    //     ),
-                    //   ),
-                    // ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        child: Label(
+                          engine.locale('storyMode'),
+                          width: 150.0,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
                       child: ElevatedButton(
@@ -180,6 +183,11 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                                 const CreateSandboxGameDialog(),
                           );
                           if (args == null) return;
+                          if (context.mounted) {
+                            context
+                                .read<GameUIVisibilityState>()
+                                .setVisible(false);
+                          }
                           setMenuState(MenuStates.main);
 
                           await GameData.createGame(
@@ -208,6 +216,11 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                             builder: (context) => const LoadGameDialog(),
                           );
                           if (info == null) return;
+                          if (context.mounted) {
+                            context
+                                .read<GameUIVisibilityState>()
+                                .setVisible(false);
+                          }
                           setMenuState(MenuStates.main);
 
                           await GameData.loadGame(info.savePath);
@@ -384,13 +397,12 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                       padding: const EdgeInsets.only(top: 20.0),
                       child: ElevatedButton(
                         onPressed: () {
-                          final enemy = engine.hetu.invoke('generateEnemey',
-                              namespace: 'Debug',
-                              namedArgs: {
-                                'isFemale': false,
-                                'level': 0,
-                                'rank': 0,
-                              });
+                          final enemy =
+                              engine.hetu.invoke('generateEnemey', namedArgs: {
+                            'isFemale': false,
+                            'level': 0,
+                            'rank': 0,
+                          });
                           context.read<EnemyState>().update(enemy);
                         },
                         child: Label(engine.locale('debug_battle'),
@@ -402,8 +414,8 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                       child: ElevatedButton(
                         onPressed: () {
                           GameDialog.show(
-                            context: context,
-                            dialogData: {
+                            context,
+                            {
                               'characterData': _heroData,
                               'lines': [
                                 "你好！这是一个带有<bold blue>格式化</>文本的<color='#F28234' link='test'>测试</>对话！"

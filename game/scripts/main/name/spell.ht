@@ -1,6 +1,0 @@
-import 'spell/spell.json5' as spellNames
-import '../random.ht'
-
-function generateSpellName() {
-
-}

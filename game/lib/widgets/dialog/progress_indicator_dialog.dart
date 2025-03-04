@@ -8,7 +8,7 @@ import '../../ui.dart';
 
 const kProgressIndicatorSpeed = 0.036;
 
-class ProgressIndicator extends StatefulWidget {
+class ProgressIndicatorDialog extends StatefulWidget {
   static Future<void> show({
     required BuildContext context,
     required String title,
@@ -18,7 +18,7 @@ class ProgressIndicator extends StatefulWidget {
       context: context,
       barrierColor: Colors.transparent,
       builder: (context) {
-        return ProgressIndicator(
+        return ProgressIndicatorDialog(
           title: title,
           checkProgress: checkProgress,
         );
@@ -26,7 +26,7 @@ class ProgressIndicator extends StatefulWidget {
     );
   }
 
-  const ProgressIndicator({
+  const ProgressIndicatorDialog({
     super.key,
     required this.title,
     this.checkProgress,
@@ -36,10 +36,11 @@ class ProgressIndicator extends StatefulWidget {
   final bool? Function()? checkProgress;
 
   @override
-  State<ProgressIndicator> createState() => _ProgressIndicatorState();
+  State<ProgressIndicatorDialog> createState() =>
+      _ProgressIndicatorDialogState();
 }
 
-class _ProgressIndicatorState extends State<ProgressIndicator> {
+class _ProgressIndicatorDialogState extends State<ProgressIndicatorDialog> {
   Timer? _timer;
   double _progress = 0.0;
 

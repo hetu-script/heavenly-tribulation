@@ -14,6 +14,7 @@ const module = {
     description: '包含了一些展示游戏基础操作的关卡。',
     supportedLocales: ['zh'],
     version: '0.0.1',
+    npcs: {},
     flags: {
       // 0 刚刚进入这个世界，通过传送门来到地宫中的众人面前
       // 1 和众人对话之后，但尚未选择流派
@@ -46,6 +47,15 @@ const module = {
 /// 以及将角色、据点等数据添加到主世界中
 /// 可以在这里检查是否存在版本冲突或者和其他脚本的冲突
 function init(config) {
+  engine.debug('游戏脚本模块 [${module.meta.id}(ver-${module.meta.version})] 初始化...')
+
+  // module.meta.npcs.enemy1 = generateEnemey(
+  //   name: engine.locale('yaozu_guard'),
+  //   race: 'yaozu',
+  //   isFemale: false,
+  //   icon: 'story/yao_enemy1_head.png',
+  // )
+
   game.addModule(module.meta)
 }
 
@@ -53,7 +63,8 @@ const modName = '${module.meta.displayName}-${module.meta.id}-(${module.meta.ver
 
 // main每次启动游戏都会执行
 function main() {
-  engine.debug('游戏脚本: [tutorial](ver-${coreScriptModuleVersion})初始化...')
+  engine.debug('游戏脚本模块 [${module.meta.id}(ver-${module.meta.version})] 载入...')
+
   // 加载本地化字符串
   engine.loadLocaleDataFromJSON(localizations.toJSON())
   // 向世界添加事件回调函数

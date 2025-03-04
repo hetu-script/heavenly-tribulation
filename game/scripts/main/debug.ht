@@ -6,9 +6,10 @@ import 'world/tile/hexagonal_tile.ht'
 import 'random.ht'
 
 namespace Debug {
-  external function setFog(value: bool)
 
   external function reloadGameData()
+
+  external function reloadModules()
 
   function generateHero({rank = 0, level = 0}) {
     final hero = Character(
@@ -53,44 +54,6 @@ namespace Debug {
       Player.acquire(item)
     }
   }
-
-  function generateEnemey({
-    isFemale,
-    level,
-    rank,
-  }) {
-    final enemy = BattleEntity(
-      isFemale: isFemale,
-      isMajorCharacter: false,
-      cultivationLevel: level,
-      cultivationRank: rank,
-    )
-    engine.debug('generated enemy: ${enemy.name}')
-    entityAcquire(enemy, BattleCard(
-      category: 'buff',
-      level: enemy.cultivationLevel,
-      rank: enemy.cultivationRank,
-    ))
-    entityAcquire(enemy, BattleCard(
-      category: 'attack',
-      level: enemy.cultivationLevel,
-      rank: enemy.cultivationRank,
-    ))
-    entityAcquire(enemy, BattleCard(
-      category: 'attack',
-      level: enemy.cultivationLevel,
-      rank: enemy.cultivationRank,
-    ))
-    final enemyDeck = {
-      title: 'battleDeck',
-      isBattleDeck: true,
-      cards: enemy.cardLibrary.values.map((card) => card.id).toList(),
-    }
-    enemy.battleDecks = [enemyDeck]
-    enemy.battleDeckIndex = 0
-
-    return enemy
-  }
  
   function getCurrentTerrain() {
     if (world == null) return
@@ -117,9 +80,9 @@ namespace Debug {
     for (const tile in world.terrains) {
       if (tile.locationId) {
         const location = game.locations[tile.locationId]
-        WorldMap.setTerrainCaption(tile.left, tile.top, location.name)
+        World.setTerrainCaption(tile.left, tile.top, location.name)
       } else if (tile.objectId) {
-        WorldMap.setTerrainCaption(tile.left, tile.top, tile.objectId)
+        World.setTerrainCaption(tile.left, tile.top, tile.objectId)
       }
     }
   }

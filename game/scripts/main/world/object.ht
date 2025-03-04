@@ -3,7 +3,7 @@ import '../game.ht'
 const kEntityTypeObject = 'object'
 
 const kObjectPortal = 'portal'
-const kObjectWorldGate = 'worldGate'
+const kObjectWorldPortal = 'worldPortal'
 
 const kObjectCharacter = 'character'
 const kObjectTreasureBox = 'treasureBox'
@@ -32,14 +32,16 @@ struct ObjectPortal {
     this.category = kObjectPortal
     this.isDiscovered = isDiscovered
     this.useCustomInteraction = useCustomInteraction
-    game.objects[this.id] = this
+    this.targetTilePosition = {
+      left: targetLeft,
+      top: targetTop,
+    }
 
-    this.targetLeft = targetLeft
-    this.targetTop = targetTop
+    game.objects[this.id] = this
   }
 }
 
-struct ObjectWorldGate {
+struct ObjectWorldPortal {
   constructor ({
     id,
     isDiscovered = true,
@@ -51,12 +53,12 @@ struct ObjectWorldGate {
     assert(id != null)
     this.id = id
     this.entityType = kEntityTypeObject
-    this.category = kObjectWorldGate
+    this.category = kObjectWorldPortal
     this.isDiscovered = isDiscovered
     this.useCustomInteraction = useCustomInteraction
-    game.objects[this.id] = this
-
     this.worldId = worldId
+
+    game.objects[this.id] = this
   }
 }
 
@@ -69,9 +71,9 @@ struct ObjectCharacter {
     this.id = id
     this.entityType = kEntityTypeObject
     this.category = kObjectCharacter
-    game.objects[this.id] = this
-
     this.characterId = characterId
+
+    game.objects[this.id] = this
   }
 }
 

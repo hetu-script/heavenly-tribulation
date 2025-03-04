@@ -126,7 +126,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     required this.data,
     required this.deckZone,
   }) : super(anchor: Anchor.topCenter) {
-    assert(GameData.animationsData.containsKey(skinId));
+    assert(GameData.animations.containsKey(skinId));
     this.engine = engine;
 
     if (!isHero) {
@@ -137,12 +137,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     animationStates.addAll(kPreloadAnimationStates);
 
     _loadAnimFromData(
-      data: GameData.animationsData[skinId],
+      data: GameData.animations[skinId],
       states: animationStates,
       directory: skinId,
     );
     _loadAnimFromData(
-      data: GameData.animationsData['overlay'],
+      data: GameData.animations['overlay'],
       states: overlayAnimationStates,
       directory: 'overlay',
       isOverlay: true,
@@ -346,17 +346,17 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     if (amount == 0) return;
     if (amount == null) {
       if (kDebugMode) {
-        engine.info(
+        engine.warn(
             'Status effect [$id] added without a specific amount, set to 1');
       }
       amount = 1;
     }
     assert(amount > 0);
-    if (!GameData.statusEffectsData.containsKey(id)) {
+    if (!GameData.statusEffects.containsKey(id)) {
       engine.error('Status effect [$id] not found!');
       return;
     }
-    final data = GameData.statusEffectsData[id];
+    final data = GameData.statusEffects[id];
 
     if (data['isPermenant'] != true) {
       if (id.startsWith('energy_positive')) {
@@ -546,7 +546,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// (baseValue + baseValueChange) * (1 + percentageChange1) * (1 + percentageChange2) * (1 + percentageChange3)
   /// 乘区1：攻击增强，攻击削弱，抗性，弱点
   /// 乘区2：从闪避中获得的免疫，从迟钝中获得的踉跄
-  int takeDamage(dynamic details) {
+  Future<int> takeDamage(dynamic details, {bool recovery = true}) async {
     assert(details['baseValue'] > 0);
 
     // isMain 为 true 表示伤害来源来自主词条的攻击
@@ -624,7 +624,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       // 这里不能用await，动画会卡住
       setState(kDodgeState);
     } else {
-      setState(kHitState, recovery: kHitRecoveryState);
+      setState(kHitState, recovery: recovery ? kHitRecoveryState : null);
     }
 
     return finalDamage;

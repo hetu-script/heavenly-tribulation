@@ -1,0 +1,19 @@
+namespace System {
+  
+  external function showUI([value: bool = true])
+  
+  external function showLibrary()
+  
+  external function showCultivation()
+
+  external function showPrebattle(enemyData)
+
+  external async function showBattle({
+    hero,
+    enemy,
+    isSneakAttack: bool = false,
+    isAutoBattle: bool = false,
+    onBattleStart,
+    onBattleEnd,
+  })
+}

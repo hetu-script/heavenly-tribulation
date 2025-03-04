@@ -4,6 +4,7 @@
 
 import '../entity.ht'
 import '../item/material.ht'
+import '../../cardgame/card.ht'
 
 // number of the male avatar images
 const _kMaleAvatarCount = 37
@@ -28,11 +29,19 @@ const kAttributeNames = [
   'perception',
 ]
 
+const kRaceNames = [
+  'xianzu',
+  'fanzu',
+  'yaozu'
+]
+
 // 某些时候，只需要生成一个用于战斗的实体，此时不需要年龄、魅力等属性
 struct BattleEntity {
   constructor ({
+    id,
     isMajorCharacter = true,
     isFemale,
+    race,
     icon,
     illustration,
     characterSkin,
@@ -55,15 +64,23 @@ struct BattleEntity {
     this.isFemale = isFemale ?? random.nextBool()
     if (this.isFemale) {
       const index = random.nextInt(_kFemaleAvatarCount)
-      this.icon ??= 'female/${index}.jpg'
-      this.illustration ??= illustration
+      this.icon = icon ?? 'female/${index}.jpg'
+      this.illustration = illustration
       this.characterSkin = characterSkin ?? 'characterWoman1'
     } else {
       const index = random.nextInt(_kMaleAvatarCount)
-      this.icon ??= 'male/${index}.jpg'
-      this.illustration ??= illustration
+      this.icon = icon ?? 'male/${index}.jpg'
+      this.illustration = illustration
       this.characterSkin = characterSkin ?? 'characterMan1'
     }
+
+    if (race != null) {
+      assert(kRaceNames.contains(race))
+      this.race = race
+    } else {
+      this.race = random.nextIterable(kRaceNames)
+    }
+
     if (generateName) {
       let randomName
 
@@ -90,8 +107,7 @@ struct BattleEntity {
       this.middleName = middleName
       this.shortName = shortName ?? name
     }
-    assert(this.name != null)
-    this.id = this.name
+    this.id = id ?? this.name
     
     // 非主角色不参与 update, interact 等逻辑交互，也不会自动显示在地图或场景中。
     this.isMajorCharacter = isMajorCharacter ?? false
@@ -274,4 +290,79 @@ function getCharacterMoveCostOnHill(character) {
     }
   }
   return null
+}
+
+function generateDeck(character, { deckInfo }) {
+  let deck = []
+  if (deckInfo is List) {
+    for (final info in deckInfo) {
+      deck.add(BattleCard(
+        category: info.category,
+        mainAffixId: info.mainAffixId,
+        kind: info.kind,
+        genre: info.genre,
+        level: info.level ?? character.cultivationLevel,
+        rank: info.rank ?? character.cultivationRank,
+        maxRank: info.maxRank,
+        isIdentified: info.isIdentified ?? true,
+      ))
+    }
+  } else {
+    deck.addAll([
+      BattleCard(
+        category: 'buff',
+        level: character.cultivationLevel,
+        rank: character.cultivationRank,
+        isIdentified: false,
+      ),
+      BattleCard(
+        category: 'attack',
+        level: character.cultivationLevel,
+        rank: character.cultivationRank,
+        isIdentified: false,
+      ),
+      BattleCard(
+        category: 'attack',
+        level: character.cultivationLevel,
+        rank: character.cultivationRank,
+        isIdentified: false,
+      ),
+    ])
+  }
+  for (final card in deck) {
+    entityAcquire(character, card)
+  }
+  character.battleDecks.add({
+    title: 'battleDeck',
+    isBattleDeck: true,
+    cards: deck.map((card) => card.id).toList(),
+  })
+  character.battleDeckIndex = character.battleDecks.length - 1
+  
+  engine.info('generated deck: [${deck.map((card) => card.name).join(', ')}]')
+}
+
+function generateEnemey({
+  id,
+  name,
+  icon,
+  race,
+  isFemale,
+  level,
+  rank,
+}) {
+  final enemy = BattleEntity(
+    id: id,
+    name: name,
+    icon: icon,
+    race: race,
+    isFemale: isFemale,
+    isMajorCharacter: false,
+    cultivationLevel: level,
+    cultivationRank: rank,
+  )
+  engine.info('generated enemy: ${enemy.name}')
+  generateDeck(enemy)
+
+  return enemy
 }

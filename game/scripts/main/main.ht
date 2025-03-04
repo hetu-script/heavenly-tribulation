@@ -1,5 +1,5 @@
 export 'binding/battle_character.ht'
-export 'binding/worldmap.ht'
+export 'binding/world.ht'
 export 'cardgame/card.ht'
 export 'cardgame/card_script.ht'
 export 'cardgame/status_script.ht'
@@ -32,9 +32,7 @@ export 'update.ht'
 export 'util.ht'
 export 'player.ht'
 export 'common.ht'
-export 'ui.ht'
-
-const coreScriptModuleVersion = '0.0.1'
+export 'system.ht'
 
 const module = {
   meta: {
@@ -57,6 +55,8 @@ function init({
   battleCardAffixesData,
   passivesData,
 }) {
+  engine.debug('游戏脚本模块 [${module.meta.id}(ver-${module.meta.version})] 初始化...')
+
   addModule(module.meta)
   
   // 添加材料类物品信息
@@ -80,7 +80,7 @@ function init({
 
 /// Run every time game starts
 function main() {
-  engine.debug('游戏脚本内核(ver-${coreScriptModuleVersion})初始化...')
+  engine.debug('游戏脚本模块 [${module.meta.id}(ver-${module.meta.version})] 载入...')
 
   addEventHandlers(
     moduleId: module.meta.id,

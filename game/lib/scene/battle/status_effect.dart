@@ -80,8 +80,8 @@ class StatusEffect extends BorderComponent with HandlesGesture {
           priority: kStatusEffectIconPriority,
         ) {
     assert(amount >= 1);
-    assert(GameData.statusEffectsData.containsKey(id));
-    data = deepCopy(GameData.statusEffectsData[id]);
+    assert(GameData.statusEffects.containsKey(id));
+    data = deepCopy(GameData.statusEffects[id]);
     assert(data != null);
     data['amount'] = amount;
 

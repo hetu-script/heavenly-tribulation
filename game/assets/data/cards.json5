@@ -176,7 +176,7 @@
     uniqueId: null,
     genre: "daoism",
     category: "attack",
-    kind: "lightning",
+    kind: "lightning_control",
     resourceType: "spell",
     attackType: "spell",
     damageType: "elemental",

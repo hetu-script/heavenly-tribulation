@@ -62,7 +62,7 @@ class LocationScene extends Scene {
             positionalArgs: [locationData, homeSiteData]);
       }
     } else {
-      GameDialog.show(context: context, dialogData: {
+      GameDialog.show(context, {
         'lines': [engine.locale('visitEmptyVillage')],
         'isHero': true,
       });

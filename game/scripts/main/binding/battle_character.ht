@@ -7,7 +7,7 @@ external class BattleCharacter {
 
   function changeLife(value: integer, {playSound: bool = false})
 
-  function takeDamage(details) -> integer
+  async function takeDamage(details) -> integer
 
   async function setState(state: string, {
     sound: string,

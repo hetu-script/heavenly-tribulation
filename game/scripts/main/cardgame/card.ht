@@ -12,7 +12,7 @@ struct BattleCard {
     level,
     rank, // 境界决定了额外词条数量
     maxRank,
-    isIdentified = false,
+    isIdentified = true,
   }) {
     this.entityType = kEntityTypeBattleCard
     assert(rank != null || maxRank != null)
@@ -46,7 +46,7 @@ struct BattleCard {
     let mainAffixes
     if (mainAffixId) {
       mainAffixes = game.battleCardsData.values.where( (affix) { 
-        affix.id == mainAffixId
+        return affix.id == mainAffixId
       } )
     } else {
       // 注意：主词条数据的genre是字符串，但额外词条的genre是字符串数组
@@ -67,12 +67,11 @@ struct BattleCard {
       })
     }
 
-
     if (mainAffixes.isEmpty) {
-      throw('Found no main affix for: genre: ${genre}, category: ${category}, kind: ${kind}, rank: ${rank}')
+      throw('Found no main affix for: id: ${mainAffixId} genre: ${genre}, category: ${category}, kind: ${kind}, rank: ${rank}')
     }
 
-    const mainAffix = JSON.deepcopy(random.nextIterable(mainAffixes))
+    const mainAffix = Object.create(random.nextIterable(mainAffixes))
     if (mainAffix.maxLevel) {
       mainAffix.level = Math.min(level, mainAffix.maxLevel)
     } else {
@@ -163,12 +162,12 @@ function _updateMainAffixValue(card) {
       final value = valueData.base + valueData.increment * valueLevel
       values.add(value.round())
     }
-    if (mainAffix.requirement && mainAffix.requirement.isNotEmpty) {
-      for (final reqData in mainAffix.requirement.values) {
-        final value = reqData.base + reqData.increment * mainAffix.level
-        reqData.value = value.round()
-      }
-    }
+    // if (mainAffix.requirement && mainAffix.requirement.isNotEmpty) {
+    //   for (final reqData in mainAffix.requirement.values) {
+    //     final value = reqData.base + reqData.increment * mainAffix.level
+    //     reqData.value = value.round()
+    //   }
+    // }
     mainAffix.value = values
   }
 }
@@ -240,7 +239,7 @@ function _addExtraAffixes(card) {
       throw('Found no extra affix for: genre: ${card.genre}, category: ${card.category}, kind: ${card.kind}, rank: ${card.rank}')
     }
 
-    let affix = JSON.deepcopy(random.nextIterable(supportAffixes))
+    let affix = Object.create(random.nextIterable(supportAffixes))
 
     _addAffixToCard(card, affix)
   }

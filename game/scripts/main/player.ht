@@ -1,6 +1,6 @@
 import 'game.ht'
 import 'colors.ht'
-import 'binding/worldmap.ht'
+import 'binding/world.ht'
 import 'entity/entity.ht'
 
 external function expForLevel(level: integer) -> integer
@@ -31,15 +31,22 @@ struct PassiveData {
 
 namespace Player {
   
-  external function updateHero({showHeroInfo = true})
+  external function updateHero()
 
   external function updateHistory()
 
   external function updateQuest()
-  
-  external function showLibrary()
-  
-  external function showCultivation()
+
+  function setTo(left, top, { worldId, direction } ) {
+    setCharacterWorldPosition(hero, left, top, worldId: worldId)
+    if (worldId == null || worldId == world.id) {
+      if (direction != null) {
+        assert(kOrthogonalDirections.contains(direction))
+      }
+      World.setCharacterTo(hero.id, left, top, direction: direction)
+      World.lightUpAroundTile(left, top, hero.stats.lightRadius)
+    }
+  }
 
   function collectById(materialId, { amount = 1, incurIncident = true }) {
     assert(amount is integer && amount > 0)
@@ -454,7 +461,7 @@ namespace Player {
       isPrivate: true,
     )
 
-    WorldMap.addHintText(
+    World.addHintText(
       '${engine.locale('exp')} + ${value}',
       hero.worldPosition.left,
       hero.worldPosition.top,

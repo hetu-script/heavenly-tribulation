@@ -17,7 +17,7 @@ class QuestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final heroData = engine.hetu.invoke('getHero');
+    final heroData = engine.hetu.fetch('hero');
 
     return Container(
       width: 240,

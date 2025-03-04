@@ -40,7 +40,7 @@ const kCardKinds = [
   'xinfa',
   'windbend',
   'firebend',
-  'lightning',
+  'lightning_control',
   // 'waterbend',
   // 'earthbend',
   // 'wood_control',

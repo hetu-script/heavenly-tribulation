@@ -18,6 +18,7 @@ import '../state/states.dart';
 import '../scene/common.dart';
 import 'dialog/item_select_dialog.dart';
 import 'draggable_panel.dart';
+import 'history_panel.dart';
 
 const tickName = {
   1: 'morning.jpg',
@@ -48,7 +49,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
 
-    final isVisible = context.watch<GameUIOverlayVisibilityState>().isVisible;
+    final isVisible = context.watch<GameUIVisibilityState>().isVisible;
 
     final heroData = context.watch<HeroState>().heroData;
 
@@ -576,6 +577,11 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 ],
               ),
             ],
+          ),
+          const Positioned(
+            left: 0.0,
+            bottom: 0.0,
+            child: HistoryPanel(),
           ),
           if (enemyData != null && showPrebattle)
             Positioned.fill(
