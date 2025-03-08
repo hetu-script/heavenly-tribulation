@@ -18,32 +18,61 @@ const kLocationKindInland = 'inland'
 const kLocationKindHarbor = 'harbor'
 const kLocationKindIsland = 'island'
 const kLocationKindMountain = 'mountain'
+
+// 主角设置宅家宅后的默认场景
 const kLocationKindHome = 'home'
-const kLocationKindResidence = 'residence'
+// 集会所，每个城市默认建筑
 const kLocationKindCityHall = 'cityhall'
-const kLocationKindArena = 'arena'
-// 这三种交易建筑，可能属于某个组织，也可能没有组织。
-// 当没有组织时，属于默认生成的单纯服务性质的建筑。
-// 此时交易所产生的物品、金钱，将会归属于其所在的据点。
+// 住宅列表，每个城市默认建筑
+const kLocationKindResidence = 'residence'
+// 藏书阁，交易所，拍卖行这三种建筑可以分别进行功法秘籍，材料和法宝的交易
+// 他们可能属于某个组织，也可能没有组织。
+// 交易所产生的物品、金钱等，存储于建筑本身，但可以由所有者提取。
+// 藏书阁
 const kLocationKindLibrary = 'library'
+// 交易所
 const kLocationKindTradingHouse = 'tradinghouse'
+// 拍卖行
 const kLocationKindAuctionHouse = 'auctionhouse'
+
+// 演武场
+const kLocationKindArena = 'arena'
+
+// 下面这些属于对应材料的产地
+// 矿场
 const kLocationKindMine = 'mine'
+// 林场
 const kLocationKindTimberland = 'timberland'
+// 农场
 const kLocationKindFarmland = 'farmland'
-const kLocationKindHuntground = 'huntground'
-const kLocationKindCanal = 'canal'
-const kLocationKindFishMarket = 'fishmarket'
-const kLocationKindArrayLab = 'arraylab'
-const kLocationKindRuneHouse = 'runehouse'
-const kLocationKindAcademyLab = 'academylab'
+// 猎场
+const kLocationKindHuntingground = 'huntingground'
+// 渔场
+const kLocationKindFishery = 'fishery'
+ 
+// 下面这些建筑对应于每种副职业
+// 工坊
+// 可以将谷物禽肉、兽肉、鱼肉加工成普通食物（材料）或者料理（单独的可使用物品）
+// 可以将原木加工成木材或纸张，石料加工成石材或矿石
 const kLocationKindWorkshop = 'workshop'
-const kLocationKindNursery = 'nursery'
+// 兽园
 const kLocationKindZoo = 'zoo'
-const kLocationKindIllusionHouse = 'illusionhouse'
-const kLocationKindPsychicHouse = 'psychichouse'
-const kLocationKindDivinationHouse = 'divinationhouse'
-const kLocationKindTheurgyHouse = 'theurgyhouse'
+// 苗圃
+const kLocationKindNursery = 'nursery'
+// 阵法工坊
+const kLocationKindArrayLab = 'arraylab'
+// 符箓工坊
+const kLocationKindRuneLab = 'runelab'
+// 丹药工坊
+const kLocationKindAcademyLab = 'academylab'
+// 幻术祭坛
+const kLocationKindIllusionAltar= 'illusionaltar'
+// 炼魂祭坛
+const kLocationKindPsychicAltar = 'psychicaltar'
+// 卜卦祭坛
+const kLocationKindDivinationAltar = 'divinationaltar'
+// 显圣祭坛
+const kLocationKindTheurgyAltar = 'theurgyaltar'
 
 // number of plain city background count
 const _kCityPlainDevelopment1BackgroundCount = 3
@@ -55,43 +84,33 @@ const _kCityShoreDevelopment2BackgroundCount = 4
 
 struct Location {
   constructor ({
-    category, // 'city', 'building'
-    kind, // 'inland' | 'harbor' | 'island' | 'mountain'
-    terrain,
-    location,
+    isMain = true,
+    category, // 'city', 'site'
+    kind, // 'inland' | 'island'；'home', 'cityhall'
+    atTerrain,
+    atLocation,
     ownerId,
     organizationId,
     name,
     background,
     image,
     isDiscovered = true,
+    isHidden = false,
+    hasDefaultSites = true
   }) {
-    this.entityType = kEntityTypeLocation
     assert(category != null && kind != null)
+
+    this.entityType = kEntityTypeLocation
     this.category = category
+    this.kind = kind
 
     this.createdTimestamp = game.timestamp
-    this.id = crypto.randomNID(length: 6, withTime: true)
+    this.id = crypto.randomNID(withTime: true)
 
-    // 没有category参数时，不自动添加到当前世界
-    if (category) {
-      game.locations[this.id] = this
-    }
+    // 这个据点的子场景，这里只保存id，具体数据和 location 一同保存在 game 上
+    this.sites = []
     
-    if (category == 'location') {
-      assert(terrain != null)
-
-      terrain.locationId = this.id
-      // terrain.caption = location.name
-      // 城市的贴图重叠于地形贴图之上
-      terrain.overlaySprite.sprite = kSpriteCity
-
-      this.terrainIndex = terrain.index
-      this.worldPosition = {
-        left: terrain.left,
-        top: terrain.top,
-      }
-      
+    if (category == 'city') {
       if (name) {
         this.name = name
       } else {
@@ -99,34 +118,9 @@ struct Location {
         do {
           const randomName = generateLocationName(category: this.category)
           this.name = randomName.name
-          conflict = game.locations.values.where((element) =>
+          conflict = world.locations.values.where((element) =>
             element.name == this.name).isNotEmpty
         } while (conflict)
-      }
-    
-      // 这个据点的子场景，这里只保存id，具体数据和 location 一同保存在 game 上
-      this.subsidiaries = []
-      
-      if (background != null) {
-        this.background = background
-      } else {
-        switch (category) {
-          kLocationKindHarbor : {
-            const index = random.nextInt(_kCityShoreDevelopment1BackgroundCount)
-            this.background = 'location/city/city_water_${this.development}_${index}.png'
-          }
-          kLocationKindArcana : {
-            const index = random.nextInt(_kCityMountainDevelopment1BackgroundCount)
-            this.background = 'location/city/city_mountain_${this.development}_${index}.png'
-          }
-          // kLocationKindMirage : {
-
-          // }
-          else : {
-            const index = random.nextInt(_kCityPlainDevelopment1BackgroundCount)
-            this.background = 'location/city/city_plain_${this.development}_${index}.png'
-          }
-        }
       }
       
       // 据点发展度，最高5，初始0
@@ -135,53 +129,62 @@ struct Location {
       this.development = 0
       this.pupulation = random.nextInt(maxPopulationOfLocationDevelopment(0) / 5)
       
-      engine.debug('在 ${terrain.left}, ${terrain.top} 建立了 ${this.name}')
-
-      // 如果是盗贼营地或者洞天福地，则默认不会显示在地图上，并且也不会默认添加民居
-      // 隐藏的洞天会显示为山峰，但隐藏的福地只有被发现后才会出现岛屿，之前就是普通的水面
-      // if (this.category == kLocationKindCity) {
-      Location(category: 'building', kind: kLocationKindCityHall, location: this)
-      Location(category: 'building', kind: kLocationKindResidence, location: this)
-    } else if (category == 'building') {
-      assert(location != null)
-      location.subsidiaries.add(this.id)
+      if (background != null) {
+        this.background = background
+      } else {
+        switch (kind) {
+          kLocationKindIsland, kLocationKindHarbor : {
+            const index = random.nextInt(_kCityShoreDevelopment1BackgroundCount)
+            this.background = 'location/city/city_water_${this.development}_${index}.png'
+          }
+          kLocationKindMountain : {
+            const index = random.nextInt(_kCityMountainDevelopment1BackgroundCount)
+            this.background = 'location/city/city_mountain_${this.development}_${index}.png'
+          }
+          kLocationKindInland: {
+            const index = random.nextInt(_kCityPlainDevelopment1BackgroundCount)
+            this.background = 'location/city/city_plain_${this.development}_${index}.png'
+          }
+        }
+      }
+    } else if (category == 'site') {
+      assert(atLocation != null)
+      atLocation.sites.add(this.id)
       this.name = name ?? engine.locale(kind)
-      
-      this.background = background ?? 'location/site/${category}.png'
-      this.image = image ?? 'location/site/${category}_card.png'
-
-      engine.debug('在 ${location.name} 建立了 ${this.name}')
+      this.background = background ?? 'location/site/${kind}.png'
+      this.image = image ?? 'location/site/${kind}_card.png'
     } else {
       throw 'Invalid location category: [${category}]'
     }
 
+    this.isDiscovered = isDiscovered
+    this.isHidden = isHidden
+    this.hasDefaultSites = hasDefaultSites
+    
     // 建筑的拥有者
     // 住所的owner就是这个住所的主人
     // 如果同时有 ownerId 和 organizationID，意味着这个建筑为非私有
     this.ownerId = ownerId
     // 住所的owner就是这个住所的主人
-    if (this.category == kSiteHome) {
+    if (this.kind == kLocationKindHome) {
       assert(this.ownerId != null)
     }
     // 拥有建筑的门派
     this.organizationId = organizationId
-    // 每月事件刷新时间
-    this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
     // 该据点的事件触发选项
     this.flags = {}
-    this.isDiscovered = isDiscovered
 
     // 大牢中的角色
     // 如果主角自己进入了监牢，则要通过监牢副本才能离开，并且离开后会进入本据点的敌对名单。
     // 另外两种选择是通过说服，或者贿赂离开
     // this.jailedCharacterIds = []
 
+    // 据点的历史
+    this.experienced = []
+
     // 据点和人物类似，也具有物品栏
     this.inventory = {}
     this.materials = MaterialStorage()
-
-    // 据点的历史
-    this.experienced = []
 
     // 为了兼容性，地块的门派没有用organizationId而是用了nationId
     // this.nationId
@@ -198,41 +201,91 @@ struct Location {
     //   organizationIds: [],
     //   // nationIds: [],
     // }
+
+    // isMain == true 时自动添加到当前世界
+    if (isMain) {
+      addLocation(this, atTerrain: atTerrain, atLocation: atLocation)
+    }
   }
 }
 
-function addLocation(loc) {
-  assert(loc?.id != null)
-  engine.debug('向当前世界添加新据点：${loc.name}')
-  game.locations[loc.id] = loc
-  let terrain = getTerrainByWorldPosition(loc.worldPosition.left, loc.worldPosition.top)
-  terrain.locationId = loc.id
+function addLocation(location, { atTerrain, atLocation, updateWorldMap = true }) {
+  assert(!world.locations.containsKey(location.id))
+
+  world.locations[location.id] = location
+
+  if (atLocation == null) {
+    assert(atTerrain != null)
+
+    atTerrain.locationId = location.id
+    
+    location.terrainIndex = atTerrain.index
+    location.worldPosition = {
+      left: atTerrain.left,
+      top: atTerrain.top,
+    }
+
+    if (location.category == 'city') {
+      if (!location.isHidden) {
+        atTerrain.overlaySprite = { sprite: kSpriteCity }
+      }
+      if (location.hasDefaultSites) {
+        Location(category: 'site', kind: kLocationKindCityHall, atLocation: location)
+        Location(category: 'site', kind: kLocationKindResidence, atLocation: location)
+      }
+    }
+
+    if (updateWorldMap) {
+      World.setTerrainCaption(atTerrain.left, atTerrain.top, location.name)
+      World.updateTerrainOverlaySprite(atTerrain.left, atTerrain.top)
+    }
+
+    engine.debug('在 ${world.name} [${atTerrain.left}, ${atTerrain.top}] 建立了 ${location.name}')
+  } else {
+    location.atLocationId = atLocation.id
+
+    engine.debug('在 ${atLocation.name} 建立了 ${location.name}')
+  }
+  
+    
   // terrain.caption = location.name
-  World.setTerrainCaption(loc.worldPosition.left, loc.worldPosition.top, loc.name)
-  terrain.overlaySprite.sprite = kSpriteCity
-  World.updateTerrainOverlaySprite(loc.worldPosition.left, loc.worldPosition.top)
 }
 
-function addLocations(locs: List) {
+function addLocations(locations: List, {worldId, atTerrain, atLocation, updateWorldMap = false }) {
   engine.debug('载入地点数据')
-  for (const loc in locs) {
-    if (loc.nameId) {
-      loc.name = engine.locale(loc.nameId)
+  for (const location in locations) {
+    if (location.nameId) {
+      location.name = engine.locale(location.nameId)
     }
-    game.locations[loc.id] = loc
+    let atWorld = worldId != null ? universe[worldId] : world
+    let atTerrain
+    let atLocation
+    if (location.terrainIndex) {
+      atTerrain = atWorld.terrains[location.terrainIndex]
+    }
+    if (location.atLocationId) {
+      atLocation = world.locations[location.atLocationId]
+    }
+    addLocation(location, atTerrain: atTerrain, atLocation: atLocation, updateWorldMap: updateWorldMap)
   }
 }
 
 function removeLocationById(locationId: string) {
-  let loc = getLocationById(locationId)
-  if (loc != null) {
-    engine.warn('警告：正在移除ID为 [${locationId}] 的据点。')
-    let terrain = getTerrainByWorldPosition(loc.worldPosition.left, loc.worldPosition.top)
-    delete terrain.locationId
-    World.setTerrainCaption(loc.worldPosition.left, loc.worldPosition.top, null)
-    delete terrain.overlaySprite.spriteIndex
-    World.updateTerrainOverlaySprite(loc.worldPosition.left, loc.worldPosition.top)
-    delete game.locations[locationId]
+  let location = getLocationById(locationId)
+  if (location != null) {
+    for (final siteId in location.sites) {
+      removeLocationById(siteId)
+    }
+    engine.warn('警告：正在移除场景 [${location.name}]')
+    if (location.category == 'city' && location.isDiscovered) {
+      assert(location.terrainIndex != null)
+      const terrain = world.terrains[location.terrainIndex]
+      delete terrain.locationId
+      World.setTerrainCaption(terrain.left, terrain.top, null)
+      delete terrain.overlaySprite
+      World.updateTerrainOverlaySprite(terrain.left, terrain.top)
+    }
+    delete world.locations[locationId]
   }
 }
 
@@ -257,43 +310,40 @@ function increaseLocationPopulationPerMonth(location) {
 }
 
 function setCharacterLocationId(character, locationId: string) {
-  assert(game.locations.containsKey(locationId))
+  assert(world.locations.containsKey(locationId))
   // clearCharacterLocation(character)
   character.locationId = locationId
 }
 
-function setCharacterSiteId(character, siteId: string) {
-  if (!character.locationId) {
-    engine.error('could not set siteId while character is not at any location.')
-    return
-  }
-  const location = game.locations[character.locationId]
-  assert(location.sites.containsKey(siteId))
-  character.siteId = siteId
-}
+// function setCharacterSiteId(character, siteId: string) {
+//   if (!character.locationId) {
+//     engine.error('could not set siteId while character is not at any location.')
+//     return
+//   }
+//   const location = world.locations[character.locationId]
+//   assert(location.sites.containsKey(siteId))
+//   character.siteId = siteId
+// }
 
 function getLocationById(id: string) {
-  return game.locations[id]
+  return world.locations[id]
 }
 
-function getLocations([ids]) {
+function getLocations({ids, worldId}) {
+  let atWorld = worldId != null ? universe[worldId] : world
   if (ids != null) {
     assert(ids.isNotEmpty)
-    return game.locations.values.where( (value) => value.id in ids )
+    return atWorld.locations.values.where( (value) => value.id in ids )
   } else {
-    return game.locations.values
+    return atWorld.locations.values
   }
 }
 
-function getLocationByWorldPosition(left, top) {
-  const tile = world.terrains[tilePos2Index(left, top, world.width)]
+function getLocationByWorldPosition(left, top, {worldId}) {
+  let atWorld = worldId != null ? universe[worldId] : world
+  const tile = atWorld.terrains[tilePos2Index(left, top, atWorld.width)]
   if (tile.locationId)
-  return game.locations[tile.locationId]
-}
-
-function getLocationSiteById(location, siteId: string) {
-  assert(location.sites.containsKey(siteId) || siteId)
-  return location.sites[siteId]
+  return atWorld.locations[tile.locationId]
 }
 
 function discoverLocation(location) {
@@ -301,10 +351,10 @@ function discoverLocation(location) {
   engine.debug('发现新据点：${location.name}')
   location.isDiscovered = true
   World.setTerrainCaption(location.worldPosition.left, location.worldPosition.top, location.name)
-  if (location.category == kLocationKindArcana || location.category == kLocationKindMirage) {
+  if (location.isHidden) {
     const tile = world.terrains[location.terrainIndex]
     // tile.spriteIndex = kSpriteLand
-    tile.overlaySprite.sprite = kSpriteCity
+    tile.overlaySprite = { sprite: kSpriteCity }
     // World.setWorldMapSprite(location.worldPosition.left, location.worldPosition.top, kSpriteLand)
     World.updateTerrainOverlaySprite(location.worldPosition.left, location.worldPosition.top)
   }

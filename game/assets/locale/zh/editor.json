@@ -5,11 +5,13 @@
   "addWorld": "添加新地图",
   "addSite": "添加建筑",
   "switchWorld": "切换地图",
+  "deleteWorld": "删除地图",
   "expandWorld": "扩大地图",
 
   "objectIdNonExist": "对象 [{0}] 不存在！",
 
   "isDiscovered": "是否已被发现",
+  "addDefaultSubsidiaries": "添加城镇默认场景",
   "isMainWorld": "是否是主世界",
 
   "checkInformation": "查看信息",
@@ -20,7 +22,7 @@
 
   "gameEntity": "游戏对象",
   "createCharacter": "创建人物",
-  "createLocation": "创建据点",
+  "createLocation": "创建场景",
   "createOrganization": "创建门派",
   "createZone": "创建区域",
   "createObject": "创建对象",
@@ -28,15 +30,15 @@
   "clearObject": "清除对象",
   "clearDecoration": "清除装饰",
 
+  "selectedTilePrompt": "需要先选择一个地块。",
+
   "inputObjectSource": "输入脚本对象 (JSON5)",
 
   "setAsHero": "设置为主角",
   "clearWorldMapPosition": "清除大地图位置",
   "setWorldMapPosition": "设置大地图位置",
-  "clearLocation": "清除所处据点",
-  "setLocation": "设置所处据点",
-  "clearLocationSite": "清除所处场所",
-  "setLocationSite": "设置所处场所",
+  "clearLocation": "清除所处场景",
+  "setLocation": "设置所处场景",
   "checkProfile": "查看详情",
   "checkEventFlags": "查看自定义事件标记",
   "checkEquipments": "查看装备",

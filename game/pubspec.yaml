@@ -89,7 +89,8 @@ flutter:
     - assets/images/cultivation/skill/
     - assets/images/cultivation/time/
     - assets/images/cg/
-    - assets/images/cg/ch01/
+    - assets/images/cg/chapter0/
+    - assets/images/cg/chapter1/
     - assets/images/icon/
     - assets/images/icon/skill/
     - assets/images/icon/status/

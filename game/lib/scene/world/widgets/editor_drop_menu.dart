@@ -9,6 +9,7 @@ import '../../../ui.dart';
 enum WorldEditorDropMenuItems {
   addWorld,
   switchWorld,
+  deleteWorld,
   expandWorld,
   save,
   saveAs,
@@ -30,6 +31,10 @@ List<PopupMenuEntry<WorldEditorDropMenuItems>> buildWorldEditorDropMenuItems() {
     buildMenuItem(
       item: WorldEditorDropMenuItems.switchWorld,
       name: engine.locale('switchWorld'),
+    ),
+    buildMenuItem(
+      item: WorldEditorDropMenuItems.deleteWorld,
+      name: engine.locale('deleteWorld'),
     ),
     buildMenuItem(
       item: WorldEditorDropMenuItems.expandWorld,

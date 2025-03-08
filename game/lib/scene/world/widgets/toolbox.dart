@@ -153,17 +153,22 @@ class _ToolboxState extends State<Toolbox> {
                                   ),
                                   buildToolButton(
                                     context,
-                                    'farmfield',
-                                    selectedItem: item,
-                                  ),
-                                  buildToolButton(
-                                    context,
                                     'forest',
                                     selectedItem: item,
                                   ),
                                   buildToolButton(
                                     context,
                                     'mountain',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'farmfield',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'seashelf',
                                     selectedItem: item,
                                   ),
                                   buildToolButton(

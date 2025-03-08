@@ -64,7 +64,7 @@ struct Incident {
 
     let location
     if (locationId) {
-      location = game.locations[locationId]
+      location = world.locations[locationId]
       entityExperiencedIncident(location, this)
     }
 

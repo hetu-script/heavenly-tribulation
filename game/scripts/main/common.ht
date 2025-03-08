@@ -2,3 +2,9 @@
 const kLevelPerRank = 10
 
 const kOrthogonalDirections = ['north', 'east', 'south', 'west']
+
+const kWaterTerrains = ['sea', 'river', 'lake', 'seashelf']
+
+const kPlainTerrains = ['plain', 'forest']
+
+const kMountainTerrains = ['mountain']

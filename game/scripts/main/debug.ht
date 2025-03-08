@@ -71,7 +71,7 @@ namespace Debug {
     const terrainIndex = tilePos2Index(position.left, position.top, world.width)
     const terrain = world.terrains[terrainIndex]
     if (terrain.locationId) {
-      const location = game.locations[terrain.locationId]
+      const location = world.locations[terrain.locationId]
       return location
     }
   }
@@ -79,7 +79,7 @@ namespace Debug {
   function updateAllCaptions() {
     for (const tile in world.terrains) {
       if (tile.locationId) {
-        const location = game.locations[tile.locationId]
+        const location = world.locations[tile.locationId]
         World.setTerrainCaption(tile.left, tile.top, location.name)
       } else if (tile.objectId) {
         World.setTerrainCaption(tile.left, tile.top, tile.objectId)
@@ -98,5 +98,17 @@ namespace Debug {
     // acquire(merchant, Consumable.medicine(), count: 20)
     // acquire(merchant, Consumable.beverage(), count: 20)
     // dialog.merchant(merchant)
+  }
+
+  function skipStoryChapter0() {
+    game.modules.tutorial.flags = {
+      checkPoint1: true,
+      checkPoint2: true,
+      checkPoint3: true,
+      checkPoint4: true,
+      checkPoint5: true,
+    }
+
+    Player.setTo(6, 2, direction: 'south')
   }
 }

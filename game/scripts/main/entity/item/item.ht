@@ -38,7 +38,7 @@ struct Equipment {
     assert(kind != null)
     this.kind = kind;
 
-    this.id = crypto.randomNID(length: 6, withTime: true)
+    this.id = crypto.randomNID(withTime: true)
     this.name = generateTalismanName(kind: this.kind)
     this.flavortext = engine.locale('item_${this.kind}_flavortext')
 
@@ -131,7 +131,7 @@ function createItemById(itemId) {
   //     item.isCreated = true
   //   }
   // }
-  item.id = crypto.randomNID(length: 6, withTime: true)
+  item.id = crypto.randomNID(withTime: true)
   item.entityType = kEntityTypeItem
   item.name = engine.locale(item.name)
   item.flavortext = engine.locale('item_${itemId}_flavortext')
@@ -174,7 +174,7 @@ function entityCollectById(entity, materialId: string, { amount = 1, incurIncide
     amount,
     engine.locale(materialId),
   ])
-  if (entity.isMajorCharacter && incurIncident) {
+  if (entity.isMain && incurIncident) {
     Incident(
       message: incidentContent,
       subjectId: entity.id,
@@ -198,7 +198,7 @@ function entityDropById(entity, materialId: string, { amount = 1, incurIncident 
     amount,
     engine.locale(materialId),
   ])
-  if (entity.isMajorCharacter && incurIncident) {
+  if (entity.isMain && incurIncident) {
     Incident(
       message: incidentContent,
       subjectId: entity.id,
@@ -256,7 +256,7 @@ function entityAcquire(entity, item, { incurIncident = true }) {
     entity.name,
     item.name,
   ])
-  if (entity.isMajorCharacter && incurIncident) {
+  if (entity.isMain && incurIncident) {
     Incident(
       message: incidentContent,
       subjectId: entity.id,
@@ -277,7 +277,7 @@ function entityLose(entity, item, { incurIncident = true }) {
     entity.name,
     item.name,
   ])
-  if (entity.isMajorCharacter && incurIncident) {
+  if (entity.isMain && incurIncident) {
     Incident(
       message: incidentContent,
       subjectId: entity.id,
@@ -386,11 +386,11 @@ function entityLose(entity, item, { incurIncident = true }) {
 //     let subjectIds
 //     let objectIds
 //     if (isForced) {
-//       subjectIds = entity.isMajorCharacter ? [entity.id] : null
-//       objectIds = target.isMajorCharacter ? [target.id] : null
+//       subjectIds = entity.isMain ? [entity.id] : null
+//       objectIds = target.isMain ? [target.id] : null
 //     } else {
-//       subjectIds = target.isMajorCharacter ? [target.id] : null
-//       objectIds = entity.isMajorCharacter ? [entity.id] : null
+//       subjectIds = target.isMain ? [target.id] : null
+//       objectIds = entity.isMain ? [entity.id] : null
 //     }
 //     Incident(
 //       message: incidentContent,

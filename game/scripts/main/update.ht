@@ -123,29 +123,14 @@ function updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
       // }
     }
 
-    // 对于每个游戏中的单位，每个月执行的代码随机分布在一个月中的某一天，这是为了让游戏不会在某一天集中运算而卡住。
-    
-    // 每一个野外地块，每个月固定时间会随机刷新一个野外遭遇
-    // 野外遭遇包括NPC事件、随机副本等等
-    // for (const terrain in world.terrains) {
-    //   if (ticksOfMonth == terrain.monthlyUpdateTime) {
-    //     updateTerrain(terrain)
-    //   }
-    // }
-
     // 每个建筑，每个月会根据其属性而支付费用和获得收入，费用和收入可能是各种资源
     // 商店类建筑会刷新物品和银两
     // 刷新任务，无论之前的任务是否还存在，非组织拥有的第三方建筑每个月只会有一个任务
-    for (const location of game.locations) {
-      for (const site of location.sites) {
-        if (ticksOfMonth == site.monthlyUpdateTime) {
-          updateSite(site)
-        }
+    for (const location of world.locations) {
+      // 月度事件
+      if (game.timestamp % kTicksPerMonth == 0) {
+        updateLocation(location)
       }
-      // 据点会进行稳定度的变化、人口的增长等
-      // if (ticksOfMonth == location.monthlyUpdateTime) {
-      //   updateLocation(location)
-      // }
     }
 
     // const heroOrganization = getHeroOrganization()
@@ -155,7 +140,7 @@ function updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
       // 跳过玩家自己控制的组织
       if (game.heroId == organization.headId) continue
 
-      const location = game.locations[organization.headquartersId]
+      const location = world.locations[organization.headquartersId]
       if (month == organization.yearlyRecruitMonth) {
         organization.flags.isRecruiting = true
         engine.debug('${organization.id} 的招募大比本月开始。')
@@ -166,30 +151,38 @@ function updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
         }
       }
 
+      // 月度事件
+      // if (game.timestamp % kTicksPerMonth == 0) {
+      //   updateOrganizationMonthly(organization)
+      // }
+
       // 年度事件
       if (ticksOfYear == organization.yearlyUpdateTime) {
         updateOrganizationYearly(organization)
       }
-
-      //   // 月度事件
-      //   if (ticksOfMonth == organization.monthlyUpdateTime) {
-      //     updateOrganizationMonthly(organization)
-      //   }
     }
     
     // 触发每个角色的刷新事件
     // for (const character of game.characters) {
     //   // 跳过玩家自己控制的角色
     //   if (game.heroId != null && game.heroId == character.id) continue
-
-    //   // 据点会进行稳定度的变化、人口的增长等
-    //   if (ticksOfMonth == character.monthlyUpdateTime) {
+    //   // 月度事件
+    //   if (game.timestamp % kTicksPerMonth == 0) {
     //     updateCharacter(character)
     //   }
     // }
+      
+    // 每一个野外地块，每个月固定时间会随机刷新一个野外遭遇
+    // 野外遭遇包括NPC事件、随机副本等等
+    // for (const terrain in world.terrains) {
+    //   if (game.timestamp % kTicksPerMonth == 0) {
+    //     updateTerrain(terrain)
+    //   }
+    // }
 
+
+    // 玩家事件
     if (playerEvent) {
-      // 触发一些玩家遇到的固定事件
       if (game.timestamp % kTicksPerMonth == 0) {
         // 重置玩家自己的每月行动
         resetPlayerMonthlyActivities()
@@ -217,7 +210,7 @@ function handleBabies {
     if (!mother.isDead) {
       mother.isPregnant = false
       assert(mother.locationId != null)
-      const location = game.locations[mother.locationId]
+      const location = world.locations[mother.locationId]
       const character = Character(
         familyName: baby.familyName,
         shorname: baby.shorname,
@@ -241,17 +234,16 @@ function updateTerrain(terrain) {
 }
 
 // 刷新资源、生成每月任务
-function updateSite(site) {
-  const location = game.locations[site.locationId]
-  engine.debug('触发 ${location.id} ${site.id} 的月度更新事件')
-  switch (site.category) {
+function updateLocation(location) {
+  engine.debug('触发 ${location.name} 的月度更新事件')
+  switch (location.category) {
     'tradinghouse' : {
     //   // 清除上个月的数据
     //   site.workedThisMonth = false
     //   site.quests = {}
     //   // 商号的运送任务都是普通物品，并且送到指定地点而非人物
-    //   const destinationId = random.nextIterable(game.locations.keys)
-    //   const destination = game.locations[destinationId]
+    //   const destinationId = random.nextIterable(world.locations.keys)
+    //   const destination = world.locations[destinationId]
     //   const destinationSiteId = random.nextIterable(destination.sites.keys)
     //   const distance = getTileDistance(location.tilePosition, destination.tilePosition)
     //   const quest = QuestDelivery(
@@ -306,11 +298,6 @@ function updateSite(site) {
   }
 }
 
-function updateLocation(location) {
-  engine.debug('触发 ${location.id} 的月度更新事件')
-
-}
-
 // 年度组织事件
 function updateOrganizationYearly(organization) {
   engine.debug('触发 ${organization.id} 的年度更新事件')
@@ -349,13 +336,13 @@ function updateOrganizationYearly(organization) {
     // }
   }
   
-  let location = game.locations[organization.headquartersId]
+  let location = world.locations[organization.headquartersId]
   let residingCharacters = getCharactersByHomeId(location.id)
 
   if (residingCharacters.isEmpty) {
     // 组织据点本身没有可用的人才（一般是因为是隐士据点）
     if (random.nextDouble() < kOrganizationRecruitOtherLocationProbability) {
-      for (const otherLocation of game.locations) {
+      for (const otherLocation of world.locations) {
         if (otherLocation.id == organization.headquartersId) continue
         residingCharacters = getCharactersByHomeId(otherLocation.id)
         if (residingCharacters.isNotEmpty) {

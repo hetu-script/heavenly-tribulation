@@ -5,6 +5,7 @@
 import '../entity.ht'
 import '../item/material.ht'
 import '../../cardgame/card.ht'
+import '../../common.ht'
 
 // number of the male avatar images
 const _kMaleAvatarCount = 37
@@ -39,7 +40,7 @@ const kRaceNames = [
 struct BattleEntity {
   constructor ({
     id,
-    isMajorCharacter = true,
+    isMain = true,
     isFemale,
     race,
     icon,
@@ -91,7 +92,7 @@ struct BattleEntity {
           familyName: familyName,
           middleName: middleName,
         )
-        if (isMajorCharacter) {
+        if (isMain) {
           conflict = game.characters.values.where((element) =>
             element.name == randomName.name).isNotEmpty
         }
@@ -110,7 +111,7 @@ struct BattleEntity {
     this.id = id ?? this.name
     
     // 非主角色不参与 update, interact 等逻辑交互，也不会自动显示在地图或场景中。
-    this.isMajorCharacter = isMajorCharacter ?? false
+    this.isMain = isMain ?? false
 
     this.description = description ?? ''
 
@@ -257,11 +258,11 @@ function getCharacterStats(character) {
 }
 
 function getCharacterMovableTerrainKinds(character) {
-  let kinds = ['plain', 'forest']
+  let kinds = kPlainTerrains.toList()
   let movableOnWater = getCharacterMoveCostOnWater(character)
-  if (movableOnWater) kinds.addAll(['sea', 'lake'])
+  if (movableOnWater) kinds.addAll(kWaterTerrains)
   let movableOnHill = getCharacterMoveCostOnHill(character)
-  if (movableOnHill) kinds.addAll(['mountain'])
+  if (movableOnHill) kinds.addAll(kMountainTerrains)
   return kinds
 }
 
@@ -342,27 +343,3 @@ function generateDeck(character, { deckInfo }) {
   engine.info('generated deck: [${deck.map((card) => card.name).join(', ')}]')
 }
 
-function generateEnemey({
-  id,
-  name,
-  icon,
-  race,
-  isFemale,
-  level,
-  rank,
-}) {
-  final enemy = BattleEntity(
-    id: id,
-    name: name,
-    icon: icon,
-    race: race,
-    isFemale: isFemale,
-    isMajorCharacter: false,
-    cultivationLevel: level,
-    cultivationRank: rank,
-  )
-  engine.info('generated enemy: ${enemy.name}')
-  generateDeck(enemy)
-
-  return enemy
-}

@@ -15,9 +15,9 @@
   "water_description": "清水：凡人生活必须的材料。另外也是炼丹、灵植等需要的材料",
   "water_package": "一壶清水",
 
-  "stone": "石材",
-  "stone_package": "一堆石材",
-  "stone_description": "石材：从山林中开采出的石块，用作建筑材料和部分打造材料。",
+  "stone": "石料",
+  "stone_package": "一堆石料",
+  "stone_description": "石料：从山林中开采出的石块，用作建筑材料和部分打造材料。",
 
   "ore": "矿物",
   "ore_description": "矿物：包含金属元素的矿物，是炼器和炼丹需要的材料。",

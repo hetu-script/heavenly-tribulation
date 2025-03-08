@@ -13,6 +13,7 @@ import '../entity/entity.ht'
 import '../entity/organization/organization.ht'
 import '../event.ht'
 import '../colors.ht'
+import '../common.ht'
 
 const kSearchSuccessProbability = 0.25
 
@@ -241,9 +242,9 @@ function onBeforeHeroMove(terrain) {
   if (terrain.kind in movableTerrainKinds) {
     return movableTerrainKinds
   } else {
-    if ((terrain.kind == 'sea' || terrain.kind == 'lake')) {
+    if (kWaterTerrains.contains(terrain.kind)) {
       Dialog.localeLines('hint.ship')
-    } else if ((terrain.kind == 'mountain')) {
+    } else if (kMountainTerrains.contains(terrain.kind)) {
       Dialog.localeLines('hint.boots')
     }
     return null
@@ -252,14 +253,14 @@ function onBeforeHeroMove(terrain) {
 
 function senseTerrain(terrain) -> bool {
   if (terrain.locationId) {
-    const location = game.locations[terrain.locationId]
+    const location = world.locations[terrain.locationId]
     if (location.isDiscovered) {
       World.enterLocation(location)
     } else {
       Dialog.localeLines('hint.sensedUndiscovered', isHero: true)
     }
   } else if (terrain.objectId) {
-    const object = game.objects[terrain.objectId]
+    const object = world.objects[terrain.objectId]
     if (object.isDiscovered) {
       onInteractObject(object, terrain)
     } else {
@@ -283,7 +284,7 @@ function onAfterHeroMove(terrain, nonEnterableDestination) {
 function onBeforeHeroEnterLocation(location) async {
   if (!location.isDiscovered) {
     // TODO: 第一次发现据点事件
-    if (location.category == kLocationKindArcana || location.category == kLocationKindMirage) {
+    if (location.isHidden) {
       Dialog.localeLines(['sensedUndiscovered'], isHero: true)
     } else {
       discoverLocation(location)
@@ -464,12 +465,12 @@ function onInteractTerrain(terrain) {
         let undiscoveredLocation
         let undiscoveredObject
         if (terrain.locationId) {
-          const location = game.locations[terrain.locationId]
+          const location = world.locations[terrain.locationId]
           if (!location.isDiscovered) {
             undiscoveredLocation = location
           }
         } else if (terrain.objectId) {
-          const object = game.objects[terrain.objectId]
+          const object = world.objects[terrain.objectId]
           if (!object.isDiscovered) {
             undiscoveredObject = object
           }
@@ -906,12 +907,17 @@ async function onInteractPortal(object) {
   engine.play('magic-smite-6012.mp3')
   await Future.delayed(0.4)
   Player.setTo(object.targetTilePosition.left, object.targetTilePosition.top)
-  onWorldEvent('onAfterHeroMove', object.targetTilePosition.left, object.targetTilePosition.top)
 }
 
-function onInteractWorldPortal(object) {
-  World.switchWorld(object.worldId)
+async function onInteractWorldPortal(object) {
+  assert(universe.containsKey(object.worldId))
+  Dialog.start()
+  Dialog.pushBackground('black.png', fadeIn: true)
+  engine.play('magic-smite-6012.mp3')
+  await Future.delayed(0.4)
   Player.setTo(object.targetTilePosition.left, object.targetTilePosition.top, worldId: object.worldId, direction: 'south')
+  World.switchWorld(object.worldId)
+  Dialog.end()
 }
 
 async function onInteractTreasureBox(object, terrain) {
@@ -999,26 +1005,26 @@ function onAfterHeroEnterSite(location, site) async {
     // 'residence' : await _handleResidenceInteraction(site)
     'home' : await _handleHomeInteraction(site)
     'cityhall' : await _handleCityHallInteraction(site)
-    'library' : await _handleLibraryInteraction(site)
     'arena' : await _handleArenaInteraction(site)
+    'library' : await _handleLibraryInteraction(site)
     'tradinghouse' : await _handleTradingHouseInteraction(site)
     'auctionhouse' : await _handleAuctionHouseInteraction(site)
 
     'mine' : await _handleMineInteraction(site)
     'timberland' : await _handleTimberlandInteraction(site)
     'farmland' : await _handleFarmlandInteraction(site)
-    'canal' : await _handleCanalInteraction(site)
-    'fishmarket' : await _handleFishMarketInteraction(site)
-    'arraylab' : await _handleArraylabInteraction(site)
-    'runehouse' : await _handleRunehouseInteraction(site)
-    'alchemylab' : await _handleAlchemyLabInteraction(site)
-    'workshop' : await _handleWorkshopInteraction(site)
+    'fishery' : await _handleFisheryInteraction(site)
     'nursery' : await _handleNurseryInteraction(site)
     'zoo' : await _handleZooInteraction(site)
-    'illusionhouse' : await _handleIllusionHouseInteraction(site)
-    'psychichouse' : await _handlePsychicHouseInteraction(site)
-    'divinationhouse' : await _handleDivinationHouseInteraction(site)
-    'theurgyhouse' : await _handleTheurgyHouseInteraction(site)
+
+    'workshop' : await _handleWorkshopInteraction(site)
+    'arraylab' : await _handleArraylabInteraction(site)
+    'runelab' : await _handleRunehouseInteraction(site)
+    'alchemylab' : await _handleAlchemyLabInteraction(site)
+    'illusionaltar' : await _handleIllusionHouseInteraction(site)
+    'psychicaltar' : await _handlePsychicHouseInteraction(site)
+    'divinationaltar' : await _handleDivinationHouseInteraction(site)
+    'theurgyaltar' : await _handleTheurgyHouseInteraction(site)
     else : engine.error('未知的建筑类型 (category)：${site.category}。[${site.id}]')
   }
 }
@@ -1148,7 +1154,7 @@ function _handleCityHallInteraction(site) async {
 }
 
 function _handleHeadquartersInteraction(site) {
-  const location = game.locations[site.locationId]
+  const location = world.locations[site.locationId]
   Dialog.localeSelect([
     'practice',
     'learn',
@@ -1183,16 +1189,16 @@ function _handleHeadquartersInteraction(site) {
   })
 }
 
-function _handleLibraryInteraction(site) {
-
-}
-
 function _handleArenaInteraction(site) {
 
 }
 
+function _handleLibraryInteraction(site) {
+
+}
+
 function _handleBountyhouseInteraction(site) {
-  const location = game.locations[site.locationId]
+  const location = world.locations[site.locationId]
   // const selections = [
   //   'appeal',
   //   'tribute',
@@ -1312,12 +1318,12 @@ function _handleBountyhouseInteraction(site) {
   // })
 }
 
-// 货栈，可以在这里交易材料
+// 交易所，可以在这里交易材料
 // 打工可以提升本地声望
 // 将指定数量的材料运送到另一个城市，但途中可能会遇到劫匪或风暴，风暴会耽误时间。
 // 没有提交足够数量的材料或者超过时间都会算作失败。
 function _handleTradingHouseInteraction(site) {
-  const location = game.locations[site.locationId]
+  const location = world.locations[site.locationId]
   Dialog.localeSelect([
     'trade',
     'work',
@@ -1363,68 +1369,4 @@ function _handleTradingHouseInteraction(site) {
       }
     }
   })  
-}
-
-function _handleAuctionHouseInteraction(site) {
-
-}
-
-function _handleMineInteraction(site) {
-
-}
-
-function _handleTimberlandInteraction(site) {
-
-}
-
-function _handleFarmlandInteraction(site) {
-
-}
-
-function _handleCanalInteraction(site) {
-
-}
-
-function _handleFishMarketInteraction(site) {
-
-}
-
-function _handleArraylabInteraction(site) {
-
-}
-
-function _handleRunehouseInteraction(site) {
-
-}
-
-function _handleAlchemyLabInteraction(site) {
-
-}
-
-function _handleWorkshopInteraction(site) {
-
-}
-
-function _handleNurseryInteraction(site) {
-
-}
-
-function _handleZooInteraction(site) {
-
-}
-
-function _handleIllusionHouseInteraction(site) {
-
-}
-
-function _handlePsychicHouseInteraction(site) {
-
-}
-
-function _handleDivinationHouseInteraction(site) {
-
-}
-
-function _handleTheurgyHouseInteraction(site) {
-
 }

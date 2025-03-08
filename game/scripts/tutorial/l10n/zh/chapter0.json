@@ -45,18 +45,28 @@
 
   "prelude.ling.line6": "下一个房间应该就是出口了。我们要赶快行动才行。",
 
-  "prelude.enemy.line1": "站住！\n是人族？你们怎么会进入我们紫河宗的「<yellow>蚀骨洞天</>」？",
-
+  "prelude.enemy.line1": "是人族？你们怎么会进入我们紫河宗的「<yellow>蚀骨洞天</>」？",
   "prelude.battleStart.line1": "既然你们违反本门规矩在先，我这就送你们上路吧！",
   "prelude.battleStart.line2": "这位姑娘，我也不知道你为何会出现在这里，但既然你我都是凡族，我就帮你一次。你先走吧，我来应付这个家伙。",
+  "prelude.battleStart.line3": "………………",
   "prelude.battleEnd.line1": "哈哈，看你刚才口气那么大，还以为你有什么本事呢。原来你连<yellow>凝气</>都还未入门。",
-  "prelude.battleEnd.line2": "谁有兴趣和你在这打架，你看看我现在在哪。",
+  "prelude.battleEnd.line2": "谁有兴趣和你打架，你看我现在在哪？",
   "prelude.battleEnd.line3": "你是什么时候……\n罢了罢了，我们老大让我在这等他，我可没工夫陪你玩躲猫猫。\n抓住这个女娃子也算可以交差了。",
-  "prelude.battleEnd.line4": "你这才发现那个神秘的女孩仍然呆立在原地没动。你的心中一惊，她怎么没有逃走？\n而且她的神情十分冷静，似乎并不害怕。她看上去和自己一样，同样没有修炼的痕迹。她要做什么？",
+  "prelude.battleEnd.line4": "那个神秘的女孩仍然呆立在原地没动。你的心中一惊，她怎么没有逃走？\n而且她的神情十分冷静，似乎并不害怕。",
 
   "prelude.worldPortal1.line1": "我现在还不能离开，要先救出那个女孩。",
   "prelude.worldPortal1.line2": "你内心深处有种说不清楚的预感，那个神秘的女孩可能十分重要。",
 
-  "prelude.battle2Start.line1": "你这是<yellow>悟道</>功法，你这女娃难道是<yellow>白鹤派</>的人？",
-  "prelude.battle2Start.line2": "…………"
+  "prelude.battle2Start.line1": "你这是<yellow>悟道</>功法，你这女娃是<yellow>白鹤派</>的人？",
+  "prelude.battle2Start.line2": "………………",
+
+  "prelude.battle2End.line1": "好小子，你们<yellow>白鹤派</>也欺人太甚。这洞天按照协议明明是我们的底盘，你们还要来染指是吗？\n你们在这里等着，我去叫我们大哥来给你们点颜色瞧瞧！",
+
+  "prelude.battle2End.line2": "你原来是白鹤派的修士……话说你叫什么名字？",
+
+  "prelude.battle2End.line3": "………………",
+
+  "prelude.battle2End.line4": "她摇了摇头没有说话。刚才的战斗似乎消耗了她很多精力。\n你注意到她身上那诡异的黑色脉络这会儿似乎变得更加粗大了。\n她摸了摸自己的伤口，眼睛一闭，就此昏了过去。",
+
+  "prelude.battle2End.line5": "糟糕，这里随时可能坍塌，得快点离开这里……没办法，先背着她出去吧。"
 }

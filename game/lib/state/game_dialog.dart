@@ -48,6 +48,7 @@ class GameDialogState with ChangeNotifier {
 
   void end() {
     isStarted = false;
+    prevScene = null;
     illustrations.clear();
     scenes.clear();
     notifyListeners();

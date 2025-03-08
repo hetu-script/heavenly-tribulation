@@ -1,11 +1,13 @@
 import '../entity.ht'
 
+// 原料：谷物、禽肉，兽肉，鱼肉，原木，石料，矿石草药
+// 加工品：
+
 struct MaterialStorage {
   constructor {
     this.money = 0;
     this.jade = 0;
     this.food = 0;
-    this.water = 0;
     this.stone = 0;
     this.ore = 0;
     this.timber = 0;

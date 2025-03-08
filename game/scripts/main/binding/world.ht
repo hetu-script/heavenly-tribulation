@@ -27,6 +27,8 @@ namespace World {
   external async function updateNpcsInHeroWorldMapPosition()
 
   external async function updateNpcsInHeroLocation()
+  
+  external async function updateWorldMapLocations()
 
   external function addHintText(text, left, top, [color])
 

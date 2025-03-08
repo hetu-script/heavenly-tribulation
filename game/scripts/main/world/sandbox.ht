@@ -186,12 +186,12 @@ function createSandboxWorld({
   }
 
   function find2NearestLocation(origin, {restricted2Zone: bool = true}) {
-    assert(game.locations.length > 0)
+    assert(world.locations.length > 0)
     let nearest
     let nearestDistance
     let secondNearest
     let secondNearestDistance
-    for (const location of game.locations) {
+    for (const location of world.locations) {
       if (location.terrainIndex == origin.terrainIndex) {
         continue
       } else {
@@ -256,7 +256,7 @@ function createSandboxWorld({
   // 生成据点
   engine.debug('生成大陆上的据点')
   const locationIndexes = Set()
-  while (game.locations.length < locationNumber) {
+  while (world.locations.length < locationNumber) {
     // let index
     let terrain
     do {
@@ -280,9 +280,9 @@ function createSandboxWorld({
     // }
 
     // 随机为据点添加一些初始建筑和对应的物品
-    // 初始时、根据发展度，可能会有货栈（1）、拍卖行（2）
+    // 初始时、根据发展度，可能会有交易所（1）、拍卖行（2）
     if (location.development > 0 && random.nextDouble() < _kSiteTradinghouseProbability) {
-      const site = Location(category: 'building', kind: kSiteTradingHouse, location: location)
+      const site = Location(category: 'site', kind: kSiteTradingHouse, atLocation: location)
       // site.money = _kNpcStoreInitialMoney + random.nextInt(_kNpcStoreInitialMoney)
       // const money = _kNpcStoreInitialMoney + random.nextInt(_kNpcStoreInitialMoney)
       // acquireMoney(site, money)
@@ -296,7 +296,7 @@ function createSandboxWorld({
       // acquire(site, Material.ore(), count: 20)
     }
     if (location.development > 1 && random.nextDouble() < _kSiteWorkshopProbability) {
-      const site = Location(category: 'building', kind: kSiteAuctionHouse, location: location)
+      const site = Location(category: 'site', kind: kSiteAuctionHouse, atLocation: location)
       // site.money += _kNpcStoreInitialMoney + random.nextInt(_kNpcStoreInitialMoney)
       // // 武器、盾牌
       // acquire(site, Weapon())
@@ -313,7 +313,7 @@ function createSandboxWorld({
   }
 
   engine.debug('确保陆地上的每个城市至少可以链接到另外两个城市')
-  for (const location of game.locations) {
+  for (const location of world.locations) {
     const start = world.terrains[location.terrainIndex]
     // 确保陆地上的每个城市至少可以链接到另外两个城市
     if (start.zoneCategory == kZoneLand) {
@@ -411,8 +411,8 @@ function createSandboxWorld({
     let location
     do {
       // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
-      const locationId = random.nextIterable(game.locations.keys)
-      location = game.locations[locationId]
+      const locationId = random.nextIterable(world.locations.keys)
+      location = world.locations[locationId]
     } while (location.organizationId != null)
     // engine.debug('picking location for new nation capital: ${location}')
     const head = Character(
@@ -503,8 +503,8 @@ function createSandboxWorld({
   //         'location' : {
   //           do {
   //             // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
-  //             const headquartersId = random.nextIterable(game.locations.keys)
-  //             headquarters = game.locations[headquartersId]
+  //             const headquartersId = random.nextIterable(world.locations.keys)
+  //             headquarters = world.locations[headquartersId]
   //           } while (headquarters.hasCultivation)
   //         }
   //         'mountain' : {
@@ -576,8 +576,8 @@ function createSandboxWorld({
       // 产生新的在野角色
       if (game.characters.length < characterNumber) {
         // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
-        const id = random.nextIterable(game.locations.keys)
-        const location = game.locations[id]
+        const id = random.nextIterable(world.locations.keys)
+        const location = world.locations[id]
         const character = Character(
           locationId: location.id,
           birthTimestamp: createRandomBirthTimestamp(min: 15, max: 50),
@@ -628,14 +628,14 @@ function createSandboxWorld({
                 characterFirstMet(char, otherChar)
                 let home
                 if (char.organizationRank < otherChar.organizationRank) {
-                  home = game.locations[char.homeId]
+                  home = world.locations[char.homeId]
                 } else if (char.organizationRank > otherChar.organizationRank) {
-                  home = game.locations[otherChar.homeId]
+                  home = world.locations[otherChar.homeId]
                 } else {
                   if (otherChar.isFemale) {
-                    home = game.locations[char.homeId]
+                    home = world.locations[char.homeId]
                   } else {
-                    home = game.locations[otherChar.homeId]
+                    home = world.locations[otherChar.homeId]
                   }
                 }
                 char.relationships.spouseId = otherId

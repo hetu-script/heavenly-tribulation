@@ -9,7 +9,7 @@ struct DialogContentData {
   constructor({
     character,
     characterId,
-    displayNameLocaleKey,
+    displayNameId,
     displayName,
     icon,
     isHero: bool,
@@ -25,7 +25,7 @@ struct DialogContentData {
       final heroHaveMetChar = haveMet(hero, character)
       if (heroHaveMetChar) {
         this.displayName = hideName ? '???' :
-          (displayNameLocaleKey ? engine.locale(displayNameLocaleKey) :
+          (displayNameId ? engine.locale(displayNameId) :
             (displayName ?? character.name))
       } else {
         this.displayName = '???'
@@ -37,11 +37,11 @@ struct DialogContentData {
       assert(hero != null)
       this.characterId = hero.id
       this.displayName = hideName ? '???' :
-        (displayNameLocaleKey ? engine.locale(displayNameLocaleKey) :
+        (displayNameId ? engine.locale(displayNameId) :
         (displayName ?? engine.locale('me')))
       this.icon = hideIcon ? null : icon ?? hero.icon
     } else {
-      this.displayName = displayNameLocaleKey ? engine.locale(displayNameLocaleKey) : displayName
+      this.displayName = displayNameId ? engine.locale(displayNameId) : displayName
       this.icon = icon
     }
     
@@ -128,7 +128,7 @@ namespace Dialog {
   function localeLines(localeKeys, {
     character,
     characterId,
-    displayNameLocaleKey,
+    displayNameId,
     displayName,
     icon,
     isHero: bool,
@@ -141,7 +141,7 @@ namespace Dialog {
       localeKeys: localeKeys,
       character: character,
       characterId: characterId,
-      displayNameLocaleKey: displayNameLocaleKey,
+      displayNameId: displayNameId,
       displayName: displayName,
       icon: icon,
       isHero: isHero,
@@ -156,7 +156,7 @@ namespace Dialog {
     isHero,
     character,
     characterId,
-    displayNameLocaleKey,
+    displayNameId,
     displayName,
     icon,
     hideName,
@@ -169,7 +169,7 @@ namespace Dialog {
       isHero: isHero,
       character: character,
       characterId: characterId,
-      displayNameLocaleKey: displayNameLocaleKey,
+      displayNameId: displayNameId,
       displayName: displayName,
       icon: icon,
       hideName: hideName,

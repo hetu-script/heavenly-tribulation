@@ -39,13 +39,21 @@
     kind: "plain",
     spriteIndex: 4,
   },
+  seashelf: {
+    id: "seashelf",
+    name: "seashelf",
+    icon: "assets/images/object/seashelf.png",
+    type: "terrain",
+    kind: "seashelf",
+    spriteIndex: 5,
+  },
   dungeonStonePavedTile: {
     id: "dungeonStonePavedTile",
     name: "dungeonStonePavedTile",
     icon: "assets/images/object/dungeonStonePavedTile.png",
     type: "terrain",
     kind: "plain",
-    spriteIndex: 5,
+    spriteIndex: 8,
   },
   fishTile: {
     id: "fishTile",

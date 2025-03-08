@@ -326,7 +326,7 @@ packages:
       path: "../../hetu-script/packages/hetu_script"
       relative: true
     source: path
-    version: "0.6.0"
+    version: "0.6.2"
   hetu_script_flutter:
     dependency: "direct main"
     description:

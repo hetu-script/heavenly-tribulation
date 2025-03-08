@@ -9,6 +9,12 @@ const kOrganizationDevelopmentMax = 5
 const kOrganizationRecruitOtherLocationProbability = 0.2
 const kOrganizationRecruitSuccessProbability = 0.4
 
+// 组织的种类，不同的种类对应于不同的发展方向
+// 修真：提升境界，获取和升级功法卡牌
+// 国家：扩张领地
+// 宗教：招收弟子
+// 商业：合法经营
+// 帮派：非法经营
 const kOrganizationCategories = [
   'cultivation',
   'gang',
@@ -45,12 +51,10 @@ struct Organization {
     incurIncident = true, // 是否触发历史事件
   }) {
     this.entityType = kEntityTypeOrganization
-    assert(game.locations.containsKey(headquartersId))
+    assert(world.locations.containsKey(headquartersId))
     assert(game.characters.containsKey(headId))
 
     this.createdTimestamp = game.timestamp
-    // 该组织的每月刷新事件的时间
-    this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
     // 该组织的事件触发选项
     this.flags = {}
 
@@ -100,7 +104,7 @@ struct Organization {
     // 门派的历史
     this.experienced = []
 
-    const headquarters = game.locations[headquartersId]
+    const headquarters = world.locations[headquartersId]
     const head = game.characters[headId]
     const incidentContent = engine.locale('organizationCreate', interpolations: [
       head.name,
@@ -185,7 +189,7 @@ struct Organization {
   //   assert(emperorId != null)
 
   //   this.capitalId = capitalId
-  //   const location = game.locations[capitalId]
+  //   const location = world.locations[capitalId]
   //   // 设为首都后，免费获得发展度+2，稳定度+50
   //   location.development += 2
   //   location.stability += 50
@@ -238,9 +242,9 @@ function stationOrganization(organization, location, { characterIds, incurIncide
   organization.headquartersId = location.id
 
   const headquarters = Location(
-    category: 'building',
+    category: 'site',
     kind: organization.genre,
-    location: location,
+    atLocation: location,
     name: organization.name,
   )
   let toBeRemoved
@@ -336,7 +340,7 @@ function addCharacterToOrganization(character, organization, { incurIncident = t
     )
   }
 
-  const location = game.locations[organization.headquartersId]
+  const location = world.locations[organization.headquartersId]
   setCharacterHome(character, location)
   
   // const r = random.nextInt(_kOrganizationThinkingsOnRecruit)
@@ -427,7 +431,7 @@ function removeTerrainFromOrganization(terrain, { incurIncident = true }) {
   }
 
   if (terrain.locationId != null) {
-    const location = game.locations[terrain.locationId]
+    const location = world.locations[terrain.locationId]
     delete location.organizationId
     engine.info('${oldOrg.id} 失去了据点：${location.id}')
     organization.locationIds.remove(location.id)
@@ -468,7 +472,7 @@ function addTerrainToOrganization(terrain, organization, { incurIncident = true 
   }
   terrain.nationId = organization.id
   if (terrain.locationId) {
-    const location = game.locations[terrain.locationId]
+    const location = world.locations[terrain.locationId]
     // 应该已经从原本的门派中移除
     assert(location.organizationId == null)
     location.organizationId = organization.id

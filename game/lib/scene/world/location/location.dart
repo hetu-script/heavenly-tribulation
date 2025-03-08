@@ -9,7 +9,6 @@ import 'package:provider/provider.dart';
 import '../../../engine.dart';
 import '../../../data.dart';
 import '../../../ui.dart';
-import '../../../events.dart';
 import '../../npc_list.dart';
 import '../../../widgets/ui_overlay.dart';
 import '../../../widgets/dialog/character_visit_dialog.dart';
@@ -87,18 +86,20 @@ class LocationScene extends Scene {
     //   siteCards.add(GameData.getSiteCard(heroHomeSite));
     // }
 
-    for (final id in locationData['sites']) {
-      final siteData = locationData['buildings'][id];
+    for (final siteId in locationData['sites']) {
+      final siteData =
+          engine.hetu.invoke('getLocationById', positionalArgs: [siteId]);
       siteCards.add(GameData.getSiteCard(siteData));
     }
 
     for (final siteCard in siteCards) {
       siteCard.onTap = (buttons, position) async {
-        if (siteCard.data['category'] != 'residence') {
+        if (siteCard.data['kind'] == 'residence') {
           openResidenceList();
         } else {
           await engine.pushScene(
-            Scenes.location,
+            siteCard.data['id'],
+            constructorId: Scenes.location,
             arguments: {'location': siteCard.data},
           );
         }
@@ -116,7 +117,7 @@ class LocationScene extends Scene {
     world.add(siteList);
 
     final exit = GameData.getExitSiteCard();
-    exit.onTap = (_, __) => engine.emit(GameEvents.popLocationSiteScene, id);
+    exit.onTap = (_, __) => engine.popScene(clearCache: true);
     world.add(exit);
   }
 

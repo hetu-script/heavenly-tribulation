@@ -25,14 +25,14 @@ Future<SaveInfo> createSaveInfo(String currentWorldId,
 }
 
 class SaveInfo {
-  final String saveName;
   final String savePath;
-  final String currentWorldId;
+  final String saveName;
+  String currentWorldId;
   String? timestamp;
 
   SaveInfo({
-    required this.saveName,
     required this.savePath,
+    required this.saveName,
     required this.currentWorldId,
     this.timestamp,
   });
@@ -86,6 +86,8 @@ class GameSavesState with ChangeNotifier {
       saves[info.saveName] = info;
     }
 
+    info.currentWorldId = worldId;
+
     engine.debug('保存游戏至：[${info.savePath}]');
 
     IOSink sink;
@@ -135,7 +137,7 @@ class GameSavesState with ChangeNotifier {
     await sink.close();
 
     info.timestamp = timestamp;
-    notifyListeners();
+
     return info;
   }
 }

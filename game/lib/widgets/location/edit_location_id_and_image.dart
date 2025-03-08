@@ -81,7 +81,7 @@ class _EditLocationIdAndBackgroundState
                     ),
                   ),
                   SizedBox(
-                    width: 150.0,
+                    width: 280.0,
                     height: 40.0,
                     child: Row(
                       children: [

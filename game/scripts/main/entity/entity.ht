@@ -138,7 +138,7 @@ const kEntityTypeCharacter = 'character' //game.characters
 const kEntityTypeBaby = 'baby' // game.babies
 const kEntityTypeItem = 'item' //character.inventory
 const kEntityTypeOrganization = 'organization' //game.organizations
-const kEntityTypeLocation = 'location' // game.locations
+const kEntityTypeLocation = 'location' // world.locations
 const kEntityTypeBattleCard = 'battle_card' // character.cardLibrary
 
 const kEntityCategoryMaterial = 'material';

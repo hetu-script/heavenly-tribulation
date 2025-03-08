@@ -38,7 +38,7 @@ struct BattleCard {
     this.maxLevel = maxLevel
     this.level = level
 
-    this.id = crypto.randomNID(length: 6, withTime: true)
+    this.id = crypto.randomUID(length: 4, withTime: true)
     this.isIdentified = isIdentified
 
     this.tags = []
@@ -393,7 +393,7 @@ struct Cardpack {
     this.rank = rank ?? 0
     this.kind = kind
 
-    this.id = crypto.randomNID(length: 6, withTime: true)
+    this.id = crypto.randomNID(withTime: true)
     this.name = engine.locale('cultivationRank_${this.rank}') + engine.locale('rank2')
     if (genre != null) {
       this.name += engine.locale(genre) + engine.locale('genre')

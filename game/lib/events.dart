@@ -6,10 +6,9 @@ abstract class GameEvents {
   static const leaveCardBattle = 'leave_scene_card_battle';
 
   static const mapLoaded = 'map_loaded';
-  static const popLocationSiteScene = 'pop_scene';
-  static const pushLocationSiteScene = 'push_scene';
   static const residenceSiteScene = 'residence_scene';
   static const worldmapCharactersUpdated = 'worldmap_characters_updated';
+  static const worldmapLocationsUpdated = 'worldmap_locations_updated';
 
   static const battleResult = 'battle_result';
 }

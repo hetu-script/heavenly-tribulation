@@ -10,73 +10,114 @@
 ///   萧墨没有任何炼气基础，他完全不是妖族守卫的对手，他原本打算通过诡计逃脱。
 ///   但凌初雪突然使出众人意想不到的功法，正面击败了妖族敌人。
 /// 
-/// checkPoint1: 是否已经打开初始宝箱
-/// checkPoint2: 是否已经从凌初雪处拿到魂骨钉
-/// checkPoint3: 是否已经和妖族卫兵对话
-/// checkPoint4: 是否已经目睹凌初雪和妖族卫兵战斗
-/// checkPoint5: 是否已经结束场景1的全部剧情
+/// chapter0.checkPoint1: 是否已经打开初始宝箱
+/// chapter0.checkPoint2: 是否已经从凌初雪处拿到魂骨钉
+/// chapter0.checkPoint3: 是否已经和妖族卫兵初次战斗
+/// chapter0.checkPoint4: 是否已经目睹凌初雪和妖族卫兵战斗
+/// chapter0.checkPoint5: 是否已经结束所有场景1的剧情
 
 const cave = {
   onNewGame: async () {
-    
-    // 敌人是随机生成的，每次不同
-    this.npcs.enemy1 = generateEnemey(
+
+    // 敌人属性是随机生成的，每次不同
+    final enemy1 = Character(
       id: 'yaozu_guard1',
-      name: engine.locale('yaozu_guard'),
       race: 'yaozu',
+      titleId: 'yaozu_guard',
       isFemale: false,
       icon: 'story/yao_enemy1_head.png',
+      illustration: 'story/yao_enemy1.png',
     )
+    generateDeck(enemy1)
+
+    final enemy2 = Character(
+      id: 'yaozu_elite1',
+      race: 'yaozu',
+      titleId: 'yaozu_elite',
+      isFemale: false,
+      icon: 'story/yao_enemy2_head.png',
+      illustration: 'story/yao_enemy2.png',
+    )
+    generateDeck(enemy2)
 
     Dialog.start()
     Dialog.pushBackground('black.png')
     // engine.play('stone-push-37412.mp3')
     Dialog.popBackground('black.png', fadeOut: true)
-    await Future.delayed(1)
+    await Future.delayed(0.5)
     System.showUI()
 
     Dialog.pushImage('story/xiaomo.png', fadeIn: true)
     await Dialog.localeLines('prelude.wakeUp', isHero: true)
     Dialog.popImage()
-    World.lightUpAroundTile(hero.worldPosition.left, hero.worldPosition.top, hero.stats.lightRadius)
+    Player.setTo(6, 22, worldId: 'cave', direction: 'south')
     await Dialog.localeLines(['tutorial.movement'])
     Dialog.end()
   },
   
   onEnterMap: async () {
-    if (this.flags.checkPoint3 && !this.flags.checkPoint4) {
-      this.flags.checkPoint4 = true
-      await Dialog.localeLines('prelude.battleEnd.line1', icon: 'story/yao_enemy1_head.png', displayName: this.npcs.enemy1.name)
-      await Dialog.localeLines('prelude.battleEnd.line2', isHero: true)
-      
-      World.moveCameraToMapPosition(6, 2, animated: false)
-      Player.setTo(6, 2, direction: 'south')
+    if (this.flags.chapter0.checkPoint3) {
+      if (!this.flags.chapter0.checkPoint4) {
+        await Dialog.localeLines('prelude.battleEnd.line1', icon: 'story/yao_enemy1_head.png', displayNameId: 'yaozu_guard')
+        await Dialog.localeLines('prelude.battleEnd.line2', isHero: true)
+        Player.setTo(6, 2, worldId: 'cave', direction: 'south')
+        await Dialog.localeLines('prelude.battleEnd.line3', icon: 'story/yao_enemy1_head.png', displayNameId: 'yaozu_guard')
+        await Dialog.localeLines('prelude.battleEnd.line4') 
+      } else if (!this.flags.chapter0.checkPoint5) {
+        this.flags.chapter0.checkPoint5 = true
+        
+        final enemeyTile = getTerrainByWorldPosition(6,5)
+        delete enemeyTile.overlaySprite
+        World.updateTerrainOverlaySprite(6,5)
 
-      await Dialog.localeLines('prelude.battleEnd.line3', icon: 'story/yao_enemy1_head.png', displayName: this.npcs.enemy1.name)
-      await Dialog.localeLines('prelude.battleEnd.line4') 
+        await Dialog.localeLines('prelude.battle2End.line1', icon: 'story/yao_enemy1_head.png', displayNameId: 'yaozu_guard')
+        await Dialog.localeLines('prelude.battle2End.line2', isHero: true)
+        await Dialog.localeLines('prelude.battle2End.line3', characterId: 'ling_chuxue')
+        await Dialog.localeLines('prelude.battle2End.line4')
+        await Dialog.localeLines('prelude.battle2End.line5', isHero: true)
+      }
+    }
+  },
+
+  onAfterHeroMove: async (left, top) {
+    if (left == 6 && top == 8) {
+      if (!this.flags.chapter0.checkPoint3) {
+        this.flags.chapter0.checkPoint3 = true
+        await Dialog.localeLines('prelude.enemy.line1', icon: 'story/yao_enemy1_head.png', displayName: '???')
+        final enemy1 = getCharacterById('yaozu_guard1')
+        System.showBattle(
+          enemy: enemy1,
+          isAutoBattle: true,
+          onBattleStart: async function [VoidCallback] () {
+            await Dialog.localeLines('prelude.battleStart.line1', icon: 'story/yao_enemy1_head.png', displayNameId: 'yaozu_guard')
+            await Dialog.localeLines('prelude.battleStart.line2', isHero: true)
+            await Dialog.localeLines('prelude.battleStart.line3', characterId: 'ling_chuxue')
+          },
+        )
+      }
     }
   },
 
   onInteractObject: async (object, terrain) {
     switch (object.id) {
       'treasureBox1': {
-        if (this.flags.checkPoint1) return
+        if (this.flags.chapter0.checkPoint1) return
+        this.flags.chapter0.checkPoint1 = true
         onInteractTreasureBox(object, terrain)
         Dialog.localeLines('prelude.treasureBox1', isHero: true)
-        this.flags.checkPoint1 = true
       }
       'portalNextLevel': {
         Dialog.localeLines('prelude.portalNextLevel', isHero: true)
       }
       'portal1': {
-        if (this.flags.checkPoint1) {
+        if (this.flags.chapter0.checkPoint1) {
           onInteractPortal(object)
         } else {
           Dialog.localeLines('prelude.treasureBoxHint', isHero: true)
         }
       }
       'portal2': {
-        if (this.flags.checkPoint2) {
+        if (this.flags.chapter0.checkPoint2) {
           onInteractPortal(object)
         } else {
           Dialog.localeLines('prelude.meteorCraterHint', isHero: true)
@@ -85,10 +126,10 @@ const cave = {
       'meteorCrater': {
         await Dialog.localeLines('prelude.meteorCrater1')
         await Dialog.localeLines('prelude.meteorCrater2', isHero: true)
-        if (!this.flags.checkPoint2) {
+        if (!this.flags.chapter0.checkPoint2) {
           await Dialog.localeLines('prelude.meteorCrater3', isHero: true)
           Dialog.start()
-          Dialog.pushBackground('ch01/ling_in_rubbles2.png', fadeIn: true)
+          Dialog.pushBackground('chapter0/ling_in_rubbles2.png', fadeIn: true)
           await Future.delayed(1)
           await Dialog.localeLines('prelude.mysticGirl1')
           await Dialog.localeLines('prelude.mysticGirl2')
@@ -97,7 +138,7 @@ const cave = {
             'prelude.nail.option2',
           ])
           if (selected == 'prelude.nail.option1') {
-            this.flags.checkPoint2 = true
+            this.flags.chapter0.checkPoint2 = true
             Dialog.pushImage('story/jade_soul_dagger.png')
             await Dialog.localeLines('prelude.nail.description1')
             await Dialog.localeLines('prelude.nail.description2', isHero: true)
@@ -143,28 +184,19 @@ const cave = {
       }
 
       'enemy1': {
-        if (!this.flags.checkPoint3) {
-          this.flags.checkPoint3 = true
-          await Dialog.localeLines('prelude.enemy.line1', icon: 'story/yao_enemy1_head.png', displayName: '???')
-          System.showBattle(
-            enemy: this.npcs.enemy1,
-            isAutoBattle: true,
-            onBattleStart: async function [VoidCallback] () {
-              await Dialog.localeLines('prelude.battleStart.line1', icon: 'story/yao_enemy1_head.png', displayName: this.npcs.enemy1.name)
-              await Dialog.localeLines('prelude.battleStart.line2', isHero: true)
-            },
-          )
-        } else {
+        if (!this.flags.chapter0.checkPoint4) {
+          this.flags.chapter0.checkPoint4 = true
           final ling = getCharacterById('ling_chuxue')
           generateDeck(ling, deckInfo: [
             {mainAffixId: 'spell_energy', level: 5},{mainAffixId: 'fireball'},{mainAffixId: 'lightning'}
           ])
+          final enemy1 = getCharacterById('yaozu_guard1')
           System.showBattle(
             hero: ling,
-            enemy: this.npcs.enemy1,
+            enemy: enemy1,
             isAutoBattle: true,
             onBattleStart: async function [VoidCallback] () {
-              await Dialog.localeLines('prelude.battle2Start.line1', icon: 'story/yao_enemy1_head.png', displayName: this.npcs.enemy1.name)
+              await Dialog.localeLines('prelude.battle2Start.line1', icon: 'story/yao_enemy1_head.png', displayNameId: 'yaozu_guard')
               await Dialog.localeLines('prelude.battle2Start.line2', characterId: 'ling_chuxue')
             },
           )
@@ -172,7 +204,7 @@ const cave = {
       }
 
       'worldPortal1': {
-        if (!this.flags.checkPoint5) {
+        if (!this.flags.chapter0.checkPoint4) {
           await Dialog.localeLines('prelude.worldPortal1.line1', isHero: true)
           await Dialog.localeLines('prelude.worldPortal1.line2')
         } else {

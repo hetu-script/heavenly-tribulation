@@ -197,7 +197,7 @@ abstract class GameData {
   }
 
   static initModules() {
-    engine.warn('重置当前载入的模组，重新执行初始化过程...');
+    engine.info('准备开始初始化当前载入的所有模组...');
 
     for (final id in GameConfig.modules.keys) {
       if (GameConfig.modules[id]?['enabled'] == true) {
@@ -249,11 +249,9 @@ abstract class GameData {
 
     currentWorldId = engine.hetu.invoke('getCurrentWorldId');
 
+    worldIds.clear();
     final ids = engine.hetu.invoke('getWorldIds');
-
-    for (final id in ids) {
-      worldIds.add(id);
-    }
+    worldIds.addAll(ids);
 
     if (!isEditorMode) {
       await registerModuleEventHandlers();

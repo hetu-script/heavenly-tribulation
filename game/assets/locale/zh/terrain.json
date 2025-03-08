@@ -3,7 +3,7 @@
   "continent": "大陆",
   "island": "岛屿",
 
-  "shelf": "浅海",
+  "seashelf": "大陆架",
 
   "mountain": "山峰",
   "shore": "岸边",
@@ -15,9 +15,9 @@
   "road": "道路",
 
   "city": "城镇",
-  "farmfield": "农田",
-  "pond": "池塘",
+  "site": "场所",
 
+  "farmfield": "农田",
   "harbor": "港口",
 
   "arcana": "洞天",

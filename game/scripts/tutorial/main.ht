@@ -14,29 +14,11 @@ const module = {
     description: '包含了一些展示游戏基础操作的关卡。',
     supportedLocales: ['zh'],
     version: '0.0.1',
-    npcs: {},
     flags: {
-      // 0 刚刚进入这个世界，通过传送门来到地宫中的众人面前
-      // 1 和众人对话之后，但尚未选择流派
-      // storyState: 0,
-      // 收集灵气的教程任务
-      // 0 尚未开始
-      // 1 开始任务，尚未进行聚气
-      // 2 任务完成
-      // spiritQuestState: 0, 
-      // 0 尚未对话
-      // 1 对话过，但未接受或者拒绝任务
-      // 2 接受了任务
-      // 3 拒绝了任务
-      // ayaState: 0, 
-      // 阿福，任务是带大家离开灵龟岛
-      // 0 尚未对话
-      // 1 对话过，但未接受或者拒绝任务
-      // 2 接受了任务
-      // 3 拒绝了任务
-      // afuState: 0,
-      // 秋霜，任务是前往灵蛇到寻找他的丈夫
-      // qiushuangState: 0,
+      chapter0: {},
+      chapter1: {},
+      chapter2: {},
+      chapter3: {},
     }
   },
 }
@@ -48,13 +30,6 @@ const module = {
 /// 可以在这里检查是否存在版本冲突或者和其他脚本的冲突
 function init(config) {
   engine.debug('游戏脚本模块 [${module.meta.id}(ver-${module.meta.version})] 初始化...')
-
-  // module.meta.npcs.enemy1 = generateEnemey(
-  //   name: engine.locale('yaozu_guard'),
-  //   race: 'yaozu',
-  //   isFemale: false,
-  //   icon: 'story/yao_enemy1_head.png',
-  // )
 
   game.addModule(module.meta)
 }

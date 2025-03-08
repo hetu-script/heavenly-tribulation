@@ -155,6 +155,7 @@ const _kPregnancyTimeVariable = kTicksPerMonth * 2
 
 struct Baby {
   constructor ({
+    id,
     father,
     mother,
     conceptionTimestamp,
@@ -198,7 +199,7 @@ struct Baby {
     this.name = this.familyName + this.shortName
 
     // this.id = 'character.${crypto.randomUID4(2)}.${this.name}'
-    this.id = this.name
+    this.id = id ?? this.name
 
     game.babies[this.id] = this
   }
@@ -233,7 +234,8 @@ function getMajorAttribute(character) {
 
 struct Character {
   constructor ({
-    isMajorCharacter = true,
+    id,
+    isMain = true,
     isFemale,
     icon,
     illustration,
@@ -243,6 +245,7 @@ struct Character {
     middleName,
     shortName,
     name,
+    titleId,
     generateName = true,
     description,
     cultivationLevel,
@@ -269,7 +272,8 @@ struct Character {
     // 生成战斗单位相关数据，并写入当前对象
     // 不使用继承主要是因为这些数据经常会改动，直接写在这个对象上的话会更清晰
     const battleInfo = BattleEntity(
-      isMajorCharacter: isMajorCharacter,
+      id: id,
+      isMain: isMain,
       isFemale: isFemale,
       icon: icon,
       illustration: illustration,
@@ -293,7 +297,7 @@ struct Character {
     // this.entityType = 'character'
     // this.category = category ?? 'character'
 
-    if (this.isMajorCharacter) {
+    if (this.isMain) {
       game.characters[this.id] = this
     }
 
@@ -344,16 +348,16 @@ struct Character {
       randomGenerator: random,
     ).toInt()
 
-    // 该人物的每月刷新事件的时间
-    this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
-
     // 该人物的事件触发选项
     this.flags = {}
 
     // 该角色的称号
     this.titles = []
+    if (titleId != null) {
+      this.titles.add(titleId)
+    }
     // titles中直接保存了称号字符串
-    this.currentTitleId = null
+    this.currentTitleId = titleId
 
     // 组织中的等级，一开始是 -1，表示没有组织，越大等级越高
     // 掌门的等级是 6
@@ -436,7 +440,7 @@ struct Character {
     this.bonds = {}
     
     if (locationId) {
-      const location = game.locations[locationId]
+      const location = world.locations[locationId]
       setCharacterLocationId(this, locationId)
 
       this.worldPosition = {
@@ -451,7 +455,7 @@ struct Character {
         const mother = game.characters[motherId]
         const father = game.characters[fatherId]
         this.birthPlaceId = locationId
-        assert(isMajorCharacter == true)
+        assert(isMain == true)
         // 出生事件会修改自身，需要放在最后处理
         const incidentContent = engine.locale('characterBorn',
           interpolations: [
@@ -472,8 +476,8 @@ struct Character {
         characterFirstMet(mother, this)
         characterFirstMet(father, this)
         // const homeId = mother.homeId ?? mother.locationId
-        // const home = game.locations[homeId]
-        const home = game.locations[mother.homeId]
+        // const home = world.locations[homeId]
+        const home = world.locations[mother.homeId]
         setCharacterHome(this, home)
         const siblingIds = father.relationships.childrenIds
         this.relationships.siblingIds.addAll(siblingIds)
@@ -516,19 +520,19 @@ struct Character {
 
 // 必须已经是门派成员，才可以设定头衔
 function addOrganizationTitleForCharacter(character, organization, rank, titleId, { incurIncident = true }) {
-  assert(character.isMajorCharacter == true)
+  assert(character.isMain == true)
   assert(organization.characterIds.keys.contains(character.id))
   assert(character.organizationId == organization.id)
   assert(rank >= 0 && rank <= kOrganizationRankMax)
   const membersOfRank = getOrganizationMemberIdsOfRank(organization, rank)
   assert(membersOfRank.length < maxMemberOfDevelopment(organization.development))
-  const title = engine.locale('${organization.category}_titleRank${rank}')
-  if (character.titles.contains(title)) {
-    engine.warn('角色 ${character.name} 已经拥有组织头衔 ${title}，不能再次添加。')
-    return
+  const titleId = engine.locale('${organization.category}_titleRank${rank}')
+  if (character.titles.contains(titleId)) {
+    engine.warn('角色 ${character.name} 已经拥有组织头衔 ${titleId}。')
+  } else {
+    character.titles.add(title)
   }
-  character.currentTitleIndex = character.titles.length
-  character.titles.add(title)
+  character.currentTitleId = titleId
   character.organizationRank = rank
   if (rank == kOrganizationRankMax) {
     organization.headId = character.id
@@ -698,7 +702,7 @@ function _calculateCharismaScore({charisma: float, favor: float}) -> float {
 // 第一印象分
 function _characterFirstMet(subject, target, [causeIncident, causeIncidentScore]) {
   assert(subject != null && target != null)
-  assert(subject.isMajorCharacter == true && target.isMajorCharacter == true)
+  assert(subject.isMain == true && target.isMain == true)
   let bond
   if (subject.bonds[target.id] != null) {
     // 虽然没见过，但如果以前就听说过的话
@@ -756,7 +760,7 @@ function characterFirstMet(subject, target, [causeIncident, causeIncidentScore])
 }
 
 function characterKnowIncident(character, incident, { witnessed }) {
-  assert(character.isMajorCharacter == true)
+  assert(character.isMain == true)
   // 不是major character直接跳过
   if (character?.known == null) {
     engine.warn('${character.id} is not a entity that can know incidents.')
@@ -815,8 +819,8 @@ function characterKnowIncident(character, incident, { witnessed }) {
 // }
 function removeCharacterHome(character) {
   if (!character.homeId) return
-  const oldHomeLoc = game.locations[character.homeId]
-  oldHomeLoc.sites.remove('${kSiteHome}.${character.id}')
+  const oldHomeLoc = world.locations[character.homeId]
+  oldHomeLoc.sites.remove('${kLocationKindHome}_${character.id}')
   // oldHome.residingCharacterIds.remove(character.id)
   // let organization = oldHome.organizations[character.organizationId]
   // if (organizationData != null) {
@@ -825,7 +829,7 @@ function removeCharacterHome(character) {
 }
 
 function setCharacterHome(character, location) {
-  assert(character.isMajorCharacter == true)
+  assert(character.isMain == true)
   if (character.homeId == location.id) {
     engine.warn('character ${character.id} already resides in location ${location.id}')
     return
@@ -834,11 +838,11 @@ function setCharacterHome(character, location) {
     removeCharacterHome(character)
   }
   character.homeId = location.id
-  let homeSiteId = '${kSiteHome}.${character.id}'
+  let homeSiteId = '${kLocationKindHome}_${character.id}'
   Location(
-    category: 'building',
-    kind: kSiteHome,
-    location: location,
+    category: 'site',
+    kind: kLocationKindHome,
+    atLocation: location,
     ownerId: character.id,
   )
   let incidentContent
@@ -881,25 +885,19 @@ function getCharacterWorldPosition(character) {
   return character.worldPosition
 }
 
-function setCharacterWorldPosition(character, left, top, [worldId]) {
-  if (character.worldPosition == null) {
-    character.worldPosition = {
-      worldId: worldId ?? game.currentWorldId,
-      left,
-      top,
-    }
-  } else {
-    if (worldId != null) {
-      character.worldPosition.worldId = worldId
-    }
-    character.worldPosition.left = left
-    character.worldPosition.top = top
+function setCharacterWorldPosition(character, left, top, {worldId}) {
+  character.worldPosition = {
+    left,
+    top,
+  }
+  if (worldId != null) {
+    character.worldId = worldId
   }
 }
 
 function addCharacter(character) {
   assert(character != null)
-  character.isMajorCharacter == true
+  character.isMain == true
   engine.debug('向当前世界添加新角色：${character.id}')
   game.characters[character.id] = character
 }
@@ -924,7 +922,7 @@ function getCharactersOnWorldMap([ worldId ]) {
   return game.characters.values.where((char) {
     if (char.worldId != worldId) return false
     if (char.worldPosition == null) return false
-    if (char.locationId != null || char.siteId != null) return false
+    if (char.locationId != null) return false
     return true
   })
 }
@@ -935,14 +933,14 @@ function getCharactersByWorldMapPosition(left, top, [ worldId ]) {
     if (char.worldId != worldId) return false
     if (char.worldPosition == null) return false
     if (char.worldPosition.left != left || char.worldPosition.top != top) return false
-    if (char.locationId != null || char.siteId != null) return false
+    if (char.locationId != null) return false
     return true
   })
 }
 
 function getCharactersByLocationId(locationId) {
   return game.characters.values.where((char) {
-    if (char.locationId == null || char.siteId != null) return false
+    if (char.locationId == null) return false
     if (char.locationId != locationId) return false
     return true
   })
@@ -950,7 +948,7 @@ function getCharactersByLocationId(locationId) {
 
 function getCharactersByLocationAndSiteId(locationId, siteId) {
   return game.characters.values.where((char) {
-    if (char.locationId == null || char.siteId == null) return false
+    if (char.locationId == null) return false
     if (char.locationId != locationId || char.siteId != siteId) return false
     return true
   })
@@ -973,7 +971,7 @@ function getNpcsOnWorldMap([ worldId ]) {
     if (char.id == game.heroId) return false
     if (char.worldId != worldId) return false
     if (char.worldPosition == null) return false
-    if (char.locationId != null || char.siteId != null) return false
+    if (char.locationId != null) return false
     return true
   })
 }
@@ -985,7 +983,7 @@ function getNpcsByWorldMapPosition(left, top, [ worldId ]) {
     if (char.worldId != worldId) return false
     if (char.worldPosition == null) return false
     if (char.worldPosition.left != left || char.worldPosition.top != top) return false
-    if (char.locationId != null || char.siteId != null) return false
+    if (char.locationId != null) return false
     return true
   })
 }
@@ -1041,7 +1039,7 @@ function characterCultivationLevelUp(character, {level = 1, incurIncident = true
     character.name,
     character.cultivationLevel,
   ])
-  if (character.isMajorCharacter && incurIncident) {
+  if (character.isMain && incurIncident) {
     Incident(
       message: incidentContent,
       subjectId: character.id,
@@ -1075,7 +1073,7 @@ function characterCultivationRankUp(character, {rank, incurIncident = true }) {
     character.name,
     getCultivationRankName(character),
   ])
-  if (character.isMajorCharacter && incurIncident) {
+  if (character.isMain && incurIncident) {
     Incident(
       message: incidentContent,
       subjectId: character.id,

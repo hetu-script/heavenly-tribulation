@@ -37,7 +37,7 @@ struct ObjectPortal {
       top: targetTop,
     }
 
-    game.objects[this.id] = this
+    world.objects[this.id] = this
   }
 }
 
@@ -57,8 +57,12 @@ struct ObjectWorldPortal {
     this.isDiscovered = isDiscovered
     this.useCustomInteraction = useCustomInteraction
     this.worldId = worldId
+    this.targetTilePosition = {
+      left: targetLeft,
+      top: targetTop,
+    }
 
-    game.objects[this.id] = this
+    world.objects[this.id] = this
   }
 }
 
@@ -73,7 +77,7 @@ struct ObjectCharacter {
     this.category = kObjectCharacter
     this.characterId = characterId
 
-    game.objects[this.id] = this
+    world.objects[this.id] = this
   }
 }
 
@@ -117,7 +121,7 @@ struct ObjectTreasureBox {
     this.category = kObjectTreasureBox
     this.isDiscovered = isDiscovered
     this.useCustomInteraction = useCustomInteraction
-    game.objects[this.id] = this
+    world.objects[this.id] = this
 
     this.items = items
   }

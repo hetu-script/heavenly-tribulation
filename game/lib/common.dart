@@ -186,26 +186,25 @@ const kSupportCultivationGenres = [
 ];
 
 const kConstructableSiteCategories = {
-  'library',
   'arena',
+  'library',
   'tradinghouse',
   'auctionhouse',
   'mine',
   'timberland',
   'farmland',
-  'huntground',
-  'canal',
-  'fishmarket',
-  'arraylab',
-  'runehouse',
-  'alchemylab',
-  'workshop',
+  'huntingground',
+  'fishery',
   'nursery',
   'zoo',
-  'illusionhouse',
-  'psychichouse',
-  'divinationhouse',
-  'theurgyhouse',
+  'workshop',
+  'arraylab',
+  'runelab',
+  'alchemylab',
+  'illusionaltar',
+  'psychicaltar',
+  'divinationaltar',
+  'theurgyaltar',
 };
 
 const kMaterialMoney = 'money';

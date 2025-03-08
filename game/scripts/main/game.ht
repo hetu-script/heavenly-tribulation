@@ -72,12 +72,9 @@ struct Game {
     this.deceased = {}
     this.babies = {}
     this.characters = {}
-    this.locations = {}
     this.organizations = {}
     // 具有唯一性的物品，材料之类不在此列
     this.items = {}
-    // 地图上的可互动对象，例如npc等
-    this.objects = {}
 
     // 游戏本身逻辑所用到的一些事件检查选项
     // 例如每个月是否进行了某个动作之类
@@ -86,11 +83,11 @@ struct Game {
     // 英雄的住所，直接保存在顶层
     // 但其实这里没有任何数据
     // this.heroHomeSite = {
-    //   category: kSiteHome,
-    //   name: engine.locale(kSiteHome),
+    //   category: kLocationKindHome,
+    //   name: engine.locale(kLocationKindHome),
     //   background: 'location/site/home.png',
     //   image: 'location/site/home_card.png',
-    //   id: kSiteHome,
+    //   id: kLocationKindHome,
     // }
   }
 }
@@ -152,8 +149,8 @@ function loadGameFromJsonData({
   game = Object.fromJSON(gameData)
   game.isNewGame ??= true
   
-  universe = Object.fromJSON(universeData)
-  history = Object.fromJSON(historyData)
+  universe = Object.create(universeData)
+  history = Object.create(historyData)
   
   assert(game.currentWorldId != null)
   // if (!isEditorMode) {
@@ -269,12 +266,12 @@ function setHeroId(id: string) {
   game.heroId = id
 }
 
-function getHeroWorldId(worldId) {
+function setHeroWorldId(worldId) {
   hero.worldId = worldId
 }
 
 function getHeroHome {
-  return game?.locations[hero?.homeId]
+  return world.locations[hero.homeId]
 }
 
 function getHeroHomeId {
@@ -301,7 +298,13 @@ function getHeroLightedArea {
 //   return hero.cultivationGenre
 // }
 
-function getTerrainByWorldPosition(left, top) {
+function getTerrainByIndex(index, {worldId}) {
+  let atWorld = worldId != null ? universe[worldId] : world
+  return world.terrains[index]
+}
+
+function getTerrainByWorldPosition(left, top, {worldId}) {
+  let atWorld = worldId != null ? universe[worldId] : world
   return world.terrains[tilePos2Index(left, top, world.width)]
 }
 
@@ -310,51 +313,64 @@ function getWorldIds {
 }
 
 function setCurrentWorldId(id) {
-  engine.debug('设置当前世界为：[${id}]')
+  engine.debug('设置当前世界为: [${id}]')
   game.currentWorldId = id
+  world = universe[id]
+  timeline = history[id]
+}
+
+function deleteWorldById(id) {
+  assert(world.id != id)
+  engine.warn('删除世界数据: [${id}]')
+  universe.remove(id)
+  history.remove(id)
 }
 
 function getCurrentWorldId {
   return game.currentWorldId
 }
 
-function getWorldSize {
-  if (world != null) {
-    return {
-      width: world.width,
-      height: world.height,
-    }
+function getWorldSize({worldId}) {
+  let atWorld = worldId != null ? universe[worldId] : world
+  return {
+    width: atWorld.width,
+    height: atWorld.height,
   }
 }
 
-function getZones() {
-  return world.zones.values
+function getZones({worldId}) {
+  let atWorld = worldId != null ? universe[worldId] : world
+  return atWorld.zones.values
 }
 
-function getZoneById(id: string) {
-  assert(id != null)
-  return world.zones[id]
+function getZoneById(id: string, {worldId}) {
+  let atWorld = worldId != null ? universe[worldId] : world
+  return atWorld.zones[id]
 }
 
-function addObject(object) {
-  game.objects[object.id] = object
+function addObject(object, {worldId}) {
+  let atWorld = worldId != null ? universe[worldId] : world
+  atWorld.objects[object.id] = object
 }
 
-function removeObjectById(id) {
-  delete game.objects[id]
+function removeObjectById(id, {worldId}) {
+  let atWorld = worldId != null ? universe[worldId] : world
+  delete atWorld.objects[id]
 }
 
-function getObjects() {
-  return game.objects.values
+function getObjects({worldId}) {
+  let atWorld = worldId != null ? universe[worldId] : world
+  return atWorld.objects.values
 }
 
-function getObjectById(id: string) {
-  assert(id != null)
-  return game.objects[id]
+function getObjectById(id: string, {worldId}) {
+  let atWorld = worldId != null ? universe[worldId] : world
+  return atWorld.objects[id]
 }
 
-function hasObject(id: string) {
-  return game.objects[id] != null
+function hasObject(id: string, {worldId}) {
+  let atWorld = worldId != null ? universe[worldId] : world
+  return atWorld.objects[id] != null
 }
 
 function getNameFromId(id, [orElse = 'null']) {
@@ -368,15 +384,4 @@ function getNameFromId(id, [orElse = 'null']) {
 function onNewGame() {
   game.isNewGame = false
   onWorldEvent('onNewGame')
-}
-
-function updateWorldMapCaptions {
-  for (const tile in world.terrains) {
-    if (tile.locationId) {
-      const location = game.locations[tile.locationId]
-      if (location.isDiscovered) {
-        World.setTerrainCaption(tile.left, tile.top, location.name)
-      }
-    }
-  }
 }

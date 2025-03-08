@@ -34,7 +34,7 @@
 
   "id": "ID",
   "characterId": "角色ID",
-  "locationId": "据点ID",
+  "locationId": "场景ID",
   "organizationId": "门派ID",
   "itemId": "物品ID",
   "worldId": "世界ID",
@@ -106,7 +106,7 @@
   "selectOne": "选择一个",
   "selectHero": "选择你要扮演的人物",
   "selectCharacter": "选择一个人物",
-  "selectLocation": "选择一个据点",
+  "selectLocation": "选择一个场景",
   "selectOrganization": "选择一个门派",
   "selectItem": "选择一个物品",
   "selectCardpack": "选择一个秘籍",
@@ -183,8 +183,7 @@
 
   "zone": "区域",
   "organization": "门派",
-  "location": "据点",
-  "site": "场所",
+  "location": "场景",
   "terrain": "地块",
   "coordinates": "坐标",
   "size": "大小",
@@ -284,16 +283,16 @@
   "vitality": "炼魂",
   "swordcraft": "御剑",
 
-  "array": "阵法",
-  "rune": "符法",
   "plant": "灵植",
   "animal": "灵兽",
+  "array": "阵法",
+  "rune": "符法",
+  "alchemy": "炼丹",
+  "craft": "炼器",
   "divination": "卜术",
   "illusion": "幻术",
   "theurgy": "通神",
   "psyche": "通灵",
-  "craft": "炼器",
-  "alchemy": "炼丹",
 
   "leisureSkillGenre": "休闲流派",
 
@@ -330,5 +329,7 @@
   "condenseAll": "自动收集",
 
   "cultivationSkills": "修炼",
-  "supportSkills": "技艺"
+  "supportSkills": "技艺",
+
+  "visitEmptyVillage": "这里空无一人，看来是个荒废的村落。"
 }

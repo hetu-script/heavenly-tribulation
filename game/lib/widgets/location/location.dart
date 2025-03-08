@@ -14,17 +14,19 @@ import 'edit_site.dart';
 class LocationView extends StatefulWidget {
   final String? locationId;
   final dynamic locationData;
-  final int? left, top;
-  final String? category;
+  final dynamic atTerrain;
+  final dynamic atLocation;
+  final String? category, kind;
   final InformationViewMode mode;
 
   const LocationView({
     super.key,
     this.locationId,
     this.locationData,
-    this.left,
-    this.top,
     this.category,
+    this.kind,
+    this.atTerrain,
+    this.atLocation,
     this.mode = InformationViewMode.view,
   });
 
@@ -40,6 +42,7 @@ class _LocationViewState extends State<LocationView> {
   late final dynamic _locationData;
   List<Widget> _siteCards = [];
   late bool _isDiscovered;
+  late bool _hasDefaultSites;
 
   @override
   void initState() {
@@ -53,29 +56,34 @@ class _LocationViewState extends State<LocationView> {
             .invoke('getLocationById', positionalArgs: [widget.locationId]);
       }
     } else {
-      // 临时创建的数据，此时尚未加入游戏中
-      assert(widget.left != null && widget.top != null);
-      final terrain = engine.hetu.invoke('getTerrainByWorldPosition',
-          positionalArgs: [widget.left, widget.top]);
-      _locationData =
-          engine.hetu.invoke('Location', namedArgs: {'terrain': terrain});
+      // 处理 `widget.mode == InformationViewMode.create` 的情况
+      assert(widget.category != null && widget.kind != null);
+      _locationData = engine.hetu.invoke('Location', namedArgs: {
+        'isMain': false, // 临时数据尚未加入游戏中
+        'atTerrain': widget.atTerrain,
+        'atLocation': widget.atLocation,
+        'category': widget.category,
+        'kind': widget.kind,
+      });
     }
 
     _isDiscovered = _locationData['isDiscovered'] ?? false;
+    _hasDefaultSites = _locationData['hasDefaultSites'] ?? false;
 
     _loadData();
   }
 
   void _saveData() {
     _locationData['isDiscovered'] = _isDiscovered;
+    _locationData['hasDefaultSites'] = _hasDefaultSites;
   }
 
   void _loadData() {
-    final locations = engine.hetu.invoke('getLocations');
     _siteCards = List<Widget>.from(
-      (_locationData['buildings'] as Map).values.map(
-        (buildingId) {
-          final siteData = locations[buildingId];
+      _locationData['sites'].map(
+        (siteId) {
+          final siteData =
+              engine.hetu.invoke('getLocationById', positionalArgs: [siteId]);
           return SiteCard(
             siteData: siteData,
             imagePath: siteData['image'],
@@ -103,39 +111,70 @@ class _LocationViewState extends State<LocationView> {
             Container(
               alignment: Alignment.topLeft,
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                      '${engine.locale('worldPosition')}: ${_locationData['worldPosition']['left']}, ${_locationData['worldPosition']['top']}'),
-                  Text(
-                      '${engine.locale('development')}: ${_locationData['development']}'),
                   SizedBox(
-                    width: 300,
-                    child: Row(
+                    width: 248,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(
-                          width: 100.0,
-                          child: Text('${engine.locale('isDiscovered')}: '),
-                        ),
-                        SizedBox(
-                          width: 150.0,
-                          child: Switch(
-                            value: _isDiscovered,
-                            activeColor: Colors.white,
-                            onChanged: (bool value) {
-                              setState(() {
-                                _isDiscovered = value;
-                              });
-                            },
+                        if (_locationData['worldPosition']?['left'] != null &&
+                            _locationData['worldPosition']?['top'] != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 10.0),
+                            child: Text(
+                                '${engine.locale('worldPosition')}: ${_locationData['worldPosition']['left']}, ${_locationData['worldPosition']['top']}'),
                           ),
+                        Text(
+                            '${engine.locale('development')}: ${_locationData['development']}'),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 180.0,
+                              child: Text('${engine.locale('isDiscovered')}: '),
+                            ),
+                            Switch(
+                              value: _isDiscovered,
+                              activeColor: Colors.white,
+                              onChanged: (bool value) {
+                                setState(() {
+                                  _isDiscovered = value;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 180.0,
+                              child: Text(
+                                  '${engine.locale('addDefaultSubsidiaries')}: '),
+                            ),
+                            Switch(
+                              value: _isDiscovered,
+                              activeColor: Colors.white,
+                              onChanged: (bool value) {
+                                setState(() {
+                                  _isDiscovered = value;
+                                });
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(
-                    width: 600,
-                    height: 280,
+                  Container(
+                    width: 350,
+                    height: 350,
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 1.0,
+                      ),
+                    ),
                     child: SingleChildScrollView(
                       child: ListView(
                         shrinkWrap: true,
@@ -208,7 +247,7 @@ class _LocationViewState extends State<LocationView> {
                           ).then((value) {
                             if (value == null) return;
                             engine.hetu.invoke('Location', namedArgs: {
-                              'category': 'building',
+                              'category': 'site',
                               'kind': value,
                               'location': _locationData,
                             });

@@ -43,16 +43,16 @@ struct QuestDelivery {
     const money = Coin(stackSize: rewardMoney)
     this.reward.inventory[money.id] = money
 
-    const location = game.locations[locationId]
+    const location = world.locations[locationId]
 
-    const destination = game.locations[destinationLocationId]
+    const destination = world.locations[destinationLocationId]
     const destinationSite = destination.sites[destinationSiteId]
-    const destinationCharacter = game.characters[destinationCharacterId]
+    const destinationCharacter = world.characters[destinationCharacterId]
 
     this.distance = getTileDistance(location.tilePosition, destination.tilePosition)
 
     // 任务完成有效时间
-    this.expirationDate = game.timestamp + expirationDays * kTicksPerDay
+    this.expirationDate = world.timestamp + expirationDays * kTicksPerDay
     const expirationDateString = formatDateTimeString(this.expirationDate)
 
     if (item != null) {

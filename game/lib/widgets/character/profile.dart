@@ -87,7 +87,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
     } else {
       // 临时创建的数据，此时尚未加入游戏中
       _characterData = engine.hetu.invoke('Character', namedArgs: {
-        'isMajorCharacter': false,
+        'isMain': false,
       });
     }
 
@@ -774,7 +774,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
                     setState(() {
                       _characterData =
                           engine.hetu.invoke('Character', namedArgs: {
-                        'isMajorCharacter': false,
+                        'isMain': false,
                       });
                       updateData();
                     });

@@ -30,9 +30,6 @@ import '../../widgets/dialog/input_string.dart';
 import '../../widgets/world_infomation/world_infomation.dart';
 import '../../widgets/menu_item_builder.dart';
 import '../../events.dart';
-import '../../widgets/dialog/input_world_position.dart';
-import '../../widgets/location/location.dart';
-import '../../widgets/common.dart';
 import '../mainmenu/create_blank_map.dart';
 import '../../widgets/dialog/select_menu_dialog.dart';
 import 'widgets/drop_menu.dart';
@@ -42,6 +39,7 @@ import 'widgets/expand_world_dialog.dart';
 import 'widgets/tile_detail.dart';
 import 'widgets/tile_info.dart';
 import 'widgets/toolbox.dart';
+import '../../widgets/dialog/confirm_dialog.dart';
 
 enum TerrainPopUpMenuItems {
   checkInformation,
@@ -359,11 +357,19 @@ class WorldMapScene extends Scene {
 
     fps = FpsComponent();
 
-    engine.setEventListener(
-      Scenes.editor,
+    engine.addEventListener(
+      'worldmap',
       GameEvents.worldmapCharactersUpdated,
       (eventId, args) async {
         _updateCharactersOnWorldMap();
+      },
+    );
+
+    engine.addEventListener(
+      'worldmap',
+      GameEvents.worldmapLocationsUpdated,
+      (eventId, args) async {
+        _updateWorldMapLocations();
       },
     );
 
@@ -415,12 +421,25 @@ class WorldMapScene extends Scene {
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('World::setCharacterTo', (
-        {positionalArgs, namedArgs}) {
-      final character = map.components[positionalArgs[0]];
-      if (character == null) {
-        engine.warn(
-            'character with id [${positionalArgs[0]}] not found in map component list.');
-        return;
+        {positionalArgs, namedArgs}) async {
+      late TileMapComponent character;
+      final charId = positionalArgs[0];
+      if (charId == map.hero?.id) {
+        character = map.hero!;
+        if (!map.components.containsKey(charId)) {
+          map.add(character);
+          map.components[charId] = character;
+        }
+      } else {
+        if (map.components.containsKey(charId)) {
+          character = map.components[charId]!;
+        } else {
+          final charData =
+              engine.hetu.invoke('getCharacterById', positionalArgs: [charId]);
+          character = await map.loadTileMapComponentFromData(charData,
+              spriteSrcSize: kWorldMapCharacterSpriteSrcSize,
+              isCharacter: true);
+        }
       }
       character.tilePosition =
           TilePosition(positionalArgs[1], positionalArgs[2]);
@@ -492,6 +511,11 @@ class WorldMapScene extends Scene {
     engine.hetu.interpreter.bindExternalFunction(
         'World::updateNpcsInHeroLocation',
         ({positionalArgs, namedArgs}) => _updateNpcsInHeroLocation(),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'World::updateWorldMapLocations',
+        ({positionalArgs, namedArgs}) => _updateWorldMapLocations(),
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction('World::addHintText', (
@@ -576,7 +600,9 @@ class WorldMapScene extends Scene {
   void onStart([Map<String, dynamic> arguments = const {}]) {
     super.onStart(arguments);
 
-    engine.hetu.invoke('onWorldEvent', positionalArgs: ['onEnterMap']);
+    if (isLoaded) {
+      engine.hetu.invoke('onWorldEvent', positionalArgs: ['onEnterMap']);
+    }
   }
 
   void _addCloud() {
@@ -683,29 +709,30 @@ class WorldMapScene extends Scene {
                   context: context,
                   builder: (context) => const TileDetailPanel());
             case TerrainPopUpMenuItems.createLocation:
-              InputWorldPositionDialog.show(
-                context: context,
-                defaultX: tilePosition.left,
-                defaultY: tilePosition.top,
-                maxX: map.tileMapWidth,
-                maxY: map.tileMapHeight,
-                title: engine.locale('createLocation'),
-                enableWorldId: false,
-              ).then(((int, int, String?)? value) {
-                if (value == null) return;
-                assert(context.mounted);
-                if (context.mounted) {
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return LocationView(
-                          mode: InformationViewMode.create,
-                          left: value.$1,
-                          top: value.$2,
-                        );
-                      });
-                }
-              });
+              break;
+            // InputWorldPositionDialog.show(
+            //   context: context,
+            //   defaultX: tilePosition.left,
+            //   defaultY: tilePosition.top,
+            //   maxX: map.tileMapWidth,
+            //   maxY: map.tileMapHeight,
+            //   title: engine.locale('createLocation'),
+            //   enableWorldId: false,
+            // ).then(((int, int, String?)? value) {
+            //   if (value == null) return;
+            //   assert(context.mounted);
+            //   if (context.mounted) {
+            //     showDialog(
+            //         context: context,
+            //         builder: (context) {
+            //           return LocationView(
+            //             mode: InformationViewMode.create,
+            //             left: value.$1,
+            //             top: value.$2,
+            //           );
+            //         });
+            //   }
+            // });
             case TerrainPopUpMenuItems.bindObject:
               showDialog(
                 context: context,
@@ -784,15 +811,21 @@ class WorldMapScene extends Scene {
   }
 
   Future<void> _updateCharactersOnWorldMap() async {
-    Iterable<dynamic> charactersOnWorldMap =
-        engine.hetu.invoke('getCharactersOnWorldMap', positionalArgs: [map.id]);
-
-    final charIds = charactersOnWorldMap.map((value) => value['id']);
+    List<dynamic> charactersOnWorldMap = engine.hetu
+        .invoke('getCharactersOnWorldMap', positionalArgs: [map.id]).toList();
 
     final toBeRemoved = [];
     for (final obj in map.components.values) {
+      if (obj == map.hero) {
+        final worldPos = obj.data['worldPosition'];
+        if (obj.data['worldId'] != map.id ||
+            worldPos['left'] == null ||
+            worldPos['top'] == null) {
+          toBeRemoved.add(obj.id);
+        }
+      }
       if (!obj.isCharacter) continue;
-      if (!charIds.contains(obj.id)) {
+      if (!charactersOnWorldMap.contains(obj.id)) {
         toBeRemoved.add(obj.id);
       }
     }
@@ -803,10 +836,14 @@ class WorldMapScene extends Scene {
 
     for (final char in charactersOnWorldMap) {
       assert(char['worldPosition'] != null);
+      int? left = char['worldPosition']['left'];
+      int? top = char['worldPosition']['top'];
+      if (left == null || top == null) {
+        continue;
+      }
       final charObj = await map.loadTileMapComponentFromData(char,
           spriteSrcSize: kWorldMapCharacterSpriteSrcSize, isCharacter: true);
-      charObj.tilePosition = TilePosition(
-          char['worldPosition']['left'], char['worldPosition']['top']);
+      charObj.tilePosition = TilePosition(left, top);
       map.updateTileInfo(charObj);
     }
   }
@@ -830,6 +867,18 @@ class WorldMapScene extends Scene {
     context.read<CurrentNpcList>().updated(npcsInHeroLocation);
   }
 
+  Future<void> _updateWorldMapLocations() async {
+    final locations = engine.hetu.invoke('getLocations');
+    for (final locationData in locations) {
+      if (locationData['category'] == 'city' &&
+          locationData['isDiscovered'] == true) {
+        final int left = locationData['worldPosition']['left'];
+        final int top = locationData['worldPosition']['top'];
+        map.setTerrainCaption(left, top, locationData['name']);
+      }
+    }
+  }
+
   Future<void> _updateMap() async {
     await _updateCharactersOnWorldMap();
 
@@ -844,7 +893,7 @@ class WorldMapScene extends Scene {
     if (!terrain.isLighted) return;
     final hero = map.hero!;
     if (hero.isWalking) return;
-    if (terrain.terrainKind == TileMapTerrainKind.empty) return;
+    if (terrain.terrainKind == TileMapTerrainKind.none) return;
 
     final neighbors = map.getNeighborTilePositions(hero.left, hero.top);
     if (terrain.isNonEnterable && neighbors.contains(terrain.tilePosition)) {
@@ -924,7 +973,8 @@ class WorldMapScene extends Scene {
         .invoke('onBeforeHeroEnterLocation', positionalArgs: [locationData]);
 
     engine.pushScene(
-      Scenes.location,
+      locationData['id'],
+      constructorId: Scenes.location,
       arguments: {'location': locationData},
     );
   }
@@ -1031,12 +1081,20 @@ class WorldMapScene extends Scene {
         engine.hetu.invoke('discoverLocation', positionalArgs: [heroHome]);
         _heroData = engine.hetu.fetch('hero');
       }
-
-      engine.hetu.invoke('onNewGame');
     }
 
     assert(_heroData != null);
     await map.loadHeroFromData(_heroData, kWorldMapCharacterSpriteSrcSize);
+
+    _updateWorldMapLocations();
+
+    if (_heroData['worldId'] == map.id) {
+      _setHeroTerrain(map.getTerrainAtHero());
+      map.moveCameraToTilePosition(map.hero!.left, map.hero!.top,
+          animated: false);
+    }
+
+    await _updateMap();
 
     assert(context.mounted);
     if (context.mounted) {
@@ -1044,31 +1102,25 @@ class WorldMapScene extends Scene {
       context
           .read<GameUIVisibilityState>()
           .setVisible(isNewGame ? false : null);
-    }
-
-    engine.hetu.invoke('updateWorldMapCaptions');
-
-    if (_heroData['worldPosition']?['worldId'] == map.id) {
-      _setHeroTerrain(map.getTerrainAtHero());
-      map.moveCameraToTilePosition(map.hero!.left, map.hero!.top,
-          animated: false);
-      // 刚进入游戏时可能会有黑屏对话，因此这里不点亮地图
-      // map.lightUpAroundTile(
-      //   map.hero!.tilePosition,
-      //   size: _heroData!['stats']['lightRadius'],
-      // );
-    }
-
-    await _updateMap();
-
-    assert(context.mounted);
-    if (context.mounted) {
       context.read<HistoryState>().update();
     }
+
+    engine.hetu.invoke('onNewGame');
+    engine.hetu.invoke('onWorldEvent', positionalArgs: ['onEnterMap']);
   }
 
   void closePopup() {
     _menuPosition = null;
+  }
+
+  Future<String?> selectWorldId() async {
+    return await showDialog(
+      context: context,
+      builder: (context) => SelectMenuDialog(
+          selections: {for (var element in GameData.worldIds) element: element},
+          selectedValue: GameData.worldIds
+              .firstWhere((element) => element != GameData.currentWorldId)),
+    );
   }
 
   void addHintTextByTilePosition(text, left, top,
@@ -1230,20 +1282,9 @@ class WorldMapScene extends Scene {
                       engine.pushScene(args['id'],
                           constructorId: Scenes.worldmap, arguments: args);
                     case WorldEditorDropMenuItems.switchWorld:
-                      final worldId = await showDialog(
-                        context: context,
-                        builder: (context) => SelectMenuDialog(
-                            selections: {
-                              for (var element in GameData.worldIds)
-                                element: element
-                            },
-                            selectedValue: GameData.worldIds.firstWhere(
-                                (element) =>
-                                    element != GameData.currentWorldId)),
-                      );
+                      final worldId = await selectWorldId();
                       if (worldId == null) return;
                       if (worldId == worldData['id']) return;
-
                       engine.hetu.invoke('setCurrentWorldId',
                           positionalArgs: [worldId]);
 
@@ -1260,6 +1301,24 @@ class WorldMapScene extends Scene {
                           },
                         );
                       }
+                    case WorldEditorDropMenuItems.deleteWorld:
+                      final worldId = await selectWorldId();
+                      if (worldId == null) return;
+                      if (worldId == worldData['id']) return;
+                      if (context.mounted) {
+                        final result = await showDialog<bool?>(
+                          context: context,
+                          builder: (context) => ConfirmDialog(
+                              description:
+                                  engine.locale('dangerOperationPrompt')),
+                        );
+                        if (result == true) {
+                          GameData.worldIds.remove(worldId);
+                          engine.hetu.invoke('deleteWorldById',
+                              positionalArgs: [worldId]);
+                        }
+                      }
+
                     case WorldEditorDropMenuItems.expandWorld:
                       showDialog<(int, int, String)>(
                               context: context,

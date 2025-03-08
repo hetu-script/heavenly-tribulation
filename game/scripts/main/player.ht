@@ -38,13 +38,16 @@ namespace Player {
   external function updateQuest()
 
   function setTo(left, top, { worldId, direction } ) {
+    engine.info('player set to: [${left}, ${top}] of world [${worldId ?? world.id}] facing [${direction}]')
     setCharacterWorldPosition(hero, left, top, worldId: worldId)
     if (worldId == null || worldId == world.id) {
       if (direction != null) {
         assert(kOrthogonalDirections.contains(direction))
       }
       World.setCharacterTo(hero.id, left, top, direction: direction)
+      World.moveCameraToMapPosition(left, top, animated: false)
       World.lightUpAroundTile(left, top, hero.stats.lightRadius)
+      onWorldEvent('onAfterHeroMove', left, top)
     }
   }
 
@@ -214,12 +217,12 @@ namespace Player {
 
   //   let subjectIds
   //   let objectIds
-  //   if (forcerCharacter && forcerCharacter.isMajorCharacter) {
+  //   if (forcerCharacter && forcerCharacter.isMain) {
   //     subjectIds = [forcerCharacter.id]
-  //     if (character.isMajorCharacter) {
+  //     if (character.isMain) {
   //       objectIds = [character.id]
   //     }
-  //   } else if (character.isMajorCharacter) {
+  //   } else if (character.isMain) {
   //     subjectIds = [character.id]
   //   }
 

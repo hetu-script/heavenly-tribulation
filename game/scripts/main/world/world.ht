@@ -51,7 +51,6 @@ struct TileMapTerrain {
     this.kind = kTerrainKindVoid
     this.flags = {}
     this.experienced = []
-    this.monthlyUpdateTime = random.nextInt(kTicksPerMonth)
     // 地形互动
     this.montylyActivities = {
       explored: [],

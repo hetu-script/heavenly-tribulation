@@ -156,23 +156,23 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           );
                         },
                         child: Label(
-                          engine.locale('tutorial'),
-                          width: 150.0,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20.0),
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        child: Label(
                           engine.locale('storyMode'),
                           width: 150.0,
                           textAlign: TextAlign.center,
                         ),
                       ),
                     ),
+                    // Padding(
+                    //   padding: const EdgeInsets.only(top: 20.0),
+                    //   child: ElevatedButton(
+                    //     onPressed: () {},
+                    //     child: Label(
+                    //       engine.locale('storyMode'),
+                    //       width: 150.0,
+                    //       textAlign: TextAlign.center,
+                    //     ),
+                    //   ),
+                    // ),
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
                       child: ElevatedButton(
@@ -398,11 +398,14 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                       child: ElevatedButton(
                         onPressed: () {
                           final enemy =
-                              engine.hetu.invoke('generateEnemey', namedArgs: {
+                              engine.hetu.invoke('Character', namedArgs: {
+                            'isMain': false,
                             'isFemale': false,
                             'level': 0,
                             'rank': 0,
                           });
+                          engine.hetu
+                              .invoke('generateDeck', positionalArgs: [enemy]);
                           context.read<EnemyState>().update(enemy);
                         },
                         child: Label(engine.locale('debug_battle'),
