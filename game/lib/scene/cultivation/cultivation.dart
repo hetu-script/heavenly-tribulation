@@ -170,13 +170,13 @@ class CultivationScene extends Scene {
   }
 
   /// 返回的两个bool值分别表示技能是否已经学习，以及技能是否可以学习
-  (bool, bool) checkSkillStatus(String positionId) {
-    final skillTreeNodeData = GameData.skillTree[positionId];
-    final unlockedNodes = _heroData['skillTreeUnlockedNodes'] as HTStruct;
+  (bool, bool) checkPassiveStatus(String positionId) {
+    final passiveTreeNodeData = GameData.passiveTree[positionId];
+    final unlockedNodes = _heroData['passiveTreeUnlockedNodes'] as HTStruct;
     final isLearned = unlockedNodes.contains(positionId);
     // 可以学的技能，如果邻近的父节点无一解锁，则无法学习
     // 如果父节点数据是空的，则是入口节点，直接可以学习
-    final List? parentNodes = skillTreeNodeData?['parentNodes'];
+    final List? parentNodes = passiveTreeNodeData?['parentNodes'];
     bool isOpen = parentNodes?.isEmpty ?? true;
     if (!isOpen) {
       for (final parent in parentNodes!) {
@@ -277,11 +277,11 @@ class CultivationScene extends Scene {
 
   void _addGenreSkillButton(
       {required String positionId, required Vector2 position}) {
-    final skillTreeNodeData = GameData.skillTree[positionId];
+    final skillTreeNodeData = GameData.passiveTree[positionId];
 
     late SpriteButton button;
 
-    final (isLearned, isOpen) = checkSkillStatus(positionId);
+    final (isLearned, isOpen) = checkPassiveStatus(positionId);
 
     if (skillTreeNodeData == null) {
       // 还未开放的技能，在debug模式下显示为占位符，release模式下不显示
@@ -342,7 +342,7 @@ class CultivationScene extends Scene {
         // 分配新的属性天赋点时，从五种属性中选择一种，并获得3点该属性值
         // 分配后，按钮也会相应变成对应该属性的颜色
         // 身法：绿 灵力：蓝 体魄：红 意志：白 神识：黄
-        final attributeId = _heroData['skillTreeUnlockedNodes'][positionId];
+        final attributeId = _heroData['passiveTreeUnlockedNodes'][positionId];
         assert(attributeId is String);
         final attributeSkillData = GameData.passives[attributeId];
         assert(attributeSkillData != null);
@@ -350,7 +350,7 @@ class CultivationScene extends Scene {
       }
 
       button.onTapUp = (buttons, position) async {
-        final (isLearned, isOpen) = checkSkillStatus(positionId);
+        final (isLearned, isOpen) = checkPassiveStatus(positionId);
 
         if (buttons == kPrimaryButton) {
           if (isLearned || !isOpen) return;
@@ -360,7 +360,7 @@ class CultivationScene extends Scene {
           if (_heroData['cultivationRank'] < rank) return;
 
           if (_heroData['availableSkillPoints'] > 0) {
-            final unlockedNodes = _heroData['skillTreeUnlockedNodes'];
+            final unlockedNodes = _heroData['passiveTreeUnlockedNodes'];
             if (isAttribute) {
               final selectedAttributeId =
                   await SelectionDialog.show(context: context, selectionsData: {
@@ -424,7 +424,7 @@ class CultivationScene extends Scene {
           ++_heroData['availableSkillPoints'];
           button.isSelected = false;
 
-          final unlockedNodes = _heroData['skillTreeUnlockedNodes'];
+          final unlockedNodes = _heroData['passiveTreeUnlockedNodes'];
 
           if (isAttribute) {
             final attributeId = unlockedNodes[positionId];
@@ -451,7 +451,7 @@ class CultivationScene extends Scene {
       };
 
       button.onMouseEnter = () {
-        final (isLearned, isOpen) = checkSkillStatus(positionId);
+        final (isLearned, isOpen) = checkPassiveStatus(positionId);
 
         StringBuffer skillDescription = StringBuffer();
 
@@ -460,7 +460,7 @@ class CultivationScene extends Scene {
               '<bold yellow>${engine.locale(skillTreeNodeData['title'])}</>');
           skillDescription.writeln(' ');
 
-          final attributeId = _heroData['skillTreeUnlockedNodes'][positionId];
+          final attributeId = _heroData['passiveTreeUnlockedNodes'][positionId];
           assert(attributeId is String);
           final attributeSkillData = GameData.passives[attributeId];
           assert(attributeSkillData != null);
@@ -729,7 +729,7 @@ class CultivationScene extends Scene {
       final track = generateDividingPointsFromCircle(
           center.x, center.y, radius.toDouble(), count);
       for (var j = 0; j < track.length; j++) {
-        final id = 'skilltrack_${i}_$j';
+        final id = 'track_${i}_$j';
         _addGenreSkillButton(
           positionId: id,
           position: track[j].position,
@@ -738,7 +738,7 @@ class CultivationScene extends Scene {
     }
 
     for (final positionId in _skillButtons.keys) {
-      final skillTreeNodeData = GameData.skillTree[positionId];
+      final skillTreeNodeData = GameData.passiveTree[positionId];
 
       if (skillTreeNodeData != null) {
         final button = _skillButtons[positionId]!;

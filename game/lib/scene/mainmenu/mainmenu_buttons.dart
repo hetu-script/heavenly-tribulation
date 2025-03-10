@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../../ui.dart';
 import '../../data.dart';
 import '../../engine.dart';
-import '../game_dialog/game_dialog.dart';
+import '../game_dialog/game_dialog_content.dart';
 import 'load_game.dart';
 import 'create_sandbox_game.dart';
 import 'create_blank_map.dart';
@@ -140,17 +140,17 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                       child: ElevatedButton(
                         onPressed: () async {
                           context
-                              .read<GameUIVisibilityState>()
+                              .read<HeroInfoVisibilityState>()
                               .setVisible(false);
                           setMenuState(MenuStates.main);
 
-                          await GameData.loadPreset('tutorial');
+                          await GameData.loadPreset('story');
                           engine.pushScene(
                             'cave',
                             constructorId: Scenes.worldmap,
                             arguments: const {
                               'id': 'cave',
-                              'savePath': 'tutorial',
+                              'savePath': 'save',
                               'method': 'preset',
                             },
                           );
@@ -185,7 +185,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           if (args == null) return;
                           if (context.mounted) {
                             context
-                                .read<GameUIVisibilityState>()
+                                .read<HeroInfoVisibilityState>()
                                 .setVisible(false);
                           }
                           setMenuState(MenuStates.main);
@@ -218,7 +218,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           if (info == null) return;
                           if (context.mounted) {
                             context
-                                .read<GameUIVisibilityState>()
+                                .read<HeroInfoVisibilityState>()
                                 .setVisible(false);
                           }
                           setMenuState(MenuStates.main);
@@ -416,7 +416,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                       padding: const EdgeInsets.only(top: 20.0),
                       child: ElevatedButton(
                         onPressed: () {
-                          GameDialog.show(
+                          GameDialogContent.show(
                             context,
                             {
                               'characterData': _heroData,

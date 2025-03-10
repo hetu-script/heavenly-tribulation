@@ -90,7 +90,7 @@ void main() {
           ChangeNotifierProvider(create: (_) => GameDialogState()),
           ChangeNotifierProvider(create: (_) => CurrentNpcList()),
           ChangeNotifierProvider(create: (_) => QuestState()),
-          ChangeNotifierProvider(create: (_) => GameUIVisibilityState()),
+          ChangeNotifierProvider(create: (_) => HeroInfoVisibilityState()),
           ChangeNotifierProvider(create: (_) => HeroState()),
           ChangeNotifierProvider(create: (_) => EnemyState()),
           ChangeNotifierProvider(create: (_) => ViewPanelState()),

@@ -39,7 +39,8 @@ function addEventHandlers({moduleId, worldId, handlers}) {
 /// 第二个是回调本身的一些传入参数，例如执行时的一些情况等等
 
 /// 世界事件，该类事件只会触发绑定到当前世界的模组
-function onWorldEvent(eventId: string, ...args) async {
+async function onWorldEvent(eventId: string, ...args) {
+  let result
   for (const module in game.modules.values) {
     let callback = null
     if (module.contains(world.id)) {
@@ -48,21 +49,30 @@ function onWorldEvent(eventId: string, ...args) async {
     // callback 可能是 null
     if(callback is function) {
       engine.debug('执行模组 [${module.id}] 在世界 [${world.id}] 上的事件处理函数 [${eventId}]')
-      await callback.apply(module, ...args)
+      final r = await callback.apply(module, ...args)
+      if (r != null) {
+        result = r
+      }
     }
   }
+  return result
 }
 
 /// 游戏事件，该类事件会触发所有模组
-function onGameEvent(eventId: string, ...args) async {
+async function onGameEvent(eventId: string, ...args) {
+  let result
   for (const module in game.modules.values) {
     let callback = module[eventId]
     // callback 可能是 null
     if(callback is function) {
       engine.debug('执行模组 [${module.id}] 的通用事件处理函数 [${eventId}]')
-      await callback.apply(module, ...args)
+      final r = await callback.apply(module, ...args)
+      if (r != null) {
+        result = r
+      }
     }
   }
+  return result
 }
 
 /// 游戏事件
@@ -70,7 +80,7 @@ function onGameEvent(eventId: string, ...args) async {
 const mainEvents = {
   onEnterCultivation: async () {
     if (hero.exp > 0) return
-    await Dialog.localeLines('tutorial.cultivation')
+    Dialog.pushLocales('tutorial.cultivation')
   }
 }
 

@@ -150,6 +150,9 @@ class _CharacterMemoryViewState extends State<CharacterMemoryView>
       titleHeight: 100,
       onTapDown: (offset) {
         context.read<ViewPanelState>().setUpFront(ViewPanels.characterMemory);
+        context
+            .read<ViewPanelPositionState>()
+            .set(ViewPanels.characterMemory, position);
       },
       onDragUpdate: (details) {
         context.read<ViewPanelPositionState>().update(

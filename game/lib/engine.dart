@@ -11,7 +11,7 @@ abstract class GameConfig {
   static double musicVolume = 0.5;
   static double soundEffectVolume = 0.5;
   static Map<String, dynamic> modules = {
-    'tutorial': {
+    'story': {
       'enabled': true,
       'preinclude': true,
     }

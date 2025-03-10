@@ -1,0 +1,29 @@
+{
+  "chapter1.enterMap.line0": "站住！",
+  "chapter1.enterMap.line1": "大哥，就是这两个白鹤派的小崽子，他们私自闯进了蚀骨洞天，还把我打伤了。",
+  "chapter1.enterMap.line2": "就这两个？一个凝气，一个凝气都没到。这还要我亲自跑一趟，你也太不中用了！",
+  "chapter1.enterMap.line3": "等等，这是鬼脉？这女孩修的是<yellow>器灵</>功法！\n哈哈，没想到我还有意外收获。这女孩我带走了。\n这下说不能功勋就够了……\n你把这个小鬼收拾了就行。他这个连功法都不会的家伙，总不用要我出手吧。",
+  "chapter1.enterMap.line4": "你叹了口气，摸了摸怀里那块之前从那女孩身上拿到的神秘玉石，下定了某种决心。",
+  "chapter1.enterMap.line5": "你纵身一跳，从悬崖上一跃而下。\n当然，你并不会筑基修士的御剑飞行。\n转瞬之间，你就落入了悬崖下面冰冷的海水之中。",
+
+  "chapter1.enterMap.line6": "………………\n从小流浪的你水性很好。你躲在水下，等到那两个妖族修士离开之后，才慢慢浮上水面，游到了附近的岸边。",
+
+  "chapter1.enterMap.line7": "\n那个女孩……\n凭我的本事可能救不了她了。\n我已经引起了紫河宗的注意，看来要赶快逃出这里才行。",
+
+  "chapter1.enterWanfucun.line1": "这位兄弟暂且留步。\n我看你甚是面生。难道…………难道你是从外界来的？",
+  "chapter1.enterWanfucun.line2": "对方看起来并无恶意。我虽然没必要撒谎，但我也没必要将一切事情都告诉他……",
+  "chapter1.enterWanfucun.line3": "在下是个炼器师，偶然路过这里，不巧遇到海上的风暴，被冲到这附近的岸边。",
+  "chapter1.enterWanfucun.line4": "对方向你拱了拱手，奇怪的是，他脸上似乎有些怜悯之色。",
+  "chapter1.enterWanfucun.line5": "阁下果然是外界之人。\n既然阁下并非修士，也非紫河宗人，今后便也是我们万福村的一员了。关于这里的任何问题，都可以找我解答。",
+  "chapter1.enterWanfucun.line6": "我确实有几个问题，还请见教。",
+
+  "chapter1.enterWanfucun.questionAfu": "你是谁？",
+  "chapter1.enterWanfucun.questionWanfucun": "万福村？",
+  "chapter1.enterWanfucun.questionSeal": "紫河宗？",
+  "chapter1.enterWanfucun.questionEnd": "我没有问题了",
+
+  "chapter1.enterWanfucun.questionAfu.reply": "我叫阿福，是这万福村的村长。",
+  "chapter1.enterWanfucun.questionWanfucun.reply": "这片地域叫灵龟岛，属于鹤堤国地界。这个村子叫万福村，原本由附庸于鹤堤国的一个中立宗门所辖，但二十年前这个宗门被紫河宗击败，修士四散而逃，宗门也就此解散。",
+  "chapter1.enterWanfucun.questionSeal.reply": "紫河宗如今控制了这万福村，还封锁了这里的边界。若非经过紫河宗准许，谁也无法自由进出。\n阁下虽然是偶然流落到此，但既然并非修士，今后恐怕再也难以离开此地了。\n我们如今都是紫河宗修士的杂役和附庸。每个月都要交纳物资，否则就要受到惩罚。",
+  "chapter1.enterWanfucun.questionEnd.reply": "我们这里虽然是穷乡僻壤，但总不会亏待客人。这段时间，阁下可以居住在我们这里空余的宅屋中。\n若是有任何别的需求，都可以来村子里的集会所里找我。"
+}

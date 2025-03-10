@@ -22,14 +22,19 @@ function getItemExtraAffixes(item) {
 
 struct Equipment {
   constructor({
+    id,
+    name,
+    flavortext,
     kind,
     rarity,
     rank,
     level,
+    isIdentified = true,
   }) {
     this.entityType = kEntityTypeItem
     this.createdTimestamp = game.timestamp
-    this.category = kItemCategoryEquipment;
+    this.category = kItemCategoryEquipment
+    this.isIdentified = isIdentified
 
     // kind 决定了物品名字的生成方式
     // weapon具体分为：sabre, sword, spear, staff, bow, dart, music
@@ -38,9 +43,9 @@ struct Equipment {
     assert(kind != null)
     this.kind = kind;
 
-    this.id = crypto.randomNID(withTime: true)
-    this.name = generateTalismanName(kind: this.kind)
-    this.flavortext = engine.locale('item_${this.kind}_flavortext')
+    this.id = id ?? crypto.randomNID(withTime: true)
+    this.name = name ?? generateTalismanName(kind: this.kind)
+    this.flavortext = flavortext ?? engine.locale('item_${this.kind}_flavortext')
 
     if (rarity != null) {
       assert(kRarity.containsKey(rarity))
@@ -144,9 +149,10 @@ function createItemById(itemId) {
   return item
 }
 
-function entityEquippedItemKind(entity, itemKind) {
+function entityHasEquippedItemKind(entity, itemKind) {
   assert(entity.inventory != null && itemKind != null) 
-  for (let item in entity.inventory.values) {
+  for (let itemId in entity.equipments) {
+    final item = entity.inventory[itemId]
     if (item.kind == itemKind) {
       return true
     }
@@ -156,7 +162,7 @@ function entityEquippedItemKind(entity, itemKind) {
 
 function entityHasItemKind(entity, itemKind) {
   assert(entity.inventory != null && itemKind != null)
-  for (let item in entity.equipments) {
+  for (let item in entity.inventory.values) {
     if (item.kind == itemKind) {
       return true
     }
@@ -178,6 +184,28 @@ function entityCollectById(entity, materialId: string, { amount = 1, incurIncide
     Incident(
       message: incidentContent,
       subjectId: entity.id,
+      isPrivate: true,
+    )
+  }
+  engine.debug(incidentContent)
+}
+
+function entityAcquireItemById(entity, itemId, { incurIncident = true }) {
+  final item = createItemById(itemId)
+
+  entity.inventory[item.id] = item
+  item.ownerId = entity.id
+  
+  let incidentContent
+  incidentContent = engine.locale('characterAcquire', interpolations: [
+    entity.name,
+    item.name,
+  ])
+  if (incurIncident) {
+    Incident(
+      message: incidentContent,
+      subjectId: entity.id,
+      item: item,
       isPrivate: true,
     )
   }
@@ -240,14 +268,19 @@ function entityAcquire(entity, item, { incurIncident = true }) {
   if (item.ownerId != null) {
     entityLose(entity, item)
   }
-  
+
+  item.isNew = true
   switch(item.entityType) {
     case kEntityTypeItem: {
-      item.ownerId = hero.id
+      item.ownerId = entity.id
       entity.inventory[item.id] = item
+      item.acquiredSequence = entity.achievements.acquiredItems
+      ++entity.achievements.acquiredBattleCards
     }
     case kEntityTypeBattleCard: {
       entity.cardLibrary[item.id] = item
+      item.acquiredSequence = entity.achievements.acquiredBattleCards
+      ++entity.achievements.acquiredBattleCards
     }
   }
 
@@ -269,6 +302,7 @@ function entityAcquire(entity, item, { incurIncident = true }) {
 
 /// 失去物品
 function entityLose(entity, item, { incurIncident = true }) {
+  assert(item.ownerId == null || item.ownerId == entity.id)
   delete entity.inventory[item.id]
   delete item.ownerId
 

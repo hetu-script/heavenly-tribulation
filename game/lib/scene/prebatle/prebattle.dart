@@ -18,7 +18,7 @@ import '../common.dart';
 import '../../logic/battlecard.dart';
 import '../../state/states.dart';
 import '../../widgets/character/inventory/stats.dart';
-import '../game_dialog/game_dialog.dart';
+import '../game_dialog/game_dialog_content.dart';
 
 class PreBattleDialog extends StatefulWidget {
   final dynamic heroData, enemyData;
@@ -444,7 +444,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                     }
                                   }
                                   if (!identified) {
-                                    GameDialog.show(
+                                    GameDialogContent.show(
                                       context,
                                       engine.locale(
                                           'identify_deck_identifed_all'),
@@ -453,7 +453,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                   context.read<HoverInfoContentState>().hide();
                                 });
                               } else {
-                                GameDialog.show(
+                                GameDialogContent.show(
                                   context,
                                   engine.locale('identify_deck_reach_limit'),
                                 );

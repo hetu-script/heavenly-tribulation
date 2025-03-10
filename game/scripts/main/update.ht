@@ -1,15 +1,11 @@
 import 'game.ht'
 import 'event.ht'
 import 'entity/character/character.ht'
-// import 'l10n.ht'
-// import 'maze/maze.ht'
-// import 'quest/quest.ht'
 import 'world/tile/common.ht'
 import 'name/character.ht'
 import 'binding/world.ht'
 import 'entity/location/location.ht'
 import 'world/tile/hexagonal_tile.ht'
-// import 'entity/skill/skill.ht'
 import 'datetime.ht'
 
 const _kQuestProbability = 0.35
@@ -189,13 +185,13 @@ function updateGame({ticks = 1, timeflow = true, playerEvent = true}) -> bool {
       }
     }
 
-    // 调用mod上的回调函数
-    onWorldEvent('onAfterWorldUpdate')
-
     if (timeflow) {
       ++game.timestamp
       calculateTimestamp()
     }
+
+    // 调用mod上的回调函数
+    onWorldEvent('onAfterUpdate')
   }
 
   return false
@@ -416,7 +412,7 @@ function updateOrganizationMonthly(organization) {
 }
 
 function updateCharacter(character) {
-  engine.debug('触发 ${character.id} 的月度更新事件')
+  engine.debug('触发 ${character.name} 的月度更新事件')
 
 }
 

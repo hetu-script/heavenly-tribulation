@@ -14,12 +14,12 @@ import 'deckbuilding_zone.dart';
 import '../../ui.dart';
 import '../../engine.dart';
 import 'common.dart';
-import '../game_dialog/game_dialog.dart';
 // import 'cardcrafting_area.dart';
 import '../../state/states.dart';
 import '../../data.dart';
 import '../../widgets/ui_overlay.dart';
 import 'menus.dart';
+import '../game_dialog/game_dialog_content.dart';
 
 const kAffixOperations = [
   'addAffix',
@@ -92,12 +92,14 @@ class CardLibraryScene extends Scene {
 
   void _setBattleDeck(DeckBuildingZone zone) {
     if (!zone.isCardsEnough) {
-      GameDialog.show(context, engine.locale('deckbuilding_cards_not_enough'));
+      GameDialogContent.show(
+          context, engine.locale('deckbuilding_cards_not_enough'));
       return;
     }
 
     if (!zone.isRequirementMet) {
-      GameDialog.show(context, engine.locale('deckbuilding_card_invalid'));
+      GameDialogContent.show(
+          context, engine.locale('deckbuilding_card_invalid'));
       return;
     }
 
@@ -341,7 +343,8 @@ class CardLibraryScene extends Scene {
 
   void _affixOperation(CustomGameCard? card, String id) {
     if (card == null) {
-      GameDialog.show(context, engine.locale('deckbuilding_no_card_hint'));
+      GameDialogContent.show(
+          context, engine.locale('deckbuilding_no_card_hint'));
       return;
     }
 
@@ -349,7 +352,7 @@ class CardLibraryScene extends Scene {
 
     if (result != null) {
       // 如果不能进行精炼，返回的是错误信息的本地化字符串key
-      GameDialog.show(context, engine.locale(result));
+      GameDialogContent.show(context, engine.locale(result));
     } else {
       engine.play('hammer-hitting-an-anvil-25390.mp3');
 

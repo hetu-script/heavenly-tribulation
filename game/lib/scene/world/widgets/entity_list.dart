@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/scene/game_dialog/game_dialog.dart';
+import 'package:heavenly_tribulation/scene/game_dialog/game_dialog_content.dart';
 import 'package:json5/json5.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
@@ -904,7 +904,7 @@ class _EntityListPanelState extends State<EntityListPanel>
                         final selectedTile =
                             context.read<SelectedTileState>().currentTerrain;
                         if (selectedTile == null) {
-                          GameDialog.show(
+                          GameDialogContent.show(
                               context, engine.locale('selectedTilePrompt'));
                           return;
                         }

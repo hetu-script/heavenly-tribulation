@@ -79,6 +79,7 @@ namespace Debug {
   function updateAllCaptions() {
     for (const tile in world.terrains) {
       if (tile.locationId) {
+        assert(world.locations.containsKey(tile.locationId))
         const location = world.locations[tile.locationId]
         World.setTerrainCaption(tile.left, tile.top, location.name)
       } else if (tile.objectId) {
@@ -101,7 +102,7 @@ namespace Debug {
   }
 
   function skipStoryChapter0() {
-    game.modules.tutorial.flags = {
+    game.modules.story.flags = {
       checkPoint1: true,
       checkPoint2: true,
       checkPoint3: true,

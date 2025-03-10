@@ -5,14 +5,15 @@ import '../entity.ht'
 
 struct MaterialStorage {
   constructor {
-    this.money = 0;
-    this.jade = 0;
-    this.food = 0;
-    this.stone = 0;
-    this.ore = 0;
-    this.timber = 0;
-    this.paper = 0;
-    this.herb = 0;
+
+    this.money = 0
+    this.jade = 0
+    this.worker = 0
+
+    this.herb = 0
+    this.timber = 0
+    this.stone = 0
+    this.ore = 0
   }
 }
 

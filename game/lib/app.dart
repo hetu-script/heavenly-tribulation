@@ -15,14 +15,12 @@ import 'binding/character_binding.dart';
 import 'data.dart';
 import 'ui.dart';
 import 'scene/world/location/location.dart';
-import 'scene/game_dialog/dialog_background.dart';
 import 'state/states.dart';
 import 'scene/cultivation/cultivation.dart';
 import 'logic/algorithm.dart';
 import 'scene/common.dart';
 
-import 'scene/game_dialog/game_dialog.dart';
-import 'scene/game_dialog/selection_dialog.dart';
+import 'scene/game_dialog/game_dialog_content.dart';
 import 'widgets/dialog/character_visit_dialog.dart';
 import 'widgets/dialog/character_select_dialog.dart';
 import 'widgets/merchant/merchant.dart';
@@ -141,24 +139,65 @@ class _GameAppState extends State<GameApp> {
         ({positionalArgs, namedArgs}) => expForLevel(positionalArgs.first),
         override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Dialog::_say', (
+    engine.hetu.interpreter.bindExternalFunction('Dialog::_pushDialog', (
         {positionalArgs, namedArgs}) {
-      return GameDialog.show(
-        positionalArgs[0],
-        positionalArgs[1],
-        returnValue: positionalArgs[2],
-      );
+      context.read<GameDialogState>().pushDialog(positionalArgs[0]);
     });
 
-    engine.hetu.interpreter.bindExternalFunction('Dialog::_select', (
+    engine.hetu.interpreter.bindExternalFunction('Dialog::execute', (
         {positionalArgs, namedArgs}) {
-      return SelectionDialog.show(
-        context: positionalArgs[0],
-        selectionsData: positionalArgs[1],
-      );
+      return context.read<GameDialogState>().execute();
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Dialog::pushImage', (
+        {positionalArgs, namedArgs}) {
+      context.read<GameDialogState>().pushImage(
+            positionalArgs[0],
+            offsetX: namedArgs['offsetX'],
+            offsetY: namedArgs['offsetY'],
+          );
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Dialog::popImage', (
+        {positionalArgs, namedArgs}) {
+      context.read<GameDialogState>().popImage(
+            imageId: namedArgs['image'],
+          );
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Dialog::pushBackground', (
+        {positionalArgs, namedArgs}) {
+      context.read<GameDialogState>().pushBackground(positionalArgs.first,
+          isFadeIn: namedArgs['isFadeIn'] ?? false);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Dialog::popBackground', (
+        {positionalArgs, namedArgs}) {
+      context
+          .read<GameDialogState>()
+          .popBackground(isFadeOut: namedArgs['isFadeOut'] ?? false);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Dialog::pushTask', (
+        {positionalArgs, namedArgs}) {
+      final func = positionalArgs[0] as HTFunction;
+      context.read<GameDialogState>().pushTask(
+            () => func.call(),
+            flagId: namedArgs['flagId'],
+          );
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Dialog::pushSelection', (
+        {positionalArgs, namedArgs}) {
+      context.read<GameDialogState>().pushSelection(positionalArgs[0]);
     });
 
-    engine.hetu.interpreter.bindExternalFunction('Dialog::_characterSelect', (
+    engine.hetu.interpreter.bindExternalFunction('Dialog::checkSelected', (
+        {positionalArgs, namedArgs}) {
+      return context.read<GameDialogState>().checkSelected(positionalArgs[0]);
+    });
+
+    engine.hetu.interpreter.bindExternalFunction('Dialog::_selectCharacter', (
         {positionalArgs, namedArgs}) {
       return CharacterSelectDialog.show(
         context: positionalArgs[0],
@@ -168,7 +207,7 @@ class _GameAppState extends State<GameApp> {
       );
     });
 
-    engine.hetu.interpreter.bindExternalFunction('Dialog::_visitSelect', (
+    engine.hetu.interpreter.bindExternalFunction('Dialog::_selectResidence', (
         {positionalArgs, namedArgs}) {
       return CharacterVisitDialog.show(
         context: positionalArgs[0],
@@ -220,67 +259,6 @@ class _GameAppState extends State<GameApp> {
       );
     });
 
-    engine.hetu.interpreter.bindExternalFunction('Dialog::_start', (
-        {positionalArgs, namedArgs}) {
-      context.read<GameDialogState>().start();
-      GameDialogBackground.show(context: positionalArgs.first);
-    }, override: true);
-
-    engine.hetu.interpreter.bindExternalFunction('Dialog::pop', (
-        {positionalArgs, namedArgs}) {
-      Navigator.of(context).pop();
-    }, override: true);
-
-    engine.hetu.interpreter.bindExternalFunction('Dialog::end', (
-        {positionalArgs, namedArgs}) {
-      if (mounted) {
-        context.read<GameDialogState>().end();
-      }
-      // 清理掉所有可能没有清理的残存数据
-      context.read<GameDialogState>().popAllImages();
-      context.read<GameDialogState>().popAllBackgrounds();
-      Navigator.of(context).pop();
-    }, override: true);
-
-    engine.hetu.interpreter.bindExternalFunction('Dialog::pushImage', (
-        {positionalArgs, namedArgs}) {
-      context.read<GameDialogState>().pushImage(
-            positionalArgs[0],
-            offsetX: namedArgs['offsetX'],
-            offsetY: namedArgs['offsetY'],
-            fadeIn: namedArgs['fadeIn'],
-          );
-    }, override: true);
-
-    engine.hetu.interpreter.bindExternalFunction('Dialog::popImage', (
-        {positionalArgs, namedArgs}) {
-      context.read<GameDialogState>().popImage(
-            imageId: namedArgs['image'],
-          );
-    }, override: true);
-
-    engine.hetu.interpreter.bindExternalFunction('Dialog::popAllImages', (
-        {positionalArgs, namedArgs}) {
-      context.read<GameDialogState>().popAllImages();
-    }, override: true);
-
-    engine.hetu.interpreter.bindExternalFunction('Dialog::pushBackground', (
-        {positionalArgs, namedArgs}) {
-      context
-          .read<GameDialogState>()
-          .pushBackground(positionalArgs.first, fadeIn: namedArgs['fadeIn']);
-    }, override: true);
-
-    engine.hetu.interpreter.bindExternalFunction('Dialog::popBackground', (
-        {positionalArgs, namedArgs}) {
-      context.read<GameDialogState>().popBackground();
-    }, override: true);
-
-    engine.hetu.interpreter.bindExternalFunction('Dialog::popAllBackgrounds', (
-        {positionalArgs, namedArgs}) {
-      context.read<GameDialogState>().popAllBackgrounds();
-    }, override: true);
-
     engine.hetu.interpreter.bindExternalFunction('Player::updateHero', (
         {positionalArgs, namedArgs}) {
       context.read<HeroState>().update();
@@ -299,19 +277,19 @@ class _GameAppState extends State<GameApp> {
     engine.hetu.interpreter.bindExternalFunction('Debug::reloadGameData', (
         {positionalArgs, namedArgs}) {
       GameData.initGameData();
-      GameDialog.show(context, engine.locale('reloadGameDataPrompt'));
+      GameDialogContent.show(context, engine.locale('reloadGameDataPrompt'));
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Debug::reloadModules', (
         {positionalArgs, namedArgs}) {
       GameData.initModules();
-      GameDialog.show(context, engine.locale('reloadModulesPrompt'));
+      GameDialogContent.show(context, engine.locale('reloadModulesPrompt'));
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('System::showUI', (
+    engine.hetu.interpreter.bindExternalFunction('System::showHeroInfo', (
         {positionalArgs, namedArgs}) {
       context
-          .read<GameUIVisibilityState>()
+          .read<HeroInfoVisibilityState>()
           .setVisible(positionalArgs.first ?? true);
     }, override: true);
 

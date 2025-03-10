@@ -1,5 +1,5 @@
-import '../entity/entity.ht'
-import '../lootbox.ht'
+import 'entity/entity.ht'
+import 'lootbox.ht'
 
 const kQuestDifficultyNormal = 'normal'
 const kQuestDifficultyHard = 'hard'
@@ -40,20 +40,25 @@ const kQuestCatergoryEscort = 'escort'
 
 struct Quest {
   constructor({
+    id,
     name,
-    publisherId,
+    publishCharacterId,
     stages: List,
   }) {
-    this.id = 'quest.${crypto.randomUID(length: 6)}'
+    assert(name != null)
     this.name = name
-    this.publisherId = publisherId
+
+    this.id = id ?? crypto.randomUID(withTime: true)
+    this.publishCharacterId = publishCharacterId
+
     assert(stages is List && stages.isNotEmpty)
-    //   stages: {
-    //     category,
-    //     objective,
-    //     expirationTimestamp,
-    //     description,
-    //   }
+    /// stages 是任务每个阶段的数据，以列表形式保存，具体内容如下：
+    /// {
+    ///   category,
+    ///   objective,
+    ///   expirationTimestamp,
+    ///   description,
+    /// }
     this.stages = stages
     this.currentStageIndex = 0
 
@@ -63,91 +68,28 @@ struct Quest {
   }
 }
 
-function acceptQuest(character, quest, { incurIncident = true }) {
-  character.quests[quest.id] = quest
-  character.activeQuestIds.add(quest.id)
-  
-  const title = quest.stages[quest.currentStageIndex].title;
-  const incidentContent = engine.locale(
-    'characterAcceptQuest',
-    interpolations: [character.name, quest.name],
+function generateQuestById(questId, {publishCharacterId}) {
+  assert(game.quests.containsKey(questId))
+  final questData = game.quests[questId]
+  final quest = Quest(
+    id: questId,
+    publishCharacterId: publishCharacterId,
+    name: engine.locale(questData.name),
+    stages: questData.stages.map((stageData) {
+      return {
+        category: stageData.category,
+        objective: stageData.objective,
+        expirationTimestamp: stageData.expirationTimestamp,
+        description: engine.locale(stageData.description),
+      }
+    }).toList(),
   )
-  if (incurIncident) {
-    Incident(
-      message: incidentContent,
-      subjectId: character.id,
-    )
-  } else {
-    engine.debug(incidentContent)
-  }
-}
-
-function finishQuest(character, quest, { isSuccess = true, incurIncident = true }) {
-  assert(character.quests.containsKey(quest.id))
-  character.activeQuestIds.remove(quest.id)
-  quest.isFinished = true
-  quest.isSuccess = isSuccess
-
-  let incidentContent
-  if (isSuccess) {
-    incidentContent = engine.locale(
-      'characterFinishQuestSuccess',
-      interpolations: [character.name, quest.name],
-    )
-  } else {
-    incidentContent = engine.locale(
-      'characterFinishQuestFailed',
-      interpolations: [character.name, quest.name],
-    )
-  }
-
-  if (incurIncident) {
-    Incident(
-      message: incidentContent,
-      subjectId: character.id,
-    )
-  } else {
-    engine.debug(incidentContent)
-  }
-}
-
-function setCharacterActiveQuest(character, quest) {
-  assert(character.quests.containsKey(quest.id))
-  character.activeQuestIds.addIfAbsent(quest.id)
-}
-
-function getCharacterActiveQuest(character) {
-  return character.quests[character.activeQuestId]
+  return quest
 }
 
 // function generateQuestReward(difficulty) {
 //   const reward = Lootbox()
 //   return reward
-// }
-
-// function characterAcceptQuest(character, site, quest) {
-//   // 有可能是临时生成的任务，site可能并没有这个任务，但这里并不影响。
-//   delete site.quests[quest.id]
-//   character.quests[quest.id] = quest
-//   character.activeQuestId ??= quest.id
-//   const entity = quest.questEntityAccept
-//   if (entity.entityType == kEntityTypeCharacter) {
-//     characterGetCompanion(character, entity)
-//   } else if (entity.entityType == kEntityTypeItem) {
-//     acquire(character, entity)
-//   } else {
-//     engine.error('获取任务时发生错误，对象类型既不是人员也是物品：${entity.entityType}')
-//   }
-
-//   const questName = engine.locale(quest.kind);
-//   const incidentContent = engine.locale(
-//     'characterAcceptQuest',
-//     interpolations: [character.name, site.name, questName],
-//   )
-//   Incident(
-//     message: incidentContent,
-//     subjectIds: [character.id],
-//   )
 // }
 
 // // 尝试完成任务，如果成功返回 true，并扣除任务所要求提交的物品等

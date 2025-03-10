@@ -45,12 +45,12 @@ struct BattleCard {
 
     let mainAffixes
     if (mainAffixId) {
-      mainAffixes = game.battleCardsData.values.where( (affix) { 
+      mainAffixes = game.battleCards.values.where( (affix) { 
         return affix.id == mainAffixId
       } )
     } else {
       // 注意：主词条数据的genre是字符串，但额外词条的genre是字符串数组
-      mainAffixes = game.battleCardsData.values.where( (affix) {
+      mainAffixes = game.battleCards.values.where( (affix) {
         if (genre != null && (affix.genre != null && affix.genre != genre)) {
           return false
         }

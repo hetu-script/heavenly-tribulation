@@ -22,16 +22,28 @@ struct DialogContentData {
     if (characterId || character) {
       assert(hero != null)
       character ??= game.characters[characterId]
-      final heroHaveMetChar = haveMet(hero, character)
-      if (heroHaveMetChar) {
-        this.displayName = hideName ? '???' :
-          (displayNameId ? engine.locale(displayNameId) :
-            (displayName ?? character.name))
-      } else {
-        this.displayName = '???'
+      let heroHaveMetChar = false
+      if (character != null) {
+        heroHaveMetChar = haveMet(hero, character)
       }
       
-      this.icon = hideIcon ? null : (icon ?? character.icon)
+      if (hideName) {
+        this.displayName = '???'
+      } else {
+        if (displayNameId != null) {
+          this.displayName = engine.locale(displayNameId)
+        } else if (displayName != null) {
+          this.displayName = displayName
+        } else if (heroHaveMetChar) {
+          if (character.titleId != null) {
+            this.displayName = engine.locale(character.titleId)
+          } else {
+            this.displayName = character.name
+          }
+        }
+      }
+      
+      this.icon = hideIcon ? null : (icon ?? character?.icon)
     }
     else if (isHero) {
       assert(hero != null)
@@ -72,60 +84,29 @@ struct DialogContentData {
 }
 
 namespace Dialog {
-  // 下面这些是需要context的版本，和引擎侧直接绑定
-  // 但我们将其包装了一层，可以省去每次都带上context的麻烦
 
-  external function _say(context, data, returnValue)
+  // 对应 GameDialogContent 的接口，这种对话框会以模态的形式显示在游戏界面上
 
-  external function _select(context, selections)
-
-  external function _characterSelect(context, title, ids, showCloseButton)
-
-  external function _visitSelect(context, idList, { hideHero: bool })
-
-  external function _merchant(context, merchant, priceFactor, allowSell, sellableCategory, sellableKind)
-
-  external function _quests(context, site)
-
-  external function _maze(context, maze)
-
-  external function _progress(context, titletitle, checkProgress)
-
-  external function _inputInteger(context, title, min, max)
-
-  external function _start(context)
   
-  /// 下面这些只有在调用过 start 之后才能看到效果
 
-  external function pushImage(image: string, { offsetX: float = 0.0, offsetY: float = 0.0, fadeIn: bool = false })
+  // 对应 GameDialogState 的接口，不会阻断浮窗和装备栏等其他UI
+  
+  /// 执行对话，当执行结束时，所有场景、角色和对话数据都会被清理
+  external async function execute()
+  
+  external function _pushDialog(data)
+
+  external function pushImage(image: string, { offsetX: float = 0.0, offsetY: float = 0.0})
 
   external function popImage({image: string})
 
-  external function popAllImages()
+  external function pushBackground(image: string, {isFadeIn: bool = false})
 
-  external function pushBackground(image: string, {fadeIn: bool = false})
+  external function popBackground({isFadeOut: bool = false})
 
-  external function popBackground()
+  external function pushTask(task: function, {flagId: string})
 
-  external function popAllBackgrounds()
-
-  /// 下面这些可以随时使用
-
-  /// 进入场景，场景包含人物列表和一张退出卡牌
-  function site({site, image}) => _site(ctx, site: site, image: image)
-
-  /// 开始对话，此时可以推送场景、角色图到对话背景中
-  /// 必须和 end() 一同使用
-  function start(image) => _start(ctx)
-  
-  /// 结束对话，所有场景和角色都会被清理
-  /// 必须和 start() 一同使用
-  external function end()
-  
-  /// 退出上一个场景或对话框，不管是什么
-  external function pop()
-
-  function localeLines(localeKeys, {
+  function pushLocales(localeKeys, {
     character,
     characterId,
     displayNameId,
@@ -137,7 +118,7 @@ namespace Dialog {
     interpolations,
     returnValue,
   }) -> Future {
-    const dlgData = DialogContentData(
+    return _pushDialog(DialogContentData(
       localeKeys: localeKeys,
       character: character,
       characterId: characterId,
@@ -148,62 +129,78 @@ namespace Dialog {
       hideName: hideName,
       hideIcon: hideIcon,
       interpolations: interpolations,
-    )
-    return _say(ctx, dlgData, returnValue)
+    ))
   }
 
-  function lines(lines, {
-    isHero,
-    character,
-    characterId,
-    displayNameId,
-    displayName,
-    icon,
-    hideName,
-    hideIcon,
-    interpolations,
-    returnValue,
-  }) -> Future {
-    const dlgData = DialogContentData(
-      lines: lines,
-      isHero: isHero,
-      character: character,
-      characterId: characterId,
-      displayNameId: displayNameId,
-      displayName: displayName,
-      icon: icon,
-      hideName: hideName,
-      hideIcon: hideIcon,
-      interpolations: interpolations,
-    )
-    return _say(ctx, dlgData, returnValue)
-  }
+  // function pushLines(lines, {
+  //   isHero,
+  //   character,
+  //   characterId,
+  //   displayNameId,
+  //   displayName,
+  //   icon,
+  //   hideName,
+  //   hideIcon,
+  //   interpolations,
+  //   returnValue,
+  // }) -> Future {
+  //   return _pushDialog(DialogContentData(
+  //     lines: lines,
+  //     isHero: isHero,
+  //     character: character,
+  //     characterId: characterId,
+  //     displayNameId: displayNameId,
+  //     displayName: displayName,
+  //     icon: icon,
+  //     hideName: hideName,
+  //     hideIcon: hideIcon,
+  //     interpolations: interpolations,
+  //   ))
+  // }
 
-  function say(data, { returnValue }) -> Future {
-    return _say(ctx, data, returnValue)
-  }
+  /// selection 对话框的 data 数据结构：
+  /// {
+  ///   id: 'taskId',
+  ///   selections: {
+  ///     selectKey1: 'localedText1',
+  ///     selectKey2: 'localedText3',
+  ///     ...
+  ///   } 
+  /// }
+  external function pushSelection(data)
 
-  function localeSelect(texts: List) -> Future {
-    assert(texts is List)
-    const selections = {}
-    for (const text in texts) {
-      selections[text] = {
-        'text': engine.locale(text),
-      }
+  // 虽然返回值是future，但这个函数不能设为 async，否则会打乱Dialog的执行顺序
+  function pushLocalesSelection(id, locales: List) {
+    final selections = {}
+    selections
+    for (final key in locales) {
+      selections[key] = engine.locale(key)
     }
-    return _select(ctx, selections)
+    return pushSelection({ id: id, selections: selections })
   }
 
-  function select(selections) -> Future {
-    return _select(ctx, selections)
+  external function checkSelected(data)
+
+  external function _selectCharacter(context, title, ids, showCloseButton)
+
+  external function _selectResidence(context, idList, { hideHero: bool })
+
+  external function _merchant(context, merchant, priceFactor, allowSell, sellableCategory, sellableKind)
+
+  external function _quests(context, site)
+
+  external function _maze(context, maze)
+
+  external function _progress(context, titletitle, checkProgress)
+
+  external function _inputInteger(context, title, min, max)
+
+  function selectCharacter({title, ids, showCloseButton = true}) -> Future {
+    return _selectCharacter(ctx, title, ids, showCloseButton)
   }
 
-  function characterSelect({title, ids, showCloseButton = true}) -> Future {
-    return _characterSelect(ctx, title, ids, showCloseButton)
-  }
-
-  function visitSelect(idList) -> Future {
-    return _visitSelect(ctx, idList)
+  function selectResidence(idList) -> Future {
+    return _selectResidence(ctx, idList)
   }
 
   function merchant(merchant, {
@@ -224,10 +221,6 @@ namespace Dialog {
 
   function quests(site) -> Future {
     return _quests(ctx, site)
-  }
-
-  function maze(maze) -> Future {
-    return _maze(ctx, maze)
   }
 
   // 显示一个进度窗口，以天为单位显示动画，每天会调用传入的 checkProgress 函数的返回值来判断是否继续下一天

@@ -35,3 +35,14 @@ export {
   kNameWithDirectionProbability,
   kNameWithLinkWordProbability,
 }
+
+const kRarityNames = [
+  'arcane',
+  'mythic',
+  'unique',
+  'legendary',
+  'epic',
+  'rare',
+  'uncommon',
+  'common',
+]

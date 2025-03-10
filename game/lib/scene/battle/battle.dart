@@ -7,6 +7,7 @@ import 'package:flame/components.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/components/sprite_button.dart';
 import 'package:flame/flame.dart';
+import 'package:provider/provider.dart';
 
 import '../../ui.dart';
 import 'character.dart';
@@ -17,6 +18,8 @@ import '../common.dart';
 import '../../data.dart';
 import 'common.dart';
 import 'drop_menu.dart';
+import '../game_dialog/game_dialog_controller.dart';
+import '../../state/game_dialog.dart';
 
 /// 属性效果对应的永久状态，值是正面状态和负面状态的元组
 const kStatsToPermenantEffects = {
@@ -450,9 +453,12 @@ class BattleScene extends Scene {
 
   @override
   Widget build(BuildContext context) {
+    final isGameDialogOpened = context.watch<GameDialogState>().isOpened;
+
     return Stack(
       children: [
         SceneWidget(scene: this),
+        if (isGameDialogOpened) GameDialogController(),
         if (kDebugMode || GameConfig.isDebugMode)
           Positioned(
             right: 0,

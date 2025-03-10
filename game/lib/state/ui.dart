@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-class GameUIVisibilityState with ChangeNotifier {
+class HeroInfoVisibilityState with ChangeNotifier {
   bool isVisible = false;
 
   void setVisible([bool? value]) {

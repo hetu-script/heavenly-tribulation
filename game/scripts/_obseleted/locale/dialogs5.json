@@ -1,8 +1,4 @@
 {
-  "intro.movement": "<yellow>操作说明：</>点击<cyan>鼠标左键</>移动角色，点击并拖动<cyan>鼠标右键</>移动地图。",
-  "intro.cultivation1": "<yellow>操作说明：</>在拥有修炼点数时，点击发光点或角色可以升级，升级后可获得天赋技能点数。",
-  "intro.cultivation2": "点击修炼打开天赋界面，可以分配天赋技能。",
-
   "cave.statue.description": "这是一尊古朴的石头雕像。人物的面部模糊不清，只能依稀看出是一个中年修士。",
   "cave.cushion.description": "一个蒲团。看上去十分破旧，而且有很多使用的痕迹。你感觉在很久之前，有人曾每日在这里打坐。",
 

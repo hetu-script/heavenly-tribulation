@@ -17,8 +17,6 @@ class QuestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final heroData = engine.hetu.fetch('hero');
-
     return Container(
       width: 240,
       height: 150,
@@ -55,12 +53,9 @@ class QuestCard extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () {
                     engine.hetu.invoke(
-                      'characterAcceptQuest',
-                      positionalArgs: [
-                        heroData,
-                        siteData,
-                        questData,
-                      ],
+                      'acceptQuest',
+                      namespace: 'Player',
+                      positionalArgs: [questData],
                     );
                     // engine.emit(const UIEvent.needRebuildUI());
                   },

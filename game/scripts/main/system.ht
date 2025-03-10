@@ -1,6 +1,6 @@
 namespace System {
   
-  external function showUI([value: bool = true])
+  external function showHeroInfo([value: bool = true])
   
   external function showLibrary()
   

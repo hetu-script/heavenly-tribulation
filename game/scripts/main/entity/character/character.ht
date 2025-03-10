@@ -1,21 +1,16 @@
 import '../../game.ht'
-// import '../../l10n.ht'
 import '../../datetime.ht'
 import '../../incident.ht'
-// import '../../duel.ht'
 import '../../util.ht'
 import '../entity.ht'
 import '../../world/tile/hexagonal_tile.ht'
 import 'battle_entity.ht'
 import '../item/item.ht'
-// import 'companion.ht'
 import '../../dialog.ht'
 import '../../random.ht'
+import '../achievement.ht'
 
-// export '../../../_obseleted/creature/creature.ht'
-// export '../../../_obseleted/npc/npc.ht'
 export 'battle_entity.ht'
-// export 'companion.ht'
 
 const _kCharacterAverage = 50.0
 const _kCharacterDeviation = 25.0
@@ -313,7 +308,7 @@ struct Character {
     // 未分配的修为点数，修为点数可以用来在天赋盘上升级天赋
     this.availableSkillPoints = availableSkillPoints ?? 0
     // 已解锁的天赋盘节点，保存的是posiitonId，代表天赋盘上某个位置的坐标。如果存在意味着该位置已经被解锁
-    this.skillTreeUnlockedNodes = {}
+    this.passiveTreeUnlockedNodes = {}
 
     this.worldId = worldId ?? world?.id
 
@@ -511,10 +506,7 @@ struct Character {
     /// 寿命必须在已知境界之后计算
     this.deathTimestamp = this.birthTimestamp + createRandomLifespan(this.cultivationRank)
     
-    this.achievements = {
-      acquiredItems: 0,
-      acquiredBattleCards: 0,
-    }
+    this.achievements = Achievements()
   }
 }
 
@@ -763,7 +755,7 @@ function characterKnowIncident(character, incident, { witnessed }) {
   assert(character.isMain == true)
   // 不是major character直接跳过
   if (character?.known == null) {
-    engine.warn('${character.id} is not a entity that can know incidents.')
+    engine.warn('${character.name} is not a entity that can know incidents.')
     return
   }
 
@@ -771,11 +763,11 @@ function characterKnowIncident(character, incident, { witnessed }) {
   assert(incident != null && incident.index != null)
   
   if (character.known.contains(incident.index)) {
-    engine.warn('${entity.id} 已经知道了事件：[${incident.index}]，不能再次添加。')
+    engine.warn('${entity.name} 已经知道了事件：[${incident.index}]，不能再次添加。')
     return
   }
 
-  engine.debug('${character.id} 知道了事件 \'${incident.message}\'')
+  engine.debug('${character.name} 知道了事件 \'${incident.message}\'')
   character.known.add(incident.index)
 
   let score = calculateCharacterScoreOfIncident(character, incident)
@@ -802,7 +794,7 @@ function characterKnowIncident(character, incident, { witnessed }) {
     // }
   }
   if (score != 0) {
-    engine.debug('${character.id} 对 ${subject.id} 的好感度改变了 [${score}]')
+    engine.debug('${character.name} 对 ${subject.name} 的好感度改变了 [${score}]')
   }
   
   // if (!character.bonds.containsKey(id)) {
@@ -828,10 +820,10 @@ function removeCharacterHome(character) {
   // }
 }
 
-function setCharacterHome(character, location) {
+function setCharacterHome(character, location, {incurIncident = true}) {
   assert(character.isMain == true)
   if (character.homeId == location.id) {
-    engine.warn('character ${character.id} already resides in location ${location.id}')
+    engine.warn('character ${character.name} already resides in location ${location.id}')
     return
   }
   if (character.homeId != null) {
@@ -846,39 +838,18 @@ function setCharacterHome(character, location) {
     ownerId: character.id,
   )
   let incidentContent
-  // // if (organizationName == null) {
-  //   assert(!location.residingCharacterIds.contains(character.id))
-  //   location.residingCharacterIds.add(character.id)
-    incidentContent = engine.locale('characterSettle', interpolations: [
-      character.name,
-      location.name,
-    ])
+  incidentContent = engine.locale('characterSettle', interpolations: [
+    character.name,
+    location.name,
+  ])
+  if (incurIncident) {
     Incident(
       message: incidentContent,
       subjectId: character.id,
     )
-  // } else {
-  //   let organization = getOrganizationById(character.organizationId)
-  //   if (!organization.characterIds.contains(character.id)) {
-  //     organization.characterIds.add(character.id)
-  //     incidentContent = engine.locale('characterSettleOrganization', interpolations: [
-  //       character.name,
-  //       location.name,
-  //       organizationName,
-  //     ])
-  //     Incident(
-  //       message: incidentContent,
-  //       subjectId: character.id,
-  //     )
-  //   }
-  // }
-  // if (character.homeId != location.id) {
-  //   removeCharacterHome(character)
-  //   character.homeId = location.id
-  // }
-  // if (character.id == hero?.id) {
-  //   game.heroHomeSite.locationId = location.id
-  // }
+  } else {
+    engine.debug(incidentContent)
+  }
 }
 
 function getCharacterWorldPosition(character) {

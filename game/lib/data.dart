@@ -48,7 +48,7 @@ abstract class GameData {
   static Map<String, dynamic> items = {};
   static Map<String, dynamic> passives = {};
   // static Map<String, dynamic> supportSkillData = {};
-  static Map<String, dynamic> skillTree = {};
+  static Map<String, dynamic> passiveTree = {};
   // static Map<String, dynamic> supportSkillTreeData = {};
 
   static Map<String, String> organizationCategoryNames = {};
@@ -104,19 +104,19 @@ abstract class GameData {
     //     await rootBundle.loadString('assets/data/skills_support.json5');
     // supportSkillData = JSON5.parse(supportSkillDataString);
 
-    final skillTreeDataString =
-        await rootBundle.loadString('assets/data/skilltree.json5');
-    skillTree = JSON5.parse(skillTreeDataString);
+    final passiveTreeDataString =
+        await rootBundle.loadString('assets/data/passive_tree.json5');
+    passiveTree = JSON5.parse(passiveTreeDataString);
 
     // 拼接技能树节点的描述
-    for (final skillTreeNodeData in skillTree.values) {
-      final bool isAttribute = skillTreeNodeData['isAttribute'] == true;
+    for (final passiveTreeNodeData in passiveTree.values) {
+      final bool isAttribute = passiveTreeNodeData['isAttribute'] == true;
 
       StringBuffer nodeDescription = StringBuffer();
-      final nodeTitle = engine.locale(skillTreeNodeData['title']);
+      final nodeTitle = engine.locale(passiveTreeNodeData['title']);
       nodeDescription.writeln('<bold yellow>$nodeTitle</>');
       nodeDescription.writeln(' ');
-      String? comment = skillTreeNodeData['comment'];
+      String? comment = passiveTreeNodeData['comment'];
       if (comment != null) {
         comment = engine.locale(comment);
         nodeDescription.writeln('<italic grey>$comment</>');
@@ -124,10 +124,10 @@ abstract class GameData {
       }
 
       if (isAttribute) {
-        String description = engine.locale(skillTreeNodeData['description']);
+        String description = engine.locale(passiveTreeNodeData['description']);
         nodeDescription.writeln('<lightBlue>$description</>');
       } else {
-        final List nodeData = skillTreeNodeData['passives'];
+        final List nodeData = passiveTreeNodeData['passives'];
         for (final passiveData in nodeData) {
           final dataId = passiveData['id'];
           final passiveRawData = GameData.passives[dataId];
@@ -142,14 +142,14 @@ abstract class GameData {
         }
       }
 
-      final rankRequirement = skillTreeNodeData['rank'] ?? 0;
+      final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
       if (rankRequirement > 0) {
         nodeDescription.writeln(' ');
         nodeDescription.writeln(
             '<grey>${engine.locale('requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}</>');
       }
 
-      skillTreeNodeData['description'] = nodeDescription.toString();
+      passiveTreeNodeData['description'] = nodeDescription.toString();
     }
 
     // final supportSkillTreeDataString =

@@ -7,13 +7,16 @@
   "jade_description": "灵石：修真者之间通行的货币，用来委托任务和交易法宝。",
   "jade_package": "一堆灵石",
 
-  "food": "食物",
-  "food_description": "食物：虽然修真者不太需要这个，但确实凡人生活所必须的材料。影响到据点的人口数量。",
-  "food_package": "一包食物",
+  "worker": "杂役",
+  "worker_description": "杂役：为修真者服务的没有修炼能力的普通人。杂役是运营建筑所必须的人力资源。",
 
-  "water": "清水",
-  "water_description": "清水：凡人生活必须的材料。另外也是炼丹、灵植等需要的材料",
-  "water_package": "一壶清水",
+  "herb": "药材",
+  "herb_package": "一包药材",
+  "herb_description": "药材：从山林中采集到的具有特殊功能的草木，用作炼丹的材料，也是培养灵植和灵兽需要的材料。",
+
+  "timber": "木材",
+  "timber_package": "一堆木材",
+  "timber_description": "木材：粗略加工过的圆木，用作建筑材料和部分打造材料。",
 
   "stone": "石料",
   "stone_package": "一堆石料",
@@ -21,17 +24,5 @@
 
   "ore": "矿物",
   "ore_description": "矿物：包含金属元素的矿物，是炼器和炼丹需要的材料。",
-  "ore_package": "一堆矿石",
-
-  "timber": "木材",
-  "timber_package": "一堆木材",
-  "timber_description": "木材：粗略加工过的圆木，用作建筑材料和部分打造材料。",
-
-  "paper": "纸张",
-  "paper_package": "一捆纸张",
-  "paper_description": "纸张：用木屑和纤维制作而成，可用于制作书籍和符箓，也是占卜和通灵需要的材料。",
-
-  "herb": "药材",
-  "herb_package": "一包药材",
-  "herb_description": "药材：从山林中采集到的具有特殊功能的草木，用作炼丹的材料，也是培养灵植和灵兽需要的材料。"
+  "ore_package": "一堆矿石"
 }

@@ -236,8 +236,8 @@ function onHeroMeditate({site, terrain, incurIncident = true}) async {
 /// 返回一个包含可移动的tile kind的列表
 /// 如果不为null且非空，则英雄可以开始尝试向这个格子移动，但中途有可能停下
 /// 否则不会进入移动路径计算
-function onBeforeHeroMove(terrain) {
-  onWorldEvent('onBeforeHeroMove', terrain)
+function onBeforeMove(terrain) {
+  onWorldEvent('onBeforeMove', terrain)
   let movableTerrainKinds = getCharacterMovableTerrainKinds(hero)
   if (terrain.kind in movableTerrainKinds) {
     return movableTerrainKinds
@@ -251,7 +251,7 @@ function onBeforeHeroMove(terrain) {
   }
 }
 
-function senseTerrain(terrain) -> bool {
+function onInteractTerrain(terrain) -> bool {
   if (terrain.locationId) {
     const location = world.locations[terrain.locationId]
     if (location.isDiscovered) {
@@ -269,19 +269,19 @@ function senseTerrain(terrain) -> bool {
   }
 }
 
-// 如果最终目的地不可到达，但角色停在了目的地旁边一格，则仍会探测该目的地
-function onAfterHeroMove(terrain, nonEnterableDestination) {
-  // TODO: 感知阈值
-  senseTerrain(terrain)
-  if (nonEnterableDestination != null) {
-    senseTerrain(nonEnterableDestination)
+/// 如果最终目的地不可到达，但角色停在了目的地旁边一格，则仍会和该目的地互动
+function onAfterMove(terrain, targetTerrain) {
+  if (targetTerrain != null) {
+    onInteractTerrain(targetTerrain)
+  } else {
+    onInteractTerrain(terrain)
   }
-  onWorldEvent('onAfterHeroMove', hero.worldPosition.left, hero.worldPosition.top)  
+  onWorldEvent('onAfterMove', terrain, targetTerrain)  
   // World.lightUpAroundTile(hero.worldPosition.left, hero.worldPosition.top, hero.stats.lightRadius)
 }
 
 /// 异步函数，会在显示地点窗口之前执行，执行完毕后才会进入地点
-function onBeforeHeroEnterLocation(location) async {
+function onBeforeEnterLocation(location) async {
   if (!location.isDiscovered) {
     // TODO: 第一次发现据点事件
     if (location.isHidden) {
@@ -293,8 +293,8 @@ function onBeforeHeroEnterLocation(location) async {
   }
 }
 
-function onAfterHeroEnterLocation(location) async {
-  onWorldEvent('onAfterHeroEnterLocation', location)
+// function onAfterEnterLocation(location) async {
+  
   // if (location.flags.recruitingOrganizationIds.isNotEmpty) {
   //   let names = ''
   //   for (const id in location.flags.recruitingOrganizationIds) {
@@ -333,40 +333,38 @@ function onAfterHeroEnterLocation(location) async {
   //   })
 
   // }
-}
+// }
 
-function onInteractCharacter(characterId, { exitOnLeave = false }) {
-  engine.debug('正在和NPC [${characterId}] 互动。')
-  assert(game.characters.containsKey(characterId))
-  const character = game.characters[characterId]
+function onInteractCharacter(character, { exitOnLeave = false }) {
+  engine.debug('正在和NPC [${character.name}] 互动。')
   if (character.flags.useCustomInteraction) {
     // 使用模组定义的交互逻辑
-    engine.debug('NPC [${characterId}] 使用自定义交互逻辑')
-    onWorldEvent('onInteractCharacter', character.id)
+    engine.debug('NPC [${character.name}] 使用自定义交互逻辑')
+    onWorldEvent('onInteractCharacter', character)
   } else {
     // 默认交互逻辑
     const selections = [
       'show',
     ]
-    if (characterId in! game.flags.playerMonthly.talked) {
+    if (character.id in! game.flags.playerMonthly.talked) {
       selections.add('talk')
     }
-    if (characterId in! game.flags.playerMonthly.gifted) {
+    if (character.id in! game.flags.playerMonthly.gifted) {
       selections.add('gift')
     }
-    if (characterId in! game.flags.playerMonthly.requested) {
+    if (character.id in! game.flags.playerMonthly.requested) {
       selections.add('request')
     }
-    if (characterId in! game.flags.playerMonthly.practiced) {
+    if (character.id in! game.flags.playerMonthly.practiced) {
       selections.add('duel')
     }
-    if (characterId in! game.flags.playerMonthly.consulted) {
+    if (character.id in! game.flags.playerMonthly.consulted) {
       selections.add('consult')
     }
-    if (characterId in! game.flags.playerMonthly.insulted) {
+    if (character.id in! game.flags.playerMonthly.insulted) {
       selections.add('insult')
     }
-    if (characterId in! game.flags.playerMonthly.stolen) {
+    if (character.id in! game.flags.playerMonthly.stolen) {
       selections.add('steal')
     }
     selections.add('trade')
@@ -417,490 +415,490 @@ function onInteractCharacter(characterId, { exitOnLeave = false }) {
 /// 在某个地形块上进行互动操作
 /// 山峰或树林产出物品更多，平原产出数量较少
 /// 但前者会有几率碰到野兽或者强盗
-function onInteractTerrain(terrain) {
+// function onInteractTerrain(terrain) {
 
-  if (terrain.kind == kTerrainKindRoad) {
-    // TODO: 道路上不能进行互动
-  }
+//   if (terrain.kind == kTerrainKindRoad) {
+//     // TODO: 道路上不能进行互动
+//   }
   
-  // let isInjured = false
-  // for (const status of hero.statusEffects) {
-  //   if (status.category == kStatusCategoryInjury)
-  //   isInjured = true
-  // }
-  // if (isInjured) {
-  //   Dialog.localeLines(['cannotInteractWhenInjured'], isHero: true)
-  //   return
-  // }
+//   // let isInjured = false
+//   // for (const status of hero.statusEffects) {
+//   //   if (status.category == kStatusCategoryInjury)
+//   //   isInjured = true
+//   // }
+//   // if (isInjured) {
+//   //   Dialog.localeLines(['cannotInteractWhenInjured'], isHero: true)
+//   //   return
+//   // }
 
 
-  // 可用的探索天数
-  let availableDays = getHeroAvaialbeDays()
+//   // 可用的探索天数
+//   let availableDays = getHeroAvaialbeDays()
 
-  const selections = [
-    'search',
-  ]
+//   const selections = [
+//     'search',
+//   ]
 
-  switch (terrain.kind) {
-    kTerrainKindForest : {
-      selections.add('woodcut')
-      selections.add('gather')
-      selections.add('hunt')
-    }
-    kTerrainKindMountain : {
-      selections.add('excavate')
-      selections.add('gather')
-      selections.add('hunt')
-    }
-    kTerrainKindLake, kTerrainKindSea : {
-      selections.add('fish')
-    }
-  }
+//   switch (terrain.kind) {
+//     kTerrainKindForest : {
+//       selections.add('woodcut')
+//       selections.add('gather')
+//       selections.add('hunt')
+//     }
+//     kTerrainKindMountain : {
+//       selections.add('excavate')
+//       selections.add('gather')
+//       selections.add('hunt')
+//     }
+//     kTerrainKindLake, kTerrainKindSea : {
+//       selections.add('fish')
+//     }
+//   }
 
-  selections.add('cancel')
+//   selections.add('cancel')
   
-  Dialog.localeSelect(selections).then((key) {
-    switch (key) {
-      'search' : {
-        let undiscoveredLocation
-        let undiscoveredObject
-        if (terrain.locationId) {
-          const location = world.locations[terrain.locationId]
-          if (!location.isDiscovered) {
-            undiscoveredLocation = location
-          }
-        } else if (terrain.objectId) {
-          const object = world.objects[terrain.objectId]
-          if (!object.isDiscovered) {
-            undiscoveredObject = object
-          }
-        }
+//   Dialog.localeSelect(selections).then((key) {
+//     switch (key) {
+//       'search' : {
+//         let undiscoveredLocation
+//         let undiscoveredObject
+//         if (terrain.locationId) {
+//           const location = world.locations[terrain.locationId]
+//           if (!location.isDiscovered) {
+//             undiscoveredLocation = location
+//           }
+//         } else if (terrain.objectId) {
+//           const object = world.objects[terrain.objectId]
+//           if (!object.isDiscovered) {
+//             undiscoveredObject = object
+//           }
+//         }
 
-        if (undiscoveredObject) {
-          Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
-            let i = 0
-            let found = false
-            Dialog.progress(engine.locale('search'), checkProgress: () {
-              ++i
-              updateGame(ticks: kTicksPerDay)
-              changeStamina(hero, -kTicksPerDay)
-              // TODO: 角色感知可以提高成功率
-              if (random.nextDouble() < kSearchSuccessProbability) {
-                found = true
-                return false
-              }
-              if (i >= days) return false
-              return true
-            }).then((_) {
-              const incidentContent = engine.locale('characterExplore', interpolations: [
-                hero.name,
-                '${terrain.left}, ${terrain.top}',
-                i,
-              ])
-              engine.debug(incidentContent)
-              // Incident(
-              //   subjectId: hero.id,
-              //   message: incidentContent,
-              //   isPrivate: true,
-              // )
-              if (found) {
-                undiscoveredObject.isDiscovered = true
-                // discoverObject(undiscoveredLocation)
-                onInteractObject(object, terrain)
-              } else {
-                Dialog.localeLines(['searchFailed'], isHero: true)
-              }
-            })
-          })
-        } else if (undiscoveredLocation) {
-          Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
-            let i = 0
-            let found = false
-            Dialog.progress(engine.locale('search'), checkProgress: () {
-              ++i
-              updateGame(ticks: kTicksPerDay)
-              changeStamina(hero, -kTicksPerDay)
-              // TODO: 角色感知可以提高成功率
-              if (random.nextDouble() < kSearchSuccessProbability) {
-                found = true
-                return false
-              }
-              if (i >= days) return false
-              return true
-            }).then((_) {
-              const incidentContent = engine.locale('characterExplore', interpolations: [
-                hero.name,
-                '${terrain.left}, ${terrain.top}',
-                i,
-              ])
-              engine.debug(incidentContent)
-              // Incident(
-              //   subjectIds: [hero.id],
-              //   message: incidentContent,
-              //   isPrivate: true,
-              // )
-              if (found) {
-                undiscoveredLocation.isDiscovered = true
-                discoverLocation(undiscoveredLocation)
-                // TODO: 第一次发现据点事件
-                const message = engine.locale('firstVisitCity', interpolations: [undiscoveredLocation.name])
-                Dialog.lines([message]).then((_) {
-                  World.enterLocation(undiscoveredLocation)
-                })
-              } else {
-                Dialog.localeLines(['searchFailed'], isHero: true)
-              }
-            })
-          })
-        } else {
-          Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
-            Dialog.progress(engine.locale('search'), checkProgress: () {
-              updateGame(ticks: kTicksPerDay)
-              changeStamina(hero, -kTicksPerDay)
-              return false
-            }).then((_) {
-              const incidentContent = engine.locale('characterExplore', interpolations: [
-                hero.name,
-                '${terrain.left}, ${terrain.top}',
-                1,
-              ])
-              engine.debug(incidentContent)
-              // Incident(
-              //   subjectIds: [hero.id],
-              //   message: incidentContent,
-              //   isPrivate: true,
-              // )
-              Dialog.localeLines(['exploredEmtpy'], isHero: true)
-            })
-          })
-        }
-      }
-      // 采集，可能会获得：药材（材料）、水果（材料）
-      'gather' : {
-        Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
-          const lootbox = Lootbox()
-          let metBeast = false
-          let i = 0
-          Dialog.progress(engine.locale('gather'), () {
-            ++i
-            updateGame(ticks: kTicksPerDay)
-            changeStamina(hero, -kTicksPerDay)
-            switch (terrain.kind) {
-              kTerrainKindMountain : {
-                if (random.nextDouble() < kMountainBeastProbability) {
-                  metBeast = true
-                  return false
-                }
-                if (random.nextDouble() < kMountainHerbProbability) {
-                  acquire(lootbox, Material.herb(), incurIncident: false)
-                }
-                if (random.nextDouble() < kMountainFruitProbability) {
-                  acquire(lootbox, Material.fruit(), incurIncident: false)
-                }
-              }
-              kTerrainKindForest : {
-                if (random.nextDouble() < kForestBeastProbability) {
-                  metBeast = true
-                  return false
-                }
-                if (random.nextDouble() < kForestHerbProbability) {
-                  acquire(lootbox, Material.herb(), incurIncident: false)
-                }
-                if (random.nextDouble() < kForestFruitProbability) {
-                  acquire(lootbox, Material.fruit(), incurIncident: false)
-                }
-              }
-              kTerrainKindPlain : {
-                if (random.nextDouble() < kPlainHerbProbability) {
-                  acquire(lootbox, Material.herb(), incurIncident: false)
-                }
-                if (random.nextDouble() < kPlainFruitProbability) {
-                  acquire(lootbox, Material.fruit(), incurIncident: false)
-                }
-              }
-            }
-            if (i >= days) return false
-            return true
-          }).then((_) {
-            const incidentContent = engine.locale('characterExplore', interpolations: [
-              hero.name,
-              '${terrain.left}, ${terrain.top}',
-              i,
-            ])
-                engine.debug(incidentContent)
-            // Incident(
-            //   subjectIds: [hero.id],
-            //   message: incidentContent,
-            //   isPrivate: true,
-            // )
-            () async {
-              if (lootbox.inventory.isEmpty) {
-                return Dialog.localeLines(['interactionGotNothing'], isHero: true)
-              } else {
-                loot(hero, lootbox)
-              }
-            } ().then((_) {
-              if (metBeast) {
-                const beast = Beast()
-                const message = engine.locale('metBeast', interpolations: [beast.name])
-                Dialog.lines([message]).then((_) {
-                  heroBattle(beast)
-                })
-              }
-            })
-          })
-        })
-      }
-      // 伐木，可能会获得：木料
-      'woodcut' : {
-        Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
-          const lootbox = Lootbox()
-          let metBeast = false
-          let i = 0
-          Dialog.progress(engine.locale('woodcut'), () {
-            ++i
-            updateGame(ticks: kTicksPerDay)
-            changeStamina(hero, -kTicksPerDay)
-            switch (terrain.kind) {
-              kTerrainKindMountain : {
-                if (random.nextDouble() < kMountainBeastProbability) {
-                  metBeast = true
-                  return false
-                }
-                if (random.nextDouble() < kMountainWoodProbability) {
-                  acquire(lootbox, Material.wood(), incurIncident: false)
-                }
-              }
-              kTerrainKindForest : {
-                if (random.nextDouble() < kForestBeastProbability) {
-                  metBeast = true
-                  return false
-                }
-                if (random.nextDouble() < kForestWoodProbability) {
-                  acquire(lootbox, Material.wood(), incurIncident: false)
-                }
-              }
-              kTerrainKindPlain : {
-                if (random.nextDouble() < kPlainWoodProbability) {
-                  acquire(lootbox, Material.wood(), incurIncident: false)
-                }
-              }
-            }
-            if (i >= days) return false
-            return true
-          }).then((_) {
-            const incidentContent = engine.locale('characterWoodcutted', interpolations: [
-              hero.name,
-              '${terrain.left}, ${terrain.top}',
-              i,
-            ])
-            engine.debug(incidentContent)
-            // Incident(
-            //   subjectIds: [hero.id],
-            //   message: incidentContent,
-            //   isPrivate: true,
-            // )
-            () async {
-              if (lootbox.inventory.isEmpty) {
-                return Dialog.localeLines(['interactionGotNothing'], isHero: true)
-              } else {
-                loot(hero, lootbox)
-              }
-            } ().then((_) {
-              if (metBeast) {
-                const beast = Beast()
-                const message = engine.locale('metBeast', interpolations: [beast.name])
-                Dialog.lines([message]).then((_) {
-                  heroBattle(beast)
-                })
-              }
-            })
-          })
-        })
-      }
-      // 挖矿，可能会获得：矿石、灵石
-      'excavate' : {
-        Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
-          const lootbox = Lootbox()
-          let metBeast = false
-          let i = 0
-          Dialog.progress(engine.locale('excavate'), () {
-            ++i
-            updateGame(ticks: kTicksPerDay)
-            changeStamina(hero, -kTicksPerDay)
-            switch (terrain.kind) {
-              kTerrainKindMountain : {
-                if (random.nextDouble() < kMountainBeastProbability) {
-                  metBeast = true
-                  return false
-                }
-                if (random.nextDouble() < kMountainOreProbability) {
-                  acquire(lootbox, Material.ore(), incurIncident: false)
-                }
-                if (random.nextDouble() < kMountainJadeProbability) {
-                  acquire(lootbox, Jade(), incurIncident: false)
-                }
-              }
-              kTerrainKindForest : {
-                if (random.nextDouble() < kForestBeastProbability) {
-                  metBeast = true
-                  return false
-                }
-                if (random.nextDouble() < kForestOreProbability) {
-                  acquire(lootbox, Material.ore(), incurIncident: false)
-                }
-                if (random.nextDouble() < kForestJadeProbability) {
-                  acquire(lootbox, Jade(), incurIncident: false)
-                }
-              }
-              kTerrainKindPlain : {
-                if (random.nextDouble() < kPlainOreProbability) {
-                  acquire(lootbox, Material.ore(), incurIncident: false)
-                }
-                if (random.nextDouble() < kPlainJadeProbability) {
-                  acquire(lootbox, Jade(), incurIncident: false)
-                }
-              }
-            }
-            if (i >= days) return false
-            return true
-          }).then((_) {
-            const incidentContent = engine.locale('characterMined', interpolations: [
-              hero.name,
-              '${terrain.left}, ${terrain.top}',
-              i,
-            ])
-            engine.debug(incidentContent)
-            // Incident(
-            //   subjectIds: [hero.id],
-            //   message: incidentContent,
-            //   isPrivate: true,
-            // )
-            () async {
-              if (lootbox.inventory.isEmpty) {
-                return Dialog.localeLines(['interactionGotNothing'], isHero: true)
-              } else {
-                loot(hero, lootbox)
-              }
-            } ().then((_) {
-              if (metBeast) {
-                const beast = Beast()
-                const message = engine.locale('metBeast', interpolations: [beast.name])
-                Dialog.lines([message]).then((_) {
-                  heroBattle(beast)
-                })
-              }
-            })
-          })
-        })
-      }
-      // 捕猎，增加遇到野兽的概率200%
-      'hunt' : {
-        Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
-          let metBeast = false
-          let i = 0
-          Dialog.progress(engine.locale('hunt'), () {
-            ++i
-            updateGame(ticks: kTicksPerDay)
-            changeStamina(hero, -kTicksPerDay)
-            switch (terrain.kind) {
-              kTerrainKindMountain : {
-                if (random.nextDouble() < (kMountainBeastProbability * kHuntBeastProbability)) {
-                  metBeast = true
-                  return false
-                }
-              }
-              kTerrainKindForest : {
-                if (random.nextDouble() < (kForestBeastProbability * kHuntBeastProbability)) {
-                  metBeast = true
-                  return false
-                }
-              }
-              kTerrainKindPlain : {
-                if (random.nextDouble() < (kPlainBeastProbability * kHuntBeastProbability)) {
-                  metBeast = true
-                  return false
-                }
-              }
-            }
-            if (i >= days) return false
-            return true
-          }).then((_) {
-            const incidentContent = engine.locale('characterHunted', interpolations: [
-              hero.name,
-              '${terrain.left}, ${terrain.top}',
-              i,
-            ])
-            engine.debug(incidentContent)
-            // Incident(
-            //   subjectIds: [hero.id],
-            //   message: incidentContent,
-            //   isPrivate: true,
-            // )
-            if (metBeast) {
-              const beast = Beast()
-              const message = engine.locale('foundBeast', interpolations: [beast.name])
-              Dialog.lines([message]).then((_) {
-                heroBattle(beast)
-              })
-            } else {
-              return Dialog.localeLines(['interactionGotNothing'], isHero: true)
-            }
-          })
-        })
-      }
-      // 捕鱼，可能会获得：河鱼、海鱼、虾、蟹
-      'fish' : {
-        // if (game.flags.playerMonthly.fished.contains(terrainIndex)) {
-        //   Dialog.localeLines(['terrainAlreadyFished'], isHero: true)
-        //   return
-        // }
-        // game.flags.playerMonthly.fished.add(terrainIndex)
+//         if (undiscoveredObject) {
+//           Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+//             let i = 0
+//             let found = false
+//             Dialog.progress(engine.locale('search'), checkProgress: () {
+//               ++i
+//               updateGame(ticks: kTicksPerDay)
+//               changeStamina(hero, -kTicksPerDay)
+//               // TODO: 角色感知可以提高成功率
+//               if (random.nextDouble() < kSearchSuccessProbability) {
+//                 found = true
+//                 return false
+//               }
+//               if (i >= days) return false
+//               return true
+//             }).then((_) {
+//               const incidentContent = engine.locale('characterExplore', interpolations: [
+//                 hero.name,
+//                 '${terrain.left}, ${terrain.top}',
+//                 i,
+//               ])
+//               engine.debug(incidentContent)
+//               // Incident(
+//               //   subjectId: hero.id,
+//               //   message: incidentContent,
+//               //   isPrivate: true,
+//               // )
+//               if (found) {
+//                 undiscoveredObject.isDiscovered = true
+//                 // discoverObject(undiscoveredLocation)
+//                 onInteractObject(object, terrain)
+//               } else {
+//                 Dialog.localeLines(['searchFailed'], isHero: true)
+//               }
+//             })
+//           })
+//         } else if (undiscoveredLocation) {
+//           Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+//             let i = 0
+//             let found = false
+//             Dialog.progress(engine.locale('search'), checkProgress: () {
+//               ++i
+//               updateGame(ticks: kTicksPerDay)
+//               changeStamina(hero, -kTicksPerDay)
+//               // TODO: 角色感知可以提高成功率
+//               if (random.nextDouble() < kSearchSuccessProbability) {
+//                 found = true
+//                 return false
+//               }
+//               if (i >= days) return false
+//               return true
+//             }).then((_) {
+//               const incidentContent = engine.locale('characterExplore', interpolations: [
+//                 hero.name,
+//                 '${terrain.left}, ${terrain.top}',
+//                 i,
+//               ])
+//               engine.debug(incidentContent)
+//               // Incident(
+//               //   subjectIds: [hero.id],
+//               //   message: incidentContent,
+//               //   isPrivate: true,
+//               // )
+//               if (found) {
+//                 undiscoveredLocation.isDiscovered = true
+//                 discoverLocation(undiscoveredLocation)
+//                 // TODO: 第一次发现据点事件
+//                 const message = engine.locale('firstVisitCity', interpolations: [undiscoveredLocation.name])
+//                 Dialog.lines([message]).then((_) {
+//                   World.enterLocation(undiscoveredLocation)
+//                 })
+//               } else {
+//                 Dialog.localeLines(['searchFailed'], isHero: true)
+//               }
+//             })
+//           })
+//         } else {
+//           Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+//             Dialog.progress(engine.locale('search'), checkProgress: () {
+//               updateGame(ticks: kTicksPerDay)
+//               changeStamina(hero, -kTicksPerDay)
+//               return false
+//             }).then((_) {
+//               const incidentContent = engine.locale('characterExplore', interpolations: [
+//                 hero.name,
+//                 '${terrain.left}, ${terrain.top}',
+//                 1,
+//               ])
+//               engine.debug(incidentContent)
+//               // Incident(
+//               //   subjectIds: [hero.id],
+//               //   message: incidentContent,
+//               //   isPrivate: true,
+//               // )
+//               Dialog.localeLines(['exploredEmtpy'], isHero: true)
+//             })
+//           })
+//         }
+//       }
+//       // 采集，可能会获得：药材（材料）、水果（材料）
+//       'gather' : {
+//         Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+//           const lootbox = Lootbox()
+//           let metBeast = false
+//           let i = 0
+//           Dialog.progress(engine.locale('gather'), () {
+//             ++i
+//             updateGame(ticks: kTicksPerDay)
+//             changeStamina(hero, -kTicksPerDay)
+//             switch (terrain.kind) {
+//               kTerrainKindMountain : {
+//                 if (random.nextDouble() < kMountainBeastProbability) {
+//                   metBeast = true
+//                   return false
+//                 }
+//                 if (random.nextDouble() < kMountainHerbProbability) {
+//                   acquire(lootbox, Material.herb(), incurIncident: false)
+//                 }
+//                 if (random.nextDouble() < kMountainFruitProbability) {
+//                   acquire(lootbox, Material.fruit(), incurIncident: false)
+//                 }
+//               }
+//               kTerrainKindForest : {
+//                 if (random.nextDouble() < kForestBeastProbability) {
+//                   metBeast = true
+//                   return false
+//                 }
+//                 if (random.nextDouble() < kForestHerbProbability) {
+//                   acquire(lootbox, Material.herb(), incurIncident: false)
+//                 }
+//                 if (random.nextDouble() < kForestFruitProbability) {
+//                   acquire(lootbox, Material.fruit(), incurIncident: false)
+//                 }
+//               }
+//               kTerrainKindPlain : {
+//                 if (random.nextDouble() < kPlainHerbProbability) {
+//                   acquire(lootbox, Material.herb(), incurIncident: false)
+//                 }
+//                 if (random.nextDouble() < kPlainFruitProbability) {
+//                   acquire(lootbox, Material.fruit(), incurIncident: false)
+//                 }
+//               }
+//             }
+//             if (i >= days) return false
+//             return true
+//           }).then((_) {
+//             const incidentContent = engine.locale('characterExplore', interpolations: [
+//               hero.name,
+//               '${terrain.left}, ${terrain.top}',
+//               i,
+//             ])
+//                 engine.debug(incidentContent)
+//             // Incident(
+//             //   subjectIds: [hero.id],
+//             //   message: incidentContent,
+//             //   isPrivate: true,
+//             // )
+//             () async {
+//               if (lootbox.inventory.isEmpty) {
+//                 return Dialog.localeLines(['interactionGotNothing'], isHero: true)
+//               } else {
+//                 loot(hero, lootbox)
+//               }
+//             } ().then((_) {
+//               if (metBeast) {
+//                 const beast = Beast()
+//                 const message = engine.locale('metBeast', interpolations: [beast.name])
+//                 Dialog.lines([message]).then((_) {
+//                   heroBattle(beast)
+//                 })
+//               }
+//             })
+//           })
+//         })
+//       }
+//       // 伐木，可能会获得：木料
+//       'woodcut' : {
+//         Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+//           const lootbox = Lootbox()
+//           let metBeast = false
+//           let i = 0
+//           Dialog.progress(engine.locale('woodcut'), () {
+//             ++i
+//             updateGame(ticks: kTicksPerDay)
+//             changeStamina(hero, -kTicksPerDay)
+//             switch (terrain.kind) {
+//               kTerrainKindMountain : {
+//                 if (random.nextDouble() < kMountainBeastProbability) {
+//                   metBeast = true
+//                   return false
+//                 }
+//                 if (random.nextDouble() < kMountainWoodProbability) {
+//                   acquire(lootbox, Material.wood(), incurIncident: false)
+//                 }
+//               }
+//               kTerrainKindForest : {
+//                 if (random.nextDouble() < kForestBeastProbability) {
+//                   metBeast = true
+//                   return false
+//                 }
+//                 if (random.nextDouble() < kForestWoodProbability) {
+//                   acquire(lootbox, Material.wood(), incurIncident: false)
+//                 }
+//               }
+//               kTerrainKindPlain : {
+//                 if (random.nextDouble() < kPlainWoodProbability) {
+//                   acquire(lootbox, Material.wood(), incurIncident: false)
+//                 }
+//               }
+//             }
+//             if (i >= days) return false
+//             return true
+//           }).then((_) {
+//             const incidentContent = engine.locale('characterWoodcutted', interpolations: [
+//               hero.name,
+//               '${terrain.left}, ${terrain.top}',
+//               i,
+//             ])
+//             engine.debug(incidentContent)
+//             // Incident(
+//             //   subjectIds: [hero.id],
+//             //   message: incidentContent,
+//             //   isPrivate: true,
+//             // )
+//             () async {
+//               if (lootbox.inventory.isEmpty) {
+//                 return Dialog.localeLines(['interactionGotNothing'], isHero: true)
+//               } else {
+//                 loot(hero, lootbox)
+//               }
+//             } ().then((_) {
+//               if (metBeast) {
+//                 const beast = Beast()
+//                 const message = engine.locale('metBeast', interpolations: [beast.name])
+//                 Dialog.lines([message]).then((_) {
+//                   heroBattle(beast)
+//                 })
+//               }
+//             })
+//           })
+//         })
+//       }
+//       // 挖矿，可能会获得：矿石、灵石
+//       'excavate' : {
+//         Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+//           const lootbox = Lootbox()
+//           let metBeast = false
+//           let i = 0
+//           Dialog.progress(engine.locale('excavate'), () {
+//             ++i
+//             updateGame(ticks: kTicksPerDay)
+//             changeStamina(hero, -kTicksPerDay)
+//             switch (terrain.kind) {
+//               kTerrainKindMountain : {
+//                 if (random.nextDouble() < kMountainBeastProbability) {
+//                   metBeast = true
+//                   return false
+//                 }
+//                 if (random.nextDouble() < kMountainOreProbability) {
+//                   acquire(lootbox, Material.ore(), incurIncident: false)
+//                 }
+//                 if (random.nextDouble() < kMountainJadeProbability) {
+//                   acquire(lootbox, Jade(), incurIncident: false)
+//                 }
+//               }
+//               kTerrainKindForest : {
+//                 if (random.nextDouble() < kForestBeastProbability) {
+//                   metBeast = true
+//                   return false
+//                 }
+//                 if (random.nextDouble() < kForestOreProbability) {
+//                   acquire(lootbox, Material.ore(), incurIncident: false)
+//                 }
+//                 if (random.nextDouble() < kForestJadeProbability) {
+//                   acquire(lootbox, Jade(), incurIncident: false)
+//                 }
+//               }
+//               kTerrainKindPlain : {
+//                 if (random.nextDouble() < kPlainOreProbability) {
+//                   acquire(lootbox, Material.ore(), incurIncident: false)
+//                 }
+//                 if (random.nextDouble() < kPlainJadeProbability) {
+//                   acquire(lootbox, Jade(), incurIncident: false)
+//                 }
+//               }
+//             }
+//             if (i >= days) return false
+//             return true
+//           }).then((_) {
+//             const incidentContent = engine.locale('characterMined', interpolations: [
+//               hero.name,
+//               '${terrain.left}, ${terrain.top}',
+//               i,
+//             ])
+//             engine.debug(incidentContent)
+//             // Incident(
+//             //   subjectIds: [hero.id],
+//             //   message: incidentContent,
+//             //   isPrivate: true,
+//             // )
+//             () async {
+//               if (lootbox.inventory.isEmpty) {
+//                 return Dialog.localeLines(['interactionGotNothing'], isHero: true)
+//               } else {
+//                 loot(hero, lootbox)
+//               }
+//             } ().then((_) {
+//               if (metBeast) {
+//                 const beast = Beast()
+//                 const message = engine.locale('metBeast', interpolations: [beast.name])
+//                 Dialog.lines([message]).then((_) {
+//                   heroBattle(beast)
+//                 })
+//               }
+//             })
+//           })
+//         })
+//       }
+//       // 捕猎，增加遇到野兽的概率200%
+//       'hunt' : {
+//         Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+//           let metBeast = false
+//           let i = 0
+//           Dialog.progress(engine.locale('hunt'), () {
+//             ++i
+//             updateGame(ticks: kTicksPerDay)
+//             changeStamina(hero, -kTicksPerDay)
+//             switch (terrain.kind) {
+//               kTerrainKindMountain : {
+//                 if (random.nextDouble() < (kMountainBeastProbability * kHuntBeastProbability)) {
+//                   metBeast = true
+//                   return false
+//                 }
+//               }
+//               kTerrainKindForest : {
+//                 if (random.nextDouble() < (kForestBeastProbability * kHuntBeastProbability)) {
+//                   metBeast = true
+//                   return false
+//                 }
+//               }
+//               kTerrainKindPlain : {
+//                 if (random.nextDouble() < (kPlainBeastProbability * kHuntBeastProbability)) {
+//                   metBeast = true
+//                   return false
+//                 }
+//               }
+//             }
+//             if (i >= days) return false
+//             return true
+//           }).then((_) {
+//             const incidentContent = engine.locale('characterHunted', interpolations: [
+//               hero.name,
+//               '${terrain.left}, ${terrain.top}',
+//               i,
+//             ])
+//             engine.debug(incidentContent)
+//             // Incident(
+//             //   subjectIds: [hero.id],
+//             //   message: incidentContent,
+//             //   isPrivate: true,
+//             // )
+//             if (metBeast) {
+//               const beast = Beast()
+//               const message = engine.locale('foundBeast', interpolations: [beast.name])
+//               Dialog.lines([message]).then((_) {
+//                 heroBattle(beast)
+//               })
+//             } else {
+//               return Dialog.localeLines(['interactionGotNothing'], isHero: true)
+//             }
+//           })
+//         })
+//       }
+//       // 捕鱼，可能会获得：河鱼、海鱼、虾、蟹
+//       'fish' : {
+//         // if (game.flags.playerMonthly.fished.contains(terrainIndex)) {
+//         //   Dialog.localeLines(['terrainAlreadyFished'], isHero: true)
+//         //   return
+//         // }
+//         // game.flags.playerMonthly.fished.add(terrainIndex)
         
-        Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
-          const lootbox = Lootbox()
-          let i = 0
-          Dialog.progress(engine.locale('fish'), () {
-            ++i
-            updateGame(ticks: kTicksPerDay)
-            changeStamina(hero, -kTicksPerDay)
-            switch (terrain.kind) {
-              kTerrainKindLake : {
-                if (random.nextDouble() < kLakeFishProbability) {
-                  acquire(lootbox, Material.fish(), incurIncident: false)
-                }
-              }
-              kTerrainKindSea : {
-                if (random.nextDouble() < kSeaFishProbability) {
-                  acquire(lootbox, Material.fish(), incurIncident: false)
-                }
-              }
-            }
-            if (i >= days) return false
-            return true
-          }).then((_) {
-            const incidentContent = engine.locale('characterFished', interpolations: [
-              hero.name,
-              '${terrain.left}, ${terrain.top}',
-              i,
-            ])
-            engine.debug(incidentContent)
-            // Incident(
-            //   subjectIds: [hero.id],
-            //   message: incidentContent,
-            //   isPrivate: true,
-            // )
-            if (lootbox.inventory.isEmpty) {
-              return Dialog.localeLines(['interactionGotNothing'], isHero: true)
-            } else {
-              loot(hero, lootbox)
-            }
-          })
-        })
-      }
-    }
-  })
-}
+//         Dialog.inputInteger(engine.locale('timeDays'), availableDays).then((days) {
+//           const lootbox = Lootbox()
+//           let i = 0
+//           Dialog.progress(engine.locale('fish'), () {
+//             ++i
+//             updateGame(ticks: kTicksPerDay)
+//             changeStamina(hero, -kTicksPerDay)
+//             switch (terrain.kind) {
+//               kTerrainKindLake : {
+//                 if (random.nextDouble() < kLakeFishProbability) {
+//                   acquire(lootbox, Material.fish(), incurIncident: false)
+//                 }
+//               }
+//               kTerrainKindSea : {
+//                 if (random.nextDouble() < kSeaFishProbability) {
+//                   acquire(lootbox, Material.fish(), incurIncident: false)
+//                 }
+//               }
+//             }
+//             if (i >= days) return false
+//             return true
+//           }).then((_) {
+//             const incidentContent = engine.locale('characterFished', interpolations: [
+//               hero.name,
+//               '${terrain.left}, ${terrain.top}',
+//               i,
+//             ])
+//             engine.debug(incidentContent)
+//             // Incident(
+//             //   subjectIds: [hero.id],
+//             //   message: incidentContent,
+//             //   isPrivate: true,
+//             // )
+//             if (lootbox.inventory.isEmpty) {
+//               return Dialog.localeLines(['interactionGotNothing'], isHero: true)
+//             } else {
+//               loot(hero, lootbox)
+//             }
+//           })
+//         })
+//       }
+//     }
+//   })
+// }
 
 async function onInteractPortal(object) {
   World.moveCameraToMapPosition(object.targetTilePosition.left, object.targetTilePosition.top, animated: false)
@@ -911,13 +909,11 @@ async function onInteractPortal(object) {
 
 async function onInteractWorldPortal(object) {
   assert(universe.containsKey(object.worldId))
-  Dialog.start()
-  Dialog.pushBackground('black.png', fadeIn: true)
+  // Dialog.pushBackground('black.png', fadeIn: true)
   engine.play('magic-smite-6012.mp3')
-  await Future.delayed(0.4)
   Player.setTo(object.targetTilePosition.left, object.targetTilePosition.top, worldId: object.worldId, direction: 'south')
   World.switchWorld(object.worldId)
-  Dialog.end()
+  // await Dialog.execute()
 }
 
 async function onInteractTreasureBox(object, terrain) {
@@ -964,19 +960,7 @@ async function onInteractTreasureBox(object, terrain) {
 function onInteractObject(object, terrain) async {
   engine.debug('正在和 Object [${object.id}] 互动。')
   // engine.debug('Object [${object.id}] 使用自定义交互逻辑')
-  onWorldEvent('onInteractObject', object, terrain)
-}
-
-function onBeforeHeroExitSite(site) async {
-
-}
-
-function onAfterHeroExitSite(site) async {
-
-}
-
-function onBeforeHeroEnterSite(site) async {
-
+  await onWorldEvent('onInteractObject', object, terrain)
 }
 
 /// 异步函数，会在显示建筑窗口之前执行，执行完毕后才会进入建筑
@@ -1178,9 +1162,10 @@ function _handleHeadquartersInteraction(site) {
         let organization = getOrganizationById(site.organizationId)
         const ids = organization.characterIds.toList()
         ids.remove(game.heroId)
-        final key = Dialog.visitSelect(ids)
+        final key = Dialog.selectResidence(ids)
         if (key != null) {
-          onInteractCharacter(key)
+          final char = getCharacterById(key)
+          onInteractCharacter(char)
         } else {
           
         }

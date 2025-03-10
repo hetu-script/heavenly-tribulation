@@ -14,7 +14,6 @@ export 'interaction/common.ht'
 export 'interaction/interaction.ht'
 export 'interaction/item.ht'
 export 'name/name.ht'
-export 'quest/quest.ht'
 export 'world/tile/common.ht'
 export 'world/tile/tilemap.ht'
 export 'world/tile/hexagonal_tile.ht'
@@ -25,6 +24,7 @@ export 'colors.ht'
 export 'datetime.ht'
 export 'debug.ht'
 export 'dialog.ht'
+export 'quest.ht'
 export 'event.ht'
 export 'game.ht'
 export 'random.ht'
@@ -68,14 +68,80 @@ function init({
   game.items = itemsData
   engine.debug('载入预定义物品：[${itemsData.length}]')
   
-  game.battleCardsData = battleCardsData
+  game.battleCards = battleCardsData
   game.battleCardAffixes = battleCardAffixesData
   engine.debug('载入战斗卡牌词条：主词条 [${battleCardsData.length}]，额外词条 [${battleCardAffixesData.length}]')
 
-  // game.skillTree = skillTreeData
-  // game.supportSkillTree = supportSkillTreeData
   game.passives = passivesData
   engine.debug('载入被动技能词条数据：词条 [${passivesData.length}]')
+
+  // 游戏中的任务数据，任务数据在故事模块中载入，这里初始化置空
+  game.quests = {}
+}
+
+function addItemsData(data) {
+  let count = 0
+  for (let item of data) {
+    if (game.items.containsKey(item.id)) {
+      engine.error('预定义物品数据 id 冲突：[${item.id}]')
+      continue
+    }
+    ++count
+    game.items[item.id] = item
+  }
+  engine.debug('载入预定义物品：总数量 [${data.length}]，载入数量 [${count}]')
+}
+
+function addBattleCardsData(data) {
+  let count = 0
+  for (let card of data) {
+    if (game.battleCards.containsKey(card.id)) {
+      engine.error('战斗卡牌主词条数据 id 冲突：[${card.id}]')
+      continue
+    }
+    ++count
+    game.battleCards[card.id] = card
+  }
+  engine.debug('载入战斗卡牌主词条：总数量 [${data.length}]，载入数量 [${count}]')
+}
+
+function addBattleCardAffixesData(data) {
+  let count = 0
+  for (let affix of data) {
+    if (game.battleCardAffixes.containsKey(affix.id)) {
+      engine.error('战斗卡牌额外词条数据 id 冲突：[${affix.id}]')
+      continue
+    }
+    ++count
+    game.battleCardAffixes[affix.id] = affix
+  }
+  engine.debug('载入战斗卡牌额外词条：总数量 [${data.length}]，载入数量 [${count}]')
+}
+
+function addPassiveSkillsData(data) {
+  let count = 0
+  for (let skill of data) {
+    if (game.passives.containsKey(skill.id)) {
+      engine.error('被动技能词条数据 id 冲突：[${skill.id}]')
+      continue
+    }
+    ++count
+    game.passives[skill.id] = skill
+  }
+  engine.debug('载入被动技能词条：总数量 [${data.length}]，载入数量 [${count}]')
+}
+
+function addQuestsData(data) {
+  let count = 0
+  for (let quest of data) {
+    if (game.quests.containsKey(quest.id)) {
+      engine.error('任务数据 id 冲突：[${quest.id}]')
+      continue
+    }
+    ++count
+    game.quests[quest.id] = quest
+  }
+  engine.debug('载入任务数据：总数量 [${data.length}]，载入数量 [${count}]')
 }
 
 /// Run every time game starts

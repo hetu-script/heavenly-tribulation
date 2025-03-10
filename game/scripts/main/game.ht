@@ -160,7 +160,7 @@ function loadGameFromJsonData({
   world = universe[game.currentWorldId]
   timeline = history[game.currentWorldId]
   assert(world != null)
-  assert(timeline is List)
+  assert(timeline != null)
   
   engine.debug('当前世界为: [${world.id}]')
 
@@ -381,7 +381,7 @@ function getNameFromId(id, [orElse = 'null']) {
   }
 }
 
-function onNewGame() {
+async function onNewGame() {
   game.isNewGame = false
-  onWorldEvent('onNewGame')
+  await onWorldEvent('onNewGame')
 }

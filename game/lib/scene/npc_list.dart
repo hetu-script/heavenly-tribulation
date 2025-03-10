@@ -58,8 +58,7 @@ class _NpcListState extends State<NpcList> {
             size: const Size(120, 120),
             characterData: char,
             onPressed: (charId) {
-              engine.hetu
-                  .invoke('onInteractCharacter', positionalArgs: [charId]);
+              engine.hetu.invoke('onInteractCharacter', positionalArgs: [char]);
             }),
       );
     }).toList();

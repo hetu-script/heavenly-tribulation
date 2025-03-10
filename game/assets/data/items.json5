@@ -5,6 +5,7 @@
     category: "quest",
     rarity: "unique",
     icon: "item/story/jade.png",
+    isIdentified: false,
   },
   // wood_boat: {
   //   prototypeId: "wood_boat",

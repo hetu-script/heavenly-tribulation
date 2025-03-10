@@ -9,7 +9,7 @@ import '../../ui.dart';
 import '../../engine.dart';
 import 'library_zone.dart';
 import 'common.dart';
-import '../game_dialog/game_dialog.dart';
+import '../game_dialog/game_dialog_content.dart';
 import '../../logic/battlecard.dart';
 import 'card_library.dart';
 import '../../state/hoverinfo.dart';
@@ -154,7 +154,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
       if (result == null) {
         library.setCardEnabledById(component.id, false);
       } else {
-        GameDialog.show(game.context, engine.locale(result));
+        GameDialogContent.show(game.context, engine.locale(result));
       }
     };
 

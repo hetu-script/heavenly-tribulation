@@ -4,9 +4,7 @@
   /// 技能数据里面的skillId有可能相同
   /// 如果获得了多个skillId相同的技能，最终他们会累加到一起，累加后的value会合并
 
-  /// 属性点，这是个需要特殊处理的天赋技能
-  /// 这个技能点在选择之后，会变成五种具体属性的其中一种
-  skilltrack_0_0: {
+  track_0_0: {
     size: "small",
     parentNodes: [],
     unselectedIcon: "cultivation/skill/attribute_any_unselected.png",
@@ -14,17 +12,17 @@
     title: "skilltree_attribute_any",
     description: "skilltree_attribute_any_description",
   },
-  skilltrack_1_0: {
+  track_1_0: {
     size: "small",
-    parentNodes: ["skilltrack_0_0"],
+    parentNodes: ["track_0_0"],
     unselectedIcon: "cultivation/skill/attribute_any_unselected.png",
     isAttribute: true,
     title: "skilltree_attribute_any",
     description: "skilltree_attribute_any_description",
   },
-  skilltrack_2_0: {
+  track_2_0: {
     size: "small",
-    parentNodes: ["skilltrack_1_0"],
+    parentNodes: ["track_1_0"],
     unselectedIcon: "cultivation/skill/attribute_any_unselected.png",
     isAttribute: true,
     title: "skilltree_attribute_any",
@@ -33,9 +31,9 @@
   /// 流派解锁对应的技能
   /// 获得这些技能后才可以使用对应流派的卡牌
   /// 主流派
-  skilltrack_3_0: {
+  track_3_0: {
     size: "large",
-    parentNodes: ["skilltrack_2_0"],
+    parentNodes: ["track_2_0"],
     icon: "cultivation/skill/swordcraft_selected.png",
     unselectedIcon: "cultivation/skill/swordcraft_unselected.png",
     title: "swordcraft_rank_1",

@@ -1,0 +1,24 @@
+{
+  story_mainQuest_hunguding: {
+    id: "story_mainQuest_hunguding",
+    name: "story_mainQuest_hunguding",
+    stages: [
+      {
+        description: "story_mainQuest_hunguding_stage1_description",
+      },
+      {
+        description: "story_mainQuest_hunguding_stage2_description",
+      },
+    ],
+  },
+
+  story_mainQuest_lingChuxue: {
+    id: "story_mainQuest_lingChuxue",
+    name: "story_mainQuest_lingChuxue",
+    stages: [
+      {
+        description: "story_mainQuest_lingChuxue_stage1_description",
+      },
+    ],
+  },
+}

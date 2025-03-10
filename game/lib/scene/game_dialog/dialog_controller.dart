@@ -9,26 +9,14 @@ const kIllustrationHeight = 900.0;
 
 const kBaseIllustrationOffsetY = 150.0;
 
-class GameDialogBackground extends StatefulWidget {
-  static Future<void> show({
-    required BuildContext context,
-  }) {
-    return showDialog<dynamic>(
-      context: context,
-      barrierColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return const GameDialogBackground();
-      },
-    );
-  }
-
-  const GameDialogBackground({super.key});
+class GameDialogController extends StatefulWidget {
+  const GameDialogController({super.key});
 
   @override
-  State<GameDialogBackground> createState() => _GameDialogBackgroundState();
+  State<GameDialogController> createState() => _GameDialogControllerState();
 }
 
-class _GameDialogBackgroundState extends State<GameDialogBackground>
+class _GameDialogControllerState extends State<GameDialogController>
     with TickerProviderStateMixin {
   late final AnimationController sceneFadeController,
       illustrationFadeController;
@@ -68,7 +56,7 @@ class _GameDialogBackgroundState extends State<GameDialogBackground>
     final sceneInfo = context.watch<GameDialogState>().currentSceneInfo;
     final illustrations = context.watch<GameDialogState>().illustrations;
 
-    Widget sceneImage = Container();
+    Widget? sceneImage;
     if (sceneInfo != null) {
       if (sceneInfo.isFadeIn) {
         sceneFadeController.forward(from: 0.0);
@@ -90,7 +78,7 @@ class _GameDialogBackgroundState extends State<GameDialogBackground>
               width: screenSize.width,
               height: screenSize.height,
               child: Image(
-                image: AssetImage(prevScene),
+                image: AssetImage(prevScene.path),
                 fit: BoxFit.cover,
               ),
             ),
@@ -120,16 +108,16 @@ class _GameDialogBackgroundState extends State<GameDialogBackground>
         ),
       );
 
-      if (i == illustrations.length - 1) {
-        if (info.isFadeIn) {
-          illustrationFadeController.forward(from: 0.0);
+      // if (i == illustrations.length - 1) {
+      //   if (info.isFadeIn) {
+      //     illustrationFadeController.forward(from: 0.0);
 
-          widget = FadeTransition(
-            opacity: illustrationFadeAnimation,
-            child: widget,
-          );
-        }
-      }
+      //     widget = FadeTransition(
+      //       opacity: illustrationFadeAnimation,
+      //       child: widget,
+      //     );
+      //   }
+      // }
 
       illustrationWidgets.add(
         Positioned(
@@ -140,14 +128,18 @@ class _GameDialogBackgroundState extends State<GameDialogBackground>
       );
     }
 
-    return Material(
-      color: Colors.transparent,
-      child: Stack(
-        children: [
-          sceneImage,
-          ...illustrationWidgets,
-        ],
-      ),
-    );
+    final isEmpty = sceneImage == null && illustrationWidgets.isEmpty;
+
+    return isEmpty
+        ? Container()
+        : Material(
+            color: Colors.transparent,
+            child: Stack(
+              children: [
+                sceneImage!,
+                ...illustrationWidgets,
+              ],
+            ),
+          );
   }
 }

@@ -14,7 +14,7 @@ import 'deckbuilding_zone.dart';
 import '../common.dart';
 import '../../engine.dart';
 // import 'cardcrafting_area.dart';
-import '../game_dialog/game_dialog.dart';
+import '../game_dialog/game_dialog_content.dart';
 import 'menus.dart';
 import 'card_library.dart';
 
@@ -311,7 +311,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
           //   result = craftingArea!.tryAddCard(card, clone: true);
           // }
           if (result != null) {
-            GameDialog.show(game.context, engine.locale(result));
+            GameDialogContent.show(game.context, engine.locale(result));
           } else {
             engine.play(GameSound.cardDealt);
             card.isEnabled = false;

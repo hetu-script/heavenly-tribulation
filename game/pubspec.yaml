@@ -146,15 +146,14 @@ flutter:
     - scripts/main/name/skill/
     - scripts/main/name/talisman/
     - scripts/main/name/zone/
-    - scripts/main/quest/
     - scripts/main/world/
     - scripts/main/world/tile/
 
-    - scripts/tutorial/
-    - scripts/tutorial/l10n/
-    # - scripts/tutorial/l10n/en/
-    - scripts/tutorial/l10n/zh/
-    - scripts/tutorial/events/
+    - scripts/story/
+    - scripts/story/l10n/
+    - scripts/story/l10n/zh/
+    - scripts/story/events/
+    - scripts/story/data/
 
   fonts:
     - family: NotoSansMono

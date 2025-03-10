@@ -14,7 +14,7 @@ import '../../../widgets/ui_overlay.dart';
 import '../../../widgets/dialog/character_visit_dialog.dart';
 import '../../../state/current_npc_list.dart';
 import '../../common.dart';
-import '../../game_dialog/game_dialog.dart';
+import '../../game_dialog/game_dialog_content.dart';
 
 class LocationScene extends Scene {
   late final SpriteComponent _backgroundComponent;
@@ -61,7 +61,7 @@ class LocationScene extends Scene {
             positionalArgs: [locationData, homeSiteData]);
       }
     } else {
-      GameDialog.show(context, {
+      GameDialogContent.show(context, {
         'lines': [engine.locale('visitEmptyVillage')],
         'isHero': true,
       });
@@ -117,18 +117,25 @@ class LocationScene extends Scene {
     world.add(siteList);
 
     final exit = GameData.getExitSiteCard();
-    exit.onTap = (_, __) => engine.popScene(clearCache: true);
+    exit.onTap = (_, __) async {
+      final result = await engine.hetu.invoke('onWorldEvent',
+          positionalArgs: ['onBeforeExitLocation', locationData]);
+      if (result == false) return;
+      engine.popScene(clearCache: true);
+    };
     world.add(exit);
   }
 
   @override
-  void onMount() {
+  void onStart([Map<String, dynamic> arguments = const {}]) {
+    super.onStart(arguments);
+
     final Iterable<dynamic> npcs = engine.hetu
         .invoke('getNpcsByLocationId', positionalArgs: [locationData['id']]);
     context.read<CurrentNpcList>().updated(npcs);
 
-    engine.hetu
-        .invoke('onAfterHeroEnterLocation', positionalArgs: [locationData]);
+    engine.hetu.invoke('onWorldEvent',
+        positionalArgs: ['onAfterEnterLocation', locationData]);
   }
 
   @override
@@ -139,7 +146,9 @@ class LocationScene extends Scene {
         const Positioned(
           left: 0,
           top: 0,
-          child: GameUIOverlay(),
+          child: GameUIOverlay(
+            showHistoryPanel: false,
+          ),
         ),
         const Positioned(
           left: 5,

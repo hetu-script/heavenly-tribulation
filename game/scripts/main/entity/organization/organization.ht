@@ -138,7 +138,10 @@ struct Organization {
     headquarters.organizationId = this.id
     stationOrganization(this, headquarters, characterIds: [headId])
 
+    // 和人物类似，也具有物品栏
+    this.inventory = {}
     this.materials = MaterialStorage()
+    this.achievements = Achievements()
 
     // 组织所拥有的功法
     // 用法类似人物的装备栏

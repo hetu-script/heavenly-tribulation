@@ -182,9 +182,10 @@ struct Location {
     // 据点的历史
     this.experienced = []
 
-    // 据点和人物类似，也具有物品栏
+    // 和人物类似，也具有物品栏
     this.inventory = {}
     this.materials = MaterialStorage()
+    this.achievements = Achievements()
 
     // 为了兼容性，地块的门派没有用organizationId而是用了nationId
     // this.nationId
@@ -325,8 +326,9 @@ function setCharacterLocationId(character, locationId: string) {
 //   character.siteId = siteId
 // }
 
-function getLocationById(id: string) {
-  return world.locations[id]
+function getLocationById(id: string, {worldId}) {
+  let atWorld = worldId != null ? universe[worldId] : world
+  return atWorld.locations[id]
 }
 
 function getLocations({ids, worldId}) {

@@ -58,7 +58,7 @@
                       scene.map.hero!,
                       route!,
                       onAfterMoveCallback: (tile) {
-                        engine.hetu.invoke('onAfterHeroMove',
+                        engine.hetu.invoke('onAfterMove',
                             positionalArgs: [tile.data, _currentTerrain!.data]);
                       },
                     );
@@ -69,11 +69,11 @@
                     if (route != null) {
                       scene.map.moveObjectToTilePositionByRoute(
                           scene.map.hero!, route, onAfterMoveCallback: (tile) {
-                        engine.hetu.invoke('onAfterHeroMove',
+                        engine.hetu.invoke('onAfterMove',
                             positionalArgs: [tile.data, _currentTerrain!.data]);
                       });
                     } else if (isTappingHeroPosition) {
-                      engine.hetu.invoke('onAfterHeroMove',
+                      engine.hetu.invoke('onAfterMove',
                           positionalArgs: [_currentTerrain!.data]);
                     }
                   },

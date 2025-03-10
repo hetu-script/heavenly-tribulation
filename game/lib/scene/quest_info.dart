@@ -48,8 +48,9 @@ class _QuestInfoPanelState extends State<QuestInfoPanel> {
   Widget build(BuildContext context) {
     final questsData = context.watch<QuestState>().questsData;
 
-    return (questsData != null)
-        ? Column(
+    return (questsData == null)
+        ? Container()
+        : Column(
             children: questsData
                 .map(
                   (quest) => MouseRegion(
@@ -104,7 +105,6 @@ class _QuestInfoPanelState extends State<QuestInfoPanel> {
                   ),
                 )
                 .toList(),
-          )
-        : Container();
+          );
   }
 }

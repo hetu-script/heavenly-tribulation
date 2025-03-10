@@ -11,8 +11,8 @@ import '../draggable_panel.dart';
 
 enum QuestViewMode { all, ongoing, finished }
 
-class CharacterQuestView extends StatefulWidget {
-  const CharacterQuestView({
+class CharacterQuest extends StatefulWidget {
+  const CharacterQuest({
     super.key,
     this.characterId,
     this.characterData,
@@ -26,10 +26,10 @@ class CharacterQuestView extends StatefulWidget {
   final InformationViewMode mode;
 
   @override
-  State<CharacterQuestView> createState() => _CharacterQuestViewState();
+  State<CharacterQuest> createState() => _CharacterQuestState();
 }
 
-class _CharacterQuestViewState extends State<CharacterQuestView> {
+class _CharacterQuestState extends State<CharacterQuest> {
   bool get isEditorMode =>
       widget.mode == InformationViewMode.edit ||
       widget.mode == InformationViewMode.create;
@@ -66,7 +66,7 @@ class _CharacterQuestViewState extends State<CharacterQuestView> {
     for (var i = 0; i < currentStageIndex + 1; ++i) {
       descriptions.add(
         Text(
-          '• ${questData['stages'][i]['description']}',
+          '${questData['stages'][i]['description']}',
           style: i < currentStageIndex
               ? const TextStyle(
                   decoration: TextDecoration.lineThrough,
@@ -101,6 +101,9 @@ class _CharacterQuestViewState extends State<CharacterQuestView> {
       height: 400.0,
       onTapDown: (offset) {
         context.read<ViewPanelState>().setUpFront(ViewPanels.characterQuest);
+        context
+            .read<ViewPanelPositionState>()
+            .set(ViewPanels.characterQuest, position);
       },
       onDragUpdate: (details) {
         context.read<ViewPanelPositionState>().update(
@@ -121,9 +124,6 @@ class _CharacterQuestViewState extends State<CharacterQuestView> {
               width: 300.0,
               child: Column(
                 children: [
-                  // Padding(
-                  //   padding: const EdgeInsets.only(bottom: 5.0),
-                  //   child:
                   SegmentedButton<QuestViewMode>(
                     segments: <ButtonSegment<QuestViewMode>>[
                       ButtonSegment<QuestViewMode>(
@@ -132,7 +132,7 @@ class _CharacterQuestViewState extends State<CharacterQuestView> {
                           icon: const Icon(Icons.list)),
                       ButtonSegment<QuestViewMode>(
                           value: QuestViewMode.ongoing,
-                          label: Text(engine.locale('ongoing')),
+                          label: Text(engine.locale('current')),
                           icon: const Icon(Icons.access_time)),
                       ButtonSegment<QuestViewMode>(
                           value: QuestViewMode.finished,
@@ -145,7 +145,6 @@ class _CharacterQuestViewState extends State<CharacterQuestView> {
                         _selectedMode = newSelection.first;
                       });
                     },
-                    // ),
                   ),
                   Container(
                     width: 289.0,
@@ -170,11 +169,16 @@ class _CharacterQuestViewState extends State<CharacterQuestView> {
                                             ? Colors.white24
                                             : Colors.transparent,
                                   ),
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    setState(() {
+                                      _selectedQuestId = quest['id'];
+                                      _selectedQuest = quest;
+                                    });
+                                  },
                                   child: Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
-                                      quest['name'],
+                                      '${quest['name']}${quest['isFinished'] ? ' (${engine.locale('finished')})' : ''}',
                                     ),
                                   ),
                                 ),
@@ -186,31 +190,31 @@ class _CharacterQuestViewState extends State<CharacterQuestView> {
                 ],
               ),
             ),
-            // if (_selectedQuest != null)
-            Container(
-              width: 320.0,
-              padding: const EdgeInsets.only(left: 5.0, bottom: 5.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      // Text(
-                      //   // _selectedQuest['name'],
-                      //   style: const TextStyle(fontSize: 20),
-                      // ),
-                      const Spacer(),
-                      // if (_selectedQuest['isFinished'])
-                      // Text(
-                      //   engine.locale('finished'),
-                      //   style: const TextStyle(fontSize: 20),
-                      // ),
-                    ],
-                  ),
-                  // _buildQuestDescription(_selectedQuest),
-                ],
+            if (_selectedQuest != null)
+              Container(
+                width: 320.0,
+                padding: const EdgeInsets.only(left: 5.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          _selectedQuest['name'],
+                          style: const TextStyle(fontSize: 20),
+                        ),
+                        const Spacer(),
+                        if (_selectedQuest['isFinished'])
+                          Text(
+                            engine.locale('finished'),
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                      ],
+                    ),
+                    _buildQuestDescription(_selectedQuest),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),

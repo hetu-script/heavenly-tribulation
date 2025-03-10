@@ -5,42 +5,98 @@
 // selection1Admitted - 肯定或者否定自己为神，如果没有提及，则为null
 // encounteredWorldConfinement - 是否碰到了岛外的封印区域
 
-const tutorial = {
+const storyMain = {
   onNewGame: async () {
-    Player.setTo(10, 10, worldId: 'tutorial', direction: 'south')
-    System.showUI()
+    Dialog.pushBackground('black.png')
+    Dialog.pushTask(() {
+      Player.setTo(10, 10, worldId: 'story_main', direction: 'south')
+      System.showHeroInfo()
+    })
+    Dialog.popBackground(isFadeOut: true)
+    await Dialog.execute()
   },
   
   onEnterMap: async () {
-    World.lightUpAroundTile(hero.worldPosition.left, hero.worldPosition.top, hero.stats.lightRadius)
-
     if (!this.flags.chapter1.checkPoint1) {
       this.flags.chapter1.checkPoint1 = true
 
-      Dialog.start()
       Dialog.pushImage('story/yao_enemy2.png')
-      await Dialog.localeLines('chapter1.enterMap.line0', icon: 'story/yao_enemy2_head.png', displayNameId: 'yaozu_elite')
+      Dialog.pushLocales('chapter1.enterMap.line0', icon: 'story/yao_enemy2_head.png', displayNameId: 'yaozu_elite')
       Dialog.popImage()
       Dialog.pushImage('story/yao_enemy1.png')
-      await Dialog.localeLines('chapter1.enterMap.line1', icon: 'story/yao_enemy1_head.png', displayNameId: 'yaozu_guard')
+      Dialog.pushLocales('chapter1.enterMap.line1', icon: 'story/yao_enemy1_head.png', displayNameId: 'yaozu_guard')
       Dialog.popImage()
       Dialog.pushImage('story/yao_enemy2.png')
-      await Dialog.localeLines('chapter1.enterMap.line2', icon: 'story/yao_enemy2_head.png', displayNameId: 'yaozu_elite')
-      await Dialog.localeLines('chapter1.enterMap.line3', icon: 'story/yao_enemy2_head.png', displayNameId: 'yaozu_elite')
-      await Dialog.localeLines('chapter1.enterMap.line4')
+      Dialog.pushLocales('chapter1.enterMap.line2', icon: 'story/yao_enemy2_head.png', displayNameId: 'yaozu_elite')
+      Dialog.pushLocales('chapter1.enterMap.line3', icon: 'story/yao_enemy2_head.png', displayNameId: 'yaozu_elite')
+      Dialog.pushLocales('chapter1.enterMap.line4')
       Dialog.popImage()
       Dialog.pushBackground('chapter1/xiao_off_the_cliff.png', fadeIn: true)
-      await Dialog.localeLines('chapter1.enterMap.line5')
-      Dialog.pushBackground('black.png', fadeIn: true)
-      await Dialog.localeLines('chapter1.enterMap.line6')
-      Player.setTo(7, 10, worldId: 'tutorial', direction: 'south')
-      Dialog.end()
-      
-      await Dialog.localeLines('chapter1.enterMap.line7', isHero: true)
+      Dialog.pushLocales('chapter1.enterMap.line5')
+      // Dialog.pushBackground('black.png', fadeIn: true)
+      Dialog.pushLocales('chapter1.enterMap.line6')
+      Dialog.pushTask(() {
+        Player.setTo(7, 10, worldId: 'story_main', direction: 'south')
+      })
+      Dialog.pushLocales('chapter1.enterMap.line7', isHero: true)
+      Dialog.popBackground(isFadeOut: true)
+      await Dialog.execute()
+
+      let quest1 = generateQuestById('story_mainQuest_hunguding')
+      Player.acceptQuest(quest1)
+      let quest2 = generateQuestById('story_mainQuest_lingChuxue')
+      Player.acceptQuest(quest2)
     }
   },
 
-  // onAfterHeroMove: async (left, top) {
+  onAfterEnterLocation: async (location) {
+    if (location.id == 'wanfucun' && !this.flags.chapter1.checkPoint2) {
+      this.flags.chapter1.checkPoint2 = true
+
+      Dialog.pushImage('story/afu.png')
+      Dialog.pushLocales('chapter1.enterWanfucun.line1', characterId: 'afu')
+      Dialog.pushLocales('chapter1.enterWanfucun.line2')
+      Dialog.pushLocales('chapter1.enterWanfucun.line3', isHero: true)
+      Dialog.pushLocales('chapter1.enterWanfucun.line4')
+      Dialog.pushLocales('chapter1.enterWanfucun.line5', characterId: 'afu')
+      Dialog.pushLocales('chapter1.enterWanfucun.line6', isHero: true)
+      Dialog.popImage('story/afu.png')
+      let selected
+      do {
+        Dialog.pushLocalesSelection(
+          'chapter1.enterWanfucun.question',
+          [
+            'chapter1.enterWanfucun.questionWanfucun',
+            'chapter1.enterWanfucun.questionSeal',
+            'chapter1.enterWanfucun.questionAfu',
+            'chapter1.enterWanfucun.questionEnd',
+          ]
+        )
+        await Dialog.execute()
+        selected = Dialog.checkSelected('chapter1.enterWanfucun.question')
+        switch(selected) {
+          'chapter1.enterWanfucun.questionAfu': {
+            Dialog.pushLocales('chapter1.enterWanfucun.questionAfu.reply', characterId: 'afu')
+          }
+          'chapter1.enterWanfucun.questionWanfucun': {
+            Dialog.pushLocales('chapter1.enterWanfucun.questionWanfucun.reply', characterId: 'afu')
+          }
+          'chapter1.enterWanfucun.questionSeal': {
+            Dialog.pushLocales('chapter1.enterWanfucun.questionSeal.reply', characterId: 'afu')
+          }
+          'chapter1.enterWanfucun.questionEnd': {
+            Dialog.pushLocales('chapter1.enterWanfucun.questionEnd.reply', characterId: 'afu')
+          }
+        }
+        await Dialog.execute()
+      } while (selected != 'chapter1.enterWanfucun.questionEnd')
+
+      final wanfucun = getLocationById('wanfucun')
+
+    }
+  },
+
+  // onAfterMove: async (left, top) {
     // if (left == 9 && top == 7 && this.flags.spiritQuestState == 0) {
     //   await Dialog.localeLines('tutorial.ch1.hero.line6', isHero: true)
     //   await Dialog.localeLines('tutorial.ch1.luzifu.reply6', characterId: 'luzifu')
@@ -57,9 +113,9 @@ const tutorial = {
     //       },
     //     ]
     //   )
+    //   acceptQuest(hero, quest)
     //   this.flags.spiritQuestState = 1
     //   this.flags.spiritQuestId = quest.id
-    //   acceptQuest(hero, quest)
     //   Player.updateQuest()
     // }
   // },
@@ -121,7 +177,7 @@ const tutorial = {
   //     }
   //   } while (afuSelection != 'noreMoreQuertion')
   // },
-  // onAfterHeroEnterLocation: async (location) {
+  // onAfterEnterLocation: async (location) {
   //   final afu = getCharacterById('afu')
   //   final aya = getCharacterById('aya')
   //   if (this.flags.afuState == 0 && location.id == '万福村') {

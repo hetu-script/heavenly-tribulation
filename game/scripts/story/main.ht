@@ -1,20 +1,25 @@
 import 'module:main' as game
 
 import 'l10n/l10n.ht'
-import 'story.ht'
+import 'events/cave.ht'
+import 'events/main.ht'
+import 'data/quests.json5' as quests
 
 // 这里的函数最终是绑定到游戏对象上执行
 // 是运行时的命名空间，并不是这里的命名空间
 // 因此可以直接使用 engine, game 等 global 上的 对象
 const module = {
   meta: {
-    id: 'main-story',
-    displayName: '《天道奇劫》主线剧情',
-    description: '《天道奇劫》主线剧情',
+    id: 'story',
+    displayName: '剧情模组',
+    description: '包含了《天道奇劫》游戏的主线剧情。',
     supportedLocales: ['zh'],
     version: '0.0.1',
     flags: {
-      
+      chapter0: {},
+      chapter1: {},
+      chapter2: {},
+      chapter3: {},
     }
   },
 }
@@ -25,20 +30,31 @@ const module = {
 /// 以及将角色、据点等数据添加到主世界中
 /// 可以在这里检查是否存在版本冲突或者和其他脚本的冲突
 function init(config) {
+  engine.debug('游戏脚本模块 [${module.meta.id}(ver-${module.meta.version})] 初始化...')
+
   game.addModule(module.meta)
+
+  game.addQuestsData(quests)
 }
 
 const modName = '${module.meta.displayName}-${module.meta.id}-(${module.meta.version.major}.${module.meta.version.minor}.${module.meta.version.build})';
 
 // main每次启动游戏都会执行
 function main() {
-  engine.debug('游戏: [故事]脚本(ver-${coreScriptModuleVersion})初始化...')
+  engine.debug('游戏脚本模块 [${module.meta.id}(ver-${module.meta.version})] 载入...')
+
   // 加载本地化字符串
   engine.loadLocaleDataFromJSON(localizations.toJSON())
   // 向世界添加事件回调函数
-  // addEventHandlers(
-  //   worldId: 'tian_lao_xing', // tian_lao_xing 是世界ID
-  //   moduleId: module.meta.id,
-  //   handlers: tdqjMainStory,
-  // )
+  // 每个世界的事件是分开的
+  addEventHandlers(
+    moduleId: module.meta.id,
+    worldId: 'story_cave',
+    handlers: storyCave,
+  )
+  addEventHandlers(
+    moduleId: module.meta.id,
+    worldId: 'story_main',
+    handlers: storyMain,
+  )
 }

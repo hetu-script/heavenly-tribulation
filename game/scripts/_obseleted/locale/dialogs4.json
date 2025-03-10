@@ -1,9 +1,5 @@
 {
   "cave.oldWell.descriptionBeforeInteract1": "这是一个长满了青苔的古井，看上去和之前的石板棺材是同一时期建造的。\n井里面似乎有什么东西，此刻正在向外散发出星星点点的淡蓝色光芒。",
   "cave.oldWell.descriptionBeforeInteract2": "这口井似乎已经被石头封死。虽然里面有水，但清澈见底。",
-  "cave.oldWell.descriptionBeforeInteract3": "你看到水底有一块青色的玉佩，上面刻着两个古代文字。\n你发现自己似乎能认出这种文字。而且这两个字给你一种非常奇怪的熟悉的感觉。",
-  "cave.hero.line11": "萧……墨……？这难道是……我的名字……？",
-  "cave.oldWell.descriptionBeforeInteract4": "随着你取出这块玉佩，空中原本散部着的蓝色光点也随之消失。",
-  "cave.oldWell.descriptionAfterDrink": "在你取走放在里面的玉佩之后，这口井已经不再发出神秘的光芒，看上去并没什么值得继续探索的东西了。",
-  "cave.oldWell.takeJade": "拿走玉佩",
+  "cave.oldWell.descriptionBeforeInteract3": "你看到水底有一块青色的玉佩，上面刻着两个古代文字。\n你发现自己似乎能认出这种文字。而且这两个字给你一种非常奇怪的熟悉的感觉。"
 }

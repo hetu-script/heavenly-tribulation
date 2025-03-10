@@ -37,7 +37,7 @@ class MainMenuScene extends Scene {
           'level': 10,
         });
         context.read<HeroState>().update();
-        context.read<GameUIVisibilityState>().setVisible(true);
+        context.read<HeroInfoVisibilityState>().setVisible(true);
       }
     }
   }
