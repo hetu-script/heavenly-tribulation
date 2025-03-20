@@ -10,13 +10,6 @@
   "deckbuilding_identify_all": "全部鉴定",
   "deckbuilding_collect_all": "全部收下",
 
-  "byAcquiredTimeDescending": "获得时间 - 降序",
-  "byAcquiredTimeAscending": "获得时间 - 升序",
-  "byLevelDescending": "卡牌等级 - 降序",
-  "byLevelAscending": "卡牌等级 - 升序",
-  "byRankDescending": "卡牌境界 - 降序",
-  "byRankAscending": "卡牌境界 - 升序",
-
   "deckbuilding_limit_min": "最少卡牌数",
   "deckbuilding_limit": "最大卡牌数",
   "deckbuilding_limit_ephemeral": "消耗牌数量",

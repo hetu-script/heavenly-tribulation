@@ -3,7 +3,8 @@
   "edit": "编辑",
   "setAsFirstWorld": "设为初始地图",
   "addWorld": "添加新地图",
-  "addSite": "添加建筑",
+  "addSite": "添加子场景",
+  "editSite": "编辑子场景",
   "switchWorld": "切换地图",
   "deleteWorld": "删除地图",
   "expandWorld": "扩大地图",
@@ -11,7 +12,6 @@
   "objectIdNonExist": "对象 [{0}] 不存在！",
 
   "isDiscovered": "是否已被发现",
-  "addDefaultSubsidiaries": "添加城镇默认场景",
   "isMainWorld": "是否是主世界",
 
   "checkInformation": "查看信息",
@@ -22,6 +22,7 @@
 
   "gameEntity": "游戏对象",
   "createCharacter": "创建人物",
+  "createLocationObject": "创建场景对象",
   "createLocation": "创建场景",
   "createOrganization": "创建门派",
   "createZone": "创建区域",
@@ -35,10 +36,13 @@
   "inputObjectSource": "输入脚本对象 (JSON5)",
 
   "setAsHero": "设置为主角",
-  "clearWorldMapPosition": "清除大地图位置",
-  "setWorldMapPosition": "设置大地图位置",
+  "setWorldMap": "设置所在地图",
+  "setWorldMapPosition": "设置所在地图位置",
+  "clearWorldMapPosition": "清除地图位置信息",
   "clearLocation": "清除所处场景",
   "setLocation": "设置所处场景",
+  "clearHome": "清除住所",
+  "setHome": "设置住所",
   "checkProfile": "查看详情",
   "checkEventFlags": "查看自定义事件标记",
   "checkEquipments": "查看装备",
@@ -53,7 +57,7 @@
   "setInteractable": "设置可否进入",
   "nonInteractable": "不可到达",
 
-  "useCustomInteraction": "使用自定义事件处理函数",
+  "useCustomLogic": "使用自定义事件处理函数",
 
   "terrainTiles": "地形区块",
   "decorationTiles": "地面贴图",
@@ -69,6 +73,7 @@
   "lever": "拉杆",
   "pressurePlate": "压力机关",
   "treasureBox": "宝箱",
+  "woodenTreasureBox": "木质宝箱",
   "coffin": "棺材",
   "statue": "雕像",
   "stoneStairs": "石阶",

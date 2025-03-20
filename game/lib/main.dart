@@ -19,6 +19,7 @@ import 'app.dart';
 import 'engine.dart';
 // import 'ui/overlay/main_game.dart';
 import 'state/states.dart';
+import 'game/ui.dart';
 
 // class CustomWindowListener extends WindowListener {
 //   @override
@@ -86,22 +87,24 @@ void main() {
           ChangeNotifierProvider(create: (_) => SelectedTileState()),
           ChangeNotifierProvider(create: (_) => GameSavesState()),
           ChangeNotifierProvider(create: (_) => EditorToolState()),
-          ChangeNotifierProvider(create: (_) => HistoryState()),
+          ChangeNotifierProvider(create: (_) => HeroAndGlobalHistoryState()),
           ChangeNotifierProvider(create: (_) => GameDialogState()),
           ChangeNotifierProvider(create: (_) => CurrentNpcList()),
           ChangeNotifierProvider(create: (_) => QuestState()),
           ChangeNotifierProvider(create: (_) => HeroInfoVisibilityState()),
           ChangeNotifierProvider(create: (_) => HeroState()),
           ChangeNotifierProvider(create: (_) => EnemyState()),
+          ChangeNotifierProvider(create: (_) => MerchantState()),
           ChangeNotifierProvider(create: (_) => ViewPanelState()),
           ChangeNotifierProvider(create: (_) => ViewPanelPositionState()),
           ChangeNotifierProvider(create: (_) => HoverInfoContentState()),
           ChangeNotifierProvider(create: (_) => HoverInfoDeterminedRectState()),
+          ChangeNotifierProvider(create: (_) => GameTimestampState()),
         ],
         child: MaterialApp(
           scrollBehavior: NoThumbScrollBehavior().copyWith(scrollbars: false),
           debugShowCheckedModeBanner: false,
-          theme: GameConfig.appTheme,
+          theme: GameUI.darkTheme,
           home: GameApp(key: mainKey),
           // 控件绘制时发生错误，用一个显示错误信息的控件替代
           builder: (context, widget) {

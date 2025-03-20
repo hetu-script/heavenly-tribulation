@@ -6,6 +6,7 @@ import 'package:samsara/extensions.dart';
 import '../../engine.dart';
 // import '../hash.dart';
 import 'create_config.dart';
+import '../../game/ui.dart';
 
 /// 返回一个用于创建世界场景的 Map 对象参数
 /// Map 格式如下
@@ -49,6 +50,15 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
     _saveNameEditingController.text = engine.locale('unnamed');
     _idEditingController.text = 'main';
     _seedEditingController.text = 'Hello, world!';
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _saveNameEditingController.dispose();
+    _idEditingController.dispose();
+    _seedEditingController.dispose();
   }
 
   @override
@@ -156,6 +166,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
                                 child: Text('${engine.locale('worldStyle')}: '),
                               ),
                               DropdownButton<String>(
+                                style: GameUI.textTheme.bodyMedium,
                                 items: <String>['islands', 'coast', 'inland']
                                     .map((String value) =>
                                         DropdownMenuItem<String>(

@@ -17,7 +17,6 @@ class QuestsView extends StatefulWidget {
   static Future<bool?> show({
     required BuildContext context,
     required HTStruct siteData,
-    double priceFactor = 1.0,
   }) {
     return showDialog<bool>(
       context: context,

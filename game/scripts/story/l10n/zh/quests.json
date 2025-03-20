@@ -1,8 +1,12 @@
 {
   "story_mainQuest_hunguding": "奇怪的法宝",
-  "story_mainQuest_hunguding_stage1_description": "这个奇怪的法宝似乎具有你所不了解的力量。你打算在这附近寻找有关的线索。",
-  "story_mainQuest_hunguding_stage2_description": "你发现魂骨钉和万福村的宗门灵碑发生了共鸣。你需要找到这背后的原因。",
+  "story_mainQuest_hunguding_stage0_description": "这个法宝似乎具有你所不了解的力量。你打算在这附近寻找有关的线索。",
+  "story_mainQuest_hunguding_stage1_description": "阿福手上有可以帮你鉴定这个法宝的「鉴定符」。但他要价 300 两银子。",
 
-  "story_mainQuest_lingChuxue": "奇怪的少女",
-  "story_mainQuest_lingChuxue_stage1_description": "在紫河宗的「蚀骨洞天」中，你遇到了一个奇怪的少女。你内心深处有种说不清楚的预感，你还会在未来再次遇到她。"
+  "story_mainQuest_lingChuxue": "神秘的少女",
+  "story_mainQuest_lingChuxue_stage0_description": "在紫河宗的「蚀骨洞天」中，你遇到了一个神秘的少女。你并不认识她，但她竟然知道你的名字。你内心深处有种预感，你还会在未来再次遇到她。",
+
+  "story_mainQuest_initialCultivate": "灵力波动",
+  "story_mainQuest_initialCultivate_stage0_description": "在万福村的集会所中，你见到了一个奇怪的雕像。随后它在你身上引发了一股灵力波动。或许你可以问问万福村的村长阿福这是什么原因。",
+  "story_mainQuest_initialCultivate_stage1_description": "阿福答应帮你踏上修真之途。但条件是你要帮助他重建万福宗。如果你答应的话，可以前往<yellow>万福村的集会所中的定灵碑</>找他。"
 }

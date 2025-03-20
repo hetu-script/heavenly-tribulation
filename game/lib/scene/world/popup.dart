@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/ui/ink_button.dart';
 
 import '../../engine.dart';
-import '../../ui.dart';
+import '../../game/ui.dart';
 
 const _kPopupButtonSize = Size(40.0, 40.0);
 

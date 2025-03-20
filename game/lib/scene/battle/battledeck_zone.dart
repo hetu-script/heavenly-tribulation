@@ -5,8 +5,8 @@ import 'package:samsara/components/hovertip.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/paint/paint.dart';
 
-import '../../ui.dart';
-import '../../data.dart';
+import '../../game/ui.dart';
+import '../../game/data.dart';
 // import '../../../global.dart';
 // import 'character.dart';
 
@@ -17,7 +17,7 @@ class BattleDeckZone extends PiledZone with HandlesGesture {
     required super.position,
     super.cards,
     super.focusedOffset,
-    super.pileStructure,
+    super.pileStyle,
     required super.reverseX,
   }) : super(
           size: GameUI.battleDeckZoneSize,

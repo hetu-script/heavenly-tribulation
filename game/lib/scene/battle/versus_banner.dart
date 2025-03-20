@@ -6,7 +6,7 @@ import 'package:flame/flame.dart';
 // import 'package:samsara/gestures/gesture_mixin.dart';
 import 'package:flutter/material.dart';
 
-import '../../../ui.dart';
+import '../../game/ui.dart';
 import '../../widgets/character/details.dart';
 // import '../../../ui/view/character/npc.dart';
 
@@ -62,8 +62,7 @@ class VersusBanner extends GameComponent {
     final heorIcon = SpriteButton(
       // position: Vector2(center.x - 80.0 - 10.0 - 100.0, center.y - 50.0),
       position: Vector2(0, 40.0),
-      sprite:
-          Sprite(await Flame.images.load('illustration/${heroData['icon']}')),
+      sprite: Sprite(await Flame.images.load(heroData['icon'])),
       // image2: await Flame.images.load('illustration/border.png'),
       size: GameUI.battleCharacterAvatarSize,
       borderRadius: 12.0,
@@ -81,7 +80,7 @@ class VersusBanner extends GameComponent {
               GameUI.hugeIndent * 2 +
               GameUI.versusIconSize.x,
           40.0),
-      image: await Flame.images.load('illustration/${enemyData['icon']}'),
+      image: await Flame.images.load(enemyData['icon']),
       // image2: await Flame.images.load('illustration/border.png'),
       size: GameUI.battleCharacterAvatarSize,
       borderRadius: 12.0,

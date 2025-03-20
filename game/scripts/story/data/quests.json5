@@ -4,10 +4,10 @@
     name: "story_mainQuest_hunguding",
     stages: [
       {
-        description: "story_mainQuest_hunguding_stage1_description",
+        description: "story_mainQuest_hunguding_stage0_description",
       },
       {
-        description: "story_mainQuest_hunguding_stage2_description",
+        description: "story_mainQuest_hunguding_stage1_description",
       },
     ],
   },
@@ -17,7 +17,20 @@
     name: "story_mainQuest_lingChuxue",
     stages: [
       {
-        description: "story_mainQuest_lingChuxue_stage1_description",
+        description: "story_mainQuest_lingChuxue_stage0_description",
+      },
+    ],
+  },
+
+  story_mainQuest_initialCultivate: {
+    id: "story_mainQuest_initialCultivate",
+    name: "story_mainQuest_initialCultivate",
+    stages: [
+      {
+        description: "story_mainQuest_initialCultivate_stage0_description",
+      },
+      {
+        description: "story_mainQuest_initialCultivate_stage1_description",
       },
     ],
   },

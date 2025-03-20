@@ -1,6 +1,6 @@
 import 'tile/tilemap.ht'
 import 'tile/hexagonal_tile.ht'
-import '../game.ht'
+import '../game/data.ht'
 import 'tile/common.ht'
 
 /// 以一个种子地块出发，逐渐生长出一块大陆的算法
@@ -89,7 +89,6 @@ function generateContinent1({width, height, landProportion, landZone}) {
   }
 
   let unzonedTile
-  engine.debug('开始生成地域')
   while (
     unzonedTile = world.terrains.firstWhere((tile) => tile.zoneId == null)
   ) {

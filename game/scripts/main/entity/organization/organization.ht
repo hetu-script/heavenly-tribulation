@@ -1,42 +1,25 @@
-import '../../game.ht'
+import '../../game/data.ht'
 import '../../name/organization.ht'
 import '../entity.ht'
 import '../../world/tile/tilemap.ht'
 import '../item/material.ht'
+import '../achievements.ht'
 
-const kOrganizationRankMax = 4
+const kOrganizationStatusRankMax = 4
 const kOrganizationDevelopmentMax = 5
 const kOrganizationRecruitOtherLocationProbability = 0.2
 const kOrganizationRecruitSuccessProbability = 0.4
 
-// 组织的种类，不同的种类对应于不同的发展方向
-// 修真：提升境界，获取和升级功法卡牌
-// 国家：扩张领地
-// 宗教：招收弟子
-// 商业：合法经营
-// 帮派：非法经营
+/// 组织的种类
+/// 对应于角色除了无欲之外的的六种主要动机，代表了不同的发展方向
 const kOrganizationCategories = [
-  'cultivation',
-  'gang',
-  'religion',
-  'business',
-  'nation',
+  'cultivation', // 悟道：修真，功法，战斗
+  'immortality', // 长生：宗教，等级，境界
+  'chivalry', // 任侠：江湖豪杰
+  'entrepreneur', // 权霸：扩张国家领地，发展下属和附庸
+  'wealth', // 财富：经营商号，积累钱币和灵石
+  'pleasure', // 欢愉：享乐，赌博，情色
 ]
-
-const kCultivationSupportGenre = [
-  'array',
-  'rune',
-  'alchemy',
-  'craft',
-  'plant',
-  'animal',
-  'illusion',
-  'psychic',
-  'divination',
-  'theurgy',
-]
-
-const _kOrganizationThinkingsOnRecruit = 3
 
 const _kHeadRank = 80
 
@@ -48,11 +31,14 @@ struct Organization {
     headquartersId,
     headId,
     development = 0,
-    incurIncident = true, // 是否触发历史事件
+    jobRankMax = kOrganizationStatusRankMax,
+    incurIncident = true,
   }) {
-    this.entityType = kEntityTypeOrganization
+    assert(jobRankMax > 0)
     assert(world.locations.containsKey(headquartersId))
     assert(game.characters.containsKey(headId))
+
+    this.entityType = kEntityTypeOrganization
 
     this.createdTimestamp = game.timestamp
     // 该组织的事件触发选项
@@ -70,6 +56,7 @@ struct Organization {
     this.genre = genre ?? random.nextIterable(kCultivationGenres)
     assert(kOrganizationCategories.contains(this.category))
     assert(kCultivationGenres.contains(this.genre))
+    this.jobRankMax = jobRankMax
 
     this.index = game.organizations.length
     if (name) {
@@ -117,14 +104,14 @@ struct Organization {
         subjectId: head.id,
         organizationId: this.id,
         message: incidentContent,
-        order: 15,
+        orderly: 15,
         isGlobal: true,
       )
     } else {
       engine.debug(incidentContent)
     }
     addCharacterToOrganization(head, this, incurIncident: incurIncident)
-    addOrganizationTitleForCharacter(head, this, kOrganizationRankMax, 'head', incurIncident: incurIncident)
+    addOrganizationTitleForCharacter(head, this, jobRank: this.jobRankMax, titleId: 'head', incurIncident: incurIncident)
 
     // 国家区块颜色
     this.color = random.nextBrightColorHex()
@@ -143,32 +130,16 @@ struct Organization {
     this.materials = MaterialStorage()
     this.achievements = Achievements()
 
-    // 组织所拥有的功法
-    // 用法类似人物的装备栏
-    // 放入的是可以被学习的技能
-    // -1 的技能，即便不是本门弟子也可以花费钱财或者灵石学习
-    // 0 等以上，需要本门弟子，并且 rank 小于等于对应等级，以及花费贡献点数，才可以学习
-    // 保存的数据除了技能本身，还包括需要支付的费用和要求
-    // {
-    //   requirement: {
-    //     contribution: 0,
-    //     money: 0,
-    //     jade: 0,
-    //     organizationRank: 0,
-    //   },
-    //   skill: {
-    //     
-    //   }
-    // }
-
-    // this.skills = {}
-
     // 敌对名单，遇到后将会直接开始战斗
     this.enemyLists = {
       characterIds: [],
       organizationIds: [],
       // nationIds: [],
     }
+    
+    // 该对象知道的事情
+    // 保存的是incident的index
+    this.known = []
   }
 
   // /// 国家是一种特殊的组织，单独有一个生成函数，并且单独保存
@@ -245,33 +216,27 @@ function stationOrganization(organization, location, { characterIds, incurIncide
   organization.headquartersId = location.id
 
   const headquarters = Location(
+    name: organization.name,
     category: 'site',
     kind: organization.genre,
     atLocation: location,
-    name: organization.name,
   )
-  let toBeRemoved
-  final cityhall = location.sites.values.where((element) => element.category == kSiteCityHall)
-  if (cityhall.isNotEmpty) {
-    toBeRemoved = cityhall.first.id
-  }
-  delete location.sites[toBeRemoved]
 
-  organization.headquartersSiteId = site.id
+  organization.headquartersSiteId = headquarters.id
 
   for (const id in characterIds) {
     const character = game.characters[id]
-    setCharacterHome(character, location, organizationName: organization.name)
+    setCharacterHomeLocation(character, location)
   }
 
   organization.locationIds.add(location.id)
 }
 
 // 组织中每个等级的人数上限
-// 数字越大，等级越低，0是掌门
-function maxMemberOfRank(n: integer) {
-  assert(n >= 0 && n <= kOrganizationRankMax)
-  return ((kOrganizationRankMax - n) + 1) * ((kOrganizationRankMax - n) + 1)
+// 数字越大，等级越高，[jobRankMax]是掌门，人数只有1
+function maxMemberOfStatusRank(n: integer, jobRankMax) {
+  assert(n >= 0 && n <= jobRankMax)
+  return ((jobRankMax - n) + 1) * ((jobRankMax - n) + 1)
 }
 
 // 组织可以拥有的人数上限取决于组织发展度
@@ -293,7 +258,7 @@ function removeCharacterFromOrganization(character) {
 }
 
 function getOrganizationMemberIdsOfRank(organization, rank) {
-  assert(rank >= 0 && rank <= kOrganizationRankMax)
+  assert(rank >= 0 && rank <= organization.jobRankMax)
   const ids = []
   for (const id in organization.characterIds.keys) {
     const idRank = organization.characterIds[id]
@@ -309,7 +274,10 @@ function organizationMemberReachMax(organization) {
   return organization.characterIds.length >= maxMemberOfDevelopment(organization.development)
 }
 
-// 新加入的成员的等级，是当前的组织发展度 + 1
+/// 角色加入组织
+/// 注意，这里并不处理师徒关系，可以理解为这里处理的是雇佣性质的工作岗位
+/// 师徒关系需要另外调用 createShitu api来创建
+/// 新加入的成员的等级，是当前的组织发展度 + 1
 function addCharacterToOrganization(character, organization, { incurIncident = true }) {
   assert(!organization.characterIds.contains(character.id))
   if (organizationMemberReachMax(organization)) {
@@ -317,8 +285,7 @@ function addCharacterToOrganization(character, organization, { incurIncident = t
     return false
   }
 
-  const memberIds = getOrganizationMemberIdsOfRank(organization, kOrganizationRankMax)
-  if (memberIds.length >= maxMemberOfDevelopment(kOrganizationRankMax)) {
+  if (getOrganizationMemberIdsOfRank(organization, 0).length >= maxMemberOfStatusRank(0, organization.jobRankMax)) {
     engine.warn('组织 ${organization.id} 的低阶成员数量达到上限，在提升成员级别之前无法再添加新成员。')
     return false
   }
@@ -326,7 +293,8 @@ function addCharacterToOrganization(character, organization, { incurIncident = t
     assert(character.organizationId != organization.id)
     removeCharacterFromOrganization(character)
   }
-  organization.characterIds[character.id] = character.organizationRank = 0
+  organization.characterIds[character.id] = character.jobRank[organization.id] = 0
+  // 角色可以加入多个门派，但当前所属门派只有一个，即最后一个加入的门派
   character.organizationId = organization.id
 
   if (incurIncident) {
@@ -338,24 +306,14 @@ function addCharacterToOrganization(character, organization, { incurIncident = t
       subjectId: character.id,
       organizationId: organization.id,
       message: incidentContent,
-      order: 10,
+      orderly: 10,
       isPrivate: false,
     )
   }
 
   const location = world.locations[organization.headquartersId]
-  setCharacterHome(character, location)
+  setCharacterHomeLocation(character, location)
   
-  // const r = random.nextInt(_kOrganizationThinkingsOnRecruit)
-  // for (const i in range(r)) {
-  //   let thinking
-  //   do {
-  //     thinking = random.nextIterable(kOrganizationThinkings[organization.category])
-  //   } while (character.thinkings.contains(thinking))
-  //   character.thinkings.add(thinking)
-  // }
-  
-  // setCharacterLocationId(character, organization.headquartersId)
   return true
 }
 
@@ -440,30 +398,33 @@ function removeTerrainFromOrganization(terrain, { incurIncident = true }) {
     organization.locationIds.remove(location.id)
     
     let toBeRemoved
-    for (let key in location.sites.keys) {
-      const site = location.sites[key]
+    for (let siteId in location.sites) {
+      const site = world.locations[siteId]
       if (site.name == organization.name) {
         engine.info('${organization.id} 失去了总堂所在地块！')
         toBeRemoved = site.id
         break
       }
     }
-    delete location.sites[toBeRemoved]
+    delete world.locations[toBeRemoved]
   }
 }
 
 // TODO: 添加incident
 function addTerrainToOrganization(terrain, organization, { incurIncident = true }) {
-  if (terrain.nationId == organization.id) {
-    engine.warn('terrain [${terrain.left}, ${terrain.top}] already belongs to organization [${organization.id}]')
+  if (organization.territoryIndexes.contains(terrain.index)) {
+    engine.error('组织 [${organization.id}] 已经拥有地块 [${terrain.left}, ${terrain.top}]')
     return
   }
+  if (terrain.nationId == organization.id) {
+    engine.error('组织 [${organization.id}] 已经拥有地块 [${terrain.left}, ${terrain.top}]')
+    return
+  }
+  organization.territoryIndexes.add(terrain.index)
   if (terrain.nationId != null) {
     removeTerrainFromOrganization(terrain)
   }
-  assert(organization.territoryIndexes.isEmpty ||
-          !organization.territoryIndexes.contains(terrain.index))
-  organization.territoryIndexes.add(terrain.index)
+  terrain.nationId = organization.id
   if (organization.borderIndexes.contains(terrain.index)) {
     organization.borderIndexes.remove(terrain.index)
   }
@@ -473,7 +434,6 @@ function addTerrainToOrganization(terrain, organization, { incurIncident = true 
       organization.borderIndexes.add(neighbor.index)
     }
   }
-  terrain.nationId = organization.id
   if (terrain.locationId) {
     const location = world.locations[terrain.locationId]
     // 应该已经从原本的门派中移除

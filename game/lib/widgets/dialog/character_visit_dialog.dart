@@ -5,67 +5,61 @@ import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 
 import '../../engine.dart';
+import '../../game/ui.dart';
+import '../../game/data.dart';
 
 const _kCharacterVisitTableColumns = [
   'name',
   'haveMet',
-  'talk',
   'gift',
-  'request',
-  'duel',
-  'consult',
-  'insult',
-  'steal'
+  'attack',
+  'steal',
+  'friendRelationship',
+  'romanceRelationship',
+  'familyRelationship',
+  'sectRelationship',
 ];
 
 class CharacterVisitDialog extends StatelessWidget {
   static Future<String?> show({
     required BuildContext context,
     required Iterable<dynamic> characterIds,
-    bool hideHero = true,
+    bool heroResidesHere = false,
   }) async {
     assert(characterIds.isNotEmpty);
     return await showDialog<String?>(
       context: context,
       builder: (BuildContext context) {
         return CharacterVisitDialog(
-          characterIds: characterIds,
-          hideHero: hideHero,
-        );
+            characterIds: characterIds, heroResidesHere: heroResidesHere);
       },
     );
   }
 
   final Iterable<dynamic> characterIds;
 
-  final bool hideHero;
+  final bool heroResidesHere;
 
   const CharacterVisitDialog({
     super.key,
     required this.characterIds,
-    this.hideHero = true,
+    this.heroResidesHere = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    final hero = engine.hetu.interpreter.fetch('hero');
-    final heroId = hero['id'];
-    final activitiesData = engine.hetu.invoke('getPlayerMonthlyActivities');
-
-    final ids = characterIds.toList();
-    ids.remove(heroId);
+    final activitiesData =
+        engine.hetu.fetch('playerMonthly', namespace: 'game');
 
     final List<DataRow2> tableData = [];
 
-    if (!hideHero) {
+    if (heroResidesHere) {
       tableData.add(DataRow2(
           onTap: () {
-            Navigator.of(context).pop(heroId);
+            Navigator.of(context).pop(GameData.heroData['id']);
           },
           cells: [
-            DataCell(
-              Text(engine.locale('heroHome')),
-            ),
+            DataCell(Text(engine.locale('heroHome'))),
             const DataCell(Text('—')),
             const DataCell(Text('—')),
             const DataCell(Text('—')),
@@ -77,11 +71,20 @@ class CharacterVisitDialog extends StatelessWidget {
           ]));
     }
 
-    tableData.addAll(ids.map((id) {
+    tableData.addAll(characterIds.map((id) {
       final character =
           engine.hetu.invoke('getCharacterById', positionalArgs: [id]);
-      final haveMet =
-          engine.hetu.invoke('haveMet', positionalArgs: [hero, character]);
+      final haveMet = engine.hetu
+          .invoke('haveMet', positionalArgs: [GameData.heroData, character]);
+      final isFriend = engine.hetu
+          .invoke('isFriend', positionalArgs: [GameData.heroData, character]);
+      final isRomance = engine.hetu
+          .invoke('isRomance', positionalArgs: [GameData.heroData, character]);
+      final isFamily = engine.hetu
+          .invoke('isFamily', positionalArgs: [GameData.heroData, character]);
+      final isSect = engine.hetu
+          .invoke('isSect', positionalArgs: [GameData.heroData, character]);
+
       return DataRow2(
           onTap: () {
             Navigator.of(context).pop(id);
@@ -91,12 +94,7 @@ class CharacterVisitDialog extends StatelessWidget {
               Text(character['name']),
             ),
             DataCell(
-              Text(haveMet
-                  ? engine.locale('checked')
-                  : engine.locale('unchecked')),
-            ),
-            DataCell(
-              Text(activitiesData['talked'].contains(id)
+              Text((haveMet != null)
                   ? engine.locale('checked')
                   : engine.locale('unchecked')),
             ),
@@ -106,22 +104,7 @@ class CharacterVisitDialog extends StatelessWidget {
                   : engine.locale('unchecked')),
             ),
             DataCell(
-              Text(activitiesData['practiced'].contains(id)
-                  ? engine.locale('checked')
-                  : engine.locale('unchecked')),
-            ),
-            DataCell(
-              Text(activitiesData['consulted'].contains(id)
-                  ? engine.locale('checked')
-                  : engine.locale('unchecked')),
-            ),
-            DataCell(
-              Text(activitiesData['requested'].contains(id)
-                  ? engine.locale('checked')
-                  : engine.locale('unchecked')),
-            ),
-            DataCell(
-              Text(activitiesData['insulted'].contains(id)
+              Text(activitiesData['attacked'].contains(id)
                   ? engine.locale('checked')
                   : engine.locale('unchecked')),
             ),
@@ -129,11 +112,32 @@ class CharacterVisitDialog extends StatelessWidget {
               Text(activitiesData['stolen'].contains(id)
                   ? engine.locale('checked')
                   : engine.locale('unchecked')),
-            )
+            ),
+            DataCell(
+              Text(isFriend
+                  ? engine.locale('checked')
+                  : engine.locale('unchecked')),
+            ),
+            DataCell(
+              Text(isRomance
+                  ? engine.locale('checked')
+                  : engine.locale('unchecked')),
+            ),
+            DataCell(
+              Text(isFamily
+                  ? engine.locale('checked')
+                  : engine.locale('unchecked')),
+            ),
+            DataCell(
+              Text(isSect
+                  ? engine.locale('checked')
+                  : engine.locale('unchecked')),
+            ),
           ]);
     }));
 
     return ResponsiveView(
+      color: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       margin: const EdgeInsets.fromLTRB(50.0, 50.0, 50.0, 50.0),
       child: Scaffold(

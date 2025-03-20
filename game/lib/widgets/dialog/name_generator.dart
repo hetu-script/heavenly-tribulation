@@ -24,16 +24,18 @@ class _NameGeneratorState extends State<NameGenerator> {
 
   @override
   void initState() {
+    super.initState();
+
     if (widget.text != null) {
       _textController.text = widget.text!;
     }
-    super.initState();
   }
 
   @override
   void dispose() {
-    _textController.dispose();
     super.dispose();
+
+    _textController.dispose();
   }
 
   @override

@@ -509,7 +509,7 @@ function onHeroMovedOnMountain({tile, maze, currentLevelIndex}) -> bool {
           // 向盗贼求情，是否成功依赖于
           // 圆滑
           'plead' : {
-            if (hero.attributes.charisma > kCharismaCheckThreshold) {
+            if (hero.stats.charisma > kCharismaCheckThreshold) {
               dialog.localeLines(['pleadSuccess'], character: entity)
                 .then((_) {
                   lootCharacter(entity, hero, takeAll: false)

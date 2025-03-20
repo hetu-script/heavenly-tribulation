@@ -1,25 +1,22 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/components/sprite_button.dart';
 import 'package:flame/flame.dart';
-import 'package:provider/provider.dart';
 
-import '../../ui.dart';
+import '../../game/ui.dart';
 import 'character.dart';
 import 'battledeck_zone.dart';
 import '../../engine.dart';
 import 'versus_banner.dart';
 import '../common.dart';
-import '../../data.dart';
+import '../../game/data.dart';
 import 'common.dart';
 import 'drop_menu.dart';
 import '../game_dialog/game_dialog_controller.dart';
-import '../../state/game_dialog.dart';
 
 /// 属性效果对应的永久状态，值是正面状态和负面状态的元组
 const kStatsToPermenantEffects = {
@@ -76,11 +73,11 @@ class BattleScene extends Scene {
     this.onBattleStart,
     this.onBattleEnd,
   }) : super(
-          context: GameData.context,
+          context: engine.context,
           id: Scenes.battle,
           bgm: engine.bgm,
           bgmFile: 'war-drums-173853.mp3',
-          bgmVolume: GameConfig.musicVolume,
+          bgmVolume: engine.config.musicVolume,
         );
 
   void _addPermenantStatus(BattleCharacter character) {
@@ -147,7 +144,7 @@ class BattleScene extends Scene {
       position: GameUI.p1BattleDeckZonePosition,
       cards: heroDeck,
       focusedOffset: GameUI.battleCardFocusedOffset,
-      pileStructure: PileStructure.queue,
+      pileStyle: PileStyle.queue,
       reverseX: false,
     );
     world.add(heroDeckZone);
@@ -187,7 +184,7 @@ class BattleScene extends Scene {
       position: GameUI.p2BattleDeckZonePosition,
       cards: enemyDeck,
       focusedOffset: GameUI.battleCardFocusedOffset,
-      pileStructure: PileStructure.queue,
+      pileStyle: PileStyle.queue,
       reverseX: true,
     );
     world.add(enemyDeckZone);
@@ -230,12 +227,12 @@ class BattleScene extends Scene {
     );
     camera.viewport.add(versusBanner);
 
-    final heroRank = heroData['cultivationRank'];
-    final enemyRank = enemyData['cultivationRank'];
+    final heroRank = heroData['rank'];
+    final enemyRank = enemyData['rank'];
 
     if (heroRank == enemyRank) {
-      final heroLevel = heroData['cultivationLevel'];
-      final enemyLevel = enemyData['cultivationLevel'];
+      final heroLevel = heroData['level'];
+      final enemyLevel = enemyData['level'];
       if (heroLevel == enemyLevel) {
         isFirsthand =
             heroData['stats']['dexterity'] >= enemyData['stats']['dexterity'];
@@ -263,7 +260,7 @@ class BattleScene extends Scene {
       nextTurnButton.isVisible = true;
       nextTurnButton.text = engine.locale('start');
       nextTurnButton.onTap = (_, __) =>
-          (!GameConfig.isDebugMode || isAutoBattle)
+          (!engine.config.debugMode || isAutoBattle)
               ? startAutoBattle()
               : nextTurn();
       await _onBattleStart();
@@ -285,7 +282,7 @@ class BattleScene extends Scene {
       position: Vector2(
           center.x, heroDeckZone.position.y - GameUI.buttonSizeMedium.y),
       size: Vector2(100.0, 40.0),
-      onTap: (_, __) => (!GameConfig.isDebugMode || isAutoBattle)
+      onTap: (_, __) => (!engine.config.debugMode || isAutoBattle)
           ? startAutoBattle()
           : nextTurn(),
     );
@@ -453,13 +450,11 @@ class BattleScene extends Scene {
 
   @override
   Widget build(BuildContext context) {
-    final isGameDialogOpened = context.watch<GameDialogState>().isOpened;
-
     return Stack(
       children: [
         SceneWidget(scene: this),
-        if (isGameDialogOpened) GameDialogController(),
-        if (kDebugMode || GameConfig.isDebugMode)
+        GameDialogController(),
+        if (engine.config.debugMode)
           Positioned(
             right: 0,
             top: 0,

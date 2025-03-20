@@ -2,24 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
-import 'package:samsara/cardgame/custom_card.dart';
 import 'package:samsara/cardgame/zones/piled_zone.dart';
 import 'package:provider/provider.dart';
 
 import '../../../engine.dart';
-import '../../../data.dart';
-import '../../../ui.dart';
-import '../../npc_list.dart';
+import '../../../game/data.dart';
+import '../../../game/ui.dart';
+import '../../../widgets/npc_list.dart';
 import '../../../widgets/ui_overlay.dart';
 import '../../../widgets/dialog/character_visit_dialog.dart';
 import '../../../state/current_npc_list.dart';
 import '../../common.dart';
 import '../../game_dialog/game_dialog_content.dart';
+import '../../../game/logic.dart';
+import '../../../common.dart';
 
 class LocationScene extends Scene {
   late final SpriteComponent _backgroundComponent;
 
   final dynamic locationData;
+
+  late final PiledZone siteList;
 
   LocationScene({
     required this.locationData,
@@ -33,32 +36,47 @@ class LocationScene extends Scene {
   void updateNPCsInHeroSite(String? siteId) {
     if (siteId == null) return;
     final Iterable<dynamic> npcs = engine.hetu
-        .invoke('getNpcsByLocationId', positionalArgs: [locationData['id']]);
+        .invoke('getNpcsAtLocationId', positionalArgs: [locationData['id']]);
     context.read<CurrentNpcList>().updated(npcs);
   }
 
+  Future<void> _tryEnterLocation(dynamic locationData) async {
+    final result = await engine.hetu
+        .invoke('onBeforeEnterLocation', positionalArgs: [locationData]);
+
+    if (result == null) {
+      engine.pushScene(
+        locationData['id'],
+        constructorId: Scenes.location,
+        arguments: {'location': locationData},
+      );
+    }
+  }
+
   void openResidenceList() async {
-    final residingCharacterIds = engine.hetu.invoke(
-      'getCharactersByHomeId',
-      positionalArgs: [locationData['id']],
-    );
+    final residingCharacterIds = engine.hetu
+        .invoke('getResidingCharactersIds', positionalArgs: [locationData]);
     if (residingCharacterIds.isNotEmpty) {
-      final characterIds = residingCharacterIds.toList();
+      final List characterIds = residingCharacterIds.toList();
+      bool heroResidesHere = false;
+      final heroId = GameData.heroData['id'];
+      if (characterIds.contains(heroId)) {
+        characterIds.remove(heroId);
+        heroResidesHere = true;
+      }
       // final heroId = engine.hetu.invoke('getHeroId');
       final selectedId = await CharacterVisitDialog.show(
         context: context,
         characterIds: characterIds,
-        hideHero: false,
+        heroResidesHere: heroResidesHere,
       );
       // 这里不知为何flutter命名Pop的是Null，传过来却变成了bool，只好用类型判断是否选择了角色
       if (selectedId is String) {
-        final homeSiteId = 'home.$selectedId';
-        final homeSiteData = locationData['sites'][homeSiteId];
-        await engine
-            .pushScene(Scenes.location, arguments: {'location': homeSiteData});
-        updateNPCsInHeroSite(homeSiteId);
-        await engine.hetu.invoke('onAfterHeroEnterSite',
-            positionalArgs: [locationData, homeSiteData]);
+        final homeSiteId = 'home_$selectedId';
+        final homeSiteData =
+            engine.hetu.invoke('getLocationById', positionalArgs: [homeSiteId]);
+        assert(homeSiteData != null);
+        _tryEnterLocation(homeSiteData);
       }
     } else {
       GameDialogContent.show(context, {
@@ -66,6 +84,49 @@ class LocationScene extends Scene {
         'isHero': true,
       });
     }
+  }
+
+  void updateSites() {
+    for (final siteCard in siteList.cards) {
+      siteCard.removeFromParent();
+    }
+    siteList.cards.clear();
+
+    if (locationData['kind'] == 'home') {
+      /// 纯功能性的场景内互动对象，不保存为数据
+      if (locationData['ownerId'] == GameData.heroData['id']) {
+        final siteCardRest = GameData.createSiteCard(
+            spriteId: 'bed.png', title: engine.locale('rest'));
+        siteCardRest.onTap = (buttons, position) {
+          GameLogic.heroRest();
+        };
+        siteList.cards.add(siteCardRest);
+        world.add(siteCardRest);
+      }
+    } else {
+      for (final siteId in locationData['sites']) {
+        final siteData =
+            engine.hetu.invoke('getLocationById', positionalArgs: [siteId]);
+        final siteCard = GameData.createSiteCardFromData(siteData);
+        siteCard.onTap = (buttons, position) {
+          if (siteCard.data['kind'] == 'residence') {
+            openResidenceList();
+          } else if (kLocationSiteKinds.contains(siteCard.data['kind'])) {
+            _tryEnterLocation(siteCard.data);
+          } else {
+            engine.hetu.invoke('onWorldEvent', positionalArgs: [
+              'onInteractLocationObject',
+              siteCard.data,
+              locationData,
+            ]);
+          }
+        };
+        siteList.cards.add(siteCard);
+        world.add(siteCard);
+      }
+    }
+
+    siteList.sortCards(animated: false);
   }
 
   @override
@@ -78,45 +139,22 @@ class LocationScene extends Scene {
     );
     world.add(_backgroundComponent);
 
-    final List<CustomGameCard> siteCards = [];
-
-    // final heroHomeId = engine.hetu.invoke('getHeroHomeLocationId');
-    // if (id == heroHomeId) {
-    //   final heroHomeSite = engine.hetu.invoke('getHeroHomeSite');
-    //   siteCards.add(GameData.getSiteCard(heroHomeSite));
-    // }
-
-    for (final siteId in locationData['sites']) {
-      final siteData =
-          engine.hetu.invoke('getLocationById', positionalArgs: [siteId]);
-      siteCards.add(GameData.getSiteCard(siteData));
-    }
-
-    for (final siteCard in siteCards) {
-      siteCard.onTap = (buttons, position) async {
-        if (siteCard.data['kind'] == 'residence') {
-          openResidenceList();
-        } else {
-          await engine.pushScene(
-            siteCard.data['id'],
-            constructorId: Scenes.location,
-            arguments: {'location': siteCard.data},
-          );
-        }
-      };
-      world.add(siteCard);
-    }
-
-    final siteList = PiledZone(
-      cards: siteCards,
+    siteList = PiledZone(
       position: GameUI.siteListPosition,
-      pileStructure: PileStructure.queue,
+      pileStyle: PileStyle.queue,
       piledCardSize: GameUI.siteCardSize,
       pileOffset: Vector2(GameUI.siteCardSize.x / 3 * 2, 0),
     );
     world.add(siteList);
 
-    final exit = GameData.getExitSiteCard();
+    updateSites();
+
+    final exit = GameData.createSiteCard(
+      id: 'exit',
+      spriteId: 'exit.png',
+      title: engine.locale('exit'),
+      position: GameUI.siteExitCardPositon,
+    );
     exit.onTap = (_, __) async {
       final result = await engine.hetu.invoke('onWorldEvent',
           positionalArgs: ['onBeforeExitLocation', locationData]);
@@ -124,6 +162,11 @@ class LocationScene extends Scene {
       engine.popScene(clearCache: true);
     };
     world.add(exit);
+
+    engine.hetu.interpreter.bindExternalFunction('World::updateLocationSites', (
+        {positionalArgs, namedArgs}) {
+      updateSites();
+    }, override: true);
   }
 
   @override
@@ -131,11 +174,11 @@ class LocationScene extends Scene {
     super.onStart(arguments);
 
     final Iterable<dynamic> npcs = engine.hetu
-        .invoke('getNpcsByLocationId', positionalArgs: [locationData['id']]);
+        .invoke('getNpcsAtLocationId', positionalArgs: [locationData['id']]);
     context.read<CurrentNpcList>().updated(npcs);
 
-    engine.hetu.invoke('onWorldEvent',
-        positionalArgs: ['onAfterEnterLocation', locationData]);
+    engine.debug('玩家进入了 ${locationData['name']}');
+    engine.hetu.invoke('onAfterEnterLocation', positionalArgs: [locationData]);
   }
 
   @override
@@ -144,16 +187,14 @@ class LocationScene extends Scene {
       children: [
         SceneWidget(scene: this),
         const Positioned(
-          left: 0,
-          top: 0,
-          child: GameUIOverlay(
-            showHistoryPanel: false,
-          ),
-        ),
-        const Positioned(
           left: 5,
           top: 130,
           child: NpcList(),
+        ),
+        const Positioned(
+          left: 0,
+          top: 0,
+          child: GameUIOverlay(),
         ),
       ],
     );

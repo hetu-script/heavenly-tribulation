@@ -11,202 +11,202 @@
   swordcraft_rank_1: {
     id: "swordcraft_rank_1",
     description: "passive_swordcraft_rank_1_description",
-    priority: 500,
+    priority: 5040,
   },
   swordcraft_rank_2: {
     id: "swordcraft_rank_2",
     description: "passive_swordcraft_rank_2_description",
-    priority: 501,
+    priority: 5041,
   },
   swordcraft_rank_3: {
     id: "swordcraft_rank_3",
     description: "passive_swordcraft_rank_3_description",
-    priority: 502,
+    priority: 5042,
   },
   swordcraft_rank_4: {
     id: "swordcraft_rank_4",
     description: "passive_swordcraft_rank_4_description",
-    priority: 503,
+    priority: 5043,
   },
   swordcraft_rank_5: {
     id: "swordcraft_rank_5",
     description: "passive_swordcraft_rank_5_description",
-    priority: 504,
+    priority: 5044,
   },
   swordcraft_rank_6: {
-    id: "swordcraft_rank_1",
+    id: "swordcraft_rank_6",
     description: "passive_swordcraft_rank_6_description",
-    priority: 505,
+    priority: 5045,
   },
   swordcraft_rank_7: {
-    id: "swordcraft_rank_1",
+    id: "swordcraft_rank_7",
     description: "passive_swordcraft_rank_7_description",
-    priority: 506,
+    priority: 5046,
   },
   swordcraft_rank_8: {
-    id: "swordcraft_rank_1",
+    id: "swordcraft_rank_8",
     description: "passive_swordcraft_rank_8_description",
-    priority: 507,
+    priority: 5047,
   },
-  daoism_rank_1: {
-    id: "daoism_rank_1",
-    description: "passive_daoism_rank_1_description",
-    priority: 500,
+  spellcraft_rank_1: {
+    id: "spellcraft_rank_1",
+    description: "passive_spellcraft_rank_1_description",
+    priority: 5030,
   },
-  daoism_rank_2: {
-    id: "daoism_rank_2",
-    description: "passive_daoism_rank_2_description",
-    priority: 501,
+  spellcraft_rank_2: {
+    id: "spellcraft_rank_2",
+    description: "passive_spellcraft_rank_2_description",
+    priority: 5031,
   },
-  daoism_rank_3: {
-    id: "daoism_rank_3",
-    description: "passive_daoism_rank_3_description",
-    priority: 502,
+  spellcraft_rank_3: {
+    id: "spellcraft_rank_3",
+    description: "passive_spellcraft_rank_3_description",
+    priority: 5032,
   },
-  daoism_rank_4: {
-    id: "daoism_rank_4",
-    description: "passive_daoism_rank_4_description",
-    priority: 503,
+  spellcraft_rank_4: {
+    id: "spellcraft_rank_4",
+    description: "passive_spellcraft_rank_4_description",
+    priority: 5033,
   },
-  daoism_rank_5: {
-    id: "daoism_rank_5",
-    description: "passive_daoism_rank_5_description",
-    priority: 504,
+  spellcraft_rank_5: {
+    id: "spellcraft_rank_5",
+    description: "passive_spellcraft_rank_5_description",
+    priority: 5034,
   },
-  daoism_rank_6: {
-    id: "daoism_rank_6",
-    description: "passive_daoism_rank_6_description",
-    priority: 505,
+  spellcraft_rank_6: {
+    id: "spellcraft_rank_6",
+    description: "passive_spellcraft_rank_6_description",
+    priority: 5035,
   },
-  daoism_rank_7: {
-    id: "daoism_rank_7",
-    description: "passive_daoism_rank_7_description",
-    priority: 506,
+  spellcraft_rank_7: {
+    id: "spellcraft_rank_7",
+    description: "passive_spellcraft_rank_7_description",
+    priority: 5036,
   },
-  daoism_rank_8: {
-    id: "daoism_rank_8",
-    description: "passive_daoism_rank_8_description",
-    priority: 507,
+  spellcraft_rank_8: {
+    id: "spellcraft_rank_8",
+    description: "passive_spellcraft_rank_8_description",
+    priority: 5027,
   },
   physique_rank_1: {
     id: "physique_rank_1",
     description: "passive_physique_rank_1_description",
-    priority: 500,
+    priority: 5020,
   },
   physique_rank_2: {
     id: "physique_rank_2",
     description: "passive_physique_rank_2_description",
-    priority: 501,
+    priority: 5021,
   },
   physique_rank_3: {
     id: "physique_rank_3",
     description: "passive_physique_rank_3_description",
-    priority: 502,
+    priority: 5022,
   },
   physique_rank_4: {
     id: "physique_rank_4",
     description: "passive_physique_rank_4_description",
-    priority: 503,
+    priority: 5023,
   },
   physique_rank_5: {
     id: "physique_rank_5",
     description: "passive_physique_rank_5_description",
-    priority: 504,
+    priority: 5024,
   },
   physique_rank_6: {
     id: "physique_rank_6",
     description: "passive_physique_rank_6_description",
-    priority: 505,
+    priority: 5025,
   },
   physique_rank_7: {
     id: "physique_rank_7",
     description: "passive_physique_rank_7_description",
-    priority: 506,
+    priority: 5026,
   },
   physique_rank_8: {
     id: "physique_rank_8",
     description: "passive_physique_rank_8_description",
-    priority: 507,
+    priority: 5027,
   },
   avatar_rank_1: {
     id: "avatar_rank_1",
     description: "passive_avatar_rank_1_description",
-    priority: 500,
+    priority: 5010,
   },
   avatar_rank_2: {
     id: "avatar_rank_2",
     description: "passive_avatar_rank_2_description",
-    priority: 501,
+    priority: 5011,
   },
   avatar_rank_3: {
     id: "avatar_rank_3",
     description: "passive_avatar_rank_3_description",
-    priority: 502,
+    priority: 5012,
   },
   avatar_rank_4: {
     id: "avatar_rank_4",
     description: "passive_avatar_rank_4_description",
-    priority: 503,
+    priority: 5013,
   },
   avatar_rank_5: {
     id: "avatar_rank_5",
     description: "passive_avatar_rank_5_description",
-    priority: 504,
+    priority: 5014,
   },
   avatar_rank_6: {
     id: "avatar_rank_6",
     description: "passive_avatar_rank_6_description",
-    priority: 505,
+    priority: 5015,
   },
   avatar_rank_7: {
     id: "avatar_rank_7",
     description: "passive_avatar_rank_7_description",
-    priority: 506,
+    priority: 5016,
   },
   avatar_rank_8: {
     id: "avatar_rank_8",
     description: "passive_avatar_rank_8_description",
-    priority: 507,
+    priority: 5017,
   },
   vitality_rank_1: {
     id: "vitality_rank_1",
     description: "passive_vitality_rank_1_description",
-    priority: 500,
+    priority: 5000,
   },
   vitality_rank_2: {
     id: "vitality_rank_2",
     description: "passive_vitality_rank_2_description",
-    priority: 501,
+    priority: 5001,
   },
   vitality_rank_3: {
     id: "vitality_rank_3",
     description: "passive_vitality_rank_3_description",
-    priority: 502,
+    priority: 5002,
   },
   vitality_rank_4: {
     id: "vitality_rank_4",
     description: "passive_vitality_rank_4_description",
-    priority: 503,
+    priority: 5003,
   },
   vitality_rank_5: {
     id: "vitality_rank_5",
     description: "passive_vitality_rank_5_description",
-    priority: 504,
+    priority: 5004,
   },
   vitality_rank_6: {
     id: "vitality_rank_6",
     description: "passive_vitality_rank_6_description",
-    priority: 505,
+    priority: 5005,
   },
   vitality_rank_7: {
     id: "vitality_rank_7",
     description: "passive_vitality_rank_7_description",
-    priority: 506,
+    priority: 5006,
   },
   vitality_rank_8: {
     id: "vitality_rank_8",
     description: "passive_vitality_rank_8_description",
-    priority: 507,
+    priority: 5007,
   },
 
   /// 装备固定词条，解锁对应装备需求的卡牌
@@ -214,44 +214,52 @@
   equipment_sword: {
     id: "equipment_sword",
     description: "passive_equipment_sword_description",
-    priority: 430,
+    priority: 4030,
   },
   equipment_sabre: {
     id: "equipment_sabre",
     description: "passive_equipment_sabre_description",
-    priority: 425,
+    priority: 4025,
   },
   equipment_spear: {
     id: "equipment_spear",
     description: "passive_equipment_spear_description",
-    priority: 420,
+    priority: 4020,
   },
   equipment_staff: {
     id: "equipment_staff",
     description: "passive_equipment_staff_description",
-    priority: 415,
+    priority: 4015,
   },
   equipment_bow: {
     id: "equipment_bow",
     description: "passive_equipment_bow_description",
-    priority: 410,
+    priority: 4010,
   },
   equipment_dart: {
     id: "equipment_dart",
     description: "passive_equipment_dart_description",
-    priority: 405,
+    priority: 4005,
   },
   equipment_music: {
     id: "equipment_music",
     description: "passive_equipment_music_description",
-    priority: 400,
+    priority: 4000,
   },
 
+  /// 装备特殊词条
+  /// 这些词条不会被随机出来，只会出现在特定的装备上
+  equipment_cursed: {
+    id: "equipment_cursed",
+    description: "passive_equipment_cursed_description",
+  },
+
+  /// 下面这些词条既会出现在天赋树上，也会出现在装备上
   /// 攻击相关1
   passive_punch_extra_chi_damage: {
     id: "passive_punch_extra_chi_damage",
     description: "passive_punch_extra_chi_damage_description",
-    priority: 350,
+    priority: 3150,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["gloves"],
@@ -260,7 +268,7 @@
   passive_punch_extra_elemental_damage: {
     id: "passive_punch_extra_elemental_damage",
     description: "passive_punch_extra_elemental_damage_description",
-    priority: 345,
+    priority: 3145,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["gloves"],
@@ -269,7 +277,7 @@
   passive_kick_extra_chi_damage: {
     id: "passive_kick_extra_chi_damage",
     description: "passive_kick_extra_chi_damage_description",
-    priority: 340,
+    priority: 3140,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["boots"],
@@ -278,7 +286,7 @@
   passive_kick_extra_elemental_damage: {
     id: "passive_kick_extra_elemental_damage",
     description: "passive_kick_extra_elemental_damage_description",
-    priority: 335,
+    priority: 3135,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["boots"],
@@ -287,7 +295,7 @@
   passive_wrestling_extra_chi_damage: {
     id: "passive_wrestling_extra_chi_damage",
     description: "passive_wrestling_extra_chi_damage_description",
-    priority: 330,
+    priority: 3130,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["gloves"],
@@ -296,7 +304,7 @@
   passive_wrestling_extra_elemental_damage: {
     id: "passive_wrestling_extra_elemental_damage",
     description: "passive_wrestling_extra_elemental_damage_description",
-    priority: 325,
+    priority: 3125,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["gloves"],
@@ -305,7 +313,7 @@
   passive_dianxue_extra_chi_damage: {
     id: "passive_dianxue_extra_chi_damage",
     description: "passive_dianxue_extra_chi_damage_description",
-    priority: 320,
+    priority: 3120,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["gloves"],
@@ -314,7 +322,7 @@
   passive_dianxue_extra_elemental_damage: {
     id: "passive_dianxue_extra_elemental_damage",
     description: "passive_dianxue_extra_elemental_damage_description",
-    priority: 315,
+    priority: 3115,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["gloves"],
@@ -323,7 +331,7 @@
   passive_sword_extra_chi_damage: {
     id: "passive_sword_extra_chi_damage",
     description: "passive_sword_extra_chi_damage_description",
-    priority: 310,
+    priority: 3110,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["sword"],
@@ -332,7 +340,7 @@
   passive_sword_extra_elemental_damage: {
     id: "passive_sword_extra_elemental_damage",
     description: "passive_sword_extra_elemental_damage_description",
-    priority: 305,
+    priority: 3105,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["sword"],
@@ -341,7 +349,7 @@
   passive_sabre_extra_chi_damage: {
     id: "passive_sabre_extra_chi_damage",
     description: "passive_sabre_extra_chi_damage_description",
-    priority: 300,
+    priority: 3100,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["sabre"],
@@ -350,7 +358,7 @@
   passive_sabre_extra_elemental_damage: {
     id: "passive_sabre_extra_elemental_damage",
     description: "passive_sabre_extra_elemental_damage_description",
-    priority: 295,
+    priority: 3095,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["sabre"],
@@ -359,7 +367,7 @@
   passive_spear_extra_chi_damage: {
     id: "passive_spear_extra_chi_damage",
     description: "passive_spear_extra_chi_damage_description",
-    priority: 290,
+    priority: 3090,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["spear"],
@@ -368,7 +376,7 @@
   passive_spear_extra_elemental_damage: {
     id: "passive_spear_extra_elemental_damage",
     description: "passive_spear_extra_elemental_damage_description",
-    priority: 285,
+    priority: 3085,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["spear"],
@@ -377,7 +385,7 @@
   passive_staff_extra_chi_damage: {
     id: "passive_staff_extra_chi_damage",
     description: "passive_staff_extra_chi_damage_description",
-    priority: 280,
+    priority: 3080,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["staff"],
@@ -386,7 +394,7 @@
   passive_staff_extra_elemental_damage: {
     id: "passive_staff_extra_elemental_damage",
     description: "passive_staff_extra_elemental_damage_description",
-    priority: 275,
+    priority: 3075,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["staff"],
@@ -395,7 +403,7 @@
   passive_bow_extra_chi_damage: {
     id: "passive_bow_extra_chi_damage",
     description: "passive_bow_extra_chi_damage_description",
-    priority: 270,
+    priority: 3070,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["bow"],
@@ -404,7 +412,7 @@
   passive_bow_extra_elemental_damage: {
     id: "passive_bow_extra_elemental_damage",
     description: "passive_bow_extra_elemental_damage_description",
-    priority: 265,
+    priority: 3065,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["bow"],
@@ -413,7 +421,7 @@
   passive_dart_extra_chi_damage: {
     id: "passive_dart_extra_chi_damage",
     description: "passive_dart_extra_chi_damage_description",
-    priority: 260,
+    priority: 3060,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["dart"],
@@ -422,7 +430,7 @@
   passive_dart_extra_elemental_damage: {
     id: "passive_dart_extra_elemental_damage",
     description: "passive_dart_extra_elemental_damage_description",
-    priority: 255,
+    priority: 3055,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["dart"],
@@ -433,7 +441,7 @@
   unarmedAttack: {
     id: "unarmedAttack",
     description: "passive_unarmed_attack_description",
-    priority: 220,
+    priority: 2020,
     increment: 1,
     isItemExtraAffix: true,
     kind: ["gloves", "boots"],
@@ -442,7 +450,7 @@
   weaponAttack: {
     id: "weaponAttack",
     description: "passive_weapon_attack_description",
-    priority: 215,
+    priority: 2015,
     increment: 1,
     isItemExtraAffix: true,
     kind: ["sword", "sabre", "staff", "spear", "bow", "dart", "pipa", "flute"],
@@ -451,7 +459,7 @@
   spellAttack: {
     id: "spellAttack",
     description: "passive_spell_attack_description",
-    priority: 210,
+    priority: 2010,
     increment: 1,
     isItemExtraAffix: true,
     kind: ["amulet", "ring", "pearl", "bracelet"],
@@ -460,7 +468,7 @@
   curseAttack: {
     id: "curseAttack",
     description: "passive_curse_attack_description",
-    priority: 205,
+    priority: 2005,
     increment: 1,
     isItemExtraAffix: true,
     kind: ["amulet", "ring", "pearl", "bracelet"],
@@ -469,7 +477,7 @@
   poisonAttack: {
     id: "poisonAttack",
     description: "passive_poison_attack_description",
-    priority: 200,
+    priority: 2000,
     increment: 1,
     isItemExtraAffix: true,
     kind: ["poinson_bag"],
@@ -480,7 +488,7 @@
   physicalResist: {
     id: "physicalResist",
     description: "passive_physical_resist_description",
-    priority: 165,
+    priority: 1565,
     increment: 1,
     isItemExtraAffix: true,
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
@@ -489,7 +497,7 @@
   chiResist: {
     id: "chiResist",
     description: "passive_chi_resist_description",
-    priority: 160,
+    priority: 1560,
     increment: 1,
     isItemExtraAffix: true,
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
@@ -498,7 +506,7 @@
   elementalResist: {
     id: "elementalResist",
     description: "passive_elemental_resist_description",
-    priority: 155,
+    priority: 1555,
     increment: 1,
     isItemExtraAffix: true,
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
@@ -507,7 +515,7 @@
   spiritualResist: {
     id: "spiritualResist",
     description: "passive_spiritual_resist_description",
-    priority: 150,
+    priority: 1550,
     increment: 1,
     isItemExtraAffix: true,
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
@@ -515,10 +523,40 @@
   },
 
   /// 通用属性
+  weaponUnrestrictedEquip: {
+    id: "weaponUnrestrictedEquip",
+    description: "passive_weapon_unrestricted_equip_description",
+    priority: 1040,
+    rank: 3,
+  },
+  armorUnrestrictedEquip: {
+    id: "armorUnrestrictedEquip",
+    description: "passive_armor_unrestricted_equip_description",
+    priority: 1039,
+    rank: 3,
+  },
+  helmetUnrestrictedEquip: {
+    id: "helmetUnrestrictedEquip",
+    description: "passive_weapon_unrestricted_equip_description",
+    priority: 1038,
+    rank: 3,
+  },
+  bootsUnrestrictedEquip: {
+    id: "bootsUnrestrictedEquip",
+    description: "passive_weapon_unrestricted_equip_description",
+    priority: 1037,
+    rank: 3,
+  },
+  vehicleUnrestrictedEquip: {
+    id: "vehicleUnrestrictedEquip",
+    description: "passive_vehicle_unrestricted_equip_description",
+    priority: 1036,
+    rank: 3,
+  },
   lightRadius: {
     id: "lightRadius",
     description: "passive_light_radius_description",
-    priority: 130,
+    priority: 1025,
     increment: 1,
     isItemExtraAffix: true,
     rank: 1,
@@ -526,7 +564,7 @@
   lifeMax: {
     id: "lifeMax",
     description: "passive_life_max_description",
-    priority: 125,
+    priority: 1024,
     increment: 5,
     isItemExtraAffix: true,
     rank: 1,
@@ -537,7 +575,7 @@
     id: "dexterity",
     icon: "cultivation/skill/attribute_dexterity_selected.png",
     description: "passive_dexterity_description",
-    priority: 120,
+    priority: 1020,
     increment: 1,
     isItemExtraAffix: true,
     rank: 1,
@@ -546,7 +584,7 @@
     id: "spirituality",
     icon: "cultivation/skill/attribute_spirituality_selected.png",
     description: "passive_spirituality_description",
-    priority: 115,
+    priority: 1019,
     increment: 1,
     isItemExtraAffix: true,
     rank: 1,
@@ -555,7 +593,7 @@
     id: "strength",
     icon: "cultivation/skill/attribute_strength_selected.png",
     description: "passive_strength_description",
-    priority: 110,
+    priority: 1018,
     increment: 1,
     isItemExtraAffix: true,
     rank: 1,
@@ -564,7 +602,7 @@
     id: "willpower",
     icon: "cultivation/skill/attribute_willpower_selected.png",
     description: "passive_willpower_description",
-    priority: 105,
+    priority: 1017,
     increment: 1,
     isItemExtraAffix: true,
     rank: 1,
@@ -573,7 +611,7 @@
     id: "perception",
     icon: "cultivation/skill/attribute_perception_selected.png",
     description: "passive_perception_description",
-    priority: 100,
+    priority: 1016,
     increment: 1,
     isItemExtraAffix: true,
     rank: 1,
@@ -583,7 +621,7 @@
   passive_start_battle_with_quick: {
     id: "passive_start_battle_with_quick",
     description: "passive_start_battle_with_quick_description",
-    priority: 85,
+    priority: 805,
     increment: 0.1,
     isItemExtraAffix: true,
     rank: 2,
@@ -591,7 +629,7 @@
   passive_start_battle_with_nimble: {
     id: "passive_start_battle_with_nimble",
     description: "passive_start_battle_with_nimble_description",
-    priority: 80,
+    priority: 800,
     increment: 0.1,
     isItemExtraAffix: true,
     rank: 2,
@@ -601,7 +639,7 @@
   passive_start_battle_with_energy_life: {
     id: "passive_start_battle_with_energy_life",
     description: "passive_start_battle_with_energy_life_description",
-    priority: 65,
+    priority: 565,
     increment: 0.1,
     isItemExtraAffix: true,
     rank: 2,
@@ -609,7 +647,7 @@
   passive_start_battle_with_energy_leech: {
     id: "passive_start_battle_with_energy_leech",
     description: "passive_start_battle_with_energy_leech_description",
-    priority: 60,
+    priority: 560,
     increment: 0.1,
     isItemExtraAffix: true,
     rank: 2,
@@ -617,7 +655,7 @@
   passive_start_battle_with_energy_pure: {
     id: "passive_start_battle_with_energy_pure",
     description: "passive_start_battle_with_energy_pure_description",
-    priority: 55,
+    priority: 555,
     increment: 0.1,
     isItemExtraAffix: true,
     rank: 2,
@@ -625,7 +663,7 @@
   passive_start_battle_with_energy_spell: {
     id: "passive_start_battle_with_energy_spell",
     description: "passive_start_battle_with_energy_spell_description",
-    priority: 50,
+    priority: 550,
     increment: 0.1,
     isItemExtraAffix: true,
     rank: 2,
@@ -633,7 +671,7 @@
   passive_start_battle_with_energy_weapon: {
     id: "passive_start_battle_with_energy_weapon",
     description: "passive_start_battle_with_energy_weapon_description",
-    priority: 45,
+    priority: 545,
     increment: 0.1,
     isItemExtraAffix: true,
     rank: 2,
@@ -641,7 +679,7 @@
   passive_start_battle_with_energy_unarmed: {
     id: "passive_start_battle_with_energy_unarmed",
     description: "passive_start_battle_with_energy_unarmed_description",
-    priority: 40,
+    priority: 540,
     increment: 0.1,
     isItemExtraAffix: true,
     rank: 2,
@@ -649,7 +687,7 @@
   passive_start_battle_with_energy_curse: {
     id: "passive_start_battle_with_energy_curse",
     description: "passive_start_battle_with_energy_curse_description",
-    priority: 35,
+    priority: 535,
     increment: 0.1,
     isItemExtraAffix: true,
     rank: 2,
@@ -657,7 +695,7 @@
   // passive_start_battle_with_energy_poison: {
   //   id: "passive_start_battle_with_energy_poison",
   //   description: "passive_start_battle_with_energy_poison_description",
-  //   priority: 30,
+  //   priority: 530,
   //   increment: 0.1,
   //   isItemExtraAffix: true,
   //   rank: 2,
@@ -665,7 +703,7 @@
   passive_start_battle_with_energy_chaotic: {
     id: "passive_start_battle_with_energy_chaotic",
     description: "passive_start_battle_with_energy_chaotic_description",
-    priority: 25,
+    priority: 525,
     increment: 0.1,
     isItemExtraAffix: true,
     rank: 3,

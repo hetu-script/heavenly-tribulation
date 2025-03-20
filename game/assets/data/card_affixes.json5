@@ -285,7 +285,7 @@
   extra_damage_elemental_after_attacked: {
     id: "extra_damage_elemental_after_attacked",
     uniqueId: "extra_damage_after_attacked",
-    genre: "daoism",
+    genre: "spellcraft",
     category: ["attack"],
     rank: 1,
     description: "affix_description_extra_damage_elemental_after_attacked",

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hetu_script/values.dart';
 
-import '../../ui.dart';
+import '../../game/ui.dart';
 
 class SiteCard extends StatelessWidget {
   const SiteCard({
@@ -17,8 +17,8 @@ class SiteCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 140,
-      height: 100,
+      width: 90,
+      height: 140,
       child: Card(
         elevation: 8.0,
         shadowColor: Colors.black26,
@@ -36,14 +36,7 @@ class SiteCard extends StatelessWidget {
             type: MaterialType.transparency,
             child: InkWell(
               borderRadius: GameUI.borderRadius,
-              onTap: () async {
-                // await engine.hetu
-                //     .invoke('onAfterHeroEnterSite', positionalArgs: [siteData]);
-                // engine.hetu.invoke('onAfterHeroEnterSite', positionalArgs: [
-                //   siteData['locationId'],
-                //   siteData['id'],
-                // ]);
-              },
+              onTap: () async {},
               child: Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: Column(

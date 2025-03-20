@@ -1,9 +1,10 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../../state/hoverinfo.dart';
 import 'item_grid.dart';
-import '../../common.dart';
 
 /// 如果是玩家自己的物品栏，则传入characterData
 class Inventory extends StatefulWidget {
@@ -11,33 +12,40 @@ class Inventory extends StatefulWidget {
     super.key,
     required this.characterData,
     required this.type,
-    this.filter,
     required this.height,
-    this.priceFactor = 1.0,
-    this.minSlotCount = 35,
+    this.minSlotCount = 30,
     this.gridsPerLine = 5,
     this.onTapped,
     this.onSecondaryTapped,
-    this.onSelect,
+    this.selectedItemId = const {},
+    this.priceFactor,
+    this.filter,
   });
 
   final dynamic characterData;
-  final InventoryType type;
-  final String? filter;
+  final HoverType type;
   final double height;
-  final double priceFactor;
   final int minSlotCount, gridsPerLine;
   final void Function(dynamic itemData, Offset screenPosition)? onTapped;
   final void Function(dynamic itemData, Offset screenPosition)?
       onSecondaryTapped;
-  final void Function(dynamic itemData)? onSelect;
+  final Iterable selectedItemId;
+  final dynamic priceFactor;
+  final dynamic filter;
 
   @override
   State<Inventory> createState() => _InventoryState();
 }
 
 class _InventoryState extends State<Inventory> {
-  int _selectedGrid = -1;
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _scrollController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,33 +53,71 @@ class _InventoryState extends State<Inventory> {
 
     final inventoryData = widget.characterData['inventory'];
 
+    final String? category = widget.filter?['category'];
+    final String? kind = widget.filter?['kind'];
+    final String? id = widget.filter?['id'];
+    final bool? isIdentified = widget.filter?['isIdentified'];
+
     for (var i = 0; i < inventoryData.length; ++i) {
       final itemData = (inventoryData.values as Iterable).elementAt(i);
       if (itemData['equippedPosition'] != null) {
         continue;
       }
-      if (widget.filter != null && itemData['category'] != widget.filter) {
+      if (category != null && category != itemData['category']) {
+        continue;
+      }
+      if (kind != null && kind != itemData['kind']) {
+        continue;
+      }
+      if (id != null && id != itemData['id']) {
+        continue;
+      }
+      if (isIdentified != null && isIdentified != itemData['isIdentified']) {
         continue;
       }
 
-      final index = i;
       grids.add(
         Padding(
           padding: const EdgeInsets.all(5.0),
           child: ItemGrid(
             characterData: widget.characterData,
             itemData: itemData,
-            onTapped: (data, position) {
-              if (widget.type == InventoryType.select) {
-                setState(() {
-                  _selectedGrid = index;
-                });
-                widget.onSelect?.call(data);
+            onMouseEnter: (itemData, rect) {
+              switch (widget.type) {
+                case HoverType.general:
+                  context
+                      .read<HoverInfoContentState>()
+                      .set(itemData, type: widget.type, rect);
+                case HoverType.player:
+                case HoverType.npc:
+                  context.read<HoverInfoContentState>().set(
+                        itemData,
+                        type: widget.type,
+                        data2: widget.characterData,
+                        rect,
+                      );
+                case HoverType.merchant:
+                  context.read<HoverInfoContentState>().set(
+                        itemData,
+                        type: widget.type,
+                        data2: widget.priceFactor,
+                        rect,
+                      );
+                case HoverType.customer:
+                  context.read<HoverInfoContentState>().set(
+                        itemData,
+                        type: widget.type,
+                        data2: widget.priceFactor,
+                        rect,
+                      );
               }
-              widget.onTapped?.call(data, position);
             },
+            onMouseExit: () {
+              context.read<HoverInfoContentState>().hide();
+            },
+            onTapped: widget.onTapped,
             onSecondaryTapped: widget.onSecondaryTapped,
-            isSelected: _selectedGrid == index,
+            isSelected: widget.selectedItemId.contains(itemData['id']),
           ),
         ),
       );
@@ -90,18 +136,27 @@ class _InventoryState extends State<Inventory> {
       );
     }
 
-    return SingleChildScrollView(
-      child: SizedBox(
-        width: 60.0 * widget.gridsPerLine,
-        height: widget.height,
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            Wrap(
-              alignment: WrapAlignment.center,
-              children: grids,
-            )
-          ],
+    return ScrollConfiguration(
+      behavior: MaterialScrollBehavior(),
+      child: Scrollbar(
+        controller: _scrollController,
+        thumbVisibility: true,
+        trackVisibility: true,
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          child: SizedBox(
+            width: 60.0 * widget.gridsPerLine,
+            height: widget.height,
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  children: grids,
+                )
+              ],
+            ),
+          ),
         ),
       ),
     );

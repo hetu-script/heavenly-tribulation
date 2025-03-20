@@ -11,12 +11,12 @@ import 'package:provider/provider.dart';
 import '../../widgets/dialog/confirm_dialog.dart';
 import 'library_zone.dart';
 import 'deckbuilding_zone.dart';
-import '../../ui.dart';
+import '../../game/ui.dart';
 import '../../engine.dart';
 import 'common.dart';
 // import 'cardcrafting_area.dart';
 import '../../state/states.dart';
-import '../../data.dart';
+import '../../game/data.dart';
 import '../../widgets/ui_overlay.dart';
 import 'menus.dart';
 import '../game_dialog/game_dialog_content.dart';
@@ -48,8 +48,6 @@ class CardLibraryScene extends Scene {
   late final PositionComponent deckPilesContainer;
 
   // late final CardCraftingArea cardCraftingArea;
-
-  late final dynamic _heroData;
 
   late final List<dynamic> _heroDecks;
 
@@ -110,9 +108,9 @@ class CardLibraryScene extends Scene {
           otherZone.setBattleDeck(false);
         }
       }
-      _heroData['battleDeckIndex'] = zone.index;
+      GameData.heroData['battleDeckIndex'] = zone.index;
     } else {
-      _heroData['battleDeckIndex'] = -1;
+      GameData.heroData['battleDeckIndex'] = -1;
     }
     for (var i = 0; i < deckPiles.length - 1; ++i) {
       _heroDecks[i]['isBattleDeck'] = deckPiles[i].isBattleDeck;
@@ -210,8 +208,8 @@ class CardLibraryScene extends Scene {
       if (value == false) return;
     }
 
-    if (_heroData['battleDeckIndex'] == zone.index) {
-      _heroData['battleDeckIndex'] = -1;
+    if (GameData.heroData['battleDeckIndex'] == zone.index) {
+      GameData.heroData['battleDeckIndex'] = -1;
     }
     _heroDecks.removeAt(zone.index);
 
@@ -273,7 +271,6 @@ class CardLibraryScene extends Scene {
     bool? isBattleDeck = deckData?['isBattleDeck'];
     List? cardIds = deckData?['cards'];
     final zone = DeckBuildingZone(
-      heroData: _heroData,
       title: title,
       isBattleDeck: isBattleDeck,
       preloadCardIds: cardIds,
@@ -484,125 +481,126 @@ class CardLibraryScene extends Scene {
     orderBy.text = engine.locale(libraryZone.orderByOption.name);
   }
 
-  void onOpenAllCardpack() {
-    final cardpacks = _heroData['inventory'].values.where((itemData) {
-      return itemData['category'] == 'cardpack';
-    }).toList();
+  void onOpenCardpack(Iterable cardpacksData) {
+    if (cardpacksData.isEmpty) return;
 
-    engine.play(GameSound.cardDealt2);
-    for (final cardpackData in cardpacks) {
-      engine.hetu.invoke('lose', namespace: 'Player', positionalArgs: [
-        cardpackData,
-      ]);
+    if (cardpacksData.length == 1) {
+      final cardpackData = cardpacksData.first;
+
+      skillBook.enableGesture = false;
+      barrier.isVisible = true;
+
+      collectButton.text = engine.locale('deckbuilding_identify_all');
+
+      engine.play(GameSound.cardDealt2);
       for (var i = 0; i < 3; ++i) {
         final cardData = engine.hetu.invoke(
           'BattleCard',
           namedArgs: {
-            'maxRank': _heroData['cultivationRank'],
+            'maxRank': i == 0 ? null : cardpackData['rank'],
             'rank': i == 0 ? cardpackData['rank'] : null,
             'genre': i == 0 ? cardpackData['genre'] : null,
             'kind': i == 0 ? cardpackData['kind'] : null,
-            'isIdentified': true,
           },
         );
+        final card = GameData.createBattleCardFromData(cardData);
+        _cardpackCards.add(card);
 
-        engine.hetu.invoke('acquire', namespace: 'Player', positionalArgs: [
-          cardData,
-        ]);
-      }
-    }
+        card.showGlow = true;
+        card.preferredPriority = kBarrierPriority;
+        card.resetPriority();
+        card.size = Vector2.zero();
+        card.position = skillBook.center;
 
-    libraryZone.updateHeroLibrary();
-  }
+        card.onTapUp = (int buttons, Vector2 position) {
+          if (card.data['isIdentified'] != true) {
+            engine.play(GameSound.craft);
+            card.data['isIdentified'] = true;
+            final (description, _) =
+                GameData.getDescriptionFromCardData(card.data);
+            card.description = description;
+            previewCard(
+              context,
+              'cardpack_card_${card.id}',
+              card.data,
+              card.toAbsoluteRect(),
+              characterData: GameData.heroData,
+            );
+          }
+          final unidentifiedCards = _cardpackCards.where((card) {
+            return card.data['isIdentified'] != true;
+          });
+          if (unidentifiedCards.isEmpty) {
+            collectButton.text = engine.locale('deckbuilding_collect_all');
+          }
+        };
 
-  void onOpenCardpack(dynamic cardpackData) {
-    if (cardpackData == null) return;
+        card.onPreviewed = () => previewCard(
+              context,
+              'cardpack_card_${card.id}',
+              card.data,
+              card.toAbsoluteRect(),
+              characterData: GameData.heroData,
+            );
+        card.onUnpreviewed = () => unpreviewCard(context);
 
-    skillBook.enableGesture = false;
-    barrier.isVisible = true;
+        camera.viewport.add(card);
 
-    collectButton.text = engine.locale('deckbuilding_identify_all');
-
-    engine.play(GameSound.cardDealt2);
-    for (var i = 0; i < 3; ++i) {
-      final cardData = engine.hetu.invoke(
-        'BattleCard',
-        namedArgs: {
-          'maxRank': i == 0 ? null : cardpackData['rank'],
-          'rank': i == 0 ? cardpackData['rank'] : null,
-          'genre': i == 0 ? cardpackData['genre'] : null,
-          'kind': i == 0 ? cardpackData['kind'] : null,
-        },
-      );
-      final card = GameData.createBattleCardFromData(cardData);
-      _cardpackCards.add(card);
-
-      card.showGlow = true;
-      card.preferredPriority = kBarrierPriority;
-      card.resetPriority();
-      card.size = Vector2.zero();
-      card.position = skillBook.center;
-
-      card.onTapUp = (int buttons, Vector2 position) {
-        if (card.data['isIdentified'] != true) {
-          engine.play(GameSound.craft);
-          card.data['isIdentified'] = true;
-          final (description, _) =
-              GameData.getDescriptionFromCardData(card.data);
-          card.description = description;
-          previewCard(
-            context,
-            'cardpack_card_${card.id}',
-            card.data,
-            card.toAbsoluteRect(),
-            characterData: _heroData,
-          );
-        }
-        final unidentifiedCards = _cardpackCards.where((card) {
-          return card.data['isIdentified'] != true;
+        final index = i;
+        card
+            .moveTo(
+          duration: 0.35,
+          toPosition: GameUI.cardpackCardPositions[0],
+          toSize: GameUI.cardpackCardSize,
+        )
+            .then((_) {
+          if (index == 0) {
+            engine.play(GameSound.cardFlipping);
+            collectButton.isVisible = true;
+          } else {
+            card.moveTo(
+              duration: 0.55,
+              toPosition: GameUI.cardpackCardPositions[index],
+              toSize: GameUI.cardpackCardSize,
+            );
+          }
         });
-        if (unidentifiedCards.isEmpty) {
-          collectButton.text = engine.locale('deckbuilding_collect_all');
-        }
-      };
+      }
 
-      card.onPreviewed = () => previewCard(
-            context,
-            'cardpack_card_${card.id}',
-            card.data,
-            card.toAbsoluteRect(),
-            characterData: _heroData,
+      engine.hetu.invoke(
+        'lose',
+        namespace: 'Player',
+        positionalArgs: [cardpackData],
+      );
+    } else {
+      // final Iterable cardpacks =
+      //     GameData.heroData['inventory'].values.where((itemData) {
+      //   return cardpacksData.containsKey(itemData['id']);
+      // }).toList();
+
+      engine.play(GameSound.cardDealt2);
+      for (final cardpackData in cardpacksData) {
+        engine.hetu.invoke('lose',
+            namespace: 'Player', positionalArgs: [cardpackData]);
+        for (var i = 0; i < 3; ++i) {
+          final cardData = engine.hetu.invoke(
+            'BattleCard',
+            namedArgs: {
+              'maxRank': GameData.heroData['rank'],
+              'rank': i == 0 ? cardpackData['rank'] : null,
+              'genre': i == 0 ? cardpackData['genre'] : null,
+              'kind': i == 0 ? cardpackData['kind'] : null,
+              'isIdentified': true,
+            },
           );
-      card.onUnpreviewed = () => unpreviewCard(context);
 
-      camera.viewport.add(card);
-
-      final index = i;
-      card
-          .moveTo(
-        duration: 0.35,
-        toPosition: GameUI.cardpackCardPositions[0],
-        toSize: GameUI.cardpackCardSize,
-      )
-          .then((_) {
-        if (index == 0) {
-          engine.play(GameSound.cardFlipping);
-          collectButton.isVisible = true;
-        } else {
-          card.moveTo(
-            duration: 0.55,
-            toPosition: GameUI.cardpackCardPositions[index],
-            toSize: GameUI.cardpackCardSize,
-          );
+          engine.hetu.invoke('acquireBattleCard',
+              namespace: 'Player', positionalArgs: [cardData]);
         }
-      });
+      }
+
+      libraryZone.updateHeroLibrary();
     }
-
-    engine.hetu.invoke(
-      'lose',
-      namespace: 'Player',
-      positionalArgs: [cardpackData],
-    );
   }
 
   @override
@@ -619,8 +617,7 @@ class CardLibraryScene extends Scene {
   Future<void> onLoad() async {
     super.onLoad();
 
-    _heroData = engine.hetu.fetch('hero');
-    _heroDecks = _heroData['battleDecks'];
+    _heroDecks = GameData.heroData['battleDecks'];
 
     barrier = SpriteComponent2(
       size: size,
@@ -717,7 +714,7 @@ class CardLibraryScene extends Scene {
     cardCount.onMouseEnter = () {
       assert(_currentBuildingZone != null);
       StringBuffer cardCountHint = StringBuffer();
-      final rank = _heroData['cultivationRank'];
+      final rank = GameData.heroData['rank'];
       final rankString = engine.locale('cultivationRank_$rank');
       cardCountHint.writeln(
           '${engine.locale('cultivationRank')}: <rank$rank>$rankString</>');
@@ -769,7 +766,7 @@ class CardLibraryScene extends Scene {
     };
     camera.viewport.add(setBattleDeckButton);
 
-    libraryZone = CardLibraryZone(heroData: _heroData);
+    libraryZone = CardLibraryZone();
     world.add(libraryZone);
 
     for (final deckData in _heroDecks) {
@@ -797,7 +794,12 @@ class CardLibraryScene extends Scene {
     // );
     // camera.viewport.add(cardCraftingArea);
 
-    exit = GameData.getExitSiteCard(spriteId: 'exit_card');
+    exit = GameData.createSiteCard(
+      id: 'exit',
+      spriteId: 'exit.png',
+      title: engine.locale('exit'),
+      position: GameUI.siteExitCardPositon,
+    );
     exit.onTap = (_, __) {
       // _heroData['cardLibrary'] = libraryZone.library.map((key, value) {
       //   return MapEntry(key, value.data);
@@ -845,17 +847,18 @@ class CardLibraryScene extends Scene {
       context.read<ViewPanelState>().toogle(
         ViewPanels.itemSelect,
         arguments: {
-          'characterData': _heroData,
+          'characterData': GameData.heroData,
           'title': engine.locale('selectCardpack'),
-          'filter': 'cardpack',
+          'filter': {'category': 'cardpack'},
+          'multiSelect': true,
           'onSelect': onOpenCardpack,
-          'onSelectAll': onOpenAllCardpack,
         },
       );
     };
     skillBook.onMouseEnter = () {
-      final cardpackCount = engine.hetu.invoke('countItem', positionalArgs: [
-        _heroData,
+      final cardpackCount =
+          engine.hetu.invoke('entityHasItemCategory', positionalArgs: [
+        GameData.heroData,
         'cardpack',
       ]);
 

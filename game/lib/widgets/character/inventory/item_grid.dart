@@ -1,13 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 // import 'package:flutter/services.dart';
 import 'package:samsara/ui/rrect_icon.dart';
 import 'package:samsara/pointer_detector.dart';
 
-import '../../../ui.dart';
-import '../../../data.dart';
-import '../../../state/hoverinfo.dart';
+import '../../../game/ui.dart';
+// import '../../../game/data.dart';
 
 const kDefaultItemGridSize = Size(48.0, 48.0);
 
@@ -19,6 +17,8 @@ class ItemGrid extends StatelessWidget {
     this.itemData,
     this.onTapped,
     this.onSecondaryTapped,
+    this.onMouseEnter,
+    this.onMouseExit,
     this.hasBorder = true,
     this.isSelected = false,
     this.isEquipped = false,
@@ -32,6 +32,8 @@ class ItemGrid extends StatelessWidget {
   final void Function(dynamic itemData, Offset screenPosition)? onTapped;
   final void Function(dynamic itemData, Offset screenPosition)?
       onSecondaryTapped;
+  final void Function(dynamic itemData, Rect rect)? onMouseEnter;
+  final void Function()? onMouseExit;
   final bool hasBorder;
   final bool isSelected, isEquipped;
   final Widget? child;
@@ -43,8 +45,7 @@ class ItemGrid extends StatelessWidget {
     final int stackSize = itemData?['stackSize'] ?? 1;
     // final entityType = entityData?['entityType'];
 
-    final isEquipped = itemData?['category'] == 'equipment' &&
-        itemData?['equippedPosition'] != null;
+    final isEquipped = itemData?['equippedPosition'] != null;
 
     return Material(
       type: MaterialType.transparency,
@@ -54,19 +55,10 @@ class ItemGrid extends StatelessWidget {
             return;
           }
           final Rect rect = getRenderRect(context);
-          final isDetailed = context.read<HoverInfoContentState>().isDetailed;
-          final description = GameData.getDescriptiomFromItemData(
-            itemData,
-            isDetailed: isDetailed,
-            characterData: characterData,
-          );
-          context.read<HoverInfoContentState>().set(
-                description,
-                rect,
-              );
+          onMouseEnter?.call(itemData, rect);
         },
         onMouseExit: (event) {
-          context.read<HoverInfoContentState>().hide();
+          onMouseExit?.call();
         },
         onTapUp: (pointer, buttons, details) {
           if (itemData == null) return;

@@ -1,18 +1,18 @@
 {
-  hunguding: {
-    prototypeId: "hunguding",
-    name: "hunguding",
-    category: "quest",
-    rarity: "unique",
-    icon: "item/story/jade.png",
-    isIdentified: false,
+  identify_scroll: {
+    prototypeId: "identify_scroll",
+    name: "identify_scroll",
+    category: "scroll",
+    rarity: "uncommon",
+    icon: "item/scroll.png",
+    isUsable: true,
+    isIdentified: true,
   },
   // wood_boat: {
   //   prototypeId: "wood_boat",
-  //   category: "equipment",
+  //   category: "vehicle",
   //   kind: "ship",
-  //   price: 200,
-  //   equipType: "ship",
+  //   isEquipable: true,
   //   equipData: {
   //     attributes: {
   //       staminaCostOnWaterReduced: 0.2,
@@ -22,10 +22,9 @@
   // },
   // climb_boots: {
   //   prototypeId: "climb_boots",
-  //   category: "equipment",
+  //   category: "boots",
   //   kind: "boots",
-  //   price: 200,
-  //   equipType: "boots",
+  //   isEquipable: true,
   //   equipData: {
   //     attributes: {
   //       staminaCostOnHillReduced: 0.2,

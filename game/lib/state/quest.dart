@@ -1,13 +1,13 @@
 import 'package:flutter/foundation.dart';
 
-import '../engine.dart';
+import '../game/data.dart';
 
 class QuestState with ChangeNotifier {
-  Iterable<dynamic>? questsData = [];
+  dynamic questsData;
 
   void update() {
-    final hero = engine.hetu.fetch('hero');
-    questsData = hero?['activeQuestIds']?.map((id) => hero?['quests']?[id]);
+    questsData =
+        GameData.heroData?['quests']?[GameData.heroData?['activeQuestId']];
     notifyListeners();
   }
 }

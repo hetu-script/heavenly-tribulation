@@ -60,7 +60,7 @@ struct Bandit {
     assert(kind in _kBanditKinds)
     this.kind = kind
     this.entityType = kEntityTypeNpc
-    this.birthTimestamp = birthTimestamp ?? createRandomBirthTimestamp()
+    this.birthTimestamp = birthTimestamp ?? createBirthTimestamp()
     // this.icon = 'general.png'
     this.category = kEntityCategoryCharacter
     this.name = engine.locale(isPirate ? _kPirateName : _kBanditName) + engine.locale(this.kind)

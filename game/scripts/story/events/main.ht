@@ -1,16 +1,30 @@
-// 模组事件变量：
-// module.flags:
-// storySate - 故事发展阶段，0代表刚开始
-// knownAyaName - 是否知道阿雅的名字
-// selection1Admitted - 肯定或者否定自己为神，如果没有提及，则为null
-// encounteredWorldConfinement - 是否碰到了岛外的封印区域
+/// 场景1：
+///   萧墨来到万福村，见到了村长阿福
+///   在村子的集会所中，萧墨身上的魂骨钉和村子中遗留的定灵碑发生了共鸣
+///   在阿福的指点下，萧墨发现了魂骨钉可以帮助他修炼并直接得到功法秘籍
+///   阿福表示想要借助萧墨的力量重建万福宗，对抗紫河宗的压迫
 
-const storyMain = {
+/// 剧情进度标记：
+///   chapter1.checkPoint1: 第一次进入地图，两个妖族修士抓走了凌初雪
+///   chapter1.checkPoint2: 第一次进入万福村并见到村长阿福
+///   chapter1.checkPoint3: 第一次进入集会所并经历定灵碑事件
+///   chapter1.checkPoint4a: 选择分支：重建万福宗
+///   chapter1.checkPoint4b: 选择分值：加入紫河宗
+
+const mainMapEvents = {
   onNewGame: async () {
+    // 要在运行时访问模组内部定义的函数，需要通过 global 上的mods对象
+    // 而不是game.mods对象，后者只保存纯数据
+    mods.story.initModData()
+
+    if (!entityHasItem(hero, 'hunguding')) {
+      Player.acquireItemById('hunguding')
+    }
+
     Dialog.pushBackground('black.png')
     Dialog.pushTask(() {
       Player.setTo(10, 10, worldId: 'story_main', direction: 'south')
-      System.showHeroInfo()
+      Game.showHeroInfo()
     })
     Dialog.popBackground(isFadeOut: true)
     await Dialog.execute()
@@ -18,49 +32,52 @@ const storyMain = {
   
   onEnterMap: async () {
     if (!this.flags.chapter1.checkPoint1) {
+      // 第一次进入地图，两个妖族修士抓走了凌初雪
       this.flags.chapter1.checkPoint1 = true
 
-      Dialog.pushImage('story/yao_enemy2.png')
-      Dialog.pushLocales('chapter1.enterMap.line0', icon: 'story/yao_enemy2_head.png', displayNameId: 'yaozu_elite')
-      Dialog.popImage()
-      Dialog.pushImage('story/yao_enemy1.png')
-      Dialog.pushLocales('chapter1.enterMap.line1', icon: 'story/yao_enemy1_head.png', displayNameId: 'yaozu_guard')
-      Dialog.popImage()
-      Dialog.pushImage('story/yao_enemy2.png')
-      Dialog.pushLocales('chapter1.enterMap.line2', icon: 'story/yao_enemy2_head.png', displayNameId: 'yaozu_elite')
-      Dialog.pushLocales('chapter1.enterMap.line3', icon: 'story/yao_enemy2_head.png', displayNameId: 'yaozu_elite')
+      Dialog.pushLocales('chapter1.enterMap.line0', characterId: 'yaozu_elite1', displayNameId: 'yaozu_elite')
+      Dialog.pushLocales('chapter1.enterMap.line1', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
+      Dialog.pushLocales('chapter1.enterMap.line2', characterId: 'yaozu_elite1', displayNameId: 'yaozu_elite')
       Dialog.pushLocales('chapter1.enterMap.line4')
-      Dialog.popImage()
-      Dialog.pushBackground('chapter1/xiao_off_the_cliff.png', fadeIn: true)
+      Dialog.pushBackground('story/cg/chapter1/xiao_off_the_cliff.png', fadeIn: true)
       Dialog.pushLocales('chapter1.enterMap.line5')
       // Dialog.pushBackground('black.png', fadeIn: true)
       Dialog.pushLocales('chapter1.enterMap.line6')
       Dialog.pushTask(() {
         Player.setTo(7, 10, worldId: 'story_main', direction: 'south')
+        hero.stats.life = 1
       })
-      Dialog.pushLocales('chapter1.enterMap.line7', isHero: true)
+      Dialog.pushLocales('chapter1.enterMap.line7', isHero: true, hideImage: true)
       Dialog.popBackground(isFadeOut: true)
+      Dialog.pushTask(async () {
+        await World.moveCameraToMapPosition(4, 8)
+      })
+      Dialog.pushLocales('chapter1.enterMap.line8', isHero: true)
       await Dialog.execute()
 
-      let quest1 = generateQuestById('story_mainQuest_hunguding')
-      Player.acceptQuest(quest1)
-      let quest2 = generateQuestById('story_mainQuest_lingChuxue')
-      Player.acceptQuest(quest2)
+      Player.acceptQuestById('story_mainQuest_hunguding')
+      Player.acceptQuestById('story_mainQuest_lingChuxue')
+      Player.updateQuest()
+      Player.updateData()
     }
   },
 
   onAfterEnterLocation: async (location) {
     if (location.id == 'wanfucun' && !this.flags.chapter1.checkPoint2) {
+      // 第一次进入万福村并见到村长阿福
       this.flags.chapter1.checkPoint2 = true
-
-      Dialog.pushImage('story/afu.png')
+  
       Dialog.pushLocales('chapter1.enterWanfucun.line1', characterId: 'afu')
       Dialog.pushLocales('chapter1.enterWanfucun.line2')
       Dialog.pushLocales('chapter1.enterWanfucun.line3', isHero: true)
       Dialog.pushLocales('chapter1.enterWanfucun.line4')
       Dialog.pushLocales('chapter1.enterWanfucun.line5', characterId: 'afu')
       Dialog.pushLocales('chapter1.enterWanfucun.line6', isHero: true)
-      Dialog.popImage('story/afu.png')
+      Dialog.pushTask(() {
+        final afu = getCharacterById('afu')
+        characterMet(hero, afu)
+        updateBondScore(afu, hero, 10)
+      })
       let selected
       do {
         Dialog.pushLocalesSelection(
@@ -68,16 +85,12 @@ const storyMain = {
           [
             'chapter1.enterWanfucun.questionWanfucun',
             'chapter1.enterWanfucun.questionSeal',
-            'chapter1.enterWanfucun.questionAfu',
             'chapter1.enterWanfucun.questionEnd',
           ]
         )
         await Dialog.execute()
         selected = Dialog.checkSelected('chapter1.enterWanfucun.question')
         switch(selected) {
-          'chapter1.enterWanfucun.questionAfu': {
-            Dialog.pushLocales('chapter1.enterWanfucun.questionAfu.reply', characterId: 'afu')
-          }
           'chapter1.enterWanfucun.questionWanfucun': {
             Dialog.pushLocales('chapter1.enterWanfucun.questionWanfucun.reply', characterId: 'afu')
           }
@@ -92,7 +105,106 @@ const storyMain = {
       } while (selected != 'chapter1.enterWanfucun.questionEnd')
 
       final wanfucun = getLocationById('wanfucun')
+      Player.setHomeLocation(wanfucun)
+    } else if (location.id == 'wanfucun_jihuisuo' && !this.flags.chapter1.checkPoint3) {
+      this.flags.chapter1.checkPoint3 = true
+      // 第一次进入集会所并经历定灵碑事件
+      Dialog.pushBackground('story/cg/chapter1/dinglingbei.png', isFadeIn: true)
+      Dialog.pushLocales('chapter1.dinglingbei.line1')
+      Dialog.popBackground(isFadeOut: true)
+      Dialog.pushLocales('chapter1.dinglingbei.line2')
+      Dialog.pushLocales('chapter1.dinglingbei.line3', isHero: true)
+      await Dialog.execute()
 
+      Player.acceptQuestById('story_mainQuest_initialCultivate')
+      Player.updateQuest()
+    }
+  },
+
+  onQuestInquiry: async (character, quest) {
+    if (character.id == 'afu') {
+      switch(quest.id) {
+        'story_mainQuest_lingChuxue': {
+          Dialog.pushLocales('defaultUnknownEntity', characterId: 'afu')
+          Dialog.execute()
+        }
+        'story_mainQuest_hunguding': {
+          switch(quest.progress.last) {
+            0: {
+              Dialog.pushLocales('chapter1.afu.nail.line1')
+              Dialog.pushLocales('chapter1.afu.nail.line2', characterId: 'afu')
+              Dialog.pushLocales('chapter1.afu.nail.line3')
+              Dialog.pushLocales('chapter1.afu.nail.line4', characterId: 'afu')
+              await Dialog.execute()
+              Player.progressQuest(quest.id)
+            }
+            1: {
+              final dinglingbeiQuest = hero.quests['story_mainQuest_initialCultivate']
+              if (dinglingbeiQuest.progress.last == 1) {
+                Dialog.pushLocales('chapter1.afu.nail.line6', characterId: 'afu')
+                await Dialog.execute()
+              } else {
+                Dialog.pushLocales('chapter1.afu.nail.line5', characterId: 'afu')
+                await Dialog.execute()3
+              }
+            }
+          }
+        }
+        'story_mainQuest_initialCultivate': {
+          switch(quest.progress.last) {
+            0: {
+              // Dialog.pushLocales('chapter1.dinglingbei.afu.line1', characterId: 'afu')
+              Dialog.pushLocales('chapter1.dinglingbei.afu.line2', isHero: true)
+              Dialog.pushLocales('chapter1.dinglingbei.afu.line3', characterId: 'afu')
+              Dialog.pushLocales('chapter1.dinglingbei.afu.line4', isHero: true)
+              Dialog.pushLocales('chapter1.dinglingbei.afu.line5', characterId: 'afu')
+              Dialog.pushLocales('chapter1.dinglingbei.afu.line6', characterId: 'afu')
+              Dialog.pushLocales('chapter1.dinglingbei.afu.line7', characterId: 'afu')
+              Dialog.pushLocales('chapter1.dinglingbei.afu.line8', characterId: 'afu')
+              Dialog.pushLocales('chapter1.dinglingbei.afu.line9')
+              Dialog.pushLocales('chapter1.dinglingbei.afu.line10', characterId: 'afu')
+              Dialog.pushLocales('chapter1.dinglingbei.afu.line11', isHero: true)
+              Dialog.pushLocales('chapter1.dinglingbei.afu.line12', characterId: 'afu')
+              Dialog.pushLocales('chapter1.dinglingbei.afu.line13', isHero: true)
+              Dialog.pushLocales('chapter1.dinglingbei.afu.line14', characterId: 'afu')
+              await Dialog.execute()
+              Player.progressQuest(quest.id)
+            }
+            1: {
+              
+            }
+          }
+        }
+      }
+    }
+  },
+
+  onInteractLocationObject: async (site, location) {
+    switch(site.id) {
+      'dinglingbei': {
+        final quest = hero.quests['story_mainQuest_initialCultivate']
+        switch (quest.progress.last) {
+          0: {
+            Dialog.pushLocales('chapter1.dinglingbei.description')
+            Dialog.execute()
+          }
+          1: {
+            Dialog.pushLocales('chapter1.afu.initialCultivate.line1', characterId: 'afu')
+            Dialog.pushLocalesSelection(
+              'chapter1.afu.initialCultivate',
+              [
+                'chapter1.afu.initialCultivate.option',
+                'forgetIt',
+              ]
+            )
+            await Dialog.execute()
+            final selected = Dialog.checkSelected('chapter1.afu.initialCultivate')
+            if (selected == 'chapter1.afu.initialCultivate.option') {
+
+            }
+          }
+        }
+      }
     }
   },
 
@@ -209,7 +321,6 @@ const storyMain = {
   //         0 : {
   //           Dialog.pushImage(aya.illustration)
   //           await Dialog.localeLines('tutorial.ch1.aya.intro.line1', character: aya)
-            
   //           let selections = [
   //             'tutorial.ch1.aya.intro.selection1.look',
   //             'tutorial.ch1.aya.intro.selection1.active',

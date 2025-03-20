@@ -8,8 +8,8 @@ import 'package:flame/components.dart';
 import 'package:samsara/gestures.dart';
 // import 'package:samsara/components/hovertip.dart';
 
-import '../../data.dart';
-import '../../ui.dart';
+import '../../game/data.dart';
+import '../../game/ui.dart';
 import 'deckbuilding_zone.dart';
 import '../common.dart';
 import '../../engine.dart';
@@ -62,8 +62,6 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
   void Function(CustomGameCard card)? onCardPreviewed;
   void Function()? onCardUnpreviewed;
 
-  final dynamic heroData;
-
   @override
   void onMount() {
     super.onMount();
@@ -79,7 +77,6 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
   }
 
   CardLibraryZone({
-    this.heroData,
     Sprite? stackSprite,
     super.priority,
     this.onCardPreviewed,
@@ -230,8 +227,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
   }
 
   void updateHeroLibrary() {
-    final hero = engine.hetu.fetch('hero');
-    final libraryData = hero['cardLibrary'];
+    final libraryData = GameData.heroData['cardLibrary'];
     for (final cardData in libraryData.values) {
       if (library.containsKey(cardData['id'])) continue;
       addCardByData(cardData);
@@ -336,7 +332,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
           'library_card_${card.id}',
           card.data,
           card.toAbsoluteRect(),
-          characterData: heroData,
+          characterData: GameData.heroData,
         );
     card.onUnpreviewed = () => unpreviewCard(game.context);
 

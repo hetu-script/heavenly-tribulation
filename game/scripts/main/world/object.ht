@@ -1,4 +1,4 @@
-import '../game.ht'
+import '../game/data.ht'
 
 const kEntityTypeObject = 'object'
 
@@ -8,13 +8,25 @@ const kObjectWorldPortal = 'worldPortal'
 const kObjectCharacter = 'character'
 const kObjectTreasureBox = 'treasureBox'
 
+function discoverObject(object, terrain) {
+  if (object.isDiscovered) return
+  object.isDiscovered = true
+  if (object.isHidden) {
+    assert(object.overlaySprite != null)
+    terrain.overlaySprite ??= {}
+    Object.assign(terrain.overlaySprite, object.overlaySprite)
+    // World.setWorldMapSprite(location.worldPosition.left, location.worldPosition.top, kSpriteLand)
+    World.updateTerrainOverlaySprite(object.worldPosition.left, object.worldPosition.top)
+  }
+}
+
 /// 地图上的对象，例如机关，宝箱，固定NPC等，但对象可能是隐藏的
 /// {
 ///   id: 'id',
 ///   entityType: 'object',
 ///   category: 'custom',
 ///   isDiscovered: true,
-///   useCustomInteraction: true,
+///   useCustomLogic: true,
 ///   blockHeroMove: true
 /// }
 
@@ -22,7 +34,7 @@ struct ObjectPortal {
   constructor ({
     id,
     isDiscovered = true,
-    useCustomInteraction = false,
+    useCustomLogic = false,
     targetLeft,
     targetTop,
   }) {
@@ -31,7 +43,7 @@ struct ObjectPortal {
     this.entityType = kEntityTypeObject
     this.category = kObjectPortal
     this.isDiscovered = isDiscovered
-    this.useCustomInteraction = useCustomInteraction
+    this.useCustomLogic = useCustomLogic
     this.targetTilePosition = {
       left: targetLeft,
       top: targetTop,
@@ -45,7 +57,7 @@ struct ObjectWorldPortal {
   constructor ({
     id,
     isDiscovered = true,
-    useCustomInteraction = false,
+    useCustomLogic = false,
     worldId,
     worldPositionLeft,
     worldPositionTop,
@@ -55,7 +67,7 @@ struct ObjectWorldPortal {
     this.entityType = kEntityTypeObject
     this.category = kObjectWorldPortal
     this.isDiscovered = isDiscovered
-    this.useCustomInteraction = useCustomInteraction
+    this.useCustomLogic = useCustomLogic
     this.worldId = worldId
     this.targetTilePosition = {
       left: targetLeft,
@@ -92,7 +104,7 @@ struct ObjectCharacter {
 ///   },
 ///   {
 ///     category: 'prototype',
-///     kind: 'jade',
+///     kind: 'shard',
 ///   },
 ///   {
 ///     category: 'equipment',
@@ -112,7 +124,7 @@ struct ObjectTreasureBox {
   constructor ({
     id,
     isDiscovered = true,
-    useCustomInteraction = false,
+    useCustomLogic = false,
     items: List,
   }) {
     assert(id != null)
@@ -120,7 +132,7 @@ struct ObjectTreasureBox {
     this.entityType = kEntityTypeObject
     this.category = kObjectTreasureBox
     this.isDiscovered = isDiscovered
-    this.useCustomInteraction = useCustomInteraction
+    this.useCustomLogic = useCustomLogic
     world.objects[this.id] = this
 
     this.items = items

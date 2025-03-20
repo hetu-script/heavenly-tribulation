@@ -7,9 +7,11 @@ import '../../engine.dart';
 import '../avatar.dart';
 import '../../util.dart';
 import '../common.dart';
-import 'edit_character_id_and_avatar.dart';
+import 'edit_character_basics.dart';
 import '../dialog/input_description.dart';
 import '../int_editor_field.dart';
+import '../../common.dart';
+import '../../game/ui.dart';
 
 class CharacterProfile extends StatefulWidget {
   const CharacterProfile({
@@ -17,7 +19,7 @@ class CharacterProfile extends StatefulWidget {
     this.characterId,
     this.characterData,
     this.mode = InformationViewMode.view,
-    this.height = 300.0,
+    this.height = 400.0,
     this.showIntimacy = true,
     this.showRelationships = true,
     this.showPosition = true,
@@ -26,13 +28,9 @@ class CharacterProfile extends StatefulWidget {
   });
 
   final String? characterId;
-
   final dynamic characterData;
-
   final InformationViewMode mode;
-
   final double height;
-
   final bool showIntimacy,
       showRelationships,
       showPosition,
@@ -44,51 +42,99 @@ class CharacterProfile extends StatefulWidget {
 }
 
 class _CharacterProfileState extends State<CharacterProfile> {
-  bool get isEditorMode =>
-      widget.mode == InformationViewMode.edit ||
-      widget.mode == InformationViewMode.create;
+  bool get isEditorMode => widget.mode == InformationViewMode.edit;
 
   dynamic _characterData;
 
-  late String age, sex;
+  late String age;
 
-  late int charisma,
-      wisdom,
-      luck,
-      spirituality,
-      dexterity,
-      strength,
-      willpower,
-      perception;
+  late bool _isFemale;
+
+  late int charisma, wisdom, luck;
+
+  final Map<String, TextEditingController> attributeControllers = {};
+  final Map<String, Widget> attributeWidgets = {};
+
+  final Map<String, TextEditingController> personalityControllers = {};
+  final Map<String, Widget> personalityWidgets = {};
 
   final _ageController = TextEditingController();
 
-  final _charismaController = TextEditingController();
-  final _wisdomController = TextEditingController();
-  final _luckController = TextEditingController();
+  @override
+  void dispose() {
+    super.dispose();
 
-  final _spiritualityController = TextEditingController();
-  final _dexterityController = TextEditingController();
-  final _strengthController = TextEditingController();
-  final _willpowerController = TextEditingController();
-  final _perceptionController = TextEditingController();
+    _ageController.dispose();
+
+    for (final ctrl in attributeControllers.values) {
+      ctrl.dispose();
+    }
+
+    for (final ctrl in personalityControllers.values) {
+      ctrl.dispose();
+    }
+  }
 
   @override
   void initState() {
     super.initState();
 
-    if (widget.mode.index <= 2) {
-      if (widget.characterData != null) {
-        _characterData = widget.characterData!;
-      } else if (widget.characterId != null) {
-        _characterData = engine.hetu
-            .invoke('getCharacterById', positionalArgs: [widget.characterId]);
-      }
-    } else {
-      // 临时创建的数据，此时尚未加入游戏中
-      _characterData = engine.hetu.invoke('Character', namedArgs: {
-        'isMain': false,
-      });
+    assert(widget.characterId != null || widget.characterData != null);
+    if (widget.characterData != null) {
+      _characterData = widget.characterData!;
+    } else if (widget.characterId != null) {
+      _characterData = engine.hetu
+          .invoke('getCharacterById', positionalArgs: [widget.characterId]);
+    }
+    assert(_characterData != null);
+
+    for (final id in kAttributes) {
+      final ctrl = TextEditingController();
+      attributeControllers[id] = ctrl;
+
+      final value = _characterData['stats'][id].toInt();
+      ctrl.text = value.toString();
+
+      final textWidget = isEditorMode
+          ? IntEditField(controller: ctrl)
+          : Text(value.toString());
+
+      attributeWidgets[id] = SizedBox(
+        height: 35.0,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text('${engine.locale(id)}: '),
+            textWidget,
+          ],
+        ),
+      );
+    }
+
+    for (final id in kPersonalities) {
+      final ctrl = TextEditingController();
+      personalityControllers[id] = ctrl;
+
+      final value = _characterData['personality'][id].toInt();
+      ctrl.text = value.toString();
+
+      final textWidget = isEditorMode
+          ? IntEditField(controller: ctrl, allowNegative: true)
+          : Text(value.toString());
+
+      personalityWidgets[id] = Container(
+        height: 35.0,
+        width: 125.0,
+        padding: const EdgeInsets.only(left: 5.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+                '${value > 0 ? engine.locale(id) : engine.locale(kOppositePersonalities[id])}: '),
+            textWidget,
+          ],
+        ),
+      );
     }
 
     updateData();
@@ -100,31 +146,21 @@ class _CharacterProfileState extends State<CharacterProfile> {
 
     _ageController.text = age;
 
-    sex = _characterData['isFemale'] ? 'female' : 'male';
+    _isFemale = _characterData['isFemale'] == true;
 
-    charisma = _characterData['charisma'].toInt();
-    wisdom = _characterData['wisdom'].toInt();
-    luck = _characterData['luck'].toInt();
+    for (final id in kAttributes) {
+      final value = _characterData['stats'][id].toInt();
+      attributeControllers[id]!.text = value.toString();
+    }
 
-    _charismaController.text = charisma.toString();
-    _wisdomController.text = wisdom.toString();
-    _luckController.text = luck.toString();
-
-    spirituality = _characterData['stats']['spirituality'].toInt();
-    dexterity = _characterData['stats']['dexterity'].toInt();
-    strength = _characterData['stats']['strength'].toInt();
-    willpower = _characterData['stats']['willpower'].toInt();
-    perception = _characterData['stats']['perception'].toInt();
-
-    _spiritualityController.text = spirituality.toString();
-    _dexterityController.text = dexterity.toString();
-    _strengthController.text = strength.toString();
-    _willpowerController.text = willpower.toString();
-    _perceptionController.text = perception.toString();
+    for (final id in kPersonalities) {
+      int value = _characterData['personality'][id].toInt();
+      personalityControllers[id]!.text = value.toString();
+    }
   }
 
   void _saveData() {
-    _characterData['isFemale'] = sex == 'female' ? true : false;
+    _characterData['isFemale'] = _isFemale == 'female' ? true : false;
 
     final newAge = int.tryParse(_ageController.text);
     if (newAge != null) {
@@ -133,32 +169,9 @@ class _CharacterProfileState extends State<CharacterProfile> {
       _characterData['birthTimestamp'] = birthTimestamp;
     }
 
-    final newCharisma = int.tryParse(_charismaController.text);
-    if (newCharisma != null) _characterData['charisma'] = newCharisma;
-    final newWisdom = int.tryParse(_wisdomController.text);
-    if (newWisdom != null) _characterData['wisdom'] = newWisdom;
-    final newLuck = int.tryParse(_luckController.text);
-    if (newLuck != null) _characterData['luck'] = newLuck;
-
-    final newSpirituality = int.tryParse(_spiritualityController.text);
-    if (newSpirituality != null) {
-      _characterData['spirituality'] = newSpirituality;
-    }
-    final newDexterity = int.tryParse(_dexterityController.text);
-    if (newDexterity != null) {
-      _characterData['dexterity'] = newDexterity;
-    }
-    final newStrength = int.tryParse(_strengthController.text);
-    if (newStrength != null) {
-      _characterData['strength'] = newStrength;
-    }
-    final newWillpower = int.tryParse(_willpowerController.text);
-    if (newWillpower != null) {
-      _characterData['willpower'] = newWillpower;
-    }
-    final newPerception = int.tryParse(_perceptionController.text);
-    if (newPerception != null) {
-      _characterData['perception'] = newPerception;
+    for (final attr in kAttributes) {
+      final newValue = int.tryParse(attributeControllers[attr]!.text);
+      if (newValue != null) _characterData[attr] = newValue;
     }
 
     engine.hetu
@@ -167,50 +180,32 @@ class _CharacterProfileState extends State<CharacterProfile> {
 
   @override
   Widget build(BuildContext context) {
-    final fame = engine.hetu
-        .invoke('getCharacterFameString', positionalArgs: [_characterData]);
-    final infamy = engine.hetu
-        .invoke('getCharacterInfamyString', positionalArgs: [_characterData]);
-    final masterId = engine.hetu
-        .invoke('getCharacterMasterId', positionalArgs: [_characterData]);
-    final masterName = getNameFromId(masterId, 'none');
+    final int fame = _characterData['fame'];
+    final int infamy = _characterData['infamy'];
+    // final masterId = engine.hetu
+    //     .invoke('getCharacterMasterId', positionalArgs: [_characterData]);
+    // final masterName = getNameFromId(masterId, 'none');
     final organizationId =
         getNameFromId(_characterData['organizationId'], 'none');
-    final title = engine.hetu
-            .invoke('getCharacterTitle', positionalArgs: [_characterData]) ??
-        engine.locale('none');
-    final home = getNameFromId(_characterData['homeId'], 'none');
+    final title = _characterData['titleId'] ?? engine.locale('none');
+    final home = getNameFromId(_characterData['homeLocationId'], 'none');
 
-    final father =
-        getNameFromId(_characterData['relationships']['fatherId'], 'none');
-    final mother =
-        getNameFromId(_characterData['relationships']['motherId'], 'none');
-    final spouse =
-        getNameFromId(_characterData['relationships']['spouseId'], 'none');
-    final siblings =
-        getNamesFromIds(_characterData['relationships']['siblingIds'], 'none')
-            .map((e) => Label(e));
-    final childs =
-        getNamesFromIds(_characterData['relationships']['childrenIds'], 'none')
-            .map((e) => Label(e));
-
-    final personality = _characterData['personality'];
-    final ideal = personality['ideal'].toInt();
-    final order = personality['order'].toInt();
-    final good = personality['good'].toInt();
-    final social = personality['social'].toInt();
-    final reason = personality['reason'].toInt();
-    final control = personality['control'].toInt();
-    final frugal = personality['frugal'].toInt();
-    final frank = personality['frank'].toInt();
-    final confidence = personality['confidence'].toInt();
-    final prudence = personality['prudence'].toInt();
-    final empathy = personality['empathy'].toInt();
-    final generosity = personality['generosity'].toInt();
+    // final father =
+    //     getNameFromId(_characterData['relationships']['fatherId'], 'none');
+    // final mother =
+    //     getNameFromId(_characterData['relationships']['motherId'], 'none');
+    // final spouse =
+    //     getNameFromId(_characterData['relationships']['spouseId'], 'none');
+    // final siblings =
+    //     getNamesFromIds(_characterData['relationships']['siblingIds'], 'none')
+    //         .map((e) => Label(e));
+    // final childs =
+    //     getNamesFromIds(_characterData['relationships']['childrenIds'], 'none')
+    //         .map((e) => Label(e));
 
     final birthday = engine.hetu
         .invoke('getCharacterBirthDayString', positionalArgs: [_characterData]);
-    // final birthPlace = getNameFromId(_characterData['birthPlaceId']);
+    // final birthLocationId = getNameFromId(_characterData['birthLocationId']);
     final restLifespan = engine.hetu.invoke('getCharacterRestLifespanString',
         positionalArgs: [_characterData]);
 
@@ -232,10 +227,6 @@ class _CharacterProfileState extends State<CharacterProfile> {
     final motivations = motifvationNames.isNotEmpty
         ? motifvationNames.map((e) => Label(engine.locale(e))).toList()
         : [Text(engine.locale('none'))];
-    final thinkingNames = _characterData['thinkings'] as List;
-    final thinkings = thinkingNames.isNotEmpty
-        ? thinkingNames.map((e) => Label(engine.locale(e))).toList()
-        : [Text(engine.locale('none'))];
 
     return Column(
       children: [
@@ -256,44 +247,48 @@ class _CharacterProfileState extends State<CharacterProfile> {
                         size: const Size(120.0, 120.0),
                         nameAlignment: AvatarNameAlignment.bottom,
                         image: AssetImage(
-                            'assets/images/illustration/${_characterData['icon']}'),
+                            'assets/images/${_characterData['icon']}'),
                       ),
                     ),
                     SizedBox(
                       width: 125.0,
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(
                             height: 35.0,
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Text('${engine.locale('gender')}: '),
                                 isEditorMode
-                                    ? Padding(
-                                        padding: EdgeInsets.only(top: 10.0),
-                                        child: DropdownButton<String>(
-                                          items: <String>['male', 'female']
-                                              .map((String value) {
-                                            return DropdownMenuItem<String>(
-                                              value: value,
-                                              child: Text(
-                                                engine.locale(value),
-                                                style:
-                                                    TextStyle(fontSize: 16.0),
+                                    ? Row(
+                                        children: [
+                                          SizedBox(
+                                            width: 40,
+                                            child: Text(
+                                                '${engine.locale('isFemale')}: '),
+                                          ),
+                                          Container(
+                                            width: 50,
+                                            height: 30,
+                                            padding: const EdgeInsets.only(
+                                                left: 10.0),
+                                            child: FittedBox(
+                                              fit: BoxFit.fill,
+                                              child: Switch(
+                                                value: _isFemale,
+                                                activeColor: Colors.white,
+                                                onChanged: (bool value) {
+                                                  setState(() {
+                                                    _isFemale = value;
+                                                  });
+                                                },
                                               ),
-                                            );
-                                          }).toList(),
-                                          value: sex,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              sex = value!;
-                                            });
-                                          },
-                                        ),
+                                            ),
+                                          ),
+                                        ],
                                       )
-                                    : Text(engine.locale(sex)),
+                                    : Text(
+                                        '${engine.locale('gender')}: ${_isFemale ? engine.locale('female') : engine.locale('male')}'),
                               ],
                             ),
                           ),
@@ -310,147 +305,43 @@ class _CharacterProfileState extends State<CharacterProfile> {
                               ],
                             ),
                           ),
-                          SizedBox(
-                            height: 35.0,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text('${engine.locale('charisma')}: '),
-                                isEditorMode
-                                    ? IntEditField(
-                                        controller: _charismaController)
-                                    : Text('$charisma'),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: 35.0,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text('${engine.locale('wisdom')}: '),
-                                isEditorMode
-                                    ? IntEditField(
-                                        controller: _wisdomController)
-                                    : Text('$wisdom'),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: 35.0,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text('${engine.locale('luck')}: '),
-                                isEditorMode
-                                    ? IntEditField(controller: _luckController)
-                                    : Text('$luck'),
-                              ],
-                            ),
-                          ),
+                          ...kNonBattleAttributes
+                              .map((attrId) => attributeWidgets[attrId]!),
                         ],
                       ),
                     ),
                     SizedBox(
                       width: 125.0,
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            height: 35.0,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text('${engine.locale('spirituality')}: '),
-                                isEditorMode
-                                    ? IntEditField(
-                                        controller: _spiritualityController)
-                                    : Text('$spirituality'),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: 35.0,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text('${engine.locale('dexterity')}: '),
-                                isEditorMode
-                                    ? IntEditField(
-                                        controller: _dexterityController)
-                                    : Text('$dexterity'),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: 35.0,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text('${engine.locale('strength')}: '),
-                                isEditorMode
-                                    ? IntEditField(
-                                        controller: _strengthController)
-                                    : Text('$strength'),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: 35.0,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text('${engine.locale('willpower')}: '),
-                                isEditorMode
-                                    ? IntEditField(
-                                        controller: _willpowerController)
-                                    : Text('$willpower'),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: 35.0,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text('${engine.locale('perception')}: '),
-                                isEditorMode
-                                    ? IntEditField(
-                                        controller: _perceptionController)
-                                    : Text('$perception'),
-                              ],
-                            ),
-                          ),
-                        ],
+                        children: kBattleAttributes
+                            .map((attrId) => attributeWidgets[attrId]!)
+                            .toList(),
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.only(top: 5.0),
                       width: 125.0,
-                      height: 190.0,
+                      padding: const EdgeInsets.only(top: 7.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          SizedBox(
+                          Container(
+                            alignment: Alignment.centerLeft,
                             height: 35.0,
                             child: Text('${engine.locale('fame')}: $fame'),
                           ),
-                          SizedBox(
+                          Container(
+                            alignment: Alignment.centerLeft,
                             height: 35.0,
                             child: Text('${engine.locale('infamy')}: $infamy'),
                           ),
-                          SizedBox(
-                            height: 35.0,
-                            child:
-                                Text('${engine.locale('master')}: $masterName'),
-                          ),
-                          SizedBox(
+                          Container(
+                            alignment: Alignment.centerLeft,
                             height: 35.0,
                             child: Text(
                                 '${engine.locale('organization')}: $organizationId'),
                           ),
-                          SizedBox(
+                          Container(
+                            alignment: Alignment.centerLeft,
                             height: 35.0,
                             child: Text('${engine.locale('title')}: $title'),
                           ),
@@ -459,37 +350,41 @@ class _CharacterProfileState extends State<CharacterProfile> {
                     ),
                     if (widget.showIntimacy)
                       Container(
-                        padding: const EdgeInsets.only(top: 5.0),
+                        padding: const EdgeInsets.only(top: 7.0),
                         width: 150.0,
-                        height: 190.0,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            SizedBox(
+                            Container(
+                              alignment: Alignment.centerLeft,
                               height: 35.0,
                               child: Text(
                                 '${engine.locale('charismaFavor')}: ${_characterData['charismaFavor'].truncate()}',
                               ),
                             ),
-                            SizedBox(
+                            Container(
+                              alignment: Alignment.centerLeft,
                               height: 35.0,
                               child: Text(
                                 '${engine.locale('cultivationFavor')}: $cultivationFavor',
                               ),
                             ),
-                            SizedBox(
+                            Container(
+                              alignment: Alignment.centerLeft,
                               height: 35.0,
                               child: Text(
                                 '${engine.locale('organizationFavor')}: $organizationFavor',
                               ),
                             ),
-                            SizedBox(
+                            Container(
+                              alignment: Alignment.centerLeft,
                               height: 35.0,
                               child: Text(
                                   '${engine.locale('birthday')}: $birthday'),
                             ),
-                            SizedBox(
+                            Container(
+                              alignment: Alignment.centerLeft,
                               height: 35.0,
                               child: Text(
                                   '${engine.locale('restLifespan')}: $restLifespan'),
@@ -510,31 +405,31 @@ class _CharacterProfileState extends State<CharacterProfile> {
                         Wrap(
                           alignment: WrapAlignment.start,
                           children: [
-                            Label(
-                              textAlign: TextAlign.left,
-                              width: 125.0,
-                              '${engine.locale('father')}: $father',
-                            ),
-                            Label(
-                              textAlign: TextAlign.left,
-                              width: 125.0,
-                              '${engine.locale('mother')}: $mother',
-                            ),
-                            Label(
-                              textAlign: TextAlign.left,
-                              width: 125.0,
-                              '${engine.locale('spouse')}: $spouse',
-                            ),
-                            LabelsWrap(
-                              minWidth: 125.0,
-                              '${engine.locale('children')}: ',
-                              children: childs,
-                            ),
-                            LabelsWrap(
-                              minWidth: 125.0,
-                              '${engine.locale('siblings')}: ',
-                              children: siblings,
-                            ),
+                            // Label(
+                            //   textAlign: TextAlign.left,
+                            //   width: 125.0,
+                            //   '${engine.locale('father')}: $father',
+                            // ),
+                            // Label(
+                            //   textAlign: TextAlign.left,
+                            //   width: 125.0,
+                            //   '${engine.locale('mother')}: $mother',
+                            // ),
+                            // Label(
+                            //   textAlign: TextAlign.left,
+                            //   width: 125.0,
+                            //   '${engine.locale('spouse')}: $spouse',
+                            // ),
+                            // LabelsWrap(
+                            //   minWidth: 125.0,
+                            //   '${engine.locale('children')}: ',
+                            //   children: childs,
+                            // ),
+                            // LabelsWrap(
+                            //   minWidth: 125.0,
+                            //   '${engine.locale('siblings')}: ',
+                            //   children: siblings,
+                            // ),
                           ],
                         ),
                       ],
@@ -575,103 +470,15 @@ class _CharacterProfileState extends State<CharacterProfile> {
                         // Text('---${engine.locale('personality')}---'),
                         Wrap(
                           children: [
-                            Label(
-                              textAlign: TextAlign.left,
-                              ideal >= 0
-                                  ? '${engine.locale('ideal')}: $ideal'
-                                  : '${engine.locale('real')}: ${-ideal}',
-                              width: 125.0,
-                            ),
-                            Label(
-                              textAlign: TextAlign.left,
-                              order >= 0
-                                  ? '${engine.locale('order')}: $order'
-                                  : '${engine.locale('chaotic')}: ${-order}',
-                              width: 125.0,
-                            ),
-                            Label(
-                              textAlign: TextAlign.left,
-                              good >= 0
-                                  ? '${engine.locale('good')}: $good'
-                                  : '${engine.locale('evil')}: ${-good}',
-                              width: 125.0,
-                            ),
-                            Label(
-                              textAlign: TextAlign.left,
-                              social >= 0
-                                  ? '${engine.locale('extraversion')}: $social'
-                                  : '${engine.locale('introspection')}: ${-social}',
-                              width: 125.0,
-                            ),
-                            Label(
-                              textAlign: TextAlign.left,
-                              reason >= 0
-                                  ? '${engine.locale('reasoning')}: $reason'
-                                  : '${engine.locale('feeling')}: ${-reason}',
-                              width: 125.0,
-                            ),
-                            Label(
-                              textAlign: TextAlign.left,
-                              control >= 0
-                                  ? '${engine.locale('organizing')}: $control'
-                                  : '${engine.locale('relaxing')}: ${-control}',
-                              width: 125.0,
-                            ),
-                            Label(
-                              textAlign: TextAlign.left,
-                              frugal >= 0
-                                  ? '${engine.locale('frugality')}: $frugal'
-                                  : '${engine.locale('lavishness')}: ${-frugal}',
-                              width: 125.0,
-                            ),
-                            Label(
-                              textAlign: TextAlign.left,
-                              frank >= 0
-                                  ? '${engine.locale('frankness')}: $frank'
-                                  : '${engine.locale('tactness')}: ${-frank}',
-                              width: 125.0,
-                            ),
-                            Label(
-                              textAlign: TextAlign.left,
-                              confidence >= 0
-                                  ? '${engine.locale('confidence')}: $confidence'
-                                  : '${engine.locale('cowardness')}: ${-confidence}',
-                              width: 125.0,
-                            ),
-                            Label(
-                              textAlign: TextAlign.left,
-                              prudence >= 0
-                                  ? '${engine.locale('prudence')}: $prudence'
-                                  : '${engine.locale('adventurousness')}: ${-prudence}',
-                              width: 125.0,
-                            ),
-                            Label(
-                              textAlign: TextAlign.left,
-                              empathy >= 0
-                                  ? '${engine.locale('empathy')}: $empathy'
-                                  : '${engine.locale('indifference')}: ${-empathy}',
-                              width: 125.0,
-                            ),
-                            Label(
-                              textAlign: TextAlign.left,
-                              generosity >= 0
-                                  ? '${engine.locale('generosity')}: $generosity'
-                                  : '${engine.locale('stinginess')}: ${-generosity}',
-                              width: 125.0,
-                            ),
-                            // const Divider(
-                            //   color: Colors.transparent,
-                            //   height: 0.0,
-                            // ),
-                            LabelsWrap(
-                              '${engine.locale('motivation')}:',
-                              minWidth: 125.0,
-                              children: motivations,
-                            ),
-                            LabelsWrap(
-                              '${engine.locale('thinking')}:',
-                              minWidth: 125.0,
-                              children: thinkings,
+                            ...kPersonalities
+                                .map((id) => personalityWidgets[id]!),
+                            Container(
+                              padding: const EdgeInsets.only(top: 12.0),
+                              child: LabelsWrap(
+                                '${engine.locale('motivation')}:',
+                                minWidth: 125.0,
+                                children: motivations,
+                              ),
                             ),
                           ],
                         ),
@@ -696,53 +503,52 @@ class _CharacterProfileState extends State<CharacterProfile> {
               Padding(
                 padding: const EdgeInsets.only(top: 10.0, left: 10.0),
                 child: ElevatedButton(
-                  onPressed: () {
-                    showDialog(
+                  onPressed: () async {
+                    final value = await showDialog(
                       context: context,
-                      builder: (context) => EditCharacterIdAndAvatar(
+                      builder: (context) => EditCharacterBasics(
                         id: _characterData['id'],
                         name: _characterData['shortName'],
                         skin: _characterData['characterSkin'],
-                        familyName: _characterData['familyName'],
+                        surName: _characterData['surName'],
                         iconPath: _characterData['icon'],
                         illustrationPath: _characterData['illustration'],
                       ),
-                    ).then(
-                      (value) {
-                        if (value == null) return;
-                        final (
-                          id,
-                          name,
-                          familyName,
-                          skin,
-                          iconPath,
-                          illustrationPath,
-                        ) = value;
-                        _characterData['familyName'] = familyName;
-                        assert(name != null && name.isNotEmpty);
-                        _characterData['shortName'] = name;
-                        _characterData['name'] =
-                            (_characterData['familyName'] ?? '') +
-                                _characterData['shortName'];
-                        _characterData['characterSkin'] = skin;
-                        _characterData['icon'] = iconPath;
-                        _characterData['illustration'] = illustrationPath;
-                        if (id != null && id != _characterData['id']) {
-                          engine.hetu.invoke('removeCharacterById',
-                              positionalArgs: [_characterData['id']]);
-                          final heroId = engine.hetu.invoke('getHeroId');
-                          final originId = _characterData['id'];
-                          _characterData['id'] = id;
-                          engine.hetu.invoke('addCharacter',
-                              positionalArgs: [_characterData]);
-                          if (originId == heroId) {
-                            engine.hetu
-                                .invoke('setHeroId', positionalArgs: [id]);
-                          }
-                        }
-                        setState(() {});
-                      },
                     );
+                    if (value == null) return;
+                    final (
+                      id,
+                      name,
+                      surName,
+                      isFemale,
+                      skin,
+                      icon,
+                      illustration,
+                    ) = value;
+                    _characterData['surName'] = surName;
+                    assert(name != null && name.isNotEmpty);
+                    _characterData['shortName'] = name;
+                    _characterData['name'] = (_characterData['surName'] ?? '') +
+                        _characterData['shortName'];
+                    _characterData['isFemale'] = isFemale;
+                    _characterData['characterSkin'] = skin;
+                    _characterData['icon'] = icon;
+                    _characterData['illustration'] = illustration;
+                    if (id != null && id != _characterData['id']) {
+                      final originId = _characterData['id'];
+
+                      engine.hetu.invoke('removeCharacterById',
+                          positionalArgs: [_characterData['id']]);
+                      _characterData['id'] = id;
+                      engine.hetu.invoke('addCharacter',
+                          positionalArgs: [_characterData]);
+
+                      final heroId = engine.hetu.invoke('getHeroId');
+                      if (originId == heroId) {
+                        engine.hetu.invoke('setHeroId', positionalArgs: [id]);
+                      }
+                    }
+                    setState(() {});
                   },
                   child: Text(
                     engine.locale('editIdAndImage'),
@@ -772,10 +578,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
                 child: ElevatedButton(
                   onPressed: () {
                     setState(() {
-                      _characterData =
-                          engine.hetu.invoke('Character', namedArgs: {
-                        'isMain': false,
-                      });
+                      _characterData = engine.hetu.invoke('Character');
                       updateData();
                     });
                   },
@@ -794,9 +597,9 @@ class _CharacterProfileState extends State<CharacterProfile> {
                         case InformationViewMode.edit:
                           _saveData();
                           Navigator.of(context).pop(true);
-                        case InformationViewMode.create:
-                          _saveData();
-                          Navigator.of(context).pop(_characterData);
+                        // case InformationViewMode.create:
+                        //   _saveData();
+                        //   Navigator.of(context).pop(_characterData);
                         default:
                       }
                     },
@@ -838,10 +641,13 @@ class CharacterProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = mode != InformationViewMode.view ? 700.0 : 640.0;
+    final height = mode != InformationViewMode.view ? 640.0 : 400.0;
     return ResponsiveView(
+      color: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
-      width: 700,
-      height: 480.0,
+      width: width,
+      height: height,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -854,7 +660,7 @@ class CharacterProfileView extends StatelessWidget {
               characterId: characterId,
               characterData: characterData,
               mode: mode,
-              height: 380,
+              height: height - 90.0,
               showIntimacy: showIntimacy,
               showRelationships: showRelationships,
               showPosition: showPosition,

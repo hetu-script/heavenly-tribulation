@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/extensions.dart';
 
-import '../../ui.dart';
+import '../../game/ui.dart';
 
 const kProgressIndicatorSpeed = 0.036;
 
@@ -78,19 +78,18 @@ class _ProgressIndicatorDialogState extends State<ProgressIndicatorDialog> {
   @override
   void dispose() {
     _timer?.cancel();
-
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
+      color: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       child: SizedBox(
-        width: 140,
-        height: 140,
+        width: 150,
+        height: 150,
         child: Scaffold(
-          backgroundColor: GameUI.backgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(widget.title),

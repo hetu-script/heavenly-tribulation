@@ -7,7 +7,7 @@ import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 
 import '../../engine.dart';
-import '../../ui.dart';
+import '../../game/ui.dart';
 
 class InputStringDialog extends StatefulWidget {
   static Future<String?> show({
@@ -38,25 +38,21 @@ class _InputStringDialogState extends State<InputStringDialog> {
   final _textEditingController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
-    _textEditingController.dispose();
     super.dispose();
+
+    _textEditingController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
+      color: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       child: SizedBox(
         width: 240,
         height: 170,
         child: Scaffold(
-          backgroundColor: GameUI.backgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(widget.title ?? engine.locale('inputID')),
@@ -81,8 +77,7 @@ class _InputStringDialogState extends State<InputStringDialog> {
                   padding: const EdgeInsets.all(5.0),
                   child: ElevatedButton(
                     onPressed: () {
-                      final result =
-                          _textEditingController.text.nonEmptyValueOrNull;
+                      final result = _textEditingController.text.nonEmptyValue;
                       Navigator.of(context).pop(result);
                     },
                     child: Text(

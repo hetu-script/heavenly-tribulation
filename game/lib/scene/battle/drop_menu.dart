@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../engine.dart';
-import '../../../ui.dart';
+import '../../game/ui.dart';
 import '../../../widgets/menu_item_builder.dart';
 
 enum BattleDropMenuItems { console, exit }

@@ -1,0 +1,15 @@
+{
+  "relationshipDiscourse": "关于我们之间……",
+
+  "noQuests": "我目前似乎没有什么要紧的事情。",
+
+  "unfavorRefusal": "我和你这种人没什么好说的，快点从我眼前消失吧。",
+
+  "defaultRefusal": "我这会儿有事，咱们还是改天再聊吧。",
+
+  "defaultUnknownEntity": "抱歉，我并不了解你说的这个事情。",
+
+  "favorGreeting": "又见到你了，有什么事情需要我帮忙吗？",
+
+  "fameGreeting": "阁下可是{0}？"
+}

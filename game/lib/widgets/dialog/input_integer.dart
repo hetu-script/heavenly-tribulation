@@ -6,7 +6,7 @@ import 'package:samsara/ui/integer_input_field.dart';
 import 'package:samsara/ui/close_button2.dart';
 
 import '../../engine.dart';
-import '../../ui.dart';
+import '../../game/ui.dart';
 
 class InputIntegerDialog extends StatefulWidget {
   static Future<int?> show({
@@ -47,25 +47,21 @@ class _InputIntegerDialogState extends State<InputIntegerDialog> {
   final _textEditingController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
-    _textEditingController.dispose();
     super.dispose();
+
+    _textEditingController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
+      color: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       child: SizedBox(
         width: 200,
         height: 160,
         child: Scaffold(
-          backgroundColor: GameUI.backgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(widget.title ?? engine.locale('inputInteger')),

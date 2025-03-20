@@ -1,11 +1,16 @@
 {
   "defaultItemDescription": "未知来历的神秘物品。",
 
-  "questItem": "任务物品",
+  "questItem": "重要物品",
+
   "usableHint": "点击右键使用",
   "equippableHint": "点击右键装备",
   "unequippableHint": "点击右键卸下",
-  "item_material_pack_flavortext": "点击右键使用后转化为材料",
+  "cardpackHint": "在藏书阁中使用以获取功法卡牌",
+  "currentCharges": "当前充能次数: {0}∕{1}",
+  "shardsPerCharge": "每次充能消耗: {0} 灵石",
+
+  "materialpack_flavortext": "使用后转化为无需占用物品栏空间的资源。",
 
   "resource": "资源",
   "material": "材料",
@@ -16,7 +21,7 @@
   "cardpack": "秘籍",
   "ownedCardpack": "拥有的秘籍",
 
-  "item_cardpack_flavortext": "打开后可以获得一张该境界和流派的卡牌以及两张随机卡牌。卡牌最大等级不会超过角色等级。",
+  "cardpack_flavortext": "打开后可以获得一张该境界和流派的卡牌以及两张随机卡牌。卡牌最大等级不会超过角色等级。",
 
   "price": "价格",
   "stackSize": "数量",
@@ -26,36 +31,43 @@
   "equipment_requirement": "装备需求",
   "requirement": "需求",
 
+  "untradable": "不可交易",
+
   "sword": "剑",
-  "item_sword_flavortext": "在凡人和修真者中都很流行的一种兵器。",
+  "sword_flavortext": "在普通百姓和修真者中都很流行的一种兵器。",
   "sabre": "刀",
-  "item_sabre_flavortext": "在凡人和修真者中都很流行的一种兵器。",
+  "sabre_flavortext": "在普通百姓和修真者中都很流行的一种兵器。",
   "spear": "枪",
-  "item_spear_flavortext": "在凡人和修真者中都很流行的一种兵器。",
+  "spear_flavortext": "在普通百姓和修真者中都很流行的一种兵器。",
   "staff": "棍",
-  "item_staff_flavortext": "在凡人和修真者中都很流行的一种兵器。",
+  "staff_flavortext": "在普通百姓和修真者中都很流行的一种兵器。",
   "bow": "弓",
-  "item_bow_flavortext": "在凡人和修真者中都很流行的一种兵器。",
+  "bow_flavortext": "在普通百姓和修真者中都很流行的一种兵器。",
   "dart": "暗器",
-  "item_dart_flavortext": "在凡人和修真者中都很流行的一种兵器。",
+  "dart_flavortext": "在普通百姓和修真者中都很流行的一种兵器。",
 
-  "shield": "盾牌",
-  "item_shield_flavortext": "在凡人和修真者中都很流行的一种兵器。",
-  "boots": "鞋子",
-  "item_boots_flavortext": "在凡人和修真者中都很流行的一种兵器。",
   "armor": "护甲",
-  "item_armor_flavortext": "在凡人和修真者中都很流行的一种兵器。",
-
+  "armor_flavortext": "可以在战斗中保护身体的装备。",
+  "gloves": "手套",
+  "gloves_flavortext": "可以在战斗中保护身体的装备。",
+  "boots": "鞋子",
+  "boots_flavortext": "可以在战斗中保护身体的装备。",
+  "helmet": "头盔",
+  "helmet_flavortext": "可以在战斗中保护身体的装备。",
+  "shield": "盾牌",
+  "shield_flavortext": "可以在战斗中保护身体的装备。",
   "vehicle": "载具",
-  "item_vehicle_flavortext": "在凡人和修真者中都很流行的一种兵器。",
+  "vehicle_flavortext": "可以让你前往一些难以徒步的地形。",
 
-  "quest_jade": "玉佩",
-  "quest_jade.description": "一块青色的玉佩，上面刻着两个古代文字。这两个字给你一种非常奇怪的似曾相识的感觉。",
+  "amulet": "项链",
+  "ring": "指环",
+  "belt": "腰带",
+  "talisman": "法宝",
 
   "wood_boat": "舢板",
-  "wood_boat.description": "用三块木板简单拼凑成的木船。可以用它进行短距离的水上航行。",
+  "wood_boat_description": "用三块木板简单拼凑成的木船。可以用它进行短距离的水上航行。",
   "climb_boots": "登山靴",
-  "climb_boots.description": "为了在山峦间攀爬行走而特意打造的靴子。",
+  "climb_boots_description": "为了在山峦间攀爬行走而特意打造的靴子。",
 
   "energy_curse": "煞气",
   "energy_curse_description": "煞气：伴随杀戮而形成的一种气息，吸收后可以增强你在战斗中的咒术攻击。",
@@ -64,5 +76,9 @@
   "energy_poison_description": "瘴气：包含可以对生物造成巨大伤害性的物质的气体，吸收后可以增强你在战斗中的毒术攻击。",
 
   "energy_chaotic": "混沌之气",
-  "energy_chaotic_description": "混沌之气：在天地形成之初便已存在的一种远古气息，吸收后可以增强你在战斗中的攻击。"
+  "energy_chaotic_description": "混沌之气：在天地形成之初便已存在的一种远古气息，吸收后可以增强你在战斗中的攻击。",
+
+  "identify_scroll": "鉴定符",
+  "identify_scroll_description": "鉴定符：右键使用，可以鉴定一件未知物品。",
+  "identify_scroll_flavortext": "一种可以在物品栏中使用的非战斗符箓。"
 }

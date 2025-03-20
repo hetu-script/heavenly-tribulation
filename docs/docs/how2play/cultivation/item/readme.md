@@ -24,7 +24,7 @@
 
 ## 装备类型
 
-equipType 决定了能装备的数量
+category 决定了能装备的数量
 weapon, armor, helmet, boots, vehicle 每种只能装备一个
 amulet 和 talisman 的数量无限制
 

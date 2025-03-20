@@ -87,10 +87,7 @@ flutter:
     - assets/images/battlecard/illustration/
     - assets/images/cultivation/
     - assets/images/cultivation/skill/
-    - assets/images/cultivation/time/
     - assets/images/cg/
-    - assets/images/cg/chapter0/
-    - assets/images/cg/chapter1/
     - assets/images/icon/
     - assets/images/icon/skill/
     - assets/images/icon/status/
@@ -102,30 +99,35 @@ flutter:
     - assets/images/illustration/main/
     - assets/images/illustration/npc/
     - assets/images/illustration/old/
-    - assets/images/illustration/story/
     - assets/images/illustration/young/
     - assets/images/illustration/
     - assets/images/item/
     - assets/images/item/consumable/
     - assets/images/item/material/
-    - assets/images/item/story/
     - assets/images/item/support/
     - assets/images/location/
+    - assets/images/location/card/
     - assets/images/location/city/
     - assets/images/location/site/
     - assets/images/object/
     - assets/images/object/components/
     - assets/images/object/animation/
+    - assets/images/time/
     - assets/images/ui/
     - assets/images/particles/
     - assets/images/particles/clouds/
     - assets/images/particles/rubbles/
+    - assets/images/story/
+    - assets/images/story/cg/
+    - assets/images/story/cg/chapter0/
+    - assets/images/story/cg/chapter1/
+    - assets/images/story/illustration/
+    - assets/images/story/item/
 
     # - assets/locale/en/
     - assets/locale/zh/
 
     - scripts/main/
-    - scripts/main/ai/
     - scripts/main/binding/
     - scripts/main/cardgame/
     - scripts/main/entity/
@@ -133,7 +135,7 @@ flutter:
     - scripts/main/entity/item/
     - scripts/main/entity/location/
     - scripts/main/entity/organization/
-    - scripts/main/interaction/
+    - scripts/main/game/
     - scripts/main/name/
     - scripts/main/name/book/
     - scripts/main/name/character/

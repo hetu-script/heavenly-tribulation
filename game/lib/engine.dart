@@ -1,30 +1,23 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:samsara/samsara.dart';
-import 'ui.dart';
 
-abstract class GameConfig {
-  static String gameTitle = 'Heavenly Tribulation';
-  static ThemeData appTheme = GameUI.darkTheme;
-  static bool showFps = true;
-  static bool isDebugMode = true;
-  static Size screenSize = Size.zero;
-  static double musicVolume = 0.5;
-  static double soundEffectVolume = 0.5;
-  static Map<String, dynamic> modules = {
-    'story': {
-      'enabled': true,
-      'preinclude': true,
-    }
-  };
-}
-
+// TODO: 将读取config挪到GameData中
 final SamsaraEngine engine = SamsaraEngine(
   config: EngineConfig(
-    name: GameConfig.gameTitle,
-    isOnDesktop: true,
-    debugMode: GameConfig.isDebugMode,
-    musicVolume: GameConfig.musicVolume,
-    soundEffectVolume: GameConfig.soundEffectVolume,
-    // cursorAssetPath: 'assets/images/sword.png',
+    name: 'Heavenly Tribulation',
+    desktop: true,
+    debugMode: kDebugMode,
+    musicVolume: 0.5,
+    soundEffectVolume: 0.5,
+    // cursors: {
+    //   'default': 'assets/images/sword.png',
+    // }
+    mods: {
+      'story': {
+        'enabled': true,
+        'preinclude': true,
+      },
+    },
+    showFps: kDebugMode,
   ),
 );

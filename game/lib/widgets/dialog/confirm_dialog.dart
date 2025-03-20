@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_view.dart';
 
 import '../../engine.dart';
-import '../../ui.dart';
+import '../../game/ui.dart';
 
 class ConfirmDialog extends StatelessWidget {
   static Future<bool?> show({
@@ -30,12 +30,12 @@ class ConfirmDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
+      color: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       child: SizedBox(
         width: 300,
         height: 240,
         child: Scaffold(
-          backgroundColor: GameUI.backgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(engine.locale('confirmOperation')),

@@ -19,16 +19,27 @@ enum HoverInfoDirection {
   bottomRight,
 }
 
+enum HoverType {
+  general,
+  player,
+  npc,
+  customer,
+  merchant,
+}
+
 class HoverInfoContent {
-  final dynamic data;
+  final dynamic data, data2;
+  final HoverType type;
   final Rect rect;
   final double maxWidth;
   final HoverInfoDirection direction;
   final TextAlign textAlign;
 
   HoverInfoContent({
-    required this.data,
     required this.rect,
+    required this.data,
+    this.data2,
+    this.type = HoverType.general,
     this.maxWidth = kHoverInfoMaxWidth,
     this.direction = HoverInfoDirection.bottomCenter,
     this.textAlign = TextAlign.center,
@@ -42,6 +53,10 @@ class HoverInfoContentState extends ChangeNotifier {
   void set(
     dynamic data,
     Rect rect, {
+    dynamic data2,
+    // 如果isMerchant为false,data2可能是角色数据
+    // 否则，data2可能是物品售价影响因子数据
+    HoverType type = HoverType.general,
     double maxWidth = kHoverInfoMaxWidth,
     HoverInfoDirection direction = HoverInfoDirection.bottomCenter,
     TextAlign textAlign = TextAlign.center,
@@ -51,8 +66,10 @@ class HoverInfoContentState extends ChangeNotifier {
     }
 
     content = HoverInfoContent(
-      data: data,
       rect: rect,
+      data: data,
+      data2: data2,
+      type: type,
       maxWidth: maxWidth,
       direction: direction,
       textAlign: textAlign,

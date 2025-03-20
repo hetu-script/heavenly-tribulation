@@ -1,5 +1,5 @@
 import '../name/zone.ht'
-import '../game.ht'
+import '../game/data.ht'
 import '../entity/location/location.ht'
 import '../entity/character/character.ht'
 import '../entity/organization/organization.ht'
@@ -8,7 +8,7 @@ import '../world/zone.ht'
 import '../world/tile/tilemap.ht'
 import '../entity/entity.ht'
 import '../datetime.ht' as datetime
-import '../update.ht'
+import '../game/logic.ht'
 import 'generation_algorithm.ht'
 import 'tile/common.ht'
 import '../dialog.ht'
@@ -34,8 +34,9 @@ const _kMinZoneSizeOfIsland = 8
 const _kForestThreshold = 0.5
 const _kMountainThreshold = 0.2
 
-const _kCharacterMarriageAgeMin = 15
+const _kAdultAge = 15
 const _kPregnancyAgeMax = 50
+const _kChildrenMax = 3
 
 const _kLocationInitialDevelopmentMax = 4
 
@@ -82,11 +83,13 @@ function createSandboxWorld({
     terrainSpriteSheet = 'fantasyhextiles_v3_borderless.png',
     worldScale = _kDefaultWorldScale,
     nationNumber = _kDefaultNationNumber,
-    locationNumber = _kDefaultLocationNumber,    characterNumber = _kDefaultCharacterNumber,
+    locationNumber = _kDefaultLocationNumber,
+    characterNumber = _kDefaultCharacterNumber,
     // landProportion = 0.55,
   }) {
   assert(id != null)
   assert(seedString is string && seedString.isNotEmpty)
+  assert(locationNumber > nationNumber)
   // assert(cultivationOrganizationNumber < locationNumber)
   // assert(cultivationOrganizationNumber < characterNumber)
   // assert(tradinghouseOrganizationNumber < locationNumber)
@@ -111,7 +114,7 @@ function createSandboxWorld({
   )
 
   newWorld.isMainWorld = isMainWorld
-  newWorld.name = name ?? generateZoneName(category: 'world').name
+  newWorld.name = name ?? generateZoneName(category: 'world')
   
   addWorld(newWorld)
 
@@ -133,7 +136,7 @@ function createSandboxWorld({
   // const voidZone = Zone(category: kZoneEmpty)
 
   // 生成地域
-  engine.debug('生成地图块')
+  engine.debug('生成大陆')
   generateContinent(width, height, seed: seed, style: style)
 
   // 根据相邻的格子的地域，分配地域索引
@@ -177,7 +180,6 @@ function createSandboxWorld({
   }
 
   let unzonedTile
-  engine.debug('开始生成地域')
   while (
     unzonedTile = world.terrains.firstWhere((tile) => tile.zoneId == null)
   ) {
@@ -192,22 +194,20 @@ function createSandboxWorld({
     let secondNearest
     let secondNearestDistance
     for (const location of world.locations) {
-      if (location.terrainIndex == origin.terrainIndex) {
-        continue
-      } else {
-        const start = world.terrains[origin.terrainIndex]
-        const end = world.terrains[location.terrainIndex]
-        const distance = getTileDistance(start, end)
-        if (!restricted2Zone || location.zoneId == origin.zoneId) {
-          if (nearestDistance == null || distance < nearestDistance) {
-            nearestDistance = distance
-            nearest = location
-          } else if (secondNearestDistance == null || distance < secondNearestDistance) {
-            secondNearestDistance = distance
-            secondNearest = location
-          } else {
-            continue
-          }
+      if (location.category != 'city') continue
+      if (location.terrainIndex == origin.terrainIndex) continue
+      const start = world.terrains[origin.terrainIndex]
+      const end = world.terrains[location.terrainIndex]
+      const distance = getTileDistance(start, end)
+      if (!restricted2Zone || location.zoneId == origin.zoneId) {
+        if (nearestDistance == null || distance < nearestDistance) {
+          nearestDistance = distance
+          nearest = location
+        } else if (secondNearestDistance == null || distance < secondNearestDistance) {
+          secondNearestDistance = distance
+          secondNearest = location
+        } else {
+          continue
         }
       }
     }
@@ -255,8 +255,8 @@ function createSandboxWorld({
 
   // 生成据点
   engine.debug('生成大陆上的据点')
-  const locationIndexes = Set()
-  while (world.locations.length < locationNumber) {
+  final locations = []
+  while (locations.length < locationNumber) {
     // let index
     let terrain
     do {
@@ -265,12 +265,14 @@ function createSandboxWorld({
       // index = random.nextInt(world.terrains.length)
       // terrain = world.terrains[index]
     } while (terrain.locationId != null)
-    // location category 有四种：城市、港口、山峰（洞天）和岛屿（福地），后两者为隐藏据点
+    // city kind 有四种：城市、港口、山峰（洞天）和岛屿（福地），后两者为隐藏据点
     const location = Location(
-      terrain: terrain,
-      category: terrain.isShore ? kLocationKindHarbor : kLocationKindCity,
+      category: 'city',
+      kind: terrain.isShore ? kLocationKindHarborCity : kLocationKindInlandCity,
+      atTerrain: terrain,
+      updateWorldMap: false,
     )
-    locationIndexes.add(terrain.index)
+    locations.add(location)
     
     // 随机生成的据点，初始发展度是0-3之间随机。
     location.development = random.nextInt(_kLocationInitialDevelopmentMax)
@@ -282,7 +284,7 @@ function createSandboxWorld({
     // 随机为据点添加一些初始建筑和对应的物品
     // 初始时、根据发展度，可能会有交易所（1）、拍卖行（2）
     if (location.development > 0 && random.nextDouble() < _kSiteTradinghouseProbability) {
-      const site = Location(category: 'site', kind: kSiteTradingHouse, atLocation: location)
+      const site = Location(category: 'site', kind: kLocationKindTradingHouse, atLocation: location)
       // site.money = _kNpcStoreInitialMoney + random.nextInt(_kNpcStoreInitialMoney)
       // const money = _kNpcStoreInitialMoney + random.nextInt(_kNpcStoreInitialMoney)
       // acquireMoney(site, money)
@@ -296,7 +298,7 @@ function createSandboxWorld({
       // acquire(site, Material.ore(), count: 20)
     }
     if (location.development > 1 && random.nextDouble() < _kSiteWorkshopProbability) {
-      const site = Location(category: 'site', kind: kSiteAuctionHouse, atLocation: location)
+      const site = Location(category: 'site', kind: kLocationKindAuctionHouse, atLocation: location)
       // site.money += _kNpcStoreInitialMoney + random.nextInt(_kNpcStoreInitialMoney)
       // // 武器、盾牌
       // acquire(site, Weapon())
@@ -314,6 +316,7 @@ function createSandboxWorld({
 
   engine.debug('确保陆地上的每个城市至少可以链接到另外两个城市')
   for (const location of world.locations) {
+    if (location.category != 'city') continue
     const start = world.terrains[location.terrainIndex]
     // 确保陆地上的每个城市至少可以链接到另外两个城市
     if (start.zoneCategory == kZoneLand) {
@@ -345,7 +348,7 @@ function createSandboxWorld({
 
   // 因为 zone 的名字和其大小有关，因此在最后在才命名和赋值 category/kind
   engine.debug('为地域命名')
-  for (const zone in world.zones.values) {
+  for (const zone of world.zones) {
     assert(zone.name == 'unnamed')
     // kZoneSea & kZoneLand 只是临时类型，现在替换为具体的类型
     if (zone.category == kZoneSea) {
@@ -400,64 +403,54 @@ function createSandboxWorld({
       }
     }
 
-    const randomName = generateZoneName(category: zone.category)
-    zone.name = randomName.name
+    zone.name = generateZoneName(category: zone.category)
   }
 
   const nations = []
   // 随机挑选几个城市，作为各个国家的都城，生成地图上的不同国家
   engine.debug('随机挑选几个城市，作为各个国家的都城，生成地图上的不同国家')
   while (nations.length < nationNumber) {
-    let location
-    do {
-      // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
-      const locationId = random.nextIterable(world.locations.keys)
-      location = world.locations[locationId]
-    } while (location.organizationId != null)
-    // engine.debug('picking location for new nation capital: ${location}')
-    const head = Character(
-      birthTimestamp: createRandomBirthTimestamp(min: 40, max: 70),
-       // 年龄至少是20岁
-    )
+    let availableLocations = world.locations.values.where((data) => data.category == 'city' && data.organizationId == null).toList()
+    assert(availableLocations.isNotEmpty)
+    const location = random.nextIterable(availableLocations)
+    const head = Character(birthTimestamp: createBirthTimestamp(min: 40, max: 70))
     head.locationId = location.id
+    assert(location.worldPosition != null)
+    head.worldPosition = Object.create(location.worldPosition)
     const organization = Organization(
       headquartersId: location.id,
       headId: head.id,
-      category: 'nation',
     )
     nations.add(organization)
   }
 
-  // 随机生成每个组织的创建时间，分布在20年的范围内，时间固定为某月1号
-
-  function findHead {
-    let head
-    if (game.characters.length == 0) {
-      // 人物列表是空的，此时要创造第一个角色
-      head = Character(
-        birthTimestamp: createRandomBirthTimestamp(min: 20), // 年龄至少是20岁
-      )
-    } else {
-      let found = false
-      for (const id in random.shuffle(game.characters.keys)) {
-        const character = game.characters[id]
-        const age = datetime.toYear(game.timestamp - character.birthTimestamp)
-        // 年龄至少是20岁，并且不能担任其他组织职务
-        if (character.organizationRank < 0 && age >= 20) {
-          found = true
-          head = character
-          break
-        }
-      }
-      if (!found) {
-        // 没有找到合适的人，则立刻创建一个
-        head = Character(
-          birthTimestamp: createRandomBirthTimestamp(min: 20), // 年龄至少是20岁
-        )
-      }
-    }
-    return head
-  }
+  // function findHead {
+  //   let head
+  //   if (game.characters.length == 0) {
+  //     // 人物列表是空的，此时要创造第一个角色
+  //     head = Character(
+  //       birthTimestamp: createBirthTimestamp(min: 20), // 年龄至少是20岁
+  //     )
+  //   } else {
+  //     let found = false
+  //     for (const id in random.shuffle(game.characters.keys)) {
+  //       const character = game.characters[id]
+  //       const age = datetime.toYear(game.timestamp - character.birthTimestamp)
+  //       // 年龄至少是20岁，并且不能担任其他组织职务
+  //       if (character.jobRank.isEmpty && age >= 20) {
+  //         found = true
+  //         head = character
+  //         break
+  //       }
+  //     }
+  //     if (!found) {
+  //       // 没有找到合适的人，则立刻创建一个
+  //       // 年龄至少是20岁
+  //       head = Character(birthTimestamp: createBirthTimestamp(min: 20))
+  //     }
+  //   }
+  //   return head
+  // }
 
   // 修真门派
   // let createdCultivationOrganizationCount = 0
@@ -482,7 +475,7 @@ function createSandboxWorld({
   // 因为是模拟运行，每个tick接跳过一个月
   engine.debug('快速模拟一段时间的演化，生成人物、组织、国家等信息')
   // const islands = Set() // 用来保存在这一步骤才生成的隐居岛屿的门派据点
-  do {
+  while (game.characters.length < characterNumber) {
   //   if (createdCultivationOrganizationCount < cultivationOrganizationNumber) {
   //     if (game.timestamp >= cultivationOrganizationCreatedDate.last) {
   //       // 组织数量不够，在来到下一个组织创建时间时，创建组织
@@ -571,127 +564,166 @@ function createSandboxWorld({
     // 婴儿出生
     handleBabies()
 
-    // 每年一次
-    if (game.timestamp % kTicksPerYear == 0) {
-      // 产生新的在野角色
-      if (game.characters.length < characterNumber) {
-        // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
-        const id = random.nextIterable(world.locations.keys)
-        const location = world.locations[id]
-        const character = Character(
-          locationId: location.id,
-          birthTimestamp: createRandomBirthTimestamp(min: 15, max: 50),
-        )
+    // 产生新的在野角色
+    if (game.characters.length < characterNumber) {
+      // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
+      const id = random.nextIterable(world.locations.keys)
+      const location = world.locations[id]
+      const character = Character(
+        locationId: location.id,
+        birthTimestamp: createBirthTimestamp(min: 15, max: 50),
+      )
+    }
+
+    // 国家和组织扩张
+    for (const organization of game.organizations) {
+      engine.debug('组织 ${organization.id} 尝试扩张新领土')
+      if (organization.borderIndexes.isNotEmpty) {
+        const shuffle = random.shuffle(organization.borderIndexes).toList()
+        for (const index in shuffle) {
+          const terrain = world.terrains[index]
+          if (terrain.nationId == null && !kWaterTileKinds.contains(terrain.kind)) {
+            // engine.debug('国家 ${organization.id} 将其疆域扩展到周边的一个未被占领的格子 ${terrain.left},${terrain.top}')
+            addTerrainToOrganization(terrain, organization)
+            break
+          }
+        }
       }
 
-      // 国家和组织扩张
-      for (const id in random.shuffle(game.organizations.keys)) {
-        const organization = game.organizations[id]
-        updateOrganizationYearly(organization)
-      }
+      if (organizationMemberReachMax(organization)) {
+        if (organization.development < kOrganizationDevelopmentMax) {
+          // engine.debug('提升组织发展度')
+          increaseOrganizationDevelopment(organization)
+        }
+      } else {
+        engine.debug('组织 ${organization.id} 尝试招募新成员')
       
-      // 为角色添加家庭关系
-      // engine.debug('为角色添加家庭关系')
-      for (const id in random.shuffle(game.characters.keys)) {
-        const char = game.characters[id]
-        const age = getCharacterAge(char)
-        if (char.relationships.spouseId) {
-          if (char.isFemale && !char.isPregnant && age < _kPregnancyAgeMax) {
-            if (char.thinkings.contains('dink')) continue
-            if (char.thinkings.contains('clumsy')) continue
-            if (char.relationships.childrenIds.isNotEmpty) {
-              if (char.personality.social < 10) continue
-              if (char.personality.prudence > 10) continue
-              if (char.personality.frugal > 10) continue
-              if (char.relationships.childrenIds.length > 2) {
-                continue
+        let location = world.locations[organization.headquartersId]
+        let residingCharacters = getResidingCharacters(location)
+
+        if (residingCharacters.isEmpty) {
+          // 组织据点本身没有可用的人才（一般是因为是隐士据点）
+          if (random.nextDouble() < kOrganizationRecruitOtherLocationProbability) {
+            for (const otherLocation of world.locations) {
+              if (location.category != 'city') continue
+              if (otherLocation.id == organization.headquartersId) continue
+              residingCharacters = getResidingCharacters(otherLocation)
+              if (residingCharacters.isNotEmpty) {
+                break
               }
             }
-            const spouse = game.characters[char.relationships.spouseId]
-            if (spouse.thinkings.contains('dink')) continue
-            if (spouse.thinkings.contains('clumsy')) continue
-            Baby(
-              father: spouse,
-              mother: char,
-              conceptionTimestamp: game.timestamp,
-            )
           }
-        } else {
-          if (age > _kCharacterMarriageAgeMin) {
-            for (const otherId in random.shuffle(game.characters.keys)) {
-              if (id == otherId) continue
-              const otherChar = game.characters[otherId]
-              if (otherChar.isFemale == char.isFemale) continue
-              const otherCharAge = getCharacterAge(otherChar)
-              if (otherCharAge > _kCharacterMarriageAgeMin
-                  && otherChar.relationships.spouseId == null) {
-                characterFirstMet(char, otherChar)
-                let home
-                if (char.organizationRank < otherChar.organizationRank) {
-                  home = world.locations[char.homeId]
-                } else if (char.organizationRank > otherChar.organizationRank) {
-                  home = world.locations[otherChar.homeId]
-                } else {
-                  if (otherChar.isFemale) {
-                    home = world.locations[char.homeId]
-                  } else {
-                    home = world.locations[otherChar.homeId]
-                  }
-                }
-                char.relationships.spouseId = otherId
-                otherChar.relationships.spouseId = id
-                updateCharacterRelationship(char, otherChar)
-                const incidentContent = engine.locale('characterMarriage', interpolations: [
-                    char.name,
-                    otherChar.name,
-                    home.name,
-                  ])
-                Incident(
-                  message: incidentContent,
-                  subjectId: char.isFemale ? otherChar.id : char.id,
-                  objectId: char.isFemale ? char.id : otherChar.id,
-                  locationId: home.id,
-                  order: 20,
-                )
-                char.marriageTimestamp = game.timestamp
-                otherChar.marriageTimestamp = game.timestamp
+        }
+
+        // 有可能循环到最后所有的据点都没有人，所以这里的判断没有和上一条合并
+        if (residingCharacters.isNotEmpty) {
+          if (random.nextDouble() < kOrganizationRecruitSuccessProbability) {
+            for (let character in random.shuffle(residingCharacters)) {
+              if (character.organizationId == null) {
+                addCharacterToOrganization(character, organization)
                 break
               }
             }
           }
         }
       }
+
+      // 从最低等级开始，尝试提升成员等级
+      // for (const rank in range(kOrganizationRankMax)) {
+      //   const membersOfThisRank = getOrganizationMemberIdsOfRank(organization, rank)
+      //   const membersOfHigherRank = getOrganizationMemberIdsOfRank(organization, rank + 1)
+      //   if (membersOfThisRank.length >= maxMemberOfRank(rank)) {
+      //     if (membersOfHigherRank.length < maxMemberOfRank(rank + 1)) {
+      //       const memberId = random.nextIterable(membersOfThisRank)
+      //       const member = game.characters[memberId]
+      //       addOrganizationTitleForCharacter(member, organization, rank + 1)
+      //       break
+      //     }
+      //   }
+      // }
+    }
+    
+    engine.debug('通过婚姻和生育产生新的角色以及其人物关系')
+    for (const char of game.characters) {
+      if (!char.isFemale) continue
+      const age = getCharacterAge(char)
+      if (age < _kAdultAge || age > _kPregnancyAgeMax) continue
+      if (char.isPregnant) continue
+      if (char.motivations.contains('dink')) continue
+      let spouseId = firstSpouse(char)
+      if (spouseId != null) {
+        const spouse = game.characters[spouseId]
+        if (spouse.motivations.contains('dink')) continue
+        final childrenCount = hasChild(char)
+        if (childrenCount >= _kChildrenMax) continue
+        Baby(father: spouse, mother: char)
+      } else {
+        if (char.motivations.contains('celibate')) continue
+        
+        for (const otherChar of game.characters) {
+          if (char.id == otherChar.id) continue
+          if (otherChar.isFemale) continue
+          if (getCharacterAge(otherChar) < _kAdultAge) continue
+          if (hasSpouse(otherChar)) continue
+
+          characterMet(char, otherChar)
+          // final home = world.locations[character.homeLocationId]
+          // assert(home != null)
+          createSpouse(otherChar, char)
+
+          break
+        }
+      }
     }
 
     // 因为是模拟运行，时间直接以月为单位流逝
     game.timestamp += kTicksPerMonth
-  } while (
-    game.characters.length < characterNumber
-    // || createdCultivationOrganizationCount < cultivationOrganizationNumber
-  )
+  }
 
   // 为生成的世界填充一些必要信息
 
-  // 为角色添加次要动机
-  for (const id in random.shuffle(game.characters.keys)) {
-    const char = game.characters[id]
+  engine.debug('为角色添加次要动机')
+  for (const char of game.characters) {
     const age = getCharacterAge(char)
-    if (char.organizationId == null) {
-      char.motivations.add('recruitment')
-    } else if (char.relationships.friendIds.isEmpty) {
-      char.motivations.add('friendship')
-    } else if (char.relationships.spouseId == null && age > _kCharacterMarriageAgeMin) {
-      char.motivations.add('marriage')
-    } else if (char.relationships.childrenIds.isEmpty) {
-      char.motivations.add('child')
+    if (char.motivations.isNotEmpty) continue
+    
+    if (char.relationships.sect.isEmpty) {
+      if (!char.motivations.contains['shifu']) {
+        char.motivations.add('shifu')
+        continue
+      }
+    }
+    
+    if (char.relationships.friendship.isEmpty) {
+      if (!char.motivations.contains['friendship']) {
+        char.motivations.add('friendship')
+        continue
+      }
+    }
+    
+    if (char.relationships.romance.isEmpty) {
+      if (!char.motivations.contains['romance']) {
+        char.motivations.add('romance')
+        continue
+      }
+    }
+    
+    if (!hasSpouse(char)) {
+      if (age >= _kAdultAge && !char.motivations.contains['spouse']) {
+        char.motivations.add('spouse')
+        continue
+      }
+    }
+    
+    if (!hasChild(char)) {
+      if (age >= _kAdultAge && !char.motivations.contains['child']) {
+        char.motivations.add('child')
+      }
     }
   }
 
-  // 在不改变时间的情况下刷新一下世界事件
-  updateGame(timeflow: false, playerEvent: false)
-
-  // 将地域的上色信息复制到引擎侧
-  engine.debug('刷新世界地图上色信息')
+  // 在不改变时间，不触发引擎事件和模组事件的情况下刷新世界事件
+  updateGame(timeflow: false, engineEvent: false, moduleEvent: false)
 
   // engine.debug('世界生成完毕。重置随机数生成器。')
   // setRandomSeed()

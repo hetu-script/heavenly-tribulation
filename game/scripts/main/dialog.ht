@@ -1,60 +1,71 @@
 import 'entity/character/character.ht'
 import 'util.ht'
-import 'game.ht'
+import 'game/data.ht'
 
 /// 加载到本次游戏的对话资源
 let gDialogs = {}
 
-struct DialogContentData {
-  constructor({
+namespace Dialog {
+
+  // 对应 GameDialogContent 的接口，这种对话框会以模态的形式显示在游戏界面上
+
+  // 对应 GameDialogState 的接口，不会阻断浮窗和装备栏等其他UI
+  
+  /// 执行对话，当执行结束时，所有场景、角色和对话数据都会被清理
+  external async function execute()
+  
+  external function _pushDialog(dialogData, {image})
+
+  external function pushImage(image: string, { offsetX: float = 0.0, offsetY: float = 0.0})
+
+  external function popImage({image: string})
+
+  external function pushBackground(image: string, {isFadeIn: bool = false})
+
+  external function popBackground({isFadeOut: bool = false})
+
+  external function pushTask(task: function, {flagId: string})
+
+  /// 这个函数会解析参数并最终生成显示用的名字、头像、插画和对话内容
+  /// 此函数不能是async的
+  function pushLocales(localeKeys, {
     character,
     characterId,
+    isHero: bool,
     displayNameId,
     displayName,
-    icon,
-    isHero: bool,
     hideName: bool,
+    icon,
     hideIcon: bool,
-    localeKeys,
-    lines,
+    image,
+    hideImage: bool,
     interpolations,
-  }) {
-    if (characterId || character) {
-      assert(hero != null)
-      character ??= game.characters[characterId]
-      let heroHaveMetChar = false
-      if (character != null) {
-        heroHaveMetChar = haveMet(hero, character)
-      }
-      
-      if (hideName) {
-        this.displayName = '???'
-      } else {
+  }) -> Future {
+    character ??= isHero ? hero : game.characters[characterId]
+    icon ??= hideIcon ? null : character?.icon
+    image ??= hideImage ? null : character?.illustration
+    
+    if (isHero) {
+      displayName ??= hideName ? '???' : engine.locale('me')
+    } else {
+      if (displayName == null) {
         if (displayNameId != null) {
-          this.displayName = engine.locale(displayNameId)
-        } else if (displayName != null) {
-          this.displayName = displayName
-        } else if (heroHaveMetChar) {
-          if (character.titleId != null) {
-            this.displayName = engine.locale(character.titleId)
-          } else {
-            this.displayName = character.name
+          displayName = engine.locale(displayNameId)
+        } else {
+          if (character != null) {
+            let heroHaveMetChar = haveMet(hero, character)
+            if (hideName || !heroHaveMetChar) {
+              if (character.titleId != null) {
+                displayName = engine.locale(character.titleId)
+              } else {
+                displayName = '???'
+              }
+            } else {
+              displayName = character.name
+            }
           }
         }
       }
-      
-      this.icon = hideIcon ? null : (icon ?? character?.icon)
-    }
-    else if (isHero) {
-      assert(hero != null)
-      this.characterId = hero.id
-      this.displayName = hideName ? '???' :
-        (displayNameId ? engine.locale(displayNameId) :
-        (displayName ?? engine.locale('me')))
-      this.icon = hideIcon ? null : icon ?? hero.icon
-    } else {
-      this.displayName = displayNameId ? engine.locale(displayNameId) : displayName
-      this.icon = icon
     }
     
     let strings
@@ -70,93 +81,24 @@ struct DialogContentData {
       assert(lines is string)
       strings = [interpolate(line, interpolations)]
     }
-    this.lines = []
+    let lines = []
     for (const message in strings) {
       const splits = message.split('\n')
       for (final split in splits) {
         final trim = split.trim()
         if (trim.isNotEmpty) {
-          this.lines.add(trim)
+          lines.add(trim)
         }
       }
     }
-  }
-}
 
-namespace Dialog {
-
-  // 对应 GameDialogContent 的接口，这种对话框会以模态的形式显示在游戏界面上
-
-  
-
-  // 对应 GameDialogState 的接口，不会阻断浮窗和装备栏等其他UI
-  
-  /// 执行对话，当执行结束时，所有场景、角色和对话数据都会被清理
-  external async function execute()
-  
-  external function _pushDialog(data)
-
-  external function pushImage(image: string, { offsetX: float = 0.0, offsetY: float = 0.0})
-
-  external function popImage({image: string})
-
-  external function pushBackground(image: string, {isFadeIn: bool = false})
-
-  external function popBackground({isFadeOut: bool = false})
-
-  external function pushTask(task: function, {flagId: string})
-
-  function pushLocales(localeKeys, {
-    character,
-    characterId,
-    displayNameId,
-    displayName,
-    icon,
-    isHero: bool,
-    hideName: bool,
-    hideIcon: bool,
-    interpolations,
-    returnValue,
-  }) -> Future {
-    return _pushDialog(DialogContentData(
-      localeKeys: localeKeys,
-      character: character,
-      characterId: characterId,
-      displayNameId: displayNameId,
+    return _pushDialog({
       displayName: displayName,
       icon: icon,
-      isHero: isHero,
-      hideName: hideName,
-      hideIcon: hideIcon,
-      interpolations: interpolations,
-    ))
+      image: image,
+      lines: lines,
+    })
   }
-
-  // function pushLines(lines, {
-  //   isHero,
-  //   character,
-  //   characterId,
-  //   displayNameId,
-  //   displayName,
-  //   icon,
-  //   hideName,
-  //   hideIcon,
-  //   interpolations,
-  //   returnValue,
-  // }) -> Future {
-  //   return _pushDialog(DialogContentData(
-  //     lines: lines,
-  //     isHero: isHero,
-  //     character: character,
-  //     characterId: characterId,
-  //     displayNameId: displayNameId,
-  //     displayName: displayName,
-  //     icon: icon,
-  //     hideName: hideName,
-  //     hideIcon: hideIcon,
-  //     interpolations: interpolations,
-  //   ))
-  // }
 
   /// selection 对话框的 data 数据结构：
   /// {
@@ -167,75 +109,16 @@ namespace Dialog {
   ///     ...
   ///   } 
   /// }
-  external function pushSelection(data)
+  external function pushSelection(selectionsData)
 
   // 虽然返回值是future，但这个函数不能设为 async，否则会打乱Dialog的执行顺序
   function pushLocalesSelection(id, locales: List) {
     final selections = {}
-    selections
     for (final key in locales) {
       selections[key] = engine.locale(key)
     }
     return pushSelection({ id: id, selections: selections })
   }
 
-  external function checkSelected(data)
-
-  external function _selectCharacter(context, title, ids, showCloseButton)
-
-  external function _selectResidence(context, idList, { hideHero: bool })
-
-  external function _merchant(context, merchant, priceFactor, allowSell, sellableCategory, sellableKind)
-
-  external function _quests(context, site)
-
-  external function _maze(context, maze)
-
-  external function _progress(context, titletitle, checkProgress)
-
-  external function _inputInteger(context, title, min, max)
-
-  function selectCharacter({title, ids, showCloseButton = true}) -> Future {
-    return _selectCharacter(ctx, title, ids, showCloseButton)
-  }
-
-  function selectResidence(idList) -> Future {
-    return _selectResidence(ctx, idList)
-  }
-
-  function merchant(merchant, {
-    priceFactor = 2.0,
-    allowSell = true,
-    sellableCategory = [],
-    sellableKind = [],
-  }) -> Future {
-    return _merchant(
-      buildContext,
-      merchant,
-      priceFactor,
-      allowSell,
-      sellableCategory,
-      sellableKind,
-    )
-  }
-
-  function quests(site) -> Future {
-    return _quests(ctx, site)
-  }
-
-  // 显示一个进度窗口，以天为单位显示动画，每天会调用传入的 checkProgress 函数的返回值来判断是否继续下一天
-  function progress(title, { checkProgress: function }) {
-    return _progress(ctx, title, checkProgress)
-  }
-
-  function inputInteger(title, minOrMax, [max]) {
-    let min = 1
-    if (max == null) {
-      max = minOrMax
-    } else {
-      min = minOrMax
-    }
-    assert(min <= max)
-    return _inputInteger(ctx, title, min, max)
-  }
+  external function checkSelected(selectionsValue)
 }

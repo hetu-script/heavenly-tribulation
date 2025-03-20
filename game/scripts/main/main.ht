@@ -10,9 +10,9 @@ export 'entity/item/item.ht'
 export 'entity/item/material.ht'
 export 'entity/location/location.ht'
 export 'entity/organization/organization.ht'
-export 'interaction/common.ht'
-export 'interaction/interaction.ht'
-export 'interaction/item.ht'
+export 'game/data.ht'
+export 'game/logic.ht'
+export 'game/game.ht'
 export 'name/name.ht'
 export 'world/tile/common.ht'
 export 'world/tile/tilemap.ht'
@@ -26,25 +26,20 @@ export 'debug.ht'
 export 'dialog.ht'
 export 'quest.ht'
 export 'event.ht'
-export 'game.ht'
 export 'random.ht'
-export 'update.ht'
 export 'util.ht'
 export 'player.ht'
 export 'common.ht'
-export 'system.ht'
 
-const module = {
-  meta: {
-    id: 'main',
-    displayName: '《天道奇劫》核心脚本',
-    description: '《天道奇劫》核心脚本',
-    supportedLocales: ['zh'],
-    version: '0.0.1',
-    flags: {
-      
-    }
-  },
+// 这里的数据会被添加到game.mods上，并序列化为字符串进入存档
+// 在游戏每次运行时，会重新将函数绑定到这个对象上
+const coreModule = {
+  id: 'main',
+  displayName: '《天道奇劫》核心脚本',
+  description: '《天道奇劫》核心脚本',
+  supportedLocales: ['zh'],
+  version: '0.0.1',
+  flags: {}
 }
 
 /// Initialize the core script module.
@@ -55,108 +50,95 @@ function init({
   battleCardAffixesData,
   passivesData,
 }) {
-  engine.debug('游戏脚本模块 [${module.meta.id}(ver-${module.meta.version})] 初始化...')
+  engine.debug('游戏脚本模块 [${coreModule.id}(ver-${coreModule.version})] 初始化...')
 
-  addModule(module.meta)
-  
-  // 添加材料类物品信息
-  // for (let kind in kMaterialKinds) {
-  //   game.items[kind] = MaterialPack(kind)
-  // }
-  // print(kEntityTypeItem)
+  addModuleData(coreModule)
+  addItemPrototypesData(itemsData)
+  addBattleCardsData(battleCardsData)
+  addBattleCardAffixesData(battleCardAffixesData)
+  addPassivesData(passivesData)
 
-  game.items = itemsData
-  engine.debug('载入预定义物品：[${itemsData.length}]')
-  
-  game.battleCards = battleCardsData
-  game.battleCardAffixes = battleCardAffixesData
-  engine.debug('载入战斗卡牌词条：主词条 [${battleCardsData.length}]，额外词条 [${battleCardAffixesData.length}]')
-
-  game.passives = passivesData
-  engine.debug('载入被动技能词条数据：词条 [${passivesData.length}]')
-
-  // 游戏中的任务数据，任务数据在故事模块中载入，这里初始化置空
-  game.quests = {}
+  // 游戏中的任务数据，任务数据在故事模块中载入
 }
 
-function addItemsData(data) {
-  let count = 0
-  for (let item of data) {
-    if (game.items.containsKey(item.id)) {
-      engine.error('预定义物品数据 id 冲突：[${item.id}]')
-      continue
+function addModuleData(mod) {
+  assert(mod.id != null)
+  // assert(game.mods.containsKey(mod.id))
+  // game.mods[mod.id] ??= {}
+  // Object.assign(game.mods[mod.id], mod)
+  game.mods[mod.id] = mod
+  engine.debug('载入模组元信息 [${mod.id}(ver-${mod.version})]')
+}
+
+/// 向 game.itemPrototypes 中添加数据
+function addItemPrototypesData(itemsData) {
+  for (let item of itemsData) {
+    if (game.itemPrototypes.containsKey(item.prototypeId)) {
+      engine.warn('预定义物品数据 id 冲突：[${item.prototypeId}]')
     }
-    ++count
-    game.items[item.id] = item
+    game.itemPrototypes[item.prototypeId] = item
   }
-  engine.debug('载入预定义物品：总数量 [${data.length}]，载入数量 [${count}]')
+  engine.debug('载入预定义物品：[${itemsData.length}]')
 }
 
-function addBattleCardsData(data) {
-  let count = 0
-  for (let card of data) {
+/// 向 game.battleCards 中添加数据
+function addBattleCardsData(cardsData) {
+  for (let card of cardsData) {
     if (game.battleCards.containsKey(card.id)) {
-      engine.error('战斗卡牌主词条数据 id 冲突：[${card.id}]')
-      continue
+      engine.warn('战斗卡牌主词条数据 id 冲突：[${card.id}]')
     }
-    ++count
     game.battleCards[card.id] = card
   }
-  engine.debug('载入战斗卡牌主词条：总数量 [${data.length}]，载入数量 [${count}]')
+  engine.debug('载入战斗卡牌主词条：[${cardsData.length}]')
 }
 
-function addBattleCardAffixesData(data) {
-  let count = 0
-  for (let affix of data) {
+/// 向 game.battleCardAffixes 中添加数据
+function addBattleCardAffixesData(affixesData) {
+  for (let affix of affixesData) {
     if (game.battleCardAffixes.containsKey(affix.id)) {
-      engine.error('战斗卡牌额外词条数据 id 冲突：[${affix.id}]')
-      continue
+      engine.warn('战斗卡牌额外词条数据 id 冲突：[${affix.id}]')
     }
-    ++count
     game.battleCardAffixes[affix.id] = affix
   }
-  engine.debug('载入战斗卡牌额外词条：总数量 [${data.length}]，载入数量 [${count}]')
+  engine.debug('载入战斗卡牌额外词条：[${affixesData.length}]')
 }
 
-function addPassiveSkillsData(data) {
-  let count = 0
-  for (let skill of data) {
+/// 向 game.passives 中添加数据
+function addPassivesData(passivesData) {
+  for (let skill of passivesData) {
     if (game.passives.containsKey(skill.id)) {
-      engine.error('被动技能词条数据 id 冲突：[${skill.id}]')
-      continue
+      engine.warn('被动技能词条数据 id 冲突：[${skill.id}]')
     }
-    ++count
     game.passives[skill.id] = skill
   }
-  engine.debug('载入被动技能词条：总数量 [${data.length}]，载入数量 [${count}]')
+  engine.debug('载入被动技能词条：[${passivesData.length}]')
 }
 
-function addQuestsData(data) {
-  let count = 0
-  for (let quest of data) {
+/// 向 game.quests 中添加数据
+/// game.quests中保存的是任务原型数据
+/// 实际创建任务时会重新创建，并填入本地化字符串等
+function addQuestsData(questsData) {
+  for (let quest of questsData) {
     if (game.quests.containsKey(quest.id)) {
-      engine.error('任务数据 id 冲突：[${quest.id}]')
-      continue
+      engine.warn('任务数据 id 冲突：[${quest.id}]')
     }
-    ++count
     game.quests[quest.id] = quest
   }
-  engine.debug('载入任务数据：总数量 [${data.length}]，载入数量 [${count}]')
+  engine.debug('载入剧情日志数据：[${questsData.length}]')
 }
 
 /// Run every time game starts
 function main() {
-  engine.debug('游戏脚本模块 [${module.meta.id}(ver-${module.meta.version})] 载入...')
+  engine.debug('游戏脚本模块 [${coreModule.id}(ver-${coreModule.version})] 绑定事件处理函数...')
 
   addEventHandlers(
-    moduleId: module.meta.id,
-    worldId: null,
+    moduleId: coreModule.id,
     handlers: mainEvents,
   )
 
-  addEventHandlers(
-    moduleId: module.meta.id,
-    worldId: 'main',
-    handlers: mapEvents,
-  )
+  // addEventHandlers(
+  //   moduleId: coreModule.id,
+  //   worldId: 'main',
+  //   handlers: mapEvents,
+  // )
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
-import '../ui.dart';
+import '../game/ui.dart';
 
 enum DropdownMenuButtonStyle {
   normal,
@@ -32,7 +32,7 @@ class DropdownMenuButton<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final button = DropdownButton2<T>(
-      style: Theme.of(context).textTheme.titleSmall,
+      style: GameUI.textTheme.bodyMedium,
       hint: hint,
       menuItemStyleData: const MenuItemStyleData(height: 35.0),
       dropdownStyleData: DropdownStyleData(

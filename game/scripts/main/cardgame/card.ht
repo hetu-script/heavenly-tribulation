@@ -8,7 +8,7 @@ struct BattleCard {
     category, // 'attack', 'buff'
     mainAffixId,
     kind, // 'sword',
-    genre, // 'general', 'daoism', 'swordcraft'
+    genre, // 'general', 'spellcraft', 'swordcraft'
     level,
     rank, // 境界决定了额外词条数量
     maxRank,
@@ -17,25 +17,23 @@ struct BattleCard {
     this.entityType = kEntityTypeBattleCard
     assert(rank != null || maxRank != null)
     if (rank != null) {
-      assert(rank >= 0 && rank <= kRankMax)
+      assert(rank >= 0 && rank <= kCultivationRankMax)
       this.rank = rank
     } else if (maxRank != null) {
-      assert(maxRank >= 0 && maxRank <= kRankMax)
+      assert(maxRank >= 0 && maxRank <= kCultivationRankMax)
       this.rank = random.nearInt(maxRank + 1)
     } else {
       this.rank = 0
     }
     
-    final minLevel = minLevelPerRank(rank)
-    final maxLevel = maxLevelPerRank(rank)
+    this.minLevel = minLevelPerRank(rank)
+    this.maxLevel = maxLevelPerRank(rank)
     if (level == null) {
-      level = minLevel + random.nearInt(maxLevel - minLevel + 1)
+      level = this.minLevel + random.distantInt(this.maxLevel - this.minLevel)
     } else {
-      if (level < minLevel) level = minLevel
-      if (level > maxLevel) level = maxLevel
+      if (level < this.minLevel) level = this.minLevel
+      if (level > this.maxLevel) level = this.maxLevel
     }
-    this.minLevel = minLevel
-    this.maxLevel = maxLevel
     this.level = level
 
     this.id = crypto.randomUID(length: 4, withTime: true)
@@ -109,7 +107,7 @@ struct BattleCard {
 
 function _getSupportAffixes(card) {
   let affixes = []
-  for (final affix in game.battleCardAffixes.values) {
+  for (final affix of game.battleCardAffixes) {
     assert(affix.uniqueId != null)
     assert(affix.category is List)
     if (affix.genre && affix.genre != card.genre) {
@@ -220,12 +218,12 @@ function _updateAffixUniqueIds(card) {
 }
 
 function _addExtraAffixes(card) {
-  let affixCount = getMinMaxExtraAffixCount(card.rank)
+  let affixCountInfo = getMinMaxExtraAffixCount(card.rank)
 
   // 计算额外词条数量
-  let extraAffixCount = affixCount.minExtra
-  if (affixCount.maxExtra == 0) return
-  if (extraAffixCount < affixCount.maxExtra) {
+  let extraAffixCount = affixCountInfo.minExtra
+  if (affixCountInfo.maxExtra == 0) return
+  if (extraAffixCount < affixCountInfo.maxExtra) {
     let r = random.nextDouble()
     if (r >= 0.15) {
       ++extraAffixCount
@@ -339,7 +337,7 @@ function upgradeCard(card) {
 }
 
 function upgradeRank(card) {
-  if (card.rank == kRankMax) {
+  if (card.rank == kCultivationRankMax) {
     return 'deckbuilding_upgradeRank_warning_maxRank'
   }
   
@@ -373,7 +371,7 @@ function upgradeRank(card) {
   return null
 }
 
-/// 卡牌包是一种物品，每个卡牌包包含3张牌
+/// 卡牌包是一种特殊物品，每个卡牌包包含3张牌
 /// 其中一张必然是指定的境界、流派的卡牌，且卡牌等级和角色等级相同
 /// 另外两张则是随机境界、流派和等级的卡牌
 struct Cardpack {
@@ -383,7 +381,7 @@ struct Cardpack {
     kind,
   }) {
     assert(genre == null || genre == 'general' || kCultivationGenres.contains[genre])
-    assert(rank == null || (rank >= 0 && rank <= kRankMax))
+    assert(rank == null || (rank >= 0 && rank <= kCultivationRankMax))
     assert(kind == null || kBattleCardKind.contains(kind))
     this.entityType = kEntityTypeItem
     this.createdTimestamp = game.timestamp
@@ -393,7 +391,7 @@ struct Cardpack {
     this.rank = rank ?? 0
     this.kind = kind
 
-    this.id = crypto.randomNID(withTime: true)
+    this.id = crypto.randomUID(withTime: true)
     this.name = engine.locale('cultivationRank_${this.rank}') + engine.locale('rank2')
     if (genre != null) {
       this.name += engine.locale(genre) + engine.locale('genre')
@@ -404,7 +402,12 @@ struct Cardpack {
     this.name += engine.locale('cardpack')
     this.icon = 'item/cardpack.png'
     
-    this.flavortext = engine.locale('item_cardpack_flavortext')
+    this.flavortext = engine.locale('cardpack_flavortext')
     this.rarity = kRankRarity[this.rank]
+
+    // 秘籍无需鉴定
+    this.isIdentified = true
+
+    calculatePrice(this)
   }
 }

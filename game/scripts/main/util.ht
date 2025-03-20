@@ -1,4 +1,4 @@
-import 'game.ht'
+import 'game/data.ht'
 
 function getChance2Hit(accuracy, evasion) {
   const uncapped = accuracy * 1.15 / (accuracy + Math.pow(evasion * 0.2, 0.9))

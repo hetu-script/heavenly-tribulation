@@ -24,6 +24,7 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
   final _mapHeightEditingController = TextEditingController();
 
   late bool _isMainWorld;
+  bool _useCustomLogic = false;
 
   @override
   void initState() {
@@ -36,6 +37,16 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
     _mapHeightEditingController.text = '12';
 
     _isMainWorld = widget.isCreatingNewGame;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _filaNameEditingController.dispose();
+    _idEditingController.dispose();
+    _mapWidthEditingController.dispose();
+    _mapHeightEditingController.dispose();
   }
 
   @override
@@ -104,15 +115,47 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
                                     Text('${engine.locale('isMainWorld')}: '),
                               ),
                               SizedBox(
-                                width: 150.0,
-                                child: Switch(
-                                  value: _isMainWorld,
-                                  activeColor: Colors.white,
-                                  onChanged: (bool value) {
-                                    setState(() {
-                                      _isMainWorld = value;
-                                    });
-                                  },
+                                width: 50,
+                                height: 30,
+                                child: FittedBox(
+                                  fit: BoxFit.fill,
+                                  child: Switch(
+                                    value: _isMainWorld,
+                                    activeColor: Colors.white,
+                                    onChanged: (bool value) {
+                                      setState(() {
+                                        _isMainWorld = value;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          width: 300,
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 100.0,
+                                child: Text(
+                                    '${engine.locale('useCustomLogic')}: '),
+                              ),
+                              SizedBox(
+                                width: 50,
+                                height: 30,
+                                child: FittedBox(
+                                  fit: BoxFit.fill,
+                                  child: Switch(
+                                    value: _useCustomLogic,
+                                    activeColor: Colors.white,
+                                    onChanged: (bool value) {
+                                      setState(() {
+                                        _useCustomLogic = value;
+                                      });
+                                    },
+                                  ),
                                 ),
                               ),
                             ],
@@ -179,6 +222,7 @@ class _CreateBlankMapDialogState extends State<CreateBlankMapDialog> {
                       'id': _idEditingController.text,
                       'method': 'blank',
                       'isMainWorld': _isMainWorld,
+                      'useCustomLogic': _useCustomLogic,
                       'saveName': _filaNameEditingController.text,
                       'width': int.parse(_mapWidthEditingController.text),
                       'height': int.parse(_mapHeightEditingController.text),

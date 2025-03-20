@@ -6,7 +6,7 @@ import '../../util.dart';
 import '../game_entity_listview.dart';
 import '../character/profile.dart';
 import '../common.dart';
-import '../../ui.dart';
+import '../../game/ui.dart';
 
 const _kInformationViewLocationColumns = [
   'name',

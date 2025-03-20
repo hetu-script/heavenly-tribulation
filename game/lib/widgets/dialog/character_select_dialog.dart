@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:samsara/ui/responsive_view.dart';
 
 import '../../engine.dart';
-import '../../util.dart';
+// import '../../util.dart';
 import '../game_entity_listview.dart';
 import '../character/profile.dart';
 import '../menu_item_builder.dart';
 import '../character/details.dart';
 import '../character/memory.dart';
-import '../../ui.dart';
+import '../../game/ui.dart';
 
 enum SelectCharacterPopUpMenuItems {
   select,
@@ -48,7 +48,7 @@ List<PopupMenuEntry<SelectCharacterPopUpMenuItems>>
 const _kInformationViewCharacterColumns = [
   'name',
   'age',
-  'currentLocation',
+  // 'currentLocation',
   'organization',
   'fame',
   // 'infamy',
@@ -109,10 +109,10 @@ class CharacterSelectDialog extends StatelessWidget {
           engine.hetu.invoke('getCharacterAgeString', positionalArgs: [char]);
       // 年龄
       row.add(age);
-      // 当前所在地点
-      row.add(getNameFromId(char['locationId']));
+      // // 当前所在地点
+      // row.add(getNameFromId(char['locationId']));
       // 门派名字
-      row.add(getNameFromId(char['organizationId'], 'none'));
+      row.add(char['organizationId'] ?? engine.locale('none'));
       final fame =
           engine.hetu.invoke('getCharacterFameString', positionalArgs: [char]);
       // 名声

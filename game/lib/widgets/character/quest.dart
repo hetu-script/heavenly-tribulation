@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:samsara/ui/empty_placeholder.dart';
 // import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:samsara/richtext.dart';
 
 import '../../engine.dart';
-import '../../ui.dart';
+import '../../game/ui.dart';
 import '../common.dart';
 import '../../state/view_panels.dart';
 import '../draggable_panel.dart';
@@ -30,9 +31,7 @@ class CharacterQuest extends StatefulWidget {
 }
 
 class _CharacterQuestState extends State<CharacterQuest> {
-  bool get isEditorMode =>
-      widget.mode == InformationViewMode.edit ||
-      widget.mode == InformationViewMode.create;
+  bool get isEditorMode => widget.mode == InformationViewMode.edit;
 
   dynamic _characterData, _questsData;
 
@@ -61,17 +60,17 @@ class _CharacterQuestState extends State<CharacterQuest> {
 
   Widget _buildQuestDescription(dynamic questData) {
     final List<Widget> descriptions = [];
+    final List progress = questData['progress'];
 
-    final currentStageIndex = questData['currentStageIndex'];
-    for (var i = 0; i < currentStageIndex + 1; ++i) {
+    for (var index in progress) {
       descriptions.add(
-        Text(
-          '${questData['stages'][i]['description']}',
-          style: i < currentStageIndex
-              ? const TextStyle(
-                  decoration: TextDecoration.lineThrough,
-                )
-              : null,
+        RichText(
+          text: TextSpan(
+            children: buildFlutterRichText(
+              '${questData['stages'][index]['description']}',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
         ),
       );
     }

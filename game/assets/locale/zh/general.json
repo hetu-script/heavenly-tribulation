@@ -9,7 +9,7 @@
   "ok": "好的",
   "okay": "好的",
   "cancel": "取消",
-  "forgetIt": "算了",
+  "forgetIt": "还是算了",
   "yes": "是",
   "no": "否",
   "and": "和",
@@ -110,7 +110,7 @@
   "selectLocation": "选择一个场景",
   "selectOrganization": "选择一个门派",
   "selectItem": "选择一个物品",
-  "selectCardpack": "选择一个秘籍",
+  "selectCardpack": "选择一个秘籍来打开",
 
   "dangerOperationPrompt": "这个操作无法撤销，确认继续吗？",
 
@@ -123,6 +123,9 @@
   "unequip": "卸下",
   "discard": "丢弃",
   "destroy": "销毁",
+  "charge": "充能",
+  "chargeItem": "为物品充能",
+  "shardsCost": "灵石消耗",
   "joinFight": "出战",
   "bench": "撤下",
   "consume": "食用",
@@ -146,18 +149,37 @@
   "leave": "离开",
 
   "haveMet": "认识",
+
   "talk": "对话",
   "smallTalk": "闲聊",
+  "topicTalk": "话题",
+
+  "questTopic": "重要话题",
+  "characterTopic": "人物话题",
+  "organizationTopic": "门派话题",
+  "locationTopic": "场景话题",
+  "itemTopic": "物品话题",
+
   "show": "出示",
+  "trade": "交易",
   "gift": "赠礼",
-  "request": "索取",
-  "duel": "切磋",
-  "consult": "请教",
-  "insult": "侮辱",
+  "attack": "攻击",
   "steal": "偷窃",
 
-  "trade": "交易",
-  "attack": "攻击",
+  "court": "追求",
+  "breakup": "分手",
+
+  "proposed": "求婚",
+  "divorce": "离婚",
+
+  "baishi": "拜师",
+  "shoutu": "收徒",
+  "consult": "请教",
+  "tutor": "教学",
+
+  "apply": "加入",
+  "recruit": "招募",
+
   "sneakAttack": "偷袭",
 
   "world": "世界",
@@ -199,7 +221,7 @@
 
   "you": "你",
   "me": "我",
-  "familyName": "姓",
+  "surName": "姓",
   "shortName": "名",
   "name": "名字",
   "noname": "无名",
@@ -228,10 +250,17 @@
   "timeYear": "年",
   "timeMonth": "个月",
   "timeDay": "天",
-  "morning": "清晨",
+  "morning": "上午",
   "afternoon": "下午",
   "evening": "傍晚",
   "night": "午夜",
+  "timeOfDay1": "上午",
+  "timeOfDay2": "下午",
+  "timeOfDay3": "傍晚",
+  "timeOfDay4": "午夜",
+  "timeflow": "时间流逝",
+
+  "doNothing": "什么都不做",
 
   "information": "信息",
   "status": "属性",
@@ -241,9 +270,20 @@
   "history": "历史",
   "experienced": "经历",
   "known": "见闻",
-  "quest": "任务",
-  "card_library": "卡牌库",
+  "quest": "日志",
+  "card_library": "藏书阁",
+  "cultivate": "修炼",
+
   "decks": "卡组",
+  "identify": "鉴定",
+  "orderBy": "排序",
+
+  "byAcquiredTimeDescending": "获得时间 - 降序",
+  "byAcquiredTimeAscending": "获得时间 - 升序",
+  "byLevelDescending": "等级 - 降序",
+  "byLevelAscending": "等级 - 升序",
+  "byRankDescending": "境界 - 降序",
+  "byRankAscending": "境界 - 升序",
 
   "mapLevel": "第 {0} 层",
 
@@ -278,16 +318,16 @@
   "supportSkillGenre": "辅助流派",
 
   "general": "通用",
-  "daoism": "道术",
+  "spellcraft": "法术",
   "bodyforge": "锻体",
-  "avatar": "法身",
+  "avatar": "化身",
   "vitality": "炼魂",
   "swordcraft": "御剑",
 
   "plant": "灵植",
   "animal": "灵兽",
   "array": "阵法",
-  "rune": "符法",
+  "scroll": "符箓",
   "alchemy": "炼丹",
   "craft": "炼器",
   "divination": "卜术",
@@ -300,25 +340,30 @@
   "painting": "书画",
   "story": "小说",
 
-  "equipSkillFaied": "我刚刚学会 {0}，还很生疏，需要通过修炼将其提升到 1 级，才可以开始使用。",
-  "companionCannotBattle": "{0} 并没有能力参与战斗。",
-
   "watchScene": "观看剧情",
   "skipScene": "跳过剧情",
 
-  "hint.ship": "需要先装备船只才可以在水面上移动……",
-  "hint.boots": "需要先装备登山靴才可以在山地中移动……",
-  "hint.nonEnterableTile": "前方被一阵无形的阻力挡住了。",
-  "hint.searchFailed": "没能成功找到奇怪踪迹的原因，可能还是要继续「搜索」这里才能有收获。",
-  "hint.sensedUndiscovered": "这里似乎有些奇怪的踪迹。可能「搜索」这里的话会有收获。",
-  "hint.manaFull": "体内凝聚的灵气已满，无法再聚气了。",
-  "hint.wastedSpirit": "一部分超过上限的灵气从体内流失了。",
-  "hint.spiritGathered": "此地喷涌的灵气已经散去。",
-  "hint.notEnoughJade": "聚气需要消耗灵石，或者要找到灵气喷涌的地方才行……",
-  "hint.openPackage.jade": "聚气需要消耗灵石……可以在物品栏中打开灵石包裹获得灵石。",
+  "hint_unidentifiedItem": "这件物品还没有鉴定，无法使用。",
+  "hint_cursedEquipment": "这件装备被诅咒了，你无法将其取下。",
+  "hint_consumable": "这件物品是消耗品，使用后会消失。",
+  "hint_restrictedEquipment": "不能再装备更多的{0}了。",
+  "hint_notEnoughShard": "身上没有足够的灵石，这里也并非灵气喷涌的环境……",
+  "hint_itemFullyCharged": "这件物品已经充能完毕了。",
+  "hint_notEnoughMoney": "没有足够的铜钱，无法进行这个操作。",
+  "hint_notEnoughShards": "没有足够的灵石，无法进行这个操作。",
 
-  "hint.switch": "好像有什么地方的机关打开了……",
-  "hint.deadend": "这里看样子无法前进了，看来得想想别的办法……",
+  "hint_ship": "需要先装备船只才可以在水面上移动……",
+  "hint_boots": "需要先装备登山靴才可以在山地中移动……",
+  "hint_nonEnterableTile": "前方被一阵无形的阻力挡住了。",
+  "hint_searchFailed": "没能成功找到奇怪踪迹的原因，可能还是要继续「搜索」这里才能有收获。",
+  "hint_sensedUndiscovered": "这里似乎有些奇怪的踪迹。可能「搜索」这里的话会有收获。",
+  "hint_manaFull": "体内凝聚的灵气已满，无法再聚气了。",
+  "hint_wastedSpirit": "一部分超过上限的灵气从体内流失了。",
+  "hint_spiritGathered": "此地喷涌的灵气已经散去。",
+  "hint_openShardPackage": "聚气需要消耗灵石资源……可以在物品栏中通过转化灵石块获得灵石。",
+
+  "hint_switch": "好像有什么地方的机关打开了……",
+  "hint_deadend": "这里看样子无法前进了，看来得想想别的办法……",
 
   "exp": "经验值",
   "rank": "境界",
@@ -332,5 +377,20 @@
   "cultivationSkills": "修炼",
   "supportSkills": "技艺",
 
-  "visitEmptyVillage": "这里空无一人，看来是个荒废的村落。"
+  "rest1Days": "休息 1 天",
+  "rest10Days": "休息 10 天",
+  "rest30Days": "休息 30 天",
+  "restTillTommorow": "休息到明天早上",
+  "restTillNextMonth": "休息到下个月 1 日",
+  "restTillFullHealth": "休息到体力全满",
+
+  "alreadyFullHealthNoNeedRest": "体力已经全满，不需要休息了。",
+
+  "visitEmptyVillage": "这里空无一人，看来是个荒废的村落。",
+  "visitEmptyHome": "这里空无一人，看来{0}现在不在家。",
+
+  "battlecard": "功法",
+
+  "familyName": "氏",
+  "sectName": "宗"
 }

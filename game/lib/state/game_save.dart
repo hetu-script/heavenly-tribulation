@@ -15,8 +15,8 @@ Future<SaveInfo> createSaveInfo(String currentWorldId,
     [String? saveName]) async {
   saveName ??= randomUID();
   final directory = await path.getApplicationDocumentsDirectory();
-  final savePath = path.join(directory.path, GameConfig.gameTitle, 'save',
-      '$saveName$kGameSaveFileExtension');
+  final savePath = path.join(
+      directory.path, engine.name, 'save', '$saveName$kGameSaveFileExtension');
   return SaveInfo(
     saveName: saveName,
     savePath: savePath,
@@ -45,8 +45,7 @@ class GameSavesState with ChangeNotifier {
     saves.clear();
 
     final appDirectory = await path.getApplicationDocumentsDirectory();
-    final saveFolder =
-        path.join(appDirectory.path, GameConfig.gameTitle, folder);
+    final saveFolder = path.join(appDirectory.path, engine.name, folder);
 
     final saveDirectory = Directory(saveFolder);
     if (saveDirectory.existsSync()) {

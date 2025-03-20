@@ -1,27 +1,29 @@
-import 'module:main' as game
+// import 'module:main' as game
 
 import 'l10n/l10n.ht'
+import 'events/game.ht'
 import 'events/cave.ht'
 import 'events/main.ht'
 import 'data/quests.json5' as quests
+import 'data/items.json5' as items
+import 'data/passives.json5' as passives
 
-// 这里的函数最终是绑定到游戏对象上执行
-// 是运行时的命名空间，并不是这里的命名空间
-// 因此可以直接使用 engine, game 等 global 上的 对象
+/// 这里的函数最终是绑定到游戏对象上执行
+/// 因此运行时的命名空间并不是这里的命名空间
+/// 所以可以直接使用 engine, data 等 global 上的 对象
+/// 这里的数据结构要套两层，因为
 const module = {
-  meta: {
-    id: 'story',
-    displayName: '剧情模组',
-    description: '包含了《天道奇劫》游戏的主线剧情。',
-    supportedLocales: ['zh'],
-    version: '0.0.1',
-    flags: {
-      chapter0: {},
-      chapter1: {},
-      chapter2: {},
-      chapter3: {},
-    }
-  },
+  id: 'story',
+  displayName: '剧情模组',
+  description: '包含了《天道奇劫》游戏的主线剧情。',
+  supportedLocales: ['zh'],
+  version: '0.0.1',
+  flags: {
+    chapter0: {},
+    chapter1: {},
+    chapter2: {},
+    chapter3: {},
+  }
 }
 
 /// 这个函数只会执行一次
@@ -30,31 +32,49 @@ const module = {
 /// 以及将角色、据点等数据添加到主世界中
 /// 可以在这里检查是否存在版本冲突或者和其他脚本的冲突
 function init(config) {
-  engine.debug('游戏脚本模块 [${module.meta.id}(ver-${module.meta.version})] 初始化...')
+  engine.debug('游戏脚本模块 [${module.id}(ver-${module.version})] 初始化...')
 
-  game.addModule(module.meta)
-
-  game.addQuestsData(quests)
+  addModuleData(module)
+  addQuestsData(quests)
+  addItemPrototypesData(items)
+  addPassivesData(passives)
 }
-
-const modName = '${module.meta.displayName}-${module.meta.id}-(${module.meta.version.major}.${module.meta.version.minor}.${module.meta.version.build})';
 
 // main每次启动游戏都会执行
 function main() {
-  engine.debug('游戏脚本模块 [${module.meta.id}(ver-${module.meta.version})] 载入...')
+  engine.debug('游戏脚本模块 [${module.id}(ver-${module.version})] 载入...')
 
   // 加载本地化字符串
   engine.loadLocaleDataFromJSON(localizations.toJSON())
-  // 向世界添加事件回调函数
+  // 添加游戏通用事件处理
+  addEventHandlers(
+    moduleId: module.id,
+    handlers: gameEvents,
+  )
+  // 添加世界模块事件回调函数
   // 每个世界的事件是分开的
   addEventHandlers(
-    moduleId: module.meta.id,
+    moduleId: module.id,
     worldId: 'story_cave',
-    handlers: storyCave,
+    handlers: caveMapEvents,
   )
   addEventHandlers(
-    moduleId: module.meta.id,
+    moduleId: module.id,
     worldId: 'story_main',
-    handlers: storyMain,
+    handlers: mainMapEvents,
   )
+}
+
+function initModData() {
+  if (game.story.flags.initted) return
+
+  final enemy1 = getCharacterById('yaozu_guard1')
+  final enemy2 = getCharacterById('yaozu_elite1')
+
+  generateDeck(enemy1)
+  generateDeck(enemy2)
+
+  final afu = getCharacterById('afu')
+  entityCollect('money', 80000, incurIncident: false)
+  entityAcquireItemById(afu, 'identify_scroll', incurIncident: false)
 }

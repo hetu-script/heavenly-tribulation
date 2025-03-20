@@ -14,7 +14,7 @@ struct Peddler {
     attributeSum,
   }) {
     this.entityType = kEntityTypeNpc
-    this.birthTimestamp = birthTimestamp ?? createRandomBirthTimestamp()
+    this.birthTimestamp = birthTimestamp ?? createBirthTimestamp()
     this.icon = 'general.png'
     this.category = kEntityCategoryCharacter
     this.kind = 'peddler'

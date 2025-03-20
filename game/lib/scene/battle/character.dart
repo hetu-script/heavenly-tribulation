@@ -11,9 +11,9 @@ import 'package:samsara/cardgame/custom_card.dart';
 // import 'package:samsara/components/task_component.dart';
 
 import '../../engine.dart';
-import '../../data.dart';
+import '../../game/data.dart';
 import 'battledeck_zone.dart';
-import '../../ui.dart';
+import '../../game/ui.dart';
 import 'status_effect.dart';
 import 'common.dart';
 
@@ -570,7 +570,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
             (1 + (details['percentageChange3'] ?? 0)))
         .round();
     if (finalDamage < 0) {
-      engine.error('calculated damage < 0 on details: \n$details');
+      engine.error(
+          'unexpected: calculated damage < 0 on damage details: \n$details');
       finalDamage = 0;
     }
     String damageString = finalDamage > 0 ? '-$finalDamage' : '$finalDamage';
@@ -585,10 +586,10 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     if (details['blocked'] ?? false) {
       engine.play('shield-block-shortsword-143940.mp3',
-          volume: GameConfig.soundEffectVolume);
+          volume: engine.config.soundEffectVolume);
     } else {
       engine.play('hit-flesh-02-266309.mp3',
-          volume: GameConfig.soundEffectVolume);
+          volume: engine.config.soundEffectVolume);
     }
 
     if (finalDamage > 0) {

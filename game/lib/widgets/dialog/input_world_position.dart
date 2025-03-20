@@ -8,7 +8,7 @@ import 'package:samsara/ui/integer_input_field.dart';
 import 'package:samsara/ui/close_button2.dart';
 
 import '../../engine.dart';
-import '../../ui.dart';
+import '../../game/ui.dart';
 
 class InputWorldPositionDialog extends StatefulWidget {
   static Future<(int, int, String?)?> show({
@@ -68,6 +68,7 @@ class _InputWorldPositionDialogState extends State<InputWorldPositionDialog> {
   @override
   void initState() {
     super.initState();
+
     _posXController.text = widget.defaultX?.toString() ?? '';
     _posYController.text = widget.defaultY?.toString() ?? '';
 
@@ -76,20 +77,23 @@ class _InputWorldPositionDialogState extends State<InputWorldPositionDialog> {
 
   @override
   void dispose() {
+    super.dispose();
+
     _posXController.dispose();
     _posYController.dispose();
-    super.dispose();
+
+    _worldIdEditingController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
+      color: GameUI.backgroundColor,
       width: 240.0,
       height: 210.0,
       alignment: AlignmentDirectional.center,
       child: SizedBox(
         child: Scaffold(
-          backgroundColor: GameUI.backgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(widget.title ?? engine.locale('inputInteger')),
@@ -161,7 +165,7 @@ class _InputWorldPositionDialogState extends State<InputWorldPositionDialog> {
                         result = (
                           x,
                           y,
-                          _worldIdEditingController.text.nonEmptyValueOrNull,
+                          _worldIdEditingController.text.nonEmptyValue,
                         );
                       }
                       Navigator.of(context).pop(result);

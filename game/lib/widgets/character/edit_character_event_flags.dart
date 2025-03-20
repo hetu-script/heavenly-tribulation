@@ -3,7 +3,7 @@ import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 
 import '../../engine.dart';
-import '../../ui.dart';
+import '../../game/ui.dart';
 
 class EditCharacterEventFlags extends StatefulWidget {
   const EditCharacterEventFlags({
@@ -20,7 +20,7 @@ class EditCharacterEventFlags extends StatefulWidget {
 
 class _EditCharacterEventFlagsState extends State<EditCharacterEventFlags> {
   final flags = {
-    'useCustomInteraction': false,
+    'useCustomLogic': false,
   };
 
   @override

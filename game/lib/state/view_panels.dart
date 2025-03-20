@@ -5,7 +5,6 @@ enum ViewPanels {
   characterMemory,
   characterQuest,
   characterDetails,
-  // enemyDetails,
   itemSelect,
 }
 

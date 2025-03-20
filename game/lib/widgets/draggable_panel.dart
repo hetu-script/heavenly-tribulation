@@ -3,7 +3,7 @@ import 'package:samsara/ui/close_button2.dart';
 import 'package:samsara/ui/preferred_size_widget.dart';
 import 'package:samsara/pointer_detector.dart';
 
-import '../ui.dart';
+import '../game/ui.dart';
 
 class DraggablePanel extends StatelessWidget {
   final Offset position;
@@ -43,8 +43,8 @@ class DraggablePanel extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: GameUI.backgroundColor,
-            borderRadius: GameUI.borderRadius,
-            border: Border.all(color: Theme.of(context).colorScheme.onSurface),
+            // borderRadius: GameUI.borderRadius,
+            // border: Border.all(color: Theme.of(context).colorScheme.onSurface),
           ),
           width: width,
           height: height,
@@ -52,29 +52,29 @@ class DraggablePanel extends StatelessWidget {
             appBar: CustomPreferredSizeWidget(
               preferredSize: Size.fromHeight(titleHeight),
               bottom: titleBottomBar,
-              child: PointerDetector(
-                onTapDown: (pointer, buttons, details) {
-                  onTapDown?.call(details.globalPosition - position);
-                },
-                onDragUpdate: (pointer, buttons, details) {
-                  onDragUpdate?.call(details);
-                },
-                child: Row(
-                  children: [
-                    Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: PointerDetector(
+                      onTapDown: (pointer, buttons, details) {
+                        onTapDown?.call(details.globalPosition - position);
+                      },
+                      onDragUpdate: (pointer, buttons, details) {
+                        onDragUpdate?.call(details);
+                      },
                       child: Text(
                         title ?? '',
                         textAlign: TextAlign.center,
                         style: GameUI.captionStyle,
                       ),
                     ),
-                    CloseButton2(
-                      onPressed: () {
-                        onClose?.call();
-                      },
-                    ),
-                  ],
-                ),
+                  ),
+                  CloseButton2(
+                    onPressed: () {
+                      onClose?.call();
+                    },
+                  ),
+                ],
               ),
             ),
             body: child,

@@ -7,22 +7,29 @@ import 'package:samsara/richtext.dart';
 import 'package:provider/provider.dart';
 
 import '../../widgets/avatar.dart';
-import '../../engine.dart';
+// import '../../engine.dart';
 import '../../widgets/character/profile.dart';
 // import '../../event/ui.dart';
-import '../../ui.dart';
+import '../../game/ui.dart';
 import '../../state/game_dialog.dart';
 
 class GameDialogContent extends StatefulWidget {
-  // static bool isGameDialogOpened = false;
-
   /// 调用这个方法不会触发 GameDialogState 的改变
-  static Future<void> show(BuildContext context, dynamic content) {
-    final resolved = content is String
+  ///
+  /// dialog data 数据格式
+  /// ```
+  /// {
+  ///   "lines": ["line1", "line2"],
+  ///   "displayName": "displayName",
+  ///   "icon": "icon.png",
+  /// }
+  /// ```
+  static Future<void> show(BuildContext context, dynamic dialogData) {
+    final resolved = dialogData is String
         ? {
-            'lines': [content]
+            'lines': [dialogData]
           }
-        : (content is List ? {'lines': content} : content);
+        : (dialogData is List ? {'lines': dialogData} : dialogData);
     assert(resolved is Map || resolved is HTStruct);
     assert(resolved['id'] == null);
     return showDialog<dynamic>(
@@ -38,15 +45,14 @@ class GameDialogContent extends StatefulWidget {
 
   const GameDialogContent({
     super.key,
-    this.data,
-  });
+    required this.data,
+  }) : assert(data != null);
 
   @override
   State<GameDialogContent> createState() => _GameDialogContentState();
 }
 
 class _GameDialogContentState extends State<GameDialogContent> {
-  dynamic dialogData;
   Timer? timer;
   String? currentAvatar;
   String currentLine = '';
@@ -56,8 +62,7 @@ class _GameDialogContentState extends State<GameDialogContent> {
   int progress = 0;
   bool lineFinished = false;
 
-  dynamic characterData;
-  bool isNpc = false;
+  // dynamic characterData;
 
   final textShowController = StreamController<TextSpan>.broadcast();
 
@@ -68,9 +73,7 @@ class _GameDialogContentState extends State<GameDialogContent> {
     super.initState();
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (dialogData != null) {
-        startLine();
-      }
+      startLine();
     });
   }
 
@@ -79,9 +82,7 @@ class _GameDialogContentState extends State<GameDialogContent> {
     super.didUpdateWidget(oldWidget);
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      if (dialogData != null) {
-        startLine();
-      }
+      startLine();
     });
   }
 
@@ -94,108 +95,92 @@ class _GameDialogContentState extends State<GameDialogContent> {
 
   @override
   Widget build(BuildContext context) {
-    dialogData = widget.data ?? context.watch<GameDialogState>().currentContent;
-
-    return dialogData == null
-        ? Container()
-        : GestureDetector(
-            onTap: () {
-              if (lineFinished) {
-                nextSay();
-              } else {
-                finishLine();
-              }
-            },
-            child: Material(
-              color: Colors.transparent,
-              child: Stack(
-                alignment: AlignmentDirectional.bottomCenter,
-                children: [
-                  Positioned(
-                    bottom: 20.0,
-                    child: StreamBuilder(
-                      stream: textShowController.stream,
-                      builder: (context, AsyncSnapshot<TextSpan> snapshot) {
-                        return Container(
-                          width: 880,
-                          height: 190,
-                          padding: const EdgeInsets.only(top: 10.0),
-                          decoration: BoxDecoration(
-                            color: GameUI.backgroundColor,
-                            borderRadius: GameUI.borderRadius,
-                            border: Border.all(color: GameUI.foregroundColor),
+    return GestureDetector(
+      onTap: () {
+        if (lineFinished) {
+          nextSay();
+        } else {
+          finishLine();
+        }
+      },
+      child: Material(
+        color: Colors.transparent,
+        child: Stack(
+          alignment: AlignmentDirectional.bottomCenter,
+          children: [
+            Positioned(
+              bottom: 20.0,
+              child: StreamBuilder(
+                stream: textShowController.stream,
+                builder: (context, AsyncSnapshot<TextSpan> snapshot) {
+                  return Container(
+                    width: 880,
+                    height: 190,
+                    padding: const EdgeInsets.only(top: 10.0),
+                    decoration: BoxDecoration(
+                      color: GameUI.backgroundColor,
+                      borderRadius: GameUI.borderRadius,
+                      border: Border.all(color: GameUI.foregroundColor),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 10.0),
+                          child: Avatar(
+                            cursor: SystemMouseCursors.click,
+                            displayName: displayName,
+                            nameAlignment: AvatarNameAlignment.top,
+                            image: currentAvatar != null
+                                ? AssetImage('assets/images/$currentAvatar')
+                                : null,
+                            size: const Size(140.0, 140.0),
+                            // characterData: characterData,
+                            onPressed: (id) {
+                              if (id != null) {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) =>
+                                      CharacterProfileView(characterId: id),
+                                );
+                              }
+                            },
                           ),
-                          child: Row(
+                        ),
+                        Container(
+                          // color: Colors.blue,
+                          width: 640,
+                          padding: const EdgeInsets.only(left: 20.0, top: 15.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.only(left: 10.0),
-                                child: Avatar(
-                                  displayName: displayName,
-                                  nameAlignment: AvatarNameAlignment.top,
-                                  image: currentAvatar != null
-                                      ? AssetImage(
-                                          'assets/images/illustration/$currentAvatar')
-                                      : null,
-                                  size: const Size(140.0, 140.0),
-                                  characterData: characterData,
-                                  onPressed: (id) {
-                                    if (id != null) {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) =>
-                                            CharacterProfileView(
-                                                characterId: id),
-                                      );
-                                    }
-                                  },
-                                ),
-                              ),
-                              Container(
-                                // color: Colors.blue,
-                                width: 640,
-                                padding: const EdgeInsets.only(
-                                    left: 20.0, top: 15.0),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    RichText(
-                                      text: snapshot.data ?? const TextSpan(),
-                                    ),
-                                  ],
-                                ),
+                              RichText(
+                                text: snapshot.data ?? const TextSpan(),
                               ),
                             ],
                           ),
-                        );
-                      },
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                  );
+                },
               ),
             ),
-          );
+          ],
+        ),
+      ),
+    );
   }
 
   void startLine() {
-    // GameDialog.isGameDialogOpened = true;
     lineFinished = false;
     progress = 0;
-    final characterId = dialogData['characterId'];
-    if (characterId != null) {
-      characterData =
-          engine.hetu.invoke('getCharacterById', positionalArgs: [characterId]);
-    } else {
-      characterData = dialogData['characterData'];
-    }
 
-    currentAvatar = dialogData['icon'];
-    currentLine = dialogData['lines'][currentSayIndex];
-
+    currentAvatar = widget.data['icon'];
+    displayName = widget.data['displayName'];
+    currentLine = widget.data['lines'][currentSayIndex];
     nodes = getRichTextStream(currentLine);
-
-    displayName = dialogData['displayName'];
 
     style = DefaultTextStyle.of(context).style.merge(TextStyle(
           fontSize: 20,
@@ -228,7 +213,7 @@ class _GameDialogContentState extends State<GameDialogContent> {
 
   void nextSay() {
     ++currentSayIndex;
-    if (currentSayIndex >= dialogData['lines'].length) {
+    if (currentSayIndex >= (widget.data?['lines']?.length ?? 0)) {
       finishDialog();
     } else {
       startLine();
@@ -245,8 +230,7 @@ class _GameDialogContentState extends State<GameDialogContent> {
   void finishDialog() {
     // GameDialog.isGameDialogOpened = false;
     currentSayIndex = 0;
-    assert(dialogData != null);
-    final id = dialogData['id'];
+    final id = widget.data?['id'];
     if (id != null) {
       context.read<GameDialogState>().finishDialog(id);
     } else {

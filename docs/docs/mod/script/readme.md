@@ -18,33 +18,52 @@ function main()
 
 ### 通用事件
 
-和地图无关的事件
+通过 onGameEvent() 调用
+
+通用事件和地图无关，在任何地图或者场景都会触发
 
 ```javascript
-function onEnterCultivation()
+/// ----------窗口操作----------
+async function onOpenInventory()
+async function onOpenCultivation()
+/// ----------属性变化----------
+async function onRested()
+/// ----------角色互动----------
+async function onTalkTo(character, topic)
+async function onQuestInquiry(character, quest)
+async function onShowTo(character, item)
+/// ----------物品互动----------
+async function onEquipItem(item)
+async function onUseItem(item)
+/// 某些具有充能次数的物品，在装备在身上时，会随着时间流逝调用自定义函数刷新属性
+async function onUpdateItem(item)
 ```
 
+### 地图事件
+
+通过 onWorldEvent() 调用
+
+地图事件以地图为模块划分命名空间，分别绑定在不同的世界上
+
 ```javascript
-/// 在第一次进入游戏时触发
-function onNewGame()
-/// 刷新世界时间后触发
-function onAfterUpdate()
-/// 开始和结束移动时触发
-function onBeforeMove(terrain)
-/// 角色移动后，最后处于endTerrain
-/// 如果移动目标是一个无法进入的地块，则将该地块赋予targetTerrain
-function onAfterMove(terrain, targetTerrain)
-/// 在大地图上从外部进入某个门派的领地时触发
-function onEnterTerritory(terrain, organization)
-/// 在某个场景中点击NPC列表种的一个头像和其互动时触发
-function onInteractCharacter(character)
+/// 在第一次进入游戏，并且进入游戏时读取的是此地图时触发
+async function onNewGame()
+/// ----------世界地图----------
+async function onEnterMap()
+/// 刷新大地图世界时间，timestamp+1 后触发，非大地图的地牢没有这个事件
+async function onAfterUpdate()
+/// 开始移动之前触发，如果返回值不为null，则会停止移动
+async function onBeforeMove(terrain)
+async function onAfterMove(terrain, worldId)
+/// 在大地图上从外部进入某个门派的领地之后触发
+async function onEnterTerritory(terrain, organization)
 /// 在地牢中点击某个地图上的可互动物体时触发
-function onInteractObject(object, terrain)
-/// 当进入地图场景时或从其他界面返回地图场景时触发
-function onEnterMap()
-/// 进入或离开某个据点场景时触发
-function onBeforeEnterLocation(location)
-function onAfterEnterLocation(location)
-function onBeforeExitLocation(location)
-function onAfterExitLocation(location)
+async function onInteractMapObject(object, terrain)
+// /// 在场景中点击某个非预定义的子场景时触发
+async function onInteractLocationObject(object, location)
+/// ----------据点场景----------
+async function onBeforeEnterLocation(location)
+async function onAfterEnterLocation(location)
+async function onBeforeExitLocation(location)
+async function onAfterExitLocation(location)
 ```

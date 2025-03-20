@@ -7,9 +7,9 @@ import 'package:flame/sprite.dart';
 import 'package:flame/extensions.dart';
 
 import '../../../engine.dart';
-import '../../../ui.dart';
+import '../../../game/ui.dart';
 import '../../../state/editor_tool.dart';
-import '../../../data.dart';
+import '../../../game/data.dart';
 
 const double kToolbarTabBarHeight = 30.0;
 

@@ -5,15 +5,16 @@ import 'package:samsara/components.dart';
 import 'package:samsara/samsara.dart';
 import 'package:provider/provider.dart';
 
-import '../../ui.dart';
+import '../../game/ui.dart';
 import '../../engine.dart';
 import 'library_zone.dart';
 import 'common.dart';
 import '../game_dialog/game_dialog_content.dart';
-import '../../logic/battlecard.dart';
+import '../../game/logic.dart';
 import 'card_library.dart';
 import '../../state/hoverinfo.dart';
 import '../common.dart';
+import '../../game/data.dart';
 
 enum PlaceHolderState {
   newDeck,
@@ -23,8 +24,6 @@ enum PlaceHolderState {
 
 class DeckBuildingZone extends PiledZone with HandlesGesture {
   static const _indent = 20.0;
-
-  final dynamic heroData;
 
   // late final SpriteComponent background;
 
@@ -38,7 +37,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
   void save() {
     _saved = true;
 
-    final List decks = heroData['battleDecks'];
+    final List decks = GameData.heroData['battleDecks'];
     final deckInfo = createDeckInfo();
 
     if (index >= decks.length) {
@@ -106,7 +105,8 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     if (cards.length < limitMin) valid = false;
 
     for (final card in cards) {
-      valid = checkCardRequirement(heroData, (card as CustomGameCard).data);
+      valid = GameLogic.checkCardRequirement(
+          GameData.heroData, (card as CustomGameCard).data);
     }
 
     return valid;
@@ -116,7 +116,6 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
   void Function()? onCardUnpreviewed;
 
   DeckBuildingZone({
-    this.heroData,
     super.title,
     bool? isBattleDeck,
     List<dynamic>? preloadCardIds,
@@ -258,8 +257,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     // );
     // add(background);
 
-    assert(heroData != null);
-    final deckLimit = getDeckLimitFromRank(heroData['cultivationRank']);
+    final deckLimit = GameLogic.getDeckLimitFromRank(GameData.heroData['rank']);
     limitMin = deckLimit.$1;
     limit = deckLimit.$2;
     limitEphemeralMax = deckLimit.$3;
@@ -414,7 +412,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
           card.data,
           card.toAbsoluteRect(),
           direction: HoverInfoDirection.leftTop,
-          characterData: heroData,
+          characterData: GameData.heroData,
         );
     card.onUnpreviewed = () => unpreviewCard(game.context);
 

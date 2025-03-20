@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import '../common.dart';
 import 'mainmenu_buttons.dart';
 import '../../widgets/ui_overlay.dart';
-import '../../data.dart';
+import '../../game/data.dart';
 import '../../engine.dart';
 
 class MainMenuScene extends Scene {
@@ -18,7 +18,7 @@ class MainMenuScene extends Scene {
           id: Scenes.mainmenu,
           bgm: engine.bgm,
           bgmFile: 'chinese-oriental-tune-06-12062.mp3',
-          bgmVolume: GameConfig.musicVolume,
+          bgmVolume: engine.config.musicVolume,
         );
 
   @override
@@ -30,15 +30,34 @@ class MainMenuScene extends Scene {
       // 真正开始游戏后还会再执行一遍，
       await GameData.createGame('debug');
       GameData.isGameCreated = false;
-      assert(context.mounted);
-      if (context.mounted) {
-        engine.hetu.invoke('generateHero', namespace: 'Debug', namedArgs: {
-          'rank': 2,
-          'level': 10,
-        });
-        context.read<HeroState>().update();
-        context.read<HeroInfoVisibilityState>().setVisible(true);
-      }
+      engine.hetu.invoke('generateHero', namespace: 'Debug', namedArgs: {
+        'rank': 2,
+        'level': 10,
+      });
+      engine.hetu.invoke(
+        'collect',
+        namespace: 'Player',
+        positionalArgs: ['money'],
+        namedArgs: {'amount': 50000},
+      );
+      engine.hetu.invoke(
+        'collect',
+        namespace: 'Player',
+        positionalArgs: ['shard'],
+        namedArgs: {'amount': 50000},
+      );
+      engine.hetu.invoke('acquireItemById',
+          namespace: 'Player', positionalArgs: ['hunguding']);
+      engine.hetu.invoke(
+        'acquireItemById',
+        namespace: 'Player',
+        positionalArgs: ['identify_scroll'],
+        namedArgs: {'amount': 4},
+      );
+      if (!context.mounted) return;
+      context.read<HeroState>().update();
+      context.read<HeroInfoVisibilityState>().setVisible(true);
+      context.read<GameTimestampState>().update();
     }
   }
 

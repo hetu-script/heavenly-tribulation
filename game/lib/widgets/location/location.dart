@@ -5,11 +5,10 @@ import 'package:samsara/ui/close_button2.dart';
 import 'package:samsara/ui/responsive_view.dart';
 
 import '../../engine.dart';
-import '../../ui.dart';
+import '../../game/ui.dart';
 import 'site_card.dart';
 import '../common.dart';
-import 'edit_location_id_and_image.dart';
-import 'edit_site.dart';
+import 'edit_location_basics.dart';
 
 class LocationView extends StatefulWidget {
   final String? locationId;
@@ -35,62 +34,54 @@ class LocationView extends StatefulWidget {
 }
 
 class _LocationViewState extends State<LocationView> {
-  bool get isEditorMode =>
-      widget.mode == InformationViewMode.edit ||
-      widget.mode == InformationViewMode.create;
+  bool get isEditorMode => widget.mode == InformationViewMode.edit;
 
   late final dynamic _locationData;
-  List<Widget> _siteCards = [];
-  late bool _isDiscovered;
-  late bool _hasDefaultSites;
+  final List<Widget> _siteCards = [];
+
+  bool get isCity => _locationData['category'] == 'city';
+  bool get isSite => _locationData['category'] == 'site';
 
   @override
   void initState() {
     super.initState();
 
-    if (widget.mode.index <= 2) {
-      if (widget.locationData != null) {
-        _locationData = widget.locationData!;
-      } else if (widget.locationId != null) {
-        _locationData = engine.hetu
-            .invoke('getLocationById', positionalArgs: [widget.locationId]);
-      }
-    } else {
-      // 处理 `widget.mode == InformationViewMode.create` 的情况
-      assert(widget.category != null && widget.kind != null);
-      _locationData = engine.hetu.invoke('Location', namedArgs: {
-        'isMain': false, // 临时数据尚未加入游戏中
-        'atTerrain': widget.atTerrain,
-        'atLocation': widget.atLocation,
-        'category': widget.category,
-        'kind': widget.kind,
-      });
+    // if (widget.mode == InformationViewMode.create) {
+    //   assert(widget.category != null && widget.kind != null);
+    //   _locationData = engine.hetu.invoke('Location', namedArgs: {
+    //     'atTerrain': widget.atTerrain,
+    //     'atLocation': widget.atLocation,
+    //     'category': widget.category,
+    //     'kind': widget.kind,
+    //   });
+    // } else {
+    assert(widget.locationData != null || widget.locationId != null);
+    if (widget.locationData != null) {
+      _locationData = widget.locationData!;
+    } else if (widget.locationId != null) {
+      _locationData = engine.hetu
+          .invoke('getLocationById', positionalArgs: [widget.locationId]);
     }
+    assert(_locationData != null);
+    // }
 
-    _isDiscovered = _locationData['isDiscovered'] ?? false;
-    _hasDefaultSites = _locationData['hasDefaultSites'] ?? false;
-
-    _loadData();
+    _updateSitesData();
   }
 
-  void _saveData() {
-    _locationData['isDiscovered'] = _isDiscovered;
-    _locationData['hasDefaultSites'] = _hasDefaultSites;
-  }
+  void _saveData() {}
 
-  void _loadData() {
-    _siteCards = List<Widget>.from(
-      _locationData['sites'].map(
-        (siteId) {
-          final siteData =
-              engine.hetu.invoke('getLocationById', positionalArgs: [siteId]);
-          return SiteCard(
-            siteData: siteData,
-            imagePath: siteData['image'],
-          );
-        },
-      ),
-    );
+  void _updateSitesData() {
+    _siteCards.clear();
+    for (final siteId in _locationData['sites']) {
+      final siteData =
+          engine.hetu.invoke('getLocationById', positionalArgs: [siteId]);
+      final siteCard = SiteCard(
+        siteData: siteData,
+        imagePath: siteData['image'],
+      );
+      _siteCards.add(siteCard);
+    }
+    setState(() {});
   }
 
   @override
@@ -98,7 +89,7 @@ class _LocationViewState extends State<LocationView> {
     return ResponsiveView(
       color: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
-      width: 640.0,
+      width: 720.0,
       height: widget.mode != InformationViewMode.view ? 440.0 : 400.0,
       child: Scaffold(
         appBar: AppBar(
@@ -109,86 +100,101 @@ class _LocationViewState extends State<LocationView> {
         body: Column(
           children: [
             Container(
+              height: 360,
               alignment: Alignment.topLeft,
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Row(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    width: 248,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (_locationData['worldPosition']?['left'] != null &&
-                            _locationData['worldPosition']?['top'] != null)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 10.0),
-                            child: Text(
-                                '${engine.locale('worldPosition')}: ${_locationData['worldPosition']['left']}, ${_locationData['worldPosition']['top']}'),
+                  Wrap(
+                    children: [
+                      if (isCity) ...[
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10.0, top: 8.0),
+                          child: Text(
+                              '${engine.locale('worldPosition')}: ${_locationData['worldPosition']['left']}, ${_locationData['worldPosition']['top']}'),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10.0, top: 8.0),
+                          child: Text(
+                              '${engine.locale('development')}: ${_locationData['development']}'),
+                        ),
+                        SizedBox(
+                          width: 220.0,
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 150,
+                                child:
+                                    Text('${engine.locale('isDiscovered')}: '),
+                              ),
+                              SizedBox(
+                                width: 50,
+                                height: 30,
+                                child: FittedBox(
+                                  fit: BoxFit.fill,
+                                  child: Switch(
+                                    value:
+                                        _locationData['isDiscovered'] ?? false,
+                                    activeColor: Colors.white,
+                                    onChanged: (bool value) {
+                                      setState(() {
+                                        _locationData['isDiscovered'] = value;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        Text(
-                            '${engine.locale('development')}: ${_locationData['development']}'),
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 180.0,
-                              child: Text('${engine.locale('isDiscovered')}: '),
-                            ),
-                            Switch(
-                              value: _isDiscovered,
-                              activeColor: Colors.white,
-                              onChanged: (bool value) {
-                                setState(() {
-                                  _isDiscovered = value;
-                                });
-                              },
-                            ),
-                          ],
                         ),
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 180.0,
-                              child: Text(
-                                  '${engine.locale('addDefaultSubsidiaries')}: '),
-                            ),
-                            Switch(
-                              value: _isDiscovered,
-                              activeColor: Colors.white,
-                              onChanged: (bool value) {
-                                setState(() {
-                                  _isDiscovered = value;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
+                        // SizedBox(
+                        //   width: 220.0,
+                        //   child: Row(
+                        //     children: [
+                        //       SizedBox(
+                        //         width: 150,
+                        //         child: Text(
+                        //             '${engine.locale('addDefaultSites')}: '),
+                        //       ),
+                        //       Switch(
+                        //         value:
+                        //             _locationData['addDefaultSites'] ?? false,
+                        //         activeColor: Colors.white,
+                        //         onChanged: (bool value) {
+                        //           setState(() {
+                        //             _locationData['addDefaultSites'] = value;
+                        //           });
+                        //         },
+                        //       ),
+                        //     ],
+                        //   ),
+                        // ),
                       ],
-                    ),
+                    ],
                   ),
                   Container(
-                    width: 350,
-                    height: 350,
+                    width: 750,
+                    height: 140,
+                    margin: const EdgeInsets.only(top: 10.0),
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: Colors.white,
-                        width: 1.0,
+                        color: Colors.white54,
+                        width: 0.5,
                       ),
+                      borderRadius: BorderRadius.circular(5.0),
                     ),
                     child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
                       child: ListView(
+                        scrollDirection: Axis.horizontal,
                         shrinkWrap: true,
                         children: [
-                          Align(
-                            alignment: Alignment.topCenter,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Wrap(
-                                spacing: 8.0, // gap between adjacent chips
-                                runSpacing: 4.0, // gap between lines
-                                children: _siteCards,
-                              ),
-                            ),
+                          Wrap(
+                            // spacing: 4.0, // gap between adjacent chips
+                            runSpacing: 4.0, // gap between lines
+                            children: _siteCards,
                           ),
                         ],
                       ),
@@ -204,35 +210,32 @@ class _LocationViewState extends State<LocationView> {
                     Padding(
                       padding: const EdgeInsets.only(left: 10.0),
                       child: ElevatedButton(
-                        onPressed: () {
-                          showDialog(
+                        onPressed: () async {
+                          final value = await showDialog(
                             context: context,
-                            builder: (context) => EditLocationIdAndBackground(
+                            builder: (context) => EditLocationBasics(
                               id: _locationData['id'],
                               name: _locationData['name'],
-                              backgroundPath: _locationData['background'],
+                              background: _locationData['background'],
                             ),
-                          ).then(
-                            (value) {
-                              if (value == null) return;
-                              final (
-                                id,
-                                name,
-                                background,
-                              ) = value;
-                              _locationData['name'] = name;
-                              _locationData['background'] = background;
-
-                              if (id != null && id != _locationData['id']) {
-                                engine.hetu.invoke('removeLocationById',
-                                    positionalArgs: [_locationData['id']]);
-                                _locationData['id'] = id;
-                                engine.hetu.invoke('addLocation',
-                                    positionalArgs: [_locationData]);
-                              }
-                              setState(() {});
-                            },
                           );
+                          if (value == null) return;
+                          final (
+                            id,
+                            name,
+                            background,
+                          ) = value;
+                          _locationData['name'] = name;
+                          _locationData['background'] = background;
+
+                          if (id != null && id != _locationData['id']) {
+                            engine.hetu.invoke('removeLocationById',
+                                positionalArgs: [_locationData['id']]);
+                            _locationData['id'] = id;
+                            engine.hetu.invoke('addLocation',
+                                positionalArgs: [_locationData]);
+                          }
+                          setState(() {});
                         },
                         child: Text(engine.locale('editIdAndImage')),
                       ),
@@ -240,19 +243,41 @@ class _LocationViewState extends State<LocationView> {
                     Padding(
                       padding: const EdgeInsets.only(left: 10.0),
                       child: ElevatedButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) => const EditSite(),
-                          ).then((value) {
-                            if (value == null) return;
-                            engine.hetu.invoke('Location', namedArgs: {
+                        onPressed: () async {
+                          final value = await showDialog(
+                              context: context,
+                              builder: (context) {
+                                return EditLocationBasics(
+                                  category: 'site',
+                                  allowEditCategory: false,
+                                );
+                              });
+                          if (value == null) return;
+                          if (!context.mounted) return;
+                          final (category, kind, id, name, image, background) =
+                              value;
+                          final locationData = engine.hetu.invoke(
+                            'Location',
+                            namedArgs: {
                               'category': 'site',
-                              'kind': value,
-                              'location': _locationData,
-                            });
-                            setState(() {});
-                          });
+                              'kind': kind,
+                              'id': id,
+                              'name': name,
+                              'image': image,
+                              'background': background,
+                              'atLocation': _locationData,
+                            },
+                          );
+                          if (!context.mounted) return;
+                          await showDialog(
+                              context: context,
+                              builder: (context) {
+                                return LocationView(
+                                  mode: InformationViewMode.edit,
+                                  locationData: locationData,
+                                );
+                              });
+                          _updateSitesData();
                         },
                         child: Text(engine.locale('addSite')),
                       ),
@@ -264,16 +289,16 @@ class _LocationViewState extends State<LocationView> {
                     child: ElevatedButton(
                       onPressed: () {
                         switch (widget.mode) {
+                          case InformationViewMode.view:
+                            Navigator.of(context).pop();
                           case InformationViewMode.select:
                             Navigator.of(context).pop(_locationData['id']);
                           case InformationViewMode.edit:
                             _saveData();
                             Navigator.of(context).pop(true);
-                          case InformationViewMode.create:
-                            _saveData();
-                            Navigator.of(context).pop(_locationData);
-                          case InformationViewMode.view:
-                            Navigator.of(context).pop();
+                          // case InformationViewMode.create:
+                          //   _saveData();
+                          //   Navigator.of(context).pop(_locationData);
                         }
                       },
                       child: Text(engine.locale('confirm')),

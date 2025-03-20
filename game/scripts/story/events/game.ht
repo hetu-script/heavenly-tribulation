@@ -1,0 +1,16 @@
+
+const gameEvents = {
+
+  onInitialCultivate: async () {
+    
+  }
+
+  onUpdateItem: async (item) {
+    if (item.id == 'hunguding') {
+      if (item.chargeData.current > 0) {
+        item.chargeData.current -= 1
+        hero.unconvertedExp += 10
+      }
+    }
+  }
+}

@@ -5,8 +5,8 @@ import 'package:samsara/ui/close_button2.dart';
 
 import '../dialog/character_select_dialog.dart';
 import '../../engine.dart';
-import '../../data.dart';
-import '../../ui.dart';
+import '../../game/data.dart';
+import '../../game/ui.dart';
 
 class EditOrganizationBasics extends StatefulWidget {
   const EditOrganizationBasics({
@@ -44,6 +44,16 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+
+    _idEditingController.dispose();
+    _nameEditingController.dispose();
+    _headquartersIdEditingController.dispose();
+    _headIdEditingController.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
 
@@ -68,7 +78,7 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
     return ResponsiveView(
       color: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
-      width: 350.0,
+      width: 500.0,
       height: 400.0,
       child: Scaffold(
         appBar: AppBar(
@@ -79,173 +89,145 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
           actions: const [CloseButton2()],
         ),
         body: Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
           child: Column(
             children: [
               Column(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                    width: 330.0,
-                    height: 40.0,
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.only(top: 15.0),
-                          width: 90.0,
-                          child: const Text('ID:'),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.only(top: 15.0),
+                        width: 100.0,
+                        child: const Text('ID:'),
+                      ),
+                      SizedBox(
+                        width: 140.0,
+                        height: 40.0,
+                        child: TextField(
+                          controller: _idEditingController,
                         ),
-                        SizedBox(
-                          width: 140.0,
-                          height: 40.0,
-                          child: TextField(
-                            controller: _idEditingController,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                    width: 330.0,
-                    height: 40.0,
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.only(top: 15.0),
-                          width: 90.0,
-                          child: Text(
-                            '${engine.locale('name')}: ',
-                          ),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.only(top: 15.0),
+                        width: 100.0,
+                        child: Text(
+                          '${engine.locale('name')}: ',
                         ),
-                        Container(
-                          padding: const EdgeInsets.only(right: 20.0),
-                          width: 140.0,
-                          height: 40.0,
-                          child: TextField(
-                            controller: _nameEditingController,
-                          ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.only(right: 20.0),
+                        width: 140.0,
+                        height: 40.0,
+                        child: TextField(
+                          controller: _nameEditingController,
                         ),
-                        ElevatedButton(
-                          onPressed: randomName,
-                          child: Text(engine.locale('random')),
-                        )
-                      ],
-                    ),
+                      ),
+                      ElevatedButton(
+                        onPressed: randomName,
+                        child: Text(engine.locale('random')),
+                      )
+                    ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.only(top: 15.0),
-                    width: 330.0,
-                    height: 50.0,
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 90.0,
-                          child: Text('${engine.locale('category')}: '),
-                        ),
-                        DropdownButton<String>(
-                          items: GameData.organizationCategoryNames.keys
-                              .map((name) => DropdownMenuItem<String>(
-                                    value: name,
-                                    child: Text(GameData
-                                        .organizationCategoryNames[name]!),
-                                  ))
-                              .toList(),
-                          value: selectedCategory,
-                          onChanged: (value) => selectedCategory = value!,
-                        ),
-                      ],
-                    ),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 100.0,
+                        child: Text('${engine.locale('category')}: '),
+                      ),
+                      DropdownButton<String>(
+                        style: GameUI.textTheme.bodyMedium,
+                        items: GameData.organizationCategoryNames.keys
+                            .map((name) => DropdownMenuItem<String>(
+                                  value: name,
+                                  child: Text(GameData
+                                      .organizationCategoryNames[name]!),
+                                ))
+                            .toList(),
+                        value: selectedCategory,
+                        onChanged: (value) => selectedCategory = value!,
+                      ),
+                    ],
                   ),
-                  SizedBox(
-                    width: 330.0,
-                    height: 50.0,
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 90.0,
-                          child: Text('${engine.locale('genre')}: '),
-                        ),
-                        DropdownButton<String>(
-                          items: GameData.cultivationGenreNames.keys
-                              .map((name) => DropdownMenuItem<String>(
-                                    value: name,
-                                    child: Text(
-                                        GameData.cultivationGenreNames[name]!),
-                                  ))
-                              .toList(),
-                          value: selectedGenre,
-                          onChanged: (value) => selectedGenre = value!,
-                        ),
-                      ],
-                    ),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 100.0,
+                        child: Text('${engine.locale('genre')}: '),
+                      ),
+                      DropdownButton<String>(
+                        style: GameUI.textTheme.bodyMedium,
+                        items: GameData.cultivationGenreNames.keys
+                            .map((name) => DropdownMenuItem<String>(
+                                  value: name,
+                                  child: Text(
+                                      GameData.cultivationGenreNames[name]!),
+                                ))
+                            .toList(),
+                        value: selectedGenre,
+                        onChanged: (value) => selectedGenre = value!,
+                      ),
+                    ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                    width: 330.0,
-                    height: 40.0,
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.only(top: 15.0),
-                          width: 90.0,
-                          child: Text(
-                            '${engine.locale('headId')}: ',
-                          ),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.only(top: 15.0),
+                        width: 100.0,
+                        child: Text(
+                          '${engine.locale('headId')}: ',
                         ),
-                        Container(
-                          padding: const EdgeInsets.only(right: 20.0),
-                          width: 140.0,
-                          height: 40.0,
-                          child: TextField(
-                            controller: _headIdEditingController,
-                          ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.only(right: 20.0),
+                        width: 140.0,
+                        height: 40.0,
+                        child: TextField(
+                          controller: _headIdEditingController,
                         ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            final charactersData =
-                                engine.hetu.invoke('getCharacters');
-                            final key = await CharacterSelectDialog.show(
-                              context: context,
-                              title: engine.locale('selectCharacter'),
-                              charactersData: charactersData,
-                              showCloseButton: true,
-                            );
-                            _headIdEditingController.text = key ?? '';
-                          },
-                          child: Text(engine.locale('select')),
-                        )
-                      ],
-                    ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final charactersData =
+                              engine.hetu.invoke('getCharacters');
+                          final key = await CharacterSelectDialog.show(
+                            context: context,
+                            title: engine.locale('selectCharacter'),
+                            charactersData: charactersData,
+                            showCloseButton: true,
+                          );
+                          _headIdEditingController.text = key ?? '';
+                        },
+                        child: Text(engine.locale('select')),
+                      )
+                    ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                    width: 330.0,
-                    height: 40.0,
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.only(top: 15.0),
-                          width: 90.0,
-                          child: Text(
-                            '${engine.locale('headquartersId')}: ',
-                          ),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.only(top: 15.0),
+                        width: 100.0,
+                        child: Text(
+                          '${engine.locale('headquartersId')}: ',
                         ),
-                        Container(
-                          padding: const EdgeInsets.only(right: 20.0),
-                          width: 140.0,
-                          height: 40.0,
-                          child: TextField(
-                            controller: _headquartersIdEditingController,
-                          ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.only(right: 20.0),
+                        width: 140.0,
+                        height: 40.0,
+                        child: TextField(
+                          controller: _headquartersIdEditingController,
                         ),
-                        ElevatedButton(
-                          onPressed: randomName,
-                          child: Text(engine.locale('selectLocation')),
-                        )
-                      ],
-                    ),
+                      ),
+                      ElevatedButton(
+                        onPressed: randomName,
+                        child: Text(engine.locale('selectLocation')),
+                      )
+                    ],
                   ),
                 ],
               ),
@@ -253,15 +235,14 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
                 padding: const EdgeInsets.only(top: 20.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    String? id = _idEditingController.text.nonEmptyValueOrNull;
-                    String? name =
-                        _nameEditingController.text.nonEmptyValueOrNull;
+                    String? id = _idEditingController.text.nonEmptyValue;
+                    String? name = _nameEditingController.text.nonEmptyValue;
                     String? category = selectedCategory;
                     String? genre = selectedGenre;
-                    String? headquartersId = _headquartersIdEditingController
-                        .text.nonEmptyValueOrNull;
+                    String? headquartersId =
+                        _headquartersIdEditingController.text.nonEmptyValue;
                     String? headId =
-                        _headIdEditingController.text.nonEmptyValueOrNull;
+                        _headIdEditingController.text.nonEmptyValue;
 
                     Navigator.of(context).pop((
                       id,

@@ -1,0 +1,24 @@
+{
+  hunguding: {
+    prototypeId: "hunguding",
+    name: "hunguding",
+    category: "talisman",
+    rarity: "unique",
+    icon: "story/item/hunguding.png",
+    isUnique: true,
+    isIdentified: false,
+    isEquippable: true,
+    affixes: ["hunguding_affix", "equipment_cursed"],
+    // 被诅咒的法宝，装备后无法正常取下
+    isCursed: true,
+    isUndroppable: true,
+    // isUntradable: true,
+    chargeData: {
+      max: 3600,
+      current: 4,
+      shardsPerCharge: 10, // 每次充能消耗的灵石
+    },
+    useCustomLogic: true,
+    price: 20000,
+  },
+}

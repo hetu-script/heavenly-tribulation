@@ -12,21 +12,20 @@ import 'scene/world/world.dart';
 import 'scene/battle/battle.dart';
 import 'scene/card_library/card_library.dart';
 import 'binding/character_binding.dart';
-import 'data.dart';
-import 'ui.dart';
+import 'game/data.dart';
+import 'game/ui.dart';
 import 'scene/world/location/location.dart';
 import 'state/states.dart';
 import 'scene/cultivation/cultivation.dart';
-import 'logic/algorithm.dart';
+import 'game/logic.dart';
 import 'scene/common.dart';
-
 import 'scene/game_dialog/game_dialog_content.dart';
-import 'widgets/dialog/character_visit_dialog.dart';
-import 'widgets/dialog/character_select_dialog.dart';
-import 'widgets/merchant/merchant.dart';
-import 'widgets/quest/quests.dart';
-import 'widgets/dialog/progress_indicator_dialog.dart';
-import 'widgets/dialog/input_integer.dart';
+// import 'widgets/dialog/character_select_dialog.dart';
+// import 'widgets/character/merchant.dart';
+// import 'widgets/quest/quests.dart';
+// import 'widgets/dialog/progress_indicator_dialog.dart';
+// import 'widgets/dialog/input_integer.dart';
+import 'widgets/dialog/timeflow.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({super.key});
@@ -75,7 +74,7 @@ class _GameAppState extends State<GameApp> {
     engine.registerSceneConstructor(Scenes.battle, (
         [Map<String, dynamic> arguments = const {}]) async {
       return BattleScene(
-        heroData: arguments['hero'],
+        heroData: arguments['hero'] ?? GameData.heroData,
         enemyData: arguments['enemy'],
         // heroDeck: arguments['heroDeck'],
         // enemyDeck: arguments['enemyDeck'],
@@ -124,24 +123,30 @@ class _GameAppState extends State<GameApp> {
       );
 
       final colors = engine.hetu.invoke('getCurrentWorldZoneColors');
-      engine.addTileMapZoneColors(scene.map, worldId!, colors);
+      engine.debug('刷新地图 ${scene.map.id} 上色信息');
+      engine.loadTileMapZoneColors(scene.map, colors);
 
       return scene;
     });
   }
 
   Future<void> _initGame() async {
-    await engine.init();
+    await engine.init(context);
 
     engine.hetu.interpreter.bindExternalClass(BattleCharacterClassBinding());
 
-    engine.hetu.interpreter.bindExternalFunction('expForLevel',
-        ({positionalArgs, namedArgs}) => expForLevel(positionalArgs.first),
+    engine.hetu.interpreter.bindExternalFunction(
+        'expForLevel',
+        ({positionalArgs, namedArgs}) =>
+            GameLogic.expForLevel(positionalArgs.first),
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Dialog::_pushDialog', (
         {positionalArgs, namedArgs}) {
-      context.read<GameDialogState>().pushDialog(positionalArgs[0]);
+      final content = positionalArgs[0];
+      context
+          .read<GameDialogState>()
+          .pushDialog(content, imageId: content['image']);
     });
 
     engine.hetu.interpreter.bindExternalFunction('Dialog::execute', (
@@ -197,76 +202,14 @@ class _GameAppState extends State<GameApp> {
       return context.read<GameDialogState>().checkSelected(positionalArgs[0]);
     });
 
-    engine.hetu.interpreter.bindExternalFunction('Dialog::_selectCharacter', (
-        {positionalArgs, namedArgs}) {
-      return CharacterSelectDialog.show(
-        context: positionalArgs[0],
-        title: positionalArgs[1],
-        characterIds: positionalArgs[2],
-        showCloseButton: positionalArgs[3],
-      );
-    });
-
-    engine.hetu.interpreter.bindExternalFunction('Dialog::_selectResidence', (
-        {positionalArgs, namedArgs}) {
-      return CharacterVisitDialog.show(
-        context: positionalArgs[0],
-        characterIds: positionalArgs[1],
-        hideHero: namedArgs['hideHero'],
-      );
-    });
-
-    engine.hetu.interpreter.bindExternalFunction('Dialog::_merchant', (
-        {positionalArgs, namedArgs}) {
-      return MerchantView.show(
-        context: positionalArgs[0],
-        merchantData: positionalArgs[1],
-        priceFactor: positionalArgs[2],
-        allowSell: positionalArgs[3],
-        sellableCategory: positionalArgs[4],
-        sellableKind: positionalArgs[5],
-      );
-    });
-
-    engine.hetu.interpreter.bindExternalFunction('Dialog::_quests', (
-        {positionalArgs, namedArgs}) {
-      return QuestsView.show(
-        context: positionalArgs[0],
-        siteData: positionalArgs[1],
-      );
-    });
-
-    engine.hetu.interpreter.bindExternalFunction('Dialog::_progress', (
-        {positionalArgs, namedArgs}) {
-      bool? Function()? func;
-      if (positionalArgs[2] is HTFunction) {
-        func = () => (positionalArgs[2] as HTFunction).call();
-      }
-      return ProgressIndicatorDialog.show(
-        context: positionalArgs[0],
-        title: positionalArgs[1],
-        checkProgress: func,
-      );
-    });
-
-    engine.hetu.interpreter.bindExternalFunction('Dialog::_inputInteger', (
-        {positionalArgs, namedArgs}) {
-      return InputIntegerDialog.show(
-        context: positionalArgs[0],
-        title: positionalArgs[1],
-        min: positionalArgs[2],
-        max: positionalArgs[3],
-      );
-    });
-
-    engine.hetu.interpreter.bindExternalFunction('Player::updateHero', (
+    engine.hetu.interpreter.bindExternalFunction('Player::_update', (
         {positionalArgs, namedArgs}) {
       context.read<HeroState>().update();
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Player::updateHistory', (
         {positionalArgs, namedArgs}) {
-      context.read<HistoryState>().update();
+      context.read<HeroAndGlobalHistoryState>().update();
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Player::updateQuest', (
@@ -286,34 +229,38 @@ class _GameAppState extends State<GameApp> {
       GameDialogContent.show(context, engine.locale('reloadModulesPrompt'));
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('System::showHeroInfo', (
+    engine.hetu.interpreter.bindExternalFunction('Game::updateGameTime', (
+        {positionalArgs, namedArgs}) {
+      context.read<GameTimestampState>().update();
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::showHeroInfo', (
         {positionalArgs, namedArgs}) {
       context
           .read<HeroInfoVisibilityState>()
           .setVisible(positionalArgs.first ?? true);
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('System::showLibrary', (
+    engine.hetu.interpreter.bindExternalFunction('Game::showLibrary', (
         {positionalArgs, namedArgs}) {
       engine.pushScene(Scenes.library);
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('System::showCultivation', (
+    engine.hetu.interpreter.bindExternalFunction('Game::showCultivation', (
         {positionalArgs, namedArgs}) {
       engine.pushScene(Scenes.cultivation);
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('System::showPrebattle', (
+    engine.hetu.interpreter.bindExternalFunction('Game::showPrebattle', (
         {positionalArgs, namedArgs}) {
       context.read<EnemyState>().update(positionalArgs.first);
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('System::showBattle', (
+    engine.hetu.interpreter.bindExternalFunction('Game::showBattle', (
         {positionalArgs, namedArgs}) {
-      final heroData = engine.hetu.fetch('hero');
       final arg = {
         'id': Scenes.battle,
-        'hero': namedArgs['hero'] ?? heroData,
+        'hero': namedArgs['hero'],
         'enemy': namedArgs['enemy'],
         'isSneakAttack': namedArgs['isSneakAttack'] ?? false,
         'isAutoBattle': namedArgs['isAutoBattle'] ?? false,
@@ -321,6 +268,11 @@ class _GameAppState extends State<GameApp> {
         'onBattleEnd': namedArgs['onBattleEnd'],
       };
       engine.pushScene(Scenes.battle, arguments: arg);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::showTimeflow', (
+        {positionalArgs, namedArgs}) {
+      TimeflowDialog.show(context: context, max: positionalArgs[0]);
     }, override: true);
 
     final mainConfig = {'locale': engine.languageId};
@@ -332,13 +284,15 @@ class _GameAppState extends State<GameApp> {
         isMainMod: true,
       );
 
-      for (final key in GameConfig.modules.keys) {
-        if (GameConfig.modules[key]?['enabled'] == true) {
-          if (GameConfig.modules[key]?['preinclude'] == true) {
-            engine.loadModFromAssetsString(
+      for (final key in engine.mods.keys) {
+        if (engine.mods[key]?['enabled'] == true) {
+          if (engine.mods[key]?['preinclude'] == true) {
+            final byteMod = await engine.loadModFromAssetsString(
               '$key/main.ht',
               module: key,
             );
+            engine.hetu.assign(key, byteMod.namespaces.values.last,
+                namespace: 'mods', defineIfAbsent: true);
           }
         }
       }
@@ -347,20 +301,22 @@ class _GameAppState extends State<GameApp> {
       final gameBytes = main.buffer.asUint8List();
       await engine.loadModFromBytes(
         gameBytes,
-        moduleName: 'main',
+        module: 'main',
         namedArgs: mainConfig,
         isMainMod: true,
       );
 
-      for (final key in GameConfig.modules.keys) {
-        if (GameConfig.modules[key]?['enabled'] == true) {
-          if (GameConfig.modules[key]?['preinclude'] == true) {
+      for (final key in engine.mods.keys) {
+        if (engine.mods[key]?['enabled'] == true) {
+          if (engine.mods[key]?['preinclude'] == true) {
             final mod = await rootBundle.load('assets/mods/$key.mod');
             final modBytes = mod.buffer.asUint8List();
-            engine.loadModFromBytes(
+            final byteMod = await engine.loadModFromBytes(
               modBytes,
-              moduleName: key,
+              module: key,
             );
+            engine.hetu.assign(key, byteMod.namespaces.values.last,
+                namespace: 'mods', defineIfAbsent: true);
           }
         }
       }
@@ -368,7 +324,7 @@ class _GameAppState extends State<GameApp> {
 
     // 载入动画，卡牌等纯JSON格式的游戏数据
     // ignore: use_build_context_synchronously
-    await GameData.init(flutterContext: context);
+    await GameData.init(context: context);
 
     // const videoFilename = 'D:/_dev/heavenly-tribulation/media/video/title2.mp4';
     // _videoFile = File.fromUri(Uri.file(videoFilename));
@@ -410,11 +366,10 @@ class _GameAppState extends State<GameApp> {
 
   @override
   Widget build(BuildContext context) {
-    GameConfig.screenSize = MediaQuery.sizeOf(context);
-    if (GameUI.size != GameConfig.screenSize.toVector2()) {
-      engine.debug(
-          '画面尺寸修改为：${GameConfig.screenSize.width}x${GameConfig.screenSize.height}');
-      GameUI.resizeTo(GameConfig.screenSize.toVector2());
+    final screenSize = MediaQuery.sizeOf(context);
+    if (GameUI.size != screenSize.toVector2()) {
+      engine.debug('画面尺寸修改为：${screenSize.width}x${screenSize.height}');
+      GameUI.resizeTo(screenSize.toVector2());
     }
 
     return FutureBuilder(

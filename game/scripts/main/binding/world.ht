@@ -16,19 +16,19 @@ namespace World {
 
   external function setPlayerFreeze(value: bool)
 
-  external function setCharacterTo(id, left, top, { direction })
+  external function setCharacterTo(id, left, top, { worldId, direction })
 
   /// 修改地图对象的位置，此函数不会修改脚本侧对象的位置数据
   external function setObjectTo(id, left, top)
 
   /// endDirection: 'north' | 'east' | 'south' | 'west'
-  external async function objectWalkTo(id, left, top, {endDirection, onAfterStepCallback})
+  external function objectWalkTo(id, left, top, {endDirection, onAfterStepCallback})
 
-  external async function updateNpcsInHeroWorldMapPosition()
+  external function updateNpcsInHeroWorldMapPosition()
 
-  external async function updateNpcsInHeroLocation()
+  external function updateNpcsInHeroLocation()
   
-  external async function updateWorldMapLocations()
+  external function updateWorldMapLocations()
 
   external function addHintText(text, left, top, [color])
 
@@ -36,11 +36,11 @@ namespace World {
 
   external function lightUpAroundTile(left, top, [ size = 1 ])
 
-  external async function enterLocation(location)
+  external function enterLocation(location)
 
-  external async function showFog(value: bool)
+  external function showFog(value: bool)
 
-  external async function switchWorld(worldId)
+  external function switchWorld(worldId)
 
   /// Creates a new CameraShakeEffect.
   /// [intensity] is the speed of the camera movement.
@@ -55,4 +55,5 @@ namespace World {
   })
 
   external async function addFallingRubbles({amount = 10})
+
 }

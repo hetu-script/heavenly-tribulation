@@ -1,7 +1,7 @@
 import 'tile/hexagonal_tile.ht'
 import 'tile/tilemap.ht'
 import 'tile/common.ht'
-import '../game.ht'
+import '../game/data.ht'
 
 export { createSandboxWorld } from 'sandbox.ht'
 
@@ -50,7 +50,6 @@ struct TileMapTerrain {
     this.overlaySprite = {}
     this.kind = kTerrainKindVoid
     this.flags = {}
-    this.experienced = []
     // 地形互动
     this.montylyActivities = {
       explored: [],
@@ -60,6 +59,9 @@ struct TileMapTerrain {
       hunted: [],
       fished: [],
     }
+    // 该对象知道的事情
+    // 保存的是incident的index
+    this.known = []
   }
 }
 
@@ -70,6 +72,7 @@ function createBlankWorld({
     terrainSpriteSheet = 'fantasyhextiles_v3_borderless.png',
     width,
     height,
+    useCustomLogic = false,
   }) {
   assert(width is integer && width > 0)
   assert(height is integer && height > 0)
@@ -82,6 +85,8 @@ function createBlankWorld({
     height: height,
     terrainSpriteSheet: terrainSpriteSheet,
   )
+
+  newWorld.useCustomLogic = useCustomLogic
 
   addWorld(newWorld)
 

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:samsara/ui/responsive_view.dart';
 
 import '../../../engine.dart';
-import '../../../ui.dart';
+import '../../../game/ui.dart';
 import '../../../state/selected_tile.dart';
 // import 'tile_detail.dart';
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:samsara/ui/rrect_icon.dart';
 import '../engine.dart';
-import '../ui.dart';
+import '../game/ui.dart';
 // import 'character/profile.dart';
 
 enum AvatarNameAlignment {
@@ -16,16 +16,17 @@ const kNameHeight = 20.0;
 class Avatar extends StatelessWidget {
   const Avatar({
     super.key,
+    this.cursor = MouseCursor.defer,
     this.displayName,
     this.nameAlignment = AvatarNameAlignment.inside,
     this.margin,
     this.image,
     this.borderImage,
     this.showPlaceholder = false,
-    this.showBorder = false,
+    this.showBorderImage = false,
     this.color = Colors.transparent,
     this.size = const Size(100.0, 100.0),
-    this.radius = 15.0,
+    this.borderRadius = 15.0,
     this.borderColor = Colors.transparent,
     this.borderWidth,
     this.characterId,
@@ -33,32 +34,20 @@ class Avatar extends StatelessWidget {
     this.onPressed,
   });
 
+  final MouseCursor cursor;
   final AvatarNameAlignment nameAlignment;
-
   final String? displayName;
-
   final EdgeInsetsGeometry? margin;
-
   final ImageProvider<Object>? image, borderImage;
-
   final bool showPlaceholder;
-
-  final bool showBorder;
-
+  final bool showBorderImage;
   final Color color;
-
   final Size size;
-
-  final double radius;
-
+  final double borderRadius;
   final Color borderColor;
-
   final double? borderWidth;
-
   final String? characterId;
-
   final dynamic characterData;
-
   final void Function(String? charId)? onPressed;
 
   @override
@@ -78,7 +67,7 @@ class Avatar extends StatelessWidget {
     }
 
     if (charData != null) {
-      iconImg ??= AssetImage('assets/images/illustration/${charData['icon']}');
+      iconImg ??= AssetImage('assets/images/${charData['icon']}');
     } else if (showPlaceholder) {
       iconImg ??= AssetImage('assets/images/illustration/placeholder.png');
     }
@@ -90,13 +79,13 @@ class Avatar extends StatelessWidget {
         size: (name != null && nameAlignment != AvatarNameAlignment.inside)
             ? Size(size.width - kNameHeight, size.height - kNameHeight)
             : size,
-        borderRadius: BorderRadius.all(Radius.circular(radius)),
+        borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
         // borderColor: borderColor,
         borderWidth: borderWidth ?? 0.0,
       );
     }
 
-    if (showBorder) {
+    if (showBorderImage) {
       borderImg ??= const AssetImage('assets/images/illustration/border.png');
       border = RRectIcon(
         backgroundColor: Colors.transparent,
@@ -104,7 +93,7 @@ class Avatar extends StatelessWidget {
         size: (name != null && nameAlignment != AvatarNameAlignment.inside)
             ? Size(size.width - kNameHeight, size.height - kNameHeight)
             : size,
-        borderRadius: BorderRadius.all(Radius.circular(radius)),
+        borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
         borderColor: borderColor,
         borderWidth: borderWidth ?? 0.0,
       );
@@ -141,7 +130,7 @@ class Avatar extends StatelessWidget {
         ),
       );
 
-      if (showBorder) {
+      if (showBorderImage) {
         widgets.add(
           Positioned.fill(
             top: nameAlignment == AvatarNameAlignment.top ? kNameHeight : 0.0,
@@ -167,7 +156,7 @@ class Avatar extends StatelessWidget {
         widgets.add(icon);
       }
       if (name != null) {
-        final br = Radius.circular(radius);
+        final br = Radius.circular(borderRadius);
         widgets.add(Align(
           alignment: Alignment.bottomCenter,
           child: Container(
@@ -190,7 +179,7 @@ class Avatar extends StatelessWidget {
           ),
         ));
       }
-      if (showBorder) {
+      if (showBorderImage) {
         widgets.add(border!);
       }
     }
@@ -198,6 +187,7 @@ class Avatar extends StatelessWidget {
     return GestureDetector(
       onTap: () => onPressed?.call(characterId ?? charData?['id']),
       child: MouseRegion(
+        cursor: cursor,
         child: Container(
           margin: margin,
           width: size.width,

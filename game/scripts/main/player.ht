@@ -1,4 +1,4 @@
-import 'game.ht'
+import 'game/data.ht'
 import 'colors.ht'
 import 'binding/world.ht'
 import 'entity/entity.ht'
@@ -32,7 +32,12 @@ struct PassiveData {
 
 namespace Player {
   
-  external function updateHero()
+  external function _update
+
+  function updateData(func: function) {
+    func?.call()
+    _update()
+  }
 
   external function updateHistory()
 
@@ -40,11 +45,11 @@ namespace Player {
 
   function setTo(left, top, { worldId, direction } ) {
     assert(hero != null)
-    engine.info('player set to: [${left}, ${top}] of world [${worldId ?? world.id}] facing [${direction}]')
-    setCharacterWorldPosition(hero, left, top, worldId: worldId)
     if (worldId != null) {
       assert(universe.containsKey(worldId))
     }
+    engine.info('player set to: [${left}, ${top}] of world [${worldId ?? world.id}] facing [${direction}]')
+    setCharacterWorldPosition(hero, left, top, worldId: worldId)
     if (worldId == null || worldId == world.id) {
       if (direction != null) {
         assert(kOrthogonalDirections.contains(direction))
@@ -57,20 +62,26 @@ namespace Player {
     }
   }
   
-  function setHome(location, {incurIncident = true}) {
+  function setHomeLocation(location, {incurIncident = true}) {
     assert(hero != null)
-    setCharacterHome(hero, location, incurIncident: incurIncident)
+    setCharacterHomeLocation(hero, location, incurIncident: incurIncident)
   }
 
-  function collectById(materialId, { amount = 1, incurIncident = true }) {
+  function collect(materialId, { amount = 1, incurIncident = true }) {
     assert(hero != null)
-    entityCollectById(hero, materialId, amount: amount, incurIncident: incurIncident)
+    entityCollect(hero, materialId, amount: amount, incurIncident: incurIncident)
+  }
+
+  function exhaust(materialId, { amount = 1, incurIncident = true }) {
+    assert(hero != null)
+    entityExhaust(hero, materialId, amount: amount, incurIncident: incurIncident)
   }
 
   /// 从物品库中复制并获取一个物品
-  function acquireItemById(itemId, { incurIncident = true }) {
+  function acquireItemById(itemId, { amount = 1, incurIncident = true }) {
     assert(hero != null)
-    entityAcquireItemById(hero, itemId, incurIncident: incurIncident)
+    assert(amount > 0)
+    entityAcquireItemById(hero, itemId, amount: amount, incurIncident: incurIncident)
   }
 
   /// 直接获取一个已经被创造出来的物品
@@ -82,6 +93,11 @@ namespace Player {
   function lose(item, { incurIncident = true }) {
     assert(hero != null)
     entityLose(hero, item, incurIncident: incurIncident)
+  }
+
+  function acquireBattleCard(card, { incurIncident = true }) {
+    assert(hero != null)
+    entityAcquireBattleCard(hero, card, incurIncident: incurIncident)
   }
 
   // 使用食物或者丹药
@@ -180,25 +196,16 @@ namespace Player {
   // 返回值代表是否装备成功
   // 如果对一个不在物品栏中的物品调用，会先将其加入物品栏
   // 但并不会检查是否已经在别人的物品栏里了
-  // 
-  // 装备并非直接将物品数据保存在人物数据中，而是用下面的数据结构
-  // {
-  //   id,
-  //   entityType,
-  //   category,
-  //   kind,
-  //   equipType,
-  //   life,
-  // }
+  // 装备并非直接将物品数据保存在人物数据中，而是只保存物品id
   function equip(item, { index }) -> bool {
     assert(hero != null)
     assert(index == null || (index >= 0 && index < kEquipmentMax))
-    if (item.category != kItemCategoryEquipment) {
-      engine.warn('${item.id} 无法装备。')
+    if (!item.isEquippable) {
+      engine.warn('${item.name} 无法装备。')
       return false
     }
     if (item.equippedPosition) {
-      engine.warn('${item.id} 已经在装备中了。')
+      engine.warn('${item.name} 已经在装备中了。')
       return false
     }
 
@@ -231,25 +238,45 @@ namespace Player {
     }
 
     if (equipped) {
-      const incidentContent = engine.locale('characterEquip', interpolations: [
-        hero.name,
-        item.name,
-      ])
-      Incident(
-        message: incidentContent,
-        subjectId: hero.id,
-        isPrivate: true,
-      )
+      
+      // const incidentContent = engine.locale('characterEquip', interpolations: [
+      //   hero.name,
+      //   item.name,
+      // ])
+      // Incident(
+      //   message: incidentContent,
+      //   subjectId: hero.id,
+      //   isPrivate: true,
+      // )
 
-      for (final passiveData in item.affixes) {
-        gainPassive(passiveData.id, level: passiveData.level)
+      engine.info('角色 [${hero.name}] 装备了 [${item.name}]')
+
+      if (item.affixes is List) {
+        for (final passiveData in item.affixes) {
+          gainPassive(passiveData.id, level: passiveData.level)
+        }
+        // 重新计算角色状态值
+        updateStats(hero)
       }
 
-      // 重新计算角色状态值
-      updateStats(hero)
+      onGameEvent('onEquipItem', item)
     }
 
     return equipped
+  }
+
+  /// 检查是否装备了某种 category 的物品，返回装备的数量
+  function hasEquipped(category) {
+    assert(hero != null)
+    let count = 0
+    for (final itemId in hero.equipments.values) {
+      if (itemId == null) continue
+      final item = hero.inventory[itemId]
+      if (item.category == category) {
+        ++count
+      }
+    }
+    return count
   }
 
   function unequip(item) {
@@ -258,21 +285,25 @@ namespace Player {
     hero.equipments[item.equippedPosition] = null
     delete item.equippedPosition
 
-    for (final passiveData in item.affixes) {
-      refundPassive(passiveData.id, level: passiveData.level)
+    if (item.affixes is List) {
+      for (final passiveData in item.affixes) {
+        refundPassive(passiveData.id, level: passiveData.level)
+      }
+      // 重新计算角色状态值
+      updateStats(hero)
     }
 
-    updateStats(hero)
-
-    const incidentContent = engine.locale('characterUnequip', interpolations: [
-      hero.name,
-      item.name,
-    ])
-    Incident(
-      message: incidentContent,
-      subjectId: hero.id,
-      isPrivate: true,
-    )
+    // const incidentContent = engine.locale('characterUnequip', interpolations: [
+    //   hero.name,
+    //   item.name,
+    // ])
+    // Incident(
+    //   message: incidentContent,
+    //   subjectId: hero.id,
+    //   isPrivate: true,
+    // )
+    
+    engine.info('角色 [${hero.name}] 取下了 [${item.name}]')
   }
 
   // 批量获取物品，但不显示从那里获得的，通常用于从箱子或包裹中批量拿取
@@ -345,27 +376,27 @@ namespace Player {
     engine.debug(incidentContent)
   }
 
-  function cultivationLevelUp({ incurIncident = true }) {
+  function levelUp({ incurIncident = true }) {
     assert(hero != null)
-    let expRequirement = expForLevel(hero.cultivationLevel)
+    let expRequirement = expForLevel(hero.level)
     if (hero.exp < expRequirement) {
-      engine.warn('not enough exp for level up! current level: [${hero.cultivationLevel}], exp needed: [${expRequirement}]')
+      engine.warn('not enough exp for level up! current level: [${hero.level}], exp needed: [${expRequirement}]')
       return
     }
 
-    if (hero.cultivationLevel == hero.cultivationLevelMax) {
-      engine.warn('character reached max level for current rank! current level: [${hero.cultivationLevel}], current rank: [${hero.cultivationRank}]')
+    if (hero.level >= hero.levelMax) {
+      engine.warn('character reached max level for current rank! current level: [${hero.level}], current rank: [${hero.rank}]')
       return
     }
 
     hero.exp -= expRequirement
-    ++hero.cultivationLevel
+    ++hero.level
 
     hero.availableSkillPoints += 1
 
     const incidentContent = engine.locale('characterCultivationLevelUp', interpolations: [
       hero.name,
-      hero.cultivationLevel,
+      hero.level,
     ])
     if (incurIncident) {
       Incident(
@@ -373,22 +404,23 @@ namespace Player {
         subjectId: hero.id,
         isPrivate: true,
       )
+    } else {
+      engine.debug(incidentContent)
     }
-    engine.debug(incidentContent)
 
-    return hero.cultivationLevel
+    return hero.level
   }
 
-  function cultivationRankUp({ incurIncident = true }) {
+  function rankUp({ incurIncident = true }) {
     assert(hero != null)
-    if ( hero.cultivationRank >= kRankMax ) {
-      engine.warn('character reached max rank! current rank: [${hero.cultivationRank}]')
+    if ( hero.rank >= kCultivationRankMax ) {
+      engine.warn('character reached max rank! current rank: [${hero.rank}]')
       return
     }
 
-    ++hero.cultivationRank
+    ++hero.rank
     
-    hero.cultivationLevelMax = maxLevelPerRank(hero.cultivationRank)
+    hero.levelMax = maxLevelPerRank(hero.rank)
 
     const incidentContent = engine.locale('characterCultivationRankUp', interpolations: [
       hero.name,
@@ -400,10 +432,11 @@ namespace Player {
         subjectId: hero.id,
         isPrivate: true,
       )
+    } else {
+      engine.debug(incidentContent)
     }
-    engine.debug(incidentContent)
 
-    return hero.cultivationRank
+    return hero.rank
   }
 
   function gainExp(value: integer) {
@@ -429,7 +462,7 @@ namespace Player {
     )
   }
 
-  /// 提升玩家的天赋技能
+  /// 提升玩家的天赋技能等级
   /// 注意此函数调用时并不会检测天赋树节点位置和链接情况，也不会检查角色是否有足够的技能点
   /// 玩家升级天赋时，并不会立刻影响角色数据，
   /// 只有在执行 updateStats() 之后，人物数据才会最终计算出来
@@ -457,6 +490,7 @@ namespace Player {
     }
   }
 
+  /// 降低天赋技能等级
   function refundPassive(dataId, {level = 1}) {
     assert(hero != null)
     if (hero.passives[dataId] == null) {
@@ -472,22 +506,38 @@ namespace Player {
     }
   }
 
+  /// 检查角色是否拥有某个天赋技能，并将其数据返回
+  function hasPassive(dataId) {
+    assert(hero != null)
+    return hero.passives.containsKey(dataId)
+  }
+
   function updateStats() {
     assert(hero != null)
     updateCharacterStats(hero)
   }
 
-  function rejuvenate() {
+  function restoreLife(count) {
     assert(hero != null)
-    rejuvenateCharacter(hero)
+    characterRestoreLife(hero, count)
   }
 
-  function acceptQuest(quest, { incurIncident = true }) {
+  function rejuvenate() {
     assert(hero != null)
+    characterRejuvenate(hero)
+  }
+
+  function acceptQuest(quest, { setAsActive = false, incurIncident = true }) {
+    assert(hero != null)
+    if (hero.quests.containsKey(quest.id)) {
+      engine.error('任务 [${quest.id}] 已经存在，不能再次接受！')
+      return
+    }
     hero.quests[quest.id] = quest
-    hero.activeQuestIds.add(quest.id)
+    if (setAsActive) {
+      hero.activeQuestId = quest.id
+    }
     
-    const title = quest.stages[quest.currentStageIndex].title;
     const incidentContent = engine.locale(
       'characterAcceptQuest',
       interpolations: [ hero.name, quest.name ],
@@ -502,10 +552,16 @@ namespace Player {
     }
   }
 
+  function acceptQuestById(questId, { setAsActive = false, incurIncident = true }) {
+    assert(hero != null)
+    final quest = generateQuestById(questId)
+    acceptQuest(quest)
+  }
+
   function setActiveQuest(quest) {
     assert(hero != null)
     assert(hero.quests.containsKey(quest.id))
-    hero.activeQuestIds.addIfAbsent(quest.id)
+    hero.activeQuestId = quest.id
   }
 
   function getActiveQuest() {
@@ -513,14 +569,26 @@ namespace Player {
     return hero.quests[hero.activeQuestId]
   }
 
-  function progressQuest(quest, { incurIncident = true }) {
+  /// 推动任务进度
+  /// 这里不处理任务的成功和失败
+  function progressQuest(questId, { stage,  incurIncident = true }) {
     assert(hero != null)
-    if (quest.currentStageIndex < quest.stages.length - 1) {
-      ++quest.currentStageIndex
-    } else {
-      quest.isFinished = true
-      quest.isSuccessed = true
+    final quest = hero.quests[questId]
+    assert(quest != null)
+    if (quest.isFinished) {
+      engine.error('任务 [${quest.id}] 已经完成，不能再推进进度！')
+      return
     }
+    assert(quest.progress.length > 0)
+    assert(quest.progress.last < quest.stages.length - 1)
+    if (stage != null) {
+      assert(stage < quest.stages.length)
+      assert(!quest.progress.contains(stage))
+    } else {
+      stage = quest.progress.last + 1
+    }
+    
+    quest.progress.add(stage)
     
     let incidentContent = engine.locale(
       'characterQuestProgressed',
@@ -534,12 +602,18 @@ namespace Player {
     } else {
       engine.debug(incidentContent)
     }
+    
+    updateQuest()
   }
 
-  function finishQuest(quest, { isSuccess = true, incurIncident = true }) {
+  function finishQuestById(questId, { isSuccess = true, incurIncident = true }) {
     assert(hero != null)
+    final quest = hero.quests[questId]
+    assert(quest != null)
     assert(hero.quests.containsKey(quest.id))
-    hero.activeQuestIds.remove(quest.id)
+    if (hero.activeQuestId == quest.id) {
+      hero.activeQuestId = null
+    }
     quest.isFinished = true
     quest.isSuccess = isSuccess
 
@@ -563,5 +637,7 @@ namespace Player {
     } else {
       engine.debug(incidentContent)
     }
+    
+    updateQuest()
   }
 }

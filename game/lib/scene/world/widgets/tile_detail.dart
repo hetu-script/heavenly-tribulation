@@ -4,7 +4,7 @@ import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 
 import '../../../engine.dart';
-import '../../../ui.dart';
+import '../../../game/ui.dart';
 import '../../../state/selected_tile.dart';
 
 class TileDetailPanel extends StatefulWidget {

@@ -60,11 +60,13 @@ struct Quest {
     ///   description,
     /// }
     this.stages = stages
-    this.currentStageIndex = 0
-
+    
     // 结束不代表任务成功
     this.isFinished = false
     this.isSuccessed = false
+
+    // 任务进度，默认就一定包含 index 为 0 的初始阶段
+    this.progress = [ 0 ]
   }
 }
 
@@ -96,29 +98,29 @@ function generateQuestById(questId, {publishCharacterId}) {
 // function characterTrySubmitQuest(character, target, quest) -> bool {
 //   if (quest.questEntitiesSubmit) {
 //     for (const data in quest.questEntitiesSubmit) {
-//       if (data.entityType == kEntityTypeCharacter || data.entityType == kEntityTypeNpc) {
-//         if (!character.companions.containsKey(data.id)) return false
-//       } else if (data.entityType == kEntityTypeItem) {
-//         if (!character.inventory.containsKey(data.id)) {
+//       if (game.entityType == kEntityTypeCharacter || game.entityType == kEntityTypeNpc) {
+//         if (!character.companions.containsKey(game.id)) return false
+//       } else if (game.entityType == kEntityTypeItem) {
+//         if (!character.inventory.containsKey(game.id)) {
 //           return false
 //         } else {
-//           const item = character.inventory[data.id]
-//           if (item.stackSize < data.count) {
+//           const item = character.inventory[game.id]
+//           if (item.stackSize < game.count) {
 //             return false
 //           }
 //         }
 //       } else {
 //         print(data)
-//         engine.error('提交任务时发生错误，对象类型既不是人员也是物品：${data.entityType}')
+//         engine.error('提交任务时发生错误，对象类型既不是人员也是物品：${game.entityType}')
 //       }
 //     }
 
 //     for (const data in quest.questEntitiesSubmit) {
-//       if (data.entityType == kEntityTypeCharacter || data.entityType == kEntityTypeNpc) {
-//         const entity = character.companions[data.id]
+//       if (game.entityType == kEntityTypeCharacter || game.entityType == kEntityTypeNpc) {
+//         const entity = character.companions[game.id]
 //         characterDismissCompanion(character, entity)
-//       } else if (data.entityType == kEntityTypeItem) {
-//         give(character, target, data.id, count: data.count)
+//       } else if (game.entityType == kEntityTypeItem) {
+//         give(character, target, game.id, count: game.count)
 //       }
 //     }
 //   }

@@ -67,7 +67,7 @@ class _GameDialogControllerState extends State<GameDialogController>
     final prevScene = context.watch<GameDialogState>().prevScene;
     final sceneInfo = context.watch<GameDialogState>().currentSceneInfo;
     final illustrationsInfo = context.watch<GameDialogState>().illustrations;
-    final dialogContent = context.watch<GameDialogState>().currentContent;
+    final dialogContentData = context.watch<GameDialogState>().currentContent;
     final selectionsData = context.watch<GameDialogState>().selectionsData;
 
     Widget? background;
@@ -83,7 +83,7 @@ class _GameDialogControllerState extends State<GameDialogController>
 
       if (sceneInfo.isFadeIn &&
           illustrationsInfo.isEmpty &&
-          dialogContent == null &&
+          dialogContentData == null &&
           selectionsData == null) {
         sceneFadeController.forward(from: 0.0);
         taskId = sceneInfo.taskId;
@@ -112,7 +112,7 @@ class _GameDialogControllerState extends State<GameDialogController>
       if (prevScene != null &&
           prevScene.isFadeOut &&
           illustrationsInfo.isEmpty &&
-          dialogContent == null &&
+          dialogContentData == null &&
           selectionsData == null) {
         sceneFadeController.reverse(from: 1.0);
         taskId = prevScene.taskId;
@@ -171,7 +171,7 @@ class _GameDialogControllerState extends State<GameDialogController>
 
     final isEmpty = background == null &&
         illustrations.isEmpty &&
-        dialogContent == null &&
+        dialogContentData == null &&
         selectionsData == null;
 
     return isEmpty
@@ -182,8 +182,10 @@ class _GameDialogControllerState extends State<GameDialogController>
               children: [
                 if (background != null) background,
                 if (illustrations.isNotEmpty) ...illustrations,
-                if (dialogContent != null) GameDialogContent(),
-                if (selectionsData != null) SelectionDialog(),
+                if (dialogContentData != null)
+                  GameDialogContent(data: dialogContentData),
+                if (selectionsData != null)
+                  SelectionDialog(data: selectionsData),
               ],
             ),
           );

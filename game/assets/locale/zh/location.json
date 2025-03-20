@@ -1,11 +1,13 @@
 {
   "population": "人口",
 
+  "characterHomeSite": "{0}的住宅",
+
   "palace": "皇宫",
   "government": "官府",
   "hospital": "医馆",
 
-  "residence": "住宅",
+  "residence": "住所",
   "cityhall": "集会所",
 
   "arena": "演武场",
@@ -23,7 +25,7 @@
   "zoo": "兽园",
   "workshop": "工坊",
   "arraylab": "阵法所",
-  "runelab": "制符间",
+  "scrolllab": "制符间",
   "alchemylab": "丹房",
   "illusionaltar": "幻术堂",
   "psychicaltar": "魂龛",
@@ -52,7 +54,6 @@
   "complaintSite": "投诉场所",
   "complaintCharacter": "起诉他人",
   "appealCharacter": "为人伸冤",
-  "setHome": "迁居到此",
   "visitJail": "探监",
 
   "noticeBoard": "布告栏",

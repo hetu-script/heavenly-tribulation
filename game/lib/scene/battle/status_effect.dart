@@ -7,8 +7,8 @@ import 'package:samsara/components/hovertip.dart';
 import 'package:hetu_script/utils/collection.dart';
 
 import '../../engine.dart';
-import '../../data.dart';
-import '../../ui.dart';
+import '../../game/data.dart';
+import '../../game/ui.dart';
 import 'common.dart';
 
 class StatusEffect extends BorderComponent with HandlesGesture {

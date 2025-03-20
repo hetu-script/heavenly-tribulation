@@ -1,48 +1,48 @@
 {
   "passive_swordcraft_rank_1_description": "可以在战斗中使用<rank1>凝气期</>御剑流派卡牌",
-  "passive_daoism_rank_1_description": "可以在战斗中使用<rank1>凝气期</>悟道流派卡牌",
+  "passive_spellcraft_rank_1_description": "可以在战斗中使用<rank1>凝气期</>悟道流派卡牌",
   "passive_physique_rank_1_description": "可以在战斗中使用<rank1>凝气期</>锻体流派卡牌",
   "passive_avatar_rank_1_description": "可以在战斗中使用<rank1>凝气期</>法身流派卡牌",
   "passive_svitality_rank_1_description": "可以在战斗中使用<rank1>凝气期</>炼魂流派卡牌",
 
   "passive_swordcraft_rank_2_description": "可以在战斗中使用<rank2>筑基期</>御剑流派卡牌",
-  "passive_daoism_rank_2_description": "可以在战斗中使用<rank2>筑基期</>悟道流派卡牌",
+  "passive_spellcraft_rank_2_description": "可以在战斗中使用<rank2>筑基期</>悟道流派卡牌",
   "passive_physique_rank_2_description": "可以在战斗中使用<rank2>筑基期</>锻体流派卡牌",
   "passive_avatar_rank_2_description": "可以在战斗中使用<rank2>筑基期</>法身流派卡牌",
   "passive_svitality_rank_2_description": "可以在战斗中使用<rank2>筑基期</>炼魂流派卡牌",
 
   "passive_swordcraft_rank_3_description": "可以在战斗中使用<rank3>结丹期</>御剑流派卡牌",
-  "passive_daoism_rank_3_description": "可以在战斗中使用<rank3>结丹期</>悟道流派卡牌",
+  "passive_spellcraft_rank_3_description": "可以在战斗中使用<rank3>结丹期</>悟道流派卡牌",
   "passive_physique_rank_3_description": "可以在战斗中使用<rank3>结丹期</>锻体流派卡牌",
   "passive_avatar_rank_3_description": "可以在战斗中使用<rank3>结丹期</>法身流派卡牌",
   "passive_svitality_rank_3_description": "可以在战斗中使用<rank3>结丹期</>炼魂流派卡牌",
 
   "passive_swordcraft_rank_4_description": "可以在战斗中使用<rank4>还婴期</>御剑流派卡牌",
-  "passive_daoism_rank_4_description": "可以在战斗中使用<rank4>还婴期</>悟道流派卡牌",
+  "passive_spellcraft_rank_4_description": "可以在战斗中使用<rank4>还婴期</>悟道流派卡牌",
   "passive_physique_rank_4_description": "可以在战斗中使用<rank4>还婴期</>锻体流派卡牌",
   "passive_avatar_rank_4_description": "可以在战斗中使用<rank4>还婴期</>法身流派卡牌",
   "passive_svitality_rank_4_description": "可以在战斗中使用<rank4>还婴期</>炼魂流派卡牌",
 
   "passive_swordcraft_rank_5_description": "可以在战斗中使用<rank5>化神期</>御剑流派卡牌",
-  "passive_daoism_rank_5_description": "可以在战斗中使用<rank5>化神期</>悟道流派卡牌",
+  "passive_spellcraft_rank_5_description": "可以在战斗中使用<rank5>化神期</>悟道流派卡牌",
   "passive_physique_rank_5_description": "可以在战斗中使用<rank5>化神期</>锻体流派卡牌",
   "passive_avatar_rank_5_description": "可以在战斗中使用<rank5>化神期</>法身流派卡牌",
   "passive_svitality_rank_5_description": "可以在战斗中使用<rank5>化神期</>炼魂流派卡牌",
 
   "passive_swordcraft_rank_6_description": "可以在战斗中使用<rank6>炼虚期</>御剑流派卡牌",
-  "passive_daoism_rank_6_description": "可以在战斗中使用<rank6>炼虚期</>悟道流派卡牌",
+  "passive_spellcraft_rank_6_description": "可以在战斗中使用<rank6>炼虚期</>悟道流派卡牌",
   "passive_physique_rank_6_description": "可以在战斗中使用<rank6>炼虚期</>锻体流派卡牌",
   "passive_avatar_rank_6_description": "可以在战斗中使用<rank6>炼虚期</>法身流派卡牌",
   "passive_svitality_rank_6_description": "可以在战斗中使用<rank6>炼虚期</>炼魂流派卡牌",
 
   "passive_swordcraft_rank_7_description": "可以在战斗中使用<rank7>合体期</>御剑流派卡牌",
-  "passive_daoism_rank_7_description": "可以在战斗中使用<rank7>合体期</>悟道流派卡牌",
+  "passive_spellcraft_rank_7_description": "可以在战斗中使用<rank7>合体期</>悟道流派卡牌",
   "passive_physique_rank_7_description": "可以在战斗中使用<rank7>合体期</>锻体流派卡牌",
   "passive_avatar_rank_7_description": "可以在战斗中使用<rank7>合体期</>法身流派卡牌",
   "passive_svitality_rank_7_description": "可以在战斗中使用<rank7>合体期</>炼魂流派卡牌",
 
   "passive_swordcraft_rank_8_description": "可以在战斗中使用<rank8>大乘期</>御剑流派卡牌",
-  "passive_daoism_rank_8_description": "可以在战斗中使用<rank8>大乘期</>悟道流派卡牌",
+  "passive_spellcraft_rank_8_description": "可以在战斗中使用<rank8>大乘期</>悟道流派卡牌",
   "passive_physique_rank_8_description": "可以在战斗中使用<rank8>大乘期</>锻体流派卡牌",
   "passive_avatar_rank_8_description": "可以在战斗中使用<rank8>大乘期</>法身流派卡牌",
   "passive_svitality_rank_8_description": "可以在战斗中使用<rank8>大乘期</>炼魂流派卡牌",
@@ -54,6 +54,8 @@
   "passive_equipment_bow_description": "可以在战斗中使用弓术",
   "passive_equipment_dart_description": "可以在战斗中使用暗器",
   "passive_equipment_music_description": "可以在战斗中使用乐曲",
+
+  "passive_equipment_cursed_description": "诅咒：装备后无法取下",
 
   "passive_punch_extra_chi_damage_description": "拳法额外造成 {0}% 真气伤害",
   "passive_punch_extra_elemental_damage_description": "拳法额外造成 {0}% 元素伤害",
@@ -87,6 +89,11 @@
   "passive_elemental_resist_description": "元素抗性 +{0}",
   "passive_spiritual_resist_description": "精神抗性 +{0}",
 
+  "passive_weapon_unrestricted_equip_description": "可以同时装备多种武器",
+  "passive_armor_unrestricted_equip_description": "可以同时装备多种武器",
+  "passive_helmet_unrestricted_equip_description": "可以同时装备多种武器",
+  "passive_boots_unrestricted_equip_description": "可以同时装备多种武器",
+  "passive_vehicle_unrestricted_equip_description": "可以同时装备多种武器",
   "passive_light_radius_description": "大地图视野范围 +{0}",
   "passive_life_max_description": "生命上限 +{0}",
 

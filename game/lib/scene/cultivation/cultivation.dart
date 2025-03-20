@@ -4,8 +4,6 @@ import 'dart:math' as math;
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/common.dart';
-import 'package:heavenly_tribulation/scene/common.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
@@ -20,11 +18,14 @@ import 'package:hetu_script/values.dart';
 
 import 'exp_light_point.dart';
 import '../../engine.dart';
-import '../../logic/algorithm.dart';
-import '../../ui.dart';
-import '../../data.dart';
+import '../../game/logic.dart';
+import '../../game/ui.dart';
+import '../../game/data.dart';
 import '../game_dialog/selection_dialog.dart';
 import '../../widgets/ui_overlay.dart';
+import '../../common.dart';
+import '../common.dart';
+import '../game_dialog/game_dialog_controller.dart';
 
 const _kLightPointMoveSpeed = 450.0;
 // const _kButtonAnimationDuration = 1.2;
@@ -70,8 +71,6 @@ class CultivationScene extends Scene {
   late final SpriteComponent backgroundSprite;
 
   late final SpriteComponent2 skillTreeTrack;
-
-  late final dynamic _heroData;
 
   late final dynamic _heroPassiveData;
 
@@ -135,11 +134,11 @@ class CultivationScene extends Scene {
   }) : super(id: Scenes.cultivation, enableLighting: true);
 
   void udpateLevelDescription() {
-    final int rank = _heroData['cultivationRank'];
+    final int rank = GameData.heroData['rank'];
     final rankString =
         '<bold rank$rank>${engine.locale('cultivationRank_$rank')}</>';
 
-    final int availablePoints = _heroData['availableSkillPoints'];
+    final int availablePoints = GameData.heroData['availableSkillPoints'];
     final pointsString = availablePoints > 0
         ? '<bold yellow>$availablePoints</>'
         : '<bold red>$availablePoints</>';
@@ -147,7 +146,7 @@ class CultivationScene extends Scene {
     levelDescription.text = '${engine.locale('cultivationRank')}: $rankString '
         '${engine.locale('availableSkillPoints')}: $pointsString';
     expBar.label =
-        '${engine.locale('cultivationLevel')}: ${_heroData['cultivationLevel']} ${engine.locale('exp')}: ';
+        '${engine.locale('cultivationLevel')}: ${GameData.heroData['level']} ${engine.locale('exp')}: ';
   }
 
   void hint(
@@ -172,7 +171,8 @@ class CultivationScene extends Scene {
   /// 返回的两个bool值分别表示技能是否已经学习，以及技能是否可以学习
   (bool, bool) checkPassiveStatus(String positionId) {
     final passiveTreeNodeData = GameData.passiveTree[positionId];
-    final unlockedNodes = _heroData['passiveTreeUnlockedNodes'] as HTStruct;
+    final unlockedNodes =
+        GameData.heroData['passiveTreeUnlockedNodes'] as HTStruct;
     final isLearned = unlockedNodes.contains(positionId);
     // 可以学的技能，如果邻近的父节点无一解锁，则无法学习
     // 如果父节点数据是空的，则是入口节点，直接可以学习
@@ -246,9 +246,9 @@ class CultivationScene extends Scene {
 
   /// 出于性能考虑，永远只显示足以升到下一级的光点
   void addExpLightPoints() {
-    final int unconvertedExp = _heroData['unconvertedExp'];
-    final int level = _heroData['cultivationLevel'];
-    final int expForNextLevel = expForLevel(level);
+    final int unconvertedExp = GameData.heroData['unconvertedExp'];
+    final int level = GameData.heroData['level'];
+    final int expForNextLevel = GameLogic.expForLevel(level);
 
     int expDisplayed = math.min(unconvertedExp, expForNextLevel);
     int lightPointCount = expDisplayed ~/ _kExpPerLightPoint;
@@ -342,7 +342,8 @@ class CultivationScene extends Scene {
         // 分配新的属性天赋点时，从五种属性中选择一种，并获得3点该属性值
         // 分配后，按钮也会相应变成对应该属性的颜色
         // 身法：绿 灵力：蓝 体魄：红 意志：白 神识：黄
-        final attributeId = _heroData['passiveTreeUnlockedNodes'][positionId];
+        final attributeId =
+            GameData.heroData['passiveTreeUnlockedNodes'][positionId];
         assert(attributeId is String);
         final attributeSkillData = GameData.passives[attributeId];
         assert(attributeSkillData != null);
@@ -357,13 +358,13 @@ class CultivationScene extends Scene {
           Hovertip.hide(button);
 
           final rank = skillTreeNodeData['rank'] ?? 0;
-          if (_heroData['cultivationRank'] < rank) return;
+          if (GameData.heroData['rank'] < rank) return;
 
-          if (_heroData['availableSkillPoints'] > 0) {
-            final unlockedNodes = _heroData['passiveTreeUnlockedNodes'];
+          if (GameData.heroData['availableSkillPoints'] > 0) {
+            final unlockedNodes = GameData.heroData['passiveTreeUnlockedNodes'];
             if (isAttribute) {
               final selectedAttributeId =
-                  await SelectionDialog.show(context: context, selectionsData: {
+                  await SelectionDialog.show(context, selectionsData: {
                 'dexterity': engine.locale('dexterity'),
                 'spirituality': engine.locale('spirituality'),
                 'strength': engine.locale('strength'),
@@ -375,7 +376,7 @@ class CultivationScene extends Scene {
                   selectedAttributeId == 'cancel') {
                 return;
               }
-              --_heroData['availableSkillPoints'];
+              --GameData.heroData['availableSkillPoints'];
               button.isSelected = true;
 
               // 属性点类的node，记录的是选择的具体属性的名字
@@ -389,7 +390,7 @@ class CultivationScene extends Scene {
               button.spriteId = GameData.passives[selectedAttributeId]['icon'];
               button.tryLoadSprite();
             } else {
-              --_heroData['availableSkillPoints'];
+              --GameData.heroData['availableSkillPoints'];
               button.isSelected = true;
               unlockedNodes[positionId] = true;
 
@@ -421,10 +422,10 @@ class CultivationScene extends Scene {
           Hovertip.hide(button);
           // TODO:检查节点链接，如果有其他节点依赖于该节点，则不能退点
 
-          ++_heroData['availableSkillPoints'];
+          ++GameData.heroData['availableSkillPoints'];
           button.isSelected = false;
 
-          final unlockedNodes = _heroData['passiveTreeUnlockedNodes'];
+          final unlockedNodes = GameData.heroData['passiveTreeUnlockedNodes'];
 
           if (isAttribute) {
             final attributeId = unlockedNodes[positionId];
@@ -460,7 +461,8 @@ class CultivationScene extends Scene {
               '<bold yellow>${engine.locale(skillTreeNodeData['title'])}</>');
           skillDescription.writeln(' ');
 
-          final attributeId = _heroData['passiveTreeUnlockedNodes'][positionId];
+          final attributeId =
+              GameData.heroData['passiveTreeUnlockedNodes'][positionId];
           assert(attributeId is String);
           final attributeSkillData = GameData.passives[attributeId];
           assert(attributeSkillData != null);
@@ -478,9 +480,9 @@ class CultivationScene extends Scene {
           skillDescription.writeln(engine.locale('skilltree_refund_hint'));
         } else {
           if (isOpen) {
-            if (_heroData['availableSkillPoints'] > 0) {
+            if (GameData.heroData['availableSkillPoints'] > 0) {
               final rankRequirement = skillTreeNodeData['rank'] ?? 0;
-              if (_heroData['cultivationRank'] >= rankRequirement) {
+              if (GameData.heroData['rank'] >= rankRequirement) {
                 skillDescription
                     .writeln(engine.locale('skilltree_unlock_hint'));
               } else {
@@ -516,10 +518,8 @@ class CultivationScene extends Scene {
   Future<void> onLoad() async {
     super.onLoad();
 
-    _heroData = engine.hetu.fetch('hero');
-
-    // _heroSkillsData = deepCopy(_heroData['passives']);
-    _heroPassiveData = _heroData['passives'];
+    // _heroSkillsData = deepCopy(GameData.heroData['passives']);
+    _heroPassiveData = GameData.heroData['passives'];
 
     updateHeroSkillsDescription();
 
@@ -571,20 +571,23 @@ class CultivationScene extends Scene {
     world.add(cultivator);
 
     final rankImagePath =
-        'cultivation/cultivation${_heroData['cultivationRank']}.png';
+        'cultivation/cultivation${GameData.heroData['rank']}.png';
     cultivationRankButton = SpriteButton(
       anchor: Anchor.center,
       sprite: Sprite(await Flame.images.load(rankImagePath)),
       position: GameUI.condensedPosition,
       size: GameUI.cultivationRankButton,
-      onTap: (buttons, position) async {
-        if (state == CultivationSceneState.expCollection) {
-          await condenseAll();
-          checkEXP();
-        }
-      },
       priority: _kCultivationRankButtonPriority,
     );
+    cultivationRankButton.onTap = (buttons, position) async {
+      if (state == CultivationSceneState.expCollection) {
+        if (GameData.heroData['exp']) {}
+
+        await condenseAll();
+        checkEXP();
+      }
+    };
+
     world.add(cultivationRankButton);
 
     // String generateSkillStats() {
@@ -610,9 +613,9 @@ class CultivationScene extends Scene {
     );
     camera.viewport.add(levelDescription);
 
-    int level = _heroData['cultivationLevel'];
-    int convertedExp = _heroData['exp'];
-    int expForNextLevel = expForLevel(level);
+    int level = GameData.heroData['level'];
+    int convertedExp = GameData.heroData['exp'];
+    int expForNextLevel = GameLogic.expForLevel(level);
     expBar = DynamicColorProgressIndicator(
       anchor: Anchor.center,
       position: GameUI.expBarPosition,
@@ -629,7 +632,7 @@ class CultivationScene extends Scene {
       labelFontFamily: GameUI.fontFamily,
     );
     // expBar.onMouseEnter = () {
-    //   final level = heroData['cultivationLevel'];
+    //   final level = heroData['level'];
     //   Tooltip.show(
     //     scene: this,
     //     target: expBar,
@@ -680,7 +683,12 @@ class CultivationScene extends Scene {
     };
     camera.viewport.add(cultivationSkillPageButton);
 
-    final exit = GameData.getExitSiteCard(spriteId: 'exit_card2');
+    final exit = GameData.createSiteCard(
+      id: 'exit',
+      spriteId: 'exit2.png',
+      title: engine.locale('exit'),
+      position: GameUI.siteExitCardPositon,
+    );
     exit.onTap = (_, __) {
       engine.popScene();
     };
@@ -879,18 +887,17 @@ class CultivationScene extends Scene {
     // }
   }
 
+  /// 处理角色升级相关逻辑
   Future<void> checkEXP() async {
-    int level = _heroData['cultivationLevel'];
-    int expForNextLevel = expForLevel(level);
-    int exp = _heroData['exp'];
+    int level = GameData.heroData['level'];
+    int expForNextLevel = GameLogic.expForLevel(level);
+    int exp = GameData.heroData['exp'];
 
     while (exp >= expForNextLevel) {
-      // 处理角色升级相关逻辑
-
       exp -= expForNextLevel;
-      expForNextLevel = expForLevel(++level);
+      expForNextLevel = GameLogic.expForLevel(++level);
 
-      engine.hetu.invoke('cultivationLevelUp', namespace: 'Player');
+      engine.hetu.invoke('levelUp', namespace: 'Player');
 
       hint(
         '${engine.locale('cultivationLevel')} + 1',
@@ -899,14 +906,14 @@ class CultivationScene extends Scene {
       );
 
       final newRank = level ~/ kLevelPerRank + 1;
-      final rank = _heroData['cultivationRank'];
+      final rank = GameData.heroData['rank'];
       if (newRank > rank) {
         if (rank == 0) {
           // 触发第一次修炼事件
         }
 
         // engine.hetu
-        //     .invoke('characterCultivationRankUp', positionalArgs: [_heroData]);
+        //     .invoke('characterCultivationRankUp', positionalArgs: [GameData.heroData]);
         // // cultivationRankButton.spriteId = 'cultivation/cultivation$newRank.png';
         // // cultivationRankButton.hoverSpriteId =
         // //     'cultivation/cultivation${newRank}_hover.png';
@@ -952,8 +959,8 @@ class CultivationScene extends Scene {
         _lightPoints.remove(light);
         light.removeFromParent();
 
-        _heroData['unconvertedExp'] -= light.exp;
-        _heroData['exp'] += light.exp;
+        GameData.heroData['unconvertedExp'] -= light.exp;
+        GameData.heroData['exp'] += light.exp;
         expBar.setValue(expBar.value + light.exp);
 
         onComplete?.call();
@@ -966,10 +973,10 @@ class CultivationScene extends Scene {
   FutureOr<void> condenseAll() async {
     if (_lightPoints.isEmpty) return;
 
-    // int level = _heroData['cultivationLevel'];
+    // int level = GameData.heroData['level'];
     // int expForNextLevel = expForLevel(level);
-    // int points = _heroData['exp'];
-    // int exp = _heroData['unconvertedExp'];
+    // int points = GameData.heroData['exp'];
+    // int exp = GameData.heroData['unconvertedExp'];
 
     // int number;
     // if (exp >= expForNextLevel - points) {
@@ -1041,6 +1048,7 @@ class CultivationScene extends Scene {
             top: 0,
             child: GameUIOverlay(),
           ),
+          GameDialogController(),
         ],
       ),
     );

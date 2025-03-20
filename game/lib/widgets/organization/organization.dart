@@ -4,7 +4,7 @@ import 'package:hetu_script/values.dart';
 // import 'package:samsara/event.dart';
 
 import '../../engine.dart';
-import '../../ui.dart';
+import '../../game/ui.dart';
 import 'package:samsara/ui/close_button2.dart';
 import 'package:samsara/ui/responsive_view.dart';
 // import '../../game_entity_listview.dart';
@@ -101,13 +101,13 @@ class _OrganizationViewState extends State<OrganizationView> {
     // final headTitle = _organizationData['rankTitles'][6];
 
     return ResponsiveView(
+      color: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       width: 400.0,
       height: 400.0,
       child: DefaultTabController(
         length: _tabs.length,
         child: Scaffold(
-          backgroundColor: GameUI.backgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(_organizationData['name']),

@@ -40,18 +40,6 @@ class EquipmentBar extends StatelessWidget {
       ),
     );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        isVertical
-            ? Column(
-                children: children,
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: children,
-              ),
-      ],
-    );
+    return isVertical ? Column(children: children) : Row(children: children);
   }
 }

@@ -29,7 +29,7 @@ struct ElderCultivator {
   }) {
     this.kind = random.nextIterable(_kElderCultivatorAttributes.keys)
     this.entityType = kEntityTypeNpc
-    this.birthTimestamp =  createRandomBirthTimestamp(min: 40, max: 70)
+    this.birthTimestamp =  createBirthTimestamp(min: 40, max: 70)
     // this.icon = 'general.png'
     this.category = kEntityCategoryCharacter
     this.name = engine.locale(_kElderCultivatorName)

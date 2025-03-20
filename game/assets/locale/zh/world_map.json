@@ -20,7 +20,7 @@
   "view": "视图",
   "saveAndExitGame": "保存并退出",
 
-  "firstVisitCity": "你发现了据点：{0}。",
+  "firstDiscover": "你发现了：{0}。",
   "exploredEmtpy": "这里好像并没什么值得搜索的对象。",
   "alreadyExplored": "你已经搜索过这里了。",
 

@@ -2,12 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:samsara/richtext.dart';
 import 'package:provider/provider.dart';
 
-import '../../ui.dart';
+import '../../game/ui.dart';
 import '../../state/game_dialog.dart';
 
 class SelectionDialog extends StatefulWidget {
-  static Future<String?> show({
-    required BuildContext context,
+  /// 调用这个方法不会触发 GameDialogState 的改变
+  ///
+  /// selection data 数据格式：
+  /// ```
+  /// {
+  ///   selections: {
+  ///     selectKey1: 'localedText1',
+  ///     selectKey2: 'localedText3',
+  ///   }
+  /// }
+  /// ```
+  static Future<String?> show(
+    BuildContext context, {
     required dynamic selectionsData,
   }) async {
     return await showDialog<String>(
@@ -15,17 +26,17 @@ class SelectionDialog extends StatefulWidget {
       barrierColor: Colors.transparent,
       barrierDismissible: true,
       builder: (BuildContext context) {
-        return SelectionDialog(selectionsData: selectionsData);
+        return SelectionDialog(data: selectionsData);
       },
     );
   }
 
-  final dynamic selectionsData;
+  final dynamic data;
 
   const SelectionDialog({
     super.key,
-    this.selectionsData,
-  });
+    required this.data,
+  }) : assert(data != null);
 
   @override
   State<SelectionDialog> createState() => _SelectionDialogState();
@@ -36,56 +47,51 @@ class _SelectionDialogState extends State<SelectionDialog> {
 
   @override
   Widget build(BuildContext context) {
-    selectionsData = widget.selectionsData ??
-        context.watch<GameDialogState>().selectionsData;
-
-    return selectionsData == null
-        ? Container()
-        : Material(
-            color: Colors.transparent,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Positioned.fill(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children:
-                        List<Widget>.from(selectionsData['selections'].keys.map(
-                      (key) {
-                        final text = selectionsData['selections'][key];
-                        assert(text is String);
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              if (selectionsData['taskId'] == null) {
-                                Navigator.pop(context, key);
-                              } else {
-                                assert(selectionsData['id'] != null);
-                                context.read<GameDialogState>().finishSelection(
-                                      selectionsData['taskId'],
-                                      selectionsData['id'],
-                                      value: key,
-                                    );
-                              }
-                            },
-                            child: RichText(
-                              text: TextSpan(
-                                children: buildFlutterRichText(text),
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontFamily: GameUI.fontFamily,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
+    return Material(
+      color: Colors.transparent,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Positioned.fill(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List<Widget>.from(selectionsData['selections'].keys.map(
+                (key) {
+                  final text = selectionsData['selections'][key];
+                  assert(text is String);
+                  return Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    width: 300,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (selectionsData['taskId'] == null) {
+                          Navigator.pop(context, key);
+                        } else {
+                          assert(selectionsData['id'] != null);
+                          context.read<GameDialogState>().finishSelection(
+                                selectionsData['taskId'],
+                                selectionsData['id'],
+                                value: key,
+                              );
+                        }
                       },
-                    )),
-                  ),
-                ),
-              ],
+                      child: RichText(
+                        text: TextSpan(
+                          children: buildFlutterRichText(text),
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontFamily: GameUI.fontFamily,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              )),
             ),
-          );
+          ),
+        ],
+      ),
+    );
   }
 }

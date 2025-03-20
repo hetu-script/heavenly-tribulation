@@ -6,7 +6,7 @@ import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 
 import '../../engine.dart';
-import '../../ui.dart';
+import '../../game/ui.dart';
 
 class InputDescriptionDialog extends StatefulWidget {
   static Future<String?> show({
@@ -48,19 +48,20 @@ class _InputDescriptionDialogState extends State<InputDescriptionDialog> {
 
   @override
   void dispose() {
-    _textEditingController.dispose();
     super.dispose();
+
+    _textEditingController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
+      color: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       child: SizedBox(
         width: 600.0,
         height: 600.0,
         child: Scaffold(
-          backgroundColor: GameUI.backgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(widget.title ?? engine.locale('inputDescription')),
@@ -93,7 +94,7 @@ class _InputDescriptionDialogState extends State<InputDescriptionDialog> {
                   child: ElevatedButton(
                     onPressed: () {
                       String result = _textEditingController.text.trim();
-                      Navigator.of(context).pop(result.nonEmptyValueOrNull);
+                      Navigator.of(context).pop(result.nonEmptyValue);
                     },
                     child: Text(
                       engine.locale('confirm'),

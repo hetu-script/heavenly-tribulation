@@ -1,12 +1,11 @@
-import 'game.ht'
+import 'game/data.ht'
 
 const kTicksPerDay = 4 //每天的回合数 morning, afternoon, evening, night
-const kDaysPerWeek = 10 //每旬的天数
-const kTicksPerWeek = kDaysPerWeek * kTicksPerDay //每旬的回合数 40
 const kDaysPerMonth = 30 //每月的天数
 const kTicksPerMonth = kDaysPerMonth * kTicksPerDay //每月的回合数 120
+const kDaysPerYear = 360 //每年的月数
 const kMonthsPerYear = 12 //每年的月数
-const kTicksPerYear = kMonthsPerYear * kTicksPerMonth //每年的回合数 1440
+const kTicksPerYear = kDaysPerYear * kTicksPerDay //每年的回合数 1440
 
 /// 当前年数
 function toYear(timestamp) => (timestamp ~/ kTicksPerYear)
@@ -17,26 +16,16 @@ function toDay(timestamp) => (timestamp % kTicksPerMonth) ~/ kTicksPerDay
 /// 0-3 当前的时刻（清晨、下午、傍晚、午夜）
 function toTime(timestamp) => (timestamp % kTicksPerDay)
 
-const kHourString = {
-  '0': 'morning',
-  '1': 'afternoon',
-  '2': 'evening',
-  '3': 'night',
-}
-
 function getCurrentDateTimeString() {
-  if (timeline == null) return ''
-  const d = formatDateTimeString(game.timestamp, format: 'date')
-  const h = (game.timestamp % 4).toString()
-  const h2 = engine.locale(kHourString[h])
-  return '${d}${h2}'
+  return formatDateTimeString(game.timestamp ?? 0, format: 'datetime.ymdh')
 }
 
-/// [format] = 'age' | 'date' | 'time' | 'number' . 'ymd' | 'ym' | 'md' | 'y' | 'm' | 'd'
+/// [format] = ('age' | 'date' | 'time' | 'datetime' | 'number').('ymdh' | 'ymd' | 'ym' | 'md' | 'y' | 'm' | 'd' | 'h')
 function formatDateTimeString(timestamp: integer, {format: string}) {
   let yearN = toYear(timestamp)
   let monthN = toMonth(timestamp)
   let dayN = toDay(timestamp)
+  let timeN = toTime(timestamp)
   
   let yearC = ''
   let monthC = ''
@@ -47,56 +36,61 @@ function formatDateTimeString(timestamp: integer, {format: string}) {
     yearC = engine.locale('ageYear')
     monthC = engine.locale('ageMonth')
     dayC = engine.locale('ageDay')
-  } else if (t == 'date') {
+  } else if (t == 'date' || t == 'datetime') {
     yearC = engine.locale('dateYear')
     monthC = engine.locale('dateMonth')
     dayC = engine.locale('dateDay')
     ++yearN
     ++monthN
     ++dayN
+    ++timeN
   } else if (t == 'time') {
     yearC = engine.locale('timeYear')
     monthC = engine.locale('timeMonth')
     dayC = engine.locale('timeDay')
   }
 
-  const year = '${yearN}${yearC}'
-  const month = '${monthN}${monthC}'
-  const day = '${dayN}${dayC}'
+  const y = '${yearN}${yearC}'
+  const m = '${monthN}${monthC}'
+  const d = '${dayN}${dayC}'
+  const h = engine.locale('timeOfDay${timeN}')
 
-  const fmt = format?.split('.').last
+  const fmt = format?.split('.').last ?? 'ymdh'
   switch (fmt) {
     'y' : {
-      return year
+      return y
     }
     'm' : {
-      return month
+      return m
     }
     'd' : {
-      return day
+      return d
+    }
+    'h' : {
+      return h
     }
     'ym' : {
-      return '${year}${month}'
+      return '${y}${m}'
     }
     'md' : {
-      return '${month}${day}'
+      return '${m}${d}'
     }
     'ymd' : {
-      return '${year}${month}${day}'
+      return '${y}${m}${d}'
+    }
+    'ymdh' : {
+      return '${y}${m}${d}${h}'
     }
     'age' : {
       if (yearN == 0) {
         if (monthN == 0) {
-          return day
+          return d
         } else {
-          return month
+          return m
         }
       } else {
-        return year
+        return y
       }
-    }
-    else : {
-      return '${year}${month}${day}'
     }
   }
 }

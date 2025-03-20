@@ -4,7 +4,7 @@ import 'package:samsara/ui/label.dart';
 import 'package:provider/provider.dart';
 
 import '../../../engine.dart';
-import '../../../state/hero.dart';
+import '../../../state/character.dart';
 import '../../../state/hoverinfo.dart';
 
 const kLabelWidth = 120.0;
@@ -27,9 +27,9 @@ class StatsView extends StatelessWidget {
       context.watch<HeroState>().heroData;
     }
 
-    final int level = characterData['cultivationLevel'];
-    final int rank = characterData['cultivationRank'];
-    final int levelMax = characterData['cultivationLevelMax'];
+    final int level = characterData['level'];
+    final int rank = characterData['rank'];
+    final int levelMax = characterData['levelMax'];
     final String rankString =
         '<rank$rank>${engine.locale('cultivationRank_$rank')}</>';
     final stats = characterData['stats'];
@@ -85,10 +85,7 @@ class StatsView extends StatelessWidget {
         onMouseEnter: (rect) {
           final text =
               '${engine.locale('levelMax')}: $levelMax\n${engine.locale('cultivationLevel_description')}';
-          context.read<HoverInfoContentState>().set(
-                text,
-                rect,
-              );
+          context.read<HoverInfoContentState>().set(text, rect);
         },
         onMouseExit: () {
           context.read<HoverInfoContentState>().hide();

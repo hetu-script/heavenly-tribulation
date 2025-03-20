@@ -88,7 +88,7 @@ class GameDialogState with ChangeNotifier, TaskController {
           prevScene = scenes.last;
         }
         scenes.add(SceneInfo(
-          'assets/images/cg/$imageId',
+          'assets/images/$imageId',
           isFadeIn: isFadeIn,
           taskId: taskId,
         ));
@@ -131,7 +131,7 @@ class GameDialogState with ChangeNotifier, TaskController {
     schedule(
       () {
         illustrations.add(IllustrationInfo(
-          'assets/images/illustration/$imageId',
+          'assets/images/$imageId',
           offsetX: offsetX,
           offsetY: offsetY,
         ));
@@ -147,7 +147,8 @@ class GameDialogState with ChangeNotifier, TaskController {
     schedule(
       () {
         if (imageId != null) {
-          illustrations.removeWhere((img) => img.path == imageId);
+          illustrations
+              .removeWhere((img) => img.path == 'assets/images/$imageId');
         } else if (illustrations.isNotEmpty) {
           illustrations.remove(illustrations.last);
         }
@@ -157,7 +158,11 @@ class GameDialogState with ChangeNotifier, TaskController {
     );
   }
 
-  void pushDialog(dynamic content) {
+  void pushDialog(dynamic content, {String? imageId}) {
+    isOpened = true;
+    if (imageId != null) {
+      pushImage(imageId);
+    }
     assert(content != null);
     final resolved = content is String
         ? {
@@ -176,6 +181,9 @@ class GameDialogState with ChangeNotifier, TaskController {
       id: taskId,
       isAuto: false,
     );
+    if (imageId != null) {
+      popImage(imageId: imageId);
+    }
   }
 
   void finishDialog(String id) {

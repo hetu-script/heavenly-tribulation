@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 
 import '../dialog/character_select_dialog.dart';
 import '../../engine.dart';
-import '../../ui.dart';
+import '../../game/ui.dart';
 
 class EditCharacterBond extends StatefulWidget {
   const EditCharacterBond({
@@ -39,6 +39,14 @@ class _EditCharacterBondState extends State<EditCharacterBond> {
     _scoreEditingController.text = widget.score?.toString() ?? '0';
 
     _haveMetValue = widget.haveMet ?? false;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _targetCharacterIdEditingController.dispose();
+    _scoreEditingController.dispose();
   }
 
   @override
@@ -162,8 +170,8 @@ class _EditCharacterBondState extends State<EditCharacterBond> {
                 padding: const EdgeInsets.only(top: 20.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    String? id = _targetCharacterIdEditingController
-                        .text.nonEmptyValueOrNull;
+                    String? id =
+                        _targetCharacterIdEditingController.text.nonEmptyValue;
                     int score = int.tryParse(_scoreEditingController.text) ?? 0;
 
                     if (id != null) {

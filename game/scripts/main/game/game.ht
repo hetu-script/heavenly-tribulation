@@ -1,0 +1,23 @@
+namespace Game {
+  
+  external function updateGameTime()
+
+  external function showHeroInfo([value: bool = true])
+  
+  external function showLibrary()
+  
+  external function showCultivation()
+
+  external function showPrebattle(enemyData)
+
+  external async function showBattle({
+    hero,
+    enemy,
+    isSneakAttack: bool = false,
+    isAutoBattle: bool = false,
+    onBattleStart,
+    onBattleEnd,
+  })
+
+  external async function showTimeflow(max)
+}

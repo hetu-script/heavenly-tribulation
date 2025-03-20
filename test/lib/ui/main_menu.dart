@@ -47,7 +47,7 @@ class _MainMenuState extends State<MainMenu> {
 
     _isLoading = true;
 
-    await engine.init();
+    await engine.init(context);
 
     // final localeStrings =
     //     await rootBundle.loadString('assets/locale/chs.json5');

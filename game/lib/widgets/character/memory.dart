@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/ui/responsive_view.dart';
+// import 'package:samsara/ui/responsive_view.dart';
 
-import 'relationship/bonds.dart';
-import 'relationship/history.dart';
+import '../bonds.dart';
+import 'history.dart';
 
 import '../../engine.dart';
 import '../common.dart';
 import 'edit_character_bond.dart';
 import 'profile.dart';
-import '../../ui.dart';
+import '../../game/ui.dart';
 import '../../state/view_panels.dart';
 import '../draggable_panel.dart';
 
@@ -39,24 +39,9 @@ class CharacterMemoryView extends StatefulWidget {
 
 class _CharacterMemoryViewState extends State<CharacterMemoryView>
     with SingleTickerProviderStateMixin {
-  bool get isEditorMode =>
-      widget.mode == InformationViewMode.edit ||
-      widget.mode == InformationViewMode.create;
+  bool get isEditorMode => widget.mode == InformationViewMode.edit;
 
   static final List<Tab> _tabs = <Tab>[
-    Tab(
-      height: 40,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
-            child: Icon(Icons.sync_alt),
-          ),
-          Text(engine.locale('bonds')),
-        ],
-      ),
-    ),
     Tab(
       height: 40,
       child: Row(
@@ -67,6 +52,19 @@ class _CharacterMemoryViewState extends State<CharacterMemoryView>
             child: Icon(Icons.history),
           ),
           Text(engine.locale('history')),
+        ],
+      ),
+    ),
+    Tab(
+      height: 40,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            child: Icon(Icons.sync_alt),
+          ),
+          Text(engine.locale('bonds')),
         ],
       ),
     ),
@@ -84,14 +82,14 @@ class _CharacterMemoryViewState extends State<CharacterMemoryView>
   void initState() {
     super.initState();
 
+    assert(widget.characterId != null || widget.characterData != null);
     if (widget.characterData != null) {
       _characterData = widget.characterData!;
     } else {
-      final charId = widget.characterId ??
-          ModalRoute.of(context)!.settings.arguments as String;
-      _characterData =
-          engine.hetu.invoke('getCharacterById', positionalArgs: [charId]);
+      _characterData = engine.hetu
+          .invoke('getCharacterById', positionalArgs: [widget.characterId]);
     }
+    assert(_characterData != null);
 
     _bondsData = _characterData['bonds'];
 
@@ -177,6 +175,7 @@ class _CharacterMemoryViewState extends State<CharacterMemoryView>
             child: TabBarView(
               controller: _tabController,
               children: [
+                HistoryView(characterData: _characterData),
                 CharacterBondsView(
                   bondsData: _bondsData,
                   isHero: widget.isHero,
@@ -201,24 +200,16 @@ class _CharacterMemoryViewState extends State<CharacterMemoryView>
                     } else {
                       showDialog(
                         context: context,
-                        builder: (context) => ResponsiveView(
-                          alignment: AlignmentDirectional.center,
-                          width: GameUI.profileWindowWidth,
-                          height: 400.0,
-                          child: CharacterProfile(
-                            characterId: bondData['id'],
-                            showIntimacy: false,
-                            showPosition: false,
-                            showRelationships: false,
-                            showPersonality: false,
-                          ),
+                        builder: (context) => CharacterProfileView(
+                          characterId: bondData['id'],
+                          showIntimacy: false,
+                          showPosition: false,
+                          showRelationships: false,
+                          showPersonality: false,
                         ),
                       );
                     }
                   },
-                ),
-                CharacterHistoryView(
-                  characterData: _characterData,
                 ),
               ],
             ),

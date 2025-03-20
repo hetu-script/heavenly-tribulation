@@ -3,10 +3,9 @@ import 'package:window_manager/window_manager.dart';
 import 'package:samsara/ui/label.dart';
 import 'package:provider/provider.dart';
 
-import '../../ui.dart';
-import '../../data.dart';
+import '../../game/ui.dart';
+import '../../game/data.dart';
 import '../../engine.dart';
-import '../game_dialog/game_dialog_content.dart';
 import 'load_game.dart';
 import 'create_sandbox_game.dart';
 import 'create_blank_map.dart';
@@ -34,7 +33,7 @@ class MainMenuButtons extends StatefulWidget {
 }
 
 class _MainMenuButtonsState extends State<MainMenuButtons> {
-  dynamic _heroData;
+  // dynamic _heroData;
 
   MenuStates _state = MenuStates.main;
   void setMenuState(MenuStates state) {
@@ -368,10 +367,11 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                       padding: const EdgeInsets.only(top: 20.0),
                       child: ElevatedButton(
                         onPressed: () async {
-                          _heroData = engine.hetu
-                              .invoke('generateHero', namespace: 'Debug');
                           context.read<HeroState>().update();
-                          engine.clearAllCachedScene(except: Scenes.mainmenu);
+                          engine.clearAllCachedScene(
+                            except: Scenes.mainmenu,
+                            arguments: {'reset': true},
+                          );
                         },
                         child: Label(
                           engine.locale('debug_reset_hero'),
@@ -384,13 +384,10 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                       padding: const EdgeInsets.only(top: 20.0),
                       child: ElevatedButton(
                         onPressed: () {
-                          engine.pushScene(Scenes.cultivation);
+                          engine.hetu.invoke('debugDialog', namespace: 'Debug');
                         },
-                        child: Label(
-                          engine.locale('debug_cultivation'),
-                          width: 150.0,
-                          textAlign: TextAlign.center,
-                        ),
+                        child: Label(engine.locale('debug_dialog'),
+                            width: 200.0, textAlign: TextAlign.center),
                       ),
                     ),
                     Padding(
@@ -399,7 +396,6 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                         onPressed: () {
                           final enemy =
                               engine.hetu.invoke('Character', namedArgs: {
-                            'isMain': false,
                             'isFemale': false,
                             'level': 0,
                             'rank': 0,
@@ -416,17 +412,23 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                       padding: const EdgeInsets.only(top: 20.0),
                       child: ElevatedButton(
                         onPressed: () {
-                          GameDialogContent.show(
-                            context,
-                            {
-                              'characterData': _heroData,
-                              'lines': [
-                                "你好！这是一个带有<bold blue>格式化</>文本的<color='#F28234' link='test'>测试</>对话！"
-                              ],
-                            },
-                          );
+                          final merchant =
+                              engine.hetu.invoke('Character', namedArgs: {
+                            'rank': 2,
+                            'level': 10,
+                          });
+                          engine.hetu.invoke('testCardpack',
+                              namespace: 'Debug', positionalArgs: [merchant]);
+                          engine.hetu.invoke('testEquipment',
+                              namespace: 'Debug', positionalArgs: [merchant]);
+                          context
+                              .read<MerchantState>()
+                              .show(merchant, priceFactor: {
+                            // 'useShard': true,
+                            // 'base': 0.5,
+                          });
                         },
-                        child: Label(engine.locale('debug_dialog'),
+                        child: Label(engine.locale('debug_merchant'),
                             width: 200.0, textAlign: TextAlign.center),
                       ),
                     ),

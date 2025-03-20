@@ -6,7 +6,7 @@ import 'package:samsara/ui/close_button2.dart';
 
 import '../../engine.dart';
 import '../dropdown_menu_button.dart';
-import '../../ui.dart';
+import '../../game/ui.dart';
 
 class SelectMenuDialog extends StatefulWidget {
   static Future<String?> show({
@@ -50,12 +50,12 @@ class _SelectMenuDialogState extends State<SelectMenuDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
+      color: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       child: SizedBox(
         width: 320,
         height: 200,
         child: Scaffold(
-          backgroundColor: GameUI.backgroundColor,
           appBar: AppBar(
             automaticallyImplyLeading: false,
             title: Text(engine.locale('selectOne')),

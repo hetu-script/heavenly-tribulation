@@ -3,26 +3,18 @@ import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:samsara/richtext/richtext_builder.dart';
 import 'package:provider/provider.dart';
+import 'package:hetu_script/values.dart';
 
-import '../../../ui.dart';
+import '../game/ui.dart';
 import '../../../engine.dart';
 import 'common.dart';
 import '../state/hoverinfo.dart';
+import '../game/data.dart';
 
 class HoverInfo extends StatefulWidget {
-  HoverInfo({
-    required this.data,
-    required this.hoveringRect,
-    this.maxWidth = kHoverInfoMaxWidth,
-    this.textAlign = TextAlign.center,
-    this.direction = HoverInfoDirection.bottomCenter,
-  }) : super(key: GlobalKey());
+  HoverInfo(this.content) : super(key: GlobalKey());
 
-  final dynamic data;
-  final Rect hoveringRect;
-  final double maxWidth;
-  final TextAlign textAlign;
-  final HoverInfoDirection direction;
+  final HoverInfoContent content;
 
   @override
   State<HoverInfo> createState() => _HoverInfoState();
@@ -46,8 +38,8 @@ class _HoverInfoState extends State<HoverInfo> {
 
       late double left, top, width, height;
 
-      if (size.width > widget.maxWidth) {
-        width = widget.maxWidth;
+      if (size.width > widget.content.maxWidth) {
+        width = widget.content.maxWidth;
       } else {
         width = size.width;
       }
@@ -55,54 +47,54 @@ class _HoverInfoState extends State<HoverInfo> {
 
       double preferredX, preferredY;
 
-      switch (widget.direction) {
+      switch (widget.content.direction) {
         case HoverInfoDirection.topLeft:
-          preferredX = widget.hoveringRect.left;
-          preferredY = widget.hoveringRect.top - height - kHoverInfoIndent;
+          preferredX = widget.content.rect.left;
+          preferredY = widget.content.rect.top - height - kHoverInfoIndent;
         case HoverInfoDirection.topCenter:
-          preferredX = widget.hoveringRect.left +
-              (widget.hoveringRect.width - width) / 2;
-          preferredY = widget.hoveringRect.top - height - kHoverInfoIndent;
+          preferredX = widget.content.rect.left +
+              (widget.content.rect.width - width) / 2;
+          preferredY = widget.content.rect.top - height - kHoverInfoIndent;
         case HoverInfoDirection.topRight:
-          preferredX = widget.hoveringRect.right - width;
-          preferredY = widget.hoveringRect.top - height - kHoverInfoIndent;
+          preferredX = widget.content.rect.right - width;
+          preferredY = widget.content.rect.top - height - kHoverInfoIndent;
         case HoverInfoDirection.leftTop:
-          preferredX = widget.hoveringRect.left - width - kHoverInfoIndent;
-          preferredY = widget.hoveringRect.top;
+          preferredX = widget.content.rect.left - width - kHoverInfoIndent;
+          preferredY = widget.content.rect.top;
         case HoverInfoDirection.leftCenter:
-          preferredX = widget.hoveringRect.left - width - kHoverInfoIndent;
-          preferredY = widget.hoveringRect.top +
-              (widget.hoveringRect.height - height) / 2;
+          preferredX = widget.content.rect.left - width - kHoverInfoIndent;
+          preferredY = widget.content.rect.top +
+              (widget.content.rect.height - height) / 2;
         case HoverInfoDirection.leftBottom:
-          preferredX = widget.hoveringRect.left - width - kHoverInfoIndent;
-          preferredY = widget.hoveringRect.bottom - height - kHoverInfoIndent;
+          preferredX = widget.content.rect.left - width - kHoverInfoIndent;
+          preferredY = widget.content.rect.bottom - height - kHoverInfoIndent;
         case HoverInfoDirection.rightTop:
-          preferredX = widget.hoveringRect.right + kHoverInfoIndent;
-          preferredY = widget.hoveringRect.top;
+          preferredX = widget.content.rect.right + kHoverInfoIndent;
+          preferredY = widget.content.rect.top;
         case HoverInfoDirection.rightCenter:
-          preferredX = widget.hoveringRect.right + kHoverInfoIndent;
-          preferredY = widget.hoveringRect.top +
-              (widget.hoveringRect.height - height) / 2;
+          preferredX = widget.content.rect.right + kHoverInfoIndent;
+          preferredY = widget.content.rect.top +
+              (widget.content.rect.height - height) / 2;
         case HoverInfoDirection.rightBottom:
-          preferredX = widget.hoveringRect.right + kHoverInfoIndent;
-          preferredY = widget.hoveringRect.bottom - height - kHoverInfoIndent;
+          preferredX = widget.content.rect.right + kHoverInfoIndent;
+          preferredY = widget.content.rect.bottom - height - kHoverInfoIndent;
         case HoverInfoDirection.bottomLeft:
-          preferredX = widget.hoveringRect.left;
-          preferredY = widget.hoveringRect.bottom + kHoverInfoIndent;
+          preferredX = widget.content.rect.left;
+          preferredY = widget.content.rect.bottom + kHoverInfoIndent;
         case HoverInfoDirection.bottomCenter:
-          preferredX = widget.hoveringRect.left +
-              (widget.hoveringRect.width - width) / 2;
-          preferredY = widget.hoveringRect.bottom + kHoverInfoIndent;
+          preferredX = widget.content.rect.left +
+              (widget.content.rect.width - width) / 2;
+          preferredY = widget.content.rect.bottom + kHoverInfoIndent;
         case HoverInfoDirection.bottomRight:
-          preferredX = widget.hoveringRect.right - width - kHoverInfoIndent;
-          preferredY = widget.hoveringRect.bottom + kHoverInfoIndent;
+          preferredX = widget.content.rect.right - width - kHoverInfoIndent;
+          preferredY = widget.content.rect.bottom + kHoverInfoIndent;
       }
 
       double maxX = screenSize.width - size.width - kHoverInfoIndent;
-      left = preferredX > maxX ? maxX : preferredX;
+      left = preferredX > maxX ? maxX : (preferredX < 0 ? 0 : preferredX);
 
       double maxY = screenSize.height - size.height - kHoverInfoIndent;
-      top = preferredY > maxY ? maxY : preferredY;
+      top = preferredY > maxY ? maxY : (preferredY < 0 ? 0 : preferredY);
 
       setState(() {
         _rect = Rect.fromLTWH(left, top, width, height);
@@ -113,11 +105,56 @@ class _HoverInfoState extends State<HoverInfo> {
     });
   }
 
-  Widget? _decode(dynamic data, {bool isDetailed = false}) {
+  @override
+  Widget build(BuildContext context) {
+    final screenSize = MediaQuery.sizeOf(context);
+
+    final isDetailed = context.watch<HoverInfoContentState>().isDetailed;
+
     Widget? content;
+    dynamic data = widget.content.data;
+    if (data is HTStruct) {
+      switch (data['entityType']) {
+        case 'item':
+          String description;
+          switch (widget.content.type) {
+            case HoverType.general:
+            case HoverType.player:
+            case HoverType.npc:
+              description = GameData.getDescriptionFromItemData(
+                data,
+                characterData: widget.content.data2,
+                isDetailed: isDetailed,
+              );
+            case HoverType.customer:
+              description = GameData.getDescriptionFromItemData(
+                data,
+                priceFactor: widget.content.data2,
+                isSell: true,
+                isDetailed: isDetailed,
+              );
+            case HoverType.merchant:
+              description = GameData.getDescriptionFromItemData(
+                data,
+                priceFactor: widget.content.data2,
+                isSell: false,
+                isDetailed: isDetailed,
+              );
+          }
+          data = description;
+        case 'battle_card':
+          final (_, description) = GameData.getDescriptionFromCardData(
+            widget.content.data,
+            characterData: widget.content.data2,
+            isDetailed: isDetailed,
+          );
+          data = description;
+      }
+    }
+
     if (data is String) {
       content = RichText(
-        textAlign: widget.textAlign,
+        textAlign: widget.content.textAlign,
         text: TextSpan(
           children: buildFlutterRichText(data),
           style: TextStyle(
@@ -130,16 +167,6 @@ class _HoverInfoState extends State<HoverInfo> {
       content = data;
     }
 
-    return content;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final screenSize = MediaQuery.sizeOf(context);
-
-    final isDetailed = context.watch<HoverInfoContentState>().isDetailed;
-    final content = _decode(widget.data, isDetailed: isDetailed);
-
     _focusNode.requestFocus();
 
     return Positioned(
@@ -148,7 +175,6 @@ class _HoverInfoState extends State<HoverInfo> {
       // height: _height,
       child: IgnorePointer(
         child: KeyboardListener(
-          autofocus: true,
           focusNode: _focusNode,
           onKeyEvent: (event) {
             if (event is KeyDownEvent) {
@@ -165,11 +191,11 @@ class _HoverInfoState extends State<HoverInfo> {
           child: Container(
             padding:
                 const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-            constraints: BoxConstraints(maxWidth: widget.maxWidth),
+            constraints: BoxConstraints(maxWidth: widget.content.maxWidth),
             decoration: BoxDecoration(
               color: GameUI.backgroundColor,
-              borderRadius: GameUI.borderRadius,
-              border: Border.all(color: GameUI.foregroundColor),
+              // borderRadius: GameUI.borderRadius,
+              // border: Border.all(color: GameUI.foregroundColor),
             ),
             child: ClipRRect(
               borderRadius: GameUI.borderRadius,

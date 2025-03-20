@@ -20,7 +20,7 @@ struct VillageWarrior {
     isPermanent = false,
   }) {
     this.entityType = kEntityTypeNpc
-    this.birthTimestamp = birthTimestamp ?? createRandomBirthTimestamp()
+    this.birthTimestamp = birthTimestamp ?? createBirthTimestamp()
     this.icon = 'general.png'
     this.category = kEntityCategoryCharacter
     this.kind = kind ?? random.nextIterable(_kCompanionKinds)

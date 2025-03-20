@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
 
 import '../state/hoverinfo.dart';
-import '../../data.dart';
 
 final kGridSize = Vector2(32.0, 28.0);
 final kTileSpriteSrcSize = Vector2(32.0, 64.0);
@@ -66,6 +65,9 @@ abstract class Scenes {
   static const editor = 'editor';
 }
 
+const kLocationKindHome = 'home';
+const kLocationKindResidence = 'residence';
+
 void previewCard(
   BuildContext context,
   String id,
@@ -74,18 +76,11 @@ void previewCard(
   HoverInfoDirection? direction,
   dynamic characterData,
 }) {
-  final isDetailed = context.read<HoverInfoContentState>().isDetailed;
-
-  final (_, description) = GameData.getDescriptionFromCardData(
-    cardData,
-    isDetailed: isDetailed,
-    characterData: characterData,
-  );
-
   context.read<HoverInfoContentState>().set(
-        description,
+        cardData,
         rect,
         direction: direction ?? HoverInfoDirection.rightTop,
+        data2: characterData,
       );
 }
 
