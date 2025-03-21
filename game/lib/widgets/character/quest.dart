@@ -12,8 +12,8 @@ import '../draggable_panel.dart';
 
 enum QuestViewMode { all, ongoing, finished }
 
-class CharacterQuest extends StatefulWidget {
-  const CharacterQuest({
+class QuestView extends StatefulWidget {
+  const QuestView({
     super.key,
     this.characterId,
     this.characterData,
@@ -27,10 +27,10 @@ class CharacterQuest extends StatefulWidget {
   final InformationViewMode mode;
 
   @override
-  State<CharacterQuest> createState() => _CharacterQuestState();
+  State<QuestView> createState() => _QuestViewState();
 }
 
-class _CharacterQuestState extends State<CharacterQuest> {
+class _QuestViewState extends State<QuestView> {
   bool get isEditorMode => widget.mode == InformationViewMode.edit;
 
   dynamic _characterData, _questsData;
@@ -123,39 +123,41 @@ class _CharacterQuestState extends State<CharacterQuest> {
               width: 300.0,
               child: Column(
                 children: [
-                  SegmentedButton<QuestViewMode>(
-                    segments: <ButtonSegment<QuestViewMode>>[
-                      ButtonSegment<QuestViewMode>(
-                          value: QuestViewMode.all,
-                          label: Text(engine.locale('all')),
-                          icon: const Icon(Icons.list)),
-                      ButtonSegment<QuestViewMode>(
-                          value: QuestViewMode.ongoing,
-                          label: Text(engine.locale('current')),
-                          icon: const Icon(Icons.access_time)),
-                      ButtonSegment<QuestViewMode>(
-                          value: QuestViewMode.finished,
-                          label: Text(engine.locale('finished')),
-                          icon: const Icon(Icons.check_circle)),
-                    ],
-                    selected: {_selectedMode},
-                    onSelectionChanged: (Set<QuestViewMode> newSelection) {
-                      setState(() {
-                        _selectedMode = newSelection.first;
-                      });
-                    },
-                  ),
+                  // SegmentedButton<QuestViewMode>(
+                  //   segments: <ButtonSegment<QuestViewMode>>[
+                  //     ButtonSegment<QuestViewMode>(
+                  //         value: QuestViewMode.all,
+                  //         label: Text(engine.locale('all')),
+                  //         icon: const Icon(Icons.list)),
+                  //     ButtonSegment<QuestViewMode>(
+                  //         value: QuestViewMode.ongoing,
+                  //         label: Text(engine.locale('current')),
+                  //         icon: const Icon(Icons.access_time)),
+                  //     ButtonSegment<QuestViewMode>(
+                  //         value: QuestViewMode.finished,
+                  //         label: Text(engine.locale('finished')),
+                  //         icon: const Icon(Icons.check_circle)),
+                  //   ],
+                  //   selected: {_selectedMode},
+                  //   onSelectionChanged: (Set<QuestViewMode> newSelection) {
+                  //     setState(() {
+                  //       _selectedMode = newSelection.first;
+                  //     });
+                  //   },
+                  // ),
                   Container(
-                    width: 289.0,
-                    height: 300.0,
+                    width: 300.0,
+                    height: 320.0,
+                    margin: const EdgeInsets.only(left: 10.0, right: 10.0),
+                    padding: const EdgeInsets.all(5.0),
                     decoration: BoxDecoration(
                       border: Border.all(
                         color: GameUI.foregroundColor,
                       ),
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(5.0),
-                        bottomRight: Radius.circular(5.0),
-                      ),
+                      // borderRadius: const BorderRadius.only(
+                      //   bottomLeft: Radius.circular(5.0),
+                      //   bottomRight: Radius.circular(5.0),
+                      // ),
                     ),
                     child: _questsData.values.isNotEmpty
                         ? ListView(

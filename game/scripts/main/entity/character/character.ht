@@ -6,7 +6,7 @@ import '../entity.ht'
 import '../../world/tile/hexagonal_tile.ht'
 import 'battle_entity.ht'
 import '../item/item.ht'
-import '../../dialog.ht'
+import '../../game/dialog.ht'
 import '../../random.ht'
 import '../achievements.ht'
 
@@ -1549,6 +1549,15 @@ function updateBondScore(subject, target, score) {
   }
   bond.score += score
   engine.debug('${subject.name} 对 ${target.name} 的好感度改变了: [${score >= 0 ? '+' : '-'}${score.abs()}]')
+}
+
+function getBondScore(subject, target) {
+  let bond = subject.bonds[target.id]
+  if (bond != null) {
+    return bond.score
+  } else {
+    return 0
+  }
 }
 
 /// 提升NPC的修为等级，NPC不会有天赋盘，所以这里不处理经验值和天赋点数等问题

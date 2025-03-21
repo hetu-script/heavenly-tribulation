@@ -16,7 +16,7 @@ class EnemyState with ChangeNotifier {
   bool showPrebattle = false;
   dynamic enemyData;
 
-  void update(dynamic data) {
+  void show(dynamic data) {
     assert(data != null);
     enemyData = data;
     showPrebattle = true;
@@ -45,8 +45,8 @@ class MerchantState with ChangeNotifier {
   dynamic merchantData;
   dynamic priceFactor;
 
-  void show(dynamic merchantData, {dynamic priceFactor}) {
-    this.merchantData = merchantData;
+  void show(dynamic data, {dynamic priceFactor}) {
+    merchantData = data;
     this.priceFactor = priceFactor;
     showMerchant = true;
     notifyListeners();

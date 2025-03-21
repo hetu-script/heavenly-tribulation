@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/common.dart';
-import 'package:samsara/ui/label.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:provider/provider.dart';
 
@@ -106,7 +105,7 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
             LinearProgressIndicator(
               value: _progress / (widget.max * 10),
             ),
-            Label(gameDateTimeString),
+            Text(gameDateTimeString),
             if (finished)
               Padding(
                 padding: const EdgeInsets.all(10.0),

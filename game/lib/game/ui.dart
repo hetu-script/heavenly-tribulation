@@ -49,18 +49,21 @@ abstract class GameUI {
   );
 
   static const textTheme = TextTheme(
-    titleMedium: TextStyle(
-      fontFamily: GameUI.fontFamily,
-      fontSize: 24.0,
-    ),
-    bodySmall: TextStyle(
-      fontFamily: GameUI.fontFamily2,
-      fontSize: 14.0,
-    ),
-    bodyMedium: TextStyle(
-      fontFamily: GameUI.fontFamily,
-      fontSize: 16.0,
-    ),
+    displayLarge: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 36.0),
+    displayMedium: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 34.0),
+    displaySmall: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 32.0),
+    headlineLarge: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 30.0),
+    headlineMedium: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 28.0),
+    headlineSmall: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 26.0),
+    titleLarge: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 24.0),
+    titleMedium: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 22.0),
+    titleSmall: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 20.0),
+    bodyLarge: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 18.0),
+    bodyMedium: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 16.0),
+    bodySmall: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 14.0),
+    labelLarge: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 12.0),
+    labelMedium: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 10.0),
+    labelSmall: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 8.0),
   );
 
   static final darkTheme = ThemeData(
@@ -95,11 +98,11 @@ abstract class GameUI {
       style: TextButton.styleFrom(
         foregroundColor: foregroundColor,
         shape: const RoundedRectangleBorder(),
+        padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 8.0),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: backgroundColor,
         foregroundColor: foregroundColor,
         shape: RoundedRectangleBorder(
           side: const BorderSide(
@@ -107,6 +110,7 @@ abstract class GameUI {
           ),
           borderRadius: borderRadius,
         ),
+        padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 8.0),
       ),
     ),
     segmentedButtonTheme: SegmentedButtonThemeData(

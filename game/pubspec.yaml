@@ -87,7 +87,6 @@ flutter:
     - assets/images/battlecard/illustration/
     - assets/images/cultivation/
     - assets/images/cultivation/skill/
-    - assets/images/cg/
     - assets/images/icon/
     - assets/images/icon/skill/
     - assets/images/icon/status/
@@ -135,6 +134,7 @@ flutter:
     - scripts/main/entity/item/
     - scripts/main/entity/location/
     - scripts/main/entity/organization/
+    - scripts/main/event/
     - scripts/main/game/
     - scripts/main/name/
     - scripts/main/name/book/

@@ -107,6 +107,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
                       child: ElevatedButton(
                         onPressed: () {
                           final items = _selectedHeroItemsData.values.toList();
+                          if (items.isEmpty) return;
+
                           int totalPrice = 0;
                           for (final itemData in items) {
                             totalPrice += GameData.calculateItemPrice(
@@ -130,6 +132,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                               namedArgs: {'amount': totalPrice},
                             );
                           }
+                          engine.play('coins-31879.mp3');
 
                           for (final itemData in items) {
                             engine.hetu.invoke('entityLose', positionalArgs: [
@@ -181,6 +184,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
                         onPressed: () {
                           final items =
                               _selectedMerchantItemsData.values.toList();
+                          if (items.isEmpty) return;
+
                           int totalPrice = 0;
                           for (final itemData in items) {
                             totalPrice += GameData.calculateItemPrice(
@@ -216,6 +221,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                               namedArgs: {'amount': totalPrice},
                             );
                           }
+                          engine.play('pickup_item-64282.mp3');
 
                           for (final itemData in items) {
                             engine.hetu.invoke('entityLose', positionalArgs: [

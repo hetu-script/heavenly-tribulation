@@ -4,7 +4,6 @@ import 'package:samsara/ui/empty_placeholder.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 import 'package:samsara/ui/label.dart';
-import 'package:samsara/widgets/rich_text_builder2.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/bordered_icon_button.dart';
 
@@ -155,10 +154,6 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
     enemyBattleDeckCards = _getBattleDeckCardsData(widget.enemyData);
   }
 
-  List<TextSpan> getCardRichDescription(dynamic cardData) {
-    return buildRichText(cardData['extraDescription']);
-  }
-
   @override
   Widget build(BuildContext context) {
     // final buttonKey = GlobalKey();
@@ -215,6 +210,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   EquipmentBar(
+                    type: HoverType.player,
                     characterData: widget.heroData,
                     gridSize: const Size(30.0, 30.0),
                   ),
@@ -375,6 +371,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   EquipmentBar(
+                    type: HoverType.npc,
                     characterData: widget.enemyData,
                     gridSize: const Size(30.0, 30.0),
                   ),
@@ -387,7 +384,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                           size: GameUI.infoButtonSize,
                           padding: const EdgeInsets.only(left: 5.0),
                           onMouseEnter: (rect) {
-                            final Widget statsView = StatsView(
+                            final Widget statsView = CharacterStats(
                               characterData: widget.enemyData,
                               isHero: false,
                               showNonBattleStats: false,

@@ -1,6 +1,8 @@
 {
   "debug_reset_hero": "重置英雄数据",
   "debug_dialog": "对话框测试",
+  "debug_item": "物品测试",
+  "debug_quest": "日志测试",
   "debug_battle": "战斗测试",
   "debug_merchant": "交易测试",
 

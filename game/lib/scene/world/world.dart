@@ -22,7 +22,7 @@ import 'animation/flying_sword.dart';
 import '../../game/data.dart';
 import '../../state/states.dart';
 import '../game_dialog/game_dialog_content.dart';
-import '../../widgets/dialog/character_select_dialog.dart';
+import '../../widgets/dialog/character_select.dart';
 import '../../widgets/ui_overlay.dart';
 // import '../../widgets/quest_panel.dart';
 import '../../widgets/npc_list.dart';
@@ -37,7 +37,7 @@ import 'widgets/expand_world_dialog.dart';
 import 'widgets/tile_detail.dart';
 import 'widgets/tile_info.dart';
 import 'widgets/toolbox.dart';
-import '../../widgets/dialog/confirm_dialog.dart';
+import '../../widgets/dialog/confirm.dart';
 import '../../game/logic.dart';
 
 enum TerrainPopUpMenuItems {
@@ -1189,8 +1189,8 @@ class WorldMapScene extends Scene {
                     switch (item) {
                       case WorldMapDropMenuItems.save:
                         map.saveComponentsFrameData();
-                        String worldId =
-                            engine.hetu.invoke('getCurrentWorldId');
+                        String worldId = engine.hetu
+                            .fetch('currentWorldId', namespace: 'game');
                         String? saveName =
                             engine.hetu.fetch('saveName', namespace: 'game');
                         context
@@ -1219,8 +1219,8 @@ class WorldMapScene extends Scene {
                           if (saveName == null) return;
                           engine.hetu
                               .assign('saveName', saveName, namespace: 'game');
-                          String worldId =
-                              engine.hetu.invoke('getCurrentWorldId');
+                          String worldId = engine.hetu
+                              .fetch('currentWorldId', namespace: 'game');
                           if (context.mounted) {
                             context
                                 .read<GameSavesState>()
@@ -1331,8 +1331,10 @@ class WorldMapScene extends Scene {
                         map.loadTerrainData();
                       });
                     case WorldEditorDropMenuItems.save:
-                      String worldId = engine.hetu.invoke('getCurrentWorldId');
-                      String? saveName = engine.hetu.invoke('getSaveName');
+                      String worldId = engine.hetu
+                          .fetch('currentWorldId', namespace: 'game');
+                      String? saveName =
+                          engine.hetu.fetch('saveName', namespace: 'game');
                       context
                           .read<GameSavesState>()
                           .saveGame(worldId, saveName)
@@ -1357,8 +1359,8 @@ class WorldMapScene extends Scene {
                         if (saveName == null) return;
                         engine.hetu
                             .assign('saveName', saveName, namespace: 'game');
-                        String worldId =
-                            engine.hetu.invoke('getCurrentWorldId');
+                        String worldId = engine.hetu
+                            .fetch('currentWorldId', namespace: 'game');
                         if (context.mounted) {
                           context
                               .read<GameSavesState>()
@@ -1403,21 +1405,16 @@ class WorldMapScene extends Scene {
                 },
               ),
             ),
-            Positioned(
-              child: EntityListPanel(
-                size: Size(320, GameUI.size.y),
-              ),
+            EntityListPanel(
+              size: Size(400, GameUI.size.y),
             ),
-            const Positioned(
-              right: 0,
-              bottom: 0,
+            Align(
+              alignment: Alignment.bottomRight,
               child: TileInfoPanel(),
             ),
-            Positioned.fill(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Toolbox(),
-              ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Toolbox(),
             ),
           ],
         ],

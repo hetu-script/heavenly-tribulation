@@ -80,7 +80,6 @@ class BattleCard extends StatelessWidget {
                 padding: EdgeInsets.only(left: 5),
                 child: Label(
                   title,
-                  height: 20,
                   textAlign: TextAlign.left,
                   textStyle: textStyle,
                 ),

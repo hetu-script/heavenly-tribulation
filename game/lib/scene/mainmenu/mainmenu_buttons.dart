@@ -336,16 +336,14 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
           ),
         ),
         Align(
-          alignment: Alignment.bottomRight,
+          alignment: Alignment.topRight,
           child: Container(
-            height: 400.0,
             width: 180.0,
             padding: EdgeInsets.only(
               right: 20.0,
               bottom: 20.0,
             ),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
               children: switch (_debugState) {
                 DebugStates.main => [
                     Padding(
@@ -356,13 +354,23 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                         },
                         child: Label(
                           engine.locale('debugMode'),
-                          width: 150.0,
+                          width: 200.0,
                           textAlign: TextAlign.center,
                         ),
                       ),
                     ),
                   ],
                 DebugStates.debug1 => [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setDebugMenuState(DebugStates.main);
+                        },
+                        child: Label(engine.locale('goBack'),
+                            width: 200.0, textAlign: TextAlign.center),
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.only(top: 20.0),
                       child: ElevatedButton(
@@ -375,7 +383,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                         },
                         child: Label(
                           engine.locale('debug_reset_hero'),
-                          width: 150.0,
+                          width: 200.0,
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -394,6 +402,26 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                       padding: const EdgeInsets.only(top: 20.0),
                       child: ElevatedButton(
                         onPressed: () {
+                          engine.hetu.invoke('testItem', namespace: 'Debug');
+                        },
+                        child: Label(engine.locale('debug_item'),
+                            width: 200.0, textAlign: TextAlign.center),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          engine.hetu.invoke('testQuest', namespace: 'Debug');
+                        },
+                        child: Label(engine.locale('debug_quest'),
+                            width: 200.0, textAlign: TextAlign.center),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: ElevatedButton(
+                        onPressed: () {
                           final enemy =
                               engine.hetu.invoke('Character', namedArgs: {
                             'isFemale': false,
@@ -402,7 +430,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           });
                           engine.hetu
                               .invoke('generateDeck', positionalArgs: [enemy]);
-                          context.read<EnemyState>().update(enemy);
+                          context.read<EnemyState>().show(enemy);
                         },
                         child: Label(engine.locale('debug_battle'),
                             width: 200.0, textAlign: TextAlign.center),
@@ -417,9 +445,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                             'rank': 2,
                             'level': 10,
                           });
-                          engine.hetu.invoke('testCardpack',
-                              namespace: 'Debug', positionalArgs: [merchant]);
-                          engine.hetu.invoke('testEquipment',
+                          engine.hetu.invoke('testItem',
                               namespace: 'Debug', positionalArgs: [merchant]);
                           context
                               .read<MerchantState>()
@@ -430,17 +456,6 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                         },
                         child: Label(engine.locale('debug_merchant'),
                             width: 200.0, textAlign: TextAlign.center),
-                      ),
-                    ),
-                    const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setDebugMenuState(DebugStates.main);
-                        },
-                        child: Label(engine.locale('goBack'),
-                            width: 150.0, textAlign: TextAlign.center),
                       ),
                     ),
                   ],

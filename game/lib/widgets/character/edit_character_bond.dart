@@ -4,7 +4,7 @@ import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 import 'package:flutter/services.dart';
 
-import '../dialog/character_select_dialog.dart';
+import '../dialog/character_select.dart';
 import '../../engine.dart';
 import '../../game/ui.dart';
 

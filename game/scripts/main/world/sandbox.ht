@@ -11,7 +11,7 @@ import '../datetime.ht' as datetime
 import '../game/logic.ht'
 import 'generation_algorithm.ht'
 import 'tile/common.ht'
-import '../dialog.ht'
+import '../game/dialog.ht'
 import '../entity/item/item.ht'
 import 'world.ht'
 

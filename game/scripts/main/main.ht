@@ -3,16 +3,19 @@ export 'binding/world.ht'
 export 'cardgame/card.ht'
 export 'cardgame/card_script.ht'
 export 'cardgame/status_script.ht'
-export 'incident.ht'
 export 'entity/entity.ht'
 export 'entity/character/character.ht'
 export 'entity/item/item.ht'
 export 'entity/item/material.ht'
 export 'entity/location/location.ht'
 export 'entity/organization/organization.ht'
+export 'event/event.ht'
 export 'game/data.ht'
 export 'game/logic.ht'
 export 'game/game.ht'
+export 'game/dialog.ht'
+export 'game/player.ht'
+export 'incident.ht'
 export 'name/name.ht'
 export 'world/tile/common.ht'
 export 'world/tile/tilemap.ht'
@@ -21,25 +24,34 @@ export 'world/world.ht'
 export 'world/zone.ht'
 export 'world/object.ht'
 export 'colors.ht'
+export 'common.ht'
 export 'datetime.ht'
 export 'debug.ht'
-export 'dialog.ht'
 export 'quest.ht'
-export 'event.ht'
 export 'random.ht'
 export 'util.ht'
-export 'player.ht'
-export 'common.ht'
+
+import 'event/game_events.ht' as gameEvents
 
 // 这里的数据会被添加到game.mods上，并序列化为字符串进入存档
 // 在游戏每次运行时，会重新将函数绑定到这个对象上
-const coreModule = {
+const meta = {
   id: 'main',
   displayName: '《天道奇劫》核心脚本',
   description: '《天道奇劫》核心脚本',
   supportedLocales: ['zh'],
   version: '0.0.1',
   flags: {}
+}
+
+/// Run every time game starts
+function main() {
+  engine.debug('游戏脚本模块 [${meta.id}(ver-${meta.version})] 绑定事件处理函数...')
+
+  addEventHandlers(
+    moduleId: meta.id,
+    namespace: gameEvents,
+  )
 }
 
 /// Initialize the core script module.
@@ -50,23 +62,21 @@ function init({
   battleCardAffixesData,
   passivesData,
 }) {
-  engine.debug('游戏脚本模块 [${coreModule.id}(ver-${coreModule.version})] 初始化...')
+  engine.debug('游戏脚本模块 [${meta.id}(ver-${meta.version})] 初始化...')
 
-  addModuleData(coreModule)
+  addModMetaData(meta)
   addItemPrototypesData(itemsData)
   addBattleCardsData(battleCardsData)
   addBattleCardAffixesData(battleCardAffixesData)
   addPassivesData(passivesData)
-
-  // 游戏中的任务数据，任务数据在故事模块中载入
 }
 
-function addModuleData(mod) {
+function addModMetaData(mod) {
   assert(mod.id != null)
   // assert(game.mods.containsKey(mod.id))
   // game.mods[mod.id] ??= {}
   // Object.assign(game.mods[mod.id], mod)
-  game.mods[mod.id] = mod
+  game.mods[mod.id] = { meta : mod }
   engine.debug('载入模组元信息 [${mod.id}(ver-${mod.version})]')
 }
 
@@ -125,20 +135,4 @@ function addQuestsData(questsData) {
     game.quests[quest.id] = quest
   }
   engine.debug('载入剧情日志数据：[${questsData.length}]')
-}
-
-/// Run every time game starts
-function main() {
-  engine.debug('游戏脚本模块 [${coreModule.id}(ver-${coreModule.version})] 绑定事件处理函数...')
-
-  addEventHandlers(
-    moduleId: coreModule.id,
-    handlers: mainEvents,
-  )
-
-  // addEventHandlers(
-  //   moduleId: coreModule.id,
-  //   worldId: 'main',
-  //   handlers: mapEvents,
-  // )
 }

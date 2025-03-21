@@ -43,8 +43,6 @@ class SelectionDialog extends StatefulWidget {
 }
 
 class _SelectionDialogState extends State<SelectionDialog> {
-  dynamic selectionsData;
-
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -55,22 +53,22 @@ class _SelectionDialogState extends State<SelectionDialog> {
           Positioned.fill(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List<Widget>.from(selectionsData['selections'].keys.map(
+              children: List<Widget>.from(widget.data['selections'].keys.map(
                 (key) {
-                  final text = selectionsData['selections'][key];
+                  final text = widget.data['selections'][key];
                   assert(text is String);
                   return Container(
                     padding: const EdgeInsets.symmetric(vertical: 10.0),
                     width: 300,
                     child: ElevatedButton(
                       onPressed: () {
-                        if (selectionsData['taskId'] == null) {
+                        if (widget.data['taskId'] == null) {
                           Navigator.pop(context, key);
                         } else {
-                          assert(selectionsData['id'] != null);
+                          assert(widget.data['id'] != null);
                           context.read<GameDialogState>().finishSelection(
-                                selectionsData['taskId'],
-                                selectionsData['id'],
+                                widget.data['taskId'],
+                                widget.data['id'],
                                 value: key,
                               );
                         }

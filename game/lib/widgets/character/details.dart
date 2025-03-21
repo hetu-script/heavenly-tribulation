@@ -8,7 +8,7 @@ import 'inventory/stats.dart';
 import 'inventory/equipment_bar.dart';
 import 'inventory/inventory.dart';
 import '../menu_item_builder.dart';
-import '../dialog/confirm_dialog.dart';
+import '../dialog/confirm.dart';
 import '../../state/character.dart';
 import '../../scene/game_dialog/game_dialog_content.dart';
 import '../../game/logic.dart';
@@ -42,14 +42,21 @@ List<PopupMenuEntry<ItemPopUpMenuItems>> buildItemPopUpMenuItems({
   void Function(ItemPopUpMenuItems item)? onSelectedItem,
 }) {
   return <PopupMenuEntry<ItemPopUpMenuItems>>[
-    if (enableUnequip)
+    if (enableUnequip) ...[
       buildMenuItem(
         item: ItemPopUpMenuItems.unequip,
         name: engine.locale('unequip'),
         onSelectedItem: onSelectedItem,
         width: 80.0,
-      )
-    else ...[
+      ),
+      buildMenuItem(
+        item: ItemPopUpMenuItems.charge,
+        name: engine.locale('charge'),
+        onSelectedItem: onSelectedItem,
+        width: 80.0,
+        enabled: enableCharge,
+      ),
+    ] else ...[
       buildMenuItem(
         item: ItemPopUpMenuItems.equip,
         name: engine.locale('equip'),
@@ -211,11 +218,12 @@ class _CharacterDetailsState extends State<CharacterDetails> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             EquipmentBar(
+              type: HoverType.player,
               characterData: _characterData,
               onItemSecondaryTapped: onItemSecondaryTapped,
               isVertical: true,
             ),
-            StatsView(
+            CharacterStats(
               characterData: _characterData,
               isHero: true,
             ),
@@ -285,11 +293,12 @@ class CharacterDetailsView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            StatsView(
+            CharacterStats(
               characterData: characterData,
               isHero: true,
             ),
             EquipmentBar(
+              type: HoverType.npc,
               characterData: characterData,
               isVertical: true,
             ),

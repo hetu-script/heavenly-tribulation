@@ -1,6 +1,6 @@
 import '../../game/data.ht'
 import '../character/character.ht'
-import '../../dialog.ht'
+import '../../game/dialog.ht'
 import '../../name/location.ht'
 import '../entity.ht'
 import '../../world/tile/hexagonal_tile.ht'

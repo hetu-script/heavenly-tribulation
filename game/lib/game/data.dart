@@ -254,7 +254,7 @@ abstract class GameData {
       'historyData': history,
     });
 
-    currentWorldId = engine.hetu.invoke('getCurrentWorldId');
+    currentWorldId = engine.hetu.fetch('currentWorldId', namespace: 'game');
 
     worldIds.clear();
     final ids = engine.hetu.invoke('getWorldIds');
@@ -393,7 +393,7 @@ abstract class GameData {
       return price;
     } else {
       final double base = priceFactor['base'] ?? 1.0;
-      final double sell = priceFactor['sell'] ?? kDefaultSellRate;
+      final double sell = priceFactor['sell'] ?? kBaseSellRate;
 
       final double category =
           priceFactor['category']?[itemData['category']] ?? 1.0;

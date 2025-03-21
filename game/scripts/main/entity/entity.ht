@@ -1,5 +1,5 @@
 import '../random.ht'
-import '../dialog.ht'
+import '../game/dialog.ht'
 import '../name/skill/skill.json5' as skillData
 
 const kCultivationGenres = [

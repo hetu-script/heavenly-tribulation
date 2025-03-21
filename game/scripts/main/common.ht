@@ -8,3 +8,10 @@ const kWaterTerrains = ['sea', 'river', 'lake', 'seashelf']
 const kPlainTerrains = ['plain', 'forest']
 
 const kMountainTerrains = ['mountain']
+
+const kBaseBuyRate = 1.5
+const kBaseSellRate = 0.5
+const kMinSellRate = 0.1
+const kMinBuyRate = 0.5
+const kPriceFavorRatio = 10
+const kPriceFavorIncrement = 0.05

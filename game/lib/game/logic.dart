@@ -8,7 +8,7 @@ import '../widgets/dialog/timeflow.dart';
 import '../scene/game_dialog/selection_dialog.dart';
 import '../engine.dart';
 import '../scene/game_dialog/game_dialog_content.dart';
-import '../widgets/dialog/select_menu_dialog.dart';
+import '../widgets/dialog/select_menu.dart';
 import '../state/view_panels.dart';
 import '../widgets/dialog/input_slider.dart';
 
@@ -187,6 +187,11 @@ abstract class GameLogic {
           engine.context, engine.locale('hint_unidentifiedItem'));
       return;
     }
+    if (itemData['useCustomLogic'] == true) {
+      engine.hetu
+          .invoke('onGameEvent', positionalArgs: ['onUseItem', itemData]);
+      return;
+    }
     switch (itemData['category']) {
       case 'scroll':
         if (itemData['prototypeId'] == 'identify_scroll') {
@@ -198,8 +203,8 @@ abstract class GameLogic {
               'filter': {'isIdentified': false},
               'onSelect': (Iterable selectedItemsData) async {
                 assert(selectedItemsData.length == 1);
-                final itemData = selectedItemsData.first;
-                itemData['isIdentified'] = true;
+                final selectedItem = selectedItemsData.first;
+                selectedItem['isIdentified'] = true;
                 engine.play('hammer-hitting-an-anvil-25390.mp3');
                 engine.hetu.invoke('lose',
                     namespace: 'Player', positionalArgs: [itemData]);

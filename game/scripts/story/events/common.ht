@@ -1,0 +1,36 @@
+function initModData() {
+  if (game.mods.story.flags.initted) return
+  game.mods.story.flags.initted = true
+
+  final enemy1 = getCharacterById('yaozu_guard1')
+  final enemy2 = getCharacterById('yaozu_elite1')
+
+  generateDeck(enemy1)
+  generateDeck(enemy2)
+
+  final afu = getCharacterById('afu')
+  entityCollect(afu, 'money', amount: 80000, incurIncident: false)
+  entityAcquireItemById(afu, 'identify_scroll', incurIncident: false)
+}
+
+/// 阿福讲述万福宗的故事并希望萧墨帮助重建万福宗
+async function dinglingbeiIntroduction() {
+  assert(!game.mods.story.flags.chapter1.checkPoint4)
+  game.mods.story.flags.chapter1.checkPoint4 = true
+  // Dialog.pushLocales('chapter1_dinglingbei_afu_line1', characterId: 'afu')
+  Dialog.pushLocales('chapter1_dinglingbei_afu_line2', isHero: true)
+  Dialog.pushLocales('chapter1_dinglingbei_afu_line3', characterId: 'afu')
+  Dialog.pushLocales('chapter1_dinglingbei_afu_line4', isHero: true)
+  Dialog.pushLocales('chapter1_dinglingbei_afu_line5', characterId: 'afu')
+  Dialog.pushLocales('chapter1_dinglingbei_afu_line6', characterId: 'afu')
+  Dialog.pushLocales('chapter1_dinglingbei_afu_line7', characterId: 'afu')
+  Dialog.pushLocales('chapter1_dinglingbei_afu_line8', characterId: 'afu')
+  Dialog.pushLocales('chapter1_dinglingbei_afu_line9')
+  Dialog.pushLocales('chapter1_dinglingbei_afu_line10', characterId: 'afu')
+  Dialog.pushLocales('chapter1_dinglingbei_afu_line11', isHero: true)
+  Dialog.pushLocales('chapter1_dinglingbei_afu_line12', characterId: 'afu')
+  Dialog.pushLocales('chapter1_dinglingbei_afu_line13', isHero: true)
+  Dialog.pushLocales('chapter1_dinglingbei_afu_line14', characterId: 'afu')
+  await Dialog.execute()
+  Player.progressQuest(quest.id)
+}

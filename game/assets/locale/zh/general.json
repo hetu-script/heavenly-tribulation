@@ -344,7 +344,7 @@
   "skipScene": "跳过剧情",
 
   "hint_unidentifiedItem": "这件物品还没有鉴定，无法使用。",
-  "hint_cursedEquipment": "这件装备被诅咒了，你无法将其取下。",
+  "hint_cursedEquipment": "这件装备被施加了禁制，你无法将其取下。",
   "hint_consumable": "这件物品是消耗品，使用后会消失。",
   "hint_restrictedEquipment": "不能再装备更多的{0}了。",
   "hint_notEnoughShard": "身上没有足够的灵石，这里也并非灵气喷涌的环境……",
@@ -392,5 +392,8 @@
   "battlecard": "功法",
 
   "familyName": "氏",
-  "sectName": "宗"
+  "sectName": "宗",
+
+  "newItems": "新物品",
+  "newQuests": "新日志"
 }

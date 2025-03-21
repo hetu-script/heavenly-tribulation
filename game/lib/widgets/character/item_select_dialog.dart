@@ -10,21 +10,18 @@ import '../draggable_panel.dart';
 class ItemSelectDialog extends StatefulWidget {
   const ItemSelectDialog({
     super.key,
-    this.args = const {},
-    required this.title,
     required this.characterData,
+    this.title,
     this.height = 360.0,
     this.filter,
     this.multiSelect = false,
     this.onSelect,
   });
 
-  final Map<String, dynamic> args;
-
-  final String title;
+  final String? title;
   final dynamic characterData;
   final double height;
-  final Map<String, dynamic>? filter;
+  final dynamic filter;
   final bool multiSelect;
   final void Function(Iterable itemsData)? onSelect;
 
@@ -40,13 +37,14 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
     final screenSize = MediaQuery.of(context).size;
 
     return DraggablePanel(
-      title: widget.title,
+      title: widget.title ?? engine.locale('selectItem'),
       position: Offset(
           screenSize.width / 2 - 450 / 2, screenSize.height / 2 - 500 / 2),
       width: 450,
       height: 500,
       onClose: () {
         context.read<ViewPanelState>().hide(ViewPanels.itemSelect);
+        widget.onSelect?.call([]);
       },
       child: Align(
         alignment: Alignment.center,
@@ -82,6 +80,7 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
                       context
                           .read<ViewPanelState>()
                           .hide(ViewPanels.itemSelect);
+                      widget.onSelect?.call([]);
                     },
                     child: Label(
                       engine.locale('cancel'),

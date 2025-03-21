@@ -9,8 +9,8 @@ import '../../../state/hoverinfo.dart';
 
 const kLabelWidth = 120.0;
 
-class StatsView extends StatelessWidget {
-  const StatsView({
+class CharacterStats extends StatelessWidget {
+  const CharacterStats({
     super.key,
     required this.characterData,
     this.isHero = false,
@@ -141,11 +141,11 @@ class StatsView extends StatelessWidget {
         },
       ),
       Label(
-        '${engine.locale('strength')}: ${strength > baseStrength ? '<yellow>$strength</>' : strength}',
+        '${engine.locale('perception')}: ${perception > basePerception ? '<yellow>$perception</>' : perception}',
         width: kLabelWidth,
         textAlign: TextAlign.left,
         onMouseEnter: (rect) {
-          final text = engine.locale('strength_description');
+          final text = engine.locale('perception_description');
           context.read<HoverInfoContentState>().set(text, rect);
         },
         onMouseExit: () {
@@ -153,11 +153,11 @@ class StatsView extends StatelessWidget {
         },
       ),
       Label(
-        '${engine.locale('perception')}: ${perception > basePerception ? '<yellow>$perception</>' : perception}',
+        '${engine.locale('strength')}: ${strength > baseStrength ? '<yellow>$strength</>' : strength}',
         width: kLabelWidth,
         textAlign: TextAlign.left,
         onMouseEnter: (rect) {
-          final text = engine.locale('perception_description');
+          final text = engine.locale('strength_description');
           context.read<HoverInfoContentState>().set(text, rect);
         },
         onMouseExit: () {
@@ -330,14 +330,17 @@ class StatsView extends StatelessWidget {
       ]
     ];
 
-    return SingleChildScrollView(
-      child: Container(
-        alignment: Alignment.topLeft,
-        padding: const EdgeInsets.all(5.0),
-        width: 240,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: labels,
+    return ScrollConfiguration(
+      behavior: MaterialScrollBehavior(),
+      child: SingleChildScrollView(
+        child: Container(
+          alignment: Alignment.topLeft,
+          padding: const EdgeInsets.all(5.0),
+          width: 240,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: labels,
+          ),
         ),
       ),
     );

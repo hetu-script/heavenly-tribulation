@@ -8,7 +8,7 @@ import 'package:samsara/components.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../widgets/dialog/confirm_dialog.dart';
+import '../../widgets/dialog/confirm.dart';
 import 'library_zone.dart';
 import 'deckbuilding_zone.dart';
 import '../../game/ui.dart';

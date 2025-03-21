@@ -1,6 +1,6 @@
 import 'game/data.ht'
 import 'entity/character/character.ht'
-import 'player.ht'
+import 'game/player.ht'
 
 /// 历史事件记录
 struct Incident {
@@ -100,7 +100,7 @@ struct Incident {
       }
     }
   
-    Player.updateHistory()
+    Game.updateHistory()
 
     engine.debug(message)
   }

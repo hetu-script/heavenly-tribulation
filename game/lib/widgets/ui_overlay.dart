@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/widgets/character/merchant.dart';
+import 'package:heavenly_tribulation/widgets/dialog/new_items.dart';
+import 'package:heavenly_tribulation/widgets/dialog/new_quests.dart';
 import 'package:samsara/ui/bordered_icon_button.dart';
 import 'package:samsara/ui/dynamic_color_progressbar.dart';
 import 'package:provider/provider.dart';
@@ -96,6 +98,9 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
     final priceFactor = context.watch<MerchantState>().priceFactor;
     final showMerchant = context.watch<MerchantState>().showMerchant;
 
+    final newQuests = context.watch<NewQuestsState>().quests;
+    final newItems = context.watch<NewItemsState>().items;
+
     final visiblePanels = context.watch<ViewPanelState>().visiblePanels;
     final panelPositions =
         context.watch<ViewPanelPositionState>().panelPositions;
@@ -174,7 +179,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
           panels
               .add(CharacterMemoryView(characterData: heroData, isHero: true));
         case ViewPanels.characterQuest:
-          panels.add(CharacterQuest(characterData: heroData));
+          panels.add(QuestView(characterData: heroData));
         case ViewPanels.itemSelect:
           final arguments = visiblePanels[panel]!;
           panels.add(ItemSelectDialog(
@@ -600,25 +605,23 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
             ],
           ),
           if (enemyData != null && showPrebattle)
-            Positioned.fill(
-                child:
-                    PreBattleDialog(heroData: heroData, enemyData: enemyData)),
+            PreBattleDialog(heroData: heroData, enemyData: enemyData),
           if (merchantData != null && showMerchant)
-            Positioned.fill(
-              child: MerchantDialog(
-                merchantData: merchantData,
-                priceFactor: priceFactor,
-              ),
+            MerchantDialog(
+              merchantData: merchantData,
+              priceFactor: priceFactor,
             ),
-          GameDialogController(),
-          ...panels,
-          if (content != null) HoverInfo(content),
+          if (newQuests != null) NewQuests(questsData: newQuests),
+          if (newItems != null) NewItems(itemsData: newItems),
           if (widget.dropMenu != null)
             Positioned(
               right: 0,
               top: 0,
               child: widget.dropMenu!,
-            )
+            ),
+          GameDialogController(),
+          ...panels,
+          if (content != null) HoverInfo(content),
         ],
       ),
     );

@@ -1,4 +1,4 @@
-import 'game/data.ht'
+import '../game/data.ht'
 
 /// 加载到本次游戏的事件处理模块。
 /// module {
@@ -11,24 +11,19 @@ import 'game/data.ht'
 ///   }
 /// }
 
-/// 将自定义时间处理函数绑定到module对象上，
+/// 将自定义事件处理函数所在的命名空间绑定到
 /// 因为函数不会被序列化，因此每次启动游戏都会执行一次绑定
 /// 此时模组元数据尚未加载
-function addEventHandlers({moduleId, worldId, handlers}) {
-  assert(moduleId != null && handlers != null)
-  let module = {}
+function addEventHandlers({worldId, moduleId, namespace}) {
+  assert(moduleId is string && namespace is namespace)
+  assert(game.mods[moduleId] != null)
   if (worldId != null) {
-    engine.debug('为模组 [${moduleId}] 添加世界 [${worldId}] 事件处理...')
-    module[worldId] = {}
-    Object.assign(module[worldId], handlers)
+    engine.debug('为模组 [${moduleId}] 添加 [世界(${worldId})] 事件处理...')
+    game.mods[moduleId][worldId] = namespace
   } else {
-    engine.debug('为模组 [${moduleId}] 添加通用事件处理...')
-    module = handlers
+    engine.debug('为模组 [${moduleId}] 添加 [通用] 事件处理...')
+    game.mods[moduleId]['events'] = namespace
   }
-  if (game.mods[moduleId] == null){
-    game.mods[moduleId] = {}
-  }
-  Object.assign(game.mods[moduleId], module)
 }
 
 /// [onWorldEvent] 和 [onGameEvent] 用来触发 mod 的回调函数
@@ -51,7 +46,9 @@ async function onWorldEvent(eventId: string, ...args) {
         engine.debug('执行模组 [${module.id}] 在世界 [${world.id}] 上的事件处理函数 [${eventId}]')
         // 因为脚本函数本身定义在一个单独的脚本命名空间，并不能直接访问核心模组的global空间
         // 这里通过apply方法在运行时临时改变其命名空间，让其可以直接访问`game`等对象
-        final eventResult = await callback.apply(module, ...args)
+        // final eventResult = await callback.apply(module, ...args)
+        // `2025/03/22`更新: 以上方法没有必要，因为河图脚本函数调用时会包裹一层运行时命名空间
+        final eventResult = await callback(...args)
         if (eventResult != null) {
           result = eventResult
         }
@@ -66,33 +63,18 @@ async function onWorldEvent(eventId: string, ...args) {
 async function onGameEvent(eventId: string, ...args) {
   let result
   for (const mod in game.mods.values) {
-    let callback = mod[eventId]
-    // callback 可能是 null
-    if(callback is function) {
-      engine.debug('执行模组 [${mod.id}] 的通用事件处理函数 [${eventId}]')
-      final eventResult = await callback.apply(mod, ...args)
-      if (eventResult != null) {
-        result = eventResult
+    let gameEvents = mod['events']
+    if (gameEvents != null) {
+      let callback = gameEvents[eventId]
+      if(callback is function) {
+        engine.debug('执行模组 [${mod.id}] 的通用事件处理函数 [${eventId}]')
+        // final eventResult = await callback.apply(mod, ...args)
+        final eventResult = await callback(...args)
+        if (eventResult != null) {
+          result = eventResult
+        }
       }
     }
   }
   return result
 }
-
-/// 预定义游戏事件
-/// 这里的事件和模组，剧情无关
-const mainEvents = {
-  onEnterCultivation: async () {
-    if (hero.exp > 0) return
-    Dialog.pushLocales('tutorial.cultivation')
-    Dialog.execute()
-  }
-}
-
-// /// 预定义地图事件
-// /// 这里的事件和模组，剧情无关
-// const mapEvents = {
-//   onNewGame: async () {
-//     World.lightUpAroundTile(hero.worldPosition.left, hero.worldPosition.top, hero.stats.lightRadius)
-//   }
-// }

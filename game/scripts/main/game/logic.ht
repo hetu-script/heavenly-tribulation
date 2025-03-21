@@ -7,10 +7,10 @@ import '../entity/character/battle_entity.ht'
 import '../world/tile/common.ht'
 import '../lootbox.ht'
 import '../binding/world.ht'
-import '../dialog.ht'
+import '../game/dialog.ht'
 import '../entity/entity.ht'
 import '../entity/organization/organization.ht'
-import '../event.ht'
+import '../event/event.ht'
 import '../colors.ht'
 import '../common.ht'
 import '../entity/character/character.ht'
@@ -781,6 +781,7 @@ async function onInteractCharacter(character) {
   engine.debug('正在和 NPC [${character.name}] 互动。')
   let bond = characterMet(character, hero)
   if (bond.score < 0) {
+    // TODO: 商人不会因为好感低而拒绝交易
     Dialog.pushLocales('unfavorRefusal', character: character)
     await Dialog.execute()
     return
@@ -838,7 +839,7 @@ async function onInteractCharacter(character) {
           await Dialog.execute()
           final selectedQuest = Dialog.checkSelected('questSelections')
           if (selectedQuest != 'cancel') {
-            onWorldEvent('onQuestInquiry', character, hero.quests[selectedQuest])
+            onGameEvent('onInquiryQuest', character, hero.quests[selectedQuest])
           }
         }
         'characterTopic': {
@@ -859,10 +860,38 @@ async function onInteractCharacter(character) {
 
     }
     'trade': {
-
+      // TODO:
+      // 根据好感度决定折扣
+      // 根据角色技能决定不同物品的折扣
+      // 根据角色境界决定使用铜钱还是灵石交易
+      let baseRate = kBaseBuyRate
+      let sellRateModifier = (bond.score ~/ kPriceFavorRatio) * kPriceFavorIncrement
+      baseRate -= sellRateModifier
+      if (baseRate < kMinBuyRate) {
+        baseRate = kMinBuyRate
+      }
+      let sellRate = kBaseSellRate
+      sellRate += sellRateModifier
+      if (sellRate < kMinSellRate) {
+        sellRate = kMinSellRate
+      } else if (sellRate > baseRate) {
+        sellRate = baseRate
+      }
+      Game.showMerchant(character, priceFactor: {
+        base: baseRate,
+        sell: sellRate,
+      })
     }
     'gift': {
-
+      let selectedItems = await Dialog.selectItems(character: hero)
+      final result = await onGameEvent('onGiftItem', character, selectedItems)
+      if (result != null) {
+        return
+      }
+      for (final item in selectedItems) {
+        Player.lose(item)
+        entityAcquire(character, item)
+      }
     }
     'attack': {
 

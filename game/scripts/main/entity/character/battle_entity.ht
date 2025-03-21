@@ -198,7 +198,7 @@ struct BattleEntity {
       ...generated,
     }
     
-    updateCharacterStats(this)
+    calculateCharacterStats(this)
 
     // 主流派：御剑、道术、锻体、炼魂、法身
     // 副流派：炼丹、炼器、阵法、符法、灵植、灵兽、幻术、卜术、通灵、通神
@@ -230,7 +230,7 @@ function generateCharacterAttributes({base, major}) {
 
 /// 当前状态数值，由特性、属性、物品、天赋、技能、增益减损等计算得来
 /// 状态包括：生命、伤害、防御等。
-function updateCharacterStats(character, { reset = true }) {
+function calculateCharacterStats(character, { reset = true }) {
 
   character.lifeMax = kBaseLife + character.strength ~/ 2
   character.lightRadius = kBaseLightedRadius + character.perception ~/ 10
@@ -366,7 +366,7 @@ function generateDeck(character, { deckInfo }) {
     ])
   }
   for (final card in deck) {
-    entityAcquire(character, card)
+    entityAcquireBattleCard(character, card)
   }
   character.battleDecks.add({
     title: 'battleDeck',

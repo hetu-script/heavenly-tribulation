@@ -104,7 +104,6 @@ class _ToolboxState extends State<Toolbox> {
       color: GameUI.backgroundColor,
       width: 640,
       height: 200,
-      margin: const EdgeInsets.all(10.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

@@ -34,7 +34,6 @@ class _TileInfoPanelState extends State<TileInfoPanel> {
       color: GameUI.backgroundColor,
       width: 220,
       height: 160,
-      margin: const EdgeInsets.all(10.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

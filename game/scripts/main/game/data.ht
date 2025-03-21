@@ -1,6 +1,6 @@
 import '../world/tile/tilemap.ht'
 import '../datetime.ht'
-import '../player.ht'
+import '../game/player.ht'
 
 export '../random.ht'
 
@@ -100,14 +100,17 @@ struct GameData {
     // 游戏本身逻辑所用到的一些事件检查选项
     // 例如每个月是否进行了某个动作之类
     this.playerMonthly = MonthlyActions()
-
-    // 本次游戏加载的 module，这里是纯数据，函数保存在另外的地方
-    this.mods = {}
     this.itemPrototypes = {}
     this.battleCards = {}
     this.battleCardAffixes = {}
     this.passives = {}
     this.quests = {}
+
+    // 本次游戏加载的 module，这里是元数据和事件函数绑定的空间
+    this.mods = {
+      // meta: {} // 模组元数据
+      // events: {} // 模组事件处理函数
+    }
   }
 }
 
@@ -280,7 +283,7 @@ function setHeroId(id: string) {
 
   hero = game.characters[id]
 
-  Player.updateStats()
+  Player.calculateStats()
   engine.debug('设置当前玩家人物为 [${hero.id}]。')
   game.heroId = id
 }
@@ -347,10 +350,6 @@ function deleteWorldById(id) {
   engine.warn('删除世界数据: [${id}]')
   universe.remove(id)
   history.remove(id)
-}
-
-function getCurrentWorldId {
-  return game.currentWorldId
 }
 
 function getWorldSize({worldId}) {

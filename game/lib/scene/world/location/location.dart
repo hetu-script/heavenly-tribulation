@@ -10,7 +10,7 @@ import '../../../game/data.dart';
 import '../../../game/ui.dart';
 import '../../../widgets/npc_list.dart';
 import '../../../widgets/ui_overlay.dart';
-import '../../../widgets/dialog/character_visit_dialog.dart';
+import '../../../widgets/dialog/character_visit.dart';
 import '../../../state/current_npc_list.dart';
 import '../../common.dart';
 import '../../game_dialog/game_dialog_content.dart';

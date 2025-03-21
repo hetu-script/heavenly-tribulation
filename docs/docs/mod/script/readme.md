@@ -30,11 +30,12 @@ async function onOpenCultivation()
 async function onRested()
 /// ----------角色互动----------
 async function onTalkTo(character, topic)
-async function onQuestInquiry(character, quest)
+async function onInquiryQuest(character, quest)
 async function onShowTo(character, item)
 /// ----------物品互动----------
 async function onEquipItem(item)
 async function onUseItem(item)
+async function onGiftItem(character, items)
 /// 某些具有充能次数的物品，在装备在身上时，会随着时间流逝调用自定义函数刷新属性
 async function onUpdateItem(item)
 ```

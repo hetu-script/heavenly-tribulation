@@ -17,7 +17,7 @@ import '../../../widgets/character/profile.dart';
 import '../../../widgets/dialog/input_world_position.dart';
 import '../../../widgets/common.dart';
 import '../../../widgets/dialog/input_string.dart';
-import '../../../widgets/dialog/confirm_dialog.dart';
+import '../../../widgets/dialog/confirm.dart';
 import '../../../widgets/character/edit_character_event_flags.dart';
 import '../../../widgets/organization/edit_organization_basic.dart';
 // import 'edit_map_object.dart';
@@ -737,7 +737,6 @@ class _EntityListPanelState extends State<EntityListPanel>
       color: GameUI.backgroundColor,
       width: widget.size.width,
       height: widget.size.height,
-      alignment: AlignmentDirectional.bottomCenter,
       child: DefaultTabController(
         length: _tabs.length,
         child: Scaffold(

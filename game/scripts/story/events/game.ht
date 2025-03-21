@@ -1,16 +1,78 @@
 
-const gameEvents = {
+async function onInitialCultivate() {
+  
+}
 
-  onInitialCultivate: async () {
-    
+async function onUpdateItem(item) {
+  if (item.id == 'hunguding') {
+    if (item.chargeData.current > 0) {
+      item.chargeData.current -= 1
+      hero.unconvertedExp += 10
+    }
   }
+}
 
-  onUpdateItem: async (item) {
-    if (item.id == 'hunguding') {
-      if (item.chargeData.current > 0) {
-        item.chargeData.current -= 1
-        hero.unconvertedExp += 10
+// 如果触发了特定对话，会提前返回
+// 如果所有的匹配条件都不符合会触发默认对话
+async function onInquiryQuest(character, quest) {
+  if (character.id == 'afu') {
+    final afu = getCharacterById('afu')
+    switch(quest.id) {
+      'story_mainQuest_lingChuxue': {
+
       }
+      'story_mainQuest_hunguding': {
+        final afuHasNeil = entityHasItem(afu, 'hunguding')
+        if (!afuHasNeil) {
+          switch(quest.progress.last) {
+            0: {
+              Dialog.pushLocales('chapter1_afu_nail_line1')
+              Dialog.pushLocales('chapter1_afu_nail_line2', characterId: 'afu')
+              Dialog.pushLocales('chapter1_afu_nail_line3')
+              Dialog.pushLocales('chapter1_afu_nail_line4', characterId: 'afu')
+              await Dialog.execute()
+              Player.progressQuest(quest.id)
+              return
+            }
+            1: {
+              final dinglingbeiQuest = hero.quests['story_mainQuest_initialCultivate']
+              if (dinglingbeiQuest.progress.last == 1) {
+                Dialog.pushLocales('chapter1_afu_nail_line6', characterId: 'afu')
+                await Dialog.execute()
+              } else {
+                Dialog.pushLocales('chapter1_afu_nail_line5', characterId: 'afu')
+                await Dialog.execute()3
+              }
+              return
+            }
+          }
+        }
+      }
+      'story_mainQuest_initialCultivate': {
+        switch(quest.progress.last) {
+          0: {
+            mods.story.dinglingbeiIntroduction()
+            return
+          }
+          1: {
+            Dialog.pushLocales('chapter1_dinglingbei_afu_line14', characterId: 'afu')
+            Dialog.execute()
+            return
+          }
+        }
+      }
+    }
+  }
+  Dialog.pushLocales('defaultUnknownEntity', character: character)
+  Dialog.execute()
+}
+
+async function onGiftItem(character, item) {
+  if (character.id == 'afu') {
+    if (item.id == 'hunguding') {
+      Dialog.pushLocales('chapter1_afu_nail_line7_1')
+      Dialog.pushLocales('chapter1_afu_nail_line7_2', characterId: 'afu')
+      await Dialog.execute()
     }
   }
 }

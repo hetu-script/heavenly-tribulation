@@ -77,48 +77,46 @@ class _InventoryState extends State<Inventory> {
       }
 
       grids.add(
-        Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: ItemGrid(
-            characterData: widget.characterData,
-            itemData: itemData,
-            onMouseEnter: (itemData, rect) {
-              switch (widget.type) {
-                case HoverType.general:
-                  context
-                      .read<HoverInfoContentState>()
-                      .set(itemData, type: widget.type, rect);
-                case HoverType.player:
-                case HoverType.npc:
-                  context.read<HoverInfoContentState>().set(
-                        itemData,
-                        type: widget.type,
-                        data2: widget.characterData,
-                        rect,
-                      );
-                case HoverType.merchant:
-                  context.read<HoverInfoContentState>().set(
-                        itemData,
-                        type: widget.type,
-                        data2: widget.priceFactor,
-                        rect,
-                      );
-                case HoverType.customer:
-                  context.read<HoverInfoContentState>().set(
-                        itemData,
-                        type: widget.type,
-                        data2: widget.priceFactor,
-                        rect,
-                      );
-              }
-            },
-            onMouseExit: () {
-              context.read<HoverInfoContentState>().hide();
-            },
-            onTapped: widget.onTapped,
-            onSecondaryTapped: widget.onSecondaryTapped,
-            isSelected: widget.selectedItemId.contains(itemData['id']),
-          ),
+        ItemGrid(
+          characterData: widget.characterData,
+          itemData: itemData,
+          margin: const EdgeInsets.all(5.0),
+          onMouseEnter: (itemData, rect) {
+            switch (widget.type) {
+              case HoverType.general:
+                context
+                    .read<HoverInfoContentState>()
+                    .set(itemData, type: widget.type, rect);
+              case HoverType.player:
+              case HoverType.npc:
+                context.read<HoverInfoContentState>().set(
+                      itemData,
+                      type: widget.type,
+                      data2: widget.characterData,
+                      rect,
+                    );
+              case HoverType.merchant:
+                context.read<HoverInfoContentState>().set(
+                      itemData,
+                      type: widget.type,
+                      data2: widget.priceFactor,
+                      rect,
+                    );
+              case HoverType.customer:
+                context.read<HoverInfoContentState>().set(
+                      itemData,
+                      type: widget.type,
+                      data2: widget.priceFactor,
+                      rect,
+                    );
+            }
+          },
+          onMouseExit: () {
+            context.read<HoverInfoContentState>().hide();
+          },
+          onTapped: widget.onTapped,
+          onSecondaryTapped: widget.onSecondaryTapped,
+          isSelected: widget.selectedItemId.contains(itemData['id']),
         ),
       );
     }
@@ -129,10 +127,7 @@ class _InventoryState extends State<Inventory> {
 
     while (grids.length < gridCount) {
       grids.add(
-        Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: ItemGrid(),
-        ),
+        ItemGrid(margin: const EdgeInsets.all(5.0)),
       );
     }
 

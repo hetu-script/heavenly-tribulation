@@ -1,4 +1,3 @@
-/// 场景1：
 ///   萧墨为了获取法宝而偷偷进入紫河宗的一处洞天。
 ///   萧墨拿取了洞天中的宝物
 ///   从大结局穿越而来的凌初雪如一颗流星一般从天而落，砸穿了玲珑塔。
@@ -12,211 +11,208 @@
 
 /// 剧情进度标记：
 ///   chapter0.checkPoint1: 是否已经打开初始宝箱
-///   chapter0.checkPoint2: 是否已经从凌初雪处拿到魂骨钉
+///   chapter0.checkPoint2: 是否已经见过凌初雪
 ///   chapter0.checkPoint3: 是否已经和妖族卫兵初次战斗
 ///   chapter0.checkPoint4: 是否已经目睹凌初雪和妖族卫兵战斗
 ///   chapter0.checkPoint5: 是否已经结束所有场景1的剧情
+import 'common.ht'
 
-const caveMapEvents = {
-  onNewGame: async () {
-    // 要在运行时访问模组内部定义的函数，需要通过 global 上的mods对象
-    // 而不是game.mods对象，后者只保存纯数据
-    mods.story.initModData()
+async function onNewGame() {
+  initModData()
 
-    /// 萧墨为了获取法宝而偷偷进入紫河宗的一处洞天。
-    engine.play('stone-push-37412.mp3')
-    Dialog.pushBackground('black.png', isFadeIn: true)
-    Dialog.pushLocales('prelude.wakeUp', isHero: true)
-    Dialog.pushTask(() {
-      Player.setTo(6, 22, worldId: 'story_cave', direction: 'south')
-    })
-    Dialog.popBackground(isFadeOut: true)
-    Dialog.pushLocales('tutorial.movement')
-    await Dialog.execute()
-    Game.showHeroInfo()
-  },
+  /// 萧墨为了获取法宝而偷偷进入紫河宗的一处洞天。
+  engine.play('stone-push-37412.mp3')
+  Dialog.pushBackground('black.png', isFadeIn: true)
+  Dialog.pushLocales('prelude_wakeUp', isHero: true)
+  Dialog.pushTask(() {
+    Player.setTo(6, 22, worldId: 'story_cave', direction: 'south')
+  })
+  Dialog.popBackground(isFadeOut: true)
+  Dialog.pushLocales('tutorial_movement')
+  await Dialog.execute()
+  Game.showHeroInfo()
+}
   
-  onEnterMap: async () {
-    if (this.flags.chapter0.checkPoint3) {
-      if (!this.flags.chapter0.checkPoint4) {
-        Dialog.pushLocales('prelude.battleEnd.line1', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
-        Dialog.pushLocales('prelude.battleEnd.line2', isHero: true)
-        Dialog.pushTask(() {
-          Player.setTo(6, 2, worldId: 'story_cave', direction: 'south')
-        })
-        Dialog.pushLocales('prelude.battleEnd.line3', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
-        Dialog.pushLocales('prelude.battleEnd.line4')
-        await Dialog.execute()
-      } else if (!this.flags.chapter0.checkPoint5) {
-        ///   萧墨没有任何炼气基础，他完全不是妖族守卫的对手，他原本打算通过诡计逃脱。
-        this.flags.chapter0.checkPoint5 = true
-        Dialog.pushLocales('prelude.battle2End.line1', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
-        Dialog.pushTask(() {
-          engine.play('magic-smite-6012.mp3')
-          final enemeyTile = getTerrainByWorldPosition(6,5)
-          delete enemeyTile.overlaySprite
-          World.updateTerrainOverlaySprite(6,5)
-        })
-        Dialog.pushLocales('prelude.battle2End.line2', isHero: true)
-        Dialog.pushLocales('prelude.battle2End.line3', characterId: 'ling_chuxue')
-        Dialog.pushLocales('prelude.battle2End.line4')
-        Dialog.pushLocales('prelude.battle2End.line5', isHero: true)
+async function onEnterMap() {
+  if (game.mods.story.flags.chapter0.checkPoint3) {
+    if (!game.mods.story.flags.chapter0.checkPoint4) {
+      Dialog.pushLocales('prelude_battleEnd_line1', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
+      Dialog.pushLocales('prelude_battleEnd_line2', isHero: true)
+      Dialog.pushTask(() {
+        Player.setTo(6, 2, worldId: 'story_cave', direction: 'south')
+      })
+      Dialog.pushLocales('prelude_battleEnd_line3', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
+      Dialog.pushLocales('prelude_battleEnd_line4')
+      await Dialog.execute()
+    } else if (!game.mods.story.flags.chapter0.checkPoint5) {
+      ///   萧墨没有任何炼气基础，他完全不是妖族守卫的对手，他原本打算通过诡计逃脱。
+      game.mods.story.flags.chapter0.checkPoint5 = true
+      Dialog.pushLocales('prelude_battle2End_line1', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
+      Dialog.pushTask(() {
+        engine.play('magic-smite-6012.mp3')
+        final enemeyTile = getTerrainByWorldPosition(6,5)
+        delete enemeyTile.overlaySprite
+        World.updateTerrainOverlaySprite(6,5)
+      })
+      Dialog.pushLocales('prelude_battle2End_line2', isHero: true)
+      Dialog.pushLocales('prelude_battle2End_line3', characterId: 'ling_chuxue')
+      Dialog.pushLocales('prelude_battle2End_line4')
+      Dialog.pushLocales('prelude_battle2End_line5', isHero: true)
+      await Dialog.execute()
+    }
+  }
+}
+
+async function onAfterMove(terrain) {
+  if (terrain.left == 6 && terrain.top == 8) {
+    if (!game.mods.story.flags.chapter0.checkPoint3) {
+      ///   在出去的路上，萧墨和凌初雪遇到了妖族守卫。
+      game.mods.story.flags.chapter0.checkPoint3 = true
+      Dialog.pushLocales('prelude_enemy_line1', characterId: 'yaozu_guard1', displayName: '???')
+      await Dialog.execute()
+      final enemy1 = getCharacterById('yaozu_guard1')
+      Game.showBattle(
+        enemy: enemy1,
+        isAutoBattle: true,
+        onBattleStart: async function [VoidCallback] () {
+          Dialog.pushLocales('prelude_battleStart_line1', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
+          Dialog.pushLocales('prelude_battleStart_line2', isHero: true)
+          Dialog.pushLocales('prelude_battleStart_line3', characterId: 'ling_chuxue')
+          await Dialog.execute()
+        },
+      )
+    }
+  }
+}
+
+async function onInteractMapObject(object, terrain) {
+  switch (object.id) {
+    'treasureBox1': {
+      ///   萧墨拿取了洞天中的宝物
+      if (game.mods.story.flags.chapter0.checkPoint1) return
+      game.mods.story.flags.chapter0.checkPoint1 = true
+      onInteractTreasureBox(object, terrain)
+      Dialog.pushLocales('prelude_treasureBox1', isHero: true)
+      await Dialog.execute()
+    }
+    'portalNextLevel': {
+      Dialog.pushLocales('prelude_portalNextLevel', isHero: true)
+      await Dialog.execute()
+    }
+    'portal1': {
+      if (game.mods.story.flags.chapter0.checkPoint1) {
+        onInteractPortal(object)
+      } else {
+        Dialog.pushLocales('prelude_treasureBoxHint', isHero: true)
         await Dialog.execute()
       }
     }
-  },
-
-  onAfterMove: async (terrain) {
-    if (terrain.left == 6 && terrain.top == 8) {
-      if (!this.flags.chapter0.checkPoint3) {
-        ///   在出去的路上，萧墨和凌初雪遇到了妖族守卫。
-        this.flags.chapter0.checkPoint3 = true
-        Dialog.pushLocales('prelude.enemy.line1', characterId: 'yaozu_guard1', displayName: '???')
+    'portal2': {
+      if (game.mods.story.flags.chapter0.checkPoint2) {
+        onInteractPortal(object)
+      } else {
+        Dialog.pushLocales('prelude_meteorCraterHint', isHero: true)
         await Dialog.execute()
+      }
+    }
+    'meteorCrater': {
+      ///   从大结局穿越而来的凌初雪如一颗流星一般从天而落，砸穿了玲珑塔。
+      Dialog.pushLocales('prelude_meteorCrater1')
+      Dialog.pushLocales('prelude_meteorCrater2', isHero: true)
+      if (!game.mods.story.flags.chapter0.checkPoint2) {
+        Dialog.pushLocales('prelude_meteorCrater3', isHero: true)
+        Dialog.pushBackground('story/cg/chapter0/ling_in_rubbles2.png', isFadeIn: true)
+        Dialog.pushLocales('prelude_mysticGirl1')
+        Dialog.pushLocales('prelude_mysticGirl2')
+        Dialog.pushLocalesSelection(
+          'prelude_nail_option',
+          [
+            'prelude_nail_option1',
+            'prelude_nail_option2',
+          ]
+        )
+        await Dialog.execute()
+        final selected = Dialog.checkSelected('prelude_nail_option')
+        if (selected == 'prelude_nail_option1') {
+          game.mods.story.flags.chapter0.checkPoint2 = true
+          Player.acquireItemById('hunguding')
+          Dialog.pushLocales('prelude_nail_description1', image: 'story/hunguding.png')
+          Dialog.pushLocales('prelude_nail_description2', isHero: true)
+          Dialog.popBackground()
+          Dialog.pushLocales('prelude_ling_description')
+          Dialog.pushLocales('prelude_ling_line1', characterId: 'ling_chuxue')
+          Dialog.pushLocales('prelude_ling_line2', isHero: true)
+          Dialog.pushLocales('prelude_ling_line3', characterId: 'ling_chuxue')
+          Dialog.pushTask(async () {
+            engine.play('earth-rumble-6953.mp3')
+            World.addFallingRubbles()
+            await World.shakeCamera(
+              intensity: 100,
+              shift: 10,
+              frequency: 10,
+              duration: 3.0,
+            )
+          })
+          Dialog.pushLocales('prelude_ling_line4', isHero: true)
+          Dialog.pushLocales('prelude_ling_line5')
+          Dialog.pushLocales('prelude_ling_line6', isHero: true)
+          await Dialog.execute()
+        }
+      }
+    }
+
+    'enemy1': {
+      if (!game.mods.story.flags.chapter0.checkPoint4) {
+        game.mods.story.flags.chapter0.checkPoint4 = true
+        final ling = getCharacterById('ling_chuxue')
+        generateDeck(ling, deckInfo: [
+          {mainAffixId: 'spell_energy', level: 5},{mainAffixId: 'fireball'},{mainAffixId: 'lightning'}
+        ])
         final enemy1 = getCharacterById('yaozu_guard1')
         Game.showBattle(
+          hero: ling,
           enemy: enemy1,
           isAutoBattle: true,
           onBattleStart: async function [VoidCallback] () {
-            Dialog.pushLocales('prelude.battleStart.line1', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
-            Dialog.pushLocales('prelude.battleStart.line2', isHero: true)
-            Dialog.pushLocales('prelude.battleStart.line3', characterId: 'ling_chuxue')
+            Dialog.pushLocales('prelude_battle2Start_line1', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
+            Dialog.pushLocales('prelude_battle2Start_line2', characterId: 'ling_chuxue')
             await Dialog.execute()
           },
         )
       }
     }
-  },
 
-  onInteractMapObject: async (object, terrain) {
-    switch (object.id) {
-      'treasureBox1': {
-        ///   萧墨拿取了洞天中的宝物
-        if (this.flags.chapter0.checkPoint1) return
-        this.flags.chapter0.checkPoint1 = true
-        onInteractTreasureBox(object, terrain)
-        Dialog.pushLocales('prelude.treasureBox1', isHero: true)
+    'worldPortal1': {
+      if (!game.mods.story.flags.chapter0.checkPoint4) {
+        Dialog.pushLocales('prelude_worldPortal1_line1', isHero: true)
+        Dialog.pushLocales('prelude_worldPortal1_line2')
         await Dialog.execute()
+      } else {
+        onInteractWorldPortal(object)
       }
-      'portalNextLevel': {
-        Dialog.pushLocales('prelude.portalNextLevel', isHero: true)
-        await Dialog.execute()
-      }
-      'portal1': {
-        if (this.flags.chapter0.checkPoint1) {
-          onInteractPortal(object)
-        } else {
-          Dialog.pushLocales('prelude.treasureBoxHint', isHero: true)
-          await Dialog.execute()
-        }
-      }
-      'portal2': {
-        if (this.flags.chapter0.checkPoint2) {
-          onInteractPortal(object)
-        } else {
-          Dialog.pushLocales('prelude.meteorCraterHint', isHero: true)
-          await Dialog.execute()
-        }
-      }
-      'meteorCrater': {
-        ///   从大结局穿越而来的凌初雪如一颗流星一般从天而落，砸穿了玲珑塔。
-        Dialog.pushLocales('prelude.meteorCrater1')
-        Dialog.pushLocales('prelude.meteorCrater2', isHero: true)
-        if (!this.flags.chapter0.checkPoint2) {
-          Dialog.pushLocales('prelude.meteorCrater3', isHero: true)
-          Dialog.pushBackground('story/cg/chapter0/ling_in_rubbles2.png', isFadeIn: true)
-          Dialog.pushLocales('prelude.mysticGirl1')
-          Dialog.pushLocales('prelude.mysticGirl2')
-          Dialog.pushLocalesSelection(
-            'prelude.nail.option',
-            [
-              'prelude.nail.option1',
-              'prelude.nail.option2',
-            ]
-          )
-          await Dialog.execute()
-          final selected = Dialog.checkSelected('prelude.nail.option')
-          if (selected == 'prelude.nail.option1') {
-            this.flags.chapter0.checkPoint2 = true
-            Player.acquireItemById('hunguding')
-            Dialog.pushLocales('prelude.nail.description1', image: 'story/hunguding.png')
-            Dialog.pushLocales('prelude.nail.description2', isHero: true)
-            Dialog.popBackground()
-            Dialog.pushLocales('prelude.ling.description')
-            Dialog.pushLocales('prelude.ling.line1', characterId: 'ling_chuxue')
-            Dialog.pushLocales('prelude.ling.line2', isHero: true)
-            Dialog.pushLocales('prelude.ling.line3', characterId: 'ling_chuxue')
-            Dialog.pushTask(async () {
-              engine.play('earth-rumble-6953.mp3')
-              World.addFallingRubbles()
-              await World.shakeCamera(
-                intensity: 100,
-                shift: 10,
-                frequency: 10,
-                duration: 3.0,
-              )
-            })
-            Dialog.pushLocales('prelude.ling.line4', isHero: true)
-            Dialog.pushLocales('prelude.ling.line5')
-            Dialog.pushLocales('prelude.ling.line6', isHero: true)
-            await Dialog.execute()
-          }
-        }
-      }
+    }
 
-      'enemy1': {
-        if (!this.flags.chapter0.checkPoint4) {
-          this.flags.chapter0.checkPoint4 = true
-          final ling = getCharacterById('ling_chuxue')
-          generateDeck(ling, deckInfo: [
-            {mainAffixId: 'spell_energy', level: 5},{mainAffixId: 'fireball'},{mainAffixId: 'lightning'}
-          ])
-          final enemy1 = getCharacterById('yaozu_guard1')
-          Game.showBattle(
-            hero: ling,
-            enemy: enemy1,
-            isAutoBattle: true,
-            onBattleStart: async function [VoidCallback] () {
-              Dialog.pushLocales('prelude.battle2Start.line1', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
-              Dialog.pushLocales('prelude.battle2Start.line2', characterId: 'ling_chuxue')
-              await Dialog.execute()
-            },
-          )
-        }
-      }
-
-      'worldPortal1': {
-        if (!this.flags.chapter0.checkPoint4) {
-          Dialog.pushLocales('prelude.worldPortal1.line1', isHero: true)
-          Dialog.pushLocales('prelude.worldPortal1.line2')
-          await Dialog.execute()
-        } else {
-          onInteractWorldPortal(object)
-        }
-      }
-
-      // 'switch1': {
-      //   if (!object?.flags.isOn) {
-      //     let s = await Dialog.localeSelect([
-      //       'flipSwitch',
-      //       'cancel',
-      //     ])
-      //     if (s == 'flipSwitch') {
-      //       object.flags.isOn = true
-      //       this.flags.switch1IsOn = true
-      //       engine.play('stone-push-37412.mp3')
-      //       Dialog.localeLines('hint_switch', isHero: true)
-      //       final switchTile = getTerrainByWorldPosition(3,19)
-      //       switchTile.overlaySprite = {sprite: kSpriteDungeonLeverOn} 
-      //       World.updateTerrainOverlaySprite(3,19)
-            
-      //       final openedRoadTile = getTerrainByWorldPosition(10,18)
-      //       openedRoadTile.kind = 'plain'
-      //       openedRoadTile.spriteIndex = kSpriteDungeonStonePavedTile
-      //       World.updateTerrainSprite(10,18)
-      //     }
-      //   }
-      // }
-    } 
-  },
+    // 'switch1': {
+    //   if (!object?.flags.isOn) {
+    //     let s = await Dialog.localeSelect([
+    //       'flipSwitch',
+    //       'cancel',
+    //     ])
+    //     if (s == 'flipSwitch') {
+    //       object.flags.isOn = true
+    //       game.mods.story.flags.switch1IsOn = true
+    //       engine.play('stone-push-37412.mp3')
+    //       Dialog.localeLines('hint_switch', isHero: true)
+    //       final switchTile = getTerrainByWorldPosition(3,19)
+    //       switchTile.overlaySprite = {sprite: kSpriteDungeonLeverOn} 
+    //       World.updateTerrainOverlaySprite(3,19)
+          
+    //       final openedRoadTile = getTerrainByWorldPosition(10,18)
+    //       openedRoadTile.kind = 'plain'
+    //       openedRoadTile.spriteIndex = kSpriteDungeonStonePavedTile
+    //       World.updateTerrainSprite(10,18)
+    //     }
+    //   }
+    // }
+  } 
 }

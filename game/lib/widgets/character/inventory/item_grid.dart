@@ -14,6 +14,7 @@ class ItemGrid extends StatelessWidget {
     super.key,
     this.characterData,
     this.size = kDefaultItemGridSize,
+    this.margin,
     this.itemData,
     this.onTapped,
     this.onSecondaryTapped,
@@ -28,6 +29,7 @@ class ItemGrid extends StatelessWidget {
 
   final dynamic characterData;
   final Size size;
+  final EdgeInsetsGeometry? margin;
   final dynamic itemData;
   final void Function(dynamic itemData, Offset screenPosition)? onTapped;
   final void Function(dynamic itemData, Offset screenPosition)?
@@ -71,6 +73,7 @@ class ItemGrid extends StatelessWidget {
         child: Container(
           width: size.width,
           height: size.height,
+          margin: margin,
           decoration: hasBorder
               ? BoxDecoration(
                   // color: GameUI.backgroundColor,

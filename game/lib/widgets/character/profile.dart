@@ -175,7 +175,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
     }
 
     engine.hetu
-        .invoke('updateCharacterStats', positionalArgs: [_characterData]);
+        .invoke('calculateCharacterStats', positionalArgs: [_characterData]);
   }
 
   @override

@@ -55,7 +55,7 @@
   "passive_equipment_dart_description": "可以在战斗中使用暗器",
   "passive_equipment_music_description": "可以在战斗中使用乐曲",
 
-  "passive_equipment_cursed_description": "诅咒：装备后无法取下",
+  "passive_equipment_cursed_description": "禁制：装备后无法取下",
 
   "passive_punch_extra_chi_damage_description": "拳法额外造成 {0}% 真气伤害",
   "passive_punch_extra_elemental_damage_description": "拳法额外造成 {0}% 元素伤害",

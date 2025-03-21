@@ -6,7 +6,7 @@ export 'game_update.dart';
 export 'character.dart';
 export 'history.dart';
 export 'hoverinfo.dart';
-export 'quest.dart';
+export 'new_prompt.dart';
 export 'selected_tile.dart';
 export 'ui.dart';
 export 'view_panels.dart';

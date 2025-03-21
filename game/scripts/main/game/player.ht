@@ -1,8 +1,8 @@
-import 'game/data.ht'
-import 'colors.ht'
-import 'binding/world.ht'
-import 'entity/entity.ht'
-import 'quest.ht'
+import 'data.ht'
+import '../colors.ht'
+import '../binding/world.ht'
+import '../entity/entity.ht'
+import '../quest.ht'
 
 external function expForLevel(level: integer) -> integer
 
@@ -31,17 +31,6 @@ struct PassiveData {
 }
 
 namespace Player {
-  
-  external function _update
-
-  function updateData(func: function) {
-    func?.call()
-    _update()
-  }
-
-  external function updateHistory()
-
-  external function updateQuest()
 
   function setTo(left, top, { worldId, direction } ) {
     assert(hero != null)
@@ -256,7 +245,7 @@ namespace Player {
           gainPassive(passiveData.id, level: passiveData.level)
         }
         // 重新计算角色状态值
-        updateStats(hero)
+        calculateStats()
       }
 
       onGameEvent('onEquipItem', item)
@@ -290,7 +279,7 @@ namespace Player {
         refundPassive(passiveData.id, level: passiveData.level)
       }
       // 重新计算角色状态值
-      updateStats(hero)
+      calculateStats(hero)
     }
 
     // const incidentContent = engine.locale('characterUnequip', interpolations: [
@@ -465,7 +454,7 @@ namespace Player {
   /// 提升玩家的天赋技能等级
   /// 注意此函数调用时并不会检测天赋树节点位置和链接情况，也不会检查角色是否有足够的技能点
   /// 玩家升级天赋时，并不会立刻影响角色数据，
-  /// 只有在执行 updateStats() 之后，人物数据才会最终计算出来
+  /// 只有在执行 calculateStats() 之后，人物数据才会最终计算出来
   function gainPassive(dataId, {level = 1}) {
     assert(hero != null)
     assert(level > 0)
@@ -512,9 +501,9 @@ namespace Player {
     return hero.passives.containsKey(dataId)
   }
 
-  function updateStats() {
+  function calculateStats() {
     assert(hero != null)
-    updateCharacterStats(hero)
+    calculateCharacterStats(hero)
   }
 
   function restoreLife(count) {
@@ -556,6 +545,7 @@ namespace Player {
     assert(hero != null)
     final quest = generateQuestById(questId)
     acceptQuest(quest)
+    return quest
   }
 
   function setActiveQuest(quest) {
@@ -602,8 +592,6 @@ namespace Player {
     } else {
       engine.debug(incidentContent)
     }
-    
-    updateQuest()
   }
 
   function finishQuestById(questId, { isSuccess = true, incurIncident = true }) {
@@ -637,7 +625,5 @@ namespace Player {
     } else {
       engine.debug(incidentContent)
     }
-    
-    updateQuest()
   }
 }

@@ -376,4 +376,5 @@ const kMonthsPerYear = 12; //每年的月数
 const kTicksPerYear = kDaysPerYear * kTicksPerDay; //每年的回合数 1440
 
 const kMoneyToShardRate = 10000;
-const kDefaultSellRate = 0.3;
+const kBaseBuyRate = 1.5;
+const kBaseSellRate = 0.5;

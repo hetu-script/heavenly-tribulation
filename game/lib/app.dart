@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,12 +22,8 @@ import 'scene/cultivation/cultivation.dart';
 import 'game/logic.dart';
 import 'scene/common.dart';
 import 'scene/game_dialog/game_dialog_content.dart';
-// import 'widgets/dialog/character_select_dialog.dart';
-// import 'widgets/character/merchant.dart';
-// import 'widgets/quest/quests.dart';
-// import 'widgets/dialog/progress_indicator_dialog.dart';
-// import 'widgets/dialog/input_integer.dart';
 import 'widgets/dialog/timeflow.dart';
+// import 'widgets/dialog/new_quests.dart';
 
 class GameApp extends StatefulWidget {
   const GameApp({super.key});
@@ -110,7 +108,7 @@ class _GameAppState extends State<GameApp> {
         engine.debug('创建空白世界。');
         worldData = engine.hetu.invoke('createBlankWorld', namedArgs: args);
       }
-      worldId ??= engine.hetu.invoke('getCurrentWorldId');
+      worldId ??= engine.hetu.fetch('currentWorldId', namespace: 'game');
 
       engine.hetu.invoke('calculateTimestamp');
 
@@ -202,21 +200,6 @@ class _GameAppState extends State<GameApp> {
       return context.read<GameDialogState>().checkSelected(positionalArgs[0]);
     });
 
-    engine.hetu.interpreter.bindExternalFunction('Player::_update', (
-        {positionalArgs, namedArgs}) {
-      context.read<HeroState>().update();
-    }, override: true);
-
-    engine.hetu.interpreter.bindExternalFunction('Player::updateHistory', (
-        {positionalArgs, namedArgs}) {
-      context.read<HeroAndGlobalHistoryState>().update();
-    }, override: true);
-
-    engine.hetu.interpreter.bindExternalFunction('Player::updateQuest', (
-        {positionalArgs, namedArgs}) {
-      context.read<QuestState>().update();
-    }, override: true);
-
     engine.hetu.interpreter.bindExternalFunction('Debug::reloadGameData', (
         {positionalArgs, namedArgs}) {
       GameData.initGameData();
@@ -227,6 +210,26 @@ class _GameAppState extends State<GameApp> {
         {positionalArgs, namedArgs}) {
       GameData.initModules();
       GameDialogContent.show(context, engine.locale('reloadModulesPrompt'));
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::_update', (
+        {positionalArgs, namedArgs}) {
+      context.read<HeroState>().update();
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::updateHistory', (
+        {positionalArgs, namedArgs}) {
+      context.read<HeroAndGlobalHistoryState>().update();
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::promptNewItems', (
+        {positionalArgs, namedArgs}) {
+      context.read<NewItemsState>().update(positionalArgs.first);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::promptNewQuests', (
+        {positionalArgs, namedArgs}) {
+      context.read<NewQuestsState>().update(positionalArgs.first);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::updateGameTime', (
@@ -241,6 +244,29 @@ class _GameAppState extends State<GameApp> {
           .setVisible(positionalArgs.first ?? true);
     }, override: true);
 
+    engine.hetu.interpreter.bindExternalFunction('Game::showTimeflow', (
+        {positionalArgs, namedArgs}) {
+      TimeflowDialog.show(context: context, max: positionalArgs[0]);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::showItemSelect', (
+        {positionalArgs, namedArgs}) {
+      final completer = Completer();
+      context.read<ViewPanelState>().toogle(
+        ViewPanels.itemSelect,
+        arguments: {
+          'characterData': namedArgs['character'],
+          'title': namedArgs['title'],
+          'filter': namedArgs['filter'],
+          'multiSelect': namedArgs['multiSelect'] ?? false,
+          'onSelect': (items) {
+            completer.complete(items);
+          },
+        },
+      );
+      return completer.future;
+    }, override: true);
+
     engine.hetu.interpreter.bindExternalFunction('Game::showLibrary', (
         {positionalArgs, namedArgs}) {
       engine.pushScene(Scenes.library);
@@ -253,7 +279,7 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::showPrebattle', (
         {positionalArgs, namedArgs}) {
-      context.read<EnemyState>().update(positionalArgs.first);
+      context.read<EnemyState>().show(positionalArgs.first);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::showBattle', (
@@ -270,9 +296,11 @@ class _GameAppState extends State<GameApp> {
       engine.pushScene(Scenes.battle, arguments: arg);
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Game::showTimeflow', (
+    engine.hetu.interpreter.bindExternalFunction('Game::showMerchant', (
         {positionalArgs, namedArgs}) {
-      TimeflowDialog.show(context: context, max: positionalArgs[0]);
+      context
+          .read<MerchantState>()
+          .show(positionalArgs.first, priceFactor: namedArgs['priceFactor']);
     }, override: true);
 
     final mainConfig = {'locale': engine.languageId};

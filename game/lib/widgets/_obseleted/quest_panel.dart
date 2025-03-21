@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../state/quest.dart';
-import '../game/ui.dart';
+import '../../state/new_prompt.dart';
+import '../../game/ui.dart';
 
 const double _kTextShadowOffset = 0.5;
 
@@ -46,7 +46,7 @@ class _QuestPanelState extends State<QuestPanel> {
 
   @override
   Widget build(BuildContext context) {
-    final questsData = context.watch<QuestState>().questsData;
+    final questsData = context.watch<NewQuestsState>().quests;
 
     return (questsData == null)
         ? Container()
