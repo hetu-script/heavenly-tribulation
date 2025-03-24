@@ -1,0 +1,44 @@
+import 'character/family.json5' as surNames
+import 'character/female.json5' as femaleNames
+import 'character/male.json5' as maleNames
+import 'character/middle.json5' as middleNames
+import '../random.ht'
+
+function generateCharacterName({isFemale, surName, middleName}) {
+  surName ??= random.nextIterable(surNames)
+
+  const f = isFemale ?? random.nextBool()
+  const namesOfASex = f ? femaleNames : maleNames
+
+  const r = random.nextDouble()
+  let name
+  let middleName = middleName ?? ''
+  let lastCharacter = ''
+  if (middleName) {
+    name = middleName + random.nextIterable(namesOfASex)
+  } else {
+    const r = random.nextDouble()
+    // 两个实字
+    if (r < 0.33333333) {
+      middleName = random.nextIterable(namesOfASex)
+    }
+    // 虚+实
+    else if (r < 0.66666666) {
+      middleName = random.nextIterable(middleNames)
+    }
+    let conflict = false
+    do {
+      lastCharacter = random.nextIterable(namesOfASex)
+      conflict = lastCharacter == middleName
+    } while (conflict)
+    name = middleName + lastCharacter
+  }
+
+  return {
+    surName: surName,
+    middleName: middleName,
+    shortName: name,
+    fullName: '${surName}${name}',
+    isFemale: f,
+  }
+}

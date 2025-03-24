@@ -1,0 +1,46 @@
+import 'common/common.json5' as commonNamesData
+import 'common/spirit.json5' as spiritPrefix
+import 'consumable/consumable.json5' as consumableNames
+import 'consumable/medicine.json5' as medicineNames
+import 'consumable/beverage.json5' as beverageNames
+import '../random.ht'
+import '../entity/entity.ht'
+
+const commonConsumableNames = [
+  ...commonNamesData.dao,
+  ...commonNamesData.budda,
+  ...commonNamesData.emotion,
+  ...commonNamesData.color,
+  ...commonNamesData.number,
+  ...commonNamesData.action,
+]
+
+// 生成方剂、饮品、灵丹的名字
+function generateConsumableName({category: string, rarity: string}) {
+  assert(consumableNames.keys.contains(category))
+  rarity ??= getRarity().rarity
+  const kind = random.nextIterable(consumableNames[category])
+  let commonPrefix
+  if (category == 'medicine') {
+    commonPrefix = random.nextIterable(medicineNames)
+  } else if (category == 'beverage') {
+    commonPrefix = random.nextIterable(beverageNames)
+  }
+  const pre = random.nextIterable(commonConsumableNames)
+  const pre2 = random.nextIterable(commonConsumableNames)
+  const s = random.nextIterable(spiritPrefix)
+  let name
+  switch (rarity) {
+    'mythic', 'arcane' : name = pre + pre2 + kind
+    'legendary', 'unique' : name = pre + s + kind
+    'rare', 'epic' : name = pre + kind
+    'common', 'uncommon' : {
+      if (category == 'alchemy') {
+        name = pre + kind
+      } else {
+        name = commonPrefix + kind
+      }
+    }
+  }
+  return { name, category, rarity }
+}

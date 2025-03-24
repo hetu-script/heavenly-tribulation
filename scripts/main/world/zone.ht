@@ -1,0 +1,38 @@
+import '../random.ht'
+import '../entity/entity.ht'
+import '../name/zone.ht'
+import '../game/data.ht'
+
+const kZoneEmpty = 'empty'
+const kZoneLand = 'land'
+const kZoneSea = 'sea'
+const kZoneCategoryContinent = 'continent'
+const kZoneCategoryIsland = 'island'
+const kZoneCategoryLake = 'lake'
+const kZoneCategorySea = 'sea'
+
+struct Zone {
+  constructor ({name, category, color, map}) {
+    assert(category != null)
+    this.category = category
+    this.name = name ?? 'unnamed'
+
+    map ??= world
+    this.id = 'zone.${map.zones.length}'
+    map.zones[this.id] = this
+
+    this.color = color ?? random.nextBrightColorHex()
+
+    this.terrainIndexes = []
+  }
+}
+
+function addTerrainToZone(terrain, zone) {
+  if (terrain.zoneId != null) {
+    const oldZone = world.zones[terrain.zoneId]
+    oldZone.terrainIndexes.remove(terrain.index)
+  }
+  terrain.zoneId = zone.id
+  terrain.zoneCategory = zone.category
+  zone.terrainIndexes.add(terrain.index)
+}

@@ -1,0 +1,32 @@
+{
+  "land": "土地",
+  "continent": "大陆",
+  "island": "岛屿",
+
+  "seashelf": "大陆架",
+
+  "mountain": "山峰",
+  "shore": "岸边",
+  "forest": "森林",
+  "plain": "平原",
+  "lake": "湖泊",
+  "sea": "海洋",
+  "river": "河流",
+  "road": "道路",
+
+  "city": "城镇",
+  "site": "场所",
+
+  "farmfield": "农田",
+  "harbor": "港口",
+
+  "arcana": "洞天",
+  "mirage": "福地",
+
+  "dungeon": "洞穴",
+  "portalArray": "传送阵",
+
+  "fishTile": "鱼群",
+  "stormTile": "暴风雨",
+  "spiritTile": "灵气喷涌"
+}

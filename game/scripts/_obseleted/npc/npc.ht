@@ -1,5 +1,0 @@
-export 'bandit.ht'
-export 'elder_cultivator.ht'
-export 'peddler.ht'
-export 'traveling_merchant.ht'
-export 'villager.ht'

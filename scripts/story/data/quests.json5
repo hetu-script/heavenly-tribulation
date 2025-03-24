@@ -1,0 +1,23 @@
+{
+  prelude: {
+    id: "prelude",
+    name: "prelude",
+    endings: [3],
+  },
+  mysticGirl: {
+    id: "mysticGirl",
+    name: "mysticGirl",
+    image: "story/cg/prelude/ling_in_rubbles2.png",
+    endings: [10],
+  },
+  nailedSoul: {
+    id: "nailedSoul",
+    name: "nailedSoul",
+    endings: [10],
+  },
+  rebuildWanfuzong: {
+    id: "rebuildWanfuzong",
+    name: "rebuildWanfuzong",
+    endings: [10],
+  },
+}

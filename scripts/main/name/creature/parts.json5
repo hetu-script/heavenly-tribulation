@@ -1,0 +1,37 @@
+{
+  skin: ["皮"],
+
+  meat: ["肉"],
+
+  bone: ["骨"],
+
+  tendon: ["筋"],
+
+  blodd: ["血"],
+
+  beard: ["须"],
+
+  fang: ["牙"],
+
+  antler: ["角"],
+
+  claw: ["爪"],
+
+  fur: ["毛"],
+
+  hoof: ["蹄"],
+
+  eye: ["目", "眼珠"],
+
+  tail: ["尾"],
+
+  fin: ["鳍"],
+
+  scale: ["鳞"],
+
+  bird: ["禽"],
+
+  feather: ["羽"],
+
+  wing: ["翅"],
+}

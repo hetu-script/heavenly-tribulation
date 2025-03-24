@@ -1,0 +1,7 @@
+fun gradualValue(input, target, {rate = 0.5}) {
+  return target * (1 - Math.exp(-rate * input))
+}
+
+for (var i in range(0, 10)) {
+  print(gradualValue(i, 10))
+}

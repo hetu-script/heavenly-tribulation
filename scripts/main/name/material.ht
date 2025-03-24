@@ -1,0 +1,24 @@
+import 'common.ht'
+import 'material/material.json5' as materialNames
+import '../entity/entity.ht'
+import '../random.ht'
+
+function generateMaterialName({category, rarity}) {
+  assert(materialNames.keys.contains(category))
+  assert(rarity in kRarityNames && rarity != 'common')
+  const pre = random.nextIterable(commonNames)
+  const cp = random.nextIterable(colorPrefix)
+  const sp = random.nextIterable(spiritPrefix)
+  const kind = random.nextIterable(materialNames[category])
+  let name
+  switch (rarity) {
+    'arcane' : name = pre + cp + sp + kind
+    'mythic' : name = pre + sp + kind
+    'unique' : name = pre + cp + kind
+    'legendary' : name = pre + kind
+    'epic' : name = cp + sp + kind
+    'rare' : name = sp + kind
+    'uncommon' : name = cp + kind
+  }
+  return { name, category, rarity }
+}

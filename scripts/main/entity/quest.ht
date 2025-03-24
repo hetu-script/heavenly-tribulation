@@ -1,0 +1,117 @@
+import 'entity.ht'
+import '../lootbox.ht'
+
+const kQuestDifficultyNormal = 'normal'
+const kQuestDifficultyHard = 'hard'
+const kQuestDifficultyExpert = 'expert'
+const kQuestDifficultyMaster = 'master'
+const kQuestDifficultyTorment = 'torment'
+const kQuestDifficultyNightmare = 'nightmare'
+const kQuestDifficultyPurgatory = 'purgatory'
+
+const kQuestCategoryConquestMaze = 'conquestMaze' // 征讨盗贼营地
+const kQuestCategoryArrest = 'arrest' // 抓捕
+const kQuestCategoryTraining = 'training' // 演武
+const kQuestCategoryRitual = 'ritual' // 法事
+const kQuestCategoryCatering = 'catering' // 招待
+const kQuestCategoryDelivery = 'delivery' // 运送人员或物品
+const kQuestCategoryCraft = 'craft' // 定制
+
+const kQuestDeliveryKindEscort = 'escort'
+const kQuestDeliveryKindConvoy = 'convoy'
+
+const kQuestConquestMazeKindKillBanditBoss = 'killBanditBoss'
+const kQuestConquestMazeKindWipeBandits = 'wipeBandits'
+const kQuestConquestMazeKindReturnHostage = 'returnHostage'
+const kQuestConquestMazeKindReturnTreasure = 'returnTreasure'
+
+
+const kQuestCatergoryVisitCharacter = 'character'
+const kQuestCatergoryVisitTerrain = 'terrain'
+const kQuestCatergoryVisitLocation = 'location'
+const kQuestCatergoryVisitSite = 'site'
+const kQuestCatergoryVisitZone = 'zone'
+const kQuestCatergoryDefeat = 'defeat'
+const kQuestCatergoryClearDungeon = 'clear'
+const kQuestCatergoryCollect = 'collect'
+const kQuestCatergoryAcquire = 'acquire'
+const kQuestCatergoryDelivery = 'delivery'
+const kQuestCatergoryEscort = 'escort'
+
+/// 剧情日志，用于记录一段故事
+struct Quest {
+  constructor({
+    id,
+    name,
+    image,
+    endings: List,
+  }) {
+    assert(name != null)
+    this.name = name
+
+    this.id = id ?? crypto.randomUID(withTime: true)
+    assert(endings is List && endings.isNotEmpty)
+    this.image = image
+    this.endings = endings ?? []
+    // 当前所处的阶段，以数字表示
+    // 每个阶段的文本按照约定格式为：'${quest.id}_stage${stage}'
+    this.stage = 0
+    // 日志进展，每个阶段的index对应了一段描述
+    // 故事并不要求是连续的，可能有不同的路径和结尾
+    // 但起点一定是 0
+    this.sequence = [ 0 ]
+    // 只要stage达到endings中记录的任何一个数字，就算结束
+    this.isFinished = false
+  }
+}
+
+function generateQuestById(questId, {publishCharacterId}) {
+  assert(game.quests.containsKey(questId))
+  final questData = game.quests[questId]
+  final quest = Quest(
+    id: questId,
+    name: engine.locale(questData.name),
+    image: questData.image,
+    endings: questData.endings.toList(),
+  )
+  return quest
+}
+
+// function generateQuestReward(difficulty) {
+//   const reward = Lootbox()
+//   return reward
+// }
+
+// // 尝试完成任务，如果成功返回 true，并扣除任务所要求提交的物品等
+// function characterTrySubmitQuest(character, target, quest) -> bool {
+//   if (quest.questEntitiesSubmit) {
+//     for (const data in quest.questEntitiesSubmit) {
+//       if (game.entityType == kEntityTypeCharacter || game.entityType == kEntityTypeNpc) {
+//         if (!character.companions.containsKey(game.id)) return false
+//       } else if (game.entityType == kEntityTypeItem) {
+//         if (!character.inventory.containsKey(game.id)) {
+//           return false
+//         } else {
+//           const item = character.inventory[game.id]
+//           if (item.stackSize < game.count) {
+//             return false
+//           }
+//         }
+//       } else {
+//         print(data)
+//         engine.error('提交任务时发生错误，对象类型既不是人员也是物品：${game.entityType}')
+//       }
+//     }
+
+//     for (const data in quest.questEntitiesSubmit) {
+//       if (game.entityType == kEntityTypeCharacter || game.entityType == kEntityTypeNpc) {
+//         const entity = character.companions[game.id]
+//         characterDismissCompanion(character, entity)
+//       } else if (game.entityType == kEntityTypeItem) {
+//         give(character, target, game.id, count: game.count)
+//       }
+//     }
+//   }
+//   return true
+// }
+

@@ -1,0 +1,122 @@
+import 'game/data.ht'
+
+const kTicksPerDay = 4 //每天的回合数 morning, afternoon, evening, night
+const kDaysPerMonth = 30 //每月的天数
+const kTicksPerMonth = kDaysPerMonth * kTicksPerDay //每月的回合数 120
+const kDaysPerYear = 360 //每年的月数
+const kMonthsPerYear = 12 //每年的月数
+const kTicksPerYear = kDaysPerYear * kTicksPerDay //每年的回合数 1440
+
+/// 当前年数
+function toYear(timestamp) => (timestamp ~/ kTicksPerYear)
+/// 0-11 当前月数
+function toMonth(timestamp) => (timestamp % kTicksPerYear) ~/ kTicksPerMonth
+/// 0-29 当前月的天数
+function toDay(timestamp) => (timestamp % kTicksPerMonth) ~/ kTicksPerDay
+/// 0-3 当前的时刻（清晨、下午、傍晚、午夜）
+function toTime(timestamp) => (timestamp % kTicksPerDay)
+
+function getCurrentDateTimeString() {
+  return formatDateTimeString(game.timestamp ?? 0, format: 'datetime.ymdh')
+}
+
+/// [format] = ('age' | 'date' | 'time' | 'datetime' | 'number').('ymdh' | 'ymd' | 'ym' | 'md' | 'y' | 'm' | 'd' | 'h')
+function formatDateTimeString(timestamp: integer, {format: string}) {
+  let yearN = toYear(timestamp)
+  let monthN = toMonth(timestamp)
+  let dayN = toDay(timestamp)
+  let timeN = toTime(timestamp)
+  
+  let yearC = ''
+  let monthC = ''
+  let dayC = ''
+
+  const t = format?.split('.').first ?? 'date'
+  if (t == 'age') {
+    yearC = engine.locale('ageYear')
+    monthC = engine.locale('ageMonth')
+    dayC = engine.locale('ageDay')
+  } else if (t == 'date' || t == 'datetime') {
+    yearC = engine.locale('dateYear')
+    monthC = engine.locale('dateMonth')
+    dayC = engine.locale('dateDay')
+    ++yearN
+    ++monthN
+    ++dayN
+    ++timeN
+  } else if (t == 'time') {
+    yearC = engine.locale('timeYear')
+    monthC = engine.locale('timeMonth')
+    dayC = engine.locale('timeDay')
+  }
+
+  const y = '${yearN}${yearC}'
+  const m = '${monthN}${monthC}'
+  const d = '${dayN}${dayC}'
+  const h = engine.locale('timeOfDay${timeN}')
+
+  const fmt = format?.split('.').last ?? 'ymdh'
+  switch (fmt) {
+    'y' : {
+      return y
+    }
+    'm' : {
+      return m
+    }
+    'd' : {
+      return d
+    }
+    'h' : {
+      return h
+    }
+    'ym' : {
+      return '${y}${m}'
+    }
+    'md' : {
+      return '${m}${d}'
+    }
+    'ymd' : {
+      return '${y}${m}${d}'
+    }
+    'ymdh' : {
+      return '${y}${m}${d}${h}'
+    }
+    'age' : {
+      if (yearN == 0) {
+        if (monthN == 0) {
+          return d
+        } else {
+          return m
+        }
+      } else {
+        return y
+      }
+    }
+  }
+}
+
+function formatTimeString(timestamp) => formatDateTimeString(timestamp, format: 'time.ymd')
+
+function formatAgeString(timestamp) => formatDateTimeString(timestamp, format: 'age')
+
+function formatAge(timestamp) => formatDateTimeString(timestamp, format: 'number.y')
+
+function getDayString(count) {
+  assert(count > 0)
+  return '${count} ${engine.locale('timeDay')}'
+}
+
+function getMonthString(count) {
+  assert(count > 0)
+  return '${count} ${engine.locale('timeMonth')}'
+}
+
+function getYearString(count) {
+  assert(count > 0)
+  return '${count} ${engine.locale('timeYear')}'
+}
+
+function ageToBirthTimestamp(age) {
+  let time = age * kTicksPerYear + random.nextInt(kTicksPerYear)
+  return game.timestamp - time
+}

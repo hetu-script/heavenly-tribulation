@@ -1,19 +1,180 @@
-name: cli_test
-description: A sample command-line application.
-version: 1.0.0
-publish_to: none
+name: heavenly_tribulation
+description: A Xianxia genre RPG game mixed with Roguelike/Tycoon elements.
+publish_to: "none"
+
+version: 0.1.0-demo
 
 environment:
   sdk: ^3.0.0
+  flutter: ^3.0.0
 
 dependencies:
-  pub_semver: ^2.1.1
+  flutter:
+    sdk: flutter
+  # flutter_localizations:
+  #   sdk: flutter
+
+  meta: ^1.7.0
+
+  # hive: ^2.0.4
+  # hive_flutter: ^1.1.0
+
+  flame: ^1.25.0
+  flame_splash_screen: ^0.3.0
 
   hetu_script:
     path: ../hetu-script/packages/hetu_script
-  hetu_script_dev_tools:
-    path: ../hetu-script/packages/hetu_script_dev_tools
+  hetu_script_flutter:
+    path: ../hetu-script/packages/hetu_script_flutter
+
+  samsara:
+    path: ../samsara-engine
+
+  quiver: ^3.0.1+1
+  change_case: ^2.0.1
+  path_provider: ^2.0.8
+  data_table_2: ^2.5.11
+  window_manager: ^0.4.3
+  gradient_widgets: ^0.6.0
+  path: ^1.8.1
+  async: ^2.8.2
+  fast_noise: ^2.0.0
+  flutter_platform_alert: ^0.7.0
+  vector_math: ^2.1.4
+  json5: ^0.8.2
+  video_player_win: ^3.1.1
+  provider: ^6.1.2
+  dropdown_button2: ^2.3.9
+  flutter_custom_cursor: ^0.0.4
 
 dev_dependencies:
-  lints: ^5.1.0
-  test: ^1.16.0
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.2
+  msix: ^3.16.7
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/icon.jpg"
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/
+
+    - assets/mods/
+
+    - assets/audio/
+    - assets/audio/sound/
+    - assets/audio/music/
+
+    - assets/data/
+    # - assets/data/maps/
+
+    - assets/images/
+    - assets/images/animation/
+    - assets/images/animation/bear/
+    - assets/images/animation/characterMan1/
+    - assets/images/animation/characterWoman1/
+    - assets/images/animation/overlay/
+    - assets/images/battle/
+    - assets/images/battle/scene/
+    - assets/images/battlecard/
+    - assets/images/battlecard/illustration/
+    - assets/images/cultivation/
+    - assets/images/cultivation/skill/
+    - assets/images/icon/
+    - assets/images/icon/skill/
+    - assets/images/icon/status/
+    - assets/images/icon/status/permenant/
+    - assets/images/illustration/
+    - assets/images/illustration/
+    - assets/images/illustration/male/
+    - assets/images/illustration/female/
+    - assets/images/illustration/main/
+    - assets/images/illustration/npc/
+    - assets/images/illustration/old/
+    - assets/images/illustration/young/
+    - assets/images/illustration/
+    - assets/images/item/
+    - assets/images/item/consumable/
+    - assets/images/item/material/
+    - assets/images/item/support/
+    - assets/images/location/
+    - assets/images/location/card/
+    - assets/images/location/city/
+    - assets/images/location/site/
+    - assets/images/object/
+    - assets/images/object/components/
+    - assets/images/object/animation/
+    - assets/images/time/
+    - assets/images/ui/
+    - assets/images/particles/
+    - assets/images/particles/clouds/
+    - assets/images/particles/rubbles/
+    - assets/images/story/
+    - assets/images/story/cg/
+    - assets/images/story/cg/prelude/
+    - assets/images/story/cg/chapter1/
+    - assets/images/story/illustration/
+    - assets/images/story/item/
+    - assets/images/story/location/
+    - assets/images/story/location/card/
+
+    # - assets/locale/en/
+    - assets/locale/zh/
+
+    - scripts/main/
+    - scripts/main/cardgame/
+    - scripts/main/entity/
+    - scripts/main/entity/character/
+    - scripts/main/entity/item/
+    - scripts/main/entity/location/
+    - scripts/main/entity/organization/
+    - scripts/main/event/
+    - scripts/main/game/
+    - scripts/main/name/
+    - scripts/main/name/book/
+    - scripts/main/name/character/
+    - scripts/main/name/common/
+    - scripts/main/name/consumable/
+    - scripts/main/name/creature/
+    - scripts/main/name/material/
+    - scripts/main/name/organization/
+    - scripts/main/name/place/
+    - scripts/main/name/skill/
+    - scripts/main/name/talisman/
+    - scripts/main/name/zone/
+    - scripts/main/world/
+    - scripts/main/world/tile/
+
+    - scripts/story/
+    - scripts/story/l10n/
+    - scripts/story/l10n/zh/
+    - scripts/story/events/
+    - scripts/story/data/
+
+  fonts:
+    - family: NotoSansMono
+      fonts:
+        - asset: assets/fonts/NotoSansMonoCJKsc-Regular.otf
+    - family: UbuntuMono
+      fonts:
+        - asset: assets/fonts/UbuntuMonoDerivativePowerline.ttf
+    - family: QIJIC
+      fonts:
+        - asset: assets/fonts/qijic.ttf
+    - family: RuiZiYunZiKuLiBianTiGBK
+      fonts:
+        - asset: assets/fonts/RuiZiYunZiKuLiBianTiGBK-1.ttf
+
+msix_config:
+  display_name: Heavenly Tribulation
+  publisher_display_name: Hetu Studio
+  identity_name: hetu.dev
+  msix_version: 1.0.0.0
+  logo_path: E:\_dev\heavenly-tribulation\media\LOGO.ico

@@ -1,0 +1,10 @@
+{
+  hunguding_affix: {
+    id: "hunguding_affix",
+    description: "hunguding_affix_description",
+  },
+  hunguding_affix2: {
+    id: "hunguding_affix2",
+    description: "hunguding2_affix_description",
+  },
+}

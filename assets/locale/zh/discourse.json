@@ -1,0 +1,17 @@
+{
+  "relationshipDiscourse": "关于我们之间……",
+
+  "discourse_defaultUnknown": "抱歉，我并不了解你说的这个事情。",
+
+  "discourse_defaultRefusal": "我这会儿有事，咱们还是改天再聊吧。",
+
+  "discourse_unfavorRefusal": "我和你这种人没什么好说的，快点从我眼前消失吧。",
+
+  "discourse_favorGreeting": "原来是{0}，你好啊，有什么事情需要我的帮忙吗？",
+
+  "discourse_fameGreeting": "阁下可是{0}？",
+
+  "discourse_giftAcception": "承蒙阁下厚赠，这礼物我就收下了。",
+
+  "discourse_giftRefusal": "承蒙阁下厚赠，但这礼物太过贵重，我不能要。阁下还是收回吧。"
+}

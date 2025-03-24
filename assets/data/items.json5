@@ -1,0 +1,35 @@
+{
+  identify_scroll: {
+    prototypeId: "identify_scroll",
+    name: "identify_scroll",
+    category: "scroll",
+    rarity: "uncommon",
+    icon: "item/scroll.png",
+    isUsable: true,
+    isIdentified: true,
+  },
+  // wood_boat: {
+  //   prototypeId: "wood_boat",
+  //   category: "vehicle",
+  //   kind: "ship",
+  //   isEquipable: true,
+  //   equipData: {
+  //     attributes: {
+  //       staminaCostOnWaterReduced: 0.2,
+  //     },
+  //   },
+  //   icon: "item/support/boat.png",
+  // },
+  // climb_boots: {
+  //   prototypeId: "climb_boots",
+  //   category: "boots",
+  //   kind: "boots",
+  //   isEquipable: true,
+  //   equipData: {
+  //     attributes: {
+  //       staminaCostOnHillReduced: 0.2,
+  //     },
+  //   },
+  //   icon: "item/support/climb_boots.png",
+  // },
+}

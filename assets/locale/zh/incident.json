@@ -1,0 +1,62 @@
+{
+  "characterExpGained": "{0}获得了{1}点经验。",
+  "characterStaminaRestored": "{0}恢复了{1}点体力。",
+  "characterManaRestored": "{0}获得了{1}点灵气。",
+  "characterAcquire": "{0}得到了{1}。",
+  "characterLose": "{0}失去了{1}。",
+  "characterEquip": "{0}装备了{1}。",
+  "characterUnequip": "{0}卸下了{1}。",
+  "characterEnlist": "{0}加入了{1}。",
+  "characterAcquireCompanion": "{0}加入了{1}的队伍。",
+  "characterLoseCompanion": "{0}离开了{1}的队伍。",
+  "characterOpen": "{0}打开了{1}。",
+  "characterAcceptQuest": "{0}开启了新的日志「{1}」。",
+  "characterQuestProgressed": "{0}的日志「{1}」有新的进展。",
+  "characterQuestFinished": "{0}的日志「{1}」已结束。",
+
+  "characterFirstMeetNormal": "{0}认识了{1}。",
+  "characterFirstMeetHate": "{0}认识了{1}，对其印象较差。",
+  "characterFirstMeetLike": "{0}认识了{1}，对其十分喜欢。",
+  "characterSettle": "{0}在{1}安家了。",
+  "characterMarriage": "{0}和{1}在{2}结婚了。",
+  "characterConception": "{0}怀上了{1}的孩子并为其取名{2}。",
+  "characterBorn": "{0}和{1}的孩子{2}在{3}出生了。",
+  "characterBaishi": "{0}拜{1}为师了。",
+
+  "entityAcquire": "{0}得到了{1}。",
+  "entityLose": "{0}失去了{1}。",
+  "entityDestroy": "{0}销毁了{1}。",
+
+  "characterLearn": "{0}学会了{1}。",
+  "characterAcquireMultiple": "{0}得到了 {1} 个{2}。",
+  "characterLoseMultipleItem": "{0}失去了 {1} 个{2}。",
+  "characterGiveItem": "{0}将{1}给了{2}。",
+  "characterForceToGiveItem": "{0}拿走了{1}身上的{2}。",
+  "characterGiveMultipleItem": "{0}将 {1} 个{2}给了{3}。",
+  "characterGiveMultipleItemForced": "{0}拿走了{1}身上的 {2} 个{3}。",
+  "characterUse": "{0}使用了{1}。",
+  "characterConsume": "{0}吃下了{1}。",
+  "characterForceToConsume": "{0}喂{1}吃下了{2}。",
+
+  "characterCultivationLevelUp": "{0}的修为提升到了{1}",
+  "characterCultivationRankUp": "{0}的境界提升到了{1}",
+
+  "characterDefeat": "{0}击败了{1}。",
+  "characterKill": "{0}杀死了{1}。",
+
+  "characterMeditate": "{0}在{1}进行了打坐，花费了{2}天。",
+  "characterExplore": "{0}在{1}进行了探查，花费了{2}天。",
+  "characterGathered": "{0}在{1}进行了采集，花费了{2}天。",
+  "characterWoodcutted": "{0}在{1}进行了伐木，花费了{2}天。",
+  "characterMined": "{0}在{1}进行了挖矿，花费了{2}天。",
+  "characterHunted": "{0}在{1}进行了狩猎，花费了{2}天。",
+  "characterFished": "{0}在{1}进行了捕鱼，花费了{2}天。",
+  "characterPracticed": "{0}在{1}修炼{2}，花费了{3}天，获得了{4}点经验。",
+
+  "locationDeveloped": "{0}的规模扩大到了{1}。",
+
+  "organizationDeveloped": "{0}的规模扩大到了{1}。",
+  "organizationCreate": "{0}在{1}创建了{2}。",
+  "organizationEnlist": "{0}加入了{1}。",
+  "characterGainJobRank": "{0}成为了{1}的{2}。"
+}

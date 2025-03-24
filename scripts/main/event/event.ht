@@ -1,0 +1,88 @@
+import '../game/data.ht'
+
+/// 加载到本次游戏的事件处理模块。
+/// module {
+///   // 第一层key是世界名字，每个世界有自己的一套逻辑
+///   worldName1: {
+///     // 第二层是事件名字
+///     onNewGame: () {
+///       engine.info('[${this.id}]: 新游戏事件回调函数')
+///     }
+///   }
+/// }
+
+/// 将自定义事件处理函数所在的命名空间绑定到
+/// 因为函数不会被序列化，因此每次启动游戏都会执行一次绑定
+/// 此时模组元数据尚未加载
+function addEventHandlers({worldId, moduleId, namespace}) {
+  assert(moduleId is string && namespace is namespace)
+  assert(game.mods[moduleId] != null)
+  if (worldId != null) {
+    engine.debug('为模组 [${moduleId}] 添加 [世界(${worldId})] 事件处理...')
+    game.mods[moduleId][worldId] = namespace
+  } else {
+    engine.debug('为模组 [${moduleId}] 添加 [通用] 事件处理...')
+    game.mods[moduleId]['events'] = namespace
+  }
+}
+
+function sortMods(sorted) {
+  game.mods = {}
+  for (final mod in sorted) {
+    game.mods[mod.id] = mod
+  }
+}
+
+/// [onWorldEvent] 和 [onGameEvent] 用来触发 mod 的回调函数
+/// 游戏自己的逻辑不用这个
+/// 回调函数需要在游戏开始时就读取，不要动态添加
+/// 因为函数无法保存，因此一旦读档，回调就会消失
+/// 事件处理函数将会收到两个参数
+/// 第一个参数module是模组数据，可以保存一些flag之类
+/// 第二个是回调本身的一些传入参数，例如执行时的一些情况等等
+
+/// 世界事件，该类事件只会触发绑定到当前世界的模组，返回值通常是null
+/// 如果返回值是 [true]，则表示事件已经被模组处理完毕，不再执行游戏本身的默认逻辑
+async function onWorldEvent(eventId: string, ...args) {
+  if (world == null) return
+  let result
+  for (const module of game.mods) {
+    if (module.contains(world.id)) {
+      let callback = module[world.id][eventId]
+      // callback 可能是 null
+      if(callback is function) {
+        engine.debug('执行模组 [${module.id}] 在世界 [${world.id}] 上的事件处理函数 [${eventId}]')
+        // 因为脚本函数本身定义在一个单独的脚本命名空间，并不能直接访问核心模组的global空间
+        // 这里通过apply方法在运行时临时改变其命名空间，让其可以直接访问`game`等对象
+        // final eventResult = await callback.apply(module, ...args)
+        // `2025/03/22`更新: 以上方法没有必要，因为河图脚本函数调用时会包裹一层运行时命名空间
+        final eventResult = await callback(...args)
+        if (eventResult != null) {
+          result = eventResult
+        }
+      }
+    }
+  }
+  return result
+}
+
+/// 游戏事件，该类事件会触发所有世界上的模组
+/// 如果返回值是 [true]，则表示事件已经被模组处理完毕，不再执行游戏本身的默认逻辑
+async function onGameEvent(eventId: string, ...args) {
+  let result
+  for (const mod in game.mods.values) {
+    let gameEvents = mod['events']
+    if (gameEvents != null) {
+      let callback = gameEvents[eventId]
+      if(callback is function) {
+        engine.debug('执行模组 [${mod.id}] 的通用事件处理函数 [${eventId}]')
+        // final eventResult = await callback.apply(mod, ...args)
+        final eventResult = await callback(...args)
+        if (eventResult != null) {
+          result = eventResult
+        }
+      }
+    }
+  }
+  return result
+}

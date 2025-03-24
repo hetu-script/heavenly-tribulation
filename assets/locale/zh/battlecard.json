@@ -1,0 +1,86 @@
+{
+  "extraAffix": "额外词条",
+
+  "unidentified": "未知",
+  "unidentified2": "未识别",
+  "unidentified3": "未鉴定的",
+  "requirement_hint": "未满足",
+  "explanation_hint": "按 Ctrl 键查看详细信息",
+
+  "buff": "加持",
+  "ongoing": "持续",
+  "ephemeral": "消耗",
+
+  "card_punch": "拳法",
+  "card_kick": "腿法",
+  "card_wrestling": "擒拿术",
+  "card_dianxue": "穴术",
+  "card_sabre": "刀法",
+  "card_spear": "枪法",
+  "card_sword": "剑法",
+  "card_staff": "棍法",
+  "card_bow": "弓术",
+  "card_flying_sword": "御剑术",
+  "card_qinggong": "轻功",
+  "card_xinfa": "心法",
+  "card_firebend": "御火术",
+  "card_waterbend": "御水术",
+  "card_windbend": "御风术",
+  "card_lightning": "雷法",
+  "card_earthbend": "土遁术",
+  "card_wood_control": "木遁术",
+  "card_scripture": "经藏",
+  "card_dart": "暗器术",
+  "card_poison": "毒术",
+  "card_curse": "咒术",
+  "card_music": "曲谱",
+
+  "affix_description_attack_unarmed": "徒手攻击：{0} 物理伤害",
+  "affix_description_attack_wrestling": "徒手攻击：{0} 物理伤害\n对手缓慢 +{1}",
+  "affix_description_attack_dianxue": "徒手攻击：{0} 真气伤害\n对手迟钝 +{1}",
+  "affix_description_attack_weapon": "武器攻击：{0} 物理伤害",
+  "affix_description_attack_weapon_multiple": "武器攻击：{0}×{1} 物理伤害",
+
+  "affix_description_attack_fireball": "消耗 1 灵气：法术攻击：{0} 元素伤害",
+  "affix_description_attack_wind_blade": "消耗 1 灵气：法术攻击：{0} 元素伤害\n对手缓慢 +{1}",
+  "affix_description_attack_lightning": "消耗 1 灵气：法术攻击：{0} 元素伤害\n对手迟钝 +{1}",
+  "affix_description_attack_flying_sword_1": "消耗 1 剑气：法术攻击：{0} 物理伤害",
+
+  "affix_description_defend_physical": "物理防御 +{0}",
+  "affix_description_defend_chi": "真气防御 +{0}",
+  "affix_description_defend_elemental": "元素防御 +{0}",
+  "affix_description_defend_spiritual": "精神防御 +{0}",
+  "affix_description_heal": "回复 {0} 生命",
+  "affix_description_life_energy": "获得 {0} 元气",
+  "affix_description_spell_energy": "获得 {0} 灵气",
+  "affix_description_weapon_energy": "获得 {0} 剑气",
+  "affix_description_unarmed_energy": "获得 {0} 怒气",
+
+  "affix_description_weapon_energy_convert": "将所有元气和灵气转化为剑气",
+
+  "affix_description_cost_1_life_energy_gain_defense_physical": "消耗 1 元气：物理防御 +{0}",
+  "affix_description_cost_1_life_energy_gain_defense_chi": "消耗 1 元气：真气防御 +{0}",
+  "affix_description_cost_1_life_energy_gain_defense_elemental": "消耗 1 元气：元素防御 +{0}",
+  "affix_description_cost_1_life_energy_gain_defense_spiritual": "消耗 1 元气：精神防御 +{0}",
+
+  "affix_description_speed": "速度 +{0}",
+  "affix_description_dodge": "闪避 +{0}",
+  "affix_description_qinggong": "速度 +{0}\n闪避 +{1}",
+
+  "affix_description_extra_damage_physical_after_attacked": "额外造成 {0} 物理伤害",
+  "affix_description_extra_damage_chi_after_attacked": "额外造成 {0} 真气伤害",
+  "affix_description_extra_damage_elemental_after_attacked": "额外造成 {0} 元素伤害",
+  "affix_description_extra_damage_spiritual_after_attacked": "额外造成 {0} 精神伤害",
+  "affix_description_extra_damage_pure_after_attacked": "额外造成 {0} 纯粹伤害",
+
+  "affix_description_per_10hp_damage_heal": "每造成 10 伤害：回复 {0} 生命",
+  "affix_description_per_10hp_damage_gain_defense_physical": "每造成 10 伤害：物理防御 +{0}",
+  "affix_description_per_10hp_damage_gain_defense_chi": "每造成 10 伤害：真气防御 +{0}",
+  "affix_description_per_10hp_damage_gain_defense_elemental": "每造成 10 伤害：元素防御 +{0}",
+  "affix_description_per_10hp_damage_gain_defense_spiritual": "每造成 10 伤害：精神防御 +{0}",
+
+  "affix_description_per_10hp_damage_gain_energy_unarmed": "每造成 10 伤害：怒气 +1",
+
+  "affix_description_cost_weapon_energy_extra_damage_physical": "最多消耗 {0} 剑气，每点剑气造成 {1} 物理伤害",
+  "affix_description_cost_weapon_energy_extra_damage_elemental": "最多消耗 {0} 剑气，每点剑气造成 {1} 元素伤害"
+}

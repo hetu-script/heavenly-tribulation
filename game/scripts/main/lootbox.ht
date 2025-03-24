@@ -1,5 +1,0 @@
-struct Lootbox {
-  constructor {
-    this.inventory = {}
-  }
-}

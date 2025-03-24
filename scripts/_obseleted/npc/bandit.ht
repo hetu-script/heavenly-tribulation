@@ -1,0 +1,147 @@
+import '../../game/entity/character/battle_entity.ht'
+import '../../game/entity/common.ht'
+import '../../game/entity/item/item.ht'
+import '../../game/entity/character/companion.ht'
+import '../../game/game.ht'
+
+const _kBanditKinds = Set(
+  'boss', // level 3 出口的 boss
+  'killer', // level 2 出口的 boss
+  'muscle', // level 1 出口的 boss
+  'minion',
+)
+
+const _kBanditName = 'bandit'
+const _kPirateName = 'pirate'
+
+const _kBanditAttributeSum = 300
+
+const _kBeastAttributes = {
+  minion: {
+    spirituality: 0,
+    dexterity: 51,
+    strength: 79,
+    willpower: 44,
+    perception: 63,
+  },
+  muscle: {
+    spirituality: 0,
+    dexterity: 60,
+    strength: 92,
+    willpower: 73,
+    perception: 47,
+  },
+  killer: {
+    spirituality: 0,
+    dexterity: 84,
+    strength: 80,
+    willpower: 77,
+    perception: 85,
+  },
+  boss: {
+    spirituality: 0,
+    dexterity: 72,
+    strength: 95,
+    willpower: 80,
+    perception: 86,
+  },
+}
+
+struct Bandit {
+  construct ({
+    birthTimestamp,
+    isPirate,
+    kind,
+    rarity,
+    description,
+    attributes,
+    attributeSum,
+  }) {
+    assert(kind in _kBanditKinds)
+    this.kind = kind
+    this.entityType = kEntityTypeNpc
+    this.birthTimestamp = birthTimestamp ?? createBirthTimestamp()
+    // this.icon = 'general.png'
+    this.category = kEntityCategoryCharacter
+    this.name = engine.locale(isPirate ? _kPirateName : _kBanditName) + engine.locale(this.kind)
+    this.id = '${this.entityType}.${crypto.randomUID4(2)}.${this.name}'
+    this.rarity = rarity ?? kCommon
+    this.color = kRarity[this.rarity].color
+    this.description = description ?? ''
+    game.minorCharacters[this.id] = this
+
+    // 装备栏由战斗单位类生成，因此下面的代码不能放在 BattleEntity 之前
+    switch (this.kind) {
+      'minion' : {
+        this.icon = 'maze/bandit_minion.png'
+        const battleInfo = BattleEntity(
+          attributes: attributes ?? _kBeastAttributes.minion,
+          attributeSum: _kBanditAttributeSum,
+          generate: false,
+          baseLife: 125,
+        )
+        Object.assign(this, battleInfo)
+        // BattleEntity 会初始化银两为0，因此必须在其之后赋值
+        acquireMoney(this, random.nextInt(50) + 50)
+        equip(this, Weapon())
+        // 山贼喽啰可以成为别的山贼的战斗伙伴
+        this.isEquippable = true
+        this.equipType = kEquipTypeCompanion
+        this.companionType = kCompanionTypeBattle
+      }
+      'muscle' : {
+        this.icon = 'maze/bandit_muscle.png'
+        const battleInfo = BattleEntity(
+          attributes: attributes ?? _kBeastAttributes.muscle,
+          attributeSum: _kBanditAttributeSum,
+          generate: false,
+          baseLife: 175,
+        )
+        Object.assign(this, battleInfo)
+        // BattleEntity 会初始化银两为0，因此必须在其之后赋值
+        acquireMoney(this, random.nextInt(75) + 50)
+        equip(this, Weapon(kind: 'spear'))
+        const minion1 = Bandit(kind: 'minion')
+        equip(this, minion1)
+      }
+      'killer' : {
+        this.icon = 'maze/bandit_killer.png'
+        const battleInfo = BattleEntity(
+          attributes: attributes ?? _kBeastAttributes.killer,
+          attributeSum: _kBanditAttributeSum,
+          generate: false,
+          baseLife: 225,
+        )
+        Object.assign(this, battleInfo)
+        // BattleEntity 会初始化银两为0，因此必须在其之后赋值
+        acquireMoney(this, random.nextInt(100) + 50)
+        equip(this, Weapon(kind: 'sabre'))
+        equip(this, Weapon(kind: 'sabre'))
+        const minion1 = Bandit(kind: 'minion')
+        equip(this, minion1)
+      }
+      'boss' : {
+        const battleInfo = BattleEntity(
+          attributes: attributes ?? _kBeastAttributes.boss,
+          attributeSum: _kBanditAttributeSum,
+          generate: false,
+          baseLife: 300,
+        )
+        Object.assign(this, battleInfo)
+        // BattleEntity 会初始化银两为0，因此必须在其之后赋值
+        acquireMoney(this, random.nextInt(300) + 100)
+        this.icon = 'maze/bandit_boss.png'
+        equip(this, Weapon())
+        equip(this, Shield())
+        const minion1 = Bandit(kind: 'minion')
+        const minion2 = Bandit(kind: 'minion')
+        const minion3 = Bandit(kind: 'minion')
+        equip(this, minion1)
+        equip(this, minion2)
+        equip(this, minion3)
+      }
+    }
+    
+    calculateCharacterStats(this)
+  }
+}

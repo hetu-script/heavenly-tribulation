@@ -1,0 +1,736 @@
+import '../name/zone.ht'
+import '../game/data.ht'
+import '../entity/location/location.ht'
+import '../entity/character/character.ht'
+import '../entity/organization/organization.ht'
+import '../world/tile/hexagonal_tile.ht'
+import '../world/zone.ht'
+import '../world/tile/tilemap.ht'
+import '../entity/entity.ht'
+import '../datetime.ht' as datetime
+import '../game/logic.ht'
+import 'generation_algorithm.ht'
+import 'tile/common.ht'
+import '../game/dialog.ht'
+import '../entity/item/item.ht'
+import 'world.ht'
+
+const _kDefaultWorldScale = 1
+const _kWorldSizePerWorldScale = {
+  '1': 12,
+  '2': 18,
+  '3': 27,
+  '4': 40,
+}
+
+const _kDefaultNationNumber = 4
+const _kDefaultLocationNumber = 6
+const _kDefaultCharacterNumber = 20
+// const _kDefaultCultivationOrganizationNumber = 4
+// const _kDefaultTradingHouseOrganizationNumber = 2
+
+const _kMinZoneSizeOfSea = 8
+const _kMinZoneSizeOfIsland = 8
+const _kForestThreshold = 0.5
+const _kMountainThreshold = 0.2
+
+const _kAdultAge = 15
+const _kPregnancyAgeMax = 50
+const _kChildrenMax = 3
+
+const _kLocationInitialDevelopmentMax = 4
+
+const _kLocationInitialMoney = 2000
+const _kNpcStoreInitialMoney = 2000
+const _kSiteTradinghouseProbability = 0.6
+const _kSiteTradinghouseMoney = 0.6
+const _kSiteWorkshopProbability = 0.6
+const _kSiteHospitalProbability = 0.6
+const _kSiteRestaurantProbability = 0.6
+
+const _cultivationKinds = [
+  'location',
+  'mountain',
+  'island',
+]
+
+/// 生成世界地图的算法
+///
+/// spritesheet上不同地形对应的编号：
+/// 0：虚空
+/// 1：浅海
+/// 2：深海
+/// 3：陆地（草原）
+///
+/// 算法思路：
+///
+/// 用噪声算法生成陆地和海洋
+///
+/// 为陆地所属的整个大地块命名，然后找到尚未命名的地块，将所有相连的地块作为一个整体命名，直到所有的地块都有名字，根据地块大小有不同命名方式
+///
+/// 根据城市密度，生成城市，并根据城市位于陆地、海边还是海中，对其进行特殊命名
+///
+/// 对于每个城市，链接最近的另外两个城市，使用 A* 寻路算法，标记经过的地块
+///
+/// 对于没有道路经过的地块，随机填充山脉和树林
+
+function createSandboxWorld({
+    id,
+    isMainWorld,
+    name,
+    seedString,
+    style = 'coast',
+    terrainSpriteSheet = 'fantasyhextiles_v3_borderless.png',
+    worldScale = _kDefaultWorldScale,
+    nationNumber = _kDefaultNationNumber,
+    locationNumber = _kDefaultLocationNumber,
+    characterNumber = _kDefaultCharacterNumber,
+    // landProportion = 0.55,
+  }) {
+  assert(id != null)
+  assert(seedString is string && seedString.isNotEmpty)
+  assert(locationNumber > nationNumber)
+  // assert(cultivationOrganizationNumber < locationNumber)
+  // assert(cultivationOrganizationNumber < characterNumber)
+  // assert(tradinghouseOrganizationNumber < locationNumber)
+  // assert(tradinghouseOrganizationNumber < characterNumber)
+
+  const seed = crypto.crcInt(seedString)
+  engine.debug('开始生成世界，设置随机数种子为：${seedString}(${seed})')
+  setRandomSeed(seed)
+
+  let width
+  let height
+
+  width = height = _kWorldSizePerWorldScale[worldScale.toString()]
+
+  // 生成过程中，引入了一些别的文件中的函数
+  // 他们可能会通过game.world访问, 因此这里直接使用全局变量
+  const newWorld = TileMap(
+    id: id ?? 'main',
+    terrainSpriteSheet: terrainSpriteSheet,
+    width: width,
+    height: height,
+  )
+
+  newWorld.isMainWorld = isMainWorld
+  newWorld.name = name ?? generateZoneName(category: 'world')
+  
+  addWorld(newWorld)
+
+  engine.debug('生成地块')
+  for (const j in range(height)) {
+    for (const i in range(width)) {
+      world.terrains.add(
+        TileMapTerrain(
+          left: i + 1,
+          top: j + 1,
+          mapWidth: width,
+          spriteIndex: kSpriteWater,
+        )
+      )
+    }
+  }
+
+  // 没有区域，也是一个区域
+  // const voidZone = Zone(category: kZoneEmpty)
+
+  // 生成地域
+  engine.debug('生成大陆')
+  generateContinent(width, height, seed: seed, style: style)
+
+  // 根据相邻的格子的地域，分配地域索引
+  function updateZone(tile, [spriteIndex, unzonedNeighbors]) {
+    assert(tile.zoneId == null)
+    let willCreateZone = spriteIndex == null
+    spriteIndex ??= tile.spriteIndex
+    unzonedNeighbors ??= {}
+    // engine.debug('processing: ${tile.left},${tile.top}, spriteIndex: ${tile.spriteIndex}')
+    tile.zoneId = -1 // mark this tile is being processed, will skip it when process others
+    unzonedNeighbors[tile.index] = tile
+    const neighbors = getMapTileNeighbors(tile.left, tile.top, world)
+    let foundAdjacentZone = false
+    for (const neighbor in neighbors) {
+      // skip tiles that has diffrent spriteIndex and those still being processed
+      if (neighbor.spriteIndex != spriteIndex) continue
+      if (neighbor.zoneId == null) {
+        updateZone(neighbor, spriteIndex, unzonedNeighbors)
+      } else if (neighbor.zoneId == -1) {
+        unzonedNeighbors[neighbor.index] = neighbor
+        continue
+      } else {
+        final zone = getZoneById(neighbor.zoneId)
+        addTerrainToZone(tile, zone)
+        foundAdjacentZone = true
+        // engine.debug('found neighbor: ${neighbor.left},${neighbor.top}, zoneId: ${neighbor.zoneId}')
+        break
+      }
+    }
+    if (!foundAdjacentZone && willCreateZone) {
+      let category = tile.spriteIndex == kSpriteLand ? kZoneLand : kZoneSea
+      const zone = Zone(category: category)
+      // engine.debug('Created zone! left: ${tile.left}, top: ${tile.top} spriteIndex: ${tile.spriteIndex}, zoneId: ${zone.id}')
+      // engine.debug('processing previoused stored unzoned tiles: ${unzonedNeighbors}')
+      for (const unzonedTile of unzonedNeighbors) {
+        assert(unzonedTile.zoneId == -1)
+        unzonedTile.zoneId = null
+        addTerrainToZone(unzonedTile, zone)
+      }
+    }
+  }
+
+  let unzonedTile
+  while (
+    unzonedTile = world.terrains.firstWhere((tile) => tile.zoneId == null)
+  ) {
+    // engine.debug('updating unzoned tile')
+    updateZone(unzonedTile)
+  }
+
+  function find2NearestLocation(origin, {restricted2Zone: bool = true}) {
+    assert(world.locations.length > 0)
+    let nearest
+    let nearestDistance
+    let secondNearest
+    let secondNearestDistance
+    for (const location of world.locations) {
+      if (location.category != 'city') continue
+      if (location.terrainIndex == origin.terrainIndex) continue
+      const start = world.terrains[origin.terrainIndex]
+      const end = world.terrains[location.terrainIndex]
+      const distance = getTileDistance(start, end)
+      if (!restricted2Zone || location.zoneId == origin.zoneId) {
+        if (nearestDistance == null || distance < nearestDistance) {
+          nearestDistance = distance
+          nearest = location
+        } else if (secondNearestDistance == null || distance < secondNearestDistance) {
+          secondNearestDistance = distance
+          secondNearest = location
+        } else {
+          continue
+        }
+      }
+    }
+    return { nearest, secondNearest }
+  }
+  
+  const plains = Set()
+  const mountains = Set()
+  const seas = Set()
+
+  // 地形装饰贴图
+  // 将大陆和海洋接触的地方填充为大陆架，将大陆上没有道路的方格，随机填充为平原、森林、山地
+  // 这些修改不影响该地块的 category 和 kind
+  engine.debug('填充地形装饰贴图：大陆架、平原、森林、山地')
+  for (const tile in world.terrains) {
+    if (tile.spriteIndex == kSpriteLand) {
+      if (!tile.isRoute) {
+        const r = random.nextDouble()
+        if (r < _kMountainThreshold) {
+          tile.spriteIndex = kSpriteMountain
+          mountains.add(tile.index)
+        } else if (r < _kForestThreshold) {
+          tile.spriteIndex = kSpriteForest
+        } else {
+          plains.add(tile)
+        }
+      }
+    } else if (tile.spriteIndex == kSpriteWater) {
+      const neighbors = getMapTileNeighbors(tile.left, tile.top, world)
+      let isSea = true
+      for (const neighbor in neighbors) {
+        if (neighbor.spriteIndex == kSpriteLand) {
+          neighbor.isShore = true
+          isSea = false
+        }
+      }
+      if (isSea) {
+        seas.add(tile.index)
+      }      
+      // else {
+      //   tile.spriteIndex = kSpriteShelf
+      // }
+    }
+  }
+
+  // 生成据点
+  engine.debug('生成大陆上的据点')
+  final locations = []
+  while (locations.length < locationNumber) {
+    // let index
+    let terrain
+    do {
+      // engine.debug('generating location index')
+      terrain = random.nextIterable(plains)
+      // index = random.nextInt(world.terrains.length)
+      // terrain = world.terrains[index]
+    } while (terrain.locationId != null)
+    // city kind 有四种：城市、港口、山峰（洞天）和岛屿（福地），后两者为隐藏据点
+    const location = Location(
+      category: 'city',
+      kind: terrain.isShore ? kLocationKindHarborCity : kLocationKindInlandCity,
+      atTerrain: terrain,
+      updateWorldMap: false,
+    )
+    locations.add(location)
+    
+    // 随机生成的据点，初始发展度是0-3之间随机。
+    location.development = random.nextInt(_kLocationInitialDevelopmentMax)
+    // 据点所拥有的金钱，和发展度有关
+    // for (const i in range(location.development)) {
+    //   location +=  random.nextInt((i + 1) * _kLocationInitialMoney)
+    // }
+
+    // 随机为据点添加一些初始建筑和对应的物品
+    // 初始时、根据发展度，可能会有交易所（1）、拍卖行（2）
+    if (location.development > 0 && random.nextDouble() < _kSiteTradinghouseProbability) {
+      const site = Location(category: 'site', kind: kLocationKindTradingHouse, atLocation: location)
+      // site.money = _kNpcStoreInitialMoney + random.nextInt(_kNpcStoreInitialMoney)
+      // const money = _kNpcStoreInitialMoney + random.nextInt(_kNpcStoreInitialMoney)
+      // acquireMoney(site, money)
+      // 货栈可能有：谷物、水果、鱼、蔬菜、药材、木料、矿石
+      // acquire(site, Material.grain(), count: 20)
+      // acquire(site, Material.fruit(), count: 20)
+      // acquire(site, Material.fish(), count: 20)
+      // acquire(site, Material.vegetable(), count: 20)
+      // acquire(site, Material.herb(), count: 20)
+      // acquire(site, Material.wood(), count: 20)
+      // acquire(site, Material.ore(), count: 20)
+    }
+    if (location.development > 1 && random.nextDouble() < _kSiteWorkshopProbability) {
+      const site = Location(category: 'site', kind: kLocationKindAuctionHouse, atLocation: location)
+      // site.money += _kNpcStoreInitialMoney + random.nextInt(_kNpcStoreInitialMoney)
+      // // 武器、盾牌
+      // acquire(site, Weapon())
+      // acquire(site, Weapon())
+      // acquire(site, Weapon())
+      // acquire(site, Shield())
+      // acquire(site, Shield())
+      // // 饮料、食物
+      // acquire(site, Consumable.beverage(), count: 20)
+      // // 方剂
+      // acquire(site, Consumable.medicine(), count: 20)
+      // acquire(site, Material.herb(), count: 10)
+    }
+  }
+
+  engine.debug('确保陆地上的每个城市至少可以链接到另外两个城市')
+  for (const location of world.locations) {
+    if (location.category != 'city') continue
+    const start = world.terrains[location.terrainIndex]
+    // 确保陆地上的每个城市至少可以链接到另外两个城市
+    if (start.zoneCategory == kZoneLand) {
+      const searchResult = find2NearestLocation(location, restricted2Zone: true)
+      if (searchResult.nearest) {
+        const end = world.terrains[searchResult.nearest.terrainIndex]
+        const route = calculateRoute(start, end, world)
+        if (route) {
+          // routes.add(route)
+          for (const index in route) {
+            const terrain = world.terrains[index]
+            terrain.isRoute = true
+          }
+        }
+      }
+      if (searchResult.secondNearest) {
+        const end = world.terrains[searchResult.secondNearest.terrainIndex]
+        const route = calculateRoute(start, end, world)
+        if (route) {
+          // routes.add(route)
+          for (const index in route) {
+            const terrain = world.terrains[index]
+            terrain.isRoute = true
+          }
+        }
+      }
+    }
+  }
+
+  // 因为 zone 的名字和其大小有关，因此在最后在才命名和赋值 category/kind
+  engine.debug('为地域命名')
+  for (const zone of world.zones) {
+    assert(zone.name == 'unnamed')
+    // kZoneSea & kZoneLand 只是临时类型，现在替换为具体的类型
+    if (zone.category == kZoneSea) {
+      // 将临时类型water根据情况替换为lake和sea
+      zone.category = zone.terrainIndexes.length < _kMinZoneSizeOfSea ? kZoneCategoryLake : kZoneCategorySea
+      // 为该地域中所有地块赋值 kind
+      for (const terrainIndex in zone.terrainIndexes) {
+        const terrain = world.terrains[terrainIndex]
+        // 将所有水域保存在一个总表中，之后用来计算捕鱼地区
+        world.waterIndexes.add(terrain.index)
+        terrain.isWater = true
+        terrain.zoneCategory = zone.category
+        terrain.kind = zone.category
+        // 所有的湖泊都是浅水贴图
+        // if (terrain.kind == kZoneCategoryLake) {
+        //   terrain.spriteIndex = kSpriteShelf
+        // }
+      }
+    } else {
+      zone.category = zone.terrainIndexes.length < _kMinZoneSizeOfIsland ? kZoneCategoryIsland : kZoneCategoryContinent
+      
+      // 为该地域中所有地块赋值 kind
+      for (const terrainIndex in zone.terrainIndexes) {
+        const terrain = world.terrains[terrainIndex]
+        terrain.zoneCategory = zone.category
+        
+        // if (terrain.locationId) {
+        //   terrain.kind = kTerrainKindLocation
+        // }
+        // else if (terrain.isRoute) {
+        //   terrain.kind = kTerrainKindRoad
+        // }
+        // print('processing terrain: ', terrain.left, ',', terrain.top)
+        // if (terrain.isRoute) {
+        //   terrain.kind = kTerrainKindRoad
+        // } else
+        
+        if (terrain.spriteIndex == kSpriteMountain) {
+          terrain.kind = kTerrainKindMountain
+        } else if (terrain.spriteIndex == kSpriteForest) {
+          terrain.kind = kTerrainKindForest
+        }
+        // else if (terrain.isShore) {
+        //   terrain.kind = kTerrainKindShore
+        // }
+        else {
+          terrain.kind = kTerrainKindPlain
+        }
+        // print('terrain kind: ${terrain.kind}')
+
+        // TODO: river类型和道路类型单独的贴图
+      }
+    }
+
+    zone.name = generateZoneName(category: zone.category)
+  }
+
+  const nations = []
+  // 随机挑选几个城市，作为各个国家的都城，生成地图上的不同国家
+  engine.debug('随机挑选几个城市，作为各个国家的都城，生成地图上的不同国家')
+  while (nations.length < nationNumber) {
+    let availableLocations = world.locations.values.where((data) => data.category == 'city' && data.organizationId == null).toList()
+    assert(availableLocations.isNotEmpty)
+    const location = random.nextIterable(availableLocations)
+    const head = Character(birthTimestamp: createBirthTimestamp(min: 40, max: 70))
+    head.locationId = location.id
+    assert(location.worldPosition != null)
+    head.worldPosition = Object.create(location.worldPosition)
+    const organization = Organization(
+      headquartersId: location.id,
+      headId: head.id,
+    )
+    nations.add(organization)
+  }
+
+  // function findHead {
+  //   let head
+  //   if (game.characters.length == 0) {
+  //     // 人物列表是空的，此时要创造第一个角色
+  //     head = Character(
+  //       birthTimestamp: createBirthTimestamp(min: 20), // 年龄至少是20岁
+  //     )
+  //   } else {
+  //     let found = false
+  //     for (const id in random.shuffle(game.characters.keys)) {
+  //       const character = game.characters[id]
+  //       const age = datetime.toYear(game.timestamp - character.birthTimestamp)
+  //       // 年龄至少是20岁，并且不能担任其他组织职务
+  //       if (character.jobRank.isEmpty && age >= 20) {
+  //         found = true
+  //         head = character
+  //         break
+  //       }
+  //     }
+  //     if (!found) {
+  //       // 没有找到合适的人，则立刻创建一个
+  //       // 年龄至少是20岁
+  //       head = Character(birthTimestamp: createBirthTimestamp(min: 20))
+  //     }
+  //   }
+  //   return head
+  // }
+
+  // 修真门派
+  // let createdCultivationOrganizationCount = 0
+  // let cultivationOrganizationCreatedDate = []
+  // for (const i in range(cultivationOrganizationNumber)) {
+  //   cultivationOrganizationCreatedDate.add(random.nextInt(20 * kMonthsPerYear) * kTicksPerMonth)
+  // }
+  // cultivationOrganizationCreatedDate.sort()
+  // cultivationOrganizationCreatedDate = cultivationOrganizationCreatedDate.reversed.toList()
+  
+  // 商号
+  // let createdTradinghouseOrganizationCount = 0
+  // let tradinghouseOrganizationCreatedDate = []
+  // for (const i in range(tradinghouseOrganizationNumber)) {
+  //   tradinghouseOrganizationCreatedDate.add(random.nextInt(20 * kMonthsPerYear) * kTicksPerMonth)
+  // }
+  // tradinghouseOrganizationCreatedDate.sort()
+  // tradinghouseOrganizationCreatedDate = tradinghouseOrganizationCreatedDate.reversed.toList()
+
+  // 模拟世界演化，按照时间推进并生成人物、组织，并且为期分配人物关系
+  // 在此种演化算法中，人物不会死亡，组织不会被消灭，因此只判断人数是否达到要求
+  // 因为是模拟运行，每个tick接跳过一个月
+  engine.debug('快速模拟一段时间的演化，生成人物、组织、国家等信息')
+  // const islands = Set() // 用来保存在这一步骤才生成的隐居岛屿的门派据点
+  while (game.characters.length < characterNumber) {
+  //   if (createdCultivationOrganizationCount < cultivationOrganizationNumber) {
+  //     if (game.timestamp >= cultivationOrganizationCreatedDate.last) {
+  //       // 组织数量不够，在来到下一个组织创建时间时，创建组织
+  //       cultivationOrganizationCreatedDate.removeLast()
+
+  //       // 修真门派根据所处地块可以分成三种：入世、洞天、福地。
+  //       // 入世是公开的据点。洞天是大陆上秘境所在地，福地是大海中的岛屿。
+  //       // 洞天福地在未被探索之前，对玩家不可见。只是显示为平常的地形。
+  //       // 如果据点生成在海洋之中，就将该地块设定为岛屿
+  //       // 洞天福地的据点都直接以“xx山”, "xx岛"命名。
+
+  //       // 两个修真组织不会在同一个据点
+  //       let headquarters
+
+  //       const cultivationKind = random.nextIterable(_cultivationKinds)
+  //       let isHermit = false
+  //       switch (cultivationKind) {
+  //         'location' : {
+  //           do {
+  //             // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
+  //             const headquartersId = random.nextIterable(world.locations.keys)
+  //             headquarters = world.locations[headquartersId]
+  //           } while (headquarters.hasCultivation)
+  //         }
+  //         'mountain' : {
+  //           isHermit = true
+  //           // 临时生成一个新的隐藏据点
+  //           let mountainTile
+  //           do {
+  //             const mountainTileIndex = random.nextIterable(mountains)
+  //             mountainTile = world.terrains[mountainTileIndex]
+  //           } while (mountainTile.locationId != null)
+
+  //           headquarters = Location(
+  //             terrainIndex: mountainTile.index,
+  //             left: mountainTile.left,
+  //             top: mountainTile.top,
+  //             category: kLocationCategoryMountain,
+  //           )
+  //           mountainTile.locationId = headquarters.id
+  //           // 隐居门派据点，名字在地图上一开始不可见
+  //           // mountainTile.caption = headquarters.name
+  //         }
+  //         'island' : {
+  //           isHermit = true
+  //           // 临时生成一个新的隐藏据点
+  //           let islandTile
+  //           do {
+  //             const islandTileIndex = random.nextIterable(seas)
+  //             islandTile = world.terrains[islandTileIndex]
+  //           } while (islandTile.locationId != null)
+
+  //           const islandZone = Zone(category: kZoneCategoryIsland)
+  //           addTerrainToZone(islandTile, islandZone.index, world)
+            
+  //           const neighbors = getMapTileNeighbors(islandTile.left, islandTile.top, world)
+  //           for (const neighbor in neighbors) {
+  //             seas.remove(neighbor.index)
+  //             neighbor.spriteIndex == kSpriteShelf
+  //           }
+
+  //           headquarters = Location(
+  //             terrainIndex: islandTile.index,
+  //             left: islandTile.left,
+  //             top: islandTile.top,
+  //             category: kLocationCategoryIsland,
+  //           )
+  //           islandTile.locationId = headquarters.id
+  //           // 隐居门派据点，名字在地图上一开始不可见
+  //           // islandTile.caption = headquarters.name
+  //         }
+  //       }
+
+  //       const head = findHead()
+  //       // 创建组织
+  //       const organization = Organization(
+  //         category: kOrganizationCategoryCultivation,
+  //         headquartersId: headquarters.id,
+  //         headId: head.id,
+  //       )
+
+  //       ++createdCultivationOrganizationCount
+  //     }
+  //   }
+
+    // 婴儿出生
+    handleBabies()
+
+    // 产生新的在野角色
+    if (game.characters.length < characterNumber) {
+      // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
+      const id = random.nextIterable(world.locations.keys)
+      const location = world.locations[id]
+      const character = Character(
+        locationId: location.id,
+        birthTimestamp: createBirthTimestamp(min: 15, max: 50),
+      )
+    }
+
+    // 国家和组织扩张
+    for (const organization of game.organizations) {
+      engine.debug('组织 ${organization.id} 尝试扩张新领土')
+      if (organization.borderIndexes.isNotEmpty) {
+        const shuffle = random.shuffle(organization.borderIndexes).toList()
+        for (const index in shuffle) {
+          const terrain = world.terrains[index]
+          if (terrain.nationId == null && !kWaterTileKinds.contains(terrain.kind)) {
+            // engine.debug('国家 ${organization.id} 将其疆域扩展到周边的一个未被占领的格子 ${terrain.left},${terrain.top}')
+            addTerrainToOrganization(terrain, organization)
+            break
+          }
+        }
+      }
+
+      if (organizationMemberReachMax(organization)) {
+        if (organization.development < kOrganizationDevelopmentMax) {
+          // engine.debug('提升组织发展度')
+          increaseOrganizationDevelopment(organization)
+        }
+      } else {
+        engine.debug('组织 ${organization.id} 尝试招募新成员')
+      
+        let location = world.locations[organization.headquartersId]
+        let residingCharacters = getResidingCharacters(location)
+
+        if (residingCharacters.isEmpty) {
+          // 组织据点本身没有可用的人才（一般是因为是隐士据点）
+          if (random.nextDouble() < kOrganizationRecruitOtherLocationProbability) {
+            for (const otherLocation of world.locations) {
+              if (location.category != 'city') continue
+              if (otherLocation.id == organization.headquartersId) continue
+              residingCharacters = getResidingCharacters(otherLocation)
+              if (residingCharacters.isNotEmpty) {
+                break
+              }
+            }
+          }
+        }
+
+        // 有可能循环到最后所有的据点都没有人，所以这里的判断没有和上一条合并
+        if (residingCharacters.isNotEmpty) {
+          if (random.nextDouble() < kOrganizationRecruitSuccessProbability) {
+            for (let character in random.shuffle(residingCharacters)) {
+              if (character.organizationId == null) {
+                addCharacterToOrganization(character, organization)
+                break
+              }
+            }
+          }
+        }
+      }
+
+      // 从最低等级开始，尝试提升成员等级
+      // for (const rank in range(kOrganizationRankMax)) {
+      //   const membersOfThisRank = getOrganizationMemberIdsOfRank(organization, rank)
+      //   const membersOfHigherRank = getOrganizationMemberIdsOfRank(organization, rank + 1)
+      //   if (membersOfThisRank.length >= maxMemberOfRank(rank)) {
+      //     if (membersOfHigherRank.length < maxMemberOfRank(rank + 1)) {
+      //       const memberId = random.nextIterable(membersOfThisRank)
+      //       const member = game.characters[memberId]
+      //       addOrganizationTitleForCharacter(member, organization, rank + 1)
+      //       break
+      //     }
+      //   }
+      // }
+    }
+    
+    engine.debug('通过婚姻和生育产生新的角色以及其人物关系')
+    for (const char of game.characters) {
+      if (!char.isFemale) continue
+      const age = getCharacterAge(char)
+      if (age < _kAdultAge || age > _kPregnancyAgeMax) continue
+      if (char.isPregnant) continue
+      if (char.motivations.contains('dink')) continue
+      let spouseId = firstSpouse(char)
+      if (spouseId != null) {
+        const spouse = game.characters[spouseId]
+        if (spouse.motivations.contains('dink')) continue
+        final childrenCount = hasChild(char)
+        if (childrenCount >= _kChildrenMax) continue
+        Baby(father: spouse, mother: char)
+      } else {
+        if (char.motivations.contains('celibate')) continue
+        
+        for (const otherChar of game.characters) {
+          if (char.id == otherChar.id) continue
+          if (otherChar.isFemale) continue
+          if (getCharacterAge(otherChar) < _kAdultAge) continue
+          if (hasSpouse(otherChar)) continue
+
+          characterMet(char, otherChar)
+          // final home = world.locations[character.homeLocationId]
+          // assert(home != null)
+          createSpouse(otherChar, char)
+
+          break
+        }
+      }
+    }
+
+    // 因为是模拟运行，时间直接以月为单位流逝
+    game.timestamp += kTicksPerMonth
+  }
+
+  // 为生成的世界填充一些必要信息
+
+  engine.debug('为角色添加次要动机')
+  for (const char of game.characters) {
+    const age = getCharacterAge(char)
+    if (char.motivations.isNotEmpty) continue
+    
+    if (char.relationships.sect.isEmpty) {
+      if (!char.motivations.contains['shifu']) {
+        char.motivations.add('shifu')
+        continue
+      }
+    }
+    
+    if (char.relationships.friendship.isEmpty) {
+      if (!char.motivations.contains['friendship']) {
+        char.motivations.add('friendship')
+        continue
+      }
+    }
+    
+    if (char.relationships.romance.isEmpty) {
+      if (!char.motivations.contains['romance']) {
+        char.motivations.add('romance')
+        continue
+      }
+    }
+    
+    if (!hasSpouse(char)) {
+      if (age >= _kAdultAge && !char.motivations.contains['spouse']) {
+        char.motivations.add('spouse')
+        continue
+      }
+    }
+    
+    if (!hasChild(char)) {
+      if (age >= _kAdultAge && !char.motivations.contains['child']) {
+        char.motivations.add('child')
+      }
+    }
+  }
+
+  // 在不改变时间，不触发引擎事件和模组事件的情况下刷新世界事件
+  updateGame(
+    timeflow: false,
+    worldEvent: true,
+    moduleEvent: false,
+  )
+
+  // engine.debug('世界生成完毕。重置随机数生成器。')
+  // setRandomSeed()
+
+  return newWorld
+}

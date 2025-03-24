@@ -1,0 +1,140 @@
+import '../game/data.ht'
+
+const kEntityTypeObject = 'object'
+
+const kObjectPortal = 'portal'
+const kObjectWorldPortal = 'worldPortal'
+
+const kObjectCharacter = 'character'
+const kObjectTreasureBox = 'treasureBox'
+
+function discoverObject(object, terrain) {
+  if (object.isDiscovered) return
+  object.isDiscovered = true
+  if (object.isHidden) {
+    assert(object.overlaySprite != null)
+    terrain.overlaySprite ??= {}
+    Object.assign(terrain.overlaySprite, object.overlaySprite)
+    // World.setWorldMapSprite(location.worldPosition.left, location.worldPosition.top, kSpriteLand)
+    World.updateTerrainOverlaySprite(object.worldPosition.left, object.worldPosition.top)
+  }
+}
+
+/// 地图上的对象，例如机关，宝箱，固定NPC等，但对象可能是隐藏的
+/// {
+///   id: 'id',
+///   entityType: 'object',
+///   category: 'custom',
+///   isDiscovered: true,
+///   useCustomLogic: true,
+///   blockMove: true
+/// }
+
+struct ObjectPortal {
+  constructor ({
+    id,
+    isDiscovered = true,
+    useCustomLogic = false,
+    targetLeft,
+    targetTop,
+  }) {
+    assert(id != null)
+    this.id = id
+    this.entityType = kEntityTypeObject
+    this.category = kObjectPortal
+    this.isDiscovered = isDiscovered
+    this.useCustomLogic = useCustomLogic
+    this.targetTilePosition = {
+      left: targetLeft,
+      top: targetTop,
+    }
+
+    world.objects[this.id] = this
+  }
+}
+
+struct ObjectWorldPortal {
+  constructor ({
+    id,
+    isDiscovered = true,
+    useCustomLogic = false,
+    worldId,
+    worldPositionLeft,
+    worldPositionTop,
+  }) {
+    assert(id != null)
+    this.id = id
+    this.entityType = kEntityTypeObject
+    this.category = kObjectWorldPortal
+    this.isDiscovered = isDiscovered
+    this.useCustomLogic = useCustomLogic
+    this.worldId = worldId
+    this.targetTilePosition = {
+      left: targetLeft,
+      top: targetTop,
+    }
+
+    world.objects[this.id] = this
+  }
+}
+
+struct ObjectCharacter {
+  constructor ({
+    id,
+    characterId,
+  }) {
+    assert(id != null)
+    this.id = id
+    this.entityType = kEntityTypeObject
+    this.category = kObjectCharacter
+    this.characterId = characterId
+
+    world.objects[this.id] = this
+  }
+}
+
+/// 宝箱内的物品
+/// 分为四种：材料，原型道具，装备，卡包
+/// category: ['material', 'prototype', 'equipment', 'cardpack']
+/// items = [
+///   {
+///     category: 'material',
+///     kind: 'money',
+///     amount: 100,
+///   },
+///   {
+///     category: 'prototype',
+///     kind: 'shard',
+///   },
+///   {
+///     category: 'equipment',
+///     kind: 'sword',
+///     rarity: 'basic',
+///     rank: 0,
+///     level: 0,
+///   },
+///   {
+///     category: 'cardpack',
+///     kind: 'punch',
+///     genre: null,
+///     rank: 0,
+///   },
+/// ]
+struct ObjectTreasureBox {
+  constructor ({
+    id,
+    isDiscovered = true,
+    useCustomLogic = false,
+    items: List,
+  }) {
+    assert(id != null)
+    this.id = id
+    this.entityType = kEntityTypeObject
+    this.category = kObjectTreasureBox
+    this.isDiscovered = isDiscovered
+    this.useCustomLogic = useCustomLogic
+    world.objects[this.id] = this
+
+    this.items = items
+  }
+}

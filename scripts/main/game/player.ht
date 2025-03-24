@@ -1,0 +1,617 @@
+import 'data.ht'
+import '../colors.ht'
+import '../game/world.ht'
+import '../entity/entity.ht'
+import '../entity/quest.ht'
+
+const kQuickThreshold = 10
+const kSlowThreshold = 10
+const kNimbleThreshold = 10
+const kClumsyThreshold = 10
+
+struct PassiveData {
+  constructor ({
+    id,
+    priority,
+    level,
+    value,
+    increment,
+    description,
+  }) {
+    assert(id != null && description != null)
+    this.id = id
+    this.priority = priority ?? 0
+    this.level = level ?? 0
+    this.value = value
+    this.increment = increment
+    this.description = description
+  }
+}
+
+namespace Player {
+
+  function setTo(left, top, { worldId, direction } ) {
+    assert(hero != null)
+    if (worldId != null) {
+      assert(universe.containsKey(worldId))
+    }
+    engine.info('player set to: [${left}, ${top}] of world [${worldId ?? world.id}] facing [${direction}]')
+    setCharacterWorldPosition(hero, left, top, worldId: worldId)
+    if (worldId == null || worldId == world.id) {
+      if (direction != null) {
+        assert(kOrthogonalDirections.contains(direction))
+      }
+      World.setCharacterTo(hero.id, left, top, direction: direction)
+      World.moveCameraToMapPosition(left, top, animated: false)
+      World.lightUpAroundTile(left, top, hero.stats.lightRadius)
+      final terrain = getTerrainByWorldPosition(left, top)
+      onWorldEvent('onAfterMove', terrain)
+    }
+  }
+  
+  function setHomeLocation(location, {incurIncident = true}) {
+    assert(hero != null)
+    setCharacterHomeLocation(hero, location, incurIncident: incurIncident)
+  }
+
+  function collect(materialId, { amount = 1, incurIncident = true }) {
+    assert(hero != null)
+    entityCollect(hero, materialId, amount: amount, incurIncident: incurIncident)
+  }
+
+  function exhaust(materialId, { amount = 1, incurIncident = true }) -> bool {
+    assert(hero != null)
+    return entityExhaust(hero, materialId, amount: amount, incurIncident: incurIncident)
+  }
+
+  /// 从物品库中复制并获取一个物品
+  function acquireById(itemId, { amount = 1, incurIncident = true }) {
+    assert(hero != null)
+    assert(amount > 0)
+    entityAcquireById(hero, itemId, amount: amount, incurIncident: incurIncident)
+  }
+
+  /// 直接获取一个已经被创造出来的物品
+  function acquire(item, { incurIncident = true }) {
+    assert(hero != null)
+    entityAcquire(hero, item, incurIncident: incurIncident)
+  }
+
+  function lose(item, { incurIncident = true }) {
+    assert(hero != null)
+    entityLose(hero, item, incurIncident: incurIncident)
+  }
+
+  function acquireBattleCard(card, { incurIncident = true }) {
+    assert(hero != null)
+    entityAcquireBattleCard(hero, card, incurIncident: incurIncident)
+  }
+
+  // 使用食物或者丹药
+  // 返回值代表是否使用成功
+  // 此函数允许对一个不在物品栏中的物品调用
+  // function consume(item, { forcerCharacter }) {
+  //   if (!item.isConsumable) {
+  //     engine.warn('${item.id} 无法食用。')
+  //     return false
+  //   }
+
+  //   if (hero.inventory.containsKey(item.id)) {
+  //     if (item.rarity == kCommon) {
+  //       if (item.stackSize > 1) {
+  //         --item.stackSize
+  //       } else {
+  //         delete hero.inventory[item.id]
+  //       }
+  //     } else {
+  //       delete hero.inventory[item.id]
+  //     }
+  //   }
+
+  //   // if (item.stats.effects) {
+  //   //   for (const effect of item.stats.effects) {
+  //   //     // 即便是可以食用的物品，也可能包含一些非食用效果，因此这里要加以判断
+  //   //     if (effect.category == kEffectCategoryConsume) {
+  //   //       const effectHandler = getEffectHandlerById(effect.id)
+  //   //       if (effectHandler is function) effectHandler(effect, character)
+  //   //     }
+  //   //   }
+  //   // }
+
+  //   let incidentContent
+  //   switch (item.kind) {
+  //     kEntityConsumableKindMedicine : {
+  //       incidentContent = forcerCharacter ?
+  //         engine.locale('characterTakeMedicineForced', interpolations: [
+  //           forcerCharacter.name,
+  //           character.name,
+  //           item.name,
+  //         ]) :
+  //         engine.locale('characterTakeMedicine', interpolations: [
+  //           character.name,
+  //           item.name,
+  //         ])
+  //     }
+  //     kEntityConsumableKindBeverage : {
+  //       incidentContent = forcerCharacter ?
+  //         engine.locale('characterDrinkBeverageForced', interpolations: [
+  //           forcerCharacter.name,
+  //           character.name,
+  //           item.name,
+  //         ]) :
+  //         engine.locale('characterDrinkBeverage', interpolations: [
+  //           character.name,
+  //           item.name,
+  //         ])
+  //     }
+  //     else : {
+  //       incidentContent = forcerCharacter ?
+  //         engine.locale('characterEatForced', interpolations: [
+  //           forcerCharacter.name,
+  //           character.name,
+  //           item.name,
+  //         ]) :
+  //         engine.locale('characterEat', interpolations: [
+  //           character.name,
+  //           item.name,
+  //         ])
+  //     }
+  //   }
+
+  //   let subjectIds
+  //   let objectIds
+  //   if (forcerCharacter && forcerCharacter.isMain) {
+  //     subjectIds = [forcerCharacter.id]
+  //     if (character.isMain) {
+  //       objectIds = [character.id]
+  //     }
+  //   } else if (character.isMain) {
+  //     subjectIds = [character.id]
+  //   }
+
+  //   Incident(
+  //     message: incidentContent,
+  //     subjectIds: subjectIds,
+  //     objectIds: objectIds,
+  //     isPrivate: true,
+  //   )
+    
+  //   return true
+  // }
+
+  // 法宝和技能都可以装备，只要类型符合
+  // 返回值代表是否装备成功
+  // 如果对一个不在物品栏中的物品调用，会先将其加入物品栏
+  // 但并不会检查是否已经在别人的物品栏里了
+  // 装备并非直接将物品数据保存在人物数据中，而是只保存物品id
+  function equip(item, { index }) -> bool {
+    assert(hero != null)
+    assert(index == null || (index >= 0 && index < kEquipmentMax))
+    if (!item.isEquippable) {
+      engine.warn('${item.name} 无法装备。')
+      return false
+    }
+    if (item.equippedPosition) {
+      engine.warn('${item.name} 已经在装备中了。')
+      return false
+    }
+
+    let equipped = false
+    // 如果有空位就装备在空位上
+    if (index == null) {
+      for (const i in range(kEquipmentMax)) {
+        if (hero.equipments[i] == null) {
+          hero.equipments[i] = item.id
+          item.equippedPosition = i
+          equipped = true
+          break
+        }
+      }
+      // 否则替换掉第一个空位
+      index = 0
+    }
+
+    if (!equipped) {
+      assert(index != null)
+
+      const oldEquipId = hero.equipments[index]
+      if (oldEquipId != null) {
+        const oldItem = hero.inventory[oldEquipId]
+        delete oldItem.equippedPosition
+      }
+      hero.equipments[index] = item.id
+      item.equippedPosition = index
+      equipped = true
+    }
+
+    if (equipped) {
+      
+      // const incidentContent = engine.locale('characterEquip', interpolations: [
+      //   hero.name,
+      //   item.name,
+      // ])
+      // Incident(
+      //   message: incidentContent,
+      //   subjectId: hero.id,
+      //   isPrivate: true,
+      // )
+
+      engine.info('角色 [${hero.name}] 装备了 [${item.name}]')
+
+      if (item.affixes is List) {
+        for (final passiveData in item.affixes) {
+          gainPassive(passiveData.id, level: passiveData.level)
+        }
+        // 重新计算角色状态值
+        calculateStats()
+      }
+
+      onGameEvent('onEquipItem', item)
+    }
+
+    return equipped
+  }
+
+  /// 检查是否装备了某种 category 的物品，返回装备的数量
+  function hasEquipped(category) {
+    assert(hero != null)
+    let count = 0
+    for (final itemId in hero.equipments.values) {
+      if (itemId == null) continue
+      final item = hero.inventory[itemId]
+      if (item.category == category) {
+        ++count
+      }
+    }
+    return count
+  }
+
+  function unequip(item) {
+    assert(hero != null)
+    assert(item.equippedPosition != null)
+    hero.equipments[item.equippedPosition] = null
+    delete item.equippedPosition
+
+    if (item.affixes is List) {
+      for (final passiveData in item.affixes) {
+        refundPassive(passiveData.id, level: passiveData.level)
+      }
+      // 重新计算角色状态值
+      calculateStats(hero)
+    }
+
+    // const incidentContent = engine.locale('characterUnequip', interpolations: [
+    //   hero.name,
+    //   item.name,
+    // ])
+    // Incident(
+    //   message: incidentContent,
+    //   subjectId: hero.id,
+    //   isPrivate: true,
+    // )
+    
+    engine.info('角色 [${hero.name}] 取下了 [${item.name}]')
+  }
+
+  // 批量获取物品，但不显示从那里获得的，通常用于从箱子或包裹中批量拿取
+  function loot(lootbox, { incurIncident = true }) {
+    assert(hero != null)
+    for (const item of lootbox.inventory) {
+      acquire(item, incurIncident: incurIncident)
+    }
+    // if (lootbox.money) {
+    //   acquireMoney(character, lootbox.money, incurIncident: incurIncident)
+    // }
+
+    // 清空箱子
+    lootbox.inventory.clear()
+
+    // const ids = lootbox.keys.toList()
+    // for (const id in ids) {
+    //   delete lootbox[id]
+    // }
+  }
+
+  // 设定人物的随从，返回值是否成功
+  // 随从并非直接将人物数据放在人物上，而是用下面的数据结构
+  // {
+  //   id,
+  //   entityType,
+  //   coordination,
+  // }
+  function accompany(companion, { incurIncident = true }) {
+    assert(hero != null)
+    if (hero.companions.contains(companion.id)) {
+      engine.warn('${companion.name} 已经是随从了，无法再次添加。')
+      return
+    }
+    hero.companions.add(companion.id)
+    
+    const incidentContent = engine.locale('characterAcquireCompanion', interpolations: [
+      companion.name,
+      hero.name,
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: companion.id,
+        objectId: hero.id,
+        isPrivate: true,
+      )
+    } else {
+      engine.debug(incidentContent)
+    }
+  }
+
+  function dismiss(companion, { incurIncident = true }) {
+    assert(hero != null)
+    if (!hero.companions.contains(companion.id)) {
+      engine.warn('${companion.name} 不是随从，无法解散。')
+      return
+    }
+
+    hero.companions.remove(companion.id)
+    
+    const incidentContent = engine.locale('characterLoseCompanion', interpolations: [
+      companion.name,
+      hero.name,
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: companion.id,
+        objectId: hero.id,
+        isPrivate: true,
+      )
+    }
+    engine.debug(incidentContent)
+  }
+
+  function getCompanions() {
+    return hero.companions
+  }
+
+  function levelUp({ incurIncident = true }) {
+    assert(hero != null)
+    let expRequirement = expForLevel(hero.level)
+    if (hero.exp < expRequirement) {
+      engine.warn('not enough exp for level up! current level: [${hero.level}], exp needed: [${expRequirement}]')
+      return
+    }
+
+    if (hero.level >= hero.levelMax) {
+      engine.warn('character reached max level for current rank! current level: [${hero.level}], current rank: [${hero.rank}]')
+      return
+    }
+
+    hero.exp -= expRequirement
+    ++hero.level
+
+    hero.availableSkillPoints += 1
+
+    const incidentContent = engine.locale('characterCultivationLevelUp', interpolations: [
+      hero.name,
+      hero.level,
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: hero.id,
+        isPrivate: true,
+      )
+    } else {
+      engine.debug(incidentContent)
+    }
+
+    return hero.level
+  }
+
+  function rankUp({ incurIncident = true }) {
+    assert(hero != null)
+    if (hero.rank >= kCultivationRankMax ) {
+      engine.error('character reached max rank! current rank: [${hero.rank}]')
+      return
+    }
+
+    ++hero.rank
+    
+    hero.levelMax = maxLevelForRank(hero.rank)
+
+    const incidentContent = engine.locale('characterCultivationRankUp', interpolations: [
+      hero.name,
+      getCultivationRankName(character),
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: hero.id,
+        isPrivate: true,
+      )
+    } else {
+      engine.debug(incidentContent)
+    }
+
+    return hero.rank
+  }
+
+  function gainExp(value: integer) {
+    assert(hero != null)
+    assert(value > 0)
+    hero.unconvertedExp += value
+
+    const incidentContent = engine.locale('characterExpGained', interpolations: [
+      hero.name, 
+      value,
+    ])
+    Incident(
+      message: incidentContent,
+      subjectId: hero.id,
+      isPrivate: true,
+    )
+
+    // World.addHintText(
+    //   '${engine.locale('exp')} + ${value}',
+    //   hero.worldPosition.left,
+    //   hero.worldPosition.top,
+    //   Colors.blue,
+    // )
+  }
+
+  /// 提升玩家的天赋技能等级
+  /// 注意此函数调用时并不会检测天赋树节点位置和链接情况，也不会检查角色是否有足够的技能点
+  /// 玩家升级天赋时，并不会立刻影响角色数据，
+  /// 只有在执行 calculateStats() 之后，人物数据才会最终计算出来
+  function gainPassive(dataId, {level = 1}) {
+    assert(hero != null)
+    assert(level > 0)
+    if (hero.passives[dataId] == null) {
+      final passiveRawData = game.passives[dataId]
+      assert(passiveRawData != null)
+      final passiveData = PassiveData(
+        id: dataId,
+        priority: passiveRawData.priority ?? 0,
+        level: level,
+        description: passiveRawData.description,
+      )
+      if (passiveRawData.increment != null) {
+        passiveData.increment = passiveRawData.increment
+        passiveData.value = (passiveData.increment * level).round()
+      }
+      hero.passives[dataId] = passiveData
+    } else {
+      final passiveData = hero.passives[dataId]
+      passiveData.level += level
+      passiveData.value = (passiveData.increment * passiveData.level).round()
+    }
+  }
+
+  /// 降低天赋技能等级
+  function refundPassive(dataId, {level = 1}) {
+    assert(hero != null)
+    if (hero.passives[dataId] == null) {
+      engine.warn('dataId [${dataId}] not found on hero passives data for refund!')
+      return
+    }
+    final passiveData = hero.passives[dataId]
+    passiveData.level -= level
+    if (passiveData.level <= 0) {
+      delete hero.passives[dataId]
+    } else if (passiveData.value != null) {
+      passiveData.value = (passiveData.increment * passiveData.level).round()
+    }
+  }
+
+  /// 检查角色是否拥有某个天赋技能，并将其数据返回
+  function hasPassive(dataId) {
+    assert(hero != null)
+    return hero.passives[dataId]
+  }
+
+  function calculateStats() {
+    assert(hero != null)
+    calculateCharacterStats(hero)
+  }
+
+  function restoreLife(count) {
+    assert(hero != null)
+    characterRestoreLife(hero, count)
+  }
+
+  function rejuvenate() {
+    assert(hero != null)
+    characterRejuvenate(hero)
+  }
+
+  function acceptQuest(quest, { setAsActive = false, incurIncident = true }) {
+    assert(hero != null)
+    if (hero.quests.containsKey(quest.id)) {
+      engine.error('任务 [${quest.id}] 已经存在，不能再次接受！')
+      return
+    }
+    hero.quests[quest.id] = quest
+    if (setAsActive) {
+      hero.activeQuestId = quest.id
+    }
+    
+    const incidentContent = engine.locale(
+      'characterAcceptQuest',
+      interpolations: [ hero.name, quest.name ],
+    )
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: hero.id,
+      )
+    } else {
+      engine.debug(incidentContent)
+    }
+  }
+
+  function acquireQuestById(questId, { setAsActive = false, incurIncident = true }) {
+    assert(hero != null)
+    final quest = generateQuestById(questId)
+    acceptQuest(quest)
+    return quest
+  }
+
+  function setActiveQuest(quest) {
+    assert(hero != null)
+    assert(hero.quests.containsKey(quest.id))
+    hero.activeQuestId = quest.id
+  }
+
+  function getActiveQuest() {
+    assert(hero != null)
+    assert(hero.quests.containsKey(hero.activeQuestId))
+    return hero.quests[hero.activeQuestId]
+  }
+
+  /// 推动任务进度
+  /// 这里不处理任务的成功和失败
+  function progressQuestById(questId, { stage,  incurIncident = true }) {
+    assert(hero != null)
+    final quest = hero.quests[questId]
+    assert(quest != null)
+    if (quest.isFinished) {
+      engine.error('任务 [${quest.id}] 已经完成，不能再推进进度！')
+      return
+    }
+    assert(quest.sequence.length > 0)
+    stage ??= quest.stage + 1
+    assert(stage > quest.stage)
+    assert(!quest.sequence.contains(stage))
+    
+    quest.sequence.add(stage)
+    quest.stage = stage
+
+    if (quest.endings.contains(stage)) {
+      quest.isFinished = true
+      
+      if (hero.activeQuestId == quest.id) {
+        hero.activeQuestId = null
+      }
+      let incidentContent = engine.locale(
+        'characterQuestFinished',
+        interpolations: [ hero.name, quest.name ],
+      )
+      if (incurIncident) {
+        Incident(
+          message: incidentContent,
+          subjectId: hero.id,
+        )
+      }
+    } else {
+      let incidentContent = engine.locale(
+        'characterQuestProgressed',
+        interpolations: [ hero.name, quest.name ],
+      )
+      if (incurIncident) {
+        Incident(
+          message: incidentContent,
+          subjectId: hero.id,
+        )
+      }
+    }
+    engine.debug('任务「${quest.name}」进度：${quest.stage}')
+  }
+}

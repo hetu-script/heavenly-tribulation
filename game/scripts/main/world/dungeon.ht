@@ -1,8 +1,0 @@
-import 'world.ht'
-
-function generateDungeonLevel(level: integer, room: integer) {
-  assert(level >= 0)
-  assert(room >= 0)
-
-  
-}

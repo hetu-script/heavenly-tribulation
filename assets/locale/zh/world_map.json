@@ -1,0 +1,41 @@
+{
+  "moveTo": "移动",
+  "enter": "进入",
+  "": "",
+  "rest": "休息",
+  "meditate": "打坐",
+  "gatherSpirit": "聚气",
+  "condenseSpirit": "凝气",
+  "useMapSkill": "地图技能",
+  "explore": "神识探查",
+
+  "interact": "互动",
+  "gather": "采集",
+  "woodcut": "伐木",
+  "excavate": "挖矿",
+  "hunt": "狩猎",
+  "fish": "捕鱼",
+
+  "info": "情报",
+  "view": "视图",
+  "saveAndExitGame": "保存并退出",
+
+  "firstDiscover": "你发现了：{0}。",
+  "exploredEmtpy": "这里好像并没什么值得搜索的对象。",
+  "alreadyExplored": "你已经搜索过这里了。",
+
+  "notEnoughStaminaMonologue": "体力已经耗尽了……看来要先想办法休息一下才行。",
+  "cannotInteractWhenInjured": "现在正身负重伤，要赶紧疗伤休息一下……",
+  "cannotInteractAtEndOfMonth": "这个月时间不够了，还是等下个月再来吧……",
+  "interactionGotNothing": "运气不太好，这次的行动居然一无所获……",
+  "terrainAlreadyExplored": "这个月我已经在这个地方搜索过了……",
+  "terrainAlreadyGathered": "这个月我已经在这个地方采集过了……",
+  "terrainAlreadyWoodcutted": "这个月我已经在这个地方伐过木了……",
+  "terrainAlreadyMined": "这个月我已经在这个地方挖过矿了……",
+  "terrainAlreadyHunted": "这个月我已经在这个地方狩过猎了……",
+  "terrainAlreadyFished": "这个月我已经在这个地方捕过鱼了……",
+
+  "metBeast": "（你遭到了 {0} 的袭击！）",
+  "foundBeast": "（你发现了 {0}！）",
+  "metStorm": "糟糕，这附近暴风雨正在肆虐……我得想办法绕开这里才行。"
+}

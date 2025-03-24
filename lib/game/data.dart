@@ -1,0 +1,762 @@
+import 'dart:io';
+import 'dart:convert';
+
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:hetu_script/utils/collection.dart';
+import 'package:samsara/cardgame/cardgame.dart';
+import 'package:json5/json5.dart';
+import 'package:samsara/samsara.dart';
+// import 'package:vector_math/vector_math_geometry.dart';
+
+import 'ui.dart';
+import '../common.dart';
+import '../engine.dart';
+import '../scene/common.dart';
+
+/// Unicode Character "⎯" (U+23AF)
+const kSeparateLine = '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯';
+
+abstract class GameMusic {
+  static const menu = 'chinese-oriental-tune-06-12062.mp3';
+  static const worldmap = 'ghuzheng-fantasie-23506.mp3';
+  static const location = 'vietnam-bamboo-flute-143601.mp3';
+  static const battle = 'war-drums-173853.mp3';
+}
+
+abstract class GameSound {
+  static const buff = 'buffer-spell-88994.mp3';
+  static const debuff = 'bone-break-8-218516.mp3';
+  static const block = 'shield-block-shortsword-143940.mp3';
+  static const enhance = 'dagger_drawn2-89025.mp3';
+  static const fire = 'lighting-a-fire-14421.mp3';
+
+  static const craft = 'hammer-hitting-an-anvil-25390.mp3';
+  static const cardDealt = 'playing-cards-being-delt-29099.mp3';
+  static const cardDealt2 = 'card-sounds-35956.mp3';
+  static const cardFlipping = 'card-flipping-75622.mp3';
+}
+
+/// 游戏数据，大部分以JSON或者Hetu Struct形式保存
+/// 这个类是纯静态类，方法都是有关读取和保存的
+/// 游戏逻辑等操作这些数据的代码另外写在logic目录下的文件中
+abstract class GameData {
+  static Map<String, dynamic> tiles = {};
+  static Map<String, dynamic> mapComponents = {};
+  static Map<String, dynamic> animations = {};
+  static Map<String, dynamic> battleCards = {};
+  static Map<String, dynamic> battleCardAffixes = {};
+  static Map<String, dynamic> statusEffects = {};
+  static Map<String, dynamic> items = {};
+  static Map<String, dynamic> passives = {};
+  // static Map<String, dynamic> supportSkillData = {};
+  static Map<String, dynamic> passiveTree = {};
+  // static Map<String, dynamic> supportSkillTreeData = {};
+
+  static Map<String, String> organizationCategoryNames = {};
+  static Map<String, String> cultivationGenreNames = {};
+  static Map<String, String> cityKindNames = {};
+  static Map<String, String> siteKindNames = {};
+
+  /// 游戏本身的数据，包含角色，对象，以及地图和时间线。
+  static dynamic gameData, universeData, historyData, heroData;
+
+  static bool _isInitted = false;
+  static bool get isInitted => _isInitted;
+
+  static Future<void> init() async {
+    final tilesDataString =
+        await rootBundle.loadString('assets/data/tiles.json5');
+    tiles = JSON5.parse(tilesDataString);
+
+    final mapComponentsDataString =
+        await rootBundle.loadString('assets/data/map_components.json5');
+    mapComponents = JSON5.parse(mapComponentsDataString);
+
+    // final cardsDataString =
+    //     await rootBundle.loadString('assets/data/cards.json5');
+    // cardsData = JSON5.parse(cardsDataString);
+
+    final battleCardDataString =
+        await rootBundle.loadString('assets/data/cards.json5');
+    battleCards = JSON5.parse(battleCardDataString);
+
+    final battleCardAffixDataString =
+        await rootBundle.loadString('assets/data/card_affixes.json5');
+    battleCardAffixes = JSON5.parse(battleCardAffixDataString);
+
+    final animationDataString =
+        await rootBundle.loadString('assets/data/animation.json5');
+    animations = JSON5.parse(animationDataString);
+
+    final statusEffectDataString =
+        await rootBundle.loadString('assets/data/status_effect.json5');
+    statusEffects = JSON5.parse(statusEffectDataString);
+
+    final itemsDataString =
+        await rootBundle.loadString('assets/data/items.json5');
+    items = JSON5.parse(itemsDataString);
+
+    final passiveDataString =
+        await rootBundle.loadString('assets/data/passives.json5');
+    passives = JSON5.parse(passiveDataString);
+
+    // final supportSkillDataString =
+    //     await rootBundle.loadString('assets/data/skills_support.json5');
+    // supportSkillData = JSON5.parse(supportSkillDataString);
+
+    final passiveTreeDataString =
+        await rootBundle.loadString('assets/data/passive_tree.json5');
+    passiveTree = JSON5.parse(passiveTreeDataString);
+
+    // 拼接技能树节点的描述
+    for (final passiveTreeNodeData in passiveTree.values) {
+      final bool isAttribute = passiveTreeNodeData['isAttribute'] == true;
+
+      StringBuffer nodeDescription = StringBuffer();
+      final nodeTitle = engine.locale(passiveTreeNodeData['title']);
+      nodeDescription.writeln('<bold yellow>$nodeTitle</>');
+      nodeDescription.writeln(' ');
+      String? comment = passiveTreeNodeData['comment'];
+      if (comment != null) {
+        comment = engine.locale(comment);
+        nodeDescription.writeln('<italic grey>$comment</>');
+        nodeDescription.writeln(' ');
+      }
+
+      if (isAttribute) {
+        String description = engine.locale(passiveTreeNodeData['description']);
+        nodeDescription.writeln('<lightBlue>$description</>');
+      } else {
+        final List nodeData = passiveTreeNodeData['passives'];
+        for (final passiveData in nodeData) {
+          final dataId = passiveData['id'];
+          final passiveRawData = GameData.passives[dataId];
+          assert(passiveRawData != null);
+          String description = engine.locale(passiveRawData['description']);
+          if (passiveRawData['increment'] != null) {
+            final level = passiveData['level'];
+            final increment = passiveRawData['increment'];
+            description = description.interpolate([level * increment]);
+          }
+          nodeDescription.writeln('<lightBlue>$description</>');
+        }
+      }
+
+      final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
+      if (rankRequirement > 0) {
+        nodeDescription.writeln(' ');
+        nodeDescription.writeln(
+            '<grey>${engine.locale('requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}</>');
+      }
+
+      passiveTreeNodeData['description'] = nodeDescription.toString();
+    }
+
+    // final supportSkillTreeDataString =
+    //     await rootBundle.loadString('assets/data/skilltree_support.json5');
+    // supportSkillTreeData = JSON5.parse(supportSkillTreeDataString);
+
+    for (final key in kOrganizationCategories) {
+      organizationCategoryNames[key] = engine.locale(key);
+    }
+    for (final key in kMainCultivationGenres) {
+      cultivationGenreNames[key] = engine.locale(key);
+    }
+    for (final key in kLocationCityKinds) {
+      cityKindNames[key] = engine.locale(key);
+    }
+    for (final key in kLocationSiteKinds) {
+      siteKindNames[key] = engine.locale(key);
+    }
+
+    _isInitted = true;
+  }
+
+  static Future<void> registerModuleEventHandlers() async {
+    engine.hetu.invoke('main');
+
+    for (final id in engine.mods.keys) {
+      if (engine.mods[id]?['enabled'] == true) {
+        final moduleConfig = {'version': kGameVersion};
+        engine.hetu.invoke('main', module: id, positionalArgs: [moduleConfig]);
+      }
+    }
+  }
+
+  /// wether started a new game or load from a save.
+  static bool isGameCreated = false;
+
+  /// 将dart侧从json5载入的游戏数据保存到游戏存档中
+  static void initGameData() {
+    engine.debug('初始化当前载入的模组...');
+
+    engine.hetu.invoke('init', namedArgs: {
+      'itemsData': GameData.items,
+      'battleCardsData': GameData.battleCards,
+      'battleCardAffixesData': GameData.battleCardAffixes,
+      'passivesData': GameData.passives,
+    });
+
+    for (final id in engine.mods.keys) {
+      if (engine.mods[id]?['enabled'] == true) {
+        final moduleConfig = {'version': kGameVersion};
+        engine.hetu.invoke('init', module: id, positionalArgs: [moduleConfig]);
+      }
+    }
+
+    // 将模组按照优先级重新排序
+    final mods = (gameData['mods'].values as Iterable).toList();
+    mods.sort((mod1, mod2) {
+      return (mod2['priority'] ?? 0).compareTo(mod1['priority'] ?? 0);
+    });
+    engine.hetu.invoke('sortMods', positionalArgs: [mods]);
+  }
+
+  /// 每次执行 createGame 都会重置游戏内的 game 对象上的数据
+  static Future<void> createGame(
+    String worldId, {
+    String? saveName,
+    bool isEditorMode = false,
+  }) async {
+    engine.debug('创建新游戏：[$worldId]');
+
+    worldIds.clear();
+    currentWorldId = worldId;
+    worldIds.add(worldId);
+
+    engine.hetu.invoke('createGame', positionalArgs: [saveName]);
+
+    gameData = engine.hetu.fetch('game');
+    universeData = engine.hetu.fetch('universe');
+    historyData = engine.hetu.fetch('history');
+    heroData = engine.hetu.fetch('hero');
+
+    initGameData();
+
+    if (!isEditorMode) {
+      await registerModuleEventHandlers();
+    }
+
+    isGameCreated = true;
+  }
+
+  static String? currentWorldId;
+  static Set<String> worldIds = {};
+
+  static Future<void> _loadGame({
+    required dynamic game,
+    required dynamic universe,
+    required dynamic history,
+    bool isEditorMode = false,
+  }) async {
+    engine.hetu.invoke('loadGameFromJsonData', namedArgs: {
+      'gameData': game,
+      'universeData': universe,
+      'historyData': history,
+    });
+
+    currentWorldId = engine.hetu.fetch('currentWorldId', namespace: 'game');
+
+    worldIds.clear();
+    final ids = engine.hetu.invoke('getWorldIds');
+    worldIds.addAll(ids);
+
+    if (!isEditorMode) {
+      await registerModuleEventHandlers();
+    }
+
+    isGameCreated = true;
+
+    gameData = engine.hetu.fetch('game');
+    universeData = engine.hetu.fetch('universe');
+    historyData = engine.hetu.fetch('history');
+    heroData = engine.hetu.fetch('hero');
+  }
+
+  /// 从存档中读取游戏数据
+  /// 在这一步中，并不会创建地图对应的场景
+  static Future<void> loadGame(String savePath,
+      {bool isEditorMode = false}) async {
+    worldIds.clear();
+    engine.debug('从 [$savePath] 载入游戏存档。');
+    final gameSave = await File(savePath).open();
+    final gameDataString = utf8.decoder
+        .convert((await gameSave.read(await gameSave.length())).toList());
+    await gameSave.close();
+    final gameData = jsonDecode(gameDataString);
+
+    final universeSave = await File(savePath + kUniverseSaveFilePostfix).open();
+    final universeDataString = utf8.decoder.convert(
+        (await universeSave.read(await universeSave.length())).toList());
+    await universeSave.close();
+    final universeData = jsonDecode(universeDataString);
+
+    final historySave = await File(savePath + kHistorySaveFilePostfix).open();
+    final historyDataString = utf8.decoder
+        .convert((await historySave.read(await historySave.length())).toList());
+    await historySave.close();
+    final historyData = jsonDecode(historyDataString);
+
+    await _loadGame(
+      game: gameData,
+      universe: universeData,
+      history: historyData,
+      isEditorMode: isEditorMode,
+    );
+  }
+
+  static Future<void> loadPreset(String filename,
+      {bool isEditorMode = false}) async {
+    engine.debug('从 [$filename] 载入游戏预设。');
+
+    final gameSave = 'assets/save/$filename$kGameSaveFileExtension';
+    final gameDataString = await rootBundle.loadString(gameSave);
+    final gameData = jsonDecode(gameDataString);
+
+    final universeSave = '$gameSave$kUniverseSaveFilePostfix';
+    final universeDataString = await rootBundle.loadString(universeSave);
+    final universeData = jsonDecode(universeDataString);
+
+    final historySave = '$gameSave$kHistorySaveFilePostfix';
+    final historyDataString = await rootBundle.loadString(historySave);
+    final historyData = jsonDecode(historyDataString);
+
+    await _loadGame(
+      game: gameData,
+      universe: universeData,
+      history: historyData,
+      isEditorMode: isEditorMode,
+    );
+  }
+
+  static CustomGameCard createSiteCardFromData(dynamic siteData) {
+    final id = siteData['id'];
+    final card = CustomGameCard(
+      id: id,
+      deckId: id,
+      data: siteData,
+      anchor: Anchor.center,
+      borderRadius: 15.0,
+      spriteId: 'location/site_frame.png',
+      title: siteData['name'],
+      titleConfig: GameUI.siteTitleConfig,
+      showTitle: true,
+      enablePreview: true,
+      focusOnPreviewing: true,
+      focusedPriority: kSiteCardPriority,
+      focusedSize: GameUI.siteCardFocusedSize,
+      focusedOffset: Vector2(
+          (GameUI.siteCardFocusedSize.x - GameUI.siteCardSize.x) / 2,
+          (GameUI.siteCardSize.y - GameUI.siteCardFocusedSize.y) / 2),
+      illustrationRelativePaddings:
+          const EdgeInsets.fromLTRB(0.0428, 0.025, 0.0428, 0.025),
+      illustrationSpriteId: siteData['image'],
+    );
+    return card;
+  }
+
+  static CustomGameCard createSiteCard({
+    String? id,
+    required String spriteId,
+    required String title,
+    Vector2? position,
+  }) {
+    final exit = CustomGameCard(
+      id: id ?? spriteId,
+      deckId: id ?? spriteId,
+      borderRadius: 20.0,
+      spriteId: 'location/site_frame.png',
+      title: title,
+      titleConfig: GameUI.siteTitleConfig,
+      showTitle: true,
+      size: GameUI.siteCardSize,
+      position: position,
+      enablePreview: true,
+      focusOnPreviewing: true,
+      focusedPriority: kSiteCardPriority,
+      focusedSize: GameUI.siteCardFocusedSize,
+      focusedOffset: Vector2(
+          -(GameUI.siteCardFocusedSize.x - GameUI.siteCardSize.x) / 2,
+          GameUI.siteCardSize.y - GameUI.siteCardFocusedSize.y),
+      illustrationRelativePaddings:
+          const EdgeInsets.fromLTRB(0.0428, 0.025, 0.0428, 0.025),
+      illustrationSpriteId: spriteId,
+    );
+    return exit;
+  }
+
+  static int calculateItemPrice(dynamic itemData,
+      {dynamic priceFactor, bool isSell = false}) {
+    final price = itemData['price'];
+    assert(price != null);
+
+    if (priceFactor == null) {
+      return price;
+    } else {
+      final double base = priceFactor['base'] ?? kBaseBuyRate;
+      final double sell = priceFactor['sell'] ?? kBaseSellRate;
+
+      final double category =
+          priceFactor['category']?[itemData['category']] ?? 1.0;
+      final double kind = priceFactor['kind']?[itemData['kind']] ?? 1.0;
+      final double id = priceFactor['id']?[itemData['id']] ?? 1.0;
+
+      double finalPrice = isSell
+          ? price * sell * category * kind * id
+          : price * base * category * kind * id;
+
+      if (priceFactor['useShard'] == true) {
+        finalPrice /= kMoneyToShardRate;
+      }
+
+      return finalPrice.ceil();
+    }
+  }
+
+  static List<dynamic> getFilteredItems(dynamic characterData,
+      {dynamic filter}) {
+    final inventoryData = characterData['inventory'];
+
+    final String? category = filter?['category'];
+    final String? kind = filter?['kind'];
+    final String? id = filter?['id'];
+    final bool? isIdentified = filter?['isIdentified'];
+
+    final filteredItems = [];
+    for (var itemData in inventoryData.values) {
+      if (itemData['equippedPosition'] != null) {
+        continue;
+      }
+      if (category != null && category != itemData['category']) {
+        continue;
+      }
+      if (kind != null && kind != itemData['kind']) {
+        continue;
+      }
+      if (id != null && id != itemData['id']) {
+        continue;
+      }
+      if (isIdentified != null && isIdentified != itemData['isIdentified']) {
+        continue;
+      }
+
+      filteredItems.add(itemData);
+    }
+
+    return filteredItems;
+  }
+
+  static String getHeroPassivesDescription() {
+    final passivesData = GameData.heroData['passives'];
+    StringBuffer builder = StringBuffer();
+    builder.writeln(engine.locale('skilltree_hero_skills_description_title'));
+    builder.writeln(' ');
+    if (passivesData.isEmpty) {
+      builder.writeln('<grey>${engine.locale('none')}</>');
+    } else {
+      final List skillList = (passivesData.values as Iterable)
+          .where((value) => value != null)
+          .toList();
+      skillList.sort((data1, data2) {
+        return ((data2['priority'] ?? 0) as int)
+            .compareTo((data1['priority'] ?? 0) as int);
+      });
+      for (final skillData in skillList) {
+        final skillDescription = engine.locale(skillData['description']);
+        final value = skillData['value'];
+        final description = skillDescription.interpolate([value]);
+        builder.writeln('<lightBlue>$description</>');
+      }
+    }
+    return builder.toString();
+  }
+
+  static String getDescriptionFromItemData(
+    dynamic itemData, {
+    dynamic characterData,
+    dynamic priceFactor,
+    bool isSell = false,
+    bool isDetailed = false,
+  }) {
+    final description = StringBuffer();
+    final title = itemData['name'];
+    final rarity = itemData['rarity'];
+    final category = itemData['category'];
+    final bool isIdentified = itemData['isIdentified'] == true;
+    final bool isEquippable = itemData['isEquippable'] == true;
+    final bool isUsable = itemData['isUsable'] == true;
+    final bool isUntradable = itemData['isUntradable'] == true;
+
+    final level = itemData['level'];
+    final levelString =
+        level != null ? '(${engine.locale('level')}: $level)' : '';
+
+    String titleString;
+    if (isIdentified) {
+      titleString = isDetailed
+          ? '<bold $rarity t7>$title $levelString</>'
+          : '<bold $rarity t7>$title</>';
+    } else {
+      titleString =
+          '<bold grey t7>${engine.locale('unidentified3')}${engine.locale(category)}</>';
+    }
+    final rarityString =
+        '<grey>${engine.locale('rarity')}: </><$rarity>${engine.locale(rarity)}</>';
+    final categoryString =
+        '<grey>, ${engine.locale('category')}: ${engine.locale(category)}</>';
+    String priceString = '';
+    if (isUntradable) {
+      priceString = '<grey>, </><red>${engine.locale('untradable')}</>';
+    }
+
+    description.writeln(titleString);
+    description.writeln('$rarityString$categoryString$priceString');
+    final chargeData = itemData['chargeData'];
+    if (isIdentified && chargeData != null) {
+      final int maxCharge = chargeData['max'];
+      final int currentCharge = chargeData['current'];
+      final int shardsPerCharge = chargeData['shardsPerCharge'];
+      description.writeln(
+          '<lightBlue>${engine.locale('currentCharges', interpolations: [
+            currentCharge,
+            maxCharge,
+          ])}</>');
+      description.writeln(
+          '<lightBlue>${engine.locale('shardsPerCharge', interpolations: [
+            shardsPerCharge,
+          ])}</>');
+    }
+    description.writeln(kSeparateLine);
+
+    final extraDescription = StringBuffer();
+    final affixList = itemData['affixes'];
+    if (affixList is List && affixList.isNotEmpty) {
+      for (var i = 0; i < affixList.length; i++) {
+        final passiveData = affixList[i];
+        String descriptionString = engine.locale(passiveData['description']);
+        num? value = passiveData['value'];
+        if (value != null) {
+          descriptionString = descriptionString.interpolate([value]);
+        }
+        if (i == 0) {
+          extraDescription.writeln(descriptionString);
+          // if (affixList.length > 1) {
+          //   description.writeln(kSepareteLine);
+          // }
+        } else {
+          if (isDetailed) {
+            final level = passiveData['level'];
+            final levelString =
+                level != null ? ' (${engine.locale('level')}: $level)' : '';
+            extraDescription
+                .writeln('<lightBlue>$descriptionString $levelString</>');
+          } else {
+            extraDescription.writeln('<lightBlue>$descriptionString</>');
+          }
+        }
+      }
+    }
+
+    if (!isIdentified && extraDescription.isNotEmpty) {
+      description.writeln('<red>${engine.locale('unidentified')}</>');
+    } else {
+      description.write(extraDescription.toString());
+    }
+
+    // description.writeln(kSeparateLine);
+    final flavortext = itemData['flavortext'];
+    if (flavortext != null) {
+      description.writeln('<grey>$flavortext</>');
+    }
+
+    if (priceFactor == null) {
+      if (isIdentified) {
+        if (itemData['equippedPosition'] == null) {
+          if (category == 'cardpack') {
+            description.writeln('<yellow>${engine.locale('cardpackHint')}</>');
+          } else if (isEquippable) {
+            description
+                .writeln('<yellow>${engine.locale('equippableHint')}</>');
+          } else if (isUsable) {
+            description.writeln('<yellow>${engine.locale('usableHint')}</>');
+          }
+        }
+      }
+    } else {
+      final useShard = priceFactor['useShard'] == true;
+      final price = calculateItemPrice(
+        itemData,
+        priceFactor: priceFactor,
+        isSell: isSell,
+      );
+      description.writeln(
+          '<yellow>${engine.locale('price')}: $price ${engine.locale(useShard ? 'shard' : 'money')}</>');
+    }
+
+    final out = description.toString().trim();
+    return out;
+  }
+
+  /// 返回值是一个元祖，第一个字符串是卡面描述，第二个是详细描述
+  static (String, String) getDescriptionFromCardData(dynamic cardData,
+      {dynamic characterData, bool isDetailed = false}) {
+    final List affixes = cardData['affixes'];
+    final int cardLevel = cardData['level'];
+    final int cardRank = cardData['rank'];
+    final String title = cardData['name'];
+    final bool isIdentified = cardData['isIdentified'] == true;
+
+    assert(affixes.isNotEmpty);
+    final mainAffix = affixes[0];
+
+    final description = StringBuffer();
+    final extraDescription = StringBuffer();
+
+    final levelPrefix = engine.locale('level');
+
+    String? requirementString;
+
+    final titleString = isDetailed
+        ? '<bold rank$cardRank t7>$title ($levelPrefix $cardLevel)</>'
+        : '<bold rank$cardRank t7>$title</>';
+    final rankString =
+        '<grey>${engine.locale('cultivationRank')}:</> <rank$cardRank>${engine.locale('cultivationRank_$cardRank')}, </>';
+    final genreString =
+        '<grey>${engine.locale('genre')}: ${engine.locale(mainAffix['genre'])}, </>';
+    final categoryString =
+        '<grey>${engine.locale('category')}: ${engine.locale(cardData['category'])}</>';
+
+    extraDescription.writeln(titleString);
+    extraDescription.writeln('$rankString$genreString$categoryString');
+    extraDescription.writeln(kSeparateLine);
+
+    final Map<String, String> explanations = {};
+    for (final affix in affixes) {
+      final affixDescriptionRaw = engine.locale(affix['description']);
+      final affixDescription =
+          affixDescriptionRaw.interpolate(affix['value']).split(RegExp('\n'));
+
+      if (isIdentified) {
+        final bool isMainAffix = affix['isMain'] ?? false;
+
+        if (isMainAffix && characterData != null) {
+          final String? equipment = affix['equipment'];
+          if (equipment != null) {
+            if (characterData['passives']['equipment_$equipment'] == null) {
+              requirementString =
+                  '<red>${engine.locale('equipment_requirement')}: ${engine.locale(equipment)}</>';
+            }
+          }
+        }
+
+        for (var line in affixDescription) {
+          if (isMainAffix) {
+            description.writeln(line);
+            extraDescription.writeln(line);
+          } else {
+            // 某些词条没有数值变化，也没有等级，不需要显示
+            if (affix['value'] != null && isDetailed) {
+              line += ' ($levelPrefix ${affix['level']})';
+            }
+            extraDescription.writeln('<lightBlue>$line</>');
+          }
+        }
+
+        final Iterable tags = affix['tags'];
+        if (tags.isNotEmpty) {
+          for (final tag in tags) {
+            explanations[tag] =
+                '<grey>「${engine.locale(tag)}」- ${engine.locale('${tag}_description')}</>';
+          }
+        }
+      } else {
+        continue;
+      }
+    }
+
+    if (!isIdentified) {
+      description.writeln('<red>${engine.locale('unidentified')}</>');
+      extraDescription.writeln('<red>${engine.locale('unidentified')}</>');
+    }
+
+    if (explanations.isNotEmpty) {
+      extraDescription.writeln(kSeparateLine);
+      if (isDetailed) {
+        for (final tag in explanations.keys) {
+          extraDescription.writeln(explanations[tag]);
+        }
+      } else {
+        extraDescription
+            .writeln('<grey>${engine.locale('explanation_hint')}</>');
+      }
+    }
+
+    if (isIdentified && requirementString != null) {
+      extraDescription.writeln(requirementString);
+    }
+
+    if (isIdentified && affixes.length > 1) {
+      description.writeln(
+          '<lightBlue>+ ${affixes.length - 1} ${engine.locale('extraAffix')}</>');
+    }
+
+    return (
+      description.toString().trim(),
+      extraDescription.toString().trim(),
+    );
+  }
+
+  static CustomGameCard createBattleCardFromData(dynamic data,
+      {bool deepCopyData = false}) {
+    assert(data != null && data['id'] != null, 'Invalid battle card data!');
+    assert(_isInitted, 'Game data is not loaded yet!');
+    assert(GameUI.isInitted, 'Game UI is not initted yet!');
+
+    final cardData = deepCopyData ? deepCopy(data) : data;
+
+    final String id = cardData['id'];
+    final String image = cardData['image'];
+    final String title = cardData['name'];
+    final int cardRank = cardData['rank'];
+
+    final (description, extraDescription) =
+        getDescriptionFromCardData(cardData);
+
+    return CustomGameCard(
+      id: id,
+      // deckId: id,
+      data: cardData,
+      preferredSize: GameUI.deckbuildingCardSize,
+      spriteId: 'battlecard/border4.png',
+      illustrationRelativePaddings:
+          const EdgeInsets.fromLTRB(0.074, 0.135, 0.074, 0.235),
+      illustrationSpriteId: image,
+      title: title,
+      titleRelativePaddings: const EdgeInsets.fromLTRB(0.2, 0.05, 0.2, 0.865),
+      titleConfig: ScreenTextConfig(
+        anchor: Anchor.center,
+        outlined: true,
+        textStyle: TextStyle(
+          color: getColorFromRank(cardRank),
+          fontFamily: GameUI.fontFamily,
+          fontSize: 14.0,
+        ),
+      ),
+      descriptionRelativePaddings:
+          const EdgeInsets.fromLTRB(0.108, 0.735, 0.108, 0.08),
+      descriptionConfig: const ScreenTextConfig(
+        anchor: Anchor.center,
+        textStyle: TextStyle(
+          fontFamily: 'NotoSansMono',
+          // fontFamily: GameUI.fontFamily,
+          fontSize: 8.0,
+          color: Colors.black,
+        ),
+        overflow: ScreenTextOverflow.wordwrap,
+      ),
+      description: description.toString(),
+      glowSpriteId: 'battlecard/glow.png',
+      enablePreview: true,
+    );
+  }
+}

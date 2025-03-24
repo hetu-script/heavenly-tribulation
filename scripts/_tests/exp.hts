@@ -1,0 +1,9 @@
+
+/// level up exp
+function expForLevel(level, [difficulty = 1]) {
+  return (difficulty * (level) * (level)) * 10 + level * 100 + 40
+}
+
+for (var i in range(20)) {
+  print(i, expForLevel(i, 1))
+}

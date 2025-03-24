@@ -1,0 +1,44 @@
+{
+  // 奇门兵器
+  hammer: ["锤"],
+  axe: ["斧"],
+  whip: ["鞭"],
+  dagger: ["刺"],
+  aruval: ["钩"],
+  chakram: ["环"],
+  claw: ["爪"],
+  halberd: ["戟", "钺", "戈", "矛", "棒"],
+  crossbow: ["弩"],
+
+  // rock: ['沙', '石', '山'],
+  umbrella: ["伞"],
+  fan: ["扇"],
+  banner: ["幡", "旗", "绫"],
+
+  // 幻术
+  guqin: ["琴"],
+  bell: ["铃", "钟"],
+  drum: ["鼓"],
+
+  mirror: ["镜"],
+  drawing: ["画"],
+  map: ["图"],
+  seal: ["印"],
+  stele: ["碑"],
+
+  tool: ["梭", "笔", "尺"],
+
+  // consume
+  bottle: ["瓶"],
+  hulu: ["葫芦"],
+
+  // 首饰
+  amulet: ["坠", "佩", "项链"],
+  ring: ["戒指"],
+  pearl: ["珠"],
+  bracelet: ["镯", "环"],
+
+  // 进攻性载具：剑、盘、梭
+  // 防御性载具：车、舟
+  vehicle: ["车", "舟"],
+}
