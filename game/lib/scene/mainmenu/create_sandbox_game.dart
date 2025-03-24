@@ -75,7 +75,7 @@ class _CreateSandboxGameDialogState extends State<CreateSandboxGameDialog> {
     // final layout =
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: GameUI.backgroundColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(engine.locale('sandboxMode')),

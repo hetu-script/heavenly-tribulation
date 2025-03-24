@@ -1,26 +1,11 @@
-///   萧墨为了获取法宝而偷偷进入紫河宗的一处洞天。
-///   萧墨拿取了洞天中的宝物
-///   从大结局穿越而来的凌初雪如一颗流星一般从天而落，砸穿了玲珑塔。
-///     裂开的地表将原本被掩埋的炎晶矿显露了出来。
-///     萧墨发现她时，她躺在一个神秘的大厅里的一个大坑中。
-///     她脖子后面插着一个散发光芒的钉子。这个钉子似乎给她带来了很大的痛苦。
-///     萧墨将其取下。女孩此时醒来，她似乎失去了所有的记忆。
-///   在出去的路上，萧墨和凌初雪遇到了妖族守卫。
-///   萧墨没有任何炼气基础，他完全不是妖族守卫的对手，他原本打算通过诡计逃脱。
-///     但凌初雪突然使出众人意想不到的功法，正面击败了妖族敌人。
 
-/// 剧情进度标记：
-///   chapter0.checkPoint1: 是否已经打开初始宝箱
-///   chapter0.checkPoint2: 是否已经见过凌初雪
-///   chapter0.checkPoint3: 是否已经和妖族卫兵初次战斗
-///   chapter0.checkPoint4: 是否已经目睹凌初雪和妖族卫兵战斗
-///   chapter0.checkPoint5: 是否已经结束所有场景1的剧情
 import 'common.ht'
 
 async function onNewGame() {
   initModData()
 
   /// 萧墨为了获取法宝而偷偷进入紫河宗的一处洞天。
+
   engine.play('stone-push-37412.mp3')
   Dialog.pushBackground('black.png', isFadeIn: true)
   Dialog.pushLocales('prelude_wakeUp', isHero: true)
@@ -31,49 +16,63 @@ async function onNewGame() {
   Dialog.pushLocales('tutorial_movement')
   await Dialog.execute()
   Game.showHeroInfo()
+
+  final quest = Player.acquireQuestById('prelude')
+  Game.promptNewQuest(quest)
 }
-  
+
 async function onEnterMap() {
-  if (game.mods.story.flags.chapter0.checkPoint3) {
-    if (!game.mods.story.flags.chapter0.checkPoint4) {
-      Dialog.pushLocales('prelude_battleEnd_line1', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
-      Dialog.pushLocales('prelude_battleEnd_line2', isHero: true)
-      Dialog.pushTask(() {
-        Player.setTo(6, 2, worldId: 'story_cave', direction: 'south')
-      })
-      Dialog.pushLocales('prelude_battleEnd_line3', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
-      Dialog.pushLocales('prelude_battleEnd_line4')
-      await Dialog.execute()
-    } else if (!game.mods.story.flags.chapter0.checkPoint5) {
-      ///   萧墨没有任何炼气基础，他完全不是妖族守卫的对手，他原本打算通过诡计逃脱。
-      game.mods.story.flags.chapter0.checkPoint5 = true
-      Dialog.pushLocales('prelude_battle2End_line1', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
-      Dialog.pushTask(() {
-        engine.play('magic-smite-6012.mp3')
-        final enemeyTile = getTerrainByWorldPosition(6,5)
-        delete enemeyTile.overlaySprite
-        World.updateTerrainOverlaySprite(6,5)
-      })
-      Dialog.pushLocales('prelude_battle2End_line2', isHero: true)
-      Dialog.pushLocales('prelude_battle2End_line3', characterId: 'ling_chuxue')
-      Dialog.pushLocales('prelude_battle2End_line4')
-      Dialog.pushLocales('prelude_battle2End_line5', isHero: true)
-      await Dialog.execute()
-    }
+  if (hero.quests.prelude.stage == 2) {
+    /// 萧墨没有任何炼气基础，他完全不是妖族守卫的对手，但他通过诡计逃脱。
+    Player.progressQuestById('prelude', stage: 3)
+    Dialog.pushLocales('prelude_battleEnd_line1', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
+    Dialog.pushLocales('prelude_battleEnd_line2', isHero: true)
+    Dialog.pushTask(() {
+      Player.setTo(6, 2, worldId: 'story_cave', direction: 'south')
+    })
+    Dialog.pushLocales('prelude_battleEnd_line3', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard', hideImage: true)
+    Dialog.pushLocales('prelude_battleEnd_line4')
+    await Dialog.execute()
+  } else if (hero.quests.prelude.stage == 3) {
+    Player.progressQuestById('prelude', stage: 4)
+    Dialog.pushLocales('prelude_battle2End_line1', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
+    Dialog.pushTask(async () {
+      await Future.delayed(0.8)
+      engine.play('magic-smite-6012.mp3')
+      final enemeyTile = getTerrainByWorldPosition(6,5)
+      delete enemeyTile.overlaySprite
+      World.updateTerrainOverlaySprite(6,5)
+      await Future.delayed(0.8)
+    })
+    Dialog.pushLocales('prelude_battle2End_line2', isHero: true)
+    Dialog.pushLocales('prelude_battle2End_line3', characterId: 'ling_chuxue')
+    Dialog.pushLocales('prelude_battle2End_line4')
+    Dialog.pushTask(async () {
+      engine.play('earth-rumble-6953.mp3')
+      World.addFallingRubbles()
+      await World.shakeCamera(
+        intensity: 100,
+        shift: 10,
+        frequency: 10,
+        duration: 2.5,
+      )
+    })
+    Dialog.pushLocales('prelude_battle2End_line5', isHero: true)
+    await Dialog.execute()
   }
 }
 
 async function onAfterMove(terrain) {
   if (terrain.left == 6 && terrain.top == 8) {
-    if (!game.mods.story.flags.chapter0.checkPoint3) {
-      ///   在出去的路上，萧墨和凌初雪遇到了妖族守卫。
-      game.mods.story.flags.chapter0.checkPoint3 = true
+    if (hero.quests.prelude.stage < 2) {
+      /// 在出去的路上，萧墨和凌初雪遇到了妖族守卫。
+      Player.progressQuestById('prelude', stage: 2)
       Dialog.pushLocales('prelude_enemy_line1', characterId: 'yaozu_guard1', displayName: '???')
       await Dialog.execute()
       final enemy1 = getCharacterById('yaozu_guard1')
       Game.showBattle(
         enemy: enemy1,
-        isAutoBattle: true,
+        // isAutoBattle: true,
         onBattleStart: async function [VoidCallback] () {
           Dialog.pushLocales('prelude_battleStart_line1', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
           Dialog.pushLocales('prelude_battleStart_line2', isHero: true)
@@ -89,81 +88,93 @@ async function onInteractMapObject(object, terrain) {
   switch (object.id) {
     'treasureBox1': {
       ///   萧墨拿取了洞天中的宝物
-      if (game.mods.story.flags.chapter0.checkPoint1) return
-      game.mods.story.flags.chapter0.checkPoint1 = true
-      onInteractTreasureBox(object, terrain)
-      Dialog.pushLocales('prelude_treasureBox1', isHero: true)
-      await Dialog.execute()
+      if (hero.quests.prelude.stage < 1) {
+        onInteractTreasureBox(object, terrain)
+        Dialog.pushLocales('prelude_treasureBox1', isHero: true)
+        await Dialog.execute()
+        Player.progressQuestById('prelude', stage: 1)
+      }
     }
     'portalNextLevel': {
       Dialog.pushLocales('prelude_portalNextLevel', isHero: true)
       await Dialog.execute()
     }
-    'portal1': {
-      if (game.mods.story.flags.chapter0.checkPoint1) {
-        onInteractPortal(object)
-      } else {
-        Dialog.pushLocales('prelude_treasureBoxHint', isHero: true)
-        await Dialog.execute()
-      }
-    }
-    'portal2': {
-      if (game.mods.story.flags.chapter0.checkPoint2) {
-        onInteractPortal(object)
-      } else {
-        Dialog.pushLocales('prelude_meteorCraterHint', isHero: true)
-        await Dialog.execute()
-      }
-    }
+    // 'portal1': {
+      // if (hero.quests.prelude.stage > 0) {
+        // onInteractPortal(object)
+      // } else {
+      //   Dialog.pushLocales('prelude_treasureBoxHint', isHero: true)
+      //   await Dialog.execute()
+      // }
+    // }
+    // 'portal2': {
+    //   if (hero.quests.mysticGirl) {
+    //     onInteractPortal(object)
+    //   } else {
+    //     Dialog.pushLocales('prelude_meteorCraterHint', isHero: true)
+    //     await Dialog.execute()
+    //   }
+    // }
     'meteorCrater': {
       ///   从大结局穿越而来的凌初雪如一颗流星一般从天而落，砸穿了玲珑塔。
       Dialog.pushLocales('prelude_meteorCrater1')
       Dialog.pushLocales('prelude_meteorCrater2', isHero: true)
-      if (!game.mods.story.flags.chapter0.checkPoint2) {
+      await Dialog.execute()
+      if (!hero.quests.mysticGirl) {
+        final ling = getCharacterById('ling_chuxue')
+        final quest = Player.acquireQuestById('mysticGirl')
         Dialog.pushLocales('prelude_meteorCrater3', isHero: true)
-        Dialog.pushBackground('story/cg/chapter0/ling_in_rubbles2.png', isFadeIn: true)
+        Dialog.pushBackground('story/cg/prelude/ling_in_rubbles2.png', isFadeIn: true)
         Dialog.pushLocales('prelude_mysticGirl1')
         Dialog.pushLocales('prelude_mysticGirl2')
         Dialog.pushLocalesSelection(
           'prelude_nail_option',
           [
-            'prelude_nail_option1',
-            'prelude_nail_option2',
+            'prelude_nail_acquire',
+            'prelude_nail_leave',
           ]
         )
         await Dialog.execute()
         final selected = Dialog.checkSelected('prelude_nail_option')
-        if (selected == 'prelude_nail_option1') {
-          game.mods.story.flags.chapter0.checkPoint2 = true
-          Player.acquireItemById('hunguding')
-          Dialog.pushLocales('prelude_nail_description1', image: 'story/hunguding.png')
-          Dialog.pushLocales('prelude_nail_description2', isHero: true)
-          Dialog.popBackground()
-          Dialog.pushLocales('prelude_ling_description')
-          Dialog.pushLocales('prelude_ling_line1', characterId: 'ling_chuxue')
-          Dialog.pushLocales('prelude_ling_line2', isHero: true)
-          Dialog.pushLocales('prelude_ling_line3', characterId: 'ling_chuxue')
-          Dialog.pushTask(async () {
-            engine.play('earth-rumble-6953.mp3')
-            World.addFallingRubbles()
-            await World.shakeCamera(
-              intensity: 100,
-              shift: 10,
-              frequency: 10,
-              duration: 3.0,
-            )
-          })
-          Dialog.pushLocales('prelude_ling_line4', isHero: true)
-          Dialog.pushLocales('prelude_ling_line5')
-          Dialog.pushLocales('prelude_ling_line6', isHero: true)
-          await Dialog.execute()
+        if (selected == 'prelude_nail_acquire') {
+          Player.progressQuestById('mysticGirl', stage: 1)
+          Player.acquireById('hunguding')
+          Player.acquireQuestById('nailedSoul')
+          Dialog.pushLocales('prelude_nail_acquire_line1', image: 'story/illustration/hunguding.png')
+          Dialog.pushLocales('prelude_nail_acquire_line2', isHero: true)
+          Dialog.pushLocales('prelude_nail_acquire_line3')
+        } else {
+          Player.progressQuestById('mysticGirl', stage: 2)
+          entityAcquireById(ling, 'hunguding', incurIncident: false)
+          Dialog.pushLocales('prelude_nail_leave_line1')
         }
+        Dialog.popBackground()
+        Dialog.pushLocales('prelude_ling_line1', characterId: 'ling_chuxue')
+        Dialog.pushLocales('prelude_ling_line2', isHero: true)
+        Dialog.pushLocales('prelude_ling_line3', characterId: 'ling_chuxue')
+        Dialog.pushTask(async () {
+          engine.play('earth-rumble-6953.mp3')
+          World.addFallingRubbles()
+          await World.shakeCamera(
+            intensity: 100,
+            shift: 10,
+            frequency: 10,
+            duration: 2.5,
+          )
+        })
+        Dialog.pushLocales('prelude_ling_line4', isHero: true)
+        Dialog.pushLocales('prelude_ling_line5')
+        Dialog.pushLocales('prelude_ling_line6', isHero: true)
+        await Dialog.execute()
+        
+        Player.accompany(ling)
+        World.updateNpcsAtWorldMapPosition()
       }
     }
 
     'enemy1': {
-      if (!game.mods.story.flags.chapter0.checkPoint4) {
-        game.mods.story.flags.chapter0.checkPoint4 = true
+      if (hero.quests.mysticGirl.stage < 3) {
+        Player.progressQuestById('mysticGirl', stage: 3)
         final ling = getCharacterById('ling_chuxue')
         generateDeck(ling, deckInfo: [
           {mainAffixId: 'spell_energy', level: 5},{mainAffixId: 'fireball'},{mainAffixId: 'lightning'}
@@ -172,7 +183,7 @@ async function onInteractMapObject(object, terrain) {
         Game.showBattle(
           hero: ling,
           enemy: enemy1,
-          isAutoBattle: true,
+          // isAutoBattle: true,
           onBattleStart: async function [VoidCallback] () {
             Dialog.pushLocales('prelude_battle2Start_line1', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
             Dialog.pushLocales('prelude_battle2Start_line2', characterId: 'ling_chuxue')
@@ -182,15 +193,15 @@ async function onInteractMapObject(object, terrain) {
       }
     }
 
-    'worldPortal1': {
-      if (!game.mods.story.flags.chapter0.checkPoint4) {
-        Dialog.pushLocales('prelude_worldPortal1_line1', isHero: true)
-        Dialog.pushLocales('prelude_worldPortal1_line2')
-        await Dialog.execute()
-      } else {
-        onInteractWorldPortal(object)
-      }
-    }
+    // 'worldPortal1': {
+      // if (!game.mods.story.flags.prelude.witnessedLingFight) {
+      //   Dialog.pushLocales('prelude_worldPortal1_line1', isHero: true)
+      //   Dialog.pushLocales('prelude_worldPortal1_line2')
+      //   await Dialog.execute()
+      // } else {
+        // onInteractWorldPortal(object)
+      // }
+    // }
 
     // 'switch1': {
     //   if (!object?.flags.isOn) {

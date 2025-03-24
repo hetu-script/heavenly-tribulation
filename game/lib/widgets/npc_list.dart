@@ -43,7 +43,7 @@ class _NpcListState extends State<NpcList> {
     }
 
     final characters =
-        (context.watch<CurrentNpcList>().characters).map((characterData) {
+        (context.watch<NpcListState>().npcs).map((characterData) {
       final haveMet = engine.hetu.invoke('haveMet',
           positionalArgs: [GameData.heroData, characterData]);
       return Padding(
@@ -52,8 +52,10 @@ class _NpcListState extends State<NpcList> {
             cursor: SystemMouseCursors.click,
             color: GameUI.backgroundColor,
             displayName: (haveMet != null) ? characterData['name'] : '???',
-            size: const Size(120, 120),
+            size: const Size(80, 80),
             characterData: characterData,
+            borderWidth: 1.0,
+            borderRadius: 5.0,
             onPressed: (charId) {
               // if (characterData['entityType'] == 'character') {
               engine.hetu.invoke('onInteractCharacter',
@@ -77,7 +79,6 @@ class _NpcListState extends State<NpcList> {
       child: Column(
         children: [
           SizedBox(
-            width: 125.0,
             height: 25.0,
             child: start > 0
                 ? InkButton(
@@ -94,7 +95,6 @@ class _NpcListState extends State<NpcList> {
           ),
           ...characters.sublist(start, end),
           SizedBox(
-            width: 125.0,
             height: 25.0,
             child: end < characters.length
                 ? InkButton(

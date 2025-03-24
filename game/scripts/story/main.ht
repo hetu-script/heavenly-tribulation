@@ -18,12 +18,8 @@ const meta = {
   description: '包含了《天道奇劫》游戏的主线剧情。',
   supportedLocales: ['zh'],
   version: '0.0.1',
-  flags: {
-    chapter0: {},
-    chapter1: {},
-    chapter2: {},
-    chapter3: {},
-  }
+  priority: 1,
+  flags: {}
 }
 
 // 每次启动游戏都会执行

@@ -14,6 +14,7 @@ import '../../scene/game_dialog/game_dialog_content.dart';
 import '../../game/logic.dart';
 import '../../common.dart';
 import '../../state/hoverinfo.dart';
+import '../../game/event_ids.dart';
 
 const Set<String> kMaterials = {
   'money',
@@ -139,6 +140,7 @@ class _CharacterDetailsState extends State<CharacterDetails> {
               engine.play('put_item-83043.mp3');
               engine.hetu.invoke('unequip',
                   namespace: 'Player', positionalArgs: [itemData]);
+              engine.emit(GameEvents.heroPassivesUpdated);
               setState(() {
                 context.read<HeroState>().update();
               });
@@ -158,7 +160,7 @@ class _CharacterDetailsState extends State<CharacterDetails> {
                 final hasUnrestrictedPassive = engine.hetu.invoke('hasPassive',
                     namespace: 'Player',
                     positionalArgs: ['${category}UnrestrictedEquip']);
-                if (!hasUnrestrictedPassive) {
+                if (hasUnrestrictedPassive == null) {
                   GameDialogContent.show(
                       context,
                       engine.locale('hint_restrictedEquipment',
@@ -170,6 +172,7 @@ class _CharacterDetailsState extends State<CharacterDetails> {
             engine.play('sword-sheathed-178549.mp3');
             engine.hetu.invoke('equip',
                 namespace: 'Player', positionalArgs: [itemData]);
+            engine.emit(GameEvents.heroPassivesUpdated);
             setState(() {
               context.read<HeroState>().update();
             });

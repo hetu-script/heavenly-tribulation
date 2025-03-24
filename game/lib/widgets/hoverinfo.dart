@@ -179,7 +179,7 @@ class _HoverInfoState extends State<HoverInfo> {
           onKeyEvent: (event) {
             if (event is KeyDownEvent) {
               if (kDebugMode) {
-                engine.debug('keydown: ${event.logicalKey.keyLabel}');
+                engine.debug('keydown: ${event.logicalKey.debugName}');
               }
               switch (event.logicalKey) {
                 case LogicalKeyboardKey.controlLeft:
@@ -193,14 +193,11 @@ class _HoverInfoState extends State<HoverInfo> {
                 const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
             constraints: BoxConstraints(maxWidth: widget.content.maxWidth),
             decoration: BoxDecoration(
-              color: GameUI.backgroundColor,
+              color: GameUI.backgroundColor2,
               // borderRadius: GameUI.borderRadius,
               // border: Border.all(color: GameUI.foregroundColor),
             ),
-            child: ClipRRect(
-              borderRadius: GameUI.borderRadius,
-              child: content,
-            ),
+            child: content,
           ),
         ),
       ),

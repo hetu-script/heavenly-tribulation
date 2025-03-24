@@ -27,7 +27,7 @@ function discoverObject(object, terrain) {
 ///   category: 'custom',
 ///   isDiscovered: true,
 ///   useCustomLogic: true,
-///   blockHeroMove: true
+///   blockMove: true
 /// }
 
 struct ObjectPortal {

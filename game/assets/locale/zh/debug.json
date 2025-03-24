@@ -5,6 +5,7 @@
   "debug_quest": "日志测试",
   "debug_battle": "战斗测试",
   "debug_merchant": "交易测试",
+  "debug_companion": "伙伴测试",
 
   "debug_dialog_content1": "萧墨！我这次一定会从<bold yellow>祝有芒</>手中救出你的！我去过了一切的源头，我知道了<color='#F28234' link='test'>一切的真相</>！",
   "debug_dialog_content2": "你是谁？为什么知道我的名字？这是什么地方？"

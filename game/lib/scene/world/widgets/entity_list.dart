@@ -42,7 +42,7 @@ const kMapObjectSourceTemplate = '''{
   //   },
   // },
   useCustomLogic: true,
-  blockHeroMove: true,
+  blockMove: true,
 }
 ''';
 
@@ -60,7 +60,7 @@ const kMapObjectPortalSourceTemplate = '''{
   //   },
   // },
   useCustomLogic: false,
-  blockHeroMove: false,
+  blockMove: false,
   targetTilePosition: {
     left: 1,
     top: 1,
@@ -82,7 +82,7 @@ const kMapObjectWorldPortalSourceTemplate = '''{
   //   },
   // },
   useCustomLogic: false,
-  blockHeroMove: false,
+  blockMove: false,
   worldId: 'main',
   targetTilePosition: {
     left: 1,
@@ -105,7 +105,7 @@ const kMapObjectCharacterSourceTemplate = '''{
   //   },
   // },
   useCustomLogic: false,
-  blockHeroMove: true,
+  blockMove: true,
   characterId: 'character_id',
 }
 ''';
@@ -124,7 +124,7 @@ const kMapObjectTreasureBoxSourceTemplate = '''{
   //   },
   // },
   useCustomLogic: false,
-  blockHeroMove: false,
+  blockMove: false,
   items: [
     {
       category: 'material',
@@ -734,7 +734,8 @@ class _EntityListPanelState extends State<EntityListPanel>
     }
 
     return ResponsiveView(
-      color: GameUI.backgroundColor,
+      alignment: Alignment.centerLeft,
+      backgroundColor: GameUI.backgroundColor,
       width: widget.size.width,
       height: widget.size.height,
       child: DefaultTabController(
@@ -901,31 +902,29 @@ class _EntityListPanelState extends State<EntityListPanel>
                                   charPosData?['left'] ?? selectedTile?.left;
                               int? top =
                                   charPosData?['top'] ?? selectedTile?.top;
-                              InputWorldPositionDialog.show(
+                              final value = await InputWorldPositionDialog.show(
                                 context: context,
                                 // maxX: _worldWidth,
                                 // maxY: _worldHeight,
                                 defaultX: left,
                                 defaultY: top,
                                 worldId: currentMapId,
-                              ).then(((int, int, String?)? value) {
-                                if (value == null) return;
-                                if (value.$1 != charPosData?['left'] ||
-                                    value.$2 != charPosData?['top'] ||
-                                    value.$3 != charData?['worldId']) {
-                                  engine.hetu.invoke(
-                                      'setCharacterWorldPosition',
-                                      positionalArgs: [
-                                        charData,
-                                        value.$1,
-                                        value.$2,
-                                      ],
-                                      namedArgs: {
-                                        'worldId': value.$3,
-                                      });
-                                  widget.onUpdateCharacters?.call();
-                                }
-                              });
+                              );
+                              if (value == null) return;
+                              if (value.$1 != charPosData?['left'] ||
+                                  value.$2 != charPosData?['top'] ||
+                                  value.$3 != charData?['worldId']) {
+                                engine.hetu.invoke('setCharacterWorldPosition',
+                                    positionalArgs: [
+                                      charData,
+                                      value.$1,
+                                      value.$2,
+                                    ],
+                                    namedArgs: {
+                                      'worldId': value.$3,
+                                    });
+                                widget.onUpdateCharacters?.call();
+                              }
                             case CharacterPopUpMenuItems.clearHome:
                               final charData = engine.hetu.invoke(
                                   'getCharacterById',

@@ -1,5 +1,5 @@
-import 'entity/entity.ht'
-import 'lootbox.ht'
+import 'entity.ht'
+import '../lootbox.ht'
 
 const kQuestDifficultyNormal = 'normal'
 const kQuestDifficultyHard = 'hard'
@@ -38,35 +38,30 @@ const kQuestCatergoryAcquire = 'acquire'
 const kQuestCatergoryDelivery = 'delivery'
 const kQuestCatergoryEscort = 'escort'
 
+/// 剧情日志，用于记录一段故事
 struct Quest {
   constructor({
     id,
     name,
-    publishCharacterId,
-    stages: List,
+    image,
+    endings: List,
   }) {
     assert(name != null)
     this.name = name
 
     this.id = id ?? crypto.randomUID(withTime: true)
-    this.publishCharacterId = publishCharacterId
-
-    assert(stages is List && stages.isNotEmpty)
-    /// stages 是任务每个阶段的数据，以列表形式保存，具体内容如下：
-    /// {
-    ///   category,
-    ///   objective,
-    ///   expirationTimestamp,
-    ///   description,
-    /// }
-    this.stages = stages
-    
-    // 结束不代表任务成功
+    assert(endings is List && endings.isNotEmpty)
+    this.image = image
+    this.endings = endings ?? []
+    // 当前所处的阶段，以数字表示
+    // 每个阶段的文本按照约定格式为：'${quest.id}_stage${stage}'
+    this.stage = 0
+    // 日志进展，每个阶段的index对应了一段描述
+    // 故事并不要求是连续的，可能有不同的路径和结尾
+    // 但起点一定是 0
+    this.sequence = [ 0 ]
+    // 只要stage达到endings中记录的任何一个数字，就算结束
     this.isFinished = false
-    this.isSuccessed = false
-
-    // 任务进度，默认就一定包含 index 为 0 的初始阶段
-    this.progress = [ 0 ]
   }
 }
 
@@ -75,16 +70,9 @@ function generateQuestById(questId, {publishCharacterId}) {
   final questData = game.quests[questId]
   final quest = Quest(
     id: questId,
-    publishCharacterId: publishCharacterId,
     name: engine.locale(questData.name),
-    stages: questData.stages.map((stageData) {
-      return {
-        category: stageData.category,
-        objective: stageData.objective,
-        expirationTimestamp: stageData.expirationTimestamp,
-        description: engine.locale(stageData.description),
-      }
-    }).toList(),
+    image: questData.image,
+    endings: questData.endings.toList(),
   )
   return quest
 }

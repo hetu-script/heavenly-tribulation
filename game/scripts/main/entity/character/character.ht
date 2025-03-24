@@ -1040,6 +1040,8 @@ struct Character {
       battleDecks: battleDecks,
     )
     Object.assign(this, battleInfo)
+    
+    this.entityType = kEntityTypeCharacter
 
     if (game.characters.containsKey(this.id)) {
       engine.warn('已经存在 id 为 ${this.id} 的角色。旧数据将会被覆盖。')
@@ -1490,10 +1492,9 @@ function getResidingCharactersIds(location) {
   }).toList()
 }
 
-/// 如果不传 ids，就返回所有的角色
-function getNpcs() {
-  return game.characters.values.where( (char) => (char.id != game.heroId))
-}
+// function getNpcs() {
+//   return game.characters.values.where( (char) => (char.id != game.heroId))
+// }
 
 function getNpcsOnWorldMap([ worldId ]) {
   worldId ??= world?.id
@@ -1525,6 +1526,10 @@ function getNpcsAtLocationId(locationId) {
     if (char.locationId != locationId) return false
     return true
   })
+}
+
+function getCharacterCompanions(character) {
+  return character.companions
 }
 
 function getCharacterById(id: string) {

@@ -26,7 +26,7 @@ class Avatar extends StatelessWidget {
     this.showBorderImage = false,
     this.color = Colors.transparent,
     this.size = const Size(100.0, 100.0),
-    this.borderRadius = 15.0,
+    this.borderRadius = 0.0,
     this.borderColor = Colors.transparent,
     this.borderWidth,
     this.characterId,

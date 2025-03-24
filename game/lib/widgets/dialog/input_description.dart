@@ -56,7 +56,7 @@ class _InputDescriptionDialogState extends State<InputDescriptionDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      color: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       child: SizedBox(
         width: 600.0,

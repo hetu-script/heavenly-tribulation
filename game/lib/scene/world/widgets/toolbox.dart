@@ -101,7 +101,8 @@ class _ToolboxState extends State<Toolbox> {
     final item = context.watch<EditorToolState>().selectedId;
 
     return ResponsiveView(
-      color: GameUI.backgroundColor,
+      alignment: Alignment.bottomCenter,
+      backgroundColor: GameUI.backgroundColor,
       width: 640,
       height: 200,
       child: Row(
@@ -175,10 +176,6 @@ class _ToolboxState extends State<Toolbox> {
                                     'dungeonStonePavedTile',
                                     selectedItem: item,
                                   ),
-                                ],
-                              ),
-                              Wrap(
-                                children: [
                                   buildToolButton(
                                     context,
                                     'city',

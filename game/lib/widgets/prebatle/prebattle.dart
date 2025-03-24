@@ -159,7 +159,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
     // final buttonKey = GlobalKey();
 
     return ResponsiveView(
-      color: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       width: 1080.0,
       height: 640.0,
@@ -248,7 +248,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                             context
                                 .read<EnemyState>()
                                 .setPrebattleVisible(false);
-                            engine.pushScene(Scenes.library);
+                            engine.pushScene(Scenes.cardlibrary);
                           },
                           onMouseEnter: (rect) {
                             context

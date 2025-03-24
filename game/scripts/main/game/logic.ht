@@ -6,7 +6,7 @@ import '../entity/item/material.ht'
 import '../entity/character/battle_entity.ht'
 import '../world/tile/common.ht'
 import '../lootbox.ht'
-import '../binding/world.ht'
+import '../game/world.ht'
 import '../game/dialog.ht'
 import '../entity/entity.ht'
 import '../entity/organization/organization.ht'
@@ -15,8 +15,15 @@ import '../colors.ht'
 import '../common.ht'
 import '../entity/character/character.ht'
 import '../name/character.ht'
-import '../binding/world.ht'
 import '../entity/location/location.ht'
+
+external function expForLevel(level: integer) -> integer
+
+external function minLevelForRank(rank) -> integer
+
+external function maxLevelForRank(rank) -> integer
+
+external function getDeckLimitForRank(rank) -> Map
 
 const kSearchSuccessProbability = 0.25
 
@@ -245,7 +252,7 @@ function onHeroMeditate({site, terrain, incurIncident = true}) async {
 /// 否则不会进入移动路径计算
 async function onBeforeMove(terrain) {
   final result = await onWorldEvent('onBeforeMove', terrain)
-  if (result != null) {
+  if (result) {
     return result
   }
   let movableTerrainKinds = getCharacterMovableTerrainKinds(hero)
@@ -779,18 +786,23 @@ async function onBeforeMove(terrain) {
 
 async function onInteractCharacter(character) {
   engine.debug('正在和 NPC [${character.name}] 互动。')
+  final result = await onGameEvent('onBeforeInteractCharacter', character)
+  if (result) {
+    return result
+  }
+
   let bond = characterMet(character, hero)
   if (bond.score < 0) {
     // TODO: 商人不会因为好感低而拒绝交易
-    Dialog.pushLocales('unfavorRefusal', character: character)
+    Dialog.pushLocales('discourse_unfavorRefusal', character: character)
     await Dialog.execute()
     return
   }
 
   let selections = [
     'talk',
-    'show',
     'trade',
+    'show',
   ]
   let hasGifted = game.playerMonthly.gifted.contains(character.id)
   let hasAttacked = game.playerMonthly.attacked.contains(character.id)
@@ -826,7 +838,7 @@ async function onInteractCharacter(character) {
       switch(topic) {
         'questTopic': {
           if (hero.quests.isEmpty) {
-            Dialog.localeLines('noQuests', isHero: true)
+            Dialog.pushLocales('hint_noQuests', isHero: true)
             Dialog.execute()
             return
           }
@@ -857,7 +869,29 @@ async function onInteractCharacter(character) {
       }
     }
     'show': {
-
+      // 向角色展示某个物品
+      let items = await Game.showItemSelect(character: hero, multiSelect: false)
+      let item = items?.first
+      if (item != null) {
+        engine.info('正在向 ${character.name} 出示 ${item.name}')
+        await onGameEvent('onShowItem', character, item)
+      }
+    }
+    'gift': {
+      let items = await Game.showItemSelect(character: hero, multiSelect: false)
+      let item = items?.first
+      if (item != null) {
+        engine.info('正在向 ${character.name} 赠送 ${item.name}')
+        final result = await onGameEvent('onGiftItem', character, item)
+        if (result) {
+          Player.lose(item)
+          entityAcquire(character, item)
+          Dialog.pushLocales('discourse_giftAcception', character: character)
+        } else {
+          Dialog.pushLocales('discourse_giftRefusal', character: character)
+        }
+        await Dialog.execute()
+      }
     }
     'trade': {
       // TODO:
@@ -882,22 +916,11 @@ async function onInteractCharacter(character) {
         sell: sellRate,
       })
     }
-    'gift': {
-      let selectedItems = await Dialog.selectItems(character: hero)
-      final result = await onGameEvent('onGiftItem', character, selectedItems)
-      if (result != null) {
-        return
-      }
-      for (final item in selectedItems) {
-        Player.lose(item)
-        entityAcquire(character, item)
-      }
-    }
     'attack': {
 
     }
     'steal': {
-
+      
     }
     'relationshipDiscourse': {
       let relationshipSelections = []
@@ -934,13 +957,16 @@ async function onInteractCharacter(character) {
           relationshipSelections.add('tutor')
         }
       } else {
-        let hasBaishi = game.playerMonthly.baishi.contains(character.id)
-        if (!hasBaishi) {
-          relationshipSelections.add('baishi')
-        }
-        let hasShoutu = game.playerMonthly.shoutu.contains(character.id)
-        if (!hasShoutu) {
-          relationshipSelections.add('shoutu')
+        if (character.level > hero.level && character.rank > hero.rank) {
+          let hasBaishi = game.playerMonthly.baishi.contains(character.id)
+          if (!hasBaishi) {
+            relationshipSelections.add('baishi')
+          }
+        } else if (hero.level > character.level && hero.rank > character.rank) {
+          let hasShoutu = game.playerMonthly.shoutu.contains(character.id)
+          if (!hasShoutu) {
+            relationshipSelections.add('shoutu')
+          }
         }
       }
 
@@ -952,12 +978,13 @@ async function onInteractCharacter(character) {
       if (isCharacterHead && !hasApplied) relationshipSelections.add('apply')
       if (isHead && !hasRecruited) relationshipSelections.add('recruit')
 
-      relationshipSelections.add('cancel')
+      relationshipSelections.add('forgetIt')
 
       Dialog.pushLocalesSelection(
         'characterRelationshipInteraction',
         relationshipSelections,
       )
+      
       await Dialog.execute()
       final selected2 = Dialog.checkSelected('characterRelationshipInteraction')
 
@@ -978,7 +1005,7 @@ async function onInteractCharacter(character) {
 
         }
         'shoutu': {
-
+          
         }
         'apply': {
 
@@ -990,6 +1017,8 @@ async function onInteractCharacter(character) {
       }
     }
   }
+
+  Game.updateNpcList()
 }
 
 function onInteractMapObject(object, terrain) async {
@@ -1007,6 +1036,11 @@ function onInteractMapObject(object, terrain) async {
       'portal': await onInteractPortal(object)
       'worldPortal': await onInteractWorldPortal(object)
       'treasureBox': await onInteractTreasureBox(object, terrain)
+      'character': {
+        final character = game.characters[object.characterId]
+        assert(character != null)
+        await onInteractCharacter(character)
+      }
       else: engine.error('不支持的地图交互物品类型: ${object.category}')      
     }
   }
@@ -1046,7 +1080,7 @@ async function onInteractTreasureBox(object, terrain) {
       }
       'prototype': {
         assert(game.items.contains(itemInfo.kind))
-        Player.acquireItemById(itemInfo.kind)
+        Player.acquireById(itemInfo.kind)
       }
       'equipment': {
         assert(kEquipmentKinds.contains(itemInfo.kind))
@@ -1095,9 +1129,9 @@ function onBeforeEnterLocation(location) async {
 function onAfterEnterLocation(location) async {
   await onWorldEvent('onAfterEnterLocation', location)
 
-  if (location.category = 'site') {
-    await onAfterEnterSite(location)
-  }
+  // if (location.category = 'site') {
+  //   await onAfterEnterSite(location)
+  // }
 
   // if (location.flags.recruitingOrganizationIds.isNotEmpty) {
   //   let names = ''
@@ -1561,143 +1595,150 @@ function setStormTile(terrain) {
 /// 更新游戏逻辑，将时间向前推进一帧（tick），可以设定连续更新的帧数
 /// 如果遇到了一些特殊事件可能提前终止
 /// 这会影响一些连续进行的动作，例如探索或者修炼等等
-async function updateGame({ticks = 1, timeflow = true, engineEvent = true, moduleEvent = true}) {
-  if (!world.isMainWorld) return
+async function updateGame({
+  ticks = 1,
+  timeflow = true,
+  worldEvent = true,
+  moduleEvent = true,
+  autoCultivate = false,
+}) {
 
   for (const i in range(ticks)) {
-    // 每个tick执行的代码
-    handleBabies()
+    if (worldEvent && world?.isMainWorld) {
 
-    if (day == 1) {
-      // 重置玩家自己的每月行动
-      resetPlayerMonthlyActivities()
+      // 每个tick执行的代码
+      handleBabies()
 
-      if (engineEvent) {
-        // 更新大地图地块事件
-        if (world.waterIndexes.length > 0) {
-          engine.debug('在水域中生成捕鱼区')
-          // 清空鱼类活跃区域
-          for (const index in world.fishTileIndexes) {
-            const tile = world.terrains[index]
-            delete tile.flags.isFishGathering
-            // 清空叠加的鱼跃效果动态贴图
-            World.clearTerrainOverlayAnimation(tile.left, tile.top)
-          }
-          world.fishTileIndexes.clear()
-          const fishEventsCount = world.waterIndexes.length ~/ _kMinSizeforFishTile + 1
-          for (const i in range(fishEventsCount)) {
-            let fishTileIndex
-            do {
-              fishTileIndex = random.nextIterable(world.waterIndexes)
-            } while (fishTileIndex in world.fishTileIndexes)
-            const fishTile = world.terrains[fishTileIndex]
-            setFishTile(fishTile)
-          }
-        }
-
-        engine.debug('生成暴风雨区域')
-        // 清空暴风雨区域
-        for (const index in world.stormTileIndexes) {
-          const tile = world.terrains[index]
-          delete tile.flags.isInStorm
-          // 清空叠加的暴风雨效果动态贴图
-          World.clearTerrainOverlayAnimation(tile.left, tile.top)
-        }
-        world.stormTileIndexes.clear()
-        const stormEventsCount = world.terrains.length ~/ _kMinSizeforStormTile + 1
-        for (const i in range(stormEventsCount)) {
-          let stormTileIndex
-          do {
-            stormTileIndex = random.nextIterable(world.terrains).index
-          } while (stormTileIndex in world.stormTileIndexes)
-          const stormTile = world.terrains[stormTileIndex]
-          setStormTile(stormTile)
-        }
-      }
-
-      // engine.debug('生成灵气喷涌区域')
-      // 灵气喷涌区域
-      // for (const index in game.stormTileIndexes) {
-      //   const tile = world.terrains[index]
-      //   delete tile.flags.isSpiritSurging
-      //   // 清空叠加的灵气喷涌效果动态贴图
-      //   World.clearTerrainOverlayAnimation(tile.left, tile.top)
-      // }
-      // game.spiritTileIndexes = []
-      // const spiritEventsCount = world.terrains.length ~/ _kMinSizeforSpiritTile + 1
-      // for (const i in range(spiritEventsCount)) {
-      //   let spiritTileIndex
-      //   do {
-      //     spiritTileIndex = random.nextIterable(world.terrains).index
-      //   } while (spiritTileIndex in game.spiritTileIndexes)
-      //   const spiritTile = world.terrains[spiritTileIndex]
-      //   setSpiritTile(spiritTile)
-      // }
-    }
-
-    // 每个建筑，每个月会根据其属性而支付费用和获得收入，费用和收入可能是各种资源
-    // 商店类建筑会刷新物品和银两
-    // 刷新任务，无论之前的任务是否还存在，非组织拥有的第三方建筑每个月只会有一个任务
-    for (const location of world.locations) {
-      // 跳过玩家自己控制的据点
-      if (game.heroId == location.ownerId) continue
-
-      // 月度事件
       if (day == 1) {
-        locationMonthlyUpdate(location)
+        // 重置玩家自己的每月行动
+        resetPlayerMonthlyActivities()
 
-        // 年度事件
-        if (month == kLocationYearlyUpdateMonth) {
-          locationYearlyUpdateStart(location)
-        } else if (month == kLocationYearlyUpdateMonth + 1) {
-          locationYearlyUpdateEnd(location)
+        // // 更新大地图地块事件
+        // if (world.waterIndexes.length > 0) {
+        //   engine.debug('在水域中生成捕鱼区')
+        //   // 清空鱼类活跃区域
+        //   for (const index in world.fishTileIndexes) {
+        //     const tile = world.terrains[index]
+        //     delete tile.flags.isFishGathering
+        //     // 清空叠加的鱼跃效果动态贴图
+        //     World.clearTerrainOverlayAnimation(tile.left, tile.top)
+        //   }
+        //   world.fishTileIndexes.clear()
+        //   const fishEventsCount = world.waterIndexes.length ~/ _kMinSizeforFishTile + 1
+        //   for (const i in range(fishEventsCount)) {
+        //     let fishTileIndex
+        //     do {
+        //       fishTileIndex = random.nextIterable(world.waterIndexes)
+        //     } while (fishTileIndex in world.fishTileIndexes)
+        //     const fishTile = world.terrains[fishTileIndex]
+        //     setFishTile(fishTile)
+        //   }
+        // }
+
+        // engine.debug('生成暴风雨区域')
+        // // 清空暴风雨区域
+        // for (const index in world.stormTileIndexes) {
+        //   const tile = world.terrains[index]
+        //   delete tile.flags.isInStorm
+        //   // 清空叠加的暴风雨效果动态贴图
+        //   World.clearTerrainOverlayAnimation(tile.left, tile.top)
+        // }
+        // world.stormTileIndexes.clear()
+        // const stormEventsCount = world.terrains.length ~/ _kMinSizeforStormTile + 1
+        // for (const i in range(stormEventsCount)) {
+        //   let stormTileIndex
+        //   do {
+        //     stormTileIndex = random.nextIterable(world.terrains).index
+        //   } while (stormTileIndex in world.stormTileIndexes)
+        //   const stormTile = world.terrains[stormTileIndex]
+        //   setStormTile(stormTile)
+        // }
+
+        // engine.debug('生成灵气喷涌区域')
+        // 灵气喷涌区域
+        // for (const index in game.stormTileIndexes) {
+        //   const tile = world.terrains[index]
+        //   delete tile.flags.isSpiritSurging
+        //   // 清空叠加的灵气喷涌效果动态贴图
+        //   World.clearTerrainOverlayAnimation(tile.left, tile.top)
+        // }
+        // game.spiritTileIndexes = []
+        // const spiritEventsCount = world.terrains.length ~/ _kMinSizeforSpiritTile + 1
+        // for (const i in range(spiritEventsCount)) {
+        //   let spiritTileIndex
+        //   do {
+        //     spiritTileIndex = random.nextIterable(world.terrains).index
+        //   } while (spiritTileIndex in game.spiritTileIndexes)
+        //   const spiritTile = world.terrains[spiritTileIndex]
+        //   setSpiritTile(spiritTile)
+        // }
+      }
+
+      // 每个建筑，每个月会根据其属性而支付费用和获得收入，费用和收入可能是各种资源
+      // 商店类建筑会刷新物品和银两
+      // 刷新任务，无论之前的任务是否还存在，非组织拥有的第三方建筑每个月只会有一个任务
+      for (const location of world.locations) {
+        // 跳过玩家自己控制的据点
+        if (game.heroId == location.ownerId) continue
+
+        // 月度事件
+        if (day == 1) {
+          locationMonthlyUpdate(location)
+
+          // 年度事件
+          if (month == kLocationYearlyUpdateMonth) {
+            locationYearlyUpdateStart(location)
+          } else if (month == kLocationYearlyUpdateMonth + 1) {
+            locationYearlyUpdateEnd(location)
+          }
         }
       }
-    }
-    
-    // 触发每个组织的刷新事件
-    for (const organization of game.organizations) {
-      // 组织管理的自动逻辑跳过玩家自己控制的组织
-      if (game.heroId == organization.headId) continue
-
-      // 月度事件
-      if (day == 1) {
-        organizationMonthlyUpdate(organization)
-        
-        // 年度事件
-        if (month == kOrganizationYearlyUpdateMonth) {
-          organizationYearlyUpdateStart(organization)
-        } else if (month == kOrganizationYearlyUpdateMonth + 1) {
-          organizationYearlyUpdateEnd(organization)
-        }
-      }
-    }
-    
-    // 触发每个角色的刷新事件
-    for (const character of game.characters) {
-      // 跳过玩家自己控制的角色
-      if (game.heroId == character.id) continue
       
-      // 月度事件
-      if (day == 1) {
-        characterMonthlyUpdate(character)
-        
-        // 年度事件
-        if (month == kCharacterYearlyUpdateMonth) {
-          characterYearlyUpdateStart(character)
-        } else if (month == kCharacterYearlyUpdateMonth + 1) {
-          characterYearlyUpdateEnd(character)
+      // 触发每个组织的刷新事件
+      for (const organization of game.organizations) {
+        // 组织管理的自动逻辑跳过玩家自己控制的组织
+        if (game.heroId == organization.headId) continue
+
+        // 月度事件
+        if (day == 1) {
+          organizationMonthlyUpdate(organization)
+          
+          // 年度事件
+          if (month == kOrganizationYearlyUpdateMonth) {
+            organizationYearlyUpdateStart(organization)
+          } else if (month == kOrganizationYearlyUpdateMonth + 1) {
+            organizationYearlyUpdateEnd(organization)
+          }
         }
       }
+      
+      // 触发每个角色的刷新事件
+      for (const character of game.characters) {
+        // 跳过玩家自己控制的角色
+        if (game.heroId == character.id) continue
+        
+        // 月度事件
+        if (day == 1) {
+          characterMonthlyUpdate(character)
+          
+          // 年度事件
+          if (month == kCharacterYearlyUpdateMonth) {
+            characterYearlyUpdateStart(character)
+          } else if (month == kCharacterYearlyUpdateMonth + 1) {
+            characterYearlyUpdateEnd(character)
+          }
+        }
+      }
+      
+      // 每一个野外地块，每个月固定时间会随机刷新一个野外遭遇
+      // 野外遭遇包括NPC事件、随机副本等等
+      // for (const terrain in world.terrains) {
+      //   if (game.timestamp % kTicksPerMonth == 0) {
+      //     updateTerrain(terrain)
+      //   }
+      // }
+
     }
-    
-    // 每一个野外地块，每个月固定时间会随机刷新一个野外遭遇
-    // 野外遭遇包括NPC事件、随机副本等等
-    // for (const terrain in world.terrains) {
-    //   if (game.timestamp % kTicksPerMonth == 0) {
-    //     updateTerrain(terrain)
-    //   }
-    // }
 
     if (timeflow) {
       ++game.timestamp
@@ -1706,9 +1747,7 @@ async function updateGame({ticks = 1, timeflow = true, engineEvent = true, modul
       if (ticksOfDay == 1) {
         engine.log('--------${year}年${month}月${day}日${timeOfDay}--------')
       }
-    }
-
-    if (engineEvent) {
+      
       Game.updateGameTime()
     }
 

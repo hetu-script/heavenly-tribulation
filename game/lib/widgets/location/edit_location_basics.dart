@@ -115,7 +115,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
     return ResponsiveView(
       width: 400.0,
       height: 400.0,
-      color: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,

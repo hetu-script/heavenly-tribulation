@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// import '../../config.dart';
 import '../../state/game_dialog.dart';
 import 'game_dialog_content.dart';
 import 'selection_dialog.dart';
@@ -180,6 +179,10 @@ class _GameDialogControllerState extends State<GameDialogController>
             color: Colors.transparent,
             child: Stack(
               children: [
+                ModalBarrier(
+                  color: Colors.black54,
+                  dismissible: false,
+                ),
                 if (background != null) background,
                 if (illustrations.isNotEmpty) ...illustrations,
                 if (dialogContentData != null)

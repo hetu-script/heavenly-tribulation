@@ -78,10 +78,10 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
 
   final List<dynamic> preloadCardIds;
 
-  late final int limitMin, limitEphemeralMax, limitOngoingMax;
+  late final int limitEphemeralMax, limitOngoingMax;
 
   bool get isCardsEnough {
-    if (cards.length < limitMin) return false;
+    if (cards.length < limit) return false;
     return true;
   }
 
@@ -102,7 +102,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
   bool get isRequirementMet {
     bool valid = true;
 
-    if (cards.length < limitMin) valid = false;
+    if (cards.length < limit) valid = false;
 
     for (final card in cards) {
       valid = GameLogic.checkCardRequirement(
@@ -232,19 +232,21 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     switch (state) {
       case PlaceHolderState.newDeck:
         placeholder.priority = priority;
-        placeholder.spriteId = 'cultivation/deck_placeholder.png';
-        placeholder.hoverSpriteId = 'cultivation/deck_placeholder_hover.png';
-        placeholder.tryLoadSprite();
+        placeholder.tryLoadSprite(
+          spriteId: 'cultivation/deck_placeholder.png',
+          hoverSpriteId: 'cultivation/deck_placeholder_hover.png',
+        );
       case PlaceHolderState.editDeck:
         placeholder.priority = priority;
-        placeholder.spriteId = 'cultivation/card_placeholder.png';
-        placeholder.hoverSpriteId = 'cultivation/card_placeholder_hover.png';
-        placeholder.tryLoadSprite();
+        placeholder.tryLoadSprite(
+            spriteId: 'cultivation/card_placeholder.png',
+            hoverSpriteId: 'cultivation/card_placeholder_hover.png');
       case PlaceHolderState.deckCover:
         placeholder.priority = kDeckCoverPriority;
-        placeholder.spriteId = 'cultivation/deck_cover.png';
-        placeholder.hoverSpriteId = 'cultivation/deck_cover_hover.png';
-        placeholder.tryLoadSprite();
+        placeholder.tryLoadSprite(
+          spriteId: 'cultivation/deck_cover.png',
+          hoverSpriteId: 'cultivation/deck_cover_hover.png',
+        );
     }
   }
 
@@ -257,13 +259,10 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     // );
     // add(background);
 
-    final deckLimit = GameLogic.getDeckLimitFromRank(GameData.heroData['rank']);
-    limitMin = deckLimit.$1;
-    limit = deckLimit.$2;
-    limitEphemeralMax = deckLimit.$3;
-    limitOngoingMax = deckLimit.$4;
-    assert(limitMin > 0);
-    assert(limit >= limitMin);
+    final deckLimit = GameLogic.getDeckLimitForRank(GameData.heroData['rank']);
+    limit = deckLimit['limit']!;
+    limitEphemeralMax = deckLimit['ephemeralMax']!;
+    limitOngoingMax = deckLimit['ongoingMax']!;
     assert(limitEphemeralMax >= 0);
     assert(limitOngoingMax >= 0);
 

@@ -5,17 +5,16 @@ import 'package:flame/flame.dart';
 import 'package:samsara/cardgame/zones/piled_zone.dart';
 import 'package:provider/provider.dart';
 
-import '../../../engine.dart';
-import '../../../game/data.dart';
-import '../../../game/ui.dart';
-import '../../../widgets/npc_list.dart';
-import '../../../widgets/ui_overlay.dart';
-import '../../../widgets/dialog/character_visit.dart';
-import '../../../state/current_npc_list.dart';
+import '../../engine.dart';
+import '../../game/data.dart';
+import '../../game/ui.dart';
+import '../../widgets/ui_overlay.dart';
+import '../../widgets/dialog/character_visit.dart';
+import '../../state/current_npc_list.dart';
+import '../common.dart';
+import '../game_dialog/game_dialog_content.dart';
+import '../../game/logic.dart';
 import '../../common.dart';
-import '../../game_dialog/game_dialog_content.dart';
-import '../../../game/logic.dart';
-import '../../../common.dart';
 
 class LocationScene extends Scene {
   late final SpriteComponent _backgroundComponent;
@@ -37,7 +36,7 @@ class LocationScene extends Scene {
     if (siteId == null) return;
     final Iterable<dynamic> npcs = engine.hetu
         .invoke('getNpcsAtLocationId', positionalArgs: [locationData['id']]);
-    context.read<CurrentNpcList>().updated(npcs);
+    context.read<NpcListState>().update(npcs);
   }
 
   Future<void> _tryEnterLocation(dynamic locationData) async {
@@ -92,38 +91,50 @@ class LocationScene extends Scene {
     }
     siteList.cards.clear();
 
-    if (locationData['kind'] == 'home') {
-      /// 纯功能性的场景内互动对象，不保存为数据
-      if (locationData['ownerId'] == GameData.heroData['id']) {
+    switch (locationData['kind']) {
+      // 纯功能性的场景内互动对象，不保存为数据
+      case 'home':
+        if (locationData['ownerId'] == GameData.heroData['id']) {
+          final siteCardRest = GameData.createSiteCard(
+              spriteId: 'location/card/bed.png', title: engine.locale('rest'));
+          siteCardRest.onTap = (buttons, position) {
+            GameLogic.heroRest();
+          };
+          siteList.cards.add(siteCardRest);
+          world.add(siteCardRest);
+        }
+
+      // 纯功能性的场景内互动对象，不保存为数据
+      case 'library':
         final siteCardRest = GameData.createSiteCard(
-            spriteId: 'bed.png', title: engine.locale('rest'));
+            spriteId: 'location/card/carddesk.png',
+            title: engine.locale('carddesk'));
         siteCardRest.onTap = (buttons, position) {
-          GameLogic.heroRest();
+          engine.pushScene(Scenes.cardlibrary);
         };
         siteList.cards.add(siteCardRest);
         world.add(siteCardRest);
-      }
-    } else {
-      for (final siteId in locationData['sites']) {
-        final siteData =
-            engine.hetu.invoke('getLocationById', positionalArgs: [siteId]);
-        final siteCard = GameData.createSiteCardFromData(siteData);
-        siteCard.onTap = (buttons, position) {
-          if (siteCard.data['kind'] == 'residence') {
-            openResidenceList();
-          } else if (kLocationSiteKinds.contains(siteCard.data['kind'])) {
-            _tryEnterLocation(siteCard.data);
-          } else {
-            engine.hetu.invoke('onWorldEvent', positionalArgs: [
-              'onInteractLocationObject',
-              siteCard.data,
-              locationData,
-            ]);
-          }
-        };
-        siteList.cards.add(siteCard);
-        world.add(siteCard);
-      }
+      default:
+        for (final siteId in locationData['sites']) {
+          final siteData =
+              engine.hetu.invoke('getLocationById', positionalArgs: [siteId]);
+          final siteCard = GameData.createSiteCardFromData(siteData);
+          siteCard.onTap = (buttons, position) {
+            if (siteCard.data['kind'] == 'residence') {
+              openResidenceList();
+            } else if (kLocationSiteKinds.contains(siteCard.data['kind'])) {
+              _tryEnterLocation(siteCard.data);
+            } else {
+              engine.hetu.invoke('onWorldEvent', positionalArgs: [
+                'onInteractLocationObject',
+                siteCard.data,
+                locationData,
+              ]);
+            }
+          };
+          siteList.cards.add(siteCard);
+          world.add(siteCard);
+        }
     }
 
     siteList.sortCards(animated: false);
@@ -151,7 +162,7 @@ class LocationScene extends Scene {
 
     final exit = GameData.createSiteCard(
       id: 'exit',
-      spriteId: 'exit.png',
+      spriteId: 'location/card/exit.png',
       title: engine.locale('exit'),
       position: GameUI.siteExitCardPositon,
     );
@@ -175,7 +186,7 @@ class LocationScene extends Scene {
 
     final Iterable<dynamic> npcs = engine.hetu
         .invoke('getNpcsAtLocationId', positionalArgs: [locationData['id']]);
-    context.read<CurrentNpcList>().updated(npcs);
+    context.read<NpcListState>().update(npcs);
 
     engine.debug('玩家进入了 ${locationData['name']}');
     engine.hetu.invoke('onAfterEnterLocation', positionalArgs: [locationData]);
@@ -186,11 +197,6 @@ class LocationScene extends Scene {
     return Stack(
       children: [
         SceneWidget(scene: this),
-        const Positioned(
-          left: 5,
-          top: 130,
-          child: NpcList(),
-        ),
         const Positioned(
           left: 0,
           top: 0,

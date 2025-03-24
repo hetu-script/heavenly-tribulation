@@ -22,11 +22,11 @@ namespace World {
   external function setObjectTo(id, left, top)
 
   /// endDirection: 'north' | 'east' | 'south' | 'west'
-  external function objectWalkTo(id, left, top, {endDirection, onAfterStepCallback})
+  external function objectWalkTo(id, left, top, {endDirection, onBeforeStepCallback})
 
-  external function updateNpcsInHeroWorldMapPosition()
+  external function updateNpcsAtWorldMapPosition()
 
-  external function updateNpcsInHeroLocation()
+  external function updateNpcsAtLocation()
   
   external function updateWorldMapLocations()
 

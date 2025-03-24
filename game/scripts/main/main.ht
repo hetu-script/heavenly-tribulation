@@ -1,20 +1,21 @@
-export 'binding/battle_character.ht'
-export 'binding/world.ht'
 export 'cardgame/card.ht'
 export 'cardgame/card_script.ht'
 export 'cardgame/status_script.ht'
-export 'entity/entity.ht'
 export 'entity/character/character.ht'
 export 'entity/item/item.ht'
 export 'entity/item/material.ht'
 export 'entity/location/location.ht'
 export 'entity/organization/organization.ht'
+export 'entity/entity.ht'
+export 'entity/quest.ht'
 export 'event/event.ht'
+export 'game/battle_character.ht'
 export 'game/data.ht'
 export 'game/logic.ht'
 export 'game/game.ht'
 export 'game/dialog.ht'
 export 'game/player.ht'
+export 'game/world.ht'
 export 'incident.ht'
 export 'name/name.ht'
 export 'world/tile/common.ht'
@@ -27,7 +28,6 @@ export 'colors.ht'
 export 'common.ht'
 export 'datetime.ht'
 export 'debug.ht'
-export 'quest.ht'
 export 'random.ht'
 export 'util.ht'
 
@@ -41,6 +41,7 @@ const meta = {
   description: '《天道奇劫》核心脚本',
   supportedLocales: ['zh'],
   version: '0.0.1',
+  priority: 0,
   flags: {}
 }
 
@@ -64,6 +65,15 @@ function init({
 }) {
   engine.debug('游戏脚本模块 [${meta.id}(ver-${meta.version})] 初始化...')
 
+  // 清空游戏上的已有数据
+  game.mods = {}
+  game.itemPrototypes = {}
+  game.battleCards = {}
+  game.battleCardAffixes = {}
+  game.passives = {}
+  game.quests = {}
+
+  // 重新载入数据
   addModMetaData(meta)
   addItemPrototypesData(itemsData)
   addBattleCardsData(battleCardsData)
@@ -76,7 +86,7 @@ function addModMetaData(mod) {
   // assert(game.mods.containsKey(mod.id))
   // game.mods[mod.id] ??= {}
   // Object.assign(game.mods[mod.id], mod)
-  game.mods[mod.id] = { meta : mod }
+  game.mods[mod.id] = mod
   engine.debug('载入模组元信息 [${mod.id}(ver-${mod.version})]')
 }
 

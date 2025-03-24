@@ -2,6 +2,9 @@
   "languageId": "zh",
   "languageName": "简体中文",
 
+  "theHeavenlyWay": "天道",
+  "heavenlyTribulation": "天劫",
+
   "debug": "DEBUG信息",
   "console": "控制台",
   "confirm": "确定",
@@ -15,6 +18,9 @@
   "and": "和",
   "accept": "接受",
   "close": "关闭",
+  "stop": "停止",
+  "opened": "开启",
+  "closed": "关闭",
   "empty": "空",
   "void": "虚无",
   "null": "无",
@@ -23,7 +29,7 @@
   "untitled": "未命名",
 
   "reloadGameData": "重新载入游戏数据",
-  "reloadGameDataPrompt": "已重置所有游戏数据和核心脚本模块。",
+  "reloadGameDataPrompt": "已重置所有游戏数据和脚本模块。",
   "reloadModules": "重新载入MOD数据",
   "reloadModulesPrompt": "已重置当前MOD数据。",
 
@@ -39,6 +45,7 @@
   "itemId": "物品ID",
   "worldId": "世界ID",
   "all": "全部",
+  "continued": "进行中",
   "finished": "已完成",
   "current": "当前",
   "questFinished": "任务完成",
@@ -114,7 +121,7 @@
 
   "dangerOperationPrompt": "这个操作无法撤销，确认继续吗？",
 
-  "savedSuccessfully": "成功保存游戏至：\n{0}",
+  "savedSuccessfully": "成功保存游戏至：[<yellow>{0}</>]",
 
   "difficulty": "难度",
   "level": "等级",
@@ -253,7 +260,7 @@
   "morning": "上午",
   "afternoon": "下午",
   "evening": "傍晚",
-  "night": "午夜",
+  "midnight": "午夜",
   "timeOfDay1": "上午",
   "timeOfDay2": "下午",
   "timeOfDay3": "傍晚",
@@ -347,10 +354,12 @@
   "hint_cursedEquipment": "这件装备被施加了禁制，你无法将其取下。",
   "hint_consumable": "这件物品是消耗品，使用后会消失。",
   "hint_restrictedEquipment": "不能再装备更多的{0}了。",
-  "hint_notEnoughShard": "身上没有足够的灵石，这里也并非灵气喷涌的环境……",
   "hint_itemFullyCharged": "这件物品已经充能完毕了。",
-  "hint_notEnoughMoney": "没有足够的铜钱，无法进行这个操作。",
-  "hint_notEnoughShards": "没有足够的灵石，无法进行这个操作。",
+  "hint_notEnoughMoney": "你身上没有足够的铜钱，无法进行这个操作。",
+  "hint_notEnoughShard": "你身上没有足够的灵石，无法进行这个操作。",
+  "hint_merchantNotEnoughMoney": "对方身上没有足够的铜钱，无法进行这个操作。",
+  "hint_merchantNotEnoughShard": "对方身上没有足够的灵石，无法进行这个操作。",
+  "hint_noQuests": "我目前似乎没有什么要紧的事情。",
 
   "hint_ship": "需要先装备船只才可以在水面上移动……",
   "hint_boots": "需要先装备登山靴才可以在山地中移动……",
@@ -365,6 +374,7 @@
   "hint_switch": "好像有什么地方的机关打开了……",
   "hint_deadend": "这里看样子无法前进了，看来得想想别的办法……",
 
+  "unconvertedExp": "灵光",
   "exp": "经验值",
   "rank": "境界",
   "rank2": "境",
@@ -395,5 +405,21 @@
   "sectName": "宗",
 
   "newItems": "新物品",
-  "newQuests": "新日志"
+  "newQuest": "新日志",
+  "questUpdate": "日志更新",
+
+  "insufficientShard": "灵石不足!",
+
+  "help_cultivation": "通过打坐并消耗身上的灵石来获得灵光点。\n点击灵光点收集经验，以此来提升修为等级，升级后可以获得技能点用来分配天道技能。\n点击角色图标可以切换天道技能界面和灵光点收集界面。\n开启打坐后，即使离开修炼界面，也会自动随着时间流逝消耗身上的灵石并获得灵光点。",
+
+  "help_cardlibrary": "当拥有功法秘籍时，点击左下角的书籍可以选择并打开秘籍。\n打开时可以获得一个该秘籍指定境界、流派和种类的功法，以及两本不限定流派和种类的随机功法。\n右键点击卡牌可以消耗灵光点对卡牌进行淬炼以提升或修改卡牌效果数值。\n点击右侧的卡组图标可以创建战斗卡组，创建战斗卡组后设定为出战可以在战斗中使用该套卡牌。\n某些卡牌需要装备某些特定武器或法宝才可以使用。",
+
+  "help_tribulation": "就在你运功凝聚灵光的时候，你突然有所顿悟，似乎窥视到了一丝更高境界的天道。\n但与此同时，你立刻感受到一股极为强大的气息。\n你意识到，这是天道化身对你降下的劫数。\n如果你能够在战斗中取胜，就可以直接突破到下一个境界。\n如果你选择放弃挑战，本次升级将会失败，经验值不会返还。",
+
+  "autoWork": "自动工作",
+  "autoCultivate": "自动修炼",
+
+  "help_autoCultivate": "不在修炼界面时，点击上方角色信息栏中的灵石图标，可以开启自动修炼。\n开启自动修炼后，将会随着时间流逝自动消耗身上所携带的灵石，并获得灵光点。",
+
+  "help_tribulation_beforeBattle": "此乃天道感应所化的一具幻象法身，如果你在战斗中失败，本次升级失败并且经验值不会返还，还会获得一层劫数。如果你能够在战斗中取胜，则可以直接突破到下一个境界。"
 }

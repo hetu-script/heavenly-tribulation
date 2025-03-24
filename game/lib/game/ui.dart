@@ -3,6 +3,35 @@ import 'package:flutter/material.dart';
 import 'package:samsara/components.dart';
 // import 'package:samsara/components/hovertip.dart';
 
+const double _kTextShadowOffset = 0.5;
+
+const List<Shadow> kTextShadow = [
+  Shadow(
+    // bottomLeft
+    offset: Offset(-_kTextShadowOffset, -_kTextShadowOffset),
+    color: Colors.black,
+    blurRadius: 2.5,
+  ),
+  Shadow(
+    // bottomRight
+    offset: Offset(_kTextShadowOffset, -_kTextShadowOffset),
+    color: Colors.black,
+    blurRadius: 2.5,
+  ),
+  Shadow(
+    // topRight
+    offset: Offset(_kTextShadowOffset, _kTextShadowOffset),
+    color: Colors.black,
+    blurRadius: 2.5,
+  ),
+  Shadow(
+    // topLeft
+    offset: Offset(-_kTextShadowOffset, _kTextShadowOffset),
+    color: Colors.black,
+    blurRadius: 2.5,
+  ),
+];
+
 abstract class GameUI {
   static Vector2 size = Vector2.zero();
 
@@ -27,7 +56,8 @@ abstract class GameUI {
   static const pileZoneMargin = 60.0;
 
   static const foregroundColor = Colors.white;
-  static final backgroundColor = Colors.black.withAlpha(220);
+  static final backgroundColor = Color(0xDD02020F);
+  static final backgroundColor2 = Color(0xDD270505);
   static final barrierColor = Colors.black.withAlpha(160);
   static final borderRadius = BorderRadius.circular(5.0);
 
@@ -71,10 +101,13 @@ abstract class GameUI {
     brightness: Brightness.dark,
     textTheme: textTheme,
     fontFamily: GameUI.fontFamily,
+    scaffoldBackgroundColor: Colors.transparent,
+    dialogBackgroundColor: barrierColor,
+    iconTheme: iconTheme,
+    dividerColor: foregroundColor,
     colorScheme: ColorScheme.dark(
       surface: backgroundColor,
     ),
-    scaffoldBackgroundColor: Colors.transparent,
     dropdownMenuTheme: DropdownMenuThemeData(
       textStyle: textTheme.bodyMedium,
     ),
@@ -86,8 +119,6 @@ abstract class GameUI {
       actionsIconTheme: iconTheme,
       titleTextStyle: captionStyle,
     ),
-    dialogBackgroundColor: barrierColor,
-    iconTheme: iconTheme,
     cardTheme: CardTheme(
       elevation: 0.5,
       shape: RoundedRectangleBorder(
@@ -98,7 +129,7 @@ abstract class GameUI {
       style: TextButton.styleFrom(
         foregroundColor: foregroundColor,
         shape: const RoundedRectangleBorder(),
-        padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 8.0),
+        padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -110,7 +141,7 @@ abstract class GameUI {
           ),
           borderRadius: borderRadius,
         ),
-        padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 8.0),
+        padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
       ),
     ),
     segmentedButtonTheme: SegmentedButtonThemeData(
@@ -137,7 +168,10 @@ abstract class GameUI {
       thumbColor: foregroundColor,
       valueIndicatorTextStyle: textTheme.bodyMedium,
     ),
-    dividerColor: foregroundColor,
+    tabBarTheme: TabBarTheme(
+      labelStyle: textTheme.bodyMedium,
+      unselectedLabelStyle: textTheme.bodyMedium,
+    ),
   );
 
   static final spriteButtonTextConfig = ScreenTextConfig(
@@ -252,16 +286,11 @@ abstract class GameUI {
   static final cultivatorSize = Vector2(200, 200);
   static final cultivationRankButton = Vector2(80, 80);
   static final maxCondenseSize = Vector2(250, 250);
-  static final levelDescriptionSize = Vector2(300, 25);
+  static final levelDescriptionSize = Vector2(500, 25);
   static final expBarSize = Vector2(600, 25);
 
-  // static late Vector2 cardLibraryButtonPosition,
-  // static late Vector2 cardPacksButtonPosition,
-  static late Vector2 expCollectionPageButtonPosition;
-  // static late Vector2 introspectionButtonPosition;
-  static late Vector2 talentTreePageButtonPosition;
-  // static final cardLibraryButtonSize = Vector2(120, 120);
-  // static final cardPacksButtonSize = Vector2(120, 120);
+  static late Vector2 cultivateButtonPosition;
+  static late Vector2 collectButtonPosition;
   static final buttonSizeSmall = Vector2(90, 28);
   static final buttonSizeMedium = Vector2(140, 40);
   static final buttonSizeLarge = Vector2(240, 75);
@@ -333,10 +362,10 @@ abstract class GameUI {
     // deckbuildingZoneSize = Vector2(size.x, deckbuildingCardHeight + indent * 4);
     deckbuildingZonePileOffset = Vector2(0, 30);
 
-    // final libraryCardWidth = size.x / 6 - largeIndent;
-    // final libraryCardHeight = libraryCardWidth * cardSizeRatio;
-    // libraryCardSize = Vector2(libraryCardWidth, libraryCardHeight);
-    libraryCardSize = deckbuildingCardSize;
+    final libraryCardWidth = libraryZoneSize.x / 5 - indent;
+    final libraryCardHeight = libraryCardWidth * cardSizeRatio;
+    libraryCardSize = Vector2(libraryCardWidth, libraryCardHeight);
+    // libraryCardSize = deckbuildingCardSize;
 
     cardpackCardSize = libraryCardSize * 1.5;
 
@@ -426,25 +455,10 @@ abstract class GameUI {
     levelDescriptionPosition =
         Vector2(center.x, expBarPosition.y - expBarSize.y - indent);
 
-    expCollectionPageButtonPosition = Vector2(center.x, expBarPosition.y + 50);
-    // meditateButtonPosition =
-    //     Vector2(center.x - 70 - smallIndent, expBarPosition.y - 50);
-    // introspectionButtonPosition =
-    //     Vector2(center.x - 140 - indent, meditateButtonPosition.y);
-    // enlightenmentButtonPosition =
-    //     Vector2(center.x + 70 + smallIndent, meditateButtonPosition.y);
-    talentTreePageButtonPosition = expCollectionPageButtonPosition;
-
-    // cardLibraryButtonPosition = Vector2(
-    //     size.x - indent - cardLibraryButtonSize.x / 2,
-    //     size.y - indent - cardLibraryButtonSize.y / 2);
-
-    // cardPacksButtonPosition = Vector2(
-    //     cardLibraryButtonPosition.x -
-    //         cardLibraryButtonSize.x / 2 -
-    //         smallIndent -
-    //         cardPacksButtonSize.x / 2,
-    //     cardLibraryButtonPosition.y);
+    cultivateButtonPosition = Vector2(
+        center.x + buttonSizeMedium.x / 2 + indent, expBarPosition.y + 50);
+    collectButtonPosition = Vector2(
+        center.x - buttonSizeMedium.x / 2 - indent, cultivateButtonPosition.y);
 
     _isInitted = true;
   }

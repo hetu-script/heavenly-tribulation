@@ -12,6 +12,15 @@ class HeroState with ChangeNotifier {
   }
 }
 
+class HeroPassivesDescriptionUpdate with ChangeNotifier {
+  String description = '';
+
+  void update(String newDescription) {
+    description = newDescription;
+    notifyListeners();
+  }
+}
+
 class EnemyState with ChangeNotifier {
   bool showPrebattle = false;
   dynamic enemyData;

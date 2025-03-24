@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../state/hoverinfo.dart';
 import 'item_grid.dart';
+import '../../../game/data.dart';
 
 /// 如果是玩家自己的物品栏，则传入characterData
 class Inventory extends StatefulWidget {
@@ -51,31 +52,10 @@ class _InventoryState extends State<Inventory> {
   Widget build(BuildContext context) {
     final grids = <Widget>[];
 
-    final inventoryData = widget.characterData['inventory'];
+    final filteredItems =
+        GameData.getFilteredItems(widget.characterData, filter: widget.filter);
 
-    final String? category = widget.filter?['category'];
-    final String? kind = widget.filter?['kind'];
-    final String? id = widget.filter?['id'];
-    final bool? isIdentified = widget.filter?['isIdentified'];
-
-    for (var i = 0; i < inventoryData.length; ++i) {
-      final itemData = (inventoryData.values as Iterable).elementAt(i);
-      if (itemData['equippedPosition'] != null) {
-        continue;
-      }
-      if (category != null && category != itemData['category']) {
-        continue;
-      }
-      if (kind != null && kind != itemData['kind']) {
-        continue;
-      }
-      if (id != null && id != itemData['id']) {
-        continue;
-      }
-      if (isIdentified != null && isIdentified != itemData['isIdentified']) {
-        continue;
-      }
-
+    for (final itemData in filteredItems) {
       grids.add(
         ItemGrid(
           characterData: widget.characterData,

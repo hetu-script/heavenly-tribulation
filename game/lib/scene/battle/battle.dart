@@ -63,13 +63,13 @@ class BattleScene extends Scene {
   final Map<String, dynamic> gameDetails = {};
 
   FutureOr<void> Function()? onBattleStart;
-  FutureOr<void> Function()? onBattleEnd;
+  FutureOr<void> Function(bool? result)? onBattleEnd;
 
   BattleScene({
     required this.heroData,
     required this.enemyData,
     required this.isSneakAttack,
-    this.isAutoBattle = false,
+    this.isAutoBattle = true,
     this.onBattleStart,
     this.onBattleEnd,
   }) : super(
@@ -260,9 +260,9 @@ class BattleScene extends Scene {
       nextTurnButton.isVisible = true;
       nextTurnButton.text = engine.locale('start');
       nextTurnButton.onTap = (_, __) =>
-          (!engine.config.debugMode || isAutoBattle)
-              ? startAutoBattle()
-              : nextTurn();
+          (engine.config.debugMode || !isAutoBattle)
+              ? nextTurn()
+              : startAutoBattle();
       await _onBattleStart();
     };
 
@@ -429,7 +429,7 @@ class BattleScene extends Scene {
     nextTurnButton.text = engine.locale('end');
     nextTurnButton.onTap = (_, __) => _endScene();
 
-    await onBattleEnd?.call();
+    await onBattleEnd?.call(battleResult);
   }
 
   Future<void> startAutoBattle() async {
@@ -464,8 +464,11 @@ class BattleScene extends Scene {
                   case BattleDropMenuItems.console:
                     showDialog(
                       context: context,
-                      builder: (BuildContext context) =>
-                          Console(engine: engine),
+                      builder: (BuildContext context) => Console(
+                        engine: engine,
+                        margin: const EdgeInsets.all(50.0),
+                        backgroundColor: GameUI.backgroundColor,
+                      ),
                     );
                   case BattleDropMenuItems.exit:
                     _endScene();

@@ -30,30 +30,9 @@ class MainMenuScene extends Scene {
       // 真正开始游戏后还会再执行一遍，
       await GameData.createGame('debug');
       GameData.isGameCreated = false;
-      engine.hetu.invoke('generateHero', namespace: 'Debug', namedArgs: {
-        'rank': 2,
-        'level': 10,
-      });
-      engine.hetu.invoke(
-        'collect',
-        namespace: 'Player',
-        positionalArgs: ['money'],
-        namedArgs: {'amount': 50000},
-      );
-      engine.hetu.invoke(
-        'collect',
-        namespace: 'Player',
-        positionalArgs: ['shard'],
-        namedArgs: {'amount': 50000},
-      );
-      engine.hetu.invoke('acquireItemById',
+      engine.hetu.invoke('generateHero', namespace: 'Debug');
+      engine.hetu.invoke('acquireById',
           namespace: 'Player', positionalArgs: ['hunguding']);
-      engine.hetu.invoke(
-        'acquireItemById',
-        namespace: 'Player',
-        positionalArgs: ['identify_scroll'],
-        namedArgs: {'amount': 4},
-      );
       if (!context.mounted) return;
       context.read<HeroState>().update();
       context.read<HeroInfoVisibilityState>().setVisible(true);

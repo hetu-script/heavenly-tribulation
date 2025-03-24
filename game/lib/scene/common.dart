@@ -55,7 +55,7 @@ const kMouseCursorEffectPriority = 99999999;
 
 abstract class Scenes {
   static const mainmenu = 'mainmenu';
-  static const library = 'library';
+  static const cardlibrary = 'cardlibrary';
   static const cultivation = 'cultivation';
   static const worldmap = 'worldmap';
   static const location = 'location';

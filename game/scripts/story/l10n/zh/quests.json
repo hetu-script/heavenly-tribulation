@@ -1,12 +1,29 @@
 {
-  "story_mainQuest_lingChuxue": "天降少女",
-  "story_mainQuest_lingChuxue_stage0_description": "在紫河宗的「<yellow>蚀骨洞天</>」中，你遇到了一个神秘的少女。你并不认识她，但她竟然知道你的名字。你内心深处有种预感，你还会在未来再次遇到她。",
+  "prelude": "洞天探险",
+  "prelude_stage0": "和之前一样，你轻松地进入了这座「蚀骨洞天」。",
+  "prelude_stage1": "你这次运气不错，成功拿到了宝物",
+  "prelude_stage2": "一个妖族守卫挡住了出口，还好你一向擅长于逃跑，他并没有伤到你。",
+  "prelude_stage3": "是时候离开这里了。",
+  "prelude_stage4": "出乎你意料的是，一个神秘的少女轻易就击败了妖族守卫。",
 
-  "story_mainQuest_hunguding": "奇怪的法宝",
-  "story_mainQuest_hunguding_stage0_description": "这个法宝似乎具有你所不了解的力量。你打算在这附近寻找有关的线索。",
-  "story_mainQuest_hunguding_stage1_description": "阿福手上有可以帮你鉴定这个法宝的「<yellow>鉴定符</>」，并且愿意卖给你。",
+  "mysticGirl": "天降少女",
+  "mysticGirl_stage0": "你在一个陨石坑底部遇到了一个神秘的少女。",
+  "mysticGirl_stage1": "你将一个奇怪的钉子从她的脖子上拔了出来。她因此而恢复了意识。你并不认识她，但她竟然知道你的名字。",
+  "mysticGirl_stage2": "她将一个奇怪的钉子从自己的脖子上拔了出来。她因此而恢复了意识。你并不认识她，但她竟然知道你的名字。",
+  "mysticGirl_stage3": "这个少女似乎修为很高。你亲眼目睹她轻易地击败了洞天出口处的妖族守卫。",
+  "mysticGirl_stage4": "几个<yellow>紫河宗</>的妖族精英掳走了那个少女。你虽然为她担心，但现在的你完全没有将她救出来的力量。",
 
-  "story_mainQuest_initialCultivate": "灵力波动",
-  "story_mainQuest_initialCultivate_stage0_description": "在万福村的集会所中，你见到了一个奇怪的雕像。随后它在你身上引发了一股灵力波动。或许你可以<yellow>问问万福村的村长阿福</>这是什么原因。",
-  "story_mainQuest_initialCultivate_stage1_description": "阿福答应帮你踏上修真之途。但条件是你要帮助他重建万福宗。如果你答应的话，可以前往<yellow>万福村的集会所中的定灵碑</>找他。"
+  "nailedSoul": "奇怪的法宝",
+  "nailedSoul_stage0": "你从一个神秘的少女身上得到了这个法宝。它似乎具有你所不了解的力量。但目前你对它的功用一无所知",
+  "nailedSoul_stage1": "阿福手上有可以帮你鉴定这个法宝的「<yellow>鉴定符</>」，并且愿意卖给你。",
+  "nailedSoul_stage2": "你将这个法宝给了阿福。他对你十分感激。万福宗复兴有望了。",
+
+  "rebuildWanfuzong": "万福村的故事",
+  "rebuildWanfuzong_stage0": "你来到了这个小岛上的一个平民据点「万福村」，并见到了村长阿福。似乎这个村子和紫河宗的关系不怎么好。",
+  "rebuildWanfuzong_stage1": "在万福村的集会所中，你见到了一个奇怪的雕像。随后它在你身上引发了一股灵力波动。或许你可以<yellow>问问万福村的村长阿福</>这是什么原因。",
+  "rebuildWanfuzong_stage2": "阿福答应帮你踏上修真之途。但条件是你要帮助他重建万福宗。如果你答应的话，可以前往<yellow>万福村的集会所中的定灵碑</>找他。",
+  "rebuildWanfuzong_stage3": "你答应了阿福的请求。阿福帮助你激活并淬炼了身上的灵根。之后<yellow>你随时可以在万福村的定灵碑进入修炼界面</>。",
+  "rebuildWanfuzong_stage4": "虽然你并没答应阿福的请求，但因为你免费将法宝送给了他。他还是帮助你激活并淬炼了身上的灵根。之后<yellow>你随时可以在万福村的定灵碑进入修炼界面</>了。",
+  "rebuildWanfuzong_stage5": "阿福帮助你进入了内功修炼的意识世界，你现在可以收集灵光，提升自己的修炼等级，并通过升级获得的技能点学习天道技能。",
+  "rebuildWanfuzong_stage6": "阿福送给了你一本秘籍，你可以在藏书阁界面将其打开以获取战斗功法。"
 }

@@ -1,12 +1,12 @@
 import 'dart:io';
 import 'dart:convert';
 
-import 'package:flutter/material.dart' show BuildContext;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:hetu_script/utils/collection.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:json5/json5.dart';
 import 'package:samsara/samsara.dart';
+// import 'package:vector_math/vector_math_geometry.dart';
 
 import 'ui.dart';
 import '../common.dart';
@@ -63,7 +63,7 @@ abstract class GameData {
   static bool _isInitted = false;
   static bool get isInitted => _isInitted;
 
-  static Future<void> init({required BuildContext context}) async {
+  static Future<void> init() async {
     final tilesDataString =
         await rootBundle.loadString('assets/data/tiles.json5');
     tiles = JSON5.parse(tilesDataString);
@@ -169,8 +169,6 @@ abstract class GameData {
       siteKindNames[key] = engine.locale(key);
     }
 
-    engine.hetu.invoke('build', positionalArgs: [context]);
-
     _isInitted = true;
   }
 
@@ -190,16 +188,14 @@ abstract class GameData {
 
   /// 将dart侧从json5载入的游戏数据保存到游戏存档中
   static void initGameData() {
+    engine.debug('初始化当前载入的模组...');
+
     engine.hetu.invoke('init', namedArgs: {
       'itemsData': GameData.items,
       'battleCardsData': GameData.battleCards,
       'battleCardAffixesData': GameData.battleCardAffixes,
       'passivesData': GameData.passives,
     });
-  }
-
-  static initModules() {
-    engine.debug('准备开始初始化当前载入的所有模组...');
 
     for (final id in engine.mods.keys) {
       if (engine.mods[id]?['enabled'] == true) {
@@ -207,6 +203,13 @@ abstract class GameData {
         engine.hetu.invoke('init', module: id, positionalArgs: [moduleConfig]);
       }
     }
+
+    // 将模组按照优先级重新排序
+    final mods = (gameData['mods'].values as Iterable).toList();
+    mods.sort((mod1, mod2) {
+      return (mod2['priority'] ?? 0).compareTo(mod1['priority'] ?? 0);
+    });
+    engine.hetu.invoke('sortMods', positionalArgs: [mods]);
   }
 
   /// 每次执行 createGame 都会重置游戏内的 game 对象上的数据
@@ -223,20 +226,18 @@ abstract class GameData {
 
     engine.hetu.invoke('createGame', positionalArgs: [saveName]);
 
-    initGameData();
+    gameData = engine.hetu.fetch('game');
+    universeData = engine.hetu.fetch('universe');
+    historyData = engine.hetu.fetch('history');
+    heroData = engine.hetu.fetch('hero');
 
-    initModules();
+    initGameData();
 
     if (!isEditorMode) {
       await registerModuleEventHandlers();
     }
 
     isGameCreated = true;
-
-    gameData = engine.hetu.fetch('game');
-    universeData = engine.hetu.fetch('universe');
-    historyData = engine.hetu.fetch('history');
-    heroData = engine.hetu.fetch('hero');
   }
 
   static String? currentWorldId;
@@ -379,7 +380,7 @@ abstract class GameData {
           GameUI.siteCardSize.y - GameUI.siteCardFocusedSize.y),
       illustrationRelativePaddings:
           const EdgeInsets.fromLTRB(0.0428, 0.025, 0.0428, 0.025),
-      illustrationSpriteId: 'location/card/$spriteId',
+      illustrationSpriteId: spriteId,
     );
     return exit;
   }
@@ -392,7 +393,7 @@ abstract class GameData {
     if (priceFactor == null) {
       return price;
     } else {
-      final double base = priceFactor['base'] ?? 1.0;
+      final double base = priceFactor['base'] ?? kBaseBuyRate;
       final double sell = priceFactor['sell'] ?? kBaseSellRate;
 
       final double category =
@@ -400,11 +401,9 @@ abstract class GameData {
       final double kind = priceFactor['kind']?[itemData['kind']] ?? 1.0;
       final double id = priceFactor['id']?[itemData['id']] ?? 1.0;
 
-      double finalPrice = price * base * category * kind * id;
-
-      if (isSell) {
-        finalPrice *= sell;
-      }
+      double finalPrice = isSell
+          ? price * sell * category * kind * id
+          : price * base * category * kind * id;
 
       if (priceFactor['useShard'] == true) {
         finalPrice /= kMoneyToShardRate;
@@ -412,6 +411,64 @@ abstract class GameData {
 
       return finalPrice.ceil();
     }
+  }
+
+  static List<dynamic> getFilteredItems(dynamic characterData,
+      {dynamic filter}) {
+    final inventoryData = characterData['inventory'];
+
+    final String? category = filter?['category'];
+    final String? kind = filter?['kind'];
+    final String? id = filter?['id'];
+    final bool? isIdentified = filter?['isIdentified'];
+
+    final filteredItems = [];
+    for (var itemData in inventoryData.values) {
+      if (itemData['equippedPosition'] != null) {
+        continue;
+      }
+      if (category != null && category != itemData['category']) {
+        continue;
+      }
+      if (kind != null && kind != itemData['kind']) {
+        continue;
+      }
+      if (id != null && id != itemData['id']) {
+        continue;
+      }
+      if (isIdentified != null && isIdentified != itemData['isIdentified']) {
+        continue;
+      }
+
+      filteredItems.add(itemData);
+    }
+
+    return filteredItems;
+  }
+
+  static String getHeroPassivesDescription() {
+    final passivesData = GameData.heroData['passives'];
+    StringBuffer builder = StringBuffer();
+    builder.writeln(engine.locale('skilltree_hero_skills_description_title'));
+    builder.writeln(' ');
+    if (passivesData.isEmpty) {
+      builder.writeln('<grey>${engine.locale('none')}</>');
+    } else {
+      final List skillList = (passivesData.values as Iterable)
+          .where((value) => value != null)
+          .toList();
+      skillList.sort((data1, data2) {
+        return ((data2['priority'] ?? 0) as int)
+            .compareTo((data1['priority'] ?? 0) as int);
+      });
+      for (final skillData in skillList) {
+        final skillDescription = engine.locale(skillData['description']);
+        final value = skillData['value'];
+        final description = skillDescription.interpolate([value]);
+        builder.writeln('<lightBlue>$description</>');
+      }
+    }
+    return builder.toString();
   }
 
   static String getDescriptionFromItemData(
@@ -434,9 +491,15 @@ abstract class GameData {
     final levelString =
         level != null ? '(${engine.locale('level')}: $level)' : '';
 
-    final titleString = isDetailed
-        ? '<bold $rarity t7>$title $levelString</>'
-        : '<bold $rarity t7>$title</>';
+    String titleString;
+    if (isIdentified) {
+      titleString = isDetailed
+          ? '<bold $rarity t7>$title $levelString</>'
+          : '<bold $rarity t7>$title</>';
+    } else {
+      titleString =
+          '<bold grey t7>${engine.locale('unidentified3')}${engine.locale(category)}</>';
+    }
     final rarityString =
         '<grey>${engine.locale('rarity')}: </><$rarity>${engine.locale(rarity)}</>';
     final categoryString =

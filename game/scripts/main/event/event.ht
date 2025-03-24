@@ -26,6 +26,13 @@ function addEventHandlers({worldId, moduleId, namespace}) {
   }
 }
 
+function sortMods(sorted) {
+  game.mods = {}
+  for (final mod in sorted) {
+    game.mods[mod.id] = mod
+  }
+}
+
 /// [onWorldEvent] 和 [onGameEvent] 用来触发 mod 的回调函数
 /// 游戏自己的逻辑不用这个
 /// 回调函数需要在游戏开始时就读取，不要动态添加
@@ -37,6 +44,7 @@ function addEventHandlers({worldId, moduleId, namespace}) {
 /// 世界事件，该类事件只会触发绑定到当前世界的模组，返回值通常是null
 /// 如果返回值是 [true]，则表示事件已经被模组处理完毕，不再执行游戏本身的默认逻辑
 async function onWorldEvent(eventId: string, ...args) {
+  if (world == null) return
   let result
   for (const module of game.mods) {
     if (module.contains(world.id)) {

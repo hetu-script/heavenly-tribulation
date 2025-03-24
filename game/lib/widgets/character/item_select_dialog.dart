@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'inventory/inventory.dart';
 import '../../engine.dart';
 import '../draggable_panel.dart';
+import '../../game/data.dart';
 
 class ItemSelectDialog extends StatefulWidget {
   const ItemSelectDialog({
@@ -93,9 +94,11 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
                   child: ElevatedButton(
                     onPressed: () {
                       _selectedItemsData.clear();
-                      for (final itemData
-                          in widget.characterData['inventory']) {
-                        _selectedItemsData[itemData['id']] = itemData;
+                      final filteredItems = GameData.getFilteredItems(
+                          widget.characterData,
+                          filter: widget.filter);
+                      for (final item in filteredItems) {
+                        _selectedItemsData[item['id']] = item;
                       }
                       setState(() {});
                     },

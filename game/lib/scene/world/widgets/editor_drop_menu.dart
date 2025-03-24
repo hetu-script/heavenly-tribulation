@@ -17,7 +17,6 @@ enum WorldEditorDropMenuItems {
   viewZones,
   viewOrganizations,
   reloadGameData,
-  reloadModules,
   console,
   exit,
 }
@@ -64,10 +63,6 @@ List<PopupMenuEntry<WorldEditorDropMenuItems>> buildWorldEditorDropMenuItems() {
     buildMenuItem(
       item: WorldEditorDropMenuItems.reloadGameData,
       name: engine.locale('reloadGameData'),
-    ),
-    buildMenuItem(
-      item: WorldEditorDropMenuItems.reloadModules,
-      name: engine.locale('reloadModules'),
     ),
     const PopupMenuDivider(),
     buildMenuItem(

@@ -118,16 +118,17 @@ flutter:
     - assets/images/particles/rubbles/
     - assets/images/story/
     - assets/images/story/cg/
-    - assets/images/story/cg/chapter0/
+    - assets/images/story/cg/prelude/
     - assets/images/story/cg/chapter1/
     - assets/images/story/illustration/
     - assets/images/story/item/
+    - assets/images/story/location/
+    - assets/images/story/location/card/
 
     # - assets/locale/en/
     - assets/locale/zh/
 
     - scripts/main/
-    - scripts/main/binding/
     - scripts/main/cardgame/
     - scripts/main/entity/
     - scripts/main/entity/character/

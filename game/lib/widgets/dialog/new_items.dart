@@ -20,11 +20,11 @@ class NewItems extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
+      backgroundColor: GameUI.backgroundColor,
       width: 400.0,
       height: 300.0,
       alignment: Alignment.center,
       child: Scaffold(
-        backgroundColor: GameUI.backgroundColor,
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(engine.locale('newItems')),
@@ -38,9 +38,10 @@ class NewItems extends StatelessWidget {
               ScrollConfiguration(
                 behavior: MaterialScrollBehavior(),
                 child: SingleChildScrollView(
-                  child: SizedBox(
-                    width: 300.0,
-                    height: 150.0,
+                  child: Container(
+                    color: Colors.black,
+                    width: 350.0,
+                    height: 160.0,
                     child: ListView(
                       shrinkWrap: true,
                       children: [

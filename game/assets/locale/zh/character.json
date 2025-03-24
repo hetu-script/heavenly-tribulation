@@ -2,13 +2,22 @@
   "hero": "英雄",
 
   "cultivationLevel": "修为",
+  "cultivationLevel2": "修为等级",
   "cultivationLevel_description": "通过战斗，游历，冥想获取修为经验后，在修炼界面可以花费经验提升修为等级。每次升级可以获得一个天赋技能点，用来提升人物属性或者购买关键被动。提升境界可以增加修为等级上限。",
   "cultivationRank": "境界",
   "cultivationRank_description": "提升境界可以提升修为等级上限，还可以让你使用更多法宝和战斗卡牌，以及解锁更多关键天赋。",
-  "lightRadius": "视野范围",
-  "lightRadius_description": "视野范围决定了你在世界大地图上以及地牢探险时所能照亮的范围。",
+
+  "tribulationCount": "劫数",
+  "tribulationMax": "最大劫数",
+  "tribulationMax_description": "劫数代表角色经历濒死的次数，达到最大劫数时再次濒死会导致角色永久死亡。每次提升境界后，最大劫数 +2。",
   "lifeMax": "最大生命",
   "lifeMax_description": "最大生命值决定了你在战斗中所能承受的伤害上限。在战斗之外的大地图游历时，最大生命同时也是你的最大体力值。",
+  "lightRadius": "视野范围",
+  "lightRadius_description": "视野范围决定了你在世界大地图上以及地牢探险时所能照亮的范围。",
+  "identifyEnemyCardMonthlyCount": "可探查对手手牌数量",
+  "identifyEnemyCardMonthlyCount_description": "你在战斗之前探查对手手牌的次数上限。这个次数每月初一会重置。",
+  "unconvertedExpCollectEfficiency": "灵光收集效率",
+  "unconvertedExpCollectEfficiency_description": "灵光收集效率决定了你在打坐时，每次消耗灵石时可以获得的灵光数量。",
 
   "dexterity": "身法",
   "dexterity_description": "每 10 点身法：\n战斗开始时速度 +1。",
@@ -267,5 +276,7 @@
   "avenger": "复仇",
   "prankster": "捉弄",
   "plunderer": "掠夺",
-  "destroyer": "破坏"
+  "destroyer": "破坏",
+
+  "autoCollectAll": "收集全部"
 }

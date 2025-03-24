@@ -8,14 +8,13 @@ struct BattleCard {
     category, // 'attack', 'buff'
     mainAffixId,
     kind, // 'sword',
-    genre, // 'general', 'spellcraft', 'swordcraft'
+    genre, // 'spellcraft', 'swordcraft'
     level,
     rank, // 境界决定了额外词条数量
     maxRank,
     isIdentified = true,
   }) {
     this.entityType = kEntityTypeBattleCard
-    assert(rank != null || maxRank != null)
     if (rank != null) {
       assert(rank >= 0 && rank <= kCultivationRankMax)
       this.rank = rank
@@ -26,8 +25,8 @@ struct BattleCard {
       this.rank = 0
     }
     
-    this.minLevel = minLevelPerRank(rank)
-    this.maxLevel = maxLevelPerRank(rank)
+    this.minLevel = minLevelForRank(this.rank)
+    this.maxLevel = maxLevelForRank(this.rank)
     if (level == null) {
       level = this.minLevel + random.distantInt(this.maxLevel - this.minLevel)
     } else {
@@ -341,14 +340,14 @@ function upgradeRank(card) {
     return 'deckbuilding_upgradeRank_warning_maxRank'
   }
   
-  final nextRankMinLevel = minLevelPerRank(card.rank + 1)
+  final nextRankMinLevel = minLevelForRank(card.rank + 1)
   if (card.level < nextRankMinLevel) {
     return 'deckbuilding_upgradeRank_warning'
   }
 
   card.rank += 1
-  card.minLevel = minLevelPerRank(card.rank)
-  card.maxLevel = maxLevelPerRank(card.rank)
+  card.minLevel = minLevelForRank(card.rank)
+  card.maxLevel = maxLevelForRank(card.rank)
 
   final mainAffix = card.affixes.first
 
@@ -376,6 +375,7 @@ function upgradeRank(card) {
 /// 另外两张则是随机境界、流派和等级的卡牌
 struct Cardpack {
   constructor ({
+    category,
     genre,
     rank,
     kind,
@@ -387,12 +387,16 @@ struct Cardpack {
     this.createdTimestamp = game.timestamp
     this.category = kItemCategoryCardpack;
 
-    this.genre = genre
-    this.rank = rank ?? 0
-    this.kind = kind
+    rank ??= 0
+    this.filter = {
+      category: category,
+      genre: genre,
+      rank: rank,
+      kind: kind,
+    }
 
     this.id = crypto.randomUID(withTime: true)
-    this.name = engine.locale('cultivationRank_${this.rank}') + engine.locale('rank2')
+    this.name = engine.locale('cultivationRank_${rank}') + engine.locale('rank2')
     if (genre != null) {
       this.name += engine.locale(genre) + engine.locale('genre')
     }

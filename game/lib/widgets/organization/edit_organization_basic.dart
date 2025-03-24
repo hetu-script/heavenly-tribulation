@@ -76,7 +76,7 @@ class _EditOrganizationBasicsState extends State<EditOrganizationBasics> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      color: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       width: 500.0,
       height: 400.0,

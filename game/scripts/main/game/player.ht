@@ -1,10 +1,8 @@
 import 'data.ht'
 import '../colors.ht'
-import '../binding/world.ht'
+import '../game/world.ht'
 import '../entity/entity.ht'
-import '../quest.ht'
-
-external function expForLevel(level: integer) -> integer
+import '../entity/quest.ht'
 
 const kQuickThreshold = 10
 const kSlowThreshold = 10
@@ -61,16 +59,16 @@ namespace Player {
     entityCollect(hero, materialId, amount: amount, incurIncident: incurIncident)
   }
 
-  function exhaust(materialId, { amount = 1, incurIncident = true }) {
+  function exhaust(materialId, { amount = 1, incurIncident = true }) -> bool {
     assert(hero != null)
-    entityExhaust(hero, materialId, amount: amount, incurIncident: incurIncident)
+    return entityExhaust(hero, materialId, amount: amount, incurIncident: incurIncident)
   }
 
   /// 从物品库中复制并获取一个物品
-  function acquireItemById(itemId, { amount = 1, incurIncident = true }) {
+  function acquireById(itemId, { amount = 1, incurIncident = true }) {
     assert(hero != null)
     assert(amount > 0)
-    entityAcquireItemById(hero, itemId, amount: amount, incurIncident: incurIncident)
+    entityAcquireById(hero, itemId, amount: amount, incurIncident: incurIncident)
   }
 
   /// 直接获取一个已经被创造出来的物品
@@ -321,17 +319,17 @@ namespace Player {
   //   entityType,
   //   coordination,
   // }
-  function acquireCompanion(companion, { incurIncident = true }) {
+  function accompany(companion, { incurIncident = true }) {
     assert(hero != null)
     if (hero.companions.contains(companion.id)) {
-      engine.warn('${companion.id} 已经是随从了，无法再次添加。')
+      engine.warn('${companion.name} 已经是随从了，无法再次添加。')
       return
     }
     hero.companions.add(companion.id)
     
     const incidentContent = engine.locale('characterAcquireCompanion', interpolations: [
-      hero.name,
       companion.name,
+      hero.name,
     ])
     if (incurIncident) {
       Incident(
@@ -340,19 +338,23 @@ namespace Player {
         objectId: hero.id,
         isPrivate: true,
       )
+    } else {
+      engine.debug(incidentContent)
     }
-    engine.debug(incidentContent) 
   }
 
-  function dismissCompanion(companion, { incurIncident = true }) {
+  function dismiss(companion, { incurIncident = true }) {
     assert(hero != null)
-    assert(hero.companions.contains(companion.id))
+    if (!hero.companions.contains(companion.id)) {
+      engine.warn('${companion.name} 不是随从，无法解散。')
+      return
+    }
 
     hero.companions.remove(companion.id)
     
     const incidentContent = engine.locale('characterLoseCompanion', interpolations: [
-      hero.name,
       companion.name,
+      hero.name,
     ])
     if (incurIncident) {
       Incident(
@@ -363,6 +365,10 @@ namespace Player {
       )
     }
     engine.debug(incidentContent)
+  }
+
+  function getCompanions() {
+    return hero.companions
   }
 
   function levelUp({ incurIncident = true }) {
@@ -402,14 +408,14 @@ namespace Player {
 
   function rankUp({ incurIncident = true }) {
     assert(hero != null)
-    if ( hero.rank >= kCultivationRankMax ) {
-      engine.warn('character reached max rank! current rank: [${hero.rank}]')
+    if (hero.rank >= kCultivationRankMax ) {
+      engine.error('character reached max rank! current rank: [${hero.rank}]')
       return
     }
 
     ++hero.rank
     
-    hero.levelMax = maxLevelPerRank(hero.rank)
+    hero.levelMax = maxLevelForRank(hero.rank)
 
     const incidentContent = engine.locale('characterCultivationRankUp', interpolations: [
       hero.name,
@@ -443,12 +449,12 @@ namespace Player {
       isPrivate: true,
     )
 
-    World.addHintText(
-      '${engine.locale('exp')} + ${value}',
-      hero.worldPosition.left,
-      hero.worldPosition.top,
-      Colors.blue,
-    )
+    // World.addHintText(
+    //   '${engine.locale('exp')} + ${value}',
+    //   hero.worldPosition.left,
+    //   hero.worldPosition.top,
+    //   Colors.blue,
+    // )
   }
 
   /// 提升玩家的天赋技能等级
@@ -489,16 +495,16 @@ namespace Player {
     final passiveData = hero.passives[dataId]
     passiveData.level -= level
     if (passiveData.level <= 0) {
-      hero.passives[dataId] = null
+      delete hero.passives[dataId]
     } else if (passiveData.value != null) {
-        passiveData.value = (passiveData.increment * passiveData.level).round()
+      passiveData.value = (passiveData.increment * passiveData.level).round()
     }
   }
 
   /// 检查角色是否拥有某个天赋技能，并将其数据返回
   function hasPassive(dataId) {
     assert(hero != null)
-    return hero.passives.containsKey(dataId)
+    return hero.passives[dataId]
   }
 
   function calculateStats() {
@@ -541,7 +547,7 @@ namespace Player {
     }
   }
 
-  function acceptQuestById(questId, { setAsActive = false, incurIncident = true }) {
+  function acquireQuestById(questId, { setAsActive = false, incurIncident = true }) {
     assert(hero != null)
     final quest = generateQuestById(questId)
     acceptQuest(quest)
@@ -556,12 +562,13 @@ namespace Player {
 
   function getActiveQuest() {
     assert(hero != null)
+    assert(hero.quests.containsKey(hero.activeQuestId))
     return hero.quests[hero.activeQuestId]
   }
 
   /// 推动任务进度
   /// 这里不处理任务的成功和失败
-  function progressQuest(questId, { stage,  incurIncident = true }) {
+  function progressQuestById(questId, { stage,  incurIncident = true }) {
     assert(hero != null)
     final quest = hero.quests[questId]
     assert(quest != null)
@@ -569,61 +576,42 @@ namespace Player {
       engine.error('任务 [${quest.id}] 已经完成，不能再推进进度！')
       return
     }
-    assert(quest.progress.length > 0)
-    assert(quest.progress.last < quest.stages.length - 1)
-    if (stage != null) {
-      assert(stage < quest.stages.length)
-      assert(!quest.progress.contains(stage))
-    } else {
-      stage = quest.progress.last + 1
-    }
+    assert(quest.sequence.length > 0)
+    stage ??= quest.stage + 1
+    assert(stage > quest.stage)
+    assert(!quest.sequence.contains(stage))
     
-    quest.progress.add(stage)
-    
-    let incidentContent = engine.locale(
-      'characterQuestProgressed',
-      interpolations: [ hero.name, quest.name ],
-    )
-    if (incurIncident) {
-      Incident(
-        message: incidentContent,
-        subjectId: hero.id,
-      )
-    } else {
-      engine.debug(incidentContent)
-    }
-  }
+    quest.sequence.add(stage)
+    quest.stage = stage
 
-  function finishQuestById(questId, { isSuccess = true, incurIncident = true }) {
-    assert(hero != null)
-    final quest = hero.quests[questId]
-    assert(quest != null)
-    assert(hero.quests.containsKey(quest.id))
-    if (hero.activeQuestId == quest.id) {
-      hero.activeQuestId = null
-    }
-    quest.isFinished = true
-    quest.isSuccess = isSuccess
-
-    let incidentContent
-    if (isSuccess) {
-      incidentContent = engine.locale(
-        'characterQuestFinishSuccess',
+    if (quest.endings.contains(stage)) {
+      quest.isFinished = true
+      
+      if (hero.activeQuestId == quest.id) {
+        hero.activeQuestId = null
+      }
+      let incidentContent = engine.locale(
+        'characterQuestFinished',
         interpolations: [ hero.name, quest.name ],
       )
+      if (incurIncident) {
+        Incident(
+          message: incidentContent,
+          subjectId: hero.id,
+        )
+      }
     } else {
-      incidentContent = engine.locale(
-        'characterQuestFinishFailed',
+      let incidentContent = engine.locale(
+        'characterQuestProgressed',
         interpolations: [ hero.name, quest.name ],
       )
+      if (incurIncident) {
+        Incident(
+          message: incidentContent,
+          subjectId: hero.id,
+        )
+      }
     }
-    if (incurIncident) {
-      Incident(
-        message: incidentContent,
-        subjectId: hero.id,
-      )
-    } else {
-      engine.debug(incidentContent)
-    }
+    engine.debug('任务「${quest.name}」进度：${quest.stage}')
   }
 }

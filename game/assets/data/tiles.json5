@@ -153,6 +153,15 @@
       sprite: "object/lever.png",
     },
   },
+  pressurePlate: {
+    id: "pressurePlate",
+    name: "pressurePlate",
+    icon: "assets/images/object/pressurePlate.png",
+    type: "overlaySprite",
+    overlaySprite: {
+      sprite: "object/pressurePlate.png",
+    },
+  },
   statue: {
     id: "statue",
     name: "statue",

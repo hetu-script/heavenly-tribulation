@@ -104,7 +104,6 @@ struct Location {
     isDiscovered = true,
     isHidden = false,
     updateWorldMap = false,
-    useBackground = true,
   }) {
     assert(category != null && kind != null)
 
@@ -173,8 +172,10 @@ struct Location {
       }
       this.name = name ?? engine.locale(kind)
       this.image = image ?? 'location/card/${kind}.png'
-      if (useBackground) {
-        this.background = background ?? 'location/site/${kind}.png'
+      if (background != null) {
+        this.background = background
+      } else if (kLocationSiteKinds.contains(kind)) {
+        this.background = 'location/site/${kind}.png'
       }
     } else {
       throw 'Invalid location category: [${category}]'
@@ -263,7 +264,7 @@ struct Location {
         }
         // Location(category: 'site', kind: kLocationKindCityHall, atLocation: this)
         // 城市据点默认会添加一个住所入口
-        Location(category: 'site', kind: kLocationKindResidence, atLocation: this, useBackground: false)
+        Location(category: 'site', kind: kLocationKindResidence, atLocation: this)
       }
 
       engine.debug('在 ${atWorld.name} [${atTerrain.left}, ${atTerrain.top}] 建立了 ${this.name}')
@@ -275,7 +276,7 @@ struct Location {
   }
 }
 
-// function addLocations(locations: List, {worldId, atTerrain, atLocation, updateWorldMap = false }) {
+// function addLocations(loca tions: List, {worldId, atTerrain, atLocation, updateWorldMap = false }) {
 //   engine.debug('载入地点数据')
 //   for (const location in locations) {
 //     if (location.nameId) {

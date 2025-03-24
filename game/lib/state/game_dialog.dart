@@ -92,7 +92,6 @@ class GameDialogState with ChangeNotifier, TaskController {
           isFadeIn: isFadeIn,
           taskId: taskId,
         ));
-        illustrations.clear();
         notifyListeners();
       },
       id: taskId,
@@ -102,7 +101,7 @@ class GameDialogState with ChangeNotifier, TaskController {
 
   void popBackground({bool isFadeOut = false}) {
     assert(isOpened == true);
-    final taskId = 'push_background_${randomUID(withTime: true)}';
+    final taskId = 'pop_background_${randomUID(withTime: true)}';
     schedule(
       () {
         if (scenes.isNotEmpty) {
@@ -112,12 +111,26 @@ class GameDialogState with ChangeNotifier, TaskController {
             prevScene!.taskId = taskId;
           }
           scenes.remove(scenes.last);
-          illustrations.clear();
           notifyListeners();
         }
       },
       id: taskId,
       isAuto: !isFadeOut,
+    );
+  }
+
+  void popAllBackgrounds() {
+    assert(isOpened == true);
+    final taskId = 'pop_all_backgrounds_${randomUID(withTime: true)}';
+    schedule(
+      () {
+        if (scenes.isNotEmpty) {
+          prevScene = scenes.last;
+        }
+        scenes.clear();
+        notifyListeners();
+      },
+      id: taskId,
     );
   }
 

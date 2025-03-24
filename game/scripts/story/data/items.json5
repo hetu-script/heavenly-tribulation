@@ -12,6 +12,21 @@
     // 被诅咒的法宝，装备后无法正常取下
     isCursed: true,
     isUndroppable: true,
+    price: 20000,
+  },
+  hunguding2: {
+    prototypeId: "hunguding2",
+    name: "hunguding",
+    category: "talisman",
+    rarity: "unique",
+    icon: "story/item/hunguding.png",
+    isUnique: true,
+    isIdentified: false,
+    isEquippable: true,
+    affixes: ["hunguding2_affix", "equipment_cursed"],
+    // 被诅咒的法宝，装备后无法正常取下
+    isCursed: true,
+    isUndroppable: true,
     // isUntradable: true,
     chargeData: {
       max: 3600,

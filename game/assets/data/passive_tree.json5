@@ -36,8 +36,8 @@
     parentNodes: ["track_2_0"],
     icon: "cultivation/skill/swordcraft_selected.png",
     unselectedIcon: "cultivation/skill/swordcraft_unselected.png",
-    title: "swordcraft_rank_1",
-    comment: "swordcraft_rank_1_comment",
+    title: "skilltree_swordcraft_rank_1",
+    comment: "skilltree_swordcraft_rank_1_comment",
     // description在载入游戏时才被计算出来
     // description: null,
     passives: [

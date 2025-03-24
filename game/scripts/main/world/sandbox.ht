@@ -723,7 +723,11 @@ function createSandboxWorld({
   }
 
   // 在不改变时间，不触发引擎事件和模组事件的情况下刷新世界事件
-  updateGame(timeflow: false, engineEvent: false, moduleEvent: false)
+  updateGame(
+    timeflow: false,
+    worldEvent: true,
+    moduleEvent: false,
+  )
 
   // engine.debug('世界生成完毕。重置随机数生成器。')
   // setRandomSeed()

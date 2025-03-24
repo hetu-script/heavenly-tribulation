@@ -81,6 +81,7 @@ struct GameData {
     this.currentWorldId = null
     this.heroId = null
     this.timestamp = 0
+    this.flags = {}
 
     this.deceased = {}
     this.babies = {}
@@ -147,8 +148,15 @@ function getTimeData() {
   }
 }
 
+const kTimeOfDay = {
+  '1': 'morning',
+  '2': 'afternoon',
+  '3': 'evening',
+  '4': 'midnight',
+}
+
 function getTicksOfDayName() {
-  return engine.locale('timeOfDay${ticksOfDay}')
+  return engine.locale(timeOfDay)
 }
 
 function calculateTimestamp() {
@@ -158,7 +166,7 @@ function calculateTimestamp() {
   year = toYear(game.timestamp) + 1
   month = toMonth(game.timestamp) + 1
   day = toDay(game.timestamp) + 1
-  timeOfDay = getTicksOfDayName()
+  timeOfDay = kTimeOfDay[ticksOfDay]
 }
 
 function getTicksTillNextDay() {

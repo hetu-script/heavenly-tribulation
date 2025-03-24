@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:hetu_script/utils/math.dart' as math;
 
 import '../common.dart';
 import '../widgets/dialog/timeflow.dart';
@@ -11,6 +12,8 @@ import '../scene/game_dialog/game_dialog_content.dart';
 import '../widgets/dialog/select_menu.dart';
 import '../state/view_panels.dart';
 import '../widgets/dialog/input_slider.dart';
+import '../scene/common.dart';
+import '../state/new_prompt.dart';
 
 import 'data.dart';
 
@@ -41,17 +44,22 @@ const kCardObtainProbabilityByRank = {
   }
 };
 
-bool truthy(dynamic) {
-  return dynamic != null && dynamic != false;
-}
-
 abstract class GameLogic {
-  static int expForLevel(level, [difficulty = 1]) {
-    return (difficulty * (level) * (level)) * 10 + level * 100 + 40;
+  static bool truthy(dynamic value) => engine.hetu.interpreter.truthy(value);
+
+  static int minLevelForRank(int rank) {
+    assert(rank >= 0);
+    return rank == 0 ? 0 : ((rank - 1) * 10 + 5);
   }
 
-  static double gradualValue(num input, num target, {double rate = 0.1}) {
-    return target * (1 - math.exp(-rate * input));
+  static int maxLevelForRank(int rank) {
+    assert(rank >= 0);
+    return (rank * 10 + 20);
+  }
+
+  static int expForLevel(level, [difficulty]) {
+    difficulty ??= 1;
+    return (difficulty * (level) * (level)) * 10 + level * 100 + 40;
   }
 
   /// 根据角色当前的流派等级和境界，获得三张卡牌
@@ -88,21 +96,29 @@ abstract class GameLogic {
     return true;
   }
 
-  // 返回值依次是：卡组下限，卡组上限，消耗牌上限，持续牌上限
-  static (int, int, int, int) getDeckLimitFromRank(int rank) {
+  // 返回值依次是：卡组下限，消耗牌上限，持续牌上限
+  static Map<String, int> getDeckLimitForRank(int rank) {
     assert(rank >= 0);
-    final min = 3;
-    final max = rank == 0 ? 3 : rank + 2;
+    int limit;
+    if (rank == 0) {
+      limit = 3;
+    } else {
+      limit = rank + 2;
+    }
     final ephemeralMax = rank < 5 ? 1 : 2;
     final ongoingMax = rank < 2 ? 0 : 1;
-    return (min, max, ephemeralMax, ongoingMax);
+    return {
+      'limit': limit,
+      'ephemeralMax': ephemeralMax,
+      'ongoingMax': ongoingMax,
+    };
   }
 
   static String? checkDeckRequirement(
       dynamic characterData, List<dynamic> cards) {
-    final deckLimit = getDeckLimitFromRank(characterData['rank']);
+    final deckLimit = getDeckLimitForRank(characterData['rank']);
 
-    if (cards.length < deckLimit.$1) {
+    if (cards.length < deckLimit['limit']!) {
       return 'deckbuilding_cards_not_enough';
     }
 
@@ -118,7 +134,7 @@ abstract class GameLogic {
 
   static double getHPRestoreRateAfterBattle(int usedCardCount) {
     assert(usedCardCount > 0);
-    return 50 - gradualValue(usedCardCount - 1, 50, rate: 0.1);
+    return 50 - math.gradualValue(usedCardCount - 1, 50, rate: 0.1);
   }
 
   static Future<String?> selectWorldId() async {
@@ -129,6 +145,44 @@ abstract class GameLogic {
           selectedValue: GameData.worldIds
               .firstWhere((element) => element != GameData.currentWorldId)),
     );
+  }
+
+  static void showTribulation(int level, int rank) async {
+    await GameDialogContent.show(
+        engine.context, engine.locale('help_tribulation'));
+
+    final enemey = engine.hetu.invoke(
+      'BattleEntity',
+      namedArgs: {
+        'name': engine.locale('theHeavenlyWay'),
+        'level': level,
+        'rank': rank,
+      },
+    );
+    engine.hetu.invoke('generateDeck', positionalArgs: [enemey]);
+
+    final arg = {
+      'id': Scenes.battle,
+      'hero': GameData.heroData,
+      'enemy': enemey,
+      'onBattleStart': () {
+        bool? hintedTribulation =
+            GameData.gameData['flags']['hintedTribulation'];
+        if (hintedTribulation == null || hintedTribulation == false) {
+          GameDialogContent.show(
+              engine.context, engine.locale('help_tribulation_beforeBattle'));
+          GameData.gameData['flags']['hintedTribulation'] = true;
+        }
+      },
+      'onBattleEnd': (bool? result) {
+        if (result == true) {
+          engine.hetu.invoke('levelUp', namespace: 'Player');
+          final rank = engine.hetu.invoke('rankUp', namespace: 'Player');
+          engine.context.read<NewRankState>().update(rank);
+        }
+      },
+    };
+    engine.pushScene(Scenes.battle, arguments: arg);
   }
 
   static void heroRest() async {
@@ -202,6 +256,7 @@ abstract class GameLogic {
               'title': engine.locale('selectItem'),
               'filter': {'isIdentified': false},
               'onSelect': (Iterable selectedItemsData) async {
+                if (selectedItemsData.isEmpty) return;
                 assert(selectedItemsData.length == 1);
                 final selectedItem = selectedItemsData.first;
                 selectedItem['isIdentified'] = true;
@@ -212,6 +267,18 @@ abstract class GameLogic {
             },
           );
         }
+      case 'material':
+        engine.hetu.invoke('lose',
+            namespace: 'Player',
+            positionalArgs: [itemData],
+            namedArgs: {'incurIncident': false});
+        engine.hetu.invoke(
+          'collect',
+          namespace: 'Player',
+          positionalArgs: [itemData['kind']],
+          namedArgs: {'amount': itemData['stackSize']},
+        );
+        engine.play('pickup_item-64282.mp3');
     }
   }
 
@@ -252,9 +319,8 @@ abstract class GameLogic {
     final charge = value ~/ shardsPerCharge;
 
     chargeData['current'] += charge;
-    engine.hetu.invoke('exhaust', namespace: 'Player', positionalArgs: [
-      'shard'
-    ], namedArgs: {
+    engine.hetu.invoke('exhaust', namespace: 'Player', namedArgs: {
+      'kind': 'shard',
       'amount': value,
     });
 

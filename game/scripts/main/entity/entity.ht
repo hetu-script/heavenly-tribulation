@@ -148,6 +148,7 @@ function getRarity({ name }) {
 // }
 
 // entityType决定了该对象的数据结构和保存位置
+const kEntityTypeBattleEntity = 'battle_entity'
 const kEntityTypeCharacter = 'character' //game.characters
 const kEntityTypeLocationObject = 'object' //game.characters
 const kEntityTypeBaby = 'baby' // game.babies
@@ -173,16 +174,6 @@ const kRankRarity = {
 function getRandomLevel(min, max) {
   if (min >= max) return max
   return  min + random.distantInt(max - min + 1)
-}
-
-function minLevelPerRank(rank) {
-  assert(rank >= 0)
-  return rank < 2 ? rank : (rank - 1) * 10
-}
-
-function maxLevelPerRank(rank) {
-  assert(rank >= 0)
-  return rank == 0 ? 10 : (rank * 10 + 20)
 }
 
 // 额外词条数量，卡牌和装备共用一个算法
@@ -236,3 +227,33 @@ function tryChangeStats(entity, statName, change, { overflow = false }) {
   data[statName] = value
   return residue
 }
+
+const kLocationCityKinds = [
+  'inland',
+  'harbor',
+  'island',
+  'mountain',
+]
+
+const kLocationSiteKinds = [
+  'cityhall',
+  'arena',
+  'library',
+  'tradinghouse',
+  'auctionhouse',
+  'mine',
+  'timberland',
+  'farmland',
+  'huntingground',
+  'fishery',
+  'nursery',
+  'zoo',
+  'workshop',
+  'arraylab',
+  'scrolllab',
+  'alchemylab',
+  'illusionaltar',
+  'psychicaltar',
+  'divinationaltar',
+  'theurgyaltar',
+]

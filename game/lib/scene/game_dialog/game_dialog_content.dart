@@ -24,10 +24,11 @@ class GameDialogContent extends StatefulWidget {
   ///   "icon": "icon.png",
   /// }
   /// ```
-  static Future<void> show(BuildContext context, dynamic dialogData) {
+  static Future<void> show(BuildContext context, dynamic dialogData,
+      {TextStyle? style}) {
     final resolved = dialogData is String
         ? {
-            'lines': [dialogData]
+            'lines': dialogData.split('\n'),
           }
         : (dialogData is List ? {'lines': dialogData} : dialogData);
     assert(resolved is Map || resolved is HTStruct);
@@ -36,16 +37,21 @@ class GameDialogContent extends StatefulWidget {
       context: context,
       barrierColor: Colors.transparent,
       builder: (BuildContext context) {
-        return GameDialogContent(data: resolved);
+        return GameDialogContent(
+          data: resolved,
+          style: style,
+        );
       },
     );
   }
 
   final dynamic data;
+  final TextStyle? style;
 
   const GameDialogContent({
     super.key,
     required this.data,
+    this.style,
   }) : assert(data != null);
 
   @override
@@ -71,6 +77,15 @@ class _GameDialogContentState extends State<GameDialogContent> {
   @override
   void initState() {
     super.initState();
+
+    style = TextStyle(
+      fontSize: 20,
+      letterSpacing: 2,
+      fontWeight: FontWeight.normal,
+      color: Colors.white,
+      fontFamily: GameUI.fontFamily,
+      decoration: TextDecoration.none,
+    ).merge(widget.style ?? TextStyle());
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
       startLine();
@@ -119,44 +134,53 @@ class _GameDialogContentState extends State<GameDialogContent> {
                     padding: const EdgeInsets.only(top: 10.0),
                     decoration: BoxDecoration(
                       color: GameUI.backgroundColor,
-                      borderRadius: GameUI.borderRadius,
-                      border: Border.all(color: GameUI.foregroundColor),
+                      // borderRadius: GameUI.borderRadius,
+                      // border: Border.all(color: GameUI.foregroundColor),
                     ),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10.0),
-                          child: Avatar(
-                            cursor: SystemMouseCursors.click,
-                            displayName: displayName,
-                            nameAlignment: AvatarNameAlignment.top,
-                            image: currentAvatar != null
-                                ? AssetImage('assets/images/$currentAvatar')
-                                : null,
-                            size: const Size(140.0, 140.0),
-                            // characterData: characterData,
-                            onPressed: (id) {
-                              if (id != null) {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) =>
-                                      CharacterProfileView(characterId: id),
-                                );
-                              }
-                            },
-                          ),
+                        Avatar(
+                          margin: const EdgeInsets.only(left: 20.0),
+                          cursor: SystemMouseCursors.click,
+                          // displayName: displayName,
+                          // nameAlignment: AvatarNameAlignment.top,
+                          image: currentAvatar != null
+                              ? AssetImage('assets/images/$currentAvatar')
+                              : null,
+                          size: const Size(140.0, 140.0),
+                          // characterData: characterData,
+                          onPressed: (id) {
+                            if (id != null) {
+                              showDialog(
+                                context: context,
+                                builder: (context) =>
+                                    CharacterProfileView(characterId: id),
+                              );
+                            }
+                          },
                         ),
                         Container(
-                          // color: Colors.blue,
                           width: 640,
-                          padding: const EdgeInsets.only(left: 20.0, top: 15.0),
+                          height: 190,
+                          padding: const EdgeInsets.only(left: 20.0),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              RichText(
-                                text: snapshot.data ?? const TextSpan(),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
+                                child: Label(
+                                  displayName ?? '',
+                                  textStyle: TextStyle(fontSize: 20),
+                                  textAlign: TextAlign.left,
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 5.0),
+                                child: RichText(
+                                  text: snapshot.data ?? const TextSpan(),
+                                ),
                               ),
                             ],
                           ),
@@ -182,15 +206,6 @@ class _GameDialogContentState extends State<GameDialogContent> {
     currentLine = widget.data['lines'][currentSayIndex];
     nodes = getRichTextStream(currentLine);
 
-    style = DefaultTextStyle.of(context).style.merge(TextStyle(
-          fontSize: 20,
-          letterSpacing: 2,
-          fontWeight: FontWeight.normal,
-          color: Colors.white,
-          fontFamily: GameUI.fontFamily,
-          decoration: TextDecoration.none,
-        ));
-
     timer = Timer.periodic(
       const Duration(milliseconds: 100),
       (timer) {
@@ -198,14 +213,19 @@ class _GameDialogContentState extends State<GameDialogContent> {
         if (progress >= nodes.length) {
           finishLine();
         } else {
-          textShowController.add(
-            TextSpan(
-              children: buildFlutterRichText(
-                nodes.sublist(0, progress).join(),
-                style: style,
+          if (!textShowController.isClosed) {
+            textShowController.add(
+              TextSpan(
+                children: buildFlutterRichText(
+                  nodes.sublist(0, progress).join(),
+                  style: style,
+                ),
               ),
-            ),
-          );
+            );
+          } else {
+            timer.cancel();
+            return;
+          }
         }
       },
     );
@@ -222,8 +242,10 @@ class _GameDialogContentState extends State<GameDialogContent> {
 
   void finishLine() {
     timer?.cancel();
-    textShowController.add(
-        TextSpan(children: buildFlutterRichText(currentLine, style: style)));
+    if (!textShowController.isClosed) {
+      textShowController.add(
+          TextSpan(children: buildFlutterRichText(currentLine, style: style)));
+    }
     lineFinished = true;
   }
 

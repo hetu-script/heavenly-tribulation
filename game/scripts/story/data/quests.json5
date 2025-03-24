@@ -1,37 +1,23 @@
 {
-  story_mainQuest_hunguding: {
-    id: "story_mainQuest_hunguding",
-    name: "story_mainQuest_hunguding",
-    stages: [
-      {
-        description: "story_mainQuest_hunguding_stage0_description",
-      },
-      {
-        description: "story_mainQuest_hunguding_stage1_description",
-      },
-    ],
+  prelude: {
+    id: "prelude",
+    name: "prelude",
+    endings: [3],
   },
-
-  story_mainQuest_lingChuxue: {
-    id: "story_mainQuest_lingChuxue",
-    name: "story_mainQuest_lingChuxue",
-    stages: [
-      {
-        description: "story_mainQuest_lingChuxue_stage0_description",
-      },
-    ],
+  mysticGirl: {
+    id: "mysticGirl",
+    name: "mysticGirl",
+    image: "story/cg/prelude/ling_in_rubbles2.png",
+    endings: [10],
   },
-
-  story_mainQuest_initialCultivate: {
-    id: "story_mainQuest_initialCultivate",
-    name: "story_mainQuest_initialCultivate",
-    stages: [
-      {
-        description: "story_mainQuest_initialCultivate_stage0_description",
-      },
-      {
-        description: "story_mainQuest_initialCultivate_stage1_description",
-      },
-    ],
+  nailedSoul: {
+    id: "nailedSoul",
+    name: "nailedSoul",
+    endings: [10],
+  },
+  rebuildWanfuzong: {
+    id: "rebuildWanfuzong",
+    name: "rebuildWanfuzong",
+    endings: [10],
   },
 }

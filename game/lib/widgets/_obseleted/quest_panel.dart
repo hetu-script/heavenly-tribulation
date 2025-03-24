@@ -4,35 +4,6 @@ import 'package:provider/provider.dart';
 import '../../state/new_prompt.dart';
 import '../../game/ui.dart';
 
-const double _kTextShadowOffset = 0.5;
-
-const List<Shadow> kTextShadow = [
-  Shadow(
-    // bottomLeft
-    offset: Offset(-_kTextShadowOffset, -_kTextShadowOffset),
-    color: Colors.black,
-    blurRadius: 2.5,
-  ),
-  Shadow(
-    // bottomRight
-    offset: Offset(_kTextShadowOffset, -_kTextShadowOffset),
-    color: Colors.black,
-    blurRadius: 2.5,
-  ),
-  Shadow(
-    // topRight
-    offset: Offset(_kTextShadowOffset, _kTextShadowOffset),
-    color: Colors.black,
-    blurRadius: 2.5,
-  ),
-  Shadow(
-    // topLeft
-    offset: Offset(-_kTextShadowOffset, _kTextShadowOffset),
-    color: Colors.black,
-    blurRadius: 2.5,
-  ),
-];
-
 /// 右上角悬浮文字面板
 class QuestPanel extends StatefulWidget {
   const QuestPanel({super.key});
@@ -46,7 +17,7 @@ class _QuestPanelState extends State<QuestPanel> {
 
   @override
   Widget build(BuildContext context) {
-    final questsData = context.watch<NewQuestsState>().quests;
+    final questsData = context.watch<NewQuestState>().quest;
 
     return (questsData == null)
         ? Container()

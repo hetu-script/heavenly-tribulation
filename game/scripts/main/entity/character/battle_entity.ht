@@ -26,6 +26,10 @@ const kBaseLife = 10
 const kBaseLightedRadius = 2
 
 const kBaseIdentifyEnemyCardMonthlyCount = 12
+const kBaseUnconvertedExpCollectEfficiency = 10
+
+const kBaseTribulationMax = 2
+const kTribulationPerRank = 2
 
 const kNonBattleAttributes = [
   'charisma',
@@ -73,7 +77,7 @@ struct BattleEntity {
     cardLibrary,
     battleDecks,
   }) {
-    this.entityType = kEntityTypeCharacter
+    this.entityType = kEntityTypeBattleEntity
     this.isFemale = isFemale ?? random.nextBool()
     if (this.isFemale) {
       const index = random.nextInt(_kFemaleAvatarCount)
@@ -130,9 +134,11 @@ struct BattleEntity {
     // 境界决定了升级时能获得卡牌的最高稀有度，但具体获得的卡牌是随机的
     // 在所有流派中，只有修为等级最高的那个流派决定了境界
     this.rank = rank ?? 0
-    this.levelMax = maxLevelPerRank(this.rank)
+    this.levelMax = maxLevelForRank(this.rank)
     // 修为等级，每次提升修为等级可以获得1点天赋点
     this.level = level ?? 0
+
+    this.tribulationCount = 0
 
     // 身上携带的材料，材料本身没有特殊属性，多个材料只是堆叠数字增加
     // 材料单独显示在物品栏上方，没有携带的材料不会显示
@@ -157,8 +163,8 @@ struct BattleEntity {
       // '7': null,
     }
 
-    // 随角色移动的其他角色
-    this.companions = {}
+    // 随角色移动的其他角色，这里只保存id
+    this.companions = []
 
     // 角色当前卡牌库，关于战斗卡牌的具体信息另行参阅文档
     // 卡牌库是一个 map，key 是卡牌的 id，value 是卡牌数据
@@ -232,13 +238,17 @@ function generateCharacterAttributes({base, major}) {
 /// 状态包括：生命、伤害、防御等。
 function calculateCharacterStats(character, { reset = true }) {
 
+  character.tribulationMax = kBaseTribulationMax + kTribulationPerRank * character.rank
   character.lifeMax = kBaseLife + character.strength ~/ 2
   character.lightRadius = kBaseLightedRadius + character.perception ~/ 10
   character.identifyEnemyCardMonthlyCount = kBaseIdentifyEnemyCardMonthlyCount + character.perception ~/ 10
-  
+  character.unconvertedExpCollectEfficiency = kBaseUnconvertedExpCollectEfficiency
+
+  character.stats.tribulationMax = character.tribulationMax + character.passives.tribulationMax?.value
   character.stats.lifeMax = character.lifeMax + character.passives.lifeMax?.value
   character.stats.lightRadius = character.lightRadius + character.passives.lightRadius?.value
   character.stats.identifyEnemyCardMonthlyCount = character.identifyEnemyCardMonthlyCount + character.passives.identifyEnemyCardMonthlyCount?.value
+  character.stats.unconvertedExpCollectEfficiency = character.unconvertedExpCollectEfficiency + character.passives.unconvertedExpCollectEfficiency?.value
 
   // 基础属性，在此基础上还要加上物品和状态的加成
   character.stats.charisma = character.charisma + character.passives.charisma?.value
@@ -332,7 +342,7 @@ function generateDeck(character, { deckInfo }) {
   let deck = []
   if (deckInfo is List) {
     for (final info in deckInfo) {
-      deck.add(BattleCard(
+      final card = BattleCard(
         category: info.category,
         mainAffixId: info.mainAffixId,
         kind: info.kind,
@@ -341,29 +351,20 @@ function generateDeck(character, { deckInfo }) {
         rank: info.rank ?? character.rank,
         maxRank: info.maxRank,
         isIdentified: info.isIdentified ?? true,
-      ))
+      )
+      deck.add(card)
     }
   } else {
-    deck.addAll([
-      BattleCard(
-        category: 'buff',
+    final deckLimit = getDeckLimitForRank(character.rank)
+    for (var i in range(deckLimit.limit)) {
+      final card = BattleCard(
+        category: i == 0 ? 'attack' : null,
         level: character.level,
         rank: character.rank,
         isIdentified: false,
-      ),
-      BattleCard(
-        category: 'attack',
-        level: character.level,
-        rank: character.rank,
-        isIdentified: false,
-      ),
-      BattleCard(
-        category: 'attack',
-        level: character.level,
-        rank: character.rank,
-        isIdentified: false,
-      ),
-    ])
+      )
+      deck.add(card)
+    }
   }
   for (final card in deck) {
     entityAcquireBattleCard(character, card)
@@ -377,4 +378,3 @@ function generateDeck(character, { deckInfo }) {
   
   engine.info('generated deck: [${deck.map((card) => card.name).join(', ')}]')
 }
-

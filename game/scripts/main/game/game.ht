@@ -2,18 +2,20 @@ namespace Game {
   
   external function _update
 
-  function updateData(func: function) {
+  function updateHero(func: function) {
     func?.call()
     _update()
   }
+  
+  external function updateGameTime()
 
   external function updateHistory()
 
+  external function updateNpcList()
+
   external function promptNewItems(items: Iterable)
 
-  external function promptNewQuests(quests: Iterable)
-  
-  external function updateGameTime()
+  external function promptNewQuest(quest)
 
   external function showHeroInfo([value: bool = true])
 
@@ -36,7 +38,7 @@ namespace Game {
     hero,
     enemy,
     isSneakAttack: bool = false,
-    isAutoBattle: bool = false,
+    // isAutoBattle: bool = false,
     onBattleStart,
     onBattleEnd,
   })

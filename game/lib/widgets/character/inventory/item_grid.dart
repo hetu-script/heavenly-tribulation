@@ -45,6 +45,7 @@ class ItemGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     final String? iconAssetKey = itemData?['icon'];
     final int stackSize = itemData?['stackSize'] ?? 1;
+    final bool showStack = itemData?['showStack'] ?? false;
     // final entityType = entityData?['entityType'];
 
     final isEquipped = itemData?['equippedPosition'] != null;
@@ -101,10 +102,17 @@ class ItemGrid extends StatelessWidget {
                   borderWidth: 0.0,
                 ),
               if (child != null) child!,
-              if (stackSize > 1)
-                Align(
-                  alignment: AlignmentDirectional.bottomEnd,
-                  child: Text(stackSize.toString()),
+              if (stackSize > 1 || showStack)
+                Positioned(
+                  right: 0,
+                  bottom: -5,
+                  child: Text(
+                    stackSize.toString(),
+                    style: const TextStyle(
+                      color: Colors.yellow,
+                      shadows: kTextShadow,
+                    ),
+                  ),
                 ),
               if (showEquippedIcon && isEquipped)
                 Positioned(

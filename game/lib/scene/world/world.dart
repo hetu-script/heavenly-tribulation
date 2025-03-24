@@ -25,7 +25,6 @@ import '../game_dialog/game_dialog_content.dart';
 import '../../widgets/dialog/character_select.dart';
 import '../../widgets/ui_overlay.dart';
 // import '../../widgets/quest_panel.dart';
-import '../../widgets/npc_list.dart';
 import '../../widgets/dialog/input_string.dart';
 import '../../widgets/world_infomation.dart';
 import '../../widgets/menu_item_builder.dart';
@@ -163,7 +162,7 @@ class WorldMapScene extends Scene {
   // dynamic _heroAtZone;
   // dynamic _heroAtNation;
   // dynamic _heroAtLocation;
-  Iterable<dynamic> _npcsInHeroPosition = [];
+  final List<dynamic> _npcsInHeroPosition = [];
 
   // void _setHeroTerrain(TileMapTerrain? terrain) {
   //   _heroAtTerrain = terrain;
@@ -462,7 +461,8 @@ class WorldMapScene extends Scene {
         finishMoveDirection = OrthogonalDirection.values
             .singleWhere((element) => element.name == endDirString);
       }
-      final HTFunction? onAfterStepCallback = namedArgs['onAfterStepCallback'];
+      final HTFunction? onBeforeStepCallback =
+          namedArgs['onBeforeStepCallback'];
 
       final route = _calculateRoute(
           fromX: object.left, fromY: object.top, toX: toX, toY: toY);
@@ -472,8 +472,8 @@ class WorldMapScene extends Scene {
           object,
           List<int>.from(route),
           finishMoveDirection: finishMoveDirection,
-          onAfterStepCallback: (terrain, [targetTerrain]) {
-            onAfterStepCallback
+          onStepCallback: (terrain, [targetTerrain]) {
+            onBeforeStepCallback
                 ?.call(positionalArgs: [terrain.data, targetTerrain?.data]);
             completer.complete();
           },
@@ -487,18 +487,17 @@ class WorldMapScene extends Scene {
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
-        'World::updateNpcsInHeroWorldMapPosition',
-        ({positionalArgs, namedArgs}) => _updateNpcsInHeroWorldMapPosition(),
+        'World::updateNpcsAtWorldMapPosition',
+        ({positionalArgs, namedArgs}) => _updateNpcsAtWorldMapPosition(),
         override: true);
 
-    engine.hetu.interpreter.bindExternalFunction(
-        'World::updateNpcsInHeroLocation',
-        ({positionalArgs, namedArgs}) => _updateNpcsInHeroLocation(),
+    engine.hetu.interpreter.bindExternalFunction('World::updateNpcsAtLocation',
+        ({positionalArgs, namedArgs}) => _updateNpcsAtLocation(),
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction(
         'World::updateWorldMapLocations',
-        ({positionalArgs, namedArgs}) => _updateWorldMapLocations(),
+        ({positionalArgs, namedArgs}) => _updateWorldMapCaptions(),
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction('World::addHintText', (
@@ -579,18 +578,20 @@ class WorldMapScene extends Scene {
     }, override: true);
   }
 
+  Future<void> _onEnterScene() async {
+    context.read<HeroState>().update();
+    context.read<GameTimestampState>().update();
+    context.read<HeroAndGlobalHistoryState>().update();
+    await _updateWorldMapNPC();
+    engine.hetu.invoke('onWorldEvent', positionalArgs: ['onEnterMap']);
+  }
+
   @override
   void onStart([Map<String, dynamic> arguments = const {}]) async {
     super.onStart(arguments);
 
     if (isLoaded) {
-      await _updateWorldMapNPC();
-
-      engine.hetu.invoke('onWorldEvent', positionalArgs: ['onEnterMap']);
-    }
-
-    if (context.mounted) {
-      context.read<GameTimestampState>().update();
+      _onEnterScene();
     }
   }
 
@@ -619,8 +620,6 @@ class WorldMapScene extends Scene {
   }
 
   void _onMapTapUpInEditorMode(int buttons, Vector2 position) {
-    if (map.isDragging) return;
-
     _focusNode.requestFocus();
     final tilePosition = map.worldPosition2Tile(position);
     final toolId = context.read<EditorToolState>().selectedId;
@@ -792,7 +791,6 @@ class WorldMapScene extends Scene {
   }
 
   Future<void> _onMapLoadedInEditorMode() async {
-    _updateWorldMapLocations();
     await _updateCharactersOnWorldMap();
   }
 
@@ -840,26 +838,43 @@ class WorldMapScene extends Scene {
     }
   }
 
-  Future<void> _updateNpcsInHeroWorldMapPosition() async {
-    _npcsInHeroPosition =
+  Future<void> _updateNpcsAtWorldMapPosition() async {
+    _npcsInHeroPosition.clear();
+
+    for (final id in GameData.heroData['companions']) {
+      final charData = GameData.gameData['characters'][id];
+      assert(charData != null);
+      _npcsInHeroPosition.add(charData);
+    }
+
+    final otherNpcs =
         engine.hetu.invoke('getNpcsAtWorldMapPosition', positionalArgs: [
       GameData.heroData?['worldPosition']['left'],
       GameData.heroData?['worldPosition']['top'],
     ]);
-
-    context.read<CurrentNpcList>().updated(_npcsInHeroPosition);
+    _npcsInHeroPosition.addAll(otherNpcs);
+    context.read<NpcListState>().update(_npcsInHeroPosition);
   }
 
-  Future<void> _updateNpcsInHeroLocation() async {
-    final npcsInHeroLocation =
+  Future<void> _updateNpcsAtLocation() async {
+    _npcsInHeroPosition.clear();
+
+    for (final id in GameData.heroData['companions']) {
+      final charData = GameData.gameData['characters'][id];
+      assert(charData != null);
+      _npcsInHeroPosition.add(charData);
+    }
+
+    final otherNpcs =
         engine.hetu.invoke('getNpcsAtLocationId', positionalArgs: [
       GameData.heroData?['locationId'],
     ]);
+    _npcsInHeroPosition.addAll(otherNpcs);
 
-    context.read<CurrentNpcList>().updated(npcsInHeroLocation);
+    context.read<NpcListState>().update(_npcsInHeroPosition);
   }
 
-  Future<void> _updateWorldMapLocations() async {
+  Future<void> _updateWorldMapCaptions() async {
     final locations = engine.hetu.invoke('getLocations');
     for (final locationData in locations) {
       if (locationData['category'] == 'city' &&
@@ -869,12 +884,20 @@ class WorldMapScene extends Scene {
         map.setTerrainCaption(left, top, locationData['name']);
       }
     }
+    // final objects = engine.hetu.invoke('getObjects');
+    // for (final objectData in objects) {
+    //   if (isEditorMode) {
+    //     final int left = locationData['worldPosition']['left'];
+    //     final int top = locationData['worldPosition']['top'];
+    //     map.setTerrainCaption(left, top, locationData['name']);
+    //   }
+    // }
   }
 
   Future<void> _updateWorldMapNPC() async {
     await _updateCharactersOnWorldMap();
 
-    await _updateNpcsInHeroWorldMapPosition();
+    await _updateNpcsAtWorldMapPosition();
 
     if (context.mounted) {
       context.read<HeroAndGlobalHistoryState>().update();
@@ -911,18 +934,33 @@ class WorldMapScene extends Scene {
         map.componentWalkToTilePositionByRoute(
           map.hero!,
           route,
-          onAfterStepCallback: (terrain) async {
-            map.lightUpAroundTile(
-              terrain.tilePosition,
-              size: map.hero!.data['stats']['lightRadius'],
-              // excludeTerrainKinds: kExcludeTerrainKindsOnLighting,
-            );
-            await engine.hetu.invoke('onWorldEvent',
-                positionalArgs: ['onAfterMove', terrain.data]);
-            // TODO: 某些情况下，让英雄返回上一格
-            // map.objectWalkToPreviousTile(map.hero!);
-            if (isMainWorld) {
-              await engine.hetu.invoke('updateGame');
+          onStepCallback: (terrain, next) async {
+            if (next?.objectId != null) {
+              // 如果下一个格子有物体，且该物体 blockMove 为 true
+              // 意味着该物体会阻挡移动
+              final objectData = engine.hetu
+                  .invoke('getObjectById', positionalArgs: [next!.objectId]);
+              if (objectData['blockMove'] == true) {
+                map.hero!.isWalkCanceled = true;
+                engine.hetu.invoke('onInteractMapObject',
+                    positionalArgs: [objectData, next.data]);
+                return;
+              }
+            }
+
+            if (map.hero?.prevRouteNode != null) {
+              map.lightUpAroundTile(
+                terrain.tilePosition,
+                size: map.hero!.data['stats']['lightRadius'],
+                // excludeTerrainKinds: kExcludeTerrainKindsOnLighting,
+              );
+              await engine.hetu.invoke('onWorldEvent',
+                  positionalArgs: ['onAfterMove', terrain.data]);
+              // TODO: 某些情况下，让英雄返回上一格
+              // map.objectWalkToPreviousTile(map.hero!);
+              if (isMainWorld) {
+                await engine.hetu.invoke('updateGame');
+              }
             }
           },
           onFinishCallback: (terrain, [target]) async {
@@ -1022,7 +1060,6 @@ class WorldMapScene extends Scene {
     if (_playerFreezed) return;
     // addHintText('test', tilePosition.left, tilePosition.top);
     if (map.hero == null) return;
-    if (map.isDragging) return;
     // if (_isInteracting) return;
 
     final isGameDialogOpened = context.read<GameDialogState>().isOpened;
@@ -1060,6 +1097,11 @@ class WorldMapScene extends Scene {
   Future<void> _onMapLoadedInGameMode() async {
     final isNewGame = GameData.gameData['isNewGame'];
     if (isNewGame == true) {
+      engine.hetu.invoke('updateGame', namedArgs: {
+        'timeflow': false,
+        'moduleEvent': false,
+      });
+
       if (GameData.heroData == null) {
         final charactersData = engine.hetu.invoke('getCharacters');
         final Iterable filteredCharacters =
@@ -1089,7 +1131,7 @@ class WorldMapScene extends Scene {
     await map.loadHeroFromData(
         GameData.heroData, kWorldMapCharacterSpriteSrcSize);
 
-    _updateWorldMapLocations();
+    _updateWorldMapCaptions();
 
     if (GameData.heroData['worldId'] == map.id) {
       // _setHeroTerrain(map.getTerrainAtHero());
@@ -1116,7 +1158,8 @@ class WorldMapScene extends Scene {
     }
 
     await engine.hetu.invoke('onNewGame');
-    await engine.hetu.invoke('onWorldEvent', positionalArgs: ['onEnterMap']);
+
+    await _onEnterScene();
   }
 
   void closePopup() {
@@ -1150,7 +1193,7 @@ class WorldMapScene extends Scene {
       focusNode: _focusNode,
       onKeyEvent: (event) {
         if (event is KeyDownEvent) {
-          engine.debug('keydown: ${event.logicalKey.keyLabel}');
+          engine.debug('keydown: ${event.logicalKey.debugName}');
           switch (event.logicalKey) {
             case LogicalKeyboardKey.space:
               camera.zoom = 2.0;
@@ -1175,11 +1218,6 @@ class WorldMapScene extends Scene {
             //   top: 100,
             //   child: QuestPanel(),
             // ),
-            const Positioned(
-              left: 20,
-              top: 150,
-              child: NpcList(),
-            ),
             Positioned(
               left: 0,
               top: 0,
@@ -1250,8 +1288,11 @@ class WorldMapScene extends Scene {
                       case WorldMapDropMenuItems.console:
                         showDialog(
                           context: context,
-                          builder: (BuildContext context) =>
-                              Console(engine: engine),
+                          builder: (BuildContext context) => Console(
+                            engine: engine,
+                            margin: const EdgeInsets.all(50.0),
+                            backgroundColor: GameUI.backgroundColor,
+                          ),
                         );
                       case WorldMapDropMenuItems.exit:
                         context.read<SelectedTileState>().clear();
@@ -1386,15 +1427,14 @@ class WorldMapScene extends Scene {
                       GameData.initGameData();
                       GameDialogContent.show(
                           context, engine.locale('reloadGameDataPrompt'));
-                    case WorldEditorDropMenuItems.reloadModules:
-                      GameData.initModules();
-                      GameDialogContent.show(
-                          context, engine.locale('reloadModulesPrompt'));
                     case WorldEditorDropMenuItems.console:
                       showDialog(
                         context: context,
-                        builder: (BuildContext context) =>
-                            Console(engine: engine),
+                        builder: (BuildContext context) => Console(
+                          engine: engine,
+                          margin: const EdgeInsets.all(50.0),
+                          backgroundColor: GameUI.backgroundColor,
+                        ),
                       );
                     case WorldEditorDropMenuItems.exit:
                       context.read<SelectedTileState>().clear();
@@ -1406,16 +1446,12 @@ class WorldMapScene extends Scene {
               ),
             ),
             EntityListPanel(
-              size: Size(400, GameUI.size.y),
+              size: Size(390, GameUI.size.y),
+              onUpdateCharacters: _updateCharactersOnWorldMap,
+              onUpdateLocations: _updateWorldMapCaptions,
             ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: TileInfoPanel(),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Toolbox(),
-            ),
+            TileInfoPanel(),
+            Toolbox(),
           ],
         ],
       ),

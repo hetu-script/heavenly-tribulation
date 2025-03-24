@@ -75,6 +75,8 @@ class _MainGameOverlayState extends State<MainGameOverlay> {
                             context: context,
                             builder: (BuildContext context) => Console(
                               engine: engine,
+                              margin: const EdgeInsets.all(50.0),
+                              backgroundColor: Colors.black,
                             ),
                           ).then((_) => setState(() {}));
                         case CardGameDropMenuItems.quit:

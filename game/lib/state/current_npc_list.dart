@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 
-class CurrentNpcList with ChangeNotifier {
-  Iterable<dynamic> characters = [];
+class NpcListState with ChangeNotifier {
+  Iterable<dynamic> npcs = [];
 
-  void updated(Iterable<dynamic> characters) {
-    this.characters = characters;
+  void update([Iterable<dynamic>? characters]) {
+    if (characters != null) {
+      npcs = characters;
+    }
     notifyListeners();
   }
 }

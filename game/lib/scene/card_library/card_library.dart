@@ -30,6 +30,8 @@ const kAffixOperations = [
 ];
 
 class CardLibraryScene extends Scene {
+  CardLibraryScene({required super.context}) : super(id: Scenes.cardlibrary);
+
   late final SpriteComponent background;
   late final SpriteComponent2 topBar, bottomBar, deckPilesZone;
   late final SpriteComponent cardCraftingArea;
@@ -67,6 +69,31 @@ class CardLibraryScene extends Scene {
 
   final List<SpriteButton> _craftOptionButtons = [];
 
+  Future<void> _onEnterScene() async {
+    libraryZone.repositionToTop();
+    deckPilesContainer.position.y = GameUI.decksZoneBackgroundPosition.y;
+
+    engine.hetu.invoke('onGameEvent', positionalArgs: ['onEnterCardLibrary']);
+
+    libraryZone.updateHeroLibrary();
+  }
+
+  @override
+  void onMount() {
+    super.onMount();
+
+    _onEnterScene();
+  }
+
+  @override
+  void onStart([Map<String, dynamic> arguments = const {}]) {
+    super.onStart(arguments);
+
+    if (isLoaded) {
+      _onEnterScene();
+    }
+  }
+
   void cardDragStart(CustomGameCard card) {
     final CustomGameCard clone = card.clone();
     clone.enableGesture = false;
@@ -80,8 +107,6 @@ class CardLibraryScene extends Scene {
     draggingCard?.removeFromParent();
     draggingCard = null;
   }
-
-  CardLibraryScene({required super.context}) : super(id: Scenes.library);
 
   void calculateVirtualHeight() {
     deckPilesContainer.height =
@@ -146,8 +171,8 @@ class CardLibraryScene extends Scene {
     StringBuffer detailedCount = StringBuffer();
     detailedCount.writeln(
         '${engine.locale('deckbuilding_card_count')}: ${zone.cards.length}');
-    detailedCount.writeln(
-        '${engine.locale('deckbuilding_limit_min')}: ${_currentBuildingZone!.limitMin}');
+    // detailedCount.writeln(
+    //     '${engine.locale('deckbuilding_limit_min')}: ${_currentBuildingZone!.limitMin}');
     detailedCount.writeln(
         '${engine.locale('deckbuilding_limit')}: ${_currentBuildingZone!.limit}');
     detailedCount.writeln(
@@ -481,11 +506,12 @@ class CardLibraryScene extends Scene {
     orderBy.text = engine.locale(libraryZone.orderByOption.name);
   }
 
-  void onOpenCardpack(Iterable cardpacksData) {
+  void onOpenCardpack(Iterable cardpacksData) async {
     if (cardpacksData.isEmpty) return;
 
     if (cardpacksData.length == 1) {
       final cardpackData = cardpacksData.first;
+      final cardFilter = cardpackData['filter'];
 
       skillBook.enableGesture = false;
       barrier.isVisible = true;
@@ -497,12 +523,15 @@ class CardLibraryScene extends Scene {
         final cardData = engine.hetu.invoke(
           'BattleCard',
           namedArgs: {
-            'maxRank': i == 0 ? null : cardpackData['rank'],
-            'rank': i == 0 ? cardpackData['rank'] : null,
-            'genre': i == 0 ? cardpackData['genre'] : null,
-            'kind': i == 0 ? cardpackData['kind'] : null,
+            'maxRank': i == 0 ? null : cardFilter['rank'],
+            'category': i == 0 ? (cardFilter['category'] ?? 'attack') : 'buff',
+            'rank': i == 0 ? cardFilter['rank'] : null,
+            'genre': i == 0 ? cardFilter['genre'] : null,
+            'kind': i == 0 ? cardFilter['kind'] : null,
+            'isIdentified': false,
           },
         );
+
         final card = GameData.createBattleCardFromData(cardData);
         _cardpackCards.add(card);
 
@@ -580,16 +609,19 @@ class CardLibraryScene extends Scene {
 
       engine.play(GameSound.cardDealt2);
       for (final cardpackData in cardpacksData) {
+        final cardFilter = cardpackData['filter'];
         engine.hetu.invoke('lose',
             namespace: 'Player', positionalArgs: [cardpackData]);
         for (var i = 0; i < 3; ++i) {
           final cardData = engine.hetu.invoke(
             'BattleCard',
             namedArgs: {
-              'maxRank': GameData.heroData['rank'],
-              'rank': i == 0 ? cardpackData['rank'] : null,
-              'genre': i == 0 ? cardpackData['genre'] : null,
-              'kind': i == 0 ? cardpackData['kind'] : null,
+              'maxRank': i == 0 ? null : cardFilter['rank'],
+              'category':
+                  i == 0 ? (cardFilter['category'] ?? 'attack') : 'buff',
+              'rank': i == 0 ? cardFilter['rank'] : null,
+              'genre': i == 0 ? cardFilter['genre'] : null,
+              'kind': i == 0 ? cardFilter['kind'] : null,
               'isIdentified': true,
             },
           );
@@ -598,18 +630,7 @@ class CardLibraryScene extends Scene {
               namespace: 'Player', positionalArgs: [cardData]);
         }
       }
-
       libraryZone.updateHeroLibrary();
-    }
-  }
-
-  @override
-  void onStart([Map<String, dynamic> arguments = const {}]) {
-    super.onStart(arguments);
-
-    if (isLoaded) {
-      libraryZone.repositionToTop();
-      deckPilesContainer.position.y = GameUI.decksZoneBackgroundPosition.y;
     }
   }
 
@@ -796,7 +817,7 @@ class CardLibraryScene extends Scene {
 
     exit = GameData.createSiteCard(
       id: 'exit',
-      spriteId: 'exit.png',
+      spriteId: 'location/card/exit.png',
       title: engine.locale('exit'),
       position: GameUI.siteExitCardPositon,
     );
@@ -912,7 +933,7 @@ class CardLibraryScene extends Scene {
 
         for (final card in _cardpackCards) {
           engine.hetu.invoke(
-            'acquire',
+            'acquireBattleCard',
             namespace: 'Player',
             positionalArgs: [card.data],
           );
@@ -977,7 +998,32 @@ class CardLibraryScene extends Scene {
         const Positioned(
           left: 0,
           top: 0,
-          child: GameUIOverlay(showLibrary: false),
+          child: GameUIOverlay(
+            enableNpcs: false,
+            enableLibrary: false,
+            enableAutoExhaust: false,
+          ),
+        ),
+        Positioned(
+          right: 10.0,
+          top: 10.0,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(5.0),
+              border: Border.all(color: GameUI.foregroundColor),
+            ),
+            child: IconButton(
+              onPressed: () {
+                GameDialogContent.show(
+                  context,
+                  engine.locale('help_cardlibrary'),
+                  style: TextStyle(color: Colors.yellow),
+                );
+              },
+              icon: Icon(Icons.question_mark),
+            ),
+          ),
         ),
       ],
     );

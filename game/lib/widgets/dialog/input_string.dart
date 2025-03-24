@@ -47,7 +47,7 @@ class _InputStringDialogState extends State<InputStringDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      color: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       child: SizedBox(
         width: 240,

@@ -16,7 +16,7 @@ import 'scene/card_library/card_library.dart';
 import 'binding/character_binding.dart';
 import 'game/data.dart';
 import 'game/ui.dart';
-import 'scene/world/location/location.dart';
+import 'scene/world/location.dart';
 import 'state/states.dart';
 import 'scene/cultivation/cultivation.dart';
 import 'game/logic.dart';
@@ -64,7 +64,7 @@ class _GameAppState extends State<GameApp> {
       return CultivationScene(context: context);
     });
 
-    engine.registerSceneConstructor(Scenes.library, (
+    engine.registerSceneConstructor(Scenes.cardlibrary, (
         [Map<String, dynamic> arguments = const {}]) async {
       return CardLibraryScene(context: context);
     });
@@ -74,10 +74,7 @@ class _GameAppState extends State<GameApp> {
       return BattleScene(
         heroData: arguments['hero'] ?? GameData.heroData,
         enemyData: arguments['enemy'],
-        // heroDeck: arguments['heroDeck'],
-        // enemyDeck: arguments['enemyDeck'],
         isSneakAttack: arguments['isSneakAttack'] ?? false,
-        isAutoBattle: arguments['isAutoBattle'] ?? false,
         onBattleStart: arguments['onBattleStart'],
         onBattleEnd: arguments['onBattleEnd'],
       );
@@ -139,6 +136,24 @@ class _GameAppState extends State<GameApp> {
             GameLogic.expForLevel(positionalArgs.first),
         override: true);
 
+    engine.hetu.interpreter.bindExternalFunction(
+        'minLevelForRank',
+        ({positionalArgs, namedArgs}) =>
+            GameLogic.minLevelForRank(positionalArgs.first),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'maxLevelForRank',
+        ({positionalArgs, namedArgs}) =>
+            GameLogic.maxLevelForRank(positionalArgs.first),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'getDeckLimitForRank',
+        ({positionalArgs, namedArgs}) =>
+            GameLogic.getDeckLimitForRank(positionalArgs.first),
+        override: true);
+
     engine.hetu.interpreter.bindExternalFunction('Dialog::_pushDialog', (
         {positionalArgs, namedArgs}) {
       final content = positionalArgs[0];
@@ -181,6 +196,11 @@ class _GameAppState extends State<GameApp> {
           .popBackground(isFadeOut: namedArgs['isFadeOut'] ?? false);
     }, override: true);
 
+    engine.hetu.interpreter.bindExternalFunction('Dialog::popAllBackgrounds', (
+        {positionalArgs, namedArgs}) {
+      context.read<GameDialogState>().popAllBackgrounds();
+    }, override: true);
+
     engine.hetu.interpreter.bindExternalFunction('Dialog::pushTask', (
         {positionalArgs, namedArgs}) {
       final func = positionalArgs[0] as HTFunction;
@@ -206,15 +226,14 @@ class _GameAppState extends State<GameApp> {
       GameDialogContent.show(context, engine.locale('reloadGameDataPrompt'));
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Debug::reloadModules', (
-        {positionalArgs, namedArgs}) {
-      GameData.initModules();
-      GameDialogContent.show(context, engine.locale('reloadModulesPrompt'));
-    }, override: true);
-
     engine.hetu.interpreter.bindExternalFunction('Game::_update', (
         {positionalArgs, namedArgs}) {
       context.read<HeroState>().update();
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::updateGameTime', (
+        {positionalArgs, namedArgs}) {
+      context.read<GameTimestampState>().update();
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::updateHistory', (
@@ -222,19 +241,19 @@ class _GameAppState extends State<GameApp> {
       context.read<HeroAndGlobalHistoryState>().update();
     }, override: true);
 
+    engine.hetu.interpreter.bindExternalFunction('Game::updateNpcList', (
+        {positionalArgs, namedArgs}) {
+      context.read<NpcListState>().update();
+    }, override: true);
+
     engine.hetu.interpreter.bindExternalFunction('Game::promptNewItems', (
         {positionalArgs, namedArgs}) {
       context.read<NewItemsState>().update(positionalArgs.first);
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Game::promptNewQuests', (
+    engine.hetu.interpreter.bindExternalFunction('Game::promptNewQuest', (
         {positionalArgs, namedArgs}) {
-      context.read<NewQuestsState>().update(positionalArgs.first);
-    }, override: true);
-
-    engine.hetu.interpreter.bindExternalFunction('Game::updateGameTime', (
-        {positionalArgs, namedArgs}) {
-      context.read<GameTimestampState>().update();
+      context.read<NewQuestState>().update(positionalArgs.first);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::showHeroInfo', (
@@ -269,7 +288,7 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::showLibrary', (
         {positionalArgs, namedArgs}) {
-      engine.pushScene(Scenes.library);
+      engine.pushScene(Scenes.cardlibrary);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::showCultivation', (
@@ -352,7 +371,9 @@ class _GameAppState extends State<GameApp> {
 
     // 载入动画，卡牌等纯JSON格式的游戏数据
     // ignore: use_build_context_synchronously
-    await GameData.init(context: context);
+    await GameData.init();
+
+    engine.hetu.invoke('build', positionalArgs: [context]);
 
     // const videoFilename = 'D:/_dev/heavenly-tribulation/media/video/title2.mp4';
     // _videoFile = File.fromUri(Uri.file(videoFilename));

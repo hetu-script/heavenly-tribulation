@@ -24,6 +24,8 @@ namespace Dialog {
 
   external function popBackground({isFadeOut: bool = false})
 
+  external function popAllBackgrounds()
+
   external function pushTask(task: function, {flagId: string})
 
   /// 这个函数会解析参数并最终生成显示用的名字、头像、插画和对话内容

@@ -142,6 +142,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                               .read<HeroInfoVisibilityState>()
                               .setVisible(false);
                           setMenuState(MenuStates.main);
+                          engine.clearAllCachedScene(except: Scenes.mainmenu);
 
                           await GameData.loadPreset('story');
                           engine.pushScene(
@@ -182,12 +183,8 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                                 const CreateSandboxGameDialog(),
                           );
                           if (args == null) return;
-                          if (context.mounted) {
-                            context
-                                .read<HeroInfoVisibilityState>()
-                                .setVisible(false);
-                          }
                           setMenuState(MenuStates.main);
+                          engine.clearAllCachedScene(except: Scenes.mainmenu);
 
                           await GameData.createGame(
                             args['id'],
@@ -215,13 +212,8 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                             builder: (context) => const LoadGameDialog(),
                           );
                           if (info == null) return;
-                          if (context.mounted) {
-                            context
-                                .read<HeroInfoVisibilityState>()
-                                .setVisible(false);
-                          }
                           setMenuState(MenuStates.main);
-
+                          engine.clearAllCachedScene(except: Scenes.mainmenu);
                           await GameData.loadGame(info.savePath);
                           engine.pushScene(
                             info.currentWorldId,
@@ -266,6 +258,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           );
                           if (args == null) return;
                           setMenuState(MenuStates.main);
+                          engine.clearAllCachedScene(except: Scenes.mainmenu);
                           await GameData.createGame(
                             args['id'],
                             saveName: args['saveName'],
@@ -294,6 +287,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           );
                           if (info == null) return;
                           setMenuState(MenuStates.main);
+                          engine.clearAllCachedScene(except: Scenes.mainmenu);
                           await GameData.loadGame(
                             info.savePath,
                             isEditorMode: true,
@@ -455,6 +449,24 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           });
                         },
                         child: Label(engine.locale('debug_merchant'),
+                            width: 200.0, textAlign: TextAlign.center),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 20.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          final companion = engine.hetu.invoke('Character');
+                          engine.hetu.invoke(
+                            'accompany',
+                            namespace: 'Player',
+                            positionalArgs: [
+                              companion,
+                            ],
+                          );
+                          context.read<NpcListState>().update([companion]);
+                        },
+                        child: Label(engine.locale('debug_companion'),
                             width: 200.0, textAlign: TextAlign.center),
                       ),
                     ),

@@ -91,7 +91,7 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
         'assets/images/time/${kTimeOfDayImageIds[tickOfDay]}.png';
 
     return ResponsiveView(
-      color: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       width: 300.0,
       height: 380.0,

@@ -52,7 +52,7 @@ class _EditCharacterBondState extends State<EditCharacterBond> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      color: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       width: 350.0,
       height: 400.0,

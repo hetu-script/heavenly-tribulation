@@ -7,6 +7,7 @@ import 'package:samsara/utils/math.dart' as math;
 
 const _kVibrateSize = 5.0;
 const _kLightRadius = 25.0;
+const _kTrailPriority = 30;
 
 class LightTrail extends BorderComponent {
   static final random = math.Random();
@@ -34,7 +35,7 @@ class LightTrail extends BorderComponent {
   final double _duration;
 
   LightTrail({
-    super.isVisible,
+    super.isVisible = false,
     super.opacity,
     int flickerRate = 0,
     this.preferredRadius = _kLightRadius,
@@ -53,6 +54,7 @@ class LightTrail extends BorderComponent {
             blurBorder: _kLightRadius,
             shape: LightShape.circle,
           ),
+          priority: _kTrailPriority,
         ) {
     this.flickerRate = flickerRate;
 
@@ -96,8 +98,6 @@ class LightTrail extends BorderComponent {
 
   @override
   void render(Canvas canvas) {
-    if (!isVisible) return;
-
     sprite.render(canvas);
   }
 }

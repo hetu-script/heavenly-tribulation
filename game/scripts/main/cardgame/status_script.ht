@@ -1,4 +1,4 @@
-import '../binding/battle_character.ht'
+import '../game/battle_character.ht'
 
 /// 战斗状态脚本
 /// 每张状态都对应一个脚本
@@ -79,7 +79,7 @@ const kDefaultThreshold = 10
 
 function status_script_speed_quick_self_turn_end(self, opponent, effect, details) {
   final existed = self.hasStatusEffect('speed_quick')
-  final threshold = self.game.stats.quickThreshold ?? kDefaultThreshold
+  final threshold = self.data.stats.quickThreshold ?? kDefaultThreshold
   if (existed >= threshold) {
     self.removeStatusEffect('speed_quick', amount: threshold)
     details.extraTurn = true
@@ -88,7 +88,7 @@ function status_script_speed_quick_self_turn_end(self, opponent, effect, details
 
 function status_script_speed_slow_self_turn_start(self, opponent, effect, details) {
   final existed = self.hasStatusEffect('speed_slow')
-  final threshold = self.game.stats.slowThreshold ?? kDefaultThreshold
+  final threshold = self.data.stats.slowThreshold ?? kDefaultThreshold
   if (existed >= threshold) {
     self.removeStatusEffect('speed_slow', amount: threshold)
     details.skipTurn = true
@@ -97,7 +97,7 @@ function status_script_speed_slow_self_turn_start(self, opponent, effect, detail
 
 function status_script_dodge_nimble_self_turn_end(self, opponent, effect, details) {
   final existed = self.hasStatusEffect('dodge_nimble')
-  final threshold = self.game.stats.nimbleThreshold ?? kDefaultThreshold
+  final threshold = self.data.stats.nimbleThreshold ?? kDefaultThreshold
   if (existed >= threshold) {
     self.removeStatusEffect('dodge_nimble', amount: threshold)
     details.invincibleTurn = true
@@ -107,7 +107,7 @@ function status_script_dodge_nimble_self_turn_end(self, opponent, effect, detail
 
 function status_script_dodge_clumsy_self_turn_end(self, opponent, effect, details) {
   final existed = self.hasStatusEffect('dodge_clumsy')
-  final threshold = self.game.stats.clumsyThreshold ?? kDefaultThreshold
+  final threshold = self.data.stats.clumsyThreshold ?? kDefaultThreshold
   if (existed >= threshold) {
     self.removeStatusEffect('dodge_clumsy', amount: threshold)
     details.staggeringTurn = true

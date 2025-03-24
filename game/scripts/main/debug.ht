@@ -21,7 +21,6 @@ namespace Debug {
   function generateHero({rank = 0, level = 0}) {
     Character(
       id: 'hero',
-      unconvertedExp: 1000000,
       isFemale: false,
       level: level,
       rank: rank,
@@ -32,26 +31,38 @@ namespace Debug {
 
   function testItem([character]) {
     character ??= hero
-    final cardPack = Cardpack(
-      rank: character.rank,
-    )
-    entityAcquire(character, cardPack)
-
     final item = Equipment(
       kind: kDebugEquipments.random,
       rank: character.rank,
     )
     entityAcquire(character, item)
 
+    final cardPack1 = Cardpack(rank: character.rank)
+    entityAcquire(character, cardPack1)
+    final cardPack2 = Cardpack(rank: character.rank)
+    entityAcquire(character, cardPack2)
+    final cardPack3 = Cardpack(rank: character.rank)
+    entityAcquire(character, cardPack3)
+
+    final shardPack = Materialpack(kind: 'shard', amount: 5000)
+    entityAcquire(character, shardPack)
+
+    final moneyPack = Materialpack(kind: 'money', amount: 5000)
+    entityAcquire(character, moneyPack)
+
+    final scroll = createItemByPrototype('identify_scroll')
+    entityAcquire(character, scroll)
+
     if (character == hero) {
-      Game.promptNewItems([cardPack, item])
+      Game.promptNewItems([cardPack1, cardPack2, cardPack3, item, shardPack, moneyPack, scroll])
     }
   }
 
   function testQuest() {
-    final quest1 = Player.acceptQuestById('story_mainQuest_hunguding')
-
-    Game.promptNewQuests([quest1])
+    final quest1 = Player.acquireQuestById('mysticGirl')
+    Player.progressQuestById(quest1.id, stage: 1)
+    Player.progressQuestById(quest1.id, stage: 3)
+    Game.promptNewQuest(quest1)
   }
  
   function getCurrentTerrain() {
@@ -88,8 +99,18 @@ namespace Debug {
   }
 
   function debugDialog() {
-    Dialog.pushLocales('debug_dialog_content1', image: 'story/ling_chuxue.png')
-    Dialog.pushLocales('debug_dialog_content2', image: 'story/xiaomo.png')
+    Dialog.pushLocales(
+      'debug_dialog_content1',
+      displayName: '凌初雪',
+      icon: 'story/illustration/ling_chuxue_head.png',
+      image: 'story/illustration/ling_chuxue.png'
+    )
+    Dialog.pushLocales(
+      'debug_dialog_content2',
+      displayName: '萧墨',
+      icon: 'story/illustration/xiaomo_head.png',
+      image: 'story/illustration/xiaomo.png'
+    )
     Dialog.execute()
   }
   

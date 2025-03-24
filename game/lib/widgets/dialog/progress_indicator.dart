@@ -84,7 +84,7 @@ class _ProgressIndicatorDialogState extends State<ProgressIndicatorDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      color: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       child: SizedBox(
         width: 150,

@@ -3,6 +3,7 @@ import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 import 'package:provider/provider.dart';
 
+import '../../game/ui.dart';
 import '../../engine.dart';
 import 'inventory/inventory.dart';
 import '../../game/data.dart';
@@ -59,6 +60,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
+      backgroundColor: GameUI.backgroundColor,
       width: 720.0,
       height: 500.0,
       child: Scaffold(
@@ -118,32 +120,55 @@ class _MerchantDialogState extends State<MerchantDialog> {
                             );
                           }
                           if (widget.useShards) {
+                            int shards =
+                                widget.merchantData['materials']['shard'];
+                            if (shards < totalPrice) {
+                              GameDialogContent.show(
+                                  context, 'hint_merchantNotEnoughShard');
+                              return;
+                            }
                             engine.hetu.invoke(
                               'collect',
                               namespace: 'Player',
                               positionalArgs: ['shard'],
                               namedArgs: {'amount': totalPrice},
                             );
+                            engine.hetu.invoke(
+                              'entityExhaust',
+                              positionalArgs: [widget.merchantData, 'shard'],
+                              namedArgs: {'amount': totalPrice},
+                            );
                           } else {
+                            int money =
+                                widget.merchantData['materials']['money'];
+                            if (money < totalPrice) {
+                              GameDialogContent.show(
+                                  context, 'hint_merchantNotEnoughMoney');
+                              return;
+                            }
                             engine.hetu.invoke(
                               'collect',
                               namespace: 'Player',
                               positionalArgs: ['money'],
                               namedArgs: {'amount': totalPrice},
                             );
+                            engine.hetu.invoke(
+                              'entityExhaust',
+                              positionalArgs: [widget.merchantData, 'money'],
+                              namedArgs: {'amount': totalPrice},
+                            );
                           }
                           engine.play('coins-31879.mp3');
 
                           for (final itemData in items) {
-                            engine.hetu.invoke('entityLose', positionalArgs: [
-                              GameData.heroData,
-                              itemData,
-                            ]);
-                            engine.hetu
-                                .invoke('entityAcquire', positionalArgs: [
-                              widget.merchantData,
-                              itemData,
-                            ]);
+                            engine.hetu.invoke(
+                              'entityLose',
+                              positionalArgs: [GameData.heroData, itemData],
+                            );
+                            engine.hetu.invoke(
+                              'entityAcquire',
+                              positionalArgs: [widget.merchantData, itemData],
+                            );
                             _selectedHeroItemsData.remove(itemData['id']);
                             setState(() {});
                           }
@@ -198,13 +223,18 @@ class _MerchantDialogState extends State<MerchantDialog> {
                                 GameData.heroData['materials']['shard'];
                             if (shards < totalPrice) {
                               GameDialogContent.show(
-                                  context, 'hint_notEnoughShards');
+                                  context, 'hint_notEnoughShard');
                               return;
                             }
                             engine.hetu.invoke(
                               'exhaust',
                               namespace: 'Player',
                               positionalArgs: ['shard'],
+                              namedArgs: {'amount': totalPrice},
+                            );
+                            engine.hetu.invoke(
+                              'entityCollect',
+                              positionalArgs: [widget.merchantData, 'shard'],
                               namedArgs: {'amount': totalPrice},
                             );
                           } else {
@@ -218,6 +248,11 @@ class _MerchantDialogState extends State<MerchantDialog> {
                               'exhaust',
                               namespace: 'Player',
                               positionalArgs: ['money'],
+                              namedArgs: {'amount': totalPrice},
+                            );
+                            engine.hetu.invoke(
+                              'entityCollect',
+                              positionalArgs: [widget.merchantData, 'money'],
                               namedArgs: {'amount': totalPrice},
                             );
                           }

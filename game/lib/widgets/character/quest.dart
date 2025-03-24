@@ -35,7 +35,7 @@ class _QuestViewState extends State<QuestView> {
 
   dynamic _characterData, _questsData;
 
-  QuestViewMode _selectedMode = QuestViewMode.all;
+  // QuestViewMode _selectedMode = QuestViewMode.all;
 
   String? _selectedQuestId;
   dynamic _selectedQuest;
@@ -60,27 +60,31 @@ class _QuestViewState extends State<QuestView> {
 
   Widget _buildQuestDescription(dynamic questData) {
     final List<Widget> descriptions = [];
-    final List progress = questData['progress'];
+    final String questId = questData['id'];
+    final List sequence = questData['sequence'];
 
-    for (var index in progress) {
+    for (var index in sequence) {
       descriptions.add(
         RichText(
           text: TextSpan(
             children: buildFlutterRichText(
-              '${questData['stages'][index]['description']}',
+              engine.locale('${questId}_stage$index'),
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
         ),
       );
     }
-    return SizedBox(
-      width: 330.0,
-      height: 310.0,
-      child: SingleChildScrollView(
-        child: ListView(
-          shrinkWrap: true,
-          children: descriptions,
+    return ScrollConfiguration(
+      behavior: MaterialScrollBehavior(),
+      child: SizedBox(
+        width: 300.0,
+        height: 290.0,
+        child: SingleChildScrollView(
+          child: ListView(
+            shrinkWrap: true,
+            children: descriptions,
+          ),
         ),
       ),
     );
@@ -118,85 +122,85 @@ class _QuestViewState extends State<QuestView> {
         height: 350.0,
         padding: const EdgeInsets.symmetric(horizontal: 5.0),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
+            // SizedBox(
+            //   width: 300.0,
+            //   child: Column(
+            //     children: [
+            // SegmentedButton<QuestViewMode>(
+            //   segments: <ButtonSegment<QuestViewMode>>[
+            //     ButtonSegment<QuestViewMode>(
+            //         value: QuestViewMode.all,
+            //         label: Text(engine.locale('all')),
+            //         icon: const Icon(Icons.list)),
+            //     ButtonSegment<QuestViewMode>(
+            //         value: QuestViewMode.ongoing,
+            //         label: Text(engine.locale('current')),
+            //         icon: const Icon(Icons.access_time)),
+            //     ButtonSegment<QuestViewMode>(
+            //         value: QuestViewMode.finished,
+            //         label: Text(engine.locale('finished')),
+            //         icon: const Icon(Icons.check_circle)),
+            //   ],
+            //   selected: {_selectedMode},
+            //   onSelectionChanged: (Set<QuestViewMode> newSelection) {
+            //     setState(() {
+            //       _selectedMode = newSelection.first;
+            //     });
+            //   },
+            // ),
+            Container(
               width: 300.0,
-              child: Column(
-                children: [
-                  // SegmentedButton<QuestViewMode>(
-                  //   segments: <ButtonSegment<QuestViewMode>>[
-                  //     ButtonSegment<QuestViewMode>(
-                  //         value: QuestViewMode.all,
-                  //         label: Text(engine.locale('all')),
-                  //         icon: const Icon(Icons.list)),
-                  //     ButtonSegment<QuestViewMode>(
-                  //         value: QuestViewMode.ongoing,
-                  //         label: Text(engine.locale('current')),
-                  //         icon: const Icon(Icons.access_time)),
-                  //     ButtonSegment<QuestViewMode>(
-                  //         value: QuestViewMode.finished,
-                  //         label: Text(engine.locale('finished')),
-                  //         icon: const Icon(Icons.check_circle)),
-                  //   ],
-                  //   selected: {_selectedMode},
-                  //   onSelectionChanged: (Set<QuestViewMode> newSelection) {
-                  //     setState(() {
-                  //       _selectedMode = newSelection.first;
-                  //     });
-                  //   },
-                  // ),
-                  Container(
-                    width: 300.0,
-                    height: 320.0,
-                    margin: const EdgeInsets.only(left: 10.0, right: 10.0),
-                    padding: const EdgeInsets.all(5.0),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: GameUI.foregroundColor,
-                      ),
-                      // borderRadius: const BorderRadius.only(
-                      //   bottomLeft: Radius.circular(5.0),
-                      //   bottomRight: Radius.circular(5.0),
-                      // ),
-                    ),
-                    child: _questsData.values.isNotEmpty
-                        ? ListView(
-                            children: List<Widget>.from(
-                              _questsData.values.map(
-                                (quest) => TextButton(
-                                  style: TextButton.styleFrom(
-                                    backgroundColor:
-                                        quest['id'] == _selectedQuestId
-                                            ? Colors.white24
-                                            : Colors.transparent,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _selectedQuestId = quest['id'];
-                                      _selectedQuest = quest;
-                                    });
-                                  },
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: Text(
-                                      '${quest['name']}${quest['isFinished'] ? ' (${engine.locale('finished')})' : ''}',
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ).reversed.toList(),
-                          )
-                        : EmptyPlaceholder(engine.locale('empty')),
-                  ),
-                ],
+              height: 320.0,
+              margin: const EdgeInsets.only(left: 10.0, right: 10.0),
+              padding: const EdgeInsets.all(5.0),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: GameUI.foregroundColor,
+                ),
+                // borderRadius: const BorderRadius.only(
+                //   bottomLeft: Radius.circular(5.0),
+                //   bottomRight: Radius.circular(5.0),
+                // ),
               ),
+              child: _questsData.values.isNotEmpty
+                  ? ListView(
+                      children: List<Widget>.from(
+                        _questsData.values.map(
+                          (quest) => TextButton(
+                            style: TextButton.styleFrom(
+                              backgroundColor: quest['id'] == _selectedQuestId
+                                  ? Colors.white24
+                                  : Colors.transparent,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _selectedQuestId = quest['id'];
+                                _selectedQuest = quest;
+                              });
+                            },
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                '${quest['name']}${quest['isFinished'] ? ' (${engine.locale('finished')})' : ''}',
+                              ),
+                            ),
+                          ),
+                        ),
+                      ).reversed.toList(),
+                    )
+                  : EmptyPlaceholder(engine.locale('empty')),
             ),
+            // ],
+            // ),
+            // ),
             if (_selectedQuest != null)
               Container(
-                width: 320.0,
+                width: 300.0,
+                height: 320.0,
                 padding: const EdgeInsets.only(left: 5.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
@@ -208,6 +212,11 @@ class _QuestViewState extends State<QuestView> {
                         if (_selectedQuest['isFinished'])
                           Text(
                             engine.locale('finished'),
+                            style: const TextStyle(fontSize: 20),
+                          )
+                        else
+                          Text(
+                            engine.locale('continued'),
                             style: const TextStyle(fontSize: 20),
                           ),
                       ],

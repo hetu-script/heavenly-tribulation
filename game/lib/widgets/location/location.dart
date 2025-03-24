@@ -87,10 +87,10 @@ class _LocationViewState extends State<LocationView> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      color: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor,
       alignment: AlignmentDirectional.center,
       width: 720.0,
-      height: widget.mode != InformationViewMode.view ? 440.0 : 400.0,
+      height: widget.mode != InformationViewMode.view ? 460.0 : 400.0,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,

@@ -1,22 +1,31 @@
 {
+  "materialpack_flavortext": "使用后转化为资源。",
+
   "money": "铜钱",
   "money_description": "钱币：普通百姓之间用来交易的媒介，修真者用来向其交易资源和雇佣仆役。银块和金锭可以转化为铜钱使用。",
+  "money_package": "一串铜钱",
 
   "shard": "灵石",
   "shard_description": "灵石：灵石是修真者之间用来交易的媒介，可以向其他修真者委托任务和交易法宝。中灵石和大灵石可以转化为灵石来使用。",
+  "shard_package": "一堆灵石",
 
   "worker": "杂役",
   "worker_description": "杂役：为修真者服务的普通人。杂役是运营和修建建筑所必须的资源。",
+  "worker_package": "一群杂役",
 
   "herb": "药材",
   "herb_description": "药材：从山林中采集到的具有特殊功能的草木，用作炼丹的材料，也是培养灵植和灵兽需要的材料。",
+  "herb_package": "一捆药材",
 
   "timber": "木材",
   "timber_description": "木材：粗略加工过的圆木，用作建筑材料和部分打造材料。",
+  "timber_package": "一堆木材",
 
   "stone": "石料",
   "stone_description": "石料：从山林中开采出的石块，用作建筑材料和部分打造材料。",
+  "stone_package": "一堆石料",
 
   "ore": "矿物",
-  "ore_description": "矿物：包含金属元素的矿物，是炼器和炼丹需要的材料。"
+  "ore_description": "矿物：包含金属元素的矿物，是炼器和炼丹需要的材料。",
+  "ore_package": "一堆矿物"
 }

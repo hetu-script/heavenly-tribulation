@@ -1,13 +1,10 @@
 import 'package:flutter/foundation.dart';
 
-class NewQuestsState with ChangeNotifier {
-  dynamic quests;
+class NewQuestState with ChangeNotifier {
+  dynamic quest;
 
-  void update([List<dynamic>? quests]) {
-    if (quests != null) {
-      assert(quests.isNotEmpty);
-    }
-    this.quests = quests;
+  void update([dynamic quest]) {
+    this.quest = quest;
     notifyListeners();
   }
 }
@@ -20,6 +17,15 @@ class NewItemsState with ChangeNotifier {
       assert(items.isNotEmpty);
     }
     this.items = items;
+    notifyListeners();
+  }
+}
+
+class NewRankState with ChangeNotifier {
+  int? rank;
+
+  void update([int? rank]) {
+    this.rank = rank;
     notifyListeners();
   }
 }
