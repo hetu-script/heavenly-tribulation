@@ -14,12 +14,7 @@ const kCardDisplayDelay = 0.75
 /// 无流派，无境界
 /// 攻击
 async function card_script_main_attack(self, opponent, affix) {
-  await self.setState(
-    affix.animation,
-    sound: affix.sound,
-    overlay: affix.overlayAnimation,
-    recovery: affix.recoveryAnimation,
-  )
+  await characterAnimate(self, affix.animation)
   await opponent.takeDamage({
     isMain: true,
     kind: affix.kind,
@@ -30,12 +25,7 @@ async function card_script_main_attack(self, opponent, affix) {
 }
 /// 多次攻击
 async function card_script_main_attack_multiple(self, opponent, affix) {
-  await self.setState(
-    affix.animation,
-    sound: affix.sound,
-    overlay: affix.overlayAnimation,
-    recovery: affix.recoveryAnimation,
-  )
+  await characterAnimate(self, affix.animation)
   final times = affix.value[1]
   for (final i in range(times)) {
     opponent.takeDamage({
@@ -50,15 +40,9 @@ async function card_script_main_attack_multiple(self, opponent, affix) {
 async function card_script_main_attack_cost_1_energy(self, opponent, affix) {
   final amount = self.removeStatusEffect('energy_positive_${affix.resourceType}', amount: 1)
   if (amount < 1) {
-    await Future.delayed(kCardDisplayDelay)
     return
   }
-  await self.setState(
-    affix.animation,
-    sound: affix.sound,
-    overlay: affix.overlayAnimation,
-    recovery: affix.recoveryAnimation,
-  )
+  await characterAnimate(self, affix.animation)
   await opponent.takeDamage({
     isMain: true,
     kind: affix.kind,
@@ -71,15 +55,9 @@ async function card_script_main_attack_cost_1_energy(self, opponent, affix) {
 async function card_script_main_wind_blade(self, opponent, affix) {
   final amount = self.removeStatusEffect('energy_positive_spell', amount: 1)
   if (amount < 1) {
-    await Future.delayed(kCardDisplayDelay)
     return
   }
-  await self.setState(
-    affix.animation,
-    sound: affix.sound,
-    overlay: affix.overlayAnimation,
-    recovery: affix.recoveryAnimation,
-  )
+  await characterAnimate(self, affix.animation)
   opponent.takeDamage({
     isMain: true,
     kind: affix.kind,
@@ -93,15 +71,9 @@ async function card_script_main_wind_blade(self, opponent, affix) {
 async function card_script_main_lightning(self, opponent, affix) {
   final amount = self.removeStatusEffect('energy_positive_spell', amount: 1)
   if (amount < 1) {
-    await Future.delayed(kCardDisplayDelay)
     return
   }
-  await self.setState(
-    affix.animation,
-    sound: affix.sound,
-    overlay: affix.overlayAnimation,
-    recovery: affix.recoveryAnimation,
-  )
+  await characterAnimate(self, affix.animation)
   opponent.takeDamage({
     isMain: true,
     kind: affix.kind,
@@ -113,12 +85,7 @@ async function card_script_main_lightning(self, opponent, affix) {
 }
 /// 擒拿术
 async function card_script_main_attack_wrestling(self, opponent, affix) {
-  await self.setState(
-    affix.animation,
-    sound: affix.sound,
-    overlay: affix.overlayAnimation,
-    recovery: affix.recoveryAnimation,
-  )
+  await characterAnimate(self, affix.animation)
   opponent.takeDamage({
     isMain: true,
     kind: affix.kind,
@@ -130,12 +97,7 @@ async function card_script_main_attack_wrestling(self, opponent, affix) {
 }
 /// 点穴手
 async function card_script_main_attack_dianxue(self, opponent, affix) {
-  await self.setState(
-    affix.animation,
-    sound: affix.sound,
-    overlay: affix.overlayAnimation,
-    recovery: affix.recoveryAnimation,
-  )
+  await characterAnimate(self, affix.animation)
   opponent.takeDamage({
     isMain: true,
     kind: affix.kind,
@@ -147,11 +109,7 @@ async function card_script_main_attack_dianxue(self, opponent, affix) {
 }
 /// 防御
 async function card_script_main_defend(self, opponent, affix) {
-  await self.setState(
-    affix.animation,
-    sound: affix.sound,
-  )
-  await Future.delayed(kCardDisplayDelay)
+  await characterAnimate(self, affix.animation)
   self.addStatusEffect(
     'defense_${affix.damageType}',
     amount: affix.value[0]
@@ -161,36 +119,23 @@ async function card_script_main_defend(self, opponent, affix) {
 /// 无流派，凝气
 /// 获得生命
 async function card_script_main_heal(self, opponent, affix) {
-  await self.setState(
-    affix.animation,
-    sound: affix.sound,
-    overlay: affix.overlayAnimation,
-  )
+  await characterAnimate(self, affix.animation)
   await self.changeLife(affix.value[0])
 }
 /// 获得元气
 async function card_script_main_life_energy(self, opponent, affix) {
-  await self.setState(
-    affix.animation,
-    sound: affix.sound,
-  )
+  await characterAnimate(self, affix.animation)
   self.addStatusEffect('energy_positive_life', amount: affix.value[0])
 }
 /// 获得灵气
 async function card_script_main_spell_energy(self, opponent, affix) {
-  await self.setState(
-    affix.animation,  
-    sound: affix.sound,
-  )
+  await characterAnimate(self, affix.animation)
   self.addStatusEffect('energy_positive_spell', amount: affix.value[0])
 }
 /// 御剑
 /// 元气转化为剑气
 async function card_script_main_weapon_energy_convert(self, opponent, affix, mainAffix) {
-  await self.setState(
-    affix.animation,  
-    sound: affix.sound,
-  )
+  await characterAnimate(self, affix.animation)
   let amount1 = self.removeStatusEffect('energy_positive_life', hintLacking: false)
   let amount2 = self.removeStatusEffect('energy_positive_spell', hintLacking: false)
   self.addStatusEffect('energy_positive_weapon', amount: amount1 + amount2)
@@ -198,18 +143,12 @@ async function card_script_main_weapon_energy_convert(self, opponent, affix, mai
 
 /// 迅捷
 async function card_script_main_speed(self, opponent, affix) {
-  await self.setState(
-    affix.animation,  
-    sound: affix.sound,
-  )
+  await characterAnimate(self, affix.animation)
   self.addStatusEffect('speed_quick', amount: affix.value[0])
 }
 /// 闪避
 async function card_script_main_dodge(self, opponent, affix) {
-  await self.setState(
-    affix.animation,  
-    sound: affix.sound,
-  )
+  await characterAnimate(self, affix.animation)
   final value = affix.value[0]
   self.addStatusEffect('dodge_nimble', amount: value)
 }
@@ -217,10 +156,7 @@ async function card_script_main_dodge(self, opponent, affix) {
 /// 锻体，凝气
 /// 轻功
 async function card_script_main_qinggong(self, opponent, affix) {
-  await self.setState(
-    affix.animation,  
-    sound: affix.sound,
-  )
+  await characterAnimate(self, affix.animation)
   self.addStatusEffect('speed_quick', amount: affix.value[0])
   self.addStatusEffect('dodge_nimble', amount: affix.value[1])
 }

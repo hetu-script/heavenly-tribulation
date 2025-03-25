@@ -80,7 +80,7 @@ class VersusBanner extends GameComponent {
               GameUI.hugeIndent * 2 +
               GameUI.versusIconSize.x,
           40.0),
-      image: await Flame.images.load(enemyData['icon']),
+      sprite: Sprite(await Flame.images.load(enemyData['icon'])),
       // image2: await Flame.images.load('illustration/border.png'),
       size: GameUI.battleCharacterAvatarSize,
       borderRadius: 12.0,

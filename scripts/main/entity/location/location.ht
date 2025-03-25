@@ -133,7 +133,7 @@ struct Location {
         do {
           const randomName = generateLocationName(category: this.category)
           this.name = randomName.name
-          conflict = atWorld.locations.values.where((element) =>
+          conflict = game.locations.values.where((element) =>
             element.name == this.name).isNotEmpty
         } while (conflict)
       }
@@ -237,11 +237,10 @@ struct Location {
     // }
 
     let atWorld = worldId != null ? universe[worldId] : world
-    if (atWorld.locations.containsKey(this.id)) {
+    if (game.locations.containsKey(this.id)) {
       engine.warn('世界 [${atWorld.name}] 上已经添加过场景(id [${this.id}])，数据将会被覆盖')
     }
-
-    atWorld.locations[this.id] = this
+    game.locations[this.id] = this
 
     if (atLocation == null) {
       assert(atTerrain != null)
@@ -312,7 +311,7 @@ function removeLocationById(locationId: string) {
       delete terrain.overlaySprite
       World.updateTerrainOverlaySprite(terrain.left, terrain.top)
     }
-    delete atWorld.locations[locationId]
+    delete game.locations[locationId]
   }
 }
 
@@ -341,25 +340,26 @@ function setCharacterLocationId(character, locationId: string) {
 }
 
 function getLocationById(id: string, {worldId}) {
-  let atWorld = worldId != null ? universe[worldId] : world
-  return atWorld.locations[id]
+  // let atWorld = worldId != null ? universe[worldId] : world
+  return game.locations[id]
 }
 
 function getLocations({ids, worldId}) {
-  let atWorld = worldId != null ? universe[worldId] : world
+  // let atWorld = worldId != null ? universe[worldId] : world
   if (ids != null) {
     assert(ids.isNotEmpty)
-    return atWorld.locations.values.where( (value) => value.id in ids )
+    return game.locations.values.where( (value) => value.id in ids )
   } else {
-    return atWorld.locations.values
+    return game.locations.values
   }
 }
 
 function getLocationByWorldPosition(left, top, {worldId}) {
   let atWorld = worldId != null ? universe[worldId] : world
   const tile = atWorld.terrains[tilePos2Index(left, top, atWorld.width)]
-  if (tile.locationId)
-  return atWorld.locations[tile.locationId]
+  if (tile.locationId) {
+    return game.locations[tile.locationId]
+  }
 }
 
 function discoverLocation(location) {

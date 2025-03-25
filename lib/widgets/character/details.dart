@@ -221,7 +221,7 @@ class _CharacterDetailsState extends State<CharacterDetails> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             EquipmentBar(
-              type: HoverType.player,
+              type: ItemType.player,
               characterData: _characterData,
               onItemSecondaryTapped: onItemSecondaryTapped,
               isVertical: true,
@@ -256,7 +256,7 @@ class _CharacterDetailsState extends State<CharacterDetails> {
                 Inventory(
                   height: 350,
                   characterData: _characterData,
-                  type: HoverType.player,
+                  type: ItemType.player,
                   minSlotCount: 60,
                   gridsPerLine: 5,
                   onSecondaryTapped: onItemSecondaryTapped,
@@ -301,7 +301,7 @@ class CharacterDetailsView extends StatelessWidget {
               isHero: true,
             ),
             EquipmentBar(
-              type: HoverType.npc,
+              type: ItemType.npc,
               characterData: characterData,
               isVertical: true,
             ),

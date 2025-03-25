@@ -118,22 +118,22 @@ class _HoverInfoState extends State<HoverInfo> {
         case 'item':
           String description;
           switch (widget.content.type) {
-            case HoverType.general:
-            case HoverType.player:
-            case HoverType.npc:
+            case ItemType.none:
+            case ItemType.player:
+            case ItemType.npc:
               description = GameData.getDescriptionFromItemData(
                 data,
                 characterData: widget.content.data2,
                 isDetailed: isDetailed,
               );
-            case HoverType.customer:
+            case ItemType.customer:
               description = GameData.getDescriptionFromItemData(
                 data,
                 priceFactor: widget.content.data2,
                 isSell: true,
                 isDetailed: isDetailed,
               );
-            case HoverType.merchant:
+            case ItemType.merchant:
               description = GameData.getDescriptionFromItemData(
                 data,
                 priceFactor: widget.content.data2,
@@ -193,7 +193,7 @@ class _HoverInfoState extends State<HoverInfo> {
                 const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
             constraints: BoxConstraints(maxWidth: widget.content.maxWidth),
             decoration: BoxDecoration(
-              color: GameUI.backgroundColor2,
+              color: GameUI.backgroundColor3,
               // borderRadius: GameUI.borderRadius,
               // border: Border.all(color: GameUI.foregroundColor),
             ),

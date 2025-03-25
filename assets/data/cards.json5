@@ -24,14 +24,18 @@
     tags: [],
     // 卡牌插画
     image: "battlecard/illustration/attack_punch.png",
-    // 前摇动画
-    animation: "attack_punch",
-    // 后摇动画（可选）
-    recoveryAnimation: "attack_punch_recovery",
-    // 叠加动画（爆炸效果等）
-    // overlayAnimation: null,
-    // 动画播放时的声音效果
-    sound: "punch-or-kick-sound-effect-1-239696.mp3",
+    animation: {
+      // 前摇动画
+      startup: "attack_general_startup",
+      // 过渡动画组（可选）
+      transitions: ["attack_punch"],
+      // 后摇动画（可选）
+      recovery: "attack_general_recovery",
+      // （爆炸效果等）叠加动画（可选）
+      // overlays: [],
+      // 动画播放时的声音效果
+      sound: "punch-or-kick-sound-effect-1-239696.mp3",
+    },
     // 调用的脚本函数的id
     script: "attack",
     // 是否是主词条，主词条会直接写在卡面上，额外词条会在光标浮窗中显示
@@ -64,9 +68,12 @@
     description: "affix_description_attack_weapon",
     tags: [],
     image: "battlecard/illustration/attack_sword.png",
-    animation: "attack_sword",
-    recoveryAnimation: "attack_sword_recovery",
-    sound: "sword-sound-2-36274.mp3",
+    animation: {
+      startup: "attack_general_startup",
+      transitions: ["attack_sword"],
+      recovery: "attack_general_recovery",
+      sound: "sword-sound-2-36274.mp3",
+    },
     script: "attack",
     isMain: true,
     equipment: "sword",
@@ -84,9 +91,12 @@
     description: "affix_description_attack_weapon",
     tags: [],
     image: "battlecard/illustration/attack_sabre.png",
-    animation: "attack_sabre",
-    recoveryAnimation: "attack_sabre_recovery",
-    sound: "sword-sound-2-36274.mp3",
+    animation: {
+      startup: "attack_general_startup",
+      transitions: ["attack_sabre"],
+      recovery: "attack_general_recovery",
+      sound: "sword-sound-2-36274.mp3",
+    },
     script: "attack",
     isMain: true,
     equipment: "sabre",
@@ -104,9 +114,12 @@
     description: "affix_description_attack_weapon",
     tags: [],
     image: "battlecard/illustration/attack_staff.png",
-    animation: "attack_staff",
-    recoveryAnimation: "attack_staff_recovery",
-    sound: "punch-or-kick-sound-effect-1-239696.mp3",
+    animation: {
+      startup: "attack_general_startup",
+      transitions: ["attack_staff"],
+      recovery: "attack_general_recovery",
+      sound: "punch-or-kick-sound-effect-1-239696.mp3",
+    },
     script: "attack",
     isMain: true,
     equipment: "staff",
@@ -127,10 +140,12 @@
     description: "affix_description_attack_fireball",
     tags: [],
     image: "battlecard/illustration/spellcraft_fireball.png",
-    animation: "attack_spell",
-    recoveryAnimation: "attack_spell_recovery",
-    overlayAnimation: "fireball",
-    sound: "fireball-whoosh-5-179129.mp3",
+    animation: {
+      startup: "attack_spell",
+      recovery: "attack_spell_recovery",
+      overlays: ["fireball"],
+      sound: "fireball-whoosh-5-179129.mp3",
+    },
     script: "attack_cost_1_energy",
     isMain: true,
     valueData: [
@@ -153,10 +168,12 @@
     description: "affix_description_attack_wind_blade",
     tags: ["status_speed_slow"],
     image: "battlecard/illustration/spellcraft_wind_blade.png",
-    animation: "attack_spell",
-    recoveryAnimation: "attack_spell_recovery",
-    overlayAnimation: "wind_blade",
-    sound: "wind-1-44149.mp3",
+    animation: {
+      startup: "attack_spell",
+      recovery: "attack_spell_recovery",
+      overlays: ["wind_blade"],
+      sound: "wind-1-44149.mp3",
+    },
     script: "wind_blade",
     isMain: true,
     valueData: [
@@ -184,10 +201,12 @@
     description: "affix_description_attack_lightning",
     tags: ["status_dodge_clumsy"],
     image: "battlecard/illustration/spellcraft_lightning.png",
-    animation: "attack_spell",
-    recoveryAnimation: "attack_spell_recovery",
-    overlayAnimation: "lightning",
-    sound: "big-thunder-67697.mp3",
+    animation: {
+      startup: "attack_spell",
+      recovery: "attack_spell_recovery",
+      overlays: ["lightning"],
+      sound: "big-thunder-67697.mp3",
+    },
     script: "lightning",
     isMain: true,
     valueData: [
@@ -217,10 +236,12 @@
     description: "affix_description_attack_flying_sword_1",
     tags: [],
     image: "battlecard/illustration/swordcraft_flying_sword.png",
-    animation: "attack_spell",
-    recoveryAnimation: "attack_spell_recovery",
-    overlayAnimation: "flying_sword",
-    sound: "sword-sound-2-36274.mp3",
+    animation: {
+      startup: "attack_spell",
+      recovery: "attack_spell_recovery",
+      overlays: ["flying_sword"],
+      sound: "sword-sound-2-36274.mp3",
+    },
     script: "attack_cost_1_energy",
     isMain: true,
     equipment: "sword",
@@ -245,9 +266,12 @@
     description: "affix_description_attack_wrestling",
     tags: ["status_speed_slow"],
     image: "battlecard/illustration/bodyforge_wrestling.png",
-    animation: "attack_punch",
-    recoveryAnimation: "attack_punch_recovery",
-    sound: "punch-or-kick-sound-effect-1-239696.mp3",
+    animation: {
+      startup: "attack_general_startup",
+      transitions: ["attack_punch"],
+      recovery: "attack_general_recovery",
+      sound: "punch-or-kick-sound-effect-1-239696.mp3",
+    },
     script: "attack_wrestling",
     isMain: true,
     valueData: [
@@ -267,9 +291,12 @@
     description: "affix_description_attack_dianxue",
     tags: ["status_dodge_clumsy"],
     image: "battlecard/illustration/bodyforge_dianxue.png",
-    animation: "attack_punch",
-    recoveryAnimation: "attack_punch_recovery",
-    sound: "punch-or-kick-sound-effect-1-239696.mp3",
+    animation: {
+      startup: "attack_general_startup",
+      transitions: ["attack_punch"],
+      recovery: "attack_general_recovery",
+      sound: "punch-or-kick-sound-effect-1-239696.mp3",
+    },
     script: "attack_dianxue",
     isMain: true,
     valueData: [
@@ -291,8 +318,11 @@
     description: "affix_description_attack_weapon_multiple",
     tags: [],
     image: "battlecard/illustration/vitality_dart.png",
-    animation: "attack_spell",
-    recoveryAnimation: "attack_spell_recovery",
+    animation: {
+      startup: "attack_spell",
+      recovery: "attack_spell_recovery",
+      sound: "clean-fast-swooshaiff-14784.mp3",
+    },
     script: "attack_multiple",
     isMain: true,
     equipment: "dart",
@@ -315,8 +345,10 @@
     description: "affix_description_defend_physical",
     tags: ["status_defense"],
     image: "battlecard/illustration/defend_punch.png",
-    animation: "buff_punch",
-    sound: "dagger_drawn2-89025.mp3",
+    animation: {
+      startup: "buff_punch",
+      sound: "dagger_drawn2-89025.mp3",
+    },
     script: "defend",
     isMain: true,
     valueData: [
@@ -337,8 +369,10 @@
     description: "affix_description_defend_physical",
     tags: ["status_defense"],
     image: "battlecard/illustration/defend_sword.png",
-    animation: "buff_sword",
-    sound: "dagger_drawn2-89025.mp3",
+    animation: {
+      startup: "buff_sword",
+      sound: "dagger_drawn2-89025.mp3",
+    },
     script: "defend",
     isMain: true,
     equipment: "sword",
@@ -360,8 +394,10 @@
     description: "affix_description_defend_physical",
     tags: ["status_defense"],
     image: "battlecard/illustration/defend_sabre.png",
-    animation: "buff_sabre",
-    sound: "dagger_drawn2-89025.mp3",
+    animation: {
+      startup: "buff_sabre",
+      sound: "dagger_drawn2-89025.mp3",
+    },
     script: "defend",
     isMain: true,
     equipment: "sabre",
@@ -383,8 +419,10 @@
     description: "affix_description_defend_physical",
     tags: ["status_defense"],
     image: "battlecard/illustration/defend_staff.png",
-    animation: "buff_staff",
-    sound: "dagger_drawn2-89025.mp3",
+    animation: {
+      startup: "buff_staff",
+      sound: "dagger_drawn2-89025.mp3",
+    },
     script: "defend",
     isMain: true,
     equipment: "staff",
@@ -406,8 +444,10 @@
     description: "affix_description_speed",
     tags: ["status_speed_quick"],
     image: "battlecard/illustration/quick.png",
-    animation: "buff_punch",
-    sound: "buffer-spell-88994.mp3",
+    animation: {
+      startup: "buff_punch",
+      sound: "buffer-spell-88994.mp3",
+    },
     script: "speed",
     isMain: true,
     valueData: [
@@ -428,8 +468,10 @@
     description: "affix_description_dodge",
     tags: ["status_dodge_nimble"],
     image: "battlecard/illustration/nimble.png",
-    animation: "buff_punch",
-    sound: "buffer-spell-88994.mp3",
+    animation: {
+      startup: "buff_punch",
+      sound: "buffer-spell-88994.mp3",
+    },
     script: "dodge",
     isMain: true,
     valueData: [
@@ -452,9 +494,11 @@
     description: "affix_description_heal",
     tags: [],
     image: "battlecard/illustration/xinfa.png",
-    animation: "buff_spell",
-    overlayAnimation: "restore_life",
-    sound: "spell-of-healing-876.mp3",
+    animation: {
+      startup: "buff_spell",
+      overlays: ["restore_life"],
+      sound: "spell-of-healing-876.mp3",
+    },
     script: "heal",
     isMain: true,
     valueData: [
@@ -475,8 +519,11 @@
     description: "affix_description_life_energy",
     tags: ["status_energy_positive_life"],
     image: "battlecard/illustration/xinfa.png",
-    animation: "buff_spell",
-    sound: "buffer-spell-88994.mp3",
+    animation: {
+      startup: "buff_spell",
+      overlays: ["restore_life"],
+      sound: "buffer-spell-88994.mp3",
+    },
     script: "life_energy",
     isMain: true,
     valueData: [
@@ -498,9 +545,11 @@
     description: "affix_description_spell_energy",
     tags: ["status_energy_positive_spell"],
     image: "battlecard/illustration/xinfa.png",
-    animation: "buff_spell",
-    sound: "buffer-spell-88994.mp3",
-    overlayAnimation: "restore_mana",
+    animation: {
+      startup: "buff_spell",
+      overlays: ["restore_mana"],
+      sound: "buffer-spell-88994.mp3",
+    },
     script: "spell_energy",
     isMain: true,
     valueData: [
@@ -524,8 +573,10 @@
     description: "affix_description_weapon_energy_convert",
     tags: ["status_energy_positive_weapon"],
     image: "battlecard/illustration/swordcraft_xinfa.png",
-    animation: "buff_spell",
-    sound: "buffer-spell-88994.mp3",
+    animation: {
+      startup: "buff_spell",
+      sound: "buffer-spell-88994.mp3",
+    },
     script: "weapon_energy_convert",
     isMain: true,
   },
@@ -541,8 +592,10 @@
     description: "affix_description_qinggong",
     tags: ["status_speed_quick", "status_dodge_nimble"],
     image: "battlecard/illustration/bodyforge_qinggong.png",
-    animation: "buff_punch",
-    sound: "buffer-spell-88994.mp3",
+    animation: {
+      startup: "buff_punch",
+      sound: "buffer-spell-88994.mp3",
+    },
     script: "qinggong",
     isMain: true,
     valueData: [

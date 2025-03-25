@@ -72,7 +72,7 @@ class _InputVector2DialogState extends State<InputVector2Dialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor2,
       width: 240.0,
       height: 210.0,
       alignment: AlignmentDirectional.center,

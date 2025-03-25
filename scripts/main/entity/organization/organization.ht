@@ -35,7 +35,7 @@ struct Organization {
     incurIncident = true,
   }) {
     assert(jobRankMax > 0)
-    assert(world.locations.containsKey(headquartersId))
+    assert(game.locations.containsKey(headquartersId))
     assert(game.characters.containsKey(headId))
 
     this.entityType = kEntityTypeOrganization
@@ -91,7 +91,7 @@ struct Organization {
     // 门派的历史
     this.experienced = []
 
-    const headquarters = world.locations[headquartersId]
+    const headquarters = game.locations[headquartersId]
     const head = game.characters[headId]
     const incidentContent = engine.locale('organizationCreate', interpolations: [
       head.name,
@@ -311,7 +311,7 @@ function addCharacterToOrganization(character, organization, { incurIncident = t
     )
   }
 
-  const location = world.locations[organization.headquartersId]
+  const location = game.locations[organization.headquartersId]
   setCharacterHomeLocation(character, location)
   
   return true
@@ -392,21 +392,21 @@ function removeTerrainFromOrganization(terrain, { incurIncident = true }) {
   }
 
   if (terrain.locationId != null) {
-    const location = world.locations[terrain.locationId]
+    const location = game.locations[terrain.locationId]
     delete location.organizationId
     engine.info('${oldOrg.id} 失去了据点：${location.id}')
     organization.locationIds.remove(location.id)
     
     let toBeRemoved
     for (let siteId in location.sites) {
-      const site = world.locations[siteId]
+      const site = game.locations[siteId]
       if (site.name == organization.name) {
         engine.info('${organization.id} 失去了总堂所在地块！')
         toBeRemoved = site.id
         break
       }
     }
-    delete world.locations[toBeRemoved]
+    delete game.locations[toBeRemoved]
   }
 }
 
@@ -435,7 +435,7 @@ function addTerrainToOrganization(terrain, organization, { incurIncident = true 
     }
   }
   if (terrain.locationId) {
-    const location = world.locations[terrain.locationId]
+    const location = game.locations[terrain.locationId]
     // 应该已经从原本的门派中移除
     assert(location.organizationId == null)
     location.organizationId = organization.id

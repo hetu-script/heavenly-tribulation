@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 // import 'package:flutter/foundation.dart';
 import 'package:flutter/foundation.dart';
-import 'package:heavenly_tribulation/scene/battle/battle.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/progress_indicator.dart';
 import 'package:samsara/components/hovertip.dart';
@@ -16,6 +15,7 @@ import 'battledeck_zone.dart';
 import '../../game/ui.dart';
 import 'status_effect.dart';
 import 'common.dart';
+import 'battle.dart';
 
 const kSpriteScale = 2.0;
 
@@ -127,7 +127,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     required this.deckZone,
   }) : super(anchor: Anchor.topCenter) {
     assert(GameData.animations.containsKey(skinId));
-    this.engine = engine;
+    audioPlayer = engine;
 
     if (!isHero) {
       flipHorizontally();
@@ -512,21 +512,6 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     setLife(hp);
   }
 
-  Future<void> setState(
-    String state, {
-    String? sound,
-    String? overlay,
-    String? recovery,
-    String? complete,
-  }) =>
-      setAnimationState(
-        state,
-        sound: sound,
-        overlayState: overlay,
-        recoveryState: recovery,
-        completeState: complete ?? kStandState,
-      );
-
   /// 人物受到伤害，返回实际伤害值（有可能是0）
   /// 出发伤害时和伤害后的状态效果，并最终结算伤害数值
   /// details 是脚本发过来的数据对象，内容如下：
@@ -623,9 +608,9 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     if (blocked || finalDamage == 0) {
       // 这里不能用await，动画会卡住
-      setState(kDodgeState);
+      setCompositeState(startup: kDodgeState, complete: kStandState);
     } else {
-      setState(kHitState, recovery: recovery ? kHitRecoveryState : null);
+      setCompositeState(startup: kHitState, complete: kStandState);
     }
 
     return finalDamage;

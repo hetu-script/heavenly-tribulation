@@ -74,7 +74,7 @@ class _EditCharacterBasicsState extends State<EditCharacterBasics> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor2,
       alignment: AlignmentDirectional.center,
       width: 350.0,
       height: 450.0,

@@ -1,13 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/common.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:provider/provider.dart';
 
 import '../../game/ui.dart';
 import '../../engine.dart';
 import '../../state/game_update.dart';
+import '../../common.dart';
+
+const _kTimeFlowDivisions = 10;
 
 const kTimeOfDayImageIds = {
   0: 'morning',
@@ -59,12 +61,13 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
     super.initState();
 
     _timer = Timer.periodic(
-      const Duration(milliseconds: 100),
+      const Duration(
+          milliseconds: kAutoTimeFlowInterval ~/ _kTimeFlowDivisions),
       (timer) {
         if (!finished) {
           setState(() {
             ++_progress;
-            if (_progress % 10 == 0) {
+            if (_progress % _kTimeFlowDivisions == 0) {
               widget.onProgress?.call();
               engine.hetu.invoke('updateGame');
             }
@@ -91,7 +94,7 @@ class _TimeflowDialogState extends State<TimeflowDialog> {
         'assets/images/time/${kTimeOfDayImageIds[tickOfDay]}.png';
 
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor2,
       alignment: AlignmentDirectional.center,
       width: 300.0,
       height: 380.0,

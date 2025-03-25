@@ -24,7 +24,7 @@ class Inventory extends StatefulWidget {
   });
 
   final dynamic characterData;
-  final HoverType type;
+  final ItemType type;
   final double height;
   final int minSlotCount, gridsPerLine;
   final void Function(dynamic itemData, Offset screenPosition)? onTapped;
@@ -52,8 +52,8 @@ class _InventoryState extends State<Inventory> {
   Widget build(BuildContext context) {
     final grids = <Widget>[];
 
-    final filteredItems =
-        GameData.getFilteredItems(widget.characterData, filter: widget.filter);
+    final filteredItems = GameData.getFilteredItems(widget.characterData,
+        type: widget.type, filter: widget.filter);
 
     for (final itemData in filteredItems) {
       grids.add(
@@ -63,26 +63,26 @@ class _InventoryState extends State<Inventory> {
           margin: const EdgeInsets.all(5.0),
           onMouseEnter: (itemData, rect) {
             switch (widget.type) {
-              case HoverType.general:
+              case ItemType.none:
                 context
                     .read<HoverInfoContentState>()
                     .set(itemData, type: widget.type, rect);
-              case HoverType.player:
-              case HoverType.npc:
+              case ItemType.player:
+              case ItemType.npc:
                 context.read<HoverInfoContentState>().set(
                       itemData,
                       type: widget.type,
                       data2: widget.characterData,
                       rect,
                     );
-              case HoverType.merchant:
+              case ItemType.merchant:
                 context.read<HoverInfoContentState>().set(
                       itemData,
                       type: widget.type,
                       data2: widget.priceFactor,
                       rect,
                     );
-              case HoverType.customer:
+              case ItemType.customer:
                 context.read<HoverInfoContentState>().set(
                       itemData,
                       type: widget.type,

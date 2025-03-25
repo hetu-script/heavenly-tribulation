@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/widgets/ui_overlay.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/components/sprite_button.dart';
 import 'package:flame/flame.dart';
+import 'package:samsara/components/sprite_component2.dart';
 
 import '../../game/ui.dart';
 import 'character.dart';
@@ -17,6 +19,8 @@ import '../../game/data.dart';
 import 'common.dart';
 import 'drop_menu.dart';
 import '../game_dialog/game_dialog_controller.dart';
+
+const kMinTurnDuration = 1500;
 
 /// 属性效果对应的永久状态，值是正面状态和负面状态的元组
 const kStatsToPermenantEffects = {
@@ -32,7 +36,7 @@ const kStatsToPermenantEffects = {
 };
 
 class BattleScene extends Scene {
-  late final SpriteComponent background;
+  late final SpriteComponent2 background;
   late final SpriteComponent _victoryPrompt, _defeatPrompt;
 
   late final VersusBanner versusBanner;
@@ -99,7 +103,7 @@ class BattleScene extends Scene {
   List<CustomGameCard> getDeck(dynamic characterData) {
     final List decks = characterData['battleDecks'];
     final index = characterData['battleDeckIndex'];
-    if (decks.isNotEmpty && index < decks.length) {
+    if (decks.isNotEmpty && index >= 0 && index < decks.length) {
       final deckInfo = decks[index];
       final List cardIds = deckInfo['cards'];
       return cardIds.map((id) {
@@ -121,9 +125,12 @@ class BattleScene extends Scene {
     heroDeck = getDeck(heroData);
     enemyDeck = getDeck(enemyData);
 
-    background = SpriteComponent(
-      sprite: Sprite(await Flame.images.load('battle/scene/bamboo.png')),
+    background = SpriteComponent2(
+      sprite: Sprite(await Flame.images.load('battle/scene/001.png')),
+      anchor: Anchor.center,
+      position: center,
       size: size,
+      boxFit: BoxFit.cover,
     );
     world.add(background);
 
@@ -155,15 +162,16 @@ class BattleScene extends Scene {
     for (final card in heroDeck) {
       final affixes = card.data['affixes'];
       for (final affix in affixes) {
-        if (affix['animation'] != null) {
-          heroAnimationStates.add(affix['animation']);
-        }
-        if (affix['recoveryAnimation'] != null) {
-          heroAnimationStates.add(affix['recoveryAnimation']);
-        }
-        if (affix['overlayAnimation'] != null) {
-          heroOverlayAnimationStates.add(affix['overlayAnimation']);
-        }
+        String? startup = affix['animation']?['startup'];
+        String? recovery = affix['animation']?['recovery'];
+        List<String> transitions =
+            List<String>.from(affix['animation']?['transitions'] ?? []);
+        List<String> overlays =
+            List<String>.from(affix['animation']?['overlays'] ?? []);
+        if (startup != null) heroAnimationStates.add(startup);
+        if (recovery != null) heroAnimationStates.add(recovery);
+        heroAnimationStates.addAll(transitions);
+        heroOverlayAnimationStates.addAll(overlays);
       }
     }
     heroAnimationStates.remove('');
@@ -195,17 +203,20 @@ class BattleScene extends Scene {
     for (final card in enemyDeck) {
       final affixes = card.data['affixes'];
       for (final affix in affixes) {
-        if (affix['animation'] != null) {
-          enemyAnimationStates.add(affix['animation']);
-        }
-        if (affix['recoveryAnimation'] != null) {
-          enemyAnimationStates.add(affix['recoveryAnimation']);
-        }
-        if (affix['overlayAnimation'] != null) {
-          enemyOverlayAnimationStates.add(affix['overlayAnimation']);
-        }
+        String? startup = affix['animation']?['startup'];
+        String? recovery = affix['animation']?['recovery'];
+        List<String> transitions =
+            List<String>.from(affix['animation']?['transitions'] ?? []);
+        List<String> overlays =
+            List<String>.from(affix['animation']?['overlays'] ?? []);
+        if (startup != null) enemyAnimationStates.add(startup);
+        if (recovery != null) enemyAnimationStates.add(recovery);
+        enemyAnimationStates.addAll(transitions);
+        enemyOverlayAnimationStates.addAll(overlays);
       }
     }
+    enemyAnimationStates.remove('');
+    enemyOverlayAnimationStates.remove('');
     enemy = BattleCharacter(
       position: GameUI.p2CharacterAnimationPosition,
       size: GameUI.heroSpriteSize,
@@ -255,14 +266,18 @@ class BattleScene extends Scene {
       size: Vector2(100.0, 40.0),
     );
     restartButton.onTap = (_, __) async {
+      restartButton.isVisible = false;
       _victoryPrompt.removeFromParent();
       _defeatPrompt.removeFromParent();
       nextTurnButton.isVisible = true;
       nextTurnButton.text = engine.locale('start');
-      nextTurnButton.onTap = (_, __) =>
-          (engine.config.debugMode || !isAutoBattle)
-              ? nextTurn()
-              : startAutoBattle();
+      nextTurnButton.onTap = (_, __) {
+        if (engine.config.debugMode || !isAutoBattle) {
+          nextTurn();
+        } else {
+          startAutoBattle();
+        }
+      };
       await _onBattleStart();
     };
 
@@ -282,10 +297,14 @@ class BattleScene extends Scene {
       position: Vector2(
           center.x, heroDeckZone.position.y - GameUI.buttonSizeMedium.y),
       size: Vector2(100.0, 40.0),
-      onTap: (_, __) => (!engine.config.debugMode || isAutoBattle)
-          ? startAutoBattle()
-          : nextTurn(),
     );
+    nextTurnButton.onTap = (_, __) {
+      if (engine.config.debugMode || !isAutoBattle) {
+        nextTurn();
+      } else {
+        startAutoBattle();
+      }
+    };
     camera.viewport.add(nextTurnButton);
   }
 
@@ -356,16 +375,21 @@ class BattleScene extends Scene {
     if (currentCharacter.deckZone.cards.isNotEmpty) {
       CustomGameCard card = currentCharacter.deckZone.current!;
       do {
-        final turnStartDetails =
+        final tik = DateTime.now().millisecondsSinceEpoch;
+        final turnDetails =
             await currentCharacter.onTurnStart(card, isExtra: extraTurn);
-        bool skipTurn = turnStartDetails['skipTurn'] ?? false;
-        if (skipTurn) {
-          break;
+        final delta = DateTime.now().millisecondsSinceEpoch - tik;
+        if (delta < kMinTurnDuration) {
+          await Future.delayed(
+              Duration(milliseconds: kMinTurnDuration - delta));
         }
-        final turnEndDetails = await currentCharacter.onTurnEnd(card);
-        card.isEnabled = false;
-        card = currentCharacter.deckZone.current = nextCard();
-        extraTurn = turnEndDetails['extraTurn'] ?? false;
+        bool skipTurn = turnDetails['skipTurn'] ?? false;
+        if (!skipTurn) {
+          final turnEndDetails = await currentCharacter.onTurnEnd(card);
+          card.isEnabled = false;
+          card = currentCharacter.deckZone.current = nextCard();
+          extraTurn = turnEndDetails['extraTurn'] ?? false;
+        }
       } while (extraTurn);
     } else {
       skipTurn = true;
@@ -412,8 +436,10 @@ class BattleScene extends Scene {
   Future<void> _onBattleEnd() async {
     if (battleResult == true) {
       camera.viewport.add(_victoryPrompt);
+      enemy.setState(kDefeatState);
     } else {
       camera.viewport.add(_defeatPrompt);
+      hero.setState(kDefeatState);
     }
 
     final heroName = '${hero.data['name']}(hero)';
@@ -453,29 +479,28 @@ class BattleScene extends Scene {
     return Stack(
       children: [
         SceneWidget(scene: this),
-        GameDialogController(),
-        if (engine.config.debugMode)
-          Positioned(
-            right: 0,
-            top: 0,
-            child: BattleDropMenu(
-              onSelected: (item) {
-                switch (item) {
-                  case BattleDropMenuItems.console:
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) => Console(
-                        engine: engine,
-                        margin: const EdgeInsets.all(50.0),
-                        backgroundColor: GameUI.backgroundColor,
-                      ),
-                    );
-                  case BattleDropMenuItems.exit:
-                    _endScene();
-                }
-              },
-            ),
-          ),
+        GameUIOverlay(
+          enableHeroInfo: false,
+          dropMenu: engine.config.debugMode
+              ? BattleDropMenu(
+                  onSelected: (item) {
+                    switch (item) {
+                      case BattleDropMenuItems.console:
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) => Console(
+                            engine: engine,
+                            margin: const EdgeInsets.all(50.0),
+                            backgroundColor: GameUI.backgroundColor2,
+                          ),
+                        );
+                      case BattleDropMenuItems.exit:
+                        _endScene();
+                    }
+                  },
+                )
+              : null,
+        ),
       ],
     );
   }

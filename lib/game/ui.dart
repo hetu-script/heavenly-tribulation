@@ -56,8 +56,9 @@ abstract class GameUI {
   static const pileZoneMargin = 60.0;
 
   static const foregroundColor = Colors.white;
-  static final backgroundColor = Color(0xDD02020F);
-  static final backgroundColor2 = Color(0xDD270505);
+  static final backgroundColor = Color(0xDD000000);
+  static final backgroundColor2 = Color(0xDD02020F);
+  static final backgroundColor3 = Color(0xDD270505);
   static final barrierColor = Colors.black.withAlpha(160);
   static final borderRadius = BorderRadius.circular(5.0);
 
@@ -106,7 +107,7 @@ abstract class GameUI {
     iconTheme: iconTheme,
     dividerColor: foregroundColor,
     colorScheme: ColorScheme.dark(
-      surface: backgroundColor,
+      surface: backgroundColor2,
     ),
     dropdownMenuTheme: DropdownMenuThemeData(
       textStyle: textTheme.bodyMedium,
@@ -155,7 +156,7 @@ abstract class GameUI {
       ),
     ),
     popupMenuTheme: PopupMenuThemeData(
-      color: backgroundColor,
+      color: backgroundColor2,
       shape: RoundedRectangleBorder(
         side: const BorderSide(color: foregroundColor),
         borderRadius: borderRadius,

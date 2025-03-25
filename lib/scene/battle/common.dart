@@ -39,22 +39,18 @@ const kOppositeEffect = {
   'vulnerable_spiritual': 'defense_spiritual',
 };
 
-const Set<String> kCardTypes = {
+const Set<String> kCardCategories = {
   'attack',
   'buff',
 };
 
 const String kDefeatState = 'defeat';
 const String kDodgeState = 'dodge';
-const String kDodgeRecoveryState = 'dodge_recovery';
 const String kHitState = 'hit';
-const String kHitRecoveryState = 'hit_recovery';
 const String kStandState = 'stand';
 const Set<String> kPreloadAnimationStates = {
   kDefeatState,
   kDodgeState,
-  kDodgeRecoveryState,
   kHitState,
-  kHitRecoveryState,
   kStandState,
 };

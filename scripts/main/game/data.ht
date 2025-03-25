@@ -301,18 +301,18 @@ function setHeroWorldId(worldId) {
 }
 
 function getHeroHomeLocation({worldId}) {
-  let atWorld = worldId != null ? universe[worldId] : world
+  // let atWorld = worldId != null ? universe[worldId] : world
   if (hero.homeLocationId) {
-    assert(atWorld.locations.containsKey(hero.homeLocationId))
-    return atWorld.locations[hero.homeLocationId]
+    assert(game.locations.containsKey(hero.homeLocationId))
+    return game.locations[hero.homeLocationId]
   }
 }
 
 function getHeroHomeSite({worldId}) {
-  let atWorld = worldId != null ? universe[worldId] : world
+  // let atWorld = worldId != null ? universe[worldId] : world
   if (hero.homeSiteId) {
-    assert(atWorld.locations.containsKey(hero.homeSiteId))
-    return atWorld.locations[hero.homeSiteId]
+    assert(game.locations.containsKey(hero.homeSiteId))
+    return game.locations[hero.homeSiteId]
   }
 }
 

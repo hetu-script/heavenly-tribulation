@@ -11,16 +11,71 @@ import 'create_sandbox_game.dart';
 import 'create_blank_map.dart';
 import '../../state/states.dart';
 import '../common.dart';
+import '../../game/logic.dart';
+import '../../widgets/menu_item_builder.dart';
+
+enum DebugMenuItems {
+  debugResetHero,
+  debugDialog,
+  debugItem,
+  debugQuest,
+  debugMerchant,
+  debugCompanion,
+  debugBattle,
+  debugTribulation,
+}
+
+List<PopupMenuEntry<DebugMenuItems>> buildDebugMenuItems(
+    {void Function(DebugMenuItems item)? onSelectedItem}) {
+  return <PopupMenuEntry<DebugMenuItems>>[
+    buildMenuItem(
+      item: DebugMenuItems.debugResetHero,
+      name: engine.locale('debug_reset_hero'),
+      onSelectedItem: onSelectedItem,
+    ),
+    buildMenuItem(
+      item: DebugMenuItems.debugDialog,
+      name: engine.locale('debug_dialog'),
+      onSelectedItem: onSelectedItem,
+    ),
+    buildMenuItem(
+      item: DebugMenuItems.debugItem,
+      name: engine.locale('debug_item'),
+      onSelectedItem: onSelectedItem,
+    ),
+    buildMenuItem(
+      item: DebugMenuItems.debugQuest,
+      name: engine.locale('debug_quest'),
+      onSelectedItem: onSelectedItem,
+    ),
+    const PopupMenuDivider(),
+    buildMenuItem(
+      item: DebugMenuItems.debugMerchant,
+      name: engine.locale('debug_merchant'),
+      onSelectedItem: onSelectedItem,
+    ),
+    buildMenuItem(
+      item: DebugMenuItems.debugCompanion,
+      name: engine.locale('debug_companion'),
+      onSelectedItem: onSelectedItem,
+    ),
+    buildMenuItem(
+      item: DebugMenuItems.debugBattle,
+      name: engine.locale('debug_battle'),
+      onSelectedItem: onSelectedItem,
+    ),
+    buildMenuItem(
+      item: DebugMenuItems.debugTribulation,
+      name: engine.locale('debug_tribulation'),
+      onSelectedItem: onSelectedItem,
+    ),
+  ];
+}
 
 enum MenuStates {
   main,
   editor,
   game,
-}
-
-enum DebugStates {
-  main,
-  debug1,
 }
 
 class MainMenuButtons extends StatefulWidget {
@@ -42,13 +97,6 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
     });
   }
 
-  DebugStates _debugState = DebugStates.main;
-  void setDebugMenuState(DebugStates state) {
-    setState(() {
-      _debugState = state;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -66,7 +114,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
           child: Container(
             padding: const EdgeInsets.only(top: 200.0),
             child: Image(
-              image: AssetImage('assets/images/title.png'),
+              image: AssetImage('assets/images/title2.png'),
             ),
           ),
         ),
@@ -332,146 +380,68 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
         Align(
           alignment: Alignment.topRight,
           child: Container(
-            width: 180.0,
-            padding: EdgeInsets.only(
-              right: 20.0,
-              bottom: 20.0,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius:
+                  const BorderRadius.only(bottomLeft: Radius.circular(5.0)),
+              border: Border.all(color: GameUI.foregroundColor),
             ),
-            child: Column(
-              children: switch (_debugState) {
-                DebugStates.main => [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setDebugMenuState(DebugStates.debug1);
-                        },
-                        child: Label(
-                          engine.locale('debugMode'),
-                          width: 200.0,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ],
-                DebugStates.debug1 => [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setDebugMenuState(DebugStates.main);
-                        },
-                        child: Label(engine.locale('goBack'),
-                            width: 200.0, textAlign: TextAlign.center),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20.0),
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          context.read<HeroState>().update();
-                          engine.clearAllCachedScene(
-                            except: Scenes.mainmenu,
-                            arguments: {'reset': true},
-                          );
-                        },
-                        child: Label(
-                          engine.locale('debug_reset_hero'),
-                          width: 200.0,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          engine.hetu.invoke('debugDialog', namespace: 'Debug');
-                        },
-                        child: Label(engine.locale('debug_dialog'),
-                            width: 200.0, textAlign: TextAlign.center),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          engine.hetu.invoke('testItem', namespace: 'Debug');
-                        },
-                        child: Label(engine.locale('debug_item'),
-                            width: 200.0, textAlign: TextAlign.center),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          engine.hetu.invoke('testQuest', namespace: 'Debug');
-                        },
-                        child: Label(engine.locale('debug_quest'),
-                            width: 200.0, textAlign: TextAlign.center),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          final enemy =
-                              engine.hetu.invoke('Character', namedArgs: {
-                            'isFemale': false,
-                            'level': 0,
-                            'rank': 0,
-                          });
-                          engine.hetu
-                              .invoke('generateDeck', positionalArgs: [enemy]);
-                          context.read<EnemyState>().show(enemy);
-                        },
-                        child: Label(engine.locale('debug_battle'),
-                            width: 200.0, textAlign: TextAlign.center),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          final merchant =
-                              engine.hetu.invoke('Character', namedArgs: {
-                            'rank': 2,
-                            'level': 10,
-                          });
-                          engine.hetu.invoke('testItem',
-                              namespace: 'Debug', positionalArgs: [merchant]);
-                          context
-                              .read<MerchantState>()
-                              .show(merchant, priceFactor: {
-                            // 'useShard': true,
-                            // 'base': 0.5,
-                          });
-                        },
-                        child: Label(engine.locale('debug_merchant'),
-                            width: 200.0, textAlign: TextAlign.center),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 20.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          final companion = engine.hetu.invoke('Character');
-                          engine.hetu.invoke(
-                            'accompany',
-                            namespace: 'Player',
-                            positionalArgs: [
-                              companion,
-                            ],
-                          );
-                          context.read<NpcListState>().update([companion]);
-                        },
-                        child: Label(engine.locale('debug_companion'),
-                            width: 200.0, textAlign: TextAlign.center),
-                      ),
-                    ),
-                  ],
+            child: PopupMenuButton<DebugMenuItems>(
+              offset: const Offset(0, 45),
+              icon: const Icon(Icons.menu_open),
+              tooltip: engine.locale('debugMode'),
+              onSelected: (item) {
+                switch (item) {
+                  case DebugMenuItems.debugResetHero:
+                    context.read<HeroState>().update();
+                    engine.clearAllCachedScene(
+                      except: Scenes.mainmenu,
+                      arguments: {'reset': true},
+                      restart: true,
+                    );
+                  case DebugMenuItems.debugDialog:
+                    engine.hetu.invoke('debugDialog', namespace: 'Debug');
+                  case DebugMenuItems.debugItem:
+                    engine.hetu.invoke('testItem', namespace: 'Debug');
+                  case DebugMenuItems.debugQuest:
+                    engine.hetu.invoke('testQuest', namespace: 'Debug');
+                  case DebugMenuItems.debugMerchant:
+                    final merchant =
+                        engine.hetu.invoke('Character', namedArgs: {
+                      'rank': 2,
+                      'level': 10,
+                    });
+                    engine.hetu.invoke('testItem',
+                        namespace: 'Debug', positionalArgs: [merchant]);
+                    context.read<MerchantState>().show(merchant, priceFactor: {
+                      // 'useShard': true,
+                      // 'base': 0.5,
+                    });
+                  case DebugMenuItems.debugCompanion:
+                    final companion = engine.hetu.invoke('Character');
+                    engine.hetu.invoke(
+                      'accompany',
+                      namespace: 'Player',
+                      positionalArgs: [
+                        companion,
+                      ],
+                    );
+                    context.read<NpcListState>().update([companion]);
+                  case DebugMenuItems.debugBattle:
+                    final enemy = engine.hetu.invoke('Character', namedArgs: {
+                      'isFemale': false,
+                      'level': 0,
+                      'rank': 0,
+                    });
+                    engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
+                    context.read<EnemyState>().show(enemy);
+                  case DebugMenuItems.debugTribulation:
+                    final targetRank = GameData.heroData['rank'] + 1;
+                    final levelMin = GameLogic.minLevelForRank(targetRank);
+                    GameLogic.showTribulation(levelMin + 5, targetRank);
+                }
               },
+              itemBuilder: (BuildContext context) => buildDebugMenuItems(),
             ),
           ),
         ),

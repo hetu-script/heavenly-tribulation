@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:heavenly_tribulation/state/states.dart';
 import 'package:samsara/ui/label.dart';
 import 'package:provider/provider.dart';
 
@@ -7,6 +6,7 @@ import 'inventory/inventory.dart';
 import '../../engine.dart';
 import '../draggable_panel.dart';
 import '../../game/data.dart';
+import '../../state/states.dart';
 
 class ItemSelectDialog extends StatefulWidget {
   const ItemSelectDialog({
@@ -14,6 +14,7 @@ class ItemSelectDialog extends StatefulWidget {
     required this.characterData,
     this.title,
     this.height = 360.0,
+    this.type = ItemType.none,
     this.filter,
     this.multiSelect = false,
     this.onSelect,
@@ -22,6 +23,7 @@ class ItemSelectDialog extends StatefulWidget {
   final String? title;
   final dynamic characterData;
   final double height;
+  final ItemType type;
   final dynamic filter;
   final bool multiSelect;
   final void Function(Iterable itemsData)? onSelect;
@@ -35,7 +37,7 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
+    final screenSize = MediaQuery.sizeOf(context);
 
     return DraggablePanel(
       title: widget.title ?? engine.locale('selectItem'),
@@ -52,7 +54,7 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
         child: Column(
           children: [
             Inventory(
-              type: HoverType.player,
+              type: ItemType.player,
               characterData: widget.characterData,
               height: widget.height,
               filter: widget.filter,
@@ -95,8 +97,10 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
                     onPressed: () {
                       _selectedItemsData.clear();
                       final filteredItems = GameData.getFilteredItems(
-                          widget.characterData,
-                          filter: widget.filter);
+                        widget.characterData,
+                        type: widget.type,
+                        filter: widget.filter,
+                      );
                       for (final item in filteredItems) {
                         _selectedItemsData[item['id']] = item;
                       }

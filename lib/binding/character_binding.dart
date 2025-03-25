@@ -35,7 +35,14 @@ class BattleCharacterClassBinding extends HTExternalClass {
       case 'setState':
         return ({object, positionalArgs, namedArgs}) => character.setState(
               positionalArgs.first,
-              overlay: namedArgs['overlay'],
+              isOverlay: namedArgs['isOverlay'],
+            );
+      case 'setCompositeState':
+        return ({object, positionalArgs, namedArgs}) =>
+            character.setCompositeState(
+              startup: namedArgs['startup'],
+              transitions: namedArgs['transitions'],
+              overlays: namedArgs['overlays'],
               recovery: namedArgs['recovery'],
               complete: namedArgs['complete'],
               sound: namedArgs['sound'],

@@ -137,7 +137,7 @@ class CharacterVisitDialog extends StatelessWidget {
     }));
 
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor2,
       alignment: AlignmentDirectional.center,
       margin: const EdgeInsets.fromLTRB(50.0, 50.0, 50.0, 50.0),
       child: Scaffold(

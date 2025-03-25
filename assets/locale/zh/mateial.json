@@ -2,8 +2,9 @@
   "materialpack_flavortext": "使用后转化为资源。",
 
   "money": "铜钱",
-  "money_description": "钱币：普通百姓之间用来交易的媒介，修真者用来向其交易资源和雇佣仆役。银块和金锭可以转化为铜钱使用。",
-  "money_package": "一串铜钱",
+  "money2": "文",
+  "money_description": "铜钱：普通百姓之间用来交易的媒介，修真者用来向其交易资源和雇佣仆役。银块和金锭可以转化为铜钱使用。",
+  "money_package": "一堆铜钱",
 
   "shard": "灵石",
   "shard_description": "灵石：灵石是修真者之间用来交易的媒介，可以向其他修真者委托任务和交易法宝。中灵石和大灵石可以转化为灵石来使用。",

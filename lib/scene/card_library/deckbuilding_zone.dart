@@ -397,11 +397,14 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
         // TODO: 这里为什么要除以 2 才能正确的得到位置???
         (game as CardLibraryScene).draggingCard?.position += offset / 2;
     card.onDragEnd = (buttons, position) {
-      int dragToIndex = (((game as CardLibraryScene).draggingCard!.position.y -
-              GameUI.decksZoneBackgroundPosition.y) ~/
-          GameUI.deckbuildingZonePileOffset.y);
+      final libraryScene = game as CardLibraryScene;
+      final draggingCard = libraryScene.draggingCard;
+      if (draggingCard == null) return;
+      int dragToIndex =
+          (draggingCard.position.y - GameUI.decksZoneBackgroundPosition.y) ~/
+              GameUI.deckbuildingZonePileOffset.y;
 
-      (game as CardLibraryScene).cardDragRelease();
+      libraryScene.cardDragRelease();
 
       reorderCard(card.index, dragToIndex);
     };

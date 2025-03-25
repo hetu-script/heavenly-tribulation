@@ -82,37 +82,6 @@ function getItemExtraAffixes(item) {
   return itemExtraAffixes
 }
 
-/// 材料包类物品在获得后，可以自动转化为材料数值
-struct Materialpack {
-  constructor ({
-    id,
-    kind,
-    amount,
-    rarity,
-    price,
-  }) {
-    assert(kind != null)
-
-    this.id = id ?? crypto.randomUID(withTime: true)
-
-    this.entityType = kEntityTypeItem
-    this.rarity = kRare
-    this.color = kRarity[this.rarity].color
-    this.name = engine.locale('${kind}_package')
-    this.icon = 'item/material/${kind}.png'
-
-    this.category = kEntityCategoryMaterial
-    this.kind = kind
-    this.description = engine.locale('${kind}_description')
-    this.flavortext = engine.locale('materialpack_flavortext')
-    this.stackSize = amount ?? 1
-    this.showStack = true
-    
-    this.isIdentified = true
-    this.isUsable = true
-  }
-}
-
 struct Equipment {
   constructor({
     id,
@@ -145,9 +114,11 @@ struct Equipment {
       assert(rank >= 0 && rank <= kCultivationRankMax)
       this.rank = rank
       this.rarity = kRankRarity[rank]
+    } else {
+      this.rank = 0
     }
     this.icon = icon ?? 'item/${this.kind}.png'
-    
+
     this.minLevel = minLevelForRank(this.rank)
     this.maxLevel = maxLevelForRank(this.rank)
 
@@ -312,14 +283,15 @@ function entityCollect(entity, materialId: string, { amount = 1, incurIncident =
     amount,
     engine.locale(materialId),
   ])
-  if (incurIncident) {
+  if (incurIncident && entity.entityType == 'character') {
     Incident(
       message: incidentContent,
       subjectId: entity.id,
       isPrivate: true,
     )
+  } else {
+    engine.debug(incidentContent)
   }
-  engine.debug(incidentContent)
 }
 
 function entityAcquireById(entity, itemId, { amount = 1, incurIncident = true }) {
@@ -337,7 +309,7 @@ function entityAcquireById(entity, itemId, { amount = 1, incurIncident = true })
       entity.name,
       item.name,
     ])
-    if (incurIncident) {
+    if (incurIncident && entity.entityType == 'character') {
       Incident(
         message: incidentContent,
         subjectId: entity.id,
@@ -366,7 +338,7 @@ function entityExhaust(entity, materialId: string, { amount = 1, incurIncident =
       amount,
       engine.locale(materialId),
     ])
-    if (incurIncident) {
+    if (incurIncident && entity.entityType == 'character') {
       Incident(
         message: incidentContent,
         subjectId: entity.id,
@@ -380,36 +352,10 @@ function entityExhaust(entity, materialId: string, { amount = 1, incurIncident =
   return success
 }
 
-/// TODO: 丢下物品
-function entityDiscard(entity, item) {
-
-}
-
-/// TODO: 摧毁物品
-function entityDestroy(entity, item, { incurIncident = true }) {
-
-  entityLose(entity, item)
-
-  // let incidentContent
-  // incidentContent = engine.locale('characterDestroy', interpolations: [
-  //   character.name,
-  //   item.name,
-  // ])
-  // if (incurIncident) {
-  //   Incident(
-  //     message: incidentContent,
-  //     subjectId: character.id,
-  //     // itemId: item.id, // 物品已经销毁了，无需再在物品上面记录历史
-  //     isPrivate: true,
-  //   )
-  // } else {
-  //   engine.debug(incidentContent)
-  // }
-}
-
 /// 对象（人物、据点等）获得一个已经存在与世界上的物品
 function entityAcquire(entity, item, { incurIncident = true }) {
   assert(!entity.inventory.containsKey(item.id))
+  assert(item.entityType == kEntityTypeItem, '${item.entityType}')
 
   // item.isNew = true
   item.ownerId = entity.id
@@ -424,7 +370,7 @@ function entityAcquire(entity, item, { incurIncident = true }) {
     entity.name,
     item.name,
   ])
-  if (incurIncident) {
+  if (incurIncident && entity.entityType == 'character') {
     Incident(
       message: incidentContent,
       subjectId: entity.id,
@@ -448,7 +394,7 @@ function entityLose(entity, item, { incurIncident = true }) {
     entity.name,
     item.name,
   ])
-  if (incurIncident) {
+  if (incurIncident && entity.entityType == 'character') {
     Incident(
       message: incidentContent,
       subjectId: entity.id,
@@ -462,6 +408,7 @@ function entityLose(entity, item, { incurIncident = true }) {
 
 function entityAcquireBattleCard(entity, card, { incurIncident = true }) {
   assert(!entity.cardLibrary.containsKey(card.id))
+  assert(card.entityType == kEntityTypeBattleCard, '${card.entityType}')
 
   entity.cardLibrary[card.id] = card
   if (entity.entityType == 'character') {
@@ -474,7 +421,7 @@ function entityAcquireBattleCard(entity, card, { incurIncident = true }) {
     entity.name,
     card.name,
   ])
-  if (incurIncident) {
+  if (incurIncident && entity.entityType == 'character') {
     Incident(
       message: incidentContent,
       subjectId: entity.id,

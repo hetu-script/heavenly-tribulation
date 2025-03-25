@@ -102,7 +102,7 @@ class _ToolboxState extends State<Toolbox> {
 
     return ResponsiveView(
       alignment: Alignment.bottomCenter,
-      backgroundColor: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor2,
       width: 640,
       height: 200,
       child: Row(

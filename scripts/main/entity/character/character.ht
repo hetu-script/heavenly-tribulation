@@ -570,7 +570,7 @@ function createSpouse(householder, marrier, {locationId, incurIncident = true}) 
   marrier.marriageTimestamp = game.timestamp
   
   let homeId = householder.homeLocationId ?? marrier.homeLocationId ?? locationId
-  let home = world.locations[homeId]
+  let home = game.locations[homeId]
   assert(home != null)
   if (householder.homeLocationId != homeId) {
     setCharacterHomeLocation(householder, home)
@@ -1057,6 +1057,7 @@ struct Character {
     this.unconvertedExp = unconvertedExp ?? 0
     // 转换后的修为经验值，经验值达到下一等级需求后，自动扣除并提升修为能级
     this.exp = exp ?? 0
+    this.expForLevel = expForLevel(this.level)
     // 未分配的修为点数，修为点数可以用来在天赋盘上升级天赋
     this.availableSkillPoints = availableSkillPoints ?? 0
     // 已解锁的天赋盘节点，保存的是posiitonId，代表天赋盘上某个位置的坐标。如果存在意味着该位置已经被解锁
@@ -1064,7 +1065,7 @@ struct Character {
 
     this.worldId = worldId ?? world?.id
 
-    let atWorld = universe[this.worldId]
+    // let atWorld = universe[this.worldId]
 
     this.color = kRarity.rare.color
     
@@ -1162,7 +1163,7 @@ struct Character {
     this.homeLocations = []
     
     if (locationId) {
-      const location = atWorld.locations[locationId]
+      const location = game.locations[locationId]
       this.locationId = location.id
 
       this.worldPosition = {
@@ -1349,15 +1350,15 @@ function getCharacterHomeSite(character, {worldId}) {
     return
   }
   
-  let atWorld = worldId != null ? universe[worldId] : world
-  assert(atWorld.locations.containsKey(character.homeSiteId))
-  return atWorld.locations[character.homeSiteId]
+  // let atWorld = worldId != null ? universe[worldId] : world
+  assert(game.locations.containsKey(character.homeSiteId))
+  return game.locations[character.homeSiteId]
 }
 
 function clearCharacterHomeLocations(character, {worldId}) {
-  let atWorld = worldId != null ? universe[worldId] : world
+  // let atWorld = worldId != null ? universe[worldId] : world
   for (final locId in character.homeLocations) {
-    final location = atWorld.locations[locId]
+    final location = game.locations[locId]
     removeCharacterHomeLocation(character, location)
   }
   character.homeLocations.clear()
@@ -1371,7 +1372,7 @@ function removeCharacterHomeLocation(character, location) {
 }
 
 function getCharacterHomeLocation(character) {
-  return world.locations[character.homeLocationId]
+  return game.locations[character.homeLocationId]
 }
 
 function setCharacterHomeLocation(character, location, {incurIncident = true}) {
@@ -1473,10 +1474,10 @@ function getCharactersAtLocation(location) {
 }
 
 function getResidingCharacters(location) {
-  let atWorld = universe[location.worldId]
+  // let atWorld = universe[location.worldId]
   location.homes.map((id) {
-    assert(atWorld.locations.containsKey(id))
-    final homeSite = atWorld.locations[id]
+    assert(game.locations.containsKey(id))
+    final homeSite = game.locations[id]
     final character = game.characters[homeSite.ownerId]
     assert(character != null)
     return character
@@ -1484,10 +1485,10 @@ function getResidingCharacters(location) {
 }
 
 function getResidingCharactersIds(location) {
-  let atWorld = universe[location.worldId]
+  // let atWorld = universe[location.worldId]
   location.homes.map((id) {
-    assert(atWorld.locations.containsKey(id))
-    final homeSite = atWorld.locations[id]
+    assert(game.locations.containsKey(id))
+    final homeSite = game.locations[id]
     return homeSite.ownerId
   }).toList()
 }

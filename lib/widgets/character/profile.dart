@@ -644,7 +644,7 @@ class CharacterProfileView extends StatelessWidget {
     final width = mode != InformationViewMode.view ? 700.0 : 640.0;
     final height = mode != InformationViewMode.view ? 640.0 : 400.0;
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor2,
       alignment: AlignmentDirectional.center,
       width: width,
       height: height,

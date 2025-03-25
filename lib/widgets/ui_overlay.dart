@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/widgets/dialog/new_rank.dart';
 import 'package:samsara/ui/bordered_icon_button.dart';
 import 'package:samsara/ui/dynamic_color_progressbar.dart';
 import 'package:provider/provider.dart';
@@ -36,6 +37,7 @@ const tickName = {
 class GameUIOverlay extends StatefulWidget {
   const GameUIOverlay({
     super.key,
+    this.enableHeroInfo = true,
     this.enableNpcs = true,
     this.enableLibrary = true,
     this.enableCultivation = true,
@@ -43,6 +45,7 @@ class GameUIOverlay extends StatefulWidget {
     this.dropMenu,
   });
 
+  final bool enableHeroInfo;
   final bool enableNpcs;
   final bool enableLibrary;
   final bool enableCultivation;
@@ -54,11 +57,11 @@ class GameUIOverlay extends StatefulWidget {
 }
 
 class _GameUIOverlayState extends State<GameUIOverlay> {
+  Set<String> _prompts = {};
+
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-
-    final showHeroInfo = context.watch<HeroInfoVisibilityState>().isVisible;
+    final screenSize = MediaQuery.sizeOf(context);
 
     final bool autoCultivate = widget.enableAutoExhaust &&
         (GameData.gameData['flags']['autoCultivate'] ?? false);
@@ -66,7 +69,9 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
         (GameData.gameData['flags']['autoWork'] ?? false);
 
     final heroData = context.watch<HeroState>().heroData;
-    final isHeroInfoVisible = showHeroInfo && heroData != null;
+    final showHeroInfo = widget.enableHeroInfo &&
+        heroData != null &&
+        context.watch<HeroInfoVisibilityState>().isVisible;
 
     final currentZone = context.watch<SelectedTileState>().currentZone;
     final currentNation = context.watch<SelectedTileState>().currentNation;
@@ -110,6 +115,23 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
 
     final newQuest = context.watch<NewQuestState>().quest;
     final newItems = context.watch<NewItemsState>().items;
+    final newRank = context.watch<NewRankState>().rank;
+
+    if (newRank != null) {
+      _prompts.add('rank');
+    } else {
+      _prompts.remove('rank');
+    }
+    if (newItems != null) {
+      _prompts.add('item');
+    } else {
+      _prompts.remove('item');
+    }
+    if (newQuest != null) {
+      _prompts.add('quest');
+    } else {
+      _prompts.remove('quest');
+    }
 
     final visiblePanels = context.watch<ViewPanelState>().visiblePanels;
     final panelPositions =
@@ -210,14 +232,14 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
       height: screenSize.height,
       child: Stack(
         children: [
-          if (isHeroInfoVisible)
+          if (showHeroInfo)
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Avatar(
                   borderRadius: 0.0,
                   cursor: SystemMouseCursors.click,
-                  color: GameUI.backgroundColor,
+                  color: GameUI.backgroundColor2,
                   size: const Size(120, 120),
                   image: AssetImage('assets/images/${heroData['icon']}'),
                   onPressed: (_) {},
@@ -226,7 +248,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                   width: 260,
                   height: 120,
                   decoration: BoxDecoration(
-                    color: GameUI.backgroundColor,
+                    color: GameUI.backgroundColor2,
                     // borderRadius: BorderRadius.circular(10.0),
                     // border: Border.all(color: GameUI.foregroundColor),
                   ),
@@ -399,7 +421,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                             engine: engine,
                                             margin: const EdgeInsets.all(50.0),
                                             backgroundColor:
-                                                GameUI.backgroundColor,
+                                                GameUI.backgroundColor2,
                                           ),
                                         );
                                       },
@@ -616,7 +638,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                   width: 400,
                   height: 120,
                   decoration: BoxDecoration(
-                    color: GameUI.backgroundColor,
+                    color: GameUI.backgroundColor2,
                     // borderRadius: BorderRadius.circular(10.0),
                     // border: Border.all(color: GameUI.foregroundColor),
                   ),
@@ -664,6 +686,12 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                 ),
               ],
             ),
+          if (widget.dropMenu != null)
+            Positioned(
+              right: 0,
+              top: 0,
+              child: widget.dropMenu!,
+            ),
           if (widget.enableNpcs)
             const Positioned(
               left: 10,
@@ -677,16 +705,15 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               merchantData: merchantData,
               priceFactor: priceFactor,
             ),
-          if (newQuest != null) NewQuest(questData: newQuest),
-          if (newItems != null) NewItems(itemsData: newItems),
-          if (widget.dropMenu != null)
-            Positioned(
-              right: 0,
-              top: 0,
-              child: widget.dropMenu!,
-            ),
           GameDialogController(),
           ...panels,
+          if (_prompts.isNotEmpty)
+            switch (_prompts.last) {
+              'rank' => NewRank(rank: newRank!),
+              'quest' => NewQuest(questData: newQuest!),
+              'item' => NewItems(itemsData: newItems!),
+              _ => SizedBox.shrink(),
+            },
           if (content != null) HoverInfo(content),
         ],
       ),

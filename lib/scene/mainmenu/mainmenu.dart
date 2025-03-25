@@ -46,11 +46,7 @@ class MainMenuScene extends Scene {
       children: [
         SceneWidget(scene: this),
         MainMenuButtons(),
-        const Positioned(
-          left: 0,
-          top: 0,
-          child: GameUIOverlay(),
-        ),
+        GameUIOverlay(),
       ],
     );
   }

@@ -21,6 +21,7 @@ class NewItems extends StatelessWidget {
   Widget build(BuildContext context) {
     return ResponsiveView(
       backgroundColor: GameUI.backgroundColor,
+      barrierColor: GameUI.backgroundColor2,
       width: 400.0,
       height: 300.0,
       alignment: Alignment.center,
@@ -40,7 +41,7 @@ class NewItems extends StatelessWidget {
                 child: SingleChildScrollView(
                   child: Container(
                     color: Colors.black,
-                    width: 350.0,
+                    width: 320.0,
                     height: 160.0,
                     child: ListView(
                       shrinkWrap: true,
@@ -53,7 +54,7 @@ class NewItems extends StatelessWidget {
                                   (data) => ItemGrid(
                                     characterData: GameData.heroData,
                                     itemData: data,
-                                    margin: const EdgeInsets.all(5.0),
+                                    margin: const EdgeInsets.all(2.5),
                                     onMouseEnter: (itemData, rect) {
                                       context
                                           .read<HoverInfoContentState>()

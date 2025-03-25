@@ -113,10 +113,12 @@ async function onAfterEnterLocation(location) {
       }
     }
     'wanfucun_jihuisuo': {
-      if (!game.flags.hintedAutoCultivate) {
-        game.flags.hintedAutoCultivate = true
-        Dialog.pushLocales('help_autoCultivate')
-        await Dialog.execute()
+      if (hero.quests.rebuildWanfuzong?.sequence.contains(5)) {
+        if (!game.flags.hintedAutoCultivate) {
+          game.flags.hintedAutoCultivate = true
+          Dialog.pushLocales('help_autoCultivate')
+          await Dialog.execute()
+        }
       }
     }
   }

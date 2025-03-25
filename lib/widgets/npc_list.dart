@@ -39,7 +39,7 @@ class _NpcListState extends State<NpcList> {
   @override
   Widget build(BuildContext context) {
     if (GameData.heroData == null) {
-      return Container();
+      return SizedBox.shrink();
     }
 
     final characters =
@@ -50,7 +50,7 @@ class _NpcListState extends State<NpcList> {
         padding: const EdgeInsets.only(bottom: 5.0),
         child: Avatar(
             cursor: SystemMouseCursors.click,
-            color: GameUI.backgroundColor,
+            color: GameUI.backgroundColor2,
             displayName: (haveMet != null) ? characterData['name'] : '???',
             size: const Size(80, 80),
             characterData: characterData,

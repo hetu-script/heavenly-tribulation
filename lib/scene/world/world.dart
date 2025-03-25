@@ -133,6 +133,37 @@ const kExcludeTerrainKindsOnLighting = ['void', 'mountain'];
 const kMaxCloudsCount = 16;
 
 class WorldMapScene extends Scene {
+  WorldMapScene({
+    required super.context,
+    required this.worldData,
+    required this.isEditorMode,
+    this.backgroundSpriteId,
+    super.bgmFile,
+  })  : map = TileMap(
+          id: worldData['id'],
+          tileMapWidth: worldData['width'],
+          tileMapHeight: worldData['height'],
+          data: worldData,
+          captionStyle: GameUI.captionStyle,
+          tileShape: TileShape.hexagonalVertical,
+          gridSize: kGridSize,
+          tileSpriteSrcSize: kTileSpriteSrcSize,
+          tileOffset: kTileOffset,
+          tileFogOffset: kTileFogOffset,
+          showSelected: true,
+          showHover: true,
+          showFogOfWar: !isEditorMode,
+          autoUpdateComponent: false,
+          fogSpriteId: 'shadow.png',
+          // isCameraFollowHero: false,
+          // backgroundSpriteId: 'universe.png',
+          isEditorMode: isEditorMode,
+        ),
+        super(
+          id: worldData['id'],
+          bgmVolume: engine.config.musicVolume,
+        );
+
   Sprite? backgroundSprite;
 
   final String? backgroundSpriteId;
@@ -237,37 +268,6 @@ class WorldMapScene extends Scene {
   }
 
   // bool _isInteracting = false;
-
-  WorldMapScene({
-    required super.context,
-    required this.worldData,
-    required this.isEditorMode,
-    this.backgroundSpriteId,
-    super.bgmFile,
-  })  : map = TileMap(
-          id: worldData['id'],
-          tileMapWidth: worldData['width'],
-          tileMapHeight: worldData['height'],
-          data: worldData,
-          captionStyle: GameUI.captionStyle,
-          tileShape: TileShape.hexagonalVertical,
-          gridSize: kGridSize,
-          tileSpriteSrcSize: kTileSpriteSrcSize,
-          tileOffset: kTileOffset,
-          tileFogOffset: kTileFogOffset,
-          showSelected: true,
-          showHover: true,
-          showFogOfWar: !isEditorMode,
-          autoUpdateComponent: false,
-          fogSpriteId: 'shadow.png',
-          // isCameraFollowHero: false,
-          // backgroundSpriteId: 'universe.png',
-          isEditorMode: isEditorMode,
-        ),
-        super(
-          id: worldData['id'],
-          bgmVolume: engine.config.musicVolume,
-        );
 
   @override
   void update(double dt) {
@@ -1218,90 +1218,84 @@ class WorldMapScene extends Scene {
             //   top: 100,
             //   child: QuestPanel(),
             // ),
-            Positioned(
-              left: 0,
-              top: 0,
-              child: GameUIOverlay(
-                dropMenu: WorldMapDropMenu(
-                  onSelected: (WorldMapDropMenuItems item) async {
-                    switch (item) {
-                      case WorldMapDropMenuItems.save:
-                        map.saveComponentsFrameData();
+            GameUIOverlay(
+              dropMenu: WorldMapDropMenu(
+                onSelected: (WorldMapDropMenuItems item) async {
+                  switch (item) {
+                    case WorldMapDropMenuItems.save:
+                      map.saveComponentsFrameData();
+                      String worldId = engine.hetu
+                          .fetch('currentWorldId', namespace: 'game');
+                      String? saveName =
+                          engine.hetu.fetch('saveName', namespace: 'game');
+                      context
+                          .read<GameSavesState>()
+                          .saveGame(worldId, saveName)
+                          .then((saveInfo) {
+                        if (context.mounted) {
+                          GameDialogContent.show(
+                            context,
+                            engine.locale('savedSuccessfully',
+                                interpolations: [saveInfo.savePath]),
+                          );
+                        }
+                      });
+
+                    case WorldMapDropMenuItems.saveAs:
+                      map.saveComponentsFrameData();
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return InputStringDialog(
+                            title: engine.locale('inputName'),
+                          );
+                        },
+                      ).then((saveName) {
+                        if (saveName == null) return;
+                        engine.hetu
+                            .assign('saveName', saveName, namespace: 'game');
                         String worldId = engine.hetu
                             .fetch('currentWorldId', namespace: 'game');
-                        String? saveName =
-                            engine.hetu.fetch('saveName', namespace: 'game');
-                        context
-                            .read<GameSavesState>()
-                            .saveGame(worldId, saveName)
-                            .then((saveInfo) {
-                          if (context.mounted) {
-                            GameDialogContent.show(
-                              context,
-                              engine.locale('savedSuccessfully',
-                                  interpolations: [saveInfo.savePath]),
-                            );
-                          }
-                        });
-
-                      case WorldMapDropMenuItems.saveAs:
-                        map.saveComponentsFrameData();
-                        showDialog(
+                        if (context.mounted) {
+                          context
+                              .read<GameSavesState>()
+                              .saveGame(worldId, saveName)
+                              .then((saveInfo) {
+                            if (context.mounted) {
+                              GameDialogContent.show(
+                                context,
+                                engine.locale('savedSuccessfully',
+                                    interpolations: [saveInfo.savePath]),
+                              );
+                            }
+                          });
+                        }
+                      });
+                    case WorldMapDropMenuItems.info:
+                      showDialog(
                           context: context,
-                          builder: (context) {
-                            return InputStringDialog(
-                              title: engine.locale('inputName'),
-                            );
-                          },
-                        ).then((saveName) {
-                          if (saveName == null) return;
-                          engine.hetu
-                              .assign('saveName', saveName, namespace: 'game');
-                          String worldId = engine.hetu
-                              .fetch('currentWorldId', namespace: 'game');
-                          if (context.mounted) {
-                            context
-                                .read<GameSavesState>()
-                                .saveGame(worldId, saveName)
-                                .then((saveInfo) {
-                              if (context.mounted) {
-                                GameDialogContent.show(
-                                  context,
-                                  engine.locale('savedSuccessfully',
-                                      interpolations: [saveInfo.savePath]),
-                                );
-                              }
-                            });
-                          }
-                        });
-                      case WorldMapDropMenuItems.info:
-                        showDialog(
-                            context: context,
-                            builder: (context) =>
-                                const WorldInformationPanel());
-                      case WorldMapDropMenuItems.viewNone:
-                        map.colorMode = kColorModeNone;
-                      case WorldMapDropMenuItems.viewZones:
-                        map.colorMode = kColorModeZone;
-                      case WorldMapDropMenuItems.viewOrganizations:
-                        map.colorMode = kColorModeOrganization;
-                      case WorldMapDropMenuItems.console:
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) => Console(
-                            engine: engine,
-                            margin: const EdgeInsets.all(50.0),
-                            backgroundColor: GameUI.backgroundColor,
-                          ),
-                        );
-                      case WorldMapDropMenuItems.exit:
-                        context.read<SelectedTileState>().clear();
-                        engine.clearAllCachedScene(
-                            except: Scenes.mainmenu,
-                            arguments: {'reset': true});
-                    }
-                  },
-                ),
+                          builder: (context) => const WorldInformationPanel());
+                    case WorldMapDropMenuItems.viewNone:
+                      map.colorMode = kColorModeNone;
+                    case WorldMapDropMenuItems.viewZones:
+                      map.colorMode = kColorModeZone;
+                    case WorldMapDropMenuItems.viewOrganizations:
+                      map.colorMode = kColorModeOrganization;
+                    case WorldMapDropMenuItems.console:
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) => Console(
+                          engine: engine,
+                          margin: const EdgeInsets.all(50.0),
+                          backgroundColor: GameUI.backgroundColor2,
+                        ),
+                      );
+                    case WorldMapDropMenuItems.exit:
+                      context.read<SelectedTileState>().clear();
+                      engine.clearAllCachedScene(
+                          except: Scenes.mainmenu, arguments: {'reset': true});
+                  }
+                },
               ),
             ),
           ] else ...[
@@ -1433,7 +1427,7 @@ class WorldMapScene extends Scene {
                         builder: (BuildContext context) => Console(
                           engine: engine,
                           margin: const EdgeInsets.all(50.0),
-                          backgroundColor: GameUI.backgroundColor,
+                          backgroundColor: GameUI.backgroundColor2,
                         ),
                       );
                     case WorldEditorDropMenuItems.exit:

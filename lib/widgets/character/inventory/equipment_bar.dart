@@ -16,10 +16,10 @@ class EquipmentBar extends StatelessWidget {
     this.onItemSecondaryTapped,
     this.isVertical = false,
   })  : assert(characterData != null),
-        assert(type == HoverType.player || type == HoverType.npc);
+        assert(type == ItemType.player || type == ItemType.npc);
 
   final dynamic characterData;
-  final HoverType type;
+  final ItemType type;
   final Size gridSize;
   final void Function(dynamic itemData, Offset screenPosition)? onItemTapped;
   final void Function(dynamic itemData, Offset screenPosition)?
@@ -40,7 +40,7 @@ class EquipmentBar extends StatelessWidget {
           onSecondaryTapped: onItemSecondaryTapped,
           onMouseEnter: (itemData, rect) {
             switch (type) {
-              case HoverType.player:
+              case ItemType.player:
                 context
                     .read<HoverInfoContentState>()
                     .set(itemData, type: type, data2: characterData, rect);

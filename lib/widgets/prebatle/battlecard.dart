@@ -27,6 +27,8 @@ class BattleCard extends StatelessWidget {
     if (isHero) {
       final isUsable = GameLogic.checkCardRequirement(characterData, cardData);
       if (isUsable) {
+        textStyle = TextStyle(color: Colors.yellow);
+      } else {
         textStyle = TextStyle(color: Colors.red);
       }
     }

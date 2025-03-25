@@ -60,7 +60,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor2,
+      barrierColor: GameUI.backgroundColor,
       width: 720.0,
       height: 500.0,
       child: Scaffold(
@@ -90,7 +91,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                       child: Inventory(
                         height: 350,
                         characterData: GameData.heroData,
-                        type: HoverType.customer,
+                        type: ItemType.customer,
                         priceFactor: widget.priceFactor,
                         selectedItemId: _selectedHeroItemsData.keys,
                         onTapped: (itemData, screenPosition) {
@@ -188,7 +189,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
                       child: Inventory(
                         height: 350,
                         characterData: widget.merchantData,
-                        type: HoverType.merchant,
+                        type: ItemType.merchant,
                         priceFactor: widget.priceFactor,
                         selectedItemId: _selectedMerchantItemsData.keys,
                         onTapped: (itemData, screenPosition) {

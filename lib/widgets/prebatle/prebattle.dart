@@ -159,7 +159,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
     // final buttonKey = GlobalKey();
 
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor2,
       alignment: AlignmentDirectional.center,
       width: 1080.0,
       height: 640.0,
@@ -210,7 +210,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   EquipmentBar(
-                    type: HoverType.player,
+                    type: ItemType.player,
                     characterData: widget.heroData,
                     gridSize: const Size(30.0, 30.0),
                   ),
@@ -371,7 +371,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   EquipmentBar(
-                    type: HoverType.npc,
+                    type: ItemType.npc,
                     characterData: widget.enemyData,
                     gridSize: const Size(30.0, 30.0),
                   ),

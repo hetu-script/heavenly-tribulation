@@ -24,7 +24,7 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
     final saves = context.watch<GameSavesState>().saves;
 
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor2,
       alignment: AlignmentDirectional.center,
       child: Scaffold(
         appBar: AppBar(
@@ -43,7 +43,7 @@ class _LoadGameDialogState extends State<LoadGameDialog> {
                     children: saves.values
                         .map(
                           (info) => Card(
-                            color: GameUI.backgroundColor,
+                            color: GameUI.backgroundColor2,
                             shape: RoundedRectangleBorder(
                               side: const BorderSide(
                                 color: GameUI.foregroundColor,

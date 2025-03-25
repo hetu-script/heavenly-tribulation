@@ -61,7 +61,7 @@ class _InputSliderDialogState extends State<InputSliderDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor2,
       alignment: AlignmentDirectional.center,
       child: SizedBox(
         width: 200,

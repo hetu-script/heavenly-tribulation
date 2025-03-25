@@ -43,9 +43,9 @@ struct QuestDelivery {
     const money = Coin(stackSize: rewardMoney)
     this.reward.inventory[money.id] = money
 
-    const location = world.locations[locationId]
+    const location = game.locations[locationId]
 
-    const destination = world.locations[destinationLocationId]
+    const destination = game.locations[destinationLocationId]
     const destinationSite = destination.sites[destinationSiteId]
     const destinationCharacter = world.characters[destinationCharacterId]
 

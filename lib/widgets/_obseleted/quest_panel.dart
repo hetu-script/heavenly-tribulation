@@ -20,7 +20,7 @@ class _QuestPanelState extends State<QuestPanel> {
     final questsData = context.watch<NewQuestState>().quest;
 
     return (questsData == null)
-        ? Container()
+        ? SizedBox.shrink()
         : MouseRegion(
             onEnter: (_) {
               setState(() {

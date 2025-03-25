@@ -11,6 +11,8 @@ const kValueTypeInt = 'int';
 const kValueTypeFloat = 'float';
 const kValueTypePercentage = 'percentage';
 
+const kAutoTimeFlowInterval = 500;
+
 enum SceneStates {
   mainmenu,
   world,
@@ -378,3 +380,8 @@ const kTicksPerYear = kDaysPerYear * kTicksPerDay; //每年的回合数 1440
 const kMoneyToShardRate = 10000;
 const kBaseBuyRate = 1.5;
 const kBaseSellRate = 0.5;
+
+const kUntradableItemKinds = {
+  'money',
+  'worker',
+};

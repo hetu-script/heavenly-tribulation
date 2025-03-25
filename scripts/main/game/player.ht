@@ -386,7 +386,7 @@ namespace Player {
 
     hero.exp -= expRequirement
     ++hero.level
-
+    hero.expForLevel = expForLevel(hero.level)
     hero.availableSkillPoints += 1
 
     const incidentContent = engine.locale('characterCultivationLevelUp', interpolations: [
@@ -419,7 +419,7 @@ namespace Player {
 
     const incidentContent = engine.locale('characterCultivationRankUp', interpolations: [
       hero.name,
-      getCultivationRankName(character),
+      getCultivationRankName(hero),
     ])
     if (incurIncident) {
       Incident(

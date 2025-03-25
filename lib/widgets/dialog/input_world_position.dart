@@ -88,7 +88,7 @@ class _InputWorldPositionDialogState extends State<InputWorldPositionDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor2,
       width: 240.0,
       height: 220.0,
       alignment: AlignmentDirectional.center,

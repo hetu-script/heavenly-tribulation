@@ -101,7 +101,7 @@ class _OrganizationViewState extends State<OrganizationView> {
     // final headTitle = _organizationData['rankTitles'][6];
 
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor2,
       alignment: AlignmentDirectional.center,
       width: 400.0,
       height: 400.0,
@@ -144,8 +144,8 @@ class _OrganizationViewState extends State<OrganizationView> {
                   ],
                 ),
               ),
-              Container(),
-              Container(),
+              SizedBox.shrink(),
+              SizedBox.shrink(),
             ],
           ),
         ),

@@ -1,6 +1,5 @@
 import 'package:flame/components.dart';
 import 'package:flutter/gestures.dart';
-import 'package:heavenly_tribulation/scene/common.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/sprite_component2.dart';
@@ -20,6 +19,7 @@ import '../../game/data.dart';
 import '../../widgets/ui_overlay.dart';
 import 'menus.dart';
 import '../game_dialog/game_dialog_content.dart';
+import '../common.dart';
 
 const kAffixOperations = [
   'addAffix',
@@ -143,8 +143,8 @@ class CardLibraryScene extends Scene {
   }
 
   void onOpenDeckMenu(DeckBuildingZone zone) {
-    final menuPosition = RelativeRect.fromLTRB(
-        zone.position.x, zone.position.y, zone.position.x, 0.0);
+    final menuPosition = RelativeRect.fromLTRB(zone.absolutePosition.x,
+        zone.absolutePosition.y, zone.absolutePosition.x, 0.0);
     final menu = buildDeckPopUpMenuItems(onSelectedItem: (item) {
       switch (item) {
         case DeckMenuItems.setAsBattleDeck:
@@ -399,7 +399,7 @@ class CardLibraryScene extends Scene {
     final SpriteButton button = SpriteButton(
       position: position,
       spriteId: 'ui/button10.png',
-      size: Vector2(140, 30),
+      size: GameUI.buttonSizeMedium,
       text: engine.locale('deckbuilding_$id'),
       priority: kBarrierPriority + 100,
       isVisible: false,
@@ -445,7 +445,7 @@ class CardLibraryScene extends Scene {
     _craftingCard = clone;
     clone.enableGesture = false;
     clone.size = GameUI.cardpackCardSize;
-    clone.position = GameUI.cardpackCardPositions[0];
+    clone.position = GameUI.cardpackCardPositions[1];
     clone.priority = kBarrierPriority;
     camera.viewport.add(clone);
 
@@ -964,19 +964,21 @@ class CardLibraryScene extends Scene {
     for (var i = 0; i < kAffixOperations.length; i++) {
       final operation = kAffixOperations[i];
       _addAffixOperationButton(
-          operation,
-          GameUI.cardpackCardPositions[0] +
-              Vector2(
-                  GameUI.cardpackCardSize.x +
-                      GameUI.indent * 2 +
-                      kCraftingCardInfoWidth,
-                  (GameUI.buttonSizeSmall.y + 10) * i));
+        operation,
+        Vector2(
+          GameUI.cardpackCardPositions[1].x -
+              (GameUI.buttonSizeMedium.x + GameUI.largeIndent),
+          GameUI.cardpackCardPositions[1].y +
+              GameUI.largeIndent +
+              (GameUI.buttonSizeMedium.y + GameUI.smallIndent) * i,
+        ),
+      );
     }
 
     closeCraftButton = SpriteButton(
       text: engine.locale('close'),
       anchor: Anchor.center,
-      position: GameUI.cardpackCardPositions[0] +
+      position: GameUI.cardpackCardPositions[1] +
           Vector2(GameUI.cardpackCardSize.x / 2,
               GameUI.cardpackCardSize.y + GameUI.hugeIndent),
       size: GameUI.buttonSizeMedium,
@@ -995,14 +997,10 @@ class CardLibraryScene extends Scene {
     return Stack(
       children: [
         SceneWidget(scene: this),
-        const Positioned(
-          left: 0,
-          top: 0,
-          child: GameUIOverlay(
-            enableNpcs: false,
-            enableLibrary: false,
-            enableAutoExhaust: false,
-          ),
+        GameUIOverlay(
+          enableNpcs: false,
+          enableLibrary: false,
+          enableAutoExhaust: false,
         ),
         Positioned(
           right: 10.0,

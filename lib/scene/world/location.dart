@@ -197,11 +197,7 @@ class LocationScene extends Scene {
     return Stack(
       children: [
         SceneWidget(scene: this),
-        const Positioned(
-          left: 0,
-          top: 0,
-          child: GameUIOverlay(),
-        ),
+        GameUIOverlay(),
       ],
     );
   }

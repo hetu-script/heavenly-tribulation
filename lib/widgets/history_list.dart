@@ -54,7 +54,7 @@ class _HistoryListState extends State<HistoryList> {
 
     return Container(
       padding: const EdgeInsets.all(10),
-      height: MediaQuery.of(context).size.height - kTabBarHeight,
+      height: MediaQuery.sizeOf(context).height - kTabBarHeight,
       child: ScrollConfiguration(
         behavior: MaterialScrollBehavior(),
         child: SingleChildScrollView(

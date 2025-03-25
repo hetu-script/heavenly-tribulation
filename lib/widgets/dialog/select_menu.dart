@@ -50,7 +50,7 @@ class _SelectMenuDialogState extends State<SelectMenuDialog> {
   @override
   Widget build(BuildContext context) {
     return ResponsiveView(
-      backgroundColor: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor2,
       alignment: AlignmentDirectional.center,
       child: SizedBox(
         width: 320,

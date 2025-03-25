@@ -1,3 +1,13 @@
+async function characterAnimate(battleCharacter, animation) {
+  await battleCharacter.setCompositeState(
+    startup: animation.startup,
+    transitions: animation.transitions,
+    overlays: animation.overlays,
+    recovery: animation.recovery,
+    sound: animation.sound,
+  )
+}
+
 external class BattleCharacter {
   get data
   
@@ -9,11 +19,15 @@ external class BattleCharacter {
 
   async function takeDamage(details) -> integer
 
-  async function setState(state: string, {
-    sound: string,
-    overlay: string,
-    complete: string = 'stand',
+  async function setState(state, {isOverlay = false})
+
+  async function setCompositeState({
+    startup: string,
+    transitions: List,
+    overlays: List,
     recovery: string,
+    complete: string = 'stand',
+    sound: string,
   })
 
   function hasStatusEffect(effectId: string) -> int

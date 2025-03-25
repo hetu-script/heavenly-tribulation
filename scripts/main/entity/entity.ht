@@ -27,16 +27,25 @@ const kCultivationRankMax = 8
 
 final kBattleCardKind = skillData.keys.toList()
 
+const kItemBasePriceByKind = {
+  'shard': 10000,
+  'herb': 5,
+  'timber': 10,
+  'stone': 25,
+  'ore': 50,
+}
+
 /// 物品的基础价格
-const kBasePrice = {
-  'weapon': 50,
-  'cardpack': 3000,
-  'scroll': 1000,
+const kItemBasePriceByCategory = {
+  'weapon': 5,
+  'cardpack': 300,
+  'scroll': 100,
 }
 
 function calculatePrice(item) {
-  assert(kBasePrice.containsKey(item.category))
-  item.price = (item.rank + 1) * (item.level + 1) * (item.affixes?.length + 1) * kBasePrice[item.category]
+  assert(kItemBasePriceByCategory.containsKey(item.category))
+  item.price = (item.rank + 1) * (item.level + 1) *
+    (item.affixes?.length + 1) * kItemBasePriceByCategory[item.category]
 }
 
 const kBasic = 'basic' // 未知
@@ -154,7 +163,7 @@ const kEntityTypeLocationObject = 'object' //game.characters
 const kEntityTypeBaby = 'baby' // game.babies
 const kEntityTypeItem = 'item' //character.inventory
 const kEntityTypeOrganization = 'organization' //game.organizations
-const kEntityTypeLocation = 'location' // world.locations
+const kEntityTypeLocation = 'location' // game.locations
 const kEntityTypeBattleCard = 'battle_card' // character.cardLibrary
 
 const kEntityCategoryMaterial = 'material';

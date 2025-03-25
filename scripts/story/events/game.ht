@@ -16,6 +16,8 @@ async function onBeforeInteractCharacter(character) {
       return true
     }
   }
+  // 因为河图会默认最后一个表达式的值，所以这里要手动再返回一次以避免bug
+  return
 }
 
 // 如果触发了特定对话，会提前返回

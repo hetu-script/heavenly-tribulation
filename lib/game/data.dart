@@ -12,6 +12,7 @@ import 'ui.dart';
 import '../common.dart';
 import '../engine.dart';
 import '../scene/common.dart';
+import '../state/hoverinfo.dart';
 
 /// Unicode Character "⎯" (U+23AF)
 const kSeparateLine = '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯';
@@ -387,8 +388,7 @@ abstract class GameData {
 
   static int calculateItemPrice(dynamic itemData,
       {dynamic priceFactor, bool isSell = false}) {
-    final price = itemData['price'];
-    assert(price != null);
+    final price = itemData['price'] ?? 0;
 
     if (priceFactor == null) {
       return price;
@@ -413,8 +413,11 @@ abstract class GameData {
     }
   }
 
-  static List<dynamic> getFilteredItems(dynamic characterData,
-      {dynamic filter}) {
+  static List<dynamic> getFilteredItems(
+    dynamic characterData, {
+    required ItemType type,
+    dynamic filter,
+  }) {
     final inventoryData = characterData['inventory'];
 
     final String? category = filter?['category'];
@@ -438,6 +441,11 @@ abstract class GameData {
       }
       if (isIdentified != null && isIdentified != itemData['isIdentified']) {
         continue;
+      }
+      if (type == ItemType.customer || type == ItemType.merchant) {
+        if (kUntradableItemKinds.contains(itemData['kind'])) {
+          continue;
+        }
       }
 
       filteredItems.add(itemData);
@@ -590,7 +598,7 @@ abstract class GameData {
         isSell: isSell,
       );
       description.writeln(
-          '<yellow>${engine.locale('price')}: $price ${engine.locale(useShard ? 'shard' : 'money')}</>');
+          '<yellow>${engine.locale('price')}: $price ${engine.locale(useShard ? 'shard' : 'money2')}</>');
     }
 
     final out = description.toString().trim();

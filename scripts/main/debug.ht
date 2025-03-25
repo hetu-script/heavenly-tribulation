@@ -19,14 +19,22 @@ namespace Debug {
   external function reloadModules()
 
   function generateHero({rank = 0, level = 0}) {
-    Character(
+    final hero = Character(
       id: 'hero',
       isFemale: false,
       level: level,
       rank: rank,
       availableSkillPoints: level,
     )
+
+    hero.unconvertedExp = 2000
+    hero.materials.money = 5000
+    hero.materials.shard = 5000
+
     setHeroId('hero')
+
+    testItem(hero)
+    testQuest()
   }
 
   function testItem([character]) {
@@ -37,12 +45,12 @@ namespace Debug {
     )
     entityAcquire(character, item)
 
-    final cardPack1 = Cardpack(rank: character.rank)
-    entityAcquire(character, cardPack1)
-    final cardPack2 = Cardpack(rank: character.rank)
-    entityAcquire(character, cardPack2)
-    final cardPack3 = Cardpack(rank: character.rank)
-    entityAcquire(character, cardPack3)
+    final packs = []
+    for (var i in range(9)) {
+      final pack = Cardpack(rank: character.rank)
+      packs.add(pack)
+      entityAcquire(character, pack)
+    }
 
     final shardPack = Materialpack(kind: 'shard', amount: 5000)
     entityAcquire(character, shardPack)
@@ -54,15 +62,18 @@ namespace Debug {
     entityAcquire(character, scroll)
 
     if (character == hero) {
-      Game.promptNewItems([cardPack1, cardPack2, cardPack3, item, shardPack, moneyPack, scroll])
+      Game.promptNewItems([...packs, item, shardPack, moneyPack, scroll])
     }
   }
 
   function testQuest() {
-    final quest1 = Player.acquireQuestById('mysticGirl')
-    Player.progressQuestById(quest1.id, stage: 1)
-    Player.progressQuestById(quest1.id, stage: 3)
-    Game.promptNewQuest(quest1)
+    final quest = hero.quests.mysticGirl
+    if (!quest) {
+      quest = Player.acquireQuestById('mysticGirl')
+      Player.progressQuestById(quest.id, stage: 1)
+      Player.progressQuestById(quest.id, stage: 3)
+    }
+    Game.promptNewQuest(quest)
   }
  
   function getCurrentTerrain() {
@@ -81,7 +92,7 @@ namespace Debug {
     const terrainIndex = tilePos2Index(position.left, position.top, world.width)
     const terrain = world.terrains[terrainIndex]
     if (terrain.locationId) {
-      const location = world.locations[terrain.locationId]
+      const location = game.locations[terrain.locationId]
       return location
     }
   }
@@ -89,8 +100,8 @@ namespace Debug {
   function updateAllCaptions() {
     for (const tile in world.terrains) {
       if (tile.locationId) {
-        assert(world.locations.containsKey(tile.locationId))
-        const location = world.locations[tile.locationId]
+        assert(game.locations.containsKey(tile.locationId))
+        const location = game.locations[tile.locationId]
         World.setTerrainCaption(tile.left, tile.top, location.name)
       } else if (tile.objectId) {
         World.setTerrainCaption(tile.left, tile.top, tile.objectId)

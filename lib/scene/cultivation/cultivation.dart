@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/common.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
@@ -262,40 +263,31 @@ class CultivationScene extends Scene {
     final int unconvertedExp = GameData.heroData['unconvertedExp'];
     if (unconvertedExp <= 0) return;
 
-    // final int level = GameData.heroData['level'];
-    // final int expForNextLevel = GameLogic.expForLevel(level);
+    final int expForLevel = GameData.heroData['expForLevel'];
 
-    // int expToDisplay = math.min(unconvertedExp, expForNextLevel);
-    // int addedExp = expToDisplay;
-    int addedExp = unconvertedExp;
     int expOnExistedLights = 0;
     for (final light in _lightPoints) {
       expOnExistedLights += light.exp;
     }
-    addedExp -= expOnExistedLights;
-    if (addedExp <= 0) return;
+    int expToDisplay = unconvertedExp - expOnExistedLights;
+    if (expToDisplay <= 0) return;
 
-    // int lightPointCount = expToDisplay ~/ _kExpPerLightPoint;
     int lightPointCount = unconvertedExp ~/ _kExpPerLightPoint;
-    int expPerLightPoint = _kExpPerLightPoint;
+    int expPerLightPoint = math.max(expForLevel ~/ 20, _kExpPerLightPoint);
     if (lightPointCount > _kLightDisplayMax) {
       // 最多只显示 100 个光点
       lightPointCount = _kLightDisplayMax;
-      // expPerLightPoint = expToDisplay ~/ lightPointCount;
       expPerLightPoint = unconvertedExp ~/ lightPointCount;
     }
-    while (_lightPoints.length < lightPointCount) {
-      addedExp -= expPerLightPoint;
+    while (_lightPoints.length < lightPointCount &&
+        expToDisplay >= expPerLightPoint) {
+      expToDisplay -= expPerLightPoint;
 
       _addExpLightPoint(expPerLightPoint);
     }
-    assert(addedExp >= 0);
-    if (addedExp > 0) {
-      _addExpLightPoint(addedExp);
+    if (expToDisplay > 0) {
+      _addExpLightPoint(expToDisplay);
     }
-    // 这里排序是为了让condenseAll执行时可以准确的判断收集完全的时间点
-    _lightPoints.sort((p1, p2) =>
-        p1.distance2CondensePoint.compareTo(p2.distance2CondensePoint));
   }
 
   void _addGenreSkillButton(
@@ -587,7 +579,7 @@ class CultivationScene extends Scene {
     });
 
     timer = Timer(
-      1.0,
+      kAutoTimeFlowInterval / 1000,
       repeat: true,
       onTick: _tick,
     );
@@ -702,9 +694,8 @@ class CultivationScene extends Scene {
     );
     camera.viewport.add(levelDescription);
 
-    int level = GameData.heroData['level'];
-    int convertedExp = GameData.heroData['exp'];
-    int expForNextLevel = GameLogic.expForLevel(level);
+    final int convertedExp = GameData.heroData['exp'];
+    final int expForLevel = GameData.heroData['expForLevel'];
     expBar = DynamicColorProgressIndicator(
       anchor: Anchor.center,
       position: GameUI.expBarPosition,
@@ -712,7 +703,7 @@ class CultivationScene extends Scene {
       borderRadius: 5,
       label: '${engine.locale('exp')}: ',
       value: convertedExp,
-      max: expForNextLevel,
+      max: expForLevel,
       showNumber: true,
       colors: [Colors.lightBlue, Colors.deepPurple],
       borderPaint: Paint()
@@ -746,7 +737,9 @@ class CultivationScene extends Scene {
     expCollectionButton.onTapUp = (buttons, position) async {
       if (buttons != kPrimaryButton) return;
       setMeditatingState(false);
+      expCollectionButton.enableGesture = false;
       await condenseAll();
+      expCollectionButton.enableGesture = true;
     };
     camera.viewport.add(expCollectionButton);
 
@@ -923,48 +916,48 @@ class CultivationScene extends Scene {
     }
   }
 
-  /// 角色渡劫检测，返回值 false 代表将进入天道挑战
+  /// 角色渡劫检测，返回值 true 代表将进入天道挑战
   /// 此时将不会正常升级，但仍会扣掉经验值
   bool checkTribulation(int targetLevel) {
     final targetRank = GameData.heroData['rank'] + 1;
     final levelMin = GameLogic.minLevelForRank(targetRank);
 
-    if (targetLevel == 5 && targetRank == 1) {
-      GameLogic.showTribulation(levelMin + 5, targetRank);
-    } else {
-      final levelMax = GameLogic.maxLevelForRank(targetRank);
-      assert(targetLevel >= levelMin);
-      final probability =
-          math.gradualValue(targetLevel - levelMin, levelMax - levelMin);
-      final r = math.Random().nextDouble();
-      if (r < probability) {
+    bool doTribulation = false;
+    if (targetLevel >= levelMin) {
+      if (targetLevel == 5 && targetRank == 1) {
+        doTribulation = true;
+      } else {
+        final levelMax = GameLogic.maxLevelForRank(targetRank);
+        final probability =
+            math.gradualValue(targetLevel - levelMin, levelMax - levelMin);
+        final r = math.Random().nextDouble();
+        if (r < probability) {
+          doTribulation = true;
+        }
+      }
+
+      if (doTribulation) {
         GameLogic.showTribulation(levelMin + 5, targetRank);
-        return false;
       }
     }
 
-    return true;
+    return doTribulation;
   }
 
   /// 处理角色升级相关逻辑
   void checkEXP() {
     int level = GameData.heroData['level'];
-    int expForNextLevel = GameLogic.expForLevel(level);
+    int expForLevel = GameData.heroData['expForLevel'];
     int exp = GameData.heroData['exp'];
 
-    if (exp >= expForNextLevel) {
+    if (exp >= expForLevel) {
       // 无论渡劫是否成功，经验值都会被扣除
-      exp -= expForNextLevel;
+      exp -= expForLevel;
       int targetLevel = level + 1;
 
-      bool success = true;
-      int nextLevelMin =
-          GameLogic.minLevelForRank(GameData.heroData['rank'] + 1);
-      if (targetLevel >= nextLevelMin) {
-        success = checkTribulation(targetLevel);
-      }
+      bool tribulationCheckResult = checkTribulation(targetLevel);
 
-      if (success) {
+      if (!tribulationCheckResult) {
         engine.hetu.invoke('levelUp', namespace: 'Player');
 
         hint(
@@ -972,6 +965,8 @@ class CultivationScene extends Scene {
           positionOffsetY: 60,
           color: Colors.yellow,
         );
+      } else {
+        GameData.heroData['exp'] = exp;
       }
     }
 
@@ -983,7 +978,7 @@ class CultivationScene extends Scene {
 
   Future<void> condenseOne(ExpLightPoint light,
       [void Function()? onComplete]) async {
-    light.moveTo(
+    return light.moveTo(
       toPosition: GameUI.condensedPosition,
       duration: light.distance2CondensePoint / _kLightPointMoveSpeed,
       curve: Curves.linear,
@@ -1017,23 +1012,29 @@ class CultivationScene extends Scene {
 
   FutureOr<void> condenseAll() async {
     if (_lightPoints.isEmpty) {
+      return;
+    }
+
+    int exp = GameData.heroData['exp'];
+    final int expForLevel = GameData.heroData['expForLevel'];
+
+    if (exp >= expForLevel) {
       checkEXP();
       return;
-    } else {
-      final completer = Completer();
-      final lastIndex = _lightPoints.length - 1;
-      for (var i = 0; i < _lightPoints.length; ++i) {
-        final light = _lightPoints[i];
-        condenseOne(light, () {
-          // 这里不能直接和length比较，因为在condenseOne中会删除数组成员
-          if (i == lastIndex) {
-            checkEXP();
-            completer.complete();
-          }
-        });
-      }
-      return completer.future;
     }
+
+    List<Future> futures = [];
+    for (final light in _lightPoints) {
+      futures.add(condenseOne(light));
+      exp += light.exp;
+      if (exp > expForLevel) {
+        break;
+      }
+    }
+
+    await Future.wait(futures);
+
+    checkEXP();
   }
 
   @override
@@ -1096,14 +1097,10 @@ class CultivationScene extends Scene {
       child: Stack(
         children: [
           SceneWidget(scene: this),
-          const Positioned(
-            left: 0,
-            top: 0,
-            child: GameUIOverlay(
-              enableNpcs: false,
-              enableCultivation: false,
-              enableAutoExhaust: false,
-            ),
+          GameUIOverlay(
+            enableNpcs: false,
+            enableCultivation: false,
+            enableAutoExhaust: false,
           ),
           Positioned(
             right: 10.0,

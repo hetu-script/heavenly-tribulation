@@ -39,7 +39,7 @@ struct QuestBanditCamp {
     this.kind = kind ?? random.nextIterable(kQuestBanditCampKinds)
     this.id = 'quest.${crypto.randomUID4(2)}.${locationId}.${this.category}.${this.kind}'
 
-    const location = world.locations[locationId]
+    const location = game.locations[locationId]
     const bountyhouse = location.sites[siteId]
     bountyhouse.quests[this.id] = this
 

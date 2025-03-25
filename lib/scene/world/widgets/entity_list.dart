@@ -735,7 +735,7 @@ class _EntityListPanelState extends State<EntityListPanel>
 
     return ResponsiveView(
       alignment: Alignment.centerLeft,
-      backgroundColor: GameUI.backgroundColor,
+      backgroundColor: GameUI.backgroundColor2,
       width: widget.size.width,
       height: widget.size.height,
       child: DefaultTabController(

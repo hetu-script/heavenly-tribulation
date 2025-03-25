@@ -57,7 +57,7 @@ abstract class GameLogic {
     return (rank * 10 + 20);
   }
 
-  static int expForLevel(level, [difficulty]) {
+  static int expForLevel(int level, [int? difficulty]) {
     difficulty ??= 1;
     return (difficulty * (level) * (level)) * 10 + level * 100 + 40;
   }
@@ -151,10 +151,22 @@ abstract class GameLogic {
     await GameDialogContent.show(
         engine.context, engine.locale('help_tribulation'));
 
+    if (!engine.context.mounted) return;
+    final selected =
+        await SelectionDialog.show(engine.context, selectionsData: {
+      'selections': {
+        'do_tribulation': engine.locale('do_tribulation'),
+        'forgetIt': engine.locale('forgetIt'),
+      },
+    });
+    if (selected != 'do_tribulation') return;
+
     final enemey = engine.hetu.invoke(
       'BattleEntity',
       namedArgs: {
+        'isFemale': false,
         'name': engine.locale('theHeavenlyWay'),
+        'icon': 'illustration/man_in_shadow.png',
         'level': level,
         'rank': rank,
       },
@@ -165,15 +177,15 @@ abstract class GameLogic {
       'id': Scenes.battle,
       'hero': GameData.heroData,
       'enemy': enemey,
-      'onBattleStart': () {
-        bool? hintedTribulation =
-            GameData.gameData['flags']['hintedTribulation'];
-        if (hintedTribulation == null || hintedTribulation == false) {
-          GameDialogContent.show(
-              engine.context, engine.locale('help_tribulation_beforeBattle'));
-          GameData.gameData['flags']['hintedTribulation'] = true;
-        }
-      },
+      // 'onBattleStart': () {
+      //   bool? hintedTribulation =
+      //       GameData.gameData['flags']['hintedTribulation'];
+      //   if (hintedTribulation == null || hintedTribulation == false) {
+      //     GameDialogContent.show(
+      //         engine.context, engine.locale('help_tribulation_beforeBattle'));
+      //     GameData.gameData['flags']['hintedTribulation'] = true;
+      //   }
+      // },
       'onBattleEnd': (bool? result) {
         if (result == true) {
           engine.hetu.invoke('levelUp', namespace: 'Player');

@@ -1232,7 +1232,7 @@ function _handleCityHallInteraction(site) async {
 }
 
 function _handleHeadquartersInteraction(site) {
-  const location = world.locations[site.locationId]
+  const location = game.locations[site.locationId]
   Dialog.localeSelect([
     'practice',
     'learn',
@@ -1274,7 +1274,7 @@ function _handleLibraryInteraction(site) {
 }
 
 function _handleBountyhouseInteraction(site) {
-  const location = world.locations[site.locationId]
+  const location = game.locations[site.locationId]
   // const selections = [
   //   'appeal',
   //   'tribute',
@@ -1396,7 +1396,7 @@ function _handleBountyhouseInteraction(site) {
 // 将指定数量的材料运送到另一个城市，但途中可能会遇到劫匪或风暴，风暴会耽误时间。
 // 没有提交足够数量的材料或者超过时间都会算作失败。
 function _handleTradingHouseInteraction(site) {
-  const location = world.locations[site.locationId]
+  const location = game.locations[site.locationId]
   Dialog.localeSelect([
     'trade',
     'work',
@@ -1602,6 +1602,9 @@ async function updateGame({
   moduleEvent = true,
   autoCultivate = false,
 }) {
+  if (timeflow) {
+    console.time('update time')
+  }
 
   for (const i in range(ticks)) {
     if (worldEvent && world?.isMainWorld) {
@@ -1677,7 +1680,7 @@ async function updateGame({
       // 每个建筑，每个月会根据其属性而支付费用和获得收入，费用和收入可能是各种资源
       // 商店类建筑会刷新物品和银两
       // 刷新任务，无论之前的任务是否还存在，非组织拥有的第三方建筑每个月只会有一个任务
-      for (const location of world.locations) {
+      for (const location of game.locations) {
         // 跳过玩家自己控制的据点
         if (game.heroId == location.ownerId) continue
 
@@ -1762,6 +1765,10 @@ async function updateGame({
       }
     }
   }
+  
+  if (timeflow) {
+    console.timeEnd('update time')
+  }
 }
 
 // 每个tick检查一次当前是否有婴儿出生
@@ -1773,7 +1780,7 @@ function handleBabies {
     if (!mother.isDead) {
       mother.isPregnant = false
       assert(mother.locationId != null)
-      const location = world.locations[mother.locationId]
+      const location = game.locations[mother.locationId]
       const character = Character(
         surName: baby.surName,
         generateName: baby.generateName,

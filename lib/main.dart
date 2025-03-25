@@ -92,6 +92,7 @@ void main() {
           ChangeNotifierProvider(create: (_) => NpcListState()),
           ChangeNotifierProvider(create: (_) => NewQuestState()),
           ChangeNotifierProvider(create: (_) => NewItemsState()),
+          ChangeNotifierProvider(create: (_) => NewRankState()),
           ChangeNotifierProvider(create: (_) => HeroInfoVisibilityState()),
           ChangeNotifierProvider(create: (_) => HeroState()),
           ChangeNotifierProvider(create: (_) => EnemyState()),

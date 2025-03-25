@@ -23,8 +23,7 @@ class SelectionDialog extends StatefulWidget {
   }) async {
     return await showDialog<String>(
       context: context,
-      barrierColor: Colors.transparent,
-      barrierDismissible: true,
+      barrierColor: GameUI.backgroundColor,
       builder: (BuildContext context) {
         return SelectionDialog(data: selectionsData);
       },
