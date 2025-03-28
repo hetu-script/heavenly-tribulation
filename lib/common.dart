@@ -13,6 +13,8 @@ const kValueTypePercentage = 'percentage';
 
 const kAutoTimeFlowInterval = 500;
 
+const kSpriteScale = 2.0;
+
 enum SceneStates {
   mainmenu,
   world,
@@ -151,7 +153,6 @@ const kRestrictedEquipmentTypes = {
   'armor',
   'helmet',
   'boots',
-  'vehicle',
 };
 
 const kCityKinds = [
@@ -343,7 +344,7 @@ abstract class AttackType {
   static const weapon = 'weapon';
   static const spell = 'spell';
   static const curse = 'curse';
-  static const poison = 'poison';
+  static const chaos = 'chaos';
 }
 
 const Set<String> kAttackTypes = {
@@ -351,7 +352,7 @@ const Set<String> kAttackTypes = {
   AttackType.weapon,
   AttackType.spell,
   AttackType.curse,
-  AttackType.poison,
+  AttackType.chaos,
 };
 
 abstract class DamageType {
@@ -385,3 +386,5 @@ const kUntradableItemKinds = {
   'money',
   'worker',
 };
+
+const kAttributeAnyLevel = 3;

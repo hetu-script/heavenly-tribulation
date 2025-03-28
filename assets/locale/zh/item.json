@@ -70,11 +70,11 @@
   "energy_curse": "煞气",
   "energy_curse_description": "煞气：伴随杀戮而形成的一种气息，吸收后可以增强你在战斗中的咒术攻击。",
 
-  "energy_poison": "瘴气",
-  "energy_poison_description": "瘴气：包含可以对生物造成巨大伤害性的物质的气体，吸收后可以增强你在战斗中的毒术攻击。",
+  "energy_chaos": "混沌之气",
+  "energy_chaos_description": "混沌之气：包含可以对生物造成巨大伤害性的物质的气体，吸收后可以增强你在战斗中的混沌攻击。",
 
-  "energy_chaotic": "混沌之气",
-  "energy_chaotic_description": "混沌之气：在天地形成之初便已存在的一种远古气息，吸收后可以增强你在战斗中的攻击。",
+  "energy_ultimate": "无极之气",
+  "energy_ultimate_description": "无极之气：在天地形成之初便已存在的一种远古气息，吸收后可以增强你在战斗中的攻击。",
 
   "identify_scroll": "鉴定符",
   "identify_scroll_description": "鉴定符：右键使用，可以鉴定一件未知物品。",

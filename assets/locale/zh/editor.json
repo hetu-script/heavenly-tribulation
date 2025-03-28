@@ -15,8 +15,9 @@
   "isMainWorld": "是否是主世界",
 
   "checkInformation": "查看信息",
-  "editDescription": "编辑人物故事",
   "editIdAndImage": "编辑id和图像",
+  "editDescription": "编辑人物故事",
+  "editFlags": "编辑自定义选项",
 
   "addBond": "添加羁绊",
 
@@ -77,7 +78,9 @@
   "coffin": "棺材",
   "statue": "雕像",
   "stoneStairs": "石阶",
-  "stoneStairsDebris": "石阶废墟",
+  "stoneDebris": "乱石废墟",
+  "stain": "污渍",
+  "bloodStain": "血迹",
   "oldWell": "古井",
   "meditationCushion": "蒲团",
 
@@ -95,5 +98,6 @@
 
   "python": "怪蟒",
 
-  "meteorCrater": "陨石坑"
+  "meteorCrater": "陨石坑",
+  "deadBody": "尸体残骸"
 }

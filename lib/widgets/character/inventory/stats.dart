@@ -48,11 +48,11 @@ class CharacterStats extends StatelessWidget {
     final int strength = stats['strength'];
     final int willpower = stats['willpower'];
     final int perception = stats['perception'];
-    final int unarmedAttack = stats['unarmedAttack'];
-    final int weaponAttack = stats['weaponAttack'];
-    final int spellAttack = stats['spellAttack'];
-    final int curseAttack = stats['curseAttack'];
-    final int poisonAttack = stats['poisonAttack'];
+    final int unarmedEnhance = stats['unarmedEnhance'];
+    final int weaponEnhance = stats['weaponEnhance'];
+    final int spellEnhance = stats['spellEnhance'];
+    final int curseEnhance = stats['curseEnhance'];
+    final int chaosEnhance = stats['chaosEnhance'];
     final int physicalResist = stats['physicalResist'];
     final int chiResist = stats['chiResist'];
     final int elementalResist = stats['elementalResist'];
@@ -62,13 +62,13 @@ class CharacterStats extends StatelessWidget {
     // final int nimbleThreshold = stats['nimbleThreshold'];
     // final int clumsyThreshold = stats['clumsyThreshold'];
     // final bool isUnarmedAttackIdentified =
-    //     identifedStats['unarmedAttack'] ?? false;
+    //     identifedStats['unarmedEnhance'] ?? false;
     // final bool isWeaponAttackIdentified =
-    //     identifedStats['weaponAttack'] ?? false;
-    // final bool isSpellAttackIdentified = identifedStats['spellAttack'] ?? false;
-    // final bool isCurseAttackIdentified = identifedStats['curseAttack'] ?? false;
+    //     identifedStats['weaponEnhance'] ?? false;
+    // final bool isSpellAttackIdentified = identifedStats['spellEnhance'] ?? false;
+    // final bool isCurseAttackIdentified = identifedStats['curseEnhance'] ?? false;
     // final bool isPoisonAttackIdentified =
-    //     identifedStats['poisonAttack'] ?? false;
+    //     identifedStats['poisonEnhance'] ?? false;
     // final bool isPhysicalResistIdentified =
     //     identifedStats['physicalResist'] ?? false;
     // final bool isChiResistIdentified = identifedStats['chiResist'] ?? false;
@@ -180,7 +180,7 @@ class CharacterStats extends StatelessWidget {
       Label(
         // (isHero) // || isUnarmedAttackIdentified)
         // ?
-        '${engine.locale('unarmedAttack')}: ${unarmedAttack > 0 ? '<yellow>$unarmedAttack</>' : unarmedAttack}',
+        '${engine.locale('unarmedEnhance')}: ${unarmedEnhance > 0 ? '<yellow>$unarmedEnhance</>' : unarmedEnhance}',
         // : '???',
         width: kLabelWidth,
         textAlign: TextAlign.left,
@@ -195,7 +195,7 @@ class CharacterStats extends StatelessWidget {
       Label(
         // (isHero) // || isWeaponAttackIdentified)
         // ?
-        '${engine.locale('weaponAttack')}: ${weaponAttack > 0 ? '<yellow>$weaponAttack</>' : weaponAttack}',
+        '${engine.locale('weaponEnhance')}: ${weaponEnhance > 0 ? '<yellow>$weaponEnhance</>' : weaponEnhance}',
         // : '???',
         width: kLabelWidth,
         textAlign: TextAlign.left,
@@ -210,7 +210,7 @@ class CharacterStats extends StatelessWidget {
       Label(
         // (isHero) // || isSpellAttackIdentified)
         // ?
-        '${engine.locale('spellAttack')}: ${spellAttack > 0 ? '<yellow>$spellAttack</>' : spellAttack}',
+        '${engine.locale('spellEnhance')}: ${spellEnhance > 0 ? '<yellow>$spellEnhance</>' : spellEnhance}',
         // : '???',
         width: kLabelWidth,
         textAlign: TextAlign.left,
@@ -225,7 +225,7 @@ class CharacterStats extends StatelessWidget {
       Label(
         // (isHero) // || isCurseAttackIdentified)
         // ?
-        '${engine.locale('curseAttack')}: ${curseAttack > 0 ? '<yellow>$curseAttack</>' : curseAttack}',
+        '${engine.locale('curseEnhance')}: ${curseEnhance > 0 ? '<yellow>$curseEnhance</>' : curseEnhance}',
         // : '???',
         width: kLabelWidth,
         textAlign: TextAlign.left,
@@ -240,7 +240,7 @@ class CharacterStats extends StatelessWidget {
       Label(
         // (isHero) // || isPoisonAttackIdentified)
         // ?
-        '${engine.locale('poisonAttack')}: ${poisonAttack > 0 ? '<yellow>$poisonAttack</>' : poisonAttack}',
+        '${engine.locale('chaosEnhance')}: ${chaosEnhance > 0 ? '<yellow>$chaosEnhance</>' : chaosEnhance}',
         // : '???',
         width: kLabelWidth,
         textAlign: TextAlign.left,

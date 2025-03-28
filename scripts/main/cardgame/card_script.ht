@@ -6,8 +6,6 @@ import '../game/battle_character.ht'
 /// 按照约定，主词条以 `card_script_main_${affix_id}` 的形式命名
 /// 额外词条以 `card_script_${affix_id}` 的形式命名
 
-const kCardDisplayDelay = 0.75
-
 /// ------------------------------------------------------------
 /// 主词条（异步async）
 /// ------------------------------------------------------------
@@ -38,7 +36,7 @@ async function card_script_main_attack_multiple(self, opponent, affix) {
   }
 }
 async function card_script_main_attack_cost_1_energy(self, opponent, affix) {
-  final amount = self.removeStatusEffect('energy_positive_${affix.resourceType}', amount: 1)
+  final amount = self.removeStatusEffect('positive_energy_${affix.resourceType}', amount: 1)
   if (amount < 1) {
     return
   }
@@ -53,7 +51,7 @@ async function card_script_main_attack_cost_1_energy(self, opponent, affix) {
 }
 /// 风刃攻击
 async function card_script_main_wind_blade(self, opponent, affix) {
-  final amount = self.removeStatusEffect('energy_positive_spell', amount: 1)
+  final amount = self.removeStatusEffect('positive_energy_spell', amount: 1)
   if (amount < 1) {
     return
   }
@@ -69,7 +67,7 @@ async function card_script_main_wind_blade(self, opponent, affix) {
 }
 /// 雷法
 async function card_script_main_lightning(self, opponent, affix) {
-  final amount = self.removeStatusEffect('energy_positive_spell', amount: 1)
+  final amount = self.removeStatusEffect('positive_energy_spell', amount: 1)
   if (amount < 1) {
     return
   }
@@ -125,20 +123,20 @@ async function card_script_main_heal(self, opponent, affix) {
 /// 获得元气
 async function card_script_main_life_energy(self, opponent, affix) {
   await characterAnimate(self, affix.animation)
-  self.addStatusEffect('energy_positive_life', amount: affix.value[0])
+  self.addStatusEffect('positive_energy_life', amount: affix.value[0])
 }
 /// 获得灵气
 async function card_script_main_spell_energy(self, opponent, affix) {
   await characterAnimate(self, affix.animation)
-  self.addStatusEffect('energy_positive_spell', amount: affix.value[0])
+  self.addStatusEffect('positive_energy_spell', amount: affix.value[0])
 }
 /// 御剑
 /// 元气转化为剑气
 async function card_script_main_weapon_energy_convert(self, opponent, affix, mainAffix) {
   await characterAnimate(self, affix.animation)
-  let amount1 = self.removeStatusEffect('energy_positive_life', hintLacking: false)
-  let amount2 = self.removeStatusEffect('energy_positive_spell', hintLacking: false)
-  self.addStatusEffect('energy_positive_weapon', amount: amount1 + amount2)
+  let amount1 = self.removeStatusEffect('positive_energy_life', hintLacking: false)
+  let amount2 = self.removeStatusEffect('positive_energy_spell', hintLacking: false)
+  self.addStatusEffect('positive_energy_weapon', amount: amount1 + amount2)
 }
 
 /// 迅捷
@@ -170,11 +168,11 @@ async function card_script_heal(self, opponent, affix, mainAffix) {
 }
 
 async function card_script_life_energy(self, opponent, affix, mainAffix) {
-  self.addStatusEffect('energy_positive_life', amount: affix.value[0])
+  self.addStatusEffect('positive_energy_life', amount: affix.value[0])
 }
 
 async function card_script_spell_energy(self, opponent, affix, mainAffix) {
-  self.addStatusEffect('energy_positive_spell', amount: affix.value[0])
+  self.addStatusEffect('positive_energy_spell', amount: affix.value[0])
 }
 
 /// 防御
@@ -192,7 +190,7 @@ async function card_script_dodge(self, opponent, affix, mainAffix) {
 
 /// 有元气时获得防御
 async function card_script_cost_1_life_energy_gain_defense(self, opponent, affix, mainAffix) {
-  final amount = self.removeStatusEffect('energy_positive_life', amount: 1)
+  final amount = self.removeStatusEffect('positive_energy_life', amount: 1)
   if (amount < 1) return
   self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[0] * amount)
 }
@@ -231,12 +229,12 @@ async function card_script_per_10hp_damage_gain_energy(self, opponent, affix, ma
   final turnDamage = self.getTurnFlag('turnDamage') ?? 0
   if (turnDamage < 10) return
   final amount = (turnDamage / 10).floor()
-  self.addStatusEffect('energy_positive_${affix.attackType}', amount: amount * 2)
+  self.addStatusEffect('positive_energy_${affix.attackType}', amount: amount * 2)
 }
 
 async function card_script_cost_weapon_energy_extra_damage(self, opponent, affix, mainAffix) {
   final maxAmount = affix.value[0]
-  final amount = self.removeStatusEffect('energy_positive_weapon', amount: maxAmount)
+  final amount = self.removeStatusEffect('positive_energy_weapon', amount: maxAmount)
   if (amount < 1) return
   for (var i in range(amount)) {
     opponent.takeDamage({

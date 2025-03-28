@@ -8,205 +8,30 @@
   /// 属性词条可能有 base 数值，但只对装备生成生效，天赋树只计算增强*等级
 
   /// 流派卡牌解锁入口
-  swordcraft_rank_1: {
-    id: "swordcraft_rank_1",
-    description: "passive_swordcraft_rank_1_description",
+  rank_swordcraft: {
+    id: "rank_swordcraft",
+    description: "passive_rank_swordcraft_description",
     priority: 5040,
   },
-  swordcraft_rank_2: {
-    id: "swordcraft_rank_2",
-    description: "passive_swordcraft_rank_2_description",
-    priority: 5041,
-  },
-  swordcraft_rank_3: {
-    id: "swordcraft_rank_3",
-    description: "passive_swordcraft_rank_3_description",
-    priority: 5042,
-  },
-  swordcraft_rank_4: {
-    id: "swordcraft_rank_4",
-    description: "passive_swordcraft_rank_4_description",
-    priority: 5043,
-  },
-  swordcraft_rank_5: {
-    id: "swordcraft_rank_5",
-    description: "passive_swordcraft_rank_5_description",
-    priority: 5044,
-  },
-  swordcraft_rank_6: {
-    id: "swordcraft_rank_6",
-    description: "passive_swordcraft_rank_6_description",
-    priority: 5045,
-  },
-  swordcraft_rank_7: {
-    id: "swordcraft_rank_7",
-    description: "passive_swordcraft_rank_7_description",
-    priority: 5046,
-  },
-  swordcraft_rank_8: {
-    id: "swordcraft_rank_8",
-    description: "passive_swordcraft_rank_8_description",
-    priority: 5047,
-  },
-  spellcraft_rank_1: {
-    id: "spellcraft_rank_1",
-    description: "passive_spellcraft_rank_1_description",
+  rank_spellcraft: {
+    id: "rank_spellcraft",
+    description: "passive_rank_spellcraft_description",
     priority: 5030,
   },
-  spellcraft_rank_2: {
-    id: "spellcraft_rank_2",
-    description: "passive_spellcraft_rank_2_description",
-    priority: 5031,
-  },
-  spellcraft_rank_3: {
-    id: "spellcraft_rank_3",
-    description: "passive_spellcraft_rank_3_description",
-    priority: 5032,
-  },
-  spellcraft_rank_4: {
-    id: "spellcraft_rank_4",
-    description: "passive_spellcraft_rank_4_description",
-    priority: 5033,
-  },
-  spellcraft_rank_5: {
-    id: "spellcraft_rank_5",
-    description: "passive_spellcraft_rank_5_description",
-    priority: 5034,
-  },
-  spellcraft_rank_6: {
-    id: "spellcraft_rank_6",
-    description: "passive_spellcraft_rank_6_description",
-    priority: 5035,
-  },
-  spellcraft_rank_7: {
-    id: "spellcraft_rank_7",
-    description: "passive_spellcraft_rank_7_description",
-    priority: 5036,
-  },
-  spellcraft_rank_8: {
-    id: "spellcraft_rank_8",
-    description: "passive_spellcraft_rank_8_description",
-    priority: 5027,
-  },
-  physique_rank_1: {
-    id: "physique_rank_1",
-    description: "passive_physique_rank_1_description",
+  rank_bodyforge: {
+    id: "rank_bodyforge",
+    description: "passive_rank_bodyforge_description",
     priority: 5020,
   },
-  physique_rank_2: {
-    id: "physique_rank_2",
-    description: "passive_physique_rank_2_description",
-    priority: 5021,
-  },
-  physique_rank_3: {
-    id: "physique_rank_3",
-    description: "passive_physique_rank_3_description",
-    priority: 5022,
-  },
-  physique_rank_4: {
-    id: "physique_rank_4",
-    description: "passive_physique_rank_4_description",
-    priority: 5023,
-  },
-  physique_rank_5: {
-    id: "physique_rank_5",
-    description: "passive_physique_rank_5_description",
-    priority: 5024,
-  },
-  physique_rank_6: {
-    id: "physique_rank_6",
-    description: "passive_physique_rank_6_description",
-    priority: 5025,
-  },
-  physique_rank_7: {
-    id: "physique_rank_7",
-    description: "passive_physique_rank_7_description",
-    priority: 5026,
-  },
-  physique_rank_8: {
-    id: "physique_rank_8",
-    description: "passive_physique_rank_8_description",
-    priority: 5027,
-  },
-  avatar_rank_1: {
-    id: "avatar_rank_1",
-    description: "passive_avatar_rank_1_description",
+  rank_avatar: {
+    id: "rank_avatar",
+    description: "passive_rank_avatar_description",
     priority: 5010,
   },
-  avatar_rank_2: {
-    id: "avatar_rank_2",
-    description: "passive_avatar_rank_2_description",
-    priority: 5011,
-  },
-  avatar_rank_3: {
-    id: "avatar_rank_3",
-    description: "passive_avatar_rank_3_description",
-    priority: 5012,
-  },
-  avatar_rank_4: {
-    id: "avatar_rank_4",
-    description: "passive_avatar_rank_4_description",
-    priority: 5013,
-  },
-  avatar_rank_5: {
-    id: "avatar_rank_5",
-    description: "passive_avatar_rank_5_description",
-    priority: 5014,
-  },
-  avatar_rank_6: {
-    id: "avatar_rank_6",
-    description: "passive_avatar_rank_6_description",
-    priority: 5015,
-  },
-  avatar_rank_7: {
-    id: "avatar_rank_7",
-    description: "passive_avatar_rank_7_description",
-    priority: 5016,
-  },
-  avatar_rank_8: {
-    id: "avatar_rank_8",
-    description: "passive_avatar_rank_8_description",
-    priority: 5017,
-  },
-  vitality_rank_1: {
-    id: "vitality_rank_1",
-    description: "passive_vitality_rank_1_description",
+  rank_vitality: {
+    id: "rank_vitality",
+    description: "passive_rank_vitality_description",
     priority: 5000,
-  },
-  vitality_rank_2: {
-    id: "vitality_rank_2",
-    description: "passive_vitality_rank_2_description",
-    priority: 5001,
-  },
-  vitality_rank_3: {
-    id: "vitality_rank_3",
-    description: "passive_vitality_rank_3_description",
-    priority: 5002,
-  },
-  vitality_rank_4: {
-    id: "vitality_rank_4",
-    description: "passive_vitality_rank_4_description",
-    priority: 5003,
-  },
-  vitality_rank_5: {
-    id: "vitality_rank_5",
-    description: "passive_vitality_rank_5_description",
-    priority: 5004,
-  },
-  vitality_rank_6: {
-    id: "vitality_rank_6",
-    description: "passive_vitality_rank_6_description",
-    priority: 5005,
-  },
-  vitality_rank_7: {
-    id: "vitality_rank_7",
-    description: "passive_vitality_rank_7_description",
-    priority: 5006,
-  },
-  vitality_rank_8: {
-    id: "vitality_rank_8",
-    description: "passive_vitality_rank_8_description",
-    priority: 5007,
   },
 
   /// 装备固定词条，解锁对应装备需求的卡牌
@@ -247,7 +72,7 @@
     priority: 4000,
   },
 
-  /// 装备特殊词条
+  /// 特殊词条
   /// 这些词条不会被随机出来，只会出现在特定的装备上
   equipment_cursed: {
     id: "equipment_cursed",
@@ -255,236 +80,252 @@
   },
 
   /// 下面这些词条既会出现在天赋树上，也会出现在装备上
-  /// 攻击相关1
-  passive_punch_extra_chi_damage: {
-    id: "passive_punch_extra_chi_damage",
+  /// 额外伤害
+  punch_extra_chi_damage: {
+    id: "punch_extra_chi_damage",
     description: "passive_punch_extra_chi_damage_description",
     priority: 3150,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["gloves"],
-    rank: 2,
   },
-  passive_punch_extra_elemental_damage: {
-    id: "passive_punch_extra_elemental_damage",
+  punch_extra_elemental_damage: {
+    id: "punch_extra_elemental_damage",
     description: "passive_punch_extra_elemental_damage_description",
     priority: 3145,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["gloves"],
-    rank: 2,
   },
-  passive_kick_extra_chi_damage: {
-    id: "passive_kick_extra_chi_damage",
+  kick_extra_chi_damage: {
+    id: "kick_extra_chi_damage",
     description: "passive_kick_extra_chi_damage_description",
     priority: 3140,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["boots"],
-    rank: 2,
   },
-  passive_kick_extra_elemental_damage: {
-    id: "passive_kick_extra_elemental_damage",
+  kick_extra_elemental_damage: {
+    id: "kick_extra_elemental_damage",
     description: "passive_kick_extra_elemental_damage_description",
     priority: 3135,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["boots"],
-    rank: 2,
   },
-  passive_wrestling_extra_chi_damage: {
-    id: "passive_wrestling_extra_chi_damage",
+  wrestling_extra_chi_damage: {
+    id: "wrestling_extra_chi_damage",
     description: "passive_wrestling_extra_chi_damage_description",
     priority: 3130,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["gloves"],
-    rank: 2,
   },
-  passive_wrestling_extra_elemental_damage: {
-    id: "passive_wrestling_extra_elemental_damage",
+  wrestling_extra_elemental_damage: {
+    id: "wrestling_extra_elemental_damage",
     description: "passive_wrestling_extra_elemental_damage_description",
     priority: 3125,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["gloves"],
-    rank: 2,
   },
-  passive_dianxue_extra_chi_damage: {
-    id: "passive_dianxue_extra_chi_damage",
+  dianxue_extra_chi_damage: {
+    id: "dianxue_extra_chi_damage",
     description: "passive_dianxue_extra_chi_damage_description",
     priority: 3120,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["gloves"],
-    rank: 2,
   },
-  passive_dianxue_extra_elemental_damage: {
-    id: "passive_dianxue_extra_elemental_damage",
+  dianxue_extra_elemental_damage: {
+    id: "dianxue_extra_elemental_damage",
     description: "passive_dianxue_extra_elemental_damage_description",
     priority: 3115,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["gloves"],
-    rank: 2,
   },
-  passive_sword_extra_chi_damage: {
-    id: "passive_sword_extra_chi_damage",
+  sword_extra_chi_damage: {
+    id: "sword_extra_chi_damage",
     description: "passive_sword_extra_chi_damage_description",
     priority: 3110,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["sword"],
-    rank: 2,
   },
-  passive_sword_extra_elemental_damage: {
-    id: "passive_sword_extra_elemental_damage",
+  sword_extra_elemental_damage: {
+    id: "sword_extra_elemental_damage",
     description: "passive_sword_extra_elemental_damage_description",
     priority: 3105,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["sword"],
-    rank: 2,
   },
-  passive_sabre_extra_chi_damage: {
-    id: "passive_sabre_extra_chi_damage",
+  sabre_extra_chi_damage: {
+    id: "sabre_extra_chi_damage",
     description: "passive_sabre_extra_chi_damage_description",
     priority: 3100,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["sabre"],
-    rank: 2,
   },
-  passive_sabre_extra_elemental_damage: {
-    id: "passive_sabre_extra_elemental_damage",
+  sabre_extra_elemental_damage: {
+    id: "sabre_extra_elemental_damage",
     description: "passive_sabre_extra_elemental_damage_description",
     priority: 3095,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["sabre"],
-    rank: 2,
   },
-  passive_spear_extra_chi_damage: {
-    id: "passive_spear_extra_chi_damage",
+  spear_extra_chi_damage: {
+    id: "spear_extra_chi_damage",
     description: "passive_spear_extra_chi_damage_description",
     priority: 3090,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["spear"],
-    rank: 2,
   },
-  passive_spear_extra_elemental_damage: {
-    id: "passive_spear_extra_elemental_damage",
+  spear_extra_elemental_damage: {
+    id: "spear_extra_elemental_damage",
     description: "passive_spear_extra_elemental_damage_description",
     priority: 3085,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["spear"],
-    rank: 2,
   },
-  passive_staff_extra_chi_damage: {
-    id: "passive_staff_extra_chi_damage",
+  staff_extra_chi_damage: {
+    id: "staff_extra_chi_damage",
     description: "passive_staff_extra_chi_damage_description",
     priority: 3080,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["staff"],
-    rank: 2,
   },
-  passive_staff_extra_elemental_damage: {
-    id: "passive_staff_extra_elemental_damage",
+  staff_extra_elemental_damage: {
+    id: "staff_extra_elemental_damage",
     description: "passive_staff_extra_elemental_damage_description",
     priority: 3075,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["staff"],
-    rank: 2,
   },
-  passive_bow_extra_chi_damage: {
-    id: "passive_bow_extra_chi_damage",
+  bow_extra_chi_damage: {
+    id: "bow_extra_chi_damage",
     description: "passive_bow_extra_chi_damage_description",
     priority: 3070,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["bow"],
-    rank: 2,
   },
-  passive_bow_extra_elemental_damage: {
-    id: "passive_bow_extra_elemental_damage",
+  bow_extra_elemental_damage: {
+    id: "bow_extra_elemental_damage",
     description: "passive_bow_extra_elemental_damage_description",
     priority: 3065,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["bow"],
-    rank: 2,
   },
-  passive_dart_extra_chi_damage: {
-    id: "passive_dart_extra_chi_damage",
+  dart_extra_chi_damage: {
+    id: "dart_extra_chi_damage",
     description: "passive_dart_extra_chi_damage_description",
     priority: 3060,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["dart"],
-    rank: 2,
   },
-  passive_dart_extra_elemental_damage: {
-    id: "passive_dart_extra_elemental_damage",
+  dart_extra_elemental_damage: {
+    id: "dart_extra_elemental_damage",
     description: "passive_dart_extra_elemental_damage_description",
     priority: 3055,
     increment: 2,
     isItemExtraAffix: true,
     kind: ["dart"],
-    rank: 2,
   },
 
-  /// 攻击相关2
-  unarmedAttack: {
-    id: "unarmedAttack",
-    description: "passive_unarmed_attack_description",
+  /// 攻击力
+  unarmedEnhance: {
+    id: "unarmedEnhance",
+    description: "passive_unarmed_enhance_description",
     priority: 2020,
     increment: 1,
     isItemExtraAffix: true,
     kind: ["gloves", "boots"],
-    rank: 1,
   },
-  weaponAttack: {
-    id: "weaponAttack",
-    description: "passive_weapon_attack_description",
+  weaponEnhance: {
+    id: "weaponEnhance",
+    description: "passive_weapon_enhance_description",
     priority: 2015,
     increment: 1,
     isItemExtraAffix: true,
     kind: ["sword", "sabre", "staff", "spear", "bow", "dart", "pipa", "flute"],
-    rank: 1,
   },
-  spellAttack: {
-    id: "spellAttack",
-    description: "passive_spell_attack_description",
+  spellEnhance: {
+    id: "spellEnhance",
+    description: "passive_spell_enhance_description",
     priority: 2010,
     increment: 1,
     isItemExtraAffix: true,
     kind: ["amulet", "ring", "pearl", "bracelet"],
-    rank: 1,
   },
-  curseAttack: {
-    id: "curseAttack",
-    description: "passive_curse_attack_description",
+  curseEnhance: {
+    id: "curseEnhance",
+    description: "passive_curse_enhance_description",
     priority: 2005,
     increment: 1,
     isItemExtraAffix: true,
     kind: ["amulet", "ring", "pearl", "bracelet"],
-    rank: 1,
   },
-  poisonAttack: {
-    id: "poisonAttack",
-    description: "passive_poison_attack_description",
+  chaosEnhance: {
+    id: "chaosEnhance",
+    description: "passive_chaos_enhance_description",
     priority: 2000,
     increment: 1,
     isItemExtraAffix: true,
     kind: ["poinson_bag"],
-    rank: 1,
   },
 
-  // 防御相关
+  unarmedPenetration: {
+    id: "unarmedPenetration",
+    description: "passive_unarmed_penetration_description",
+    priority: 2020,
+    increment: 1,
+    isItemExtraAffix: true,
+    kind: ["gloves", "boots"],
+  },
+  weaponPenetration: {
+    id: "weaponPenetration",
+    description: "passive_weapon_penetration_description",
+    priority: 2015,
+    increment: 1,
+    isItemExtraAffix: true,
+    kind: ["sword", "sabre", "staff", "spear", "bow", "dart", "pipa", "flute"],
+  },
+  spellPenetration: {
+    id: "spellPenetration",
+    description: "passive_spell_penetration_description",
+    priority: 2010,
+    increment: 1,
+    isItemExtraAffix: true,
+    kind: ["amulet", "ring", "pearl", "bracelet"],
+  },
+  cursePenetration: {
+    id: "cursePenetration",
+    description: "passive_curse_penetration_description",
+    priority: 2005,
+    increment: 1,
+    isItemExtraAffix: true,
+    kind: ["amulet", "ring", "pearl", "bracelet"],
+  },
+  chaosPenetration: {
+    id: "chaosPenetration",
+    description: "passive_chaos_penetration_description",
+    priority: 2000,
+    increment: 1,
+    isItemExtraAffix: true,
+    kind: ["poinson_bag"],
+  },
+
+  // 防御
   physicalResist: {
     id: "physicalResist",
     description: "passive_physical_resist_description",
@@ -492,7 +333,6 @@
     increment: 1,
     isItemExtraAffix: true,
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
-    rank: 1,
   },
   chiResist: {
     id: "chiResist",
@@ -501,7 +341,6 @@
     increment: 1,
     isItemExtraAffix: true,
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
-    rank: 1,
   },
   elementalResist: {
     id: "elementalResist",
@@ -510,7 +349,6 @@
     increment: 1,
     isItemExtraAffix: true,
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
-    rank: 1,
   },
   spiritualResist: {
     id: "spiritualResist",
@@ -519,74 +357,107 @@
     increment: 1,
     isItemExtraAffix: true,
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
-    rank: 1,
+  },
+
+  // 防御保持
+  physicalPersistent: {
+    id: "physicalPersistent",
+    description: "passive_physical_persistent_description",
+    priority: 1565,
+    increment: 1,
+    isItemExtraAffix: true,
+    kind: ["armor", "gloves", "boots", "helmet", "shield"],
+  },
+  chiPersistent: {
+    id: "chiPersistent",
+    description: "passive_chi_persistent_description",
+    priority: 1560,
+    increment: 1,
+    isItemExtraAffix: true,
+    kind: ["armor", "gloves", "boots", "helmet", "shield"],
+  },
+  elementalPersistent: {
+    id: "elementalPersistent",
+    description: "passive_elemental_persistent_description",
+    priority: 1555,
+    increment: 1,
+    isItemExtraAffix: true,
+    kind: ["armor", "gloves", "boots", "helmet", "shield"],
+  },
+  spiritualPersistent: {
+    id: "spiritualPersistent",
+    description: "passive_spiritual_persistent_description",
+    priority: 1550,
+    increment: 1,
+    isItemExtraAffix: true,
+    kind: ["armor", "gloves", "boots", "helmet", "shield"],
   },
 
   /// 通用属性
   weaponUnrestrictedEquip: {
     id: "weaponUnrestrictedEquip",
     description: "passive_weapon_unrestricted_equip_description",
-    priority: 1040,
+    priority: 1440,
     rank: 3,
   },
   armorUnrestrictedEquip: {
     id: "armorUnrestrictedEquip",
     description: "passive_armor_unrestricted_equip_description",
-    priority: 1039,
+    priority: 1439,
     rank: 3,
   },
   helmetUnrestrictedEquip: {
     id: "helmetUnrestrictedEquip",
     description: "passive_weapon_unrestricted_equip_description",
-    priority: 1038,
+    priority: 1438,
     rank: 3,
   },
   bootsUnrestrictedEquip: {
     id: "bootsUnrestrictedEquip",
     description: "passive_weapon_unrestricted_equip_description",
-    priority: 1037,
+    priority: 1437,
     rank: 3,
   },
   vehicleUnrestrictedEquip: {
     id: "vehicleUnrestrictedEquip",
     description: "passive_vehicle_unrestricted_equip_description",
-    priority: 1036,
+    priority: 1436,
     rank: 3,
   },
-  lifeMax: {
-    id: "lifeMax",
-    description: "passive_life_max_description",
-    priority: 1025,
-    increment: 5,
-    isItemExtraAffix: true,
-    rank: 1,
-  },
+
   lightRadius: {
     id: "lightRadius",
     description: "passive_light_radius_description",
-    priority: 1024,
+    priority: 1224,
     increment: 1,
     isItemExtraAffix: true,
     rank: 1,
   },
-  identifyEnemyCardMonthlyCount: {
-    id: "identifyEnemyCardMonthlyCount",
-    description: "passive_identifyEnemyCardMonthlyCount_description",
-    priority: 1024,
+  identifyCardsCountMonthly: {
+    id: "identifyCardsCountMonthly",
+    description: "passive_identifyCardsCountMonthly_description",
+    priority: 1223,
     increment: 1,
     isItemExtraAffix: true,
     rank: 1,
   },
-  unconvertedExpCollectEfficiency: {
-    id: "unconvertedExpCollectEfficiency",
-    description: "passive_unconvertedExpCollectEfficiency_description",
-    priority: 1024,
+  expCollectEfficiency: {
+    id: "expCollectEfficiency",
+    description: "passive_expCollectEfficiency_description",
+    priority: 1222,
     increment: 1,
     isItemExtraAffix: true,
+    rank: 1,
+  },
+  tribulationMax: {
+    id: "tribulationMax",
+    description: "passive_tribulationMax_description",
+    priority: 1221,
+    increment: 1,
     rank: 1,
   },
 
-  /// 属性点
+  /// 属性点类被动的 id 和该属性同名
   dexterity: {
     id: "dexterity",
     icon: "cultivation/skill/attribute_dexterity_selected.png",
@@ -633,95 +504,186 @@
     rank: 1,
   },
 
-  // 速度和闪避
-  passive_start_battle_with_quick: {
-    id: "passive_start_battle_with_quick",
-    description: "passive_start_battle_with_quick_description",
-    priority: 805,
-    increment: 0.1,
+  lifeMax: {
+    id: "lifeMax",
+    description: "passive_life_max_description",
+    priority: 925,
+    increment: 5,
     isItemExtraAffix: true,
-    rank: 2,
   },
-  passive_start_battle_with_nimble: {
-    id: "passive_start_battle_with_nimble",
+  manaMax: {
+    id: "manaMax",
+    description: "passive_mana_max_description",
+    priority: 924,
+    increment: 0.2,
+    isItemExtraAffix: true,
+  },
+  chiMax: {
+    id: "chiMax",
+    description: "passive_chi_max_description",
+    priority: 923,
+    increment: 0.2,
+    isItemExtraAffix: true,
+  },
+  enableRage: {
+    id: "enableRage",
+    description: "passive_enable_rage_description",
+    priority: 3900,
+  },
+  rageMax: {
+    id: "rageMax",
+    description: "passive_rage_max_description",
+    priority: 922,
+    increment: 5,
+    isItemExtraAffix: true,
+  },
+
+  // 速度和闪避
+  start_battle_with_quick: {
+    id: "start_battle_with_quick",
+    description: "passive_start_battle_with_quick_description",
+    priority: 723,
+    increment: 0.2,
+    isItemExtraAffix: true,
+  },
+  start_battle_with_nimble: {
+    id: "start_battle_with_nimble",
     description: "passive_start_battle_with_nimble_description",
-    priority: 800,
-    increment: 0.1,
+    priority: 722,
+    increment: 0.2,
+    isItemExtraAffix: true,
+  },
+  start_deck_with_quick: {
+    id: "start_deck_with_quick",
+    description: "passive_start_deck_with_quick_description",
+    priority: 713,
+    increment: 0.2,
+    isItemExtraAffix: true,
+  },
+  start_deck_with_nimble: {
+    id: "start_deck_with_nimble",
+    description: "passive_start_deck_with_nimble_description",
+    priority: 712,
+    increment: 0.2,
+    isItemExtraAffix: true,
+  },
+
+  // 灵气相关
+  start_battle_with_positive_energy_spell: {
+    id: "start_battle_with_positive_energy_spell",
+    description: "passive_start_battle_with_positive_energy_spell_description",
+    priority: 890,
+    increment: 0.2,
+    isItemExtraAffix: true,
+  },
+  start_deck_with_positive_energy_spell: {
+    id: "start_deck_with_positive_energy_spell",
+    description: "passive_start_deck_with_positive_energy_spell_description",
+    priority: 889,
+    increment: 0.2,
+    isItemExtraAffix: true,
+  },
+  start_turn_with_positive_energy_spell: {
+    id: "start_turn_with_positive_energy_spell",
+    description: "passive_start_turn_with_positive_energy_spell_description",
+    priority: 889,
+    increment: 0.2,
+    isItemExtraAffix: true,
+  },
+
+  // 剑气相关
+  start_battle_with_positive_energy_weapon: {
+    id: "start_battle_with_positive_energy_weapon",
+    description: "passive_start_battle_with_positive_energy_weapon_description",
+    priority: 880,
+    increment: 0.2,
+    isItemExtraAffix: true,
+  },
+  start_deck_with_positive_energy_weapon: {
+    id: "start_deck_with_positive_energy_weapon",
+    description: "passive_start_deck_with_positive_energy_weapon_description",
+    priority: 879,
+    increment: 0.2,
+    isItemExtraAffix: true,
+  },
+
+  // 怒气
+  start_battle_with_positive_energy_unarmed: {
+    id: "start_battle_with_positive_energy_unarmed",
+    description: "passive_start_battle_with_positive_energy_unarmed_description",
+    priority: 540,
+    increment: 0.2,
+    isItemExtraAffix: true,
+    rank: 1,
+  },
+
+  // 煞气
+  start_battle_with_positive_energy_curse: {
+    id: "start_battle_with_positive_energy_curse",
+    description: "passive_start_battle_with_positive_energy_curse_description",
+    priority: 535,
+    increment: 0.2,
+    isItemExtraAffix: true,
+    rank: 1,
+  },
+
+  // 元气
+  start_battle_with_positive_energy_life: {
+    id: "start_battle_with_positive_energy_life",
+    description: "passive_start_battle_with_positive_energy_life_description",
+    priority: 565,
+    increment: 0.2,
+    isItemExtraAffix: true,
+    rank: 1,
+  },
+
+  start_battle_with_positive_energy_leech: {
+    id: "start_battle_with_positive_energy_leech",
+    description: "passive_start_battle_with_positive_energy_leech_description",
+    priority: 560,
+    increment: 0.2,
+    isItemExtraAffix: true,
+    rank: 1,
+  },
+  start_battle_with_positive_energy_pure: {
+    id: "start_battle_with_positive_energy_pure",
+    description: "passive_start_battle_with_positive_energy_pure_description",
+    priority: 555,
+    increment: 0.2,
+    isItemExtraAffix: true,
+    rank: 1,
+  },
+  start_battle_with_positive_energy_ultimate: {
+    id: "start_battle_with_positive_energy_ultimate",
+    description: "passive_start_battle_with_positive_energy_ultimate_description",
+    priority: 525,
+    increment: 0.2,
     isItemExtraAffix: true,
     rank: 2,
   },
 
-  // 气
-  passive_start_battle_with_energy_life: {
-    id: "passive_start_battle_with_energy_life",
-    description: "passive_start_battle_with_energy_life_description",
-    priority: 565,
-    increment: 0.1,
+  // 辟邪
+  start_battle_with_ward: {
+    id: "start_battle_with_ward",
+    description: "passive_start_battle_with_ward_description",
+    priority: 520,
+    increment: 0.2,
     isItemExtraAffix: true,
-    rank: 2,
   },
-  passive_start_battle_with_energy_leech: {
-    id: "passive_start_battle_with_energy_leech",
-    description: "passive_start_battle_with_energy_leech_description",
-    priority: 560,
-    increment: 0.1,
+  opponent_start_battle_with_negative_status: {
+    id: "opponent_start_battle_with_negative_status",
+    description: "passive_opponent_start_battle_with_negative_status_description",
+    priority: 510,
+    increment: 0.2,
     isItemExtraAffix: true,
-    rank: 2,
   },
-  passive_start_battle_with_energy_pure: {
-    id: "passive_start_battle_with_energy_pure",
-    description: "passive_start_battle_with_energy_pure_description",
-    priority: 555,
-    increment: 0.1,
+
+  // 加护
+  start_battle_with_shield: {
+    id: "start_battle_with_shield",
+    description: "passive_start_battle_with_shield_description",
+    priority: 510,
+    increment: 0.2,
     isItemExtraAffix: true,
-    rank: 2,
-  },
-  passive_start_battle_with_energy_spell: {
-    id: "passive_start_battle_with_energy_spell",
-    description: "passive_start_battle_with_energy_spell_description",
-    priority: 550,
-    increment: 0.1,
-    isItemExtraAffix: true,
-    rank: 2,
-  },
-  passive_start_battle_with_energy_weapon: {
-    id: "passive_start_battle_with_energy_weapon",
-    description: "passive_start_battle_with_energy_weapon_description",
-    priority: 545,
-    increment: 0.1,
-    isItemExtraAffix: true,
-    rank: 2,
-  },
-  passive_start_battle_with_energy_unarmed: {
-    id: "passive_start_battle_with_energy_unarmed",
-    description: "passive_start_battle_with_energy_unarmed_description",
-    priority: 540,
-    increment: 0.1,
-    isItemExtraAffix: true,
-    rank: 2,
-  },
-  passive_start_battle_with_energy_curse: {
-    id: "passive_start_battle_with_energy_curse",
-    description: "passive_start_battle_with_energy_curse_description",
-    priority: 535,
-    increment: 0.1,
-    isItemExtraAffix: true,
-    rank: 2,
-  },
-  // passive_start_battle_with_energy_poison: {
-  //   id: "passive_start_battle_with_energy_poison",
-  //   description: "passive_start_battle_with_energy_poison_description",
-  //   priority: 530,
-  //   increment: 0.1,
-  //   isItemExtraAffix: true,
-  //   rank: 2,
-  // },
-  passive_start_battle_with_energy_chaotic: {
-    id: "passive_start_battle_with_energy_chaotic",
-    description: "passive_start_battle_with_energy_chaotic_description",
-    priority: 525,
-    increment: 0.1,
-    isItemExtraAffix: true,
-    rank: 3,
   },
 }

@@ -42,7 +42,7 @@
     rank: 1,
     priority: 550,
     description: "affix_description_life_energy",
-    tags: ["status_energy_positive_life"],
+    tags: ["status_positive_energy_life"],
     script: "life_energy",
     isBeforeMain: true,
     valueData: [
@@ -62,7 +62,7 @@
     category: ["buff", "attack"],
     rank: 1,
     description: "affix_description_spell_energy",
-    tags: ["status_energy_positive_spell"],
+    tags: ["status_positive_energy_spell"],
     script: "spell_energy",
     isBeforeMain: true,
     valueData: [
@@ -427,7 +427,7 @@
     category: ["attack"],
     rank: 1,
     description: "affix_description_per_10hp_damage_gain_energy_unarmed",
-    tags: ["status_energy_positive_unarmed"],
+    tags: ["status_positive_energy_unarmed"],
     priority: 1050,
     attackType: "unarmed",
     script: "per_10hp_damage_gain_energy",

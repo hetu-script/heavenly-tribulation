@@ -47,6 +47,6 @@ struct VillageWarrior {
       }
     }
     
-    calculateCharacterStats(this)
+    characterCalculateStats(this)
   }
 }

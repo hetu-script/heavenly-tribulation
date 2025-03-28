@@ -44,8 +44,6 @@ struct TileMap {
     this.waterIndexes = []
     // 地区上的区域，例如大陆、海洋、国家等
     this.zones = {}
-    // 地图上的城市、场景
-    // this.locations = {}
     // 地图上的可互动对象，例如传送阵等
     this.objects = {}
     // 地图上的非地块类显示组件，例如跨越多个地块的大型贴图或动画等

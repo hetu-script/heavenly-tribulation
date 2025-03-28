@@ -24,7 +24,7 @@ namespace Debug {
       isFemale: false,
       level: level,
       rank: rank,
-      availableSkillPoints: level,
+      skillPoints: level,
     )
 
     hero.unconvertedExp = 2000
@@ -33,8 +33,8 @@ namespace Debug {
 
     setHeroId('hero')
 
-    testItem(hero)
-    testQuest()
+    // testItem(hero)
+    // testQuest()
   }
 
   function testItem([character]) {

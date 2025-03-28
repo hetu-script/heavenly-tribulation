@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/responsive_view.dart';
@@ -13,9 +15,11 @@ class NewItems extends StatelessWidget {
   const NewItems({
     super.key,
     required this.itemsData,
+    this.completer,
   });
 
   final Iterable itemsData;
+  final Completer? completer;
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +82,7 @@ class NewItems extends StatelessWidget {
               const Spacer(),
               ElevatedButton(
                 onPressed: () {
+                  completer?.complete();
                   context.read<NewItemsState>().update();
                   engine.play('pickup_item-64282.mp3');
                 },

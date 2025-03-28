@@ -88,13 +88,13 @@ struct Incident {
       }
       if (location) {
         for (const char in getCharactersAtLocation(location)) {
-          if (char.id == subjectId || char.id == objectId) continue
+          if (char.id == subjectId || char.id == targetId) continue
           characterKnowIncident(char, this)
         }
       }
       if (terrain) {
         for (const char in getCharactersAtWorldMapPosition(terrain.left, terrain.top)) {
-          if (char.id == subjectId || char.id == objectId) continue
+          if (char.id == subjectId || char.id == targetId) continue
           characterKnowIncident(char, this)
         }
       }
@@ -185,7 +185,7 @@ function entityExperienceIncident(entity, incident) {
       entity.personality.goodwill += goodChange
       engine.debug('角色 ${entity.id} 的 goodwill 改变了  [${goodChange}]。')
     }
-  } else if (entity.id == incident.objectId) {
+  } else if (entity.id == incident.targetId) {
     const subject = game.characters[incident.subjectId]
     if (!entity.bonds.contains(subject.id)) {
       // 如果还不认识行动者

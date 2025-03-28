@@ -35,7 +35,7 @@ class GameDialogContent extends StatefulWidget {
     assert(resolved['id'] == null);
     return showDialog<dynamic>(
       context: context,
-      barrierColor: GameUI.backgroundColor2,
+      barrierColor: GameUI.backgroundColor,
       builder: (BuildContext context) {
         return GameDialogContent(
           data: resolved,

@@ -141,7 +141,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
     final playerMonthlyIdentifiedCards =
         engine.hetu.invoke('getMonthlyIdentifiedCards');
     final playerMonthlyIdentifiedCardsCount =
-        widget.heroData['stats']['identifyEnemyCardMonthlyCount'];
+        widget.heroData['stats']['identifyCardsCountMonthly'];
     _availableIdentifyCount =
         playerMonthlyIdentifiedCardsCount - playerMonthlyIdentifiedCards;
     if (_availableIdentifyCount < 0) _availableIdentifyCount = 0;

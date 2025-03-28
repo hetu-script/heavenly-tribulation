@@ -18,7 +18,7 @@ import '../../../widgets/dialog/input_world_position.dart';
 import '../../../widgets/common.dart';
 import '../../../widgets/dialog/input_string.dart';
 import '../../../widgets/dialog/confirm.dart';
-import '../../../widgets/character/edit_character_event_flags.dart';
+import '../../../widgets/character/edit_character_flags.dart';
 import '../../../widgets/organization/edit_organization_basic.dart';
 // import 'edit_map_object.dart';
 import '../../../widgets/dialog/input_description.dart';
@@ -841,18 +841,16 @@ class _EntityListPanelState extends State<EntityListPanel>
                               final charData = engine.hetu.invoke(
                                   'getCharacterById',
                                   positionalArgs: [characterId]);
-                              showDialog<Map<String, bool>>(
+                              final value = await showDialog<Map<String, bool>>(
                                 context: context,
-                                builder: (context) => EditCharacterEventFlags(
-                                  flagsData: charData['flags'],
-                                ),
-                              ).then((value) {
-                                if (value != null) {
-                                  for (final key in value.keys) {
-                                    charData['flags'][key] = value[key];
-                                  }
+                                builder: (context) =>
+                                    EditCharacterFlags(characterData: charData),
+                              );
+                              if (value != null) {
+                                for (final key in value.keys) {
+                                  charData[key] = value[key];
                                 }
-                              });
+                              }
                             case CharacterPopUpMenuItems.checkEquipments:
                               showDialog(
                                 context: context,

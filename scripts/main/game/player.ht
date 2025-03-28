@@ -54,6 +54,11 @@ namespace Player {
     setCharacterHomeLocation(hero, location, incurIncident: incurIncident)
   }
 
+  function met(character) {
+    assert(hero != null)
+    return characterMet(hero, character)
+  }
+
   function collect(materialId, { amount = 1, incurIncident = true }) {
     assert(hero != null)
     entityCollect(hero, materialId, amount: amount, incurIncident: incurIncident)
@@ -387,7 +392,7 @@ namespace Player {
     hero.exp -= expRequirement
     ++hero.level
     hero.expForLevel = expForLevel(hero.level)
-    hero.availableSkillPoints += 1
+    hero.skillPoints += 1
 
     const incidentContent = engine.locale('characterCultivationLevelUp', interpolations: [
       hero.name,
@@ -457,51 +462,16 @@ namespace Player {
     // )
   }
 
-  /// 提升玩家的天赋技能等级
-  /// 注意此函数调用时并不会检测天赋树节点位置和链接情况，也不会检查角色是否有足够的技能点
-  /// 玩家升级天赋时，并不会立刻影响角色数据，
-  /// 只有在执行 calculateStats() 之后，人物数据才会最终计算出来
   function gainPassive(dataId, {level = 1}) {
     assert(hero != null)
-    assert(level > 0)
-    if (hero.passives[dataId] == null) {
-      final passiveRawData = game.passives[dataId]
-      assert(passiveRawData != null)
-      final passiveData = PassiveData(
-        id: dataId,
-        priority: passiveRawData.priority ?? 0,
-        level: level,
-        description: passiveRawData.description,
-      )
-      if (passiveRawData.increment != null) {
-        passiveData.increment = passiveRawData.increment
-        passiveData.value = (passiveData.increment * level).round()
-      }
-      hero.passives[dataId] = passiveData
-    } else {
-      final passiveData = hero.passives[dataId]
-      passiveData.level += level
-      passiveData.value = (passiveData.increment * passiveData.level).round()
-    }
+    characterGainPassive(hero, dataId, level: level)
   }
 
-  /// 降低天赋技能等级
   function refundPassive(dataId, {level = 1}) {
     assert(hero != null)
-    if (hero.passives[dataId] == null) {
-      engine.warn('dataId [${dataId}] not found on hero passives data for refund!')
-      return
-    }
-    final passiveData = hero.passives[dataId]
-    passiveData.level -= level
-    if (passiveData.level <= 0) {
-      delete hero.passives[dataId]
-    } else if (passiveData.value != null) {
-      passiveData.value = (passiveData.increment * passiveData.level).round()
-    }
+    characterRefundPassive(hero, dataId, level: level)
   }
 
-  /// 检查角色是否拥有某个天赋技能，并将其数据返回
   function hasPassive(dataId) {
     assert(hero != null)
     return hero.passives[dataId]
@@ -509,7 +479,7 @@ namespace Player {
 
   function calculateStats() {
     assert(hero != null)
-    calculateCharacterStats(hero)
+    characterCalculateStats(hero)
   }
 
   function restoreLife(count) {

@@ -20,7 +20,7 @@
   "characterSettle": "{0}在{1}安家了。",
   "characterMarriage": "{0}和{1}在{2}结婚了。",
   "characterConception": "{0}怀上了{1}的孩子并为其取名{2}。",
-  "characterBorn": "{0}和{1}的孩子{2}在{3}出生了。",
+  "characterBorn": "{0}在{1}生下了{2}。",
   "characterBaishi": "{0}拜{1}为师了。",
 
   "entityAcquire": "{0}得到了{1}。",
@@ -38,7 +38,7 @@
   "characterConsume": "{0}吃下了{1}。",
   "characterForceToConsume": "{0}喂{1}吃下了{2}。",
 
-  "characterCultivationLevelUp": "{0}的修为提升到了{1}",
+  "characterCultivationLevelUp": "{0}的修为等级提升到了{1}",
   "characterCultivationRankUp": "{0}的境界提升到了{1}",
 
   "characterDefeat": "{0}击败了{1}。",

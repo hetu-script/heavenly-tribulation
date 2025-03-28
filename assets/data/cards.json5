@@ -13,7 +13,7 @@
     // kind决定了卡牌名字类型，例如剑法，咒语等等
     // 虽然并非强制，但多数时候kind和战斗动画也是对应的
     kind: "punch",
-    // 攻击类型，一共五种，徒手，武器，法术，咒语，毒术
+    // 攻击类型，一共五种，徒手，武器，法术，咒语，混沌
     attackType: "unarmed",
     // 伤害类型，一共五种，物理，真气，元素，精神，纯粹
     damageType: "physical",
@@ -262,7 +262,7 @@
     kind: "wrestling",
     attackType: "unarmed",
     damageType: "physical",
-    rank: 0,
+    rank: 1,
     description: "affix_description_attack_wrestling",
     tags: ["status_speed_slow"],
     image: "battlecard/illustration/bodyforge_wrestling.png",
@@ -287,7 +287,7 @@
     kind: "dianxue",
     attackType: "unarmed",
     damageType: "chi",
-    rank: 0,
+    rank: 1,
     description: "affix_description_attack_dianxue",
     tags: ["status_dodge_clumsy"],
     image: "battlecard/illustration/bodyforge_dianxue.png",
@@ -517,7 +517,7 @@
     kind: "xinfa",
     rank: 1,
     description: "affix_description_life_energy",
-    tags: ["status_energy_positive_life"],
+    tags: ["status_positive_energy_life"],
     image: "battlecard/illustration/xinfa.png",
     animation: {
       startup: "buff_spell",
@@ -543,7 +543,7 @@
     kind: "xinfa",
     rank: 1,
     description: "affix_description_spell_energy",
-    tags: ["status_energy_positive_spell"],
+    tags: ["status_positive_energy_spell"],
     image: "battlecard/illustration/xinfa.png",
     animation: {
       startup: "buff_spell",
@@ -571,7 +571,7 @@
     kind: "xinfa",
     rank: 1,
     description: "affix_description_weapon_energy_convert",
-    tags: ["status_energy_positive_weapon"],
+    tags: ["status_positive_energy_weapon"],
     image: "battlecard/illustration/swordcraft_xinfa.png",
     animation: {
       startup: "buff_spell",

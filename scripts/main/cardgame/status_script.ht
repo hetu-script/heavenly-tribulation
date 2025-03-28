@@ -184,22 +184,16 @@ function status_script_vulnerable_self_taking_damage(self, opponent, effect, det
   details.baseChange += added
 }
 
-function status_script_energy_life_self_turn_end(self, opponent, effect, details) {
+function status_script_positive_energy_life_self_turn_end(self, opponent, effect, details) {
   let unit = (self.lifeMax / 50).truncate()
   let life = unit * effect.amount
   self.changeLife(effect.isNegativeEnergy ? -life : life)
 }
 
-function status_script_energy_life_self_deck_end(self, opponent, effect, details) {
-  self.removeStatusEffect(effect.id)
-}
-
-function status_script_energy_spell_self_deck_end(self, opponent, effect, details) {
-  self.removeStatusEffect(effect.id)
-}
-
-function status_script_energy_weapon_self_deck_end(self, opponent, effect, details) {
-  self.removeStatusEffect(effect.id)
+function status_script_negative_energy_life_self_turn_end(self, opponent, effect, details) {
+  let unit = (self.lifeMax / 50).truncate()
+  let life = unit * effect.amount
+  self.changeLife(effect.isNegativeEnergy ? -life : life)
 }
 
 function status_script_injury_external_self_attacking(self, opponent, effect, details) {

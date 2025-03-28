@@ -5,7 +5,6 @@ import '../datetime.ht'
 import '../entity/item/material.ht'
 import '../entity/character/battle_entity.ht'
 import '../world/tile/common.ht'
-import '../lootbox.ht'
 import '../game/world.ht'
 import '../game/dialog.ht'
 import '../entity/entity.ht'
@@ -132,7 +131,7 @@ function onHeroExplore(terrain) {
 /// 理论上限：116（每天4个tick，乘以29天）
 /// 凝气（2），筑基（5），结丹（9），还婴（15），化神（23）
 /// 在没有灵气喷涌的地方打坐，可以消耗灵石获得灵气。
-function onHeroMeditate({site, terrain, incurIncident = true}) async {
+async function onHeroMeditate({site, terrain, incurIncident = true}) {
   let selection = await Dialog.localeSelect([
     'rest',
     'gatherSpirit',
@@ -1021,11 +1020,14 @@ async function onInteractCharacter(character) {
   Game.updateNpcList()
 }
 
-function onInteractMapObject(object, terrain) async {
+/// 这个函数时异步的
+/// 但一般不要awai这个函数，因为有可能卡在打开物品展示对话框的地方
+/// 直到关闭对话框才会返回并继续执行
+async function onInteractMapObject(object, terrain) {
   engine.debug('正在和 Object [${object.id}] 互动。')
   if (object.useCustomLogic) {
     engine.debug('Object [${object.id}] 使用自定义交互逻辑')
-    await onWorldEvent('onInteractMapObject', object, terrain)
+    onWorldEvent('onInteractMapObject', object, terrain)
   } else {
     if (!object.isDiscovered) {
       discoverObject(object, terrain)
@@ -1072,42 +1074,16 @@ async function onInteractTreasureBox(object, terrain) {
   Object.assign(terrain.overlaySprite, {sprite: kSpriteTreasureBoxOpened})
   World.updateTerrainOverlaySprite(terrain.left, terrain.top)
   await Future.delayed(0.5)
-  for (final itemInfo in object.items) {
-    switch (itemInfo.category) {
-      'material': {
-        assert(kMaterialKinds.contains(itemInfo.kind))
-        Player.collect(itemInfo.kind, amount: itemInfo.amount ?? 1)
-      }
-      'prototype': {
-        assert(game.items.contains(itemInfo.kind))
-        Player.acquireById(itemInfo.kind)
-      }
-      'equipment': {
-        assert(kEquipmentKinds.contains(itemInfo.kind))
-        final equipment = Equipment(
-          kind: itemInfo.kind,
-          rarity: itemInfo.rarity,
-          rank: itemInfo.rank,
-          level: itemInfo.level,
-        )
-        Player.acquire(equipment)
-      }
-      'cardpack': {
-        final cardpack = Cardpack(
-          kind: itemInfo.kind,
-          genre: itemInfo.genre,
-          rank: itemInfo.rank,
-        )
-        Player.acquire(cardpack)
-      }
-    }
+  final items = loot(object)
+  for (final item in items) {
+    Player.acquire(item)
   }
   engine.play('pickup_item-64282.mp3')
 }
 
 /// 异步函数，会在显示场景窗口之前执行
 /// 如果返回值是 true 通常意味着不会进入场景
-function onBeforeEnterLocation(location) async {
+async function onBeforeEnterLocation(location) {
   engine.debug('正在尝试进入据点 [${location.name}]')
   if (!location.isDiscovered) {
     // TODO: 第一次发现据点事件
@@ -1126,7 +1102,7 @@ function onBeforeEnterLocation(location) async {
   return result
 }
 
-function onAfterEnterLocation(location) async {
+async function onAfterEnterLocation(location) {
   await onWorldEvent('onAfterEnterLocation', location)
 
   // if (location.category = 'site') {
@@ -1171,7 +1147,7 @@ function onAfterEnterLocation(location) async {
 }
 
 /// 异步函数，会在显示建筑窗口之前执行，执行完毕后才会进入建筑
-function onAfterEnterSite(location) async {
+async function onAfterEnterSite(location) {
   // // 检查是否有任务满足了提交条件
   // let future
   // for (const quest of hero.quests) {
@@ -1227,7 +1203,7 @@ async function _handleHomeInteraction(location) {
   }
 }
 
-function _handleCityHallInteraction(site) async {
+async function _handleCityHallInteraction(site) {
   
 }
 
@@ -1790,7 +1766,9 @@ function handleBabies {
         locationId: location.id,
         isNewBorn: true,
         motherId: baby.motherId,
+        fatherId: baby.fatherId,
         relationships: baby.relationships,
+        bonds: baby.bonds,
       )
     }
     pendingRemovedIds.add(baby.id)

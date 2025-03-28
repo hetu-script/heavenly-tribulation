@@ -12,6 +12,7 @@ import '../dialog/input_description.dart';
 import '../int_editor_field.dart';
 import '../../common.dart';
 import '../../game/ui.dart';
+import 'edit_character_flags.dart';
 
 class CharacterProfile extends StatefulWidget {
   const CharacterProfile({
@@ -160,7 +161,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
   }
 
   void _saveData() {
-    _characterData['isFemale'] = _isFemale == 'female' ? true : false;
+    _characterData['isFemale'] = (_isFemale == true) ? true : false;
 
     final newAge = int.tryParse(_ageController.text);
     if (newAge != null) {
@@ -175,7 +176,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
     }
 
     engine.hetu
-        .invoke('calculateCharacterStats', positionalArgs: [_characterData]);
+        .invoke('characterCalculateStats', positionalArgs: [_characterData]);
   }
 
   @override
@@ -503,6 +504,18 @@ class _CharacterProfileState extends State<CharacterProfile> {
               Padding(
                 padding: const EdgeInsets.only(top: 10.0, left: 10.0),
                 child: ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _characterData = engine.hetu.invoke('Character');
+                      updateData();
+                    });
+                  },
+                  child: Text(engine.locale('randomize')),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0, left: 10.0),
+                child: ElevatedButton(
                   onPressed: () async {
                     final value = await showDialog(
                       context: context,
@@ -576,13 +589,19 @@ class _CharacterProfileState extends State<CharacterProfile> {
               Padding(
                 padding: const EdgeInsets.only(top: 10.0, left: 10.0),
                 child: ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      _characterData = engine.hetu.invoke('Character');
-                      updateData();
-                    });
+                  onPressed: () async {
+                    final value = await showDialog<Map<String, bool>>(
+                      context: context,
+                      builder: (context) =>
+                          EditCharacterFlags(characterData: _characterData),
+                    );
+                    if (value != null) {
+                      for (final key in value.keys) {
+                        _characterData[key] = value[key];
+                      }
+                    }
                   },
-                  child: Text(engine.locale('random')),
+                  child: Text(engine.locale('editFlags')),
                 ),
               ),
               const Spacer(),

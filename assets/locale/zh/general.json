@@ -56,6 +56,7 @@
   "none": "无",
   "unknown": "未知",
   "random": "随机",
+  "randomize": "随机化",
   "max": "最大",
   "min": "最小",
   "basic": "基础",
@@ -320,6 +321,9 @@
   "cultivationRank_3": "结丹",
   "cultivationRank_4": "还婴",
   "cultivationRank_5": "化神",
+  "cultivationRank_6": "洞虚",
+  "cultivationRank_7": "合体",
+  "cultivationRank_8": "大乘",
 
   "fightSkillGenre": "战斗流派",
   "supportSkillGenre": "辅助流派",
@@ -327,7 +331,7 @@
   "general": "通用",
   "spellcraft": "法术",
   "bodyforge": "锻体",
-  "avatar": "化身",
+  "avatar": "法身",
   "vitality": "炼魂",
   "swordcraft": "御剑",
 
@@ -360,6 +364,8 @@
   "hint_merchantNotEnoughMoney": "对方身上没有足够的钱，无法进行这个操作。",
   "hint_merchantNotEnoughShard": "对方身上没有足够的灵石，无法进行这个操作。",
   "hint_noQuests": "我目前似乎没有什么要紧的事情。",
+  "hint_notEnoughPassiveSkillPoints": "你没有足够的天道技能点数。",
+  "hint_rankRequirementNotMet": "你的境界没有达到学习此天道技能的要求。",
 
   "hint_ship": "需要先装备船只才可以在水面上移动……",
   "hint_boots": "需要先装备登山靴才可以在山地中移动……",
@@ -380,7 +386,7 @@
   "rank2": "境",
   "rankUp!": "境界提升!",
 
-  "availableSkillPoints": "可分配天赋点数",
+  "skillPoints": "天道技能点",
 
   "condenseAll": "自动收集",
 
@@ -410,11 +416,13 @@
 
   "insufficientShard": "灵石不足!",
 
+  "help_movement": "<yellow>操作说明：</>点击<cyan>鼠标左键</>移动角色，点击并拖动<cyan>鼠标右键</>移动地图。",
+
   "help_cultivation": "通过打坐并消耗身上的灵石来获得灵光点。\n点击灵光点收集经验，以此来提升修为等级，升级后可以获得技能点用来分配天道技能。\n点击角色图标可以切换天道技能界面和灵光点收集界面。\n开启打坐后，即使离开修炼界面，也会自动随着时间流逝消耗身上的灵石并获得灵光点。",
 
   "help_cardlibrary": "当拥有功法秘籍时，点击左下角的书籍可以选择并打开秘籍。\n打开时可以获得一个该秘籍指定境界、流派和种类的功法，以及两本不限定流派和种类的随机功法。\n右键点击卡牌可以消耗灵光点对卡牌进行淬炼以提升或修改卡牌效果数值。\n点击右侧的卡组图标可以创建战斗卡组，创建战斗卡组后设定为出战可以在战斗中使用该套卡牌。\n某些卡牌需要装备某些特定武器或法宝才可以使用。",
 
-  "help_tribulation": "就在你运功凝聚灵光的时候，你突然有所顿悟，似乎窥视到了一丝更高境界的天道。\n但与此同时，你也立刻感受到一股极为强大的气息。这是天道化身对你降下的劫数。\n如果你能够在战斗中取胜，就可以直接突破到下一个境界。如果你选择放弃挑战，本次升级将会失败，经验值不会返还。",
+  "help_tribulation": "就在你运功凝聚灵光的时候，你突然有所顿悟，似乎窥视到了一丝更高境界的天道。\n但与此同时，你也立刻感受到一股极为强大的气息。这是天道法身对你降下的劫数。\n如果你能够在战斗中取胜，就可以直接突破到下一个境界。如果你选择放弃挑战，本次升级将会失败，经验值不会返还。",
 
   "do_tribulation": "挑战天劫",
 

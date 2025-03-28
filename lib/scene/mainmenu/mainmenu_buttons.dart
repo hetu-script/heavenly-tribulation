@@ -121,11 +121,9 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
         Align(
           alignment: Alignment.bottomCenter,
           child: Container(
-            height: 280.0,
-            width: 180.0,
-            padding: EdgeInsets.only(
-              bottom: 20.0,
-            ),
+            height: 400.0,
+            width: 200.0,
+            padding: const EdgeInsets.only(bottom: 20.0),
             child: Column(
               children: switch (_state) {
                 MenuStates.main => [
@@ -429,7 +427,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                     context.read<NpcListState>().update([companion]);
                   case DebugMenuItems.debugBattle:
                     final enemy = engine.hetu.invoke('Character', namedArgs: {
-                      'isFemale': false,
+                      'isFemale': true,
                       'level': 0,
                       'rank': 0,
                     });

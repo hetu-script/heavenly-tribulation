@@ -142,6 +142,6 @@ struct Bandit {
       }
     }
     
-    calculateCharacterStats(this)
+    characterCalculateStats(this)
   }
 }

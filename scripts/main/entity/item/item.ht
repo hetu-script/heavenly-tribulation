@@ -433,6 +433,70 @@ function entityAcquireBattleCard(entity, card, { incurIncident = true }) {
   }
 }
 
+/// 宝箱内的物品
+/// 分为四种：材料，预定义物品，装备，卡包
+/// category: ['material', 'prototype', 'equipment', 'cardpack']
+/// items = [
+///   {
+///     category: 'material',
+///     kind: 'money',
+///     amount: 100,
+///   },
+///   {
+///     category: 'prototype',
+///     prototypeId: 'hunguding',
+///   },
+///   {
+///     category: 'equipment',
+///     kind: 'sword',
+///     rarity: 'basic',
+///     rank: 0,
+///     level: 0,
+///   },
+///   {
+///     category: 'cardpack',
+///     kind: 'punch',
+///     genre: null,
+///     rank: 0,
+///   },
+/// ]
+function loot(box) {
+  final items = []
+  for (final itemInfo in box.items) {
+    switch (itemInfo.category) {
+      'material': {
+        assert(kMaterialKinds.contains(itemInfo.kind))
+        final materialpack = Materialpack(kind: itemInfo.kind, amount: itemInfo.amount ?? 1)
+        items.add(materialpack)
+      }
+      'prototype': {
+        assert(game.items.contains(itemInfo.kind))
+        final created = createItemByPrototype(itemInfo.prototypeId)
+        items.add(created)
+      }
+      'equipment': {
+        assert(kEquipmentKinds.contains(itemInfo.kind))
+        final equipment = Equipment(
+          kind: itemInfo.kind,
+          rarity: itemInfo.rarity,
+          rank: itemInfo.rank,
+          level: itemInfo.level,
+        )
+        items.add(equipment)
+      }
+      'cardpack': {
+        final cardpack = Cardpack(
+          kind: itemInfo.kind,
+          genre: itemInfo.genre,
+          rank: itemInfo.rank,
+        )
+        items.add(cardpack)
+      }
+    }
+  }
+  return items
+}
+
 // 如果成功支付返回 0，否则返回 欠缺的数量
 // 支付身上的材料作为货币
 // function pay(target, materialId, amount, entity, { isForced = false, incurIncident = true }) {
@@ -481,7 +545,7 @@ function entityAcquireBattleCard(entity, card, { incurIncident = true }) {
 //   if (item.stackSize > amount) {
 //     item.stackSize -= amount
 //   } else if (item.stackSize < amount) {
-//     // char1身上的数量不够支付n
+//     // 身上的数量不够支付
 //     actualNumber = item.stackSize
 //     engine.warn('${entity.id} 身上的 ${item.id} 不够 ${amount} 个，实际数量：${actualNumber}。')
 //     delete entity.inventory[item.id]

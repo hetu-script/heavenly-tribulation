@@ -57,7 +57,7 @@ class GameUIOverlay extends StatefulWidget {
 }
 
 class _GameUIOverlayState extends State<GameUIOverlay> {
-  Set<String> _prompts = {};
+  final Set<String> _prompts = {};
 
   @override
   Widget build(BuildContext context) {
@@ -115,6 +115,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
 
     final newQuest = context.watch<NewQuestState>().quest;
     final newItems = context.watch<NewItemsState>().items;
+    final newItemsCompleter = context.watch<NewItemsState>().completer;
     final newRank = context.watch<NewRankState>().rank;
 
     if (newRank != null) {
@@ -711,7 +712,8 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
             switch (_prompts.last) {
               'rank' => NewRank(rank: newRank!),
               'quest' => NewQuest(questData: newQuest!),
-              'item' => NewItems(itemsData: newItems!),
+              'item' =>
+                NewItems(itemsData: newItems!, completer: newItemsCompleter),
               _ => SizedBox.shrink(),
             },
           if (content != null) HoverInfo(content),

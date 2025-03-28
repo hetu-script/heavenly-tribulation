@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 
-// import 'package:flutter/foundation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/progress_indicator.dart';
@@ -16,8 +15,6 @@ import '../../game/ui.dart';
 import 'status_effect.dart';
 import 'common.dart';
 import 'battle.dart';
-
-const kSpriteScale = 2.0;
 
 class BattleCharacter extends GameComponent with AnimationStateController {
   final String skinId;
@@ -85,37 +82,6 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   clearAllTurnFlags() => turnDetails.clear();
   getGameFlag(String id) => (game as BattleScene).gameDetails[id];
 
-  void _loadAnimFromData({
-    required dynamic data,
-    required Iterable<String> states,
-    required String directory,
-    bool isOverlay = false,
-  }) {
-    assert(data != null);
-    for (final state in states) {
-      final animData = data[state];
-      if (animData == null) {
-        final err =
-            'Animation state data for [$state] not found in directory [$directory]';
-        engine.error(err);
-        throw err;
-      }
-      final anim = SpriteAnimationWithTicker(
-        animationId: '$directory/$state.png',
-        srcSize: Vector2(animData['width'], animData['height']),
-        stepTime: animData['stepTime'],
-        loop: animData['loop'],
-        renderRect: Rect.fromLTWH(
-          animData['offsetX'] * kSpriteScale,
-          animData['offsetY'] * kSpriteScale,
-          animData['width'] * kSpriteScale,
-          animData['height'] * kSpriteScale,
-        ),
-      );
-      addState(state, anim, isOverlay: isOverlay);
-    }
-  }
-
   BattleCharacter({
     super.position,
     super.size,
@@ -126,7 +92,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     required this.data,
     required this.deckZone,
   }) : super(anchor: Anchor.topCenter) {
-    assert(GameData.animations.containsKey(skinId));
+    assert(GameData.animationsData.containsKey(skinId));
     audioPlayer = engine;
 
     if (!isHero) {
@@ -136,17 +102,16 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     currentAnimationState = kStandState;
     animationStates.addAll(kPreloadAnimationStates);
 
-    _loadAnimFromData(
-      data: GameData.animations[skinId],
-      states: animationStates,
-      directory: skinId,
-    );
-    _loadAnimFromData(
-      data: GameData.animations['overlay'],
-      states: overlayAnimationStates,
-      directory: 'overlay',
-      isOverlay: true,
-    );
+    // 普通动画在每个皮肤下都有一套单独的数据
+    for (final state in animationStates) {
+      final anim = GameData.createAnimationFromData(skinId, state);
+      addState(state, anim, isOverlay: false);
+    }
+    // 叠加动画的数据另外保存
+    for (final state in overlayAnimationStates) {
+      final anim = GameData.createAnimationFromData('overlay', state);
+      addState(state, anim, isOverlay: true);
+    }
   }
 
   @override
@@ -359,12 +324,12 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     final data = GameData.statusEffects[id];
 
     if (data['isPermenant'] != true) {
-      if (id.startsWith('energy_positive')) {
+      if (id.startsWith('positive_energy')) {
         // 触发自己获得阳气时的效果
         handleStatusEffectCallback('self_gain_positive_energy');
         // 触发对方获得阳气时的效果
         opponent!.handleStatusEffectCallback('opponent_gain_positive_energy');
-      } else if (id.startsWith('energy_negative')) {
+      } else if (id.startsWith('negative_energy')) {
         // 触发自己获得阴气时的效果
         handleStatusEffectCallback('self_gain_negative_energy');
         // 触发对方获得阴气时的效果

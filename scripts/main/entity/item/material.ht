@@ -42,8 +42,6 @@ struct Materialpack {
     id,
     kind,
     amount,
-    rarity,
-    price,
   }) {
     assert(kind != null)
 
@@ -64,7 +62,7 @@ struct Materialpack {
     
     this.isIdentified = true
     this.isUsable = true
-
+    
     if (kItemBasePriceByKind.contains(kind)) {
       this.price = kItemBasePriceByKind[kind] * this.stackSize
     }

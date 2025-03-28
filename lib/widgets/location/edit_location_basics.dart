@@ -43,8 +43,8 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
   String? _selectedCategory;
   String? _selectedKind;
 
-  Map<String, String> _categories = {};
-  Map<String, String> _kinds = {};
+  final Map<String, String> _categories = {};
+  final Map<String, String> _kinds = {};
 
   @override
   void initState() {
@@ -122,7 +122,7 @@ class _EditLocationBasicsState extends State<EditLocationBasics> {
           title: Text(engine.locale('editSite')),
           actions: const [CloseButton2()],
         ),
-        body: Container(
+        body: SizedBox(
           width: 400.0,
           height: 400.0,
           child: Column(

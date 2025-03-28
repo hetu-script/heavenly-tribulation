@@ -1,8 +1,6 @@
 {
   // 非地块类的地图组件，通常是一些大小超过单独地块的贴图或动画之类
   meteorCrater: {
-    // 地图上是否可以放置多个该组件
-    isDecoration: true,
     name: "meteorCrater",
     // 这里的路径省略掉前缀'assets/images/'，因为 Flame 会自动添加
     sprite: "object/components/meteorCrater.png",
@@ -12,5 +10,6 @@
     //   srcWidth: 0.0,
     //   srcHeight: 0.0,
     // },
+    // isHidden: true,
   },
 }

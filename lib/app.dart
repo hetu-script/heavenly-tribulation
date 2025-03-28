@@ -246,14 +246,18 @@ class _GameAppState extends State<GameApp> {
       context.read<NpcListState>().update();
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Game::promptNewItems', (
-        {positionalArgs, namedArgs}) {
-      context.read<NewItemsState>().update(positionalArgs.first);
-    }, override: true);
-
     engine.hetu.interpreter.bindExternalFunction('Game::promptNewQuest', (
         {positionalArgs, namedArgs}) {
-      context.read<NewQuestState>().update(positionalArgs.first);
+      context.read<NewQuestState>().update(quest: positionalArgs.first);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::promptNewItems', (
+        {positionalArgs, namedArgs}) {
+      final completer = Completer();
+      context
+          .read<NewItemsState>()
+          .update(items: positionalArgs.first, completer: completer);
+      return completer.future;
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::showHeroInfo', (

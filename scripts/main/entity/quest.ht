@@ -1,5 +1,4 @@
 import 'entity.ht'
-import '../lootbox.ht'
 
 const kQuestDifficultyNormal = 'normal'
 const kQuestDifficultyHard = 'hard'

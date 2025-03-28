@@ -41,6 +41,6 @@ struct TrevelingMerchant {
       }
     }
     
-    calculateCharacterStats(this)
+    characterCalculateStats(this)
   }
 }

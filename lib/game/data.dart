@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:convert';
 
+import 'package:flame/flame.dart';
+import 'package:flame/sprite.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:hetu_script/utils/collection.dart';
 import 'package:samsara/cardgame/cardgame.dart';
@@ -41,22 +43,23 @@ abstract class GameSound {
 /// 这个类是纯静态类，方法都是有关读取和保存的
 /// 游戏逻辑等操作这些数据的代码另外写在logic目录下的文件中
 abstract class GameData {
-  static Map<String, dynamic> tiles = {};
-  static Map<String, dynamic> mapComponents = {};
-  static Map<String, dynamic> animations = {};
-  static Map<String, dynamic> battleCards = {};
-  static Map<String, dynamic> battleCardAffixes = {};
-  static Map<String, dynamic> statusEffects = {};
-  static Map<String, dynamic> items = {};
-  static Map<String, dynamic> passives = {};
-  // static Map<String, dynamic> supportSkillData = {};
-  static Map<String, dynamic> passiveTree = {};
-  // static Map<String, dynamic> supportSkillTreeData = {};
+  static final Map<String, dynamic> animationsData = {};
+  static final Map<String, SpriteSheet> spriteSheets = {};
+  static final Map<String, SpriteAnimationWithTicker> _cachedAnimations = {};
 
-  static Map<String, String> organizationCategoryNames = {};
-  static Map<String, String> cultivationGenreNames = {};
-  static Map<String, String> cityKindNames = {};
-  static Map<String, String> siteKindNames = {};
+  static final Map<String, dynamic> tiles = {};
+  static final Map<String, dynamic> mapComponents = {};
+  static final Map<String, dynamic> battleCards = {};
+  static final Map<String, dynamic> battleCardAffixes = {};
+  static final Map<String, dynamic> statusEffects = {};
+  static final Map<String, dynamic> items = {};
+  static final Map<String, dynamic> passives = {};
+  static final Map<String, dynamic> passiveTree = {};
+
+  static final Map<String, String> organizationCategoryNames = {};
+  static final Map<String, String> cultivationGenreNames = {};
+  static final Map<String, String> cityKindNames = {};
+  static final Map<String, String> siteKindNames = {};
 
   /// 游戏本身的数据，包含角色，对象，以及地图和时间线。
   static dynamic gameData, universeData, historyData, heroData;
@@ -65,13 +68,35 @@ abstract class GameData {
   static bool get isInitted => _isInitted;
 
   static Future<void> init() async {
+    final animationsDataString =
+        await rootBundle.loadString('assets/data/animation.json5');
+    animationsData.addAll(JSON5.parse(animationsDataString));
+
+    final spriteSheetDataString =
+        await rootBundle.loadString('assets/data/sprite_sheet.json5');
+    final spriteSheetsData = JSON5.parse(spriteSheetDataString);
+    for (final spriteSheetData in spriteSheetsData) {
+      final assetId = spriteSheetData['assetId'];
+      assert(assetId != null);
+      double? srcWidth = spriteSheetData['width'];
+      double? srcHeight = spriteSheetData['height'];
+      assert(srcWidth != null && srcHeight != null);
+      final Vector2 srcSize = Vector2(srcWidth!, srcHeight!);
+      final image = await Flame.images.load(assetId);
+      final sheet = SpriteSheet(
+        image: image,
+        srcSize: srcSize,
+      );
+      spriteSheets[assetId] = sheet;
+    }
+
     final tilesDataString =
         await rootBundle.loadString('assets/data/tiles.json5');
-    tiles = JSON5.parse(tilesDataString);
+    tiles.addAll(JSON5.parse(tilesDataString));
 
     final mapComponentsDataString =
         await rootBundle.loadString('assets/data/map_components.json5');
-    mapComponents = JSON5.parse(mapComponentsDataString);
+    mapComponents.addAll(JSON5.parse(mapComponentsDataString));
 
     // final cardsDataString =
     //     await rootBundle.loadString('assets/data/cards.json5');
@@ -79,27 +104,23 @@ abstract class GameData {
 
     final battleCardDataString =
         await rootBundle.loadString('assets/data/cards.json5');
-    battleCards = JSON5.parse(battleCardDataString);
+    battleCards.addAll(JSON5.parse(battleCardDataString));
 
     final battleCardAffixDataString =
         await rootBundle.loadString('assets/data/card_affixes.json5');
-    battleCardAffixes = JSON5.parse(battleCardAffixDataString);
-
-    final animationDataString =
-        await rootBundle.loadString('assets/data/animation.json5');
-    animations = JSON5.parse(animationDataString);
+    battleCardAffixes.addAll(JSON5.parse(battleCardAffixDataString));
 
     final statusEffectDataString =
         await rootBundle.loadString('assets/data/status_effect.json5');
-    statusEffects = JSON5.parse(statusEffectDataString);
+    statusEffects.addAll(JSON5.parse(statusEffectDataString));
 
     final itemsDataString =
         await rootBundle.loadString('assets/data/items.json5');
-    items = JSON5.parse(itemsDataString);
+    items.addAll(JSON5.parse(itemsDataString));
 
     final passiveDataString =
         await rootBundle.loadString('assets/data/passives.json5');
-    passives = JSON5.parse(passiveDataString);
+    passives.addAll(JSON5.parse(passiveDataString));
 
     // final supportSkillDataString =
     //     await rootBundle.loadString('assets/data/skills_support.json5');
@@ -107,37 +128,45 @@ abstract class GameData {
 
     final passiveTreeDataString =
         await rootBundle.loadString('assets/data/passive_tree.json5');
-    passiveTree = JSON5.parse(passiveTreeDataString);
+    passiveTree.addAll(JSON5.parse(passiveTreeDataString));
 
     // 拼接技能树节点的描述
     for (final passiveTreeNodeData in passiveTree.values) {
       final bool isAttribute = passiveTreeNodeData['isAttribute'] == true;
 
       StringBuffer nodeDescription = StringBuffer();
-      final nodeTitle = engine.locale(passiveTreeNodeData['title']);
-      nodeDescription.writeln('<bold yellow>$nodeTitle</>');
-      nodeDescription.writeln(' ');
-      String? comment = passiveTreeNodeData['comment'];
-      if (comment != null) {
-        comment = engine.locale(comment);
-        nodeDescription.writeln('<italic grey>$comment</>');
-        nodeDescription.writeln(' ');
-      }
 
       if (isAttribute) {
-        String description = engine.locale(passiveTreeNodeData['description']);
-        nodeDescription.writeln('<lightBlue>$description</>');
+        // nodeDescription.writeln(
+        //     '<bold yellow>${engine.locale('passivetree_attribute_any')}</>\n ');
+        String description =
+            engine.locale('passivetree_attribute_any_description');
+        List<String> lines = description.split('\n');
+        for (final line in lines) {
+          nodeDescription.writeln('<lightBlue>$line</>');
+        }
       } else {
+        String? title = passiveTreeNodeData['title'];
+        if (title != null) {
+          final nodeTitle = engine.locale(title);
+          nodeDescription.writeln('<bold yellow>$nodeTitle</>\n ');
+          String? comment = passiveTreeNodeData['comment'];
+          if (comment != null) {
+            comment = engine.locale(comment);
+            nodeDescription.writeln('<italic grey>$comment</>\n ');
+          }
+        }
         final List nodeData = passiveTreeNodeData['passives'];
         for (final passiveData in nodeData) {
           final dataId = passiveData['id'];
           final passiveRawData = GameData.passives[dataId];
-          assert(passiveRawData != null);
+          assert(passiveRawData != null, 'passiveData: $passiveData');
           String description = engine.locale(passiveRawData['description']);
           if (passiveRawData['increment'] != null) {
             final level = passiveData['level'];
             final increment = passiveRawData['increment'];
-            description = description.interpolate([level * increment]);
+            description =
+                description.interpolate([(level * increment).round()]);
           }
           nodeDescription.writeln('<lightBlue>$description</>');
         }
@@ -145,17 +174,12 @@ abstract class GameData {
 
       final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
       if (rankRequirement > 0) {
-        nodeDescription.writeln(' ');
         nodeDescription.writeln(
-            '<grey>${engine.locale('requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}</>');
+            ' \n<grey>${engine.locale('requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}</>');
       }
 
       passiveTreeNodeData['description'] = nodeDescription.toString();
     }
-
-    // final supportSkillTreeDataString =
-    //     await rootBundle.loadString('assets/data/skilltree_support.json5');
-    // supportSkillTreeData = JSON5.parse(supportSkillTreeDataString);
 
     for (final key in kOrganizationCategories) {
       organizationCategoryNames[key] = engine.locale(key);
@@ -222,7 +246,6 @@ abstract class GameData {
     engine.debug('创建新游戏：[$worldId]');
 
     worldIds.clear();
-    currentWorldId = worldId;
     worldIds.add(worldId);
 
     engine.hetu.invoke('createGame', positionalArgs: [saveName]);
@@ -255,8 +278,6 @@ abstract class GameData {
       'universeData': universe,
       'historyData': history,
     });
-
-    currentWorldId = engine.hetu.fetch('currentWorldId', namespace: 'game');
 
     worldIds.clear();
     final ids = engine.hetu.invoke('getWorldIds');
@@ -328,6 +349,47 @@ abstract class GameData {
       history: historyData,
       isEditorMode: isEditorMode,
     );
+  }
+
+  static SpriteAnimationWithTicker createAnimationFromData(
+      String path, String state) {
+    final cacheId = '$path/$state';
+    final cachedAnim = _cachedAnimations[cacheId];
+    if (cachedAnim != null) {
+      return cachedAnim.clone();
+    }
+    final animData = GameData.animationsData[path][state];
+    if (animData == null) {
+      final err = 'Could not found animation state data for [$path/$state]';
+      engine.error(err);
+      throw err;
+    }
+    double? srcWidth = animData['width'];
+    double? srcHeight = animData['height'];
+    assert(srcWidth != null && srcHeight != null);
+    final Vector2 srcSize = Vector2(srcWidth!, srcHeight!);
+    SpriteSheet? spriteSheet = GameData.spriteSheets[animData['spriteSheet']];
+    double offsetX = animData['offsetX'] ?? 0;
+    double offsetY = animData['offsetY'] ?? 0;
+    final anim = SpriteAnimationWithTicker(
+      animationId: animData['assetId'],
+      spriteSheet: spriteSheet,
+      srcSize: srcSize,
+      renderRect: Rect.fromLTWH(
+        offsetX,
+        offsetY,
+        srcWidth * kSpriteScale,
+        srcHeight * kSpriteScale,
+      ),
+      stepTime: animData['stepTime'] ?? kDefaultAnimationStepTime,
+      loop: animData['loop'] ?? false,
+      scale: animData['scale'] ?? kSpriteScale,
+      from: animData['from'],
+      to: animData['to'],
+      row: animData['row'],
+    );
+    _cachedAnimations[cacheId] = anim;
+    return anim;
   }
 
   static CustomGameCard createSiteCardFromData(dynamic siteData) {
@@ -457,7 +519,7 @@ abstract class GameData {
   static String getHeroPassivesDescription() {
     final passivesData = GameData.heroData['passives'];
     StringBuffer builder = StringBuffer();
-    builder.writeln(engine.locale('skilltree_hero_skills_description_title'));
+    builder.writeln(engine.locale('passivetree_hero_skills_description_title'));
     builder.writeln(' ');
     if (passivesData.isEmpty) {
       builder.writeln('<grey>${engine.locale('none')}</>');
@@ -470,9 +532,18 @@ abstract class GameData {
             .compareTo((data1['priority'] ?? 0) as int);
       });
       for (final skillData in skillList) {
-        final skillDescription = engine.locale(skillData['description']);
-        final value = skillData['value'];
-        final description = skillDescription.interpolate([value]);
+        String description;
+        if ((skillData['id'] as String).startsWith('rank_')) {
+          final int rank = skillData['level'];
+          assert(rank > 0);
+          final rankString = engine.locale('cultivationRank_$rank');
+          description = engine
+              .locale(skillData['description'], interpolations: [rankString]);
+        } else {
+          final value = skillData['value'];
+          description =
+              engine.locale(skillData['description'], interpolations: [value]);
+        }
         builder.writeln('<lightBlue>$description</>');
       }
     }

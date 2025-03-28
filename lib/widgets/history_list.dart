@@ -119,12 +119,8 @@ class _HeroAndGlobalHistoryListState extends State<HeroAndGlobalHistoryList> {
 
     jumpToBottom();
 
-    return PointerDetector(
-      cursor: SystemMouseCursors.click,
-      onTapUp: (_, __, ___) {
-        widget.onTapUp?.call();
-      },
-      onMouseEnter: (_) {
+    return MouseRegion(
+      onEnter: (event) {
         if (widget.onMouseEnter == null) return;
 
         final renderBox = context.findRenderObject() as RenderBox;
@@ -134,23 +130,29 @@ class _HeroAndGlobalHistoryListState extends State<HeroAndGlobalHistoryList> {
             Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height);
         widget.onMouseEnter!.call(rect);
       },
-      onMouseExit: (_) {
+      onExit: (event) {
         widget.onMouseExit?.call();
       },
-      child: ScrollConfiguration(
-        behavior: MaterialScrollBehavior(),
-        child: SingleChildScrollView(
-          controller: _historyScrollController,
-          child: ListView(
-            shrinkWrap: true,
-            children: slice
-                .map((incident) => Text(
-                      incident['message'],
-                      style: TextStyle(
-                        color: Colors.yellow,
-                      ),
-                    ))
-                .toList(),
+      child: PointerDetector(
+        cursor: SystemMouseCursors.click,
+        onTapUp: (_, __, ___) {
+          widget.onTapUp?.call();
+        },
+        child: ScrollConfiguration(
+          behavior: MaterialScrollBehavior(),
+          child: SingleChildScrollView(
+            controller: _historyScrollController,
+            child: ListView(
+              shrinkWrap: true,
+              children: slice
+                  .map((incident) => Text(
+                        incident['message'],
+                        style: TextStyle(
+                          color: Colors.yellow,
+                        ),
+                      ))
+                  .toList(),
+            ),
           ),
         ),
       ),

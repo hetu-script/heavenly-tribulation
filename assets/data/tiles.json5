@@ -216,13 +216,31 @@
       sprite: "object/stoneStairs.png",
     },
   },
-  stoneStairsDebris: {
-    id: "stoneStairsDebris",
-    name: "stoneStairsDebris",
-    icon: "assets/images/object/stoneStairsDebris.png",
+  stoneDebris: {
+    id: "stoneDebris",
+    name: "stoneDebris",
+    icon: "assets/images/object/stoneDebris.png",
     type: "overlaySprite",
     overlaySprite: {
-      sprite: "object/stoneStairsDebris.png",
+      sprite: "object/stoneDebris.png",
+    },
+  },
+  stain1: {
+    id: "stain1",
+    name: "bloodStain",
+    icon: "assets/images/object/stain1.png",
+    type: "overlaySprite",
+    overlaySprite: {
+      sprite: "object/stain1.png",
+    },
+  },
+  stain2: {
+    id: "stain2",
+    name: "stain",
+    icon: "assets/images/object/stain2.png",
+    type: "overlaySprite",
+    overlaySprite: {
+      sprite: "object/stain2.png",
     },
   },
   characterBoy1: {

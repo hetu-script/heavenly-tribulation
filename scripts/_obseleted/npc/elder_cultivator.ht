@@ -55,6 +55,6 @@ struct ElderCultivator {
       }
     }
     
-    calculateCharacterStats(this)
+    characterCalculateStats(this)
   }
 }

@@ -28,7 +28,7 @@ class _NewRankState extends State<NewRank> {
       height: screenSize.height,
       child: Align(
         alignment: Alignment.center,
-        child: Container(
+        child: SizedBox(
           width: 800.0,
           height: 400.0,
           child: Column(

@@ -18,17 +18,16 @@ import '../common.dart';
 import '../../game/data.dart';
 import 'common.dart';
 import 'drop_menu.dart';
-import '../game_dialog/game_dialog_controller.dart';
 
 const kMinTurnDuration = 1500;
 
 /// 属性效果对应的永久状态，值是正面状态和负面状态的元组
 const kStatsToPermenantEffects = {
-  'unarmedAttack': ('enhance_unarmed', 'weaken_unarmed'),
-  'weaponAttack': ('enhance_weapon', 'weaken_weapon'),
-  'spellAttack': ('enhance_spell', 'weaken_spell'),
-  'curseAttack': ('enhance_curse', 'weaken_curse'),
-  'poisonAttack': ('enhance_poison', 'weaken_poison'),
+  'unarmedEnhance': ('enhance_unarmed', 'weaken_unarmed'),
+  'weaponEnhance': ('enhance_weapon', 'weaken_weapon'),
+  'spellEnhance': ('enhance_spell', 'weaken_spell'),
+  'curseEnhance': ('enhance_curse', 'weaken_curse'),
+  'chaosEnhance': ('enhance_chaos', 'weaken_chaos'),
   'physicalResist': ('resistant_physical', 'weakness_physical'),
   'chiResist': ('resistant_chi', 'weakness_chi'),
   'elementalResist': ('resistant_elemental', 'weakness_elemental'),
@@ -126,7 +125,7 @@ class BattleScene extends Scene {
     enemyDeck = getDeck(enemyData);
 
     background = SpriteComponent2(
-      sprite: Sprite(await Flame.images.load('battle/scene/001.png')),
+      spriteId: 'battle/scene/001.png',
       anchor: Anchor.center,
       position: center,
       size: size,

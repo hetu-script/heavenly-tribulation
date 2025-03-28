@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:samsara/ui/ink_button.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/responsive_view.dart';
-import 'package:flame/flame.dart';
-import 'package:flame/sprite.dart';
-import 'package:flame/extensions.dart';
 
 import '../../../engine.dart';
 import '../../../game/ui.dart';
@@ -28,7 +25,6 @@ class Toolbox extends StatefulWidget {
 }
 
 class _ToolboxState extends State<Toolbox> {
-  SpriteSheet? terrainSpriteSheet;
   late final List<Tab> _tabs;
 
   @override
@@ -53,22 +49,11 @@ class _ToolboxState extends State<Toolbox> {
         text: engine.locale('objectTiles'),
       ),
     ];
-
-    load();
   }
 
   @override
   void dispose() {
     super.dispose();
-  }
-
-  Future<void> load() async {
-    terrainSpriteSheet = SpriteSheet(
-      image: await Flame.images.load('fantasyhextiles_v3_borderless.png'),
-      srcSize: Vector2(32.0, 64.0),
-    );
-
-    setState(() {});
   }
 
   Widget buildToolButton(
@@ -275,7 +260,17 @@ class _ToolboxState extends State<Toolbox> {
                                   ),
                                   buildToolButton(
                                     context,
-                                    'stoneStairsDebris',
+                                    'stoneDebris',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'stain1',
+                                    selectedItem: item,
+                                  ),
+                                  buildToolButton(
+                                    context,
+                                    'stain2',
                                     selectedItem: item,
                                   ),
                                 ],

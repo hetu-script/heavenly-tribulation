@@ -56,4 +56,6 @@ namespace World {
 
   external async function addFallingRubbles({amount = 10})
 
+  external async function setMapComponentVisible(id, visible: bool)
+
 }

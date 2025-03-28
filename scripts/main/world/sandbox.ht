@@ -80,7 +80,7 @@ function createSandboxWorld({
     name,
     seedString,
     style = 'coast',
-    terrainSpriteSheet = 'fantasyhextiles_v3_borderless.png',
+    terrainSpriteSheet = 'tilemap/fantasyhextiles_v3_borderless.png',
     worldScale = _kDefaultWorldScale,
     nationNumber = _kDefaultNationNumber,
     locationNumber = _kDefaultLocationNumber,
@@ -567,8 +567,9 @@ function createSandboxWorld({
     // 产生新的在野角色
     if (game.characters.length < characterNumber) {
       // 因为struct不能按照固定顺序排序，因此这里按照keys来随机。
-      const id = random.nextIterable(game.locations.keys)
-      const location = game.locations[id]
+      const location = random.nextIterable(game.locations.values.where((loc) {
+        return loc.category == 'city'
+      }))
       const character = Character(
         locationId: location.id,
         birthTimestamp: createBirthTimestamp(min: 15, max: 50),
@@ -650,7 +651,7 @@ function createSandboxWorld({
       if (age < _kAdultAge || age > _kPregnancyAgeMax) continue
       if (char.isPregnant) continue
       if (char.motivations.contains('dink')) continue
-      let spouseId = firstSpouse(char)
+      let spouseId = getSpouses(char).first?.characterId
       if (spouseId != null) {
         const spouse = game.characters[spouseId]
         if (spouse.motivations.contains('dink')) continue
@@ -667,10 +668,7 @@ function createSandboxWorld({
           if (hasSpouse(otherChar)) continue
 
           characterMet(char, otherChar)
-          // final home = game.locations[character.homeLocationId]
-          // assert(home != null)
           createSpouse(otherChar, char)
-
           break
         }
       }

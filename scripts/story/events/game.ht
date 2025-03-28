@@ -8,15 +8,27 @@ async function onUpdateItem(item) {
   }
 }
 
+/// 返回 true，跳过默认交互逻辑菜单
 async function onBeforeInteractCharacter(character) {
   switch(character.id) {
+    'ling_chuxue': {
+      if (!haveMet(hero, character)) {
+        Dialog.pushLocales('prelude_ling_chat_line1', isHero: true)
+        Dialog.pushLocales('prelude_ling_chat_line2', character: character)
+        Dialog.pushLocales('prelude_ling_chat_line3', isHero: true)
+        Dialog.pushLocales('prelude_ling_chat_line4', character: character)
+        await Dialog.execute()
+        Player.met(character)
+      }
+      return false
+    }
     'yaozu_guard1': {
       
-      // 返回 true，表示不显示普通的交互逻辑菜单
       return true
     }
   }
-  // 因为河图会默认最后一个表达式的值，所以这里要手动再返回一次以避免bug
+  // 因为河图会默认返回最后一个表达式的值
+  // 这里要显式返回以避免bug
   return
 }
 

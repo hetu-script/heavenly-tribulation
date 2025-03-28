@@ -13,9 +13,9 @@ namespace Game {
 
   external function updateNpcList()
 
-  external function promptNewItems(items: Iterable)
-
   external function promptNewQuest(quest)
+
+  external function promptNewItems(items: Iterable)
 
   external function showHeroInfo([value: bool = true])
 

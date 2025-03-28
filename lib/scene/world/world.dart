@@ -139,7 +139,11 @@ class WorldMapScene extends Scene {
     required this.isEditorMode,
     this.backgroundSpriteId,
     super.bgmFile,
-  })  : map = TileMap(
+  })  : assert(GameData.spriteSheets
+            .containsKey('tilemap/fantasyhextiles_v3_borderless.png')),
+        map = TileMap(
+          terrainSpriteSheet: GameData
+              .spriteSheets['tilemap/fantasyhextiles_v3_borderless.png']!,
           id: worldData['id'],
           tileMapWidth: worldData['width'],
           tileMapHeight: worldData['height'],
@@ -576,6 +580,11 @@ class WorldMapScene extends Scene {
         camera.viewport.add(ParticleRubble());
       }
     }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'World::setMapComponentVisible', ({positionalArgs, namedArgs}) {
+      map.setMapComponentVisible(positionalArgs[0], positionalArgs[1]);
+    }, override: true);
   }
 
   Future<void> _onEnterScene() async {
@@ -589,6 +598,8 @@ class WorldMapScene extends Scene {
   @override
   void onStart([Map<String, dynamic> arguments = const {}]) async {
     super.onStart(arguments);
+
+    GameData.currentWorldId = worldData['id'];
 
     if (isLoaded) {
       _onEnterScene();
@@ -877,7 +888,8 @@ class WorldMapScene extends Scene {
   Future<void> _updateWorldMapCaptions() async {
     final locations = engine.hetu.invoke('getLocations');
     for (final locationData in locations) {
-      if (locationData['category'] == 'city' &&
+      if (locationData['worldId'] == GameData.currentWorldId &&
+          locationData['category'] == 'city' &&
           locationData['isDiscovered'] == true) {
         final int left = locationData['worldPosition']['left'];
         final int top = locationData['worldPosition']['top'];

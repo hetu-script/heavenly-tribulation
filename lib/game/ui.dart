@@ -49,17 +49,26 @@ abstract class GameUI {
   static const heroInfoHeight = 130.0;
   static const infoButtonSize = Size(30.0, 30.0);
 
-  static const String fontFamily = 'RuiZiYunZiKuLiBianTiGBK';
-  static const String fontFamily2 = 'NotoSansMono';
+  static const String fontFamily = 'LXGWMONO';
+  static const String fontFamily2 = 'RuiZiYunZiKuLiBianTiGBK';
 
   static const pileZoneIndent = 30.0;
   static const pileZoneMargin = 60.0;
 
   static const foregroundColor = Colors.white;
-  static final backgroundColor = Color(0xDD000000);
+
+  /// 半透明黑色
+  static final backgroundColor = Colors.black45;
+
+  /// 偏蓝色的半透明背景
   static final backgroundColor2 = Color(0xDD02020F);
+
+  /// 偏红色的半透明背景
   static final backgroundColor3 = Color(0xDD270505);
-  static final barrierColor = Colors.black.withAlpha(160);
+
+  /// 对话框遮罩背景颜色
+  static final barrierColor = backgroundColor;
+
   static final borderRadius = BorderRadius.circular(5.0);
 
   static const profileWindowPosition =
@@ -287,7 +296,7 @@ abstract class GameUI {
   static final cultivatorSize = Vector2(200, 200);
   static final cultivationRankButton = Vector2(80, 80);
   static final maxCondenseSize = Vector2(250, 250);
-  static final levelDescriptionSize = Vector2(500, 25);
+  static final levelDescriptionSize = Vector2(500, 50);
   static final expBarSize = Vector2(600, 25);
 
   static late Vector2 cultivateButtonPosition;
@@ -454,7 +463,7 @@ abstract class GameUI {
     expBarPosition = Vector2(center.x, center.y + 300.0);
 
     levelDescriptionPosition =
-        Vector2(center.x, expBarPosition.y - expBarSize.y - indent);
+        Vector2(center.x, expBarPosition.y - levelDescriptionSize.y);
 
     cultivateButtonPosition = Vector2(
         center.x + buttonSizeMedium.x / 2 + indent, expBarPosition.y + 50);

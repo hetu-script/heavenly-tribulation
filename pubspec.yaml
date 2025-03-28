@@ -87,6 +87,7 @@ flutter:
     - assets/images/battlecard/illustration/
     - assets/images/cultivation/
     - assets/images/cultivation/skill/
+    - assets/images/cultivation/skill/more/
     - assets/images/icon/
     - assets/images/icon/skill/
     - assets/images/icon/status/
@@ -111,7 +112,6 @@ flutter:
     - assets/images/object/
     - assets/images/object/components/
     - assets/images/object/animation/
-    - assets/images/time/
     - assets/images/ui/
     - assets/images/particles/
     - assets/images/particles/clouds/
@@ -124,6 +124,9 @@ flutter:
     - assets/images/story/item/
     - assets/images/story/location/
     - assets/images/story/location/card/
+    - assets/images/story/object/
+    - assets/images/tilemap/
+    - assets/images/time/
 
     # - assets/locale/en/
     - assets/locale/zh/
@@ -171,6 +174,9 @@ flutter:
     - family: RuiZiYunZiKuLiBianTiGBK
       fonts:
         - asset: assets/fonts/RuiZiYunZiKuLiBianTiGBK-1.ttf
+    - family: LXGWMONO
+      fonts:
+        - asset: assets/fonts/LXGWWenKaiMono-Medium.ttf
 
 msix_config:
   display_name: Heavenly Tribulation

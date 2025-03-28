@@ -82,6 +82,78 @@ abstract class GameLogic {
     return result;
   }
 
+  /// 为某个角色解锁某个天赋树节点
+  /// 注意这里不会检查和处理技能点，而是直接增加某个天赋
+  static void characterUnlockPassiveTreeNode(
+    dynamic characterData,
+    String nodeId, {
+    String? selectedAttributeId,
+  }) {
+    final passiveTreeNodeData = GameData.passiveTree[nodeId];
+    bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
+    final unlockedNodes = characterData['unlockedPassiveTreeNodes'];
+
+    selectedAttributeId ??= engine.hetu
+        .invoke('getMajorAttribute', positionalArgs: [characterData]);
+
+    if (isAttribute) {
+      // 属性点类的node，记录的是选择的具体属性的名字
+      unlockedNodes[nodeId] = selectedAttributeId;
+      engine.hetu.invoke(
+        'gainPassive',
+        namespace: 'Player',
+        positionalArgs: [selectedAttributeId],
+        namedArgs: {'level': kAttributeAnyLevel},
+      );
+    } else {
+      unlockedNodes[nodeId] = true;
+      final List nodePassiveData = passiveTreeNodeData['passives'];
+      for (final data in nodePassiveData) {
+        engine.hetu.invoke(
+          'gainPassive',
+          namespace: 'Player',
+          positionalArgs: [data['id']],
+          namedArgs: {
+            'level': data['level'] ?? 1,
+          },
+        );
+      }
+    }
+  }
+
+  static void characterRefundPassiveTreeNode(
+    dynamic characterData,
+    String nodeId,
+  ) {
+    final passiveTreeNodeData = GameData.passiveTree[nodeId];
+    final unlockedNodes = characterData['unlockedPassiveTreeNodes'];
+    bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
+
+    if (isAttribute) {
+      final attributeId = unlockedNodes[nodeId];
+      assert(kBattleAttributes.contains(attributeId));
+      // engine.hetu.invoke('refundPassive',
+      //     namespace: 'Player', positionalArgs: ['lifeMax']);
+      engine.hetu.invoke(
+        'refundPassive',
+        namespace: 'Player',
+        positionalArgs: [attributeId],
+        namedArgs: {'level': kAttributeAnyLevel},
+      );
+    } else {
+      final List nodePassiveData = passiveTreeNodeData['passives'];
+      for (final data in nodePassiveData) {
+        engine.hetu.invoke(
+          'refundPassive',
+          namespace: 'Player',
+          positionalArgs: [data['id']],
+          namedArgs: {'level': data['level'] ?? 1},
+        );
+      }
+    }
+    unlockedNodes.remove(nodeId);
+  }
+
   static bool checkCardRequirement(dynamic characterData, dynamic cardData) {
     if (cardData['isIdentified'] != true) return false;
 
@@ -190,7 +262,7 @@ abstract class GameLogic {
         if (result == true) {
           engine.hetu.invoke('levelUp', namespace: 'Player');
           final rank = engine.hetu.invoke('rankUp', namespace: 'Player');
-          engine.context.read<NewRankState>().update(rank);
+          engine.context.read<NewRankState>().update(rank: rank);
         }
       },
     };

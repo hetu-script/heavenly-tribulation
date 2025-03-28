@@ -79,7 +79,7 @@ struct Organization {
     
     // 本门派统治的据点 id 列表
     this.locationIds = []
-    // 本门派成员，key 是 角色的 id，value 是角色的 rank
+    // 本门派成员，key 是 角色的 id，value 是角色的 MemberRankData
     this.characterIds = {}
 
     // 组织规模，决定了组织所能允许的成员数量
@@ -111,7 +111,7 @@ struct Organization {
       engine.debug(incidentContent)
     }
     addCharacterToOrganization(head, this, incurIncident: incurIncident)
-    addOrganizationTitleForCharacter(head, this, jobRank: this.jobRankMax, titleId: 'head', incurIncident: incurIncident)
+    // setCharacterJob(head, incurIncident: incurIncident)
 
     // 国家区块颜色
     this.color = random.nextBrightColorHex()
@@ -234,7 +234,7 @@ function stationOrganization(organization, location, { characterIds, incurIncide
 
 // 组织中每个等级的人数上限
 // 数字越大，等级越高，[jobRankMax]是掌门，人数只有1
-function maxMemberOfStatusRank(n: integer, jobRankMax) {
+function maxMemberOfJobRank(n: integer, jobRankMax) {
   assert(n >= 0 && n <= jobRankMax)
   return ((jobRankMax - n) + 1) * ((jobRankMax - n) + 1)
 }
@@ -254,7 +254,7 @@ function removeCharacterFromOrganization(character) {
 
   const organization = game.organizations[character.organizationId]
   organization.characterIds.remove(character.id)
-  delete character.organizationId
+  character.organizationId = null
 }
 
 function getOrganizationMemberIdsOfRank(organization, rank) {
@@ -278,22 +278,23 @@ function organizationMemberReachMax(organization) {
 /// 注意，这里并不处理师徒关系，可以理解为这里处理的是雇佣性质的工作岗位
 /// 师徒关系需要另外调用 createShitu api来创建
 /// 新加入的成员的等级，是当前的组织发展度 + 1
-function addCharacterToOrganization(character, organization, { incurIncident = true }) {
+function addCharacterToOrganization(character, organization, {incurIncident = true }) {
   assert(!organization.characterIds.contains(character.id))
+  // 组织人数上限由发展度决定
   if (organizationMemberReachMax(organization)) {
     engine.warn('组织 ${organization.id} 的成员数量达到上限，在提升发展度之前无法再添加新成员。')
     return false
   }
-
-  if (getOrganizationMemberIdsOfRank(organization, 0).length >= maxMemberOfStatusRank(0, organization.jobRankMax)) {
-    engine.warn('组织 ${organization.id} 的低阶成员数量达到上限，在提升成员级别之前无法再添加新成员。')
-    return false
-  }
+  // if (getOrganizationMemberIdsOfRank(organization, 0).length >= maxMemberOfJobRank(0, organization.jobRankMax)) {
+  //   engine.warn('组织 ${organization.id} 的低阶成员数量达到上限，在提升成员级别之前无法再添加新成员。')
+  //   return false
+  // }
   if (character.organizationId != null) {
     assert(character.organizationId != organization.id)
     removeCharacterFromOrganization(character)
   }
-  organization.characterIds[character.id] = character.jobRank[organization.id] = 0
+  // 此时还没有职位，职位数据以 true 代替
+  organization.characterIds[character.id] = true
   // 角色可以加入多个门派，但当前所属门派只有一个，即最后一个加入的门派
   character.organizationId = organization.id
 

@@ -52,84 +52,86 @@ class ItemGrid extends StatelessWidget {
 
     return Material(
       type: MaterialType.transparency,
-      child: PointerDetector(
-        onMouseEnter: (event) {
+      child: MouseRegion(
+        onEnter: (event) {
           if (itemData == null) {
             return;
           }
           final Rect rect = getRenderRect(context);
           onMouseEnter?.call(itemData, rect);
         },
-        onMouseExit: (event) {
+        onExit: (event) {
           onMouseExit?.call();
         },
-        onTapUp: (pointer, buttons, details) {
-          if (itemData == null) return;
-          if (buttons == kPrimaryButton) {
-            onTapped?.call(itemData, details.globalPosition);
-          } else if (buttons == kSecondaryButton) {
-            onSecondaryTapped?.call(itemData, details.globalPosition);
-          }
-        },
-        child: Container(
-          width: size.width,
-          height: size.height,
-          margin: margin,
-          decoration: hasBorder
-              ? BoxDecoration(
-                  // color: GameUI.backgroundColor,
-                  border: Border.all(
-                    color: isSelected
-                        ? Colors.yellow
-                        : GameUI.foregroundColor.withAlpha(64),
-                  ),
-                  image: DecorationImage(
-                    fit: BoxFit.contain,
-                    image: const AssetImage('assets/images/item/grid.png'),
-                    opacity: 0.2,
-                  ),
-                  borderRadius: GameUI.borderRadius,
-                )
-              : null,
-          child: Stack(
-            children: [
-              if (iconAssetKey != null)
-                RRectIcon(
-                  image: AssetImage('assets/images/$iconAssetKey'),
-                  size: size,
-                  borderRadius: GameUI.borderRadius,
-                  borderColor: Colors.transparent,
-                  borderWidth: 0.0,
-                ),
-              if (child != null) child!,
-              if (stackSize > 1 || showStack)
-                Positioned(
-                  right: 0,
-                  bottom: -5,
-                  child: Text(
-                    stackSize.toString(),
-                    style: const TextStyle(
-                      color: Colors.yellow,
-                      shadows: kTextShadow,
+        child: PointerDetector(
+          onTapUp: (pointer, buttons, details) {
+            if (itemData == null) return;
+            if (buttons == kPrimaryButton) {
+              onTapped?.call(itemData, details.globalPosition);
+            } else if (buttons == kSecondaryButton) {
+              onSecondaryTapped?.call(itemData, details.globalPosition);
+            }
+          },
+          child: Container(
+            width: size.width,
+            height: size.height,
+            margin: margin,
+            decoration: hasBorder
+                ? BoxDecoration(
+                    // color: GameUI.backgroundColor,
+                    border: Border.all(
+                      color: isSelected
+                          ? Colors.yellow
+                          : GameUI.foregroundColor.withAlpha(64),
                     ),
-                  ),
-                ),
-              if (showEquippedIcon && isEquipped)
-                Positioned(
-                  left: 0,
-                  bottom: 0,
-                  child: Padding(
-                    padding: const EdgeInsets.all(2.5),
-                    child: Image(
-                      width: size.width / 3,
-                      height: size.height / 3,
+                    image: DecorationImage(
                       fit: BoxFit.contain,
-                      image:
-                          const AssetImage('assets/images/item/equipped.png'),
+                      image: const AssetImage('assets/images/item/grid.png'),
+                      opacity: 0.2,
+                    ),
+                    borderRadius: GameUI.borderRadius,
+                  )
+                : null,
+            child: Stack(
+              children: [
+                if (iconAssetKey != null)
+                  RRectIcon(
+                    image: AssetImage('assets/images/$iconAssetKey'),
+                    size: size,
+                    borderRadius: GameUI.borderRadius,
+                    borderColor: Colors.transparent,
+                    borderWidth: 0.0,
+                  ),
+                if (child != null) child!,
+                if (stackSize > 1 || showStack)
+                  Positioned(
+                    right: 0,
+                    bottom: -5,
+                    child: Text(
+                      stackSize.toString(),
+                      style: const TextStyle(
+                        color: Colors.yellow,
+                        shadows: kTextShadow,
+                      ),
                     ),
                   ),
-                ),
-            ],
+                if (showEquippedIcon && isEquipped)
+                  Positioned(
+                    left: 0,
+                    bottom: 0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(2.5),
+                      child: Image(
+                        width: size.width / 3,
+                        height: size.height / 3,
+                        fit: BoxFit.contain,
+                        image:
+                            const AssetImage('assets/images/item/equipped.png'),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

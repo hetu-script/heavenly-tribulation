@@ -69,7 +69,7 @@ function createBlankWorld({
     id = 'main',
     name,
     isMainWorld,
-    terrainSpriteSheet = 'fantasyhextiles_v3_borderless.png',
+    terrainSpriteSheet = 'tilemap/fantasyhextiles_v3_borderless.png',
     width,
     height,
     useCustomLogic = false,

@@ -586,10 +586,10 @@ packages:
     dependency: "direct main"
     description:
       name: provider
-      sha256: c8a055ee5ce3fd98d6fc872478b03823ffdb448699c6ebdbbc71d59b596fd48c
+      sha256: f6e2492ca5afbe0fba12757787038f7815529c25f3f975f7d58e994f8ac00292
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "6.1.2"
+    version: "6.1.3"
   pub_semver:
     dependency: transitive
     description:

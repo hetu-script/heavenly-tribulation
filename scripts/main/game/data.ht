@@ -87,11 +87,13 @@ struct GameData {
     this.babies = {}
     this.characters = {}
     this.organizations = {}
+    // 地图上的城市、场景
+    this.locations = {}
     // 具有唯一性的物品，材料之类不在此列
     this.items = {}
     // 家族信息
     // key 是家族的 id，值是一个结构体数组
-    // 值的key是人物的 id，值是 GenerationMember 数据，含角色的 generation 和 peer
+    // 值的key是人物的 id，值是 MemberRankData 数据，含角色的 generation 和 peer
     this.families = {}
     // 师徒传承信息
     // key 是师徒传承的 id，值是一个结构体数组
