@@ -686,35 +686,35 @@ function createSandboxWorld({
     if (char.motivations.isNotEmpty) continue
     
     if (char.relationships.sect.isEmpty) {
-      if (!char.motivations.contains['shifu']) {
+      if (!char.motivations.contains('shifu')) {
         char.motivations.add('shifu')
         continue
       }
     }
     
     if (char.relationships.friendship.isEmpty) {
-      if (!char.motivations.contains['friendship']) {
+      if (!char.motivations.contains('friendship')) {
         char.motivations.add('friendship')
         continue
       }
     }
     
     if (char.relationships.romance.isEmpty) {
-      if (!char.motivations.contains['romance']) {
+      if (!char.motivations.contains('romance')) {
         char.motivations.add('romance')
         continue
       }
     }
     
     if (!hasSpouse(char)) {
-      if (age >= _kAdultAge && !char.motivations.contains['spouse']) {
+      if (age >= _kAdultAge && !char.motivations.contains('spouse')) {
         char.motivations.add('spouse')
         continue
       }
     }
     
     if (!hasChild(char)) {
-      if (age >= _kAdultAge && !char.motivations.contains['child']) {
+      if (age >= _kAdultAge && !char.motivations.contains('child')) {
         char.motivations.add('child')
       }
     }

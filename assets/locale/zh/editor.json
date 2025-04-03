@@ -46,8 +46,12 @@
   "setHome": "设置住所",
   "checkProfile": "查看详情",
   "checkEventFlags": "查看自定义事件标记",
-  "checkEquipments": "查看装备",
+  "checkStats": "查看属性",
   "checkMemory": "查看记忆",
+  "checkCultivation": "查看天赋树",
+  "setLevel": "设置修为等级",
+  "setRank": "设置境界",
+  "allocatePassives": "自动分配天赋技能",
 
   "terrainDetail": "地块信息",
   "setTerrainKind": "设置地块类型",

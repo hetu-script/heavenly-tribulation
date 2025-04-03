@@ -12,6 +12,7 @@ import '../dialog/input_description.dart';
 import '../int_editor_field.dart';
 import '../../common.dart';
 import '../../game/ui.dart';
+import '../../game/data.dart';
 import 'edit_character_flags.dart';
 
 class CharacterProfile extends StatefulWidget {
@@ -84,8 +85,7 @@ class _CharacterProfileState extends State<CharacterProfile> {
     if (widget.characterData != null) {
       _characterData = widget.characterData!;
     } else if (widget.characterId != null) {
-      _characterData = engine.hetu
-          .invoke('getCharacterById', positionalArgs: [widget.characterId]);
+      _characterData = GameData.getCharacter(widget.characterId!);
     }
     assert(_characterData != null);
 
@@ -639,10 +639,10 @@ class CharacterProfileView extends StatelessWidget {
     this.characterId,
     this.characterData,
     this.mode = InformationViewMode.view,
-    this.showIntimacy = true,
-    this.showRelationships = true,
-    this.showPosition = true,
-    this.showPersonality = true,
+    this.showIntimacy = false,
+    this.showRelationships = false,
+    this.showPosition = false,
+    this.showPersonality = false,
     this.showDescription = true,
   });
 
@@ -660,13 +660,11 @@ class CharacterProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = mode != InformationViewMode.view ? 700.0 : 640.0;
-    final height = mode != InformationViewMode.view ? 640.0 : 400.0;
     return ResponsiveView(
       backgroundColor: GameUI.backgroundColor2,
       alignment: AlignmentDirectional.center,
-      width: width,
-      height: height,
+      width: 700.0,
+      height: 400.0,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -679,7 +677,7 @@ class CharacterProfileView extends StatelessWidget {
               characterId: characterId,
               characterData: characterData,
               mode: mode,
-              height: height - 90.0,
+              height: 300.0,
               showIntimacy: showIntimacy,
               showRelationships: showRelationships,
               showPosition: showPosition,

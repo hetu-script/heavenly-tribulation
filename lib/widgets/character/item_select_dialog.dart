@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'inventory/inventory.dart';
 import '../../engine.dart';
 import '../draggable_panel.dart';
-import '../../game/data.dart';
+import '../../game/logic.dart';
 import '../../state/states.dart';
 
 class ItemSelectDialog extends StatefulWidget {
@@ -96,7 +96,7 @@ class _ItemSelectDialogState extends State<ItemSelectDialog> {
                   child: ElevatedButton(
                     onPressed: () {
                       _selectedItemsData.clear();
-                      final filteredItems = GameData.getFilteredItems(
+                      final filteredItems = GameLogic.getFilteredItems(
                         widget.characterData,
                         type: widget.type,
                         filter: widget.filter,

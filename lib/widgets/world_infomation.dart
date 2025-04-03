@@ -15,7 +15,7 @@ import '../game/ui.dart';
 
 enum WorldInformationCharacterPopUpMenuItems {
   checkProfile,
-  checkEquipments,
+  checkStats,
   checkMemory,
 }
 
@@ -30,8 +30,8 @@ List<PopupMenuEntry<WorldInformationCharacterPopUpMenuItems>>
       onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
-      item: WorldInformationCharacterPopUpMenuItems.checkEquipments,
-      name: engine.locale('checkEquipments'),
+      item: WorldInformationCharacterPopUpMenuItems.checkStats,
+      name: engine.locale('checkStats'),
       onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
@@ -230,13 +230,12 @@ class _WorldInformationPanelState extends State<WorldInformationPanel>
                           context: context,
                           builder: (context) => ResponsiveView(
                             alignment: AlignmentDirectional.center,
-                            width: GameUI.profileWindowWidth,
+                            width: GameUI.profileWindowSize.x,
                             height: 400.0,
                             child: CharacterProfile(characterId: dataId),
                           ),
                         );
-                      case WorldInformationCharacterPopUpMenuItems
-                            .checkEquipments:
+                      case WorldInformationCharacterPopUpMenuItems.checkStats:
                         showDialog(
                           context: context,
                           builder: (context) =>
@@ -246,7 +245,7 @@ class _WorldInformationPanelState extends State<WorldInformationPanel>
                         showDialog(
                           context: context,
                           builder: (context) =>
-                              CharacterMemoryView(characterId: dataId),
+                              CharacterMemory(characterId: dataId),
                         );
                     }
                   });

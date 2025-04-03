@@ -10,7 +10,6 @@ import '../item/item.ht'
 import '../../datetime.ht'
 import '../entity.ht'
 import '../organization/organization.ht'
-import '../achievements.ht'
 
 const _kLocationInitialStabilityMax = 50
 const kLocationDevelopmentMax = 5
@@ -208,7 +207,6 @@ struct Location {
     // 和人物类似，也具有物品栏
     this.inventory = {}
     this.materials = MaterialStorage()
-    this.achievements = Achievements()
 
     // 为了兼容性，地块的门派没有用organizationId而是用了nationId
     // this.nationId

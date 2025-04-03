@@ -106,13 +106,16 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     };
 
     onMouseScrollUp = () {
+      if ((game as CardLibraryScene).craftingCard != null) return;
       _reposition(100);
     };
     onMouseScrollDown = () {
+      if ((game as CardLibraryScene).craftingCard != null) return;
       _reposition(-100);
     };
 
     onDragUpdate = (int buttons, Vector2 offset) {
+      if ((game as CardLibraryScene).craftingCard != null) return;
       _reposition(offset.y);
     };
   }
@@ -226,12 +229,35 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     }
   }
 
+  void removeCard(String cardId) {
+    final card = library[cardId];
+    if (card != null) {
+      library.remove(cardId);
+      card.removeFromParent();
+
+      _calculateContainerHeight();
+      sortCards();
+    }
+  }
+
   void updateHeroLibrary() {
     final libraryData = GameData.heroData['cardLibrary'];
     for (final cardData in libraryData.values) {
       if (library.containsKey(cardData['id'])) continue;
       addCardByData(cardData);
     }
+    final List<String> toBeRemoved = [];
+    for (final cardComponent in library.values) {
+      if (!libraryData.containsKey(cardComponent.id)) {
+        toBeRemoved.add(cardComponent.id);
+      }
+    }
+    for (final cardId in toBeRemoved) {
+      final card = library[cardId]!;
+      card.removeFromParent();
+      library.remove(cardId);
+    }
+
     _calculateContainerHeight();
     sortCards();
   }

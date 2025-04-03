@@ -76,7 +76,7 @@ void previewCard(
   HoverInfoDirection? direction,
   dynamic characterData,
 }) {
-  context.read<HoverInfoContentState>().set(
+  context.read<HoverInfoContentState>().show(
         cardData,
         rect,
         direction: direction ?? HoverInfoDirection.rightTop,

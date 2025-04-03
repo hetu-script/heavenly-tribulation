@@ -63,8 +63,8 @@ struct Materialpack {
     this.isIdentified = true
     this.isUsable = true
     
-    if (kItemBasePriceByKind.contains(kind)) {
-      this.price = kItemBasePriceByKind[kind] * this.stackSize
+    if (kMaterialBasePriceByKind.contains(kind)) {
+      this.price = kMaterialBasePriceByKind[kind] * this.stackSize
     }
   }
 }

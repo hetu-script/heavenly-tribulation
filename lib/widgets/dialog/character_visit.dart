@@ -72,8 +72,7 @@ class CharacterVisitDialog extends StatelessWidget {
     }
 
     tableData.addAll(characterIds.map((id) {
-      final character =
-          engine.hetu.invoke('getCharacterById', positionalArgs: [id]);
+      final character = GameData.getCharacter(id);
       final haveMet = engine.hetu
           .invoke('haveMet', positionalArgs: [GameData.heroData, character]);
       final isFriend = engine.hetu

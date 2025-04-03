@@ -9,6 +9,7 @@ import '../random.ht'
 function generateLocationName({category: string}) {
   let name = ''
   category ??= random.nextIterable(locationNames.keys)
+  assert(locationNames.keys.contains(category), category)
   const kind = random.nextIterable(locationNames[category])
   const r = random.nextDouble()
   if (r < kStrangeNameProbability) {

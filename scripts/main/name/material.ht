@@ -4,7 +4,7 @@ import '../entity/entity.ht'
 import '../random.ht'
 
 function generateMaterialName({category, rarity}) {
-  assert(materialNames.keys.contains(category))
+  assert(materialNames.keys.contains(category), category)
   assert(rarity in kRarityNames && rarity != 'common')
   const pre = random.nextIterable(commonNames)
   const cp = random.nextIterable(colorPrefix)

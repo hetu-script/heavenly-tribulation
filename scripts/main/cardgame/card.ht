@@ -3,10 +3,29 @@ import '../name/skill.ht'
 import '../common.ht'
 import '../entity/entity.ht'
 
+const kAddAffixCostRatio = 10;
+const kRerollAffixCostRatio = 20;
+const kReplaceAffixCostRatio = 20;
+const kUpgradeCardCostRatio = 10;
+const kUpgradeRankCostRatio = 10;
+
+const kBattleCardPriceRatio = 10;
+
+const kCardGenres = [
+  null,
+  ...kCultivationGenres,
+]
+
+function getCardRankUpProbability(rank) {
+  if (rank == 0) return 1.0
+  if (rank >= kCultivationRankMax) return 0.0
+  return 0.7 * (1 - rank / kCultivationRankMax)
+}
+
 struct BattleCard {
   constructor ({
     category, // 'attack', 'buff'
-    mainAffixId,
+    affixId,
     kind, // 'sword',
     genre, // 'spellcraft', 'swordcraft'
     level,
@@ -25,13 +44,13 @@ struct BattleCard {
       this.rank = 0
     }
     
-    this.minLevel = minLevelForRank(this.rank)
-    this.maxLevel = maxLevelForRank(this.rank)
+    final minLevel = minLevelForRank(this.rank)
+    final maxLevel = maxLevelForRank(this.rank)
     if (level == null) {
-      level = this.minLevel + random.distantInt(this.maxLevel - this.minLevel)
+      level = minLevel + random.distantInt(maxLevel - minLevel)
     } else {
-      if (level < this.minLevel) level = this.minLevel
-      if (level > this.maxLevel) level = this.maxLevel
+      if (level < minLevel) level = minLevel
+      if (level > maxLevel) level = maxLevel
     }
     this.level = level
 
@@ -40,14 +59,11 @@ struct BattleCard {
 
     this.tags = []
 
-    let mainAffixes
-    if (mainAffixId) {
-      mainAffixes = game.battleCards.values.where( (affix) { 
-        return affix.id == mainAffixId
-      } )
-    } else {
-      // 注意：主词条数据的genre是字符串，但额外词条的genre是字符串数组
-      mainAffixes = game.battleCards.values.where( (affix) {
+    // 注意：主词条数据的genre是字符串，但额外词条的genre是字符串数组
+    let mainAffixes = game.battleCards.values.where( (affix) {
+      if (affixId) {
+        return affix.id == affixId
+      } else {
         if (genre != null && (affix.genre != null && affix.genre != genre)) {
           return false
         }
@@ -61,11 +77,11 @@ struct BattleCard {
           return false
         }
         return true
-      })
-    }
+      }
+    })
 
     if (mainAffixes.isEmpty) {
-      throw('Found no main affix for: id: ${mainAffixId} genre: ${genre}, category: ${category}, kind: ${kind}, rank: ${rank}')
+      throw('Found no main affix for: id: ${affixId} genre: ${genre}, category: ${category}, kind: ${kind}, rank: ${rank}')
     }
 
     const mainAffix = Object.create(random.nextIterable(mainAffixes))
@@ -131,19 +147,19 @@ function _getSupportAffixes(card) {
   return affixes
 }
 
-function calculateRequirementsOfCard(card) {
-  let requirementData = Requirement()
+// function calculateRequirementsOfCard(card) {
+//   let requirement = {}
 
-  for (final affix in card.affixes) {
-    for (final key in affix.requirement.keys) {
-      if (!requirements.containsKey(key)) {
-        requirements[key] = 0
-      }
-      requirements[key] += affix.requirement[key].base + affix.requirement[key].increment * affix.level
-    }
-  }
-  return requirements
-}
+//   for (final affix in card.affixes) {
+//     for (final key in affix.requirement.keys) {
+//       if (!requirement.containsKey(key)) {
+//         requirement[key] = 0
+//       }
+//       requirement[key] += affix.requirement[key].base + affix.requirement[key].increment * affix.level
+//     }
+//   }
+//   return requirement
+// }
 
 function _checkRequirementForCard(character, card) {
 
@@ -173,9 +189,9 @@ function _randomizeAffixLevel(card, affix) {
   if (affix.valueData is List) {
     if (affix.maxLevel) {
       let affixMaxLevel = Math.min(card.level, affix.maxLevel)
-      affix.level = getRandomLevel(card.minLevel, affixMaxLevel)
+      affix.level = getRandomLevel(0, affixMaxLevel)
     } else {
-      affix.level = getRandomLevel(card.minLevel, card.level)
+      affix.level = getRandomLevel(0, card.level)
     }
     let values = []
     for (final valueData in affix.valueData) {
@@ -201,7 +217,7 @@ function _addAffixToCard(card, affix) {
 
 function _updateAffixUniqueIds(card) {
   card.affixUniqueIds = Set()
-  card.tags = Set()
+  // card.tags = Set()
   for (final affix in card.affixes) {
     if (affix.isMain) {
       if (affix.uniqueId is List) {
@@ -212,7 +228,7 @@ function _updateAffixUniqueIds(card) {
     } else if (affix.uniqueId is string) {
       card.affixUniqueIds.add(affix.uniqueId)
     }
-    card.tags.addAll(affix.tags)
+    // card.tags.addAll(affix.tags)
   }
 }
 
@@ -224,7 +240,7 @@ function _addExtraAffixes(card) {
   if (affixCountInfo.maxExtra == 0) return
   if (extraAffixCount < affixCountInfo.maxExtra) {
     let r = random.nextDouble()
-    if (r >= 0.15) {
+    if (r > kThresholdOfExtraAffix) {
       ++extraAffixCount
     }
   }
@@ -242,21 +258,22 @@ function _addExtraAffixes(card) {
   }
 }
 
-function identifyCard(card) {
-  if (card.isIdentified == true) {
-    return 'deckbuilding_identifyCard_warning'
-  }
+// function identifyCard(card) {
+//   if (card.isIdentified == true) {
+//     return 'deckbuilding_identifyCard_warning'
+//   }
 
-  card.isIdentified = true
+//   card.isIdentified = true
 
-  // 这里显式返回空值表明成功执行
-  return null
-}
+//   // 这里显式返回空值表明成功执行
+//   return null
+// }
 
 function addAffix(card) {
   let extraAffixCount = getMinMaxExtraAffixCount(card.rank)
+  // 这里判断的时候要 +1 因为主词条本身也在 length 中
   if (card.affixes.length >= extraAffixCount.maxExtra + 1) {
-    return 'deckbuilding_addAffix_warning'
+    return engine.locale('deckbuilding_addAffix_warning')
   }
 
   let supportAffixes = _getSupportAffixes(card)
@@ -264,6 +281,12 @@ function addAffix(card) {
   if (supportAffixes.isEmpty) {
     throw('Found no support affixes for card: [id: ${card.id}, genre: ${card.genre}, category: ${card.category}, kind: ${card.kind}, rank: ${card.rank}]')  
   }
+  
+  final expNeeded = expForLevel(card.level) ~/ kAddAffixCostRatio
+  if (hero.unconvertedExp < expNeeded) {
+    return engine.locale('deckbuilding_insufficientExp_warning')
+  }
+  hero.unconvertedExp -= expNeeded
 
   final affix = random.nextIterable(supportAffixes)
 
@@ -282,8 +305,14 @@ function rerollAffix(card) {
   })
 
   if (extraAffixes.isEmpty) {
-    return 'deckbuilding_rerollAffix_warning'
+    return engine.locale('deckbuilding_rerollAffix_warning')
   }
+  
+  final expNeeded = expForLevel(card.level) ~/ kRerollAffixCostRatio
+  if (hero.unconvertedExp < expNeeded) {
+    return engine.locale('deckbuilding_insufficientExp_warning')
+  }
+  hero.unconvertedExp -= expNeeded
 
   final affix = random.nextIterable(extraAffixes)
 
@@ -302,8 +331,14 @@ function replaceAffix(card) {
   })
 
   if (extraAffixes.isEmpty) {
-    return 'deckbuilding_replaceAffix_warning'
+    return engine.locale('deckbuilding_replaceAffix_warning')
   }
+
+  final expNeeded = expForLevel(card.level) ~/ kReplaceAffixCostRatio
+  if (hero.unconvertedExp < expNeeded) {
+    return engine.locale('deckbuilding_insufficientExp_warning')
+  }
+  hero.unconvertedExp -= expNeeded
 
   final affix = random.nextIterable(extraAffixes)
 
@@ -321,9 +356,16 @@ function replaceAffix(card) {
 }
 
 function upgradeCard(card) {
-  if (card.level >= card.maxLevel) {
-    return 'deckbuilding_upgradeCard_warning'
+  final maxLevel = maxLevelForRank(card.rank)
+  if (card.level >= maxLevel) {
+    return engine.locale('deckbuilding_upgradeCard_warning')
   }
+
+  final expNeeded = expForLevel(card.level) ~/ kUpgradeCardCostRatio
+  if (hero.unconvertedExp < expNeeded) {
+    return engine.locale('deckbuilding_insufficientExp_warning')
+  }
+  hero.unconvertedExp -= expNeeded
 
   card.level += 1
 
@@ -336,18 +378,29 @@ function upgradeCard(card) {
 }
 
 function upgradeRank(card) {
-  if (card.rank == kCultivationRankMax) {
-    return 'deckbuilding_upgradeRank_warning_maxRank'
+  if (card.rank >= kCultivationRankMax) {
+    return engine.locale('deckbuilding_upgradeRank_warning_maxRank')
   }
   
   final nextRankMinLevel = minLevelForRank(card.rank + 1)
   if (card.level < nextRankMinLevel) {
-    return 'deckbuilding_upgradeRank_warning'
+    return engine.locale('deckbuilding_upgradeRank_warning')
+  }
+
+  final expNeeded = expForLevel(card.rank) * kUpgradeRankCostRatio
+  if (hero.unconvertedExp < expNeeded) {
+    return engine.locale('deckbuilding_insufficientExp_warning')
+  }
+  hero.unconvertedExp -= expNeeded
+
+  final successRate = getCardRankUpProbability(card.rank)
+  if (random.nextDouble() > successRate) {
+    return 'deckbuilding_upgradeRank_failed_hint'
   }
 
   card.rank += 1
-  card.minLevel = minLevelForRank(card.rank)
-  card.maxLevel = maxLevelForRank(card.rank)
+  // card.minLevel = minLevelForRank(card.rank)
+  // card.maxLevel = maxLevelForRank(card.rank)
 
   final mainAffix = card.affixes.first
 
@@ -370,6 +423,18 @@ function upgradeRank(card) {
   return null
 }
 
+/// 分解卡牌，返回获得的灵光数量
+function dismantle(card) {
+  final price = Player.dismantleCard(card)
+
+  final info = engine.locale('deckbuilding_dismantle_warning', interpolations:[
+    card.name,
+    price,
+  ])
+  
+  return info
+}
+
 /// 卡牌包是一种特殊物品，每个卡牌包包含3张牌
 /// 其中一张必然是指定的境界、流派的卡牌，且卡牌等级和角色等级相同
 /// 另外两张则是随机境界、流派和等级的卡牌
@@ -380,9 +445,9 @@ struct Cardpack {
     rank,
     kind,
   }) {
-    assert(genre == null || genre == 'general' || kCultivationGenres.contains[genre])
-    assert(rank == null || (rank >= 0 && rank <= kCultivationRankMax))
-    assert(kind == null || kBattleCardKind.contains(kind))
+    assert(genre == null || genre == 'general' || kCultivationGenres.contains(genre), genre)
+    assert(rank == null || (rank >= 0 && rank <= kCultivationRankMax), rank)
+    assert(kind == null || kBattleCardKind.contains(kind), kind)
     this.entityType = kEntityTypeItem
     this.createdTimestamp = game.timestamp
     this.category = kItemCategoryCardpack;
@@ -396,14 +461,10 @@ struct Cardpack {
     }
 
     this.id = crypto.randomUID(withTime: true)
-    this.name = engine.locale('cultivationRank_${rank}') + engine.locale('rank2')
-    if (genre != null) {
-      this.name += engine.locale(genre) + engine.locale('genre')
-    }
-    if (kind != null) {
-      this.name += engine.locale('card_${kind}')
-    }
-    this.name += engine.locale('cardpack')
+    final rankString = engine.locale('cultivationRank_${rank}') + engine.locale('rank2')
+    final genreString = genre != null ? engine.locale(genre) + engine.locale('genre2') : ''
+    final kindString = kind != null ? engine.locale('card_${kind}') : ''
+    this.name = rankString + genreString + kindString + engine.locale('cardpack')
     this.icon = 'item/cardpack.png'
     
     this.flavortext = engine.locale('cardpack_flavortext')

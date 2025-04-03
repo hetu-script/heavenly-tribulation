@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/game/logic.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 import 'package:provider/provider.dart';
@@ -114,7 +115,7 @@ class _MerchantDialogState extends State<MerchantDialog> {
 
                           int totalPrice = 0;
                           for (final itemData in items) {
-                            totalPrice += GameData.calculateItemPrice(
+                            totalPrice += GameLogic.calculateItemPrice(
                               itemData,
                               priceFactor: widget.priceFactor,
                               isSell: true,
@@ -214,9 +215,10 @@ class _MerchantDialogState extends State<MerchantDialog> {
 
                           int totalPrice = 0;
                           for (final itemData in items) {
-                            totalPrice += GameData.calculateItemPrice(
+                            totalPrice += GameLogic.calculateItemPrice(
                               itemData,
                               priceFactor: widget.priceFactor,
+                              isSell: false,
                             );
                           }
                           if (widget.useShards) {

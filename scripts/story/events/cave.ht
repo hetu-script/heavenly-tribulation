@@ -149,19 +149,20 @@ async function onInteractMapObject(object, terrain) {
         hero: chuxue,
         enemy: feixiong,
         // isAutoBattle: true,
-        onBattleStart: async function [VoidCallback] () {
-          Dialog.pushLocales('prelude_battle2Start_line1', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
-          Dialog.pushLocales('prelude_battle2Start_line2', characterId: 'ling_chuxue')
-          await Dialog.execute()
-        },
+        // onBattleStart: async function [VoidCallback] () {
+        //   Dialog.pushLocales('prelude_battle2Start_line1', characterId: 'yaozu_guard1', displayNameId: 'yaozu_guard')
+        //   Dialog.pushLocales('prelude_battle2Start_line2', characterId: 'ling_chuxue')
+        //   await Dialog.execute()
+        // },
       )
 
-      // generateDeck(chuxue, deckInfo: [
-      //   {mainAffixId: 'spell_energy', level: 5},{mainAffixId: 'fireball'},{mainAffixId: 'lightning'}
+      // generateDeck(chuxue, cardInfoList: [
+      //   {affixId: 'spell_energy', level: 5},{affixId: 'fireball'},{affixId: 'lightning'}
       // ])
     }
 
     'worldPortal1': {
+      
     }
 
     // 'switch1': {

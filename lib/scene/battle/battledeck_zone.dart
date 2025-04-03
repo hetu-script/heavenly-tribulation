@@ -1,17 +1,19 @@
 import 'package:samsara/cardgame/cardgame.dart';
-import 'package:flame/components.dart';
-// import 'package:samsara/paint.dart';
 import 'package:samsara/components/hovertip.dart';
 import 'package:samsara/gestures.dart';
 import 'package:samsara/paint/paint.dart';
 
 import '../../game/ui.dart';
 import '../../game/data.dart';
-// import '../../../global.dart';
-// import 'character.dart';
+import 'battle.dart';
 
 class BattleDeckZone extends PiledZone with HandlesGesture {
   CustomGameCard? current;
+
+  bool isFirstCard = true;
+
+  // turn 指一张牌，round 指整个卡组一轮
+  int round = 0;
 
   BattleDeckZone({
     required super.position,
@@ -19,6 +21,7 @@ class BattleDeckZone extends PiledZone with HandlesGesture {
     super.focusedOffset,
     super.pileStyle,
     required super.reverseX,
+    super.cardBasePriority,
   }) : super(
           size: GameUI.battleDeckZoneSize,
           piledCardSize: GameUI.battleCardSize,
@@ -46,14 +49,21 @@ class BattleDeckZone extends PiledZone with HandlesGesture {
         }
 
         card.onPreviewed = () {
+          final isDetailed = (game as BattleScene).isDetailedHovertip;
           final (_, description) = GameData.getDescriptionFromCardData(
-              (card as CustomGameCard).data);
+            (card as CustomGameCard).data,
+            isDetailed: isDetailed,
+            showDetailedHint: false,
+          );
           Hovertip.show(
             scene: game,
             target: card,
-            direction: HovertipDirection.topLeft,
+            direction: HovertipDirection.topCenter,
             content: description,
-            config: ScreenTextConfig(anchor: Anchor.topCenter),
+            config: ScreenTextConfig(
+              anchor: Anchor.topCenter,
+              textAlign: TextAlign.center,
+            ),
           );
         };
 

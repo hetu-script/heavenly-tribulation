@@ -3,6 +3,7 @@ import '../colors.ht'
 import '../game/world.ht'
 import '../entity/entity.ht'
 import '../entity/quest.ht'
+import '../common.ht'
 
 const kQuickThreshold = 10
 const kSlowThreshold = 10
@@ -87,9 +88,44 @@ namespace Player {
     entityLose(hero, item, incurIncident: incurIncident)
   }
 
-  function acquireBattleCard(card, { incurIncident = true }) {
+  function acquireCard(card, { incurIncident = true }) {
     assert(hero != null)
     entityAcquireBattleCard(hero, card, incurIncident: incurIncident)
+  }
+  
+  /// 分解卡牌，返回获得的灵光数量
+  function dismantleCard(card, { incurIncident = true }) {
+    assert(hero != null)
+    assert(hero.cardLibrary.containsKey(card.id))
+
+    final price = expForLevel(card.level) ~/ kBattleCardPriceRatio
+
+    hero.unconvertedExp += price
+    hero.cardLibrary.remove(card.id)
+
+    for (final deck in hero.battleDecks) {
+      if (deck.cards.contains(card.id)) {
+        deck.cards.remove(card.id)
+      }
+    }
+    
+    let incidentContent
+    incidentContent = engine.locale('entityDismantle', interpolations: [
+      hero.name,
+      card.name,
+    ])
+    if (incurIncident) {
+      Incident(
+        message: incidentContent,
+        subjectId: hero.id,
+        card: card,
+        isPrivate: true,
+      )
+    } else {
+      engine.debug(incidentContent)
+    }
+
+    return price
   }
 
   // 使用食物或者丹药
@@ -378,14 +414,19 @@ namespace Player {
 
   function levelUp({ incurIncident = true }) {
     assert(hero != null)
-    let expRequirement = expForLevel(hero.level)
-    if (hero.exp < expRequirement) {
-      engine.warn('not enough exp for level up! current level: [${hero.level}], exp needed: [${expRequirement}]')
+    final levelMax = maxLevelForRank(hero.rank)
+    if (hero.level >= levelMax) {
+      engine.warn('角色已达到游戏允许的最高等级，无法再提升！等级：[${hero.level}], 当前境界：[${hero.rank}]')
+      return
+    }
+    if (hero.level >= kCurrentVersionCultivationLevelMax) {
+      engine.warn('角色已达到版本允许的最高等级，无法再提升！等级：[${hero.level}], 当前境界：[${hero.rank}]')
       return
     }
 
-    if (hero.level >= hero.levelMax) {
-      engine.warn('character reached max level for current rank! current level: [${hero.level}], current rank: [${hero.rank}]')
+    let expRequirement = expForLevel(hero.level)
+    if (hero.exp < expRequirement) {
+      engine.warn('没有足够的经验值用来提升等级！当前经验值：[${hero.exp}], 需要的经验值：[${expRequirement}]')
       return
     }
 
@@ -413,14 +454,17 @@ namespace Player {
 
   function rankUp({ incurIncident = true }) {
     assert(hero != null)
+    if (hero.rank >= kCurrentVersionCultivationRankMax ) {
+      engine.error('角色已达到版本允许的最高境界，无法再提升！当前境界: [${hero.rank}]')
+      return
+    }
+
     if (hero.rank >= kCultivationRankMax ) {
-      engine.error('character reached max rank! current rank: [${hero.rank}]')
+      engine.error('角色已达到游戏允许的最高境界，无法再提升！当前境界: [${hero.rank}]')
       return
     }
 
     ++hero.rank
-    
-    hero.levelMax = maxLevelForRank(hero.rank)
 
     const incidentContent = engine.locale('characterCultivationRankUp', interpolations: [
       hero.name,

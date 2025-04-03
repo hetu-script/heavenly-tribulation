@@ -7,7 +7,7 @@ import 'common.ht'
 const _kLinkWord = '之'
 
 function generateZoneName({category: string}) {
-  assert(category in zoneNames.keys)
+  assert(category in zoneNames.keys, category)
   const kind = random.nextIterable(zoneNames[category])
   let name
   const r = random.nextDouble()

@@ -1,7 +1,16 @@
-fun gradualValue(input, target, {rate = 0.5}) {
-  return target * (1 - Math.exp(-rate * input))
+fun gradualValue(input, target, {power = 0.1}) {
+  assert(input >= 0 && input <= target)
+  let ratio = input / target
+  return Math.pow(ratio, 1 / power).toFixed(2)
 }
 
-for (var i in range(0, 10)) {
-  print(gradualValue(i, 10))
+// fun gradualValue2(input, target, {midpoint = 0.8, rate = 0.1}) {
+//   assert(input >= 0 && input <= target)
+//   final progress = input / target
+//   final curve = (progress - midpoint) * progress * (1 - progress) * rate
+//   return (progress + curve).clamp(0.0, 1.0)
+// }
+
+for (var i in range(21)) {
+  print('${i}, i1:', gradualValue(i, 20))
 }

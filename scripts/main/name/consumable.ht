@@ -18,6 +18,7 @@ const commonConsumableNames = [
 // 生成方剂、饮品、灵丹的名字
 function generateConsumableName({category: string, rarity: string}) {
   assert(consumableNames.keys.contains(category))
+  assert(consumableNames.keys.contains(category), category)
   rarity ??= getRarity().rarity
   const kind = random.nextIterable(consumableNames[category])
   let commonPrefix

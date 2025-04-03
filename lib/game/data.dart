@@ -14,10 +14,13 @@ import 'ui.dart';
 import '../common.dart';
 import '../engine.dart';
 import '../scene/common.dart';
-import '../state/hoverinfo.dart';
+import 'logic.dart';
 
 /// Unicode Character "⎯" (U+23AF)
 const kSeparateLine = '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯';
+
+/// Unicode Character "∕" (U+2215)
+const kSlash = '∕';
 
 abstract class GameMusic {
   static const menu = 'chinese-oriental-tune-06-12062.mp3';
@@ -66,6 +69,12 @@ abstract class GameData {
 
   static bool _isInitted = false;
   static bool get isInitted => _isInitted;
+
+  /// wether started a new game or load from a save.
+  // static bool isGameCreated = false;
+
+  static String? currentWorldId;
+  static Set<String> worldIds = {};
 
   static Future<void> init() async {
     final animationsDataString =
@@ -156,27 +165,36 @@ abstract class GameData {
             nodeDescription.writeln('<italic grey>$comment</>\n ');
           }
         }
-        final List nodeData = passiveTreeNodeData['passives'];
-        for (final passiveData in nodeData) {
-          final dataId = passiveData['id'];
-          final passiveRawData = GameData.passives[dataId];
-          assert(passiveRawData != null, 'passiveData: $passiveData');
-          String description = engine.locale(passiveRawData['description']);
-          if (passiveRawData['increment'] != null) {
-            final level = passiveData['level'];
-            final increment = passiveRawData['increment'];
-            description =
-                description.interpolate([(level * increment).round()]);
+        final passivesData = passiveTreeNodeData['passives'];
+        assert(
+            passivesData is List, 'passiveTreeNodeData: $passiveTreeNodeData');
+        for (final passiveData in passivesData) {
+          final String dataId = passiveData['id'];
+          String? description = passiveData['description'];
+          if (description == null) {
+            final passiveRawData = GameData.passives[dataId];
+            assert(passiveRawData != null, 'passiveData: $passiveData');
+            description = engine.locale(passiveRawData['description']);
+            if (passiveRawData['increment'] != null) {
+              final level = passiveData['level'];
+              assert(level is int, 'passiveData: $passiveData');
+              final increment = passiveRawData['increment'];
+              assert(increment is num, 'passiveRawData: $passiveRawData');
+              description =
+                  description.interpolate([(level * increment).round()]);
+            }
+          } else {
+            description = engine.locale(description);
           }
           nodeDescription.writeln('<lightBlue>$description</>');
         }
       }
 
-      final rankRequirement = passiveTreeNodeData['rank'] ?? 0;
-      if (rankRequirement > 0) {
-        nodeDescription.writeln(
-            ' \n<grey>${engine.locale('requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}</>');
-      }
+      // final requirement = passiveTreeNodeData['requirement'];
+      // if (requirement != null) {
+      //   nodeDescription.writeln(
+      //       ' \n<grey>${engine.locale('requirement')}: ${engine.locale('cultivationRank_$requirement')}</>');
+      // }
 
       passiveTreeNodeData['description'] = nodeDescription.toString();
     }
@@ -207,9 +225,6 @@ abstract class GameData {
       }
     }
   }
-
-  /// wether started a new game or load from a save.
-  static bool isGameCreated = false;
 
   /// 将dart侧从json5载入的游戏数据保存到游戏存档中
   static void initGameData() {
@@ -261,11 +276,8 @@ abstract class GameData {
       await registerModuleEventHandlers();
     }
 
-    isGameCreated = true;
+    // isGameCreated = true;
   }
-
-  static String? currentWorldId;
-  static Set<String> worldIds = {};
 
   static Future<void> _loadGame({
     required dynamic game,
@@ -287,7 +299,7 @@ abstract class GameData {
       await registerModuleEventHandlers();
     }
 
-    isGameCreated = true;
+    // isGameCreated = true;
 
     gameData = engine.hetu.fetch('game');
     universeData = engine.hetu.fetch('universe');
@@ -351,45 +363,58 @@ abstract class GameData {
     );
   }
 
-  static SpriteAnimationWithTicker createAnimationFromData(
-      String path, String state) {
+  static dynamic getCharacter(String id) {
+    final characterData = gameData['characters'][id];
+    if (characterData == null) {
+      throw '无法找到角色，id: [$id]';
+    }
+    return characterData;
+  }
+
+  static Future<SpriteAnimationWithTicker> createAnimationFromData(
+      String path, String state) async {
     final cacheId = '$path/$state';
     final cachedAnim = _cachedAnimations[cacheId];
     if (cachedAnim != null) {
+      if (!cachedAnim.isLoaded) {
+        await cachedAnim.load();
+      }
       return cachedAnim.clone();
+    } else {
+      final animData = GameData.animationsData[path][state];
+      if (animData == null) {
+        final err = 'Could not found animation state data for [$path/$state]';
+        engine.error(err);
+        throw err;
+      }
+      double? srcWidth = animData['width'];
+      double? srcHeight = animData['height'];
+      assert(srcWidth != null && srcHeight != null);
+      final Vector2 srcSize = Vector2(srcWidth!, srcHeight!);
+      SpriteSheet? spriteSheet = GameData.spriteSheets[animData['spriteSheet']];
+      double offsetX = animData['offsetX'] ?? 0;
+      double offsetY = animData['offsetY'] ?? 0;
+      final anim = SpriteAnimationWithTicker(
+        animationId: animData['assetId'],
+        spriteSheet: spriteSheet,
+        srcSize: srcSize,
+        renderRect: Rect.fromLTWH(
+          offsetX,
+          offsetY,
+          srcWidth * kSpriteScale,
+          srcHeight * kSpriteScale,
+        ),
+        stepTime: animData['stepTime'] ?? kDefaultAnimationStepTime,
+        loop: animData['loop'] ?? false,
+        scale: animData['scale'] ?? kSpriteScale,
+        from: animData['from'],
+        to: animData['to'],
+        row: animData['row'],
+      );
+      _cachedAnimations[cacheId] = anim;
+      await anim.load();
+      return anim;
     }
-    final animData = GameData.animationsData[path][state];
-    if (animData == null) {
-      final err = 'Could not found animation state data for [$path/$state]';
-      engine.error(err);
-      throw err;
-    }
-    double? srcWidth = animData['width'];
-    double? srcHeight = animData['height'];
-    assert(srcWidth != null && srcHeight != null);
-    final Vector2 srcSize = Vector2(srcWidth!, srcHeight!);
-    SpriteSheet? spriteSheet = GameData.spriteSheets[animData['spriteSheet']];
-    double offsetX = animData['offsetX'] ?? 0;
-    double offsetY = animData['offsetY'] ?? 0;
-    final anim = SpriteAnimationWithTicker(
-      animationId: animData['assetId'],
-      spriteSheet: spriteSheet,
-      srcSize: srcSize,
-      renderRect: Rect.fromLTWH(
-        offsetX,
-        offsetY,
-        srcWidth * kSpriteScale,
-        srcHeight * kSpriteScale,
-      ),
-      stepTime: animData['stepTime'] ?? kDefaultAnimationStepTime,
-      loop: animData['loop'] ?? false,
-      scale: animData['scale'] ?? kSpriteScale,
-      from: animData['from'],
-      to: animData['to'],
-      row: animData['row'],
-    );
-    _cachedAnimations[cacheId] = anim;
-    return anim;
   }
 
   static CustomGameCard createSiteCardFromData(dynamic siteData) {
@@ -448,76 +473,9 @@ abstract class GameData {
     return exit;
   }
 
-  static int calculateItemPrice(dynamic itemData,
-      {dynamic priceFactor, bool isSell = false}) {
-    final price = itemData['price'] ?? 0;
-
-    if (priceFactor == null) {
-      return price;
-    } else {
-      final double base = priceFactor['base'] ?? kBaseBuyRate;
-      final double sell = priceFactor['sell'] ?? kBaseSellRate;
-
-      final double category =
-          priceFactor['category']?[itemData['category']] ?? 1.0;
-      final double kind = priceFactor['kind']?[itemData['kind']] ?? 1.0;
-      final double id = priceFactor['id']?[itemData['id']] ?? 1.0;
-
-      double finalPrice = isSell
-          ? price * sell * category * kind * id
-          : price * base * category * kind * id;
-
-      if (priceFactor['useShard'] == true) {
-        finalPrice /= kMoneyToShardRate;
-      }
-
-      return finalPrice.ceil();
-    }
-  }
-
-  static List<dynamic> getFilteredItems(
-    dynamic characterData, {
-    required ItemType type,
-    dynamic filter,
-  }) {
-    final inventoryData = characterData['inventory'];
-
-    final String? category = filter?['category'];
-    final String? kind = filter?['kind'];
-    final String? id = filter?['id'];
-    final bool? isIdentified = filter?['isIdentified'];
-
-    final filteredItems = [];
-    for (var itemData in inventoryData.values) {
-      if (itemData['equippedPosition'] != null) {
-        continue;
-      }
-      if (category != null && category != itemData['category']) {
-        continue;
-      }
-      if (kind != null && kind != itemData['kind']) {
-        continue;
-      }
-      if (id != null && id != itemData['id']) {
-        continue;
-      }
-      if (isIdentified != null && isIdentified != itemData['isIdentified']) {
-        continue;
-      }
-      if (type == ItemType.customer || type == ItemType.merchant) {
-        if (kUntradableItemKinds.contains(itemData['kind'])) {
-          continue;
-        }
-      }
-
-      filteredItems.add(itemData);
-    }
-
-    return filteredItems;
-  }
-
-  static String getHeroPassivesDescription() {
-    final passivesData = GameData.heroData['passives'];
+  static String getPassivesDescription([dynamic characterData]) {
+    characterData ??= GameData.heroData;
+    final passivesData = characterData['passives'];
     StringBuffer builder = StringBuffer();
     builder.writeln(engine.locale('passivetree_hero_skills_description_title'));
     builder.writeln(' ');
@@ -533,7 +491,7 @@ abstract class GameData {
       });
       for (final skillData in skillList) {
         String description;
-        if ((skillData['id'] as String).startsWith('rank_')) {
+        if ((skillData['id'] as String).endsWith('_rank')) {
           final int rank = skillData['level'];
           assert(rank > 0);
           final rankString = engine.locale('cultivationRank_$rank');
@@ -556,6 +514,7 @@ abstract class GameData {
     dynamic priceFactor,
     bool isSell = false,
     bool isDetailed = false,
+    bool showDetailedHint = true,
   }) {
     final description = StringBuffer();
     final title = itemData['name'];
@@ -590,6 +549,13 @@ abstract class GameData {
 
     description.writeln(titleString);
     description.writeln('$rarityString$categoryString$priceString');
+
+    // description.writeln(kSeparateLine);
+    final flavortext = itemData['flavortext'];
+    if (flavortext != null) {
+      description.writeln('<grey>$flavortext</>');
+    }
+
     final chargeData = itemData['chargeData'];
     if (isIdentified && chargeData != null) {
       final int maxCharge = chargeData['max'];
@@ -604,10 +570,11 @@ abstract class GameData {
           '<lightBlue>${engine.locale('shardsPerCharge', interpolations: [
             shardsPerCharge,
           ])}</>');
+      description.writeln(kSeparateLine);
     }
-    description.writeln(kSeparateLine);
 
     final extraDescription = StringBuffer();
+    final Map<String, String> explanations = {};
     final affixList = itemData['affixes'];
     if (affixList is List && affixList.isNotEmpty) {
       for (var i = 0; i < affixList.length; i++) {
@@ -623,6 +590,15 @@ abstract class GameData {
           //   description.writeln(kSepareteLine);
           // }
         } else {
+          final passiveRawData = passives[passiveData['id']];
+          final List? tags = passiveRawData['tags'];
+          if (tags != null && tags.isNotEmpty) {
+            for (final tag in tags) {
+              explanations[tag] =
+                  '<grey>「${engine.locale(tag)}」- ${engine.locale('${tag}_description')}</>';
+            }
+          }
+
           if (isDetailed) {
             final level = passiveData['level'];
             final levelString =
@@ -636,16 +612,27 @@ abstract class GameData {
       }
     }
 
-    if (!isIdentified && extraDescription.isNotEmpty) {
-      description.writeln('<red>${engine.locale('unidentified')}</>');
+    if (!isIdentified) {
+      if (extraDescription.isNotEmpty) {
+        description.writeln('<red>${engine.locale('unidentified')}</>');
+      }
     } else {
-      description.write(extraDescription.toString());
+      if (extraDescription.isNotEmpty) {
+        description.writeln(kSeparateLine);
+        description.write(extraDescription.toString());
+      }
     }
 
-    // description.writeln(kSeparateLine);
-    final flavortext = itemData['flavortext'];
-    if (flavortext != null) {
-      description.writeln('<grey>$flavortext</>');
+    if (isIdentified && explanations.isNotEmpty) {
+      if (isDetailed) {
+        description.writeln(kSeparateLine);
+        for (final tag in explanations.keys) {
+          description.writeln(explanations[tag]);
+        }
+      } else if (showDetailedHint) {
+        description.writeln(kSeparateLine);
+        description.writeln('<grey>${engine.locale('explanation_hint')}</>');
+      }
     }
 
     if (priceFactor == null) {
@@ -663,7 +650,7 @@ abstract class GameData {
       }
     } else {
       final useShard = priceFactor['useShard'] == true;
-      final price = calculateItemPrice(
+      final price = GameLogic.calculateItemPrice(
         itemData,
         priceFactor: priceFactor,
         isSell: isSell,
@@ -677,8 +664,12 @@ abstract class GameData {
   }
 
   /// 返回值是一个元祖，第一个字符串是卡面描述，第二个是详细描述
-  static (String, String) getDescriptionFromCardData(dynamic cardData,
-      {dynamic characterData, bool isDetailed = false}) {
+  static (String, String) getDescriptionFromCardData(
+    dynamic cardData, {
+    dynamic characterData,
+    bool isDetailed = false,
+    bool showDetailedHint = true,
+  }) {
     final List affixes = cardData['affixes'];
     final int cardLevel = cardData['level'];
     final int cardRank = cardData['rank'];
@@ -718,14 +709,8 @@ abstract class GameData {
       if (isIdentified) {
         final bool isMainAffix = affix['isMain'] ?? false;
 
-        if (isMainAffix && characterData != null) {
-          final String? equipment = affix['equipment'];
-          if (equipment != null) {
-            if (characterData['passives']['equipment_$equipment'] == null) {
-              requirementString =
-                  '<red>${engine.locale('equipment_requirement')}: ${engine.locale(equipment)}</>';
-            }
-          }
+        if (isMainAffix && isIdentified && characterData != null) {
+          requirementString = GameLogic.checkRequirements(affix);
         }
 
         for (var line in affixDescription) {
@@ -741,8 +726,8 @@ abstract class GameData {
           }
         }
 
-        final Iterable tags = affix['tags'];
-        if (tags.isNotEmpty) {
+        final List? tags = affix['tags'];
+        if (tags != null && tags.isNotEmpty) {
           for (final tag in tags) {
             explanations[tag] =
                 '<grey>「${engine.locale(tag)}」- ${engine.locale('${tag}_description')}</>';
@@ -759,12 +744,13 @@ abstract class GameData {
     }
 
     if (explanations.isNotEmpty) {
-      extraDescription.writeln(kSeparateLine);
       if (isDetailed) {
+        extraDescription.writeln(kSeparateLine);
         for (final tag in explanations.keys) {
           extraDescription.writeln(explanations[tag]);
         }
-      } else {
+      } else if (showDetailedHint) {
+        extraDescription.writeln(kSeparateLine);
         extraDescription
             .writeln('<grey>${engine.locale('explanation_hint')}</>');
       }

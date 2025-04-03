@@ -6,6 +6,7 @@ import 'package:samsara/richtext.dart';
 
 import '../../engine.dart';
 import '../../game/ui.dart';
+import '../../game/data.dart';
 import '../common.dart';
 import '../../state/view_panels.dart';
 import '../draggable_panel.dart';
@@ -44,11 +45,11 @@ class _QuestViewState extends State<QuestView> {
   void initState() {
     super.initState();
 
+    assert(widget.characterId != null || widget.characterData != null);
     if (widget.characterData != null) {
       _characterData = widget.characterData!;
     } else {
-      _characterData = engine.hetu
-          .invoke('getCharacterById', positionalArgs: [widget.characterId]);
+      _characterData = GameData.getCharacter(widget.characterId!);
     }
     _questsData = _characterData['quests'];
 
@@ -100,7 +101,7 @@ class _QuestViewState extends State<QuestView> {
     return DraggablePanel(
       title: engine.locale('quest'),
       position: position,
-      width: GameUI.profileWindowWidth,
+      width: GameUI.profileWindowSize.x,
       height: 400.0,
       onTapDown: (offset) {
         context.read<ViewPanelState>().setUpFront(ViewPanels.characterQuest);

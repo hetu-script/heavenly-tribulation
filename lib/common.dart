@@ -24,6 +24,10 @@ enum SceneStates {
   cardLibrary,
 }
 
+/// 当前版本等级限制为50
+const kCurrentVersionCultivationLevelMax = 50;
+const kCurrentVersionCultivationRankMax = 3;
+
 const kPersonalities = [
   'idealistic',
   'orderly',
@@ -122,37 +126,20 @@ const kCardKinds = [
   // 'earthbend',
   // 'wood_control',
   // 'scripture',
-  // 'poison',
+  // 'sigil',
   // 'curse',
   // 'music',
 ];
 
-const kWeaponKinds = [
-  // 'sabre',
-  'sword',
-  // 'spear',
-  // 'staff',
-  // 'dart',
-];
-
-const kWearingKinds = [
-  'armor',
-  'boots',
-  'amulet',
-  'vehicle',
-];
-
-const kOtherTalismanKinds = [
-  'buff',
-  'ongoing',
-  'consume',
-];
-
 const kRestrictedEquipmentTypes = {
   'weapon',
+  'shield',
   'armor',
+  'gloves',
   'helmet',
   'boots',
+  'ship',
+  'aircraft',
 };
 
 const kCityKinds = [
@@ -210,7 +197,7 @@ Color getColorFromRank(int rank) {
     1 => HexColor.fromString('#CCCCCC'),
 
     /// 筑基 白
-    2 => HexColor.fromString('#FFFFFF'),
+    2 => HexColor.fromString('#FFFFD4'),
 
     /// 结丹 蓝
     3 => HexColor.fromString('#9D9DFF'),
@@ -221,7 +208,7 @@ Color getColorFromRank(int rank) {
     /// 化神 橙
     5 => HexColor.fromString('#C5C660'),
 
-    /// 炼虚 金
+    /// 洞虚 金
     6 => HexColor.fromString('#62CC39'),
 
     /// 合体 暗金
@@ -344,7 +331,6 @@ abstract class AttackType {
   static const weapon = 'weapon';
   static const spell = 'spell';
   static const curse = 'curse';
-  static const chaos = 'chaos';
 }
 
 const Set<String> kAttackTypes = {
@@ -352,14 +338,13 @@ const Set<String> kAttackTypes = {
   AttackType.weapon,
   AttackType.spell,
   AttackType.curse,
-  AttackType.chaos,
 };
 
 abstract class DamageType {
   static const physical = 'physical';
   static const chi = 'chi';
   static const elemental = 'elemental';
-  static const spiritual = 'spiritual';
+  static const psychic = 'psychic';
   static const pure = 'pure';
 }
 
@@ -367,7 +352,7 @@ const Set<String> kDamageTypes = {
   DamageType.physical,
   DamageType.chi,
   DamageType.elemental,
-  DamageType.spiritual,
+  DamageType.psychic,
   DamageType.pure,
 };
 
@@ -387,4 +372,14 @@ const kUntradableItemKinds = {
   'worker',
 };
 
-const kAttributeAnyLevel = 3;
+const kAttributeAnyLevel = 6;
+const kBaseResistMax = 75;
+
+const kAffixOperations = [
+  'addAffix',
+  'rerollAffix',
+  'replaceAffix',
+  'upgradeCard',
+  'upgradeRank',
+  'dismantle',
+];

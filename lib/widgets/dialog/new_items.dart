@@ -62,7 +62,7 @@ class NewItems extends StatelessWidget {
                                     onMouseEnter: (itemData, rect) {
                                       context
                                           .read<HoverInfoContentState>()
-                                          .set(itemData, rect);
+                                          .show(itemData, rect);
                                     },
                                     onMouseExit: () {
                                       context

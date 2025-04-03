@@ -43,11 +43,11 @@ class EquipmentBar extends StatelessWidget {
               case ItemType.player:
                 context
                     .read<HoverInfoContentState>()
-                    .set(itemData, type: type, data2: characterData, rect);
+                    .show(itemData, type: type, data2: characterData, rect);
               default:
                 context
                     .read<HoverInfoContentState>()
-                    .set(itemData, type: type, rect);
+                    .show(itemData, type: type, rect);
             }
           },
           onMouseExit: () {

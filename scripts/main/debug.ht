@@ -5,12 +5,6 @@ import 'game/dialog.ht'
 import 'world/tile/hexagonal_tile.ht'
 import 'random.ht'
 
-const kDebugEquipments = [
-  'sword',
-  'sabre',
-  'staff',
-  'dart',
-]
 
 namespace Debug {
 
@@ -30,6 +24,7 @@ namespace Debug {
     hero.unconvertedExp = 2000
     hero.materials.money = 5000
     hero.materials.shard = 5000
+    hero.karma = 50
 
     setHeroId('hero')
 
@@ -39,20 +34,23 @@ namespace Debug {
 
   function testItem([character]) {
     character ??= hero
-    final item = Equipment(
-      kind: kDebugEquipments.random,
-      rank: character.rank,
-    )
-    entityAcquire(character, item)
-
-    final packs = []
-    for (var i in range(9)) {
-      final pack = Cardpack(rank: character.rank)
-      packs.add(pack)
-      entityAcquire(character, pack)
+    final items = []
+    for (var kind in kEquipmentKinds) {
+      final item = Equipment(kind: kind, rank: character.rank)
+      items.add(item)
+      entityAcquire(character, item)
     }
 
-    final shardPack = Materialpack(kind: 'shard', amount: 5000)
+    final packs = []
+    for (var genre in kCardGenres) {
+      for (var i in range(3)) {
+        final pack = Cardpack(genre: genre, rank: character.rank)
+        packs.add(pack)
+        entityAcquire(character, pack)
+      }
+    }
+
+    final shardPack = Materialpack(kind: 'shard', amount: 200)
     entityAcquire(character, shardPack)
 
     final moneyPack = Materialpack(kind: 'money', amount: 5000)
@@ -62,7 +60,7 @@ namespace Debug {
     entityAcquire(character, scroll)
 
     if (character == hero) {
-      Game.promptNewItems([...packs, item, shardPack, moneyPack, scroll])
+      Game.promptNewItems([...packs, ...items, shardPack, moneyPack, scroll])
     }
   }
 
@@ -111,13 +109,13 @@ namespace Debug {
 
   function debugDialog() {
     Dialog.pushLocales(
-      'debug_dialog_content1',
+      'debugDialog_content1',
       displayName: '凌初雪',
       icon: 'story/illustration/ling_chuxue_head.png',
       image: 'story/illustration/ling_chuxue.png'
     )
     Dialog.pushLocales(
-      'debug_dialog_content2',
+      'debugDialog_content2',
       displayName: '萧墨',
       icon: 'story/illustration/xiaomo_head.png',
       image: 'story/illustration/xiaomo.png'

@@ -29,6 +29,7 @@ const _kSkillNumfixProbability = 0.075
 
 function generateSkillName({kind}) {
   kind ??= random.nextIterable(skillNames.keys)
+  assert(kind in skillNames.keys, kind)
   final kindNames = skillNames[kind]
   assert(kindNames != null && kindNames.isNotEmpty)
   let end = random.nextIterable(kindNames)

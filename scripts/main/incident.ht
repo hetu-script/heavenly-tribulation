@@ -19,7 +19,6 @@ struct Incident {
     orderly = 0,
     goodwill = 0,
   }) {
-    assert(message?.isNotEmpty)
     assert(subjectId != null)
     this.message = message
     this.isGlobal = isGlobal
@@ -119,7 +118,7 @@ function calculateCharacterScoreOfIncident(character, incident) {
 /// 角色听说某个之前其他角色经历的事件
 /// witnessed 代表当面见证一个自己没有参与的事件
 function characterKnowIncident(character, incident, { witnessed }) {
-  assert(character.entityType == 'character')
+  assert(character.entityType == 'character', 'incorrect entity type for [characterKnowIncident]: ${character.entityType}')
 
   // 为了兼容性，如果没有事件数组，就创建一个
   if (character.known == null) {

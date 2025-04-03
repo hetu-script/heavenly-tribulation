@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flame/components.dart';
 import 'package:flutter/gestures.dart';
 import 'package:samsara/cardgame/cardgame.dart';
@@ -6,11 +8,13 @@ import 'package:samsara/components/sprite_component2.dart';
 import 'package:samsara/components.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:samsara/utils/math.dart';
 
 import '../../widgets/dialog/confirm.dart';
 import 'library_zone.dart';
 import 'deckbuilding_zone.dart';
 import '../../game/ui.dart';
+import '../../game/logic.dart';
 import '../../engine.dart';
 import 'common.dart';
 // import 'cardcrafting_area.dart';
@@ -20,16 +24,14 @@ import '../../widgets/ui_overlay.dart';
 import 'menus.dart';
 import '../game_dialog/game_dialog_content.dart';
 import '../common.dart';
+import '../../common.dart';
+import '../particles/light_point.dart';
 
-const kAffixOperations = [
-  'addAffix',
-  'rerollAffix',
-  'replaceAffix',
-  'upgradeCard',
-  'upgradeRank',
-];
+const kMaxLightPointCount = 20;
 
 class CardLibraryScene extends Scene {
+  static final random = math.Random();
+
   CardLibraryScene({required super.context}) : super(id: Scenes.cardlibrary);
 
   late final SpriteComponent background;
@@ -61,38 +63,81 @@ class CardLibraryScene extends Scene {
 
   late final SpriteButton collectButton;
 
+  late final RichTextComponent expLabel;
+
   late final SpriteButton closeCraftButton;
 
   CustomGameCard? draggingCard;
 
   CustomGameCard? _craftingCard;
+  CustomGameCard? get craftingCard => _craftingCard;
 
   final List<SpriteButton> _craftOptionButtons = [];
 
-  Future<void> _onEnterScene() async {
+  final List<LightPoint> _lightPoints = [];
+
+  final List<PointOnCircle> _lightPointsPositions = [];
+
+  /// 最多只显示 4 个光点
+  void addExpLightPoints() {
+    final int exp = GameData.heroData['unconvertedExp'];
+    int lightCount = 0;
+    if (exp > 0) {
+      lightCount = exp ~/ 1000 + 1;
+    }
+    if (lightCount > kMaxLightPointCount) {
+      lightCount = kMaxLightPointCount;
+    }
+    while (_lightPoints.length < lightCount) {
+      final lightPoint = LightPoint(
+        position: _lightPointsPositions.random.position,
+        priority: kBarrierPriority,
+        preferredSize: Vector2(20, 20),
+        flickerRate: 8,
+      );
+      _lightPoints.add(lightPoint);
+      camera.viewport.add(lightPoint);
+    }
+
+    while (_lightPoints.length > lightCount) {
+      final point = _lightPoints.last;
+      point.removeFromParent();
+      _lightPoints.removeLast();
+    }
+  }
+
+  void updateExpLabel() {
+    final int exp = GameData.heroData['unconvertedExp'];
+    // final int expMax = GameData.heroData['expMax'];
+    expLabel.text = '${engine.locale('unconvertedExp')}: $exp'; // ∕$expMax';
+  }
+
+  Future<void> _enterScene() async {
+    // engine.log('CardLibraryScene: onEnterScene');
+
+    context.read<EnemyState>().setPrebattleVisible(false);
+    context.read<HoverInfoContentState>().hide();
+    context.read<ViewPanelState>().clearAll();
+
+    libraryZone.updateHeroLibrary();
+
     libraryZone.repositionToTop();
     deckPilesContainer.position.y = GameUI.decksZoneBackgroundPosition.y;
 
-    engine.hetu.invoke('onGameEvent', positionalArgs: ['onEnterCardLibrary']);
+    updateExpLabel();
+    addExpLightPoints();
 
-    libraryZone.updateHeroLibrary();
-  }
-
-  @override
-  void onMount() {
-    super.onMount();
-
-    _onEnterScene();
-  }
-
-  @override
-  void onStart([Map<String, dynamic> arguments = const {}]) {
-    super.onStart(arguments);
-
-    if (isLoaded) {
-      _onEnterScene();
+    for (final deckZone in deckPiles) {
+      deckZone.updateDeckLimit();
     }
+
+    engine.hetu.invoke('onGameEvent', positionalArgs: ['onEnterCardLibrary']);
   }
+
+  // @override
+  // void onStart([Map<String, dynamic> arguments = const {}]) {
+  //   super.onStart(arguments);
+  // }
 
   void cardDragStart(CustomGameCard card) {
     final CustomGameCard clone = card.clone();
@@ -177,8 +222,8 @@ class CardLibraryScene extends Scene {
         '${engine.locale('deckbuilding_limit')}: ${_currentBuildingZone!.limit}');
     detailedCount.writeln(
         '${engine.locale('deckbuilding_limit_ephemeral')}: ${_currentBuildingZone!.ephemeralCount}/${_currentBuildingZone!.limitEphemeralMax}');
-    detailedCount.writeln(
-        '${engine.locale('deckbuilding_limit_ongoing')}: ${_currentBuildingZone!.ongoingCount}/${_currentBuildingZone!.limitOngoingMax}');
+    // detailedCount.writeln(
+    //     '${engine.locale('deckbuilding_limit_ongoing')}: ${_currentBuildingZone!.ongoingCount}/${_currentBuildingZone!.limitOngoingMax}');
     cardCount.text = detailedCount.toString();
   }
 
@@ -303,7 +348,7 @@ class CardLibraryScene extends Scene {
       index: deckPiles.length,
       position: Vector2(0,
           deckPiles.length * (GameUI.deckbuildingCardSize.y + GameUI.indent)),
-      // priority: kDeckPilesZonePriority,
+      priority: kDeckPilesZonePriority,
       onEditDeck: (buildingZone) => onEditDeck(buildingZone),
       onOpenDeckMenu: (buildingZone) => onOpenDeckMenu(buildingZone),
       onDeckEdited: (buildingZone) => _updateCardCount(buildingZone),
@@ -358,23 +403,28 @@ class CardLibraryScene extends Scene {
       target: _craftingCard!,
       direction: HovertipDirection.rightTop,
       content: description,
-      config: ScreenTextConfig(anchor: Anchor.topCenter),
+      config: ScreenTextConfig(
+        anchor: Anchor.topCenter,
+        textAlign: TextAlign.center,
+      ),
       width: kCraftingCardInfoWidth,
     );
   }
 
-  void _affixOperation(CustomGameCard? card, String id) {
-    if (card == null) {
-      GameDialogContent.show(
-          context, engine.locale('deckbuilding_no_card_hint'));
-      return;
-    }
+  void _affixOperation(CustomGameCard card, String id) {
+    assert(kAffixOperations.contains(id));
+
+    // if (card == null) {
+    //   GameDialogContent.show(
+    //       context, engine.locale('deckbuilding_no_card_hint'));
+    //   return;
+    // }
 
     final result = engine.hetu.invoke(id, positionalArgs: [card.data]);
 
     if (result != null) {
-      // 如果不能进行精炼，返回的是错误信息的本地化字符串key
-      GameDialogContent.show(context, engine.locale(result));
+      // 返回的是提示的文本信息
+      GameDialogContent.show(context, result);
     } else {
       engine.play('hammer-hitting-an-anvil-25390.mp3');
 
@@ -392,6 +442,17 @@ class CardLibraryScene extends Scene {
       final (description, _) = GameData.getDescriptionFromCardData(card.data);
       card.description = description;
       _showCraftingCardInfo();
+      updateExpLabel();
+    }
+
+    if (id == 'dismantle') {
+      libraryZone.removeCard(card.id);
+      for (final pile in deckPiles) {
+        pile.removeCardById(card.id);
+      }
+
+      onEndCraft();
+      updateExpLabel();
     }
   }
 
@@ -407,14 +468,28 @@ class CardLibraryScene extends Scene {
     button.onTapUp = (buttons, position) {
       assert(_craftingCard != null);
       Hovertip.hide(button);
-      _affixOperation(_craftingCard, id);
+      _affixOperation(_craftingCard!, id);
     };
     button.onMouseEnter = () {
+      assert(_craftingCard != null);
+      final expCost = GameLogic.getAffixOperationCost(id, _craftingCard!.data);
+
+      String content = engine.locale('deckbuilding_${id}_description');
+      if (expCost > 0) {
+        if (id == 'dismantle') {
+          content +=
+              '\n${engine.locale('deckbuilding_gain')}: <yellow>${expCost.toString()}</>';
+        } else {
+          content +=
+              '\n${engine.locale('deckbuilding_cost')}: <yellow>${expCost.toString()}</>';
+        }
+      }
+
       Hovertip.show(
         scene: this,
         target: button,
-        direction: HovertipDirection.rightCenter,
-        content: engine.locale('deckbuilding_${id}_description'),
+        direction: HovertipDirection.leftCenter,
+        content: content,
         config: ScreenTextConfig(anchor: Anchor.topCenter),
       );
     };
@@ -436,6 +511,7 @@ class CardLibraryScene extends Scene {
 
     skillBook.enableGesture = false;
     barrier.isVisible = true;
+    // expLabel.isVisible = true;
     closeCraftButton.isVisible = true;
     for (final button in _craftOptionButtons) {
       button.isVisible = true;
@@ -470,6 +546,7 @@ class CardLibraryScene extends Scene {
 
     skillBook.enableGesture = true;
     barrier.isVisible = false;
+    // expLabel.isVisible = true;
     closeCraftButton.isVisible = false;
     for (final button in _craftOptionButtons) {
       button.isVisible = false;
@@ -485,9 +562,9 @@ class CardLibraryScene extends Scene {
 
   void updateCardData(CustomGameCard card) {
     final libraryCard = libraryZone.library[card.id];
-    assert(libraryCard != null);
+    if (libraryCard == null) return;
 
-    libraryCard!.description = card.description;
+    libraryCard.description = card.description;
 
     for (final zone in deckPiles) {
       if (zone.cards.isNotEmpty) {
@@ -626,11 +703,29 @@ class CardLibraryScene extends Scene {
             },
           );
 
-          engine.hetu.invoke('acquireBattleCard',
+          engine.hetu.invoke('acquireCard',
               namespace: 'Player', positionalArgs: [cardData]);
         }
       }
+
       libraryZone.updateHeroLibrary();
+    }
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    for (final point in _lightPoints) {
+      if (!point.isMoving) {
+        final targetPosition = _lightPointsPositions.random;
+        point.moveTo(
+          duration: random.nextDouble() * 2 + 2,
+          delay: random.nextDouble() * 2 + 2,
+          toPosition: targetPosition.position,
+          curve: Curves.easeOut,
+        );
+      }
     }
   }
 
@@ -639,6 +734,12 @@ class CardLibraryScene extends Scene {
     super.onLoad();
 
     _heroDecks = GameData.heroData['battleDecks'];
+
+    _lightPointsPositions.addAll(generateDividingPointsFromCircle(
+      center: GameUI.cardLibraryExpLabelPosition,
+      radius: 40,
+      number: 20,
+    ));
 
     barrier = SpriteComponent2(
       size: size,
@@ -883,7 +984,10 @@ class CardLibraryScene extends Scene {
         'cardpack',
       ]);
 
+      final battleCardCount = GameData.heroData['cardLibrary'].length;
+
       final cardpackHint =
+          '${engine.locale('ownedBattleCard')}: <bold ${battleCardCount > 0 ? 'yellow' : 'grey'}>${battleCardCount.toString().padLeft(10)}</>\n'
           '${engine.locale('ownedCardpack')}: <bold ${cardpackCount > 0 ? 'yellow' : 'grey'}>${cardpackCount.toString().padLeft(10)}</>\n'
           '<grey>${engine.locale('deckbuilding_cardpack_hint')}</>';
       Hovertip.show(
@@ -903,9 +1007,7 @@ class CardLibraryScene extends Scene {
     collectButton = SpriteButton(
       text: engine.locale('deckbuilding_identify_all'),
       anchor: Anchor.center,
-      position: GameUI.cardpackCardPositions[1] +
-          Vector2(GameUI.cardpackCardSize.x / 2,
-              GameUI.cardpackCardSize.y + GameUI.hugeIndent),
+      position: GameUI.craftButtonPosition,
       size: GameUI.buttonSizeMedium,
       spriteId: 'ui/button2.png',
       priority: kBarrierPriority,
@@ -933,7 +1035,7 @@ class CardLibraryScene extends Scene {
 
         for (final card in _cardpackCards) {
           engine.hetu.invoke(
-            'acquireBattleCard',
+            'acquireCard',
             namespace: 'Player',
             positionalArgs: [card.data],
           );
@@ -969,18 +1071,32 @@ class CardLibraryScene extends Scene {
           GameUI.cardpackCardPositions[1].x -
               (GameUI.buttonSizeMedium.x + GameUI.largeIndent),
           GameUI.cardpackCardPositions[1].y +
-              GameUI.largeIndent +
               (GameUI.buttonSizeMedium.y + GameUI.smallIndent) * i,
         ),
       );
     }
 
+    expLabel = RichTextComponent(
+      anchor: Anchor.center,
+      position: GameUI.cardLibraryExpLabelPosition,
+      size: Vector2(200, 60),
+      config: ScreenTextConfig(
+        outlined: true,
+        textStyle: TextStyle(
+          color: Colors.yellow,
+          fontFamily: GameUI.fontFamily,
+          fontSize: 20,
+        ),
+        anchor: Anchor.bottomCenter,
+      ),
+      priority: kBarrierPriority,
+    );
+    camera.viewport.add(expLabel);
+
     closeCraftButton = SpriteButton(
       text: engine.locale('close'),
       anchor: Anchor.center,
-      position: GameUI.cardpackCardPositions[1] +
-          Vector2(GameUI.cardpackCardSize.x / 2,
-              GameUI.cardpackCardSize.y + GameUI.hugeIndent),
+      position: GameUI.craftButtonPosition,
       size: GameUI.buttonSizeMedium,
       spriteId: 'ui/button2.png',
       priority: kBarrierPriority,
@@ -990,6 +1106,13 @@ class CardLibraryScene extends Scene {
       onEndCraft();
     };
     camera.viewport.add(closeCraftButton);
+  }
+
+  @override
+  void onMount() {
+    super.onMount();
+
+    _enterScene();
   }
 
   @override

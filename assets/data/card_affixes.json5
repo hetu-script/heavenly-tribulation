@@ -11,7 +11,6 @@
     genre: null,
     category: ["buff", "attack"],
     // 境界要求，生成卡牌的境界参数大于等于此值时才会出现
-    rank: 1,
     // 词条出现的几率，数值越大，出现的几率越大
     // probability: 500,
     // 脚本执行的优先级，数值越大，越早执行
@@ -19,7 +18,7 @@
     // 某些额外属性也会有攻击类型和伤害类型
     // attackType: null,
     // damageType: null,
-    description: "affix_description_heal",
+    description: "affix_heal",
     tags: [],
     // 脚本执行优先级否高于主词条
     // isBeforeMain: false,
@@ -39,10 +38,9 @@
     uniqueId: "life_energy",
     genre: null,
     category: ["buff", "attack"],
-    rank: 1,
     priority: 550,
-    description: "affix_description_life_energy",
-    tags: ["status_positive_energy_life"],
+    description: "affix_vigor",
+    tags: ["status_energy_positive_life"],
     script: "life_energy",
     isBeforeMain: true,
     valueData: [
@@ -60,9 +58,8 @@
     uniqueId: "spell_energy",
     genre: null,
     category: ["buff", "attack"],
-    rank: 1,
-    description: "affix_description_spell_energy",
-    tags: ["status_positive_energy_spell"],
+    description: "affix_mana",
+    tags: ["status_energy_positive_spell"],
     script: "spell_energy",
     isBeforeMain: true,
     valueData: [
@@ -80,8 +77,7 @@
     genre: null,
     category: ["buff", "attack"],
     damageType: "physical",
-    rank: 1,
-    description: "affix_description_defend_physical",
+    description: "affix_defend_physical",
     tags: ["status_defense"],
     script: "defend",
     valueData: [
@@ -97,8 +93,7 @@
     genre: null,
     category: ["buff", "attack"],
     damageType: "chi",
-    rank: 1,
-    description: "affix_description_defend_chi",
+    description: "affix_defend_chi",
     tags: ["status_defense"],
     script: "defend",
     valueData: [
@@ -114,8 +109,7 @@
     genre: null,
     category: ["buff", "attack"],
     damageType: "elemental",
-    rank: 1,
-    description: "affix_description_defend_elemental",
+    description: "affix_defend_elemental",
     tags: ["status_defense"],
     script: "defend",
     valueData: [
@@ -125,14 +119,13 @@
       },
     ],
   },
-  defend_spiritual: {
-    id: "defend_spiritual",
-    uniqueId: "defend_spiritual",
+  defend_psychic: {
+    id: "defend_psychic",
+    uniqueId: "defend_psychic",
     genre: null,
     category: ["buff", "attack"],
-    damageType: "spiritual",
-    rank: 2,
-    description: "affix_description_defend_spiritual",
+    damageType: "psychic",
+    description: "affix_defend_psychic",
     tags: ["status_defense"],
     script: "defend",
     valueData: [
@@ -148,8 +141,7 @@
     uniqueId: "speed",
     genre: null,
     category: ["buff", "attack"],
-    rank: 1,
-    description: "affix_description_speed",
+    description: "affix_speed",
     tags: ["status_speed_quick"],
     script: "speed",
     valueData: [
@@ -165,8 +157,7 @@
     uniqueId: "dodge",
     genre: null,
     category: ["buff", "attack"],
-    rank: 1,
-    description: "affix_description_dodge",
+    description: "affix_dodge",
     tags: ["status_dodge_nimble"],
     script: "dodge",
     valueData: [
@@ -178,68 +169,80 @@
     ],
   },
 
-  cost_1_life_energy_gain_defense_physical: {
-    id: "cost_1_life_energy_gain_defense_physical",
-    uniqueId: "cost_1_life_energy",
+  consume_vigor_gain_defense_physical: {
+    id: "consume_vigor_gain_defense_physical",
+    uniqueId: "consume_vigor_gain_defense",
     genre: null,
     category: ["buff", "attack"],
-    rank: 1,
-    description: "affix_description_cost_1_life_energy_gain_defense_physical",
+    description: "affix_consume_vigor_gain_defense_physical",
     tags: ["status_defense"],
     damageType: "physical",
-    script: "cost_1_life_energy_gain_defense",
+    script: "consume_vigor_gain_defense",
     valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+      },
       {
         base: 5,
         increment: 0.5,
       },
     ],
   },
-  cost_1_life_energy_gain_defense_chi: {
-    id: "cost_1_life_energy_gain_defense_chi",
-    uniqueId: "cost_1_life_energy",
+  consume_vigor_gain_defense_chi: {
+    id: "consume_vigor_gain_defense_chi",
+    uniqueId: "consume_vigor_gain_defense",
     genre: null,
     category: ["buff", "attack"],
-    rank: 2,
-    description: "affix_description_cost_1_life_energy_gain_defense_chi",
+    description: "affix_consume_vigor_gain_defense_chi",
     tags: ["status_defense"],
     damageType: "chi",
-    script: "cost_1_life_energy_gain_defense",
+    script: "consume_vigor_gain_defense",
     valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+      },
       {
         base: 5,
         increment: 0.5,
       },
     ],
   },
-  cost_1_life_energy_gain_defense_elemental: {
-    id: "cost_1_life_energy_gain_defense_elemental",
-    uniqueId: "cost_1_life_energy",
+  consume_vigor_gain_defense_elemental: {
+    id: "consume_vigor_gain_defense_elemental",
+    uniqueId: "consume_vigor_gain_defense",
     genre: null,
     category: ["buff", "attack"],
-    rank: 2,
-    description: "affix_description_cost_1_life_energy_gain_defense_elemental",
+    description: "affix_consume_vigor_gain_defense_elemental",
     tags: ["status_defense"],
     damageType: "elemental",
-    script: "cost_1_life_energy_gain_defense",
+    script: "consume_vigor_gain_defense",
     valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+      },
       {
         base: 5,
         increment: 0.5,
       },
     ],
   },
-  cost_1_life_energy_gain_defense_spiritual: {
-    id: "cost_1_life_energy_gain_defense_spiritual",
-    uniqueId: "cost_1_life_energy",
+  consume_vigor_gain_defense_psychic: {
+    id: "consume_vigor_gain_defense_psychic",
+    uniqueId: "consume_vigor_gain_defense",
     genre: null,
     category: ["buff", "attack"],
-    rank: 3,
-    description: "affix_description_cost_1_life_energy_gain_defense_spiritual",
+    description: "affix_consume_vigor_gain_defense_psychic",
     tags: ["status_defense"],
-    damageType: "spiritual",
-    script: "cost_1_life_energy_gain_defense",
+    damageType: "psychic",
+    script: "consume_vigor_gain_defense",
     valueData: [
+      {
+        base: 1,
+        increment: 0.1,
+      },
       {
         base: 5,
         increment: 0.5,
@@ -248,102 +251,139 @@
   },
 
   // 攻击额外词条
-  extra_damage_physical_after_attacked: {
-    id: "extra_damage_physical_after_attacked",
-    uniqueId: "extra_damage_after_attacked",
+  consume_chakra_for_extra_damage_physical: {
+    id: "consume_chakra_for_extra_damage_physical",
+    uniqueId: "consume_energy_for_extra_damage",
     genre: "swordcraft",
     category: ["attack"],
-    rank: 1,
-    description: "affix_description_extra_damage_physical_after_attacked",
-    tags: [],
+    description: "affix_consume_chakra_for_extra_damage_physical",
+    tags: ["status_energy_positive_weapon"],
     damageType: "physical",
-    script: "extra_damage_after_attacked",
+    resourceType: "energy_positive_weapon",
+    script: "consume_energy_for_extra_damage",
     valueData: [
       {
-        base: 5,
-        increment: 0.25,
+        base: 1,
+        increment: 0.1,
+      },
+      {
+        base: 7,
+        increment: 0.15,
       },
     ],
   },
-  extra_damage_chi_after_attacked: {
-    id: "extra_damage_chi_after_attacked",
-    uniqueId: "extra_damage_after_attacked",
+  consume_rage_for_extra_damage_chi: {
+    id: "consume_rage_for_extra_damage_chi",
+    uniqueId: "consume_energy_for_extra_damage",
     genre: "bodyforge",
     category: ["attack"],
-    rank: 1,
-    description: "affix_description_extra_damage_chi_after_attacked",
-    tags: [],
+    description: "affix_consume_rage_for_extra_damage_chi",
+    tags: ["status_energy_positive_unarmed"],
     damageType: "chi",
-    script: "extra_damage_after_attacked",
+    resourceType: "energy_positive_unarmed",
+    script: "consume_energy_for_extra_damage",
     valueData: [
       {
-        base: 5,
-        increment: 0.25,
+        base: 1,
+        increment: 0.1,
+      },
+      {
+        base: 7,
+        increment: 0.15,
       },
     ],
   },
-  extra_damage_elemental_after_attacked: {
-    id: "extra_damage_elemental_after_attacked",
-    uniqueId: "extra_damage_after_attacked",
+  consume_mana_for_extra_damage_elemental: {
+    id: "consume_mana_for_extra_damage_elemental",
+    uniqueId: "consume_energy_for_extra_damage",
     genre: "spellcraft",
     category: ["attack"],
-    rank: 1,
-    description: "affix_description_extra_damage_elemental_after_attacked",
-    tags: [],
+    description: "affix_consume_mana_for_extra_damage_elemental",
+    tags: ["status_energy_positive_spell"],
     damageType: "elemental",
-    script: "extra_damage_after_attacked",
+    resourceType: "energy_positive_spell",
+    script: "consume_energy_for_extra_damage",
     valueData: [
       {
-        base: 5,
-        increment: 0.25,
+        base: 1,
+        increment: 0.1,
+      },
+      {
+        base: 7,
+        increment: 0.15,
       },
     ],
   },
-  extra_damage_spiritual_after_attacked: {
-    id: "extra_damage_spiritual_after_attacked",
-    uniqueId: "extra_damage_after_attacked",
+  consume_karma_for_extra_damage_psychic: {
+    id: "consume_karma_for_extra_damage_psychic",
+    uniqueId: "consume_energy_for_extra_damage",
     genre: "avatar",
     category: ["attack"],
-    rank: 1,
-    description: "affix_description_extra_damage_spiritual_after_attacked",
-    tags: [],
-    damageType: "spiritual",
-    script: "extra_damage_after_attacked",
+    description: "affix_consume_karma_for_extra_damage_psychic",
+    tags: ["status_energy_positive_curse"],
+    damageType: "psychic",
+    resourceType: "energy_positive_curse",
+    script: "consume_energy_for_extra_damage",
     valueData: [
       {
-        base: 5,
-        increment: 0.25,
+        base: 1,
+        increment: 0.1,
+      },
+      {
+        base: 7,
+        increment: 0.15,
       },
     ],
   },
-  extra_damage_pure_after_attacked: {
-    id: "extra_damage_pure_after_attacked",
-    uniqueId: "extra_damage_after_attacked",
-    genre: "vitality",
-    category: ["attack"],
-    rank: 1,
-    description: "affix_description_extra_damage_pure_after_attacked",
-    tags: [],
-    damageType: "pure",
-    script: "extra_damage_after_attacked",
-    valueData: [
-      {
-        base: 5,
-        increment: 0.25,
-      },
-    ],
-  },
+  // consume_weapon_energy_extra_damage_elemental: {
+  //   id: "consume_weapon_energy_extra_damage_elemental",
+  //   uniqueId: "consume_weapon_energy_extra_damage",
+  //   genre: "swordcraft",
+  //   category: ["attack"],
+  //   rank: 2,
+  //   description: "affix_consume_weapon_energy_extra_damage_elemental",
+  //   tags: [],
+  //   priority: 250,
+  //   damageType: "elemental",
+  //   script: "consume_weapon_energy_extra_damage",
+  //   valueData: [
+  //     {
+  //       base: 1,
+  //       increment: 0.1,
+  //     },
+  //     {
+  //       base: 7,
+  //       increment: 0.15,
+  //     },
+  //   ],
+  // },
+  // extra_damage_pure_after_attacked: {
+  //   id: "extra_damage_pure_after_attacked",
+  //   uniqueId: "extra_damage_after_attacked",
+  //   genre: "vitality",
+  //   category: ["attack"],
+  //   rank: 1,
+  //   description: "affix_extra_damage_pure_after_attacked",
+  //   tags: [],
+  //   damageType: "pure",
+  //   script: "extra_damage_after_attacked",
+  //   valueData: [
+  //     {
+  //       base: 5,
+  //       increment: 0.25,
+  //     },
+  //   ],
+  // },
 
-  per_10hp_damage_heal: {
-    id: "per_10hp_damage_heal",
-    uniqueId: "per_10hp_damage_heal",
+  by_damage_heal: {
+    id: "by_damage_heal",
+    uniqueId: "by_damage_heal",
     genre: null,
     category: ["attack"],
-    rank: 1,
-    description: "affix_description_per_10hp_damage_heal",
+    description: "affix_by_damage_heal",
     tags: [],
     damageType: "pure",
-    script: "per_10hp_damage_heal",
+    script: "by_damage_heal",
     valueData: [
       {
         base: 3,
@@ -351,16 +391,15 @@
       },
     ],
   },
-  per_10hp_damage_gain_defense_physical: {
-    id: "per_10hp_damage_gain_defense_physical",
-    uniqueId: "per_10hp_damage_gain_defense_physical",
+  by_damage_gain_defense_physical: {
+    id: "by_damage_gain_defense_physical",
+    uniqueId: "by_damage_gain_defense",
     genre: null,
     category: ["attack"],
-    rank: 1,
-    description: "affix_description_per_10hp_damage_gain_defense_physical",
+    description: "affix_by_damage_gain_defense_physical",
     tags: ["status_defense"],
     damageType: "physical",
-    script: "per_10hp_damage_gain_defense",
+    script: "by_damage_gain_defense",
     valueData: [
       {
         base: 3,
@@ -368,16 +407,15 @@
       },
     ],
   },
-  per_10hp_damage_gain_defense_chi: {
-    id: "per_10hp_damage_gain_defense_chi",
-    uniqueId: "per_10hp_damage_gain_defense_chi",
+  by_damage_gain_defense_chi: {
+    id: "by_damage_gain_defense_chi",
+    uniqueId: "by_damage_gain_defense",
     genre: null,
     category: ["attack"],
-    rank: 1,
-    description: "affix_description_per_10hp_damage_gain_defense_chi",
+    description: "affix_by_damage_gain_defense_chi",
     tags: ["status_defense"],
     damageType: "chi",
-    script: "per_10hp_damage_gain_defense",
+    script: "by_damage_gain_defense",
     valueData: [
       {
         base: 3,
@@ -385,16 +423,15 @@
       },
     ],
   },
-  per_10hp_damage_gain_defense_elemental: {
-    id: "per_10hp_damage_gain_defense_elemental",
-    uniqueId: "per_10hp_damage_gain_defense_elemental",
+  by_damage_gain_defense_elemental: {
+    id: "by_damage_gain_defense_elemental",
+    uniqueId: "by_damage_gain_defense",
     genre: null,
     category: ["attack"],
-    rank: 1,
-    description: "affix_description_per_10hp_damage_gain_defense_elemental",
+    description: "affix_by_damage_gain_defense_elemental",
     tags: ["status_defense"],
     damageType: "elemental",
-    script: "per_10hp_damage_gain_defense",
+    script: "by_damage_gain_defense",
     valueData: [
       {
         base: 3,
@@ -402,16 +439,15 @@
       },
     ],
   },
-  per_10hp_damage_gain_defense_spiritual: {
-    id: "per_10hp_damage_gain_defense_spiritual",
-    uniqueId: "per_10hp_damage_gain_defense_spiritual",
+  by_damage_gain_defense_psychic: {
+    id: "by_damage_gain_defense_psychic",
+    uniqueId: "by_damage_gain_defense",
     genre: null,
     category: ["attack"],
-    rank: 2,
-    description: "affix_description_per_10hp_damage_gain_defense_spiritual",
+    description: "affix_by_damage_gain_defense_psychic",
     tags: ["status_defense"],
-    damageType: "spiritual",
-    script: "per_10hp_damage_gain_defense",
+    damageType: "psychic",
+    script: "by_damage_gain_defense",
     valueData: [
       {
         base: 3,
@@ -420,61 +456,16 @@
     ],
   },
 
-  per_10hp_damage_gain_energy_unarmed: {
-    id: "per_10hp_damage_gain_energy_unarmed",
-    uniqueId: "per_10hp_damage_gain_energy_unarmed",
-    genre: "bodyforge",
-    category: ["attack"],
-    rank: 1,
-    description: "affix_description_per_10hp_damage_gain_energy_unarmed",
-    tags: ["status_positive_energy_unarmed"],
-    priority: 1050,
-    attackType: "unarmed",
-    script: "per_10hp_damage_gain_energy",
-  },
-
-  cost_weapon_energy_extra_damage_physical: {
-    id: "cost_weapon_energy_extra_damage_physical",
-    uniqueId: "cost_weapon_energy_extra_damage",
-    genre: "swordcraft",
-    category: ["attack"],
-    rank: 2,
-    description: "affix_description_cost_weapon_energy_extra_damage_physical",
-    tags: [],
-    priority: 250,
-    damageType: "physical",
-    script: "cost_weapon_energy_extra_damage",
-    valueData: [
-      {
-        base: 1,
-        increment: 0.08,
-      },
-      {
-        base: 7,
-        increment: 0.35,
-      },
-    ],
-  },
-  cost_weapon_energy_extra_damage_elemental: {
-    id: "cost_weapon_energy_extra_damage_elemental",
-    uniqueId: "cost_weapon_energy_extra_damage",
-    genre: "swordcraft",
-    category: ["attack"],
-    rank: 2,
-    description: "affix_description_cost_weapon_energy_extra_damage_elemental",
-    tags: [],
-    priority: 250,
-    damageType: "elemental",
-    script: "cost_weapon_energy_extra_damage",
-    valueData: [
-      {
-        base: 1,
-        increment: 0.08,
-      },
-      {
-        base: 7,
-        increment: 0.35,
-      },
-    ],
-  },
+  // by_damage_gain_energy_unarmed: {
+  //   id: "by_damage_gain_energy_unarmed",
+  //   uniqueId: "by_damage_gain_energy_unarmed",
+  //   genre: "bodyforge",
+  //   category: ["attack"],
+  //   rank: 1,
+  //   description: "affix_by_damage_gain_energy_unarmed",
+  //   tags: ["status_energy_positive_unarmed"],
+  //   priority: 1050,
+  //   attackType: "unarmed",
+  //   script: "by_damage_gain_energy",
+  // },
 }

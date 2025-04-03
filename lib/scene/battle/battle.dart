@@ -1,13 +1,17 @@
 import 'dart:async';
+import 'dart:math' as math;
 
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/widgets/ui_overlay.dart';
+import 'package:path/path.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/components/sprite_button.dart';
 import 'package:flame/flame.dart';
 import 'package:samsara/components/sprite_component2.dart';
+import 'package:provider/provider.dart';
 
 import '../../game/ui.dart';
 import 'character.dart';
@@ -18,8 +22,10 @@ import '../common.dart';
 import '../../game/data.dart';
 import 'common.dart';
 import 'drop_menu.dart';
+import '../../state/states.dart';
 
 const kMinTurnDuration = 1500;
+const kBattleRoundLimit = 5;
 
 /// 属性效果对应的永久状态，值是正面状态和负面状态的元组
 const kStatsToPermenantEffects = {
@@ -27,14 +33,67 @@ const kStatsToPermenantEffects = {
   'weaponEnhance': ('enhance_weapon', 'weaken_weapon'),
   'spellEnhance': ('enhance_spell', 'weaken_spell'),
   'curseEnhance': ('enhance_curse', 'weaken_curse'),
-  'chaosEnhance': ('enhance_chaos', 'weaken_chaos'),
   'physicalResist': ('resistant_physical', 'weakness_physical'),
   'chiResist': ('resistant_chi', 'weakness_chi'),
   'elementalResist': ('resistant_elemental', 'weakness_elemental'),
-  'spiritualResist': ('resistant_spiritual', 'weakness_spiritual'),
+  'psychicResist': ('resistant_psychic', 'weakness_psychic'),
 };
 
+const kSelfStatusOnCircumstance = {
+  'defense_physical',
+  'defense_chi',
+  'defense_elemental',
+  'defense_psychic',
+  'speed_quick',
+  'speed_nimble',
+  'energy_positive_spell',
+  'energy_positive_weapon',
+  'energy_positive_unarmed',
+  'energy_positive_life',
+  'energy_positive_leech',
+  'energy_positive_pure',
+  'energy_positive_ultimate',
+  'ward',
+  'shield_physical',
+  'shield_chi',
+  'shield_elemental',
+  'shield_psychic',
+};
+
+const kOpponentStatusOnCircumstance = {
+  'weakened_unarmed',
+  'weakened_weapon',
+  'weakened_spell',
+  'weakened_curse',
+  'weakness_physical',
+  'weakness_chi',
+  'weakness_elemental',
+  'weakness_psychic',
+  'vulnerable_physical',
+  'vulnerable_chi',
+  'vulnerable_elemental',
+  'vulnerable_psychic',
+  'speed_slow',
+  'speed_clumsy',
+  'energy_negative_spell',
+  'energy_negative_weapon',
+  'energy_negative_unarmed',
+  'energy_negative_life',
+  'energy_negative_leech',
+  'energy_negative_pure',
+  'energy_negative_ultimate',
+};
+
+enum StatusCircumstances {
+  start_battle,
+  start_deck,
+  start_turn,
+  end_turn,
+}
+
 class BattleScene extends Scene {
+  final _focusNode = FocusNode();
+
   late final SpriteComponent2 background;
   late final SpriteComponent _victoryPrompt, _defeatPrompt;
 
@@ -63,10 +122,12 @@ class BattleScene extends Scene {
   bool battleStarted = false;
   bool battleEnded = false;
 
-  final Map<String, dynamic> gameDetails = {};
+  final Map<String, dynamic> battleFlags = {};
 
   FutureOr<void> Function()? onBattleStart;
   FutureOr<void> Function(bool? result)? onBattleEnd;
+
+  bool isDetailedHovertip = false;
 
   BattleScene({
     required this.heroData,
@@ -83,20 +144,68 @@ class BattleScene extends Scene {
           bgmVolume: engine.config.musicVolume,
         );
 
-  void _addPermenantStatus(BattleCharacter character) {
-    final stats = character.data['stats'];
+  void _preparePermenantStatus(BattleCharacter character) {
     for (final statName in kStatsToPermenantEffects.keys) {
-      final int? value = stats[statName];
-      if (value != null) {
-        final (positiveEffectId, negativeEffectId) =
-            kStatsToPermenantEffects[statName]!;
-        if (value > 0) {
-          character.addStatusEffect(positiveEffectId, amount: value);
-        } else if (value < 0) {
-          character.addStatusEffect(negativeEffectId, amount: value);
-        }
+      final int value = character.data['stats'][statName];
+      final (positiveEffectId, negativeEffectId) =
+          kStatsToPermenantEffects[statName]!;
+      if (value > 0) {
+        character.addStatusEffect(positiveEffectId,
+            amount: value, handleCallback: false);
+      } else if (value < 0) {
+        character.addStatusEffect(negativeEffectId,
+            amount: value, handleCallback: false);
       }
     }
+
+    final int karma = character.data['karma'];
+    final int karmaMax = character.data['stats']['karmaMax'];
+    if (karma > 0 && karmaMax > 0) {
+      int karmaInBattle = math.min(karma, karmaMax);
+      character.data['karma'] -= karmaInBattle;
+      character.addStatusEffect('energy_positive_curse',
+          amount: karmaInBattle, handleCallback: false);
+    }
+
+    if (character.data['passives']['enable_chakra'] != null) {
+      character.addStatusEffect('enable_chakra',
+          amount: 1, handleCallback: false);
+    }
+
+    if (character.data['passives']['enable_rage'] != null) {
+      character.addStatusEffect('enable_rage',
+          amount: 1, handleCallback: false);
+    }
+  }
+
+  Map<String, int> _prepareStatus(
+      BattleCharacter character, StatusCircumstances circumstance) {
+    for (final statusId in kSelfStatusOnCircumstance) {
+      final passiveId = '${circumstance.name}_with_$statusId';
+      final passiveData = character.data['passives'][passiveId];
+      if (passiveData != null) {
+        int? value = passiveData['value'];
+        if (value == null) {
+          engine.warn('passiveData $passiveData has no field `value`!');
+        }
+        character.addStatusEffect(statusId,
+            amount: value, handleCallback: false);
+      }
+    }
+    Map<String, int> opponentPrebattleStatus = {};
+    for (final statusId in kOpponentStatusOnCircumstance) {
+      final passiveId = '${circumstance.name}_with_opponent_$statusId';
+      final passiveData = character.data['passives'][passiveId];
+      if (passiveData != null) {
+        int? value = passiveData['value'];
+        if (value == null) {
+          engine.warn('passiveData $passiveData has no field `value`!');
+          value = 1;
+        }
+        opponentPrebattleStatus[statusId] = value;
+      }
+    }
+    return opponentPrebattleStatus;
   }
 
   List<CustomGameCard> getDeck(dynamic characterData) {
@@ -116,10 +225,20 @@ class BattleScene extends Scene {
   }
 
   @override
+  void onMount() {
+    super.onMount();
+
+    context.read<EnemyState>().setPrebattleVisible(false);
+    context.read<HoverInfoContentState>().hide();
+    context.read<ViewPanelState>().clearAll();
+  }
+
+  @override
   void onLoad() async {
     super.onLoad();
 
     engine.hetu.assign('enemy', enemyData);
+    engine.hetu.assign('battleFlags', battleFlags);
 
     heroDeck = getDeck(heroData);
     enemyDeck = getDeck(enemyData);
@@ -286,9 +405,6 @@ class BattleScene extends Scene {
   Future<void> showStartPrompt() async {
     await versusBanner.fadeIn(duration: 1.2);
 
-    _addPermenantStatus(hero);
-    _addPermenantStatus(enemy);
-
     nextTurnButton = SpriteButton(
       spriteId: 'ui/button.png',
       text: engine.locale('start'),
@@ -314,8 +430,21 @@ class BattleScene extends Scene {
     enemy.reset();
     heroDeckZone.reset();
     enemyDeckZone.reset();
-    _addPermenantStatus(hero);
-    _addPermenantStatus(enemy);
+
+    _preparePermenantStatus(hero);
+    final enemyStatus = _prepareStatus(hero, StatusCircumstances.start_battle);
+    for (final statusId in enemyStatus.keys) {
+      final value = enemyStatus[statusId]!;
+      enemy.addStatusEffect(statusId, amount: value, handleCallback: false);
+    }
+
+    _preparePermenantStatus(enemy);
+    final heroStatus = _prepareStatus(enemy, StatusCircumstances.start_battle);
+    for (final statusId in heroStatus.keys) {
+      final value = heroStatus[statusId]!;
+      hero.addStatusEffect(statusId, amount: value, handleCallback: false);
+    }
+
     heroTurn = isFirsthand;
     currentCharacter = heroTurn ? hero : enemy;
     currentOpponent = heroTurn ? enemy : hero;
@@ -360,6 +489,9 @@ class BattleScene extends Scene {
           .handleStatusEffectCallback('opponent_deck_end');
 
       card = currentCharacter.deckZone.cards.first as CustomGameCard;
+
+      currentCharacter.deckZone.isFirstCard = true;
+      currentCharacter.deckZone.round += 1;
     } else {
       card = currentCharacter.deckZone.current!.next as CustomGameCard;
     }
@@ -371,10 +503,40 @@ class BattleScene extends Scene {
     nextTurnButton.isVisible = false;
     bool extraTurn = false;
     bool skipTurn = false;
+
+    engine.hetu.assign('self', currentCharacter);
+    engine.hetu.assign('opponent', currentOpponent);
+
     if (currentCharacter.deckZone.cards.isNotEmpty) {
       CustomGameCard card = currentCharacter.deckZone.current!;
       do {
         final tik = DateTime.now().millisecondsSinceEpoch;
+
+        if (currentCharacter.deckZone.isFirstCard) {
+          final oppponentStatus =
+              _prepareStatus(currentCharacter, StatusCircumstances.start_deck);
+          for (final statusId in oppponentStatus.keys) {
+            final value = oppponentStatus[statusId]!;
+            currentOpponent.addStatusEffect(statusId,
+                amount: value, handleCallback: false);
+          }
+          currentCharacter.deckZone.isFirstCard = false;
+
+          if (currentCharacter.deckZone.round > kBattleRoundLimit) {
+            // 如果回合数超过上限，角色会获得死气的 debuff
+            currentCharacter.addStatusEffect('energy_negative_life',
+                amount: currentCharacter.deckZone.round);
+          }
+        }
+
+        final oppponentStatus =
+            _prepareStatus(currentCharacter, StatusCircumstances.start_turn);
+        for (final statusId in oppponentStatus.keys) {
+          final value = oppponentStatus[statusId]!;
+          currentOpponent.addStatusEffect(statusId,
+              amount: value, handleCallback: false);
+        }
+
         final turnDetails =
             await currentCharacter.onTurnStart(card, isExtra: extraTurn);
         final delta = DateTime.now().millisecondsSinceEpoch - tik;
@@ -388,6 +550,14 @@ class BattleScene extends Scene {
           card.isEnabled = false;
           card = currentCharacter.deckZone.current = nextCard();
           extraTurn = turnEndDetails['extraTurn'] ?? false;
+
+          final oppponentStatus =
+              _prepareStatus(currentCharacter, StatusCircumstances.end_turn);
+          for (final statusId in oppponentStatus.keys) {
+            final value = oppponentStatus[statusId]!;
+            currentOpponent.addStatusEffect(statusId,
+                amount: value, handleCallback: false);
+          }
         }
       } while (extraTurn);
     } else {
@@ -406,15 +576,6 @@ class BattleScene extends Scene {
     }
 
     // true表示英雄胜利，false表示英雄失败，null表示战斗未结束
-
-    if (turn >= kTurnLimit) {
-      if (hero.life >= enemy.life) {
-        battleResult = true;
-      } else {
-        battleResult = false;
-      }
-    }
-
     if (enemy.life <= 0) {
       battleResult = true;
     } else if (hero.life <= 0) {
@@ -429,6 +590,9 @@ class BattleScene extends Scene {
 
   void _endScene() {
     engine.hetu.assign('enemy', null);
+    engine.hetu.assign('self', null);
+    engine.hetu.assign('opponent', null);
+    engine.hetu.assign('battleFlags', null);
     engine.popScene(clearCache: true);
   }
 
@@ -436,6 +600,11 @@ class BattleScene extends Scene {
     if (battleResult == true) {
       camera.viewport.add(_victoryPrompt);
       enemy.setState(kDefeatState);
+
+      // 如果开启了煞气天赋，战胜对手后增加 1 点煞气
+      if (heroData['passives']['enable_karma'] != null) {
+        heroData['karma'] += 1;
+      }
     } else {
       camera.viewport.add(_defeatPrompt);
       hero.setState(kDefeatState);
@@ -475,32 +644,51 @@ class BattleScene extends Scene {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        SceneWidget(scene: this),
-        GameUIOverlay(
-          enableHeroInfo: false,
-          dropMenu: engine.config.debugMode
-              ? BattleDropMenu(
-                  onSelected: (item) {
-                    switch (item) {
-                      case BattleDropMenuItems.console:
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) => Console(
-                            engine: engine,
-                            margin: const EdgeInsets.all(50.0),
-                            backgroundColor: GameUI.backgroundColor2,
-                          ),
-                        );
-                      case BattleDropMenuItems.exit:
-                        _endScene();
-                    }
-                  },
-                )
-              : null,
-        ),
-      ],
+    _focusNode.requestFocus();
+
+    return KeyboardListener(
+      autofocus: true,
+      focusNode: _focusNode,
+      onKeyEvent: (event) {
+        if (event is KeyDownEvent) {
+          engine.debug('keydown: ${event.logicalKey.debugName}');
+          switch (event.logicalKey) {
+            case LogicalKeyboardKey.controlLeft:
+            case LogicalKeyboardKey.controlRight:
+              isDetailedHovertip = !isDetailedHovertip;
+          }
+        }
+      },
+      child: Stack(
+        children: [
+          SceneWidget(scene: this),
+          GameUIOverlay(
+            enableHeroInfo: false,
+            enableNpcs: false,
+            dropMenu: engine.config.debugMode
+                ? BattleDropMenu(
+                    onSelected: (item) async {
+                      switch (item) {
+                        case BattleDropMenuItems.console:
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) => Console(
+                              engine: engine,
+                              margin: const EdgeInsets.all(50.0),
+                              backgroundColor: GameUI.backgroundColor2,
+                            ),
+                          );
+                        case BattleDropMenuItems.exit:
+                          context.read<EnemyState>().clear();
+                          await onBattleEnd?.call(false);
+                          _endScene();
+                      }
+                    },
+                  )
+                : null,
+          ),
+        ],
+      ),
     );
   }
 }

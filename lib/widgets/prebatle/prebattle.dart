@@ -10,13 +10,14 @@ import 'package:samsara/ui/bordered_icon_button.dart';
 import '../avatar.dart';
 import '../../engine.dart';
 import '../../game/ui.dart';
+import '../../game/data.dart';
 import 'battlecard.dart';
 import '../menu_item_builder.dart';
 import '../character/inventory/equipment_bar.dart';
 import '../../scene/common.dart';
 import '../../game/logic.dart';
 import '../../state/states.dart';
-import '../character/inventory/stats.dart';
+import '../character/stats.dart';
 import '../../scene/game_dialog/game_dialog_content.dart';
 
 class PreBattleDialog extends StatefulWidget {
@@ -42,7 +43,8 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
 
   List<Widget> _heroDeck = [], _enemyDeck = [];
 
-  List heroBattleDeckCards = [], enemyBattleDeckCards = [];
+  // List heroBattleDeckCards = [];
+  List enemyBattleDeckCards = [];
 
   String? _warning;
 
@@ -52,7 +54,20 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
   void initState() {
     super.initState();
 
-    loadData();
+    final int playerMonthlyIdentifiedCards =
+        GameData.gameData['playerMonthly']['identifiedEnemyCards'];
+    final int playerMonthlyIdentifiedCardsCount =
+        widget.heroData['stats']['identifyCardsCountMonthly'];
+    _availableIdentifyCount =
+        playerMonthlyIdentifiedCardsCount - playerMonthlyIdentifiedCards;
+    if (_availableIdentifyCount < 0) _availableIdentifyCount = 0;
+
+    _heroDecks = widget.heroData['battleDecks'];
+    _heroDeck = _createDeckCardWidgets(widget.heroData, isHero: true);
+    // heroBattleDeckCards =
+    //     _getBattleDeckCardsData(widget.heroData, isHero: true);
+    _enemyDeck = _createDeckCardWidgets(widget.enemyData);
+    enemyBattleDeckCards = _getBattleDeckCardsData(widget.enemyData);
   }
 
   List<PopupMenuEntry<int>> buildDeckSelectionPopUpMenuItems(
@@ -130,28 +145,10 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
       }
     }
     if (isHero) {
-      final String? warning =
-          GameLogic.checkDeckRequirement(characterData, deckCards);
-      _warning = warning != null ? engine.locale(warning) : null;
+      final String? info = GameLogic.checkDeckRequirement(deckCards);
+      _warning = info != null ? engine.locale(info) : null;
     }
     return deckCards;
-  }
-
-  void loadData() {
-    final playerMonthlyIdentifiedCards =
-        engine.hetu.invoke('getMonthlyIdentifiedCards');
-    final playerMonthlyIdentifiedCardsCount =
-        widget.heroData['stats']['identifyCardsCountMonthly'];
-    _availableIdentifyCount =
-        playerMonthlyIdentifiedCardsCount - playerMonthlyIdentifiedCards;
-    if (_availableIdentifyCount < 0) _availableIdentifyCount = 0;
-
-    _heroDecks = widget.heroData['battleDecks'];
-    _heroDeck = _createDeckCardWidgets(widget.heroData, isHero: true);
-    heroBattleDeckCards =
-        _getBattleDeckCardsData(widget.heroData, isHero: true);
-    _enemyDeck = _createDeckCardWidgets(widget.enemyData);
-    enemyBattleDeckCards = _getBattleDeckCardsData(widget.enemyData);
   }
 
   @override
@@ -230,7 +227,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                           onMouseEnter: (rect) {
                             context
                                 .read<HoverInfoContentState>()
-                                .set(engine.locale('build'), rect);
+                                .show(engine.locale('build'), rect);
                           },
                           onMouseExit: () {
                             context.read<HoverInfoContentState>().hide();
@@ -244,16 +241,12 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                           size: GameUI.infoButtonSize,
                           padding: const EdgeInsets.only(right: 10.0),
                           onTapUp: () {
-                            context.read<HoverInfoContentState>().hide();
-                            context
-                                .read<EnemyState>()
-                                .setPrebattleVisible(false);
                             engine.pushScene(Scenes.cardlibrary);
                           },
                           onMouseEnter: (rect) {
                             context
                                 .read<HoverInfoContentState>()
-                                .set(engine.locale('card_library'), rect);
+                                .show(engine.locale('card_library'), rect);
                           },
                           onMouseExit: () {
                             context.read<HoverInfoContentState>().hide();
@@ -280,15 +273,14 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                 tooltip: '',
                                 offset: const Offset(-8.0, 32.0),
                                 onSelected: (int index) {
-                                  setState(() {
-                                    widget.heroData['battleDeckIndex'] = index;
-                                    _heroDeck = _createDeckCardWidgets(
-                                        widget.heroData,
-                                        isHero: true);
-                                    heroBattleDeckCards =
-                                        _getBattleDeckCardsData(widget.heroData,
-                                            isHero: true);
-                                  });
+                                  widget.heroData['battleDeckIndex'] = index;
+                                  _heroDeck = _createDeckCardWidgets(
+                                      widget.heroData,
+                                      isHero: true);
+                                  // heroBattleDeckCards = _getBattleDeckCardsData(
+                                  //     widget.heroData,
+                                  //     isHero: true);
+                                  setState(() {});
                                 },
                                 itemBuilder: buildDeckSelectionPopUpMenuItems,
                                 child: Label(
@@ -389,7 +381,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                               isHero: false,
                               showNonBattleStats: false,
                             );
-                            context.read<HoverInfoContentState>().set(
+                            context.read<HoverInfoContentState>().show(
                                   statsView,
                                   rect,
                                   direction: HoverInfoDirection.leftTop,
@@ -429,24 +421,31 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                             key: _identifyDeckButtonKey,
                             onPressed: () {
                               if (_availableIdentifyCount > 0) {
+                                bool identified = false;
+                                for (final card in enemyBattleDeckCards) {
+                                  if (card['isIdentified'] != true) {
+                                    card['isIdentified'] = true;
+                                    identified = true;
+                                    break;
+                                  }
+                                }
+                                if (!identified) {
+                                  GameDialogContent.show(
+                                    context,
+                                    engine
+                                        .locale('identify_deck_identifed_all'),
+                                  );
+                                  return;
+                                }
+                                engine
+                                    .play('hammer-hitting-an-anvil-25390.mp3');
+                                --_availableIdentifyCount;
+                                GameData.gameData['playerMonthly']
+                                    ['identifiedEnemyCards'] += 1;
+                                context.read<HoverInfoContentState>().hide();
                                 setState(() {
-                                  bool identified = false;
-                                  for (final card in enemyBattleDeckCards) {
-                                    if (card['isIdentified'] != true) {
-                                      card['isIdentified'] = true;
-                                      identified = true;
-                                      engine.hetu.invoke('useIdentifyCard');
-                                      break;
-                                    }
-                                  }
-                                  if (!identified) {
-                                    GameDialogContent.show(
-                                      context,
-                                      engine.locale(
-                                          'identify_deck_identifed_all'),
-                                    );
-                                  }
-                                  context.read<HoverInfoContentState>().hide();
+                                  _enemyDeck =
+                                      _createDeckCardWidgets(widget.enemyData);
                                 });
                               } else {
                                 GameDialogContent.show(
@@ -463,7 +462,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                     '<grey>${engine.locale('identify_deck_hint')}</>';
                                 final rect = getRenderRect(
                                     _identifyDeckButtonKey.currentContext!);
-                                context.read<HoverInfoContentState>().set(
+                                context.read<HoverInfoContentState>().show(
                                       hint,
                                       rect,
                                       textAlign: TextAlign.left,

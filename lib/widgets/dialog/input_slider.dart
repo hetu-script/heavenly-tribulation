@@ -12,8 +12,9 @@ class InputSliderDialog extends StatefulWidget {
     required BuildContext context,
     required int min,
     required int max,
+    int? value,
     String? title,
-    String? label,
+    String Function(int value)? labelBuilder,
   }) {
     assert(min >= 0);
     assert(max > min);
@@ -24,8 +25,9 @@ class InputSliderDialog extends StatefulWidget {
         return InputSliderDialog(
           min: min,
           max: max,
+          value: value,
           title: title,
-          label: label,
+          labelBuilder: labelBuilder,
         );
       },
     );
@@ -35,14 +37,17 @@ class InputSliderDialog extends StatefulWidget {
     super.key,
     required this.min,
     required this.max,
+    this.value,
     this.divisions,
     this.title,
-    this.label,
+    this.labelBuilder,
   });
 
   final int min, max;
+  final int? value;
   final int? divisions;
-  final String? title, label;
+  final String? title;
+  final String Function(int value)? labelBuilder;
 
   @override
   State<InputSliderDialog> createState() => _InputSliderDialogState();
@@ -55,7 +60,12 @@ class _InputSliderDialogState extends State<InputSliderDialog> {
   void initState() {
     super.initState();
 
-    _current = widget.min;
+    _current = widget.value ?? 0;
+    if (_current < widget.min) {
+      _current = widget.min;
+    } else if (_current > widget.max) {
+      _current = widget.max;
+    }
   }
 
   @override
@@ -92,7 +102,9 @@ class _InputSliderDialogState extends State<InputSliderDialog> {
                   ),
                 ),
                 Text(
-                  '${widget.label ?? engine.locale('value')}: $_current',
+                  widget.labelBuilder != null
+                      ? widget.labelBuilder!(_current)
+                      : _current.toString(),
                 ),
                 const Spacer(),
                 Padding(

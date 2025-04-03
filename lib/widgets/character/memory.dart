@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-// import 'package:samsara/ui/responsive_view.dart';
+import 'package:samsara/ui/responsive_view.dart';
+import 'package:samsara/ui/close_button2.dart';
 
 import '../bonds.dart';
 import 'history.dart';
@@ -9,12 +9,11 @@ import '../../engine.dart';
 import '../common.dart';
 import 'edit_character_bond.dart';
 import 'profile.dart';
+import '../../game/data.dart';
 import '../../game/ui.dart';
-import '../../state/view_panels.dart';
-import '../draggable_panel.dart';
 
-class CharacterMemoryView extends StatefulWidget {
-  const CharacterMemoryView({
+class CharacterMemory extends StatefulWidget {
+  const CharacterMemory({
     super.key,
     this.characterId,
     this.characterData,
@@ -34,14 +33,14 @@ class CharacterMemoryView extends StatefulWidget {
   final bool isHero;
 
   @override
-  State<CharacterMemoryView> createState() => _CharacterMemoryViewState();
+  State<CharacterMemory> createState() => _CharacterMemoryState();
 }
 
-class _CharacterMemoryViewState extends State<CharacterMemoryView>
+class _CharacterMemoryState extends State<CharacterMemory>
     with SingleTickerProviderStateMixin {
   bool get isEditorMode => widget.mode == InformationViewMode.edit;
 
-  static final List<Tab> _tabs = <Tab>[
+  final _tabs = <Tab>[
     Tab(
       height: 40,
       child: Row(
@@ -86,8 +85,7 @@ class _CharacterMemoryViewState extends State<CharacterMemoryView>
     if (widget.characterData != null) {
       _characterData = widget.characterData!;
     } else {
-      _characterData = engine.hetu
-          .invoke('getCharacterById', positionalArgs: [widget.characterId]);
+      _characterData = GameData.getCharacter(widget.characterId!);
     }
     assert(_characterData != null);
 
@@ -100,8 +98,7 @@ class _CharacterMemoryViewState extends State<CharacterMemoryView>
         final bondData = _bondsData[key];
         assert(bondData['id'] == key);
         bond['id'] = key;
-        final targetCharacterData = engine.hetu
-            .invoke('getCharacterById', positionalArgs: [bond['id']]);
+        final targetCharacterData = GameData.getCharacter(bond['id']);
         assert(targetCharacterData != null);
         final heroId = engine.hetu.invoke('getHeroId');
         bond['name'] = bondData['name'];
@@ -135,129 +132,132 @@ class _CharacterMemoryViewState extends State<CharacterMemoryView>
 
   @override
   Widget build(BuildContext context) {
-    final position = context
-            .watch<ViewPanelPositionState>()
-            .get(ViewPanels.characterMemory) ??
-        GameUI.profileWindowPosition;
-
-    return DraggablePanel(
-      title: engine.locale('memory'),
-      position: position,
-      width: GameUI.profileWindowWidth,
-      height: widget.mode != InformationViewMode.view ? 450.0 : 400.0,
-      titleHeight: 100,
-      onTapDown: (offset) {
-        context.read<ViewPanelState>().setUpFront(ViewPanels.characterMemory);
-        context
-            .read<ViewPanelPositionState>()
-            .set(ViewPanels.characterMemory, position);
-      },
-      onDragUpdate: (details) {
-        context.read<ViewPanelPositionState>().update(
-              ViewPanels.characterMemory,
-              details.delta,
-            );
-      },
-      onClose: () {
-        context.read<ViewPanelState>().hide(ViewPanels.characterMemory);
-      },
-      titleBottomBar: TabBar(
-        controller: _tabController,
-        tabs: _tabs,
-        onTap: (value) {
-          setState(() {});
-        },
-      ),
-      child: Column(
-        children: [
-          SizedBox(
-            height: 295,
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                HistoryView(characterData: _characterData),
-                CharacterBondsView(
-                  bondsData: _bondsData,
-                  isHero: widget.isHero,
-                  onPressed: (bondData) {
-                    if (isEditorMode) {
-                      showDialog(
-                        context: context,
-                        builder: (context) => EditCharacterBond(
-                          enableTargetEdit: false,
-                          targetCharacterId: bondData['id'],
-                          score: bondData['score'],
-                          haveMet: bondData['haveMet'],
-                        ),
-                      ).then((value) {
-                        if (value != null) {
-                          final (_, score, haveMet) = value;
-                          bondData['score'] = score;
-                          bondData['haveMet'] = haveMet;
-                          setState(() {});
-                        }
-                      });
-                    } else {
-                      showDialog(
-                        context: context,
-                        builder: (context) => CharacterProfileView(
-                          characterId: bondData['id'],
-                          showIntimacy: false,
-                          showPosition: false,
-                          showRelationships: false,
-                          showPersonality: false,
-                        ),
-                      );
-                    }
-                  },
-                ),
-              ],
-            ),
+    return Column(
+      children: [
+        TabBar(
+          controller: _tabController,
+          tabs: _tabs,
+        ),
+        SizedBox(
+          height: GameUI.profileWindowSize.y - 140,
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              HistoryView(characterData: _characterData),
+              CharacterBondsView(
+                bondsData: _bondsData,
+                isHero: widget.isHero,
+                onPressed: (bondData) {
+                  if (isEditorMode) {
+                    showDialog(
+                      context: context,
+                      builder: (context) => EditCharacterBond(
+                        enableTargetEdit: false,
+                        targetCharacterId: bondData['id'],
+                        score: bondData['score'],
+                        haveMet: bondData['haveMet'],
+                      ),
+                    ).then((value) {
+                      if (value != null) {
+                        final (_, score, haveMet) = value;
+                        bondData['score'] = score;
+                        bondData['haveMet'] = haveMet;
+                        setState(() {});
+                      }
+                    });
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (context) => CharacterProfileView(
+                        characterId: bondData['id'],
+                        showIntimacy: false,
+                        showPosition: false,
+                        showRelationships: false,
+                        showPersonality: false,
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
           ),
-          if (widget.mode != InformationViewMode.view)
-            Row(
-              children: [
-                if (_tabController.index == 0)
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => const EditCharacterBond(),
-                        ).then((value) {
-                          if (value != null) {
-                            final (targetId, score, haveMet) = value;
-                            final target = engine.hetu.invoke(
-                                'getCharacterById',
-                                positionalArgs: [targetId]);
-                            assert(target != null);
-                            engine.hetu.invoke('Bond', namedArgs: {
-                              'character': _characterData,
-                              'target': target,
-                              'score': score,
-                              'haveMet': haveMet,
-                            });
-                            setState(() {});
-                          }
-                        });
-                      },
-                      child: Text(engine.locale('addBond')),
-                    ),
-                  ),
-                const Spacer(),
+        ),
+        if (widget.mode != InformationViewMode.view)
+          Row(
+            children: [
+              if (_tabController.index == 0)
                 Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).pop(_characterData['id']);
+                      showDialog(
+                        context: context,
+                        builder: (context) => const EditCharacterBond(),
+                      ).then((value) {
+                        if (value != null) {
+                          final (targetId, score, haveMet) = value;
+                          final target = GameData.getCharacter(targetId);
+                          assert(target != null);
+                          engine.hetu.invoke('Bond', namedArgs: {
+                            'character': _characterData,
+                            'target': target,
+                            'score': score,
+                            'haveMet': haveMet,
+                          });
+                          setState(() {});
+                        }
+                      });
                     },
-                    child: Text(engine.locale('confirm')),
+                    child: Text(engine.locale('addBond')),
                   ),
                 ),
-              ],
-            ),
-        ],
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(_characterData['id']);
+                  },
+                  child: Text(engine.locale('confirm')),
+                ),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
+class CharacterMemoryView extends StatelessWidget {
+  const CharacterMemoryView({
+    super.key,
+    this.characterId,
+    this.characterData,
+    this.mode = InformationViewMode.view,
+  }) : assert(characterId != null || characterData != null);
+
+  final String? characterId;
+  final dynamic characterData;
+  final InformationViewMode mode;
+
+  @override
+  Widget build(BuildContext context) {
+    return ResponsiveView(
+      alignment: AlignmentDirectional.center,
+      backgroundColor: GameUI.backgroundColor2,
+      width: GameUI.profileWindowSize.x,
+      height: GameUI.profileWindowSize.y,
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Text(engine.locale('memory')),
+          actions: [CloseButton2()],
+        ),
+        body: CharacterMemory(
+          characterId: characterId,
+          characterData: characterData,
+          mode: mode,
+        ),
       ),
     );
   }

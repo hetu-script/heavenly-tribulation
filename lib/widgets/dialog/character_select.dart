@@ -13,7 +13,7 @@ import '../../game/ui.dart';
 enum SelectCharacterPopUpMenuItems {
   select,
   checkProfile,
-  checkEquipments,
+  checkStats,
   checkMemory,
 }
 
@@ -33,8 +33,8 @@ List<PopupMenuEntry<SelectCharacterPopUpMenuItems>>
       onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
-      item: SelectCharacterPopUpMenuItems.checkEquipments,
-      name: engine.locale('checkEquipments'),
+      item: SelectCharacterPopUpMenuItems.checkStats,
+      name: engine.locale('checkStats'),
       onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
@@ -146,12 +146,12 @@ class CharacterSelectDialog extends StatelessWidget {
                     context: context,
                     builder: (context) => ResponsiveView(
                       alignment: AlignmentDirectional.center,
-                      width: GameUI.profileWindowWidth,
+                      width: GameUI.profileWindowSize.x,
                       height: 400.0,
                       child: CharacterProfile(characterId: dataId),
                     ),
                   );
-                case SelectCharacterPopUpMenuItems.checkEquipments:
+                case SelectCharacterPopUpMenuItems.checkStats:
                   showDialog(
                     context: context,
                     builder: (context) => CharacterDetails(characterId: dataId),
@@ -159,8 +159,7 @@ class CharacterSelectDialog extends StatelessWidget {
                 case SelectCharacterPopUpMenuItems.checkMemory:
                   showDialog(
                     context: context,
-                    builder: (context) =>
-                        CharacterMemoryView(characterId: dataId),
+                    builder: (context) => CharacterMemory(characterId: dataId),
                   );
               }
             });

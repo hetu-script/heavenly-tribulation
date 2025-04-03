@@ -1,14 +1,14 @@
-// import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:samsara/components.dart';
-// import 'package:flame/sprite.dart';
 import 'package:flame/flame.dart';
-// import 'package:samsara/gestures/gesture_mixin.dart';
 import 'package:flutter/material.dart';
+// import 'package:provider/provider.dart';
+import 'package:samsara/samsara.dart';
 
 import '../../game/ui.dart';
-import '../../widgets/character/details.dart';
-// import '../../../ui/view/character/npc.dart';
+import '../../widgets/character/profile.dart';
+// import '../../state/hoverinfo.dart';
+import 'equipments_bar.dart';
 
 class VersusBanner extends GameComponent {
   // late final SpriteComponent2 versus;
@@ -28,23 +28,13 @@ class VersusBanner extends GameComponent {
         );
 
   void showCharacterInfo(dynamic data) {
-    // if (data['entityType'] == 'character') {
     showDialog(
       context: gameRef.context,
       barrierColor: Colors.transparent,
       builder: (context) {
-        return CharacterDetailsView(characterData: data);
+        return CharacterProfileView(characterData: data);
       },
     );
-    // } else {
-    //   showDialog(
-    //     context: gameRef.context,
-    //     barrierColor: Colors.transparent,
-    //     builder: (context) {
-    //       return NpcView(npcData: data);
-    //     },
-    //   );
-    // }
   }
 
   @override
@@ -59,7 +49,7 @@ class VersusBanner extends GameComponent {
     );
     add(versusIcon);
 
-    final heorIcon = SpriteButton(
+    final heroIcon = SpriteButton(
       // position: Vector2(center.x - 80.0 - 10.0 - 100.0, center.y - 50.0),
       position: Vector2(0, 40.0),
       spriteId: heroData['icon'],
@@ -68,10 +58,19 @@ class VersusBanner extends GameComponent {
       borderRadius: 12.0,
       paint: paint,
     );
-    heorIcon.onTap = (_, __) {
+    heroIcon.onTap = (_, __) {
       showCharacterInfo(heroData);
     };
-    add(heorIcon);
+    add(heroIcon);
+
+    final heroEquipments = EquipmentsBar(
+      position: heroIcon.bottomLeft +
+          Vector2((heroIcon.size.x - GameUI.equipmentsBarSize.x) / 2,
+              GameUI.smallIndent),
+      characterData: heroData,
+      paint: paint,
+    );
+    add(heroEquipments);
 
     final enemyIcon = SpriteButton(
       // position: Vector2(center.x + 80.0 + 10.0, center.y - 50.0),
@@ -90,6 +89,15 @@ class VersusBanner extends GameComponent {
       showCharacterInfo(enemyData);
     };
     add(enemyIcon);
+
+    final enemyEquipments = EquipmentsBar(
+      position: enemyIcon.bottomLeft +
+          Vector2((heroIcon.size.x - GameUI.equipmentsBarSize.x) / 2,
+              GameUI.smallIndent),
+      characterData: enemyData,
+      paint: paint,
+    );
+    add(enemyEquipments);
   }
 
   // @override

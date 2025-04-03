@@ -5,6 +5,7 @@ import '../random.ht'
 
 function generateTalismanName({kind, isRare = false}) {
   kind ??= random.nextIterable(talismanNames.keys)
+  assert(talismanNames.containsKey(kind), kind)
   let end = random.nextIterable(talismanNames[kind])
 
   const cp = random.nextIterable(colorPrefix)

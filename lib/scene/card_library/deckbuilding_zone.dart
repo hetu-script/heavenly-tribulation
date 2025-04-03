@@ -34,12 +34,12 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
 
   bool _saved = false;
   bool get saved => _saved;
+
   void save() {
     _saved = true;
 
     final List decks = GameData.heroData['battleDecks'];
     final deckInfo = createDeckInfo();
-
     if (index >= decks.length) {
       decks.add(deckInfo);
     } else {
@@ -78,7 +78,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
 
   final List<dynamic> preloadCardIds;
 
-  late final int limitEphemeralMax, limitOngoingMax;
+  int limitEphemeralMax = -1; // limitOngoingMax = -1;
 
   bool get isCardsEnough {
     if (cards.length < limit) return false;
@@ -105,8 +105,9 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     if (cards.length < limit) valid = false;
 
     for (final card in cards) {
-      valid = GameLogic.checkCardRequirement(
-          GameData.heroData, (card as CustomGameCard).data);
+      final warning = GameLogic.checkRequirements((card as CustomGameCard).data,
+          checkIdentified: true);
+      valid = warning == null;
     }
 
     return valid;
@@ -149,7 +150,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
           ((position.x - _indent) / (GameUI.deckbuildingCardSize.y + _indent))
               .truncate();
 
-      final result = tryAddCard(component, index: index, clone: false);
+      final result = tryAddCard(component, index: index, clone: true);
       if (result == null) {
         library.setCardEnabledById(component.id, false);
       } else {
@@ -222,8 +223,6 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     } else {
       await sortCards(animated: animated);
       setState(PlaceHolderState.deckCover);
-      placeholder.isVisible = true;
-      deckInfo.isVisible = true;
     }
   }
 
@@ -250,21 +249,18 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     }
   }
 
-  @override
-  void onLoad() async {
-    // background = SpriteComponent(
-    //   sprite:
-    //       Sprite(await Flame.images.load('cultivation/bg_deckbuilding.png')),
-    //   size: size,
-    // );
-    // add(background);
-
+  void updateDeckLimit() {
     final deckLimit = GameLogic.getDeckLimitForRank(GameData.heroData['rank']);
     limit = deckLimit['limit']!;
     limitEphemeralMax = deckLimit['ephemeralMax']!;
-    limitOngoingMax = deckLimit['ongoingMax']!;
+    // limitOngoingMax = deckLimit['ongoingMax']!;
     assert(limitEphemeralMax >= 0);
-    assert(limitOngoingMax >= 0);
+    // assert(limitOngoingMax >= 0);
+  }
+
+  @override
+  void onLoad() async {
+    updateDeckLimit();
 
     placeholder = SpriteButton(
       spriteId: 'cultivation/deck_placeholder.png',
@@ -292,13 +288,13 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
             config: ScreenTextConfig(anchor: Anchor.topCenter),
           );
         case PlaceHolderState.deckCover:
-        // Hovertip.show(
-        //   scene: game,
-        //   target: placeholder,
-        //   direction: HovertipDirection.topCenter,
-        //   content: engine.locale('deckbuilding_edit_deck_hint'),
-        //   config: ScreenTextConfig(anchor: Anchor.center),
-        // );
+          Hovertip.show(
+            scene: game,
+            target: placeholder,
+            direction: HovertipDirection.topCenter,
+            content: engine.locale('deckbuilding_edit_deck_hint'),
+            config: ScreenTextConfig(anchor: Anchor.center),
+          );
       }
     };
     placeholder.onMouseExit = () {
@@ -319,9 +315,10 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
               config: ScreenTextConfig(anchor: Anchor.center),
             );
           case PlaceHolderState.deckCover:
-            placeholder.isVisible = false;
+            setState(PlaceHolderState.editDeck);
             onEditDeck(this);
-          case PlaceHolderState.editDeck:
+          default:
+            return;
         }
       } else if (buttons == kSecondaryButton &&
           placeholderState == PlaceHolderState.deckCover) {
@@ -359,9 +356,9 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     if (cardData['isIdentified'] != true) {
       return 'deckbuilding_card_unidentified';
     }
-    if (ongoingCount >= limitOngoingMax && cardData['category'] == 'ongoing') {
-      return 'deckbuilding_ongoing_card_limit';
-    }
+    // if (ongoingCount >= limitOngoingMax && cardData['category'] == 'ongoing') {
+    //   return 'deckbuilding_ongoing_card_limit';
+    // }
     if (ephemeralCount >= limitEphemeralMax &&
         cardData['category'] == 'ephemeral') {
       return 'deckbuilding_ephemeral_card_limit';
@@ -427,7 +424,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
     final info = {
       'title': title,
       'isBattleDeck': isBattleDeck,
-      'isValid': isCardsEnough && isRequirementMet,
+      // 'isValid': isCardsEnough && isRequirementMet,
       'cards': cards.map((card) => card.deckId).toList(),
     };
 

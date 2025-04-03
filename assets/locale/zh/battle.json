@@ -11,12 +11,15 @@
   "prebattle_check_stats": "查看属性",
   "prebattle_no_decks": "（当前无可用卡组）",
 
-  "resourceLacking": "{0}不足！",
+  "resourceLacking": "{0}枯竭！",
+  "resourceOverflowed": "{0}溢出！",
 
+  "attackFirstInBattle": "先手！",
   "skipTurn": "跳过回合！",
   "extraTurn": "再次行动！",
-  "invincibleTurn": "免伤！",
+  "immuneDamage": "免伤！",
+  "missedHit": "MISS！",
+  "immuneDebuff": "辟邪！",
   "staggeringTurn": "踉跄！",
-
-  "attackFirstInBattle": "先手！"
+  "defensePersisted": "防御保持！"
 }

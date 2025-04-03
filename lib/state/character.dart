@@ -32,12 +32,13 @@ class EnemyState with ChangeNotifier {
     notifyListeners();
   }
 
+  /// 设置战斗准备面板可见性
+  /// 如果 value 为 null，则根据enemyData是否存在来决定
   void setPrebattleVisible([bool? value]) {
-    if (value != null && showPrebattle != value) {
+    value ??= enemyData != null;
+
+    if (showPrebattle != value) {
       showPrebattle = value;
-      notifyListeners();
-    } else if (showPrebattle != (enemyData != null)) {
-      showPrebattle = enemyData != null;
       notifyListeners();
     }
   }

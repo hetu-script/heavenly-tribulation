@@ -22,16 +22,7 @@ class BattleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle? textStyle;
-
-    if (isHero) {
-      final isUsable = GameLogic.checkCardRequirement(characterData, cardData);
-      if (isUsable) {
-        textStyle = TextStyle(color: Colors.yellow);
-      } else {
-        textStyle = TextStyle(color: Colors.red);
-      }
-    }
+    TextStyle textStyle = TextStyle(color: Colors.white);
 
     final isIdentified = cardData['isIdentified'] == true;
     final name = cardData['name'];
@@ -40,6 +31,13 @@ class BattleCard extends StatelessWidget {
 
     if (!isIdentified) {
       textStyle = TextStyle(color: Colors.grey);
+    } else {
+      if (isHero) {
+        final warning = GameLogic.checkRequirements(cardData);
+        if (warning != null) {
+          textStyle = TextStyle(color: Colors.red);
+        }
+      }
     }
 
     return SizedBox(

@@ -28,22 +28,14 @@ let month
 let day
 let timeOfDay
 
-/// 这个值仅在战斗场景中会被赋值，指向当前战斗的敌人
+/// 这几个值仅在战斗场景中会被赋值，指向当前战斗的敌人
 let enemy
+let self
+let opponent
+let battleFlags
+
 /// 这个值仅在交易场景中会被赋值，指向当前交易的对象
 let merchant
-/// 用来在运行时绑定脚本模组的命名空间
-/// 和game.mods不同，这里的内容不会被序列化
-/// 只用来访问一些非事件性质的脚本函数
-let mods = {}
-
-function getMonthlyIdentifiedCards() {
-  return game.playerMonthly.identifiedEnemyCards
-}
-
-function useIdentifyCard() {
-  ++game.playerMonthly.identifiedEnemyCards
-}
 
 /// 用于限制玩家每个月的互动操作次数，月初会重置
 struct MonthlyActions {

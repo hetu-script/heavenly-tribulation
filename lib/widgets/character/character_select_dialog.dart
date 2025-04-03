@@ -100,7 +100,7 @@ class CharacterSelectDialog extends StatelessWidget {
             context: context,
             builder: (context) => ResponsiveView(
               alignment: AlignmentDirectional.center,
-              width: GameUI.profileWindowWidth,
+              width: GameUI.profileWindowSize.x,
               height: 400.0,
               child: CharacterProfile(
                 characterId: dataId,

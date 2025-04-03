@@ -23,6 +23,7 @@ enum DebugMenuItems {
   debugCompanion,
   debugBattle,
   debugTribulation,
+  debugAutoAllocateSkills,
 }
 
 List<PopupMenuEntry<DebugMenuItems>> buildDebugMenuItems(
@@ -30,43 +31,48 @@ List<PopupMenuEntry<DebugMenuItems>> buildDebugMenuItems(
   return <PopupMenuEntry<DebugMenuItems>>[
     buildMenuItem(
       item: DebugMenuItems.debugResetHero,
-      name: engine.locale('debug_reset_hero'),
+      name: engine.locale('debugResetHero'),
       onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: DebugMenuItems.debugDialog,
-      name: engine.locale('debug_dialog'),
+      name: engine.locale('debugDialog'),
       onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: DebugMenuItems.debugItem,
-      name: engine.locale('debug_item'),
+      name: engine.locale('debugItem'),
       onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: DebugMenuItems.debugQuest,
-      name: engine.locale('debug_quest'),
+      name: engine.locale('debugQuest'),
       onSelectedItem: onSelectedItem,
     ),
     const PopupMenuDivider(),
     buildMenuItem(
       item: DebugMenuItems.debugMerchant,
-      name: engine.locale('debug_merchant'),
+      name: engine.locale('debugMerchant'),
       onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: DebugMenuItems.debugCompanion,
-      name: engine.locale('debug_companion'),
+      name: engine.locale('debugCompanion'),
       onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: DebugMenuItems.debugBattle,
-      name: engine.locale('debug_battle'),
+      name: engine.locale('debugBattle'),
       onSelectedItem: onSelectedItem,
     ),
     buildMenuItem(
       item: DebugMenuItems.debugTribulation,
-      name: engine.locale('debug_tribulation'),
+      name: engine.locale('debugTribulation'),
+      onSelectedItem: onSelectedItem,
+    ),
+    buildMenuItem(
+      item: DebugMenuItems.debugAutoAllocateSkills,
+      name: engine.locale('debugAutoAllocateSkills'),
       onSelectedItem: onSelectedItem,
     ),
   ];
@@ -375,8 +381,9 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
             ),
           ),
         ),
-        Align(
-          alignment: Alignment.topRight,
+        Positioned(
+          right: 10.0,
+          top: 10.0,
           child: Container(
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
@@ -397,6 +404,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                       arguments: {'reset': true},
                       restart: true,
                     );
+                    context.read<NpcListState>().update();
                   case DebugMenuItems.debugDialog:
                     engine.hetu.invoke('debugDialog', namespace: 'Debug');
                   case DebugMenuItems.debugItem:
@@ -428,15 +436,18 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                   case DebugMenuItems.debugBattle:
                     final enemy = engine.hetu.invoke('Character', namedArgs: {
                       'isFemale': true,
-                      'level': 0,
-                      'rank': 0,
+                      'level': GameData.heroData['level'],
+                      'rank': GameData.heroData['rank'],
                     });
+                    GameLogic.characterAllocateSkills(enemy);
                     engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
                     context.read<EnemyState>().show(enemy);
                   case DebugMenuItems.debugTribulation:
                     final targetRank = GameData.heroData['rank'] + 1;
                     final levelMin = GameLogic.minLevelForRank(targetRank);
                     GameLogic.showTribulation(levelMin + 5, targetRank);
+                  case DebugMenuItems.debugAutoAllocateSkills:
+                    GameLogic.characterAllocateSkills(GameData.heroData);
                 }
               },
               itemBuilder: (BuildContext context) => buildDebugMenuItems(),

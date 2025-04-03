@@ -29,8 +29,15 @@ class MainMenuScene extends Scene {
       // 创建一个空游戏存档并初始化一些数据，这主要是为了在主菜单快速测试和debug相关功能，并不会保存
       // 真正开始游戏后还会再执行一遍，
       await GameData.createGame('debug');
-      GameData.isGameCreated = false;
-      engine.hetu.invoke('generateHero', namespace: 'Debug');
+      // GameData.isGameCreated = false;
+      engine.hetu.invoke(
+        'generateHero',
+        namespace: 'Debug',
+        namedArgs: {
+          'level': 30,
+          'rank': 3,
+        },
+      );
       engine.hetu.invoke('acquireById',
           namespace: 'Player', positionalArgs: ['hunguding']);
       if (!context.mounted) return;

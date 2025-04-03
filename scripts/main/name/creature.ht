@@ -18,6 +18,7 @@ function generateCreatureName({category, rarity}) {
   const cp = random.nextIterable(colorPrefix)
   const sp = random.nextIterable(creaturePrefix)
   category ??= random.nextIterable(creatureNames.keys)
+  assert(creatureNames.keys.contains(category), category)
   const k = random.nextIterable(creatureNames[category])
   rarity ??= getRarity().rarity
   let name

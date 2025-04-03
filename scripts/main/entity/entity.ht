@@ -2,6 +2,27 @@ import '../random.ht'
 import '../game/dialog.ht'
 import '../name/skill/skill.json5' as skillData
 
+const kNonBattleAttributes = [
+  'charisma',
+  'wisdom',
+  'luck',
+]
+
+// 战斗属性决定了角色战斗流派
+const kBattleAttributes = [
+  'spirituality',
+  'dexterity',
+  'strength',
+  'willpower',
+  'perception',
+]
+
+const kRaceNames = [
+  'xianzu',
+  'fanzu',
+  'yaozu'
+]
+
 const kCultivationGenres = [
   'spellcraft',
   'swordcraft',
@@ -27,7 +48,7 @@ const kCultivationRankMax = 8
 
 final kBattleCardKind = skillData.keys.toList()
 
-const kItemBasePriceByKind = {
+const kMaterialBasePriceByKind = {
   'shard': 10000,
   'herb': 5,
   'timber': 10,
@@ -37,13 +58,22 @@ const kItemBasePriceByKind = {
 
 /// 物品的基础价格
 const kItemBasePriceByCategory = {
-  'weapon': 5,
   'cardpack': 300,
   'scroll': 100,
+  'weapon': 5,
+  'shield': 5,
+  'armor': 5,
+  'gloves': 5,
+  'helmet': 5,
+  'boots': 10,
+  'ship': 10,
+  'aircraft': 10,
+  'jewelry': 20,
+  'talisman': 50,
 }
 
 function calculatePrice(item) {
-  assert(kItemBasePriceByCategory.containsKey(item.category))
+  assert(kItemBasePriceByCategory.containsKey(item.category), item.category)
   item.price = (item.rank + 1) * (item.level + 1) *
     (item.affixes?.length + 1) * kItemBasePriceByCategory[item.category]
 }
@@ -182,7 +212,7 @@ const kRankRarity = {
 
 function getRandomLevel(min, max) {
   if (min >= max) return max
-  return  min + random.distantInt(max - min + 1)
+  return  min + random.nextInt(max - min + 1)
 }
 
 // 额外词条数量，卡牌和装备共用一个算法
@@ -265,4 +295,11 @@ const kLocationSiteKinds = [
   'psychicaltar',
   'divinationaltar',
   'theurgyaltar',
+]
+
+const kThresholdOfExtraAffix = 0.65
+
+const kResistPassives = [
+  'physicalResist',
+  'elementalResist',
 ]

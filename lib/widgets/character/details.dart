@@ -4,7 +4,7 @@ import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 
 import '../../engine.dart';
-import 'inventory/stats.dart';
+import 'stats.dart';
 import 'inventory/equipment_bar.dart';
 import 'inventory/inventory.dart';
 import '../menu_item_builder.dart';
@@ -15,6 +15,8 @@ import '../../game/logic.dart';
 import '../../common.dart';
 import '../../state/hoverinfo.dart';
 import '../../game/event_ids.dart';
+import '../../game/data.dart';
+import '../../game/ui.dart';
 
 const Set<String> kMaterials = {
   'money',
@@ -115,8 +117,7 @@ class _CharacterDetailsState extends State<CharacterDetails> {
     if (widget.characterData != null) {
       _characterData = widget.characterData!;
     } else {
-      _characterData = engine.hetu
-          .invoke('getCharacterById', positionalArgs: [widget.characterId]);
+      _characterData = GameData.getCharacter(widget.characterId!);
     }
   }
 
@@ -214,58 +215,56 @@ class _CharacterDetailsState extends State<CharacterDetails> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            EquipmentBar(
-              type: ItemType.player,
-              characterData: _characterData,
-              onItemSecondaryTapped: onItemSecondaryTapped,
-              isVertical: true,
-            ),
-            CharacterStats(
-              characterData: _characterData,
-              isHero: true,
-            ),
-            Column(
+    return Padding(
+      padding: const EdgeInsets.only(top: 5.0, bottom: 10.0),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              EquipmentBar(
+                type: ItemType.player,
+                characterData: _characterData,
+                onItemSecondaryTapped: onItemSecondaryTapped,
+                isVertical: true,
+              ),
+              CharacterStats(
+                characterData: _characterData,
+                isHero: true,
+                height: 350,
+              ),
+              Inventory(
+                height: 350,
+                characterData: _characterData,
+                type: ItemType.player,
+                minSlotCount: 60,
+                gridsPerLine: 5,
+                onSecondaryTapped: onItemSecondaryTapped,
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0, right: 30.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Container(
-                  width: 300.0,
-                  height: 60.0,
-                  padding: const EdgeInsets.only(top: 10.0, right: 10.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      // Padding(
-                      //   padding: const EdgeInsets.only(right: 10.0),
-                      //   child: ElevatedButton(
-                      //     onPressed: () {},
-                      //     child: Text(engine.locale('identify')),
-                      //   ),
-                      // ),
-                      ElevatedButton(
-                        onPressed: () {},
-                        child: Text(engine.locale('orderBy')),
-                      ),
-                    ],
-                  ),
-                ),
-                Inventory(
-                  height: 350,
-                  characterData: _characterData,
-                  type: ItemType.player,
-                  minSlotCount: 60,
-                  gridsPerLine: 5,
-                  onSecondaryTapped: onItemSecondaryTapped,
+                // Padding(
+                //   padding: const EdgeInsets.only(right: 10.0),
+                //   child: ElevatedButton(
+                //     onPressed: () {},
+                //     child: Text(engine.locale('identify')),
+                //   ),
+                // ),
+                ElevatedButton(
+                  onPressed: () {},
+                  child: Text(engine.locale('orderBy')),
                 ),
               ],
-            )
-          ],
-        ),
-      ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -284,28 +283,18 @@ class CharacterDetailsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ResponsiveView(
       alignment: AlignmentDirectional.center,
-      width: 400.0,
-      height: 480.0,
+      backgroundColor: GameUI.backgroundColor2,
+      width: GameUI.profileWindowSize.x,
+      height: GameUI.profileWindowSize.y,
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
           title: Text(engine.locale('information')),
           actions: [CloseButton2()],
         ),
-        body: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CharacterStats(
-              characterData: characterData,
-              isHero: true,
-            ),
-            EquipmentBar(
-              type: ItemType.npc,
-              characterData: characterData,
-              isVertical: true,
-            ),
-          ],
+        body: CharacterDetails(
+          characterId: characterId,
+          characterData: characterData,
         ),
       ),
     );

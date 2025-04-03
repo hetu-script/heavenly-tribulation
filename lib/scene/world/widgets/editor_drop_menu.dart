@@ -17,6 +17,7 @@ enum WorldEditorDropMenuItems {
   viewZones,
   viewOrganizations,
   reloadGameData,
+  characterCalculateStats,
   console,
   exit,
 }
@@ -63,6 +64,10 @@ List<PopupMenuEntry<WorldEditorDropMenuItems>> buildWorldEditorDropMenuItems() {
     buildMenuItem(
       item: WorldEditorDropMenuItems.reloadGameData,
       name: engine.locale('reloadGameData'),
+    ),
+    buildMenuItem(
+      item: WorldEditorDropMenuItems.characterCalculateStats,
+      name: engine.locale('characterCalculateStats'),
     ),
     const PopupMenuDivider(),
     buildMenuItem(

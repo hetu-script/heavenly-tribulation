@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../../state/hoverinfo.dart';
 import 'item_grid.dart';
-import '../../../game/data.dart';
+import '../../../game/logic.dart';
 
 /// 如果是玩家自己的物品栏，则传入characterData
 class Inventory extends StatefulWidget {
@@ -52,7 +52,7 @@ class _InventoryState extends State<Inventory> {
   Widget build(BuildContext context) {
     final grids = <Widget>[];
 
-    final filteredItems = GameData.getFilteredItems(widget.characterData,
+    final filteredItems = GameLogic.getFilteredItems(widget.characterData,
         type: widget.type, filter: widget.filter);
 
     for (final itemData in filteredItems) {
@@ -66,24 +66,24 @@ class _InventoryState extends State<Inventory> {
               case ItemType.none:
                 context
                     .read<HoverInfoContentState>()
-                    .set(itemData, type: widget.type, rect);
+                    .show(itemData, type: widget.type, rect);
               case ItemType.player:
               case ItemType.npc:
-                context.read<HoverInfoContentState>().set(
+                context.read<HoverInfoContentState>().show(
                       itemData,
                       type: widget.type,
                       data2: widget.characterData,
                       rect,
                     );
               case ItemType.merchant:
-                context.read<HoverInfoContentState>().set(
+                context.read<HoverInfoContentState>().show(
                       itemData,
                       type: widget.type,
                       data2: widget.priceFactor,
                       rect,
                     );
               case ItemType.customer:
-                context.read<HoverInfoContentState>().set(
+                context.read<HoverInfoContentState>().show(
                       itemData,
                       type: widget.type,
                       data2: widget.priceFactor,

@@ -12,12 +12,12 @@ const kMaxVelocity = 25;
 const kMaxSpreadY = 100;
 
 class ParticleRubble extends GameComponent {
+  static final random = math.Random();
+
   Sprite? sprite;
 
   // 每秒钟移动的距离
   late final double velocity;
-
-  final random = math.Random();
 
   ParticleRubble() : super(priority: kRubblePriority) {
     velocity = random.nextDouble() * kMaxVelocity + kMinVelocity;

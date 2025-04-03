@@ -44,4 +44,6 @@ namespace Game {
   })
 
   external function showMerchant(merchantData, {priceFactor})
+
+  external function characterAllocateSkills(character)
 }

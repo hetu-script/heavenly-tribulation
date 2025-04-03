@@ -42,28 +42,21 @@ class StatusEffect extends BorderComponent with HandlesGesture {
 
   late final String id;
 
-  String? get oppositeEffectId => data['opposite'];
-
+  String? get opposite => data['opposite'];
+  String? get category => data['category'];
+  String? get genre => data['genre'];
+  String? get kind => data['kind'];
   String? get attackType => data['attackType'];
-
   String? get damageType => data['damageType'];
-
   String? get script => data['script'];
-
   String? get soundId => data['sound'];
-
   bool get isHidden => data['isHidden'] ?? false;
-
   bool get isResource => data['isResource'] ?? false;
-
+  bool get isNegative => data['isNegative'] ?? false;
   bool get isPermenant => data['isPermenant'] ?? false;
-
   bool get isOngoing => data['isOngoing'] ?? false;
-
   bool get isUnique => data['isUnique'] ?? false;
-
   int get effectPriority => data['priority'] ?? 0;
-
   List get callbacks => data['callbacks'] ?? [];
 
   late ScreenTextConfig countTextConfig;

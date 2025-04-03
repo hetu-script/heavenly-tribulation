@@ -13,7 +13,7 @@ import 'engine.dart';
 import 'scene/world/world.dart';
 import 'scene/battle/battle.dart';
 import 'scene/card_library/card_library.dart';
-import 'binding/character_binding.dart';
+import 'scene/battle/character_binding.dart';
 import 'game/data.dart';
 import 'game/ui.dart';
 import 'scene/world/location.dart';
@@ -152,6 +152,15 @@ class _GameAppState extends State<GameApp> {
         'getDeckLimitForRank',
         ({positionalArgs, namedArgs}) =>
             GameLogic.getDeckLimitForRank(positionalArgs.first),
+        override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'calculateItemPrice',
+        ({positionalArgs, namedArgs}) => GameLogic.calculateItemPrice(
+              positionalArgs.first,
+              priceFactor: namedArgs['priceFactor'],
+              isSell: namedArgs['isSell'] ?? true,
+            ),
         override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Dialog::_pushDialog', (
@@ -324,6 +333,11 @@ class _GameAppState extends State<GameApp> {
       context
           .read<MerchantState>()
           .show(positionalArgs.first, priceFactor: namedArgs['priceFactor']);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction(
+        'Game::characterAllocateSkills', ({positionalArgs, namedArgs}) {
+      GameLogic.characterAllocateSkills(positionalArgs.first);
     }, override: true);
 
     final mainConfig = {'locale': engine.languageId};

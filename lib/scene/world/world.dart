@@ -133,6 +133,8 @@ const kExcludeTerrainKindsOnLighting = ['void', 'mountain'];
 const kMaxCloudsCount = 16;
 
 class WorldMapScene extends Scene {
+  static final random = math.Random();
+
   WorldMapScene({
     required super.context,
     required this.worldData,
@@ -177,8 +179,6 @@ class WorldMapScene extends Scene {
   final HTStruct worldData;
 
   final bool isEditorMode;
-
-  final math.Random random = math.Random();
 
   bool get isMainWorld => worldData['isMainWorld'] ?? false;
 
@@ -419,8 +419,7 @@ class WorldMapScene extends Scene {
           if (map.components.containsKey(charId)) {
             charComponent = map.components[charId]!;
           } else {
-            final charData = engine.hetu
-                .invoke('getCharacterById', positionalArgs: [charId]);
+            final charData = GameData.getCharacter(charId);
             charComponent = await map.loadTileMapComponentFromData(charData,
                 spriteSrcSize: kWorldMapCharacterSpriteSrcSize,
                 isCharacter: true);
@@ -588,6 +587,8 @@ class WorldMapScene extends Scene {
   }
 
   Future<void> _onEnterScene() async {
+    print('entered map scene');
+
     context.read<HeroState>().update();
     context.read<GameTimestampState>().update();
     context.read<HeroAndGlobalHistoryState>().update();
@@ -600,10 +601,6 @@ class WorldMapScene extends Scene {
     super.onStart(arguments);
 
     GameData.currentWorldId = worldData['id'];
-
-    if (isLoaded) {
-      _onEnterScene();
-    }
   }
 
   void _addCloud() {
@@ -1433,6 +1430,17 @@ class WorldMapScene extends Scene {
                       GameData.initGameData();
                       GameDialogContent.show(
                           context, engine.locale('reloadGameDataPrompt'));
+                    case WorldEditorDropMenuItems.characterCalculateStats:
+                      for (final characterData
+                          in GameData.gameData['characters'].values) {
+                        engine.hetu.invoke(
+                          'characterCalculateStats',
+                          positionalArgs: [characterData],
+                          namedArgs: {'reset': true},
+                        );
+                      }
+                      GameDialogContent.show(context,
+                          engine.locale('characterCalculateStatsPrompt'));
                     case WorldEditorDropMenuItems.console:
                       showDialog(
                         context: context,

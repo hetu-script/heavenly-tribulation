@@ -26,6 +26,7 @@
   "entityAcquire": "{0}得到了{1}。",
   "entityLose": "{0}失去了{1}。",
   "entityDestroy": "{0}销毁了{1}。",
+  "entityDismantle": "{0}分解了{1}。",
 
   "characterLearn": "{0}学会了{1}。",
   "characterAcquireMultiple": "{0}得到了 {1} 个{2}。",

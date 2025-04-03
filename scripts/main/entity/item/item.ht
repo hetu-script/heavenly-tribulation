@@ -11,6 +11,7 @@ import 'material.ht'
 
 const kItemCategoryCardpack = 'cardpack'
 const kItemCategoryScroll = 'scroll'
+const kItemAffixMinLevel = 5
 
 // kind 决定了物品名字的生成方式
 // weapon具体分为：sabre, sword, spear, staff, bow, dart, music
@@ -19,68 +20,87 @@ const kItemCategoryScroll = 'scroll'
 
 const kEquipmentMax = 6
 
-// 所有武器的category都是weapon
-const kWeaponKinds = [
+const kItemCategoryKinds = {
+    // 所有武器的category都是weapon
+  weapon: [
+    'sword',
+    'sabre',
+    'spear',
+    'staff',
+    'bow',
+    'dart',
+  ],
+  shield: [
+    'shield',
+  ],
+  armor: [
+    'armor',
+  ],
+  gloves: [
+    'gloves',
+  ]
+  helmet: [
+    'helmet',
+  ],
+  // boots: [
+  //   'boots',
+  // ],
+  // ship: [
+  //   'ship',
+  // ],
+  // aircraft: [
+  //   'aircraft',
+  // ],
+  // 所有首饰的 category 都是 jewelry
+  jewelry: [
+    'ring',
+    'amulet',
+    // 'belt',
+  ],
+  talisman: [
+    'pearl',
+  ],
+}
+
+const kEquipmentKinds = [
+  ...kItemCategoryKinds.weapon,
+  ...kItemCategoryKinds.shield,
+  ...kItemCategoryKinds.armor,
+  ...kItemCategoryKinds.gloves,
+  ...kItemCategoryKinds.helmet,
+  // ...kItemCategoryKinds.boots,
+  // ...kItemCategoryKinds.ship,
+  // ...kItemCategoryKinds.aircraft,
+  ...kItemCategoryKinds.jewelry,
+  ...kItemCategoryKinds.talisman, // 非以上四种的物品都算作法器 talisman
+]
+
+const kEnergyPositiveTypes = [
+  'start_battle_with_energy_positive_spell',
+  'start_battle_with_energy_positive_weapon',
+  'start_battle_with_energy_positive_unarmed',
+  // 'start_battle_with_energy_positive_life',
+  // 'start_battle_with_energy_positive_leech',
+  // 'start_battle_with_energy_positive_pure',
+]
+
+const kDebugEquipmentKinds = [
   'sword',
   'sabre',
   'staff',
   'spear',
   'bow',
   'dart',
-  'pipa',
-  'flute',
-]
-
-// 每种护甲是一个单独的category
-const kArmorKinds = [
+  'shield',
   'armor',
   'gloves',
-  'boots',
   'helmet',
-  'shield',
-]
-
-// 所有载具的category都是vehicle
-const kVehicleKinds = [
-  'ship',
-  'aircraft',
-]
-
-// 所有首饰的category都是jewelry
-const kJewelryKinds = [
-  'amulet',
+  // 'boots',
+  // 'amulet',
   'ring',
-  'belt',
+  // 'belt',
+  'pearl',
 ]
-
-const kEquipmentKinds = [
-  ...kWeaponKinds,
-  ...kArmorKinds,
-  ...kVehicleKinds,
-  ...kJewelryKinds,
-  'talisman', // 非以上四种的物品都算作法宝 talisman
-]
-
-// 实际上进攻类装备也可能具有防御效果，因此这里的类型仅用于显示而已
-const kItemKindShip = 'ship'
-const kItemKindBoots = 'boots'
-const kItemKindAircraft = 'aircraft'
-
-function getItemExtraAffixes(item) {
-  assert(game.passives != null)
-
-  final itemExtraAffixes = game.passives.values.where((affix) {
-    if (!affix.isItemExtraAffix) return false
-    if (affix.kind is List && !affix.kind.contains(item.kind)) return false
-    if (affix.rank > item.rank) return false
-    if (item.affixUniqueIds.contains(affix.id)) return false
-    return true
-  })
-  if (itemExtraAffixes.isEmpty) {
-    throw('Found no support affix for item: category: ${item.category}, kind: ${item.kind}, rank: ${item.rank}')
-  }
-  return itemExtraAffixes
-}
 
 struct Equipment {
   constructor({
@@ -88,6 +108,7 @@ struct Equipment {
     name,
     icon,
     flavortext,
+    category,
     kind,
     rarity,
     rank,
@@ -99,12 +120,23 @@ struct Equipment {
     this.isIdentified = isIdentified
     this.isEquippable = true
 
-    assert(kind != null)
-    this.kind = kind;
+    this.kind = kind ?? kItemCategoryKinds[this.category].random
+    this.category = category
+    if (category == null) {
+      if (this.kind != null) {
+        final categories = [...kItemCategoryKinds.keys]
+        this.category = categories.firstWhere((key) {
+          return kItemCategoryKinds[key].contains(this.kind)
+        })
+      } else {
+        this.category = kItemCategoryKinds.keys.random
+      }
+    }
+    assert(kItemCategoryKinds.keys.contains(this.category))
+    assert(kEquipmentKinds.contains(this.kind))
 
     this.id = id ?? crypto.randomUID(withTime: true)
     this.name = name ?? generateTalismanName(kind: this.kind)
-    this.flavortext = flavortext ?? engine.locale('${this.kind}_flavortext')
 
     if (rarity != null) {
       assert(kRarity.containsKey(rarity))
@@ -119,33 +151,58 @@ struct Equipment {
     }
     this.icon = icon ?? 'item/${this.kind}.png'
 
-    this.minLevel = minLevelForRank(this.rank)
-    this.maxLevel = maxLevelForRank(this.rank)
+    final minLevel = minLevelForRank(this.rank)
+    final maxLevel = maxLevelForRank(this.rank)
 
-    level ??= getRandomLevel(this.minLevel, this.maxLevel)
-    assert(level >= this.minLevel && level <= this.maxLevel)
+    level ??= getRandomLevel(minLevel, maxLevel)
+    assert(level >= minLevel && level <= maxLevel)
     this.level = level
     this.experienced = []
 
+    let mainAffix
     this.affixes = []
-
+    this.affixUniqueIds = Set()
     // category 决定了能装备的数量
     // weapon, armor, helmet, boots, vehicle，talisman
-    if (kWeaponKinds.contains(this.kind)) {
-      this.category = 'weapon'
-      // 武器的固定词条是允许使用该类卡牌
-      final passiveRawData = game.passives['equipment_${this.kind}']
-      assert(passiveRawData != null)
-      this.affixes.add(Object.create(passiveRawData))
-    } else if (kArmorKinds.contains(this.kind)) {
-      this.category = this.kind
-    } else if (kVehicleKinds.contains(this.kind)) {
-      this.category = 'vehicle'
-    } else if (kJewelryKinds.contains(this.kind)) {
-      this.category = 'jewelry'
-    } else {
-      this.category = 'talisman'
+    switch(this.category) {
+      'weapon': {
+        // 武器的固定词条是允许使用该类卡牌
+        final passiveRawData = game.passives['equipment_${this.kind}']
+        assert(passiveRawData != null, this.kind)
+        mainAffix = Object.create(passiveRawData)
+      }
+      'shield', 'armor', 'gloves', 'helmet': {
+        // 护甲的固定词条获得元素或物理抗性
+        final resistType = kResistPassives.random
+        final passiveRawData = game.passives[resistType]
+        assert(passiveRawData != null, this.kind)
+        mainAffix = Object.create(passiveRawData)
+      }
+      'jewelry': {
+        // 饰品的固定词条是获得主属性
+        final attributeType = kBattleAttributes.random
+        final passiveRawData = game.passives[attributeType]
+        assert(passiveRawData != null, this.kind)
+        mainAffix = Object.create(passiveRawData)
+      }
+      'vehicle': {
+        // 载具的固定词条是获得新的移动方式（山地、水面等）
+      }
+      else: {
+        // 法器的固定词条是获得资源
+        final energytype = kEnergyPositiveTypes.random
+        final passiveRawData = game.passives[energytype]
+        assert(passiveRawData != null, this.kind)
+        mainAffix = Object.create(passiveRawData)
+      }
     }
+    mainAffix.level = this.level
+    mainAffix.value = (mainAffix.increment * this.level).round()
+    this.affixes.add(mainAffix)
+    this.affixUniqueIds.add(mainAffix.uniqueId ?? mainAffix.id)
+    
+    // 在 category 赋值之后才能获取风味文本
+    this.flavortext = flavortext ?? engine.locale('${this.category}_flavortext')
 
     // 根据境界，生成额外词条
     final affixCountInfo = getMinMaxExtraAffixCount(this.rank)
@@ -153,23 +210,33 @@ struct Equipment {
     if (affixCountInfo.maxExtra > 0) {
       if (affixCount < affixCountInfo.maxExtra) {
         let r = random.nextDouble()
-        if (r >= 0.15) {
+        if (r > kThresholdOfExtraAffix) {
           ++affixCount
         }
       }
     }
-    this.affixUniqueIds = Set()
     if (affixCount > 0) {
       for (var i in range(affixCount)) {
-        final supportAffixes = getItemExtraAffixes(this)
+        final supportAffixes = game.passives.values.where((affix) {
+          if (!affix.isItemExtraAffix) return false
+          if (this.affixUniqueIds.contains(affix.id) ||
+            (affix.uniqueId != null && this.affixUniqueIds.contains(affix.uniqueId))) return false
+          if (affix.kind is List && !affix.kind.contains(this.kind)) return false
+          if (affix.rank > this.rank) return false
+          return true
+        })
+        if (supportAffixes.isEmpty) {
+          throw('Found no support affix for item: category: ${this.category}, kind: ${this.kind}, rank: ${this.rank}')
+        }
+        
         final affixRawData = random.nextIterable(supportAffixes)
         final affix = Object.create(affixRawData)
         if (affix.increment != null) {
-          affix.level = getRandomLevel(this.minLevel, this.level)
+          affix.level = getRandomLevel(kItemAffixMinLevel, this.level)
           affix.value = (affix.increment * affix.level).round()
         }
         this.affixes.add(affix)
-        this.affixUniqueIds.add(affix.id)
+        this.affixUniqueIds.add(affix.uniqueId ?? affix.id)
       }
     }
 
@@ -199,7 +266,9 @@ function createItemByPrototype(prototypeId, {level, itemId}) {
   item.id = item.isUnique ? item.prototypeId : (itemId ?? crypto.randomUID(withTime: true))
   item.entityType = kEntityTypeItem
   item.name = engine.locale(item.name)
-  item.flavortext = engine.locale('${prototypeId}_flavortext')
+  if (item.flavortext != null) {
+    item.flavortext = engine.locale(item.flavortext)
+  }
   // item.name = generateTalismanName(kind: item.kind)
   item.rarity ??= 'basic'
   item.color ??= kRarity[item.rarity].color

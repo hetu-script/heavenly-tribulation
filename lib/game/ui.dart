@@ -2,6 +2,7 @@ import 'package:samsara/samsara.dart';
 import 'package:flutter/material.dart';
 import 'package:samsara/components.dart';
 // import 'package:samsara/components/hovertip.dart';
+import '../common.dart';
 
 const double _kTextShadowOffset = 0.5;
 
@@ -73,10 +74,10 @@ abstract class GameUI {
 
   static const profileWindowPosition =
       Offset(largeIndent, heroInfoHeight + smallIndent);
-  static const profileWindowWidth = 640.0;
+  static final profileWindowSize = Vector2(640.0, 480.0);
 
   static final detailsWindowPosition = Offset(
-      profileWindowPosition.dx + profileWindowWidth + largeIndent,
+      profileWindowPosition.dx + profileWindowSize.x + largeIndent,
       profileWindowPosition.dy);
 
   static const iconTheme = IconThemeData(
@@ -259,6 +260,9 @@ abstract class GameUI {
   /// 卡包中1，2，3号卡牌的位置
   static late final List<Vector2> cardpackCardPositions;
 
+  static late Vector2 craftButtonPosition;
+  static late Vector2 cardLibraryExpLabelPosition;
+
   /// 卡牌精炼区域背景大小
   static late Vector2 cardCraftingZoneSize;
 
@@ -280,6 +284,8 @@ abstract class GameUI {
   static late Vector2 versusBannerSize;
   static late Vector2 versusIconSize;
   static late Vector2 battleCharacterAvatarSize;
+  static final Vector2 equipmentsBarSize =
+      Vector2(32 * (kEquipmentMax + 2), 30);
 
   static late Vector2 battleCardFocusedOffset;
 
@@ -389,6 +395,11 @@ abstract class GameUI {
     final position3 = position2 + Vector2(cardpackCardSize.x + hugeIndent, 0);
 
     cardpackCardPositions = [position1, position2, position3];
+
+    craftButtonPosition = cardpackCardPositions[1] +
+        Vector2(cardpackCardSize.x / 2, cardpackCardSize.y + hugeIndent * 2);
+
+    cardLibraryExpLabelPosition = Vector2(craftButtonPosition.x, size.y - 50);
 
     cardCraftingZoneSize = Vector2((270 / 1440 * size.x).roundToDouble(),
         (270 / 810 * size.y).roundToDouble());

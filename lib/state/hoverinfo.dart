@@ -50,7 +50,7 @@ class HoverInfoContentState extends ChangeNotifier {
   bool isDetailed = false;
   HoverInfoContent? content;
 
-  void set(
+  void show(
     dynamic data,
     Rect rect, {
     dynamic data2,

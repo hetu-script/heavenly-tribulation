@@ -24,6 +24,8 @@ external function maxLevelForRank(rank) -> integer
 
 external function getDeckLimitForRank(rank) -> Map
 
+external function calculateItemPrice(item, {priceFactor, isSell = true}) -> integer
+
 const kSearchSuccessProbability = 0.25
 
 // 打猎会增加遇到野兽的概率200%
@@ -156,7 +158,7 @@ async function onHeroMeditate({site, terrain, incurIncident = true}) {
       //   if (terrain.flags.isSpiritSurging) {
       //     let gainData = maxSpiritSurgingGain[hero.rank]
       //     assert(gainData != null) 
-      //     // TODO: 角色感知、天赋被动等stats可以提高成功率
+      //     // TODO: 角色神识、天赋被动等stats可以提高成功率
       //     let probability = gainData.probability + hero.stats.gatherSpiritProbabilityAdd ?? 0
 
       //     let availableDays = getHeroAvaialbeDays()
@@ -365,7 +367,7 @@ async function onBeforeMove(terrain) {
 //               ++i
 //               updateGame(ticks: kTicksPerDay)
 //               changeStamina(hero, -kTicksPerDay)
-//               // TODO: 角色感知可以提高成功率
+//               // TODO: 角色神识可以提高成功率
 //               if (random.nextDouble() < kSearchSuccessProbability) {
 //                 found = true
 //                 return false
@@ -401,7 +403,7 @@ async function onBeforeMove(terrain) {
 //               ++i
 //               updateGame(ticks: kTicksPerDay)
 //               changeStamina(hero, -kTicksPerDay)
-//               // TODO: 角色感知可以提高成功率
+//               // TODO: 角色神识可以提高成功率
 //               if (random.nextDouble() < kSearchSuccessProbability) {
 //                 found = true
 //                 return false

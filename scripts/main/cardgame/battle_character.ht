@@ -1,0 +1,41 @@
+
+async function characterAnimate(battleCharacter, animation) {
+  await battleCharacter.setCompositeState(
+    startup: animation.startup,
+    transitions: animation.transitions,
+    overlays: animation.overlays,
+    recovery: animation.recovery,
+    sound: animation.sound,
+  )
+}
+
+external class BattleCharacter {
+  get data
+
+  get turnFlags
+  
+  get life
+
+  get lifeMax
+
+  function changeLife(value: integer, {playSound: bool = false, changeLife: bool = false})
+
+  async function takeDamage(details) -> integer
+
+  async function setState(state, {isOverlay = false})
+
+  async function setCompositeState({
+    startup: string,
+    transitions: List,
+    overlays: List,
+    recovery: string,
+    complete: string = 'stand',
+    sound: string,
+  })
+
+  function hasStatusEffect(effectId: string) -> int
+
+  function removeStatusEffect(effectId: string, {amount: integer, percentage: float, exhaust: bool = false}) -> integer
+
+  function addStatusEffect(effectId: string, {amount: integer})
+}

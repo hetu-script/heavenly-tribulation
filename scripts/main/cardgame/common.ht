@@ -1,0 +1,43 @@
+const kAttackTypes = [
+  'unarmed',
+  'weapon',
+  'spell',
+  'curse',
+]
+
+const kDamageTypes = [
+  'physical',
+  'chi',
+  'elemental',
+  'psychic',
+  // 'pure',
+]
+
+
+const kDebuffs = {
+  'weakened_unarmed',
+  'weakened_weapon',
+  'weakened_spell',
+  'weakened_curse',
+  'weakness_physical',
+  'weakness_chi',
+  'weakness_elemental',
+  'weakness_psychic',
+  'speed_slow',
+  'speed_clumsy',
+  'vulnerable_physical',
+  'vulnerable_chi',
+  'vulnerable_elemental',
+  'vulnerable_psychic',
+  'energy_negative_spell',
+  'energy_negative_weapon',
+  'energy_negative_unarmed',
+  'energy_negative_life',
+  'energy_negative_leech',
+  'energy_negative_pure',
+  'energy_negative_ultimate',
+  'injury_external',
+  'injury_internal',
+  'injury_poison',
+  'injury_hallucination',
+}

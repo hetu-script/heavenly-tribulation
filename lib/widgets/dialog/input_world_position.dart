@@ -158,17 +158,15 @@ class _InputWorldPositionDialogState extends State<InputWorldPositionDialog> {
                   padding: const EdgeInsets.all(10.0),
                   child: ElevatedButton(
                     onPressed: () {
+                      final worldId =
+                          _worldIdEditingController.text.nonEmptyValue;
                       final x = int.tryParse(_posXController.text);
                       final y = int.tryParse(_posYController.text);
-                      (int, int, String?)? result;
-                      if (x != null && y != null) {
-                        result = (
-                          x,
-                          y,
-                          _worldIdEditingController.text.nonEmptyValue,
-                        );
+                      if (worldId != null) {
+                        Navigator.of(context).pop((x, y, worldId));
+                      } else {
+                        Navigator.of(context).pop();
                       }
-                      Navigator.of(context).pop(result);
                     },
                     child: Text(
                       engine.locale('confirm'),

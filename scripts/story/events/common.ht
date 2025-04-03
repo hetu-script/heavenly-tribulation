@@ -12,18 +12,31 @@ function initModData() {
   characterCalculateStats(hero)
 
   final feiyu = getCharacterById('du_feiyu')
+  feiyu.rank = 1
+  feiyu.level = 5
   characterCalculateStats(feiyu)
-  generateDeck(feiyu)
+  // Game.characterAllocateSkills(feiyu)
+  // generateDeck(feiyu, cardInfoList: [
+  //   {affixId: 'attack_sabre'}, {affixId: 'defend_sabre'}, {affixId: 'dodge'}
+  // ])
+  
   final feixiong = getCharacterById('ge_feixiong')
+  feiyu.rank = 2
+  feiyu.level = 16
   characterCalculateStats(feixiong)
-  generateDeck(feixiong)
+  // Game.characterAllocateSkills(feiyu)
+  generateDeck(feixiong, cardInfoList: [
+    {affixId: 'attack_sabre'}, {affixId: 'defend_sabre'}, {affixId: 'dodge'}, {affixId: 'heal'},
+  ])
 
   final chuxue = getCharacterById('ling_chuxue')
   characterCalculateStats(chuxue)
-  generateDeck(chuxue)
-  // generateDeck(chuxue, deckInfo: [
-  //   {mainAffixId: 'spell_energy', level: 5},{mainAffixId: 'fireball'},{mainAffixId: 'lightning'}
+  generateDeck(chuxue, cardInfoList: [
+    {affixId: 'defend_punch'},{affixId: 'attack_punch'},{affixId: 'attack_kick'}
+  ])
+  // generateDeck(chuxue, cardInfoList: [
+  //   {affixId: 'spell_energy', level: 5},{affixId: 'fireball'},{affixId: 'lightning'}
   // ])
-  entityCollect(chuxue, 'money', amount: 20000, incurIncident: false)
-  entityAcquireById(chuxue, 'identify_scroll', incurIncident: false)
+  // entityCollect(chuxue, 'money', amount: 5000, incurIncident: false)
+  // entityAcquireById(chuxue, 'identify_scroll', incurIncident: false)
 }

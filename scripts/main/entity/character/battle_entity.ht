@@ -29,29 +29,10 @@ const kBaseLightedRadius = 2
 const kBaseidentifyCardsCountMonthly = 12
 const kBaseexpCollectEfficiency = 10
 
-const kBaseTribulationMax = 2
-const kTribulationPerRank = 2
+const kBaseTribulationCountMax = 2
+const kTribulationCountPerRank = 2
 
-const kNonBattleAttributes = [
-  'charisma',
-  'wisdom',
-  'luck',
-]
-
-// 战斗属性决定了角色战斗流派
-const kBattleAttributes = [
-  'spirituality',
-  'dexterity',
-  'strength',
-  'willpower',
-  'perception',
-]
-
-const kRaceNames = [
-  'xianzu',
-  'fanzu',
-  'yaozu'
-]
+const kBaseResistMax = 75
 
 // 某些时候，只需要生成一个用于战斗的实体，此时不需要年龄、魅力等属性
 struct BattleEntity {
@@ -73,7 +54,7 @@ struct BattleEntity {
     rank,
     attributes,
     baseAttribute,
-    majorAttribute,
+    mainAttribute,
     stats,
     cardLibrary,
     battleDecks,
@@ -135,7 +116,6 @@ struct BattleEntity {
     // 境界决定了升级时能获得卡牌的最高稀有度，但具体获得的卡牌是随机的
     // 在所有流派中，只有修为等级最高的那个流派决定了境界
     this.rank = rank ?? 0
-    this.levelMax = maxLevelForRank(this.rank)
     // 修为等级，每次提升修为等级可以获得1点天赋点
     this.level = level ?? 0
 
@@ -160,8 +140,7 @@ struct BattleEntity {
       '3': null,
       '4': null,
       '5': null,
-      '6': null,
-      // '7': null,
+      // '6': null,
     }
 
     // 随角色移动的其他角色，这里只保存id
@@ -175,6 +154,7 @@ struct BattleEntity {
     //   {
     //     title: 'deck name',
     //     isBattleDeck: false, // 是否是当前使用的战斗卡组
+    //     // isValid: false, // 卡组是否合法（数量，装备要求等是否满足）
     //     cards: [
     //       'card id 1', // 卡组中只保存卡牌id，实际数据在角色的library中
     //       'card id 2',
@@ -187,7 +167,7 @@ struct BattleEntity {
 
     // 角色的属性
     // 包括：灵力、身法、体魄、念力、神识
-    let generated = generateCharacterAttributes(base: baseAttribute, major: majorAttribute)
+    let generated = generateCharacterAttributes(baseAttribute: baseAttribute, mainAttribute: mainAttribute)
     Object.assign(this, generated)
 
     // 天赋，天赋本身的数据另外保存，这里只保存了天赋的id和天赋等级
@@ -206,7 +186,10 @@ struct BattleEntity {
     // 包括经过物品、天赋和状态加成的基本属性值
     // 通过属性还会计算出：攻击、防御、体力、生命、灵气
     this.stats = stats ?? {}
-    
+
+    // 煞气：角色击败过的其他角色的数量，本身也是一种资源，可以被消耗
+    this.karma = 0
+
     characterCalculateStats(this)
 
     // 主流派：御剑、道术、锻体、炼魂、法身
@@ -215,8 +198,8 @@ struct BattleEntity {
   }
 }
 
-function generateCharacterAttributes({base, major}) {
-  base ??= _kAttributesBase
+function generateCharacterAttributes({baseAttribute, mainAttribute}) {
+  baseAttribute ??= _kAttributesBase
   let attributes = {}
   for (final id in kNonBattleAttributes) {
     attributes[id] = Math.gaussianNoise(
@@ -228,10 +211,10 @@ function generateCharacterAttributes({base, major}) {
     ).toInt()
   }
   for (final id in kBattleAttributes) {
-    if (id == major) {
-      attributes[id] = random.nearInt(base)
+    if (id == mainAttribute) {
+      attributes[id] = random.nearInt(baseAttribute)
     } else {
-      attributes[id] = random.distantInt(base)
+      attributes[id] = random.distantInt(baseAttribute)
     }
   }
   return attributes
@@ -239,21 +222,27 @@ function generateCharacterAttributes({base, major}) {
 
 /// 当前状态数值，由特性、属性、物品、天赋、技能、增益减损等计算得来
 /// 状态包括：生命、伤害、防御等。
-function characterCalculateStats(character, { reset = true }) {
+function characterCalculateStats(character, { reset = false, rejuvenate = true}) {
+  if (reset) {
+    character.stats = {}
+  }
 
-  character.lightRadius = kBaseLightedRadius + character.perception ~/ 10
-  character.identifyCardsCountMonthly = kBaseidentifyCardsCountMonthly + character.perception ~/ 10
-  character.expCollectEfficiency = kBaseexpCollectEfficiency
-  character.tribulationMax = kBaseTribulationMax + kTribulationPerRank * character.rank
-  
   final baseLife = kBaseLife + character.level * 5
   character.lifeMax = baseLife + character.strength ~/ 2
-  character.manaMax = kBaseMana + character.spirituality ~/ 10
+  character.manaMax = character.spirituality ~/ 10
+  character.chakraMax = character.dexterity ~/ 10
+  character.karmaMax = character.willpower ~/ 10
+  // character.expMax = (expForLevel(character.level) * 2.5).truncate()
 
-  character.stats.lightRadius = character.lightRadius + character.passives.lightRadius?.value
-  character.stats.identifyCardsCountMonthly = character.identifyCardsCountMonthly + character.passives.identifyCardsCountMonthly?.value
-  character.stats.expCollectEfficiency = character.expCollectEfficiency + character.passives.expCollectEfficiency?.value
-  character.stats.tribulationMax = character.tribulationMax + character.passives.tribulationMax?.value
+  character.tribulationCountMax = kBaseTribulationCountMax + kTribulationCountPerRank * character.rank
+  character.lightRadius = kBaseLightedRadius + character.perception ~/ 10
+  character.expCollectEfficiency = kBaseexpCollectEfficiency
+  character.identifyCardsCountMonthly = kBaseidentifyCardsCountMonthly + character.perception ~/ 10
+  
+  character.physicalResistMax = kBaseResistMax
+  character.chiResistMax = kBaseResistMax
+  character.elementalResistMax = kBaseResistMax
+  character.psychicResistMax = kBaseResistMax
 
   // 基础属性，在此基础上还要加上物品和状态的加成
   character.stats.charisma = character.charisma + character.passives.charisma?.value
@@ -267,25 +256,36 @@ function characterCalculateStats(character, { reset = true }) {
   character.stats.willpower = character.willpower + character.passives.willpower?.value
 
   character.stats.lifeMax = baseLife + character.stats.strength ~/ 2 + character.passives.lifeMax?.value
-  character.stats.manaMax = kBaseMana + character.stats.spirituality ~/ 10 + character.passives.manaMax?.value
-  
+  character.stats.manaMax = character.stats.spirituality ~/ 10 + character.passives.manaMax?.value
+  character.stats.chakraMax = character.stats.dexterity ~/ 10 + character.passives.chakraMax?.value
+  character.stats.karmaMax = character.stats.willpower ~/ 10 + character.passives.karmaMax?.value
+
+  character.stats.tribulationCountMax = character.tribulationCountMax + character.passives.tribulationCountMax?.value
+  character.stats.lightRadius = kBaseLightedRadius + character.stats.perception ~/ 10 + character.passives.lightRadius?.value
+  character.stats.expCollectEfficiency = character.expCollectEfficiency + character.passives.expCollectEfficiency?.value
+  character.stats.identifyCardsCountMonthly = kBaseidentifyCardsCountMonthly + character.stats.perception ~/ 10 + character.passives.identifyCardsCountMonthly?.value
+
   character.stats.unarmedEnhance = character.passives.unarmedEnhance?.value ?? 0
   character.stats.weaponEnhance = character.passives.weaponEnhance?.value ?? 0
   character.stats.spellEnhance = character.passives.spellEnhance?.value ?? 0
   character.stats.curseEnhance = character.passives.curseEnhance?.value ?? 0
-  character.stats.chaosEnhance = character.passives.chaosEnhance?.value ?? 0
   
   character.stats.physicalResist = character.passives.physicalResist?.value ?? 0
   character.stats.chiResist = character.passives.chiResist?.value ?? 0
   character.stats.elementalResist = character.passives.elementalResist?.value ?? 0
-  character.stats.spiritualResist = character.passives.spiritualResist?.value ?? 0
+  character.stats.psychicResist = character.passives.psychicResist?.value ?? 0
+
+  character.stats.physicalResistMax = character.physicalResistMax + character.passives.physicalResistMaxModifier?.value
+  character.stats.chiResistMax = character.chiResistMax + character.passives.chiResistMaxModifier?.value
+  character.stats.elementalResistMax = character.elementalResistMax + character.passives.elementalResistMaxModifier?.value
+  character.stats.psychicResistMax = character.psychicResistMax + character.passives.psychicResistMaxModifier?.value
 
   character.stats.quickThreshold = kQuickThreshold + character.passives.quickThresholdModifier?.value
   character.stats.slowThreshold = kQuickThreshold + character.passives.slowThresholdModifier?.value
   character.stats.nimbleThreshold = kQuickThreshold + character.passives.nimbleThresholdModifier?.value
   character.stats.clumsyThreshold = kClumsyThreshold + character.passives.clumsyThresholdModifier?.value
   
-  if (reset) {
+  if (rejuvenate) {
     characterRejuvenate(character)
   }
 }
@@ -346,47 +346,6 @@ function getCharacterMoveCostOnHill(character) {
   return null
 }
 
-function generateDeck(character, { deckInfo }) {
-  let deck = []
-  if (deckInfo is List) {
-    for (final info in deckInfo) {
-      final card = BattleCard(
-        category: info.category,
-        mainAffixId: info.mainAffixId,
-        kind: info.kind,
-        genre: info.genre,
-        level: info.level ?? character.level,
-        rank: info.rank ?? character.rank,
-        maxRank: info.maxRank,
-        isIdentified: info.isIdentified ?? true,
-      )
-      deck.add(card)
-    }
-  } else {
-    final deckLimit = getDeckLimitForRank(character.rank)
-    for (var i in range(deckLimit.limit)) {
-      final card = BattleCard(
-        category: i == 0 ? 'attack' : null,
-        level: character.level,
-        rank: character.rank,
-        isIdentified: false,
-      )
-      deck.add(card)
-    }
-  }
-  for (final card in deck) {
-    entityAcquireBattleCard(character, card)
-  }
-  character.battleDecks.add({
-    title: 'battleDeck',
-    isBattleDeck: true,
-    cards: deck.map((card) => card.id).toList(),
-  })
-  character.battleDeckIndex = character.battleDecks.length - 1
-  
-  engine.info('generated deck: [${deck.map((card) => card.name).join(', ')}]')
-}
-
 /// 提升天赋技能等级
 /// 注意此函数调用时并不会检测天赋树节点位置和链接情况
 /// 也不会检查角色是否有足够的技能点
@@ -396,16 +355,21 @@ function characterGainPassive(character, dataId, {level = 1}) {
   assert(level > 0)
   if (character.passives[dataId] == null) {
     final passiveRawData = game.passives[dataId]
-    assert(passiveRawData != null)
+    assert(passiveRawData != null, 'passive data not found! id: ${dataId}')
     final passiveData = PassiveData(
       id: dataId,
       priority: passiveRawData.priority ?? 0,
       level: level,
+      maxLevel: passiveRawData.maxLevel,
       description: passiveRawData.description,
     )
     if (passiveRawData.increment != null) {
       passiveData.increment = passiveRawData.increment
-      passiveData.value = (passiveData.increment * level).round()
+      let passiveLevel = passiveData.level
+      if (passiveData.maxLevel && passiveData.level > passiveData.maxLevel) {
+        passiveLevel = passiveData.maxLevel
+      }
+      passiveData.value = (passiveData.increment * passiveLevel).round()
     }
     character.passives[dataId] = passiveData
   } else {
@@ -441,4 +405,46 @@ function characterRefundPassive(character, dataId, {level = 1}) {
 /// 检查角色是否拥有某个天赋技能，并将其数据返回
 function characterHasPassive(character, dataId) {
   return character.passives[dataId]
+}
+
+function generateDeck(character, { cardInfoList }) {
+  let deck = []
+  if (cardInfoList is List) {
+    assert(cardInfoList.isNotEmpty, 'cardInfoList is empty!')
+    for (final info in cardInfoList) {
+      final card = BattleCard(
+        category: info.category,
+        affixId: info.affixId,
+        kind: info.kind,
+        genre: info.genre,
+        level: info.level ?? character.level,
+        rank: info.rank ?? character.rank,
+        maxRank: info.maxRank,
+        isIdentified: info.isIdentified ?? false,
+      )
+      deck.add(card)
+    }
+  } else {
+    final deckLimit = getDeckLimitForRank(character.rank)
+    for (var i in range(deckLimit.limit)) {
+      final card = BattleCard(
+        category: i < 2 ? 'buff' : null,
+        level: character.level,
+        rank: character.rank,
+        isIdentified: false,
+      )
+      deck.add(card)
+    }
+  }
+  for (final card in deck) {
+    entityAcquireBattleCard(character, card)
+  }
+  character.battleDecks.add({
+    title: 'battleDeck',
+    isBattleDeck: true,
+    cards: deck.map((card) => card.id).toList(),
+  })
+  character.battleDeckIndex = character.battleDecks.length - 1
+  
+  engine.info('为 ${character.name} 生成了战斗卡组: [${deck.map((card) => card.name).join(', ')}]')
 }

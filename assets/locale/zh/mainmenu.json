@@ -49,7 +49,7 @@
   "module": "模组",
   "script": "脚本",
 
-  "isFemale": "女性",
+  "isFemale": "性别",
   "characterEditingMustEnterId": "必须填写角色ID！",
   "characterEditingMustEnterName": "必须填写角色姓名！"
 }

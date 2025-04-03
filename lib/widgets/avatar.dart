@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:samsara/ui/rrect_icon.dart';
-import '../engine.dart';
 import '../game/ui.dart';
+import '../game/data.dart';
 // import 'character/profile.dart';
 
 enum AvatarNameAlignment {
@@ -61,8 +61,7 @@ class Avatar extends StatelessWidget {
     dynamic charData = characterData;
 
     if (characterId != null) {
-      charData =
-          engine.hetu.invoke('getCharacterById', positionalArgs: [characterId]);
+      charData = GameData.getCharacter(characterId!);
       name ??= charData['name'];
     }
 

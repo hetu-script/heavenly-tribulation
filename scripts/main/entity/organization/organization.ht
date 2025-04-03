@@ -128,7 +128,6 @@ struct Organization {
     // 和人物类似，也具有物品栏
     this.inventory = {}
     this.materials = MaterialStorage()
-    this.achievements = Achievements()
 
     // 敌对名单，遇到后将会直接开始战斗
     this.enemyLists = {

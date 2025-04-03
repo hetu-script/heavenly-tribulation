@@ -12,6 +12,14 @@ import '../achievements.ht'
 
 export 'battle_entity.ht'
 
+const kPlayStyles = {
+  'dexterity': ['standard'],
+  'spirituality': ['standard'],
+  'willpower': ['standard'],
+  'perception': ['standard'],
+  'strength': ['standard'],
+}
+
 // 进行某些互动的时候的判定阈值
 const kCharacterImpressionCheck = 10
 
@@ -965,7 +973,7 @@ const basicLibrary = [
   'attack_normal',
 ]
 
-function getMajorAttribute(character) {
+function getMainAttribute(character) {
   let maxAttr = kBattleAttributes.first
   let maxValue = character[maxAttr]
 
@@ -1019,7 +1027,7 @@ struct Character {
     level,
     rank,
     attributes,
-    majorAttribute,
+    mainAttribute,
     stats,
     cardLibrary: {},
     battleDecks: List = [],
@@ -1055,7 +1063,7 @@ struct Character {
       level: level,
       rank: rank,
       attributes: attributes,
-      majorAttribute: majorAttribute,
+      mainAttribute: mainAttribute,
       stats: stats,
       cardLibrary: cardLibrary,
       battleDecks: battleDecks,
@@ -1175,7 +1183,8 @@ struct Character {
     assert(this.relationships.friendship != null)
     assert(this.relationships.domination != null)
 
-    this.cultivationFavor = getMajorAttribute(this)
+    this.cultivationFavor = getMainAttribute(this)
+    this.cultivationStyle = random.nextIterable(kPlayStyles[this.cultivationFavor])
     this.organizationFavor = this.motivations.first
 
     // 所有该角色拥有住所的据点的 id 列表
@@ -1451,10 +1460,12 @@ function getCharacterWorldPosition(character) {
   return character.worldPosition
 }
 
+// 赋值时位置可以是Null，但worldId为Null则会被忽略
 function setCharacterWorldPosition(character, left, top, {worldId}) {
-  character.worldPosition = {
-    left,
-    top,
+  if (left == null || top == null) {
+    character.worldPosition = null
+  } else {
+    character.worldPosition = { left, top }
   }
   if (worldId != null) {
     character.worldId = worldId
@@ -1607,7 +1618,8 @@ function getBondScore(subject, target) {
 /// 提升NPC的修为等级，NPC不会有天赋盘，所以这里不处理经验值和天赋点数等问题
 function characterCultivationLevelUp(character, {level = 1, incurIncident = true }) {
   assert(level > 0)
-  if (character.level >= character.levelMax) {
+  final levelMax = maxLevelForRank(character.rank)
+  if (character.level >= levelMax) {
     engine.warn('角色 ${character.name} 已经达到当前境界允许的最高等级，无法再提升。')
     return
   }
@@ -1616,8 +1628,8 @@ function characterCultivationLevelUp(character, {level = 1, incurIncident = true
 
   character.level += level
 
-  if (character.level > character.levelMax) {
-    character.level = character.levelMax
+  if (character.level > levelMax) {
+    character.level = levelMax
   }
 
   if (character.level <= originalLevel) {
