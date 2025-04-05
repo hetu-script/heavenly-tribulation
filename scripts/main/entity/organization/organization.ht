@@ -1,8 +1,8 @@
-import '../../game/data.ht'
-import '../../name/organization.ht'
-import '../entity.ht'
-import '../../world/tile/tilemap.ht'
-import '../item/material.ht'
+// import '../../game/data.ht'
+// import '../../name/organization.ht'
+// import '../entity.ht'
+// import '../../world/tile/tilemap.ht'
+// import '../item/material.ht'
 import '../achievements.ht'
 
 const kOrganizationStatusRankMax = 4

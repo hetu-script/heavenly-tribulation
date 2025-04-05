@@ -4,7 +4,6 @@ import 'dart:math' as math;
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/widgets/ui_overlay.dart';
-import 'package:path/path.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:samsara/cardgame/cardgame.dart';
@@ -14,6 +13,7 @@ import 'package:samsara/components/sprite_component2.dart';
 import 'package:provider/provider.dart';
 
 import '../../game/ui.dart';
+import '../../game/logic.dart';
 import 'character.dart';
 import 'battledeck_zone.dart';
 import '../../engine.dart';
@@ -108,6 +108,7 @@ class BattleScene extends Scene {
   final bool isAutoBattle;
 
   int turn = 0;
+  int turnCount = 0;
 
   // 先手角色
   late final bool isFirsthand;
@@ -144,7 +145,7 @@ class BattleScene extends Scene {
           bgmVolume: engine.config.musicVolume,
         );
 
-  void _preparePermenantStatus(BattleCharacter character) {
+  void _prepareBattleStart(BattleCharacter character) {
     for (final statName in kStatsToPermenantEffects.keys) {
       final int value = character.data['stats'][statName];
       final (positiveEffectId, negativeEffectId) =
@@ -431,14 +432,14 @@ class BattleScene extends Scene {
     heroDeckZone.reset();
     enemyDeckZone.reset();
 
-    _preparePermenantStatus(hero);
+    _prepareBattleStart(hero);
     final enemyStatus = _prepareStatus(hero, StatusCircumstances.start_battle);
     for (final statusId in enemyStatus.keys) {
       final value = enemyStatus[statusId]!;
       enemy.addStatusEffect(statusId, amount: value, handleCallback: false);
     }
 
-    _preparePermenantStatus(enemy);
+    _prepareBattleStart(enemy);
     final heroStatus = _prepareStatus(enemy, StatusCircumstances.start_battle);
     for (final statusId in heroStatus.keys) {
       final value = heroStatus[statusId]!;
@@ -507,6 +508,10 @@ class BattleScene extends Scene {
     engine.hetu.assign('self', currentCharacter);
     engine.hetu.assign('opponent', currentOpponent);
 
+    if (currentCharacter == hero) {
+      turnCount += 1;
+    }
+
     if (currentCharacter.deckZone.cards.isNotEmpty) {
       CustomGameCard card = currentCharacter.deckZone.current!;
       do {
@@ -522,7 +527,7 @@ class BattleScene extends Scene {
           }
           currentCharacter.deckZone.isFirstCard = false;
 
-          if (currentCharacter.deckZone.round > kBattleRoundLimit) {
+          if (currentCharacter.deckZone.round >= kBattleRoundLimit) {
             // 如果回合数超过上限，角色会获得死气的 debuff
             currentCharacter.addStatusEffect('energy_negative_life',
                 amount: currentCharacter.deckZone.round);
@@ -624,6 +629,18 @@ class BattleScene extends Scene {
     nextTurnButton.onTap = (_, __) => _endScene();
 
     await onBattleEnd?.call(battleResult);
+
+    final hpRestoreRate = GameLogic.getHPRestoreRateAfterBattle(turnCount);
+    int life = hero.life;
+    if (battleResult == true) {
+      life += (hero.lifeMax * hpRestoreRate).toInt();
+    } else {
+      if (life <= 0) {
+        life = 0;
+      }
+    }
+    hero.data['life'] = life;
+    engine.info('战斗结果：[$battleResult], 战后角色生命恢复：$life');
   }
 
   Future<void> startAutoBattle() async {
@@ -665,7 +682,7 @@ class BattleScene extends Scene {
           GameUIOverlay(
             enableHeroInfo: false,
             enableNpcs: false,
-            dropMenu: engine.config.debugMode
+            action: engine.config.debugMode
                 ? BattleDropMenu(
                     onSelected: (item) async {
                       switch (item) {

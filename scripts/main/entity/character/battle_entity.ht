@@ -2,10 +2,10 @@
 /// 此对象拥有一个牌库和一个卡组。
 /// 卡组是战斗中使用的。而牌库可以用来交换卡牌收藏（偷取、学习或者交换）。
 
-import '../entity.ht'
-import '../item/material.ht'
-import '../../cardgame/card.ht'
-import '../../common.ht'
+// import '../entity.ht'
+// import '../item/material.ht'
+// import '../../cardgame/card.ht'
+// import '../../common.ht'
 
 /// 容貌等数值计算时的最大值: 100.0
 const kAttributeValueMax = 100.0
@@ -24,7 +24,7 @@ const kBaseStaminaCostForMoveOnHill = 2
 
 const kBaseLife = 10
 const kBaseMana = 1
-const kBaseLightedRadius = 2
+const kBaseLightedRadius = 3
 
 const kBaseidentifyCardsCountMonthly = 12
 const kBaseexpCollectEfficiency = 10
@@ -33,6 +33,7 @@ const kBaseTribulationCountMax = 2
 const kTribulationCountPerRank = 2
 
 const kBaseResistMax = 75
+const kBaseLifePerLevel = 5
 
 // 某些时候，只需要生成一个用于战斗的实体，此时不需要年龄、魅力等属性
 struct BattleEntity {
@@ -190,7 +191,7 @@ struct BattleEntity {
     // 煞气：角色击败过的其他角色的数量，本身也是一种资源，可以被消耗
     this.karma = 0
 
-    characterCalculateStats(this)
+    characterCalculateStats(this, rejuvenate: true)
 
     // 主流派：御剑、道术、锻体、炼魂、法身
     // 副流派：炼丹、炼器、阵法、符法、灵植、灵兽、幻术、卜术、通灵、通神
@@ -227,7 +228,7 @@ function characterCalculateStats(character, { reset = false, rejuvenate = true})
     character.stats = {}
   }
 
-  final baseLife = kBaseLife + character.level * 5
+  final baseLife = kBaseLife + character.level * kBaseLifePerLevel
   character.lifeMax = baseLife + character.strength ~/ 2
   character.manaMax = character.spirituality ~/ 10
   character.chakraMax = character.dexterity ~/ 10
@@ -293,16 +294,16 @@ function characterCalculateStats(character, { reset = false, rejuvenate = true})
 /// 恢复指定角色指定数量的生命，返回实际恢复的数值
 function characterRestoreLife(character, count) {
   assert(count > 0)
-  let original = character.stats.life
-  character.stats.life += count
-  if (character.stats.life > character.stats.lifeMax) {
-    character.stats.life = character.stats.lifeMax
+  let original = character.life
+  character.life += count
+  if (character.life > character.stats.lifeMax) {
+    character.life = character.stats.lifeMax
   }
-  return character.stats.life - original
+  return character.life - original
 }
 
 function characterRejuvenate(character) {
-  character.stats.life = character.stats.lifeMax
+  character.life = character.stats.lifeMax
 }
 
 function getCharacterStats(character) {
@@ -352,7 +353,7 @@ function getCharacterMoveCostOnHill(character) {
 /// 升级天赋时，并不会立刻影响角色数据，
 /// 只有在执行 characterCalculateStats() 之后，人物数据才会最终计算出来
 function characterGainPassive(character, dataId, {level = 1}) {
-  assert(level > 0)
+  assert(level > 0, 'level: ${level}')
   if (character.passives[dataId] == null) {
     final passiveRawData = game.passives[dataId]
     assert(passiveRawData != null, 'passive data not found! id: ${dataId}')
@@ -428,7 +429,7 @@ function generateDeck(character, { cardInfoList }) {
     final deckLimit = getDeckLimitForRank(character.rank)
     for (var i in range(deckLimit.limit)) {
       final card = BattleCard(
-        category: i < 2 ? 'buff' : null,
+        category: (i == 0 || i == deckLimit.limit) ? 'buff' : 'attack',
         level: character.level,
         rank: character.rank,
         isIdentified: false,

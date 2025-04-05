@@ -23,6 +23,16 @@ const kResourceMax = {
   'energy_positive_weapon': 'chakraMax',
 };
 
+const kNegativeResourceNames = {
+  'life',
+  'leech',
+  'pure',
+  'unarmed',
+  'weapon',
+  'spell',
+  'curse',
+};
+
 Color getDamageColor(String damageType) {
   return switch (damageType) {
     'chi' => Colors.purple,
@@ -72,14 +82,27 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   late int _lifeMax;
   int get lifeMax => _lifeMax;
+
+  /// 降低角色生命上限，最低为 1
   void setLifeMax(int value) {
-    final characterLifeMax = data['stats']['lifeMax'];
+    if (value < 0) value = 1;
+    final int characterLifeMax = data['stats']['lifeMax'];
+    int diff = (value - characterLifeMax).abs();
     if (value > characterLifeMax) {
+      addHintText('${engine.locale('lifeMax')} +$diff',
+          color: Colors.lightGreen);
       _hpBar.labelColor = Colors.yellow;
+      _life += diff;
     } else if (value < characterLifeMax) {
+      addHintText('${engine.locale('lifeMax')} -$diff', color: Colors.pink);
       _hpBar.labelColor = Colors.grey;
     }
     _lifeMax = _hpBar.max = value;
+    if (_life < _lifeMax) {
+      _life = _lifeMax;
+    }
+    _hpBar.setValue(_life);
+    _hpBar.max = _lifeMax;
   }
 
   BattleCharacter? opponent;
@@ -146,7 +169,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
     // await loadStates();
 
-    _life = _lifeMax = data['stats']['life'];
+    _life = data['life'];
+    _lifeMax = data['stats']['lifeMax'];
 
     _hpBar = DynamicColorProgressIndicator(
       anchor: isHero ? Anchor.topLeft : Anchor.topRight,
@@ -289,7 +313,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     String id, {
     int? amount,
     double? percentage,
-    bool exhaust = false,
+    String? exhaust,
   }) {
     int removeAmount = 0;
     StatusEffect? existEffect;
@@ -328,21 +352,21 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       }
     }
 
-    if (amount != null && removeAmount < amount) {
-      // 如果指定了要移除的数量，而实际数量不够
+    if (amount != null && removeAmount < amount && exhaust != null) {
+      // 目前只有攻击类卡牌，并且是在消耗阳气时，才会触发枯竭
+      assert(id.startsWith('energy_positive'));
+      assert(kNegativeResourceNames.contains(exhaust));
+      // 触发资源枯竭时的情况
+      final hint = engine.locale('resourceLacking',
+          interpolations: [engine.locale('status_$id')]);
+      addHintText(hint, color: Colors.grey);
 
-      if (id.startsWith('energy')) {
-        final hint = engine.locale('resourceLacking',
-            interpolations: [engine.locale('status_$id')]);
-        addHintText(hint, color: Colors.grey);
+      final rest = amount - removeAmount;
+      final oppositeId = 'energy_negative_$exhaust';
+      // 理论上这里只会获得负面资源（阴气），所以不用处理回调函数
+      addStatusEffect(oppositeId, amount: rest, handleCallback: false);
 
-        final rest = amount - removeAmount;
-        final oppositeId = kOppositeStatus[id]!;
-        // 理论上这里只会获得负面资源（阴气），所以不用处理回调函数
-        addStatusEffect(oppositeId, amount: rest, handleCallback: false);
-
-        resourceIconNeedsRearranging = true;
-      }
+      resourceIconNeedsRearranging = true;
     }
 
     if (resourceIconNeedsRearranging) {
@@ -522,7 +546,10 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   void reset() {
-    setLife(lifeMax, animated: false);
+    _life = _lifeMax = data['stats']['lifeMax'];
+    _hpBar.max = _lifeMax;
+    _hpBar.setValue(_lifeMax);
+    _hpBar.labelColor = Colors.yellow;
     // setMana(0, animated: false);
     setState(kStandState);
     clearAllStatusEffects();
@@ -598,8 +625,27 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// (baseValue + baseValueChange) * (1 + percentageChange1) * (1 + percentageChange2) * (1 + percentageChange3)
   /// 乘区1：攻击增强，攻击削弱，抗性，弱点，伤害增加，乘区1最小值为-0.75，也就是说最小伤害是0.25
   /// 乘区2：从闪避中获得的免疫，从迟钝中获得的踉跄
-  /// 乘区3：戾气的伤害减少
+  /// 乘区3：正气的伤害增加，戾气的伤害减少
   int takeDamage(dynamic damageDetails, {bool recovery = true}) {
+    damageDetails['baseChange'] ??= 0;
+    damageDetails['percentageChange1'] ??= 0.0;
+    damageDetails['percentageChange2'] ??= 0.0;
+    damageDetails['percentageChange3'] ??= 0.0;
+    damageDetails['penetration'] ??= 0;
+
+    assert(opponent != null && opponent!.turnFlags['damage'] != null);
+
+    damageDetails['baseChange'] +=
+        opponent!.turnFlags['damage']['baseChange'] ?? 0;
+    damageDetails['percentageChange1'] +=
+        opponent!.turnFlags['damage']['percentageChange1'] ?? 0.0;
+    damageDetails['percentageChange2'] +=
+        opponent!.turnFlags['damage']['percentageChange2'] ?? 0.0;
+    damageDetails['percentageChange3'] +=
+        opponent!.turnFlags['damage']['percentageChange3'] ?? 0.0;
+    damageDetails['penetration'] +=
+        opponent!.turnFlags['damage']['penetration'] ?? 0;
+
     assert(damageDetails['baseValue'] > 0);
 
     // isMain 为 true 表示伤害来源来自主词条的攻击
@@ -622,13 +668,15 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       return 0;
     }
 
-    final int baseDamage =
-        damageDetails['baseValue'] + (damageDetails['baseChange'] ?? 0);
+    int baseDamage = damageDetails['baseValue'];
+    final int baseChange = damageDetails['baseChange'] ?? 0;
 
-    double percentage1 = damageDetails['percentageChange1'] ?? 0;
-    double percentage2 = damageDetails['percentageChange2'] ?? 0;
-    double percentage3 = damageDetails['percentageChange3'] ?? 0;
+    baseDamage += baseChange;
+
+    double percentage1 = damageDetails['percentageChange1'];
     if (percentage1 < kDamagePercentageMin) percentage1 = kDamagePercentageMin;
+    double percentage2 = damageDetails['percentageChange2'];
+    double percentage3 = damageDetails['percentageChange3'];
 
     int finalDamage =
         (baseDamage * (1 + percentage1) * (1 + percentage2) * (1 + percentage3))
@@ -676,7 +724,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
           .handleStatusEffectCallback('opponent_taken_damage', damageDetails);
       // }
 
-      opponent!.turnFlags['turnDamage'] += finalDamage;
+      opponent!.turnFlags['damage']['total'] += finalDamage;
     }
 
     bool blocked = damageDetails['blocked'] ?? false;
@@ -694,11 +742,15 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   /// 返回值是一个map，若map中 skipTurn 的key对应值为true表示跳过此回合
   Future<Map<String, dynamic>> onTurnStart(CustomGameCard card,
       {bool isExtra = false}) async {
+    // 重置 turnflag
+    // turnFlags 是词条 callback 调用使用的出入参
     turnFlags.clear();
-    // turn flag 是词条 callback 调用使用的出入参
-    turnFlags["isExtra"] = isExtra;
     // 重置主词条本回合累计伤害计数
-    turnFlags['turnDamage'] = 0;
+    turnFlags['damage'] = {
+      'total': 0,
+    };
+    // isExtra 表示这是某些机制触发的再次行动回合
+    turnFlags["isExtra"] = isExtra;
 
     opponent!.handleStatusEffectCallback('opponent_turn_start');
     handleStatusEffectCallback('self_turn_start');
@@ -716,6 +768,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // 展示当前卡牌及其详情
     if (card.data['isIdentified'] != true) {
       card.data['isIdentified'] = true;
+      final (description, _) = GameData.getDescriptionFromCardData(card.data);
+      card.description = description;
     }
 
     card.enablePreview = false;
@@ -781,7 +835,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // 先处理优先级高于主词条的额外词条
     // 其中可能包含一些当前回合就立即起作用的buff
     final beforeMain = affixes.where((affix) {
-      return affix['isMain'] != true && affix['isBeforeMain'] == true;
+      return affix['isMain'] != true && (affix['priority'] ?? 0) < 0;
     }).toList();
     // 多个词条时，按照优先级排序
     beforeMain.sort((a, b) {
@@ -808,7 +862,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // 其中可能包含一些需求资源或有关主词条造成的伤害等情况的词条
     // 这样可能会当回合就触发一些联动
     final afterMain = affixes.where((affix) {
-      return affix['isMain'] != true && affix['isBeforeMain'] != true;
+      return affix['isMain'] != true && (affix['priority'] ?? 0) >= 0;
     }).toList();
     // 多个词条时，按照优先级排序
     afterMain.sort((a, b) {

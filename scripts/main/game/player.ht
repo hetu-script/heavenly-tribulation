@@ -1,9 +1,9 @@
-import 'data.ht'
-import '../colors.ht'
-import '../game/world.ht'
-import '../entity/entity.ht'
-import '../entity/quest.ht'
-import '../common.ht'
+// import 'data.ht'
+// import '../colors.ht'
+// import '../game/world.ht'
+// import '../entity/entity.ht'
+// import '../entity/quest.ht'
+// import '../common.ht'
 
 const kQuickThreshold = 10
 const kSlowThreshold = 10
@@ -34,7 +34,7 @@ namespace Player {
   function setTo(left, top, { worldId, direction } ) {
     assert(hero != null)
     if (worldId != null) {
-      assert(universe.containsKey(worldId))
+      assert(universe.containsKey(worldId), worldId)
     }
     engine.info('player set to: [${left}, ${top}] of world [${worldId ?? world.id}] facing [${direction}]')
     setCharacterWorldPosition(hero, left, top, worldId: worldId)
@@ -333,24 +333,29 @@ namespace Player {
     
     engine.info('角色 [${hero.name}] 取下了 [${item.name}]')
   }
+  
+  /// 用于从一个宝箱中根据物品信息创造物品并获取
+  function lootBox(box) {
+    final items = loot(box)
+    for (final item in items) {
+      acquire(item)
+    }
+  }
 
-  // 批量获取物品，但不显示从那里获得的，通常用于从箱子或包裹中批量拿取
-  function loot(lootbox, { incurIncident = true }) {
+  /// 用于从另一个角色身上批量拿取
+  function lootEntity(entity, { incurIncident = true }) {
     assert(hero != null)
-    for (const item of lootbox.inventory) {
+    for (const item of entity.inventory) {
       acquire(item, incurIncident: incurIncident)
     }
-    // if (lootbox.money) {
-    //   acquireMoney(character, lootbox.money, incurIncident: incurIncident)
-    // }
+    for (const materialId in entity.materials.keys) {
+      const amount = entity.materials[materialId]
+      collect(materialId, amount: amount, incurIncident: incurIncident)
+    }
 
-    // 清空箱子
-    lootbox.inventory.clear()
-
-    // const ids = lootbox.keys.toList()
-    // for (const id in ids) {
-    //   delete lootbox[id]
-    // }
+    // 清空
+    entity.inventory = {}
+    entity.materials = MaterialStorage()
   }
 
   // 设定人物的随从，返回值是否成功

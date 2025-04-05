@@ -109,7 +109,7 @@ class LocationSelectDialog extends StatelessWidget {
                 ),
               ),
             );
-            if (context.mounted && value != null) {
+            if (value != null) {
               Navigator.of(context).pop(value);
             }
           },

@@ -8,7 +8,7 @@ import 'package:samsara/components/sprite_component2.dart';
 import 'package:samsara/components.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/utils/math.dart';
+import 'package:samsara/utils/math.dart' as math;
 
 import '../../widgets/dialog/confirm.dart';
 import 'library_zone.dart';
@@ -26,6 +26,12 @@ import '../game_dialog/game_dialog_content.dart';
 import '../common.dart';
 import '../../common.dart';
 import '../particles/light_point.dart';
+
+const kBasicCardKinds = {
+  'punch',
+  'kick',
+  'xinfa',
+};
 
 const kMaxLightPointCount = 20;
 
@@ -45,25 +51,25 @@ class CardLibraryScene extends Scene {
   late final CustomGameCard exit;
 
   late final SpriteButton orderBy;
+  late final SpriteButton filterBy;
 
   final List<DeckBuildingZone> deckPiles = [];
   DeckBuildingZone? _currentBuildingZone;
 
   late final PositionComponent deckPilesContainer;
 
-  // late final CardCraftingArea cardCraftingArea;
-
   late final List<dynamic> _heroDecks;
 
   final List<CustomGameCard> _cardpackCards = [];
 
-  late final SpriteButton skillBook;
+  late final RichTextComponent expLabel;
+  late final SpriteButton skillBook, expBottle;
 
   late final SpriteComponent2 barrier;
 
   late final SpriteButton collectButton;
 
-  late final RichTextComponent expLabel;
+  late final SpriteButton craftScrollButton;
 
   late final SpriteButton closeCraftButton;
 
@@ -76,7 +82,9 @@ class CardLibraryScene extends Scene {
 
   final List<LightPoint> _lightPoints = [];
 
-  final List<PointOnCircle> _lightPointsPositions = [];
+  final List<math.PointOnCircle> _lightPointsPositions = [];
+
+  bool enableCardCraft = false, enableScrollCraft = false;
 
   /// 最多只显示 4 个光点
   void addExpLightPoints() {
@@ -91,7 +99,7 @@ class CardLibraryScene extends Scene {
     while (_lightPoints.length < lightCount) {
       final lightPoint = LightPoint(
         position: _lightPointsPositions.random.position,
-        priority: kBarrierPriority,
+        priority: kExpLightPriority,
         preferredSize: Vector2(20, 20),
         flickerRate: 8,
       );
@@ -106,25 +114,46 @@ class CardLibraryScene extends Scene {
     }
   }
 
-  void updateExpLabel() {
+  void updateExp() {
     final int exp = GameData.heroData['unconvertedExp'];
-    // final int expMax = GameData.heroData['expMax'];
-    expLabel.text = '${engine.locale('unconvertedExp')}: $exp'; // ∕$expMax';
+    expLabel.text = '${engine.locale('unconvertedExp')}: $exp';
+
+    if (exp > 10000) {
+      if (expBottle.spriteId != 'cultivation/bottle3.png') {
+        expBottle.tryLoadSprite(
+          spriteId: 'cultivation/bottle3.png',
+          hoverSpriteId: 'cultivation/bottle3_hover.png',
+        );
+      }
+    } else if (exp > 1000) {
+      if (expBottle.spriteId != 'cultivation/bottle2.png') {
+        expBottle.tryLoadSprite(
+          spriteId: 'cultivation/bottle2.png',
+          hoverSpriteId: 'cultivation/bottle2_hover.png',
+        );
+      }
+    } else {
+      if (expBottle.spriteId != 'cultivation/bottle1.png') {
+        expBottle.tryLoadSprite(
+          spriteId: 'cultivation/bottle1.png',
+          hoverSpriteId: 'cultivation/bottle1_hover.png',
+        );
+      }
+    }
   }
 
   Future<void> _enterScene() async {
-    // engine.log('CardLibraryScene: onEnterScene');
-
     context.read<EnemyState>().setPrebattleVisible(false);
     context.read<HoverInfoContentState>().hide();
     context.read<ViewPanelState>().clearAll();
 
-    libraryZone.updateHeroLibrary();
-
+    updateOrderByButtonText();
+    updateFilterByButtonText();
     libraryZone.repositionToTop();
+    libraryZone.updateHeroLibrary();
     deckPilesContainer.position.y = GameUI.decksZoneBackgroundPosition.y;
 
-    updateExpLabel();
+    updateExp();
     addExpLightPoints();
 
     for (final deckZone in deckPiles) {
@@ -134,10 +163,13 @@ class CardLibraryScene extends Scene {
     engine.hetu.invoke('onGameEvent', positionalArgs: ['onEnterCardLibrary']);
   }
 
-  // @override
-  // void onStart([Map<String, dynamic> arguments = const {}]) {
-  //   super.onStart(arguments);
-  // }
+  @override
+  void onStart([Map<String, dynamic> arguments = const {}]) {
+    super.onStart(arguments);
+
+    enableCardCraft = arguments['enableCardCraft'] ?? false;
+    enableScrollCraft = arguments['enableScrollCraft'] ?? false;
+  }
 
   void cardDragStart(CustomGameCard card) {
     final CustomGameCard clone = card.clone();
@@ -299,7 +331,6 @@ class CardLibraryScene extends Scene {
     cardCount.isVisible = false;
     setBattleDeckButton.isVisible = false;
     closeButton.isVisible = false;
-    // cardCraftingArea.craftButton.isVisible = true;
 
     assert(_currentBuildingZone != null);
     await _currentBuildingZone!.collapse(animated: false);
@@ -324,9 +355,6 @@ class CardLibraryScene extends Scene {
     }
 
     libraryZone.buildingZone = _currentBuildingZone = null;
-
-    // deckPilesContainer.position.y =
-    //     getDeckPilesContainerMinOffsetY(ignoreEmptyDeck: true);
 
     _updateDeckCount();
   }
@@ -412,13 +440,7 @@ class CardLibraryScene extends Scene {
   }
 
   void _affixOperation(CustomGameCard card, String id) {
-    assert(kAffixOperations.contains(id));
-
-    // if (card == null) {
-    //   GameDialogContent.show(
-    //       context, engine.locale('deckbuilding_no_card_hint'));
-    //   return;
-    // }
+    assert(kCardCraftOperations.contains(id));
 
     final result = engine.hetu.invoke(id, positionalArgs: [card.data]);
 
@@ -442,7 +464,7 @@ class CardLibraryScene extends Scene {
       final (description, _) = GameData.getDescriptionFromCardData(card.data);
       card.description = description;
       _showCraftingCardInfo();
-      updateExpLabel();
+      updateExp();
     }
 
     if (id == 'dismantle') {
@@ -452,7 +474,7 @@ class CardLibraryScene extends Scene {
       }
 
       onEndCraft();
-      updateExpLabel();
+      updateExp();
     }
   }
 
@@ -462,7 +484,7 @@ class CardLibraryScene extends Scene {
       spriteId: 'ui/button10.png',
       size: GameUI.buttonSizeMedium,
       text: engine.locale('deckbuilding_$id'),
-      priority: kBarrierPriority + 100,
+      priority: kBarrierUIPriority + 100,
       isVisible: false,
     );
     button.onTapUp = (buttons, position) {
@@ -472,16 +494,17 @@ class CardLibraryScene extends Scene {
     };
     button.onMouseEnter = () {
       assert(_craftingCard != null);
-      final expCost = GameLogic.getAffixOperationCost(id, _craftingCard!.data);
+      final expCost =
+          GameLogic.getCardCraftOperationCost(id, _craftingCard!.data);
 
       String content = engine.locale('deckbuilding_${id}_description');
       if (expCost > 0) {
         if (id == 'dismantle') {
           content +=
-              '\n${engine.locale('deckbuilding_gain')}: <yellow>${expCost.toString()}</>';
+              '\n${engine.locale('deckbuilding_exp_gain')}: <yellow>${expCost.toString()}</>';
         } else {
           content +=
-              '\n${engine.locale('deckbuilding_cost')}: <yellow>${expCost.toString()}</>';
+              '\n${engine.locale('deckbuilding_exp_cost')}: <yellow>${expCost.toString()}</>';
         }
       }
 
@@ -490,7 +513,7 @@ class CardLibraryScene extends Scene {
         target: button,
         direction: HovertipDirection.leftCenter,
         content: content,
-        config: ScreenTextConfig(anchor: Anchor.topCenter),
+        width: 300,
       );
     };
     button.onMouseExit = () {
@@ -501,20 +524,20 @@ class CardLibraryScene extends Scene {
   }
 
   void onStartCraft(CustomGameCard card) {
-    // exit.isVisible = false;
-    // closeButton.isVisible = true;
-    // libraryZone.craftingArea = cardCraftingArea;
-
-    // for (final zone in deckPiles) {
-    //   zone.isVisible = false;
-    // }
-
     skillBook.enableGesture = false;
+    expBottle.enableGesture = false;
+    expLabel.isVisible = true;
     barrier.isVisible = true;
-    // expLabel.isVisible = true;
     closeCraftButton.isVisible = true;
-    for (final button in _craftOptionButtons) {
-      button.isVisible = true;
+
+    if (enableCardCraft) {
+      for (final button in _craftOptionButtons) {
+        button.isVisible = true;
+      }
+    }
+
+    if (enableScrollCraft) {
+      craftScrollButton.isVisible = true;
     }
 
     final clone = card.clone();
@@ -522,35 +545,22 @@ class CardLibraryScene extends Scene {
     clone.enableGesture = false;
     clone.size = GameUI.cardpackCardSize;
     clone.position = GameUI.cardpackCardPositions[1];
-    clone.priority = kBarrierPriority;
+    clone.priority = kBarrierUIPriority;
     camera.viewport.add(clone);
 
     _showCraftingCardInfo();
   }
 
   void onEndCraft() async {
-    // exit.isVisible = true;
-    // closeButton.isVisible = false;
-    // if (cardCraftingArea.isFull) {
-    //   final card = cardCraftingArea.cards.first as CustomGameCard;
-    //   updateCardData(card);
-    // }
-
-    // libraryZone.craftingArea = null;
-
-    // await cardCraftingArea.endCraft();
-
-    // for (final zone in deckPiles) {
-    //   zone.isVisible = true;
-    // }
-
     skillBook.enableGesture = true;
+    expBottle.enableGesture = true;
+    expLabel.isVisible = false;
     barrier.isVisible = false;
-    // expLabel.isVisible = true;
     closeCraftButton.isVisible = false;
     for (final button in _craftOptionButtons) {
       button.isVisible = false;
     }
+    craftScrollButton.isVisible = false;
 
     assert(_craftingCard != null);
     updateCardData(_craftingCard!);
@@ -583,12 +593,18 @@ class CardLibraryScene extends Scene {
     orderBy.text = engine.locale(libraryZone.orderByOption.name);
   }
 
+  void updateFilterByButtonText() {
+    filterBy.text =
+        '${engine.locale('filter')} - ${engine.locale(libraryZone.filterByOptions.name)}';
+  }
+
   void onOpenCardpack(Iterable cardpacksData) async {
     if (cardpacksData.isEmpty) return;
 
     if (cardpacksData.length == 1) {
       final cardpackData = cardpacksData.first;
       final cardFilter = cardpackData['filter'];
+      final int packRank = cardFilter['rank'];
 
       skillBook.enableGesture = false;
       barrier.isVisible = true;
@@ -597,14 +613,23 @@ class CardLibraryScene extends Scene {
 
       engine.play(GameSound.cardDealt2);
       for (var i = 0; i < 3; ++i) {
+        final genre = i == 1
+            ? cardFilter['genre']
+            : (cardFilter['isBasic'] == true ? 'none' : null);
+        final kind = i == 1
+            ? cardFilter['kind']
+            : (cardFilter['isBasic'] == true ? kBasicCardKinds.random : null);
+        final category = i == 1 ? cardFilter['category'] : null;
+        final rank = i == 1 ? packRank : null;
+        final maxRank = i == 1 ? null : packRank;
         final cardData = engine.hetu.invoke(
           'BattleCard',
           namedArgs: {
-            'maxRank': i == 0 ? null : cardFilter['rank'],
-            'category': i == 0 ? (cardFilter['category'] ?? 'attack') : 'buff',
-            'rank': i == 0 ? cardFilter['rank'] : null,
-            'genre': i == 0 ? cardFilter['genre'] : null,
-            'kind': i == 0 ? cardFilter['kind'] : null,
+            'kind': kind,
+            'genre': genre,
+            'maxRank': maxRank,
+            'category': category,
+            'rank': rank,
             'isIdentified': false,
           },
         );
@@ -613,13 +638,14 @@ class CardLibraryScene extends Scene {
         _cardpackCards.add(card);
 
         card.showGlow = true;
-        card.preferredPriority = kBarrierPriority;
+        card.preferredPriority = kBarrierUIPriority;
         card.resetPriority();
         card.size = Vector2.zero();
         card.position = skillBook.center;
 
         card.onTapUp = (int buttons, Vector2 position) {
           if (card.data['isIdentified'] != true) {
+            unpreviewCard(context);
             engine.play(GameSound.craft);
             card.data['isIdentified'] = true;
             final (description, _) =
@@ -687,19 +713,28 @@ class CardLibraryScene extends Scene {
       engine.play(GameSound.cardDealt2);
       for (final cardpackData in cardpacksData) {
         final cardFilter = cardpackData['filter'];
+        final int packRank = cardFilter['rank'];
         engine.hetu.invoke('lose',
             namespace: 'Player', positionalArgs: [cardpackData]);
         for (var i = 0; i < 3; ++i) {
+          final genre = i == 1
+              ? cardFilter['genre']
+              : (cardFilter['isBasic'] == true ? 'none' : null);
+          final kind = i == 1
+              ? cardFilter['kind']
+              : (cardFilter['isBasic'] == true ? kBasicCardKinds.random : null);
+          final category = i == 1 ? cardFilter['category'] : null;
+          final rank = i == 1 ? packRank : null;
+          final maxRank = i == 1 ? null : packRank;
           final cardData = engine.hetu.invoke(
             'BattleCard',
             namedArgs: {
-              'maxRank': i == 0 ? null : cardFilter['rank'],
-              'category':
-                  i == 0 ? (cardFilter['category'] ?? 'attack') : 'buff',
-              'rank': i == 0 ? cardFilter['rank'] : null,
-              'genre': i == 0 ? cardFilter['genre'] : null,
-              'kind': i == 0 ? cardFilter['kind'] : null,
-              'isIdentified': true,
+              'kind': kind,
+              'genre': genre,
+              'maxRank': maxRank,
+              'category': category,
+              'rank': rank,
+              'isIdentified': false,
             },
           );
 
@@ -735,8 +770,8 @@ class CardLibraryScene extends Scene {
 
     _heroDecks = GameData.heroData['battleDecks'];
 
-    _lightPointsPositions.addAll(generateDividingPointsFromCircle(
-      center: GameUI.cardLibraryExpLabelPosition,
+    _lightPointsPositions.addAll(math.generateDividingPointsFromCircle(
+      center: GameUI.expBottlePosition,
       radius: 40,
       number: 20,
     ));
@@ -906,16 +941,6 @@ class CardLibraryScene extends Scene {
     );
     world.add(cardCraftingArea);
 
-    // cardCraftingArea = CardCraftingArea(
-    //   // priority: kBarPriority,
-    //   onStartCraft: onStartCraft,
-    //   onRemoveCard: (card) {
-    //     libraryZone.setCardEnabledById(card.deckId);
-    //     updateCardData(card);
-    //   },
-    // );
-    // camera.viewport.add(cardCraftingArea);
-
     exit = GameData.createSiteCard(
       id: 'exit',
       spriteId: 'location/card/exit.png',
@@ -923,17 +948,13 @@ class CardLibraryScene extends Scene {
       position: GameUI.siteExitCardPositon,
     );
     exit.onTap = (_, __) {
-      // _heroData['cardLibrary'] = libraryZone.library.map((key, value) {
-      //   return MapEntry(key, value.data);
-      // });
-
       engine.popScene();
       context.read<EnemyState>().setPrebattleVisible();
     };
     camera.viewport.add(exit);
 
     orderBy = SpriteButton(
-      position: GameUI.libraryZonePosition + Vector2(50, -50),
+      position: GameUI.orderByButtonPosition,
       size: GameUI.buttonSizeLong,
       spriteId: 'ui/button20.png',
       priority: kBottomBarPriority,
@@ -944,7 +965,7 @@ class CardLibraryScene extends Scene {
           orderBy.position.y + orderBy.size.y, orderBy.position.x, 0.0);
       final menu = buildOrderByMenuItems(onSelectedItem: (option) {
         libraryZone.repositionToTop();
-        libraryZone.sortCards(orderBy: option);
+        libraryZone.sortCards(options: option);
         updateOrderByButtonText();
       });
       showMenu(
@@ -953,17 +974,37 @@ class CardLibraryScene extends Scene {
         position: menuPosition,
       );
     };
-    orderBy.onMouseEnter = () {};
-    orderBy.onMouseExit = () {};
     camera.viewport.add(orderBy);
-    updateOrderByButtonText();
+
+    filterBy = SpriteButton(
+      position: GameUI.filterByButtonPosition,
+      size: GameUI.buttonSizeLong,
+      spriteId: 'ui/button20.png',
+      priority: kBottomBarPriority,
+      text: engine.locale('filter'),
+    );
+    filterBy.onTapUp = (buttons, position) {
+      final menuPosition = RelativeRect.fromLTRB(filterBy.position.x,
+          filterBy.position.y + filterBy.size.y, filterBy.position.x, 0.0);
+      final menu = buildFilterByMenuItems(onSelectedItem: (option) {
+        libraryZone.repositionToTop();
+        libraryZone.filterCards(options: option);
+        updateFilterByButtonText();
+      });
+      showMenu(
+        context: context,
+        items: menu,
+        position: menuPosition,
+      );
+    };
+    camera.viewport.add(filterBy);
 
     skillBook = SpriteButton(
-      position: Vector2(-60, GameUI.size.y - 160),
-      size: Vector2(360, 360),
+      position: GameUI.skillBookPosition,
+      size: GameUI.skillBookSize,
       spriteId: 'cultivation/battlebook.png',
       hoverSpriteId: 'cultivation/battlebook_hover.png',
-      priority: kBarrierPriority,
+      priority: kBarrierUIPriority,
     );
     skillBook.onTapUp = (buttons, position) {
       context.read<ViewPanelState>().toogle(
@@ -1004,13 +1045,54 @@ class CardLibraryScene extends Scene {
     };
     camera.viewport.add(skillBook);
 
+    expBottle = SpriteButton(
+      position: GameUI.expBottlePosition,
+      anchor: Anchor.center,
+      size: GameUI.expBottleSize,
+      priority: kBarrierUIPriority,
+      angle: math.radians(15),
+    );
+    expBottle.onMouseEnter = () {
+      final int exp = GameData.heroData['unconvertedExp'];
+      Hovertip.show(
+        scene: this,
+        target: expBottle,
+        direction: HovertipDirection.topCenter,
+        content: '${engine.locale('unconvertedExp')}: $exp',
+        width: 150,
+        config: ScreenTextConfig(textAlign: TextAlign.center),
+      );
+    };
+    expBottle.onMouseExit = () {
+      Hovertip.hide(expBottle);
+    };
+    camera.viewport.add(expBottle);
+
+    expLabel = RichTextComponent(
+      anchor: Anchor.center,
+      position: expBottle.center,
+      size: Vector2(200, 60),
+      priority: kBarrierUIPriority,
+      isVisible: false,
+      config: ScreenTextConfig(
+        outlined: true,
+        textStyle: TextStyle(
+          color: Colors.yellow,
+          fontFamily: GameUI.fontFamily,
+          fontSize: 20,
+        ),
+        anchor: Anchor.bottomCenter,
+      ),
+    );
+    camera.viewport.add(expLabel);
+
     collectButton = SpriteButton(
       text: engine.locale('deckbuilding_identify_all'),
       anchor: Anchor.center,
-      position: GameUI.craftButtonPosition,
+      position: GameUI.closeCraftButtonPosition,
       size: GameUI.buttonSizeMedium,
       spriteId: 'ui/button2.png',
-      priority: kBarrierPriority,
+      priority: kBarrierUIPriority,
       isVisible: false,
     );
     collectButton.onTapUp = (buttons, position) {
@@ -1056,50 +1138,69 @@ class CardLibraryScene extends Scene {
     };
     camera.viewport.add(collectButton);
 
-    // craftOptionButtonsContainer = BorderComponent(
-    //   position: displayCardSize +
-    //       Vector2(displayCardSize.x + 300 + GameUI.hugeIndent, 0),
-    //   isVisible: false,
-    // );
-    // camera.viewport.add(craftOptionButtonsContainer);
-
-    for (var i = 0; i < kAffixOperations.length; i++) {
-      final operation = kAffixOperations[i];
+    for (var i = 0; i < kCardCraftOperations.length; i++) {
+      final operation = kCardCraftOperations[i];
       _addAffixOperationButton(
         operation,
         Vector2(
           GameUI.cardpackCardPositions[1].x -
-              (GameUI.buttonSizeMedium.x + GameUI.largeIndent),
+              (GameUI.buttonSizeMedium.x + GameUI.hugeIndent),
           GameUI.cardpackCardPositions[1].y +
+              GameUI.indent +
               (GameUI.buttonSizeMedium.y + GameUI.smallIndent) * i,
         ),
       );
     }
 
-    expLabel = RichTextComponent(
+    craftScrollButton = SpriteButton(
       anchor: Anchor.center,
-      position: GameUI.cardLibraryExpLabelPosition,
-      size: Vector2(200, 60),
-      config: ScreenTextConfig(
-        outlined: true,
-        textStyle: TextStyle(
-          color: Colors.yellow,
-          fontFamily: GameUI.fontFamily,
-          fontSize: 20,
-        ),
-        anchor: Anchor.bottomCenter,
+      size: Vector2(180, 180),
+      position: Vector2(
+        GameUI.size.x / 2,
+        GameUI.cardpackCardPositions[1].y +
+            GameUI.cardpackCardSize.y +
+            GameUI.hugeIndent * 2,
       ),
-      priority: kBarrierPriority,
+      spriteId: 'cultivation/scroll.png',
+      hoverSpriteId: 'cultivation/scroll_hover.png',
+      priority: kBarrierUIPriority,
+      isVisible: false,
     );
-    camera.viewport.add(expLabel);
+    craftScrollButton.onTapUp = (buttons, position) {};
+    craftScrollButton.onMouseEnter = () {
+      final expCost = GameLogic.getCardCraftOperationCost(
+          'craftScroll', _craftingCard!.data);
+
+      final paperCount =
+          engine.hetu.invoke('entityHasItemCategory', positionalArgs: [
+        GameData.heroData,
+        'scroll_paper',
+      ]);
+
+      StringBuffer buffer = StringBuffer();
+      buffer.writeln(engine.locale('deckbuilding_craft_scroll'));
+      buffer.writeln('${engine.locale('deckbuilding_exp_cost')}: $expCost');
+      buffer.writeln(
+          '${engine.locale('deckbuilding_scroll_paper_count')}: $paperCount');
+      Hovertip.show(
+        scene: this,
+        target: craftScrollButton,
+        direction: HovertipDirection.topCenter,
+        content: buffer.toString(),
+      );
+    };
+    craftScrollButton.onMouseExit = () {
+      Hovertip.hide(craftScrollButton);
+    };
+    camera.viewport.add(craftScrollButton);
 
     closeCraftButton = SpriteButton(
       text: engine.locale('close'),
       anchor: Anchor.center,
-      position: GameUI.craftButtonPosition,
+      position: GameUI.closeCraftButtonPosition,
       size: GameUI.buttonSizeMedium,
       spriteId: 'ui/button2.png',
-      priority: kBarrierPriority,
+      priority: kBarrierUIPriority,
       isVisible: false,
     );
     closeCraftButton.onTapUp = (buttons, position) {
@@ -1124,17 +1225,14 @@ class CardLibraryScene extends Scene {
           enableNpcs: false,
           enableLibrary: false,
           enableAutoExhaust: false,
-        ),
-        Positioned(
-          right: 10.0,
-          top: 10.0,
-          child: Container(
+          action: Container(
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(5.0),
               border: Border.all(color: GameUI.foregroundColor),
             ),
             child: IconButton(
+              padding: EdgeInsets.zero,
               onPressed: () {
                 GameDialogContent.show(
                   context,
@@ -1142,7 +1240,10 @@ class CardLibraryScene extends Scene {
                   style: TextStyle(color: Colors.yellow),
                 );
               },
-              icon: Icon(Icons.question_mark),
+              icon: Icon(
+                Icons.question_mark,
+                size: 20.0,
+              ),
             ),
           ),
         ),

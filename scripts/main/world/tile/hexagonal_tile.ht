@@ -1,4 +1,4 @@
-import 'tilemap.ht'
+// import 'tilemap.ht'
 
 struct Tile {
   constructor (left, top, {index, mapWidth}) {

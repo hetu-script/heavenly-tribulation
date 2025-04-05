@@ -232,10 +232,10 @@ class _CharacterDetailsState extends State<CharacterDetails> {
               CharacterStats(
                 characterData: _characterData,
                 isHero: true,
-                height: 350,
+                height: 312,
               ),
               Inventory(
-                height: 350,
+                height: 312,
                 characterData: _characterData,
                 type: ItemType.player,
                 minSlotCount: 60,

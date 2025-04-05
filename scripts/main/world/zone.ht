@@ -1,7 +1,7 @@
-import '../random.ht'
-import '../entity/entity.ht'
-import '../name/zone.ht'
-import '../game/data.ht'
+// import '../random.ht'
+// import '../entity/entity.ht'
+// import '../name/zone.ht'
+// import '../game/data.ht'
 
 const kZoneEmpty = 'empty'
 const kZoneLand = 'land'

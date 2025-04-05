@@ -46,7 +46,7 @@ const kMapObjectSourceTemplate = '''{
   //   },
   // },
   useCustomLogic: true,
-  blockMove: true,
+  blockMove: false,
 }
 ''';
 
@@ -77,7 +77,7 @@ const kMapObjectWorldPortalSourceTemplate = '''{
   name: 'object_name',
   entityType: 'object',
   category: 'worldPortal',
-  isDiscovered: true,
+  isDiscovered: false,
   // isHidden: false,
   // overlaySprite: {
   //   sprite: 'sprite.png',
@@ -100,7 +100,7 @@ const kMapObjectCharacterSourceTemplate = '''{
   name: 'object_name',
   entityType: 'object',
   category: 'character',
-  isDiscovered: true,
+  isDiscovered: false,
   // isHidden: false,
   // overlaySprite: {
   //   sprite: 'sprite.png',
@@ -119,7 +119,7 @@ const kMapObjectTreasureBoxSourceTemplate = '''{
   name: 'object_name',
   entityType: 'object',
   category: 'treasureBox',
-  isDiscovered: true,
+  isDiscovered: false,
   // isHidden: false,
   // overlaySprite: {
   //   sprite: 'sprite.png',
@@ -131,23 +131,23 @@ const kMapObjectTreasureBoxSourceTemplate = '''{
   blockMove: false,
   items: [
     {
-      category: 'material',
+      type: 'material',
       kind: 'money',
       amount: 100,
     },
     {
-      category: 'prototype',
+      type: 'prototype',
       kind: 'shard',
     },
     {
-      category: 'equipment',
+      type: 'equipment',
       kind: 'sword',
       rarity: 'basic',
       rank: 0,
       level: 0,
     },
     {
-      category: 'cardpack',
+      type: 'cardpack',
       kind: 'punch',
       genre: null,
       rank: 0,
@@ -810,7 +810,6 @@ class _EntityListPanelState extends State<EntityListPanel>
                           'icon': icon,
                           'illustration': illustration,
                         });
-                        if (!context.mounted) return;
                         await showDialog(
                             context: context,
                             builder: (context) {
@@ -983,10 +982,8 @@ class _EntityListPanelState extends State<EntityListPanel>
                                       'getLocationById',
                                       positionalArgs: [locationId]);
                                   if (locationData == null) {
-                                    if (context.mounted) {
-                                      GameDialogContent.show(context,
-                                          '输入的据点 id [$locationId] 不存在！');
-                                    }
+                                    GameDialogContent.show(
+                                        context, '输入的据点 id [$locationId] 不存在！');
                                   } else {
                                     engine.hetu.invoke(
                                       'setCharacterHomeLocation',
@@ -1090,7 +1087,6 @@ class _EntityListPanelState extends State<EntityListPanel>
                               return EditLocationBasics();
                             });
                         if (value == null) return;
-                        if (!context.mounted) return;
                         final selectedTile =
                             context.read<SelectedTileState>().currentTerrain;
                         if (selectedTile == null) {
@@ -1119,7 +1115,6 @@ class _EntityListPanelState extends State<EntityListPanel>
                             if (category == 'site') 'atLocation': atLocation,
                           },
                         );
-                        if (!context.mounted) return;
                         await showDialog(
                             context: context,
                             builder: (context) {

@@ -1,8 +1,9 @@
+export 'cardgame/battle_character.ht'
 export 'cardgame/card.ht'
 export 'cardgame/card_script.ht'
 export 'cardgame/status_script.ht'
-export 'cardgame/battle_character.ht'
 export 'entity/character/character.ht'
+export 'entity/character/battle_entity.ht'
 export 'entity/item/item.ht'
 export 'entity/item/material.ht'
 export 'entity/location/location.ht'
@@ -11,27 +12,28 @@ export 'entity/entity.ht'
 export 'entity/quest.ht'
 export 'event/event.ht'
 export 'game/data.ht'
-export 'game/logic.ht'
-export 'game/game.ht'
 export 'game/dialog.ht'
+export 'game/game.ht'
+export 'game/logic.ht'
 export 'game/player.ht'
 export 'game/world.ht'
-export 'incident.ht'
 export 'name/name.ht'
-export 'world/tile/common.ht'
-export 'world/tile/tilemap.ht'
+export 'world/dungeon.ht'
+export 'world/object.ht'
 export 'world/tile/hexagonal_tile.ht'
+export 'world/tile/tilemap.ht'
 export 'world/world.ht'
 export 'world/zone.ht'
-export 'world/object.ht'
 export 'colors.ht'
 export 'common.ht'
 export 'datetime.ht'
 export 'debug.ht'
+export 'incident.ht'
 export 'random.ht'
 export 'util.ht'
 
-import 'event/game_events.ht' as gameEvents
+import 'event/game.ht' as gameEvents
+import 'event/dungeon.ht' as dungeonEvents
 
 // 这里的数据会被添加到game.mods上，并序列化为字符串进入存档
 // 在游戏每次运行时，会重新将函数绑定到这个对象上
@@ -53,6 +55,12 @@ function main() {
     moduleId: meta.id,
     namespace: gameEvents,
   )
+
+  addEventHandlers(
+    moduleId: meta.id,
+    worldId: 'dungeon_1',
+    namespace: dungeonEvents,
+  )
 }
 
 /// Initialize the core script module.
@@ -62,6 +70,7 @@ function init({
   battleCardsData,
   battleCardAffixesData,
   passivesData,
+  mapsData,
 }) {
   engine.debug('游戏脚本模块 [${meta.id}(ver-${meta.version})] 初始化...')
 
@@ -79,6 +88,7 @@ function init({
   addBattleCardsData(battleCardsData)
   addBattleCardAffixesData(battleCardAffixesData)
   addPassivesData(passivesData)
+  addMapsData(mapsData)
 }
 
 function addModMetaData(mod) {
@@ -145,4 +155,15 @@ function addQuestsData(questsData) {
     game.quests[quest.id] = quest
   }
   engine.debug('载入剧情日志数据：[${questsData.length}]')
+}
+
+function addMapsData(mapsData) {
+  for (final map of mapsData) {
+    if (universe.containsKey(map.id)) {
+      engine.warn('地图数据 id 冲突：[${map.id}]')
+    }
+    universe[map.id] = Object.create(map)
+    history[map.id] = []
+  }
+  engine.debug('载入预定义地图：[${mapsData.length}]')
 }

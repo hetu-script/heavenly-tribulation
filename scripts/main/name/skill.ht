@@ -8,7 +8,7 @@ import '../random.ht'
 const _kMartialArtsKinds = [
   'punch',
   'kick',
-  'wrestling',
+  'qinna',
   'dianxue',
   'sabre',
   'spear',

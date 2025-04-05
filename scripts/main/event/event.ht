@@ -1,4 +1,4 @@
-import '../game/data.ht'
+// import '../game/data.ht'
 
 /// 加载到本次游戏的事件处理模块。
 /// module {

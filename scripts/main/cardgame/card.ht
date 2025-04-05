@@ -1,7 +1,7 @@
-import '../random.ht'
-import '../name/skill.ht'
-import '../common.ht'
-import '../entity/entity.ht'
+// import '../random.ht'
+// import '../name/skill.ht'
+// import '../entity/entity.ht'
+// import '../common.ht'
 
 const kAddAffixCostRatio = 10;
 const kRerollAffixCostRatio = 20;
@@ -22,12 +22,15 @@ function getCardRankUpProbability(rank) {
   return 0.7 * (1 - rank / kCultivationRankMax)
 }
 
+/// 创建一张功法战斗卡牌
+/// genre 如果为 null，表示可以匹配任意词条
+/// 如果为 'none', 表示只匹配没有 genre 要求的词条
 struct BattleCard {
   constructor ({
     category, // 'attack', 'buff'
     affixId,
     kind, // 'sword',
-    genre, // 'spellcraft', 'swordcraft'
+    genre, // 'spellcraft', 'swordcraft', 'none'
     level,
     rank, // 境界决定了额外词条数量
     maxRank,
@@ -39,20 +42,18 @@ struct BattleCard {
       this.rank = rank
     } else if (maxRank != null) {
       assert(maxRank >= 0 && maxRank <= kCultivationRankMax)
-      this.rank = random.nearInt(maxRank + 1)
+      if (maxRank == 0) {
+        this.rank = 0
+      } else {
+        this.rank = random.nearInt(maxRank + 1)
+      }
     } else {
       this.rank = 0
     }
-    
-    final minLevel = minLevelForRank(this.rank)
-    final maxLevel = maxLevelForRank(this.rank)
-    if (level == null) {
-      level = minLevel + random.distantInt(maxLevel - minLevel)
-    } else {
-      if (level < minLevel) level = minLevel
-      if (level > maxLevel) level = maxLevel
+
+    if (genre != null && genre != 'none' && this.rank == 0) {
+      this.rank = 1
     }
-    this.level = level
 
     this.id = crypto.randomUID(length: 4, withTime: true)
     this.isIdentified = isIdentified
@@ -64,13 +65,19 @@ struct BattleCard {
       if (affixId) {
         return affix.id == affixId
       } else {
-        if (genre != null && (affix.genre != null && affix.genre != genre)) {
+        if (genre != null) {
+          if (genre == 'none') {
+            if (affix.genre != null) {
+              return false
+            }
+          } else if (genre != affix.genre) {
+            return false
+          }
+        }
+        if (kind != null && affix.kind != kind) {
           return false
         }
         if (category != null && affix.category != category) {
-          return false
-        }
-        if (kind != null && affix.kind != kind) {
           return false
         }
         if (affix.rank > this.rank) {
@@ -85,6 +92,21 @@ struct BattleCard {
     }
 
     const mainAffix = Object.create(random.nextIterable(mainAffixes))
+
+    if (mainAffix.rank > this.rank) {
+      this.rank = mainAffix.rank
+    }
+
+    final minLevel = minLevelForRank(this.rank)
+    final maxLevel = maxLevelForRank(this.rank)
+    if (level == null) {
+      level = minLevel + random.distantInt(maxLevel - minLevel)
+    } else {
+      if (level < minLevel) level = minLevel
+      if (level > maxLevel) level = maxLevel
+    }
+    this.level = level
+
     if (mainAffix.maxLevel) {
       mainAffix.level = Math.min(level, mainAffix.maxLevel)
     } else {
@@ -436,14 +458,16 @@ function dismantle(card) {
 }
 
 /// 卡牌包是一种特殊物品，每个卡牌包包含3张牌
-/// 其中一张必然是指定的境界、流派的卡牌，且卡牌等级和角色等级相同
-/// 另外两张则是随机境界、流派和等级的卡牌
+/// 其中一张必然是指定的境界、流派和类型的卡牌
+/// 另外两张则是随机卡牌，但境界不会超过卡包本身的境界
+/// 如果 isBasic 为 true，则另外两张卡牌不会有装备和流派要求
 struct Cardpack {
   constructor ({
     category,
     genre,
     rank,
     kind,
+    isBasic = false,
   }) {
     assert(genre == null || genre == 'general' || kCultivationGenres.contains(genre), genre)
     assert(rank == null || (rank >= 0 && rank <= kCultivationRankMax), rank)
@@ -453,17 +477,21 @@ struct Cardpack {
     this.category = kItemCategoryCardpack;
 
     rank ??= 0
+    if (rank == 0 && genre != null) {
+      rank = 1
+    }
     this.filter = {
       category: category,
       genre: genre,
       rank: rank,
       kind: kind,
+      isBasic: isBasic,
     }
 
     this.id = crypto.randomUID(withTime: true)
     final rankString = engine.locale('cultivationRank_${rank}') + engine.locale('rank2')
     final genreString = genre != null ? engine.locale(genre) + engine.locale('genre2') : ''
-    final kindString = kind != null ? engine.locale('card_${kind}') : ''
+    final kindString = kind != null ? engine.locale('kind_${kind}') : ''
     this.name = rankString + genreString + kindString + engine.locale('cardpack')
     this.icon = 'item/cardpack.png'
     

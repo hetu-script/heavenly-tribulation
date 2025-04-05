@@ -1,20 +1,20 @@
-import 'data.ht'
-import '../world/tile/hexagonal_tile.ht'
-import '../world/tile/tilemap.ht'
-import '../datetime.ht'
-import '../entity/item/material.ht'
-import '../entity/character/battle_entity.ht'
+// import 'data.ht'
+// import '../world/tile/hexagonal_tile.ht'
+// import '../world/tile/tilemap.ht'
+// import '../datetime.ht'
+// import '../entity/item/material.ht'
+// import '../entity/character/battle_entity.ht'
+// import '../game/world.ht'
+// import '../game/dialog.ht'
+// import '../entity/entity.ht'
+// import '../entity/organization/organization.ht'
+// import '../event/event.ht'
+// import '../colors.ht'
+// import '../common.ht'
+// import '../entity/character/character.ht'
+// import '../name/character.ht'
+// import '../entity/location/location.ht'
 import '../world/tile/common.ht'
-import '../game/world.ht'
-import '../game/dialog.ht'
-import '../entity/entity.ht'
-import '../entity/organization/organization.ht'
-import '../event/event.ht'
-import '../colors.ht'
-import '../common.ht'
-import '../entity/character/character.ht'
-import '../name/character.ht'
-import '../entity/location/location.ht'
 
 external function expForLevel(level: integer) -> integer
 
@@ -77,7 +77,7 @@ function getHeroAvaialbeDays() {
     return 0
   }
 
-  const staminaAvailableDays = hero.stats.life ~/ kTicksPerDay
+  const staminaAvailableDays = hero.life ~/ kTicksPerDay
   if (staminaAvailableDays < 1) {
     Dialog.localeLines(['notEnoughStaminaMonologue'], isHero: true)
     return 0
@@ -1045,6 +1045,9 @@ async function onInteractMapObject(object, terrain) {
         assert(character != null)
         await onInteractCharacter(character)
       }
+      'cultivation': {
+        Game.showCultivation()
+      }
       else: engine.error('不支持的地图交互物品类型: ${object.category}')      
     }
   }
@@ -1058,7 +1061,7 @@ async function onInteractPortal(object) {
 }
 
 async function onInteractWorldPortal(object) {
-  assert(universe.containsKey(object.worldId))
+  assert(universe.containsKey(object.worldId), object.worldId)
   // Dialog.pushBackground('black.png', fadeIn: true)
   engine.play('magic-smite-6012.mp3')
   Player.setTo(object.targetTilePosition.left, object.targetTilePosition.top, worldId: object.worldId, direction: 'south')
@@ -1075,12 +1078,13 @@ async function onInteractTreasureBox(object, terrain) {
   terrain.overlaySprite ??= {}
   Object.assign(terrain.overlaySprite, {sprite: kSpriteTreasureBoxOpened})
   World.updateTerrainOverlaySprite(terrain.left, terrain.top)
-  await Future.delayed(0.5)
+  // await Future.delayed(0.5)
   final items = loot(object)
   for (final item in items) {
     Player.acquire(item)
   }
   engine.play('pickup_item-64282.mp3')
+  Game.promptNewItems(items)
 }
 
 /// 异步函数，会在显示场景窗口之前执行

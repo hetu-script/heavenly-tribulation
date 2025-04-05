@@ -19,6 +19,11 @@ import '../state/hoverinfo.dart';
 import 'common.dart';
 import 'data.dart';
 
+/// 战斗结束后生命恢复比例计算时，
+/// 战斗中使用的卡牌使用过的数量的阈值
+const kBaseAfterBattleHPRestoreRate = 0.25;
+const kBattleCardsCount = 16;
+
 /// 根据人物当前境界，获取不同境界卡牌的概率
 const kCardObtainProbabilityByRank = {
   1: {
@@ -48,15 +53,23 @@ const kCardObtainProbabilityByRank = {
   }
 };
 
+const kBattleCardPriceRatio = 10;
 const kAddAffixCostRatio = 10;
 const kRerollAffixCostRatio = 20;
 const kReplaceAffixCostRatio = 20;
 const kUpgradeCardCostRatio = 10;
 const kUpgradeRankCostRatio = 10;
+const kCraftScrollCostRatio = 10;
 
-const kBattleCardPriceRatio = 10;
-
-const kCardCraftOperations = {'add'};
+const _kCardCraftOperations = {
+  'addAffix',
+  'rerollAffix',
+  'replaceAffix',
+  'upgradeCard',
+  'upgradeRank',
+  'dismantle',
+  'craftScroll',
+};
 
 abstract class GameLogic {
   static bool truthy(dynamic value) => engine.hetu.interpreter.truthy(value);
@@ -76,8 +89,8 @@ abstract class GameLogic {
     return (difficulty * (level) * (level)) * 10 + level * 100 + 40;
   }
 
-  static int getAffixOperationCost(String operation, dynamic cardData) {
-    assert(kAffixOperations.contains(operation));
+  static int getCardCraftOperationCost(String operation, dynamic cardData) {
+    assert(_kCardCraftOperations.contains(operation));
     switch (operation) {
       case 'addAffix':
         return expForLevel(cardData['level']) ~/ kAddAffixCostRatio;
@@ -91,12 +104,18 @@ abstract class GameLogic {
         return expForLevel(cardData['rank']) * kUpgradeRankCostRatio;
       case 'dismantle':
         return calculateBattleCardPrice(cardData);
+      case 'craftScroll':
+        return expForLevel(cardData['level']) ~/ kCraftScrollCostRatio;
       default:
-        engine.error('未知的卡牌精炼操作类型 $operation');
+        engine.error('未知的卡牌操作类型 $operation');
         return 0;
     }
   }
 
+  /// 检查英雄是否满足某个对象的需求
+  /// 需求包括：境界，流派，属性等等
+  /// 如果满足需求，返回 null
+  /// 否则返回一个包含了具体信息的富文本字符串
   static String? checkRequirements(dynamic entityData,
       {bool checkIdentified = false}) {
     final StringBuffer description = StringBuffer();
@@ -105,20 +124,41 @@ abstract class GameLogic {
       return '<red>${engine.locale('unidentified3')}</>';
     }
 
-    bool requirementMet = true;
+    final heroRank = GameData.heroData['rank'];
+    final entityRank = entityData['rank'];
+    bool requirementsMet = true;
     final int? rankRequirement = entityData['rank'];
     if (rankRequirement != null) {
-      if (GameData.heroData['rank'] < rankRequirement) {
-        requirementMet = false;
+      if (heroRank < rankRequirement) {
+        requirementsMet = false;
         description.writeln(
             '<red>${engine.locale('rank_requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}</>');
+      }
+      final String? genreRequirement = entityData['genre'];
+      if (genreRequirement != null) {
+        assert(kMainCultivationGenres.contains(genreRequirement));
+        final passive =
+            GameData.heroData['passives']['${genreRequirement}_rank'];
+        bool hasGenreRankPassive = false;
+        if (passive != null) {
+          final int genreRank = passive['level'];
+          if (genreRank >= entityRank) {
+            hasGenreRankPassive = true;
+          }
+        }
+
+        if (!hasGenreRankPassive) {
+          requirementsMet = false;
+          description.writeln(
+              '<red>${engine.locale('genre_requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}·${engine.locale(genreRequirement)}</>');
+        }
       }
     }
     final String? equipmentRequirement = entityData['equipment'];
     if (equipmentRequirement != null) {
       if (GameData.heroData['passives']['equipment_$equipmentRequirement'] ==
           null) {
-        requirementMet = false;
+        requirementsMet = false;
         description.writeln(
             '<red>${engine.locale('equipment_requirement')}: ${engine.locale(equipmentRequirement)}</>');
       }
@@ -130,14 +170,14 @@ abstract class GameLogic {
         if (attrRequirement == null) continue;
         final int attrValue = GameData.heroData['stats'][attr];
         if (attrValue < attrRequirement) {
-          requirementMet = false;
+          requirementsMet = false;
           description.writeln(
               '<red>${engine.locale('attribute_requirement')}: ${engine.locale(attr)} - $attrRequirement</>');
         }
       }
     }
     final info = description.toString();
-    return requirementMet ? null : info;
+    return requirementsMet ? null : info;
   }
 
   /// 计算分解卡牌所能获得的灵光数
@@ -391,9 +431,13 @@ abstract class GameLogic {
     return null;
   }
 
-  static double getHPRestoreRateAfterBattle(int usedCardCount) {
-    assert(usedCardCount > 0);
-    return 50 - 50 * math.gradualValue(usedCardCount - 1, 50, power: 0.1);
+  static double getHPRestoreRateAfterBattle(int turnCount) {
+    assert(turnCount > 0);
+    final rate = kBaseAfterBattleHPRestoreRate -
+        kBaseAfterBattleHPRestoreRate *
+            math.gradualValue(turnCount - 1, kBattleCardsCount, power: 0.5);
+
+    return rate;
   }
 
   static Future<String?> selectWorldId() async {
@@ -416,7 +460,7 @@ abstract class GameLogic {
 
     bool doTribulation = false;
     if (level > nextRankLevelMin) {
-      if (level == 6 && rank == 0) {
+      if (level == 5 && rank == 0) {
         doTribulation = true;
       } else if (level == currentRankLevelMax) {
         doTribulation = true;
@@ -442,7 +486,6 @@ abstract class GameLogic {
     await GameDialogContent.show(
         engine.context, engine.locale('help_tribulation'));
 
-    if (!engine.context.mounted) return;
     final selected =
         await SelectionDialog.show(engine.context, selectionsData: {
       'selections': {
@@ -514,26 +557,23 @@ abstract class GameLogic {
       case 'restTillNextMonth':
         ticks = engine.hetu.invoke('getTicksTillNextMonth');
       case 'restTillFullHealth':
-        ticks = GameData.heroData['stats']['lifeMax'] -
-            GameData.heroData['stats']['life'];
+        ticks =
+            GameData.heroData['stats']['lifeMax'] - GameData.heroData['life'];
         if (ticks == 0) {
-          if (engine.context.mounted) {
-            GameDialogContent.show(
-                engine.context, engine.locale('alreadyFullHealthNoNeedRest'));
-          }
+          GameDialogContent.show(
+              engine.context, engine.locale('alreadyFullHealthNoNeedRest'));
         }
     }
 
     if (ticks > 0) {
-      if (engine.context.mounted) {
-        TimeflowDialog.show(
-            context: engine.context,
-            max: ticks,
-            onProgress: () {
-              engine.hetu.invoke('restoreLife',
-                  namespace: 'Player', positionalArgs: [1]);
-            });
-      }
+      TimeflowDialog.show(
+        context: engine.context,
+        max: ticks,
+        onProgress: () {
+          engine.hetu
+              .invoke('restoreLife', namespace: 'Player', positionalArgs: [1]);
+        },
+      );
     }
   }
 

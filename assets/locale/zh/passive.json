@@ -62,6 +62,13 @@
   "passive_equipment_poison_description": "可以使用毒术",
   "passive_equipment_music_description": "可以使用乐曲",
 
+  "passive_enable_auto_work_description": "允许离开工坊时打开自动工作",
+  "passive_enable_auto_cultivate_description": "允许离开识海时打开自动修炼",
+  "passive_enable_toolbar_cultivation_description": "允许在任何地方打开识海修炼界面",
+  "passive_enable_toolbar_library_description": "允许在任何地方打开战斗卡牌界面",
+  "passive_enable_cardcraft_description": "解锁战斗卡牌界面的卡牌精炼功能",
+  "passive_enable_scrollcraft_description": "解锁战斗卡牌界面的符箓制作功能",
+
   "passive_enable_chakra_description": "战斗中每造成 10 点伤害获得 1 点剑气",
   "passive_enable_rage_description": "战斗中每受到 10 点伤害获得 1 点怒气",
   "passive_enable_karma_description": "每次击败对手后获得 1 点煞气",
@@ -79,7 +86,7 @@
 
   "passive_increase_damage_punch_description": "拳法伤害增加 {0}%",
   "passive_increase_damage_kick_description": "腿法伤害增加 {0}%",
-  "passive_increase_damage_wrestling_description": "擒拿术伤害增加 {0}%",
+  "passive_increase_damage_qinna_description": "擒拿术伤害增加 {0}%",
   "passive_increase_damage_dianxue_description": "点穴手伤害增加 {0}%",
   "passive_increase_damage_sword_description": "剑法和御剑术伤害增加 {0}%",
   "passive_increase_damage_sabre_description": "刀法伤害增加 {0}%",
@@ -88,7 +95,7 @@
   "passive_increase_damage_bow_description": "弓术伤害增加 {0}%",
   "passive_increase_damage_dart_description": "飞镖术伤害增加 {0}%",
   "passive_increase_damage_firebend_description": "御火术伤害增加 {0}%",
-  "passive_increase_damage_windbend_description": "御风术伤害增加 {0}%",
+  "passive_increase_damage_airbend_description": "御风术伤害增加 {0}%",
   "passive_increase_damage_lightning_control_description": "雷法伤害增加 {0}%",
   "passive_increase_damage_sigil_description": "印法伤害增加 {0}%",
   "passive_increase_damage_power_word_description": "真言术伤害增加 {0}%",

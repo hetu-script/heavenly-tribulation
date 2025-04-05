@@ -24,6 +24,7 @@ const kStatsItems = [
   'manaMax',
   'chakraMax',
   'karma',
+  'karmaMax',
   'divider',
   'unarmedEnhance',
   'weaponEnhance',
@@ -44,13 +45,15 @@ const kNonBattleItemsLength = 4;
 class CharacterStats extends StatefulWidget {
   const CharacterStats({
     super.key,
+    this.title,
     required this.characterData,
     this.isHero = false,
     this.showNonBattleStats = true,
-    this.width = 240.0,
+    this.width = 220.0,
     this.height,
   });
 
+  final String? title;
   final dynamic characterData;
   final bool isHero;
   final bool showNonBattleStats;
@@ -74,9 +77,7 @@ class _CharacterStatsState extends State<CharacterStats> {
           GameLogic.maxLevelForRank(widget.characterData['rank']);
       description =
           '${engine.locale('levelMax')}: $levelMax\n${engine.locale('level_description')}';
-    } else if (id.endsWith('Resist') ||
-        id == 'tribulationCount' ||
-        id == 'karma') {
+    } else if (id.endsWith('Resist') || id == 'tribulationCount') {
       final int baseValueMax =
           widget.characterData['${id}Max'] ?? kBaseResistMax;
       final int valueMax =
@@ -123,6 +124,15 @@ class _CharacterStatsState extends State<CharacterStats> {
     }
 
     final List<Widget> items = [];
+    if (widget.title != null) {
+      items.add(Label(
+        widget.title!,
+        width: widget.width,
+        textAlign: TextAlign.left,
+      ));
+      items.add(const Divider());
+    }
+
     final length = widget.showNonBattleStats
         ? kStatsItems.length
         : kStatsItems.length - kNonBattleItemsLength;

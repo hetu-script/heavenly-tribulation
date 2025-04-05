@@ -1,10 +1,9 @@
-import 'game/data.ht'
-import 'entity/character/character.ht'
-import 'entity/item/item.ht'
-import 'game/dialog.ht'
-import 'world/tile/hexagonal_tile.ht'
-import 'random.ht'
-
+// import 'game/data.ht'
+// import 'entity/character/character.ht'
+// import 'entity/item/item.ht'
+// import 'game/dialog.ht'
+// import 'world/tile/hexagonal_tile.ht'
+// import 'random.ht'
 
 namespace Debug {
 
@@ -21,9 +20,9 @@ namespace Debug {
       skillPoints: level,
     )
 
-    hero.unconvertedExp = 2000
+    // hero.unconvertedExp = 2000
     hero.materials.money = 5000
-    hero.materials.shard = 5000
+    hero.materials.shard = 100
     hero.karma = 50
 
     setHeroId('hero')
@@ -34,6 +33,15 @@ namespace Debug {
 
   function testItem([character]) {
     character ??= hero
+
+    for (final affixId in game.battleCards.keys) {
+      final card = BattleCard(
+        affixId: affixId,
+        rank: character.rank,
+      )
+      Player.acquireCard(card)
+    }
+
     final items = []
     for (var kind in kEquipmentKinds) {
       final item = Equipment(kind: kind, rank: character.rank)
@@ -41,26 +49,37 @@ namespace Debug {
       entityAcquire(character, item)
     }
 
-    final packs = []
     for (var genre in kCardGenres) {
-      for (var i in range(3)) {
-        final pack = Cardpack(genre: genre, rank: character.rank)
-        packs.add(pack)
-        entityAcquire(character, pack)
-      }
+      final pack = Cardpack(
+        genre: genre,
+        rank: character.rank,
+      )
+      items.add(pack)
+      entityAcquire(character, pack)
     }
 
     final shardPack = Materialpack(kind: 'shard', amount: 200)
     entityAcquire(character, shardPack)
+    items.add(shardPack)
 
     final moneyPack = Materialpack(kind: 'money', amount: 5000)
     entityAcquire(character, moneyPack)
+    items.add(moneyPack)
 
-    final scroll = createItemByPrototype('identify_scroll')
-    entityAcquire(character, scroll)
+    for (var i in range(3)) {
+      final paper = createItemByPrototype('scroll_paper')
+      entityAcquire(character, paper)
+      items.add(paper)
+    }
+
+    for (var i in range(3)) {
+      final scroll = createItemByPrototype('identify_scroll')
+      entityAcquire(character, scroll)
+      items.add(scroll)
+    }
 
     if (character == hero) {
-      Game.promptNewItems([...packs, ...items, shardPack, moneyPack, scroll])
+      Game.promptNewItems([...items])
     }
   }
 

@@ -1,6 +1,6 @@
-import '../entity/character/character.ht'
+// import '../entity/character/character.ht'
+// import 'data.ht'
 import '../util.ht'
-import 'data.ht'
 
 /// 加载到本次游戏的对话资源
 let gDialogs = {}

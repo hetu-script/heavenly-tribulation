@@ -1,0 +1,71 @@
+// import '../entity/item/item.ht'
+// import '../world/dungeon.ht'
+
+async function onEnterMap() {
+  if (!game.dungeon.isNew) return
+  
+  game.dungeon.isNew = false
+  /// 清理所有的地块贴图和临时对象，还原到空地图
+  world.objects = {}
+  for (final tile in world.terrains) {
+    tile.isNonEnterable = false
+    tile.overlaySprite = {}
+    tile.objectId = null
+    World.updateTerrainOverlaySprite(tile.left, tile.top)
+    World.updateTerrainInfo(tile.left, tile.top)
+  }
+  World.resetFogOfWar()
+
+  /// 用随机遭遇填充地图
+  if (game.dungeon.progress == 0) {
+    // 第一层固定是一个宝箱，没有敌人。
+    final randomEquipment = kItemCategoryKinds.weapon.random
+    addTreasureBox(8, 6, [
+      {
+        type: 'equipment',
+        kind: randomEquipment,
+        rank: 0,
+        level: 0,
+      },
+      {
+        type: 'cardpack',
+        kind: randomEquipment,
+        rank: 0,
+        isBasic: true,
+      },
+    ])
+    addPortal(8, 2, 'portal1')
+    addOverlaySprite(3, 5, {
+      sprite: "object/stoneDebris.png",
+    })
+    addOverlaySprite(13, 5, {
+      sprite: "object/stoneDebris.png",
+    })
+  } else {
+    // 每 5 层构成一个小循环。在小循环之内，根据层数和 5 的余数来决定房间类型。
+    final level = game.dungeon.progress % 5
+    switch (level) {
+      1: {
+        
+      }
+    }
+  }
+  
+  Dialog.pushBackground('black.png')
+  Dialog.pushTask(() {
+    Player.setTo(8, 10, worldId: world.id, direction: 'south')
+    Game.showHeroInfo()
+  })
+  Dialog.popBackground(isFadeOut: true)
+  await Dialog.execute()
+}
+
+async function onInteractMapObject(object, terrain) {
+  switch (object.id) {
+    'portal1': {
+      game.isNewDungeonLevel = true
+      game.currentDungeonLevel += 1
+      onEnterMap()
+    }
+  }
+}

@@ -225,6 +225,18 @@
       sprite: "object/stoneDebris.png",
     },
   },
+  stoneStele: {
+    id: "stoneStele",
+    name: "stoneStele",
+    icon: "assets/images/object/stoneStele.png",
+    type: "overlaySprite",
+    overlaySprite: {
+      sprite: "object/stoneStele.png",
+      offsetY: -32.0,
+      srcWidth: 32.0,
+      srcHeight: 96.0,
+    },
+  },
   stain1: {
     id: "stain1",
     name: "bloodStain",

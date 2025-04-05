@@ -1,4 +1,3 @@
-
 import 'common.ht'
 
 async function onNewGame() {
@@ -18,6 +17,7 @@ async function onNewGame() {
 }
 
 async function onEnterMap() {
+
   // if (hero.quests.prelude.stage == 2) {
   //   /// 萧墨没有任何炼气基础，他完全不是妖族守卫的对手，但他通过诡计逃脱。
   //   Player.progressQuestById('prelude', stage: 3)

@@ -1,7 +1,17 @@
 {
+  scroll_paper: {
+    prototypeId: "scroll_paper",
+    name: "scroll_paper",
+    flavortext: "scroll_paper_flavortext",
+    category: "scroll",
+    rarity: "common",
+    icon: "item/scroll_paper.png",
+    isIdentified: true,
+  },
   identify_scroll: {
     prototypeId: "identify_scroll",
     name: "identify_scroll",
+    flavortext: "identify_scroll_flavortext",
     category: "scroll",
     rarity: "uncommon",
     icon: "item/scroll.png",

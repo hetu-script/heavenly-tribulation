@@ -1,4 +1,6 @@
-const kBarrierPriority = 100000;
+const kBarrierPriority = 10000;
+const kBarrierUIPriority = 10100;
+const kExpLightPriority = 11000;
 const kDraggingCardPriority = 5000;
 const kDeckCoverPriority = 2005;
 const kTopBarPriority = 3000;

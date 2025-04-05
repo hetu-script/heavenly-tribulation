@@ -5,7 +5,7 @@
   "passivetree_locked_hint": "<red>不可用：前置节点尚未解锁。</>",
   "passivetree_points_hint": "<red>不可用：可分配天道技能点数不足。</>",
 
-  "passivetree_hero_skills_description_title": "<yellow>从天道技能和装备中获得的属性</>",
+  "passivetree_hero_skills_description_title": "从天道技能和装备中获得的额外属性",
 
   "passivetree_swordcraft_rank_1_comment": "匣中三尺鸣，寒芒初破空。",
   "passivetree_swordcraft_rank_2_comment": "踏罡步北斗，剑影随云动。",

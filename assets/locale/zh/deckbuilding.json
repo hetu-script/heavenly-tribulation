@@ -23,8 +23,8 @@
   "deckbuilding_ephemeral_card_limit": "消耗牌数量已达到当前境界允许上限！",
 
   "deckbuilding_emtpy": "卡组是空的！",
-  "deckbuilding_cards_not_enough": "卡组未满足卡牌数量需求！",
-  "deckbuilding_card_invalid": "未满足卡牌装备需求！",
+  "deckbuilding_cards_not_enough": "未满足卡组卡牌数量需求！",
+  "deckbuilding_card_invalid": "未满足卡组中卡牌的需求！",
 
   "deckbuilding_new_deck_hint": "创建新卡组",
   "deckbuilding_add_card_hint": "将卡牌拖动至此来加入卡组",
@@ -44,8 +44,11 @@
   "deckbuilding_dismantle": "精炼·化尘",
   "deckbuilding_craftCard": "精炼·聚灵",
 
-  "deckbuilding_cost": "灵光消耗",
-  "deckbuilding_gain": "可获取灵光",
+  "deckbuilding_exp_cost": "灵光消耗",
+  "deckbuilding_exp_gain": "可获取灵光",
+
+  "deckbuilding_craft_scroll": "<yellow>制作符箓</>\n \n制作一张此功法卡牌的符箓版本。符箓卡牌将移除所有装备和境界需求。符箓卡牌只能在战斗中使用一次，之后便会消失。但原本的卡牌不会消失。制作符箓需要消耗灵光和空白符纸。。",
+  "deckbuilding_scroll_paper_count": "空白符纸数量",
 
   "deckbuilding_identifyCard_description": "鉴定卡牌。",
   "deckbuilding_addAffix_description": "增加一个随机的额外词条。\n不能超过当前卡牌境界所允许的额外词条数量上限。",

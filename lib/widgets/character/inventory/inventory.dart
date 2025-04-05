@@ -60,7 +60,7 @@ class _InventoryState extends State<Inventory> {
         ItemGrid(
           characterData: widget.characterData,
           itemData: itemData,
-          margin: const EdgeInsets.all(5.0),
+          margin: const EdgeInsets.all(2.0),
           onMouseEnter: (itemData, rect) {
             switch (widget.type) {
               case ItemType.none:
@@ -107,7 +107,7 @@ class _InventoryState extends State<Inventory> {
 
     while (grids.length < gridCount) {
       grids.add(
-        ItemGrid(margin: const EdgeInsets.all(5.0)),
+        ItemGrid(margin: const EdgeInsets.all(2.0)),
       );
     }
 

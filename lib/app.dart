@@ -94,18 +94,18 @@ class _GameAppState extends State<GameApp> {
       dynamic worldData;
       final method = args['method'];
       final isEditorMode = args['isEditorMode'] ?? false;
-      String? worldId;
       if (method == 'load' || method == 'preset') {
         worldData =
             engine.hetu.invoke('switchWorld', positionalArgs: [args['id']]);
       } else if (method == 'generate') {
         engine.debug('创建程序生成的随机世界。');
         worldData = engine.hetu.invoke('createSandboxWorld', namedArgs: args);
+        GameData.worldIds.add(worldData['id']);
       } else if (method == 'blank') {
         engine.debug('创建空白世界。');
         worldData = engine.hetu.invoke('createBlankWorld', namedArgs: args);
+        GameData.worldIds.add(worldData['id']);
       }
-      worldId ??= engine.hetu.fetch('currentWorldId', namespace: 'game');
 
       engine.hetu.invoke('calculateTimestamp');
 
@@ -126,6 +126,7 @@ class _GameAppState extends State<GameApp> {
   }
 
   Future<void> _initGame() async {
+    int tik = DateTime.now().millisecondsSinceEpoch;
     await engine.init(context);
 
     engine.hetu.interpreter.bindExternalClass(BattleCharacterClassBinding());
@@ -301,7 +302,10 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::showLibrary', (
         {positionalArgs, namedArgs}) {
-      engine.pushScene(Scenes.cardlibrary);
+      engine.pushScene(Scenes.cardlibrary, arguments: {
+        'enableCardCraft': namedArgs['enableCardCraft'] ?? false,
+        'enableScrollCraft': namedArgs['enableScrollCraft'] ?? false,
+      });
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::showCultivation', (
@@ -340,6 +344,9 @@ class _GameAppState extends State<GameApp> {
       GameLogic.characterAllocateSkills(positionalArgs.first);
     }, override: true);
 
+    engine.info('游戏引擎初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
+
+    tik = DateTime.now().millisecondsSinceEpoch;
     final mainConfig = {'locale': engine.languageId};
     if (kDebugMode) {
       await engine.loadModFromAssetsString(
@@ -352,12 +359,10 @@ class _GameAppState extends State<GameApp> {
       for (final key in engine.mods.keys) {
         if (engine.mods[key]?['enabled'] == true) {
           if (engine.mods[key]?['preinclude'] == true) {
-            final byteMod = await engine.loadModFromAssetsString(
+            await engine.loadModFromAssetsString(
               '$key/main.ht',
               module: key,
             );
-            engine.hetu.assign(key, byteMod.namespaces.values.last,
-                namespace: 'mods', defineIfAbsent: true);
           }
         }
       }
@@ -376,20 +381,21 @@ class _GameAppState extends State<GameApp> {
           if (engine.mods[key]?['preinclude'] == true) {
             final mod = await rootBundle.load('assets/mods/$key.mod');
             final modBytes = mod.buffer.asUint8List();
-            final byteMod = await engine.loadModFromBytes(
+            await engine.loadModFromBytes(
               modBytes,
               module: key,
             );
-            engine.hetu.assign(key, byteMod.namespaces.values.last,
-                namespace: 'mods', defineIfAbsent: true);
           }
         }
       }
     }
+    engine.info('脚本引擎初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
 
     // 载入动画，卡牌等纯JSON格式的游戏数据
     // ignore: use_build_context_synchronously
+    tik = DateTime.now().millisecondsSinceEpoch;
     await GameData.init();
+    engine.info('游戏数据初始化耗时：${DateTime.now().millisecondsSinceEpoch - tik}ms');
 
     engine.hetu.invoke('build', positionalArgs: [context]);
 

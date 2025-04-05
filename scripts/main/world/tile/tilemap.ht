@@ -1,6 +1,6 @@
-import '../../game/data.ht'
-import 'hexagonal_tile.ht'
-import '../../name/zone.ht'
+// import '../../game/data.ht'
+// import 'hexagonal_tile.ht'
+// import '../../name/zone.ht'
 
 struct TileMap {
   constructor ({

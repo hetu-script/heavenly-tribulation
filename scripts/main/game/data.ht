@@ -1,8 +1,7 @@
-import '../world/tile/tilemap.ht'
-import '../datetime.ht'
-import '../game/player.ht'
-
-export '../random.ht'
+// import '../world/tile/tilemap.ht'
+// import '../datetime.ht'
+// import '../game/player.ht'
+// export '../random.ht'
 
 /// 游戏设置，和存档无关，属于载入存档或者开始新游戏之前的全局设置
 let isDebugMode
@@ -105,6 +104,16 @@ struct GameData {
     this.mods = {
       // meta: {} // 模组元数据
       // events: {} // 模组事件处理函数
+    }
+    
+    /// 地牢玩法中的状态值
+    this.dungeon = {
+      // 地牢初始化标记
+      isNew: true,
+      // 地牢境界（难度）
+      rank: 0,
+      // 当前层数
+      progress: 0,
     }
   }
 }
@@ -222,7 +231,7 @@ function addWorld(newWorld) {
 }
 
 function switchWorld(worldId) {
-  assert(universe.containsKey(worldId))
+  assert(universe.containsKey(worldId), worldId)
   world = universe[worldId]
 
   assert(history.containsKey(world.id))
@@ -340,11 +349,13 @@ function getWorldIds {
   return universe.keys
 }
 
-function setCurrentWorldId(id) {
-  engine.debug('设置当前世界为: [${id}]')
-  game.currentWorldId = id
+function setCurrentWorld(id) {
+  assert(universe.containsKey(id), id)
+  assert(history.containsKey(id), id)
   world = universe[id]
   timeline = history[id]
+  game.currentWorldId = id
+  engine.debug('设置当前世界为: [${id}]')
 }
 
 function deleteWorldById(id) {

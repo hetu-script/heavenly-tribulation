@@ -1,7 +1,7 @@
-import 'tile/hexagonal_tile.ht'
-import 'tile/tilemap.ht'
+// import 'tile/hexagonal_tile.ht'
+// import 'tile/tilemap.ht'
 import 'tile/common.ht'
-import '../game/data.ht'
+// import '../game/data.ht'
 
 export { createSandboxWorld } from 'sandbox.ht'
 
@@ -98,7 +98,7 @@ function createBlankWorld({
           left: i + 1,
           top: j + 1,
           index: tilePos2Index(i + 1, j + 1, width),
-          spriteIndex: kSpriteWater,
+          // spriteIndex: kSpriteWater,
         )
       )
     }

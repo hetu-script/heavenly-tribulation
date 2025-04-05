@@ -1,4 +1,4 @@
-import 'battle_character.ht'
+// import 'battle_character.ht'
 
 /// 卡牌的每个词条都对应一个脚本。
 /// 这个脚本将会在这张牌被打出时invoke
@@ -59,7 +59,7 @@ async function card_script_main_attack_multiple(self, opponent, affix) {
 }
 /// 攻击消耗资源
 async function card_script_main_attack_exhaust(self, opponent, affix) {
-  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: true)
+  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.attackType)
   await characterAnimate(self, affix.animation)
   await opponent.takeDamage({
     isMain: true,
@@ -71,7 +71,7 @@ async function card_script_main_attack_exhaust(self, opponent, affix) {
 }
 /// 攻击附带缓慢消耗资源
 async function card_script_main_attack_slow_exhaust(self, opponent, affix) {
-  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: true)
+  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.attackType)
   await characterAnimate(self, affix.animation)
   await opponent.takeDamage({
     isMain: true,
@@ -84,7 +84,7 @@ async function card_script_main_attack_slow_exhaust(self, opponent, affix) {
 }
 /// 攻击附带迟钝消耗资源
 async function card_script_main_attack_clumsy_exhaust(self, opponent, affix) {
-  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: true)
+  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.attackType)
   await characterAnimate(self, affix.animation)
   await opponent.takeDamage({
     isMain: true,
@@ -97,7 +97,7 @@ async function card_script_main_attack_clumsy_exhaust(self, opponent, affix) {
 }
 /// 多次攻击消耗资源
 async function card_script_main_attack_multiple_exhaust(self, opponent, affix) {
-  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: true)
+  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.attackType)
   await characterAnimate(self, affix.animation)
   for (final i in range(affix.value[1])) {
     await opponent.takeDamage({
@@ -117,7 +117,7 @@ async function card_script_main_defend(self, opponent, affix) {
 }
 /// 防御消耗资源
 async function card_script_main_defend_exhaust(self, opponent, affix) {
-  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: true)
+  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.exhaustType)
   await characterAnimate(self, affix.animation)
   self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[1])
 }
@@ -133,13 +133,13 @@ async function card_script_main_heal(self, opponent, affix) {
   await self.changeLife(affix.value[0], isHeal: true)
 }
 /// 获得元气
-async function card_script_main_virgor(self, opponent, affix) {
+async function card_script_main_vigor(self, opponent, affix) {
   await characterAnimate(self, affix.animation)
   self.addStatusEffect('energy_positive_life', amount: affix.value[0])
 }
 /// 消耗资源恢复生命
 async function card_script_main_heal_exhaust(self, opponent, affix) {
-  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: true)
+  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.exhaustType)
   await characterAnimate(self, affix.animation)
   final regen = (affix.value[1] / 100 * self.lifeMax).round()
   self.changeLife(regen, isHeal: true)
@@ -147,48 +147,46 @@ async function card_script_main_heal_exhaust(self, opponent, affix) {
 
 /// 消耗资源获得速度
 async function card_script_main_speed_quick_exhaust(self, opponent, affix) {
-  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: true)
+  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.exhaustType)
   await characterAnimate(self, affix.animation)
   self.addStatusEffect('speed_quick', amount: affix.value[0])
 }
 /// 消耗资源获得闪避
 async function card_script_main_dodge_nimble_exhaust(self, opponent, affix) {
-  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: true)
+  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.exhaustType)
   await characterAnimate(self, affix.animation)
   self.addStatusEffect('dodge_nimble', amount: affix.value[0])
 }
-
-/// 御剑
-/// 元气转化为剑气
-// async function card_script_main_weapon_energy_convert(self, opponent, affix, mainAffix) {
-//   await characterAnimate(self, affix.animation)
-//   let amount1 = self.removeStatusEffect('energy_positive_life', hintLacking: false)
-//   let amount2 = self.removeStatusEffect('energy_positive_spell', hintLacking: false)
-//   self.addStatusEffect('energy_positive_weapon', amount: amount1 + amount2)
-// }
-
-/// 锻体，凝气
-/// 轻功
-async function card_script_main_qinggong(self, opponent, affix) {
+/// 消耗资源提升生命上限
+async function card_script_main_lifemax_buff_exhaust(self, opponent, affix) {
+  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.exhaustType)
   await characterAnimate(self, affix.animation)
-  self.addStatusEffect('speed_quick', amount: affix.value[0])
-  self.addStatusEffect('dodge_nimble', amount: affix.value[1])
+  self.setLifeMax(self.lifeMax + affix.value[1])
+}
+/// 消耗资源降低对手生命上限
+async function card_script_main_lifemax_debuff_exhaust(self, opponent, affix) {
+  self.removeStatusEffect(affix.resourceType, amount: affix.value[0], exhaust: affix.exhaustType)
+  await characterAnimate(self, affix.animation)
+  opponent.setLifeMax(self.lifeMax - affix.value[1])
 }
 
 /// ------------------------------------------------------------
 /// 额外词条（异步async）
 /// 额外词条的回调函数多一个参数，即卡牌的主词条
 /// ------------------------------------------------------------
+
+/// 通用额外词条
+
 async function card_script_heal(self, opponent, affix, mainAffix) {
   self.changeLife(affix.value[0], isHeal: true)
 }
 
-async function card_script_life_energy(self, opponent, affix, mainAffix) {
-  self.addStatusEffect('energy_positive_life', amount: affix.value[0])
+async function card_script_mana(self, opponent, affix, mainAffix) {
+  self.addStatusEffect('energy_positive_spell', amount: affix.value[0])
 }
 
-async function card_script_spell_energy(self, opponent, affix, mainAffix) {
-  self.addStatusEffect('energy_positive_spell', amount: affix.value[0])
+async function card_script_vigor(self, opponent, affix, mainAffix) {
+  self.addStatusEffect('energy_positive_life', amount: affix.value[0])
 }
 
 /// 防御
@@ -196,20 +194,15 @@ async function card_script_defend(self, opponent, affix, mainAffix) {
   self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[0])
 }
 /// 速度
-async function card_script_speed(self, opponent, affix, mainAffix) {
+async function card_script_speed_quick(self, opponent, affix, mainAffix) {
   self.addStatusEffect('speed_quick', amount: affix.value[0])
 }
 /// 闪避
-async function card_script_dodge(self, opponent, affix, mainAffix) {
+async function card_script_dodge_nimble(self, opponent, affix, mainAffix) {
   self.addStatusEffect('dodge_nimble', amount: affix.value[0])
 }
 
-/// 使用元气，获得防御
-async function card_script_consume_vigor_gain_defense(self, opponent, affix, mainAffix) {
-  final amount = self.removeStatusEffect('energy_positive_life', amount: affix.value[0])
-  if (amount < 1) return
-  self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[1] * amount)
-}
+/// 攻击额外词条
 
 /// 使用资源，攻击后额外造成伤害
 async function card_script_consume_energy_for_extra_damage(self, opponent, affix, mainAffix) {
@@ -220,14 +213,14 @@ async function card_script_consume_energy_for_extra_damage(self, opponent, affix
       kind: mainAffix.kind,
       attackType: affix.attackType ?? mainAffix.attackType,
       damageType: affix.damageType ?? mainAffix.damageType,
-      baseValue: mainAffix.value[1],
+      baseValue: affix.value[1],
     })
   }
 }
 
 /// 攻击后每造成10点伤害回复生命
 async function card_script_by_damage_heal(self, opponent, affix, mainAffix) {
-  final turnDamage = self.turnFlags.turnDamage ?? 0
+  final turnDamage = self.turnFlags.damage.total ?? 0
   if (turnDamage < 10) return
   final amount = (turnDamage / 10).floor()
   self.changeLife(affix.value[0] * amount)
@@ -235,15 +228,21 @@ async function card_script_by_damage_heal(self, opponent, affix, mainAffix) {
 
 /// 攻击后每造成10点伤害获得防御
 async function card_script_by_damage_gain_defense(self, opponent, affix, mainAffix) {
-  final turnDamage = self.turnFlags.turnDamage ?? 0
+  final turnDamage = self.turnFlags.damage.total ?? 0
   if (turnDamage < 10) return
   final amount = (turnDamage / 10).floor()
   self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[0] * amount)
 }
 
-// async function card_script_by_damage_gain_energy(self, opponent, affix, mainAffix) {
-//   final turnDamage = self.getTurnFlag('turnDamage') ?? 0
-//   if (turnDamage < 10) return
-//   final amount = (turnDamage / 10).floor()
-//   self.addStatusEffect('energy_positive_${affix.attackType}', amount: amount * 2)
-// }
+/// 加持额外词条：
+
+/// 使用元气，获得防御
+async function card_script_consume_vigor_gain_defense(self, opponent, affix, mainAffix) {
+  final amount = self.removeStatusEffect('energy_positive_life', amount: affix.value[0])
+  if (amount < 1) return
+  self.addStatusEffect('defense_${affix.damageType}', amount: affix.value[1] * amount)
+}
+
+async function card_script_for_attribute_increase_damage(self, opponent, affix, mainAffix) {
+  self.turnFlags.damage.percentageChange1 += self.data.stats[affix.attributeId] * 0.01
+}

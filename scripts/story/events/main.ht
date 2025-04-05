@@ -45,7 +45,7 @@ async function onEnterMap() {
     Dialog.pushLocales('chapter1_enterMap_line6')
     Dialog.pushTask(() {
       Player.setTo(7, 10, worldId: 'story_main', direction: 'south')
-      hero.stats.life = 1
+      hero.life = 1
       Game.updateHero()
     })
     Dialog.pushLocales('chapter1_enterMap_line7', isHero: true, hideImage: true)

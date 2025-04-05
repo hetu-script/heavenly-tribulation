@@ -1,23 +1,23 @@
-namespace Colors {
-  const white = '#ffffffff'
-  const black = '#ff000000'
-  const grey = '#ff9e9e9e'
-  const red = '#fff44336'
-  const pink = '#ffe91e63'
-  const purple = '#ff9c27b0'
-  const deepPurple = '#ff673ab7'
-  const indigo = '#ff3f51b5'
-  const blue = '#ff2196f3'
-  const lightBlue = '#ff03a9f4'
-  const cyan = '#ff00bcd4'
-  const teal = '#ff009688'
-  const green = '#ff4caf50'
-  const lightGreen = '#ff8bc34a'
-  const lime = '#ffcddc39'
-  const yellow = '#ffffeb3b'
-  const amber = '#ffffc107'
-  const orange = '#ffff9800'
-  const deepOrange = '#ffff5722'
-  const brown = '#ff795548'
-  const blueGrey = '#ff607d8b'
+const Colors = {
+  white: '#ffffffff',
+  black: '#ff000000',
+  grey: '#ff9e9e9e',
+  red: '#fff44336',
+  pink: '#ffe91e63',
+  purple: '#ff9c27b0',
+  deepPurple: '#ff673ab7',
+  indigo: '#ff3f51b5',
+  blue: '#ff2196f3',
+  lightBlue: '#ff03a9f4',
+  cyan: '#ff00bcd4',
+  teal: '#ff009688',
+  green: '#ff4caf50',
+  lightGreen: '#ff8bc34a',
+  lime: '#ffcddc39',
+  yellow: '#ffffeb3b',
+  amber: '#ffffc107',
+  orange: '#ffff9800',
+  deepOrange: '#ffff5722',
+  brown: '#ff795548',
+  blueGrey: '#ff607d8b',
 }

@@ -108,7 +108,7 @@ const kCultivationRankMax = 8;
 const kCardKinds = [
   'punch',
   // 'kick',
-  'wrestling',
+  'qinna',
   'dianxue',
   'sabre',
   // 'spear',
@@ -119,12 +119,12 @@ const kCardKinds = [
   'flying_sword',
   'qinggong',
   'xinfa',
-  'windbend',
+  'airbend',
   'firebend',
   'lightning_control',
   // 'waterbend',
   // 'earthbend',
-  // 'wood_control',
+  // 'plant_control',
   // 'scripture',
   // 'sigil',
   // 'curse',
@@ -375,7 +375,7 @@ const kUntradableItemKinds = {
 const kAttributeAnyLevel = 6;
 const kBaseResistMax = 75;
 
-const kAffixOperations = [
+const kCardCraftOperations = [
   'addAffix',
   'rerollAffix',
   'replaceAffix',

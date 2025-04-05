@@ -1,5 +1,5 @@
-import '../game/data.ht'
-import '../game/dialog.ht'
+// import '../game/data.ht'
+// import '../game/dialog.ht'
 
 /// 预定义游戏事件
 /// 这里的事件和模组，剧情无关

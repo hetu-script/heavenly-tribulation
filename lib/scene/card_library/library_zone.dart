@@ -10,6 +10,7 @@ import 'package:samsara/gestures.dart';
 
 import '../../game/data.dart';
 import '../../game/ui.dart';
+import '../../game/logic.dart';
 import 'deckbuilding_zone.dart';
 import '../common.dart';
 import '../../engine.dart';
@@ -56,6 +57,9 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
 
   OrderByOptions _orderByOptions = OrderByOptions.byAcquiredTimeDescending;
   OrderByOptions get orderByOption => _orderByOptions;
+
+  FilterByOptions _filterByOptions = FilterByOptions.all;
+  FilterByOptions get filterByOptions => _filterByOptions;
 
   List<DeckBuildingZone> preloadBuildingZones = [];
 
@@ -161,14 +165,71 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     // _sortCards(reset: true);
   }
 
-  void sortCards({OrderByOptions? orderBy}) {
+  void filterCards({FilterByOptions? options}) {
+    if (options != null) _filterByOptions = options;
+
+    for (final card in library.values) {
+      switch (_filterByOptions) {
+        case FilterByOptions.all:
+          card.isFiltered = false;
+        case FilterByOptions.requirementsMet:
+          final requirementsMet = GameLogic.checkRequirements(card.data);
+          card.isFiltered = (requirementsMet != null);
+        case FilterByOptions.categoryAttack:
+          card.isFiltered = (card.data['category'] != 'attack');
+        case FilterByOptions.categoryBuff:
+          card.isFiltered = (card.data['category'] != 'buff');
+        case FilterByOptions.spellcraft:
+        case FilterByOptions.swordcraft:
+        case FilterByOptions.bodyforge:
+        case FilterByOptions.avatar:
+        case FilterByOptions.vitality:
+          card.isFiltered = (card.data['genre'] != _filterByOptions.name);
+        case FilterByOptions.kind_punch:
+        case FilterByOptions.kind_kick:
+        case FilterByOptions.kind_qinna:
+        case FilterByOptions.kind_dianxue:
+        case FilterByOptions.kind_sword:
+        case FilterByOptions.kind_sabre:
+        case FilterByOptions.kind_staff:
+        case FilterByOptions.kind_spear:
+        case FilterByOptions.kind_bow:
+        case FilterByOptions.kind_dart:
+        case FilterByOptions.kind_flying_sword:
+        case FilterByOptions.kind_shenfa:
+        case FilterByOptions.kind_qinggong:
+        case FilterByOptions.kind_xinfa:
+        case FilterByOptions.kind_airbend:
+        case FilterByOptions.kind_firebend:
+        case FilterByOptions.kind_waterbend:
+        case FilterByOptions.kind_lightning_control:
+        case FilterByOptions.kind_earthbend:
+        case FilterByOptions.kind_plant_control:
+        case FilterByOptions.kind_sigil:
+        case FilterByOptions.kind_power_word:
+        case FilterByOptions.kind_scripture:
+        case FilterByOptions.kind_music:
+        case FilterByOptions.kind_array:
+        case FilterByOptions.kind_potion:
+        case FilterByOptions.kind_scroll:
+          card.isFiltered =
+              (card.data['kind'] != _filterByOptions.name.substring(5));
+      }
+
+      card.isVisible = !card.isFiltered;
+    }
+
+    sortCards();
+  }
+
+  void sortCards({OrderByOptions? options}) {
     _curCardPosX = 0;
     _curCardPosY = 0;
     _curRows = 1;
     _cardPositions.clear();
 
-    if (orderBy != null) _orderByOptions = orderBy;
-    List orderedList;
+    if (options != null) _orderByOptions = options;
+    List<CustomGameCard> orderedList;
     switch (_orderByOptions) {
       case OrderByOptions.byAcquiredTimeDescending:
         orderedList = library.values.toList()
@@ -225,6 +286,9 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
     }
 
     for (final card in orderedList) {
+      if (card.isFiltered) {
+        continue;
+      }
       card.position = _generateNextCardPosition();
     }
   }
@@ -258,7 +322,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
       library.remove(cardId);
     }
 
-    _calculateContainerHeight();
+    filterCards();
     sortCards();
   }
 
@@ -307,7 +371,7 @@ class CardLibraryZone extends GameComponent with HandlesGesture {
 
     // assert(_cardPositions.isNotEmpty &&
     //     _cardPositions.length == library.length + 1);
-    card.position = _generateNextCardPosition();
+    // card.position = _generateNextCardPosition();
 
     card.onTapDown = (int buttons, Vector2 position) {
       if (buttons == kPrimaryButton) {

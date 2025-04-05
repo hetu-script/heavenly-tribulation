@@ -96,24 +96,25 @@ class CharacterSelectDialog extends StatelessWidget {
         body: GameEntityListView(
           columns: _kInformationViewCharacterColumns,
           tableData: data,
-          onItemPressed: (buttons, position, dataId) => showDialog(
-            context: context,
-            builder: (context) => ResponsiveView(
-              alignment: AlignmentDirectional.center,
-              width: GameUI.profileWindowSize.x,
-              height: 400.0,
-              child: CharacterProfile(
-                characterId: dataId,
-                mode: InformationViewMode.select,
-              ),
-            ),
-          ).then((value) {
+          onItemPressed: (buttons, position, dataId) async {
+            final value = await showDialog(
+              context: context,
+              builder: (context) {
+                return ResponsiveView(
+                  alignment: AlignmentDirectional.center,
+                  width: GameUI.profileWindowSize.x,
+                  height: 400.0,
+                  child: CharacterProfile(
+                    characterId: dataId,
+                    mode: InformationViewMode.select,
+                  ),
+                );
+              },
+            );
             if (value != null) {
-              if (context.mounted) {
-                Navigator.of(context).pop(value);
-              }
+              Navigator.of(context).pop(value);
             }
-          }),
+          },
         ),
       ),
     );

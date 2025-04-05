@@ -13,8 +13,7 @@ const kDamageTypes = [
   // 'pure',
 ]
 
-
-const kDebuffs = {
+const kDebuffs = [
   'weakened_unarmed',
   'weakened_weapon',
   'weakened_spell',
@@ -40,4 +39,4 @@ const kDebuffs = {
   'injury_internal',
   'injury_poison',
   'injury_hallucination',
-}
+]

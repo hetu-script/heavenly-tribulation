@@ -110,7 +110,10 @@ class LocationScene extends Scene {
             spriteId: 'location/card/carddesk.png',
             title: engine.locale('carddesk'));
         siteCardRest.onTap = (buttons, position) {
-          engine.pushScene(Scenes.cardlibrary);
+          engine.pushScene(Scenes.cardlibrary, arguments: {
+            'enableCardCraft': locationData['enableCardCraft'] ?? false,
+            'enableScrollCraft': locationData['enableScrollCraft'] ?? false,
+          });
         };
         siteList.cards.add(siteCardRest);
         world.add(siteCardRest);

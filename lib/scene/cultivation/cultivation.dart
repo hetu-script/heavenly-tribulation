@@ -1116,17 +1116,14 @@ class CultivationScene extends Scene {
             enableNpcs: false,
             enableCultivation: false,
             enableAutoExhaust: false,
-          ),
-          Positioned(
-            right: 10.0,
-            top: 10.0,
-            child: Container(
+            action: Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(5.0),
                 border: Border.all(color: GameUI.foregroundColor),
               ),
               child: IconButton(
+                padding: EdgeInsets.zero,
                 onPressed: () {
                   GameDialogContent.show(
                     context,

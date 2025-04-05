@@ -68,13 +68,13 @@ abstract class GameUI {
   static final backgroundColor3 = Color(0xDD270505);
 
   /// 对话框遮罩背景颜色
-  static final barrierColor = backgroundColor;
+  static final barrierColor = Colors.black87;
 
   static final borderRadius = BorderRadius.circular(5.0);
 
   static const profileWindowPosition =
       Offset(largeIndent, heroInfoHeight + smallIndent);
-  static final profileWindowSize = Vector2(640.0, 480.0);
+  static final profileWindowSize = Vector2(600.0, 450.0);
 
   static final detailsWindowPosition = Offset(
       profileWindowPosition.dx + profileWindowSize.x + largeIndent,
@@ -254,13 +254,15 @@ abstract class GameUI {
   /// 卡牌库区域大小，这里是实际的卡牌排列可用区域，小于卡牌库背景区域
   static late Vector2 libraryZoneSize;
 
+  static late Vector2 orderByButtonPosition, filterByButtonPosition;
+
   /// 卡包展示卡牌的大小
   static late Vector2 cardpackCardSize;
 
   /// 卡包中1，2，3号卡牌的位置
   static late final List<Vector2> cardpackCardPositions;
 
-  static late Vector2 craftButtonPosition;
+  static late Vector2 closeCraftButtonPosition;
   static late Vector2 cardLibraryExpLabelPosition;
 
   /// 卡牌精炼区域背景大小
@@ -271,6 +273,10 @@ abstract class GameUI {
 
   /// 打开精炼功能后的卡牌精炼区域
   static late Vector2 cardCraftingZonePosition;
+
+  static final Vector2 skillBookSize = Vector2(360, 360);
+  static final Vector2 expBottleSize = Vector2(135, 180);
+  static late Vector2 skillBookPosition, expBottlePosition;
 
   // battle ui
   static late Vector2 battleCardSize;
@@ -323,6 +329,10 @@ abstract class GameUI {
   static void resizeTo(Vector2 size) {
     if (GameUI.size == size) return;
 
+    Hovertip.backgroundPaint = Paint()
+      ..color = backgroundColor
+      ..style = PaintingStyle.fill;
+
     // Hovertip.defaultContentConfig = Hovertip.defaultContentConfig.copyWith(
     //   textStyle: TextStyle(fontFamily: GameUI.fontFamily),
     // );
@@ -343,6 +353,10 @@ abstract class GameUI {
     libraryZoneBackgroundPosition = Vector2(0, libraryZonePosition.y);
     libraryZoneBackgroundSize = Vector2((1190 / 1440 * size.x).roundToDouble(),
         (libraryZoneSize.y).roundToDouble());
+
+    orderByButtonPosition = libraryZonePosition + Vector2(50, -50);
+    filterByButtonPosition =
+        orderByButtonPosition + Vector2(buttonSizeLong.x + largeIndent, 0);
 
     decksZoneBackgroundSize = Vector2(
         size.x - libraryZoneBackgroundSize.x, libraryZoneBackgroundSize.y);
@@ -387,7 +401,7 @@ abstract class GameUI {
 
     final position2 = Vector2(
       size.x / 2 - cardpackCardSize.x / 2,
-      size.y * 0.2,
+      135.0,
     );
 
     final position1 = position2 - Vector2(cardpackCardSize.x + hugeIndent, 0);
@@ -396,10 +410,10 @@ abstract class GameUI {
 
     cardpackCardPositions = [position1, position2, position3];
 
-    craftButtonPosition = cardpackCardPositions[1] +
-        Vector2(cardpackCardSize.x / 2, cardpackCardSize.y + hugeIndent * 2);
+    closeCraftButtonPosition =
+        Vector2(size.x / 2, size.y - largeIndent - buttonSizeMedium.y / 2);
 
-    cardLibraryExpLabelPosition = Vector2(craftButtonPosition.x, size.y - 50);
+    cardLibraryExpLabelPosition = Vector2(size.x / 2, size.y - 50);
 
     cardCraftingZoneSize = Vector2((270 / 1440 * size.x).roundToDouble(),
         (270 / 810 * size.y).roundToDouble());
@@ -408,6 +422,12 @@ abstract class GameUI {
         Vector2(decksZoneBackgroundPosition.x, -150.0);
 
     cardCraftingZonePosition = decksZoneBackgroundPosition - Vector2(0, 100);
+
+    skillBookPosition = Vector2(-60, GameUI.size.y - 160);
+    // expBottlePosition = Vector2(size.x / 2, size.y - expBottleSize.y * 0.33);
+    expBottlePosition = Vector2(
+        skillBookPosition.x + skillBookSize.x + largeIndent,
+        GameUI.size.y - expBottleSize.y * 0.33);
 
     battleCardSize = deckbuildingCardSize;
     battleDeckZoneSize =

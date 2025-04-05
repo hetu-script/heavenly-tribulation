@@ -185,18 +185,24 @@ class _HoverInfoState extends State<HoverInfo> {
                 case LogicalKeyboardKey.controlLeft:
                 case LogicalKeyboardKey.controlRight:
                   context.read<HoverInfoContentState>().switchDetailed();
+                case LogicalKeyboardKey.keyC:
+                  if (widget.content.data is String) {
+                    Clipboard.setData(ClipboardData(text: widget.content.data));
+                    engine.debug('copied string: [${widget.content.data}]');
+                  } else if (widget.content.data is HTStruct) {
+                    Clipboard.setData(
+                        ClipboardData(text: widget.content.data['id']));
+                    engine.debug(
+                        'copied hetu object id: [${widget.content.data['id']}]');
+                  }
               }
             }
           },
           child: Container(
+            color: GameUI.backgroundColor3,
             padding:
                 const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
             constraints: BoxConstraints(maxWidth: widget.content.maxWidth),
-            decoration: BoxDecoration(
-              color: GameUI.backgroundColor3,
-              // borderRadius: GameUI.borderRadius,
-              // border: Border.all(color: GameUI.foregroundColor),
-            ),
             child: content,
           ),
         ),

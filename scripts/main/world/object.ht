@@ -1,12 +1,14 @@
-import '../game/data.ht'
+// import '../game/data.ht'
 
 const kEntityTypeObject = 'object'
 
 const kObjectPortal = 'portal'
 const kObjectWorldPortal = 'worldPortal'
-
 const kObjectCharacter = 'character'
 const kObjectTreasureBox = 'treasureBox'
+const kObjectCultivation = 'cultivation'
+const kObjectLibraryCraft = 'libraryCraft'
+const kObjectLibraryScroll = 'libraryScroll'
 
 function discoverObject(object, terrain) {
   if (object.isDiscovered) return
@@ -38,10 +40,8 @@ struct ObjectPortal {
     targetLeft,
     targetTop,
   }) {
-    assert(id != null)
-    this.id = id
+    this.id = id ?? crypto.randomUID(withTime: true)
     this.entityType = kEntityTypeObject
-    this.category = kObjectPortal
     this.isDiscovered = isDiscovered
     this.useCustomLogic = useCustomLogic
     this.targetTilePosition = {
@@ -62,8 +62,7 @@ struct ObjectWorldPortal {
     worldPositionLeft,
     worldPositionTop,
   }) {
-    assert(id != null)
-    this.id = id
+    this.id = id ?? crypto.randomUID(withTime: true)
     this.entityType = kEntityTypeObject
     this.category = kObjectWorldPortal
     this.isDiscovered = isDiscovered
@@ -83,8 +82,7 @@ struct ObjectCharacter {
     id,
     characterId,
   }) {
-    assert(id != null)
-    this.id = id
+    this.id = id ?? crypto.randomUID(withTime: true)
     this.entityType = kEntityTypeObject
     this.category = kObjectCharacter
     this.characterId = characterId
@@ -93,6 +91,32 @@ struct ObjectCharacter {
   }
 }
 
+/// 创建一个宝箱对象，打开后可以获得物品
+/// [items] 是物品信息列表，包含了用于生成实际物品的信息
+/// items: [
+///   {
+///     type: 'material',
+///     kind: 'money',
+///     amount: 100,
+///   },
+///   {
+///     type: 'prototype',
+///     kind: 'shard',
+///   },
+///   {
+///     type: 'equipment',
+///     kind: 'sword',
+///     rarity: 'basic',
+///     rank: 0,
+///     level: 0,
+///   },
+///   {
+///     type: 'cardpack',
+///     kind: 'punch',
+///     genre: null,
+///     rank: 0,
+///   },
+/// ]
 struct ObjectTreasureBox {
   constructor ({
     id,
@@ -100,14 +124,62 @@ struct ObjectTreasureBox {
     useCustomLogic = false,
     items: List,
   }) {
-    assert(id != null)
-    this.id = id
+    this.id = id ?? crypto.randomUID(withTime: true)
     this.entityType = kEntityTypeObject
     this.category = kObjectTreasureBox
     this.isDiscovered = isDiscovered
     this.useCustomLogic = useCustomLogic
-    world.objects[this.id] = this
-
     this.items = items
+
+    world.objects[this.id] = this
   }
 }
+
+struct ObjectCultivation {
+  constructor ({
+    id,
+    isDiscovered = true,
+    useCustomLogic = false,
+  }) {
+    this.id = id ?? crypto.randomUID(withTime: true)
+    this.entityType = kEntityTypeObject
+    this.category = kObjectCultivation
+    this.isDiscovered = isDiscovered
+    this.useCustomLogic = useCustomLogic
+
+    world.objects[this.id] = this
+  }
+}
+
+struct ObjectLibraryCraft {
+  constructor ({
+    id,
+    isDiscovered = true,
+    useCustomLogic = false,
+  }) {
+    this.id = id ?? crypto.randomUID(withTime: true)
+    this.entityType = kEntityTypeObject
+    this.category = kObjectLibraryCraft
+    this.isDiscovered = isDiscovered
+    this.useCustomLogic = useCustomLogic
+
+    world.objects[this.id] = this
+  }
+}
+
+struct ObjectLibraryScroll {
+  constructor ({
+    id,
+    isDiscovered = true,
+    useCustomLogic = false,
+  }) {
+    this.id = id ?? crypto.randomUID(withTime: true)
+    this.entityType = kEntityTypeObject
+    this.category = kObjectLibraryScroll
+    this.isDiscovered = isDiscovered
+    this.useCustomLogic = useCustomLogic
+
+    world.objects[this.id] = this
+  }
+}
+

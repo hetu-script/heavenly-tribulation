@@ -26,7 +26,7 @@ function initModData() {
   characterCalculateStats(feixiong)
   // Game.characterAllocateSkills(feiyu)
   generateDeck(feixiong, cardInfoList: [
-    {affixId: 'attack_sabre'}, {affixId: 'defend_sabre'}, {affixId: 'dodge'}, {affixId: 'heal'},
+    {affixId: 'attack_sabre'}, {affixId: 'defend_sabre'}, {affixId: 'dodge_nimble_exhaust_rage'}, {affixId: 'heal'},
   ])
 
   final chuxue = getCharacterById('ling_chuxue')

@@ -59,6 +59,8 @@ abstract class GameData {
   static final Map<String, dynamic> passives = {};
   static final Map<String, dynamic> passiveTree = {};
 
+  static final Map<String, dynamic> maps = {};
+
   static final Map<String, String> organizationCategoryNames = {};
   static final Map<String, String> cultivationGenreNames = {};
   static final Map<String, String> cityKindNames = {};
@@ -199,6 +201,10 @@ abstract class GameData {
       passiveTreeNodeData['description'] = nodeDescription.toString();
     }
 
+    final mapsDataString =
+        await rootBundle.loadString('assets/data/maps.json5');
+    maps.addAll(JSON5.parse(mapsDataString));
+
     for (final key in kOrganizationCategories) {
       organizationCategoryNames[key] = engine.locale(key);
     }
@@ -235,6 +241,7 @@ abstract class GameData {
       'battleCardsData': GameData.battleCards,
       'battleCardAffixesData': GameData.battleCardAffixes,
       'passivesData': GameData.passives,
+      'mapsData': GameData.maps,
     });
 
     for (final id in engine.mods.keys) {
@@ -254,14 +261,10 @@ abstract class GameData {
 
   /// 每次执行 createGame 都会重置游戏内的 game 对象上的数据
   static Future<void> createGame(
-    String worldId, {
-    String? saveName,
+    String saveName, {
     bool isEditorMode = false,
   }) async {
-    engine.debug('创建新游戏：[$worldId]');
-
     worldIds.clear();
-    worldIds.add(worldId);
 
     engine.hetu.invoke('createGame', positionalArgs: [saveName]);
 
@@ -477,8 +480,8 @@ abstract class GameData {
     characterData ??= GameData.heroData;
     final passivesData = characterData['passives'];
     StringBuffer builder = StringBuffer();
-    builder.writeln(engine.locale('passivetree_hero_skills_description_title'));
-    builder.writeln(' ');
+    builder.writeln(
+        '${engine.locale('passivetree_hero_skills_description_title')}\n ');
     if (passivesData.isEmpty) {
       builder.writeln('<grey>${engine.locale('none')}</>');
     } else {
@@ -548,6 +551,9 @@ abstract class GameData {
     }
 
     description.writeln(titleString);
+    if (engine.config.debugMode) {
+      description.writeln('<grey>[${itemData['id']}]</> - press `c` to copy');
+    }
     description.writeln('$rarityString$categoryString$priceString');
 
     // description.writeln(kSeparateLine);
@@ -697,6 +703,10 @@ abstract class GameData {
         '<grey>${engine.locale('category')}: ${engine.locale(cardData['category'])}</>';
 
     extraDescription.writeln(titleString);
+    if (engine.config.debugMode) {
+      extraDescription
+          .writeln('<grey>[${cardData['id']}]</> - press `c` to copy');
+    }
     extraDescription.writeln('$rankString$genreString$categoryString');
     extraDescription.writeln(kSeparateLine);
 
@@ -769,6 +779,24 @@ abstract class GameData {
       description.toString().trim(),
       extraDescription.toString().trim(),
     );
+  }
+
+  static dynamic createBattleCardDataByFilter({
+    dynamic filter,
+    isIdentified = true,
+  }) {
+    final cardData = engine.hetu.invoke(
+      'BattleCard',
+      namedArgs: {
+        'kind': (filter['isBasic'] == true ? 'none' : filter['kind']),
+        'genre': (filter['isBasic'] == true ? 'none' : filter['genre']),
+        'category': filter?['category'],
+        'rank': filter?['rank'],
+        'isIdentified': isIdentified,
+      },
+    );
+
+    return cardData;
   }
 
   static CustomGameCard createBattleCardFromData(dynamic data,

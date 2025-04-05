@@ -28,7 +28,7 @@ namespace Game {
     multiSelect: bool = true,
   }) -> Iterable
   
-  external function showLibrary()
+  external function showLibrary({enableCardCraft: bool = true, enableScrollCraft: bool = true})
   
   external function showCultivation()
 

@@ -1,9 +1,9 @@
-import '../entity.ht'
-import '../../game/data.ht'
-import '../../random.ht'
-import '../../incident.ht'
-import '../../name/talisman.ht'
-import 'material.ht'
+// import '../entity.ht'
+// import '../../game/data.ht'
+// import '../../random.ht'
+// import '../../incident.ht'
+// import '../../name/talisman.ht'
+// import 'material.ht'
 
 // category 的作用：
 // weapon, armor, helmet, boots, vehicle 每种只能装备一个，amulet 和 talisman 无限制
@@ -11,6 +11,7 @@ import 'material.ht'
 
 const kItemCategoryCardpack = 'cardpack'
 const kItemCategoryScroll = 'scroll'
+const kItemCategoryScrollPaper = 'scroll_paper'
 const kItemAffixMinLevel = 5
 
 // kind 决定了物品名字的生成方式
@@ -82,24 +83,6 @@ const kEnergyPositiveTypes = [
   // 'start_battle_with_energy_positive_life',
   // 'start_battle_with_energy_positive_leech',
   // 'start_battle_with_energy_positive_pure',
-]
-
-const kDebugEquipmentKinds = [
-  'sword',
-  'sabre',
-  'staff',
-  'spear',
-  'bow',
-  'dart',
-  'shield',
-  'armor',
-  'gloves',
-  'helmet',
-  // 'boots',
-  // 'amulet',
-  'ring',
-  // 'belt',
-  'pearl',
 ]
 
 struct Equipment {
@@ -196,8 +179,13 @@ struct Equipment {
         mainAffix = Object.create(passiveRawData)
       }
     }
-    mainAffix.level = this.level
-    mainAffix.value = (mainAffix.increment * this.level).round()
+    if (mainAffix.increment != null) {
+      if (this.level < kItemAffixMinLevel) {
+        this.level = kItemAffixMinLevel
+      }
+      mainAffix.level = this.level
+      mainAffix.value = (mainAffix.increment * this.level).round()
+    }
     this.affixes.add(mainAffix)
     this.affixUniqueIds.add(mainAffix.uniqueId ?? mainAffix.id)
     
@@ -507,23 +495,23 @@ function entityAcquireBattleCard(entity, card, { incurIncident = true }) {
 /// category: ['material', 'prototype', 'equipment', 'cardpack']
 /// items = [
 ///   {
-///     category: 'material',
+///     type: 'material',
 ///     kind: 'money',
 ///     amount: 100,
 ///   },
 ///   {
-///     category: 'prototype',
+///     type: 'prototype',
 ///     prototypeId: 'hunguding',
 ///   },
 ///   {
-///     category: 'equipment',
+///     type: 'equipment',
 ///     kind: 'sword',
 ///     rarity: 'basic',
 ///     rank: 0,
 ///     level: 0,
 ///   },
 ///   {
-///     category: 'cardpack',
+///     type: 'cardpack',
 ///     kind: 'punch',
 ///     genre: null,
 ///     rank: 0,
@@ -532,7 +520,7 @@ function entityAcquireBattleCard(entity, card, { incurIncident = true }) {
 function loot(box) {
   final items = []
   for (final itemInfo in box.items) {
-    switch (itemInfo.category) {
+    switch (itemInfo.type) {
       'material': {
         assert(kMaterialKinds.contains(itemInfo.kind))
         final materialpack = Materialpack(kind: itemInfo.kind, amount: itemInfo.amount ?? 1)
@@ -555,9 +543,11 @@ function loot(box) {
       }
       'cardpack': {
         final cardpack = Cardpack(
+          category: itemInfo.category,
           kind: itemInfo.kind,
           genre: itemInfo.genre,
           rank: itemInfo.rank,
+          isBasic: itemInfo.isBasic,
         )
         items.add(cardpack)
       }

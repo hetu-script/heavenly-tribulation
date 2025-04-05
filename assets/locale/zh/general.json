@@ -169,6 +169,10 @@
   "locationTopic": "场景话题",
   "itemTopic": "物品话题",
 
+  "martialArts": "武艺",
+  "sorcery": "法术",
+  "other": "其他",
+
   "show": "出示",
   "trade": "交易",
   "gift": "赠礼",
@@ -294,6 +298,10 @@
   "byLevelAscending": "等级 - 升序",
   "byRankDescending": "境界 - 降序",
   "byRankAscending": "境界 - 升序",
+
+  "requirementsMet": "满足需求",
+  "categoryAttack": "类别：攻击",
+  "categoryBuff": "类别：加持",
 
   "mapLevel": "第 {0} 层",
 

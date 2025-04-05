@@ -6,13 +6,17 @@ namespace World {
 
   external function updateTerrainOverlaySprite(left, top)
 
-  external function clearTerrainSprite(left, top)
+  external function updateTerrainInfo(left, top)
 
-  external function clearTerrainAnimation(left, top)
+  external function resetFogOfWar()
 
-  external function clearTerrainOverlaySprite(left, top)
+  // external function clearTerrainSprite(left, top)
 
-  external function clearTerrainOverlayAnimation(left, top)
+  // external function clearTerrainAnimation(left, top)
+
+  // external function clearTerrainOverlaySprite(left, top)
+
+  // external function clearTerrainOverlayAnimation(left, top)
 
   external function setPlayerFreeze(value: bool)
 
@@ -22,7 +26,7 @@ namespace World {
   external function setObjectTo(id, left, top)
 
   /// endDirection: 'north' | 'east' | 'south' | 'west'
-  external function objectWalkTo(id, left, top, {endDirection, onBeforeStepCallback})
+  external function objectWalkTo(id, left, top, {endDirection, onStepCallback})
 
   external function updateNpcsAtWorldMapPosition()
 

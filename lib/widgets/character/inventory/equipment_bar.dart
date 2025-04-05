@@ -34,7 +34,7 @@ class EquipmentBar extends StatelessWidget {
           characterData: characterData,
           itemData: itemId != null ? characterData['inventory'][itemId] : null,
           size: gridSize,
-          margin: const EdgeInsets.all(5.0),
+          margin: const EdgeInsets.all(2),
           showEquippedIcon: false,
           onTapped: onItemTapped,
           onSecondaryTapped: onItemSecondaryTapped,

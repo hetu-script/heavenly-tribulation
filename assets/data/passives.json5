@@ -99,10 +99,10 @@
     isItemExtraAffix: true,
     kind: ["boots"],
   },
-  increase_damage_wrestling: {
-    id: "increase_damage_wrestling",
+  increase_damage_qinna: {
+    id: "increase_damage_qinna",
     uniqueId: "increase_damage",
-    description: "passive_increase_damage_wrestling_description",
+    description: "passive_increase_damage_qinna_description",
     priority: 3148,
     increment: 0.5,
     isItemExtraAffix: true,
@@ -180,10 +180,10 @@
     isItemExtraAffix: true,
     kind: ["talisman"],
   },
-  increase_damage_windbend: {
-    id: "increase_damage_windbend",
+  increase_damage_airbend: {
+    id: "increase_damage_airbend",
     uniqueId: "increase_damage",
-    description: "passive_increase_damage_windbend_description",
+    description: "passive_increase_damage_airbend_description",
     priority: 3139,
     increment: 0.5,
     isItemExtraAffix: true,
@@ -748,6 +748,37 @@
 
   /// 天赋特殊词条
   /// 这些词条是天道技能的关键节点，不会出现在装备上
+
+  enable_auto_work: {
+    id: "enable_auto_work",
+    description: "passive_enable_auto_work_description",
+    priority: 3995,
+  },
+  enable_auto_cultivate: {
+    id: "enable_auto_cultivate",
+    description: "passive_enable_auto_cultivate_description",
+    priority: 3994,
+  },
+  enable_toolbar_cultivation: {
+    id: "enable_toolbar_cultivation",
+    description: "passive_enable_toolbar_cultivation_description",
+    priority: 3993,
+  },
+  enable_toolbar_library: {
+    id: "enable_toolbar_library",
+    description: "passive_enable_toolbar_library_description",
+    priority: 3993,
+  },
+  enable_cardcraft: {
+    id: "enable_cardcraft",
+    description: "passive_enable_cardcraft_description",
+    priority: 3993,
+  },
+  enable_scrollcraft: {
+    id: "enable_scrollcraft",
+    description: "passive_enable_scrollcraft_description",
+    priority: 3993,
+  },
 
   enable_chakra: {
     id: "enable_chakra",

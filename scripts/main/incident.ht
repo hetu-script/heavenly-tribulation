@@ -1,6 +1,6 @@
-import 'game/data.ht'
-import 'entity/character/character.ht'
-import 'game/player.ht'
+// import 'game/data.ht'
+// import 'entity/character/character.ht'
+// import 'game/player.ht'
 
 /// 历史事件记录
 struct Incident {

@@ -1,15 +1,15 @@
-import '../../game/data.ht'
-import '../character/character.ht'
-import '../../game/dialog.ht'
-import '../../name/location.ht'
-import '../entity.ht'
-import '../../world/tile/hexagonal_tile.ht'
+// import '../../game/data.ht'
+// import '../character/character.ht'
+// import '../../game/dialog.ht'
+// import '../../name/location.ht'
+// import '../entity.ht'
+// import '../../world/tile/hexagonal_tile.ht'
+// import '../item/material.ht'
+// import '../item/item.ht'
+// import '../../datetime.ht'
+// import '../entity.ht'
+// import '../organization/organization.ht'
 import '../../world/tile/common.ht'
-import '../item/material.ht'
-import '../item/item.ht'
-import '../../datetime.ht'
-import '../entity.ht'
-import '../organization/organization.ht'
 
 const _kLocationInitialStabilityMax = 50
 const kLocationDevelopmentMax = 5
@@ -364,8 +364,7 @@ function discoverLocation(location) {
   if (location.isDiscovered) return
   engine.debug('发现新据点：${location.name}')
   location.isDiscovered = true
-  assert(location.worldId != null)
-  assert(universe.containsKey(location.worldId))
+  assert(universe.containsKey(location.worldId), location.worldId)
   let atWorld = universe[location.worldId]
   World.setTerrainCaption(location.worldPosition.left, location.worldPosition.top, location.name)
   if (location.isHidden) {

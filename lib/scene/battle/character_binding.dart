@@ -1,6 +1,6 @@
 import 'package:hetu_script/hetu_script.dart';
 import 'package:hetu_script/binding.dart';
-import 'package:flutter/material.dart' show Colors;
+import 'package:samsara/extensions.dart';
 
 import 'character.dart';
 
@@ -20,11 +20,13 @@ class BattleCharacterClassBinding extends HTExternalClass {
         return character.life;
       case 'lifeMax':
         return character.lifeMax;
+      case 'setLifeMax':
+        return ({object, positionalArgs, namedArgs}) {
+          character.setLifeMax(positionalArgs.first);
+        };
       case 'addHintText':
         return ({object, positionalArgs, namedArgs}) {
-          final color = switch (namedArgs['color']) {
-            _ => Colors.white,
-          };
+          final color = HexColor.fromString(namedArgs['color'] ?? '#FFFFFFFF');
           character.addHintText(positionalArgs.first, color: color);
         };
       case 'changeLife':
@@ -61,7 +63,7 @@ class BattleCharacterClassBinding extends HTExternalClass {
               positionalArgs[0],
               amount: namedArgs['amount'],
               percentage: namedArgs['percentage'],
-              exhaust: namedArgs['exhaust'] ?? false,
+              exhaust: namedArgs['exhaust'],
             );
       case 'addStatusEffect':
         return ({object, positionalArgs, namedArgs}) => character

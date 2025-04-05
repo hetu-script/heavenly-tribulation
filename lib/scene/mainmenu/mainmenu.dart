@@ -34,13 +34,12 @@ class MainMenuScene extends Scene {
         'generateHero',
         namespace: 'Debug',
         namedArgs: {
-          'level': 30,
-          'rank': 3,
+          'level': 6,
+          'rank': 1,
         },
       );
       engine.hetu.invoke('acquireById',
           namespace: 'Player', positionalArgs: ['hunguding']);
-      if (!context.mounted) return;
       context.read<HeroState>().update();
       context.read<HeroInfoVisibilityState>().setVisible(true);
       context.read<GameTimestampState>().update();
@@ -53,7 +52,7 @@ class MainMenuScene extends Scene {
       children: [
         SceneWidget(scene: this),
         MainMenuButtons(),
-        GameUIOverlay(),
+        GameUIOverlay(action: DebugButton()),
       ],
     );
   }

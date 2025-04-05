@@ -253,7 +253,6 @@ class _LocationViewState extends State<LocationView> {
                                 );
                               });
                           if (value == null) return;
-                          if (!context.mounted) return;
                           final (category, kind, id, name, image, background) =
                               value;
                           final locationData = engine.hetu.invoke(
@@ -268,7 +267,6 @@ class _LocationViewState extends State<LocationView> {
                               'atLocation': _locationData,
                             },
                           );
-                          if (!context.mounted) return;
                           await showDialog(
                               context: context,
                               builder: (context) {

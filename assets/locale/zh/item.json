@@ -29,6 +29,7 @@
 
   "requirement": "需求",
   "rank_requirement": "境界需求",
+  "genre_requirement": "天道技能需求",
   "equipment_requirement": "装备需求",
   "attribute_requirement": "属性需求",
 
@@ -73,6 +74,9 @@
 
   "energy_ultimate": "无极之气",
   "energy_ultimate_description": "无极之气：在天地形成之初便已存在的一种远古气息，吸收后可以增强你在战斗中的攻击。",
+
+  "scroll_paper": "空白符纸",
+  "scroll_paper_flavortext": "用来制作符箓的材料。",
 
   "identify_scroll": "鉴定符",
   "identify_scroll_flavortext": "一种可以在物品栏中使用的非战斗符箓。"

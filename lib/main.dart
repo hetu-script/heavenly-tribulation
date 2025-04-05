@@ -84,10 +84,11 @@ void main() {
       MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => engine),
-          ChangeNotifierProvider(create: (_) => SelectedTileState()),
           ChangeNotifierProvider(create: (_) => GameSavesState()),
           ChangeNotifierProvider(create: (_) => EditorToolState()),
           ChangeNotifierProvider(create: (_) => HeroAndGlobalHistoryState()),
+          ChangeNotifierProvider(create: (_) => SelectedTileState()),
+          ChangeNotifierProvider(create: (_) => HeroTileState()),
           ChangeNotifierProvider(create: (_) => GameDialogState()),
           ChangeNotifierProvider(create: (_) => NpcListState()),
           ChangeNotifierProvider(create: (_) => NewQuestState()),

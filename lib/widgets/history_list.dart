@@ -74,11 +74,13 @@ class HeroAndGlobalHistoryList extends StatefulWidget {
     this.onTapUp,
     this.onMouseEnter,
     this.onMouseExit,
+    this.limit = 2,
   }) : super(key: GlobalKey());
 
   final void Function()? onTapUp;
   final void Function(Rect rect)? onMouseEnter;
   final void Function()? onMouseExit;
+  final int limit;
 
   @override
   State<HeroAndGlobalHistoryList> createState() =>
@@ -111,8 +113,8 @@ class _HeroAndGlobalHistoryListState extends State<HeroAndGlobalHistoryList> {
   Widget build(BuildContext context) {
     final incidents = context.watch<HeroAndGlobalHistoryState>().incidents;
     Iterable slice;
-    if (incidents.length > 3) {
-      slice = incidents.skip(incidents.length - 3);
+    if (incidents.length > widget.limit) {
+      slice = incidents.skip(incidents.length - widget.limit);
     } else {
       slice = incidents;
     }

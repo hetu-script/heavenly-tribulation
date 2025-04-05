@@ -18,6 +18,10 @@ external class BattleCharacter {
 
   get lifeMax
 
+  function setLifeMax(value: integer)
+
+  function addHintText(text, {color: string})
+
   function changeLife(value: integer, {playSound: bool = false, changeLife: bool = false})
 
   async function takeDamage(details) -> integer
@@ -35,7 +39,7 @@ external class BattleCharacter {
 
   function hasStatusEffect(effectId: string) -> int
 
-  function removeStatusEffect(effectId: string, {amount: integer, percentage: float, exhaust: bool = false}) -> integer
+  function removeStatusEffect(effectId: string, {amount: integer, percentage: float, exhaust: string}) -> integer
 
   function addStatusEffect(effectId: string, {amount: integer})
 }

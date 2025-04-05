@@ -159,12 +159,12 @@
     isPermenant: true,
     callbacks: ["self_doing_damage"],
   },
-  increase_damage_wrestling: {
-    id: "increase_damage_wrestling",
-    title: "status_increase_damage_wrestling",
-    description: "status_increase_damage_wrestling_description",
-    icon: "icon/status/permenant/increase_damage_wrestling.png",
-    kind: "wrestling",
+  increase_damage_qinna: {
+    id: "increase_damage_qinna",
+    title: "status_increase_damage_qinna",
+    description: "status_increase_damage_qinna_description",
+    icon: "icon/status/permenant/increase_damage_qinna.png",
+    kind: "qinna",
     script: "increase_damage",
     isPermenant: true,
     callbacks: ["self_doing_damage"],
@@ -249,12 +249,12 @@
     isPermenant: true,
     callbacks: ["self_doing_damage"],
   },
-  increase_damage_windbend: {
-    id: "increase_damage_windbend",
-    title: "status_increase_damage_windbend",
-    description: "status_increase_damage_windbend_description",
-    icon: "icon/status/permenant/increase_damage_windbend.png",
-    kind: "windbend",
+  increase_damage_airbend: {
+    id: "increase_damage_airbend",
+    title: "status_increase_damage_airbend",
+    description: "status_increase_damage_airbend_description",
+    icon: "icon/status/permenant/increase_damage_airbend.png",
+    kind: "airbend",
     script: "increase_damage",
     isPermenant: true,
     callbacks: ["self_doing_damage"],
@@ -614,7 +614,7 @@
     icon: "icon/status/ward.png",
     script: "ward",
     priority: 1401,
-    callbacks: ["self_gaining_debuff"],
+    callbacks: ["self_gaining_debuff", "self_turn_end"],
   },
 
   injury_external: {
@@ -673,7 +673,7 @@
     callbacks: ["opponent_turn_end"],
   },
 
-  // 元气：回合结束时，若生命不满，消耗 1 层元气，恢复 10% 生命。
+  // 元气：回合结束时回复生命
   // 某些地方简称为 vigor
   energy_positive_life: {
     id: "energy_positive_life",
@@ -684,7 +684,7 @@
     isResource: true,
     callbacks: ["self_turn_end"],
   },
-  // 正气：回合结束时，若造成了伤害，消耗 1 层正气，恢复 10% 的生命。
+  // 正气：攻击后恢复生命
   energy_positive_leech: {
     id: "energy_positive_leech",
     title: "status_energy_positive_leech",
@@ -694,7 +694,7 @@
     isResource: true,
     callbacks: ["self_turn_end"],
   },
-  // 豪气：回合结束时，若造成了伤害，消耗 1 层豪气，获得 10% 的随机防御。
+  // 豪气：攻击可能获得 100 穿透
   energy_positive_pure: {
     id: "energy_positive_pure",
     title: "status_energy_positive_pure",
@@ -702,7 +702,7 @@
     icon: "icon/status/energy_positive_pure.png",
     script: "energy_positive_pure",
     isResource: true,
-    callbacks: ["self_turn_end"],
+    callbacks: ["self_attacking"],
   },
 
   // 灵气
@@ -765,7 +765,7 @@
     callbacks: ["self_doing_damage", "self_deck_end"],
   },
 
-  // 死气：回合开始时消耗 1 层死气，失去 10% 生命。在卡组结束时消失。
+  // 死气：回合结束时失去生命
   energy_negative_life: {
     id: "energy_negative_life",
     title: "status_energy_negative_life",
@@ -776,7 +776,7 @@
     isNegative: true,
     callbacks: ["self_turn_start"],
   },
-  // 戾气：当你造成伤害时，消耗 1 层戾气，使伤害减少 10%。在卡组结束时消失。
+  // 戾气：攻击后自身受到伤害
   energy_negative_leech: {
     id: "energy_negative_leech",
     title: "status_energy_negative_leech",
@@ -785,9 +785,9 @@
     script: "energy_negative_leech",
     isResource: true,
     isNegative: true,
-    callbacks: ["self_doing_damage"],
+    callbacks: ["self_turn_end"],
   },
-  // 衰气：当你造成伤害时，消耗 1 层衰气，使伤害有 10% 几率落空。在卡组结束时消失。
+  // 衰气：可能会跳过回合
   energy_negative_pure: {
     id: "energy_negative_pure",
     title: "status_energy_negative_pure",
@@ -796,7 +796,7 @@
     script: "energy_negative_pure",
     isResource: true,
     isNegative: true,
-    callbacks: ["self_attacking"],
+    callbacks: ["self_turn_start"],
   },
 
   // 逆灵之气
@@ -814,7 +814,7 @@
   // 止戈之气
   energy_negative_weapon: {
     id: "energy_negative_weapon",
-    title: "energy_negative_weapon",
+    title: "status_energy_negative_weapon",
     description: "status_energy_negative_weapon_description",
     icon: "icon/status/energy_negative_weapon.png",
     script: "energy_negative_weapon",

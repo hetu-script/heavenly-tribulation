@@ -73,7 +73,6 @@ flutter:
     - assets/audio/music/
 
     - assets/data/
-    # - assets/data/maps/
 
     - assets/images/
     - assets/images/animation/
