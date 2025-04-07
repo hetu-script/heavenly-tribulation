@@ -11,9 +11,9 @@ class HeroAndGlobalHistoryState with ChangeNotifier {
     final String? heroId = engine.hetu.invoke('getHeroId');
     if (heroId == null) return;
 
-    final List history = (engine.hetu.fetch('timeline') as List);
+    final timeline = engine.hetu.fetch('timeline').values.toList();
     incidents.clear();
-    for (final incident in history.reversed) {
+    for (final incident in timeline.reversed) {
       if (incident['subjectId'] == heroId ||
           incident['objectId'] == heroId ||
           incident['isGlobal']) {

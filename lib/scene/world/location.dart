@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:heavenly_tribulation/state/selected_tile.dart';
 import 'package:samsara/samsara.dart';
 import 'package:flame/components.dart';
 import 'package:flame/flame.dart';
@@ -190,9 +191,17 @@ class LocationScene extends Scene {
     final Iterable<dynamic> npcs = engine.hetu
         .invoke('getNpcsAtLocationId', positionalArgs: [locationData['id']]);
     context.read<NpcListState>().update(npcs);
+    context.read<HeroTileState>().updateScene(locationData['name']);
 
     engine.debug('玩家进入了 ${locationData['name']}');
     engine.hetu.invoke('onAfterEnterLocation', positionalArgs: [locationData]);
+  }
+
+  @override
+  void onDetach() {
+    super.onDetach();
+
+    context.read<HeroTileState>().updateScene(null);
   }
 
   @override

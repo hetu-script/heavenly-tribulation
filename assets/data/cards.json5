@@ -1,4 +1,10 @@
 {
+  // 最终的卡牌上可能还会有一些其他的属性
+  // 被诅咒的卡牌，必然出现在战斗卡组中，并且自身的卡组数量上限减一
+  // isCursed: false,
+  // 被腐化的卡牌，无法再进行精炼
+  // isCorrupted: false,
+
   // ------------攻击卡牌------------
   attack_punch: {
     // 不同的词条可能有相同的affixId，非null的affixId只会在一张卡牌上出现一次。
@@ -537,6 +543,7 @@
       sound: "knife-stab-sound-effect-36354.mp3",
     },
     script: "attack_exhaust",
+    tags: ["exhaustResource"],
     isMain: true,
     equipment: "spear",
     valueData: [
@@ -568,6 +575,7 @@
       sound: "knife-stab-sound-effect-36354.mp3",
     },
     script: "attack_multiple_exhaust",
+    tags: ["exhaustResource"],
     isMain: true,
     equipment: "spear",
     valueData: [
@@ -631,6 +639,7 @@
       sound: "clean-fast-swooshaiff-14784.mp3",
     },
     script: "attack_multiple_exhaust",
+    tags: ["exhaustResource"],
     isMain: true,
     equipment: "dart",
     valueData: [
@@ -666,6 +675,7 @@
       sound: "clean-fast-swooshaiff-14784.mp3",
     },
     script: "attack_multiple_exhaust",
+    tags: ["exhaustResource"],
     isMain: true,
     equipment: "dart",
     valueData: [
@@ -722,6 +732,7 @@
       sound: "clean-fast-swooshaiff-14784.mp3",
     },
     script: "attack_exhaust",
+    tags: ["exhaustResource"],
     isMain: true,
     equipment: "bow",
     valueData: [
@@ -751,6 +762,7 @@
       sound: "clean-fast-swooshaiff-14784.mp3",
     },
     script: "attack_multiple_exhaust",
+    tags: ["exhaustResource"],
     isMain: true,
     equipment: "bow",
     valueData: [
@@ -789,6 +801,7 @@
       sound: "small-rock-break-194553.mp3",
     },
     script: "attack_exhaust",
+    tags: ["exhaustResource"],
     isMain: true,
     valueData: [
       {
@@ -819,6 +832,7 @@
       sound: "fireball-whoosh-5-179129.mp3",
     },
     script: "attack_exhaust",
+    tags: ["exhaustResource"],
     isMain: true,
     valueData: [
       {
@@ -842,7 +856,6 @@
     damageType: "physical",
     rank: 1,
     description: "affix_attack_spell_slow",
-    tags: ["status_speed_slow"],
     image: "battlecard/illustration/spellcraft_attack_wind.png",
     animation: {
       startup: "attack_spell",
@@ -851,6 +864,7 @@
       sound: "wind-1-44149.mp3",
     },
     script: "attack_slow_exhaust",
+    tags: ["exhaustResource", "status_speed_slow"],
     isMain: true,
     valueData: [
       {
@@ -879,7 +893,6 @@
     damageType: "elemental",
     rank: 1,
     description: "affix_attack_spell_clumsy",
-    tags: ["status_dodge_clumsy"],
     image: "battlecard/illustration/spellcraft_lightning.png",
     animation: {
       startup: "attack_spell",
@@ -888,6 +901,7 @@
       sound: "big-thunder-67697.mp3",
     },
     script: "attack_clumsy_exhaust",
+    tags: ["exhaustResource", "status_dodge_clumsy"],
     isMain: true,
     valueData: [
       {
@@ -924,7 +938,8 @@
       overlays: ["flying_sword"],
       sound: "sword-sound-2-36274.mp3",
     },
-    script: "attack_exhaust",
+    script: "attack_multiple_exhaust",
+    tags: ["exhaustResource"],
     isMain: true,
     equipment: "sword",
     valueData: [
@@ -960,7 +975,8 @@
       overlays: ["flying_sword"],
       sound: "sword-sound-2-36274.mp3",
     },
-    script: "attack_exhaust",
+    script: "attack_multiple_exhaust",
+    tags: ["exhaustResource"],
     isMain: true,
     equipment: "sword",
     valueData: [
@@ -1090,6 +1106,7 @@
       sound: "cymbal-unsettle-63943.mp3",
     },
     script: "attack_exhaust",
+    tags: ["exhaustResource"],
     isMain: true,
     valueData: [
       {
@@ -1120,6 +1137,7 @@
       sound: "tibetan-monks-22297.mp3",
     },
     script: "attack_exhaust",
+    tags: ["exhaustResource"],
     isMain: true,
     valueData: [
       {
@@ -1152,6 +1170,7 @@
       sound: "magic-smite-6012.mp3",
     },
     script: "attack_multiple_exhaust",
+    tags: ["exhaustResource"],
     isMain: true,
     valueData: [
       {
@@ -1204,13 +1223,13 @@
     exhaustType: "leech",
     rank: 1,
     description: "affix_defend_chi_exhaust_rage",
-    tags: ["status_defense"],
     image: "battlecard/illustration/defend_punch.png",
     animation: {
       startup: "buff_punch",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
+    tags: ["exhaustResource", "status_defense"],
     isMain: true,
     valueData: [
       {
@@ -1230,13 +1249,13 @@
     kind: "kick",
     damageType: "physical",
     description: "affix_defend_physical",
-    tags: ["status_defense"],
     image: "battlecard/illustration/defend_kick.png",
     animation: {
       startup: "buff_kick",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend",
+    tags: ["exhaustResource", "status_defense"],
     isMain: true,
     valueData: [
       {
@@ -1256,13 +1275,13 @@
     exhaustType: "leech",
     rank: 1,
     description: "affix_defend_chi_exhaust_rage",
-    tags: ["status_defense"],
     image: "battlecard/illustration/defend_kick.png",
     animation: {
       startup: "buff_kick",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
+    tags: ["exhaustResource", "status_defense"],
     isMain: true,
     valueData: [
       {
@@ -1309,13 +1328,13 @@
     exhaustType: "leech",
     rank: 1,
     description: "affix_defend_chi_exhaust_rage",
-    tags: ["status_defense"],
     image: "battlecard/illustration/defend_staff.png",
     animation: {
       startup: "buff_staff",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
+    tags: ["exhaustResource", "status_defense"],
     isMain: true,
     equipment: "staff",
     valueData: [
@@ -1363,13 +1382,13 @@
     exhaustType: "leech",
     rank: 1,
     description: "affix_defend_elemental_exhaust_chakra",
-    tags: ["status_defense"],
     image: "battlecard/illustration/defend_sword.png",
     animation: {
       startup: "buff_sword",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
+    tags: ["exhaustResource", "status_defense"],
     isMain: true,
     equipment: "sword",
     valueData: [
@@ -1419,13 +1438,13 @@
     exhaustType: "leech",
     rank: 1,
     description: "affix_defend_elemental_exhaust_chakra",
-    tags: ["status_defense"],
     image: "battlecard/illustration/defend_sabre.png",
     animation: {
       startup: "buff_sabre",
       sound: "buffer-spell-88994.mp3",
     },
     script: "defend_exhaust",
+    tags: ["exhaustResource", "status_defense"],
     isMain: true,
     equipment: "sabre",
     valueData: [
@@ -1504,7 +1523,7 @@
     isMain: true,
     valueData: [
       {
-        base: 1,
+        base: 5,
         increment: 1,
       },
     ],
@@ -1532,35 +1551,6 @@
       },
     ],
   },
-  // 消耗元气按比例恢复生命
-  heal_exhaust_vigor: {
-    id: "heal_exhaust_vigor",
-    category: "buff",
-    kind: "xinfa",
-    resourceType: "energy_positive_life",
-    exhaustType: "life",
-    rank: 1,
-    description: "affix_heal_exhaust_vigor",
-    tags: ["status_energy_positive_life"],
-    image: "battlecard/illustration/xinfa2.png",
-    animation: {
-      startup: "buff_spell",
-      overlays: ["restore_life"],
-      sound: "spell-of-healing-876.mp3",
-    },
-    script: "heal_exhaust",
-    isMain: true,
-    valueData: [
-      {
-        base: 0,
-        increment: 0.1,
-      },
-      {
-        base: 20,
-        increment: 0.8,
-      },
-    ],
-  },
 
   speed_quick_exhaust_mana: {
     id: "speed_quick_exhaust_mana",
@@ -1571,13 +1561,13 @@
     exhaustType: "pure",
     rank: 1,
     description: "affix_speed_quick_exhaust_mana",
-    tags: ["status_speed_quick"],
     image: "battlecard/illustration/quick.png",
     animation: {
       startup: "buff_punch",
       sound: "buffer-spell-88994.mp3",
     },
     script: "speed_quick_exhaust",
+    tags: ["exhaustResource", "status_speed_quick"],
     isMain: true,
     valueData: [
       {
@@ -1600,13 +1590,13 @@
     exhaustType: "pure",
     rank: 1,
     description: "affix_dodge_nimble_exhaust_mana",
-    tags: ["status_dodge_nimble"],
     image: "battlecard/illustration/nimble.png",
     animation: {
       startup: "buff_punch",
       sound: "buffer-spell-88994.mp3",
     },
     script: "dodge_nimble_exhaust",
+    tags: ["exhaustResource", "status_dodge_nimble"],
     isMain: true,
     valueData: [
       {
@@ -1630,13 +1620,13 @@
     exhaustType: "pure",
     rank: 1,
     description: "affix_speed_quick_exhaust_rage",
-    tags: ["status_speed_quick"],
     image: "battlecard/illustration/quick.png",
     animation: {
       startup: "buff_punch",
       sound: "buffer-spell-88994.mp3",
     },
     script: "speed_quick_exhaust",
+    tags: ["exhaustResource", "status_speed_quick"],
     isMain: true,
     valueData: [
       {
@@ -1660,13 +1650,13 @@
     exhaustType: "pure",
     rank: 1,
     description: "affix_dodge_nimble_exhaust_rage",
-    tags: ["status_dodge_nimble"],
     image: "battlecard/illustration/nimble.png",
     animation: {
       startup: "buff_punch",
       sound: "buffer-spell-88994.mp3",
     },
     script: "dodge_nimble_exhaust",
+    tags: ["exhaustResource", "status_dodge_nimble"],
     isMain: true,
     valueData: [
       {
@@ -1697,6 +1687,7 @@
       sound: "timber-tree-falling-1-40384.mp3",
     },
     script: "heal_exhaust",
+    tags: ["exhaustResource"],
     isMain: true,
     valueData: [
       {
@@ -1728,6 +1719,7 @@
       sound: "timber-tree-falling-1-40384.mp3",
     },
     script: "defend_exhaust",
+    tags: ["exhaustResource", "status_defense"],
     isMain: true,
     valueData: [
       {
@@ -1759,6 +1751,7 @@
       sound: "wind-1-44149.mp3",
     },
     script: "defend_exhaust",
+    tags: ["exhaustResource", "status_defense"],
     isMain: true,
     valueData: [
       {
@@ -1790,6 +1783,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "defend_exhaust",
+    tags: ["exhaustResource", "status_defense"],
     isMain: true,
     valueData: [
       {
@@ -1821,6 +1815,7 @@
       sound: "sword-sound-2-36274.mp3",
     },
     script: "defend_exhaust",
+    tags: ["exhaustResource", "status_defense"],
     isMain: true,
     valueData: [
       {

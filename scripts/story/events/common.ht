@@ -16,7 +16,7 @@ function initModData() {
   feiyu.level = 5
   characterCalculateStats(feiyu)
   // Game.characterAllocateSkills(feiyu)
-  // generateDeck(feiyu, cardInfoList: [
+  // characterGenerateDeck(feiyu, cardInfoList: [
   //   {affixId: 'attack_sabre'}, {affixId: 'defend_sabre'}, {affixId: 'dodge'}
   // ])
   
@@ -25,16 +25,16 @@ function initModData() {
   feiyu.level = 16
   characterCalculateStats(feixiong)
   // Game.characterAllocateSkills(feiyu)
-  generateDeck(feixiong, cardInfoList: [
+  characterGenerateDeck(feixiong, cardInfoList: [
     {affixId: 'attack_sabre'}, {affixId: 'defend_sabre'}, {affixId: 'dodge_nimble_exhaust_rage'}, {affixId: 'heal'},
   ])
 
   final chuxue = getCharacterById('ling_chuxue')
   characterCalculateStats(chuxue)
-  generateDeck(chuxue, cardInfoList: [
+  characterGenerateDeck(chuxue, cardInfoList: [
     {affixId: 'defend_punch'},{affixId: 'attack_punch'},{affixId: 'attack_kick'}
   ])
-  // generateDeck(chuxue, cardInfoList: [
+  // characterGenerateDeck(chuxue, cardInfoList: [
   //   {affixId: 'spell_energy', level: 5},{affixId: 'fireball'},{affixId: 'lightning'}
   // ])
   // entityCollect(chuxue, 'money', amount: 5000, incurIncident: false)

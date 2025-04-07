@@ -60,7 +60,6 @@
   "randomize": "随机化",
   "max": "最大",
   "min": "最小",
-  "basic": "基础",
   "advanced": "高级",
   "detail": "详情",
   "character": "人物",
@@ -125,8 +124,12 @@
 
   "savedSuccessfully": "成功保存游戏至：[<yellow>{0}</>]",
 
+  "enterCultivation": "进入修炼",
+  "enterLibrary": "进入功法图录",
+
   "difficulty": "难度",
   "level": "等级",
+  "level2": "层",
   "use": "使用",
   "equip": "装备",
   "unequip": "卸下",
@@ -202,6 +205,7 @@
   "equipments": "装备",
   "rarity": "品级",
 
+  "basic": "无品",
   "common": "凡品",
   "uncommon": "良品",
   "rare": "上品",
@@ -285,7 +289,7 @@
   "experienced": "经历",
   "known": "见闻",
   "quest": "日志",
-  "card_library": "藏书阁",
+  "card_library": "功法图录",
   "cultivate": "修炼",
 
   "decks": "卡组",
@@ -349,6 +353,7 @@
   "animal": "灵兽",
   "array": "阵法",
   "scroll": "符箓",
+  "scroll2": "符",
   "alchemy": "炼丹",
   "craft": "炼器",
   "divination": "卜术",
@@ -364,6 +369,8 @@
   "watchScene": "观看剧情",
   "skipScene": "跳过剧情",
 
+  "functionDisabled": "<red>功能不可用</>",
+
   "hint_unidentifiedItem": "这件物品还没有鉴定，无法使用。",
   "hint_cursedEquipment": "这件装备被施加了禁制，你无法将其取下。",
   "hint_consumable": "这件物品是消耗品，使用后会消失。",
@@ -376,6 +383,22 @@
   "hint_noQuests": "我目前似乎没有什么要紧的事情。",
   "hint_notEnoughPassiveSkillPoints": "你没有足够的天道技能点数。",
   "hint_requirementNotMetForSkill": "你不满足学习此天道技能的要求。",
+  "hint_cancel_tribulation": "放弃天道挑战后，扣掉的升级经验值不会返还。",
+  "hint_cultivateMode": "点击左键切换到打坐修炼模式",
+  "hint_passiveTreeMode": "点击左键切换到天道技能模式",
+
+  "hint_usedObject": "这件物品上附着的灵光已经消失，无法再次使用了。",
+  "hint_fullHPRest": "你的生命值已满，无需再休息了。",
+
+  "exitDungeon": "离开洞天",
+  "hint_exitDungeon_description": "确定要离开洞天吗？离开后将会重置探索进度。",
+  "enterNextDungeonLevel": "继续挑战",
+  "hint_enterNextLevel_description": "确定要进入下一层吗？所有敌人的强度都将提升。",
+  "enterNextDungeonRank": "洞天升阶",
+  "hint_enterNextDungeonRank_description": "确定要进入下一层吗？你已完成此境界的所有层数，继续挑战将会提升洞天的境界。所有敌人的境界都将提升。",
+  "hint_dungeon_failed": "挑战失败",
+
+  "hint_cultivate": "花费时间和灵石来修炼，从而获得灵光点。收集灵光可以转化为提升修为所需的经验。",
 
   "hint_ship": "需要先装备船只才可以在水面上移动……",
   "hint_boots": "需要先装备登山靴才可以在山地中移动……",
@@ -420,8 +443,8 @@
   "familyName": "氏",
   "sectName": "宗",
 
-  "newItems": "新物品",
-  "newQuest": "新日志",
+  "newItems": "获得物品",
+  "newQuest": "新增日志",
   "questUpdate": "日志更新",
 
   "insufficientShard": "灵石不足!",

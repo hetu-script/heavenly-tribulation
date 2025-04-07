@@ -13,11 +13,11 @@ import '../achievements.ht'
 export 'battle_entity.ht'
 
 const kPlayStyles = {
-  'dexterity': ['standard'],
-  'spirituality': ['standard'],
-  'willpower': ['standard'],
-  'perception': ['standard'],
-  'strength': ['standard'],
+  'swordcraft': ['standard'],
+  'spellcraft': ['standard'],
+  'vitality': ['standard'],
+  'avatar': ['standard'],
+  'bodyforge': ['standard'],
 }
 
 // 进行某些互动的时候的判定阈值
@@ -853,6 +853,9 @@ struct Baby {
     this.name = this.surName + this.shortName
     this.id = id ?? this.name
 
+    if (game.babies.containsKey(this.id)) {
+      engine.warn('已经存在 id 为 ${this.id} 的婴儿。旧数据将会被覆盖。')
+    }
     game.babies[this.id] = this
     
     const incidentContent = engine.locale('characterConception', interpolations: [
@@ -1183,8 +1186,6 @@ struct Character {
     assert(this.relationships.friendship != null)
     assert(this.relationships.domination != null)
 
-    this.cultivationFavor = getMainAttribute(this)
-    this.cultivationStyle = random.nextIterable(kPlayStyles[this.cultivationFavor])
     this.organizationFavor = this.motivations.first
 
     // 所有该角色拥有住所的据点的 id 列表
@@ -1685,4 +1686,18 @@ function characterRankUp(character, {rank, incurIncident = true }) {
   engine.debug(incidentContent)
 
   return character.rank
+}
+
+function characterGainExp(character, value) {
+  character.unconvertedExp += value
+
+  const incidentContent = engine.locale('characterExpGained', interpolations: [
+    character.name, 
+    value,
+  ])
+  Incident(
+    message: incidentContent,
+    subjectId: hero.id,
+    isPrivate: true,
+  )
 }

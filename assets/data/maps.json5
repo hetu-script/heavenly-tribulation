@@ -457,7 +457,7 @@
         top: 2,
         slashLeft: 2,
         slashTop: 5,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -469,7 +469,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 24,
@@ -724,7 +725,7 @@
         top: 3,
         slashLeft: 0,
         slashTop: 5,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -736,7 +737,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 38,
@@ -744,7 +746,7 @@
         top: 3,
         slashLeft: 1,
         slashTop: 5,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -756,7 +758,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 39,
@@ -764,7 +767,7 @@
         top: 3,
         slashLeft: 1,
         slashTop: 6,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -776,7 +779,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 40,
@@ -784,7 +788,7 @@
         top: 3,
         slashLeft: 2,
         slashTop: 6,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -796,7 +800,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 41,
@@ -804,7 +809,7 @@
         top: 3,
         slashLeft: 2,
         slashTop: 7,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -816,7 +821,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 42,
@@ -995,7 +1001,7 @@
         top: 4,
         slashLeft: -2,
         slashTop: 5,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -1007,7 +1013,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 52,
@@ -1015,7 +1022,7 @@
         top: 4,
         slashLeft: -1,
         slashTop: 5,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -1027,7 +1034,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 53,
@@ -1035,7 +1043,7 @@
         top: 4,
         slashLeft: -1,
         slashTop: 6,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -1047,7 +1055,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 54,
@@ -1055,7 +1064,7 @@
         top: 4,
         slashLeft: 0,
         slashTop: 6,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -1067,7 +1076,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 55,
@@ -1095,7 +1105,7 @@
         top: 4,
         slashLeft: 1,
         slashTop: 7,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -1107,7 +1117,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 57,
@@ -1115,7 +1126,7 @@
         top: 4,
         slashLeft: 1,
         slashTop: 8,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -1127,7 +1138,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 58,
@@ -1135,7 +1147,7 @@
         top: 4,
         slashLeft: 2,
         slashTop: 8,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -1147,7 +1159,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 59,
@@ -1155,7 +1168,7 @@
         top: 4,
         slashLeft: 2,
         slashTop: 9,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -1167,7 +1180,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 60,
@@ -1289,7 +1303,7 @@
         top: 5,
         slashLeft: -3,
         slashTop: 5,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -1301,7 +1315,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 67,
@@ -1309,7 +1324,7 @@
         top: 5,
         slashLeft: -3,
         slashTop: 6,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -1321,7 +1336,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 68,
@@ -1329,7 +1345,7 @@
         top: 5,
         slashLeft: -2,
         slashTop: 6,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -1341,7 +1357,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 69,
@@ -1453,7 +1470,7 @@
         top: 5,
         slashLeft: 1,
         slashTop: 9,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -1465,7 +1482,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 75,
@@ -1473,7 +1491,7 @@
         top: 5,
         slashLeft: 1,
         slashTop: 10,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -1485,7 +1503,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 76,
@@ -1493,7 +1512,7 @@
         top: 5,
         slashLeft: 2,
         slashTop: 10,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -1505,7 +1524,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 77,
@@ -1610,7 +1630,7 @@
         top: 6,
         slashLeft: -4,
         slashTop: 6,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -1622,7 +1642,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 83,
@@ -1810,7 +1831,7 @@
         top: 6,
         slashLeft: 1,
         slashTop: 11,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -1822,7 +1843,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 93,
@@ -1927,7 +1949,7 @@
         top: 7,
         slashLeft: -5,
         slashTop: 7,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -1939,7 +1961,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 99,
@@ -2027,7 +2050,13 @@
         top: 7,
         slashLeft: -3,
         slashTop: 10,
-        overlaySprite: {},
+        overlaySprite: {
+          sprite: null,
+          offsetY: -32.0,
+          srcWidth: 32.0,
+          srcHeight: 96.0,
+          spriteIndex: null,
+        },
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -2067,7 +2096,13 @@
         top: 7,
         slashLeft: -2,
         slashTop: 11,
-        overlaySprite: {},
+        overlaySprite: {
+          sprite: null,
+          offsetY: -32.0,
+          srcWidth: 32.0,
+          srcHeight: 96.0,
+          spriteIndex: null,
+        },
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -2127,7 +2162,7 @@
         top: 7,
         slashLeft: 0,
         slashTop: 12,
-        overlaySprite: {},
+        overlaySprite: null,
         kind: "plain",
         flags: {},
         montylyActivities: {
@@ -2139,7 +2174,8 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
+        sprite: null,
       },
       {
         index: 109,
@@ -2257,7 +2293,7 @@
         },
         known: [],
         sprite: null,
-        spriteIndex: 8,
+        spriteIndex: null,
       },
       {
         index: 115,
@@ -2459,8 +2495,9 @@
           fished: [],
         },
         known: [],
-        spriteIndex: 8,
+        spriteIndex: null,
         sprite: null,
+        isNonEnterable: false,
       },
       {
         index: 125,
@@ -3757,7 +3794,35 @@
     ],
     waterIndexes: [],
     zones: {},
-    objects: {},
+    objects: {
+      portal1: {
+        id: "portal1",
+        name: "portal1",
+        entityType: "object",
+        category: "custom",
+        isDiscovered: true,
+        useCustomLogic: true,
+        blockMove: false,
+      },
+      portal2: {
+        id: "portal2",
+        name: "portal2",
+        entityType: "object",
+        category: "custom",
+        isDiscovered: true,
+        useCustomLogic: true,
+        blockMove: false,
+      },
+      portal3: {
+        id: "portal3",
+        name: "portal3",
+        entityType: "object",
+        category: "custom",
+        isDiscovered: true,
+        useCustomLogic: true,
+        blockMove: false,
+      },
+    },
     components: [],
     fishTileIndexes: [],
     stormTileIndexes: [],

@@ -15,7 +15,7 @@ import '../state/view_panels.dart';
 import '../widgets/dialog/input_slider.dart';
 import '../scene/common.dart';
 import '../state/new_prompt.dart';
-import '../state/hoverinfo.dart';
+import '../state/hover_content.dart';
 import 'common.dart';
 import 'data.dart';
 
@@ -53,13 +53,13 @@ const kCardObtainProbabilityByRank = {
   }
 };
 
-const kBattleCardPriceRatio = 10;
-const kAddAffixCostRatio = 10;
-const kRerollAffixCostRatio = 20;
-const kReplaceAffixCostRatio = 20;
-const kUpgradeCardCostRatio = 10;
-const kUpgradeRankCostRatio = 10;
-const kCraftScrollCostRatio = 10;
+const kBattleCardPriceRate = 0.15;
+const kAddAffixCostRate = 0.9;
+const kRerollAffixCostRate = 0.02;
+const kReplaceAffixCostRate = 0.03;
+const kUpgradeCardCostRate = 0.11;
+const kUpgradeRankCostRate = 12.5;
+const kCraftScrollCostRate = 0.12;
 
 const _kCardCraftOperations = {
   'addAffix',
@@ -71,17 +71,23 @@ const _kCardCraftOperations = {
   'craftScroll',
 };
 
+const kMaxLevelForRank8 = 100;
+
 abstract class GameLogic {
   static bool truthy(dynamic value) => engine.hetu.interpreter.truthy(value);
 
   static int minLevelForRank(int rank) {
     assert(rank >= 0);
-    return rank == 0 ? 0 : ((rank - 1) * 10 + 5);
+    return rank == 0 ? 0 : ((rank - 1) * 10 + 6);
   }
 
   static int maxLevelForRank(int rank) {
     assert(rank >= 0);
-    return rank == kCultivationRankMax ? 100 : (rank + 1) * 10;
+    if (rank == kCultivationRankMax) {
+      return kMaxLevelForRank8;
+    } else {
+      return (rank + 1) * 10 + 5;
+    }
   }
 
   static int expForLevel(int level, [int? difficulty]) {
@@ -92,20 +98,20 @@ abstract class GameLogic {
   static int getCardCraftOperationCost(String operation, dynamic cardData) {
     assert(_kCardCraftOperations.contains(operation));
     switch (operation) {
-      case 'addAffix':
-        return expForLevel(cardData['level']) ~/ kAddAffixCostRatio;
-      case 'rerollAffix':
-        return expForLevel(cardData['level']) ~/ kRerollAffixCostRatio;
-      case 'replaceAffix':
-        return expForLevel(cardData['level']) ~/ kReplaceAffixCostRatio;
-      case 'upgradeCard':
-        return expForLevel(cardData['level']) ~/ kUpgradeCardCostRatio;
-      case 'upgradeRank':
-        return expForLevel(cardData['rank']) * kUpgradeRankCostRatio;
       case 'dismantle':
         return calculateBattleCardPrice(cardData);
+      case 'addAffix':
+        return (expForLevel(cardData['level']) * kAddAffixCostRate).round();
+      case 'rerollAffix':
+        return (expForLevel(cardData['level']) * kRerollAffixCostRate).round();
+      case 'replaceAffix':
+        return (expForLevel(cardData['level']) * kReplaceAffixCostRate).round();
+      case 'upgradeCard':
+        return (expForLevel(cardData['level']) * kUpgradeCardCostRate).round();
+      case 'upgradeRank':
+        return (expForLevel(cardData['rank']) * kUpgradeRankCostRate).round();
       case 'craftScroll':
-        return expForLevel(cardData['level']) ~/ kCraftScrollCostRatio;
+        return (expForLevel(cardData['level']) * kCraftScrollCostRate).round();
       default:
         engine.error('未知的卡牌操作类型 $operation');
         return 0;
@@ -136,21 +142,22 @@ abstract class GameLogic {
       }
       final String? genreRequirement = entityData['genre'];
       if (genreRequirement != null) {
-        assert(kMainCultivationGenres.contains(genreRequirement));
-        final passive =
-            GameData.heroData['passives']['${genreRequirement}_rank'];
-        bool hasGenreRankPassive = false;
-        if (passive != null) {
-          final int genreRank = passive['level'];
-          if (genreRank >= entityRank) {
-            hasGenreRankPassive = true;
+        if (kMainCultivationGenres.contains(genreRequirement)) {
+          bool hasGenreRankPassive = false;
+          final passive =
+              GameData.heroData['passives']['${genreRequirement}_rank'];
+          if (passive != null) {
+            final int genreRank = passive['level'];
+            if (genreRank >= entityRank) {
+              hasGenreRankPassive = true;
+            }
           }
-        }
 
-        if (!hasGenreRankPassive) {
-          requirementsMet = false;
-          description.writeln(
-              '<red>${engine.locale('genre_requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}·${engine.locale(genreRequirement)}</>');
+          if (!hasGenreRankPassive) {
+            requirementsMet = false;
+            description.writeln(
+                '<red>${engine.locale('genre_requirement')}: ${engine.locale('cultivationRank_$rankRequirement')}·${engine.locale(genreRequirement)}</>');
+          }
         }
       }
     }
@@ -183,7 +190,7 @@ abstract class GameLogic {
   /// 计算分解卡牌所能获得的灵光数
   static int calculateBattleCardPrice(dynamic cardData) {
     final int level = cardData['level'];
-    final int price = expForLevel(level) ~/ kBattleCardPriceRatio;
+    final int price = expForLevel(level) ~/ kBattleCardPriceRate;
     return price;
   }
 
@@ -295,7 +302,16 @@ abstract class GameLogic {
     }
     bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
 
-    selectedAttributeId ??= characterData['cultivationFavor'];
+    if (selectedAttributeId == null) {
+      final r = math.Random().nextDouble();
+      if (r < 0.4) {
+        selectedAttributeId = characterData['mainAttribute'];
+      } else {
+        selectedAttributeId = kBattleAttributes.random;
+      }
+    } else {
+      assert(kBattleAttributes.contains(selectedAttributeId));
+    }
 
     if (isAttribute) {
       // 属性点类的node，记录的是选择的具体属性的名字
@@ -330,15 +346,14 @@ abstract class GameLogic {
 
     final List<String>? rankPath = kCultivationRankPaths[genre];
     final List<String>? stylePath = kCultivationStylePaths[genre]?[style];
-    assert(rankPath != null);
-    assert(stylePath != null);
+    assert(rankPath != null, 'genre: genre');
+    assert(stylePath != null, 'genre: $genre, style: $style');
 
     int count = 0;
     for (var i = 0; i < rank; ++i) {
       assert(i < rankPath!.length);
       final nodeId = rankPath![i];
-      final unlocked = characterUnlockPassiveTreeNode(characterData, nodeId,
-          selectedAttributeId: kBattleAttributes.random);
+      final unlocked = characterUnlockPassiveTreeNode(characterData, nodeId);
       if (unlocked) {
         count++;
       }
@@ -347,8 +362,7 @@ abstract class GameLogic {
     for (var i = 0; i < level - rank; ++i) {
       assert(i < stylePath!.length);
       final nodeId = stylePath![i];
-      final unlocked = characterUnlockPassiveTreeNode(characterData, nodeId,
-          selectedAttributeId: genre);
+      final unlocked = characterUnlockPassiveTreeNode(characterData, nodeId);
       if (unlocked) {
         count++;
       }
@@ -358,7 +372,7 @@ abstract class GameLogic {
         .invoke('characterCalculateStats', positionalArgs: [characterData]);
 
     engine.info(
-        '为角色 ${characterData['name']} 在 ${engine.locale('genre')} ${engine.locale('style')} 路线上解锁了 $count 个天赋树节点');
+        '为角色 ${characterData['name']} (rank: ${characterData['rank']}, level: ${characterData['level']}) 在 ${engine.locale('genre')} ${engine.locale(genre)} 的 ${engine.locale(style)} 路线上解锁了 $count 个天赋树节点');
   }
 
   static dynamic characterHasPassive(dynamic characterData, String passiveId) {
@@ -414,7 +428,7 @@ abstract class GameLogic {
     };
   }
 
-  static String? checkDeckRequirement(List<dynamic> cards) {
+  static String? checkDeckRequirement(Iterable<dynamic> cards) {
     final deckLimit = getDeckLimitForRank(GameData.heroData['rank']);
 
     if (cards.length < deckLimit['limit']!) {
@@ -455,18 +469,19 @@ abstract class GameLogic {
   static bool checkTribulation() {
     final level = GameData.heroData['level'];
     final rank = GameData.heroData['rank'];
-    final currentRankLevelMax = maxLevelForRank(rank);
-    final nextRankLevelMin = minLevelForRank(rank + 1);
+    final currentRankMaxLevel = maxLevelForRank(rank);
+    final currentRankMinLevel = minLevelForRank(rank);
+    final nextRankMinLevel = minLevelForRank(rank + 1);
 
     bool doTribulation = false;
-    if (level > nextRankLevelMin) {
+    if (level > currentRankMinLevel) {
       if (level == 5 && rank == 0) {
         doTribulation = true;
-      } else if (level == currentRankLevelMax) {
+      } else if (level == currentRankMaxLevel) {
         doTribulation = true;
       } else {
-        final probability = math.gradualValue(
-            level - nextRankLevelMin, currentRankLevelMax - nextRankLevelMin);
+        final probability = math.gradualValue(level - currentRankMinLevel,
+            currentRankMaxLevel - currentRankMinLevel);
         final r = math.Random().nextDouble();
         if (r < probability) {
           doTribulation = true;
@@ -474,7 +489,7 @@ abstract class GameLogic {
       }
 
       if (doTribulation) {
-        showTribulation(nextRankLevelMin + 5, rank + 1);
+        showTribulation(nextRankMinLevel + 5, rank + 1);
       }
     }
 
@@ -493,42 +508,46 @@ abstract class GameLogic {
         'forgetIt': engine.locale('forgetIt'),
       },
     });
-    if (selected != 'do_tribulation') return;
+    if (selected == 'do_tribulation') {
+      final enemey = engine.hetu.invoke(
+        'BattleEntity',
+        namedArgs: {
+          'isFemale': false,
+          'name': engine.locale('theHeavenlyWay'),
+          'icon': 'illustration/man_in_shadow.png',
+          'level': level,
+          'rank': rank,
+        },
+      );
+      characterAllocateSkills(enemey);
+      engine.hetu.invoke('characterGenerateDeck', positionalArgs: [enemey]);
 
-    final enemey = engine.hetu.invoke(
-      'BattleEntity',
-      namedArgs: {
-        'isFemale': false,
-        'name': engine.locale('theHeavenlyWay'),
-        'icon': 'illustration/man_in_shadow.png',
-        'level': level,
-        'rank': rank,
-      },
-    );
-    engine.hetu.invoke('generateDeck', positionalArgs: [enemey]);
-
-    final arg = {
-      'id': Scenes.battle,
-      'hero': GameData.heroData,
-      'enemy': enemey,
-      // 'onBattleStart': () {
-      //   bool? hintedTribulation =
-      //       GameData.gameData['flags']['hintedTribulation'];
-      //   if (hintedTribulation == null || hintedTribulation == false) {
-      //     GameDialogContent.show(
-      //         engine.context, engine.locale('help_tribulation_beforeBattle'));
-      //     GameData.gameData['flags']['hintedTribulation'] = true;
-      //   }
-      // },
-      'onBattleEnd': (bool? result) {
-        if (result == true) {
-          engine.hetu.invoke('levelUp', namespace: 'Player');
-          final rank = engine.hetu.invoke('rankUp', namespace: 'Player');
-          engine.context.read<NewRankState>().update(rank: rank);
-        }
-      },
-    };
-    engine.pushScene(Scenes.battle, arguments: arg);
+      final arg = {
+        'id': Scenes.battle,
+        'hero': GameData.heroData,
+        'enemy': enemey,
+        // 'onBattleStart': () {
+        //   bool? hintedTribulation =
+        //       GameData.gameData['flags']['hintedTribulation'];
+        //   if (hintedTribulation == null || hintedTribulation == false) {
+        //     GameDialogContent.show(
+        //         engine.context, engine.locale('help_tribulation_beforeBattle'));
+        //     GameData.gameData['flags']['hintedTribulation'] = true;
+        //   }
+        // },
+        'onBattleEnd': (bool? result) {
+          if (result == true) {
+            engine.hetu.invoke('levelUp', namespace: 'Player');
+            final rank = engine.hetu.invoke('rankUp', namespace: 'Player');
+            engine.context.read<NewRankState>().update(rank: rank);
+          }
+        },
+      };
+      engine.pushScene(Scenes.battle, arguments: arg);
+    } else {
+      GameDialogContent.show(
+          engine.context, engine.locale('hint_cancel_tribulation'));
+    }
   }
 
   static void heroRest() async {
@@ -590,38 +609,48 @@ abstract class GameLogic {
       return;
     }
     switch (itemData['category']) {
-      case 'scroll':
-        if (itemData['prototypeId'] == 'identify_scroll') {
-          engine.context.read<ViewPanelState>().toogle(
-            ViewPanels.itemSelect,
-            arguments: {
-              'characterData': GameData.heroData,
-              'title': engine.locale('selectItem'),
-              'filter': {'isIdentified': false},
-              'onSelect': (Iterable selectedItemsData) async {
-                if (selectedItemsData.isEmpty) return;
-                assert(selectedItemsData.length == 1);
-                final selectedItem = selectedItemsData.first;
-                selectedItem['isIdentified'] = true;
-                engine.play('hammer-hitting-an-anvil-25390.mp3');
-                engine.hetu.invoke('lose',
-                    namespace: 'Player', positionalArgs: [itemData]);
-              },
+      case 'cardpack':
+        engine.pushScene(Scenes.cardlibrary, arguments: {
+          'cardpacks': {itemData},
+          'enableCardCraft': engine.scene?.id == Scenes.mainmenu,
+          'enableScrollCraft': engine.scene?.id == Scenes.mainmenu,
+        });
+      case 'identify_scroll':
+        engine.context.read<ViewPanelState>().toogle(
+          ViewPanels.itemSelect,
+          arguments: {
+            'characterData': GameData.heroData,
+            'title': engine.locale('selectItem'),
+            'filter': {'isIdentified': false},
+            'onSelect': (Iterable selectedItemsData) async {
+              if (selectedItemsData.isEmpty) return;
+              assert(selectedItemsData.length == 1);
+              final selectedItem = selectedItemsData.first;
+              selectedItem['isIdentified'] = true;
+              engine.play('hammer-hitting-an-anvil-25390.mp3');
+              engine.hetu.invoke('lose',
+                  namespace: 'Player', positionalArgs: [itemData]);
             },
-          );
-        }
-      case 'material':
-        engine.hetu.invoke('lose',
-            namespace: 'Player',
-            positionalArgs: [itemData],
-            namedArgs: {'incurIncident': false});
-        engine.hetu.invoke(
-          'collect',
-          namespace: 'Player',
-          positionalArgs: [itemData['kind']],
-          namedArgs: {'amount': itemData['stackSize']},
+          },
         );
-        engine.play('pickup_item-64282.mp3');
+      // case 'materialpack':
+      //   engine.hetu.invoke('lose',
+      //       namespace: 'Player',
+      //       positionalArgs: [itemData],
+      //       namedArgs: {'incurIncident': false});
+      //   engine.hetu.invoke(
+      //     'collect',
+      //     namespace: 'Player',
+      //     positionalArgs: [itemData['kind']],
+      //     namedArgs: {'amount': itemData['stackSize']},
+      //   );
+      //   engine.play('pickup_item-64282.mp3');
+      // case 'exppack':
+      //   engine.hetu.invoke('gainExp',
+      //       namespace: 'Player', positionalArgs: [itemData['stackSize']]);
+      //   engine.hetu
+      //       .invoke('lose', namespace: 'Player', positionalArgs: [itemData]);
+      //   engine.play('magic-smite-6012.mp3');
     }
   }
 

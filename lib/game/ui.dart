@@ -61,6 +61,10 @@ abstract class GameUI {
   /// 半透明黑色
   static final backgroundColor = Colors.black45;
 
+  static final Paint backgroundPaint = Paint()
+    ..style = PaintingStyle.fill
+    ..color = backgroundColor3;
+
   /// 偏蓝色的半透明背景
   static final backgroundColor2 = Color(0xDD02020F);
 
@@ -226,6 +230,8 @@ abstract class GameUI {
 
   static const battleCardTitlePaddings = EdgeInsets.fromLTRB(0, 0.585, 0, 0);
 
+  static late Vector2 worldmapBannerSize;
+
   // ratio = height / width
   static const cardSizeRatio = 1.382;
 
@@ -344,6 +350,8 @@ abstract class GameUI {
     Hovertip.defaultContentConfig = hovertipContentConfig;
 
     FadingText.defaultTextStyle = fadingTextStyle;
+
+    worldmapBannerSize = Vector2(640.0, 160.0);
 
     libraryZonePosition = Vector2((120 / 1440 * size.x).roundToDouble(),
         (180 / 810 * size.y).roundToDouble());

@@ -121,7 +121,7 @@ class _WorldInformationPanelState extends State<WorldInformationPanel>
     //   _nationsFieldRow.add(rowData);
     // }
 
-    _locationsData = engine.hetu.invoke('getLocations');
+    _locationsData = engine.hetu.fetch('locations', namespace: 'game').values;
     for (final loc in _locationsData) {
       if (loc['category'] != 'city') continue;
       final rowData = <String>[];

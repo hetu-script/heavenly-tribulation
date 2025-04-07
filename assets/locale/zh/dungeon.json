@@ -1,0 +1,22 @@
+{
+  "bed": "床",
+  "bloodCoffin": "血棺",
+  "bloodCoffin_description": "血棺\n在这里休息可以恢复50%的体力。只能使用一次。",
+
+  "cardLibraryStele": "玄机碑",
+  "cardLibraryStele_description": "玄机碑\n在这里可以进行卡牌精炼，增强卡牌的属性。",
+
+  "dungeonGuard": "洞天守卫士兵",
+  "dungeonElite": "洞天守卫精英",
+  "dungeonBoss": "洞天守卫将领",
+
+  "dungeon_enemy_description": "敌人\n下个房间包含一个敌人NPC，战斗难度随层数和深度增加。",
+  "dungeon_merchant_description": "商人\n下个房间包含一个随机的商人NPC。",
+  "dungeon_encounter_description": "事件\n下个房间包含一个随机遭遇事件。",
+  "dungeon_encampment_description": "营地\n下个房间可以休息，同时包含一个随机的修炼或打造场地。",
+
+  "dungeon_next_level_description": "继续\n探索下一难度层级。",
+  "dungeon_next_rank_description": "继续\n探索下一个境界的洞天。",
+  "dungeon_replay_description": "重玩\n再次挑战当前难度的洞天",
+  "dungeon_exit_description": "离开\n结束挑战。"
+}

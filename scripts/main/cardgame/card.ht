@@ -33,8 +33,10 @@ struct BattleCard {
     genre, // 'spellcraft', 'swordcraft', 'none'
     level,
     rank, // 境界决定了额外词条数量
+    maxOutLevel = false, // 是否最大化等级
     maxRank,
     isIdentified = true,
+    isScroll = false,
   }) {
     this.entityType = kEntityTypeBattleCard
     if (rank != null) {
@@ -55,8 +57,9 @@ struct BattleCard {
       this.rank = 1
     }
 
-    this.id = crypto.randomUID(length: 4, withTime: true)
+    this.id = crypto.randomUID(withTime: true)
     this.isIdentified = isIdentified
+    this.isScroll = isScroll
 
     this.tags = []
 
@@ -93,34 +96,34 @@ struct BattleCard {
 
     const mainAffix = Object.create(random.nextIterable(mainAffixes))
 
+    this.affixes = [mainAffix]
+
     if (mainAffix.rank > this.rank) {
       this.rank = mainAffix.rank
     }
-
-    final minLevel = minLevelForRank(this.rank)
-    final maxLevel = maxLevelForRank(this.rank)
-    if (level == null) {
-      level = minLevel + random.distantInt(maxLevel - minLevel)
-    } else {
-      if (level < minLevel) level = minLevel
-      if (level > maxLevel) level = maxLevel
-    }
-    this.level = level
-
-    if (mainAffix.maxLevel) {
-      mainAffix.level = Math.min(level, mainAffix.maxLevel)
-    } else {
-      mainAffix.level = level
-    }
-
-    this.affixes = [mainAffix]
-    _updateMainAffixValue(this)
-
     this.name = generateSkillName(kind: mainAffix.kind)
     this.image = mainAffix.image
     this.genre = mainAffix.genre
     this.category = mainAffix.category
     this.kind = mainAffix.kind
+    this.equipment = mainAffix.equipment
+    this.requirement = mainAffix.requirement
+
+    final minLevel = minLevelForRank(this.rank)
+    final maxLevel = maxLevelForRank(this.rank)
+    if (level == null) {
+      if (maxOutLevel) {
+        level = maxLevel
+      } else {
+        level = minLevel + random.distantInt(maxLevel - minLevel)
+      }
+    } else {
+      if (level < minLevel) level = minLevel
+      if (level > maxLevel) level = maxLevel
+    }
+    this.level = level
+    
+    _updateMainAffixValue(this)
 
     final affixUniqueIds = []
     if (mainAffix.uniqueId) {
@@ -190,7 +193,11 @@ function _checkRequirementForCard(character, card) {
 function _updateMainAffixValue(card) {
   let mainAffix = card.affixes.first
   if (mainAffix.valueData is List) {
-    mainAffix.level = card.level
+    if (mainAffix.maxLevel) {
+      mainAffix.level = Math.min(card.level, mainAffix.maxLevel)
+    } else {
+      mainAffix.level = card.level
+    }
     let values = []
     for (final valueData in mainAffix.valueData) {
       let valueLevel = valueData.maxLevel ? Math.min(valueData.maxLevel, mainAffix.level) : mainAffix.level
@@ -500,6 +507,7 @@ struct Cardpack {
 
     // 秘籍无需鉴定
     this.isIdentified = true
+    this.isUsable = true
 
     calculatePrice(this)
   }

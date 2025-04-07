@@ -156,7 +156,7 @@ async function onInteractMapObject(object, terrain) {
         // },
       )
 
-      // generateDeck(chuxue, cardInfoList: [
+      // characterGenerateDeck(chuxue, cardInfoList: [
       //   {affixId: 'spell_energy', level: 5},{affixId: 'fireball'},{affixId: 'lightning'}
       // ])
     }

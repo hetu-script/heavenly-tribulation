@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:samsara/ui/empty_placeholder.dart';
 import 'package:samsara/ui/responsive_view.dart';
@@ -21,14 +20,21 @@ import '../character/stats.dart';
 import '../../scene/game_dialog/game_dialog_content.dart';
 
 class PreBattleDialog extends StatefulWidget {
-  final dynamic heroData, enemyData;
-
   /// 显示战斗准备对话框，注意对战己方不一定是英雄，所以这里需要传入己方角色
   const PreBattleDialog({
     super.key,
     required this.heroData,
     required this.enemyData,
+    this.onBattleStart,
+    this.onBattleEnd,
+    this.ignoreRequirement = false,
   });
+
+  final dynamic heroData, enemyData;
+
+  final void Function()? onBattleStart;
+  final void Function(dynamic)? onBattleEnd;
+  final bool ignoreRequirement;
 
   @override
   State<PreBattleDialog> createState() => _PreBattleDialogState();
@@ -118,8 +124,8 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                 characterData: characterData,
                 isHero: isHero,
                 cardInfoDirection: isHero
-                    ? HoverInfoDirection.rightTop
-                    : HoverInfoDirection.leftTop,
+                    ? HoverContentDirection.rightTop
+                    : HoverContentDirection.leftTop,
               );
             },
           ),
@@ -129,10 +135,21 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
         characterData['battleDeckIndex'] = -1;
       }
     }
+    if (isHero) {
+      if (widgetCards.isEmpty) {
+        _warning = engine.locale('prebattle_no_decks');
+      } else {
+        final String? info =
+            GameLogic.checkDeckRequirement(widgetCards.map((widget) {
+          return widget.cardData;
+        }));
+        _warning = info != null ? engine.locale(info) : null;
+      }
+    }
     return widgetCards;
   }
 
-  List _getBattleDeckCardsData(dynamic characterData, {bool isHero = false}) {
+  List _getBattleDeckCardsData(dynamic characterData) {
     final List deckCards = [];
     final List decks = characterData['battleDecks'];
     final int battleDeckIndex = characterData['battleDeckIndex'];
@@ -143,10 +160,6 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
         final cardData = characterData['cardLibrary'][cardId];
         deckCards.add(cardData);
       }
-    }
-    if (isHero) {
-      final String? info = GameLogic.checkDeckRequirement(deckCards);
-      _warning = info != null ? engine.locale(info) : null;
     }
     return deckCards;
   }
@@ -226,11 +239,11 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                           },
                           onMouseEnter: (rect) {
                             context
-                                .read<HoverInfoContentState>()
+                                .read<HoverContentState>()
                                 .show(engine.locale('build'), rect);
                           },
                           onMouseExit: () {
-                            context.read<HoverInfoContentState>().hide();
+                            context.read<HoverContentState>().hide();
                           },
                           child: const Image(
                             image:
@@ -241,15 +254,20 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                           size: GameUI.infoButtonSize,
                           padding: const EdgeInsets.only(right: 10.0),
                           onTapUp: () {
-                            engine.pushScene(Scenes.cardlibrary);
+                            engine.pushScene(Scenes.cardlibrary, arguments: {
+                              'enableCardCraft':
+                                  engine.scene?.id == Scenes.mainmenu,
+                              'enableScrollCraft':
+                                  engine.scene?.id == Scenes.mainmenu,
+                            });
                           },
                           onMouseEnter: (rect) {
                             context
-                                .read<HoverInfoContentState>()
+                                .read<HoverContentState>()
                                 .show(engine.locale('card_library'), rect);
                           },
                           onMouseExit: () {
-                            context.read<HoverInfoContentState>().hide();
+                            context.read<HoverContentState>().hide();
                           },
                           child: const Image(
                             image: AssetImage('assets/images/icon/library.png'),
@@ -333,14 +351,18 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                       height: 50.0,
                       child: ElevatedButton(
                         onPressed: () {
-                          if (_warning != null && !kDebugMode) return;
-
+                          if (_warning != null && !widget.ignoreRequirement) {
+                            GameDialogContent.show(context, _warning!);
+                            return;
+                          }
                           assert(enemyBattleDeckCards.isNotEmpty);
                           context.read<EnemyState>().setPrebattleVisible(false);
                           final arg = {
                             'id': Scenes.battle,
                             'hero': widget.heroData,
                             'enemy': widget.enemyData,
+                            'onBattleStart': widget.onBattleStart,
+                            'onBattleEnd': widget.onBattleEnd,
                           };
                           engine.pushScene(Scenes.battle, arguments: arg);
                         },
@@ -381,14 +403,14 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                               isHero: false,
                               showNonBattleStats: false,
                             );
-                            context.read<HoverInfoContentState>().show(
+                            context.read<HoverContentState>().show(
                                   statsView,
                                   rect,
-                                  direction: HoverInfoDirection.leftTop,
+                                  direction: HoverContentDirection.leftTop,
                                 );
                           },
                           onMouseExit: () {
-                            context.read<HoverInfoContentState>().hide();
+                            context.read<HoverContentState>().hide();
                           },
                           child: const Image(
                             image: AssetImage('assets/images/icon/stats.png'),
@@ -406,10 +428,10 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                         //         final rect = getRenderRect(
                         //             _identifyStatsButtonKey.currentContext!);
                         //         context
-                        //             .read<HoverInfoContentState>()
+                        //             .read<HoverContentState>()
                         //             .set(hint, rect);
                         //       } else {
-                        //         context.read<HoverInfoContentState>().hide();
+                        //         context.read<HoverContentState>().hide();
                         //       }
                         //     },
                         //     child: Text(engine.locale('identifyStats')),
@@ -442,7 +464,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                 --_availableIdentifyCount;
                                 GameData.gameData['playerMonthly']
                                     ['identifiedEnemyCards'] += 1;
-                                context.read<HoverInfoContentState>().hide();
+                                context.read<HoverContentState>().hide();
                                 setState(() {
                                   _enemyDeck =
                                       _createDeckCardWidgets(widget.enemyData);
@@ -462,14 +484,15 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                                     '<grey>${engine.locale('identify_deck_hint')}</>';
                                 final rect = getRenderRect(
                                     _identifyDeckButtonKey.currentContext!);
-                                context.read<HoverInfoContentState>().show(
+                                context.read<HoverContentState>().show(
                                       hint,
                                       rect,
                                       textAlign: TextAlign.left,
-                                      direction: HoverInfoDirection.topCenter,
+                                      direction:
+                                          HoverContentDirection.topCenter,
                                     );
                               } else {
-                                context.read<HoverInfoContentState>().hide();
+                                context.read<HoverContentState>().hide();
                               }
                             },
                             child: Text(engine.locale('identifyDeck')),

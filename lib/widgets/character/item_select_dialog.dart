@@ -18,6 +18,7 @@ class ItemSelectDialog extends StatefulWidget {
     this.filter,
     this.multiSelect = false,
     this.onSelect,
+    this.selectedItemsData,
   });
 
   final String? title;
@@ -27,6 +28,7 @@ class ItemSelectDialog extends StatefulWidget {
   final dynamic filter;
   final bool multiSelect;
   final void Function(Iterable itemsData)? onSelect;
+  final Iterable? selectedItemsData;
 
   @override
   State<ItemSelectDialog> createState() => _ItemSelectDialogState();
@@ -34,6 +36,18 @@ class ItemSelectDialog extends StatefulWidget {
 
 class _ItemSelectDialogState extends State<ItemSelectDialog> {
   final Map<String, dynamic> _selectedItemsData = {};
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    if (widget.selectedItemsData != null) {
+      for (final item in widget.selectedItemsData!) {
+        _selectedItemsData[item['id']] = item;
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

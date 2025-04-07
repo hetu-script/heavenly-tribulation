@@ -270,7 +270,8 @@ abstract class GameData {
 
     gameData = engine.hetu.fetch('game');
     universeData = engine.hetu.fetch('universe');
-    historyData = engine.hetu.fetch('history');
+    historyData = engine.hetu.fetch('timeline');
+    // historyData = engine.hetu.fetch('history');
     heroData = engine.hetu.fetch('hero');
 
     initGameData();
@@ -306,7 +307,8 @@ abstract class GameData {
 
     gameData = engine.hetu.fetch('game');
     universeData = engine.hetu.fetch('universe');
-    historyData = engine.hetu.fetch('history');
+    // historyData = engine.hetu.fetch('history');
+    historyData = engine.hetu.fetch('timeline');
     heroData = engine.hetu.fetch('hero');
   }
 
@@ -513,7 +515,7 @@ abstract class GameData {
 
   static String getDescriptionFromItemData(
     dynamic itemData, {
-    dynamic characterData,
+    bool isInventory = false,
     dynamic priceFactor,
     bool isSell = false,
     bool isDetailed = false,
@@ -546,7 +548,7 @@ abstract class GameData {
     final categoryString =
         '<grey>, ${engine.locale('category')}: ${engine.locale(category)}</>';
     String priceString = '';
-    if (isUntradable) {
+    if (isUntradable && isInventory) {
       priceString = '<grey>, </><red>${engine.locale('untradable')}</>';
     }
 
@@ -563,7 +565,7 @@ abstract class GameData {
     }
 
     final chargeData = itemData['chargeData'];
-    if (isIdentified && chargeData != null) {
+    if (isIdentified && chargeData != null && isInventory) {
       final int maxCharge = chargeData['max'];
       final int currentCharge = chargeData['current'];
       final int shardsPerCharge = chargeData['shardsPerCharge'];
@@ -642,7 +644,7 @@ abstract class GameData {
     }
 
     if (priceFactor == null) {
-      if (isIdentified) {
+      if (isIdentified && isInventory) {
         if (itemData['equippedPosition'] == null) {
           if (category == 'cardpack') {
             description.writeln('<yellow>${engine.locale('cardpackHint')}</>');
@@ -652,6 +654,9 @@ abstract class GameData {
           } else if (isUsable) {
             description.writeln('<yellow>${engine.locale('usableHint')}</>');
           }
+        } else {
+          description
+              .writeln('<yellow>${engine.locale('unequippableHint')}</>');
         }
       }
     } else {
@@ -672,38 +677,41 @@ abstract class GameData {
   /// 返回值是一个元祖，第一个字符串是卡面描述，第二个是详细描述
   static (String, String) getDescriptionFromCardData(
     dynamic cardData, {
-    dynamic characterData,
+    bool isLibrary = true,
     bool isDetailed = false,
     bool showDetailedHint = true,
+    bool showDebugId = true,
   }) {
     final List affixes = cardData['affixes'];
     final int cardLevel = cardData['level'];
     final int cardRank = cardData['rank'];
-    final String title = cardData['name'];
     final bool isIdentified = cardData['isIdentified'] == true;
+    // final bool isScroll = cardData['isScroll'] == true;
+    String title = cardData['name'];
+    // if (isScroll) {
+    //   title = '$title(${engine.locale('scroll2')})';
+    // }
 
     assert(affixes.isNotEmpty);
-    final mainAffix = affixes[0];
+    // final mainAffix = affixes[0];
 
     final description = StringBuffer();
     final extraDescription = StringBuffer();
 
     final levelPrefix = engine.locale('level');
 
-    String? requirementString;
-
-    final titleString = isDetailed
+    String titleString = isDetailed
         ? '<bold rank$cardRank t7>$title ($levelPrefix $cardLevel)</>'
         : '<bold rank$cardRank t7>$title</>';
     final rankString =
         '<grey>${engine.locale('cultivationRank')}:</> <rank$cardRank>${engine.locale('cultivationRank_$cardRank')}, </>';
     final genreString =
-        '<grey>${engine.locale('genre')}: ${engine.locale(mainAffix['genre'])}, </>';
+        '<grey>${engine.locale('genre')}: ${engine.locale(cardData['genre'])}, </>';
     final categoryString =
         '<grey>${engine.locale('category')}: ${engine.locale(cardData['category'])}</>';
 
     extraDescription.writeln(titleString);
-    if (engine.config.debugMode) {
+    if (engine.config.debugMode && showDebugId) {
       extraDescription
           .writeln('<grey>[${cardData['id']}]</> - press `c` to copy');
     }
@@ -718,10 +726,6 @@ abstract class GameData {
 
       if (isIdentified) {
         final bool isMainAffix = affix['isMain'] ?? false;
-
-        if (isMainAffix && isIdentified && characterData != null) {
-          requirementString = GameLogic.checkRequirements(affix);
-        }
 
         for (var line in affixDescription) {
           if (isMainAffix) {
@@ -766,8 +770,11 @@ abstract class GameData {
       }
     }
 
-    if (isIdentified && requirementString != null) {
-      extraDescription.writeln(requirementString);
+    if (isIdentified && isLibrary) {
+      String? requirementString = GameLogic.checkRequirements(cardData);
+      if (requirementString != null) {
+        extraDescription.writeln(requirementString);
+      }
     }
 
     if (isIdentified && affixes.length > 1) {
@@ -790,7 +797,7 @@ abstract class GameData {
       namedArgs: {
         'kind': (filter['isBasic'] == true ? 'none' : filter['kind']),
         'genre': (filter['isBasic'] == true ? 'none' : filter['genre']),
-        'category': filter?['category'],
+        'category': (filter['isBasic'] == true ? 'attack' : filter['category']),
         'rank': filter?['rank'],
         'isIdentified': isIdentified,
       },

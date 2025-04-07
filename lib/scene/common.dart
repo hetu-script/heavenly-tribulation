@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
 
-import '../state/hoverinfo.dart';
+import '../state/hover_content.dart';
 
 final kGridSize = Vector2(32.0, 28.0);
 final kTileSpriteSrcSize = Vector2(32.0, 64.0);
@@ -73,17 +73,19 @@ void previewCard(
   String id,
   dynamic cardData,
   Rect rect, {
-  HoverInfoDirection? direction,
+  bool isLibrary = true,
+  HoverContentDirection? direction,
   dynamic characterData,
 }) {
-  context.read<HoverInfoContentState>().show(
+  context.read<HoverContentState>().show(
         cardData,
         rect,
-        direction: direction ?? HoverInfoDirection.rightTop,
+        type: isLibrary ? ItemType.player : ItemType.none,
+        direction: direction ?? HoverContentDirection.rightTop,
         data2: characterData,
       );
 }
 
 void unpreviewCard(BuildContext context) {
-  context.read<HoverInfoContentState>().hide();
+  context.read<HoverContentState>().hide();
 }

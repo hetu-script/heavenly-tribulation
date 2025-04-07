@@ -8,7 +8,7 @@ import '../../game/ui.dart';
 import '../../engine.dart';
 import 'inventory/inventory.dart';
 import '../../game/data.dart';
-import '../../state/hoverinfo.dart';
+import '../../state/hover_content.dart';
 import '../../state/character.dart';
 import '../../scene/game_dialog/game_dialog_content.dart';
 

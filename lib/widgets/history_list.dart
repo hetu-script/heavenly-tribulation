@@ -44,9 +44,10 @@ class _HistoryListState extends State<HistoryList> {
   Widget build(BuildContext context) {
     final widgets = <Widget>[];
 
-    for (final index in widget.historyData) {
-      final incident =
-          engine.hetu.invoke('getIncidentByIndex', positionalArgs: [index]);
+    for (final id in widget.historyData) {
+      final timeline = engine.hetu.fetch('timeline');
+      final incident = timeline[id];
+      assert(incident != null, 'Timeline incident not found: $id');
       widgets.add(Text(incident['message']));
     }
 

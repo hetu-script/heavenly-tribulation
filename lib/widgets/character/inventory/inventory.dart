@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../state/hoverinfo.dart';
+import '../../../state/hover_content.dart';
 import 'item_grid.dart';
 import '../../../game/logic.dart';
 
@@ -18,7 +18,7 @@ class Inventory extends StatefulWidget {
     this.gridsPerLine = 5,
     this.onTapped,
     this.onSecondaryTapped,
-    this.selectedItemId = const {},
+    this.selectedItemId = const [],
     this.priceFactor,
     this.filter,
   });
@@ -58,32 +58,27 @@ class _InventoryState extends State<Inventory> {
     for (final itemData in filteredItems) {
       grids.add(
         ItemGrid(
-          characterData: widget.characterData,
           itemData: itemData,
           margin: const EdgeInsets.all(2.0),
           onMouseEnter: (itemData, rect) {
             switch (widget.type) {
               case ItemType.none:
-                context
-                    .read<HoverInfoContentState>()
-                    .show(itemData, type: widget.type, rect);
-              case ItemType.player:
               case ItemType.npc:
-                context.read<HoverInfoContentState>().show(
+              case ItemType.player:
+                context.read<HoverContentState>().show(
                       itemData,
                       type: widget.type,
-                      data2: widget.characterData,
                       rect,
                     );
               case ItemType.merchant:
-                context.read<HoverInfoContentState>().show(
+                context.read<HoverContentState>().show(
                       itemData,
                       type: widget.type,
                       data2: widget.priceFactor,
                       rect,
                     );
               case ItemType.customer:
-                context.read<HoverInfoContentState>().show(
+                context.read<HoverContentState>().show(
                       itemData,
                       type: widget.type,
                       data2: widget.priceFactor,
@@ -92,7 +87,7 @@ class _InventoryState extends State<Inventory> {
             }
           },
           onMouseExit: () {
-            context.read<HoverInfoContentState>().hide();
+            context.read<HoverContentState>().hide();
           },
           onTapped: widget.onTapped,
           onSecondaryTapped: widget.onSecondaryTapped,

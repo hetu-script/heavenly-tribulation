@@ -201,9 +201,9 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Dialog::popBackground', (
         {positionalArgs, namedArgs}) {
-      context
-          .read<GameDialogState>()
-          .popBackground(isFadeOut: namedArgs['isFadeOut'] ?? false);
+      context.read<GameDialogState>().popBackground(
+          imageId: namedArgs['image'],
+          isFadeOut: namedArgs['isFadeOut'] ?? false);
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Dialog::popAllBackgrounds', (
@@ -236,9 +236,21 @@ class _GameAppState extends State<GameApp> {
       GameDialogContent.show(context, engine.locale('reloadGameDataPrompt'));
     }, override: true);
 
-    engine.hetu.interpreter.bindExternalFunction('Game::_update', (
+    engine.hetu.interpreter.bindExternalFunction('Game::updateHero', (
         {positionalArgs, namedArgs}) {
       context.read<HeroState>().update();
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::setSceneName', (
+        {positionalArgs, namedArgs}) {
+      context.read<HeroTileState>().updateScene(positionalArgs.first);
+    }, override: true);
+
+    engine.hetu.interpreter.bindExternalFunction('Game::popScene', (
+        {positionalArgs, namedArgs}) {
+      context.read<SamsaraEngine>().popScene(
+            clearCache: namedArgs['clearCache'] ?? false,
+          );
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::updateGameTime', (
@@ -310,12 +322,18 @@ class _GameAppState extends State<GameApp> {
 
     engine.hetu.interpreter.bindExternalFunction('Game::showCultivation', (
         {positionalArgs, namedArgs}) {
-      engine.pushScene(Scenes.cultivation);
+      engine.pushScene(Scenes.cultivation, arguments: {
+        'enableCultivate': namedArgs['enableCultivate'] ?? false,
+      });
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::showPrebattle', (
         {positionalArgs, namedArgs}) {
-      context.read<EnemyState>().show(positionalArgs.first);
+      context.read<EnemyState>().show(
+            positionalArgs.first,
+            onBattleStart: namedArgs['onBattleStart'],
+            onBattleEnd: namedArgs['onBattleEnd'],
+          );
     }, override: true);
 
     engine.hetu.interpreter.bindExternalFunction('Game::showBattle', (

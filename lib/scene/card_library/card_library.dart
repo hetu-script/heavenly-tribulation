@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flame/components.dart';
 import 'package:flutter/gestures.dart';
+import 'package:hetu_script/utils/uid.dart';
 import 'package:samsara/cardgame/cardgame.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/sprite_component2.dart';
@@ -30,10 +31,16 @@ import '../particles/light_point.dart';
 const kBasicCardKinds = {
   'punch',
   'kick',
-  'xinfa',
+  // 'xinfa',
 };
 
 const kMaxLightPointCount = 20;
+
+enum CraftType {
+  exp,
+  money,
+  shard,
+}
 
 class CardLibraryScene extends Scene {
   static final random = math.Random();
@@ -85,6 +92,8 @@ class CardLibraryScene extends Scene {
   final List<math.PointOnCircle> _lightPointsPositions = [];
 
   bool enableCardCraft = false, enableScrollCraft = false;
+
+  CraftType craftType = CraftType.exp;
 
   /// 最多只显示 4 个光点
   void addExpLightPoints() {
@@ -143,10 +152,6 @@ class CardLibraryScene extends Scene {
   }
 
   Future<void> _enterScene() async {
-    context.read<EnemyState>().setPrebattleVisible(false);
-    context.read<HoverInfoContentState>().hide();
-    context.read<ViewPanelState>().clearAll();
-
     updateOrderByButtonText();
     updateFilterByButtonText();
     libraryZone.repositionToTop();
@@ -167,8 +172,26 @@ class CardLibraryScene extends Scene {
   void onStart([Map<String, dynamic> arguments = const {}]) {
     super.onStart(arguments);
 
-    enableCardCraft = arguments['enableCardCraft'] ?? false;
-    enableScrollCraft = arguments['enableScrollCraft'] ?? false;
+    context.read<EnemyState>().setPrebattleVisible(false);
+    context.read<HoverContentState>().hide();
+    context.read<ViewPanelState>().clearAll();
+
+    enableCardCraft = arguments['enableCardCraft'] ??
+        (GameData.heroData['passives']['enable_cardcraft'] ?? false);
+    enableScrollCraft = arguments['enableScrollCraft'] ??
+        (GameData.heroData['passives']['enable_scrollcraft'] ?? false);
+
+    craftType = switch (arguments['craftType']) {
+      'exp' => CraftType.exp,
+      'money' => CraftType.money,
+      'shard' => CraftType.shard,
+      _ => CraftType.exp,
+    };
+
+    Iterable? cardpacksToOpen = arguments['cardpacks'];
+    if (cardpacksToOpen != null) {
+      showCardpackSelect(selectedItems: cardpacksToOpen);
+    }
   }
 
   void cardDragStart(CustomGameCard card) {
@@ -423,6 +446,7 @@ class CardLibraryScene extends Scene {
 
   void _showCraftingCardInfo() {
     assert(_craftingCard != null);
+    Hovertip.hide(_craftingCard!);
     final (_, description) = GameData.getDescriptionFromCardData(
         _craftingCard!.data,
         isDetailed: true);
@@ -488,31 +512,40 @@ class CardLibraryScene extends Scene {
       isVisible: false,
     );
     button.onTapUp = (buttons, position) {
+      if (!button.isEnabled) return;
+      if (buttons == kSecondaryButton) return;
       assert(_craftingCard != null);
       Hovertip.hide(button);
       _affixOperation(_craftingCard!, id);
     };
     button.onMouseEnter = () {
       assert(_craftingCard != null);
-      final expCost =
-          GameLogic.getCardCraftOperationCost(id, _craftingCard!.data);
 
-      String content = engine.locale('deckbuilding_${id}_description');
-      if (expCost > 0) {
-        if (id == 'dismantle') {
-          content +=
-              '\n${engine.locale('deckbuilding_exp_gain')}: <yellow>${expCost.toString()}</>';
-        } else {
-          content +=
-              '\n${engine.locale('deckbuilding_exp_cost')}: <yellow>${expCost.toString()}</>';
+      final buffer = StringBuffer();
+
+      if (button.isEnabled) {
+        final expCost =
+            GameLogic.getCardCraftOperationCost(id, _craftingCard!.data);
+
+        buffer.writeln(engine.locale('deckbuilding_${id}_description'));
+        if (expCost > 0) {
+          if (id == 'dismantle') {
+            buffer.writeln(
+                '\n ${engine.locale('deckbuilding_exp_gain')}: <yellow>${expCost.toString()}</>');
+          } else {
+            buffer.writeln(
+                '\n ${engine.locale('deckbuilding_exp_cost')}: <yellow>${expCost.toString()}</>');
+          }
         }
+      } else {
+        buffer.writeln(engine.locale('functionDisabled'));
       }
 
       Hovertip.show(
         scene: this,
         target: button,
-        direction: HovertipDirection.leftCenter,
-        content: content,
+        direction: HovertipDirection.leftTop,
+        content: buffer.toString(),
         width: 300,
       );
     };
@@ -530,24 +563,23 @@ class CardLibraryScene extends Scene {
     barrier.isVisible = true;
     closeCraftButton.isVisible = true;
 
-    if (enableCardCraft) {
-      for (final button in _craftOptionButtons) {
-        button.isVisible = true;
-      }
+    bool isScroll = card.data['isScroll'] == true;
+
+    for (final button in _craftOptionButtons) {
+      button.isVisible = true;
+      button.isEnabled = enableCardCraft && !isScroll;
     }
 
-    if (enableScrollCraft) {
-      craftScrollButton.isVisible = true;
-    }
+    craftScrollButton.isVisible = true;
+    craftScrollButton.isEnabled = enableScrollCraft;
 
     final clone = card.clone();
     _craftingCard = clone;
-    clone.enableGesture = false;
     clone.size = GameUI.cardpackCardSize;
     clone.position = GameUI.cardpackCardPositions[1];
     clone.priority = kBarrierUIPriority;
+    clone.enableGesture = false;
     camera.viewport.add(clone);
-
     _showCraftingCardInfo();
   }
 
@@ -568,6 +600,53 @@ class CardLibraryScene extends Scene {
     Hovertip.hide(_craftingCard!);
     _craftingCard!.removeFromParent();
     _craftingCard = null;
+  }
+
+  void craftScroll() {
+    assert(_craftingCard != null);
+    if (_craftingCard == null) return;
+
+    final scrollCard = _craftingCard!.clone(deepCopyData: true);
+    final oldTitle = scrollCard.data['name'];
+
+    scrollCard.data['id'] = randomUID(withTime: true);
+    scrollCard.data['image'] = 'battlecard/illustration/scroll.png';
+    scrollCard.title =
+        scrollCard.data['name'] = '$oldTitle(${engine.locale('scroll2')})';
+    scrollCard.data['isScroll'] = true;
+
+    // scrollCard.data['category'] = 'scroll';
+    scrollCard.data['rank'] = 0;
+    scrollCard.data['genre'] = 'scroll';
+    scrollCard.data['equipment'] = null;
+    scrollCard.data['isEphemeral'] = true;
+
+    final (description, _) =
+        GameData.getDescriptionFromCardData(scrollCard.data);
+    scrollCard.description = description;
+
+    scrollCard.tryLoadSprite(
+        illustrationSpriteId: 'battlecard/illustration/scroll.png');
+
+    Hovertip.hide(_craftingCard!);
+    _craftingCard!.removeFromParent();
+    _craftingCard = scrollCard;
+    scrollCard.enableGesture = false;
+    camera.viewport.add(scrollCard);
+    _showCraftingCardInfo();
+
+    engine.hetu.invoke('acquireCard',
+        namespace: 'Player', positionalArgs: [scrollCard.data]);
+
+    libraryZone.updateHeroLibrary();
+
+    craftScrollButton.isEnabled = false;
+
+    for (final button in _craftOptionButtons) {
+      button.isEnabled = false;
+    }
+
+    engine.play('writing-263642.mp3');
   }
 
   void updateCardData(CustomGameCard card) {
@@ -601,10 +680,41 @@ class CardLibraryScene extends Scene {
   void onOpenCardpack(Iterable cardpacksData) async {
     if (cardpacksData.isEmpty) return;
 
+    dynamic createCard({
+      required bool isMainCard,
+      required filter,
+      bool isIdentified = false,
+      int packRank = 0,
+    }) {
+      final genre = isMainCard
+          ? filter['genre']
+          : (filter['isBasic'] == true ? 'none' : null);
+      final kind = isMainCard
+          ? filter['kind']
+          : (filter['isBasic'] == true ? kBasicCardKinds.random : null);
+      final category = isMainCard
+          ? filter['category']
+          : (filter['isBasic'] == true ? 'attack' : null);
+      final rank = isMainCard ? packRank : null;
+      final maxRank = isMainCard ? null : packRank;
+      final cardData = engine.hetu.invoke(
+        'BattleCard',
+        namedArgs: {
+          'kind': kind,
+          'genre': genre,
+          'maxRank': maxRank,
+          'category': category,
+          'rank': rank,
+          'isIdentified': isIdentified,
+        },
+      );
+      return cardData;
+    }
+
     if (cardpacksData.length == 1) {
       final cardpackData = cardpacksData.first;
-      final cardFilter = cardpackData['filter'];
-      final int packRank = cardFilter['rank'];
+      final filter = cardpackData['filter'];
+      int packRank = filter['rank'] ?? 0;
 
       skillBook.enableGesture = false;
       barrier.isVisible = true;
@@ -613,25 +723,12 @@ class CardLibraryScene extends Scene {
 
       engine.play(GameSound.cardDealt2);
       for (var i = 0; i < 3; ++i) {
-        final genre = i == 1
-            ? cardFilter['genre']
-            : (cardFilter['isBasic'] == true ? 'none' : null);
-        final kind = i == 1
-            ? cardFilter['kind']
-            : (cardFilter['isBasic'] == true ? kBasicCardKinds.random : null);
-        final category = i == 1 ? cardFilter['category'] : null;
-        final rank = i == 1 ? packRank : null;
-        final maxRank = i == 1 ? null : packRank;
-        final cardData = engine.hetu.invoke(
-          'BattleCard',
-          namedArgs: {
-            'kind': kind,
-            'genre': genre,
-            'maxRank': maxRank,
-            'category': category,
-            'rank': rank,
-            'isIdentified': false,
-          },
+        bool isMainCard = i == 1;
+        final cardData = createCard(
+          isMainCard: isMainCard,
+          filter: filter,
+          packRank: packRank,
+          isIdentified: false,
         );
 
         final card = GameData.createBattleCardFromData(cardData);
@@ -712,30 +809,17 @@ class CardLibraryScene extends Scene {
 
       engine.play(GameSound.cardDealt2);
       for (final cardpackData in cardpacksData) {
-        final cardFilter = cardpackData['filter'];
-        final int packRank = cardFilter['rank'];
+        final filter = cardpackData['filter'];
+        int packRank = filter['rank'] ?? 0;
         engine.hetu.invoke('lose',
             namespace: 'Player', positionalArgs: [cardpackData]);
         for (var i = 0; i < 3; ++i) {
-          final genre = i == 1
-              ? cardFilter['genre']
-              : (cardFilter['isBasic'] == true ? 'none' : null);
-          final kind = i == 1
-              ? cardFilter['kind']
-              : (cardFilter['isBasic'] == true ? kBasicCardKinds.random : null);
-          final category = i == 1 ? cardFilter['category'] : null;
-          final rank = i == 1 ? packRank : null;
-          final maxRank = i == 1 ? null : packRank;
-          final cardData = engine.hetu.invoke(
-            'BattleCard',
-            namedArgs: {
-              'kind': kind,
-              'genre': genre,
-              'maxRank': maxRank,
-              'category': category,
-              'rank': rank,
-              'isIdentified': false,
-            },
+          bool isMainCard = i == 1;
+          final cardData = createCard(
+            isMainCard: isMainCard,
+            filter: filter,
+            packRank: packRank,
+            isIdentified: true,
           );
 
           engine.hetu.invoke('acquireCard',
@@ -762,6 +846,20 @@ class CardLibraryScene extends Scene {
         );
       }
     }
+  }
+
+  void showCardpackSelect({Iterable? selectedItems}) {
+    context.read<ViewPanelState>().toogle(
+      ViewPanels.itemSelect,
+      arguments: {
+        'characterData': GameData.heroData,
+        'title': engine.locale('selectCardpack'),
+        'filter': {'category': 'cardpack'},
+        'multiSelect': true,
+        'onSelect': onOpenCardpack,
+        'selectedItems': selectedItems,
+      },
+    );
   }
 
   @override
@@ -1007,16 +1105,8 @@ class CardLibraryScene extends Scene {
       priority: kBarrierUIPriority,
     );
     skillBook.onTapUp = (buttons, position) {
-      context.read<ViewPanelState>().toogle(
-        ViewPanels.itemSelect,
-        arguments: {
-          'characterData': GameData.heroData,
-          'title': engine.locale('selectCardpack'),
-          'filter': {'category': 'cardpack'},
-          'multiSelect': true,
-          'onSelect': onOpenCardpack,
-        },
-      );
+      if (buttons == kSecondaryButton) return;
+      showCardpackSelect();
     };
     skillBook.onMouseEnter = () {
       final cardpackCount =
@@ -1028,16 +1118,16 @@ class CardLibraryScene extends Scene {
       final battleCardCount = GameData.heroData['cardLibrary'].length;
 
       final cardpackHint =
-          '${engine.locale('ownedBattleCard')}: <bold ${battleCardCount > 0 ? 'yellow' : 'grey'}>${battleCardCount.toString().padLeft(10)}</>\n'
-          '${engine.locale('ownedCardpack')}: <bold ${cardpackCount > 0 ? 'yellow' : 'grey'}>${cardpackCount.toString().padLeft(10)}</>\n'
+          '${engine.locale('ownedBattleCard')}: <bold ${battleCardCount > 0 ? 'yellow' : 'grey'}>$battleCardCount</>\n'
+          '${engine.locale('ownedCardpack')}: <bold ${cardpackCount > 0 ? 'yellow' : 'grey'}>$cardpackCount</>\n'
           '<grey>${engine.locale('deckbuilding_cardpack_hint')}</>';
       Hovertip.show(
         scene: this,
         target: skillBook,
         direction: HovertipDirection.topRight,
         content: cardpackHint,
-        config: ScreenTextConfig(anchor: Anchor.topLeft),
-        width: 200,
+        config: ScreenTextConfig(textAlign: TextAlign.center),
+        width: 240,
       );
     };
     skillBook.onMouseExit = () {
@@ -1058,7 +1148,8 @@ class CardLibraryScene extends Scene {
         scene: this,
         target: expBottle,
         direction: HovertipDirection.topCenter,
-        content: '${engine.locale('unconvertedExp')}: $exp',
+        content:
+            '${engine.locale('unconvertedExp')}: <bold ${exp > 0 ? 'yellow' : 'grey'}>$exp</>',
         width: 150,
         config: ScreenTextConfig(textAlign: TextAlign.center),
       );
@@ -1096,6 +1187,7 @@ class CardLibraryScene extends Scene {
       isVisible: false,
     );
     collectButton.onTapUp = (buttons, position) {
+      if (buttons == kSecondaryButton) return;
       final unidentifiedCards = _cardpackCards.where((card) {
         return card.data['isIdentified'] != true;
       });
@@ -1166,22 +1258,41 @@ class CardLibraryScene extends Scene {
       priority: kBarrierUIPriority,
       isVisible: false,
     );
-    craftScrollButton.onTapUp = (buttons, position) {};
+    craftScrollButton.onTapUp = (buttons, position) {
+      if (!craftScrollButton.isEnabled) return;
+      if (buttons == kSecondaryButton) return;
+      assert(_craftingCard != null);
+      craftScroll();
+    };
     craftScrollButton.onMouseEnter = () {
-      final expCost = GameLogic.getCardCraftOperationCost(
-          'craftScroll', _craftingCard!.data);
+      assert(_craftingCard != null);
 
-      final paperCount =
-          engine.hetu.invoke('entityHasItemCategory', positionalArgs: [
-        GameData.heroData,
-        'scroll_paper',
-      ]);
+      final rank = _craftingCard!.data['rank'];
+
+      final bool enabled = craftScrollButton.isEnabled || rank > 0;
 
       StringBuffer buffer = StringBuffer();
-      buffer.writeln(engine.locale('deckbuilding_craft_scroll'));
-      buffer.writeln('${engine.locale('deckbuilding_exp_cost')}: $expCost');
-      buffer.writeln(
-          '${engine.locale('deckbuilding_scroll_paper_count')}: $paperCount');
+      if (enabled) {
+        final expCost = GameLogic.getCardCraftOperationCost(
+            'craftScroll', _craftingCard!.data);
+
+        final paperCount =
+            engine.hetu.invoke('entityHasItemKind', positionalArgs: [
+          GameData.heroData,
+          'scroll_paper_rank_$rank',
+        ]);
+
+        buffer.writeln(engine.locale('deckbuilding_craft_scroll'));
+        buffer.writeln(' ');
+        buffer.writeln(
+            '${engine.locale('deckbuilding_exp_cost')}: <bold ${expCost > 0 ? 'yellow' : 'grey'}>$expCost</>');
+        buffer.writeln(
+            '${engine.locale('cultivationRank_$rank')}${engine.locale('rank2')}'
+            '${engine.locale('deckbuilding_scroll_paper_count')}: <bold ${paperCount > 0 ? 'yellow' : 'grey'}>$paperCount</>');
+      } else {
+        buffer.writeln(engine.locale('functionDisabled'));
+      }
+
       Hovertip.show(
         scene: this,
         target: craftScrollButton,

@@ -23,19 +23,27 @@ class HeroPassivesDescriptionUpdate with ChangeNotifier {
 
 class EnemyState with ChangeNotifier {
   bool showPrebattle = false;
-  dynamic enemyData;
+  dynamic data;
+  void Function()? onBattleStart;
+  void Function(dynamic)? onBattleEnd;
 
-  void show(dynamic data) {
+  void show(
+    dynamic data, {
+    void Function()? onBattleStart,
+    void Function(dynamic)? onBattleEnd,
+  }) {
     assert(data != null);
-    enemyData = data;
     showPrebattle = true;
+    this.data = data;
+    this.onBattleStart = onBattleStart;
+    this.onBattleEnd = onBattleEnd;
     notifyListeners();
   }
 
   /// 设置战斗准备面板可见性
   /// 如果 value 为 null，则根据enemyData是否存在来决定
   void setPrebattleVisible([bool? value]) {
-    value ??= enemyData != null;
+    value ??= data != null;
 
     if (showPrebattle != value) {
       showPrebattle = value;
@@ -44,8 +52,10 @@ class EnemyState with ChangeNotifier {
   }
 
   void clear() {
-    enemyData = null;
+    data = null;
     showPrebattle = false;
+    onBattleStart = null;
+    onBattleEnd = null;
     notifyListeners();
   }
 }

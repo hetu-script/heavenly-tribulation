@@ -8,7 +8,7 @@ import '../../game/ui.dart';
 import '../../game/data.dart';
 import '../../common.dart';
 import '../../widgets/character/stats.dart';
-import '../../state/hoverinfo.dart';
+import '../../state/hover_content.dart';
 
 const kItemGridSize = 30.0;
 
@@ -33,13 +33,13 @@ class EquipmentsBar extends GameComponent {
     );
     spriteButton.onMouseEnter = () {
       if (itemData == null) return;
-      game.context.read<HoverInfoContentState>().show(
+      game.context.read<HoverContentState>().show(
             itemData,
             spriteButton.toAbsoluteRect(),
           );
     };
     spriteButton.onMouseExit = () {
-      game.context.read<HoverInfoContentState>().hide();
+      game.context.read<HoverContentState>().hide();
     };
     add(spriteButton);
   }
@@ -71,14 +71,14 @@ class EquipmentsBar extends GameComponent {
         isHero: false,
         showNonBattleStats: false,
       );
-      game.context.read<HoverInfoContentState>().show(
+      game.context.read<HoverContentState>().show(
             statsView,
             statsButton.toAbsoluteRect(),
-            direction: HoverInfoDirection.rightTop,
+            direction: HoverContentDirection.rightTop,
           );
     };
     statsButton.onMouseExit = () {
-      game.context.read<HoverInfoContentState>().hide();
+      game.context.read<HoverContentState>().hide();
     };
     add(statsButton);
 
@@ -90,15 +90,15 @@ class EquipmentsBar extends GameComponent {
       paint: paint,
     );
     cultivationButton.onMouseEnter = () {
-      game.context.read<HoverInfoContentState>().show(
+      game.context.read<HoverContentState>().show(
             cultivationDescription,
             cultivationButton.toAbsoluteRect(),
-            direction: HoverInfoDirection.rightTop,
+            direction: HoverContentDirection.rightTop,
             textAlign: TextAlign.left,
           );
     };
     cultivationButton.onMouseExit = () {
-      game.context.read<HoverInfoContentState>().hide();
+      game.context.read<HoverContentState>().hide();
     };
     add(cultivationButton);
   }

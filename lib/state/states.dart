@@ -5,7 +5,7 @@ export 'game_save.dart';
 export 'game_update.dart';
 export 'character.dart';
 export 'history.dart';
-export 'hoverinfo.dart';
+export 'hover_content.dart';
 export 'new_prompt.dart';
 export 'selected_tile.dart';
 export 'ui.dart';

@@ -6,10 +6,9 @@ import 'package:samsara/ui/responsive_view.dart';
 
 import '../../game/ui.dart';
 import '../../engine.dart';
-import '../../state/hoverinfo.dart';
+import '../../state/hover_content.dart';
 import '../../state/new_prompt.dart';
 import '../character/inventory/item_grid.dart';
-import '../../game/data.dart';
 
 class NewItems extends StatelessWidget {
   const NewItems({
@@ -56,18 +55,15 @@ class NewItems extends StatelessWidget {
                             itemsData
                                 .map(
                                   (data) => ItemGrid(
-                                    characterData: GameData.heroData,
                                     itemData: data,
                                     margin: const EdgeInsets.all(2.5),
                                     onMouseEnter: (itemData, rect) {
                                       context
-                                          .read<HoverInfoContentState>()
+                                          .read<HoverContentState>()
                                           .show(itemData, rect);
                                     },
                                     onMouseExit: () {
-                                      context
-                                          .read<HoverInfoContentState>()
-                                          .hide();
+                                      context.read<HoverContentState>().hide();
                                     },
                                   ),
                                 )

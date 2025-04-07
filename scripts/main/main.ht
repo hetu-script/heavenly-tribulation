@@ -163,7 +163,7 @@ function addMapsData(mapsData) {
       engine.warn('地图数据 id 冲突：[${map.id}]')
     }
     universe[map.id] = Object.create(map)
-    history[map.id] = []
+    // history[map.id] = []
   }
   engine.debug('载入预定义地图：[${mapsData.length}]')
 }

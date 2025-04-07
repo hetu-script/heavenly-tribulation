@@ -192,6 +192,10 @@ struct BattleEntity {
     this.karma = 0
 
     characterCalculateStats(this, rejuvenate: true)
+    
+    this.mainAttribute = getMainAttribute(this)
+    this.cultivationFavor = kAttributeToGenre[this.mainAttribute]
+    this.cultivationStyle = random.nextIterable(kPlayStyles[this.cultivationFavor])
 
     // 主流派：御剑、道术、锻体、炼魂、法身
     // 副流派：炼丹、炼器、阵法、符法、灵植、灵兽、幻术、卜术、通灵、通神
@@ -408,7 +412,7 @@ function characterHasPassive(character, dataId) {
   return character.passives[dataId]
 }
 
-function generateDeck(character, { cardInfoList }) {
+function characterGenerateDeck(character, { maxOutLevel = false, cardInfoList }) {
   let deck = []
   if (cardInfoList is List) {
     assert(cardInfoList.isNotEmpty, 'cardInfoList is empty!')
@@ -418,8 +422,8 @@ function generateDeck(character, { cardInfoList }) {
         affixId: info.affixId,
         kind: info.kind,
         genre: info.genre,
-        level: info.level ?? character.level,
         rank: info.rank ?? character.rank,
+        maxOutLevel: maxOutLevel,
         maxRank: info.maxRank,
         isIdentified: info.isIdentified ?? false,
       )
@@ -430,7 +434,6 @@ function generateDeck(character, { cardInfoList }) {
     for (var i in range(deckLimit.limit)) {
       final card = BattleCard(
         category: (i == 0 || i == deckLimit.limit) ? 'buff' : 'attack',
-        level: character.level,
         rank: character.rank,
         isIdentified: false,
       )

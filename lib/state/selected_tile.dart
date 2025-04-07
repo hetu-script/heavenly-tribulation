@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:samsara/tilemap.dart';
 
 class SelectedTileState with ChangeNotifier {
-  dynamic currentZone, currentLocation, currentNation;
+  dynamic currentZone, currentNation;
   TileMapTerrain? currentTerrain;
 
   void update({
@@ -13,7 +13,6 @@ class SelectedTileState with ChangeNotifier {
   }) {
     currentZone = currentZoneData;
     currentNation = currentNationData;
-    currentLocation = currentLocationData;
     currentTerrain = currentTerrainObject;
     notifyListeners();
   }
@@ -21,34 +20,53 @@ class SelectedTileState with ChangeNotifier {
   void clear() {
     currentZone = null;
     currentNation = null;
-    currentLocation = null;
     currentTerrain = null;
     notifyListeners();
   }
 }
 
 class HeroTileState with ChangeNotifier {
-  dynamic currentZone, currentLocation, currentNation;
+  dynamic currentZone, currentNation;
   TileMapTerrain? currentTerrain;
+  String? currentScene;
 
   void update({
     dynamic currentZoneData,
     dynamic currentNationData,
     dynamic currentLocationData,
-    TileMapTerrain? currentTerrainObject,
+    TileMapTerrain? currentTerrainData,
   }) {
-    currentZone = currentZoneData;
-    currentNation = currentNationData;
-    currentLocation = currentLocationData;
-    currentTerrain = currentTerrainObject;
-    notifyListeners();
+    bool changed = false;
+    if (currentZoneData != currentZone) {
+      currentZone = currentZoneData;
+      changed = true;
+    }
+    if (currentNationData != currentNation) {
+      currentNation = currentNationData;
+      changed = true;
+    }
+    if (currentTerrainData != currentTerrain) {
+      currentTerrain = currentTerrainData;
+      changed = true;
+    }
+    if (changed) {
+      notifyListeners();
+    }
+  }
+
+  void updateScene(sceneId) {
+    if (currentScene != sceneId) {
+      currentScene = sceneId;
+      notifyListeners();
+    }
   }
 
   void clear() {
     currentZone = null;
     currentNation = null;
-    currentLocation = null;
     currentTerrain = null;
+    // currentLocation = null;
+    currentScene = null;
     notifyListeners();
   }
 }

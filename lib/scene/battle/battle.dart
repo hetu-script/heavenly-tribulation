@@ -230,7 +230,7 @@ class BattleScene extends Scene {
     super.onMount();
 
     context.read<EnemyState>().setPrebattleVisible(false);
-    context.read<HoverInfoContentState>().hide();
+    context.read<HoverContentState>().hide();
     context.read<ViewPanelState>().clearAll();
   }
 
@@ -245,7 +245,7 @@ class BattleScene extends Scene {
     enemyDeck = getDeck(enemyData);
 
     background = SpriteComponent2(
-      spriteId: 'battle/scene/001.png',
+      spriteId: 'battle/scene/002.png',
       anchor: Anchor.center,
       position: center,
       size: size,
@@ -512,6 +512,9 @@ class BattleScene extends Scene {
       turnCount += 1;
     }
 
+    currentCharacter.priority = kTopLayerAnimationPriority;
+    currentOpponent.priority = 0;
+
     if (currentCharacter.deckZone.cards.isNotEmpty) {
       CustomGameCard card = currentCharacter.deckZone.current!;
       do {
@@ -573,9 +576,6 @@ class BattleScene extends Scene {
     currentCharacter = heroTurn ? hero : enemy;
     currentOpponent = heroTurn ? enemy : hero;
 
-    currentCharacter.priority = kTopLayerAnimationPriority;
-    currentOpponent.priority = 0;
-
     if (heroTurn == isFirsthand) {
       ++turn;
     }
@@ -611,6 +611,7 @@ class BattleScene extends Scene {
         heroData['karma'] += 1;
       }
     } else {
+      battleResult = false;
       camera.viewport.add(_defeatPrompt);
       hero.setState(kDefeatState);
     }
@@ -628,19 +629,18 @@ class BattleScene extends Scene {
     nextTurnButton.text = engine.locale('end');
     nextTurnButton.onTap = (_, __) => _endScene();
 
-    await onBattleEnd?.call(battleResult);
-
     final hpRestoreRate = GameLogic.getHPRestoreRateAfterBattle(turnCount);
     int life = hero.life;
     if (battleResult == true) {
-      life += (hero.lifeMax * hpRestoreRate).toInt();
-    } else {
-      if (life <= 0) {
-        life = 0;
-      }
+      int newLife = life + (hero.lifeMax * hpRestoreRate).toInt();
+      hero.setLife(newLife);
     }
-    hero.data['life'] = life;
-    engine.info('战斗结果：[$battleResult], 战后角色生命恢复：$life');
+    hero.data['life'] = hero.life;
+    engine.info('战斗结果：[$battleResult], 角色生命恢复：${hero.life - life}');
+
+    await onBattleEnd?.call(battleResult);
+
+    context.read<EnemyState>().clear();
   }
 
   Future<void> startAutoBattle() async {

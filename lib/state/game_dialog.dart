@@ -76,10 +76,7 @@ class GameDialogState with ChangeNotifier, TaskController {
     }, id: 'execution_to_end');
   }
 
-  void pushBackground(
-    String imageId, {
-    bool isFadeIn = false,
-  }) {
+  void pushBackground(String imageId, {bool isFadeIn = false}) {
     isOpened = true;
     final taskId = 'push_background_${randomUID(withTime: true)}';
     schedule(
@@ -99,20 +96,31 @@ class GameDialogState with ChangeNotifier, TaskController {
     );
   }
 
-  void popBackground({bool isFadeOut = false}) {
+  void popBackground({String? imageId, isFadeOut = false}) {
+    if (scenes.isEmpty) {
+      engine.warn(
+          'game dialog: pop background failed, no background to pop. imageId: $imageId');
+      return;
+    }
+
     assert(isOpened == true);
     final taskId = 'pop_background_${randomUID(withTime: true)}';
     schedule(
       () {
-        if (scenes.isNotEmpty) {
+        if (imageId != null) {
+          prevScene = scenes.singleWhere(
+            (scene) => scene.path == 'assets/images/$imageId',
+            orElse: () => scenes.last,
+          );
+        } else {
           prevScene = scenes.last;
-          if (isFadeOut) {
-            prevScene!.isFadeOut = isFadeOut;
-            prevScene!.taskId = taskId;
-          }
-          scenes.remove(scenes.last);
-          notifyListeners();
         }
+        if (isFadeOut) {
+          prevScene!.isFadeOut = isFadeOut;
+          prevScene!.taskId = taskId;
+        }
+        scenes.remove(prevScene);
+        notifyListeners();
       },
       id: taskId,
       isAuto: !isFadeOut,
@@ -120,6 +128,11 @@ class GameDialogState with ChangeNotifier, TaskController {
   }
 
   void popAllBackgrounds() {
+    if (scenes.isEmpty) {
+      engine.warn('game dialog: pop background failed, no background to pop.');
+      return;
+    }
+
     assert(isOpened == true);
     final taskId = 'pop_all_backgrounds_${randomUID(withTime: true)}';
     schedule(
@@ -155,6 +168,11 @@ class GameDialogState with ChangeNotifier, TaskController {
   }
 
   void popImage({String? imageId}) {
+    if (illustrations.isEmpty) {
+      engine.warn('game dialog: pop image failed, no image to pop.');
+      return;
+    }
+
     assert(isOpened == true);
     final taskId = 'pop_image_${randomUID(withTime: true)}';
     schedule(

@@ -65,6 +65,32 @@ struct MonthlyActions {
   }
 }
 
+struct DungeonFlags {
+  constructor ({
+    rank,
+    initialRoom = true,
+    isTutorial = false,
+  }) {
+    rank ??= 0
+    rank = rank.clamp(0, kCultivationRankMax - 1)
+
+    this.rank = rank
+    this.level = minLevelForRank(rank)
+    if (isTutorial) {
+      this.levelMax = 0
+    } else {
+      this.levelMax = maxLevelForRank(rank) - 10
+    }
+    this.isTutorial = isTutorial
+    this.room = initialRoom ? 0 : 1
+    this.roomMax = isTutorial ? 5 : 13
+    this.needRebuild = true
+    this.has3Portal = false
+    this.battleResult = null
+    this.selectedPortal = null
+  }
+}
+
 struct GameData {
   constructor ({saveName}) {
     this.saveName = saveName
@@ -80,8 +106,7 @@ struct GameData {
     this.organizations = {}
     // 地图上的城市、场景
     this.locations = {}
-    // 具有唯一性的物品，材料之类不在此列
-    this.items = {}
+
     // 家族信息
     // key 是家族的 id，值是一个结构体数组
     // 值的key是人物的 id，值是 MemberRankData 数据，含角色的 generation 和 peer
@@ -94,6 +119,8 @@ struct GameData {
     // 游戏本身逻辑所用到的一些事件检查选项
     // 例如每个月是否进行了某个动作之类
     this.playerMonthly = MonthlyActions()
+    
+    // 加载到当前存档的一些MOD数据
     this.itemPrototypes = {}
     this.battleCards = {}
     this.battleCardAffixes = {}
@@ -106,15 +133,8 @@ struct GameData {
       // events: {} // 模组事件处理函数
     }
     
-    /// 地牢玩法中的状态值
-    this.dungeon = {
-      // 地牢初始化标记
-      isNew: true,
-      // 地牢境界（难度）
-      rank: 0,
-      // 当前层数
-      progress: 0,
-    }
+    // 地牢玩法的数据
+    this.dungeon = DungeonFlags()
   }
 }
 
@@ -124,11 +144,11 @@ function createGame(saveName) {
   game = GameData(saveName: saveName)
   calculateTimestamp()
   universe = {}
-  history = {}
 
   hero = null
   world = null
-  timeline = []
+
+  timeline = {}
 }
 
 function resetPlayerMonthlyActivities() {
@@ -199,7 +219,8 @@ function loadGameFromJsonData({
   game.isNewGame ??= true
   
   universe = Object.create(universeData)
-  history = Object.create(historyData)
+  // history = Object.create(historyData)
+  timeline = Object.create(historyData)
   
   assert(game.currentWorldId != null)
   // if (!isEditorMode) {
@@ -207,7 +228,7 @@ function loadGameFromJsonData({
   // }
 
   world = universe[game.currentWorldId]
-  timeline = history[game.currentWorldId]
+  // timeline = history[game.currentWorldId]
   assert(world != null)
   assert(timeline != null)
   
@@ -225,7 +246,7 @@ function loadGameFromJsonData({
 
 function addWorld(newWorld) {
   world = universe[newWorld.id] = newWorld
-  timeline = history[newWorld.id] = []
+  // timeline = history[newWorld.id] = []
 
   game.currentWorldId = newWorld.id
 }
@@ -234,8 +255,8 @@ function switchWorld(worldId) {
   assert(universe.containsKey(worldId), worldId)
   world = universe[worldId]
 
-  assert(history.containsKey(world.id))
-  timeline = history[world.id]
+  // assert(history.containsKey(world.id))
+  // timeline = history[world.id]
   
   game.currentWorldId = world.id
 
@@ -275,7 +296,8 @@ function getUniverseJsonData() {
 }
 
 function getHistoryJsonData() {
-  return history.toJSON()
+  // return history.toJSON()
+  return timeline.toJSON()
 }
 
 function getTimestamp {
@@ -353,7 +375,7 @@ function setCurrentWorld(id) {
   assert(universe.containsKey(id), id)
   assert(history.containsKey(id), id)
   world = universe[id]
-  timeline = history[id]
+  // timeline = history[id]
   game.currentWorldId = id
   engine.debug('设置当前世界为: [${id}]')
 }

@@ -157,65 +157,68 @@ const kLocationKindMountainCity = 'mountain';
 Color getColorFromRarity(String rarity) {
   return switch (rarity) {
     /// 基础
-    'basic' => HexColor.fromString('#A3A3A3'),
+    'basic' => HexColor.fromString('#CCCCCC'),
 
     /// 凡品
-    'common' => HexColor.fromString('#CCCCCC'),
+    'common' => HexColor.fromString('#D4FFFF'),
 
     /// 良品
-    'uncommon' => HexColor.fromString('#FFFFFF'),
+    'uncommon' => HexColor.fromString('#9D9DFF'),
 
     /// 上品
-    'rare' => HexColor.fromString('#9D9DFF'),
+    'rare' => HexColor.fromString('#693DA8'),
 
     /// 极品
-    'epic' => HexColor.fromString('#804DC8'),
+    'epic' => HexColor.fromString('#E7E7AC'),
 
     /// 神品
-    'legendary' => HexColor.fromString('#C5C660'),
+    'legendary' => HexColor.fromString('#DBDB72'),
 
     /// 秘宝
     'unique' => HexColor.fromString('#62CC39'),
 
     /// 古宝
-    'mythic' => HexColor.fromString('#F28234'),
+    'mythic' => HexColor.fromString('#C65043'),
 
     /// 灵宝
     'arcane' => HexColor.fromString('#C65043'),
 
     /// 其他
-    _ => HexColor.fromString('#A3A3A3'),
+    _ => HexColor.fromString('#CCCCCC'),
   };
 }
 
 Color getColorFromRank(int rank) {
   return switch (rank) {
     /// 未修炼 黑
-    0 => HexColor.fromString('#A3A3A3'),
+    0 => HexColor.fromString('#CCCCCC'),
 
     /// 凝气 灰
-    1 => HexColor.fromString('#CCCCCC'),
+    1 => HexColor.fromString('#D4FFFF'),
 
-    /// 筑基 白
-    2 => HexColor.fromString('#FFFFD4'),
+    /// 筑基 蓝灰
+    2 => HexColor.fromString('#9D9DFF'),
 
     /// 结丹 蓝
-    3 => HexColor.fromString('#9D9DFF'),
+    3 => HexColor.fromString('#693DA8'),
 
     /// 还婴 紫
-    4 => HexColor.fromString('#804DC8'),
+    4 => HexColor.fromString('#E7E7AC'),
 
-    /// 化神 橙
-    5 => HexColor.fromString('#C5C660'),
+    /// 化神 金
+    5 => HexColor.fromString('#DBDB72'),
 
-    /// 洞虚 金
+    /// 洞虚 橙
     6 => HexColor.fromString('#62CC39'),
 
-    /// 合体 暗金
-    7 => HexColor.fromString('#F28234'),
+    /// 合体 红
+    7 => HexColor.fromString('#C65043'),
 
-    /// 大乘 红
-    _ => HexColor.fromString('#C65043'),
+    /// 大乘 暗红
+    8 => HexColor.fromString('#983030'),
+
+    /// 其他
+    _ => HexColor.fromString('#CCCCCC'),
   };
 }
 
@@ -364,6 +367,8 @@ const kMonthsPerYear = 12; //每年的月数
 const kTicksPerYear = kDaysPerYear * kTicksPerDay; //每年的回合数 1440
 
 const kMoneyToShardRate = 10000;
+const kExpToShardRate = 100;
+
 const kBaseBuyRate = 1.5;
 const kBaseSellRate = 0.5;
 

@@ -27,6 +27,8 @@
     affixes: ["hunguding_affix_2"],
     // 被诅咒的法宝，装备后无法正常取下
     // isCursed: true,
+    // 被腐化的法宝，无法通过炼制修改属性
+    // isCorrupted: true,
     isUndroppable: true,
     price: 20000,
   },

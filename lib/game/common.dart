@@ -10,7 +10,7 @@ const kPlayStyles = {
 
 /// 不同流派的境界节点路径
 const kCultivationRankPaths = {
-  'dexterity': [
+  'swordcraft': [
     'track_5_0',
     'track_6_0',
     'track_7_0',
@@ -20,7 +20,7 @@ const kCultivationRankPaths = {
     'track_11_0',
     'track_12_0',
   ],
-  'spirituality': [
+  'spellcraft': [
     'track_5_4',
     'track_6_8',
     'track_7_4',
@@ -30,7 +30,7 @@ const kCultivationRankPaths = {
     'track_11_4',
     'track_12_8',
   ],
-  'willpower': [
+  'vitality': [
     'track_5_8',
     'track_6_16',
     'track_7_8',
@@ -40,7 +40,7 @@ const kCultivationRankPaths = {
     'track_11_8',
     'track_12_16',
   ],
-  'perception': [
+  'avatar': [
     'track_5_12',
     'track_6_24',
     'track_7_12',
@@ -50,7 +50,7 @@ const kCultivationRankPaths = {
     'track_11_12',
     'track_12_24',
   ],
-  'strength': [
+  'bodyforge': [
     'track_5_16',
     'track_6_32',
     'track_7_16',
@@ -63,7 +63,7 @@ const kCultivationRankPaths = {
 };
 
 const kCultivationStylePaths = {
-  'dexterity': {
+  'swordcraft': {
     'standard': [
       'track_0_0',
       'track_1_0',
@@ -120,7 +120,7 @@ const kCultivationStylePaths = {
       'track_6_33', // 剑气溢出的debuff变双方
     ],
   },
-  'spirituality': {
+  'spellcraft': {
     'standard': [
       'track_0_1',
       'track_1_1',
@@ -177,7 +177,7 @@ const kCultivationStylePaths = {
       'track_6_1', // 灵气视作剑气
     ],
   },
-  'willpower': {
+  'vitality': {
     'standard': [
       'track_0_2',
       'track_1_2',
@@ -234,7 +234,7 @@ const kCultivationStylePaths = {
       'track_6_23', // ---
     ],
   },
-  'perception': {
+  'avatar': {
     'standard': [
       'track_0_3',
       'track_1_3',
@@ -291,7 +291,7 @@ const kCultivationStylePaths = {
       'track_6_25', // ---
     ],
   },
-  'strength': {
+  'bodyforge': {
     'standard': [
       'track_0_4',
       'track_1_4',

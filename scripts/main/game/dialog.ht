@@ -22,7 +22,7 @@ namespace Dialog {
 
   external function pushBackground(image: string, {isFadeIn: bool = false})
 
-  external function popBackground({isFadeOut: bool = false})
+  external function popBackground({image: string, isFadeOut: bool = false})
 
   external function popAllBackgrounds()
 

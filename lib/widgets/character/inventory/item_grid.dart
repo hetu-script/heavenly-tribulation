@@ -12,7 +12,6 @@ const kDefaultItemGridSize = Size(48.0, 48.0);
 class ItemGrid extends StatelessWidget {
   const ItemGrid({
     super.key,
-    this.characterData,
     this.size = kDefaultItemGridSize,
     this.margin,
     this.itemData,
@@ -27,7 +26,6 @@ class ItemGrid extends StatelessWidget {
     this.showEquippedIcon = true,
   });
 
-  final dynamic characterData;
   final Size size;
   final EdgeInsetsGeometry? margin;
   final dynamic itemData;

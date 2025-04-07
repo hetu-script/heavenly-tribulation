@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../../engine.dart';
 import '../../state/character.dart';
-import '../../state/hoverinfo.dart';
+import '../../state/hover_content.dart';
 import '../../common.dart';
 import '../../game/logic.dart';
 
@@ -109,10 +109,10 @@ class _CharacterStatsState extends State<CharacterStats> {
       width: widget.width,
       textAlign: TextAlign.left,
       onMouseEnter: (rect) {
-        context.read<HoverInfoContentState>().show(description, rect);
+        context.read<HoverContentState>().show(description, rect);
       },
       onMouseExit: () {
-        context.read<HoverInfoContentState>().hide();
+        context.read<HoverContentState>().hide();
       },
     );
   }

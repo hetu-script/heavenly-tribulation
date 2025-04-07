@@ -45,6 +45,7 @@ const kMapObjectSourceTemplate = '''{
   //     path: "object/animation/fishZone.png",
   //   },
   // },
+  // hoverContent: 'object1',
   useCustomLogic: true,
   blockMove: false,
 }
@@ -65,6 +66,7 @@ const kMapObjectPortalSourceTemplate = '''{
   // },
   useCustomLogic: false,
   blockMove: false,
+  hoverContent: 'portal1',
   targetTilePosition: {
     left: 1,
     top: 1,
@@ -88,6 +90,7 @@ const kMapObjectWorldPortalSourceTemplate = '''{
   useCustomLogic: false,
   blockMove: false,
   worldId: 'main',
+  hoverContent: 'worldPortal1',
   targetTilePosition: {
     left: 1,
     top: 1,
@@ -108,6 +111,7 @@ const kMapObjectCharacterSourceTemplate = '''{
   //     path: "object/animation/fishZone.png",
   //   },
   // },
+  hoverContent: 'characterObject1',
   useCustomLogic: false,
   blockMove: true,
   characterId: 'character_id',
@@ -129,6 +133,7 @@ const kMapObjectTreasureBoxSourceTemplate = '''{
   // },
   useCustomLogic: false,
   blockMove: false,
+  hoverContent: 'treasureBox1',
   items: [
     {
       type: 'material',
@@ -671,7 +676,7 @@ class _EntityListPanelState extends State<EntityListPanel>
 
   void _updateLocations() {
     _locationsTableData.clear();
-    _locations = engine.hetu.invoke('getLocations');
+    _locations = engine.hetu.fetch('locations', namespace: 'game').values;
     for (final loc in _locations) {
       final rowData = <String>[];
       rowData.add(loc['name']);
@@ -726,7 +731,8 @@ class _EntityListPanelState extends State<EntityListPanel>
   }
 
   void _editObject(String dataId) async {
-    final obj = engine.hetu.invoke('getObjectById', positionalArgs: [dataId]);
+    final objectsData = engine.hetu.fetch('objects', namespace: 'world');
+    final obj = objectsData['dataId'];
     final originObjId = obj['id'];
     assert(obj != null);
     final objString = engine.hetu.stringify(obj);

@@ -6,9 +6,11 @@ namespace World {
 
   external function updateTerrainOverlaySprite(left, top)
 
-  external function updateTerrainInfo(left, top)
+  external function updateTerrainData(left, top, {updateSprite: bool = false, updateOverlaySprite: bool = false})
 
   external function resetFogOfWar()
+
+  external function lightUpAllTiles()
 
   // external function clearTerrainSprite(left, top)
 
@@ -34,7 +36,9 @@ namespace World {
   
   external function updateWorldMapLocations()
 
-  external function addHintText(text, left, top, [color])
+  external function hintTextOnTile(text, left, top, [color])
+
+  external function promptTextBanner(text)
 
   external async function moveCameraToMapPosition(left, top, {animated = true})
 

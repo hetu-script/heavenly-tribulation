@@ -25,6 +25,7 @@ const _kHeadRank = 80
 
 struct Organization {
   constructor ({
+    id,
     name,
     category, // 扩张类型：'cultivation' | 'gang' | 'religion' | 'business' | 'nation'
     genre, // 修炼类型：'dao' | 'swordcraft' | 'bodyforge' | 'avatar' | 'vitality'
@@ -74,7 +75,11 @@ struct Organization {
       } while (conflict)
     }
     // this.id = '${this.entityType}.${this.index}.${this.id}'
-    this.id = this.name
+    this.id = id ?? this.name
+    
+    if (game.organizations.containsKey(this.id)) {
+      engine.warn('已经存在 id 为 ${this.id} 的组织。旧数据将会被覆盖。')
+    }
     game.organizations[this.id] = this
     
     // 本门派统治的据点 id 列表

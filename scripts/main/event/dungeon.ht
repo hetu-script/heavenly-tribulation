@@ -1,71 +1,416 @@
 // import '../entity/item/item.ht'
 // import '../world/dungeon.ht'
 
-async function onEnterMap() {
-  if (!game.dungeon.isNew) return
-  
-  game.dungeon.isNew = false
+const kStartTile = {
+  left: 8,
+  top: 10,
+}
+const kCenterTile = {
+  left: 8,
+  top: 7,
+}
+const kPortal1Tile = {
+  left: 8,
+  top: 4,
+}
+const kPortal2Tile = {
+  left: 6,
+  top: 5,
+}
+const kPortal3Tile = {
+  left: 10,
+  top: 5,
+}
+const kMiddleLeftTile = {
+  left: 6,
+  top: 7,
+}
+const kMiddleRightTile = {
+  left: 10,
+  top: 7,
+}
+
+const kDungeonEnemyLevelBonus = {
+  tutorial: {
+    '2': 1,
+    '3': 2,
+    '5': 3,
+  }
+  normal: {
+    '2': 1,
+    '3': 2,
+    '4': 3,
+    '5': 4,
+    '7': 5,
+    '8': 6,
+    '9': 7,
+    '10': 8,
+    '13': 10,
+  },
+}
+
+const kEncampmentKinds = [
+  'cultivation',
+  'card_library',
+  'card_library_craft_scroll',
+  // 'workbench',
+  // 'alchemy_furnace',
+]
+
+function addEncampment() {
+  addRestBed(kMiddleLeftTile)
+  final encampmentKind = kEncampmentKinds.random
+  switch (encampmentKind) {
+    'cultivation': {
+      addCultivationStatue(
+        kMiddleRightTile,
+        enableCultivate: true,
+      )
+    }
+    'card_library': {
+      addCardLibraryStele(
+        kMiddleRightTile,
+        enableCardCraft: true,
+        enableScrollCraft: false,
+      )
+    }
+  }
+}
+
+function prepareMap() {
+  engine.info('生成地牢：当前难度：${game.dungeon.level} 房间编号：${game.dungeon.room}')
+  game.dungeon.needRebuild = false
+  game.dungeon.is3Portal = false
+  game.dungeon.encampmentNext = false
   /// 清理所有的地块贴图和临时对象，还原到空地图
   world.objects = {}
   for (final tile in world.terrains) {
     tile.isNonEnterable = false
     tile.overlaySprite = {}
     tile.objectId = null
-    World.updateTerrainOverlaySprite(tile.left, tile.top)
-    World.updateTerrainInfo(tile.left, tile.top)
+    World.updateTerrainData(tile.left, tile.top, updateOverlaySprite: true)
   }
-  World.resetFogOfWar()
+
+  let rankString = engine.locale('cultivationRank_${game.dungeon.rank}') + engine.locale('rank2') + engine.locale('dungeon')
+  let sceneId = '${rankString}-${game.dungeon.level + 1}-${game.dungeon.room + 1}'
+  Game.setSceneName(sceneId)
+  World.promptTextBanner(sceneId)
 
   /// 用随机遭遇填充地图
-  if (game.dungeon.progress == 0) {
-    // 第一层固定是一个宝箱，没有敌人。
-    final randomEquipment = kItemCategoryKinds.weapon.random
-    addTreasureBox(8, 6, [
-      {
-        type: 'equipment',
-        kind: randomEquipment,
-        rank: 0,
-        level: 0,
-      },
-      {
-        type: 'cardpack',
-        kind: randomEquipment,
-        rank: 0,
-        isBasic: true,
-      },
-    ])
-    addPortal(8, 2, 'portal1')
-    addOverlaySprite(3, 5, {
-      sprite: "object/stoneDebris.png",
-    })
-    addOverlaySprite(13, 5, {
-      sprite: "object/stoneDebris.png",
-    })
-  } else {
-    // 每 5 层构成一个小循环。在小循环之内，根据层数和 5 的余数来决定房间类型。
-    final level = game.dungeon.progress % 5
-    switch (level) {
+  if (game.dungeon.isTutorial) {
+    switch (game.dungeon.room) {
+      0: {
+        add1Portal(withDebris: true)
+        // 第一层固定是一个宝箱，没有敌人。
+        final randomEquipment = kItemCategoryKinds.weapon.random
+        addTreasureBox(kCenterTile, items: [
+          {
+            type: 'equipment',
+            kind: randomEquipment,
+            rank: hero.rank,
+            level: hero.level,
+          },
+          {
+            type: 'cardpack',
+            category: 'attack',
+            kind: randomEquipment,
+            rank: hero.rank,
+            isBasic: true,
+          },
+        ])
+      }
       1: {
-        
+        game.dungeon.is3Portal = true
+        addEnemy(
+          kCenterTile,
+          name: engine.locale('dungeonGuard'),
+          objectId: 'enemy',
+          useCustomLogic: true,
+          level: game.dungeon.level + kDungeonEnemyLevelBonus.tutorial[game.dungeon.room],
+          rank: game.dungeon.rank,
+        )
+      }
+      2: {
+        game.dungeon.encampmentNext = true
+        switch (game.dungeon.selectedPortal) {
+          'portal1': {
+            addEnemy(
+              kCenterTile,
+              name: engine.locale('dungeonGuard'),
+              objectId: 'enemy',
+              useCustomLogic: true,
+              level: game.dungeon.level + kDungeonEnemyLevelBonus.tutorial[game.dungeon.room],
+              rank: game.dungeon.rank,
+            )
+          }
+          'portal2': {
+
+          }
+          'portal3': {
+            
+          }
+          default: {
+
+          }
+        }
+      }
+      3: {
+        game.dungeon.is3Portal
+        addEnemy(
+          kCenterTile,
+          name: engine.locale('dungeonElite'),
+          objectId: 'enemy',
+          useCustomLogic: true,
+          level: game.dungeon.level + kDungeonEnemyLevelBonus.tutorial[game.dungeon.room],
+          rank: game.dungeon.rank,
+          isElite: true,
+        )
+      }
+      4: {
+        add1Portal(withDebris: true)
+        addEncampment()
+      }
+      5: {
+        addEnemy(
+          kCenterTile,
+          name: engine.locale('dungeonBoss'),
+          objectId: 'enemy',
+          useCustomLogic: true,
+          level: game.dungeon.level + kDungeonEnemyLevelBonus.tutorial[game.dungeon.room],
+          rank: game.dungeon.rank + 1,
+          isElite: true,
+        )
       }
     }
+  } else {
+
   }
-  
-  Dialog.pushBackground('black.png')
-  Dialog.pushTask(() {
-    Player.setTo(8, 10, worldId: world.id, direction: 'south')
-    Game.showHeroInfo()
-  })
-  Dialog.popBackground(isFadeOut: true)
+
+}
+
+function add3Portal() {
+  let hoverContent1
+  let hoverContent2
+  let hoverContent3
+
+  if (game.dungeon.room < game.dungeon.roomMax) {
+    hoverContent1 = engine.locale('dungeon_enemy_description')
+    hoverContent2 = engine.locale('dungeon_merchant_description')
+    hoverContent3 = engine.locale('dungeon_encounter_description')
+  } else {
+    hoverContent1 = engine.locale('dungeon_exit_description')
+    hoverContent2 = engine.locale('dungeon_replay_description')
+    if (game.dungeon.level < game.dungeon.levelMax) {
+      hoverContent3 = engine.locale('dungeon_next_level_description')
+    } else {
+      hoverContent3 = engine.locale('dungeon_next_rank_description')
+    }
+  }
+
+  addPortal(
+    kPortal1Tile,
+    objectId: 'portal1',
+    useCustomLogic: true,
+    hoverContent: hoverContent1,
+  )
+  addPortal(
+    kPortal2Tile,
+    objectId: 'portal2',
+    useCustomLogic: true,
+    hoverContent: hoverContent2,
+  )
+  addPortal(
+    kPortal3Tile,
+    objectId: 'portal3',
+    useCustomLogic: true,
+    hoverContent: hoverContent3,
+  )
+}
+
+function add1Portal({withDebris = false, category = null}) {
+  let hoverContent
+  if (category == 'encampment') {
+    hoverContent = engine.locale('dungeon_encampment_description')
+  } else if (category == 'merchant') {
+    hoverContent = engine.locale('dungeon_merchant_description')
+  } else if (category == 'encounter') {
+    hoverContent = engine.locale('dungeon_encounter_description')
+  } else {
+    hoverContent = engine.locale('dungeon_enemy_description')
+  }
+  addPortal(
+    kPortal1Tile,
+    objectId: 'portal1',
+    useCustomLogic: true,
+    hoverContent: hoverContent,
+  )
+  if (withDebris) {
+    addOverlaySprite(kPortal2Tile, {
+      sprite: "object/stoneDebris.png",
+    })
+    addOverlaySprite(kPortal3Tile, {
+      sprite: "object/stoneDebris.png",
+    })
+  }
+}
+
+async function onEnterMap() {
+  if (game.dungeon.battleResult == true) {
+    game.dungeon.battleResult = null
+    final rewards = generateReward(
+      {
+        exp: kRewardProbabilityExppack,
+        money: kRewardProbabilityMoney,
+        shard: kRewardProbabilityShard,
+        equipment: kRewardProbabilityEquipment,
+        cardpack: kRewardProbabilityCardpack,
+      },
+      entity: game.dungeon.battleEntity,
+    )
+    for (final item in rewards) {
+      Player.acquire(item)
+    }
+    Game.promptNewItems(rewards)
+    game.dungeon.battleEntity = null
+  } else if (game.dungeon.battleResult == false) {
+    game.dungeon.battleResult = null
+    Game.popScene(clearCache: true)
+    return
+  } else {
+    if (!game.dungeon.needRebuild) return
+    
+    Dialog.pushBackground('black.png')
+    Dialog.pushTask(() {
+      prepareMap()
+      World.lightUpAllTiles()
+      Player.setTo(kStartTile.left, kStartTile.top, worldId: world.id, direction: 'north')
+      Game.showHeroInfo()
+    })
+    Dialog.popBackground(isFadeOut: true)
+    await Dialog.execute()
+  }
+}
+
+async function promptExit() {
+  Dialog.pushLocales('hint_exitDungeon_description')
+  Dialog.pushLocalesSelection(
+    'exitDungeon',
+    [
+      'exitDungeon',
+      'forgetIt',
+    ]
+  )
   await Dialog.execute()
+  final selected = Dialog.checkSelected('exitDungeon')
+  if (selected == 'exitDungeon') {
+    engine.info('地牢已经完成，准备退出')
+    Game.popScene(clearCache: true)
+  }
 }
 
 async function onInteractMapObject(object, terrain) {
   switch (object.id) {
     'portal1': {
-      game.isNewDungeonLevel = true
-      game.currentDungeonLevel += 1
-      onEnterMap()
+      if (game.dungeon.room < game.dungeon.roomMax) {
+        game.dungeon.selectedPortal = object.id
+        game.dungeon.needRebuild = true
+        game.dungeon.room += 1
+        onEnterMap()
+      } else {
+        promptExit()
+      }
+    }
+    'portal2': {
+      if (game.dungeon.room < game.dungeon.roomMax) {
+        assert(game.dungeon.room < game.dungeon.roomMax)
+        game.dungeon.selectedPortal = object.id
+        game.dungeon.needRebuild = true
+        game.dungeon.room += 1
+        onEnterMap()
+      } else {
+        game.dungeon.needRebuild = true
+        game.dungeon.room = 0
+        onEnterMap()
+      }
+    }
+    'portal3': {
+      if (game.dungeon.room < game.dungeon.roomMax) {
+        assert(game.dungeon.room < game.dungeon.roomMax)
+        game.dungeon.selectedPortal = object.id
+        game.dungeon.needRebuild = true
+        game.dungeon.room += 1
+        onEnterMap()
+      } else {
+        if (game.dungeon.level < game.dungeon.levelMax) {
+          Dialog.pushLocales('hint_enterNextLevel_description')
+          Dialog.pushLocalesSelection(
+            'enterNextDungeonLevel',
+            [
+              'enterNextDungeonLevel',
+              'forgetIt',
+            ]
+          )
+          await Dialog.execute()
+          final selected = Dialog.checkSelected('enterNextDungeonLevel')
+          if (selected == 'enterNextDungeonLevel') {
+            engine.info('将进入下一层地牢，等级：${game.dungeon.level}')
+            game.dungeon.needRebuild = true
+            game.dungeon.room = 0
+            game.dungeon.level += 1
+            onEnterMap()
+          }
+        } else {
+          if (game.dungeon.rank < kCultivationRankMax) {
+            Dialog.pushLocales('hint_enterNextDungeonRank_description')
+            Dialog.pushLocalesSelection(
+              'enterNextDungeonRank',
+              [
+                'enterNextDungeonRank',
+                'forgetIt',
+              ]
+            )
+            await Dialog.execute()
+            final selected = Dialog.checkSelected('enterNextDungeonRank')
+            if (selected == 'enterNextDungeonRank') {
+              engine.info('进入下一个境界的地牢，当前境界：${game.dungeon.level}')
+              game.dungeon.rank += 1
+              game.dungeon.level = minLevelForRank(rank)
+              game.dungeon.levelMax = maxLevelForRank(rank) - 10
+              onEnterMap()
+            }
+          } else {
+            promptExit()
+          }
+        }
+      }
+    }
+    'enemy': {
+      Game.showPrebattle(
+        object.battleEntity,
+        onBattleEnd: async function [ValueCallback] (battleResult) {
+          if (battleResult) {
+            engine.info('战斗胜利，添加出口')
+            game.dungeon.battleResult = true
+            game.dungeon.battleEntity = object.battleEntity
+            let tile = getTerrainByWorldPosition(kCenterTile.left, kCenterTile.top)
+            tile.isNonEnterable = false
+            tile.overlaySprite = {}
+            tile.objectId = null
+            World.updateTerrainData(tile.left, tile.top, updateOverlaySprite: true)
+            if (game.dungeon.is3Portal) {
+              add3Portal()
+            } else if (game.dungeon.encampmentNext) {
+              add1Portal(category: 'encapment')
+            } else {
+              add1Portal()
+            }
+          } else {
+            await World.promptTextBanner(engine.locale('hint_dungeon_failed'))
+            engine.info('战斗失败，准备退出地牢')
+            game.dungeon.battleResult = false
+          }
+        }
+      )
     }
   }
 }

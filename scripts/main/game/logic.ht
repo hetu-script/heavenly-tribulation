@@ -111,18 +111,150 @@ const maxSpiritSurgingGain = {
   },
 }
 
-const kExploreLightUpSize = 6
+const kMoneyRewardRate = 0.4
 
-function onHeroExplore(terrain) {
-  // if (hero.stats.mana < 1) {
-  //   Dialog.localeLines('notEnoughManaMonologue', isHero: true)
-  //   return
-  // } else {
-  //   engine.play('wind-blow-141288.mp3')
-  //   World.lightUpAroundTile(terrain.left, terrain.top, kExploreLightUpSize)
-  // }
-  onWorldEvent('onAfterHeroExplore', terrain)
+const kRewardProbabilityExppack = 1
+const kRewardProbabilityMoney = 1
+const kRewardProbabilityShard = 0.1
+const kRewardProbabilityEquipment = 0.2
+const kRewardProbabilityCardpack = 0.2
+
+function generateReward(probability: {}, {entity}) {
+  final r = Random()
+  let rewardExp
+  if (entity == null || (hero.rank - entity.rank) > 2) {
+    rewardExp = false
+  } else {
+    rewardExp = r.nextDouble() < (probability.exp ?? kRewardProbabilityExppack)
+  }
+  
+  final rewardMoney = r.nextDouble() < (probability.money ?? kRewardProbabilityMoney)
+  let rewardShard
+  if (entity?.rank <= 0) {
+    rewardShard = false
+  } else {
+    rewardShard = r.nextDouble() < (probability.shard ?? kRewardProbabilityShard)
+  }
+  final rewardEquipment = r.nextDouble() < (probability.equipment ?? kRewardProbabilityEquipment)
+  final rewardCardpack = r.nextDouble() < (probability.cardpack ?? kRewardProbabilityCardpack)
+
+  final rewards = []
+  final refQuantity = expForLevel(entity?.level ?? 0)
+  if (rewardExp) {
+    final rankRate = entity?.rank / (hero.rank + 0.1);
+    final levelRatio = entity?.level / (hero.level + 0.1);
+    final exp = (rankRate * levelRatio * expForLevel(hero.level)) / ((Math.sqrt(hero.level + 0.1)) * 4.5) + 40
+    final expPack = createItemByPrototype('exppack', amount: exp.round())
+    rewards.add(expPack)
+  }
+  if (rewardMoney) {
+    final money = r.nextInt(refQuantity * kMoneyRewardRate) + 50
+    final moneyPack = Materialpack(kind: 'money', amount: money)
+    rewards.add(moneyPack)
+  }
+  if (rewardShard) {
+    final shard = r.nextInt((entity?.level ?? hero.level) + 1) + 1
+    final shardPack = Materialpack(kind: 'shard', amount: shard)
+    rewards.add(shardPack)
+  }
+  if (rewardEquipment) {
+    final equipment = Equipment(rank: entity?.rank ?? hero.rank)
+    rewards.add(equipment)
+  }
+  if (rewardCardpack) {
+    let rank = entity?.rank ?? hero.rank
+    let genre = kAttributeToGenre[entity?.cultivationFavor ?? hero.cultivationFavor]
+    final cardpack = Cardpack(rank: rank, genre: genre)
+    rewards.add(cardpack)
+  }
+
+  if (rewards.isEmpty) {
+    engine.warn('生成的奖励列表为空！')
+  }
+  return rewards
 }
+
+
+function generateRewardList(probability: {}, {entity}) {
+  final r = Random()
+  let rewardExp
+  if (entity == null || (hero.rank - entity.rank) > 2) {
+    rewardExp = false
+  } else {
+    rewardExp = r.nextDouble() < (probability.exp ?? kRewardProbabilityExppack)
+  }
+  
+  final rewardMoney = r.nextDouble() < (probability.money ?? kRewardProbabilityMoney)
+  final rewardShard = r.nextDouble() < (probability.shard ?? kRewardProbabilityShard)
+  final rewardEquipment = r.nextDouble() < (probability.equipment ?? kRewardProbabilityEquipment)
+  final rewardCardpack = r.nextDouble() < (probability.cardpack ?? kRewardProbabilityCardpack)
+
+  final rewards = []
+  final refQuantity = expForLevel(entity?.level ?? 0)
+  if (rewardExp) {
+    final rankRate = entity?.rank / (hero.rank + 0.1);
+    final levelRatio = entity?.level / (hero.level + 0.1);
+    final exp = (rankRate * levelRatio * expForLevel(hero.level)) / ((Math.sqrt(hero.level + 0.1)) * 4.5) + 40
+    final expPack = {
+      type: 'exppack',
+      amount: exp,
+    }
+    rewards.add(expPack)
+  }
+  if (rewardMoney) {
+    final money = r.nextInt(refQuantity * kMoneyRewardRate) + 50
+    final moneyPack = {
+      type: 'material',
+      kind: 'money',
+      amount: money,
+    }
+    rewards.add(moneyPack)
+  }
+  if (rewardShard) {
+    final shard = r.nextInt((entity?.level ?? hero.level) + 1) + 1
+    final shardPack = {
+      type: 'material',
+      kind: 'shard',
+      amount: shard,
+    }
+    rewards.add(shardPack)
+  }
+  if (rewardEquipment) {
+    final equipment = {
+      type: 'equipment',
+      rank: entity?.rank ?? hero.rank,
+    }
+    rewards.add(equipment)
+  }
+  if (rewardCardpack) {
+    let rank = entity?.rank ?? hero.rank
+    let genre = kAttributeToGenre[entity?.cultivationFavor ?? hero.cultivationFavor]
+    final cardpack = {
+      type: 'cardpack',
+      genre: genre,
+      rank: rank,
+    }
+    rewards.add(cardpack)
+  }
+  
+  if (rewards.isEmpty) {
+    engine.warn('生成的奖励列表为空！')
+  }
+  return rewards
+}
+
+// const kExploreLightUpSize = 6
+
+// function onHeroExplore(terrain) {
+//   // if (hero.stats.mana < 1) {
+//   //   Dialog.localeLines('notEnoughManaMonologue', isHero: true)
+//   //   return
+//   // } else {
+//   //   engine.play('wind-blow-141288.mp3')
+//   //   World.lightUpAroundTile(terrain.left, terrain.top, kExploreLightUpSize)
+//   // }
+//   onWorldEvent('onAfterHeroExplore', terrain)
+// }
 
 /// 打坐时可以选择进行三种操作：
 /// 
@@ -785,6 +917,13 @@ async function onBeforeMove(terrain) {
 //   })
 // }
 
+async function onInteractEnemy(battleEntity) {
+  Game.showBattle(
+    hero: hero,
+    enemy: battleEntity,
+  )
+}
+
 async function onInteractCharacter(character) {
   engine.debug('正在和 NPC [${character.name}] 互动。')
   final result = await onGameEvent('onBeforeInteractCharacter', character)
@@ -1037,16 +1176,26 @@ async function onInteractMapObject(object, terrain) {
       await Dialog.execute()
     }
     switch (object.category) {
-      'portal': await onInteractPortal(object)
-      'worldPortal': await onInteractWorldPortal(object)
-      'treasureBox': await onInteractTreasureBox(object, terrain)
+      'portal': onInteractPortal(object)
+      'worldPortal': onInteractWorldPortal(object)
+      'treasureBox': onInteractTreasureBox(object, terrain)
       'character': {
         final character = game.characters[object.characterId]
         assert(character != null)
-        await onInteractCharacter(character)
+        onInteractCharacter(character)
+      }
+      'enemy': {
+        assert(object.battleEntity != null)
+        onInteractEnemy(object.battleEntity)
+      }
+      'bed': {
+        onInteractBed(object)
       }
       'cultivation': {
-        Game.showCultivation()
+        onInteractCultivationStatue(object)
+      }
+      'cardLibrary': {
+        onInteractCardLibraryStele(object)
       }
       else: engine.error('不支持的地图交互物品类型: ${object.category}')      
     }
@@ -1085,6 +1234,46 @@ async function onInteractTreasureBox(object, terrain) {
   }
   engine.play('pickup_item-64282.mp3')
   Game.promptNewItems(items)
+}
+
+async function onInteractBed(object) {
+  if (hero.life >= hero.stats.lifeMax) {
+    Dialog.pushLocales('hint_fullHPRest')
+    await Dialog.execute()
+    return
+  }
+
+  if (object.isUsed) {
+    Dialog.pushLocales('hint_usedObject')
+    await Dialog.execute()
+  } else {
+    object.isUsed = true
+    Dialog.pushBackground('black.png')
+    Dialog.pushTask(async () {
+      await Future.delayed(0.8)
+    })
+    Dialog.popBackground(isFadeOut: true)
+
+    let life = hero.life
+    let newLife = life + (hero.stats.lifeMax * 0.5).round()
+    newLife = life.clamp(0, hero.stats.lifeMax)
+    hero.life = newLife
+    engine.info('休息恢复了 ${newLife - life} 生命值')
+    Game.updateHero()
+
+    await Dialog.execute()
+  }
+}
+
+async function onInteractCultivationStatue(object) {
+  Game.showCultivation(enableCultivate: object.enableCultivate)
+}
+
+async function onInteractCardLibraryStele(object) {
+  Game.showLibrary(
+    enableCardCraft: object.enableCardCraft,
+    enableScrollCraft: object.enableScrollCraft,
+  )
 }
 
 /// 异步函数，会在显示场景窗口之前执行

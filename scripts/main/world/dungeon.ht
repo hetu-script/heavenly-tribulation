@@ -2,17 +2,15 @@
 // import 'object.ht'
 // import '../entity/entity.ht'
 
-function resetDungeon(rank) {
-  rank ??= 0
-  if (rank < 0) {
-    rank = 0
-  } else if (rank > kCultivationRankMax) {
-    rank = kCultivationRankMax
-  }
-
-  game.dungeon.isNew = true
-  game.dungeon.progress = minLevelForRank(rank)
-  game.dungeon.rank = rank
+function resetDungeon(rank, {
+  initialRoom = true,
+  isTutorial = false,
+}) {
+  game.dungeon = DungeonFlags(
+    rank: rank,
+    initialRoom: initialRoom,
+    isTutorial: isTutorial,
+  )
 }
 
 function getRankFromDungeonLevel(level) {
@@ -24,83 +22,146 @@ function getRankFromDungeonLevel(level) {
   return r
 }
 
-function addOverlaySprite(left, top, overlaySprite) {
-  final tile = getTerrainByWorldPosition(left, top)
+function addOverlaySprite(tilePosition, overlaySprite) {
+  final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
   tile.overlaySprite = overlaySprite
-  World.updateTerrainOverlaySprite(left, top)
+  World.updateTerrainOverlaySprite(tilePosition.left, tilePosition.top)
 } 
 
-function addPortal(left, top, objectId) {
-  final tile = getTerrainByWorldPosition(left, top)
+function addPortal(tilePosition, {
+    objectId,
+    targetTilePosition,
+    useCustomLogic,
+    hoverContent,
+  }) {
+  final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
   tile.overlaySprite = {
     sprite: "object/dungeonStoneGate.png",
     animation: {
       path: "object/animation/portal.png",
     },
   }
-  tile.objectId = objectId
-  ObjectPortal(
+  final object = ObjectPortal(
     id: objectId,
-    useCustomLogic: true,
-    targetLeft: left,
-    targetTop: top,
+    useCustomLogic: useCustomLogic ?? false,
+    targetLeft: targetTilePosition?.left,
+    targetTop: targetTilePosition?.top,
+    hoverContent: hoverContent,
   )
-  World.updateTerrainOverlaySprite(left, top)
-  World.updateTerrainInfo(left, top)
+  tile.objectId = object.id
+  World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
 }
 
-function addTreasureBox(left, top, itemInfoList) {
-  final tile = getTerrainByWorldPosition(left, top)
+function addTreasureBox(tilePosition, {objectId, items}) {
+  final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
   tile.isNonEnterable = true
   tile.overlaySprite = {
       sprite: "object/treasureBox.png",
   }
-  final box = ObjectTreasureBox(
-    targetLeft: left,
-    targetTop: top,
-    items: itemInfoList,
+  final object = ObjectTreasureBox(
+    id: objectId,
+    items: items,
   )
-  tile.objectId = box.id
-  World.updateTerrainOverlaySprite(left, top)
-  World.updateTerrainInfo(left, top)
+  tile.objectId = object.id
+  World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
 }
 
-function addCultivationStele(left, top, objectId) {
-  final tile = getTerrainByWorldPosition(left, top)
+function addEnemy(tilePosition, {
+    objectId,
+    level,
+    rank,
+    name,
+    sprite,
+    useCustomLogic = true,
+    isElite = false,
+  }) {
+  final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
+  tile.isNonEnterable = true
+  tile.overlaySprite = {
+    sprite: sprite ?? "object/characterMan11.png",
+  }
+  final object = ObjectEnemy(
+    id: objectId,
+    name: name,
+    level: level,
+    rank: rank,
+    useCustomLogic: useCustomLogic,
+    isElite: isElite,
+  )
+  tile.objectId = object.id
+  World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
+
+  engine.info('添加敌人：${objectId} (rank: ${rank}, level: ${level})')
+}
+
+function addRestBed(tilePosition, {
+  objectId = 'bloodCoffin',
+  hoverContent = 'bloodCoffin_description',
+}) {
+  final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
+  tile.isNonEnterable = true
+  tile.overlaySprite = {
+    sprite: "object/coffin.png",
+  }
+  final object = ObjectBed(
+    id: objectId,
+    hoverContent: hoverContent,
+  )
+  tile.objectId = object.id
+  World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
+}
+
+function addCultivationStatue(tilePosition, {
+  objectId = 'cultivation',
+  hoverContent,
+  enableCultivate = false,
+}) {
+  final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
+  tile.isNonEnterable = true
+  tile.overlaySprite = {
+    sprite: "object/statue.png",
+  }
+  final object = ObjectCultivation(
+    id: objectId,
+    hoverContent: hoverContent,
+    enableCultivate: enableCultivate,
+  )
+  tile.objectId = object.id
+  World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
+}
+
+function addCardLibraryStele(tilePosition, {
+  objectId = 'card_library_craft_card',
+  hoverContent,
+  enableCardCraft = false,
+  enableScrollCraft = false,
+}) {
+  final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
   tile.isNonEnterable = true
   tile.overlaySprite = {
     sprite: "object/stoneStele.png",
+    offsetY: -32.0,
+    srcWidth: 32.0,
+    srcHeight: 96.0,
   }
-  final stele = ObjectCultivationStele(
+  final object = ObjectCardLibrary(
     id: objectId,
+    hoverContent: hoverContent,
+    enableCardCraft: enableCardCraft,
+    enableScrollCraft: enableScrollCraft,
   )
-  tile.objectId = objectId
-  World.updateTerrainOverlaySprite(left, top)
-  World.updateTerrainInfo(left, top)
+  tile.objectId = object.id
+  World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
 }
 
-function addMeditationCushion(left, top, objectId) {
-  final tile = getTerrainByWorldPosition(left, top)
-  tile.overlaySprite = {
-    sprite: "object/meditationCushion.png",
-  }
-  final cushion = ObjectCultivationCraft(
-    id: objectId,
-  )
-  tile.objectId = cushion.id
-  World.updateTerrainOverlaySprite(left, top)
-  World.updateTerrainInfo(left, top)
-}
-
-function addScrollCraftTable(left, top, objectId) {
-  final tile = getTerrainByWorldPosition(left, top)
-  tile.overlaySprite = {
-    sprite: "object/meditationCushion.png",
-  }
-  final cushion = kObjectLibraryScroll(
-    id: objectId,
-  )
-  tile.objectId = cushion.id
-  World.updateTerrainOverlaySprite(left, top)
-  World.updateTerrainInfo(left, top)
-}
+// function addScrollCraftTable(tilePosition, {objectId = 'card_library_craft_scroll'}) {
+//   final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
+//   tile.overlaySprite = {
+//     sprite: "object/meditationCushion.png",
+//   }
+//   final object = ObjectLibraryScroll(
+//     id: objectId,
+//   )
+//   tile.objectId = object.id
+//   World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
+// }

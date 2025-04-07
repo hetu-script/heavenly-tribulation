@@ -248,7 +248,7 @@ class _MainMenuButtonsState extends State<MainMenuButtons> {
                           setMenuState(MenuStates.main);
                           engine.clearAllCachedScene(except: Scenes.mainmenu);
                           engine.hetu.invoke('resetDungeon', namedArgs: {
-                            'rank': 0,
+                            'isTutorial': true,
                           });
                           engine.pushScene(
                             'dungeon_1',
@@ -459,7 +459,8 @@ class DebugButton extends StatelessWidget {
                 'rank': GameData.heroData['rank'],
               });
               GameLogic.characterAllocateSkills(enemy);
-              engine.hetu.invoke('generateDeck', positionalArgs: [enemy]);
+              engine.hetu
+                  .invoke('characterGenerateDeck', positionalArgs: [enemy]);
               context.read<EnemyState>().show(enemy);
             case DebugMenuItems.debugTribulation:
               final targetRank = GameData.heroData['rank'] + 1;

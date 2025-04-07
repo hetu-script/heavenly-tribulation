@@ -70,17 +70,24 @@ namespace Player {
     return entityExhaust(hero, materialId, amount: amount, incurIncident: incurIncident)
   }
 
+  /// 直接获取一个已经被创造出来的物品
+  function acquire(item, { incurIncident = true }) {
+    assert(hero != null)
+
+    if (item.category == kItemCategoryExppack) {
+      gainExp(item.stackSize)
+    } else if (item.category == kItemCategoryMaterialPack) {
+      collect(item.kind, amount: item.stackSize)
+    } else {
+      entityAcquire(hero, item, incurIncident: incurIncident)
+    }
+  }
+
   /// 从物品库中复制并获取一个物品
   function acquireById(itemId, { amount = 1, incurIncident = true }) {
     assert(hero != null)
     assert(amount > 0)
     entityAcquireById(hero, itemId, amount: amount, incurIncident: incurIncident)
-  }
-
-  /// 直接获取一个已经被创造出来的物品
-  function acquire(item, { incurIncident = true }) {
-    assert(hero != null)
-    entityAcquire(hero, item, incurIncident: incurIncident)
   }
 
   function lose(item, { incurIncident = true }) {
@@ -491,17 +498,8 @@ namespace Player {
   function gainExp(value: integer) {
     assert(hero != null)
     assert(value > 0)
-    hero.unconvertedExp += value
 
-    const incidentContent = engine.locale('characterExpGained', interpolations: [
-      hero.name, 
-      value,
-    ])
-    Incident(
-      message: incidentContent,
-      subjectId: hero.id,
-      isPrivate: true,
-    )
+    characterGainExp(hero, value)
 
     // World.addHintText(
     //   '${engine.locale('exp')} + ${value}',

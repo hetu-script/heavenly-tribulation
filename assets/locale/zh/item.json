@@ -6,7 +6,7 @@
   "usableHint": "点击右键使用",
   "equippableHint": "点击右键装备",
   "unequippableHint": "点击右键卸下",
-  "cardpackHint": "在藏书阁中使用以获取功法",
+  "cardpackHint": "在功法图录中使用以获取功法",
   "currentCharges": "当前充能次数: {0}∕{1}",
   "shardsPerCharge": "每次充能消耗: {0} 灵石",
 
@@ -75,9 +75,30 @@
   "energy_ultimate": "无极之气",
   "energy_ultimate_description": "无极之气：在天地形成之初便已存在的一种远古气息，吸收后可以增强你在战斗中的攻击。",
 
-  "scroll_paper": "空白符纸",
+  "scroll_paper": "符纸",
   "scroll_paper_flavortext": "用来制作符箓的材料。",
 
+  "scroll_paper_rank_1": "凝气境符纸",
+  "scroll_paper_rank_2": "筑基境符纸",
+  "scroll_paper_rank_3": "结丹境符纸",
+  "scroll_paper_rank_4": "还婴境符纸",
+  "scroll_paper_rank_5": "化神境符纸",
+  "scroll_paper_rank_6": "洞虚境符纸",
+  "scroll_paper_rank_7": "合体境符纸",
+  "scroll_paper_rank_8": "大乘境符纸",
+
+  "common_scroll": "凝气符箓",
+  "uncommon_scroll": "筑基符箓",
+  "rare_scroll": "结丹符箓",
+  "epic_scroll": "还婴符箓",
+  "legendary_scroll": "化神符箓",
+  "unique_scroll": "洞虚符箓",
+  "mythic_scroll": "合体符箓",
+  "arcane_scroll": "大乘符箓",
+
   "identify_scroll": "鉴定符",
-  "identify_scroll_flavortext": "一种可以在物品栏中使用的非战斗符箓。"
+  "identify_scroll_flavortext": "一种可以在物品栏中使用的非战斗符箓。",
+
+  "exppack": "一团灵光",
+  "exppack_flavortext": "使用后可以获得「灵光」。灵光可以用于提升修为等级。或者用来精炼功法卡牌。"
 }

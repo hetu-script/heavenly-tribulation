@@ -1,11 +1,10 @@
 namespace Game {
   
-  external function _update
+  external function updateHero()
 
-  function updateHero(func: function) {
-    func?.call()
-    _update()
-  }
+  external function setSceneName(name)
+
+  external function popScene({clearCache: bool = false})
   
   external function updateGameTime()
 
@@ -28,11 +27,11 @@ namespace Game {
     multiSelect: bool = true,
   }) -> Iterable
   
-  external function showLibrary({enableCardCraft: bool = true, enableScrollCraft: bool = true})
+  external function showLibrary({enableCardCraft: bool = false, enableScrollCraft: bool = false})
   
-  external function showCultivation()
+  external function showCultivation({enableCultivate: bool = false})
 
-  external function showPrebattle(enemyData)
+  external function showPrebattle(enemyData, { onBattleStart, onBattleEnd })
 
   external function showBattle({
     hero,

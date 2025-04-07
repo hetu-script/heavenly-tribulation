@@ -2,13 +2,17 @@
 
 const kEntityTypeObject = 'object'
 
-const kObjectPortal = 'portal'
-const kObjectWorldPortal = 'worldPortal'
-const kObjectCharacter = 'character'
-const kObjectTreasureBox = 'treasureBox'
+const kObjectCategoryPortal = 'portal'
+const kObjectCategoryWorldPortal = 'worldPortal'
+const kObjectCategoryCharacter = 'character'
+const kObjectCategoryEnemy = 'enemy'
+const kObjectCategoryTreasureBox = 'treasureBox'
+const kObjectCategoryBed = 'bed'
 const kObjectCultivation = 'cultivation'
-const kObjectLibraryCraft = 'libraryCraft'
-const kObjectLibraryScroll = 'libraryScroll'
+const kObjectCategoryCardLibrary = 'cardLibrary'
+// const kObjectCategoryScrollTable = 'scrollTable'
+const kObjectCategoryWorkbench = 'workbench'
+const kObjectCategoryAlchemyFurnace = 'alchemyFurnace'
 
 function discoverObject(object, terrain) {
   if (object.isDiscovered) return
@@ -35,13 +39,18 @@ function discoverObject(object, terrain) {
 struct ObjectPortal {
   constructor ({
     id,
+    name,
+    hoverContent,
     isDiscovered = true,
     useCustomLogic = false,
     targetLeft,
     targetTop,
   }) {
     this.id = id ?? crypto.randomUID(withTime: true)
+    this.name = name ?? engine.locale('portal')
+    this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject
+    this.category = kObjectCategoryPortal
     this.isDiscovered = isDiscovered
     this.useCustomLogic = useCustomLogic
     this.targetTilePosition = {
@@ -56,6 +65,8 @@ struct ObjectPortal {
 struct ObjectWorldPortal {
   constructor ({
     id,
+    name,
+    hoverContent,
     isDiscovered = true,
     useCustomLogic = false,
     worldId,
@@ -63,8 +74,10 @@ struct ObjectWorldPortal {
     worldPositionTop,
   }) {
     this.id = id ?? crypto.randomUID(withTime: true)
+    this.name = name ?? engine.locale('worldPortal')
+    this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject
-    this.category = kObjectWorldPortal
+    this.category = kObjectCategoryWorldPortal
     this.isDiscovered = isDiscovered
     this.useCustomLogic = useCustomLogic
     this.worldId = worldId
@@ -77,16 +90,54 @@ struct ObjectWorldPortal {
   }
 }
 
-struct ObjectCharacter {
+struct ObjectEnemy {
   constructor ({
     id,
-    characterId,
+    name,
+    hoverContent,
+    useCustomLogic = false,
+    level,
+    rank,
+    isElite = false,
   }) {
     this.id = id ?? crypto.randomUID(withTime: true)
+    this.name = name ?? engine.locale('dungeonGuard')
+    
+    this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject
-    this.category = kObjectCharacter
-    this.characterId = characterId
+    this.category = kObjectCategoryEnemy
+    this.isDiscovered = true
+    this.useCustomLogic = useCustomLogic
 
+    this.battleEntity = BattleEntity(
+      id: this.id,
+      name: this.name,
+      level: level,
+      rank: rank,
+    )
+    Game.characterAllocateSkills(this.battleEntity)
+    characterGenerateDeck(this.battleEntity, maxOutLevel: isElite)
+
+    world.objects[this.id] = this
+  }
+}
+
+
+struct ObjectBed {
+  constructor ({
+    id,
+    name,
+    hoverContent,
+    useCustomLogic = false,
+  }) {
+    this.id = id ?? crypto.randomUID(withTime: true)
+    this.name = name ?? engine.locale('bed')
+    this.hoverContent = hoverContent ?? this.name
+    this.entityType = kEntityTypeObject
+    this.category = kObjectCategoryBed
+    this.isDiscovered = true
+    this.useCustomLogic = useCustomLogic
+    
     world.objects[this.id] = this
   }
 }
@@ -120,13 +171,17 @@ struct ObjectCharacter {
 struct ObjectTreasureBox {
   constructor ({
     id,
+    name,
+    hoverContent,
     isDiscovered = true,
     useCustomLogic = false,
     items: List,
   }) {
     this.id = id ?? crypto.randomUID(withTime: true)
+    this.name = name ?? engine.locale('treasureBox')
+    this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject
-    this.category = kObjectTreasureBox
+    this.category = kObjectCategoryTreasureBox
     this.isDiscovered = isDiscovered
     this.useCustomLogic = useCustomLogic
     this.items = items
@@ -138,48 +193,65 @@ struct ObjectTreasureBox {
 struct ObjectCultivation {
   constructor ({
     id,
+    name,
+    hoverContent,
     isDiscovered = true,
     useCustomLogic = false,
+    enableCultivate = false,
   }) {
     this.id = id ?? crypto.randomUID(withTime: true)
+    this.name = name ?? engine.locale('enterCultivation')
+    this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject
     this.category = kObjectCultivation
     this.isDiscovered = isDiscovered
     this.useCustomLogic = useCustomLogic
+    this.enableCultivate = enableCultivate
 
     world.objects[this.id] = this
   }
 }
 
-struct ObjectLibraryCraft {
+struct ObjectCardLibrary {
   constructor ({
     id,
+    name,
+    hoverContent,
     isDiscovered = true,
     useCustomLogic = false,
+    enableCardCraft = false,
+    enableScrollCraft = false,
   }) {
     this.id = id ?? crypto.randomUID(withTime: true)
+    this.name = name ?? engine.locale('enterLibrary')
+    this.hoverContent = hoverContent ?? this.name
     this.entityType = kEntityTypeObject
-    this.category = kObjectLibraryCraft
+    this.category = kObjectCategoryCardLibrary
     this.isDiscovered = isDiscovered
     this.useCustomLogic = useCustomLogic
+    this.enableCardCraft = enableCardCraft
+    this.enableScrollCraft = enableScrollCraft
 
     world.objects[this.id] = this
   }
 }
 
-struct ObjectLibraryScroll {
-  constructor ({
-    id,
-    isDiscovered = true,
-    useCustomLogic = false,
-  }) {
-    this.id = id ?? crypto.randomUID(withTime: true)
-    this.entityType = kEntityTypeObject
-    this.category = kObjectLibraryScroll
-    this.isDiscovered = isDiscovered
-    this.useCustomLogic = useCustomLogic
+// struct ObjectScrollTable {
+//   constructor ({
+//     id,
+//     name,
+//     hoverContent,
+//     isDiscovered = true,
+//     useCustomLogic = false,
+//   }) {
+//     this.id = id ?? crypto.randomUID(withTime: true)
+//     this.name = name ?? engine.locale('enterLibrary')
+//     this.hoverContent = hoverContent ?? this.name
+//     this.entityType = kEntityTypeObject
+//     this.category = kObjectCategoryScrollTable
+//     this.isDiscovered = isDiscovered
+//     this.useCustomLogic = useCustomLogic
 
-    world.objects[this.id] = this
-  }
-}
-
+//     world.objects[this.id] = this
+//   }
+// }

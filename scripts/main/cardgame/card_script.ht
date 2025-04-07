@@ -236,6 +236,13 @@ async function card_script_by_damage_gain_defense(self, opponent, affix, mainAff
 
 /// 加持额外词条：
 
+/// 使用元气，获得生命
+async function card_script_consume_vigor_heal(self, opponent, affix, mainAffix) {
+  final amount = self.removeStatusEffect('energy_positive_life', amount: affix.value[0])
+  if (amount < 1) return
+  self.changeLife(affix.value[1] * amount)
+}
+
 /// 使用元气，获得防御
 async function card_script_consume_vigor_gain_defense(self, opponent, affix, mainAffix) {
   final amount = self.removeStatusEffect('energy_positive_life', amount: affix.value[0])
@@ -244,5 +251,5 @@ async function card_script_consume_vigor_gain_defense(self, opponent, affix, mai
 }
 
 async function card_script_for_attribute_increase_damage(self, opponent, affix, mainAffix) {
-  self.turnFlags.damage.percentageChange1 += self.data.stats[affix.attributeId] * 0.01
+  self.turnFlags.damage.percentageChange1 = self.turnFlags.damage.percentageChange1 + self.data.stats[affix.attributeId] * 0.01
 }

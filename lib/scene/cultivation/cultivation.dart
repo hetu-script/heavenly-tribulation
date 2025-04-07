@@ -74,6 +74,8 @@ class CultivationScene extends Scene {
 
   bool isHero = true;
 
+  bool enableCultivate = false;
+
   final _focusNode = FocusNode();
 
   late final Timer timer;
@@ -98,7 +100,7 @@ class CultivationScene extends Scene {
 
   // late final SpriteComponent2 passiveTreeTrack;
 
-  String _heroSkillsDescription = '';
+  String _cultivatorDescription = '';
 
   late final SpriteButton cultivator;
 
@@ -141,32 +143,6 @@ class CultivationScene extends Scene {
     }
   }
 
-  Future<void> _enterScene() async {
-    context.read<EnemyState>().setPrebattleVisible(false);
-    context.read<HoverInfoContentState>().hide();
-    context.read<ViewPanelState>().clearAll();
-
-    updateUnlockedNode();
-    updatePassivesDescription();
-    udpateLevelDescription();
-    updateExpDescription();
-    setMeditateState(false);
-
-    if (!isHero) {
-      setPassiveTreeState(true);
-      cultivateButton.isVisible = false;
-      expCollectionButton.isVisible = false;
-    } else {
-      setPassiveTreeState(false);
-      cultivateButton.isVisible = true;
-      expCollectionButton.isVisible = true;
-
-      addExpLightPoints();
-    }
-
-    engine.hetu.invoke('onGameEvent', positionalArgs: ['onEnterCultivation']);
-  }
-
   @override
   void onStart([Map<String, dynamic> arguments = const {}]) {
     super.onStart(arguments);
@@ -179,7 +155,14 @@ class CultivationScene extends Scene {
       characterData = GameData.heroData;
     }
 
+    // 某些时候通过characterData传递了角色信息，但其实还是传的主角
     isHero = characterData == GameData.heroData;
+
+    if (isHero) {
+      enableCultivate = arguments['enableCultivate'] ?? false;
+    } else {
+      enableCultivate = false;
+    }
   }
 
   void udpateLevelDescription() {
@@ -402,8 +385,6 @@ class CultivationScene extends Scene {
               GameDialogContent.show(
                   context, engine.locale('hint_notEnoughPassiveSkillPoints'));
               return;
-            } else {
-              --characterData['skillPoints'];
             }
           }
 
@@ -437,6 +418,9 @@ class CultivationScene extends Scene {
             GameLogic.characterUnlockPassiveTreeNode(characterData, nodeId);
           }
           button.isSelected = true;
+          if (isHero) {
+            --characterData['skillPoints'];
+          }
 
           updatePassivesDescription();
           udpateLevelDescription();
@@ -446,11 +430,11 @@ class CultivationScene extends Scene {
           if (!isLearned) return;
           Hovertip.hide(button);
           button.isSelected = false;
-          // TODO:检查节点链接，如果有其他节点依赖于该节点，则不能退点
-
           if (isHero) {
             ++characterData['skillPoints'];
           }
+
+          // TODO:检查节点链接，如果有其他节点依赖于该节点，则不能退点
 
           GameLogic.characterRefundPassiveTreeNode(characterData, nodeId);
 
@@ -551,7 +535,8 @@ class CultivationScene extends Scene {
   }
 
   void updatePassivesDescription() {
-    _heroSkillsDescription = GameData.getPassivesDescription(characterData);
+    _cultivatorDescription = GameData.getPassivesDescription(characterData);
+
     engine.hetu.invoke('calculateStats', namespace: 'Player');
   }
 
@@ -617,15 +602,6 @@ class CultivationScene extends Scene {
     );
     world.add(backgroundSprite);
 
-    // passiveTreeTrack = SpriteComponent2(
-    //   isVisible: false,
-    //   position: GameUI.cultivatorPosition,
-    //   spriteId: 'cultivation/skill_tree_tracks.png',
-    //   anchor: Anchor.center,
-    //   priority: _kPassiveTreePriority,
-    // );
-    // world.add(passiveTreeTrack);
-
     cultivator = SpriteButton(
       anchor: Anchor.center,
       spriteId: 'cultivation/cultivator2.png',
@@ -645,11 +621,19 @@ class CultivationScene extends Scene {
       setPassiveTreeState(!_showPassiveTree);
     };
     cultivator.onMouseEnter = () {
+      String description;
+      if (_showPassiveTree) {
+        description =
+            '<yellow>${engine.locale('hint_cultivateMode')}</>\n \n$_cultivatorDescription';
+      } else {
+        description =
+            '<yellow>${engine.locale('hint_passiveTreeMode')}</>\n \n$_cultivatorDescription';
+      }
       Hovertip.show(
         scene: this,
         target: cultivator,
         direction: HovertipDirection.rightTop,
-        content: _heroSkillsDescription,
+        content: description,
         config: ScreenTextConfig(textAlign: TextAlign.left),
       );
     };
@@ -658,41 +642,6 @@ class CultivationScene extends Scene {
     };
     // cultivator.enableGesture = false;
     world.add(cultivator);
-
-    // final rankImagePath =
-    //     'cultivation/cultivation${characterData['rank']}.png';
-
-    // cultivationRankButton = SpriteButton(
-    //   anchor: Anchor.center,
-    //   sprite: Sprite(await Flame.images.load(rankImagePath)),
-    //   position: GameUI.condensedPosition,
-    //   size: GameUI.cultivationRankButton,
-    //   priority: _kCultivationRankButtonPriority,
-    // );
-    // cultivationRankButton.onTap = (buttons, position) async {
-    //   if (state == CultivationSceneState.expCollection) {
-    //     await condenseAll();
-    //     checkEXP();
-    //   }
-    // };
-    // world.add(cultivationRankButton);
-
-    // expDescription = RichTextComponent(
-    //   position: cultivator.bottomCenter + Vector2(0, GameUI.indent),
-    //   anchor: Anchor.center,
-    //   size: GameUI.levelDescriptionSize,
-    //   priority: _kCultivatorPriority,
-    //   config: ScreenTextConfig(
-    //     outlined: true,
-    //     anchor: Anchor.topCenter,
-    //     textStyle: const TextStyle(
-    //       color: Colors.lightGreenAccent,
-    //       fontSize: 16,
-    //       fontFamily: GameUI.fontFamily,
-    //     ),
-    //   ),
-    // );
-    // world.add(expDescription);
 
     levelDescription = RichTextComponent(
       position: GameUI.levelDescriptionPosition,
@@ -738,8 +687,23 @@ class CultivationScene extends Scene {
       spriteId: 'ui/button2.png',
     );
     cultivateButton.onTapUp = (buttons, position) async {
+      if (!cultivateButton.isEnabled) return;
       if (buttons != kPrimaryButton) return;
       setMeditateState(!isMeditating);
+    };
+    cultivateButton.onMouseEnter = () {
+      String hint = engine.locale('hint_cultivate');
+      if (!cultivateButton.isEnabled) {
+        hint += '\n \n${engine.locale('functionDisabled')}';
+      }
+      Hovertip.show(
+        scene: this,
+        target: cultivateButton,
+        content: hint,
+      );
+    };
+    cultivateButton.onMouseExit = () {
+      Hovertip.hide(cultivateButton);
     };
     camera.viewport.add(cultivateButton);
 
@@ -771,11 +735,6 @@ class CultivationScene extends Scene {
     };
     camera.viewport.add(exit);
 
-    // updatePassivesDescription();
-    // udpateLevelDescription();
-    // updateExpDescription();
-    // addExpLightPoints();
-
     for (var i = 0; i < kTrackRadius.length; i++) {
       final radius = kTrackRadius[i].$1;
       final count = kTrackRadius[i].$2;
@@ -795,26 +754,10 @@ class CultivationScene extends Scene {
 
       if (passiveTreeNodeData != null) {
         final button = _skillButtons[nodeId]!;
-        // final bool reverseConnection =
-        //     passiveTreeNodeData['reverseConnection'] ?? false;
         final connectedNodes = passiveTreeNodeData['connectedNodes'];
         if (connectedNodes is List) {
           for (final positionId in connectedNodes) {
             assert(positionId != nodeId);
-            // final connectedNodeTrackInfo = positionId.split('_');
-            // final connectedNodeTrackId = int.parse(connectedNodeTrackInfo[1]);
-            // final connectedNodeTrackPos = int.parse(connectedNodeTrackInfo[2]);
-            // final nodeTrackInfo = nodeId.split('_');
-            // final nodeTrackId = int.parse(nodeTrackInfo[1]);
-            // final nodeTrackPos = int.parse(nodeTrackInfo[2]);
-            // if ((connectedNodeTrackId == nodeTrackId &&
-            //         connectedNodeTrackPos > nodeTrackPos) ||
-            //     connectedNodeTrackId > nodeTrackId) {
-            //   // 如果父节点id大于子节点就略过
-            //   if (!reverseConnection) {
-            //     continue;
-            //   }
-            // }
             final lineId1 = '$nodeId-$positionId';
             final lineId2 = '$positionId-$nodeId';
             if (_nodeConnections.containsKey(lineId1) ||
@@ -956,7 +899,29 @@ class CultivationScene extends Scene {
   void onMount() {
     super.onMount();
 
-    _enterScene();
+    context.read<EnemyState>().setPrebattleVisible(false);
+    context.read<HoverContentState>().hide();
+    context.read<ViewPanelState>().clearAll();
+
+    updateUnlockedNode();
+    updatePassivesDescription();
+    udpateLevelDescription();
+    updateExpDescription();
+    setMeditateState(false);
+    setPassiveTreeState(true);
+
+    if (enableCultivate) {
+      cultivateButton.isEnabled = true;
+      cultivateButton.isVisible = true;
+      expCollectionButton.isVisible = true;
+      addExpLightPoints();
+    } else {
+      cultivateButton.isEnabled = false;
+      cultivateButton.isVisible = false;
+      expCollectionButton.isVisible = false;
+    }
+
+    engine.hetu.invoke('onGameEvent', positionalArgs: ['onEnterCultivation']);
   }
 
   /// 处理角色升级相关逻辑
@@ -988,8 +953,6 @@ class CultivationScene extends Scene {
     updateExpDescription();
   }
 
-  // Future<void> checkRank() async {}
-
   Future<void> condenseOne(LightPoint light,
       [void Function()? onComplete]) async {
     return light.moveTo(
@@ -997,16 +960,6 @@ class CultivationScene extends Scene {
       duration: light.distance2CondensePoint / _kLightPointMoveSpeed,
       curve: Curves.linear,
       onComplete: () async {
-        // if (condensedCenter.preferredSize.x < GameUI.maxCondenseSize.x &&
-        //     condensedCenter.preferredSize.y < GameUI.maxCondenseSize.y) {
-        //   condensedCenter.preferredSize = Vector2(
-        //       condensedCenter.size.x + 10, condensedCenter.size.y + 10);
-        // } else {
-        //   condensedCenter.preferredSize = GameUI.maxCondenseSize;
-        // }
-        // condensedCenter.position = GameUI.condensedPosition;
-        // condensedCenter.lightingConfig!.radius += 5;
-
         _lightPoints.remove(light);
         light.removeFromParent();
 

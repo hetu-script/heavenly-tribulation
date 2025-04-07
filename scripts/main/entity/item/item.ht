@@ -12,6 +12,9 @@
 const kItemCategoryCardpack = 'cardpack'
 const kItemCategoryScroll = 'scroll'
 const kItemCategoryScrollPaper = 'scroll_paper'
+const kItemCategoryExppack = 'exppack'
+const kItemCategoryMaterialPack = 'materialpack';
+
 const kItemAffixMinLevel = 5
 
 // kind 决定了物品名字的生成方式
@@ -76,6 +79,10 @@ const kEquipmentKinds = [
   ...kItemCategoryKinds.talisman, // 非以上四种的物品都算作法器 talisman
 ]
 
+const kItemKindBoots = 'boots'
+const kItemKindShip = 'ship'
+const kItemKindAircraft = 'aircraft'
+
 const kEnergyPositiveTypes = [
   'start_battle_with_energy_positive_spell',
   'start_battle_with_energy_positive_weapon',
@@ -103,7 +110,7 @@ struct Equipment {
     this.isIdentified = isIdentified
     this.isEquippable = true
 
-    this.kind = kind ?? kItemCategoryKinds[this.category].random
+    this.kind = kind
     this.category = category
     if (category == null) {
       if (this.kind != null) {
@@ -113,6 +120,7 @@ struct Equipment {
         })
       } else {
         this.category = kItemCategoryKinds.keys.random
+        this.kind = kItemCategoryKinds[this.category].random
       }
     }
     assert(kItemCategoryKinds.keys.contains(this.category))
@@ -131,6 +139,7 @@ struct Equipment {
       this.rarity = kRankRarity[rank]
     } else {
       this.rank = 0
+      this.rarity = 'basic'
     }
     this.icon = icon ?? 'item/${this.kind}.png'
 
@@ -236,8 +245,9 @@ struct Equipment {
   }
 }
 
-function createItemByPrototype(prototypeId, {level, itemId}) {
-  // print('acquiring: ${itemId}')
+function createItemByPrototype(prototypeId, {amount, level, itemId}) {
+  amount ??= 1
+  assert(amount > 0)
   // TODO: 如果id不存在，则获得一个「未知物品」
   final prototype = game.itemPrototypes[prototypeId]
   assert(prototype != null)
@@ -253,14 +263,25 @@ function createItemByPrototype(prototypeId, {level, itemId}) {
   // }
   item.id = item.isUnique ? item.prototypeId : (itemId ?? crypto.randomUID(withTime: true))
   item.entityType = kEntityTypeItem
+  item.kind = item.prototypeId
   item.name = engine.locale(item.name)
   if (item.flavortext != null) {
     item.flavortext = engine.locale(item.flavortext)
   }
   // item.name = generateTalismanName(kind: item.kind)
-  item.rarity ??= 'basic'
+  if (item.rarity != null) {
+    assert(kRarity.containsKey(item.rarity))
+    item.rank = kRarity[item.rarity].rank
+  } else if (item.rank != null) {
+    assert(item.rank >= 0 && item.rank <= kCultivationRankMax)
+    item.rarity = kRankRarity[item.rank]
+  } else {
+    item.rank = 0
+    item.rarity = 'basic'
+  }
   item.color ??= kRarity[item.rarity].color
-  item.level = level
+  item.level ??= level
+  item.stackSize = amount
   item.experienced = []
 
   // game.items[item.id] = item
@@ -490,10 +511,14 @@ function entityAcquireBattleCard(entity, card, { incurIncident = true }) {
   }
 }
 
-/// 宝箱内的物品
+/// 按配置获取宝箱内的物品
 /// 分为四种：材料，预定义物品，装备，卡包
 /// category: ['material', 'prototype', 'equipment', 'cardpack']
 /// items = [
+///   {
+///     type: 'exppack',
+///     amount: 100,
+///   },
 ///   {
 ///     type: 'material',
 ///     kind: 'money',
@@ -520,36 +545,43 @@ function entityAcquireBattleCard(entity, card, { incurIncident = true }) {
 function loot(box) {
   final items = []
   for (final itemInfo in box.items) {
+    final amount = itemInfo.amount ?? 1
     switch (itemInfo.type) {
       'material': {
         assert(kMaterialKinds.contains(itemInfo.kind))
-        final materialpack = Materialpack(kind: itemInfo.kind, amount: itemInfo.amount ?? 1)
+        final materialpack = Materialpack(kind: itemInfo.kind, amount: amount)
         items.add(materialpack)
       }
       'prototype': {
         assert(game.items.contains(itemInfo.kind))
-        final created = createItemByPrototype(itemInfo.prototypeId)
-        items.add(created)
+        for (var i in range(amount)) {
+          final created = createItemByPrototype(itemInfo.prototypeId)
+          items.add(created)
+        }
       }
       'equipment': {
         assert(kEquipmentKinds.contains(itemInfo.kind))
-        final equipment = Equipment(
-          kind: itemInfo.kind,
-          rarity: itemInfo.rarity,
-          rank: itemInfo.rank,
-          level: itemInfo.level,
-        )
-        items.add(equipment)
+        for (var i in range(amount)) {
+          final equipment = Equipment(
+            kind: itemInfo.kind,
+            rarity: itemInfo.rarity,
+            rank: itemInfo.rank,
+            level: itemInfo.level,
+          )
+          items.add(equipment)
+        }
       }
       'cardpack': {
-        final cardpack = Cardpack(
-          category: itemInfo.category,
-          kind: itemInfo.kind,
-          genre: itemInfo.genre,
-          rank: itemInfo.rank,
-          isBasic: itemInfo.isBasic,
-        )
-        items.add(cardpack)
+        for (var i in range(amount)) {
+          final cardpack = Cardpack(
+            category: itemInfo.category,
+            kind: itemInfo.kind,
+            genre: itemInfo.genre,
+            rank: itemInfo.rank,
+            isBasic: itemInfo.isBasic,
+          )
+          items.add(cardpack)
+        }
       }
     }
   }

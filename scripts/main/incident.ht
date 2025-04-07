@@ -35,8 +35,8 @@ struct Incident {
     this.orderly = orderly
     this.goodwill = goodwill
 
-    this.index = timeline.length
-    timeline.add(this)
+    this.id = crypto.randomUUID()
+    timeline[this.id] = this
     
     const subject = game.characters[subjectId]
     assert(subject != null)
@@ -125,13 +125,13 @@ function characterKnowIncident(character, incident, { witnessed }) {
     character.known = []
   }
 
-  if (character.known.contains(incident.index)) {
-    engine.warn('${entity.name} 已经知道了事件：[${incident.index}]，不能再次添加。')
+  if (character.known.contains(incident.id)) {
+    engine.warn('${entity.name} 已经知道了事件：[${incident.message}]，不能再次添加。')
     return
   }
 
   engine.debug('${character.name} 知道了事件 \'${incident.message}\'')
-  character.known.add(incident.index)
+  character.known.add(incident.id)
 
   let score = calculateCharacterScoreOfIncident(character, incident)
   if (witnessed) {
@@ -158,12 +158,12 @@ function entityExperienceIncident(entity, incident) {
     entity.experienced = []
   }
 
-  if (entity.experienced.contains(incident.index)) {
-    engine.warn('${entity.id} 已经知道了事件：[${incident.index}]')
+  if (entity.experienced.contains(incident.id)) {
+    engine.warn('${entity.id} 已经经历了事件：[${incident.message}]')
     return
   }
 
-  entity.experienced.add(incident.index)
+  entity.experienced.add(incident.id)
   
   if (entity.entityType != kEntityTypeCharacter) return
 

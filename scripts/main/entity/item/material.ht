@@ -53,7 +53,7 @@ struct Materialpack {
     this.name = engine.locale('${kind}_package')
     this.icon = 'item/material/${kind}.png'
 
-    this.category = kEntityCategoryMaterial
+    this.category = kItemCategoryMaterialPack
     this.kind = kind
     this.description = engine.locale('${kind}_description')
     this.flavortext = engine.locale('materialpack_flavortext')

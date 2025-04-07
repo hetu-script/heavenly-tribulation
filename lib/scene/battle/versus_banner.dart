@@ -59,7 +59,7 @@ class VersusBanner extends GameComponent {
       paint: paint,
     );
     heroIcon.onTap = (_, __) {
-      showCharacterInfo(heroData);
+      // showCharacterInfo(heroData);
     };
     add(heroIcon);
 
@@ -86,7 +86,7 @@ class VersusBanner extends GameComponent {
       paint: paint,
     );
     enemyIcon.onTap = (_, __) {
-      showCharacterInfo(enemyData);
+      // showCharacterInfo(enemyData);
     };
     add(enemyIcon);
 

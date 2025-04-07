@@ -47,6 +47,26 @@
       },
     ],
   },
+  // 消耗元气按比例恢复生命
+  consume_vigor_heal: {
+    id: "consume_vigor_heal",
+    uniqueId: "consume_vigor_heal",
+    category: ["buff"],
+    rank: 1,
+    description: "affix_consume_vigor_heal",
+    tags: ["status_energy_positive_life"],
+    script: "consume_vigor_heal",
+    valueData: [
+      {
+        base: 0,
+        increment: 0.1,
+      },
+      {
+        base: 10,
+        increment: 1,
+      },
+    ],
+  },
 
   defend_physical: {
     id: "defend_physical",

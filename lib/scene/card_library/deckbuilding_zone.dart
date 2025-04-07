@@ -12,7 +12,7 @@ import 'common.dart';
 import '../game_dialog/game_dialog_content.dart';
 import '../../game/logic.dart';
 import 'card_library.dart';
-import '../../state/hoverinfo.dart';
+import '../../state/hover_content.dart';
 import '../common.dart';
 import '../../game/data.dart';
 
@@ -374,7 +374,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
 
     card.onTapDown = (buttons, position) {
       if (buttons == kPrimaryButton) {
-        game.context.read<HoverInfoContentState>().hide();
+        game.context.read<HoverContentState>().hide();
         (game as CardLibraryScene).cardDragStart(card);
       }
     };
@@ -410,7 +410,7 @@ class DeckBuildingZone extends PiledZone with HandlesGesture {
           'deckbuilding_card_${card.id}',
           card.data,
           card.toAbsoluteRect(),
-          direction: HoverInfoDirection.leftTop,
+          direction: HoverContentDirection.leftTop,
           characterData: GameData.heroData,
         );
     card.onUnpreviewed = () => unpreviewCard(game.context);

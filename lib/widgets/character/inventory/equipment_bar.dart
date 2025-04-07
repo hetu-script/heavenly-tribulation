@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'item_grid.dart';
-import '../../../state/hoverinfo.dart';
+import '../../../state/hover_content.dart';
 // import '../../../config.dart';
 // import '../../../common.dart';
 
@@ -31,7 +31,6 @@ class EquipmentBar extends StatelessWidget {
     final children = List<Widget>.from(
       (characterData['equipments'].values as Iterable).map(
         (itemId) => ItemGrid(
-          characterData: characterData,
           itemData: itemId != null ? characterData['inventory'][itemId] : null,
           size: gridSize,
           margin: const EdgeInsets.all(2),
@@ -42,16 +41,16 @@ class EquipmentBar extends StatelessWidget {
             switch (type) {
               case ItemType.player:
                 context
-                    .read<HoverInfoContentState>()
-                    .show(itemData, type: type, data2: characterData, rect);
+                    .read<HoverContentState>()
+                    .show(itemData, type: type, rect);
               default:
                 context
-                    .read<HoverInfoContentState>()
+                    .read<HoverContentState>()
                     .show(itemData, type: type, rect);
             }
           },
           onMouseExit: () {
-            context.read<HoverInfoContentState>().hide();
+            context.read<HoverContentState>().hide();
           },
         ),
       ),

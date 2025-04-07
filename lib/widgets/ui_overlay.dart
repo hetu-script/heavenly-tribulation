@@ -77,8 +77,9 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
 
     final currentZone = context.watch<HeroTileState>().currentZone;
     final currentNation = context.watch<HeroTileState>().currentNation;
-    final currentLocation = context.watch<HeroTileState>().currentLocation;
+    // final currentLocation = context.watch<HeroTileState>().currentLocation;
     final currentTerrain = context.watch<HeroTileState>().currentTerrain;
+    final currentScene = context.watch<HeroTileState>().currentScene;
 
     final dateString = context.watch<GameTimestampState>().gameDateTimeString;
 
@@ -94,9 +95,9 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
       if (currentNation != null) {
         locationDetails.write(' ${currentNation['name']}');
       }
-      if (currentLocation != null) {
-        locationDetails.write(' ${currentLocation['name']}');
-      }
+      // if (currentLocation != null) {
+      //   locationDetails.write(' ${currentLocation['name']}');
+      // }
       // if (currentTerrain?.kind != null) {
       //   locationDetails.write(' ${engine.locale(currentTerrain!.kind)}');
       // }
@@ -106,14 +107,20 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
       // }
     }
 
-    if (currentTerrain != null) {
-      locationDetails.write(' ${currentTerrain.left}, ${currentTerrain.top}');
+    if (currentScene != null) {
+      locationDetails.write(' $currentScene');
     }
 
-    final content = context.watch<HoverInfoContentState>().content;
+    if (currentTerrain != null) {
+      locationDetails.write(' [${currentTerrain.left}, ${currentTerrain.top}]');
+    }
 
-    final enemyData = context.watch<EnemyState>().enemyData;
+    final content = context.watch<HoverContentState>().content;
+
+    final enemyData = context.watch<EnemyState>().data;
     final showPrebattle = context.watch<EnemyState>().showPrebattle;
+    final onBattleStart = context.watch<EnemyState>().onBattleStart;
+    final onBattleEnd = context.watch<EnemyState>().onBattleEnd;
 
     final merchantData = context.watch<MerchantState>().merchantData;
     final priceFactor = context.watch<MerchantState>().priceFactor;
@@ -258,6 +265,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
             filter: arguments['filter'],
             multiSelect: arguments['multiSelect'] ?? false,
             onSelect: arguments['onSelect'],
+            selectedItemsData: arguments['selectedItems'],
           ));
         case ViewPanels.characterQuest:
           panels.add(QuestView(characterData: heroData));
@@ -312,11 +320,11 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               //   final content =
                               //       '${engine.locale('stamina')}: $life/$lifeMax';
                               //   context
-                              //       .read<HoverInfoContentState>()
+                              //       .read<HoverContentState>()
                               //       .show(content, rect);
                               // },
                               // onMouseExit: () {
-                              //   context.read<HoverInfoContentState>().hide();
+                              //   context.read<HoverContentState>().hide();
                               // },
                             ),
                           ),
@@ -325,7 +333,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                             child: MouseRegion2(
                               cursor: SystemMouseCursors.click,
                               onTapUp: () {
-                                context.read<HoverInfoContentState>().hide();
+                                context.read<HoverContentState>().hide();
                                 if (widget.enableAutoExhaust) {
                                   GameData.gameData['flags']['autoWork'] =
                                       !autoWork;
@@ -340,11 +348,11 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                       '\n \n<yellow>${engine.locale('autoWork')}: ${autoWork ? engine.locale('opened') : engine.locale('closed')}</>';
                                 } else {}
                                 context
-                                    .read<HoverInfoContentState>()
+                                    .read<HoverContentState>()
                                     .show(description, rect);
                               },
                               onMouseExit: () {
-                                context.read<HoverInfoContentState>().hide();
+                                context.read<HoverContentState>().hide();
                               },
                               child: Row(
                                 children: [
@@ -380,7 +388,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                             child: MouseRegion2(
                               cursor: SystemMouseCursors.click,
                               onTapUp: () {
-                                context.read<HoverInfoContentState>().hide();
+                                context.read<HoverContentState>().hide();
                                 if (widget.enableAutoExhaust) {
                                   GameData.gameData['flags']['autoCultivate'] =
                                       !autoCultivate;
@@ -395,11 +403,11 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                       '\n \n<yellow>${engine.locale('autoCultivate')}: ${autoCultivate ? engine.locale('opened') : engine.locale('closed')}</>';
                                 } else {}
                                 context
-                                    .read<HoverInfoContentState>()
+                                    .read<HoverContentState>()
                                     .show(description, rect);
                               },
                               onMouseExit: () {
-                                context.read<HoverInfoContentState>().hide();
+                                context.read<HoverContentState>().hide();
                               },
                               child: Row(
                                 children: [
@@ -448,11 +456,11 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                     '${engine.locale('ore')}: ${(data['ore'] as int).toString().padLeft(10)}');
                                 final content = materials.toString();
                                 context
-                                    .read<HoverInfoContentState>()
+                                    .read<HoverContentState>()
                                     .show(content, rect);
                               },
                               onMouseExit: () {
-                                context.read<HoverInfoContentState>().hide();
+                                context.read<HoverContentState>().hide();
                               },
                               child: Row(
                                 children: [
@@ -490,11 +498,11 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                             },
                             onMouseEnter: (rect) {
                               context
-                                  .read<HoverInfoContentState>()
+                                  .read<HoverContentState>()
                                   .show(engine.locale('information'), rect);
                             },
                             onMouseExit: () {
-                              context.read<HoverInfoContentState>().hide();
+                              context.read<HoverContentState>().hide();
                             },
                             child: const Image(
                               image: AssetImage(
@@ -512,11 +520,11 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                             },
                             onMouseEnter: (rect) {
                               context
-                                  .read<HoverInfoContentState>()
+                                  .read<HoverContentState>()
                                   .show(engine.locale('quest'), rect);
                             },
                             onMouseExit: () {
-                              context.read<HoverInfoContentState>().hide();
+                              context.read<HoverContentState>().hide();
                             },
                             child: const Image(
                               image: AssetImage('assets/images/icon/quest.png'),
@@ -538,14 +546,14 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                                 isHero: false,
                                 showNonBattleStats: false,
                               );
-                              context.read<HoverInfoContentState>().show(
+                              context.read<HoverContentState>().show(
                                     statsView,
                                     rect,
-                                    direction: HoverInfoDirection.bottomLeft,
+                                    direction: HoverContentDirection.bottomLeft,
                                   );
                             },
                             onMouseExit: () {
-                              context.read<HoverInfoContentState>().hide();
+                              context.read<HoverContentState>().hide();
                             },
                             child: const Image(
                               image: AssetImage(
@@ -564,15 +572,15 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               final cultivationDescription =
                                   GameData.getPassivesDescription(heroData);
 
-                              context.read<HoverInfoContentState>().show(
+                              context.read<HoverContentState>().show(
                                     cultivationDescription,
                                     rect,
-                                    direction: HoverInfoDirection.bottomLeft,
+                                    direction: HoverContentDirection.bottomLeft,
                                     textAlign: TextAlign.left,
                                   );
                             },
                             onMouseExit: () {
-                              context.read<HoverInfoContentState>().hide();
+                              context.read<HoverContentState>().hide();
                             },
                             child: const Image(
                               image: AssetImage(
@@ -586,17 +594,19 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                             borderRadius: 5.0,
                             onTapUp: () {
                               engine.pushScene(Scenes.cardlibrary, arguments: {
-                                'enableCardCraft': true,
-                                'enableScrollCraft': true,
+                                'enableCardCraft':
+                                    engine.scene?.id == Scenes.mainmenu,
+                                'enableScrollCraft':
+                                    engine.scene?.id == Scenes.mainmenu,
                               });
                             },
                             onMouseEnter: (rect) {
                               context
-                                  .read<HoverInfoContentState>()
+                                  .read<HoverContentState>()
                                   .show(engine.locale('card_library'), rect);
                             },
                             onMouseExit: () {
-                              context.read<HoverInfoContentState>().hide();
+                              context.read<HoverContentState>().hide();
                             },
                             child: const Image(
                               image:
@@ -608,7 +618,7 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                             padding: const EdgeInsets.all(2),
                             borderRadius: 5.0,
                             onTapUp: () {
-                              context.read<HoverInfoContentState>().hide();
+                              context.read<HoverContentState>().hide();
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) => Console(
@@ -620,11 +630,11 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                             },
                             onMouseEnter: (rect) {
                               context
-                                  .read<HoverInfoContentState>()
+                                  .read<HoverContentState>()
                                   .show(engine.locale('console'), rect);
                             },
                             onMouseExit: () {
-                              context.read<HoverInfoContentState>().hide();
+                              context.read<HoverContentState>().hide();
                             },
                             child: const Image(
                               image: AssetImage(
@@ -675,11 +685,11 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
                               },
                               onMouseEnter: (rect) {
                                 context
-                                    .read<HoverInfoContentState>()
+                                    .read<HoverContentState>()
                                     .show(engine.locale('history'), rect);
                               },
                               onMouseExit: () {
-                                context.read<HoverInfoContentState>().hide();
+                                context.read<HoverContentState>().hide();
                               },
                             ),
                           ),
@@ -697,7 +707,13 @@ class _GameUIOverlayState extends State<GameUIOverlay> {
               child: NpcList(),
             ),
           if (enemyData != null && showPrebattle)
-            PreBattleDialog(heroData: heroData, enemyData: enemyData),
+            PreBattleDialog(
+              heroData: heroData,
+              enemyData: enemyData,
+              ignoreRequirement: engine.scene?.id == Scenes.mainmenu,
+              onBattleStart: onBattleStart,
+              onBattleEnd: onBattleEnd,
+            ),
           if (merchantData != null && showMerchant)
             MerchantDialog(
               merchantData: merchantData,

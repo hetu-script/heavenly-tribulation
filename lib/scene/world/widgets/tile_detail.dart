@@ -19,7 +19,7 @@ class _TileDetailPanelState extends State<TileDetailPanel> {
   Widget build(BuildContext context) {
     final currentZone = context.watch<SelectedTileState>().currentZone;
     final currentNation = context.watch<SelectedTileState>().currentNation;
-    final currentLocation = context.watch<SelectedTileState>().currentLocation;
+    // final currentLocation = context.watch<SelectedTileState>().currentLocation;
     final currentTerrain = context.watch<SelectedTileState>().currentTerrain;
 
     String? coordinates;
@@ -53,9 +53,9 @@ class _TileDetailPanelState extends State<TileDetailPanel> {
               if (currentNation != null)
                 Text(
                     '${engine.locale('organization')}: ${currentNation['name']}'),
-              if (currentLocation != null)
-                Text(
-                    '${engine.locale('location')}: ${currentLocation['name']}'),
+              // if (currentLocation != null)
+              //   Text(
+              //       '${engine.locale('location')}: ${currentLocation['name']}'),
             ],
           ),
         ),

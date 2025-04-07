@@ -100,8 +100,9 @@ void main() {
           ChangeNotifierProvider(create: (_) => MerchantState()),
           ChangeNotifierProvider(create: (_) => ViewPanelState()),
           ChangeNotifierProvider(create: (_) => ViewPanelPositionState()),
-          ChangeNotifierProvider(create: (_) => HoverInfoContentState()),
-          ChangeNotifierProvider(create: (_) => HoverInfoDeterminedRectState()),
+          ChangeNotifierProvider(create: (_) => HoverContentState()),
+          ChangeNotifierProvider(
+              create: (_) => HoverContentDeterminedRectState()),
           ChangeNotifierProvider(create: (_) => GameTimestampState()),
         ],
         child: MaterialApp(

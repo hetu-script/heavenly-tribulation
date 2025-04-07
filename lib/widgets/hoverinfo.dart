@@ -8,13 +8,13 @@ import 'package:hetu_script/values.dart';
 import '../game/ui.dart';
 import '../../../engine.dart';
 import 'common.dart';
-import '../state/hoverinfo.dart';
+import '../state/hover_content.dart';
 import '../game/data.dart';
 
 class HoverInfo extends StatefulWidget {
   HoverInfo(this.content) : super(key: GlobalKey());
 
-  final HoverInfoContent content;
+  final HoverContent content;
 
   @override
   State<HoverInfo> createState() => _HoverInfoState();
@@ -48,44 +48,44 @@ class _HoverInfoState extends State<HoverInfo> {
       double preferredX, preferredY;
 
       switch (widget.content.direction) {
-        case HoverInfoDirection.topLeft:
+        case HoverContentDirection.topLeft:
           preferredX = widget.content.rect.left;
           preferredY = widget.content.rect.top - height - kHoverInfoIndent;
-        case HoverInfoDirection.topCenter:
+        case HoverContentDirection.topCenter:
           preferredX = widget.content.rect.left +
               (widget.content.rect.width - width) / 2;
           preferredY = widget.content.rect.top - height - kHoverInfoIndent;
-        case HoverInfoDirection.topRight:
+        case HoverContentDirection.topRight:
           preferredX = widget.content.rect.right - width;
           preferredY = widget.content.rect.top - height - kHoverInfoIndent;
-        case HoverInfoDirection.leftTop:
+        case HoverContentDirection.leftTop:
           preferredX = widget.content.rect.left - width - kHoverInfoIndent;
           preferredY = widget.content.rect.top;
-        case HoverInfoDirection.leftCenter:
+        case HoverContentDirection.leftCenter:
           preferredX = widget.content.rect.left - width - kHoverInfoIndent;
           preferredY = widget.content.rect.top +
               (widget.content.rect.height - height) / 2;
-        case HoverInfoDirection.leftBottom:
+        case HoverContentDirection.leftBottom:
           preferredX = widget.content.rect.left - width - kHoverInfoIndent;
           preferredY = widget.content.rect.bottom - height - kHoverInfoIndent;
-        case HoverInfoDirection.rightTop:
+        case HoverContentDirection.rightTop:
           preferredX = widget.content.rect.right + kHoverInfoIndent;
           preferredY = widget.content.rect.top;
-        case HoverInfoDirection.rightCenter:
+        case HoverContentDirection.rightCenter:
           preferredX = widget.content.rect.right + kHoverInfoIndent;
           preferredY = widget.content.rect.top +
               (widget.content.rect.height - height) / 2;
-        case HoverInfoDirection.rightBottom:
+        case HoverContentDirection.rightBottom:
           preferredX = widget.content.rect.right + kHoverInfoIndent;
           preferredY = widget.content.rect.bottom - height - kHoverInfoIndent;
-        case HoverInfoDirection.bottomLeft:
+        case HoverContentDirection.bottomLeft:
           preferredX = widget.content.rect.left;
           preferredY = widget.content.rect.bottom + kHoverInfoIndent;
-        case HoverInfoDirection.bottomCenter:
+        case HoverContentDirection.bottomCenter:
           preferredX = widget.content.rect.left +
               (widget.content.rect.width - width) / 2;
           preferredY = widget.content.rect.bottom + kHoverInfoIndent;
-        case HoverInfoDirection.bottomRight:
+        case HoverContentDirection.bottomRight:
           preferredX = widget.content.rect.right - width - kHoverInfoIndent;
           preferredY = widget.content.rect.bottom + kHoverInfoIndent;
       }
@@ -109,7 +109,7 @@ class _HoverInfoState extends State<HoverInfo> {
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.sizeOf(context);
 
-    final isDetailed = context.watch<HoverInfoContentState>().isDetailed;
+    final isDetailed = context.watch<HoverContentState>().isDetailed;
 
     Widget? content;
     dynamic data = widget.content.data;
@@ -119,11 +119,15 @@ class _HoverInfoState extends State<HoverInfo> {
           String description;
           switch (widget.content.type) {
             case ItemType.none:
-            case ItemType.player:
             case ItemType.npc:
               description = GameData.getDescriptionFromItemData(
                 data,
-                characterData: widget.content.data2,
+                isDetailed: isDetailed,
+              );
+            case ItemType.player:
+              description = GameData.getDescriptionFromItemData(
+                data,
+                isInventory: true,
                 isDetailed: isDetailed,
               );
             case ItemType.customer:
@@ -144,8 +148,8 @@ class _HoverInfoState extends State<HoverInfo> {
           data = description;
         case 'battle_card':
           final (_, description) = GameData.getDescriptionFromCardData(
+            isLibrary: widget.content.type == ItemType.player,
             widget.content.data,
-            characterData: widget.content.data2,
             isDetailed: isDetailed,
           );
           data = description;
@@ -184,11 +188,13 @@ class _HoverInfoState extends State<HoverInfo> {
               switch (event.logicalKey) {
                 case LogicalKeyboardKey.controlLeft:
                 case LogicalKeyboardKey.controlRight:
-                  context.read<HoverInfoContentState>().switchDetailed();
+                  context.read<HoverContentState>().switchDetailed();
                 case LogicalKeyboardKey.keyC:
                   if (widget.content.data is String) {
-                    Clipboard.setData(ClipboardData(text: widget.content.data));
-                    engine.debug('copied string: [${widget.content.data}]');
+                    final String text =
+                        (widget.content.data as String).split('\n').last;
+                    Clipboard.setData(ClipboardData(text: text));
+                    engine.debug('copied string: [$text]');
                   } else if (widget.content.data is HTStruct) {
                     Clipboard.setData(
                         ClipboardData(text: widget.content.data['id']));

@@ -3,7 +3,7 @@ import 'package:samsara/ui/label.dart';
 
 import '../../game/ui.dart';
 import '../../engine.dart';
-import '../../state/hoverinfo.dart';
+import '../../state/hover_content.dart';
 import '../../game/logic.dart';
 import '../../scene/common.dart';
 
@@ -12,13 +12,13 @@ class BattleCard extends StatelessWidget {
     required this.cardData,
     this.characterData,
     this.isHero = false,
-    this.cardInfoDirection = HoverInfoDirection.rightTop,
+    this.cardInfoDirection = HoverContentDirection.rightTop,
   }) : super(key: GlobalKey());
 
   final dynamic cardData;
   final dynamic characterData;
   final bool isHero;
-  final HoverInfoDirection cardInfoDirection;
+  final HoverContentDirection cardInfoDirection;
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +67,7 @@ class BattleCard extends StatelessWidget {
                     'prebattle_card_${cardData['id']}',
                     cardData,
                     rect,
+                    isLibrary: isHero,
                     direction: cardInfoDirection,
                     characterData: isHero ? characterData : null,
                   );

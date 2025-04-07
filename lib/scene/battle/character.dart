@@ -75,9 +75,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   /// 将生命设为指定值，如果animated为true，则会有动画效果
   void setLife(int value, {bool animated = true}) {
-    assert(value >= 0 && value <= _lifeMax);
-    _life = value;
-    _hpBar.setValue(value, animated: animated);
+    _life = value.clamp(0, _lifeMax);
+    _hpBar.setValue(_life, animated: animated);
   }
 
   late int _lifeMax;
@@ -181,6 +180,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
       colors: [Colors.red, Colors.green],
       showNumber: true,
       labelFontSize: 10.0,
+      labelColor: Colors.white,
     );
     if (!isHero) {
       _hpBar.flipHorizontally();
@@ -546,10 +546,11 @@ class BattleCharacter extends GameComponent with AnimationStateController {
   }
 
   void reset() {
-    _life = _lifeMax = data['stats']['lifeMax'];
+    _life = data['life'];
+    _lifeMax = data['stats']['lifeMax'];
     _hpBar.max = _lifeMax;
-    _hpBar.setValue(_lifeMax);
-    _hpBar.labelColor = Colors.yellow;
+    _hpBar.setValue(_life);
+    _hpBar.labelColor = Colors.white;
     // setMana(0, animated: false);
     setState(kStandState);
     clearAllStatusEffects();
@@ -683,7 +684,7 @@ class BattleCharacter extends GameComponent with AnimationStateController {
             .round();
     if (finalDamage < 0) {
       engine.error(
-          'unexpected: calculated damage < 0 on damage details: \n$damageDetails');
+          'unexpected: calculated damage < 0 on damage details: \n${damageDetails.toString()}');
       finalDamage = 0;
     }
     String damageString = finalDamage > 0 ? '-$finalDamage' : '$finalDamage';
@@ -768,7 +769,13 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     // 展示当前卡牌及其详情
     if (card.data['isIdentified'] != true) {
       card.data['isIdentified'] = true;
-      final (description, _) = GameData.getDescriptionFromCardData(card.data);
+      final (description, _) = GameData.getDescriptionFromCardData(
+        card.data,
+        isLibrary: false,
+        isDetailed: false,
+        showDetailedHint: false,
+        showDebugId: false,
+      );
       card.description = description;
     }
 

@@ -21,9 +21,9 @@ namespace Debug {
     )
 
     // hero.unconvertedExp = 2000
-    hero.materials.money = 5000
-    hero.materials.shard = 100
-    hero.karma = 50
+    // hero.materials.money = 5000
+    // hero.materials.shard = 100
+    // hero.karma = 50
 
     setHeroId('hero')
 
@@ -66,8 +66,8 @@ namespace Debug {
     entityAcquire(character, moneyPack)
     items.add(moneyPack)
 
-    for (var i in range(3)) {
-      final paper = createItemByPrototype('scroll_paper')
+    for (var i in range(1, kCultivationRankMax + 1)) {
+      final paper = createItemByPrototype('scroll_paper_rank_${i}')
       entityAcquire(character, paper)
       items.add(paper)
     }

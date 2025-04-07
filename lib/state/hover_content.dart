@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 
 const kHoverInfoMaxWidth = 400.0;
 
-enum HoverInfoDirection {
+enum HoverContentDirection {
   topLeft,
   topCenter,
   topRight,
@@ -27,28 +27,28 @@ enum ItemType {
   merchant,
 }
 
-class HoverInfoContent {
+class HoverContent {
   final dynamic data, data2;
   final ItemType type;
   final Rect rect;
   final double maxWidth;
-  final HoverInfoDirection direction;
+  final HoverContentDirection direction;
   final TextAlign textAlign;
 
-  HoverInfoContent({
+  HoverContent({
     required this.rect,
     required this.data,
     this.data2,
     this.type = ItemType.none,
     this.maxWidth = kHoverInfoMaxWidth,
-    this.direction = HoverInfoDirection.bottomCenter,
+    this.direction = HoverContentDirection.bottomCenter,
     this.textAlign = TextAlign.center,
   });
 }
 
-class HoverInfoContentState extends ChangeNotifier {
+class HoverContentState extends ChangeNotifier {
   bool isDetailed = false;
-  HoverInfoContent? content;
+  HoverContent? content;
 
   void show(
     dynamic data,
@@ -58,14 +58,14 @@ class HoverInfoContentState extends ChangeNotifier {
     // 否则，data2可能是物品售价影响因子数据
     ItemType type = ItemType.none,
     double maxWidth = kHoverInfoMaxWidth,
-    HoverInfoDirection direction = HoverInfoDirection.bottomCenter,
+    HoverContentDirection direction = HoverContentDirection.bottomCenter,
     TextAlign textAlign = TextAlign.center,
   }) {
     if (content?.rect == rect) {
       return;
     }
 
-    content = HoverInfoContent(
+    content = HoverContent(
       rect: rect,
       data: data,
       data2: data2,
@@ -83,12 +83,14 @@ class HoverInfoContentState extends ChangeNotifier {
   }
 
   void hide() {
-    content = null;
-    notifyListeners();
+    if (content != null) {
+      content = null;
+      notifyListeners();
+    }
   }
 }
 
-class HoverInfoDeterminedRectState extends ChangeNotifier {
+class HoverContentDeterminedRectState extends ChangeNotifier {
   Rect? rect;
 
   void set(Rect renderBox) {
