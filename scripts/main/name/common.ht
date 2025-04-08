@@ -20,21 +20,10 @@ const kStrangeNameProbability = 0.1
 const kXianXiaNameProbability = 0.3
 const kFamilyNameProbability = 0.5
 
-const kFamilyNamePostfixes = ['家', '氏']
-
 const kNameWithDirectionProbability = 0.55
 const kNameWithLinkWordProbability = 0.15
 
-export {
-  commonNames,
-  colorPrefix,
-  materialPrefix,
-  spiritPrefix,
-  kStrangeNameProbability,
-  kXianXiaNameProbability,
-  kNameWithDirectionProbability,
-  kNameWithLinkWordProbability,
-}
+const kFamilyNamePostfixes = ['家', '氏']
 
 const kRarityNames = [
   'arcane',
@@ -46,3 +35,16 @@ const kRarityNames = [
   'uncommon',
   'common',
 ]
+
+export {
+  commonNames,
+  colorPrefix,
+  materialPrefix,
+  spiritPrefix,
+  kStrangeNameProbability,
+  kXianXiaNameProbability,
+  kNameWithDirectionProbability,
+  kNameWithLinkWordProbability,
+  kFamilyNamePostfixes,
+  kRarityNames,
+}

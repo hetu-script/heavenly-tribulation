@@ -1,6 +1,34 @@
 // import '../entity/item/item.ht'
 // import '../world/dungeon.ht'
 
+const kTutorialRooms = {
+  '0': 'chest',
+  '1': 'enemy',
+  '2': '3portal',
+  '3': 'elite',
+  '4': 'encampment',
+  '5': 'boss',
+  '14': 'exit',
+}
+
+const kNormalRooms = {
+  '0': 'chest',
+  '1': 'enemy',
+  '2': '3portal',
+  '3': 'enemy',
+  '4': '3portal',
+  '5': 'enemy',
+  '6': 'encampment',
+  '7': 'elite',
+  '8': '3portal',
+  '9': 'enemy',
+  '10': 'encampment',
+  '11': 'enemy',
+  '12': 'encampment',
+  '13': 'boss',
+  '14': '3exit',
+}
+
 const kStartTile = {
   left: 8,
   top: 10,
@@ -14,12 +42,12 @@ const kPortal1Tile = {
   top: 4,
 }
 const kPortal2Tile = {
-  left: 6,
-  top: 5,
+  left: 4,
+  top: 6,
 }
 const kPortal3Tile = {
-  left: 10,
-  top: 5,
+  left: 12,
+  top: 6,
 }
 const kMiddleLeftTile = {
   left: 6,
@@ -51,10 +79,22 @@ const kDungeonEnemyLevelBonus = {
 
 const kEncampmentKinds = [
   'cultivation',
-  'card_library',
-  'card_library_craft_scroll',
+  'cardLibrary',
   // 'workbench',
   // 'alchemy_furnace',
+]
+
+const kMerchantKinds = [
+  'smith',
+  'enchanter',
+  // 'scrollCrafter',
+  // 'alchemist',
+  // 'bookDealer',
+  // 'arrayMaster',
+]
+
+const kEncounterKinds = [
+  'spiritWell'
 ]
 
 function addEncampment() {
@@ -67,7 +107,7 @@ function addEncampment() {
         enableCultivate: true,
       )
     }
-    'card_library': {
+    'cardLibrary': {
       addCardLibraryStele(
         kMiddleRightTile,
         enableCardCraft: true,
@@ -77,11 +117,90 @@ function addEncampment() {
   }
 }
 
+function addPortalByCategory(tilePositioin, {id = 'portal1', tilePositioin, category}) {
+  tilePositioin ??= kPortal1Tile
+  assert(tilePositioin?.left != null && tilePositioin?.top != null, 'addPortalByCategory error: tilePositioin is null')
+  let hoverContent
+  category ??= 'enemy'
+  switch (category) {
+    'encampment': {
+      hoverContent = engine.locale('dungeon_encampment_description')
+    }
+    'merchant': {
+      hoverContent = engine.locale('dungeon_merchant_description')
+    }
+    'encounter': {
+      hoverContent = engine.locale('dungeon_encounter_description')
+    }
+    'boss': {
+      hoverContent = engine.locale('dungeon_boss_description')
+    }
+    'elite': {
+      hoverContent = engine.locale('dungeon_elite_description')
+    }
+    'exit': {
+      hoverContent = engine.locale('dungeon_exit_description')
+    }
+    'replay': {
+      hoverContent = engine.locale('dungeon_replay_description')
+    }
+    'nextLevel': {
+      hoverContent = engine.locale('dungeon_nextLevel_description')
+    }
+  }
+  addPortal(
+    tilePositioin,
+    objectId: id,
+    useCustomLogic: true,
+    hoverContent: hoverContent,
+  )
+}
+
+function addDebris() {
+  addOverlaySprite(kPortal2Tile, {
+    sprite: "object/stoneDebris.png",
+  })
+  addOverlaySprite(kPortal3Tile, {
+    sprite: "object/stoneDebris.png",
+  })
+}
+
+function addPortalByNextRoomType(nextRoomType) {
+  switch (nextRoomType) {
+    'encampment': {
+      addPortalByCategory(kPortal1Tile, category: 'encapment')
+    }
+    'merchant': {
+      addPortalByCategory(kPortal1Tile, category: 'merchant')
+    }
+    'encounter': {
+      addPortalByCategory(kPortal1Tile, category: 'encounter')
+    }
+    'enemy': {
+      addPortalByCategory(kPortal1Tile, category: 'enemy')
+    }
+    'elite': {
+      addPortalByCategory(kPortal1Tile, category: 'elite')
+    }
+    'boss': {
+      addPortalByCategory(kPortal1Tile, category: 'boss')
+    }
+    '3portal': {
+      addPortalByCategory(kPortal1Tile, category: 'enemy')
+      addPortalByCategory(kPortal2Tile, id: 'portal2', category: 'merchant')
+      addPortalByCategory(kPortal3Tile, id: 'portal3', category: 'encounter')
+    }
+    '3exit': {
+      addPortalByCategory(kPortal1Tile, category: 'exit')
+      addPortalByCategory(kPortal2Tile, id: 'portal2', category: 'replay')
+      addPortalByCategory(kPortal3Tile, id: 'portal3', category: 'nextLevel')
+    }
+  }
+}
+
 function prepareMap() {
   engine.info('生成地牢：当前难度：${game.dungeon.level} 房间编号：${game.dungeon.room}')
   game.dungeon.needRebuild = false
-  game.dungeon.is3Portal = false
-  game.dungeon.encampmentNext = false
   /// 清理所有的地块贴图和临时对象，还原到空地图
   world.objects = {}
   for (final tile in world.terrains) {
@@ -96,11 +215,20 @@ function prepareMap() {
   Game.setSceneName(sceneId)
   World.promptTextBanner(sceneId)
 
+  let roomInfo = game.dungeon.isTutorial ? kTutorialRoom : kNormalRooms
+
+  assert(game.dungeon.room <= game.dungeon.roomMax &&
+        roomInfo.contains(game.dungeon.room.toString()) &&
+        roomInfo.contains((game.dungeon.room + 1).toString()), 
+    '房间编号超出范围：${game.dungeon.room}')
+
+  final nextRoomType = roomInfo[game.dungeon.room + 1]
   /// 用随机遭遇填充地图
   if (game.dungeon.isTutorial) {
-    switch (game.dungeon.room) {
-      0: {
-        add1Portal(withDebris: true)
+    switch (game.dungeon.room + 1) {
+      1: {
+        addPortalByNextRoomType(nextRoomType)
+        addDebris()
         // 第一层固定是一个宝箱，没有敌人。
         final randomEquipment = kItemCategoryKinds.weapon.random
         addTreasureBox(kCenterTile, items: [
@@ -115,12 +243,12 @@ function prepareMap() {
             category: 'attack',
             kind: randomEquipment,
             rank: hero.rank,
+            // genre: hero.cultivationFavor,
             isBasic: true,
           },
         ])
       }
-      1: {
-        game.dungeon.is3Portal = true
+      2: {
         addEnemy(
           kCenterTile,
           name: engine.locale('dungeonGuard'),
@@ -130,8 +258,7 @@ function prepareMap() {
           rank: game.dungeon.rank,
         )
       }
-      2: {
-        game.dungeon.encampmentNext = true
+      3: {
         switch (game.dungeon.selectedPortal) {
           'portal1': {
             addEnemy(
@@ -144,18 +271,53 @@ function prepareMap() {
             )
           }
           'portal2': {
-
+            addPortalByNextRoomType(nextRoomType)
+            final merchantKind = kMerchantKinds.random
+            switch (merchantKind) {
+              'smith': {
+                addMerchant(
+                  kCenterTile,
+                  objectId: 'merchant',
+                  name: engine.locale('smith'),
+                  sprite: 'object/characterMan31.png',
+                  rank: game.dungeon.rank,
+                  money: 100000,
+                  shard: 100000,
+                  category: ['weapon', 'armor'],
+                  itemCount: 5,
+                )
+              }
+              'enchanter': {
+                addMerchant(
+                  kCenterTile,
+                  objectId: 'merchant',
+                  name: engine.locale('enchanter'),
+                  sprite: 'object/characterMan31.png',
+                  rank: game.dungeon.rank,
+                  money: 100000,
+                  shard: 100000,
+                  category: ['jewelry', 'talisman'],
+                  itemCount: 5,
+                )
+              }
+            }
           }
           'portal3': {
-            
-          }
-          default: {
-
+            addPortalByNextRoomType(nextRoomType)
+            final encounterKind = kEncounterKinds.random
+            switch (encounterKind) {
+              'spiritWell': {
+                addSpiritWell(
+                  kCenterTile,
+                  objectId: 'spiritWell',
+                  rank: game.dungeon.rank + 1,
+                )
+              }
+            }
           }
         }
       }
-      3: {
-        game.dungeon.is3Portal
+      4: {
         addEnemy(
           kCenterTile,
           name: engine.locale('dungeonElite'),
@@ -166,11 +328,12 @@ function prepareMap() {
           isElite: true,
         )
       }
-      4: {
-        add1Portal(withDebris: true)
+      5: {
+        addPortalByNextRoomType(nextRoomType)
+        addDebris()
         addEncampment()
       }
-      5: {
+      6: {
         addEnemy(
           kCenterTile,
           name: engine.locale('dungeonBoss'),
@@ -183,74 +346,128 @@ function prepareMap() {
       }
     }
   } else {
-
-  }
-
-}
-
-function add3Portal() {
-  let hoverContent1
-  let hoverContent2
-  let hoverContent3
-
-  if (game.dungeon.room < game.dungeon.roomMax) {
-    hoverContent1 = engine.locale('dungeon_enemy_description')
-    hoverContent2 = engine.locale('dungeon_merchant_description')
-    hoverContent3 = engine.locale('dungeon_encounter_description')
-  } else {
-    hoverContent1 = engine.locale('dungeon_exit_description')
-    hoverContent2 = engine.locale('dungeon_replay_description')
-    if (game.dungeon.level < game.dungeon.levelMax) {
-      hoverContent3 = engine.locale('dungeon_next_level_description')
-    } else {
-      hoverContent3 = engine.locale('dungeon_next_rank_description')
+    switch (game.dungeon.room + 1) {
+      1: {
+        addPortalByNextRoomType(nextRoomType)
+        addDebris()
+        // 第一层固定是一个宝箱，没有敌人。
+        final randomEquipment = kItemCategoryKinds.weapon.random
+        addTreasureBox(kCenterTile, items: [
+          {
+            type: 'equipment',
+            kind: randomEquipment,
+            rank: hero.rank,
+            level: hero.level,
+          },
+          {
+            type: 'cardpack',
+            category: 'attack',
+            kind: randomEquipment,
+            rank: hero.rank,
+            // genre: hero.cultivationFavor,
+            isBasic: true,
+          },
+        ])
+        // final rewards = generateRewardList()
+        // addTreasureBox(kCenterTile, items: rewards)
+      }
+      2, 4, 6, 10, 12: {
+        addEnemy(
+          kCenterTile,
+          name: engine.locale('dungeonGuard'),
+          objectId: 'enemy',
+          useCustomLogic: true,
+          level: game.dungeon.level + kDungeonEnemyLevelBonus.normal[game.dungeon.room],
+          rank: game.dungeon.rank,
+        )
+      }
+      3, 5, 9, 11: {
+        switch (game.dungeon.selectedPortal) {
+          'portal1': {
+            addEnemy(
+              kCenterTile,
+              name: engine.locale('dungeonGuard'),
+              objectId: 'enemy',
+              useCustomLogic: true,
+              level: game.dungeon.level + kDungeonEnemyLevelBonus.normal[game.dungeon.room],
+              rank: game.dungeon.rank,
+            )
+          }
+          'portal2': {
+            addPortalByNextRoomType(nextRoomType)
+            final merchantKind = kMerchantKinds.random
+            switch (merchantKind) {
+              'smith': {
+                addMerchant(
+                  kCenterTile,
+                  objectId: 'merchant',
+                  name: engine.locale('smith'),
+                  sprite: 'object/characterMan31.png',
+                  rank: game.dungeon.rank,
+                  money: 100000,
+                  shard: 100000,
+                  category: ['weapon', 'armor'],
+                  itemCount: 5,
+                )
+              }
+              'enchanter': {
+                addMerchant(
+                  kCenterTile,
+                  objectId: 'merchant',
+                  name: engine.locale('enchanter'),
+                  sprite: 'object/characterMan31.png',
+                  rank: game.dungeon.rank,
+                  money: 100000,
+                  shard: 100000,
+                  category: ['jewelry', 'talisman'],
+                  itemCount: 5,
+                )
+              }
+            }
+          }
+          'portal3': {
+            addPortalByNextRoomType(nextRoomType)
+            final encounterKind = kEncounterKinds.random
+            switch (encounterKind) {
+              'spiritWell': {
+                addSpiritWell(
+                  kCenterTile,
+                  objectId: 'spiritWell',
+                  rank: game.dungeon.rank + 1,
+                )
+              }
+            }
+          }
+        }
+      }
+      7, 13: {
+        addPortalByNextRoomType(nextRoomType)
+        addDebris()
+        addEncampment()
+      }
+      8: {
+        addEnemy(
+          kCenterTile,
+          name: engine.locale('dungeonElite'),
+          objectId: 'enemy',
+          useCustomLogic: true,
+          level: game.dungeon.level + kDungeonEnemyLevelBonus.normal[game.dungeon.room],
+          rank: game.dungeon.rank,
+          isElite: true,
+        )
+      }
+      14: {
+        addEnemy(
+          kCenterTile,
+          name: engine.locale('dungeonBoss'),
+          objectId: 'enemy',
+          useCustomLogic: true,
+          level: game.dungeon.level + kDungeonEnemyLevelBonus.normal[game.dungeon.room],
+          rank: game.dungeon.rank + 1,
+          isElite: true,
+        )
+      }
     }
-  }
-
-  addPortal(
-    kPortal1Tile,
-    objectId: 'portal1',
-    useCustomLogic: true,
-    hoverContent: hoverContent1,
-  )
-  addPortal(
-    kPortal2Tile,
-    objectId: 'portal2',
-    useCustomLogic: true,
-    hoverContent: hoverContent2,
-  )
-  addPortal(
-    kPortal3Tile,
-    objectId: 'portal3',
-    useCustomLogic: true,
-    hoverContent: hoverContent3,
-  )
-}
-
-function add1Portal({withDebris = false, category = null}) {
-  let hoverContent
-  if (category == 'encampment') {
-    hoverContent = engine.locale('dungeon_encampment_description')
-  } else if (category == 'merchant') {
-    hoverContent = engine.locale('dungeon_merchant_description')
-  } else if (category == 'encounter') {
-    hoverContent = engine.locale('dungeon_encounter_description')
-  } else {
-    hoverContent = engine.locale('dungeon_enemy_description')
-  }
-  addPortal(
-    kPortal1Tile,
-    objectId: 'portal1',
-    useCustomLogic: true,
-    hoverContent: hoverContent,
-  )
-  if (withDebris) {
-    addOverlaySprite(kPortal2Tile, {
-      sprite: "object/stoneDebris.png",
-    })
-    addOverlaySprite(kPortal3Tile, {
-      sprite: "object/stoneDebris.png",
-    })
   }
 }
 
@@ -258,7 +475,7 @@ async function onEnterMap() {
   if (game.dungeon.battleResult == true) {
     game.dungeon.battleResult = null
     final rewards = generateReward(
-      {
+      probability: {
         exp: kRewardProbabilityExppack,
         money: kRewardProbabilityMoney,
         shard: kRewardProbabilityShard,
@@ -354,6 +571,21 @@ async function onInteractMapObject(object, terrain) {
           final selected = Dialog.checkSelected('enterNextDungeonLevel')
           if (selected == 'enterNextDungeonLevel') {
             engine.info('将进入下一层地牢，等级：${game.dungeon.level}')
+            let hasStatusSpirit = false
+            for (final itemId of hero.equipments) {
+              if (itemId == null) continue
+              final item = hero.inventory[itemId]
+              assert(item != null)
+              if (item.category == kItemCategoryStatusSpirit) {
+                Player.unequip(item)
+                Player.lose(item)
+                hasStatusSpirit = true
+              }
+            }
+            if (hasStatusSpirit) {
+              Dialog.pushLocales('hint_dungeonStatusReset')
+              await Dialog.execute()
+            }
             game.dungeon.needRebuild = true
             game.dungeon.room = 0
             game.dungeon.level += 1
@@ -397,13 +629,10 @@ async function onInteractMapObject(object, terrain) {
             tile.overlaySprite = {}
             tile.objectId = null
             World.updateTerrainData(tile.left, tile.top, updateOverlaySprite: true)
-            if (game.dungeon.is3Portal) {
-              add3Portal()
-            } else if (game.dungeon.encampmentNext) {
-              add1Portal(category: 'encapment')
-            } else {
-              add1Portal()
-            }
+            final nextRoomType = game.dungeon.isTutorial ?
+              kTutorialRooms[game.dungeon.room + 1] :
+              kNormalRooms[game.dungeon.room + 1]
+            addPortalByNextRoomType(nextRoomType)
           } else {
             await World.promptTextBanner(engine.locale('hint_dungeon_failed'))
             engine.info('战斗失败，准备退出地牢')

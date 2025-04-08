@@ -51,10 +51,10 @@
   },
 
   // 所有类型的攻击削弱，每有一点，造成的伤害减少 1%
-  weakened_unarmed: {
-    id: "weakened_unarmed",
-    title: "status_weakened_unarmed",
-    description: "status_weakened_unarmed_description",
+  weaken_unarmed: {
+    id: "weaken_unarmed",
+    title: "status_weaken_unarmed",
+    description: "status_weaken_unarmed_description",
     icon: "icon/status/permenant/weaken_unarmed.png",
     attackType: "unarmed",
     script: "weaken",
@@ -64,8 +64,8 @@
   },
   weaken_weapon: {
     id: "weaken_weapon",
-    title: "status_weakened_weapon",
-    description: "status_weakened_weapon_description",
+    title: "status_weaken_weapon",
+    description: "status_weaken_weapon_description",
     icon: "icon/status/permenant/weaken_weapon.png",
     attackType: "weapon",
     script: "weaken",
@@ -75,8 +75,8 @@
   },
   weaken_spell: {
     id: "weaken_spell",
-    title: "status_weakened_spell",
-    description: "status_weakened_spell_description",
+    title: "status_weaken_spell",
+    description: "status_weaken_spell_description",
     icon: "icon/status/permenant/weaken_spell.png",
     attackType: "spell",
     script: "weaken",
@@ -86,8 +86,8 @@
   },
   weaken_curse: {
     id: "weaken_curse",
-    title: "status_weakened_curse",
-    description: "status_weakened_curse_description",
+    title: "status_weaken_curse",
+    description: "status_weaken_curse_description",
     icon: "icon/status/permenant/weaken_curse.png",
     attackType: "curse",
     script: "weaken",
@@ -293,8 +293,8 @@
   // 所有类型的抗性
   resistant_physical: {
     id: "resistant_physical",
-    title: "status_resistant_physical",
-    description: "status_resistant_physical_description",
+    title: "status_resist_physical",
+    description: "status_resist_physical_description",
     icon: "icon/status/permenant/resistant_physical.png",
     damageType: "physical",
     script: "resistant",
@@ -303,8 +303,8 @@
   },
   resistant_chi: {
     id: "resistant_chi",
-    title: "status_resistant_chi",
-    description: "status_resistant_chi_description",
+    title: "status_resist_chi",
+    description: "status_resist_chi_description",
     icon: "icon/status/permenant/resistant_chi.png",
     damageType: "chi",
     script: "resistant",
@@ -313,8 +313,8 @@
   },
   resistant_elemental: {
     id: "resistant_elemental",
-    title: "status_resistant_elemental",
-    description: "status_resistant_elemental_description",
+    title: "status_resist_elemental",
+    description: "status_resist_elemental_description",
     icon: "icon/status/permenant/resistant_elemental.png",
     damageType: "elemental",
     script: "resistant",
@@ -323,8 +323,8 @@
   },
   resistant_psychic: {
     id: "resistant_psychic",
-    title: "status_resistant_psychic",
-    description: "status_resistant_psychic_description",
+    title: "status_resist_psychic",
+    description: "status_resist_psychic_description",
     icon: "icon/status/permenant/resistant_psychic.png",
     damageType: "psychic",
     script: "resistant",

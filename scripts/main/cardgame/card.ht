@@ -118,8 +118,7 @@ struct BattleCard {
         level = minLevel + random.distantInt(maxLevel - minLevel)
       }
     } else {
-      if (level < minLevel) level = minLevel
-      if (level > maxLevel) level = maxLevel
+      level = level.clamp(minLevel, maxLevel)
     }
     this.level = level
     

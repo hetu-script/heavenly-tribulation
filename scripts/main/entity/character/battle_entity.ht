@@ -6,6 +6,7 @@
 // import '../item/material.ht'
 // import '../../cardgame/card.ht'
 // import '../../common.ht'
+import '../achievements.ht'
 
 /// 容貌等数值计算时的最大值: 100.0
 const kAttributeValueMax = 100.0
@@ -119,6 +120,9 @@ struct BattleEntity {
     this.rank = rank ?? 0
     // 修为等级，每次提升修为等级可以获得1点天赋点
     this.level = level ?? 0
+    final minLevel = minLevelForRank(this.rank)
+    final maxLevel = maxLevelForRank(this.rank)
+    this.level = this.level.clamp(minLevel, maxLevel)
 
     this.tribulationCount = 0
 
@@ -200,6 +204,8 @@ struct BattleEntity {
     // 主流派：御剑、道术、锻体、炼魂、法身
     // 副流派：炼丹、炼器、阵法、符法、灵植、灵兽、幻术、卜术、通灵、通神
     // this.cultivationGenre = cultivationGenre
+    
+    this.achievements = Achievements()
   }
 }
 
@@ -351,13 +357,16 @@ function getCharacterMoveCostOnHill(character) {
   return null
 }
 
-/// 提升天赋技能等级
+/// 提升或降低天赋技能等级
 /// 注意此函数调用时并不会检测天赋树节点位置和链接情况
 /// 也不会检查角色是否有足够的技能点
 /// 升级天赋时，并不会立刻影响角色数据，
 /// 只有在执行 characterCalculateStats() 之后，人物数据才会最终计算出来
-function characterGainPassive(character, dataId, {level = 1}) {
-  assert(level > 0, 'level: ${level}')
+function characterSetPassive(character, dataId, {level = 1}) {
+  if (level == 0) {
+    engine.warn('gain passive error: level is zero')
+    return
+  }
   if (character.passives[dataId] == null) {
     final passiveRawData = game.passives[dataId]
     assert(passiveRawData != null, 'passive data not found! id: ${dataId}')
@@ -380,32 +389,38 @@ function characterGainPassive(character, dataId, {level = 1}) {
   } else {
     final passiveData = character.passives[dataId]
     passiveData.level += level
-    let passiveLevel = passiveData.level
-    if (passiveData.maxLevel && passiveData.level > passiveData.maxLevel) {
-      passiveLevel = passiveData.maxLevel
+    if (passiveData.level == 0) {
+      delete character.passives[dataId]
+    } else {
+      let passiveLevel = passiveData.level
+      if (passiveData.maxLevel && passiveData.level > passiveData.maxLevel) {
+        passiveLevel = passiveData.maxLevel
+      }
+      passiveData.value = (passiveData.increment * passiveLevel).round()
     }
-    passiveData.value = (passiveData.increment * passiveLevel).round()
   }
 }
 
 /// 降低天赋技能等级
-function characterRefundPassive(character, dataId, {level = 1}) {
-  if (character.passives[dataId] == null) {
-    engine.warn('dataId [${dataId}] not found on character passives data for refund!')
-    return
-  }
-  final passiveData = character.passives[dataId]
-  passiveData.level -= level
-  if (passiveData.level <= 0) {
-    delete character.passives[dataId]
-  } else if (passiveData.value != null) {
-    let passiveLevel = passiveData.level
-    if (passiveData.maxLevel && passiveData.level > passiveData.maxLevel) {
-      passiveLevel = passiveData.maxLevel
-    }
-    passiveData.value = (passiveData.increment * passiveLevel).round()
-  }
-}
+// function characterRefundPassive(character, dataId, {level = 1}) {
+//   if (level == 0) {
+//     engine.warn('refund passive error: level is zero')
+//     return
+//   }
+//   if (character.passives[dataId] == null) {
+//     engine.warn('dataId [${dataId}] not found on character passives data for refund!')
+//     return
+//   }
+//   final passiveData = character.passives[dataId]
+//   passiveData.level -= level
+//   if (passiveData.value != null) {
+//     let passiveLevel = passiveData.level
+//     if (passiveData.maxLevel && passiveData.level > passiveData.maxLevel) {
+//       passiveLevel = passiveData.maxLevel
+//     }
+//     passiveData.value = (passiveData.increment * passiveLevel).round()
+//   }
+// }
 
 /// 检查角色是否拥有某个天赋技能，并将其数据返回
 function characterHasPassive(character, dataId) {

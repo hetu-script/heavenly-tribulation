@@ -198,13 +198,6 @@ class LocationScene extends Scene {
   }
 
   @override
-  void onDetach() {
-    super.onDetach();
-
-    context.read<HeroTileState>().updateScene(null);
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Stack(
       children: [

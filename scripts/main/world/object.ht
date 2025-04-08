@@ -5,8 +5,10 @@ const kEntityTypeObject = 'object'
 const kObjectCategoryPortal = 'portal'
 const kObjectCategoryWorldPortal = 'worldPortal'
 const kObjectCategoryCharacter = 'character'
+const kObjectCategoryMerchant = 'merchant'
 const kObjectCategoryEnemy = 'enemy'
 const kObjectCategoryTreasureBox = 'treasureBox'
+const kObjectCategorySpiritWell = 'spiritWell'
 const kObjectCategoryBed = 'bed'
 const kObjectCultivation = 'cultivation'
 const kObjectCategoryCardLibrary = 'cardLibrary'
@@ -90,6 +92,59 @@ struct ObjectWorldPortal {
   }
 }
 
+struct ObjectMerchant {
+  constructor ({
+    id,
+    name,
+    hoverContent,
+    useCustomLogic = false,
+    rank,
+    money = 100000,
+    shard = 100000,
+    category,
+    itemCount = 5,
+  }) {
+    this.id = id ?? crypto.randomUID(withTime: true)
+    this.name = name ?? engine.locale('merchant')
+    
+    this.hoverContent = hoverContent ?? this.name
+    this.entityType = kEntityTypeObject
+    this.category = kObjectCategoryMerchant
+    this.isDiscovered = true
+    this.useCustomLogic = useCustomLogic
+
+    this.merchant = BattleEntity(
+      id: this.id,
+      name: this.name,
+      rank: rank,
+    )
+
+    if (money > 0) {
+      entityCollect(this.merchant, 'money', amount: money)
+    }
+    if (shard > 0) {
+      entityCollect(this.merchant, 'shard', amount: shard)
+    }
+
+    if (category is List) {
+      for (var i in range(itemCount)) {
+        final c = category.random
+        assert(c in kItemCategoryKinds)
+        final k = kItemCategoryKinds[c].random
+        final item = Equipment(kind: k, rank: rank)
+        entityAcquire(this.merchant, item)
+      }
+    } else if (category is string) {
+      for (var i in range(itemCount)) {
+        final item = Equipment(category: category, rank: rank)
+        entityAcquire(this.merchant, item)
+      }
+    }
+
+    world.objects[this.id] = this
+  }
+}
+
 struct ObjectEnemy {
   constructor ({
     id,
@@ -121,7 +176,6 @@ struct ObjectEnemy {
     world.objects[this.id] = this
   }
 }
-
 
 struct ObjectBed {
   constructor ({
@@ -190,6 +244,28 @@ struct ObjectTreasureBox {
   }
 }
 
+struct ObjectSpiritWell {
+  constructor ({
+    id,
+    name,
+    hoverContent,
+    isDiscovered = true,
+    useCustomLogic = false,
+    rank,
+  }) {
+    this.id = id ?? crypto.randomUID(withTime: true)
+    this.name = name ?? engine.locale('oldWell')
+    this.hoverContent = hoverContent ?? this.name
+    this.entityType = kEntityTypeObject
+    this.category = kObjectCategorySpiritWell
+    this.isDiscovered = isDiscovered
+    this.useCustomLogic = useCustomLogic
+    this.rank = rank
+
+    world.objects[this.id] = this
+  }
+}
+
 struct ObjectCultivation {
   constructor ({
     id,
@@ -236,22 +312,3 @@ struct ObjectCardLibrary {
   }
 }
 
-// struct ObjectScrollTable {
-//   constructor ({
-//     id,
-//     name,
-//     hoverContent,
-//     isDiscovered = true,
-//     useCustomLogic = false,
-//   }) {
-//     this.id = id ?? crypto.randomUID(withTime: true)
-//     this.name = name ?? engine.locale('enterLibrary')
-//     this.hoverContent = hoverContent ?? this.name
-//     this.entityType = kEntityTypeObject
-//     this.category = kObjectCategoryScrollTable
-//     this.isDiscovered = isDiscovered
-//     this.useCustomLogic = useCustomLogic
-
-//     world.objects[this.id] = this
-//   }
-// }

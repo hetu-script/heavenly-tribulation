@@ -49,7 +49,7 @@ class _NpcListState extends State<NpcList> {
       return Padding(
         padding: const EdgeInsets.only(bottom: 5.0),
         child: Avatar(
-            cursor: SystemMouseCursors.click,
+            // cursor: SystemMouseCursors.click,
             color: GameUI.backgroundColor2,
             displayName: (haveMet != null) ? characterData['name'] : '???',
             size: const Size(80, 80),

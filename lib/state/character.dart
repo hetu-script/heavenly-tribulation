@@ -62,18 +62,18 @@ class EnemyState with ChangeNotifier {
 
 class MerchantState with ChangeNotifier {
   bool showMerchant = false;
-  dynamic merchantData;
+  dynamic data;
   dynamic priceFactor;
 
   void show(dynamic data, {dynamic priceFactor}) {
-    merchantData = data;
+    this.data = data;
     this.priceFactor = priceFactor;
     showMerchant = true;
     notifyListeners();
   }
 
   void close() {
-    merchantData = null;
+    data = null;
     priceFactor = null;
     showMerchant = false;
     notifyListeners();

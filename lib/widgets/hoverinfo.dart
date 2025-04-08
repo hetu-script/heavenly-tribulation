@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart';
 import 'package:samsara/richtext/richtext_builder.dart';
 import 'package:provider/provider.dart';
 import 'package:hetu_script/values.dart';
@@ -182,7 +181,7 @@ class _HoverInfoState extends State<HoverInfo> {
           focusNode: _focusNode,
           onKeyEvent: (event) {
             if (event is KeyDownEvent) {
-              if (kDebugMode) {
+              if (engine.config.debugMode) {
                 engine.debug('keydown: ${event.logicalKey.debugName}');
               }
               switch (event.logicalKey) {

@@ -303,19 +303,19 @@
     tags: ["status_resist"],
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
   },
-  chiResist: {
-    id: "chiResist",
-    description: "passive_chi_resistant_description",
-    priority: 1560,
+  elementalResist: {
+    id: "elementalResist",
+    description: "passive_elemental_resistant_description",
+    priority: 1555,
     increment: 0.5,
     isItemExtraAffix: true,
     tags: ["status_resist"],
     kind: ["armor", "gloves", "boots", "helmet", "shield"],
   },
-  elementalResist: {
-    id: "elementalResist",
-    description: "passive_elemental_resistant_description",
-    priority: 1555,
+  chiResist: {
+    id: "chiResist",
+    description: "passive_chi_resistant_description",
+    priority: 1560,
     increment: 0.5,
     isItemExtraAffix: true,
     tags: ["status_resist"],
@@ -830,4 +830,7 @@
     description: "passive_exhaust_life_for_insufficient_rage_description",
     priority: 3980,
   },
+
+  // 地牢玩法中的debuff
+  // TODO: 只能使用某个流派的卡牌
 }

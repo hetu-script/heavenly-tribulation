@@ -86,8 +86,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
                   children: [
                     Text(GameData.heroData['name']),
                     Container(
-                      width: 320.0,
-                      height: 350,
+                      width: 300.0,
+                      height: 312.0,
                       margin: const EdgeInsets.only(top: 10.0),
                       child: Inventory(
                         height: 350,
@@ -184,8 +184,8 @@ class _MerchantDialogState extends State<MerchantDialog> {
                   children: [
                     Text(widget.merchantData['name']),
                     Container(
-                      width: 320.0,
-                      height: 350,
+                      width: 300.0,
+                      height: 312.0,
                       margin: const EdgeInsets.only(top: 10.0),
                       child: Inventory(
                         height: 350,
@@ -215,6 +215,9 @@ class _MerchantDialogState extends State<MerchantDialog> {
 
                           int totalPrice = 0;
                           for (final itemData in items) {
+                            if (itemData['price'] == null) {
+                              continue;
+                            }
                             totalPrice += GameLogic.calculateItemPrice(
                               itemData,
                               priceFactor: widget.priceFactor,

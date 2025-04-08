@@ -2,7 +2,8 @@
 // import 'object.ht'
 // import '../entity/entity.ht'
 
-function resetDungeon(rank, {
+function resetDungeon({
+  rank,
   initialRoom = true,
   isTutorial = false,
 }) {
@@ -36,9 +37,9 @@ function addPortal(tilePosition, {
   }) {
   final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
   tile.overlaySprite = {
-    sprite: "object/dungeonStoneGate.png",
+    sprite: 'object/dungeonStoneGate.png',
     animation: {
-      path: "object/animation/portal.png",
+      path: 'object/animation/portal.png',
     },
   }
   final object = ObjectPortal(
@@ -56,7 +57,7 @@ function addTreasureBox(tilePosition, {objectId, items}) {
   final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
   tile.isNonEnterable = true
   tile.overlaySprite = {
-      sprite: "object/treasureBox.png",
+      sprite: 'object/treasureBox.png',
   }
   final object = ObjectTreasureBox(
     id: objectId,
@@ -64,6 +65,55 @@ function addTreasureBox(tilePosition, {objectId, items}) {
   )
   tile.objectId = object.id
   World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
+}
+
+function addSpiritWell(tilePosition, {rank, objectId}) {
+  rank.clamp(1, kCultivationRankMax)
+  final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
+  tile.isNonEnterable = true
+  tile.overlaySprite = {
+      sprite: 'object/oldWell.png',
+  }
+  final object = ObjectSpiritWell(
+    id: objectId,
+    rank: rank,
+  )
+  tile.objectId = object.id
+  World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
+}
+
+function addMerchant(tilePosition, {
+    objectId,
+    name,
+    sprite,
+    hoverContent,
+    useCustomLogic = false,
+    rank,
+    money = 100000,
+    shard = 100000,
+    category,
+    itemCount = 5,
+  }) {
+  final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
+  tile.isNonEnterable = true
+  tile.overlaySprite = {
+    sprite: sprite ?? 'object/characterMan31.png',
+  }
+  final object = ObjectMerchant(
+    id: objectId,
+    name: name,
+    hoverContent: hoverContent,
+    useCustomLogic: useCustomLogic,
+    rank: rank,
+    money: money,
+    shard: shard,
+    category: category,
+    itemCount: itemCount,
+  )
+  tile.objectId = object.id
+  World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
+
+  engine.info('添加商人：${objectId} (category: ${category})')
 }
 
 function addEnemy(tilePosition, {
@@ -78,7 +128,7 @@ function addEnemy(tilePosition, {
   final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
   tile.isNonEnterable = true
   tile.overlaySprite = {
-    sprite: sprite ?? "object/characterMan11.png",
+    sprite: sprite ?? 'object/characterMan11.png',
   }
   final object = ObjectEnemy(
     id: objectId,
@@ -96,12 +146,12 @@ function addEnemy(tilePosition, {
 
 function addRestBed(tilePosition, {
   objectId = 'bloodCoffin',
-  hoverContent = 'bloodCoffin_description',
+  hoverContent,
 }) {
   final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
   tile.isNonEnterable = true
   tile.overlaySprite = {
-    sprite: "object/coffin.png",
+    sprite: 'object/coffin.png',
   }
   final object = ObjectBed(
     id: objectId,
@@ -119,7 +169,7 @@ function addCultivationStatue(tilePosition, {
   final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
   tile.isNonEnterable = true
   tile.overlaySprite = {
-    sprite: "object/statue.png",
+    sprite: 'object/statue.png',
   }
   final object = ObjectCultivation(
     id: objectId,
@@ -131,7 +181,7 @@ function addCultivationStatue(tilePosition, {
 }
 
 function addCardLibraryStele(tilePosition, {
-  objectId = 'card_library_craft_card',
+  objectId = 'cardLibrary',
   hoverContent,
   enableCardCraft = false,
   enableScrollCraft = false,
@@ -139,7 +189,7 @@ function addCardLibraryStele(tilePosition, {
   final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
   tile.isNonEnterable = true
   tile.overlaySprite = {
-    sprite: "object/stoneStele.png",
+    sprite: 'object/stoneStele.png',
     offsetY: -32.0,
     srcWidth: 32.0,
     srcHeight: 96.0,
@@ -153,15 +203,3 @@ function addCardLibraryStele(tilePosition, {
   tile.objectId = object.id
   World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
 }
-
-// function addScrollCraftTable(tilePosition, {objectId = 'card_library_craft_scroll'}) {
-//   final tile = getTerrainByWorldPosition(tilePosition.left, tilePosition.top)
-//   tile.overlaySprite = {
-//     sprite: "object/meditationCushion.png",
-//   }
-//   final object = ObjectLibraryScroll(
-//     id: objectId,
-//   )
-//   tile.objectId = object.id
-//   World.updateTerrainData(tilePosition.left, tilePosition.top, updateOverlaySprite: true)
-// }

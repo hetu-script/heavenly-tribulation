@@ -8,7 +8,7 @@ import 'game_entity_listview.dart';
 import '../util.dart';
 import 'location/location.dart';
 import 'organization/organization.dart';
-import 'menu_item_builder.dart';
+import 'ui/menu_builder.dart';
 import 'character/profile.dart';
 import 'character/details.dart';
 import '../game/ui.dart';
@@ -152,7 +152,7 @@ class _WorldInformationPanelState extends State<WorldInformationPanel>
       // 据点数量
       rowData.add(org['locationIds'].length.toString());
       // 成员数量
-      rowData.add(org['characterIds'].length.toString());
+      rowData.add(org['members'].length.toString());
       // 发展度
       rowData.add(org['development'].toString());
       // 多存一个隐藏的 id 信息，用于点击事件

@@ -5,7 +5,7 @@ import '../../engine.dart';
 // import '../../util.dart';
 import '../game_entity_listview.dart';
 import '../character/profile.dart';
-import '../menu_item_builder.dart';
+import '../ui/menu_builder.dart';
 import '../character/details.dart';
 import '../character/memory.dart';
 import '../../game/ui.dart';

@@ -14,10 +14,10 @@ const kDamageTypes = [
 ]
 
 const kDebuffs = [
-  'weakened_unarmed',
-  'weakened_weapon',
-  'weakened_spell',
-  'weakened_curse',
+  'weaken_unarmed',
+  'weaken_weapon',
+  'weaken_spell',
+  'weaken_curse',
   'weakness_physical',
   'weakness_chi',
   'weakness_elemental',

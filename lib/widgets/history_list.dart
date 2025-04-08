@@ -137,7 +137,7 @@ class _HeroAndGlobalHistoryListState extends State<HeroAndGlobalHistoryList> {
         widget.onMouseExit?.call();
       },
       child: PointerDetector(
-        cursor: SystemMouseCursors.click,
+        // cursor: SystemMouseCursors.click,
         onTapUp: (_, __, ___) {
           widget.onTapUp?.call();
         },

@@ -64,44 +64,6 @@ const kCultivationRankMax = 8
 
 final kBattleCardKind = skillData.keys.toList()
 
-const kMaterialBasePriceByKind = {
-  'shard': 10000,
-  'herb': 5,
-  'timber': 10,
-  'stone': 25,
-  'ore': 50,
-}
-
-/// 物品的基础价格
-const kItemBasePriceByCategory = {
-  'cardpack':              300,
-  'common_scroll':         150,
-  'uncommon_scroll':       280,
-  'rare_scroll':           430,
-  'epic_scroll':           600,
-  'legendary_scroll':      790,
-  'unique_scroll':         1000,
-  'mythic_scroll':         1230,
-  'arcane_scroll':         1480,
-  'identify_scroll':       280,
-  'weapon':                5,
-  'shield':                5,
-  'armor':                 5,
-  'gloves':                5,
-  'helmet':                5,
-  'boots':                 10,
-  'ship':                  10,
-  'aircraft':              10,
-  'jewelry':               20,
-  'talisman':              50,
-}
-
-function calculatePrice(item) {
-  // assert(kItemBasePriceByCategory.containsKey(item.category), item.category)
-  item.price = (item.rank + 1) * (item.level + 1) *
-    (item.affixes?.length ?? 0 + 1) * (kItemBasePriceByCategory[item.category] ?? 5)
-}
-
 const kBasic = 'basic' // 未知
 const kCommon = 'common' // 凡品：生成数量没有限制
 const kUncommon = 'uncommon' // 良品：每9世界大小
@@ -320,8 +282,3 @@ const kLocationSiteKinds = [
 ]
 
 const kThresholdOfExtraAffix = 0.65
-
-const kResistPassives = [
-  'physicalResist',
-  'elementalResist',
-]

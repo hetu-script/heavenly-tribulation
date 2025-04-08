@@ -4,14 +4,14 @@ import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
 import 'package:samsara/ui/label.dart';
 import 'package:provider/provider.dart';
-import 'package:samsara/ui/bordered_icon_button.dart';
 
+import '../ui/bordered_icon_button.dart';
 import '../avatar.dart';
 import '../../engine.dart';
 import '../../game/ui.dart';
 import '../../game/data.dart';
 import 'battlecard.dart';
-import '../menu_item_builder.dart';
+import '../ui/menu_builder.dart';
 import '../character/inventory/equipment_bar.dart';
 import '../../scene/common.dart';
 import '../../game/logic.dart';
@@ -264,7 +264,7 @@ class _PreBattleDialogState extends State<PreBattleDialog> {
                           onMouseEnter: (rect) {
                             context
                                 .read<HoverContentState>()
-                                .show(engine.locale('card_library'), rect);
+                                .show(engine.locale('cardLibrary'), rect);
                           },
                           onMouseExit: () {
                             context.read<HoverContentState>().hide();

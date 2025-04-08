@@ -11,7 +11,7 @@ import '../../../widgets/game_entity_listview.dart';
 import '../../../widgets/character/memory.dart';
 import '../../../widgets/location/location.dart';
 import '../../../widgets/organization/organization.dart';
-import '../../../widgets/menu_item_builder.dart';
+import '../../../widgets/ui/menu_builder.dart';
 import '../../../widgets/character/details.dart';
 import '../../../widgets/character/profile.dart';
 import '../../../widgets/dialog/input_world_position.dart';

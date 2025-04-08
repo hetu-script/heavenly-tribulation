@@ -317,7 +317,7 @@ abstract class GameLogic {
       // 属性点类的node，记录的是选择的具体属性的名字
       unlockedNodes[nodeId] = selectedAttributeId;
       engine.hetu.invoke(
-        'characterGainPassive',
+        'characterSetPassive',
         positionalArgs: [characterData, selectedAttributeId],
         namedArgs: {'level': kAttributeAnyLevel},
       );
@@ -326,7 +326,7 @@ abstract class GameLogic {
       final List nodePassiveData = passiveTreeNodeData['passives'];
       for (final data in nodePassiveData) {
         engine.hetu.invoke(
-          'characterGainPassive',
+          'characterSetPassive',
           positionalArgs: [characterData, data['id']],
           namedArgs: {
             'level': data['level'] ?? 1,
@@ -336,6 +336,37 @@ abstract class GameLogic {
     }
 
     return true;
+  }
+
+  static void characterRefundPassiveTreeNode(
+    dynamic characterData,
+    String nodeId,
+  ) {
+    final passiveTreeNodeData = GameData.passiveTree[nodeId];
+    final unlockedNodes = characterData['unlockedPassiveTreeNodes'];
+    bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
+
+    if (isAttribute) {
+      final attributeId = unlockedNodes[nodeId];
+      assert(kBattleAttributes.contains(attributeId));
+      // engine.hetu.invoke('refundPassive',
+      //     namespace: 'Player', positionalArgs: ['lifeMax']);
+      engine.hetu.invoke(
+        'characterSetPassive',
+        positionalArgs: [characterData, attributeId],
+        namedArgs: {'level': -kAttributeAnyLevel},
+      );
+    } else {
+      final List nodePassiveData = passiveTreeNodeData['passives'];
+      for (final data in nodePassiveData) {
+        engine.hetu.invoke(
+          'characterSetPassive',
+          positionalArgs: [characterData, data['id']],
+          namedArgs: {'level': -(data['level'] ?? 1)},
+        );
+      }
+    }
+    unlockedNodes.remove(nodeId);
   }
 
   static void characterAllocateSkills(dynamic characterData) {
@@ -377,39 +408,6 @@ abstract class GameLogic {
 
   static dynamic characterHasPassive(dynamic characterData, String passiveId) {
     return characterData['passives']?[passiveId];
-  }
-
-  static void characterRefundPassiveTreeNode(
-    dynamic characterData,
-    String nodeId,
-  ) {
-    final passiveTreeNodeData = GameData.passiveTree[nodeId];
-    final unlockedNodes = characterData['unlockedPassiveTreeNodes'];
-    bool isAttribute = passiveTreeNodeData['isAttribute'] ?? false;
-
-    if (isAttribute) {
-      final attributeId = unlockedNodes[nodeId];
-      assert(kBattleAttributes.contains(attributeId));
-      // engine.hetu.invoke('refundPassive',
-      //     namespace: 'Player', positionalArgs: ['lifeMax']);
-      engine.hetu.invoke(
-        'refundPassive',
-        namespace: 'Player',
-        positionalArgs: [attributeId],
-        namedArgs: {'level': kAttributeAnyLevel},
-      );
-    } else {
-      final List nodePassiveData = passiveTreeNodeData['passives'];
-      for (final data in nodePassiveData) {
-        engine.hetu.invoke(
-          'refundPassive',
-          namespace: 'Player',
-          positionalArgs: [data['id']],
-          namedArgs: {'level': data['level'] ?? 1},
-        );
-      }
-    }
-    unlockedNodes.remove(nodeId);
   }
 
   // 返回值依次是：卡组下限，消耗牌上限，持续牌上限

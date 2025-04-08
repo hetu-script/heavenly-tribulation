@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:samsara/samsara.dart';
 import 'package:samsara/components/progress_indicator.dart';
 import 'package:samsara/components/hovertip.dart';
@@ -14,7 +13,6 @@ import 'battledeck_zone.dart';
 import '../../game/ui.dart';
 import 'status_effect.dart';
 import 'common.dart';
-import 'battle.dart';
 
 const kDamagePercentageMin = -0.75;
 
@@ -378,10 +376,8 @@ class BattleCharacter extends GameComponent with AnimationStateController {
 
   void addStatusEffect(String id, {int? amount, bool handleCallback = true}) {
     if (amount == null) {
-      if (kDebugMode) {
-        engine.warn(
-            'Status effect [$id] added without a specific amount, set to 1');
-      }
+      engine.warn(
+          'Status effect [$id] added without a specific amount, set to 1');
       amount = 1;
     }
     assert(amount > 0);
@@ -767,32 +763,26 @@ class BattleCharacter extends GameComponent with AnimationStateController {
     }
 
     // 展示当前卡牌及其详情
-    if (card.data['isIdentified'] != true) {
-      card.data['isIdentified'] = true;
-      final (description, _) = GameData.getDescriptionFromCardData(
-        card.data,
-        isLibrary: false,
-        isDetailed: false,
-        showDetailedHint: false,
-        showDebugId: false,
-      );
-      card.description = description;
-    }
-
     card.enablePreview = false;
     await card.setFocused(true);
-    final isDetailed = (game as BattleScene).isDetailedHovertip;
-    final (_, description) = GameData.getDescriptionFromCardData(
+    // final isDetailed = (game as BattleScene).isDetailedHovertip;
+    final (description, exDescription) = GameData.getDescriptionFromCardData(
       card.data,
-      isDetailed: isDetailed,
+      isLibrary: false,
+      isDetailed: false,
       showDetailedHint: false,
+      showDebugId: false,
     );
+    if (card.data['isIdentified'] != true) {
+      card.data['isIdentified'] = true;
+      card.description = description;
+    }
     Hovertip.show(
       scene: game,
       target: card,
       direction: HovertipDirection.topCenter,
       // direction: isHero ? HovertipDirection.rightTop : HovertipDirection.leftTop,
-      content: description,
+      content: exDescription,
       config: ScreenTextConfig(
         anchor: Anchor.topCenter,
         textAlign: TextAlign.center,

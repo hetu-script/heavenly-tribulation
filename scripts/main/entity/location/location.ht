@@ -223,10 +223,6 @@ struct Location {
     //   organizationIds: [],
     //   // nationIds: [],
     // }
-    
-    // 该对象知道的事情
-    // 保存的是incident的index
-    this.known = []
 
     // isMain == true 时自动添加到当前世界
     // this.isMain = isMain

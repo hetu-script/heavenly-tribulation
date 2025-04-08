@@ -342,8 +342,8 @@ namespace Player {
   }
   
   /// 用于从一个宝箱中根据物品信息创造物品并获取
-  function lootBox(box) {
-    final items = loot(box)
+  function loot(box) {
+    final items = getItemsFromLootbox(box)
     for (final item in items) {
       acquire(item)
     }
@@ -511,12 +511,12 @@ namespace Player {
 
   function gainPassive(dataId, {level = 1}) {
     assert(hero != null)
-    characterGainPassive(hero, dataId, level: level)
+    characterSetPassive(hero, dataId, level: level)
   }
 
   function refundPassive(dataId, {level = 1}) {
     assert(hero != null)
-    characterRefundPassive(hero, dataId, level: level)
+    characterSetPassive(hero, dataId, level: -level)
   }
 
   function hasPassive(dataId) {

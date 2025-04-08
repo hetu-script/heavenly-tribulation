@@ -61,10 +61,10 @@ const kSelfStatusOnCircumstance = {
 };
 
 const kOpponentStatusOnCircumstance = {
-  'weakened_unarmed',
-  'weakened_weapon',
-  'weakened_spell',
-  'weakened_curse',
+  'weaken_unarmed',
+  'weaken_weapon',
+  'weaken_spell',
+  'weaken_curse',
   'weakness_physical',
   'weakness_chi',
   'weakness_elemental',
@@ -155,7 +155,7 @@ class BattleScene extends Scene {
             amount: value, handleCallback: false);
       } else if (value < 0) {
         character.addStatusEffect(negativeEffectId,
-            amount: value, handleCallback: false);
+            amount: -value, handleCallback: false);
       }
     }
 

@@ -59,9 +59,6 @@ struct TileMapTerrain {
       hunted: [],
       fished: [],
     }
-    // 该对象知道的事情
-    // 保存的是incident的index
-    this.known = []
   }
 }
 

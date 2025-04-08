@@ -1,4 +1,13 @@
 {
+  // 特殊属性：
+  // isIdentified: true, // 是否已鉴定
+  // isUntradable: true, // 是否不可交易
+  // isUsable: true, // 是否可使用
+  // isEquipable: true, // 是否可装备
+  // isCursed: true, // 是否被诅咒，诅咒的物品装备后不能卸下
+  // isCorrupted: true, // 是否被腐化，腐化的物品不能通过打造来修改属性
+  // isAfflicted: true, // 是否被污染，污染的物品主词条是负面属性
+
   scroll_paper_rank_1: {
     prototypeId: "scroll_paper_rank_1",
     name: "scroll_paper_rank_1",
@@ -7,7 +16,6 @@
     rarity: "common",
     icon: "item/scroll_paper_rank_1.png",
     isIdentified: true,
-    price: 150,
   },
   scroll_paper_rank_2: {
     prototypeId: "scroll_paper_rank_2",
@@ -17,7 +25,6 @@
     rarity: "uncommon",
     icon: "item/scroll_paper_rank_2.png",
     isIdentified: true,
-    price: 280,
   },
   scroll_paper_rank_3: {
     prototypeId: "scroll_paper_rank_3",
@@ -27,7 +34,6 @@
     rarity: "rare",
     icon: "item/scroll_paper_rank_3.png",
     isIdentified: true,
-    price: 430,
   },
   scroll_paper_rank_4: {
     prototypeId: "scroll_paper_rank_4",
@@ -37,7 +43,6 @@
     rarity: "epic",
     icon: "item/scroll_paper_rank_4.png",
     isIdentified: true,
-    price: 600,
   },
   scroll_paper_rank_5: {
     prototypeId: "scroll_paper_rank_5",
@@ -47,7 +52,6 @@
     rarity: "legendary",
     icon: "item/scroll_paper_rank_5.png",
     isIdentified: true,
-    price: 790,
   },
   scroll_paper_rank_6: {
     prototypeId: "scroll_paper_rank_6",
@@ -57,7 +61,6 @@
     rarity: "unique",
     icon: "item/scroll_paper_rank_6.png",
     isIdentified: true,
-    price: 1000,
   },
   scroll_paper_rank_7: {
     prototypeId: "scroll_paper_rank_7",
@@ -67,7 +70,6 @@
     rarity: "mythic",
     icon: "item/scroll_paper_rank_7.png",
     isIdentified: true,
-    price: 1230,
   },
   scroll_paper_rank_8: {
     prototypeId: "scroll_paper_rank_8",
@@ -77,7 +79,6 @@
     rarity: "arcane",
     icon: "item/scroll_paper_rank_8.png",
     isIdentified: true,
-    price: 1480,
   },
   identify_scroll: {
     prototypeId: "identify_scroll",

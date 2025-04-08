@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/ui/responsive_view.dart';
 import 'package:samsara/ui/close_button2.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
 import '../../engine.dart';
 import 'stats.dart';
 import 'inventory/equipment_bar.dart';
 import 'inventory/inventory.dart';
-import '../menu_item_builder.dart';
+import '../ui/menu_builder.dart';
 import '../dialog/confirm.dart';
 import '../../state/character.dart';
 import '../../scene/game_dialog/game_dialog_content.dart';
@@ -36,7 +37,8 @@ enum ItemPopUpMenuItems {
   discard,
 }
 
-List<PopupMenuEntry<ItemPopUpMenuItems>> buildItemPopUpMenuItems({
+fluent.MenuFlyout buildItemPopUpMenuItems(
+  BuildContext context, {
   bool enableUnequip = false,
   bool enableEquip = false,
   bool enableUse = false,
@@ -44,53 +46,55 @@ List<PopupMenuEntry<ItemPopUpMenuItems>> buildItemPopUpMenuItems({
   bool enableDiscard = true,
   void Function(ItemPopUpMenuItems item)? onSelectedItem,
 }) {
-  return <PopupMenuEntry<ItemPopUpMenuItems>>[
-    if (enableUnequip) ...[
-      buildMenuItem(
-        item: ItemPopUpMenuItems.unequip,
-        name: engine.locale('unequip'),
-        onSelectedItem: onSelectedItem,
-        width: 80.0,
-      ),
-      buildMenuItem(
-        item: ItemPopUpMenuItems.charge,
-        name: engine.locale('charge'),
-        onSelectedItem: onSelectedItem,
-        width: 80.0,
-        enabled: enableCharge,
-      ),
-    ] else ...[
-      buildMenuItem(
-        item: ItemPopUpMenuItems.equip,
-        name: engine.locale('equip'),
-        onSelectedItem: onSelectedItem,
-        width: 80.0,
-        enabled: enableEquip,
-      ),
-      buildMenuItem(
-        item: ItemPopUpMenuItems.use,
-        name: engine.locale('use'),
-        onSelectedItem: onSelectedItem,
-        width: 80.0,
-        enabled: enableUse,
-      ),
-      buildMenuItem(
-        item: ItemPopUpMenuItems.charge,
-        name: engine.locale('charge'),
-        onSelectedItem: onSelectedItem,
-        width: 80.0,
-        enabled: enableCharge,
-      ),
-      const PopupMenuDivider(),
-      buildMenuItem(
-        item: ItemPopUpMenuItems.discard,
-        name: engine.locale('discard'),
-        onSelectedItem: onSelectedItem,
-        width: 80.0,
-        enabled: enableDiscard,
-      ),
+  return fluent.MenuFlyout(
+    items: [
+      if (enableUnequip) ...[
+        buildFluentMenuItem(
+          context: context,
+          item: ItemPopUpMenuItems.unequip,
+          name: engine.locale('unequip'),
+          onSelectedItem: onSelectedItem,
+        ),
+        buildFluentMenuItem(
+          context: context,
+          item: ItemPopUpMenuItems.charge,
+          name: engine.locale('charge'),
+          onSelectedItem: onSelectedItem,
+          enabled: enableCharge,
+        ),
+      ] else ...[
+        buildFluentMenuItem(
+          context: context,
+          item: ItemPopUpMenuItems.equip,
+          name: engine.locale('equip'),
+          onSelectedItem: onSelectedItem,
+          enabled: enableEquip,
+        ),
+        buildFluentMenuItem(
+          context: context,
+          item: ItemPopUpMenuItems.use,
+          name: engine.locale('use'),
+          onSelectedItem: onSelectedItem,
+          enabled: enableUse,
+        ),
+        buildFluentMenuItem(
+          context: context,
+          item: ItemPopUpMenuItems.charge,
+          name: engine.locale('charge'),
+          onSelectedItem: onSelectedItem,
+          enabled: enableCharge,
+        ),
+        const fluent.MenuFlyoutSeparator(),
+        buildFluentMenuItem(
+          context: context,
+          item: ItemPopUpMenuItems.discard,
+          name: engine.locale('discard'),
+          onSelectedItem: onSelectedItem,
+          enabled: enableDiscard,
+        ),
+      ],
     ],
-  ];
+  );
 }
 
 class CharacterDetails extends StatefulWidget {
@@ -122,94 +126,94 @@ class _CharacterDetailsState extends State<CharacterDetails> {
   }
 
   void onItemSecondaryTapped(dynamic itemData, Offset screenPosition) {
-    final menuPosition = RelativeRect.fromLTRB(
-        screenPosition.dx, screenPosition.dy, screenPosition.dx, 0.0);
-    final items = buildItemPopUpMenuItems(
-      enableUnequip: itemData['equippedPosition'] != null,
-      enableEquip: itemData['isEquippable'] == true,
-      enableUse: itemData['isUsable'] == true,
-      enableCharge: itemData['chargeData'] != null,
-      enableDiscard: itemData['isUndroppable'] != true,
-      onSelectedItem: (item) async {
-        final isIdentified = itemData['isIdentified'] == true;
-        switch (item) {
-          case ItemPopUpMenuItems.unequip:
-            if (itemData['isCursed'] == true) {
-              GameDialogContent.show(
-                  context, engine.locale('hint_cursedEquipment'));
-            } else {
-              engine.play('put_item-83043.mp3');
-              engine.hetu.invoke('unequip',
-                  namespace: 'Player', positionalArgs: [itemData]);
-              engine.emit(GameEvents.heroPassivesUpdated);
-              setState(() {
-                context.read<HeroState>().update();
-              });
-            }
-          case ItemPopUpMenuItems.equip:
-            if (!isIdentified) {
-              GameDialogContent.show(
-                  context, engine.locale('hint_unidentifiedItem'));
-              return;
-            }
-            final category = itemData['category'];
-            if (kRestrictedEquipmentTypes.contains(category)) {
-              int equippedCount = engine.hetu.invoke('hasEquipped',
-                  namespace: 'Player', positionalArgs: [category]);
-
-              if (equippedCount > 0) {
-                final hasUnrestrictedPassive = engine.hetu.invoke('hasPassive',
-                    namespace: 'Player',
-                    positionalArgs: ['${category}UnrestrictedEquip']);
-                if (hasUnrestrictedPassive == null) {
+    showFluentMenu(
+      position: screenPosition,
+      builder: (context) {
+        return buildItemPopUpMenuItems(
+          context,
+          enableUnequip: itemData['equippedPosition'] != null,
+          enableEquip: itemData['isEquippable'] == true,
+          enableUse: itemData['isUsable'] == true,
+          enableCharge: itemData['chargeData'] != null,
+          enableDiscard: itemData['isUndroppable'] != true,
+          onSelectedItem: (item) async {
+            final isIdentified = itemData['isIdentified'] == true;
+            switch (item) {
+              case ItemPopUpMenuItems.unequip:
+                if (itemData['isCursed'] == true) {
                   GameDialogContent.show(
-                      context,
-                      engine.locale('hint_restrictedEquipment',
-                          interpolations: [engine.locale(category)]));
+                      context, engine.locale('hint_cursedEquipment'));
+                } else {
+                  engine.play('put_item-83043.mp3');
+                  engine.hetu.invoke('unequip',
+                      namespace: 'Player', positionalArgs: [itemData]);
+                  engine.emit(GameEvents.heroPassivesUpdated);
+                  setState(() {
+                    context.read<HeroState>().update();
+                  });
+                }
+              case ItemPopUpMenuItems.equip:
+                if (!isIdentified) {
+                  GameDialogContent.show(
+                      context, engine.locale('hint_unidentifiedItem'));
                   return;
                 }
-              }
+                final category = itemData['category'];
+                if (kRestrictedEquipmentTypes.contains(category)) {
+                  int equippedCount = engine.hetu.invoke('hasEquipped',
+                      namespace: 'Player', positionalArgs: [category]);
+
+                  if (equippedCount > 0) {
+                    final hasUnrestrictedPassive = engine.hetu.invoke(
+                        'hasPassive',
+                        namespace: 'Player',
+                        positionalArgs: ['${category}UnrestrictedEquip']);
+                    if (hasUnrestrictedPassive == null) {
+                      GameDialogContent.show(
+                          context,
+                          engine.locale('hint_restrictedEquipment',
+                              interpolations: [engine.locale(category)]));
+                      return;
+                    }
+                  }
+                }
+                engine.play('sword-sheathed-178549.mp3');
+                engine.hetu.invoke('equip',
+                    namespace: 'Player', positionalArgs: [itemData]);
+                engine.emit(GameEvents.heroPassivesUpdated);
+                setState(() {
+                  context.read<HeroState>().update();
+                });
+              case ItemPopUpMenuItems.use:
+                if (!isIdentified) {
+                  GameDialogContent.show(
+                      context, engine.locale('hint_unidentifiedItem'));
+                  return;
+                }
+                setState(() {
+                  GameLogic.onUseItem(itemData);
+                });
+              case ItemPopUpMenuItems.charge:
+                if (!isIdentified) {
+                  GameDialogContent.show(
+                      context, engine.locale('hint_unidentifiedItem'));
+                  return;
+                }
+                GameLogic.onChargeItem(itemData);
+              case ItemPopUpMenuItems.discard:
+                engine.play('break06-36414.mp3');
+                final value = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => ConfirmDialog(
+                      description: engine.locale('dangerOperationPrompt')),
+                );
+                if (value != true) return;
+                engine.hetu.invoke('destroy', positionalArgs: [itemData]);
+                setState(() {});
             }
-            engine.play('sword-sheathed-178549.mp3');
-            engine.hetu.invoke('equip',
-                namespace: 'Player', positionalArgs: [itemData]);
-            engine.emit(GameEvents.heroPassivesUpdated);
-            setState(() {
-              context.read<HeroState>().update();
-            });
-          case ItemPopUpMenuItems.use:
-            if (!isIdentified) {
-              GameDialogContent.show(
-                  context, engine.locale('hint_unidentifiedItem'));
-              return;
-            }
-            setState(() {
-              GameLogic.onUseItem(itemData);
-            });
-          case ItemPopUpMenuItems.charge:
-            if (!isIdentified) {
-              GameDialogContent.show(
-                  context, engine.locale('hint_unidentifiedItem'));
-              return;
-            }
-            GameLogic.onChargeItem(itemData);
-          case ItemPopUpMenuItems.discard:
-            engine.play('break06-36414.mp3');
-            final value = await showDialog<bool>(
-              context: context,
-              builder: (context) => ConfirmDialog(
-                  description: engine.locale('dangerOperationPrompt')),
-            );
-            if (value != true) return;
-            engine.hetu.invoke('destroy', positionalArgs: [itemData]);
-            setState(() {});
-        }
+          },
+        );
       },
-    );
-    showMenu(
-      context: context,
-      position: menuPosition,
-      items: items,
     );
   }
 

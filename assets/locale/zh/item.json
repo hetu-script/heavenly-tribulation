@@ -5,7 +5,8 @@
 
   "usableHint": "点击右键使用",
   "equippableHint": "点击右键装备",
-  "unequippableHint": "点击右键卸下",
+  "unequippableHint": "点击右键卸除",
+  "cursedItemHint": "被诅咒的物品：装备后无法卸除",
   "cardpackHint": "在功法图录中使用以获取功法",
   "currentCharges": "当前充能次数: {0}∕{1}",
   "shardsPerCharge": "每次充能消耗: {0} 灵石",
@@ -100,5 +101,8 @@
   "identify_scroll_flavortext": "一种可以在物品栏中使用的非战斗符箓。",
 
   "exppack": "一团灵光",
-  "exppack_flavortext": "使用后可以获得「灵光」。灵光可以用于提升修为等级。或者用来精炼功法卡牌。"
+  "exppack_flavortext": "使用后可以获得「灵光」。灵光可以用于提升修为等级。或者用来精炼功法卡牌。",
+
+  "status_spirit": "精魄",
+  "status_spirit_flavortext": "从洞天幽井中获得的随机状态效果。离开洞天后自动消失。"
 }

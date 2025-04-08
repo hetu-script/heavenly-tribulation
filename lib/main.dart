@@ -4,31 +4,32 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-// import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
-// import 'package:flame/flame.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:provider/provider.dart';
 import 'package:samsara/samsara.dart';
+import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 
-// import 'ui/view/location/location.dart';
 import 'app.dart';
-// import 'ui/editor/editor.dart';
-// import 'ui/view/character/character.dart';
-// import 'ui/view/information/information.dart';
 import 'engine.dart';
-// import 'ui/overlay/main_game.dart';
 import 'state/states.dart';
 import 'game/ui.dart';
 
-// class CustomWindowListener extends WindowListener {
-//   @override
-//   void onWindowResize() async {
-//     engine.info(
-//         '窗口大小修改为：${GameConfig.screenSize.width}x${GameConfig.screenSize.height}');
-//     GameConfig.screenSize = await windowManager.getSize();
-//   }
-// }
+class CustomWindowListener extends WindowListener {
+  @override
+  void onWindowResize() async {
+    final size = await windowManager.getSize();
+    // engine.info('窗口大小修改为：${size.width}x${size.height}');
+    GameUI.resizeTo(size.toVector2());
+  }
+
+  // @override
+  // void onWindowFocus() async {
+  //   // engine.info('窗口获得焦点');
+  //   engine.setCursor('default');
+  // }
+}
 
 class NoThumbScrollBehavior extends ScrollBehavior {
   @override
@@ -63,7 +64,7 @@ void main() {
 
     assert(Platform.isLinux || Platform.isWindows || Platform.isMacOS);
     await windowManager.ensureInitialized();
-    // windowManager.addListener(CustomWindowListener());
+    windowManager.addListener(CustomWindowListener());
     await windowManager.setMaximizable(false);
     await windowManager.setResizable(false);
     const windowSize = Size(1440.0, 900.0);
@@ -80,55 +81,77 @@ void main() {
       engine.debug('系统版本：${Platform.operatingSystemVersion}');
     });
 
+    await engine.registerCursors();
+    // engine.setCursor('default');
+
     runApp(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => engine),
-          ChangeNotifierProvider(create: (_) => GameSavesState()),
-          ChangeNotifierProvider(create: (_) => EditorToolState()),
-          ChangeNotifierProvider(create: (_) => HeroAndGlobalHistoryState()),
-          ChangeNotifierProvider(create: (_) => SelectedTileState()),
-          ChangeNotifierProvider(create: (_) => HeroTileState()),
-          ChangeNotifierProvider(create: (_) => GameDialogState()),
-          ChangeNotifierProvider(create: (_) => NpcListState()),
-          ChangeNotifierProvider(create: (_) => NewQuestState()),
-          ChangeNotifierProvider(create: (_) => NewItemsState()),
-          ChangeNotifierProvider(create: (_) => NewRankState()),
-          ChangeNotifierProvider(create: (_) => HeroInfoVisibilityState()),
-          ChangeNotifierProvider(create: (_) => HeroState()),
-          ChangeNotifierProvider(create: (_) => EnemyState()),
-          ChangeNotifierProvider(create: (_) => MerchantState()),
-          ChangeNotifierProvider(create: (_) => ViewPanelState()),
-          ChangeNotifierProvider(create: (_) => ViewPanelPositionState()),
-          ChangeNotifierProvider(create: (_) => HoverContentState()),
-          ChangeNotifierProvider(
-              create: (_) => HoverContentDeterminedRectState()),
-          ChangeNotifierProvider(create: (_) => GameTimestampState()),
-        ],
-        child: MaterialApp(
-          scrollBehavior: NoThumbScrollBehavior().copyWith(scrollbars: false),
-          debugShowCheckedModeBanner: false,
-          theme: GameUI.darkTheme,
-          home: GameApp(key: mainKey),
-          // 控件绘制时发生错误，用一个显示错误信息的控件替代
-          builder: (context, widget) {
-            ErrorWidget.builder = (FlutterErrorDetails details) {
-              String stack = '';
-              if (details.stack != null) {
-                stack = trimStackTrace(details.stack!);
-              }
-              final Object exception = details.exception;
-              Widget error = ErrorWidget.withDetails(
-                  message: '$exception\n$stack',
-                  error: exception is FlutterError ? exception : null);
-              if (widget is Scaffold || widget is Navigator) {
-                error = Scaffold(body: Center(child: error));
-              }
-              return error;
-            };
-            if (widget != null) return widget;
-            throw ('error trying to create error widget!');
-          },
+      MouseRegion(
+        //   opaque: false,
+        cursor: FlutterCustomMemoryImageCursor(key: 'default'),
+        child: MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => engine),
+            // ChangeNotifierProvider(create: (_) => CursorState()),
+            ChangeNotifierProvider(create: (_) => GameSavesState()),
+            ChangeNotifierProvider(create: (_) => EditorToolState()),
+            ChangeNotifierProvider(create: (_) => HeroAndGlobalHistoryState()),
+            ChangeNotifierProvider(create: (_) => SelectedTileState()),
+            ChangeNotifierProvider(create: (_) => HeroTileState()),
+            ChangeNotifierProvider(create: (_) => GameDialogState()),
+            ChangeNotifierProvider(create: (_) => NpcListState()),
+            ChangeNotifierProvider(create: (_) => NewQuestState()),
+            ChangeNotifierProvider(create: (_) => NewItemsState()),
+            ChangeNotifierProvider(create: (_) => NewRankState()),
+            ChangeNotifierProvider(create: (_) => HeroInfoVisibilityState()),
+            ChangeNotifierProvider(create: (_) => HeroState()),
+            ChangeNotifierProvider(create: (_) => EnemyState()),
+            ChangeNotifierProvider(create: (_) => MerchantState()),
+            ChangeNotifierProvider(create: (_) => ViewPanelState()),
+            ChangeNotifierProvider(create: (_) => ViewPanelPositionState()),
+            ChangeNotifierProvider(create: (_) => HoverContentState()),
+            ChangeNotifierProvider(
+                create: (_) => HoverContentDeterminedRectState()),
+            ChangeNotifierProvider(create: (_) => GameTimestampState()),
+          ],
+          child: fluent.FluentTheme(
+            data: GameUI.fluentTheme,
+            child: MaterialApp(
+              scrollBehavior:
+                  NoThumbScrollBehavior().copyWith(scrollbars: false),
+              debugShowCheckedModeBanner: false,
+              theme: GameUI.darkMaterialTheme,
+              home:
+                  //  MouseRegion(
+                  //   opaque: false,
+                  //   cursor: FlutterCustomMemoryImageCursor(key: 'default'),
+                  //   child:
+                  GameApp(key: mainKey),
+              // ),
+              // onNavigationNotification: (notification) {
+              //   engine.setCursor('default');
+              //   return notification.canHandlePop;
+              // },
+              // 控件绘制时发生错误，用一个显示错误信息的控件替代
+              builder: (context, widget) {
+                ErrorWidget.builder = (FlutterErrorDetails details) {
+                  String stack = '';
+                  if (details.stack != null) {
+                    stack = trimStackTrace(details.stack!);
+                  }
+                  final Object exception = details.exception;
+                  Widget error = ErrorWidget.withDetails(
+                      message: '$exception\n$stack',
+                      error: exception is FlutterError ? exception : null);
+                  if (widget is Scaffold || widget is Navigator) {
+                    error = Scaffold(body: Center(child: error));
+                  }
+                  return error;
+                };
+                if (widget != null) return widget;
+                throw ('error trying to create error widget!');
+              },
+            ),
+          ),
         ),
       ),
     );

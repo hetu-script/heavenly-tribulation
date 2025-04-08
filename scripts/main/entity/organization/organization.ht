@@ -85,7 +85,7 @@ struct Organization {
     // 本门派统治的据点 id 列表
     this.locationIds = []
     // 本门派成员，key 是 角色的 id，value 是角色的 MemberRankData
-    this.characterIds = {}
+    this.members = {}
 
     // 组织规模，决定了组织所能允许的成员数量
     // 规模也决定了新成员加入组织之后的等级
@@ -128,7 +128,7 @@ struct Organization {
     const terrain = world.terrains[headquarters.terrainIndex]
     addTerrainToOrganization(terrain, this)
     headquarters.organizationId = this.id
-    stationOrganization(this, headquarters, characterIds: [headId])
+    stationOrganization(this, headquarters, members: [headId])
 
     // 和人物类似，也具有物品栏
     this.inventory = {}
@@ -140,10 +140,6 @@ struct Organization {
       organizationIds: [],
       // nationIds: [],
     }
-    
-    // 该对象知道的事情
-    // 保存的是incident的index
-    this.known = []
   }
 
   // /// 国家是一种特殊的组织，单独有一个生成函数，并且单独保存
@@ -213,9 +209,9 @@ struct Organization {
 // }
 
 // TODO: 添加incident
-function stationOrganization(organization, location, { characterIds, incurIncident: bool }) {
+function stationOrganization(organization, location, { members, incurIncident: bool }) {
   assert(location.organizationId == organization.id)
-  characterIds ??= organization.characterIds.keys.toList()
+  members ??= organization.members.keys.toList()
   
   organization.headquartersId = location.id
 
@@ -228,7 +224,7 @@ function stationOrganization(organization, location, { characterIds, incurIncide
 
   organization.headquartersSiteId = headquarters.id
 
-  for (const id in characterIds) {
+  for (const id in members) {
     const character = game.characters[id]
     setCharacterHomeLocation(character, location)
   }
@@ -257,15 +253,15 @@ function removeCharacterFromOrganization(character) {
   if (character.organizationId == null) return
 
   const organization = game.organizations[character.organizationId]
-  organization.characterIds.remove(character.id)
+  organization.members.remove(character.id)
   character.organizationId = null
 }
 
 function getOrganizationMemberIdsOfRank(organization, rank) {
   assert(rank >= 0 && rank <= organization.jobRankMax)
   const ids = []
-  for (const id in organization.characterIds.keys) {
-    const idRank = organization.characterIds[id]
+  for (const id in organization.members.keys) {
+    const idRank = organization.members[id]
     if (idRank == rank) {
       ids.add(id)
     }
@@ -275,7 +271,7 @@ function getOrganizationMemberIdsOfRank(organization, rank) {
 
 
 function organizationMemberReachMax(organization) {
-  return organization.characterIds.length >= maxMemberOfDevelopment(organization.development)
+  return organization.members.length >= maxMemberOfDevelopment(organization.development)
 }
 
 /// 角色加入组织
@@ -283,7 +279,7 @@ function organizationMemberReachMax(organization) {
 /// 师徒关系需要另外调用 createShitu api来创建
 /// 新加入的成员的等级，是当前的组织发展度 + 1
 function addCharacterToOrganization(character, organization, {incurIncident = true }) {
-  assert(!organization.characterIds.contains(character.id))
+  assert(!organization.members.contains(character.id))
   // 组织人数上限由发展度决定
   if (organizationMemberReachMax(organization)) {
     engine.warn('组织 ${organization.id} 的成员数量达到上限，在提升发展度之前无法再添加新成员。')
@@ -297,8 +293,8 @@ function addCharacterToOrganization(character, organization, {incurIncident = tr
     assert(character.organizationId != organization.id)
     removeCharacterFromOrganization(character)
   }
-  // 此时还没有职位，职位数据以 true 代替
-  organization.characterIds[character.id] = true
+  // 此时还没有职位，职位数据以空对象 {} 代替
+  organization.members[character.id] = {}
   // 角色可以加入多个门派，但当前所属门派只有一个，即最后一个加入的门派
   character.organizationId = organization.id
 

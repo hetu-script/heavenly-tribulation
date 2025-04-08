@@ -16,7 +16,7 @@ import 'tile/common.ht'
 import 'generation_algorithm.ht'
 
 const _kDefaultWorldScale = 1
-const _kWorldSizePerWorldScale = {
+const kWorldSizePerWorldScale = {
   '1': 12,
   '2': 18,
   '3': 27,
@@ -102,7 +102,10 @@ function createSandboxWorld({
   let width
   let height
 
-  width = height = _kWorldSizePerWorldScale[worldScale.toString()]
+  let size = kWorldSizePerWorldScale[worldScale.toString()]
+  width = size
+  height = size
+  assert(width != null && height != null, 'wrong worldScale: ${worldScale}')
 
   // 生成过程中，引入了一些别的文件中的函数
   // 他们可能会通过game.world访问, 因此这里直接使用全局变量
@@ -228,11 +231,14 @@ function createSandboxWorld({
         const r = random.nextDouble()
         if (r < _kMountainThreshold) {
           tile.spriteIndex = kSpriteMountain
+          tile.kind = 'mountain'
           mountains.add(tile.index)
         } else if (r < _kForestThreshold) {
           tile.spriteIndex = kSpriteForest
+          tile.kind = 'forest'
         } else {
           plains.add(tile)
+          tile.kind = 'plain'
         }
       }
     } else if (tile.spriteIndex == kSpriteWater) {
@@ -245,8 +251,11 @@ function createSandboxWorld({
         }
       }
       if (isSea) {
+        tile.kind = 'sea'
         seas.add(tile.index)
-      }      
+      } else {
+        tile.kind = 'shore'
+      }
       // else {
       //   tile.spriteIndex = kSpriteShelf
       // }

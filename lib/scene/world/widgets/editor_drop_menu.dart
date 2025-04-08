@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 // import 'package:samsara/ui/popup_submenu_item.dart';
 
 import '../../../engine.dart';
-import '../../../widgets/menu_item_builder.dart';
+import '../../../widgets/ui/menu_builder.dart';
 import '../../../game/ui.dart';
 
 enum WorldEditorDropMenuItems {

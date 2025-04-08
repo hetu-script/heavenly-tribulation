@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:samsara/ui/bordered_icon_button.dart';
 import 'package:samsara/ui/responsive_view.dart';
 
 import '../../game/ui.dart';
 import '../../engine.dart';
+import '../ui/bordered_icon_button.dart';
 
 class NewRank extends StatefulWidget {
   const NewRank({

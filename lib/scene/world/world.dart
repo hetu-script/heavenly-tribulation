@@ -27,7 +27,7 @@ import '../../widgets/ui_overlay.dart';
 // import '../../widgets/quest_panel.dart';
 import '../../widgets/dialog/input_string.dart';
 import '../../widgets/world_infomation.dart';
-import '../../widgets/menu_item_builder.dart';
+import '../../widgets/ui/menu_builder.dart';
 import '../mainmenu/create_blank_map.dart';
 import 'widgets/drop_menu.dart';
 import 'widgets/editor_drop_menu.dart';
@@ -349,6 +349,10 @@ class WorldMapScene extends Scene {
         camera.moveBy(-camera.localToGlobal(offset) / camera.zoom);
       }
     };
+    map.onDragEnd = (int buttons, Vector2 offset) {
+      engine.setCursor('default');
+      // context.read<CursorState>().set('default');
+    };
 
     world.add(map);
 
@@ -626,6 +630,7 @@ class WorldMapScene extends Scene {
   void onStart([Map<String, dynamic> arguments = const {}]) async {
     super.onStart(arguments);
 
+    context.read<HeroTileState>().updateScene(null);
     GameData.currentWorldId = worldData['id'];
 
     if (isMounted) {
@@ -674,6 +679,7 @@ class WorldMapScene extends Scene {
           switch (toolId) {
             case 'delete':
               _selectedTerrain!.clearAllSprite();
+              _selectedTerrain!.kind = kTerrainKindVoid;
             case 'nonInteractable':
               _selectedTerrain!.isNonEnterable =
                   !_selectedTerrain!.isNonEnterable;
@@ -804,6 +810,7 @@ class WorldMapScene extends Scene {
               _selectedTerrain!.kind = kTerrainKindRoad;
             case TerrainPopUpMenuItems.clearTerrainSprite:
               _selectedTerrain!.clearSprite();
+              _selectedTerrain!.kind = kTerrainKindVoid;
             case TerrainPopUpMenuItems.clearTerrainAnimation:
               _selectedTerrain!.clearAnimation();
             case TerrainPopUpMenuItems.clearTerrainOverlaySprite:
@@ -1092,6 +1099,17 @@ class WorldMapScene extends Scene {
 
     final tilePosition = map.worldPosition2Tile(position);
     map.trySelectTile(tilePosition.left, tilePosition.top);
+
+    if (buttons == kPrimaryButton) {
+      // final cursor = context.read<CursorState>().cursor;
+      if (engine.cursor == 'click') {
+        engine.setCursor('press');
+        // context.read<CursorState>().set('press');
+      }
+    } else if (buttons == kSecondaryButton) {
+      engine.setCursor('drag');
+      // context.read<CursorState>().set('drag');
+    }
   }
 
   void _onMapTapUpInGameMode(int buttons, Vector2 position) async {
@@ -1107,32 +1125,39 @@ class WorldMapScene extends Scene {
     if (isGameDialogOpened) return;
 
     final tilePosition = map.worldPosition2Tile(position);
-    if (_menuPosition != null) {
-      _menuPosition = null;
-    } else {
-      if (buttons == kPrimaryButton) {
-        if (tilePosition == map.selectedTerrain?.tilePosition) {
-          final terrain = map.selectedTerrain!;
-          if (terrain.tilePosition != map.hero!.tilePosition) {
-            _heroMoveTo(terrain);
-          } else {
-            if (terrain.locationId != null) {
-              final locationData = engine.hetu.invoke('getLocationById',
-                  positionalArgs: [terrain.locationId]);
-              _tryEnterLocation(locationData);
-            } else if (terrain.objectId != null) {
-              _tryInteractObject(terrain.objectId!, terrain.data);
-            }
+    // if (_menuPosition != null) {
+    //   _menuPosition = null;
+    // } else {
+    if (buttons == kPrimaryButton) {
+      // final cursor = context.read<CursorState>().cursor;
+      if (engine.cursor == 'press') {
+        engine.setCursor('click');
+        // context.read<CursorState>().set('click');
+      }
+      if (tilePosition == map.selectedTerrain?.tilePosition) {
+        final terrain = map.selectedTerrain!;
+        if (terrain.tilePosition != map.hero!.tilePosition) {
+          _heroMoveTo(terrain);
+        } else {
+          if (terrain.locationId != null) {
+            final locationData = engine.hetu.invoke('getLocationById',
+                positionalArgs: [terrain.locationId]);
+            _tryEnterLocation(locationData);
+          } else if (terrain.objectId != null) {
+            _tryInteractObject(terrain.objectId!, terrain.data);
           }
         }
-      } else if (buttons == kSecondaryButton) {
-        // if (_heroAtTerrain != null &&
-        //     tilePosition == _heroAtTerrain!.tilePosition) {
-        //   _menuPosition = map.tilePosition2TileCenterInScreen(
-        //       _heroAtTerrain!.left, _heroAtTerrain!.top);
-        // }
       }
+    } else if (buttons == kSecondaryButton) {
+      engine.setCursor('default');
+      // context.read<CursorState>().set('default');
+      // if (_heroAtTerrain != null &&
+      //     tilePosition == _heroAtTerrain!.tilePosition) {
+      //   _menuPosition = map.tilePosition2TileCenterInScreen(
+      //       _heroAtTerrain!.left, _heroAtTerrain!.top);
+      // }
     }
+    // }
   }
 
   Future<void> _onMapLoadedInGameMode() async {
@@ -1205,10 +1230,15 @@ class WorldMapScene extends Scene {
   }
 
   void _onMouseEnterTile(TileMapTerrain? tile) {
+    if (isEditorMode) return;
+
     if (tile != null && tile.isLighted && tile.objectId != null) {
+      engine.setCursor('click');
+      // context.read<CursorState>().set('click');
       final objectsData = engine.hetu.fetch('objects', namespace: 'world');
       final objectData = objectsData[tile.objectId!];
-      String? hoverContent = objectData['hoverContent'];
+      assert(objectData != null, 'objectId: ${tile.objectId} not found!');
+      String? hoverContent = objectData?['hoverContent'];
 
       final screenPosition =
           map.worldPosition2Screen(tile.renderRect.topLeft.toVector2());
@@ -1228,6 +1258,8 @@ class WorldMapScene extends Scene {
             );
       }
     } else {
+      engine.setCursor('default');
+      // context.read<CursorState>().set('default');
       context.read<HoverContentState>().hide();
     }
   }

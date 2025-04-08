@@ -8,7 +8,6 @@
 // import '../item/item.ht'
 // import '../../game/dialog.ht'
 // import '../../random.ht'
-import '../achievements.ht'
 
 export 'battle_entity.ht'
 
@@ -33,6 +32,8 @@ const kFame8Threshold = 95
 
 const kSameRaceScore = 5.0
 const kSameOrganizationScore = 5.0
+const kGenerationScore = 5.0
+const kPeerScore = 2.0
 const kSameHomeLocationScore = 5.0
 
 const _kPregnancyTime = kTicksPerMonth * 9
@@ -313,9 +314,18 @@ function _calculateCharacterFirstImpression(subject, target) {
   /// 是否属于同一门派
   if (subject.organizationId && subject.organizationId == target.organizationId) {
     score += kSameOrganizationScore
-    if (target.jobRank[subject.organizationId] > subject.jobRank[subject.organizationId]) {
-      score += target.jobRank[subject.organizationId] * 2
+    final organization = game.organizations[subject.organizationId]
+    assert(organization != null, 'organization not exist: ${subject.organizationId}')
+    final subjectJob = organization.members[subject.id]
+    final targetJob = organization.members[target.id]
+    if (targetJob.generation > subjectJob.generation) {
+      score += kGenerationScore
+    } else if (targetJob.peer > subjectJob.peer) {
+      score += kPeerScore
     }
+    // if (subjectJob > targetJob) {
+    //   score += organization.characterId[target.id] * 2
+    // }
   }
   /// 是否有亲戚关系
   let family = subject.relationships.family[target.id]
@@ -353,17 +363,17 @@ function _calculateCharacterFirstRomance(subject, target) {
 }
 
 /// 关系网中的个体的地位数据，家庭，师承和组织职位都使用这个数据
-/// [generationIndex] 辈分决定了地位，数字越大，地位越低
-/// [peerIndex] 同辈中的地位，数字越大，地位越低
+/// [generation] 辈分决定了地位，数字越大，地位越低
+/// [peer] 同辈中的地位，数字越大，地位越低
 struct MemberRankData {
   constructor ({
     characterId,
-    generationIndex,
-    peerIndex,
+    generation,
+    peer,
   }) {
     this.characterId = characterId
-    this.generationIndex = generationIndex
-    this.peerIndex = peerIndex
+    this.generation = generation
+    this.peer = peer
   }
 }
 
@@ -571,8 +581,8 @@ function createSpouse(householder, marrier, {locationId, incurIncident = true}) 
   // 家族辈分会更新为最后一任配偶的辈分数字
   game.families[householder.familyName][marrier.id] = MemberRankData(
     characterId: marrier.id,
-    generationIndex: familyMemberData.generationIndex,
-    peerIndex: 0,
+    generation: familyMemberData.generation,
+    peer: 0,
   )
   _addSpouseRelationship(householder, marrier)
   _addSpouseRelationship(marrier, householder)
@@ -658,9 +668,9 @@ function getFamilyMemberData(character) {
     familyMemberData = game.families[character.familyName][character.id] = MemberRankData(
       characterId: character.id,
       // 辈分决定了地位，数字越大，地位越低
-      generationIndex: 0,
+      generation: 0,
       // 同辈中的地位，数字越大，地位越低
-      peerIndex: 0,
+      peer: 0,
     )
   } else {
     familyMemberData = game.families[character.familyName][character.id]
@@ -679,9 +689,9 @@ function getSectMemberData(character) {
     sectMemberData = game.sects[character.sectName] = MemberRankData(
       characterId: character.id,
       // 辈分决定了地位，数字越大，地位越低
-      generationIndex: 0,
+      generation: 0,
       // 同辈中的地位，数字越大，地位越低
-      peerIndex: 0,
+      peer: 0,
     )
   } else {
     sectMemberData = game.sects[character.sectName]
@@ -761,12 +771,12 @@ function _addShituRelationship(shifu, tudi) {
   assert(shifu.sectName != null)
   assert(!game.sects[shifu.sectName].containsKey(tudi.id))
   let peerNumber = game.sects[shifu.sectName].values.where((member) =>
-    member.generationIndex == sectMemberData.generationIndex + 1)
+    member.generation == sectMemberData.generation + 1)
   // 辈分是师父的辈分数字 + 1
   game.sects[shifu.sectName][tudi.id] = MemberRankData(
     characterId: tudi.id,
-    generationIndex: sectMemberData.generationIndex + 1,
-    peerIndex: peerNumber,
+    generation: sectMemberData.generation + 1,
+    peer: peerNumber,
   )
 
   shifu.relationships.sect[tudi.id] = Relationship(
@@ -1209,12 +1219,12 @@ struct Character {
         assert(father.familyName != null)
         assert(!game.families[father.familyName].containsKey(this.id))
         let peerNumber = game.families[father.familyName].values.where((member) =>
-          member.generationIndex == familyMemberData.generationIndex + 1)
+          member.generation == familyMemberData.generation + 1)
         // 辈分是父母的辈分数字 + 1
         game.families[father.familyName][this.id] = MemberRankData(
           characterId: this.id,
-          generationIndex: familyMemberData.generationIndex + 1,
-          peerIndex: peerNumber,
+          generation: familyMemberData.generation + 1,
+          peer: peerNumber,
         )
         _addChildRelationship(father, this)
         // _addChildRelationship(mother, this)
@@ -1265,15 +1275,13 @@ struct Character {
 
     /// 寿命必须在已知境界之后计算
     this.deathTimestamp = this.birthTimestamp + createLifespan(this.rank)
-    
-    this.achievements = Achievements()
   }
 }
 
 // 必须已经是门派成员，才可以设定职责
 // function setCharacterJob(character, organization, {jobRank, titleId, incurIncident = true }) {
 //   assert(jobRank != null && titleId != null)
-//   assert(organization.characterIds.keys.contains(character.id))
+//   assert(organization.members.keys.contains(character.id))
 //   assert(character.organizationId == organization.id)
 //   assert(jobRank >= 0 && jobRank <= organization.jobRankMax)
 //   const membersOfRank = getOrganizationMemberIdsOfRank(organization, jobRank)

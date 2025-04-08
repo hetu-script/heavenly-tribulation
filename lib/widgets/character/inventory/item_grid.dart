@@ -6,6 +6,7 @@ import 'package:samsara/pointer_detector.dart';
 
 import '../../../game/ui.dart';
 // import '../../../game/data.dart';
+import '../../../engine.dart';
 
 const kDefaultItemGridSize = Size(48.0, 48.0);
 
@@ -55,10 +56,13 @@ class ItemGrid extends StatelessWidget {
           if (itemData == null) {
             return;
           }
+
+          engine.setCursor('click');
           final Rect rect = getRenderRect(context);
           onMouseEnter?.call(itemData, rect);
         },
         onExit: (event) {
+          engine.setCursor('default');
           onMouseExit?.call();
         },
         child: PointerDetector(

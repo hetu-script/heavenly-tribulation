@@ -46,6 +46,7 @@ dependencies:
   provider: ^6.1.2
   dropdown_button2: ^2.3.9
   flutter_custom_cursor: ^0.0.4
+  fluent_ui: ^4.11.2
 
 dev_dependencies:
   flutter_test:
@@ -66,8 +67,6 @@ flutter:
   assets:
     - assets/
 
-    - assets/mods/
-
     - assets/audio/
     - assets/audio/sound/
     - assets/audio/music/
@@ -87,6 +86,7 @@ flutter:
     - assets/images/cultivation/
     - assets/images/cultivation/skill/
     - assets/images/cultivation/skill/more/
+    - assets/images/cursor/
     - assets/images/icon/
     - assets/images/icon/skill/
     - assets/images/icon/status/
@@ -129,6 +129,9 @@ flutter:
 
     # - assets/locale/en/
     - assets/locale/zh/
+
+    - assets/mods/
+    - assets/save/
 
     - scripts/main/
     - scripts/main/cardgame/

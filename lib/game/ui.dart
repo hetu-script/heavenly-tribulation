@@ -1,6 +1,8 @@
 import 'package:samsara/samsara.dart';
 import 'package:flutter/material.dart';
 import 'package:samsara/components.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
+
 // import 'package:samsara/components/hovertip.dart';
 import '../common.dart';
 
@@ -56,19 +58,21 @@ abstract class GameUI {
   static const pileZoneIndent = 30.0;
   static const pileZoneMargin = 60.0;
 
-  static const foregroundColor = Colors.white;
+  static const foregroundColor = Colors.white70;
+  static const foregroundColorPressed = Colors.white54;
+  static final foregroundDiabled = Colors.grey[500];
 
-  /// 半透明黑色
   static final backgroundColor = Colors.black45;
+  static final backgroundColorOpaque = Colors.black;
 
   static final Paint backgroundPaint = Paint()
     ..style = PaintingStyle.fill
     ..color = backgroundColor3;
 
-  /// 偏蓝色的半透明背景
+  static final backgroundColor2Opaque = Color(0xFF02020F);
   static final backgroundColor2 = Color(0xDD02020F);
 
-  /// 偏红色的半透明背景
+  static final backgroundColor3Opaque = Color(0xFF270505);
   static final backgroundColor3 = Color(0xDD270505);
 
   /// 对话框遮罩背景颜色
@@ -111,7 +115,7 @@ abstract class GameUI {
     labelSmall: TextStyle(fontFamily: GameUI.fontFamily, fontSize: 8.0),
   );
 
-  static final darkTheme = ThemeData(
+  static final darkMaterialTheme = ThemeData(
     splashFactory: NoSplash.splashFactory,
     brightness: Brightness.dark,
     textTheme: textTheme,
@@ -186,6 +190,33 @@ abstract class GameUI {
     tabBarTheme: TabBarTheme(
       labelStyle: textTheme.bodyMedium,
       unselectedLabelStyle: textTheme.bodyMedium,
+    ),
+  );
+
+  static final fluentTheme = fluent.FluentThemeData(
+    brightness: Brightness.dark,
+    fontFamily: GameUI.fontFamily,
+    buttonTheme: fluent.ButtonThemeData(
+      filledButtonStyle: fluent.ButtonStyle(
+        backgroundColor: WidgetStateProperty<Color>.fromMap(
+          <WidgetStatesConstraint, Color>{
+            WidgetState.pressed | WidgetState.focused | WidgetState.selected:
+                backgroundColor2Opaque,
+            WidgetState.hovered: backgroundColor2,
+            WidgetState.disabled: Colors.transparent,
+            WidgetState.any: backgroundColor2Opaque,
+          },
+        ),
+        shape: WidgetStatePropertyAll<ShapeBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5),
+            side: const BorderSide(color: foregroundColor),
+          ),
+        ),
+        padding: WidgetStatePropertyAll<EdgeInsetsGeometry>(
+          EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
+        ),
+      ),
     ),
   );
 

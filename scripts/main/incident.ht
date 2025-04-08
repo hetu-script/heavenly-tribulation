@@ -19,7 +19,7 @@ struct Incident {
     orderly = 0,
     goodwill = 0,
   }) {
-    assert(subjectId != null)
+    // assert(subjectId != null)
     this.message = message
     this.isGlobal = isGlobal
     this.isPrivate = isPrivate
@@ -38,9 +38,11 @@ struct Incident {
     this.id = crypto.randomUUID()
     timeline[this.id] = this
     
-    const subject = game.characters[subjectId]
-    assert(subject != null)
-    entityExperienceIncident(subject, this)
+    if (subjectId != null) {
+      const subject = game.characters[subjectId]
+      assert(subject != null)
+      entityExperienceIncident(subject, this)
+    }
 
     if (targetId) {
       const targetChar = game.characters[targetId]
@@ -78,7 +80,7 @@ struct Incident {
     } else if (!isPrivate) {
       if (organization) {
         if (!isPrivate) {
-          for (const id in organization.characterIds.keys) {
+          for (const id in organization.members.keys) {
             if (id == subjectId || id == targetId) continue
             const character = game.characters[id]
             characterKnowIncident(character, this, witnessed: true)
@@ -133,14 +135,16 @@ function characterKnowIncident(character, incident, { witnessed }) {
   engine.debug('${character.name} 知道了事件 \'${incident.message}\'')
   character.known.add(incident.id)
 
-  let score = calculateCharacterScoreOfIncident(character, incident)
-  if (witnessed) {
-    // 亲身经历者会放大原本的评价
-    score = (score * 1.5).toInt()
+  if (incident.subjectId != null) {
+    let score = calculateCharacterScoreOfIncident(character, incident)
+    if (witnessed) {
+      // 亲身经历者会放大原本的评价
+      score = (score * 1.5).toInt()
+    }
+    const subject = game.characters[incident.subjectId]
+    updateBondScore(character, subject, score)
+    engine.debug('${character.name} 对 ${subject.name} 的好感度改变了 [${score}]')
   }
-  const subject = game.characters[incident.subjectId]
-  updateBondScore(character, subject, score)
-  engine.debug('${character.name} 对 ${subject.name} 的好感度改变了 [${score}]')
   
   // if (!character.bonds.containsKey(id)) {
   //   const object = game.characters[id]

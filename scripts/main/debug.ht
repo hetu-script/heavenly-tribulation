@@ -19,6 +19,7 @@ namespace Debug {
       rank: rank,
       skillPoints: level,
     )
+    // Game.characterAllocateSkills(hero)
 
     // hero.unconvertedExp = 2000
     // hero.materials.money = 5000
@@ -34,14 +35,16 @@ namespace Debug {
   function testItem([character]) {
     character ??= hero
 
-    for (final affixId in game.battleCards.keys) {
-      final card = BattleCard(
-        affixId: affixId,
-        rank: character.rank,
-      )
-      Player.acquireCard(card)
+    if (character == null) {
+      for (final affixId in game.battleCards.keys) {
+        final card = BattleCard(
+          affixId: affixId,
+          rank: character.rank,
+        )
+        Player.acquireCard(card)
+      }
     }
-
+    
     final items = []
     for (var kind in kEquipmentKinds) {
       final item = Equipment(kind: kind, rank: character.rank)
@@ -76,6 +79,12 @@ namespace Debug {
       final scroll = createItemByPrototype('identify_scroll')
       entityAcquire(character, scroll)
       items.add(scroll)
+    }
+
+    for (var i in range(3)) {
+      final spirit = StatusSpirit(rank: character.rank + 1)
+      entityAcquire(character, spirit)
+      items.add(spirit)
     }
 
     if (character == hero) {
@@ -142,28 +151,4 @@ namespace Debug {
     Dialog.execute()
   }
   
-  function testMerchant() {
-    // setRandomSeed(1003)
-    // resetGame()
-    // const hero = Character()
-    // acquireMoney(hero, 100)
-    // setHeroId(hero.id)
-    // const merchant = Character()
-    // acquireMoney(merchant, 500)
-    // acquire(merchant, Consumable.medicine(), count: 20)
-    // acquire(merchant, Consumable.beverage(), count: 20)
-    // dialog.merchant(merchant)
-  }
-
-  function skipStoryChapter0() {
-    game.mods.story.flags = {
-      checkPoint1: true,
-      checkPoint2: true,
-      checkPoint3: true,
-      checkPoint4: true,
-      checkPoint5: true,
-    }
-
-    Player.setTo(6, 2, direction: 'south')
-  }
 }

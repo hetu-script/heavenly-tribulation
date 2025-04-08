@@ -20,5 +20,5 @@ function generateMaterialName({category, rarity}) {
     'rare' : name = sp + kind
     'uncommon' : name = cp + kind
   }
-  return { name, category, rarity }
+  return name
 }

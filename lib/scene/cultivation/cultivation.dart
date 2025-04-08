@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:heavenly_tribulation/common.dart';
 import 'package:samsara/gestures.dart';
@@ -163,6 +162,8 @@ class CultivationScene extends Scene {
     } else {
       enableCultivate = false;
     }
+
+    if (enableCultivate) {}
   }
 
   void udpateLevelDescription() {
@@ -303,7 +304,7 @@ class CultivationScene extends Scene {
 
     if (passiveTreeNodeData == null) {
       // 还未开放的技能，在debug模式下显示为占位符
-      if (kDebugMode) {
+      if (engine.config.debugMode) {
         button = SpriteButton(
           anchor: Anchor.center,
           position: position,
@@ -452,7 +453,7 @@ class CultivationScene extends Scene {
 
         StringBuffer skillDescription = StringBuffer();
 
-        if (kDebugMode) {
+        if (engine.config.debugMode) {
           skillDescription.write('<grey>$nodeId</>\n \n');
         }
 
@@ -908,14 +909,15 @@ class CultivationScene extends Scene {
     udpateLevelDescription();
     updateExpDescription();
     setMeditateState(false);
-    setPassiveTreeState(true);
 
     if (enableCultivate) {
+      setPassiveTreeState(false);
       cultivateButton.isEnabled = true;
       cultivateButton.isVisible = true;
       expCollectionButton.isVisible = true;
       addExpLightPoints();
     } else {
+      setPassiveTreeState(true);
       cultivateButton.isEnabled = false;
       cultivateButton.isVisible = false;
       expCollectionButton.isVisible = false;

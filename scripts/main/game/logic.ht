@@ -119,24 +119,24 @@ const kRewardProbabilityShard = 0.1
 const kRewardProbabilityEquipment = 0.2
 const kRewardProbabilityCardpack = 0.2
 
-function generateReward(probability: {}, {entity}) {
+function generateReward({probability: {}, entity}) {
   final r = Random()
   let rewardExp
   if (entity == null || (hero.rank - entity.rank) > 2) {
     rewardExp = false
   } else {
-    rewardExp = r.nextDouble() < (probability.exp ?? kRewardProbabilityExppack)
+    rewardExp = r.nextDouble() < (probability?.exp ?? kRewardProbabilityExppack)
   }
   
-  final rewardMoney = r.nextDouble() < (probability.money ?? kRewardProbabilityMoney)
+  final rewardMoney = r.nextDouble() < (probability?.money ?? kRewardProbabilityMoney)
   let rewardShard
   if (entity?.rank <= 0) {
     rewardShard = false
   } else {
-    rewardShard = r.nextDouble() < (probability.shard ?? kRewardProbabilityShard)
+    rewardShard = r.nextDouble() < (probability?.shard ?? kRewardProbabilityShard)
   }
-  final rewardEquipment = r.nextDouble() < (probability.equipment ?? kRewardProbabilityEquipment)
-  final rewardCardpack = r.nextDouble() < (probability.cardpack ?? kRewardProbabilityCardpack)
+  final rewardEquipment = r.nextDouble() < (probability?.equipment ?? kRewardProbabilityEquipment)
+  final rewardCardpack = r.nextDouble() < (probability?.cardpack ?? kRewardProbabilityCardpack)
 
   final rewards = []
   final refQuantity = expForLevel(entity?.level ?? 0)
@@ -175,19 +175,19 @@ function generateReward(probability: {}, {entity}) {
 }
 
 
-function generateRewardList(probability: {}, {entity}) {
+function generateRewardList({probability: {}, entity}) {
   final r = Random()
   let rewardExp
   if (entity == null || (hero.rank - entity.rank) > 2) {
     rewardExp = false
   } else {
-    rewardExp = r.nextDouble() < (probability.exp ?? kRewardProbabilityExppack)
+    rewardExp = r.nextDouble() < (probability?.exp ?? kRewardProbabilityExppack)
   }
   
-  final rewardMoney = r.nextDouble() < (probability.money ?? kRewardProbabilityMoney)
-  final rewardShard = r.nextDouble() < (probability.shard ?? kRewardProbabilityShard)
-  final rewardEquipment = r.nextDouble() < (probability.equipment ?? kRewardProbabilityEquipment)
-  final rewardCardpack = r.nextDouble() < (probability.cardpack ?? kRewardProbabilityCardpack)
+  final rewardMoney = r.nextDouble() < (probability?.money ?? kRewardProbabilityMoney)
+  final rewardShard = r.nextDouble() < (probability?.shard ?? kRewardProbabilityShard)
+  final rewardEquipment = r.nextDouble() < (probability?.equipment ?? kRewardProbabilityEquipment)
+  final rewardCardpack = r.nextDouble() < (probability?.cardpack ?? kRewardProbabilityCardpack)
 
   final rewards = []
   final refQuantity = expForLevel(entity?.level ?? 0)
@@ -1197,7 +1197,15 @@ async function onInteractMapObject(object, terrain) {
       'cardLibrary': {
         onInteractCardLibraryStele(object)
       }
-      else: engine.error('不支持的地图交互物品类型: ${object.category}')      
+      'merchant': {
+        Game.showMerchant(object.merchant)
+      }
+      'spiritWell': {
+        onInteractSpiritWell(object)
+      }
+      default: {
+        engine.error('不支持的地图交互物品类型: ${object.category}')
+      }
     }
   }
 }
@@ -1228,7 +1236,7 @@ async function onInteractTreasureBox(object, terrain) {
   Object.assign(terrain.overlaySprite, {sprite: kSpriteTreasureBoxOpened})
   World.updateTerrainOverlaySprite(terrain.left, terrain.top)
   // await Future.delayed(0.5)
-  final items = loot(object)
+  final items = getItemsFromLootbox(object)
   for (final item in items) {
     Player.acquire(item)
   }
@@ -1274,6 +1282,40 @@ async function onInteractCardLibraryStele(object) {
     enableCardCraft: object.enableCardCraft,
     enableScrollCraft: object.enableScrollCraft,
   )
+}
+
+async function onInteractSpiritWell(object) {
+  if (object.isUsed) {
+    Dialog.pushLocales('hint_dungeon_spiritWell_description2')
+    await Dialog.execute()
+    return
+  }
+
+  let hasVacancy = false
+  for (final itemId in hero.equipments.keys) {
+    if (hero.equipments[itemId] == null) {
+      hasVacancy = true
+      break
+    }
+  }
+
+  if (!hasVacancy) {
+    Dialog.pushLocales('hint_dungeon_spiritWell_fullEquipments')
+    await Dialog.execute()
+    return
+  }
+
+  if (hasVacancy) {
+    object.isUsed = true
+    final spirit = StatusSpirit(rank: object.rank)
+    Player.acquire(spirit)
+    Player.equip(spirit)
+    engine.play('spell-of-healing-876.mp3')
+    Dialog.pushLocales('hint_dungeon_spiritWell_use')
+    await Dialog.execute()
+    Game.promptNewItems(spirit)
+  }
+
 }
 
 /// 异步函数，会在显示场景窗口之前执行
@@ -1422,7 +1464,7 @@ function _handleHeadquartersInteraction(site) {
       'visit' : {
         // 既然有总部，那就一定有可以拜访的成员
         let organization = getOrganizationById(site.organizationId)
-        const ids = organization.characterIds.toList()
+        const ids = organization.members.toList()
         ids.remove(game.heroId)
         final key = Dialog.selectResidence(ids)
         if (key != null) {

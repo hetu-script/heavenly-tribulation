@@ -5,15 +5,15 @@ async function onNewGame() {
 
   /// 萧墨进入紫河宗的一处洞天。
   engine.play('stone-push-37412.mp3')
-  Dialog.pushBackground('black.png', isFadeIn: true)
+  // Dialog.pushBackground('black.png', isFadeIn: true)
   Dialog.pushLocales('prelude_ling_line1', isHero: true)
   Dialog.pushTask(() {
+    Game.showHeroInfo()
     Player.setTo(6, 22, worldId: 'story_cave', direction: 'south')
   })
-  Dialog.popBackground(isFadeOut: true)
+  // Dialog.popBackground(isFadeOut: true)
   Dialog.pushLocales('help_movement')
   await Dialog.execute()
-  Game.showHeroInfo()
 }
 
 async function onEnterMap() {
@@ -102,7 +102,7 @@ async function onInteractMapObject(object, terrain) {
     'treasureBox1': {
       // 萧墨拿取了洞天中的宝物，并且第一次遇到凌初雪
       if (!hero.quests.mysticGirl) {
-        final items = loot(object)
+        final items = getItemsFromLootbox(object)
         await Game.promptNewItems(items)
         final chuxue = getCharacterById('ling_chuxue')
         Dialog.pushLocales('prelude_ling_line2')

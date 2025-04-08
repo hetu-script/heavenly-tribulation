@@ -141,7 +141,7 @@ class _GameDialogContentState extends State<GameDialogContent> {
                       children: [
                         Avatar(
                           margin: const EdgeInsets.only(left: 20.0),
-                          cursor: SystemMouseCursors.click,
+                          // cursor: SystemMouseCursors.click,
                           // displayName: displayName,
                           // nameAlignment: AvatarNameAlignment.top,
                           image: currentAvatar != null

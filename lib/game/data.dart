@@ -178,12 +178,11 @@ abstract class GameData {
             assert(passiveRawData != null, 'passiveData: $passiveData');
             description = engine.locale(passiveRawData['description']);
             if (passiveRawData['increment'] != null) {
-              final level = passiveData['level'];
-              assert(level is int, 'passiveData: $passiveData');
-              final increment = passiveRawData['increment'];
-              assert(increment is num, 'passiveRawData: $passiveRawData');
+              final int level = passiveData['level'];
+              final num increment = passiveRawData['increment'];
+              final int value = (level * increment).round();
               description =
-                  description.interpolate([(level * increment).round()]);
+                  description.interpolate(['${value < 0 ? '' : '+'}$value']);
             }
           } else {
             description = engine.locale(description);
@@ -503,9 +502,14 @@ abstract class GameData {
           description = engine
               .locale(skillData['description'], interpolations: [rankString]);
         } else {
+          description = engine.locale(skillData['description']);
           final value = skillData['value'];
-          description =
-              engine.locale(skillData['description'], interpolations: [value]);
+          bool isAfflicted = false;
+          if (value != null) {
+            isAfflicted = value < 0;
+            description =
+                description.interpolate(['${isAfflicted ? '' : '+'}$value']);
+          }
         }
         builder.writeln('<lightBlue>$description</>');
       }
@@ -527,6 +531,7 @@ abstract class GameData {
     final category = itemData['category'];
     final bool isIdentified = itemData['isIdentified'] == true;
     final bool isEquippable = itemData['isEquippable'] == true;
+    final bool isCursed = itemData['isCursed'] == true;
     final bool isUsable = itemData['isUsable'] == true;
     final bool isUntradable = itemData['isUntradable'] == true;
 
@@ -589,30 +594,33 @@ abstract class GameData {
         final passiveData = affixList[i];
         String descriptionString = engine.locale(passiveData['description']);
         num? value = passiveData['value'];
+        bool isAfflicted = false;
         if (value != null) {
-          descriptionString = descriptionString.interpolate([value]);
+          isAfflicted = value < 0;
+          descriptionString = descriptionString
+              .interpolate(['${isAfflicted ? '' : '+'}$value']);
         }
-        if (i == 0) {
-          extraDescription.writeln(descriptionString);
-          // if (affixList.length > 1) {
-          //   description.writeln(kSepareteLine);
-          // }
-        } else {
-          final passiveRawData = passives[passiveData['id']];
-          final List? tags = passiveRawData['tags'];
-          if (tags != null && tags.isNotEmpty) {
-            for (final tag in tags) {
-              explanations[tag] =
-                  '<grey>「${engine.locale(tag)}」- ${engine.locale('${tag}_description')}</>';
-            }
+        final passiveRawData = passives[passiveData['id']];
+        final List? tags = passiveRawData['tags'];
+        if (tags != null && tags.isNotEmpty) {
+          for (final tag in tags) {
+            explanations[tag] =
+                '<grey>「${engine.locale(tag)}」- ${engine.locale('${tag}_description')}</>';
           }
+        }
 
-          if (isDetailed) {
-            final level = passiveData['level'];
-            final levelString =
-                level != null ? ' (${engine.locale('level')}: $level)' : '';
-            extraDescription
-                .writeln('<lightBlue>$descriptionString $levelString</>');
+        if (i != 0 && isDetailed) {
+          final level = passiveData['level'];
+          final levelString =
+              level != null ? ' (${engine.locale('level')}: $level)' : '';
+          descriptionString = '$descriptionString $levelString';
+        }
+
+        if (isAfflicted) {
+          extraDescription.writeln('<red>$descriptionString</>');
+        } else {
+          if (i == 0) {
+            extraDescription.writeln(descriptionString);
           } else {
             extraDescription.writeln('<lightBlue>$descriptionString</>');
           }
@@ -651,12 +659,19 @@ abstract class GameData {
           } else if (isEquippable) {
             description
                 .writeln('<yellow>${engine.locale('equippableHint')}</>');
+            if (isCursed) {
+              description.writeln('<red>${engine.locale('cursedItemHint')}</>');
+            }
           } else if (isUsable) {
             description.writeln('<yellow>${engine.locale('usableHint')}</>');
           }
         } else {
-          description
-              .writeln('<yellow>${engine.locale('unequippableHint')}</>');
+          if (isCursed) {
+            description.writeln('<red>${engine.locale('cursedItemHint')}</>');
+          } else {
+            description
+                .writeln('<yellow>${engine.locale('unequippableHint')}</>');
+          }
         }
       }
     } else {

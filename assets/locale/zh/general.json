@@ -289,7 +289,7 @@
   "experienced": "经历",
   "known": "见闻",
   "quest": "日志",
-  "card_library": "功法图录",
+  "cardLibrary": "功法图录",
   "cultivate": "修炼",
 
   "decks": "卡组",
@@ -391,12 +391,18 @@
   "hint_fullHPRest": "你的生命值已满，无需再休息了。",
 
   "exitDungeon": "离开洞天",
-  "hint_exitDungeon_description": "确定要离开洞天吗？离开后将会重置探索进度。",
-  "enterNextDungeonLevel": "继续挑战",
-  "hint_enterNextLevel_description": "确定要进入下一层吗？所有敌人的强度都将提升。",
   "enterNextDungeonRank": "洞天升阶",
+  "enterNextDungeonLevel": "继续挑战",
+  "hint_dungeonStatusReset": "就在你打算踏入下一层洞天之时，你忽然发觉之获得的精魄之力已经不知什么时候离开了你。你身上一阵轻松。",
+  "hint_exitDungeon_description": "确定要离开洞天吗？离开后将会重置探索进度。",
+  "hint_enterNextLevel_description": "确定要进入下一层吗？所有敌人的强度都将提升。",
   "hint_enterNextDungeonRank_description": "确定要进入下一层吗？你已完成此境界的所有层数，继续挑战将会提升洞天的境界。所有敌人的境界都将提升。",
   "hint_dungeon_failed": "挑战失败",
+
+  "hint_dungeon_spiritWell_description": "这是一个长满了青苔的古井。井里面似乎有什么东西，此刻正在向外散发出星星点点的淡蓝色光芒。",
+  "hint_dungeon_spiritWell_fullEquipments": "你试图靠近古井，但你感受到一股巨大的排斥之力将你推了开来。你有种古怪的感觉，你现在身上没有多余的空间来接受它的馈赠。",
+  "hint_dungeon_spiritWell_use": "一丝上古精魄从不知从那里冒了出来，还没等你反应过来，便钻入了你的经脉之中。\n你获得了它带给你的能力，但在离开洞天之前，你都无法摆脱它的影响……无论这影响是好还是坏。",
+  "hint_dungeon_spiritWell_description2": "这是一个长满了青苔的古井。你之前感受到的精魄之力此刻已经无影无踪。这里看上去了无生气。",
 
   "hint_cultivate": "花费时间和灵石来修炼，从而获得灵光点。收集灵光可以转化为提升修为所需的经验。",
 
